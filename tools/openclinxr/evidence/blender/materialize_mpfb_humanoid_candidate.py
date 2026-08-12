@@ -152,6 +152,70 @@ def make_material(name, color):
     return material
 
 
+def _body_world_z_bounds(human):
+    """World Z min/max + stature of the RAW body mesh (the frame the neck align uses)."""
+    mw = human.matrix_world
+    zs = [(mw @ v.co).z for v in human.data.vertices]
+    zmin, zmax = min(zs), max(zs)
+    return zmin, zmax, zmax - zmin
+
+
+def _measure_shirt_stage(label, garment, human):
+    """issue-341 round 15: report the shirt's vertical extent at a fit stage in the
+    SAME body-relative fractions the shipped GLB bands are read in (glTF Y = Blender Z).
+    Cheap one-liners; the orchestrator's span table (round 15) is the consumer."""
+    zmin, _, stature = _body_world_z_bounds(human)
+    gz = [v.co.z for v in garment.data.vertices]
+    lo, hi = min(gz), max(gz)
+    print(
+        f"SHIRT_FIT_STAGE {label} zLo {lo:.4f} zHi {hi:.4f} span {hi - lo:.4f} "
+        f"fracBot {(lo - zmin) / stature:.4f} fracTop {(hi - zmin) / stature:.4f} "
+        f"stature {stature:.4f}"
+    )
+
+
+def _measure_shirt_mhclo_refs(mhclo, human):
+    """issue-341 round 15: the span of the INTERPOLATED BODY-REFERENCE positions the
+    fit writes (offsets zeroed) — i.e. what the shirt would span if the .mhclo offsets
+    contributed nothing. Recreates the fit's own from_mix shape key (the same key
+    ClothesService.fit_clothes_to_human reads) so the refs are read in the SAME
+    macro-deformed frame the fit saw; the key is removed afterwards."""
+    key_name = "measure_fit_refs_tmp"
+    human.shape_key_add(name=key_name, from_mix=True)
+    try:
+        sk = human.data.shape_keys.key_blocks[key_name]
+        hv = sk.data
+        zmin, _, stature = _body_world_z_bounds(human)
+        zs = []
+        for vert_index, info in (mhclo.verts or {}).items():
+            (h1, h2, h3) = info["verts"]
+            (w1, w2, w3) = info["weights"]
+            zs.append(w1 * hv[h1].co.z + w2 * hv[h2].co.z + w3 * hv[h3].co.z)
+        if not zs:
+            print("SHIRT_MHCLO_REFS no refs")
+            return
+        lo, hi = min(zs), max(zs)
+        y_scale = getattr(mhclo, "y_scale", None)
+        y_size = 0.0
+        if y_scale and len(y_scale) == 3:
+            y_size = abs(hv[int(y_scale[0])].co.z - hv[int(y_scale[1])].co.z) / float(y_scale[2])
+        # BASIS positions of the same refs (the mesh verts, no shape-key mix) — if the
+        # from_mix frame diverges from the basis, the fit is reading a deformed phantom.
+        bzs = [human.data.vertices[h].co.z for info in (mhclo.verts or {}).values() for h in info["verts"]]
+        keys = []
+        if human.data.shape_keys:
+            for kb in human.data.shape_keys.key_blocks:
+                keys.append(f"{kb.name}={kb.value:.3f}")
+        print(
+            f"SHIRT_MHCLO_REFS interpSpan {hi - lo:.4f} "
+            f"fracBot {(lo - zmin) / stature:.4f} fracTop {(hi - zmin) / stature:.4f} "
+            f"ySize {y_size:.4f} basisRefsZ [{min(bzs):.4f},{max(bzs):.4f}] "
+            f"keys {len(keys)} {','.join(keys[:8])}"
+        )
+    finally:
+        human.shape_key_remove(human.data.shape_keys.key_blocks[key_name])
+
+
 def parse_mhmat(path):
     """Parse a MakeHuman .mhmat key-value material file.
 
@@ -1801,6 +1865,28 @@ def main():
         f"HELPER_STRIP verts {verts_before_strip} -> {verts_after_strip}; "
         f"tris {tris_before_strip} -> {tris_after_strip}"
     )
+    # issue-341 round 15: the strip's `reapply_all_details` re-added the macro target
+    # shape keys ($md-*) ON TOP of the basis `bake_targets` already baked (the macro
+    # values live in the object's HumanObjectProperties, which bake_targets does not
+    # clear). The garment fits below read the body through a from_mix shape key, so
+    # they would fit a DOUBLE-DEFORMED phantom body: measured on the child, the same
+    # .mhclo refs sit at 0.356-0.543 H in that frame (its waist/hip) while the baked
+    # basis puts them at 0.556-0.843 H (its neck). The toigo t-shirt therefore fit a
+    # 0.234 m span (0.189 H — the round-15 "bib") and the #332 neck align only
+    # translated it up, preserving the short span. Deleting the macro keys restores
+    # the true baked body for the fits; the face/expression keys (loaded above at
+    # zero weight) stay, and the basis already carries the macros, so no information
+    # is lost. The child's child-band age targets are the strong torso deformers
+    # (0.25-0.37 m phantom shift); aisha's default young-adult targets shift the refs
+    # only ~2 cm, which is why her fit was already correct.
+    if human.data.shape_keys:
+        _macro_keys_removed = 0
+        for _kb in list(human.data.shape_keys.key_blocks):
+            if _kb.name.startswith("$md"):
+                human.shape_key_remove(_kb)
+                _macro_keys_removed += 1
+        if _macro_keys_removed:
+            print(f"MACRO_KEYS_REMOVED {_macro_keys_removed} (post-strip double-deformation guard)")
 
     armature = next((obj for obj in bpy.context.scene.objects if obj.type == "ARMATURE"), None)
     if armature is None:
@@ -1857,6 +1943,7 @@ def main():
     # renders those coords rotated (measured: garment on the floor with Y/Z swapped). apply_object_transforms
     # is the proven helper body_param_stage uses; this is a bake, not a hand-written matrix.
     apply_object_transforms(garment)
+    _measure_shirt_stage("rest", garment, human)
     garment.data.materials.clear()
     # Name matches the GARMENT_MATERIAL regex the evidence RED reads (makeclothes/shirt).
     garment.data.materials.append(
@@ -1871,6 +1958,8 @@ def main():
     garment_verts_before = len(garment.data.vertices)
     ClothesService.fit_clothes_to_human(garment, human, mhclo=mhclo, set_parent=True)
     bpy.context.view_layer.update()
+    _measure_shirt_mhclo_refs(mhclo, human)
+    _measure_shirt_stage("fitted", garment, human)
     garment_verts_after = len(garment.data.vertices)
     garment_tris = sum(max(len(p.vertices) - 2, 0) for p in garment.data.polygons)
     # Rename the shirt mesh data to the library convention (the OBJ importer keeps
@@ -1883,6 +1972,7 @@ def main():
     # lands it below the neck band (the child's shirt fits at its hip). Must run
     # BEFORE the weight projection so the k-NN binds the shirt at its final height.
     neck_align = align_upper_garment_to_neck(garment, human, armature)
+    _measure_shirt_stage("neckalign", garment, human)
     # Bind the garment to the same armature so it deforms with the body (the proven
     # weight projection body_param_stage runs for the hm08 rail; not a rigid shell).
     weights = transfer_weights_body_to_garment(human, garment, armature)
@@ -2048,10 +2138,21 @@ def main():
         garment_label="lower",
         height_axis=2,
     )
-    if lower_rep["verdict"] == "does_not_cover":
+    if lower_rep["verdict"] == "does_not_cover" or lower_rep["garmentBoundaryEdges"] > 0:
         # #295 — the leg shell must not wrap the hanging hands (measured 3,450
         # hand-dominant verts in the heavy-male lower fallback): exclude
         # arm/forearm/hand-dominant body faces from the shell band selection.
+        #
+        # issue-341 round 15: the `garmentBoundaryEdges` clause. On the TRUE body (the
+        # macro-keys guard below) the sparse 392-tri cargo fit hugs the legs and its
+        # outward raycast coverage rises to 0.95-0.97, so coverage_ok alone now passes
+        # the gate — but the fit is still the documented #220 open-shell trouser (32
+        # boundary edges, large facets, skin between them). The gate's own docstring
+        # says the sparse trouser fails BOTH closure and coverage; garmentBoundaryEdges
+        # is the gate's own reported field, so this is its stated intent, not a new
+        # threshold. A dense closed trouser reports 0 boundary edges and still ships on
+        # the covers branch. The pre-fix pipeline only produced the shell because the
+        # phantom double-deformed body misplaced the fit (coverage 0.07-0.78) — luck.
         limb_verts = _bone_dominant_vertex_indices(human, armature, _LIMB_BONE_RE)
         shell_limb_exclude = np.array(
             [any(int(vi) in limb_verts for vi in f) for f in body_faces], dtype=bool
