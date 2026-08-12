@@ -48,7 +48,8 @@ export type EquipmentFamily =
   | "wall_sign"
   | "medication_bottles"
   | "urine_cup"
-  | "drain";
+  | "drain"
+  | "incentive_spirometer";
 
 function mat(color: ColorRepresentation, roughness = 0.55, metalness = 0.12): MeshStandardMaterial {
   return new MeshStandardMaterial({ color, roughness, metalness });

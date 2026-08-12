@@ -34,6 +34,7 @@ import { buildWallSignEquipment } from "./station-equipment-signs.js";
 import { buildMedicationBottlesEquipment } from "./station-equipment-medication-bottles.js";
 import { buildUrineCupEquipment } from "./station-equipment-urine-cup.js";
 import { buildDrainEquipment } from "./station-equipment-drain.js";
+import { buildIncentiveSpirometerEquipment } from "./station-equipment-incentive-spirometer.js";
 import {
   buildHospitalBedEquipment,
   buildSideRailsEquipment,
@@ -496,15 +497,13 @@ export function buildDeclaredEquipmentGeometry(equipmentId: string): Group {
     case "urine_cup_equipment": return buildUrineCupEquipment(equipmentId);
     // #202 drain — post-op bulb drain; honest surgical-drain class
     case "drain_equipment": return buildDrainEquipment(equipmentId);
+    // #202 incentive spirometer — post-op breathing-exercise device
+    case "incentive_spirometer_equipment": return buildIncentiveSpirometerEquipment(equipmentId);
     // #202 device-on-stand
-    case "digital_thermometer_equipment":
-      return buildDeviceOnStandFamilyEquipment(equipmentId, "thermometer");
-    case "glucometer_review_equipment":
-      return buildDeviceOnStandFamilyEquipment(equipmentId, "glucometer");
-    case "oxygen_nasal_cannula_equipment":
-      return buildDeviceOnStandFamilyEquipment(equipmentId, "nasal_cannula");
-    case "surgical_consult_phone_equipment":
-      return buildDeviceOnStandFamilyEquipment(equipmentId, "consult_phone");
+    case "digital_thermometer_equipment": return buildDeviceOnStandFamilyEquipment(equipmentId, "thermometer");
+    case "glucometer_review_equipment": return buildDeviceOnStandFamilyEquipment(equipmentId, "glucometer");
+    case "oxygen_nasal_cannula_equipment": return buildDeviceOnStandFamilyEquipment(equipmentId, "nasal_cannula");
+    case "surgical_consult_phone_equipment": return buildDeviceOnStandFamilyEquipment(equipmentId, "consult_phone");
     // #202 own geometry
     case "observation_station_equipment":
       return buildObservationStationEquipment(equipmentId);

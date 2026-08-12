@@ -2,12 +2,12 @@
 
 MADRs: 0054, 0055 · schema `openclinxr.equipment-catalog.v1`
 
-- measuredAt: 2026-08-12T07:24:50.210Z
+- measuredAt: 2026-08-12T07:40:02.889Z
 - scenarios: 14
-- equipment rows: 49
-- lanes: {"bank":4,"thin_parametric":44,"modular_kit":1}
-- runtimeSource: {"parametric":45,"gltf":4}
-- unmapped prose: 5
+- equipment rows: 50
+- lanes: {"bank":4,"thin_parametric":45,"modular_kit":1}
+- runtimeSource: {"parametric":46,"gltf":4}
+- unmapped prose: 4
 - gltf missing on disk: 0
 
 ## Blueprints (14 scenario-bank cases)
@@ -86,6 +86,7 @@ MADRs: 0054, 0055 · schema `openclinxr.equipment-catalog.v1`
 - bedside_monitor_equipment (bank/gltf)
 - drain_equipment (thin_parametric/parametric)
 - ehr_screen_equipment (thin_parametric/parametric)
+- incentive_spirometer_equipment (thin_parametric/parametric)
 - post_op_bed_equipment (thin_parametric/parametric)
 
 ### primary_care_dyslipidemia_joint_pain_v1

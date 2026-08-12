@@ -1,13 +1,13 @@
 {
   "schemaVersion": "openclinxr.equipment-factory-loop-state.v1",
   "active": true,
-  "tick": 14,
+  "tick": 15,
   "interval": "15m",
   "plan": ".openclinxr/plans/equipment-three-lane-factory.md",
   "contract": "docs/openclinxr/equipment-factory-15m-loop.md",
-  "lastTickAt": "2026-08-12T07:25:00.000Z",
-  "lastAction": "honest map: drain (post-op fever) -> new thin parametric id drain_equipment (own module; unmapped prose 6->5)",
-  "nextPriority": "next honest map (incentive spirometer / blood-culture kit) OR ECG kit merge check; tick 15 = researcher cadence (respawn with explicit file-write); builders 597/600 - compress dispatcher cases if next fill exceeds",
+  "lastTickAt": "2026-08-12T07:40:00.000Z",
+  "lastAction": "honest map: incentive spirometer (post-op fever) -> new thin parametric id incentive_spirometer_equipment (own module; unmapped prose 5->4)",
+  "nextPriority": "blood-culture kit honest map OR ECG kit merge check; remaining non-equipment classes (neuro exam card / joint diagram / soft lighting) to be assessed by architect consult; tick 16 = architect cadence (respawn write-enabled)",
   "researcherEveryN": 3,
   "architectEveryN": 4,
   "stopWhen": [
