@@ -11,6 +11,46 @@ last_measured: 2026-08-10
 parseable_sections: 6
 ---
 
+## MPFB TRANSITION SCOREBOARD (measured 2026-08-11 20:11; regenerate, do not narrate)
+
+**Goal:** production actors move from Anny-only assets to MPFB2 bodies with Anny as the phenotype
+reference (operator direction; MADR 0052). **The single measure that matters: how many MPFB actors a
+learner can actually see.**
+
+    MPFB bodies built and on disk .................. 3
+    MPFB bodies referenced by the runtime cast map .. 1   <-- THE NUMBER TO MOVE
+    Anny bodies still cast ......................... 1 (ed_chest_pain_adult_cast)
+    hm08 library bodies cast ....................... 2
+
+| capability | MPFB rail | evidence |
+|---|---|---|
+| distinct bodies from a reference | **yes** | #328 — 166.6 / 176.0 / 124.1 cm, child is a macro child (age=0.15) |
+| macros derived from case phenotype | **yes** | #329 — height solved to ±1 cm on all three |
+| upper + lower + footwear | **yes** | #333 — all three, ClothesService, soles grounded 0.00 cm |
+| face targets | **yes** | #317 — 32 FACS |
+| helper-stripped topology | **yes** | #318 — 19,158 → 13,380 verts |
+| rig / retarget | **yes** | #307 mixamo_unity; retarget_bvh maps it 52/52 |
+| hair | **no** | #330 shipped hair on the hm08 library rail only |
+| eyes | **no** | no eye MESH exists on any rail; MPFB ships none, `eyes01` pack 404s |
+
+**Open blockers to moving the number from 1 to 3** — all owned by in-flight sub-manager #335:
+
+| # | defect | measured |
+|---|---|---|
+| #334 | nurse_kevin's hide mask eats his jaw | mask 0.924 H vs his own head joint 0.914 H |
+| #332 | MPFB child wears its shirt at the hip | garment top 0.545 H; eight adults sit 0.852–0.920 |
+| — | casting | `mpfb-peds-nurse-kevin`, `mpfb-peds-patient-child`: 0 runtime refs |
+
+**Separate goal, in-flight sub-manager #336:** Infinigen rooms. Installed and exporting; six evidence
+slices landed; `grep -rn "infinigen" apps/ui-xr/src/*.ts` → **0 matches**. Rooms generated, none consumed.
+
+**Standing risk, measured:** only **1 of 15 cases** authors a phenotype. Every phenotype-driven result
+above rests on one case's three actors. Clinical authoring (#293), not a pipeline slice.
+
+**How to refresh this block:** re-run the measurements named in each row. It is a scoreboard, not a
+narrative — if a row cannot be restated as a number or a named artifact, delete the row.
+
+
 # OpenClinXR Project Status
 
 **Canonical state file** for the OpenClaw-style / OpenClaw-inspired agent workflow. This is the single source of truth for autonomy status, current priority, active work, backlog, and stable direction. Rehydrate from the first ~60-80 lines only; all transient WIP (file:line, subagent IDs, capture logs) belongs in dated per-slice checkpoints below and registered artifacts. Pair with `worker-backlog-and-validation-matrix.md` for ownership matrix. Required Per-Slice Record fields: Product path advanced, Blueprint/factory tie, Touched files, Evidence, Token introspection, Next queued slice. See `docs/openclinxr/openclaw-runbook-2026-05-27.md` and `docs/openclinxr/openclaw-tool-adapters-2026-05-27.md`. Post-slice: run `pnpm docs:drift-check`.
