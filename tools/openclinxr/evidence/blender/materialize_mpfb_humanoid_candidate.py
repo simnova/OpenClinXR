@@ -4,6 +4,7 @@ import pathlib
 import re
 import struct
 import sys
+import zlib
 
 import bpy
 import numpy as np
@@ -610,16 +611,42 @@ def apply_texture_mask_hairline(
     # provenance: write the helper maps next to the bake so the texture route is
     # inspectable after the fact (mask = where the per-polygon region said hair;
     # position = world x/y/z normalised to the head bounds).
+    #
+    # issue-341 round 12 — the previous save used bpy Image.save(), and the on-disk
+    # files were ALL-BLACK and byte-identical on every bake (measured: MD5-equal,
+    # 0/1,048,576 non-black pixels, while the same images' in-memory pixels carried
+    # real data — the composite read maskWhite=107597 from the identical buffer).
+    # Image.save() on a never-loaded GENERATED image is not reliable in this build,
+    # so the maps are written from the numpy buffers directly (stdlib zlib/struct,
+    # 8-bit RGB PNG) — deterministic and independent of Blender's image I/O.
     _prov_dir = pathlib.Path(baked_img.filepath_raw).parent if baked_img.filepath_raw else pathlib.Path(".")
     _prov_dir.mkdir(parents=True, exist_ok=True)
     for _img, _tag in ((mask_img, "scalp-mask"), (pos_img, "position-map")):
-        _img.colorspace_settings.name = "Non-Color"
-        _img.filepath_raw = str(_prov_dir / f"{_tag}.png")
-        _img.file_format = "PNG"
+        _px = np.array(_img.pixels[:], dtype=np.float32).reshape(resolution, resolution, 4)
+        _rgb = np.clip(_px[..., :3] * 255.0, 0, 255).astype(np.uint8)
+        _raw = b"".join(
+            b"\x00" + _rgb[y, :, :].tobytes() for y in range(resolution)
+        )
+
+        def _png_chunk(tag: bytes, data: bytes) -> bytes:
+            body = tag + data
+            return (
+                struct.pack(">I", len(data))
+                + body
+                + struct.pack(">I", zlib.crc32(body) & 0xFFFFFFFF)
+            )
+
+        _png = b"\x89PNG\r\n\x1a\n"
+        _png += _png_chunk(b"IHDR", struct.pack(">IIBBBBB", resolution, resolution, 8, 2, 0, 0, 0))
+        _png += _png_chunk(b"IDAT", zlib.compress(_raw, 9))
+        _png += _png_chunk(b"IEND", b"")
+        _out = _prov_dir / f"{_tag}.png"
         try:
-            _img.save()
+            _out.write_bytes(_png)
+            print(f"TEXTURE_HAIRLINE PROVENANCE {_tag}.png bytes={_out.stat().st_size} "
+                  f"max={int(_rgb.max())} nonBlack={int((_rgb.max(axis=2) > 8).sum())}")
         except Exception as _e:
-            print(f"TEXTURE_HAIRLINE WARNING: could not save {_tag}.png: {_e}")
+            print(f"TEXTURE_HAIRLINE WARNING: could not write {_tag}.png: {_e}")
 
     in_strip = (
         (np.abs(xs) <= eye_half_w)
@@ -670,6 +697,27 @@ def apply_texture_mask_hairline(
         print(f"TEXTURE_HAIRLINE FALLBACK {json.dumps(_fallback)}")
     else:
         hair[override] = zs[override] >= hairline_snap_z
+
+    # issue-341 round 12 — the per-polygon scalp mask covers the eye sockets.
+    # Measured on the shipped bytes of all three actors (round12-eye-uv.json):
+    # hair-colored texels (hair_color ≈ [10,8,5]) over the outer halves of both
+    # eye sockets and the brow — aisha eyeSocket mean [71,62,57] / brow [10,9,8]
+    # vs the round-9 (#343) known-good [103,91,83] / [53,47,43]; the occlusion
+    # gate cannot see this because it measures visibility fraction, and the dark
+    # is texture, not occluder geometry. The eye footprint was excluded from the
+    # strip override (in_socket) but NOT from the base mask — hair STARTS as
+    # mask_a > 0.5, so scalp polygons whose UV coverage overlaps the socket
+    # (polygons adjacent to the #338 polygon-space unpaint whose centers fall
+    # outside its footprint) still paint hair over the eyes in the texture.
+    # Restore the skin bake under the eye footprint: never paint hair inside it,
+    # whichever branch produced the hair region. This is #338's unpaint re-applied
+    # in the texture space the hairline now lives in — not a mask shrink (the
+    # crown/sides mask and the strip zs >= hairline_snap_z logic are untouched)
+    # and it cannot re-open poke-through (texture pixels, not geometry). The
+    # hairline above the brow is preserved: the strip still paints hair at
+    # zs >= hairline_snap_z outside the socket, and the scalp mask still covers
+    # the crown and the temples (x beyond the eye footprint).
+    hair[in_socket] = False
     out_rgba = skin_rgba.copy()
     out_rgba[hair] = np.array(hair_color, dtype=np.float32)
     baked_img.pixels[:] = out_rgba.reshape(-1).tolist()
