@@ -294,6 +294,51 @@ def bake_skin_material_to_texture(human, skin_material_name, out_png_path, resol
     return img
 
 
+def _median_uv_edge_px(obj, resolution):
+    """Median UV edge length of a mesh in texture pixels.
+
+    The natural scale for an image-space smoothing radius: a property of the
+    mesh's own unwrap (how many texels one polygon edge spans), not a fitted
+    constant. Used by the round-11 child Z-channel fallback to size its
+    majority-vote window.
+    """
+    uv = obj.data.uv_layers.active
+    if uv is None or resolution <= 0:
+        return None
+    lens = []
+    for poly in obj.data.polygons:
+        start = poly.loop_start
+        total = poly.loop_total
+        for k in range(total):
+            a = uv.data[start + k].uv
+            b = uv.data[start + (k + 1) % total].uv
+            lens.append(float(np.hypot(a[0] - b[0], a[1] - b[1])) * resolution)
+    return float(np.median(lens)) if lens else None
+
+
+def _box_majority_vote(mask_bool, radius):
+    """Binary-image median filter via an integral image.
+
+    For a binary mask the median over a box window IS the majority vote (box
+    sum >= half the window area), exact and O(1) per pixel after the prefix-sum
+    table. Removes isolated single-texel excursions along a boundary — the
+    image-space counterpart of the per-polygon smoothing the mesh topology
+    cannot provide.
+    """
+    h, w = mask_bool.shape
+    acc = np.zeros((h + 1, w + 1), dtype=np.int64)
+    acc[1:, 1:] = np.cumsum(np.cumsum(mask_bool, axis=0), axis=1)
+    rows = np.arange(h)[:, None]
+    cols = np.arange(w)[None, :]
+    y0 = np.clip(rows - radius, 0, h)
+    y1 = np.clip(rows + radius + 1, 0, h)
+    x0 = np.clip(cols - radius, 0, w)
+    x1 = np.clip(cols + radius + 1, 0, w)
+    s = acc[y1, x1] - acc[y0, x1] - acc[y1, x0] + acc[y0, x0]
+    area = (y1 - y0) * (x1 - x0)
+    return s * 2 >= area
+
+
 def apply_texture_mask_hairline(
     human,
     baked_img,
@@ -587,11 +632,42 @@ def apply_texture_mask_hairline(
     )
     hair = mask_a > 0.5
     override = in_strip & ~in_socket
+    _fallback = None
+    _z_alive = bool(float(pos[..., 2].max()) > 1e-6)
     if hairline_snap_z is None or forehead_plane is None:
         print(
             "TEXTURE_HAIRLINE WARNING: no snap seam height or forehead plane — "
             "keeping per-polygon mask only"
         )
+    elif not _z_alive:
+        # issue-341 round 11 — the child's position-map Z channel bakes to flat
+        # zero (round 10 measured: modifier-free duplicate, correct MapRange node
+        # values, R/G decode the crown correctly — a child-specific
+        # bake-evaluation quirk, not a frame or node error; the bake log reports
+        # it as posB=[0.000,0.000]). The height classification has no input. The
+        # image-space fallback round 10 wrote and did not commit: smooth the
+        # per-polygon scalp MASK within the face-front strip with a box
+        # majority-vote filter (for a binary mask, the median), radius derived
+        # from the body's own UV edge length, so the hairline is a smoothed
+        # contour of the mask instead of the triangle-edge boundary. The Z
+        # clause is dropped from the strip (it cannot be evaluated); the strip
+        # is still the face-front band in x/y, and the eye-socket exclusion
+        # still holds. A deletion needs a replacement (#6p): the scalp region
+        # survives as pixels in the texture either way.
+        _median_uv = _median_uv_edge_px(human, resolution) or 0.0
+        _radius = max(3, int(round(1.5 * _median_uv))) if _median_uv else 6
+        _smoothed = _box_majority_vote(hair, _radius)
+        in_strip = (np.abs(xs) <= eye_half_w) & (ys <= forehead_plane)
+        override = in_strip & ~in_socket
+        hair = mask_a > 0.5
+        hair[override] = _smoothed[override]
+        _fallback = {
+            "mode": "mask_smoothing",
+            "radiusPx": _radius,
+            "medianUvEdgePx": round(_median_uv, 4),
+            "posZMax": round(float(pos[..., 2].max()), 4),
+        }
+        print(f"TEXTURE_HAIRLINE FALLBACK {json.dumps(_fallback)}")
     else:
         hair[override] = zs[override] >= hairline_snap_z
     out_rgba = skin_rgba.copy()
@@ -642,7 +718,11 @@ def apply_texture_mask_hairline(
         "stripOverridePixels": int(override.sum()),
         "socketExcludedPixels": int((in_strip & in_socket).sum()),
         "hairlineSnapZ": round(float(hairline_snap_z), 4) if hairline_snap_z is not None else None,
-        "hairZRange": [round(float(_hair_z.min()), 4), round(float(_hair_z.max()), 4)] if _hair_z.size else None,
+        "hairZRange": (
+            [round(float(_hair_z.min()), 4), round(float(_hair_z.max()), 4)]
+            if _hair_z.size and _z_alive else None
+        ),
+        "fallback": _fallback,
         "textureBoundaryColumns": len(_bound_rows),
         "textureBoundaryFlipRate": _flip_rate,
         "textureBoundaryMedianStepPx": (
