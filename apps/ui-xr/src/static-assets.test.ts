@@ -27,7 +27,7 @@ const generatedSceneAssetHashes = {
   "medical-equipment/stretcher-sketchfab-ccby.glb": "ae930b59ec9180fc1c74aed2592208f76cd3c0118987852cc6a6bbebebc4a35d",
   "medical-equipment/exam-table-sketchfab-ccby.glb": "b620e4949d2fef3669fe83327d66937d2fcac4bfbc0f0960e98e25e0edb51f0b",
   "medical-equipment/privacy-curtain-monitor-sketchfab-ccby.glb": "89ccdab93ce4f6ca1cdd0c8f94afe834db431ed667ddac4580bbd9cc3c22a8bf",
-  "environment/ed-exam-bay-shell.glb": "af010787db369953d9b00a3f050cbba88a51e25262a213308fc84fc36f43779b",
+  "environment/ed-exam-bay-shell.glb": "d71a6e4dec9ae41680634ddf79bf160f83fb3510754ca1abddbb4592b8754910",
   "environment/pediatric_urgent_care_bay_environment.glb": "9c431d8e158cbb7486de557ffaed02e79a0bac9681704b80449ace7dc4af8c62",
   "environment/infinigen-ed-exam-bay.glb": "1bddb589715d6ef4fb6cdeff2d72414daef81b42b154a7999e53a712bb990ba1",
 } as const;
