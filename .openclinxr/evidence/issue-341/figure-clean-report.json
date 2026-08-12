@@ -1,107 +1,54 @@
 {
  "schema": "figure-clean-report.v1",
  "issue": "issue-341",
+ "round": 16,
+ "roundTitle": "crown hair thins monotonically with U — located: the gradient IS the hairline boundary",
  "actor": "all three MPFB actors (aisha / nurse_kevin / patient_child)",
  "actorRelPath": "apps/ui-xr/public/generated-humanoids/mpfb-{ob-patient-aisha,peds-nurse-kevin,peds-patient-child}.glb",
- "round": 15,
- "roundTitle": "the child's shirt span defect \u2014 root cause: post-strip double-deformed macro body",
- "chosenOnEvidence": "round-15 measurement: the SAME toigo t-shirt .mhclo refs sit at 0.356-0.543 H (waist/hip) in the fit's from_mix frame while the baked basis puts them at 0.556-0.843 H (neck). The #318 strip's reapply_all_details re-adds the macro target shape keys ($md-*) on top of the baked basis (bake_targets does not clear HumanObjectProperties); the child's child-band age targets are strong torso deformers (0.25-0.37 m phantom shift), aisha's default young-adult targets shift refs only ~2 cm (why her fit was already correct). Fix: delete $md-* keys after the strip.",
- "rounds": {
-  "15": {
-   "fixes": [
-    "remove post-strip macro shape keys ($md-*) so garment fits read the true baked body (20 removed child/nurse, 8 aisha)",
-    "restore the body-derived lower cover shell: on the true body the sparse 392-tri cargo fit passes the gate's coverage_ok (0.95-0.97) but is the #220 open-shell see-through trouser; the gate's own garmentBoundaryEdges>0 clause now takes the shell branch"
-   ],
-   "measuredExportedBands": {
-    "aisha": {
-     "tshirt": [
-      0.58,
-      0.843
-     ],
-     "spanFracH": 0.263,
-     "pants": [
-      0.061,
-      0.592
-     ],
-     "pantsTris": 2782
-    },
-    "nurse": {
-     "tshirt": [
-      0.591,
-      0.859
-     ],
-     "spanFracH": 0.268,
-     "pants": [
-      0.057,
-      0.601
-     ],
-     "pantsTris": 3092
-    },
-    "child": {
-     "tshirt": [
-      0.569,
-      0.839
-     ],
-     "spanFracH": 0.269,
-     "pants": [
-      0.081,
-      0.58
-     ],
-     "pantsTris": 2816
-    }
-   },
-   "preFixChild": {
-    "tshirt": [
-     0.646,
-     0.835
-    ],
-    "spanFracH": 0.189
-   },
-   "shirtPantsOverlap": {
-    "aisha": 0.012,
-    "nurse": 0.01,
-    "child": 0.011
-   },
-   "legBandCoverageRestored": "pants tris >= skin tris in ankle-thigh band on all three (aisha 2040/1878, nurse 1942/1714, child 2108/1854) \u2014 pre-fix shell pattern restored"
-  }
+ "whatChanged": "no GLB bytes changed this round — the diagnosis (below) is the deliverable; the round's defined successful outcome (\"the gradient enters at stage X and cannot be removed without Y\"). The only code change is the committed U_BAND stage instrument in materialize_mpfb_humanoid_candidate.py (print-only; verified byte-identical bake: shipped vs instrumented skin texture sha 217526385f62, 653719 B, scalpPrims=0).",
+ "stageReport": {
+  "method": "in-bake instrument in apply_texture_mask_hairline — for each U band over the SAME dome loops the planted hair-covers-both-sides test samples (>= 0.94 H, |x| > 5 mm), the fraction whose OWN poly is scalp (region), whose UV texel is white in the raster mask (raster), white in the Cycles mask bake (bake), and hair in the composite (final), plus face-band and below-hairline membership",
+  "actor": "mpfb-ob-patient-aisha (round-16 instrumented bake, reproducible)",
+  "bands": [
+   {"band": "0.641-0.670", "n": 16, "region": 100.0, "raster": 100.0, "bake": 100.0, "final": 100.0, "faceBand": 0.0, "belowHairline": 0.0, "avgZfrac": 0.993},
+   {"band": "0.670-0.700", "n": 48, "region": 100.0, "raster": 100.0, "bake": 100.0, "final": 100.0, "faceBand": 0.0, "belowHairline": 0.0, "avgZfrac": 0.988},
+   {"band": "0.700-0.729", "n": 120, "region": 96.7, "raster": 93.3, "bake": 86.7, "final": 93.3, "faceBand": 0.0, "belowHairline": 0.0, "avgZfrac": 0.979},
+   {"band": "0.729-0.758", "n": 184, "region": 69.6, "raster": 69.6, "bake": 69.6, "final": 69.6, "faceBand": 0.0, "belowHairline": 0.0, "avgZfrac": 0.972},
+   {"band": "0.758-0.787", "n": 264, "region": 59.8, "raster": 59.1, "bake": 62.1, "final": 59.1, "faceBand": 21.2, "belowHairline": 21.2, "avgZfrac": 0.960},
+   {"band": "0.787-0.817", "n": 488, "region": 45.1, "raster": 45.1, "bake": 53.3, "final": 40.2, "faceBand": 42.6, "belowHairline": 42.6, "avgZfrac": 0.948}
+  ]
  },
- "occlusionPostFix": {
-  "aisha": {
-   "eyes": "visible (0.1944 occluded-by-socket-skin)",
-   "tshirt": "visible (0.0)",
-   "boots": "visible (0.0033)"
-  },
-  "nurse": {
-   "eyes": "visible (0.2155 occluded-by-socket-skin)",
-   "tshirt": "visible (0.0027)",
-   "boots": "visible (0.0052)"
-  },
-  "child": {
-   "eyes": "visible (0.1983 occluded-by-socket-skin)",
-   "tshirt": "visible (0.065)",
-   "boots": "visible (0.0)"
-  }
+ "diagnosis": {
+  "whereTheGradientEnters": "the per-polygon REGION at composite time (the scalp material state already includes the round-5 face-front unpaint below hairline_z and the round-8 seam snap) plus a small COMPOSITE addition (the face-band level set, ~5 pts in the far-U band). The raster reproduces the region exactly; the mask bake tracks it (its small extra bias does not feed the composite — round 14); the skin bake carries no hair at all (scalp polys swapped to skin for the bake). None of the three candidates (texel-density gradient, bake-margin, UV-frame classifier) is the cause.",
+  "whatTheFarUBandIs": "the dome's base ring at the FACE FRONT: avgZfrac 0.948 (aisha) is below the derived hairline 0.9715 H, so the face-band portion (42.6%) is the forehead — legitimately skin below the accepted round-5 hairline. The back/mid portion of the band is hair. World-space split (shipped bytes): dome front = 28% hair, back = 100%, mid = 100%; |x|>0.06 = 100%, |x|<=0.03 = 27%. The bare region is the face-front strip (y <= forehead plane) — the forehead.",
+  "whyTheInstrumentSeesIt": "the round-14 dome band (>= 0.94 H) and the round-10 hairline (0.9715 H) overlap by ~3 cm. The U-axis of the crown UV strip runs down the head (top-of-crown at low U, hairline at high U), so the hairline boundary projects across the whole U range of the strip and the sample reads it as monotone thinning. This contradicts the handback's 'NOT a world-space pattern' — it IS world-space (face-front bare, back/mid hair); the U-correlation is the UV wrap of the face-front strip.",
+  "correction": "the orchestrator's round-16 'world-centre verts span the entire U range (0.641-0.812) at 33%/26% hair' is reproduced and explained: the near-midline face-front dome verts (the forehead below the hairline) map across the whole crown strip in U.",
+  "cannotBeRemovedWithout": "moving the hairline height (the round-5 derived, round-10-refused known-good column) or painting the forehead (widening the region — refused this round, and ineffective: the composite's face-band level set unpaints the face front below the hairline regardless of the region). The far-U band is the hairline, not a texture or bake defect."
  },
- "captures": ".openclinxr/evidence/issue-341/captures/round15/ (front + three_quarter, lit + structure, per actor; gallery.json)",
+ "sideFindings": [
+  {
+   "id": "side-scalp band never fires on MPFB heads",
+   "measured": "apply_mesh_native_scalp_hair_material_region derives max_scalp_half_width from the BODY x-span (0.16 + 0.65*0.018 = 0.1717 x width): aisha bodyWidth 0.993 m -> maxHw 0.1704 m; head half-width at the crown is ~0.075 m. The side-scalp band [0.55*maxHw, 1.05*maxHw] = [0.094, 0.179] lies outside the head, so the head's sides at 0.90-0.935 H are never scalp (bare temples above the ears). On the Anny rail the body width is ~0.45 m so the band fires; the MPFB path (arms-span width ~0.99 m) misses the head entirely.",
+   "verdict": "real region defect on the MPFB path, BELOW the dome band (0.90-0.935 H) — out of this round's subject; reported not fixed"
+  },
+  {
+   "id": "child's hair cap is proportionally half the adults'",
+   "measured": "hairlineFrac 0.9758 (child) vs 0.9715/0.9699 (aisha/nurse); cap = (1-hairlineFrac) x H = 3.0 cm (child, 1.241 m) vs 4.7/5.3 cm (aisha/nurse, 1.666/1.760 m). The child's head is a larger fraction of the body (anny reference 0.160 vs 0.100), so a body-height-derived hairline yields a head-relative cap of ~12-15% vs the adults' ~22-25%. This is the round-6-anticipated column-heuristic degeneracy on the child's proportions.",
+   "verdict": "reported with the measurement per round 6 ('report it with the measurement rather than forcing a pass'); NOT fixed (moving the hairline is the refused known-good column)"
+  }
+ ],
+ "inScopeVisualTextOnly": {
+  "crown_covered": "measurement: dome back/mid/lateral = 100% hair; face-front below the hairline = forehead (by design) — the orchestrator grades captures/round16",
+  "hairline_smooth": "center strip (|x| <= eye_half_w) is the composite level set (round-12 accepted); temple hairline (|x| 0.045-0.075, face-front) is poly-center-derived (round-8 class, unfixed outside the strip)",
+  "face_intact": "no face/eye/socket changes this round"
+ },
+ "captures": ".openclinxr/evidence/issue-341/captures/round16/ (fresh glb-grade capture of the SHIPPED bytes: front_lit/front_structure/three_quarter_lit/three_quarter_structure per actor; gallery.json; self-check 3/3 agreed, 0 refused)",
  "contracts": {
-  "hair-covers-both-sides-of-the-head": "3/3 pass",
-  "eyes-have-an-iris": "3/3 pass",
-  "changed": "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb (+ aisha + nurse)"
+  "hair-covers-both-sides-of-the-head": "3/3 pass (unchanged bytes)",
+  "eyes-have-an-iris": "3/3 pass (unchanged bytes)",
+  "changed:mpfb-ob-patient-aisha.glb": "CANNOT be satisfied honestly — no product fix exists within the refusals; the U-gradient is the accepted hairline. Stated per the 'say so in your first report' instruction.",
+  "changed:mpfb-peds-patient-child.glb": "CANNOT be satisfied honestly — same reason"
  },
- "stillWrong": [
-  "eye-socket skin ring occludes the fitted eyes from some ray directions (0.19-0.22 of eye tris) \u2014 pre-existing, pixel question",
-  "on-disk .skin-baked.png sidecars under generated-humanoids still carry the previous bake \u2014 the text-only worker's permission policy denies copying them; the new bakes' textures are embedded in the promoted GLBs and the fresh PNGs are under .openclinxr/evidence/issue-341/round15-measure/",
-  "nurse's shirt top (0.859 H) is below the old shipped 0.920 \u2014 the old value came from the phantom (taller) body; the new value is the true body's neck, consistent with aisha (0.843)"
- ],
- "guesses": [
-  "none required for the fix: the phantom-frame refs, basis refs, shape-key list, and y_size were all measured at fit time on the child vs aisha control",
-  "whether the raw 392-tri cargo fit would have graded as see-through without the shell restore is inferred from the recorded #220 finding, not from a pixel grade (text-only worker)"
- ],
- "claimScope": "the child's shirt span defect is fixed and the lower garment restored to the shipped cover-shell state; hair/eyes/skin known-good columns hold per the planted contracts",
- "notEvidenceFor": [
-  "clinical validity",
-  "scoring validity",
-  "production asset readiness",
-  "a full pixel-grade pass \u2014 the orchestrator grades captures/round15"
- ]
+ "claimScope": "the round-16 U-gradient is fully attributed per stage; it is the hairline boundary (round-5 unpaint + composite level set at the accepted 0.9715-0.9758 H), not a raster/bake/density defect; the dome sample window overlaps the hairline by construction",
+ "notEvidenceFor": ["clinical validity", "scoring validity", "production asset readiness", "a pixel-grade pass — the orchestrator grades captures/round16"]
 }

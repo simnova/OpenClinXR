@@ -1053,6 +1053,75 @@ def apply_texture_mask_hairline(
         "TEXTURE_HAIRLINE ARRAY_TRUTH "
         f"L={json.dumps(_arr['L'])} R={json.dumps(_arr['R'])}"
     )
+    # issue-341 round 16 — U-banded crown stage report. The planted
+    # hair-covers-both-sides test samples dome loops (>= 0.94 H, |x| > 5 mm) from the
+    # shipped texture; the round-16 handback measured hair coverage falling
+    # monotonically with U (child 34% in the far-U band) and asked which stage the
+    # gradient enters. Report, per U band over the SAME dome loops, coverage at each
+    # stage: own-poly region (material index), raster mask (mask_a, the composite
+    # source), Cycles mask bake (mask_img), and composite (hair), plus face-band and
+    # below-hairline membership so the band contents can be attributed.
+    _lo_u = min((h_world @ v.co).z for v in _verts)
+    _hi_u = max((h_world @ v.co).z for v in _verts)
+    _H_u = _hi_u - _lo_u
+    _mask_bake_arr = (
+        np.array(mask_img.pixels[:], dtype=np.float32).reshape(resolution, resolution, 4)[..., 0] > 0.5
+    )
+    _uband_edges = [0.641, 0.670, 0.700, 0.729, 0.758, 0.787, 0.817]
+    _ubands = [
+        {
+            "band": f"{_uband_edges[_k]:.3f}-{_uband_edges[_k + 1]:.3f}",
+            "n": 0, "region": 0, "raster": 0, "bake": 0, "final": 0,
+            "faceBand": 0, "belowHairline": 0, "zfrac": 0.0,
+        }
+        for _k in range(len(_uband_edges) - 1)
+    ]
+    for _poly in human.data.polygons:
+        for _li in range(_poly.loop_start, _poly.loop_start + _poly.loop_total):
+            _vi = _loops[_li].vertex_index
+            _p = h_world @ _verts[_vi].co
+            if (_p.z - _lo_u) / _H_u < 0.94:
+                continue
+            if abs(_p.x) <= 0.005:
+                continue
+            _u = _uv_layer[_li].uv
+            if not (_uband_edges[0] <= _u.x < _uband_edges[-1]):
+                continue
+            _bi = next(
+                (_k for _k in range(len(_uband_edges) - 1) if _uband_edges[_k] <= _u.x < _uband_edges[_k + 1]),
+                -1,
+            )
+            if _bi < 0:
+                continue
+            _row = _ubands[_bi]
+            _tx = int(_u.x * resolution) % resolution
+            _ty = int((1.0 - _u.y) * resolution) % resolution
+            _row["n"] += 1
+            _row["zfrac"] += (_p.z - _lo_u) / _H_u
+            if _poly.material_index == scalp_idx:
+                _row["region"] += 1
+            if mask_a[_ty, _tx] > 0.5:
+                _row["raster"] += 1
+            if _mask_bake_arr[_ty, _tx]:
+                _row["bake"] += 1
+            if hair[_ty, _tx]:
+                _row["final"] += 1
+            if abs(_p.x) <= eye_half_w and _p.y <= forehead_plane and _p.z >= head_z0:
+                _row["faceBand"] += 1
+                if hairline_z is not None and _p.z < hairline_z:
+                    _row["belowHairline"] += 1
+    for _row in _ubands:
+        if _row["n"] == 0:
+            continue
+        _pct = lambda _k: round(100.0 * _row[_k] / _row["n"], 1)
+        print(
+            "TEXTURE_HAIRLINE U_BAND "
+            f"{_row['band']} n={_row['n']} "
+            f"region={_pct('region')}% raster={_pct('raster')}% "
+            f"bake={_pct('bake')}% final={_pct('final')}% "
+            f"faceBand={_pct('faceBand')}% belowHairline={_pct('belowHairline')}% "
+            f"avgZfrac={_row['zfrac'] / _row['n']:.3f}"
+        )
     baked_img.pixels[:] = out_rgba.reshape(-1).tolist()
     try:
         baked_img.save()  # re-save the on-disk PNG so it matches the exported texture
