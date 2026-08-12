@@ -43,7 +43,7 @@
 | Crutches (Poly by Google) | https://poly.pizza/m/2V9ccKGCo-r | CC BY 3.0 | low-poly | Crutches | Yes | `Crutches by Poly by Google (CC BY 3.0)` |
 | Health pack (Quaternius) | https://poly.pizza/m/cc9Kueieyl | **CC0** | low-poly | First-aid props | Yes (props only) | none |
 | Health pack (CircuitZ) | https://poly.pizza/m/cJdIysIdbC | **CC0** | low-poly | Health props | Yes | none |
-| GRADD Hospital Room | https://poly.pizza/m/9sUalfQ76kn | CC BY 3.0 | scene | Room kit | Staging ref | `GRADD Hospital Room by GRADD CO (CC BY 3.0)` |
+| GRADD Hospital Room | https://poly.pizza/m/9sUalfQ76kn | CC BY 3.0 **VERIFIED** | scene | Room kit | **BLOCKED tick 23 — download transport** | `GRADD Hospital Room by GRADD CO (CC BY 3.0)` |
 
 ## INFERRED (re-read licence tab before acquire)
 
@@ -131,3 +131,32 @@ Downloaded (opengameart.org, CC BY 3.0 VERIFIED — page "license CCBY3+"; zip `
 **Verdict: spec-incompatible as-is → NOT a promotion candidate.** A 1.255× uniform scale would fix the deck but stretch length to 2.77 m; a Z-only stretch would fix the deck while breaking width/length proportions (same distort class the Kenney verdict rejected). Deck is 0.118 m below the 0.58 m the supine plant assumes — blind promotion would float the actor or bury the deck (#159/#171 class). **Parametric bed stays deck SSOT.** Attribution: "Small Hospital Bed by TiZeta (CC BY 2.0 original), modified by qubodup (CC BY 3.0)" — recorded in the ledger row.
 
 Next deck candidate: **GRADD Hospital Room** (poly.pizza /m/9sUalfQ76kn, CC BY 3.0 VERIFIED) — ward-room scene; extract the bed mesh and repeat the deck-band measurement.
+
+### BLOCKED (tick 23, 2026-08-12): GRADD Hospital Room download — transport-blocked, deck lane exhausted
+
+Attempted the GRADD Hospital Room download (poly.pizza /m/9sUalfQ76kn, CC BY 3.0 VERIFIED — page re-rendered, "OBJ/GLTF format, Creative Commons Attribution"). **Every CLI/browser-fetch download path fails:**
+
+| path | result |
+|---|---|
+| `curl -L https://poly.pizza/download/9sUalfQ76kn` | **403** Cloudflare JS challenge (with and without browser UA) |
+| `curl -L https://static.poly.pizza/9sUalfQ76kn.glb` (+ `?filename=…`) | **403** |
+| `curl -L https://poly.pizza/9sUalfQ76kn.glb` | **403** |
+| CDN host guesses (`cdn/models/download.poly.pizza`) | DNS fail (000) |
+| `web_fetch https://static.poly.pizza/9sUalfQ76kn.glb` (browser-fetch, bypasses CF) | **S3 `AccessDenied` XML** — guessed key wrong; real key lives behind the site API/HTML which curl cannot reach |
+| Wayback Machine (CDX + `2id_` direct) | no capture (empty CDX, 404) |
+| GitHub repo search (`api.github.com` GRADD / hospital bed cc0) | no mirror |
+
+**Verdict: transport-blocked, not licence-blocked.** Licence is clean (CC BY 3.0); the download requires either (1) a browser-automation path that passes poly.pizza's Cloudflare + site API to discover the real S3 key (`pnpm playwright:*` is the sanctioned CLI for this), or (2) an operator copy-paste. Do NOT retry the curl path each tick — recorded so future loops don't re-litigate.
+
+### Deck-bank lane closure (tick 23) — deck surfaces explicitly DEFERRED
+
+Non-Sketchfab deck candidates are now **exhausted**, each with a measured or transport-blocked verdict:
+
+| source | licence | deck-top measured | verdict |
+|---|---|---|---|
+| Kenney Furniture Kit bedSingle (tick 20) | CC0 VERIFIED | 0.375 m (vs 0.58 spec); length 1.125 (vs 2.15) | SPEC-INCOMPATIBLE — 1.9× distort required |
+| OGA Small Hospital Bed (tick 22) | CC BY 3.0 VERIFIED | 0.462 m (vs 0.58); length 2.203 (vs 2.15); width 1.154 (vs 0.98) | SPEC-INCOMPATIBLE — deck 20% low, distort required |
+| GRADD Hospital Room (tick 23) | CC BY 3.0 VERIFIED | not reachable (download transport-blocked) | BLOCKED — browser-automation path only |
+| Sketchfab bed/stretcher/exam-table rows | CC BY 4.0 VERIFIED | not reachable (no `SKETCHFAB_API_TOKEN`) | BLOCKED — operator token |
+
+**`hospital_bed_equipment` / `post_op_bed_equipment` / `stretcher_equipment` / `pediatric_stretcher_equipment` remain thin_parametric (lane 2) — parametric deck is the SSOT** (`station-equipment-support-surfaces.ts:48-50`). This satisfies the loop stop-condition half "deck surfaces banked or explicitly deferred". Remaining path to a real GLB deck: operator `SKETCHFAB_API_TOKEN`, or a dedicated playwright browser-automation slice for poly.pizza.

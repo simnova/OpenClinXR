@@ -26,6 +26,18 @@ optional OSS bank candidates — without requiring LLM geometry authoring.
 | **6** | Pack grade | Multi-view harness for top 5 learner-visible props |
 | **7+** | Multi-case dark run | `dark-factory-multi-case` style pass: all 14 scenarios resolve equipment without fallback |
 
+## Iter-3 lane-1 deck-bank status (tick 23, 2026-08-12) — CLOSED / DEFERRED
+
+Non-Sketchfab deck candidates are exhausted, each with a measured or transport-blocked verdict
+(full table in `equipment-oss-candidates.md` "Deck-bank lane closure"):
+
+- **Kenney bedSingle** (CC0 VERIFIED, tick 20) — measured deck 0.375 m / length 1.125 m → SPEC-INCOMPATIBLE (1.9× distort).
+- **OGA Small Hospital Bed** (CC BY 3.0 VERIFIED, tick 22) — measured deck 0.462 m / length 2.203 m / width 1.154 m → SPEC-INCOMPATIBLE (deck 20% low).
+- **GRADD Hospital Room** (CC BY 3.0 VERIFIED, tick 23) — download transport-blocked (Cloudflare 403 for curl; S3 AccessDenied on guessed key via browser-fetch; no Wayback/GitHub mirror). Needs `pnpm playwright:*` browser-automation slice or operator copy-paste.
+- **Sketchfab bed/stretcher/exam-table rows** (CC BY 4.0 VERIFIED) — token-blocked (`SKETCHFAB_API_TOKEN`).
+
+**Deck surfaces (`hospital_bed`, `post_op_bed`, `stretcher`, `pediatric_stretcher`) stay thin_parametric (lane 2); parametric deck is the SSOT** (`station-equipment-support-surfaces.ts:48-50`). This satisfies the loop stop-condition half "deck surfaces banked or explicitly deferred". Real-GLB deck path reopens only on operator token or a browser-automation slice.
+
 ## OpenClaw loop (each tick)
 
 ```

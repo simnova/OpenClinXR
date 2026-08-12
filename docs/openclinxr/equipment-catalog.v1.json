@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.equipment-catalog.v1",
-  "measuredAt": "2026-08-12T09:26:50.295Z",
+  "measuredAt": "2026-08-12T09:39:31.178Z",
   "claimScope": "equipment three-lane catalogue over scenario-bank blueprints + runtime builders (MADR 0054/0055)",
   "notEvidenceFor": [
     "clinical_accuracy",
