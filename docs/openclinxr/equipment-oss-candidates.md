@@ -51,7 +51,6 @@
 |-------|-----|-----------------|-------------|---------|---------|
 | Emergency Cart (tutminchai) | https://sketchfab.com/3d-models/emergency-cart-7b6c0aa0f213416bbd65efbaa2d26391 | CC BY 4.0 | ~412K | Crash cart | Marginal — decimate hard |
 | Gurney medevac (dudecon) | https://sketchfab.com/3d-models/gurney-medevac-patient-stretcher-rescue-litter-40c85d5457a144d3b5dc1b328a2425a3 | CC BY 4.0 | ~1.5K | Stretcher + baked patient | Caveat |
-| Small Hospital Bed (qubodup) | https://opengameart.org/content/small-hospital-bed | CC BY 3.0 | 540 | Bed | Yes cheapest |
 
 ## REFUSE (do not re-litigate without new evidence)
 
@@ -116,3 +115,19 @@ Converted `bedSingle.obj` → GLB (Blender 5.1.1, staged at `.openclinxr/staging
 - GitHub repo search — **NOT FOUND**: `hospital bed 3d cc0`, `medical equipment 3d license:cc0-1.0`, `hospital+bed+glb` → 0 hits; broad medical-assets queries return only unlicensed/irrelevant repos. Kenney dedicated hospital pack — **NOT FOUND**.
 
 Top 3: (1) GRADD Hospital Room (CC BY 3.0, ward bed in-scene) is the strongest non-Sketchfab bed/deck source — extract bed mesh from the GLTF scene; (2) OGA Small Hospital Bed (CC BY 3.0, qubodup) is the standalone hospital-bed fallback — attribution string captured; (3) stretcher/exam-table have no CC0/CC-BY source outside Sketchfab — reuse CC0 Kenney/Quaternius generic bed decks or the CC-BY dentist chair, or stay on `SKETCHFAB_API_TOKEN` for the VERIFIED Sketchfab rows.
+
+### MEASURED (tick 22, 2026-08-12): OGA Small Hospital Bed converted + deck-measured — spec-incompatible
+
+Downloaded (opengameart.org, CC BY 3.0 VERIFIED — page "license CCBY3+"; zip `license.txt` "New work licensed under CC-BY 3.0 or later" by TiZeta, modified by qubodup) and staged at `.openclinxr/staging/equipment/oga-small-hospital-bed/`. Converted `letto_small.blend` → GLB (Blender 5.1.1, `oga-bed.glb` 30,660 B, 540 tris / 379 verts, single mesh `lettoO`).
+
+**Deck measurement (not the naive max-Z):** horizontal-face band analysis (world-space, |normal_z| > 0.9, area-weighted by centroid Z) shows the **largest horizontal surface = 2.355 m² at z=0.462 m** — that is the mattress/deck surface the patient lies on. The naive "world max Z" (1.0526 m) is the headboard top, not the deck. Side-rail tops form 0.901+0.874 m² bands at z≈0.71 and smaller bands at 0.80–0.83; headboard top cluster at z=1.03.
+
+| measure | OGA bed | runtime spec (station-equipment-support-surfaces.ts:48-50) | delta |
+|---|---|---|---|
+| deck top | **0.462 m** | 0.58 m | **−0.118 m (−20%)** |
+| length | 2.203 m | 2.15 m | +0.053 m (+2.5%) |
+| width | 1.154 m | 0.98 m | +0.174 m (+18%) |
+
+**Verdict: spec-incompatible as-is → NOT a promotion candidate.** A 1.255× uniform scale would fix the deck but stretch length to 2.77 m; a Z-only stretch would fix the deck while breaking width/length proportions (same distort class the Kenney verdict rejected). Deck is 0.118 m below the 0.58 m the supine plant assumes — blind promotion would float the actor or bury the deck (#159/#171 class). **Parametric bed stays deck SSOT.** Attribution: "Small Hospital Bed by TiZeta (CC BY 2.0 original), modified by qubodup (CC BY 3.0)" — recorded in the ledger row.
+
+Next deck candidate: **GRADD Hospital Room** (poly.pizza /m/9sUalfQ76kn, CC BY 3.0 VERIFIED) — ward-room scene; extract the bed mesh and repeat the deck-band measurement.
