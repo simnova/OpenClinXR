@@ -26,6 +26,7 @@ import {
   buildRoomCaptureUrl,
   waitForStationShell,
 } from "./ui-xr-environment-room-capture.js";
+import { waitForSceneAssetsSettled } from "./declared-actors-rendered.js";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 
@@ -422,6 +423,13 @@ async function measureLiveAllStations(input?: {
           await page.goto(url, { waitUntil: "load", timeout: 180_000 });
           await waitForStationShell(page, 180_000);
           await waitForHumanoidsAndFrames(page, 8, 180_000);
+          // #259: sampling-instant race — waitForHumanoidsAndFrames returns as soon as ONE
+          // skinned mesh exists; sibling GLBs (7-8 MB) may still be loading, so their actor
+          // roots report 0/missing meshes at the probe's sample instant. Same class measured
+          // in issue-259's two-column (0 tris at sample instant -> 31-39k after settle). Wait
+          // for the settle signal before sampling; a failed asset counts as settled, so a
+          // genuinely-broken load is still reported, not masked.
+          await waitForSceneAssetsSettled(page, 60_000);
           // Settled load — #85 bare-mannequin mid-load class.
           await page.waitForTimeout(1200);
           const liveByActor = await dumpLiveMeshesForScenario(

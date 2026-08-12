@@ -390,7 +390,7 @@ async function measureLiveDeclaredActors(input: {
  * of hanging the suite. A `failed` asset is settled, so a genuinely-broken load
  * is reported rather than masked.
  */
-async function waitForSceneAssetsSettled(page: Page, timeoutMs: number): Promise<void> {
+export async function waitForSceneAssetsSettled(page: Page, timeoutMs: number): Promise<void> {
   const started = Date.now();
   try {
     await page.waitForFunction(

@@ -24,6 +24,7 @@ import {
   buildRoomCaptureUrl,
   waitForStationShell,
 } from "./ui-xr-environment-room-capture.js";
+import { waitForSceneAssetsSettled } from "./declared-actors-rendered.js";
 
 export const SUPINE_DECK_DIR = ".openclinxr/evidence/supine-patient-on-deck";
 export const SUPINE_DECK_NAME = "supine-patient-on-deck.json";
@@ -226,6 +227,13 @@ async function measureLive(input: {
           await page.goto(url, { waitUntil: "load", timeout: 180_000 });
           await waitForStationShell(page, 180_000);
           await waitForHumanoidsAndFrames(page, 8, 180_000);
+          // #259: sampling-instant race — waitForHumanoidsAndFrames returns as soon as ONE
+          // skinned mesh exists; the ED patient's 7-8 MB GLB may still be loading, so the
+          // primary_patient root can be absent at the probe's sample instant ("no ED primary
+          // patient was evaluated"). Same class measured in issue-259's two-column. Wait for
+          // the settle signal before sampling; a failed asset counts as settled, so a
+          // genuinely-broken load is still reported, not masked.
+          await waitForSceneAssetsSettled(page, 60_000);
           await page.waitForTimeout(1000);
 
           const live = await readLivePlacementFromPage(page);
