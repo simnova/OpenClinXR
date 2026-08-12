@@ -23,6 +23,10 @@ import {
 } from "./station-equipment-builders.js";
 import { measureParametricComposite } from "./station-equipment-composite-measure.js";
 import {
+  PARAMETRIC_KINDS,
+  resolveRoomPropBuilderEquipmentId,
+} from "./room-prop-classification.js";
+import {
   stampSupportSurfaceDeckMetadata,
   SUPPORT_SURFACE_DECK_TOP_BY_EQUIPMENT_ID,
 } from "./station-equipment-support-deck.js";
@@ -33,6 +37,15 @@ export {
   stampSupportSurfaceDeckMetadata,
   SUPPORT_SURFACE_DECK_TOP_BY_EQUIPMENT_ID,
 };
+
+// #347 split: the roomProp→builder-arm resolver lives in room-prop-classification.js
+// (a leaf module) so this file stays under the apps/ 600-line zone budget. Re-exported
+// here to preserve existing imports (room-prop-geometry, main).
+export {
+  resolveRoomPropBuilderEquipmentId,
+  roomPropIdsAliasedToEquipment,
+  stampRoomPropAliasesOnEquipmentRoot,
+} from "./room-prop-classification.js";
 
 export {
   buildDeclaredEquipmentGeometry,
@@ -194,101 +207,6 @@ const DEFAULT_POSITIONS: ReadonlyArray<{ x: number; y: number; z: number }> = [
   { x: -1.85, y: 0, z: 0.95 },
 ];
 
-/** Kinds that get purpose-built multi-mesh geometry (parametric path). */
-const PARAMETRIC_KINDS = new Set([
-  "fetal_monitor_equipment",
-  "exam_table_equipment",
-  "blood_pressure_cuff_equipment",
-  "abdominal_exam_zone_equipment",
-  "monitor_equipment",
-  "iv_pump_equipment",
-  "pulse_oximeter_equipment",
-  "nebulizer_mask_equipment",
-  "oxygen_wall_port_equipment",
-  "pediatric_stretcher_equipment",
-  "parent_chair_equipment",
-  "inhaler_spacer_equipment",
-  "chairs_equipment",
-  "tissue_box_equipment",
-  "post_op_bed_equipment",
-  "abdominal_dressing_equipment",
-  // #198 support surfaces — distinct silhouettes (not exam-table clones).
-  "hospital_bed_equipment",
-  "stretcher_equipment",
-  "side_rails_equipment",
-  // #202 family closures — grey-pole residual + deck/pump collisions.
-  "safe_room_chair_equipment",
-  "ehr_screen_equipment",
-  "lab_results_panel_equipment",
-  "tablet_visit_equipment",
-  "iv_pole_equipment",
-  "antipyretic_tray_equipment",
-  "hydration_supplies_equipment",
-  "digital_thermometer_equipment",
-  "glucometer_review_equipment",
-  "oxygen_nasal_cannula_equipment",
-  "surgical_consult_phone_equipment",
-  "observation_station_equipment",
-  "12_lead_ecg_machine_equipment",
-  "abdominal_exam_light_equipment",
-  // #223 physical roomProp ids that need dedicated geometry (not unit-box fallback).
-  "safety_plan_whiteboard_equipment",
-  "ekg_leads_on_bed_equipment",
-  // Architect tick 16 closure: family-fill ids with dedicated builder case arms
-  // were mounted source="fallback" (planStationEquipmentMounts consults
-  // PARAMETRIC_KINDS, not the dispatcher). Registering them makes the mount
-  // ledger match the catalogue's runtimeSource=parametric.
-  "medication_cart_equipment",
-  "call_bell_equipment",
-  "panic_button_equipment",
-  "privacy_curtain_equipment",
-  "small_table_equipment",
-  "consultation_desk_equipment",
-  "wall_sign_equipment",
-  "medication_bottles_equipment",
-  "urine_cup_equipment",
-  "drain_equipment",
-  "incentive_spirometer_equipment",
-  "blood_culture_kit_equipment",
-  // #347 MADR 0055 item 5 — scale-setting wall props (metric, origin-centred).
-  "outlet_plate_equipment",
-  "light_switch_equipment",
-  "hand_gel_dispenser_equipment",
-  "curtain_track_equipment",
-]);
-
-/**
- * Manifest roomProp id → parametric builder arm when hyphen/suffix alone is insufficient.
- * e.g. safe-room-soft-chair → safe_room_chair_equipment (not safe_room_soft_chair_equipment).
- */
-const ROOM_PROP_BUILDER_ALIASES: Readonly<Record<string, string>> = {
-  "safe-room-soft-chair": "safe_room_chair_equipment",
-  safe_room_soft_chair: "safe_room_chair_equipment",
-  "telehealth-tablet-stand": "tablet_visit_equipment",
-  telehealth_tablet_stand: "tablet_visit_equipment",
-  "observer-station": "observation_station_equipment",
-  observer_station: "observation_station_equipment",
-  "safety-plan-whiteboard": "safety_plan_whiteboard_equipment",
-  safety_plan_whiteboard: "safety_plan_whiteboard_equipment",
-  "ekg-leads-on-bed": "ekg_leads_on_bed_equipment",
-  ekg_leads_on_bed: "ekg_leads_on_bed_equipment",
-  "chest-pain-monitor": "monitor_equipment",
-  chest_pain_monitor: "monitor_equipment",
-  "handoff-whiteboard": "safety_plan_whiteboard_equipment",
-  handoff_whiteboard: "safety_plan_whiteboard_equipment",
-  "parent-coaching-chair": "parent_chair_equipment",
-  parent_coaching_chair: "parent_chair_equipment",
-  "pediatric-pulse-ox-monitor": "pulse_oximeter_equipment",
-  pediatric_pulse_ox_monitor: "pulse_oximeter_equipment",
-  "pediatric-nebulizer-station": "nebulizer_mask_equipment",
-  pediatric_nebulizer_station: "nebulizer_mask_equipment",
-  // #347 MADR 0055 item 5 — live ED-bundle props upgraded from flat box / cue.
-  "hand-sanitizer": "hand_gel_dispenser_equipment",
-  hand_sanitizer: "hand_gel_dispenser_equipment",
-  "curtain-track-rings": "curtain_track_equipment",
-  curtain_track_rings: "curtain_track_equipment",
-};
-
 /** Count of parametric equipment builders — counterweight for real-GLB assembly work (#168). */
 export function parametricEquipmentKindCount(): number {
   return PARAMETRIC_KINDS.size;
@@ -305,59 +223,6 @@ export function hasDeclaredEquipmentBuilderArm(equipmentId: string): boolean {
 /** Sorted dedicated builder arm ids (discoverable; do not hardcode in evidence). */
 export function listDeclaredEquipmentBuilderArms(): string[] {
   return [...PARAMETRIC_KINDS].sort();
-}
-
-/**
- * #185 — resolve a roomProp propId to a parametric builder arm, or null.
- * Exact match first, then hyphen→underscore, then `_equipment` suffix.
- * Manifest ids like `monitor` / `wall-clock` map to `monitor_equipment` /
- * `wall_clock_equipment` without a second geometry SSOT.
- */
-export function resolveRoomPropBuilderEquipmentId(propId: string): string | null {
-  if (!propId) return null;
-  if (PARAMETRIC_KINDS.has(propId)) return propId;
-  const alias = ROOM_PROP_BUILDER_ALIASES[propId] ?? ROOM_PROP_BUILDER_ALIASES[propId.replace(/-/gu, "_")];
-  if (alias && PARAMETRIC_KINDS.has(alias)) return alias;
-  const normalized = propId.replace(/-/gu, "_");
-  if (PARAMETRIC_KINDS.has(normalized)) return normalized;
-  if (!normalized.endsWith("_equipment")) {
-    const withSuffix = `${normalized}_equipment`;
-    if (PARAMETRIC_KINDS.has(withSuffix)) return withSuffix;
-  }
-  return null;
-}
-
-/**
- * #223 — reverse map: builder equipment id → roomProp propIds that alias to it.
- * Stamp these as openClinXrEquipmentIdAliases so #209 declared-equipment matching
- * sees the roomProp declaration fulfilled when only the equipment channel mounts.
- */
-export function roomPropIdsAliasedToEquipment(equipmentId: string): string[] {
-  if (!equipmentId) return [];
-  const out: string[] = [];
-  for (const [propId, arm] of Object.entries(ROOM_PROP_BUILDER_ALIASES)) {
-    if (arm === equipmentId && !out.includes(propId) && propId.includes("-")) {
-      // Prefer hyphenated manifest propIds over underscore duplicates.
-      out.push(propId);
-    }
-  }
-  return out;
-}
-
-/** Stamp reverse roomProp aliases onto an equipment root (no extra geometry). */
-export function stampRoomPropAliasesOnEquipmentRoot(
-  root: { userData: Record<string, unknown> },
-  equipmentId: string,
-): void {
-  const propIds = roomPropIdsAliasedToEquipment(equipmentId);
-  if (propIds.length === 0) return;
-  const aliases = Array.isArray(root.userData.openClinXrEquipmentIdAliases)
-    ? (root.userData.openClinXrEquipmentIdAliases as string[])
-    : [];
-  for (const propId of propIds) {
-    if (!aliases.includes(propId)) aliases.push(propId);
-  }
-  root.userData.openClinXrEquipmentIdAliases = aliases;
 }
 
 export function isEdChestPainBayScenario(scenarioId: string): boolean {
