@@ -65,6 +65,14 @@ export const LIBRARY_ADULT_HEAVY_MALE_RUNTIME_PATH =
  */
 export const MPFB_OB_PATIENT_AISHA_RUNTIME_PATH =
   "/generated-humanoids/mpfb-ob-patient-aisha.glb";
+/**
+ * #335 — the peds nurse and child MPFB bodies (cast into the peds asthma station).
+ * Mirrors actor-casting MPFB_PEDS_NURSE_KEVIN_GLB / MPFB_PEDS_PATIENT_CHILD_GLB.
+ */
+export const MPFB_PEDS_NURSE_KEVIN_RUNTIME_PATH =
+  "/generated-humanoids/mpfb-peds-nurse-kevin.glb";
+export const MPFB_PEDS_PATIENT_CHILD_RUNTIME_PATH =
+  "/generated-humanoids/mpfb-peds-patient-child.glb";
 
 const ADULT_POOL_GLBS = [
   ED_ADULT_CAST_GLB,
@@ -136,11 +144,11 @@ const ED_RUNTIME_CAST_BY_ACTOR: Record<string, string> = {
 
 /** Runtime public paths for peds asthma cast (mirrors actor-casting table). */
 const PEDS_RUNTIME_CAST_BY_ACTOR: Record<string, string> = {
-  patient_maya_johnson_v1: `/generated-humanoids/${PEDS_CHILD_GLB}`,
-  // #278 (route 2 from #276): parent → hm08 lean-female library, nurse → hm08 heavy-male
-  // library, mirroring the actor-casting SSOT table for peds_asthma_parent_anxiety_v1.
-  parent_tara_johnson_v1: LIBRARY_ADULT_LEAN_FEMALE_RUNTIME_PATH,
-  nurse_kevin_lee_v1: LIBRARY_ADULT_HEAVY_MALE_RUNTIME_PATH,
+  // #335: all three peds roles are MPFB bodies. Child patient -> MPFB child, parent ->
+  // aisha (adult female), nurse -> MPFB nurse. The hm08 library bodies stay on the pool.
+  patient_maya_johnson_v1: MPFB_PEDS_PATIENT_CHILD_RUNTIME_PATH,
+  parent_tara_johnson_v1: MPFB_OB_PATIENT_AISHA_RUNTIME_PATH,
+  nurse_kevin_lee_v1: MPFB_PEDS_NURSE_KEVIN_RUNTIME_PATH,
 };
 
 /**
