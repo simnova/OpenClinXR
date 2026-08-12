@@ -2138,10 +2138,21 @@ def main():
         garment_label="lower",
         height_axis=2,
     )
-    if lower_rep["verdict"] == "does_not_cover":
+    if lower_rep["verdict"] == "does_not_cover" or lower_rep["garmentBoundaryEdges"] > 0:
         # #295 — the leg shell must not wrap the hanging hands (measured 3,450
         # hand-dominant verts in the heavy-male lower fallback): exclude
         # arm/forearm/hand-dominant body faces from the shell band selection.
+        #
+        # issue-341 round 15: the `garmentBoundaryEdges` clause. On the TRUE body (the
+        # macro-keys guard below) the sparse 392-tri cargo fit hugs the legs and its
+        # outward raycast coverage rises to 0.95-0.97, so coverage_ok alone now passes
+        # the gate — but the fit is still the documented #220 open-shell trouser (32
+        # boundary edges, large facets, skin between them). The gate's own docstring
+        # says the sparse trouser fails BOTH closure and coverage; garmentBoundaryEdges
+        # is the gate's own reported field, so this is its stated intent, not a new
+        # threshold. A dense closed trouser reports 0 boundary edges and still ships on
+        # the covers branch. The pre-fix pipeline only produced the shell because the
+        # phantom double-deformed body misplaced the fit (coverage 0.07-0.78) — luck.
         limb_verts = _bone_dominant_vertex_indices(human, armature, _LIMB_BONE_RE)
         shell_limb_exclude = np.array(
             [any(int(vi) in limb_verts for vi in f) for f in body_faces], dtype=bool
