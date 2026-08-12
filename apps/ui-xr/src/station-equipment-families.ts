@@ -40,7 +40,8 @@ export type EquipmentFamily =
   | "exam_table"
   | "handheld_device"
   | "own_geometry"
-  | "medication_cart";
+  | "medication_cart"
+  | "call_bell";
 
 function mat(color: ColorRepresentation, roughness = 0.55, metalness = 0.12): MeshStandardMaterial {
   return new MeshStandardMaterial({ color, roughness, metalness });

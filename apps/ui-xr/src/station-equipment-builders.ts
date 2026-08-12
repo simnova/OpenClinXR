@@ -27,6 +27,7 @@ import {
   type EquipmentFamily,
 } from "./station-equipment-families.js";
 import { buildMedicationCartEquipment } from "./station-equipment-medication-cart.js";
+import { buildCallBellEquipment } from "./station-equipment-call-bell.js";
 import {
   buildHospitalBedEquipment,
   buildSideRailsEquipment,
@@ -478,6 +479,9 @@ export function buildDeclaredEquipmentGeometry(equipmentId: string): Group {
     // #202 medication cart — honest class for "medication cart" prose (was unmapped)
     case "medication_cart_equipment":
       return buildMedicationCartEquipment(equipmentId);
+    // #202 call bell — honest class for "call light"/"call bell" prose (was unmapped)
+    case "call_bell_equipment":
+      return buildCallBellEquipment(equipmentId);
     // #202 device-on-stand
     case "digital_thermometer_equipment":
       return buildDeviceOnStandFamilyEquipment(equipmentId, "thermometer");

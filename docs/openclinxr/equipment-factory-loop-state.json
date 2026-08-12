@@ -1,13 +1,13 @@
 {
   "schemaVersion": "openclinxr.equipment-factory-loop-state.v1",
   "active": true,
-  "tick": 4,
+  "tick": 5,
   "interval": "15m",
   "plan": ".openclinxr/plans/equipment-three-lane-factory.md",
   "contract": "docs/openclinxr/equipment-factory-15m-loop.md",
-  "lastTickAt": "2026-08-12T04:56:00.000Z",
-  "lastAction": "tick4 product landed 8f64e701 medication_cart_equipment (orchestrator unblocked concurrent gate)",
-  "nextPriority": "architect notes if ready; next honest map panic button/call light OR bed acquire if token",
+  "lastTickAt": "2026-08-12T05:10:00.000Z",
+  "lastAction": "honest map call light+call bell -> dedicated thin parametric id call_bell_equipment (own module); unmappedProse 18->16; tick-5 changes staged (commit blocked by concurrent asset-registry lane over budget)",
+  "nextPriority": "retry commit once asset-registry lane lands (staged; orchestrator lands when gate clears) OR next honest map (panic button / small table / consultation desk)",
   "researcherEveryN": 3,
   "architectEveryN": 4,
   "stopWhen": [

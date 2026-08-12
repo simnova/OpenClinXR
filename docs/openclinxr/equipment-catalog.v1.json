@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.equipment-catalog.v1",
-  "measuredAt": "2026-08-12T04:56:12.317Z",
+  "measuredAt": "2026-08-12T05:10:33.373Z",
   "claimScope": "equipment three-lane catalogue over scenario-bank blueprints + runtime builders (MADR 0054/0055)",
   "notEvidenceFor": [
     "clinical_accuracy",
@@ -13,7 +13,7 @@
     "0055"
   ],
   "scenarioCount": 14,
-  "equipmentCount": 40,
+  "equipmentCount": 41,
   "rows": [
     {
       "equipmentId": "12_lead_ecg_machine_equipment",
@@ -183,6 +183,33 @@
       ],
       "scenarioIds": [
         "ob_headache_preeclampsia_triage_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "call_bell_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildCallBellEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "call bell",
+        "call light"
+      ],
+      "scenarioIds": [
+        "ob_headache_preeclampsia_triage_v1",
+        "ward_delirium_med_rec_v1"
       ],
       "midbandStatus": "none",
       "licenceStatus": "n/a",
@@ -1050,22 +1077,6 @@
       "reason": "no prose-map entry"
     },
     {
-      "prose": "call bell",
-      "scenarioIds": [
-        "ward_delirium_med_rec_v1"
-      ],
-      "recommendedEquipmentId": null,
-      "reason": "no prose-map entry"
-    },
-    {
-      "prose": "call light",
-      "scenarioIds": [
-        "ob_headache_preeclampsia_triage_v1"
-      ],
-      "recommendedEquipmentId": null,
-      "reason": "no prose-map entry"
-    },
-    {
       "prose": "consultation desk",
       "scenarioIds": [
         "oncology_bad_news_family_v1"
@@ -1190,11 +1201,11 @@
   "summary": {
     "byLane": {
       "bank": 4,
-      "thin_parametric": 35,
+      "thin_parametric": 36,
       "modular_kit": 1
     },
     "byRuntimeSource": {
-      "parametric": 36,
+      "parametric": 37,
       "gltf": 4
     },
     "gltfMissingOnDisk": [],

@@ -2,12 +2,12 @@
 
 MADRs: 0054, 0055 · schema `openclinxr.equipment-catalog.v1`
 
-- measuredAt: 2026-08-12T04:56:12.317Z
+- measuredAt: 2026-08-12T05:10:33.373Z
 - scenarios: 14
-- equipment rows: 40
-- lanes: {"bank":4,"thin_parametric":35,"modular_kit":1}
-- runtimeSource: {"parametric":36,"gltf":4}
-- unmapped prose: 18
+- equipment rows: 41
+- lanes: {"bank":4,"thin_parametric":36,"modular_kit":1}
+- runtimeSource: {"parametric":37,"gltf":4}
+- unmapped prose: 16
 - gltf missing on disk: 0
 
 ## Blueprints (14 scenario-bank cases)
@@ -47,6 +47,7 @@ MADRs: 0054, 0055 · schema `openclinxr.equipment-catalog.v1`
 ### ob_headache_preeclampsia_triage_v1
 
 - blood_pressure_cuff_equipment (thin_parametric/parametric)
+- call_bell_equipment (thin_parametric/parametric)
 - fetal_monitor_equipment (thin_parametric/parametric)
 - hospital_bed_equipment (thin_parametric/parametric)
 
@@ -109,6 +110,7 @@ MADRs: 0054, 0055 · schema `openclinxr.equipment-catalog.v1`
 
 ### ward_delirium_med_rec_v1
 
+- call_bell_equipment (thin_parametric/parametric)
 - ehr_screen_equipment (thin_parametric/parametric)
 - hospital_bed_equipment (thin_parametric/parametric)
 - iv_pump_equipment (thin_parametric/parametric)

@@ -58,11 +58,14 @@ export const PROSE_TO_EQUIPMENT_ID: Readonly<Record<string, string>> = {
   "low-bandwidth indicator": "tablet_visit_equipment",
   // Dedicated thin parametric id (family "medication_cart") — honest class, not ECG cart.
   "medication cart": "medication_cart_equipment",
+  // Bedside call button (ward / OB) — dedicated thin parametric id.
+  "call light": "call_bell_equipment",
+  "call bell": "call_bell_equipment",
   // Deliberately NOT mapped (appear as unmappedProse until real ids exist):
-  // privacy curtain/notice, call light/bell, panic button, small table,
-  // consultation desk, joint diagram, medication bottles, urine cup,
-  // blood-culture kit, neuro exam card, CT/fall-risk/sepsis signs,
-  // drain, soft lighting, incentive spirometer — factory honesty > silent fallback.
+  // privacy curtain/notice, panic button, small table, consultation desk,
+  // joint diagram, medication bottles, urine cup, blood-culture kit,
+  // neuro exam card, CT/fall-risk/sepsis signs, drain, soft lighting,
+  // incentive spirometer — factory honesty > silent fallback.
 };
 
 export function resolveProseToEquipmentId(prose: string): string | null {
