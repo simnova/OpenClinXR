@@ -29,6 +29,7 @@
 |-------|-----|---------|-------------|---------|---------|-------------|
 | IV Stand (teeart) | https://sketchfab.com/3d-models/iv-stand-dd3115aafb0e4a628f261d0de7a787b9 | CC BY 4.0 | 5,084 | IV pole | **Yes** | `IV Stand by teeart (Sketchfab, CC BY 4.0)` |
 | Hospital Bed (Matt LeMoine) | https://sketchfab.com/3d-models/hospital-bed-9cd9464990d2456e98b69978447852aa | CC BY 4.0 | 3,058 | Hospital bed | **Yes** — top priority | `Hospital Bed by Matt LeMoine (Sketchfab, CC BY 4.0)` |
+| Hospital Stretcher Trolley (UsmanAzhar2256) | https://sketchfab.com/3d-models/hospital-stretcher-trolley-edfeb93b201b4c8da2c7a4fb5dea090c | CC BY 4.0 | 2,245 | Stretcher | **Yes** — re-verified 2026-08-12 | `Hospital Stretcher Trolley by UsmanAzhar2256 (Sketchfab, CC BY 4.0)` |
 | Operating Table (shashkinv1ad) | https://sketchfab.com/3d-models/operating-table-e3a4512227d34b098e2ef0d11c8a80fd | CC BY 4.0 | 46,400 | OR table | Marginal — decimate | `Operating Table by shashkinv1ad (Sketchfab, CC BY 4.0)` |
 | C-Arm Neurosurgery Table (INGSOC1984) | https://sketchfab.com/3d-models/c-arm-neurosurgery-operating-table-f92ebb77ec8249f8bb53cb9f256f55cc | CC BY 4.0 | 9,230 | Surgical table | Yes mid-band | `C Arm Neurosurgery Operating Table by INGSOC1984 (Sketchfab, CC BY 4.0)` |
 | The Medical Bag (ezgi bakim) | https://sketchfab.com/3d-models/the-medical-bag-7ff695d5041640b9a6aedb88016af31e | CC BY 4.0 | 1,870 | Med bag | Yes | `The Medical Bag by ezgi bakim (Sketchfab, CC BY 4.0)` |
@@ -47,7 +48,6 @@
 | Emergency Cart (tutminchai) | https://sketchfab.com/3d-models/emergency-cart-7b6c0aa0f213416bbd65efbaa2d26391 | CC BY 4.0 | ~412K | Crash cart | Marginal — decimate hard |
 | Medical Monitor (brodys_arts) | https://sketchfab.com/3d-models/medical-monitor-84aa2c97829b4557bc077e8006d97e58 | CC BY 4.0 | ~4.9K | Monitor | Yes |
 | Bed Curtain + Vital Signs Monitor (Ethan Cragun) | https://sketchfab.com/3d-models/bed-curtain-and-vital-signs-monitor-295ed50eeaa249e8bbeed7b305d3da71 | CC BY 4.0 | ~8.8K | Monitor + curtain (VR med sim) | Yes |
-| Hospital Stretcher Trolley (UsmanAzhar2256) | https://sketchfab.com/3d-models/hospital-stretcher-trolley-edfeb93b201b4c8da2c7a4fb5dea090c | CC BY 4.0 | ~2.2K | Stretcher | Yes |
 | Exam Table (orphic_oasis8) | https://sketchfab.com/3d-models/exam-table-459c00d5a0524c67a4ad2fa5c6eacb15 | CC BY 4.0 | ~7.9K | Exam table | Yes |
 | Gurney medevac (dudecon) | https://sketchfab.com/3d-models/gurney-medevac-patient-stretcher-rescue-litter-40c85d5457a144d3b5dc1b328a2425a3 | CC BY 4.0 | ~1.5K | Stretcher + baked patient | Caveat |
 | Small Hospital Bed (qubodup) | https://opengameart.org/content/small-hospital-bed | CC BY 3.0 | 540 | Bed | Yes cheapest |
@@ -66,8 +66,12 @@
 
 ## Recommended first acquisitions (after licence-tab re-verify)
 
-1. **Hospital Bed (Matt LeMoine)** → `hospital_bed_equipment` bank GLB (lane 1)
-2. **Hospital Stretcher Trolley (UsmanAzhar2256)** → `stretcher_equipment` (after INFERRED re-verify)
+**2026-08-12 re-verify result:** bed + stretcher both VERIFIED (CC BY 4.0, `isDownloadable=true` via
+public API). Actual GLB download requires a Sketchfab account token — **no `SKETCHFAB_API_TOKEN` on
+this machine**. Set the token (operator), then run the download→stage→bank steps below.
+
+1. **Hospital Bed (Matt LeMoine)** → `hospital_bed_equipment` bank GLB (lane 1) — 3,058 faces, downloadable
+2. **Hospital Stretcher Trolley (UsmanAzhar2256)** → `stretcher_equipment` — 2,245 faces, downloadable
 3. **Exam Table (orphic_oasis8)** → `exam_table_equipment` (after re-verify)
 4. Keep **ECG crash cart** on modular kit / procedural unless crash-cart decimation is worth a dedicated slice
 

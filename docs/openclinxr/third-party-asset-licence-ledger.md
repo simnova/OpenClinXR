@@ -47,9 +47,9 @@ Full table + poly counts: `docs/openclinxr/equipment-oss-candidates.md`. MADR 00
 
 | source | licence (status) | subject | next action |
 |---|---|---|---|
-| Hospital Bed (Matt LeMoine) [Sketchfab](https://sketchfab.com/3d-models/hospital-bed-9cd9464990d2456e98b69978447852aa) | **CC BY 4.0 VERIFIED** (API) · ~3k tris | `hospital_bed_equipment` | **Priority acquire** with attribution; post-opt if needed (0050) |
+| Hospital Bed (Matt LeMoine) [Sketchfab](https://sketchfab.com/3d-models/hospital-bed-9cd9464990d2456e98b69978447852aa) | **CC BY 4.0 VERIFIED** (API) · ~3k tris · `isDownloadable=true` | `hospital_bed_equipment` | **Priority acquire** with attribution; post-opt if needed (0050). Download needs `SKETCHFAB_API_TOKEN` |
 | IV Stand (teeart) [Sketchfab](https://sketchfab.com/3d-models/iv-stand-dd3115aafb0e4a628f261d0de7a787b9) | **CC BY 4.0 VERIFIED** · ~5k tris | IV pole alt | Optional; bank already has iv-pole GLB |
-| Hospital Stretcher Trolley (UsmanAzhar2256) | CC BY 4.0 **INFERRED** | stretcher | Re-read licence tab, then acquire |
+| Hospital Stretcher Trolley (UsmanAzhar2256) [Sketchfab](https://sketchfab.com/3d-models/hospital-stretcher-trolley-edfeb93b201b4c8da2c7a4fb5dea090c) | **CC BY 4.0 VERIFIED** (API re-read 2026-08-12) · ~2.2k tris | stretcher | **Acquire** with attribution; needs `SKETCHFAB_API_TOKEN` |
 | Exam Table (orphic_oasis8) | CC BY 4.0 **INFERRED** | exam table | Re-read licence tab, then acquire |
 | Bed Curtain + Vital Signs Monitor (Ethan Cragun) | CC BY 4.0 **INFERRED** | curtain + monitor | Re-read; covers unmapped privacy curtain prose |
 | Emergency Cart (tutminchai) | CC BY 4.0 **INFERRED** · ~412k tris | crash cart | Only if decimation budget accepted; else keep kit ECG cart |
