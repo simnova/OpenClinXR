@@ -349,6 +349,7 @@ def apply_texture_mask_hairline(
     eye_half_w,
     forehead_plane,
     hairline_snap_z,
+    hairline_z,
     head_z0,
     h_world,
     eye_min_x,
@@ -648,76 +649,83 @@ def apply_texture_mask_hairline(
         except Exception as _e:
             print(f"TEXTURE_HAIRLINE WARNING: could not write {_tag}.png: {_e}")
 
-    in_strip = (
-        (np.abs(xs) <= eye_half_w)
-        & (ys <= forehead_plane)
-        & (zs >= head_z0)
-    )
-    in_socket = (
-        (xs >= eye_min_x - edge_pad) & (xs <= eye_max_x + edge_pad)
-        & (ys >= eye_min_y - edge_pad) & (ys <= eye_max_y + edge_pad)
-    )
+    # ---- (3) classification — frame-independent, from the mesh's RAW vertices ----
+    # issue-341 round 12 — the baked position map is not a reliable frame for
+    # classification in this pipeline: round 10 measured the child's Z channel
+    # dead even from a modifier-free duplicate, and this round measured the
+    # position maps disagreeing with the mesh's own UV->world mapping (a
+    # face-front texel decoded to the neck), while the eye footprint, the
+    # hairline and the exported mesh are all RAW-frame quantities. The strip and
+    # socket are therefore evaluated from the mesh's RAW vertices (h_world @
+    # v.co — the same frame as the eye footprint and hairline) and splatted to
+    # texels through the UV layer, so the classification cannot drift with the
+    # bake frame. The hairline threshold is the round-5 derived hairline
+    # (hairline_z, the top of the forehead column — the derivation rounds 5/6
+    # established and the orchestrator accepted), NOT the round-8 snap seam
+    # (hairline_snap_z), which sits at the bottom of the eyes and paints the
+    # brow/socket/nose (measured: shipped aisha brow [10,9,8] vs round-9
+    # known-good [53,47,43]; the round-12 render keeps a dark band over the
+    # eyes/nose because the socket exclusion was applied in the broken frame).
+    _uv_layer = human.data.uv_layers[0].data
+    _loops = human.data.loops
+    _verts = human.data.vertices
+    _face_band = np.zeros((resolution, resolution), dtype=bool)
+    _above_hair = np.zeros((resolution, resolution), dtype=bool)
+    _socket = np.zeros((resolution, resolution), dtype=bool)
+    for _poly in human.data.polygons:
+        for _li in range(_poly.loop_start, _poly.loop_start + _poly.loop_total):
+            _vi = _loops[_li].vertex_index
+            _p = h_world @ _verts[_vi].co
+            _u = _uv_layer[_li].uv
+            _tx = int(_u.x * resolution) % resolution
+            _ty = int((1.0 - _u.y) * resolution) % resolution
+            if abs(_p.x) <= eye_half_w and _p.y <= forehead_plane and _p.z >= head_z0:
+                _face_band[_ty, _tx] = True
+                if hairline_z is not None and _p.z >= hairline_z:
+                    _above_hair[_ty, _tx] = True
+            if (
+                abs(_p.x) <= eye_half_w + edge_pad
+                and _p.y <= eye_max_y + edge_pad
+                and _p.z >= head_z0
+            ):
+                _socket[_ty, _tx] = True
+    # dilate the splats by the body's own UV scale (a property of the mesh
+    # resolution, not a fitted constant) so the level set is smooth.
+    _median_uv = _median_uv_edge_px(human, resolution) or 0.0
+    _dil = max(2, int(round(1.5 * _median_uv))) if _median_uv else 4
+
+    def _dilate(_m):
+        _out = _m.copy()
+        for _dy in range(-_dil, _dil + 1):
+            for _dx in range(-_dil, _dil + 1):
+                _out = np.maximum(_out, np.roll(np.roll(_m, _dy, axis=0), _dx, axis=1))
+        return _out
+
+    _face_band = _dilate(_face_band)
+    _above_hair = _dilate(_above_hair)
+    _socket = _dilate(_socket)
+    # the eye/brow/nose region: the face-front socket band BELOW the hairline is
+    # never hair — the eyes and brows render through the skin texture (#340's eye
+    # mesh is separate geometry and is unaffected). Above the hairline the
+    # forehead is hair, and the crown/sides keep the per-polygon mask.
+    _socket_low = _socket & ~_above_hair
+
     hair = mask_a > 0.5
-    override = in_strip & ~in_socket
+    override = _face_band
     _fallback = None
-    _z_alive = bool(float(pos[..., 2].max()) > 1e-6)
-    if hairline_snap_z is None or forehead_plane is None:
+    if hairline_z is None or forehead_plane is None:
         print(
-            "TEXTURE_HAIRLINE WARNING: no snap seam height or forehead plane — "
+            "TEXTURE_HAIRLINE WARNING: no hairline height or forehead plane — "
             "keeping per-polygon mask only"
         )
-    elif not _z_alive:
-        # issue-341 round 11 — the child's position-map Z channel bakes to flat
-        # zero (round 10 measured: modifier-free duplicate, correct MapRange node
-        # values, R/G decode the crown correctly — a child-specific
-        # bake-evaluation quirk, not a frame or node error; the bake log reports
-        # it as posB=[0.000,0.000]). The height classification has no input. The
-        # image-space fallback round 10 wrote and did not commit: smooth the
-        # per-polygon scalp MASK within the face-front strip with a box
-        # majority-vote filter (for a binary mask, the median), radius derived
-        # from the body's own UV edge length, so the hairline is a smoothed
-        # contour of the mask instead of the triangle-edge boundary. The Z
-        # clause is dropped from the strip (it cannot be evaluated); the strip
-        # is still the face-front band in x/y, and the eye-socket exclusion
-        # still holds. A deletion needs a replacement (#6p): the scalp region
-        # survives as pixels in the texture either way.
-        _median_uv = _median_uv_edge_px(human, resolution) or 0.0
-        _radius = max(3, int(round(1.5 * _median_uv))) if _median_uv else 6
-        _smoothed = _box_majority_vote(hair, _radius)
-        in_strip = (np.abs(xs) <= eye_half_w) & (ys <= forehead_plane)
-        override = in_strip & ~in_socket
-        hair = mask_a > 0.5
-        hair[override] = _smoothed[override]
-        _fallback = {
-            "mode": "mask_smoothing",
-            "radiusPx": _radius,
-            "medianUvEdgePx": round(_median_uv, 4),
-            "posZMax": round(float(pos[..., 2].max()), 4),
-        }
-        print(f"TEXTURE_HAIRLINE FALLBACK {json.dumps(_fallback)}")
     else:
-        hair[override] = zs[override] >= hairline_snap_z
-
-    # issue-341 round 12 — the per-polygon scalp mask covers the eye sockets.
-    # Measured on the shipped bytes of all three actors (round12-eye-uv.json):
-    # hair-colored texels (hair_color ≈ [10,8,5]) over the outer halves of both
-    # eye sockets and the brow — aisha eyeSocket mean [71,62,57] / brow [10,9,8]
-    # vs the round-9 (#343) known-good [103,91,83] / [53,47,43]; the occlusion
-    # gate cannot see this because it measures visibility fraction, and the dark
-    # is texture, not occluder geometry. The eye footprint was excluded from the
-    # strip override (in_socket) but NOT from the base mask — hair STARTS as
-    # mask_a > 0.5, so scalp polygons whose UV coverage overlaps the socket
-    # (polygons adjacent to the #338 polygon-space unpaint whose centers fall
-    # outside its footprint) still paint hair over the eyes in the texture.
-    # Restore the skin bake under the eye footprint: never paint hair inside it,
-    # whichever branch produced the hair region. This is #338's unpaint re-applied
-    # in the texture space the hairline now lives in — not a mask shrink (the
-    # crown/sides mask and the strip zs >= hairline_snap_z logic are untouched)
-    # and it cannot re-open poke-through (texture pixels, not geometry). The
-    # hairline above the brow is preserved: the strip still paints hair at
-    # zs >= hairline_snap_z outside the socket, and the scalp mask still covers
-    # the crown and the temples (x beyond the eye footprint).
-    hair[in_socket] = False
+        # face front: hair only at-or-above the derived hairline (a level set of
+        # the raw vertex heights — smooth, independent of the edge ring); below
+        # it the eyes/brow/nose bridge are skin regardless of the per-polygon
+        # mask, so the round-11 "black mask over the eyes and down the bridge of
+        # the nose" cannot recur in any bake frame.
+        hair[_face_band] = _above_hair[_face_band]
+        hair[_socket_low] = False
     out_rgba = skin_rgba.copy()
     out_rgba[hair] = np.array(hair_color, dtype=np.float32)
     baked_img.pixels[:] = out_rgba.reshape(-1).tolist()
@@ -758,14 +766,16 @@ def apply_texture_mask_hairline(
         _prev = _d
     _flip_rate = round(_flips / _steps, 4) if _steps else 0.0
     _hair_z = zs[hair]
+    _z_alive = bool(float(pos[..., 2].max()) > 1e-6) if pos is not None else False
     return {
         "mode": "texture_mask_level_line",
         "scalpPolygonsReassignedToSkin": scalp_reassigned,
         "hairRegionPixels": int(hair.sum()),
         "maskWhitePixels": int((mask_a > 0.5).sum()),
         "stripOverridePixels": int(override.sum()),
-        "socketExcludedPixels": int((in_strip & in_socket).sum()),
+        "socketExcludedPixels": int(_socket_low.sum()),
         "hairlineSnapZ": round(float(hairline_snap_z), 4) if hairline_snap_z is not None else None,
+        "hairlineZ": round(float(hairline_z), 4) if hairline_z is not None else None,
         "hairZRange": (
             [round(float(_hair_z.min()), 4), round(float(_hair_z.max()), 4)]
             if _hair_z.size and _z_alive else None
@@ -777,7 +787,7 @@ def apply_texture_mask_hairline(
             round(float(np.median(np.abs(np.diff(_bound_rows)))), 2) if len(_bound_rows) > 2 else None
         ),
         "positionMapHeadBounds": [round(x, 4) for x in (hx0, hx1, hy0, hy1, hz0, hz1)],
-        "claimScope": "hairline boundary moved from polygon material assignment into the baked skin baseColorTexture; hairline height is the round-8 snap seam (in-band 0.90-0.96 H); the per-polygon scalp material is retired",
+        "claimScope": "hairline boundary moved from polygon material assignment into the baked skin baseColorTexture; hairline height is the round-5 derived hairline (hairline_z, the top of the forehead column) classified from the mesh's RAW vertices, not the baked position map; the per-polygon scalp material is retired",
         "notEvidenceFor": ["a clean pixel grade (orchestrator grades captures)", "clinical realism", "production asset readiness", "quest readiness"],
     }
 
@@ -2701,6 +2711,7 @@ def main():
         eye_half_w=eye_half_w,
         forehead_plane=forehead_plane,
         hairline_snap_z=hairline_snap_z,
+        hairline_z=hairline_z,
         head_z0=head_z0,
         h_world=h_world,
         eye_min_x=eye_min_x,
