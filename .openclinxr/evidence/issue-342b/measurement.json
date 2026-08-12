@@ -1,0 +1,134 @@
+{
+  "schemaVersion": "openclinxr.issue-342b-product-camera-and-room-area.v1",
+  "slice": "issue-342b",
+  "subject": "the PRODUCT's default camera inside the closed Infinigen room, and how small that room can be generated",
+  "instrument": {
+    "camera": "tools/openclinxr/evidence/ui-xr-live-scene-graph-dump.ts --capture-mode none --screenshot (new: the dump previously forced openclinxrCaptureMode=scene-overview, so no instrument in the repo had ever measured the camera a learner actually gets)",
+    "area": "clinical_exp.run_clinical (Infinigen install driver, #339) seed 0 + disable/clinical_bay.gin, coarse; footprint re-measured from each scene.blend by measure_clinical.py"
+  },
+
+  "cameraHalf": {
+    "preFix": {
+      "cameraWorldPosition": [0, 1.48, 4.73],
+      "fov": 55,
+      "framing": "wide_clean_dynamic_encounter_room_review_three_actor_context",
+      "roomInteriorWorld": { "min": [-3.25, 0.0, -4.025], "max": [3.1255, 2.4011, 2.3505] },
+      "exteriorHullWorld": { "min": [-3.25, -0.1245, -4.025], "max": [3.25, 2.5255, 2.475] },
+      "meshesContainingCamera": [],
+      "metresBeyondInteriorPlusZFace": 2.379,
+      "viewport": ".openclinxr/evidence/issue-342b/pre-fix/ed_chest_pain_priority_v1-none-viewport.png",
+      "viewportGrade": "FLAT GREY FIELD. Every sampled point is a uniform neutral grey: top-left (145,145,145), right (144,144,144), bottom-left (146,146,146), centre (142,142,142). No floor, no walls, no actors. A learner on the default camera sees nothing."
+    },
+
+    "optionsConsidered": [
+      {
+        "option": "move the room",
+        "verdict": "rejected_measured",
+        "measurement": "the camera is 2.379 m beyond the interior's +Z face, so the room must shift >= +2.4 m. Its far wall then lands at z >= -1.63, inside the measured ed_environment extent (z -2.09) and 1.0 m behind the patient (z -0.62); furniture and cast would intersect the wall. Actor world bounds measured from the same dump: patient x -1.94..-0.34 z -0.62..0.43, nurse x 0.13..1.15 z 0.07..0.70, spouse x 0.94..1.86 z -0.19..0.46."
+      },
+      {
+        "option": "open the shell",
+        "verdict": "rejected_measured",
+        "measurement": "there is no +Z wall to hide. gltf-transform reports the bake as four single-primitive meshes - dining-room_0/0.wall (190 tris), .floor (44), .ceiling (30), .exterior (176). All four walls are ONE mesh. Opening it means deleting faces from a baked mesh by hand, per bake (D1)."
+      },
+      {
+        "option": "move the camera",
+        "verdict": "CHOSEN",
+        "measurement": "the offset is already named desktopPreviewCameraOffsetZ (main.ts:3157) - a flat-preview pull-back, not the learner's position. The locomotion rig, which IS the learner, sits at the origin INSIDE the room, and in an XR session three.js drives the camera from the headset pose so the offset never applies. The defect is scoped to the flat desktop preview, and only the product's own wide default framing is re-derived; capture framings are left alone."
+      }
+    ],
+
+    "postFix": {
+      "cameraWorldPosition": [-3.0011, 1.4658, 2.1016],
+      "cameraInsideRoomInterior": true,
+      "wallThicknessMeters": 0.1245,
+      "insetFromInteriorFace": "2 x wall thickness = 0.249 m (0.1245 m clear of the wall's inner face)",
+      "nearestActorMeters": 2.0,
+      "viewport": ".openclinxr/evidence/issue-342b/final/ed_chest_pain_priority_v1-none-viewport.png",
+      "viewportNote": "final/ is captured from the exact committed state (post-fix/ is the same change before a lint-driven refactor of the candidate loop; the derived camera is identical to 4 dp in both).",
+      "viewportGrade": "An interior view of the bay, graded on the pixels. floor_visible: yes (255,255,248). two_or_more_walls: yes - left wall, back wall, right wall, all (229,228,222) face-on. ceiling: yes, meeting the walls. doorway: yes, dark opening in the back wall. actors: all three - nurse standing in teal scrubs, spouse behind with an arm raised, patient supine on the stretcher at left. fixtures: stretcher and red-trimmed wall board both present. Residual A: warm-grey wedges at the top-left and right frame edges, (154,152,142). Residual B (out of scope, pre-existing, re-reported): a small unattributed red slab lies flat on the floor mid-frame, roughly 0.3 m square, belonging to no named fixture."
+    },
+
+    "residualNamed": {
+      "artifact": "warm-grey wedges at the top-left and right frame edges of the interior view",
+      "isNotTheExteriorHull": "control/treatment: hiding dining-room_00exterior produced a BYTE-IDENTICAL viewport at every sampled point (compare post-fix/ and post-fix-hull/). The hull is back-face culled from inside and contributes nothing.",
+      "measuredCause": "the room's own plaster walls at grazing incidence. The wedges sample (154,152,142) against the same wall's face-on (229,228,222) - a uniform 0.67x of the same hue (ratios 0.673/0.667/0.640), i.e. less light on the same material, not a hole. The eye stands 0.1245 m from two walls, so they graze the frame edges.",
+      "notFixed": "framing quality, not a missing surface. Present identically in the landed #342 capture, which uses the same derivation."
+    },
+
+    "rejectedChange": {
+      "change": "hide the untextured exterior hull on load",
+      "verdict": "measured and REVERTED",
+      "why": "justified as (a) removing the grey wedges and (b) making camera-outside-the-room fail loudly rather than as a confident grey render. Both measured false: from inside the viewport was byte-identical; from outside, hiding the hull only exposes the next opaque layer - the wall's outer face - so the failure field went from (145,145,145) to (229,228,222) and stayed just as confident. Zero observable effect in either state, so the change was not made."
+    },
+
+    "destructiveProbe": {
+      "method": "early-return from applyInteriorPreviewCameraOnce, re-run the same dump + screenshot",
+      "result": "camera returns to world [0,1.48,4.73], meshesContainingCamera 0, and the viewport returns to a flat blank field at (229,228,222) - no floor, no walls, no actors",
+      "artifact": ".openclinxr/evidence/issue-342b/destructive-probe/ed_chest_pain_priority_v1-none-viewport.png"
+    },
+
+    "notEvidenceFor": [
+      "the capture-mode framings (face detail, actor close, actor pose, generated scene overview), which are still authored for the open parametric box and were deliberately NOT re-derived",
+      "any environmentId other than ed_exam_bay_v1 (it is the only mapped room)",
+      "XR-worn behaviour: in a session three.js drives the camera from the headset pose, so this path does not run and was not exercised",
+      "clinical realism, Quest readiness, lighting quality",
+      "fixture placement inside the generated room (the whiteboard at x -3.99 still lies beyond the room's x -3.25 wall)"
+    ],
+
+    "knownDifference": "the product latches the interior camera on the first frame where the room and any staged cast exist, which is earlier than the capture's waitForHumanoidAssetsLoaded. Eye height therefore lands at y 1.466 (product) vs 1.660 (capture) - the cast box is still growing when the product latches. Both frame the encounter; the 0.19 m difference is stated, not hidden."
+  },
+
+  "areaHalf": {
+    "question": "how small can the generated room be made? #339 proved [36,48] m2 feasible and [78,84] infeasible; nobody had probed DOWNWARD.",
+    "authoredTarget": {
+      "source": "packages/openclinxr/asset-registry/src/environment-descriptors.ts:136-142 ed_exam_bay_v1",
+      "widthMeters": 7,
+      "depthMeters": 3.45,
+      "areaM2": 24.15,
+      "aspect": 2.029,
+      "note": "derived from the repo's own authored descriptor, not invented. clinical_bay.gin already sets RoomConstants.aspect_ratio_range=(2.0,2.1) to match it."
+    },
+    "shipped": {
+      "areaM2": 40.66,
+      "footprint": "6.376 x 6.376 x 2.401 interior",
+      "note": "clinical_bay.gin sets wall_height, wall_thickness and aspect_ratio_range and NO area bound at all - the one control proven to work is the one the shipped config omits."
+    },
+    "runs": [
+      { "areaBound": [78, 84], "aspectBound": [1.4, 1.6], "annealFrozen": true, "distinctScores": null, "scoreStart": 425480, "scoreEnd": 425480, "measuredAreaM2": 44.0, "measuredFootprint": "8.0 x 5.5", "aspect": 1.455, "satisfied": false, "source": "#339" },
+      { "areaBound": [36, 48], "aspectBound": [1.2, 1.7], "annealFrozen": false, "scoreEnd": 230, "measuredAreaM2": 41.25, "aspect": 1.364, "satisfied": true, "source": "#339" },
+      { "areaBound": [22, 26], "aspectBound": [1.9, 2.2], "annealFrozen": true, "distinctScores": 1, "scoreStart": 410000, "scoreEnd": 410000, "measuredAreaM2": 44.0, "measuredFootprint": "8.0 x 5.5", "aspect": 1.455, "satisfied": false },
+      { "areaBound": [30, 40], "aspectBound": [1.2, 1.7], "annealFrozen": false, "distinctScores": 44, "scoreStart": 410000, "scoreEnd": 279, "measuredAreaM2": 38.5, "measuredFootprint": "7.0 x 5.5", "aspect": 1.273, "satisfied": true },
+      { "areaBound": [24, 32], "aspectBound": [1.2, 1.7], "annealFrozen": true, "distinctScores": 1, "scoreEnd": 410000, "measuredAreaM2": 44.0, "aspect": 1.455, "satisfied": false },
+      { "areaBound": [22, 27], "aspectBound": [1.2, 1.7], "annealFrozen": true, "distinctScores": 1, "scoreEnd": 410000, "measuredAreaM2": 44.0, "aspect": 1.455, "satisfied": false },
+      { "areaBound": [12, 18], "aspectBound": [1.2, 1.7], "annealFrozen": true, "distinctScores": 1, "scoreEnd": 410000, "measuredAreaM2": 44.0, "aspect": 1.455, "satisfied": false },
+      { "areaBound": [36, 48], "aspectBound": [1.9, 2.2], "annealFrozen": true, "distinctScores": 1, "scoreEnd": 410000, "measuredAreaM2": 44.0, "aspect": 1.455, "satisfied": false, "isolates": "aspect: same area band that succeeded at aspect [1.2,1.7]" },
+      { "areaBound": [32, 38], "aspectBound": [1.2, 1.7], "annealFrozen": false, "distinctScores": 35, "scoreEnd": 236, "measuredAreaM2": 32.5, "measuredFootprint": "6.5 x 5.0", "aspect": 1.3, "satisfied": true },
+      { "areaBound": [30, 36], "aspectBound": [1.2, 1.7], "annealFrozen": true, "distinctScores": 1, "scoreEnd": 410000, "measuredAreaM2": 44.0, "aspect": 1.455, "satisfied": false },
+      { "areaBound": [20, 40], "aspectBound": [1.2, 1.7], "annealFrozen": false, "distinctScores": 37, "scoreEnd": 237, "measuredAreaM2": 38.5, "aspect": 1.273, "satisfied": true },
+      { "areaBound": [26, 34], "aspectBound": [1.2, 1.7], "annealFrozen": true, "distinctScores": 1, "scoreEnd": 410000, "measuredAreaM2": 44.0, "aspect": 1.455, "satisfied": false },
+      { "areaBound": [26, 38], "aspectBound": [1.2, 1.7], "annealFrozen": false, "distinctScores": 42, "scoreEnd": 275, "measuredAreaM2": 38.5, "aspect": 1.273, "satisfied": true },
+      { "areaBound": [20, 38], "aspectBound": [1.2, 1.7], "annealFrozen": false, "distinctScores": 37, "scoreEnd": 237, "measuredAreaM2": 38.5, "aspect": 1.273, "satisfied": true },
+      { "areaBound": [12, 38], "aspectBound": [1.2, 1.7], "annealFrozen": false, "distinctScores": 44, "scoreEnd": 227, "measuredAreaM2": 19.25, "measuredFootprint": "5.5 x 3.5", "aspect": 1.571, "satisfied": true, "note": "REACHABLE MINIMUM" },
+      { "areaBound": [12, 38], "aspectBound": [1.2, 1.7], "annealFrozen": false, "distinctScores": 44, "scoreEnd": 227, "measuredAreaM2": 19.25, "measuredFootprint": "5.5 x 3.5", "aspect": 1.571, "satisfied": true, "note": "DETERMINISM CHECK - identical rerun, identical score and footprint" },
+      { "areaBound": [12, 30], "aspectBound": [1.2, 1.7], "annealFrozen": true, "distinctScores": 1, "scoreEnd": 410000, "measuredAreaM2": 44.0, "aspect": 1.455, "satisfied": false },
+      { "areaBound": [12, 24], "aspectBound": [1.2, 1.7], "annealFrozen": true, "distinctScores": 1, "scoreEnd": 410000, "measuredAreaM2": 44.0, "aspect": 1.455, "satisfied": false },
+      { "areaBound": [12, 38], "aspectBound": [1.9, 2.2], "annealFrozen": true, "distinctScores": 1, "scoreEnd": 410000, "measuredAreaM2": 44.0, "aspect": 1.455, "satisfied": false, "isolates": "aspect at the reachable-minimum area band" }
+    ],
+    "findings": [
+      "AREA IS REACHABLE DOWN TO 19.25 m2 (5.5 x 3.5 x 2.65), deterministic on an identical rerun (same score 227, same footprint). That is 2.1x smaller than the shipped 40.66 m2, and its 3.5 m depth is within 0.05 m of the authored bay's 3.45 m.",
+      "THE BAND'S UPPER EDGE IS THE GATE, NOT THE LOWER ONE. Every band with an upper edge <= 36 froze at the random initial 44.0 m2 (7 runs); every band with an upper edge >= 38 explored (6 runs). The boundary is bracketed between 36 and 38 - the anneal accepts only zero-violation states, so it must be able to reach the band from the initial segmentation.",
+      "ONCE ADMISSIBLE, THE LOWER EDGE PULLS. Holding the upper edge at the proven-reachable 38: lower 26 -> 38.5, lower 20 -> 38.5, lower 12 -> 19.25. in_range is flat inside the band, so where it settles is set by the shipped soft objective (home.py:354-382 targets DiningRoom at 20 m2 with a hinge(0,0.4) dead zone spanning 13.4-29.8 m2) - which is why the deepest band lands at 19.25.",
+      "THE AUTHORED ASPECT 2.029 IS UNREACHABLE AT EVERY AREA TRIED. aspect [1.9,2.2] froze at [22,26], at the proven-feasible [36,48], and at the reachable-minimum [12,38]. Aspect is a harder blocker than area: the authored 7 x 3.45 bay fails on BOTH axes, and its area alone (24.15 m2) also freezes unless paired with an upper edge >= 38.",
+      "THE SHIPPED CONFIG SETS NO AREA BOUND AT ALL. clinical_bay.gin carries wall_height, wall_thickness and aspect_ratio_range only, so the one proven control is unused and the room is whatever the seed-0 segmentation produced."
+    ],
+    "notShippedAndWhy": "the smaller room is NOT baked into the product in this slice. A 5.5 m-wide room spans x +-2.75; the authored ED fixtures are placed for the 7.0 m parametric box and the wall board sits at x -3.99 with a door leaf reaching x 3.52 - both would fall OUTSIDE the new walls. Shipping the smaller bake without re-placing the fixtures would be a visible regression, so the fixture re-placement is the gating next slice, not a tail-end addition.",
+    "notEvidenceFor": [
+      "clinical validity of any footprint",
+      "a second seed - every run is seed 0",
+      "areas below 19.25 m2 by another route (a longer anneal schedule, solve_steps increases, or a custom SegmentMaker were not tried)",
+      "the reachability boundary at finer than the measured 36/38 bracket",
+      "door placement, which #339 already measured as inexpressible"
+    ]
+  }
+}

@@ -237,13 +237,48 @@ export async function readLiveSceneGraph(page: Page): Promise<LiveSceneGraphDump
   })()`) as Promise<LiveSceneGraphDump>;
 }
 
+/**
+ * #342 — build the url for a dump.
+ *
+ * `captureMode: "none"` omits the capture-mode params entirely, so the app takes the
+ * PRODUCT's own default camera branch (main.ts:3314-3318, the `wide_clean_dynamic_...`
+ * framing) instead of a capture framing. Until this existed every dump ran through
+ * `buildRoomCaptureUrl(..., "scene-overview")`, so no instrument in the repo had ever
+ * measured the camera a learner actually gets against the generated room.
+ */
+export function buildSceneDumpUrl(
+  baseUrl: string,
+  scenarioId: string,
+  captureMode: string,
+): string {
+  if (captureMode !== "none") return buildRoomCaptureUrl(baseUrl, scenarioId, captureMode);
+  const params = new URLSearchParams({
+    openclinxrScenarioId: scenarioId,
+    scenarioId,
+    openclinxrPortalStart: "encounter",
+    openclinxrAcceleratedExam: "1",
+  });
+  const root = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
+  return `${root}?${params.toString()}`;
+}
+
 export async function dumpLiveSceneGraph(input: {
   scenarioId: string;
   outputDir?: string;
   baseUrl?: string;
   settleMs?: number;
+  /** "none" = no capture mode, i.e. the product's own default camera. */
+  captureMode?: string;
+  /**
+   * Screenshot the frame this dump describes. The dump does NOT reframe the camera
+   * (unlike the room capture), so with `captureMode: "none"` this is the only image in
+   * the repo showing what the PRODUCT's default camera draws. A dump is a measurement;
+   * the image is what lets a grader corroborate it rather than infer from fields.
+   */
+  screenshot?: boolean;
 }): Promise<LiveSceneGraphDump> {
   const outputDir = input.outputDir ?? SCENE_DUMP_OUTPUT_DIR;
+  const captureMode = input.captureMode ?? ROOM_CAPTURE_MODE;
   await mkdir(outputDir, { recursive: true });
 
   let server: PortlessDevServer | undefined;
@@ -260,14 +295,20 @@ export async function dumpLiveSceneGraph(input: {
     const browser = await chromium.launch({ headless: true });
     try {
       const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
-      const url = buildRoomCaptureUrl(baseUrl, input.scenarioId, ROOM_CAPTURE_MODE);
-      process.stdout.write(`scene-dump: goto ${input.scenarioId}\n`);
+      const url = buildSceneDumpUrl(baseUrl, input.scenarioId, captureMode);
+      process.stdout.write(`scene-dump: goto ${input.scenarioId} captureMode=${captureMode}\n`);
       await page.goto(url, { waitUntil: "load", timeout: 180_000 });
       await waitForStationShell(page, 180_000);
       await page.waitForTimeout(input.settleMs ?? 6000);
 
       const dump = await readLiveSceneGraph(page);
-      const outPath = path.join(outputDir, `${input.scenarioId}-scene-graph.json`);
+      const suffix = captureMode === ROOM_CAPTURE_MODE ? "" : `-${captureMode}`;
+      if (input.screenshot === true) {
+        const shotPath = path.join(outputDir, `${input.scenarioId}${suffix}-viewport.png`);
+        await page.screenshot({ path: shotPath, fullPage: false });
+        process.stdout.write(`scene-dump: wrote ${shotPath}\n`);
+      }
+      const outPath = path.join(outputDir, `${input.scenarioId}${suffix}-scene-graph.json`);
       await writeFile(outPath, `${JSON.stringify(dump, null, 2)}\n`, "utf8");
       process.stdout.write(`scene-dump: wrote ${outPath} (${dump.nodes.length} nodes)\n`);
       return dump;
@@ -289,6 +330,8 @@ async function main(): Promise<void> {
   const args = process.argv.slice(2);
   let scenarioId = "ed_chest_pain_priority_v1";
   let outputDir = SCENE_DUMP_OUTPUT_DIR;
+  let captureMode = ROOM_CAPTURE_MODE;
+  let screenshot = false;
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i];
     const next = args[i + 1];
@@ -298,9 +341,14 @@ async function main(): Promise<void> {
     } else if (arg === "--output-dir" && next !== undefined) {
       outputDir = next;
       i += 1;
+    } else if (arg === "--capture-mode" && next !== undefined) {
+      captureMode = next;
+      i += 1;
+    } else if (arg === "--screenshot") {
+      screenshot = true;
     }
   }
-  const dump = await dumpLiveSceneGraph({ scenarioId, outputDir });
+  const dump = await dumpLiveSceneGraph({ scenarioId, outputDir, captureMode, screenshot });
   process.stdout.write(
     `scene-dump: env=${dump.environmentId} frames=${dump.framesAdvanced} camera=${JSON.stringify(dump.camera?.worldPosition)} containingCamera=${dump.meshesContainingCamera.length}\n`,
   );

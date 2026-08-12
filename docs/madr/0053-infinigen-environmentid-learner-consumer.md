@@ -187,3 +187,105 @@ NOT TESTED: a longer/multi-move anneal schedule (e.g. `solve_steps` increases) r
 distant footprint target; editing the install to add a clinical `Semantics` member; a custom
 `RoomGraphFactory`/`SegmentMaker` that sizes segments from the constraint program rather than
 random subdivision.
+
+## FIXED (#342b) — the product's own camera, and how small the room can be generated
+
+Two halves, both measured. `#342` had fixed only the CAPTURE camera; the product's default
+camera was still outside the closed shell, and nobody had probed the room area downward.
+
+### Half 1 — the learner's camera stood outside a closed room (product decision)
+
+Measured with the scene-graph dump run with the capture mode OFF, which is new: it had always
+forced `openclinxrCaptureMode=scene-overview`, so no instrument in the repo had ever measured
+the camera a learner actually gets.
+
+| | measured |
+| --- | --- |
+| product default camera, world | `[0, 1.48, 4.73]`, fov 55, `wide_clean_dynamic_encounter_room_review_three_actor_context` |
+| room interior, world | `z -4.025 .. 2.3505` |
+| exterior hull, world | `z -4.025 .. 2.4750` (176 tris, **no material**) |
+| camera beyond the +Z interior face | **2.379 m** |
+| viewport | **flat grey field** — every sample a uniform neutral grey (145,145,145) |
+
+Three options; the two rejected were rejected by measurement, not taste:
+
+- **Move the room** — a >= +2.4 m shift puts the far wall at `z >= -1.63`, inside the measured
+  `ed_environment` extent (`z -2.09`) and 1.0 m behind the patient (`z -0.62`). Furniture and
+  cast would intersect the wall.
+- **Open the shell** — there is no +Z wall to hide. `gltf-transform` reports four
+  single-primitive meshes (`wall` 190 tris / `floor` 44 / `ceiling` 30 / `exterior` 176); all
+  four walls are ONE mesh, so opening it means deleting faces from a baked mesh by hand, per
+  bake (D1).
+- **Move the camera — CHOSEN.** The product already calls this offset
+  `desktopPreviewCameraOffsetZ` (`main.ts:3157`): it is a flat-preview pull-back, not the
+  learner's position. The locomotion rig, which IS the learner, already stands at the origin
+  inside the room, and in an XR session three.js drives the camera from the headset pose so the
+  offset never applies. The defect is scoped to the flat desktop preview.
+
+`deriveInteriorPreviewCamera` now lives in the PRODUCT (`infinigen-station-environment.ts`,
+unit-tested) rather than only in the capture harness's untested browser IIFE — the split that
+let "the capture works" and "the learner sees grey" both be true. Only the product's own wide
+default framing is re-derived; the capture framings target a specific subject and are untouched.
+Post-fix the eye lands at `[-3.001, 1.466, 2.102]`, inside the interior, 2.0 m from the nearest
+actor, and the viewport shows floor, walls, doorway, wall board, stretcher and all three actors.
+
+**A change measured and REVERTED, recorded so nobody re-derives it:** hiding the untextured
+exterior hull. Justified as removing the residual grey and as making "camera outside the room"
+fail loudly instead of as a confident grey render. Both false — from inside the viewport was
+byte-identical, and from outside, hiding the hull merely exposes the wall's outer face, so the
+blank field went from (145,145,145) to (229,228,222) and stayed just as confident.
+
+**Residual, named:** warm-grey wedges at the top-left and right frame edges. NOT the hull
+(control/treatment above). They are the room's own plaster walls at grazing incidence — sampled
+(154,152,142) against the same wall's face-on (229,228,222), a uniform 0.67x of the same hue,
+i.e. less light on the same material, not a hole. The eye stands 0.1245 m from two walls. This
+is framing quality and is present identically in the landed #342 capture.
+
+### Half 2 — the room CAN be generated much smaller, and the limit is the band's upper edge
+
+#339 measured `[36,48]` m2 feasible and `[78,84]` infeasible. Probing DOWNWARD (17 runs, seed 0
++ `clinical_bay.gin`, coarse, ~2 min each; footprint re-measured from each `scene.blend`):
+
+| area bound | aspect bound | anneal | measured | satisfied |
+| --- | --- | --- | --- | --- |
+| [30,40] | [1.2,1.7] | explores 4.1e5 -> 279 | 38.50 (7.0 x 5.5) | yes |
+| [32,38] | [1.2,1.7] | explores -> 236 | 32.50 (6.5 x 5.0) | yes |
+| **[12,38]** | **[1.2,1.7]** | **explores -> 227** | **19.25 (5.5 x 3.5), aspect 1.571** | **yes** |
+| [12,38] rerun | [1.2,1.7] | -> 227 | 19.25, identical | yes (deterministic) |
+| [30,36] / [26,34] / [24,32] / [22,27] / [12,30] / [12,24] / [12,18] | [1.2,1.7] | **FROZEN** | 44.0 (untouched initial) | no |
+| [22,26] / [36,48] / [12,38] | **[1.9,2.2]** | **FROZEN** | 44.0 | no |
+
+- **Reachable minimum: 19.25 m2 (5.5 x 3.5 x 2.65)** — 2.1x smaller than the shipped 40.66 m2,
+  and its 3.5 m depth is within 0.05 m of the authored bay's 3.45 m. Deterministic on rerun.
+- **The band's UPPER edge is the gate, not the lower one.** Every band with an upper edge <= 36
+  froze at the initial 44.0 m2 (7 runs); every band with an upper edge >= 38 explored (6 runs).
+  Boundary bracketed between 36 and 38 — the anneal accepts only zero-violation states, so it
+  must be able to reach the band from the random initial segmentation.
+- **Once admissible, the lower edge pulls.** Upper held at 38: lower 26 -> 38.5, lower 20 ->
+  38.5, lower 12 -> 19.25. `in_range` is flat inside the band, so where it settles is set by the
+  shipped soft objective (`home.py:354-382`, DiningRoom at 20 m2 with a `hinge(0,0.4)` dead zone
+  spanning 13.4-29.8 m2) — which is why the deepest band lands at 19.25.
+- **The authored aspect 2.029 is unreachable at every area tried.** `[1.9,2.2]` froze at
+  `[22,26]`, at the proven-feasible `[36,48]`, and at the reachable-minimum `[12,38]`. Aspect is
+  a harder blocker than area: the authored `ed_exam_bay_v1` 7 x 3.45 bay (24.15 m2, aspect 2.029,
+  `environment-descriptors.ts:136-142`) fails on BOTH axes.
+- **The shipped config sets no area bound at all.** `clinical_bay.gin` carries `wall_height`,
+  `wall_thickness` and `aspect_ratio_range` only, so the one proven control is unused.
+
+The smaller room is **not baked into the product here.** A 5.5 m-wide room spans `x +-2.75`; the
+authored ED fixtures are placed for the 7.0 m parametric box, with the wall board at `x -3.99`
+and a door leaf reaching `x 3.52` — both would fall outside the new walls. Fixture re-placement
+is the gating next slice, not a tail-end addition.
+
+CLAIM: the product's default flat-preview camera now stands inside the generated room and draws
+the encounter for `ed_chest_pain_priority_v1`; and the generated room's footprint is reachable
+down to a deterministic 19.25 m2 when the hard area band's upper edge stays within reach of the
+initial segmentation.
+
+NOT TESTED: the capture-mode framings (face detail, actor close, actor pose, generated scene
+overview), still authored for the open parametric box and deliberately unchanged; any
+`environmentId` other than `ed_exam_bay_v1`; XR-worn behaviour (in a session three.js drives the
+camera from the headset pose, so this path does not run); clinical realism of any footprint; a
+second seed (every run is seed 0); areas below 19.25 m2 by another route (longer anneal
+schedule, `solve_steps`, or a custom `SegmentMaker` were not tried); the 36/38 reachability
+boundary at finer resolution.

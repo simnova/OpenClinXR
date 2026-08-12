@@ -229,6 +229,208 @@ describe("Infinigen room placement against the SHIPPED bake's names (#342)", () 
 });
 
 /**
+ * PLANTED CONTRACTS (#342b). The PRODUCT's default camera, not the capture path's.
+ *
+ * #342 derived an interior camera inside `tools/openclinxr/evidence/ui-xr-environment-room-capture.ts`
+ * (`reframeCameraForRoom`, a browser string IIFE with no unit test). The capture therefore
+ * photographed a camera the product never uses. Measured from the live scene graph with the
+ * capture mode OFF — the product's own `wide_clean_dynamic_encounter_room_review_three_actor_context`
+ * branch (main.ts:3314-3318):
+ *
+ *   camera world position          [0, 1.48, 4.730]      fov 55
+ *   room interior world z          -4.025 .. 2.3505      (union of wall/floor/ceiling)
+ *   exterior hull world z          -4.025 .. 2.4750      (the untextured 176-tri outer skin)
+ *   meshes containing the camera   []                    (it is beyond the hull entirely)
+ *
+ * and the graded viewport
+ * (.openclinxr/evidence/issue-342b/pre-fix/ed_chest_pain_priority_v1-none-viewport.png)
+ * is a FLAT GREY FIELD: no floor, no walls, no actors. A learner on the default camera sees
+ * nothing.
+ *
+ * Two rejected alternatives, both disqualified by measurement rather than taste:
+ *   MOVE THE ROOM  - the camera is 2.38 m beyond the interior's +Z face, so the room must shift
+ *                    >= +2.4 m. Its far wall then lands at z >= -1.63, inside the measured
+ *                    ed_environment extent (z -2.09) and just behind the patient (z -0.62):
+ *                    furniture and cast would intersect the wall.
+ *   OPEN THE SHELL - there is no +Z wall to hide. `gltf-transform` reports the bake as four
+ *                    single-primitive meshes (wall / floor / ceiling / exterior); all four walls
+ *                    are ONE 190-triangle mesh. Opening it means deleting faces from a baked
+ *                    mesh by hand, per bake (D1).
+ * So: MOVE THE CAMERA. The product already calls this offset `desktopPreviewCameraOffsetZ`
+ * (main.ts:3157) — it is a flat-preview pull-back, not the learner's position. The locomotion
+ * rig, which IS the learner, sits at the origin inside the room, and in an XR session three.js
+ * drives the camera from the headset pose so the offset never applies. The defect is scoped to
+ * the flat desktop preview.
+ *
+ * Header IMMUTABLE — append ## FIXED (#342b) below.
+ */
+describe("product default preview camera inside a closed generated room (#342b)", () => {
+  /** The shipped bake's measured world geometry, plus the live ED cast bounds. */
+  const shippedRoom = (): Group => {
+    const room = new Group();
+    room.name = "openclinxr.station-environment.infinigen-room";
+    // interior x -3.250..3.1255, y 0..2.4011, z -4.025..2.3505
+    const wall = new Mesh(new BoxGeometry(6.3755, 2.4011, 6.3755), new MeshStandardMaterial());
+    wall.name = "dining-room_00wall";
+    wall.position.set((-3.25 + 3.1255) / 2, 2.4011 / 2, (-4.025 + 2.3505) / 2);
+    const floorPlane = new Mesh(new BoxGeometry(6.3755, 0.0, 6.251), new MeshStandardMaterial());
+    floorPlane.name = "dining-room_00floor";
+    floorPlane.position.set((-3.25 + 3.1255) / 2, 0, (-3.9005 + 2.3505) / 2);
+    // exterior hull: z reaches 2.475, so hull-minus-interior = the measured wall thickness.
+    const hull = new Mesh(new BoxGeometry(6.5, 2.65, 6.5), new MeshStandardMaterial());
+    hull.name = "dining-room_00exterior";
+    hull.position.set(0, (-0.1245 + 2.5255) / 2, (-4.025 + 2.475) / 2);
+    room.add(wall, floorPlane, hull);
+    room.updateMatrixWorld(true);
+    return room;
+  };
+
+  type Vec3T = readonly [number, number, number];
+  type BoxT = { readonly min: Vec3T; readonly max: Vec3T };
+
+  /** Live ED cast world bounds, measured from the same dump. */
+  const edCast = (): BoxT[] => [
+    { min: [-1.94, 0.28, -0.62], max: [-0.34, 1.48, 0.43] },
+    { min: [0.13, -0.04, 0.07], max: [1.15, 1.69, 0.7] },
+    { min: [0.94, -0.03, -0.19], max: [1.86, 1.51, 0.46] },
+  ];
+
+  type Derived = {
+    eye: Vector3;
+    lookAt: Vector3;
+    interiorMin: Vector3;
+    interiorMax: Vector3;
+    wallThicknessMeters: number;
+    nearestActorMeters: number;
+  };
+  type DeriveFn = (input: { roomRoot: Group; actorWorldBoxes: readonly BoxT[] }) => Derived | null;
+
+  const derive = async (): Promise<DeriveFn> => {
+    const mod = await load();
+    const fn = mod["deriveInteriorPreviewCamera"] as DeriveFn | undefined;
+    expect(fn).toBeTypeOf("function");
+    if (fn === undefined) throw new Error("deriveInteriorPreviewCamera is not exported");
+    return fn;
+  };
+
+  it("puts the eye inside the closed room, clear of both wall faces", async () => {
+    const fn = await derive();
+    const out = fn({ roomRoot: shippedRoom(), actorWorldBoxes: edCast() });
+    expect(out).not.toBeNull();
+    if (out === null) return;
+    const { eye, interiorMin, interiorMax, wallThicknessMeters } = out;
+
+    // The measured hull-minus-interior gap IS the wall thickness; never an invented stand-off.
+    expect(wallThicknessMeters).toBeGreaterThan(0.1);
+
+    // Strictly inside, and clear of the wall's inner face by a full thickness on every axis.
+    // The pre-fix camera (world z 4.730) is 2.38 m beyond interiorMax.z and fails this.
+    const axes: ReadonlyArray<readonly [number, number, number]> = [
+      [interiorMin.x, eye.x, interiorMax.x],
+      [interiorMin.y, eye.y, interiorMax.y],
+      [interiorMin.z, eye.z, interiorMax.z],
+    ];
+    for (const [lo, value, hi] of axes) {
+      expect(value).toBeGreaterThanOrEqual(lo + wallThicknessMeters);
+      expect(value).toBeLessThanOrEqual(hi - wallThicknessMeters);
+    }
+    expect(eye.z).toBeLessThan(4.73);
+  });
+
+  it("COUNTERWEIGHT: beats the trivial 'any point inside' answer on actor clearance", async () => {
+    const fn = await derive();
+    const out = fn({ roomRoot: shippedRoom(), actorWorldBoxes: edCast() });
+    expect(out).not.toBeNull();
+    if (out === null) return;
+    const { eye, interiorMin, interiorMax, nearestActorMeters } = out;
+
+    const nearest = (x: number, z: number): number => {
+      let best = Infinity;
+      for (const b of edCast()) {
+        const dx = Math.max(b.min[0] - x, 0, x - b.max[0]);
+        const dz = Math.max(b.min[2] - z, 0, z - b.max[2]);
+        best = Math.min(best, Math.sqrt(dx * dx + dz * dz));
+      }
+      return best;
+    };
+    // Room centre is inside the interior, so "inside" alone is satisfiable by standing on the
+    // patient. Measured: centre is 0.35 m from the nearest actor box.
+    const centreClearance = nearest(
+      (interiorMin.x + interiorMax.x) / 2,
+      (interiorMin.z + interiorMax.z) / 2,
+    );
+    expect(centreClearance).toBeLessThan(0.6);
+    expect(nearestActorMeters).toBeGreaterThan(centreClearance);
+    // Far enough that no single actor fills the frame; and the report matches the returned eye.
+    expect(nearestActorMeters).toBeGreaterThan(1.5);
+    expect(nearest(eye.x, eye.z)).toBeCloseTo(nearestActorMeters, 3);
+    // Eye height tracks the cast, not a constant: it is at or above the tallest actor's head.
+    expect(eye.y).toBeGreaterThanOrEqual(1.69);
+  });
+
+  it("tracks the room it is given rather than returning a fixed point", async () => {
+    const fn = await derive();
+    const big = fn({ roomRoot: shippedRoom(), actorWorldBoxes: edCast() });
+
+    // Same cast, a room whose +Z face is 2 m nearer. A hardcoded eye cannot follow it.
+    const small = shippedRoom();
+    small.traverse((o) => {
+      if (o instanceof Mesh) o.position.z -= 2;
+    });
+    small.updateMatrixWorld(true);
+    const out = fn({ roomRoot: small, actorWorldBoxes: edCast() });
+    expect(big).not.toBeNull();
+    expect(out).not.toBeNull();
+    if (big === null || out === null) return;
+    expect(out.interiorMax.z).toBeCloseTo(big.interiorMax.z - 2, 3);
+    expect(out.eye.z).toBeCloseTo(big.eye.z - 2, 3);
+  });
+
+  it("returns null when no generated room is present, so the parametric box keeps its framing", async () => {
+    const fn = await derive();
+    const empty = new Group();
+    empty.name = "openclinxr.station-environment";
+    expect(fn({ roomRoot: empty, actorWorldBoxes: edCast() })).toBeNull();
+    // A room with no cast cannot be framed on the encounter either.
+    expect(fn({ roomRoot: shippedRoom(), actorWorldBoxes: [] })).toBeNull();
+  });
+});
+
+/**
+ * ## FIXED (#342b)
+ *
+ * `deriveInteriorPreviewCamera` + `collectActorWorldBoxes` in
+ * `apps/ui-xr/src/infinigen-station-environment.ts`, applied by `applyInteriorPreviewCameraOnce`
+ * from the ui-xr frame loop (`main.ts`), one-shot, flat preview only, and only on the product's
+ * own wide default framing.
+ *
+ * The viewpoint is SELECTED from measured geometry, never chosen: stand on the doorway (+Z) side
+ * inset by TWICE the measured hull-minus-interior wall thickness (one thickness only reaches the
+ * inner face and leaves the eye coplanar with it), take the candidate MAXIMISING distance to the
+ * NEAREST actor box, and sit at the tallest actor's head height. Post-fix the eye lands at world
+ * `[-3.001, 1.466, 2.102]` — inside the interior, 2.0 m from the nearest actor — and the graded
+ * viewport shows floor, walls, doorway, wall board, stretcher and all three actors, against a
+ * pre-fix viewport that was a uniform grey field at (145,145,145).
+ *
+ * Destructive probe: early-returning from `applyInteriorPreviewCameraOnce` returns the camera to
+ * world `[0,1.48,4.73]` and the viewport to a flat blank field. Reverting the derivation fails
+ * exactly these four contracts and no others.
+ *
+ * MEASURED AND REVERTED in the same slice: hiding the untextured exterior hull. From inside the
+ * viewport was byte-identical; from outside it only exposed the wall's outer face. Zero
+ * observable effect, so it was not shipped — see the note above `roomInteriorAndHull`.
+ *
+ * CLAIM: the product's default flat-preview camera stands inside the closed generated room and
+ * draws the encounter for `ed_chest_pain_priority_v1`.
+ *
+ * NOT TESTED: the capture-mode framings, still authored for the open parametric box and
+ * deliberately unchanged; any other environmentId; XR-worn behaviour (three.js drives the camera
+ * from the headset pose there, so this path does not run); the warm-grey grazing-incidence wedges
+ * at the frame edges (framing quality, measured as the room's own walls at 0.67x face-on
+ * luminance, not a hole); fixture placement, still positioned for the 7 m parametric box.
+ */
+
+/**
  * ## FIXED (#336)
  *
  * Implemented `apps/ui-xr/src/infinigen-station-environment.ts`:

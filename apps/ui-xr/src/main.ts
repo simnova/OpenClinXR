@@ -37,7 +37,11 @@ import {
 } from "./learner-exam-form-boot.js";
 import { scenariosFromFixtureSequence } from "./learner-exam-scenario-source.js";
 import { buildStationEnvironment } from "./station-environment.js";
-import { loadInfinigenEnvironmentIntoStation } from "./infinigen-station-environment.js";
+import {
+  collectActorWorldBoxes,
+  deriveInteriorPreviewCamera,
+  loadInfinigenEnvironmentIntoStation,
+} from "./infinigen-station-environment.js";
 import { roomPropColourNumbers } from "./room-prop-materials.js";
 import { buildRoomPropGroup } from "./room-prop-geometry.js";
 import {
@@ -3231,6 +3235,8 @@ function createStationScene(): StationSceneRuntime {
   let previousRoomScalePose: RigPoseEvidence | null = null;
   let lastAnimateAtMs = performance.now();
   let lastRenderLoopAtMs = 0;
+  /** #342b — one-shot latch for the derived interior preview camera. */
+  let interiorPreviewCameraApplied = false;
   const flatPreviewFallbackFrameMs = 1000 / 30;
 
   const scene = new Scene();
@@ -3260,6 +3266,11 @@ function createStationScene(): StationSceneRuntime {
   reportRuntimeBundleScenarioMatch();
   const selectedStationContext = stationContextForSelectedScenario();
   const camera = new PerspectiveCamera(faceDetailCapture ? 48 : generatedSceneOverviewCapture ? 60 : actorCloseCapture ? 42 : 52, 1, 0.1, 100);
+  // #342b — only the product's own wide default framing is re-derived for a closed generated
+  // room. The capture framings below are authored for a specific subject (a face, one actor)
+  // and their harnesses do their own reframing; replacing them with a far-wall vantage would
+  // destroy the close-up they exist to take.
+  let usesAuthoredWideDefaultFraming = false;
   if (faceDetailCapture) {
     camera.position.set(-0.72, 1.54, 3.25);
     camera.lookAt(-0.72, 1.44, -0.12);
@@ -3316,6 +3327,7 @@ function createStationScene(): StationSceneRuntime {
     camera.position.set(0, 1.48, 5.35);
     camera.lookAt(0, 1.04, -0.18);
     camera.userData.openClinXrCameraFraming = "wide_clean_dynamic_encounter_room_review_three_actor_context";
+    usesAuthoredWideDefaultFraming = true;
   }
   locomotionRig.add(camera);
   comparatorCaptureCamera = camera;
@@ -3987,6 +3999,54 @@ function createStationScene(): StationSceneRuntime {
     renderSceneFrame(timestamp, "webxr_animation_loop");
   }
 
+  /**
+   * #342b — stand the flat-preview camera INSIDE a closed generated room.
+   *
+   * The authored wide framing is a 4.9 m pull-back tuned for the PARAMETRIC box, which is open
+   * at +Z. The Infinigen room is a closed shell and the same camera lands 2.38 m beyond its
+   * +Z face, so every ray hits the untextured exterior hull and the learner sees a flat grey
+   * field. Measured pre-fix: camera world [0,1.48,4.73] vs interior max z 2.3505.
+   *
+   * Only the flat preview is affected: in an XR session three.js drives the camera from the
+   * headset pose, and the locomotion rig — which IS the learner — already stands at the origin
+   * inside the room. Runs from the frame loop because the room GLB and the cast both load
+   * async; latches on the first frame where both are present so locomotion is not fought
+   * afterwards.
+   */
+  function applyInteriorPreviewCameraOnce(): void {
+    if (interiorPreviewCameraApplied) return;
+    if (!usesAuthoredWideDefaultFraming) return;
+    if (renderer.xr.isPresenting) return;
+    const roomRoot = scene.getObjectByName("openclinxr.station-environment.infinigen-room");
+    if (!roomRoot) return;
+    const actorWorldBoxes = collectActorWorldBoxes(scene);
+    if (actorWorldBoxes.length === 0) return;
+    const derived = deriveInteriorPreviewCamera({ roomRoot, actorWorldBoxes });
+    if (!derived) return;
+
+    // `eye` is a WORLD point; `camera.position` is LOCAL to the locomotion rig it is parented
+    // to. Convert through the rig so the applied position matches the derivation. `lookAt`
+    // already takes a world point and accounts for the parent.
+    camera.position.copy(derived.eye);
+    locomotionRig.updateMatrixWorld(true);
+    locomotionRig.worldToLocal(camera.position);
+    camera.lookAt(derived.lookAt);
+    camera.userData.openClinXrCameraFraming =
+      "product_default_interior_view_derived_from_generated_room_and_actor_bounds";
+    camera.userData.openClinXrInteriorPreviewCamera = {
+      eyeWorld: [derived.eye.x, derived.eye.y, derived.eye.z],
+      lookAtWorld: [derived.lookAt.x, derived.lookAt.y, derived.lookAt.z],
+      interiorMin: [derived.interiorMin.x, derived.interiorMin.y, derived.interiorMin.z],
+      interiorMax: [derived.interiorMax.x, derived.interiorMax.y, derived.interiorMax.z],
+      wallThicknessMeters: derived.wallThicknessMeters,
+      nearestActorMeters: derived.nearestActorMeters,
+      authoredWorldZ: 5.35,
+      policy:
+        "authored_wide_pullback_is_outside_a_closed_generated_shell_so_the_preview_eye_is_derived_from_measured_room_and_cast_bounds",
+    };
+    interiorPreviewCameraApplied = true;
+  }
+
   function renderSceneFrame(
     timestamp?: number,
     qualitySource: NonNullable<OpenClinXrFrameStats["qualitySource"]> = "webxr_animation_loop",
@@ -3996,6 +4056,7 @@ function createStationScene(): StationSceneRuntime {
     const deltaSeconds = Math.min((now - lastAnimateAtMs) / 1000, 0.05);
     lastAnimateAtMs = now;
     resize();
+    applyInteriorPreviewCameraOnce();
     const roomScalePose = sampleRoomScalePose({
       camera,
       renderer,
