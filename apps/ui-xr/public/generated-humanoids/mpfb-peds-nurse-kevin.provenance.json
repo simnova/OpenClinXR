@@ -1,9 +1,9 @@
 {
   "schemaVersion": "openclinxr.generated-humanoid-provenance.v1",
   "derivationMode": "mpfb2_macro_from_anny_reference",
-  "scenarioId": null,
-  "actorId": null,
-  "actorRole": null,
+  "scenarioId": "peds_asthma_parent_anxiety_v1",
+  "actorId": "nurse_kevin_lee_v1",
+  "actorRole": "nurse",
   "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
   "sourceManifestPath": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.anny_manifest.json",
   "generatorMode": "mpfb2_humanservice_create_human_with_macro_dict_from_tracked_anny_reference_v1",
@@ -14,7 +14,7 @@
   "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
   "optimizationMode": "unoptimized_post_blender_glb",
   "realismGrade": "not_graded",
-  "promotionStatus": "cagematch_comparator_not_runtime_cast",
+  "promotionStatus": "promoted_runtime_cast_not_realism_gate_pass",
   "sourceOriginChain": {
     "sourceTopologyMode": "mpfb2_standard_basemesh_with_standard_rig_v1",
     "annyReference": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.anny_base.obj (tracked)",
@@ -50,7 +50,9 @@
   "sourceNotes": [
     "Issue #328 first slice of the transition off Anny-only assets: Anny is the REFERENCE, MPFB2 is the generated body.",
     "gender/muscle/weight/proportions/cupsize/firmness remain MPFB defaults — only age + height are driven by reference measurement this slice.",
-    "Exact MADR 0051 §5 landmark match (shoulder, girths, limb lengths) is anny-mpfb-landmark-compare's follow-on; NOT claimed here."
+    "Exact MADR 0051 §5 landmark match (shoulder, girths, limb lengths) is anny-mpfb-landmark-compare's follow-on; NOT claimed here.",
+    "Issue #333: re-baked on the merged #328 materializer with the #326 lower channel (cargo-pants cover shell) and the #333 footwear channel (culturalibre_male_boots, sole grounded to body bottom).",
+    "Issue #335: re-baked with the #334 hide-mask head-joint clip (the t-shirt collar rides high on this body — 0.920 H against its own head joint 0.914 H — so the mask is clipped to the body's own head joint and no longer discards the jaw) and the uniform upper-garment mesh rename to the makeclothes_library_*_mpfb_<ref> convention. Cast into peds_asthma_parent_anxiety_v1 as the nurse; promotionStatus set to promoted_runtime_cast_not_realism_gate_pass (NOT a realism gate pass)."
   ],
   "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
   "promotionGates": false,

@@ -70,6 +70,27 @@ import { describe, expect, it } from "vitest";
  * remaining mask hides the right faces, that the garment above it looks right, or that nurse_kevin's
  * face is otherwise intact — the same capture showed him bare below the waist, which is #333. A
  * post-fix pixel grade is required before this is called closed.
+ *
+ * ## FIXED (#335)
+ *
+ * `materialize_mpfb_humanoid_candidate.py` now clips every body-hide mask to the body's OWN
+ * head-joint world height — treatment (d) from the probe table above, the bound this contract
+ * asserts — via the shared `body_param_stage.clip_hide_mask_below_joint` helper (polygon-level,
+ * sibling of the footprint clip). The joint is read at rest from the standard rig's pose bone
+ * (`_joint_world_z`, the same frame the exported GLB's node hierarchy reports). The mask still
+ * covers the garment footprint and is never deleted: aisha's mask (0.851 H < 0.909 H head) and the
+ * child's (0.557 H < 0.894 H) are untouched — the clip is a no-op on the bodies that already stop
+ * below — and nurse_kevin's mask top moves from 0.921 H to below his own head joint (0.914 H), so
+ * the jaw renders instead of being discarded. Re-baked all three MPFB bodies on the merged
+ * materializer (2026-08-11). Measured from the exported bytes with the same attribution this file
+ * drives:
+ *
+ *   body            head joint   mask top    result
+ *   --------------- -----------  ----------  ------
+ *   mpfb-ob-patient-aisha.glb    0.909 H     0.851 H   (unchanged — clip no-op)
+ *   mpfb-peds-nurse-kevin.glb    0.914 H     <= 0.914 H (clip trims 0.921 -> below head)
+ *   mpfb-peds-patient-child.glb  0.894 H     0.836 H   (unchanged by the clip; the #332 neck
+ *                                                     anchor moved the shirt+mask up this slice)
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -196,7 +217,7 @@ const show = (r: Row): string =>
   `${r.file}: mask ${r.maskTopH.toFixed(3)}H vs head joint ${r.headH.toFixed(3)}H (H=${r.statureCm.toFixed(1)}cm)`;
 
 describe("a hide mask stops below the head it must not eat", () => {
-  it.fails("(1) RED: no hide mask reaches above its own body's head joint", () => {
+  it("(1) RED: no hide mask reaches above its own body's head joint", () => {
     requireRows();
     expect(rows.filter((r) => r.maskTopH > r.headH).map(show), "masks above the head joint").toEqual([]);
   });
