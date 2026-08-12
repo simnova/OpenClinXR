@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "openclinxr.ui-xr-environment-room-capture.v1",
+  "kind": "ui_xr_environment_room_capture",
+  "generatedAt": "2026-08-12T00:45:13.597Z",
+  "captureMode": "scene-overview",
+  "framingNote": "scene-overview (isGeneratedSceneOverviewCaptureMode) keeps the station shell visible and uses room-scale FOV; not face-detail or clean-humanoid-source-comparator",
+  "claimScope": [
+    "parametric_station_shell_rendered_in_ui_xr",
+    "live_shell_facts_read_from_running_page"
+  ],
+  "notEvidenceFor": [
+    "clinical_room_realism",
+    "quest_readiness",
+    "kit_bashed_or_generated_room_assets",
+    "exam_equivalence"
+  ],
+  "entries": [
+    {
+      "scenarioId": "ed_chest_pain_priority_v1",
+      "imagePath": "ed_chest_pain_priority_v1-room.png",
+      "liveShell": {
+        "environmentId": "ed_exam_bay_v1",
+        "floorColor": 5858155,
+        "roomDepthMeters": 3.45,
+        "roomWidthMeters": 7,
+        "roomHeightMeters": 2.65,
+        "shellVisible": true,
+        "floorVisible": true,
+        "encounterFloorTheme": "floor_color_derived_from_environmentId_descriptor",
+        "captureMode": "scene-overview",
+        "cameraFraming": "environment_room_capture_doorway_elevated_overview_#69"
+      },
+      "source": "live_scene"
+    }
+  ]
+}

@@ -664,3 +664,39 @@ input producing a shell at the specified ceiling height at 11,060 architecture t
 NOT TESTED: footprint targeting via aspect knobs; door placement control; clinical room semantics;
 `RoomConstants.room_type` gin binding (gin cannot parse Semantics enums into the un-annotated
 constructor param); survival of the re-homed install across an actual reboot.
+
+---
+
+## FIRST CONSUMER 2026-08-11 (#336) — Decision superseded for ONE environmentId, framework unchanged
+
+**The 0043 Decision above is superseded for the specific question it reserved** — "no ui-xr wiring"
+— by MADR 0053. Infinigen is now adopted as an `environmentId`-keyed environment source for ONE
+station (`ed_exam_bay_v1`), as a deterministic baked room, with the procedural shell kept as the
+fallback. The framework of 0043's Decision — footprint and door placement are NOT generator inputs,
+clinical semantics are not available, full "emit this bay from the case" parameterisation is still
+not met — is unchanged and is what the consumer's claimScope limits.
+
+### What closed the consumer gap (measured this slice)
+
+- **Reproducibility:** two independent `clinical_bay.gin` seed-0 runs produced IDENTICAL floorplan
+  footprints (25.609 × 18.0 × 3.851 m) and room sizes. Same seed + config → same room, 33.7 s.
+- **Single room:** `dining-room_0` extracted post-process via the #236 mesh-name technique,
+  6.5 × 6.5 × 2.65 m, wall Euler −4 (door apertures), 440 tris / 24,944 bytes in GLB form.
+- **Runtime:** `apps/ui-xr/src/infinigen-station-environment.ts` + `main.ts` call — GLB loads by
+  `environmentId`, positioned floor-top at y=0, procedural shell meshes hidden on success.
+- **Live probe:** `status: loaded`, room 6.5×2.65×6.5 m in scene, 6 shell meshes hidden.
+
+### What this does NOT change
+
+- Footprint and door placement are still **not** Infinigen inputs (reversal trigger 3's footprint
+  axis remains a measured negative). The room is what seed 0 produced; the factory contract is
+  "one reproducible room per environmentId", not "emit this exact bay".
+- Only `ed_exam_bay_v1` is wired. Every other environmentId still renders the procedural box.
+- No clinical semantics claim; no Quest readiness; no triangle-count gate (operator standing
+  direction; meshoptimizer later per MADR 0016/0050).
+
+CLAIM: the six-slice "proven and unconsumed" gap is closed for one environmentId via a deterministic
+baked room, while the measured parameterisation limits of this generator remain intact.
+
+NOT TESTED: additional environmentId rows; live worn-headset grading; custom clinical-station
+constraint program for Infinigen.
