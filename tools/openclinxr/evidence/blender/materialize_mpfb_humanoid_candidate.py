@@ -810,6 +810,58 @@ def main():
             f"(hairlineFrac {(hairline_z - _h_zmin) / _h_stature:.4f}) "
             f"unpainted {forehead_unpainted} scalp polys in the face front below the hairline"
         )
+
+    # issue-341 round 8 — hairline boundary regularization (the sawtooth). The
+    # round-5 unpaint above leaves the scalp/skin boundary meandering: material
+    # assignment is per-polygon (each polygon's CENTRE decides), so the hairline
+    # follows triangle edges. Measured on the shipped bytes of all three MPFB
+    # actors: the central-forehead seam alternates direction 54-67% of steps with
+    # median step 6.9-27 mm — the "jagged black sawtooth across the forehead".
+    # The planted flip-rate gate (<=25%) cannot be met by ANY per-polygon boundary
+    # at this mesh density — measured: even a hairline snapped to the mesh ring
+    # alternates 43-68% because the seam follows edges at sub-mm scale, and the
+    # skin region's boundary has TWO components (the front-to-top fold arc and the
+    # crown-front) that alternate along x. The definitive fix is per-pixel (a
+    # texture-mask hairline — #343). What this pass DOES fix is the LARGE-AMPLITUDE
+    # raggedness: it snaps the face-front strip to the mesh's own edge ring. A
+    # scalp polygon in the strip stays scalp only if ALL its vertices sit above the
+    # strip's measured hairline — the mean height of the current seam, the same
+    # quantity the hairline-is-a-line-not-a-sawtooth contract measures. Per-body,
+    # no fitted constant. The ring boundary reads as a clean hairline even though
+    # the flip-rate contract cannot see it.
+    seam_zs: list[float] = []
+    _scalp_vert_used = [False] * len(human.data.vertices)
+    for poly in human.data.polygons:
+        if poly.material_index == scalp_idx:
+            for vi in poly.vertices:
+                _scalp_vert_used[vi] = True
+    for poly in human.data.polygons:
+        if poly.material_index == skin_idx:
+            for vi in poly.vertices:
+                if _scalp_vert_used[vi]:
+                    v = h_world @ human.data.vertices[vi].co
+                    if abs(v.x) <= eye_half_w:
+                        seam_zs.append(v.z)
+    hairline_snap_z = float(np.mean(seam_zs)) if seam_zs else None
+    if hairline_snap_z is None:
+        print("HAIRLINE_SNAP WARNING: no scalp/skin seam found in the face-front strip — skipping")
+    else:
+        hairline_snap_frac = (hairline_snap_z - _h_zmin) / _h_stature
+        hairline_snapped = 0
+        for poly in human.data.polygons:
+            if poly.material_index != scalp_idx:
+                continue
+            c = h_world @ poly.center
+            if abs(c.x) > eye_half_w:
+                continue
+            if all((h_world @ human.data.vertices[vi].co).z > hairline_snap_z for vi in poly.vertices):
+                continue
+            poly.material_index = skin_idx
+            hairline_snapped += 1
+        print(
+            f"HAIRLINE_SNAP seamZ {hairline_snap_z:.4f} (frac {hairline_snap_frac:.4f}) "
+            f"snapped {hairline_snapped} scalp polys in the face-front strip to the mesh ring"
+        )
     # The eye material the fitter applied is MPFB's procedural eyes NODE TREE, which
     # the GLB exporter does not bake (measured on the shipped bytes: the exported eye
     # material has NO baseColorFactor — it renders flat WHITE). #337/#338 each then

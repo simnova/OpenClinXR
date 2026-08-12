@@ -650,6 +650,7 @@ async function gradeOneGlb(input: {
         view,
         capturePass: pass,
         screenshotPath: path.join(assetOutDir, `${view}_${pass}.png`),
+        hideMaskMagenta: input.hideMaskMagenta,
       });
       images[`${view}_${pass}`] = path.relative(input.cwd, shot.screenshotPath).replaceAll("\\", "/");
     }
@@ -758,6 +759,7 @@ async function captureViewWithScreenshot(input: {
   view: string;
   capturePass: "lit" | "structure";
   screenshotPath: string;
+  hideMaskMagenta?: boolean;
 }): Promise<{ screenshotPath: string; evidence: CaptureEvidence }> {
   const evidence = await captureView(input);
   await mkdir(path.dirname(input.screenshotPath), { recursive: true });
