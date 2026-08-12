@@ -152,6 +152,62 @@ def make_material(name, color):
     return material
 
 
+def _body_world_z_bounds(human):
+    """World Z min/max + stature of the RAW body mesh (the frame the neck align uses)."""
+    mw = human.matrix_world
+    zs = [(mw @ v.co).z for v in human.data.vertices]
+    zmin, zmax = min(zs), max(zs)
+    return zmin, zmax, zmax - zmin
+
+
+def _measure_shirt_stage(label, garment, human):
+    """issue-341 round 15: report the shirt's vertical extent at a fit stage in the
+    SAME body-relative fractions the shipped GLB bands are read in (glTF Y = Blender Z).
+    Cheap one-liners; the orchestrator's span table (round 15) is the consumer."""
+    zmin, _, stature = _body_world_z_bounds(human)
+    gz = [v.co.z for v in garment.data.vertices]
+    lo, hi = min(gz), max(gz)
+    print(
+        f"SHIRT_FIT_STAGE {label} zLo {lo:.4f} zHi {hi:.4f} span {hi - lo:.4f} "
+        f"fracBot {(lo - zmin) / stature:.4f} fracTop {(hi - zmin) / stature:.4f} "
+        f"stature {stature:.4f}"
+    )
+
+
+def _measure_shirt_mhclo_refs(mhclo, human):
+    """issue-341 round 15: the span of the INTERPOLATED BODY-REFERENCE positions the
+    fit writes (offsets zeroed) — i.e. what the shirt would span if the .mhclo offsets
+    contributed nothing. Recreates the fit's own from_mix shape key (the same key
+    ClothesService.fit_clothes_to_human reads) so the refs are read in the SAME
+    macro-deformed frame the fit saw; the key is removed afterwards."""
+    key_name = "measure_fit_refs_tmp"
+    human.data.shape_key_add(name=key_name, from_mix=True)
+    try:
+        sk = human.data.shape_keys.key_blocks[key_name]
+        hv = sk.data
+        zmin, _, stature = _body_world_z_bounds(human)
+        zs = []
+        for vert_index, info in (mhclo.verts or {}).items():
+            (h1, h2, h3) = info["verts"]
+            (w1, w2, w3) = info["weights"]
+            zs.append(w1 * hv[h1].co.z + w2 * hv[h2].co.z + w3 * hv[h3].co.z)
+        if not zs:
+            print("SHIRT_MHCLO_REFS no refs")
+            return
+        lo, hi = min(zs), max(zs)
+        y_scale = getattr(mhclo, "y_scale", None)
+        y_size = 0.0
+        if y_scale and len(y_scale) == 3:
+            y_size = abs(hv[int(y_scale[0])].co.z - hv[int(y_scale[1])].co.z) / float(y_scale[2])
+        print(
+            f"SHIRT_MHCLO_REFS interpSpan {hi - lo:.4f} "
+            f"fracBot {(lo - zmin) / stature:.4f} fracTop {(hi - zmin) / stature:.4f} "
+            f"ySize {y_size:.4f}"
+        )
+    finally:
+        human.shape_key_remove(human.data.shape_keys.key_blocks[key_name])
+
+
 def parse_mhmat(path):
     """Parse a MakeHuman .mhmat key-value material file.
 
@@ -1857,6 +1913,7 @@ def main():
     # renders those coords rotated (measured: garment on the floor with Y/Z swapped). apply_object_transforms
     # is the proven helper body_param_stage uses; this is a bake, not a hand-written matrix.
     apply_object_transforms(garment)
+    _measure_shirt_stage("rest", garment, human)
     garment.data.materials.clear()
     # Name matches the GARMENT_MATERIAL regex the evidence RED reads (makeclothes/shirt).
     garment.data.materials.append(
@@ -1871,6 +1928,8 @@ def main():
     garment_verts_before = len(garment.data.vertices)
     ClothesService.fit_clothes_to_human(garment, human, mhclo=mhclo, set_parent=True)
     bpy.context.view_layer.update()
+    _measure_shirt_mhclo_refs(mhclo, human)
+    _measure_shirt_stage("fitted", garment, human)
     garment_verts_after = len(garment.data.vertices)
     garment_tris = sum(max(len(p.vertices) - 2, 0) for p in garment.data.polygons)
     # Rename the shirt mesh data to the library convention (the OBJ importer keeps
@@ -1883,6 +1942,7 @@ def main():
     # lands it below the neck band (the child's shirt fits at its hip). Must run
     # BEFORE the weight projection so the k-NN binds the shirt at its final height.
     neck_align = align_upper_garment_to_neck(garment, human, armature)
+    _measure_shirt_stage("neckalign", garment, human)
     # Bind the garment to the same armature so it deforms with the body (the proven
     # weight projection body_param_stage runs for the hm08 rail; not a rigid shell).
     weights = transfer_weights_body_to_garment(human, garment, armature)
