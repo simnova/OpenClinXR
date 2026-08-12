@@ -467,6 +467,33 @@ def apply_texture_mask_hairline(
     bpy.context.scene.render.engine = prev_engine
     bpy.context.scene.cycles.device = prev_device
 
+    # ---- diagnostic: what did the two helper bakes actually write? ----
+    _mstat = np.array(mask_img.pixels[:], dtype=np.float32).reshape(resolution, resolution, 4)
+    _pstat = np.array(pos_img.pixels[:], dtype=np.float32).reshape(resolution, resolution, 4)[..., :3]
+    _head_zs = [float((h_world @ v.co).z) for v in human.data.vertices if (h_world @ v.co).z >= head_z0][:3]
+    _white_mask = _mstat[..., 0] > 0.5
+    _b_at_hair = float(_pstat[_white_mask][:, 2].mean()) if _white_mask.any() else -1.0
+    _r_at_hair = float(_pstat[_white_mask][:, 0].mean()) if _white_mask.any() else -1.0
+    _g_at_hair = float(_pstat[_white_mask][:, 1].mean()) if _white_mask.any() else -1.0
+    _arm = next((o for o in bpy.context.scene.objects if o.type == "ARMATURE"), None)
+    _dg = bpy.context.evaluated_depsgraph_get()
+    _eval = human.evaluated_get(_dg)
+    _crown_z_raw = max(float((h_world @ v.co).z) for v in human.data.vertices)
+    _crown_z_eval = max(float((_eval.matrix_world @ v.co).z) for v in _eval.data.vertices)
+    print(
+        "TEXTURE_HAIRLINE_BAKE_STATS "
+        f"maskWhite={int(_white_mask.sum())} "
+        f"posR=[{float(_pstat[..., 0].min()):.3f},{float(_pstat[..., 0].max()):.3f}] "
+        f"posG=[{float(_pstat[..., 1].min()):.3f},{float(_pstat[..., 1].max()):.3f}] "
+        f"posB=[{float(_pstat[..., 2].min()):.3f},{float(_pstat[..., 2].max()):.3f}] "
+        f"atHair=[R {_r_at_hair:.3f} G {_g_at_hair:.3f} B {_b_at_hair:.3f}] "
+        f"humanScale={[round(float(s), 4) for s in human.matrix_world.to_scale()]} "
+        f"armScale={[round(float(s), 4) for s in _arm.matrix_world.to_scale()] if _arm else 'n/a'} "
+        f"crownZ raw={_crown_z_raw:.4f} eval={_crown_z_eval:.4f} "
+        f"headZSample={[round(z, 4) for z in _head_zs]} "
+        f"headZ0={head_z0:.4f} hz0={hz0:.4f} hz1={hz1:.4f}"
+    )
+
     # ---- (3) composite in numpy: read all three maps, re-classify the strip ----
     w, h = baked_img.size[0], baked_img.size[1]
     skin_rgba = np.array(baked_img.pixels[:], dtype=np.float32).reshape(h, w, 4)
