@@ -2,11 +2,11 @@
 
 MADRs: 0054, 0055 · schema `openclinxr.equipment-catalog.v1`
 
-- measuredAt: 2026-08-12T09:58:32.626Z
+- measuredAt: 2026-08-12T14:02:06.078Z
 - scenarios: 14
 - equipment rows: 51
-- lanes: {"bank":4,"thin_parametric":46,"modular_kit":1}
-- runtimeSource: {"parametric":47,"gltf":4}
+- lanes: {"bank":8,"thin_parametric":42,"modular_kit":1}
+- runtimeSource: {"parametric":43,"gltf":8}
 - unmapped prose: 0
 - gltf missing on disk: 0
 
@@ -17,7 +17,7 @@ MADRs: 0054, 0055 · schema `openclinxr.equipment-catalog.v1`
 - abdominal_exam_light_equipment (thin_parametric/parametric)
 - bedside_monitor_equipment (bank/gltf)
 - iv_pole_equipment (thin_parametric/parametric)
-- stretcher_equipment (thin_parametric/parametric)
+- stretcher_equipment (bank/gltf)
 - surgical_consult_phone_equipment (thin_parametric/parametric)
 - wall_clock_equipment (bank/gltf)
 
@@ -25,8 +25,8 @@ MADRs: 0054, 0055 · schema `openclinxr.equipment-catalog.v1`
 
 - abdominal_exam_zone_equipment (thin_parametric/parametric)
 - bedside_monitor_equipment (bank/gltf)
-- exam_table_equipment (thin_parametric/parametric)
-- privacy_curtain_equipment (thin_parametric/parametric)
+- exam_table_equipment (bank/gltf)
+- privacy_curtain_equipment (bank/gltf)
 - tablet_visit_equipment (thin_parametric/parametric)
 
 ### ed_chest_pain_priority_v1
@@ -35,7 +35,7 @@ MADRs: 0054, 0055 · schema `openclinxr.equipment-catalog.v1`
 - bedside_monitor_equipment (bank/gltf)
 - iv_pole_equipment (thin_parametric/parametric)
 - oxygen_nasal_cannula_equipment (thin_parametric/parametric)
-- stretcher_equipment (thin_parametric/parametric)
+- stretcher_equipment (bank/gltf)
 - wall_clock_equipment (bank/gltf)
 
 ### ed_stroke_alert_handoff_v1
@@ -51,8 +51,8 @@ MADRs: 0054, 0055 · schema `openclinxr.equipment-catalog.v1`
 - blood_pressure_cuff_equipment (thin_parametric/parametric)
 - call_bell_equipment (thin_parametric/parametric)
 - fetal_monitor_equipment (thin_parametric/parametric)
-- hospital_bed_equipment (thin_parametric/parametric)
-- privacy_curtain_equipment (thin_parametric/parametric)
+- hospital_bed_equipment (bank/gltf)
+- privacy_curtain_equipment (bank/gltf)
 - urine_cup_equipment (thin_parametric/parametric)
 
 ### oncology_bad_news_family_v1
@@ -93,7 +93,7 @@ MADRs: 0054, 0055 · schema `openclinxr.equipment-catalog.v1`
 
 - chairs_equipment (thin_parametric/parametric)
 - ehr_screen_equipment (thin_parametric/parametric)
-- exam_table_equipment (thin_parametric/parametric)
+- exam_table_equipment (bank/gltf)
 - lab_results_panel_equipment (thin_parametric/parametric)
 
 ### psych_suicidal_ideation_safety_v1
@@ -125,7 +125,7 @@ MADRs: 0054, 0055 · schema `openclinxr.equipment-catalog.v1`
 
 - call_bell_equipment (thin_parametric/parametric)
 - ehr_screen_equipment (thin_parametric/parametric)
-- hospital_bed_equipment (thin_parametric/parametric)
+- hospital_bed_equipment (bank/gltf)
 - iv_pump_equipment (thin_parametric/parametric)
 - medication_cart_equipment (thin_parametric/parametric)
 - safety_plan_whiteboard_equipment (thin_parametric/parametric)
@@ -136,7 +136,11 @@ MADRs: 0054, 0055 · schema `openclinxr.equipment-catalog.v1`
 
 - `bedside_monitor_equipment` → `bedside-monitor-generated.glb`
 - `ecg_cart_equipment` → `ecg-cart-12-lead.glb`
+- `exam_table_equipment` → `exam-table-sketchfab-ccby.glb`
+- `hospital_bed_equipment` → `hospital-bed-sketchfab-ccby.glb`
 - `iv_stand_equipment` → `iv-pole-with-pump.glb`
+- `privacy_curtain_equipment` → `privacy-curtain-monitor-sketchfab-ccby.glb`
+- `stretcher_equipment` → `stretcher-sketchfab-ccby.glb`
 - `wall_clock_equipment` → `wall-clock-analog.glb`
 
 ## Modular kit lane

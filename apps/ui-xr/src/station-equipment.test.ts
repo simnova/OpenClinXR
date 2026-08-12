@@ -286,3 +286,27 @@ describe("bedside monitor TRELLIS equipment wiring (#253)", () => {
     expect(item?.gltfFileName).toBe("bedside-monitor-generated.glb");
   });
 });
+
+describe("Sketchfab CC-BY bank support-surface wiring (2026-08-12)", () => {
+  it("declares hospital_bed, stretcher, exam_table, privacy_curtain in REAL_EQUIPMENT_GLTF_BY_ID", () => {
+    expect(REAL_EQUIPMENT_GLTF_BY_ID.hospital_bed_equipment).toBe("hospital-bed-sketchfab-ccby.glb");
+    expect(REAL_EQUIPMENT_GLTF_BY_ID.stretcher_equipment).toBe("stretcher-sketchfab-ccby.glb");
+    expect(REAL_EQUIPMENT_GLTF_BY_ID.exam_table_equipment).toBe("exam-table-sketchfab-ccby.glb");
+    expect(REAL_EQUIPMENT_GLTF_BY_ID.privacy_curtain_equipment).toBe(
+      "privacy-curtain-monitor-sketchfab-ccby.glb",
+    );
+  });
+
+  it("resolves hospital_bed_equipment as gltf source", () => {
+    const plan = planStationEquipmentMounts({
+      scenarioId: "ed_chest_pain_priority_v2",
+      equipment: [{ equipmentId: "hospital_bed_equipment" }],
+      equipmentPlacements: {
+        hospital_bed_equipment: { position: { x: -0.9, y: 0, z: -0.1 } },
+      },
+    });
+    const item = plan.find((row) => row.equipmentId === "hospital_bed_equipment");
+    expect(item?.source).toBe("gltf");
+    expect(item?.gltfFileName).toBe("hospital-bed-sketchfab-ccby.glb");
+  });
+});

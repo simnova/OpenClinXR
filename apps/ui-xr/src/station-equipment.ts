@@ -22,9 +22,17 @@ import {
   type EquipmentMountSource,
 } from "./station-equipment-builders.js";
 import { measureParametricComposite } from "./station-equipment-composite-measure.js";
+import {
+  stampSupportSurfaceDeckMetadata,
+  SUPPORT_SURFACE_DECK_TOP_BY_EQUIPMENT_ID,
+} from "./station-equipment-support-deck.js";
 
 export type { EquipmentMountSource } from "./station-equipment-builders.js";
 export type { EquipmentFamily } from "./station-equipment-families.js";
+export {
+  stampSupportSurfaceDeckMetadata,
+  SUPPORT_SURFACE_DECK_TOP_BY_EQUIPMENT_ID,
+};
 
 export {
   buildDeclaredEquipmentGeometry,
@@ -69,6 +77,12 @@ export const REAL_EQUIPMENT_GLTF_BY_ID: Readonly<Record<string, string>> = {
   // #253: TRELLIS-generated bedside monitor (60,000 tris) — second equipment subject to
   // clear the 60k per-asset ceiling; promoted byte-identical from issue-250 evidence.
   bedside_monitor_equipment: "bedside-monitor-generated.glb",
+  // Sketchfab CC BY 4.0 bank (2026-08-12): measure-first normalize → deck/length SSOT.
+  // Provenance sidecars + PROVENANCE.md carry attribution strings (#193).
+  hospital_bed_equipment: "hospital-bed-sketchfab-ccby.glb",
+  stretcher_equipment: "stretcher-sketchfab-ccby.glb",
+  exam_table_equipment: "exam-table-sketchfab-ccby.glb",
+  privacy_curtain_equipment: "privacy-curtain-monitor-sketchfab-ccby.glb",
 };
 
 export function countEquipmentGeometry(root: Object3D): { meshCount: number; triangleCount: number } {
@@ -482,10 +496,17 @@ export function normalizeGltfEquipmentMount(
     mountSlot.add(stand);
     return equipment;
   }
-  if (!isFloor) return equipment;
+  if (!isFloor) {
+    stampSupportSurfaceDeckMetadata(equipment, equipmentId);
+    return equipment;
+  }
   const bounds = new Box3().setFromObject(equipment);
   if (bounds.min.y < 0) {
     equipment.position.y -= bounds.min.y;
+  }
+  stampSupportSurfaceDeckMetadata(equipment, equipmentId);
+  if (equipmentId) {
+    stampSupportSurfaceDeckMetadata(mountSlot, equipmentId);
   }
   return equipment;
 }

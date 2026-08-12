@@ -15,6 +15,20 @@ entries in `REAL_EQUIPMENT_GLTF_BY_ID` (`apps/ui-xr/src/station-equipment.ts`).
 - `bedside-monitor-generated.glb` (issue #253 — TRELLIS derivative, see sidecar
   `bedside-monitor-generated.provenance.json`)
 - SHA-256: `cff08df0a94ee25651d02c4667fe94232aff659d2702b04084c99c7440953f3b`
+- `hospital-bed-sketchfab-ccby.glb` (Sketchfab CC BY 4.0 — **Hospital Bed by Matt
+  LeMoine**; measure-first normalize L=2.15 W=0.98 deck≈0.585; bedside stand
+  meshes dropped; see `hospital-bed-sketchfab-ccby.provenance.json`)
+- SHA-256: `df70210a32b88537a3837cf62b46e3b6ba19c65d71495e8ff5d61fd52111bf27`
+- `stretcher-sketchfab-ccby.glb` (Sketchfab CC BY 4.0 — **Hospital Stretcher
+  Trolley by UsmanAzhar2256**; L=2.0 W=0.72 deck≈0.725; see sidecar)
+- SHA-256: `ae930b59ec9180fc1c74aed2592208f76cd3c0118987852cc6a6bbebebc4a35d`
+- `exam-table-sketchfab-ccby.glb` (Sketchfab CC BY 4.0 — **Exam Table by
+  orphic_oasis8**; L=1.9 W=0.70 deck≈0.575; see sidecar)
+- SHA-256: `b620e4949d2fef3669fe83327d66937d2fcac4bfbc0f0960e98e25e0edb51f0b`
+- `privacy-curtain-monitor-sketchfab-ccby.glb` (Sketchfab CC BY 4.0 — **Bed
+  Curtain and Vital Signs Monitor by Ethan Cragun**; height-fit 2.2 m; see
+  sidecar)
+- SHA-256: `89ccdab93ce4f6ca1cdd0c8f94afe834db431ed667ddac4580bbd9cc3c22a8bf`
 
 ## Not present (and not commissioned)
 
@@ -55,12 +69,15 @@ content — not missing product. Do not treat the names below as a commission li
 
 ## Policy
 
-- Local fixture only.
-- No external assets, cloud APIs, or paid APIs. `wall-clock-analog.glb` and
-  `bedside-monitor-generated.glb` are the exceptions to "third-party generated assets":
-  they are generated locally by the MIT-licensed TRELLIS.2 pipeline (no network
-  generation), with licence chain and derivative lineage recorded in their provenance
-  sidecars.
+- Local fixture + approved third-party bank assets only.
+- No cloud/paid generation APIs. `wall-clock-analog.glb` and
+  `bedside-monitor-generated.glb` are TRELLIS local derivatives (MIT pipeline).
+- Sketchfab bank assets (hospital bed, stretcher, exam table, privacy curtain) are
+  **CC BY 4.0** — attribution strings above and in sidecars **must** survive any
+  public surface that displays them (#193). Download used `SKETCHFAB_API_TOKEN`
+  (gitignored); promote is offline normalize of staged GLBs.
 - No production asset readiness, Quest readiness, clinical validity, or scoring claim.
 - Primitive in-scene parametric equipment geometry remains the fallback for kinds
-  without a real GLB.
+  without a real GLB. Support-surface GLBs stamp `deckTopYMeters` from runtime SSOT
+  (`SUPPORT_SURFACE_DECK_TOP_BY_EQUIPMENT_ID`) so supine plant is not mesh-face
+  dependent.

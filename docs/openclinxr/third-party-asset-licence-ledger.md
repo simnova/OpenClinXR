@@ -43,6 +43,14 @@ row carries a **replacement posture**, not just a licence.
 | Sketchfab Medical Cart (yazzywazzy) [model](https://sketchfab.com/3d-models/medical-cart-d5e03bd688394269be0ad02b8f9aae62) | **CC BY-SA** (ShareAlike not in allowed set). | 2026-08-12 |
 | Sketchfab Patient Monitor (Guardiano) [model](https://sketchfab.com/3d-models/patient-monitor-ce4b4459e9fa4713b56d1385997aac5b) | **CC BY-NC** (non-commercial not allowed). | 2026-08-12 |
 
+### Sketchfab equipment bank promote (2026-08-12)
+
+| Sketchfab Hospital Bed (Matt LeMoine) [model](https://sketchfab.com/3d-models/hospital-bed-9cd9464990d2456e98b69978447852aa) | **CC BY 4.0 VERIFIED** (API at download) | `hospital_bed_equipment` bank GLB | 2026-08-12 | `apps/ui-xr/public/xr-assets/medical-equipment/hospital-bed-sketchfab-ccby.glb` via `REAL_EQUIPMENT_GLTF_BY_ID`; L=2.15 W=0.98 deck≈0.585 m after normalize (bedside stand dropped) | **Keep with attribution.** CC-BY surface: PROVENANCE.md + sidecar. Replace only on quality/Quest budget. |
+| Sketchfab Hospital Stretcher Trolley (UsmanAzhar2256) [model](https://sketchfab.com/3d-models/hospital-stretcher-trolley-edfeb93b201b4c8da2c7a4fb5dea090c) | **CC BY 4.0 VERIFIED** | `stretcher_equipment` bank GLB | 2026-08-12 | `stretcher-sketchfab-ccby.glb` (L=2.0 W=0.72 deck≈0.725) | **Keep with attribution.** |
+| Sketchfab Exam Table (orphic_oasis8) [model](https://sketchfab.com/3d-models/exam-table-459c00d5a0524c67a4ad2fa5c6eacb15) | **CC BY 4.0 VERIFIED** | `exam_table_equipment` bank GLB | 2026-08-12 | `exam-table-sketchfab-ccby.glb` (L=1.9 W=0.70 deck≈0.575) | **Keep with attribution.** |
+| Sketchfab Bed Curtain + Vital Signs Monitor (Ethan Cragun) [model](https://sketchfab.com/3d-models/bed-curtain-and-vital-signs-monitor-295ed50eeaa249e8bbeed7b305d3da71) | **CC BY 4.0 VERIFIED** | `privacy_curtain_equipment` bank GLB | 2026-08-12 | `privacy-curtain-monitor-sketchfab-ccby.glb` (height-fit 2.2 m) | **Keep with attribution.** Composite curtain+monitor; not a second bedside_monitor bank entry. |
+
+
 ## Equipment candidates (NOT acquired — staging only, 2026-08-12)
 
 Full table + poly counts: `docs/openclinxr/equipment-oss-candidates.md`. MADR 0054 lane-1 bank path; acquire only after licence-tab re-verify for INFERRED rows.

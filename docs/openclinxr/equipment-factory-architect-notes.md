@@ -63,3 +63,18 @@ c) types.ts:66 `class: string` is untyped — should import `DeferredNonEquipmen
 d) MADR 0055 needs a one-line amendment recording the additive deferredProse reporting field under decision 3 (CLI surface).
 
 Recommended next: equipment-kit-rebase-merge (Q5)
+
+## Architect notes 2026-08-12 (bank promote — Sketchfab measure-first)
+
+- **normalize-equipment-glb.py fixed** (future-import + world-space mesh transform + mesh filter + closest_target deck prefer).
+- **Promoted 4 CC BY 4.0 GLBs** into `apps/ui-xr/public/xr-assets/medical-equipment/` and wired `REAL_EQUIPMENT_GLTF_BY_ID`:
+  - hospital_bed: L=2.15 W=0.98 deck≈0.585 (BedsideStand meshes dropped)
+  - stretcher: L=2.0 W=0.72 deck≈0.725
+  - exam_table: L=1.9 W=0.70 deck≈0.575
+  - privacy_curtain: height-fit 2.2 m (curtain+monitor composite)
+- **Plant contract:** `stampSupportSurfaceDeckMetadata` stamps `deckTopYMeters`/`seatHeightMeters` from SSOT on gltf mount (station-equipment-support-deck.ts). Catalogue bank lane **4 → 8**.
+- **Attribution:** PROVENANCE.md + sidecars + third-party-asset-licence-ledger.md.
+- **NOT done this promote:** full-room supine-patient-on-deck / articulating-head-of-bed re-run with GLB mounted (architect tick-20 residual); GRADD public GLB still unmeasured; ECG kit rebase still open.
+- claimScope: bank lane acquisition + wiring. notEvidenceFor: Quest, clinical, readiness.
+
+Recommended next: isolated harness grade of bank support-surface GLBs + plant contracts green, or GRADD measure, or ECG kit rebase (Q1/Q5)
