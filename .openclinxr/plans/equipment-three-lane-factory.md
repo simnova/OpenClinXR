@@ -62,3 +62,20 @@ optional OSS bank candidates — without requiring LLM geometry authoring.
 
 ECG kit lives on `feature/equipment-kit-approach-b` until iter 5 integration. Main catalogue treats
 ECG as `thin_parametric` or `modular_kit` provisional based on main tree until merge.
+
+## Iter-5 merge blocker (tick 18, 2026-08-12)
+
+Merge is NOT blind-ready — the branch is stale vs main (predates the 15m loop and its 17 ticks).
+Measured conflict surface (merge-tree):
+
+1. **package.json** — branch REPLACES the `factory:equipment:catalog:{inventory,validate,report,loop,status}`
+   script family with kit scripts. Merging as-is deletes the catalogue CLI the loop runs on. Rebase
+   must keep both (catalogue scripts + new `equipment:kit:*` scripts).
+2. **station-equipment-families.ts** — branch removes the shared helpers `equipmentMat` /
+   `tagEquipmentRootShared` and the family-union members added by ticks 4-16; my family modules
+   import those helpers. Rebase must preserve both the branch's kit wiring AND the helpers/union.
+3. 7,393 insertions (27 files) — mostly additive `equipment-kit/` modules + evidence; requires
+   typecheck + architecture-fitness + kit tests after rebase.
+
+**Action:** rebase `feature/equipment-kit-approach-b` onto current main, resolve the two conflicts
+preserving both sides, verify gates, then merge as a dedicated slice (not inside the 15m tick).
