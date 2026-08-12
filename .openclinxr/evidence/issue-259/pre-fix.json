@@ -1,0 +1,1214 @@
+{
+  "schemaVersion": "openclinxr.issue-259.two-column.v1",
+  "kind": "declared_actors_two_column_live",
+  "label": "pre-fix",
+  "generatedAt": "2026-08-12T08:17:16.610Z",
+  "measuredAgainstCommit": {
+    "head": "faf250bf426ec3ffe4d3b77c934a382a2bc73af1",
+    "fingerprint": "f04a6d40cdd63f4784d4c623d06ec6cec553e93a3abf28d4ddb3ba032bf8fc7c",
+    "algorithm": "git-head+status+diff-sha256"
+  },
+  "probeDefinition": "columnA sampled after waitForStationShell + waitForFramesOrHumanoids(8,120s) + 900ms (exactly declared-actors-rendered.ts); columnB sampled after all recorded scene assets reach loaded|failed (pendingCount 0), or a 120s settle budget.",
+  "note": "The four failing actors from the 2026-08-10 baseline reported skinnedTriangleCount=0 in declared-actors-rendered. adult_abdominal_pain_v1 is the known-good control.",
+  "stations": [
+    {
+      "scenarioId": "peds_fever_v1",
+      "declared": [
+        "patient_noah_chen_v1",
+        "nurse_aisha_brooks_v1",
+        "parent_mei_chen_v1"
+      ],
+      "assetsAtSampleInstant": [
+        {
+          "assetId": "openclinxr.peds_fever_v1.environment.generated-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb"
+        },
+        {
+          "assetId": "openclinxr.peds_fever_v1.nurse_aisha_brooks_v1.generated-humanoid-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/generated-humanoids/ed_chest_pain_nurse_adult.glb"
+        },
+        {
+          "assetId": "openclinxr.peds_fever_v1.parent_mei_chen_v1.generated-humanoid-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/generated-humanoids/ed_chest_pain_spouse_adult.glb"
+        },
+        {
+          "assetId": "openclinxr.peds_fever_v1.patient_noah_chen_v1.generated-humanoid-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/generated-humanoids/peds_patient_child.glb"
+        }
+      ],
+      "assetsAfterSettle": [
+        {
+          "assetId": "openclinxr.peds_fever_v1.environment.generated-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb"
+        },
+        {
+          "assetId": "openclinxr.peds_fever_v1.nurse_aisha_brooks_v1.generated-humanoid-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/generated-humanoids/ed_chest_pain_nurse_adult.glb"
+        },
+        {
+          "assetId": "openclinxr.peds_fever_v1.parent_mei_chen_v1.generated-humanoid-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/generated-humanoids/ed_chest_pain_spouse_adult.glb"
+        },
+        {
+          "assetId": "openclinxr.peds_fever_v1.patient_noah_chen_v1.generated-humanoid-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/generated-humanoids/peds_patient_child.glb"
+        }
+      ],
+      "rows": [
+        {
+          "scenarioId": "peds_fever_v1",
+          "actorId": "patient_noah_chen_v1",
+          "declared": true,
+          "columnA": {
+            "renderedInScene": true,
+            "visible": true,
+            "skinnedTriangleCount": 31467,
+            "childMeshNames": [
+              "openclinxr.peds_fever_v1.actor-nameplate.patient-patient-noah-chen",
+              "openclinxr_footwear_hospital_slipper_L",
+              "openclinxr_footwear_hospital_slipper_R",
+              "openclinxr_real_garment_from_phenotype_short_sleeve_exam_tshirt",
+              "peds_patient_childanny_base_1",
+              "peds_patient_childanny_base_2",
+              "peds_patient_childanny_base_3",
+              "peds_patient_childanny_base_4",
+              "openclinxr_declared_upper_layers__short_sleeve_exam_tshirt",
+              "openclinxr.peds_fever_v1.glb-affordance.openclinxr-peds_fever_v1-patient_noah_chen_v1-generated-humanoid-glb:dialogue_target",
+              "openclinxr.peds_fever_v1.ragdoll-collision-proxy.openclinxr-peds_fever_v1-patient_noah_chen_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.physician-interaction-target.openclinxr-peds_fever_v1-patient_noah_chen_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.phoneme-mouth-cue.openclinxr-peds_fever_v1-patient_noah_chen_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.left-expressive-brow.openclinxr-peds_fever_v1-patient_noah_chen_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.right-expressive-brow.openclinxr-peds_fever_v1-patient_noah_chen_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.emotion-cheek.openclinxr-peds_fever_v1-patient_noah_chen_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.emotion-cheek.openclinxr-peds_fever_v1-patient_noah_chen_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.runtime-jaw-viseme-target.openclinxr-peds_fever_v1-patient_noah_chen_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.clinical-touch-region.patient_noah_chen_v1.abdomen_rlq",
+              "openclinxr.peds_fever_v1.clinical-touch-region.patient_noah_chen_v1.abdomen_ruq",
+              "openclinxr.peds_fever_v1.clinical-touch-region.patient_noah_chen_v1.abdomen_luq",
+              "openclinxr.peds_fever_v1.clinical-touch-region.patient_noah_chen_v1.abdomen_llq",
+              "openclinxr.peds_fever_v1.clinical-touch-region.patient_noah_chen_v1.chest_R",
+              "openclinxr.peds_fever_v1.clinical-touch-region.patient_noah_chen_v1.chest_L"
+            ]
+          },
+          "columnB": {
+            "renderedInScene": true,
+            "visible": true,
+            "skinnedTriangleCount": 31467,
+            "childMeshNames": [
+              "openclinxr.peds_fever_v1.actor-nameplate.patient-patient-noah-chen",
+              "openclinxr_footwear_hospital_slipper_L",
+              "openclinxr_footwear_hospital_slipper_R",
+              "openclinxr_real_garment_from_phenotype_short_sleeve_exam_tshirt",
+              "peds_patient_childanny_base_1",
+              "peds_patient_childanny_base_2",
+              "peds_patient_childanny_base_3",
+              "peds_patient_childanny_base_4",
+              "openclinxr_declared_upper_layers__short_sleeve_exam_tshirt",
+              "openclinxr.peds_fever_v1.glb-affordance.openclinxr-peds_fever_v1-patient_noah_chen_v1-generated-humanoid-glb:dialogue_target",
+              "openclinxr.peds_fever_v1.ragdoll-collision-proxy.openclinxr-peds_fever_v1-patient_noah_chen_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.physician-interaction-target.openclinxr-peds_fever_v1-patient_noah_chen_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.phoneme-mouth-cue.openclinxr-peds_fever_v1-patient_noah_chen_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.left-expressive-brow.openclinxr-peds_fever_v1-patient_noah_chen_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.right-expressive-brow.openclinxr-peds_fever_v1-patient_noah_chen_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.emotion-cheek.openclinxr-peds_fever_v1-patient_noah_chen_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.emotion-cheek.openclinxr-peds_fever_v1-patient_noah_chen_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.runtime-jaw-viseme-target.openclinxr-peds_fever_v1-patient_noah_chen_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.clinical-touch-region.patient_noah_chen_v1.abdomen_rlq",
+              "openclinxr.peds_fever_v1.clinical-touch-region.patient_noah_chen_v1.abdomen_ruq",
+              "openclinxr.peds_fever_v1.clinical-touch-region.patient_noah_chen_v1.abdomen_luq",
+              "openclinxr.peds_fever_v1.clinical-touch-region.patient_noah_chen_v1.abdomen_llq",
+              "openclinxr.peds_fever_v1.clinical-touch-region.patient_noah_chen_v1.chest_R",
+              "openclinxr.peds_fever_v1.clinical-touch-region.patient_noah_chen_v1.chest_L"
+            ]
+          },
+          "classification": "present_in_both"
+        },
+        {
+          "scenarioId": "peds_fever_v1",
+          "actorId": "nurse_aisha_brooks_v1",
+          "declared": true,
+          "columnA": {
+            "renderedInScene": true,
+            "visible": true,
+            "skinnedTriangleCount": 34571,
+            "childMeshNames": [
+              "openclinxr.peds_fever_v1.actor-nameplate.team-nurse-aisha-brooks",
+              "ed_chest_pain_nurse_adultanny_base_1",
+              "ed_chest_pain_nurse_adultanny_base_2",
+              "ed_chest_pain_nurse_adultanny_base_3",
+              "ed_chest_pain_nurse_adultanny_base_4",
+              "openclinxr_declared_upper_layers__scrub_top+scrub_pocket",
+              "openclinxr_footwear_clinical_shoe_L",
+              "openclinxr_footwear_clinical_shoe_R",
+              "openclinxr_real_garment_from_phenotype_scrub_pocket",
+              "openclinxr_real_garment_from_phenotype_scrub_top",
+              "openclinxr.peds_fever_v1.glb-affordance.openclinxr-peds_fever_v1-nurse_aisha_brooks_v1-generated-humanoid-glb:dialogue_target",
+              "openclinxr.peds_fever_v1.ragdoll-collision-proxy.openclinxr-peds_fever_v1-nurse_aisha_brooks_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.physician-interaction-target.openclinxr-peds_fever_v1-nurse_aisha_brooks_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.phoneme-mouth-cue.openclinxr-peds_fever_v1-nurse_aisha_brooks_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.left-expressive-brow.openclinxr-peds_fever_v1-nurse_aisha_brooks_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.right-expressive-brow.openclinxr-peds_fever_v1-nurse_aisha_brooks_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.emotion-cheek.openclinxr-peds_fever_v1-nurse_aisha_brooks_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.emotion-cheek.openclinxr-peds_fever_v1-nurse_aisha_brooks_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.runtime-jaw-viseme-target.openclinxr-peds_fever_v1-nurse_aisha_brooks_v1-generated-humanoid-glb"
+            ]
+          },
+          "columnB": {
+            "renderedInScene": true,
+            "visible": true,
+            "skinnedTriangleCount": 34571,
+            "childMeshNames": [
+              "openclinxr.peds_fever_v1.actor-nameplate.team-nurse-aisha-brooks",
+              "ed_chest_pain_nurse_adultanny_base_1",
+              "ed_chest_pain_nurse_adultanny_base_2",
+              "ed_chest_pain_nurse_adultanny_base_3",
+              "ed_chest_pain_nurse_adultanny_base_4",
+              "openclinxr_declared_upper_layers__scrub_top+scrub_pocket",
+              "openclinxr_footwear_clinical_shoe_L",
+              "openclinxr_footwear_clinical_shoe_R",
+              "openclinxr_real_garment_from_phenotype_scrub_pocket",
+              "openclinxr_real_garment_from_phenotype_scrub_top",
+              "openclinxr.peds_fever_v1.glb-affordance.openclinxr-peds_fever_v1-nurse_aisha_brooks_v1-generated-humanoid-glb:dialogue_target",
+              "openclinxr.peds_fever_v1.ragdoll-collision-proxy.openclinxr-peds_fever_v1-nurse_aisha_brooks_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.physician-interaction-target.openclinxr-peds_fever_v1-nurse_aisha_brooks_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.phoneme-mouth-cue.openclinxr-peds_fever_v1-nurse_aisha_brooks_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.left-expressive-brow.openclinxr-peds_fever_v1-nurse_aisha_brooks_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.right-expressive-brow.openclinxr-peds_fever_v1-nurse_aisha_brooks_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.emotion-cheek.openclinxr-peds_fever_v1-nurse_aisha_brooks_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.emotion-cheek.openclinxr-peds_fever_v1-nurse_aisha_brooks_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.runtime-jaw-viseme-target.openclinxr-peds_fever_v1-nurse_aisha_brooks_v1-generated-humanoid-glb"
+            ]
+          },
+          "classification": "present_in_both"
+        },
+        {
+          "scenarioId": "peds_fever_v1",
+          "actorId": "parent_mei_chen_v1",
+          "declared": true,
+          "columnA": {
+            "renderedInScene": true,
+            "visible": true,
+            "skinnedTriangleCount": 0,
+            "childMeshNames": [
+              "openclinxr.peds_fever_v1.actor-nameplate.family-parent-mei-chen"
+            ]
+          },
+          "columnB": {
+            "renderedInScene": true,
+            "visible": true,
+            "skinnedTriangleCount": 38827,
+            "childMeshNames": [
+              "openclinxr.peds_fever_v1.actor-nameplate.family-parent-mei-chen",
+              "ed_chest_pain_spouse_adultanny_base_1",
+              "ed_chest_pain_spouse_adultanny_base_2",
+              "ed_chest_pain_spouse_adultanny_base_3",
+              "ed_chest_pain_spouse_adultanny_base_4",
+              "openclinxr_declared_upper_layers__casual_top+open_cardigan",
+              "openclinxr_footwear_casual_shoe_L",
+              "openclinxr_footwear_casual_shoe_R",
+              "openclinxr_real_garment_from_phenotype_casual_top",
+              "openclinxr_real_garment_from_phenotype_open_cardigan",
+              "openclinxr.peds_fever_v1.glb-affordance.openclinxr-peds_fever_v1-parent_mei_chen_v1-generated-humanoid-glb:dialogue_target",
+              "openclinxr.peds_fever_v1.ragdoll-collision-proxy.openclinxr-peds_fever_v1-parent_mei_chen_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.physician-interaction-target.openclinxr-peds_fever_v1-parent_mei_chen_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.phoneme-mouth-cue.openclinxr-peds_fever_v1-parent_mei_chen_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.left-expressive-brow.openclinxr-peds_fever_v1-parent_mei_chen_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.right-expressive-brow.openclinxr-peds_fever_v1-parent_mei_chen_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.emotion-cheek.openclinxr-peds_fever_v1-parent_mei_chen_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.emotion-cheek.openclinxr-peds_fever_v1-parent_mei_chen_v1-generated-humanoid-glb",
+              "openclinxr.peds_fever_v1.runtime-jaw-viseme-target.openclinxr-peds_fever_v1-parent_mei_chen_v1-generated-humanoid-glb"
+            ]
+          },
+          "classification": "sampled_too_early"
+        }
+      ]
+    },
+    {
+      "scenarioId": "ed_stroke_alert_handoff_v1",
+      "declared": [
+        "patient_samuel_brooks_v1",
+        "son_eric_brooks_v1",
+        "stroke_nurse_chen_v1"
+      ],
+      "assetsAtSampleInstant": [
+        {
+          "assetId": "openclinxr.ed_stroke_alert_handoff_v1.bedside_monitor_equipment.generated-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/xr-assets/medical-equipment/bedside-monitor-generated.glb"
+        },
+        {
+          "assetId": "openclinxr.ed_stroke_alert_handoff_v1.environment.generated-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb"
+        },
+        {
+          "assetId": "openclinxr.ed_stroke_alert_handoff_v1.patient_samuel_brooks_v1.generated-humanoid-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/generated-humanoids/ed_chest_pain_adult_cast.glb"
+        },
+        {
+          "assetId": "openclinxr.ed_stroke_alert_handoff_v1.son_eric_brooks_v1.generated-humanoid-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/generated-humanoids/ed_chest_pain_spouse_adult.glb"
+        },
+        {
+          "assetId": "openclinxr.ed_stroke_alert_handoff_v1.stroke_nurse_chen_v1.generated-humanoid-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/generated-humanoids/ed_chest_pain_nurse_adult.glb"
+        },
+        {
+          "assetId": "openclinxr.ed_stroke_alert_handoff_v1.wall_clock_equipment.generated-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/xr-assets/medical-equipment/wall-clock-analog.glb"
+        }
+      ],
+      "assetsAfterSettle": [
+        {
+          "assetId": "openclinxr.ed_stroke_alert_handoff_v1.bedside_monitor_equipment.generated-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/xr-assets/medical-equipment/bedside-monitor-generated.glb"
+        },
+        {
+          "assetId": "openclinxr.ed_stroke_alert_handoff_v1.environment.generated-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb"
+        },
+        {
+          "assetId": "openclinxr.ed_stroke_alert_handoff_v1.patient_samuel_brooks_v1.generated-humanoid-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/generated-humanoids/ed_chest_pain_adult_cast.glb"
+        },
+        {
+          "assetId": "openclinxr.ed_stroke_alert_handoff_v1.son_eric_brooks_v1.generated-humanoid-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/generated-humanoids/ed_chest_pain_spouse_adult.glb"
+        },
+        {
+          "assetId": "openclinxr.ed_stroke_alert_handoff_v1.stroke_nurse_chen_v1.generated-humanoid-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/generated-humanoids/ed_chest_pain_nurse_adult.glb"
+        },
+        {
+          "assetId": "openclinxr.ed_stroke_alert_handoff_v1.wall_clock_equipment.generated-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/xr-assets/medical-equipment/wall-clock-analog.glb"
+        }
+      ],
+      "rows": [
+        {
+          "scenarioId": "ed_stroke_alert_handoff_v1",
+          "actorId": "patient_samuel_brooks_v1",
+          "declared": true,
+          "columnA": {
+            "renderedInScene": true,
+            "visible": true,
+            "skinnedTriangleCount": 32207,
+            "childMeshNames": [
+              "openclinxr.ed_stroke_alert_handoff_v1.actor-nameplate.patient-patient-samuel-brooks",
+              "ed_chest_pain_adult_castanny_base_1",
+              "ed_chest_pain_adult_castanny_base_2",
+              "ed_chest_pain_adult_castanny_base_3",
+              "ed_chest_pain_adult_castanny_base_4",
+              "openclinxr_declared_upper_layers__hospital_gown",
+              "openclinxr_footwear_hospital_slipper_L",
+              "openclinxr_footwear_hospital_slipper_R",
+              "openclinxr_real_garment_from_phenotype_hospital_gown",
+              "openclinxr.ed_stroke_alert_handoff_v1.glb-affordance.openclinxr-ed_stroke_alert_handoff_v1-patient_samuel_brooks_v1-generated-humanoid-glb:dialogue_target",
+              "openclinxr.ed_stroke_alert_handoff_v1.ragdoll-collision-proxy.openclinxr-ed_stroke_alert_handoff_v1-patient_samuel_brooks_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.physician-interaction-target.openclinxr-ed_stroke_alert_handoff_v1-patient_samuel_brooks_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.phoneme-mouth-cue.openclinxr-ed_stroke_alert_handoff_v1-patient_samuel_brooks_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.left-expressive-brow.openclinxr-ed_stroke_alert_handoff_v1-patient_samuel_brooks_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.right-expressive-brow.openclinxr-ed_stroke_alert_handoff_v1-patient_samuel_brooks_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.emotion-cheek.openclinxr-ed_stroke_alert_handoff_v1-patient_samuel_brooks_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.emotion-cheek.openclinxr-ed_stroke_alert_handoff_v1-patient_samuel_brooks_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.runtime-jaw-viseme-target.openclinxr-ed_stroke_alert_handoff_v1-patient_samuel_brooks_v1-generated-humanoid-glb"
+            ]
+          },
+          "columnB": {
+            "renderedInScene": true,
+            "visible": true,
+            "skinnedTriangleCount": 32207,
+            "childMeshNames": [
+              "openclinxr.ed_stroke_alert_handoff_v1.actor-nameplate.patient-patient-samuel-brooks",
+              "ed_chest_pain_adult_castanny_base_1",
+              "ed_chest_pain_adult_castanny_base_2",
+              "ed_chest_pain_adult_castanny_base_3",
+              "ed_chest_pain_adult_castanny_base_4",
+              "openclinxr_declared_upper_layers__hospital_gown",
+              "openclinxr_footwear_hospital_slipper_L",
+              "openclinxr_footwear_hospital_slipper_R",
+              "openclinxr_real_garment_from_phenotype_hospital_gown",
+              "openclinxr.ed_stroke_alert_handoff_v1.glb-affordance.openclinxr-ed_stroke_alert_handoff_v1-patient_samuel_brooks_v1-generated-humanoid-glb:dialogue_target",
+              "openclinxr.ed_stroke_alert_handoff_v1.ragdoll-collision-proxy.openclinxr-ed_stroke_alert_handoff_v1-patient_samuel_brooks_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.physician-interaction-target.openclinxr-ed_stroke_alert_handoff_v1-patient_samuel_brooks_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.phoneme-mouth-cue.openclinxr-ed_stroke_alert_handoff_v1-patient_samuel_brooks_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.left-expressive-brow.openclinxr-ed_stroke_alert_handoff_v1-patient_samuel_brooks_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.right-expressive-brow.openclinxr-ed_stroke_alert_handoff_v1-patient_samuel_brooks_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.emotion-cheek.openclinxr-ed_stroke_alert_handoff_v1-patient_samuel_brooks_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.emotion-cheek.openclinxr-ed_stroke_alert_handoff_v1-patient_samuel_brooks_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.runtime-jaw-viseme-target.openclinxr-ed_stroke_alert_handoff_v1-patient_samuel_brooks_v1-generated-humanoid-glb"
+            ]
+          },
+          "classification": "present_in_both"
+        },
+        {
+          "scenarioId": "ed_stroke_alert_handoff_v1",
+          "actorId": "son_eric_brooks_v1",
+          "declared": true,
+          "columnA": {
+            "renderedInScene": true,
+            "visible": true,
+            "skinnedTriangleCount": 38827,
+            "childMeshNames": [
+              "openclinxr.ed_stroke_alert_handoff_v1.actor-nameplate.family-son-eric-brooks",
+              "ed_chest_pain_spouse_adultanny_base_1",
+              "ed_chest_pain_spouse_adultanny_base_2",
+              "ed_chest_pain_spouse_adultanny_base_3",
+              "ed_chest_pain_spouse_adultanny_base_4",
+              "openclinxr_declared_upper_layers__casual_top+open_cardigan",
+              "openclinxr_footwear_casual_shoe_L",
+              "openclinxr_footwear_casual_shoe_R",
+              "openclinxr_real_garment_from_phenotype_casual_top",
+              "openclinxr_real_garment_from_phenotype_open_cardigan",
+              "openclinxr.ed_stroke_alert_handoff_v1.glb-affordance.openclinxr-ed_stroke_alert_handoff_v1-son_eric_brooks_v1-generated-humanoid-glb:dialogue_target",
+              "openclinxr.ed_stroke_alert_handoff_v1.ragdoll-collision-proxy.openclinxr-ed_stroke_alert_handoff_v1-son_eric_brooks_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.physician-interaction-target.openclinxr-ed_stroke_alert_handoff_v1-son_eric_brooks_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.phoneme-mouth-cue.openclinxr-ed_stroke_alert_handoff_v1-son_eric_brooks_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.left-expressive-brow.openclinxr-ed_stroke_alert_handoff_v1-son_eric_brooks_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.right-expressive-brow.openclinxr-ed_stroke_alert_handoff_v1-son_eric_brooks_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.emotion-cheek.openclinxr-ed_stroke_alert_handoff_v1-son_eric_brooks_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.emotion-cheek.openclinxr-ed_stroke_alert_handoff_v1-son_eric_brooks_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.runtime-jaw-viseme-target.openclinxr-ed_stroke_alert_handoff_v1-son_eric_brooks_v1-generated-humanoid-glb"
+            ]
+          },
+          "columnB": {
+            "renderedInScene": true,
+            "visible": true,
+            "skinnedTriangleCount": 38827,
+            "childMeshNames": [
+              "openclinxr.ed_stroke_alert_handoff_v1.actor-nameplate.family-son-eric-brooks",
+              "ed_chest_pain_spouse_adultanny_base_1",
+              "ed_chest_pain_spouse_adultanny_base_2",
+              "ed_chest_pain_spouse_adultanny_base_3",
+              "ed_chest_pain_spouse_adultanny_base_4",
+              "openclinxr_declared_upper_layers__casual_top+open_cardigan",
+              "openclinxr_footwear_casual_shoe_L",
+              "openclinxr_footwear_casual_shoe_R",
+              "openclinxr_real_garment_from_phenotype_casual_top",
+              "openclinxr_real_garment_from_phenotype_open_cardigan",
+              "openclinxr.ed_stroke_alert_handoff_v1.glb-affordance.openclinxr-ed_stroke_alert_handoff_v1-son_eric_brooks_v1-generated-humanoid-glb:dialogue_target",
+              "openclinxr.ed_stroke_alert_handoff_v1.ragdoll-collision-proxy.openclinxr-ed_stroke_alert_handoff_v1-son_eric_brooks_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.physician-interaction-target.openclinxr-ed_stroke_alert_handoff_v1-son_eric_brooks_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.phoneme-mouth-cue.openclinxr-ed_stroke_alert_handoff_v1-son_eric_brooks_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.left-expressive-brow.openclinxr-ed_stroke_alert_handoff_v1-son_eric_brooks_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.right-expressive-brow.openclinxr-ed_stroke_alert_handoff_v1-son_eric_brooks_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.emotion-cheek.openclinxr-ed_stroke_alert_handoff_v1-son_eric_brooks_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.emotion-cheek.openclinxr-ed_stroke_alert_handoff_v1-son_eric_brooks_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.runtime-jaw-viseme-target.openclinxr-ed_stroke_alert_handoff_v1-son_eric_brooks_v1-generated-humanoid-glb"
+            ]
+          },
+          "classification": "present_in_both"
+        },
+        {
+          "scenarioId": "ed_stroke_alert_handoff_v1",
+          "actorId": "stroke_nurse_chen_v1",
+          "declared": true,
+          "columnA": {
+            "renderedInScene": true,
+            "visible": true,
+            "skinnedTriangleCount": 34571,
+            "childMeshNames": [
+              "openclinxr.ed_stroke_alert_handoff_v1.actor-nameplate.team-stroke-nurse-chen",
+              "ed_chest_pain_nurse_adultanny_base_1",
+              "ed_chest_pain_nurse_adultanny_base_2",
+              "ed_chest_pain_nurse_adultanny_base_3",
+              "ed_chest_pain_nurse_adultanny_base_4",
+              "openclinxr_declared_upper_layers__scrub_top+scrub_pocket",
+              "openclinxr_footwear_clinical_shoe_L",
+              "openclinxr_footwear_clinical_shoe_R",
+              "openclinxr_real_garment_from_phenotype_scrub_pocket",
+              "openclinxr_real_garment_from_phenotype_scrub_top",
+              "openclinxr.ed_stroke_alert_handoff_v1.glb-affordance.openclinxr-ed_stroke_alert_handoff_v1-stroke_nurse_chen_v1-generated-humanoid-glb:dialogue_target",
+              "openclinxr.ed_stroke_alert_handoff_v1.ragdoll-collision-proxy.openclinxr-ed_stroke_alert_handoff_v1-stroke_nurse_chen_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.physician-interaction-target.openclinxr-ed_stroke_alert_handoff_v1-stroke_nurse_chen_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.phoneme-mouth-cue.openclinxr-ed_stroke_alert_handoff_v1-stroke_nurse_chen_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.left-expressive-brow.openclinxr-ed_stroke_alert_handoff_v1-stroke_nurse_chen_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.right-expressive-brow.openclinxr-ed_stroke_alert_handoff_v1-stroke_nurse_chen_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.emotion-cheek.openclinxr-ed_stroke_alert_handoff_v1-stroke_nurse_chen_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.emotion-cheek.openclinxr-ed_stroke_alert_handoff_v1-stroke_nurse_chen_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.runtime-jaw-viseme-target.openclinxr-ed_stroke_alert_handoff_v1-stroke_nurse_chen_v1-generated-humanoid-glb"
+            ]
+          },
+          "columnB": {
+            "renderedInScene": true,
+            "visible": true,
+            "skinnedTriangleCount": 34571,
+            "childMeshNames": [
+              "openclinxr.ed_stroke_alert_handoff_v1.actor-nameplate.team-stroke-nurse-chen",
+              "ed_chest_pain_nurse_adultanny_base_1",
+              "ed_chest_pain_nurse_adultanny_base_2",
+              "ed_chest_pain_nurse_adultanny_base_3",
+              "ed_chest_pain_nurse_adultanny_base_4",
+              "openclinxr_declared_upper_layers__scrub_top+scrub_pocket",
+              "openclinxr_footwear_clinical_shoe_L",
+              "openclinxr_footwear_clinical_shoe_R",
+              "openclinxr_real_garment_from_phenotype_scrub_pocket",
+              "openclinxr_real_garment_from_phenotype_scrub_top",
+              "openclinxr.ed_stroke_alert_handoff_v1.glb-affordance.openclinxr-ed_stroke_alert_handoff_v1-stroke_nurse_chen_v1-generated-humanoid-glb:dialogue_target",
+              "openclinxr.ed_stroke_alert_handoff_v1.ragdoll-collision-proxy.openclinxr-ed_stroke_alert_handoff_v1-stroke_nurse_chen_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.physician-interaction-target.openclinxr-ed_stroke_alert_handoff_v1-stroke_nurse_chen_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.phoneme-mouth-cue.openclinxr-ed_stroke_alert_handoff_v1-stroke_nurse_chen_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.left-expressive-brow.openclinxr-ed_stroke_alert_handoff_v1-stroke_nurse_chen_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.right-expressive-brow.openclinxr-ed_stroke_alert_handoff_v1-stroke_nurse_chen_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.emotion-cheek.openclinxr-ed_stroke_alert_handoff_v1-stroke_nurse_chen_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.emotion-cheek.openclinxr-ed_stroke_alert_handoff_v1-stroke_nurse_chen_v1-generated-humanoid-glb",
+              "openclinxr.ed_stroke_alert_handoff_v1.runtime-jaw-viseme-target.openclinxr-ed_stroke_alert_handoff_v1-stroke_nurse_chen_v1-generated-humanoid-glb"
+            ]
+          },
+          "classification": "present_in_both"
+        }
+      ]
+    },
+    {
+      "scenarioId": "stepdown_sepsis_nurse_escalation_v1",
+      "declared": [
+        "patient_helen_carter_v1",
+        "respiratory_therapist_ng_v1",
+        "stepdown_nurse_rivera_v1"
+      ],
+      "assetsAtSampleInstant": [
+        {
+          "assetId": "openclinxr.stepdown_sepsis_nurse_escalation_v1.environment.generated-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb"
+        },
+        {
+          "assetId": "openclinxr.stepdown_sepsis_nurse_escalation_v1.patient_helen_carter_v1.generated-humanoid-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/generated-humanoids/ed_chest_pain_adult_cast.glb"
+        },
+        {
+          "assetId": "openclinxr.stepdown_sepsis_nurse_escalation_v1.respiratory_therapist_ng_v1.generated-humanoid-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/generated-humanoids/ed_chest_pain_nurse_adult.glb"
+        },
+        {
+          "assetId": "openclinxr.stepdown_sepsis_nurse_escalation_v1.stepdown_nurse_rivera_v1.generated-humanoid-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/generated-humanoids/peds_nurse_kevin.glb"
+        }
+      ],
+      "assetsAfterSettle": [
+        {
+          "assetId": "openclinxr.stepdown_sepsis_nurse_escalation_v1.environment.generated-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb"
+        },
+        {
+          "assetId": "openclinxr.stepdown_sepsis_nurse_escalation_v1.patient_helen_carter_v1.generated-humanoid-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/generated-humanoids/ed_chest_pain_adult_cast.glb"
+        },
+        {
+          "assetId": "openclinxr.stepdown_sepsis_nurse_escalation_v1.respiratory_therapist_ng_v1.generated-humanoid-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/generated-humanoids/ed_chest_pain_nurse_adult.glb"
+        },
+        {
+          "assetId": "openclinxr.stepdown_sepsis_nurse_escalation_v1.stepdown_nurse_rivera_v1.generated-humanoid-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/generated-humanoids/peds_nurse_kevin.glb"
+        }
+      ],
+      "rows": [
+        {
+          "scenarioId": "stepdown_sepsis_nurse_escalation_v1",
+          "actorId": "patient_helen_carter_v1",
+          "declared": true,
+          "columnA": {
+            "renderedInScene": true,
+            "visible": true,
+            "skinnedTriangleCount": 32207,
+            "childMeshNames": [
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.actor-nameplate.patient-patient-helen-carter",
+              "ed_chest_pain_adult_castanny_base_1",
+              "ed_chest_pain_adult_castanny_base_2",
+              "ed_chest_pain_adult_castanny_base_3",
+              "ed_chest_pain_adult_castanny_base_4",
+              "openclinxr_declared_upper_layers__hospital_gown",
+              "openclinxr_footwear_hospital_slipper_L",
+              "openclinxr_footwear_hospital_slipper_R",
+              "openclinxr_real_garment_from_phenotype_hospital_gown",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.glb-affordance.openclinxr-stepdown_sepsis_nurse_escalation_v1-patient_helen_carter_v1-generated-humanoid-glb:dialogue_target",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.ragdoll-collision-proxy.openclinxr-stepdown_sepsis_nurse_escalation_v1-patient_helen_carter_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.physician-interaction-target.openclinxr-stepdown_sepsis_nurse_escalation_v1-patient_helen_carter_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.phoneme-mouth-cue.openclinxr-stepdown_sepsis_nurse_escalation_v1-patient_helen_carter_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.left-expressive-brow.openclinxr-stepdown_sepsis_nurse_escalation_v1-patient_helen_carter_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.right-expressive-brow.openclinxr-stepdown_sepsis_nurse_escalation_v1-patient_helen_carter_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.emotion-cheek.openclinxr-stepdown_sepsis_nurse_escalation_v1-patient_helen_carter_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.emotion-cheek.openclinxr-stepdown_sepsis_nurse_escalation_v1-patient_helen_carter_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.runtime-jaw-viseme-target.openclinxr-stepdown_sepsis_nurse_escalation_v1-patient_helen_carter_v1-generated-humanoid-glb"
+            ]
+          },
+          "columnB": {
+            "renderedInScene": true,
+            "visible": true,
+            "skinnedTriangleCount": 32207,
+            "childMeshNames": [
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.actor-nameplate.patient-patient-helen-carter",
+              "ed_chest_pain_adult_castanny_base_1",
+              "ed_chest_pain_adult_castanny_base_2",
+              "ed_chest_pain_adult_castanny_base_3",
+              "ed_chest_pain_adult_castanny_base_4",
+              "openclinxr_declared_upper_layers__hospital_gown",
+              "openclinxr_footwear_hospital_slipper_L",
+              "openclinxr_footwear_hospital_slipper_R",
+              "openclinxr_real_garment_from_phenotype_hospital_gown",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.glb-affordance.openclinxr-stepdown_sepsis_nurse_escalation_v1-patient_helen_carter_v1-generated-humanoid-glb:dialogue_target",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.ragdoll-collision-proxy.openclinxr-stepdown_sepsis_nurse_escalation_v1-patient_helen_carter_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.physician-interaction-target.openclinxr-stepdown_sepsis_nurse_escalation_v1-patient_helen_carter_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.phoneme-mouth-cue.openclinxr-stepdown_sepsis_nurse_escalation_v1-patient_helen_carter_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.left-expressive-brow.openclinxr-stepdown_sepsis_nurse_escalation_v1-patient_helen_carter_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.right-expressive-brow.openclinxr-stepdown_sepsis_nurse_escalation_v1-patient_helen_carter_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.emotion-cheek.openclinxr-stepdown_sepsis_nurse_escalation_v1-patient_helen_carter_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.emotion-cheek.openclinxr-stepdown_sepsis_nurse_escalation_v1-patient_helen_carter_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.runtime-jaw-viseme-target.openclinxr-stepdown_sepsis_nurse_escalation_v1-patient_helen_carter_v1-generated-humanoid-glb"
+            ]
+          },
+          "classification": "present_in_both"
+        },
+        {
+          "scenarioId": "stepdown_sepsis_nurse_escalation_v1",
+          "actorId": "respiratory_therapist_ng_v1",
+          "declared": true,
+          "columnA": {
+            "renderedInScene": true,
+            "visible": true,
+            "skinnedTriangleCount": 34571,
+            "childMeshNames": [
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.actor-nameplate.respiratory-respiratory-therapist-ng",
+              "ed_chest_pain_nurse_adultanny_base_1",
+              "ed_chest_pain_nurse_adultanny_base_2",
+              "ed_chest_pain_nurse_adultanny_base_3",
+              "ed_chest_pain_nurse_adultanny_base_4",
+              "openclinxr_declared_upper_layers__scrub_top+scrub_pocket",
+              "openclinxr_footwear_clinical_shoe_L",
+              "openclinxr_footwear_clinical_shoe_R",
+              "openclinxr_real_garment_from_phenotype_scrub_pocket",
+              "openclinxr_real_garment_from_phenotype_scrub_top",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.glb-affordance.openclinxr-stepdown_sepsis_nurse_escalation_v1-respiratory_therapist_ng_v1-generated-humanoid-glb:dialogue_target",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.ragdoll-collision-proxy.openclinxr-stepdown_sepsis_nurse_escalation_v1-respiratory_therapist_ng_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.physician-interaction-target.openclinxr-stepdown_sepsis_nurse_escalation_v1-respiratory_therapist_ng_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.phoneme-mouth-cue.openclinxr-stepdown_sepsis_nurse_escalation_v1-respiratory_therapist_ng_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.left-expressive-brow.openclinxr-stepdown_sepsis_nurse_escalation_v1-respiratory_therapist_ng_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.right-expressive-brow.openclinxr-stepdown_sepsis_nurse_escalation_v1-respiratory_therapist_ng_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.emotion-cheek.openclinxr-stepdown_sepsis_nurse_escalation_v1-respiratory_therapist_ng_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.emotion-cheek.openclinxr-stepdown_sepsis_nurse_escalation_v1-respiratory_therapist_ng_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.runtime-jaw-viseme-target.openclinxr-stepdown_sepsis_nurse_escalation_v1-respiratory_therapist_ng_v1-generated-humanoid-glb"
+            ]
+          },
+          "columnB": {
+            "renderedInScene": true,
+            "visible": true,
+            "skinnedTriangleCount": 34571,
+            "childMeshNames": [
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.actor-nameplate.respiratory-respiratory-therapist-ng",
+              "ed_chest_pain_nurse_adultanny_base_1",
+              "ed_chest_pain_nurse_adultanny_base_2",
+              "ed_chest_pain_nurse_adultanny_base_3",
+              "ed_chest_pain_nurse_adultanny_base_4",
+              "openclinxr_declared_upper_layers__scrub_top+scrub_pocket",
+              "openclinxr_footwear_clinical_shoe_L",
+              "openclinxr_footwear_clinical_shoe_R",
+              "openclinxr_real_garment_from_phenotype_scrub_pocket",
+              "openclinxr_real_garment_from_phenotype_scrub_top",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.glb-affordance.openclinxr-stepdown_sepsis_nurse_escalation_v1-respiratory_therapist_ng_v1-generated-humanoid-glb:dialogue_target",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.ragdoll-collision-proxy.openclinxr-stepdown_sepsis_nurse_escalation_v1-respiratory_therapist_ng_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.physician-interaction-target.openclinxr-stepdown_sepsis_nurse_escalation_v1-respiratory_therapist_ng_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.phoneme-mouth-cue.openclinxr-stepdown_sepsis_nurse_escalation_v1-respiratory_therapist_ng_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.left-expressive-brow.openclinxr-stepdown_sepsis_nurse_escalation_v1-respiratory_therapist_ng_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.right-expressive-brow.openclinxr-stepdown_sepsis_nurse_escalation_v1-respiratory_therapist_ng_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.emotion-cheek.openclinxr-stepdown_sepsis_nurse_escalation_v1-respiratory_therapist_ng_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.emotion-cheek.openclinxr-stepdown_sepsis_nurse_escalation_v1-respiratory_therapist_ng_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.runtime-jaw-viseme-target.openclinxr-stepdown_sepsis_nurse_escalation_v1-respiratory_therapist_ng_v1-generated-humanoid-glb"
+            ]
+          },
+          "classification": "present_in_both"
+        },
+        {
+          "scenarioId": "stepdown_sepsis_nurse_escalation_v1",
+          "actorId": "stepdown_nurse_rivera_v1",
+          "declared": true,
+          "columnA": {
+            "renderedInScene": true,
+            "visible": true,
+            "skinnedTriangleCount": 34582,
+            "childMeshNames": [
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.actor-nameplate.team-stepdown-nurse-rivera",
+              "openclinxr_footwear_clinical_shoe_L",
+              "openclinxr_footwear_clinical_shoe_R",
+              "openclinxr_real_garment_from_phenotype_scrub_pocket",
+              "openclinxr_real_garment_from_phenotype_scrub_top",
+              "peds_nurse_kevinanny_base_1",
+              "peds_nurse_kevinanny_base_2",
+              "peds_nurse_kevinanny_base_3",
+              "peds_nurse_kevinanny_base_4",
+              "openclinxr_declared_upper_layers__scrub_top+scrub_pocket",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.glb-affordance.openclinxr-stepdown_sepsis_nurse_escalation_v1-stepdown_nurse_rivera_v1-generated-humanoid-glb:dialogue_target",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.ragdoll-collision-proxy.openclinxr-stepdown_sepsis_nurse_escalation_v1-stepdown_nurse_rivera_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.physician-interaction-target.openclinxr-stepdown_sepsis_nurse_escalation_v1-stepdown_nurse_rivera_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.phoneme-mouth-cue.openclinxr-stepdown_sepsis_nurse_escalation_v1-stepdown_nurse_rivera_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.left-expressive-brow.openclinxr-stepdown_sepsis_nurse_escalation_v1-stepdown_nurse_rivera_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.right-expressive-brow.openclinxr-stepdown_sepsis_nurse_escalation_v1-stepdown_nurse_rivera_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.emotion-cheek.openclinxr-stepdown_sepsis_nurse_escalation_v1-stepdown_nurse_rivera_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.emotion-cheek.openclinxr-stepdown_sepsis_nurse_escalation_v1-stepdown_nurse_rivera_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.runtime-jaw-viseme-target.openclinxr-stepdown_sepsis_nurse_escalation_v1-stepdown_nurse_rivera_v1-generated-humanoid-glb"
+            ]
+          },
+          "columnB": {
+            "renderedInScene": true,
+            "visible": true,
+            "skinnedTriangleCount": 34582,
+            "childMeshNames": [
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.actor-nameplate.team-stepdown-nurse-rivera",
+              "openclinxr_footwear_clinical_shoe_L",
+              "openclinxr_footwear_clinical_shoe_R",
+              "openclinxr_real_garment_from_phenotype_scrub_pocket",
+              "openclinxr_real_garment_from_phenotype_scrub_top",
+              "peds_nurse_kevinanny_base_1",
+              "peds_nurse_kevinanny_base_2",
+              "peds_nurse_kevinanny_base_3",
+              "peds_nurse_kevinanny_base_4",
+              "openclinxr_declared_upper_layers__scrub_top+scrub_pocket",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.glb-affordance.openclinxr-stepdown_sepsis_nurse_escalation_v1-stepdown_nurse_rivera_v1-generated-humanoid-glb:dialogue_target",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.ragdoll-collision-proxy.openclinxr-stepdown_sepsis_nurse_escalation_v1-stepdown_nurse_rivera_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.physician-interaction-target.openclinxr-stepdown_sepsis_nurse_escalation_v1-stepdown_nurse_rivera_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.phoneme-mouth-cue.openclinxr-stepdown_sepsis_nurse_escalation_v1-stepdown_nurse_rivera_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.left-expressive-brow.openclinxr-stepdown_sepsis_nurse_escalation_v1-stepdown_nurse_rivera_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.right-expressive-brow.openclinxr-stepdown_sepsis_nurse_escalation_v1-stepdown_nurse_rivera_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.emotion-cheek.openclinxr-stepdown_sepsis_nurse_escalation_v1-stepdown_nurse_rivera_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.emotion-cheek.openclinxr-stepdown_sepsis_nurse_escalation_v1-stepdown_nurse_rivera_v1-generated-humanoid-glb",
+              "openclinxr.stepdown_sepsis_nurse_escalation_v1.runtime-jaw-viseme-target.openclinxr-stepdown_sepsis_nurse_escalation_v1-stepdown_nurse_rivera_v1-generated-humanoid-glb"
+            ]
+          },
+          "classification": "present_in_both"
+        }
+      ]
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "declared": [
+        "patient_maya_johnson_v1",
+        "parent_tara_johnson_v1",
+        "nurse_kevin_lee_v1"
+      ],
+      "assetsAtSampleInstant": [
+        {
+          "assetId": "nurse_kevin_lee_character",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/xr-assets/humanoids/candidates/body-param-adult_heavy_male-library.glb"
+        },
+        {
+          "assetId": "parent_tara_johnson_character",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb"
+        },
+        {
+          "assetId": "patient_maya_johnson_character",
+          "status": "pending",
+          "fallbackActive": false,
+          "assetPath": "/generated-humanoids/peds_patient_child.glb"
+        },
+        {
+          "assetId": "pediatric_urgent_care_bay_environment",
+          "status": "failed",
+          "fallbackActive": false,
+          "assetPath": "/xr-assets/environment/pediatric_urgent_care_bay_environment.glb"
+        }
+      ],
+      "assetsAfterSettle": [
+        {
+          "assetId": "nurse_kevin_lee_character",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/xr-assets/humanoids/candidates/body-param-adult_heavy_male-library.glb"
+        },
+        {
+          "assetId": "parent_tara_johnson_character",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb"
+        },
+        {
+          "assetId": "patient_maya_johnson_character",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/generated-humanoids/peds_patient_child.glb"
+        },
+        {
+          "assetId": "pediatric_urgent_care_bay_environment",
+          "status": "failed",
+          "fallbackActive": false,
+          "assetPath": "/xr-assets/environment/pediatric_urgent_care_bay_environment.glb"
+        }
+      ],
+      "rows": [
+        {
+          "scenarioId": "peds_asthma_parent_anxiety_v1",
+          "actorId": "patient_maya_johnson_v1",
+          "declared": true,
+          "columnA": {
+            "renderedInScene": true,
+            "visible": true,
+            "skinnedTriangleCount": 0,
+            "childMeshNames": [
+              "openclinxr.peds_asthma_parent_anxiety_v1.actor-nameplate.patient-patient-maya-johnson"
+            ]
+          },
+          "columnB": {
+            "renderedInScene": true,
+            "visible": true,
+            "skinnedTriangleCount": 31467,
+            "childMeshNames": [
+              "openclinxr.peds_asthma_parent_anxiety_v1.actor-nameplate.patient-patient-maya-johnson",
+              "openclinxr_footwear_hospital_slipper_L",
+              "openclinxr_footwear_hospital_slipper_R",
+              "openclinxr_real_garment_from_phenotype_short_sleeve_exam_tshirt",
+              "peds_patient_childanny_base_1",
+              "peds_patient_childanny_base_2",
+              "peds_patient_childanny_base_3",
+              "peds_patient_childanny_base_4",
+              "openclinxr_declared_upper_layers__short_sleeve_exam_tshirt",
+              "openclinxr.peds_asthma_parent_anxiety_v1.glb-affordance.patient_maya_johnson_character:dialogue_target",
+              "openclinxr.peds_asthma_parent_anxiety_v1.ragdoll-collision-proxy.patient_maya_johnson_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.physician-interaction-target.patient_maya_johnson_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.phoneme-mouth-cue.patient_maya_johnson_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.left-expressive-brow.patient_maya_johnson_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.right-expressive-brow.patient_maya_johnson_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.emotion-cheek.patient_maya_johnson_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.emotion-cheek.patient_maya_johnson_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.runtime-jaw-viseme-target.patient_maya_johnson_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.clinical-touch-region.patient_maya_johnson_v1.abdomen_rlq",
+              "openclinxr.peds_asthma_parent_anxiety_v1.clinical-touch-region.patient_maya_johnson_v1.abdomen_ruq",
+              "openclinxr.peds_asthma_parent_anxiety_v1.clinical-touch-region.patient_maya_johnson_v1.abdomen_luq",
+              "openclinxr.peds_asthma_parent_anxiety_v1.clinical-touch-region.patient_maya_johnson_v1.abdomen_llq",
+              "openclinxr.peds_asthma_parent_anxiety_v1.clinical-touch-region.patient_maya_johnson_v1.chest_R",
+              "openclinxr.peds_asthma_parent_anxiety_v1.clinical-touch-region.patient_maya_johnson_v1.chest_L"
+            ]
+          },
+          "classification": "sampled_too_early"
+        },
+        {
+          "scenarioId": "peds_asthma_parent_anxiety_v1",
+          "actorId": "parent_tara_johnson_v1",
+          "declared": true,
+          "columnA": {
+            "renderedInScene": true,
+            "visible": true,
+            "skinnedTriangleCount": 94887,
+            "childMeshNames": [
+              "openclinxr.peds_asthma_parent_anxiety_v1.actor-nameplate.parent-parent-tara-johnson",
+              "hm08_basemesh_adult_lean_female_1",
+              "hm08_basemesh_adult_lean_female_2",
+              "hm08_basemesh_adult_lean_female_3",
+              "hm08_basemesh_adult_lean_female_4",
+              "makeclothes_library_cargo_pants_adult_lean_female001",
+              "makeclothes_library_hair_toigo_blunt_bob_with_bangs_adult_lean_female_mesh",
+              "makeclothes_library_toigo_basic_tucked_t_shirt_adult_lean_female",
+              "openclinxr_footwear_flats_L",
+              "openclinxr_footwear_flats_R",
+              "openclinxr.peds_asthma_parent_anxiety_v1.glb-affordance.parent_tara_johnson_character:dialogue_target",
+              "openclinxr.peds_asthma_parent_anxiety_v1.ragdoll-collision-proxy.parent_tara_johnson_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.physician-interaction-target.parent_tara_johnson_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.phoneme-mouth-cue.parent_tara_johnson_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.left-expressive-brow.parent_tara_johnson_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.right-expressive-brow.parent_tara_johnson_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.emotion-cheek.parent_tara_johnson_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.emotion-cheek.parent_tara_johnson_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.runtime-jaw-viseme-target.parent_tara_johnson_character"
+            ]
+          },
+          "columnB": {
+            "renderedInScene": true,
+            "visible": true,
+            "skinnedTriangleCount": 94887,
+            "childMeshNames": [
+              "openclinxr.peds_asthma_parent_anxiety_v1.actor-nameplate.parent-parent-tara-johnson",
+              "hm08_basemesh_adult_lean_female_1",
+              "hm08_basemesh_adult_lean_female_2",
+              "hm08_basemesh_adult_lean_female_3",
+              "hm08_basemesh_adult_lean_female_4",
+              "makeclothes_library_cargo_pants_adult_lean_female001",
+              "makeclothes_library_hair_toigo_blunt_bob_with_bangs_adult_lean_female_mesh",
+              "makeclothes_library_toigo_basic_tucked_t_shirt_adult_lean_female",
+              "openclinxr_footwear_flats_L",
+              "openclinxr_footwear_flats_R",
+              "openclinxr.peds_asthma_parent_anxiety_v1.glb-affordance.parent_tara_johnson_character:dialogue_target",
+              "openclinxr.peds_asthma_parent_anxiety_v1.ragdoll-collision-proxy.parent_tara_johnson_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.physician-interaction-target.parent_tara_johnson_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.phoneme-mouth-cue.parent_tara_johnson_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.left-expressive-brow.parent_tara_johnson_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.right-expressive-brow.parent_tara_johnson_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.emotion-cheek.parent_tara_johnson_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.emotion-cheek.parent_tara_johnson_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.runtime-jaw-viseme-target.parent_tara_johnson_character"
+            ]
+          },
+          "classification": "present_in_both"
+        },
+        {
+          "scenarioId": "peds_asthma_parent_anxiety_v1",
+          "actorId": "nurse_kevin_lee_v1",
+          "declared": true,
+          "columnA": {
+            "renderedInScene": true,
+            "visible": true,
+            "skinnedTriangleCount": 69507,
+            "childMeshNames": [
+              "openclinxr.peds_asthma_parent_anxiety_v1.actor-nameplate.nurse-nurse-kevin-lee",
+              "hm08_basemesh_adult_heavy_male_1",
+              "hm08_basemesh_adult_heavy_male_2",
+              "hm08_basemesh_adult_heavy_male_3",
+              "hm08_basemesh_adult_heavy_male_4",
+              "makeclothes_library_cargo_pants_adult_heavy_male001",
+              "makeclothes_library_scrub_shirt_adult_heavy_male",
+              "openclinxr_footwear_male_boots_L",
+              "openclinxr_footwear_male_boots_R",
+              "openclinxr.peds_asthma_parent_anxiety_v1.glb-affordance.nurse_kevin_lee_character:dialogue_target",
+              "openclinxr.peds_asthma_parent_anxiety_v1.ragdoll-collision-proxy.nurse_kevin_lee_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.physician-interaction-target.nurse_kevin_lee_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.phoneme-mouth-cue.nurse_kevin_lee_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.left-expressive-brow.nurse_kevin_lee_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.right-expressive-brow.nurse_kevin_lee_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.emotion-cheek.nurse_kevin_lee_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.emotion-cheek.nurse_kevin_lee_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.runtime-jaw-viseme-target.nurse_kevin_lee_character"
+            ]
+          },
+          "columnB": {
+            "renderedInScene": true,
+            "visible": true,
+            "skinnedTriangleCount": 69507,
+            "childMeshNames": [
+              "openclinxr.peds_asthma_parent_anxiety_v1.actor-nameplate.nurse-nurse-kevin-lee",
+              "hm08_basemesh_adult_heavy_male_1",
+              "hm08_basemesh_adult_heavy_male_2",
+              "hm08_basemesh_adult_heavy_male_3",
+              "hm08_basemesh_adult_heavy_male_4",
+              "makeclothes_library_cargo_pants_adult_heavy_male001",
+              "makeclothes_library_scrub_shirt_adult_heavy_male",
+              "openclinxr_footwear_male_boots_L",
+              "openclinxr_footwear_male_boots_R",
+              "openclinxr.peds_asthma_parent_anxiety_v1.glb-affordance.nurse_kevin_lee_character:dialogue_target",
+              "openclinxr.peds_asthma_parent_anxiety_v1.ragdoll-collision-proxy.nurse_kevin_lee_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.physician-interaction-target.nurse_kevin_lee_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.phoneme-mouth-cue.nurse_kevin_lee_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.left-expressive-brow.nurse_kevin_lee_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.right-expressive-brow.nurse_kevin_lee_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.emotion-cheek.nurse_kevin_lee_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.emotion-cheek.nurse_kevin_lee_character",
+              "openclinxr.peds_asthma_parent_anxiety_v1.runtime-jaw-viseme-target.nurse_kevin_lee_character"
+            ]
+          },
+          "classification": "present_in_both"
+        }
+      ]
+    },
+    {
+      "scenarioId": "adult_abdominal_pain_v1",
+      "declared": [
+        "nurse_priya_nair_v1",
+        "partner_diego_vasquez_v1",
+        "patient_elena_vasquez_v1"
+      ],
+      "assetsAtSampleInstant": [
+        {
+          "assetId": "openclinxr.adult_abdominal_pain_v1.bedside_monitor_equipment.slot-only",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/xr-assets/medical-equipment/bedside-monitor-generated.glb"
+        },
+        {
+          "assetId": "openclinxr.adult_abdominal_pain_v1.environment.generated-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb"
+        },
+        {
+          "assetId": "openclinxr.adult_abdominal_pain_v1.nurse_priya_nair_v1.generated-humanoid-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/generated-humanoids/ed_chest_pain_nurse_adult.glb"
+        },
+        {
+          "assetId": "openclinxr.adult_abdominal_pain_v1.partner_diego_vasquez_v1.generated-humanoid-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/generated-humanoids/ed_chest_pain_spouse_adult.glb"
+        },
+        {
+          "assetId": "openclinxr.adult_abdominal_pain_v1.patient_elena_vasquez_v1.generated-humanoid-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/generated-humanoids/ed_chest_pain_adult_cast.glb"
+        }
+      ],
+      "assetsAfterSettle": [
+        {
+          "assetId": "openclinxr.adult_abdominal_pain_v1.bedside_monitor_equipment.slot-only",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/xr-assets/medical-equipment/bedside-monitor-generated.glb"
+        },
+        {
+          "assetId": "openclinxr.adult_abdominal_pain_v1.environment.generated-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb"
+        },
+        {
+          "assetId": "openclinxr.adult_abdominal_pain_v1.nurse_priya_nair_v1.generated-humanoid-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/generated-humanoids/ed_chest_pain_nurse_adult.glb"
+        },
+        {
+          "assetId": "openclinxr.adult_abdominal_pain_v1.partner_diego_vasquez_v1.generated-humanoid-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/generated-humanoids/ed_chest_pain_spouse_adult.glb"
+        },
+        {
+          "assetId": "openclinxr.adult_abdominal_pain_v1.patient_elena_vasquez_v1.generated-humanoid-glb",
+          "status": "loaded",
+          "fallbackActive": false,
+          "assetPath": "/generated-humanoids/ed_chest_pain_adult_cast.glb"
+        }
+      ],
+      "rows": [
+        {
+          "scenarioId": "adult_abdominal_pain_v1",
+          "actorId": "nurse_priya_nair_v1",
+          "declared": true,
+          "columnA": {
+            "renderedInScene": true,
+            "visible": true,
+            "skinnedTriangleCount": 34571,
+            "childMeshNames": [
+              "openclinxr.adult_abdominal_pain_v1.actor-nameplate.team-nurse-priya-nair",
+              "ed_chest_pain_nurse_adultanny_base_1",
+              "ed_chest_pain_nurse_adultanny_base_2",
+              "ed_chest_pain_nurse_adultanny_base_3",
+              "ed_chest_pain_nurse_adultanny_base_4",
+              "openclinxr_declared_upper_layers__scrub_top+scrub_pocket",
+              "openclinxr_footwear_clinical_shoe_L",
+              "openclinxr_footwear_clinical_shoe_R",
+              "openclinxr_real_garment_from_phenotype_scrub_pocket",
+              "openclinxr_real_garment_from_phenotype_scrub_top",
+              "openclinxr.adult_abdominal_pain_v1.glb-affordance.openclinxr-adult_abdominal_pain_v1-nurse_priya_nair_v1-generated-humanoid-glb:dialogue_target",
+              "openclinxr.adult_abdominal_pain_v1.ragdoll-collision-proxy.openclinxr-adult_abdominal_pain_v1-nurse_priya_nair_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.physician-interaction-target.openclinxr-adult_abdominal_pain_v1-nurse_priya_nair_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.phoneme-mouth-cue.openclinxr-adult_abdominal_pain_v1-nurse_priya_nair_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.left-expressive-brow.openclinxr-adult_abdominal_pain_v1-nurse_priya_nair_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.right-expressive-brow.openclinxr-adult_abdominal_pain_v1-nurse_priya_nair_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.emotion-cheek.openclinxr-adult_abdominal_pain_v1-nurse_priya_nair_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.emotion-cheek.openclinxr-adult_abdominal_pain_v1-nurse_priya_nair_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.runtime-jaw-viseme-target.openclinxr-adult_abdominal_pain_v1-nurse_priya_nair_v1-generated-humanoid-glb"
+            ]
+          },
+          "columnB": {
+            "renderedInScene": true,
+            "visible": true,
+            "skinnedTriangleCount": 34571,
+            "childMeshNames": [
+              "openclinxr.adult_abdominal_pain_v1.actor-nameplate.team-nurse-priya-nair",
+              "ed_chest_pain_nurse_adultanny_base_1",
+              "ed_chest_pain_nurse_adultanny_base_2",
+              "ed_chest_pain_nurse_adultanny_base_3",
+              "ed_chest_pain_nurse_adultanny_base_4",
+              "openclinxr_declared_upper_layers__scrub_top+scrub_pocket",
+              "openclinxr_footwear_clinical_shoe_L",
+              "openclinxr_footwear_clinical_shoe_R",
+              "openclinxr_real_garment_from_phenotype_scrub_pocket",
+              "openclinxr_real_garment_from_phenotype_scrub_top",
+              "openclinxr.adult_abdominal_pain_v1.glb-affordance.openclinxr-adult_abdominal_pain_v1-nurse_priya_nair_v1-generated-humanoid-glb:dialogue_target",
+              "openclinxr.adult_abdominal_pain_v1.ragdoll-collision-proxy.openclinxr-adult_abdominal_pain_v1-nurse_priya_nair_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.physician-interaction-target.openclinxr-adult_abdominal_pain_v1-nurse_priya_nair_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.phoneme-mouth-cue.openclinxr-adult_abdominal_pain_v1-nurse_priya_nair_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.left-expressive-brow.openclinxr-adult_abdominal_pain_v1-nurse_priya_nair_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.right-expressive-brow.openclinxr-adult_abdominal_pain_v1-nurse_priya_nair_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.emotion-cheek.openclinxr-adult_abdominal_pain_v1-nurse_priya_nair_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.emotion-cheek.openclinxr-adult_abdominal_pain_v1-nurse_priya_nair_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.runtime-jaw-viseme-target.openclinxr-adult_abdominal_pain_v1-nurse_priya_nair_v1-generated-humanoid-glb"
+            ]
+          },
+          "classification": "present_in_both"
+        },
+        {
+          "scenarioId": "adult_abdominal_pain_v1",
+          "actorId": "partner_diego_vasquez_v1",
+          "declared": true,
+          "columnA": {
+            "renderedInScene": true,
+            "visible": true,
+            "skinnedTriangleCount": 38827,
+            "childMeshNames": [
+              "openclinxr.adult_abdominal_pain_v1.actor-nameplate.family-partner-diego-vasquez",
+              "ed_chest_pain_spouse_adultanny_base_1",
+              "ed_chest_pain_spouse_adultanny_base_2",
+              "ed_chest_pain_spouse_adultanny_base_3",
+              "ed_chest_pain_spouse_adultanny_base_4",
+              "openclinxr_declared_upper_layers__casual_top+open_cardigan",
+              "openclinxr_footwear_casual_shoe_L",
+              "openclinxr_footwear_casual_shoe_R",
+              "openclinxr_real_garment_from_phenotype_casual_top",
+              "openclinxr_real_garment_from_phenotype_open_cardigan",
+              "openclinxr.adult_abdominal_pain_v1.glb-affordance.openclinxr-adult_abdominal_pain_v1-partner_diego_vasquez_v1-generated-humanoid-glb:dialogue_target",
+              "openclinxr.adult_abdominal_pain_v1.ragdoll-collision-proxy.openclinxr-adult_abdominal_pain_v1-partner_diego_vasquez_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.physician-interaction-target.openclinxr-adult_abdominal_pain_v1-partner_diego_vasquez_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.phoneme-mouth-cue.openclinxr-adult_abdominal_pain_v1-partner_diego_vasquez_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.left-expressive-brow.openclinxr-adult_abdominal_pain_v1-partner_diego_vasquez_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.right-expressive-brow.openclinxr-adult_abdominal_pain_v1-partner_diego_vasquez_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.emotion-cheek.openclinxr-adult_abdominal_pain_v1-partner_diego_vasquez_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.emotion-cheek.openclinxr-adult_abdominal_pain_v1-partner_diego_vasquez_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.runtime-jaw-viseme-target.openclinxr-adult_abdominal_pain_v1-partner_diego_vasquez_v1-generated-humanoid-glb"
+            ]
+          },
+          "columnB": {
+            "renderedInScene": true,
+            "visible": true,
+            "skinnedTriangleCount": 38827,
+            "childMeshNames": [
+              "openclinxr.adult_abdominal_pain_v1.actor-nameplate.family-partner-diego-vasquez",
+              "ed_chest_pain_spouse_adultanny_base_1",
+              "ed_chest_pain_spouse_adultanny_base_2",
+              "ed_chest_pain_spouse_adultanny_base_3",
+              "ed_chest_pain_spouse_adultanny_base_4",
+              "openclinxr_declared_upper_layers__casual_top+open_cardigan",
+              "openclinxr_footwear_casual_shoe_L",
+              "openclinxr_footwear_casual_shoe_R",
+              "openclinxr_real_garment_from_phenotype_casual_top",
+              "openclinxr_real_garment_from_phenotype_open_cardigan",
+              "openclinxr.adult_abdominal_pain_v1.glb-affordance.openclinxr-adult_abdominal_pain_v1-partner_diego_vasquez_v1-generated-humanoid-glb:dialogue_target",
+              "openclinxr.adult_abdominal_pain_v1.ragdoll-collision-proxy.openclinxr-adult_abdominal_pain_v1-partner_diego_vasquez_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.physician-interaction-target.openclinxr-adult_abdominal_pain_v1-partner_diego_vasquez_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.phoneme-mouth-cue.openclinxr-adult_abdominal_pain_v1-partner_diego_vasquez_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.left-expressive-brow.openclinxr-adult_abdominal_pain_v1-partner_diego_vasquez_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.right-expressive-brow.openclinxr-adult_abdominal_pain_v1-partner_diego_vasquez_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.emotion-cheek.openclinxr-adult_abdominal_pain_v1-partner_diego_vasquez_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.emotion-cheek.openclinxr-adult_abdominal_pain_v1-partner_diego_vasquez_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.runtime-jaw-viseme-target.openclinxr-adult_abdominal_pain_v1-partner_diego_vasquez_v1-generated-humanoid-glb"
+            ]
+          },
+          "classification": "present_in_both"
+        },
+        {
+          "scenarioId": "adult_abdominal_pain_v1",
+          "actorId": "patient_elena_vasquez_v1",
+          "declared": true,
+          "columnA": {
+            "renderedInScene": true,
+            "visible": true,
+            "skinnedTriangleCount": 32207,
+            "childMeshNames": [
+              "openclinxr.adult_abdominal_pain_v1.actor-nameplate.patient-patient-elena-vasquez",
+              "ed_chest_pain_adult_castanny_base_1",
+              "ed_chest_pain_adult_castanny_base_2",
+              "ed_chest_pain_adult_castanny_base_3",
+              "ed_chest_pain_adult_castanny_base_4",
+              "openclinxr_declared_upper_layers__hospital_gown",
+              "openclinxr_footwear_hospital_slipper_L",
+              "openclinxr_footwear_hospital_slipper_R",
+              "openclinxr_real_garment_from_phenotype_hospital_gown",
+              "openclinxr.adult_abdominal_pain_v1.glb-affordance.openclinxr-adult_abdominal_pain_v1-patient_elena_vasquez_v1-generated-humanoid-glb:dialogue_target",
+              "openclinxr.adult_abdominal_pain_v1.ragdoll-collision-proxy.openclinxr-adult_abdominal_pain_v1-patient_elena_vasquez_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.physician-interaction-target.openclinxr-adult_abdominal_pain_v1-patient_elena_vasquez_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.phoneme-mouth-cue.openclinxr-adult_abdominal_pain_v1-patient_elena_vasquez_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.left-expressive-brow.openclinxr-adult_abdominal_pain_v1-patient_elena_vasquez_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.right-expressive-brow.openclinxr-adult_abdominal_pain_v1-patient_elena_vasquez_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.emotion-cheek.openclinxr-adult_abdominal_pain_v1-patient_elena_vasquez_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.emotion-cheek.openclinxr-adult_abdominal_pain_v1-patient_elena_vasquez_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.runtime-jaw-viseme-target.openclinxr-adult_abdominal_pain_v1-patient_elena_vasquez_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.clinical-touch-region.patient_elena_vasquez_v1.abdomen_rlq",
+              "openclinxr.adult_abdominal_pain_v1.clinical-touch-region.patient_elena_vasquez_v1.abdomen_ruq",
+              "openclinxr.adult_abdominal_pain_v1.clinical-touch-region.patient_elena_vasquez_v1.abdomen_luq",
+              "openclinxr.adult_abdominal_pain_v1.clinical-touch-region.patient_elena_vasquez_v1.abdomen_llq",
+              "openclinxr.adult_abdominal_pain_v1.clinical-touch-region.patient_elena_vasquez_v1.chest_R",
+              "openclinxr.adult_abdominal_pain_v1.clinical-touch-region.patient_elena_vasquez_v1.chest_L"
+            ]
+          },
+          "columnB": {
+            "renderedInScene": true,
+            "visible": true,
+            "skinnedTriangleCount": 32207,
+            "childMeshNames": [
+              "openclinxr.adult_abdominal_pain_v1.actor-nameplate.patient-patient-elena-vasquez",
+              "ed_chest_pain_adult_castanny_base_1",
+              "ed_chest_pain_adult_castanny_base_2",
+              "ed_chest_pain_adult_castanny_base_3",
+              "ed_chest_pain_adult_castanny_base_4",
+              "openclinxr_declared_upper_layers__hospital_gown",
+              "openclinxr_footwear_hospital_slipper_L",
+              "openclinxr_footwear_hospital_slipper_R",
+              "openclinxr_real_garment_from_phenotype_hospital_gown",
+              "openclinxr.adult_abdominal_pain_v1.glb-affordance.openclinxr-adult_abdominal_pain_v1-patient_elena_vasquez_v1-generated-humanoid-glb:dialogue_target",
+              "openclinxr.adult_abdominal_pain_v1.ragdoll-collision-proxy.openclinxr-adult_abdominal_pain_v1-patient_elena_vasquez_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.physician-interaction-target.openclinxr-adult_abdominal_pain_v1-patient_elena_vasquez_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.phoneme-mouth-cue.openclinxr-adult_abdominal_pain_v1-patient_elena_vasquez_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.left-expressive-brow.openclinxr-adult_abdominal_pain_v1-patient_elena_vasquez_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.right-expressive-brow.openclinxr-adult_abdominal_pain_v1-patient_elena_vasquez_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.emotion-cheek.openclinxr-adult_abdominal_pain_v1-patient_elena_vasquez_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.emotion-cheek.openclinxr-adult_abdominal_pain_v1-patient_elena_vasquez_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.runtime-jaw-viseme-target.openclinxr-adult_abdominal_pain_v1-patient_elena_vasquez_v1-generated-humanoid-glb",
+              "openclinxr.adult_abdominal_pain_v1.clinical-touch-region.patient_elena_vasquez_v1.abdomen_rlq",
+              "openclinxr.adult_abdominal_pain_v1.clinical-touch-region.patient_elena_vasquez_v1.abdomen_ruq",
+              "openclinxr.adult_abdominal_pain_v1.clinical-touch-region.patient_elena_vasquez_v1.abdomen_luq",
+              "openclinxr.adult_abdominal_pain_v1.clinical-touch-region.patient_elena_vasquez_v1.abdomen_llq",
+              "openclinxr.adult_abdominal_pain_v1.clinical-touch-region.patient_elena_vasquez_v1.chest_R",
+              "openclinxr.adult_abdominal_pain_v1.clinical-touch-region.patient_elena_vasquez_v1.chest_L"
+            ]
+          },
+          "classification": "present_in_both"
+        }
+      ]
+    }
+  ]
+}
