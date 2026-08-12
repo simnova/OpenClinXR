@@ -6,6 +6,45 @@
   "chosenOnEvidence": "aisha was nearest the bar in the issue's own measurement (skin punch-through at breasts + midriff, ragged hem, flat shoes, black slivers) and had no face-mask defect; the occlusion gate confirms her eyes are visible (0.861 visible pre-fix). The child's boots are detached and the nurse's face is a broken mask — both farther from the bar.",
   "rounds": [
     {
+      "round": 5,
+      "bakeGlb": ".openclinxr/evidence/issue-341/bakes/aisha-round5.glb",
+      "materializerChanges": [
+        "issue-341 forehead hairline: the scalp crown band painted the FACE FRONT from just above the eye socket to the crown (the 'black rectangle on the forehead'). Root cause measured: the shared scalp function's face-front exclusion NEVER fires on the MPFB bodies because its depth line comes from WHOLE-BODY bounds, which the hanging arms dominate (skippedFaceFrontFaceCount: 0 on every bake). There is no hairline vertex group in the shipped anatomy (measured: all head joint groups are helper verts >= 13380, stripped; no MakeHuman hairline target; the forehead targets run to the crown). The materializer now derives the hairline per-body from the body's own surface: the forehead plane = median depth (y) of the head's midline surface within the fitted EYE MESH's own height band, and the hairline = the highest face-front vertex still at/ahead of that plane (aisha: 0.9715 H). Midline half-width = the eye mesh's own half-width. 60 scalp polys unpainted in the face front below the hairline."
+      ],
+      "numbers": {
+        "scalpMaxZPreFix": 0.153,
+        "scalpMaxZPostFix": 0.1316,
+        "eyeMaxZ": 0.1392,
+        "scalpZVsEyeZ": "0.1316 < 0.1392 (scalp now BEHIND the eyes, was 1.4cm ANTERIOR)",
+        "scalpTriangleCountPreFix": 2640,
+        "scalpTriangleCountPostFix": 2544,
+        "hairlineFraction": 0.9715,
+        "foreheadPlaneY": -0.1366,
+        "foreheadUnpaintedPolygons": 60,
+        "occlusionEyesVisibleFraction": 0.8333,
+        "occlusionEyesOccluders": {"skin": 0.1667},
+        "occlusionScalpOccludesEyes": "no scalp occluder on eyes (was 0.5 nurse / 0.213 aisha pre-fix)",
+        "occlusionTshirtOccludedByOther": 0.0027,
+        "occlusionBootsOccludedByOther": 0.0016
+      },
+      "captures": [
+        ".openclinxr/evidence/issue-341/captures/round5/front_lit.png",
+        ".openclinxr/evidence/issue-341/captures/round5/front_structure.png",
+        ".openclinxr/evidence/issue-341/captures/round5/three_quarter_lit.png",
+        ".openclinxr/evidence/issue-341/captures/round5/three_quarter_structure.png"
+      ],
+      "stillWrong": [
+        "Waistband sawtooth NOT yet fixed this round: a band of unhidden belly skin at the front waist (y 0.97-0.99) where the shirt front surface is coincident with the belly (measured: 12/14 front belly samples have no shirt or pants triangle in front along +Z). Queued as the next round.",
+        "Toes through shoe fronts / flat disc shoes NOT yet fixed this round. Queued after the waistband.",
+        "Shoulder/elbow dark slivers: round-4's 35 unhidden + 47 reclipped; whether they grade clean is a pixel question."
+      ],
+      "guesses": [
+        "the 1.5 eye-height facial-proportion fallback was NOT used — the hairline came out geometrically at 0.9715, matching the measured eye-top + 1.5 eye-heights candidate (0.9725) within 1mm",
+        "the hairline is a horizontal band across the full face front — real hairlines curve lower at the temples, but a straight hairline above the eyes reads as natural",
+        "the scalp behind the eyes at zmax 0.1316 vs eyes 0.1392 leaves the temples at the sides (x +/-0.05) as the front-most scalp — reads as hair at the sides, intended"
+      ]
+    },
+    {
       "round": 1,
       "bakeGlb": ".openclinxr/evidence/issue-341/bakes/aisha-round4.glb",
       "materializerChanges": [

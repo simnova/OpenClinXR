@@ -698,6 +698,70 @@ def main():
         ):
             poly.material_index = skin_idx
             eye_socket_unpainted += 1
+
+    # #341 round 5 — the forehead rectangle. Measured on the shipped bytes: the
+    # scalp's crown band (0.935 H, the paint the #338 eye-socket unpaint leaves
+    # behind) still covers the FACE FRONT from just above the eye socket to the
+    # crown — the "black rectangle on the forehead" pixel grade, on every MPFB
+    # body (aisha scalp y=[0.894,1.000]H, zmax 1.4 cm anterior of the eyes).
+    # The band's own face-front exclusion never fires because its depth line is
+    # computed from the WHOLE-BODY bounds, which the hanging arms dominate
+    # (measured: `skippedFaceFrontFaceCount: 0` on every bake — the #282
+    # conjunction's "correct on each axis, wrong as a conjunction").
+    #
+    # There is NO hairline reference in the shipped anatomy — measured: the MPFB
+    # basemesh has no hairline vertex group (all joint/head groups are helper
+    # verts >= 13,380, stripped), and no MakeHuman target marks the hairline (the
+    # forehead targets run to the crown; the brow targets mark the lower face).
+    # The hairline is therefore DERIVED from the body's own surface: the
+    # forehead is a near-vertical front column whose front depth stays ~constant
+    # from the brow to the crown, and the hairline is the top of that column —
+    # the highest face-front vertex still at or ahead of the forehead plane. The
+    # plane and the column width are measured per-body: the forehead plane is the
+    # median depth (y) of the head's midline surface in the EYE mesh's own height
+    # band (the fitted eye mesh extent is the sanctioned reference — the eye
+    # socket is the lower bound of the forehead), and the midline half-width is
+    # the eye mesh's own half-width. No fitted constant: every quantity is the
+    # eye mesh's measured extent or the body's own geometry.
+    eye_min_z = float(eye_world[:, 2].min())
+    eye_max_z = float(eye_world[:, 2].max())
+    eye_half_w = float(np.max(np.abs(eye_world[:, 0])))
+    # Head region: above the neck band bottom (the materializer's own NECK_BAND_H
+    # MADR 0051 §4 band — a documented anatomical landmark, not a fitted number).
+    _h_zmin = float(min((h_world @ v.co).z for v in human.data.vertices))
+    _h_zmax = float(max((h_world @ v.co).z for v in human.data.vertices))
+    _h_stature = _h_zmax - _h_zmin
+    head_z0 = _h_zmin + 0.78 * _h_stature
+    _midline = [
+        tuple(h_world @ v.co) for v in human.data.vertices
+        if (h_world @ v.co).z >= head_z0 and abs((h_world @ v.co).x) <= eye_half_w
+    ]
+    _eye_band = [p for p in _midline if eye_min_z <= p[2] <= eye_max_z]
+    forehead_plane = float(np.median([p[1] for p in _eye_band])) if _eye_band else None
+    hairline_z = None
+    if forehead_plane is not None:
+        _at_plane = [p for p in _midline if p[1] <= forehead_plane]
+        if _at_plane:
+            hairline_z = float(max(p[2] for p in _at_plane))
+    if hairline_z is None:
+        print(
+            "FOREHEAD_HAIRLINE WARNING: could not measure a face-front hairline "
+            "(empty midline or eye band) — the forehead rectangle will not be unpainted; report this"
+        )
+    else:
+        forehead_unpainted = 0
+        for poly in human.data.polygons:
+            if poly.material_index != scalp_idx:
+                continue
+            c = h_world @ poly.center
+            if c.y <= forehead_plane and c.z <= hairline_z:
+                poly.material_index = skin_idx
+                forehead_unpainted += 1
+        print(
+            f"FOREHEAD_HAIRLINE planeY {forehead_plane:.4f} hairlineZ {hairline_z:.4f} "
+            f"(hairlineFrac {(hairline_z - _h_zmin) / _h_stature:.4f}) "
+            f"unpainted {forehead_unpainted} scalp polys in the face front below the hairline"
+        )
     # The eye material the fitter applied is MPFB's procedural eyes NODE TREE, which
     # the GLB exporter does not bake (measured on the shipped bytes: the exported eye
     # material has NO baseColorFactor — it renders flat WHITE). #337/#338 each then
