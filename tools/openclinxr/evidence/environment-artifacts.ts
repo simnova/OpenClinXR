@@ -390,7 +390,26 @@ def clear_scene():
 
 def material(name, color):
     mat = bpy.data.materials.new(name)
-    mat.diffuse_color = color
+    # Node-based Principled BSDF: the glTF exporter reads the BSDF Base Color, not
+    # diffuse_color (flat non-node materials export as the 0.8 default — measured
+    # #345). The Cycles DIFFUSE bake in room-albedo-ao-bake.py reads it too.
+    mat.use_nodes = True
+    bsdf = None
+    for node in mat.node_tree.nodes:
+        if node.type == "BSDF_PRINCIPLED":
+            bsdf = node
+            break
+    if bsdf is None:
+        bsdf = mat.node_tree.nodes.new("ShaderNodeBsdfPrincipled")
+        out = None
+        for node in mat.node_tree.nodes:
+            if node.type == "OUTPUT_MATERIAL":
+                out = node
+                break
+        if out is None:
+            out = mat.node_tree.nodes.new("ShaderNodeOutputMaterial")
+        mat.node_tree.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
+    bsdf.inputs["Base Color"].default_value = color
     return mat
 
 def cube(name, location, scale, mat):
