@@ -90,14 +90,14 @@ export async function writeEnvironmentArtifacts(options?: {
   const generatedAt = new Date().toISOString();
   await mkdir(artifactPaths.outputRoot, { recursive: true });
   await runBlenderEnvironmentBake({
-    blenderPath: process.env.BLENDER ?? "blender",
+    blenderPath: process.env["BLENDER"] ?? "blender",
     edExamBayShellGlbPath: artifactPaths.edExamBayShellGlb,
   });
   // MADR 0055 item 1: bake albedo + AO into a baseColorTexture (issue-345). The
   // build above exports flat materials; the Cycles DIFFUSE bake (proven in #343,
   // this week) makes the shipped room carry a real texture.
   await runRoomAlbedoAoBake({
-    blenderPath: process.env.BLENDER ?? "blender",
+    blenderPath: process.env["BLENDER"] ?? "blender",
     edExamBayShellGlbPath: artifactPaths.edExamBayShellGlb,
   });
   await writeFile(artifactPaths.layoutManifest, `${JSON.stringify(buildEnvironmentLayoutManifest(generatedAt), null, 2)}\n`, "utf8");
