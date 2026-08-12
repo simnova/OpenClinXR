@@ -493,6 +493,9 @@ export function buildDeclaredEquipmentGeometry(equipmentId: string): Group {
     // #202 small table — psych safe room; honest class for unmapped "small table" prose
     case "small_table_equipment":
       return buildSimpleTableEquipment(equipmentId, "small_table");
+    // #202 consultation desk — oncology bad-news room; honest class
+    case "consultation_desk_equipment":
+      return buildSimpleTableEquipment(equipmentId, "consultation_desk");
     // #202 device-on-stand
     case "digital_thermometer_equipment":
       return buildDeviceOnStandFamilyEquipment(equipmentId, "thermometer");

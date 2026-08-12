@@ -2,12 +2,12 @@
 
 MADRs: 0054, 0055 · schema `openclinxr.equipment-catalog.v1`
 
-- measuredAt: 2026-08-12T05:54:54.581Z
+- measuredAt: 2026-08-12T06:09:36.755Z
 - scenarios: 14
-- equipment rows: 44
-- lanes: {"bank":4,"thin_parametric":39,"modular_kit":1}
-- runtimeSource: {"parametric":40,"gltf":4}
-- unmapped prose: 13
+- equipment rows: 45
+- lanes: {"bank":4,"thin_parametric":40,"modular_kit":1}
+- runtimeSource: {"parametric":41,"gltf":4}
+- unmapped prose: 12
 - gltf missing on disk: 0
 
 ## Blueprints (14 scenario-bank cases)
@@ -56,6 +56,7 @@ MADRs: 0054, 0055 · schema `openclinxr.equipment-catalog.v1`
 ### oncology_bad_news_family_v1
 
 - chairs_equipment (thin_parametric/parametric)
+- consultation_desk_equipment (thin_parametric/parametric)
 - lab_results_panel_equipment (thin_parametric/parametric)
 - tissue_box_equipment (thin_parametric/parametric)
 

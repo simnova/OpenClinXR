@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.equipment-catalog.v1",
-  "measuredAt": "2026-08-12T05:54:54.581Z",
+  "measuredAt": "2026-08-12T06:09:36.755Z",
   "claimScope": "equipment three-lane catalogue over scenario-bank blueprints + runtime builders (MADR 0054/0055)",
   "notEvidenceFor": [
     "clinical_accuracy",
@@ -13,7 +13,7 @@
     "0055"
   ],
   "scenarioCount": 14,
-  "equipmentCount": 44,
+  "equipmentCount": 45,
   "rows": [
     {
       "equipmentId": "12_lead_ecg_machine_equipment",
@@ -240,6 +240,31 @@
         "oncology_bad_news_family_v1",
         "primary_care_dyslipidemia_joint_pain_v1",
         "psych_suicidal_ideation_safety_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "consultation_desk_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildConsultationDeskEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "consultation desk"
+      ],
+      "scenarioIds": [
+        "oncology_bad_news_family_v1"
       ],
       "midbandStatus": "none",
       "licenceStatus": "n/a",
@@ -1153,14 +1178,6 @@
       "reason": "no prose-map entry"
     },
     {
-      "prose": "consultation desk",
-      "scenarioIds": [
-        "oncology_bad_news_family_v1"
-      ],
-      "recommendedEquipmentId": null,
-      "reason": "no prose-map entry"
-    },
-    {
       "prose": "CT direction sign",
       "scenarioIds": [
         "ed_stroke_alert_handoff_v1"
@@ -1252,11 +1269,11 @@
   "summary": {
     "byLane": {
       "bank": 4,
-      "thin_parametric": 39,
+      "thin_parametric": 40,
       "modular_kit": 1
     },
     "byRuntimeSource": {
-      "parametric": 40,
+      "parametric": 41,
       "gltf": 4
     },
     "gltfMissingOnDisk": [],
