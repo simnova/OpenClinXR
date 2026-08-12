@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "openclinxr.room-bake.v1",
+  "issue": 345,
+  "generatedAt": "2026-08-12T14:42:12.591Z",
+  "measuredAgainstCommit": "c4d93cc8b4829a7fd52a21b28a56350c3b2a0ab4",
+  "input": "apps/ui-xr/public/xr-assets/environment/infinigen-ed-exam-bay.glb",
+  "output": "apps/ui-xr/public/xr-assets/environment/infinigen-ed-exam-bay.glb",
+  "bake": {
+    "script": "tools/openclinxr/asset-pipeline/environment/room-albedo-ao-bake.py",
+    "resolution": 1024,
+    "engine": "CYCLES",
+    "samples": 32,
+    "bakeType": "DIFFUSE",
+    "passFilter": [
+      "DIRECT",
+      "INDIRECT",
+      "COLOR"
+    ],
+    "worldAmbientStrength": 0.12
+  },
+  "inputMeasure": {
+    "tris": 440,
+    "meshes": 4,
+    "materials": 3,
+    "texturedMaterials": 0,
+    "distinctColours": 1,
+    "textureBytes": 0,
+    "materialNames": [
+      "shader_plaster.014",
+      "shader_ceramic_shader_square_tile_tile.002",
+      "shader_plaster.021"
+    ]
+  },
+  "outputMeasure": {
+    "tris": 440,
+    "meshes": 4,
+    "materials": 3,
+    "texturedMaterials": 3,
+    "distinctColours": 65,
+    "textureBytes": 2158887,
+    "materialNames": [
+      "shader_plaster.014",
+      "shader_ceramic_shader_square_tile_tile.002",
+      "shader_plaster.021"
+    ]
+  },
+  "wallClockMs": 44850,
+  "verdict": {
+    "passed": true,
+    "blockers": []
+  }
+}

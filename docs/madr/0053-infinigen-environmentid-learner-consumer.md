@@ -57,7 +57,7 @@ kept as the fallback (unmapped ids and GLB load failures leave it visible; no de
 
 Concretely:
 
-- **Asset.** `apps/ui-xr/public/xr-assets/environment/infinigen-ed-exam-bay.glb` (24,944 bytes,
+- **Asset.** `apps/ui-xr/public/xr-assets/environment/infinigen-ed-exam-bay.glb` (2,184,544 bytes,
   SHA-256 `1bddb589715d6ef4fb6cdeff2d72414daef81b42b154a7999e53a712bb990ba1`), baked from
   `clinical_bay.gin` seed 0 → single `dining-room_0` extracted post-process via mesh-name selection
   (the #236 technique) → Blender glTF export with floor top at y=0 and room centered at origin.

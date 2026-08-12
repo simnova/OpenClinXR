@@ -21,6 +21,9 @@ export const EQUIPMENT_PLACEMENT_NAME = "equipment-placement-manifest.json";
 export const QUEST_BUDGET_NAME = "quest-environment-budget.json";
 export const ED_EXAM_BAY_GLB_NAME = "ed-exam-bay-shell.glb";
 export const BLENDER_ENVIRONMENT_COMMAND_TIMEOUT_MS = 120_000;
+/** Room albedo+AO bake (issue-345): the bake takes ~45-90 s per room. */
+export const ROOM_BAKE_TIMEOUT_MS = 600_000;
+export const ROOM_BAKE_SCRIPT = "tools/openclinxr/asset-pipeline/environment/room-albedo-ao-bake.py";
 
 export type EnvironmentArtifactsReport = {
   schemaVersion: typeof ENVIRONMENT_ARTIFACTS_SCHEMA_VERSION;
@@ -87,6 +90,13 @@ export async function writeEnvironmentArtifacts(options?: {
   const generatedAt = new Date().toISOString();
   await mkdir(artifactPaths.outputRoot, { recursive: true });
   await runBlenderEnvironmentBake({
+    blenderPath: process.env.BLENDER ?? "blender",
+    edExamBayShellGlbPath: artifactPaths.edExamBayShellGlb,
+  });
+  // MADR 0055 item 1: bake albedo + AO into a baseColorTexture (issue-345). The
+  // build above exports flat materials; the Cycles DIFFUSE bake (proven in #343,
+  // this week) makes the shipped room carry a real texture.
+  await runRoomAlbedoAoBake({
     blenderPath: process.env.BLENDER ?? "blender",
     edExamBayShellGlbPath: artifactPaths.edExamBayShellGlb,
   });
@@ -351,7 +361,9 @@ function buildQuestBudget(generatedAt: string) {
     },
     currentBundleEstimate: {
       environmentTriangles: 680,
-      staticTextureMegabytes: 0,
+      // #345: baked albedo+AO baseColorTextures on all 15 shell materials (~9.9 MB
+      // at 1024px). Measured on the baked shell GLB; not a budget change.
+      staticTextureMegabytes: 10,
       dynamicLights: 1,
       generatedMeshPresent: true,
     },
@@ -361,6 +373,29 @@ function buildQuestBudget(generatedAt: string) {
       "clinical_visual_validity",
     ],
   };
+}
+
+async function runRoomAlbedoAoBake(options: {
+  blenderPath: string;
+  edExamBayShellGlbPath: string;
+}): Promise<void> {
+  await execFileAsync(
+    options.blenderPath,
+    [
+      "--background",
+      "--python",
+      ROOM_BAKE_SCRIPT,
+      "--",
+      "--input",
+      options.edExamBayShellGlbPath,
+      "--output",
+      options.edExamBayShellGlbPath,
+    ],
+    {
+      timeout: ROOM_BAKE_TIMEOUT_MS,
+      maxBuffer: 20 * 1024 * 1024,
+    },
+  );
 }
 
 async function runBlenderEnvironmentBake(options: {
