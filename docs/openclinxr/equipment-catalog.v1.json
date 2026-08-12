@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.equipment-catalog.v1",
-  "measuredAt": "2026-08-12T09:58:32.626Z",
+  "measuredAt": "2026-08-12T14:02:06.078Z",
   "claimScope": "equipment three-lane catalogue over scenario-bank blueprints + runtime builders (MADR 0054/0055)",
   "notEvidenceFor": [
     "clinical_accuracy",
@@ -429,9 +429,9 @@
     },
     {
       "equipmentId": "exam_table_equipment",
-      "lane": "thin_parametric",
-      "runtimeSource": "parametric",
-      "gltfFileName": null,
+      "lane": "bank",
+      "runtimeSource": "gltf",
+      "gltfFileName": "exam-table-sketchfab-ccby.glb",
       "builderSymbol": "buildExamTableEquipment",
       "kitRecipeId": null,
       "proseAliases": [
@@ -441,9 +441,9 @@
         "clinic_abdominal_pain_interpreter_v1",
         "primary_care_dyslipidemia_joint_pain_v1"
       ],
-      "midbandStatus": "none",
-      "licenceStatus": "n/a",
-      "provenancePath": null,
+      "midbandStatus": "glb_present",
+      "licenceStatus": "internal",
+      "provenancePath": "apps/ui-xr/public/xr-assets/medical-equipment/exam-table-sketchfab-ccby.glb",
       "ledgerSource": null,
       "claimScope": "factory routing + runtime equipment identity",
       "notEvidenceFor": [
@@ -507,9 +507,9 @@
     },
     {
       "equipmentId": "hospital_bed_equipment",
-      "lane": "thin_parametric",
-      "runtimeSource": "parametric",
-      "gltfFileName": null,
+      "lane": "bank",
+      "runtimeSource": "gltf",
+      "gltfFileName": "hospital-bed-sketchfab-ccby.glb",
       "builderSymbol": "buildHospitalBedEquipment",
       "kitRecipeId": null,
       "proseAliases": [
@@ -520,9 +520,9 @@
         "ob_headache_preeclampsia_triage_v1",
         "ward_delirium_med_rec_v1"
       ],
-      "midbandStatus": "none",
-      "licenceStatus": "n/a",
-      "provenancePath": null,
+      "midbandStatus": "glb_present",
+      "licenceStatus": "internal",
+      "provenancePath": "apps/ui-xr/public/xr-assets/medical-equipment/hospital-bed-sketchfab-ccby.glb",
       "ledgerSource": null,
       "claimScope": "factory routing + runtime equipment identity",
       "notEvidenceFor": [
@@ -989,9 +989,9 @@
     },
     {
       "equipmentId": "privacy_curtain_equipment",
-      "lane": "thin_parametric",
-      "runtimeSource": "parametric",
-      "gltfFileName": null,
+      "lane": "bank",
+      "runtimeSource": "gltf",
+      "gltfFileName": "privacy-curtain-monitor-sketchfab-ccby.glb",
       "builderSymbol": "buildPrivacyCurtainEquipment",
       "kitRecipeId": null,
       "proseAliases": [
@@ -1001,9 +1001,9 @@
         "clinic_abdominal_pain_interpreter_v1",
         "ob_headache_preeclampsia_triage_v1"
       ],
-      "midbandStatus": "none",
-      "licenceStatus": "n/a",
-      "provenancePath": null,
+      "midbandStatus": "glb_present",
+      "licenceStatus": "internal",
+      "provenancePath": "apps/ui-xr/public/xr-assets/medical-equipment/privacy-curtain-monitor-sketchfab-ccby.glb",
       "ledgerSource": null,
       "claimScope": "factory routing + runtime equipment identity",
       "notEvidenceFor": [
@@ -1137,9 +1137,9 @@
     },
     {
       "equipmentId": "stretcher_equipment",
-      "lane": "thin_parametric",
-      "runtimeSource": "parametric",
-      "gltfFileName": null,
+      "lane": "bank",
+      "runtimeSource": "gltf",
+      "gltfFileName": "stretcher-sketchfab-ccby.glb",
       "builderSymbol": "buildStretcherEquipment",
       "kitRecipeId": null,
       "proseAliases": [
@@ -1149,9 +1149,9 @@
         "adult_abdominal_pain_v1",
         "ed_chest_pain_priority_v1"
       ],
-      "midbandStatus": "none",
-      "licenceStatus": "n/a",
-      "provenancePath": null,
+      "midbandStatus": "glb_present",
+      "licenceStatus": "internal",
+      "provenancePath": "apps/ui-xr/public/xr-assets/medical-equipment/stretcher-sketchfab-ccby.glb",
       "ledgerSource": null,
       "claimScope": "factory routing + runtime equipment identity",
       "notEvidenceFor": [
@@ -1353,13 +1353,13 @@
   ],
   "summary": {
     "byLane": {
-      "bank": 4,
-      "thin_parametric": 46,
+      "bank": 8,
+      "thin_parametric": 42,
       "modular_kit": 1
     },
     "byRuntimeSource": {
-      "parametric": 47,
-      "gltf": 4
+      "parametric": 43,
+      "gltf": 8
     },
     "gltfMissingOnDisk": [],
     "scenariosWithUnmappedProse": [],
