@@ -42,6 +42,11 @@ export {
   EXAM_TABLE_LENGTH_M,
   MONITOR_SCREEN_WIDTH_M,
   WALL_CLOCK_FACE_DIAMETER_M,
+  // #347 MADR 0055 item 5 — reusable scale-setting wall prop builders.
+  buildWallOutletPlateEquipment,
+  buildLightSwitchEquipment,
+  buildHandGelDispenserEquipment,
+  buildCurtainTrackEquipment,
 } from "./station-equipment-builders.js";
 
 export {
@@ -231,6 +236,11 @@ const PARAMETRIC_KINDS = new Set([
   "drain_equipment",
   "incentive_spirometer_equipment",
   "blood_culture_kit_equipment",
+  // #347 MADR 0055 item 5 — scale-setting wall props (metric, origin-centred).
+  "outlet_plate_equipment",
+  "light_switch_equipment",
+  "hand_gel_dispenser_equipment",
+  "curtain_track_equipment",
 ]);
 
 /**
@@ -258,6 +268,11 @@ const ROOM_PROP_BUILDER_ALIASES: Readonly<Record<string, string>> = {
   pediatric_pulse_ox_monitor: "pulse_oximeter_equipment",
   "pediatric-nebulizer-station": "nebulizer_mask_equipment",
   pediatric_nebulizer_station: "nebulizer_mask_equipment",
+  // #347 MADR 0055 item 5 — live ED-bundle props upgraded from flat box / cue.
+  "hand-sanitizer": "hand_gel_dispenser_equipment",
+  hand_sanitizer: "hand_gel_dispenser_equipment",
+  "curtain-track-rings": "curtain_track_equipment",
+  curtain_track_rings: "curtain_track_equipment",
 };
 
 /** Count of parametric equipment builders — counterweight for real-GLB assembly work (#168). */

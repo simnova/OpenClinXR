@@ -56,6 +56,11 @@ const PHYSICAL_PROP_IDS = new Set([
   "ecg-paper-strip",
   "monitor-lead-cable",
   "iv-tubing-line",
+  // #347 MADR 0055 item 5 — scale-setting wall props are physical room objects.
+  "curtain-track-rings",
+  "outlet-plate",
+  "light-switch",
+  "hand-gel-dispenser",
 ]);
 
 /**
@@ -78,7 +83,6 @@ const CUE_OR_OVERLAY_PROP_IDS = new Set([
   "infection-control-sign",
   "supply-drawer-labels",
   "privacy-zone-floor-tape",
-  "curtain-track-rings",
   "trash-liner-fold",
 ]);
 
