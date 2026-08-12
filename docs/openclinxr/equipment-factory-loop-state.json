@@ -1,13 +1,13 @@
 {
   "schemaVersion": "openclinxr.equipment-factory-loop-state.v1",
   "active": true,
-  "tick": 3,
+  "tick": 4,
   "interval": "15m",
   "plan": ".openclinxr/plans/equipment-three-lane-factory.md",
   "contract": "docs/openclinxr/equipment-factory-15m-loop.md",
-  "lastTickAt": "2026-08-12T04:41:00.000Z",
-  "lastAction": "re-verify curtain+vitals-monitor INFERRED -> VERIFIED CC BY 4.0 (Sketchfab API; downloadable, 8812 tris); curious researcher spawned on download path + CC0 bed alternatives (019ff445)",
-  "nextPriority": "bed bank acquire once token appears (all 4 top assets VERIFIED+downloadable) OR wire existing parametric GLBs into bank map",
+  "lastTickAt": "2026-08-12T04:56:00.000Z",
+  "lastAction": "honest map medication cart -> dedicated thin parametric id medication_cart_equipment (own module builder + case + prose map); unmappedProse 19->18; COMMIT BLOCKED by concurrent asset-registry lane over budget",
+  "nextPriority": "retry commit once asset-registry lane lands (staged) THEN architect findings (deck bank path) OR next honest map (panic button / call light)",
   "researcherEveryN": 3,
   "architectEveryN": 4,
   "stopWhen": [

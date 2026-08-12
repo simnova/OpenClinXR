@@ -126,9 +126,6 @@ export function rebuildEquipmentCatalog(repoRoot: string = REPO_ROOT): Equipment
         ? "kit present on tree"
         : "kit on feature/equipment-kit-approach-b — catalogue provisional modular_kit";
     }
-    if (equipmentId === "medication_cart" || (idAliases.get(equipmentId)?.has("medication cart") ?? false)) {
-      notes = (notes ? notes + "; " : "") + "prose 'medication cart' provisionally mapped to ECG cart class — replace with dedicated recipe";
-    }
 
     rows.push({
       equipmentId,

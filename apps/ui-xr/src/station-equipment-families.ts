@@ -39,10 +39,20 @@ export type EquipmentFamily =
   | "monitor"
   | "exam_table"
   | "handheld_device"
-  | "own_geometry";
+  | "own_geometry"
+  | "medication_cart";
 
 function mat(color: ColorRepresentation, roughness = 0.55, metalness = 0.12): MeshStandardMaterial {
   return new MeshStandardMaterial({ color, roughness, metalness });
+}
+
+/** Shared helpers for family modules (medication cart etc.). */
+export function equipmentMat(
+  color: ColorRepresentation,
+  roughness = 0.55,
+  metalness = 0.12,
+): MeshStandardMaterial {
+  return mat(color, roughness, metalness);
 }
 
 function tagEquipmentRoot(
@@ -57,6 +67,16 @@ function tagEquipmentRoot(
   root.userData.openClinXrEquipmentFamily = family;
   root.userData.openClinXrAffordances = ["selectable_equipment_reference", "clinical_workflow_cue"];
   return root;
+}
+
+/** Shared tag helper for family modules (medication cart etc.). */
+export function tagEquipmentRootShared(
+  root: Group,
+  equipmentId: string,
+  source: EquipmentMountSource,
+  family: EquipmentFamily,
+): Group {
+  return tagEquipmentRoot(root, equipmentId, source, family);
 }
 
 // ── Screens family (wall panel / cart monitor / handheld tablet) ────────────

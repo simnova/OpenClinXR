@@ -56,10 +56,12 @@ export const PROSE_TO_EQUIPMENT_ID: Readonly<Record<string, string>> = {
   "home glucose log": "glucometer_review_equipment",
   "caption panel": "ehr_screen_equipment",
   "low-bandwidth indicator": "tablet_visit_equipment",
+  // Dedicated thin parametric id (family "medication_cart") — honest class, not ECG cart.
+  "medication cart": "medication_cart_equipment",
   // Deliberately NOT mapped (appear as unmappedProse until real ids exist):
-  // medication cart, privacy curtain/notice, call light/bell, panic button,
-  // small table, consultation desk, joint diagram, medication bottles,
-  // urine cup, blood-culture kit, neuro exam card, CT/fall-risk/sepsis signs,
+  // privacy curtain/notice, call light/bell, panic button, small table,
+  // consultation desk, joint diagram, medication bottles, urine cup,
+  // blood-culture kit, neuro exam card, CT/fall-risk/sepsis signs,
   // drain, soft lighting, incentive spirometer — factory honesty > silent fallback.
 };
 
