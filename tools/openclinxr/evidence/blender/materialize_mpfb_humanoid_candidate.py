@@ -280,9 +280,30 @@ def bake_skin_material_to_texture(human, skin_material_name, out_png_path, resol
     bpy.ops.object.select_all(action="DESELECT")
     human.select_set(True)
     bpy.context.view_layer.objects.active = human
+    # issue-341 round 14 — the skin bake must cover the SCALP polys too, or their
+    # UV areas stay black (the bake skips non-skin materials) and those black
+    # texels render as dark holes at the hairline and skew the crown coverage
+    # (measured ARRAY_TRUTH on the raster-only composite: aisha dark 460 vs hair
+    # 336 on the left — the forehead-top skin texels lose to the crown scalp polys
+    # in the UV-overlapped bake). The scalp polys are temporarily reassigned to the
+    # skin material for the bake and restored afterwards — the composite and the
+    # hair raster still need the scalp region to paint the hair.
+    _scalp_bake_idx = next(
+        (i for i, m in enumerate(human.data.materials) if "scalp" in (m.name or "").lower()),
+        None,
+    )
+    _scalp_swapped: list[int] = []
+    if _scalp_bake_idx is not None and _scalp_bake_idx != skin_idx:
+        for _pi, _p in enumerate(human.data.polygons):
+            if _p.material_index == _scalp_bake_idx:
+                _p.material_index = skin_idx
+                _scalp_swapped.append(_pi)
+        print(f"SKIN_BAKE scalp-cover swap {len(_scalp_swapped)} polys to skin for the bake")
     try:
         bpy.ops.object.bake(type="DIFFUSE", pass_filter={"COLOR"}, margin=2, use_clear=True)
     finally:
+        for _pi in _scalp_swapped:
+            human.data.polygons[_pi].material_index = _scalp_bake_idx
         scene.render.engine = prev_engine
         scene.cycles.device = prev_device
 
