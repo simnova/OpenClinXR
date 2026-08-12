@@ -41,7 +41,8 @@ export type EquipmentFamily =
   | "handheld_device"
   | "own_geometry"
   | "medication_cart"
-  | "call_bell";
+  | "call_bell"
+  | "panic_button";
 
 function mat(color: ColorRepresentation, roughness = 0.55, metalness = 0.12): MeshStandardMaterial {
   return new MeshStandardMaterial({ color, roughness, metalness });

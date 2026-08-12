@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.equipment-catalog.v1",
-  "measuredAt": "2026-08-12T05:10:33.373Z",
+  "measuredAt": "2026-08-12T05:25:09.467Z",
   "claimScope": "equipment three-lane catalogue over scenario-bank blueprints + runtime builders (MADR 0054/0055)",
   "notEvidenceFor": [
     "clinical_accuracy",
@@ -13,7 +13,7 @@
     "0055"
   ],
   "scenarioCount": 14,
-  "equipmentCount": 41,
+  "equipmentCount": 42,
   "rows": [
     {
       "equipmentId": "12_lead_ecg_machine_equipment",
@@ -761,6 +761,31 @@
       "notes": ""
     },
     {
+      "equipmentId": "panic_button_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildPanicButtonEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "panic button"
+      ],
+      "scenarioIds": [
+        "psych_suicidal_ideation_safety_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
       "equipmentId": "parent_chair_equipment",
       "lane": "thin_parametric",
       "runtimeSource": "parametric",
@@ -1141,14 +1166,6 @@
       "reason": "no prose-map entry"
     },
     {
-      "prose": "panic button",
-      "scenarioIds": [
-        "psych_suicidal_ideation_safety_v1"
-      ],
-      "recommendedEquipmentId": null,
-      "reason": "no prose-map entry"
-    },
-    {
       "prose": "privacy curtain",
       "scenarioIds": [
         "clinic_abdominal_pain_interpreter_v1",
@@ -1201,11 +1218,11 @@
   "summary": {
     "byLane": {
       "bank": 4,
-      "thin_parametric": 36,
+      "thin_parametric": 37,
       "modular_kit": 1
     },
     "byRuntimeSource": {
-      "parametric": 37,
+      "parametric": 38,
       "gltf": 4
     },
     "gltfMissingOnDisk": [],
