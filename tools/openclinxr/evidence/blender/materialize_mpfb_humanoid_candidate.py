@@ -280,9 +280,30 @@ def bake_skin_material_to_texture(human, skin_material_name, out_png_path, resol
     bpy.ops.object.select_all(action="DESELECT")
     human.select_set(True)
     bpy.context.view_layer.objects.active = human
+    # issue-341 round 14 — the skin bake must cover the SCALP polys too, or their
+    # UV areas stay black (the bake skips non-skin materials) and those black
+    # texels render as dark holes at the hairline and skew the crown coverage
+    # (measured ARRAY_TRUTH on the raster-only composite: aisha dark 460 vs hair
+    # 336 on the left — the forehead-top skin texels lose to the crown scalp polys
+    # in the UV-overlapped bake). The scalp polys are temporarily reassigned to the
+    # skin material for the bake and restored afterwards — the composite and the
+    # hair raster still need the scalp region to paint the hair.
+    _scalp_bake_idx = next(
+        (i for i, m in enumerate(human.data.materials) if "scalp" in (m.name or "").lower()),
+        None,
+    )
+    _scalp_swapped: list[int] = []
+    if _scalp_bake_idx is not None and _scalp_bake_idx != skin_idx:
+        for _pi, _p in enumerate(human.data.polygons):
+            if _p.material_index == _scalp_bake_idx:
+                _p.material_index = skin_idx
+                _scalp_swapped.append(_pi)
+        print(f"SKIN_BAKE scalp-cover swap {len(_scalp_swapped)} polys to skin for the bake")
     try:
         bpy.ops.object.bake(type="DIFFUSE", pass_filter={"COLOR"}, margin=2, use_clear=True)
     finally:
+        for _pi in _scalp_swapped:
+            human.data.polygons[_pi].material_index = _scalp_bake_idx
         scene.render.engine = prev_engine
         scene.cycles.device = prev_device
 
@@ -603,7 +624,13 @@ def apply_texture_mask_hairline(
     # ---- (3) composite in numpy: read all three maps, re-classify the strip ----
     w, h = baked_img.size[0], baked_img.size[1]
     skin_rgba = np.array(baked_img.pixels[:], dtype=np.float32).reshape(h, w, 4)
-    mask_a = np.array(mask_img.pixels[:], dtype=np.float32).reshape(h, w, 4)[..., 0]
+    # issue-341 round 14 — the composite mask is the UNION of the Cycles bake and a
+    # splat of the scalp-material polys, computed below (the bake covers full UV
+    # triangles but mis-assigns the right crown; the splat is region-truth but
+    # leaves poly-interior holes over the skin bake's black scalp texels). Both
+    # are measured; see the comment at the union. mask_a is initialized here and
+    # set after the splats.
+    mask_a = np.zeros((w, h), dtype=np.float32)
     pos = np.array(pos_img.pixels[:], dtype=np.float32).reshape(h, w, 4)[..., :3]
     xs = hx0 + pos[..., 0] * (hx1 - hx0)
     ys = hy0 + pos[..., 1] * (hy1 - hy0)
@@ -667,11 +694,18 @@ def apply_texture_mask_hairline(
     # known-good [53,47,43]; the round-12 render keeps a dark band over the
     # eyes/nose because the socket exclusion was applied in the broken frame).
     _uv_layer = human.data.uv_layers[0].data
+    # issue-341 round 14 — a UV-frame hypothesis was tested and MEASURED DEAD:
+    # the mesh carries exactly ONE UV layer (uvLayers=1 active=UVMap) on all
+    # three actors, so the composite's uv_layers[0], the Cycles bakes and the
+    # exported TEXCOORD_0 are all the same frame. The left/right hair asymmetry
+    # therefore enters elsewhere; the frame counts below confirm the single-layer
+    # state on every bake.
     _loops = human.data.loops
     _verts = human.data.vertices
     _face_band = np.zeros((resolution, resolution), dtype=bool)
     _above_hair = np.zeros((resolution, resolution), dtype=bool)
     _socket = np.zeros((resolution, resolution), dtype=bool)
+    _scalp_region = np.zeros((resolution, resolution), dtype=bool)
     for _poly in human.data.polygons:
         for _li in range(_poly.loop_start, _poly.loop_start + _poly.loop_total):
             _vi = _loops[_li].vertex_index
@@ -704,11 +738,115 @@ def apply_texture_mask_hairline(
     _face_band = _dilate(_face_band)
     _above_hair = _dilate(_above_hair)
     _socket = _dilate(_socket)
+    # issue-341 round 14 — the composite mask is the scalp region RASTERIZED from
+    # the mesh (full UV-triangle coverage), not the Cycles bake and not a corner
+    # splat. Both alternatives were measured defective on the array:
+    #   * the BAKE covers full triangles but mis-assigns the right crown (basemesh
+    #     UV-overlap: own-poly cross-tab L scalp_white 335/black 8, R 256/87).
+    #   * a corner splat + UV-scale dilation is symmetric but leaves BLACK HOLES —
+    #     the skin bake skips the scalp-material polys (they are not skin at bake
+    #     time), so their UV triangles are (0,0,0); the left crown's UV island has
+    #     lower texel density so its interiors stay black (ARRAY_TRUTH L dark 460
+    #     vs hair 336, R 336/336 on the splat-only composite).
+    # The rasterization is the region truth AND the full coverage: deterministic,
+    # frame-consistent, and immune to both defects. The bake still runs for the
+    # provenance PNG and stats, but its output does not feed the composite.
+    def _rasterize_tri(_mask, _tri):
+        _xs = [_p[0] * resolution for _p in _tri]
+        _ys = [(1.0 - _p[1]) * resolution for _p in _tri]
+        _x0 = max(0, int(min(_xs)))
+        _x1 = min(resolution - 1, int(max(_xs)))
+        _y0 = max(0, int(min(_ys)))
+        _y1 = min(resolution - 1, int(max(_ys)))
+        if _x1 < _x0 or _y1 < _y0:
+            return
+        _gx, _gy = np.meshgrid(np.arange(_x0, _x1 + 1) + 0.5, np.arange(_y0, _y1 + 1) + 0.5)
+        (_ax, _ay), (_bx, _by), (_cx, _cy) = zip(*[_xs, _ys])
+        _e0 = (_bx - _ax) * (_gy - _ay) - (_by - _ay) * (_gx - _ax)
+        _e1 = (_cx - _bx) * (_gy - _by) - (_cy - _by) * (_gx - _bx)
+        _e2 = (_ax - _cx) * (_gy - _cy) - (_ay - _cy) * (_gx - _cx)
+        _inside = ((_e0 >= 0) & (_e1 >= 0) & (_e2 >= 0)) | ((_e0 <= 0) & (_e1 <= 0) & (_e2 <= 0))
+        _mask[_y0:_y1 + 1, _x0:_x1 + 1][_inside] = True
+
+    _scalp_raster = np.zeros((resolution, resolution), dtype=bool)
+    for _poly in human.data.polygons:
+        if _poly.material_index != scalp_idx:
+            continue
+        _pts = [_uv_layer[_li].uv for _li in range(_poly.loop_start, _poly.loop_start + _poly.loop_total)]
+        if len(_pts) < 3:
+            continue
+        for _k in range(1, len(_pts) - 1):
+            _rasterize_tri(_scalp_raster, (_pts[0], _pts[_k], _pts[_k + 1]))
+    mask_a = _scalp_raster.astype(np.float32)
     # the eye/brow/nose region: the face-front socket band BELOW the hairline is
     # never hair — the eyes and brows render through the skin texture (#340's eye
     # mesh is separate geometry and is unaffected). Above the hairline the
     # forehead is hair, and the crown/sides keep the per-polygon mask.
     _socket_low = _socket & ~_above_hair
+
+    # issue-341 round 14 — stage-by-stage L/R instrumentation. The shipped
+    # textures carry a 30-36 pt hair asymmetry (LEFT 82-87%, RIGHT 46-57%) while
+    # the per-polygon mask and every region predicate are X-symmetric (measured).
+    # These prints locate which stage the bias enters by sampling the texel grids
+    # at the DOME verts' own UVs (frac >= 0.94 H, |x| > 5 mm), exactly as the
+    # planted hair-covers-both-sides-of-the-head test samples the shipped bytes.
+    def _side_dome(_grid):
+        _out = {"L": 0, "R": 0}
+        if _grid is None:
+            return _out
+        _lo = min((h_world @ v.co).z for v in _verts)
+        _hi = max((h_world @ v.co).z for v in _verts)
+        _H = _hi - _lo
+        for _poly in human.data.polygons:
+            for _li in range(_poly.loop_start, _poly.loop_start + _poly.loop_total):
+                _vi = _loops[_li].vertex_index
+                _p = h_world @ _verts[_vi].co
+                if (_p.z - _lo) / _H < 0.94:
+                    continue
+                if abs(_p.x) <= 0.005:
+                    continue
+                _u = _uv_layer[_li].uv
+                _tx = int(_u.x * resolution) % resolution
+                _ty = int((1.0 - _u.y) * resolution) % resolution
+                if _grid[_ty, _tx]:
+                    _out["L" if _p.x < 0 else "R"] += 1
+        return _out
+
+    def _side_transitions(_final, _ref):
+        _out = {"L": {"wd": 0, "wl": 0, "bd": 0, "bl": 0}, "R": {"wd": 0, "wl": 0, "bd": 0, "bl": 0}}
+        _lo = min((h_world @ v.co).z for v in _verts)
+        _hi = max((h_world @ v.co).z for v in _verts)
+        _H = _hi - _lo
+        for _poly in human.data.polygons:
+            for _li in range(_poly.loop_start, _poly.loop_start + _poly.loop_total):
+                _vi = _loops[_li].vertex_index
+                _p = h_world @ _verts[_vi].co
+                if (_p.z - _lo) / _H < 0.94:
+                    continue
+                if abs(_p.x) <= 0.005:
+                    continue
+                _u = _uv_layer[_li].uv
+                _tx = int(_u.x * resolution) % resolution
+                _ty = int((1.0 - _u.y) * resolution) % resolution
+                _m = bool(_ref[_ty, _tx])
+                _f = bool(_final[_ty, _tx])
+                _k = "wd" if (_m and _f) else "wl" if (_m and not _f) else "bd" if (not _m and _f) else "bl"
+                _out["L" if _p.x < 0 else "R"][_k] += 1
+        return _out
+
+    print(
+        "TEXTURE_HAIRLINE_SIDES "
+        f"uvLayers={len(human.data.uv_layers)} "
+        f"active={human.data.uv_layers.active.name if human.data.uv_layers.active else 'None'} "
+        f"texelTotals face={int(_face_band.sum())} above={int(_above_hair.sum())} "
+        f"socket={int(_socket.sum())} socketLow={int(_socket_low.sum())} "
+        f"maskWhite={int((mask_a > 0.5).sum())} "
+        f"domeMaskWhiteL={_side_dome(mask_a > 0.5)['L']} domeMaskWhiteR={_side_dome(mask_a > 0.5)['R']} "
+        f"domeFaceL={_side_dome(_face_band)['L']} domeFaceR={_side_dome(_face_band)['R']} "
+        f"domeAboveL={_side_dome(_above_hair)['L']} domeAboveR={_side_dome(_above_hair)['R']} "
+        f"domeSocketL={_side_dome(_socket)['L']} domeSocketR={_side_dome(_socket)['R']} "
+        f"domeSockLowL={_side_dome(_socket_low)['L']} domeSockLowR={_side_dome(_socket_low)['R']}"
+    )
 
     hair = mask_a > 0.5
     override = _face_band
@@ -726,8 +864,131 @@ def apply_texture_mask_hairline(
         # the nose" cannot recur in any bake frame.
         hair[_face_band] = _above_hair[_face_band]
         hair[_socket_low] = False
+    print(
+        "TEXTURE_HAIRLINE_SIDES_FINAL "
+        f"transitions={json.dumps(_side_transitions(hair, mask_a > 0.5))}"
+    )
+    # round 14 — crown census: is the per-polygon SCALP region itself asymmetric at
+    # the dome, or does the mask BAKE mis-assign? Count, per side, the body polys
+    # whose verts lie in the dome (>= 0.94 H) by material (scalp vs skin).
+    _lo_d = min((h_world @ v.co).z for v in _verts)
+    _hi_d = max((h_world @ v.co).z for v in _verts)
+    _H_d = _hi_d - _lo_d
+    _crown = {"L": {"scalp": 0, "skin": 0, "other": 0}, "R": {"scalp": 0, "skin": 0, "other": 0}}
+    for _poly in human.data.polygons:
+        _vs = [h_world @ _verts[_vi].co for _vi in _poly.vertices]
+        if not any((_p.z - _lo_d) / _H_d >= 0.94 and abs(_p.x) > 0.005 for _p in _vs):
+            continue
+        _any_l = any(_p.x < -0.005 for _p in _vs)
+        _any_r = any(_p.x > 0.005 for _p in _vs)
+        if _any_l and _any_r:
+            continue  # straddles the midline; count only clean-side polys
+        _side = "L" if _any_l else "R"
+        _matname = human.data.materials[_poly.material_index].name if _poly.material_index < len(human.data.materials) else "?"
+        if _poly.material_index == scalp_idx:
+            _crown[_side]["scalp"] += 1
+        elif _poly.material_index == skin_idx:
+            _crown[_side]["skin"] += 1
+        else:
+            _crown[_side]["other"] += 1
+    print(
+        "TEXTURE_HAIRLINE CROWN_CENSUS "
+        f"L={json.dumps(_crown['L'])} R={json.dumps(_crown['R'])}"
+    )
+    # round 14 — per-loop own-poly vs mask cross-tab: for each dome loop, is its own
+    # polygon scalp, and is the mask texel at its UV white? A scalp-poly loop whose
+    # texel is black means the BAKE mis-assigned that UV area; symmetric results mean
+    # the per-polygon region itself is asymmetric.
+    _lo_e = min((h_world @ v.co).z for v in _verts)
+    _hi_e = max((h_world @ v.co).z for v in _verts)
+    _H_e = _hi_e - _lo_e
+    _xtab = {
+        "L": {"scalp_white": 0, "scalp_black": 0, "skin_white": 0, "skin_black": 0},
+        "R": {"scalp_white": 0, "scalp_black": 0, "skin_white": 0, "skin_black": 0},
+    }
+    _mask_b = mask_a > 0.5
+    for _poly in human.data.polygons:
+        if _poly.material_index not in (scalp_idx, skin_idx):
+            continue
+        for _li in range(_poly.loop_start, _poly.loop_start + _poly.loop_total):
+            _vi = _loops[_li].vertex_index
+            _p = h_world @ _verts[_vi].co
+            if (_p.z - _lo_e) / _H_e < 0.94:
+                continue
+            if abs(_p.x) <= 0.005:
+                continue
+            _u = _uv_layer[_li].uv
+            _tx = int(_u.x * resolution) % resolution
+            _ty = int((1.0 - _u.y) * resolution) % resolution
+            _white = bool(_mask_b[_ty, _tx])
+            _scalp = _poly.material_index == scalp_idx
+            _s = "L" if _p.x < 0 else "R"
+            _key = ("scalp" if _scalp else "skin") + ("_white" if _white else "_black")
+            _xtab[_s][_key] += 1
+    print(f"TEXTURE_HAIRLINE OWN_POLY_XTAB L={json.dumps(_xtab['L'])} R={json.dumps(_xtab['R'])}")
+    # round 14 — dump the RAW dome loops (x, z, u, v) per side for frame comparison
+    # against the exported GLB (the JS instrument reads the GLB symmetric while the
+    # bake reads the same mask asymmetric: raw mesh and exported mesh must differ).
+    _lo_d = min((h_world @ v.co).z for v in _verts)
+    _hi_d = max((h_world @ v.co).z for v in _verts)
+    _H_d = _hi_d - _lo_d
+    _dome_dump = {"L": [], "R": [], "Ltot": 0, "Rtot": 0}
+    for _poly in human.data.polygons:
+        for _li in range(_poly.loop_start, _poly.loop_start + _poly.loop_total):
+            _vi = _loops[_li].vertex_index
+            _p = h_world @ _verts[_vi].co
+            if (_p.z - _lo_d) / _H_d < 0.94:
+                continue
+            if abs(_p.x) <= 0.005:
+                continue
+            _u = _uv_layer[_li].uv
+            _s = "L" if _p.x < 0 else "R"
+            _dome_dump[_s + "tot"] += 1
+            if len(_dome_dump[_s]) < 400:
+                _dome_dump[_s].append([
+                    round(float(_p.x), 4), round(float(_p.z), 4),
+                    round(float(_u.x), 4), round(float(_u.y), 4),
+                ])
+    _dump_path = pathlib.Path(baked_img.filepath_raw).parent if baked_img.filepath_raw else pathlib.Path(".")
+    _dump_file = _dump_path / "dome-loop-dump.json"
+    try:
+        _dump_file.write_text(json.dumps(_dome_dump))
+        print(f"TEXTURE_HAIRLINE DOME_DUMP {_dump_file} L={_dome_dump['Ltot']} R={_dome_dump['Rtot']}")
+    except Exception as _e:
+        print(f"TEXTURE_HAIRLINE WARNING: dome dump failed: {_e}")
     out_rgba = skin_rgba.copy()
     out_rgba[hair] = np.array(hair_color, dtype=np.float32)
+    # round 14 — array-truth instrument: sample OUT_RGBA (the composite array, no
+    # PNG orientation ambiguity) at the dome loops, per side. Distinguishes "the
+    # array is symmetric but the PNG/export frame mirrors it" from "the array is
+    # asymmetric". Also the hair-boolean fraction, so a dark SKIN bake under the
+    # hair region is visible as dark > hair.
+    _lo_f = min((h_world @ v.co).z for v in _verts)
+    _hi_f = max((h_world @ v.co).z for v in _verts)
+    _H_f = _hi_f - _lo_f
+    _arr = {"L": {"dark": 0, "hair": 0, "n": 0}, "R": {"dark": 0, "hair": 0, "n": 0}}
+    for _poly in human.data.polygons:
+        for _li in range(_poly.loop_start, _poly.loop_start + _poly.loop_total):
+            _vi = _loops[_li].vertex_index
+            _p = h_world @ _verts[_vi].co
+            if (_p.z - _lo_f) / _H_f < 0.94:
+                continue
+            if abs(_p.x) <= 0.005:
+                continue
+            _u = _uv_layer[_li].uv
+            _tx = int(_u.x * resolution) % resolution
+            _ty = int((1.0 - _u.y) * resolution) % resolution
+            _s = "L" if _p.x < 0 else "R"
+            _arr[_s]["n"] += 1
+            if hair[_ty, _tx]:
+                _arr[_s]["hair"] += 1
+            _c = out_rgba[_ty, _tx][:3]
+            if float(np.mean(_c)) < 70 / 255.0:
+                _arr[_s]["dark"] += 1
+    print(
+        "TEXTURE_HAIRLINE ARRAY_TRUTH "
+        f"L={json.dumps(_arr['L'])} R={json.dumps(_arr['R'])}"
+    )
     baked_img.pixels[:] = out_rgba.reshape(-1).tolist()
     try:
         baked_img.save()  # re-save the on-disk PNG so it matches the exported texture

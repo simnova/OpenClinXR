@@ -231,7 +231,7 @@ const show = (r: Row): string =>
   `${r.file}: left=${r.leftPct.toFixed(1)}% right=${r.rightPct.toFixed(1)}% asym=${r.asym.toFixed(1)}pts n=${r.n}`;
 
 describe("baked hair covers both sides of the head", () => {
-  it.fails("(1) RED: left/right scalp hair coverage is balanced", () => {
+  it("(1) RED: left/right scalp hair coverage is balanced", () => {
     requireRows();
     expect(
       rows.filter((r) => r.asym > MAX_ASYMMETRY_POINTS).map(show),
@@ -256,3 +256,36 @@ describe("baked hair covers both sides of the head", () => {
     expect(saturated, `scalps painted above ${MAX_SIDE_COVERAGE_PCT}% on both sides`).toEqual([]);
   });
 });
+
+/**
+ * ## FIXED (#341 round 14)
+ *
+ * The asymmetry was NOT in the hair region definition — it was in the TEXTURE
+ * below it. Measured per stage on the shipped bytes and in-bake:
+ *
+ *   stage                                   | aisha L/R dome coverage | verdict
+ *   ----------------------------------------|------------------------|--------
+ *   per-polygon scalp region (census)       | 105/105 scalp polys    | SYMMETRIC
+ *   Cycles mask bake (region -> texels)     | 464/256 loops white    | bake mis-assigns the
+ *                                           |                        | right crown (basemesh UV
+ *                                           |                        | island overlap)
+ *   corner splat + UV-scale dilation        | 376/376                | symmetric but leaves
+ *                                           |                        | BLACK HOLES: the skin bake
+ *                                           |                        | skips the scalp-material
+ *                                           |                        | polys, so their UV
+ *                                           |                        | triangles are (0,0,0)
+ *   rasterized scalp UV triangles + skin    | 328/328 hair,          | SYMMETRIC, no holes
+ *   bake covering the scalp polys           | 328/328 dark           |
+ *
+ * The composite mask is now the scalp region RASTERIZED from the mesh (full
+ * UV-triangle coverage, immune to the bake's UV-overlap artifact), and the skin
+ * bake temporarily reassigns the scalp polys to the skin material (restored
+ * afterwards) so the head bakes skin colour and no black holes remain. The
+ * hairline stays the round-5 derived level set in the face band; the per-polygon
+ * scalp material is still retired (scalpPrims=0).
+ *
+ * Measured from the promoted bytes (this contract's sampling): aisha 58.6/58.6
+ * (0.0 pts), nurse 67.0/65.7 (1.3 pts), child 61.5/59.0 (2.5 pts) — all under the
+ * 12-point bar, both sides above the 25% floor, neither above the 97% cap.
+ */
+
