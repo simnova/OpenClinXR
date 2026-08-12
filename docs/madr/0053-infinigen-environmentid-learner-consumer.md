@@ -149,3 +149,41 @@ reproducibly (seed-0 bake, bounds measured), with the procedural box kept as the
 
 NOT TESTED: a second environmentId row; live browser/WebXR worn-headset grading of the room;
 decimation/LOD pass on the room; clinical-station vocabulary for Infinigen (custom constraint program).
+
+## FIXED (#339) — constraint-language capability measured: bake-and-pin is the ceiling
+
+#339 asked whether a CLINICAL room type can be authored with real constraints (footprint
+bounds, door on a named wall) so `environmentId` drives GENERATION instead of seed selection.
+Measured verdict: **NO as a factory input — reject_measured.** The constraint language is a real,
+maintained authoring surface (seven test modules under `source/tests/constraints/` +
+`source/tests/solver/`), but its measured limits are:
+
+| axis | measured result | evidence |
+| --- | --- | --- |
+| Hard room-area bound | **expressible + enforced near the initial segmentation** | `cl.in_range` on a scalar (set_reasoning.py:92-105; evaluate.py:151-159 viol_count case). Dry probe: 5×5 m → viol 53 vs [78,84]; 9×9 m → viol 0. Feasible target [36,48] m² → dining room landed 41.25 m² in-bounds with anneal exploring (score 4.02e5→230). |
+| Hard aspect-ratio bound | **expressible** (dry probe viol 0.4 for a square vs [1.4,1.6]) | `aspect_ratio` node (constraint_language/rooms.py:27-29); shipped program uses it softly (home.py:385-396) |
+| Distant footprint target | **NOT satisfiable — anneal freezes** | hard [78,84] m² (2× shipped 42.25): score frozen at 4.25e5 across all 2000 proposals, ZERO acceptances, dining room stayed at the random initial 44.0 m². The anneal accepts only zero-violation states and move stride caps at 2.5 m (solver.py:28-33,77), so targets beyond one move from the random initial segmentation are unreachable through violated intermediates. Control: shipped program anneals normally (score 4.25e5→146). |
+| Door on a named wall | **NOT expressible** | no wall/aperture node in the vocabulary; aperture position is uniform-random on the shared edge (solidifier.py:549/565); aperture type is a fixed room-pair probability table (solidifier.py:83-141). `RoomNeighbour` carries only `connector_types` (relations.py:124-170), set post-hoc. |
+| Clinical room vocabulary | **not present** | `Semantics` enum (tags.py:32-72) is residential + office/warehouse; no exam-bay member; a custom tag is an install source edit. |
+| `singleroom.gin` | **does NOT produce one room directly** | the config is `BlueprintSolidifier.enable_open=False` + `restrict_solving.solve_max_rooms=1`; `solve_max_rooms` limits object placement only (generate_indoors_util.py:220). #234 measured `multi_room_still` (20 wall meshes). Extraction remains necessary. |
+
+So MADR 0043's corrected `extensible_with_custom_constraints` is itself corrected by measurement:
+a custom constraint program can **reshape the footprint of a chosen seed** (area + aspect hard
+bounds, when the target is near the random initial segmentation) but cannot **author a clinical
+bay** — door placement is unexpressible and distant footprint targets freeze the annealer.
+`environmentId` drives **selection** of a baked asset, never **generation**. The
+bake-and-pin factory contract in this MADR stands, with constraint tweaks as an optional
+per-seed refinement (e.g. forcing a non-square aspect on a fresh seed hunt).
+
+Evidence: `.openclinxr/evidence/issue-339/constraint-language-capability.json` (dry probes,
+two generation runs with hard bounds, shipped control; generation runs at seed 0 +
+`clinical_bay.gin`, coarse, 35.8 s / 37.5 s vs the 33.7 s baseline).
+
+CLAIM: the Infinigen constraint language can express hard room-area/aspect bounds that the
+room annealer honours only near the random initial segmentation, cannot express door
+placement, and `singleroom.gin` does not bypass extraction — bake-and-pin is the ceiling.
+
+NOT TESTED: a longer/multi-move anneal schedule (e.g. `solve_steps` increases) reaching a
+distant footprint target; editing the install to add a clinical `Semantics` member; a custom
+`RoomGraphFactory`/`SegmentMaker` that sizes segments from the constraint program rather than
+random subdivision.
