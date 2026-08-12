@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.equipment-catalog.v1",
-  "measuredAt": "2026-08-12T07:40:02.889Z",
+  "measuredAt": "2026-08-12T07:54:57.271Z",
   "claimScope": "equipment three-lane catalogue over scenario-bank blueprints + runtime builders (MADR 0054/0055)",
   "notEvidenceFor": [
     "clinical_accuracy",
@@ -13,7 +13,7 @@
     "0055"
   ],
   "scenarioCount": 14,
-  "equipmentCount": 50,
+  "equipmentCount": 51,
   "rows": [
     {
       "equipmentId": "12_lead_ecg_machine_equipment",
@@ -162,6 +162,31 @@
       "midbandStatus": "glb_present",
       "licenceStatus": "internal",
       "provenancePath": "apps/ui-xr/public/xr-assets/medical-equipment/bedside-monitor-generated.glb",
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "blood_culture_kit_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildBloodCultureKitEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "blood-culture kit"
+      ],
+      "scenarioIds": [
+        "stepdown_sepsis_nurse_escalation_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
       "ledgerSource": null,
       "claimScope": "factory routing + runtime equipment identity",
       "notEvidenceFor": [
@@ -1301,14 +1326,6 @@
   ],
   "unmappedProse": [
     {
-      "prose": "blood-culture kit",
-      "scenarioIds": [
-        "stepdown_sepsis_nurse_escalation_v1"
-      ],
-      "recommendedEquipmentId": null,
-      "reason": "no prose-map entry"
-    },
-    {
       "prose": "joint diagram",
       "scenarioIds": [
         "primary_care_dyslipidemia_joint_pain_v1"
@@ -1336,19 +1353,18 @@
   "summary": {
     "byLane": {
       "bank": 4,
-      "thin_parametric": 45,
+      "thin_parametric": 46,
       "modular_kit": 1
     },
     "byRuntimeSource": {
-      "parametric": 46,
+      "parametric": 47,
       "gltf": 4
     },
     "gltfMissingOnDisk": [],
     "scenariosWithUnmappedProse": [
       "ed_stroke_alert_handoff_v1",
       "oncology_bad_news_family_v1",
-      "primary_care_dyslipidemia_joint_pain_v1",
-      "stepdown_sepsis_nurse_escalation_v1"
+      "primary_care_dyslipidemia_joint_pain_v1"
     ]
   }
 }

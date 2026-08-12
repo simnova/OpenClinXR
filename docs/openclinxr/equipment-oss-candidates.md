@@ -79,3 +79,19 @@ this machine**. Set the token (operator), then run the download→stage→bank s
 
 claimScope: licence-aware equipment library staging for three-lane factory.  
 notEvidenceFor: clinical accuracy, Quest readiness, automatic download rights without operator policy on CC-BY volume.
+
+## researcher findings 2026-08-12
+
+Gap: props still unmapped in `tools/openclinxr/factory/equipment-lane/prose-map.ts:85-87`.
+Method note: unauthenticated search payload returns `license: null` — read `/v3/models/{uid}` for the licence.
+
+- incentive spirometer (post-op fever) — **NOT FOUND** on Sketchfab (`q=incentive spirometer&downloadable=true` → 0 results; `q=spirometer` → 2 irrelevant licence-null archaeology scans) — but **already closed in-repo**: prose-map.ts maps it to `incentive_spirometer_equipment`; parametric builder exists (`apps/ui-xr/src/station-equipment-incentive-spirometer.ts`, routed at `station-equipment-builders.ts:501`, family-union wiring mid-flight). No OSS acquisition needed. **VERIFIED** (repo code).
+- blood-culture kit (stepdown sepsis) — **NOT FOUND** as a kit (`q=blood culture bottles` / `q=blood culture kit` → 0 results; `q=blood culture` → tag-match noise only, all licence=null). No repo builder exists (urine-cup module explicitly "not a blood-culture kit").
+- blood-culture kit component — **VERIFIED**: Blood tube vacutainer by YouniqueĪdeaStudio — https://sketchfab.com/3d-models/blood-tube-vacutainer-f8ab14f2d03d475285637e10e5b5133d — **CC BY 4.0**, `isDownloadable=true`, 6,458 tris / 3,264 verts. Single tube, not a 2-bottle kit — honest component-class match. Attribution: `Blood tube vacutainer by YouniqueĪdeaStudio (Sketchfab, CC BY 4.0)`. Download blocked on missing `SKETCHFAB_API_TOKEN`.
+- neuro exam card (ED stroke) — **NOT an equipment class** (printed cognitive-aid card). Recommend **stay unmapped**; if visuals needed, thin parametric printed-panel builder reusing the flat-panel pattern — no OSS search warranted.
+- joint diagram (primary care) — **NOT an equipment class** (education poster; `wall_sign_equipment` covers signs/notices, not posters). Recommend **stay unmapped**. No OSS search warranted.
+- soft lighting (oncology) — environment/lighting, not equipment. Recommend **stay unmapped**. No OSS search warranted.
+- poly.pizza — **NOT FOUND** this pass (search Cloudflare-blocked). OpenGameArt — **NOT FOUND** (search page did not render; consistent with prior pass).
+- `SKETCHFAB_API_TOKEN` — **VERIFIED absent** (no env / `.env` match); blocks download of every VERIFIED CC-BY row above and in the ledger.
+
+Top 3 things that would save the most work: (1) operator sets `SKETCHFAB_API_TOKEN` → unblocks lane-1 download of the 6 VERIFIED CC BY 4.0 rows (bed / stretcher / exam table / curtain+monitor / monitor / vacutainer); (2) blood-culture kit = acquire the VERIFIED vacutainer OR ship a thin parametric 2-bottle builder — no downloadable "blood culture kit" exists, stop re-searching; (3) stop OSS-searching neuro exam card / joint diagram / soft lighting — non-equipment classes, keep deliberately unmapped per factory honesty.

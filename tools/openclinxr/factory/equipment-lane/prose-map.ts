@@ -83,8 +83,11 @@ export const PROSE_TO_EQUIPMENT_ID: Readonly<Record<string, string>> = {
   drain: "drain_equipment",
   // Post-op breathing-exercise device — dedicated thin parametric id.
   "incentive spirometer": "incentive_spirometer_equipment",
+  // Stepdown sepsis blood-culture collection set — dedicated thin parametric id.
+  "blood-culture kit": "blood_culture_kit_equipment",
   // Deliberately NOT mapped (appear as unmappedProse until real ids exist):
-  // joint diagram, neuro exam card, blood-culture kit, soft lighting —
+  // joint diagram, neuro exam card, soft lighting — non-equipment classes
+  // (education poster / handheld cognitive-aid card / environment lighting);
   // factory honesty > silent fallback.
 };
 

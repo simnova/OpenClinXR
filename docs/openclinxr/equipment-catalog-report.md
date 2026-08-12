@@ -2,12 +2,12 @@
 
 MADRs: 0054, 0055 · schema `openclinxr.equipment-catalog.v1`
 
-- measuredAt: 2026-08-12T07:40:02.889Z
+- measuredAt: 2026-08-12T07:54:57.271Z
 - scenarios: 14
-- equipment rows: 50
-- lanes: {"bank":4,"thin_parametric":45,"modular_kit":1}
-- runtimeSource: {"parametric":46,"gltf":4}
-- unmapped prose: 4
+- equipment rows: 51
+- lanes: {"bank":4,"thin_parametric":46,"modular_kit":1}
+- runtimeSource: {"parametric":47,"gltf":4}
+- unmapped prose: 3
 - gltf missing on disk: 0
 
 ## Blueprints (14 scenario-bank cases)
@@ -107,6 +107,7 @@ MADRs: 0054, 0055 · schema `openclinxr.equipment-catalog.v1`
 
 ### stepdown_sepsis_nurse_escalation_v1
 
+- blood_culture_kit_equipment (thin_parametric/parametric)
 - iv_pump_equipment (thin_parametric/parametric)
 - medication_cart_equipment (thin_parametric/parametric)
 - monitor_equipment (thin_parametric/parametric)

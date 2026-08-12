@@ -35,6 +35,7 @@ import { buildMedicationBottlesEquipment } from "./station-equipment-medication-
 import { buildUrineCupEquipment } from "./station-equipment-urine-cup.js";
 import { buildDrainEquipment } from "./station-equipment-drain.js";
 import { buildIncentiveSpirometerEquipment } from "./station-equipment-incentive-spirometer.js";
+import { buildBloodCultureKitEquipment } from "./station-equipment-blood-culture-kit.js";
 import {
   buildHospitalBedEquipment,
   buildSideRailsEquipment,
@@ -499,6 +500,8 @@ export function buildDeclaredEquipmentGeometry(equipmentId: string): Group {
     case "drain_equipment": return buildDrainEquipment(equipmentId);
     // #202 incentive spirometer — post-op breathing-exercise device
     case "incentive_spirometer_equipment": return buildIncentiveSpirometerEquipment(equipmentId);
+    // #202 blood-culture kit — stepdown sepsis; honest 2-bottle collection set
+    case "blood_culture_kit_equipment": return buildBloodCultureKitEquipment(equipmentId);
     // #202 device-on-stand
     case "digital_thermometer_equipment": return buildDeviceOnStandFamilyEquipment(equipmentId, "thermometer");
     case "glucometer_review_equipment": return buildDeviceOnStandFamilyEquipment(equipmentId, "glucometer");
