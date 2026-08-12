@@ -160,3 +160,50 @@ Non-Sketchfab deck candidates are now **exhausted**, each with a measured or tra
 | Sketchfab bed/stretcher/exam-table rows | CC BY 4.0 VERIFIED | not reachable (no `SKETCHFAB_API_TOKEN`) | BLOCKED — operator token |
 
 **`hospital_bed_equipment` / `post_op_bed_equipment` / `stretcher_equipment` / `pediatric_stretcher_equipment` remain thin_parametric (lane 2) — parametric deck is the SSOT** (`station-equipment-support-surfaces.ts:48-50`). This satisfies the loop stop-condition half "deck surfaces banked or explicitly deferred". Remaining path to a real GLB deck: operator `SKETCHFAB_API_TOKEN`, or a dedicated playwright browser-automation slice for poly.pizza.
+
+## researcher findings 2026-08-12 (tick 24 cadence)
+
+### Q1 — poly.pizza download mechanism SOLVED; GRADD transport-block OVERTURNED
+
+**The tick-23 "transport-blocked" verdict is overturned.** GRADD Hospital Room has a **public, unauthenticated GLB URL** on the S3-backed CDN. The mechanism:
+
+1. **GLB S3 key = a UUID, NOT the model short-id.** `Download` in the API is `https://static.poly.pizza/{uuid}.glb`; the model's `Thumbnail` is the **same UUID with `.webp`** (extension-only swap). The tick-23 `AccessDenied` on `static.poly.pizza/9sUalfQ76kn.glb` was a wrong-key error, not a transport block.
+2. **GRADD Hospital Room (model id `9sUalfQ76kn`) UUID = `d8989cd8-33d1-49a1-8139-31215dbdcf84`** (read from the thumbnail URL on `/search/hospital` — VERIFIED).
+   → **Direct GLB: `https://static.poly.pizza/d8989cd8-33d1-49a1-8139-31215dbdcf84.glb`** — **VERIFIED returns `model/gltf-binary`** (browser-fetch succeeded; "unsupported content type gltf-binary" = real GLB, not S3 XML). Pattern double-sampled (model `y4wdQpg767` → `ba6d0ee3-…c77.glb` also gltf-binary).
+3. **Official API** (for metadata + URL discovery without page-scraping): base `https://api.poly.pizza/v1.1` (v1 deprecated, same shape); `GET /model/{id}` with header `x-auth-token: <key>`; key from `https://poly.pizza/settings/api` (free account). Response fields: `ID, Title, Description, Attribution, Download, Thumbnail, Tri Count, Creator{Username,DPURL}, Licence, Animated`. **VERIFIED** (OpenAPI spec `https://poly.pizza/apispec/v1.1.yaml` + direct fetch: `/v1/model/9sUalfQ76kn` and `/v1.1/model/9sUalfQ76kn` → `{"error":"You need an API key to do that dingus"}` — API is live, **not** Cloudflare-challenged, key required).
+4. No `/download/{id}` and no `/api/model/{id}` routes at the origin (404 VERIFIED). The page's Download button resolves client-side.
+5. **Playwright slice recipe (account-free):** `page.goto('https://poly.pizza/m/9sUalfQ76kn')` (real Chromium passes CF) → extract `static.poly.pizza/{uuid}.webp` from any `<img>`/og:image → swap `.webp`→`.glb` → fetch+save. Alternative: operator free API key → `curl -H "x-auth-token:$KEY" https://api.poly.pizza/v1.1/model/9sUalfQ76kn` → parse `.Download`. Either path replaces the dead curl/wayback guesses.
+
+Attribution (API pattern, INFERRED — exact string key-gated): `"GRADD Hospital Room" by GRADD CO, https://poly.pizza/m/9sUalfQ76kn. Licence at https://creativecommons.org/licenses/by/3.0/`. Short form already recorded. **Next deck step:** download the GLB → extract bed mesh → repeat the tick-22 deck-band measurement vs `HOSPITAL_BED_DECK_TOP_M=0.58`.
+
+### Q2 — remaining deck sources (new VERIFIED candidates)
+
+| asset | URL | licence (VERIFIED source) | subject | download barrier |
+|---|---|---|---|---|
+| **Old Hospital Bed** by Vavrinec Foltan (BlenderKit) | https://www.blendkit.com/asset-gallery-detail/d91eed93-39a3-480e-9e87-ac9814583385/ | **CC0** (page: `license Creative commons zero`) | dedicated old-style hospital bed, 4,862 polys, 7.4 MiB `.blend`, free-plan asset | free BlenderKit account |
+| **Metal bedframe** by MiriamAHoyt (Blendswap) | https://blendswap.com/blend/16481 | **CC0** (page + download page: "Free under CC0") | "old-fashioned hospital-type bed", twin, **to-scale** ("ready to append in an architectural project"), 165 KB `.blend` | free Blendswap account ("Sign in to download") |
+| **Isometric Hospital Room** by graphytv (Blendswap) | https://blendswap.com/blend/20057 | **CC-BY** (detail page "License CC-BY") | low-poly isometric hospital room incl. bed, 191 KB, B2.7x Cycles | free Blendswap account |
+| **Hospital Room For BGE** by CGDude (Blendswap) | https://blendswap.com/blend/16996 | **CC-BY** (detail page "License CC-BY") | small hospital room (floor/walls), 2.27 MB, B2.7x | free Blendswap account |
+| **Gurney medevac** (dudecon, Sketchfab) | https://sketchfab.com/3d-models/gurney-medevac-patient-stretcher-rescue-litter-40c85d5457a144d3b5dc1b328a2425a3 | **CC BY 4.0 UPGRADED INFERRED→VERIFIED** (public API `license.slug: by`, url cc/4.0; `isDownloadable: true`, 1,532 faces / 572 verts) | stretcher + baked wrapped patient | `SKETCHFAB_API_TOKEN` still required |
+
+Attribution strings (Q3):
+- Old Hospital Bed / Metal bedframe: **none required** (CC0).
+- Isometric Hospital Room: `Isometric Hospital Room by graphytv (Blender, CC-BY) — https://blendswap.com/blend/20057`.
+- Hospital Room For BGE: `Hospital Room For BGE by CGDude (Blender, CC-BY) — https://blendswap.com/blend/16996`.
+- Gurney medevac: `Gurney medevac patient stretcher rescue litter by dudecon (Sketchfab, CC BY 4.0)`. **Caveat:** author description prose claims "Actual license is Public Domain" (links `ip.tryop.com`, a non-standard third-party page) — conflicting with the API licence field; the API field (CC BY 4.0) is the machine-checkable licence. Recorded as a conflict, not a re-licence.
+
+### NOT FOUND this tick (recorded, do not re-search)
+
+- **Khronos glTF-Sample-Assets** — no bed/medical models (only BrainStem / ScatteringSkull, anatomical). NOT FOUND.
+- **Quaternius** — no hospital/medical pack; Simple Buildings = hospital building exterior; Survival Pack = first-aid props. No ward bed. NOT FOUND.
+- **OpenGameArt deeper 3D** — no CC0 hospital bed; generic CC0 beds exist (`low-poly bed`, `Bed (low poly)` by Clint Bellanger, `Bed` by Colorado Stark) but are generic-bed class = the Kenney deck-height risk, not hospital. "Medical Stuff" (FacadeGaikan) page still did not render — stays INFERRED, and it is props (pill bottle/syringe/gauze), not a deck. NOT FOUND hospital-specific.
+- **GitHub** — no CC0 hospital-bed repo with provenance (`aprildunnam/SpaceR` has `hospitalbed*.glb` but **no LICENSE** → refusal). NOT FOUND.
+- **Meshy.ai** hospital tag — AI-generated platform models, licence/provenance murky → NOT recommended (not a refusal, not a candidate).
+- **Sweet Home 3D** hospital beds — OBJ, but CC-BY or **Free Art License** (outside the CC0/CC-BY bar) → marginal, not a candidate.
+- Blendswap "Dream Hospital" (EslamNsr) CC0 VERIFIED but is a hospital *building*, not a room/bed. Not a deck source.
+
+### Deck-lane status update
+
+Deck lane was CLOSED at tick 23 with three exhausted verdicts; tick 24 reopens the **GRADD** path (unblocked, public URL above) and adds **two CC0 + two CC-BY Blendswap/BlenderKit deck candidates** that were not in the exhausted set. Note the pattern: every measured non-Sketchfab bed so far (Kenney 0.375 m, OGA 0.462 m) failed the 0.58 m deck spec — all new candidates must go through the tick-22 deck-band measurement before promotion; parametric deck stays SSOT until one passes.
+
+Top 3 things that would save the most work: (1) **Download GRADD now** — `https://static.poly.pizza/d8989cd8-33d1-49a1-8139-31215dbdcf84.glb` is public and unauthenticated; extract the bed mesh and run the deck-band measurement; this is the only spec-plausible non-Sketchfab deck candidate left; (2) **One free poly.pizza API key** (operator, `poly.pizza/settings/api`) makes the entire poly.pizza catalogue deterministic for the factory (search → `Download` field) — the same credential class as `SKETCHFAB_API_TOKEN` but free, and it permanently retires the page-scrape/playwright guesswork; (3) **Operator `SKETCHFAB_API_TOKEN`** remains the highest-leverage single credential — it unblocks the 6 VERIFIED CC BY 4.0 rows (bed/stretcher/exam table/curtain+monitor/monitor/vacutainer) and the gurney.
