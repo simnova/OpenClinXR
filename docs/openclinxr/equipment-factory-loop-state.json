@@ -1,13 +1,13 @@
 {
   "schemaVersion": "openclinxr.equipment-factory-loop-state.v1",
   "active": true,
-  "tick": 16,
+  "tick": 17,
   "interval": "15m",
   "plan": ".openclinxr/plans/equipment-three-lane-factory.md",
   "contract": "docs/openclinxr/equipment-factory-15m-loop.md",
-  "lastTickAt": "2026-08-12T07:55:00.000Z",
-  "lastAction": "honest map: blood-culture kit (stepdown sepsis) -> new thin parametric id blood_culture_kit_equipment (own module; unmapped prose 4->3)",
-  "nextPriority": "ECG kit merge check (only real gap left; deck bank token-blocked) OR compress builders + architect notes landing; remaining 3 unmapped are documented non-equipment deferrals (neuro exam card / joint diagram / soft lighting)",
+  "lastTickAt": "2026-08-12T08:10:00.000Z",
+  "lastAction": "wiring fix: PARAMETRIC_KINDS closure for 12 family-fill ids (source=parametric not fallback in mount ledger); architect notes landed",
+  "nextPriority": "ECG kit merge from feature/equipment-kit-approach-b (27 files/7,393 ins; the only structural gap left) — scope to 12_lead_ecg_machine_equipment per MADR; deck bank still token-blocked; 3 unmapped are documented non-equipment deferrals",
   "researcherEveryN": 3,
   "architectEveryN": 4,
   "stopWhen": [

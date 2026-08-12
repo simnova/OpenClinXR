@@ -215,6 +215,22 @@ const PARAMETRIC_KINDS = new Set([
   // #223 physical roomProp ids that need dedicated geometry (not unit-box fallback).
   "safety_plan_whiteboard_equipment",
   "ekg_leads_on_bed_equipment",
+  // Architect tick 16 closure: family-fill ids with dedicated builder case arms
+  // were mounted source="fallback" (planStationEquipmentMounts consults
+  // PARAMETRIC_KINDS, not the dispatcher). Registering them makes the mount
+  // ledger match the catalogue's runtimeSource=parametric.
+  "medication_cart_equipment",
+  "call_bell_equipment",
+  "panic_button_equipment",
+  "privacy_curtain_equipment",
+  "small_table_equipment",
+  "consultation_desk_equipment",
+  "wall_sign_equipment",
+  "medication_bottles_equipment",
+  "urine_cup_equipment",
+  "drain_equipment",
+  "incentive_spirometer_equipment",
+  "blood_culture_kit_equipment",
 ]);
 
 /**
