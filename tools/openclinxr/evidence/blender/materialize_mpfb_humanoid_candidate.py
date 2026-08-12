@@ -1978,6 +1978,164 @@ def main():
         f"hiddenMaterialName {foot_applied['hiddenMaterialName']}"
     )
 
+    # issue-341 round 9 — RENDER_TRUTH_REHIDE: the counterpart to round 7's
+    # monotone un-hide. Round 7's render-truth pass ONLY un-hides; a skin polygon
+    # the garment covers (or pokes) but the mask missed stays visible forever, and
+    # the measured round-9 orange/tan sawtooth at the shoulders, waistband and
+    # hems is round 7's own trade in a new colour — the same boundary, now
+    # rendering as SKIN where round 7 un-hid the discard. The re-hide follows the
+    # garments' own rims per-polygon, bounded by the garments' own measured extents
+    # and the factory's own standoff (no fitted seam constant):
+    #   (1) seam-band restore — the round-6 waistband band between the shirt hem
+    #       and the pants top (a region derived from the two garments' own measured
+    #       extents, not a threshold), re-applied AFTER round 7's lower
+    #       render-truth un-hide removed it. Round 6 hid exactly this band and the
+    #       orchestrator graded it clean; round 7's un-hide (a single-garment hole
+    #       test) undid it and the fringe returned.
+    #   (2) poke envelope — a visible face whose nearest garment surface lies
+    #       within the garment's OWN shipping envelope (CLOTH_STANDOFF_M) of the
+    #       skin along the BODY's outward normal (signed clearance in
+    #       [-CLOTH_STANDOFF_M, HIDE_EPSILON_M)) is a poke the garment covers from
+    #       behind at render — hiding reveals the garment, never the interior. This
+    #       is the round-7 first-action instrument (cast along the body's own
+    #       normal, not a fixed viewer axis) applied to VISIBLE faces; the
+    #       envelope bound is what keeps the child's loose t-shirt (2-5 cm off the
+    #       body, measured) and the bare neck above the collar out of the mask.
+    _already_hidden = hide_mask | lower_hide_mask | foot_hide_mask
+    _rh_upper = np.zeros(len(body_faces), dtype=bool)
+    _rh_lower = np.zeros(len(body_faces), dtype=bool)
+    _rh_foot = np.zeros(len(body_faces), dtype=bool)
+    _rh_bands = 0
+    # (1) the round-6 waistband band, recomputed AFTER round 7's lower un-hide.
+    _pants_x_lo = float(pants_verts_np[:, 0].min())
+    _pants_x_hi = float(pants_verts_np[:, 0].max())
+    _pants_d_lo = float(pants_verts_np[:, 1].min())
+    _pants_d_hi = float(pants_verts_np[:, 1].max())
+    _waist_band_lo = float(garment_verts[:, 2].min())   # the shirt's hem
+    _waist_band_hi = float(pants_verts_np[:, 2].max())  # the pants' top
+    if _waist_band_hi >= _waist_band_lo:
+        _wb_cent = body_verts[body_faces].mean(axis=1)
+        _rh_band = (
+            (_wb_cent[:, 2] >= _waist_band_lo)
+            & (_wb_cent[:, 2] <= _waist_band_hi)
+            & (_wb_cent[:, 0] >= _pants_x_lo)
+            & (_wb_cent[:, 0] <= _pants_x_hi)
+            & (_wb_cent[:, 1] >= _pants_d_lo)
+            & (_wb_cent[:, 1] <= _pants_d_hi)
+        )
+        # only faces NOT already hidden by any slot (round 7 un-hid the band).
+        _rh_band = _rh_band & ~_already_hidden
+        _rh_bands = int(_rh_band.sum())
+        _rh_lower = _rh_lower | _rh_band
+        print(f"RENDER_TRUTH_REHIDE band [{_waist_band_lo:.4f},{_waist_band_hi:.4f}] faces {_rh_bands}")
+    else:
+        print("RENDER_TRUTH_REHIDE WARNING: pants top below shirt hem — band empty; report this")
+    # (2) the poke envelope against each garment channel.
+    _rh_pokes = 0
+    for _gname, _gverts, _gfaces in (
+        ("upper", garment_verts, garment_faces),
+        ("lower", pants_verts_np, pants_faces_np),
+        ("foot", footwear_verts, footwear_faces),
+    ):
+        if len(_gverts) == 0 or len(_gfaces) == 0:
+            continue
+        _g_lo = float(_gverts[:, 2].min())
+        _g_hi = float(_gverts[:, 2].max())
+        _cl, _fidx, _fv, _fn = _region_signed_clearance_samples(
+            body_verts, body_faces, _gverts, _gfaces, _g_lo, _g_hi,
+            max_search_m=0.08, height_axis=2, lateral_axis=0,
+        )
+        if len(_fidx) == 0 or len(_cl) == 0:
+            continue
+        _per = _cl.reshape(len(_fidx), 3).min(axis=1)
+        _poke = (_per >= -CLOTH_STANDOFF_M) & (_per < HIDE_EPSILON_M)
+        if not _poke.any():
+            continue
+        _sel = _fidx[_poke]
+        # face normal (3 vertex samples per face) and the stage front axis (-Y).
+        _fn_face = _fn.reshape(len(_fidx), 3, 3).mean(axis=1)
+        _front = _fn_face[_poke][:, 1] < 0.0
+        # #334 — the shared VERTEX-based head-joint bound: never discard the
+        # head/neck/jaw above the body's own head joint.
+        _below = body_verts[body_faces[_sel]].max(axis=1)[:, 2] <= head_joint_z
+        # round 9 — the re-hide must not push the mask beyond the garment's OWN
+        # rim: a face whose vertices rise above the garment's max extent is not
+        # under the cloth (the neck above the collar, the ankle above the shoe
+        # top) and hiding it would discard a surface the garment does not cover.
+        _under_rim = body_verts[body_faces[_sel]].max(axis=1)[:, 2] <= _g_hi
+        _pick = _sel[_front & _below & _under_rim]
+        _pick = _pick[~_already_hidden[_pick]]
+        _pick = _pick[~_rh_upper[_pick] & ~_rh_lower[_pick] & ~_rh_foot[_pick]]
+        if _gname == "upper":
+            _rh_upper[_pick] = True
+        elif _gname == "lower":
+            _rh_lower[_pick] = True
+        else:
+            _rh_foot[_pick] = True
+        _rh_pokes += int(len(_pick))
+        print(f"RENDER_TRUTH_REHIDE poke {_gname} region {len(_fidx)} candidates {int(_poke.sum())} picked {int(len(_pick))}")
+    # Apply the re-hide per slot (additive: a fresh hidden material, so previously
+    # hidden faces keep their slot; re-hidden faces are discarded at render).
+    def _reclip_rehide(mask, garment_verts):
+        """Mirror the pipeline's two polygon-level clips on the re-hide masks:
+        #334's `clip_hide_mask_below_joint` (a re-hide polygon whose LOCAL vertex
+        rises above the body's own head joint is the neck/face — un-hide it) and
+        #326's silhouette re-clip (a re-hide polygon whose LOCAL vertex pokes
+        outside the covering garment's x/z AABB + the contract's 2 mm slack is
+        not under the cloth — un-hide it). The round-7 masks ship inside these
+        bounds; the re-hide must ship inside the same ones (measured on the nurse:
+        the world-matrix pre-filter let a collar re-hide 5 mm above the exported
+        head joint)."""
+        mask = np.array(mask, dtype=bool)
+        gx_lo = float(garment_verts[:, 0].min()) - 0.002
+        gx_hi = float(garment_verts[:, 0].max()) + 0.002
+        gz_lo = float(garment_verts[:, 2].min()) - 0.002
+        gz_hi = float(garment_verts[:, 2].max()) + 0.002
+        removed = 0
+        tri_i = 0
+        for poly in human.data.polygons:
+            n_tri = max(len(poly.vertices) - 2, 1)
+            if not mask[tri_i : tri_i + n_tri].any():
+                tri_i += n_tri
+                continue
+            bad = False
+            for vi in poly.vertices:
+                c = human.data.vertices[vi].co
+                if c.z > head_joint_z or c.x < gx_lo or c.x > gx_hi or c.z < gz_lo or c.z > gz_hi:
+                    bad = True
+                    break
+            if bad:
+                mask[tri_i : tri_i + n_tri] = False
+                removed += 1
+            tri_i += n_tri
+        return mask, removed
+
+    if _rh_upper.any():
+        _rh_upper, _rh_clip_upper = _reclip_rehide(_rh_upper, garment_verts)
+        _rh_upper, _rh_hand_upper = scope_hide_mask_away_from_hands(human, _rh_upper, armature)
+        _rh_a = apply_body_hide_material_region(human, _rh_upper, slot="upper")
+        print(
+            f"RENDER_TRUTH_REHIDE applied upper faces {int(_rh_upper.sum())} "
+            f"reclip {_rh_clip_upper} handFaces {_rh_hand_upper} polygons {_rh_a['appliedPolygonCount']}"
+        )
+    if _rh_lower.any():
+        _rh_lower, _rh_clip_lower = _reclip_rehide(_rh_lower, pants_verts_np)
+        _rh_lower, _rh_hand_lower = scope_hide_mask_away_from_hands(human, _rh_lower, armature)
+        _rh_a = apply_body_hide_material_region(human, _rh_lower, slot="lower")
+        print(
+            f"RENDER_TRUTH_REHIDE applied lower faces {int(_rh_lower.sum())} "
+            f"reclip {_rh_clip_lower} handFaces {_rh_hand_lower} polygons {_rh_a['appliedPolygonCount']}"
+        )
+    if _rh_foot.any():
+        _rh_foot, _rh_clip_foot = _reclip_rehide(_rh_foot, footwear_verts)
+        _rh_foot, _rh_hand_foot = scope_hide_mask_away_from_hands(human, _rh_foot, armature)
+        _rh_a = apply_body_hide_material_region(human, _rh_foot, slot="foot")
+        print(
+            f"RENDER_TRUTH_REHIDE applied foot faces {int(_rh_foot.sum())} "
+            f"reclip {_rh_clip_foot} handFaces {_rh_hand_foot} polygons {_rh_a['appliedPolygonCount']}"
+        )
+    print(f"RENDER_TRUTH_REHIDE total band {_rh_bands} pokes {_rh_pokes}")
+
     bpy.context.scene.frame_start = 1
     bpy.context.scene.frame_end = 90
     action = bpy.data.actions.new("ClinicalIdleConversation")
