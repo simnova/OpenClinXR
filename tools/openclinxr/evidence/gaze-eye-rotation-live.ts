@@ -27,7 +27,11 @@ import { readFileSync } from "node:fs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
-const GLB = `${REPO_ROOT}/apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb`;
+/** Optional CLI arg: relative GLB path (default the OB patient). Usage: tsx <file> [glbPath] */
+const GLB_ARG = process.argv[2];
+const GLB = GLB_ARG
+  ? (GLB_ARG.startsWith("/") ? GLB_ARG : `${REPO_ROOT}/${GLB_ARG}`)
+  : `${REPO_ROOT}/apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb`;
 const THREE_MODULE = pathToFileURL(
   `${REPO_ROOT}/apps/ui-xr/node_modules/three/build/three.module.js`,
 ).href;

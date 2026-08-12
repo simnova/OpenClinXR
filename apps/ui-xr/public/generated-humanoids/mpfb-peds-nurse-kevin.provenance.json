@@ -20,7 +20,7 @@
     "annyReference": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.anny_base.obj (tracked)",
     "materializedFrom": "MPFB2 HumanService.create_human with macro_detail_dict derived from the tracked Anny reference",
     "generator": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "derivationNote": "Issue #328: the MPFB2 materializer now derives its macro dict from the tracked Anny reference instead of baking the default human. age=0.6 from the measured head-height fraction (0.100, adult band); height=0.5827 SOLVED by bake-measure-interpolate so the baked+stripped exported body reaches the reference stature (1.76 m). Macros baked into the basis via TargetService.bake_targets immediately after create_human. #317 face keys (32 targets / 13 mouth), #318 helper strip (19,158->13,380 verts / 36,972->26,756 tris), #321 toigo t-shirt fit (2,700 tris, k-NN weighted to the standard rig) and #323 body-part hiding all ran unchanged. Measured (largest non-garment/non-hidden primitive): stature 1.6528 m, chest 0.9484, waist 1.1056, chest:waist ratio 0.8578."
+    "derivationNote": "Issue #328: the MPFB2 materializer now derives its macro dict from the tracked Anny reference instead of baking the default human. age=0.6 from the measured head-height fraction (0.100, adult band); height=0.5827 SOLVED by bake-measure-interpolate so the baked+stripped exported body reaches the reference stature (1.76 m). Macros baked into the basis via TargetService.bake_targets immediately after create_human. #317 face keys (32 targets / 13 mouth), #318 helper strip (19,158->13,380 verts / 36,972->26,756 tris), #321 toigo t-shirt fit (2,700 tris, k-NN weighted to the standard rig) and #323 body-part hiding all ran unchanged. Measured (largest non-garment/non-hidden primitive): stature 1.6528 m, chest 0.9484, waist 1.1056, chest:waist ratio 0.8578. Regenerated 2026-08-11 (#337 resume): merged main (#335) and re-baked with CC0 MakeHuman default eyes (data/eyes/hm08/low-poly, header-verified CC0) fitted pre-#318-strip via HumanService.add_mhclo_asset(asset_type=\"eyes\", material_type=\"PROCEDURAL_EYES\"); eye mesh renamed makeclothes_library_eyes_low_poly_mpfb_<body>_mesh (96 verts / 172 tris), weighted 1.0 to eye.L/eye.R by interpolate_weights (dominant groups eye.L 48 / eye.R 48); #334 hide-mask head-joint bound and #335 casts preserved; iris rotation delta at gaze=1 measured 10-13 mm, 89-94% lateral."
   },
   "licenseChain": {
     "status": "mpfb2_makehuman_license_not_reverified_at_comparator",
@@ -56,5 +56,7 @@
   ],
   "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
   "promotionGates": false,
-  "generatedAt": "2026-08-11T17:44:00.000+00:00"
+  "generatedAt": "2026-08-11T21:10:00Z",
+  "outputSha256": "9039b7b967c419155a451736fc2372ef06ed3b6365a9dda1cca96adf32770d45",
+  "outputBytes": 13512900
 }

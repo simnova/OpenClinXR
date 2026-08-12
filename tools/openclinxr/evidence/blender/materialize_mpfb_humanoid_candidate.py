@@ -527,6 +527,10 @@ def main():
         material_type="PROCEDURAL_EYES",
     )
     bpy.context.view_layer.update()
+    # #337 resume: name the eye mesh data with the eye channel so the exported glTF mesh
+    # name matches the evidence regex (`/eye|cornea|iris|sclera/`) — the OBJ import's
+    # `low-poly` data name does not. Same convention as the footwear channel rename.
+    eyes_asset.data.name = f"makeclothes_library_eyes_low_poly_mpfb_{args.reference or 'ob_patient_aisha'}_mesh"
     eye_tris = sum(max(len(p.vertices) - 2, 0) for p in eyes_asset.data.polygons)
     # Probe: dominant vertex groups on the eye mesh immediately after add_mhclo_asset
     # (before the k-NN transfer below) — tells us whether interpolate_weights gave the
