@@ -1,0 +1,997 @@
+{
+  "schemaVersion": "openclinxr.room-materials.pre-fix.v1",
+  "kind": "room_materials_pre_fix_census",
+  "measuredAt": "2026-08-12T14:20:58.069Z",
+  "measuredAgainstCommit": "4cf456353bb164adf0f232d7c3c3bae83555b929",
+  "answerFirst": {
+    "question": "Do the shipped rooms have per-surface material assignment to differentiate?",
+    "parametricShell": {
+      "hasPerSurfaceAssignment": true,
+      "detail": "15 named materials map 1:1 to surfaces (floor/wall/rail/equipment/linen/light/mattress/metal/paper/screen/tape/scuff/signage). Differentiation IS possible in the emitter."
+    },
+    "infinigenRoom": {
+      "hasPerSurfaceAssignment": true,
+      "detail": "4 meshes: wall(plaster), floor(ceramic tile), ceiling(plaster), exterior(NO material). Roughness already non-uniform (0.70/1.0/0.80) from the generator. White baseColor = albedo lost at extraction (#345 lane). Exterior unassigned."
+    },
+    "blockedOnExtraction346": false,
+    "conclusion": "NOT blocked. Per-surface assignment exists in both shipped rooms. This slice differentiates PBR channels in the parametric shell emitter; the Infinigen room's remaining defects (white albedo, unassigned exterior) belong to #345 (bake) / #346 (extraction) lanes whose briefs explicitly exclude material roughness assignment."
+  },
+  "measuredFinding": {
+    "emitterColorsDoNotSurviveExport": {
+      "detail": "createEnvironmentBlenderScript sets mat.diffuse_color (viewport display) which the glTF exporter ignores; every material exports Principled BSDF default baseColor [0.8,0.8,0.8,1]. Controlled probe confirmed: diffuse_color-only control exports 0.8 gray.",
+      "probed": "blender --background probe: control(diffuse_color) -> baseColor 0.8, roughness 0.5, metallic 0; treatment(Principled BSDF Roughness/Metallic) -> roughness 0.35, metallic 1.0 survives."
+    },
+    "allShippedShellMaterialsIdenticalPbr": {
+      "detail": "All 15 parametric shell materials export roughness=0.5, metallic=0, baseColor=0.8 gray — literally the same plastic."
+    }
+  },
+  "rooms": [
+    {
+      "path": "apps/ui-xr/public/xr-assets/environment/ed-exam-bay-shell.glb",
+      "sha256": "af010787db369953d9b00a3f050cbba88a51e25262a213308fc84fc36f43779b",
+      "meshCount": 41,
+      "materialCount": 15,
+      "texturedMaterialCount": 0,
+      "distinctRoughnessValues": [
+        0.5
+      ],
+      "distinctMetallicValues": [
+        0
+      ],
+      "surfaces": [
+        {
+          "nodeName": "Cube.001",
+          "surface": "Cube.001",
+          "materialIndex": 0,
+          "materialName": "ed_bay_warm_gray_floor",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.002",
+          "surface": "Cube.002",
+          "materialIndex": 1,
+          "materialName": "ed_bay_soft_blue_wall",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.003",
+          "surface": "Cube.003",
+          "materialIndex": 1,
+          "materialName": "ed_bay_soft_blue_wall",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.004",
+          "surface": "Cube.004",
+          "materialIndex": 2,
+          "materialName": "clinical_wall_rail",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.005",
+          "surface": "Cube.005",
+          "materialIndex": 3,
+          "materialName": "subtle_interaction_zone_markers",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.006",
+          "surface": "Cube.006",
+          "materialIndex": 3,
+          "materialName": "subtle_interaction_zone_markers",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.007",
+          "surface": "Cube.007",
+          "materialIndex": 3,
+          "materialName": "subtle_interaction_zone_markers",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.008",
+          "surface": "Cube.008",
+          "materialIndex": 3,
+          "materialName": "subtle_interaction_zone_markers",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.009",
+          "surface": "Cube.009",
+          "materialIndex": 3,
+          "materialName": "subtle_interaction_zone_markers",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.010",
+          "surface": "Cube.010",
+          "materialIndex": 4,
+          "materialName": "clinical_equipment_context",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.011",
+          "surface": "Cube.011",
+          "materialIndex": 4,
+          "materialName": "clinical_equipment_context",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.012",
+          "surface": "Cube.012",
+          "materialIndex": 4,
+          "materialName": "clinical_equipment_context",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.013",
+          "surface": "Cube.013",
+          "materialIndex": 5,
+          "materialName": "safety_red_cues",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.014",
+          "surface": "Cube.014",
+          "materialIndex": 5,
+          "materialName": "safety_red_cues",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.015",
+          "surface": "Cube.015",
+          "materialIndex": 6,
+          "materialName": "privacy_curtain_blue_linen",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.016",
+          "surface": "Cube.016",
+          "materialIndex": 7,
+          "materialName": "warm_exam_light_panel",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.017",
+          "surface": "Cube.017",
+          "materialIndex": 4,
+          "materialName": "clinical_equipment_context",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.018",
+          "surface": "Cube.018",
+          "materialIndex": 8,
+          "materialName": "brushed_clinical_metal",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.019",
+          "surface": "Cube.019",
+          "materialIndex": 9,
+          "materialName": "stretcher_mattress_blue_gray",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.020",
+          "surface": "Cube.020",
+          "materialIndex": 8,
+          "materialName": "brushed_clinical_metal",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.021",
+          "surface": "Cube.021",
+          "materialIndex": 8,
+          "materialName": "brushed_clinical_metal",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.022",
+          "surface": "Cube.022",
+          "materialIndex": 10,
+          "materialName": "case_note_paper",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.023",
+          "surface": "Cube.023",
+          "materialIndex": 9,
+          "materialName": "stretcher_mattress_blue_gray",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.024",
+          "surface": "Cube.024",
+          "materialIndex": 11,
+          "materialName": "monitor_dark_screen_with_waveform",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.025",
+          "surface": "Cube.025",
+          "materialIndex": 7,
+          "materialName": "warm_exam_light_panel",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.026",
+          "surface": "Cube.026",
+          "materialIndex": 10,
+          "materialName": "case_note_paper",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.027",
+          "surface": "Cube.027",
+          "materialIndex": 7,
+          "materialName": "warm_exam_light_panel",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.028",
+          "surface": "Cube.028",
+          "materialIndex": 10,
+          "materialName": "case_note_paper",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.029",
+          "surface": "Cube.029",
+          "materialIndex": 4,
+          "materialName": "clinical_equipment_context",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.030",
+          "surface": "Cube.030",
+          "materialIndex": 12,
+          "materialName": "privacy_zone_floor_tape_yellow",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.031",
+          "surface": "Cube.031",
+          "materialIndex": 5,
+          "materialName": "safety_red_cues",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.032",
+          "surface": "Cube.032",
+          "materialIndex": 11,
+          "materialName": "monitor_dark_screen_with_waveform",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.033",
+          "surface": "Cube.033",
+          "materialIndex": 5,
+          "materialName": "safety_red_cues",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.034",
+          "surface": "Cube.034",
+          "materialIndex": 8,
+          "materialName": "brushed_clinical_metal",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.035",
+          "surface": "Cube.035",
+          "materialIndex": 4,
+          "materialName": "clinical_equipment_context",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.036",
+          "surface": "Cube.036",
+          "materialIndex": 7,
+          "materialName": "warm_exam_light_panel",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.037",
+          "surface": "Cube.037",
+          "materialIndex": 13,
+          "materialName": "subtle_floor_scuff_wear",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.038",
+          "surface": "Cube.038",
+          "materialIndex": 14,
+          "materialName": "infection_control_and_handoff_signage",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.039",
+          "surface": "Cube.039",
+          "materialIndex": 14,
+          "materialName": "infection_control_and_handoff_signage",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.040",
+          "surface": "Cube.040",
+          "materialIndex": 10,
+          "materialName": "case_note_paper",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Cube.041",
+          "surface": "Cube.041",
+          "materialIndex": 12,
+          "materialName": "privacy_zone_floor_tape_yellow",
+          "tris": 12,
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        }
+      ],
+      "materials": [
+        {
+          "name": "ed_bay_warm_gray_floor",
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "name": "ed_bay_soft_blue_wall",
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "name": "clinical_wall_rail",
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "name": "subtle_interaction_zone_markers",
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "name": "clinical_equipment_context",
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "name": "safety_red_cues",
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "name": "privacy_curtain_blue_linen",
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "name": "warm_exam_light_panel",
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "name": "brushed_clinical_metal",
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "name": "stretcher_mattress_blue_gray",
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "name": "case_note_paper",
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "name": "monitor_dark_screen_with_waveform",
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "name": "privacy_zone_floor_tape_yellow",
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "name": "subtle_floor_scuff_wear",
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "name": "infection_control_and_handoff_signage",
+          "baseColor": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "roughness": 0.5,
+          "metallic": 0,
+          "textured": false
+        }
+      ]
+    },
+    {
+      "path": "apps/ui-xr/public/xr-assets/environment/infinigen-ed-exam-bay.glb",
+      "sha256": "1bddb589715d6ef4fb6cdeff2d72414daef81b42b154a7999e53a712bb990ba1",
+      "meshCount": 4,
+      "materialCount": 3,
+      "texturedMaterialCount": 0,
+      "distinctRoughnessValues": [
+        0.704,
+        0.796,
+        1
+      ],
+      "distinctMetallicValues": [
+        0
+      ],
+      "surfaces": [
+        {
+          "nodeName": "Circle.024",
+          "surface": "Circle.024",
+          "materialIndex": 0,
+          "materialName": "shader_plaster.014",
+          "tris": 190,
+          "baseColor": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "roughness": 0.704,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Circle.034",
+          "surface": "Circle.034",
+          "materialIndex": 1,
+          "materialName": "shader_ceramic_shader_square_tile_tile.002",
+          "tris": 44,
+          "baseColor": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "roughness": 1,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Circle.044",
+          "surface": "Circle.044",
+          "materialIndex": 2,
+          "materialName": "shader_plaster.021",
+          "tris": 30,
+          "baseColor": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "roughness": 0.796,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "nodeName": "Circle.054",
+          "surface": "Circle.054",
+          "materialIndex": null,
+          "materialName": null,
+          "tris": 176,
+          "baseColor": null,
+          "roughness": null,
+          "metallic": null,
+          "textured": false
+        }
+      ],
+      "materials": [
+        {
+          "name": "shader_plaster.014",
+          "baseColor": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "roughness": 0.704,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "name": "shader_ceramic_shader_square_tile_tile.002",
+          "baseColor": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "roughness": 1,
+          "metallic": 0,
+          "textured": false
+        },
+        {
+          "name": "shader_plaster.021",
+          "baseColor": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "roughness": 0.796,
+          "metallic": 0,
+          "textured": false
+        }
+      ]
+    }
+  ]
+}

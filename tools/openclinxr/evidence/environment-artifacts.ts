@@ -423,8 +423,9 @@ def clear_scene():
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.object.delete()
 
-def material(name, color):
+def material(name, color, roughness=0.5, metallic=0.0):
     mat = bpy.data.materials.new(name)
+    mat.diffuse_color = color
     # Node-based Principled BSDF: the glTF exporter reads the BSDF Base Color, not
     # diffuse_color (flat non-node materials export as the 0.8 default — measured
     # #345). The Cycles DIFFUSE bake in room-albedo-ao-bake.py reads it too.
@@ -445,6 +446,11 @@ def material(name, color):
             out = mat.node_tree.nodes.new("ShaderNodeOutputMaterial")
         mat.node_tree.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
     bsdf.inputs["Base Color"].default_value = color
+    # #348: roughness/metallic set on the BSDF DO survive export (measured 2026-08-12:
+    # diffuse_color-only materials export baseColor 0.8 / rough 0.5 / metal 0) and are
+    # untouched by the #345 DIFFUSE bake, which only rewires Base Color to the image.
+    bsdf.inputs["Roughness"].default_value = roughness
+    bsdf.inputs["Metallic"].default_value = metallic
     return mat
 
 def cube(name, location, scale, mat):
@@ -510,36 +516,44 @@ def empty_root(name, location):
     return root
 
 clear_scene()
-floor_mat = material("ed_bay_warm_gray_floor", (0.45, 0.47, 0.48, 1.0))
-wall_mat = material("ed_bay_soft_blue_wall", (0.70, 0.78, 0.84, 1.0))
-rail_mat = material("clinical_wall_rail", (0.88, 0.88, 0.82, 1.0))
-equipment_mat = material("clinical_equipment_context", (0.82, 0.86, 0.88, 1.0))
-accent_red_mat = material("safety_red_cues", (0.86, 0.18, 0.13, 1.0))
-linen_mat = material("privacy_curtain_blue_linen", (0.34, 0.62, 0.74, 0.9))
-light_mat = material("warm_exam_light_panel", (1.0, 0.92, 0.66, 1.0))
-mattress_mat = material("stretcher_mattress_blue_gray", (0.66, 0.76, 0.84, 1.0))
-metal_mat = material("brushed_clinical_metal", (0.72, 0.74, 0.72, 1.0))
-screen_mat = material("monitor_dark_screen_with_waveform", (0.02, 0.06, 0.08, 1.0))
-paper_mat = material("case_note_paper", (0.96, 0.90, 0.72, 1.0))
-sign_mat = material("infection_control_and_handoff_signage", (0.92, 0.98, 0.96, 1.0))
-scuff_mat = material("subtle_floor_scuff_wear", (0.30, 0.32, 0.33, 0.32))
-tape_mat = material("privacy_zone_floor_tape_yellow", (0.92, 0.74, 0.22, 0.55))
-zone_mat = material("subtle_interaction_zone_markers", (0.25, 0.55, 0.70, 0.35))
-# Trim + scale-setting prop materials (#347).
-trim_mat = material("architectural_trim_white", (0.92, 0.94, 0.95, 1.0))
-chamfer_mat = material("wall_chamfer_soft_blue", (0.62, 0.70, 0.77, 1.0))
-outlet_plate_mat = material("outlet_plate_white", (0.96, 0.97, 0.96, 1.0))
-outlet_socket_mat = material("outlet_socket_dark", (0.25, 0.26, 0.27, 1.0))
-switch_plate_mat = material("light_switch_plate_ivory", (0.95, 0.93, 0.88, 1.0))
-switch_toggle_mat = material("light_switch_toggle_white", (0.98, 0.98, 0.98, 1.0))
-gel_bottle_mat = material("hand_gel_bottle_teal", (0.18, 0.55, 0.60, 1.0))
-gel_nozzle_mat = material("hand_gel_nozzle_dark", (0.30, 0.32, 0.34, 1.0))
-gel_bracket_mat = material("hand_gel_bracket_metal", (0.72, 0.74, 0.72, 1.0))
-whiteboard_frame_mat = material("whiteboard_frame_gray", (0.45, 0.48, 0.52, 1.0))
-whiteboard_surface_mat = material("whiteboard_surface_white", (0.97, 0.98, 0.97, 1.0))
-whiteboard_tray_mat = material("whiteboard_marker_tray_dark", (0.30, 0.32, 0.36, 1.0))
-curtain_rail_mat = material("curtain_track_rail_metal", (0.72, 0.74, 0.72, 1.0))
-curtain_ring_mat = material("curtain_track_ring_metal", (0.75, 0.77, 0.75, 1.0))
+# #348 — PBR channel differentiation per surface (MADR 0055 item 3). Roughness/metallic
+# are the channels that separate vinyl from plaster from steel; zero geometry cost.
+#   vinyl floor            -> low-mid roughness, metallic 0 (specular sheen)
+#   painted gypsum wall    -> high roughness, metallic 0 (matte)
+#   stainless fixtures     -> low roughness, metallic 1.0
+#   glass / screens        -> low roughness, metallic 0
+#   curtain fabric         -> very high roughness, metallic 0
+floor_mat = material("ed_bay_warm_gray_floor", (0.45, 0.47, 0.48, 1.0), roughness=0.35, metallic=0.0)
+wall_mat = material("ed_bay_soft_blue_wall", (0.70, 0.78, 0.84, 1.0), roughness=0.92, metallic=0.0)
+rail_mat = material("clinical_wall_rail", (0.88, 0.88, 0.82, 1.0), roughness=0.25, metallic=1.0)
+equipment_mat = material("clinical_equipment_context", (0.82, 0.86, 0.88, 1.0), roughness=0.6, metallic=0.05)
+accent_red_mat = material("safety_red_cues", (0.86, 0.18, 0.13, 1.0), roughness=0.6, metallic=0.0)
+linen_mat = material("privacy_curtain_blue_linen", (0.34, 0.62, 0.74, 0.9), roughness=0.96, metallic=0.0)
+light_mat = material("warm_exam_light_panel", (1.0, 0.92, 0.66, 1.0), roughness=0.2, metallic=0.0)
+mattress_mat = material("stretcher_mattress_blue_gray", (0.66, 0.76, 0.84, 1.0), roughness=0.9, metallic=0.0)
+metal_mat = material("brushed_clinical_metal", (0.72, 0.74, 0.72, 1.0), roughness=0.25, metallic=1.0)
+screen_mat = material("monitor_dark_screen_with_waveform", (0.02, 0.06, 0.08, 1.0), roughness=0.15, metallic=0.0)
+paper_mat = material("case_note_paper", (0.96, 0.90, 0.72, 1.0), roughness=0.85, metallic=0.0)
+sign_mat = material("infection_control_and_handoff_signage", (0.92, 0.98, 0.96, 1.0), roughness=0.7, metallic=0.0)
+scuff_mat = material("subtle_floor_scuff_wear", (0.30, 0.32, 0.33, 0.32), roughness=0.4, metallic=0.0)
+tape_mat = material("privacy_zone_floor_tape_yellow", (0.92, 0.74, 0.22, 0.55), roughness=0.5, metallic=0.0)
+zone_mat = material("subtle_interaction_zone_markers", (0.25, 0.55, 0.70, 0.35), roughness=0.5, metallic=0.0)
+# Trim + scale-setting prop materials (#347). Same PBR channel rules: painted
+# plastic/gypsum = high roughness non-metal; metal hardware = low rough, metallic 1.0.
+trim_mat = material("architectural_trim_white", (0.92, 0.94, 0.95, 1.0), roughness=0.85, metallic=0.0)
+chamfer_mat = material("wall_chamfer_soft_blue", (0.62, 0.70, 0.77, 1.0), roughness=0.9, metallic=0.0)
+outlet_plate_mat = material("outlet_plate_white", (0.96, 0.97, 0.96, 1.0), roughness=0.55, metallic=0.0)
+outlet_socket_mat = material("outlet_socket_dark", (0.25, 0.26, 0.27, 1.0), roughness=0.55, metallic=0.0)
+switch_plate_mat = material("light_switch_plate_ivory", (0.95, 0.93, 0.88, 1.0), roughness=0.55, metallic=0.0)
+switch_toggle_mat = material("light_switch_toggle_white", (0.98, 0.98, 0.98, 1.0), roughness=0.5, metallic=0.0)
+gel_bottle_mat = material("hand_gel_bottle_teal", (0.18, 0.55, 0.60, 1.0), roughness=0.5, metallic=0.0)
+gel_nozzle_mat = material("hand_gel_nozzle_dark", (0.30, 0.32, 0.34, 1.0), roughness=0.45, metallic=0.0)
+gel_bracket_mat = material("hand_gel_bracket_metal", (0.72, 0.74, 0.72, 1.0), roughness=0.3, metallic=1.0)
+whiteboard_frame_mat = material("whiteboard_frame_gray", (0.45, 0.48, 0.52, 1.0), roughness=0.6, metallic=0.1)
+whiteboard_surface_mat = material("whiteboard_surface_white", (0.97, 0.98, 0.97, 1.0), roughness=0.7, metallic=0.0)
+whiteboard_tray_mat = material("whiteboard_marker_tray_dark", (0.30, 0.32, 0.36, 1.0), roughness=0.5, metallic=0.0)
+curtain_rail_mat = material("curtain_track_rail_metal", (0.72, 0.74, 0.72, 1.0), roughness=0.25, metallic=1.0)
+curtain_ring_mat = material("curtain_track_ring_metal", (0.75, 0.77, 0.75, 1.0), roughness=0.25, metallic=1.0)
 cube("ed_exam_bay_floor", (0, -0.03, 0), (2.4, 0.03, 1.8), floor_mat)
 cube("ed_exam_bay_back_wall", (0, 1.05, -1.8), (2.4, 1.05, 0.04), wall_mat)
 cube("ed_exam_bay_left_wall", (-2.4, 1.05, 0), (0.04, 1.05, 1.8), wall_mat)

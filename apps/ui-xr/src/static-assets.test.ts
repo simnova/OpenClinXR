@@ -23,7 +23,7 @@ const generatedSceneAssetHashes = {
   "medical-equipment/iv-pole-with-pump.glb": "1a9a57932e2e0b8bd86c927527e8ea4fcb19fd3e74bf9ba33ec4490234ccfb04",
   "medical-equipment/wall-clock-analog.glb": "cefadd32f3a115177cbe6a696159d798dca371ee5ad50111937ab9b8aa5624ce",
   "medical-equipment/bedside-monitor-generated.glb": "cff08df0a94ee25651d02c4667fe94232aff659d2702b04084c99c7440953f3b",
-  "environment/ed-exam-bay-shell.glb": "6c9265da3a2fc3d5b0f797d25f575b01a5807891459aa6df09092bb73ab7e229",
+  "environment/ed-exam-bay-shell.glb": "c609f0d71caaf8c66901d88083ad600b4ea0030e361457a5c40735fe7431d49f",
   "medical-equipment/hospital-bed-sketchfab-ccby.glb": "df70210a32b88537a3837cf62b46e3b6ba19c65d71495e8ff5d61fd52111bf27",
   "medical-equipment/stretcher-sketchfab-ccby.glb": "ae930b59ec9180fc1c74aed2592208f76cd3c0118987852cc6a6bbebebc4a35d",
   "medical-equipment/exam-table-sketchfab-ccby.glb": "b620e4949d2fef3669fe83327d66937d2fcac4bfbc0f0960e98e25e0edb51f0b",
