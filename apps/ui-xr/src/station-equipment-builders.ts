@@ -28,6 +28,7 @@ import {
 } from "./station-equipment-families.js";
 import { buildMedicationCartEquipment } from "./station-equipment-medication-cart.js";
 import { buildCallBellEquipment, buildPanicButtonEquipment } from "./station-equipment-call-bell.js";
+import { buildPrivacyCurtainEquipment } from "./station-equipment-privacy-curtain.js";
 import {
   buildHospitalBedEquipment,
   buildSideRailsEquipment,
@@ -485,6 +486,9 @@ export function buildDeclaredEquipmentGeometry(equipmentId: string): Group {
     // #202 panic button — psych safety room; honest class, not a call bell
     case "panic_button_equipment":
       return buildPanicButtonEquipment(equipmentId);
+    // #202 privacy curtain — clinic/OB; honest class for unmapped "privacy curtain" prose
+    case "privacy_curtain_equipment":
+      return buildPrivacyCurtainEquipment(equipmentId);
     // #202 device-on-stand
     case "digital_thermometer_equipment":
       return buildDeviceOnStandFamilyEquipment(equipmentId, "thermometer");

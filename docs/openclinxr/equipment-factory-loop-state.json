@@ -1,13 +1,13 @@
 {
   "schemaVersion": "openclinxr.equipment-factory-loop-state.v1",
   "active": true,
-  "tick": 6,
+  "tick": 7,
   "interval": "15m",
   "plan": ".openclinxr/plans/equipment-three-lane-factory.md",
   "contract": "docs/openclinxr/equipment-factory-15m-loop.md",
-  "lastTickAt": "2026-08-12T05:25:00.000Z",
-  "lastAction": "honest map panic button (psych) -> panic_button_equipment variant in call-bell module; unmappedProse 16->15; researcher respawned on Sketchfab download API (019ff46e); tick-6 changes staged",
-  "nextPriority": "integrate researcher download-API finding (unblocks bed bank acquire) OR next honest map (small table / consultation desk / privacy curtain)",
+  "lastTickAt": "2026-08-12T05:40:00.000Z",
+  "lastAction": "honest map privacy curtain (clinic+OB) -> privacy_curtain_equipment own module (track + 2 panels); unmappedProse 15->14",
+  "nextPriority": "next honest map (small table / consultation desk / privacy notice) OR integrate researcher download-API finding if notification arrives (unblocks bed bank)",
   "researcherEveryN": 3,
   "architectEveryN": 4,
   "stopWhen": [

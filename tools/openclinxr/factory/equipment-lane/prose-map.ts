@@ -63,8 +63,10 @@ export const PROSE_TO_EQUIPMENT_ID: Readonly<Record<string, string>> = {
   "call bell": "call_bell_equipment",
   // Psych safety-room wall button — dedicated thin parametric id.
   "panic button": "panic_button_equipment",
+  // Bed-side privacy curtain (clinic / OB) — dedicated thin parametric id.
+  "privacy curtain": "privacy_curtain_equipment",
   // Deliberately NOT mapped (appear as unmappedProse until real ids exist):
-  // privacy curtain/notice, small table, consultation desk, joint diagram,
+  // privacy notice, small table, consultation desk, joint diagram,
   // medication bottles, urine cup, blood-culture kit, neuro exam card,
   // CT/fall-risk/sepsis signs, drain, soft lighting, incentive spirometer —
   // factory honesty > silent fallback.
