@@ -1,0 +1,48 @@
+{
+  "verdict": "uvs_and_materials_survive",
+  "verdictReason": "meshoptimizer simplify kept ALL 197 UV'd primitives, all 175 materials and all 14 textured materials through glTF. 15,476,532 -> 14,605,836 tris (5.6259115414228456% reduction; ratio 0.0097 requested, budget NOT reached). Measured cause of the stall: the raw export is island-dominated — 10,817,982 disconnected components across all primitives (largest mesh Circle.010 alone is 2,481,157 quad islands), and quadric simplification cannot reduce below the per-island minimum. The channel survival this question asks about is independent of that: YES, UVs and materials survive.",
+  "measuredAgainstCommit": "02ab74dafa143db7bf7b3431fbfdc1693cb97471",
+  "sourceGlb": "/Users/patrick/.openclinxr-tools/infinigen/exports/dining-room-seed0.glb",
+  "budget": {
+    "targetTriangles": 150000,
+    "ratio": 0.009692093810163673,
+    "error": 0.05,
+    "lockBorder": true
+  },
+  "before": {
+    "triangleCount": 15476532,
+    "meshCount": 159,
+    "materialCount": 175,
+    "texturedMaterialCount": 14,
+    "uvPrimCount": 197,
+    "textureCount": 14,
+    "lightCount": 0,
+    "bytes": 1094022000
+  },
+  "after": {
+    "triangleCount": 14605836,
+    "meshCount": 159,
+    "materialCount": 175,
+    "texturedMaterialCount": 14,
+    "uvPrimCount": 197,
+    "textureCount": 14,
+    "lightCount": 0,
+    "bytes": 1065703764
+  },
+  "decimatedGlbPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-346/.openclinxr/evidence/room-decimate/decimated-room.glb",
+  "simplifySeconds": 11.540878416,
+  "budgetReached": false,
+  "connectedComponents": 10817982,
+  "measuredAt": "2026-08-12T14:30:53.236Z",
+  "claimScope": [
+    "meshoptimizer decimation of the full Infinigen generator output",
+    "UV / material / texture survival through glTF export after decimation, measured"
+  ],
+  "notEvidenceFor": [
+    "runtime adoption of any decimated room",
+    "Quest worn readiness",
+    "clinical validity or exam equivalence",
+    "room dimensions or material palette quality",
+    "the room bake path (#345) or the MPFB humanoid material path (#341)"
+  ]
+}

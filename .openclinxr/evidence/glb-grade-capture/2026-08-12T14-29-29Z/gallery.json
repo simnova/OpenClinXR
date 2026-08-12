@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "openclinxr.glb-grade-capture.v1",
+  "generatedAt": "2026-08-12T14:29:34.061Z",
+  "claimScope": "browser_threejs_render_with_independent_geometry_self_check_not_visual_realism_or_readiness",
+  "purpose": "Render every shipped humanoid through the real model-vetting three.js path, fail-closed when in-page geometry disagrees with the NodeIO probe, and emit lit+structure passes for human grading. Does not assert any asset looks right.",
+  "defaultRelativeTolerance": 0.15,
+  "coverage": {
+    "generatedHumanoidsGlbCount": 0,
+    "cagematchCurrentGlbCount": 0,
+    "total": 1,
+    "missingOnDisk": []
+  },
+  "assets": [
+    {
+      "sourceGlbPath": ".openclinxr/evidence/room-decimate/extracted-room-decimated.glb",
+      "assetId": "extracted-room-decimated",
+      "exists": true,
+      "selfCheck": {
+        "agrees": true,
+        "writeImages": true,
+        "relativeError": 0.0001367763857944909,
+        "tolerance": 0.15,
+        "probe": {
+          "height": 2.9845917224884033,
+          "horizontalExtent": 18
+        },
+        "inPage": {
+          "height": 2.985,
+          "horizontalExtent": 18
+        }
+      },
+      "images": {
+        "front_lit": ".openclinxr/evidence/glb-grade-capture/2026-08-12T14-29-29Z/assets/extracted-room-decimated/front_lit.png",
+        "front_structure": ".openclinxr/evidence/glb-grade-capture/2026-08-12T14-29-29Z/assets/extracted-room-decimated/front_structure.png",
+        "three_quarter_lit": ".openclinxr/evidence/glb-grade-capture/2026-08-12T14-29-29Z/assets/extracted-room-decimated/three_quarter_lit.png",
+        "three_quarter_structure": ".openclinxr/evidence/glb-grade-capture/2026-08-12T14-29-29Z/assets/extracted-room-decimated/three_quarter_structure.png"
+      },
+      "refusedReason": null,
+      "notes": [
+        "probe height=2.9846 horiz=18.0000",
+        "inPage height=2.9850 horiz=18.0000",
+        "relativeError=0.0001 tol=0.15",
+        "lit_sha256=c48a03cd5627",
+        "structure_sha256=65017ae5e2d7"
+      ]
+    }
+  ],
+  "notEvidenceFor": [
+    "production_asset_readiness",
+    "quest_readiness",
+    "learner_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "b_plus_visual_realism_gate",
+    "visual_grade_verdict"
+  ]
+}

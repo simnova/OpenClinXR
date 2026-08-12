@@ -50,7 +50,8 @@ export type EquipmentFamily =
   | "urine_cup"
   | "drain"
   | "incentive_spirometer"
-  | "blood_culture_kit";
+  | "blood_culture_kit"
+  | "scale_props";
 
 function mat(color: ColorRepresentation, roughness = 0.55, metalness = 0.12): MeshStandardMaterial {
   return new MeshStandardMaterial({ color, roughness, metalness });
