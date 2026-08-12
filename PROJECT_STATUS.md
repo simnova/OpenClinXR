@@ -11,16 +11,19 @@ last_measured: 2026-08-10
 parseable_sections: 6
 ---
 
-## MPFB TRANSITION SCOREBOARD (measured 2026-08-11 20:11; regenerate, do not narrate)
+## MPFB TRANSITION SCOREBOARD (measured 2026-08-12 04:15; regenerate, do not narrate)
 
 **Goal:** production actors move from Anny-only assets to MPFB2 bodies with Anny as the phenotype
-reference (operator direction; MADR 0052). **The single measure that matters: how many MPFB actors a
-learner can actually see.**
+reference (operator direction; MADR 0052).
+
+**The measure that mattered is now saturated, so it has been replaced.** "How many MPFB actors a
+learner can see" went 1 → 3 and stopped being informative, because three loadable actors that all
+render torn is not progress a skeptic would accept. The live measure is now **graded clean**.
 
     MPFB bodies built and on disk .................. 3
-    MPFB bodies referenced by the runtime cast map .. 1   <-- THE NUMBER TO MOVE
-    Anny bodies still cast ......................... 1 (ed_chest_pain_adult_cast)
-    hm08 library bodies cast ....................... 2
+    MPFB bodies referenced by the runtime cast ..... 3   (aisha 7 source files, kevin 2, child 2)
+    MPFB bodies GRADED CLEAN by the orchestrator ... 0   <-- THE NUMBER TO MOVE
+    Infinigen rooms referenced by ui-xr/src ........ 4 files   (was 0 on 2026-08-11)
 
 | capability | MPFB rail | evidence |
 |---|---|---|
@@ -30,19 +33,33 @@ learner can actually see.**
 | face targets | **yes** | #317 — 32 FACS |
 | helper-stripped topology | **yes** | #318 — 19,158 → 13,380 verts |
 | rig / retarget | **yes** | #307 mixamo_unity; retarget_bvh maps it 52/52 |
-| hair | **no** | #330 shipped hair on the hm08 library rail only |
-| eyes | **no** | no eye MESH exists on any rail; MPFB ships none, `eyes01` pack 404s |
+| eyes | **yes** | #337 geometry (172 t, skinned) + #340 material — 610,817 B texture on all three |
+| hair | **no** | #330 shipped hair on the hm08 library rail only; MPFB rail carries painted scalp |
+| **presentable at a glance** | **no** | orchestrator grade 2026-08-12: 0 of 3 |
 
-**Open blockers to moving the number from 1 to 3** — all owned by in-flight sub-manager #335:
+**The one blocker between 3 loadable and 3 clean — one defect class, not five.** Every actor fails at
+the same place: a black ragged fringe at every garment/skin boundary (hairline, shoulders, sleeve
+hems, waistband, trouser hems, hands, jaw). Owned by in-flight #341 round 7.
 
-| # | defect | measured |
+Five candidate causes are **measured out** — do not re-run them:
+
+| candidate | measurement | verdict |
 |---|---|---|
-| #334 | nurse_kevin's hide mask eats his jaw | mask 0.924 H vs his own head joint 0.914 H |
-| #332 | MPFB child wears its shirt at the hip | garment top 0.545 H; eight adults sit 0.852–0.920 |
-| — | casting | `mpfb-peds-nurse-kevin`, `mpfb-peds-patient-child`: 0 runtime refs |
+| leg poke-through | skin 1.2–2.0 cm inside the trouser, all 10 heights | dead |
+| coverage gap between garments | aisha pants top 0.592 overlaps shirt bottom 0.581 | dead |
+| flipped normals | 0 on body/garments/scalp; 68 of 57,600 on the flats | dead |
+| hide mask vertically overhangs garment | 1.7 mm – 7 mm, not centimetres | dead |
+| discarded polys no garment covers | 0.5–2.1% outside the foot sole; sole share is a ray-direction artifact | weak |
 
-**Separate goal, in-flight sub-manager #336:** Infinigen rooms. Installed and exporting; six evidence
-slices landed; `grep -rn "infinigen" apps/ui-xr/src/*.ts` → **0 matches**. Rooms generated, none consumed.
+**What constrains the next instrument:** mask and garment vertical extents match almost exactly
+(aisha upper mask 0.581..0.853 vs shirt 0.581..0.852), so the defect lives in the boundary **shape**
+and any band/extent table is blind to it by construction. `figure-occlusion-gate.py` excludes alpha-0
+regions by its own design — correct for its question, and why it is green while every figure is torn.
+
+**Also open, measured, not yet dispatched:** #343 — all three actors share one hand-authored flat skin
+literal `[0.68,0.53,0.44]` at `materialize_mpfb_humanoid_candidate.py:524`; every material textureless
+except the eyes; MPFB's shipped `enhanced_skin` node tree and `MaterialService` never called (D1).
+Blocked only on file contention with #341.
 
 **Standing risk, measured:** only **1 of 15 cases** authors a phenotype. Every phenotype-driven result
 above rests on one case's three actors. Clinical authoring (#293), not a pipeline slice.
