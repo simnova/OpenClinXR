@@ -11,50 +11,43 @@ last_measured: 2026-08-10
 parseable_sections: 6
 ---
 
-## MPFB TRANSITION SCOREBOARD (measured 2026-08-12 04:15; regenerate, do not narrate)
+## MPFB TRANSITION SCOREBOARD (measured 2026-08-12 17:05; regenerate, do not narrate)
 
 **Goal:** production actors move from Anny-only assets to MPFB2 bodies with Anny as the phenotype
-reference (operator direction; MADR 0052).
-
-**The measure that mattered is now saturated, so it has been replaced.** "How many MPFB actors a
-learner can see" went 1 → 3 and stopped being informative, because three loadable actors that all
-render torn is not progress a skeptic would accept. The live measure is now **graded clean**.
+reference (operator direction; MADR 0052). Live measure: **graded clean by the orchestrator.**
 
     MPFB bodies built and on disk .................. 3
-    MPFB bodies referenced by the runtime cast ..... 3   (aisha 7 source files, kevin 2, child 2)
+    MPFB bodies referenced by the runtime cast ..... 3
     MPFB bodies GRADED CLEAN by the orchestrator ... 0   <-- THE NUMBER TO MOVE
-    Infinigen rooms referenced by ui-xr/src ........ 4 files   (was 0 on 2026-08-11)
+    Shipped rooms carrying a baked texture ......... 2 of 2  (was 0 of 2)
 
 | capability | MPFB rail | evidence |
 |---|---|---|
-| distinct bodies from a reference | **yes** | #328 — 166.6 / 176.0 / 124.1 cm, child is a macro child (age=0.15) |
-| macros derived from case phenotype | **yes** | #329 — height solved to ±1 cm on all three |
-| upper + lower + footwear | **yes** | #333 — all three, ClothesService, soles grounded 0.00 cm |
+| distinct bodies from a reference | **yes** | #328 — 166.6 / 176.0 / 124.1 cm |
+| macros derived from case phenotype | **yes** | #329 — height solved to +/-1 cm on all three |
+| upper + lower + footwear | **yes** | #333 — all three, ClothesService |
 | face targets | **yes** | #317 — 32 FACS |
-| helper-stripped topology | **yes** | #318 — 19,158 → 13,380 verts |
-| rig / retarget | **yes** | #307 mixamo_unity; retarget_bvh maps it 52/52 |
-| eyes | **yes** | #337 geometry (172 t, skinned) + #340 material — 610,817 B texture on all three |
-| hair | **no** | #330 shipped hair on the hm08 library rail only; MPFB rail carries painted scalp |
-| **presentable at a glance** | **no** | orchestrator grade 2026-08-12: 0 of 3 |
+| helper-stripped topology | **yes** | #318 — 19,158 -> 13,380 verts |
+| rig / retarget | **yes** | #307 mixamo_unity, 52/52 |
+| eyes | **yes** | #337 + #340 — 610,817 B texture on all three |
+| skin textured, per-actor tone | **yes** | #343 — Cycles bake survives glTF; shared flat literal gone |
+| hairline in texture, scalp retired | **yes** | rounds 11-13 — scalpPrims=0 on all three |
+| hair symmetric L/R | **yes** | round 14 — 35.7/29.7/33.6 -> **0.0/1.3/2.5 pts** |
+| **presentable at a glance** | **no** | orchestrator grade: 0 of 3 |
 
-**The one blocker between 3 loadable and 3 clean — one defect class, not five.** Every actor fails at
-the same place: a black ragged fringe at every garment/skin boundary (hairline, shoulders, sleeve
-hems, waistband, trouser hems, hands, jaw). Owned by in-flight #341 round 7.
+**What blocks 0 -> 3 clean, measured per actor. Three separate defects, not one class:**
 
-Five candidate causes are **measured out** — do not re-run them:
-
-| candidate | measurement | verdict |
+| defect | measured | owner |
 |---|---|---|
-| leg poke-through | skin 1.2–2.0 cm inside the trouser, all 10 heights | dead |
-| coverage gap between garments | aisha pants top 0.592 overlaps shirt bottom 0.581 | dead |
-| flipped normals | 0 on body/garments/scalp; 68 of 57,600 on the flats | dead |
-| hide mask vertically overhangs garment | 1.7 mm – 7 mm, not centimetres | dead |
-| discarded polys no garment covers | 0.5–2.1% outside the foot sole; sole share is a ray-direction artifact | weak |
+| child's shirt sits at adult bands | shirt 0.646 H vs aisha 0.581 on a 1.241 m figure; bands DO overlap (0.646 vs pants 0.654) so it is fit, not a hole | #332 |
+| child's footwear is 52x coarser | `toigo_mj_cloth_shoes` 556 source verts vs `toigo_flats` 28,808; 1,004 vs 57,600 shipped tris | see below |
+| mitten shards on hands; nurse's mottled mouth | ungraded numerically; nurse eye-socket recovered to known-good but face still patchy | unlocated |
 
-**What constrains the next instrument:** mask and garment vertical extents match almost exactly
-(aisha upper mask 0.581..0.853 vs shirt 0.581..0.852), so the defect lives in the boundary **shape**
-and any band/extent table is blind to it by construction. `figure-occlusion-gate.py` excludes alpha-0
-regions by its own design — correct for its question, and why it is green while every figure is torn.
+**The child's shoe is downstream of #318, not an asset-library gap.** The `makehuman-shoes01` pack
+ships **23 CC0 shoes**; only **3** are cached because the other 20 carry helper-vertex refs >= 13,380
+and cannot bake against the helper-stripped basemesh. So the child gets the one small child-shaped
+shoe that survives the strip. Correcting an earlier read of mine: the library is not short of shoes,
+the topology blocker is what makes 20 of them unusable.
 
 **Also open, measured, not yet dispatched:** #343 — all three actors share one hand-authored flat skin
 literal `[0.68,0.53,0.44]` at `materialize_mpfb_humanoid_candidate.py:524`; every material textureless
