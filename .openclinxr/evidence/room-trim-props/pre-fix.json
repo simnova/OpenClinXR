@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "openclinxr.room-trim-props.pre-fix.v1",
+  "issue": 347,
+  "madrItems": [4, 5],
+  "measuredAt": "2026-08-12T10:20:00.000Z",
+  "measuredAgainst": "worktree wt/issue-347 @ 4cf45635 (clean tree)",
+  "method": "gltf-transform NodeIO over shipped apps/ui-xr/public/xr-assets/environment/ed-exam-bay-shell.glb; node-name traversal; per-node triangle counts; primitive topology (verts/faces) via NodeIO",
+  "asset": "apps/ui-xr/public/xr-assets/environment/ed-exam-bay-shell.glb",
+  "sha256": "af010787db369953d9b00a3f050cbba88a51e25262a213308fc84fc36f43779b",
+  "item4_trim": {
+    "skirting_nodes": 0,
+    "chamfer_nodes": 0,
+    "door_reveal_jamb_or_header_nodes": 0,
+    "total_trim_nodes": 0,
+    "sharp_corner_evidence": "every wall node is a single axis-aligned cube (12 tris, 8 verts, 6 faces); wall meets floor and wall meets wall at exact 90-degree edges with no trim geometry anywhere in the node graph"
+  },
+  "item5_scale_props": {
+    "outlet_plate": { "nodes": 0, "recognisable": false },
+    "light_switch": { "nodes": 0, "recognisable": false },
+    "hand_gel_dispenser": { "nodes": 0, "recognisable": false },
+    "whiteboard": { "nodes": 1, "meshCount": 1, "triangles": 12, "recognisable": false, "note": "ed_exam_bay_handoff_whiteboard is a single 12-triangle flat box (no frame, no tray, no markers)" },
+    "curtain_track": { "nodes": 1, "meshCount": 1, "triangles": 12, "recognisable": false, "note": "ed_exam_bay_curtain_track_rings is a single 12-triangle flat box (no rail, no rings)" },
+    "multi_mesh_prop_count": 0,
+    "recognisable_prop_count": 0
+  },
+  "whole_asset": {
+    "meshes": 41,
+    "totalTriangles": 492,
+    "every_node_is_single_12_triangle_cube": true,
+    "texturedMaterials": 0,
+    "distinctColours": 1
+  },
+  "runtime_shell": {
+    "note": "station-environment.ts builds floor + 3 walls + ceiling + one wall-trim band; no skirting, no corner chamfer, no scale-setting props",
+    "learner_visible_scale_props": 0
+  },
+  "preFixContractState": {
+    "a-room-is-lit-and-textured.test.ts": "1 passed + 2 expected-fail (REDs (1)+(2) still red as planted, net (3) green at 492 tris)",
+    "blenderReproducePath": "verified: tools/openclinxr/evidence/environment-artifacts.ts regenerates byte-identical SHA-256 to the shipped GLB"
+  }
+}

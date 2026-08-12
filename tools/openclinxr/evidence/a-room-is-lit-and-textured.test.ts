@@ -49,6 +49,19 @@ import { describe, expect, it } from "vitest";
  * environment today. (3) PASSES today and is a regression net — it must keep passing, and a fix that
  * satisfies (1) by inflating geometry is not a fix.
  *
+ * TWO MORE REDS, added 2026-08-12 by #347 (MADR 0055 items 4+5). They are separate assertions with
+ * separate cheap-fix refusals (§8i — one green must not stand for both):
+ *
+ *   (4) TRIM: the PARAMETRIC shell (`ed-exam-bay-shell.glb`) carries skirting boards, chamfered
+ *       corners and a door reveal frame. The chamfer nodes must be triangular prisms (8 tris), NOT
+ *       renamed cubes (12 tris) — and the whole-room triangle net (3) refuses chamfering by
+ *       subdividing the wall. The Infinigen room is a different lane (#346) and is not measured here.
+ *   (5) SCALE-SETTING PROPS: the parametric shell carries recognisable multi-part props — outlet
+ *       plate, light switch, hand-gel dispenser, whiteboard, curtain track — at real-world sizes
+ *       (the eye calibrates room size from objects of known size). A flat-coloured box labelled
+ *       "outlet_plate" sets no scale: every prop root must have >= 2 part meshes and known-size
+ *       anchors (outlet < 0.2 m, track > 1.0 m, board > 0.5 m).
+ *
  * NOT TESTED, and this is the scope statement:
  *   - No pixel is graded here. This asserts the MATERIAL CHANNEL only. A room can carry a texture and
  *     still look wrong — wrong palette, wrong scale, no trim, no contact shadows.
@@ -117,6 +130,103 @@ async function measure(rel: string): Promise<Row | null> {
   };
 }
 
+/**
+ * Node graph of ONE shell GLB (#347 clauses (4)+(5)). The Infinigen room is a
+ * different lane (#346) and must not be measured here, so these clauses read the
+ * parametric shell by name, never the aggregate.
+ */
+type ShellNode = {
+  name: string;
+  triangles: number;
+  vertices: number;
+  subtreeMeshes: number;
+  /** Axis-aligned size of the subtree's geometry, local space (m). */
+  size: { x: number; y: number; z: number };
+};
+
+function countSubtreeMeshes(node: import("@gltf-transform/core").Node): number {
+  let count = node.getMesh() ? 1 : 0;
+  for (const child of node.listChildren()) count += countSubtreeMeshes(child);
+  return count;
+}
+
+/** Union of primitive AABBs across a node's subtree, in the node's local space. */
+function subtreeBounds(
+  node: import("@gltf-transform/core").Node,
+  min: [number, number, number],
+  max: [number, number, number],
+): void {
+  const mesh = node.getMesh();
+  if (mesh) {
+    // Mesh vertex positions are local to the MESH; the node's own translation moves
+    // them relative to its parent. Every part under a prop root is a plain
+    // translation (no rotation/scale), so adding the local translation suffices.
+    // Mesh vertex positions are local to the MESH; the node's TRS moves them relative to
+    // its parent. Every part under a prop root is a plain axis-aligned translation +
+    // uniform-per-axis scale (no rotation), so translation + scale suffice for the extent.
+    const translation = node.getTranslation();
+    const tx = translation?.[0] ?? 0;
+    const ty = translation?.[1] ?? 0;
+    const tz = translation?.[2] ?? 0;
+    const scale = node.getScale();
+    const sx = scale?.[0] ?? 1;
+    const sy = scale?.[1] ?? 1;
+    const sz = scale?.[2] ?? 1;
+    for (const prim of mesh.listPrimitives()) {
+      const position = prim.getAttribute("POSITION");
+      if (!position) continue;
+      const array = position.getArray();
+      if (!array) continue;
+      const count = position.getCount();
+      for (let index = 0; index < count; index += 1) {
+        min[0] = Math.min(min[0], array[index * 3]! * sx + tx);
+        min[1] = Math.min(min[1], array[index * 3 + 1]! * sy + ty);
+        min[2] = Math.min(min[2], array[index * 3 + 2]! * sz + tz);
+        max[0] = Math.max(max[0], array[index * 3]! * sx + tx);
+        max[1] = Math.max(max[1], array[index * 3 + 1]! * sy + ty);
+        max[2] = Math.max(max[2], array[index * 3 + 2]! * sz + tz);
+      }
+    }
+  }
+  for (const child of node.listChildren()) subtreeBounds(child, min, max);
+}
+
+async function readShellNodeIndex(rel: string): Promise<ShellNode[]> {
+  const doc = await io.read(join(REPO_ROOT, rel));
+  const root = doc.getRoot();
+  const scene = root.listScenes()[0];
+  if (!scene) return [];
+  const out: ShellNode[] = [];
+  const visit = (node: import("@gltf-transform/core").Node): void => {
+    const mesh = node.getMesh();
+    let triangles = 0;
+    let vertices = 0;
+    if (mesh) {
+      for (const prim of mesh.listPrimitives()) {
+        triangles += (prim.getIndices()?.getCount() ?? 0) / 3;
+        vertices += prim.getAttribute("POSITION")?.getCount() ?? 0;
+      }
+    }
+    const min: [number, number, number] = [Infinity, Infinity, Infinity];
+    const max: [number, number, number] = [-Infinity, -Infinity, -Infinity];
+    subtreeBounds(node, min, max);
+    out.push({
+      name: node.getName(),
+      triangles,
+      vertices,
+      subtreeMeshes: countSubtreeMeshes(node),
+      size: {
+        x: Number.isFinite(min[0]) ? max[0] - min[0] : 0,
+        y: Number.isFinite(min[1]) ? max[1] - min[1] : 0,
+        z: Number.isFinite(min[2]) ? max[2] - min[2] : 0,
+      },
+    });
+    for (const child of node.listChildren()) visit(child);
+  };
+  for (const node of scene.listChildren()) visit(node);
+  return out;
+}
+
 const files = existsSync(join(REPO_ROOT, ENV_DIR))
   ? readdirSync(join(REPO_ROOT, ENV_DIR))
       .filter((n: string) => n.endsWith(".glb"))
@@ -159,5 +269,66 @@ describe("a shipped room is textured, not a flat-lit hull", () => {
     requireRows();
     const inflated = rows.filter((r) => r.tris > MAX_TRIANGLES).map(show);
     expect(inflated, `environments above ${MAX_TRIANGLES.toLocaleString()} triangles`).toEqual([]);
+  });
+
+  it("(4) RED: the parametric shell carries trim — skirting, chamfered corners, door reveals", async () => {
+    // #347 MADR 0055 item 4. The Infinigen room is another lane (#346); this asserts the
+    // parametric shell only. Each sub-assertion fails on the pre-fix shell (0 trim nodes).
+    const shell = await readShellNodeIndex(`${ENV_DIR}/ed-exam-bay-shell.glb`);
+    expect(shell.length, "parametric shell node graph").toBeGreaterThan(0);
+
+    const skirting = shell.filter((n) => n.name.includes("skirting"));
+    expect(skirting.length, "skirting nodes along the wall bases").toBeGreaterThanOrEqual(1);
+
+    // Chamfers must be triangular prisms (tens of triangles), not renamed cubes (12 tris) —
+    // and clause (3) refuses chamfering by subdividing the whole wall.
+    const chamfer = shell.filter((n) => n.name.includes("chamfer"));
+    expect(chamfer.length, "chamfer nodes").toBeGreaterThanOrEqual(1);
+    const chamferPrism = chamfer.filter((n) => n.triangles > 0 && n.triangles < 12);
+    expect(chamferPrism.length, "chamfer nodes whose topology is a prism, not a box").toBeGreaterThanOrEqual(1);
+
+    // Door reveal frame is more than one part (header lintel + jambs).
+    const doorReveal = shell.filter((n) => n.name.includes("door_reveal"));
+    expect(doorReveal.length, "door reveal nodes (header + jambs)").toBeGreaterThanOrEqual(2);
+  });
+
+  it("(5) RED: the parametric shell carries recognisable scale-setting props, not flat boxes", async () => {
+    // #347 MADR 0055 item 5. A flat-coloured box sets no scale; every prop root must be
+    // multi-part and carry a known-size anchor. Pre-fix every shell node is a single
+    // 12-triangle cube, so each sub-assertion fails.
+    const shell = await readShellNodeIndex(`${ENV_DIR}/ed-exam-bay-shell.glb`);
+    expect(shell.length, "parametric shell node graph").toBeGreaterThan(0);
+
+    const rootByName = (name: string) => shell.find((n) => n.name === `ed_exam_bay_${name}`);
+
+    const props = [
+      { root: "outlet_plate", minParts: 2, reason: "plate + sockets" },
+      { root: "light_switch", minParts: 2, reason: "plate + toggle" },
+      { root: "hand_gel_dispenser", minParts: 2, reason: "bracket + bottle + pump" },
+      { root: "handoff_whiteboard", minParts: 2, reason: "frame + surface + tray" },
+      { root: "curtain_track", minParts: 2, reason: "rail + rings" },
+    ] as const;
+    for (const prop of props) {
+      const root = rootByName(prop.root);
+      expect(root, `${prop.root} root node in the parametric shell`).toBeDefined();
+      expect(root!.subtreeMeshes, `${prop.root} part meshes (${prop.reason}); a flat box = 1`).toBeGreaterThanOrEqual(prop.minParts);
+    }
+
+    // Known-size anchors — the eye calibrates room size from objects of known size.
+    const sizeOf = (name: string): { x: number; y: number; z: number } => {
+      const root = rootByName(name);
+      expect(root, `${name} root node for size anchor`).toBeDefined();
+      return root!.size;
+    };
+
+    // Outlet plate is a small wall reference (< 0.2 m on its widest axis).
+    const outletSize = sizeOf("outlet_plate");
+    expect(Math.max(outletSize.x, outletSize.y, outletSize.z), "outlet plate max dimension").toBeLessThan(0.2);
+    // Curtain track is a room-length reference (> 1.0 m along the rail).
+    const trackSize = sizeOf("curtain_track");
+    expect(Math.max(trackSize.x, trackSize.y, trackSize.z), "curtain track length").toBeGreaterThan(1.0);
+    // Whiteboard is a mid-size wall reference (> 0.5 m wide).
+    const boardSize = sizeOf("handoff_whiteboard");
+    expect(Math.max(boardSize.x, boardSize.y, boardSize.z), "whiteboard width").toBeGreaterThan(0.5);
   });
 });
