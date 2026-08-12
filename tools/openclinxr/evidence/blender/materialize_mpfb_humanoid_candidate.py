@@ -29,6 +29,45 @@ SHOE_BY_REFERENCE = {
     "peds_patient_child": "toigo_mj_cloth_shoes",
 }
 
+# #343 — phenotype skin-tone token -> MpfbSkinMasterColor SkinColor (RGB).
+# Authored DATA table (the same pattern as SHOE_BY_REFERENCE, and the hair_color ->
+# base_color table in automate_blender.py apply_mesh_native_scalp_hair_material_region):
+# the anny manifest carries the token (`input_params.phenotype.skin_tone`), the SHIPPED
+# enhanced_skin shader's master color node consumes the RGB. This is NOT the refused
+# "three hand-picked flat literals" treatment — the material is the shipped procedural
+# skin shader baked to a texture; only the TONE parameter comes from this table, and it
+# is keyed by the case definition's phenotype token, not by actor id. "default" applies
+# when the reference has no manifest (aisha path) and keeps the pre-#343 shipped value
+# so the default body's tone is continuous.
+SKIN_TONE_RGB = {
+    "warm_light_child": (0.84, 0.70, 0.60),
+    "warm_light": (0.78, 0.62, 0.52),
+    "medium_warm": (0.58, 0.44, 0.36),
+    "default": (0.68, 0.53, 0.44),
+}
+
+
+def phenotype_skin_tone(reference_id):
+    """Read the reference's declared skin_tone from its tracked anny manifest.
+
+    The manifest lives beside the .anny_base.obj the macro solve already reads
+    (`input_params.phenotype.skin_tone`). None/absent -> the "default" tone (aisha
+    has no manifest and no declared phenotype in the ob-preeclampsia fixture).
+    """
+    if not reference_id:
+        return "default"
+    manifest = (
+        REPO_ROOT / "apps/ui-xr/public/generated-humanoids" / f"{reference_id}.anny_manifest.json"
+    )
+    if not manifest.is_file():
+        return "default"
+    try:
+        m = json.loads(manifest.read_text(encoding="utf-8"))
+        tone = m.get("input_params", {}).get("phenotype", {}).get("skin_tone")
+        return tone if tone else "default"
+    except Exception:
+        return "default"
+
 # #335/#332 — the anatomical neck band (MADR 0051 §4, anny-mpfb-landmark-compare.ts
 # BAND_WINDOWS.neck): the narrowest torso slice below the head, as a fraction of
 # the body's own stature. A fitted upper garment whose COLLAR (top vertex) sits
@@ -197,6 +236,62 @@ def make_material_from_mhmat(mhmat_path, name):
         tex_node.image = img
         material.node_tree.links.new(tex_node.outputs["Color"], bsdf.inputs["Base Color"])
     return material
+
+
+def bake_skin_material_to_texture(human, skin_material_name, out_png_path, resolution=1024):
+    """#343 — bake the SHIPPED enhanced_skin node tree to a glTF baseColorTexture.
+
+    glTF carries no procedural shaders and Blender 5.1's glTF exporter has no
+    material-bake step (measured on this issue: the exporter emits flat
+    [1,1,1,1] for the enhanced_skin tree). Cycles CAN bake the tree's surface
+    output to an image (measured: DIFFUSE pass, 1,042,362-byte PNG, survives
+    export as baseColorTexture when wired into Principled Base Color). This
+    function bakes ONLY the faces assigned to the skin material — faces whose
+    material has no active image node (scalp, hidden-mask) are skipped by the
+    bake, so the texture carries the skin shader output and nothing else.
+
+    Returns the baked image (bpy.types.Image) already saved to out_png_path.
+    """
+    skin_idx = next(
+        (i for i, m in enumerate(human.data.materials) if skin_material_name in (m.name or "")),
+        None,
+    )
+    if skin_idx is None:
+        raise RuntimeError(f"#343: skin material {skin_material_name} not found for bake")
+    skin_mat = human.data.materials[skin_idx]
+
+    scene = bpy.context.scene
+    prev_engine = scene.render.engine
+    prev_device = getattr(scene.cycles, "device", "CPU")
+    scene.render.engine = "CYCLES"
+    scene.cycles.device = "CPU"
+    scene.render.bake.use_pass_direct = False
+    scene.render.bake.use_pass_indirect = False
+    scene.render.bake.use_pass_color = True
+
+    img = bpy.data.images.new(f"mpfb_skin_bake_{skin_material_name}", resolution, resolution)
+    tex_node = skin_mat.node_tree.nodes.new("ShaderNodeTexImage")
+    tex_node.image = img
+    tex_node.select = True
+    skin_mat.node_tree.nodes.active = tex_node
+
+    # Select ONLY the human so the bake does not touch the eyes/garments/shoes.
+    bpy.ops.object.select_all(action="DESELECT")
+    human.select_set(True)
+    bpy.context.view_layer.objects.active = human
+    try:
+        bpy.ops.object.bake(type="DIFFUSE", pass_filter={"COLOR"}, margin=2, use_clear=True)
+    finally:
+        scene.render.engine = prev_engine
+        scene.cycles.device = prev_device
+
+    out_png = pathlib.Path(out_png_path)
+    out_png.parent.mkdir(parents=True, exist_ok=True)
+    img.filepath_raw = str(out_png)
+    img.file_format = "PNG"
+    img.save()
+    print(f"SKIN_BAKE {out_png} bytes={out_png.stat().st_size}")
+    return img
 
 
 def mesh_from_numpy(name, verts, faces):
@@ -569,7 +664,38 @@ def main():
         human.data.name = "mpfb_ob_patient_aisha_body"
     human.data.materials.clear()
     skin_material_name = f"mpfb_skin_{args.reference or 'ob_patient_aisha'}"
-    human.data.materials.append(make_material(skin_material_name, (0.68, 0.53, 0.44, 1.0)))
+
+    # #343 — the SKIN material is the slice. Every MPFB material except the eyes was
+    # a hand-authored flat colour: all three actors shared the literal (0.68, 0.53,
+    # 0.44) at this line, and MPFB's SHIPPED procedural skin shader
+    # (data/node_trees/enhanced_skin.json) had never been called. Load it through
+    # the shipped MaterialService (D1: wire the proven tool, do not hand-author a
+    # node graph), then drive the tone from the reference's phenotype token via the
+    # master-color group node (MaterialService's own per-character skin tone
+    # mechanism). The glTF exporter does NOT bake the procedural tree (measured:
+    # flat [1,1,1,1] on export); a later step bakes the shader output to a
+    # baseColorTexture before export.
+    from bl_ext.user_default.mpfb.services.materialservice import MaterialService as _MaterialService  # noqa: E402
+
+    _skin_mat = _MaterialService.create_v2_skin_material(skin_material_name, human)
+    _skin_tone = phenotype_skin_tone(args.reference)
+    _skin_rgb = SKIN_TONE_RGB.get(_skin_tone, SKIN_TONE_RGB["default"])
+    _master_color = next(
+        (
+            n
+            for n in _skin_mat.node_tree.nodes
+            if n.bl_idname == "ShaderNodeGroup"
+            and (n.node_tree.name if n.node_tree else "") == "MpfbSkinMasterColor"
+        ),
+        None,
+    )
+    if _master_color is None:
+        raise RuntimeError("#343: MpfbSkinMasterColor group node missing from enhanced_skin material")
+    _master_color.inputs["SkinColor"].default_value = (*_skin_rgb, 1.0)
+    print(
+        f"SKIN_MATERIAL {skin_material_name} tone={_skin_tone} "
+        f"rgb={[round(x, 3) for x in _skin_rgb]} shader=enhanced_skin"
+    )
 
     # #222: wire the proven bounds-derived scalp/hair material region from the Anny rail
     # (tools/openclinxr/asset-pipeline/anny/automate_blender.py:4201) instead of hand-authoring
@@ -1894,6 +2020,43 @@ def main():
 
     output = pathlib.Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
+
+    # #343 — the skin material is the slice. The enhanced_skin node tree loaded
+    # above is Blender-only; the glTF exporter emits it as flat [1,1,1,1] (measured).
+    # Bake the SHIPPED shader's output to a baseColorTexture and wire it into a
+    # glTF-exportable Principled material IN THE SAME material object (same name,
+    # same slot index, so the mesh's material references and the evidence name
+    # lookups stay valid). The bake runs LAST, after every polygon-material
+    # reassignment (eye socket unpaint, hairline snap, hide mask), so the texture
+    # covers the final skin region. The exported texture is saved next to the
+    # output GLB for provenance.
+    bpy.context.scene.frame_set(1)  # bake at rest pose — deterministic UV sampling
+    if skin_material_name not in [m.name for m in human.data.materials]:
+        raise RuntimeError(f"#343: skin material {skin_material_name} missing before bake")
+    bake_png = output.parent / f"{output.stem}.skin-baked.png"
+    baked_img = bake_skin_material_to_texture(human, skin_material_name, str(bake_png), resolution=1024)
+
+    # Rebuild the SAME material object's node tree as a glTF-exportable Principled
+    # material carrying the baked texture as baseColorTexture (the eye path's
+    # proven binding). Node deletion + relink keeps the material name and slot.
+    skin_idx = next(
+        (i for i, m in enumerate(human.data.materials) if skin_material_name in (m.name or "")),
+        0,
+    )
+    export_skin = human.data.materials[skin_idx]
+    for node in list(export_skin.node_tree.nodes):
+        export_skin.node_tree.nodes.remove(node)
+    export_skin.blend_method = "OPAQUE"
+    bsdf = export_skin.node_tree.nodes.new("ShaderNodeBsdfPrincipled")
+    bsdf.inputs["Roughness"].default_value = 0.78
+    tex_node = export_skin.node_tree.nodes.new("ShaderNodeTexImage")
+    tex_node.image = baked_img
+    out_node = export_skin.node_tree.nodes.new("ShaderNodeOutputMaterial")
+    export_skin.node_tree.links.new(tex_node.outputs["Color"], bsdf.inputs["Base Color"])
+    export_skin.node_tree.links.new(bsdf.outputs["BSDF"], out_node.inputs["Surface"])
+    export_skin.diffuse_color = (0.68, 0.53, 0.44, 1.0)
+    print(f"SKIN_MATERIAL_EXPORTABLE {export_skin.name} texture={baked_img.name}")
+
     bpy.ops.export_scene.gltf(filepath=str(output), export_format="GLB", export_animations=True)
     print(f"EXPORTED {output}")
 
