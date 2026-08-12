@@ -1,0 +1,461 @@
+{
+  "schemaVersion": "openclinxr.room-bake.pre-fix.v1",
+  "issue": 345,
+  "generatedAt": "2026-08-12T14:14:32.215Z",
+  "measuredAgainstCommit": "4cf456353bb164adf0f232d7c3c3bae83555b929",
+  "instrument": "NodeIO @gltf-transform/core (same as a-room-is-lit-and-textured.test.ts)",
+  "rows": [
+    {
+      "file": "ed-exam-bay-shell.glb",
+      "path": "apps/ui-xr/public/xr-assets/environment/ed-exam-bay-shell.glb",
+      "tris": 492,
+      "meshes": 41,
+      "materials": 15,
+      "texturedMaterials": 0,
+      "distinctColours": 1,
+      "textureBytes": 0,
+      "meshesWithUv": 41,
+      "materialDetail": [
+        {
+          "name": "ed_bay_warm_gray_floor",
+          "baseColor": [
+            0.800000011920929,
+            0.800000011920929,
+            0.800000011920929,
+            1
+          ],
+          "hasBaseColorTexture": false
+        },
+        {
+          "name": "ed_bay_soft_blue_wall",
+          "baseColor": [
+            0.800000011920929,
+            0.800000011920929,
+            0.800000011920929,
+            1
+          ],
+          "hasBaseColorTexture": false
+        },
+        {
+          "name": "clinical_wall_rail",
+          "baseColor": [
+            0.800000011920929,
+            0.800000011920929,
+            0.800000011920929,
+            1
+          ],
+          "hasBaseColorTexture": false
+        },
+        {
+          "name": "subtle_interaction_zone_markers",
+          "baseColor": [
+            0.800000011920929,
+            0.800000011920929,
+            0.800000011920929,
+            1
+          ],
+          "hasBaseColorTexture": false
+        },
+        {
+          "name": "clinical_equipment_context",
+          "baseColor": [
+            0.800000011920929,
+            0.800000011920929,
+            0.800000011920929,
+            1
+          ],
+          "hasBaseColorTexture": false
+        },
+        {
+          "name": "safety_red_cues",
+          "baseColor": [
+            0.800000011920929,
+            0.800000011920929,
+            0.800000011920929,
+            1
+          ],
+          "hasBaseColorTexture": false
+        },
+        {
+          "name": "privacy_curtain_blue_linen",
+          "baseColor": [
+            0.800000011920929,
+            0.800000011920929,
+            0.800000011920929,
+            1
+          ],
+          "hasBaseColorTexture": false
+        },
+        {
+          "name": "warm_exam_light_panel",
+          "baseColor": [
+            0.800000011920929,
+            0.800000011920929,
+            0.800000011920929,
+            1
+          ],
+          "hasBaseColorTexture": false
+        },
+        {
+          "name": "brushed_clinical_metal",
+          "baseColor": [
+            0.800000011920929,
+            0.800000011920929,
+            0.800000011920929,
+            1
+          ],
+          "hasBaseColorTexture": false
+        },
+        {
+          "name": "stretcher_mattress_blue_gray",
+          "baseColor": [
+            0.800000011920929,
+            0.800000011920929,
+            0.800000011920929,
+            1
+          ],
+          "hasBaseColorTexture": false
+        },
+        {
+          "name": "case_note_paper",
+          "baseColor": [
+            0.800000011920929,
+            0.800000011920929,
+            0.800000011920929,
+            1
+          ],
+          "hasBaseColorTexture": false
+        },
+        {
+          "name": "monitor_dark_screen_with_waveform",
+          "baseColor": [
+            0.800000011920929,
+            0.800000011920929,
+            0.800000011920929,
+            1
+          ],
+          "hasBaseColorTexture": false
+        },
+        {
+          "name": "privacy_zone_floor_tape_yellow",
+          "baseColor": [
+            0.800000011920929,
+            0.800000011920929,
+            0.800000011920929,
+            1
+          ],
+          "hasBaseColorTexture": false
+        },
+        {
+          "name": "subtle_floor_scuff_wear",
+          "baseColor": [
+            0.800000011920929,
+            0.800000011920929,
+            0.800000011920929,
+            1
+          ],
+          "hasBaseColorTexture": false
+        },
+        {
+          "name": "infection_control_and_handoff_signage",
+          "baseColor": [
+            0.800000011920929,
+            0.800000011920929,
+            0.800000011920929,
+            1
+          ],
+          "hasBaseColorTexture": false
+        }
+      ],
+      "meshDetail": [
+        {
+          "mesh": "Cube.001",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.002",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.003",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.004",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.005",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.006",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.007",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.008",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.009",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.010",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.011",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.012",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.013",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.014",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.015",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.016",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.017",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.018",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.019",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.020",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.021",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.022",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.023",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.024",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.025",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.026",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.027",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.028",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.029",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.030",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.031",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.032",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.033",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.034",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.035",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.036",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.037",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.038",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.039",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.040",
+          "tris": 12,
+          "hasUv": true
+        },
+        {
+          "mesh": "Cube.041",
+          "tris": 12,
+          "hasUv": true
+        }
+      ]
+    },
+    {
+      "file": "infinigen-ed-exam-bay.glb",
+      "path": "apps/ui-xr/public/xr-assets/environment/infinigen-ed-exam-bay.glb",
+      "tris": 440,
+      "meshes": 4,
+      "materials": 3,
+      "texturedMaterials": 0,
+      "distinctColours": 1,
+      "textureBytes": 0,
+      "meshesWithUv": 4,
+      "materialDetail": [
+        {
+          "name": "shader_plaster.014",
+          "baseColor": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "hasBaseColorTexture": false
+        },
+        {
+          "name": "shader_ceramic_shader_square_tile_tile.002",
+          "baseColor": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "hasBaseColorTexture": false
+        },
+        {
+          "name": "shader_plaster.021",
+          "baseColor": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "hasBaseColorTexture": false
+        }
+      ],
+      "meshDetail": [
+        {
+          "mesh": "Circle.024",
+          "tris": 190,
+          "hasUv": true
+        },
+        {
+          "mesh": "Circle.034",
+          "tris": 44,
+          "hasUv": true
+        },
+        {
+          "mesh": "Circle.044",
+          "tris": 30,
+          "hasUv": true
+        },
+        {
+          "mesh": "Circle.054",
+          "tris": 176,
+          "hasUv": true
+        }
+      ]
+    }
+  ],
+  "offenders": [
+    {
+      "file": "ed-exam-bay-shell.glb",
+      "texturedMaterials": 0,
+      "distinctColours": 1
+    },
+    {
+      "file": "infinigen-ed-exam-bay.glb",
+      "texturedMaterials": 0,
+      "distinctColours": 1
+    }
+  ],
+  "summary": {
+    "totalGlbs": 2,
+    "offenders": 2,
+    "everyShippedRoomUntextured": true
+  }
+}

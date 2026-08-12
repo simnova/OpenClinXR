@@ -70,6 +70,18 @@ import { describe, expect, it } from "vitest";
  *     bundling them would make one proof stand for two mechanisms (§11c).
  *   - It says nothing about room DIMENSIONS (#342, the ED bay at 50.1 m²) or about which fixtures a
  *     clinical room should contain. Those are different defects that happen to share a subject.
+ *
+ * ## FIXED (#345, 2026-08-12)
+ * Both REDs flipped to green by wiring the proven Cycles bake (MADR 0055 item 1):
+ *   - `tools/openclinxr/asset-pipeline/environment/room-albedo-ao-bake.py` — deterministic
+ *     Cycles DIFFUSE bake (interior area light + world 0.12, samples 32, #343 mechanism) to a
+ *     packed baseColorTexture per material; bake light deleted before export. Measured:
+ *     `infinigen-ed-exam-bay.glb` 440->440 tris, textured 0->3, distinctColours 1->65;
+ *     `ed-exam-bay-shell.glb` 492->492 tris, textured 0->15, distinctColours 1->65.
+ *   - `environment-artifacts.ts` — materials now use node Principled BSDF Base Color (flat
+ *     `diffuse_color` was exporting as 0.8 gray, so the intended palette never shipped) and the
+ *     emitter runs the bake as its final stage.
+ * Geometry untouched; no light nodes shipped; no triangle budget changed.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -246,7 +258,7 @@ const show = (r: Row): string =>
   `${r.file}: tris=${r.tris} materials=${r.materials} textured=${r.texturedMaterials} textureBytes=${r.textureBytes}`;
 
 describe("a shipped room is textured, not a flat-lit hull", () => {
-  it.fails("(1) RED: every shipped environment carries at least one textured material", () => {
+  it("(1) RED: every shipped environment carries at least one textured material", () => {
     requireRows();
     expect(
       rows.filter((r) => r.texturedMaterials === 0).map(show),
@@ -254,7 +266,7 @@ describe("a shipped room is textured, not a flat-lit hull", () => {
     ).toEqual([]);
   });
 
-  it.fails("(2) RED COUNTERWEIGHT: the texture is not a single-colour fill", () => {
+  it("(2) RED COUNTERWEIGHT: the texture is not a single-colour fill", () => {
     requireRows();
     // #337/#338 adjusted a uniform eye colour twice and produced no eye. A fill has one colour.
     expect(

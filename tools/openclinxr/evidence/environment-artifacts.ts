@@ -21,6 +21,9 @@ export const EQUIPMENT_PLACEMENT_NAME = "equipment-placement-manifest.json";
 export const QUEST_BUDGET_NAME = "quest-environment-budget.json";
 export const ED_EXAM_BAY_GLB_NAME = "ed-exam-bay-shell.glb";
 export const BLENDER_ENVIRONMENT_COMMAND_TIMEOUT_MS = 120_000;
+/** Room albedo+AO bake (issue-345): the bake takes ~45-90 s per room. */
+export const ROOM_BAKE_TIMEOUT_MS = 600_000;
+export const ROOM_BAKE_SCRIPT = "tools/openclinxr/asset-pipeline/environment/room-albedo-ao-bake.py";
 
 export type EnvironmentArtifactsReport = {
   schemaVersion: typeof ENVIRONMENT_ARTIFACTS_SCHEMA_VERSION;
@@ -87,7 +90,14 @@ export async function writeEnvironmentArtifacts(options?: {
   const generatedAt = new Date().toISOString();
   await mkdir(artifactPaths.outputRoot, { recursive: true });
   await runBlenderEnvironmentBake({
-    blenderPath: process.env.BLENDER ?? "blender",
+    blenderPath: process.env["BLENDER"] ?? "blender",
+    edExamBayShellGlbPath: artifactPaths.edExamBayShellGlb,
+  });
+  // MADR 0055 item 1: bake albedo + AO into a baseColorTexture (issue-345). The
+  // build above exports flat materials; the Cycles DIFFUSE bake (proven in #343,
+  // this week) makes the shipped room carry a real texture.
+  await runRoomAlbedoAoBake({
+    blenderPath: process.env["BLENDER"] ?? "blender",
     edExamBayShellGlbPath: artifactPaths.edExamBayShellGlb,
   });
   await writeFile(artifactPaths.layoutManifest, `${JSON.stringify(buildEnvironmentLayoutManifest(generatedAt), null, 2)}\n`, "utf8");
@@ -350,8 +360,10 @@ function buildQuestBudget(generatedAt: string) {
       colliderStrategy: "primitive_zone_colliders",
     },
     currentBundleEstimate: {
-      environmentTriangles: 680,
-      staticTextureMegabytes: 0,
+      environmentTriangles: 792,
+      // #345: baked albedo+AO baseColorTextures on all 29 shell materials (~16.3 MB
+      // at 1024px, measured on the merged trimmed shell). Not a budget change.
+      staticTextureMegabytes: 16,
       dynamicLights: 1,
       generatedMeshPresent: true,
     },
@@ -361,6 +373,29 @@ function buildQuestBudget(generatedAt: string) {
       "clinical_visual_validity",
     ],
   };
+}
+
+async function runRoomAlbedoAoBake(options: {
+  blenderPath: string;
+  edExamBayShellGlbPath: string;
+}): Promise<void> {
+  await execFileAsync(
+    options.blenderPath,
+    [
+      "--background",
+      "--python",
+      ROOM_BAKE_SCRIPT,
+      "--",
+      "--input",
+      options.edExamBayShellGlbPath,
+      "--output",
+      options.edExamBayShellGlbPath,
+    ],
+    {
+      timeout: ROOM_BAKE_TIMEOUT_MS,
+      maxBuffer: 20 * 1024 * 1024,
+    },
+  );
 }
 
 async function runBlenderEnvironmentBake(options: {
@@ -390,7 +425,26 @@ def clear_scene():
 
 def material(name, color):
     mat = bpy.data.materials.new(name)
-    mat.diffuse_color = color
+    # Node-based Principled BSDF: the glTF exporter reads the BSDF Base Color, not
+    # diffuse_color (flat non-node materials export as the 0.8 default — measured
+    # #345). The Cycles DIFFUSE bake in room-albedo-ao-bake.py reads it too.
+    mat.use_nodes = True
+    bsdf = None
+    for node in mat.node_tree.nodes:
+        if node.type == "BSDF_PRINCIPLED":
+            bsdf = node
+            break
+    if bsdf is None:
+        bsdf = mat.node_tree.nodes.new("ShaderNodeBsdfPrincipled")
+        out = None
+        for node in mat.node_tree.nodes:
+            if node.type == "OUTPUT_MATERIAL":
+                out = node
+                break
+        if out is None:
+            out = mat.node_tree.nodes.new("ShaderNodeOutputMaterial")
+        mat.node_tree.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
+    bsdf.inputs["Base Color"].default_value = color
     return mat
 
 def cube(name, location, scale, mat):
