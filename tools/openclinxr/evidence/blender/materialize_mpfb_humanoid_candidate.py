@@ -511,6 +511,93 @@ def bake_skin_material_to_texture(human, skin_material_name, out_png_path, resol
     return img
 
 
+def bake_skin_normal_to_texture(human, skin_material_name, out_png_path, resolution=1024):
+    """#370 — bake the SHIPPED enhanced_skin shader's perturbed surface normal
+    (procedural pores + any normal-map texture) to a glTF normalTexture.
+
+    The enhanced_skin node tree carries its pore relief as a shader-side bump
+    (Noise Texture -> ColorRamp -> Bump feeding the Principled Normal). glTF
+    carries no procedural shaders, so that relief never reaches the exported GLB
+    (measured 2026-08-13: every MPFB skin material ships normalTexture NONE).
+    Cycles' NORMAL bake reads the SHADING normal (geometry + bump), which is
+    exactly the surface detail a normalTexture must carry — geometry, not light
+    transport. Tangent space is the glTF normalTexture convention.
+
+    Only skin-material faces are baked (same as the base-colour bake); the scalp
+    polys are swapped in and restored so the atlas has no black holes under the
+    hairline region (the same swap issue-341 round 14 established for base colour).
+
+    Returns the baked image (bpy.types.Image) already saved to out_png_path.
+    """
+    skin_idx = next(
+        (i for i, m in enumerate(human.data.materials) if skin_material_name in (m.name or "")),
+        None,
+    )
+    if skin_idx is None:
+        raise RuntimeError(f"#370: skin material {skin_material_name} not found for normal bake")
+    skin_mat = human.data.materials[skin_idx]
+
+    scene = bpy.context.scene
+    prev_engine = scene.render.engine
+    prev_device = getattr(scene.cycles, "device", "CPU")
+    prev_normal_space = getattr(scene.render.bake, "normal_space", None)
+    scene.render.engine = "CYCLES"
+    scene.cycles.device = "CPU"
+    try:
+        scene.render.bake.normal_space = "TANGENT"
+    except Exception:
+        pass
+
+    img = bpy.data.images.new(f"mpfb_skin_normal_{skin_material_name}", resolution, resolution)
+    img.colorspace_settings.name = "Non-Color"
+    tex_node = skin_mat.node_tree.nodes.new("ShaderNodeTexImage")
+    tex_node.image = img
+    for node in skin_mat.node_tree.nodes:
+        node.select = False
+    tex_node.select = True
+    skin_mat.node_tree.nodes.active = tex_node
+
+    bpy.ops.object.select_all(action="DESELECT")
+    human.select_set(True)
+    bpy.context.view_layer.objects.active = human
+
+    # Same scalp-cover swap as the base-colour bake (issue-341 round 14): a
+    # non-skin material's UV area stays black (0,0,0 -> decoded normal (-1,-1,-1))
+    # and reads as shading holes at the hairline. The scalp polys are temporarily
+    # reassigned to skin for the bake and restored afterwards.
+    _scalp_bake_idx = next(
+        (i for i, m in enumerate(human.data.materials) if "scalp" in (m.name or "").lower()),
+        None,
+    )
+    _scalp_swapped: list[int] = []
+    if _scalp_bake_idx is not None and _scalp_bake_idx != skin_idx:
+        for _pi, _p in enumerate(human.data.polygons):
+            if _p.material_index == _scalp_bake_idx:
+                _p.material_index = skin_idx
+                _scalp_swapped.append(_pi)
+        print(f"SKIN_NORMAL_BAKE scalp-cover swap {len(_scalp_swapped)} polys to skin for the bake")
+    try:
+        bpy.ops.object.bake(type="NORMAL", margin=2, use_clear=True)
+    finally:
+        for _pi in _scalp_swapped:
+            human.data.polygons[_pi].material_index = _scalp_bake_idx
+        scene.render.engine = prev_engine
+        scene.cycles.device = prev_device
+        if prev_normal_space is not None:
+            try:
+                scene.render.bake.normal_space = prev_normal_space
+            except Exception:
+                pass
+
+    out_png = pathlib.Path(out_png_path)
+    out_png.parent.mkdir(parents=True, exist_ok=True)
+    img.filepath_raw = str(out_png)
+    img.file_format = "PNG"
+    img.save()
+    print(f"SKIN_NORMAL_BAKE {out_png} bytes={out_png.stat().st_size}")
+    return img
+
+
 # #343 — warm subsurface tint strength. The shipped sss.png is grayscale 0.27..0.48
 # (thin skin brighter = more subsurface transmission); it is applied as a RELATIVE
 # warm brightening so the thick/thin ratio is the map's own, not an invented curve.
@@ -2746,6 +2833,15 @@ def main():
     bake_png = output.parent / f"{output.stem}.skin-baked.png"
     baked_img = bake_skin_material_to_texture(human, skin_material_name, str(bake_png), resolution=1024)
 
+    # #370 — bake the shipped enhanced_skin shader's perturbed normal (procedural
+    # pores) to a tangent-space normal map. Runs BEFORE the node-tree rebuild below
+    # so the enhanced_skin Bump -> Principled Normal wiring is still present; the
+    # rebuild then re-wires the baked image as the glTF normalTexture.
+    normal_png = output.parent / f"{output.stem}.skin-normal.png"
+    baked_normal_img = bake_skin_normal_to_texture(
+        human, skin_material_name, str(normal_png), resolution=1024
+    )
+
     # #359 — the texture-mask hairline route (#341 rounds 10-16) is REMOVED. The #358 head-framed
     # comparison graded it as damage (roughly half the scalp bare skin, a hard pixel-stair-stepped
     # vertical edge, an isolated black rectangle on the right forehead) against the Anny scalp
@@ -2776,10 +2872,26 @@ def main():
     tex_node.image = baked_img
     out_node = export_skin.node_tree.nodes.new("ShaderNodeOutputMaterial")
     export_skin.node_tree.links.new(tex_node.outputs["Color"], bsdf.inputs["Base Color"])
+    # #370 — wire the baked normal map through a Normal Map node so the glTF
+    # exporter emits material.normalTexture (measured: TexImage.Color ->
+    # NormalMap.Color, NormalMap.Normal -> Principled.Normal survives export).
+    normal_tex_node = export_skin.node_tree.nodes.new("ShaderNodeTexImage")
+    normal_tex_node.image = baked_normal_img
+    normal_map_node = export_skin.node_tree.nodes.new("ShaderNodeNormalMap")
+    export_skin.node_tree.links.new(normal_tex_node.outputs["Color"], normal_map_node.inputs["Color"])
+    export_skin.node_tree.links.new(normal_map_node.outputs["Normal"], bsdf.inputs["Normal"])
     export_skin.node_tree.links.new(bsdf.outputs["BSDF"], out_node.inputs["Surface"])
     export_skin.diffuse_color = (0.68, 0.53, 0.44, 1.0)
-    print(f"SKIN_MATERIAL_EXPORTABLE {export_skin.name} texture={baked_img.name}")
+    print(
+        f"SKIN_MATERIAL_EXPORTABLE {export_skin.name} "
+        f"texture={baked_img.name} normal={baked_normal_img.name}"
+    )
 
+    # #370: the normal map is wired above; tangents are deliberately NOT exported
+    # (the exporter defaults export_tangents=False in Blender 5.1). three.js renders
+    # a tangent-space normal map without a TANGENT attribute via its derivative-based
+    # getTangentFrame fallback, and omitting tangents keeps the exported body geometry
+    # byte-identical to the pre-normal-map bytes (no UV/tangent seam vertex splits).
     bpy.ops.export_scene.gltf(filepath=str(output), export_format="GLB", export_animations=True)
     print(f"EXPORTED {output}")
 
