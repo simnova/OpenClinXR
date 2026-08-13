@@ -4,6 +4,32 @@ import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 
 /**
+ * ## HEADLINE WITHDRAWN 2026-08-13 18:2x — THIS FILE MEASURES AN OBJECT THAT CANNOT RENDER.
+ *
+ * The claim below — "the visible zigzag is the hide-mask boundary" — is FALSE. Every
+ * `openclinxr_hidden_*` material ships `alphaMode=MASK`, `alphaCutoff=0.5`,
+ * `baseColorFactor=[0,0,0,0]`, no texture. glTF discards any fragment whose alpha is below the cutoff,
+ * and three.js maps `baseColorFactor[3]` to `material.opacity` so `diffuseColor.a = 0 < 0.5`.
+ * **The mask is discarded, not drawn.** Corroborating from pixels: if it drew it would be a black band
+ * around the torso, and no grade capture shows one.
+ *
+ * The visible zigzag is the **cargo-pants WAISTBAND top ring** — HF residual p95 18.96 / 10.79 /
+ * 12.28 mm against the same body's shirt hem at 2.01 / 0.47 / 1.47 mm. Tracked with its own planted
+ * contract in `the-waistband-is-as-smooth-as-the-hem.test.ts` (#373). The shirt hem is not the visible
+ * edge either: it is tucked 9.6-16.3 mm INSIDE the trousers across all 20 shared angular buckets.
+ *
+ * **What survives:** every measurement below is correct. The mask ring genuinely is rougher than the
+ * garment hem, the instrument is sound, and the three clauses still bound what they say they bound.
+ * The file is aimed at the wrong object, not measuring the right one wrongly — so it is kept as a
+ * (harmless) bound on mask-ring smoothness rather than deleted. **Do not dispatch a slice against it
+ * expecting an appearance change: fixing this ring changes nothing a learner can see.**
+ *
+ * The remaining live question about the masks is DEAD GEOMETRY, not appearance: seven fully-discarded
+ * primitives ship per actor (`hidden_upper`/`lower`/`foot`/`orphan`, several duplicated with a `.001`
+ * suffix), ~4,570 vertices on aisha, costing draw calls and vertex shading every frame for nothing.
+ *
+ * ---
+ *
  * **The jagged zigzag where the shirt meets the trousers is the HIDE-MASK boundary, not the garment
  * hem.** I graded that zigzag on all three MPFB actors and could not say which object produced it for
  * two cycles. Measured 2026-08-13 10:12 with the instrument below; it is the mask, 3/3.
