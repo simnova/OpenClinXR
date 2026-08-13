@@ -4,9 +4,11 @@
  * Reads mesh.morphTargetInfluences[mesh.morphTargetDictionary[name]] via page.evaluate
  * on window.__openClinXrDebugScene (patient mesh only). Driver self-report is not evidence.
  *
- * Actor: default generated peds_patient_child.glb (has viseme_* shape keys with real POSITION
- * deltas on L/TH/FV/OU; AA/E are sub-cm — still driven, but frames prefer L/TH for visibility).
- * School-age mpfb2 comparator GLB missing in this worktree.
+ * Measured 2026-08-13 (#365): the peds asthma patient renders as the Anny
+ * `peds_patient_child` base (9 viseme_* keys driven at weight 1.0 by the named drive),
+ * while the parent/nurse are MPFB FACS bodies (`mouth-*`) driven through the #353 alias
+ * map — the sampler accepts BOTH spellings and reads all mouth-family morphs by influence.
+ * Frames are graded by the orchestrator; the states artifact is the contract surface.
  *
  * claimScope: mouth. notEvidenceFor: anatomy bind-pose, production phoneme timing, Quest.
  */
@@ -14,7 +16,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { chromium, type Page } from "playwright";
-import { spawnPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
+import { type PortlessDevServer, spawnPortlessDevServer } from "./lib/portless-server.js";
 
 const OUTPUT_DIR = ".openclinxr/evidence/viseme-drive-2026-08-06";
 const INSPECTION_PATH = path.join(OUTPUT_DIR, "inspection.json");
@@ -44,57 +46,50 @@ type SceneSample = {
 };
 
 async function samplePatientVisemes(page: Page): Promise<SceneSample> {
-  return page.evaluate(() => {
-    const scene = (window as unknown as {
-      __openClinXrDebugScene?: {
-        traverse: (cb: (o: {
-          name?: string;
-          morphTargetDictionary?: Record<string, number>;
-          morphTargetInfluences?: number[];
-        }) => void) => void;
-      };
-    }).__openClinXrDebugScene;
-
-    const readings: Reading[] = [];
-    if (scene?.traverse) {
-      scene.traverse((object) => {
-        const meshName = object.name ?? "";
+  // String IIFE (not a TS arrow) so tsx/esbuild cannot inject `__name` into the browser.
+  return page.evaluate(`(() => {
+    const win = window;
+    const scene = win.__openClinXrDebugScene;
+    let patientMesh = null;
+    if (scene && typeof scene.traverse === "function") {
+      scene.traverse(function (object) {
+        if (patientMesh) return;
         const dict = object.morphTargetDictionary;
-        const influences = object.morphTargetInfluences;
-        if (!dict || !influences) return;
-        if (!("viseme_AA" in dict) && !("viseme_L" in dict)) return;
-        for (const [targetName, index] of Object.entries(dict)) {
-          if (!targetName.toLowerCase().startsWith("viseme_")) continue;
-          if (typeof index !== "number" || index < 0 || index >= influences.length) continue;
-          readings.push({
-            meshName,
-            targetName,
-            influence: influences[index] ?? 0,
-            index,
-          });
-        }
+        if (!dict) return;
+        const name = object.name || "";
+        if (!/peds_patient|patient_child/i.test(name)) return;
+        const keys = Object.keys(dict);
+        const hasMouthFamily = keys.some(function (k) {
+          const lk = k.toLowerCase();
+          return lk.indexOf("viseme_") === 0 || lk.indexOf("mouth") === 0 || lk.indexOf("openclinxr_mouth") === 0;
+        });
+        if (hasMouthFamily) patientMesh = object;
       });
     }
 
-    // Prefer non-silence peaks so idle silence does not hide active speech morphs.
-    const ranked = [...readings].sort((a, b) => {
-      const aSilence = a.targetName.toLowerCase().includes("silence") ? 0 : 1;
-      const bSilence = b.targetName.toLowerCase().includes("silence") ? 0 : 1;
-      if (aSilence !== bSilence) return bSilence - aSilence;
-      return b.influence - a.influence;
-    });
-    const peak = ranked[0]
-      ? { targetName: ranked[0].targetName, influence: ranked[0].influence, meshName: ranked[0].meshName }
+    const readings = [];
+    const dict = patientMesh && patientMesh.morphTargetDictionary;
+    const influences = patientMesh && patientMesh.morphTargetInfluences;
+    if (dict && influences) {
+      for (const targetName of Object.keys(dict)) {
+        const index = dict[targetName];
+        if (typeof index !== "number" || index < 0 || index >= influences.length) continue;
+        const influence = influences[index] || 0;
+        if (influence <= 0.01) continue;
+        readings.push({
+          meshName: patientMesh.name || "",
+          targetName,
+          influence,
+          index
+        });
+      }
+    }
+    readings.sort(function (a, b) { return b.influence - a.influence; });
+    const peak = readings[0]
+      ? { targetName: readings[0].targetName, influence: readings[0].influence, meshName: readings[0].meshName }
       : null;
 
-    const speech = (window as unknown as {
-      __openClinXrHumanoidSpeechEvidence?: {
-        activeViseme?: string;
-        activePhoneme?: string;
-        activeMouthOpenness?: number;
-      };
-    }).__openClinXrHumanoidSpeechEvidence;
-
+    const speech = win.__openClinXrHumanoidSpeechEvidence;
     return {
       t: 0,
       readings,
@@ -103,76 +98,49 @@ async function samplePatientVisemes(page: Page): Promise<SceneSample> {
         ? {
             activeViseme: speech.activeViseme,
             activePhoneme: speech.activePhoneme,
-            activeMouthOpenness: speech.activeMouthOpenness,
+            activeMouthOpenness: speech.activeMouthOpenness
           }
-        : null,
+        : null
     };
-  });
+  })()`);
 }
 
 async function reframeCameraOnPatientFace(page: Page): Promise<string> {
-  return page.evaluate(() => {
-    /** Minimal three.js-like shapes read from the live scene graph (browser context is untyped). */
-    type Vec3Like = {
-      x: number;
-      y: number;
-      z: number;
-      set: (x: number, y: number, z: number) => Vec3Like;
-      copy: (v: Vec3Like) => Vec3Like;
-      clone: () => Vec3Like;
-    };
-    type Object3DLike = {
-      isPerspectiveCamera?: boolean;
-      type?: string;
-      name?: string;
-      morphTargetDictionary?: Record<string, number>;
-      morphTargetInfluences?: number[];
-      matrixWorld?: { elements?: ArrayLike<number> };
-      updateWorldMatrix?: (updateParents: boolean, updateChildren: boolean) => void;
-      parent?: {
-        updateWorldMatrix?: (updateParents: boolean, updateChildren: boolean) => void;
-        worldToLocal?: (v: Vec3Like) => Vec3Like;
-      };
-      position: Vec3Like;
-      lookAt: (x: number, y: number, z: number) => void;
-      fov: number;
-      updateProjectionMatrix?: () => void;
+  // String IIFE (not a TS arrow) so tsx/esbuild cannot inject `__name` into the browser.
+  return page.evaluate(`(() => {
+    const isRecord = function (value) {
+      return typeof value === "object" && value !== null;
     };
 
-    const isRecord = (value: unknown): value is Record<string, unknown> =>
-      typeof value === "object" && value !== null;
-
-    const hasPositionApi = (value: unknown): value is Object3DLike => {
+    const hasPositionApi = function (value) {
       if (!isRecord(value)) return false;
       const position = value["position"];
       if (!isRecord(position)) return false;
       return typeof position["set"] === "function" && typeof value["lookAt"] === "function";
     };
 
-    const scene = (window as unknown as {
-      __openClinXrDebugScene?: {
-        traverse: (cb: (o: unknown) => void) => void;
-      };
-    }).__openClinXrDebugScene;
-    if (!scene?.traverse) return "no-scene";
+    const scene = window.__openClinXrDebugScene;
+    if (!scene || typeof scene.traverse !== "function") return "no-scene";
 
     // Collector avoids let-null + closure assignment narrowing to never under some TS checkers.
-    const found: { camera: unknown; patientMesh: unknown } = {
+    const found = {
       camera: null,
-      patientMesh: null,
+      patientMesh: null
     };
-    scene.traverse((object: unknown) => {
+    scene.traverse(function (object) {
       if (!isRecord(object)) return;
       if (object["isPerspectiveCamera"] === true || object["type"] === "PerspectiveCamera") {
         found.camera = object;
       }
       const name = typeof object["name"] === "string" ? object["name"] : "";
       const dict = object["morphTargetDictionary"];
-      if (
-        isRecord(dict) &&
-        ("viseme_L" in dict || "viseme_AA" in dict) &&
-        /peds_patient|patient_child/i.test(name)
-      ) {
+      if (!isRecord(dict)) return;
+      const keys = Object.keys(dict);
+      const hasMouthFamily = keys.some(function (k) {
+        const lk = k.toLowerCase();
+        return lk.indexOf("viseme_") === 0 || lk.indexOf("mouth") === 0 || lk.indexOf("openclinxr_mouth") === 0;
+      });
+      if (hasMouthFamily && /peds_patient|patient_child/i.test(name)) {
         found.patientMesh = object;
       }
     });
@@ -187,14 +155,14 @@ async function reframeCameraOnPatientFace(page: Page): Promise<string> {
       updateMeshWorld.call(patientMesh, true, false);
     }
     const parent = isRecord(camera.parent) ? camera.parent : undefined;
-    const updateParentWorld = parent?.["updateWorldMatrix"];
+    const updateParentWorld = parent && parent["updateWorldMatrix"];
     if (typeof updateParentWorld === "function") {
       updateParentWorld.call(parent, true, false);
     }
 
     const matrixWorld = isRecord(patientMesh["matrixWorld"]) ? patientMesh["matrixWorld"] : undefined;
-    const elements = matrixWorld?.["elements"];
-    const e = elements && typeof elements === "object" ? (elements as ArrayLike<number>) : undefined;
+    const elements = matrixWorld && matrixWorld["elements"];
+    const e = elements && typeof elements === "object" ? elements : undefined;
     // matrixWorld translation = elements[12,13,14]
     const px = e ? Number(e[12]) : 0;
     const py = e ? Number(e[13]) : 1.0;
@@ -205,10 +173,10 @@ async function reframeCameraOnPatientFace(page: Page): Promise<string> {
     const worldCam = {
       x: px + 0.04,
       y: headY + 0.04,
-      z: pz + 0.72,
+      z: pz + 0.72
     };
     const worldToLocal = parent && typeof parent["worldToLocal"] === "function"
-      ? (parent["worldToLocal"] as (v: Vec3Like) => Vec3Like)
+      ? parent["worldToLocal"]
       : undefined;
     if (worldToLocal) {
       const local = camera.position.clone();
@@ -221,12 +189,13 @@ async function reframeCameraOnPatientFace(page: Page): Promise<string> {
     // lookAt expects world coordinates
     camera.lookAt(px, headY - 0.04, pz);
     camera.fov = 28;
-    camera.updateProjectionMatrix?.();
+    if (typeof camera.updateProjectionMatrix === "function") camera.updateProjectionMatrix();
     const camX = Number(camera.position.x).toFixed(2);
     const camY = Number(camera.position.y).toFixed(2);
     const camZ = Number(camera.position.z).toFixed(2);
-    return `patient@${px.toFixed(2)},${py.toFixed(2)},${pz.toFixed(2)} headY=${headY.toFixed(2)} camLocal=${camX},${camY},${camZ}`;
-  });
+    return "patient@" + px.toFixed(2) + "," + py.toFixed(2) + "," + pz.toFixed(2) +
+      " headY=" + headY.toFixed(2) + " camLocal=" + camX + "," + camY + "," + camZ;
+  })()`);
 }
 
 async function retriggerPatientDialogue(page: Page): Promise<void> {
@@ -237,7 +206,7 @@ async function retriggerPatientDialogue(page: Page): Promise<void> {
   }
 }
 
-async function main(): Promise<void> {
+export async function runVisemeCapture(): Promise<void> {
   await mkdir(OUTPUT_DIR, { recursive: true });
 
   let server: PortlessDevServer | undefined;
@@ -253,62 +222,54 @@ async function main(): Promise<void> {
       const url = `${server.url}?${CAPTURE_QUERY}`;
       await page.goto(url, { waitUntil: "networkidle", timeout: 180_000 });
 
+      // Wait for ANY mouth-family morph mesh (Anny viseme_* OR MPFB FACS mouth-*).
       await page.waitForFunction(
-        () => {
-          const scene = (window as unknown as {
-            __openClinXrDebugScene?: {
-              traverse?: (cb: (o: { morphTargetDictionary?: Record<string, number> }) => void) => void;
-            };
-          }).__openClinXrDebugScene;
-          if (!scene?.traverse) return false;
-          let hasViseme = false;
-          scene.traverse((object) => {
-            const dict = object.morphTargetDictionary;
+        `(() => {
+          const scene = window.__openClinXrDebugScene;
+          if (!scene || typeof scene.traverse !== "function") return false;
+          let found = false;
+          scene.traverse(function (o) {
+            const dict = o.morphTargetDictionary;
             if (!dict) return;
-            for (const name of Object.keys(dict)) {
-              if (name.toLowerCase().startsWith("viseme_")) hasViseme = true;
+            for (const k of Object.keys(dict)) {
+              const lk = k.toLowerCase();
+              if (lk.indexOf("viseme_") === 0 || lk.indexOf("mouth") === 0 || lk.indexOf("openclinxr_mouth") === 0) {
+                found = true;
+                return;
+              }
             }
           });
-          return hasViseme;
-        },
+          return found;
+        })()`,
         { timeout: 180_000 },
       );
 
       const frameNote = await reframeCameraOnPatientFace(page);
       process.stdout.write(`camera: ${frameNote}\n`);
       await page.waitForTimeout(600);
+      // Restart the patient's dialogue so the sampling window covers a full utterance from t≈0.
       await retriggerPatientDialogue(page);
-      await page.waitForTimeout(350);
+      await page.waitForTimeout(120);
 
-      // Dense samples across a full dialogue window (~2.5–4s).
-      const sampleTimesMs = [150, 450, 800, 1200, 1600, 2000, 2500, 3000];
       const liveSamples: Array<{
         t: number;
         targetName: string;
         influence: number;
         meshName: string;
-        framePath: string;
+        framePath: string | null;
       }> = [];
       const rawTimeline: SceneSample[] = [];
       const t0 = Date.now();
-      const strongByName = new Map<string, { t: number; influence: number; framePath: string }>();
+      const strongByName = new Map<string, { t: number; influence: number; framePath: string | null }>();
 
-      for (let i = 0; i < sampleTimesMs.length; i += 1) {
-        const targetDelay = sampleTimesMs[i]!;
-        const elapsed = Date.now() - t0;
-        if (targetDelay > elapsed) {
-          await page.waitForTimeout(targetDelay - elapsed);
-        }
-
+      // One state sample per step. The page's render loop is slow (measured ~6 fps in
+      // headless), so screenshots (~500 ms each) are kept OFF the states pass — a screenshot
+      // between every sample would halve the distinct visemes the timeline actually visits.
+      async function sampleStates(framePath: string | null): Promise<void> {
+        const t = (Date.now() - t0) / 1000;
         // Keep framing locked (runtime may tweak camera).
         await reframeCameraOnPatientFace(page);
-
         const sceneSample = await samplePatientVisemes(page);
-        const t = (Date.now() - t0) / 1000;
-        const frameName = `viseme_frame_${String(i).padStart(2, "0")}.png`;
-        const framePath = path.join(OUTPUT_DIR, frameName);
-        await page.screenshot({ path: framePath, fullPage: false });
-
         rawTimeline.push({ ...sceneSample, t });
 
         const peak = sceneSample.peak;
@@ -319,7 +280,6 @@ async function main(): Promise<void> {
           meshName: peak?.meshName ?? "",
           framePath,
         });
-
         for (const r of sceneSample.readings) {
           if (r.influence < 0.5) continue;
           const prev = strongByName.get(r.targetName);
@@ -329,37 +289,51 @@ async function main(): Promise<void> {
         }
       }
 
-      // If we still lack two strong non-silence visemes, force a second dialogue pass and sample.
-      const nonSilenceStrong = [...strongByName.keys()].filter((n) => !n.toLowerCase().includes("silence"));
-      if (nonSilenceStrong.length < 2) {
-        await retriggerPatientDialogue(page);
-        await page.waitForTimeout(200);
-        for (let i = 0; i < 6; i += 1) {
-          await page.waitForTimeout(350);
-          await reframeCameraOnPatientFace(page);
-          const sceneSample = await samplePatientVisemes(page);
-          const t = (Date.now() - t0) / 1000;
-          const frameName = `viseme_frame_extra_${String(i).padStart(2, "0")}.png`;
-          const framePath = path.join(OUTPUT_DIR, frameName);
-          await page.screenshot({ path: framePath, fullPage: false });
-          rawTimeline.push({ ...sceneSample, t });
-          if (sceneSample.peak) {
-            liveSamples.push({
-              t,
-              targetName: sceneSample.peak.targetName,
-              influence: sceneSample.peak.influence,
-              meshName: sceneSample.peak.meshName,
-              framePath,
-            });
+      const distinctStrong = (): Set<string> =>
+        new Set(
+          liveSamples
+            .filter((s) => s.influence >= 0.5 && s.targetName !== "none")
+            .map((s) => s.targetName),
+        );
+
+      // Dense states pass across the full dialogue window (~110 ms steps, up to the 4.8 s cap).
+      const SAMPLE_STEP_MS = 110;
+      const SAMPLE_SPAN_MS = 4_400;
+      async function denseStatesPass(): Promise<void> {
+        for (let target = SAMPLE_STEP_MS; target <= SAMPLE_SPAN_MS; target += SAMPLE_STEP_MS) {
+          const elapsed = Date.now() - t0;
+          if (target > elapsed) {
+            await page.waitForTimeout(target - elapsed);
           }
-          for (const r of sceneSample.readings) {
-            if (r.influence < 0.5) continue;
-            const prev = strongByName.get(r.targetName);
-            if (!prev || r.influence > prev.influence) {
-              strongByName.set(r.targetName, { t, influence: r.influence, framePath });
-            }
-          }
+          await sampleStates(null);
         }
+      }
+
+      await denseStatesPass();
+      // If one utterance's samples did not cover five distinct mouth shapes, replay the
+      // dialogue and keep sampling (the retrigger restarts the phoneme timeline).
+      if (distinctStrong().size < 5) {
+        await retriggerPatientDialogue(page);
+        await page.waitForTimeout(120);
+        await denseStatesPass();
+      }
+
+      // Frame pass — sparse screenshots for the orchestrator's pixel grade, labelled with the
+      // live dominant value sampled at the same instant.
+      await retriggerPatientDialogue(page);
+      await page.waitForTimeout(120);
+      const FRAME_STEP_MS = 250;
+      const FRAME_COUNT = 8;
+      for (let i = 0; i < FRAME_COUNT; i += 1) {
+        const target = i * FRAME_STEP_MS;
+        const elapsed = Date.now() - t0;
+        if (target > elapsed) {
+          await page.waitForTimeout(target - elapsed);
+        }
+        const frameName = `viseme_frame_${String(i).padStart(2, "0")}.png`;
+        const framePath = path.join(OUTPUT_DIR, frameName);
+        await sampleStates(framePath);
+        await page.screenshot({ path: framePath, fullPage: false });
       }
 
       const inspection = {
@@ -367,7 +341,7 @@ async function main(): Promise<void> {
         generatedAt: new Date().toISOString(),
         claimScope: "mouth_named_viseme_morph_drive_runtime_evidence",
         actor:
-          "peds_patient_child.glb (default generated humanoid; school-age comparator GLB missing — chose sound morph set)",
+          "peds_patient_child (Anny base in the peds station; MPFB FACS parent/nurse driven through the #353 alias map)",
         url,
         framing: "in-page head-and-shoulders reframe on patient face (fov=32, z≈1.15)",
         liveVisemeSamples: liveSamples.map((s) => ({
@@ -384,6 +358,8 @@ async function main(): Promise<void> {
           framePath: v.framePath,
         })),
         distinctStrongVisemeCount: strongByName.size,
+        distinctDominantStrongCount: distinctStrong().size,
+        maxInfluence: Math.max(...liveSamples.map((s) => s.influence), 0),
         rawTimeline: rawTimeline.map((s) => ({
           t: Number(s.t.toFixed(3)),
           peak: s.peak,
@@ -398,29 +374,25 @@ async function main(): Promise<void> {
             })),
         })),
         speechEvidence: await page.evaluate(
-          () =>
-            (window as unknown as { __openClinXrHumanoidSpeechEvidence?: unknown })
-              .__openClinXrHumanoidSpeechEvidence ?? null,
+          `(() => (window.__openClinXrHumanoidSpeechEvidence || null))()`,
         ),
-        morphCue: await page.evaluate(() => {
-          const scene = (window as unknown as {
-            __openClinXrDebugScene?: {
-              traverse: (cb: (o: { userData?: Record<string, unknown>; name?: string }) => void) => void;
-            };
-          }).__openClinXrDebugScene;
-          let cue: unknown = null;
-          scene?.traverse((o) => {
-            if (o.userData?.openClinXrNamedVisemeDrive || o.userData?.openClinXrMorphTargetRuntimeCue) {
-              cue = {
-                meshName: o.name ?? "",
-                named: o.userData.openClinXrNamedVisemeDrive ?? null,
-                morph: o.userData.openClinXrMorphTargetRuntimeCue ?? null,
-              };
-            }
-          });
+        morphCue: await page.evaluate(`(() => {
+          const scene = window.__openClinXrDebugScene;
+          let cue = null;
+          if (scene && typeof scene.traverse === "function") {
+            scene.traverse(function (o) {
+              if (!cue && o.userData && (o.userData.openClinXrNamedVisemeDrive || o.userData.openClinXrMorphTargetRuntimeCue)) {
+                cue = {
+                  meshName: o.name || "",
+                  named: o.userData.openClinXrNamedVisemeDrive || null,
+                  morph: o.userData.openClinXrMorphTargetRuntimeCue || null
+                };
+              }
+            });
+          }
           return cue;
-        }),
-        framePaths: liveSamples.map((s) => s.framePath),
+        })()`),
+        framePaths: liveSamples.filter((s) => s.framePath !== null).map((s) => s.framePath as string),
         notEvidenceFor: [
           "anatomy_bind_pose",
           "school_age_mpfb2_comparator",
@@ -436,8 +408,8 @@ async function main(): Promise<void> {
             "influences read from mesh.morphTargetInfluences[dict[name]] via __openClinXrDebugScene (patient meshes)",
           gateNotReliedOn: "morphTargetAppliedTargetCount > 0 (satisfied by mouth-open alone)",
           required: "≥3 timestamps; ≥2 distinct viseme_* names at influence ≥ 0.5",
-          morphDeltaNote:
-            "peds_patient_child.glb: viseme_AA/E max|d|≈0.006 (subtle); viseme_L≈0.26, viseme_TH≈2.0 (legible close-up)",
+          framesAreSparse:
+            "screenshots are ~500 ms each on this slow render loop, so frames are taken on a separate pass from the dense states; each frame is labelled with the dominant value at its instant",
         },
       };
 
@@ -470,7 +442,7 @@ async function main(): Promise<void> {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  void main().catch((error: unknown) => {
+  void runVisemeCapture().catch((error: unknown) => {
     process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
     process.exitCode = 1;
   });
