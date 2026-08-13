@@ -145,7 +145,7 @@ function requireRows(): void {
 }
 
 describe("eye colour is case-driven, not one constant for everyone", () => {
-  it.fails("(1) RED: co-present actors do not all share one iris", () => {
+  it("(1) RED (FIXED #356): co-present actors do not all share one iris", () => {
     requireRows();
     const shas = rows.map((r) => r.irisSha);
     const distinct = new Set(shas.filter(Boolean)).size;
@@ -183,3 +183,42 @@ describe("eye colour is case-driven, not one constant for everyone", () => {
     expect(clashes, "garment colours collapsed back to a shared value").toEqual([]);
   });
 });
+
+/**
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ * ## FIXED (#356) — appended, planted header above is immutable
+ *
+ * MEASUREMENT FIRST (`.openclinxr/evidence/mpfb-eye-colour/pre-fix.json`, 2026-08-13): the shared
+ * iris is byte-identical across the cast (sha256 `4659691c7295ad62`, 610,817 bytes, 1024² RGBA,
+ * baseColorFactor (1,1,1)) and it is BAKED BROWN, not greyscale — 37% of sampled pixels are
+ * chromatic at mean hue 34°, iris annulus 42% chromatic. Naive tinting would be muddy (treatment c
+ * stays refused). The provider cache held ONLY brown; the makehuman2 repo holds only hm08/brown.
+ * A licence-clear second asset EXISTS: the official `makehuman_system_assets` CC0 pack (every
+ * staged `<colour>.mhmat` carries the same in-file CC0 header as hm08), 9 iris colours, each
+ * 610-701 KB / 1024² RGBA / luminance sd 33.7-40.0 — all clear the (2) floors. pack `brown_eye.png`
+ * is byte-identical to the shipped iris (sha `4659691c7295ad62`).
+ *
+ * FIX = treatment (d), the #180 pattern: the same materializer that varies the garment slot now
+ * varies the iris slot. `automate_blender.eye_iris_colour(actor_role, phenotype)` returns the CC0
+ * pack's declared colour id (patient → brown, family → green, nurse → blue; a phenotype naming an
+ * eye colour overrides); the materializer resolves that id to the staged `<colour>.mhmat` and
+ * consumes the asset's OWN declared texture via the unchanged generic `make_material_from_mhmat`
+ * path (#340). No table copied, no colour invented; baseColorFactor stays (1,1,1) — the texture is
+ * the whole appearance. Re-baked all three cast actors (same re-bake path as #180/#350/#351, no
+ * fresh full orchestrate). Post-fix measured on the shipped bytes (NodeIO):
+ *
+ *   file                         | iris texture | sha256[0:12] | bytes   | hue
+ *   -----------------------------|--------------|--------------|---------|-----
+ *   mpfb-peds-patient-child.glb  | brown        | 4659691c7295 | 610,817 | 34°
+ *   mpfb-ob-patient-aisha.glb    | green        | b9864ac4f4fa | 662,241 | 49°
+ *   mpfb-peds-nurse-kevin.glb    | blue         | 572ddc93ab3e | 666,029 | 66°
+ *
+ * (1) flipped to `it`; (2)/(3) hold unchanged — real textured irises at neutral factors, and #180's
+ * garment colours (measured (0.720,0.680,0.550)/(0.420,0.360,0.400)/(0.050,0.480,0.520)) survived
+ * the re-bake.
+ *
+ * NOT TESTED (unchanged residual): WHICH colours are right — eye colour is a phenotype question and
+ * the assignment (brown/green/blue) is a "close enough" staging judgement, not a clinician's sign-off;
+ * how the irises LOOK in the eye crops is the orchestrator's pixel grade; the peds cast only.
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ */

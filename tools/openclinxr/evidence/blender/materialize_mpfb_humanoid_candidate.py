@@ -1898,9 +1898,36 @@ def main():
     # brown.mhmat` and that .mhmat declares `diffuseTexture brown_eye.png` (the
     # iris/sclera map, CC0 header in the same directory, 610,817 bytes upstream-
     # verified). make_material_from_mhmat is the generic .mhmat path (skin and
-    # garments can take it later); it is not eye-special-cased.
+    # garments can take it later); it is not eye-special-cased. #356 keeps that path
+    # and makes WHICH declared material the actor consumes case-driven.
     eyes_asset.data.materials.clear()
-    eye_mhmat = mhmat_for_mhclo(eye_mhclo)
+    # #356: the IRIS COLOUR is case-driven like the garment slot (#180). The eye GEOMETRY stays
+    # the CC0 hm08 low-poly fit above; only the declared material changes per actor.
+    # `eye_iris_colour` is the palette function from the Anny rail (imported lazily, the same
+    # pattern as garment_shell_color at :2009-2012): it returns which CC0 MakeHuman
+    # system-asset eye colour's declared material this actor uses (brown / green / blue), and the
+    # materializer resolves that id to its staged <colour>.mhmat (makehuman_system_assets pack,
+    # CC0 header in every file — recorded in third-party-asset-licence-ledger.md). No table
+    # copied, no colour invented; the generic make_material_from_mhmat path consumes the asset's
+    # OWN declared texture either way.
+    import sys as _sys_eye
+
+    _anny_dir_eye = REPO_ROOT / "tools/openclinxr/asset-pipeline/anny"
+    if str(_anny_dir_eye) not in _sys_eye.path:
+        _sys_eye.path.insert(0, str(_anny_dir_eye))
+    from automate_blender import eye_iris_colour  # noqa: E402
+
+    _iris_key = eye_iris_colour(args.actor_role, {})
+    _eye_mat_dir = (
+        pathlib.Path(__file__).resolve().parents[4]
+        / ".openclinxr-local/provider-cache/eyes/makehuman-system-assets"
+    )
+    eye_mhmat = _eye_mat_dir / f"{_iris_key}.mhmat"
+    if not eye_mhmat.is_file():
+        raise RuntimeError(
+            f"#356: iris asset {_iris_key} missing in provider cache: {_eye_mat_dir} "
+            f"(staged from makehuman_system_assets_cc0.zip, CC0)"
+        )
     eye_mat = make_material_from_mhmat(
         eye_mhmat,
         f"mat_makeclothes_library_eyes_{args.reference or 'ob_patient_aisha'}",

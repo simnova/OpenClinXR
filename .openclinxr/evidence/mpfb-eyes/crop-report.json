@@ -2,7 +2,7 @@
   "schemaVersion": "openclinxr.mpfb-eyes.crop-run.v1",
   "issue": "354",
   "factoryStep": "instrument",
-  "measuredAt": "2026-08-13T03:15:01.702Z",
+  "measuredAt": "2026-08-13T05:31:30.574Z",
   "generator": {
     "tool": "renderMpfbEyeFocusCrops",
     "file": "tools/openclinxr/evidence/isolated-subject-harness.ts",
@@ -16,7 +16,7 @@
     "produced": 4,
     "devServerBoots": 1,
     "browserLaunches": 1,
-    "wallClockMs": 11155
+    "wallClockMs": 6686
   },
   "crops": [
     {
@@ -24,12 +24,12 @@
       "role": "adult_female",
       "view": "front",
       "imagePath": ".openclinxr/evidence/mpfb-eyes/aisha-eye-front.png",
-      "bytes": 497518,
+      "bytes": 506059,
       "pngDimensions": {
         "width": 1024,
         "height": 1024
       },
-      "frameCoverage": 0.8557329177856445,
+      "frameCoverage": 0.8543834686279297,
       "frameSpanFraction": 0.7999903672791439,
       "focusRegion": {
         "kind": "eye_box",
@@ -56,12 +56,12 @@
       "role": "adult_female",
       "view": "side",
       "imagePath": ".openclinxr/evidence/mpfb-eyes/aisha-eye-side.png",
-      "bytes": 263424,
+      "bytes": 264332,
       "pngDimensions": {
         "width": 1024,
         "height": 1024
       },
-      "frameCoverage": 0.8784170150756836,
+      "frameCoverage": 0.8784513473510742,
       "frameSpanFraction": 1.0194476829504628,
       "focusRegion": {
         "kind": "eye_box",
@@ -88,12 +88,12 @@
       "role": "adult_male",
       "view": "front",
       "imagePath": ".openclinxr/evidence/mpfb-eyes/kevin-eye-front.png",
-      "bytes": 475176,
+      "bytes": 484357,
       "pngDimensions": {
         "width": 1024,
         "height": 1024
       },
-      "frameCoverage": 0.8167858123779297,
+      "frameCoverage": 0.8161287307739258,
       "frameSpanFraction": 0.799985285021419,
       "focusRegion": {
         "kind": "eye_box",
