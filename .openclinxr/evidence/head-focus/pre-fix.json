@@ -1,0 +1,141 @@
+{
+  "schemaVersion": "openclinxr.head-focus.pre-fix.v1",
+  "issue": "358",
+  "factoryStep": "instrument",
+  "measuredAt": "2026-08-13T07:02:31.219Z",
+  "generator": {
+    "tool": "writeHeadFocusPreFix",
+    "file": "tools/openclinxr/evidence/head-focus-inspection.ts",
+    "deterministic": true,
+    "llmInvolved": false
+  },
+  "framing": {
+    "viewportPx": {
+      "width": 1024,
+      "height": 1024
+    },
+    "camera": {
+      "fovDegrees": 35,
+      "view": "front",
+      "note": "the CURRENT isolated-subject-lab focus=eyes behaviour, measured in-browser BEFORE any product edit: MPFB frames the derived eye box; Anny silently falls back to whole-subject framing"
+    }
+  },
+  "subjects": [
+    {
+      "rail": "mpfb",
+      "role": "adult_female",
+      "glb": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+      "bodyBoundsMeters": {
+        "min": {
+          "x": -0.4963,
+          "y": 0.001,
+          "z": -0.1164
+        },
+        "max": {
+          "x": 0.4963,
+          "y": 1.6669,
+          "z": 0.3215
+        }
+      },
+      "bodyHeightMeters": 1.6659,
+      "headBoxMeters": {
+        "min": {
+          "x": -0.08793002367019653,
+          "y": 1.4317128658294678,
+          "z": -0.039160069078207016
+        },
+        "max": {
+          "x": 0.08793002367019653,
+          "y": 1.6668728590011597,
+          "z": 0.168069988489151
+        },
+        "heightFractionOfBody": 0.141,
+        "neckPositionMeters": 1.4309,
+        "dominantAxis": "y",
+        "vertexCount": 4490,
+        "derivation": "topmost band of the body bounds cut at the neck — silhouette width profile of the body mesh (skull widest slice, then the profile minimum below it is the neck); never the eye mesh, never literal camera coordinates (D1)"
+      },
+      "eyeBox": {
+        "present": true,
+        "matchedMeshes": [
+          "mpfb_ob_patient_aisha_body_mesh.low-poly"
+        ],
+        "boundsMeters": {
+          "min": {
+            "x": -0.0446,
+            "y": 1.5323,
+            "z": 0.1188
+          },
+          "max": {
+            "x": 0.0446,
+            "y": 1.56,
+            "z": 0.1392
+          }
+        },
+        "reason": ""
+      },
+      "framingCurrentCodeSelects": "eye_box",
+      "framingReason": "eye mesh matched — the lab frames the derived eye box",
+      "onScreenHeadHeightPx": 2573.8,
+      "onScreenHeadHeightDerivation": "the file-side head box projected under the pack camera the CURRENT lab actually placed (focus=eyes, view=front, 1024x1024), via the same pure-perspective math as the #354 pre-fix (projectPixelSpan); the framed eye box is far smaller than the head, so the head overflows the frame"
+    },
+    {
+      "rail": "anny",
+      "role": "adult_anny",
+      "glb": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb",
+      "bodyBoundsMeters": {
+        "min": {
+          "x": -0.5372,
+          "y": -0.002,
+          "z": -0.0502
+        },
+        "max": {
+          "x": 0.5372,
+          "y": 1.76,
+          "z": 0.4166
+        }
+      },
+      "bodyHeightMeters": 1.762,
+      "headBoxMeters": {
+        "min": {
+          "x": -0.09436000138521194,
+          "y": 1.554548978805542,
+          "z": 0.01181000005453825
+        },
+        "max": {
+          "x": 0.09436000138521194,
+          "y": 1.7599999904632568,
+          "z": 0.2403710037469864
+        },
+        "heightFractionOfBody": 0.117,
+        "neckPositionMeters": 1.5544,
+        "dominantAxis": "y",
+        "vertexCount": 4132,
+        "derivation": "topmost band of the body bounds cut at the neck — silhouette width profile of the body mesh (skull widest slice, then the profile minimum below it is the neck); never the eye mesh, never literal camera coordinates (D1)"
+      },
+      "eyeBox": {
+        "present": false,
+        "matchedMeshes": [],
+        "boundsMeters": null,
+        "reason": "0 primitives match /eyes|iris|cornea|sclera/i (mesh name or material name)"
+      },
+      "framingCurrentCodeSelects": "whole_subject_fallback",
+      "framingReason": "no eye mesh matched — the lab SILENTLY falls back to whole-subject framing (the #358 defect)",
+      "onScreenHeadHeightPx": 98.5,
+      "onScreenHeadHeightDerivation": "the file-side head box projected under the pack camera the CURRENT lab actually placed (focus=eyes, view=front, 1024x1024), via the same pure-perspective math as the #354 pre-fix (projectPixelSpan); the head is a small fraction of the whole-subject frame"
+    }
+  ],
+  "claimScope": [
+    "pre_fix_before_column_for_the_head_focus_station",
+    "current_framing_selection_measured_in_browser_before_any_product_edit",
+    "head_box_derived_from_body_geometry_only",
+    "eye_box_presence_measured_file_side",
+    "on_screen_head_height_px_under_the_current_behaviour"
+  ],
+  "notEvidenceFor": [
+    "which_hair_mechanism_is_correct_pixel_grade_of_the_post_fix_crops_required",
+    "clinical_realism",
+    "quest_readiness",
+    "learner_readiness"
+  ]
+}

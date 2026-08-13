@@ -1,0 +1,113 @@
+{
+  "issue": 359,
+  "measuredAt": "2026-08-13T08:26:25.192Z",
+  "instrument": "tools/openclinxr/evidence/mpfb-scalp-inspection.ts",
+  "knownGoodAnny": {
+    "actorId": "peds_nurse_kevin",
+    "rail": "anny_known_good",
+    "glb": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb",
+    "regionKind": "body_mesh_material_primitive",
+    "scalpMaterialName": "openclinxr_mesh_native_scalp_hair_surface",
+    "bodyMeshName": "peds_nurse_kevin.anny_base",
+    "bodyPrimitiveCount": 4,
+    "triangles": 3516,
+    "minHeightFraction": 0.8959130855902384,
+    "maxHeightFraction": 1,
+    "centroidHeightFraction": 0.9301721284895642,
+    "faceBandVertexCount": 0,
+    "baseColorFactor": [
+      0.03500000014901161,
+      0.02800000086426735,
+      0.02199999988079071
+    ],
+    "separateHairMeshes": []
+  },
+  "mpfbActors": [
+    {
+      "actorId": "aisha",
+      "rail": "mpfb",
+      "glb": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+      "regionKind": "body_mesh_material_primitive",
+      "scalpMaterialName": "openclinxr_mesh_native_scalp_hair_surface",
+      "bodyMeshName": "mpfb_ob_patient_aisha_body",
+      "bodyPrimitiveCount": 9,
+      "triangles": 2364,
+      "minHeightFraction": 0.893786475810478,
+      "maxHeightFraction": 1,
+      "centroidHeightFraction": 0.9262906180958873,
+      "faceBandVertexCount": 0,
+      "baseColorFactor": [
+        0.03500000014901161,
+        0.02800000086426735,
+        0.02199999988079071
+      ],
+      "separateHairMeshes": []
+    },
+    {
+      "actorId": "kevin",
+      "rail": "mpfb",
+      "glb": "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
+      "regionKind": "body_mesh_material_primitive",
+      "scalpMaterialName": "openclinxr_mesh_native_scalp_hair_surface",
+      "bodyMeshName": "mpfb_peds_nurse_kevin_body",
+      "bodyPrimitiveCount": 9,
+      "triangles": 2400,
+      "minHeightFraction": 0.8982866592837275,
+      "maxHeightFraction": 1,
+      "centroidHeightFraction": 0.9332763577203643,
+      "faceBandVertexCount": 0,
+      "baseColorFactor": [
+        0.03500000014901161,
+        0.02800000086426735,
+        0.02199999988079071
+      ],
+      "separateHairMeshes": []
+    },
+    {
+      "actorId": "child",
+      "rail": "mpfb",
+      "glb": "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb",
+      "regionKind": "body_mesh_material_primitive",
+      "scalpMaterialName": "openclinxr_mesh_native_scalp_hair_surface",
+      "bodyMeshName": "mpfb_peds_patient_child_body",
+      "bodyPrimitiveCount": 9,
+      "triangles": 2008,
+      "minHeightFraction": 0.8977381491085122,
+      "maxHeightFraction": 1,
+      "centroidHeightFraction": 0.9230849856760953,
+      "faceBandVertexCount": 0,
+      "baseColorFactor": [
+        0.03500000014901161,
+        0.02800000086426735,
+        0.02199999988079071
+      ],
+      "separateHairMeshes": []
+    }
+  ],
+  "annyGeneratorMechanism": {
+    "function": "tools/openclinxr/asset-pipeline/anny/automate_blender.py:4246 apply_mesh_native_scalp_hair_material_region",
+    "keysOff": {
+      "meshBounds": "local-space vertex bounds (min/max per axis) of the body mesh — the region is defined by fractions of the body's own height/width/depth, not by vertex indices",
+      "heightAxis": "auto-detected dominant height axis (Y when maxY-minY >= 0.9*(maxZ-minZ), else Z) — #73: OBJ import can rotate the object, world-space height is untrustworthy",
+      "polygonCenters": "each polygon's local-space center classifies the polygon (material assignment is per-polygon)",
+      "scalpMinH": "min_h + height * (0.905 - hair_density * 0.008) — hairline sits on the crown",
+      "crownMinH": "min_h + height * 0.935",
+      "maxScalpHalfWidth": "width * (0.16 + hair_density * 0.018)",
+      "faceBand": "heightFraction in [0.82, 0.93] AND face-front depth >= center_d - depth*0.18 (Z-height branch) — hard exclude, never hair on the nose/mouth/forehead band",
+      "depthFaceDetection": "face-front vs back by depth-relative line (center_d +/- depth*0.02/0.18), not by UV or vertex groups",
+      "vertexGroups": "none — no Anny-specific vertex groups are consulted",
+      "uvRegions": "none — no UV island selection",
+      "phenotype": "hair_color (-> base colour table) and hair_density (0..1, scales the crown/width fractions) only"
+    },
+    "conclusion": "selects polygons by body-relative height/geometry rules over polygon centers in local mesh space; no Anny-specific vertex groups or UV islands — ports to MPFB topology directly (D1: port the rule; the code is already shared, not re-authored)"
+  },
+  "claimScope": [
+    "deterministic_file_side_scalp_region_identity_and_placement_on_the_shipped_bytes",
+    "generator_mechanism_record_read_from_the_tracked_anny_source"
+  ],
+  "notEvidenceFor": [
+    "how hair renders in a crop (pixel grade)",
+    "clinical realism",
+    "which hairline looks right"
+  ]
+}

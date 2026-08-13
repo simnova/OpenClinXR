@@ -303,6 +303,127 @@ def make_material_from_mhmat(mhmat_path, name):
     return material
 
 
+# #360: material name -> [r,g,b,a] written into the exported GLB as baseColorFactor. The glTF
+# exporter OMITS baseColorFactor whenever a texture is connected to Base Color (measured on this
+# issue: a textured Principled material with a non-white socket value exports baseColorTexture
+# only, and the shipped #356 eye material is the same shape). The #180 role-colour contract reads
+# baseColorFactor from the shipped bytes, so the role colour is written back post-export
+# (patch_glb_base_color_factors) — factor x texture per the glTF spec, not a colour invented here.
+GARMENT_FACTOR_PATCH: dict = {}
+
+
+def garment_material_from_declared(mhclo_path, role_colour, name, mesh=None, patch_factor=True):
+    """#360: consume a garment's OWN declared .mhmat diffuse texture when staged + resolvable.
+
+    The same generic path the #340/#356 eyes use (`make_material_from_mhmat` — the .mhclo's
+    `material <rel>` line resolves the .mhmat, whose `diffuseTexture` is wired to Principled
+    Base Color). Wiring, not authoring (D1): nothing is generated, copied or recoloured.
+
+    A slot whose declared material cannot be consumed is SKIPPED with a recorded reason — no
+    .mhmat staged, no diffuseTexture declared, declared texture missing on disk, or (the
+    issue's "say so and stop" guard) a mesh with no UV layer, where a texture would render as
+    garbage. The flat role colour is kept for the skipped slot.
+
+    When the texture IS consumed and patch_factor, the role colour is registered in
+    GARMENT_FACTOR_PATCH so the exported GLB carries baseColorFactor (the #180 contract's
+    pinned quantity) beside the texture. patch_factor is False for the footwear slot: the
+    #180 contract pins footwear by ASSET, and the #337/#338 ban on tinting via baseColorFactor
+    applies where the declared texture IS the author's look.
+    """
+    record = {
+        "name": name,
+        "roleColour": [round(float(c), 4) for c in role_colour],
+        "declaredMhmat": None,
+        "mhmatStaged": False,
+        "declaredDiffuseTexture": None,
+        "textureResolves": False,
+        "textureBytes": 0,
+        "meshUvLayer": bool(mesh is not None and mesh.data.uv_layers),
+        "consumed": False,
+        "reason": None,
+    }
+    try:
+        mhmat_path = mhmat_for_mhclo(mhclo_path)
+    except RuntimeError as e:
+        record["reason"] = f"declared .mhmat not staged: {e}"
+        print(f"GARMENT_MATERIAL_SKIP {json.dumps(record)}")
+        return make_material(name, role_colour), record
+    record["mhmatStaged"] = True
+    record["declaredMhmat"] = mhmat_path.name
+    props = parse_mhmat(mhmat_path)
+    diffuse = props.get("diffuseTexture")
+    if not diffuse:
+        record["reason"] = f"{mhmat_path.name} declares no diffuseTexture"
+        print(f"GARMENT_MATERIAL_SKIP {json.dumps(record)}")
+        return make_material(name, role_colour), record
+    tex_rel = pathlib.Path(diffuse[0])
+    tex_path = (mhmat_path.parent / tex_rel).resolve()
+    record["declaredDiffuseTexture"] = tex_rel.name
+    if not tex_path.is_file():
+        record["reason"] = (
+            f"declared diffuseTexture {tex_rel} missing on disk at {tex_path}"
+        )
+        print(f"GARMENT_MATERIAL_SKIP {json.dumps(record)}")
+        return make_material(name, role_colour), record
+    record["textureResolves"] = True
+    record["textureBytes"] = tex_path.stat().st_size
+    if mesh is not None and not mesh.data.uv_layers:
+        record["reason"] = "mesh has no UV layer — a texture would render as garbage"
+        print(f"GARMENT_MATERIAL_SKIP {json.dumps(record)}")
+        return make_material(name, role_colour), record
+    mat = make_material_from_mhmat(mhmat_path, name)
+    # Keep the shipped garment roughness (make_material_from_mhmat leaves the Principled
+    # default 0.5; the flat garment materials ship 0.78).
+    mat.node_tree.nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.78
+    record["consumed"] = True
+    if patch_factor:
+        GARMENT_FACTOR_PATCH[name] = [
+            float(role_colour[0]),
+            float(role_colour[1]),
+            float(role_colour[2]),
+            1.0,
+        ]
+    print(f"GARMENT_MATERIAL {json.dumps(record)}")
+    return mat, record
+
+
+def patch_glb_base_color_factors(path, factors):
+    """#360: write the #180 role colours as baseColorFactor beside the exported textures.
+
+    The glTF exporter omitted them (see GARMENT_FACTOR_PATCH); glTF's spec multiplies
+    baseColorFactor x baseColorTexture, so the factor is written back into the exported JSON
+    chunk. Mechanical: the JSON chunk is re-serialized and the GLB re-assembled; geometry and
+    BIN bytes are copied verbatim.
+    """
+    with open(path, "rb") as f:
+        data = bytearray(f.read())
+    if data[:4] != b"glTF":
+        raise RuntimeError(f"#360: not a GLB: {path}")
+    json_len = struct.unpack("<I", data[12:16])[0]
+    json_end = 20 + json_len
+    gltf = json.loads(data[20:json_end])
+    patched = []
+    for mat in gltf.get("materials", []):
+        base = re.sub(r"\.\d{3}$", "", mat.get("name", ""))
+        if base in factors:
+            mat.setdefault("pbrMetallicRoughness", {})["baseColorFactor"] = list(factors[base])
+            patched.append(mat.get("name"))
+    if not patched:
+        raise RuntimeError(f"#360: no exported material matched {sorted(factors)} in {path}")
+    new_json = json.dumps(gltf, separators=(",", ":"))
+    new_json += " " * ((4 - len(new_json) % 4) % 4)
+    bin_chunk = data[json_end:]
+    out = bytearray()
+    out += b"glTF"
+    out += struct.pack("<II", 2, 12 + 8 + len(new_json) + len(bin_chunk))
+    out += struct.pack("<I", len(new_json)) + b"JSON"
+    out += new_json.encode("utf-8")
+    out += bin_chunk
+    with open(path, "wb") as f:
+        f.write(out)
+    print(f"GLB_FACTOR_PATCH {path} materials {','.join(patched)}")
+
+
 def bake_skin_material_to_texture(human, skin_material_name, out_png_path, resolution=1024):
     """#343 — bake the SHIPPED enhanced_skin node tree to a glTF baseColorTexture.
 
@@ -350,8 +471,8 @@ def bake_skin_material_to_texture(human, skin_material_name, out_png_path, resol
     # (measured ARRAY_TRUTH on the raster-only composite: aisha dark 460 vs hair
     # 336 on the left — the forehead-top skin texels lose to the crown scalp polys
     # in the UV-overlapped bake). The scalp polys are temporarily reassigned to the
-    # skin material for the bake and restored afterwards — the composite and the
-    # hair raster still need the scalp region to paint the hair.
+    # skin material for the bake and restored afterwards — the region still needs
+    # to exist as a material assignment for export (#359).
     _scalp_bake_idx = next(
         (i for i, m in enumerate(human.data.materials) if "scalp" in (m.name or "").lower()),
         None,
@@ -423,767 +544,6 @@ def _box_majority_vote(mask_bool, radius):
     s = acc[y1, x1] - acc[y0, x1] - acc[y1, x0] + acc[y0, x0]
     area = (y1 - y0) * (x1 - x0)
     return s * 2 >= area
-
-
-def apply_texture_mask_hairline(
-    human,
-    baked_img,
-    *,
-    scalp_idx,
-    skin_idx,
-    eye_half_w,
-    forehead_plane,
-    hairline_snap_z,
-    hairline_z,
-    head_z0,
-    h_world,
-    eye_min_x,
-    eye_max_x,
-    eye_min_y,
-    eye_max_y,
-    edge_pad,
-    hair_color=(0.035, 0.028, 0.022, 1.0),
-    resolution=1024,
-):
-    """issue-341 round 10 — the hairline via the texture-mask route (#343).
-
-    The per-polygon scalp material is finished as a boundary mechanism: a boundary
-    that follows triangle edges alternates up/down at this mesh density on 2 of 3
-    bodies (round 8 measured 65.6% / 63.3% alternation after the snap — the mesh
-    has no level edge ring to snap to). The hairline moves into the baked skin
-    texture: the scalp/hair region becomes PIXELS in the baseColorTexture, and
-    the hairline is the iso-contour of the baked height field at the derived
-    hairline height — smooth by construction, independent of mesh topology.
-
-    This function is the second half of #343's proven path (an explicit Cycles
-    DIFFUSE bake survives glTF export): it bakes two HELPER maps and composites
-    the hair region into the already-baked skin texture.
-
-      1. mask bake  — white where the per-polygon scalp region is, black
-         elsewhere (the per-polygon region defines WHERE hair is; it no longer
-         defines the hairline).
-      2. position bake — world (x, y, z) per texel, normalised over the body's
-         own head bounds (a 5-node Geometry/MapRange/Emission helper graph — a
-         bake instrument, not the character material; the character skin stays
-         the MaterialService enhanced_skin tree #343 wires).
-      3. composite — in the face-front strip (|x| <= fitted eye half-width, at
-         or ahead of the forehead plane), the hair region is re-classified
-         per-PIXEL by the derived hairline: hair where world z >= the round-8
-         snap seam height (the same quantity the round-8 snap used, in-band
-         0.90-0.96 H). Everywhere else the per-polygon bake is kept, so the
-         eye socket unpaint and the hide masks are untouched. The hairline is
-         then the level set of a smooth height field — a line, not a sawtooth.
-
-    The per-polygon scalp material is then retired: every scalp polygon is
-    reassigned to the skin material, so the exported body carries ONE skin
-    primitive whose baseColorTexture contains the hair region (no separate
-    scalp primitive — no second mechanism for one boundary).
-
-    All quantities are derived from the body's own surface or the fitted eye
-    mesh (the round-5/round-8 derivations); nothing here is a fitted constant.
-    """
-    if scalp_idx is None or scalp_idx == skin_idx:
-        print("TEXTURE_HAIRLINE WARNING: no scalp material region to convert — skipping")
-        return {"mode": "skipped_no_scalp_region"}
-
-    bpy.context.scene.frame_set(1)
-    prev_engine = bpy.context.scene.render.engine
-    prev_device = getattr(bpy.context.scene.cycles, "device", "CPU")
-    bpy.context.scene.render.engine = "CYCLES"
-    bpy.context.scene.cycles.device = "CPU"
-    bpy.context.scene.render.bake.use_pass_direct = False
-    bpy.context.scene.render.bake.use_pass_indirect = False
-    bpy.context.scene.render.bake.use_pass_color = True
-
-    def _select_human_only():
-        bpy.ops.object.select_all(action="DESELECT")
-        human.select_set(True)
-        bpy.context.view_layer.objects.active = human
-
-    # ---- helper: rebuild a material's node tree as a flat-color DIFFUSE bake ----
-    def _flat_color_material(mat, color, image):
-        for _n in list(mat.node_tree.nodes):
-            mat.node_tree.nodes.remove(_n)
-        _b = mat.node_tree.nodes.new("ShaderNodeBsdfPrincipled")
-        _b.inputs["Base Color"].default_value = color
-        _b.inputs["Roughness"].default_value = 0.9
-        _o = mat.node_tree.nodes.new("ShaderNodeOutputMaterial")
-        mat.node_tree.links.new(_b.outputs["BSDF"], _o.inputs["Surface"])
-        _t = mat.node_tree.nodes.new("ShaderNodeTexImage")
-        _t.image = image
-        _t.select = True  # the bake writes only to the ACTIVE AND SELECTED image node
-        mat.node_tree.nodes.active = _t
-
-    # ---- helper: rebuild a material's node tree as a world-position DIFFUSE bake ----
-    def _position_material(mat, image, x0, x1, y0, y1, z0, z1):
-        for _n in list(mat.node_tree.nodes):
-            mat.node_tree.nodes.remove(_n)
-        _b = mat.node_tree.nodes.new("ShaderNodeBsdfPrincipled")
-        _b.inputs["Roughness"].default_value = 0.9
-        _o = mat.node_tree.nodes.new("ShaderNodeOutputMaterial")
-        _geo = mat.node_tree.nodes.new("ShaderNodeNewGeometry")
-        _sep = mat.node_tree.nodes.new("ShaderNodeSeparateXYZ")
-        _comb = mat.node_tree.nodes.new("ShaderNodeCombineXYZ")
-        mat.node_tree.links.new(_b.outputs["BSDF"], _o.inputs["Surface"])
-        mat.node_tree.links.new(_geo.outputs["Position"], _sep.inputs["Vector"])
-        mat.node_tree.links.new(_comb.outputs["Vector"], _b.inputs["Base Color"])
-        _mrs = []
-        for _axis, (_lo, _hi) in zip(("X", "Y", "Z"), ((x0, x1), (y0, y1), (z0, z1))):
-            _mr = mat.node_tree.nodes.new("ShaderNodeMapRange")
-            _mr.inputs["From Min"].default_value = float(_lo)
-            _mr.inputs["From Max"].default_value = float(_hi)
-            _mr.inputs["To Min"].default_value = 0.0
-            _mr.inputs["To Max"].default_value = 1.0
-            _mrs.append(_mr)
-            mat.node_tree.links.new(_sep.outputs[_axis], _mr.inputs["Value"])
-        for _mr, _sock in zip(_mrs, ("X", "Y", "Z")):
-            mat.node_tree.links.new(_mr.outputs["Result"], _comb.inputs[_sock])
-        _t = mat.node_tree.nodes.new("ShaderNodeTexImage")
-        _t.image = image
-        _t.select = True
-        mat.node_tree.nodes.active = _t
-
-    skin_mat_obj = human.data.materials[skin_idx]
-    scalp_mat_obj = human.data.materials[scalp_idx]
-
-    # issue-341 round 10 (handback) — the bake evaluates the ARMATURE-DEFORMED
-    # mesh, and on the macro-solved reference bodies the rest-pose deformation
-    # shifts the mesh vertically (measured: child crownZ raw 1.2410 vs evaluated
-    # 0.8840), so a baked world-position map is in a different frame than the
-    # raw-mesh quantities this composite classifies against (hairline snap
-    # height, eye footprint, forehead plane — all raw frame). The mask bake is
-    # per-face colour and unaffected either way. The helper bakes therefore run
-    # with the armature's render evaluation DISABLED, so the baked position map
-    # is in the same frame as the hairline derivation. The skin bake already
-    # completed; the export rebuilds the skin material from scratch below.
-    _arm_mods = [m for m in human.modifiers if m.type == "ARMATURE"]
-    _arm_mod_states = [m.show_render for m in _arm_mods]
-    for _m in _arm_mods:
-        _m.show_render = False
-    bpy.context.view_layer.update()
-
-    # ---- (1) mask bake: white where the scalp region is, black everywhere else ----
-    # Drives the EXISTING skin/scalp materials (the same mechanism the proven skin
-    # bake uses — no temp-material reassignment, which the first two attempts
-    # proved flaky against the depsgraph). The skin polys bake black, the scalp
-    # polys bake white; the hidden-mask polys have no active image node and are
-    # skipped, leaving their UV areas at zero (black = not hair).
-    mask_img = bpy.data.images.new("mpfb_scalp_mask", resolution, resolution)
-    mask_img.colorspace_settings.name = "Non-Color"
-    _flat_color_material(skin_mat_obj, (0.0, 0.0, 0.0, 1.0), mask_img)
-    _flat_color_material(scalp_mat_obj, (1.0, 1.0, 1.0, 1.0), mask_img)
-    bpy.context.view_layer.update()
-    _select_human_only()
-    human.active_material_index = skin_idx
-    try:
-        # use_clear=False: mask_img is freshly created (zeros) and baked_img must
-        # NOT be cleared — the active-material image is otherwise the bake's
-        # primary clear target, which wiped the skin texture on the first run.
-        bpy.ops.object.bake(type="DIFFUSE", pass_filter={"COLOR"}, margin=2, use_clear=False)
-    except Exception as _e:
-        print(f"TEXTURE_HAIRLINE WARNING: mask bake failed: {_e}")
-
-    # ---- (2) position bake: world (x, y, z) per texel over the head bounds ----
-    _head = [
-        tuple(h_world @ v.co) for v in human.data.vertices
-        if (h_world @ v.co).z >= head_z0
-    ]
-    hx0, hx1 = min(p[0] for p in _head), max(p[0] for p in _head)
-    hy0, hy1 = min(p[1] for p in _head), max(p[1] for p in _head)
-    hz0, hz1 = min(p[2] for p in _head), max(p[2] for p in _head)
-    _pad = 0.02  # boundary texels must never clip the [0,1] map range
-    hx0, hx1 = hx0 - _pad, hx1 + _pad
-    hy0, hy1 = hy0 - _pad, hy1 + _pad
-    hz0, hz1 = hz0 - _pad, hz1 + _pad
-
-    pos_img = bpy.data.images.new("mpfb_position_map", resolution, resolution)
-    pos_img.colorspace_settings.name = "Non-Color"
-    # EMIT-bake types silently produce nothing in this Blender build (probed), so
-    # the position is driven through the Principled BASE COLOR and DIFFUSE-baked —
-    # the same pass the skin bake uses. The bake is a measurement instrument, not
-    # the character material (the character skin stays MaterialService #343; the
-    # export rebuilds this tree from scratch below).
-    _position_material(skin_mat_obj, pos_img, hx0, hx1, hy0, hy1, hz0, hz1)
-    _position_material(scalp_mat_obj, pos_img, hx0, hx1, hy0, hy1, hz0, hz1)
-    bpy.context.view_layer.update()
-    # issue-341 round 10 (handback) — the bake evaluates the armature-deformed
-    # mesh, and the macro-solved reference bodies do not rest-pose identity
-    # (measured: child crownZ raw 1.2410 vs evaluated 0.8840; disabling the
-    # modifier's render evaluation did NOT change the bake's frame). The position
-    # map must be in the RAW frame — the frame the hairline/eye/forehead
-    # quantities were derived in — so it is baked from a MODIFIER-FREE duplicate
-    # of the mesh (same data, same UVs, same material slots; no armature).
-    bpy.ops.object.select_all(action="DESELECT")
-    human.select_set(True)
-    bpy.context.view_layer.objects.active = human
-    # FULL (non-linked) duplicate: its own mesh data, its own modifier stack.
-    # A linked duplicate inherits the original's modifiers, which is how the
-    # armature deformation survived the previous attempt (measured: the child's
-    # baked Z still decoded to the deformed frame).
-    bpy.ops.object.duplicate(linked=False)
-    _pos_camper = bpy.context.active_object
-    _mods_removed = 0
-    for _m in list(_pos_camper.modifiers):
-        _pos_camper.modifiers.remove(_m)
-        _mods_removed += 1
-    print(f"TEXTURE_HAIRLINE POS_CAMPER modifiersRemoved={_mods_removed} remaining={len(list(_pos_camper.modifiers))}")
-    bpy.context.view_layer.update()
-    _select_human_only()
-    bpy.ops.object.select_all(action="DESELECT")
-    _pos_camper.select_set(True)
-    bpy.context.view_layer.objects.active = _pos_camper
-    try:
-        bpy.ops.object.bake(type="DIFFUSE", pass_filter={"COLOR"}, margin=2, use_clear=False)
-    except Exception as _e:
-        print(f"TEXTURE_HAIRLINE WARNING: position bake failed: {_e}")
-    finally:
-        bpy.data.objects.remove(_pos_camper, do_unlink=True)
-        bpy.context.view_layer.update()
-        _select_human_only()
-    bpy.context.scene.render.engine = prev_engine
-    bpy.context.scene.cycles.device = prev_device
-    # restore the armature render evaluation (the export needs the deformed mesh)
-    for _m, _st in zip(_arm_mods, _arm_mod_states):
-        _m.show_render = _st
-    bpy.context.view_layer.update()
-
-    # ---- diagnostic: what did the two helper bakes actually write? ----
-    _mstat = np.array(mask_img.pixels[:], dtype=np.float32).reshape(resolution, resolution, 4)
-    _pstat = np.array(pos_img.pixels[:], dtype=np.float32).reshape(resolution, resolution, 4)[..., :3]
-    # the position material's actual map-range node values (why does the child's Z bake to 0?)
-    _mr_vals = []
-    for _mat in (skin_mat_obj, scalp_mat_obj):
-        for _n in _mat.node_tree.nodes:
-            if _n.bl_idname == "ShaderNodeMapRange":
-                try:
-                    _mr_vals.append([round(float(_n.inputs["From Min"].default_value), 4),
-                                     round(float(_n.inputs["From Max"].default_value), 4)])
-                except Exception:
-                    pass
-    _head_zs = [float((h_world @ v.co).z) for v in human.data.vertices if (h_world @ v.co).z >= head_z0][:3]
-    _white_mask = _mstat[..., 0] > 0.5
-    _b_at_hair = float(_pstat[_white_mask][:, 2].mean()) if _white_mask.any() else -1.0
-    _r_at_hair = float(_pstat[_white_mask][:, 0].mean()) if _white_mask.any() else -1.0
-    _g_at_hair = float(_pstat[_white_mask][:, 1].mean()) if _white_mask.any() else -1.0
-    _arm = next((o for o in bpy.context.scene.objects if o.type == "ARMATURE"), None)
-    _dg = bpy.context.evaluated_depsgraph_get()
-    _eval = human.evaluated_get(_dg)
-    _crown_z_raw = max(float((h_world @ v.co).z) for v in human.data.vertices)
-    _crown_z_eval = max(float((_eval.matrix_world @ v.co).z) for v in _eval.data.vertices)
-    print(
-        "TEXTURE_HAIRLINE_BAKE_STATS "
-        f"maskWhite={int(_white_mask.sum())} "
-        f"posR=[{float(_pstat[..., 0].min()):.3f},{float(_pstat[..., 0].max()):.3f}] "
-        f"posG=[{float(_pstat[..., 1].min()):.3f},{float(_pstat[..., 1].max()):.3f}] "
-        f"posB=[{float(_pstat[..., 2].min()):.3f},{float(_pstat[..., 2].max()):.3f}] "
-        f"atHair=[R {_r_at_hair:.3f} G {_g_at_hair:.3f} B {_b_at_hair:.3f}] "
-        f"humanScale={[round(float(s), 4) for s in human.matrix_world.to_scale()]} "
-        f"armScale={[round(float(s), 4) for s in _arm.matrix_world.to_scale()] if _arm else 'n/a'} "
-        f"crownZ raw={_crown_z_raw:.4f} eval={_crown_z_eval:.4f} "
-        f"headZSample={[round(z, 4) for z in _head_zs]} "
-        f"headZ0={head_z0:.4f} hz0={hz0:.4f} hz1={hz1:.4f} "
-        f"mapRangeFromTo={_mr_vals}"
-    )
-
-    # ---- (3) composite in numpy: read all three maps, re-classify the strip ----
-    w, h = baked_img.size[0], baked_img.size[1]
-    skin_rgba = np.array(baked_img.pixels[:], dtype=np.float32).reshape(h, w, 4)
-    # issue-341 round 14 — the composite mask is the UNION of the Cycles bake and a
-    # splat of the scalp-material polys, computed below (the bake covers full UV
-    # triangles but mis-assigns the right crown; the splat is region-truth but
-    # leaves poly-interior holes over the skin bake's black scalp texels). Both
-    # are measured; see the comment at the union. mask_a is initialized here and
-    # set after the splats.
-    mask_a = np.zeros((w, h), dtype=np.float32)
-    pos = np.array(pos_img.pixels[:], dtype=np.float32).reshape(h, w, 4)[..., :3]
-    xs = hx0 + pos[..., 0] * (hx1 - hx0)
-    ys = hy0 + pos[..., 1] * (hy1 - hy0)
-    zs = hz0 + pos[..., 2] * (hz1 - hz0)
-
-    # provenance: write the helper maps next to the bake so the texture route is
-    # inspectable after the fact (mask = where the per-polygon region said hair;
-    # position = world x/y/z normalised to the head bounds).
-    #
-    # issue-341 round 12 — the previous save used bpy Image.save(), and the on-disk
-    # files were ALL-BLACK and byte-identical on every bake (measured: MD5-equal,
-    # 0/1,048,576 non-black pixels, while the same images' in-memory pixels carried
-    # real data — the composite read maskWhite=107597 from the identical buffer).
-    # Image.save() on a never-loaded GENERATED image is not reliable in this build,
-    # so the maps are written from the numpy buffers directly (stdlib zlib/struct,
-    # 8-bit RGB PNG) — deterministic and independent of Blender's image I/O.
-    _prov_dir = pathlib.Path(baked_img.filepath_raw).parent if baked_img.filepath_raw else pathlib.Path(".")
-    _prov_dir.mkdir(parents=True, exist_ok=True)
-    for _img, _tag in ((mask_img, "scalp-mask"), (pos_img, "position-map")):
-        _px = np.array(_img.pixels[:], dtype=np.float32).reshape(resolution, resolution, 4)
-        _rgb = np.clip(_px[..., :3] * 255.0, 0, 255).astype(np.uint8)
-        _raw = b"".join(
-            b"\x00" + _rgb[y, :, :].tobytes() for y in range(resolution)
-        )
-
-        def _png_chunk(tag: bytes, data: bytes) -> bytes:
-            body = tag + data
-            return (
-                struct.pack(">I", len(data))
-                + body
-                + struct.pack(">I", zlib.crc32(body) & 0xFFFFFFFF)
-            )
-
-        _png = b"\x89PNG\r\n\x1a\n"
-        _png += _png_chunk(b"IHDR", struct.pack(">IIBBBBB", resolution, resolution, 8, 2, 0, 0, 0))
-        _png += _png_chunk(b"IDAT", zlib.compress(_raw, 9))
-        _png += _png_chunk(b"IEND", b"")
-        _out = _prov_dir / f"{_tag}.png"
-        try:
-            _out.write_bytes(_png)
-            print(f"TEXTURE_HAIRLINE PROVENANCE {_tag}.png bytes={_out.stat().st_size} "
-                  f"max={int(_rgb.max())} nonBlack={int((_rgb.max(axis=2) > 8).sum())}")
-        except Exception as _e:
-            print(f"TEXTURE_HAIRLINE WARNING: could not write {_tag}.png: {_e}")
-
-    # ---- (3) classification — frame-independent, from the mesh's RAW vertices ----
-    # issue-341 round 12 — the baked position map is not a reliable frame for
-    # classification in this pipeline: round 10 measured the child's Z channel
-    # dead even from a modifier-free duplicate, and this round measured the
-    # position maps disagreeing with the mesh's own UV->world mapping (a
-    # face-front texel decoded to the neck), while the eye footprint, the
-    # hairline and the exported mesh are all RAW-frame quantities. The strip and
-    # socket are therefore evaluated from the mesh's RAW vertices (h_world @
-    # v.co — the same frame as the eye footprint and hairline) and splatted to
-    # texels through the UV layer, so the classification cannot drift with the
-    # bake frame. The hairline threshold is the round-5 derived hairline
-    # (hairline_z, the top of the forehead column — the derivation rounds 5/6
-    # established and the orchestrator accepted), NOT the round-8 snap seam
-    # (hairline_snap_z), which sits at the bottom of the eyes and paints the
-    # brow/socket/nose (measured: shipped aisha brow [10,9,8] vs round-9
-    # known-good [53,47,43]; the round-12 render keeps a dark band over the
-    # eyes/nose because the socket exclusion was applied in the broken frame).
-    _uv_layer = human.data.uv_layers[0].data
-    # issue-341 round 14 — a UV-frame hypothesis was tested and MEASURED DEAD:
-    # the mesh carries exactly ONE UV layer (uvLayers=1 active=UVMap) on all
-    # three actors, so the composite's uv_layers[0], the Cycles bakes and the
-    # exported TEXCOORD_0 are all the same frame. The left/right hair asymmetry
-    # therefore enters elsewhere; the frame counts below confirm the single-layer
-    # state on every bake.
-    _loops = human.data.loops
-    _verts = human.data.vertices
-    _face_band = np.zeros((resolution, resolution), dtype=bool)
-    _above_hair = np.zeros((resolution, resolution), dtype=bool)
-    _socket = np.zeros((resolution, resolution), dtype=bool)
-    _scalp_region = np.zeros((resolution, resolution), dtype=bool)
-    for _poly in human.data.polygons:
-        for _li in range(_poly.loop_start, _poly.loop_start + _poly.loop_total):
-            _vi = _loops[_li].vertex_index
-            _p = h_world @ _verts[_vi].co
-            _u = _uv_layer[_li].uv
-            _tx = int(_u.x * resolution) % resolution
-            _ty = int((1.0 - _u.y) * resolution) % resolution
-            if abs(_p.x) <= eye_half_w and _p.y <= forehead_plane and _p.z >= head_z0:
-                _face_band[_ty, _tx] = True
-                if hairline_z is not None and _p.z >= hairline_z:
-                    _above_hair[_ty, _tx] = True
-            if (
-                abs(_p.x) <= eye_half_w + edge_pad
-                and _p.y <= eye_max_y + edge_pad
-                and _p.z >= head_z0
-            ):
-                _socket[_ty, _tx] = True
-    # dilate the splats by the body's own UV scale (a property of the mesh
-    # resolution, not a fitted constant) so the level set is smooth.
-    _median_uv = _median_uv_edge_px(human, resolution) or 0.0
-    _dil = max(2, int(round(1.5 * _median_uv))) if _median_uv else 4
-
-    def _dilate(_m):
-        _out = _m.copy()
-        for _dy in range(-_dil, _dil + 1):
-            for _dx in range(-_dil, _dil + 1):
-                _out = np.maximum(_out, np.roll(np.roll(_m, _dy, axis=0), _dx, axis=1))
-        return _out
-
-    _face_band = _dilate(_face_band)
-    _above_hair = _dilate(_above_hair)
-    _socket = _dilate(_socket)
-    # issue-341 round 14 — the composite mask is the scalp region RASTERIZED from
-    # the mesh (full UV-triangle coverage), not the Cycles bake and not a corner
-    # splat. Both alternatives were measured defective on the array:
-    #   * the BAKE covers full triangles but mis-assigns the right crown (basemesh
-    #     UV-overlap: own-poly cross-tab L scalp_white 335/black 8, R 256/87).
-    #   * a corner splat + UV-scale dilation is symmetric but leaves BLACK HOLES —
-    #     the skin bake skips the scalp-material polys (they are not skin at bake
-    #     time), so their UV triangles are (0,0,0); the left crown's UV island has
-    #     lower texel density so its interiors stay black (ARRAY_TRUTH L dark 460
-    #     vs hair 336, R 336/336 on the splat-only composite).
-    # The rasterization is the region truth AND the full coverage: deterministic,
-    # frame-consistent, and immune to both defects. The bake still runs for the
-    # provenance PNG and stats, but its output does not feed the composite.
-    def _rasterize_tri(_mask, _tri):
-        _xs = [_p[0] * resolution for _p in _tri]
-        _ys = [(1.0 - _p[1]) * resolution for _p in _tri]
-        _x0 = max(0, int(min(_xs)))
-        _x1 = min(resolution - 1, int(max(_xs)))
-        _y0 = max(0, int(min(_ys)))
-        _y1 = min(resolution - 1, int(max(_ys)))
-        if _x1 < _x0 or _y1 < _y0:
-            return
-        _gx, _gy = np.meshgrid(np.arange(_x0, _x1 + 1) + 0.5, np.arange(_y0, _y1 + 1) + 0.5)
-        (_ax, _ay), (_bx, _by), (_cx, _cy) = zip(*[_xs, _ys])
-        _e0 = (_bx - _ax) * (_gy - _ay) - (_by - _ay) * (_gx - _ax)
-        _e1 = (_cx - _bx) * (_gy - _by) - (_cy - _by) * (_gx - _bx)
-        _e2 = (_ax - _cx) * (_gy - _cy) - (_ay - _cy) * (_gx - _cx)
-        _inside = ((_e0 >= 0) & (_e1 >= 0) & (_e2 >= 0)) | ((_e0 <= 0) & (_e1 <= 0) & (_e2 <= 0))
-        _mask[_y0:_y1 + 1, _x0:_x1 + 1][_inside] = True
-
-    _scalp_raster = np.zeros((resolution, resolution), dtype=bool)
-    for _poly in human.data.polygons:
-        if _poly.material_index != scalp_idx:
-            continue
-        _pts = [_uv_layer[_li].uv for _li in range(_poly.loop_start, _poly.loop_start + _poly.loop_total)]
-        if len(_pts) < 3:
-            continue
-        for _k in range(1, len(_pts) - 1):
-            _rasterize_tri(_scalp_raster, (_pts[0], _pts[_k], _pts[_k + 1]))
-    mask_a = _scalp_raster.astype(np.float32)
-    # the eye/brow/nose region: the face-front socket band BELOW the hairline is
-    # never hair — the eyes and brows render through the skin texture (#340's eye
-    # mesh is separate geometry and is unaffected). Above the hairline the
-    # forehead is hair, and the crown/sides keep the per-polygon mask.
-    _socket_low = _socket & ~_above_hair
-
-    # issue-341 round 14 — stage-by-stage L/R instrumentation. The shipped
-    # textures carry a 30-36 pt hair asymmetry (LEFT 82-87%, RIGHT 46-57%) while
-    # the per-polygon mask and every region predicate are X-symmetric (measured).
-    # These prints locate which stage the bias enters by sampling the texel grids
-    # at the DOME verts' own UVs (frac >= 0.94 H, |x| > 5 mm), exactly as the
-    # planted hair-covers-both-sides-of-the-head test samples the shipped bytes.
-    def _side_dome(_grid):
-        _out = {"L": 0, "R": 0}
-        if _grid is None:
-            return _out
-        _lo = min((h_world @ v.co).z for v in _verts)
-        _hi = max((h_world @ v.co).z for v in _verts)
-        _H = _hi - _lo
-        for _poly in human.data.polygons:
-            for _li in range(_poly.loop_start, _poly.loop_start + _poly.loop_total):
-                _vi = _loops[_li].vertex_index
-                _p = h_world @ _verts[_vi].co
-                if (_p.z - _lo) / _H < 0.94:
-                    continue
-                if abs(_p.x) <= 0.005:
-                    continue
-                _u = _uv_layer[_li].uv
-                _tx = int(_u.x * resolution) % resolution
-                _ty = int((1.0 - _u.y) * resolution) % resolution
-                if _grid[_ty, _tx]:
-                    _out["L" if _p.x < 0 else "R"] += 1
-        return _out
-
-    def _side_transitions(_final, _ref):
-        _out = {"L": {"wd": 0, "wl": 0, "bd": 0, "bl": 0}, "R": {"wd": 0, "wl": 0, "bd": 0, "bl": 0}}
-        _lo = min((h_world @ v.co).z for v in _verts)
-        _hi = max((h_world @ v.co).z for v in _verts)
-        _H = _hi - _lo
-        for _poly in human.data.polygons:
-            for _li in range(_poly.loop_start, _poly.loop_start + _poly.loop_total):
-                _vi = _loops[_li].vertex_index
-                _p = h_world @ _verts[_vi].co
-                if (_p.z - _lo) / _H < 0.94:
-                    continue
-                if abs(_p.x) <= 0.005:
-                    continue
-                _u = _uv_layer[_li].uv
-                _tx = int(_u.x * resolution) % resolution
-                _ty = int((1.0 - _u.y) * resolution) % resolution
-                _m = bool(_ref[_ty, _tx])
-                _f = bool(_final[_ty, _tx])
-                _k = "wd" if (_m and _f) else "wl" if (_m and not _f) else "bd" if (not _m and _f) else "bl"
-                _out["L" if _p.x < 0 else "R"][_k] += 1
-        return _out
-
-    print(
-        "TEXTURE_HAIRLINE_SIDES "
-        f"uvLayers={len(human.data.uv_layers)} "
-        f"active={human.data.uv_layers.active.name if human.data.uv_layers.active else 'None'} "
-        f"texelTotals face={int(_face_band.sum())} above={int(_above_hair.sum())} "
-        f"socket={int(_socket.sum())} socketLow={int(_socket_low.sum())} "
-        f"maskWhite={int((mask_a > 0.5).sum())} "
-        f"domeMaskWhiteL={_side_dome(mask_a > 0.5)['L']} domeMaskWhiteR={_side_dome(mask_a > 0.5)['R']} "
-        f"domeFaceL={_side_dome(_face_band)['L']} domeFaceR={_side_dome(_face_band)['R']} "
-        f"domeAboveL={_side_dome(_above_hair)['L']} domeAboveR={_side_dome(_above_hair)['R']} "
-        f"domeSocketL={_side_dome(_socket)['L']} domeSocketR={_side_dome(_socket)['R']} "
-        f"domeSockLowL={_side_dome(_socket_low)['L']} domeSockLowR={_side_dome(_socket_low)['R']}"
-    )
-
-    hair = mask_a > 0.5
-    override = _face_band
-    _fallback = None
-    if hairline_z is None or forehead_plane is None:
-        print(
-            "TEXTURE_HAIRLINE WARNING: no hairline height or forehead plane — "
-            "keeping per-polygon mask only"
-        )
-    else:
-        # face front: hair only at-or-above the derived hairline (a level set of
-        # the raw vertex heights — smooth, independent of the edge ring); below
-        # it the eyes/brow/nose bridge are skin regardless of the per-polygon
-        # mask, so the round-11 "black mask over the eyes and down the bridge of
-        # the nose" cannot recur in any bake frame.
-        hair[_face_band] = _above_hair[_face_band]
-        hair[_socket_low] = False
-    print(
-        "TEXTURE_HAIRLINE_SIDES_FINAL "
-        f"transitions={json.dumps(_side_transitions(hair, mask_a > 0.5))}"
-    )
-    # round 14 — crown census: is the per-polygon SCALP region itself asymmetric at
-    # the dome, or does the mask BAKE mis-assign? Count, per side, the body polys
-    # whose verts lie in the dome (>= 0.94 H) by material (scalp vs skin).
-    _lo_d = min((h_world @ v.co).z for v in _verts)
-    _hi_d = max((h_world @ v.co).z for v in _verts)
-    _H_d = _hi_d - _lo_d
-    _crown = {"L": {"scalp": 0, "skin": 0, "other": 0}, "R": {"scalp": 0, "skin": 0, "other": 0}}
-    for _poly in human.data.polygons:
-        _vs = [h_world @ _verts[_vi].co for _vi in _poly.vertices]
-        if not any((_p.z - _lo_d) / _H_d >= 0.94 and abs(_p.x) > 0.005 for _p in _vs):
-            continue
-        _any_l = any(_p.x < -0.005 for _p in _vs)
-        _any_r = any(_p.x > 0.005 for _p in _vs)
-        if _any_l and _any_r:
-            continue  # straddles the midline; count only clean-side polys
-        _side = "L" if _any_l else "R"
-        _matname = human.data.materials[_poly.material_index].name if _poly.material_index < len(human.data.materials) else "?"
-        if _poly.material_index == scalp_idx:
-            _crown[_side]["scalp"] += 1
-        elif _poly.material_index == skin_idx:
-            _crown[_side]["skin"] += 1
-        else:
-            _crown[_side]["other"] += 1
-    print(
-        "TEXTURE_HAIRLINE CROWN_CENSUS "
-        f"L={json.dumps(_crown['L'])} R={json.dumps(_crown['R'])}"
-    )
-    # round 14 — per-loop own-poly vs mask cross-tab: for each dome loop, is its own
-    # polygon scalp, and is the mask texel at its UV white? A scalp-poly loop whose
-    # texel is black means the BAKE mis-assigned that UV area; symmetric results mean
-    # the per-polygon region itself is asymmetric.
-    _lo_e = min((h_world @ v.co).z for v in _verts)
-    _hi_e = max((h_world @ v.co).z for v in _verts)
-    _H_e = _hi_e - _lo_e
-    _xtab = {
-        "L": {"scalp_white": 0, "scalp_black": 0, "skin_white": 0, "skin_black": 0},
-        "R": {"scalp_white": 0, "scalp_black": 0, "skin_white": 0, "skin_black": 0},
-    }
-    _mask_b = mask_a > 0.5
-    for _poly in human.data.polygons:
-        if _poly.material_index not in (scalp_idx, skin_idx):
-            continue
-        for _li in range(_poly.loop_start, _poly.loop_start + _poly.loop_total):
-            _vi = _loops[_li].vertex_index
-            _p = h_world @ _verts[_vi].co
-            if (_p.z - _lo_e) / _H_e < 0.94:
-                continue
-            if abs(_p.x) <= 0.005:
-                continue
-            _u = _uv_layer[_li].uv
-            _tx = int(_u.x * resolution) % resolution
-            _ty = int((1.0 - _u.y) * resolution) % resolution
-            _white = bool(_mask_b[_ty, _tx])
-            _scalp = _poly.material_index == scalp_idx
-            _s = "L" if _p.x < 0 else "R"
-            _key = ("scalp" if _scalp else "skin") + ("_white" if _white else "_black")
-            _xtab[_s][_key] += 1
-    print(f"TEXTURE_HAIRLINE OWN_POLY_XTAB L={json.dumps(_xtab['L'])} R={json.dumps(_xtab['R'])}")
-    # round 14 — dump the RAW dome loops (x, z, u, v) per side for frame comparison
-    # against the exported GLB (the JS instrument reads the GLB symmetric while the
-    # bake reads the same mask asymmetric: raw mesh and exported mesh must differ).
-    _lo_d = min((h_world @ v.co).z for v in _verts)
-    _hi_d = max((h_world @ v.co).z for v in _verts)
-    _H_d = _hi_d - _lo_d
-    _dome_dump = {"L": [], "R": [], "Ltot": 0, "Rtot": 0}
-    for _poly in human.data.polygons:
-        for _li in range(_poly.loop_start, _poly.loop_start + _poly.loop_total):
-            _vi = _loops[_li].vertex_index
-            _p = h_world @ _verts[_vi].co
-            if (_p.z - _lo_d) / _H_d < 0.94:
-                continue
-            if abs(_p.x) <= 0.005:
-                continue
-            _u = _uv_layer[_li].uv
-            _s = "L" if _p.x < 0 else "R"
-            _dome_dump[_s + "tot"] += 1
-            if len(_dome_dump[_s]) < 400:
-                _dome_dump[_s].append([
-                    round(float(_p.x), 4), round(float(_p.z), 4),
-                    round(float(_u.x), 4), round(float(_u.y), 4),
-                ])
-    _dump_path = pathlib.Path(baked_img.filepath_raw).parent if baked_img.filepath_raw else pathlib.Path(".")
-    _dump_file = _dump_path / "dome-loop-dump.json"
-    try:
-        _dump_file.write_text(json.dumps(_dome_dump))
-        print(f"TEXTURE_HAIRLINE DOME_DUMP {_dump_file} L={_dome_dump['Ltot']} R={_dome_dump['Rtot']}")
-    except Exception as _e:
-        print(f"TEXTURE_HAIRLINE WARNING: dome dump failed: {_e}")
-    out_rgba = skin_rgba.copy()
-    out_rgba[hair] = np.array(hair_color, dtype=np.float32)
-    # round 14 — array-truth instrument: sample OUT_RGBA (the composite array, no
-    # PNG orientation ambiguity) at the dome loops, per side. Distinguishes "the
-    # array is symmetric but the PNG/export frame mirrors it" from "the array is
-    # asymmetric". Also the hair-boolean fraction, so a dark SKIN bake under the
-    # hair region is visible as dark > hair.
-    _lo_f = min((h_world @ v.co).z for v in _verts)
-    _hi_f = max((h_world @ v.co).z for v in _verts)
-    _H_f = _hi_f - _lo_f
-    _arr = {"L": {"dark": 0, "hair": 0, "n": 0}, "R": {"dark": 0, "hair": 0, "n": 0}}
-    for _poly in human.data.polygons:
-        for _li in range(_poly.loop_start, _poly.loop_start + _poly.loop_total):
-            _vi = _loops[_li].vertex_index
-            _p = h_world @ _verts[_vi].co
-            if (_p.z - _lo_f) / _H_f < 0.94:
-                continue
-            if abs(_p.x) <= 0.005:
-                continue
-            _u = _uv_layer[_li].uv
-            _tx = int(_u.x * resolution) % resolution
-            _ty = int((1.0 - _u.y) * resolution) % resolution
-            _s = "L" if _p.x < 0 else "R"
-            _arr[_s]["n"] += 1
-            if hair[_ty, _tx]:
-                _arr[_s]["hair"] += 1
-            _c = out_rgba[_ty, _tx][:3]
-            if float(np.mean(_c)) < 70 / 255.0:
-                _arr[_s]["dark"] += 1
-    print(
-        "TEXTURE_HAIRLINE ARRAY_TRUTH "
-        f"L={json.dumps(_arr['L'])} R={json.dumps(_arr['R'])}"
-    )
-    # issue-341 round 16 — U-banded crown stage report. The planted
-    # hair-covers-both-sides test samples dome loops (>= 0.94 H, |x| > 5 mm) from the
-    # shipped texture; the round-16 handback measured hair coverage falling
-    # monotonically with U (child 34% in the far-U band) and asked which stage the
-    # gradient enters. Report, per U band over the SAME dome loops, coverage at each
-    # stage: own-poly region (material index), raster mask (mask_a, the composite
-    # source), Cycles mask bake (mask_img), and composite (hair), plus face-band and
-    # below-hairline membership so the band contents can be attributed.
-    _lo_u = min((h_world @ v.co).z for v in _verts)
-    _hi_u = max((h_world @ v.co).z for v in _verts)
-    _H_u = _hi_u - _lo_u
-    _mask_bake_arr = (
-        np.array(mask_img.pixels[:], dtype=np.float32).reshape(resolution, resolution, 4)[..., 0] > 0.5
-    )
-    _uband_edges = [0.641, 0.670, 0.700, 0.729, 0.758, 0.787, 0.817]
-    _ubands = [
-        {
-            "band": f"{_uband_edges[_k]:.3f}-{_uband_edges[_k + 1]:.3f}",
-            "n": 0, "region": 0, "raster": 0, "bake": 0, "final": 0,
-            "faceBand": 0, "belowHairline": 0, "zfrac": 0.0,
-        }
-        for _k in range(len(_uband_edges) - 1)
-    ]
-    for _poly in human.data.polygons:
-        for _li in range(_poly.loop_start, _poly.loop_start + _poly.loop_total):
-            _vi = _loops[_li].vertex_index
-            _p = h_world @ _verts[_vi].co
-            if (_p.z - _lo_u) / _H_u < 0.94:
-                continue
-            if abs(_p.x) <= 0.005:
-                continue
-            _u = _uv_layer[_li].uv
-            if not (_uband_edges[0] <= _u.x < _uband_edges[-1]):
-                continue
-            _bi = next(
-                (_k for _k in range(len(_uband_edges) - 1) if _uband_edges[_k] <= _u.x < _uband_edges[_k + 1]),
-                -1,
-            )
-            if _bi < 0:
-                continue
-            _row = _ubands[_bi]
-            _tx = int(_u.x * resolution) % resolution
-            _ty = int((1.0 - _u.y) * resolution) % resolution
-            _row["n"] += 1
-            _row["zfrac"] += (_p.z - _lo_u) / _H_u
-            if _poly.material_index == scalp_idx:
-                _row["region"] += 1
-            if mask_a[_ty, _tx] > 0.5:
-                _row["raster"] += 1
-            if _mask_bake_arr[_ty, _tx]:
-                _row["bake"] += 1
-            if hair[_ty, _tx]:
-                _row["final"] += 1
-            if abs(_p.x) <= eye_half_w and _p.y <= forehead_plane and _p.z >= head_z0:
-                _row["faceBand"] += 1
-                if hairline_z is not None and _p.z < hairline_z:
-                    _row["belowHairline"] += 1
-    for _row in _ubands:
-        if _row["n"] == 0:
-            continue
-        _pct = lambda _k: round(100.0 * _row[_k] / _row["n"], 1)
-        print(
-            "TEXTURE_HAIRLINE U_BAND "
-            f"{_row['band']} n={_row['n']} "
-            f"region={_pct('region')}% raster={_pct('raster')}% "
-            f"bake={_pct('bake')}% final={_pct('final')}% "
-            f"faceBand={_pct('faceBand')}% belowHairline={_pct('belowHairline')}% "
-            f"avgZfrac={_row['zfrac'] / _row['n']:.3f}"
-        )
-    baked_img.pixels[:] = out_rgba.reshape(-1).tolist()
-    try:
-        baked_img.save()  # re-save the on-disk PNG so it matches the exported texture
-    except Exception as _e:
-        print(f"TEXTURE_HAIRLINE WARNING: skin-baked.png re-save failed: {_e}")
-
-    # ---- retire the per-polygon scalp material: one mechanism for one boundary ----
-    scalp_reassigned = 0
-    for _p in human.data.polygons:
-        if _p.material_index == scalp_idx:
-            _p.material_index = skin_idx
-            scalp_reassigned += 1
-
-    # ---- measurement: the hairline IN THE TEXTURE (replacement for the geometric seam) ----
-    _cols = np.where(override.any(axis=0))[0]
-    _bound_rows: list[int] = []
-    for _c in _cols:
-        _rc = np.where(override[:, _c])[0]
-        if len(_rc) < 2:
-            continue
-        _hair_c = hair[_rc, _c]
-        if not _hair_c.any() or _hair_c.all():
-            continue
-        _first_hair = int(np.where(_hair_c)[0][0])
-        _bound_rows.append(int(_rc[_first_hair]))
-    _flips = 0
-    _steps = 0
-    _prev = 0
-    for _k in range(1, len(_bound_rows)):
-        _d = _bound_rows[_k] - _bound_rows[_k - 1]
-        if _d == 0:
-            continue
-        _steps += 1
-        if _prev != 0 and np.sign(_d) != np.sign(_prev):
-            _flips += 1
-        _prev = _d
-    _flip_rate = round(_flips / _steps, 4) if _steps else 0.0
-    _hair_z = zs[hair]
-    _z_alive = bool(float(pos[..., 2].max()) > 1e-6) if pos is not None else False
-    return {
-        "mode": "texture_mask_level_line",
-        "scalpPolygonsReassignedToSkin": scalp_reassigned,
-        "hairRegionPixels": int(hair.sum()),
-        "maskWhitePixels": int((mask_a > 0.5).sum()),
-        "stripOverridePixels": int(override.sum()),
-        "socketExcludedPixels": int(_socket_low.sum()),
-        "hairlineSnapZ": round(float(hairline_snap_z), 4) if hairline_snap_z is not None else None,
-        "hairlineZ": round(float(hairline_z), 4) if hairline_z is not None else None,
-        "hairZRange": (
-            [round(float(_hair_z.min()), 4), round(float(_hair_z.max()), 4)]
-            if _hair_z.size and _z_alive else None
-        ),
-        "fallback": _fallback,
-        "textureBoundaryColumns": len(_bound_rows),
-        "textureBoundaryFlipRate": _flip_rate,
-        "textureBoundaryMedianStepPx": (
-            round(float(np.median(np.abs(np.diff(_bound_rows)))), 2) if len(_bound_rows) > 2 else None
-        ),
-        "positionMapHeadBounds": [round(x, 4) for x in (hx0, hx1, hy0, hy1, hz0, hz1)],
-        "claimScope": "hairline boundary moved from polygon material assignment into the baked skin baseColorTexture; hairline height is the round-5 derived hairline (hairline_z, the top of the forehead column) classified from the mesh's RAW vertices, not the baked position map; the per-polygon scalp material is retired",
-        "notEvidenceFor": ["a clean pixel grade (orchestrator grades captures)", "clinical realism", "production asset readiness", "quest readiness"],
-    }
 
 
 def mesh_from_numpy(name, verts, faces):
@@ -1517,6 +877,7 @@ def _outer_facing_front_tris(garment_verts, garment_faces) -> np.ndarray:
 
 def main():
     args = parse_args()
+    GARMENT_FACTOR_PATCH.clear()  # #360: per-actor; a fresh Blender process bakes each actor anyway
     bpy.ops.preferences.addon_enable(module="bl_ext.user_default.mpfb")
 
     reference = None
@@ -1844,12 +1205,10 @@ def main():
     # follows triangle edges. Measured on the shipped bytes of all three MPFB
     # actors: the central-forehead seam alternates direction 54-67% of steps with
     # median step 6.9-27 mm — the "jagged black sawtooth across the forehead".
-    # The planted flip-rate gate (<=25%) cannot be met by ANY per-polygon boundary
-    # at this mesh density — measured: even a hairline snapped to the mesh ring
-    # alternates 43-68% because the seam follows edges at sub-mm scale, and the
-    # skin region's boundary has TWO components (the front-to-top fold arc and the
-    # crown-front) that alternate along x. The definitive fix is per-pixel (a
-    # texture-mask hairline — #343). What this pass DOES fix is the LARGE-AMPLITUDE
+    # #359 (the settled direction): the per-polygon region IS the shipped mechanism
+    # — the #358 head-framed comparison graded the Anny region's mild sawtooth as
+    # reading unambiguously as hair, and the texture-mask alternative is removed
+    # (see the export block below). What this pass fixes is the LARGE-AMPLITUDE
     # raggedness: it snaps the face-front strip to the mesh's own edge ring. A
     # scalp polygon in the strip stays scalp only if ALL its vertices sit above the
     # strip's measured hairline — the mean height of the current seam, the same
@@ -2081,12 +1440,19 @@ def main():
     _measure_shirt_stage("rest", garment, human)
     garment.data.materials.clear()
     # Name matches the GARMENT_MATERIAL regex the evidence RED reads (makeclothes/shirt).
-    garment.data.materials.append(
-        make_material(
-            f"mat_{_upper_lib_name}",
-            garment_shell_color(_upper_kind, args.actor_role, {}),
-        )
+    # #360: consume the asset's OWN declared .mhmat diffuse texture (the generic #340/#356
+    # path) while keeping the #180 role colour as the exported baseColorFactor (patched in
+    # after export — the glTF exporter drops the factor when a texture is bound). The nurse's
+    # Scrub_Shirt declares Scrub_Shirt.mhmat, which is NOT staged in the provider cache, so
+    # that slot skips with a recorded reason and keeps the locked scrub colour.
+    _upper_role_colour = garment_shell_color(_upper_kind, args.actor_role, {})
+    _upper_mat, _upper_mat_record = garment_material_from_declared(
+        garment_mhclo,
+        _upper_role_colour,
+        f"mat_{_upper_lib_name}",
+        mesh=garment,
     )
+    garment.data.materials.append(_upper_mat)
     mhclo = Mhclo()
     mhclo.load(str(garment_mhclo))
     try:
@@ -2147,13 +1513,20 @@ def main():
     # #180: the lower colour follows the SAME palette call as the upper (nurse: locked scrub
     # colour -> matching set; patients: closed_casual role fallback), so the lower slot is
     # pairwise distinct across the cast too.
+    # #360: the cargo-pants .mhclo declares cargo_pants.mhmat, which is NOT staged in the
+    # provider cache, so the slot skips with a recorded reason and keeps the flat role colour.
+    # The shipped lower geometry is the #326 body-derived cover shell, which carries NO UV
+    # layer either — a texture would render as garbage. Both facts are recorded; wiring the
+    # lower slot is a fitting-pipeline slice, not a side effect of this material change.
     _lower_kind = "scrub" if _is_clinician else "closed_casual"
-    pants.data.materials.append(
-        make_material(
-            "mat_makeclothes_library_cargo_pants",
-            garment_shell_color(_lower_kind, args.actor_role, {}),
-        )
+    _lower_role_colour = garment_shell_color(_lower_kind, args.actor_role, {})
+    _pants_mat, _pants_mat_record = garment_material_from_declared(
+        pants_mhclo,
+        _lower_role_colour,
+        "mat_makeclothes_library_cargo_pants",
+        mesh=pants,
     )
+    pants.data.materials.append(_pants_mat)
     mhclo_pants = Mhclo()
     mhclo_pants.load(str(pants_mhclo))
     try:
@@ -2838,9 +2211,18 @@ def main():
     apply_object_transforms(shoe)
     shoe.data.materials.clear()
     # Name matches the FOOTWEAR regex the evidence RED reads (footwear/shoe/boot/flat).
-    shoe.data.materials.append(
-        make_material(f"mat_makeclothes_library_footwear_{shoe_kind}", (0.10, 0.09, 0.08, 1.0))
+    # #360: consume the shoe's OWN declared .mhmat diffuse texture (all three staged kinds are
+    # CC0/CC-0 per the licence ledger). patch_factor=False: the #180 contract pins footwear by
+    # ASSET, not colour, and the #337/#338 ban on tinting via baseColorFactor when a texture is
+    # bound applies — the declared texture IS the author's look.
+    _shoe_mat, _shoe_mat_record = garment_material_from_declared(
+        shoe_mhclo,
+        (0.10, 0.09, 0.08),
+        f"mat_makeclothes_library_footwear_{shoe_kind}",
+        mesh=shoe,
+        patch_factor=False,
     )
+    shoe.data.materials.append(_shoe_mat)
     mhclo_shoe = Mhclo()
     mhclo_shoe.load(str(shoe_mhclo))
     try:
@@ -3276,35 +2658,18 @@ def main():
     bake_png = output.parent / f"{output.stem}.skin-baked.png"
     baked_img = bake_skin_material_to_texture(human, skin_material_name, str(bake_png), resolution=1024)
 
-    # issue-341 round 10 — the hairline via the texture-mask route (#343). The
-    # per-polygon scalp material cannot produce a smooth hairline at this mesh
-    # density (round 8 measured 65.6%/63.3% alternation after the snap — the
-    # mesh has no level edge ring). The scalp region moves into the baked skin
-    # texture: the hairline becomes the iso-contour of a baked height field at
-    # the derived hairline height — a boundary in the texture, smooth by
-    # construction. `apply_texture_mask_hairline` bakes a scalp mask + a world
-    # position map, composites the hair region per-pixel into the skin texture,
-    # and retires the per-polygon scalp material (no second mechanism for one
-    # boundary). All quantities are the round-5/round-8 derivations from the
-    # body's own surface and the fitted eye mesh.
-    texture_hairline = apply_texture_mask_hairline(
-        human,
-        baked_img,
-        scalp_idx=scalp_idx,
-        skin_idx=skin_idx,
-        eye_half_w=eye_half_w,
-        forehead_plane=forehead_plane,
-        hairline_snap_z=hairline_snap_z,
-        hairline_z=hairline_z,
-        head_z0=head_z0,
-        h_world=h_world,
-        eye_min_x=eye_min_x,
-        eye_max_x=eye_max_x,
-        eye_min_y=eye_min_y,
-        eye_max_y=eye_max_y,
-        edge_pad=edge_pad,
-    )
-    print(f"TEXTURE_HAIRLINE {json.dumps(texture_hairline)}")
+    # #359 — the texture-mask hairline route (#341 rounds 10-16) is REMOVED. The #358 head-framed
+    # comparison graded it as damage (roughly half the scalp bare skin, a hard pixel-stair-stepped
+    # vertical edge, an isolated black rectangle on the right forehead) against the Anny scalp
+    # material region, which read unambiguously as hair; the region wins and is the mechanism to
+    # ship. The route also CONFLICTED with the region's face-clear rule: its composite painted hair
+    # texels in the front face band beyond the per-polygon region (the "runs onto the cheek" leak),
+    # while the per-polygon region keeps that band skin. The scalp region therefore stays a material
+    # assignment on the body mesh (painted by the proven Anny function above, refined by the
+    # eye-socket/forehead unpaints and the round-8 ring snap) and EXPORTS as a second primitive on
+    # the body — no separate hair mesh, no texture boundary. The skin bake above keeps the
+    # scalp-cover swap so the texture has no black holes under the region.
+    print(f"SCALP_REGION_EXPORT {scalp_hair_region}")
 
     # Rebuild the SAME material object's node tree as a glTF-exportable Principled
     # material carrying the baked texture as baseColorTexture (the eye path's
@@ -3329,6 +2694,12 @@ def main():
 
     bpy.ops.export_scene.gltf(filepath=str(output), export_format="GLB", export_animations=True)
     print(f"EXPORTED {output}")
+
+    # #360: write the #180 role colours as baseColorFactor beside the exported garment
+    # textures (the glTF exporter dropped them; see GARMENT_FACTOR_PATCH). Runs before the
+    # census so the measurements below read the FINAL bytes.
+    if GARMENT_FACTOR_PATCH:
+        patch_glb_base_color_factors(str(output), GARMENT_FACTOR_PATCH)
 
     # #328 census: report the final exported body the same way the planted contract
     # measures it (largest non-garment/non-hidden primitive), plus the macro dict and

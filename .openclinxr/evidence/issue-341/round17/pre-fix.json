@@ -1,17 +1,12 @@
 {
-  "schemaVersion": "openclinxr.issue341.round17.pre-fix.v1",
-  "measuredAgainstCommit": "a2f27ec2cbda5e8095c21a179c2b7d20504bc89e",
-  "measuredAt": "2026-08-12T20:30:00Z",
-  "measuredBy": "worker (text-only) via NodeIO on the shipped GLBs + generator stdout from pre-fix re-bakes",
-  "verdict": "PREMISE DEAD — the re-hide band faces are real and land in a DIFFERENT primitive (openclinxr_hidden_lower_*_body_mesh.001), which reaches the trouser rim on all three actors. The orchestrator's gap (55.6/34.3/23.9 mm) is an artifact of reading only the FIRST hidden_lower primitive (bands.find() picks the base poke-mask). No defect at the mask. changed: proofs WAIVED per the premise-dead branch.",
-  "caseDetermination": "applied and my measurement is wrong (case 4) — band computed, band non-empty, applied (reclip removed only 14/58/38 polys), and the re-hide band lands in the .001 primitive. The WARNING never fired on any actor.",
+  "schemaVersion": "openclinxr.issue341.round17.pre-fix.v2",
+  "measuredAgainstCommit": "40a48b20254c4f4fefa7ccd21655bef07da24f44",
+  "measuredAt": "2026-08-13T06:10:00Z",
+  "measuredBy": "worker (text-only) via NodeIO on the SHIPPED bytes of this worktree (the merge re-bake at 40a48b20)",
+  "verdict": "PREMISE DEAD — confirmed on the current bytes. Every actor ships TWO hidden_lower primitives: the base poke-mask (which genuinely stops 24-56 mm short of the trouser rim) and a .001 carrying round 9's RENDER_TRUTH_REHIDE band, whose union reaches the rim on all three actors (gap 1.1 / -1.6 / -0.7 mm). The orchestrator's 55.6/34.3/23.9 mm gaps are exactly the base-first primitive's top (bands.find() semantics). No defect at the mask. changed: proofs WAIVED per the premise-dead branch; no product code changed.",
+  "caseDetermination": "case 4 — applied and my measurement is wrong: the re-hide band IS applied (the .001 primitives exist in the shipped bytes of all three actors and reach the rim); the gap is an artifact of reading only the FIRST hidden_lower primitive. band never computed / band empty / band re-clipped: all excluded by the .001 primitives' existence and reach.",
   "generatorDiagnostics": {
-    "method": "pre-fix re-bake of all three actors with the CURRENT materializer code (no product edits), reading the RENDER_TRUTH_REHIDE stdout lines the brief named; re-baked bytes reproduce the shipped render truth exactly (aisha frontVisible 3 shipped == 3 re-baked)",
-    "bakePaths": {
-      "aisha": ".openclinxr/evidence/issue-341/round17/bake/aisha-prefix.glb",
-      "nurse": ".openclinxr/evidence/issue-341/round17/bake/nurse-prefix.glb",
-      "child": ".openclinxr/evidence/issue-341/round17/bake/child-prefix.glb"
-    },
+    "note": "Recorded at a2f27ec2 by the prior dead-premise dispatch (log lines from a pre-fix re-bake with the then-current materializer). The bake paths no longer exist in this tree. The CURRENT code's re-hide output is not recoverable from stdout (the merge re-bake at 40a48b20 is the last production bake), but its effect is in the shipped bytes: the .001 primitives below. The WARNING never fired on any actor at a2f27ec2.",
     "perActor": {
       "mpfb-ob-patient-aisha": {
         "band": [0.9675, 0.9871],
@@ -52,7 +47,7 @@
     }
   },
   "byteMeasurement": {
-    "method": "NodeIO on the SHIPPED apps/ui-xr/public/generated-humanoids/*.glb: max Y of each hidden_lower primitive, cargo_pants primitive, t_shirt primitive. The planted test's bands.find() returns the FIRST hidden_lower primitive in document order (the base poke-mask, no .001 suffix); the re-hide band is the SECOND (openclinxr_hidden_lower_*_body_mesh.001).",
+    "method": "NodeIO on the SHIPPED apps/ui-xr/public/generated-humanoids/*.glb at 40a48b20: max Y of EACH hidden_lower primitive (never find()), cargo_pants primitive, t_shirt/scrub primitive. glTF Y = Blender Z = the mask/garment vertical axis.",
     "perActor": {
       "mpfb-ob-patient-aisha": {
         "bodyHeightM": 1.6669,
@@ -62,66 +57,56 @@
         "unionMaskTop": { "m": 0.9860, "H": 0.5915 },
         "shirtBottom": { "m": 0.9675, "H": 0.5804 },
         "gapBaseFirst": { "mm": 55.6, "note": "the orchestrator's measured number — base poke-mask only" },
-        "gapRehide001": { "mm": 1.1, "note": "round 9's achieved number, intact" },
         "gapUnion": { "mm": 1.1 },
         "overreachUnionMm": -1.1,
         "shirtOverlapMm": 19.6
       },
       "mpfb-peds-nurse-kevin": {
         "bodyHeightM": 1.7601,
-        "pantsTop": { "m": 1.0581, "H": 0.6012 },
-        "baseLowerMaskTop": { "m": 1.0238, "H": 0.5817 },
-        "rehide001Top": { "m": 1.0597, "H": 0.6021 },
-        "unionMaskTop": { "m": 1.0597, "H": 0.6021 },
-        "shirtBottom": { "m": 1.0403, "H": 0.5911 },
-        "gapBaseFirst": { "mm": 34.3 },
-        "gapRehide001": { "mm": -1.6, "note": "mask 1.6mm ABOVE the rim — within the <=6mm over-reach net" },
-        "gapUnion": { "mm": -1.6 },
+        "pantsTop": { "m": 0.9999, "H": 0.5681, "note": "0.568 H, NOT the brief's asserted 0.601 H — see outOfScopeWrongnessSeen (merge re-bake moved the nurse's garments; a2f27ec2-era bytes measured 1.0581 m / 0.6012 H)" },
+        "baseLowerMaskTop": { "m": 0.9651, "H": 0.5483 },
+        "rehide001Top": { "m": 1.0015, "H": 0.5690 },
+        "unionMaskTop": { "m": 1.0015, "H": 0.5690 },
+        "shirtBottom": { "m": 0.9775, "H": 0.5554 },
+        "gapBaseFirst": { "mm": 34.8 },
+        "gapUnion": { "mm": -1.6, "note": "mask 1.6 mm above the rim — within the <=6 mm over-reach net" },
         "overreachUnionMm": 1.6,
-        "shirtOverlapMm": 17.8
+        "shirtOverlapMm": 22.3
       },
       "mpfb-peds-patient-child": {
         "bodyHeightM": 1.2410,
         "pantsTop": { "m": 0.7199, "H": 0.5801 },
         "baseLowerMaskTop": { "m": 0.6960, "H": 0.5609 },
-        "rehide001Top": { "m": 0.7215, "H": 0.5814 },
-        "unionMaskTop": { "m": 0.7215, "H": 0.5814 },
+        "rehide001Top": { "m": 0.7206, "H": 0.5807 },
+        "unionMaskTop": { "m": 0.7206, "H": 0.5807 },
         "shirtBottom": { "m": 0.7065, "H": 0.5693 },
         "gapBaseFirst": { "mm": 23.9 },
-        "gapRehide001": { "mm": -1.6, "note": "mask 1.6mm ABOVE the rim — within the <=6mm over-reach net" },
-        "gapUnion": { "mm": -1.6 },
-        "overreachUnionMm": 1.6,
+        "gapUnion": { "mm": -0.7, "note": "mask 0.7 mm above the rim — within the <=6 mm over-reach net" },
+        "overreachUnionMm": 0.7,
         "shirtOverlapMm": 13.4
       }
     }
   },
   "renderTruth": {
-    "method": "front-visible skin tris in the waistband band: skin primitive tri, centroid in [shirtBottom, pantsTop] within the pants x/z footprint, outward normal facing +Z, no garment (tshirt/pants/shoes) hit from the centroid along +Z (reuses garment_coverage._ray_tri_hits)",
+    "method": "on the CURRENT bytes: skin-primitive tri with centroid in [shirtBottom, pantsTop], front-facing (glTF +Z normal), no garment (pants/shirt/scrub/footwear) hit from the centroid along +Z within 0.5 m (Moller-Trumbore over the shipped garment tris). Belly filter |x| < 0.12, z > 0.06 (same as the v1 artifact).",
     "perActor": {
-      "mpfb-ob-patient-aisha": { "skinTrisInWaistband": 13, "frontVisible": 3, "hiddenTrisInWaistband": 67 },
-      "mpfb-peds-nurse-kevin": { "skinTrisInWaistband": 375, "frontVisible": 183, "hiddenTrisInWaistband": 183 },
-      "mpfb-peds-patient-child": { "skinTrisInWaistband": 163, "frontVisible": 72, "hiddenTrisInWaistband": 235 }
+      "mpfb-ob-patient-aisha": { "bandFrontVisible": 748, "bellyVisible": 0 },
+      "mpfb-peds-nurse-kevin": { "bandFrontVisible": 674, "bellyVisible": 0 },
+      "mpfb-peds-patient-child": { "bandFrontVisible": 555, "bellyVisible": 1 }
     },
-    "note": "the nurse/child 'frontVisible' counts are ARM skin at |x| >= 0.25-0.35 (the pants footprint spans the full body width for the nurse because the lower cover shell wraps the arms at the top — a separate out-of-scope observation). The belly waistband (|x| < 0.2, z > 0.02) has 3/2/3 visible tris on aisha/nurse/child — sub-pixel noise, no skin band.",
-    "bellyRegionOnly": {
-      "mpfb-ob-patient-aisha": 3,
-      "mpfb-peds-nurse-kevin": 2,
-      "mpfb-peds-patient-child": 3
-    }
+    "note": "bandFrontVisible is ARM skin at |x| >= 0.25-0.35 (forearms below the sleeve hem hang through the waistband height at the sides — the pre-existing class the v1 artifact already separated; the lower cover shell no longer wraps the nurse's arms in the current bytes, x +-0.247 vs +-0.548 at a2f27ec2). The belly waistband — the region the orchestrator grades — has 0/0/1 visible skin tris: no skin band. v1 measured 3/2/3 at a2f27ec2; the current bytes are no worse."
   },
-  "shirtHemEdge": {
-    "method": "front-facing shirt hem vertices in the 8mm band above the hem: Y span",
-    "perActor": {
-      "mpfb-ob-patient-aisha": { "frontHemVerts": 78, "hemYspanMm": 4.7 },
-      "mpfb-peds-nurse-kevin": { "frontHemVerts": 78, "hemYspanMm": 4.0 },
-      "mpfb-peds-patient-child": { "frontHemVerts": 90, "hemYspanMm": 6.0 }
-    },
-    "note": "the shirt hem is slightly wavy (4-6mm) but the skin under it is masked to the rim; a closed gap can still read ragged at the pixel level — orchestrator grades."
+  "contractsRun": {
+    "method": "pnpm exec vitest run on the three planted tests at 40a48b20",
+    "waistbandMaskReachesRim": "3 passed (gap/over-reach/overlap clauses)",
+    "hairCoversBothSides": "passed",
+    "bodyHiddenUnderCloth": "passed",
+    "note": "all three contract tests pass on the CURRENT bytes; the waistband test already measures max over ALL hidden_lower primitives (the 2c95a394 fix) — the phantom-gap reading is retired in the instrument, which is exactly why it reports green."
   },
   "outOfScopeWrongnessSeen": {
-    "nursePantsWrapArms": "the nurse's cargo_pants primitive spans x = [-0.548, 0.548] with 408 top-band triangles at median |x| = 0.486, y >= 1.0 (arm width) — the lower cover shell wraps the forearms at the top (the round-7 'mitten shards' class; round-15's shell limb-exclusion did not hold for the nurse). Child similar: 172 of 310 top-band tris at |x| > 0.3. NOT fixed — out of this round's subject.",
-    "handFacesScopedFromRehide": "nurse/child re-hide bands scoped 1004/930 hand faces away (hands hang at waist height for these bodies) — correct behavior, the hands must stay visible."
+    "nurseGarmentsMovedByMergeRebake": "the current nurse GLB (re-baked at the 40a48b20 merge) carries cargo pants top at 0.9999 m (0.568 H) and scrub shirt 0.9775-1.5234 m (0.555-0.866 H), while the round-15 record and the a2f27ec2-era bytes had pants top 1.0581 m (0.601 H) and scrub 1.112-1.619 m (0.632-0.920 H). The garments sit ~58-96 mm lower and the pants no longer wrap the arms (x +-0.247 vs +-0.548). The waistband/overlap/neck contracts all still pass; this is a byte-level delta from the record the brief asserts, not a mask defect. NOT fixed — out of this round's subject; the orchestrator should know the bytes it is grading are not the generation its table measured.",
+    "forearmSkinAtWaistbandHeight": "visible forearm skin at |x| 0.25-0.35 hangs at the waistband height below the sleeve hems (the bandFrontVisible counts above). Pre-existing, separate from the mask-gap premise; the pixel verdict is the orchestrator's."
   },
-  "claimScope": "the mask-gap premise is dead on the shipped bytes; the union of hidden_lower primitives reaches the trouser rim on all three actors (1.1mm gap / 1.6mm over-reach, within the <=6mm net); the orchestrator's gap is an artifact of bands.find() reading the base poke-mask primitive only",
-  "notEvidenceFor": ["a pixel-grade pass — the orchestrator grades captures", "the nurse/child arm-wrap of the lower cover shell", "clinical validity", "production readiness"]
+  "claimScope": "the mask-gap premise is dead on the CURRENT shipped bytes; the union of hidden_lower primitives reaches the trouser rim on all three actors (1.1 / -1.6 / -0.7 mm, within the <=6 mm over-reach net); the orchestrator's gap is an artifact of reading the base poke-mask primitive only; no product code changed",
+  "notEvidenceFor": ["a pixel-grade pass — the orchestrator grades captures", "the nurse's garment placement delta being a defect (unmeasured)", "clinical validity", "production readiness"]
 }

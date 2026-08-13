@@ -68,6 +68,7 @@ import {
   addGeneratedHumanoidRoleContinuityWardrobeCue,
   applyCleanEncounterVisualReviewActorFraming as applyEncounterActorFraming,
 } from "./encounter-actor-framing.js";
+import { generatedDriveScalar, type GeneratedDriveScalarValue } from "./generated-drive-scalar.js";
 import { generatedHumanoidSourceProvenance } from "./generated-humanoid-source-provenance.js";
 import { createPrimitiveActorMesh } from "./primitive-actor-mesh.js";
 import { applyPosturePose, plantSeatedPelvisOnSeat } from "./seated-pose.js";
@@ -312,11 +313,11 @@ type RuntimeHumanoidActingCueEvidence = {
 };
 
 type GeneratedRuntimeDrive = {
-  locomotion?: boolean | number | string | null;
-  gaze?: boolean | number | string | null;
-  gazeAversion?: boolean | number | string | null;
-  lipSync?: boolean | number | string | null;
-  lipSyncViseme?: boolean | number | string | null;
+  locomotion?: boolean | number | string | GeneratedDriveScalarValue | null;
+  gaze?: boolean | number | string | GeneratedDriveScalarValue | null;
+  gazeAversion?: boolean | number | string | GeneratedDriveScalarValue | null;
+  lipSync?: boolean | number | string | GeneratedDriveScalarValue | null;
+  lipSyncViseme?: boolean | number | string | GeneratedDriveScalarValue | null;
 };
 
 type PortalTransitionEvidence = {
@@ -8209,33 +8210,6 @@ function applyPhysicsBoneTransforms(nowMs: number): void {
 
 function isGeneratedRuntimeDrive(value: unknown): value is GeneratedRuntimeDrive {
   return typeof value === "object" && value !== null;
-}
-
-function generatedDriveScalar(value: GeneratedRuntimeDrive[keyof GeneratedRuntimeDrive] | undefined): number | null {
-  if (value === null || value === undefined) {
-    return null;
-  }
-  if (typeof value === "number") {
-    return Number.isFinite(value) ? value : null;
-  }
-  if (typeof value === "boolean") {
-    return value ? 1 : 0;
-  }
-  const numeric = Number(value);
-  if (Number.isFinite(numeric)) {
-    return numeric;
-  }
-  const normalized = value.toLowerCase();
-  if (normalized.includes("high") || normalized.includes("urgent") || normalized.includes("escalation")) {
-    return 0.85;
-  }
-  if (normalized.includes("medium") || normalized.includes("moderate") || normalized.includes("anxious")) {
-    return 0.55;
-  }
-  if (normalized.includes("low") || normalized.includes("subtle") || normalized.includes("reassured")) {
-    return 0.25;
-  }
-  return null;
 }
 
 function pediatricAsthmaActingOverlayForSlot(

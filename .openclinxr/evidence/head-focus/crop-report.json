@@ -1,0 +1,102 @@
+{
+  "schemaVersion": "openclinxr.head-focus.crop-run.v1",
+  "issue": "358",
+  "factoryStep": "instrument",
+  "measuredAt": "2026-08-13T07:07:25.371Z",
+  "generator": {
+    "tool": "renderHeadFocusCrops",
+    "file": "tools/openclinxr/evidence/isolated-subject-harness.ts",
+    "deterministic": true,
+    "llmInvolved": false,
+    "viewportPx": 1024,
+    "note": "matched head-framed crops via isolated-subject-lab focus=head (head box derived from the body bounds — topmost band cut at the neck; never the eye mesh, never literal coordinates); subject-only; one dev-server boot for the whole run"
+  },
+  "summary": {
+    "requested": 2,
+    "produced": 2,
+    "devServerBoots": 1,
+    "browserLaunches": 1,
+    "wallClockMs": 3230
+  },
+  "crops": [
+    {
+      "rail": "mpfb",
+      "role": "adult_female (MPFB rail)",
+      "view": "front",
+      "imagePath": ".openclinxr/evidence/head-focus/mpfb-head-front.png",
+      "bytes": 251569,
+      "pngDimensions": {
+        "width": 1024,
+        "height": 1024
+      },
+      "frameCoverage": 0.3229236602783203,
+      "frameSpanFraction": 0.800050210999782,
+      "focusRegion": {
+        "kind": "head_box",
+        "derivation": "topmost band of the body bounds cut at the neck (silhouette width profile); never the eye mesh, never literal coordinates (D1)",
+        "neckPositionMeters": 1.4309,
+        "dominantAxis": "y",
+        "matchedVertexCount": 4490,
+        "boundsMeters": {
+          "min": {
+            "x": -0.0879,
+            "y": 1.4317,
+            "z": -0.0392
+          },
+          "max": {
+            "x": 0.0879,
+            "y": 1.6669,
+            "z": 0.1681
+          }
+        }
+      },
+      "subjectOnly": true
+    },
+    {
+      "rail": "anny",
+      "role": "adult (Anny rail)",
+      "view": "front",
+      "imagePath": ".openclinxr/evidence/head-focus/anny-head-front.png",
+      "bytes": 171256,
+      "pngDimensions": {
+        "width": 1024,
+        "height": 1024
+      },
+      "frameCoverage": 0.36643314361572266,
+      "frameSpanFraction": 0.7999402615955528,
+      "focusRegion": {
+        "kind": "head_box",
+        "derivation": "topmost band of the body bounds cut at the neck (silhouette width profile); never the eye mesh, never literal coordinates (D1)",
+        "neckPositionMeters": 1.5544,
+        "dominantAxis": "y",
+        "matchedVertexCount": 4132,
+        "boundsMeters": {
+          "min": {
+            "x": -0.0944,
+            "y": 1.5545,
+            "z": 0.0118
+          },
+          "max": {
+            "x": 0.0944,
+            "y": 1.76,
+            "z": 0.2404
+          }
+        }
+      },
+      "subjectOnly": true
+    }
+  ],
+  "claimScope": [
+    "matched_head_framed_crops_of_one_asset_per_rail_mpfb_and_anny",
+    "camera_framed_on_the_geometry_derived_head_box_on_both_rails",
+    "framing_actually_used_recorded_per_crop_focusRegion",
+    "one_dev_server_boot_for_the_whole_run"
+  ],
+  "notEvidenceFor": [
+    "which_hair_mechanism_is_correct_orchestrator_pixel_grade_of_these_crops_required",
+    "clinical_eye_realism",
+    "clinical_realism",
+    "gaze_correctness",
+    "quest_readiness"
+  ]
+}

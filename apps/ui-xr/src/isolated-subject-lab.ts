@@ -35,6 +35,7 @@ import {
   measureArticulatingHob,
 } from "./articulating-hob-measure.js";
 import { type CaptureView, computeMeshBounds, frameCamera } from "./camera-fit-to-bounds.js";
+import { type FocusRegion, resolveFocus } from "./isolated-subject-focus.js";
 import { type PackFramingRecord, recordPackFraming } from "./isolated-pack-framing.js";
 import { buildPatientChair } from "./station-chair.js";
 import { buildDeclaredEquipmentGeometry } from "./station-equipment-builders.js";
@@ -88,12 +89,13 @@ export type IsolatedSubjectSpec = {
    */
   subjectOnly?: boolean;
   /**
-   * #354: focus the camera on a region of the subject instead of the whole body.
-   * "eyes" derives the eye box from the ASSET at runtime (meshes whose name
-   * matches the eye channel) — never literal coordinates (D1) — and frames the
-   * camera to it, so the same spec works on the next body unchanged.
+   * #354/#358: focus the camera on a region of the subject instead of the whole
+   * body. "eyes" derives the eye box from meshes matching the eye channel;
+   * "head" derives the head box from the body's own bounds (topmost band cut at
+   * the neck — works on every rail, incl. Anny which has no eye geometry).
+   * Never literal coordinates (D1). An unresolvable focus REFUSES.
    */
-  focus?: "eyes";
+  focus?: "eyes" | "head";
   label?: string;
 };
 
@@ -117,19 +119,12 @@ export type IsolatedSubjectEvidence = {
   /** True when the neutral ground plane is in the scene (#265 subject-only discriminator). */
   groundPlanePresent: boolean;
   /**
-   * #354: the region the camera framed when `focus` was requested — the DERIVED
-   * eye box (world AABB of the matched eye meshes + which meshes matched), or the
-   * whole-subject fallback when no eye mesh was found. Recording it makes a
-   * wrong focus (e.g. an eye regex matching a garment) visible in the evidence.
+   * #354/#358: the region the camera framed when `focus` was requested — the
+   * DERIVED eye box (matched eye meshes), the DERIVED head box (body bounds,
+   * #358), or the legacy whole-subject fallback (pre-#358 artifacts only —
+   * new runs refuse instead of falling back).
    */
-  focusRegion:
-    | {
-        kind: "eye_box";
-        matchedMeshes: string[];
-        boundsMeters: { min: Vec3Meters; max: Vec3Meters };
-      }
-    | { kind: "whole_subject_fallback"; reason: string }
-    | null;
+  focusRegion: FocusRegion;
   inclineDegrees: number | null;
   usesProductRenderer: true;
   productRenderer: "apps/ui-xr three.js WebGLRenderer + imported station builders / supine-pose";
@@ -154,11 +149,6 @@ const HEIGHT_LEGACY = 960;
 const PACK_WIDTH = 1024;
 const PACK_HEIGHT = 1024;
 const BG = "#18211d";
-
-type Vec3Meters = { x: number; y: number; z: number };
-
-/** #354: mesh-name filter for the eye channel — matches the MakeClothes low-poly eye export. */
-const EYE_MESH_RE = /eyes|iris|cornea|sclera/i;
 
 function parseSpec(): IsolatedSubjectSpec {
   const params = new URLSearchParams(window.location.search);
@@ -195,7 +185,7 @@ function parseSpec(): IsolatedSubjectSpec {
     ...(view ? { view } : {}),
     ...(exportGlbRaw === "true" ? { exportGlb: true } : {}),
     ...(subjectOnlyRaw === "true" ? { subjectOnly: true } : {}),
-    ...(focusRaw === "eyes" ? { focus: "eyes" as const } : {}),
+    ...(focusRaw === "eyes" || focusRaw === "head" ? { focus: focusRaw as "eyes" | "head" } : {}),
     label: params.get("label") ?? subjectId,
   };
 }
@@ -248,58 +238,6 @@ function buildFurniture(
     trimColor: 0x3a7ca5,
     inclineDegrees: inclineDegrees ?? 0,
   });
-}
-
-/**
- * #354: derive the eye focus box from the ASSET at runtime — the world AABB of
- * every mesh that carries the eye channel. three.js GLTFLoader overrides a
- * loaded mesh's name with its NODE name, and the shipped MPFB eye node is named
- * `mpfb_*_body_mesh.low-poly` (the "eyes" channel lives on the glTF MESH data
- * name, which the loader does not keep) — so the match checks the mesh name,
- * the raw node name (`userData.name`), AND the material name, which the
- * materialize script names `mat_makeclothes_library_eyes_*` on every MPFB
- * actor. Falls back to whole-subject bounds when nothing matches (recorded,
- * never silent). Works on the next body unchanged: no literal camera
- * coordinates (D1).
- */
-function deriveEyeFocusBounds(root: Object3D): {
-  kind: "eye_box" | "whole_subject_fallback";
-  bounds: Box3;
-  matchedMeshes: string[];
-  reason?: string;
-} {
-  const eyeBounds = new Box3();
-  const point = new Vector3();
-  const matchedMeshes: string[] = [];
-  root.updateMatrixWorld(true);
-  root.traverse((object) => {
-    if (!(object instanceof Mesh)) return;
-    const position = object.geometry.getAttribute("position");
-    if (!position) return;
-    const materialNames = Array.isArray(object.material)
-      ? object.material.map((m) => m.name)
-      : [object.material.name];
-    const names = [
-      object.name,
-      typeof object.userData?.name === "string" ? object.userData.name : "",
-      ...materialNames,
-    ];
-    if (!names.some((n) => EYE_MESH_RE.test(n))) return;
-    matchedMeshes.push(object.name);
-    for (let i = 0; i < position.count; i += 1) {
-      point.fromBufferAttribute(position, i).applyMatrix4(object.matrixWorld);
-      eyeBounds.expandByPoint(point);
-    }
-  });
-  if (matchedMeshes.length === 0 || !Number.isFinite(eyeBounds.min.x)) {
-    return {
-      kind: "whole_subject_fallback",
-      bounds: computeMeshBounds(root),
-      matchedMeshes: [],
-      reason: `no mesh matched ${String(EYE_MESH_RE)} (mesh name, raw node name, or material name) — whole-subject framing`,
-    };
-  }
-  return { kind: "eye_box", bounds: eyeBounds, matchedMeshes };
 }
 
 async function buildSubjectRoot(spec: IsolatedSubjectSpec): Promise<{
@@ -422,35 +360,10 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
   }
   const size = bounds.getSize(new Vector3());
 
-  // #354: eye-focus framing — the frame is driven to the DERIVED eye box, never
-  // a literal camera position. Falls back to whole-subject framing when the
-  // asset has no eye mesh (recorded in the evidence).
-  let focusRegion: IsolatedSubjectEvidence["focusRegion"] = null;
-  let frameBounds = bounds;
-  if (spec.focus === "eyes") {
-    const derived = deriveEyeFocusBounds(root);
-    if (derived.kind === "eye_box") {
-      focusRegion = {
-        kind: "eye_box",
-        matchedMeshes: derived.matchedMeshes,
-        boundsMeters: {
-          min: {
-            x: Math.round(derived.bounds.min.x * 10000) / 10000,
-            y: Math.round(derived.bounds.min.y * 10000) / 10000,
-            z: Math.round(derived.bounds.min.z * 10000) / 10000,
-          },
-          max: {
-            x: Math.round(derived.bounds.max.x * 10000) / 10000,
-            y: Math.round(derived.bounds.max.y * 10000) / 10000,
-            z: Math.round(derived.bounds.max.z * 10000) / 10000,
-          },
-        },
-      };
-      frameBounds = derived.bounds;
-    } else {
-      focusRegion = { kind: "whole_subject_fallback", reason: derived.reason ?? "unknown" };
-    }
-  }
+  // #354/#358: focus framing — the frame is driven to the DERIVED region, never
+  // a literal camera position. An unresolvable focus REFUSES (#358) instead of
+  // silently falling back; the evidence records which framing was actually used.
+  const { focusRegion, frameBounds } = resolveFocus(root, spec.focus, bounds);
 
   const camera = new PerspectiveCamera(35, width / height, 0.01, 100);
   const frameSpanFraction = frameCamera(camera, frameBounds, spec.view);

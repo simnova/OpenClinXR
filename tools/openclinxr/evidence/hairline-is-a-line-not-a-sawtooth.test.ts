@@ -102,36 +102,61 @@ import { describe, expect, it } from "vitest";
  * stepped boundary that clips aisha's brow and runs onto Kevin's cheek. Quantifying that needs a
  * texture-space measurement (the render-space attempts failed twice — in a lit render "dark" is also
  * pupils, lashes and shadow), and it belongs to #296.
+ *
+ * ## SUPERSEDED (#359) — the texture route is removed; the region is the mechanism again
+ *
+ * #358's head-framed comparison settled the direction: the texture-mask hairline (this contract's
+ * subject) was graded as damage — roughly half the scalp bare skin, a hard pixel-stair-stepped
+ * vertical edge, an isolated black rectangle — while the per-polygon scalp material region read
+ * unambiguously as hair. #359 therefore removes the texture route and ships the region: the body
+ * mesh again carries an `openclinxr_mesh_native_scalp_hair_surface` primitive (the Anny known-good
+ * mechanism, bounds-derived by `apply_mesh_native_scalp_hair_material_region`). The clauses below
+ * now gate THAT mechanism, mirroring how #341 rewrote this file when the subject changed the other
+ * way: (1) is the region's presence (the texture route's replacement), (2) is unchanged (the baked
+ * skin texture must not vanish), and (3) becomes a mesh-level tripwire — the region is a primitive
+ * WITHIN the body mesh; a separate hair MESH is still the hand-authored-geometry failure.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const GENERATED = "apps/ui-xr/public/generated-humanoids";
 
-/** The baked hairline lives in the skin texture; below this it is not a real bake. */
+/** The baked skin texture must stay present; below this it is not a real bake. */
 const MIN_SKIN_TEXTURE_KB = 200;
 
-type Row = { file: string; scalpPrims: number; hairMeshes: number; skinTextureKb: number };
+type Row = { file: string; scalpPrims: number; separateHairMeshes: number; skinTextureKb: number };
 
 const io = new NodeIO();
 
 async function measure(rel: string): Promise<Row | null> {
   const doc = await io.read(join(REPO_ROOT, rel));
+  const meshes = doc.getRoot().listMeshes();
   let scalpPrims = 0;
-  let hairMeshes = 0;
+  let separateHairMeshes = 0;
   let skinTextureKb = 0;
-  for (const mesh of doc.getRoot().listMeshes()) {
+  let bodyMesh: (typeof meshes)[number] | undefined;
+  for (const mesh of meshes) {
     for (const prim of mesh.listPrimitives()) {
       const name = `${mesh.getName()}/${prim.getMaterial()?.getName() ?? ""}`;
-      if (/scalp/i.test(name)) scalpPrims++;
-      if (/hair/i.test(name)) hairMeshes++;
+      // The region is a primitive WITHIN the body mesh (#359). A separate hair MESH is the
+      // hand-authored-geometry failure (the old UV sphere); count meshes, not primitives.
+      if (/scalp/i.test(name)) {
+        scalpPrims++;
+        bodyMesh = bodyMesh ?? mesh;
+      }
       if (/skin/i.test(name)) {
         const img = prim.getMaterial()?.getBaseColorTexture()?.getImage();
         if (img) skinTextureKb = Math.max(skinTextureKb, img.length / 1024);
       }
     }
   }
-  return { file: rel.split("/").pop()!, scalpPrims, hairMeshes, skinTextureKb };
+  for (const mesh of meshes) {
+    if (mesh === bodyMesh) continue;
+    if (mesh.listPrimitives().some((p) => /hair/i.test(p.getMaterial()?.getName() ?? ""))) {
+      separateHairMeshes++;
+    }
+  }
+  return { file: rel.split("/").pop()!, scalpPrims, separateHairMeshes, skinTextureKb };
 }
 
 const files = readdirSync(join(REPO_ROOT, GENERATED))
@@ -147,20 +172,20 @@ function requireRows(): void {
   expect(rows.length, `MPFB bodies scanned (of ${files.length})`).toBeGreaterThanOrEqual(3);
 }
 
-describe("the hairline is baked into the skin texture (scalp retired)", () => {
-  it("(1) the scalp primitive stays retired", () => {
-    // #341 rounds 11-16 replaced the scalp/skin seam with a texture hairline. A scalp reappearing
-    // means a re-bake regressed to the old mechanism, and the sawtooth measured above comes back.
+describe("the scalp region is the hair mechanism on the body mesh (texture route removed, #359)", () => {
+  it("(1) RED: every MPFB actor carries the scalp region on its body mesh", () => {
+    // #359 reinstated the per-polygon scalp region (the #341 texture route is removed).
+    // A re-bake that loses the region regresses to the bare-scalp texture state #358 graded.
     requireRows();
-    const back = rows
-      .filter((r) => r.scalpPrims > 0)
+    const missing = rows
+      .filter((r) => r.scalpPrims === 0)
       .map((r) => `${r.file}: scalpPrims=${r.scalpPrims}`);
-    expect(back, "bodies where the scalp primitive returned").toEqual([]);
+    expect(missing, "bodies without the scalp region").toEqual([]);
   });
 
-  it("(2) the skin texture that carries the hairline is present and non-trivial", () => {
-    // With the scalp gone this texture is the ONLY thing drawing hair. If it vanishes the actors go
-    // bald, and no other contract would notice.
+  it("(2) the baked skin texture is present and non-trivial", () => {
+    // The skin bake (enhanced_skin -> baseColorTexture) is the body's skin surface; if it
+    // vanishes the actors lose their skin shading entirely.
     requireRows();
     const missing = rows
       .filter((r) => r.skinTextureKb < MIN_SKIN_TEXTURE_KB)
@@ -168,12 +193,11 @@ describe("the hairline is baked into the skin texture (scalp retired)", () => {
     expect(missing, `bodies whose skin texture is under ${MIN_SKIN_TEXTURE_KB} KB`).toEqual([]);
   });
 
-  it("(3) no hair GEOMETRY has appeared without updating this contract", () => {
-    // Not a defect either way — #296 tracks acquiring real hair assets. This is a tripwire: if hair
-    // geometry lands, the texture-hairline assumption above stops being the mechanism and these
-    // clauses must be rewritten rather than silently continuing to pass.
+  it("(3) no separate hair MESH has appeared outside the body mesh", () => {
+    // The region is a primitive WITHIN the body mesh. A separate hair mesh is the
+    // hand-authored-geometry failure (#222's UV sphere); tripwire at mesh level.
     requireRows();
-    const geo = rows.filter((r) => r.hairMeshes > 0).map((r) => `${r.file}: hairMeshes=${r.hairMeshes}`);
-    expect(geo, "bodies carrying hair geometry (see #296 — rewrite this contract if so)").toEqual([]);
+    const geo = rows.filter((r) => r.separateHairMeshes > 0).map((r) => `${r.file}: separateHairMeshes=${r.separateHairMeshes}`);
+    expect(geo, "bodies carrying a separate hair mesh").toEqual([]);
   });
 });

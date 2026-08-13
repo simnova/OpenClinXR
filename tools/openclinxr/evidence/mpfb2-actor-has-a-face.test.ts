@@ -135,6 +135,18 @@ import { describe, expect, it } from "vitest";
  *
  * The census artifact (`.openclinxr/evidence/face-morph-census/face-morph-census.json`, written by
  * `tools/openclinxr/evidence/face-morph-census.ts`) covers all ten runtime rails for #316.
+ *
+ * ## FIXED (#359)
+ *
+ * The vacuity guard's `bodyVerts > 10,000` floor was calibrated to the pre-#359 aisha body, whose
+ * morph targets rode on ONE merged skin primitive (13,380 verts after the #318 strip; 13,025 in the
+ * census's measurement). #359 reinstates the scalp region as a SEPARATE primitive on the body mesh
+ * (the Anny mechanism; the #341 texture route that merged the scalp into the skin primitive is
+ * removed), so the skin primitive — the largest morph-carrying primitive — now has 9,822 verts
+ * (morph targets intact: 32 targets, 11,426 moved deltas, 13 usable mouth targets; the scalp prim
+ * carries the same 32 targets with 104 moved deltas on its 1,285 verts). The floor moves to 5,000 —
+ * still far above the next-largest primitive (the 2,164-vert hidden-foot prim) so the vacuity guard
+ * keeps its job — and the mouth-target clauses are unchanged.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -221,7 +233,10 @@ const knownGood = await Promise.all(KNOWN_GOOD.map(async (g) => ({ id: g, ...(aw
 
 /** An unmeasured subject must FAIL every clause, never pass vacuously (§7t). */
 function requireMeasured(): void {
-  expect(subject.bodyVerts, "aisha body mesh measured").toBeGreaterThan(10_000);
+  // #359: the skin primitive (the largest morph-carrying primitive) is 9,822 verts since the
+  // scalp region became a separate primitive; 5,000 still sits above the next-largest prim
+  // (2,164) so the vacuity guard is intact.
+  expect(subject.bodyVerts, "aisha body mesh measured").toBeGreaterThan(5_000);
   for (const g of knownGood) {
     expect(g.bodyVerts, `${g.id} body mesh measured`).toBeGreaterThan(30_000);
   }

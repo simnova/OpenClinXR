@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.face-morph-census.v1",
-  "generatedAt": "2026-08-11T17:37:39.642Z",
+  "generatedAt": "2026-08-13T08:26:26.333Z",
   "selector": "largest primitive that carries morph targets; face clauses exclude $md-* macro-detail body dials",
   "usableDefinition": "displaces at least one vertex AND displaces fewer than half of the body's vertices (per rail bodyVerts)",
   "rails": [
@@ -347,8 +347,8 @@
     {
       "railId": "mpfb_ob_patient_aisha",
       "assetPath": "/generated-humanoids/mpfb-ob-patient-aisha.glb",
-      "bodyVerts": 13025,
-      "targetCount": 42,
+      "bodyVerts": 9822,
+      "targetCount": 32,
       "faceTargets": 31,
       "usableMouth": 13,
       "usableMouthNames": [
@@ -368,12 +368,12 @@
       ],
       "emptyFaceTargets": [],
       "wholeBodyFaceTargets": [],
-      "sha256": "91b462c7581a3c74b61188d63fe9e802713fc52c2cb73c5bce0e06971c64ee8f"
+      "sha256": "50cbe84c97b438b52331f701efbc8c3c46c8a22abafeaf64f364048498f5b0f5"
     },
     {
       "railId": "body_param_adult_lean_female_library",
       "assetPath": "/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb",
-      "bodyVerts": 34112,
+      "bodyVerts": 44157,
       "targetCount": 32,
       "faceTargets": 31,
       "usableMouth": 13,
@@ -394,12 +394,12 @@
       ],
       "emptyFaceTargets": [],
       "wholeBodyFaceTargets": [],
-      "sha256": "149aca58b07fd67caa899e9510888a54f52a142b7e52b1012b425e28014e4fac"
+      "sha256": "97178619a6329328ed81c100501028aad6f54d84ea9862a89388d8da1a00da6c"
     },
     {
       "railId": "body_param_adult_heavy_male_library",
       "assetPath": "/xr-assets/humanoids/candidates/body-param-adult_heavy_male-library.glb",
-      "bodyVerts": 39262,
+      "bodyVerts": 44622,
       "targetCount": 32,
       "faceTargets": 31,
       "usableMouth": 13,
@@ -420,7 +420,7 @@
       ],
       "emptyFaceTargets": [],
       "wholeBodyFaceTargets": [],
-      "sha256": "f8c82459cdafac166240ce007a333e5977eb981b42232c22e8541026062c812b"
+      "sha256": "50c07e20c7c8584251cd4632cd7f6f9680b42203cedd028d24c1a5d2de0b897b"
     }
   ]
 }
