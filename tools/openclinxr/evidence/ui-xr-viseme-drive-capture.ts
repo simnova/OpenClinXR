@@ -10,6 +10,13 @@
  * map — the sampler accepts BOTH spellings and reads all mouth-family morphs by influence.
  * Frames are graded by the orchestrator; the states artifact is the contract surface.
  *
+ * SUPERSEDED (#366): the peds cast now loads MPFB bodies, so the driven patient mesh is
+ * `mpfb_peds_patient_child_body` — the sampler/reframe name regex covers both spellings and
+ * the artifact's actor label is derived from the live scene, not this historical note.
+ *
+ * #368 remaining half: the artifact records the reframe OUTCOME (target mesh name + world
+ * position, or the failure code), so a face-framed capture can say what it actually framed.
+ *
  * claimScope: mouth. notEvidenceFor: anatomy bind-pose, production phoneme timing, Quest.
  */
 
@@ -105,7 +112,38 @@ async function samplePatientVisemes(page: Page): Promise<SceneSample> {
   })()`);
 }
 
-async function reframeCameraOnPatientFace(page: Page): Promise<string> {
+type ReframeOkOutcome = {
+  status: "ok";
+  targetMeshName: string;
+  targetWorldPosition: { x: number; y: number; z: number };
+  /** Live actor identity stamped on the humanoid root (userData.openClinXrActorId), or null. */
+  actorId: string | null;
+  headY: number;
+  fov: number;
+  cameraLocal: { x: number; y: number; z: number };
+};
+
+type ReframeFailureOutcome = {
+  status: "no-scene" | "no-camera" | "no-patient-mesh";
+};
+
+type ReframeOutcome = ReframeOkOutcome | ReframeFailureOutcome;
+
+function reframeOutcomeSummary(outcome: ReframeOutcome): string {
+  if (outcome.status !== "ok") {
+    return `in-page face reframe FAILED: ${outcome.status}`;
+  }
+  const p = outcome.targetWorldPosition;
+  const c = outcome.cameraLocal;
+  return (
+    `in-page head-and-shoulders reframe on ${outcome.targetMeshName} ` +
+    `(world ${p.x.toFixed(2)},${p.y.toFixed(2)},${p.z.toFixed(2)} ` +
+    `headY=${outcome.headY.toFixed(2)} fov=${outcome.fov} ` +
+    `camLocal=${c.x.toFixed(2)},${c.y.toFixed(2)},${c.z.toFixed(2)})`
+  );
+}
+
+async function reframeCameraOnPatientFace(page: Page): Promise<ReframeOutcome> {
   // String IIFE (not a TS arrow) so tsx/esbuild cannot inject `__name` into the browser.
   return page.evaluate(`(() => {
     const isRecord = function (value) {
@@ -120,7 +158,7 @@ async function reframeCameraOnPatientFace(page: Page): Promise<string> {
     };
 
     const scene = window.__openClinXrDebugScene;
-    if (!scene || typeof scene.traverse !== "function") return "no-scene";
+    if (!scene || typeof scene.traverse !== "function") return { status: "no-scene" };
 
     // Collector avoids let-null + closure assignment narrowing to never under some TS checkers.
     const found = {
@@ -141,14 +179,30 @@ async function reframeCameraOnPatientFace(page: Page): Promise<string> {
         return lk.indexOf("viseme_") === 0 || lk.indexOf("mouth") === 0 || lk.indexOf("openclinxr_mouth") === 0;
       });
       if (hasMouthFamily && /peds_patient|patient_child/i.test(name)) {
-        found.patientMesh = object;
+        // First match wins — the sampler (samplePatientVisemes) stops at the first
+        // matching mesh, so the camera must frame the same object the sampler reads.
+        // Last-match-wins framed a different mesh (body_8) than the sampler sampled
+        // (body) and the counterweight caught it.
+        if (!found.patientMesh) found.patientMesh = object;
       }
     });
 
-    if (!hasPositionApi(found.camera)) return "no-camera";
-    if (!isRecord(found.patientMesh)) return "no-patient-mesh";
+    if (!hasPositionApi(found.camera)) return { status: "no-camera" };
+    if (!isRecord(found.patientMesh)) return { status: "no-patient-mesh" };
     const camera = found.camera;
     const patientMesh = found.patientMesh;
+
+    // Walk up to the humanoid root for the live actor identity — never a hardcoded label.
+    let actorId = null;
+    let cursor = patientMesh;
+    while (cursor && cursor["parent"]) {
+      const ud = cursor["userData"];
+      if (ud && typeof ud["openClinXrActorId"] === "string") {
+        actorId = ud["openClinXrActorId"];
+        break;
+      }
+      cursor = cursor["parent"];
+    }
 
     const updateMeshWorld = patientMesh["updateWorldMatrix"];
     if (typeof updateMeshWorld === "function") {
@@ -167,7 +221,7 @@ async function reframeCameraOnPatientFace(page: Page): Promise<string> {
     const px = e ? Number(e[12]) : 0;
     const py = e ? Number(e[13]) : 1.0;
     const pz = e ? Number(e[14]) : 0;
-    // Head sits above mesh origin on these Anny exports; pull in for mouth-legible framing.
+    // Head sits above mesh origin on these exports; pull in for mouth-legible framing.
     const headY = py + 1.12;
     // Camera is parented under locomotionRig — convert world aim to parent-local.
     const worldCam = {
@@ -190,11 +244,20 @@ async function reframeCameraOnPatientFace(page: Page): Promise<string> {
     camera.lookAt(px, headY - 0.04, pz);
     camera.fov = 28;
     if (typeof camera.updateProjectionMatrix === "function") camera.updateProjectionMatrix();
-    const camX = Number(camera.position.x).toFixed(2);
-    const camY = Number(camera.position.y).toFixed(2);
-    const camZ = Number(camera.position.z).toFixed(2);
-    return "patient@" + px.toFixed(2) + "," + py.toFixed(2) + "," + pz.toFixed(2) +
-      " headY=" + headY.toFixed(2) + " camLocal=" + camX + "," + camY + "," + camZ;
+
+    return {
+      status: "ok",
+      targetMeshName: typeof patientMesh["name"] === "string" ? patientMesh["name"] : "",
+      targetWorldPosition: { x: Number(px), y: Number(py), z: Number(pz) },
+      actorId: actorId,
+      headY: Number(headY),
+      fov: 28,
+      cameraLocal: {
+        x: Number(camera.position.x),
+        y: Number(camera.position.y),
+        z: Number(camera.position.z)
+      }
+    };
   })()`);
 }
 
@@ -244,8 +307,10 @@ export async function runVisemeCapture(): Promise<void> {
         { timeout: 180_000 },
       );
 
-      const frameNote = await reframeCameraOnPatientFace(page);
-      process.stdout.write(`camera: ${frameNote}\n`);
+      const reframeOutcomes: ReframeOutcome[] = [];
+      const initialReframe = await reframeCameraOnPatientFace(page);
+      reframeOutcomes.push(initialReframe);
+      process.stdout.write(`camera: ${reframeOutcomeSummary(initialReframe)}\n`);
       await page.waitForTimeout(600);
       // Restart the patient's dialogue so the sampling window covers a full utterance from t≈0.
       await retriggerPatientDialogue(page);
@@ -267,8 +332,8 @@ export async function runVisemeCapture(): Promise<void> {
       // between every sample would halve the distinct visemes the timeline actually visits.
       async function sampleStates(framePath: string | null): Promise<void> {
         const t = (Date.now() - t0) / 1000;
-        // Keep framing locked (runtime may tweak camera).
-        await reframeCameraOnPatientFace(page);
+        // Keep framing locked (runtime may tweak camera) and record every outcome.
+        reframeOutcomes.push(await reframeCameraOnPatientFace(page));
         const sceneSample = await samplePatientVisemes(page);
         rawTimeline.push({ ...sceneSample, t });
 
@@ -336,14 +401,43 @@ export async function runVisemeCapture(): Promise<void> {
         await page.screenshot({ path: framePath, fullPage: false });
       }
 
+      // #368 remaining half: the artifact must record the reframe's OUTCOME — the mesh the
+      // camera actually framed and its world position (or the failure code), never a
+      // hardcoded description. The actor label is derived from the live scene, not restated.
+      const firstReframe: ReframeOutcome = reframeOutcomes[0] ?? { status: "no-scene" };
+      const reappliedFailures = [
+        ...new Set(
+          reframeOutcomes
+            .slice(1)
+            .filter((o) => o.status !== "ok")
+            .map((o) => o.status),
+        ),
+      ];
+      const drivenMeshNames = [
+        ...new Set(liveSamples.map((s) => s.meshName).filter((n) => n !== "")),
+      ];
+      const actorLabel =
+        firstReframe.status === "ok" && firstReframe.actorId
+          ? `${firstReframe.actorId} — driven mesh: ${drivenMeshNames.length > 0 ? drivenMeshNames.join(", ") : "none observed"}`
+          : `peds patient (actor id not stamped on the framed root) — driven mesh: ${drivenMeshNames.length > 0 ? drivenMeshNames.join(", ") : "none observed"}`;
+      const reframeRecord = {
+        status: firstReframe.status,
+        targetMeshName: firstReframe.status === "ok" ? firstReframe.targetMeshName : null,
+        targetWorldPosition:
+          firstReframe.status === "ok" ? firstReframe.targetWorldPosition : null,
+        framingDescription: reframeOutcomeSummary(firstReframe),
+        reappliedCount: reframeOutcomes.length - 1,
+        reappliedFailures,
+      };
+
       const inspection = {
         schemaVersion: "openclinxr.ui-xr-viseme-drive-capture.v1",
         generatedAt: new Date().toISOString(),
         claimScope: "mouth_named_viseme_morph_drive_runtime_evidence",
-        actor:
-          "peds_patient_child (Anny base in the peds station; MPFB FACS parent/nurse driven through the #353 alias map)",
+        actor: actorLabel,
         url,
-        framing: "in-page head-and-shoulders reframe on patient face (fov=32, z≈1.15)",
+        framing: reframeRecord.framingDescription,
+        reframe: reframeRecord,
         liveVisemeSamples: liveSamples.map((s) => ({
           t: Number(s.t.toFixed(3)),
           targetName: s.targetName,
