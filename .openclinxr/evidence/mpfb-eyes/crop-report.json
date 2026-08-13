@@ -1,0 +1,162 @@
+{
+  "schemaVersion": "openclinxr.mpfb-eyes.crop-run.v1",
+  "issue": "354",
+  "factoryStep": "instrument",
+  "measuredAt": "2026-08-13T03:15:01.702Z",
+  "generator": {
+    "tool": "renderMpfbEyeFocusCrops",
+    "file": "tools/openclinxr/evidence/isolated-subject-harness.ts",
+    "deterministic": true,
+    "llmInvolved": false,
+    "viewportPx": 1024,
+    "note": "eye-focused square crops via isolated-subject-lab focus=eyes (derived eye box); subject-only; one dev-server boot for the whole run"
+  },
+  "summary": {
+    "requested": 4,
+    "produced": 4,
+    "devServerBoots": 1,
+    "browserLaunches": 1,
+    "wallClockMs": 11155
+  },
+  "crops": [
+    {
+      "actorId": "aisha",
+      "role": "adult_female",
+      "view": "front",
+      "imagePath": ".openclinxr/evidence/mpfb-eyes/aisha-eye-front.png",
+      "bytes": 497518,
+      "pngDimensions": {
+        "width": 1024,
+        "height": 1024
+      },
+      "frameCoverage": 0.8557329177856445,
+      "frameSpanFraction": 0.7999903672791439,
+      "focusRegion": {
+        "kind": "eye_box",
+        "matchedMeshes": [
+          "mpfb_ob_patient_aisha_body_meshlow-poly"
+        ],
+        "boundsMeters": {
+          "min": {
+            "x": -0.0446,
+            "y": 1.5323,
+            "z": 0.1188
+          },
+          "max": {
+            "x": 0.0446,
+            "y": 1.56,
+            "z": 0.1392
+          }
+        }
+      },
+      "subjectOnly": true
+    },
+    {
+      "actorId": "aisha",
+      "role": "adult_female",
+      "view": "side",
+      "imagePath": ".openclinxr/evidence/mpfb-eyes/aisha-eye-side.png",
+      "bytes": 263424,
+      "pngDimensions": {
+        "width": 1024,
+        "height": 1024
+      },
+      "frameCoverage": 0.8784170150756836,
+      "frameSpanFraction": 1.0194476829504628,
+      "focusRegion": {
+        "kind": "eye_box",
+        "matchedMeshes": [
+          "mpfb_ob_patient_aisha_body_meshlow-poly"
+        ],
+        "boundsMeters": {
+          "min": {
+            "x": -0.0446,
+            "y": 1.5323,
+            "z": 0.1188
+          },
+          "max": {
+            "x": 0.0446,
+            "y": 1.56,
+            "z": 0.1392
+          }
+        }
+      },
+      "subjectOnly": true
+    },
+    {
+      "actorId": "kevin",
+      "role": "adult_male",
+      "view": "front",
+      "imagePath": ".openclinxr/evidence/mpfb-eyes/kevin-eye-front.png",
+      "bytes": 475176,
+      "pngDimensions": {
+        "width": 1024,
+        "height": 1024
+      },
+      "frameCoverage": 0.8167858123779297,
+      "frameSpanFraction": 0.799985285021419,
+      "focusRegion": {
+        "kind": "eye_box",
+        "matchedMeshes": [
+          "mpfb_peds_nurse_kevin_body_meshlow-poly"
+        ],
+        "boundsMeters": {
+          "min": {
+            "x": -0.0452,
+            "y": 1.6345,
+            "z": 0.1186
+          },
+          "max": {
+            "x": 0.0452,
+            "y": 1.6634,
+            "z": 0.1416
+          }
+        }
+      },
+      "subjectOnly": true
+    },
+    {
+      "actorId": "child",
+      "role": "child",
+      "view": "front",
+      "imagePath": ".openclinxr/evidence/mpfb-eyes/child-eye-front.png",
+      "bytes": 474229,
+      "pngDimensions": {
+        "width": 1024,
+        "height": 1024
+      },
+      "frameCoverage": 0.8202199935913086,
+      "frameSpanFraction": 0.7999795970828729,
+      "focusRegion": {
+        "kind": "eye_box",
+        "matchedMeshes": [
+          "mpfb_peds_patient_child_body_meshlow-poly"
+        ],
+        "boundsMeters": {
+          "min": {
+            "x": -0.0394,
+            "y": 1.131,
+            "z": 0.0889
+          },
+          "max": {
+            "x": 0.0394,
+            "y": 1.1581,
+            "z": 0.1104
+          }
+        }
+      },
+      "subjectOnly": true
+    }
+  ],
+  "claimScope": [
+    "eye_focused_crops_of_the_shipped_mpfb_actors",
+    "camera_framed_on_the_derived_eye_box_not_literal_coordinates",
+    "one_dev_server_boot_for_the_whole_run"
+  ],
+  "notEvidenceFor": [
+    "how_the_eyes_look_pixel_grade_required",
+    "clinical_eye_realism",
+    "gaze_correctness",
+    "iris_appearance_claims"
+  ]
+}
