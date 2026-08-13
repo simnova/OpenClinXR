@@ -937,3 +937,42 @@ module, ~24 lines), then land 343x → 357 → 361 → turbo passThroughEnv → 
 for the peer question (human decision recorded 09:12); asset-pipeline-lead for the chain.
 
 **Token introspection:** not captured — slice-token ritual requires a commit path, which was shut.
+
+### 2026-08-13 deadlock-broken-nine-slices-landed (Q1/Q5)
+
+**What changed.** The overnight shared-checkout deadlock was broken at 09:22 by an operator-authorised
+temporary ceiling raise (`0be925b6`), and everything banked behind it landed: `7d5446f5` (chain merge,
+61 files — #358 focus=head, #360 garment .mhmat textures, #359 scalp material region, #341 round 17,
+#343 skin measurement, #362 drive-channel scalars), then `8e04e099` #361, `a9a3467e` #357, `d4ecdeb2`
+#92, `4a17eb78` #363 turbo passthrough, `f34d4a13` three held plants, `355528db` MADR 0052 corrections.
+Closed: #358 #359 #360 #362 #357 #92 #335.
+
+**Blueprint/factory tie.** MPFB rail now renders three actors with distinct garment materials,
+recognisable footwear, full scalp coverage, three case-driven iris colours, and drive channels that
+resolve to scalars instead of a silent null. Nine images graded by the orchestrator.
+
+**The deadlock class is closed, not just this instance.** #361 scoped the size check to staged files;
+#363 delivered the staged set on the full-turbo path turbo was stripping it from. Proven end to end at
+11:02: `f34d4a13` committed `path-scoped-global (staged files: 3)` **while the peer's file is still
+dirty at 973** — the exact scenario that blocked nine slices for six hours.
+
+**Risk that remains.** The ceilings are still raised (`role-harness-policy.ts` 973,
+`grok-repo-agent-spawn.ts` 544), dated TEMP and tracked on #363. They must shrink BELOW their originals
+once the role tables are extracted — a ceiling pinned to the current size is a tripwire, not a ratchet,
+and that is what actually caused the stoppage. The peer's 24-line change is still uncommitted and
+backed up at `/Volumes/files/src/openclinxr-rescue-2026-08-13`.
+
+**Six premises died before costing a worker a session**, and one slice was refused at the pixel grade:
+#341's waistband gap (bands.find semantics), #343's flat-colour headline (skin is baked per-actor),
+my own skin-variation RED (pore noise clears any luma-spread floor), the 57,600-tri flats "provenance"
+anomaly (source density, documented in the file), #335 (already merged before I dispatched it — 138 pro
+turns, my error), and #343's retry (passed its contract, baked ambient occlusion into the albedo;
+refused at the grade because a variation metric cannot tell the variation you want from the one you
+don't).
+
+**Next queued slice.** #364 mask-boundary sawtooth (in flight); then #365 viseme capture (proven tool
+exists, never run), #343 retry with SSS but no light transport, #363 ceiling shrink. Owner:
+asset-pipeline-lead for the first three, chief-coordinator for the ceiling debt.
+
+**Token introspection:** not captured — the ritual assumes a slice-scoped commit path and this window
+spanned a six-hour block plus eleven landings.
