@@ -713,8 +713,12 @@ def apply_body_hide_material_region(
 _HAND_BONE_RE = re.compile(r"hand|finger|thumb", re.IGNORECASE)
 # #295 — the arm chain (arm/forearm/hand/fingers, NOT the shoulder). The cover-shell
 # band selection includes the hanging arms down to the hands; a torso top does not
-# claim them, so the shell is built from torso + shoulder faces only.
-_LIMB_BONE_RE = re.compile(r"arm|forearm|hand|finger|thumb", re.IGNORECASE)
+# claim them, so the shell is built from torso + shoulder faces only. `wrist` and
+# `metacarpal` are the MPFB2 standard rig's wrist/palm bones (issue-351: the peds
+# bodies' palms are metacarpal-dominant, the regex missed them, and the lower cover
+# shell wrapped the T/A-posed hands — trouser shards on the fingers). No-op on the
+# mixamo_unity rig, which has neither bone.
+_LIMB_BONE_RE = re.compile(r"arm|forearm|hand|wrist|finger|thumb|metacarpal", re.IGNORECASE)
 
 
 def _bone_dominant_vertex_indices(

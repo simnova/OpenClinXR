@@ -65,6 +65,36 @@ import { describe, expect, it } from "vitest";
  *     hand does not make the hand right; #295 removed mittens and took the sleeve with them.
  *   - **The ratio bounds LATERAL REACH only.** Trouser geometry that stays within 1.6x torso half-width
  *     but is in the wrong place vertically passes this contract. A quantity, not a shape (§11s).
+ *
+ * ## FIXED (#351)
+ *
+ * MECHANISM, measured 2026-08-12 on the shipped GLBs + pre-fix re-bakes: the lower cover shell's
+ * band selection wraps the hands because `_LIMB_BONE_RE` (the shared arm-chain vocabulary in
+ * `body_param_stage.py`) does not match the MPFB2 standard rig's `wrist` and `metacarpal*` palm
+ * bones. The peds bodies' palms are metacarpal-dominant (nurse 177+177 verts at |x| up to 0.547 m in
+ * the top band; child 120+120 up to 0.382 m), so their faces were never excluded from the shell band
+ * and the shell wrapped the exported A-pose hands; the k-NN bind then carried the shards to the hand
+ * bones, so the runtime clinical-idle pose wears them on the fingers. Aisha is clean because her
+ * palm vertices are all finger-dominant (already excluded) — zero wrist/metacarpal verts in her band,
+ * so the widened regex is a no-op for the known-good. Not the round-9 waistband class: mask/rim and
+ * overlap are untouched (17.8/13.4 mm, in the #341 band).
+ *
+ * FIX: `_LIMB_BONE_RE` now also matches `wrist|metacarpal` (same vocabulary the evidence contract
+ * `garment-shells-stop-at-the-wrist` already uses for `wrist`). No-op on the mixamo_unity rail (no
+ * such bones). Re-baked all three actors through `materialize_mpfb_humanoid_candidate.py`; the shell
+ * no longer contains hand-region faces and no trouser vertex is hand-weighted.
+ *
+ * MEASURED after the fix (same discriminator, same band):
+ *
+ *   actor            torso half   max |x| of trousers   RATIO    outside-torso tris   verdict
+ *   ---------------- ----------   -------------------   ------   ------------------   -------
+ *   aisha            0.153 m      0.187 m               1.218    84 / 2782            unchanged
+ *   nurse_kevin      0.146 m      0.184 m               1.261    91 / 2820            hip flare
+ *   patient_child    0.108 m      0.139 m               1.287    153 / 2636           hip flare
+ *
+ * All outlying triangles are now spine/pelvis/upperleg (hip flare) — zero hand/finger/wrist/
+ * metacarpal-dominant trouser vertices on any actor. Leg-band area and shirt/trouser overlap are
+ * unchanged (aisha 19.6 mm, nurse 17.8 mm, child 13.4 mm). Clause (1) flipped; (2)/(3)/(4) hold.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -185,7 +215,7 @@ const show = (r: Row): string =>
   `${r.file}: maxLateral=${r.maxLateral.toFixed(3)}m / torsoHalf=${r.torsoHalf.toFixed(3)}m = ${r.ratio.toFixed(2)}x`;
 
 describe("trousers stay on the legs", () => {
-  it.fails("(1) RED: no trouser geometry reaches out to the arms", () => {
+  it("(1) RED (FIXED #351): no trouser geometry reaches out to the arms", () => {
     requireRows();
     expect(
       rows.filter((r) => r.ratio > MAX_LATERAL_RATIO).map(show),
