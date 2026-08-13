@@ -1,0 +1,464 @@
+{
+  "schemaVersion": "openclinxr.garment-textures.pre-fix.v1",
+  "issue": "360",
+  "factoryStep": "instrument",
+  "measuredAt": "2026-08-13T07:55:49.574Z",
+  "generator": {
+    "tool": "inspectGarmentTextures",
+    "file": "tools/openclinxr/evidence/garment-texture-inspection.ts",
+    "deterministic": true,
+    "llmInvolved": false
+  },
+  "actors": [
+    {
+      "id": "child",
+      "role": "patient_maya_johnson_v1",
+      "glb": "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb",
+      "clinician": false,
+      "reference": "peds_patient_child",
+      "slots": {
+        "upper": {
+          "mhclo": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/toigo_basic_tucked_t-shirt/toigo_basic_tucked_t-shirt.mhclo",
+          "mhcloExists": true,
+          "mhmat": {
+            "declaredMhmatRel": "t_shirt_basic_tucked.mhmat",
+            "mhmatStaged": true,
+            "mhmatPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-360/.openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/toigo_basic_tucked_t-shirt/t_shirt_basic_tucked.mhmat",
+            "diffuseTexture": "T-shirt_basic.png",
+            "textureResolvesOnDisk": true,
+            "texturePath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-360/.openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/toigo_basic_tucked_t-shirt/T-shirt_basic.png",
+            "textureBytes": 861166
+          },
+          "canonicalMhmat": {
+            "declaredMhmatRel": "t_shirt_basic_tucked.mhmat",
+            "mhmatStaged": true,
+            "mhmatPath": "/Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/toigo_basic_tucked_t-shirt/t_shirt_basic_tucked.mhmat",
+            "diffuseTexture": "T-shirt_basic.png",
+            "textureResolvesOnDisk": true,
+            "texturePath": "/Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/toigo_basic_tucked_t-shirt/T-shirt_basic.png",
+            "textureBytes": 861166
+          },
+          "obj": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/toigo_basic_tucked_t-shirt/t_shirt_basic_tucked.obj",
+          "objVtLines": 1644,
+          "glb": {
+            "meshName": "makeclothes_library_toigo_t_shirt_mpfb_peds_patient_child_mesh",
+            "materialName": "mat_makeclothes_library_toigo_t_shirt",
+            "baseColorFactor": [
+              0.72,
+              0.68,
+              0.55
+            ],
+            "textureBytes": 861166,
+            "texcoord0": true,
+            "distinctUvs": 1553,
+            "uvMinMax": {
+              "u": [
+                0.012500000186264515,
+                0.9848999977111816
+              ],
+              "v": [
+                0.02499997615814209,
+                0.9908000230789185
+              ]
+            }
+          }
+        },
+        "lower": {
+          "mhclo": ".openclinxr-local/provider-cache/garments/sources/makehuman-pants01/cortu_cargo_pants/cargo_pants.mhclo",
+          "mhcloExists": true,
+          "mhmat": {
+            "declaredMhmatRel": "cargo_pants.mhmat",
+            "mhmatStaged": false,
+            "mhmatPath": null,
+            "diffuseTexture": null,
+            "textureResolvesOnDisk": false,
+            "texturePath": null,
+            "textureBytes": null
+          },
+          "canonicalMhmat": {
+            "declaredMhmatRel": "cargo_pants.mhmat",
+            "mhmatStaged": false,
+            "mhmatPath": null,
+            "diffuseTexture": null,
+            "textureResolvesOnDisk": false,
+            "texturePath": null,
+            "textureBytes": null
+          },
+          "obj": ".openclinxr-local/provider-cache/garments/sources/makehuman-pants01/cortu_cargo_pants/cargo_pants.obj",
+          "objVtLines": 230,
+          "glb": {
+            "meshName": "makeclothes_library_cargo_pants_mpfb_peds_patient_child_mesh",
+            "materialName": "mat_makeclothes_library_cargo_pants.001",
+            "baseColorFactor": [
+              0.7200000286102295,
+              0.6800000071525574,
+              0.550000011920929
+            ],
+            "textureBytes": 0,
+            "texcoord0": false,
+            "distinctUvs": 0,
+            "uvMinMax": null
+          }
+        },
+        "footwear": {
+          "mhclo": ".openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_mj_cloth_shoes/toigo_mj_cloth_shoes.mhclo",
+          "mhcloExists": true,
+          "mhmat": {
+            "declaredMhmatRel": "mj_shoes.mhmat",
+            "mhmatStaged": true,
+            "mhmatPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-360/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_mj_cloth_shoes/mj_shoes.mhmat",
+            "diffuseTexture": "MJ-shoes3.png",
+            "textureResolvesOnDisk": true,
+            "texturePath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-360/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_mj_cloth_shoes/MJ-shoes3.png",
+            "textureBytes": 1418657
+          },
+          "canonicalMhmat": {
+            "declaredMhmatRel": "mj_shoes.mhmat",
+            "mhmatStaged": true,
+            "mhmatPath": "/Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_mj_cloth_shoes/mj_shoes.mhmat",
+            "diffuseTexture": "MJ-shoes3.png",
+            "textureResolvesOnDisk": true,
+            "texturePath": "/Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_mj_cloth_shoes/MJ-shoes3.png",
+            "textureBytes": 1418657
+          },
+          "obj": ".openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_mj_cloth_shoes/mj_shoes.obj",
+          "objVtLines": 822,
+          "glb": {
+            "meshName": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_patient_child_mesh",
+            "materialName": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+            "baseColorFactor": [
+              1,
+              1,
+              1
+            ],
+            "textureBytes": 1418657,
+            "texcoord0": true,
+            "distinctUvs": 402,
+            "uvMinMax": {
+              "u": [
+                0.004399999976158142,
+                0.993399977684021
+              ],
+              "v": [
+                0.009999990463256836,
+                0.9760000109672546
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "aisha",
+      "role": "parent_tara_johnson_v1",
+      "glb": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+      "clinician": false,
+      "reference": null,
+      "slots": {
+        "upper": {
+          "mhclo": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/toigo_basic_tucked_t-shirt/toigo_basic_tucked_t-shirt.mhclo",
+          "mhcloExists": true,
+          "mhmat": {
+            "declaredMhmatRel": "t_shirt_basic_tucked.mhmat",
+            "mhmatStaged": true,
+            "mhmatPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-360/.openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/toigo_basic_tucked_t-shirt/t_shirt_basic_tucked.mhmat",
+            "diffuseTexture": "T-shirt_basic.png",
+            "textureResolvesOnDisk": true,
+            "texturePath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-360/.openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/toigo_basic_tucked_t-shirt/T-shirt_basic.png",
+            "textureBytes": 861166
+          },
+          "canonicalMhmat": {
+            "declaredMhmatRel": "t_shirt_basic_tucked.mhmat",
+            "mhmatStaged": true,
+            "mhmatPath": "/Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/toigo_basic_tucked_t-shirt/t_shirt_basic_tucked.mhmat",
+            "diffuseTexture": "T-shirt_basic.png",
+            "textureResolvesOnDisk": true,
+            "texturePath": "/Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/toigo_basic_tucked_t-shirt/T-shirt_basic.png",
+            "textureBytes": 861166
+          },
+          "obj": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/toigo_basic_tucked_t-shirt/t_shirt_basic_tucked.obj",
+          "objVtLines": 1644,
+          "glb": {
+            "meshName": "makeclothes_library_toigo_t_shirt_mpfb_ob_patient_aisha_mesh",
+            "materialName": "mat_makeclothes_library_toigo_t_shirt",
+            "baseColorFactor": [
+              0.42,
+              0.36,
+              0.4
+            ],
+            "textureBytes": 861166,
+            "texcoord0": true,
+            "distinctUvs": 1553,
+            "uvMinMax": {
+              "u": [
+                0.012500000186264515,
+                0.9848999977111816
+              ],
+              "v": [
+                0.02499997615814209,
+                0.9908000230789185
+              ]
+            }
+          }
+        },
+        "lower": {
+          "mhclo": ".openclinxr-local/provider-cache/garments/sources/makehuman-pants01/cortu_cargo_pants/cargo_pants.mhclo",
+          "mhcloExists": true,
+          "mhmat": {
+            "declaredMhmatRel": "cargo_pants.mhmat",
+            "mhmatStaged": false,
+            "mhmatPath": null,
+            "diffuseTexture": null,
+            "textureResolvesOnDisk": false,
+            "texturePath": null,
+            "textureBytes": null
+          },
+          "canonicalMhmat": {
+            "declaredMhmatRel": "cargo_pants.mhmat",
+            "mhmatStaged": false,
+            "mhmatPath": null,
+            "diffuseTexture": null,
+            "textureResolvesOnDisk": false,
+            "texturePath": null,
+            "textureBytes": null
+          },
+          "obj": ".openclinxr-local/provider-cache/garments/sources/makehuman-pants01/cortu_cargo_pants/cargo_pants.obj",
+          "objVtLines": 230,
+          "glb": {
+            "meshName": "makeclothes_library_cargo_pants_mpfb_ob_patient_aisha_mesh",
+            "materialName": "mat_makeclothes_library_cargo_pants.001",
+            "baseColorFactor": [
+              0.41999998688697815,
+              0.36000001430511475,
+              0.4000000059604645
+            ],
+            "textureBytes": 0,
+            "texcoord0": false,
+            "distinctUvs": 0,
+            "uvMinMax": null
+          }
+        },
+        "footwear": {
+          "mhclo": ".openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_flats/toigo_flats.mhclo",
+          "mhcloExists": true,
+          "mhmat": {
+            "declaredMhmatRel": "flats.mhmat",
+            "mhmatStaged": true,
+            "mhmatPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-360/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_flats/flats.mhmat",
+            "diffuseTexture": "Shoe.png",
+            "textureResolvesOnDisk": true,
+            "texturePath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-360/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_flats/Shoe.png",
+            "textureBytes": 7769810
+          },
+          "canonicalMhmat": {
+            "declaredMhmatRel": "flats.mhmat",
+            "mhmatStaged": true,
+            "mhmatPath": "/Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_flats/flats.mhmat",
+            "diffuseTexture": "Shoe.png",
+            "textureResolvesOnDisk": true,
+            "texturePath": "/Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_flats/Shoe.png",
+            "textureBytes": 7769810
+          },
+          "obj": ".openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_flats/flats.obj",
+          "objVtLines": 30724,
+          "glb": {
+            "meshName": "makeclothes_library_footwear_toigo_flats_mpfb_ob_patient_aisha_mesh",
+            "materialName": "mat_makeclothes_library_footwear_toigo_flats",
+            "baseColorFactor": [
+              1,
+              1,
+              1
+            ],
+            "textureBytes": 7769810,
+            "texcoord0": true,
+            "distinctUvs": 15623,
+            "uvMinMax": {
+              "u": [
+                -0.0005000000237487257,
+                0.9968000054359436
+              ],
+              "v": [
+                0.00830000638961792,
+                0.9940000176429749
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "kevin",
+      "role": "nurse_kevin_lee_v1",
+      "glb": "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
+      "clinician": true,
+      "reference": "peds_nurse_kevin",
+      "slots": {
+        "upper": {
+          "mhclo": ".openclinxr-local/provider-cache/garments/sources/makehuman-community-scrub-shirt/Scrub_Shirt.mhclo",
+          "mhcloExists": true,
+          "mhmat": {
+            "declaredMhmatRel": "Scrub_Shirt.mhmat",
+            "mhmatStaged": false,
+            "mhmatPath": null,
+            "diffuseTexture": null,
+            "textureResolvesOnDisk": false,
+            "texturePath": null,
+            "textureBytes": null
+          },
+          "canonicalMhmat": {
+            "declaredMhmatRel": "Scrub_Shirt.mhmat",
+            "mhmatStaged": false,
+            "mhmatPath": null,
+            "diffuseTexture": null,
+            "textureResolvesOnDisk": false,
+            "texturePath": null,
+            "textureBytes": null
+          },
+          "obj": ".openclinxr-local/provider-cache/garments/sources/makehuman-community-scrub-shirt/Scrub_Shirt.obj",
+          "objVtLines": 4910,
+          "glb": {
+            "meshName": "makeclothes_library_scrub_shirt_mpfb_peds_nurse_kevin_mesh",
+            "materialName": "mat_makeclothes_library_scrub_shirt",
+            "baseColorFactor": [
+              0.05000000074505806,
+              0.47999998927116394,
+              0.5199999809265137
+            ],
+            "textureBytes": 0,
+            "texcoord0": true,
+            "distinctUvs": 2660,
+            "uvMinMax": {
+              "u": [
+                0.0005000000237487257,
+                0.9994999766349792
+              ],
+              "v": [
+                0.000500023365020752,
+                0.9994999766349792
+              ]
+            }
+          }
+        },
+        "lower": {
+          "mhclo": ".openclinxr-local/provider-cache/garments/sources/makehuman-pants01/cortu_cargo_pants/cargo_pants.mhclo",
+          "mhcloExists": true,
+          "mhmat": {
+            "declaredMhmatRel": "cargo_pants.mhmat",
+            "mhmatStaged": false,
+            "mhmatPath": null,
+            "diffuseTexture": null,
+            "textureResolvesOnDisk": false,
+            "texturePath": null,
+            "textureBytes": null
+          },
+          "canonicalMhmat": {
+            "declaredMhmatRel": "cargo_pants.mhmat",
+            "mhmatStaged": false,
+            "mhmatPath": null,
+            "diffuseTexture": null,
+            "textureResolvesOnDisk": false,
+            "texturePath": null,
+            "textureBytes": null
+          },
+          "obj": ".openclinxr-local/provider-cache/garments/sources/makehuman-pants01/cortu_cargo_pants/cargo_pants.obj",
+          "objVtLines": 230,
+          "glb": {
+            "meshName": "makeclothes_library_cargo_pants_mpfb_peds_nurse_kevin_mesh",
+            "materialName": "mat_makeclothes_library_cargo_pants.001",
+            "baseColorFactor": [
+              0.05000000074505806,
+              0.47999998927116394,
+              0.5199999809265137
+            ],
+            "textureBytes": 0,
+            "texcoord0": false,
+            "distinctUvs": 0,
+            "uvMinMax": null
+          }
+        },
+        "footwear": {
+          "mhclo": ".openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/culturalibre_male_boots/culturalibre_male_boots.mhclo",
+          "mhcloExists": true,
+          "mhmat": {
+            "declaredMhmatRel": "male_boots.mhmat",
+            "mhmatStaged": true,
+            "mhmatPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-360/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/culturalibre_male_boots/male_boots.mhmat",
+            "diffuseTexture": "boot.png",
+            "textureResolvesOnDisk": true,
+            "texturePath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-360/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/culturalibre_male_boots/boot.png",
+            "textureBytes": 461286
+          },
+          "canonicalMhmat": {
+            "declaredMhmatRel": "male_boots.mhmat",
+            "mhmatStaged": true,
+            "mhmatPath": "/Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/culturalibre_male_boots/male_boots.mhmat",
+            "diffuseTexture": "boot.png",
+            "textureResolvesOnDisk": true,
+            "texturePath": "/Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/culturalibre_male_boots/boot.png",
+            "textureBytes": 461286
+          },
+          "obj": ".openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/culturalibre_male_boots/male_boots.obj",
+          "objVtLines": 16072,
+          "glb": {
+            "meshName": "makeclothes_library_footwear_culturalibre_male_boots_mpfb_peds_nurse_kevin_mesh",
+            "materialName": "mat_makeclothes_library_footwear_culturalibre_male_boots",
+            "baseColorFactor": [
+              1,
+              1,
+              1
+            ],
+            "textureBytes": 461286,
+            "texcoord0": true,
+            "distinctUvs": 7690,
+            "uvMinMax": {
+              "u": [
+                0.04780000075697899,
+                0.9398000240325928
+              ],
+              "v": [
+                0.04839998483657837,
+                0.9516000151634216
+              ]
+            }
+          }
+        }
+      }
+    }
+  ],
+  "providerCacheCensus": {
+    "makehuman-shirts01/toigo_basic_tucked_t-shirt": [
+      "T-shirt_basic.png",
+      "t_shirt_basic_tucked.mhmat",
+      "t_shirt_basic_tucked.obj",
+      "toigo_basic_tucked_t-shirt.mhclo"
+    ],
+    "makehuman-pants01/cortu_cargo_pants": [
+      "cargo_pants.mhclo",
+      "cargo_pants.obj"
+    ],
+    "makehuman-shoes01/culturalibre_male_boots": [
+      "boot.png",
+      "culturalibre_male_boots.mhclo",
+      "male_boots.mhmat",
+      "male_boots.obj"
+    ],
+    "makehuman-shoes01/toigo_flats": [
+      "Shoe.png",
+      "flats.mhmat",
+      "flats.obj",
+      "toigo_flats.mhclo"
+    ],
+    "makehuman-shoes01/toigo_mj_cloth_shoes": [
+      "MJ-shoes3.png",
+      "mj_shoes.mhmat",
+      "mj_shoes.obj",
+      "toigo_mj_cloth_shoes.mhclo"
+    ]
+  },
+  "preFixAssertions": {
+    "everyGarmentHasZeroTextureBytes": "expected — this is the defect under measurement",
+    "missingDeclaredMaterial": "scrub shirt and cargo pants declare .mhmat files that are NOT staged in the provider cache (the cargo-pants .mhmat + cargo_pants_diff.png exist in the original makehuman-pants01 pack but were never staged; the scrub declares Scrub_Shirt.mhmat which is not in the pack listing either)",
+    "lowerShellHasNoUvs": "the SHIPPED lower garment on all three actors is the #326 body-derived cover shell, which has no TEXCOORD_0 — a lower-garment texture would render as garbage even if the .mhmat were staged; that is a fitting-pipeline slice (its own RED), not this material slice",
+    "poloTexture": "namuhekam_male_polo_shirt declares Polo_Base_Color.png; resolvable in the main checkout cache, absent from this worktree's staged cache (and not consumed by the MPFB materializer — it is the hm08 rail's garment)"
+  }
+}
