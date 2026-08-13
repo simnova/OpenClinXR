@@ -272,7 +272,8 @@ export function buildRepoAgentSpawnPrompt(input: {
   const harness = input.harness ?? "grok";
   const modelSpec = resolveHarnessModelSpec(input.policy.policyTier, harness);
   const isMultimodal = !!input.multimodal;
-  const effectiveModel = isMultimodal ? (modelSpec.model.includes("grok-4") ? modelSpec.model : "grok-4-fast") : modelSpec.model;
+  // Multimodal (vision / Imagine / trellis / glb-grade) is grok-4.6 only — matches buildGrokRepoAgentSpawnSpec hardening.
+  const effectiveModel = isMultimodal ? "grok-4.6" : modelSpec.model;
   const isWriter = input.policy.sandboxMode === "workspace-write";
   const largeTask = looksLikeLargeParallelTask(input.task);
 
@@ -287,10 +288,10 @@ export function buildRepoAgentSpawnPrompt(input: {
     .filter(Boolean)
     .join(" ");
   const multimodalNote = isMultimodal
-    ? " MULTIMODAL: images/cagematch/UI-XR/png/webm → grok-4-fast first, then grok-4-pro; never deepseek text-only for vision."
+    ? " MULTIMODAL: images/cagematch/UI-XR/png/webm/Imagine/trellis → grok-4.6; never deepseek text-only for vision."
     : "";
   const escalateLadder = isMultimodal
-    ? "UNABLE: escalate grok-4-fast → grok-4-pro → grok-build (no deepseek for vision)."
+    ? "UNABLE: escalate grok-4.6 → grok-build (no deepseek for vision)."
     : "UNABLE: escalate flash → pro → grok-build (cheap-first).";
   const compositionPointer =
     isWriter
@@ -345,7 +346,8 @@ function requiresMultimodalReasoning(roleId: string, task?: string): boolean {
     "cagematch", "model-vetting", "front.png", "three_quarter", "body_motion",
     "sleeve_deform", "garmentgeometry", "garmentdeform", "ui-xr.*(capture|evidence|png|visual)",
     "body_motion_probe", "inspection.*(png|image|visual)", "cagematch report", "rigging report.*visual",
-    "model vetting.*(png|image|visual)", "screenshots", "webm", "visuals in"
+    "model vetting.*(png|image|visual)", "screenshots", "webm", "visuals in",
+    "imagine", "trellis", "glb-grade", "escape-hatch",
   ];
   const hasVisual = visualIndicators.some((ind) => new RegExp(ind).test(text));
   // For known visual-adversary roles, still require at least one visual keyword in the task/brief to trigger reservation
@@ -378,10 +380,9 @@ export function buildGrokRepoAgentSpawnSpec(input: {
 
   let modelSpec = resolveHarnessModelSpec(policy.policyTier, "grok");
   if (isMultimodal) {
-    // Harden: multi-modal-reasoning (images, cagematch visuals, UI-XR captures, evidence screenshots, etc.)
-    // is reserved for grok-4-fast (try first — cost-effective Grok vision+reasoning) then grok-4-pro.
-    // Never route these to deepseek-v4-flash/pro text-only models.
-    modelSpec = { model: "grok-4-fast", reasoningEffort: "high" };
+    // Harden: vision / Imagine / glb-grade is Grok 4.6 only.
+    // Never route these to deepseek-v4-flash/pro (text-only; 400 image_url).
+    modelSpec = { model: "grok-4.6", reasoningEffort: "high" };
   }
 
   const surface = resolveGrokSpawnSurfaceForPolicy(policy);
@@ -499,8 +500,8 @@ export function buildGrokRepoAgentSpawnRegistry(input: {
       checkId: "multimodal_reserved_for_grok4",
       passed: agents
         .filter((a) => a.multimodal)
-        .every((a) => a.model.startsWith("grok-4-")),
-      note: "Any multimodal-reasoning (vision, cagematch/UI-XR image evidence, screenshots) must resolve to grok-4-fast first then grok-4-pro — never deepseek text-only.",
+        .every((a) => a.model.startsWith("grok-4")),
+      note: "Any multimodal-reasoning (vision, Imagine/trellis, cagematch/UI-XR image evidence, screenshots) must resolve to the grok-4 family (grok-4.6 / grok-4-fast / grok-4-pro) — never deepseek text-only.",
     },
   ];
 

@@ -56,7 +56,7 @@ general-purpose = true  # execution specialists (asset/xr/impl) after scoping
 [subagents.models]
 explore = "deepseek-v4-flash"   # cheap read-only coordinator/drift consults (scout tier per grok-tier-routing + subagent-protocol)
 plan = "deepseek-v4-pro"        # bounded planning slices
-general-purpose = "deepseek-v4-pro"  # bounded execution / write slices (tier 3; use for disjoint impl after coordinator scoping). Favor this + capability_mode over full Composer for most work.
+general-purpose = "deepseek-v4-pro"  # 2026-08-13: v4-pro (updated reasoning). USER ~/.grok/config.toml [subagents.models] is what binds — keep that on deepseek-v4-pro-anthropic. Never DeepSeek for Imagine/pixel grade.
 # grok-build only for frontier/protected (escalation or high-stakes per LEX_AGENTIC + harness-usage)
 # grok-tier-routing: tier 1 scout / tier 2 plan ladder — see agents/rules/grok-tier-routing.md
 # CLI: pnpm grok:tier:introspect | grok:tier:work-order | grok:tier:check

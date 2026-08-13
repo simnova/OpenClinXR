@@ -26,14 +26,14 @@ describe("grok repo agent spawn", () => {
     expect(spec.spawnSubagentCall?.capability_mode).toBe("read-only");
   });
 
-  it("maps asset-pipeline-lead to general-purpose flash (2026-08-10 flash-first)", () => {
+  it("maps asset-pipeline-lead to general-purpose pro (standard_execution tier)", () => {
     const spec = buildGrokRepoAgentSpawnSpec({
       roleId: "asset-pipeline-lead",
       roleDir: "agents/core/asset-pipeline-lead",
       group: "core",
     });
     expect(spec.grokSubagentType).toBe("general-purpose");
-    expect(spec.model).toBe("deepseek-v4-flash");
+    expect(spec.model).toBe("deepseek-v4-pro");
     expect(spec.spawnSubagentCall?.capability_mode).toBe("read-write");
   });
 
@@ -64,6 +64,7 @@ describe("grok repo agent spawn", () => {
       "vp-engineering-delivery",
       "hrbp",
       "pmo",
+      "imagine-trellis",
     ].map((roleId) => ({
       roleId,
       roleDir: `agents/group/${roleId}`,
@@ -71,7 +72,7 @@ describe("grok repo agent spawn", () => {
     }));
     const registry = buildGrokRepoAgentSpawnRegistry({ roles });
     expect(registry.posture).toBe("aligned");
-    expect(registry.agents).toHaveLength(17);
+    expect(registry.agents).toHaveLength(18);
   });
 
   it("recommends consult defaults", () => {
@@ -106,7 +107,7 @@ describe("grok repo agent spawn", () => {
       group: "core",
     });
     expect(spec.grokSubagentType).toBe("general-purpose");
-    expect(spec.model).toBe("deepseek-v4-flash");
+    expect(spec.model).toBe("deepseek-v4-pro");
     expect(spec.isolation).toBe("worktree");
     expect(spec.safeguards.some((s) => s.includes("general-purpose"))).toBe(true);
     expect(spec.spawnPrompt).toContain("COMPOSITION-ROOTS");

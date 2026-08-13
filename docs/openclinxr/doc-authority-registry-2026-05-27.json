@@ -1045,6 +1045,13 @@
       "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
     },
     {
+      "path": ".grok/agents/imagine-trellis.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
+    },
+    {
       "path": ".grok/agents/implementation-plan-gap-attacker.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",

@@ -135,6 +135,44 @@ const KNOWN_SUBJECTS: SubjectEntry[] = [
     viewRels: packViewRels("ecg-cart"),
   },
   {
+    // Stab E midband kit (parametric) → clean Blender 4-view pack → TRELLIS multi-view.
+    // Pack root: OPENCLINXR_TRELLIS_PACKS=.openclinxr/evidence/trellis-packs
+    subjectId: "ecg-cart-midband",
+    displayName: "12-lead ECG cart midband kit (Stab E)",
+    viewRels: packViewRels("ecg-cart-midband"),
+  },
+  {
+    // 6-view experiment: top, left, right, bottom, ¾ top-left-front, ¾ bottom-right-back.
+    subjectId: "ecg-cart-midband-6view",
+    displayName: "12-lead ECG cart midband kit 6-view (cardinal+oblique)",
+    viewRels: [
+      "ecg-cart-midband-6view/top.png",
+      "ecg-cart-midband-6view/left.png",
+      "ecg-cart-midband-6view/right.png",
+      "ecg-cart-midband-6view/bottom.png",
+      "ecg-cart-midband-6view/three_quarter_top_left_front.png",
+      "ecg-cart-midband-6view/three_quarter_bottom_right_back.png",
+    ],
+  },
+  {
+    // Fidelity experiment: ONLY two eye-level ¾ views; no post-opt; goal output≈input kit.
+    subjectId: "ecg-cart-midband-2tq",
+    displayName: "12-lead ECG cart midband kit 2× three-quarter (fidelity)",
+    viewRels: [
+      "ecg-cart-midband-2tq/three_quarter_left.png",
+      "ecg-cart-midband-2tq/three_quarter_right.png",
+    ],
+  },
+  {
+    // Fidelity: ONLY high ¾ top-left-front + low ¾ bottom-right-back (no post-opt).
+    subjectId: "ecg-cart-midband-2oblique",
+    displayName: "12-lead ECG cart midband kit high-TLF + low-BRB (fidelity)",
+    viewRels: [
+      "ecg-cart-midband-2oblique/three_quarter_top_left_front.png",
+      "ecg-cart-midband-2oblique/three_quarter_bottom_right_back.png",
+    ],
+  },
+  {
     subjectId: "iv-pole",
     displayName: "IV pole equipment",
     viewRels: packViewRels("iv_pole_equipment"),
@@ -204,7 +242,9 @@ USAGE
   pnpm factory:trellis:bake:validate                    Alias for --validate-latest
 
 SUBJECTS
-  wall-clock, bedside-monitor, ecg-cart, iv-pole, o2-port  (#232 packs + #262/#267 parametric-render packs)
+  wall-clock, bedside-monitor, ecg-cart, ecg-cart-midband, ecg-cart-midband-6view,
+  ecg-cart-midband-2tq, ecg-cart-midband-2oblique, iv-pole, o2-port
+  (2tq = eye-level ¾; 2oblique = high TLF + low BRB; grade raw export)
 
 MULTI-VIEW
   Pack layout under OPENCLINXR_TRELLIS_PACKS (default .openclinxr/evidence/issue-232/<subject>/):

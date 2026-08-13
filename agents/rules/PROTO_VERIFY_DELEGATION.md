@@ -1484,6 +1484,16 @@ ceremony. If an approach is not written down, it does not exist.
   Grep a durable artifact (the session ledger, the contract report) instead of process liveness.
 - Both of the above are the same error as the ones above them: a status signal that was built rather
   than observed. Prefer the artifact the work itself writes over any proxy for "is it alive".
+- **`dispatch()`'s `worktree` option is `string | true`, and OMITTING IT MEANS NO ISOLATION.** With no
+  `worktree`, the worker runs with `cwd` = the MAIN checkout and the path-scoped deny on main is never
+  added — measured 2026-08-13, a worker sat in `/Volumes/files/src/openclinxr` for two minutes before
+  it was killed. Pass `worktree: true` and let `resolveWorkerWorktree` create and prepare it.
+- **Passing `worktree: <path>` for a path that does not exist yet dies as `spawn <grok binary> ENOENT`.**
+  `resolveWorkerWorktree:595` only prepares a caller-supplied path when it is already on disk, so the
+  spawn gets a missing `cwd` — and Node reports a missing cwd by naming the COMMAND, not the directory.
+  The binary is fine. This is the same false read as `git -C <missing> status | wc -l` returning 0.
+  Confirm the worktree appears in `git worktree list` and check the worker's real cwd with
+  `lsof -a -p <pid> -d cwd` before believing any dispatch is isolated.
 
 
 ## 6v. Measure with the instrument the RUNTIME uses, not the one that reads the file
@@ -5443,3 +5453,36 @@ fix a contract that measures the wrong thing — it can only satisfy it.
 
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 11t. Never chain a destructive command as "cleanup" — this tree has another writer in it
+
+2026-08-13. Tidying scratch files after editing an issue body, I appended `git checkout -- .` to a
+compound command. It reverted **40 tracked files of the peer agent's uncommitted work** — its Grok
+config, its persona, its role-harness policy edits, its trellis CLI changes, an authority registry
+regeneration. None of it was mine and none of it was staged.
+
+Recovered in full from a `PEER-WIP.patch` snapshot taken at 09:18, and verified against an independent
+number: `role-harness-policy.ts` came back at **972 lines**, exactly what I had recorded for it at
+05:16 hours earlier. Without that snapshot the work was gone — a worktree's uncommitted state has no
+reflog.
+
+Three things generalise, and only the first is about the specific command:
+
+- **`git checkout -- .` and `git reset --hard` are as destructive as `rm -rf` and have no undo.**
+  §11a already says prefer `git clean -fdx` over `rm -rf` because the former cannot touch tracked
+  files. This is the tracked-file half of the same lesson: a whole-tree revert is never "cleanup".
+  Revert the specific paths you created, by name.
+- **A command's blast radius is a property of the TREE, not the command.** In a single-writer tree
+  `git checkout -- .` discards your own scratch. In this repo — where a peer agent and my own workers
+  share one checkout — it discards someone else's day.
+- **The chaining is the mechanism.** The revert was the fourth clause of a one-line `&&` chain whose
+  subject was editing a GitHub issue. Nothing in that context invited me to ask what was dirty.
+  **Destructive verbs get their own invocation, preceded by looking at what they will hit.**
+
+The mitigation that actually saved this: snapshot another writer's uncommitted work to a patch outside
+the repo before a session that will touch shared state. It cost one command this morning and it was
+the only reason recovery was possible.
+
+NOTED, NOT FIXED: §11s is duplicated **29 times** in this file. That is accretion, not content, and it
+is exactly what the "at most ONE new rule per day" limit at the top exists to prevent. It needs a
+dedup pass as its own slice.

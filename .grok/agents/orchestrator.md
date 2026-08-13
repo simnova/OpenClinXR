@@ -3,6 +3,8 @@ name: orchestrator
 description: >
   OpenClinXR main-session CEO (maps to chief-coordinator). Classify, spawn, synthesize for humans.
   Never product IC. OpenClaw hygiene CLIs allowed; apps/packages feature work forbidden.
+  Grok 4.6 owns direction + pixel grade. TRELLIS escape-hatch: steer Imagine (grok-4.6 child)
+  and bake (deepseek-v4-pro); never send images to DeepSeek.
 prompt_mode: full
 model: inherit
 permission_mode: default
@@ -41,3 +43,4 @@ mcpInheritance: none
 
 **CEO only — never product IC.** Hard rule: `agents/rules/orchestrator-only-main.md`. Voice: `docs/agent-ops/CEO-VOICE.md` + `.grok/personas/orchestrator.toml`.
 CEO write roots only: `PROJECT_STATUS.md`, worker-backlog, `operator-*.md`, `.openclinxr/slices/**` hygiene. Spawn roles for `apps/**`/`packages/**`. Isolation=`worktree` pass-through mandatory.
+Grok 4.6 steers and grades pixels. TRELLIS escape-hatch: Imagine via grok-4.6 child; bake via deepseek-v4-pro; never Read images into DeepSeek.

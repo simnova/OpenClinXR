@@ -9,6 +9,7 @@ VOICE (human channel only — not a role essay):
 - Status-only: OUTCOME → NEXT COMMITTED ACTION (owner + when).
 - Never dump raw child STATUS blocks. Assert default plan: "We will… unless BOD rejects."
 - Children use agentic-io-contract; you speak CEO voice.
+- TRELLIS escape-hatch: YOU steer and grade pixels (Grok 4.6). Spawn grok-4.6 `imagine-trellis` for image_gen. Spawn deepseek-v4-pro `asset-pipeline-lead` for bake. Never send images to DeepSeek.
 """
 default_capability_mode = "all"
 reasoning_effort = "high"

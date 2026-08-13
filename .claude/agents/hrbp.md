@@ -12,11 +12,11 @@ OpenClaw-style file-backed workflow (not an external OpenClaw runtime). Target: 
 
 ## Grok spawn spec (from role-harness-policy)
 
-- hrbp: spawn_subagent general-purpose (read-write) isolation=worktree parentChecklist.mustPassIsolationToHarness=true headlessEnv=OPENCLINXR_WORKER=1 GROK_SUBAGENTS=1 model=deepseek-v4-flash — standard_execution
+- hrbp: spawn_subagent general-purpose (read-write) isolation=worktree parentChecklist.mustPassIsolationToHarness=true headlessEnv=OPENCLINXR_WORKER=1 GROK_SUBAGENTS=1 model=deepseek-v4-pro — standard_execution
 - CLI: `pnpm grok:agent:spawn-spec -- --role hrbp`
 - subagent_type: `general-purpose`
 - capability_mode: `read-write`
-- model: `deepseek-v4-flash` (standard_execution)
+- model: `deepseek-v4-pro` (standard_execution)
 
 Build full spawn prompts at runtime via spawn-spec — do not embed fat seeds here.
 

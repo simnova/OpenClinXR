@@ -162,7 +162,7 @@ const tierDefaults: Record<
   standard_execution: {
     taskType: "implementation_worker",
     openai: { model: "gpt-5.4", reasoningEffort: "medium" },
-    grok: { model: "deepseek-v4-flash", reasoningEffort: "medium" },
+    grok: { model: "deepseek-v4-pro", reasoningEffort: "medium" },
     codex: { model: "gpt-5.4", reasoningEffort: "medium" },
     moonbridgeAssistOnCodex: false,
   },
@@ -431,6 +431,18 @@ const rolePathScopes: Record<string, RolePathScope> = {
     forbidden: ["apps/ui-admin/**", "apps/api/**", "packages/data-mongodb/**"],
     outputRoots: [".openclinxr/slices/**/handoffs/asset-pipeline-lead.json"],
     preferredCli: ["pnpm --filter @openclinxr/asset-pipeline"],
+  },
+  "imagine-trellis": {
+    // TRELLIS escape-hatch pack worker. Writes ONLY imagine packs the bake CLI consumes.
+    // Model: task/role always triggers multimodal -> grok-4.6 in grok-repo-agent-spawn.ts
+    // (image_gen/Read are Grok-only; never DeepSeek). No preferredCli = no bake CLI ownership.
+    writeRoots: [
+      ".openclinxr/evidence/trellis-packs/**",
+      ".openclinxr/evidence/trellis-escape-hatch/**",
+    ],
+    readRoots: [],
+    forbidden: ["tools/openclinxr/asset-pipeline/**", "apps/**", "packages/**"],
+    outputRoots: [".openclinxr/slices/**/handoffs/imagine-trellis.json"],
   },
   "rigging-animation-specialist": {
     writeRoots: [
@@ -814,6 +826,17 @@ export const repoRoleHarnessPolicies: RepoRoleHarnessPolicy[] = [
     moonbridgeAssistOnCodex: false,
     writeScopeNote: "May write in tools/openclinxr/asset-pipeline/, model-vetting studio, and ignored cagematch outputs when assigned.",
     pathScope: getRolePathScope("asset-pipeline-lead"),
+  },
+  {
+    roleId: "imagine-trellis",
+    policyTier: "standard_execution",
+    taskType: "implementation_worker",
+    sandboxMode: "workspace-write",
+    recommendedSkills: ["openclinxr-openclaw"],
+    moonbridgeAssistOnCodex: false,
+    writeScopeNote:
+      "TRELLIS escape-hatch imagine packs ONLY: .openclinxr/evidence/trellis-packs/** + trellis-escape-hatch/**. Model grok-4.6 via multimodal routing (grok-repo-agent-spawn.ts); never runs TRELLIS bake, no bake CLI ownership.",
+    pathScope: getRolePathScope("imagine-trellis"),
   },
   {
     roleId: "rigging-animation-specialist",

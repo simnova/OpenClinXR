@@ -75,6 +75,7 @@ describe("role-harness-policy", () => {
       "clinical-safety-critic",
       "hrbp",
       "implementation-plan-gap-attacker",
+      "imagine-trellis",
       "implementation-planning-lead",
       "license-provenance-specialist",
       "openclaw-drift-police",
@@ -106,8 +107,8 @@ describe("role-harness-policy", () => {
       expect(hrbp!.writeScopeNote).toContain("agent-ops");
     });
 
-    it("role list length is 17 (includes architect + archivist + hrbp + pmo)", () => {
-      expect(repoRoleHarnessPolicies.length).toBe(17);
+    it("role list length is 18 (includes architect + archivist + hrbp + pmo + imagine-trellis)", () => {
+      expect(repoRoleHarnessPolicies.length).toBe(18);
       expect(repoRoleHarnessPolicies.some((p) => p.roleId === "architect")).toBe(true);
       expect(repoRoleHarnessPolicies.some((p) => p.roleId === "archivist")).toBe(true);
       expect(repoRoleHarnessPolicies.some((p) => p.roleId === "hrbp")).toBe(true);

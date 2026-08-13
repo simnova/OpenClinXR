@@ -3,6 +3,7 @@
 ## Durable Lessons
 
 - Actor, equipment, clothing, skin, rigging, and environment assets should be reviewed from browser screenshots/videos with explicit notes on clinical scene fidelity, scale, provenance, and missing equipment before calling a scenario visually production-ready.
+- DeepSeek never Reads images (400 image_url) — pixel grade is Grok 4.6 / orchestrator; TRELLIS bakes use `--no-remesh` to preserve topology.
 
 ## Active Risks
 

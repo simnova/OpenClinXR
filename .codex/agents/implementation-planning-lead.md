@@ -12,11 +12,11 @@ OpenClaw-style file-backed workflow (not an external OpenClaw runtime). Target: 
 
 ## Grok spawn spec (from role-harness-policy)
 
-- implementation-planning-lead: spawn_subagent plan (read-only) model=deepseek-v4-flash — standard_execution
+- implementation-planning-lead: spawn_subagent plan (read-only) model=deepseek-v4-pro — standard_execution
 - CLI: `pnpm grok:agent:spawn-spec -- --role implementation-planning-lead`
 - subagent_type: `plan`
 - capability_mode: `read-only`
-- model: `deepseek-v4-flash` (standard_execution)
+- model: `deepseek-v4-pro` (standard_execution)
 
 Build full spawn prompts at runtime via spawn-spec — do not embed fat seeds here.
 
