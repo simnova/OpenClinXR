@@ -2047,6 +2047,33 @@ def main():
         _rt_unhidden = int(_rt_unhide.sum())
         hide_mask[_rt_hidden_idx[_rt_unhide]] = False
     print(f"RENDER_TRUTH_UNHIDE upper faces {_rt_unhidden}")
+    # #364 — report the hide-mask boundary smoothness in the bake log, using the same
+    # instrument the evidence contract uses (bottom 3% of the mask by height, ordered by
+    # angle about the body axis, adjacent-height deltas, p95 in mm). The planted RED is
+    # the mask ring p95 vs the garment hem's (measured 8.1 mm vs 1.4 mm on aisha). This
+    # is diagnostic only: it does not change the mask, so the next slice can verify a
+    # boundary fix from the bake log without a GLB round-trip. The measured blocker for
+    # the fix itself (a finer per-face boundary needs more tessellation than the
+    # 28,000-tri stripped-body bound allows) is recorded in the #364 report.
+    def _mask_ring_p95():
+        _idx = np.where(hide_mask)[0]
+        if len(_idx) == 0:
+            return None
+        _verts = body_verts[body_faces[_idx]].reshape(-1, 3)
+        _keys = np.round(_verts, 5)
+        _, _uniq = np.unique(_keys, axis=0, return_index=True)
+        _verts = _verts[_uniq]
+        _zs = _verts[:, 2]
+        _lo, _hi = float(_zs.min()), float(_zs.max())
+        _band = _verts[_zs < _lo + (_hi - _lo) * 0.03]
+        _ang = np.arctan2(_band[:, 1], _band[:, 0])
+        _band = _band[np.argsort(_ang)]
+        _dz = np.sort(np.abs(np.diff(_band[:, 2])) * 1000.0)
+        return {
+            "verts": int(len(_band)),
+            "p95AdjMm": float(_dz[int(len(_dz) * 0.95)] if len(_dz) else 0.0),
+        }
+    print(f"MASK_RING_364 upper {json.dumps(_mask_ring_p95())}")
     applied = apply_body_hide_material_region(human, hide_mask, slot="upper")
     print(
         f"BODY_HIDE {hide_info} "
