@@ -75,6 +75,23 @@ import { describe, expect, it } from "vitest";
  *   - **1:1 only.** The runtime resolver returns ONE name per canonical, so a true FACS composition
  *     (several action units blended per phoneme) is a residual this contract does not reach. That is
  *     the honest ceiling of a 1:1 resolver and should be named in whatever fixes this, not hidden.
+ *
+ * ## FIXED (#353)
+ *
+ * `morph-target-resolver.ts` now maps every viseme the runtime asks for to a shipped mouth action
+ * unit — `viseme_sil AA E IH OH OU FV TH L` all resolve 3/3 (8 distinct targets; IH and TH share
+ * `mouth-part-later`, the AU25 lips-part family has three runtime visemes and two shipped targets).
+ * Rows were chosen from the pre-fix measurement (`.openclinxr/evidence/mpfb-visemes/pre-fix.json`):
+ * all 13 mouth/lip/jaw targets are graded deformations, and mean displacement direction plus FACS
+ * family assigns each phoneme its best 1:1 shape. The two canonical expression rows are untouched.
+ * The `it.fails` marker on (1) was flipped to `it`; all four clauses pass on all three actors.
+ *
+ * RUNTIME NOTE (the premise correction this slice returned): the resolver map alone does not move
+ * an MPFB mouth — `driveVisemeTimeline` matches phonemes against real mesh names, and MPFB bodies
+ * carry none of the `viseme_*` spellings, so it emitted all-zero weights. `viseme-timeline-drive.ts`
+ * now falls back to the canonical ARKit names when a body has no `viseme_*` targets, which
+ * `applyVisemeWeights` resolves through the map; `viseme-runtime-wire.test.ts` ("drives an MPFB
+ * FACS-only body through the alias map") pins the chain end to end.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -143,7 +160,7 @@ function requireRows(): void {
 }
 
 describe("MPFB actors can speak", () => {
-  it.fails("(1) RED: the runtime's viseme names resolve on every MPFB actor", () => {
+  it("(1) RED: the runtime's viseme names resolve on every MPFB actor", () => {
     requireRows();
     const mute = rows
       .filter((r) => r.resolvedVisemes.some((v) => v.target === null))

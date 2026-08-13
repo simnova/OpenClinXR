@@ -1,0 +1,556 @@
+{
+  "schemaVersion": "openclinxr.mpfb-visemes.pre-fix.v1",
+  "measuredAt": "2026-08-13T02:30:22.667Z",
+  "note": "Pre-fix measurement for #353, taken before any product edit. Resolution via the real runtime resolver (resolveMorphTarget, #308). Mouth-target stats use the #224 method: verticesMoved = vertices displaced >1e-5 m summed across all meshes/primitives; magnitudeSd = sd of per-vertex displacement magnitudes; distinctDirections = distinct unit directions rounded to 2dp; centroidY = displaced-vertex centroid as a fraction of stature.",
+  "actors": [
+    {
+      "file": "mpfb-ob-patient-aisha.glb",
+      "morphCount": 32,
+      "allTargetNames": [
+        "eye-left-closure",
+        "eye-left-opened-up",
+        "eye-left-slit",
+        "eye-right-closure",
+        "eye-right-opened-up",
+        "eye-right-slit",
+        "eyebrows-left-down",
+        "eyebrows-left-extern-up",
+        "eyebrows-left-inner-up",
+        "eyebrows-left-up",
+        "eyebrows-right-down",
+        "eyebrows-right-extern-up",
+        "eyebrows-right-inner-up",
+        "eyebrows-right-up",
+        "mouth-compression",
+        "mouth-corner-puller",
+        "mouth-depression-retraction",
+        "mouth-depression-retraction.001",
+        "mouth-elevation",
+        "mouth-eversion",
+        "mouth-open",
+        "mouth-parling",
+        "mouth-part-later",
+        "mouth-protusion",
+        "mouth-pursing",
+        "mouth-retraction",
+        "mouth-upward-retraction",
+        "neck-platysma",
+        "nose-compression-uncompress",
+        "nose-depression",
+        "nose-left-dilatation",
+        "nose-left-elevation"
+      ],
+      "mouthFacsTargets": [
+        {
+          "name": "mouth-compression",
+          "verticesMoved": 704,
+          "magnitudeSd": 0.0021694588492110474,
+          "distinctDirections": 379,
+          "centroidY": 0.888757888995301
+        },
+        {
+          "name": "mouth-corner-puller",
+          "verticesMoved": 709,
+          "magnitudeSd": 0.0037239447899591613,
+          "distinctDirections": 481,
+          "centroidY": 0.8908724128712441
+        },
+        {
+          "name": "mouth-depression-retraction",
+          "verticesMoved": 578,
+          "magnitudeSd": 0.0023569702806971065,
+          "distinctDirections": 272,
+          "centroidY": 0.8888447639921165
+        },
+        {
+          "name": "mouth-depression-retraction.001",
+          "verticesMoved": 578,
+          "magnitudeSd": 0.0023569702806971065,
+          "distinctDirections": 272,
+          "centroidY": 0.8888447639921165
+        },
+        {
+          "name": "mouth-elevation",
+          "verticesMoved": 619,
+          "magnitudeSd": 0.0020555902091308883,
+          "distinctDirections": 269,
+          "centroidY": 0.8954462633582672
+        },
+        {
+          "name": "mouth-eversion",
+          "verticesMoved": 366,
+          "magnitudeSd": 0.001723576383230928,
+          "distinctDirections": 132,
+          "centroidY": 0.8879689105866289
+        },
+        {
+          "name": "mouth-open",
+          "verticesMoved": 1221,
+          "magnitudeSd": 0.012718875755615932,
+          "distinctDirections": 659,
+          "centroidY": 0.8873110733894171
+        },
+        {
+          "name": "mouth-parling",
+          "verticesMoved": 237,
+          "magnitudeSd": 0.0009620514737789112,
+          "distinctDirections": 28,
+          "centroidY": 0.8888913282323474
+        },
+        {
+          "name": "mouth-part-later",
+          "verticesMoved": 945,
+          "magnitudeSd": 0.0032659111660894124,
+          "distinctDirections": 635,
+          "centroidY": 0.891067535591844
+        },
+        {
+          "name": "mouth-protusion",
+          "verticesMoved": 732,
+          "magnitudeSd": 0.0042762468257147215,
+          "distinctDirections": 500,
+          "centroidY": 0.8892947640614952
+        },
+        {
+          "name": "mouth-pursing",
+          "verticesMoved": 813,
+          "magnitudeSd": 0.004653047319145496,
+          "distinctDirections": 582,
+          "centroidY": 0.8897498793055849
+        },
+        {
+          "name": "mouth-retraction",
+          "verticesMoved": 644,
+          "magnitudeSd": 0.0023415608168950363,
+          "distinctDirections": 485,
+          "centroidY": 0.887781037429645
+        },
+        {
+          "name": "mouth-upward-retraction",
+          "verticesMoved": 778,
+          "magnitudeSd": 0.0032728269169738575,
+          "distinctDirections": 563,
+          "centroidY": 0.8875666186761927
+        }
+      ],
+      "resolvedVisemes": [
+        {
+          "name": "viseme_sil",
+          "target": null
+        },
+        {
+          "name": "viseme_AA",
+          "target": null
+        },
+        {
+          "name": "viseme_E",
+          "target": null
+        },
+        {
+          "name": "viseme_IH",
+          "target": null
+        },
+        {
+          "name": "viseme_OH",
+          "target": null
+        },
+        {
+          "name": "viseme_OU",
+          "target": null
+        },
+        {
+          "name": "viseme_FV",
+          "target": null
+        },
+        {
+          "name": "viseme_TH",
+          "target": null
+        },
+        {
+          "name": "viseme_L",
+          "target": null
+        }
+      ],
+      "resolvedCanonical": [
+        {
+          "name": "openclinxr_mouth_open",
+          "target": "mouth-open"
+        },
+        {
+          "name": "openclinxr_brow_concern",
+          "target": "eyebrows-left-inner-up"
+        },
+        {
+          "name": "openclinxr_cheek_tension",
+          "target": null
+        }
+      ]
+    },
+    {
+      "file": "mpfb-peds-nurse-kevin.glb",
+      "morphCount": 32,
+      "allTargetNames": [
+        "eye-left-closure",
+        "eye-left-opened-up",
+        "eye-left-slit",
+        "eye-right-closure",
+        "eye-right-opened-up",
+        "eye-right-slit",
+        "eyebrows-left-down",
+        "eyebrows-left-extern-up",
+        "eyebrows-left-inner-up",
+        "eyebrows-left-up",
+        "eyebrows-right-down",
+        "eyebrows-right-extern-up",
+        "eyebrows-right-inner-up",
+        "eyebrows-right-up",
+        "mouth-compression",
+        "mouth-corner-puller",
+        "mouth-depression-retraction",
+        "mouth-depression-retraction.001",
+        "mouth-elevation",
+        "mouth-eversion",
+        "mouth-open",
+        "mouth-parling",
+        "mouth-part-later",
+        "mouth-protusion",
+        "mouth-pursing",
+        "mouth-retraction",
+        "mouth-upward-retraction",
+        "neck-platysma",
+        "nose-compression-uncompress",
+        "nose-depression",
+        "nose-left-dilatation",
+        "nose-left-elevation"
+      ],
+      "mouthFacsTargets": [
+        {
+          "name": "mouth-compression",
+          "verticesMoved": 704,
+          "magnitudeSd": 0.002169458851371052,
+          "distinctDirections": 379,
+          "centroidY": 0.8984769072225078
+        },
+        {
+          "name": "mouth-corner-puller",
+          "verticesMoved": 709,
+          "magnitudeSd": 0.0037239448029113506,
+          "distinctDirections": 481,
+          "centroidY": 0.9005995915736472
+        },
+        {
+          "name": "mouth-depression-retraction",
+          "verticesMoved": 578,
+          "magnitudeSd": 0.0023569702810723667,
+          "distinctDirections": 272,
+          "centroidY": 0.8984939729254766
+        },
+        {
+          "name": "mouth-depression-retraction.001",
+          "verticesMoved": 578,
+          "magnitudeSd": 0.0023569702810723667,
+          "distinctDirections": 272,
+          "centroidY": 0.8984939729254766
+        },
+        {
+          "name": "mouth-elevation",
+          "verticesMoved": 619,
+          "magnitudeSd": 0.0020555902047486793,
+          "distinctDirections": 269,
+          "centroidY": 0.9050516078877079
+        },
+        {
+          "name": "mouth-eversion",
+          "verticesMoved": 366,
+          "magnitudeSd": 0.001723576383230928,
+          "distinctDirections": 132,
+          "centroidY": 0.8975613814347111
+        },
+        {
+          "name": "mouth-open",
+          "verticesMoved": 1224,
+          "magnitudeSd": 0.01271507343292811,
+          "distinctDirections": 659,
+          "centroidY": 0.8966754151966613
+        },
+        {
+          "name": "mouth-parling",
+          "verticesMoved": 237,
+          "magnitudeSd": 0.000962051473652243,
+          "distinctDirections": 28,
+          "centroidY": 0.8984402414500203
+        },
+        {
+          "name": "mouth-part-later",
+          "verticesMoved": 945,
+          "magnitudeSd": 0.0032659111655959656,
+          "distinctDirections": 635,
+          "centroidY": 0.9008712257416088
+        },
+        {
+          "name": "mouth-protusion",
+          "verticesMoved": 732,
+          "magnitudeSd": 0.0042762468250918265,
+          "distinctDirections": 500,
+          "centroidY": 0.899008730246978
+        },
+        {
+          "name": "mouth-pursing",
+          "verticesMoved": 813,
+          "magnitudeSd": 0.0046530473398015805,
+          "distinctDirections": 582,
+          "centroidY": 0.8995524674523929
+        },
+        {
+          "name": "mouth-retraction",
+          "verticesMoved": 644,
+          "magnitudeSd": 0.002341560838076246,
+          "distinctDirections": 485,
+          "centroidY": 0.8973655739908759
+        },
+        {
+          "name": "mouth-upward-retraction",
+          "verticesMoved": 778,
+          "magnitudeSd": 0.0032728269207402683,
+          "distinctDirections": 563,
+          "centroidY": 0.8973334808776153
+        }
+      ],
+      "resolvedVisemes": [
+        {
+          "name": "viseme_sil",
+          "target": null
+        },
+        {
+          "name": "viseme_AA",
+          "target": null
+        },
+        {
+          "name": "viseme_E",
+          "target": null
+        },
+        {
+          "name": "viseme_IH",
+          "target": null
+        },
+        {
+          "name": "viseme_OH",
+          "target": null
+        },
+        {
+          "name": "viseme_OU",
+          "target": null
+        },
+        {
+          "name": "viseme_FV",
+          "target": null
+        },
+        {
+          "name": "viseme_TH",
+          "target": null
+        },
+        {
+          "name": "viseme_L",
+          "target": null
+        }
+      ],
+      "resolvedCanonical": [
+        {
+          "name": "openclinxr_mouth_open",
+          "target": "mouth-open"
+        },
+        {
+          "name": "openclinxr_brow_concern",
+          "target": "eyebrows-left-inner-up"
+        },
+        {
+          "name": "openclinxr_cheek_tension",
+          "target": null
+        }
+      ]
+    },
+    {
+      "file": "mpfb-peds-patient-child.glb",
+      "morphCount": 32,
+      "allTargetNames": [
+        "eye-left-closure",
+        "eye-left-opened-up",
+        "eye-left-slit",
+        "eye-right-closure",
+        "eye-right-opened-up",
+        "eye-right-slit",
+        "eyebrows-left-down",
+        "eyebrows-left-extern-up",
+        "eyebrows-left-inner-up",
+        "eyebrows-left-up",
+        "eyebrows-right-down",
+        "eyebrows-right-extern-up",
+        "eyebrows-right-inner-up",
+        "eyebrows-right-up",
+        "mouth-compression",
+        "mouth-corner-puller",
+        "mouth-depression-retraction",
+        "mouth-depression-retraction.001",
+        "mouth-elevation",
+        "mouth-eversion",
+        "mouth-open",
+        "mouth-parling",
+        "mouth-part-later",
+        "mouth-protusion",
+        "mouth-pursing",
+        "mouth-retraction",
+        "mouth-upward-retraction",
+        "neck-platysma",
+        "nose-compression-uncompress",
+        "nose-depression",
+        "nose-left-dilatation",
+        "nose-left-elevation"
+      ],
+      "mouthFacsTargets": [
+        {
+          "name": "mouth-compression",
+          "verticesMoved": 704,
+          "magnitudeSd": 0.0021694590360856604,
+          "distinctDirections": 379,
+          "centroidY": 0.8792630663787921
+        },
+        {
+          "name": "mouth-corner-puller",
+          "verticesMoved": 709,
+          "magnitudeSd": 0.0037239447185282624,
+          "distinctDirections": 481,
+          "centroidY": 0.8816924703316812
+        },
+        {
+          "name": "mouth-depression-retraction",
+          "verticesMoved": 578,
+          "magnitudeSd": 0.002356970591326759,
+          "distinctDirections": 272,
+          "centroidY": 0.879291612610062
+        },
+        {
+          "name": "mouth-depression-retraction.001",
+          "verticesMoved": 578,
+          "magnitudeSd": 0.002356970591326759,
+          "distinctDirections": 272,
+          "centroidY": 0.879291612610062
+        },
+        {
+          "name": "mouth-elevation",
+          "verticesMoved": 619,
+          "magnitudeSd": 0.00205559032778238,
+          "distinctDirections": 269,
+          "centroidY": 0.8871585056264772
+        },
+        {
+          "name": "mouth-eversion",
+          "verticesMoved": 366,
+          "magnitudeSd": 0.0017235763497917135,
+          "distinctDirections": 132,
+          "centroidY": 0.8782494116002354
+        },
+        {
+          "name": "mouth-open",
+          "verticesMoved": 1224,
+          "magnitudeSd": 0.012715073492808976,
+          "distinctDirections": 659,
+          "centroidY": 0.8776962457391584
+        },
+        {
+          "name": "mouth-parling",
+          "verticesMoved": 237,
+          "magnitudeSd": 0.0009620514737396193,
+          "distinctDirections": 28,
+          "centroidY": 0.8793244921645242
+        },
+        {
+          "name": "mouth-part-later",
+          "verticesMoved": 945,
+          "magnitudeSd": 0.0032659112263437153,
+          "distinctDirections": 635,
+          "centroidY": 0.88221998575216
+        },
+        {
+          "name": "mouth-protusion",
+          "verticesMoved": 732,
+          "magnitudeSd": 0.004276246848095936,
+          "distinctDirections": 500,
+          "centroidY": 0.8799276864640315
+        },
+        {
+          "name": "mouth-pursing",
+          "verticesMoved": 813,
+          "magnitudeSd": 0.004653047598212823,
+          "distinctDirections": 582,
+          "centroidY": 0.8806080186381048
+        },
+        {
+          "name": "mouth-retraction",
+          "verticesMoved": 644,
+          "magnitudeSd": 0.0023415605060149508,
+          "distinctDirections": 485,
+          "centroidY": 0.8780427026009189
+        },
+        {
+          "name": "mouth-upward-retraction",
+          "verticesMoved": 778,
+          "magnitudeSd": 0.003272827133620876,
+          "distinctDirections": 563,
+          "centroidY": 0.878067854218055
+        }
+      ],
+      "resolvedVisemes": [
+        {
+          "name": "viseme_sil",
+          "target": null
+        },
+        {
+          "name": "viseme_AA",
+          "target": null
+        },
+        {
+          "name": "viseme_E",
+          "target": null
+        },
+        {
+          "name": "viseme_IH",
+          "target": null
+        },
+        {
+          "name": "viseme_OH",
+          "target": null
+        },
+        {
+          "name": "viseme_OU",
+          "target": null
+        },
+        {
+          "name": "viseme_FV",
+          "target": null
+        },
+        {
+          "name": "viseme_TH",
+          "target": null
+        },
+        {
+          "name": "viseme_L",
+          "target": null
+        }
+      ],
+      "resolvedCanonical": [
+        {
+          "name": "openclinxr_mouth_open",
+          "target": "mouth-open"
+        },
+        {
+          "name": "openclinxr_brow_concern",
+          "target": "eyebrows-left-inner-up"
+        },
+        {
+          "name": "openclinxr_cheek_tension",
+          "target": null
+        }
+      ]
+    }
+  ]
+}

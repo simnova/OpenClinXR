@@ -25,7 +25,11 @@ function meshLike() {
   };
 }
 
-function rootWith(mesh: ReturnType<typeof meshLike>) {
+function rootWith(mesh: {
+  name: string;
+  morphTargetDictionary: Record<string, number>;
+  morphTargetInfluences: number[];
+}) {
   return {
     userData: {} as Record<string, unknown>,
     traverse(callback: (object: unknown) => void) {
@@ -95,5 +99,47 @@ describe("viseme runtime wire (#63) — driver → applier → mesh", () => {
     expect(result.frameCount).toBe(4);
     expect(result.activeTargetName).toMatch(/^viseme_/);
     expect(result.influence).toBeGreaterThanOrEqual(0.5);
+  });
+
+  /** MPFB FACS rail: no `viseme_*` names, mouth action units only (mirrors the shipped actors, #353). */
+  function mpfbMeshLike() {
+    return {
+      name: "Body",
+      morphTargetDictionary: {
+        "mouth-compression": 0,
+        "mouth-open": 1,
+        "mouth-retraction": 2,
+        "mouth-part-later": 3,
+        "mouth-eversion": 4,
+        "mouth-protusion": 5,
+        "mouth-elevation": 6,
+        "mouth-parling": 7,
+      },
+      morphTargetInfluences: [0, 0, 0, 0, 0, 0, 0, 0],
+    };
+  }
+
+  it("drives an MPFB FACS-only body through the alias map — no viseme_* names on the mesh (#353)", () => {
+    const mesh = mpfbMeshLike();
+    const root = rootWith(mesh);
+    const phonemes = ["sil", "a", "e", "o", "u", "sil"];
+
+    // frame 1 of 6 -> "a" -> AA -> mouth-open via the FACS alias map
+    const aa = applyDialogueVisemeTimelineToRoot(root, {
+      phonemeSequence: phonemes,
+      progress: 0.3,
+    });
+    expect(aa.activeTargetName).toBe("viseme_AA");
+    expect(aa.influence).toBeGreaterThanOrEqual(0.5);
+    expect(mesh.morphTargetInfluences[mesh.morphTargetDictionary["mouth-open"]!]).toBe(1);
+
+    // frame 3 of 6 -> "o" -> OH -> mouth-eversion; the previous viseme's target returns to 0
+    const oh = applyDialogueVisemeTimelineToRoot(root, {
+      phonemeSequence: phonemes,
+      progress: 0.55,
+    });
+    expect(oh.activeTargetName).toBe("viseme_OH");
+    expect(mesh.morphTargetInfluences[mesh.morphTargetDictionary["mouth-open"]!]).toBe(0);
+    expect(mesh.morphTargetInfluences[mesh.morphTargetDictionary["mouth-eversion"]!]).toBe(1);
   });
 });
