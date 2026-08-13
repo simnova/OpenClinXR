@@ -1,0 +1,231 @@
+import { dirname, join, resolve as pathResolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { NodeIO } from "@gltf-transform/core";
+import { describe, expect, it } from "vitest";
+
+/**
+ * **The cover shell has TWO rims and #373 regularized only the top one.** Graded 2026-08-13 23:05 on
+ * the post-#373 captures: kevin's and aisha's trouser cuffs are shredded into teeth where they meet
+ * the footwear, on both legs. Same tooth/valley pattern the waistband had, at the other end.
+ *
+ * The mechanism is #373's, unchanged: `build_cover_shell` selects faces by CENTROID between the ankle
+ * and the shirt hem, so BOTH cut edges alternate between a triangle's top (tooth) and the next
+ * triangle's top (valley). `regularize_waistband_rim` snapped the upper rim onto its angular envelope.
+ * The lower rim was never touched — and #373's own NOT TESTED said so: *"Trouser cuffs, sleeve cuffs,
+ * collars and the footwear rings are excluded, not asserted on."* This is that residual coming due.
+ *
+ * Measured on the shipped bytes with the instrument below:
+ *
+ *   actor   ring                              verts   HF median   HF p95    span
+ *   ------  --------------------------------  -----   ---------   -------   -------
+ *   aisha   pants ANKLE CUFF                   388      2.74 mm    9.13 mm   25.3 mm
+ *   aisha   pants waistband (fixed #373)       462      0.10 mm    1.51 mm   24.8 mm  <- known-good
+ *   kevin   pants ANKLE CUFF                   392      4.03 mm   10.35 mm   23.4 mm
+ *   kevin   pants waistband (fixed #373)       447      0.05 mm    1.63 mm   27.0 mm  <- known-good
+ *   child   pants ANKLE CUFF                   128      0.23 mm    0.40 mm    2.0 mm  <- already fine
+ *   child   pants waistband (fixed #373)       426      0.15 mm    1.32 mm   17.3 mm
+ *
+ * Ratios: aisha 6.0x, kevin 6.4x, child 0.3x. The bound is 3x, so this fails 2/3 with 2x of margin
+ * and the child passes on today's bytes without being touched.
+ *
+ * ## THE KNOWN-GOOD IS THE SAME SHELL'S OTHER RIM, WHICH IS AS TIGHT AS A REFERENCE GETS (SS9h)
+ *
+ * #373 did not merely prove that "some ring somewhere can be smooth". It took THIS shell's upper rim,
+ * on THIS actor, from 10.79-18.96 mm to 1.32-1.63 mm with a function that already exists
+ * (`regularize_waistband_rim`). The lower rim is the same shell, the same cut, the same actor, the
+ * same instrument, the same run. So the bound is not a judgement about what cloth should look like —
+ * it is "the other end of this object, after a treatment that shipped."
+ *
+ * The 3x multiplier is my choice and I state it as one: three times the slack of the rim the pipeline
+ * demonstrably achieves, and still red on both adults by a factor of two.
+ *
+ * ## THE CHEAP FIXES THIS REFUSES
+ *
+ *   treatment                                       | (1) ratio | (2) verts | (3) geometry | (4) waist | result
+ *   ------------------------------------------------|-----------|-----------|--------------|-----------|--------
+ *   a) today                                        | **FAIL**  |   pass    |     pass     |   pass    | REFUSED
+ *   b) ROUGHEN THE WAISTBAND to inflate the divisor  |   pass    |   pass    |     pass     | **FAIL**  | REFUSED
+ *   c) decimate the cuff ring until it is smooth     |   pass    | **FAIL**  |     pass     |   pass    | REFUSED
+ *   d) shorten the trousers above the ankle contour  |   pass    |   pass    |   **FAIL**   |   pass    | REFUSED
+ *   e) regularize the lower rim as #373 did the upper|   pass    |   pass    |     pass     |   pass    | ALL PASS
+ *
+ * **(b) is load-bearing and it is why clause (4) exists.** Clause (1) is a RATIO whose denominator is
+ * a value another slice just fixed. Letting the waistband drift back to 5 mm would green clause (1) on
+ * both adults AND silently undo #373. Clause (4) pins the waistband absolutely against its post-#373
+ * measurement, so it is simultaneously the anti-cheat and a #373 regression net.
+ *
+ * **(d) is the one to watch on the child.** Its cuff is already smooth (0.40 mm) BECAUSE its trousers
+ * stop above the ankle — span 2.0 mm, a nearly planar ring. "Make the adults' trousers short too"
+ * would green clause (1) by removing the contoured ankle the rim has to follow. Clause (3) floors each
+ * actor's own cuff span, so the adults cannot be shortened into the child's easy case.
+ *
+ * WHICH ARE REDS AND WHICH ARE NETS (#227): (1) is the RED and fails 2/3 — the child passes untouched
+ * and is not a defect. (2), (3) and (4) pass today and are counterweights. Each is independent of the
+ * quantity (1) measures: smoothing the lower rim moves neither the ring population, nor the triangle
+ * count, nor the cuff's contour span, nor the waistband.
+ *
+ * NOT TESTED:
+ *   - **That fixing this removes the graded shredding.** This bounds ring geometry in the file. Only a
+ *     pixel grade after a re-bake settles appearance, and that grade is the orchestrator's.
+ *   - **Sleeve cuffs and collars.** Both are visible in the same captures and neither is measured here.
+ *   - **Whether the child's smooth cuff survives** a treatment tuned on the adults. Clause (1)
+ *     enumerates all three, so a regression there fails the RED rather than passing silently.
+ */
+
+const HERE = dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = pathResolve(HERE, "../../..");
+const GENERATED = "apps/ui-xr/public/generated-humanoids";
+
+const ACTORS = ["mpfb-ob-patient-aisha", "mpfb-peds-nurse-kevin", "mpfb-peds-patient-child"] as const;
+
+/** The lower rim may be at most this many times rougher than the same shell's regularized upper rim. */
+const MAX_CUFF_TO_WAISTBAND_HF_RATIO = 3;
+/** Clause (1)'s denominator is #373's result; this pins it so it cannot be inflated or regressed. */
+const WAISTBAND_DEGRADATION_ALLOWANCE = 1.5;
+
+type Ring = { verts: number; hfMedian: number; hfP95: number; span: number };
+
+/** Angular ordering + a 7-neighbour CIRCULAR moving average removing the contour. #373's instrument. */
+function ringHighFrequency(pts: number[][], which: "top" | "bottom"): Ring | null {
+  if (pts.length < 12) return null;
+  const ys = pts.map((p) => p[1]!);
+  const lo = Math.min(...ys);
+  const hi = Math.max(...ys);
+  const height = hi - lo;
+  const cx = pts.reduce((s, p) => s + p[0]!, 0) / pts.length;
+  const cz = pts.reduce((s, p) => s + p[2]!, 0) / pts.length;
+  const band = pts
+    .filter((p) => (which === "top" ? p[1]! > hi - height * 0.03 : p[1]! < lo + height * 0.03))
+    .map((p) => ({ y: p[1]!, th: Math.atan2(p[2]! - cz, p[0]! - cx) }))
+    .sort((a, b) => a.th - b.th);
+  if (band.length < 12) return null;
+
+  const residual: number[] = [];
+  for (let i = 0; i < band.length; i += 1) {
+    let sum = 0;
+    for (let k = -3; k <= 3; k += 1) sum += band[(i + k + band.length) % band.length]!.y;
+    residual.push(Math.abs(band[i]!.y - sum / 7) * 1000);
+  }
+  const sorted = [...residual].sort((a, b) => a - b);
+  const bandYs = band.map((b) => b.y);
+  return {
+    verts: band.length,
+    hfMedian: sorted[Math.floor(sorted.length / 2)] ?? 0,
+    hfP95: sorted[Math.floor(sorted.length * 0.95)] ?? 0,
+    span: (Math.max(...bandYs) - Math.min(...bandYs)) * 1000,
+  };
+}
+
+/** MEASURED 2026-08-13 23:05 on the post-#373 shipped bytes. */
+const BASELINE: Record<
+  string,
+  { cuffVerts: number; cuffSpan: number; pantsTris: number; waistHfP95: number }
+> = {
+  "mpfb-ob-patient-aisha": { cuffVerts: 388, cuffSpan: 25.3, pantsTris: 2782, waistHfP95: 1.51 },
+  "mpfb-peds-nurse-kevin": { cuffVerts: 392, cuffSpan: 23.4, pantsTris: 2628, waistHfP95: 1.63 },
+  "mpfb-peds-patient-child": { cuffVerts: 128, cuffSpan: 2.0, pantsTris: 2636, waistHfP95: 1.32 },
+};
+
+type Row = { actor: string; cuff: Ring | null; waist: Ring | null; pantsTris: number };
+
+const io = new NodeIO();
+
+async function measure(actor: string): Promise<Row> {
+  const doc = await io.read(join(REPO_ROOT, GENERATED, `${actor}.glb`));
+  let cuff: Ring | null = null;
+  let waist: Ring | null = null;
+  let pantsTris = 0;
+  for (const mesh of doc.getRoot().listMeshes()) {
+    for (const prim of mesh.listPrimitives()) {
+      if (!/cargo_pants/i.test(prim.getMaterial()?.getName() ?? "")) continue;
+      const pos = prim.getAttribute("POSITION");
+      const idx = prim.getIndices();
+      if (!pos) continue;
+      const v = [0, 0, 0];
+      const pts: number[][] = [];
+      for (let i = 0; i < pos.getCount(); i += 1) {
+        pos.getElement(i, v);
+        pts.push([...v]);
+      }
+      cuff = ringHighFrequency(pts, "bottom");
+      waist = ringHighFrequency(pts, "top");
+      pantsTris = idx ? idx.getCount() / 3 : 0;
+    }
+  }
+  return { actor, cuff, waist, pantsTris };
+}
+
+const rows = await Promise.all(ACTORS.map(measure));
+
+/**
+ * An empty enumeration must FAIL, never pass vacuously (SS7t). Plain `it` on purpose: an `it.fails`
+ * cannot guard its own vacuity — it is satisfied by ANY failure, including this guard throwing.
+ */
+function requireMeasured(): void {
+  const usable = rows.filter((r) => r.cuff !== null && r.waist !== null);
+  expect(
+    usable.length,
+    `actors with both a cuff ring and a waistband ring: ${rows
+      .map((r) => `${r.actor} cuff=${r.cuff ? "y" : "n"} waist=${r.waist ? "y" : "n"}`)
+      .join("; ")}`,
+  ).toBe(ACTORS.length);
+}
+
+describe("the ankle cuff is as smooth as the waistband on the same cover shell", () => {
+  it.fails(
+    `(1) RED: cuff high-frequency residual is within ${MAX_CUFF_TO_WAISTBAND_HF_RATIO}x the same shell's regularized waistband`,
+    () => {
+      requireMeasured();
+      const shredded = rows
+        .filter((r) => r.cuff && r.waist && r.cuff.hfP95 > r.waist.hfP95 * MAX_CUFF_TO_WAISTBAND_HF_RATIO)
+        .map(
+          (r) =>
+            `${r.actor}: cuff HF p95 ${r.cuff!.hfP95.toFixed(2)}mm vs waistband ${r.waist!.hfP95.toFixed(
+              2,
+            )}mm = ${(r.cuff!.hfP95 / Math.max(r.waist!.hfP95, 0.01)).toFixed(1)}x (bound ${MAX_CUFF_TO_WAISTBAND_HF_RATIO}x)`,
+        );
+      expect(shredded, "cuff rims rougher than the same shell's regularized waistband").toEqual([]);
+    },
+  );
+
+  it("(2) COUNTERWEIGHT: the cuff ring is not smoothed by decimation", () => {
+    // Refuses buying smoothness by deleting the vertices that carry the rim (SS6t).
+    requireMeasured();
+    const thinned = rows
+      .filter((r) => r.cuff && r.cuff.verts < (BASELINE[r.actor]?.cuffVerts ?? 0))
+      .map((r) => `${r.actor}: cuff ring ${r.cuff!.verts} verts < floor ${BASELINE[r.actor]?.cuffVerts}`);
+    expect(thinned, "cuff rings decimated rather than regularized").toEqual([]);
+  });
+
+  it("(3) COUNTERWEIGHT: the trousers are not remeshed and the cuff is not shortened out of the problem", () => {
+    // The child's cuff is smooth BECAUSE its trousers stop above the ankle (span 2.0mm, nearly planar).
+    // Shortening the adults into that easy case would green clause (1) without regularizing anything,
+    // so each actor's own cuff span is floored.
+    requireMeasured();
+    const changed = rows
+      .filter((r) => {
+        const b = BASELINE[r.actor];
+        return !b || r.pantsTris !== b.pantsTris || (r.cuff?.span ?? 0) < b.cuffSpan * 0.8;
+      })
+      .map((r) => {
+        const b = BASELINE[r.actor];
+        return b
+          ? `${r.actor}: pants tris ${r.pantsTris} (was ${b.pantsTris}), cuff span ${(r.cuff?.span ?? 0).toFixed(1)}mm (was ${b.cuffSpan}mm)`
+          : `${r.actor}: not in the measured baseline`;
+      });
+    expect(changed, "trouser geometry changed rather than the rim's smoothness").toEqual([]);
+  });
+
+  it("(4) COUNTERWEIGHT: #373's waistband — clause (1)'s denominator — is not degraded", () => {
+    // THE LOAD-BEARING ONE, and a #373 regression net at the same time. Clause (1)'s denominator is a
+    // value another slice just fixed; letting it drift back would green this RED and silently undo that.
+    requireMeasured();
+    const degraded = rows
+      .filter((r) => r.waist && r.waist.hfP95 > (BASELINE[r.actor]?.waistHfP95 ?? 0) * WAISTBAND_DEGRADATION_ALLOWANCE)
+      .map(
+        (r) =>
+          `${r.actor}: waistband HF p95 ${r.waist!.hfP95.toFixed(2)}mm exceeds ${WAISTBAND_DEGRADATION_ALLOWANCE}x #373's ${BASELINE[r.actor]?.waistHfP95}mm — the ratio was satisfied from its denominator, and #373 has regressed`,
+      );
+    expect(degraded, "#373's waistband regressed to inflate clause (1)'s denominator").toEqual([]);
+  });
+});
