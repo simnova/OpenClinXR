@@ -1,0 +1,137 @@
+{
+  "schemaVersion": "openclinxr.face-cue-truth.v1",
+  "kind": "face_cue_truth_live",
+  "label": "face-cue-truth",
+  "generatedAt": "2026-08-13T18:51:50.444Z",
+  "claimScope": [
+    "face_cue_primitive_absence_for_real_face_actors_under_face_detail_capture",
+    "face_morph_target_count_read_from_live_scene",
+    "cue_primitive_names_read_from_live_scene"
+  ],
+  "notEvidenceFor": [
+    "face_geometry_quality",
+    "clinical_realism",
+    "quest_readiness",
+    "capture_pixel_grade",
+    "exam_equivalence"
+  ],
+  "renderedDefinition": "a live scene root carrying userData.openClinXrAssetPath, measured under face-detail capture mode; faceMorphTargetCount is the max morphTargetDictionary/influences size across skinned meshes under that root; cuePrimitiveCount counts non-skinned Mesh children whose name matches the face-overlay cue suffixes (hair-cap-variant-cue / face-tone-and-cheek-volume-cue / eye-gaze-anchor-cue / mouth-line-viseme-anchor-cue / brow-tension-cue). Rejected: SSOT-only faceCueMode restatement without a live loaded root.",
+  "report": {
+    "scenarioIds": [
+      "peds_asthma_parent_anxiety_v1",
+      "ed_chest_pain_priority_v1",
+      "ob_headache_preeclampsia_triage_v1"
+    ],
+    "captureMode": "face-detail",
+    "rows": [
+      {
+        "scenarioId": "peds_asthma_parent_anxiety_v1",
+        "actorId": "patient_maya_johnson_v1",
+        "role": "patient",
+        "faceCueMode": "generated_glb",
+        "faceMorphTargetCount": 32,
+        "cuePrimitiveCount": 0,
+        "cuePrimitiveNames": [],
+        "staged": true
+      },
+      {
+        "scenarioId": "peds_asthma_parent_anxiety_v1",
+        "actorId": "parent_tara_johnson_v1",
+        "role": "family",
+        "faceCueMode": "generated_glb",
+        "faceMorphTargetCount": 32,
+        "cuePrimitiveCount": 0,
+        "cuePrimitiveNames": [],
+        "staged": true
+      },
+      {
+        "scenarioId": "peds_asthma_parent_anxiety_v1",
+        "actorId": "nurse_kevin_lee_v1",
+        "role": "nurse",
+        "faceCueMode": "generated_glb",
+        "faceMorphTargetCount": 32,
+        "cuePrimitiveCount": 0,
+        "cuePrimitiveNames": [],
+        "staged": true
+      },
+      {
+        "scenarioId": "ed_chest_pain_priority_v1",
+        "actorId": "patient_robert_hayes_v1",
+        "role": "patient",
+        "faceCueMode": "generated_glb",
+        "faceMorphTargetCount": 25,
+        "cuePrimitiveCount": 0,
+        "cuePrimitiveNames": [],
+        "staged": true
+      },
+      {
+        "scenarioId": "ed_chest_pain_priority_v1",
+        "actorId": "nurse_maria_alvarez_v1",
+        "role": "nurse",
+        "faceCueMode": "generated_glb",
+        "faceMorphTargetCount": 25,
+        "cuePrimitiveCount": 0,
+        "cuePrimitiveNames": [],
+        "staged": true
+      },
+      {
+        "scenarioId": "ed_chest_pain_priority_v1",
+        "actorId": "spouse_anna_hayes_v1",
+        "role": "family",
+        "faceCueMode": "generated_glb",
+        "faceMorphTargetCount": 32,
+        "cuePrimitiveCount": 0,
+        "cuePrimitiveNames": [],
+        "staged": true
+      },
+      {
+        "scenarioId": "ob_headache_preeclampsia_triage_v1",
+        "actorId": "patient_aisha_khan_v1",
+        "role": "patient",
+        "faceCueMode": "generated_glb",
+        "faceMorphTargetCount": 32,
+        "cuePrimitiveCount": 0,
+        "cuePrimitiveNames": [],
+        "staged": true
+      },
+      {
+        "scenarioId": "ob_headache_preeclampsia_triage_v1",
+        "actorId": "ob_nurse_williams_v1",
+        "role": "nurse",
+        "faceCueMode": "generated_glb",
+        "faceMorphTargetCount": 25,
+        "cuePrimitiveCount": 0,
+        "cuePrimitiveNames": [],
+        "staged": true
+      },
+      {
+        "scenarioId": "ob_headache_preeclampsia_triage_v1",
+        "actorId": "partner_omar_khan_v1",
+        "role": "family",
+        "faceCueMode": "generated_glb",
+        "faceMorphTargetCount": 25,
+        "cuePrimitiveCount": 0,
+        "cuePrimitiveNames": [],
+        "staged": true
+      }
+    ],
+    "renderedDefinition": "a live scene root carrying userData.openClinXrAssetPath, measured under face-detail capture mode; faceMorphTargetCount is the max morphTargetDictionary/influences size across skinned meshes under that root; cuePrimitiveCount counts non-skinned Mesh children whose name matches the face-overlay cue suffixes (hair-cap-variant-cue / face-tone-and-cheek-volume-cue / eye-gaze-anchor-cue / mouth-line-viseme-anchor-cue / brow-tension-cue). Rejected: SSOT-only faceCueMode restatement without a live loaded root.",
+    "claimScope": [
+      "face_cue_primitive_absence_for_real_face_actors_under_face_detail_capture",
+      "face_morph_target_count_read_from_live_scene",
+      "cue_primitive_names_read_from_live_scene"
+    ],
+    "notEvidenceFor": [
+      "face_geometry_quality",
+      "clinical_realism",
+      "quest_readiness",
+      "capture_pixel_grade",
+      "exam_equivalence"
+    ]
+  },
+  "treeStamp": {
+    "head": "b187065295d73618be5b63ad16b75d5822043236",
+    "fingerprint": "a59d4b632badf8ae2e87224052fe7608652b8989209502b7ab63ca42e1221705",
+    "algorithm": "git-head+status+diff-sha256"
+  }
+}
