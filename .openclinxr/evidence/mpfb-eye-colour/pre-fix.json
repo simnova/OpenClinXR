@@ -1,0 +1,217 @@
+{
+  "schemaVersion": "openclinxr.mpfb-eye-colour.pre-fix.v1",
+  "issue": "356",
+  "factoryStep": "instrument",
+  "measuredAt": "2026-08-13T05:30:36.305Z",
+  "generator": {
+    "tool": "inspectMpfbEyeColour",
+    "file": "tools/openclinxr/evidence/mpfb-eye-colour-inspection.ts",
+    "deterministic": true,
+    "llmInvolved": false
+  },
+  "actors": [
+    {
+      "actorId": "child",
+      "role": "child",
+      "actorRole": "patient",
+      "glb": "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb",
+      "irisTexture": {
+        "materialName": "mat_makeclothes_library_eyes_peds_patient_child",
+        "textureName": "brown_eye",
+        "sha256": "4659691c7295ad6206c78b003e5fd0e5f91dcd53032fa914a229bb48cabe424b",
+        "sha256Short": "4659691c7295ad62",
+        "bytes": 610817,
+        "pngWidth": 1024,
+        "pngHeight": 1024,
+        "baseColorFactor": [
+          1,
+          1,
+          1
+        ],
+        "pixels": {
+          "pngColourType": 6,
+          "samples": 524288,
+          "channelSpread": {
+            "mean": 13.57,
+            "max": 86,
+            "p95": 66
+          },
+          "chromatic": {
+            "count": 195303,
+            "fraction": 0.3725
+          },
+          "hue": {
+            "meanDeg": 34.1,
+            "sdDeg": 24.1
+          },
+          "classification": "mixed"
+        }
+      }
+    },
+    {
+      "actorId": "aisha",
+      "role": "adult_female",
+      "actorRole": "parent",
+      "glb": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+      "irisTexture": {
+        "materialName": "mat_makeclothes_library_eyes_ob_patient_aisha",
+        "textureName": "green_eye",
+        "sha256": "b9864ac4f4fa484b24e18f6aba030d70dbc8820cbbacfbe63a974c76772c2009",
+        "sha256Short": "b9864ac4f4fa484b",
+        "bytes": 662241,
+        "pngWidth": 1024,
+        "pngHeight": 1024,
+        "baseColorFactor": [
+          1,
+          1,
+          1
+        ],
+        "pixels": {
+          "pngColourType": 6,
+          "samples": 524288,
+          "channelSpread": {
+            "mean": 11.22,
+            "max": 83,
+            "p95": 33
+          },
+          "chromatic": {
+            "count": 189111,
+            "fraction": 0.3607
+          },
+          "hue": {
+            "meanDeg": 48.8,
+            "sdDeg": 35.7
+          },
+          "classification": "mixed"
+        }
+      }
+    },
+    {
+      "actorId": "kevin",
+      "role": "adult_male",
+      "actorRole": "nurse",
+      "glb": "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
+      "irisTexture": {
+        "materialName": "mat_makeclothes_library_eyes_peds_nurse_kevin",
+        "textureName": "blue_eye",
+        "sha256": "572ddc93ab3e177100619ec7c00b2574540cfb382805afc2e450788117f6140c",
+        "sha256Short": "572ddc93ab3e1771",
+        "bytes": 666029,
+        "pngWidth": 1024,
+        "pngHeight": 1024,
+        "baseColorFactor": [
+          1,
+          1,
+          1
+        ],
+        "pixels": {
+          "pngColourType": 6,
+          "samples": 524288,
+          "channelSpread": {
+            "mean": 12.03,
+            "max": 102,
+            "p95": 42
+          },
+          "chromatic": {
+            "count": 189205,
+            "fraction": 0.3609
+          },
+          "hue": {
+            "meanDeg": 66.4,
+            "sdDeg": 59.6
+          },
+          "classification": "mixed"
+        }
+      }
+    }
+  ],
+  "providerCache": {
+    "dir": ".openclinxr-local/provider-cache/eyes/makehuman-default",
+    "files": [
+      {
+        "name": "brown.mhmat",
+        "bytes": 850,
+        "licenceHeader": [
+          "# This asset was explicitly released as CC0 in september 2020. The license",
+          "# text for CC0 can be found in the root of this repository.",
+          "# The copyright holders at the point of the release to CC0 were:",
+          "# Copyright (C) 2020 Data Collection AB, https://www.datacollection.se",
+          "# Copyright (C) 2020 Joel Palmius",
+          "# Copyright (C) 2020 Jonas Hauquier"
+        ]
+      },
+      {
+        "name": "low-poly.mhclo",
+        "bytes": 1381,
+        "licenceHeader": [
+          "# This asset was explicitly released as CC0 in september 2020. The license",
+          "# text for CC0 can be found in the root of this repository.",
+          "# The copyright holders at the point of the release to CC0 were:",
+          "# Copyright (C) 2020 Data Collection AB, https://www.datacollection.se",
+          "# Copyright (C) 2020 Joel Palmius",
+          "# Copyright (C) 2020 Jonas Hauquier",
+          "# license: CC0"
+        ]
+      },
+      {
+        "name": "low-poly.obj",
+        "bytes": 6604,
+        "licenceHeader": [
+          "# This asset was explicitly released as CC0 in september 2020. The license",
+          "# text for CC0 can be found in the root of this repository.",
+          "# The copyright holders at the point of the release to CC0 were:",
+          "# Copyright (C) 2020 Data Collection AB, https://www.datacollection.se",
+          "# Copyright (C) 2020 Joel Palmius",
+          "# Copyright (C) 2020 Jonas Hauquier"
+        ]
+      }
+    ],
+    "upstream": {
+      "repo": "makehumancommunity/makehuman2",
+      "path": "data/eyes/hm08",
+      "entries": [
+        "high-poly",
+        "low-poly",
+        "materials",
+        "selection_filter.json"
+      ],
+      "materials": [
+        "brown.mhmat",
+        "brown_eye.png"
+      ],
+      "secondIrisAssetAvailable": false,
+      "note": "Measured via gh API 2026-08-13: data/eyes contains only hm08, and its materials dir contains only brown.mhmat + brown_eye.png. No second iris variant exists in the makehuman2 repo itself; the high-poly eye shares the same brown material."
+    },
+    "systemAssetsPack": {
+      "name": "makehuman_system_assets",
+      "url": "https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html",
+      "licence": "CC0 1.0 — every staged <colour>.mhmat carries the same in-file header as hm08 ('This asset was explicitly released as CC0 in september 2020', Data Collection AB / Joel Palmius / Jonas Hauquier); pack page licence column also CC0",
+      "eyeColours": [
+        "blue",
+        "bluegreen",
+        "brown",
+        "brownlight",
+        "deepblue",
+        "green",
+        "grey",
+        "ice",
+        "lightblue"
+      ],
+      "note": "Measured 2026-08-13: downloaded makehuman_system_assets_cc0.zip (files2 mirror, 280,737,770 bytes) and extracted eyes/materials/. Each colour is <colour>.mhmat + <colour>_eye.png (610,817-701,486 bytes, 1024x1024 RGBA, luminance sd 33.71-39.96). pack brown_eye.png sha256 == shipped iris sha256 (4659691c7295ad62) — the SAME asset already on the rail. A second licence-clear iris asset therefore EXISTS."
+    }
+  },
+  "approach": {
+    "irisIsGreyscale": false,
+    "recommendation": "Baked-colour iris (not greyscale — naive tinting would be muddy), but a licence-clear second asset EXISTS: makehuman_system_assets_cc0.zip (CC0 in-file headers), 9 iris colours. Fix = per-actor iris textures from the pack's declared <colour>.mhmat materials, role-driven (treatment d)."
+  },
+  "claimScope": [
+    "deterministic_file_side_iris_identity_properties",
+    "iris_pixel_character_greyscale_vs_baked_colour",
+    "provider_cache_census_and_upstream_second_asset_availability"
+  ],
+  "notEvidenceFor": [
+    "how_eyes_render_in_a_crop_pixel_grade_required",
+    "clinical_eye_realism",
+    "which_eye_colour_belongs_to_which_case"
+  ]
+}
