@@ -69,6 +69,7 @@ import {
   applyCleanEncounterVisualReviewActorFraming as applyEncounterActorFraming,
 } from "./encounter-actor-framing.js";
 import { generatedDriveScalar, type GeneratedDriveScalarValue } from "./generated-drive-scalar.js";
+import { phonemesForText, visemesForText } from "./dialogue-visemes.js";
 import { generatedHumanoidSourceProvenance } from "./generated-humanoid-source-provenance.js";
 import { createPrimitiveActorMesh } from "./primitive-actor-mesh.js";
 import { applyPosturePose, plantSeatedPelvisOnSeat } from "./seated-pose.js";
@@ -8248,7 +8249,7 @@ function triggerHumanoidDialogueForTrace(tag: string, text: string): void {
       actorId,
       `virtual_device:${actorId}`,
       text,
-      phonemeSequenceForDialogue(text),
+      phonemesForText(text),
       [],
       gazeTarget,
       undefined,
@@ -8264,10 +8265,10 @@ function triggerHumanoidDialogueForTrace(tag: string, text: string): void {
       emotion,
       emotionContext: scenarioDialogueEmotionContext(actorId, text, emotion),
       actorRuntimeRealismRequirement,
-      phonemeSequence: phonemeSequenceForDialogue(text),
+      phonemeSequence: phonemesForText(text),
       visemeSequence: [],
       startedAtMs: performance.now(),
-      durationMs: humanoidDialogueDurationMs(phonemeSequenceForDialogue(text).length),
+      durationMs: humanoidDialogueDurationMs(phonemesForText(text).length),
     });
     return;
   }
@@ -8287,8 +8288,8 @@ function triggerHumanoidDialogue(
   actorRuntimeRealismRequirement?: HumanoidSpeechEvidence["activeActorRuntimeRealismRequirement"],
 ): void {
   const slot = generatedHumanoidAnimationSlotsByActorId.get(actorId);
-  const phonemeSequence = phonemeSequenceForDialogue(text);
-  const visemeSequence = phonemeSequence.map(visemeForPhoneme);
+  const phonemeSequence = phonemesForText(text);
+  const visemeSequence = visemesForText(text);
   const emotionContext = scenarioDialogueEmotionContext(actorId, text, explicitEmotion);
   const emotion = emotionContext.emotion;
   if (!slot) {
@@ -8397,8 +8398,8 @@ function updateHumanoidSpeechCue(slot: GeneratedHumanoidAnimationSlot, nowMs: nu
         // live from turn metadata (bundle dialogueTurn + full affectTimeline + peds policy emotion) using local viseme/phoneme fns
         // (mirrors @openclinxr/model-vetting viseme-timeline + emotion-transition helpers; import not safe in ui-xr browser runtime)
         const ttext = matchingTurn.text || speech.text;
-        const phon = phonemeSequenceForDialogue(ttext);
-        const vseq = phon.map(visemeForPhoneme);
+        const phon = phonemesForText(ttext);
+        const vseq = visemesForText(ttext);
         const p = Math.min(1, Math.max(0, progress));
         const lidx = Math.min(vseq.length - 1, Math.max(0, Math.floor(p * vseq.length)));
         viseme = vseq[lidx] ?? "rest";
@@ -9080,31 +9081,6 @@ function localDialogueGazeTargetForTraceTag(tag: string): HumanoidDialogueGazeTa
   return actorTarget
     ? { kind: "actor", actorId: actorTarget }
     : { kind: "learner_camera", actorId: null };
-}
-
-function phonemeSequenceForDialogue(text: string): string[] {
-  const spoken = text.replace(/^[^:]+:\s*/u, "").toLowerCase();
-  const sequence: string[] = [];
-  for (const char of spoken) {
-    if (/[aeiou]/u.test(char)) sequence.push(char);
-    else if (/[bmp]/u.test(char)) sequence.push("m");
-    else if (/[fv]/u.test(char)) sequence.push("f");
-    else if (/[tdnlsz]/u.test(char)) sequence.push("t");
-    else if (/[kgqcr]/u.test(char)) sequence.push("k");
-    else if (/[wy]/u.test(char)) sequence.push("w");
-    else if (/[.!?]/u.test(char)) sequence.push("sil");
-  }
-  return sequence.length > 0 ? sequence.slice(0, 48) : ["sil"];
-}
-
-function visemeForPhoneme(phoneme: string): string {
-  if (phoneme === "sil") return "rest";
-  if (phoneme === "m") return "closed";
-  if (phoneme === "f") return "teeth";
-  if (phoneme === "w") return "rounded";
-  if (phoneme === "a" || phoneme === "o") return "open";
-  if (phoneme === "e" || phoneme === "i") return "wide";
-  return "mid";
 }
 
 function visemeOpenness(viseme: string): number {

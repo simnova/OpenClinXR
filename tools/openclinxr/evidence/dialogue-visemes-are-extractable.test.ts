@@ -128,7 +128,7 @@ const mod = await loadModule();
 const mainLines = readFileSync(MAIN_TS, "utf8").split(/\r?\n/).length;
 
 describe("the dialogue viseme pipeline is extractable from main.ts without changing what it does", () => {
-  it.fails(`(1) RED: ${MODULE_REL} exports visemesForText and reproduces every pinned row exactly`, () => {
+  it(`(1) RED: ${MODULE_REL} exports visemesForText and reproduces every pinned row exactly`, () => {
     expect(mod, `${MODULE_REL} does not exist or failed to import — extraction is step one`).not.toBeNull();
     const fn = mod?.visemesForText;
     expect(typeof fn, `${MODULE_REL} must export visemesForText(text: string): string[]`).toBe("function");
@@ -140,7 +140,7 @@ describe("the dialogue viseme pipeline is extractable from main.ts without chang
     expect(drifted, "extraction changed behaviour — that is a rewrite, not an extraction").toEqual([]);
   });
 
-  it.fails(`(2) RED: main.ts shrinks to at most ${MAIN_TS_MAX_LINES_AFTER} lines`, () => {
+  it(`(2) RED: main.ts shrinks to at most ${MAIN_TS_MAX_LINES_AFTER} lines`, () => {
     // Refuses (b): copying the functions into a module and leaving the originals in place, which
     // satisfies "a module exists" while making the god-file worse.
     expect(
