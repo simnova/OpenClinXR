@@ -159,7 +159,7 @@ describe("the staged-files env reaches the architecture task", () => {
     }
   });
 
-  it.fails("(1) RED: the architecture task's resolved passthrough contains OPENCLINXR_HOOK_STAGED_FILES", () => {
+  it("(1) RED: the architecture task's resolved passthrough contains OPENCLINXR_HOOK_STAGED_FILES", () => {
     // Assert against turbo's own resolution (--dry=json), never a string match on turbo.json —
     // a text assertion passes on a key placed in the wrong scope.
     const report = turboArchitectureDry();
