@@ -1,0 +1,2721 @@
+{
+  "slice": "issue-355",
+  "generatedAt": "2026-08-13T04:26:05.150Z",
+  "mmPerPx": 1.53,
+  "method": "hairline flip-rate method (hairline-is-a-line-not-a-sawtooth.test.ts): the visible/hidden skin frontier (skin material vs alpha-0 openclinxr_hidden materials) is walked into loops on the body mesh (the boundary turns through the hidden-material wedge at each vertex); boundary vertices are ordered along the edge by the walk; flip rate = sign changes in successive height deltas / steps. Amplitude = |dY| step sizes, extremum teeth, detrended (circular moving-average, window 9) zigzag peak-to-peak, and total span, all in mm and px at 1.53 mm/px. The known-good is the garment's own boundary rim (t_shirt bottom loop etc.) measured the same way. Nothing is fixed.",
+  "loopInventory": [
+    {
+      "file": "mpfb-ob-patient-aisha.glb",
+      "index": 0,
+      "edges": 62,
+      "hiddenRegions": [
+        "upper"
+      ],
+      "verts": 63,
+      "steps": 63,
+      "flips": 17,
+      "flipRate": 0.2698412698412698,
+      "medianStepMm": 2.089977264404297,
+      "maxStepMm": 14.54007625579834,
+      "medianToothMm": 7.730007171630859,
+      "maxToothMm": 107.06007480621338,
+      "zigzagP2pMm": 29.737737443712,
+      "spanMm": 109.68005657196045,
+      "yMin": 1.2952028512954712,
+      "yMax": 1.4048829078674316
+    },
+    {
+      "file": "mpfb-ob-patient-aisha.glb",
+      "index": 1,
+      "edges": 34,
+      "hiddenRegions": [
+        "upper"
+      ],
+      "verts": 35,
+      "steps": 34,
+      "flips": 10,
+      "flipRate": 0.29411764705882354,
+      "medianStepMm": 6.559967994689941,
+      "maxStepMm": 23.550033569335938,
+      "medianToothMm": 8.499979972839355,
+      "maxToothMm": 84.13004875183105,
+      "zigzagP2pMm": 45.02224922180176,
+      "spanMm": 84.13004875183105,
+      "yMin": 1.2574127912521362,
+      "yMax": 1.3415428400039673
+    },
+    {
+      "file": "mpfb-ob-patient-aisha.glb",
+      "index": 2,
+      "edges": 26,
+      "hiddenRegions": [
+        "upper"
+      ],
+      "verts": 27,
+      "steps": 27,
+      "flips": 7,
+      "flipRate": 0.25925925925925924,
+      "medianStepMm": 4.220008850097656,
+      "maxStepMm": 17.300009727478027,
+      "medianToothMm": 17.300009727478027,
+      "maxToothMm": 51.48005485534668,
+      "zigzagP2pMm": 25.41225486331511,
+      "spanMm": 62.19005584716797,
+      "yMin": 1.1953327655792236,
+      "yMax": 1.2575228214263916
+    },
+    {
+      "file": "mpfb-ob-patient-aisha.glb",
+      "index": 3,
+      "edges": 58,
+      "hiddenRegions": [
+        "upper"
+      ],
+      "verts": 59,
+      "steps": 58,
+      "flips": 21,
+      "flipRate": 0.3620689655172414,
+      "medianStepMm": 1.2400150299072266,
+      "maxStepMm": 26.710033416748047,
+      "medianToothMm": 3.659963607788086,
+      "maxToothMm": 118.30008029937744,
+      "zigzagP2pMm": 47.032250298394196,
+      "spanMm": 162.16015815734863,
+      "yMin": 1.001462697982788,
+      "yMax": 1.1636228561401367
+    },
+    {
+      "file": "mpfb-ob-patient-aisha.glb",
+      "index": 4,
+      "edges": 68,
+      "hiddenRegions": [
+        "upper",
+        "lower"
+      ],
+      "verts": 69,
+      "steps": 68,
+      "flips": 26,
+      "flipRate": 0.38235294117647056,
+      "medianStepMm": 2.200007438659668,
+      "maxStepMm": 26.560068130493164,
+      "medianToothMm": 3.6600232124328613,
+      "maxToothMm": 72.27003574371338,
+      "zigzagP2pMm": 34.37451521555579,
+      "spanMm": 159.92003679275513,
+      "yMin": 0.953072726726532,
+      "yMax": 1.112992763519287
+    },
+    {
+      "file": "mpfb-ob-patient-aisha.glb",
+      "index": 5,
+      "edges": 32,
+      "hiddenRegions": [
+        "upper",
+        "lower"
+      ],
+      "verts": 33,
+      "steps": 32,
+      "flips": 17,
+      "flipRate": 0.53125,
+      "medianStepMm": 3.859996795654297,
+      "maxStepMm": 22.7699875831604,
+      "medianToothMm": 4.350006580352783,
+      "maxToothMm": 41.519999504089355,
+      "zigzagP2pMm": 22.930065790812137,
+      "spanMm": 58.88009071350098,
+      "yMin": 0.9445127248764038,
+      "yMax": 1.0033928155899048
+    },
+    {
+      "file": "mpfb-ob-patient-aisha.glb",
+      "index": 6,
+      "edges": 74,
+      "hiddenRegions": [
+        "lower"
+      ],
+      "verts": 75,
+      "steps": 74,
+      "flips": 13,
+      "flipRate": 0.17567567567567569,
+      "medianStepMm": 13.639986515045166,
+      "maxStepMm": 30.719995498657227,
+      "medianToothMm": 55.92000484466553,
+      "maxToothMm": 207.7900767326355,
+      "zigzagP2pMm": 67.95451376173234,
+      "spanMm": 207.7900767326355,
+      "yMin": 0.7237626910209656,
+      "yMax": 0.9315527677536011
+    },
+    {
+      "file": "mpfb-ob-patient-aisha.glb",
+      "index": 7,
+      "edges": 36,
+      "hiddenRegions": [
+        "foot"
+      ],
+      "verts": 37,
+      "steps": 37,
+      "flips": 15,
+      "flipRate": 0.40540540540540543,
+      "medianStepMm": 3.8700103759765625,
+      "maxStepMm": 15.899956226348877,
+      "medianToothMm": 11.269986629486084,
+      "maxToothMm": 33.35005044937134,
+      "zigzagP2pMm": 26.088939772711864,
+      "spanMm": 33.59997272491455,
+      "yMin": 0.04083251953125,
+      "yMax": 0.07443249225616455
+    },
+    {
+      "file": "mpfb-ob-patient-aisha.glb",
+      "index": 8,
+      "edges": 24,
+      "hiddenRegions": [
+        "foot"
+      ],
+      "verts": 25,
+      "steps": 23,
+      "flips": 11,
+      "flipRate": 0.4782608695652174,
+      "medianStepMm": 1.3799667358398438,
+      "maxStepMm": 10.4600191116333,
+      "medianToothMm": 4.930019378662109,
+      "maxToothMm": 21.409988403320312,
+      "zigzagP2pMm": 15.649987591637506,
+      "spanMm": 21.56996726989746,
+      "yMin": 0.0016025304794311523,
+      "yMax": 0.023172497749328613
+    },
+    {
+      "file": "mpfb-ob-patient-aisha.glb",
+      "index": 9,
+      "edges": 28,
+      "hiddenRegions": [
+        "foot"
+      ],
+      "verts": 29,
+      "steps": 29,
+      "flips": 17,
+      "flipRate": 0.5862068965517241,
+      "medianStepMm": 2.2800564765930176,
+      "maxStepMm": 10.480046272277832,
+      "medianToothMm": 2.369999885559082,
+      "maxToothMm": 30.539989471435547,
+      "zigzagP2pMm": 20.593305428822838,
+      "spanMm": 30.539989471435547,
+      "yMin": 0.000982522964477539,
+      "yMax": 0.031522512435913086
+    },
+    {
+      "file": "mpfb-ob-patient-aisha.glb",
+      "index": 10,
+      "edges": 18,
+      "hiddenRegions": [
+        "foot"
+      ],
+      "verts": 19,
+      "steps": 18,
+      "flips": 6,
+      "flipRate": 0.3333333333333333,
+      "medianStepMm": 1.1499524116516113,
+      "maxStepMm": 6.639957427978516,
+      "medianToothMm": 2.2500157356262207,
+      "maxToothMm": 13.189971446990967,
+      "zigzagP2pMm": 11.994441350301106,
+      "spanMm": 13.189971446990967,
+      "yMin": 0.002062499523162842,
+      "yMax": 0.015252470970153809
+    },
+    {
+      "file": "mpfb-ob-patient-aisha.glb",
+      "index": 11,
+      "edges": 28,
+      "hiddenRegions": [
+        "upper"
+      ],
+      "verts": 29,
+      "steps": 28,
+      "flips": 8,
+      "flipRate": 0.2857142857142857,
+      "medianStepMm": 4.999995231628418,
+      "maxStepMm": 17.300009727478027,
+      "medianToothMm": 16.749978065490723,
+      "maxToothMm": 51.54001712799072,
+      "zigzagP2pMm": 28.665582338968765,
+      "spanMm": 62.19005584716797,
+      "yMin": 1.1953327655792236,
+      "yMax": 1.2575228214263916
+    },
+    {
+      "file": "mpfb-ob-patient-aisha.glb",
+      "index": 12,
+      "edges": 36,
+      "hiddenRegions": [
+        "foot"
+      ],
+      "verts": 37,
+      "steps": 37,
+      "flips": 15,
+      "flipRate": 0.40540540540540543,
+      "medianStepMm": 3.7000179290771484,
+      "maxStepMm": 15.899956226348877,
+      "medianToothMm": 13.660013675689697,
+      "maxToothMm": 33.35005044937134,
+      "zigzagP2pMm": 26.103383964962436,
+      "spanMm": 33.59997272491455,
+      "yMin": 0.04083251953125,
+      "yMax": 0.07443249225616455
+    },
+    {
+      "file": "mpfb-ob-patient-aisha.glb",
+      "index": 13,
+      "edges": 24,
+      "hiddenRegions": [
+        "foot"
+      ],
+      "verts": 25,
+      "steps": 23,
+      "flips": 11,
+      "flipRate": 0.4782608695652174,
+      "medianStepMm": 1.3799667358398438,
+      "maxStepMm": 10.949969291687012,
+      "medianToothMm": 4.930019378662109,
+      "maxToothMm": 21.56996726989746,
+      "zigzagP2pMm": 18.78552966647678,
+      "spanMm": 21.56996726989746,
+      "yMin": 0.0016025304794311523,
+      "yMax": 0.023172497749328613
+    },
+    {
+      "file": "mpfb-ob-patient-aisha.glb",
+      "index": 14,
+      "edges": 28,
+      "hiddenRegions": [
+        "foot"
+      ],
+      "verts": 29,
+      "steps": 28,
+      "flips": 16,
+      "flipRate": 0.5714285714285714,
+      "medianStepMm": 2.2800564765930176,
+      "maxStepMm": 10.480046272277832,
+      "medianToothMm": 2.2800564765930176,
+      "maxToothMm": 30.539989471435547,
+      "zigzagP2pMm": 20.495553811391197,
+      "spanMm": 30.539989471435547,
+      "yMin": 0.000982522964477539,
+      "yMax": 0.031522512435913086
+    },
+    {
+      "file": "mpfb-ob-patient-aisha.glb",
+      "index": 15,
+      "edges": 18,
+      "hiddenRegions": [
+        "foot"
+      ],
+      "verts": 19,
+      "steps": 18,
+      "flips": 5,
+      "flipRate": 0.2777777777777778,
+      "medianStepMm": 1.1499524116516113,
+      "maxStepMm": 6.639957427978516,
+      "medianToothMm": 3.330051898956299,
+      "maxToothMm": 13.189971446990967,
+      "zigzagP2pMm": 11.994441350301106,
+      "spanMm": 13.189971446990967,
+      "yMin": 0.002062499523162842,
+      "yMax": 0.015252470970153809
+    },
+    {
+      "file": "mpfb-peds-nurse-kevin.glb",
+      "index": 0,
+      "edges": 68,
+      "hiddenRegions": [
+        "upper"
+      ],
+      "verts": 69,
+      "steps": 69,
+      "flips": 25,
+      "flipRate": 0.36231884057971014,
+      "medianStepMm": 4.292726516723633,
+      "maxStepMm": 16.10410213470459,
+      "medianToothMm": 9.024977684020996,
+      "maxToothMm": 116.30964279174805,
+      "zigzagP2pMm": 30.39042154947902,
+      "spanMm": 131.14666938781738,
+      "yMin": 1.3799012899398804,
+      "yMax": 1.5110479593276978
+    },
+    {
+      "file": "mpfb-peds-nurse-kevin.glb",
+      "index": 1,
+      "edges": 30,
+      "hiddenRegions": [
+        "upper"
+      ],
+      "verts": 31,
+      "steps": 30,
+      "flips": 15,
+      "flipRate": 0.5,
+      "medianStepMm": 0.9607076644897461,
+      "maxStepMm": 16.898393630981445,
+      "medianToothMm": 9.421825408935547,
+      "maxToothMm": 26.91340446472168,
+      "zigzagP2pMm": 20.504819022284515,
+      "spanMm": 43.5643196105957,
+      "yMin": 1.40708589553833,
+      "yMax": 1.4506502151489258
+    },
+    {
+      "file": "mpfb-peds-nurse-kevin.glb",
+      "index": 2,
+      "edges": 24,
+      "hiddenRegions": [
+        "upper"
+      ],
+      "verts": 25,
+      "steps": 25,
+      "flips": 7,
+      "flipRate": 0.28,
+      "medianStepMm": 3.90625,
+      "maxStepMm": 18.839478492736816,
+      "medianToothMm": 18.365859985351562,
+      "maxToothMm": 58.56800079345703,
+      "zigzagP2pMm": 27.631852361890807,
+      "spanMm": 70.67644596099854,
+      "yMin": 1.244458794593811,
+      "yMax": 1.3151352405548096
+    },
+    {
+      "file": "mpfb-peds-nurse-kevin.glb",
+      "index": 3,
+      "edges": 18,
+      "hiddenRegions": [
+        "upper"
+      ],
+      "verts": 19,
+      "steps": 19,
+      "flips": 11,
+      "flipRate": 0.5789473684210527,
+      "medianStepMm": 15.741705894470215,
+      "maxStepMm": 18.658041954040527,
+      "medianToothMm": 18.658041954040527,
+      "maxToothMm": 33.94436836242676,
+      "zigzagP2pMm": 44.41161950429273,
+      "spanMm": 83.07301998138428,
+      "yMin": 1.2981146574020386,
+      "yMax": 1.3811876773834229
+    },
+    {
+      "file": "mpfb-peds-nurse-kevin.glb",
+      "index": 4,
+      "edges": 80,
+      "hiddenRegions": [
+        "upper"
+      ],
+      "verts": 81,
+      "steps": 80,
+      "flips": 35,
+      "flipRate": 0.4375,
+      "medianStepMm": 2.386927604675293,
+      "maxStepMm": 27.72533893585205,
+      "medianToothMm": 7.493019104003906,
+      "maxToothMm": 124.69911575317383,
+      "zigzagP2pMm": 54.512461026509754,
+      "spanMm": 175.42672157287598,
+      "yMin": 1.070136547088623,
+      "yMax": 1.245563268661499
+    },
+    {
+      "file": "mpfb-peds-nurse-kevin.glb",
+      "index": 5,
+      "edges": 142,
+      "hiddenRegions": [
+        "upper",
+        "lower"
+      ],
+      "verts": 143,
+      "steps": 142,
+      "flips": 44,
+      "flipRate": 0.30985915492957744,
+      "medianStepMm": 7.466733455657959,
+      "maxStepMm": 31.63391351699829,
+      "medianToothMm": 20.83563804626465,
+      "maxToothMm": 216.36193990707397,
+      "zigzagP2pMm": 61.22969918780852,
+      "spanMm": 424.8235821723938,
+      "yMin": 0.8074244856834412,
+      "yMax": 1.232248067855835
+    },
+    {
+      "file": "mpfb-peds-nurse-kevin.glb",
+      "index": 6,
+      "edges": 26,
+      "hiddenRegions": [
+        "upper",
+        "lower"
+      ],
+      "verts": 27,
+      "steps": 27,
+      "flips": 13,
+      "flipRate": 0.48148148148148145,
+      "medianStepMm": 5.5779218673706055,
+      "maxStepMm": 40.05587100982666,
+      "medianToothMm": 7.833600044250488,
+      "maxToothMm": 66.59173965454102,
+      "zigzagP2pMm": 49.86369609832764,
+      "spanMm": 66.7952299118042,
+      "yMin": 1.0161007642745972,
+      "yMax": 1.0828959941864014
+    },
+    {
+      "file": "mpfb-peds-nurse-kevin.glb",
+      "index": 7,
+      "edges": 8,
+      "hiddenRegions": [
+        "lower"
+      ],
+      "verts": 9,
+      "steps": 9,
+      "flips": 3,
+      "flipRate": 0.3333333333333333,
+      "medianStepMm": 7.632017135620117,
+      "maxStepMm": 45.346081256866455,
+      "medianToothMm": 52.97809839248657,
+      "maxToothMm": 57.93869495391846,
+      "zigzagP2pMm": 57.93869495391846,
+      "spanMm": 57.93869495391846,
+      "yMin": 0.9011660814285278,
+      "yMax": 0.9591047763824463
+    },
+    {
+      "file": "mpfb-peds-nurse-kevin.glb",
+      "index": 8,
+      "edges": 90,
+      "hiddenRegions": [
+        "foot"
+      ],
+      "verts": 91,
+      "steps": 91,
+      "flips": 29,
+      "flipRate": 0.31868131868131866,
+      "medianStepMm": 7.256742566823959,
+      "maxStepMm": 50.34615099430084,
+      "medianToothMm": 12.72028312087059,
+      "maxToothMm": 363.4669594466686,
+      "zigzagP2pMm": 77.44523965650136,
+      "spanMm": 367.2993294894695,
+      "yMin": 0.023540306836366653,
+      "yMax": 0.3908396363258362
+    },
+    {
+      "file": "mpfb-peds-nurse-kevin.glb",
+      "index": 9,
+      "edges": 6,
+      "hiddenRegions": [
+        "lower"
+      ],
+      "verts": 7,
+      "steps": 7,
+      "flips": 3,
+      "flipRate": 0.42857142857142855,
+      "medianStepMm": 21.65040373802185,
+      "maxStepMm": 58.95088613033295,
+      "medianToothMm": 58.95088613033295,
+      "maxToothMm": 61.718955636024475,
+      "zigzagP2pMm": 72.3339451683892,
+      "spanMm": 61.718955636024475,
+      "yMin": 0.11493293941020966,
+      "yMax": 0.17665189504623413
+    },
+    {
+      "file": "mpfb-peds-nurse-kevin.glb",
+      "index": 10,
+      "edges": 18,
+      "hiddenRegions": [
+        "foot"
+      ],
+      "verts": 19,
+      "steps": 19,
+      "flips": 13,
+      "flipRate": 0.6842105263157895,
+      "medianStepMm": 1.5138983726501465,
+      "maxStepMm": 8.020354434847832,
+      "medianToothMm": 2.263094764202833,
+      "maxToothMm": 18.964331247843802,
+      "zigzagP2pMm": 13.564892501259845,
+      "spanMm": 20.175076671876013,
+      "yMin": 0.00018006598111242056,
+      "yMax": 0.020355142652988434
+    },
+    {
+      "file": "mpfb-peds-nurse-kevin.glb",
+      "index": 11,
+      "edges": 16,
+      "hiddenRegions": [
+        "foot"
+      ],
+      "verts": 17,
+      "steps": 17,
+      "flips": 5,
+      "flipRate": 0.29411764705882354,
+      "medianStepMm": 1.8411418423056602,
+      "maxStepMm": 9.24889650195837,
+      "medianToothMm": 9.24889650195837,
+      "maxToothMm": 13.047404936514795,
+      "zigzagP2pMm": 10.00070324840231,
+      "spanMm": 13.234887621365488,
+      "yMin": 0.001406861119903624,
+      "yMax": 0.014641748741269112
+    },
+    {
+      "file": "mpfb-peds-nurse-kevin.glb",
+      "index": 12,
+      "edges": 16,
+      "hiddenRegions": [
+        "foot"
+      ],
+      "verts": 17,
+      "steps": 16,
+      "flips": 3,
+      "flipRate": 0.1875,
+      "medianStepMm": 5.676732398569584,
+      "maxStepMm": 10.056243278086185,
+      "medianToothMm": 34.87419095472433,
+      "maxToothMm": 37.16696929768659,
+      "zigzagP2pMm": 18.814625971976458,
+      "spanMm": 37.16696929768659,
+      "yMin": -2.7386704459786415e-8,
+      "yMax": 0.03716694191098213
+    },
+    {
+      "file": "mpfb-peds-nurse-kevin.glb",
+      "index": 13,
+      "edges": 24,
+      "hiddenRegions": [
+        "upper"
+      ],
+      "verts": 25,
+      "steps": 24,
+      "flips": 6,
+      "flipRate": 0.25,
+      "medianStepMm": 4.722118377685547,
+      "maxStepMm": 18.839478492736816,
+      "medianToothMm": 18.365859985351562,
+      "maxToothMm": 52.83510684967041,
+      "zigzagP2pMm": 29.043250613742355,
+      "spanMm": 70.67644596099854,
+      "yMin": 1.244458794593811,
+      "yMax": 1.3151352405548096
+    },
+    {
+      "file": "mpfb-peds-nurse-kevin.glb",
+      "index": 14,
+      "edges": 8,
+      "hiddenRegions": [
+        "lower"
+      ],
+      "verts": 9,
+      "steps": 9,
+      "flips": 3,
+      "flipRate": 0.3333333333333333,
+      "medianStepMm": 23.13411235809326,
+      "maxStepMm": 26.39061212539673,
+      "medianToothMm": 45.346081256866455,
+      "maxToothMm": 57.93869495391846,
+      "zigzagP2pMm": 57.93869495391846,
+      "spanMm": 57.93869495391846,
+      "yMin": 0.9011660814285278,
+      "yMax": 0.9591047763824463
+    },
+    {
+      "file": "mpfb-peds-nurse-kevin.glb",
+      "index": 15,
+      "edges": 90,
+      "hiddenRegions": [
+        "foot"
+      ],
+      "verts": 91,
+      "steps": 90,
+      "flips": 28,
+      "flipRate": 0.3111111111111111,
+      "medianStepMm": 7.450193166732788,
+      "maxStepMm": 50.34615099430084,
+      "medianToothMm": 12.72028312087059,
+      "maxToothMm": 363.4669594466686,
+      "zigzagP2pMm": 77.44523965650136,
+      "spanMm": 367.2993294894695,
+      "yMin": 0.023540306836366653,
+      "yMax": 0.3908396363258362
+    },
+    {
+      "file": "mpfb-peds-nurse-kevin.glb",
+      "index": 16,
+      "edges": 6,
+      "hiddenRegions": [
+        "lower"
+      ],
+      "verts": 7,
+      "steps": 7,
+      "flips": 3,
+      "flipRate": 0.42857142857142855,
+      "medianStepMm": 18.89052987098694,
+      "maxStepMm": 39.838045835494995,
+      "medianToothMm": 58.95088613033295,
+      "maxToothMm": 58.95088613033295,
+      "zigzagP2pMm": 69.70512370268506,
+      "spanMm": 58.95088613033295,
+      "yMin": 0.11770100891590118,
+      "yMax": 0.17665189504623413
+    },
+    {
+      "file": "mpfb-peds-nurse-kevin.glb",
+      "index": 17,
+      "edges": 18,
+      "hiddenRegions": [
+        "foot"
+      ],
+      "verts": 19,
+      "steps": 19,
+      "flips": 13,
+      "flipRate": 0.6842105263157895,
+      "medianStepMm": 1.1722823837772012,
+      "maxStepMm": 10.94397681299597,
+      "medianToothMm": 2.263094764202833,
+      "maxToothMm": 19.23247764352709,
+      "zigzagP2pMm": 15.678965163210199,
+      "spanMm": 20.175076671876013,
+      "yMin": 0.00018006598111242056,
+      "yMax": 0.020355142652988434
+    },
+    {
+      "file": "mpfb-peds-nurse-kevin.glb",
+      "index": 18,
+      "edges": 16,
+      "hiddenRegions": [
+        "foot"
+      ],
+      "verts": 17,
+      "steps": 16,
+      "flips": 6,
+      "flipRate": 0.375,
+      "medianStepMm": 1.843542791903019,
+      "maxStepMm": 9.24889650195837,
+      "medianToothMm": 9.061413817107677,
+      "maxToothMm": 13.047404936514795,
+      "zigzagP2pMm": 9.922255813661549,
+      "spanMm": 13.234887621365488,
+      "yMin": 0.001406861119903624,
+      "yMax": 0.014641748741269112
+    },
+    {
+      "file": "mpfb-peds-nurse-kevin.glb",
+      "index": 19,
+      "edges": 16,
+      "hiddenRegions": [
+        "foot"
+      ],
+      "verts": 17,
+      "steps": 16,
+      "flips": 4,
+      "flipRate": 0.25,
+      "medianStepMm": 5.676732398569584,
+      "maxStepMm": 10.056243278086185,
+      "medianToothMm": 6.608037278056145,
+      "maxToothMm": 34.87419095472433,
+      "zigzagP2pMm": 18.14939943465611,
+      "spanMm": 37.16696929768659,
+      "yMin": -2.7386704459786415e-8,
+      "yMax": 0.03716694191098213
+    },
+    {
+      "file": "mpfb-peds-patient-child.glb",
+      "index": 0,
+      "edges": 66,
+      "hiddenRegions": [
+        "upper"
+      ],
+      "verts": 67,
+      "steps": 67,
+      "flips": 21,
+      "flipRate": 0.31343283582089554,
+      "medianStepMm": 2.8085708618164062,
+      "maxStepMm": 11.784970760345459,
+      "medianToothMm": 6.599664688110352,
+      "maxToothMm": 84.95652675628662,
+      "zigzagP2pMm": 21.772172715928797,
+      "spanMm": 89.3944501876831,
+      "yMin": 0.9504499435424805,
+      "yMax": 1.0398443937301636
+    },
+    {
+      "file": "mpfb-peds-patient-child.glb",
+      "index": 1,
+      "edges": 18,
+      "hiddenRegions": [
+        "upper"
+      ],
+      "verts": 19,
+      "steps": 18,
+      "flips": 5,
+      "flipRate": 0.2777777777777778,
+      "medianStepMm": 11.886000633239746,
+      "maxStepMm": 17.43561029434204,
+      "medianToothMm": 17.43561029434204,
+      "maxToothMm": 88.25141191482544,
+      "zigzagP2pMm": 36.745409170786616,
+      "spanMm": 88.25141191482544,
+      "yMin": 0.8656877875328064,
+      "yMax": 0.9539391994476318
+    },
+    {
+      "file": "mpfb-peds-patient-child.glb",
+      "index": 2,
+      "edges": 26,
+      "hiddenRegions": [
+        "upper"
+      ],
+      "verts": 27,
+      "steps": 27,
+      "flips": 9,
+      "flipRate": 0.3333333333333333,
+      "medianStepMm": 3.6422014236450195,
+      "maxStepMm": 14.48589563369751,
+      "medianToothMm": 12.513518333435059,
+      "maxToothMm": 42.875587940216064,
+      "zigzagP2pMm": 18.83607440524626,
+      "spanMm": 48.73383045196533,
+      "yMin": 0.8528468608856201,
+      "yMax": 0.9015806913375854
+    },
+    {
+      "file": "mpfb-peds-patient-child.glb",
+      "index": 3,
+      "edges": 14,
+      "hiddenRegions": [
+        "upper"
+      ],
+      "verts": 15,
+      "steps": 14,
+      "flips": 2,
+      "flipRate": 0.14285714285714285,
+      "medianStepMm": 15.35874605178833,
+      "maxStepMm": 18.481671810150146,
+      "medianToothMm": 82.47596025466919,
+      "maxToothMm": 82.77279138565063,
+      "zigzagP2pMm": 42.98995600806344,
+      "spanMm": 82.77279138565063,
+      "yMin": 0.7835602760314941,
+      "yMax": 0.8663330674171448
+    },
+    {
+      "file": "mpfb-peds-patient-child.glb",
+      "index": 4,
+      "edges": 40,
+      "hiddenRegions": [
+        "upper"
+      ],
+      "verts": 41,
+      "steps": 41,
+      "flips": 17,
+      "flipRate": 0.4146341463414634,
+      "medianStepMm": 0.9083151817321777,
+      "maxStepMm": 13.065993785858154,
+      "medianToothMm": 4.664599895477295,
+      "maxToothMm": 15.520930290222168,
+      "zigzagP2pMm": 15.285227033826953,
+      "spanMm": 35.15636920928955,
+      "yMin": 0.7281621098518372,
+      "yMax": 0.7633184790611267
+    },
+    {
+      "file": "mpfb-peds-patient-child.glb",
+      "index": 5,
+      "edges": 138,
+      "hiddenRegions": [
+        "upper",
+        "lower"
+      ],
+      "verts": 139,
+      "steps": 138,
+      "flips": 39,
+      "flipRate": 0.2826086956521739,
+      "medianStepMm": 3.714442253112793,
+      "maxStepMm": 20.413696765899658,
+      "medianToothMm": 15.979170799255371,
+      "maxToothMm": 81.35217428207397,
+      "zigzagP2pMm": 31.29090865453088,
+      "spanMm": 275.8602499961853,
+      "yMin": 0.5320637822151184,
+      "yMax": 0.8079240322113037
+    },
+    {
+      "file": "mpfb-peds-patient-child.glb",
+      "index": 6,
+      "edges": 32,
+      "hiddenRegions": [
+        "upper",
+        "lower"
+      ],
+      "verts": 33,
+      "steps": 33,
+      "flips": 15,
+      "flipRate": 0.45454545454545453,
+      "medianStepMm": 2.3668408393859863,
+      "maxStepMm": 24.136722087860107,
+      "medianToothMm": 4.46927547454834,
+      "maxToothMm": 45.07577419281006,
+      "zigzagP2pMm": 27.584373950958252,
+      "spanMm": 45.07577419281006,
+      "yMin": 0.691786527633667,
+      "yMax": 0.736862301826477
+    },
+    {
+      "file": "mpfb-peds-patient-child.glb",
+      "index": 7,
+      "edges": 28,
+      "hiddenRegions": [
+        "foot"
+      ],
+      "verts": 29,
+      "steps": 28,
+      "flips": 10,
+      "flipRate": 0.35714285714285715,
+      "medianStepMm": 1.3206861913204193,
+      "maxStepMm": 9.153418242931366,
+      "medianToothMm": 4.007101058959961,
+      "maxToothMm": 25.987297296524048,
+      "zigzagP2pMm": 15.535982532633676,
+      "spanMm": 28.23466807603836,
+      "yMin": 0.030774511396884918,
+      "yMax": 0.05900917947292328
+    },
+    {
+      "file": "mpfb-peds-patient-child.glb",
+      "index": 8,
+      "edges": 16,
+      "hiddenRegions": [
+        "foot"
+      ],
+      "verts": 17,
+      "steps": 17,
+      "flips": 9,
+      "flipRate": 0.5294117647058824,
+      "medianStepMm": 0.5449759773910046,
+      "maxStepMm": 3.764497581869364,
+      "medianToothMm": 1.0592483449727297,
+      "maxToothMm": 5.303089434164576,
+      "zigzagP2pMm": 5.0751929455954174,
+      "spanMm": 5.99626025359612,
+      "yMin": -3.92901711165905e-10,
+      "yMax": 0.005996259860694408
+    },
+    {
+      "file": "mpfb-peds-patient-child.glb",
+      "index": 9,
+      "edges": 82,
+      "hiddenRegions": [
+        "foot"
+      ],
+      "verts": 83,
+      "steps": 83,
+      "flips": 45,
+      "flipRate": 0.5421686746987951,
+      "medianStepMm": 0.8624903857707977,
+      "maxStepMm": 7.027486339211464,
+      "medianToothMm": 2.1573565900325775,
+      "maxToothMm": 16.416397411376238,
+      "zigzagP2pMm": 12.034110673185852,
+      "spanMm": 22.668892983347178,
+      "yMin": 0.005769181530922651,
+      "yMax": 0.02843807451426983
+    },
+    {
+      "file": "mpfb-peds-patient-child.glb",
+      "index": 10,
+      "edges": 4,
+      "hiddenRegions": [
+        "foot"
+      ],
+      "verts": 5,
+      "steps": 5,
+      "flips": 3,
+      "flipRate": 0.6,
+      "medianStepMm": 5.813239142298698,
+      "maxStepMm": 5.813239142298698,
+      "medianToothMm": 5.813239142298698,
+      "maxToothMm": 5.813239142298698,
+      "zigzagP2pMm": 6.459154602554109,
+      "spanMm": 5.813239142298698,
+      "yMin": 0.015158092603087425,
+      "yMax": 0.020971331745386124
+    },
+    {
+      "file": "mpfb-peds-patient-child.glb",
+      "index": 11,
+      "edges": 34,
+      "hiddenRegions": [
+        "foot"
+      ],
+      "verts": 35,
+      "steps": 35,
+      "flips": 15,
+      "flipRate": 0.42857142857142855,
+      "medianStepMm": 0.4589296877384186,
+      "maxStepMm": 6.268280558288097,
+      "medianToothMm": 1.4053178019821644,
+      "maxToothMm": 12.432432500645518,
+      "zigzagP2pMm": 10.981326250152456,
+      "spanMm": 12.432432500645518,
+      "yMin": 0.001099179731681943,
+      "yMax": 0.013531612232327461
+    },
+    {
+      "file": "mpfb-peds-patient-child.glb",
+      "index": 12,
+      "edges": 14,
+      "hiddenRegions": [
+        "foot"
+      ],
+      "verts": 15,
+      "steps": 15,
+      "flips": 5,
+      "flipRate": 0.3333333333333333,
+      "medianStepMm": 0.8906517177820206,
+      "maxStepMm": 3.794244723394513,
+      "medianToothMm": 3.1974134035408497,
+      "maxToothMm": 5.224009044468403,
+      "zigzagP2pMm": 5.343671189621091,
+      "spanMm": 5.224009044468403,
+      "yMin": 0.0014955163933336735,
+      "yMax": 0.006719525437802076
+    },
+    {
+      "file": "mpfb-peds-patient-child.glb",
+      "index": 13,
+      "edges": 26,
+      "hiddenRegions": [
+        "upper"
+      ],
+      "verts": 27,
+      "steps": 26,
+      "flips": 8,
+      "flipRate": 0.3076923076923077,
+      "medianStepMm": 3.6422014236450195,
+      "maxStepMm": 14.48589563369751,
+      "medianToothMm": 12.513518333435059,
+      "maxToothMm": 35.285115242004395,
+      "zigzagP2pMm": 19.679460260603186,
+      "spanMm": 48.73383045196533,
+      "yMin": 0.8528468608856201,
+      "yMax": 0.9015806913375854
+    },
+    {
+      "file": "mpfb-peds-patient-child.glb",
+      "index": 14,
+      "edges": 28,
+      "hiddenRegions": [
+        "foot"
+      ],
+      "verts": 29,
+      "steps": 29,
+      "flips": 11,
+      "flipRate": 0.3793103448275862,
+      "medianStepMm": 1.715630292892456,
+      "maxStepMm": 9.153418242931366,
+      "medianToothMm": 4.007101058959961,
+      "maxToothMm": 25.987297296524048,
+      "zigzagP2pMm": 15.535982532633676,
+      "spanMm": 28.23466807603836,
+      "yMin": 0.030774511396884918,
+      "yMax": 0.05900917947292328
+    },
+    {
+      "file": "mpfb-peds-patient-child.glb",
+      "index": 15,
+      "edges": 16,
+      "hiddenRegions": [
+        "foot"
+      ],
+      "verts": 17,
+      "steps": 16,
+      "flips": 8,
+      "flipRate": 0.5,
+      "medianStepMm": 0.5509136244654655,
+      "maxStepMm": 3.764497581869364,
+      "medianToothMm": 1.0592483449727297,
+      "maxToothMm": 5.576673356699757,
+      "zigzagP2pMm": 5.0751929455954174,
+      "spanMm": 5.99626025359612,
+      "yMin": -3.92901711165905e-10,
+      "yMax": 0.005996259860694408
+    },
+    {
+      "file": "mpfb-peds-patient-child.glb",
+      "index": 16,
+      "edges": 82,
+      "hiddenRegions": [
+        "foot"
+      ],
+      "verts": 83,
+      "steps": 82,
+      "flips": 46,
+      "flipRate": 0.5609756097560976,
+      "medianStepMm": 0.8741877973079681,
+      "maxStepMm": 7.027486339211464,
+      "medianToothMm": 1.7916448414325714,
+      "maxToothMm": 16.416397411376238,
+      "zigzagP2pMm": 12.034110673185852,
+      "spanMm": 22.668892983347178,
+      "yMin": 0.005769181530922651,
+      "yMax": 0.02843807451426983
+    },
+    {
+      "file": "mpfb-peds-patient-child.glb",
+      "index": 17,
+      "edges": 4,
+      "hiddenRegions": [
+        "foot"
+      ],
+      "verts": 5,
+      "steps": 5,
+      "flips": 3,
+      "flipRate": 0.6,
+      "medianStepMm": 5.051432177424431,
+      "maxStepMm": 10.413606651127338,
+      "medianToothMm": 10.413606651127338,
+      "maxToothMm": 10.413606651127338,
+      "zigzagP2pMm": 11.570674056808153,
+      "spanMm": 10.413606651127338,
+      "yMin": 0.010557725094258785,
+      "yMax": 0.020971331745386124
+    },
+    {
+      "file": "mpfb-peds-patient-child.glb",
+      "index": 18,
+      "edges": 34,
+      "hiddenRegions": [
+        "foot"
+      ],
+      "verts": 35,
+      "steps": 35,
+      "flips": 15,
+      "flipRate": 0.42857142857142855,
+      "medianStepMm": 0.5579516291618347,
+      "maxStepMm": 6.268280558288097,
+      "medianToothMm": 1.3014713767915964,
+      "maxToothMm": 12.432432500645518,
+      "zigzagP2pMm": 10.981326250152456,
+      "spanMm": 12.432432500645518,
+      "yMin": 0.001099179731681943,
+      "yMax": 0.013531612232327461
+    },
+    {
+      "file": "mpfb-peds-patient-child.glb",
+      "index": 19,
+      "edges": 14,
+      "hiddenRegions": [
+        "foot"
+      ],
+      "verts": 15,
+      "steps": 14,
+      "flips": 6,
+      "flipRate": 0.42857142857142855,
+      "medianStepMm": 0.8906517177820206,
+      "maxStepMm": 3.794244723394513,
+      "medianToothMm": 3.1645784620195627,
+      "maxToothMm": 5.224009044468403,
+      "zigzagP2pMm": 5.220505357202556,
+      "spanMm": 5.224009044468403,
+      "yMin": 0.0014955163933336735,
+      "yMax": 0.006719525437802076
+    }
+  ],
+  "actors": [
+    {
+      "file": "mpfb-ob-patient-aisha.glb",
+      "figureHeightM": 1.6658903360366821,
+      "garments": {
+        "t_shirt": {
+          "yMin": 0.9675281643867493,
+          "yMax": 1.4058009386062622,
+          "rims": [
+            {
+              "edges": 26,
+              "yMin": 1.373064398765564,
+              "yMax": 1.4055153131484985,
+              "flipRate": 0.23076923076923078
+            },
+            {
+              "edges": 12,
+              "yMin": 1.201672911643982,
+              "yMax": 1.2478649616241455,
+              "flipRate": 0.16666666666666666
+            },
+            {
+              "edges": 12,
+              "yMin": 1.201672911643982,
+              "yMax": 1.247865080833435,
+              "flipRate": 0.16666666666666666
+            },
+            {
+              "edges": 36,
+              "yMin": 0.9682030081748962,
+              "yMax": 1.0035332441329956,
+              "flipRate": 0.3333333333333333
+            }
+          ]
+        },
+        "cargo_pants": {
+          "rims": [
+            {
+              "edges": 72,
+              "yMin": 0.9438352584838867,
+              "yMax": 0.9871208667755127,
+              "flipRate": 0.9027777777777778
+            },
+            {
+              "edges": 44,
+              "yMin": 0.10098252445459366,
+              "yMax": 0.1141265481710434,
+              "flipRate": 0.84
+            },
+            {
+              "edges": 44,
+              "yMin": 0.10098252445459366,
+              "yMax": 0.1141265481710434,
+              "flipRate": 0.84
+            }
+          ]
+        },
+        "footwear": {
+          "rims": []
+        }
+      },
+      "boundaries": {
+        "shirt_hem": {
+          "boundary": "shirt_hem",
+          "band": [
+            0.848,
+            1.124
+          ],
+          "anchorRim": {
+            "yMin": 0.9682030081748962,
+            "yMax": 1.0035332441329956
+          },
+          "frontierLoopsInBand": [
+            3,
+            4,
+            5
+          ],
+          "bandedFlipRate": 0.404,
+          "bandedSteps": 151,
+          "bandedFlips": 61,
+          "perLoop": [
+            {
+              "loopIndex": 3,
+              "edges": 58,
+              "yMin": 1.001462697982788,
+              "yMax": 1.1636228561401367,
+              "hiddenRegions": [
+                "upper"
+              ],
+              "flipRate": 0.3620689655172414,
+              "medianStepMm": 1.2400150299072266,
+              "medianStepPx": 0.8104673398086448,
+              "maxStepMm": 26.710033416748047,
+              "maxStepPx": 17.457538180881077,
+              "medianToothMm": 3.659963607788086,
+              "medianToothPx": 2.3921330769856772,
+              "maxToothMm": 118.30008029937744,
+              "maxToothPx": 77.32031392116173,
+              "zigzagP2pMm": 47.032250298394196,
+              "zigzagP2pPx": 30.740032874767447,
+              "spanMm": 162.16015815734863,
+              "spanPx": 105.98703147539126
+            },
+            {
+              "loopIndex": 4,
+              "edges": 68,
+              "yMin": 0.953072726726532,
+              "yMax": 1.112992763519287,
+              "hiddenRegions": [
+                "upper",
+                "lower"
+              ],
+              "flipRate": 0.38235294117647056,
+              "medianStepMm": 2.200007438659668,
+              "medianStepPx": 1.4379133586010902,
+              "maxStepMm": 26.560068130493164,
+              "maxStepPx": 17.3595216539171,
+              "medianToothMm": 3.6600232124328613,
+              "medianToothPx": 2.392172034269844,
+              "maxToothMm": 72.27003574371338,
+              "maxToothPx": 47.23531747955123,
+              "zigzagP2pMm": 34.37451521555579,
+              "zigzagP2pPx": 22.46700340885999,
+              "spanMm": 159.92003679275513,
+              "spanPx": 104.52289986454583
+            },
+            {
+              "loopIndex": 5,
+              "edges": 32,
+              "yMin": 0.9445127248764038,
+              "yMax": 1.0033928155899048,
+              "hiddenRegions": [
+                "upper",
+                "lower"
+              ],
+              "flipRate": 0.53125,
+              "medianStepMm": 3.859996795654297,
+              "medianStepPx": 2.522873722649867,
+              "maxStepMm": 22.7699875831604,
+              "maxStepPx": 14.882344825595032,
+              "medianToothMm": 4.350006580352783,
+              "medianToothPx": 2.843141555786133,
+              "maxToothMm": 41.519999504089355,
+              "maxToothPx": 27.13725457783618,
+              "zigzagP2pMm": 22.930065790812137,
+              "zigzagP2pPx": 14.98697110510597,
+              "spanMm": 58.88009071350098,
+              "spanPx": 38.483719420588876
+            }
+          ]
+        },
+        "trouser_cuff": {
+          "boundary": "trouser_cuff",
+          "band": [
+            -0.019,
+            0.234
+          ],
+          "anchorRim": {
+            "yMin": 0.10098252445459366,
+            "yMax": 0.1141265481710434
+          },
+          "frontierLoopsInBand": [],
+          "bandedFlipRate": null,
+          "bandedSteps": 0,
+          "bandedFlips": 0,
+          "perLoop": []
+        },
+        "boot_top": {
+          "boundary": "boot_top",
+          "band": [
+            -0.169,
+            0.244
+          ],
+          "anchorRim": {
+            "yMin": -0.049017477035522464,
+            "yMax": 0.12443249225616455
+          },
+          "frontierLoopsInBand": [
+            7,
+            8,
+            9,
+            10,
+            12,
+            13,
+            14,
+            15
+          ],
+          "bandedFlipRate": 0.452,
+          "bandedSteps": 208,
+          "bandedFlips": 94,
+          "perLoop": [
+            {
+              "loopIndex": 7,
+              "edges": 36,
+              "yMin": 0.04083251953125,
+              "yMax": 0.07443249225616455,
+              "hiddenRegions": [
+                "foot"
+              ],
+              "flipRate": 0.40540540540540543,
+              "medianStepMm": 3.8700103759765625,
+              "medianStepPx": 2.52941854638991,
+              "maxStepMm": 15.899956226348877,
+              "maxStepPx": 10.392128252515606,
+              "medianToothMm": 11.269986629486084,
+              "medianToothPx": 7.3660043329974405,
+              "maxToothMm": 33.35005044937134,
+              "maxToothPx": 21.79741859436035,
+              "zigzagP2pMm": 26.088939772711864,
+              "zigzagP2pPx": 17.051594622687492,
+              "spanMm": 33.59997272491455,
+              "spanPx": 21.960766486872256
+            },
+            {
+              "loopIndex": 8,
+              "edges": 24,
+              "yMin": 0.0016025304794311523,
+              "yMax": 0.023172497749328613,
+              "hiddenRegions": [
+                "foot"
+              ],
+              "flipRate": 0.4782608695652174,
+              "medianStepMm": 1.3799667358398438,
+              "medianStepPx": 0.9019390430325775,
+              "maxStepMm": 10.4600191116333,
+              "maxStepPx": 6.836613798453137,
+              "medianToothMm": 4.930019378662109,
+              "medianToothPx": 3.2222348880144507,
+              "maxToothMm": 21.409988403320312,
+              "maxToothPx": 13.993456472758375,
+              "zigzagP2pMm": 15.649987591637506,
+              "zigzagP2pPx": 10.228750059893795,
+              "spanMm": 21.56996726989746,
+              "spanPx": 14.098017823462392
+            },
+            {
+              "loopIndex": 9,
+              "edges": 28,
+              "yMin": 0.000982522964477539,
+              "yMax": 0.031522512435913086,
+              "hiddenRegions": [
+                "foot"
+              ],
+              "flipRate": 0.5862068965517241,
+              "medianStepMm": 2.2800564765930176,
+              "medianStepPx": 1.4902329912372663,
+              "maxStepMm": 10.480046272277832,
+              "maxStepPx": 6.8497034459332236,
+              "medianToothMm": 2.369999885559082,
+              "medianToothPx": 1.5490195330451517,
+              "maxToothMm": 30.539989471435547,
+              "maxToothPx": 19.960777432310813,
+              "zigzagP2pMm": 20.593305428822838,
+              "zigzagP2pPx": 13.459676750864599,
+              "spanMm": 30.539989471435547,
+              "spanPx": 19.960777432310813
+            },
+            {
+              "loopIndex": 10,
+              "edges": 18,
+              "yMin": 0.002062499523162842,
+              "yMax": 0.015252470970153809,
+              "hiddenRegions": [
+                "foot"
+              ],
+              "flipRate": 0.3333333333333333,
+              "medianStepMm": 1.1499524116516113,
+              "medianStepPx": 0.7516028834324257,
+              "maxStepMm": 6.639957427978516,
+              "maxStepPx": 4.339841456195108,
+              "medianToothMm": 2.2500157356262207,
+              "medianToothPx": 1.4705985200171376,
+              "maxToothMm": 13.189971446990967,
+              "maxToothPx": 8.620896370582331,
+              "zigzagP2pMm": 11.994441350301106,
+              "zigzagP2pPx": 7.839504150523599,
+              "spanMm": 13.189971446990967,
+              "spanPx": 8.620896370582331
+            },
+            {
+              "loopIndex": 12,
+              "edges": 36,
+              "yMin": 0.04083251953125,
+              "yMax": 0.07443249225616455,
+              "hiddenRegions": [
+                "foot"
+              ],
+              "flipRate": 0.40540540540540543,
+              "medianStepMm": 3.7000179290771484,
+              "medianStepPx": 2.4183123719458486,
+              "maxStepMm": 15.899956226348877,
+              "maxStepPx": 10.392128252515606,
+              "medianToothMm": 13.660013675689697,
+              "medianToothPx": 8.928113513522678,
+              "maxToothMm": 33.35005044937134,
+              "maxToothPx": 21.79741859436035,
+              "zigzagP2pMm": 26.103383964962436,
+              "zigzagP2pPx": 17.06103527121728,
+              "spanMm": 33.59997272491455,
+              "spanPx": 21.960766486872256
+            },
+            {
+              "loopIndex": 13,
+              "edges": 24,
+              "yMin": 0.0016025304794311523,
+              "yMax": 0.023172497749328613,
+              "hiddenRegions": [
+                "foot"
+              ],
+              "flipRate": 0.4782608695652174,
+              "medianStepMm": 1.3799667358398438,
+              "medianStepPx": 0.9019390430325775,
+              "maxStepMm": 10.949969291687012,
+              "maxStepPx": 7.156842674305237,
+              "medianToothMm": 4.930019378662109,
+              "medianToothPx": 3.2222348880144507,
+              "maxToothMm": 21.56996726989746,
+              "maxToothPx": 14.098017823462392,
+              "zigzagP2pMm": 18.78552966647678,
+              "zigzagP2pPx": 12.278123965017503,
+              "spanMm": 21.56996726989746,
+              "spanPx": 14.098017823462392
+            },
+            {
+              "loopIndex": 14,
+              "edges": 28,
+              "yMin": 0.000982522964477539,
+              "yMax": 0.031522512435913086,
+              "hiddenRegions": [
+                "foot"
+              ],
+              "flipRate": 0.5714285714285714,
+              "medianStepMm": 2.2800564765930176,
+              "medianStepPx": 1.4902329912372663,
+              "maxStepMm": 10.480046272277832,
+              "maxStepPx": 6.8497034459332236,
+              "medianToothMm": 2.2800564765930176,
+              "medianToothPx": 1.4902329912372663,
+              "maxToothMm": 30.539989471435547,
+              "maxToothPx": 19.960777432310813,
+              "zigzagP2pMm": 20.495553811391197,
+              "zigzagP2pPx": 13.395786804830848,
+              "spanMm": 30.539989471435547,
+              "spanPx": 19.960777432310813
+            },
+            {
+              "loopIndex": 15,
+              "edges": 18,
+              "yMin": 0.002062499523162842,
+              "yMax": 0.015252470970153809,
+              "hiddenRegions": [
+                "foot"
+              ],
+              "flipRate": 0.2777777777777778,
+              "medianStepMm": 1.1499524116516113,
+              "medianStepPx": 0.7516028834324257,
+              "maxStepMm": 6.639957427978516,
+              "maxStepPx": 4.339841456195108,
+              "medianToothMm": 3.330051898956299,
+              "medianToothPx": 2.176504509121764,
+              "maxToothMm": 13.189971446990967,
+              "maxToothPx": 8.620896370582331,
+              "zigzagP2pMm": 11.994441350301106,
+              "zigzagP2pPx": 7.839504150523599,
+              "spanMm": 13.189971446990967,
+              "spanPx": 8.620896370582331
+            }
+          ]
+        }
+      },
+      "knownGood": {
+        "shirt_hem_rim": {
+          "garment": "t_shirt bottom rim",
+          "edges": 36,
+          "yMin": 0.9682030081748962,
+          "yMax": 1.0035332441329956,
+          "flipRate": 0.3333333333333333,
+          "medianStepMm": 3.4450888633728027,
+          "medianStepPx": 2.251692067563923,
+          "maxStepMm": 10.670065879821777,
+          "maxStepPx": 6.97389926785737,
+          "medianToothMm": 0.6018280982971191,
+          "medianToothPx": 0.3933516982334112,
+          "maxToothMm": 35.21931171417236,
+          "maxToothPx": 23.019157983119193,
+          "zigzagP2pMm": 18.75477366977263,
+          "zigzagP2pPx": 12.258022006387339,
+          "spanMm": 35.330235958099365,
+          "spanPx": 23.09165748895383
+        },
+        "trouser_cuff_rim": {
+          "garment": "cargo_pants bottom rim",
+          "edges": 44,
+          "yMin": 0.10098252445459366,
+          "yMax": 0.1141265481710434,
+          "flipRate": 0.84,
+          "medianStepMm": 9.579591453075409,
+          "medianStepPx": 6.261170884363012,
+          "maxStepMm": 13.144023716449738,
+          "maxStepPx": 8.590865174150155,
+          "medianToothMm": 9.817518293857574,
+          "medianToothPx": 6.416678623436323,
+          "maxToothMm": 13.144023716449738,
+          "maxToothPx": 8.590865174150155,
+          "zigzagP2pMm": 14.290822048981994,
+          "zigzagP2pPx": 9.340406567962088,
+          "spanMm": 13.144023716449738,
+          "spanPx": 8.590865174150155
+        },
+        "boot_top_rim": {
+          "garment": "footwear top rim",
+          "note": "no rim loop found (closed mesh)"
+        }
+      }
+    },
+    {
+      "file": "mpfb-peds-nurse-kevin.glb",
+      "figureHeightM": 1.760076550213853,
+      "garments": {
+        "t_shirt": {
+          "yMin": 1.040332555770874,
+          "yMax": 1.5120822191238403,
+          "rims": [
+            {
+              "edges": 26,
+              "yMin": 1.4646238088607788,
+              "yMax": 1.5108040571212769,
+              "flipRate": 0.38461538461538464
+            },
+            {
+              "edges": 12,
+              "yMin": 1.2529771327972412,
+              "yMax": 1.3027961254119873,
+              "flipRate": 0.16666666666666666
+            },
+            {
+              "edges": 12,
+              "yMin": 1.2529771327972412,
+              "yMax": 1.3027961254119873,
+              "flipRate": 0.16666666666666666
+            },
+            {
+              "edges": 36,
+              "yMin": 1.040579080581665,
+              "yMax": 1.0673854351043701,
+              "flipRate": 0.2222222222222222
+            }
+          ]
+        },
+        "cargo_pants": {
+          "rims": [
+            {
+              "edges": 54,
+              "yMin": 1.0140366554260254,
+              "yMax": 1.058120846748352,
+              "flipRate": 0.5925925925925926
+            },
+            {
+              "edges": 34,
+              "yMin": 0.09999996423721313,
+              "yMax": 0.11419428139925003,
+              "flipRate": 0.6428571428571429
+            },
+            {
+              "edges": 34,
+              "yMin": 0.09999996423721313,
+              "yMax": 0.11419428139925003,
+              "flipRate": 0.6428571428571429
+            }
+          ]
+        },
+        "footwear": {
+          "rims": []
+        }
+      },
+      "boundaries": {
+        "shirt_hem": {
+          "boundary": "shirt_hem",
+          "band": [
+            0.921,
+            1.187
+          ],
+          "anchorRim": {
+            "yMin": 1.040579080581665,
+            "yMax": 1.0673854351043701
+          },
+          "frontierLoopsInBand": [
+            4,
+            5,
+            6
+          ],
+          "bandedFlipRate": 0.449,
+          "bandedSteps": 187,
+          "bandedFlips": 84,
+          "perLoop": [
+            {
+              "loopIndex": 4,
+              "edges": 80,
+              "yMin": 1.070136547088623,
+              "yMax": 1.245563268661499,
+              "hiddenRegions": [
+                "upper"
+              ],
+              "flipRate": 0.4375,
+              "medianStepMm": 2.386927604675293,
+              "medianStepPx": 1.5600834017485574,
+              "maxStepMm": 27.72533893585205,
+              "maxStepPx": 18.121136559380425,
+              "medianToothMm": 7.493019104003906,
+              "medianToothPx": 4.897398107192095,
+              "maxToothMm": 124.69911575317383,
+              "maxToothPx": 81.50269003475414,
+              "zigzagP2pMm": 54.512461026509754,
+              "zigzagP2pPx": 35.62905949445082,
+              "spanMm": 175.42672157287598,
+              "spanPx": 114.65798795612808
+            },
+            {
+              "loopIndex": 5,
+              "edges": 142,
+              "yMin": 0.8074244856834412,
+              "yMax": 1.232248067855835,
+              "hiddenRegions": [
+                "upper",
+                "lower"
+              ],
+              "flipRate": 0.30985915492957744,
+              "medianStepMm": 7.466733455657959,
+              "medianStepPx": 4.880217944874483,
+              "maxStepMm": 31.63391351699829,
+              "maxStepPx": 20.675760468626333,
+              "medianToothMm": 20.83563804626465,
+              "medianToothPx": 13.618064082525914,
+              "maxToothMm": 216.36193990707397,
+              "maxToothPx": 141.4130326190026,
+              "zigzagP2pMm": 61.22969918780852,
+              "zigzagP2pPx": 40.019411233861774,
+              "spanMm": 424.8235821723938,
+              "spanPx": 277.6624720081005
+            },
+            {
+              "loopIndex": 6,
+              "edges": 26,
+              "yMin": 1.0161007642745972,
+              "yMax": 1.0828959941864014,
+              "hiddenRegions": [
+                "upper",
+                "lower"
+              ],
+              "flipRate": 0.48148148148148145,
+              "medianStepMm": 5.5779218673706055,
+              "medianStepPx": 3.6457005669088924,
+              "maxStepMm": 40.05587100982666,
+              "maxStepPx": 26.18030784955991,
+              "medianToothMm": 7.833600044250488,
+              "medianToothPx": 5.120000028921888,
+              "maxToothMm": 66.59173965454102,
+              "maxToothPx": 43.52401284610524,
+              "zigzagP2pMm": 49.86369609832764,
+              "zigzagP2pPx": 32.590651044658586,
+              "spanMm": 66.7952299118042,
+              "spanPx": 43.65701301425111
+            }
+          ]
+        },
+        "trouser_cuff": {
+          "boundary": "trouser_cuff",
+          "band": [
+            -0.02,
+            0.234
+          ],
+          "anchorRim": {
+            "yMin": 0.09999996423721313,
+            "yMax": 0.11419428139925003
+          },
+          "frontierLoopsInBand": [
+            9,
+            16
+          ],
+          "bandedFlipRate": 0.5,
+          "bandedSteps": 12,
+          "bandedFlips": 6,
+          "perLoop": [
+            {
+              "loopIndex": 9,
+              "edges": 6,
+              "yMin": 0.11493293941020966,
+              "yMax": 0.17665189504623413,
+              "hiddenRegions": [
+                "lower"
+              ],
+              "flipRate": 0.42857142857142855,
+              "medianStepMm": 21.65040373802185,
+              "medianStepPx": 14.150590678445655,
+              "maxStepMm": 58.95088613033295,
+              "maxStepPx": 38.529990934858134,
+              "medianToothMm": 58.95088613033295,
+              "medianToothPx": 38.529990934858134,
+              "maxToothMm": 61.718955636024475,
+              "maxToothPx": 40.339186690212074,
+              "zigzagP2pMm": 72.3339451683892,
+              "zigzagP2pPx": 47.277088345352425,
+              "spanMm": 61.718955636024475,
+              "spanPx": 40.339186690212074
+            },
+            {
+              "loopIndex": 16,
+              "edges": 6,
+              "yMin": 0.11770100891590118,
+              "yMax": 0.17665189504623413,
+              "hiddenRegions": [
+                "lower"
+              ],
+              "flipRate": 0.42857142857142855,
+              "medianStepMm": 18.89052987098694,
+              "medianStepPx": 12.346751549664665,
+              "maxStepMm": 39.838045835494995,
+              "maxStepPx": 26.037938454571893,
+              "medianToothMm": 58.95088613033295,
+              "medianToothPx": 38.529990934858134,
+              "maxToothMm": 58.95088613033295,
+              "maxToothPx": 38.529990934858134,
+              "zigzagP2pMm": 69.70512370268506,
+              "zigzagP2pPx": 45.558904380839905,
+              "spanMm": 58.95088613033295,
+              "spanPx": 38.529990934858134
+            }
+          ]
+        },
+        "boot_top": {
+          "boundary": "boot_top",
+          "band": [
+            -0.17,
+            0.561
+          ],
+          "anchorRim": {
+            "yMin": -0.05000002738670446,
+            "yMax": 0.44083963632583617
+          },
+          "frontierLoopsInBand": [
+            8,
+            10,
+            11,
+            12,
+            15,
+            17,
+            18,
+            19
+          ],
+          "bandedFlipRate": 0.354,
+          "bandedSteps": 280,
+          "bandedFlips": 99,
+          "perLoop": [
+            {
+              "loopIndex": 8,
+              "edges": 90,
+              "yMin": 0.023540306836366653,
+              "yMax": 0.3908396363258362,
+              "hiddenRegions": [
+                "foot"
+              ],
+              "flipRate": 0.31868131868131866,
+              "medianStepMm": 7.256742566823959,
+              "medianStepPx": 4.742968997924156,
+              "maxStepMm": 50.34615099430084,
+              "maxStepPx": 32.905981042026696,
+              "medianToothMm": 12.72028312087059,
+              "medianToothPx": 8.313910536516726,
+              "maxToothMm": 363.4669594466686,
+              "maxToothPx": 237.5601042135089,
+              "zigzagP2pMm": 77.44523965650136,
+              "zigzagP2pPx": 50.617803697059706,
+              "spanMm": 367.2993294894695,
+              "spanPx": 240.0649212349474
+            },
+            {
+              "loopIndex": 10,
+              "edges": 18,
+              "yMin": 0.00018006598111242056,
+              "yMax": 0.020355142652988434,
+              "hiddenRegions": [
+                "foot"
+              ],
+              "flipRate": 0.6842105263157895,
+              "medianStepMm": 1.5138983726501465,
+              "medianStepPx": 0.9894760605556513,
+              "maxStepMm": 8.020354434847832,
+              "maxStepPx": 5.242061722122766,
+              "medianToothMm": 2.263094764202833,
+              "medianToothPx": 1.4791469047077341,
+              "maxToothMm": 18.964331247843802,
+              "maxToothPx": 12.394987743688759,
+              "zigzagP2pMm": 13.564892501259845,
+              "zigzagP2pPx": 8.865942811280943,
+              "spanMm": 20.175076671876013,
+              "spanPx": 13.186324622141186
+            },
+            {
+              "loopIndex": 11,
+              "edges": 16,
+              "yMin": 0.001406861119903624,
+              "yMax": 0.014641748741269112,
+              "hiddenRegions": [
+                "foot"
+              ],
+              "flipRate": 0.29411764705882354,
+              "medianStepMm": 1.8411418423056602,
+              "medianStepPx": 1.2033606812455295,
+              "maxStepMm": 9.24889650195837,
+              "maxStepPx": 6.045030393436843,
+              "medianToothMm": 9.24889650195837,
+              "medianToothPx": 6.045030393436843,
+              "maxToothMm": 13.047404936514795,
+              "maxToothPx": 8.527715644780912,
+              "zigzagP2pMm": 10.00070324840231,
+              "zigzagP2pPx": 6.536407351896934,
+              "spanMm": 13.234887621365488,
+              "spanPx": 8.650253347297705
+            },
+            {
+              "loopIndex": 12,
+              "edges": 16,
+              "yMin": -2.7386704459786415e-8,
+              "yMax": 0.03716694191098213,
+              "hiddenRegions": [
+                "foot"
+              ],
+              "flipRate": 0.1875,
+              "medianStepMm": 5.676732398569584,
+              "medianStepPx": 3.710282613444172,
+              "maxStepMm": 10.056243278086185,
+              "maxStepPx": 6.572708024892932,
+              "medianToothMm": 34.87419095472433,
+              "medianToothPx": 22.793588859296946,
+              "maxToothMm": 37.16696929768659,
+              "maxToothPx": 24.29213679587359,
+              "zigzagP2pMm": 18.814625971976458,
+              "zigzagP2pPx": 12.297141158154547,
+              "spanMm": 37.16696929768659,
+              "spanPx": 24.29213679587359
+            },
+            {
+              "loopIndex": 15,
+              "edges": 90,
+              "yMin": 0.023540306836366653,
+              "yMax": 0.3908396363258362,
+              "hiddenRegions": [
+                "foot"
+              ],
+              "flipRate": 0.3111111111111111,
+              "medianStepMm": 7.450193166732788,
+              "medianStepPx": 4.869407298518162,
+              "maxStepMm": 50.34615099430084,
+              "maxStepPx": 32.905981042026696,
+              "medianToothMm": 12.72028312087059,
+              "medianToothPx": 8.313910536516726,
+              "maxToothMm": 363.4669594466686,
+              "maxToothPx": 237.5601042135089,
+              "zigzagP2pMm": 77.44523965650136,
+              "zigzagP2pPx": 50.617803697059706,
+              "spanMm": 367.2993294894695,
+              "spanPx": 240.0649212349474
+            },
+            {
+              "loopIndex": 17,
+              "edges": 18,
+              "yMin": 0.00018006598111242056,
+              "yMax": 0.020355142652988434,
+              "hiddenRegions": [
+                "foot"
+              ],
+              "flipRate": 0.6842105263157895,
+              "medianStepMm": 1.1722823837772012,
+              "medianStepPx": 0.7661976364556871,
+              "maxStepMm": 10.94397681299597,
+              "maxStepPx": 7.152926021565993,
+              "medianToothMm": 2.263094764202833,
+              "medianToothPx": 1.4791469047077341,
+              "maxToothMm": 19.23247764352709,
+              "maxToothPx": 12.5702468258347,
+              "zigzagP2pMm": 15.678965163210199,
+              "zigzagP2pPx": 10.247689649156992,
+              "spanMm": 20.175076671876013,
+              "spanPx": 13.186324622141186
+            },
+            {
+              "loopIndex": 18,
+              "edges": 16,
+              "yMin": 0.001406861119903624,
+              "yMax": 0.014641748741269112,
+              "hiddenRegions": [
+                "foot"
+              ],
+              "flipRate": 0.375,
+              "medianStepMm": 1.843542791903019,
+              "medianStepPx": 1.2049299293483784,
+              "maxStepMm": 9.24889650195837,
+              "maxStepPx": 6.045030393436843,
+              "medianToothMm": 9.061413817107677,
+              "medianToothPx": 5.92249269092005,
+              "maxToothMm": 13.047404936514795,
+              "maxToothPx": 8.527715644780912,
+              "zigzagP2pMm": 9.922255813661549,
+              "zigzagP2pPx": 6.485134518733038,
+              "spanMm": 13.234887621365488,
+              "spanPx": 8.650253347297705
+            },
+            {
+              "loopIndex": 19,
+              "edges": 16,
+              "yMin": -2.7386704459786415e-8,
+              "yMax": 0.03716694191098213,
+              "hiddenRegions": [
+                "foot"
+              ],
+              "flipRate": 0.25,
+              "medianStepMm": 5.676732398569584,
+              "medianStepPx": 3.710282613444172,
+              "maxStepMm": 10.056243278086185,
+              "maxStepPx": 6.572708024892932,
+              "medianToothMm": 6.608037278056145,
+              "medianToothPx": 4.318978613108591,
+              "maxToothMm": 34.87419095472433,
+              "maxToothPx": 22.793588859296946,
+              "zigzagP2pMm": 18.14939943465611,
+              "zigzagP2pPx": 11.86235257167066,
+              "spanMm": 37.16696929768659,
+              "spanPx": 24.29213679587359
+            }
+          ]
+        }
+      },
+      "knownGood": {
+        "shirt_hem_rim": {
+          "garment": "t_shirt bottom rim",
+          "edges": 36,
+          "yMin": 1.040579080581665,
+          "yMax": 1.0673854351043701,
+          "flipRate": 0.2222222222222222,
+          "medianStepMm": 1.9379854202270508,
+          "medianStepPx": 1.266657137403301,
+          "maxStepMm": 9.641170501708984,
+          "maxStepPx": 6.301418628567964,
+          "medianToothMm": 1.190185546875,
+          "medianToothPx": 0.777899050245098,
+          "maxToothMm": 26.35788917541504,
+          "maxToothPx": 17.2273785460229,
+          "zigzagP2pMm": 16.312705145941962,
+          "zigzagP2pPx": 10.66189878819736,
+          "spanMm": 26.806354522705078,
+          "spanPx": 17.520493152094822
+        },
+        "trouser_cuff_rim": {
+          "garment": "cargo_pants bottom rim",
+          "edges": 34,
+          "yMin": 0.09999996423721313,
+          "yMax": 0.11419428139925003,
+          "flipRate": 0.6428571428571429,
+          "medianStepMm": 2.000764012336731,
+          "medianStepPx": 1.3076888969521117,
+          "maxStepMm": 14.194317162036896,
+          "maxStepPx": 9.277331478455487,
+          "medianToothMm": 4.862800240516663,
+          "medianToothPx": 3.1783008107952044,
+          "maxToothMm": 14.194317162036896,
+          "maxToothPx": 9.277331478455487,
+          "zigzagP2pMm": 15.681376887692347,
+          "zigzagP2pPx": 10.2492659396682,
+          "spanMm": 14.194317162036896,
+          "spanPx": 9.277331478455487
+        },
+        "boot_top_rim": {
+          "garment": "footwear top rim",
+          "note": "no rim loop found (closed mesh)"
+        }
+      }
+    },
+    {
+      "file": "mpfb-peds-patient-child.glb",
+      "figureHeightM": 1.2410178188438294,
+      "garments": {
+        "t_shirt": {
+          "yMin": 0.7064944505691528,
+          "yMax": 1.0407226085662842,
+          "rims": [
+            {
+              "edges": 26,
+              "yMin": 1.0080617666244507,
+              "yMax": 1.0396753549575806,
+              "flipRate": 0.15384615384615385
+            },
+            {
+              "edges": 12,
+              "yMin": 0.8550552725791931,
+              "yMax": 0.8929907083511353,
+              "flipRate": 0.16666666666666666
+            },
+            {
+              "edges": 12,
+              "yMin": 0.8550552725791931,
+              "yMax": 0.8929907083511353,
+              "flipRate": 0.16666666666666666
+            },
+            {
+              "edges": 36,
+              "yMin": 0.7066484689712524,
+              "yMax": 0.7253333926200867,
+              "flipRate": 0.2777777777777778
+            }
+          ]
+        },
+        "cargo_pants": {
+          "rims": [
+            {
+              "edges": 58,
+              "yMin": 0.690941572189331,
+              "yMax": 0.7199033498764038,
+              "flipRate": 0.6896551724137931
+            },
+            {
+              "edges": 24,
+              "yMin": 0.10000000149011612,
+              "yMax": 0.1019979938864708,
+              "flipRate": 0.3157894736842105
+            },
+            {
+              "edges": 24,
+              "yMin": 0.10000000149011612,
+              "yMax": 0.1019979938864708,
+              "flipRate": 0.3157894736842105
+            }
+          ]
+        },
+        "footwear": {
+          "rims": [
+            {
+              "edges": 8,
+              "yMin": 0.03964145481586456,
+              "yMax": 0.04405730962753296,
+              "flipRate": 0.25
+            },
+            {
+              "edges": 42,
+              "yMin": 0.03159351274371147,
+              "yMax": 0.06050281971693039,
+              "flipRate": 0.21428571428571427
+            },
+            {
+              "edges": 8,
+              "yMin": 0.03964145481586456,
+              "yMax": 0.04405730962753296,
+              "flipRate": 0.25
+            },
+            {
+              "edges": 42,
+              "yMin": 0.03159351274371147,
+              "yMax": 0.06050281971693039,
+              "flipRate": 0.21428571428571427
+            }
+          ]
+        }
+      },
+      "boundaries": {
+        "shirt_hem": {
+          "boundary": "shirt_hem",
+          "band": [
+            0.587,
+            0.845
+          ],
+          "anchorRim": {
+            "yMin": 0.7066484689712524,
+            "yMax": 0.7253333926200867
+          },
+          "frontierLoopsInBand": [
+            3,
+            4,
+            5,
+            6
+          ],
+          "bandedFlipRate": 0.368,
+          "bandedSteps": 190,
+          "bandedFlips": 70,
+          "perLoop": [
+            {
+              "loopIndex": 3,
+              "edges": 14,
+              "yMin": 0.7835602760314941,
+              "yMax": 0.8663330674171448,
+              "hiddenRegions": [
+                "upper"
+              ],
+              "flipRate": 0.14285714285714285,
+              "medianStepMm": 15.35874605178833,
+              "medianStepPx": 10.038396112279955,
+              "maxStepMm": 18.481671810150146,
+              "maxStepPx": 12.079524058921665,
+              "medianToothMm": 82.47596025466919,
+              "medianToothPx": 53.90585637560078,
+              "maxToothMm": 82.77279138565063,
+              "maxToothPx": 54.09986365075205,
+              "zigzagP2pMm": 42.98995600806344,
+              "zigzagP2pPx": 28.09801046278656,
+              "spanMm": 82.77279138565063,
+              "spanPx": 54.09986365075205
+            },
+            {
+              "loopIndex": 4,
+              "edges": 40,
+              "yMin": 0.7281621098518372,
+              "yMax": 0.7633184790611267,
+              "hiddenRegions": [
+                "upper"
+              ],
+              "flipRate": 0.4146341463414634,
+              "medianStepMm": 0.9083151817321777,
+              "medianStepPx": 0.593670053419724,
+              "maxStepMm": 13.065993785858154,
+              "maxStepPx": 8.539865219515134,
+              "medianToothMm": 4.664599895477295,
+              "medianToothPx": 3.048758101619147,
+              "maxToothMm": 15.520930290222168,
+              "maxToothPx": 10.144398882498148,
+              "zigzagP2pMm": 15.285227033826953,
+              "zigzagP2pPx": 9.990344466553564,
+              "spanMm": 35.15636920928955,
+              "spanPx": 22.97801909103892
+            },
+            {
+              "loopIndex": 5,
+              "edges": 138,
+              "yMin": 0.5320637822151184,
+              "yMax": 0.8079240322113037,
+              "hiddenRegions": [
+                "upper",
+                "lower"
+              ],
+              "flipRate": 0.2826086956521739,
+              "medianStepMm": 3.714442253112793,
+              "medianStepPx": 2.427740034714244,
+              "maxStepMm": 20.413696765899658,
+              "maxStepPx": 13.342285467908273,
+              "medianToothMm": 15.979170799255371,
+              "medianToothPx": 10.443902483173446,
+              "maxToothMm": 81.35217428207397,
+              "maxToothPx": 53.17135573991763,
+              "zigzagP2pMm": 31.29090865453088,
+              "zigzagP2pPx": 20.451574284007112,
+              "spanMm": 275.8602499961853,
+              "spanPx": 180.3008169909708
+            },
+            {
+              "loopIndex": 6,
+              "edges": 32,
+              "yMin": 0.691786527633667,
+              "yMax": 0.736862301826477,
+              "hiddenRegions": [
+                "upper",
+                "lower"
+              ],
+              "flipRate": 0.45454545454545453,
+              "medianStepMm": 2.3668408393859863,
+              "medianStepPx": 1.5469547969843047,
+              "maxStepMm": 24.136722087860107,
+              "maxStepPx": 15.775635351542554,
+              "medianToothMm": 4.46927547454834,
+              "medianToothPx": 2.9210950814041436,
+              "maxToothMm": 45.07577419281006,
+              "maxToothPx": 29.461290322098076,
+              "zigzagP2pMm": 27.584373950958252,
+              "zigzagP2pPx": 18.029002582325653,
+              "spanMm": 45.07577419281006,
+              "spanPx": 29.461290322098076
+            }
+          ]
+        },
+        "trouser_cuff": {
+          "boundary": "trouser_cuff",
+          "band": [
+            -0.02,
+            0.222
+          ],
+          "anchorRim": {
+            "yMin": 0.10000000149011612,
+            "yMax": 0.1019979938864708
+          },
+          "frontierLoopsInBand": [],
+          "bandedFlipRate": null,
+          "bandedSteps": 0,
+          "bandedFlips": 0,
+          "perLoop": []
+        },
+        "boot_top": {
+          "boundary": "boot_top",
+          "band": [
+            -0.17,
+            0.229
+          ],
+          "anchorRim": {
+            "yMin": -0.050000000392901714,
+            "yMax": 0.10900917947292328
+          },
+          "frontierLoopsInBand": [
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19
+          ],
+          "bandedFlipRate": 0.486,
+          "bandedSteps": 356,
+          "bandedFlips": 173,
+          "perLoop": [
+            {
+              "loopIndex": 7,
+              "edges": 28,
+              "yMin": 0.030774511396884918,
+              "yMax": 0.05900917947292328,
+              "hiddenRegions": [
+                "foot"
+              ],
+              "flipRate": 0.35714285714285715,
+              "medianStepMm": 1.3206861913204193,
+              "medianStepPx": 0.8631935890983132,
+              "maxStepMm": 9.153418242931366,
+              "maxStepPx": 5.98262630256952,
+              "medianToothMm": 4.007101058959961,
+              "medianToothPx": 2.6190202999738306,
+              "maxToothMm": 25.987297296524048,
+              "maxToothPx": 16.985161631715062,
+              "zigzagP2pMm": 15.535982532633676,
+              "zigzagP2pPx": 10.154236949433775,
+              "spanMm": 28.23466807603836,
+              "spanPx": 18.454031422247294
+            },
+            {
+              "loopIndex": 8,
+              "edges": 16,
+              "yMin": -3.92901711165905e-10,
+              "yMax": 0.005996259860694408,
+              "hiddenRegions": [
+                "foot"
+              ],
+              "flipRate": 0.5294117647058824,
+              "medianStepMm": 0.5449759773910046,
+              "medianStepPx": 0.3561934492751664,
+              "maxStepMm": 3.764497581869364,
+              "maxStepPx": 2.460455935862329,
+              "medianToothMm": 1.0592483449727297,
+              "medianToothPx": 0.6923191797207383,
+              "maxToothMm": 5.303089434164576,
+              "maxToothPx": 3.466071525597762,
+              "zigzagP2pMm": 5.0751929455954174,
+              "zigzagP2pPx": 3.3171195722845863,
+              "spanMm": 5.99626025359612,
+              "spanPx": 3.9191243487556338
+            },
+            {
+              "loopIndex": 9,
+              "edges": 82,
+              "yMin": 0.005769181530922651,
+              "yMax": 0.02843807451426983,
+              "hiddenRegions": [
+                "foot"
+              ],
+              "flipRate": 0.5421686746987951,
+              "medianStepMm": 0.8624903857707977,
+              "medianStepPx": 0.5637192063861423,
+              "maxStepMm": 7.027486339211464,
+              "maxStepPx": 4.593128326282002,
+              "medianToothMm": 2.1573565900325775,
+              "medianToothPx": 1.410036986949397,
+              "maxToothMm": 16.416397411376238,
+              "maxToothPx": 10.729671510703422,
+              "zigzagP2pMm": 12.034110673185852,
+              "zigzagP2pPx": 7.865431812539772,
+              "spanMm": 22.668892983347178,
+              "spanPx": 14.816269923756325
+            },
+            {
+              "loopIndex": 10,
+              "edges": 4,
+              "yMin": 0.015158092603087425,
+              "yMax": 0.020971331745386124,
+              "hiddenRegions": [
+                "foot"
+              ],
+              "flipRate": 0.6,
+              "medianStepMm": 5.813239142298698,
+              "medianStepPx": 3.7995027073847703,
+              "maxStepMm": 5.813239142298698,
+              "maxStepPx": 3.7995027073847703,
+              "medianToothMm": 5.813239142298698,
+              "medianToothPx": 3.7995027073847703,
+              "maxToothMm": 5.813239142298698,
+              "maxToothPx": 3.7995027073847703,
+              "zigzagP2pMm": 6.459154602554109,
+              "zigzagP2pPx": 4.221669674871967,
+              "spanMm": 5.813239142298698,
+              "spanPx": 3.7995027073847703
+            },
+            {
+              "loopIndex": 11,
+              "edges": 34,
+              "yMin": 0.001099179731681943,
+              "yMax": 0.013531612232327461,
+              "hiddenRegions": [
+                "foot"
+              ],
+              "flipRate": 0.42857142857142855,
+              "medianStepMm": 0.4589296877384186,
+              "medianStepPx": 0.2999540442734762,
+              "maxStepMm": 6.268280558288097,
+              "maxStepPx": 4.09691539757392,
+              "medianToothMm": 1.4053178019821644,
+              "medianToothPx": 0.9185083673086042,
+              "maxToothMm": 12.432432500645518,
+              "maxToothPx": 8.125772876238901,
+              "zigzagP2pMm": 10.981326250152456,
+              "zigzagP2pPx": 7.177337418400298,
+              "spanMm": 12.432432500645518,
+              "spanPx": 8.125772876238901
+            },
+            {
+              "loopIndex": 12,
+              "edges": 14,
+              "yMin": 0.0014955163933336735,
+              "yMax": 0.006719525437802076,
+              "hiddenRegions": [
+                "foot"
+              ],
+              "flipRate": 0.3333333333333333,
+              "medianStepMm": 0.8906517177820206,
+              "medianStepPx": 0.5821253057398827,
+              "maxStepMm": 3.794244723394513,
+              "maxStepPx": 2.4798985120225576,
+              "medianToothMm": 3.1974134035408497,
+              "medianToothPx": 2.089812682052843,
+              "maxToothMm": 5.224009044468403,
+              "maxToothPx": 3.414384996384577,
+              "zigzagP2pMm": 5.343671189621091,
+              "zigzagP2pPx": 3.4925955487719547,
+              "spanMm": 5.224009044468403,
+              "spanPx": 3.414384996384577
+            },
+            {
+              "loopIndex": 14,
+              "edges": 28,
+              "yMin": 0.030774511396884918,
+              "yMax": 0.05900917947292328,
+              "hiddenRegions": [
+                "foot"
+              ],
+              "flipRate": 0.3793103448275862,
+              "medianStepMm": 1.715630292892456,
+              "medianStepPx": 1.1213269888185986,
+              "maxStepMm": 9.153418242931366,
+              "maxStepPx": 5.98262630256952,
+              "medianToothMm": 4.007101058959961,
+              "medianToothPx": 2.6190202999738306,
+              "maxToothMm": 25.987297296524048,
+              "maxToothPx": 16.985161631715062,
+              "zigzagP2pMm": 15.535982532633676,
+              "zigzagP2pPx": 10.154236949433775,
+              "spanMm": 28.23466807603836,
+              "spanPx": 18.454031422247294
+            },
+            {
+              "loopIndex": 15,
+              "edges": 16,
+              "yMin": -3.92901711165905e-10,
+              "yMax": 0.005996259860694408,
+              "hiddenRegions": [
+                "foot"
+              ],
+              "flipRate": 0.5,
+              "medianStepMm": 0.5509136244654655,
+              "medianStepPx": 0.3600742643565134,
+              "maxStepMm": 3.764497581869364,
+              "maxStepPx": 2.460455935862329,
+              "medianToothMm": 1.0592483449727297,
+              "medianToothPx": 0.6923191797207383,
+              "maxToothMm": 5.576673356699757,
+              "maxToothPx": 3.6448845468625866,
+              "zigzagP2pMm": 5.0751929455954174,
+              "zigzagP2pPx": 3.3171195722845863,
+              "spanMm": 5.99626025359612,
+              "spanPx": 3.9191243487556338
+            },
+            {
+              "loopIndex": 16,
+              "edges": 82,
+              "yMin": 0.005769181530922651,
+              "yMax": 0.02843807451426983,
+              "hiddenRegions": [
+                "foot"
+              ],
+              "flipRate": 0.5609756097560976,
+              "medianStepMm": 0.8741877973079681,
+              "medianStepPx": 0.5713645734039008,
+              "maxStepMm": 7.027486339211464,
+              "maxStepPx": 4.593128326282002,
+              "medianToothMm": 1.7916448414325714,
+              "medianToothPx": 1.1710097002827264,
+              "maxToothMm": 16.416397411376238,
+              "maxToothPx": 10.729671510703422,
+              "zigzagP2pMm": 12.034110673185852,
+              "zigzagP2pPx": 7.865431812539772,
+              "spanMm": 22.668892983347178,
+              "spanPx": 14.816269923756325
+            },
+            {
+              "loopIndex": 17,
+              "edges": 4,
+              "yMin": 0.010557725094258785,
+              "yMax": 0.020971331745386124,
+              "hiddenRegions": [
+                "foot"
+              ],
+              "flipRate": 0.6,
+              "medianStepMm": 5.051432177424431,
+              "medianStepPx": 3.3015896584473405,
+              "maxStepMm": 10.413606651127338,
+              "maxStepPx": 6.806278856945973,
+              "medianToothMm": 10.413606651127338,
+              "medianToothPx": 6.806278856945973,
+              "maxToothMm": 10.413606651127338,
+              "maxToothPx": 6.806278856945973,
+              "zigzagP2pMm": 11.570674056808153,
+              "zigzagP2pPx": 7.562532063273302,
+              "spanMm": 10.413606651127338,
+              "spanPx": 6.806278856945973
+            },
+            {
+              "loopIndex": 18,
+              "edges": 34,
+              "yMin": 0.001099179731681943,
+              "yMax": 0.013531612232327461,
+              "hiddenRegions": [
+                "foot"
+              ],
+              "flipRate": 0.42857142857142855,
+              "medianStepMm": 0.5579516291618347,
+              "medianStepPx": 0.36467426742603576,
+              "maxStepMm": 6.268280558288097,
+              "maxStepPx": 4.09691539757392,
+              "medianToothMm": 1.3014713767915964,
+              "medianToothPx": 0.850634886791893,
+              "maxToothMm": 12.432432500645518,
+              "maxToothPx": 8.125772876238901,
+              "zigzagP2pMm": 10.981326250152456,
+              "zigzagP2pPx": 7.177337418400298,
+              "spanMm": 12.432432500645518,
+              "spanPx": 8.125772876238901
+            },
+            {
+              "loopIndex": 19,
+              "edges": 14,
+              "yMin": 0.0014955163933336735,
+              "yMax": 0.006719525437802076,
+              "hiddenRegions": [
+                "foot"
+              ],
+              "flipRate": 0.42857142857142855,
+              "medianStepMm": 0.8906517177820206,
+              "medianStepPx": 0.5821253057398827,
+              "maxStepMm": 3.794244723394513,
+              "maxStepPx": 2.4798985120225576,
+              "medianToothMm": 3.1645784620195627,
+              "medianToothPx": 2.0683519359604983,
+              "maxToothMm": 5.224009044468403,
+              "maxToothPx": 3.414384996384577,
+              "zigzagP2pMm": 5.220505357202556,
+              "zigzagP2pPx": 3.412095004707553,
+              "spanMm": 5.224009044468403,
+              "spanPx": 3.414384996384577
+            }
+          ]
+        }
+      },
+      "knownGood": {
+        "shirt_hem_rim": {
+          "garment": "t_shirt bottom rim",
+          "edges": 36,
+          "yMin": 0.7066484689712524,
+          "yMax": 0.7253333926200867,
+          "flipRate": 0.2777777777777778,
+          "medianStepMm": 1.2905597686767578,
+          "medianStepPx": 0.8435031167821946,
+          "maxStepMm": 6.331086158752441,
+          "maxStepPx": 4.137964809642119,
+          "medianToothMm": 1.0902881622314453,
+          "medianToothPx": 0.7126066419813368,
+          "maxToothMm": 18.033385276794434,
+          "maxToothPx": 11.786526324702244,
+          "zigzagP2pMm": 10.105219152238721,
+          "zigzagP2pPx": 6.604718400156027,
+          "spanMm": 18.68492364883423,
+          "spanPx": 12.212368397930868
+        },
+        "trouser_cuff_rim": {
+          "garment": "cargo_pants bottom rim",
+          "edges": 24,
+          "yMin": 0.10000000149011612,
+          "yMax": 0.1019979938864708,
+          "flipRate": 0.3157894736842105,
+          "medianStepMm": 0.17574429512023926,
+          "medianStepPx": 0.11486555236616945,
+          "maxStepMm": 1.3227388262748718,
+          "maxStepPx": 0.8645351805718117,
+          "medianToothMm": 1.0393112897872925,
+          "medianToothPx": 0.6792884246975768,
+          "maxToothMm": 1.9979923963546753,
+          "maxToothPx": 1.30587738323835,
+          "zigzagP2pMm": 1.481764846377895,
+          "zigzagP2pPx": 0.9684737558025457,
+          "spanMm": 1.9979923963546753,
+          "spanPx": 1.30587738323835
+        },
+        "boot_top_rim": {
+          "garment": "footwear top rim",
+          "edges": 42,
+          "yMin": 0.03159351274371147,
+          "yMax": 0.06050281971693039,
+          "flipRate": 0.21428571428571427,
+          "medianStepMm": 2.4877265095710754,
+          "medianStepPx": 1.6259650389353435,
+          "maxStepMm": 7.847446948289871,
+          "maxStepPx": 5.129050292999915,
+          "medianToothMm": 12.979473918676376,
+          "medianToothPx": 8.483316286716585,
+          "maxToothMm": 27.039382606744766,
+          "maxToothPx": 17.672799089375665,
+          "zigzagP2pMm": 18.163803550932148,
+          "zigzagP2pPx": 11.871767026753037,
+          "spanMm": 28.909306973218918,
+          "spanPx": 18.89497187792086
+        }
+      }
+    }
+  ],
+  "summary": {
+    "mpfb-ob-patient-aisha.glb": {
+      "boundaries": {
+        "shirt_hem": {
+          "frontierBandedFlipRate": 0.404,
+          "frontierBandedSteps": 151,
+          "frontierLoops": 3,
+          "frontierMedianStepMm": 1.2400150299072266,
+          "frontierZigzagP2pMm": 47.032250298394196,
+          "frontierMaxSpanMm": 162.16015815734863
+        },
+        "trouser_cuff": {
+          "frontierBandedFlipRate": null,
+          "frontierBandedSteps": 0,
+          "frontierLoops": 0,
+          "frontierMedianStepMm": null,
+          "frontierZigzagP2pMm": null,
+          "frontierMaxSpanMm": null
+        },
+        "boot_top": {
+          "frontierBandedFlipRate": 0.452,
+          "frontierBandedSteps": 208,
+          "frontierLoops": 8,
+          "frontierMedianStepMm": 1.1499524116516113,
+          "frontierZigzagP2pMm": 26.103383964962436,
+          "frontierMaxSpanMm": 33.59997272491455
+        }
+      },
+      "knownGood": {
+        "shirt_hem_rim": {
+          "flipRate": 0.3333333333333333,
+          "zigzagP2pMm": 18.75477366977263,
+          "medianStepMm": 3.4450888633728027,
+          "spanMm": 35.330235958099365
+        },
+        "trouser_cuff_rim": {
+          "flipRate": 0.84,
+          "zigzagP2pMm": 14.290822048981994,
+          "medianStepMm": 9.579591453075409,
+          "spanMm": 13.144023716449738
+        },
+        "boot_top_rim": {
+          "note": "no rim"
+        }
+      }
+    },
+    "mpfb-peds-nurse-kevin.glb": {
+      "boundaries": {
+        "shirt_hem": {
+          "frontierBandedFlipRate": 0.449,
+          "frontierBandedSteps": 187,
+          "frontierLoops": 3,
+          "frontierMedianStepMm": 2.386927604675293,
+          "frontierZigzagP2pMm": 61.22969918780852,
+          "frontierMaxSpanMm": 424.8235821723938
+        },
+        "trouser_cuff": {
+          "frontierBandedFlipRate": 0.5,
+          "frontierBandedSteps": 12,
+          "frontierLoops": 2,
+          "frontierMedianStepMm": 18.89052987098694,
+          "frontierZigzagP2pMm": 72.3339451683892,
+          "frontierMaxSpanMm": 61.718955636024475
+        },
+        "boot_top": {
+          "frontierBandedFlipRate": 0.354,
+          "frontierBandedSteps": 280,
+          "frontierLoops": 8,
+          "frontierMedianStepMm": 1.1722823837772012,
+          "frontierZigzagP2pMm": 77.44523965650136,
+          "frontierMaxSpanMm": 367.2993294894695
+        }
+      },
+      "knownGood": {
+        "shirt_hem_rim": {
+          "flipRate": 0.2222222222222222,
+          "zigzagP2pMm": 16.312705145941962,
+          "medianStepMm": 1.9379854202270508,
+          "spanMm": 26.806354522705078
+        },
+        "trouser_cuff_rim": {
+          "flipRate": 0.6428571428571429,
+          "zigzagP2pMm": 15.681376887692347,
+          "medianStepMm": 2.000764012336731,
+          "spanMm": 14.194317162036896
+        },
+        "boot_top_rim": {
+          "note": "no rim"
+        }
+      }
+    },
+    "mpfb-peds-patient-child.glb": {
+      "boundaries": {
+        "shirt_hem": {
+          "frontierBandedFlipRate": 0.368,
+          "frontierBandedSteps": 190,
+          "frontierLoops": 4,
+          "frontierMedianStepMm": 0.9083151817321777,
+          "frontierZigzagP2pMm": 42.98995600806344,
+          "frontierMaxSpanMm": 275.8602499961853
+        },
+        "trouser_cuff": {
+          "frontierBandedFlipRate": null,
+          "frontierBandedSteps": 0,
+          "frontierLoops": 0,
+          "frontierMedianStepMm": null,
+          "frontierZigzagP2pMm": null,
+          "frontierMaxSpanMm": null
+        },
+        "boot_top": {
+          "frontierBandedFlipRate": 0.486,
+          "frontierBandedSteps": 356,
+          "frontierLoops": 12,
+          "frontierMedianStepMm": 0.4589296877384186,
+          "frontierZigzagP2pMm": 15.535982532633676,
+          "frontierMaxSpanMm": 28.23466807603836
+        }
+      },
+      "knownGood": {
+        "shirt_hem_rim": {
+          "flipRate": 0.2777777777777778,
+          "zigzagP2pMm": 10.105219152238721,
+          "medianStepMm": 1.2905597686767578,
+          "spanMm": 18.68492364883423
+        },
+        "trouser_cuff_rim": {
+          "flipRate": 0.3157894736842105,
+          "zigzagP2pMm": 1.481764846377895,
+          "medianStepMm": 0.17574429512023926,
+          "spanMm": 1.9979923963546753
+        },
+        "boot_top_rim": {
+          "flipRate": 0.21428571428571427,
+          "zigzagP2pMm": 18.163803550932148,
+          "medianStepMm": 2.4877265095710754,
+          "spanMm": 28.909306973218918
+        }
+      }
+    }
+  }
+}
