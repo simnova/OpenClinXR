@@ -7364,17 +7364,12 @@ function runtimeHumanoidVariantAssetPath(actorId: string, fallbackPath: string):
       // #278: cast SSOT is authoritative for re-cast roles — handoff routes only when it agrees.
       if (handoffPath && handoffPath === resolveHumanoidVariantOrCastPath({ scenarioId, actorId, role, fallbackPath })) return handoffPath;
     }
-    // deterministic fallback (used when no worker-fed handoff metadata in bundle)
-    if (actorId === runtimePatientActorId() || role === 'patient') {
-      return '/generated-humanoids/peds_patient_child.glb';
-    }
-    if (actorId === runtimeFamilyActorId() || role === 'parent' || role === 'family') {
-      return '/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb'; // #278 hm08 lean-female library
-    }
-    if (actorId === runtimeClinicalTeamActorId() || role === 'nurse') {
-      // #278 (route 2 from #276): peds nurse casts to the hm08 heavy-male library body.
-      return '/xr-assets/humanoids/candidates/body-param-adult_heavy_male-library.glb';
-    }
+    // #366: cast SSOT is authoritative for the default (non-comparator, non-handoff) path.
+    // The previous hardcoded fallback returned the Anny child for the patient and hm08 library
+    // bodies for parent/nurse — the exact mis-load #366 measured in the learner view while the
+    // casting table already resolved all three roles to MPFB. Route through the same SSOT the
+    // ED/OB/default branches use instead of a second, stale resolution site.
+    return resolveHumanoidVariantOrCastPath({ scenarioId, actorId, role, fallbackPath });
   }
 
   if (scenarioId === 'ed_chest_pain_priority_v1' || scenarioId === 'ed_chest_pain_priority_v2') {
