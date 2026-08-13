@@ -146,6 +146,29 @@ function readCommittedLines(root: string, rel: string): number | undefined {
   }
 }
 
+/**
+ * Line count of a path at the INDEX (`git add` state) — the content a commit
+ * actually carries. A staged path with further unstaged edits must be measured
+ * at the index version, or the gate answers "is my working tree over budget"
+ * instead of "does THIS COMMIT put a file over budget" in both directions:
+ * unstaged WIP on a staged file would block a commit that does not carry it,
+ * and a working tree trimmed after staging would hide growth the commit does
+ * carry (#361). Non-git trees (synthetic test fixtures) fall back to the
+ * working tree.
+ */
+function readIndexLines(root: string, rel: string): number | undefined {
+  try {
+    const out = execFileSync("git", ["show", `:0:${rel}`], {
+      cwd: root,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    });
+    return out.split(/\r?\n/).length;
+  } catch {
+    return undefined;
+  }
+}
+
 function zoneBudgetFor(
   rel: string,
   zoneBudgets: readonly { prefix: string; maxLines: number }[],
@@ -169,10 +192,10 @@ export function checkFileSizeBudgets(config?: FileSizeBudgetConfig): string[] {
   const sizeFreeze = config?.sizeFreeze ?? SIZE_FREEZE;
 
   const violations: string[] = [];
-  const reportIfOver = (rel: string): void => {
+  const reportIfOver = (rel: string, linesOverride?: number): void => {
     const zoneBudget = zoneBudgetFor(rel, zoneBudgets);
     if (zoneBudget === undefined) return;
-    const lines = countLines(root, rel);
+    const lines = linesOverride ?? countLines(root, rel);
     const frozen = sizeFreeze[rel];
     const ceiling = frozen ? frozen.maxLines : zoneBudget;
     if (lines > ceiling) {
@@ -189,7 +212,11 @@ export function checkFileSizeBudgets(config?: FileSizeBudgetConfig): string[] {
       if (!/\.(ts|tsx)$/u.test(rel)) continue;
       if (SKIP.test(rel)) continue;
       try {
-        reportIfOver(rel);
+        // Measure the INDEX version (what this commit carries), not the working
+        // tree — a staged file with further unstaged edits must not be judged by
+        // WIP that is not part of the commit, nor hide growth that is. Non-git
+        // fixtures fall back to the working tree (#361).
+        reportIfOver(rel, readIndexLines(root, rel) ?? countLines(root, rel));
       } catch {
         // Staged path missing from the working tree (e.g. renamed/deleted) — nothing to measure.
       }

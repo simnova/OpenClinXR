@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -98,6 +99,16 @@ import {
  * entry consumes — wiring, not just a check capability. Clause (1) is flipped from
  * `it.fails` to `it` below. NOT TESTED: a staged file with further unstaged edits
  * is still measured from the working tree, not the index.
+ *
+ * ## FIXED (#361, staged-index residual — 2026-08-13)
+ *
+ * The NOT TESTED line above is closed: staged paths are measured at the INDEX
+ * (`git show :0:<path>`), never the working tree, with a working-tree fallback
+ * for non-git fixtures — clause (4). A staged 600-line file trimmed under
+ * budget in the working tree is still reported (the commit carries 600); a
+ * staged at-budget file grown over budget unstaged is not reported against the
+ * commit. The gate now answers "does THIS COMMIT put a file over budget" in
+ * both directions.
  */
 
 const OVER_BUDGET_LINES = 600; // packages/openclinxr/ zone budget is 500
@@ -127,6 +138,24 @@ const base: FileSizeBudgetConfig = {
   zoneBudgets: ZONE_BUDGETS,
   sizeFreeze: {},
 };
+
+/**
+ * A REAL git repo: one file staged at `stagedLines` content lines (the count
+ * convention is split-based, so N newline-terminated lines count as N+1 — the
+ * 500 budget is cleared only at <= 499 content lines). The index read
+ * (`git show :0:<path>`) only works against a real index, which the synthetic
+ * tree above deliberately is not — that tree pins the working-tree fallback,
+ * this one pins the index path.
+ */
+function makeGitTree(stagedLines: number): { root: string; rel: string } {
+  const root = mkdtempSync(join(tmpdir(), "size-gate-index-"));
+  mkdirSync(join(root, "packages", "openclinxr"), { recursive: true });
+  execFileSync("git", ["init", "-q"], { cwd: root, stdio: "ignore" });
+  const rel = "packages/openclinxr/being-committed.ts";
+  writeFileSync(join(root, rel), "export const x = 1;\n".repeat(stagedLines));
+  execFileSync("git", ["add", rel], { cwd: root, stdio: "ignore" });
+  return { root, rel };
+}
 
 /** An empty enumeration must FAIL, never pass vacuously (§7t). */
 function requireBothOffendersVisible(): void {
@@ -168,5 +197,40 @@ describe("the size gate judges only what is being committed", () => {
       violations.filter((v) => v.includes("someone-elses-wip")).length,
       "global sweep lost the unstaged offender",
     ).toBe(1);
+  });
+
+  it("(4) RESIDUAL: a staged file with further unstaged edits is measured at the INDEX, not the working tree", () => {
+    // (a) staged at 600 lines (over the 500 budget), working tree trimmed under budget: the
+    // commit still carries 600 and MUST be reported — a trimmed working tree must not hide
+    // staged growth. The 499-line trim clears the split-based budget (500 count), so only an
+    // index read can catch this.
+    const { root, rel } = makeGitTree(OVER_BUDGET_LINES);
+    writeFileSync(join(root, rel), "export const x = 1;\n".repeat(499));
+    const violations = checkFileSizeBudgets({
+      workspaceRoot: root,
+      zoneBudgets: ZONE_BUDGETS,
+      sizeFreeze: {},
+      stagedFiles: [rel],
+    });
+    expect(
+      violations.filter((v) => v.includes(rel)).length,
+      "staged 600-line file escaped the gate after the working tree was trimmed",
+    ).toBe(1);
+
+    // (b) staged at 499 lines (at budget), working tree grown to 600: the commit carries 499,
+    // so the unstaged growth must NOT be reported against this commit — my own WIP is not my
+    // commit. Only a working-tree read can falsely report it.
+    const { root: rootB, rel: relB } = makeGitTree(499);
+    writeFileSync(join(rootB, relB), "export const x = 1;\n".repeat(OVER_BUDGET_LINES));
+    const violationsB = checkFileSizeBudgets({
+      workspaceRoot: rootB,
+      zoneBudgets: ZONE_BUDGETS,
+      sizeFreeze: {},
+      stagedFiles: [relB],
+    });
+    expect(
+      violationsB.filter((v) => v.includes(relB)),
+      "unstaged WIP on a staged file reported against the commit",
+    ).toEqual([]);
   });
 });
