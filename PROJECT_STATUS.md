@@ -976,3 +976,60 @@ asset-pipeline-lead for the first three, chief-coordinator for the ceiling debt.
 
 **Token introspection:** not captured — the ritual assumes a slice-scoped commit path and this window
 spanned a six-hour block plus eleven landings.
+
+### 2026-08-13 evening: garments smooth + textured, and five premises of mine died on measurement (Q1/Q5)
+
+**What changed.** `90919e5d` #371 RED · `df81c609` rules §11t · `f03cab63`+`d35a3dae` #361 · `84c7da1d`
+MADR 0052 three rows · `95c2b623`+`6c07fb82` #371 · `4f943b15`+`405aca57` #372 · `f02c225e` #373 RED.
+Closed #370 #361 #371 #372. Filed #372 #373. #373 in flight.
+
+**Blueprint/factory tie — the first visibly better figure of the day.** Every MakeClothes garment was
+100% flat-shaded (41,260/41,260 coplanar joins split) while the body beside it was 0%. #371 took it to
+0/41,260 with 6,438/6,438 sharp joins preserved; the facet patches across thighs, shins and torso are
+gone in the grade. #371's rebake silently dropped the t-shirt baseColorTexture on 2 of 3 actors (shirt
+and trousers share one factor, so the child read as a onesie); #372 restored it at 861,166 B **without
+trading the smoothing back**. Graded: faceted+dark → smooth+onesie → **smooth+dark**.
+
+**THE REUSABLE FINDING — no in-Blender smoothing API reaches the exported bytes on Blender 5.1.1.**
+`use_auto_smooth` is removed in 5.x (`hasattr` false); `shade_auto_smooth()` creates a *Smooth by Angle*
+NODES modifier the glTF exporter ignores; `normals_split_custom_set()` leaves ~1% of corners stale
+(82/7884 measured). **So `automate_blender.py:4453-4458` — the Anny-rail call I held up in the brief as
+the proven tool to wire (D1) — is a silent no-op on this version.** The fix rewrites garment NORMAL
+accessors post-export. Nobody should re-wire the guarded call believing it works.
+
+**Evidence that passed.** contract-verify green on the exact landed tree for #361 (3 proofs), #371 (7),
+#372 (3). Every land verified by `git merge-base --is-ancestor`, never by a return value. Four pixel
+grades by the orchestrator.
+
+**Risk that remains.** Unfixed and measured: the stair-step hairline (HF residual 9.8/16.4/14.3 mm
+median, 10-12x the mesh edge quantum — the top visible face defect); gaze pitched **down 6-18° on all
+six eyes**, and the two eyes non-parallel by up to 17.2°; aisha and the child ship a **byte-identical**
+eye texture (sha `4659691c7295ad62`); 7 fully-discarded mask primitives per actor (~4,570 verts) costing
+draw calls for nothing. The hairline needs a **render-space** contract — its likely fix is a texture
+alpha boundary a geometry contract cannot see.
+
+**Five premises of mine died on measurement, none costing a worker a session.** (1) turbo strips the
+staged-files env — fixed at 10:25 by `cde52ebc`, I re-asserted the morning version six hours later.
+(2) #364's mask sawtooth — the masks are `alphaMode=MASK` alpha 0 and **cannot render**; the visible
+sawtooth is the cargo-pants waistband. (3) #342's 50.1 m² — the room is 42.3 m² outer / ~39.9 m² floor,
+and the parametric shell is **4.32 m²**, not the 36.4 m² I wrote (whole-file AABB is not room size —
+I made that error three times today). (4) `renderHeadFocusCrops` "writes no PNG" — it works and always
+did; the artifacts were on disk at 09:30 and I looked in the wrong place. (5) my own #342 correction,
+which claimed #339 measured the aggregate floorplan — it measures the extracted `dining-room_0`.
+
+**#342 is now answered from artifacts already on disk.** Eleven area-bound sweeps were cached; running
+the existing instrument over them shows the annealer's reachable floor is **32.5 m²** — six bands below
+32 all returned the untouched 44.0 m² initial segmentation. A clinical bay is 11-14 m², so the
+Infinigen rail cannot reach it and the footprint must be authored. Decided direction, not yet a slice.
+
+**Two harness facts worth not re-learning.** `dispatch()`'s `worktree` option is `string | true` and
+OMITTING it runs the worker in the MAIN checkout with no deny (§11t). The write-isolation detector
+false-accused #372 of leaking three TRELLIS-lane files that the peer wrote at 17:39:48 — #344's exact
+mechanism, and it aborts the dispatch *after* the worker commits, so a believing orchestrator would
+discard good work.
+
+**Next queued slice.** #373 waistband (in flight, `wt/issue-373`); then the hairline with a render-space
+contract; then #230 registry double-count (53 entries for a derived tree, measured safe to drop).
+Owner: asset-pipeline-lead for the first two, chief-coordinator for #230.
+
+**Token introspection:** not captured — this window spanned seven landings across two lanes.
