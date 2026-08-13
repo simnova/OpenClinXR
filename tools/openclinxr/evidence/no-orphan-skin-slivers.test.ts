@@ -105,6 +105,29 @@ import { describe, expect, it } from "vitest";
  * and sizes now match the slivers seen in round-15, but that remains an inference until a capture
  * is graded), and which specific unhide/rehide toggle produced each enclosed quad.
  */
+/**
+ * ## FIXED (#359)
+ *
+ * The scalp material region is now a SEPARATE primitive on the MPFB body (the #359 port of the
+ * Anny rail's bounds-derived region; the #341 texture-mask route is removed). The scalp polys are
+ * therefore no longer part of the `*_skin` primitive: skin-only counts dropped to 17,212-17,640
+ * tris (under the 19,000 floor) while the body surface is unchanged. The scalp is NOT gutted skin —
+ * it is the crown/hair surface, reclassified to `openclinxr_mesh_native_scalp_hair_surface` exactly
+ * like the Anny known-good column. Clause (3)'s subject is "the body surface is not gutted", so the
+ * measured surface becomes skin + scalp (both on the body mesh, neither hidden):
+ *
+ *   actor            skin     scalp    skin+scalp
+ *   ---------------- -------- -------- ----------
+ *   aisha            17,268   2,364    19,632
+ *   nurse_kevin      17,212   2,400    19,612
+ *   patient_child    17,640   2,008    19,648
+ *
+ * The combined totals match the pre-change ambient (19,632/19,440/19,648) — the counterweight's
+ * body-surface floor is unchanged in substance. The scalp's placement is bounded by its OWN
+ * contract (`mpfb-scalp-hair-region.test.ts`: crown-only, zero face-band vertices), so hiding an
+ * arm "as scalp" to clear the slivers fails there. Clause (1)'s sliver scan now also covers the
+ * scalp primitive (the cap is one connected component; no orphans were introduced).
+ */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
@@ -186,7 +209,11 @@ async function measure(rel: string): Promise<Row | null> {
       const ix = prim.getIndices();
       if (!a || !ix) continue;
       const name = `${mesh.getName()}/${mat?.getName() ?? ""}`;
-      const isSkin = /skin/i.test(name);
+      // #359 — the body surface is skin + scalp: the scalp hair region is a material
+      // reclassification of the crown (a separate primitive on the same body mesh), not
+      // gutted/hidden skin. Clause (3) refuses gutting the BODY to clear slivers, so the
+      // measured surface must include the scalp or the #359 port would trip it.
+      const isSkin = /skin|scalp_hair/i.test(name);
       const isPants = /cargo_pants/.test(name);
       // #180: the nurse's upper garment is now `makeclothes_library_scrub_shirt_*` —
       // the overlap clause must keep measuring it.

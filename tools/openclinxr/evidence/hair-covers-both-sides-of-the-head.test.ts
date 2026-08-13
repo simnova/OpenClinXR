@@ -60,157 +60,90 @@ import { describe, expect, it } from "vitest";
  * mottled mouth region. It samples one texel per vertex, so it measures coverage, not appearance. And
  * it does not diagnose the cause — a directional bias could come from the region classifier, the UV
  * splat, or the bake, and nothing here distinguishes them.
+ *
+ * ## SUPERSEDED (#359) — the subject moved from the baked texture to the region primitive
+ *
+ * #358's head-framed comparison settled the direction: the texture-mask hairline was graded as
+ * damage and the per-polygon scalp material region (the Anny mechanism) wins. #359 removes the
+ * texture route, so the baked skin texture no longer carries hair pixels — the hair IS the
+ * `openclinxr_mesh_native_scalp_hair_surface` primitive on the body mesh. The subject of the
+ * original asymmetry defect (the #341 round-14 stage census measured the per-polygon region
+ * SYMMETRIC at 105/105 while the BAKE mis-assigned 464/256) therefore moves to the region
+ * primitive itself: its dome verts per side. The clauses are unchanged in intent — (1) balance,
+ * (2) hair not removed from one side, (3) the head not saturated (the face band stays clear) —
+ * but the sampled subject is now the shipped region, not a texture that no longer exists.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const GENERATED = "apps/ui-xr/public/generated-humanoids";
 
-/** Measured ambient is 29.7–35.7 points. A near-symmetric scalp should sit in single digits. */
+/** Measured ambient (texture era) was 29.7–35.7 points. The region predicate is X-symmetric by
+ * construction (|x| bands), so a balanced region sits in single digits. */
 const MAX_ASYMMETRY_POINTS = 12;
 
-/** Below this the "fix" is hair removal, not balance. Measured today: 46.4–87.0% per side. */
-const MIN_SIDE_COVERAGE_PCT = 25;
+/** Below this many scalp dome verts on a side, hair has been removed from that side. */
+const MIN_SIDE_DOME_VERTS = 50;
 
-/** Above this on BOTH sides there is no hairline left — the dome is uniformly painted. */
-const MAX_SIDE_COVERAGE_PCT = 97;
-
-type Row = { file: string; leftPct: number; rightPct: number; asym: number; n: number };
+type Row = { file: string; leftPct: number; rightPct: number; asym: number; n: number; faceBandVerts: number };
 
 const io = new NodeIO();
 
 async function measure(rel: string): Promise<Row | null> {
   const doc = await io.read(join(REPO_ROOT, rel));
-  const body = doc.getRoot().listMeshes().find((m) => /_body$/.test(m.getName()));
+  const meshes = doc.getRoot().listMeshes();
+  const body = meshes.find((m) => m.listPrimitives().some((p) => /scalp_hair/i.test(p.getMaterial()?.getName() ?? "")))
+    ?? meshes.find((m) => /_body$/.test(m.getName() ?? ""));
   if (!body) return null;
-  const skin = body.listPrimitives().find((p) => /skin/i.test(p.getMaterial()?.getName() ?? ""));
-  const pos = skin?.getAttribute("POSITION");
-  const uv = skin?.getAttribute("TEXCOORD_0");
-  const img = skin?.getMaterial()?.getBaseColorTexture()?.getImage();
-  if (!pos || !uv || !img || img.byteLength === 0) return null;
+  const scalp = body.listPrimitives().find((p) => /scalp_hair/i.test(p.getMaterial()?.getName() ?? ""));
+  const pos = scalp?.getAttribute("POSITION");
+  if (!pos) return null;
 
+  // Body bounds for the face band: the contract's own geometry (front-32% depth line).
   let lo = Infinity;
   let hi = -Infinity;
-  for (const mesh of doc.getRoot().listMeshes()) {
+  let zMin = Infinity;
+  let zMax = -Infinity;
+  for (const mesh of meshes) {
     for (const prim of mesh.listPrimitives()) {
       const mat = prim.getMaterial();
       if (mat?.getAlphaMode() === "MASK" && (mat?.getBaseColorFactor()?.[3] ?? 1) === 0) continue;
       const q = prim.getAttribute("POSITION");
       if (!q) continue;
       for (let i = 0; i < q.getCount(); i++) {
-        const y = (q.getElement(i, [0, 0, 0]) as number[])[1]!;
-        if (y < lo) lo = y;
-        if (y > hi) hi = y;
+        const v = q.getElement(i, [0, 0, 0]) as number[];
+        if (v[1]! < lo) lo = v[1]!;
+        if (v[1]! > hi) hi = v[1]!;
+        if (v[2]! < zMin) zMin = v[2]!;
+        if (v[2]! > zMax) zMax = v[2]!;
       }
     }
   }
   const H = hi - lo;
+  const faceBandFrontZ = (zMin + zMax) / 2 + 0.18 * (zMax - zMin);
 
-  // Decoding the PNG needs a decoder this package does not carry, so the texture is sampled
-  // through the same path the orchestrator used: nearest texel via raw byte offset is NOT valid on
-  // a compressed PNG, so instead the per-side comparison uses the DECODED sample the pipeline
-  // already writes beside the GLB. Absent that sidecar the row is skipped rather than guessed.
-  const sidecar = rel.replace(/\.glb$/, ".skin-baked.png");
-  if (!readdirSync(join(REPO_ROOT, GENERATED)).includes(sidecar.split("/").pop()!)) return null;
-
-  const { readFileSync } = await import("node:fs");
-  const png = readFileSync(join(REPO_ROOT, sidecar));
-  const decoded = await decodePng(png);
-  if (!decoded) return null;
-
-  let leftHair = 0;
-  let leftN = 0;
-  let rightHair = 0;
-  let rightN = 0;
+  let left = 0;
+  let right = 0;
+  let faceBandVerts = 0;
   for (let i = 0; i < pos.getCount(); i++) {
     const p = pos.getElement(i, [0, 0, 0]) as number[];
-    if ((p[1]! - lo) / H < 0.94) continue;
-    const side = p[0]!;
-    if (Math.abs(side) <= 0.005) continue;
-    const t = uv.getElement(i, [0, 0]) as number[];
-    const x = Math.min(decoded.width - 1, Math.max(0, Math.floor(t[0]! * decoded.width)));
-    const y = Math.min(decoded.height - 1, Math.max(0, Math.floor((1 - t[1]!) * decoded.height)));
-    const o = (y * decoded.width + x) * 4;
-    const lum = (decoded.data[o]! + decoded.data[o + 1]! + decoded.data[o + 2]!) / 3;
-    const dark = lum < 70;
-    if (side < 0) { leftN++; if (dark) leftHair++; } else { rightN++; if (dark) rightHair++; }
+    const heightFraction = (p[1]! - lo) / H;
+    if (heightFraction < 0.94) continue;
+    if (p[2]! >= faceBandFrontZ && heightFraction >= 0.82 && heightFraction <= 0.93) faceBandVerts++;
+    if (Math.abs(p[0]!) <= 0.005) continue;
+    if (p[0]! < 0) left++;
+    else right++;
   }
-  if (leftN < 20 || rightN < 20) return null;
-
-  const leftPct = (leftHair / leftN) * 100;
-  const rightPct = (rightHair / rightN) * 100;
+  if (left + right < 40) return null;
+  const leftPct = (left / (left + right)) * 100;
   return {
     file: rel.split("/").pop()!,
     leftPct,
-    rightPct,
+    rightPct: 100 - leftPct,
     asym: Math.abs(leftPct - rightPct),
-    n: leftN + rightN,
+    n: left + right,
+    faceBandVerts,
   };
-}
-
-/** Minimal PNG reader for the baked sidecar: 8-bit RGB/RGBA, non-interlaced (what the bake emits). */
-async function decodePng(
-  buf: Buffer,
-): Promise<{ width: number; height: number; data: Uint8Array } | null> {
-  const zlib = await import("node:zlib");
-  if (buf.readUInt32BE(0) !== 0x89504e47) return null;
-  let off = 8;
-  let width = 0;
-  let height = 0;
-  let channels = 0;
-  const idat: Buffer[] = [];
-  while (off < buf.length) {
-    const len = buf.readUInt32BE(off);
-    const type = buf.toString("ascii", off + 4, off + 8);
-    const body = buf.subarray(off + 8, off + 8 + len);
-    if (type === "IHDR") {
-      width = body.readUInt32BE(0);
-      height = body.readUInt32BE(4);
-      if (body[8] !== 8 || body[12] !== 0) return null; // 8-bit, non-interlaced only
-      channels = body[9] === 2 ? 3 : body[9] === 6 ? 4 : 0;
-      if (channels === 0) return null;
-    } else if (type === "IDAT") idat.push(Buffer.from(body));
-    else if (type === "IEND") break;
-    off += 12 + len;
-  }
-  const raw = zlib.inflateSync(Buffer.concat(idat));
-  const out = new Uint8Array(width * height * 4);
-  const stride = width * channels;
-  const prev = new Uint8Array(stride);
-  const line = new Uint8Array(stride);
-  let p = 0;
-  for (let y = 0; y < height; y++) {
-    const filter = raw[p++]!;
-    for (let i = 0; i < stride; i++) {
-      const rawByte = raw[p + i]!;
-      const a = i >= channels ? line[i - channels]! : 0;
-      const b = prev[i]!;
-      const c = i >= channels ? prev[i - channels]! : 0;
-      let v: number;
-      if (filter === 0) v = rawByte;
-      else if (filter === 1) v = rawByte + a;
-      else if (filter === 2) v = rawByte + b;
-      else if (filter === 3) v = rawByte + ((a + b) >> 1);
-      else {
-        const pa = Math.abs(b - c);
-        const pb = Math.abs(a - c);
-        const pc = Math.abs(a + b - 2 * c);
-        v = rawByte + (pa <= pb && pa <= pc ? a : pb <= pc ? b : c);
-      }
-      line[i] = v & 0xff;
-    }
-    p += stride;
-    for (let x = 0; x < width; x++) {
-      const s = x * channels;
-      const d = (y * width + x) * 4;
-      out[d] = line[s]!;
-      out[d + 1] = line[s + 1]!;
-      out[d + 2] = line[s + 2]!;
-      out[d + 3] = channels === 4 ? line[s + 3]! : 255;
-    }
-    prev.set(line);
-  }
-  return { width, height, data: out };
 }
 
 const files = readdirSync(join(REPO_ROOT, GENERATED))
@@ -230,8 +163,11 @@ function requireRows(): void {
 const show = (r: Row): string =>
   `${r.file}: left=${r.leftPct.toFixed(1)}% right=${r.rightPct.toFixed(1)}% asym=${r.asym.toFixed(1)}pts n=${r.n}`;
 
-describe("baked hair covers both sides of the head", () => {
-  it("(1) RED: left/right scalp hair coverage is balanced", () => {
+describe("the scalp region covers both sides of the head", () => {
+  it("(1) RED: left/right scalp dome coverage is balanced", () => {
+    // The region predicate is X-symmetric (|x| bands, symmetric depth lines), so the shipped
+    // region must sit in single digits — the #341 round-14 asymmetry was a BAKE artifact, not the
+    // region; with the texture route gone, the region primitive is the whole subject.
     requireRows();
     expect(
       rows.filter((r) => r.asym > MAX_ASYMMETRY_POINTS).map(show),
@@ -239,21 +175,24 @@ describe("baked hair covers both sides of the head", () => {
     ).toEqual([]);
   });
 
-  it("(2) NET known-good: hair is not REMOVED to make the ratio symmetric", () => {
+  it("(2) NET known-good: hair is not REMOVED from one side to make the ratio symmetric", () => {
     requireRows();
-    const stripped = rows
-      .filter((r) => r.leftPct < MIN_SIDE_COVERAGE_PCT || r.rightPct < MIN_SIDE_COVERAGE_PCT)
+    // The smaller side's scalp dome vert count must stay above the floor: a "fix" that
+    // clears (1) by deleting one side's region would sink it.
+    const thin = rows
+      .filter((r) => (Math.min(r.leftPct, 100 - r.leftPct) / 100) * r.n < MIN_SIDE_DOME_VERTS)
       .map(show);
-    expect(stripped, `sides below ${MIN_SIDE_COVERAGE_PCT}% coverage`).toEqual([]);
+    expect(thin, `sides below ${MIN_SIDE_DOME_VERTS} scalp dome verts`).toEqual([]);
   });
 
-  it("(3) NET known-good: the dome is not SATURATED to make the ratio symmetric", () => {
-    // A fully painted dome is symmetric and has no hairline. Round 11 and 13 bought that boundary.
+  it("(3) NET known-good: the head is not SATURATED — the face band stays clear", () => {
+    // A region that covers the whole head has no hairline and reaches the face. The #282 face
+    // band (0.82-0.93 H at the front-32% depth line) must contain zero scalp verts.
     requireRows();
     const saturated = rows
-      .filter((r) => r.leftPct > MAX_SIDE_COVERAGE_PCT && r.rightPct > MAX_SIDE_COVERAGE_PCT)
-      .map(show);
-    expect(saturated, `scalps painted above ${MAX_SIDE_COVERAGE_PCT}% on both sides`).toEqual([]);
+      .filter((r) => r.faceBandVerts > 0)
+      .map((r) => `${r.file}: faceBandVerts=${r.faceBandVerts}`);
+    expect(saturated, `scalps reaching the front mid-face band`).toEqual([]);
   });
 });
 

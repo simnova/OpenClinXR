@@ -1,0 +1,135 @@
+{
+  "schemaVersion": "openclinxr.head-focus.crop-run.v1",
+  "issue": "358",
+  "factoryStep": "instrument",
+  "measuredAt": "2026-08-13T07:47:42.245Z",
+  "generator": {
+    "tool": "renderHeadFocusCrops",
+    "file": "tools/openclinxr/evidence/isolated-subject-harness.ts",
+    "deterministic": true,
+    "llmInvolved": false,
+    "viewportPx": 1024,
+    "note": "matched head-framed crops via isolated-subject-lab focus=head (head box derived from the body bounds — topmost band cut at the neck; never the eye mesh, never literal coordinates); subject-only; one dev-server boot for the whole run"
+  },
+  "summary": {
+    "requested": 3,
+    "produced": 3,
+    "devServerBoots": 1,
+    "browserLaunches": 1,
+    "wallClockMs": 5724
+  },
+  "crops": [
+    {
+      "rail": "mpfb",
+      "role": "adult_female (MPFB rail)",
+      "view": "front",
+      "imagePath": ".openclinxr/evidence/mpfb-scalp/mpfb-head-front-aisha.png",
+      "bytes": 244146,
+      "pngDimensions": {
+        "width": 1024,
+        "height": 1024
+      },
+      "frameCoverage": 0.35808658599853516,
+      "frameSpanFraction": 0.800050210999782,
+      "focusRegion": {
+        "kind": "head_box",
+        "derivation": "topmost band of the body bounds cut at the neck (silhouette width profile); never the eye mesh, never literal coordinates (D1)",
+        "neckPositionMeters": 1.4309,
+        "dominantAxis": "y",
+        "matchedVertexCount": 4673,
+        "boundsMeters": {
+          "min": {
+            "x": -0.0879,
+            "y": 1.4317,
+            "z": -0.0392
+          },
+          "max": {
+            "x": 0.0879,
+            "y": 1.6669,
+            "z": 0.1681
+          }
+        }
+      },
+      "subjectOnly": true
+    },
+    {
+      "rail": "mpfb",
+      "role": "adult_male (MPFB rail)",
+      "view": "front",
+      "imagePath": ".openclinxr/evidence/mpfb-scalp/mpfb-head-front-kevin.png",
+      "bytes": 256285,
+      "pngDimensions": {
+        "width": 1024,
+        "height": 1024
+      },
+      "frameCoverage": 0.34160327911376953,
+      "frameSpanFraction": 0.7999783814515644,
+      "focusRegion": {
+        "kind": "head_box",
+        "derivation": "topmost band of the body bounds cut at the neck (silhouette width profile); never the eye mesh, never literal coordinates (D1)",
+        "neckPositionMeters": 1.5401,
+        "dominantAxis": "y",
+        "matchedVertexCount": 4523,
+        "boundsMeters": {
+          "min": {
+            "x": -0.0866,
+            "y": 1.5402,
+            "z": -0.0473
+          },
+          "max": {
+            "x": 0.0866,
+            "y": 1.7601,
+            "z": 0.1691
+          }
+        }
+      },
+      "subjectOnly": true
+    },
+    {
+      "rail": "mpfb",
+      "role": "child (MPFB rail)",
+      "view": "front",
+      "imagePath": ".openclinxr/evidence/mpfb-scalp/mpfb-head-front-child.png",
+      "bytes": 269182,
+      "pngDimensions": {
+        "width": 1024,
+        "height": 1024
+      },
+      "frameCoverage": 0.35728931427001953,
+      "frameSpanFraction": 0.7999343724703223,
+      "focusRegion": {
+        "kind": "head_box",
+        "derivation": "topmost band of the body bounds cut at the neck (silhouette width profile); never the eye mesh, never literal coordinates (D1)",
+        "neckPositionMeters": 1.0755,
+        "dominantAxis": "y",
+        "matchedVertexCount": 4365,
+        "boundsMeters": {
+          "min": {
+            "x": -0.0753,
+            "y": 1.0755,
+            "z": -0.049
+          },
+          "max": {
+            "x": 0.0753,
+            "y": 1.241,
+            "z": 0.1323
+          }
+        }
+      },
+      "subjectOnly": true
+    }
+  ],
+  "claimScope": [
+    "matched_head_framed_crops_of_one_asset_per_rail_mpfb_and_anny",
+    "camera_framed_on_the_geometry_derived_head_box_on_both_rails",
+    "framing_actually_used_recorded_per_crop_focusRegion",
+    "one_dev_server_boot_for_the_whole_run"
+  ],
+  "notEvidenceFor": [
+    "which_hair_mechanism_is_correct_orchestrator_pixel_grade_of_these_crops_required",
+    "clinical_eye_realism",
+    "clinical_realism",
+    "gaze_correctness",
+    "quest_readiness"
+  ]
+}
