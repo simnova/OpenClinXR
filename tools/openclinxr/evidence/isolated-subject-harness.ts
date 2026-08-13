@@ -21,6 +21,7 @@
  */
 
 import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { chromium, type Browser, type Page } from "playwright";
 import {
@@ -53,6 +54,8 @@ export type RenderedSubject = {
   extraActorIds: string[];
   /** True when the neutral ground plane was in the scene (#265 subject-only discriminator). */
   groundPlanePresent: boolean;
+  /** #354: the framed region under eye-focus (derived eye box or fallback) — absent for legacy subjects. */
+  focusRegion?: PageEvidence["focusRegion"];
 };
 
 export type VariantSweep = {
@@ -84,6 +87,13 @@ type PageEvidence = {
   frameCoverage?: number;
   frameSpanFraction?: number | null;
   groundPlanePresent?: boolean;
+  /** #354: the region the camera framed under eye-focus (derived eye box or fallback). */
+  focusRegion?: {
+    kind: "eye_box" | "whole_subject_fallback";
+    matchedMeshes?: string[];
+    boundsMeters?: { min: { x: number; y: number; z: number }; max: { x: number; y: number; z: number } };
+    reason?: string;
+  } | null;
 };
 
 type SubjectSpec = {
@@ -106,6 +116,8 @@ type SubjectSpec = {
   exportGlb?: boolean;
   /** When true, render without the neutral ground plane — flat background (#265). */
   subjectOnly?: boolean;
+  /** #354: focus the camera on the DERIVED eye box instead of the whole subject. */
+  focus?: "eyes";
   label?: string;
 };
 
@@ -228,6 +240,7 @@ async function captureSubject(input: {
     hudPresent: evidence.hudPresent === true,
     extraActorIds: Array.isArray(evidence.extraActorIds) ? evidence.extraActorIds : [],
     groundPlanePresent: evidence.groundPlanePresent === true,
+    ...(evidence.focusRegion ? { focusRegion: evidence.focusRegion } : {}),
   };
 }
 
@@ -987,7 +1000,222 @@ export async function writeEquipmentFramingReport(options?: {
   return report;
 }
 
-// CLI — only when this file is the entrypoint (never on import as a dependency).
+// ---------------------------------------------------------------------------
+// #354 — MPFB eye-inspection crops: eye-focused multi-angle captures
+// ---------------------------------------------------------------------------
+
+/** #354 default evidence root — same dir as the pre-fix before-column. */
+export const MPFB_EYES_EVIDENCE_ROOT = ".openclinxr/evidence/mpfb-eyes";
+
+export type EyeCropSpec = {
+  actorId: "aisha" | "kevin" | "child";
+  role: string;
+  glb: string;
+  view: "front" | "side";
+  outName: string;
+};
+
+/** #354 shipped MPFB actors — the same GLBs the runtime casts. */
+export const MPFB_EYE_CROP_SPECS: EyeCropSpec[] = [
+  {
+    actorId: "aisha",
+    role: "adult_female",
+    glb: "generated-humanoids/mpfb-ob-patient-aisha.glb",
+    view: "front",
+    outName: "aisha-eye-front.png",
+  },
+  {
+    actorId: "aisha",
+    role: "adult_female",
+    glb: "generated-humanoids/mpfb-ob-patient-aisha.glb",
+    view: "side",
+    outName: "aisha-eye-side.png",
+  },
+  {
+    actorId: "kevin",
+    role: "adult_male",
+    glb: "generated-humanoids/mpfb-peds-nurse-kevin.glb",
+    view: "front",
+    outName: "kevin-eye-front.png",
+  },
+  {
+    actorId: "child",
+    role: "child",
+    glb: "generated-humanoids/mpfb-peds-patient-child.glb",
+    view: "front",
+    outName: "child-eye-front.png",
+  },
+];
+
+export type EyeCropViewRecord = {
+  actorId: string;
+  role: string;
+  view: string;
+  imagePath: string;
+  bytes: number;
+  pngDimensions: { width: number; height: number } | null;
+  frameCoverage: number;
+  frameSpanFraction: number | null;
+  focusRegion: PageEvidence["focusRegion"];
+  subjectOnly: boolean;
+};
+
+export type MpfbEyeCropRun = {
+  schemaVersion: "openclinxr.mpfb-eyes.crop-run.v1";
+  issue: "354";
+  factoryStep: "instrument";
+  measuredAt: string;
+  generator: {
+    tool: "renderMpfbEyeFocusCrops";
+    file: "tools/openclinxr/evidence/isolated-subject-harness.ts";
+    deterministic: true;
+    llmInvolved: false;
+    viewportPx: number;
+    note: string;
+  };
+  summary: {
+    requested: number;
+    produced: number;
+    devServerBoots: number;
+    browserLaunches: number;
+    wallClockMs: number;
+  };
+  crops: EyeCropViewRecord[];
+  claimScope: string[];
+  notEvidenceFor: string[];
+};
+
+/**
+ * #354 eye-inspection station: render eye-focused crops of the shipped MPFB
+ * actors through the SAME product path as every other isolated subject — one
+ * dev-server boot, one browser, N crops. The camera is framed on the eye box
+ * the LAB derives from the asset (isolated-subject-lab.ts `focus: "eyes"`),
+ * never a literal position.
+ *
+ * The verdict on how the eyes LOOK is the orchestrator's pixel grade; this run
+ * only produces the crops and records what the camera framed (focusRegion).
+ */
+export async function renderMpfbEyeFocusCrops(options?: {
+  cwd?: string;
+  outputRoot?: string;
+  specs?: EyeCropSpec[];
+}): Promise<MpfbEyeCropRun> {
+  const cwd = options?.cwd ?? process.cwd();
+  const outputRoot = options?.outputRoot ?? MPFB_EYES_EVIDENCE_ROOT;
+  const specs = options?.specs ?? MPFB_EYE_CROP_SPECS;
+  const outDir = path.join(cwd, outputRoot);
+  await mkdir(outDir, { recursive: true });
+
+  const t0 = Date.now();
+  let server: PortlessDevServer | null = null;
+  let browser: Browser | null = null;
+  let boots = 0;
+  let browsers = 0;
+  const crops: EyeCropViewRecord[] = [];
+
+  try {
+    boots += 1;
+    server = await spawnPortlessDevServer({
+      filter: "@openclinxr/ui-xr",
+      cwd,
+      readyTimeoutMs: 180_000,
+    });
+
+    browsers += 1;
+    browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({
+      viewport: { ...PACK_VIEWPORT },
+      deviceScaleFactor: 1,
+    });
+
+    for (const spec of specs) {
+      const subjectSpec: SubjectSpec = {
+        subjectId: `${spec.actorId}_eye_${spec.view}`,
+        subjectKind: "glb",
+        bodyGlb: spec.glb,
+        view: spec.view,
+        focus: "eyes",
+        subjectOnly: true,
+        label: `${spec.actorId} eye ${spec.view}`,
+      };
+      const imagePath = path.join(outDir, spec.outName);
+      const rendered = await captureSubject({
+        page,
+        baseUrl: server.url,
+        spec: subjectSpec,
+        imagePath,
+      });
+      const bytes = (await stat(imagePath)).size;
+      crops.push({
+        actorId: spec.actorId,
+        role: spec.role,
+        view: spec.view,
+        imagePath: path.relative(cwd, imagePath).replaceAll("\\", "/"),
+        bytes,
+        pngDimensions: pngSizeFromFile(imagePath),
+        frameCoverage: rendered.frameCoverage,
+        frameSpanFraction: rendered.frameSpanFraction,
+        focusRegion: rendered.focusRegion ?? null,
+        subjectOnly: true,
+      });
+    }
+  } finally {
+    if (browser) await browser.close();
+    if (server) server.proc.kill("SIGTERM");
+  }
+
+  const run: MpfbEyeCropRun = {
+    schemaVersion: "openclinxr.mpfb-eyes.crop-run.v1",
+    issue: "354",
+    factoryStep: "instrument",
+    measuredAt: new Date().toISOString(),
+    generator: {
+      tool: "renderMpfbEyeFocusCrops",
+      file: "tools/openclinxr/evidence/isolated-subject-harness.ts",
+      deterministic: true,
+      llmInvolved: false,
+      viewportPx: PACK_VIEWPORT.width,
+      note:
+        "eye-focused square crops via isolated-subject-lab focus=eyes (derived eye box); subject-only; "
+        + "one dev-server boot for the whole run",
+    },
+    summary: {
+      requested: specs.length,
+      produced: crops.length,
+      devServerBoots: boots,
+      browserLaunches: browsers,
+      wallClockMs: Date.now() - t0,
+    },
+    crops,
+    claimScope: [
+      "eye_focused_crops_of_the_shipped_mpfb_actors",
+      "camera_framed_on_the_derived_eye_box_not_literal_coordinates",
+      "one_dev_server_boot_for_the_whole_run",
+    ],
+    notEvidenceFor: [
+      "how_the_eyes_look_pixel_grade_required",
+      "clinical_eye_realism",
+      "gaze_correctness",
+      "iris_appearance_claims",
+    ],
+  };
+
+  const reportPath = path.join(outDir, "crop-report.json");
+  await writeFile(reportPath, `${JSON.stringify(run, null, 2)}\n`, "utf8");
+  return run;
+}
+
+/** PNG IHDR dimensions of a file (null when not a decodable PNG). */
+function pngSizeFromFile(filePath: string): { width: number; height: number } | null {
+  const buf = readFileSync(filePath);
+  if (buf.length < 24 || buf[0] !== 0x89 || buf[1] !== 0x50) return null;
+  return {
+    width: buf.readUInt32BE(16),
+    height: buf.readUInt32BE(20),
+  };
+}
+
+
 const isMain = Boolean(
   process.argv[1]
   && (import.meta.url === `file://${path.resolve(process.argv[1])}`
@@ -1014,6 +1242,28 @@ if (isMain) {
             }]),
           ),
           wallClockMs: report.wallClockMs,
+        }, null, 2));
+      })
+      .catch((err) => {
+        console.error(err);
+        process.exitCode = 1;
+      });
+  } else if (argv.includes("--eye-crops")) {
+    renderMpfbEyeFocusCrops({ outputRoot: flagValue("--output-root") })
+      .then((run) => {
+        console.log(JSON.stringify({
+          crops: run.crops.map((c) => ({
+            actorId: c.actorId,
+            view: c.view,
+            imagePath: c.imagePath,
+            bytes: c.bytes,
+            pngDimensions: c.pngDimensions,
+            frameSpanFraction: c.frameSpanFraction,
+            focusRegion: c.focusRegion,
+          })),
+          devServerBoots: run.summary.devServerBoots,
+          browserLaunches: run.summary.browserLaunches,
+          wallClockMs: run.summary.wallClockMs,
         }, null, 2));
       })
       .catch((err) => {
