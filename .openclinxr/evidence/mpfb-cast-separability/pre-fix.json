@@ -1,0 +1,56 @@
+{
+  "slice": "issue-180",
+  "title": "patient not visually separable from the person beside them — peds MPFB cast",
+  "measuredAt": "2026-08-12T00:00:00Z",
+  "measuredBy": "worker (issue-180 worktree), NodeIO + Blender 5.1.1 probes",
+  "instrument": "the SAME classify regexes as a-station-cast-is-visually-separable.test.ts; palette probe imported automate_blender.garment_shell_color inside Blender; scrub-fit probe ran HumanService.create_human + TargetService.bake_targets + ExportService.bake_modifiers_remove_helpers + ClothesService.fit_clothes_to_human on Scrub_Shirt.obj/.mhclo",
+  "perCastActor": [
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb",
+      "role": "patient_maya_johnson_v1",
+      "upper": { "asset": "makeclothes_library_toigo_t_shirt_mpfb_peds_patient_child_mesh", "kind": "toigo_t_shirt", "baseColor": [0.3, 0.45, 0.62] },
+      "lower": { "asset": "makeclothes_library_cargo_pants_mpfb_peds_patient_child_mesh", "kind": "cargo_pants", "baseColor": [0.32, 0.36, 0.42] },
+      "footwear": { "asset": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_patient_child_mesh", "kind": "footwear_toigo_mj_cloth_shoes", "baseColor": [0.1, 0.09, 0.08] }
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+      "role": "parent_tara_johnson_v1",
+      "upper": { "asset": "makeclothes_library_toigo_t_shirt_mpfb_ob_patient_aisha_mesh", "kind": "toigo_t_shirt", "baseColor": [0.3, 0.45, 0.62] },
+      "lower": { "asset": "makeclothes_library_cargo_pants_mpfb_ob_patient_aisha_mesh", "kind": "cargo_pants", "baseColor": [0.32, 0.36, 0.42] },
+      "footwear": { "asset": "makeclothes_library_footwear_toigo_flats_mpfb_ob_patient_aisha_mesh", "kind": "footwear_toigo_flats", "baseColor": [0.1, 0.09, 0.08] }
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
+      "role": "nurse_kevin_lee_v1",
+      "upper": { "asset": "makeclothes_library_toigo_t_shirt_mpfb_peds_nurse_kevin_mesh", "kind": "toigo_t_shirt", "baseColor": [0.3, 0.45, 0.62] },
+      "lower": { "asset": "makeclothes_library_cargo_pants_mpfb_peds_nurse_kevin_mesh", "kind": "cargo_pants", "baseColor": [0.32, 0.36, 0.42] },
+      "footwear": { "asset": "makeclothes_library_footwear_culturalibre_male_boots_mpfb_peds_nurse_kevin_mesh", "kind": "footwear_culturalibre_male_boots", "baseColor": [0.1, 0.09, 0.08] }
+    }
+  ],
+  "factA_paletteFunction": {
+    "importableFromMpfbRail": true,
+    "importPath": "from automate_blender import garment_shell_color — the SAME lazy pattern the materializer already uses for apply_mesh_native_scalp_hair_material_region (materialize_mpfb_humanoid_candidate.py:1606-1608). automate_blender imports only stdlib + bpy at module level; no side effects.",
+    "returnsRgba": {
+      "kind=scrub": { "patient": [0.05, 0.48, 0.52, 1.0], "parent": [0.05, 0.48, 0.52, 1.0], "nurse": [0.05, 0.48, 0.52, 1.0] },
+      "kind=closed_casual": { "patient": [0.72, 0.68, 0.55, 1.0], "parent": [0.42, 0.36, 0.4, 1.0], "nurse": [0.42, 0.36, 0.4, 1.0] },
+      "kind=tshirt": { "patient": [0.08, 0.52, 0.95, 1.0], "parent": [0.08, 0.52, 0.95, 1.0], "nurse": [0.08, 0.52, 0.95, 1.0] }
+    },
+    "decision": "scrub is LOCKED (0.05, 0.48, 0.52) for every role — the #180b counterweight. closed_casual is the ONLY kind with role divergence (patient olive/cream 0.72,0.68,0.55 vs family neutral 0.42,0.36,0.40). tshirt does NOT diverge by role, so wiring the t-shirt kind alone cannot separate the two patients; the patients' upper+lower must be wired with kind=closed_casual so the function's role fallback does the divergence. The nurse wires kind=scrub (locked colour) + the Scrub_Shirt.mhclo asset. No palette table copied or extended — the function is consumed as-is."
+  },
+  "factB_scrubFit": {
+    "strippedBasemesh": { "verts": 13380, "tris": 26756 },
+    "mhcloMaxVertexRef": 11018,
+    "fits13380Limit": true,
+    "clothesServiceFit": "ok — no throw",
+    "garmentVerts": 4688,
+    "garmentTris": 9384,
+    "garmentZSpan": [0.9109, 1.4297],
+    "decision": "ClothesService accepts Scrub_Shirt.mhclo against the stripped basemesh in a single smoke fit (same call sequence as the toigo t-shirt fit at materialize_mpfb_humanoid_candidate.py:2015-2029). The scrub shirt is CC-BY (WojackOWL, 'Medical Scrubs Kit'), already recorded in third-party-asset-licence-ledger.md with an attribution posture; adding this consumer does not change its licence standing."
+  },
+  "preFixAssertions": {
+    "contractClause1": "FAIL — all three actors share upper (0.30, 0.45, 0.62) and lower (0.32, 0.36, 0.42)",
+    "contractClause2": "FAIL — the nurse wears the patients' toigo_t_shirt asset",
+    "contractClause3": "PASS — footwear already per-actor distinct (toigo_mj_cloth_shoes / toigo_flats / culturalibre_male_boots)",
+    "contractClause4": "PASS — shirt/trouser overlap healthy (13.4-19.6 mm, #341 round 17 / #351)"
+  }
+}

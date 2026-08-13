@@ -71,6 +71,37 @@ import { describe, expect, it } from "vitest";
  *   - **Garment TEXTURE is out of scope and still zero on every actor.** Distinct colours fix
  *     identification; they do not make cloth look like cloth. Deliberately a separate slice.
  *   - **The peds cast only.** It is the one station whose three actors are all MPFB today.
+ *
+ * ## FIXED (#180)
+ *
+ * WIRING, 2026-08-12, measured pre-fix in `.openclinxr/evidence/mpfb-cast-separability/pre-fix.json`:
+ * (a) `automate_blender.garment_shell_color` is importable from the MPFB rail (the same lazy
+ * import the materializer already uses for the scalp-hair region) and returns, with an empty
+ * phenotype: `kind="scrub"` -> locked (0.05, 0.48, 0.52) for every role; `kind="closed_casual"` ->
+ * patient (0.72, 0.68, 0.55) vs parent/family (0.42, 0.36, 0.40). (b) `ClothesService` accepts
+ * `Scrub_Shirt.mhclo` against the #318 stripped basemesh (max ref 11,018 < 13,380; smoke fit ok,
+ * 9,384 tris, torso span).
+ *
+ * FIX: `materialize_mpfb_humanoid_candidate.py` now takes `--actor-role` and consumes the palette
+ * function as-is (no copied table): the nurse's upper is the real CC-BY `Scrub_Shirt.mhclo` asset
+ * with the locked scrub colour, the patients keep the CC0 toigo t-shirt with the closed_casual role
+ * fallback; the lower follows the same palette call so both slots are pairwise distinct. The
+ * clinician is a nurse by wearing a scrub, not by recolouring a t-shirt (probed, refused).
+ * Re-baked all three cast actors. Post-fix measured on the shipped bytes (NodeIO):
+ *
+ *   role                              upper kind        upper base colour   lower base colour   footwear asset
+ *   -------------------------------   ----------------  -----------------   -----------------   ----------------
+ *   patient_maya_johnson_v1 (child)   toigo_t_shirt     (0.720, 0.680, 0.55) (0.720, 0.680, 0.55) toigo_mj_cloth_shoes
+ *   parent_tara_johnson_v1 (aisha)    toigo_t_shirt     (0.420, 0.360, 0.40) (0.420, 0.360, 0.40) toigo_flats
+ *   nurse_kevin_lee_v1 (Kevin)        scrub_shirt       (0.050, 0.480, 0.52) (0.050, 0.480, 0.52) culturalibre_male_boots
+ *
+ * Upper colours pairwise distinct (>=0.30 in a channel), lower colours pairwise distinct, nurse
+ * upper asset != patients' t-shirt. Clauses (1) and (2) flipped; (3)/(4) hold (footwear still
+ * per-actor distinct; shirt/trouser overlap re-measured in the sibling contracts).
+ *
+ * NOT TESTED (unchanged residual): colour DISTANCE is not appearance — the staged lit capture
+ * (group-front + per-actor, EEVEE) is the orchestrator's grade. The scrub is a "close enough"
+ * staging judgement, not a clinician's sign-off. Garment TEXTURE stays zero on every actor.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -146,7 +177,7 @@ const sameColour = (a: Garment, b: Garment): boolean =>
   a.rgb.every((v, i) => Math.abs(v - b.rgb[i]!) < MIN_CHANNEL_DELTA);
 
 describe("a station cast is visually separable", () => {
-  it.fails("(1) RED: no two actors share a primary garment colour", () => {
+  it("(1) RED (FIXED #180): no two actors share a primary garment colour", () => {
     requireRows();
     const clashes: string[] = [];
     for (let i = 0; i < rows.length; i++)
@@ -160,7 +191,7 @@ describe("a station cast is visually separable", () => {
     expect(clashes, "co-present actors sharing a garment colour").toEqual([]);
   });
 
-  it.fails("(2) RED: the clinician's upper garment is not the patients' t-shirt", () => {
+  it("(2) RED (FIXED #180): the clinician's upper garment is not the patients' t-shirt", () => {
     // Refuses a recolour: a differently-coloured t-shirt is not a nurse. `Scrub_Shirt.mhclo` is
     // cached and its max vertex ref is 11,018 (< 13,380), so it fits the helper-stripped body.
     requireRows();

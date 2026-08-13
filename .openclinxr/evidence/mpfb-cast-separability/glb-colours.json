@@ -1,0 +1,386 @@
+{
+  "measuredAt": "2026-08-13T04:16:44.585Z",
+  "cast": [
+    {
+      "file": "mpfb-peds-patient-child.glb",
+      "role": "patient_maya_johnson_v1",
+      "clinician": false,
+      "materials": [
+        {
+          "mesh": "makeclothes_library_cargo_pants_mpfb_peds_patient_child_mesh",
+          "slot": "lower",
+          "kind": "cargo_pants",
+          "rgb": [
+            0.72,
+            0.68,
+            0.55
+          ]
+        },
+        {
+          "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_patient_child_mesh",
+          "slot": "footwear",
+          "kind": "footwear_toigo_mj_cloth_shoes",
+          "rgb": [
+            0.1,
+            0.09,
+            0.08
+          ]
+        },
+        {
+          "mesh": "makeclothes_library_toigo_t_shirt_mpfb_peds_patient_child_mesh",
+          "slot": "upper",
+          "kind": "toigo_t_shirt",
+          "rgb": [
+            0.72,
+            0.68,
+            0.55
+          ]
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body",
+          "slot": "other",
+          "kind": null,
+          "rgb": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body",
+          "slot": "other",
+          "kind": null,
+          "rgb": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body",
+          "slot": "other",
+          "kind": null,
+          "rgb": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body",
+          "slot": "other",
+          "kind": null,
+          "rgb": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body",
+          "slot": "other",
+          "kind": null,
+          "rgb": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body",
+          "slot": "other",
+          "kind": null,
+          "rgb": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body",
+          "slot": "other",
+          "kind": null,
+          "rgb": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body",
+          "slot": "other",
+          "kind": null,
+          "rgb": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "mesh": "makeclothes_library_eyes_low_poly_mpfb_peds_patient_child_mesh",
+          "slot": "other",
+          "kind": null,
+          "rgb": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "file": "mpfb-ob-patient-aisha.glb",
+      "role": "parent_tara_johnson_v1",
+      "clinician": false,
+      "materials": [
+        {
+          "mesh": "makeclothes_library_cargo_pants_mpfb_ob_patient_aisha_mesh",
+          "slot": "lower",
+          "kind": "cargo_pants",
+          "rgb": [
+            0.42,
+            0.36,
+            0.4
+          ]
+        },
+        {
+          "mesh": "makeclothes_library_footwear_toigo_flats_mpfb_ob_patient_aisha_mesh",
+          "slot": "footwear",
+          "kind": "footwear_toigo_flats",
+          "rgb": [
+            0.1,
+            0.09,
+            0.08
+          ]
+        },
+        {
+          "mesh": "makeclothes_library_toigo_t_shirt_mpfb_ob_patient_aisha_mesh",
+          "slot": "upper",
+          "kind": "toigo_t_shirt",
+          "rgb": [
+            0.42,
+            0.36,
+            0.4
+          ]
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "slot": "other",
+          "kind": null,
+          "rgb": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "slot": "other",
+          "kind": null,
+          "rgb": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "slot": "other",
+          "kind": null,
+          "rgb": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "slot": "other",
+          "kind": null,
+          "rgb": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "slot": "other",
+          "kind": null,
+          "rgb": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "slot": "other",
+          "kind": null,
+          "rgb": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "slot": "other",
+          "kind": null,
+          "rgb": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "slot": "other",
+          "kind": null,
+          "rgb": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "mesh": "makeclothes_library_eyes_low_poly_mpfb_ob_patient_aisha_mesh",
+          "slot": "other",
+          "kind": null,
+          "rgb": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "file": "mpfb-peds-nurse-kevin.glb",
+      "role": "nurse_kevin_lee_v1",
+      "clinician": true,
+      "materials": [
+        {
+          "mesh": "makeclothes_library_cargo_pants_mpfb_peds_nurse_kevin_mesh",
+          "slot": "lower",
+          "kind": "cargo_pants",
+          "rgb": [
+            0.05,
+            0.48,
+            0.52
+          ]
+        },
+        {
+          "mesh": "makeclothes_library_footwear_culturalibre_male_boots_mpfb_peds_nurse_kevin_mesh",
+          "slot": "footwear",
+          "kind": "footwear_culturalibre_male_boots",
+          "rgb": [
+            0.1,
+            0.09,
+            0.08
+          ]
+        },
+        {
+          "mesh": "makeclothes_library_scrub_shirt_mpfb_peds_nurse_kevin_mesh",
+          "slot": "upper",
+          "kind": "scrub_shirt",
+          "rgb": [
+            0.05,
+            0.48,
+            0.52
+          ]
+        },
+        {
+          "mesh": "mpfb_peds_nurse_kevin_body",
+          "slot": "other",
+          "kind": null,
+          "rgb": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "mpfb_peds_nurse_kevin_body",
+          "slot": "other",
+          "kind": null,
+          "rgb": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "mesh": "mpfb_peds_nurse_kevin_body",
+          "slot": "other",
+          "kind": null,
+          "rgb": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "mesh": "mpfb_peds_nurse_kevin_body",
+          "slot": "other",
+          "kind": null,
+          "rgb": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "mesh": "mpfb_peds_nurse_kevin_body",
+          "slot": "other",
+          "kind": null,
+          "rgb": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "mesh": "mpfb_peds_nurse_kevin_body",
+          "slot": "other",
+          "kind": null,
+          "rgb": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "mesh": "mpfb_peds_nurse_kevin_body",
+          "slot": "other",
+          "kind": null,
+          "rgb": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "mesh": "mpfb_peds_nurse_kevin_body",
+          "slot": "other",
+          "kind": null,
+          "rgb": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "mesh": "makeclothes_library_eyes_low_poly_mpfb_peds_nurse_kevin_mesh",
+          "slot": "other",
+          "kind": null,
+          "rgb": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    }
+  ]
+}

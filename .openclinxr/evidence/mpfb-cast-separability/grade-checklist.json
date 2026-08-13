@@ -1,0 +1,31 @@
+{
+  "slice": "issue-180",
+  "artifactKind": "grade-capture-checklist",
+  "renderer": "Blender 5.1.1 EEVEE (honours Principled Base Color; BLENDER_WORKBENCH deliberately not used)",
+  "files": [
+    ".openclinxr/evidence/mpfb-cast-separability/grade/group-front.png",
+    ".openclinxr/evidence/mpfb-cast-separability/grade/child-front.png",
+    ".openclinxr/evidence/mpfb-cast-separability/grade/parent-front.png",
+    ".openclinxr/evidence/mpfb-cast-separability/grade/nurse-front.png"
+  ],
+  "workerVerified": {
+    "renderEngine": "BLENDER_EEVEE",
+    "resolution": "1600x1152",
+    "pixelStats": "meanLum 89.8-90.5, max 155-176 — lit scenes with content, not blank/black frames",
+    "actorSlots": "child x=-1.15, parent x=0, nurse x=1.15 (2 import roots each)",
+    "camera": "front (-Z side; glTF forward +Z), group framing framed to the combined AABB, per-actor frames framed to each actor's own AABB"
+  },
+  "IN-SCOPE-VISUAL": {
+    "nurse_reads_as_staff": "GRADE REQUIRED (text-only worker cannot see pixels)",
+    "three_actors_distinguishable": "GRADE REQUIRED — the claim under test",
+    "colours_clinically_plausible": "GRADE REQUIRED (staging judgement, not clinician sign-off)",
+    "coverage_unchanged": "machine-verified: trousers/slivers/waistband contracts green; overlap 13.4-19.6 mm band held"
+  },
+  "expectedPaletteOnScreen": {
+    "child_patient": "cream/olive (0.72, 0.68, 0.55) top + trousers",
+    "parent_aisha": "neutral (0.42, 0.36, 0.40) top + trousers",
+    "nurse_kevin": "teal scrub (0.05, 0.48, 0.52) top + trousers, long sleeves (scrub shirt asset)"
+  },
+  "outOfScopeWrongnessSeen": "None machine-visible beyond the documented pre-existing #333/#338 hidden_foot mask overreach (byte-identical on HEAD bytes — not introduced here). Pixel-level out-of-scope observations are the orchestrator's.",
+  "contractWorseNote": "Satisfying the contract did not require a product-worse trade-off: the scrub is the correct clinician garment and the patient palettes are the palette function's own role values. No known regression introduced."
+}

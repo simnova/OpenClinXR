@@ -1,0 +1,83 @@
+{
+  "fact_a": {
+    "importable": true,
+    "importPath": "from automate_blender import garment_shell_color (lazy, same as apply_mesh_native_scalp_hair_material_region)",
+    "returns": {
+      "scrub": {
+        "patient": [
+          0.05,
+          0.48,
+          0.52,
+          1.0
+        ],
+        "parent": [
+          0.05,
+          0.48,
+          0.52,
+          1.0
+        ],
+        "nurse": [
+          0.05,
+          0.48,
+          0.52,
+          1.0
+        ]
+      },
+      "closed_casual": {
+        "patient": [
+          0.72,
+          0.68,
+          0.55,
+          1.0
+        ],
+        "parent": [
+          0.42,
+          0.36,
+          0.4,
+          1.0
+        ],
+        "nurse": [
+          0.42,
+          0.36,
+          0.4,
+          1.0
+        ]
+      },
+      "tshirt": {
+        "patient": [
+          0.08,
+          0.52,
+          0.95,
+          1.0
+        ],
+        "parent": [
+          0.08,
+          0.52,
+          0.95,
+          1.0
+        ],
+        "nurse": [
+          0.08,
+          0.52,
+          0.95,
+          1.0
+        ]
+      }
+    }
+  },
+  "fact_b": {
+    "stripped_verts": 13380,
+    "stripped_tris": 26756,
+    "mhclo_max_vertex_ref": 11018,
+    "fits_13_380_limit": true,
+    "fit": "ok",
+    "verts_before": 4688,
+    "verts_after": 4688,
+    "tris": 9384,
+    "parented_to_human": false,
+    "garment_z_span": [
+      0.9109,
+      1.4297
+    ]
+  }
+}
