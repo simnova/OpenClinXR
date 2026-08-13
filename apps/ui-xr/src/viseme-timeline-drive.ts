@@ -40,6 +40,28 @@ const PHONEME_ALIASES: Readonly<Record<string, string>> = {
 };
 
 /**
+ * Canonical ARKit viseme names driven when a body carries NO `viseme_*` targets (the MPFB FACS
+ * rail). The frame weights must carry these canonical spellings — `applyVisemeWeights` resolves
+ * them through the FACS alias map, so a FACS name in the weights map would write as-is with the
+ * active phoneme never matched and the mouth would never move (#353).
+ */
+const CANONICAL_FALLBACK_VISEME_NAMES: readonly string[] = [
+  "viseme_sil", "viseme_AA", "viseme_E", "viseme_IH",
+  "viseme_OH", "viseme_OU", "viseme_FV", "viseme_TH", "viseme_L",
+];
+
+const SILENCE_TOKENS: ReadonlySet<string> = new Set(["sil", "silence", "rest"]);
+
+/** Canonical name for a phoneme token, or null when the token is not in the ARKit set. */
+function canonicalVisemeName(phoneme: string): string | null {
+  const raw = phoneme.trim();
+  if (!raw) return null;
+  if (SILENCE_TOKENS.has(raw.toLowerCase())) return "viseme_sil";
+  const upper = raw.toUpperCase();
+  return CANONICAL_FALLBACK_VISEME_NAMES.includes(`viseme_${upper}`) ? `viseme_${upper}` : null;
+}
+
+/**
  * Resolve a phoneme token to a morph target name that exists on the mesh, or null.
  * Never invents target names outside `availableTargets`.
  */
@@ -81,7 +103,9 @@ export function resolveVisemeTarget(
  * Drive viseme morph weights from a timed phoneme sequence.
  *
  * Step interpolation: at each phoneme cue, the resolved viseme is 1.0 and every other
- * available viseme target is 0. Frames always key only names from `availableTargets`.
+ * available viseme target is 0. Frames key names from `availableTargets`; a body that
+ * carries NO `viseme_*` targets (the MPFB FACS rail, #353) is driven by the canonical
+ * ARKit names instead, which `applyVisemeWeights` resolves through the FACS alias map.
  */
 export function driveVisemeTimeline(
   input: DriveVisemeTimelineInput,
@@ -90,11 +114,15 @@ export function driveVisemeTimeline(
   const visemeTargets = availableTargets.filter((name) =>
     name.toLowerCase().startsWith("viseme_"),
   );
-  // If the mesh exposes non-prefixed names only, still drive whatever was measured.
-  const driveTargets = visemeTargets.length > 0 ? visemeTargets : [...availableTargets];
+  // If the mesh exposes no viseme_* names, drive the canonical ARKit names the applier
+  // resolves through the FACS alias map (see CANONICAL_FALLBACK_VISEME_NAMES).
+  const driveTargets =
+    visemeTargets.length > 0 ? visemeTargets : [...CANONICAL_FALLBACK_VISEME_NAMES];
 
   const frames: VisemeFrame[] = phonemes.map((cue) => {
-    const active = resolveVisemeTarget(cue.phoneme, availableTargets);
+    const active =
+      resolveVisemeTarget(cue.phoneme, availableTargets) ??
+      (visemeTargets.length === 0 ? canonicalVisemeName(cue.phoneme) : null);
     const weights: Record<string, number> = {};
     for (const target of driveTargets) {
       weights[target] = active !== null && target === active ? 1 : 0;
