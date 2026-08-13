@@ -1,0 +1,358 @@
+{
+  "schemaVersion": "openclinxr.mpfb-eyes.pre-fix.v1",
+  "issue": "354",
+  "factoryStep": "instrument",
+  "measuredAt": "2026-08-13T03:08:22.400Z",
+  "generator": {
+    "tool": "inspectMpfbEyeFile",
+    "file": "tools/openclinxr/evidence/mpfb-eyes-inspection.ts",
+    "deterministic": true,
+    "llmInvolved": false
+  },
+  "framing": {
+    "viewportPx": {
+      "width": 1280,
+      "height": 960
+    },
+    "camera": {
+      "fovDegrees": 35,
+      "distanceFactor": 2.4,
+      "elevationFactor": 0.35,
+      "note": "replicates isolated-subject-lab.ts legacy full-body framing (pre-eye-focus)"
+    }
+  },
+  "actors": [
+    {
+      "actorId": "aisha",
+      "role": "adult_female",
+      "glb": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+      "bodyHeightMeters": 1.6659,
+      "eyeMesh": {
+        "name": "makeclothes_library_eyes_low_poly_mpfb_ob_patient_aisha_mesh",
+        "vertexCount": 96,
+        "aabb": {
+          "min": {
+            "x": -0.04459001123905182,
+            "y": 1.5323429107666016,
+            "z": 0.11880996823310852
+          },
+          "max": {
+            "x": 0.04459001123905182,
+            "y": 1.559972882270813,
+            "z": 0.13919997215270996
+          }
+        },
+        "clusters": [
+          {
+            "side": "L",
+            "vertexCount": 48,
+            "centroid": {
+              "x": -0.030777091238026816,
+              "y": 1.5461570570866268,
+              "z": 0.13104497020443281
+            }
+          },
+          {
+            "side": "R",
+            "vertexCount": 48,
+            "centroid": {
+              "x": 0.030777091238026816,
+              "y": 1.5461570570866268,
+              "z": 0.13104497020443281
+            }
+          }
+        ],
+        "ipdMeters": 0.06155418247605363,
+        "mirrorSymmetryMaxErrMeters": 0,
+        "mirrorSymmetryMeanErrMeters": 0
+      },
+      "eyeBones": [
+        {
+          "name": "eye.L",
+          "worldPosition": {
+            "x": 0.028912562141471074,
+            "y": 1.5531841968324849,
+            "z": 0.1181430026130893
+          },
+          "localTranslation": {
+            "x": -2.0489096641540527e-8,
+            "y": 0.09804407507181168,
+            "z": 3.725290298461914e-8
+          },
+          "clusterDistanceMeters": 0.014809386533134999,
+          "clusterSide": "R"
+        },
+        {
+          "name": "eye.R",
+          "worldPosition": {
+            "x": -0.028912541745556904,
+            "y": 1.5531844736806708,
+            "z": 0.11814298584997265
+          },
+          "localTranslation": {
+            "x": 9.313225746154785e-9,
+            "y": 0.09804382175207138,
+            "z": -4.377216100692749e-8
+          },
+          "clusterDistanceMeters": 0.014809535073014623,
+          "clusterSide": "L"
+        }
+      ],
+      "irisTexture": {
+        "materialName": "mat_makeclothes_library_eyes_ob_patient_aisha",
+        "textureName": "brown_eye",
+        "bytes": 610817,
+        "pngWidth": 1024,
+        "pngHeight": 1024,
+        "luminanceSd": 39.95684122908418
+      },
+      "eyeMorphTargets": [
+        "eye-left-closure",
+        "eye-left-opened-up",
+        "eye-left-slit",
+        "eye-right-closure",
+        "eye-right-opened-up",
+        "eye-right-slit",
+        "eyebrows-left-down",
+        "eyebrows-left-extern-up",
+        "eyebrows-left-inner-up",
+        "eyebrows-left-up",
+        "eyebrows-right-down",
+        "eyebrows-right-extern-up",
+        "eyebrows-right-inner-up",
+        "eyebrows-right-up"
+      ],
+      "projectedFullBodyPixels": {
+        "eyeMeshSpanPx": 32.9,
+        "oneEyeClusterSpanPx": 13.1,
+        "irisEstimatePx": 5.7,
+        "derivation": "legacy isolated-lab full-body framing (distance = radius*2.4, camera offset 0.55/0.35/0.85, fov 35, 1280x960) projecting the eye-mesh / one-eye-cluster AABB corners; iris estimate = 12 mm at the same px/m scale"
+      }
+    },
+    {
+      "actorId": "kevin",
+      "role": "adult_male",
+      "glb": "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
+      "bodyHeightMeters": 1.7601,
+      "eyeMesh": {
+        "name": "makeclothes_library_eyes_low_poly_mpfb_peds_nurse_kevin_mesh",
+        "vertexCount": 96,
+        "aabb": {
+          "min": {
+            "x": -0.04522060230374336,
+            "y": 1.634484052658081,
+            "z": 0.11859221011400223
+          },
+          "max": {
+            "x": 0.04522060230374336,
+            "y": 1.6634070873260498,
+            "z": 0.1416453719139099
+          }
+        },
+        "clusters": [
+          {
+            "side": "L",
+            "vertexCount": 48,
+            "centroid": {
+              "x": -0.030353753555876512,
+              "y": 1.648593304057916,
+              "z": 0.13270092631379762
+            }
+          },
+          {
+            "side": "R",
+            "vertexCount": 48,
+            "centroid": {
+              "x": 0.030353753555876512,
+              "y": 1.648593304057916,
+              "z": 0.13270092631379762
+            }
+          }
+        ],
+        "ipdMeters": 0.060707507111753024,
+        "mirrorSymmetryMaxErrMeters": 0,
+        "mirrorSymmetryMeanErrMeters": 0
+      },
+      "eyeBones": [
+        {
+          "name": "eye.L",
+          "worldPosition": {
+            "x": 0.030028802519534742,
+            "y": 1.6488996762685504,
+            "z": 0.12563212540237864
+          },
+          "localTranslation": {
+            "x": -1.6763806343078613e-8,
+            "y": 0.10169332474470139,
+            "z": -2.3283064365386963e-8
+          },
+          "clusterDistanceMeters": 0.007082895130717838,
+          "clusterSide": "R"
+        },
+        {
+          "name": "eye.R",
+          "worldPosition": {
+            "x": -0.030028791999633816,
+            "y": 1.6488996789748545,
+            "z": 0.12563212877811983
+          },
+          "localTranslation": {
+            "x": 1.4901161193847656e-8,
+            "y": 0.10169332474470139,
+            "z": -2.421438694000244e-8
+          },
+          "clusterDistanceMeters": 0.007082892361399348,
+          "clusterSide": "L"
+        }
+      ],
+      "irisTexture": {
+        "materialName": "mat_makeclothes_library_eyes_peds_nurse_kevin",
+        "textureName": "brown_eye",
+        "bytes": 610817,
+        "pngWidth": 1024,
+        "pngHeight": 1024,
+        "luminanceSd": 39.95684122908418
+      },
+      "eyeMorphTargets": [
+        "eye-left-closure",
+        "eye-left-opened-up",
+        "eye-left-slit",
+        "eye-right-closure",
+        "eye-right-opened-up",
+        "eye-right-slit",
+        "eyebrows-left-down",
+        "eyebrows-left-extern-up",
+        "eyebrows-left-inner-up",
+        "eyebrows-left-up",
+        "eyebrows-right-down",
+        "eyebrows-right-extern-up",
+        "eyebrows-right-inner-up",
+        "eyebrows-right-up"
+      ],
+      "projectedFullBodyPixels": {
+        "eyeMeshSpanPx": 31.9,
+        "oneEyeClusterSpanPx": 13.6,
+        "irisEstimatePx": 5.4,
+        "derivation": "legacy isolated-lab full-body framing (distance = radius*2.4, camera offset 0.55/0.35/0.85, fov 35, 1280x960) projecting the eye-mesh / one-eye-cluster AABB corners; iris estimate = 12 mm at the same px/m scale"
+      }
+    },
+    {
+      "actorId": "child",
+      "role": "child",
+      "glb": "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb",
+      "bodyHeightMeters": 1.241,
+      "eyeMesh": {
+        "name": "makeclothes_library_eyes_low_poly_mpfb_peds_patient_child_mesh",
+        "vertexCount": 96,
+        "aabb": {
+          "min": {
+            "x": -0.03944301977753639,
+            "y": 1.1309888362884521,
+            "z": 0.08885893225669861
+          },
+          "max": {
+            "x": 0.03944301977753639,
+            "y": 1.158058524131775,
+            "z": 0.11041240394115448
+          }
+        },
+        "clusters": [
+          {
+            "side": "L",
+            "vertexCount": 48,
+            "centroid": {
+              "x": -0.026045710837934166,
+              "y": 1.144378753999869,
+              "z": 0.10212895134463906
+            }
+          },
+          {
+            "side": "R",
+            "vertexCount": 48,
+            "centroid": {
+              "x": 0.026045710837934166,
+              "y": 1.144378753999869,
+              "z": 0.10212895134463906
+            }
+          }
+        ],
+        "ipdMeters": 0.05209142167586833,
+        "mirrorSymmetryMaxErrMeters": 0,
+        "mirrorSymmetryMeanErrMeters": 0
+      },
+      "eyeBones": [
+        {
+          "name": "eye.L",
+          "worldPosition": {
+            "x": 0.02552666622616126,
+            "y": 1.144550168840384,
+            "z": 0.0957145623721639
+          },
+          "localTranslation": {
+            "x": 9.313225746154785e-9,
+            "y": 0.0890398770570755,
+            "z": -4.470348358154297e-8
+          },
+          "clusterDistanceMeters": 0.0064376374740094085,
+          "clusterSide": "R"
+        },
+        {
+          "name": "eye.R",
+          "worldPosition": {
+            "x": -0.025526724085086563,
+            "y": 1.1445501593989074,
+            "z": 0.0957145946400473
+          },
+          "localTranslation": {
+            "x": 1.862645149230957e-9,
+            "y": 0.08904013782739639,
+            "z": -4.7497451305389404e-8
+          },
+          "clusterDistanceMeters": 0.006437600406532854,
+          "clusterSide": "L"
+        }
+      ],
+      "irisTexture": {
+        "materialName": "mat_makeclothes_library_eyes_peds_patient_child",
+        "textureName": "brown_eye",
+        "bytes": 610817,
+        "pngWidth": 1024,
+        "pngHeight": 1024,
+        "luminanceSd": 39.95684122908418
+      },
+      "eyeMorphTargets": [
+        "eye-left-closure",
+        "eye-left-opened-up",
+        "eye-left-slit",
+        "eye-right-closure",
+        "eye-right-opened-up",
+        "eye-right-slit",
+        "eyebrows-left-down",
+        "eyebrows-left-extern-up",
+        "eyebrows-left-inner-up",
+        "eyebrows-left-up",
+        "eyebrows-right-down",
+        "eyebrows-right-extern-up",
+        "eyebrows-right-inner-up",
+        "eyebrows-right-up"
+      ],
+      "projectedFullBodyPixels": {
+        "eyeMeshSpanPx": 40,
+        "oneEyeClusterSpanPx": 17.9,
+        "irisEstimatePx": 7.7,
+        "derivation": "legacy isolated-lab full-body framing (distance = radius*2.4, camera offset 0.55/0.35/0.85, fov 35, 1280x960) projecting the eye-mesh / one-eye-cluster AABB corners; iris estimate = 12 mm at the same px/m scale"
+      }
+    }
+  ],
+  "claimScope": [
+    "deterministic_file_side_eye_configuration_properties",
+    "projected_on_screen_eye_size_in_the_current_full_body_framing",
+    "pre_fix_before_column_for_the_eye_inspection_station"
+  ],
+  "notEvidenceFor": [
+    "how_eyes_render_in_a_crop_pixel_grade_required",
+    "clinical_eye_realism",
+    "gaze_correctness",
+    "iris_appearance"
+  ]
+}

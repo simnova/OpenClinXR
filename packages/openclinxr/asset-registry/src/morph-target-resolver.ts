@@ -68,6 +68,16 @@ export const MPFB_FACS_MORPH_NAMES: Readonly<Record<string, string>> = {
   viseme_FV: "mouth-elevation", // lip raise — the labiodental (f/v) is the lip-raise phoneme
   viseme_TH: "mouth-part-later", // AU25 lips part — tongue-gap consonant (shares with IH)
   viseme_L: "mouth-parling", // subtle lip part — near-closed lingual (t/d/n/l/r)
+  // Eye rows (#354): canonical eye expression names → shipped MPFB FACS eye targets
+  // (eye-left-closure / -opened-up / -slit and the right-side mirrors, present on all
+  // three shipped MPFB actors). The eye-inspection station (#354) checks these resolve
+  // so a blink/expression drive can reach the eye morphs the bodies already carry.
+  openclinxr_eye_left_closure: "eye-left-closure",
+  openclinxr_eye_left_slit: "eye-left-slit",
+  openclinxr_eye_left_opened_up: "eye-left-opened-up",
+  openclinxr_eye_right_closure: "eye-right-closure",
+  openclinxr_eye_right_slit: "eye-right-slit",
+  openclinxr_eye_right_opened_up: "eye-right-opened-up",
 };
 
 /**
