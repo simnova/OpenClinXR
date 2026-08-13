@@ -1,0 +1,3134 @@
+{
+  "generatedAt": "2026-08-13T02:31:47.313Z",
+  "from": "shipped apps/ui-xr/public/generated-humanoids/*.glb (pre-fix, no product edit)",
+  "actors": {
+    "mpfb-ob-patient-aisha.glb": {
+      "skinPrimitive": "mpfb_ob_patient_aisha_body/mpfb_skin_ob_patient_aisha",
+      "skinUniqueVerts": 11036,
+      "skinTris": 19698,
+      "bodyHeightM": 1.666,
+      "skinComponentCensus": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        8,
+        9,
+        16,
+        16,
+        28,
+        28,
+        35,
+        36,
+        36,
+        78,
+        1557,
+        1959,
+        1961,
+        4371
+      ],
+      "skinComponents": 34,
+      "exactly4VertexComponents": 13,
+      "componentsLe12Verts": 22,
+      "orphanComponents": [
+        {
+          "uniqueVerts": 4,
+          "extentMm": 35.4,
+          "centroidH": 0.824,
+          "band": "torso/upper-arm",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 4,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 27.3,
+          "centroidH": 0.832,
+          "band": "torso/upper-arm",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 4,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 2,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 6,
+          "extentMm": 40.2,
+          "centroidH": 0.73,
+          "band": "torso/upper-arm",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 6,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 6,
+          "extentMm": 26.2,
+          "centroidH": 0.781,
+          "band": "torso/upper-arm",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 6,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 21.9,
+          "centroidH": 0.725,
+          "band": "torso/upper-arm",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 4,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 8,
+          "extentMm": 71.7,
+          "centroidH": 0.594,
+          "band": "hand/hip",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 5,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 2,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 4,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            }
+          ],
+          "fullyCoincident": false,
+          "maxCoincidentFraction": 0.625
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 22.6,
+          "centroidH": 0.455,
+          "band": "hand/hip",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 4,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 5,
+          "centroidH": 0.013,
+          "band": "foot/ankle",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 4,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 25.6,
+          "centroidH": 0.019,
+          "band": "foot/ankle",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 4,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 19.9,
+          "centroidH": 0.03,
+          "band": "foot/ankle",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 2,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 4,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 6,
+          "extentMm": 18,
+          "centroidH": 0.026,
+          "band": "foot/ankle",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 6,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 35.4,
+          "centroidH": 0.824,
+          "band": "torso/upper-arm",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 4,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 6,
+          "extentMm": 31.5,
+          "centroidH": 0.83,
+          "band": "torso/upper-arm",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 5,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 3,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            }
+          ],
+          "fullyCoincident": false,
+          "maxCoincidentFraction": 0.8333333333333334
+        },
+        {
+          "uniqueVerts": 6,
+          "extentMm": 40.2,
+          "centroidH": 0.73,
+          "band": "torso/upper-arm",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 6,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 6,
+          "extentMm": 26.2,
+          "centroidH": 0.781,
+          "band": "torso/upper-arm",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 6,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 21.9,
+          "centroidH": 0.725,
+          "band": "torso/upper-arm",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 4,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 6,
+          "extentMm": 48.6,
+          "centroidH": 0.594,
+          "band": "hand/hip",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 4,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 2,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 3,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            }
+          ],
+          "fullyCoincident": false,
+          "maxCoincidentFraction": 0.6666666666666666
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 22.6,
+          "centroidH": 0.455,
+          "band": "hand/hip",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 4,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 5,
+          "centroidH": 0.013,
+          "band": "foot/ankle",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 4,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 25.6,
+          "centroidH": 0.019,
+          "band": "foot/ankle",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 4,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 19.9,
+          "centroidH": 0.03,
+          "band": "foot/ankle",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 2,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 4,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 9,
+          "extentMm": 27.5,
+          "centroidH": 0.023,
+          "band": "foot/ankle",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 9
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 9
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+              "coincidentVerts": 9,
+              "ofVerts": 9
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 9
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 9
+            },
+            {
+              "hiddenPrim": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 9
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        }
+      ],
+      "hiddenPrimitiveCensus": [
+        {
+          "name": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+          "uniqueVerts": 1561,
+          "tris": 2712,
+          "components": [
+            27,
+            1489
+          ]
+        },
+        {
+          "name": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+          "uniqueVerts": 196,
+          "tris": 268,
+          "components": [
+            174
+          ]
+        },
+        {
+          "name": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+          "uniqueVerts": 2164,
+          "tris": 3530,
+          "components": [
+            950,
+            950
+          ]
+        },
+        {
+          "name": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+          "uniqueVerts": 155,
+          "tris": 160,
+          "components": [
+            4,
+            6,
+            6,
+            9,
+            14,
+            18,
+            18,
+            80
+          ]
+        },
+        {
+          "name": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+          "uniqueVerts": 78,
+          "tris": 72,
+          "components": [
+            22,
+            54
+          ]
+        },
+        {
+          "name": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+          "uniqueVerts": 304,
+          "tris": 316,
+          "components": [
+            6,
+            6,
+            6,
+            6,
+            8,
+            8,
+            15,
+            15,
+            23,
+            23,
+            29,
+            29,
+            65,
+            65
+          ]
+        }
+      ]
+    },
+    "mpfb-peds-nurse-kevin.glb": {
+      "skinPrimitive": "mpfb_peds_nurse_kevin_body/mpfb_skin_peds_nurse_kevin",
+      "skinUniqueVerts": 10983,
+      "skinTris": 19524,
+      "bodyHeightM": 1.76,
+      "skinComponentCensus": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        6,
+        6,
+        6,
+        6,
+        8,
+        8,
+        9,
+        10,
+        10,
+        10,
+        17,
+        17,
+        19,
+        19,
+        20,
+        23,
+        23,
+        29,
+        106,
+        1554,
+        1955,
+        1955,
+        4349
+      ],
+      "skinComponents": 35,
+      "exactly4VertexComponents": 12,
+      "componentsLe12Verts": 22,
+      "orphanComponents": [
+        {
+          "uniqueVerts": 9,
+          "extentMm": 69.2,
+          "centroidH": 0.825,
+          "band": "torso/upper-arm",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 8,
+              "ofVerts": 9
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 9
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 9
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 9
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 9
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 9
+            }
+          ],
+          "fullyCoincident": false,
+          "maxCoincidentFraction": 0.8888888888888888
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 25.1,
+          "centroidH": 0.78,
+          "band": "torso/upper-arm",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 4,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 6,
+          "extentMm": 36,
+          "centroidH": 0.794,
+          "band": "torso/upper-arm",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 6,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 30.1,
+          "centroidH": 0.846,
+          "band": "torso/upper-arm",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 4,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 25.9,
+          "centroidH": 0.758,
+          "band": "torso/upper-arm",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 4,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 6,
+          "extentMm": 35.4,
+          "centroidH": 0.754,
+          "band": "torso/upper-arm",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 6,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 21.3,
+          "centroidH": 0.785,
+          "band": "torso/upper-arm",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 4,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 26.3,
+          "centroidH": 0.728,
+          "band": "torso/upper-arm",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 4,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 10,
+          "extentMm": 75.9,
+          "centroidH": 0.666,
+          "band": "torso/upper-arm",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 10,
+              "ofVerts": 10
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 10
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 10
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 10
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 10
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 10
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 6.6,
+          "centroidH": 0.002,
+          "band": "foot/ankle",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 4,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 2,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 8,
+          "extentMm": 34,
+          "centroidH": 0.002,
+          "band": "foot/ankle",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 5,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 5,
+              "ofVerts": 8
+            }
+          ],
+          "fullyCoincident": false,
+          "maxCoincidentFraction": 0.625
+        },
+        {
+          "uniqueVerts": 10,
+          "extentMm": 82.6,
+          "centroidH": 0.823,
+          "band": "torso/upper-arm",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 10,
+              "ofVerts": 10
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 10
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 10
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 10
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 10
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 10
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 25.1,
+          "centroidH": 0.78,
+          "band": "torso/upper-arm",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 4,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 31.6,
+          "centroidH": 0.839,
+          "band": "torso/upper-arm",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 4,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 6,
+          "extentMm": 36,
+          "centroidH": 0.794,
+          "band": "torso/upper-arm",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 6,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 25.9,
+          "centroidH": 0.758,
+          "band": "torso/upper-arm",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 4,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 6,
+          "extentMm": 35.4,
+          "centroidH": 0.754,
+          "band": "torso/upper-arm",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 6,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 21.3,
+          "centroidH": 0.785,
+          "band": "torso/upper-arm",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 4,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 26.3,
+          "centroidH": 0.728,
+          "band": "torso/upper-arm",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 4,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 10,
+          "extentMm": 75.9,
+          "centroidH": 0.666,
+          "band": "torso/upper-arm",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 10,
+              "ofVerts": 10
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 10
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 10
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 10
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 10
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 10
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 6.6,
+          "centroidH": 0.002,
+          "band": "foot/ankle",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 4,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 2,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 8,
+          "extentMm": 34,
+          "centroidH": 0.002,
+          "band": "foot/ankle",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh",
+              "coincidentVerts": 5,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh.001",
+              "coincidentVerts": 5,
+              "ofVerts": 8
+            }
+          ],
+          "fullyCoincident": false,
+          "maxCoincidentFraction": 0.625
+        }
+      ],
+      "hiddenPrimitiveCensus": [
+        {
+          "name": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh",
+          "uniqueVerts": 1538,
+          "tris": 2604,
+          "components": [
+            22,
+            1474
+          ]
+        },
+        {
+          "name": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh",
+          "uniqueVerts": 207,
+          "tris": 270,
+          "components": [
+            6,
+            6,
+            174
+          ]
+        },
+        {
+          "name": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh",
+          "uniqueVerts": 2212,
+          "tris": 3612,
+          "components": [
+            969,
+            969
+          ]
+        },
+        {
+          "name": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh.001",
+          "uniqueVerts": 185,
+          "tris": 218,
+          "components": [
+            8,
+            9,
+            10,
+            13,
+            18,
+            18,
+            109
+          ]
+        },
+        {
+          "name": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh.001",
+          "uniqueVerts": 32,
+          "tris": 24,
+          "components": [
+            8,
+            8,
+            14
+          ]
+        },
+        {
+          "name": "mpfb_peds_nurse_kevin_body/openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh.001",
+          "uniqueVerts": 416,
+          "tris": 504,
+          "components": [
+            6,
+            6,
+            11,
+            11,
+            17,
+            17,
+            22,
+            22,
+            53,
+            53,
+            93,
+            93
+          ]
+        }
+      ]
+    },
+    "mpfb-peds-patient-child.glb": {
+      "skinPrimitive": "mpfb_peds_patient_child_body/mpfb_skin_peds_patient_child",
+      "skinUniqueVerts": 11162,
+      "skinTris": 19754,
+      "bodyHeightM": 1.241,
+      "skinComponentCensus": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        6,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        12,
+        12,
+        14,
+        14,
+        18,
+        18,
+        18,
+        23,
+        32,
+        32,
+        52,
+        105,
+        105,
+        1502,
+        1957,
+        1957,
+        4345
+      ],
+      "skinComponents": 39,
+      "exactly4VertexComponents": 11,
+      "componentsLe12Verts": 24,
+      "orphanComponents": [
+        {
+          "uniqueVerts": 6,
+          "extentMm": 19.3,
+          "centroidH": 0.787,
+          "band": "torso/upper-arm",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 4,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 6,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 6
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 13.1,
+          "centroidH": 0.763,
+          "band": "torso/upper-arm",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 4,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 8,
+          "extentMm": 38.5,
+          "centroidH": 0.646,
+          "band": "torso/upper-arm",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 8,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 12.9,
+          "centroidH": 0.626,
+          "band": "torso/upper-arm",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 4,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 8,
+          "extentMm": 7.2,
+          "centroidH": 0.003,
+          "band": "foot/ankle",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 6,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 4,
+              "ofVerts": 8
+            }
+          ],
+          "fullyCoincident": false,
+          "maxCoincidentFraction": 0.75
+        },
+        {
+          "uniqueVerts": 12,
+          "extentMm": 17.1,
+          "centroidH": 0.018,
+          "band": "foot/ankle",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 12
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 12
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 12,
+              "ofVerts": 12
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 12
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 12
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 12
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 8,
+          "extentMm": 6.9,
+          "centroidH": 0.003,
+          "band": "foot/ankle",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 6,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 4,
+              "ofVerts": 8
+            }
+          ],
+          "fullyCoincident": false,
+          "maxCoincidentFraction": 0.75
+        },
+        {
+          "uniqueVerts": 8,
+          "extentMm": 4.9,
+          "centroidH": 0.011,
+          "band": "foot/ankle",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 8,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 7.1,
+          "centroidH": 0.011,
+          "band": "foot/ankle",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 4,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 10.5,
+          "centroidH": 0.028,
+          "band": "foot/ankle",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 4,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 1,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 11,
+          "centroidH": 0.03,
+          "band": "foot/ankle",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 3,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 3,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": false,
+          "maxCoincidentFraction": 0.75
+        },
+        {
+          "uniqueVerts": 8,
+          "extentMm": 16.6,
+          "centroidH": 0.035,
+          "band": "foot/ankle",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 8,
+              "ofVerts": 8
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 16.9,
+          "centroidH": 0.011,
+          "band": "foot/ankle",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 4,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 13.1,
+          "centroidH": 0.763,
+          "band": "torso/upper-arm",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 4,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 8,
+          "extentMm": 38.5,
+          "centroidH": 0.646,
+          "band": "torso/upper-arm",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 8,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 8,
+          "extentMm": 7.2,
+          "centroidH": 0.003,
+          "band": "foot/ankle",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 6,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 4,
+              "ofVerts": 8
+            }
+          ],
+          "fullyCoincident": false,
+          "maxCoincidentFraction": 0.75
+        },
+        {
+          "uniqueVerts": 12,
+          "extentMm": 17.1,
+          "centroidH": 0.018,
+          "band": "foot/ankle",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 12
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 12
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 12,
+              "ofVerts": 12
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 12
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 12
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 12
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 8,
+          "extentMm": 6.9,
+          "centroidH": 0.003,
+          "band": "foot/ankle",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 6,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 4,
+              "ofVerts": 8
+            }
+          ],
+          "fullyCoincident": false,
+          "maxCoincidentFraction": 0.75
+        },
+        {
+          "uniqueVerts": 8,
+          "extentMm": 4.9,
+          "centroidH": 0.011,
+          "band": "foot/ankle",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 8,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 7.1,
+          "centroidH": 0.011,
+          "band": "foot/ankle",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 4,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 10.5,
+          "centroidH": 0.028,
+          "band": "foot/ankle",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 4,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 1,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 11,
+          "centroidH": 0.03,
+          "band": "foot/ankle",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 3,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 3,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": false,
+          "maxCoincidentFraction": 0.75
+        },
+        {
+          "uniqueVerts": 8,
+          "extentMm": 16.6,
+          "centroidH": 0.035,
+          "band": "foot/ankle",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 8
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 8,
+              "ofVerts": 8
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        },
+        {
+          "uniqueVerts": 4,
+          "extentMm": 16.9,
+          "centroidH": 0.011,
+          "band": "foot/ankle",
+          "coincidentWithHidden": [
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh",
+              "coincidentVerts": 4,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            },
+            {
+              "hiddenPrim": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh.001",
+              "coincidentVerts": 0,
+              "ofVerts": 4
+            }
+          ],
+          "fullyCoincident": true,
+          "maxCoincidentFraction": 1
+        }
+      ],
+      "hiddenPrimitiveCensus": [
+        {
+          "name": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh",
+          "uniqueVerts": 1566,
+          "tris": 2744,
+          "components": [
+            29,
+            1489
+          ]
+        },
+        {
+          "name": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh",
+          "uniqueVerts": 233,
+          "tris": 346,
+          "components": [
+            209
+          ]
+        },
+        {
+          "name": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh",
+          "uniqueVerts": 2112,
+          "tris": 3244,
+          "components": [
+            934,
+            934
+          ]
+        },
+        {
+          "name": "mpfb_peds_patient_child_body/openclinxr_hidden_upper_mpfb_peds_patient_child_body_mesh.001",
+          "uniqueVerts": 195,
+          "tris": 228,
+          "components": [
+            4,
+            6,
+            9,
+            14,
+            26,
+            26,
+            110
+          ]
+        },
+        {
+          "name": "mpfb_peds_patient_child_body/openclinxr_hidden_lower_mpfb_peds_patient_child_body_mesh.001",
+          "uniqueVerts": 44,
+          "tris": 36,
+          "components": [
+            10,
+            10,
+            22
+          ]
+        },
+        {
+          "name": "mpfb_peds_patient_child_body/openclinxr_hidden_foot_mpfb_peds_patient_child_body_mesh.001",
+          "uniqueVerts": 370,
+          "tris": 404,
+          "components": [
+            4,
+            4,
+            6,
+            6,
+            10,
+            10,
+            15,
+            15,
+            16,
+            16,
+            17,
+            17,
+            53,
+            53,
+            64,
+            64
+          ]
+        }
+      ]
+    }
+  },
+  "blenderProbe": {
+    "modifiersAfterCreate": [
+      [
+        "MASK",
+        "Hide helpers"
+      ]
+    ],
+    "modifiersAfterStrip": [],
+    "solidifyInStack": false,
+    "vertsBeforeStrip": 19158,
+    "vertsAfterStrip": 13380,
+    "blenderPreExportCensus": {
+      "uniqueVerts": 13380,
+      "polygons": 13378,
+      "components": 1,
+      "componentSizes": [
+        13380
+      ],
+      "exactly4VertexComponents": 0
+    },
+    "exportedProbeGlb": {
+      "primitives": 2,
+      "totalTris": 26768
+    },
+    "note": "same topology chain as the shipped no-reference actor (aisha): HumanService.create_human(feet_on_ground=True) -> ExportService.bake_modifiers_remove_helpers; garments/masks change polygon material indices only, not topology"
+  },
+  "decision": {
+    "mechanism": "B — hide-mask boundary orphaning (not A/SOLIDIFY)",
+    "evidence": [
+      "19/22, 19/22, 18/24 orphan skin components are FULLY position-coincident with alpha-0 hidden-primitive vertices (the rest are mostly coincident, e.g. 5/6, 8/9, 5/8+5/8 across two hidden prims)",
+      "Blender probe: no SOLIDIFY in the modifier stack (only the stripped MASK \"Hide helpers\"); pre-export census is 1 component / 13,380 unique verts",
+      "exported probe GLB (same chain, no masks): 2 primitives, no 4-vertex islands — the orphaning appears only with the masks",
+      "all 22-24 orphans sit at the garment boundaries (shirt hem/sleeve 0.60-0.85 H, waistband 0.40-0.60 H, boot top <0.15 H) — the mask boundaries",
+      "the garments (t_shirt 1 component, cargo_pants 3) through the same export carry zero orphans — consistent with masks being the only difference"
+    ],
+    "notEstablished": [
+      "which specific round-7/9 unhide/rehide toggle produced each enclosed quad (the fix does not depend on it)",
+      "that the slivers are what the round-15 pixel grade saw (the grade capture will be judged by the orchestrator)"
+    ]
+  }
+}
