@@ -312,6 +312,14 @@ def make_material_from_mhmat(mhmat_path, name):
 # (patch_glb_base_color_factors) — factor x texture per the glTF spec, not a colour invented here.
 GARMENT_FACTOR_PATCH: dict = {}
 
+# #372: garment material names that CONSUMED their declared .mhmat diffuse texture at materialize
+# time (consumed=True in garment_material_from_declared). The #371 rebake dropped the t-shirt
+# texture SILENTLY — the bake ran without the declared .mhmat staged, the slot skipped with a
+# recorded reason, and only a human pixel grade caught the resulting onesie. After export,
+# verify_garment_textures_in_glb asserts every consumed slot still carries baseColorTexture in
+# the shipped bytes, so a silent drop fails the bake instead of the next pixel grade.
+CONSUMED_GARMENT_TEXTURES: set = set()
+
 
 def garment_material_from_declared(mhclo_path, role_colour, name, mesh=None, patch_factor=True):
     """#360: consume a garment's OWN declared .mhmat diffuse texture when staged + resolvable.
@@ -377,6 +385,7 @@ def garment_material_from_declared(mhclo_path, role_colour, name, mesh=None, pat
     # default 0.5; the flat garment materials ship 0.78).
     mat.node_tree.nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.78
     record["consumed"] = True
+    CONSUMED_GARMENT_TEXTURES.add(name)  # #372: this slot must ship its texture (verified post-export)
     if patch_factor:
         GARMENT_FACTOR_PATCH[name] = [
             float(role_colour[0]),
@@ -592,6 +601,48 @@ def apply_garment_auto_smooth_normals(glb_path, angle_deg=60.0):
     with open(glb_path, "wb") as f:
         f.write(out)
     print(f"GLB_AUTO_SMOOTH {glb_path} angle={angle_deg} garments [{','.join(patched)}]")
+
+
+def verify_garment_textures_in_glb(glb_path):
+    """#372: fail the bake if a garment that consumed an authored texture at materialize time
+    does not carry it in the EXPORTED bytes.
+
+    The #371 rebake dropped the toigo t-shirt's baseColorTexture SILENTLY: the bake ran without
+    the declared .mhmat in the provider cache, garment_material_from_declared skipped the slot
+    with a recorded reason, and the exported GLB shipped the flat role colour alone. Nothing in
+    the bake or its contracts noticed — the detector was a human pixel grade. This runs on the
+    FINAL bytes (after the #371 normal smoothing, which copies the JSON chunk verbatim and only
+    rewrites NORMAL accessor data) and asserts every consumed slot still binds its
+    baseColorTexture, so a pipeline drop fails the bake loudly instead of shipping a onesie.
+    Slots that never consumed a texture (flat by authored state) are not asserted here.
+    """
+    if not CONSUMED_GARMENT_TEXTURES:
+        print("GARMENT_TEXTURE_VERIFY none-consumed (all garment slots flat by authored state)")
+        return
+    with open(glb_path, "rb") as f:
+        data = bytearray(f.read())
+    if data[:4] != b"glTF":
+        raise RuntimeError(f"#372: not a GLB: {glb_path}")
+    json_len = struct.unpack("<I", data[12:16])[0]
+    json_end = 20 + json_len
+    gltf = json.loads(data[20:json_end])
+    missing = []
+    for mat in gltf.get("materials", []):
+        base = re.sub(r"\.\d{3}$", "", mat.get("name", ""))
+        if base not in CONSUMED_GARMENT_TEXTURES:
+            continue
+        if not mat.get("pbrMetallicRoughness", {}).get("baseColorTexture"):
+            missing.append(mat.get("name"))
+    if missing:
+        raise RuntimeError(
+            f"#372: garment material(s) consumed an authored texture at materialize time but "
+            f"the exported GLB carries none: {sorted(missing)}. The .mhmat/diffuseTexture was "
+            f"staged when the material was built, so this is a pipeline drop, not an "
+            f"authored-state skip."
+        )
+    print(
+        f"GARMENT_TEXTURE_VERIFY {glb_path} ok [{','.join(sorted(CONSUMED_GARMENT_TEXTURES))}]"
+    )
 
 
 def bake_skin_material_to_texture(human, skin_material_name, out_png_path, resolution=1024):
@@ -1196,6 +1247,7 @@ def _outer_facing_front_tris(garment_verts, garment_faces) -> np.ndarray:
 def main():
     args = parse_args()
     GARMENT_FACTOR_PATCH.clear()  # #360: per-actor; a fresh Blender process bakes each actor anyway
+    CONSUMED_GARMENT_TEXTURES.clear()  # #372: same per-actor discipline for the texture verify
     bpy.ops.preferences.addon_enable(module="bl_ext.user_default.mpfb")
 
     reference = None
@@ -3077,6 +3129,12 @@ def main():
     # (apply_garment_auto_smooth_normals) — measured on Blender 5.1.1, no in-Blender API lands
     # on the bytes the exporter writes, so the smoothing runs where the contract measures.
     apply_garment_auto_smooth_normals(str(output), angle_deg=60.0)
+
+    # #372: assert the FINAL bytes still carry every authored garment texture this bake consumed
+    # (the #371 rebake dropped the t-shirt texture silently and only a pixel grade caught it).
+    # Runs after the smoothing, which copies the JSON chunk verbatim and only rewrites NORMAL
+    # accessor data, so this checks exactly the bytes that ship.
+    verify_garment_textures_in_glb(str(output))
 
     # #328 census: report the final exported body the same way the planted contract
     # measures it (largest non-garment/non-hidden primitive), plus the macro dict and
