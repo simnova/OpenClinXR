@@ -106,7 +106,10 @@
         "tsconfig.json",
         "package.json"
       ],
-      "outputs": []
+      "outputs": [],
+      "passThroughEnv": [
+        "OPENCLINXR_HOOK_STAGED_FILES"
+      ]
     },
     "dev": {
       "cache": false,
