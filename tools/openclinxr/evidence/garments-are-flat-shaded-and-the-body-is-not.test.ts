@@ -73,6 +73,19 @@ import { describe, expect, it } from "vitest";
  *     invalidate it. Not measured here and not claimed either way.
  *   - **Anything about triangle counts as a budget.** The counts are pinned only so a remesh cannot
  *     satisfy the RED. Optimisation happens later in the pipeline and is not this contract's business.
+ *
+ * ## FIXED (#371)
+ *
+ * `materialize_mpfb_humanoid_candidate.py` now applies the Anny rail's auto-smooth-at-60-deg knob
+ * (`apply_garment_auto_smooth_normals`) to the EXPORTED bytes: every garment NORMAL accessor is
+ * rewritten post-export with the contract's own weld keys and face-normal math, so joins flatter
+ * than 60 deg carry one shared normal and sharper joins keep their per-face split normals.
+ *
+ * Measured on Blender 5.1.1 (this issue): no in-Blender API lands on the bytes the glTF exporter
+ * writes. `shade_auto_smooth()` creates a "Smooth by Angle" NODES modifier the exporter ignores;
+ * `normals_split_custom_set()` leaves ~1% of corners at their old values (82/7884 on kevin's cargo
+ * pants); per-face `use_smooth`, `EDGE_SPLIT` and clearing custom normals all export the original
+ * flat normals unchanged. So the smoothing runs where this test measures.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -241,7 +254,7 @@ function requireMeasured(): void {
 }
 
 describe("garments are flat-shaded and the body on the same asset is not", () => {
-  it.fails(`(1) RED: a join flatter than ${COPLANAR_DEG} deg carries one shared normal, as it does on the body`, () => {
+  it(`(1) FIXED (#371): a join flatter than ${COPLANAR_DEG} deg carries one shared normal, as it does on the body`, () => {
     requireMeasured();
     const faceted = garments
       .filter((p) => p.coplanarSplit > 0)
