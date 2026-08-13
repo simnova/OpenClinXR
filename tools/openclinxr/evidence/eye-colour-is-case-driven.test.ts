@@ -1,0 +1,185 @@
+import { createHash } from "node:crypto";
+import { dirname, join, resolve as pathResolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { NodeIO } from "@gltf-transform/core";
+import { describe, expect, it } from "vitest";
+
+/**
+ * Every actor in the peds asthma station has the same brown eyes, by construction. A case definition
+ * cannot change them.
+ *
+ * MEASURED 2026-08-13 on the shipped bytes — the iris texture is byte-identical across the cast:
+ *
+ *   actor            material name                              iris texture   sha256[0:12]
+ *   ---------------- ----------------------------------------   ------------   ------------
+ *   aisha            mat_makeclothes_library_eyes_ob_patient_…   597 KB         4659691c7295
+ *   nurse_kevin      mat_makeclothes_library_eyes_peds_nurse_…   597 KB         4659691c7295
+ *   patient_child    mat_makeclothes_library_eyes_peds_patien…   597 KB         4659691c7295
+ *
+ * The material NAME is per-actor; the pixels are one asset. `baseColorFactor` is (1,1,1) on all three,
+ * so the texture is the whole appearance.
+ *
+ * ## THE EYE RAIL IS OTHERWISE A PROPER FACTORY — THIS IS THE ONE CONSTANT IN IT
+ *
+ * Traced through `materialize_mpfb_humanoid_candidate.py`:
+ *
+ *   - mesh: `HumanService.add_mhclo_asset` on the CC0 MakeHuman `low-poly.mhclo` from the provider
+ *     cache — a wired library asset, and it fails closed (`raise RuntimeError` when the cache is
+ *     missing) rather than silently producing no eye.
+ *   - placement: fitted to the FULL basemesh *before* the #318 helper strip, because the `.mhclo`
+ *     references helper verts 14598–14741. Derived from the body.
+ *   - scale: IPD measures 61.6 / 60.7 / **52.1 mm** — it tracks stature, adult versus child. Derived,
+ *     not authored.
+ *   - rig: `eye.L` / `eye.R` from the MPFB2 standard 137-joint armature.
+ *   - material: `make_material_from_mhmat` reads the asset's own declared `brown.mhmat` →
+ *     `brown_eye.png`. The code says of that helper, correctly, that it "is not eye-special-cased".
+ *
+ * So geometry, placement, scale and rig are all case-driven or derived. **Only the colour is fixed**,
+ * and grepping the eye path for `actor_role`, `phenotype` or any per-case input returns nothing.
+ *
+ * ## THE KNOWN-GOOD IS THE GARMENT SLOT, ON THIS RAIL, LANDED TONIGHT
+ *
+ * `#180` (`044c3c21`) had exactly this shape: one hardcoded colour for every actor. It was fixed by
+ * wiring the existing `garment_shell_color(kind, actor_role, phenotype)` into the MPFB materializer —
+ * no table copied, no colour invented. Upper garments now measure (0.720, 0.680, 0.550) /
+ * (0.420, 0.360, 0.400) / (0.050, 0.480, 0.520) across the same three actors.
+ *
+ * That is the precedent and the pattern: **the same materializer already varies one material slot by
+ * role and phenotype.** There is no `eye_colour(phenotype)` equivalent, and the `.mhmat` path that
+ * would consume one is already generic.
+ *
+ * ## THE CHEAP FIXES THIS REFUSES, probed 2026-08-13 before planting
+ *
+ *   treatment                                   | (1) irises differ | (2) still a real eye | (3) garments kept | result
+ *   --------------------------------------------|-------------------|----------------------|-------------------|--------
+ *   a) today                                    |    **FAIL**       |         pass         |       pass        | REFUSED
+ *   b) flat baseColorFactor per actor           |      pass         |       **FAIL**       |       pass        | REFUSED
+ *   c) tint the shared texture via the factor   |      pass         |       **FAIL**       |       pass        | REFUSED
+ *   d) per-actor iris texture from a declared   |      pass         |         pass         |       pass        | ALL PASS
+ *      material, phenotype-driven               |                   |                      |                   |
+ *
+ * (b) and (c) are not hypothetical — **they are what #337 and #338 each actually did**, and the
+ * materializer's own comment records why both failed: *"a sclera and an iris cannot be one colour."*
+ * A flat factor produces a coloured ball, not an eye. Clause (2) therefore requires the eye material
+ * to keep a real texture and a neutral factor, which is exactly what those two slices lost.
+ *
+ * WHICH ARE REDS AND WHICH ARE NETS (#227): (1) is the RED and fails 3/3. (2) and (3) pass today and
+ * are regression nets — (2) guards the #340 fix that finally produced an eye at all, and (3) guards
+ * the #180 garment colours landed hours ago.
+ *
+ * NOT TESTED:
+ *   - **Which colours are right.** Eye colour is a phenotype question and this contract only asserts
+ *     that the cast is not uniform. It cannot say that a given brown belongs to a given case.
+ *   - **Whether an alternative iris asset exists or is licence-clear.** The `brown_eye.png` in the
+ *     provider cache is CC0-headered; nothing establishes that a second one is available, and
+ *     "unspecified licence is a refusal" applies. If no second asset exists, the honest fix may be a
+ *     derived tint of a GREYSCALE iris rather than a second texture — that is a design question this
+ *     contract deliberately does not settle.
+ *   - **The peds cast only.** It is the one station whose three actors are all MPFB today.
+ */
+
+const HERE = dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = pathResolve(HERE, "../../..");
+const GENERATED = "apps/ui-xr/public/generated-humanoids";
+
+const CAST = [
+  "mpfb-peds-patient-child.glb",
+  "mpfb-ob-patient-aisha.glb",
+  "mpfb-peds-nurse-kevin.glb",
+] as const;
+
+/** A real iris map is hundreds of KB; #337/#338 shipped flat colour and produced no eye. */
+const MIN_IRIS_TEXTURE_KB = 100;
+
+/** baseColorFactor must stay neutral — tinting the shared map is treatment (c). */
+const MAX_FACTOR_DEVIATION = 0.08;
+
+/** #180 landed per-actor garment colours on this rail; they must survive. */
+const MIN_GARMENT_CHANNEL_DELTA = 0.05;
+
+type Row = {
+  file: string;
+  irisSha: string | null;
+  irisKb: number;
+  factor: [number, number, number];
+  upperRgb: [number, number, number] | null;
+};
+
+const io = new NodeIO();
+
+async function measure(file: string): Promise<Row | null> {
+  const doc = await io.read(join(REPO_ROOT, GENERATED, file));
+  let irisSha: string | null = null;
+  let irisKb = 0;
+  let factor: [number, number, number] = [1, 1, 1];
+  let upperRgb: [number, number, number] | null = null;
+  for (const mesh of doc.getRoot().listMeshes()) {
+    for (const prim of mesh.listPrimitives()) {
+      const mat = prim.getMaterial();
+      if (!mat) continue;
+      const name = `${mesh.getName()}/${mat.getName()}`;
+      if (/eye/i.test(name)) {
+        const img = mat.getBaseColorTexture()?.getImage();
+        if (img) {
+          irisSha = createHash("sha256").update(img).digest("hex").slice(0, 16);
+          irisKb = img.length / 1024;
+        }
+        const c = mat.getBaseColorFactor();
+        if (c) factor = [c[0]!, c[1]!, c[2]!];
+      } else if (/t_shirt|scrub/i.test(mesh.getName())) {
+        const c = mat.getBaseColorFactor();
+        if (c) upperRgb = [c[0]!, c[1]!, c[2]!];
+      }
+    }
+  }
+  return { file, irisSha, irisKb, factor, upperRgb };
+}
+
+const rows = (await Promise.all(CAST.map((f) => measure(f).catch(() => null)))).filter(
+  (r): r is Row => r !== null,
+);
+
+/** An empty enumeration must FAIL, never pass vacuously (§7t). */
+function requireRows(): void {
+  expect(rows.length, `cast actors measured (of ${CAST.length})`).toBe(CAST.length);
+}
+
+describe("eye colour is case-driven, not one constant for everyone", () => {
+  it.fails("(1) RED: co-present actors do not all share one iris", () => {
+    requireRows();
+    const shas = rows.map((r) => r.irisSha);
+    const distinct = new Set(shas.filter(Boolean)).size;
+    expect(
+      distinct >= 2,
+      `all ${rows.length} actors share iris ${shas[0] ?? "none"} — ${distinct} distinct texture(s) across the cast`,
+    ).toBe(true);
+  });
+
+  it("(2) NET known-good: the eye is still a textured iris, not a flat colour", () => {
+    // #337 and #338 each replaced the material with a flat colour and neither produced an eye —
+    // "a sclera and an iris cannot be one colour". #340 fixed it by consuming the declared .mhmat.
+    requireRows();
+    const flat = rows
+      .filter(
+        (r) =>
+          r.irisSha === null ||
+          r.irisKb < MIN_IRIS_TEXTURE_KB ||
+          r.factor.some((v) => Math.abs(v - 1) > MAX_FACTOR_DEVIATION),
+      )
+      .map((r) => `${r.file}: tex=${r.irisKb.toFixed(0)}KB factor=(${r.factor.map((v) => v.toFixed(2)).join(",")})`);
+    expect(flat, "eyes reduced to a flat or tinted colour").toEqual([]);
+  });
+
+  it("(3) NET known-good: #180's per-actor garment colours survive", () => {
+    requireRows();
+    const clashes: string[] = [];
+    for (let i = 0; i < rows.length; i++)
+      for (let j = i + 1; j < rows.length; j++) {
+        const a = rows[i]!.upperRgb;
+        const b = rows[j]!.upperRgb;
+        if (a && b && a.every((v, k) => Math.abs(v - b[k]!) < MIN_GARMENT_CHANNEL_DELTA))
+          clashes.push(`${rows[i]!.file}/${rows[j]!.file} share an upper colour`);
+      }
+    expect(clashes, "garment colours collapsed back to a shared value").toEqual([]);
+  });
+});
