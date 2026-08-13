@@ -1,8 +1,8 @@
 {
   "schemaVersion": "openclinxr.issue-343.pre-fix.v1",
   "issue": 343,
-  "measuredAgainstCommit": "d2322e29db286af4b05fbb9fd55ddfff6ef61d6b",
-  "measuredAt": "2026-08-12T07:1x:00Z",
+  "measuredAgainstCommit": "625d08570ba316444aabc1e007e4acb6acc59d1b",
+  "measuredAt": "2026-08-13T13:30:00Z",
   "method": "Headless Blender 5.1.1 (blender --background --python), MPFB 2.0.15 extension enabled via bpy.ops.preferences.addon_enable; GLB read-back via @gltf-transform/core NodeIO (the same instrument the planted contracts use).",
   "bakeQuestion": {
     "question": "Does the shipped MPFB2 enhanced_skin node tree (data/node_trees/enhanced_skin.json, loaded through MaterialService) bake to a baseColorTexture that survives glTF export under Blender 5.1 headless?",
@@ -39,5 +39,15 @@
       "ob_patient_aisha": "no anny manifest / no declared skin_tone in ob-preeclampsia fixture -> needs a default"
     },
     "licence": "MPFB2 (Blender extension) code GPL-3.0-or-later (blender_manifest.toml); bundled data/textures CC0 1.0 per upstream LICENSE.ASSETS.md (verified via web fetch 2026-08-12). Recorded in third-party-asset-licence-ledger.md."
+  },
+  "skinAtlasSubsurfaceBaseline": {
+    "instrument": "Block-mean (16x16) luminance sd over the SKIN-COVERED atlas. Coverage is rasterized from the skin primitive's own TEXCOORD_0 (a luminance floor would exclude occlusion-dark skin and vacate the dark-region counterweight), so 'skin texel' means 'a skin-material triangle maps onto it' regardless of baked luminance. Same instrument as skin-atlas-has-subsurface-not-occlusion.test.ts.",
+    "preFixBlockSd": {
+      "mpfb-ob-patient-aisha.glb": 1.58,
+      "mpfb-peds-nurse-kevin.glb": 1.39,
+      "mpfb-peds-patient-child.glb": 2.48
+    },
+    "preFixDarkTexelFraction": 0.0,
+    "mechanism": "The defect is per-actor flat tone + pore noise (block-mean sd 1.39-2.48). MPFB2's shipped subsurface weight map (data/textures/sss.png, CC0) is grayscale 0.27..0.48 authored in the basemesh UV space; the region shaders' SSS is a render-time light-transport effect that never reaches a texture (the DIFFUSE COLOR bake captures only the flat base colour)."
   }
 }

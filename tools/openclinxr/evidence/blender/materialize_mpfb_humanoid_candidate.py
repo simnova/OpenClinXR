@@ -492,6 +492,16 @@ def bake_skin_material_to_texture(human, skin_material_name, out_png_path, resol
         scene.render.engine = prev_engine
         scene.cycles.device = prev_device
 
+    # #343 — apply the shipped subsurface weight map before saving. The DIFFUSE COLOR
+    # bake above captures only the flat per-actor tone; the region shaders' SSS is a
+    # render-time light-transport effect that never reaches a texture (measured on this
+    # issue: the exporter emits flat [1,1,1,1] for the enhanced_skin tree). MPFB2 ships
+    # its subsurface map at data/textures/sss.png (CC0, recorded in
+    # third-party-asset-licence-ledger.md), authored in the basemesh UV space; combining
+    # it with the baked albedo is the #343 RETRY approach 2 (bake the subsurface input,
+    # combine with the albedo) — no light transport, no hand-authored node graph.
+    apply_subsurface_tint(img, resolution)
+
     out_png = pathlib.Path(out_png_path)
     out_png.parent.mkdir(parents=True, exist_ok=True)
     img.filepath_raw = str(out_png)
@@ -499,6 +509,57 @@ def bake_skin_material_to_texture(human, skin_material_name, out_png_path, resol
     img.save()
     print(f"SKIN_BAKE {out_png} bytes={out_png.stat().st_size}")
     return img
+
+
+# #343 — warm subsurface tint strength. The shipped sss.png is grayscale 0.27..0.48
+# (thin skin brighter = more subsurface transmission); it is applied as a RELATIVE
+# warm brightening so the thick/thin ratio is the map's own, not an invented curve.
+SUBSURFACE_TINT_STRENGTH = 1.0
+
+
+def apply_subsurface_tint(img, resolution):
+    """Warm subsurface tint over the baked skin albedo, driven by MPFB2's sss.png.
+
+    glTF carries no procedural shaders and the DIFFUSE COLOR bake captures only the
+    flat base colour, so the enhanced_skin region shaders' subsurface scattering (a
+    light-transport effect) never reaches a GLB. The shipped sss.png IS the subsurface
+    map in the basemesh UV space; tinting the albedo where it is bright reproduces the
+    subsurface transmission without light transport. Only baked (non-black) texels are
+    tinted; the cleared background stays black so skin/background separation survives.
+    """
+    from bl_ext.user_default.mpfb.services.locationservice import LocationService
+
+    sss_path = pathlib.Path(LocationService.get_mpfb_data("textures/sss.png"))
+    if not sss_path.is_file():
+        print(f"SKIN_BAKE_SSS missing {sss_path}")
+        return
+    sss_img = bpy.data.images.load(str(sss_path))
+    sw, sh = sss_img.size
+    sss = np.array(sss_img.pixels[:]).reshape(sh, sw, 4).astype(np.float32)
+    gray = sss[..., 0]  # grayscale (R==G==B, measured); the SSS weight channel
+    # Box-downsample the map to the atlas resolution (2048 -> 1024, factor 2).
+    if (sw != resolution or sh != resolution) and sw % resolution == 0 and sh % resolution == 0:
+        sy = sh // resolution
+        sx = sw // resolution
+        gray = gray.reshape(resolution, sy, resolution, sx).mean(axis=(1, 3))
+    mean = float(gray.mean())
+    if mean <= 1e-6:
+        return
+    # Relative subsurface weight, zero-centred at the map mean: thick skin keeps the
+    # albedo, thin skin is warmed+brightened. Multiplication (not addition) preserves
+    # the shipped map's own thin/thick ratio.
+    rel = (gray - mean) / mean
+    px = np.array(img.pixels[:]).reshape(resolution, resolution, 4).astype(np.float32)
+    rgb = px[..., :3]
+    baked = rgb.sum(axis=-1) > 0.01
+    warm = np.array([0.85, 0.5, 0.4], dtype=np.float32)  # warm subsurface boost
+    tinted = rgb * (1.0 + SUBSURFACE_TINT_STRENGTH * rel[..., None] * warm)
+    px[..., :3] = np.where(baked[..., None], np.clip(tinted, 0.0, 1.0), rgb)
+    img.pixels[:] = px.ravel()
+    print(
+        f"SKIN_BAKE_SSS {sss_path.name} range=[{float(gray.min()):.3f},{float(gray.max()):.3f}] "
+        f"strength={SUBSURFACE_TINT_STRENGTH}"
+    )
 
 
 def _median_uv_edge_px(obj, resolution):
