@@ -898,3 +898,42 @@ Product path advanced: Baked equipment factory split doctrine into MADR **0054**
 Blueprint/factory tie: Q1 case/prose equipment → resolved runtime ids for every bank scenario; Q5 machine validate of catalogue. claimScope factory routing not clinical/Quest. Next: iter1 weak-map cleanup + lane-1 bed/stretcher bank priority; continue OSS researcher for CC0/CC-BY fills; optional `MONGODB_URI` projection.
 
 Evidence: `pnpm factory:equipment:catalog:loop` exit 0; vitest equipment-catalog 3/3; `pnpm docs:drift-check` green after registry entries; MADRs registered decision-record.
+
+### 2026-08-13 overnight-mpfb-chain-blocked-on-shared-checkout (Q1/Q5)
+
+**Product path advanced.** Six slices built, verified and pixel-graded; none landed. `wt/issue-343x`
+carries #358 (focus=head framing) + #360 (garment .mhmat textures) + #359 (scalp material region) +
+#341 (round 17) + #343 (skin measurement), with all three MPFB GLBs re-baked so the effects compose.
+Separately banked: #361, #357, #92.
+
+**Blueprint/factory tie.** MPFB rail now renders three actors with distinct garment materials,
+recognisable footwear, full scalp coverage and three case-driven iris colours. First honest
+MPFB-vs-Anny graded pair produced: MPFB wins on hands (fingers modelled vs fused mittens) and on having
+both garment channels; Anny has an upper-garment shell and painted lower only.
+
+**Evidence.** `.openclinxr/evidence/glb-grade-capture/2026-08-13T08-20-34Z/` (MPFB vs Anny, lit +
+structure); `mpfb-scalp/` head crops 3/3; `garment-textures/` (#360). Nine images graded by the
+orchestrator; every appearance claim here rests on a read image, not a byte count.
+
+**Blocker — shared-checkout deadlock, 6h+ and human-gated.** The pre-commit size ratchet reads the
+WORKING TREE, so a peer agent's uncommitted 24-line change (`role-harness-policy.ts` 973 vs ceiling 950,
+plus `grok-repo-agent-spawn.ts` 544 vs 543) fails the gate for every commit in the checkout, including
+commits that touch neither file. At HEAD both files sit at EXACTLY their ceilings — zero headroom, so
+any single added line to either is uncommittable by construction. The peer cannot commit either
+(ceilings only shrink). Their WIP exists on no branch; discarding it would destroy it. Filed #361.
+
+**Risk that remains.** #361 (scope the size check to staged files) is an INCOMPLETE fix: turbo runs
+`envMode: strict` and strips `OPENCLINXR_HOOK_STAGED_FILES`, so the full-turbo path still does a global
+sweep. Needs `passThroughEnv` on the `architecture` task. #92 routes through that path and is therefore
+blocked twice. Only `wt/issue-343x` and #357 are landable once the peer file resolves.
+
+**Four premises died before costing a worker a session:** #341's waistband mask gap (bands.find()
+semantics; real gaps +1.1/-1.6/-0.7 mm), #343's "hand-authored flat colour" headline (skin is baked
+per-actor, 621-659 KB), my own skin-variation RED (pore noise clears any luma-spread floor), and the
+57,600-tri flats "provenance" anomaly (same ClothesService channel, documented in the file).
+
+**Next queued slice.** Resolve the peer's stranded change (extract the imagine-trellis role to a sibling
+module, ~24 lines), then land 343x → 357 → 361 → turbo passThroughEnv → 92. Owner: chief-coordinator
+for the peer question (human decision recorded 09:12); asset-pipeline-lead for the chain.
+
+**Token introspection:** not captured — slice-token ritual requires a commit path, which was shut.
