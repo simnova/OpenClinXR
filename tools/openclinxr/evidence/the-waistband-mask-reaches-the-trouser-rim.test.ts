@@ -5,56 +5,65 @@ import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 
 /**
- * #341 round 9 closed the waistband gap — the distance between the top of the lower body-hide mask
- * and the top of the trousers — to **1.1 mm on aisha**, using a per-polygon re-hide bounded by the
- * garment's own `CLOTH_STANDOFF_M` rather than a fitted constant. That was measured and recorded.
+ * Round 9 closed the waistband gap — the distance between the top of the lower body-hide mask and the
+ * top of the trousers — to 1.1 mm on aisha. **It has held ever since.** This file gates that result.
  *
- * MEASURED AGAIN 2026-08-12, six rounds later, on the shipped GLBs:
+ * MEASURED 2026-08-12 on the shipped GLBs:
  *
- *   actor            pants top   lower mask top   GAP        shirt overlap
+ *   actor            pants top   mask top (MAX)   gap        shirt overlap
  *   ---------------- ---------   --------------   --------   -------------
- *   aisha            0.5920      0.5586           55.6 mm    19.6 mm
- *   nurse_kevin      0.6012      0.5817           34.3 mm    17.8 mm
- *   patient_child    0.5801      0.5609           23.9 mm    13.4 mm
+ *   aisha            0.9871      0.9860           +1.1 mm    19.6 mm
+ *   nurse_kevin      1.0581      1.0597           -1.6 mm    17.8 mm
+ *   patient_child    0.7199      0.7215           -1.6 mm    13.4 mm
  *
- * **Aisha regressed from 1.1 mm to 55.6 mm — fifty times worse — and nothing caught it.**
+ * Negative is over-reach: the mask ends slightly above the rim, which is correct and is bounded by
+ * clause (2). Front-of-belly overlap (|x|<0.12, z>0.06) measures 16.0 / 17.8 / 11.3 mm, so the
+ * garments meet at the belly and not merely at their bounding boxes.
  *
- * WHY IT WENT UNNOTICED, recorded because the process failure matters more than the number: round 9's
- * result lived only in a commit message and an orchestrator report. Every later brief listed "round-9
- * seam gaps" among the known-good columns for the worker to *report*, and asking a delegate to report
- * a number is not the same as a gate that fails when it moves. Rounds 10–16 each re-baked or re-fitted
- * the body; round 15 removed a double-deformation that changed the body every mask fits to, and its
- * own commit said "the true-body fit flips the gate". The lower cover shell was restored for exactly
- * that reason. The hide mask was not re-derived to match, and no proof existed to say so.
+ * ## THIS FILE FIRST SHIPPED ASSERTING A DEFECT THAT DID NOT EXIST. That is the reason it exists.
  *
- * The visible consequence is the tan sawtooth at every actor's waistband, which sat in three of my
- * own pixel grades while I described it without connecting it to the metric I already had.
+ * The original planted RED reported gaps of 55.6 / 34.3 / 23.9 mm and a "fifty-fold regression since
+ * round 9". **All of it was wrong**, and the cause was one line:
  *
- * NOT a coverage hole between garments: shirt-to-trouser overlap is 13.4–19.6 mm on all three, so no
- * skin shows *between* the garments. The exposed band is between the MASK EDGE and the trouser rim —
- * skin the trousers cover but the mask stopped hiding.
+ *     const lowerMask = bands.find((b) => b.hidden && /hidden_lower/.test(b.name));
  *
- * THE CHEAP FIXES THIS REFUSES, probed 2026-08-12 before planting:
+ * Every actor ships **two** `hidden_lower` primitives — a base poke-mask, and a `.001` carrying round
+ * 9's `RENDER_TRUTH_REHIDE` band. Only the second reaches the rim. `find` returns the first. The base
+ * mask genuinely does stop 24–56 mm short, so the number was real and measured; it was measured on the
+ * wrong object.
  *
- *   treatment                                  | (1) gap closed | (2) mask not over-reaching | (3) overlap kept | result
- *   -------------------------------------------|----------------|----------------------------|------------------|--------
- *   a) today                                   |   **FAIL**     |          pass              |      pass        | REFUSED
- *   b) extend the mask by a fixed epsilon      |     pass       |        **FAIL**            |      pass        | REFUSED
- *   c) drop the trouser rim to meet the mask   |     pass       |          pass              |    **FAIL**      | REFUSED
- *   d) re-derive the mask from the garment rim |     pass       |          pass              |      pass        | ALL PASS
+ * A full slice was dispatched against that phantom. The worker's own pre-fix measurement found the
+ * second primitive, it reported the premise dead, it changed no product code, and it emitted grade
+ * captures of the unchanged bytes so the pixels could still be judged (#341 round 17, `44d0649c`).
+ * The dead-premise clause in its brief is what made that a reportable success rather than a slice
+ * spent satisfying a contract nobody should have written.
  *
- * (b) is the fix round 9 was explicitly forbidden and did not take: a constant tuned to today's three
- * actors is a threshold fitted to an observation, and it re-breaks the moment a fourth body ships.
- * Clause (2) bounds the mask ABOVE the rim so a blanket extension overshoots into the shirt band.
- * (c) trades the defect for a coverage hole; clause (3) pins the 13.4 mm minimum overlap.
+ * **Two lessons, both about the ORCHESTRATOR's instruments, not the product:**
  *
- * WHICH ARE REDS AND WHICH ARE NETS (#227): (1) is the RED and fails on all three. (2) and (3) PASS
- * today and are regression nets — the mask does not currently over-reach, and the garments do meet.
+ * 1. **Never `find` where the schema permits N.** A first-match read of a repeated primitive is
+ *    indistinguishable from a correct read until something else contradicts it. Use max/min over all
+ *    matches, as this file now does, or assert the count.
+ * 2. **A pixel grade names what you SEE, never what it IS.** The hypothesis began with my describing a
+ *    *tan* sawtooth at the waistband. Sampling the pixels shows blue(shirt) → grey(pants) with no skin
+ *    row at the belly on either adult. What is actually there is a jagged DARK hem edge. The word
+ *    "tan" smuggled in "exposed skin", and the whole chain followed from that one adjective.
  *
- * NOT TESTED: this asserts the WAISTBAND band only. It says nothing about the shoulder or hem seams
- * (round 9 measured those too and they are not covered here), nothing about whether the exposed band
- * is visible at a given camera distance, and nothing about the sawtooth's per-polygon shape — a gap
- * closed on this metric can still read ragged, which is the §11s trap this issue has hit three times.
+ * WHICH ARE REDS AND WHICH ARE NETS (#227): **none of these is a RED — all three pass today** and are
+ * regression nets. Round 9's result was previously ungated, recorded only in a commit message; that
+ * part of the original reasoning was sound and is what survives here.
+ *
+ * THE CHEAP FIXES THESE REFUSE, probed 2026-08-12 against the (then-believed) defect and still valid
+ * as counterweights:
+ *
+ *   b) extend the mask by one blanket epsilon  -> clause (2) fails: a constant sized for the worst
+ *      actor over-reaches 23.7 mm on the child
+ *   c) drop the trouser rim to meet the mask   -> clause (3) fails on 3/3: overlap destroyed
+ *
+ * NOT TESTED: the waistband only — not the shoulder or hem seams, not whether any exposed band would
+ * be visible at learner distance, and not the per-polygon shape of the hem. A gap correct on this
+ * metric can still read ragged, and on these three actors it does: see #350 (22–24 orphan 4-vertex
+ * skin islands per actor at the sleeve rim, boot top and waistband), which is the current best
+ * explanation for the jagged edges and is measured, not graded.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -102,16 +111,27 @@ async function measure(rel: string): Promise<Row | null> {
     }
   }
 
-  const pants = bands.find((b) => !b.hidden && /cargo_pants/.test(b.name));
-  const shirt = bands.find((b) => !b.hidden && /t_shirt/.test(b.name));
-  const lowerMask = bands.find((b) => b.hidden && /hidden_lower/.test(b.name));
-  if (!pants || !shirt || !lowerMask) return null;
+  // MAX over ALL matching primitives, never `find`. Each actor ships TWO `hidden_lower`
+  // primitives — a base poke-mask and a `.001` carrying round 9's RENDER_TRUTH_REHIDE band —
+  // and only the second reaches the rim. `find` returns the first and reports a 24-56 mm
+  // phantom gap. See the header.
+  const topOf = (re: RegExp): number =>
+    bands.filter((b) => !b.hidden && re.test(b.name)).reduce((m, b) => Math.max(m, b.hi), -Infinity);
+  const botOf = (re: RegExp): number =>
+    bands.filter((b) => !b.hidden && re.test(b.name)).reduce((m, b) => Math.min(m, b.lo), Infinity);
+  const pantsTop = topOf(/cargo_pants/);
+  const shirtBot = botOf(/t_shirt/);
+  const lowerMaskTop = bands
+    .filter((b) => b.hidden && /hidden_lower/.test(b.name))
+    .reduce((m, b) => Math.max(m, b.hi), -Infinity);
+  if (!Number.isFinite(pantsTop) || !Number.isFinite(shirtBot) || !Number.isFinite(lowerMaskTop))
+    return null;
 
   return {
     file: rel.split("/").pop()!,
-    gapMm: (pants.hi - lowerMask.hi) * 1000,
-    overreachMm: (lowerMask.hi - pants.hi) * 1000,
-    overlapMm: (pants.hi - shirt.lo) * 1000,
+    gapMm: (pantsTop - lowerMaskTop) * 1000,
+    overreachMm: (lowerMaskTop - pantsTop) * 1000,
+    overlapMm: (pantsTop - shirtBot) * 1000,
   };
 }
 
@@ -133,7 +153,7 @@ const show = (r: Row): string =>
   `${r.file}: gap=${r.gapMm.toFixed(1)}mm overlap=${r.overlapMm.toFixed(1)}mm`;
 
 describe("the lower hide mask reaches the trouser rim", () => {
-  it.fails("(1) RED: no skin band between the mask edge and the trouser rim", () => {
+  it("(1) NET: no skin band between the mask edge and the trouser rim", () => {
     requireRows();
     expect(
       rows.filter((r) => r.gapMm > MAX_WAISTBAND_GAP_MM).map(show),
