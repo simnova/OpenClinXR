@@ -1,0 +1,394 @@
+{
+  "measuredAt": "2026-08-13T00:57:06.142Z",
+  "generatedDir": "apps/ui-xr/public/generated-humanoids",
+  "rows": [
+    {
+      "file": "mpfb-ob-patient-aisha.glb",
+      "torsoHalf": 0.1534,
+      "maxLateralTopBand": 0.1869,
+      "ratio": 1.218,
+      "outsideTorsoTris": 84,
+      "totalPantsTris": 2782,
+      "legAreaCm2": 5207,
+      "shirtTrouserOverlapMm": 19.6,
+      "pantsTop": 0.9871,
+      "pantsBot": 0.101,
+      "shirtBot": 0.9675,
+      "outlyingVertBoneDominant": [
+        [
+          "spine04",
+          93
+        ],
+        [
+          "upperleg01.R",
+          58
+        ],
+        [
+          "upperleg01.L",
+          57
+        ],
+        [
+          "pelvis.L",
+          25
+        ],
+        [
+          "pelvis.R",
+          19
+        ]
+      ],
+      "outlyingBonesPerMesh": {
+        "makeclothes_library_cargo_pants_mpfb_ob_patient_aisha_mesh": [
+          [
+            "spine04",
+            93
+          ],
+          [
+            "upperleg01.R",
+            58
+          ],
+          [
+            "upperleg01.L",
+            57
+          ],
+          [
+            "pelvis.L",
+            25
+          ],
+          [
+            "pelvis.R",
+            19
+          ]
+        ]
+      },
+      "outlyingTriCount": 84
+    },
+    {
+      "file": "mpfb-peds-nurse-kevin.glb",
+      "torsoHalf": 0.146,
+      "maxLateralTopBand": 0.5467,
+      "ratio": 3.745,
+      "outsideTorsoTris": 363,
+      "totalPantsTris": 3092,
+      "legAreaCm2": 5716.4,
+      "shirtTrouserOverlapMm": 17.8,
+      "pantsTop": 1.0581,
+      "pantsBot": 0.1,
+      "shirtBot": 1.0403,
+      "outlyingVertBoneDominant": [
+        [
+          "metacarpal4.R",
+          177
+        ],
+        [
+          "metacarpal4.L",
+          177
+        ],
+        [
+          "metacarpal3.R",
+          90
+        ],
+        [
+          "spine04",
+          90
+        ],
+        [
+          "metacarpal3.L",
+          90
+        ],
+        [
+          "metacarpal2.R",
+          81
+        ],
+        [
+          "metacarpal2.L",
+          81
+        ],
+        [
+          "upperleg01.L",
+          53
+        ],
+        [
+          "upperleg01.R",
+          52
+        ],
+        [
+          "pelvis.L",
+          40
+        ],
+        [
+          "pelvis.R",
+          38
+        ],
+        [
+          "metacarpal1.R",
+          34
+        ],
+        [
+          "metacarpal1.L",
+          34
+        ],
+        [
+          "finger5-1.R",
+          14
+        ],
+        [
+          "finger5-1.L",
+          14
+        ],
+        [
+          "finger2-1.R",
+          12
+        ],
+        [
+          "finger2-1.L",
+          12
+        ]
+      ],
+      "outlyingBonesPerMesh": {
+        "makeclothes_library_cargo_pants_mpfb_peds_nurse_kevin_mesh": [
+          [
+            "metacarpal4.R",
+            177
+          ],
+          [
+            "metacarpal4.L",
+            177
+          ],
+          [
+            "metacarpal3.R",
+            90
+          ],
+          [
+            "spine04",
+            90
+          ],
+          [
+            "metacarpal3.L",
+            90
+          ],
+          [
+            "metacarpal2.R",
+            81
+          ],
+          [
+            "metacarpal2.L",
+            81
+          ],
+          [
+            "upperleg01.L",
+            53
+          ],
+          [
+            "upperleg01.R",
+            52
+          ],
+          [
+            "pelvis.L",
+            40
+          ],
+          [
+            "pelvis.R",
+            38
+          ],
+          [
+            "metacarpal1.R",
+            34
+          ],
+          [
+            "metacarpal1.L",
+            34
+          ],
+          [
+            "finger5-1.R",
+            14
+          ],
+          [
+            "finger5-1.L",
+            14
+          ],
+          [
+            "finger2-1.R",
+            12
+          ],
+          [
+            "finger2-1.L",
+            12
+          ]
+        ]
+      },
+      "outlyingTriCount": 363
+    },
+    {
+      "file": "mpfb-peds-patient-child.glb",
+      "torsoHalf": 0.1079,
+      "maxLateralTopBand": 0.3833,
+      "ratio": 3.551,
+      "outsideTorsoTris": 333,
+      "totalPantsTris": 2816,
+      "legAreaCm2": 2997.2,
+      "shirtTrouserOverlapMm": 13.4,
+      "pantsTop": 0.7199,
+      "pantsBot": 0.1,
+      "shirtBot": 0.7065,
+      "outlyingVertBoneDominant": [
+        [
+          "spine04",
+          150
+        ],
+        [
+          "upperleg01.R",
+          149
+        ],
+        [
+          "upperleg01.L",
+          149
+        ],
+        [
+          "metacarpal4.R",
+          120
+        ],
+        [
+          "metacarpal4.L",
+          120
+        ],
+        [
+          "metacarpal3.R",
+          61
+        ],
+        [
+          "metacarpal3.L",
+          61
+        ],
+        [
+          "metacarpal2.R",
+          50
+        ],
+        [
+          "metacarpal2.L",
+          50
+        ],
+        [
+          "finger5-1.R",
+          26
+        ],
+        [
+          "finger5-1.L",
+          26
+        ],
+        [
+          "metacarpal1.R",
+          10
+        ],
+        [
+          "metacarpal1.L",
+          10
+        ],
+        [
+          "pelvis.L",
+          7
+        ],
+        [
+          "pelvis.R",
+          4
+        ],
+        [
+          "finger2-1.R",
+          2
+        ],
+        [
+          "finger2-1.L",
+          2
+        ],
+        [
+          "finger4-1.R",
+          1
+        ],
+        [
+          "finger4-1.L",
+          1
+        ]
+      ],
+      "outlyingBonesPerMesh": {
+        "makeclothes_library_cargo_pants_mpfb_peds_patient_child_mesh": [
+          [
+            "spine04",
+            150
+          ],
+          [
+            "upperleg01.R",
+            149
+          ],
+          [
+            "upperleg01.L",
+            149
+          ],
+          [
+            "metacarpal4.R",
+            120
+          ],
+          [
+            "metacarpal4.L",
+            120
+          ],
+          [
+            "metacarpal3.R",
+            61
+          ],
+          [
+            "metacarpal3.L",
+            61
+          ],
+          [
+            "metacarpal2.R",
+            50
+          ],
+          [
+            "metacarpal2.L",
+            50
+          ],
+          [
+            "finger5-1.R",
+            26
+          ],
+          [
+            "finger5-1.L",
+            26
+          ],
+          [
+            "metacarpal1.R",
+            10
+          ],
+          [
+            "metacarpal1.L",
+            10
+          ],
+          [
+            "pelvis.L",
+            7
+          ],
+          [
+            "pelvis.R",
+            4
+          ],
+          [
+            "finger2-1.R",
+            2
+          ],
+          [
+            "finger2-1.L",
+            2
+          ],
+          [
+            "finger4-1.R",
+            1
+          ],
+          [
+            "finger4-1.L",
+            1
+          ]
+        ]
+      },
+      "outlyingTriCount": 333
+    }
+  ]
+}
