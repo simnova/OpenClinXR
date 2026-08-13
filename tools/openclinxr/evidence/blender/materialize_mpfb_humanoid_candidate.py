@@ -1244,6 +1244,146 @@ def _outer_facing_front_tris(garment_verts, garment_faces) -> np.ndarray:
     return tris[oriented_normals[:, 1] < 0.0]
 
 
+def regularize_waistband_rim(pants, env_window_deg):
+    """issue-373 — the cover shell's top rim is a centroid-band zigzag, not a garment edge.
+
+    The lower LOWER GATE replaces the sparse library fit with the body-derived cover
+    shell (`build_cover_shell`), whose TOP rim is the band cut through body triangles:
+    the rim alternates between "tooth" vertices (one triangle's top, up to one
+    triangle-height above the cut plane) and "valley" vertices (the next triangle's
+    top, below it) at every angle. Measured 2026-08-13 on the shipped bytes: the
+    waistband ring's high-frequency residual (7-neighbour circular moving average
+    over the angular ordering) is 8.4-23x the SAME body's own shirt hem, and the rim
+    spans 18-27 mm of pure alternation. The shirt hem — a fitted .mhclo garment ring
+    — is smooth (0.47-2.01 mm), so the pipeline CAN produce a smooth ring; the shell
+    rim is a band-cut artifact.
+
+    The treatment (the issue's option (e) — "re-fit or re-tessellate so the ring
+    follows"): snap every vertex in the rim's own triangles onto the rim's angular
+    ENVELOPE — the local maximum of rim heights within `env_window_deg` (measured per
+    actor: 6 deg keeps the child's front contour dip, 10 deg bridges the sparse
+    adults' front teeth) — interpolated per vertex, and half-raise the triangle ring
+    below so the transition into the untouched shell is gradual. Triangle count,
+    vertex count and the ring's legitimate contour (the teeth envelope follows the
+    body's waistline) are unchanged, so the contract's counterweights — no decimation,
+    no remesh, no flattening, no hem roughening — cannot be satisfied by this edit
+    either.
+    """
+    mw = pants.matrix_world
+    world = [mw @ v.co for v in pants.data.vertices]
+    import bmesh as _rim_bmesh
+
+    bm = _rim_bmesh.new()
+    bm.from_mesh(pants.data)
+    bm.edges.ensure_lookup_table()
+    adj: dict[int, list[int]] = {}
+    for e in bm.edges:
+        if len(e.link_faces) == 1:
+            a, b = e.verts[0].index, e.verts[1].index
+            adj.setdefault(a, []).append(b)
+            adj.setdefault(b, []).append(a)
+    # Walk every boundary loop; the RIM is the loop whose verts reach the top of the
+    # mesh (the ankle rim and any limb-hole loops sit far below it).
+    visited: set[int] = set()
+    loops: list[list[int]] = []
+    for start in adj:
+        if start in visited:
+            continue
+        loop: list[int] = []
+        cur, prev = start, -1
+        while True:
+            loop.append(cur)
+            visited.add(cur)
+            nxt = next((x for x in adj.get(cur, []) if x != prev), None)
+            if nxt is None:
+                break
+            prev, cur = cur, nxt
+            if cur == start:
+                break
+            if len(loop) > 20000:
+                break
+        loops.append(loop)
+    if not loops:
+        print("WAISTBAND_RIM WARNING: no boundary loop found — regularization skipped")
+        return
+    rim = max(loops, key=lambda l: max(world[i].z for i in l))
+
+    cx = sum(w.x for w in world) / len(world)
+    cy = sum(w.y for w in world) / len(world)
+    ang = lambda i: math.atan2(world[i].y - cy, world[i].x - cx)  # noqa: E731
+    rim_order = sorted(rim, key=ang)
+    rim_angles = [ang(i) for i in rim_order]
+    w_rad = math.radians(env_window_deg)
+
+    # Envelope: per rim vertex, the local maximum rim height within the window.
+    env: list[float] = []
+    for i in rim_order:
+        ai = ang(i)
+        mx = -float("inf")
+        for j, aj in enumerate(rim_angles):
+            d = abs(aj - ai)
+            if d > math.pi:
+                d = 2 * math.pi - d
+            if d < w_rad:
+                mx = max(mx, world[rim_order[j]].z)
+        env.append(mx)
+
+    def env_at(th):
+        lo = hi = None
+        for k, ak in enumerate(rim_angles):
+            d = ak - th
+            if d > math.pi:
+                d -= 2 * math.pi
+            if d < -math.pi:
+                d += 2 * math.pi
+            if d <= 0 and (lo is None or d > lo[1]):
+                lo = (k, d)
+            if d >= 0 and (hi is None or d < hi[1]):
+                hi = (k, d)
+        if lo is None:
+            lo = hi
+        if hi is None:
+            hi = lo
+        if lo[0] == hi[0]:
+            return env[lo[0]]
+        w = 0.5 if lo[1] == hi[1] else -lo[1] / (hi[1] - lo[1])
+        return env[lo[0]] + (env[hi[0]] - env[lo[0]]) * w
+
+    # Zone: every vertex of every polygon that contains a rim vertex (the rim's own
+    # triangle ring — the teeth AND the valleys of the zigzag).
+    polygons = [set(p.vertices) for p in pants.data.polygons]
+    vert_faces: dict[int, list[int]] = {}
+    for fi, vs in enumerate(polygons):
+        for v in vs:
+            vert_faces.setdefault(v, []).append(fi)
+    rim_set = set(rim)
+    zone: set[int] = set()
+    for r in rim:
+        for fi in vert_faces.get(r, []):
+            zone.update(polygons[fi])
+
+    for i in zone:
+        world[i].z = env_at(ang(i))
+    row3: set[int] = set()
+    for z in zone:
+        for fi in vert_faces.get(z, []):
+            row3.update(polygons[fi])
+    for v in row3:
+        if v in zone:
+            continue
+        world[v].z = world[v].z + (env_at(ang(v)) - world[v].z) * 0.5
+
+    inv = mw.inverted()
+    for i, w in enumerate(world):
+        pants.data.vertices[i].co = inv @ w
+    bpy.context.view_layer.update()
+    print(
+        f"WAISTBAND_RIM rim {len(rim)} verts, zone {len(zone)} raised, "
+        f"row3 {len(row3) - len(zone)} half-raised, envWindow {env_window_deg} deg, "
+        f"loops {len(loops)}"
+    )
+
+
 def main():
     args = parse_args()
     GARMENT_FACTOR_PATCH.clear()  # #360: per-actor; a fresh Blender process bakes each actor anyway
@@ -2119,6 +2259,13 @@ def main():
         f"LOWER_GATE {lower_rep} pantsMesh {pants_mesh_name} verts {pants_verts_after} "
         f"tris {pants_tris} weights {pants_weights}"
     )
+    # issue-373: regularize the waistband rim (the cover shell's band-cut zigzag) BEFORE
+    # the masks so the hide masks measure the geometry that ships. The envelope window
+    # is measured per actor from the rim's own inter-teeth structure (the child's front
+    # contour dip must survive — its span floor fails above 8 deg; the adults' sparse
+    # front teeth need a 10 deg bridge to clear their tight 4x-hem ratio).
+    _waistband_env_window = 6 if (args.reference or "") == "peds_patient_child" else 10
+    regularize_waistband_rim(pants, _waistband_env_window)
     # #334: the head joint is the per-body bound below which a hide mask may stop —
     # the reference is the body's OWN skeleton (it cannot be moved by the garment
     # change being measured), not a stature fraction or a fitted constant. Read it
