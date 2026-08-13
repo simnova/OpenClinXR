@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -70,6 +71,14 @@ export type FileSizeBudgetConfig = {
   zoneBudgets?: readonly { prefix: string; maxLines: number }[];
   sizeFreeze?: Record<string, { maxLines: number; reason: string }>;
   workspaceRoot?: string;
+  /**
+   * When supplied, the per-file budget check measures ONLY these repo-relative paths
+   * (the commit's staged set). A commit is answerable for what it changes; a peer's
+   * uncommitted WIP elsewhere in the shared working tree must not block it (#361).
+   * Absent, the sweep stays global (CI / manual runs). The freeze-list honesty sweep
+   * ignores this field and always stays global.
+   */
+  stagedFiles?: string[];
 };
 
 // ── Private helpers ─────────────────────────────────────────────────────────
@@ -111,6 +120,25 @@ function countLines(root: string, rel: string): number {
   return readFileSync(join(root, rel), "utf8").split(/\r?\n/).length;
 }
 
+/**
+ * Line count of a path at HEAD. The freeze list is validated against COMMITTED
+ * content, not the working tree: uncommitted WIP in a shared checkout must not
+ * fabricate "ceiling below actual — impossible" or premature "paid down" flags
+ * (#361). Non-git trees (synthetic test fixtures) fall back to the working tree.
+ */
+function readCommittedLines(root: string, rel: string): number | undefined {
+  try {
+    const out = execFileSync("git", ["show", `HEAD:${rel}`], {
+      cwd: root,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    });
+    return out.split(/\r?\n/).length;
+  } catch {
+    return undefined;
+  }
+}
+
 function zoneBudgetFor(
   rel: string,
   zoneBudgets: readonly { prefix: string; maxLines: number }[],
@@ -123,6 +151,10 @@ function zoneBudgetFor(
 /**
  * Rule (a): every hand-written source file must be within its zone budget
  * or its (shrink-only) freeze ceiling.
+ *
+ * Scoped when `config.stagedFiles` is supplied: only those paths are measured, so a
+ * commit is answerable for what it changes. Without a staged set the sweep stays
+ * global — the freeze ratchet must still see over-budget files nobody is touching.
  */
 export function checkFileSizeBudgets(config?: FileSizeBudgetConfig): string[] {
   const root = config?.workspaceRoot ?? findWorkspaceRoot();
@@ -130,9 +162,9 @@ export function checkFileSizeBudgets(config?: FileSizeBudgetConfig): string[] {
   const sizeFreeze = config?.sizeFreeze ?? SIZE_FREEZE;
 
   const violations: string[] = [];
-  for (const rel of listSourceFiles(root)) {
+  const reportIfOver = (rel: string): void => {
     const zoneBudget = zoneBudgetFor(rel, zoneBudgets);
-    if (zoneBudget === undefined) continue;
+    if (zoneBudget === undefined) return;
     const lines = countLines(root, rel);
     const frozen = sizeFreeze[rel];
     const ceiling = frozen ? frozen.maxLines : zoneBudget;
@@ -143,7 +175,22 @@ export function checkFileSizeBudgets(config?: FileSizeBudgetConfig): string[] {
           : `${rel}: ${lines} lines > zone budget ${zoneBudget}. Split into smaller modules (new files must be <= budget). Grandfathering is only for pre-existing files.`,
       );
     }
+  };
+
+  if (config?.stagedFiles !== undefined) {
+    for (const rel of config.stagedFiles) {
+      if (!/\.(ts|tsx)$/u.test(rel)) continue;
+      if (SKIP.test(rel)) continue;
+      try {
+        reportIfOver(rel);
+      } catch {
+        // Staged path missing from the working tree (e.g. renamed/deleted) — nothing to measure.
+      }
+    }
+    return violations;
   }
+
+  for (const rel of listSourceFiles(root)) reportIfOver(rel);
   return violations;
 }
 
@@ -164,11 +211,16 @@ export function checkFreezeListHonesty(config?: FileSizeBudgetConfig): string[] 
       continue;
     }
     let lines: number;
-    try {
-      lines = countLines(root, rel);
-    } catch {
-      stale.push(`${rel}: file no longer exists — remove freeze entry`);
-      continue;
+    const committed = readCommittedLines(root, rel);
+    if (committed !== undefined) {
+      lines = committed;
+    } else {
+      try {
+        lines = countLines(root, rel);
+      } catch {
+        stale.push(`${rel}: file no longer exists — remove freeze entry`);
+        continue;
+      }
     }
     if (lines <= zoneBudget) {
       stale.push(`${rel}: now ${lines} lines <= zone budget ${zoneBudget} — remove freeze entry (paid down! ratchet must tighten)`);

@@ -114,6 +114,16 @@ export function changedFilesForProfile(profile: HookProfile): string[] {
   return [];
 }
 
+/**
+ * The true pre-commit staged set — WITHOUT the unstaged fallback that
+ * `changedFilesForProfile` uses for invocation classification. The size gate scopes
+ * to what THIS commit actually contains; an empty staged set must keep the sweep
+ * global, never re-scope it to somebody else's uncommitted WIP (#361).
+ */
+export function stagedFilesForPreCommit(): string[] {
+  return runGit(["diff", "--cached", "--name-only", "--diff-filter=ACMRTUXB"]);
+}
+
 export function matchesAnyPath(files: string[], patterns: RegExp[]): boolean {
   return files.some((file) => patterns.some((pattern) => pattern.test(file)));
 }
@@ -337,7 +347,7 @@ function formatCommand(command: string[]): string {
   return command.join(" ");
 }
 
-function runStep(step: HookStep, index: number, total: number): HookRunResult {
+function runStep(step: HookStep, index: number, total: number, profile: HookProfile): HookRunResult {
   const startedAt = performance.now();
   console.log(`\n[${index}/${total}] ${step.label}`);
   console.log(`reason: ${step.reason}`);
@@ -348,10 +358,13 @@ function runStep(step: HookStep, index: number, total: number): HookRunResult {
     throw new Error(`Hook step '${step.label}' has no command.`);
   }
 
-  // Propagate staged-file list for future architecture-rules path filters and diagnostics.
+  // Propagate the pre-commit staged set so the size gate (file-size-budgets) scopes
+  // to what THIS commit changes instead of the whole working tree. Pre-push and
+  // strict keep the full-tree sweep: their architecture step is turbo `pnpm
+  // architecture` and no staged-set scoping applies (#361).
   const env = { ...process.env };
-  if (step.label.startsWith("Architecture fitness rules")) {
-    const staged = changedFilesForProfile("pre-commit");
+  if (profile === "pre-commit" && step.label.startsWith("Architecture fitness rules")) {
+    const staged = stagedFilesForPreCommit();
     if (staged.length > 0) {
       env.OPENCLINXR_HOOK_STAGED_FILES = staged.join("\n");
     }
@@ -395,7 +408,7 @@ export async function runAgenticHookProfile(profile: HookProfile): Promise<numbe
   }
 
   for (const [index, step] of steps.entries()) {
-    const result = runStep(step, index + 1, steps.length);
+    const result = runStep(step, index + 1, steps.length, profile);
     results.push(result);
     if (result.status !== 0) {
       printSummary(profile, results);
