@@ -68,6 +68,27 @@ import { describe, expect, it } from "vitest";
  * clause (2) and would still grade wrong. Only a pixel grade settles that, which is the §11s trap
  * this rail has hit four times: a bounded quantity is not a correct shape. It also says nothing about
  * the room's DIMENSIONS (#342) or its prop set (#339).
+ *
+ * ## FIXED (#349, 2026-08-12)
+ * The RED flipped to green by wiring the native Cycles AO bake as a SEPARATE occlusion channel
+ * (MADR 0055 item 1, light half; issue-349). `room-occlusion-bake.py` bakes type="AO" per material
+ * into a packed image, feeds it into the material's "glTF Settings" node group "Occlusion" input
+ * (the exporter's occlusionTexture convention, verified against the installed Blender 5.1.1
+ * exporter source), and exports. Base colour is untouched — nothing is multiplied into albedo
+ * (refused: unrecoverable, MADR 0055 item 6 atlas). Measured on the shipped assets:
+ *
+ *   asset                          tris   materials   withOcclusion   baseColorTex   occlusion sd range (0-255)
+ *   ----------------------------   ----   ---------   --------------   ------------   ------------------------
+ *   ed-exam-bay-shell.glb           792      29            28              29               44.0 - 127.2
+ *   infinigen-ed-exam-bay.glb       440       3             3               3               15.0 -  22.8
+ *
+ * One shell material is deliberately left without occlusion: `whiteboard_surface_white` bakes flat
+ * (sd = 0.0) because the slab sits 1 mm recessed behind the solid whiteboard frame's front face —
+ * its true AO is uniform, so wiring it would fail clause (2) and render the surface black in the
+ * runtime. The Infinigen room (a closed 6.5 m box; Blender 5.1 ignores AO `max_ray_distance`,
+ * probed 3x in #345 and re-probed here) bakes darker maps (mean ~0.04-0.14) — the documented
+ * closed-room self-occlusion — but they carry real variation and pass clause (2). Geometry
+ * untouched; tris and base-colour counts unchanged.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -205,7 +226,7 @@ function requireRows(): void {
 }
 
 describe("a room has contact shadows", () => {
-  it.fails("(1) RED: every shipped room carries baked occlusion", () => {
+  it("(1) RED: every shipped room carries baked occlusion", () => {
     requireRows();
     expect(
       rows.filter((r) => r.withOcclusion === 0).map((r) => `${r.file}: ${r.materials} materials, 0 with occlusion`),

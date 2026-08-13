@@ -24,6 +24,8 @@ export const BLENDER_ENVIRONMENT_COMMAND_TIMEOUT_MS = 120_000;
 /** Room albedo+AO bake (issue-345): the bake takes ~45-90 s per room. */
 export const ROOM_BAKE_TIMEOUT_MS = 600_000;
 export const ROOM_BAKE_SCRIPT = "tools/openclinxr/asset-pipeline/environment/room-albedo-ao-bake.py";
+/** Room occlusion bake (issue-349): native Cycles AO -> separate glTF occlusionTexture. */
+export const ROOM_OCCLUSION_BAKE_SCRIPT = "tools/openclinxr/asset-pipeline/environment/room-occlusion-bake.py";
 
 export type EnvironmentArtifactsReport = {
   schemaVersion: typeof ENVIRONMENT_ARTIFACTS_SCHEMA_VERSION;
@@ -97,6 +99,13 @@ export async function writeEnvironmentArtifacts(options?: {
   // build above exports flat materials; the Cycles DIFFUSE bake (proven in #343,
   // this week) makes the shipped room carry a real texture.
   await runRoomAlbedoAoBake({
+    blenderPath: process.env["BLENDER"] ?? "blender",
+    edExamBayShellGlbPath: artifactPaths.edExamBayShellGlb,
+  });
+  // Issue-349 (MADR 0055 item 1, light half): bake a SEPARATE glTF occlusionTexture per
+  // material with the native Cycles AO bake type (D1). Kept separable from base colour —
+  // albedo stays clean for MADR 0055 item 6 atlas. See room-occlusion-bake.py.
+  await runRoomOcclusionBake({
     blenderPath: process.env["BLENDER"] ?? "blender",
     edExamBayShellGlbPath: artifactPaths.edExamBayShellGlb,
   });
@@ -390,6 +399,31 @@ async function runRoomAlbedoAoBake(options: {
       options.edExamBayShellGlbPath,
       "--output",
       options.edExamBayShellGlbPath,
+    ],
+    {
+      timeout: ROOM_BAKE_TIMEOUT_MS,
+      maxBuffer: 20 * 1024 * 1024,
+    },
+  );
+}
+
+async function runRoomOcclusionBake(options: {
+  blenderPath: string;
+  edExamBayShellGlbPath: string;
+}): Promise<void> {
+  await execFileAsync(
+    options.blenderPath,
+    [
+      "--background",
+      "--python",
+      ROOM_OCCLUSION_BAKE_SCRIPT,
+      "--",
+      "--input",
+      options.edExamBayShellGlbPath,
+      "--output",
+      options.edExamBayShellGlbPath,
+      "--resolution",
+      "512",
     ],
     {
       timeout: ROOM_BAKE_TIMEOUT_MS,

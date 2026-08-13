@@ -1,0 +1,355 @@
+{
+  "schemaVersion": "openclinxr.rooms-ao.pre-fix.v1",
+  "issue": 349,
+  "generatedAt": "2026-08-13T00:10:24.066Z",
+  "measuredAgainstCommit": "a99ef6f4d7d84e4b2faeeed05fda9674a2748bfe",
+  "instrument": "NodeIO @gltf-transform/core (same as a-room-has-contact-shadows.test.ts)",
+  "rooms": [
+    {
+      "file": "ed-exam-bay-shell.glb",
+      "path": "apps/ui-xr/public/xr-assets/environment/ed-exam-bay-shell.glb",
+      "tris": 792,
+      "meshes": 67,
+      "materials": 29,
+      "materialsWithBaseColorTexture": 29,
+      "materialsWithOcclusion": 0,
+      "roughnessValues": [
+        0.3499999940395355,
+        0.9200000166893005,
+        0.25,
+        0.5,
+        0.6000000238418579,
+        0.6000000238418579,
+        0.9599999785423279,
+        0.20000000298023224,
+        0.25,
+        0.8999999761581421,
+        0.8500000238418579,
+        0.15000000596046448,
+        0.5,
+        0.25,
+        0.25,
+        0.4000000059604645,
+        0.699999988079071,
+        0.6000000238418579,
+        0.699999988079071,
+        0.5,
+        0.8500000238418579,
+        0.8999999761581421,
+        0.550000011920929,
+        0.550000011920929,
+        0.550000011920929,
+        0.5,
+        0.5,
+        0.30000001192092896,
+        0.44999998807907104
+      ],
+      "materialDetail": [
+        {
+          "name": "ed_bay_warm_gray_floor",
+          "hasBaseColorTexture": true,
+          "hasOcclusionTexture": false,
+          "uvSets": [
+            "TEXCOORD_0"
+          ],
+          "tris": 12
+        },
+        {
+          "name": "ed_bay_soft_blue_wall",
+          "hasBaseColorTexture": true,
+          "hasOcclusionTexture": false,
+          "uvSets": [
+            "TEXCOORD_0"
+          ],
+          "tris": 24
+        },
+        {
+          "name": "clinical_wall_rail",
+          "hasBaseColorTexture": true,
+          "hasOcclusionTexture": false,
+          "uvSets": [
+            "TEXCOORD_0"
+          ],
+          "tris": 12
+        },
+        {
+          "name": "subtle_interaction_zone_markers",
+          "hasBaseColorTexture": true,
+          "hasOcclusionTexture": false,
+          "uvSets": [
+            "TEXCOORD_0"
+          ],
+          "tris": 60
+        },
+        {
+          "name": "clinical_equipment_context",
+          "hasBaseColorTexture": true,
+          "hasOcclusionTexture": false,
+          "uvSets": [
+            "TEXCOORD_0"
+          ],
+          "tris": 72
+        },
+        {
+          "name": "safety_red_cues",
+          "hasBaseColorTexture": true,
+          "hasOcclusionTexture": false,
+          "uvSets": [
+            "TEXCOORD_0"
+          ],
+          "tris": 60
+        },
+        {
+          "name": "privacy_curtain_blue_linen",
+          "hasBaseColorTexture": true,
+          "hasOcclusionTexture": false,
+          "uvSets": [
+            "TEXCOORD_0"
+          ],
+          "tris": 12
+        },
+        {
+          "name": "warm_exam_light_panel",
+          "hasBaseColorTexture": true,
+          "hasOcclusionTexture": false,
+          "uvSets": [
+            "TEXCOORD_0"
+          ],
+          "tris": 48
+        },
+        {
+          "name": "brushed_clinical_metal",
+          "hasBaseColorTexture": true,
+          "hasOcclusionTexture": false,
+          "uvSets": [
+            "TEXCOORD_0"
+          ],
+          "tris": 36
+        },
+        {
+          "name": "stretcher_mattress_blue_gray",
+          "hasBaseColorTexture": true,
+          "hasOcclusionTexture": false,
+          "uvSets": [
+            "TEXCOORD_0"
+          ],
+          "tris": 24
+        },
+        {
+          "name": "case_note_paper",
+          "hasBaseColorTexture": true,
+          "hasOcclusionTexture": false,
+          "uvSets": [
+            "TEXCOORD_0"
+          ],
+          "tris": 48
+        },
+        {
+          "name": "monitor_dark_screen_with_waveform",
+          "hasBaseColorTexture": true,
+          "hasOcclusionTexture": false,
+          "uvSets": [
+            "TEXCOORD_0"
+          ],
+          "tris": 24
+        },
+        {
+          "name": "privacy_zone_floor_tape_yellow",
+          "hasBaseColorTexture": true,
+          "hasOcclusionTexture": false,
+          "uvSets": [
+            "TEXCOORD_0"
+          ],
+          "tris": 24
+        },
+        {
+          "name": "curtain_track_rail_metal",
+          "hasBaseColorTexture": true,
+          "hasOcclusionTexture": false,
+          "uvSets": [
+            "TEXCOORD_0"
+          ],
+          "tris": 12
+        },
+        {
+          "name": "curtain_track_ring_metal",
+          "hasBaseColorTexture": true,
+          "hasOcclusionTexture": false,
+          "uvSets": [
+            "TEXCOORD_0"
+          ],
+          "tris": 72
+        },
+        {
+          "name": "subtle_floor_scuff_wear",
+          "hasBaseColorTexture": true,
+          "hasOcclusionTexture": false,
+          "uvSets": [
+            "TEXCOORD_0"
+          ],
+          "tris": 12
+        },
+        {
+          "name": "infection_control_and_handoff_signage",
+          "hasBaseColorTexture": true,
+          "hasOcclusionTexture": false,
+          "uvSets": [
+            "TEXCOORD_0"
+          ],
+          "tris": 12
+        },
+        {
+          "name": "whiteboard_frame_gray",
+          "hasBaseColorTexture": true,
+          "hasOcclusionTexture": false,
+          "uvSets": [
+            "TEXCOORD_0"
+          ],
+          "tris": 12
+        },
+        {
+          "name": "whiteboard_surface_white",
+          "hasBaseColorTexture": true,
+          "hasOcclusionTexture": false,
+          "uvSets": [
+            "TEXCOORD_0"
+          ],
+          "tris": 12
+        },
+        {
+          "name": "whiteboard_marker_tray_dark",
+          "hasBaseColorTexture": true,
+          "hasOcclusionTexture": false,
+          "uvSets": [
+            "TEXCOORD_0"
+          ],
+          "tris": 12
+        },
+        {
+          "name": "architectural_trim_white",
+          "hasBaseColorTexture": true,
+          "hasOcclusionTexture": false,
+          "uvSets": [
+            "TEXCOORD_0"
+          ],
+          "tris": 72
+        },
+        {
+          "name": "wall_chamfer_soft_blue",
+          "hasBaseColorTexture": true,
+          "hasOcclusionTexture": false,
+          "uvSets": [
+            "TEXCOORD_0"
+          ],
+          "tris": 24
+        },
+        {
+          "name": "outlet_plate_white",
+          "hasBaseColorTexture": true,
+          "hasOcclusionTexture": false,
+          "uvSets": [
+            "TEXCOORD_0"
+          ],
+          "tris": 12
+        },
+        {
+          "name": "outlet_socket_dark",
+          "hasBaseColorTexture": true,
+          "hasOcclusionTexture": false,
+          "uvSets": [
+            "TEXCOORD_0"
+          ],
+          "tris": 24
+        },
+        {
+          "name": "light_switch_plate_ivory",
+          "hasBaseColorTexture": true,
+          "hasOcclusionTexture": false,
+          "uvSets": [
+            "TEXCOORD_0"
+          ],
+          "tris": 12
+        },
+        {
+          "name": "light_switch_toggle_white",
+          "hasBaseColorTexture": true,
+          "hasOcclusionTexture": false,
+          "uvSets": [
+            "TEXCOORD_0"
+          ],
+          "tris": 12
+        },
+        {
+          "name": "hand_gel_bottle_teal",
+          "hasBaseColorTexture": true,
+          "hasOcclusionTexture": false,
+          "uvSets": [
+            "TEXCOORD_0"
+          ],
+          "tris": 12
+        },
+        {
+          "name": "hand_gel_bracket_metal",
+          "hasBaseColorTexture": true,
+          "hasOcclusionTexture": false,
+          "uvSets": [
+            "TEXCOORD_0"
+          ],
+          "tris": 12
+        },
+        {
+          "name": "hand_gel_nozzle_dark",
+          "hasBaseColorTexture": true,
+          "hasOcclusionTexture": false,
+          "uvSets": [
+            "TEXCOORD_0"
+          ],
+          "tris": 12
+        }
+      ]
+    },
+    {
+      "file": "infinigen-ed-exam-bay.glb",
+      "path": "apps/ui-xr/public/xr-assets/environment/infinigen-ed-exam-bay.glb",
+      "tris": 440,
+      "meshes": 4,
+      "materials": 3,
+      "materialsWithBaseColorTexture": 3,
+      "materialsWithOcclusion": 0,
+      "roughnessValues": [
+        0.7044714689254761,
+        1,
+        0.7956881523132324
+      ],
+      "materialDetail": [
+        {
+          "name": "shader_plaster.014",
+          "hasBaseColorTexture": true,
+          "hasOcclusionTexture": false,
+          "uvSets": [
+            "TEXCOORD_0"
+          ],
+          "tris": 190
+        },
+        {
+          "name": "shader_ceramic_shader_square_tile_tile.002",
+          "hasBaseColorTexture": true,
+          "hasOcclusionTexture": false,
+          "uvSets": [
+            "TEXCOORD_0"
+          ],
+          "tris": 44
+        },
+        {
+          "name": "shader_plaster.021",
+          "hasBaseColorTexture": true,
+          "hasOcclusionTexture": false,
+          "uvSets": [
+            "TEXCOORD_0"
+          ],
+          "tris": 30
+        }
+      ]
+    }
+  ]
+}
