@@ -87,9 +87,9 @@ type PageEvidence = {
   frameCoverage?: number;
   frameSpanFraction?: number | null;
   groundPlanePresent?: boolean;
-  /** #354: the region the camera framed under eye-focus (derived eye box or fallback). */
+  /** #354/#358: the region the camera framed (derived eye box, derived head box, or the legacy whole-subject fallback). */
   focusRegion?: {
-    kind: "eye_box" | "whole_subject_fallback";
+    kind: "eye_box" | "head_box" | "whole_subject_fallback";
     matchedMeshes?: string[];
     boundsMeters?: { min: { x: number; y: number; z: number }; max: { x: number; y: number; z: number } };
     reason?: string;
@@ -116,8 +116,8 @@ type SubjectSpec = {
   exportGlb?: boolean;
   /** When true, render without the neutral ground plane — flat background (#265). */
   subjectOnly?: boolean;
-  /** #354: focus the camera on the DERIVED eye box instead of the whole subject. */
-  focus?: "eyes";
+  /** #354/#358: focus the camera on a DERIVED region instead of the whole subject. */
+  focus?: "eyes" | "head";
   label?: string;
 };
 
@@ -205,17 +205,32 @@ async function captureSubject(input: {
   await input.page.goto(url, { waitUntil: "domcontentloaded", timeout: 120_000 });
   const handle = await input.page.waitForFunction(
     () => {
-      const evidence = (window as unknown as {
+      const w = window as unknown as {
         __openClinXrIsolatedSubjectEvidence?: PageEvidence;
-      }).__openClinXrIsolatedSubjectEvidence;
-      return evidence && typeof evidence.meshCount === "number" && evidence.meshCount > 0
-        ? evidence
-        : null;
+      };
+      const evidence = w.__openClinXrIsolatedSubjectEvidence;
+      if (evidence && typeof evidence.meshCount === "number" && evidence.meshCount > 0) {
+        return { kind: "evidence" as const, value: evidence };
+      }
+      // #358: the lab REFUSES an unresolvable focus (no silent fallback) by
+      // rendering its error into #app — surface it instead of timing out.
+      const app = document.querySelector<HTMLDivElement>("#app");
+      const text = app?.textContent ?? "";
+      if (text.includes("Isolated subject lab error")) {
+        return { kind: "error" as const, text: text.slice(0, 2000) };
+      }
+      return null;
     },
     null,
     { timeout: 120_000 },
   );
-  const evidence = (await handle.jsonValue()) as PageEvidence;
+  const settled = (await handle.jsonValue()) as
+    | { kind: "evidence"; value: PageEvidence }
+    | { kind: "error"; text: string };
+  if (settled.kind === "error") {
+    throw new Error(`isolated subject lab refused the subject: ${settled.text}`);
+  }
+  const evidence = settled.value;
   await mkdir(path.dirname(input.imagePath), { recursive: true });
   const canvas = input.page.locator("#isolated-subject-capture-canvas");
   if (await canvas.count()) {
@@ -1215,6 +1230,275 @@ function pngSizeFromFile(filePath: string): { width: number; height: number } | 
   };
 }
 
+// ---------------------------------------------------------------------------
+// #358 — matched head-focus crops: MPFB and Anny rails at the SAME head framing
+// ---------------------------------------------------------------------------
+
+/** #358 evidence root — same dir as the pre-fix before-column. */
+export const HEAD_FOCUS_EVIDENCE_ROOT = ".openclinxr/evidence/head-focus";
+
+export type HeadCropSpec = {
+  rail: "mpfb" | "anny";
+  role: string;
+  glb: string;
+  outName: string;
+};
+
+/** #358 shipped actors — one per rail, the same GLBs the #222/#341 hair contracts measure. */
+export const HEAD_FOCUS_CROP_SPECS: HeadCropSpec[] = [
+  {
+    rail: "mpfb",
+    role: "adult_female (MPFB rail)",
+    glb: "generated-humanoids/mpfb-ob-patient-aisha.glb",
+    outName: "mpfb-head-front.png",
+  },
+  {
+    rail: "anny",
+    role: "adult (Anny rail)",
+    glb: "generated-humanoids/peds_nurse_kevin.glb",
+    outName: "anny-head-front.png",
+  },
+];
+
+export type HeadCropViewRecord = {
+  rail: "mpfb" | "anny";
+  role: string;
+  view: string;
+  imagePath: string;
+  bytes: number;
+  pngDimensions: { width: number; height: number } | null;
+  frameCoverage: number;
+  frameSpanFraction: number | null;
+  /** The framing actually used — kind "head_box" for both rails (never a fallback). */
+  focusRegion: PageEvidence["focusRegion"];
+  subjectOnly: boolean;
+};
+
+export type HeadFocusCropRun = {
+  schemaVersion: "openclinxr.head-focus.crop-run.v1";
+  issue: "358";
+  factoryStep: "instrument";
+  measuredAt: string;
+  generator: {
+    tool: "renderHeadFocusCrops";
+    file: "tools/openclinxr/evidence/isolated-subject-harness.ts";
+    deterministic: true;
+    llmInvolved: false;
+    viewportPx: number;
+    note: string;
+  };
+  summary: {
+    requested: number;
+    produced: number;
+    devServerBoots: number;
+    browserLaunches: number;
+    wallClockMs: number;
+  };
+  crops: HeadCropViewRecord[];
+  claimScope: string[];
+  notEvidenceFor: string[];
+};
+
+/**
+ * #358 head-focus station: render head-framed crops of ONE asset per rail (MPFB
+ * and Anny) through the SAME product path as every other isolated subject — one
+ * dev-server boot, one browser, two crops. The camera frames the head box the
+ * lab derives from the body's own bounds (`focus=head`, never the eye mesh),
+ * so both rails land at MATCHED head framing — the comparison the hair
+ * direction question (#222 vs #341) is blocked on. How the hair LOOKS is the
+ * orchestrator's pixel grade; this run produces the crops and records the
+ * framing actually used (focusRegion).
+ */
+export async function renderHeadFocusCrops(options?: {
+  cwd?: string;
+  outputRoot?: string;
+  specs?: HeadCropSpec[];
+}): Promise<HeadFocusCropRun> {
+  const cwd = options?.cwd ?? process.cwd();
+  const outputRoot = options?.outputRoot ?? HEAD_FOCUS_EVIDENCE_ROOT;
+  const specs = options?.specs ?? HEAD_FOCUS_CROP_SPECS;
+  const outDir = path.join(cwd, outputRoot);
+  await mkdir(outDir, { recursive: true });
+
+  const t0 = Date.now();
+  let server: PortlessDevServer | null = null;
+  let browser: Browser | null = null;
+  let boots = 0;
+  let browsers = 0;
+  const crops: HeadCropViewRecord[] = [];
+
+  try {
+    boots += 1;
+    server = await spawnPortlessDevServer({
+      filter: "@openclinxr/ui-xr",
+      cwd,
+      readyTimeoutMs: 180_000,
+    });
+
+    browsers += 1;
+    browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({
+      viewport: { ...PACK_VIEWPORT },
+      deviceScaleFactor: 1,
+    });
+
+    for (const spec of specs) {
+      const subjectSpec: SubjectSpec = {
+        subjectId: `${spec.rail}_head_front`,
+        subjectKind: "glb",
+        bodyGlb: spec.glb,
+        view: "front",
+        focus: "head",
+        subjectOnly: true,
+        label: `${spec.rail} head front`,
+      };
+      const imagePath = path.join(outDir, spec.outName);
+      const rendered = await captureSubject({
+        page,
+        baseUrl: server.url,
+        spec: subjectSpec,
+        imagePath,
+      });
+      const bytes = (await stat(imagePath)).size;
+      crops.push({
+        rail: spec.rail,
+        role: spec.role,
+        view: "front",
+        imagePath: path.relative(cwd, imagePath).replaceAll("\\", "/"),
+        bytes,
+        pngDimensions: pngSizeFromFile(imagePath),
+        frameCoverage: rendered.frameCoverage,
+        frameSpanFraction: rendered.frameSpanFraction,
+        focusRegion: rendered.focusRegion ?? null,
+        subjectOnly: true,
+      });
+    }
+  } finally {
+    if (browser) await browser.close();
+    if (server) server.proc.kill("SIGTERM");
+  }
+
+  const run: HeadFocusCropRun = {
+    schemaVersion: "openclinxr.head-focus.crop-run.v1",
+    issue: "358",
+    factoryStep: "instrument",
+    measuredAt: new Date().toISOString(),
+    generator: {
+      tool: "renderHeadFocusCrops",
+      file: "tools/openclinxr/evidence/isolated-subject-harness.ts",
+      deterministic: true,
+      llmInvolved: false,
+      viewportPx: PACK_VIEWPORT.width,
+      note:
+        "matched head-framed crops via isolated-subject-lab focus=head (head box derived from the body "
+        + "bounds — topmost band cut at the neck; never the eye mesh, never literal coordinates); "
+        + "subject-only; one dev-server boot for the whole run",
+    },
+    summary: {
+      requested: specs.length,
+      produced: crops.length,
+      devServerBoots: boots,
+      browserLaunches: browsers,
+      wallClockMs: Date.now() - t0,
+    },
+    crops,
+    claimScope: [
+      "matched_head_framed_crops_of_one_asset_per_rail_mpfb_and_anny",
+      "camera_framed_on_the_geometry_derived_head_box_on_both_rails",
+      "framing_actually_used_recorded_per_crop_focusRegion",
+      "one_dev_server_boot_for_the_whole_run",
+    ],
+    notEvidenceFor: [
+      "which_hair_mechanism_is_correct_orchestrator_pixel_grade_of_these_crops_required",
+      "clinical_eye_realism",
+      "clinical_realism",
+      "gaze_correctness",
+      "quest_readiness",
+    ],
+  };
+
+  const reportPath = path.join(outDir, "crop-report.json");
+  await writeFile(reportPath, `${JSON.stringify(run, null, 2)}\n`, "utf8");
+  return run;
+}
+
+export type HeadFocusRefusalProbe = {
+  schemaVersion: "openclinxr.head-focus.refusal-probe.v1";
+  issue: "358";
+  measuredAt: string;
+  subject: { rail: string; glb: string; focus: "eyes" };
+  refused: boolean;
+  error: string | null;
+  note: string;
+};
+
+/**
+ * #358 no-silent-fallback probe: `focus=eyes` on an Anny asset (eye BONES, zero
+ * eye GEOMETRY — the #358 measurement) must REFUSE, not silently fall back to
+ * whole-subject framing. The lab throws; `captureSubject` surfaces the error
+ * instead of timing out; this records the refusal for the contract.
+ */
+export async function probeHeadFocusRefusal(options?: {
+  cwd?: string;
+  outputRoot?: string;
+}): Promise<HeadFocusRefusalProbe> {
+  const cwd = options?.cwd ?? process.cwd();
+  const outputRoot = options?.outputRoot ?? HEAD_FOCUS_EVIDENCE_ROOT;
+  const subject = {
+    rail: "anny",
+    glb: "generated-humanoids/peds_nurse_kevin.glb",
+    focus: "eyes" as const,
+  };
+
+  let server: PortlessDevServer | null = null;
+  let browser: Browser | null = null;
+  let error: string | null = null;
+  try {
+    server = await spawnPortlessDevServer({
+      filter: "@openclinxr/ui-xr",
+      cwd,
+      readyTimeoutMs: 180_000,
+    });
+    browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({ viewport: { ...PACK_VIEWPORT }, deviceScaleFactor: 1 });
+    const imagePath = path.join(cwd, outputRoot, "refusal-probe.png");
+    await captureSubject({
+      page,
+      baseUrl: server.url,
+      spec: {
+        subjectId: "refusal_probe_anny_eyes",
+        subjectKind: "glb",
+        bodyGlb: subject.glb,
+        view: "front",
+        focus: "eyes",
+        subjectOnly: true,
+        label: "refusal probe",
+      },
+      imagePath,
+    });
+  } catch (err) {
+    error = err instanceof Error ? err.message : String(err);
+  } finally {
+    if (browser) await browser.close();
+    if (server) server.proc.kill("SIGTERM");
+  }
+
+  const probe: HeadFocusRefusalProbe = {
+    schemaVersion: "openclinxr.head-focus.refusal-probe.v1",
+    issue: "358",
+    measuredAt: new Date().toISOString(),
+    subject,
+    refused: error !== null && /refusing rather than falling back|unresolvable/.test(error ?? ""),
+    error,
+    note:
+      "focus=eyes on an Anny asset has no eye geometry — the station must refuse loudly, never "
+      + "silently frame the whole subject (#358)",
+  };
+  const outPath = path.join(cwd, outputRoot, "refusal-probe.json");
+  await writeFile(outPath, `${JSON.stringify(probe, null, 2)}\n`, "utf8");
+  return probe;
+}
+
 
 const isMain = Boolean(
   process.argv[1]
@@ -1265,6 +1549,37 @@ if (isMain) {
           browserLaunches: run.summary.browserLaunches,
           wallClockMs: run.summary.wallClockMs,
         }, null, 2));
+      })
+      .catch((err) => {
+        console.error(err);
+        process.exitCode = 1;
+      });
+  } else if (argv.includes("--head-crops")) {
+    renderHeadFocusCrops({ outputRoot: flagValue("--output-root") })
+      .then((run) => {
+        console.log(JSON.stringify({
+          crops: run.crops.map((c) => ({
+            rail: c.rail,
+            view: c.view,
+            imagePath: c.imagePath,
+            bytes: c.bytes,
+            pngDimensions: c.pngDimensions,
+            frameSpanFraction: c.frameSpanFraction,
+            focusRegion: c.focusRegion,
+          })),
+          devServerBoots: run.summary.devServerBoots,
+          browserLaunches: run.summary.browserLaunches,
+          wallClockMs: run.summary.wallClockMs,
+        }, null, 2));
+      })
+      .catch((err) => {
+        console.error(err);
+        process.exitCode = 1;
+      });
+  } else if (argv.includes("--refusal-probe")) {
+    probeHeadFocusRefusal({ outputRoot: flagValue("--output-root") })
+      .then((probe) => {
+        console.log(JSON.stringify(probe, null, 2));
       })
       .catch((err) => {
         console.error(err);

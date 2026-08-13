@@ -47,7 +47,7 @@ export type MpfbEyeActorId = (typeof MPFB_EYE_ACTORS)[number]["id"];
 const EYE_MESH_RE = /eyes|iris|cornea|sclera/i;
 const EYE_BONE_RE = /^eye\.(L|R)$/i;
 
-type Vec3 = { x: number; y: number; z: number };
+export type Vec3 = { x: number; y: number; z: number };
 
 export type EyeCluster = {
   side: "L" | "R";
@@ -352,7 +352,7 @@ function wholeBodyAabb(doc: Document): { min: Vec3; max: Vec3; heightMeters: num
  * the same projection the product's three.js camera performs; documented here so the
  * before-column is auditable without a browser.
  */
-function projectPixelSpan(input: {
+export function projectPixelSpan(input: {
   subject: { min: Vec3; max: Vec3 };
   cameraPosition: Vec3;
   lookAt: Vec3;
