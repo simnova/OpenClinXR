@@ -68,113 +68,70 @@ import { describe, expect, it } from "vitest";
  *   - The flip-rate threshold bounds ALTERNATION, not amplitude. A finer zigzag with the same flip
  *     rate still fails, which is intended; a smooth curve with large amplitude passes, which is also
  *     intended, because that is a hairline shape question and not this contract's.
+ *
+ * ## SUPERSEDED 2026-08-13 — THE SUBJECT OF THIS CONTRACT NO LONGER EXISTS
+ *
+ * Everything above is a true record of a defect that was real when measured. It is retained because
+ * the flip-rate METHOD it introduced is still in use (#355 applied it to the garment-boundary
+ * frontier), and because the numbers are the only calibration anyone has for "what a per-polygon
+ * sawtooth measures".
+ *
+ * **But #341 rounds 11-16 retired the scalp primitive.** The hairline moved into the baked skin
+ * texture, so `scalpPrims = 0` on all three shipped actors and there is no scalp/skin seam left to
+ * walk. Measured 2026-08-13: 0 scalp primitives, 0 hair meshes, 0 hair triangles; hair exists only as
+ * dark pixels in the 615-648 KB skin texture (#296).
+ *
+ * **THE STATE THIS LEFT WAS WORSE THAN A RED.** `measure()` returned null for every actor, `rows` was
+ * empty, and the vacuity guard threw — so clauses (2) and (3) failed on main (for an unknown number of
+ * cycles), while clause (1), being `it.fails`, **"passed" by throwing**. An `it.fails` test is
+ * satisfied when the body fails for ANY reason, including measuring nothing at all. A RED that is
+ * green because its subject was deleted is the most misleading artifact this repo can hold: it reads
+ * as a defect still being watched.
+ *
+ * It also made every `done_when` that referenced this file unpassable. That cost a real slice — #355's
+ * contract gated on it and was refused at integrate, and the work had to be cherry-picked.
+ *
+ * ## WHAT REPLACES IT (§6p: a contract that removes something must say what takes over)
+ *
+ * The clauses below now gate the design that actually shipped: the scalp is retired and the hairline
+ * is baked into the skin texture. That is a NET over the current mechanism, not a weakening — the old
+ * clauses could not fail meaningfully, and these can.
+ *
+ * What is NOT covered, and is the honest gap: **nothing here measures whether the painted hairline
+ * looks right.** It does not. Graded on #354's 1024 px eye crops, the mask is a hard, pixel-stair-
+ * stepped boundary that clips aisha's brow and runs onto Kevin's cheek. Quantifying that needs a
+ * texture-space measurement (the render-space attempts failed twice — in a lit render "dark" is also
+ * pupils, lashes and shadow), and it belongs to #296.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const GENERATED = "apps/ui-xr/public/generated-humanoids";
 
-/** A smooth arc reverses direction at its extrema only. Measured ambient today: 54–67%. */
-const MAX_FLIP_RATE = 0.25;
+/** The baked hairline lives in the skin texture; below this it is not a real bake. */
+const MIN_SKIN_TEXTURE_KB = 200;
 
-/** #341 round 5 derived the hairline from the body's own surface. A fix must not relocate it. */
-const HAIRLINE_BAND_H = { min: 0.90, max: 0.96 } as const;
-
-type Row = {
-  file: string;
-  centralSeamVerts: number;
-  steps: number;
-  flips: number;
-  flipRate: number;
-  meanH: number;
-  scalpTris: number;
-};
+type Row = { file: string; scalpPrims: number; hairMeshes: number; skinTextureKb: number };
 
 const io = new NodeIO();
 
 async function measure(rel: string): Promise<Row | null> {
   const doc = await io.read(join(REPO_ROOT, rel));
-  const body = doc.getRoot().listMeshes().find((m) => /_body$/.test(m.getName()));
-  if (!body) return null;
-
-  type Prim = ReturnType<typeof body.listPrimitives>[number];
-  let scalp: Prim | undefined;
-  let skin: Prim | undefined;
-  for (const p of body.listPrimitives()) {
-    const n = p.getMaterial()?.getName() ?? "";
-    if (/scalp/i.test(n)) scalp = p;
-    else if (/skin/i.test(n)) skin = p;
-  }
-  if (!scalp || !skin) return null;
-
-  const key = (v: number[]): string => v.map((x) => x.toFixed(5)).join(",");
-  const skinSet = new Set<string>();
-  const sp = skin.getAttribute("POSITION")!;
-  for (let i = 0; i < sp.getCount(); i++) skinSet.add(key(sp.getElement(i, [0, 0, 0]) as number[]));
-
-  const cp = scalp.getAttribute("POSITION")!;
-  const seam: number[][] = [];
-  for (let i = 0; i < cp.getCount(); i++) {
-    const v = cp.getElement(i, [0, 0, 0]) as number[];
-    if (skinSet.has(key(v))) seam.push(v);
-  }
-  if (seam.length < 20) return null;
-
-  // Figure height from every RENDERING primitive (alpha-0 MASK regions are discarded, not drawn).
-  let lo = Infinity;
-  let hi = -Infinity;
-  for (const m of doc.getRoot().listMeshes()) {
-    for (const p of m.listPrimitives()) {
-      const mat = p.getMaterial();
-      if (mat?.getAlphaMode() === "MASK" && (mat?.getBaseColorFactor()?.[3] ?? 1) === 0) continue;
-      const pos = p.getAttribute("POSITION");
-      if (!pos) continue;
-      for (let i = 0; i < pos.getCount(); i++) {
-        const y = (pos.getElement(i, [0, 0, 0]) as number[])[1]!;
-        if (y < lo) lo = y;
-        if (y > hi) hi = y;
+  let scalpPrims = 0;
+  let hairMeshes = 0;
+  let skinTextureKb = 0;
+  for (const mesh of doc.getRoot().listMeshes()) {
+    for (const prim of mesh.listPrimitives()) {
+      const name = `${mesh.getName()}/${prim.getMaterial()?.getName() ?? ""}`;
+      if (/scalp/i.test(name)) scalpPrims++;
+      if (/hair/i.test(name)) hairMeshes++;
+      if (/skin/i.test(name)) {
+        const img = prim.getMaterial()?.getBaseColorTexture()?.getImage();
+        if (img) skinTextureKb = Math.max(skinTextureKb, img.length / 1024);
       }
     }
   }
-  const H = hi - lo;
-
-  // Central forehead: exclude the temples, which curve back and legitimately change height.
-  const xs = seam.map((v) => v[0]!);
-  const zs = seam.map((v) => v[2]!);
-  const cx = (Math.max(...xs) + Math.min(...xs)) / 2;
-  const halfW = (Math.max(...xs) - Math.min(...xs)) / 2;
-  const zmin = Math.min(...zs);
-  const zmax = Math.max(...zs);
-  const central = seam
-    .filter((v) => Math.abs(v[0]! - cx) < 0.45 * halfW && v[2]! > zmin + 0.75 * (zmax - zmin))
-    .sort((a, b) => a[0]! - b[0]!);
-
-  let flips = 0;
-  let steps = 0;
-  let prev = 0;
-  for (let i = 1; i < central.length; i++) {
-    const dy = central[i]![1]! - central[i - 1]![1]!;
-    if (Math.abs(dy) < 1e-6) continue;
-    steps++;
-    if (prev !== 0 && Math.sign(dy) !== Math.sign(prev)) flips++;
-    prev = dy;
-  }
-
-  const meanY = central.reduce((a, v) => a + v[1]!, 0) / (central.length || 1);
-  let scalpTris = 0;
-  for (const p of body.listPrimitives()) {
-    if (/scalp/i.test(p.getMaterial()?.getName() ?? "")) scalpTris += (p.getIndices()?.getCount() ?? 0) / 3;
-  }
-
-  return {
-    file: rel.split("/").pop()!,
-    centralSeamVerts: central.length,
-    steps,
-    flips,
-    flipRate: steps ? flips / steps : 0,
-    meanH: (meanY - lo) / H,
-    scalpTris,
-  };
+  return { file: rel.split("/").pop()!, scalpPrims, hairMeshes, skinTextureKb };
 }
 
 const files = readdirSync(join(REPO_ROOT, GENERATED))
@@ -185,38 +142,38 @@ const rows = (await Promise.all(files.map((f) => measure(f).catch(() => null))))
   (r): r is Row => r !== null,
 );
 
-/** An empty enumeration must FAIL, never pass vacuously (§7t). */
+/** An empty enumeration must FAIL, never pass vacuously (§7t) — the trap this file just fell into. */
 function requireRows(): void {
-  expect(rows.length, `MPFB bodies with a measurable hairline seam (scanned ${files.length})`)
-    .toBeGreaterThanOrEqual(3);
+  expect(rows.length, `MPFB bodies scanned (of ${files.length})`).toBeGreaterThanOrEqual(3);
 }
 
-const show = (r: Row): string =>
-  `${r.file}: flipRate=${(r.flipRate * 100).toFixed(0)}% (${r.flips}/${r.steps} steps, ${r.centralSeamVerts} verts) meanH=${r.meanH.toFixed(4)}`;
-
-describe("the hairline is a line, not a sawtooth", () => {
-  it.fails("(1) RED: the central forehead seam does not alternate direction every polygon", () => {
+describe("the hairline is baked into the skin texture (scalp retired)", () => {
+  it("(1) the scalp primitive stays retired", () => {
+    // #341 rounds 11-16 replaced the scalp/skin seam with a texture hairline. A scalp reappearing
+    // means a re-bake regressed to the old mechanism, and the sawtooth measured above comes back.
     requireRows();
-    expect(
-      rows.filter((r) => r.flipRate > MAX_FLIP_RATE).map(show),
-      `central-forehead seams alternating more than ${MAX_FLIP_RATE * 100}% of steps`,
-    ).toEqual([]);
+    const back = rows
+      .filter((r) => r.scalpPrims > 0)
+      .map((r) => `${r.file}: scalpPrims=${r.scalpPrims}`);
+    expect(back, "bodies where the scalp primitive returned").toEqual([]);
   });
 
-  it("(2) NET known-good: the hairline stays where #341 round 5 derived it", () => {
-    // Refuses the two cheap smoothings — raise every seam vertex, or shrink the scalp above the
-    // brow. Both flatten the flip rate by MOVING the line the body's own surface put there.
+  it("(2) the skin texture that carries the hairline is present and non-trivial", () => {
+    // With the scalp gone this texture is the ONLY thing drawing hair. If it vanishes the actors go
+    // bald, and no other contract would notice.
     requireRows();
-    const moved = rows
-      .filter((r) => r.meanH < HAIRLINE_BAND_H.min || r.meanH > HAIRLINE_BAND_H.max)
-      .map(show);
-    expect(moved, `hairlines outside ${HAIRLINE_BAND_H.min}–${HAIRLINE_BAND_H.max} H`).toEqual([]);
+    const missing = rows
+      .filter((r) => r.skinTextureKb < MIN_SKIN_TEXTURE_KB)
+      .map((r) => `${r.file}: skinTexture=${r.skinTextureKb.toFixed(0)}KB`);
+    expect(missing, `bodies whose skin texture is under ${MIN_SKIN_TEXTURE_KB} KB`).toEqual([]);
   });
 
-  it("(3) NET known-good: the scalp region still exists", () => {
-    // Refuses "delete the scalp": no region, no ragged boundary, contract (1) green, no hair.
+  it("(3) no hair GEOMETRY has appeared without updating this contract", () => {
+    // Not a defect either way — #296 tracks acquiring real hair assets. This is a tripwire: if hair
+    // geometry lands, the texture-hairline assumption above stops being the mechanism and these
+    // clauses must be rewritten rather than silently continuing to pass.
     requireRows();
-    const gone = rows.filter((r) => r.scalpTris < 500).map((r) => `${r.file}: scalpTris=${r.scalpTris}`);
-    expect(gone, "bodies whose scalp region was dropped").toEqual([]);
+    const geo = rows.filter((r) => r.hairMeshes > 0).map((r) => `${r.file}: hairMeshes=${r.hairMeshes}`);
+    expect(geo, "bodies carrying hair geometry (see #296 — rewrite this contract if so)").toEqual([]);
   });
 });
