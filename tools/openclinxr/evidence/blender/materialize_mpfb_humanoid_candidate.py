@@ -1214,6 +1214,15 @@ def parse_args():
             "drives the MPFB macro dict (#328). Omit for the default-macro body (Aisha path)."
         ),
     )
+    parser.add_argument(
+        "--actor-role",
+        default="patient",
+        help=(
+            "Cast role for #180 palette wiring (patient|parent|nurse|...). Feeds "
+            "automate_blender.garment_shell_color so co-present actors do not share a primary "
+            "garment colour; the nurse/clinician role also selects the scrub-shirt asset."
+        ),
+    )
     return parser.parse_args(argv)
 
 
@@ -1992,19 +2001,49 @@ def main():
         _sys3.path.insert(0, str(_stage_dir))
     from body_param_stage import import_obj, apply_object_transforms, transfer_weights_body_to_garment, world_bounds  # noqa: E402
 
-    _garment_dir = (
-        REPO_ROOT
-        / ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/toigo_basic_tucked_t-shirt"
+    # #180: the palette function from the Anny rail, imported lazily the same way the
+    # scalp-hair region is (above, :1606-1608). Consumed as-is — the locked gown/scrub
+    # colours and the closed_casual role fallback are its own, not copied or extended here.
+    import sys as _sys_anny
+
+    _anny_dir = REPO_ROOT / "tools/openclinxr/asset-pipeline/anny"
+    if str(_anny_dir) not in _sys_anny.path:
+        _sys_anny.path.insert(0, str(_anny_dir))
+    from automate_blender import garment_shell_color  # noqa: E402
+
+    # #180: the UPPER GARMENT ASSET is role-driven. A nurse is a nurse by wearing an actual
+    # scrub — not by recolouring a patient's t-shirt (probed, refused). The CC-BY
+    # `Scrub_Shirt.mhclo` (WojackOWL, Medical Scrubs Kit, licence-ledger row) fits the
+    # stripped basemesh like the toigo t-shirt (max ref 11,018 < 13,380, measured pre-fix);
+    # the CC0 toigo t-shirt stays the patients' closed-casual upper.
+    _is_clinician = any(
+        token in (args.actor_role or "").lower() for token in ("nurse", "clinician", "staff")
     )
-    garment_obj = _garment_dir / "t_shirt_basic_tucked.obj"
-    garment_mhclo = _garment_dir / "toigo_basic_tucked_t-shirt.mhclo"
+    if _is_clinician:
+        _garment_dir = (
+            REPO_ROOT
+            / ".openclinxr-local/provider-cache/garments/sources/makehuman-community-scrub-shirt"
+        )
+        garment_obj = _garment_dir / "Scrub_Shirt.obj"
+        garment_mhclo = _garment_dir / "Scrub_Shirt.mhclo"
+        _upper_lib_name = "makeclothes_library_scrub_shirt"
+        _upper_kind = "scrub"
+    else:
+        _garment_dir = (
+            REPO_ROOT
+            / ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/toigo_basic_tucked_t-shirt"
+        )
+        garment_obj = _garment_dir / "t_shirt_basic_tucked.obj"
+        garment_mhclo = _garment_dir / "toigo_basic_tucked_t-shirt.mhclo"
+        _upper_lib_name = "makeclothes_library_toigo_t_shirt"
+        _upper_kind = "closed_casual"
     if not garment_obj.is_file() or not garment_mhclo.is_file():
-        raise RuntimeError(f"toigo t-shirt sources missing in provider cache: {_garment_dir}")
+        raise RuntimeError(f"upper garment sources missing in provider cache: {_garment_dir}")
 
     from bl_ext.user_default.mpfb.entities.clothes.mhclo import Mhclo  # noqa: E402
     from bl_ext.user_default.mpfb.services.clothesservice import ClothesService  # noqa: E402
 
-    garment = import_obj(str(garment_obj), "makeclothes_library_toigo_t_shirt", force_z=False)
+    garment = import_obj(str(garment_obj), _upper_lib_name, force_z=False)
     # #321 handback: bake the OBJ importer's axis rotation into mesh data so the garment object is
     # identity/Z-up — the SAME bake MPFB's body loader performs on the basemesh
     # (`ObjectService.load_wavefront_file`, transform_apply(rotation=True)). The fit writes BODY-LOCAL
@@ -2016,7 +2055,10 @@ def main():
     garment.data.materials.clear()
     # Name matches the GARMENT_MATERIAL regex the evidence RED reads (makeclothes/shirt).
     garment.data.materials.append(
-        make_material("mat_makeclothes_library_toigo_t_shirt", (0.30, 0.45, 0.62, 1.0))
+        make_material(
+            f"mat_{_upper_lib_name}",
+            garment_shell_color(_upper_kind, args.actor_role, {}),
+        )
     )
     mhclo = Mhclo()
     mhclo.load(str(garment_mhclo))
@@ -2036,7 +2078,7 @@ def main():
     # `makeclothes_library_*_mpfb_<ref>` convention) so the garment classifiers on
     # both rails see the upper channel as a real MakeClothes garment.
     _ref_tag = args.reference or "ob_patient_aisha"
-    garment.data.name = f"makeclothes_library_toigo_t_shirt_mpfb_{_ref_tag}_mesh"
+    garment.data.name = f"{_upper_lib_name}_mpfb_{_ref_tag}_mesh"
     # #332: anchor the fitted shirt's collar to the body's own neck when the fit
     # lands it below the neck band (the child's shirt fits at its hip). Must run
     # BEFORE the weight projection so the k-NN binds the shirt at its final height.
@@ -2075,8 +2117,15 @@ def main():
     pants.data.materials.clear()
     # Name matches the LOWER_GARMENT regex the evidence RED reads (cargo/pants) AND
     # the GARMENT regex of the #323 regression net (makeclothes).
+    # #180: the lower colour follows the SAME palette call as the upper (nurse: locked scrub
+    # colour -> matching set; patients: closed_casual role fallback), so the lower slot is
+    # pairwise distinct across the cast too.
+    _lower_kind = "scrub" if _is_clinician else "closed_casual"
     pants.data.materials.append(
-        make_material("mat_makeclothes_library_cargo_pants", (0.32, 0.36, 0.42, 1.0))
+        make_material(
+            "mat_makeclothes_library_cargo_pants",
+            garment_shell_color(_lower_kind, args.actor_role, {}),
+        )
     )
     mhclo_pants = Mhclo()
     mhclo_pants.load(str(pants_mhclo))
@@ -2243,8 +2292,13 @@ def main():
         )
         shell_obj.data.materials.clear()
         # Name matches the LOWER_GARMENT regex the evidence RED reads (cargo/pants).
+        # #180: same palette call as the fitted-pants branch so the fallback shell cannot
+        # homogenise the lower slot.
         shell_obj.data.materials.append(
-            make_material("mat_makeclothes_library_cargo_pants", (0.32, 0.36, 0.42, 1.0))
+            make_material(
+                "mat_makeclothes_library_cargo_pants",
+                garment_shell_color(_lower_kind, args.actor_role, {}),
+            )
         )
         bpy.data.objects.remove(pants, do_unlink=True)
         pants = shell_obj

@@ -188,7 +188,9 @@ async function measure(rel: string): Promise<Row | null> {
       const name = `${mesh.getName()}/${mat?.getName() ?? ""}`;
       const isSkin = /skin/i.test(name);
       const isPants = /cargo_pants/.test(name);
-      const isShirt = /t_shirt/.test(name);
+      // #180: the nurse's upper garment is now `makeclothes_library_scrub_shirt_*` —
+      // the overlap clause must keep measuring it.
+      const isShirt = /t_shirt|scrub/.test(name);
 
       const pos: number[][] = [];
       for (let i = 0; i < a.getCount(); i++) pos.push(a.getElement(i, [0, 0, 0]) as number[]);

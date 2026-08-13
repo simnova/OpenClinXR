@@ -151,7 +151,9 @@ async function measure(rel: string): Promise<Row | null> {
     }
   }
   const pantsPrims = prims.filter((p) => /cargo_pants/.test(p.mesh));
-  const shirtPrims = prims.filter((p) => /t_shirt/.test(p.mesh));
+  // #180: the nurse's upper is now the scrub shirt, not the toigo t-shirt — the upper
+  // vocabulary must include it or the nurse drops out of the enumeration (§7t vacuous).
+  const shirtPrims = prims.filter((p) => /t_shirt|scrub/.test(p.mesh));
   if (pantsPrims.length === 0 || shirtPrims.length === 0) return null;
 
   const pantsTop = Math.max(...pantsPrims.flatMap((p) => p.pos.map((v) => v[1]!)));

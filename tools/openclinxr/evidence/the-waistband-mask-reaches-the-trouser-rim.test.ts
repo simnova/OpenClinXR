@@ -120,7 +120,9 @@ async function measure(rel: string): Promise<Row | null> {
   const botOf = (re: RegExp): number =>
     bands.filter((b) => !b.hidden && re.test(b.name)).reduce((m, b) => Math.min(m, b.lo), Infinity);
   const pantsTop = topOf(/cargo_pants/);
-  const shirtBot = botOf(/t_shirt/);
+  // #180: the nurse's upper is now the scrub shirt — include it so the overlap clause
+  // keeps measuring the nurse.
+  const shirtBot = botOf(/t_shirt|scrub/);
   const lowerMaskTop = bands
     .filter((b) => b.hidden && /hidden_lower/.test(b.name))
     .reduce((m, b) => Math.max(m, b.hi), -Infinity);
