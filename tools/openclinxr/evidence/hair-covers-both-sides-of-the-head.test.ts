@@ -136,10 +136,11 @@ async function measure(rel: string): Promise<Row | null> {
   }
   if (left + right < 40) return null;
   const leftPct = (left / (left + right)) * 100;
+  const rightPct = 100 - leftPct;
   return {
     file: rel.split("/").pop()!,
     leftPct,
-    rightPct: 100 - leftPct,
+    rightPct,
     asym: Math.abs(leftPct - rightPct),
     n: left + right,
     faceBandVerts,

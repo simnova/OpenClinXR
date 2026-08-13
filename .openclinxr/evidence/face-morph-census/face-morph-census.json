@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.face-morph-census.v1",
-  "generatedAt": "2026-08-13T07:52:46.355Z",
+  "generatedAt": "2026-08-13T08:26:26.333Z",
   "selector": "largest primitive that carries morph targets; face clauses exclude $md-* macro-detail body dials",
   "usableDefinition": "displaces at least one vertex AND displaces fewer than half of the body's vertices (per rail bodyVerts)",
   "rails": [
@@ -368,7 +368,7 @@
       ],
       "emptyFaceTargets": [],
       "wholeBodyFaceTargets": [],
-      "sha256": "e88fdce5f785f174d0ce7de15f1e2775845117d1b57c41f63c6c626575932696"
+      "sha256": "50cbe84c97b438b52331f701efbc8c3c46c8a22abafeaf64f364048498f5b0f5"
     },
     {
       "railId": "body_param_adult_lean_female_library",

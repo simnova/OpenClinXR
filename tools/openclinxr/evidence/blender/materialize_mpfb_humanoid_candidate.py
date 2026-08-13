@@ -303,6 +303,127 @@ def make_material_from_mhmat(mhmat_path, name):
     return material
 
 
+# #360: material name -> [r,g,b,a] written into the exported GLB as baseColorFactor. The glTF
+# exporter OMITS baseColorFactor whenever a texture is connected to Base Color (measured on this
+# issue: a textured Principled material with a non-white socket value exports baseColorTexture
+# only, and the shipped #356 eye material is the same shape). The #180 role-colour contract reads
+# baseColorFactor from the shipped bytes, so the role colour is written back post-export
+# (patch_glb_base_color_factors) — factor x texture per the glTF spec, not a colour invented here.
+GARMENT_FACTOR_PATCH: dict = {}
+
+
+def garment_material_from_declared(mhclo_path, role_colour, name, mesh=None, patch_factor=True):
+    """#360: consume a garment's OWN declared .mhmat diffuse texture when staged + resolvable.
+
+    The same generic path the #340/#356 eyes use (`make_material_from_mhmat` — the .mhclo's
+    `material <rel>` line resolves the .mhmat, whose `diffuseTexture` is wired to Principled
+    Base Color). Wiring, not authoring (D1): nothing is generated, copied or recoloured.
+
+    A slot whose declared material cannot be consumed is SKIPPED with a recorded reason — no
+    .mhmat staged, no diffuseTexture declared, declared texture missing on disk, or (the
+    issue's "say so and stop" guard) a mesh with no UV layer, where a texture would render as
+    garbage. The flat role colour is kept for the skipped slot.
+
+    When the texture IS consumed and patch_factor, the role colour is registered in
+    GARMENT_FACTOR_PATCH so the exported GLB carries baseColorFactor (the #180 contract's
+    pinned quantity) beside the texture. patch_factor is False for the footwear slot: the
+    #180 contract pins footwear by ASSET, and the #337/#338 ban on tinting via baseColorFactor
+    applies where the declared texture IS the author's look.
+    """
+    record = {
+        "name": name,
+        "roleColour": [round(float(c), 4) for c in role_colour],
+        "declaredMhmat": None,
+        "mhmatStaged": False,
+        "declaredDiffuseTexture": None,
+        "textureResolves": False,
+        "textureBytes": 0,
+        "meshUvLayer": bool(mesh is not None and mesh.data.uv_layers),
+        "consumed": False,
+        "reason": None,
+    }
+    try:
+        mhmat_path = mhmat_for_mhclo(mhclo_path)
+    except RuntimeError as e:
+        record["reason"] = f"declared .mhmat not staged: {e}"
+        print(f"GARMENT_MATERIAL_SKIP {json.dumps(record)}")
+        return make_material(name, role_colour), record
+    record["mhmatStaged"] = True
+    record["declaredMhmat"] = mhmat_path.name
+    props = parse_mhmat(mhmat_path)
+    diffuse = props.get("diffuseTexture")
+    if not diffuse:
+        record["reason"] = f"{mhmat_path.name} declares no diffuseTexture"
+        print(f"GARMENT_MATERIAL_SKIP {json.dumps(record)}")
+        return make_material(name, role_colour), record
+    tex_rel = pathlib.Path(diffuse[0])
+    tex_path = (mhmat_path.parent / tex_rel).resolve()
+    record["declaredDiffuseTexture"] = tex_rel.name
+    if not tex_path.is_file():
+        record["reason"] = (
+            f"declared diffuseTexture {tex_rel} missing on disk at {tex_path}"
+        )
+        print(f"GARMENT_MATERIAL_SKIP {json.dumps(record)}")
+        return make_material(name, role_colour), record
+    record["textureResolves"] = True
+    record["textureBytes"] = tex_path.stat().st_size
+    if mesh is not None and not mesh.data.uv_layers:
+        record["reason"] = "mesh has no UV layer — a texture would render as garbage"
+        print(f"GARMENT_MATERIAL_SKIP {json.dumps(record)}")
+        return make_material(name, role_colour), record
+    mat = make_material_from_mhmat(mhmat_path, name)
+    # Keep the shipped garment roughness (make_material_from_mhmat leaves the Principled
+    # default 0.5; the flat garment materials ship 0.78).
+    mat.node_tree.nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.78
+    record["consumed"] = True
+    if patch_factor:
+        GARMENT_FACTOR_PATCH[name] = [
+            float(role_colour[0]),
+            float(role_colour[1]),
+            float(role_colour[2]),
+            1.0,
+        ]
+    print(f"GARMENT_MATERIAL {json.dumps(record)}")
+    return mat, record
+
+
+def patch_glb_base_color_factors(path, factors):
+    """#360: write the #180 role colours as baseColorFactor beside the exported textures.
+
+    The glTF exporter omitted them (see GARMENT_FACTOR_PATCH); glTF's spec multiplies
+    baseColorFactor x baseColorTexture, so the factor is written back into the exported JSON
+    chunk. Mechanical: the JSON chunk is re-serialized and the GLB re-assembled; geometry and
+    BIN bytes are copied verbatim.
+    """
+    with open(path, "rb") as f:
+        data = bytearray(f.read())
+    if data[:4] != b"glTF":
+        raise RuntimeError(f"#360: not a GLB: {path}")
+    json_len = struct.unpack("<I", data[12:16])[0]
+    json_end = 20 + json_len
+    gltf = json.loads(data[20:json_end])
+    patched = []
+    for mat in gltf.get("materials", []):
+        base = re.sub(r"\.\d{3}$", "", mat.get("name", ""))
+        if base in factors:
+            mat.setdefault("pbrMetallicRoughness", {})["baseColorFactor"] = list(factors[base])
+            patched.append(mat.get("name"))
+    if not patched:
+        raise RuntimeError(f"#360: no exported material matched {sorted(factors)} in {path}")
+    new_json = json.dumps(gltf, separators=(",", ":"))
+    new_json += " " * ((4 - len(new_json) % 4) % 4)
+    bin_chunk = data[json_end:]
+    out = bytearray()
+    out += b"glTF"
+    out += struct.pack("<II", 2, 12 + 8 + len(new_json) + len(bin_chunk))
+    out += struct.pack("<I", len(new_json)) + b"JSON"
+    out += new_json.encode("utf-8")
+    out += bin_chunk
+    with open(path, "wb") as f:
+        f.write(out)
+    print(f"GLB_FACTOR_PATCH {path} materials {','.join(patched)}")
+
+
 def bake_skin_material_to_texture(human, skin_material_name, out_png_path, resolution=1024):
     """#343 — bake the SHIPPED enhanced_skin node tree to a glTF baseColorTexture.
 
@@ -756,6 +877,7 @@ def _outer_facing_front_tris(garment_verts, garment_faces) -> np.ndarray:
 
 def main():
     args = parse_args()
+    GARMENT_FACTOR_PATCH.clear()  # #360: per-actor; a fresh Blender process bakes each actor anyway
     bpy.ops.preferences.addon_enable(module="bl_ext.user_default.mpfb")
 
     reference = None
@@ -1318,12 +1440,19 @@ def main():
     _measure_shirt_stage("rest", garment, human)
     garment.data.materials.clear()
     # Name matches the GARMENT_MATERIAL regex the evidence RED reads (makeclothes/shirt).
-    garment.data.materials.append(
-        make_material(
-            f"mat_{_upper_lib_name}",
-            garment_shell_color(_upper_kind, args.actor_role, {}),
-        )
+    # #360: consume the asset's OWN declared .mhmat diffuse texture (the generic #340/#356
+    # path) while keeping the #180 role colour as the exported baseColorFactor (patched in
+    # after export — the glTF exporter drops the factor when a texture is bound). The nurse's
+    # Scrub_Shirt declares Scrub_Shirt.mhmat, which is NOT staged in the provider cache, so
+    # that slot skips with a recorded reason and keeps the locked scrub colour.
+    _upper_role_colour = garment_shell_color(_upper_kind, args.actor_role, {})
+    _upper_mat, _upper_mat_record = garment_material_from_declared(
+        garment_mhclo,
+        _upper_role_colour,
+        f"mat_{_upper_lib_name}",
+        mesh=garment,
     )
+    garment.data.materials.append(_upper_mat)
     mhclo = Mhclo()
     mhclo.load(str(garment_mhclo))
     try:
@@ -1384,13 +1513,20 @@ def main():
     # #180: the lower colour follows the SAME palette call as the upper (nurse: locked scrub
     # colour -> matching set; patients: closed_casual role fallback), so the lower slot is
     # pairwise distinct across the cast too.
+    # #360: the cargo-pants .mhclo declares cargo_pants.mhmat, which is NOT staged in the
+    # provider cache, so the slot skips with a recorded reason and keeps the flat role colour.
+    # The shipped lower geometry is the #326 body-derived cover shell, which carries NO UV
+    # layer either — a texture would render as garbage. Both facts are recorded; wiring the
+    # lower slot is a fitting-pipeline slice, not a side effect of this material change.
     _lower_kind = "scrub" if _is_clinician else "closed_casual"
-    pants.data.materials.append(
-        make_material(
-            "mat_makeclothes_library_cargo_pants",
-            garment_shell_color(_lower_kind, args.actor_role, {}),
-        )
+    _lower_role_colour = garment_shell_color(_lower_kind, args.actor_role, {})
+    _pants_mat, _pants_mat_record = garment_material_from_declared(
+        pants_mhclo,
+        _lower_role_colour,
+        "mat_makeclothes_library_cargo_pants",
+        mesh=pants,
     )
+    pants.data.materials.append(_pants_mat)
     mhclo_pants = Mhclo()
     mhclo_pants.load(str(pants_mhclo))
     try:
@@ -2075,9 +2211,18 @@ def main():
     apply_object_transforms(shoe)
     shoe.data.materials.clear()
     # Name matches the FOOTWEAR regex the evidence RED reads (footwear/shoe/boot/flat).
-    shoe.data.materials.append(
-        make_material(f"mat_makeclothes_library_footwear_{shoe_kind}", (0.10, 0.09, 0.08, 1.0))
+    # #360: consume the shoe's OWN declared .mhmat diffuse texture (all three staged kinds are
+    # CC0/CC-0 per the licence ledger). patch_factor=False: the #180 contract pins footwear by
+    # ASSET, not colour, and the #337/#338 ban on tinting via baseColorFactor when a texture is
+    # bound applies — the declared texture IS the author's look.
+    _shoe_mat, _shoe_mat_record = garment_material_from_declared(
+        shoe_mhclo,
+        (0.10, 0.09, 0.08),
+        f"mat_makeclothes_library_footwear_{shoe_kind}",
+        mesh=shoe,
+        patch_factor=False,
     )
+    shoe.data.materials.append(_shoe_mat)
     mhclo_shoe = Mhclo()
     mhclo_shoe.load(str(shoe_mhclo))
     try:
@@ -2549,6 +2694,12 @@ def main():
 
     bpy.ops.export_scene.gltf(filepath=str(output), export_format="GLB", export_animations=True)
     print(f"EXPORTED {output}")
+
+    # #360: write the #180 role colours as baseColorFactor beside the exported garment
+    # textures (the glTF exporter dropped them; see GARMENT_FACTOR_PATCH). Runs before the
+    # census so the measurements below read the FINAL bytes.
+    if GARMENT_FACTOR_PATCH:
+        patch_glb_base_color_factors(str(output), GARMENT_FACTOR_PATCH)
 
     # #328 census: report the final exported body the same way the planted contract
     # measures it (largest non-garment/non-hidden primitive), plus the macro dict and

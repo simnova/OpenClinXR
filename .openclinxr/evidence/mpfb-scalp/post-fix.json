@@ -1,6 +1,6 @@
 {
   "issue": 359,
-  "measuredAt": "2026-08-13T07:46:18.706Z",
+  "measuredAt": "2026-08-13T08:26:25.192Z",
   "instrument": "tools/openclinxr/evidence/mpfb-scalp-inspection.ts",
   "knownGoodAnny": {
     "actorId": "peds_nurse_kevin",

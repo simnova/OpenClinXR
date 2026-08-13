@@ -2,7 +2,7 @@
   "schemaVersion": "openclinxr.head-focus.crop-run.v1",
   "issue": "358",
   "factoryStep": "instrument",
-  "measuredAt": "2026-08-13T07:47:42.245Z",
+  "measuredAt": "2026-08-13T08:27:06.933Z",
   "generator": {
     "tool": "renderHeadFocusCrops",
     "file": "tools/openclinxr/evidence/isolated-subject-harness.ts",
@@ -16,7 +16,7 @@
     "produced": 3,
     "devServerBoots": 1,
     "browserLaunches": 1,
-    "wallClockMs": 5724
+    "wallClockMs": 21224
   },
   "crops": [
     {
@@ -24,12 +24,12 @@
       "role": "adult_female (MPFB rail)",
       "view": "front",
       "imagePath": ".openclinxr/evidence/mpfb-scalp/mpfb-head-front-aisha.png",
-      "bytes": 244146,
+      "bytes": 361735,
       "pngDimensions": {
         "width": 1024,
         "height": 1024
       },
-      "frameCoverage": 0.35808658599853516,
+      "frameCoverage": 0.3580665588378906,
       "frameSpanFraction": 0.800050210999782,
       "focusRegion": {
         "kind": "head_box",
@@ -90,12 +90,12 @@
       "role": "child (MPFB rail)",
       "view": "front",
       "imagePath": ".openclinxr/evidence/mpfb-scalp/mpfb-head-front-child.png",
-      "bytes": 269182,
+      "bytes": 315066,
       "pngDimensions": {
         "width": 1024,
         "height": 1024
       },
-      "frameCoverage": 0.35728931427001953,
+      "frameCoverage": 0.35726356506347656,
       "frameSpanFraction": 0.7999343724703223,
       "focusRegion": {
         "kind": "head_box",
