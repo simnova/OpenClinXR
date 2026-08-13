@@ -67,6 +67,43 @@ import { describe, expect, it } from "vitest";
  *     not decide it.
  *   - **Sliver SHAPE.** A bounding box bounds extent, not raggedness. Slivers below the threshold that
  *     still zigzag would pass (§11s).
+ *
+ * ## FIXED (#350)
+ *
+ * MECHANISM, measured 2026-08-12 (pre-fix.json + the Blender probe in this slice): the islands are
+ * **hide-mask boundary orphaning (mechanism B), not SOLIDIFY rim re-split (mechanism A).**
+ *
+ *   - 19/22, 19/22, 18/24 orphan components are FULLY position-coincident with the alpha-0
+ *     `openclinxr_hidden_*` primitive vertices (the rest are mostly coincident, e.g. 5/6, 8/9,
+ *     5/8+5/8 across two hidden prims).
+ *   - The Blender probe (`blender_pre_export_probe.py`, same topology chain) reports ONE connected
+ *     component pre-export (13,380 unique verts) and **no SOLIDIFY anywhere** in the modifier stack
+ *     (only the stripped MASK "Hide helpers"); the mask-free exported probe has no 4-vertex islands.
+ *   - The orphaning therefore happens at the mask boundary: a visible skin quad whose four
+ *     edge-neighbours are all hidden-material quads (the per-polygon sawtooth + the round-7/9
+ *     unhide/rehide toggles) becomes a lone 4-vertex island when the exporter splits the mesh by
+ *     material and duplicates boundary vertices.
+ *
+ * FIX (treatment (d) in the header table): `materialize_mpfb_humanoid_candidate.py` extends the hide
+ * mask to the orphaned quads — after every mask slot (upper/lower/foot + render-truth rehide), a
+ * position-merged union-find over the skin-material region paints every component of <=12 unique
+ * vertices with a fresh `openclinxr_hidden_orphan_*` material (33/42/53 polygons on aisha/nurse/
+ * child, all at the garment boundaries). Geometry, rig, shape keys and the garment meshes are
+ * untouched; only polygon material indices change, exactly like every other mask slot.
+ *
+ * MEASURED after the fix (same discriminator, same merge):
+ *
+ *   actor            skin tris   slivers(>8mm)   garment orphans   overlap
+ *   ---------------- ---------   -------------   ---------------   -------
+ *   aisha            19,632      0               0                 19.6 mm
+ *   nurse_kevin      19,440      0               0                 17.8 mm
+ *   patient_child    19,648      0               0                 13.4 mm
+ *
+ * The 22/22/24 orphans are gone; skinTris lost only the 33-53 hidden quads (~0.3%); the garments
+ * stayed whole and the shirt/trouser overlap is unchanged. Clause (1) flipped; (2)/(3)/(4) hold.
+ * NOT TESTED: that the grade capture shows clean hems (the orchestrator grades captures; the bands
+ * and sizes now match the slivers seen in round-15, but that remains an inference until a capture
+ * is graded), and which specific unhide/rehide toggle produced each enclosed quad.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -206,7 +243,7 @@ function requireRows(): void {
 }
 
 describe("no orphan skin slivers at the garment edges", () => {
-  it.fails("(1) RED: the skin carries no visible orphan slivers", () => {
+  it("(1) RED (FIXED #350): the skin carries no visible orphan slivers", () => {
     requireRows();
     expect(
       rows
