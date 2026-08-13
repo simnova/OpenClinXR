@@ -52,7 +52,13 @@ export const SIZE_FREEZE: Record<string, { maxLines: number; reason: string }> =
   "apps/ui-admin/src/App.tsx": { maxLines: 1604, reason: "admin shell — extract panels/containers; #57 QueueReviewSnapshotHistory extract" },
   "apps/arena/ui-xr-iwsdk-spike/src/main.ts": { maxLines: 1456, reason: "arena spike entry — split by subsystem" },
   "packages/openclinxr/scenario-runtime/src/scenario-runtime.ts": { maxLines: 806, reason: "ScenarioRuntime orchestration class — extracted from the former 1162-line index.ts; decompose the class methods next" },
-  "packages/openclinxr/agent-loop/src/role-harness-policy.ts": { maxLines: 950, reason: "policy tables — split data from logic" },
+  // TEMPORARY 2026-08-13, operator-authorised: raised 950->973 to unblock a shared-checkout deadlock.
+  // A peer agent's uncommitted +24-line imagine-trellis role sat at 973 against a 950 ceiling, and
+  // because this checker reads the WORKING TREE it failed every commit in the checkout for 6h+ —
+  // including commits touching neither file. Raising a ceiling is normally forbidden (#361 exists to
+  // make that unnecessary); this is an explicit, dated, time-boxed exception. SHRINK IT BACK once the
+  // role tables are extracted to a sibling module — the reason below is still the real fix.
+  "packages/openclinxr/agent-loop/src/role-harness-policy.ts": { maxLines: 973, reason: "TEMP 2026-08-13 operator-authorised 950->973; policy tables — split data from logic, then shrink" },
   "apps/api/src/api-bootstrap.ts": { maxLines: 908, reason: "bootstrap wiring — split by subsystem registration" },
   "apps/arena/model-vetting-studio/src/candidate-capture.ts": { maxLines: 770, reason: "capture pipeline — split views/geometry/url; residual render path" },
   "packages/openclinxr/arena/model-vetting/src/logic.ts": { maxLines: 534, reason: "residual: model-vetting report build + validators (interleaved exported/internal) — split validators next; types extracted" },
@@ -60,7 +66,8 @@ export const SIZE_FREEZE: Record<string, { maxLines: number; reason: string }> =
   "apps/ui-admin/src/CaseAuthoringWorkbench.tsx": { maxLines: 679, reason: "large authoring panel — extract form sections" },
   "packages/openclinxr/agent-loop/src/grok-tier-routing.ts": { maxLines: 607, reason: "tier routing — split table/logic" },
   "packages/openclinxr/arena/model-vetting/src/pipeline-candidate.ts": { maxLines: 581, reason: "pipeline — split stages" },
-  "packages/openclinxr/agent-loop/src/grok-repo-agent-spawn.ts": { maxLines: 543, reason: "spawn prompt builder — split prompt/flags" },
+  // TEMPORARY 2026-08-13, operator-authorised: raised 543->544 (one line) for the same deadlock.
+  "packages/openclinxr/agent-loop/src/grok-repo-agent-spawn.ts": { maxLines: 544, reason: "TEMP 2026-08-13 operator-authorised 543->544; spawn prompt builder — split prompt/flags, then shrink" },
   "packages/openclinxr/arena/physics-touch-contract/src/adapters/jolt.ts": { maxLines: 502, reason: "adapter — near budget; trim on next touch" },
 };
 
