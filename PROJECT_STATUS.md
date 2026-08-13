@@ -11,7 +11,7 @@ last_measured: 2026-08-10
 parseable_sections: 6
 ---
 
-## MPFB TRANSITION SCOREBOARD (measured 2026-08-12 17:05; regenerate, do not narrate)
+## MPFB TRANSITION SCOREBOARD (measured 2026-08-12 21:05; regenerate, do not narrate)
 
 **Goal:** production actors move from Anny-only assets to MPFB2 bodies with Anny as the phenotype
 reference (operator direction; MADR 0052). Live measure: **graded clean by the orchestrator.**
@@ -20,6 +20,7 @@ reference (operator direction; MADR 0052). Live measure: **graded clean by the o
     MPFB bodies referenced by the runtime cast ..... 3
     MPFB bodies GRADED CLEAN by the orchestrator ... 0   <-- THE NUMBER TO MOVE
     Shipped rooms carrying a baked texture ......... 2 of 2  (was 0 of 2)
+    Shipped rooms carrying baked OCCLUSION ......... 0 of 2  (in flight, #349)
 
 | capability | MPFB rail | evidence |
 |---|---|---|
@@ -39,9 +40,27 @@ reference (operator direction; MADR 0052). Live measure: **graded clean by the o
 
 | defect | measured | owner |
 |---|---|---|
-| child's shirt sits at adult bands | shirt 0.646 H vs aisha 0.581 on a 1.241 m figure; bands DO overlap (0.646 vs pants 0.654) so it is fit, not a hole | #332 |
+| trousers reach the HANDS on 2 of 3 | lateral reach / torso half-width: aisha **1.22x** (clean, known-good), nurse **3.75x**, child **3.55x**; grey trouser shards on every finger in the round-17 lit capture | #351, in flight |
+| orphan 4-vertex skin islands | 22-24 per actor of 34-39 components, clustered at sleeve rim / boot top / waistband — the #121 export-split signature; matches where the jagged hem edges appear | #350, queued behind #351 (same write scope) |
 | child's footwear is 52x coarser | `toigo_mj_cloth_shoes` 556 source verts vs `toigo_flats` 28,808; 1,004 vs 57,600 shipped tris | see below |
-| mitten shards on hands; nurse's mottled mouth | ungraded numerically; nurse eye-socket recovered to known-good but face still patchy | unlocated |
+
+**Closed on measurement 2026-08-12, previously listed here as blockers:**
+
+| was | measured now |
+|---|---|
+| child's shirt sits at adult bands | **fixed** by round 15 at the root (`reapply_all_details` re-added macro shape keys over the baked basis, so fits read a double-deformed phantom). Span 0.189 -> **0.269 H**, matching aisha 0.263 / nurse 0.268. |
+| nurse's jaw discarded by its own hide mask (#334) | **fixed.** Upper mask 5,012 faces to 0.924 H -> **2,822 faces to 0.859 H**, which is exactly where his t-shirt tops out. Closed. |
+| the two new actors reach no learner (#333) | **false.** All three carry pants + footwear + shirt + eyes, and all three are cast and the map is consumed (`humanoid-runtime-asset-url.ts:146,159`, read at `:369,357`). Closed. |
+| waistband mask regressed 1.1 -> 55.6 mm | **WITHDRAWN — my error, no regression ever occurred.** Each actor ships TWO `hidden_lower` primitives; `bands.find()` returned the first. Max over all: **+1.1 / -1.6 / -1.6 mm**, i.e. round 9's figure intact through rounds 10-16. A full slice was spent on the phantom; it returned PREMISE DEAD, correctly. |
+
+**Measuring hazard, learned the expensive way today:** every actor ships **two primitives per hide
+slot** (base and `.001`). Any measurement over them must take max/min across ALL matches - never
+`find()`, which returns the first. This produced one phantom regression and a wasted slice.
+
+**Grading hazard, same day:** a pixel grade names what you SEE, not what it IS. I described a "tan"
+sawtooth at the waistband; colour-sampling the captures shows blue(shirt) -> grey(pants) with no skin
+row at the belly on either adult. The real artefact is a jagged DARK hem edge. The word "tan"
+smuggled in "exposed skin" and the whole false hypothesis followed from that one adjective.
 
 **The child's shoe is downstream of #318, not an asset-library gap.** The `makehuman-shoes01` pack
 ships **23 CC0 shoes**; only **3** are cached because the other 20 carry helper-vertex refs >= 13,380
@@ -49,10 +68,13 @@ and cannot bake against the helper-stripped basemesh. So the child gets the one 
 shoe that survives the strip. Correcting an earlier read of mine: the library is not short of shoes,
 the topology blocker is what makes 20 of them unusable.
 
-**Also open, measured, not yet dispatched:** #343 — all three actors share one hand-authored flat skin
-literal `[0.68,0.53,0.44]` at `materialize_mpfb_humanoid_candidate.py:524`; every material textureless
-except the eyes; MPFB's shipped `enhanced_skin` node tree and `MaterialService` never called (D1).
-Blocked only on file contention with #341.
+**Room realism (MADR 0055):** rooms ship 440 of a 15,650,564-triangle generator output (1 in 35,570),
+so the ceiling is untouched and the floor is material, not geometry. The albedo half landed
+(#345-#348: 0 -> 32 textured materials, 1 -> 15 roughness values, 0 -> 5 metals, geometry provably
+unchanged through three sequential re-emits). The light half is #349, in flight: **0 of 32 materials
+across both rooms carries an occlusion texture.** Correcting my own earlier claim — of those 32
+textured materials, **6 decode at luminance sd = 0.00**, i.e. textured in the glTF sense and flat in
+the visual sense.
 
 **Standing risk, measured:** only **1 of 15 cases** authors a phenotype. Every phenotype-driven result
 above rests on one case's three actors. Clinical authoring (#293), not a pipeline slice.
