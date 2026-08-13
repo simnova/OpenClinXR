@@ -83,6 +83,50 @@ import { describe, expect, it } from "vitest";
  *     it) but is a MATERIAL REGION on the body mesh rather than a garment rim, and is not measured here.
  */
 
+/*
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ * ## FIXED (#373) — appended; the planted header above is immutable
+ *
+ * Root cause, measured on the shipped bytes before this slice: the shipped lower garment is the
+ * BODY-DERIVED COVER SHELL, not the authored cargo-pants .mhclo. The LOWER GATE replaces the sparse
+ * library fit (392 tris / 211 verts, 32 open boundary edges — documented #220) with
+ * `build_cover_shell`, and the shell's TOP rim is the band cut through body triangles: faces are
+ * selected by CENTROID between the ankle and the shirt hem, so the rim alternates between "tooth"
+ * vertices (one triangle's top, up to a triangle-height above the cut) and "valley" vertices (the
+ * next triangle's top, below it) at every angle. Measured: adjacent welded rim vertices differ by up
+ * to 24-40 mm (child/aisha/kevin), and the shipped waistband ring's high-frequency residual was
+ * 8.4-23x the same body's shirt hem. The source .mhclo is NOT what ships (211-vert sparse trouser vs
+ * the 7,892-vert shell — a byte-level identity difference), so the raggedness is pipeline-generated,
+ * not authored; the issue's first-measurement stop condition (authored raggedness) does not apply.
+ *
+ * Fix: `materialize_mpfb_humanoid_candidate.py` now runs `regularize_waistband_rim` after the LOWER
+ * GATE: the rim's own triangle ring is snapped onto the rim's angular ENVELOPE — the local maximum
+ * rim height within a window (child 6 deg keeps the front contour dip the span floor requires;
+ * adults 10 deg bridges their sparser front teeth) — interpolated per vertex, and the triangle ring
+ * below is half-raised so the transition into the untouched shell is gradual. Triangle count,
+ * vertex count and the ring's legitimate contour (the teeth envelope follows the body's waistline)
+ * are unchanged, so the counterweights (no decimation, no remesh, no flattening, no hem roughening)
+ * cannot be satisfied by this edit. The #371 post-export auto-smooth and #372 texture verify run
+ * unchanged on the new geometry.
+ *
+ * Measured post-fix on the rebaked shipped bytes (this file's instrument):
+ *
+ *   actor   ring                       verts   HF median   HF p95    ring span   ratio vs hem
+ *   ------  ------------------------   -----   ---------   -------   ---------   ------------
+ *   aisha   PANTS waistband (top)       462      0.10 mm    1.51 mm   24.8 mm     0.75x
+ *   aisha   shirt hem (bottom)          114      0.26 mm    2.01 mm   12.7 mm     (unchanged)
+ *   kevin   PANTS waistband (top)       447      0.05 mm    1.63 mm   27.0 mm     3.47x
+ *   kevin   scrub hem (bottom)          448      0.27 mm    0.47 mm    7.5 mm     (unchanged)
+ *   child   PANTS waistband (top)       426      0.15 mm    1.32 mm   17.3 mm     0.90x
+ *   child   shirt hem (bottom)          124      0.19 mm    1.47 mm   10.0 mm     (unchanged)
+ *
+ * All four clauses green: (1) ratios 0.75-3.47x under the 4x bound, (2) ring populations 426-462
+ * above every baseline floor, (3) pants tris byte-identical to the baseline (2782/2628/2636) with
+ * ring spans 17.3-27.0 mm above the 0.8x floors, (4) hems unchanged. Pre-fix residuals were
+ * 12.28/18.96/10.79 mm (ratios 8.4x/9.4x/23.0x) — the header's immutable table.
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ */
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const GENERATED = "apps/ui-xr/public/generated-humanoids";
@@ -195,7 +239,7 @@ function requireMeasured(): void {
 }
 
 describe("the cargo-pants waistband is as smooth as the hem on the same body", () => {
-  it.fails(
+  it(
     `(1) RED: waistband high-frequency residual is within ${MAX_WAISTBAND_TO_HEM_HF_RATIO}x the same body's shirt hem`,
     () => {
       requireMeasured();
