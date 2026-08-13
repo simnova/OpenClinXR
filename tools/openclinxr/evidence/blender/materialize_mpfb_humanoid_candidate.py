@@ -3065,6 +3065,78 @@ def main():
         )
     print(f"RENDER_TRUTH_REHIDE total band {_rh_bands} pokes {_rh_pokes}")
 
+    # #350 — extend the hide mask to the orphaned skin quads (treatment (d) in the
+    # planted no-orphan-skin-slivers contract, the probed ALL-PASS).
+    #
+    # MEASURED PRE-FIX 2026-08-12 (pre-fix.json, this slice): the exported skin
+    # primitive ships 34-39 connected components per actor, of which 22-24 are
+    # orphan islands of <=12 unique vertices each, clustered at the shirt hem /
+    # sleeve band (0.60-0.85 H), the waistband (0.40-0.60 H) and the boot top
+    # (<0.15 H). 19/22, 19/22, 18/24 of them are FULLY position-coincident with
+    # the alpha-0 `openclinxr_hidden_*` primitive vertices — the hide mask's own
+    # boundary. The Blender probe (blender_pre_export_probe.py) reports ONE
+    # connected component pre-export with no SOLIDIFY anywhere in the stack
+    # (only the stripped MASK "Hide helpers"), so the orphaning is NOT #121's
+    # export re-split of SOLIDIFY rim geometry: it is a visible skin quad whose
+    # four edge-neighbours are all hidden-material quads (the mask boundary is
+    # per-polygon sawtooth, and the round-7/9 unhide/rehide toggles create
+    # exactly these enclosed visible quads). At export the mesh splits by
+    # material, so such a quad's vertices are referenced by nothing else in the
+    # skin primitive and it becomes a lone 4-vertex island.
+    #
+    # Treatment (d) — extend the mask to the orphaned quads. They are skin a
+    # garment already covers (the contract's named-ban analysis: "Removing the
+    # orphan quads IS allowed — they are skin a garment already covers"), ~0.3%
+    # of the skin's triangles, and hiding them is what the mask was for.
+    def _extend_mask_to_orphaned_quads(max_unique_verts=12):
+        pos_key = [
+            (round(float(v.co.x), 5), round(float(v.co.y), 5), round(float(v.co.z), 5))
+            for v in human.data.vertices
+        ]
+        skin_polys = [i for i, p in enumerate(human.data.polygons) if p.material_index == skin_idx]
+        parent = list(range(len(human.data.polygons)))
+
+        def _find(a):
+            while parent[a] != a:
+                parent[a] = parent[parent[a]]
+                a = parent[a]
+            return a
+
+        def _union(a, b):
+            ra, rb = _find(a), _find(b)
+            if ra != rb:
+                parent[ra] = rb
+
+        pos_owner = {}
+        for pi in skin_polys:
+            for vi in human.data.polygons[pi].vertices:
+                k = pos_key[vi]
+                if k in pos_owner:
+                    _union(pi, pos_owner[k])
+                else:
+                    pos_owner[k] = pi
+        comp_pos = {}
+        for pi in skin_polys:
+            r = _find(pi)
+            comp_pos.setdefault(r, set()).update(pos_key[vi] for vi in human.data.polygons[pi].vertices)
+        orphan_polys = [pi for pi in skin_polys if len(comp_pos[_find(pi)]) <= max_unique_verts]
+        if not orphan_polys:
+            print(f"ORPHAN_EXTEND none (skin polys {len(skin_polys)})")
+            return {"hiddenPolygons": 0, "note": "no orphan components"}
+        orphan_set = set(orphan_polys)
+        tri_mask = []
+        for pi, poly in enumerate(human.data.polygons):
+            n_tri = max(len(poly.vertices) - 2, 1)
+            tri_mask.extend([pi in orphan_set] * n_tri)
+        result = apply_body_hide_material_region(human, np.array(tri_mask, dtype=bool), slot="orphan")
+        print(
+            f"ORPHAN_EXTEND {json.dumps(result)} orphanPolygons={len(orphan_polys)} "
+            f"components={len(set(_find(pi) for pi in orphan_polys))}"
+        )
+        return result
+
+    _orphan_hide = _extend_mask_to_orphaned_quads()
+
     bpy.context.scene.frame_start = 1
     bpy.context.scene.frame_end = 90
     action = bpy.data.actions.new("ClinicalIdleConversation")
