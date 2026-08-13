@@ -1,0 +1,881 @@
+{
+  "issue": "#357",
+  "measuredAt": "2026-08-13T06:58:18.386Z",
+  "maxOverreachM": 0.002,
+  "note": "Per-slot comparison: upper mask vs upper garment, lower vs lower, foot vs footwear, orphan vs none (spans boundaries by design). contractUnionUpperLower reproduces the current clause (2) comparison: every mask vs union(upper, lower) — the foot mask's guaranteed false positive.",
+  "rails": [
+    {
+      "id": "mpfb2_aisha",
+      "file": "generated-humanoids/mpfb-ob-patient-aisha.glb",
+      "bodyVerts": 11020,
+      "garmentChannels": {
+        "upper": {
+          "min": [
+            -294.08,
+            967.53,
+            -63.18
+          ],
+          "max": [
+            293.8,
+            1405.8,
+            167.5
+          ],
+          "verts": 5400
+        },
+        "lower": {
+          "min": [
+            -267.05,
+            100.98,
+            -116.43
+          ],
+          "max": [
+            267.05,
+            987.12,
+            160.26
+          ],
+          "verts": 8276
+        },
+        "footwear": {
+          "min": [
+            -282.25,
+            0.98,
+            -60.75
+          ],
+          "max": [
+            282.25,
+            73.02,
+            206.49
+          ],
+          "verts": 115196
+        }
+      },
+      "primitives": [
+        {
+          "name": "makeclothes_library_cargo_pants_mpfb_ob_patient_aisha_mesh/mat_makeclothes_library_cargo_pants.001",
+          "box": {
+            "min": [
+              -267.05,
+              100.98,
+              -116.43
+            ],
+            "max": [
+              267.05,
+              987.12,
+              160.26
+            ],
+            "verts": 8276
+          }
+        },
+        {
+          "name": "makeclothes_library_footwear_toigo_flats_mpfb_ob_patient_aisha_mesh/mat_makeclothes_library_footwear_toigo_flats",
+          "box": {
+            "min": [
+              -282.25,
+              0.98,
+              -60.75
+            ],
+            "max": [
+              282.25,
+              73.02,
+              206.49
+            ],
+            "verts": 115196
+          }
+        },
+        {
+          "name": "makeclothes_library_toigo_t_shirt_mpfb_ob_patient_aisha_mesh/mat_makeclothes_library_toigo_t_shirt",
+          "box": {
+            "min": [
+              -294.08,
+              967.53,
+              -63.18
+            ],
+            "max": [
+              293.8,
+              1405.8,
+              167.5
+            ],
+            "verts": 5400
+          }
+        },
+        {
+          "name": "mpfb_ob_patient_aisha_body/mpfb_skin_ob_patient_aisha",
+          "box": {
+            "min": [
+              -496.27,
+              0.98,
+              -101.54
+            ],
+            "max": [
+              496.27,
+              1666.87,
+              321.47
+            ],
+            "verts": 10924
+          }
+        },
+        {
+          "name": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+          "box": {
+            "min": [
+              -279.76,
+              974.9,
+              -60.77
+            ],
+            "max": [
+              279.76,
+              1402.26,
+              162.04
+            ],
+            "verts": 1561
+          }
+        },
+        {
+          "name": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+          "box": {
+            "min": [
+              -109.79,
+              723.76,
+              -92.22
+            ],
+            "max": [
+              109.79,
+              931.55,
+              137.19
+            ],
+            "verts": 196
+          }
+        },
+        {
+          "name": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+          "box": {
+            "min": [
+              -270.33,
+              2.83,
+              -51.65
+            ],
+            "max": [
+              270.33,
+              68.47,
+              191.17
+            ],
+            "verts": 2164
+          }
+        },
+        {
+          "name": "mpfb_ob_patient_aisha_body/openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+          "box": {
+            "min": [
+              -290.53,
+              972.39,
+              2.86
+            ],
+            "max": [
+              290.53,
+              1404.88,
+              162.04
+            ],
+            "verts": 155
+          }
+        },
+        {
+          "name": "mpfb_ob_patient_aisha_body/openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+          "box": {
+            "min": [
+              -164.1,
+              944.51,
+              -67.38
+            ],
+            "max": [
+              164.1,
+              986.03,
+              145.26
+            ],
+            "verts": 78
+          }
+        },
+        {
+          "name": "mpfb_ob_patient_aisha_body/openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+          "box": {
+            "min": [
+              -259.49,
+              0.98,
+              -20.76
+            ],
+            "max": [
+              259.49,
+              74.43,
+              189.34
+            ],
+            "verts": 304
+          }
+        },
+        {
+          "name": "mpfb_ob_patient_aisha_body/openclinxr_hidden_orphan_mpfb_ob_patient_aisha_body_mesh",
+          "box": {
+            "min": [
+              -267.19,
+              19.51,
+              -46.49
+            ],
+            "max": [
+              267.19,
+              1389.73,
+              149.08
+            ],
+            "verts": 112
+          }
+        },
+        {
+          "name": "makeclothes_library_eyes_low_poly_mpfb_ob_patient_aisha_mesh/mat_makeclothes_library_eyes_ob_patient_aisha",
+          "box": {
+            "min": [
+              -44.59,
+              1532.34,
+              118.81
+            ],
+            "max": [
+              44.59,
+              1559.97,
+              139.2
+            ],
+            "verts": 96
+          }
+        }
+      ],
+      "perMatchingSlot": [
+        {
+          "slot": "upper",
+          "maskBox": {
+            "min": [
+              -279.76,
+              974.9,
+              -60.77
+            ],
+            "max": [
+              279.76,
+              1402.26,
+              162.04
+            ],
+            "verts": 1561
+          },
+          "garmentChannel": "upper",
+          "garmentBox": {
+            "min": [
+              -294.08,
+              967.53,
+              -63.18
+            ],
+            "max": [
+              293.8,
+              1405.8,
+              167.5
+            ],
+            "verts": 5400
+          },
+          "overreach": {
+            "min": [
+              0,
+              0,
+              0
+            ],
+            "max": [
+              0,
+              0,
+              0
+            ]
+          },
+          "worstOverreachMm": 0
+        },
+        {
+          "slot": "upper",
+          "maskBox": {
+            "min": [
+              -290.53,
+              972.39,
+              2.86
+            ],
+            "max": [
+              290.53,
+              1404.88,
+              162.04
+            ],
+            "verts": 155
+          },
+          "garmentChannel": "upper",
+          "garmentBox": {
+            "min": [
+              -294.08,
+              967.53,
+              -63.18
+            ],
+            "max": [
+              293.8,
+              1405.8,
+              167.5
+            ],
+            "verts": 5400
+          },
+          "overreach": {
+            "min": [
+              0,
+              0,
+              0
+            ],
+            "max": [
+              0,
+              0,
+              0
+            ]
+          },
+          "worstOverreachMm": 0
+        },
+        {
+          "slot": "lower",
+          "maskBox": {
+            "min": [
+              -109.79,
+              723.76,
+              -92.22
+            ],
+            "max": [
+              109.79,
+              931.55,
+              137.19
+            ],
+            "verts": 196
+          },
+          "garmentChannel": "lower",
+          "garmentBox": {
+            "min": [
+              -267.05,
+              100.98,
+              -116.43
+            ],
+            "max": [
+              267.05,
+              987.12,
+              160.26
+            ],
+            "verts": 8276
+          },
+          "overreach": {
+            "min": [
+              0,
+              0,
+              0
+            ],
+            "max": [
+              0,
+              0,
+              0
+            ]
+          },
+          "worstOverreachMm": 0
+        },
+        {
+          "slot": "lower",
+          "maskBox": {
+            "min": [
+              -164.1,
+              944.51,
+              -67.38
+            ],
+            "max": [
+              164.1,
+              986.03,
+              145.26
+            ],
+            "verts": 78
+          },
+          "garmentChannel": "lower",
+          "garmentBox": {
+            "min": [
+              -267.05,
+              100.98,
+              -116.43
+            ],
+            "max": [
+              267.05,
+              987.12,
+              160.26
+            ],
+            "verts": 8276
+          },
+          "overreach": {
+            "min": [
+              0,
+              0,
+              0
+            ],
+            "max": [
+              0,
+              0,
+              0
+            ]
+          },
+          "worstOverreachMm": 0
+        },
+        {
+          "slot": "foot",
+          "maskBox": {
+            "min": [
+              -270.33,
+              2.83,
+              -51.65
+            ],
+            "max": [
+              270.33,
+              68.47,
+              191.17
+            ],
+            "verts": 2164
+          },
+          "garmentChannel": "footwear",
+          "garmentBox": {
+            "min": [
+              -282.25,
+              0.98,
+              -60.75
+            ],
+            "max": [
+              282.25,
+              73.02,
+              206.49
+            ],
+            "verts": 115196
+          },
+          "overreach": {
+            "min": [
+              0,
+              0,
+              0
+            ],
+            "max": [
+              0,
+              0,
+              0
+            ]
+          },
+          "worstOverreachMm": 0
+        },
+        {
+          "slot": "foot",
+          "maskBox": {
+            "min": [
+              -259.49,
+              0.98,
+              -20.76
+            ],
+            "max": [
+              259.49,
+              74.43,
+              189.34
+            ],
+            "verts": 304
+          },
+          "garmentChannel": "footwear",
+          "garmentBox": {
+            "min": [
+              -282.25,
+              0.98,
+              -60.75
+            ],
+            "max": [
+              282.25,
+              73.02,
+              206.49
+            ],
+            "verts": 115196
+          },
+          "overreach": {
+            "min": [
+              0,
+              0,
+              0
+            ],
+            "max": [
+              0,
+              1.409485936164856,
+              0
+            ]
+          },
+          "worstOverreachMm": 1.41
+        },
+        {
+          "slot": "orphan",
+          "maskBox": {
+            "min": [
+              -267.19,
+              19.51,
+              -46.49
+            ],
+            "max": [
+              267.19,
+              1389.73,
+              149.08
+            ],
+            "verts": 112
+          },
+          "garmentChannel": "none",
+          "garmentBox": null,
+          "overreach": {
+            "min": [
+              0,
+              0,
+              0
+            ],
+            "max": [
+              0,
+              0,
+              0
+            ]
+          },
+          "worstOverreachMm": 0
+        }
+      ],
+      "contractUnionUpperLower": [
+        {
+          "slot": "upper",
+          "worstOverreachMm": 0,
+          "detail": []
+        },
+        {
+          "slot": "upper",
+          "worstOverreachMm": 0,
+          "detail": []
+        },
+        {
+          "slot": "lower",
+          "worstOverreachMm": 0,
+          "detail": []
+        },
+        {
+          "slot": "lower",
+          "worstOverreachMm": 0,
+          "detail": []
+        },
+        {
+          "slot": "foot",
+          "worstOverreachMm": 98.15,
+          "detail": [
+            "axis1 min: 98.2mm",
+            "axis2 max: 23.7mm"
+          ]
+        },
+        {
+          "slot": "foot",
+          "worstOverreachMm": 100,
+          "detail": [
+            "axis1 min: 100.0mm",
+            "axis2 max: 21.8mm"
+          ]
+        },
+        {
+          "slot": "orphan",
+          "worstOverreachMm": 81.47,
+          "detail": [
+            "axis1 min: 81.5mm"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "library_lean_female",
+      "file": "xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb",
+      "bodyVerts": 44157,
+      "garmentChannels": {
+        "upper": {
+          "min": [
+            -301.1,
+            993.75,
+            24.75
+          ],
+          "max": [
+            301.1,
+            1448.94,
+            299.47
+          ],
+          "verts": 4995
+        },
+        "lower": {
+          "min": [
+            -216.66,
+            88.09,
+            -12.58
+          ],
+          "max": [
+            216.66,
+            1023.35,
+            278.3
+          ],
+          "verts": 8565
+        },
+        "footwear": {
+          "min": [
+            -208.7,
+            0,
+            89.7
+          ],
+          "max": [
+            228.75,
+            55.41,
+            322.85
+          ],
+          "verts": 30594
+        }
+      },
+      "primitives": [
+        {
+          "name": "hm08_basemesh_adult_lean_female/skin_adult_lean_female",
+          "box": {
+            "min": [
+              -485.61,
+              0,
+              2.18
+            ],
+            "max": [
+              485.61,
+              1624.5,
+              384.62
+            ],
+            "verts": 44157
+          }
+        },
+        {
+          "name": "hm08_basemesh_adult_lean_female/openclinxr_hidden_upper_hm08_basemesh_adult_lean_female",
+          "box": {
+            "min": [
+              -289.3,
+              999.47,
+              39.7
+            ],
+            "max": [
+              289.3,
+              1449.98,
+              284.52
+            ],
+            "verts": 4574
+          }
+        },
+        {
+          "name": "hm08_basemesh_adult_lean_female/openclinxr_hidden_lower_hm08_basemesh_adult_lean_female",
+          "box": {
+            "min": [
+              -181.88,
+              87.59,
+              11.04
+            ],
+            "max": [
+              181.88,
+              991.76,
+              252.85
+            ],
+            "verts": 648
+          }
+        },
+        {
+          "name": "hm08_basemesh_adult_lean_female/openclinxr_mesh_native_scalp_hair_surface",
+          "box": {
+            "min": [
+              -81.47,
+              1552.95,
+              51.71
+            ],
+            "max": [
+              81.47,
+              1732.45,
+              254.81
+            ],
+            "verts": 4344
+          }
+        },
+        {
+          "name": "makeclothes_library_cargo_pants_adult_lean_female_mesh/mat_makeclothes_library_cargo_pants_adult_lean_female.001",
+          "box": {
+            "min": [
+              -216.66,
+              88.09,
+              -12.58
+            ],
+            "max": [
+              216.66,
+              1023.35,
+              278.3
+            ],
+            "verts": 8565
+          }
+        },
+        {
+          "name": "makeclothes_library_hair_toigo_blunt_bob_with_bangs_adult_lean_female_mesh/openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_adult_lean_female_mat",
+          "box": {
+            "min": [
+              -94.38,
+              1408.79,
+              26.98
+            ],
+            "max": [
+              97.85,
+              1672.63,
+              237.55
+            ],
+            "verts": 3085
+          }
+        },
+        {
+          "name": "makeclothes_library_toigo_basic_tucked_t_shirt_adult_lean_female/mat_makeclothes_library_toigo_basic_tucked_t_shirt_adult_lean_female",
+          "box": {
+            "min": [
+              -301.1,
+              993.75,
+              24.75
+            ],
+            "max": [
+              301.1,
+              1448.94,
+              299.47
+            ],
+            "verts": 4995
+          }
+        },
+        {
+          "name": "openclinxr_footwear_flats_L_mesh/openclinxr_footwear_flats_L_mat",
+          "box": {
+            "min": [
+              134.86,
+              0,
+              89.7
+            ],
+            "max": [
+              228.75,
+              55.41,
+              322.84
+            ],
+            "verts": 15240
+          }
+        },
+        {
+          "name": "openclinxr_footwear_flats_R_mesh/openclinxr_footwear_flats_R_mat",
+          "box": {
+            "min": [
+              -208.7,
+              0,
+              89.7
+            ],
+            "max": [
+              -114.8,
+              55.41,
+              322.85
+            ],
+            "verts": 15354
+          }
+        }
+      ],
+      "perMatchingSlot": [
+        {
+          "slot": "upper",
+          "maskBox": {
+            "min": [
+              -289.3,
+              999.47,
+              39.7
+            ],
+            "max": [
+              289.3,
+              1449.98,
+              284.52
+            ],
+            "verts": 4574
+          },
+          "garmentChannel": "upper",
+          "garmentBox": {
+            "min": [
+              -301.1,
+              993.75,
+              24.75
+            ],
+            "max": [
+              301.1,
+              1448.94,
+              299.47
+            ],
+            "verts": 4995
+          },
+          "overreach": {
+            "min": [
+              0,
+              0,
+              0
+            ],
+            "max": [
+              0,
+              1.0330677032470703,
+              0
+            ]
+          },
+          "worstOverreachMm": 1.03
+        },
+        {
+          "slot": "lower",
+          "maskBox": {
+            "min": [
+              -181.88,
+              87.59,
+              11.04
+            ],
+            "max": [
+              181.88,
+              991.76,
+              252.85
+            ],
+            "verts": 648
+          },
+          "garmentChannel": "lower",
+          "garmentBox": {
+            "min": [
+              -216.66,
+              88.09,
+              -12.58
+            ],
+            "max": [
+              216.66,
+              1023.35,
+              278.3
+            ],
+            "verts": 8565
+          },
+          "overreach": {
+            "min": [
+              0,
+              0.5013346672058105,
+              0
+            ],
+            "max": [
+              0,
+              0,
+              0
+            ]
+          },
+          "worstOverreachMm": 0.5
+        }
+      ],
+      "contractUnionUpperLower": [
+        {
+          "slot": "upper",
+          "worstOverreachMm": 1.03,
+          "detail": []
+        },
+        {
+          "slot": "lower",
+          "worstOverreachMm": 0.5,
+          "detail": []
+        }
+      ]
+    }
+  ],
+  "treeStamp": {
+    "head": "a9d3ad5c45b53d5242c3723907f87d10ae8fb33a",
+    "fingerprint": "363c7dec9e033b0dfea819ac389129a44a4571d3392052f232a9ac44c647c01c",
+    "algorithm": "git-head+status+diff-sha256"
+  }
+}

@@ -123,6 +123,44 @@ import { describe, expect, it } from "vitest";
  * #322 net (library garments real + licenced) both stay green on the re-baked bytes. The lower
  * garment's 8,290 exported verts are the cover shell (1,440 unique — the glTF export splits the
  * flat-shaded shell per face, exactly as the library rail's 8,565-vert shell ships).
+ *
+ * ## FIXED (#357)
+ *
+ * Clause (2) could NEVER pass as written: it compared every mask against the union of
+ * upper + lower garments only — footwear excluded by #333 — while still collecting the
+ * foot hide-mask (`openclinxr_hidden_foot_*`, added by #341). A foot mask runs from the
+ * ankle to the sole, ~100 mm below the trouser hem, so its axis1-min over-reach was
+ * arithmetically guaranteed. Measured RED on main:
+ *
+ *   axis1 min: mask exceeds garment by 98.2mm / 100.0mm   (foot masks vs trousers)
+ *   axis2 max: mask exceeds garment by 23.7mm / 21.8mm     (foot masks vs trousers)
+ *   axis1 min: mask exceeds garment by 81.5mm              (orphan mask, #350 — spans
+ *                                                           boundaries by design)
+ *
+ * The fix is PER-SLOT (the issue's option 2 — the honest instrument, not the minimum):
+ * each mask is compared against the garment channel that hides it — upper vs upper,
+ * lower vs lower, foot vs footwear — and the orphan mask against the union of ALL
+ * channels (it has no single matching garment; it must still not extend beyond every
+ * garment). Footwear is now collected as a channel, checked BEFORE UPPER because aisha's
+ * flats material contains "toigo", and hair is excluded from the upper channel for the
+ * same reason (the library's fitted hair material also contains "toigo").
+ *
+ * Measured 2026-08-13 per matching slot on the shipped bytes (pre-fix.json in
+ * .openclinxr/evidence/mask-footprint/):
+ *
+ *   slot           | mask vs its garment        | worst over-reach
+ *   ---------------|----------------------------|-----------------
+ *   aisha upper    | vs t-shirt                 | 0.0 mm
+ *   aisha lower    | vs cargo pants             | 0.0 mm
+ *   aisha foot     | vs toigo flats             | 1.4 mm (inside the 2 mm allowance)
+ *   aisha orphan   | vs union of all channels   | 0.0 mm
+ *   library upper  | vs t-shirt                 | 1.0 mm
+ *   library lower  | vs cargo pants             | 0.5 mm
+ *
+ * Every mask tracks the garment that hides it; the 98–100 mm figures came only from
+ * comparing the foot mask to trousers. Clauses (1), (3) and (4) are unchanged.
+ * NOT TESTED: whether 2 mm is the right allowance (foot lands at 1.4 mm with n=1);
+ * nothing about mask correctness beyond footprint.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -135,13 +173,22 @@ const LIBRARY = "xr-assets/humanoids/candidates/body-param-adult_lean_female-lib
 const UPPER = /shirt|top|tshirt|toigo/i;
 const LOWER = /pants|trouser|cargo/i;
 const HIDDEN = /hidden/i;
-/** #333: footwear is a wardrobe channel, not body — the library rail already ships it. */
+const MASK_SLOT = /hidden_(upper|lower|foot|orphan)/i;
+/** Hair is not a garment the mask hides under — excluding it keeps the upper channel honest. */
+const HAIR = /hair|scalp/i;
+/**
+ * #333: footwear is a wardrobe channel, not body — the library rail already ships it.
+ * #357: footwear IS a garment the foot mask hides under, so it is collected as a channel
+ * (checked BEFORE UPPER: aisha's flats material contains "toigo").
+ */
 const FOOTWEAR = /footwear|shoe|boot|flat/i;
 /** Signed-clearance epsilon is 5 mm; 2 mm of bounds slack allows float + fan-triangulation edges. */
 const MAX_OVERREACH_M = 0.002;
 
 type Box = { min: [number, number, number]; max: [number, number, number]; verts: number };
-type Rail = { id: string; upper: Box | null; lower: Box | null; masks: Box[]; body: number };
+type MaskSlot = "upper" | "lower" | "foot" | "orphan";
+type Mask = { slot: MaskSlot; box: Box };
+type Rail = { id: string; upper: Box | null; lower: Box | null; footwear: Box | null; masks: Mask[]; body: number };
 
 const io = new NodeIO();
 const EMPTY = (): Box => ({ min: [1e9, 1e9, 1e9], max: [-1e9, -1e9, -1e9], verts: 0 });
@@ -157,9 +204,21 @@ async function railOf(id: string, rel: string): Promise<Rail> {
   const doc = await io.read(`${PUBLIC}/${rel}`);
   let upper: Box | null = null;
   let lower: Box | null = null;
-  const masks: Box[] = [];
+  let footwear: Box | null = null;
+  const masks: Mask[] = [];
   let body = 0;
   const el: [number, number, number] = [0, 0, 0];
+
+  const absorb = (target: Box | null, box: Box): Box => {
+    if (!target) return box;
+    const merged = EMPTY();
+    for (let a = 0; a < 3; a += 1) {
+      merged.min[a] = Math.min(target.min[a]!, box.min[a]!);
+      merged.max[a] = Math.max(target.max[a]!, box.max[a]!);
+    }
+    merged.verts = target.verts + box.verts;
+    return merged;
+  };
 
   for (const mesh of doc.getRoot().listMeshes()) {
     for (const prim of mesh.listPrimitives()) {
@@ -170,31 +229,68 @@ async function railOf(id: string, rel: string): Promise<Rail> {
       for (let i = 0; i < pos.getCount(); i += 1) grow(box, pos.getElement(i, el));
       box.verts = pos.getCount();
 
-      if (HIDDEN.test(name)) masks.push(box);
-      else if (LOWER.test(name)) lower = box;
-      else if (UPPER.test(name)) upper = box;
-      else if (FOOTWEAR.test(name)) continue; // #333: footwear is not body (nor a mask the garments hide under)
-      else body += pos.getCount();
+      if (HIDDEN.test(name)) {
+        const slotMatch = name.match(MASK_SLOT);
+        // Unknown hidden slot -> orphan (union-all comparison): never compare a
+        // mask against a channel that does not hide it.
+        const slot: MaskSlot = slotMatch?.[1] === "foot" ? "foot" : slotMatch?.[1] === "orphan" ? "orphan" : slotMatch?.[1] === "lower" ? "lower" : slotMatch?.[1] === "upper" ? "upper" : "orphan";
+        masks.push({ slot, box });
+      } else if (FOOTWEAR.test(name)) {
+        footwear = absorb(footwear, box);
+      } else if (LOWER.test(name)) {
+        lower = absorb(lower, box);
+      } else if (HAIR.test(name)) {
+        // not a garment channel, not body the mask hides under — skip
+      } else if (UPPER.test(name)) {
+        upper = absorb(upper, box);
+      } else {
+        body += pos.getCount();
+      }
     }
   }
-  return { id, upper, lower, masks, body };
+  return { id, upper, lower, footwear, masks, body };
 }
 
 const aisha = await railOf("mpfb2_aisha", AISHA);
 const library = await railOf("library_lean_female", LIBRARY);
 
-/** Largest over-reach of a mask beyond the union of the garment boxes, in metres. */
+function unionOf(boxes: Array<Box | null>): Box | null {
+  const parts = boxes.filter((b): b is Box => b !== null);
+  if (!parts.length) return null;
+  const u = EMPTY();
+  for (const p of parts) {
+    for (let a = 0; a < 3; a += 1) {
+      if (p.min[a]! < u.min[a]!) u.min[a] = p.min[a]!;
+      if (p.max[a]! > u.max[a]!) u.max[a] = p.max[a]!;
+    }
+    u.verts += p.verts;
+  }
+  return u;
+}
+
+/**
+ * #357: per-slot comparison — each mask against the garment channel that hides it
+ * (upper vs upper, lower vs lower, foot vs footwear). The old code compared every
+ * mask against union(upper, lower), which excluded footwear by design (#333) while
+ * still collecting the foot mask, so the ankle-to-sole reach below the trouser hem
+ * was arithmetically guaranteed to over-reach. The orphan mask (#350) spans garment
+ * boundaries by design — no single channel hides it — so it is compared against the
+ * union of ALL channels (it must not extend beyond every garment).
+ */
 function overreach(rail: Rail): { worst: number; detail: string[] } {
-  const garments = [rail.upper, rail.lower].filter((g): g is Box => g !== null);
-  if (!garments.length || !rail.masks.length) return { worst: Infinity, detail: ["no garment or no mask"] };
-  const gmin = [0, 1, 2].map((a) => Math.min(...garments.map((g) => g.min[a]!)));
-  const gmax = [0, 1, 2].map((a) => Math.max(...garments.map((g) => g.max[a]!)));
   let worst = 0;
   const detail: string[] = [];
+  const unionAll = unionOf([rail.upper, rail.lower, rail.footwear]);
   for (const m of rail.masks) {
+    const garment = m.slot === "upper" ? rail.upper : m.slot === "lower" ? rail.lower : m.slot === "foot" ? rail.footwear : unionAll;
+    if (!garment) {
+      worst = Infinity;
+      detail.push(`${m.slot} mask has no matching garment channel`);
+      continue;
+    }
     for (let a = 0; a < 3; a += 1) {
-      const under = gmin[a]! - m.min[a]!;
-      const over = m.max[a]! - gmax[a]!;
+      const under = garment.min[a]! - m.box.min[a]!;
+      const over = m.box.max[a]! - garment.max[a]!;
       for (const [label, v] of [["min", under], ["max", over]] as const) {
         if (v > worst) worst = v;
         if (v > MAX_OVERREACH_M) {
@@ -241,7 +337,7 @@ describe("the MPFB2 patient is clothed below the waist, and the mask matches the
 
   it("(4) COUNTERWEIGHT: the mask is not hollowed out and the garments are not inflated", () => {
     requireMeasured();
-    const hidden = aisha.masks.reduce((s, m) => s + m.verts, 0);
+    const hidden = aisha.masks.reduce((s, m) => s + m.box.verts, 0);
     const total = aisha.body + hidden;
     // library rail sits at 10.1%; #323 landed MPFB2 at 10.5%. A mask shrunk to nothing is refused.
     expect(hidden / total, "aisha hidden fraction of body").toBeGreaterThan(0.04);
