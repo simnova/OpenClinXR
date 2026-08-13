@@ -30,6 +30,7 @@ import {
   findScenarioFixtureById,
   scenarioBank,
 } from "@openclinxr/scenario-fixtures/scenario-bank";
+import type { GeneratedDriveScalarValue } from "./generated-drive-scalar.js";
 import {
   deriveRuntimeTraceActionTagsFromBundle,
   resolveActorIdForTraceTag,
@@ -770,10 +771,10 @@ export type RuntimeVisualEvidenceCaptureScaffold = {
   // Full player loop consumption for peds (step the loop from case spec to drive current state over turns; for humanoid locomotion/gaze/lip/viseme in runtime player with desktop fallback).
   pedsPlayerLoopStep?: { totalSteps: number; currentAfterStep0: { trigger: string; emotion: string | null; cue: string | null }; currentAfterStep1: { trigger: string; emotion: string | null; cue: string | null }; source: "case-derived-loop-step" } | null;
   // Full e2e replay evidence from generated (consume player loop/persistence for both peds+ed; review-safe trace for admin replay surfaces).
-  pedsReplayEvidence?: { scenarioId: string; turnsReplayed: number; finalEmotion: string | null; finalCue: string | null; locomotion: boolean; gazeAversion: string; lipSyncViseme: string; source: "case-derived-player-loop-replay" } | null;
-  edReplayEvidence?: { scenarioId: string; turnsReplayed: number; finalEmotion: string | null; finalCue: string | null; locomotion: boolean; gazeAversion: string; lipSyncViseme: string; source: "case-derived-player-loop-replay" } | null;
+  pedsReplayEvidence?: { scenarioId: string; turnsReplayed: number; finalEmotion: string | null; finalCue: string | null; locomotion: boolean; gazeAversion: string | GeneratedDriveScalarValue; lipSyncViseme: string | GeneratedDriveScalarValue; source: "case-derived-player-loop-replay" } | null;
+  edReplayEvidence?: { scenarioId: string; turnsReplayed: number; finalEmotion: string | null; finalCue: string | null; locomotion: boolean; gazeAversion: string | GeneratedDriveScalarValue; lipSyncViseme: string | GeneratedDriveScalarValue; source: "case-derived-player-loop-replay" } | null;
   // Wired replay to runtime behavior (drive fields from replay for e2e player consumption; for peds+ed caseDerived).
-  pedsRuntimeDrive?: { currentEmotion: string | null; currentCue: string | null; locomotion: boolean; gaze: string; lipSync: string; virtualEnv: string | null; gltfEnvWorld: { room: string | null; containerPolicy: string } | null; deeperVisualCue: { fromEnv: string | null; fromEmotion: string | null; cue: string; intensity: number; richerCuesApplied: boolean; source: "case-derived-richer-deeper-env" } | null; source: "case-derived-replay-drive" } | null;
+  pedsRuntimeDrive?: { currentEmotion: string | null; currentCue: string | null; locomotion: boolean; gaze: string | GeneratedDriveScalarValue; lipSync: string | GeneratedDriveScalarValue; virtualEnv: string | null; gltfEnvWorld: { room: string | null; containerPolicy: string } | null; deeperVisualCue: { fromEnv: string | null; fromEmotion: string | null; cue: string; intensity: number; richerCuesApplied: boolean; source: "case-derived-richer-deeper-env" } | null; source: "case-derived-replay-drive" } | null;
   // Virtual env from factory (user steering: after functional player chunk for conv/emotion, now factory for virtual env pipeline). Small piece of virtual env that runtime player will use (room/props from case, tech vetted Three+GLTF open source). Evident in scaffold data for encounter experience.
   caseDerivedVirtualEnvironment?: {
     scenarioId: string;
@@ -2329,8 +2330,8 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
     finalEmotion: pedsPlayerStepLoopDemo[1]?.emotion || pedsPlayerStepLoopDemo[0]?.emotion || null,
     finalCue: pedsPlayerStepLoopDemo[1]?.cue || pedsPlayerStepLoopDemo[0]?.cue || null,
     locomotion: true,
-    gazeAversion: "on escalation from case triggers",
-    lipSyncViseme: "medium from hints",
+    gazeAversion: { value: 0.85, label: "on escalation from case triggers" },
+    lipSyncViseme: { value: 0.55, label: "medium from hints" },
     source: "case-derived-player-loop-replay" as const
   } : null;
 
@@ -2340,8 +2341,8 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
     finalEmotion: "concerned",
     finalCue: "urgent_escalation",
     locomotion: true,
-    gazeAversion: "on family concern from case",
-    lipSyncViseme: "medium from hints",
+    gazeAversion: { value: 0.55, label: "on family concern from case" },
+    lipSyncViseme: { value: 0.55, label: "medium from hints" },
     source: "case-derived-player-loop-replay" as const
   } : null;
 
