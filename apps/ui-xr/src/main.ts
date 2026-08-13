@@ -4880,7 +4880,11 @@ function configureSemanticRolePoseOverlay(mesh: Mesh, cueId: string): void {
 type HumanoidCueMode = "generated_glb" | "primitive_fallback";
 
 function shouldShowProceduralHumanoidDetailCues(faceCueMode: HumanoidCueMode): boolean {
-  return faceCueMode === "primitive_fallback" || isHumanoidFaceDetailCaptureMode() || shouldShowRuntimeAffordanceMarkers();
+  // #368: capture mode is NOT a reason to draw the hand-authored face/role cue
+  // primitives. An actor with real face geometry renders its real face in every
+  // capture mode; only a primitive_fallback body (no face geometry) and the
+  // deliberate affordance/debug marker surface still show them.
+  return faceCueMode === "primitive_fallback" || shouldShowRuntimeAffordanceMarkers();
 }
 
 function addRoleSpecificHumanoidVisuals(
@@ -5161,8 +5165,6 @@ function addActorSpecificIdentityVariantCue(
     recordRoleDistinctHumanoidCue(actorId, "visible_eye_gaze_anchor_cue", rightEye.name);
     recordRoleDistinctHumanoidCue(actorId, "emotion_mouth_viseme_anchor_cue", mouth.name);
     recordRoleDistinctHumanoidCue(actorId, "emotion_brow_tension_cue", brow.name);
-  } else if (faceCueMode === "generated_glb" && isHumanoidFaceDetailCaptureMode()) {
-    addGeneratedGlbClothingContinuityCue(humanoid, actorId, accentColor);
   }
   const torsoLayerName = `${runtimeSceneObjectPrefix()}.${actorId}.actor-specific-clothing-layer-silhouette-cue`;
   const roleAccentName = `${runtimeSceneObjectPrefix()}.${actorId}.actor-specific-role-accent-cue`;
@@ -5194,35 +5196,6 @@ function addActorSpecificIdentityVariantCue(
   recordRoleDistinctHumanoidCue(actorId, "actor_specific_hair_face_variant_cue", hairCapName);
   recordRoleDistinctHumanoidCue(actorId, "actor_specific_clothing_layer_silhouette_cue", torsoLayerName);
   recordRoleDistinctHumanoidCue(actorId, "actor_specific_clothing_accent_variant_cue", roleAccentName);
-}
-
-function addGeneratedGlbClothingContinuityCue(humanoid: Group, actorId: string, accentColor: number): void {
-  const scrubMaterial = new MeshStandardMaterial({
-    color: accentColor,
-    roughness: 0.82,
-    metalness: 0.02,
-    transparent: true,
-    opacity: 0.92,
-  });
-  scrubMaterial.userData.openClinXrMaterialPolicy =
-    "generated_glb_scrub_continuity_layer_covering_exposed_legacy_shoulder_seams_without_debug_proxy_markers";
-  const neckline = new Mesh(new BoxGeometry(0.36, 0.065, 0.018), scrubMaterial.clone());
-  neckline.name = `${runtimeSceneObjectPrefix()}.${actorId}.generated-glb-scrub-neckline-continuity-cue`;
-  neckline.position.set(0, 1.405, 0.322);
-  humanoid.add(neckline);
-  const leftShoulder = new Mesh(new SphereGeometry(0.105, 18, 10), scrubMaterial.clone());
-  leftShoulder.name = `${runtimeSceneObjectPrefix()}.${actorId}.generated-glb-left-scrub-shoulder-continuity-cue`;
-  leftShoulder.position.set(-0.18, 1.395, 0.29);
-  leftShoulder.scale.set(1.3, 0.34, 0.42);
-  humanoid.add(leftShoulder);
-  const rightShoulder = new Mesh(new SphereGeometry(0.105, 18, 10), scrubMaterial.clone());
-  rightShoulder.name = `${runtimeSceneObjectPrefix()}.${actorId}.generated-glb-right-scrub-shoulder-continuity-cue`;
-  rightShoulder.position.set(0.18, 1.395, 0.29);
-  rightShoulder.scale.set(1.3, 0.34, 0.42);
-  humanoid.add(rightShoulder);
-  recordRoleDistinctHumanoidCue(actorId, "generated_glb_scrub_continuity_cue", neckline.name);
-  recordRoleDistinctHumanoidCue(actorId, "generated_glb_scrub_continuity_cue", leftShoulder.name);
-  recordRoleDistinctHumanoidCue(actorId, "generated_glb_scrub_continuity_cue", rightShoulder.name);
 }
 
 function createClinicalPanel(): ReadableVrTextPanel {
