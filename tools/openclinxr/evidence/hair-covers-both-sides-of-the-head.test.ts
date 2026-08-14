@@ -74,6 +74,30 @@ import { describe, expect, it } from "vitest";
  * but the sampled subject is now the shipped region, not a texture that no longer exists.
  */
 
+/**
+ * ## RE-PREMISED (#393) — the measurable-scalp population is the figures WITHOUT fitted hair
+ *
+ * #387 retired aisha's placeholder scalp paint where #381's fitted hair replaced it
+ * (`body_param_stage.scalp_placeholder_retired_for`): measured on the shipped bytes she now
+ * carries 4,976 tris of weighted fitted hair and NO scalp region. This file's enumeration
+ * scans every shipped `mpfb-*.glb`, so `measure()` returns null for aisha — and the old
+ * vacuity guard ("at least 3 measurable scalps of 3 scanned") fired on every clause, which
+ * is why all three failed through the guard rather than on their own measurements.
+ *
+ * The re-premise matches the shape #387 already applied in `mpfb-scalp-hair-region.test.ts`
+ * and `hairline-is-a-line-not-a-sawtooth.test.ts`:
+ *
+ * - The population this contract governs is the figures that STILL carry the region: the
+ *   nurse and the child (no fitted hair). Both must remain measurable by name, so the guard
+ *   cannot pass on an empty enumeration.
+ * - The retired figure (aisha) gains an explicit assertion: her body must NOT carry a
+ *   measurable scalp region, so the placeholder cannot silently come back under the fitted
+ *   hair.
+ * - No threshold changed. The old count floor (3 of 3) encoded "every MPFB actor carries
+ *   the region", which #387 re-premised; the balance bound, the side-removal floor, and the
+ *   face-band exclusion below are unchanged and asserted on every measurable row.
+ */
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const GENERATED = "apps/ui-xr/public/generated-humanoids";
@@ -155,10 +179,29 @@ const rows = (await Promise.all(files.map((f) => measure(f).catch(() => null))))
   (r): r is Row => r !== null,
 );
 
+/** #393 — the shipped base ids that still carry the placeholder scalp region (no fitted hair). */
+const REGION_FIGURES = ["mpfb-peds-nurse-kevin.glb", "mpfb-peds-patient-child.glb"] as const;
+
+/** #393 — the shipped base id of the figure whose placeholder scalp paint is retired
+ * (real fitted hair on disk). See body_param_stage.scalp_placeholder_retired_for. */
+const RETIRED_FIGURE = "mpfb-ob-patient-aisha.glb";
+
 /** An empty enumeration must FAIL, never pass vacuously (§7t). */
 function requireRows(): void {
-  expect(rows.length, `MPFB bodies with a measurable baked scalp (scanned ${files.length})`)
-    .toBeGreaterThanOrEqual(3);
+  // #393 re-premise (#387's shape): aisha's placeholder is retired where #381's fitted hair
+  // replaced it, so `measure` returns null for her and she is absent from `rows`. The guard
+  // still refuses an empty enumeration — BOTH remaining region-carrying figures are required
+  // by name, and the retired figure must NOT be measurable.
+  const measured = new Set(rows.map((r) => r.file));
+  const missing = REGION_FIGURES.filter((f) => !measured.has(f));
+  expect(
+    missing,
+    `MPFB bodies with a measurable baked scalp (scanned ${files.length}; aisha retired under #393)`,
+  ).toEqual([]);
+  expect(
+    measured.has(RETIRED_FIGURE),
+    `${RETIRED_FIGURE} — placeholder not retired (#393)`,
+  ).toBe(false);
 }
 
 const show = (r: Row): string =>
