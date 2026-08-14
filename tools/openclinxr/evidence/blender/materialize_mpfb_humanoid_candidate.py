@@ -31,6 +31,21 @@ SHOE_BY_REFERENCE = {
     "peds_patient_child": "toigo_mj_cloth_shoes",
 }
 
+# #381 — slice 1 of the human-realism campaign: the cast actor wears the fitted hair
+# the library rail already proves. Keyed by reference id like SHOE_BY_REFERENCE
+# (None = the default-macro aisha path). One actor per the peer fence
+# (.openclinxr/handoffs/mpfb-human-realism-peer-from-equipment-lane-2026-08-14.md):
+# every licence-clean style in the usable makehuman-hair01 subset is a feminine bob,
+# so kevin is a RECORDED MALE SKIP (a bob on a male nurse regresses realism, which is
+# worse than the stair-step painted cap it would replace) and the child is out of
+# slice-1 scope. The style is the SAME toigo_blunt_bob_with_bangs the library rail
+# proved (SS9h — same fitter, same pack, same style, on a shipped file).
+HAIR_STYLE_BY_REFERENCE = {
+    None: "toigo_blunt_bob_with_bangs",
+    "peds_nurse_kevin": None,
+    "peds_patient_child": None,
+}
+
 # #343 — phenotype skin-tone token -> MpfbSkinMasterColor SkinColor (RGB).
 # Authored DATA table (the same pattern as SHOE_BY_REFERENCE, and the hair_color ->
 # base_color table in automate_blender.py apply_mesh_native_scalp_hair_material_region):
@@ -260,6 +275,37 @@ def mhmat_for_mhclo(mhclo_path):
         if flat.is_file():
             return flat
     raise RuntimeError(f"#340: no .mhmat found for {mhclo_path} (declared {declared})")
+
+
+def read_hair_mhclo_licence(mhclo_path):
+    """#381 — read the licence line from a hair `.mhclo`'s OWN header.
+
+    Mirrors `hair-licence-classify.ts` `readHairLicenceLine` + `classifyHairLicence`
+    (the machine gate the evidence RED reads live): `# license CC0` / `# license CC-0`
+    / `CC_by` / `CC BY 4.0` are permitted; AGPL is a HARD refusal; no licence line or
+    an unrecognised line is a refusal (unspecified is a refusal). The bake refuses
+    the style at fit time, so a copyleft style can never reach the shipped bytes even
+    if the evidence gate is bypassed. Returns (permitted, raw_token).
+    """
+    try:
+        header = mhclo_path.read_text(encoding="utf-8", errors="replace")[:4000]
+    except OSError:
+        return False, None
+    raw = None
+    for line in header.splitlines():
+        m = re.match(r"^#\s*license:?\s*(.+)$", line.strip(), re.I)
+        if m:
+            raw = m.group(1).strip()
+            break
+    if not raw:
+        return False, None
+    if re.search(r"agpl", raw, re.I):
+        return False, raw
+    if re.search(r"cc\s*[-_ ]?0", raw, re.I):
+        return True, raw
+    if re.search(r"cc[\s_-]*by", raw, re.I):
+        return True, raw
+    return False, raw
 
 
 def make_material_from_mhmat(mhmat_path, name):
@@ -2210,6 +2256,83 @@ def main():
         f"in the eye footprint x[{eye_min_x:.4f},{eye_max_x:.4f}] y[{eye_min_y:.4f},{eye_max_y:.4f}]"
     )
 
+    # #381 — slice 1 of the human-realism campaign: the cast actor wears the fitted hair
+    # the library rail already proves. The painted scalp region above IS the hair today
+    # (a flat near-black cap whose boundary is the stair-step hairline — the top visible
+    # face defect, graded in pixels twice). The library rail ships a licence-cleared,
+    # weighted 4,976-tri fitted bob through embed_library_hair.py ->
+    # ClothesService.fit_clothes_to_human; the cast bake never calls that fitter (it was
+    # invoked from exactly ONE place, body-param-cli.ts). Slice 1 wires the PROVEN fitter
+    # here for aisha only (HAIR_STYLE_BY_REFERENCE above; kevin is a recorded male skip
+    # and the child is out of scope per the peer fence). ORDER IS LOAD-BEARING: the fit
+    # runs BEFORE the #318 helper strip, exactly like the eyes — the hair .mhclo
+    # references basemesh verts and must see the full topology; the fitted mesh is a
+    # SEPARATE object, so the strip (which mutates `human`) does not touch it.
+    _hair_style = HAIR_STYLE_BY_REFERENCE.get(args.reference)
+    _hair_fitted = None
+    if _hair_style:
+        _hair_dir = (
+            pathlib.Path(__file__).resolve().parents[4]
+            / ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair"
+            / _hair_style
+        )
+        _hair_mhclo = _hair_dir / f"{_hair_style}.mhclo"
+        _hair_obj = _hair_dir / "bob_blunt_bangs.obj"
+        if not _hair_mhclo.is_file() or not _hair_obj.is_file():
+            raise RuntimeError(f"#381: hair sources missing in provider cache: {_hair_dir}")
+        _hair_lic_ok, _hair_lic_raw = read_hair_mhclo_licence(_hair_mhclo)
+        if not _hair_lic_ok:
+            raise RuntimeError(
+                f"#381: hair {_hair_style} licence NOT permitted per its own .mhclo header: "
+                f"{_hair_lic_raw!r} — hard refusal (AGPL/copyleft or unspecified)"
+            )
+
+        import sys as _sys_hair
+
+        _mc_dir_hair = REPO_ROOT / "tools/openclinxr/asset-pipeline/makeclothes"
+        if str(_mc_dir_hair) not in _sys_hair.path:
+            _sys_hair.path.insert(0, str(_mc_dir_hair))
+        from embed_library_hair import (  # noqa: E402
+            create_material as _hair_create_material,
+            fit_hair as _fit_hair,
+            hair_color as _hair_color,
+            weight_hair_to_head as _weight_hair_to_head,
+        )
+
+        _hair_ref_tag = args.reference or "ob_patient_aisha"
+        _hair_mesh_name = f"makeclothes_library_hair_{_hair_style}_mpfb_{_hair_ref_tag}_mesh"
+        # Same proven path as the library rail: import the hair OBJ (bake the importer's
+        # axis rotation into mesh data, the #321/#330 handback), fit via the SAME
+        # ClothesService.fit_clothes_to_human the t-shirt/pants/shoes use, weight 100% to
+        # the head bone + armature modifier (skinned, so the GLB carries JOINTS_0).
+        _hair, _hair_fit_s = _fit_hair(
+            str(_hair_mhclo), str(_hair_obj), human, _hair_mesh_name
+        )
+        _hair_mat = _hair_create_material(
+            f"openclinxr_fitted_hair_{_hair_style}_mpfb_{_hair_ref_tag}_mat",
+            _hair_color(args.actor_role),
+        )
+        _hair.data.materials.append(_hair_mat)
+        _hair_arm = next(
+            (o for o in bpy.context.scene.objects if o.type == "ARMATURE"), None
+        )
+        if _hair_arm is None:
+            raise RuntimeError("#381: no armature for hair weighting")
+        _hair_bone = _weight_hair_to_head(_hair, _hair_arm)
+        for _poly in _hair.data.polygons:
+            _poly.use_smooth = True
+        _hair_tris = sum(max(len(p.vertices) - 2, 0) for p in _hair.data.polygons)
+        _hair_fitted = {
+            "style": _hair_style,
+            "mesh": _hair_mesh_name,
+            "material": _hair_mat.name,
+            "tris": _hair_tris,
+            "weightedBone": _hair_bone,
+            "licence": _hair_lic_raw,
+            "fitWallClockS": round(_hair_fit_s, 4),
+        }
+        print(f"HAIR_FIT {json.dumps(_hair_fitted)}")
+
     # #318: strip MakeHuman's clothes and hair FITTING SHELLS with the proven MPFB export
     # service (D1). `bpy.ops.mpfb.create_human()` materialises the FULL base.obj including
     # helper geometry — 36,972 tris, exactly MADR 0052's "with helpers" figure — and Aisha
@@ -3748,6 +3871,10 @@ def main():
             "bodyMinZ": round(body_min_z, 6),
             "shoeMinZ": round(body_min_z, 6),
         },
+        # #381: the fitted-hair channel (aisha only; None = recorded skip for kevin/child).
+        # The painted scalp region stays UNDER the fitted mesh — deleting it would trade a
+        # stair-step hairline for a bald patch.
+        "hair": _hair_fitted,
         "outOfScopeWrongness": (
             "garment/hide-mask/poke-through were not re-graded for the new bodies; "
             "the toigo t-shirt was authored for an adult and is expected to fit the child "

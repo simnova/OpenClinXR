@@ -196,7 +196,7 @@ function requireMeasured(): void {
 }
 
 describe("cast actors wear the fitted hair the library rail already proves", () => {
-  it.fails("(1) RED: aisha carries a separate fitted hair mesh, weighted to the head", () => {
+  it("(1) RED: aisha carries a separate fitted hair mesh, weighted to the head", () => {
     requireMeasured();
     const row = castRows.find((r) => r.id === SLICE_1_ACTOR);
     const faults: string[] = [];
