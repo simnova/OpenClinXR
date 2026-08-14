@@ -13,6 +13,16 @@ parseable_sections: 6
 
 ## MPFB TRANSITION SCOREBOARD (measured 2026-08-12 21:05; regenerate, do not narrate)
 
+> **DARK-FACTORY CAMPAIGN CLOSED 2026-08-14** (other agent; `.openclinxr/handoffs/campaign-close-dark-factory-2026-08-14.md`).
+> A/B/C/T closed. Peds parent is a second GLB (colour) **plus** a motion-bind GLB (walk) —
+> `MPFB_PEDS_PARENT_AISHA_RUNTIME_PATH` is the candidates walk file, not the bake. **FROZEN:**
+> `mpfb-ob-patient-aisha.glb`, `mpfb-peds-patient-child.glb`, `mpfb-peds-nurse-kevin.glb`. **Do not**
+> restart #388, touch #167, recolour OB aisha, start new materializer rebakes for colour, or push
+> origin (main is ~480 ahead). Isolated stills graded; **not** three playable exams.
+> Hourly loop consequences: #400 killed mid-run and NOT landed (it rebaked the frozen child);
+> #401 parked (requires rebaking frozen OB aisha); #402 is the campaign's own leftover #5.
+
+
 **Goal:** production actors move from Anny-only assets to MPFB2 bodies with Anny as the phenotype
 reference (operator direction; MADR 0052). Live measure: **graded clean by the orchestrator.**
 
