@@ -70,6 +70,38 @@ import { describe, expect, it } from "vitest";
  *     z, which depends on the sphere alone and is unaffected.
  */
 
+/**
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ * ## FIXED (#377) — appended, planted header above is immutable
+ *
+ * `materialize_mpfb_humanoid_candidate.py` now resizes the fitted CC0 eye to each actor's anatomical
+ * axial length right after `add_mhclo_asset` (before the socket footprint is measured, so the scalp
+ * unpaint, forehead plane and hairline use the FINAL eye geometry). MPFB has NO eye-size parameter
+ * to wire (`Mhclo.set_scalings` is a no-op TODO; no `eye_size` proportion exists — probed 2026-08-13
+ * in the extension), so the fix is a post-fit transform: scale each eye about its own least-squares
+ * sphere centre and translate the centre FORWARD so the corneal pole keeps its world position —
+ * the naive centre-only shrink recedes the pole 3.0-4.0 mm and hollows the eyes (treatment b above,
+ * refused by clause (2)). The eye.L/eye.R bones move with their globe (edit-mode rest-pose move;
+ * `Bone.head_local` is read-only in Blender 5.1) so the runtime gaze pivot stays at the new centre.
+ *
+ * Re-baked all three actors 2026-08-13 with the full staged provider cache:
+ *
+ *   actor   fitted before   target   fitted after   pole shift   fit RMS before/after
+ *   ------  -------------   ------   ------------   ----------   ---------------------
+ *   aisha    29.91 mm        24.0      24.00 mm      +0.06 mm     0.002 -> 0.001 mm
+ *   kevin    32.05 mm        24.0      24.00 mm      +0.03 mm     0.166 -> 0.125 mm
+ *   child    29.72 mm        22.5      22.50 mm      +0.03 mm     0.106 -> 0.080 mm
+ *
+ * Clause (1) flipped from `it.fails` to `it`; (2) and (3) unchanged and still green. The child's
+ * 22.5 mm target was checked against the case definition (height_cm 125, gender_presentation
+ * child — school-age) and confirmed; the phenotype's explicit eye colour (hazel) is honoured by
+ * the #356 case-driven iris material, untouched here.
+ *
+ * NOT TESTED (unchanged residual): whether this removes the doll-like impression (that is the
+ * orchestrator's head-framed pixel grade of the re-baked actors), whether the lid/socket must move
+ * with the globe, and whether anatomical is the right target at all for a stylised clinical actor.
+ */
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const GENERATED = "apps/ui-xr/public/generated-humanoids";
@@ -176,7 +208,7 @@ function requireMeasured(): void {
 }
 
 describe("MPFB eyeballs are anatomically sized", () => {
-  it.fails(`(1) RED: eyeball diameter is within ${MAX_OVER_ANATOMY}x the actor's anatomical axial length`, () => {
+  it(`(1) RED: eyeball diameter is within ${MAX_OVER_ANATOMY}x the actor's anatomical axial length`, () => {
     requireMeasured();
     const oversized = rows
       .filter((r) => r.eye.diameterMm > (ANATOMICAL_TARGET_MM[r.actor] ?? 0) * MAX_OVER_ANATOMY)
