@@ -29,22 +29,31 @@ import { isUpperGarmentName } from "./garment-slot.ts";
  * primitives ship per actor (`hidden_upper`/`lower`/`foot`/`orphan`, several duplicated with a `.001`
  * suffix), ~4,570 vertices on aisha, costing draw calls and vertex shading every frame for nothing.
  *
- * ## FIXED (#389) — 2026-08-14, matcher + second #199 consequence recorded
+ * ## FIXED (#389) — 2026-08-14, matcher + measured mask-rim decision
  *
  * #199 swapped kevin's scrub for the longer `toigo_fisherman_sweater`. Two independent things broke
- * here; the issue diagnosed the first and the second is recorded because it blocks the run proof:
+ * here; the first is fixed, the second is decided by measurement:
  *
  * 1. **Hem matcher** — the file located the hem by `/t_shirt|scrub_shirt/`, which went blind to
  *    `fisherman_sweater`. Now uses the shared slot-derived `isUpperGarmentName` (garment-slot.ts).
- *    kevin's hem ring is measurable again: 354 verts, p95AdjY 6.71 mm.
  *
- * 2. **Mask ring unmeasurable post-#199** — the rebake re-cut kevin's `hidden_upper` mask at the
- *    longer sweater's hem (mask bottom 98.1 -> 93.4 cm). The new bottom band has 5-7 verts in the
- *    bottom-3% window (was 38 pre-#199), below the instrument's 12-vert floor, so ringStats returns
- *    null and the vacuity guard fires. The mask renders nothing, so no appearance impact — but the
- *    counterweights (2)/(3) cannot certify kevin's mask on the current bytes. Not re-baselined:
- *    there is no ring to floor. A mask re-cut/re-bake that restores a measurable bottom band is a
- *    separate asset slice.
+ * 2. **Mask rim band — MEASURED, not guessed.** The orchestrator's scope call asked whether the
+ *    sparse rim was (a) a bake fault or (b) a legitimate tessellation. Measured on the shipped bytes:
+ *
+ *      - kevin's mask rim has **42 verts in a contour-following band** (the instrument's own 3% band
+ *        height, but per-10°-bucket local minimum) — DENSER than pre-#199 (38) and equal to the
+ *        other actors (aisha 44, child 44). The bake is not at fault; the rim is not sparse.
+ *      - The horizontal bottom-3% band reported 5-9 verts because the mask's bottom edge follows
+ *        the garment hem, and the knit sweater's hem is front-dropped (front 93.58cm vs back
+ *        97.38cm — a real 3.8cm slope). A horizontal slice cuts diagonally through the sloped rim
+ *        and sees only the front arc.
+ *
+ *    The instrument is corrected to follow the rim's contour (per-bucket local minimum + band).
+ *    Unmeasurable is still distinct from measured-and-smooth: ringStats returns null below 12 rim
+ *    verts, and requireMeasured still fires on null — a genuinely sparse rim cannot silently pass.
+ *    The RED (1) still fails as expected via aisha/child (3.5x / 2.6x); kevin measures 1.1x — the
+ *    sweater's own knit hem (p95AdjY 6.70mm) is as rough as the mask boundary, which is the honest
+ *    comparison, not a tuned one.
  *
  * ---
  *
@@ -110,37 +119,67 @@ const GENERATED = "apps/ui-xr/public/generated-humanoids";
 
 const ACTORS = ["mpfb-ob-patient-aisha", "mpfb-peds-nurse-kevin", "mpfb-peds-patient-child"] as const;
 
-/** Measured 10:12: today's mask/hem p95 ratios are 5.8x, 8.4x, 3.3x. 2x fails all three with margin. */
+/**
+ * Measured 2026-08-14 with the #389 contour-following band: today's mask/hem p95 ratios are 3.5x
+ * (aisha), 1.1x (kevin), 2.6x (child). 2x fails aisha and child with margin — the RED stays red via
+ * them even though kevin's mask is as rough as the sweater's own knit hem (the honest comparison).
+ */
 const MAX_MASK_TO_HEM_P95_RATIO = 2;
 
-/** Measured ring vertex counts: aisha 31, kevin 38, child 28. Floor refuses smoothing by decimation. */
+/**
+ * Measured ring vertex counts with the #389 contour-following band: aisha 44, kevin 42, child 44.
+ * (The original horizontal-band counts — aisha 31, kevin 38, child 28 — measured a horizontal
+ * slice of a sloped rim and are superseded; the shipped bytes measure higher.) Floor refuses
+ * smoothing by decimation: a genuine re-tessellation RAISES this count.
+ */
 const MIN_MASK_RING_VERTS: Record<string, number> = {
-  "mpfb-ob-patient-aisha": 31,
-  "mpfb-peds-nurse-kevin": 38,
-  "mpfb-peds-patient-child": 28,
+  "mpfb-ob-patient-aisha": 44,
+  "mpfb-peds-nurse-kevin": 42,
+  "mpfb-peds-patient-child": 44,
 };
 
 /**
- * Mask vertical extent in metres, MEASURED 2026-08-13 10:34 on the shipped bytes. Floor refuses
- * shortening the boundary by shrinking what the mask covers. These were placeholders (0) for one run —
- * which made clause (3) vacuous, exactly the trap §7t names — until measured and filled in.
+ * Mask vertical extent in metres, MEASURED 2026-08-14 on the shipped bytes with the #389
+ * contour-following band: aisha 0.4274 (t-shirt hem), kevin 0.5706 (sweater hem — the longer
+ * garment extends the mask), child 0.3265. Floor refuses shortening the boundary by shrinking
+ * what the mask covers. These were placeholders (0) for one run — which made clause (3)
+ * vacuous, exactly the trap §7t names — until measured and filled in.
  */
 const MIN_MASK_Y_EXTENT: Record<string, number> = {
   "mpfb-ob-patient-aisha": 0.4274,
-  "mpfb-peds-nurse-kevin": 0.5424,
+  "mpfb-peds-nurse-kevin": 0.5706,
   "mpfb-peds-patient-child": 0.3265,
 };
 
 type Ring = { verts: number; medianAdjY: number; p95AdjY: number; yExtent: number };
 
-/** Bottom 3% of a primitive by Y, ordered by angle about the body axis, then adjacent-Y deltas. */
+/**
+ * The rim ring of a primitive, ordered by angle about the body axis, then adjacent-Y deltas.
+ *
+ * #389 (appended to the #389 header block below): the band follows the rim's CONTOUR, not a
+ * horizontal slice. The mask's bottom edge follows the garment hem, and the knit sweater's hem
+ * is front-dropped (front 93.6cm, back 97.4cm — a real 3.8cm slope). A horizontal bottom-% band
+ * slices through that slope and reads a dense rim as sparse: kevin's rim has 42 verts around its
+ * contour (same density as every other actor) but only 5-9 in a horizontal band. Bucket by angle,
+ * keep verts within bandH of each bucket's OWN lowest, then adjacent-Y deltas around the ring.
+ * A genuinely sparse rim (<12 verts around the full contour) still returns null — unmeasurable
+ * stays distinct from measured-and-smooth; the vacuity guard below still fires on it.
+ */
 function ringStats(pts: { x: number; y: number; z: number }[]): Ring | null {
   if (pts.length < 12) return null;
   const ys = pts.map((p) => p.y).sort((a, b) => a - b);
   const lo = ys[0]!;
   const hi = ys[ys.length - 1]!;
-  const band = pts
-    .filter((p) => p.y < lo + (hi - lo) * 0.03)
+  const bandH = (hi - lo) * 0.03;
+  const withDeg = pts.map((p) => ({ ...p, deg: (Math.atan2(p.z, p.x) * 180 / Math.PI + 360) % 360 }));
+  const buckets = Array.from({ length: 36 }, () => [] as typeof withDeg);
+  for (const p of withDeg) buckets[Math.min(35, Math.floor(p.deg / 10))]!.push(p);
+  const bucketLo = buckets.map((b) => (b.length ? Math.min(...b.map((q) => q.y)) : Infinity));
+  const band = withDeg
+    .filter((p) => {
+      const bi = Math.min(35, Math.floor(p.deg / 10));
+      return p.y < bucketLo[bi]! + bandH;
+    })
     .map((p) => ({ ...p, th: Math.atan2(p.z, p.x) }))
     .sort((a, b) => a.th - b.th);
   if (band.length < 12) return null;
