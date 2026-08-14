@@ -989,6 +989,133 @@ def parse_args():
 # ---------------------------------------------------------------------------
 
 
+# ---------------------------------------------------------------------------
+# #377: resize the fitted CC0 eye to anatomical axial length, re-seated forward.
+#
+# Measured 2026-08-13 on the shipped bytes (least-squares sphere fit per eye):
+# every MPFB actor's eyeballs are 25-34% larger than human anatomy (29.9 / 32.1 /
+# 29.7 mm against 24.0 / 24.0 / 22.5 mm). The oversize is the .mhclo fit itself:
+# `ClothesService.fit_clothes_to_human` scales the CC0 eye asset to the basemesh's
+# helper verts, and MPFB has NO eye-size parameter to wire (probed 2026-08-13:
+# `Mhclo.set_scalings` is a no-op TODO and there is no `eye_size` proportion), so
+# the fix is a post-fit transform here (D1: nothing to wire, said plainly).
+#
+# The naive shrink (scale about the eye's own centre) recedes the corneal pole
+# 3.0-4.0 mm and hollows the eyes. The fix is shrink AND re-seat: scale each eye
+# about its own fitted sphere centre, then translate the centre forward so the
+# pole keeps its world position. The eye.L / eye.R bones move with their globe so
+# the gaze pivot stays at the new centre (the runtime gaze drive rotates about
+# the bone's own position, gaze-drives-eyes.ts).
+# ---------------------------------------------------------------------------
+EYE_DIAMETER_TARGET_MM = {
+    # Ocular axial length, sourced external anatomy (~24 mm adult; Rauscher 2021:
+    # 4y = 22.2 mm .. 17y = 23.9 mm). The child's target assumes the school-age
+    # patient the peds_patient_child phenotype declares (height_cm 125,
+    # gender_presentation child) — consistent with the 22.5 mm assumption.
+    "mpfb-ob-patient-aisha": 24.0,
+    "mpfb-peds-nurse-kevin": 24.0,
+    "mpfb-peds-patient-child": 22.5,
+}
+
+
+def _fit_eye_sphere(pts):
+    """Least-squares sphere fit (same linear formulation the contract uses)."""
+    m = pts.mean(axis=0)
+    d = pts - m
+    dd = (d ** 2).sum(axis=1)
+    a = 2.0 * (d[:, :, None] * d[:, None, :]).sum(axis=0)
+    b = (d * dd[:, None]).sum(axis=0)
+    try:
+        c_rel = np.linalg.solve(a, b)
+    except np.linalg.LinAlgError:
+        raise RuntimeError("#377: eye sphere fit is singular — cannot resize the eye")
+    c = c_rel + m
+    r = float(np.mean(np.linalg.norm(pts - c, axis=1)))
+    return c, r
+
+
+def resize_eyes_to_anatomy(eyes_asset, target_diameter_mm, armature=None):
+    """Shrink each eye to its anatomical diameter and re-seat it forward.
+
+    Scaling about the eye's own fitted centre keeps the globe spherical; translating
+    the centre forward by (1-s)*r keeps the corneal pole where it sits today (the
+    load-bearing counterweight that refuses the hollow-eyed naive shrink). Returns
+    [(side, before_diameter_mm, scale, seat_shift_forward_mm), ...] for the report.
+    """
+    from mathutils import Vector
+
+    target_r = target_diameter_mm / 2000.0
+    iw = eyes_asset.matrix_world.inverted()
+    forward_local = (iw.to_3x3() @ Vector((0.0, -1.0, 0.0))).normalized()
+    world_verts = np.array(
+        [tuple(eyes_asset.matrix_world @ v.co) for v in eyes_asset.data.vertices],
+        dtype=float,
+    )
+    groups = {g.name: g for g in eyes_asset.vertex_groups}
+
+    def members(group_name):
+        g = groups.get(group_name)
+        if g is None:
+            return None
+        return [i for i, v in enumerate(eyes_asset.data.vertices) if any(vg.group == g.index and vg.weight > 0.0 for vg in v.groups)]
+
+    left = members("eye.L")
+    right = members("eye.R")
+    if not left or not right:
+        # Fallback: split by world x sign (left = x < 0), matching the evidence regex.
+        left = [i for i in range(len(world_verts)) if world_verts[i, 0] < 0.0]
+        right = [i for i in range(len(world_verts)) if world_verts[i, 0] >= 0.0]
+        if not left or not right:
+            raise RuntimeError(f"#377: eye mesh {eyes_asset.name} has no L/R split to resize")
+
+    new_local = [None] * len(eyes_asset.data.vertices)
+    rows = []
+    # Blender 5.1: `Bone.head_local` is read-only and `Bone.matrix` is the 3x3 rest
+    # orientation only — the rest-position move happens in edit mode on the armature.
+    _arm_mode = None
+    _edit_bones = None
+    if armature is not None:
+        try:
+            _arm_mode = armature.mode
+        except Exception:
+            _arm_mode = None
+        if _arm_mode != "EDIT":
+            try:
+                bpy.context.view_layer.objects.active = armature
+                bpy.ops.object.mode_set(mode="EDIT")
+                _arm_mode = "EDIT"
+            except Exception:
+                _arm_mode = None
+        if _arm_mode == "EDIT":
+            _edit_bones = armature.data.edit_bones
+    for side, idx in (("L", left), ("R", right)):
+        pts = world_verts[idx]
+        c, r = _fit_eye_sphere(pts)
+        if r <= 0.0:
+            raise RuntimeError(f"#377: non-positive fitted eye radius {r} on side {side}")
+        s = target_r / r
+        shift = (1.0 - s) * r
+        new_world = c + s * (pts - c) + np.array([0.0, -1.0, 0.0]) * shift
+        for k, i in enumerate(idx):
+            new_local[i] = iw @ Vector(tuple(new_world[k]))
+        rows.append((side, r * 2000.0, s, shift * 1000.0))
+        if _edit_bones is not None:
+            bone = _edit_bones.get(f"eye.{side}")
+            if bone is not None:
+                delta_world = Vector((0.0, -1.0, 0.0)) * shift
+                delta_local = armature.matrix_world.inverted().to_3x3() @ delta_world
+                bone.head = bone.head + delta_local
+                bone.tail = bone.tail + delta_local
+
+    if _arm_mode == "EDIT":
+        bpy.ops.object.mode_set(mode="OBJECT")
+
+    for i, v in enumerate(eyes_asset.data.vertices):
+        v.co = new_local[i]
+    eyes_asset.data.update()
+    return rows
+
+
 def _parse_obj_vertices(path):
     positions = []
     with open(path, "r", encoding="utf-8") as f:
@@ -1663,6 +1790,36 @@ def main():
         f"EYES_FIT {eyes_asset.name} verts {len(eyes_asset.data.vertices)} "
         f"tris {eye_tris} material {[m.name for m in eyes_asset.data.materials]} "
         f"dominantGroups {dict(_dom.most_common(6))}"
+    )
+
+    # #377: shrink each eye to its anatomical axial length and re-seat it forward
+    # (see resize_eyes_to_anatomy). Runs BEFORE the socket-footprint measurement
+    # below so the scalp unpaint, forehead plane and hairline all use the FINAL
+    # eye geometry — the eye area is unpainted where the shipped eye actually sits.
+    _eye_target_mm = EYE_DIAMETER_TARGET_MM.get(pathlib.Path(args.output).stem)
+    if _eye_target_mm is None:
+        raise RuntimeError(
+            f"#377: no anatomical eye target for actor stem {pathlib.Path(args.output).stem!r} — "
+            f"add it to EYE_DIAMETER_TARGET_MM ({sorted(EYE_DIAMETER_TARGET_MM)}) before baking a new actor"
+        )
+    _eye_armature = next((o for o in bpy.context.scene.objects if o.type == "ARMATURE"), None)
+    _eye_resize_rows = resize_eyes_to_anatomy(eyes_asset, _eye_target_mm, _eye_armature)
+    print(
+        "EYES_ANATOMICAL "
+        + json.dumps(
+            {
+                "targetDiameterMm": _eye_target_mm,
+                "perEye": [
+                    {
+                        "side": s,
+                        "beforeDiameterMm": round(b, 3),
+                        "scale": round(sc, 4),
+                        "seatShiftForwardMm": round(sh, 3),
+                    }
+                    for s, b, sc, sh in _eye_resize_rows
+                ],
+            }
+        )
     )
 
     # #338 — the between-layers defect this issue exists to instrument. The scalp
