@@ -1708,6 +1708,11 @@ def role_marker_color(phenotype: Dict[str, Any], actor_role: str) -> tuple:
 # #180a / #184: locked clinical colours — counterweight for #180b (do not move).
 _GARMENT_COLOR_GOWN = (0.15, 0.55, 0.82, 1.0)
 _GARMENT_COLOR_SCRUB = (0.05, 0.48, 0.52, 1.0)
+# 2026-08-14 medical wardrobe: the physician's white lab coat (CC0
+# makehuman-community-crude-labcoat-female). Locked like gown/scrub — a lab coat
+# is white on every cast, and the #180b distinctness contract is served by the
+# scrub shirt showing through the open front, not by tinting the coat.
+_GARMENT_COLOR_LAB_COAT = (0.92, 0.92, 0.90, 1.0)
 # Kind defaults when fabricPalette / role do not resolve a named row.
 _GARMENT_KIND_DEFAULTS: Dict[str, tuple] = {
     "gown": _GARMENT_COLOR_GOWN,
@@ -1768,6 +1773,8 @@ def garment_shell_color(kind: str, actor_role: str, phenotype: Dict[str, Any]) -
         return _GARMENT_COLOR_GOWN
     if k == "scrub":
         return _GARMENT_COLOR_SCRUB
+    if k == "lab_coat":
+        return _GARMENT_COLOR_LAB_COAT
 
     palette_raw = str(
         phenotype.get("fabricPalette")
