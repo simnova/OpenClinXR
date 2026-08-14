@@ -101,6 +101,19 @@
           "fitProfile": "adult_clinical_team_fit"
         }
       }
+    },
+    "peds_fever_v1": {
+      "patient_noah_chen_v1": {
+        "role": "patient",
+        "phenotype": {
+          "body_profile": "pediatric_school_age",
+          "age": 8,
+          "height_cm": 125,
+          "bmi": 16.5,
+          "descriptor_derived": true,
+          "gender_presentation": "child"
+        }
+      }
     }
   }
 }

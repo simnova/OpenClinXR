@@ -126,7 +126,11 @@ def walk(o):
     if isinstance(o, dict):
         for k, v in o.items():
             if isinstance(v, dict) and isinstance(v.get("phenotype"), dict):
-                yield k, v["phenotype"]
+                # Derived (issue-293) entries carry descriptor_derived: they are
+                # lookup output, not authored clinical content, and this clause
+                # pins the AUTHORED known-good actors.
+                if not v["phenotype"].get("descriptor_derived"):
+                    yield k, v["phenotype"]
             else:
                 yield from walk(v)
     elif isinstance(o, list):

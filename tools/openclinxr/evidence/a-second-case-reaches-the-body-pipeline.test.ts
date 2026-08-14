@@ -75,6 +75,21 @@ import { describe, expect, it } from "vitest";
  *     a waist-girth proxy for BMI returned an anatomically impossible result and no claim is made.
  *   - **Which numbers are clinically right.** This asserts consistency and provenance, never that
  *     8 / 125 / 16.5 is the correct rendering of "school-aged". That is a clinical question.
+ *
+ * ## FIXED (#293)
+ *
+ * `peds_fever_v1` now exports a phenotype for `patient_noah_chen_v1`, derived
+ * deterministically from his descriptors ("School-aged child" in the character
+ * assetNeed + `habitus: "average"`) by
+ * `packages/openclinxr/scenario-fixtures/src/descriptor-phenotype-lookup.ts`,
+ * seeded FROM the authored example (patient_maya_johnson_v1) — no model in the
+ * loop, no invented identity. Measured after: **2** shipped scenarios export a
+ * phenotype (peds_asthma_parent_anxiety_v1 + peds_fever_v1); clause (2) is now
+ * LIVE — both pediatric_school_age actors carry identical age/height_cm/bmi —
+ * and clause (3) still pins the seed verbatim. The other two peds_fever actors
+ * (parent_mei_chen_v1, nurse_aisha_brooks_v1) state no age-band descriptor and
+ * are deliberately not exported. Derived entries carry `descriptor_derived: true`
+ * so authored and derived phenotypes stay distinguishable.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -142,7 +157,7 @@ function requireMeasured(): void {
 }
 
 describe("a second case reaches the body pipeline", () => {
-  it.fails("(1) RED: at least two shipped scenarios export a phenotype", () => {
+  it("(1) RED: at least two shipped scenarios export a phenotype", () => {
     requireMeasured();
     expect(
       scenariosWithPhenotype.length,
