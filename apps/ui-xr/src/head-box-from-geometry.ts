@@ -51,6 +51,26 @@ export type HeadBoxGeometry = {
   radiusProfile: number[];
 };
 
+export type DeriveHeadBoxOptions = {
+  /**
+   * Points the silhouette profile (neck-cut derivation) is computed from.
+   * Defaults to `points`. Fitted hair is not body (#394): hair masks the neck
+   * constriction, so hair points belong ONLY in `points` — the box must still
+   * contain the hair — and must NOT be in `silhouettePoints`.
+   */
+  silhouettePoints?: ReadonlyArray<Vec3>;
+};
+
+/**
+ * Fitted hair is not body (#394): a hair mesh masks the neck constriction in
+ * the silhouette profile, so the head-box derivation must exclude it. The
+ * MakeClothes embed names hair meshes with "hair" (`embed_library_hair.py`),
+ * and this is the same /hair/i rule the fitted-hair contracts use.
+ */
+export function isFittedHairMeshName(name: string): boolean {
+  return /hair/i.test(name);
+}
+
 /** Focus=head is for humanoids; smaller subjects refuse. */
 const MIN_BODY_EXTENT_METERS = 0.4;
 /** Candidate region = topmost 40% of the body extent (head + neck + shoulders). */
@@ -69,9 +89,17 @@ const MIN_SKULL_RADIUS_METERS = 0.02;
 /**
  * Derive the head box from raw mesh vertices. Returns null when the subject has
  * no derivable head (refusal, never silent fallback).
+ *
+ * `silhouettePoints` (options) may exclude fitted hair from the profile — hair
+ * masks the neck constriction — while `points` keeps it in the box, so a crop
+ * still contains the hair.
  */
-export function deriveHeadBoxFromPoints(points: ReadonlyArray<Vec3>): HeadBoxGeometry | null {
-  if (points.length < 200) return null;
+export function deriveHeadBoxFromPoints(
+  points: ReadonlyArray<Vec3>,
+  options?: DeriveHeadBoxOptions,
+): HeadBoxGeometry | null {
+  const silhouette = options?.silhouettePoints ?? points;
+  if (silhouette.length < 200) return null;
 
   let minX = Infinity;
   let minY = Infinity;
@@ -101,12 +129,12 @@ export function deriveHeadBoxFromPoints(points: ReadonlyArray<Vec3>): HeadBoxGeo
   const h1 = di === 2 ? 1 : 2;
   let c0 = 0;
   let c1 = 0;
-  for (const p of points) {
+  for (const p of silhouette) {
     c0 += h0 === 0 ? p.x : p.y;
     c1 += h1 === 1 ? p.y : p.z;
   }
-  c0 /= points.length;
-  c1 /= points.length;
+  c0 /= silhouette.length;
+  c1 /= silhouette.length;
 
   // Candidate band: the topmost 40% of the body extent.
   const bandLo = (di === 0 ? minX : di === 1 ? minY : minZ) + BAND_TOP_FRACTION * bodyExtent;
@@ -117,7 +145,7 @@ export function deriveHeadBoxFromPoints(points: ReadonlyArray<Vec3>): HeadBoxGeo
   const radiusProfile = new Array<number>(SLICE_COUNT).fill(0);
   const coordOf = (p: Vec3): number => (di === 0 ? p.x : di === 1 ? p.y : p.z);
   const horizOf = (p: Vec3, axis: 0 | 1 | 2): number => (axis === 0 ? p.x : axis === 1 ? p.y : p.z);
-  for (const p of points) {
+  for (const p of silhouette) {
     const d = coordOf(p);
     if (d < bandLo || d > bandHi) continue;
     const idx = Math.min(SLICE_COUNT - 1, Math.max(0, Math.floor((d - bandLo) / sliceH)));

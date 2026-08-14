@@ -32,7 +32,12 @@ import { fileURLToPath } from "node:url";
 import { NodeIO, type Document, type Mesh } from "@gltf-transform/core";
 import { chromium, type Browser, type Page } from "playwright";
 import { spawnPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
-import { deriveHeadBoxFromPoints, type HeadBoxGeometry, type Vec3 } from "../../../apps/ui-xr/src/head-box-from-geometry.js";
+import {
+  deriveHeadBoxFromPoints,
+  isFittedHairMeshName,
+  type HeadBoxGeometry,
+  type Vec3,
+} from "../../../apps/ui-xr/src/head-box-from-geometry.js";
 import { projectPixelSpan } from "./mpfb-eyes-inspection.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -61,25 +66,36 @@ export const HEAD_FOCUS_SUBJECTS = [
 
 type Bounds = { min: Vec3; max: Vec3 };
 
-function worldPoints(doc: Document): Vec3[] {
-  const out: Vec3[] = [];
+/**
+ * World points of every mesh, plus the body-only silhouette subset.
+ * Fitted hair is not body (#394): hair feeds the head BOX (the crop must
+ * contain it) but never the silhouette profile (hair masks the neck
+ * constriction) — same split the runtime lab and the contract use.
+ */
+function worldPoints(doc: Document): { points: Vec3[]; silhouettePoints: Vec3[] } {
+  const points: Vec3[] = [];
+  const silhouettePoints: Vec3[] = [];
   for (const node of doc.getRoot().listNodes()) {
     const mesh = node.getMesh();
     if (!mesh) continue;
+    const isHair = isFittedHairMeshName(mesh.getName() ?? "")
+      || isFittedHairMeshName(node.getName() ?? "");
     const wm = node.getWorldMatrix();
     for (const prim of mesh.listPrimitives()) {
       const pos = prim.getAttribute("POSITION")?.getArray();
       if (!pos) continue;
       for (let i = 0; i + 2 < pos.length; i += 3) {
-        out.push({
+        const p: Vec3 = {
           x: wm[0] * Number(pos[i]) + wm[4] * Number(pos[i + 1]) + wm[8] * Number(pos[i + 2]) + wm[12],
           y: wm[1] * Number(pos[i]) + wm[5] * Number(pos[i + 1]) + wm[9] * Number(pos[i + 2]) + wm[13],
           z: wm[2] * Number(pos[i]) + wm[6] * Number(pos[i + 1]) + wm[10] * Number(pos[i + 2]) + wm[14],
-        });
+        };
+        points.push(p);
+        if (!isHair) silhouettePoints.push(p);
       }
     }
   }
-  return out;
+  return { points, silhouettePoints };
 }
 
 function aabbOf(pts: ReadonlyArray<Vec3>): Bounds {
@@ -268,10 +284,12 @@ export async function writeHeadFocusPreFix(options?: { cwd?: string; outputRoot?
   const subjects: HeadFocusPreFix["subjects"] = [];
   for (const s of HEAD_FOCUS_SUBJECTS) {
     const doc = await io.read(path.join(cwd, s.glb));
-    const pts = worldPoints(doc);
+    const split = worldPoints(doc);
+    const pts = split.points;
+    const silhouettePoints = split.silhouettePoints;
     const bodyBounds = aabbOf(pts);
     const bodyHeight = bodyBounds.max.y - bodyBounds.min.y;
-    const head = deriveHeadBoxFromPoints(pts) as HeadBoxGeometry | null;
+    const head = deriveHeadBoxFromPoints(pts, { silhouettePoints }) as HeadBoxGeometry | null;
     if (!head) {
       throw new Error(`${s.rail} ${s.glb}: the geometry-derived head box is null — cannot build the before-column`);
     }

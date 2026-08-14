@@ -23,7 +23,7 @@
 import type { Object3D } from "three";
 import { Box3, Mesh, Vector3 } from "three";
 import { computeMeshBounds } from "./camera-fit-to-bounds.js";
-import { deriveHeadBoxFromPoints } from "./head-box-from-geometry.js";
+import { deriveHeadBoxFromPoints, isFittedHairMeshName } from "./head-box-from-geometry.js";
 
 type Vec3Meters = { x: number; y: number; z: number };
 
@@ -121,7 +121,9 @@ function deriveEyeFocusBounds(root: Object3D): {
  * (`deriveHeadBoxFromPoints`, the same pure function the file-side inspection
  * uses). Works on every rail: MPFB, Anny (eye bones, zero eye geometry), and
  * the hm08 library bodies. Refuses (throws) when no head is derivable — never
- * falls back silently.
+ * falls back silently. Fitted hair is NOT body (#394): hair meshes are excluded
+ * from the silhouette profile (they mask the neck constriction) but stay in the
+ * box, so a head crop still contains the hair.
  */
 function deriveHeadFocusBounds(root: Object3D): {
   kind: "head_box";
@@ -132,18 +134,26 @@ function deriveHeadFocusBounds(root: Object3D): {
   derivation: string;
 } {
   const points: Array<{ x: number; y: number; z: number }> = [];
+  const silhouettePoints: Array<{ x: number; y: number; z: number }> = [];
   const point = new Vector3();
   root.updateMatrixWorld(true);
   root.traverse((object) => {
     if (!(object instanceof Mesh)) return;
     const position = object.geometry.getAttribute("position");
     if (!position) return;
+    // GLTFLoader overrides mesh.name with the NODE name and keeps the glTF MESH
+    // name on geometry.name — check both layers (same shape as the #354 eye path).
+    const isHair = isFittedHairMeshName(object.name)
+      || (typeof object.userData?.name === "string" && isFittedHairMeshName(object.userData.name))
+      || isFittedHairMeshName(object.geometry.name);
     for (let i = 0; i < position.count; i += 1) {
       point.fromBufferAttribute(position, i).applyMatrix4(object.matrixWorld);
-      points.push({ x: point.x, y: point.y, z: point.z });
+      const p = { x: point.x, y: point.y, z: point.z };
+      points.push(p);
+      if (!isHair) silhouettePoints.push(p);
     }
   });
-  const derived = deriveHeadBoxFromPoints(points);
+  const derived = deriveHeadBoxFromPoints(points, { silhouettePoints });
   if (!derived) {
     throw new Error(
       "focus=head unresolvable: no head-like region derivable from the body bounds "
