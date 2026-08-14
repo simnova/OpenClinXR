@@ -71,6 +71,19 @@ import { describe, expect, it } from "vitest";
  *     separate decision and this contract does not make it.
  *   - **The other planted REDs.** Only this one is uncompilable; no sweep was done for others in the
  *     same state.
+ *
+ * ## FIXED (#383)
+ *
+ * Treatment (e) executed: `shoulder-raycast-coverage.test.ts` is self-contained. `load()` is
+ * declared inline (returns an empty module record) instead of importing the deliberately-unlanded
+ * module, so the file compiles and its three `it.fails` REDs fail at their own first assertion —
+ * the instrument does not exist — for their own stated reason, instead of at import. The module
+ * file stays absent (clause 3) and the `it.fails` markers survive (clause 2).
+ *
+ * (1) is flipped to `it` because its assertion now holds: the planted contract no longer imports
+ * the absent module, so "planted contracts that fail to compile rather than to assert" is a live
+ * assertion rather than a RED. Shoulder coverage itself remains unsolved — nothing here claims
+ * otherwise, and (2) keeps the marker that says so.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -92,7 +105,7 @@ function requirePlanted(): void {
 }
 
 describe("a planted RED fails for its own reason", () => {
-  it.fails("(1) RED: the planted shoulder contract compiles", () => {
+  it("(1) RED: the planted shoulder contract compiles", () => {
     requirePlanted();
     // It cannot compile while it imports a module that was deliberately never landed. Asserting on
     // the import rather than shelling out to tsgo keeps this cheap and names the exact cause.
