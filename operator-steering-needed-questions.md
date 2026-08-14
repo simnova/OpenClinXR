@@ -131,3 +131,64 @@ decision.
 
 **NOT MINE TO DECIDE:** her age is clinical content a learner is assessed against — a paediatric fever
 or asthma presentation reads differently at 8 than at 11 (§8d, #293).
+
+## 2026-08-14 — a learner cannot start an exam, and the blocker is 52 human review decisions (BLOCKS the whole exam path)
+
+**Measured 2026-08-14 10:5x, from the shipped predicate, not from a summary.**
+`createExamStationRunQueue(createDefaultClinicalSkillsBlueprint(bank), bank)` returns:
+
+```
+canStartLearnerExam: false
+stations: 12   { activation_ready: 1, draft_blocked: 11 }
+```
+
+Every one of the eleven carries exactly one blocker: `scenario_not_approved`.
+
+Reading the bank directly, **13 of 14 scenarios are `status: "draft"` with all four review gates at
+`draft` and `validationStage: "stage_0_synthetic_draft"`.** The single exception is
+`ed_chest_pain_priority_v1` — `status: approved`, `clinical / psychometric / legal / simulationQa`
+all `approved`, `stage_1_expert_reviewed`. It is the one station a learner can reach.
+
+| | count |
+|---|---:|
+| bank scenarios | 14 |
+| blueprint stations | 12 |
+| `activation_ready` | **1** |
+| `draft_blocked` on `scenario_not_approved` | **11** |
+
+**This is not a code defect and there is no slice that fixes it.** `isActivationEligible`
+(`exam-assembly/src/assembly.ts:367`) requires `status === "approved"`, all four gates approved,
+a `validationStage` past `stage_0_synthetic_draft`, a `scoreUseLabel` that is not
+`validated_summative`, and replay-ready dialogue seeds. The promotion machinery exists and is wired
+(`apps/api/src/scenario-review-promotion.ts`, reached from `api-route-support.ts:104`): four
+persisted approved gate decisions promote stage_0 → stage_1, and a client POST cannot self-approve
+(#39/#41 both hardened that). **The path works. What is missing is the decisions.**
+
+**13 scenarios x 4 gates = 52 review decisions**, spanning clinical, psychometric, legal and
+simulation-QA judgement.
+
+**Why no agent in this loop will make them.** #167's brief explicitly banned auto-approving
+`stage_0`, relaxing `isActivationEligible`, lowering `STEP2CS_STATION_COUNT`, and marking anything
+`validated_summative` — and those bans are correct. §8d/§8y say clinical content is not an
+implementer decision. Approving a suicidal-ideation safety station or an obstetric pre-eclampsia
+triage station is not a judgement any agent here is qualified to make, and doing it through the
+sanctioned API route rather than by editing a fixture would not change that.
+
+**What I need from you — one of:**
+
+1. **Nominate a small set to review** (2–3 scenarios) and supply the gate decisions, so the exam path
+   can be exercised end to end with a real multi-station queue rather than a single station.
+2. **Authorise a clearly-labelled non-clinical review lane** — e.g. a `stage_1` promotion for
+   pipeline-exercise purposes only, carrying a `scoreUseLabel` that forbids any score use, so the
+   runtime can be tested against >1 station without implying clinical approval.
+3. **Confirm this stays blocked**, in which case the exam path remains a one-station demonstration and
+   I will stop treating multi-station work as reachable.
+
+**DEFAULT IF SILENT:** I keep building against the single approved station and do not touch scenario
+approval state. This is the lowest-risk option and it is what has been happening implicitly; the
+point of writing it down is that it has never been a decision, only a side effect.
+
+**NOT TESTED:** whether the four-gate promotion route has ever been exercised end to end against a
+bank scenario (the machinery is wired and unit-tested; I did not drive it live); whether the two bank
+scenarios outside the 12-station blueprint (`adult_abdominal_pain_v1`, `peds_fever_v1`) are excluded
+deliberately or incidentally.
