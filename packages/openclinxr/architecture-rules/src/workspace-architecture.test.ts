@@ -6,6 +6,7 @@ import { findUnsafeClaimLanguage } from "@openclinxr/domain";
 import { projectFiles } from "archunit";
 import ts from "typescript";
 import { describe, expect, it } from "vitest";
+import { collectPaidProviderPolicyFiles } from "./checks/paid-provider-scan.js";
 
 const archTsconfig = "../../../tsconfig.archunit.json";
 const workspaceRoot = findWorkspaceRoot();
@@ -1778,31 +1779,13 @@ function sourceImportReferences(specifier: string, files = [...sourceFilesUnder(
   });
 }
 
-function runtimePolicySourceFiles(): string[] {
-  return [...typescriptFilesUnder("apps"), ...typescriptFilesUnder("packages"), ...typescriptFilesUnder("tools")]
-    .filter((filePath) => !/\.test\.tsx?$/.test(filePath))
-    .filter((filePath) => !filePath.includes("/generated/"));
-}
-
+/**
+ * Enumerated once per process by checks/paid-provider-scan.ts (git ls-files + memoisation, #352) —
+ * a full-tree walk plus per-file `git check-ignore` spawns exceeded the suite's 5 s timeout at
+ * rest and closed the land path for every commit staging `apps/**`.
+ */
 function paidProviderPolicyTextFiles(): string[] {
-  return [...new Set([
-    ...runtimePolicySourceFiles(),
-    ...packageManifestFiles(),
-    ...workspaceConfigAndEnvFiles(),
-  ])].sort();
-}
-
-function workspaceConfigAndEnvFiles(): string[] {
-  return walk(workspaceRoot)
-    .map((filePath) => relative(workspaceRoot, filePath).split(sep).join("/"))
-    .filter((filePath) =>
-      filePath.startsWith(".env")
-      || filePath === "turbo.json"
-      || filePath === "pnpm-workspace.yaml"
-      || /(^|\/)tsconfig(?:\.[^/]+)?\.json$/.test(filePath)
-      || /(^|\/)(?:vite|vitest|tsdown|rolldown|biome|eslint|storybook|codegen|tailwind|postcss)\.config\.[cm]?[jt]s$/.test(filePath)
-    )
-    .filter((filePath) => !isGitIgnoredWorkspacePath(filePath));
+  return collectPaidProviderPolicyFiles();
 }
 
 function isGitIgnoredWorkspacePath(filePath: string): boolean {

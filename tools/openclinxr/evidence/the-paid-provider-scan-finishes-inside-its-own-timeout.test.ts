@@ -83,6 +83,26 @@ import { describe, expect, it } from "vitest";
  *   - **Whether the scan finds real credentials.** Only that it enumerates the same files.
  */
 
+/**
+ * ## FIXED (#352) 2026-08-14
+ *
+ * The scan moved to `packages/openclinxr/architecture-rules/src/checks/paid-provider-scan.ts`
+ * (`collectPaidProviderPolicyFiles()`): a single `git ls-files` subprocess (~3,074 tracked files,
+ * gitignored excluded by construction) replaces the 55,650-file walk plus ~100 per-file
+ * `git check-ignore` spawns, and the result is memoised per process. The suite's
+ * `paidProviderPolicyTextFiles()` delegates to it; the old walk-based `runtimePolicySourceFiles()`
+ * and `workspaceConfigAndEnvFiles()` helpers were removed from the suite.
+ *
+ * Measured on this worktree, standalone:
+ *
+ *   cold enumeration:    22 ms   (budget 2,500 ms; old helper ~4,200 ms for one call)
+ *   warm (memoised):      0 ms   (budget 50 ms)
+ *   policy file count:   872     (tracked set; anchors all present, `.envrc` excluded)
+ *   architecture suite: 73/73    in 7.55 s
+ *
+ * Clauses (1)–(4) flipped from `it.fails` to live assertions; clause (5) counterweight unchanged.
+ */
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const SUITE = join(
@@ -163,7 +183,7 @@ function requireSuite(): void {
 }
 
 describe("the paid-provider scan finishes inside its own timeout", () => {
-  it.fails("(1) RED: a cold enumeration completes well inside the suite's 5s timeout", () => {
+  it("(1) RED: a cold enumeration completes well inside the suite's 5s timeout", () => {
     requireSuite();
     expect(
       scan,
@@ -175,7 +195,7 @@ describe("the paid-provider scan finishes inside its own timeout", () => {
     ).toBeLessThanOrEqual(COLD_BUDGET_MS);
   });
 
-  it.fails("(2) RED: a second enumeration is memoised, not re-walked", () => {
+  it("(2) RED: a second enumeration is memoised, not re-walked", () => {
     requireSuite();
     expect(scan, "the extracted scan module").not.toBeNull();
     expect(
@@ -184,7 +204,7 @@ describe("the paid-provider scan finishes inside its own timeout", () => {
     ).toBeLessThanOrEqual(WARM_BUDGET_MS);
   });
 
-  it.fails("(3) RED: the enumeration still reaches every documented anchor", () => {
+  it("(3) RED: the enumeration still reaches every documented anchor", () => {
     // Refuses (d): making it fast by scanning less. These names come from the suite's own
     // arrayContaining assertion, not from a list I invented.
     requireSuite();
@@ -193,7 +213,7 @@ describe("the paid-provider scan finishes inside its own timeout", () => {
     expect(missing, "documented anchors the scan no longer returns").toEqual([]);
   });
 
-  it.fails("(4) COUNTERWEIGHT: a gitignored local env file is still excluded", () => {
+  it("(4) COUNTERWEIGHT: a gitignored local env file is still excluded", () => {
     // Refuses (c), the FASTEST wrong fix: deleting the ignore check removes 100 subprocesses and
     // starts scanning a developer's real secrets. `.envrc` exists here and is gitignored.
     // This is `it.fails` today only because the module does not exist; it asserts a PROPERTY, so it
