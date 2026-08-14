@@ -5,6 +5,7 @@ import pathlib
 import re
 import struct
 import sys
+import tempfile
 import zlib
 
 import bpy
@@ -385,6 +386,81 @@ GARMENT_FACTOR_PATCH: dict = {}
 # the shipped bytes, so a silent drop fails the bake instead of the next pixel grade.
 CONSUMED_GARMENT_TEXTURES: set = set()
 
+# #386: image names already luminance-normalised in THIS bake. `make_material_from_mhmat`
+# loads with check_existing=True, so a texture path shared by two role-coloured slots would
+# hand both materials the same image object; normalising it twice would compound the scale
+# (the second pass divides by the already-raised mean, brightening again). A fresh Blender
+# process bakes each actor, so this is per-actor insurance, not a cross-actor state.
+LUMINANCE_NORMALISED_IMAGES: set = set()
+
+
+def normalise_garment_texture_luminance(mat, label):
+    """#386 — a locked clinical colour and an authored garment texture must not multiply.
+
+    glTF multiplies baseColorFactor x baseColorTexture. The locked clinical colour IS the
+    factor; the .mhmat's diffuse texture must be a WEAVE channel, not a second albedo.
+    Measured 2026-08-14 on the shipped bytes: the sweater's shirt-knit.png has mean
+    luminance 0.206, so the locked scrub teal renders at ~10% brightness (0.48 x 0.206)
+    while the untextured cargo pants beside it render at the full factor — the control was
+    already inside the file. Dividing the texture by its own mean luminance re-centres it:
+    the factor sets the hue and brightness, and the weave survives as relative contrast.
+
+    Called only for patch_factor=True slots (role-coloured garments). patch_factor=False
+    (footwear) is untouched — there the texture IS the author's look and no clinical colour
+    is locked onto it.
+
+    The mean is the simple (r+g+b)/3 average over opaque texels — the SAME metric the
+    evidence RED reads from the exported PNG, so the shipped bytes are checked in the same
+    frame they are produced in. Values clamp to [0,1] (the PNG format cannot carry a >1.0
+    re-centre; the dark authored map clips at the bright end, which the contract's weave-SD
+    floor absorbs).
+
+    Returns the authored mean (for the bake census), or None when the material has no
+    texture image or the image was already normalised.
+    """
+    tex_node = None
+    img = None
+    for node in mat.node_tree.nodes:
+        if node.bl_idname == "ShaderNodeTexImage":
+            tex_node = node
+            img = node.image
+            break
+    if img is None or tex_node is None:
+        return None
+    if img.name in LUMINANCE_NORMALISED_IMAGES:
+        return None
+    w, h = img.size
+    if w <= 0 or h <= 0:
+        return None
+    px = np.array(img.pixels[:]).reshape(h, w, 4).astype(np.float32)
+    rgb = px[..., :3]
+    opaque = px[..., 3] >= 0.5
+    lum = rgb.mean(axis=-1)
+    mean = float(lum[opaque].mean()) if opaque.any() else float(lum.mean())
+    if not np.isfinite(mean) or mean <= 0.0:
+        return mean
+    px[..., :3] = np.clip(rgb / mean, 0.0, 1.0)
+    img.pixels[:] = px.ravel()
+    # The glTF exporter reads a FILE-sourced, non-dirty image straight from its path on
+    # disk, and something between materialise and export clears the in-memory dirty flag
+    # in the full bake (measured 2026-08-14: the first bake shipped the AUTHORED texture
+    # byte-identically — 2,316,765 B — while the same edit survives a minimal repro).
+    # Persist the re-centred bytes to a per-bake temp PNG and rebind the node to a fresh
+    # image object from that file, so the exported bytes are the normalised ones no matter
+    # which path the exporter takes. Same persist-then-export shape as the skin bakes.
+    _tex_tmp_dir = pathlib.Path(tempfile.mkdtemp(prefix="ocx-garment-texture-"))
+    _tmp_png = _tex_tmp_dir / f"{img.name}.png"
+    img.filepath_raw = str(_tmp_png)
+    img.file_format = "PNG"
+    img.save()
+    tex_node.image = bpy.data.images.load(str(_tmp_png), check_existing=False)
+    LUMINANCE_NORMALISED_IMAGES.add(img.name)
+    print(
+        f"GARMENT_TEXTURE_NORMALISE {label} {img.name} authoredMean {mean:.4f} "
+        f"size {w}x{h} scale {1.0 / mean:.3f} saved {_tmp_png} bytes={_tmp_png.stat().st_size}"
+    )
+    return mean
+
 
 def garment_material_from_declared(mhclo_path, role_colour, name, mesh=None, patch_factor=True):
     """#360: consume a garment's OWN declared .mhmat diffuse texture when staged + resolvable.
@@ -400,9 +476,11 @@ def garment_material_from_declared(mhclo_path, role_colour, name, mesh=None, pat
 
     When the texture IS consumed and patch_factor, the role colour is registered in
     GARMENT_FACTOR_PATCH so the exported GLB carries baseColorFactor (the #180 contract's
-    pinned quantity) beside the texture. patch_factor is False for the footwear slot: the
-    #180 contract pins footwear by ASSET, and the #337/#338 ban on tinting via baseColorFactor
-    applies where the declared texture IS the author's look.
+    pinned quantity) beside the texture, and the texture is luminance-normalised by its own
+    mean (#386) so the factor sets the hue and the texture supplies only the weave.
+    patch_factor is False for the footwear slot: the #180 contract pins footwear by ASSET,
+    and the #337/#338 ban on tinting via baseColorFactor applies where the declared texture
+    IS the author's look (no clinical colour is locked onto it, so nothing to normalise).
     """
     record = {
         "name": name,
@@ -414,6 +492,8 @@ def garment_material_from_declared(mhclo_path, role_colour, name, mesh=None, pat
         "textureBytes": 0,
         "meshUvLayer": bool(mesh is not None and mesh.data.uv_layers),
         "consumed": False,
+        "luminanceNormalised": False,
+        "textureMeanLuminance": None,
         "reason": None,
     }
     try:
@@ -449,6 +529,15 @@ def garment_material_from_declared(mhclo_path, role_colour, name, mesh=None, pat
     # Keep the shipped garment roughness (make_material_from_mhmat leaves the Principled
     # default 0.5; the flat garment materials ship 0.78).
     mat.node_tree.nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.78
+    if patch_factor:
+        # #386: the locked clinical colour is the exported baseColorFactor; re-centre the
+        # authored texture by its own mean so the factor sets the brightness and the weave
+        # survives as contrast (glTF multiplies factor x texture — measured: shirt-knit mean
+        # 0.206 renders the locked teal at ~10% brightness).
+        _authored_mean = normalise_garment_texture_luminance(mat, name)
+        if _authored_mean is not None:
+            record["luminanceNormalised"] = True
+            record["textureMeanLuminance"] = round(_authored_mean, 4)
     record["consumed"] = True
     CONSUMED_GARMENT_TEXTURES.add(name)  # #372: this slot must ship its texture (verified post-export)
     if patch_factor:
@@ -1953,6 +2042,7 @@ def main():
     args = parse_args()
     GARMENT_FACTOR_PATCH.clear()  # #360: per-actor; a fresh Blender process bakes each actor anyway
     CONSUMED_GARMENT_TEXTURES.clear()  # #372: same per-actor discipline for the texture verify
+    LUMINANCE_NORMALISED_IMAGES.clear()  # #386: same per-actor discipline for the luminance re-centre
     bpy.ops.preferences.addon_enable(module="bl_ext.user_default.mpfb")
 
     reference = None
