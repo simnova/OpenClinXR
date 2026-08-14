@@ -13,14 +13,18 @@ parseable_sections: 6
 
 ## MPFB TRANSITION SCOREBOARD (measured 2026-08-12 21:05; regenerate, do not narrate)
 
-> **DARK-FACTORY CAMPAIGN CLOSED 2026-08-14** (other agent; `.openclinxr/handoffs/campaign-close-dark-factory-2026-08-14.md`).
-> A/B/C/T closed. Peds parent is a second GLB (colour) **plus** a motion-bind GLB (walk) —
-> `MPFB_PEDS_PARENT_AISHA_RUNTIME_PATH` is the candidates walk file, not the bake. **FROZEN:**
-> `mpfb-ob-patient-aisha.glb`, `mpfb-peds-patient-child.glb`, `mpfb-peds-nurse-kevin.glb`. **Do not**
-> restart #388, touch #167, recolour OB aisha, start new materializer rebakes for colour, or push
-> origin (main is ~480 ahead). Isolated stills graded; **not** three playable exams.
-> Hourly loop consequences: #400 killed mid-run and NOT landed (it rebaked the frozen child);
-> #401 parked (requires rebaking frozen OB aisha); #402 is the campaign's own leftover #5.
+> **DIRECTION 2026-08-14 (Patrick, via `direction-mpfb2-throughout-2026-08-14.md`): MPFB2 IS THE
+> LEARNER RAIL THROUGHOUT.** Anny stays as reference + comparator only — do not delete it, do not
+> polish its eyes/arm-weights/shoes. **The campaign freeze is OVER** except: no reverting Tara off
+> `mpfb-peds-parent-aisha.motion-bind.glb`, no recolouring `mpfb-ob-patient-aisha.glb` (Omar), no
+> restarting #388, **no #167**. **Push to origin is authorized** (no force, no history rewrite).
+> Assigned: leftovers #1 midriff + #2 kevin scalp (hourly), **#4 shared Anny pool (campaign)**, #8 push.
+> NOT assigned: #3 Anny blob shoes (those actors leave the rail), #6 visemes (mechanism shipped).
+> Sequence: **#400 landed (`94c316d8`)** → two MPFB adults replacing `ed_chest_pain_nurse_adult` (10
+> slots) + `ed_chest_pain_spouse_adult` (9 slots) = **19 slots, two identities not one mesh** →
+> patients (`ed_chest_pain_adult_cast` 7, `adult_male_street_casual` 4) → retire Anny peds paths.
+> Measured: 39 cast slots, 4 MPFB / 35 Anny.
+
 
 
 **Goal:** production actors move from Anny-only assets to MPFB2 bodies with Anny as the phenotype
@@ -441,6 +445,10 @@ residential sampler with no clinical station addressing, independent of its 86x 
 ## Per-Slice Checkpoints
 
 (Transient WIP details — file:line, subagent IDs, capture logs — recorded here per slice. Rehydration reads only the header above + targeted grep on this section. Worker-backlog matrix at `docs/openclinxr/worker-backlog-and-validation-matrix.md` for ownership. Archive old blocks: `pnpm openclaw:checkpoint:archive -- --keep 7`.)
+
+### 2026-08-14 operator: MPFB2 throughout, Anny comparator-only (Q1)
+
+**Product path advanced.** Patrick: learner humanoids move to MPFB2; Anny stays for phenotype reference and cagematch only (eyes/bones are why Anny is not the mixer default). Recorded: `.openclinxr/handoffs/direction-mpfb2-throughout-2026-08-14.md`. Measured: 4/39 slots already MPFB, 35 Anny-pool. First lever: two new MPFB adults replacing `ed_chest_pain_nurse_adult` + `ed_chest_pain_spouse_adult` (19 slots, two identities). Land #400 first. Do not polish Anny eyes/bones. Do not #167. Push to origin is authorized (no force-push).
 
 ### 2026-08-14 dark-factory-multi-case campaign close (Q1 + Q5)
 
