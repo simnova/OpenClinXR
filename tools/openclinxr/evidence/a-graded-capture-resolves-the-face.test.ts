@@ -159,7 +159,7 @@ function newestRun(): Run | null {
     const gallery = join(GRADE_ROOT, d, "gallery.json");
     const assets = join(GRADE_ROOT, d, "assets");
     if (!existsSync(gallery) || !existsSync(assets)) continue;
-    const actor = readdirSync(assets).find((a) => existsSync(join(assets, a, "front_structure.png")));
+    const actor = readdirSync(assets).find((a: string) => existsSync(join(assets, a, "front_structure.png")));
     if (!actor) continue;
     const lit = join(assets, actor, "front_structure.png");
     const size = pngSize(lit);
@@ -186,35 +186,39 @@ const run = newestRun();
 /**
  * An empty enumeration must FAIL, never pass vacuously (SS7t). Plain `it` on purpose: an `it.fails`
  * cannot guard its own vacuity — it is satisfied by ANY failure, including this guard throwing.
+ *
+ * Returns the narrowed run rather than declaring `asserts run is Run`: an assertion signature must
+ * name a PARAMETER, so the `asserts` form silently fails to narrow a module-level const (TS1225).
  */
-function requireRun(): asserts run is Run {
+function requireRun(): Run {
   expect(run, `a glb-grade run with a decodable front_structure.png under ${GRADE_ROOT}`).not.toBeNull();
   expect(run?.headPx ?? 0, "head width located in the newest run").toBeGreaterThan(0);
+  return run as Run;
 }
 
 describe("a graded capture resolves the face", () => {
   it.fails("(1) RED: the head is rendered at enough pixels to grade", () => {
-    requireRun();
+    const r = requireRun();
     expect(
-      run.headPx,
-      `head width in ${run.dir} (readable grades this session were ~176 px; today's runs are 104 px at a ${run.declaredViewport} viewport)`,
+      r.headPx,
+      `head width in ${r.dir} (readable grades this session were ~176 px; today's runs are 104 px at a ${r.declaredViewport} viewport)`,
     ).toBeGreaterThanOrEqual(MIN_HEAD_PX);
   });
 
   it("(2) COUNTERWEIGHT: the image is rendered at that size, not resampled up to it", () => {
     // Refuses (b): resizing a 1280 render to 4096 adds no information and is exactly the transform
     // that manufactured the #378 "teeth" I filed and withdrew (rule 12a).
-    requireRun();
+    const r = requireRun();
     expect(
-      run.pngW,
-      `${run.dir} PNG width must equal the declared capture viewport (${run.declaredViewport}) — a mismatch means the artifact was resampled after rendering`,
-    ).toBe(run.declaredViewport);
+      r.pngW,
+      `${r.dir} PNG width must equal the declared capture viewport (${r.declaredViewport}) — a mismatch means the artifact was resampled after rendering`,
+    ).toBe(r.declaredViewport);
   });
 
   it("(3) COUNTERWEIGHT: the whole-figure pass and its self-check survive", () => {
     // Refuses (c): cropping to the head satisfies a pixel count and discards the NodeIO-vs-three.js
     // agreement check (#59) that refuses a figure drawn at the wrong scale.
-    requireRun();
-    expect(run.agrees, `${run.dir} gallery must still report geometry agreement for every asset`).toBe(true);
+    const r = requireRun();
+    expect(r.agrees, `${r.dir} gallery must still report geometry agreement for every asset`).toBe(true);
   });
 });
