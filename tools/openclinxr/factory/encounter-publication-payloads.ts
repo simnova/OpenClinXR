@@ -1520,6 +1520,8 @@ function blockedReport(input: {
     queueReport: EncounterAssetGenerationQueueReport;
   };
   bundleReport?: GeneratedEdStationRuntimeBundleReport;
+  materializationEvidenceReport?: EncounterMaterializationEvidenceReport;
+  materializationEvidenceAttachments?: EncounterMaterializationEvidenceAttachmentRecords;
   humanoidRealismRequirements: EncounterHumanoidRealismRequirements;
   encounterAssetNeedsReadinessManifest?: EncounterAssetGenerationQueueReport["encounterAssetNeedsReadinessManifest"];
   targets: EncounterAssetGenerationPublicationTargets;
@@ -1574,7 +1576,7 @@ function blockedReport(input: {
     humanoidRealismProfiles: deriveHumanoidRealismProfiles(input.input.queueReport, input.humanoidRealismRequirements),
     humanoidRuntimeRequirements: [],
     caseDefinedHumanoidRuntimeHandoff: buildCaseDefinedHumanoidRuntimeHandoff(input.input.queueReport.plan.generationWorkOrders),
-    actorEquipmentMaterializationGate: buildActorEquipmentMaterializationGate(input.bundleReport, input.materializationEvidenceReport),
+    actorEquipmentMaterializationGate: buildActorEquipmentMaterializationGate(input.bundleReport, input.materializationEvidenceReport, input.materializationEvidenceAttachments),
     caseDefinitionDrivenFactoryCoverage: buildCaseDefinitionDrivenFactoryCoverage({
       queueReport: input.input.queueReport,
       learnerBundle: null,
@@ -1745,22 +1747,26 @@ function buildPublicationRealismEvidenceRefs(input: {
       claimBoundary: "runtime_realism_hook_metadata_only_not_runtime_readiness",
     })),
     visualQaEvidenceHooks: [
-      ...input.humanoidRuntimeRequirements.map((requirement) => ({
-        targetId: requirement.actorId,
-        targetKind: "humanoid_actor" as const,
-        requiredReviewFocus: ["face_gaze_lip_sync_expression", "locomotion_pose"] as const,
-        evidenceRef: `${base}/visual-qa-evidence-check/humanoid/${requirement.actorRole}/${requirement.actorId}`,
-        status: "required_not_attached" as const,
-        claimBoundary: "visual_qa_hook_metadata_only_not_visual_quality_evidence" as const,
-      })),
-      ...uniqueStrings(input.equipmentIds).map((equipmentId) => ({
-        targetId: equipmentId,
-        targetKind: "equipment" as const,
-        requiredReviewFocus: ["equipment_scale_placement_affordance"] as const,
-        evidenceRef: `${base}/visual-qa-evidence-check/equipment/${equipmentId}`,
-        status: "required_not_attached" as const,
-        claimBoundary: "visual_qa_hook_metadata_only_not_visual_quality_evidence" as const,
-      })),
+      ...input.humanoidRuntimeRequirements.map(
+        (requirement): EncounterPublicationRealismEvidenceRefs["visualQaEvidenceHooks"][number] => ({
+          targetId: requirement.actorId,
+          targetKind: "humanoid_actor" as const,
+          requiredReviewFocus: ["face_gaze_lip_sync_expression", "locomotion_pose"],
+          evidenceRef: `${base}/visual-qa-evidence-check/humanoid/${requirement.actorRole}/${requirement.actorId}`,
+          status: "required_not_attached" as const,
+          claimBoundary: "visual_qa_hook_metadata_only_not_visual_quality_evidence" as const,
+        }),
+      ),
+      ...uniqueStrings(input.equipmentIds).map(
+        (equipmentId): EncounterPublicationRealismEvidenceRefs["visualQaEvidenceHooks"][number] => ({
+          targetId: equipmentId,
+          targetKind: "equipment" as const,
+          requiredReviewFocus: ["equipment_scale_placement_affordance"],
+          evidenceRef: `${base}/visual-qa-evidence-check/equipment/${equipmentId}`,
+          status: "required_not_attached" as const,
+          claimBoundary: "visual_qa_hook_metadata_only_not_visual_quality_evidence" as const,
+        }),
+      ),
     ],
     runtimeExecutionAllowed: false,
     providerExecutionPerformed: false,

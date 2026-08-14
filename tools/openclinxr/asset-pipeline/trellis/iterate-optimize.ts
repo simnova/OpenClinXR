@@ -132,7 +132,8 @@ async function writeSimplified(
   const doc = await io.read(input);
   const ops = [];
   if (opts.weldFirst) {
-    ops.push(weld({ tolerance: WELD_TOL }));
+    // gltf-transform 4.x removed the tolerance option; overwrite re-welds existing indices.
+    ops.push(weld({ overwrite: true }));
   }
   ops.push(
     simplify({

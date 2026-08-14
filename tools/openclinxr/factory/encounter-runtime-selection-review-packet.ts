@@ -440,6 +440,19 @@ export function buildEncounterRuntimeSelectionReviewPacket(
       : []),
   ]);
   const caseDerivedActorTurnExpectations = deriveBasicActorTurnExpectationsFromCase(selectionIntent.selectedScenarioId);
+  // Persist the case-derived turn projection when the packet is built (consumer supplies the
+  // real mongo uri; this no-ops safely without one). Placed before the return so it runs.
+  const persistRecordsForConsumer = buildPersistenceSaveRecordsFromProjection({
+    selectedScenarioId: selectionIntent.selectedScenarioId,
+    persistenceProjection: caseDerivedActorTurnExpectations
+      ? {
+          actorTurns: caseDerivedActorTurnExpectations.turns,
+          emotionalStateTimeline: caseDerivedActorTurnExpectations.emotionTimeline,
+          source: "case-derived-for-persistence",
+        }
+      : null,
+  });
+  void persistTurnsToMongo(persistRecordsForConsumer, undefined);
   return {
     generatedAt,
     schemaVersion: "openclinxr.encounter-runtime-selection-review-packet.v1",
@@ -569,12 +582,6 @@ export function buildEncounterRuntimeSelectionReviewPacket(
     claimBoundary: "runtime_selection_review_packet_not_runtime_execution",
     notEvidenceFor: ["provider_availability", "runtime_readiness", "production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity", "learner_launch_readiness"],
   };
-  // Full mongo save call in consumer (wired, now live): persistRecords from projection; call executed (consumer supplies real uri for actual save using existing repo; fn no-ops safely if no uri).
-  const persistRecordsForConsumer = buildPersistenceSaveRecordsFromProjection({
-    selectedScenarioId: selectionIntent.selectedScenarioId,
-    persistenceProjection: deriveBasicActorTurnExpectationsFromCase(selectionIntent.selectedScenarioId) ? { actorTurns: deriveBasicActorTurnExpectationsFromCase(selectionIntent.selectedScenarioId)!.turns, emotionalStateTimeline: deriveBasicActorTurnExpectationsFromCase(selectionIntent.selectedScenarioId)!.emotionTimeline, source: "case-derived-for-persistence" } : null,
-  } as any);
-  void persistTurnsToMongo(persistRecordsForConsumer, undefined);
 }
 
 export function validateEncounterRuntimeSelectionReviewPacket(value: unknown): ValidationResult {
@@ -1021,7 +1028,13 @@ function buildPublicationPayloadLinkage(publicationPayloads: unknown): Encounter
       materializedOutputCount: outputs.filter((output) => output.generatedAssetsMaterialized === true).length,
       allOutputsPlannedMetadataOnly: outputs.length > 0 && outputs.every((output) => output.claimBoundary === "planned_metadata_only"),
     },
-    ...(value.pedsHumanoidMaterializationHandoff ? { pedsHumanoidMaterializationHandoff: value.pedsHumanoidMaterializationHandoff } : {}),
+    ...(value.pedsHumanoidMaterializationHandoff
+      ? {
+          pedsHumanoidMaterializationHandoff: value.pedsHumanoidMaterializationHandoff as NonNullable<
+            EncounterRuntimeSelectionReviewPacket["publicationPayloadLinkage"]["pedsHumanoidMaterializationHandoff"]
+          >,
+        }
+      : {}),
     assetNeedsReadiness: {
       readyForDeterministicGeneration: readiness.readyForDeterministicGeneration === true,
       missingRequiredAssetNeedIds: stringArray(readiness.missingRequiredAssetNeedIds),
@@ -1672,7 +1685,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   });
 }
 
-export function buildPersistenceSaveRecordsFromProjection(packet: EncounterRuntimeSelectionReviewPacket | null) {
+export function buildPersistenceSaveRecordsFromProjection(
+  packet: Pick<EncounterRuntimeSelectionReviewPacket, "selectedScenarioId" | "persistenceProjection"> | null,
+) {
   if (!packet?.persistenceProjection) return null;
   return {
     actorTurns: packet.persistenceProjection.actorTurns,

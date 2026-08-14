@@ -93,6 +93,14 @@ const launchSelection = (): EncounterLocalLaunchSelectionReport => ({
     ],
     notEvidenceFor: ["runtime_readiness", "quest_readiness", "production_readiness", "clinical_validity", "scoring_validity"],
   },
+  actorEquipmentMaterializationGate: {
+    runtimeSelectionBlockedUntilEvidenceAttached: true,
+    actorBlockers: ["actor_specific_humanoid_realism_gate_not_attached"],
+    equipmentBlockers: ["equipment_specific_glb_or_prefab_evidence_not_attached"],
+    caveats: ["fixture: materialization evidence not attached"],
+    recommendedNextActions: ["attach materialization evidence before runtime selection"],
+    claimBoundary: "materialization_contract_metadata_only_not_runtime_readiness",
+  },
   pedsRuntimeMaterializationHandoff: {
     schemaVersion: "openclinxr.peds-runtime-materialization-handoff-summary.v1",
     source: "publication_payload_pedsHumanoidMaterializationHandoff",
