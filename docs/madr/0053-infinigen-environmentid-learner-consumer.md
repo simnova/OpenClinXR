@@ -289,3 +289,59 @@ camera from the headset pose, so this path does not run); clinical realism of an
 second seed (every run is seed 0); areas below 19.25 m2 by another route (longer anneal
 schedule, `solve_steps`, or a custom `SegmentMaker` were not tried); the 36/38 reachability
 boundary at finer resolution.
+
+## FIXED (#342 final, 2026-08-14) — the aspect declaration is measured, and it is unreachable on the shipped path
+
+The planted RED (`the-shipped-room-matches-its-declared-shape.test.ts`) asserts the shipped
+room's floor aspect falls inside the declared `aspect_ratio_range=(2.0,2.1)` — and it fails
+today (floor aspect 1.000). The header hypothesised three explanations. All three are now
+measured against the shipped config chain (`base_indoors.gin` + `disable/clinical_bay.gin`,
+seed 0, overrides `compose_indoors.terrain_enabled=False`), by instrumenting the solver
+directly:
+
+| hypothesis | measured verdict | evidence |
+| --- | --- | --- |
+| (1) aspect unbound — never reaches the solver | **FALSE** | `RoomConstants.aspect_ratio_range = (2.0, 2.1)` after gin; `suggest_dimensions` (graph.py:273-289) computes contour **24.5 × 12.0 (aspect 2.04)** |
+| (2) unbindable — not `@gin.configurable` | **FALSE** | it is a constructor arg of `@gin.configurable RoomConstants` (constants.py:22-48) and binds |
+| (3) binds the floorplan; extraction discards it | **TRUE, with a correction to the mechanism** | the knob binds the floorplan's **initial contour only**. The room anneal reshapes rooms freely (`fixed_contour=False`, home.py:63), and the shipped program's soft objective `aspect_ratio().log()` at weight 50 (home.py:385-391) drives kitchen/bedroom/living/dining rooms to aspect 1.0. The extraction (mesh-name selection, #236) then picks dining-room_0 — square because the anneal *made* it square, not because the extraction dropped a bound the room had honoured |
+
+**The declared aspect is unreachable on the shipped path.** Seed sweep (0-3, same config chain,
+floorplan solve only, ~36 s each): dining-room aspect **1.00 / 1.10 / 1.00 / 1.00** — square in
+every seed; the only elongated rooms (seed 3: garage 8.0 × 4.0 aspect 2.00, hallway 3.0 × 7.5
+aspect 2.50) are not the extract target and are not clinically plausible. The existing seed-0
+floorplan contains **no room in [2.0, 2.1]** (closet_0 at aspect 3.83 is the only ≥2.0 room,
+outside the band). So the extraction-picking fix is impossible without regeneration, and
+regeneration on the shipped path cannot produce it — the aspect knob never reaches the room
+level.
+
+**The config's own declared target is a hard measured ceiling.** `clinical_bay.gin`'s header
+states the target: `ed_exam_bay_v1 (7.0 x 3.45 x 2.65 m)` — 24.15 m2 at aspect 2.03. Probed via
+the constraint-language surface (#339's API) with hard bounds area **[24,25]** + aspect
+**[2.0,2.1]**: the anneal **froze at 4.25e5 — zero acceptances in 2000 proposals** (2197/2197
+progress lines at the initial score), dining room stuck at 7.0 × 9.0 (aspect 1.286, area 63).
+This is the exact #339 `[78,84]` failure mode, probed downward at the config's own target: the
+authored bay fails on BOTH axes, confirming #342b's conclusion with the direct [24,25] probe.
+
+**Refinement to #342b's blanket "aspect 2.029 unreachable at every area tried":** the aspect
+bound alone is NOT the blocker. With a generous area band **[10,60]** + aspect **[2.0,2.1]**, the
+anneal EXPLORED (4.25e5 → 236) and landed the dining room at **4.5 × 9.0, aspect 2.000** (area
+40.5). The blocker is the COMBINED area+aspect target: a tight area band freezes the anneal
+before the aspect reshape can complete (the anneal accepts only zero-violation states, solver
+acceptance rule floor_plan.py:164). #342b's probes all used upper edges ≤ 48, which is why
+they all froze.
+
+**Under this measured outcome nothing in the product changes; the RED documents the mismatch.**
+The shipped room does not match its declared aspect, the declaration is not rewritten (the test's
+clause (3) refuses it — it is the only surviving statement of intent), and the room stays the
+deterministic 6.5 × 6.5 seed-0 bake. The issue's product fix (bake the reachable 19.25 m2 room +
+re-place the authored fixtures) remains #342b's named gating next slice.
+
+CLAIM: on the shipped path, `aspect_ratio_range` binds the floorplan contour (24.5 × 12.0) and
+never the rooms — the soft square objective (home.py:385-391) makes the extracted dining room
+square in every seed, so the declared [2.0,2.1] is unreachable; and the config's own 24.15 m2
+target freezes the constraint-language anneal (0/2000 acceptances), the #339 ceiling probed
+downward.
+
+NOT TESTED: a second seed sweep beyond 0-3 on the full coarse pipeline (mesh + bake); a longer
+anneal schedule reaching [24,25] (e.g. `solve_steps` increases); baking the 19.25 m2 room and
+re-placing fixtures (the named gating slice); any `environmentId` other than `ed_exam_bay_v1`.
