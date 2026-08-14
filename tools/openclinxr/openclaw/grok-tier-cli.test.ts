@@ -72,8 +72,8 @@ describe("DeepSeek model capabilities (confirmed from official api-docs.deepseek
     const proPolicy: RepoRoleHarnessPolicy = {
       roleId: "asset-pipeline-lead",
       policyTier: "standard_execution",
-      taskType: "bounded_execution",
-      sandboxMode: "default",
+      taskType: "implementation_worker",
+      sandboxMode: "workspace-write",
       recommendedSkills: ["anny-asset-pipeline"],
       moonbridgeAssistOnCodex: false,
       writeScopeNote: "test",

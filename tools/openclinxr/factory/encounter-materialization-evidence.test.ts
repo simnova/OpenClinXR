@@ -5,7 +5,12 @@ import {
 } from "./encounter-materialization-evidence.js";
 import type { GeneratedEdStationRuntimeBundleReport } from "./generated-ed-station-runtime-bundle.js";
 
-const notEvidenceFor = ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"] as const;
+const notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"] = [
+  "production_asset_readiness",
+  "quest_readiness",
+  "clinical_validity",
+  "scoring_validity",
+];
 
 describe("encounter materialization evidence", () => {
   it("keeps actor/equipment evidence non-attachable while shared-neutral and generic evidence is missing", () => {

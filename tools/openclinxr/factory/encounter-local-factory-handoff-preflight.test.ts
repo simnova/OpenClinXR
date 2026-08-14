@@ -77,6 +77,8 @@ function manifest(root: string): EncounterLocalFactoryOperationManifest {
     realismEvidenceRefs: {
       claimBoundary: "metadata_only_not_runtime_or_visual_quality_evidence",
       refIds: ["humanoid-realism-gate", "runtime-realism-evidence-check", "visual-qa-evidence-check"],
+      runtimeRealismEvidenceHookCount: 0,
+      visualQaEvidenceHookCount: 0,
       requiredBefore: "guarded_runtime_wiring",
       runtimeExecutionAllowed: false,
       providerExecutionPerformed: false,

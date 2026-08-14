@@ -75,9 +75,11 @@ async function maybeMongoProject(doc: EquipmentCatalogDocument): Promise<void> {
     return;
   }
   try {
-    // Dynamic import so CI without mongodb driver still runs inventory.
+    // Dynamic import so CI without mongodb driver still runs inventory. The driver is only
+    // resolvable from tools via the data-mongodb package's re-export (pnpm: bare `mongodb`
+    // is not resolvable from tools/).
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const mod = (await import("mongodb").catch(() => null)) as {
+    const mod = (await import("../../../../packages/openclinxr/data-mongodb/src/index.js").catch(() => null)) as {
       MongoClient: new (uri: string) => {
         connect: () => Promise<unknown>;
         db: () => {

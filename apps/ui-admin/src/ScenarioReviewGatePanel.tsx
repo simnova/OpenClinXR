@@ -13,22 +13,18 @@ import type {
   AdminScenarioReviewResult,
   SubmitScenarioReviewInput,
 } from "./api-client.js";
-
-/** Capability surface for evidence/inspect — not a role model. */
-export const SCENARIO_REVIEW_RECORDABLE_DIMENSIONS = [
-  "clinical",
-  "psychometric",
-  "legal",
-  "simulationQa",
-] as const;
-
-export type ScenarioReviewDimension = (typeof SCENARIO_REVIEW_RECORDABLE_DIMENSIONS)[number];
-
-/** Reviewer types the rationale; client does not hardcode comments. */
-export const SCENARIO_REVIEW_RATIONALE_IS_CALLER_SUPPLIED = true as const;
-
-/** Unmade decisions surface as pending (not hidden/absent) so a reviewer sees work remaining. */
-export const SCENARIO_REVIEW_UNMADE_DECISION_DISPLAY = "pending" as const;
+import {
+  SCENARIO_REVIEW_RECORDABLE_DIMENSIONS,
+  SCENARIO_REVIEW_RATIONALE_IS_CALLER_SUPPLIED,
+  SCENARIO_REVIEW_UNMADE_DECISION_DISPLAY,
+  type ScenarioReviewDimension,
+} from "./scenario-review-gate-constants.js";
+export {
+  SCENARIO_REVIEW_RECORDABLE_DIMENSIONS,
+  SCENARIO_REVIEW_RATIONALE_IS_CALLER_SUPPLIED,
+  SCENARIO_REVIEW_UNMADE_DECISION_DISPLAY,
+  type ScenarioReviewDimension,
+} from "./scenario-review-gate-constants.js";
 
 const DIMENSION_LABELS: Record<ScenarioReviewDimension, string> = {
   clinical: "Clinical",

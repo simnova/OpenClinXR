@@ -1,5 +1,5 @@
 import { stat } from "node:fs/promises";
-import * as scenarioBank from "../../../packages/openclinxr/scenario-fixtures/src/scenario-bank.js";
+import { pediatricAsthmaScenario } from "../../../packages/openclinxr/scenario-fixtures/src/pediatric-asthma.js";
 import { globFiles, readJson, writeJson } from "../../agent-factory/lib.js";
 import type { EncounterGuardedRuntimeSelectionIntent } from "./encounter-guarded-runtime-selection-intent.js";
 
@@ -450,9 +450,9 @@ export function buildEncounterRuntimeSelectionReviewPacket(
     selectedRuntimeAssetBundleId: selectionIntent.selectedRuntimeAssetBundleId,
     // Blueprint-derived expectations pulled from case spec for peds (advances "blueprint drives review packet" and conversation/emotion context for review)
     caseDerivedExpectations: selectionIntent.selectedScenarioId === "peds_asthma_parent_anxiety_v1" ? {
-      actorCommunicationProfile: scenarioBank.pediatricAsthmaScenario.actors.find((a: Record<string, unknown>) => (a.actorId as string | undefined)?.includes("patient"))?.communicationProfile ?? null,
-      requiredCommunicationAndEscalationTraceTags: scenarioBank.pediatricAsthmaScenario.requiredTraceTags.filter((t: string) => t.includes("empathy") || t.includes("escalation") || t.includes("parent") || t.includes("communication")),
-      clinicalObjectives: scenarioBank.pediatricAsthmaScenario.clinicalObjectives,
+      actorCommunicationProfile: pediatricAsthmaScenario.actors.find((a: Record<string, unknown>) => (a.actorId as string | undefined)?.includes("patient"))?.communicationProfile ?? null,
+      requiredCommunicationAndEscalationTraceTags: pediatricAsthmaScenario.requiredTraceTags.filter((t: string) => t.includes("empathy") || t.includes("escalation") || t.includes("parent") || t.includes("communication")),
+      clinicalObjectives: pediatricAsthmaScenario.clinicalObjectives,
       reviewRubricCommunication: null,
     } : null,
     caseDerivedActorTurnExpectations,
@@ -1492,7 +1492,7 @@ function deriveCaseActorPlayerRuntimeEvidence(
 export function deriveBasicActorTurnExpectationsFromCase(scenarioId: string) {
   if (scenarioId !== "peds_asthma_parent_anxiety_v1" && scenarioId !== "ed_chest_pain_priority_v1") return null;
   if (scenarioId === "peds_asthma_parent_anxiety_v1") {
-    const scenario = scenarioBank.pediatricAsthmaScenario as unknown as {
+    const scenario = pediatricAsthmaScenario as unknown as {
       actors?: Array<Record<string, unknown>>;
       requiredTraceTags?: string[];
       eventSchedule?: Array<Record<string, unknown>>;
@@ -1686,7 +1686,7 @@ export async function persistTurnsToMongo(records: any, mongoUri?: string) {
   if (!records || !mongoUri) return { saved: false, reason: "no records or mongoUri" };
   try {
     // Wire to existing repo (DurableConversationTurnRepository.save); full db from uri in consumer
-    const mod = await import("../../../packages/openclinxr/data-mongodb/src/repositories.js");
+    const mod = await import("../../../packages/openclinxr/data-mongodb/src/index.js");
     const Repo = (mod as any).MongoDurableConversationTurnRepository;
     // return shaped for save (consumer does new Repo(db).save)
     return { saved: true, recordForSave: records, repo: "MongoDurableConversationTurnRepository" };

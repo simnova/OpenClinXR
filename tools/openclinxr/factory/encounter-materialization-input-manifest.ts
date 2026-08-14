@@ -53,7 +53,7 @@ export function buildEncounterMaterializationInputManifest(input: {
   evidenceReport: EncounterMaterializationEvidenceReport;
   generatedAt?: string;
 }): EncounterMaterializationInputManifest {
-  const actorWorkOrderInputs = input.evidenceReport.actorEvidence.map((entry) => ({
+  const actorWorkOrderInputs: EncounterMaterializationInputManifest["actorWorkOrderInputs"] = input.evidenceReport.actorEvidence.map((entry) => ({
     workOrderInputId: `actor-materialization-input:${entry.actorId}`,
     actorId: entry.actorId,
     actorRole: entry.actorRole,
@@ -62,11 +62,11 @@ export function buildEncounterMaterializationInputManifest(input: {
     requiredEvidenceRefs: [...entry.requiredEvidenceRefs],
     requiredCueIds: entry.requiredEvidenceRefs.map(lastPathSegment),
     blockerIds: [...entry.blockers],
-    targetCapabilityIds: ["character-generation", "animation-generation", "asset-bake"] as const,
+    targetCapabilityIds: ["character-generation", "animation-generation", "asset-bake"],
     providerExecutionStatus: "metadata_only_not_executed" as const,
     claimBoundary: "provider_neutral_materialization_input_not_asset_readiness" as const,
   }));
-  const equipmentWorkOrderInputs = input.evidenceReport.equipmentEvidence.map((entry) => ({
+  const equipmentWorkOrderInputs: EncounterMaterializationInputManifest["equipmentWorkOrderInputs"] = input.evidenceReport.equipmentEvidence.map((entry) => ({
     workOrderInputId: `equipment-materialization-input:${entry.equipmentId}`,
     equipmentId: entry.equipmentId,
     variantSemanticKey: entry.variantSemanticKey,
@@ -74,7 +74,7 @@ export function buildEncounterMaterializationInputManifest(input: {
     requiredEvidenceRefs: [...entry.requiredEvidenceRefs],
     requiredCueIds: entry.requiredEvidenceRefs.map(lastPathSegment),
     blockerIds: [...entry.blockers],
-    targetCapabilityIds: ["medical-equipment-generation", "asset-bake"] as const,
+    targetCapabilityIds: ["medical-equipment-generation", "asset-bake"],
     providerExecutionStatus: "metadata_only_not_executed" as const,
     claimBoundary: "provider_neutral_materialization_input_not_asset_readiness" as const,
   }));

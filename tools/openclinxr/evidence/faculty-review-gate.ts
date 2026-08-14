@@ -32,7 +32,7 @@ import type { Scenario } from "../../../packages/openclinxr/shared-schemas/src/i
 import {
   SCENARIO_REVIEW_RATIONALE_IS_CALLER_SUPPLIED,
   SCENARIO_REVIEW_RECORDABLE_DIMENSIONS,
-} from "../../../apps/ui-admin/src/ScenarioReviewGatePanel.js";
+} from "../../../apps/ui-admin/src/scenario-review-gate-constants.js";
 
 export type ReviewDimension = "clinical" | "psychometric" | "legal" | "simulationQa";
 

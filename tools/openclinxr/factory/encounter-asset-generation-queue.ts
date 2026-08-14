@@ -16,7 +16,7 @@ import { findScenarioFixtureById } from "../../../packages/openclinxr/scenario-f
 import {
   buildDynamicEncounterFactoryPlanningProjection,
   type DynamicEncounterFactoryPlanningScenario,
-} from "../../../packages/openclinxr/scenario-fixtures/src/scenario-bank.js";
+} from "../../../packages/openclinxr/scenario-fixtures/src/scenario-bank-maturity.js";
 import type { Scenario } from "../../../packages/openclinxr/shared-schemas/src/index.js";
 import {
   type DynamicEncounterFactoryProjectionArtifact,
