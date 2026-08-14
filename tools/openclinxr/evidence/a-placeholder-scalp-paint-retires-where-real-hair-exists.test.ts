@@ -70,6 +70,17 @@ import { describe, expect, it } from "vitest";
  *     open review question and it has never been answered.
  *   - **The Anny rail.** Only the three MPFB bodies are read; `automate_blender.py` paints Anny figures
  *     through the same function and nothing here speaks to them.
+ *
+ * ## FIXED (#399) — the child's placeholder retires with her fitted hair
+ *
+ * #399 is the MADR 0052 P3 advancement hour: the child (`mpfb-peds-patient-child`) now wears her
+ * OWN licence-clean fitted style, `toigo_curled_under_bob_with_bangs` (CC0, zero helper-vertex
+ * refs), through the SAME `ClothesService` fit path #381 proved. Her placeholder scalp paint is
+ * therefore retired via `body_param_stage.scalp_placeholder_retired_for` — exactly this contract's
+ * own rule (the placeholder retires where a real fitted replacement is on disk). The nurse is
+ * untouched: he has no licence-clean hair asset (every usable style is a feminine bob), so his
+ * placeholder stays. Measured post-bake: child placeholder scalp verts 0 (was 1,234) with 4,976
+ * tris of fitted hair; kevin 1,506 placeholder verts, 0 hair tris (unchanged).
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -85,7 +96,8 @@ const SKIN = /skin/u;
 /** The figure whose replacement already shipped (#381). */
 const HAS_REAL_HAIR = "mpfb-ob-patient-aisha";
 /** Figures with no fitted hair asset — out of scope, and clause (3) keeps them that way. */
-const NO_HAIR_YET = ["mpfb-peds-nurse-kevin", "mpfb-peds-patient-child"];
+/** Figures with no fitted hair asset on disk — kevin alone after #399 opened the child. */
+const NO_HAIR_YET = ["mpfb-peds-nurse-kevin"];
 
 type Figure = {
   id: string;
@@ -132,7 +144,7 @@ const others = (await Promise.all(NO_HAIR_YET.map(readFigure))).filter(Boolean) 
  */
 function requireMeasured(): void {
   expect(aisha, `${HAS_REAL_HAIR}.glb readable under ${ASSET_DIR}`).not.toBeNull();
-  expect(others.length, `the two no-hair-yet figures are readable`).toBe(NO_HAIR_YET.length);
+  expect(others.length, `the no-hair-yet figure(s) are readable`).toBe(NO_HAIR_YET.length);
 }
 
 describe("a placeholder scalp paint retires where real hair exists", () => {
@@ -163,9 +175,12 @@ describe("a placeholder scalp paint retires where real hair exists", () => {
     ).toBeGreaterThan(1000);
   });
 
-  it("(3) COUNTERWEIGHT: figures with no hair asset keep the placeholder — this slice does not reach them", () => {
-    // Refuses (c): stripping the paint everywhere greens (1) and leaves two bald skin heads. Their fix
-    // needs a hair asset chosen per character plus a licence check, which is not an implementer call.
+  it("(3) COUNTERWEIGHT: figures with no hair asset keep the placeholder — the nurse's skip is preserved", () => {
+    // Refuses (c): stripping the paint everywhere greens (1) and leaves bald skin heads. #399
+    // retired the CHILD's paint because her real fitted hair (toigo_curled_under_bob_with_bangs,
+    // CC0) is now on disk — this contract's own rule. Kevin has no licence-clean hair asset (every
+    // usable style in makehuman-hair01 is a feminine bob), so his placeholder stays: removing it
+    // would leave a bald skin head.
     requireMeasured();
     const stripped = others.filter((f) => f.placeholderVerts === 0).map((f) => f.id);
     expect(

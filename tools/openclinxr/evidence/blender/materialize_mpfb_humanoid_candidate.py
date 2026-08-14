@@ -38,13 +38,16 @@ SHOE_BY_REFERENCE = {
 # (.openclinxr/handoffs/mpfb-human-realism-peer-from-equipment-lane-2026-08-14.md):
 # every licence-clean style in the usable makehuman-hair01 subset is a feminine bob,
 # so kevin is a RECORDED MALE SKIP (a bob on a male nurse regresses realism, which is
-# worse than the stair-step painted cap it would replace) and the child is out of
-# slice-1 scope. The style is the SAME toigo_blunt_bob_with_bangs the library rail
-# proved (SS9h — same fitter, same pack, same style, on a shipped file).
+# worse than the stair-step painted cap it would replace). #399: the child joins under
+# the MADR 0052 P3 advancement hour with her OWN licence-clean style
+# (toigo_curled_under_bob_with_bangs, CC0) — visually distinct from her parent's blunt
+# bob because the two stand together in peds_asthma_parent_anxiety_v1. The default
+# style is the SAME toigo_blunt_bob_with_bangs the library rail proved (SS9h — same
+# fitter, same pack, same style, on a shipped file).
 HAIR_STYLE_BY_REFERENCE = {
     None: "toigo_blunt_bob_with_bangs",
     "peds_nurse_kevin": None,
-    "peds_patient_child": None,
+    "peds_patient_child": "toigo_curled_under_bob_with_bangs",
 }
 
 # #199: the LONG-SLEEVE upper slot. #197/#199 measured that body-surface-derived garments
@@ -326,6 +329,22 @@ def read_hair_mhclo_licence(mhclo_path):
     if re.search(r"cc[\s_-]*by", raw, re.I):
         return True, raw
     return False, raw
+
+
+def declared_hair_obj_file(mhclo_path):
+    """Read the `obj_file` line from a hair `.mhclo`'s OWN header.
+
+    The mesh file name is a per-style declaration (bob_blunt_bangs.obj vs
+    bob_curled_under_bangs.obj) — the same self-declaration pattern as
+    read_hair_mhclo_licence. Hardcoding one style's obj would break every
+    other style in the pack (#399 wires a second style).
+    """
+    header = mhclo_path.read_text(encoding="utf-8", errors="replace")[:4000]
+    for line in header.splitlines():
+        m = re.match(r"^obj_file\s+(.+)$", line.strip(), re.I)
+        if m:
+            return m.group(1).strip()
+    raise RuntimeError(f"#399: no obj_file declared in {mhclo_path}")
 
 
 def make_material_from_mhmat(mhmat_path, name):
@@ -2158,7 +2177,7 @@ def main():
     _shipped_figure_id = (
         "mpfb-ob-patient-aisha"
         if not args.reference
-        else f"mpfb-peds-{args.reference.replace('_', '-')}"
+        else f"mpfb-{args.reference.replace('_', '-')}"
     )
     if scalp_placeholder_retired_for(_shipped_figure_id):
         scalp_hair_region = {
@@ -2556,7 +2575,7 @@ def main():
             / _hair_style
         )
         _hair_mhclo = _hair_dir / f"{_hair_style}.mhclo"
-        _hair_obj = _hair_dir / "bob_blunt_bangs.obj"
+        _hair_obj = _hair_dir / declared_hair_obj_file(_hair_mhclo)
         if not _hair_mhclo.is_file() or not _hair_obj.is_file():
             raise RuntimeError(f"#381: hair sources missing in provider cache: {_hair_dir}")
         _hair_lic_ok, _hair_lic_raw = read_hair_mhclo_licence(_hair_mhclo)

@@ -95,6 +95,21 @@ import { describe, expect, it } from "vitest";
  *   - **The Anny rail.** Only the three MPFB bodies are read.
  *   - **Attribution plumbing.** If a CC-BY style is chosen instead of a `toigo_*`, nothing here
  *     checks that the attribution reaches a shipped build.
+ *
+ * ## FIXED (#399)
+ *
+ * `materialize_mpfb_humanoid_candidate.py` now maps `peds_patient_child` to
+ * `toigo_curled_under_bob_with_bangs` (CC0 by its own .mhclo header, zero helper-vertex
+ * refs) through the SAME `ClothesService` fit path #381 proved on aisha — the fit runs
+ * BEFORE the #318 helper strip and the bake re-reads the licence via
+ * `read_hair_mhclo_licence` (hard refusal on AGPL/unspecified). The hair OBJ file name is
+ * read from the .mhclo's own `obj_file` header (the hardcoded `bob_blunt_bangs.obj` was
+ * aisha's style only). The child's placeholder scalp paint is retired via
+ * `body_param_stage.scalp_placeholder_retired_for` — her real fitted hair is on disk now;
+ * the nurse's recorded male licence skip is untouched. Measured post-bake: child placeholder
+ * scalp verts 0 (was 1,234), fitted hair 4,976 tris, style toigo_curled_under_bob_with_bangs
+ * (distinct from the parent's toigo_blunt_bob_with_bangs), head skin verts 3,103; aisha
+ * 4,976 tris / 0 placeholder (unchanged); kevin 0 hair tris / 1,506 placeholder (unchanged).
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -188,7 +203,7 @@ function requireMeasured(): void {
 }
 
 describe("the child patient has hair and the nurse keeps his recorded skip", () => {
-  it.fails("(1) RED: the child carries a fitted hair mesh and no placeholder scalp paint", () => {
+  it("(1) RED: the child carries a fitted hair mesh and no placeholder scalp paint", () => {
     requireMeasured();
     expect(
       child!.hairTris,
@@ -221,7 +236,7 @@ describe("the child patient has hair and the nurse keeps his recorded skip", () 
     ).toBe(0);
   });
 
-  it.fails("(4) RED: the child's style is licence-clean AND different from her parent's", () => {
+  it("(4) RED: the child's style is licence-clean AND different from her parent's", () => {
     // Refuses (c). Reusing the default toigo_blunt_bob_with_bangs is the cheapest green available and
     // stands the child beside her own parent in identical hair — #388's defect through a new door.
     requireMeasured();

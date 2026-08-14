@@ -179,29 +179,30 @@ const rows = (await Promise.all(files.map((f) => measure(f).catch(() => null))))
   (r): r is Row => r !== null,
 );
 
-/** #393 — the shipped base ids that still carry the placeholder scalp region (no fitted hair). */
-const REGION_FIGURES = ["mpfb-peds-nurse-kevin.glb", "mpfb-peds-patient-child.glb"] as const;
+/** #393/#399 — the shipped base ids that still carry the placeholder scalp region (no fitted hair).
+ * #399 retired the child's paint with her fitted toigo_curled_under_bob_with_bangs; kevin alone
+ * has no licence-clean hair asset, so he alone still carries the region. */
+const REGION_FIGURES = ["mpfb-peds-nurse-kevin.glb"] as const;
 
-/** #393 — the shipped base id of the figure whose placeholder scalp paint is retired
- * (real fitted hair on disk). See body_param_stage.scalp_placeholder_retired_for. */
-const RETIRED_FIGURE = "mpfb-ob-patient-aisha.glb";
+/** #393/#399 — the shipped base ids whose placeholder scalp paint is retired (real fitted hair on
+ * disk). See body_param_stage.scalp_placeholder_retired_for. */
+const RETIRED_FIGURES = new Set(["mpfb-ob-patient-aisha.glb", "mpfb-peds-patient-child.glb"]);
 
 /** An empty enumeration must FAIL, never pass vacuously (§7t). */
 function requireRows(): void {
   // #393 re-premise (#387's shape): aisha's placeholder is retired where #381's fitted hair
-  // replaced it, so `measure` returns null for her and she is absent from `rows`. The guard
-  // still refuses an empty enumeration — BOTH remaining region-carrying figures are required
-  // by name, and the retired figure must NOT be measurable.
+  // replaced it, so `measure` returns null for her and she is absent from `rows`. #399 retires
+  // the child's paint with her fitted hair (toigo_curled_under_bob_with_bangs, CC0). The guard
+  // still refuses an empty enumeration — every remaining region-carrying figure is required by
+  // name, and the retired figures must NOT be measurable.
   const measured = new Set(rows.map((r) => r.file));
   const missing = REGION_FIGURES.filter((f) => !measured.has(f));
   expect(
     missing,
-    `MPFB bodies with a measurable baked scalp (scanned ${files.length}; aisha retired under #393)`,
+    `MPFB bodies with a measurable baked scalp (scanned ${files.length}; aisha and the child retired)`,
   ).toEqual([]);
-  expect(
-    measured.has(RETIRED_FIGURE),
-    `${RETIRED_FIGURE} — placeholder not retired (#393)`,
-  ).toBe(false);
+  const stale = [...RETIRED_FIGURES].filter((f) => measured.has(f));
+  expect(stale, `placeholder not retired: ${[...RETIRED_FIGURES].join(", ")}`).toEqual([]);
 }
 
 const show = (r: Row): string =>
@@ -270,5 +271,15 @@ describe("the scalp region covers both sides of the head", () => {
  * Measured from the promoted bytes (this contract's sampling): aisha 58.6/58.6
  * (0.0 pts), nurse 67.0/65.7 (1.3 pts), child 61.5/59.0 (2.5 pts) — all under the
  * 12-point bar, both sides above the 25% floor, neither above the 97% cap.
+ *
+ * ## FIXED (#399) — the child's scalp region retires with her fitted hair
+ *
+ * #399 opened the child with her OWN licence-clean fitted style
+ * (`toigo_curled_under_bob_with_bangs`, CC0, through the SAME `ClothesService` fit
+ * path #381 proved), so her placeholder scalp paint is retired via
+ * `body_param_stage.scalp_placeholder_retired_for` exactly like aisha's. The nurse
+ * remains the only actor without a hair asset (every licence-clean style in the
+ * usable makehuman-hair01 subset is a feminine bob), so `REGION_FIGURES` now names
+ * him alone and both retired figures must be unmeasurable.
  */
 

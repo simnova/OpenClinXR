@@ -624,11 +624,13 @@ def transfer_weights_body_to_garment(
 # exists"; #381 landed the real thing (4,976 tris of fitted MakeClothes library hair on
 # aisha) and nobody retired the paint underneath — she ships both, and the 2.8%-luminance
 # paint under fitted hair is the hard 4096-grade boundary this issue closes. Retire the
-# placeholder ONLY where a real fitted replacement is on disk (aisha). The nurse and the
-# child keep it — removing it there would leave a bald skin head, and their fix needs a hair
-# asset chosen per character plus a licence check (the planted #387 contract's clause (3)
-# pins that boundary). Keyed by the shipped GLB base id.
-SCALP_PLACEHOLDER_RETIRED_FOR = frozenset({"mpfb-ob-patient-aisha"})
+# placeholder ONLY where a real fitted replacement is on disk. #399: the child joins under
+# the MADR 0052 P3 advancement hour — her fitted toigo_curled_under_bob_with_bangs (CC0)
+# is on disk, so her paint is retired with aisha's. The nurse keeps it — removing it there
+# would leave a bald skin head, and his fix needs a licence-clean masculine style that does
+# not exist in this pack (the planted #387/#399 contracts pin that boundary). Keyed by the
+# shipped GLB base id.
+SCALP_PLACEHOLDER_RETIRED_FOR = frozenset({"mpfb-ob-patient-aisha", "mpfb-peds-patient-child"})
 
 
 def scalp_placeholder_retired_for(figure_id: str) -> bool:

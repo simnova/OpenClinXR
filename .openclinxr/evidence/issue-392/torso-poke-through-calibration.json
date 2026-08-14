@@ -1,8 +1,8 @@
 {
   "slice": "issue-392",
   "title": "torso poke-through calibration — bone-classified, upper garment, bind pose",
-  "measuredAt": "2026-08-14T11:44:01.905Z",
-  "measuredAtCommit": "1d4851eda804958a91bea242cbc1884cbe9342b7",
+  "measuredAt": "2026-08-14T15:21:16.401Z",
+  "measuredAtCommit": "023f55e4627e37c091b53993869b32102f60109d",
   "method": {
     "skinDefinition": "visible skin primitive only (material ^mpfb_skin_); openclinxr_hidden_* are non-drawing and excluded",
     "limbVocabulary": "arm|forearm|hand|wrist|finger|thumb|metacarpal (case-insensitive) — _LIMB_BONE_RE from body_param_stage.py:738",
@@ -35,8 +35,8 @@
     {
       "actorId": "mpfb-peds-patient-child",
       "garment": "toigo_t_shirt",
-      "totalSkinVerts": 9990,
-      "torsoSkinVerts": 5584,
+      "totalSkinVerts": 10987,
+      "torsoSkinVerts": 6581,
       "armSkinExcluded": 4406,
       "pokingVerts": 3,
       "worstMm": 10.23,

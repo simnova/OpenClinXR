@@ -121,6 +121,17 @@ import {
  *
  * Measured on the shipped bytes 2026-08-14 (this worktree): child 2,208 tris, kevin 2,792 tris,
  * aisha 0 tris, library known-good rail reference unchanged at 2,160 tris.
+ *
+ * ## FIXED (#399) — the child is opened with her own licence-clean style
+ *
+ * #399 is the MADR 0052 P3 advancement hour: the child (`mpfb-peds-patient-child`) now wears her
+ * OWN fitted style, `toigo_curled_under_bob_with_bangs` (CC0 by its own .mhclo header, zero
+ * helper-vertex refs), through the SAME `ClothesService` fit path #381 proved — visually distinct
+ * from her parent's blunt bob because the two stand together in `peds_asthma_parent_anxiety_v1`.
+ * Clause (3) therefore now fences kevin only: the child is covered by clause (2)'s licence
+ * classifier like every other fitted hair in the cast, and kevin remains the RECORDED MALE SKIP
+ * (every licence-clean style in the usable subset is a feminine bob). Measured post-bake: child
+ * 4,976 tris fitted hair, kevin 0 tris (unchanged).
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -150,12 +161,15 @@ const MIN_FITTED_TRIS = 800;
  * cannot be declared out of scope.
  */
 const SLICE_1_ACTOR = "mpfb-ob-patient-aisha";
-/** #393 — the shipped base id of the figure whose placeholder scalp paint is retired
- * (real fitted hair on disk). See body_param_stage.scalp_placeholder_retired_for. */
-const RETIRED_FIGURE = "mpfb-ob-patient-aisha";
-/** The two actors slice 1 must leave exactly as they are. Clause (3) enforces the peer's fence. */
-const OUT_OF_SLICE = ["mpfb-peds-patient-child", "mpfb-peds-nurse-kevin"] as const;
-/** Their fitted-hair triangle counts today, measured 2026-08-14. Both zero, and must stay zero. */
+/** #393/#399 — the shipped base ids whose placeholder scalp paint is retired (real fitted hair
+ * on disk). #399 retired the child's with her fitted toigo_curled_under_bob_with_bangs.
+ * See body_param_stage.scalp_placeholder_retired_for. */
+const RETIRED_FIGURES = new Set(["mpfb-ob-patient-aisha", "mpfb-peds-patient-child"]);
+/** The actor slice 1's fence still covers. #399 opened the child with her own licence-clean
+ * style (toigo_curled_under_bob_with_bangs, CC0); kevin remains a recorded male licence skip —
+ * no licence-clean masculine style exists in makehuman-hair01. Clause (3) enforces that. */
+const OUT_OF_SLICE = ["mpfb-peds-nurse-kevin"] as const;
+/** The skip actor's fitted-hair triangle count today, measured 2026-08-14. Zero, and must stay zero. */
 const OUT_OF_SLICE_FITTED_TRIS_TODAY = 0;
 
 type HairRow = {
@@ -255,20 +269,21 @@ describe("cast actors wear the fitted hair the library rail already proves", () 
     expect(dirty, "fitted hair whose source style is not licence-clean").toEqual([]);
   });
 
-  it("(3) COUNTERWEIGHT: slice 1 opens ONE actor — the child and kevin are untouched", () => {
-    // This is the peer's scope fence made machine-checkable rather than left as prose (SS6d: a prose
-    // warning is not a proof). Opening a second actor to make hair look busy fails here, and kevin
-    // specifically must NOT receive a feminine bob — that would regress realism, which is worse than
-    // the stair-step it replaces.
+  it("(3) COUNTERWEIGHT: the nurse gains no hair — the recorded male licence skip is preserved", () => {
+    // Slice 1's fence covered aisha only; #399 legitimately opened the child with her OWN
+    // licence-clean style (toigo_curled_under_bob_with_bangs, CC0 — clause (2) classifies every
+    // fitted hair present). Kevin specifically must NOT receive a feminine bob — every
+    // licence-clean style in the usable subset is one, so it would regress realism, which is
+    // worse than the stair-step it replaces. #399 preserves his skip by construction.
     requireMeasured();
     const opened = castRows
       .filter((r) => (OUT_OF_SLICE as readonly string[]).includes(r.id))
       .filter((r) => r.fittedTris > OUT_OF_SLICE_FITTED_TRIS_TODAY)
       .map(
         (r) =>
-          `${r.id}: gained ${r.fittedTris} tris of fitted hair — out of slice 1 scope (aisha only; kevin is a recorded male skip until a licensed masculine style exists)`,
+          `${r.id}: gained ${r.fittedTris} tris of fitted hair — kevin is a recorded male skip until a licensed masculine style exists`,
       );
-    expect(opened, "actors opened outside slice 1").toEqual([]);
+    expect(opened, "actors opened outside the recorded skip").toEqual([]);
   });
 
   it("(4) COUNTERWEIGHT: the library rail's proven fit is not disturbed", () => {
@@ -289,22 +304,23 @@ describe("cast actors wear the fitted hair the library rail already proves", () 
   });
 
   it("(5) COUNTERWEIGHT: the painted scalp region survives on cast actors without fitted hair and is absent where fitted hair replaced it", () => {
-    // #393 re-premise (#387's shape): the painted scalp is a self-declared PLACEHOLDER
+    // #393/#399 re-premise (#387's shape): the painted scalp is a self-declared PLACEHOLDER
     // (automate_blender.py:4245: "before a real groom/hair-card source stage exists") — it is
-    // required on figures with NO fitted hair (child, kevin) and must be ABSENT on the figure
-    // that has it (aisha, whose body_param_stage.scalp_placeholder_retired_for skips painting
-    // it). Refuses deleting paint to fake a fit, and refuses the opposite: leaving the
-    // placeholder under real fitted hair (the #387 2.8%-luminance grade boundary). The SS6p
-    // duty is met by the fitted hair itself — it takes over covering the scalp under and
-    // behind the hairline, which is what the painted region did before it existed.
+    // required on figures with NO fitted hair (kevin) and must be ABSENT on the figures that
+    // have it (aisha, and the child under #399 — both are skipped by
+    // body_param_stage.scalp_placeholder_retired_for). Refuses deleting paint to fake a fit,
+    // and refuses the opposite: leaving the placeholder under real fitted hair (the #387
+    // 2.8%-luminance grade boundary). The SS6p duty is met by the fitted hair itself — it
+    // takes over covering the scalp under and behind the hairline, which is what the painted
+    // region did before it existed.
     requireMeasured();
     const bald = castRows
-      .filter((r) => r.id !== RETIRED_FIGURE)
+      .filter((r) => !RETIRED_FIGURES.has(r.id))
       .filter((r) => r.paintedTris < 500)
       .map((r) => `${r.id}: painted scalp region fell to ${r.paintedTris} tris — scalp coverage lost`);
     expect(bald, "cast actors without fitted hair that lost their painted scalp coverage").toEqual([]);
     const stale = castRows
-      .filter((r) => r.id === RETIRED_FIGURE && r.paintedTris > 0)
+      .filter((r) => RETIRED_FIGURES.has(r.id) && r.paintedTris > 0)
       .map((r) => `${r.id}: painted scalp region still present (${r.paintedTris} tris) — placeholder not retired`);
     expect(stale, "figures with real fitted hair still carrying the placeholder").toEqual([]);
   });
