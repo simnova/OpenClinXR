@@ -1,0 +1,123 @@
+{
+  "schemaVersion": "openclinxr.glb-grade-capture.v1",
+  "generatedAt": "2026-08-13T10:46:16.648Z",
+  "claimScope": "browser_threejs_render_with_independent_geometry_self_check_not_visual_realism_or_readiness",
+  "purpose": "Render every shipped humanoid through the real model-vetting three.js path, fail-closed when in-page geometry disagrees with the NodeIO probe, and emit lit+structure passes for human grading. Does not assert any asset looks right.",
+  "defaultRelativeTolerance": 0.15,
+  "coverage": {
+    "generatedHumanoidsGlbCount": 3,
+    "cagematchCurrentGlbCount": 0,
+    "total": 3,
+    "missingOnDisk": []
+  },
+  "assets": [
+    {
+      "sourceGlbPath": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+      "assetId": "mpfb-ob-patient-aisha",
+      "exists": true,
+      "selfCheck": {
+        "agrees": true,
+        "writeImages": true,
+        "relativeError": 0.00046300071723991143,
+        "tolerance": 0.15,
+        "probe": {
+          "height": 1.6658903360366821,
+          "horizontalExtent": 0.9925402402877808
+        },
+        "inPage": {
+          "height": 1.666,
+          "horizontalExtent": 0.993
+        }
+      },
+      "images": {
+        "front_lit": ".openclinxr/evidence/glb-grade-capture/2026-08-13T10-45-59Z/assets/mpfb-ob-patient-aisha/front_lit.png",
+        "front_structure": ".openclinxr/evidence/glb-grade-capture/2026-08-13T10-45-59Z/assets/mpfb-ob-patient-aisha/front_structure.png",
+        "three_quarter_lit": ".openclinxr/evidence/glb-grade-capture/2026-08-13T10-45-59Z/assets/mpfb-ob-patient-aisha/three_quarter_lit.png",
+        "three_quarter_structure": ".openclinxr/evidence/glb-grade-capture/2026-08-13T10-45-59Z/assets/mpfb-ob-patient-aisha/three_quarter_structure.png"
+      },
+      "refusedReason": null,
+      "notes": [
+        "probe height=1.6659 horiz=0.9925",
+        "inPage height=1.6660 horiz=0.9930",
+        "relativeError=0.0005 tol=0.15",
+        "lit_sha256=518b2c48a4f2",
+        "structure_sha256=2a2f241a7c64"
+      ]
+    },
+    {
+      "sourceGlbPath": "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
+      "assetId": "mpfb-peds-nurse-kevin",
+      "exists": true,
+      "selfCheck": {
+        "agrees": true,
+        "writeImages": true,
+        "relativeError": 0.0004053167581127942,
+        "tolerance": 0.15,
+        "probe": {
+          "height": 1.760076550213853,
+          "horizontalExtent": 1.1055517196655273
+        },
+        "inPage": {
+          "height": 1.76,
+          "horizontalExtent": 1.106
+        }
+      },
+      "images": {
+        "front_lit": ".openclinxr/evidence/glb-grade-capture/2026-08-13T10-45-59Z/assets/mpfb-peds-nurse-kevin/front_lit.png",
+        "front_structure": ".openclinxr/evidence/glb-grade-capture/2026-08-13T10-45-59Z/assets/mpfb-peds-nurse-kevin/front_structure.png",
+        "three_quarter_lit": ".openclinxr/evidence/glb-grade-capture/2026-08-13T10-45-59Z/assets/mpfb-peds-nurse-kevin/three_quarter_lit.png",
+        "three_quarter_structure": ".openclinxr/evidence/glb-grade-capture/2026-08-13T10-45-59Z/assets/mpfb-peds-nurse-kevin/three_quarter_structure.png"
+      },
+      "refusedReason": null,
+      "notes": [
+        "probe height=1.7601 horiz=1.1056",
+        "inPage height=1.7600 horiz=1.1060",
+        "relativeError=0.0004 tol=0.15",
+        "lit_sha256=2e2326a49b29",
+        "structure_sha256=59a7b35812e2"
+      ]
+    },
+    {
+      "sourceGlbPath": "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb",
+      "assetId": "mpfb-peds-patient-child",
+      "exists": true,
+      "selfCheck": {
+        "agrees": true,
+        "writeImages": true,
+        "relativeError": 0.000028832254177983177,
+        "tolerance": 0.15,
+        "probe": {
+          "height": 1.2410178188438294,
+          "horizontalExtent": 0.7660220861434937
+        },
+        "inPage": {
+          "height": 1.241,
+          "horizontalExtent": 0.766
+        }
+      },
+      "images": {
+        "front_lit": ".openclinxr/evidence/glb-grade-capture/2026-08-13T10-45-59Z/assets/mpfb-peds-patient-child/front_lit.png",
+        "front_structure": ".openclinxr/evidence/glb-grade-capture/2026-08-13T10-45-59Z/assets/mpfb-peds-patient-child/front_structure.png",
+        "three_quarter_lit": ".openclinxr/evidence/glb-grade-capture/2026-08-13T10-45-59Z/assets/mpfb-peds-patient-child/three_quarter_lit.png",
+        "three_quarter_structure": ".openclinxr/evidence/glb-grade-capture/2026-08-13T10-45-59Z/assets/mpfb-peds-patient-child/three_quarter_structure.png"
+      },
+      "refusedReason": null,
+      "notes": [
+        "probe height=1.2410 horiz=0.7660",
+        "inPage height=1.2410 horiz=0.7660",
+        "relativeError=0.0000 tol=0.15",
+        "lit_sha256=edae5291eada",
+        "structure_sha256=298818132f78"
+      ]
+    }
+  ],
+  "notEvidenceFor": [
+    "production_asset_readiness",
+    "quest_readiness",
+    "learner_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "b_plus_visual_realism_gate",
+    "visual_grade_verdict"
+  ]
+}
