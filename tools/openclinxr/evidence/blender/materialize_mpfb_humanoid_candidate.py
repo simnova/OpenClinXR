@@ -1319,6 +1319,7 @@ EYE_DIAMETER_TARGET_MM = {
     # patient the peds_patient_child phenotype declares (height_cm 125,
     # gender_presentation child) — consistent with the 22.5 mm assumption.
     "mpfb-ob-patient-aisha": 24.0,
+    "mpfb-peds-parent-aisha": 24.0,  # #388: same adult-female body as aisha
     "mpfb-peds-nurse-kevin": 24.0,
     "mpfb-peds-patient-child": 22.5,
 }

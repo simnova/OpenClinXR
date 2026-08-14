@@ -73,6 +73,9 @@ export const MPFB_PEDS_NURSE_KEVIN_RUNTIME_PATH =
   "/generated-humanoids/mpfb-peds-nurse-kevin.glb";
 export const MPFB_PEDS_PATIENT_CHILD_RUNTIME_PATH =
   "/generated-humanoids/mpfb-peds-patient-child.glb";
+/** #388 — dedicated peds-parent variant. Mirrors actor-casting MPFB_PEDS_PARENT_AISHA_GLB. */
+export const MPFB_PEDS_PARENT_AISHA_RUNTIME_PATH =
+  "/generated-humanoids/mpfb-peds-parent-aisha.glb";
 
 const ADULT_POOL_GLBS = [
   ED_ADULT_CAST_GLB,
@@ -144,10 +147,10 @@ const ED_RUNTIME_CAST_BY_ACTOR: Record<string, string> = {
 
 /** Runtime public paths for peds asthma cast (mirrors actor-casting table). */
 const PEDS_RUNTIME_CAST_BY_ACTOR: Record<string, string> = {
-  // #335: all three peds roles are MPFB bodies. Child patient -> MPFB child, parent ->
-  // aisha (adult female), nurse -> MPFB nurse. The hm08 library bodies stay on the pool.
+  // #335: all three peds roles are MPFB bodies. #388: parent is a dedicated
+  // family-palette variant — not the OB aisha GLB (one file / two roles was the cream collision).
   patient_maya_johnson_v1: MPFB_PEDS_PATIENT_CHILD_RUNTIME_PATH,
-  parent_tara_johnson_v1: MPFB_OB_PATIENT_AISHA_RUNTIME_PATH,
+  parent_tara_johnson_v1: MPFB_PEDS_PARENT_AISHA_RUNTIME_PATH,
   nurse_kevin_lee_v1: MPFB_PEDS_NURSE_KEVIN_RUNTIME_PATH,
 };
 

@@ -630,7 +630,9 @@ def transfer_weights_body_to_garment(
 # would leave a bald skin head, and his fix needs a licence-clean masculine style that does
 # not exist in this pack (the planted #387/#399 contracts pin that boundary). Keyed by the
 # shipped GLB base id.
-SCALP_PLACEHOLDER_RETIRED_FOR = frozenset({"mpfb-ob-patient-aisha", "mpfb-peds-patient-child"})
+SCALP_PLACEHOLDER_RETIRED_FOR = frozenset(
+    {"mpfb-ob-patient-aisha", "mpfb-peds-parent-aisha", "mpfb-peds-patient-child"}
+)
 
 
 def scalp_placeholder_retired_for(figure_id: str) -> bool:

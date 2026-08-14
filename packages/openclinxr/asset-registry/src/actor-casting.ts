@@ -88,6 +88,14 @@ export const MPFB_OB_PATIENT_AISHA_GLB = "mpfb-ob-patient-aisha.glb";
  */
 export const MPFB_PEDS_NURSE_KEVIN_GLB = "mpfb-peds-nurse-kevin.glb";
 export const MPFB_PEDS_PATIENT_CHILD_GLB = "mpfb-peds-patient-child.glb";
+/**
+ * #388 — peds parent is a SECOND aisha-body variant, not the OB patient GLB.
+ * Recolouring mpfb-ob-patient-aisha.glb would collide with Omar's muted rose
+ * in OB. Same default-macro adult-female bake as aisha, --actor-role parent
+ * so garment_shell_color maps closed_casual (t-shirt + cargo) to
+ * muted_rose_and_neutral. OB aisha stays cream.
+ */
+export const MPFB_PEDS_PARENT_AISHA_GLB = "mpfb-peds-parent-aisha.glb";
 
 /** Adult pool only — never includes the child mesh. Order is role-preference default. */
 const ADULT_POOL_GLBS = [
@@ -370,10 +378,10 @@ export function resolveScenarioActorCast(scenarioId: string): ScenarioActorCast[
     return [
       // #335: all three peds roles are MPFB bodies — the case's actors resolve to
       // MPFB and UI-XR loads them (MADR 0052's 06:00 tick). Child patient -> the
-      // MPFB child (a macro child, not a scaled adult, #328), parent -> aisha
-      // (adult female; the age-compatible reuse the cast-identity provenance rule
-      // accepts across stations), nurse -> the MPFB nurse (adult male). The hm08
-      // library bodies they replace stay on the pool for other scenarios.
+      // MPFB child (a macro child, not a scaled adult, #328), parent -> dedicated
+      // family-palette aisha-body variant (#388; not the OB patient GLB), nurse ->
+      // the MPFB nurse (adult male). The hm08 library bodies they replace stay on
+      // the pool for other scenarios.
       castEntry({
         actorId: "patient_maya_johnson_v1",
         role: "patient",
@@ -384,7 +392,7 @@ export function resolveScenarioActorCast(scenarioId: string): ScenarioActorCast[
         actorId: "parent_tara_johnson_v1",
         role: "family",
         scenarioId: PEDS_ASTHMA_SCENARIO_ID,
-        glbFile: MPFB_OB_PATIENT_AISHA_GLB,
+        glbFile: MPFB_PEDS_PARENT_AISHA_GLB,
       }),
       castEntry({
         actorId: "nurse_kevin_lee_v1",

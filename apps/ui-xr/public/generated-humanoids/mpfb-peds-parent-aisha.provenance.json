@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "openclinxr.generated-humanoid-provenance.v1",
+  "derivationMode": "mpfb2_promoted_default_cast",
+  "scenarioId": "peds_asthma_parent_anxiety_v1",
+  "actorId": "parent_tara_johnson_v1",
+  "actorRole": "parent",
+  "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
+  "sourceManifestPath": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-ob-patient-aisha-rigged-candidate.glb",
+  "generatorMode": "mpfb2_makehuman_basemesh_materialized_locally_in_blender_v1",
+  "sourceKind": "mpfb2_makehuman_basemesh",
+  "usesRealAnnyForwardPass": false,
+  "realAnnyWeightsUsed": false,
+  "textureMode": "authored_or_baked",
+  "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
+  "optimizationMode": "unoptimized_post_blender_glb",
+  "realismGrade": "not_graded",
+  "promotionStatus": "promoted_runtime_cast_not_realism_gate_pass",
+  "sourceOriginChain": {
+    "sourceTopologyMode": "mpfb2_standard_basemesh_with_standard_rig_v1",
+    "materializedFrom": "same default-macro adult-female body as mpfb-ob-patient-aisha (no --reference); dedicated family-palette variant so peds parent and OB patient are not one GLB",
+    "sourceRecordPath": ".openclinxr-local/provider-cache/mpfb/",
+    "generator": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "derivationNote": "Issue #388 (2026-08-14): second aisha-body variant for peds parent_tara_johnson_v1. Recolouring mpfb-ob-patient-aisha.glb would collide with Omar (muted rose already on ed_chest_pain_spouse_adult) and the OB patient must stay cream. Bake: blender --background --python tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py -- --output apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb --actor-role parent (no --reference — the aisha default-macro path). garment_shell_color maps closed_casual + role=parent to muted_rose_and_neutral; exported upper+lower baseColorFactor (0.42, 0.36, 0.40). Fitted hair is the same toigo_blunt_bob_with_bangs CC0 bob #381 proved on aisha. Iris is family green via eye_iris_colour. Anatomical eye target 24.0 mm (same adult as aisha). Placeholder scalp paint retired. Child cream, kevin teal, OB aisha cream unchanged."
+  },
+  "licenseChain": {
+    "status": "mpfb2_makehuman_license_not_reverified_at_promotion",
+    "sourceRecordPath": ".openclinxr-local/provider-cache/mpfb/",
+    "sourceRecordClaimsSupported": [
+      "MPFB2 2.0.15 from Blender Extensions; MPFB is licensed AGPLv3 with a separate license for generated content; MakeHuman basemesh content posture recorded in the Anny source manifest (sources/anny-github-2026.json)."
+    ],
+    "notRun": [
+      "licence_text_reenumeration",
+      "makehuman_license_review",
+      "production_asset_readiness"
+    ],
+    "explicitUnknown": [
+      "MPFB/MakeHuman generated-content licensing has not been formally reviewed for production promotion; this asset is a runtime cast candidate for evidence only.",
+      "This promotion does NOT claim license approval for commercial/production use."
+    ],
+    "notes": "MPFB rail is first-class per operator direction D11; license review remains an open gate. Same lineage as mpfb-ob-patient-aisha.glb."
+  },
+  "derivativeLineage": {
+    "status": "mpfb2_family_palette_variant_of_aisha_default_macro_body",
+    "caseId": "peds_asthma_parent_anxiety_v1",
+    "actorId": "parent_tara_johnson_v1",
+    "actorRole": "parent",
+    "reuseKey": "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:mpfb2",
+    "baseAsset": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+    "promotionPath": "dedicated_family_palette_rebake_not_recolour_of_ob_patient",
+    "method": "mpfb2_standard_rig_137_joints_default_macro_adult_female_closed_casual_muted_rose"
+  },
+  "toolVersion": "openclinxr-mpfb2-promotion-v1",
+  "promptOrCaseParameterHash": "issue_388_peds_parent_family_palette_2026-08-14",
+  "notEvidenceFor": [
+    "b_plus_visual_realism_gate",
+    "production_asset_readiness",
+    "quest_readiness",
+    "learner_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "scene_placement_readiness"
+  ],
+  "sourceNotes": [
+    "Issue #388: dedicated peds-parent variant. Same adult-female default-macro body as OB aisha; --actor-role parent so shirt and cargo take muted_rose_and_neutral. Do not recolour mpfb-ob-patient-aisha.glb. Do not gown anyone. Do not runtime-recolour. Do not orchestrate_character."
+  ],
+  "claimScope": "second_mpfb2_aisha_body_variant_for_peds_parent_not_readiness",
+  "promotionGates": false,
+  "outputSha256": "c3e6d093ed4ae00ba137bddb04db66c55897db0a5546e45c5786f5edaabf6b5a",
+  "outputBytes": 21574848,
+  "generatedAt": "2026-08-14T12:01:00Z",
+  "method": "mpfb2_materializer_rebake_family_palette_on_aisha_body"
+}

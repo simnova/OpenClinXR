@@ -113,7 +113,7 @@ const GENERATED = "apps/ui-xr/public/generated-humanoids";
 /** The peds asthma cast, per `humanoid-runtime-asset-url.ts:146`. */
 const CAST = [
   { role: "patient", clinician: false, file: "mpfb-peds-patient-child.glb" },
-  { role: "family", clinician: false, file: "mpfb-ob-patient-aisha.glb" },
+  { role: "family", clinician: false, file: "mpfb-peds-parent-aisha.glb" },
   { role: "nurse", clinician: true, file: "mpfb-peds-nurse-kevin.glb" },
 ] as const;
 

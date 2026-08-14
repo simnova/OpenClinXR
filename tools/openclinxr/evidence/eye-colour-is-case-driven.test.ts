@@ -82,11 +82,19 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const GENERATED = "apps/ui-xr/public/generated-humanoids";
 
+/** Same-station peds asthma files (#388: parent is a dedicated family-palette variant). */
 const CAST = [
   "mpfb-peds-patient-child.glb",
-  "mpfb-ob-patient-aisha.glb",
+  "mpfb-peds-parent-aisha.glb",
   "mpfb-peds-nurse-kevin.glb",
 ] as const;
+
+/** OB aisha stays cream — measured separately so clause (3) does not compare across stations. */
+const OB_AISHA = "mpfb-ob-patient-aisha.glb";
+
+const CREAM: [number, number, number] = [0.72, 0.68, 0.55];
+const TEAL: [number, number, number] = [0.05, 0.48, 0.52];
+const CYAN: [number, number, number] = [0.08, 0.52, 0.95];
 
 /** A real iris map is hundreds of KB; #337/#338 shipped flat colour and produced no eye. */
 const MIN_IRIS_TEXTURE_KB = 100;
@@ -126,7 +134,7 @@ async function measure(file: string): Promise<Row | null> {
         }
         const c = mat.getBaseColorFactor();
         if (c) factor = [c[0]!, c[1]!, c[2]!];
-      } else if (/t_shirt|scrub/i.test(mesh.getName())) {
+      } else if (/t_shirt|scrub|sweater/i.test(mesh.getName())) {
         const c = mat.getBaseColorFactor();
         if (c) upperRgb = [c[0]!, c[1]!, c[2]!];
       }
@@ -182,6 +190,43 @@ describe("eye colour is case-driven, not one constant for everyone", () => {
       }
     expect(clashes, "garment colours collapsed back to a shared value").toEqual([]);
   });
+
+  it("(3b) DESTRUCTIVE: peds parent and child do not share an upper colour", () => {
+    requireRows();
+    const child = rows.find((r) => r.file === "mpfb-peds-patient-child.glb");
+    const parent = rows.find((r) => r.file === "mpfb-peds-parent-aisha.glb");
+    expect(child?.upperRgb, "child upper measured").toBeTruthy();
+    expect(parent?.upperRgb, "parent upper measured").toBeTruthy();
+    const same = child!.upperRgb!.every(
+      (v, k) => Math.abs(v - parent!.upperRgb![k]!) < MIN_GARMENT_CHANNEL_DELTA,
+    );
+    expect(same, "parent and child still share an upper colour (one-GLB-two-roles not split)").toBe(false);
+  });
+
+  it("(3c) COUNTERWEIGHT: child cream, kevin teal, OB aisha cream — no cyan, no grey-everyone", async () => {
+    requireRows();
+    const child = rows.find((r) => r.file === "mpfb-peds-patient-child.glb");
+    const parent = rows.find((r) => r.file === "mpfb-peds-parent-aisha.glb");
+    const kevin = rows.find((r) => r.file === "mpfb-peds-nurse-kevin.glb");
+    const aisha = await measure(OB_AISHA);
+    expect(aisha?.upperRgb, "OB aisha upper measured").toBeTruthy();
+    const near = (got: [number, number, number] | null | undefined, want: [number, number, number]) =>
+      Boolean(got && want.every((v, k) => Math.abs(v - got[k]!) < MIN_GARMENT_CHANNEL_DELTA));
+    expect(near(child?.upperRgb, CREAM), `child recolored away from cream: ${child?.upperRgb}`).toBe(true);
+    expect(near(kevin?.upperRgb, TEAL), `kevin recolored away from teal: ${kevin?.upperRgb}`).toBe(true);
+    expect(near(aisha?.upperRgb, CREAM), `OB aisha recolored away from cream: ${aisha?.upperRgb}`).toBe(true);
+    expect(near(parent?.upperRgb, CYAN), "parent used the forbidden cyan probe colour").toBe(false);
+    expect(near(parent?.upperRgb, CREAM), "parent still cream — second variant not baked").toBe(false);
+    const greys = [child, parent, kevin]
+      .filter((r) => {
+        const c = r?.upperRgb;
+        if (!c) return false;
+        const spread = Math.max(...c) - Math.min(...c);
+        return spread < MIN_GARMENT_CHANNEL_DELTA;
+      })
+      .map((r) => r!.file);
+    expect(greys, "cast painted everyone grey").toEqual([]);
+  });
 });
 
 /**
@@ -221,4 +266,20 @@ describe("eye colour is case-driven, not one constant for everyone", () => {
  * the assignment (brown/green/blue) is a "close enough" staging judgement, not a clinician's sign-off;
  * how the irises LOOK in the eye crops is the orchestrator's pixel grade; the peds cast only.
  * ════════════════════════════════════════════════════════════════════════════════════════════════
+ *
+ * ## FIXED (#388) — appended, planted header above is immutable
+ *
+ * MEASURED FIRST (`.openclinxr/evidence/issue-388/pre-fix.json`): one GLB two roles.
+ * `mpfb-ob-patient-aisha.glb` is both peds `parent_tara_johnson_v1` and OB
+ * `patient_aisha_khan_v1`. Upper+lower on that file are cream (0.72, 0.68, 0.55),
+ * identical to the child's closed_casual palette, so clause (3) reds on the peds
+ * station. Recolouring aisha would collide with Omar's muted rose in OB.
+ *
+ * FIX: bake a second variant `mpfb-peds-parent-aisha.glb` via the same aisha
+ * materializer entrypoint (`blender --background --python …/materialize_mpfb_humanoid_candidate.py
+ * -- --output … --actor-role parent`, no `--reference`). `garment_shell_color` already
+ * maps `closed_casual` + role=parent to `muted_rose_and_neutral` (0.42, 0.36, 0.40).
+ * Both resolvers now point `parent_tara_johnson_v1` at the new file. CAST in this
+ * module is the same-station peds files; OB aisha is measured only in the
+ * counterweight and stays cream. Clause (3) is unweakened pairwise distinctness.
  */
