@@ -9,7 +9,7 @@ token_efficiency: high
 q_gates: [Q1, Q4, Q5]
 visibility: both
 strategic_group: orchestration-factory-v1
-last_measured: 2026-08-05
+last_measured: 2026-08-14
 parseable_sections: 4
 ---
 
@@ -23,10 +23,10 @@ parseable_sections: 4
 
 **Stable emphasis**: Sizable collaborative vertical slices; visibility/noticeability mandate; Q1/Q4/Q5; anti-toil; conversation tooling first-class; cheap-first tiering + self-escalation.
 
-**Next priority**: see the GitHub board (open issues, newest first). As of 2026-08-05 the highest-value open slice is **#25 scenario → runtime handoff** — the runtime can only run one hardcoded scenario, so 12 of 13 authored scenarios never execute and the existing exam-assembly logic has nothing to hand off to. Epic `arena-physics-clinical-touch-realbind-v1` is CLOSED (R1–R6 shipped 2026-08-02; R7 headset deferred by design per OD-4).
-
-**Recent summary**: Garment + Q4 durableStore/admin emission batch closed. Arena physics v1 closed (MADR 0029, candidates). BOD 2026-08-02 pivoted queue to realbind successor (real WASM + factory + UI-XR bind).
-
+**Next priority**: see the GitHub board (open issues, newest first; **72 open** as of 2026-08-14).
+**Corrected 2026-08-14** — the previous text named #25 as the highest-value open slice and said "the runtime can only run one hardcoded scenario, so 12 of 13 authored scenarios never execute". All three claims are false and had been for eight days: **#25 closed 2026-08-06**; the runtime resolves any scenario by id (`apps/ui-xr/src/main.ts:567`, `scenarioBank.find(...)`); and **15** bundles ship, not 13. A stale priority in a REHYDRATION header mis-sends the next slice on every session start, which is the same defect class corrected five times in MADR 0052 the same night.
+**Recent summary** (2026-08-14 overnight): tools typecheck **6,329 errors → 0** and now fails on a planted regression (#309/#383). Skin normal map carries real detail, **sd 2.1 → 9.2** on 3/3 actors, root cause an MPFB mesh attribute `HumanService.create_human` never emits (#369). Aisha wears CC0 fitted hair (#381, peer grade pending). Phoneme dwell duration-weighted, **vowel:stop 1.00 → 2.80** (#382) — this retired the Rhubarb plan, which needs audio this repo does not have. Room capture enumerates all 15 stations, was 2 (#101). Grade galleries carry commit provenance (#89).
+**Standing hazards** (each cost real time this night): the grade capture renders a **104 px head**, so appearance claims about faces cannot be made — RED planted, 3072² gives 249 px; **`dispatch()` RESETS a slice worktree** to main HEAD and discards branch-local commits, only a *resume* preserves them; #128's raised-ceiling check false-kills any branch cut before a shrink lands.
 ## Ownership Matrix
 
 **Ownership, dequeue order, and per-slice status are HOT state and live on the GitHub board**
