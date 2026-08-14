@@ -304,11 +304,22 @@ def build_simple_uv_body(params: Dict[str, Any]) -> Dict[str, Any]:
 # takes a LOWER macro. The solve asks the tool instead of hand-authoring against
 # it (same D1 lesson as bake_modifiers_remove_helpers / create_human(feet_on_ground=True)).
 #
-# The reachable band is the trained macro space [0, 1]. Production creates the
+# The reachable band is the trained macro space [0, 1]. Production used to create the
 # model with extrapolate_phenotypes=False (the default), so a macro above 1.0
-# silently clamps and cannot reach a taller target — the child (125 cm authored,
-# ceiling ~115.7 cm at macro 1.0) is genuinely unreachable and REFUSES loudly
-# rather than shipping a short body as if it were the authored height.
+# silently clamped and could not reach a taller target — the child (125 cm authored,
+# ceiling ~115.7 cm at macro 1.0) REFUSED loudly rather than shipping a short body
+# as if it were the authored height.
+#
+# issue-385: that ceiling is a solver/production CONFIG artifact, not a model limit.
+# Measured 2026-08-14: with extrapolate_phenotypes=True (which the solve-state model
+# below already used), the height macro extends smoothly past 1.0 — an 8-year-old at
+# macro 1.16 measures 125.0 cm (2.92 cm per 0.05 macro, monotone). So the solve now
+# searches [0, 2.0] when the target exceeds the trained ceiling, and the production
+# rail creates the model with extrapolate_phenotypes=True so the solved macro is
+# honoured instead of clamped. The guard still refuses loudly above the extrapolated
+# band ([57.2, 174.2] cm for this child), so an absurd target can never silently
+# ship a short body. Adults solve inside [0, 1] and are byte-identical (the flag is
+# a no-op for in-range macros).
 # ---------------------------------------------------------------------------
 
 _HEIGHT_SOLVE_STATE: Optional[Tuple[Any, Any]] = None  # (model, Anthropometry), created once
@@ -342,21 +353,30 @@ def _solve_height_macro(values: Dict[str, float], height_cm: float) -> float:
     """Bisect the Anny height macro so the model measures the authored stature.
 
     `values` carries every other mapped phenotype label (gender/age/weight/muscle/
-    proportions already resolved); only `height` is varied. A target outside the
-    reachable [0, 1] macro band refuses loudly (SystemExit), never a silent short body.
+    proportions already resolved); only `height` is varied. The trained band is
+    [0, 1]; issue-385 extends the search to [0, 2.0] when the target exceeds the
+    macro-1.0 ceiling, because production now honours extrapolated macros
+    (extrapolate_phenotypes=True) and a school-age child legitimately needs one
+    (~1.16 for 125 cm at age 8). A target outside even the extrapolated band
+    refuses loudly (SystemExit), never a silent short body.
     """
     lo, hi = 0.0, 1.0
     ceiling_cm = _stature_cm_for(values, hi)
     if height_cm > ceiling_cm:
-        floor_cm = _stature_cm_for(values, lo)
-        raise SystemExit(
-            "REFUSE (issue-302): authored height_cm "
-            f"{height_cm:g} cm is outside the reachable band "
-            f"[{floor_cm:.1f}, {ceiling_cm:.1f}] cm on Anny's height macro (0..1) "
-            "for this age/gender/build. The solve refuses loudly instead of silently "
-            "shipping a short body. Author a reachable height_cm (#293) or accept the "
-            "closest achievable stature."
-        )
+        # issue-385: beyond the trained maxheight anchor, but within the
+        # extrapolation the production rail now honours.
+        hi = 2.0
+        ceiling_cm = _stature_cm_for(values, hi)
+        if height_cm > ceiling_cm:
+            floor_cm = _stature_cm_for(values, lo)
+            raise SystemExit(
+                "REFUSE (issue-302): authored height_cm "
+                f"{height_cm:g} cm is outside the reachable band "
+                f"[{floor_cm:.1f}, {ceiling_cm:.1f}] cm on Anny's height macro (0..2) "
+                "for this age/gender/build. The solve refuses loudly instead of silently "
+                "shipping a short body. Author a reachable height_cm (#293) or accept the "
+                "closest achievable stature."
+            )
     floor_cm = _stature_cm_for(values, lo)
     if height_cm < floor_cm:
         raise SystemExit(
@@ -459,6 +479,10 @@ def build_real_anny_body(params: Dict[str, Any]) -> Dict[str, Any]:
             remove_unattached_vertices=True,
             all_phenotypes=True,
             local_changes=True,
+            # issue-385: honour solved height macros above 1.0 (school-age
+            # children solve at ~1.16). A no-op for in-range macros, so the
+            # adults' bodies are unchanged.
+            extrapolate_phenotypes=True,
         )
     model = model.to(dtype=torch.float32, device=torch.device("cpu"))
     pose_parameters = torch.eye(4, dtype=model.dtype, device=model.device).reshape(1, 1, 4, 4).repeat(1, model.bone_count, 1, 1)

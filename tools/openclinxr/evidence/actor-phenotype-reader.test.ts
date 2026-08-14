@@ -74,7 +74,8 @@ print(json.dumps(out))
     }
   });
 
-  it("generate_mesh produces a byte-identical OBJ from fixture params vs preset params (or refuses identically)", async () => {
+  it("generate_mesh produces a byte-identical OBJ from fixture params vs preset params (or refuses identically)",
+    async () => {
     const stdout = await runPython(`
 import sys, json, hashlib
 sys.path.insert(0, ${JSON.stringify(ANNY_PATH)})
@@ -112,8 +113,9 @@ print(json.dumps(out))
       expect(fixture, `no fixture outcome for ${actor}`).toBeDefined();
       // The migration property holds on BOTH outcomes: fixture path and legacy
       // preset path behave identically — byte-identical OBJ when a body is
-      // produced, and the SAME refusal when one is refused (#302: the child's
-      // 125 cm is outside Anny's reachable height band, so she refuses).
+      // produced, and the SAME refusal when one is refused. (Before #385 the
+      // child's 125 cm was outside Anny's reachable height band, so both paths
+      // refused; since #385 she builds on both, byte-identically.)
       expect(preset!.refused, `${actor}: preset vs fixture refused flag`).toBe(fixture!.refused);
       if (preset!.refused) {
         expect(preset!.message, `${actor}: preset vs fixture refusal message`).toBe(fixture!.message);
@@ -122,7 +124,12 @@ print(json.dumps(out))
         expect(preset!.sha).toMatch(/^[0-9a-f]{64}$/u);
       }
     }
-  });
+    },
+    // Six full anny body builds in one subprocess; the child now solves the height
+    // macro instead of refusing (#385), which crossed the vitest 5s default under
+    // parallel suite load. Assertions unchanged — only the budget.
+    60_000,
+  );
 
   it("an un-authored case refuses instead of silently defaulting to a generic adult (#276)", async () => {
     const stdout = await runPython(`

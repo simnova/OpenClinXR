@@ -75,6 +75,39 @@ import { describe, expect, it } from "vitest";
  *     be closed on this rail.
  *   - **Any clinical claim.** 125 cm is the authored value in the fixture. This asserts it is
  *     unreachable, never that it is the correct stature for an 8-year-old.
+ *
+ * ## FIXED (#385)
+ *
+ * Two things landed, one product and one proof repair.
+ *
+ * **The band was a config artifact, not a model limit — measured, then fixed.** The refusal
+ * message said the reachable band tops out at 115.7 cm, and the header's NOT TESTED asked why.
+ * Measured 2026-08-14: with `extrapolate_phenotypes=True` (the config the solve-state model
+ * already used), the height macro extends smoothly past 1.0 — an 8-year-old at macro 1.16
+ * measures 125.0 cm, monotone at 2.92 cm per 0.05 macro. The ceiling was the production rail
+ * clamping macros above 1.0 (`extrapolate_phenotypes=False` default) plus the solver refusing to
+ * search past 1.0. `generate_mesh.py` now searches the extrapolated band [0, 2.0] when the target
+ * exceeds the trained ceiling and creates the production model with `extrapolate_phenotypes=True`.
+ * Measured after the fix:
+ *
+ *   actor                     | authored | result   | body hash  | stature
+ *   --------------------------|---------:|----------|------------|--------
+ *   patient_maya_johnson_v1   |   125 cm | BUILDS   | 54219676ef5f | 125.0 cm
+ *   patient_noah_chen_v1      |   125 cm | BUILDS   | 48604137be39 | 125.0 cm
+ *   parent_tara_johnson_v1    |   166 cm | BUILDS   | b203a3a97db2 | 166.0 cm
+ *   nurse_kevin_lee_v1        |   176 cm | BUILDS   | 6e926cada2b8 | 176.0 cm
+ *
+ * The two adults keep their pinned hashes byte-identically (clause (3)): the extrapolation flag
+ * is a no-op for macros inside [0, 1]. The #302 counterweight in `anny-height-macro-solve` accepts
+ * `refused || reached`; the child now legitimately reaches. Treatment (d) from the table above.
+ *
+ * **The planted measurement was broken and is repaired here (orchestrator defect, disclosed per
+ * the brief).** The original `hasattr(mesh, "vertices")` is always false — `build_source_body`
+ * returns a dict, and `hasattr` never inspects dict keys — so `statureCm` was null for every row
+ * and clause (1) could never measure anything, let alone turn green. It is now a dict-key
+ * membership check, so the clause actually measures what its title asserts. No assertion was
+ * weakened; the measurement was. Baseline probe of the repaired harness against the pre-fix
+ * generator refused both children and measured the two adults at 166.0 / 176.0 cm.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -129,8 +162,8 @@ for scenario, actors in exp.get("entries", {}).items():
             row["hash"] = hashlib.sha256(repr(mesh).encode()).hexdigest()[:12]
             ys = None
             for attr in ("vertices", "verts", "co"):
-                if hasattr(mesh, attr):
-                    ys = [v[1] for v in getattr(mesh, attr)]
+                if isinstance(mesh, dict) and attr in mesh:
+                    ys = [v[1] for v in mesh[attr]]
                     break
             if ys:
                 row["statureCm"] = (max(ys) - min(ys)) * 100.0
@@ -157,7 +190,7 @@ function requireMeasured(): void {
 }
 
 describe("the Anny rail builds a school-age child", () => {
-  it.fails("(1) RED: every authored child phenotype produces a body at its authored stature", () => {
+  it("(1) RED: every authored child phenotype produces a body at its authored stature", () => {
     requireMeasured();
     const failures: string[] = [];
     for (const id of CHILDREN) {
