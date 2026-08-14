@@ -109,6 +109,18 @@ const GENERATED = "apps/ui-xr/public/generated-humanoids";
  * `baseColorTexture` (T-shirt_basic, 861,166 B, 2048²), factor [0.72, 0.68, 0.55, 1.0]; kevin
  * scrub unchanged (no texture, teal factor — flat by authored state, the known-good column).
  * ════════════════════════════════════════════════════════════════════════════════════════════════
+ *
+ * ## FIXED (#400) — appended; the planted header above is immutable
+ *
+ * (2b) pins the toigo t-shirt's baseColorFactor to the #180 role colour per actor. #400 makes
+ * the child's factor case-driven: `soft_blue_and_warm_white` resolves to (0.55, 0.68, 0.80)
+ * instead of the patient role-fallback tan (0.72, 0.68, 0.55). The counterweight's function —
+ * refuse a factor-only recolour that separates the shirt from the trousers while the authored
+ * texture is missing — survives per-actor: aisha keeps the tan (no reference -> role fallback),
+ * the child keeps her declared palette. A factor matching neither the declared palette NOR the
+ * role fallback still fails. Measured post-fix: aisha t-shirt factor (0.72, 0.68, 0.55), child
+ * t-shirt factor (0.55, 0.68, 0.80), both with the authored T-shirt_basic.png texture (861,166 B).
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
  */
 
 const ACTORS = ["mpfb-ob-patient-aisha", "mpfb-peds-nurse-kevin", "mpfb-peds-patient-child"] as const;
@@ -141,6 +153,18 @@ const FLAT_BY_AUTHORED_STATE = new Set<string>([
 
 /** The #180 locked role colour for the patients' closed_casual upper, as shipped pre-#371. */
 const TOIGO_ROLE_COLOUR = [0.72, 0.68, 0.55] as const;
+/**
+ * #400 (2026-08-14): the child's t-shirt factor is now case-driven like the rest of the cast —
+ * `soft_blue_and_warm_white` resolves through `garment_shell_color` to (0.55, 0.68, 0.80)
+ * instead of the patient role fallback tan. The counterweight's job (refuse a factor-only
+ * recolour that separates the shirt from the trousers while the authored texture is missing)
+ * survives per-actor: aisha keeps the role-fallback tan, the child keeps her declared palette.
+ * A factor matching neither the declared palette NOR the role fallback still fails.
+ */
+const TOIGO_ROLE_COLOUR_BY_ACTOR: Readonly<Record<string, readonly [number, number, number]>> = {
+  "mpfb-ob-patient-aisha": TOIGO_ROLE_COLOUR,
+  "mpfb-peds-patient-child": [0.55, 0.68, 0.8],
+};
 const FACTOR_EPS = 0.005;
 
 /** Texture substance floors — measured: T-shirt_basic.png 861,166 B / 2048²; the footwear
@@ -238,16 +262,21 @@ describe("a fitted garment ships with the material it was authored with (#372)",
   it("(2b) COUNTERWEIGHT: the toigo t-shirt keeps the #180 role colour as baseColorFactor", () => {
     // Refuses the issue's named cheap fix: separating the shirt from the trousers by giving it a
     // different flat factor. The role colour is the authored pairing (factor x texture per the
-    // glTF spec) and must not move while the texture is restored.
+    // glTF spec) and must not move while the texture is restored. #400: per-actor now — aisha
+    // keeps the role-fallback tan; the child's factor follows her declared fabricPalette
+    // (soft_blue_and_warm_white -> 0.55, 0.68, 0.80). A factor matching neither still fails.
     requireRows();
     const recoloured = rows
       .filter((r) => r.base === "mat_makeclothes_library_toigo_t_shirt")
-      .filter(
-        (r) =>
-          Math.abs(r.baseColorFactor[0]! - TOIGO_ROLE_COLOUR[0]) > FACTOR_EPS ||
-          Math.abs(r.baseColorFactor[1]! - TOIGO_ROLE_COLOUR[1]) > FACTOR_EPS ||
-          Math.abs(r.baseColorFactor[2]! - TOIGO_ROLE_COLOUR[2]) > FACTOR_EPS,
-      )
+      .filter((r) => {
+        const expected = TOIGO_ROLE_COLOUR_BY_ACTOR[r.actor];
+        if (!expected) return true; // an actor wearing the t-shirt with no pinned factor
+        return (
+          Math.abs(r.baseColorFactor[0]! - expected[0]) > FACTOR_EPS ||
+          Math.abs(r.baseColorFactor[1]! - expected[1]) > FACTOR_EPS ||
+          Math.abs(r.baseColorFactor[2]! - expected[2]) > FACTOR_EPS
+        );
+      })
       .map(show);
     expect(recoloured, "t-shirt baseColorFactor moved off the #180 role colour").toEqual([]);
   });

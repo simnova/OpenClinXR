@@ -95,6 +95,12 @@ const OB_AISHA = "mpfb-ob-patient-aisha.glb";
 const CREAM: [number, number, number] = [0.72, 0.68, 0.55];
 const TEAL: [number, number, number] = [0.05, 0.48, 0.52];
 const CYAN: [number, number, number] = [0.08, 0.52, 0.95];
+/**
+ * #400 (2026-08-14): the child's declared `soft_blue_and_warm_white` now resolves through
+ * `garment_shell_color` to this muted powder blue — she no longer ships cream (the patient
+ * role fallback). The (3c) net's job — the EYE path must not recolour garments — is unchanged.
+ */
+const SOFT_BLUE: [number, number, number] = [0.55, 0.68, 0.8];
 
 /** A real iris map is hundreds of KB; #337/#338 shipped flat colour and produced no eye. */
 const MIN_IRIS_TEXTURE_KB = 100;
@@ -203,7 +209,7 @@ describe("eye colour is case-driven, not one constant for everyone", () => {
     expect(same, "parent and child still share an upper colour (one-GLB-two-roles not split)").toBe(false);
   });
 
-  it("(3c) COUNTERWEIGHT: child cream, kevin teal, OB aisha cream — no cyan, no grey-everyone", async () => {
+  it("(3c) COUNTERWEIGHT: child soft-blue, kevin teal, OB aisha cream — no cyan, no grey-everyone", async () => {
     requireRows();
     const child = rows.find((r) => r.file === "mpfb-peds-patient-child.glb");
     const parent = rows.find((r) => r.file === "mpfb-peds-parent-aisha.glb");
@@ -212,7 +218,7 @@ describe("eye colour is case-driven, not one constant for everyone", () => {
     expect(aisha?.upperRgb, "OB aisha upper measured").toBeTruthy();
     const near = (got: [number, number, number] | null | undefined, want: [number, number, number]) =>
       Boolean(got && want.every((v, k) => Math.abs(v - got[k]!) < MIN_GARMENT_CHANNEL_DELTA));
-    expect(near(child?.upperRgb, CREAM), `child recolored away from cream: ${child?.upperRgb}`).toBe(true);
+    expect(near(child?.upperRgb, SOFT_BLUE), `child recolored away from her declared soft blue: ${child?.upperRgb}`).toBe(true);
     expect(near(kevin?.upperRgb, TEAL), `kevin recolored away from teal: ${kevin?.upperRgb}`).toBe(true);
     expect(near(aisha?.upperRgb, CREAM), `OB aisha recolored away from cream: ${aisha?.upperRgb}`).toBe(true);
     expect(near(parent?.upperRgb, CYAN), "parent used the forbidden cyan probe colour").toBe(false);
@@ -282,4 +288,15 @@ describe("eye colour is case-driven, not one constant for everyone", () => {
  * Both resolvers now point `parent_tara_johnson_v1` at the new file. CAST in this
  * module is the same-station peds files; OB aisha is measured only in the
  * counterweight and stays cream. Clause (3) is unweakened pairwise distinctness.
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ *
+ * ## FIXED (#400) — appended; the planted header above is immutable
+ *
+ * (3c) pins the child's upper to cream — that was the #400 defect, not a property. The child's
+ * declared `soft_blue_and_warm_white` now resolves through `garment_shell_color` to
+ * (0.55, 0.68, 0.80) (see the a-declared-fabric-palette contract). The net's job — the EYE path
+ * must not recolour garments — is unchanged and now expects the child's declared soft blue.
+ * Measured post-fix on the shipped bytes: child (0.55, 0.68, 0.80), parent rose
+ * (0.42, 0.36, 0.40), nurse teal (0.05, 0.48, 0.52), OB aisha cream (0.72, 0.68, 0.55).
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
  */
