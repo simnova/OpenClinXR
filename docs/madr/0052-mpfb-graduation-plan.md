@@ -107,12 +107,27 @@ presentation FIRST and the girth solve runs after.
 > scoped. The consumer exists: `candidate-capture.ts` now prefers `retarget_cmu` clips in
 > `body_motion_probe`, so this is not an orphan stage.
 >
-> **Orchestrator grade (pixels, 6.16 s webm at 1280x1280):** frame diff against t=0.2 s rises
-> monotonically — 292,532 -> 454,617 -> 621,253 pixels changed by >10 grey levels at t=1.5/3.0/4.5 s.
-> **A pixel diff alone cannot separate skeletal motion from a rotating camera**, so I read a frame:
-> at t=3.0 s the figure is **mid-stride with arms down at the sides and hands relaxed**, not in the
-> A-pose the static grade capture shows. A turntable cannot change an arm pose. **The retarget drives
-> the rig.**
+> **Orchestrator grade (pixels, 6.16 s webm at 1280x1280), CORRECTED 12:5x:** frame diff against
+> t=0.2 s rises monotonically — 292,532 -> 454,617 -> 621,253 px changed by >10 grey at t=1.5/3.0/4.5 s,
+> and at t=3.0 s the figure is posed with arms down and one leg forward, not the A-pose of the static
+> capture. **My first write-up concluded from that "a turntable cannot change an arm pose, so the
+> retarget drives the rig". That inference is unsound and is withdrawn:** the same GLB also carries
+> `ClinicalIdleConversation`, which moves the arms down too, so the pose does not discriminate between
+> the clips.
+>
+> **What is actually established:** (a) the bind is in the file — `openclinxr_retarget_cmu_07_01_walk`
+> is one of three animations in the candidate GLB, read with NodeIO; (b) the capture path selects it —
+> `candidate-capture.ts`'s clip chooser prefers `retarget_cmu` over idle, and its unit test
+> (`prefers a factory retarget walk clip over idle…`) passes; (c) something is animating, by the frame
+> diff. **Not established by pixels alone: that the motion on screen is the walk rather than the idle.**
+> Separating them needs a per-clip capture, which nobody has run.
+>
+> **A second self-correction worth recording, because it nearly went the other way.** On seeing
+> `b9cb5de6 "export skinned mesh with the motion-bind walk clip"` I measured the `56c7eee5` blob at
+> **meshes=0, tris=0** and concluded I had graded a mesh-less file. **Wrong.** Timestamps: the mesh
+> fix reached disk at 12:39:26 and my capture wrote at **12:40:14** — the file I rendered already had
+> its 94,985 triangles. The 361 KB mesh-less version was only the historical git blob. **Check the
+> artifact's mtime against the commit before concluding you graded the wrong thing.**
 >
 > NOT TESTED: one actor, one clip; the shipped GLBs still carry only the two hand-authored clips
 > (`ClinicalIdleConversation`, `ClinicalExpressionMicroTransition`), so nothing a learner loads is
