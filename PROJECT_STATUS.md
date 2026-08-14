@@ -432,6 +432,54 @@ residential sampler with no clinical station addressing, independent of its 86x 
 
 (Transient WIP details — file:line, subagent IDs, capture logs — recorded here per slice. Rehydration reads only the header above + targeted grep on this section. Worker-backlog matrix at `docs/openclinxr/worker-backlog-and-validation-matrix.md` for ownership. Archive old blocks: `pnpm openclaw:checkpoint:archive -- --keep 7`.)
 
+### 2026-08-14 overnight-land-path-and-mpfb-realism-wave (Q1 + Q5)
+
+**Product path advanced.** Seven slices landed between 20:00 and 01:00. The land path itself was
+closed for part of that window and reopening it was the unlock for the rest.
+
+| slice | merge | what it did |
+|---|---|---|
+| #380 | `6c623895` | viseme capture records reframe outcome per live sample |
+| #352 | `0ce9f6fc` | **land-path fix** — paid-provider scan 4,200 ms → **22 ms** |
+| #379 | `b065e864` | blink wired to the FACS lid morphs; `main.ts` +2 lines |
+| #378 | `fd1f0e96` | kevin's trouser tucked inside the boot; alternation gone |
+| #363 | `de6de0ff` | both TEMP ceilings **deleted**, files 972→496 and 544→455 |
+| #381 | `b0605a2a` | **aisha wears fitted hair** — 4,976 tris, weighted, CC0 |
+| rules | `17991d9a` | rule 12a — grade at native resolution |
+
+**Blueprint/factory tie.** #381 is the D9 case in full: a licence-gated, weighted hair fit already
+shipped on the library rail and no cast actor consumed it. The fix wired the proven fitter, authored
+no geometry, and the licence gate re-reads each `.mhclo` header at bake time. #379 is the same shape
+for eyelids — a deterministic clock existed, the FACS morphs existed, only the wire was missing.
+
+**Evidence.** #352 measured at 9,409 ms standalone against its own 5,000 ms timeout — **not**
+contention, which was the issue's stated premise and my own first report. Mechanism: a 55,650-file
+walk plus 100 `git check-ignore` subprocesses, called three times unmemoised. `git ls-files` returns
+3,073 tracked files in one subprocess. Architecture suite now 73/73 in 7.55 s.
+
+**Risk that remains.**
+- **#381 is landed but NOT closed.** Its claim is about appearance and a peer lane grades the stills;
+  four full-resolution PNGs are at `.openclinxr/evidence/glb-grade-capture/2026-08-14T04-46-49Z/`.
+- **#128 false-kill is live.** A shrink landing between branch-cut and merge turns every in-flight
+  branch into a `raised-ceiling` kill. Hit on #381; resolved by merging main into the branch, not
+  `--force`. Fresh instance recorded on the issue.
+- Skin still reads matte: all three normal maps are **bound and blank** (sd 2.1 ≡ 1.3° of slope,
+  >70% of texels the literal no-op value). RED planted, bake dispatched as #369.
+- Twelve of fifteen stations were captured once on 08-12 and never refreshed. RED planted, #101
+  dispatched.
+
+**Six premises of mine were withdrawn in this window, every one caught by measuring before
+dispatching**: #368 (work already done — cost 105 turns because I did *not* check first), #340, #337,
+#369 and #101 (dead premises, checked first, closed or corrected without spending a worker), and my
+own "residual toothed wedge" on #378, which was a 4× upscale artifact. That last one produced rule
+12a: native resolution is the grade of record.
+
+**Next queued slice.** #338 (between-layers occlusion gate) and #341, both behind the materializer
+that #369 holds. Then the peer's grade on #381 decides whether hair slice 2 opens.
+
+**Owner.** Orchestrator integrates; asset-pipeline-lead and xr-systems-architect roles for the
+dispatched slices; equipment-lane peer grades appearance.
+
 ### 2026-08-11 mpfb-graduation-rig-and-face-resolution (Q1 + Q5)
 
 Product path advanced: the MPFB rail went from "one actor, unposable, mute" toward a rail the runtime
