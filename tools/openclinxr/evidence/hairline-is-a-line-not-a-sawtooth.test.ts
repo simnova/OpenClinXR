@@ -115,6 +115,26 @@ import { describe, expect, it } from "vitest";
  * way: (1) is the region's presence (the texture route's replacement), (2) is unchanged (the baked
  * skin texture must not vanish), and (3) becomes a mesh-level tripwire — the region is a primitive
  * WITHIN the body mesh; a separate hair MESH is still the hand-authored-geometry failure.
+ *
+ * ## FIXED (#387) — the placeholder is retired where a real fitted replacement exists
+ *
+ * The bounds-derived scalp paint is a self-declared PLACEHOLDER — its own docstring
+ * (`automate_blender.py:4245`) says it exists "before a real groom/hair-card source stage
+ * exists" — and #381 landed the real thing: 4,976 tris of fitted MakeClothes library hair
+ * on aisha (`mpfb-ob-patient-aisha`). The paint underneath was never retired: she shipped
+ * both, and the 2.8%-luminance placeholder under fitted hair was the hard 4096-grade
+ * boundary #387 closes. The materializer now skips painting it where real fitted hair
+ * exists (shared `body_param_stage.scalp_placeholder_retired_for`), so:
+ *
+ * - OLD clause (1) "every MPFB actor carries the scalp region" is re-premised: the region
+ *   is required on figures with NO fitted hair (nurse, child) and must be ABSENT on the
+ *   figure that has it (aisha). The measurement (scalpPrims per shipped body) is unchanged.
+ * - OLD clause (3) "no separate hair MESH" counted aisha's #381 fitted
+ *   `makeclothes_library_hair_*` mesh as a separate mesh — a PRE-EXISTING failure on main
+ *   (the mesh landed in #381 before this contract was re-based). The fitted library hair
+ *   is the D1-fitted replacement, the OPPOSITE of the hand-authored sphere #222 refuses,
+ *   so it is now excluded by mesh-name prefix — the same convention as the #222 contract's
+ *   FITTED_LIBRARY_HAIR_MESH. Any OTHER separate hair mesh still trips the wire.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -152,6 +172,12 @@ async function measure(rel: string): Promise<Row | null> {
   }
   for (const mesh of meshes) {
     if (mesh === bodyMesh) continue;
+    // #330/#381 — the FITTED library hair mesh (`makeclothes_library_hair_*`) is a
+    // D1-fitted .mhclo replacement, the OPPOSITE of the hand-authored UV sphere #222
+    // refuses; it is excluded by mesh-name prefix, the same convention as the #222
+    // contract's FITTED_LIBRARY_HAIR_MESH. #387: aisha's placeholder is retired BECAUSE
+    // this mesh replaced it, so counting it here would contradict the premise.
+    if (/^makeclothes_library_hair/i.test(mesh.getName() ?? "")) continue;
     if (mesh.listPrimitives().some((p) => /hair/i.test(p.getMaterial()?.getName() ?? ""))) {
       separateHairMeshes++;
     }
@@ -172,15 +198,28 @@ function requireRows(): void {
   expect(rows.length, `MPFB bodies scanned (of ${files.length})`).toBeGreaterThanOrEqual(3);
 }
 
+/** #387 — the shipped base id of the figure whose placeholder scalp paint is retired
+ * (real fitted hair on disk). See body_param_stage.scalp_placeholder_retired_for. */
+const RETIRED_FIGURE = "mpfb-ob-patient-aisha.glb";
+
 describe("the scalp region is the hair mechanism on the body mesh (texture route removed, #359)", () => {
-  it("(1) RED: every MPFB actor carries the scalp region on its body mesh", () => {
+  it("(1) RED: the scalp region is present on every actor without fitted hair and absent on aisha", () => {
     // #359 reinstated the per-polygon scalp region (the #341 texture route is removed).
-    // A re-bake that loses the region regresses to the bare-scalp texture state #358 graded.
+    // #387: the region is a self-declared PLACEHOLDER (automate_blender.py:4245) — it is
+    // required where no real fitted hair exists (the nurse and the child) and must be
+    // ABSENT where #381's fitted replacement is on disk (aisha). Old assertion changed:
+    // "every MPFB actor carries the scalp region" — that encoded the placeholder as a
+    // required feature; the retirement makes aisha the documented exception.
     requireRows();
     const missing = rows
+      .filter((r) => r.file !== RETIRED_FIGURE)
       .filter((r) => r.scalpPrims === 0)
       .map((r) => `${r.file}: scalpPrims=${r.scalpPrims}`);
-    expect(missing, "bodies without the scalp region").toEqual([]);
+    expect(missing, "bodies without the scalp region (aisha exempt: placeholder retired)").toEqual([]);
+    const stale = rows
+      .filter((r) => r.file === RETIRED_FIGURE && r.scalpPrims > 0)
+      .map((r) => `${r.file}: scalpPrims=${r.scalpPrims} — placeholder not retired`);
+    expect(stale, "figures with real fitted hair still carrying the placeholder").toEqual([]);
   });
 
   it("(2) the baked skin texture is present and non-trivial", () => {

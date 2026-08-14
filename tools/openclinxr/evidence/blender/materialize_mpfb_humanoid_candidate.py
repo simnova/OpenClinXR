@@ -2142,9 +2142,34 @@ def main():
         _sys.path.insert(0, str(_anny_dir))
     from automate_blender import apply_mesh_native_scalp_hair_material_region  # noqa: E402
 
-    scalp_hair_region = apply_mesh_native_scalp_hair_material_region(
-        human, {"hair_color": "black", "hair_density": 0.65}
+    # #387 — the scalp paint is a self-declared PLACEHOLDER (its own docstring,
+    # automate_blender.py:4245: "before a real groom/hair-card source stage exists").
+    # #381 landed the real thing — a fitted MakeClothes bob on aisha — and nobody retired
+    # the paint underneath: she ships both, and the 2.8%-luminance paint under fitted hair
+    # is the hard 4096-grade boundary this issue closes. The decision lives in the
+    # makeclothes rail (body_param_stage.scalp_placeholder_retired_for) so both producers
+    # share one registry; aisha is the sole figure whose replacement is on disk. The Anny
+    # function is untouched (D1); the call is simply skipped for her.
+    _makeclothes_dir_scalp = REPO_ROOT / "tools/openclinxr/asset-pipeline/makeclothes"
+    if str(_makeclothes_dir_scalp) not in sys.path:
+        sys.path.insert(0, str(_makeclothes_dir_scalp))
+    from body_param_stage import scalp_placeholder_retired_for  # noqa: E402
+
+    _shipped_figure_id = (
+        "mpfb-ob-patient-aisha"
+        if not args.reference
+        else f"mpfb-peds-{args.reference.replace('_', '-')}"
     )
+    if scalp_placeholder_retired_for(_shipped_figure_id):
+        scalp_hair_region = {
+            "retired": True,
+            "figureId": _shipped_figure_id,
+            "reason": "#387 placeholder retired where real fitted hair exists",
+        }
+    else:
+        scalp_hair_region = apply_mesh_native_scalp_hair_material_region(
+            human, {"hair_color": "black", "hair_density": 0.65}
+        )
     print(f"SCALP_HAIR_REGION {scalp_hair_region}")
 
     bpy.ops.object.select_all(action="DESELECT")
@@ -2316,7 +2341,19 @@ def main():
         None,
     )
     if scalp_idx is None:
-        raise RuntimeError("#338: scalp material region missing for the eye-socket unpaint")
+        # #387 — the placeholder paint is retired for figures with real fitted hair
+        # (scalp_placeholder_retired_for above); the bake then has no scalp material by
+        # design, and every pass below (eye-socket unpaint, forehead, hairline snap)
+        # legitimately no-ops on a missing region. For every other figure the missing
+        # region is still the #338 defect and must fail loudly.
+        if scalp_placeholder_retired_for(_shipped_figure_id):
+            print(
+                f"SCALP_REGION retired for {_shipped_figure_id} — "
+                "eye-socket/forehead/hairline passes skipped (no placeholder paint)"
+            )
+            scalp_idx = -1  # sentinel: no poly matches, passes become no-ops
+        else:
+            raise RuntimeError("#338: scalp material region missing for the eye-socket unpaint")
     h_world = human.matrix_world
     eye_socket_unpainted = 0
     for poly in human.data.polygons:

@@ -107,11 +107,37 @@
  * The painted scalp region and its crown/face-band bounds are unchanged and still
  * asserted on every column.
  */
+/**
+ * ## FIXED (#387)
+ *
+ * The bounds-derived scalp paint is a self-declared PLACEHOLDER — its own docstring
+ * (`automate_blender.py:4245`) says it exists "before a real groom/hair-card source stage
+ * exists" — and #381 landed the real thing: 4,976 tris of fitted MakeClothes library hair
+ * on aisha (`mpfb-ob-patient-aisha`). The paint underneath was never retired: she shipped
+ * both, and the 2.8%-luminance placeholder under fitted hair was the hard 4096-grade
+ * boundary #387 closes. **Aisha's placeholder scalp region is now RETIRED** (the materializer
+ * skips painting it where real fitted hair exists, per the shared
+ * `body_param_stage.scalp_placeholder_retired_for` decision).
+ *
+ * OLD ASSERTION CHANGED: "MPFB rail body mesh carries a scalp hair material region" and
+ * "MPFB rail scalp region sits on the crown" were asserted on aisha. That encoded the old
+ * intent that the painted region is a required feature. #387 establishes it is a placeholder
+ * to be retired where a real fitted replacement exists — so the region-carrying clauses now
+ * apply to the nurse (`mpfb-peds-nurse-kevin`, no fitted hair, still carries the region),
+ * and aisha gets an explicit clause asserting the region is ABSENT. Every measurement is
+ * unchanged: the crown position check, the face-band exclusion, the vacuity guards, and the
+ * "no separate hand-authored hair mesh" intent (aisha's fitted mesh is excluded by the #330
+ * `FITTED_LIBRARY_HAIR_MESH` prefix, the opposite of the refused sphere).
+ */
 import { Accessor, NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 
 const ANNY_KNOWN_GOOD = "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb";
-const MPFB_SUBJECT = "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb";
+/** #387 — the MPFB rail column's region-carrying subject moved to the nurse (no fitted
+ * hair, still carries the region). Aisha's placeholder is retired (see the #387 clause). */
+const MPFB_SUBJECT = "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb";
+/** #387 — the retired figure: real fitted hair replaced the placeholder paint. */
+const MPFB_RETIRED_SUBJECT = "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb";
 /** #279 — third column: the two hm08 library bodies shipped by the body_param stage. */
 const HM08_LEAN_SUBJECT =
   "apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb";
@@ -300,14 +326,17 @@ describe("#222 scalp hair is a material region on the body, never a separate aut
   });
 
   it("MPFB rail carries no separate hand-authored hair mesh", async () => {
-    const subject = await readSubject(MPFB_SUBJECT);
-    // Today: ["Sphere"] — a 960-triangle UV sphere from primitive_uv_sphere_add.
+    // #387 — aisha's fitted library hair mesh (`makeclothes_library_hair_*`) is the
+    // #381 D1-fitted replacement and is excluded by mesh-name prefix (the #330
+    // convention); any OTHER separate hair mesh is still the refused sphere.
+    const subject = await readSubject(MPFB_RETIRED_SUBJECT);
     expect(subject.separateHairMeshes).toEqual([]);
   });
 
   it("MPFB rail body mesh carries a scalp hair material region", async () => {
+    // #387 — the MPFB rail column is the nurse (no fitted hair), which still carries
+    // the region. Aisha's placeholder is retired and asserted absent below.
     const subject = await readSubject(MPFB_SUBJECT);
-    // Today: prims=1 (skin only), scalpRegion=null.
     expect(subject.scalpRegion).not.toBeNull();
   });
 
@@ -316,6 +345,19 @@ describe("#222 scalp hair is a material region on the body, never a separate aut
     expect(scalpRegion).not.toBeNull();
     expect(scalpRegion!.minHeightFraction).toBeGreaterThan(SCALP_MIN_HEIGHT_FRACTION);
     expect(scalpRegion!.faceBandVertexCount).toBe(0);
+  });
+
+  it("#387: aisha's placeholder scalp region is retired where real fitted hair exists", async () => {
+    // The scalp paint is a self-declared placeholder (automate_blender.py:4245: "before
+    // a real groom/hair-card source stage exists"). #381 landed the real thing — a
+    // fitted MakeClothes bob on aisha — and the paint underneath was never retired:
+    // she shipped both, and the 2.8%-luminance placeholder under fitted hair was the
+    // hard 4096-grade boundary #387 closes. The materializer now skips painting it for
+    // her (body_param_stage.scalp_placeholder_retired_for), so her body carries NO
+    // scalp region; the head still renders as skin (the vacated polygons keep the skin
+    // material, asserted by the #387 planted contract's headSkinVerts clause).
+    const subject = await readSubject(MPFB_RETIRED_SUBJECT);
+    expect(subject.scalpRegion, `${MPFB_RETIRED_SUBJECT} placeholder retired under #387`).toBeNull();
   });
 
   // #279 — third column: the hm08 library bodies, same predicate, unchanged thresholds.

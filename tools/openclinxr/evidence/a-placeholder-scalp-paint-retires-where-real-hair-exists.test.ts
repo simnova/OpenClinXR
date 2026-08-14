@@ -136,7 +136,7 @@ function requireMeasured(): void {
 }
 
 describe("a placeholder scalp paint retires where real hair exists", () => {
-  it.fails("(1) RED: no figure carries the placeholder paint AND a real fitted hair mesh", () => {
+  it("(1) RED: no figure carries the placeholder paint AND a real fitted hair mesh", () => {
     requireMeasured();
     expect(
       aisha!.fittedHairTris,
