@@ -40,6 +40,18 @@ import { visemesForText } from "../../../apps/ui-xr/src/dialogue-visemes.js";
  *   d) real G2P that drops out-of-vocabulary words |     pass       |      pass        |     pass     |   **FAIL**   | REFUSED
  *   e) real G2P with a declared OOV fallback       |     pass       |      pass        |     pass     |     pass     | ALL PASS
  *
+ * ## FIXED (#375)
+ *
+ * Treatment (e) landed 2026-08-14: `phonemesForText` is now a per-word lookup in
+ * `DIALOGUE_PRONUNCIATIONS` — a bank-scoped CMUdict extraction (build-time input; see the generated
+ * table's header for provenance and the CMU BSD licence notice) — with the #376 letter classifier
+ * kept as the declared fallback for out-of-dictionary words (`bronchodilator`, `ecg`, `nebulized`,
+ * plus anything future scenarios add). ARPAbet phones collapse to the seven resolver visemes.
+ * Clauses (1) and (2) below are flipped from `it.fails` to `it`: 5/5 homophone pairs match,
+ * `though`/`cough` and `through`/`trough` differ. The fallback is spelling, not phonetics, so the
+ * homophone property still does not hold for out-of-dictionary words — recorded as #375's unlocked
+ * decision 1 and in the module header.
+ *
  * **(b) is why clause (2) exists.** Clause (1) alone is satisfied by a lookup table of the five pairs
  * it names. `though`/`cough` are NOT homophones, so no pair table separates them — only actual
  * pronunciation data does. The two clauses cannot both be satisfied by memorising this file.
@@ -52,9 +64,10 @@ import { visemesForText } from "../../../apps/ui-xr/src/dialogue-visemes.js";
  * Clause (4) enumerates the bank's vocabulary **dynamically from the shipped bundles**, so a fourth
  * scenario is covered the day it ships rather than being green-by-construction against a frozen list.
  *
- * WHICH ARE REDS AND WHICH ARE NETS (#227): (1) and (2) are REDS and both fail today. (3) and (4)
- * pass today and are counterweights. (3) and (4) are independent of what (1) and (2) measure —
- * fixing pronunciation moves neither the output alphabet nor whether every bank word yields output.
+ * WHICH ARE REDS AND WHICH ARE NETS (#227): (1) and (2) were REDS and failed 2026-08-13; both are
+ * fixed and asserted as `it` since #375 landed. (3) and (4) are counterweights, independent of what
+ * (1) and (2) measure — pronunciation does not change the output alphabet, and the OOV fallback is
+ * what keeps every bank word yielding output.
  *
  * NOT TESTED:
  *   - **Timing.** This asserts the SEQUENCE of mouth shapes, never their durations. Nothing here says
@@ -139,14 +152,14 @@ function requireVocabulary(): void {
 }
 
 describe("dialogue visemes follow pronunciation, not spelling", () => {
-  it.fails("(1) RED: homophones produce identical viseme sequences", () => {
+  it("(1) homophones produce identical viseme sequences", () => {
     const differing = HOMOPHONES.filter(([a, b]) => seq(a) !== seq(b)).map(
       ([a, b]) => `${a} [${seq(a)}] != ${b} [${seq(b)}]`,
     );
     expect(differing, "homophone pairs whose mouths disagree").toEqual([]);
   });
 
-  it.fails("(2) RED: words spelled alike but pronounced differently produce DIFFERENT sequences", () => {
+  it("(2) words spelled alike but pronounced differently produce DIFFERENT sequences", () => {
     // Refuses (b): a lookup table of clause (1)'s five pairs cannot separate these, because they are
     // not homophones. Only real pronunciation data satisfies both clauses at once.
     const identical = NOT_HOMOPHONES.filter(([a, b]) => seq(a) === seq(b)).map(
