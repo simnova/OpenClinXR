@@ -168,11 +168,26 @@ presentation FIRST and the girth solve runs after.
 > the clips.
 >
 > **What is actually established:** (a) the bind is in the file — `openclinxr_retarget_cmu_07_01_walk`
-> is one of three animations in the candidate GLB, read with NodeIO; (b) the capture path selects it —
-> `candidate-capture.ts`'s clip chooser prefers `retarget_cmu` over idle, and its unit test
-> (`prefers a factory retarget walk clip over idle…`) passes; (c) something is animating, by the frame
-> diff. **Not established by pixels alone: that the motion on screen is the walk rather than the idle.**
-> Separating them needs a per-clip capture, which nobody has run.
+> is one of three animations in the candidate GLB, read with NodeIO; (b) the capture path selects it;
+> (c) something is animating, by the frame diff.
+>
+> **(b) RESOLVED 14:0x with a control, and it restores the conclusion my unsound argument had cost.**
+> `selectBodyMotionProbeClipName` is a pure function; fed the candidate GLB's actual animation list it
+> returns:
+>
+> ```
+> ["ClinicalIdleConversation", "openclinxr_retarget_cmu_07_01_walk", "ClinicalExpressionMicroTransition"]
+>     -> "openclinxr_retarget_cmu_07_01_walk"
+> control, retarget clip removed
+>     -> null
+> ```
+>
+> **The idle is not a fallback for this probe — without the retarget clip it selects nothing at all.**
+> So the motion in the graded webm could only have come from the walk. The arm-pose argument stays
+> withdrawn (it was unsound: the idle *does* lower the arms), but the conclusion it was reaching —
+> that the retarget drives what was captured — now holds by a different and checkable route. §10l:
+> when an overturning is scoped too widely, a correct conclusion gets discarded with the bad reasoning
+> that reached it.
 >
 > **A second self-correction worth recording, because it nearly went the other way.** On seeing
 > `b9cb5de6 "export skinned mesh with the motion-bind walk clip"` I measured the `56c7eee5` blob at
