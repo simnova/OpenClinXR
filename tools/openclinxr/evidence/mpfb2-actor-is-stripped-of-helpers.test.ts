@@ -1,7 +1,9 @@
 import { dirname, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { NodeIO } from "@gltf-transform/core";
+import { Accessor, NodeIO } from "@gltf-transform/core";
+import { cloneDocument } from "@gltf-transform/functions";
 import { describe, expect, it } from "vitest";
+import { isFittedNonBodyName } from "./garment-slot.ts";
 
 /**
  * The MPFB2 patient a learner meets is wearing MakeHuman's clothes and hair FITTING SHELLS.
@@ -108,6 +110,21 @@ import { describe, expect, it } from "vitest";
  * exact discriminator — with-helpers body (36,972) still fails, stripped body (26,756) still passes —
  * while the fitted garment's triangles are asserted by mpfb2-actor-wears-a-fitted-garment.test.ts
  * counterweight (3). The bound itself is unchanged.
+ *
+ * ## FIXED (#391) — slot-keyed classification replaces the name-keyed vocabulary
+ *
+ * The GARMENT_MATERIAL regex (`/garment|clothing|shirt|pants|trouser|tshirt|scrub|gown|makeclothes/i`)
+ * counted everything it could not name as body, so #381's fitted hair
+ * (`openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mat`, 4,976 tris) was
+ * attributed to the body: 31,732 > 28,000. The classifier now lives in the shared `garment-slot.ts`
+ * module (#389) and keys on the ROLE/rail, not the name: a makeclothes library garment of any slot
+ * (the rail gate `isUpperGarmentName` already uses) or fitted hair (`isFittedHairMeshName`, #394 —
+ * imported, not a third vocabulary) is non-body; everything else is body. A new garment style or
+ * hairstyle matches with no list edit — the third name-keyed matcher this night broke.
+ *
+ * Measured on the shipped bytes with the new classifier: body = 26,756 — the documented stripped
+ * count, hair and garments excluded. The destructive probe rebuilds the with-helpers state (36,972)
+ * on top of it and the RED still fails, so the net keeps its exact discriminator.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -116,8 +133,9 @@ const AISHA = `${REPO_ROOT}/apps/ui-xr/public/generated-humanoids/mpfb-ob-patien
 
 /** MADR 0052: helper-stripped is 26,756 tris. Headroom for scalp / material-region variation. */
 const MAX_TRIANGLES = 28_000;
-/** Same material vocabulary the garment RED reads — body-strip measurement excludes garments (#321). */
-const GARMENT_MATERIAL = /garment|clothing|shirt|pants|trouser|tshirt|scrub|gown|makeclothes/i;
+/** MADR 0052 documented pair: with helpers / stripped. The probe rebuilds both endpoints. */
+const WITH_HELPERS_TRIANGLES = 36_972;
+const STRIPPED_TRIANGLES = 26_756;
 const MOUTH_NAME = /mouth|lip|jaw|viseme/i;
 const MOVED_EPSILON_M = 1e-5;
 const MIN_USABLE_MOUTH_TARGETS = 13;
@@ -125,6 +143,28 @@ const MAX_MOVED_FRACTION = 0.5;
 
 const io = new NodeIO();
 const doc = await io.read(AISHA);
+
+/**
+ * Body triangles: every primitive that is not a fitted makeclothes garment (any slot)
+ * or fitted hair. Slot/rail-keyed in garment-slot.ts (#389/#391) — a new garment style
+ * or hairstyle matches with no list edit.
+ */
+function bodyTrianglesOf(target: typeof doc): number {
+  let bodyTris = 0;
+  for (const mesh of target.getRoot().listMeshes()) {
+    for (const prim of mesh.listPrimitives()) {
+      const pos = prim.getAttribute("POSITION");
+      if (!pos) continue;
+      const indices = prim.getIndices();
+      const primTris = indices ? indices.getCount() / 3 : pos.getCount() / 3;
+      // #321: a fitted garment is separate geometry; #391: fitted hair is not body either.
+      if (!isFittedNonBodyName(prim.getMaterial()?.getName() ?? "")) {
+        bodyTris += primTris;
+      }
+    }
+  }
+  return bodyTris;
+}
 
 let totalVerts = 0;
 let bodyTris = 0;
@@ -139,12 +179,6 @@ for (const mesh of doc.getRoot().listMeshes()) {
     if (!pos) continue;
     primitives += 1;
     totalVerts += pos.getCount();
-    const indices = prim.getIndices();
-    const primTris = indices ? indices.getCount() / 3 : pos.getCount() / 3;
-    // #321: a fitted garment is separate geometry; the strip question is about the BODY.
-    if (!GARMENT_MATERIAL.test(prim.getMaterial()?.getName() ?? "")) {
-      bodyTris += primTris;
-    }
 
     if (prim.listTargets().length === 0 || pos.getCount() <= bodyVerts) continue;
     bodyVerts = pos.getCount();
@@ -165,6 +199,7 @@ for (const mesh of doc.getRoot().listMeshes()) {
     usableMouth = found;
   }
 }
+bodyTris = bodyTrianglesOf(doc);
 
 const joints = doc.getRoot().listSkins()[0]?.listJoints().map((j) => j.getName()) ?? [];
 
@@ -181,7 +216,7 @@ describe("the shipped MPFB2 actor is a body, not a body wearing MakeHuman fittin
       requireMeasured();
       expect(
         bodyTris,
-        `aisha BODY triangles (36,972 = base.obj with helpers; 26,756 = documented stripped; garment tris excluded per #321)`,
+        `aisha BODY triangles (36,972 = base.obj with helpers; 26,756 = documented stripped; garment tris excluded per #321, fitted hair per #391)`,
       ).toBeLessThanOrEqual(MAX_TRIANGLES);
     },
   );
@@ -206,5 +241,48 @@ describe("the shipped MPFB2 actor is a body, not a body wearing MakeHuman fittin
   it("(4) NET COUNTERWEIGHT: both primitives survive — deleting the scalp is refused", () => {
     requireMeasured();
     expect(primitives, "primitives (body + scalp material region)").toBeGreaterThanOrEqual(2);
+  });
+
+  it("(5) DESTRUCTIVE PROBE: an unstripped helper shell is still counted as body — the with-helpers count still fails the RED", () => {
+    // Helpers are body-ish shells (skin-region geometry), not makeclothes garments and not fitted
+    // hair. Rebuild the documented with-helpers state (36,972) from the stripped body (26,756) by
+    // adding one helper-shell primitive; a classifier that wrongly excluded body-ish geometry —
+    // or that excluded the fitted hair the wrong way — would let the known-bad pass.
+    const probe = cloneDocument(doc);
+    const before = bodyTrianglesOf(probe);
+    expect(before, "probe starts from the documented stripped body").toBe(STRIPPED_TRIANGLES);
+    const helperTris = WITH_HELPERS_TRIANGLES - STRIPPED_TRIANGLES;
+    const positions = new Float32Array(helperTris * 9);
+    const accessor = probe
+      .createAccessor()
+      .setType(Accessor.Type.VEC3)
+      .setArray(positions)
+      .setBuffer(probe.createBuffer());
+    const helperPrim = probe.createPrimitive().setAttribute("POSITION", accessor);
+    helperPrim.setMaterial(probe.createMaterial().setName("mpfb_helper_shell_mat"));
+    probe.createMesh().setName("mpfb_helper_shell_mesh").addPrimitive(helperPrim);
+    const after = bodyTrianglesOf(probe);
+    expect(after, "with-helpers count = the documented 36,972 (stripped 26,756 + helper shell)").toBe(
+      WITH_HELPERS_TRIANGLES,
+    );
+    expect(after, "the RED still catches the known-bad").toBeGreaterThan(MAX_TRIANGLES);
+  });
+
+  it("(6) NET: the slot classifier reads the shipped primitives by role, not by name", () => {
+    // Pins the classification on the actual material names in the shipped GLB. There is no name
+    // list to go stale: a fitted hair material and a makeclothes garment of ANY slot are non-body,
+    // the skin and painted body regions are body.
+    expect(
+      isFittedNonBodyName("openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mat"),
+      "fitted hair is not body (#391)",
+    ).toBe(true);
+    expect(isFittedNonBodyName("mat_makeclothes_library_toigo_t_shirt"), "upper slot garment").toBe(true);
+    expect(isFittedNonBodyName("mat_makeclothes_library_cargo_pants.001"), "lower slot garment").toBe(true);
+    expect(isFittedNonBodyName("mat_makeclothes_library_footwear_toigo_flats"), "foot slot garment").toBe(true);
+    expect(isFittedNonBodyName("mat_makeclothes_library_eyes_ob_patient_aisha"), "eye slot").toBe(true);
+    expect(isFittedNonBodyName("mpfb_skin_ob_patient_aisha"), "body skin is body").toBe(false);
+    expect(isFittedNonBodyName("openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh"), "painted body region is body").toBe(
+      false,
+    );
   });
 });
