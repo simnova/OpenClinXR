@@ -200,6 +200,51 @@ presentation FIRST and the girth solve runs after.
 > (`ClinicalIdleConversation`, `ClinicalExpressionMicroTransition`), so nothing a learner loads is
 > retargeted yet; no foot-slide, ground-contact or clinical-plausibility measurement was made.
 
+> **P6 PUBLISHABILITY VERDICT — 2026-08-14 15:2x, the 15:00 advancement tick. NOT PUBLISHABLE YET,
+> and the blocker is one actor.**
+>
+> P6 says *"website only on a real win (D12)."* This is the gate check. P1 and P4 are done, P2/P3 are
+> frozen by the dark-factory campaign close, P5 is the campaign's own leftover — so P6 is the only
+> reachable phase, and its honest answer is a refusal.
+>
+> **Best candidate artifact:** `.openclinxr/evidence/peds-station-recheck/` — the peds asthma station,
+> the one fully-MPFB cast (3/3), carrying four fixes landed today: derived camera (#398), fitted hair
+> on the child (#399), a dedicated rose parent (#388), and the waistband re-contour (#341 r19). All
+> three actors framed and rendering.
+>
+> **Measured blockers on the shipped bytes:**
+>
+> | actor | placeholder scalp | fitted hair | upper garment |
+> |---|---:|---:|---|
+> | `mpfb-peds-patient-child` | 0 | 4,976 tris | `0.720,0.680,0.550` — **skin-adjacent tan** |
+> | `mpfb-peds-parent-aisha` | 0 | 4,976 tris | `0.420,0.360,0.400` rose |
+> | **`mpfb-peds-nurse-kevin`** | **1,506 verts** | **0** | `0.050,0.480,0.520` teal |
+>
+> **Kevin is the blocker.** He is the only actor still carrying
+> `openclinxr_mesh_native_scalp_hair_surface` — 1,506 verts of flat 2.8%-luminance paint over a 27–37%
+> skin atlas, spanning the eye band. The campaign graded it independently as a **"scalp tear"**
+> (its leftover #2). **And he cannot be fixed:** 10 of the 25 styles in `hair01` are AGPL3, 4 are
+> unlicensed, and every licence-clean style in the usable subset is a feminine bob — he is a recorded
+> male skip. Retiring the paint without a replacement leaves a bald head (§6p).
+>
+> **Two further blockers, both recorded elsewhere and neither fixable under the freeze:**
+> the child's tan is skin-adjacent (#400, closed unlanded — its fix rebakes a frozen asset), and the
+> parent's head spikes in some frames (#402 = campaign leftover #5, the CMU walk clip).
+>
+> **So the verdict is: three of four fixes are visibly good and the station still cannot be published**
+> — one unfixable-under-licence scalp, one frozen colour, one known gait artifact. Publishing it would
+> be the #56 failure this repo already committed once: shipping a capture whose defects a skeptical
+> viewer sees immediately.
+>
+> **The cheapest route to a publishable frame is procurement, not engineering:** one licence-clean
+> masculine hairstyle for kevin. That is an operator decision and is already recorded in
+> `operator-steering-needed-questions.md`.
+>
+> NOT TESTED: whether kevin's scalp reads as a tear at station distance (graded at 4096 isolated;
+> ~30 px in a 1440 station frame); whether any of the other 13 stations is closer to publishable —
+> they are all Anny-rail, which carries blob footwear and painted garment bands, so almost certainly
+> not; no website change was made or proposed.
+
 - **P6 Evidence.** Graded captures per phase; website only on a real win (D12).
 
 **Hair: UNBLOCKED 2026-08-11.** Operator approved CC0/CC-BY. Acquired `hair01`, 25 `.mhclo` + 25
