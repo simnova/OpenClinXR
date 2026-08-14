@@ -432,6 +432,65 @@ residential sampler with no clinical station addressing, independent of its 86x 
 
 (Transient WIP details — file:line, subagent IDs, capture logs — recorded here per slice. Rehydration reads only the header above + targeted grep on this section. Worker-backlog matrix at `docs/openclinxr/worker-backlog-and-validation-matrix.md` for ownership. Archive old blocks: `pnpm openclaw:checkpoint:archive -- --keep 7`.)
 
+### 2026-08-14 overnight-wave-2 — five landings, and the gate that can finally fail (Q5 + Q1)
+
+**Product path advanced.** Five slices landed since the 00:56 checkpoint, plus five REDs planted and
+five stale MADR/ledger rows corrected.
+
+| slice | merge | what it did |
+|---|---|---|
+| #101 | `9dce6e4c` | room capture derives its station set — 2 of 15 refreshed → **all 15** |
+| #89 | `8aceabaf` | grade galleries carry `measuredAgainstCommit` + tree fingerprint, fail-closed |
+| #382 | `2c2343fb` | phoneme dwell duration-weighted — **vowel:stop 1.00 → 2.80** |
+| #369 | `7dd3ab84` | skin normal map carries real detail — **sd 2.1 → 9.2** on 3/3 |
+| #383 | `38159a5a` | a planted RED that failed at IMPORT now fails at its own assertion |
+| #309 | `e6e1871a` | **tools typecheck 6,329 errors → 0** |
+
+**The headline is #309, and the proof is not the count.** I planted a real type error, re-ran, got
+exit 2 with exactly 1 error, reverted, back to exit 0. **The gate can now fail for a real reason** —
+previously a regression was 1 signal in 6,330 and 97.3% of the noise was one stylistic flag.
+
+**Blueprint/factory tie.** #369 found a root cause, not a workaround: MPFB's dermal channel is driven
+by an `MPFB_GEN_scale_factor` mesh attribute `HumanService.create_human` never emits, so the Math
+DIVIDE safe-divided to 0 and the shipped 1.3° of slope was aliased noise. #382 retired the Rhubarb
+plan — it consumes audio and this repo has none; CMUdict phones carry timing already (D9).
+
+**Risk that remains.**
+- **#381 is landed but NOT closed** — appearance claim, peer grades it, ~4.5 h outstanding.
+- **The grade capture renders a 104 px head.** Three claims died on it tonight (#369 skin,
+  hairline, #378 teeth). RED planted (`8a23e6df`); 3072² would give 249 px.
+- **#128 false-kill is live.** A shrink landing between branch-cut and merge kills in-flight branches.
+- **`dispatch()` RESETS a slice's worktree** to main HEAD and discards branch-local commits. Cost a
+  near-loss of #309's WIP; recovered by `reset --hard` because the object survived. **Only a resume
+  preserves branch work.**
+
+**Six premises corrected, five of them MADR/ledger rows that would each have mis-sent a slice:** Eyes
+("unverified at runtime" — verified), Runtime ("1 MPFB actor" — three), Visemes ("gap is Rhubarb" —
+not applicable), Wardrobe ("waistband sawtooth" — fixed, 20×/8×/15×), Body-from-phenotype (cited a
+file not in the tree; **stature DOES reach vertices**, 125→122.9 and 176→174.3). Plus the licence
+ledger: **`shirts01_cc0.zip` contains an AGPL3 asset** despite its name and row.
+
+**Four instruments of mine failed and were caught before they shaped a slice:** stature-fraction
+forearm bands, node-tree joint accumulation (wrist 42 cm above the head), a BMI girth proxy implying a
+36 cm adult waist, and reading garment helper-vertex refs as a topology refusal when the shipping
+t-shirt has 98,857. Each was caught by asking what the *working* case measures.
+
+**Next queued slice.** #199 (long sleeve, MPFB rail) and #293 (second case to the body pipeline) are
+in flight. #380's capture-resolution RED is planted and unblocks every future face grade.
+
+**Owner.** Orchestrator integrates and grades; asset-pipeline-lead and xr-systems-architect for the
+dispatched slices; equipment-lane peer owns appearance verdicts.
+
+Token introspection: drift; tier: pro; ccusageΔ=240301754; ccusageModels=claude-opus-5; grok flash=19 pro=27 composer=9; flashΔ=7 proΔ=0 composerΔ=4579; subagents=48 subPeak=393190; grokModels=deepseek-v4-flash|deepseek-v4-pro|grok-4.6; ratio=1.03
+Task cost: $7.39 est; subagents=47; subTokens=8803450; subUsd=$7.37; parentTokens=4579; parentUsd=$0.02; models=grok-4.6:$4.26|deepseek-v4-pro:$2.52|deepseek-v4-flash:$0.60
+
+**Touched files.** `apps/ui-xr/public/generated-humanoids/mpfb-*.glb` + `*.skin-normal.png` (#369);
+`tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py` (#369);
+`apps/ui-xr/src/{viseme-runtime-wire,viseme-timeline-drive}.ts` (#382);
+`tools/openclinxr/evidence/{model-vetting-glb-grade-capture,ui-xr-environment-room-capture}.ts` (#89, #101);
+`tsconfig.tools-relaxed.json` + 21 tools sources (#309); `docs/madr/0052-*.md`,
+`docs/openclinxr/third-party-asset-licence-ledger.md` (corrections).
+
 ### 2026-08-14 overnight-land-path-and-mpfb-realism-wave (Q1 + Q5)
 
 **Product path advanced.** Seven slices landed between 20:00 and 01:00. The land path itself was
