@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
@@ -69,7 +69,10 @@ import { describe, expect, it } from "vitest";
  *   - **That anyone reads the stamp.** This puts it in the file. Whether the grading loop checks it
  *     before trusting an image is a habit, not a gate.
  *   - **Retroactive stamping.** Existing captures stay unstamped and unknowable. Nothing here dates
- *     them; they should be treated as undatable rather than assumed current.
+ *     them; they should be treated as undatable rather than assumed current. This is why the clauses
+ *     check the SINGLE NEWEST run and not a window: every historical run predates the writer and can
+ *     never pass, so asserting over several would be unsatisfiable by construction. Once the writer
+ *     stamps, the newest run is always a stamped one.
  *
  * ## FIXED (#89)
  *
@@ -92,14 +95,23 @@ const SHA40 = /^[0-9a-f]{40}$/;
 
 type Gallery = { dir: string; json: Record<string, unknown> | null; stampKey: string | null; sha: string | null };
 
-/** Newest real capture run — never `latest`, which is a symlink/copy of whichever ran last. */
-function newestGalleries(limit = 3): Gallery[] {
+/**
+ * Newest real capture run — never `latest`, which is a symlink/copy of whichever ran last.
+ *
+ * Ordered by the run DIRECTORY's own ISO-8601 name, not by file mtime. mtime is not provenance: a
+ * `git checkout` of a historical capture stamps it with the current time and it jumps to the front.
+ * That is not hypothetical — it happened while landing this slice, and an ISO directory name sorts
+ * lexicographically in chronological order for free.
+ */
+const ISO_RUN_DIR = /^\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}Z$/;
+
+function newestGalleries(limit = 1): Gallery[] {
   if (!existsSync(GRADE_ROOT)) return [];
   const runs = readdirSync(GRADE_ROOT)
-    .filter((d) => d !== "latest" && existsSync(join(GRADE_ROOT, d, "gallery.json")))
-    .map((d) => ({ d, mtime: statSync(join(GRADE_ROOT, d, "gallery.json")).mtimeMs }))
-    .sort((a, b) => b.mtime - a.mtime)
-    .slice(0, limit);
+    .filter((d) => ISO_RUN_DIR.test(d) && existsSync(join(GRADE_ROOT, d, "gallery.json")))
+    .sort((a, b) => b.localeCompare(a))
+    .slice(0, limit)
+    .map((d) => ({ d }));
   return runs.map(({ d }) => {
     let json: Record<string, unknown> | null = null;
     try {
