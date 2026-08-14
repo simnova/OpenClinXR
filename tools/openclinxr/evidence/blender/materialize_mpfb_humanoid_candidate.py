@@ -108,6 +108,29 @@ def phenotype_skin_tone(reference_id):
     except Exception:
         return "default"
 
+def phenotype_fabric_palette(reference_id):
+    """Read the reference's declared fabricPalette from its tracked anny manifest.
+
+    Same manifest + field the skin-tone helper reads (above): the case definition's
+    `input_params.phenotype.fabricPalette` token. None/absent -> "" so the #400
+    thread-through is a no-op for the default-macro body (aisha path) and the
+    pre-#400 role fallback keeps the shipped bytes.
+    """
+    if not reference_id:
+        return ""
+    manifest = (
+        REPO_ROOT / "apps/ui-xr/public/generated-humanoids" / f"{reference_id}.anny_manifest.json"
+    )
+    if not manifest.is_file():
+        return ""
+    try:
+        m = json.loads(manifest.read_text(encoding="utf-8"))
+        palette = m.get("input_params", {}).get("phenotype", {}).get("fabricPalette")
+        return palette if palette else ""
+    except Exception:
+        return ""
+
+
 # #335/#332 — the anatomical neck band (MADR 0051 §4, anny-mpfb-landmark-compare.ts
 # BAND_WINDOWS.neck): the narrowest torso slice below the head, as a fraction of
 # the body's own stature. A fitted upper garment whose COLLAR (top vertex) sits
@@ -3014,7 +3037,9 @@ def main():
     # after export — the glTF exporter drops the factor when a texture is bound). The nurse's
     # Scrub_Shirt declares Scrub_Shirt.mhmat, which is NOT staged in the provider cache, so
     # that slot skips with a recorded reason and keeps the locked scrub colour.
-    _upper_role_colour = garment_shell_color(_upper_kind, args.actor_role, {})
+    _upper_role_colour = garment_shell_color(
+        _upper_kind, args.actor_role, {"fabricPalette": phenotype_fabric_palette(args.reference)}
+    )
     _upper_mat, _upper_mat_record = garment_material_from_declared(
         garment_mhclo,
         _upper_role_colour,
@@ -3088,7 +3113,9 @@ def main():
     # layer either — a texture would render as garbage. Both facts are recorded; wiring the
     # lower slot is a fitting-pipeline slice, not a side effect of this material change.
     _lower_kind = "scrub" if _is_clinician else "closed_casual"
-    _lower_role_colour = garment_shell_color(_lower_kind, args.actor_role, {})
+    _lower_role_colour = garment_shell_color(
+        _lower_kind, args.actor_role, {"fabricPalette": phenotype_fabric_palette(args.reference)}
+    )
     _pants_mat, _pants_mat_record = garment_material_from_declared(
         pants_mhclo,
         _lower_role_colour,
@@ -3266,7 +3293,9 @@ def main():
         shell_obj.data.materials.append(
             make_material(
                 "mat_makeclothes_library_cargo_pants",
-                garment_shell_color(_lower_kind, args.actor_role, {}),
+                garment_shell_color(
+                    _lower_kind, args.actor_role, {"fabricPalette": phenotype_fabric_palette(args.reference)}
+                ),
             )
         )
         bpy.data.objects.remove(pants, do_unlink=True)

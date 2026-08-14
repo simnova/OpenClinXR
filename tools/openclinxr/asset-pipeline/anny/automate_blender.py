@@ -1738,6 +1738,12 @@ _FABRIC_PALETTE_KIND_COLORS: Dict[str, Dict[str, tuple]] = {
         "open_front": (0.62, 0.28, 0.38, 1.0),
         "closed_casual": (0.42, 0.36, 0.40, 1.0),
     },
+    # #400: the peds patient's declared palette (patient_maya_johnson_v1). Muted powder
+    # blue — staging decision from the issue (clearly blue-dominant, distinct from the
+    # nurse's saturated teal so the child does not read as staff).
+    "soft_blue_and_warm_white": {
+        "closed_casual": (0.55, 0.68, 0.80, 1.0),
+    },
     "olive_knit_and_cream_casual": {
         "open_front": (0.48, 0.42, 0.28, 1.0),  # warm olive cardigan (street patient)
         "closed_casual": (0.72, 0.68, 0.55, 1.0),  # cream under-layer

@@ -167,7 +167,7 @@ function requireMeasured(): Row[] {
 }
 
 describe("a declared fabric palette reaches the shipped garment", () => {
-  it.fails("(1) RED: the child's soft-blue palette produces a blue-dominant garment", () => {
+  it("(1) RED: the child's soft-blue palette produces a blue-dominant garment", () => {
     const measured = requireMeasured();
     const child = measured.find((r) => r.actorId === "patient_maya_johnson_v1")!;
     expect(child.palette, "the child's case declares a fabricPalette at all").toBe("soft_blue_and_warm_white");
@@ -194,7 +194,7 @@ describe("a declared fabric palette reaches the shipped garment", () => {
     }
   });
 
-  it.fails("(3) RED: every declared fabricPalette matches a key in the palette table", () => {
+  it("(3) RED: every declared fabricPalette matches a key in the palette table", () => {
     // Refuses (b) from the other side: the child's palette must be MAPPED, not merely recoloured by
     // some other path. `garment_shell_color` substring-matches, so a key must contain or equal it.
     const measured = requireMeasured();
@@ -211,3 +211,32 @@ describe("a declared fabric palette reaches the shipped garment", () => {
     expect(missing, "actors whose lower garment was not found").toEqual([]);
   });
 });
+
+/**
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ * ## FIXED (#400) — appended; the planted header above is immutable
+ *
+ * MEASURED FIRST (clean-tree contract state, 2026-08-14): (1) fails — child upper
+ * (0.720, 0.680, 0.550) tan, B < R; (3) fails — `soft_blue_and_warm_white` has no table key.
+ * The premise correction (first dispatch, 48 turns) established that `garment_shell_color`
+ * DOES read `phenotype["fabricPalette"]` but all three MPFB materializer call sites
+ * (`materialize_mpfb_humanoid_candidate.py` :3017/:3091/:3269) passed an EMPTY phenotype —
+ * the field was dropped before the palette function ever saw it. One table key alone would
+ * have greened (3) while leaving the shipped bytes untouched (treatment b).
+ *
+ * FIX = two edits: (1) `materialize_mpfb_humanoid_candidate.py` now threads the manifest's
+ * `input_params.phenotype.fabricPalette` into all three `garment_shell_color` calls via
+ * `phenotype_fabric_palette(reference_id)` (the same manifest-read pattern as
+ * `phenotype_skin_tone`; absent reference -> "" keeps the pre-#400 role fallback for aisha),
+ * and (2) `automate_blender.py` `_FABRIC_PALETTE_KIND_COLORS` gained the
+ * `soft_blue_and_warm_white` key mapping `closed_casual` -> (0.55, 0.68, 0.80) — the staged
+ * muted powder blue from the issue (distinct from the nurse's teal, no cyan).
+ *
+ * Post-fix measured on the shipped bytes (NodeIO): child upper (0.55, 0.68, 0.80) and lower
+ * (0.55, 0.68, 0.80) — B > R on both; parent rose (0.42, 0.36, 0.40) and nurse teal
+ * (0.05, 0.48, 0.52) byte-unchanged; aisha's tan role fallback untouched (no reference).
+ * The t-shirt keeps its authored T-shirt_basic.png texture; the cargo-pants cover shell
+ * stays flat by authored state (cargo_pants.mhmat not staged — recorded skip, pre-existing).
+ * (1) and (3) flipped to live `it(`; (2)/(4) hold unchanged.
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ */
