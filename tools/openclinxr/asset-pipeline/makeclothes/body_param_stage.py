@@ -619,6 +619,23 @@ def transfer_weights_body_to_garment(
     return status
 
 
+# #387 — the bounds-derived scalp paint is a self-declared PLACEHOLDER. Its own docstring
+# (automate_blender.py:4245) says it exists "before a real groom/hair-card source stage
+# exists"; #381 landed the real thing (4,976 tris of fitted MakeClothes library hair on
+# aisha) and nobody retired the paint underneath — she ships both, and the 2.8%-luminance
+# paint under fitted hair is the hard 4096-grade boundary this issue closes. Retire the
+# placeholder ONLY where a real fitted replacement is on disk (aisha). The nurse and the
+# child keep it — removing it there would leave a bald skin head, and their fix needs a hair
+# asset chosen per character plus a licence check (the planted #387 contract's clause (3)
+# pins that boundary). Keyed by the shipped GLB base id.
+SCALP_PLACEHOLDER_RETIRED_FOR = frozenset({"mpfb-ob-patient-aisha"})
+
+
+def scalp_placeholder_retired_for(figure_id: str) -> bool:
+    """#387 — is this figure's placeholder scalp paint retired (real fitted hair on disk)?"""
+    return figure_id in SCALP_PLACEHOLDER_RETIRED_FOR
+
+
 def apply_scalp_hair_material_region(basemesh: bpy.types.Object) -> dict:
     """#279 — paint the proven bounds-derived scalp/hair material region on the hm08 body.
 
@@ -2640,7 +2657,13 @@ def build_one_body_class(
     # rail. Runs AFTER the coverage gate so the region is measured on the final
     # (aligned, helper-stripped, Z-up standing, face at -Y) body and BEFORE the armature
     # bind so skinning never touches the material indices.
-    scalp_hair_region = apply_scalp_hair_material_region(basemesh)
+    # #387 — the paint is a self-declared placeholder; it is retired only where a real
+    # fitted hair replacement is on disk (see scalp_placeholder_retired_for). The hm08
+    # library bodies are not in that set, so this call site's behaviour is unchanged.
+    if scalp_placeholder_retired_for(body_class_id):
+        scalp_hair_region = {"retired": True, "figureId": body_class_id}
+    else:
+        scalp_hair_region = apply_scalp_hair_material_region(basemesh)
 
     # #216/#220/#307 — bind body + upper (+ lower) to the mixamo_unity armature
     # (the body's skin is the shipped CC0 weight map from create_mpfb_mixamo_rig).
