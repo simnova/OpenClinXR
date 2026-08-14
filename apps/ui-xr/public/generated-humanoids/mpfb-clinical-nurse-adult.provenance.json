@@ -1,0 +1,62 @@
+{
+ "schemaVersion": "openclinxr.generated-humanoid-provenance.v1",
+ "derivationMode": "mpfb2_macro_from_anny_reference",
+ "scenarioId": "ed_chest_pain_priority_v1",
+ "actorId": "nurse_maria_alvarez_v1",
+ "actorRole": "nurse",
+ "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
+ "sourceManifestPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.anny_manifest.json",
+ "generatorMode": "mpfb2_humanservice_create_human_with_macro_dict_from_tracked_anny_reference_v1",
+ "sourceKind": "mpfb2_makehuman_basemesh_from_anny_reference",
+ "usesRealAnnyForwardPass": false,
+ "realAnnyWeightsUsed": false,
+ "textureMode": "authored_or_baked",
+ "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
+ "optimizationMode": "unoptimized_post_blender_glb",
+ "realismGrade": "not_graded",
+ "promotionStatus": "promoted_runtime_cast_not_realism_gate_pass",
+ "sourceOriginChain": {
+  "sourceTopologyMode": "mpfb2_standard_basemesh_with_standard_rig_v1",
+  "annyReference": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.anny_base.obj (tracked)",
+  "materializedFrom": "MPFB2 HumanService.create_human with macro_detail_dict derived from the tracked Anny reference",
+  "generator": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+  "derivationNote": "Issue #403 step 2: the shared Anny nurse mesh (10 cast slots) is replaced by this MPFB2 adult. age=0.6 from the measured head-height fraction (0.100, adult band); height=0.5827 SOLVED by bake-measure-interpolate so the baked+stripped exported body reaches the reference stature (1.76 m). Macros baked into the basis via TargetService.bake_targets immediately after create_human. Standard 137-joint rig; #317 face keys (32 targets / 13 mouth); #318 helper strip (19,158->13,380 verts / 36,972->26,756 tris). Wardrobe: #199 CC0 toigo_fisherman_sweater upper (scrub-class, locked clinical colour 0.05,0.48,0.52, luminance-normalised per #386), cortu_cargo_pants lower cover shell, toigo_flats footwear, #381 CC0 toigo_blunt_bob fitted hair, #356 blue iris (CC0 makehuman system-assets pack), #377 anatomical 24.0 mm eyes, #343 skin tone medium_warm (0.58,0.44,0.36), #370 tangent-space normal map, #359 scalp region (0.898-1.000 H)."
+ },
+ "licenseChain": {
+  "status": "mpfb2_makehuman_license_not_reverified_at_comparator",
+  "sourceRecordPath": ".openclinxr-local/provider-cache/mpfb/",
+  "sourceRecordClaimsSupported": [
+   "MPFB2 2.0.15 from Blender Extensions; MPFB is licensed AGPLv3 with a separate license for generated content; MakeHuman basemesh content posture recorded in the Anny source manifest (sources/anny-github-2026.json)."
+  ],
+  "notRun": [
+   "licence_text_reenumeration",
+   "makehuman_license_review",
+   "production_asset_readiness"
+  ],
+  "explicitUnknown": [
+   "MPFB/MakeHuman generated-content licensing has not been formally reviewed for production promotion; this asset is a cagematch comparator for evidence only."
+  ]
+ },
+ "notEvidenceFor": [
+  "b_plus_visual_realism_gate",
+  "production_asset_readiness",
+  "quest_readiness",
+  "learner_readiness",
+  "clinical_validity",
+  "scoring_validity",
+  "scene_placement_readiness",
+  "madr_0051_s5_landmark_match_within_bands"
+ ],
+ "sourceNotes": [
+  "Issue #403 first adult MPFB2 migration slice: the 19-slot Anny nurse/spouse pair is replaced by two MPFB2 adults generated from the tracked Anny references. The Anny GLBs stay on disk as comparators.",
+  "gender/muscle/weight/proportions/cupsize/firmness remain MPFB defaults — only age + height are driven by reference measurement this slice.",
+  "Exact MADR 0051 §5 landmark match (shoulder, girths, limb lengths) is anny-mpfb-landmark-compare's follow-on; NOT claimed here.",
+  "Physician/respiratory_therapist/medical_assistant roles share this nurse-class body by design (named clinical-team look-alike) — not a third bake.",
+  "Baked 2026-08-14 from this worktree with all provider-cache assets staged locally (garments, hair, iris)."
+ ],
+ "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
+ "promotionGates": false,
+ "generatedAt": "2026-08-14T16:14:00Z",
+ "outputSha256": "20e9ee59680cccc57e43dbf0396ee1832b81eb417f8ecee9bcb218a47a8f9393",
+ "outputBytes": 22647888
+}

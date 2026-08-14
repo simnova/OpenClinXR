@@ -909,9 +909,9 @@ describe("asset registry", () => {
     const azureBundle = createEdChestPainLocalEncounterRuntimeAssetBundle({
       assetStore: azureStore,
     });
-    // #96: nurse resolves to ED scrub shell (distinct content from patient gown cast).
+    // #96/#403: nurse resolves to the MPFB clinical-nurse body (was the shared Anny scrub shell).
     expect(resolveRuntimeAssetUrl(findRuntimeActorAsset(azureBundle, "nurse_maria_alvarez_v1")?.model ?? azureBundle.environment))
-      .toBe("https://openclinxrprodassets.blob.core.windows.net/tenant-assets/generated-humanoids/ed_chest_pain_nurse_adult.glb");
+      .toBe("https://openclinxrprodassets.blob.core.windows.net/tenant-assets/generated-humanoids/mpfb-clinical-nurse-adult.glb");
     expect(azureBundle.assetStoreKind).toBe("azure_blob");
   });
 

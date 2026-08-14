@@ -30,6 +30,12 @@ SHOE_BY_REFERENCE = {
     None: "toigo_flats",
     "peds_nurse_kevin": "culturalibre_male_boots",
     "peds_patient_child": "toigo_mj_cloth_shoes",
+    # #403 — the two ED adult females (nurse + spouse) get distinct CC0 footwear
+    # assets so the family-class wardrobe differs from the scrub-class one beyond
+    # the upper garment and iris. Flats (nurse) and mj cloth shoes (spouse) are the
+    # same proven zero-helper-ref subset as the existing rows (ledger rows).
+    "ed_chest_pain_nurse_adult": "toigo_flats",
+    "ed_chest_pain_spouse_adult": "toigo_mj_cloth_shoes",
 }
 
 # #381 — slice 1 of the human-realism campaign: the cast actor wears the fitted hair
@@ -48,6 +54,13 @@ HAIR_STYLE_BY_REFERENCE = {
     None: "toigo_blunt_bob_with_bangs",
     "peds_nurse_kevin": None,
     "peds_patient_child": "toigo_curled_under_bob_with_bangs",
+    # #403 — the two ED adult females join the fitted-hair cast (both CC0, MRT;
+    # distinct styles so the nurse and spouse do not read as the same person in the
+    # co-present ED/OB stations). Blunt bob for the nurse, curled-under bob for the
+    # spouse — neither collides with the shipped aisha (blunt bob WITH bangs) or the
+    # child (curled-under WITH bangs) styles.
+    "ed_chest_pain_nurse_adult": "toigo_blunt_bob",
+    "ed_chest_pain_spouse_adult": "toigo_curled_under_bob",
 }
 
 # #199: the LONG-SLEEVE upper slot. #197/#199 measured that body-surface-derived garments
@@ -67,6 +80,11 @@ LONG_SLEEVE_UPPER_BY_REFERENCE = {
     None: None,
     "peds_nurse_kevin": "toigo_fisherman_sweater",
     "peds_patient_child": None,
+    # #403 — the ED clinical nurse wears the same CC0 fisherman sweater as the peds
+    # nurse (scrub-class upper, locked clinical colour, proven fit on the same
+    # stripped basemesh). The spouse stays on the patient t-shirt channel: family
+    # class is closed_casual, not scrub.
+    "ed_chest_pain_nurse_adult": "toigo_fisherman_sweater",
 }
 
 # #343 — phenotype skin-tone token -> MpfbSkinMasterColor SkinColor (RGB).
@@ -1345,6 +1363,9 @@ EYE_DIAMETER_TARGET_MM = {
     "mpfb-peds-parent-aisha": 24.0,  # #388: same adult-female body as aisha
     "mpfb-peds-nurse-kevin": 24.0,
     "mpfb-peds-patient-child": 22.5,
+    # #403 — the two ED adults are adult-female; adult axial length applies.
+    "mpfb-clinical-nurse-adult": 24.0,
+    "mpfb-family-partner-adult": 24.0,
 }
 
 
