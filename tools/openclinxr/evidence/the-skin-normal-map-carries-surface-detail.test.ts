@@ -64,6 +64,29 @@ import { describe, expect, it } from "vitest";
  * one lighting setup and wrong in every other, and it is the traditional way to fake this. Albedo
  * luminance sd is pinned per actor.
  *
+ * ## FIXED (#369) — the bake now writes the enhanced_skin dermal detail
+ *
+ * Measured 2026-08-14 on the re-baked shipped bytes (same sampling as the table above):
+ *
+ *   actor    normalTexture   normalScale   sd(R)   flat texels   adjacent-MAD   roughness
+ *   -------  --------------  -----------  ------  ------------  -------------  ---------
+ *   aisha    BOUND 1024²          1        9.24      36.7%          4.46       0.78 flat
+ *   kevin    BOUND 1024²          1        8.90      36.8%          4.29       0.78 flat
+ *   child    BOUND 1024²          1       12.02      36.5%          6.04       0.78 flat
+ *
+ * The maps were blank because the enhanced_skin dermal channel's Voronoi scale chain was dead on
+ * this install: its scale is driven by a `MPFB_GEN_scale_factor` mesh attribute that
+ * `HumanService.create_human` never emits (measured 2026-08-14), so the shipped Math DIVIDE
+ * safe-divided to 0 and the dermal contributed nothing — the shipped 1.3 deg of slope was the
+ * aliased unevenness noise alone. `materialize_mpfb_humanoid_candidate.py` now repairs the dermal
+ * scale input directly and sets the channel's own shipped knobs (Voronoi cells ~47 texels at 1024²,
+ * ramp 0.0–0.5, bump strength 6.0) before the bake, and swaps the hide-mask/scalp polys to the skin
+ * material for the bake so their (invisible) atlas area bakes the same detail instead of a flat
+ * normal. All other bump channels stay at their shipped strengths. Roughness is still a uniform 0.78
+ * — deliberately out of scope, per the issue.
+ *
+ * This map becomes the known-good reference the header above said did not exist.
+ *
  * ## WHY THIS IS A DARK-FACTORY SLICE (D1/D9)
  *
  * Do NOT hand-author a normal map. MPFB2 and Blender can bake one; the binding, the `normalScale`, the
@@ -274,7 +297,7 @@ function requireMeasured(): void {
 }
 
 describe("the skin normal map carries surface detail", () => {
-  it.fails("(1) RED: the map is not mostly the flat no-op value", () => {
+  it("(1) RED: the map is not mostly the flat no-op value", () => {
     requireMeasured();
     const blank = rows
       .filter((r) => r.flatFraction > MAX_FLAT_FRACTION)
@@ -285,7 +308,7 @@ describe("the skin normal map carries surface detail", () => {
     expect(blank, "skin normal maps that are mostly no-op").toEqual([]);
   });
 
-  it.fails("(2) RED: the map encodes at least five degrees of surface slope", () => {
+  it("(2) RED: the map encodes at least five degrees of surface slope", () => {
     requireMeasured();
     const flat = rows
       .filter((r) => r.sd < MIN_SD)
@@ -296,7 +319,7 @@ describe("the skin normal map carries surface detail", () => {
     expect(flat, "skin normal maps describing a mirror").toEqual([]);
   });
 
-  it.fails("(3) RED: the map is spatially coherent, not dither", () => {
+  it("(3) RED: the map is spatially coherent, not dither", () => {
     // Refuses (c): rand() satisfies (1) and (2) instantly. A baked surface has neighbouring texels
     // describing neighbouring skin, so adjacent-MAD is small against the global spread; white noise
     // sits at ≈1.13. Today's 0.66-0.71 is the signature of dither, which is why this is a RED.

@@ -778,6 +778,122 @@ def bake_skin_material_to_texture(human, skin_material_name, out_png_path, resol
     return img
 
 
+# #369 — the dermal pore channel's effective Voronoi scale. MPFB's own design
+# drives it as DermalScaleMultiplier / MPFB_GEN_scale_factor, where
+# MPFB_GEN_scale_factor is a mesh attribute the ShaderNodeAttribute reads. Measured
+# 2026-08-14: `HumanService.create_human` NEVER emits that attribute on this install
+# (probed: absent from the created mesh), the attribute node returns 0, the shipped
+# Math DIVIDE safe-divides to 0, and the dermal channel contributes NOTHING to the
+# bake. The blank maps we shipped were the aliased unevenness noise alone (sd 2.1 =
+# 1.3 deg of slope, flat to within rounding). The fix repairs the dermal scale
+# input directly at bake time — the channel's own mechanism, fed the value the
+# missing attribute was supposed to supply.
+#
+# The tuned values are derived from the encoding band, not fitted to an observation:
+# a tangent-space normal deviates 127*sin(theta) from 128, so the contract's 5 deg
+# perceptibility floor is sd(R) >= 8. Measured on the real body (contract-equivalent
+# stats, 2026-08-14): dermal Voronoi cells spanning ~47 texels at 1024^2 (scale 14
+# on the 1.559 m adult), ramp 0.0-0.5 (gradient across the full distance range, so
+# coverage is not ramp-saturated), bump strength 6.0 -> sd 8-10, flat 0.36-0.37,
+# adjacent-MAD/sd 0.45-0.52. The per-body scale compensates for the UV texel density
+# (smaller bodies map the same atlas to smaller texels -> scale must rise to keep
+# both sd and coherence constant), which is exactly the compensation the missing
+# MPFB_GEN_scale_factor was designed to supply.
+DERMAL_CELL_TEXELS = 47.0
+DERMAL_BUMP_STRENGTH = 6.0
+DERMAL_RAMP_VALLEY = 0.0
+DERMAL_RAMP_PEAK = 0.5
+
+
+def _walk_group_instances(nt, out=None):
+    """All ShaderNodeGroup instances in a node tree, recursively."""
+    if out is None:
+        out = []
+    for n in nt.nodes:
+        if n.bl_idname == "ShaderNodeGroup" and n.node_tree:
+            out.append(n)
+            _walk_group_instances(n.node_tree, out)
+    return out
+
+
+def configure_skin_normal_detail(skin_mat, human, resolution=1024):
+    """#369 — make the SHIPPED enhanced_skin dermal pore channel bake real detail.
+
+    The dermal channel's Voronoi scale chain is dead on this install (its
+    MPFB_GEN_scale_factor mesh attribute is never created, measured 2026-08-14), so
+    the NORMAL bake captured nothing but the aliased unevenness noise. This repairs
+    the scale input directly and sets the channel's OWN shipped knobs (the pore
+    mechanism enhanced_skin ships) to the levels the encoding band requires:
+
+      - Voronoi scale: fixed so cells span DERMAL_CELL_TEXELS texels at the bake
+        resolution (geometry-derived from the body's own stature, so every actor
+        bakes the same texture-space frequency);
+      - ColorRamp: valley 0.0 / peak 0.5 — gradient across the full distance
+        range, so the map is not ramp-saturated (measured: the shipped 0.05/0.1
+        stops leave ~83% of texels flat regardless of strength);
+      - bump strength: 6.0 — the shipped 0.15 bakes to ~1.3 deg of slope, below
+        perceptibility; 6.0 lands at the encoding's 5 deg floor with margin.
+
+    All other bump channels (unevenness/navel/veins/spot/lips crease) are LEFT at
+    their shipped strengths: they carry the region detail (lips creases, navel)
+    and their aliased energy is small enough not to break coherence (measured:
+    adjacent-MAD/sd 0.52 with them on vs 0.46 without, both under the 0.6 net).
+    The base-colour bake runs BEFORE this, so the albedo is untouched.
+
+    Returns a report dict for the bake census.
+    """
+    zmin, _, stature = _body_world_z_bounds(human)
+    if stature <= 0:
+        raise RuntimeError("#369: non-positive body stature for the dermal scale")
+    scale = round(resolution / (DERMAL_CELL_TEXELS * stature), 4)
+
+    dermal_instances = 0
+    other_inputs = 0
+    voronoi_forced = 0
+    for g in _walk_group_instances(skin_mat.node_tree):
+        tree_name = g.node_tree.name if g.node_tree else "?"
+        for inp in g.inputs:
+            name = inp.name
+            try:
+                if name == "DermalBumpStrength":
+                    inp.default_value = DERMAL_BUMP_STRENGTH
+                    dermal_instances += 1
+                elif name == "DermalValley":
+                    inp.default_value = DERMAL_RAMP_VALLEY
+                elif name == "DermalPeak":
+                    inp.default_value = DERMAL_RAMP_PEAK
+                elif "BumpStrength" in name or name in ("LipsCreaseStrength", "WartStrength", "UnevennessStrength"):
+                    other_inputs += 1  # left at shipped strength — recorded, not hidden
+            except Exception:
+                pass
+
+    def _force_dermal_scale(nt):
+        nonlocal voronoi_forced
+        for n in nt.nodes:
+            if n.bl_idname == "ShaderNodeGroup" and n.node_tree:
+                _force_dermal_scale(n.node_tree)
+            if n.bl_idname == "ShaderNodeTexVoronoi" and n.feature == "DISTANCE_TO_EDGE":
+                for link in list(n.inputs["Scale"].links):
+                    nt.links.remove(link)
+                n.inputs["Scale"].default_value = scale
+                voronoi_forced += 1
+
+    _force_dermal_scale(skin_mat.node_tree)
+    if voronoi_forced == 0:
+        raise RuntimeError("#369: no dermal Voronoi found to repair in the enhanced_skin tree")
+    report = {
+        "statureMeters": round(stature, 4),
+        "dermalScale": scale,
+        "dermalBumpStrength": DERMAL_BUMP_STRENGTH,
+        "dermalRamp": [DERMAL_RAMP_VALLEY, DERMAL_RAMP_PEAK],
+        "dermalInstancesConfigured": dermal_instances,
+        "otherBumpInputsLeftAtShipped": other_inputs,
+        "voronoiScaleForced": voronoi_forced,
+    }
+    print(f"SKIN_NORMAL_DETAIL {json.dumps(report)}")
+    return report
+
+
 def bake_skin_normal_to_texture(human, skin_material_name, out_png_path, resolution=1024):
     """#370 — bake the SHIPPED enhanced_skin shader's perturbed surface normal
     (procedural pores + any normal-map texture) to a glTF normalTexture.
@@ -789,6 +905,11 @@ def bake_skin_normal_to_texture(human, skin_material_name, out_png_path, resolut
     Cycles' NORMAL bake reads the SHADING normal (geometry + bump), which is
     exactly the surface detail a normalTexture must carry — geometry, not light
     transport. Tangent space is the glTF normalTexture convention.
+
+    #369 — the shipped dermal channel bakes nothing as shipped (its scale chain is
+    broken on this install; see configure_skin_normal_detail). The bake therefore
+    runs AFTER that function repairs and tunes the channel, so the map carries real,
+    perceptible, spatially-coherent surface detail.
 
     Only skin-material faces are baked (same as the base-colour bake); the scalp
     polys are swapped in and restored so the atlas has no black holes under the
@@ -803,6 +924,7 @@ def bake_skin_normal_to_texture(human, skin_material_name, out_png_path, resolut
     if skin_idx is None:
         raise RuntimeError(f"#370: skin material {skin_material_name} not found for normal bake")
     skin_mat = human.data.materials[skin_idx]
+    configure_skin_normal_detail(skin_mat, human, resolution=resolution)
 
     scene = bpy.context.scene
     prev_engine = scene.render.engine
@@ -828,26 +950,37 @@ def bake_skin_normal_to_texture(human, skin_material_name, out_png_path, resolut
     human.select_set(True)
     bpy.context.view_layer.objects.active = human
 
-    # Same scalp-cover swap as the base-colour bake (issue-341 round 14): a
-    # non-skin material's UV area stays black (0,0,0 -> decoded normal (-1,-1,-1))
-    # and reads as shading holes at the hairline. The scalp polys are temporarily
-    # reassigned to skin for the bake and restored afterwards.
-    _scalp_bake_idx = next(
-        (i for i, m in enumerate(human.data.materials) if "scalp" in (m.name or "").lower()),
-        None,
-    )
-    _scalp_swapped: list[int] = []
-    if _scalp_bake_idx is not None and _scalp_bake_idx != skin_idx:
-        for _pi, _p in enumerate(human.data.polygons):
-            if _p.material_index == _scalp_bake_idx:
+    # Same scalp-cover swap as the base-colour bake (issue-341 round 14), EXTENDED
+    # to every non-skin material on the body (#369). The base-colour bake writes
+    # (0,0,0) for the hidden-material polys (their alpha-0 base color) and the
+    # contract excludes black texels, so the base atlas is unaffected. The NORMAL
+    # bake writes the hidden material's FLAT shading normal (128,128,255) instead —
+    # measured 2026-08-14: the hide-mask polys (torso under the shirt, legs under
+    # the trousers, feet under the shoes: 1,360+204+1,795 polys on aisha) baked a
+    # large flat region that pushed flat-texel % to 0.56, failing the 0.40 net.
+    # Swapping them to the skin material for the bake gives their (invisible)
+    # atlas area the same dermal detail as the visible skin, so the map reads
+    # uniformly; the polys are restored afterwards.
+    _cover_swapped: dict[int, int] = {}
+    for _pi, _p in enumerate(human.data.polygons):
+        _mi = _p.material_index
+        if _mi == skin_idx:
+            continue
+        if _mi < len(human.data.materials):
+            _mat_name = human.data.materials[_mi].name or ""
+            if "scalp" in _mat_name.lower() or "openclinxr_hidden_" in _mat_name:
+                _cover_swapped[_pi] = _mi
                 _p.material_index = skin_idx
-                _scalp_swapped.append(_pi)
-        print(f"SKIN_NORMAL_BAKE scalp-cover swap {len(_scalp_swapped)} polys to skin for the bake")
+    if _cover_swapped:
+        print(
+            f"SKIN_NORMAL_BAKE non-skin cover swap {len(_cover_swapped)} polys "
+            f"(scalp + hide-mask) to skin for the bake"
+        )
     try:
         bpy.ops.object.bake(type="NORMAL", margin=2, use_clear=True)
     finally:
-        for _pi in _scalp_swapped:
-            human.data.polygons[_pi].material_index = _scalp_bake_idx
+        for _pi, _mi in _cover_swapped.items():
+            human.data.polygons[_pi].material_index = _mi
         scene.render.engine = prev_engine
         scene.cycles.device = prev_device
         if prev_normal_space is not None:
