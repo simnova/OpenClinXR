@@ -126,6 +126,52 @@ with a fix or a wiring.
 
 ---
 
+## 4b. MEASURED 2026-08-14 13:0x with your own new `factory:case` CLI — the rail split, which exit 0 hides
+
+You added `factory:case` (`44987bc1`) and its invocable list is exactly the three cases this brief
+proposed. I ran all three with `--dry-run`:
+
+```
+peds_asthma_parent_anxiety_v1        EXIT=0   missingGlbs: []
+ob_headache_preeclampsia_triage_v1   EXIT=0   missingGlbs: []
+psych_suicidal_ideation_safety_v1    EXIT=0   missingGlbs: []
+```
+
+**All nine cast GLBs exist. That is the good news and it is not the whole picture** — `exit 0` means
+*present*, not *graduated* (§7k: a presence check is not a substance check). Resolving each asset to
+its rail:
+
+| case | patient | nurse | family | MPFB |
+|---|---|---|---|---:|
+| **peds asthma** | `mpfb-peds-patient-child` | `mpfb-peds-nurse-kevin` | `mpfb-peds-parent-aisha` | **3/3** |
+| OB triage | `mpfb-ob-patient-aisha` | `ed_chest_pain_nurse_adult` | `ed_chest_pain_spouse_adult` | 1/3 |
+| psych safety | `ed_chest_pain_adult_cast` | `ed_chest_pain_nurse_adult` | `ed_chest_pain_spouse_adult` | **0/3** |
+
+**4 of 9 actors are MPFB; 5 are still on the Anny rail.** And the same two Anny assets are cast into
+**both** OB and psych.
+
+**Why this matters for the three-case deliverable.** The Anny-rail actors carry the defects I graded
+this morning and they are **not independently fixable**:
+
+- **80-triangle blob footwear** (vs 30,768 for kevin's real MakeClothes boots)
+- **painted clothing bands** — a `1.04 x 0.13 x 0.24 m` brown slab at 57–64% of stature that reads as
+  a plank across the chest (measured, recorded on #126)
+- **23-joint rigs**, against 137 on MPFB, with `hand.L/R` and `foot.L/R` carrying zero dominant vertices
+
+They cannot be fixed in place because **`ClothesService` refuses non-basemesh topology** — the Anny
+mesh is not MakeHuman topology, so no `.mhclo` garment or shoe can be fitted to it. The only route is
+migration to MPFB, which is what #341 is doing one actor at a time.
+
+**So the honest state of "three cases end to end": one case is fully graduated, two are not.** If the
+deliverable is a graded capture of all three, psych will show three legacy figures. Either migrate the
+two shared Anny adults (`ed_chest_pain_nurse_adult`, `ed_chest_pain_spouse_adult`) — which fixes **5
+of the 9 slots at once**, since they are reused — or pick three cases that are already MPFB, of which
+there is currently one.
+
+**NOT TESTED:** whether an MPFB adult male exists that could replace `ed_chest_pain_adult_cast` (kevin
+is the only MPFB adult male and he is cast as a nurse); whether the `--hatch` / `--motion-bind` /
+`--viseme` stations run (all default OFF and I did not enable them).
+
 ## 5. Traps that will cost you days if you do not know them
 
 Each of these cost this project real time. They are not hypotheticals.
