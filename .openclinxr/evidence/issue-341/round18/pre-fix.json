@@ -1,0 +1,80 @@
+{
+  "schemaVersion": "openclinxr.issue341.round18.pre-fix.v1",
+  "measuredAgainstCommit": "814531797fa1cfecc5f2cba2c3d64d61b3ab9da8",
+  "measuredAt": "2026-08-14T12:1x:00Z",
+  "measuredBy": "worker (text-only) via NodeIO on the SHIPPED bytes of this worktree (HEAD 81453179, the #399 merge re-bake; the prior round-17 artifact measured 40a48b20)",
+  "verdict": "PREMISE DEAD — confirmed on the CURRENT bytes under BOTH readings. Every actor ships TWO hidden_lower primitives: the base poke-mask and a .001 carrying round 9's RENDER_TRUTH_REHIDE band. On this bake the union reaches the trouser rim on all three actors (gap +1.1 / -0.3 / -0.7 mm, the negative values being mask over-reach inside the <=6 mm net), and render-truth shows 0/0/1 belly skin tris visible in the waistband band. The brief's 55.6/34.3/23.9 mm table is stale on TWO counts: (a) it reads the base poke-mask only (find() semantics), and (b) even the base poke-mask has moved up since that table was measured (current base-first gaps 3.7/1.1/6.1 mm — the masks were re-baked by the current materializer at the #387/#399 re-bakes). No defect at the mask. changed: proofs WAIVED per the premise-dead branch; no product code changed.",
+  "caseDetermination": "case 4 — applied and my measurement is wrong: the re-hide band IS applied (the .001 primitives exist in the shipped bytes of all three actors and reach the rim); the orchestrator's gap is an artifact of reading only the FIRST hidden_lower primitive. Additionally, the base mask alone now reads inside the <=8 mm contract on the current bytes (3.7/1.1/6.1 mm), so even a first-primitive read passes on this bake. band never computed / band empty / band re-clipped: all excluded by the .001 primitives' existence and reach.",
+  "generatorDiagnostics": {
+    "note": "A fresh re-bake is not possible in this worktree: .openclinxr-local/provider-cache/mpfb/ is EMPTY (only eyes/ and garments/ exist), so the materializer's MPFB basemesh source is absent — the same constraint round 17 recorded ('bake paths no longer exist in this tree'). The effect of the current code's RENDER_TRUTH_REHIDE is therefore read from the shipped bytes (the .001 primitives below), not from a fresh stdout. The WARNING condition (pants top below shirt hem -> band empty) is structurally excluded on the current bytes: pants top exceeds shirt bottom on all three (aisha 0.9871>0.9675, nurse 0.9552>0.9358, child 0.7199>0.7065), so the band is non-empty by construction. Round 17's recorded bake-time diagnostics (band 56/544/373 faces, applied lower faces 38/170/206, WARNING never fired at a2f27ec2) remain the last stdout capture of this code path.",
+    "warningFiredByConstruction": false
+  },
+  "byteMeasurement": {
+    "method": "NodeIO on the SHIPPED apps/ui-xr/public/generated-humanoids/*.glb at 81453179: max Y of EACH hidden_lower primitive (never find()), cargo_pants primitive, t_shirt/scrub/sweater primitive. glTF Y = Blender Z = the mask/garment vertical axis. Body height = full-scene min..max Y (includes hair/footwear).",
+    "perActor": {
+      "mpfb-ob-patient-aisha": {
+        "bodyHeightM": 1.6871,
+        "pantsTop": { "m": 0.9871, "H": 0.5851 },
+        "baseLowerMaskTop": { "m": 0.9834, "H": 0.5829 },
+        "rehide001Top": { "m": 0.9860, "H": 0.5844 },
+        "unionMaskTop": { "m": 0.9860, "H": 0.5844 },
+        "shirtBottom": { "m": 0.9675, "H": 0.5735 },
+        "gapBaseFirst": { "mm": 3.7, "note": "base poke-mask only — already inside the <=8 mm contract on this bake" },
+        "gapUnion": { "mm": 1.1 },
+        "overreachUnionMm": -1.1,
+        "shirtOverlapMm": 19.6
+      },
+      "mpfb-peds-nurse-kevin": {
+        "bodyHeightM": 1.7601,
+        "pantsTop": { "m": 0.9552, "H": 0.5427 },
+        "baseLowerMaskTop": { "m": 0.9541, "H": 0.5421 },
+        "rehide001Top": { "m": 0.9555, "H": 0.5428 },
+        "unionMaskTop": { "m": 0.9555, "H": 0.5428 },
+        "shirtBottom": { "m": 0.9358, "H": 0.5317, "note": "upper garment is the fisherman sweater (#199)" },
+        "gapBaseFirst": { "mm": 1.1 },
+        "gapUnion": { "mm": -0.3, "note": "mask 0.3 mm above the rim — within the <=6 mm over-reach net" },
+        "overreachUnionMm": 0.3,
+        "shirtOverlapMm": 19.4
+      },
+      "mpfb-peds-patient-child": {
+        "bodyHeightM": 1.2587,
+        "pantsTop": { "m": 0.7199, "H": 0.5719 },
+        "baseLowerMaskTop": { "m": 0.7138, "H": 0.5671 },
+        "rehide001Top": { "m": 0.7206, "H": 0.5725 },
+        "unionMaskTop": { "m": 0.7206, "H": 0.5725 },
+        "shirtBottom": { "m": 0.7065, "H": 0.5613 },
+        "gapBaseFirst": { "mm": 6.1, "note": "base poke-mask only — already inside the <=8 mm contract on this bake" },
+        "gapUnion": { "mm": -0.7, "note": "mask 0.7 mm above the rim — within the <=6 mm over-reach net" },
+        "overreachUnionMm": 0.7,
+        "shirtOverlapMm": 13.4
+      }
+    }
+  },
+  "renderTruth": {
+    "method": "on the CURRENT bytes: skin-primitive tri with centroid in [shirtBottom, pantsTop], front-facing (glTF +Z normal), no garment (pants/shirt/sweater/footwear) hit from the centroid along +Z within 0.5 m (Moller-Trumbore over the shipped garment tris). Belly filter |x| < 0.12, z > 0.06 (same as the round-17 artifact).",
+    "perActor": {
+      "mpfb-ob-patient-aisha": { "bandFrontVisible": 748, "bellyVisible": 0 },
+      "mpfb-peds-nurse-kevin": { "bandFrontVisible": 14, "bellyVisible": 0 },
+      "mpfb-peds-patient-child": { "bandFrontVisible": 555, "bellyVisible": 1 }
+    },
+    "note": "aisha's and the child's bandFrontVisible counts are ARM skin at |x| >= 0.25-0.35 (forearms below the sleeve hem hang through the waistband height at the sides — the pre-existing class round 17 already separated; the lower cover shell does not wrap the arms). The belly waistband — the region the orchestrator grades — has 0/0/1 visible skin tris: no skin band. Round 17 measured 3/2/3 at 40a48b20; the current bytes are no worse (0/0/1)."
+  },
+  "contractsRun": {
+    "method": "pnpm exec vitest run on the three planted tests at 81453179, run by the worker",
+    "waistbandMaskReachesRim": "3 passed AFTER a predicate repair (see predicateRepair below) — the instrument measures max over ALL hidden_lower primitives (the 2c95a394 fix); all three clauses pass on the current bytes (gaps 1.1 / -0.3 / -0.7 mm, overreach <= 0.7 mm, overlap 13.4-19.6 mm)",
+    "hairCoversBothSides": "passed (4 tests) — REGION_FIGURES is [nurse] alone (#393/#399 re-premise)",
+    "bodyHiddenUnderCloth": "passed (3 tests) — aisha carries 1,605+ hidden verts under the t-shirt",
+    "predicateRepair": "the waistband contract's shirtBot predicate read /t_shirt|scrub/, which the nurse's upper garment no longer matches: #199 (2026-08-14 05:02, commit 33572339) replaced the scrub shirt with the CC0 fisherman sweater (makeclothes_library_fisherman_sweater_*). The nurse's row returned null and the vacuity guard failed 3/3 (expected 2 >= 3) while the product was fine. Extended the predicate to /t_shirt|scrub|sweater/ — the same class of repair the file's own header documents for #180 ('include it so the overlap clause keeps measuring the nurse'). No threshold changed; the nurse measures in-band (gap -0.3 mm, overlap 19.4 mm)."
+  },
+  "outOfScopeWrongnessSeen": {
+    "briefTableIsStaleAgainstCurrentBytes": "the brief's premise table (gaps 55.6/34.3/23.9 mm, pants tops 0.592/0.601/0.580 H) was measured at an older commit. Current bytes: pants tops 0.585/0.543/0.572 H; the nurse's upper garment is the fisherman sweater (#199), not the scrub; both lower masks sit near the rim. All three waistband/overlap/neck contracts still pass. The bytes being graded are not the generation the table measured — same class of finding round 17 recorded, now with the masks closer to the rim.",
+    "forearmSkinAtWaistbandHeight": "visible forearm skin at |x| 0.25-0.35 hangs at the waistband height below the sleeve hems (the bandFrontVisible counts above). Pre-existing, separate from the mask-gap premise; the pixel verdict is the orchestrator's."
+  },
+  "claimScope": "the mask-gap premise is dead on the CURRENT shipped bytes: the union of hidden_lower primitives reaches the trouser rim on all three actors (1.1 / -0.3 / -0.7 mm, within the <=6 mm over-reach net), and even the base poke-mask alone reads 3.7/1.1/6.1 mm on this bake (inside the <=8 mm contract). No belly skin band in render truth (0/0/1). No product code changed.",
+  "notEvidenceFor": [
+    "a pixel-grade pass — the orchestrator grades captures",
+    "the waistband EDGE being smooth — a gap correct on this metric can still read ragged (see #350 orphan 4-vertex skin islands, out of scope)",
+    "clinical validity",
+    "production readiness"
+  ]
+}

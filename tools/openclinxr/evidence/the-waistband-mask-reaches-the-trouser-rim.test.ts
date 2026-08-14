@@ -121,8 +121,10 @@ async function measure(rel: string): Promise<Row | null> {
     bands.filter((b) => !b.hidden && re.test(b.name)).reduce((m, b) => Math.min(m, b.lo), Infinity);
   const pantsTop = topOf(/cargo_pants/);
   // #180: the nurse's upper is now the scrub shirt — include it so the overlap clause
-  // keeps measuring the nurse.
-  const shirtBot = botOf(/t_shirt|scrub/);
+  // keeps measuring the nurse. #199 (2026-08-14) replaced the scrub with the CC0
+  // fisherman sweater — include it too, or the nurse's row returns null and the
+  // vacuity guard fails while the product is fine.
+  const shirtBot = botOf(/t_shirt|scrub|sweater/);
   const lowerMaskTop = bands
     .filter((b) => b.hidden && /hidden_lower/.test(b.name))
     .reduce((m, b) => Math.max(m, b.hi), -Infinity);
