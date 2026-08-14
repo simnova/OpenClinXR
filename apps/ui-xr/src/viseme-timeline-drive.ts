@@ -16,10 +16,14 @@
 export type PhonemeCue = {
   phoneme: string;
   atSecond: number;
+  /** Per-phone dwell length in seconds. Omitted by callers that pre-time their own cues. */
+  durationSeconds?: number;
 };
 
 export type VisemeFrame = {
   atSecond: number;
+  /** Dwell length in seconds; absent when the caller supplied no per-phone durations. */
+  durationSeconds?: number;
   weights: Record<string, number>;
 };
 
@@ -132,8 +136,31 @@ export function driveVisemeTimeline(
     if (active !== null && !(active in weights) && availableTargets.includes(active)) {
       weights[active] = 1;
     }
-    return { atSecond: cue.atSecond, weights };
+    const frame: VisemeFrame = { atSecond: cue.atSecond, weights };
+    if (cue.durationSeconds !== undefined) frame.durationSeconds = cue.durationSeconds;
+    return frame;
   });
 
   return { frames };
+}
+
+/**
+ * Dwell length of one frame in seconds. Prefers the cue-supplied duration; falls back to the
+ * `atSecond` gap for callers that build cues without durations (uniform step).
+ */
+export function frameDurationSeconds(frames: readonly VisemeFrame[], index: number): number {
+  const frame = frames[index];
+  if (!frame) return 0;
+  const explicit = frame.durationSeconds;
+  if (typeof explicit === "number" && Number.isFinite(explicit) && explicit >= 0) return explicit;
+  const next = frames[index + 1];
+  if (next) return Math.max(0, next.atSecond - frame.atSecond);
+  const prev = frames[index - 1];
+  if (prev) return Math.max(0, frame.atSecond - prev.atSecond);
+  return 0.12;
+}
+
+/** Total timeline length = sum of per-frame dwells. */
+export function totalTimelineDurationSeconds(frames: readonly VisemeFrame[]): number {
+  return frames.reduce((sum, _, i) => sum + frameDurationSeconds(frames, i), 0);
 }
