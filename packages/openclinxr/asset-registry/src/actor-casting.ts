@@ -52,6 +52,7 @@ import {
   GENERATED,
   LIBRARY_ADULT_LEAN_FEMALE_GLB,
   MPFB_CLINICAL_NURSE_ADULT_GLB,
+  MPFB_CLINICAL_PHYSICIAN_ADULT_GLB,
   MPFB_FAMILY_PARTNER_ADULT_GLB,
   MPFB_OB_PATIENT_AISHA_GLB,
   MPFB_PEDS_NURSE_KEVIN_GLB,
@@ -72,6 +73,7 @@ export {
   LIBRARY_ADULT_LEAN_FEMALE_GLB,
   LIBRARY_ADULT_HEAVY_MALE_GLB,
   MPFB_CLINICAL_NURSE_ADULT_GLB,
+  MPFB_CLINICAL_PHYSICIAN_ADULT_GLB,
   MPFB_FAMILY_PARTNER_ADULT_GLB,
   MPFB_OB_PATIENT_AISHA_GLB,
   MPFB_PEDS_NURSE_KEVIN_GLB,
@@ -259,9 +261,16 @@ function pickAdultGlb(
         ADULT_MALE_STREET_CASUAL_GLB,
       );
     }
-  } else if (r === "nurse" || r === "medical_assistant" || r === "respiratory_therapist" || r === "physician" || r === "consultant") {
+  } else if (r === "physician") {
+    // 2026-08-14 medical wardrobe: the physician takes the dedicated MPFB
+    // physician body (scrub shirt + scrub pants + CC0 lab coat) first. Mirrors
+    // the runtime copy in humanoid-runtime-asset-url.ts (both must change
+    // together — the patient-attire dual-resolver agreement asserts this).
+    preferred.push(MPFB_CLINICAL_PHYSICIAN_ADULT_GLB, MPFB_CLINICAL_NURSE_ADULT_GLB, ED_NURSE_GLB, PEDS_NURSE_GLB, ED_ADULT_CAST_GLB, PEDS_PARENT_GLB, ED_SPOUSE_GLB, ADULT_MALE_STREET_CASUAL_GLB);
+  } else if (r === "nurse" || r === "medical_assistant" || r === "respiratory_therapist" || r === "consultant") {
     // #403: nurse-class roles take the MPFB clinical-nurse body first (the Anny
     // nurse file stays as a second-body fallback for co-present nurse-class actors).
+    // The physician is NOT here — it has its own body since 2026-08-14.
     preferred.push(MPFB_CLINICAL_NURSE_ADULT_GLB, ED_NURSE_GLB, PEDS_NURSE_GLB, ED_ADULT_CAST_GLB, PEDS_PARENT_GLB, ED_SPOUSE_GLB, ADULT_MALE_STREET_CASUAL_GLB);
   } else if (r === "family" || r === "family_member" || r === "parent" || r === "spouse") {
     // #403: family-class roles take the MPFB family-partner body first.

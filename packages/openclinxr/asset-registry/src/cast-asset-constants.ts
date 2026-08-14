@@ -78,6 +78,7 @@ export const MPFB_PEDS_PARENT_AISHA_MOTION_BIND_GLB = "mpfb-peds-parent-aisha.mo
  * clinical-team look-alike, not a third bake.
  */
 export const MPFB_CLINICAL_NURSE_ADULT_GLB = "mpfb-clinical-nurse-adult.glb";
+export const MPFB_CLINICAL_PHYSICIAN_ADULT_GLB = "mpfb-clinical-physician-adult.glb";
 export const MPFB_FAMILY_PARTNER_ADULT_GLB = "mpfb-family-partner-adult.glb";
 
 /** Adult pool only — never includes the child mesh. Order is role-preference default. */

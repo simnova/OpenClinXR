@@ -1434,6 +1434,9 @@ EYE_DIAMETER_TARGET_MM = {
     "mpfb-peds-patient-child": 22.5,
     # #403 — the two ED adults are adult-female; adult axial length applies.
     "mpfb-clinical-nurse-adult": 24.0,
+    # 2026-08-14 medical wardrobe — the physician is the same adult-female body as
+    # the nurse adult (same Anny reference), so adult axial length applies.
+    "mpfb-clinical-physician-adult": 24.0,
     "mpfb-family-partner-adult": 24.0,
 }
 
@@ -3571,6 +3574,64 @@ def main():
     regularize_rim(
         pants, _ankle_env_window, envelope="max", which="bottom", env_source="zone", row3_blend=_ankle_row3_blend
     )
+
+    # 2026-08-14 medical wardrobe — the physician's white lab coat as a THIRD layer
+    # over the clinician scrub shirt + scrub pants. The coat is the CC0
+    # makehuman-community-crude-labcoat-female asset (ledger row; `# license CC0`
+    # in its OWN .mhclo header) and only the EXACT actor-role "physician" wears it
+    # (nurse/RT/MA stay in scrubs alone — the nurse file is never touched). Fitted
+    # with the SAME ClothesService.fit_clothes_to_human path as the shirt/pants
+    # (D1 — no authored geometry). Its x_scale refs (5399/11998) and interpolation
+    # refs (max 13,351) are all < 13,380, so it fits the helper-stripped basemesh;
+    # the open-front cut leaves the scrub shirt visible beneath.
+    if (args.actor_role or "").lower() == "physician":
+        _coat_dir = (
+            REPO_ROOT
+            / ".openclinxr-local/provider-cache/garments/sources/makehuman-community-crude-labcoat-female"
+        )
+        coat_obj = _coat_dir / "crudelabcoatopen.obj"
+        coat_mhclo = _coat_dir / "crudelabcoatopen.mhclo"
+        if not coat_obj.is_file() or not coat_mhclo.is_file():
+            raise RuntimeError(f"lab coat sources missing in provider cache: {_coat_dir}")
+        _coat_lic_ok, _coat_lic_raw = read_hair_mhclo_licence(coat_mhclo)
+        if not _coat_lic_ok:
+            raise RuntimeError(
+                f"lab coat {_coat_dir.name} licence NOT permitted per its own .mhclo "
+                f"header: {_coat_lic_raw!r} — hard refusal (AGPL/copyleft or unspecified)"
+            )
+        print(f"COAT_LICENCE makeclothes_library_lab_coat {_coat_lic_raw!r}")
+        coat = import_obj(str(coat_obj), "makeclothes_library_lab_coat", force_z=False)
+        apply_object_transforms(coat)
+        coat.data.materials.clear()
+        _coat_role_colour = garment_shell_color(
+            "lab_coat",
+            args.actor_role,
+            {"fabricPalette": phenotype_fabric_palette(args.reference)},
+        )
+        _coat_mat, _coat_mat_record = garment_material_from_declared(
+            coat_mhclo,
+            _coat_role_colour,
+            "mat_makeclothes_library_lab_coat",
+            mesh=coat,
+        )
+        coat.data.materials.append(_coat_mat)
+        mhclo_coat = Mhclo()
+        mhclo_coat.load(str(coat_mhclo))
+        try:
+            mhclo_coat.clothes = coat
+        except Exception:
+            pass
+        coat_verts_before = len(coat.data.vertices)
+        ClothesService.fit_clothes_to_human(coat, human, mhclo=mhclo_coat, set_parent=True)
+        bpy.context.view_layer.update()
+        coat.data.name = f"makeclothes_library_lab_coat_mpfb_{args.reference or 'ob_patient_aisha'}_mesh"
+        coat_weights = transfer_weights_body_to_garment(human, coat, armature)
+        print(
+            f"COAT_FIT {coat.name} verts {coat_verts_before} -> {len(coat.data.vertices)} "
+            f"tris {sum(max(len(p.vertices) - 2, 0) for p in coat.data.polygons)} "
+            f"weights {coat_weights} material {_coat_mat_record['reason'] or 'consumed'}"
+        )
+
     # #334: the head joint is the per-body bound below which a hide mask may stop —
     # the reference is the body's OWN skeleton (it cannot be moved by the garment
     # change being measured), not a stature fraction or a fitted constant. Read it

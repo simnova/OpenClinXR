@@ -83,10 +83,13 @@ export const MPFB_PEDS_PARENT_AISHA_RUNTIME_PATH =
  */
 export const MPFB_CLINICAL_NURSE_ADULT_RUNTIME_PATH =
   "/generated-humanoids/mpfb-clinical-nurse-adult.glb";
+export const MPFB_CLINICAL_PHYSICIAN_ADULT_RUNTIME_PATH =
+  "/generated-humanoids/mpfb-clinical-physician-adult.glb";
 export const MPFB_FAMILY_PARTNER_ADULT_RUNTIME_PATH =
   "/generated-humanoids/mpfb-family-partner-adult.glb";
 /** Bare filenames for pool assignment — mirrors actor-casting #403 constants. */
 const MPFB_CLINICAL_NURSE_ADULT_GLB = "mpfb-clinical-nurse-adult.glb";
+const MPFB_CLINICAL_PHYSICIAN_ADULT_GLB = "mpfb-clinical-physician-adult.glb";
 const MPFB_FAMILY_PARTNER_ADULT_GLB = "mpfb-family-partner-adult.glb";
 
 const ADULT_POOL_GLBS = [
@@ -216,15 +219,20 @@ function pickAdultGlb(
         ADULT_MALE_STREET_CASUAL_GLB,
       );
     }
+  } else if (r === "physician") {
+    // 2026-08-14 medical wardrobe: the physician takes the dedicated MPFB
+    // physician body (scrub shirt + scrub pants + CC0 lab coat) first. Mirrors
+    // actor-casting; the clinical-nurse body stays as the second-body fallback.
+    preferred.push(MPFB_CLINICAL_PHYSICIAN_ADULT_GLB, MPFB_CLINICAL_NURSE_ADULT_GLB, ED_NURSE_GLB, PEDS_NURSE_GLB, ED_ADULT_CAST_GLB, PEDS_PARENT_GLB, ED_SPOUSE_GLB, ADULT_MALE_STREET_CASUAL_GLB);
   } else if (
     r === "nurse"
     || r === "medical_assistant"
     || r === "respiratory_therapist"
-    || r === "physician"
     || r === "consultant"
   ) {
     // #403: nurse-class roles take the MPFB clinical-nurse body first (mirrors
-    // actor-casting; the Anny nurse file stays as a second-body fallback).
+    // actor-casting; the Anny nurse file stays as a second-body fallback). The
+    // physician is NOT here — it has its own body since 2026-08-14.
     preferred.push(MPFB_CLINICAL_NURSE_ADULT_GLB, ED_NURSE_GLB, PEDS_NURSE_GLB, ED_ADULT_CAST_GLB, PEDS_PARENT_GLB, ED_SPOUSE_GLB, ADULT_MALE_STREET_CASUAL_GLB);
   } else if (r === "family" || r === "family_member" || r === "parent" || r === "spouse") {
     // #403: family-class roles take the MPFB family-partner body first (mirrors actor-casting).

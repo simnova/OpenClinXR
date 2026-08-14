@@ -1,0 +1,67 @@
+{
+ "schemaVersion": "openclinxr.generated-humanoid-provenance.v1",
+ "derivationMode": "mpfb2_macro_from_anny_reference",
+ "scenarioId": "ed_chest_pain_priority_v1",
+ "actorId": "senior_resident_ward_v1",
+ "actorRole": "physician",
+ "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
+ "sourceManifestPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.anny_manifest.json",
+ "generatorMode": "mpfb2_humanservice_create_human_with_macro_dict_from_tracked_anny_reference_v1",
+ "sourceKind": "mpfb2_makehuman_basemesh_from_anny_reference",
+ "usesRealAnnyForwardPass": false,
+ "realAnnyWeightsUsed": false,
+ "textureMode": "authored_or_baked",
+ "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
+ "optimizationMode": "unoptimized_post_blender_glb",
+ "realismGrade": "not_graded",
+ "promotionStatus": "promoted_runtime_cast_not_realism_gate_pass",
+ "sourceOriginChain": {
+  "sourceTopologyMode": "mpfb2_standard_basemesh_with_standard_rig_v1",
+  "annyReference": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.anny_base.obj (tracked)",
+  "materializedFrom": "MPFB2 HumanService.create_human with macro_detail_dict derived from the tracked Anny reference",
+  "generator": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+  "derivationNote": "2026-08-14 medical wardrobe: the physician's own MPFB body. Same Anny reference and macro dict as the nurse adult (age=0.6 from the measured head-height fraction; height=0.5827 SOLVED by bake-measure-interpolate to the reference stature 1.76 m). Standard 137-joint rig; #317 face keys (32 targets / 13 mouth); #318 helper strip (19,158->13,380 verts / 36,972->26,756 tris). Wardrobe = the clinician scrub kit PLUS the CC0 crude-labcoat-female as a THIRD layer: WojackOWL CC-BY Scrub_Shirt (9,384 tris) + Scrub_Pants (2,704 tris, fitted BEFORE the #318 strip because x_scale refs 13868/14308 are helper verts) via the clinician ClothesService branch, then `makeclothes_library_lab_coat_mpfb_ed_chest_pain_nurse_adult_mesh` (crudelabcoatopen.mhclo, 2,632 tris, CC0 per its OWN header, max interpolation ref 13,351 < 13,380, open front leaves the scrub shirt visible) fitted ONLY for the exact actor-role physician. toigo_flats footwear, #381 CC0 toigo_blunt_bob fitted hair, #356 blue-brown iris (physician falls to the eye_iris_colour patient/brown default — NOT the nurse's blue; the co-present ward nurse keeps blue), #377 anatomical 24.0 mm eyes (EYE_DIAMETER_TARGET_MM row added), #343 skin tone medium_warm (0.58,0.44,0.36), #370 tangent-space normal map, #359 scalp placeholder RETIRED BY RULE (fitted hair present). Locked white coat colour 0.92,0.92,0.90 as baseColorFactor (#360 post-export patch; the declared crudelabcoatopen.mhmat is not staged so the slot keeps the flat locked colour). LONG_SLEEVE_UPPER_BY_REFERENCE[ed_chest_pain_nurse_adult]=None. Attribution: WojackOWL, Medical Scrubs Kit, CC-BY (scrubs); crude-labcoat-female CC0. Baked 2026-08-14 via materialize_mpfb_humanoid_candidate.py --actor-role physician --reference ed_chest_pain_nurse_adult; bake-time licence re-read on all three .mhclo headers."
+ },
+ "licenseChain": {
+  "status": "mpfb2_makehuman_license_not_reverified_at_comparator",
+  "sourceRecordPath": ".openclinxr-local/provider-cache/mpfb/",
+  "sourceRecordClaimsSupported": [
+   "MPFB2 2.0.15 from Blender Extensions; MPFB is licensed AGPLv3 with a separate license for generated content; MakeHuman basemesh content posture recorded in the Anny source manifest (sources/anny-github-2026.json).",
+   "Garments: Scrub_Shirt + Scrub_Pants CC-BY per their own .mhclo headers (WojackOWL, Medical Scrubs Kit — attribution ledger row); CrudeLabCoatOpen CC0 per its own .mhclo header (# license CC0, author Joel Palmius); toigo_blunt_bob hair CC0; toigo_flats CC0; eye irises CC0 (makehuman system-assets pack)."
+  ],
+  "notRun": [
+   "licence_text_reenumeration",
+   "makehuman_license_review",
+   "production_asset_readiness"
+  ],
+  "explicitUnknown": [
+   "MPFB/MakeHuman generated-content licensing has not been formally reviewed for production promotion; this asset is a cagematch comparator for evidence only."
+  ]
+ },
+ "notEvidenceFor": [
+  "b_plus_visual_realism_gate",
+  "production_asset_readiness",
+  "quest_readiness",
+  "learner_readiness",
+  "clinical_validity",
+  "scoring_validity",
+  "scene_placement_readiness",
+  "madr_0051_s5_landmark_match_within_bands",
+  "gown",
+  "midriff_closed_unless_the_number_says_so",
+  "clinical_dress_code"
+ ],
+ "sourceNotes": [
+  "2026-08-14 medical wardrobe: the physician is no longer a shared clinical-team look-alike on the nurse body. mpfb-clinical-physician-adult.glb is the SAME adult-female Anny reference as the nurse adult (ed_chest_pain_nurse_adult) with the CC0 crude-labcoat-female as a third layer over the scrub shirt+pants. Only the exact actor-role 'physician' wears the coat in the materializer; nurse/RT/MA/consultant stay on mpfb-clinical-nurse-adult.glb (which carries NO coat).",
+  "Resolver: MPFB_CLINICAL_PHYSICIAN_ADULT_GLB added to cast-asset-constants.ts and humanoid-runtime-asset-url.ts; both pickAdultGlb copies gain a physician branch BEFORE the nurse-class branch (physician resolves to this file first; nurse-class roles keep the nurse file).",
+  "Eye iris: physician falls through eye_iris_colour to the patient/brown default — NOT the nurse's blue. This is a deliberate distinctness choice (the ward nurse and senior resident are co-present); it was not specified in the brief.",
+  "gender/muscle/weight/proportions/cupsize/firmness remain MPFB defaults — only age + height are driven by reference measurement this slice.",
+  "Exact MADR 0051 §5 landmark match (shoulder, girths, limb lengths) is anny-mpfb-landmark-compare's follow-on; NOT claimed here.",
+  "Baked 2026-08-14 from this worktree with all provider-cache assets staged locally (garments, hair, iris, labcoat)."
+ ],
+ "claimScope": "physician_adult_staff_kit_via_clothesservice_scrub_shirt_scrub_pants_plus_cc0_lab_coat_over_scrubs",
+ "promotionGates": false,
+ "generatedAt": "2026-08-14T17:56:00Z",
+ "outputSha256": "6406b579da0b543ebf2f52c937dd2d2042b69aa13050c6541668900678d139f4",
+ "outputBytes": 21798760
+}
