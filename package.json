@@ -380,6 +380,7 @@
     "asset:makeclothes:fit": "tsx tools/openclinxr/asset-pipeline/makeclothes/fit-cli.ts",
     "asset:body-param:fit": "tsx tools/openclinxr/asset-pipeline/makeclothes/body-param-cli.ts",
     "asset:hair:licence-classify": "tsx tools/openclinxr/asset-pipeline/makeclothes/hair-licence-classify.ts",
+    "factory:case": "tsx tools/openclinxr/asset-pipeline/trellis/factory-case-cli.ts",
     "factory:trellis:hatch": "tsx tools/openclinxr/asset-pipeline/trellis/trellis-hatch-cli.ts",
     "factory:trellis:optimize": "tsx tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts",
     "factory:trellis:pack": "tsx tools/openclinxr/asset-pipeline/trellis/trellis-pack-cli.ts"
