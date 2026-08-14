@@ -1,167 +1,171 @@
-import { readFileSync } from "node:fs";
-import { dirname, join, relative, resolve as pathResolve } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { execFileSync } from "node:child_process";
 import { describe, expect, it } from "vitest";
 
 /**
- * **14 of 60 modules spawn a portless dev server and never kill it. Four of them are the capture tools
- * this orchestrator ran all day, which is where the orphans came from.**
+ * **WITHDRAWN AND RE-PLANTED 2026-08-14 15:5x. The previous RED here — "14 of 60 modules spawn a
+ * portless dev server and never kill it" — was FALSE, and it was mine.**
  *
- * Measured 2026-08-14 15:0x. Every module referencing `spawnPortlessDevServer`, classified by what it
- * actually does with the handle — **not** by whether it mentions the shared helper, which is a name
- * match and was wrong twice before this table (§7k):
+ * A dispatched worker refused to satisfy it and was right to. Verified against the tree afterwards:
  *
- *   teardown mechanism                            callers
- *   --------------------------------------------  -------
- *   stopPortlessDevServer() — SIGTERM then SIGKILL       2
- *   bare proc.kill() — no escalation                    44
- *   **none at all**                                  **14**
- *   total callers (excluding the helper itself)         60
+ *   - **`model-vetting-turntable-capture.ts` never calls `spawnPortlessDevServer`.** Line 50 only
+ *     mentions it in a comment recommending it. It spawns its own server and tears it down through
+ *     `stopServer()` -> `server.kill("SIGTERM")` (`:273`).
+ *   - `ui-xr-environment-room-capture.test.ts`, `browser-boot-inventory.ts` and
+ *     `isolated-subject-harness.test.ts` reference the symbol **only in prose** — docstrings saying
+ *     "reuse `spawnPortlessDevServer`" or "64 files call `spawnPortlessDevServer`".
+ *   - Nine of the fourteen already tear down under a different spelling (`server.kill(`,
+ *     `stopServer(`), which the old classifier did not look for.
  *
- * `#397`'s own headline says *"4 of 60 spawn callers have no teardown"*. Wrong — and I produced three
- * wrong replacements before this one, all by grepping for a symbol instead of reading the module:
+ * **The population was defined by `git grep -l` on a symbol name, so it counted comments.**
+ * `browser-boot-inventory.ts:24` warns about this exact trap in its own header — *"literals so prose
+ * like 'Prefer spawnPortlessDevServer() ...' does not count"* — and I walked into a hole the tree had
+ * signposted. Six counts were published on #397 (one in the issue, five mine) before this one.
  *
- *   pass  predicate                                      result
- *   ----  ---------------------------------------------  --------------------------
- *   1     grep `killProc`                                "20+" — missed proc.kill()
- *   2     classify by mechanism                          1 / 44 / 16
- *   3     same, excluding the helper file                escalating count fell to 0
- *   4     **read the module's exports**                  **2 / 44 / 14**
+ * ## WHAT THE WORKER FOUND THAT ACTUALLY EXPLAINS THE ORPHANS
  *
- * `killProc` is **module-private**. The exported escalating teardown is **`stopPortlessDevServer(proc)`**
- * (`lib/portless-server.ts:254`), a thin public wrapper around it. Three of my four passes searched for
- * a symbol no caller can reach. `multi-case-runner.ts:895` and `actor-floor-contact-all-stations.ts:225`
- * call `server.proc.kill("SIGTERM")` — real teardown, no escalation.
+ * > *"the observed orphans came from parents reaped before their `finally` ran, which no in-process
+ * > teardown call fixes."*
  *
- * ## WHY THIS IS NOT COSMETIC
+ * That matches the incident exactly: seven wrappers accumulated in ~43 minutes when **I** killed a
+ * worker's runaway `vitest run tools/` sweep. Its `finally` never executed. Adding teardown calls to
+ * more callers would not have prevented a single one of them.
  *
- * The orphan is **not** the Vite process. Measured on a live instance the same day: `kill <vite pid>`
- * and even `kill -9` did nothing, because each Vite child has a live parent —
- * `pnpm --filter @openclinxr/ui-xr dev:portless`, re-parented to init (`ppid=1`). Killing the seven
- * wrappers took all seven children with them. **A leaked server therefore survives as a wrapper +
- * child pair that no pid-based cleanup of "vite" will ever find.**
+ * **Per-caller teardown is therefore the wrong layer.** The orphan is the `pnpm ... dev:portless`
+ * wrapper re-parented to init (`ppid=1`) — measured live: `kill` and `kill -9` on the Vite pid did
+ * nothing, and killing the wrappers took all seven children with them.
  *
- * Seven of these accumulated in ~43 minutes during one worker's sweep and drove load to 67. #397
- * records six surviving in main for three days.
+ * ## THE RE-PLANTED DEFECT — the helper has no orphan protection at all
  *
- * ## THE KNOWN-GOOD IS 46 OF THE 60 (§9h)
+ * Measured on `lib/portless-server.ts`: **zero** occurrences of `ppid`, `orphan`, `sweep`, `pgid` or
+ * `detached`. Nothing detects a pre-existing orphan, nothing spawns into its own process group, and
+ * nothing can reap a wrapper whose parent died. Six survived three days in main (#397's original
+ * report); seven accumulated in 43 minutes here.
  *
- * This is not a design that has never worked. Forty-six callers already tear down — two through
- * `stopPortlessDevServer`, forty-four through `proc.kill()` on the handle `spawnPortlessDevServer`
- * returns. The contract asks the remaining fourteen to do what the majority already does.
+ * A spawn cannot guarantee its own cleanup when its parent is SIGKILLed — on macOS there is no
+ * `PR_SET_PDEATHSIG`. **What it can do is refuse to accumulate**: sweep pre-existing `dev:portless`
+ * wrappers with `ppid=1` before spawning a new one. That converts an unbounded leak into at most one.
+ *
+ * ## NO KNOWN-GOOD EXISTS IN THIS TREE, AND THAT IS ITSELF THE FINDING (SS9h)
+ *
+ * Every other contract planted today had a known-good column — the child's hem against aisha's, the
+ * nurse's palette against the parent's. **There is none here.** No module in the repo sweeps orphans
+ * or uses process-group teardown, so the bound is derived from the mechanism rather than observed
+ * from a working example. Stated rather than papered over.
  *
  * ## THE CHEAP FIXES THIS REFUSES
  *
- *   treatment                                          | (1) all torn down | (2) spawns kept | (3) helper | result
- *   ----------------------------------------------------|-------------------|-----------------|------------|--------
- *   a) today                                           |     **FAIL**      |      pass       |    pass    | REFUSED
- *   b) delete the 14 callers, or their spawn calls     |       pass        |    **FAIL**     |    pass    | REFUSED
- *   c) drop the 2 escalating callers to bare-kill        |       pass        |      pass       |  **FAIL**  | REFUSED
- *   d) add teardown to the 14                          |       pass        |      pass       |    pass    | ALL PASS
+ *   treatment                                         | (1) sweeps | (2) spares live | (3) wrapper | result
+ *   ---------------------------------------------------|------------|-----------------|-------------|--------
+ *   a) today — no sweep at all                        |  **FAIL**  |      pass       |    pass     | REFUSED
+ *   b) kill every `dev:portless` process              |    pass    |    **FAIL**     |    pass     | REFUSED
+ *   c) sweep by matching `vite` instead of the wrapper |    pass    |      pass       |  **FAIL**   | REFUSED
+ *   d) select wrappers whose ppid is 1                 |    pass    |      pass       |    pass     | ALL PASS
  *
- * **(b) is the one to watch.** Every one of the fourteen is an evidence or capture module, and the
- * cheapest way to make a spawn stop leaking is to stop spawning. Clause (2) pins the caller count so
- * the fix cannot be a deletion.
+ * **(b) is the one to watch.** A blanket `pkill -f dev:portless` is the obvious one-liner and it kills
+ * the server of any capture currently running — including a concurrent worker's. SS11f records that
+ * exact mistake costing a live dispatch. Clause (2) requires a wrapper with a live parent to survive.
  *
- * **(c) is why clause (3) exists.** The two escalating callers are the only ones that survive a process
- * ignoring SIGTERM; converting them to bare `proc.kill()` for "consistency" would be a regression
- * dressed as tidying.
+ * **(c) is why clause (3) exists.** Matching `vite` is the intuitive target and is measurably useless:
+ * the Vite child has a live parent that immediately outlives the kill, which is why `kill -9` on it
+ * did nothing.
  *
- * **NOT asserted: that every caller must use `stopPortlessDevServer`.** Forty-four bare `proc.kill()` callers are
- * accepted as-is. Consolidating them may be right and it is not this contract's business — the defect
- * is *no teardown*, not *inconsistent teardown*.
- *
- * WHICH ARE REDS AND WHICH ARE NETS (#227): **(1) is the sole RED**, failing on fourteen modules today.
- * **(2), (3) and (4) all pass today** and are true nets over quantities the fix must not move.
+ * WHICH ARE REDS AND WHICH ARE NETS (#227): **(1) is the sole RED** — the surface does not exist.
+ * **(2) and (3) also fail today** because they interrogate that absent surface; they are what stops
+ * (1) being satisfied by a blanket kill. **(4) passes today** — it reads the fixture, not the surface.
  *
  * NOT TESTED:
- *   - **That the 44 bare-kill callers actually reap on abnormal exit.** They have teardown; whether it
- *     fires when the parent is reaped before `finally` is unmeasured, and that is the case that
- *     produced today's orphans.
- *   - **Whether `server.proc` is always the pnpm wrapper.** Read as the wrapper handle; not confirmed
- *     across every spawn shape. If any spawn returns the Vite child instead, its teardown is a no-op.
- *   - **Process-group teardown.** `process.kill(-pgid)` would be strictly more robust than either
- *     mechanism here and nothing in the tree does it.
+ *   - **That sweeping prevents the leak.** It bounds accumulation to one; it cannot stop a SIGKILLed
+ *     parent from orphaning its child in the first place.
+ *   - **Process-group teardown** (`process.kill(-pgid)`), which nothing in the tree uses and which
+ *     would be strictly stronger than a sweep. Deliberately not required here — one mechanism per slice.
+ *   - **The 53 callers' own teardown.** They tear down on the normal path; whether each fires on the
+ *     throw path is unmeasured and is not this contract's subject.
+ *   - **Non-macOS behaviour.** `PR_SET_PDEATHSIG` would make this moot on Linux.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
-const SPAWN = "spawnPortlessDevServer";
-/** The module that defines both the spawn and the teardown — references the symbols, is not a caller. */
-const HELPER = "tools/openclinxr/evidence/lib/portless-server.ts";
+const HELPER = join(REPO_ROOT, "tools/openclinxr/evidence/lib/portless-server.ts");
+/** Computed so TypeScript cannot resolve a not-yet-exported symbol at compile time (#383/#352). */
+const SPECIFIER = ["./lib/portless", "server.js"].join("-");
 
-/** Measured 2026-08-14: 60 modules call the spawn; a fix may not shrink the population. */
-const CALLER_FLOOR = 55;
-/** At least one caller must keep SIGTERM→SIGKILL escalation. */
-const ESCALATING_FLOOR = 1;
+/** One process row as `ps -eo pid,ppid,command` would yield it. */
+type ProcRow = { pid: number; ppid: number; command: string };
 
-type Caller = { file: string; hasEscalatingStop: boolean; hasBareKill: boolean };
+/** Two orphaned wrappers (ppid=1), one live wrapper, one Vite child with a live parent. */
+const FIXTURE: ProcRow[] = [
+  { pid: 21940, ppid: 1, command: "pnpm --filter @openclinxr/ui-xr dev:portless" },
+  { pid: 23448, ppid: 1, command: "pnpm --filter @openclinxr/ui-xr dev:portless" },
+  { pid: 30001, ppid: 29999, command: "pnpm --filter @openclinxr/ui-xr dev:portless" },
+  { pid: 22149, ppid: 21940, command: "node .../vite/bin/vite.js --host 127.0.0.1 --port 50899" },
+];
+const ORPHANS = [21940, 23448];
+const LIVE_WRAPPER = 30001;
+const VITE_CHILD = 22149;
 
-function callers(): Caller[] {
-  const out = execFileSync("git", ["grep", "-l", SPAWN, "--", "tools", "apps", "packages"], {
-    cwd: REPO_ROOT,
-    encoding: "utf8",
-  })
-    .split("\n")
-    .map((l) => l.trim())
-    .filter((l) => l.length > 0 && !l.includes("/dist/") && l !== HELPER);
-  return out.map((file) => {
-    const src = readFileSync(join(REPO_ROOT, file), "utf8");
-    return {
-      file,
-      hasEscalatingStop: /\bstopPortlessDevServer\s*\(/u.test(src),
-      hasBareKill: /\.proc\.kill\s*\(|\bproc\.kill\s*\(/u.test(src),
+async function loadSweeper(): Promise<((rows: readonly ProcRow[]) => number[]) | null> {
+  if (!existsSync(HELPER)) return null;
+  try {
+    const mod = (await import(SPECIFIER)) as {
+      selectOrphanedDevServerPids?: (rows: readonly ProcRow[]) => number[];
     };
-  });
+    return mod.selectOrphanedDevServerPids ?? null;
+  } catch {
+    return null;
+  }
 }
 
-const found = callers();
+const sweep = await loadSweeper();
 
 /**
- * An empty enumeration must FAIL, never pass vacuously (§7t). Plain `it` on purpose: an `it.fails`
+ * An empty enumeration must FAIL, never pass vacuously (SS7t). Plain `it` on purpose: an `it.fails`
  * cannot guard its own vacuity — it is satisfied by ANY failure, including this guard throwing.
  */
-function requireCallers(): Caller[] {
-  expect(found.length, `modules calling ${SPAWN} (60 measured 2026-08-14, excluding the helper)`).toBeGreaterThanOrEqual(CALLER_FLOOR);
-  return found;
+function requireSweeper(): NonNullable<typeof sweep> {
+  expect(
+    sweep,
+    `lib/portless-server.ts must export selectOrphanedDevServerPids(rows) — today the module contains zero occurrences of ppid, orphan, sweep, pgid or detached`,
+  ).not.toBeNull();
+  return sweep as NonNullable<typeof sweep>;
 }
 
-describe("every dev server spawn has a teardown", () => {
-  it.fails("(1) RED: every module that spawns a portless dev server also kills it", () => {
-    const leaking = requireCallers()
-      .filter((c) => !c.hasEscalatingStop && !c.hasBareKill)
-      .map((c) => relative(REPO_ROOT, join(REPO_ROOT, c.file)));
+describe("the dev server spawn refuses to accumulate orphans", () => {
+  it.fails("(1) RED: orphaned dev:portless wrappers are selectable", () => {
+    const selected = requireSweeper()(FIXTURE);
     expect(
-      leaking,
-      `modules spawning a dev server with no kill path — 14 measured 2026-08-14, including model-vetting-turntable-capture and ui-xr-environment-room-capture, the tools this loop runs`,
-    ).toEqual([]);
+      [...selected].sort((a, b) => a - b),
+      `wrappers with ppid=1 are the orphans; both must be selected`,
+    ).toEqual(ORPHANS);
   });
 
-  it("(2) COUNTERWEIGHT: the spawn population is not shrunk to pass", () => {
-    // Refuses (b). Every leaking module is an evidence or capture tool, and deleting the spawn — or
-    // the module — is the cheapest possible green. The population is pinned against today's 61.
-    expect(
-      found.length,
-      `callers of ${SPAWN}: ${found.length} against 61 measured 2026-08-14 (floor ${CALLER_FLOOR})`,
-    ).toBeGreaterThanOrEqual(CALLER_FLOOR);
+  it.fails("(2) COUNTERWEIGHT: a wrapper with a live parent is spared", () => {
+    // Refuses (b). `pkill -f dev:portless` is the obvious one-liner and it kills the server of any
+    // capture running concurrently — SS11f records that exact mistake killing a live dispatch.
+    const selected = requireSweeper()(FIXTURE);
+    expect(selected, `pid ${LIVE_WRAPPER} has a live parent and belongs to a running capture`).not.toContain(
+      LIVE_WRAPPER,
+    );
   });
 
-  it("(3) COUNTERWEIGHT: at least one caller keeps SIGTERM→SIGKILL escalation", () => {
-    // Refuses (c). Bare proc.kill() cannot reap a process that ignores SIGTERM. Deleting the one
-    // escalating caller to make the codebase uniform would be a regression dressed as tidying.
-    const escalating = requireCallers().filter((c) => c.hasEscalatingStop);
-    expect(
-      escalating.length,
-      `callers using stopPortlessDevServer's SIGTERM→SIGKILL escalation (2 measured 2026-08-14)`,
-    ).toBeGreaterThanOrEqual(ESCALATING_FLOOR);
+  it.fails("(3) COUNTERWEIGHT: the Vite child is never targeted directly", () => {
+    // Refuses (c). Measured live 2026-08-14: kill and kill -9 on the Vite pid did nothing, because its
+    // wrapper parent was alive. Killing the wrappers took all seven children with them.
+    const selected = requireSweeper()(FIXTURE);
+    expect(selected, `pid ${VITE_CHILD} is a Vite child — killing it is measurably a no-op`).not.toContain(
+      VITE_CHILD,
+    );
   });
 
-  it("(4) VACUITY GUARD: the classifier actually finds both teardown mechanisms", () => {
-    // If either bucket is empty the classifier has stopped discriminating and clause (1) means
-    // nothing — the same shape as a name-match that silently matches everything or nothing.
-    const withTeardown = found.filter((c) => c.hasEscalatingStop || c.hasBareKill);
-    expect(withTeardown.length, "callers with SOME teardown (46 measured 2026-08-14)").toBeGreaterThan(20);
-    expect(found.filter((c) => c.hasBareKill).length, "callers using bare proc.kill()").toBeGreaterThan(20);
+  it("(4) VACUITY GUARD: the fixture contains both classes, so the selector can discriminate", () => {
+    // Reads the fixture, not the absent surface, so it passes today and keeps passing: if someone
+    // later trims the fixture to only orphans, clauses (2) and (3) become unfalsifiable.
+    expect(FIXTURE.filter((r) => r.ppid === 1).length, "orphaned wrappers in the fixture").toBe(2);
+    expect(FIXTURE.filter((r) => r.ppid !== 1).length, "non-orphan rows in the fixture").toBe(2);
+    expect(
+      readFileSync(HELPER, "utf8").length,
+      "the helper module is readable, so the absence of a sweep is a real absence",
+    ).toBeGreaterThan(0);
   });
 });
