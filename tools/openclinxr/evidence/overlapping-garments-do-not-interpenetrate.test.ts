@@ -22,6 +22,33 @@ import { describe, expect, it } from "vitest";
  * most directions and pokes through it in others. That alternation, seen from the front, is a row of
  * teal teeth against brown leather.
  *
+ * ## FIXED (#378) — 2026-08-14, measured on the re-baked bytes
+ *
+ * The treatment is a tuck: `tuck_trousers_into_boots` in
+ * materialize_mpfb_humanoid_candidate.py pulls every trouser vertex in the overlap
+ * band radially inward to just inside the boot's OUTER surface along the ray from
+ * the leg axis (the band's own horizontal centroid — the all-trouser centroid is
+ * pulled medial by the pelvis/waist mass) through the vertex. The surface is the
+ * outermost triangle hit within 0.15 m — the near shaft wall; the tube's far wall
+ * and the other foot exceed the reach bound. The boot was already outside the
+ * trouser in 25/31 buckets, so the pull is local (5 buckets, 2-27 mm) and the
+ * visible trouser leg above the boot's rim is untouched — its rays miss, no boot
+ * wall at that height — so the #373 waistband and #374 ankle-rim treatments and
+ * the leg silhouette keep their shipped geometry. Runs after the shoe fit and
+ * before the render-truth re-hide; no-ops when the trouser hem is above the
+ * footwear top (aisha, the child). STAGING CHOICE: tucked-in, not trouser-over-
+ * boot — the boot already contained the leg in most buckets, and trouser-over
+ * would require inflating the leg to the shaft's ~90 mm radius (a balloon).
+ *
+ *   actor   footwear                     overlap    buckets   pants-out   shoe-out   verdict
+ *   ------  ---------------------------  --------   -------   ---------   --------   --------
+ *   kevin   culturalibre_male_boots      +279.2mm    28/36        0          28      CONSISTENT
+ *
+ * Post-fix radial delta: min -33 mm, p10 -29 mm, median -20.4 mm — every shared
+ * bucket has the boot outside the trouser by well past the 2 mm tolerance (the
+ * closest bucket is -3 mm). Clause (2) cuff reach unchanged (-279.2 mm) and clause
+ * (3) footwear tris unchanged (30,768), so neither counterweight moved.
+ *
  * ## THE KNOWN-GOOD IS THE SAME PIPELINE DOING IT RIGHT IN AN OVERLAP BAND (SS9h)
  *
  * "2 of 3 actors are fine" is a weak reference, because those two have no overlap at all and never
@@ -177,7 +204,7 @@ function requireMeasured(): void {
 }
 
 describe("overlapping garments do not interpenetrate", () => {
-  it.fails("(1) RED: where a trouser leg and footwear overlap, one is consistently outside", () => {
+  it("(1) RED: where a trouser leg and footwear overlap, one is consistently outside", () => {
     requireMeasured();
     const mixed = rows
       .filter(

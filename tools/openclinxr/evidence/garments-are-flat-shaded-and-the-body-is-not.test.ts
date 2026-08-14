@@ -107,12 +107,17 @@ const isBody = (n: string): boolean => /^mpfb_skin_/i.test(n);
  * MEASURED 2026-08-13 on the shipped bytes. Floors refuse (b) global smoothing and (c)/(d) remeshing.
  * Keyed `actor::material`. A garment absent from this table is a NEW garment and fails clause (3)'s
  * enumeration guard rather than passing silently.
+ *
+ * #378 REBASED 2026-08-14 for kevin's pants only: the trouser-tuck (pants pulled radially inside the
+ * boot shaft) warps the band's surface, so 90 above-rim coplanar joins (927 -> 837) dropped below the
+ * rim-top floor. The tris are unchanged (2628 — not a remesh) and 837 joins remain (not emptied), so
+ * the counterweight's intent binds as before; the floor is now 0.95 x 837 = 795.
  */
 const BASELINE: Record<string, { tris: number; coplanar: number; sharpSplit: number }> = {
   "mpfb-ob-patient-aisha::mat_makeclothes_library_cargo_pants.001": { tris: 2782, coplanar: 966, sharpSplit: 48 },
   "mpfb-ob-patient-aisha::mat_makeclothes_library_footwear_toigo_flats": { tris: 57600, coplanar: 12922, sharpSplit: 3780 },
   "mpfb-ob-patient-aisha::mat_makeclothes_library_toigo_t_shirt": { tris: 2700, coplanar: 800, sharpSplit: 238 },
-  "mpfb-peds-nurse-kevin::mat_makeclothes_library_cargo_pants.001": { tris: 2628, coplanar: 927, sharpSplit: 58 },
+  "mpfb-peds-nurse-kevin::mat_makeclothes_library_cargo_pants.001": { tris: 2628, coplanar: 837, sharpSplit: 58 },
   "mpfb-peds-nurse-kevin::mat_makeclothes_library_footwear_culturalibre_male_boots": { tris: 30768, coplanar: 6246, sharpSplit: 1605 },
   "mpfb-peds-nurse-kevin::mat_makeclothes_library_scrub_shirt": { tris: 9384, coplanar: 3862, sharpSplit: 303 },
   "mpfb-peds-patient-child::mat_makeclothes_library_cargo_pants.001": { tris: 2636, coplanar: 1042, sharpSplit: 49 },

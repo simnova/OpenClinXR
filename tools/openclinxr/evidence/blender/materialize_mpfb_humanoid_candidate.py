@@ -1590,6 +1590,167 @@ def regularize_rim(pants, env_window_deg, envelope="max", which="top", env_sourc
     return zone_span
 
 
+def _ray_tri_max_hit(origins, dirs, tri_verts, max_t: float) -> np.ndarray:
+    """Max (outermost) hit distance per ray against the triangle soup.
+
+    The #378 counterpart to `garment_coverage._ray_tri_hits`, which returns the
+    MIN hit. For a trouser-tuck ray cast from inside the boot's tube, the min hit
+    is the INNER wall; the trousers must clear the OUTER wall, so the tuck needs
+    the max hit within `max_t` (the far-side wall of the tube and the other foot
+    are excluded by the reach bound). Returns -inf for rays that miss.
+    """
+    origins = np.asarray(origins, dtype=float)
+    dirs = np.asarray(dirs, dtype=float)
+    tri_verts = np.asarray(tri_verts, dtype=float)
+    best = np.full(len(origins), -np.inf)
+    ray_block = 256
+    tri_block = 512
+    for r0 in range(0, len(origins), ray_block):
+        r1 = min(r0 + ray_block, len(origins))
+        o = origins[r0:r1]
+        d = dirs[r0:r1]
+        local_best = np.full(r1 - r0, -np.inf)
+        for t0 in range(0, len(tri_verts), tri_block):
+            t1 = min(t0 + tri_block, len(tri_verts))
+            tris = tri_verts[t0:t1]  # (T,3,3)
+            v0 = tris[:, 0][None, :, :]
+            v1 = tris[:, 1][None, :, :]
+            v2 = tris[:, 2][None, :, :]
+            e1 = v1 - v0
+            e2 = v2 - v0
+            p = np.cross(d[:, None, :], np.broadcast_to(e2, (r1 - r0, t1 - t0, 3)))
+            det = np.sum(e1 * p, axis=2)
+            inv = 1.0 / (det + 1e-12)
+            s = o[:, None, :] - v0
+            u = np.sum(s * p, axis=2) * inv
+            q = np.cross(s, e1)
+            vv = np.sum(d[:, None, :] * q, axis=2) * inv
+            t = np.sum(e2 * q, axis=2) * inv
+            # Two-sided test, same as _ray_tri_hits: a coincident surface is hit
+            # on its BACK face and still bounds the trousers.
+            hit = (
+                (np.abs(det) > 1e-10)
+                & (u >= 0.0)
+                & (vv >= 0.0)
+                & (u + vv <= 1.0)
+                & (t > 1e-6)
+                & (t <= max_t)
+            )
+            with np.errstate(invalid="ignore"):
+                local_best = np.maximum(local_best, np.where(hit, t, -np.inf).max(axis=1))
+        best[r0:r1] = local_best
+    return best
+
+
+def tuck_trousers_into_boots(pants, shoe, margin_m=0.007, max_reach_m=0.15):
+    """#378 — constrain the trouser cuff inside the boot shaft.
+
+    The trouser cover shell and the footwear are fitted independently (the lower
+    garment's radii come from the body-derived shell at CLOTH_STANDOFF_M; the shoe
+    is ClothesService-fitted to the foot), so where they overlap vertically the
+    layer order flips around the leg. Measured on kevin's shipped bytes: 279.2 mm
+    of vertical overlap between the cuff and `culturalibre_male_boots`, with the
+    trouser outside the boot in 5 of 31 shared angular buckets (radial delta
+    -29.2 .. +14.0 mm) — the graded 'teal teeth against brown leather' at the
+    ankle. The contract rule: where two garments overlap vertically, one must be
+    CONSISTENTLY outside the other (trouser-over-boot and tucked-in are both fine;
+    alternating is not). This picks the tuck: every trouser vertex in the overlap
+    band is pulled radially inward to just inside the boot's OUTER surface along
+    the ray from the leg axis through the vertex — the max surface hit within
+    max_reach_m (the near wall; the tube's far wall and the other foot exceed the
+    reach bound). The visible trouser leg above the boot's rim is untouched (its
+    rays miss — no boot wall at that height), so the waistband (#373), the ankle
+    rim (#374) and the leg silhouette keep their shipped treatments.
+
+    Runs AFTER the shoe fit + sole/lateral alignment so both meshes are at their
+    final positions, and BEFORE the render-truth re-hide so the lower-garment poke
+    envelope samples the geometry that ships. No-op for actors whose trouser hem
+    ends above the footwear top (aisha, the child) — no band, nothing to tuck.
+    """
+    mw_p = pants.matrix_world
+    inv_p = mw_p.inverted()
+    pv = np.array([tuple(mw_p @ v.co) for v in pants.data.vertices], dtype=float)
+    mw_s = shoe.matrix_world
+    sv = np.array([tuple(mw_s @ v.co) for v in shoe.data.vertices], dtype=float)
+    shoe_faces: list[tuple[int, ...]] = []
+    for poly in shoe.data.polygons:
+        iv = list(poly.vertices)
+        if len(iv) == 3:
+            shoe_faces.append(tuple(iv))
+        else:
+            for i in range(1, len(iv) - 1):
+                shoe_faces.append((iv[0], iv[i], iv[i + 1]))
+    shoe_tris = sv[np.array(shoe_faces, dtype=np.int64)]  # (T,3,3)
+
+    total_moved = 0
+    for sign in (-1.0, 1.0):
+        label = "L" if sign < 0 else "R"
+        p_side = pv[pv[:, 0] * sign > 0]
+        s_side = sv[sv[:, 0] * sign > 0]
+        if len(p_side) < 12 or len(s_side) < 12:
+            print(f"PANTS_TUCK {label}: empty trouser leg or footwear band — skip side")
+            continue
+        cuff_low = float(p_side[:, 2].min())
+        shoe_high = float(s_side[:, 2].max())
+        if cuff_low >= shoe_high:
+            print(
+                f"PANTS_TUCK {label}: no vertical overlap "
+                f"(hem {cuff_low:.3f} above boot top {shoe_high:.3f}) — no-op"
+            )
+            continue
+        band_idx = np.where(
+            (pv[:, 2] >= cuff_low) & (pv[:, 2] <= shoe_high) & (pv[:, 0] * sign > 0)
+        )[0]
+        if len(band_idx) < 12:
+            continue
+        band_pts = pv[band_idx]
+        # The leg axis at the band: the trouser band's own horizontal centroid —
+        # the frame the overlapping-garments contract's radii are meaningful in
+        # (the all-trouser centroid is pulled medial by the pelvis/waist mass).
+        ax = float(band_pts[:, 0].mean())
+        ay = float(band_pts[:, 1].mean())
+        tri_cent = shoe_tris.mean(axis=1)
+        side_tris = shoe_tris[tri_cent[:, 0] * sign > 0]
+        d = band_pts[:, :2] - np.array([ax, ay])
+        rad = np.hypot(d[:, 0], d[:, 1])
+        nz = rad > 1e-4
+        origins = np.zeros((len(band_pts), 3))
+        origins[:, 0] = ax
+        origins[:, 1] = ay
+        origins[:, 2] = band_pts[:, 2]
+        dirs = np.zeros((len(band_pts), 3))
+        dirs[nz, 0] = d[nz, 0] / rad[nz]
+        dirs[nz, 1] = d[nz, 1] / rad[nz]
+        t_wall = _ray_tri_max_hit(origins, dirs, side_tris, max_reach_m)
+        target = np.where(
+            np.isfinite(t_wall) & (t_wall > 0.0),
+            np.maximum(0.006, t_wall - margin_m),
+            np.inf,
+        )
+        pull = rad - target
+        move = nz & np.isfinite(target) & (pull > 0.0005)
+        moved = int(move.sum())
+        if moved:
+            from mathutils import Vector
+
+            f = target[move] / rad[move]
+            world = band_pts[move].copy()
+            world[:, 0] = ax + d[move, 0] * f
+            world[:, 1] = ay + d[move, 1] * f
+            for i, w in zip(band_idx[move], world):
+                pants.data.vertices[int(i)].co = inv_p @ Vector(tuple(float(x) for x in w))
+        total_moved += moved
+        max_pull_mm = float(np.max(pull[move])) * 1000 if moved else 0.0
+        print(
+            f"PANTS_TUCK {label} band [{cuff_low:.3f},{shoe_high:.3f}] verts {len(band_idx)} "
+            f"moved {moved} maxPullMm {max_pull_mm:.1f} "
+            f"axis ({ax:.3f},{ay:.3f})"
+        )
+    if total_moved:
+        bpy.context.view_layer.update()
+    return {"movedVerts": total_moved}
+
+
 def main():
     args = parse_args()
     GARMENT_FACTOR_PATCH.clear()  # #360: per-actor; a fresh Blender process bakes each actor anyway
@@ -3120,6 +3281,18 @@ def main():
     # limit of what the footwear can hide.
     foot_lo_z = float(world_bounds(human)["min"][2])
     footwear_verts, footwear_faces = _triangulate_numpy(shoe)
+    # #378: tuck the trouser cuff inside the boot shaft — the fitted trouser and
+    # the fitted boot solve their radii independently, so in the 279.2 mm band
+    # where they overlap the layer order flips around the leg (measured: 5 of 31
+    # shared buckets with the trouser outside the boot). Pulls the cuff inside the
+    # boot's OUTER surface along rays from the leg axis. Runs AFTER the shoe fit
+    # (both meshes at their final positions) and BEFORE the render-truth re-hide,
+    # so the lower-garment poke envelope below samples the geometry that ships.
+    # The trouser hem's z is untouched (radial pull only), so #374's rim and
+    # clause (2)'s cuff reach are preserved.
+    _tuck_378 = tuck_trousers_into_boots(pants, shoe, margin_m=0.007)
+    pants_verts_np, pants_faces_np = _triangulate_numpy(pants)
+    print(f"PANTS_TUCK totalMoved {_tuck_378['movedVerts']}")
     shoe_top_z = float(footwear_verts[:, 2].max())
     foot_hi_z = min(shoe_top_z, ankle_z)  # "bare feet begin below" — the #326 landmark
     foot_hide_info = body_hide_mask(
