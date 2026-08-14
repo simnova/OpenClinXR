@@ -144,6 +144,12 @@ import { describe, expect, it } from "vitest";
  * `body_param_stage.scalp_placeholder_retired_for` registry exactly like aisha's. The
  * retired set in clause (1) is therefore {aisha, child}; the nurse alone still carries the
  * region (no licence-clean masculine style exists in makehuman-hair01).
+ *
+ * ## FIXED (kevin-mhair02) — the nurse's placeholder retires with mhair02
+ *
+ * Kevin now wears the named page-CC0 / header-AGPL3 override. Clause (1)'s retired
+ * set includes him. hair01's usable subset is still mostly toigo bobs plus
+ * culturalibre_hair_06; that is not the kevin skip.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -207,9 +213,13 @@ function requireRows(): void {
   expect(rows.length, `MPFB bodies scanned (of ${files.length})`).toBeGreaterThanOrEqual(3);
 }
 
-/** #387/#399 — the shipped base ids whose placeholder scalp paint is retired (real fitted hair
- * on disk). #399 retired the child's with her fitted toigo_curled_under_bob_with_bangs. */
-const RETIRED_FIGURES = new Set(["mpfb-ob-patient-aisha.glb", "mpfb-peds-patient-child.glb"]);
+/** #387/#399/kevin-mhair02 — shipped base ids whose placeholder scalp paint is retired. */
+const RETIRED_FIGURES = new Set([
+  "mpfb-ob-patient-aisha.glb",
+  "mpfb-peds-patient-child.glb",
+  "mpfb-peds-parent-aisha.glb",
+  "mpfb-peds-nurse-kevin.glb",
+]);
 
 describe("the scalp region is the hair mechanism on the body mesh (texture route removed, #359)", () => {
   it("(1) RED: the scalp region is present on every actor without fitted hair and absent where fitted hair replaced it", () => {

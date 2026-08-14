@@ -110,6 +110,20 @@ import { describe, expect, it } from "vitest";
  * scalp verts 0 (was 1,234), fitted hair 4,976 tris, style toigo_curled_under_bob_with_bangs
  * (distinct from the parent's toigo_blunt_bob_with_bangs), head skin verts 3,103; aisha
  * 4,976 tris / 0 placeholder (unchanged); kevin 0 hair tris / 1,506 placeholder (unchanged).
+ *
+ * ## FIXED (kevin-mhair02) — the nurse wears the named page-CC0 override style
+ *
+ * Patrick 2026-08-14 pointed at http://www.makehumancommunity.org/clothes/mhair02.html
+ * as CC0. The `.mhclo` header still says `# license AGPL3` (uuid
+ * `f81a4e9a-e3d7-4ecb-bdf0-16d7fd9070a4`). Same class as visemes02: page grant
+ * assumed, header contradiction recorded, THIS uuid only. `HAIR_STYLE_BY_REFERENCE`
+ * now maps `peds_nurse_kevin` → `mhair02` (not None, not a toigo bob, not
+ * culturalibre_hair_06). `read_hair_mhclo_licence` is unchanged — AGPL still
+ * refuses — and `hair_page_cc0_override_permits` is the named allowlist the bake
+ * checks after the header read. Sibling `male_short_hair` is not on the list.
+ * Clause (3) flips from "kevin gains no hair" to "kevin wears mhair02 geometry
+ * and no placeholder". hair01's usable subset is still mostly toigo bobs plus
+ * culturalibre_hair_06; that is a pack-inventory fact, not the kevin skip.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -122,7 +136,7 @@ const SKIN = /^mpfb_skin/u;
 
 const CHILD = "mpfb-peds-patient-child";
 const PARENT = "mpfb-ob-patient-aisha";
-/** Recorded male licence skip — no licence-clean masculine style exists in makehuman-hair01. */
+/** Named page-CC0 / header-AGPL3 override (uuid f81a4e9a-… only). */
 const NURSE = "mpfb-peds-nurse-kevin";
 
 /** #330's attribution-free usable subset. A style outside this set is a licence refusal. */
@@ -225,15 +239,17 @@ describe("the child patient has hair and the nurse keeps his recorded skip", () 
     expect(parent!.placeholderVerts, `${PARENT} placeholder stays retired (#387)`).toBe(0);
   });
 
-  it("(3) COUNTERWEIGHT: the nurse gains no hair — the recorded male licence skip is preserved", () => {
-    // Refuses (d). Every licence-clean style in makehuman-hair01's usable subset is a feminine bob,
-    // so the only ways to give Kevin hair are to break the licence gate (10 of 25 are AGPL3) or to
-    // put a bob on a male nurse. Both are worse than the paint he has.
+  it("(3) the nurse wears mhair02 — the named page-CC0 / header-AGPL3 override, not a bob", () => {
+    // Flipped from the recorded skip. Refuses putting a toigo bob on kevin, and refuses
+    // globbing AGPL hair01. The style must be the allowlisted short male cut.
     requireMeasured();
     expect(
       nurse!.hairTris,
-      `${NURSE} is a RECORDED MALE SKIP (materialize_mpfb_humanoid_candidate.py:46) — no licence-clean masculine style exists in this pack`,
-    ).toBe(0);
+      `${NURSE} fitted mhair02 geometry (page CC0 / header AGPL3, this uuid only)`,
+    ).toBeGreaterThan(MIN_HAIR_TRIS);
+    expect(nurse!.placeholderVerts, `${NURSE} placeholder scalp paint retired under mhair02`).toBe(0);
+    expect(nurse!.hairStyle, `${NURSE} style parsed from the fitted mesh name`).toBe("mhair02");
+    expect(nurse!.hairStyle, `${NURSE} must not wear a toigo bob`).not.toMatch(/toigo|bob/iu);
   });
 
   it("(4) RED: the child's style is licence-clean AND different from her parent's", () => {

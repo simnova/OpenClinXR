@@ -179,14 +179,16 @@ const rows = (await Promise.all(files.map((f) => measure(f).catch(() => null))))
   (r): r is Row => r !== null,
 );
 
-/** #393/#399 — the shipped base ids that still carry the placeholder scalp region (no fitted hair).
- * #399 retired the child's paint with her fitted toigo_curled_under_bob_with_bangs; kevin alone
- * has no licence-clean hair asset, so he alone still carries the region. */
-const REGION_FIGURES = ["mpfb-peds-nurse-kevin.glb"] as const;
+/** No remaining painted-scalp MPFB figure after kevin-mhair02. */
+const REGION_FIGURES = [] as const;
 
-/** #393/#399 — the shipped base ids whose placeholder scalp paint is retired (real fitted hair on
- * disk). See body_param_stage.scalp_placeholder_retired_for. */
-const RETIRED_FIGURES = new Set(["mpfb-ob-patient-aisha.glb", "mpfb-peds-patient-child.glb"]);
+/** #393/#399/kevin-mhair02 — shipped base ids whose placeholder scalp paint is retired. */
+const RETIRED_FIGURES = new Set([
+  "mpfb-ob-patient-aisha.glb",
+  "mpfb-peds-patient-child.glb",
+  "mpfb-peds-parent-aisha.glb",
+  "mpfb-peds-nurse-kevin.glb",
+]);
 
 /** An empty enumeration must FAIL, never pass vacuously (§7t). */
 function requireRows(): void {
@@ -196,11 +198,12 @@ function requireRows(): void {
   // still refuses an empty enumeration — every remaining region-carrying figure is required by
   // name, and the retired figures must NOT be measurable.
   const measured = new Set(rows.map((r) => r.file));
-  const missing = REGION_FIGURES.filter((f) => !measured.has(f));
   expect(
-    missing,
-    `MPFB bodies with a measurable baked scalp (scanned ${files.length}; aisha and the child retired)`,
-  ).toEqual([]);
+    REGION_FIGURES.length,
+    "no remaining painted-scalp MPFB figure after kevin-mhair02",
+  ).toBe(0);
+  const leftover = [...measured].filter((f) => !RETIRED_FIGURES.has(f));
+  expect(leftover, "unclassified MPFB figure still carrying a measurable scalp region").toEqual([]);
   const stale = [...RETIRED_FIGURES].filter((f) => measured.has(f));
   expect(stale, `placeholder not retired: ${[...RETIRED_FIGURES].join(", ")}`).toEqual([]);
 }
@@ -209,35 +212,21 @@ const show = (r: Row): string =>
   `${r.file}: left=${r.leftPct.toFixed(1)}% right=${r.rightPct.toFixed(1)}% asym=${r.asym.toFixed(1)}pts n=${r.n}`;
 
 describe("the scalp region covers both sides of the head", () => {
-  it("(1) RED: left/right scalp dome coverage is balanced", () => {
-    // The region predicate is X-symmetric (|x| bands, symmetric depth lines), so the shipped
-    // region must sit in single digits — the #341 round-14 asymmetry was a BAKE artifact, not the
-    // region; with the texture route gone, the region primitive is the whole subject.
+  it("(1) RED: no remaining painted-scalp MPFB figure (last region retired with mhair02)", () => {
+    // The coverage RED's subject was the last painted scalp. After kevin-mhair02 that
+    // subject is gone — asserting balance on an empty row set would be vacuous (§7t).
     requireRows();
-    expect(
-      rows.filter((r) => r.asym > MAX_ASYMMETRY_POINTS).map(show),
-      `scalps whose sides differ by more than ${MAX_ASYMMETRY_POINTS} points`,
-    ).toEqual([]);
+    expect(rows, "measurable painted-scalp MPFB figures remaining").toEqual([]);
   });
 
-  it("(2) NET known-good: hair is not REMOVED from one side to make the ratio symmetric", () => {
+  it("(2) NET: no remaining painted-scalp MPFB figure to thin-out", () => {
     requireRows();
-    // The smaller side's scalp dome vert count must stay above the floor: a "fix" that
-    // clears (1) by deleting one side's region would sink it.
-    const thin = rows
-      .filter((r) => (Math.min(r.leftPct, 100 - r.leftPct) / 100) * r.n < MIN_SIDE_DOME_VERTS)
-      .map(show);
-    expect(thin, `sides below ${MIN_SIDE_DOME_VERTS} scalp dome verts`).toEqual([]);
+    expect(rows, "measurable painted-scalp MPFB figures remaining").toEqual([]);
   });
 
-  it("(3) NET known-good: the head is not SATURATED — the face band stays clear", () => {
-    // A region that covers the whole head has no hairline and reaches the face. The #282 face
-    // band (0.82-0.93 H at the front-32% depth line) must contain zero scalp verts.
+  it("(3) NET: no remaining painted-scalp MPFB figure to saturate the face band", () => {
     requireRows();
-    const saturated = rows
-      .filter((r) => r.faceBandVerts > 0)
-      .map((r) => `${r.file}: faceBandVerts=${r.faceBandVerts}`);
-    expect(saturated, `scalps reaching the front mid-face band`).toEqual([]);
+    expect(rows, "measurable painted-scalp MPFB figures remaining").toEqual([]);
   });
 });
 
@@ -281,5 +270,14 @@ describe("the scalp region covers both sides of the head", () => {
  * remains the only actor without a hair asset (every licence-clean style in the
  * usable makehuman-hair01 subset is a feminine bob), so `REGION_FIGURES` now names
  * him alone and both retired figures must be unmeasurable.
+ *
+ * ## FIXED (kevin-mhair02) — the last painted-scalp MPFB figure retires
+ *
+ * Kevin now wears `mhair02` (page CC0 / header AGPL3, this uuid only). The
+ * placeholder retires with the rest of the MPFB cast. `REGION_FIGURES` is empty;
+ * every shipped `mpfb-*.glb` is in `RETIRED_FIGURES`. The coverage RED becomes
+ * "no remaining painted-scalp MPFB figure" rather than an empty-row vacuous pass.
+ * hair01's usable subset is still mostly toigo bobs plus culturalibre_hair_06;
+ * that is not the kevin skip.
  */
 

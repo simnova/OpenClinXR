@@ -48,6 +48,34 @@ export const HAIR_SOURCE_ID = "makehuman-hair01";
 export const HAIR_PACK_DIR = join(
   ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair",
 );
+
+/**
+ * Patrick 2026-08-14 pointed at http://www.makehumancommunity.org/clothes/mhair02.html
+ * as CC0. The downloaded `.mhclo` header still says `# license AGPL3`. Same class as
+ * visemes02: assume the page grant, record the header contradiction, allow THIS
+ * uuid/basename only. `classifyHairLicence` is unchanged — AGPL remains a hard
+ * refusal there. Sibling `male_short_hair` is not on this list and stays refused.
+ */
+export const HAIR_PAGE_CC0_OVERRIDE: Readonly<Record<string, string>> = {
+  "f81a4e9a-e3d7-4ecb-bdf0-16d7fd9070a4": "mhair02",
+};
+
+export const HAIR_PAGE_CC0_OVERRIDE_BASENAMES = new Set(Object.values(HAIR_PAGE_CC0_OVERRIDE));
+
+/** True only when both the style basename and the file's own uuid are allowlisted. */
+export function hairPageCc0OverridePermits(mhcloPath: string, style: string): boolean {
+  if (!HAIR_PAGE_CC0_OVERRIDE_BASENAMES.has(style)) return false;
+  const header = readFileSync(mhcloPath, "utf8").slice(0, 4_000);
+  let uuid: string | null = null;
+  for (const line of header.split(/\r?\n/u)) {
+    const t = line.trim();
+    if (t.toLowerCase().startsWith("uuid ")) {
+      uuid = t.split(/\s+/u)[1] ?? null;
+      break;
+    }
+  }
+  return uuid != null && HAIR_PAGE_CC0_OVERRIDE[uuid] === style;
+}
 export const HAIR_CLASSIFICATION_ARTIFACT = join(
   REPO_ROOT,
   ".openclinxr/evidence/issue-330/hair-licence-classification.json",

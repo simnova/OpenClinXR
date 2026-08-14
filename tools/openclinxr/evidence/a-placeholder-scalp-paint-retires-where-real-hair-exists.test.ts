@@ -81,6 +81,14 @@ import { describe, expect, it } from "vitest";
  * untouched: he has no licence-clean hair asset (every usable style is a feminine bob), so his
  * placeholder stays. Measured post-bake: child placeholder scalp verts 0 (was 1,234) with 4,976
  * tris of fitted hair; kevin 1,506 placeholder verts, 0 hair tris (unchanged).
+ *
+ * ## FIXED (kevin-mhair02) — the nurse's placeholder retires with mhair02
+ *
+ * Kevin now wears the named page-CC0 / header-AGPL3 override (`mhair02`, uuid
+ * `f81a4e9a-e3d7-4ecb-bdf0-16d7fd9070a4`). Clause (3) flips: there is no remaining
+ * MPFB cast figure without a hair asset, so the placeholder retires on kevin too
+ * (same `scalp_placeholder_retired_for` registry). hair01's usable subset is still
+ * mostly toigo bobs plus culturalibre_hair_06; that is not why kevin was skipped.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -95,9 +103,8 @@ const SKIN = /skin/u;
 
 /** The figure whose replacement already shipped (#381). */
 const HAS_REAL_HAIR = "mpfb-ob-patient-aisha";
-/** Figures with no fitted hair asset — out of scope, and clause (3) keeps them that way. */
-/** Figures with no fitted hair asset on disk — kevin alone after #399 opened the child. */
-const NO_HAIR_YET = ["mpfb-peds-nurse-kevin"];
+/** Kevin now has fitted mhair02 — clause (3) asserts his placeholder retired too. */
+const NURSE = "mpfb-peds-nurse-kevin";
 
 type Figure = {
   id: string;
@@ -136,7 +143,7 @@ async function readFigure(id: string): Promise<Figure | null> {
 }
 
 const aisha = await readFigure(HAS_REAL_HAIR);
-const others = (await Promise.all(NO_HAIR_YET.map(readFigure))).filter(Boolean) as Figure[];
+const nurse = await readFigure(NURSE);
 
 /**
  * An empty enumeration must FAIL, never pass vacuously (SS7t). Plain `it` on purpose: an `it.fails`
@@ -144,7 +151,7 @@ const others = (await Promise.all(NO_HAIR_YET.map(readFigure))).filter(Boolean) 
  */
 function requireMeasured(): void {
   expect(aisha, `${HAS_REAL_HAIR}.glb readable under ${ASSET_DIR}`).not.toBeNull();
-  expect(others.length, `the no-hair-yet figure(s) are readable`).toBe(NO_HAIR_YET.length);
+  expect(nurse, `${NURSE}.glb readable under ${ASSET_DIR}`).not.toBeNull();
 }
 
 describe("a placeholder scalp paint retires where real hair exists", () => {
@@ -175,17 +182,17 @@ describe("a placeholder scalp paint retires where real hair exists", () => {
     ).toBeGreaterThan(1000);
   });
 
-  it("(3) COUNTERWEIGHT: figures with no hair asset keep the placeholder — the nurse's skip is preserved", () => {
-    // Refuses (c): stripping the paint everywhere greens (1) and leaves bald skin heads. #399
-    // retired the CHILD's paint because her real fitted hair (toigo_curled_under_bob_with_bangs,
-    // CC0) is now on disk — this contract's own rule. Kevin has no licence-clean hair asset (every
-    // usable style in makehuman-hair01 is a feminine bob), so his placeholder stays: removing it
-    // would leave a bald skin head.
+  it("(3) the nurse's placeholder retires with mhair02 — no remaining painted-only MPFB cast figure", () => {
+    // Flipped from the recorded skip. This contract's own rule: the placeholder retires
+    // where a real fitted replacement is on disk. Kevin now has one (mhair02).
     requireMeasured();
-    const stripped = others.filter((f) => f.placeholderVerts === 0).map((f) => f.id);
     expect(
-      stripped,
-      `these figures have no fitted hair, so removing their placeholder leaves a bald skin head — out of scope for this slice`,
-    ).toEqual([]);
+      nurse!.fittedHairTris,
+      `${NURSE} fitted mhair02 geometry (page CC0 / header AGPL3, this uuid only)`,
+    ).toBeGreaterThan(1000);
+    expect(
+      nurse!.placeholderVerts,
+      `${NURSE} placeholder scalp paint retired under mhair02`,
+    ).toBe(0);
   });
 });

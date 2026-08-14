@@ -34,21 +34,38 @@ SHOE_BY_REFERENCE = {
 
 # #381 — slice 1 of the human-realism campaign: the cast actor wears the fitted hair
 # the library rail already proves. Keyed by reference id like SHOE_BY_REFERENCE
-# (None = the default-macro aisha path). One actor per the peer fence
-# (.openclinxr/handoffs/mpfb-human-realism-peer-from-equipment-lane-2026-08-14.md):
-# every licence-clean style in the usable makehuman-hair01 subset is a feminine bob,
-# so kevin is a RECORDED MALE SKIP (a bob on a male nurse regresses realism, which is
-# worse than the stair-step painted cap it would replace). #399: the child joins under
-# the MADR 0052 P3 advancement hour with her OWN licence-clean style
+# (None = the default-macro aisha path). #399: the child joins under the MADR 0052
+# P3 advancement hour with her OWN licence-clean style
 # (toigo_curled_under_bob_with_bangs, CC0) — visually distinct from her parent's blunt
 # bob because the two stand together in peds_asthma_parent_anxiety_v1. The default
 # style is the SAME toigo_blunt_bob_with_bangs the library rail proved (SS9h — same
 # fitter, same pack, same style, on a shipped file).
+# 2026-08-14: kevin is no longer a mapping skip. HAIR_STYLE_BY_REFERENCE points him
+# at `mhair02` (community-page CC0 / header AGPL3, uuid allowlisted below). hair01's
+# usable subset is still mostly toigo bobs plus culturalibre_hair_06 — that is a
+# pack-inventory fact, not the reason kevin stayed painted.
 HAIR_STYLE_BY_REFERENCE = {
     None: "toigo_blunt_bob_with_bangs",
-    "peds_nurse_kevin": None,
+    "peds_nurse_kevin": "mhair02",
     "peds_patient_child": "toigo_curled_under_bob_with_bangs",
 }
+
+# Patrick 2026-08-14 pointed at http://www.makehumancommunity.org/clothes/mhair02.html
+# as CC0. The downloaded `.mhclo` header still says `# license AGPL3` (uuid
+# f81a4e9a-e3d7-4ecb-bdf0-16d7fd9070a4). Same class as visemes02: assume the page
+# grant, record the header contradiction, allow THIS uuid/basename only. AGPL still
+# refuses for any style not on this list. Do not weaken read_hair_mhclo_licence.
+# Sibling `male_short_hair` (same page/header lie, not named) stays refused.
+HAIR_PAGE_CC0_OVERRIDE = {
+    "f81a4e9a-e3d7-4ecb-bdf0-16d7fd9070a4": "mhair02",
+}
+
+# Named style dirs only — never glob. hair01 pack first; community-male for the
+# operator-named mhair02. Do not walk sibling folders (male_short_hair stays refused).
+HAIR_STYLE_SEARCH_ROOTS = (
+    pathlib.Path(".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair"),
+    pathlib.Path(".openclinxr-local/provider-cache/hair/sources/makehuman-community-male"),
+)
 
 # #199: the LONG-SLEEVE upper slot. #197/#199 measured that body-surface-derived garments
 # saturate at the elbow on the Anny rail — the Anny body has 0 forearm verts (inverse-bind
@@ -323,6 +340,51 @@ def mhmat_for_mhclo(mhclo_path):
     raise RuntimeError(f"#340: no .mhmat found for {mhclo_path} (declared {declared})")
 
 
+def hair_mhclo_uuid(mhclo_path):
+    """Read the `uuid` line from a hair `.mhclo` header, or None."""
+    try:
+        header = mhclo_path.read_text(encoding="utf-8", errors="replace")[:4000]
+    except OSError:
+        return None
+    for line in header.splitlines():
+        t = line.strip()
+        if t.lower().startswith("uuid "):
+            return t.split(None, 1)[1].strip()
+    return None
+
+
+def hair_page_cc0_override_permits(mhclo_path, style):
+    """Named page-CC0 / header-AGPL3 exception. Not a general AGPL permit.
+
+    Returns True only when BOTH the style basename and the file's own uuid are
+    on HAIR_PAGE_CC0_OVERRIDE. AGPL still refuses every other style.
+    """
+    if style not in HAIR_PAGE_CC0_OVERRIDE.values():
+        return False
+    uid = hair_mhclo_uuid(mhclo_path)
+    return uid is not None and HAIR_PAGE_CC0_OVERRIDE.get(uid) == style
+
+
+def resolve_hair_style_dir(style):
+    """Find `<style>/<style>.mhclo` under the named search roots. Never globs.
+
+    hair01 pack first; then makehuman-community-male (mhair02). Sibling folders
+    such as `male_short_hair` are not searched unless `style` is that exact name
+    (it is not — that asset stays refused).
+    """
+    missing = []
+    for rel_root in HAIR_STYLE_SEARCH_ROOTS:
+        cand = REPO_ROOT / rel_root / style
+        mhclo = cand / f"{style}.mhclo"
+        if mhclo.is_file():
+            return cand
+        missing.append(str(cand))
+    raise RuntimeError(
+        f"#381: hair style {style!r} not found as a named dir under the hair "
+        f"search roots (never globbed): {missing}"
+    )
+
+
 def read_hair_mhclo_licence(mhclo_path):
     """#381 — read the licence line from a hair `.mhclo`'s OWN header.
 
@@ -332,6 +394,10 @@ def read_hair_mhclo_licence(mhclo_path):
     an unrecognised line is a refusal (unspecified is a refusal). The bake refuses
     the style at fit time, so a copyleft style can never reach the shipped bytes even
     if the evidence gate is bypassed. Returns (permitted, raw_token).
+
+    This function is NOT the page-CC0 override. AGPL stays a hard refusal here.
+    The named uuid allowlist is hair_page_cc0_override_permits, checked by the
+    caller after this returns.
     """
     try:
         header = mhclo_path.read_text(encoding="utf-8", errors="replace")[:4000]
@@ -2787,36 +2853,50 @@ def main():
         f"in the eye footprint x[{eye_min_x:.4f},{eye_max_x:.4f}] y[{eye_min_y:.4f},{eye_max_y:.4f}]"
     )
 
-    # #381 — slice 1 of the human-realism campaign: the cast actor wears the fitted hair
-    # the library rail already proves. The painted scalp region above IS the hair today
-    # (a flat near-black cap whose boundary is the stair-step hairline — the top visible
-    # face defect, graded in pixels twice). The library rail ships a licence-cleared,
-    # weighted 4,976-tri fitted bob through embed_library_hair.py ->
-    # ClothesService.fit_clothes_to_human; the cast bake never calls that fitter (it was
-    # invoked from exactly ONE place, body-param-cli.ts). Slice 1 wires the PROVEN fitter
-    # here for aisha only (HAIR_STYLE_BY_REFERENCE above; kevin is a recorded male skip
-    # and the child is out of scope per the peer fence). ORDER IS LOAD-BEARING: the fit
-    # runs BEFORE the #318 helper strip, exactly like the eyes — the hair .mhclo
+    # #381 — the cast actor wears the fitted hair the library rail already proves.
+    # The painted scalp region above IS the hair today unless a style is mapped
+    # (a flat near-black cap whose boundary is the stair-step hairline). The library
+    # rail ships a licence-cleared, weighted fitted mesh through embed_library_hair.py
+    # -> ClothesService.fit_clothes_to_human. ORDER IS LOAD-BEARING: the fit runs
+    # BEFORE the #318 helper strip, exactly like the eyes — the hair .mhclo
     # references basemesh verts and must see the full topology; the fitted mesh is a
     # SEPARATE object, so the strip (which mutates `human`) does not touch it.
+    # 2026-08-14: kevin maps to mhair02 via HAIR_STYLE_BY_REFERENCE; the style lives
+    # outside hair01 and is resolved by name only (never glob). AGPL still refuses
+    # unless the uuid/basename is on HAIR_PAGE_CC0_OVERRIDE.
     _hair_style = HAIR_STYLE_BY_REFERENCE.get(args.reference)
     _hair_fitted = None
     if _hair_style:
-        _hair_dir = (
-            pathlib.Path(__file__).resolve().parents[4]
-            / ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair"
-            / _hair_style
-        )
+        _hair_dir = resolve_hair_style_dir(_hair_style)
         _hair_mhclo = _hair_dir / f"{_hair_style}.mhclo"
         _hair_obj = _hair_dir / declared_hair_obj_file(_hair_mhclo)
         if not _hair_mhclo.is_file() or not _hair_obj.is_file():
             raise RuntimeError(f"#381: hair sources missing in provider cache: {_hair_dir}")
         _hair_lic_ok, _hair_lic_raw = read_hair_mhclo_licence(_hair_mhclo)
-        if not _hair_lic_ok:
+        _hair_override = hair_page_cc0_override_permits(_hair_mhclo, _hair_style)
+        if not _hair_lic_ok and not _hair_override:
             raise RuntimeError(
                 f"#381: hair {_hair_style} licence NOT permitted per its own .mhclo header: "
                 f"{_hair_lic_raw!r} — hard refusal (AGPL/copyleft or unspecified)"
             )
+        if _hair_override:
+            print(
+                "HAIR_PAGE_CC0_OVERRIDE "
+                f"style={_hair_style} uuid={hair_mhclo_uuid(_hair_mhclo)} "
+                f"header={_hair_lic_raw!r} "
+                "page=http://www.makehumancommunity.org/clothes/mhair02.html "
+                "assumption=page_cc0_header_agpl3_this_uuid_only"
+            )
+        _hair_mhmat = _hair_dir / f"{_hair_style}.mhmat"
+        _hair_png = _hair_dir / f"{_hair_style}.png"
+        if _hair_mhmat.is_file() and not _hair_png.is_file():
+            _mhmat_text = _hair_mhmat.read_text(encoding="utf-8", errors="replace")
+            if re.search(r"^diffuseTexture\s+\S+", _mhmat_text, re.M):
+                print(
+                    f"HAIR_TEXTURE_SKIP {_hair_png.name} absent "
+                    "(page listed no diffuse); using existing create_material / "
+                    "role vertex color path — do not invent a texture"
+                )
 
         import sys as _sys_hair
 
@@ -2860,6 +2940,7 @@ def main():
             "tris": _hair_tris,
             "weightedBone": _hair_bone,
             "licence": _hair_lic_raw,
+            "pageCc0Override": bool(_hair_override),
             "fitWallClockS": round(_hair_fit_s, 4),
         }
         print(f"HAIR_FIT {json.dumps(_hair_fitted)}")

@@ -904,6 +904,7 @@ async function main(argv: string[]): Promise<void> {
   let validateLatest = false;
   let hideMaskMagenta = false;
   let port = 5197;
+  let outputRoot: string | undefined;
   const glbPaths: string[] = [];
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i]!;
@@ -912,6 +913,7 @@ async function main(argv: string[]): Promise<void> {
     else if (arg === "--hide-mask-magenta") hideMaskMagenta = true;
     else if (arg === "--glb" && argv[i + 1]) glbPaths.push(argv[++i]!);
     else if (arg === "--port" && argv[i + 1]) port = Number(argv[++i]);
+    else if (arg === "--output-root" && argv[i + 1]) outputRoot = argv[++i]!;
   }
 
   if (validateLatest) {
@@ -930,6 +932,7 @@ async function main(argv: string[]): Promise<void> {
     glbPaths: glbPaths.length ? glbPaths : undefined,
     port,
     hideMaskMagenta,
+    outputRoot,
   });
   const agreed = gallery.assets.filter((a) => a.selfCheck.agrees).length;
   const refused = gallery.assets.filter((a) => a.refusedReason).length;

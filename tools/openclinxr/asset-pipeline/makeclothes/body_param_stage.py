@@ -627,11 +627,16 @@ def transfer_weights_body_to_garment(
 # placeholder ONLY where a real fitted replacement is on disk. #399: the child joins under
 # the MADR 0052 P3 advancement hour — her fitted toigo_curled_under_bob_with_bangs (CC0)
 # is on disk, so her paint is retired with aisha's. The nurse keeps it — removing it there
-# would leave a bald skin head, and his fix needs a licence-clean masculine style that does
-# not exist in this pack (the planted #387/#399 contracts pin that boundary). Keyed by the
-# shipped GLB base id.
+# would leave a bald skin head. 2026-08-14: kevin now wears mhair02 (page-CC0 /
+# header-AGPL3 uuid allowlist) so his placeholder retires with the rest of the
+# MPFB cast. Keyed by the shipped GLB base id.
 SCALP_PLACEHOLDER_RETIRED_FOR = frozenset(
-    {"mpfb-ob-patient-aisha", "mpfb-peds-parent-aisha", "mpfb-peds-patient-child"}
+    {
+        "mpfb-ob-patient-aisha",
+        "mpfb-peds-parent-aisha",
+        "mpfb-peds-patient-child",
+        "mpfb-peds-nurse-kevin",
+    }
 )
 
 

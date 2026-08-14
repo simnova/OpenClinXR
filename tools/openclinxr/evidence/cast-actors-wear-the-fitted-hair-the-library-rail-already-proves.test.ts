@@ -4,6 +4,7 @@ import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 import {
   HAIR_PACK_DIR,
+  HAIR_PAGE_CC0_OVERRIDE_BASENAMES,
   classifyHairPack,
 } from "../../../tools/openclinxr/asset-pipeline/makeclothes/hair-licence-classify.js";
 
@@ -132,6 +133,16 @@ import {
  * classifier like every other fitted hair in the cast, and kevin remains the RECORDED MALE SKIP
  * (every licence-clean style in the usable subset is a feminine bob). Measured post-bake: child
  * 4,976 tris fitted hair, kevin 0 tris (unchanged).
+ *
+ * ## FIXED (kevin-mhair02) — the nurse wears the named page-CC0 override
+ *
+ * Patrick 2026-08-14 pointed at http://www.makehumancommunity.org/clothes/mhair02.html
+ * as CC0. Header AGPL3, uuid `f81a4e9a-e3d7-4ecb-bdf0-16d7fd9070a4`. Same class as
+ * visemes02. Clause (2) accepts `mhair02` via HAIR_PAGE_CC0_OVERRIDE_BASENAMES —
+ * it does NOT make classifyHairLicence permit AGPL. Clause (3) flips from "kevin
+ * gains no hair" to "kevin wears mhair02, not a toigo bob". Clause (5) retires
+ * his placeholder with the rest of the MPFB cast. hair01's usable subset is still
+ * mostly toigo bobs plus culturalibre_hair_06; that is not the kevin skip.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -161,16 +172,14 @@ const MIN_FITTED_TRIS = 800;
  * cannot be declared out of scope.
  */
 const SLICE_1_ACTOR = "mpfb-ob-patient-aisha";
-/** #393/#399 — the shipped base ids whose placeholder scalp paint is retired (real fitted hair
- * on disk). #399 retired the child's with her fitted toigo_curled_under_bob_with_bangs.
- * See body_param_stage.scalp_placeholder_retired_for. */
-const RETIRED_FIGURES = new Set(["mpfb-ob-patient-aisha", "mpfb-peds-patient-child"]);
-/** The actor slice 1's fence still covers. #399 opened the child with her own licence-clean
- * style (toigo_curled_under_bob_with_bangs, CC0); kevin remains a recorded male licence skip —
- * no licence-clean masculine style exists in makehuman-hair01. Clause (3) enforces that. */
-const OUT_OF_SLICE = ["mpfb-peds-nurse-kevin"] as const;
-/** The skip actor's fitted-hair triangle count today, measured 2026-08-14. Zero, and must stay zero. */
-const OUT_OF_SLICE_FITTED_TRIS_TODAY = 0;
+/** #393/#399/kevin-mhair02 — shipped base ids whose placeholder scalp paint is retired. */
+const RETIRED_FIGURES = new Set([
+  "mpfb-ob-patient-aisha",
+  "mpfb-peds-patient-child",
+  "mpfb-peds-nurse-kevin",
+]);
+/** Named page-CC0 / header-AGPL3 override actor — no longer a skip. */
+const NURSE = "mpfb-peds-nurse-kevin";
 
 type HairRow = {
   id: string;
@@ -259,9 +268,10 @@ describe("cast actors wear the fitted hair the library rail already proves", () 
     for (const row of [...castRows, knownGood]) {
       for (const name of row.fittedNames) {
         const matched = usableStyles.some((s) => name.includes(s));
-        if (!matched) {
+        const override = [...HAIR_PAGE_CC0_OVERRIDE_BASENAMES].some((s) => name.includes(s));
+        if (!matched && !override) {
           dirty.push(
-            `${row.id}: fitted hair "${name}" does not match any licence-clean style (${usableStyles.length} usable of ${classification.summary.total}; ${classification.summary.refusedCopyleft} refused copyleft)`,
+            `${row.id}: fitted hair "${name}" does not match any licence-clean style or the named page-CC0 override (${usableStyles.length} usable of ${classification.summary.total}; ${classification.summary.refusedCopyleft} refused copyleft)`,
           );
         }
       }
@@ -269,21 +279,25 @@ describe("cast actors wear the fitted hair the library rail already proves", () 
     expect(dirty, "fitted hair whose source style is not licence-clean").toEqual([]);
   });
 
-  it("(3) COUNTERWEIGHT: the nurse gains no hair — the recorded male licence skip is preserved", () => {
-    // Slice 1's fence covered aisha only; #399 legitimately opened the child with her OWN
-    // licence-clean style (toigo_curled_under_bob_with_bangs, CC0 — clause (2) classifies every
-    // fitted hair present). Kevin specifically must NOT receive a feminine bob — every
-    // licence-clean style in the usable subset is one, so it would regress realism, which is
-    // worse than the stair-step it replaces. #399 preserves his skip by construction.
+  it("(3) the nurse wears mhair02 — named page-CC0 override, not a toigo bob", () => {
+    // Flipped from the recorded skip. Refuses a feminine bob on the male nurse and
+    // refuses globbing AGPL hair01. The allowlist is uuid+basename, not a general AGPL permit.
     requireMeasured();
-    const opened = castRows
-      .filter((r) => (OUT_OF_SLICE as readonly string[]).includes(r.id))
-      .filter((r) => r.fittedTris > OUT_OF_SLICE_FITTED_TRIS_TODAY)
-      .map(
-        (r) =>
-          `${r.id}: gained ${r.fittedTris} tris of fitted hair — kevin is a recorded male skip until a licensed masculine style exists`,
-      );
-    expect(opened, "actors opened outside the recorded skip").toEqual([]);
+    const row = castRows.find((r) => r.id === NURSE);
+    expect(row, `${NURSE} enumerated`).toBeTruthy();
+    expect(
+      row!.fittedTris,
+      `${NURSE} fitted mhair02 geometry (page CC0 / header AGPL3, this uuid only)`,
+    ).toBeGreaterThan(MIN_FITTED_TRIS);
+    expect(
+      row!.fittedNames.some((n) => n.includes("mhair02")),
+      `${NURSE} fitted names ${JSON.stringify(row!.fittedNames)} must include mhair02`,
+    ).toBe(true);
+    expect(
+      row!.fittedNames.some((n) => /toigo|bob/iu.test(n)),
+      `${NURSE} must not wear a toigo bob`,
+    ).toBe(false);
+    expect(row!.fittedWeighted, `${NURSE} fitted hair weighted to the head`).toBe(true);
   });
 
   it("(4) COUNTERWEIGHT: the library rail's proven fit is not disturbed", () => {

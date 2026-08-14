@@ -128,15 +128,20 @@
  * unchanged: the crown position check, the face-band exclusion, the vacuity guards, and the
  * "no separate hand-authored hair mesh" intent (aisha's fitted mesh is excluded by the #330
  * `FITTED_LIBRARY_HAIR_MESH` prefix, the opposite of the refused sphere).
+ *
+ * ## FIXED (kevin-mhair02) — the nurse's placeholder retires with mhair02
+ *
+ * Kevin now wears the named page-CC0 / header-AGPL3 override. The MPFB rail no
+ * longer has a region-carrying subject; the region-present clauses move to the
+ * hm08 library columns (unchanged). Kevin is asserted ABSENT like aisha.
  */
 import { Accessor, NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 
 const ANNY_KNOWN_GOOD = "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb";
-/** #387 — the MPFB rail column's region-carrying subject moved to the nurse (no fitted
- * hair, still carries the region). Aisha's placeholder is retired (see the #387 clause). */
+/** kevin-mhair02 — the nurse now wears fitted mhair02; placeholder retired. */
 const MPFB_SUBJECT = "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb";
-/** #387 — the retired figure: real fitted hair replaced the placeholder paint. */
+/** #387 — the first retired figure: real fitted hair replaced the placeholder paint. */
 const MPFB_RETIRED_SUBJECT = "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb";
 /** #279 — third column: the two hm08 library bodies shipped by the body_param stage. */
 const HM08_LEAN_SUBJECT =
@@ -333,18 +338,16 @@ describe("#222 scalp hair is a material region on the body, never a separate aut
     expect(subject.separateHairMeshes).toEqual([]);
   });
 
-  it("MPFB rail body mesh carries a scalp hair material region", async () => {
-    // #387 — the MPFB rail column is the nurse (no fitted hair), which still carries
-    // the region. Aisha's placeholder is retired and asserted absent below.
+  it("MPFB rail nurse placeholder is retired under mhair02", async () => {
+    // kevin-mhair02: the last painted-scalp MPFB figure now wears fitted hair.
     const subject = await readSubject(MPFB_SUBJECT);
-    expect(subject.scalpRegion).not.toBeNull();
+    expect(subject.scalpRegion, `${MPFB_SUBJECT} placeholder retired under mhair02`).toBeNull();
+    expect(subject.separateHairMeshes).toEqual([]);
   });
 
-  it("MPFB rail scalp region sits on the crown and stops behind the face", async () => {
-    const { scalpRegion } = await readSubject(MPFB_SUBJECT);
-    expect(scalpRegion).not.toBeNull();
-    expect(scalpRegion!.minHeightFraction).toBeGreaterThan(SCALP_MIN_HEIGHT_FRACTION);
-    expect(scalpRegion!.faceBandVertexCount).toBe(0);
+  it("MPFB rail nurse carries no hand-authored hair mesh (fitted mhair02 is excluded by prefix)", async () => {
+    const subject = await readSubject(MPFB_SUBJECT);
+    expect(subject.separateHairMeshes).toEqual([]);
   });
 
   it("#387: aisha's placeholder scalp region is retired where real fitted hair exists", async () => {
