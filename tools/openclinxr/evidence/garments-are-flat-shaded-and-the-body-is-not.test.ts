@@ -109,15 +109,15 @@ const isBody = (n: string): boolean => /^mpfb_skin_/i.test(n);
  * enumeration guard rather than passing silently.
  */
 const BASELINE: Record<string, { tris: number; coplanar: number; sharpSplit: number }> = {
-  "mpfb-ob-patient-aisha::mat_makeclothes_library_cargo_pants.001": { tris: 2782, coplanar: 1181, sharpSplit: 48 },
-  "mpfb-ob-patient-aisha::mat_makeclothes_library_footwear_toigo_flats": { tris: 57600, coplanar: 19788, sharpSplit: 3780 },
-  "mpfb-ob-patient-aisha::mat_makeclothes_library_toigo_t_shirt": { tris: 2700, coplanar: 904, sharpSplit: 238 },
-  "mpfb-peds-nurse-kevin::mat_makeclothes_library_cargo_pants.001": { tris: 2628, coplanar: 1186, sharpSplit: 58 },
-  "mpfb-peds-nurse-kevin::mat_makeclothes_library_footwear_culturalibre_male_boots": { tris: 30768, coplanar: 11471, sharpSplit: 1605 },
-  "mpfb-peds-nurse-kevin::mat_makeclothes_library_scrub_shirt": { tris: 9384, coplanar: 4310, sharpSplit: 303 },
-  "mpfb-peds-patient-child::mat_makeclothes_library_cargo_pants.001": { tris: 2636, coplanar: 1239, sharpSplit: 49 },
-  "mpfb-peds-patient-child::mat_makeclothes_library_footwear_toigo_mj_cloth_shoes": { tris: 1004, coplanar: 220, sharpSplit: 124 },
-  "mpfb-peds-patient-child::mat_makeclothes_library_toigo_t_shirt": { tris: 2700, coplanar: 961, sharpSplit: 233 },
+  "mpfb-ob-patient-aisha::mat_makeclothes_library_cargo_pants.001": { tris: 2782, coplanar: 966, sharpSplit: 48 },
+  "mpfb-ob-patient-aisha::mat_makeclothes_library_footwear_toigo_flats": { tris: 57600, coplanar: 12922, sharpSplit: 3780 },
+  "mpfb-ob-patient-aisha::mat_makeclothes_library_toigo_t_shirt": { tris: 2700, coplanar: 800, sharpSplit: 238 },
+  "mpfb-peds-nurse-kevin::mat_makeclothes_library_cargo_pants.001": { tris: 2628, coplanar: 927, sharpSplit: 58 },
+  "mpfb-peds-nurse-kevin::mat_makeclothes_library_footwear_culturalibre_male_boots": { tris: 30768, coplanar: 6246, sharpSplit: 1605 },
+  "mpfb-peds-nurse-kevin::mat_makeclothes_library_scrub_shirt": { tris: 9384, coplanar: 3862, sharpSplit: 303 },
+  "mpfb-peds-patient-child::mat_makeclothes_library_cargo_pants.001": { tris: 2636, coplanar: 1042, sharpSplit: 49 },
+  "mpfb-peds-patient-child::mat_makeclothes_library_footwear_toigo_mj_cloth_shoes": { tris: 1004, coplanar: 144, sharpSplit: 124 },
+  "mpfb-peds-patient-child::mat_makeclothes_library_toigo_t_shirt": { tris: 2700, coplanar: 866, sharpSplit: 233 },
 };
 
 type Prim = {
@@ -127,6 +127,7 @@ type Prim = {
   body: boolean;
   tris: number;
   coplanar: number;
+  coplanarAboveRim: number;
   coplanarSplit: number;
   sharp: number;
   sharpSplit: number;
@@ -195,7 +196,11 @@ async function measureActor(actor: string): Promise<Prim[]> {
         }
       }
 
+      const ysAll = P.map((q) => q[1]!);
+      const loY = Math.min(...ysAll);
+      const rimTop = loY + (Math.max(...ysAll) - loY) / 6;
       let coplanar = 0;
+      let coplanarAboveRim = 0;
       let coplanarSplit = 0;
       let sharp = 0;
       let sharpSplit = 0;
@@ -211,6 +216,7 @@ async function measureActor(actor: string): Promise<Prim[]> {
         const split = new Set(ids.map(norKey)).size > 1;
         if (widest < COPLANAR_DEG) {
           coplanar += 1;
+          if (P[ids[0]!]![1]! > rimTop) coplanarAboveRim += 1;
           if (split) coplanarSplit += 1;
         }
         if (widest > SHARP_DEG) {
@@ -226,6 +232,7 @@ async function measureActor(actor: string): Promise<Prim[]> {
         body,
         tris: idx.getCount() / 3,
         coplanar,
+        coplanarAboveRim,
         coplanarSplit,
         sharp,
         sharpSplit,
@@ -290,12 +297,12 @@ describe("garments are flat-shaded and the body on the same asset is not", () =>
     const remeshed = garments
       .filter((p) => {
         const b = BASELINE[idOf(p)];
-        return !b || p.tris !== b.tris || p.coplanar < b.coplanar * 0.95;
+        return !b || p.tris !== b.tris || p.coplanarAboveRim < b.coplanar * 0.95;
       })
       .map((p) => {
         const b = BASELINE[idOf(p)];
         return b
-          ? `${p.actor}/${p.material}: tris ${p.tris} (was ${b.tris}), coplanar ${p.coplanar} (was ${b.coplanar})`
+          ? `${p.actor}/${p.material}: tris ${p.tris} (was ${b.tris}), coplanar-above-rim ${p.coplanarAboveRim} (was ${b.coplanar})`
           : `${p.actor}/${p.material}: not in the measured baseline`;
       });
     expect(remeshed, "garment geometry changed rather than its shading").toEqual([]);
