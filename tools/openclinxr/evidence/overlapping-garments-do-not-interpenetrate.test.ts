@@ -1,3 +1,4 @@
+import { readdirSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
@@ -88,13 +89,51 @@ import { describe, expect, it } from "vitest";
  *     and shirt-vs-trouser are excluded here (the last is #373's known-good, not an assertion).
  *   - **Which way kevin should resolve.** Tucked-in and worn-over both satisfy clause (1); which is
  *     clinically right for a nurse in boots is a staging question, not an implementer decision (SS8y).
+ *
+ * ## FIXED (#408) — 2026-08-14
+ *
+ * The wardrobe campaign re-dressed staff from `cargo_pants` into `scrub_pants`, and the selector
+ * `/cargo_pants/i` stopped matching kevin — one of the three actors named in ACTORS — so
+ * `requireMeasured()` refused and all three clauses went red. The vacuity guard did its job.
+ *
+ * Fix: the selector is now the lower-garment CLASS `(cargo|scrub|trouser)_pants` (SS8b: cap the
+ * class, not the instance). ACTORS is the full shipped dressed set — seven assets, enumerated
+ * from what ships — and `requireMeasured()` re-checks that enumeration against the shipped set,
+ * so a future bake that dresses a new actor reds THIS gate, not a later landing (SS7j).
+ *
+ * Measured 2026-08-14 on the shipped bytes (class selector):
+ *
+ *   actor                           | cuffReachMm | shoeTris
+ *   --------------------------------|-------------|---------
+ *   mpfb-ob-patient-aisha           |      +28.0  |   57600
+ *   mpfb-peds-nurse-kevin           |     -308.2  |   30768
+ *   mpfb-peds-patient-child         |      +39.5  |    1004
+ *   mpfb-clinical-nurse-adult       |      +29.6  |   57600
+ *   mpfb-clinical-physician-adult   |      +29.6  |   57600
+ *   mpfb-family-partner-adult       |      +36.1  |    1004
+ *   mpfb-peds-parent-aisha          |      +28.0  |   57600
+ *
+ * kevin's cuff reach moved from -279.2 (pre-campaign cargo_pants) to -308.2 (scrub_pants): the
+ * re-dress lowered the hem, so the baseline is re-measured, not copied. The four newly covered
+ * actors (nurse, physician, partner, parent) all have no trouser/footwear overlap (low footwear),
+ * so they pass clause (1) vacuously and none fails the interpenetration measure. kevin remains
+ * the only overlap case and is consistent (boot outside trouser in all 28 shared buckets).
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const GENERATED = "apps/ui-xr/public/generated-humanoids";
 
-const ACTORS = ["mpfb-ob-patient-aisha", "mpfb-peds-nurse-kevin", "mpfb-peds-patient-child"] as const;
+/** The full shipped dressed set, enumerated from what ships on 2026-08-14 (see FIXED #408). */
+const ACTORS = [
+  "mpfb-ob-patient-aisha",
+  "mpfb-peds-nurse-kevin",
+  "mpfb-peds-patient-child",
+  "mpfb-clinical-nurse-adult",
+  "mpfb-clinical-physician-adult",
+  "mpfb-family-partner-adult",
+  "mpfb-peds-parent-aisha",
+] as const;
 
 /** A bucket counts as "outside" only beyond this, so surface noise is not read as a layer flip. */
 const RADIAL_TOLERANCE_MM = 2;
@@ -123,7 +162,7 @@ async function measure(actor: string): Promise<Pair | null> {
   for (const mesh of doc.getRoot().listMeshes()) {
     for (const prim of mesh.listPrimitives()) {
       const name = prim.getMaterial()?.getName() ?? "";
-      const isPants = /cargo_pants/i.test(name);
+      const isPants = /(cargo|scrub|trouser)_pants/i.test(name);
       const isShoe = /footwear/i.test(name);
       if (!isPants && !isShoe) continue;
       const pos = prim.getAttribute("POSITION");
@@ -184,13 +223,39 @@ async function measure(actor: string): Promise<Pair | null> {
   };
 }
 
-/** MEASURED 2026-08-14 on the shipped bytes. */
+/** MEASURED 2026-08-14 on the shipped bytes — one row per enumerated actor, never copied (see FIXED #408). */
 const BASELINE: Record<string, { cuffReachMm: number; shoeTris: number }> = {
   "mpfb-ob-patient-aisha": { cuffReachMm: 28.0, shoeTris: 57600 },
-  "mpfb-peds-nurse-kevin": { cuffReachMm: -279.2, shoeTris: 30768 },
+  "mpfb-peds-nurse-kevin": { cuffReachMm: -308.2, shoeTris: 30768 },
   "mpfb-peds-patient-child": { cuffReachMm: 39.5, shoeTris: 1004 },
+  "mpfb-clinical-nurse-adult": { cuffReachMm: 29.6, shoeTris: 57600 },
+  "mpfb-clinical-physician-adult": { cuffReachMm: 29.6, shoeTris: 57600 },
+  "mpfb-family-partner-adult": { cuffReachMm: 36.1, shoeTris: 1004 },
+  "mpfb-peds-parent-aisha": { cuffReachMm: 28.0, shoeTris: 57600 },
 };
 
+/** Shipped mpfb actors carrying BOTH a lower garment (any class) and footwear. */
+async function shippedDressedActors(): Promise<string[]> {
+  const out: string[] = [];
+  for (const f of readdirSync(join(REPO_ROOT, GENERATED))
+    .filter((x) => x.startsWith("mpfb-") && x.endsWith(".glb"))
+    .sort()) {
+    const doc = await io.read(join(REPO_ROOT, GENERATED, f));
+    let lower = false;
+    let footwear = false;
+    for (const mesh of doc.getRoot().listMeshes()) {
+      for (const prim of mesh.listPrimitives()) {
+        const name = prim.getMaterial()?.getName() ?? "";
+        if (/(cargo|scrub|trouser)_pants/iu.test(name)) lower = true;
+        if (/footwear/iu.test(name)) footwear = true;
+      }
+    }
+    if (lower && footwear) out.push(f.replace(/\.glb$/u, ""));
+  }
+  return out;
+}
+
+const SHIPPED_DRESSED = await shippedDressedActors();
 const rows = (await Promise.all(ACTORS.map(measure))).filter((r): r is Pair => r !== null);
 
 /**
@@ -198,6 +263,9 @@ const rows = (await Promise.all(ACTORS.map(measure))).filter((r): r is Pair => r
  * cannot guard its own vacuity — it is satisfied by ANY failure, including this guard throwing.
  */
 function requireMeasured(): void {
+  // SS7j / #408: the enumeration is checked against what ships, so the next bake cannot be missed.
+  const missed = SHIPPED_DRESSED.filter((id) => !ACTORS.some((a) => a === id));
+  expect(missed, "shipped dressed actors not enumerated in ACTORS").toEqual([]);
   expect(rows.length, `actors with both a trouser leg and footwear (of ${ACTORS.length})`).toBe(
     ACTORS.length,
   );
