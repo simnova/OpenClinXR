@@ -80,6 +80,16 @@ import { describe, expect, it } from "vitest";
  * the trained [0, 1] macro band as the refusal boundary because production cannot extrapolate;
  * refusing a target the shipped rail cannot produce is the honest outcome, not a conservative one.
  *
+ * ## CORRECTED (#385) — the ceiling was a production config, not a model limit
+ *
+ * Issue-385 measured the extrapolation path and then enabled it on the production rail:
+ * `build_real_anny_body` now creates the model with `extrapolate_phenotypes=True` and
+ * `_solve_height_macro` searches the extrapolated band [0, 2.0] when the target exceeds the trained
+ * ceiling (125 cm at age 8 solves at macro ~1.16). Clause (2) accepts `refused || reached`, so the
+ * child now legitimately reaches instead of refusing; the loud-refusal channel survives for targets
+ * above the extrapolated band. The adult macros (0.5093 / 0.8635 / 0.7320) are inside [0, 1] and
+ * are unchanged — the extrapolation flag is a no-op for in-range macros.
+ *
  * The `it.fails` markers on (1) and (2) were flipped to `it`; all three contracts pass.
  */
 

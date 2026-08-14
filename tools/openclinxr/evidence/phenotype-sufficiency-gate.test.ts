@@ -92,6 +92,17 @@ import { describe, expect, it } from "vitest";
  * anny 0.6.0 was re-installed at 23:32 on 2026-08-10, ~1 hour AFTER the pin was measured (22:37),
  * which moved the float-level body hash. Verified: the ORIGINAL pre-fix generator produces the same
  * recalibrated hash `d1cd6be66a2b0a59` in this environment, so the old pin was already stale.
+ *
+ * ## FIXED (#385) — clause (4) child pin recalibrated
+ *
+ * The #385 height-solve fix (generate_mesh.py) makes `patient_maya_johnson_v1` BUILD at her
+ * authored 125 cm instead of refusing: the solve now searches the extrapolated macro band
+ * [0, 2.0] past the trained maxheight ceiling, and `build_real_anny_body` creates the model with
+ * `extrapolate_phenotypes=True` so the solved macro is honoured rather than clamped. Measured
+ * 2026-08-14: child hash `54219676ef5f4960`; the two adults are byte-identical to the #302 pin
+ * (the extrapolation flag is a no-op for macros inside [0, 1]). The `#302` refusal channel
+ * survives for targets above the extrapolated band, so nothing about the insufficiency gate
+ * changed — the child pin is a known-good recalibration, the same class as the #302 hash moves.
  */
 
 // Tree-relative so the contract proof re-runs against the WORKTREE it runs in, not
@@ -170,16 +181,20 @@ describe("the phenotype gate refuses an insufficient phenotype, not merely an ab
   );
 
   it(
-    "(4) KNOWN-GOOD: the reachable authored peds actors keep producing the same bodies; the child now refuses (#302)",
+    "(4) KNOWN-GOOD: the reachable authored peds actors keep producing the same bodies; the child now builds (#385)",
     () => {
       const authored = authoredPhenotypes();
       expect(authored.length).toBe(3);
       // Measured 2026-08-11 after the #302 height-macro solve (see ## FIXED (#302)
-      // above): the child (125 cm) is outside Anny's reachable height band and now
-      // refuses loudly; the two reachable adults produce bodies whose hashes changed
+      // above): the child (125 cm) was outside Anny's reachable height band and
+      // refused loudly; the two reachable adults produce bodies whose hashes changed
       // because the height macro is now solved against the model's own anthropometry.
+      // Recalibrated 2026-08-14 (#385): the height solve now searches the
+      // extrapolated band [0, 2.0] and the production rail honours it
+      // (extrapolate_phenotypes=True), so the child BUILDS at 125 cm with the hash
+      // below. Adults are byte-identical to the #302 pin.
       const expected = new Map<string, { hash?: string; refused?: boolean }>([
-        ["patient_maya_johnson_v1", { refused: true }],
+        ["patient_maya_johnson_v1", { hash: "54219676ef5f4960" }],
         ["parent_tara_johnson_v1", { hash: "b203a3a97db29d06" }],
         ["nurse_kevin_lee_v1", { hash: "6e926cada2b87565" }],
       ]);
@@ -195,6 +210,10 @@ describe("the phenotype gate refuses an insufficient phenotype, not merely an ab
         }
       }
     },
+    // Three full anny body builds in one subprocess (the child now solves the height
+    // macro instead of refusing): the vitest 5s default flaked under parallel suite
+    // load in BOTH the #385 run and the baseline run (10.1s vs 9.7s observed).
+    30_000,
   );
 
   it("(5) the empty phenotype keeps refusing — #291's gate must not regress", () => {
