@@ -220,8 +220,9 @@ export async function renderCandidateCapture(input: {
   input.mount.replaceChildren(stage);
 
   const renderer = new WebGLRenderer({ antialias: true, canvas, preserveDrawingBuffer: true });
-  const width = 1280;
-  const height = 1280;
+  // Render at the canvas display size (#384): a hardcoded buffer would resample a 1280 render, not add pixels.
+  const width = canvas.clientWidth || window.innerWidth || 1280;
+  const height = canvas.clientHeight || window.innerHeight || 1280;
   renderer.setSize(width, height, false);
   renderer.setClearColor(new Color("#18211d"));
 

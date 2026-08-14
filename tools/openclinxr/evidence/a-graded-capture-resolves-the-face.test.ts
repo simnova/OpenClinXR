@@ -71,6 +71,27 @@ import { describe, expect, it } from "vitest";
  *   - **The camera.** Framing stays whole-figure; this buys pixels, not composition. A true head-framed
  *     pass needs the studio camera, which is another lane's file.
  *   - **The other capture scripts.** Only `glb-grade` is in scope.
+ *
+ * ## FIXED (#384)
+ *
+ * The capture now renders at the browser viewport. The single-candidate renderer in
+ * `apps/arena/model-vetting-studio/src/candidate-capture.ts` hardcoded a 1280x1280 drawing buffer,
+ * so the capture script's `viewport` only resampled that buffer via CSS — a viewport-only change
+ * would have produced a browser upscale, the exact transform clause (2) exists to refuse. The
+ * renderer now sizes its buffer to the canvas display size (`canvas.clientWidth`); the camera and
+ * framing (`frameCameraForBounds`) are untouched, and behaviour at a 1280 viewport is unchanged for
+ * every other studio consumer. The capture viewport is now 4096x4096 (`model-vetting-glb-grade-capture.ts:371`);
+ * this header's own table puts 3072 at ~249 px, sitting on the bar it mandates, while 4096 renders
+ * ~334 px with margin (D9: duration is not a constraint).
+ *
+ * Measured on the new run `2026-08-14T09-17-28Z` (aisha): PNG width 4096 == declared viewport
+ * (rendered, not resampled), head width **334 px** (>= 250), gallery reports geometry agreement for
+ * all 3 assets (self-check survives).
+ *
+ * Instrument fix, assertion unchanged: `headWidthPx` used `Math.min(...)/Math.max(...)` spreads,
+ * which overflow the call stack on the ~2M sampled pixels of a 4096 render — the gate could not
+ * measure at the resolution it demands. Replaced with single-pass min/max loops; verified identical
+ * on the 2026-08-13 run (98 px, spread and loop agree).
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -145,9 +166,24 @@ function headWidthPx(file: string): number {
     }
   }
   if (!xs.length) return 0;
-  const y0 = Math.min(...ys), y1 = Math.max(...ys);
-  const band = xs.filter((_, k) => ys[k]! <= y0 + (y1 - y0) * 0.14);
-  return band.length ? Math.max(...band) - Math.min(...band) : 0;
+  // #384: single-pass min/max loops — `Math.min(...ys)` spreads millions of samples at a 4096
+  // viewport and overflows the call stack, so the gate could not measure the resolution it demands.
+  let y0 = Infinity;
+  let y1 = -Infinity;
+  for (let k = 0; k < ys.length; k += 1) {
+    if (ys[k]! < y0) y0 = ys[k]!;
+    if (ys[k]! > y1) y1 = ys[k]!;
+  }
+  const bandMaxY = y0 + (y1 - y0) * 0.14;
+  let lo = Infinity;
+  let hi = -Infinity;
+  for (let k = 0; k < xs.length; k += 1) {
+    if (ys[k]! <= bandMaxY) {
+      if (xs[k]! < lo) lo = xs[k]!;
+      if (xs[k]! > hi) hi = xs[k]!;
+    }
+  }
+  return hi >= lo ? hi - lo : 0;
 }
 
 type Run = { dir: string; headPx: number; declaredViewport: number; pngW: number; agrees: boolean };
@@ -197,7 +233,7 @@ function requireRun(): Run {
 }
 
 describe("a graded capture resolves the face", () => {
-  it.fails("(1) RED: the head is rendered at enough pixels to grade", () => {
+  it("(1) RED: the head is rendered at enough pixels to grade", () => {
     const r = requireRun();
     expect(
       r.headPx,
