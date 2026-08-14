@@ -5,17 +5,25 @@ import { join } from "node:path";
 
 import {
   FACTORY_CASE_SCENARIO_IDS,
+  HATCH_CLI,
+  MOTION_BIND_CLI,
+  MOTION_BIND_CLIP,
+  VISEME_CLI,
   factoryCaseReportPath,
   runFactoryCase,
+  type FactoryCaseExec,
 } from "./factory-case-cli.js";
 
 /**
  * factory:case — scenario id → existing-cast inventory.
  *
- * Dry-run only; never starts GPU or Blender. Contracts:
+ * Dry-run never starts GPU or Blender. Live --motion-bind invokes the existing
+ * motion-bind CLI (mocked here). Contracts:
  *  - peds dry-run prints the three current MPFB cast paths
  *  - missing scenario exits non-zero
  *  - psych / OB ids are accepted
+ *  - --motion-bind on dry-run does not exec
+ *  - live --motion-bind calls motion-bind-cli.ts
  */
 
 const ROOT = process.cwd();
@@ -104,5 +112,67 @@ describe("factory:case CLI", () => {
       expect(result.plan?.actors.length).toBeGreaterThan(0);
       expect(result.report?.status).toBe("ok");
     }
+  });
+
+  it("dry-run --motion-bind records planned and does not exec", () => {
+    const calls: Array<{ command: string; args: readonly string[] }> = [];
+    const exec: FactoryCaseExec = (command, args) => {
+      calls.push({ command, args });
+      throw new Error("dry-run must not exec");
+    };
+    const result = runFactoryCase(["--scenario", PEDS, "--dry-run", "--motion-bind", "--viseme", "--hatch"], {
+      exec,
+    });
+    expect(result.exitCode).toBe(0);
+    expect(result.plan?.mode).toBe("dry-run");
+    expect(result.plan?.flags).toEqual({ hatch: true, motionBind: true, viseme: true });
+    expect(result.plan?.stations.find((s) => s.id === "motion_bind")?.status).toBe("planned");
+    expect(result.plan?.stations.find((s) => s.id === "viseme")?.status).toBe("planned");
+    expect(result.plan?.stations.find((s) => s.id === "trellis_hatch")?.status).toBe("planned");
+    expect(result.report?.claimScope.some((line) => /dry-run never starts Blender/i.test(line))).toBe(true);
+    expect(calls).toHaveLength(0);
+  });
+
+  it("live --motion-bind invokes motion-bind-cli for existing MPFB generated-humanoids", () => {
+    const calls: Array<{ command: string; args: string[] }> = [];
+    const exec: FactoryCaseExec = (command, args) => {
+      calls.push({ command, args: [...args] });
+      return { status: 0, stdout: "{}", stderr: "" };
+    };
+    const result = runFactoryCase(["--scenario", PEDS, "--motion-bind"], { exec });
+    expect(result.exitCode).toBe(0);
+    expect(result.report?.mode).toBe("run");
+    const station = result.report?.stations.find((s) => s.id === "motion_bind");
+    expect(station?.enabled).toBe(true);
+    expect(station?.status).toBe("ran");
+    expect(station?.invocations?.length).toBeGreaterThan(0);
+    expect(calls.length).toBeGreaterThan(0);
+    expect(calls.every((c) => c.args[0] === MOTION_BIND_CLI)).toBe(true);
+    expect(calls.every((c) => c.args.includes("--actor") && c.args.includes("--clip") && c.args.includes(MOTION_BIND_CLIP))).toBe(true);
+    const actorArgs = calls.flatMap((c) => {
+      const idx = c.args.indexOf("--actor");
+      return idx >= 0 && c.args[idx + 1] ? [c.args[idx + 1]] : [];
+    });
+    expect(actorArgs).toContain("apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb");
+    expect(actorArgs.every((p) => /generated-humanoids\/mpfb-.*\.glb$/.test(p))).toBe(true);
+    expect(result.report?.claimScope.some((line) => /live run may invoke motion-bind/.test(line))).toBe(true);
+  });
+
+  it("live --hatch stays recorded-not-invoked; live --viseme execs the existing capture", () => {
+    const calls: Array<{ command: string; args: string[] }> = [];
+    const exec: FactoryCaseExec = (command, args) => {
+      calls.push({ command, args: [...args] });
+      return { status: 0, stdout: "", stderr: "" };
+    };
+    const result = runFactoryCase(["--scenario", PEDS, "--hatch", "--viseme"], { exec });
+    expect(result.exitCode).toBe(0);
+    const hatch = result.report?.stations.find((s) => s.id === "trellis_hatch");
+    expect(hatch?.enabled).toBe(true);
+    expect(hatch?.status).toBe("planned");
+    expect(hatch?.note).toMatch(/never invoked|recorded-not-invoked/i);
+    expect(calls.some((c) => c.args.includes(HATCH_CLI))).toBe(false);
+    const viseme = result.report?.stations.find((s) => s.id === "viseme");
+    expect(viseme?.status).toBe("ran");
+    expect(calls.some((c) => c.args[0] === VISEME_CLI)).toBe(true);
   });
 });

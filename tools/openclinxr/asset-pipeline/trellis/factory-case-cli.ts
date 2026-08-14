@@ -3,13 +3,15 @@
  * factory:case — one scenario id → inventory of existing factory stations.
  *
  * Resolves the cast via resolveScenarioActorCast (no second resolver). Records
- * each actor's GLB path, exists?, bytes. Optional hatch / motion-bind / viseme
- * flags default OFF and are never invoked from this CLI (no Imagine, no GPU,
- * no Blender). --dry-run prints the JSON plan.
+ * each actor's GLB path, exists?, bytes. --dry-run never starts Blender / GPU /
+ * Imagine. Live --motion-bind invokes the existing motion-bind CLI (no second
+ * bind implementation). Live --viseme may invoke the existing viseme capture.
+ * --hatch stays recorded-not-invoked (factory:trellis:hatch requires Imagine).
  *
  *   pnpm factory:case -- --scenario peds_asthma_parent_anxiety_v1 --dry-run
  */
 
+import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -20,9 +22,13 @@ import { findScenarioFixtureById } from "../../../../packages/openclinxr/scenari
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "../../../..");
 
-const HATCH_CLI = "tools/openclinxr/asset-pipeline/trellis/trellis-hatch-cli.ts";
-const MOTION_BIND_CLI = "tools/openclinxr/asset-pipeline/makeclothes/motion-bind-cli.ts";
-const VISEME_CLI = "tools/openclinxr/evidence/ui-xr-viseme-drive-capture.ts";
+export const HATCH_CLI = "tools/openclinxr/asset-pipeline/trellis/trellis-hatch-cli.ts";
+export const MOTION_BIND_CLI = "tools/openclinxr/asset-pipeline/makeclothes/motion-bind-cli.ts";
+export const VISEME_CLI = "tools/openclinxr/evidence/ui-xr-viseme-drive-capture.ts";
+/** Same clip as motion-bind-cli DEFAULT_CLIP — do not invent a second bind path. */
+export const MOTION_BIND_CLIP =
+  "tools/openclinxr/asset-pipeline/anny/proof-animations/diag/cmu_07_01_walk.bvh";
+const MOTION_BIND_OUT_DIR = "apps/ui-xr/public/xr-assets/humanoids/candidates";
 
 /** Scenarios this station must accept (bank + explicit MPFB casts). */
 export const FACTORY_CASE_SCENARIO_IDS = [
@@ -56,12 +62,40 @@ export type FactoryCaseActorRow = {
 
 export type FactoryCaseStationId = "cast_inventory" | "trellis_hatch" | "motion_bind" | "viseme";
 
+export type FactoryCaseStationStatus =
+  | "planned"
+  | "skipped_default_off"
+  | "ran"
+  | "failed"
+  | "skipped";
+
+export type FactoryCaseInvocation = {
+  command: string;
+  args: string[];
+  status: "ran" | "failed" | "skipped";
+  exitCode: number | null;
+};
+
 export type FactoryCaseStationRow = {
   id: FactoryCaseStationId;
   enabled: boolean;
   command: string;
-  status: "planned" | "skipped_default_off";
+  status: FactoryCaseStationStatus;
+  invocations?: FactoryCaseInvocation[];
+  note?: string;
 };
+
+export type FactoryCaseExecResult = {
+  status: number;
+  stdout: string;
+  stderr: string;
+};
+
+export type FactoryCaseExec = (
+  command: string,
+  args: readonly string[],
+  opts: { cwd: string },
+) => FactoryCaseExecResult;
 
 export type FactoryCasePlan = {
   schemaVersion: "openclinxr.factory-case-plan.v1";
@@ -106,8 +140,8 @@ FLAGS
   --scenario <id>   Required. Bank scenario id.
   --dry-run         Print JSON plan; no GPU, no Blender, no Imagine
   --hatch           Record factory:trellis:hatch in the plan (default OFF, never invoked)
-  --motion-bind     Record motion-bind in the plan (default OFF, never invoked)
-  --viseme          Record viseme drive in the plan (default OFF, never invoked)
+  --motion-bind     Live: invoke motion-bind-cli for each existing MPFB generated-humanoids actor (default OFF). Dry-run records only.
+  --viseme          Live: invoke existing viseme capture (default OFF). Dry-run records only.
 
 INVOCABLE
   peds_asthma_parent_anxiety_v1
@@ -191,9 +225,11 @@ function inventoryActors(scenarioId: string): FactoryCaseActorRow[] {
   });
 }
 
+function skipOrPlan(enabled: boolean): FactoryCaseStationStatus {
+  return enabled ? "planned" : "skipped_default_off";
+}
+
 function stationRows(flags: { hatch: boolean; motionBind: boolean; viseme: boolean }): FactoryCaseStationRow[] {
-  const skipOrPlan = (enabled: boolean): "planned" | "skipped_default_off" =>
-    enabled ? "planned" : "skipped_default_off";
   return [
     {
       id: "cast_inventory",
@@ -206,11 +242,14 @@ function stationRows(flags: { hatch: boolean; motionBind: boolean; viseme: boole
       enabled: flags.hatch,
       command: `tsx ${HATCH_CLI}`,
       status: skipOrPlan(flags.hatch),
+      note: flags.hatch
+        ? "recorded-not-invoked: factory:trellis:hatch requires Imagine"
+        : undefined,
     },
     {
       id: "motion_bind",
       enabled: flags.motionBind,
-      command: `tsx ${MOTION_BIND_CLI} --once`,
+      command: `tsx ${MOTION_BIND_CLI} --actor <mpfb-generated-humanoid.glb> --clip ${MOTION_BIND_CLIP}`,
       status: skipOrPlan(flags.motionBind),
     },
     {
@@ -220,6 +259,142 @@ function stationRows(flags: { hatch: boolean; motionBind: boolean; viseme: boole
       status: skipOrPlan(flags.viseme),
     },
   ];
+}
+
+export function isMpfbGeneratedHumanoid(assetPath: string): boolean {
+  const normalized = assetPath.replace(/\\/g, "/");
+  return normalized.includes("generated-humanoids/mpfb-") && normalized.endsWith(".glb");
+}
+
+export function mpfbGeneratedHumanoidsOnDisk(actors: FactoryCaseActorRow[]): FactoryCaseActorRow[] {
+  return actors.filter((actor) => actor.exists && isMpfbGeneratedHumanoid(actor.assetPath));
+}
+
+function motionBindOutputs(actor: FactoryCaseActorRow): { output: string; report: string } {
+  const stem = path.basename(actor.assetPath, ".glb");
+  return {
+    output: `${MOTION_BIND_OUT_DIR}/${stem}.motion-bind.glb`,
+    report: `${MOTION_BIND_OUT_DIR}/${stem}.motion-bind-report.json`,
+  };
+}
+
+function findTsx(): string {
+  const local = path.join(REPO_ROOT, "node_modules", ".bin", "tsx");
+  return existsSync(local) ? local : "tsx";
+}
+
+export function defaultFactoryCaseExec(
+  command: string,
+  args: readonly string[],
+  opts: { cwd: string },
+): FactoryCaseExecResult {
+  const result = spawnSync(command, [...args], {
+    cwd: opts.cwd,
+    encoding: "utf8",
+    env: process.env,
+  });
+  return {
+    status: result.status ?? 1,
+    stdout: result.stdout ?? "",
+    stderr: result.stderr ?? (result.error ? result.error.message : ""),
+  };
+}
+
+function invokeExec(
+  exec: FactoryCaseExec,
+  command: string,
+  args: readonly string[],
+): FactoryCaseInvocation {
+  try {
+    const result = exec(command, args, { cwd: REPO_ROOT });
+    const exitCode = result.status ?? 1;
+    return {
+      command,
+      args: [...args],
+      status: exitCode === 0 ? "ran" : "failed",
+      exitCode,
+    };
+  } catch (err) {
+    const e = err as { status?: number; message?: string };
+    return {
+      command,
+      args: [...args],
+      status: "failed",
+      exitCode: e.status ?? 1,
+    };
+  }
+}
+
+function rollupInvocations(invocations: FactoryCaseInvocation[]): FactoryCaseStationStatus {
+  if (invocations.length === 0) return "skipped";
+  return invocations.every((row) => row.status === "ran") ? "ran" : "failed";
+}
+
+function runMotionBindStation(
+  actors: FactoryCaseActorRow[],
+  exec: FactoryCaseExec,
+): FactoryCaseStationRow {
+  const eligible = mpfbGeneratedHumanoidsOnDisk(actors);
+  const command = `tsx ${MOTION_BIND_CLI} --actor <mpfb-generated-humanoid.glb> --clip ${MOTION_BIND_CLIP}`;
+  if (eligible.length === 0) {
+    return {
+      id: "motion_bind",
+      enabled: true,
+      command,
+      status: "skipped",
+      invocations: [],
+      note: "no existing MPFB generated-humanoids actor on disk",
+    };
+  }
+  const tsx = findTsx();
+  const invocations = eligible.map((actor) => {
+    const { output, report } = motionBindOutputs(actor);
+    return invokeExec(exec, tsx, [
+      MOTION_BIND_CLI,
+      "--actor",
+      actor.assetPath,
+      "--clip",
+      MOTION_BIND_CLIP,
+      "--output",
+      output,
+      "--report",
+      report,
+    ]);
+  });
+  return {
+    id: "motion_bind",
+    enabled: true,
+    command,
+    status: rollupInvocations(invocations),
+    invocations,
+  };
+}
+
+function runVisemeStation(
+  actors: FactoryCaseActorRow[],
+  exec: FactoryCaseExec,
+): FactoryCaseStationRow {
+  const eligible = mpfbGeneratedHumanoidsOnDisk(actors);
+  const command = `tsx ${VISEME_CLI}`;
+  if (eligible.length === 0) {
+    return {
+      id: "viseme",
+      enabled: true,
+      command,
+      status: "skipped",
+      invocations: [],
+      note: "no existing MPFB generated-humanoids GLB for viseme capture",
+    };
+  }
+  const invocation = invokeExec(exec, findTsx(), [VISEME_CLI]);
+  return {
+    id: "viseme",
+    enabled: true,
+    command,
+    status: rollupInvocations([invocation]),
+    invocations: [invocation],
+    note: `existing viseme capture; subject=${eligible[0]?.assetPath ?? ""}`,
+  };
 }
 
 function scenarioKnown(scenarioId: string): boolean {
@@ -252,7 +427,10 @@ function baseReport(
     measuredAt: new Date().toISOString(),
     claimScope: [
       "scenario → resolveScenarioActorCast inventory of existing humanoid GLBs",
-      "optional hatch / motion-bind / viseme recorded only; not invoked",
+      mode === "run"
+        ? "live run may invoke motion-bind via tsx tools/openclinxr/asset-pipeline/makeclothes/motion-bind-cli.ts"
+        : "dry-run never starts Blender, GPU, or Imagine; hatch / motion-bind / viseme recorded only",
+      "trellis hatch is recorded only; never invoked (factory:trellis:hatch requires Imagine)",
     ],
     notEvidenceFor: [
       "Quest 3 readiness",
@@ -263,7 +441,10 @@ function baseReport(
   };
 }
 
-export function runFactoryCase(argv: string[]): FactoryCaseResult {
+export function runFactoryCase(
+  argv: string[],
+  deps?: { exec?: FactoryCaseExec },
+): FactoryCaseResult {
   const args = parseFactoryCaseArgs(argv);
   if (args.help) {
     return { exitCode: 0, plan: null, report: null, stdout: HELP_TEXT, stderr: "" };
@@ -280,6 +461,7 @@ export function runFactoryCase(argv: string[]): FactoryCaseResult {
   const scenarioId = args.scenario;
   const mode: "dry-run" | "run" = args.dryRun ? "dry-run" : "run";
   const flags = { hatch: args.hatch, motionBind: args.motionBind, viseme: args.viseme };
+  const exec = deps?.exec ?? defaultFactoryCaseExec;
   const stations = stationRows(flags);
 
   if (!scenarioKnown(scenarioId)) {
@@ -307,6 +489,16 @@ export function runFactoryCase(argv: string[]): FactoryCaseResult {
   const actors = inventoryActors(scenarioId);
   const missingGlbs = actors.filter((a) => !a.exists).map((a) => a.assetPath);
   const status = missingGlbs.length > 0 ? "missing_cast_glb" : "ok";
+  const inventory = stations.find((row) => row.id === "cast_inventory");
+  if (inventory) inventory.status = "ran";
+  if (mode === "run" && flags.motionBind) {
+    const idx = stations.findIndex((row) => row.id === "motion_bind");
+    if (idx >= 0) stations[idx] = runMotionBindStation(actors, exec);
+  }
+  if (mode === "run" && flags.viseme) {
+    const idx = stations.findIndex((row) => row.id === "viseme");
+    if (idx >= 0) stations[idx] = runVisemeStation(actors, exec);
+  }
   const plan: FactoryCasePlan = {
     schemaVersion: "openclinxr.factory-case-plan.v1",
     scenarioId,
