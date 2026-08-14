@@ -182,6 +182,38 @@ const KNOWN_SUBJECTS: SubjectEntry[] = [
     displayName: "wall oxygen port equipment",
     viewRels: packViewRels("oxygen_wall_port_equipment"),
   },
+  {
+    // Escape-hatch subjects: single upper-¾ ALPHA view (no standard 4-view pack).
+    // Pack root: OPENCLINXR_TRELLIS_PACKS=.openclinxr/evidence/trellis-packs
+    subjectId: "iv-pole-escape",
+    displayName: "IV pole (escape-hatch) — single upper-¾ ALPHA view",
+    viewRels: ["iv-pole-escape/three_quarter_upper_alpha.png"],
+  },
+  {
+    subjectId: "bedside-monitor-escape",
+    displayName: "Bedside monitor (escape-hatch) — single upper-¾ ALPHA view",
+    viewRels: ["bedside-monitor-escape/three_quarter_upper_alpha.png"],
+  },
+  {
+    subjectId: "wall-clock-escape",
+    displayName: "Wall clock (escape-hatch) — single upper-¾ ALPHA view",
+    viewRels: ["wall-clock-escape/three_quarter_upper_alpha.png"],
+  },
+  {
+    subjectId: "o2-port-escape",
+    displayName: "O2 port (escape-hatch) — single upper-¾ ALPHA view",
+    viewRels: ["o2-port-escape/three_quarter_upper_alpha.png"],
+  },
+  {
+    subjectId: "iv-pump-escape",
+    displayName: "IV pump (escape-hatch) — single upper-¾ ALPHA view",
+    viewRels: ["iv-pump-escape/three_quarter_upper_alpha.png"],
+  },
+  {
+    subjectId: "fetal-monitor-escape",
+    displayName: "Fetal monitor (escape-hatch) — single upper-¾ ALPHA view",
+    viewRels: ["fetal-monitor-escape/three_quarter_upper_alpha.png"],
+  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -203,6 +235,10 @@ interface DryRunPlan {
   trellisRoot: string;
   weightsPath: string;
   dinov3Path: string;
+  seed: number | null;
+  hfDemo: boolean;
+  remesh: boolean;
+  noRemesh: boolean;
   mode: "dry-run";
 }
 
@@ -241,10 +277,19 @@ USAGE
 
   pnpm factory:trellis:bake:validate                    Alias for --validate-latest
 
+FLAGS
+  --seed <n>        Explicit seed (default: deterministic derivation from subject id)
+  --hf-demo         Record + pass HF Space demo sampler params
+  --remesh          Space-order remesh: simplify(16_777_216) then remesh band=1 project=0
+  --no-remesh       Force remesh off (default)
+
 SUBJECTS
   wall-clock, bedside-monitor, ecg-cart, ecg-cart-midband, ecg-cart-midband-6view,
-  ecg-cart-midband-2tq, ecg-cart-midband-2oblique, iv-pole, o2-port
+  ecg-cart-midband-2tq, ecg-cart-midband-2oblique, iv-pole, o2-port,
+  iv-pole-escape, bedside-monitor-escape, wall-clock-escape, o2-port-escape,
+  iv-pump-escape, fetal-monitor-escape
   (2tq = eye-level ¾; 2oblique = high TLF + low BRB; grade raw export)
+  (-escape = single three_quarter_upper_alpha.png, OPENCLINXR_TRELLIS_PACKS pack)
 
 MULTI-VIEW
   Pack layout under OPENCLINXR_TRELLIS_PACKS (default .openclinxr/evidence/issue-232/<subject>/):
@@ -274,11 +319,25 @@ interface ParsedArgs {
   dryRun: boolean;
   validateLatest: boolean;
   help: boolean;
+  seed: number | null;
+  hfDemo: boolean;
+  remesh: boolean;
+  noRemesh: boolean;
   invalid: string[];
 }
 
 function parseArgs(argv: string[]): ParsedArgs {
-  const result: ParsedArgs = { subject: null, dryRun: false, validateLatest: false, help: false, invalid: [] };
+  const result: ParsedArgs = {
+    subject: null,
+    dryRun: false,
+    validateLatest: false,
+    help: false,
+    seed: null,
+    hfDemo: false,
+    remesh: false,
+    noRemesh: false,
+    invalid: [],
+  };
   let i = 0;
   while (i < argv.length) {
     const a = argv[i];
@@ -288,10 +347,25 @@ function parseArgs(argv: string[]): ParsedArgs {
       result.dryRun = true;
     } else if (a === "--validate-latest") {
       result.validateLatest = true;
+    } else if (a === "--hf-demo") {
+      result.hfDemo = true;
+    } else if (a === "--remesh") {
+      result.remesh = true;
+    } else if (a === "--no-remesh") {
+      result.noRemesh = true;
     } else if (a === "--subject") {
       i++;
       if (i < argv.length) result.subject = argv[i];
       else result.invalid.push("--subject requires a value");
+    } else if (a === "--seed") {
+      i++;
+      if (i < argv.length) {
+        const n = Number(argv[i]);
+        if (Number.isFinite(n)) result.seed = n;
+        else result.invalid.push(`--seed requires a number, got: ${argv[i]}`);
+      } else {
+        result.invalid.push("--seed requires a value");
+      }
     } else if (a.startsWith("-")) {
       result.invalid.push(`unknown flag: ${a}`);
     }
@@ -304,7 +378,7 @@ function parseArgs(argv: string[]): ParsedArgs {
 // Dry-run — JSON plan, no GPU
 // ---------------------------------------------------------------------------
 
-function dryRunPlan(subjectId: string): string {
+function dryRunPlan(subjectId: string, args: ParsedArgs): string {
   const entry = KNOWN_SUBJECTS.find((s) => s.subjectId === subjectId);
   if (!entry) {
     process.stderr.write(`Unknown subject: ${subjectId}. Known: ${KNOWN_SUBJECTS.map((s) => s.subjectId).join(", ")}\n`);
@@ -314,6 +388,7 @@ function dryRunPlan(subjectId: string): string {
   const inputImagePaths = resolveExistingViewPaths(entry);
   const viewCount = inputImagePaths.length;
   const outputDir = path.join(trellisOutRoot(), subjectId);
+  const remesh = args.remesh && !args.noRemesh;
 
   const plan: DryRunPlan = {
     subjectId: entry.subjectId,
@@ -329,6 +404,10 @@ function dryRunPlan(subjectId: string): string {
     trellisRoot: TRELLIS_ROOT,
     weightsPath: WEIGHTS_PATH,
     dinov3Path: DINOV3_PATH,
+    seed: args.seed,
+    hfDemo: args.hfDemo,
+    remesh,
+    noRemesh: args.noRemesh,
     mode: "dry-run",
   };
 
@@ -339,7 +418,7 @@ function dryRunPlan(subjectId: string): string {
 // Live bake — spawns fresh subprocess (GPU path; only when explicitly requested)
 // ---------------------------------------------------------------------------
 
-function liveBake(subjectId: string): void {
+function liveBake(subjectId: string, args: ParsedArgs): void {
   const entry = KNOWN_SUBJECTS.find((s) => s.subjectId === subjectId);
   if (!entry) {
     process.stderr.write(`Unknown subject: ${subjectId}. Known: ${KNOWN_SUBJECTS.map((s) => s.subjectId).join(", ")}\n`);
@@ -386,6 +465,10 @@ function liveBake(subjectId: string): void {
     "--trellis-root",
     TRELLIS_ROOT,
   ];
+  if (args.seed != null) argv.push("--seed", String(args.seed));
+  if (args.hfDemo) argv.push("--hf-demo");
+  if (args.remesh) argv.push("--remesh");
+  if (args.noRemesh) argv.push("--no-remesh");
   for (const img of inputImagePaths) {
     argv.push("--input-image", img);
   }
@@ -525,7 +608,7 @@ function main(): void {
 
   // --dry-run: JSON plan, no GPU
   if (args.dryRun) {
-    process.stdout.write(dryRunPlan(args.subject));
+    process.stdout.write(dryRunPlan(args.subject, args));
     process.stdout.write("\n");
     return;
   }
@@ -534,7 +617,7 @@ function main(): void {
   // NOTE: This path requires the trellis2-apple venv, model weights, and input images.
   // In a worktree without gitignored assets, this will block with a missing-image error
   // from run_bake_isolated.py — which is correct behavior.
-  liveBake(args.subject);
+  liveBake(args.subject, args);
 }
 
 main();

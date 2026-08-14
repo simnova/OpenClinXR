@@ -341,8 +341,7 @@ export async function renderCandidateCapture(input: {
   if ((bodyMotionCapture && liveRiggedCapture) || visemeTimelineCapture) {
     frameCameraForBounds(camera, bounds, visemeTimelineCapture ? "three_quarter" : input.view);
   } else {
-    camera.position.copy(cameraPosition(input.view));
-    camera.lookAt(0, 0.9, 0);
+    frameCameraForBounds(camera, computeBaseMeshBounds(captureModel), input.view);
   }
   if (isTemporalCaptureView(input.view)) {
     const start = performance.now();

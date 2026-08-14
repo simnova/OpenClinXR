@@ -98,6 +98,16 @@ def main():
     parser.add_argument("--dinov3-path", default=os.path.expanduser("~/ComfyUI/models/dinov3"))
     parser.add_argument("--trellis-root",
                         default=os.path.expanduser("~/.openclinxr-tools/trellis2-apple/src"))
+    parser.add_argument("--hf-demo", action="store_true",
+                        help="Record + pass HF Space demo sampler params (samplers already match pipeline defaults)")
+    parser.add_argument("--remesh", action="store_true",
+                        help="Space-order remesh: simplify(16_777_216) then to_glb(remesh=True, band=1, project=0)")
+    parser.add_argument("--no-remesh", action="store_true",
+                        help="Force remesh off (default)")
+    parser.add_argument("--decimation-target", type=int, default=300_000,
+                        help="Final decimation target faces (default 300000)")
+    parser.add_argument("--texture-size", type=int, default=2048,
+                        help="Baked texture resolution (default 2048)")
     args = parser.parse_args()
 
     os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
@@ -117,6 +127,10 @@ def main():
     # `hash(subject_id)` varied with PYTHONHASHSEED, so two fresh bakes never shared
     # a seed (the same-seed A/B in #255 required fixing this).
     seed = args.seed if args.seed is not None else 237_000 + zlib.crc32(subject_id.encode("utf-8")) % 1000
+    remesh = args.remesh and not args.no_remesh
+    hf_demo = args.hf_demo
+    decimation_target = args.decimation_target
+    texture_size = args.texture_size
 
     t_start = time.time()
 
@@ -135,6 +149,12 @@ def main():
         "inputImagePaths": input_paths,
         "viewCount": len(input_paths),
         "seed": seed,
+        "hfDemo": hf_demo,
+        "remeshRequested": remesh,
+        "remesh": "space_order_band1_project0" if remesh else "not_requested",
+        "pipelineType": "1024_cascade",
+        "decimationTarget": decimation_target,
+        "textureSize": texture_size,
         "wallClockS": 0,
         "processIsolation": "fresh_subprocess",
         "claimScope": [
@@ -210,12 +230,27 @@ def main():
         t_shape = time.time()
         if len(images) == 1:
             # Unchanged single-view path — identical to the pre-#255 behavior.
-            outputs = pipeline.run(
-                images[0],
-                num_samples=1,
-                seed=seed,
-                preprocess_image=True,
-            )
+            run_kwargs = {
+                "num_samples": 1,
+                "seed": seed,
+                "preprocess_image": True,
+            }
+            if hf_demo:
+                # HF Space demo sampler params — already the pipeline defaults,
+                # passed explicitly so the conditioning matches the HF demo call
+                # shape without changing the control bake's preprocess_image.
+                run_kwargs.update({
+                    "sparse_structure_sampler_params": getattr(pipeline, "sparse_structure_sampler_params", {}),
+                    "shape_slat_sampler_params": getattr(pipeline, "shape_slat_sampler_params", {}),
+                    "tex_slat_sampler_params": getattr(pipeline, "tex_slat_sampler_params", {}),
+                    "pipeline_type": "1024_cascade",
+                })
+                result["samplerParams"] = {
+                    "sparse_structure_sampler_params": getattr(pipeline, "sparse_structure_sampler_params", {}),
+                    "shape_slat_sampler_params": getattr(pipeline, "shape_slat_sampler_params", {}),
+                    "tex_slat_sampler_params": getattr(pipeline, "tex_slat_sampler_params", {}),
+                }
+            outputs = pipeline.run(images[0], **run_kwargs)
         else:
             # Multi-view (#255): sequence-concatenated cond, mirroring run() internals.
             outputs = run_multiview(
@@ -254,20 +289,52 @@ def main():
     # GLB export
     output_glb = os.path.join(output_dir, f"{subject_id}.glb")
     try:
-        from mlx_backend.pipeline import to_glb
+        import o_voxel
 
-        print(f"[ISOLATED:{subject_id}] Exporting to GLB...", flush=True)
+        # Space order (#105/#92): the HF Space decodes then caps the raw extract at
+        # the nvdiffrast/cumesh limit BEFORE remeshing — `mesh.simplify(16777216)`
+        # immediately after decode. For a subject already under the cap this is a
+        # no-op; for carts >=16M raw it keeps Dual Contouring from exploding.
+        SIMPLIFY_LIMIT = 16_777_216
+        raw_faces = int(mesh.faces.shape[0])
+        result["rawFaceCount"] = raw_faces
+        if hasattr(mesh, "simplify") and raw_faces > SIMPLIFY_LIMIT:
+            mesh.simplify(SIMPLIFY_LIMIT)
+            raw_faces = int(mesh.faces.shape[0])
+        result["stages"]["simplify_before_to_glb"] = {
+            "cap": SIMPLIFY_LIMIT,
+            "facesBefore": result.get("rawFaceCount", None),
+            "facesAfter": raw_faces,
+        }
+
+        print(f"[ISOLATED:{subject_id}] Exporting to GLB (remesh={remesh}, "
+              f"raw_faces={raw_faces})...", flush=True)
         t_export = time.time()
-        to_glb(
-            mesh,
-            output_glb,
-            decimation_target=1_000_000,  # minimal decimation — capture raw count
-            texture_size=1024,
+        to_glb_kwargs = dict(
+            vertices=mesh.vertices,
+            faces=mesh.faces,
+            attr_volume=mesh.attrs,
+            coords=mesh.coords,
+            attr_layout=mesh.layout,
+            voxel_size=mesh.voxel_size,
+            aabb=[[-0.5, -0.5, -0.5], [0.5, 0.5, 0.5]],
+            decimation_target=decimation_target,
+            texture_size=texture_size,
             verbose=True,
         )
+        # HF Space extract_glb passes remesh_band=1, remesh_project=0 (not the
+        # postprocess.py default of 0.9). Match Space exactly when remeshing.
+        to_glb_kwargs["remesh"] = remesh
+        if remesh:
+            to_glb_kwargs["remesh_band"] = 1
+            to_glb_kwargs["remesh_project"] = 0
+
+        glb = o_voxel.postprocess.to_glb(**to_glb_kwargs)
+        glb.export(output_glb)
         export_time = time.time() - t_export
         result["stages"]["glb_export"] = "runs"
         result["stages"]["glb_export_time_s"] = round(export_time, 1)
+        result["stages"]["remesh"] = "space_order_band1_project0" if remesh else "not_requested"
         result["exportPath"] = output_glb
 
         # Measure triangle count
