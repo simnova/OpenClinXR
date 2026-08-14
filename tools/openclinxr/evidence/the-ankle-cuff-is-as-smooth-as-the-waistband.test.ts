@@ -28,6 +28,36 @@ import { describe, expect, it } from "vitest";
  * Ratios: aisha 6.0x, kevin 6.4x, child 0.3x. The bound is 3x, so this fails 2/3 with 2x of margin
  * and the child passes on today's bytes without being touched.
  *
+ * ## FIXED (#374) — 2026-08-13, measured on the re-baked bytes
+ *
+ * The treatment is the #373 machinery generalised (regularize_rim in
+ * materialize_mpfb_humanoid_candidate.py): the first row ABOVE the #341 ankle clip
+ * is snapped onto the local MAXIMUM envelope of its own tops (`env_source="zone"`
+ * — the rim is the flat CUT edge only, so the cut rim itself carries no contour;
+ * the first row's tops do). The sign (maximum, not the issue's guessed minimum)
+ * was verified on the shipped bytes: the teeth (100.3-114.2 mm) carry the ankle
+ * contour while the valleys (93.5-97.5 mm) are flat, so a minimum envelope
+ * collapses the row to a point. The row above blends toward the envelope at 0.65
+ * (aisha — her default-macro body's ankle rows are ~14.5 mm apart and the
+ * waist-strength 0.75 blend over-pulls them, capping her span below the floor)
+ * and 0.75 (kevin — his reference body's rows are ~40 mm apart). The envelope
+ * window is per-actor too: aisha's finer foot-transition triangulation carries
+ * her teeth at 4-8 deg spacing, so a 1 deg window follows her contour (10 deg
+ * flattens it to ~5 mm and her span floor fails); kevin keeps the waist's 10 deg.
+ * The child's band span (~2 mm) trips the 8 mm gate and it is untouched.
+ *
+ *   actor   ring                      verts   HF median   HF p95    span
+ *   ------  ------------------------  -----   ---------   -------   -------
+ *   aisha   pants ANKLE CUFF           558      1.32 mm    3.99 mm   21.3 mm
+ *   kevin   pants ANKLE CUFF           528      0.77 mm    2.39 mm   25.5 mm
+ *   child   pants ANKLE CUFF           128      0.23 mm    0.40 mm    2.0 mm  (untouched)
+ *
+ * Post-fix ratios: aisha 2.6x, kevin 1.5x, child 0.3x — all inside the 3x bound.
+ * Waistbands (clause 4) unchanged: 1.51 / 1.63 / 1.32 mm. Clause (2) verts rose
+ * (the row carries more split vertices than the pre-fix mixed band); clause (3)
+ * tris are unchanged (2782 / 2628 / 2636) and spans are 21.3 / 25.5 / 2.0 mm —
+ * both adults above the 80% floor, the child's flat ring untouched.
+ *
  * ## THE KNOWN-GOOD IS THE SAME SHELL'S OTHER RIM, WHICH IS AS TIGHT AS A REFERENCE GETS (SS9h)
  *
  * #373 did not merely prove that "some ring somewhere can be smooth". It took THIS shell's upper rim,
@@ -172,7 +202,7 @@ function requireMeasured(): void {
 }
 
 describe("the ankle cuff is as smooth as the waistband on the same cover shell", () => {
-  it.fails(
+  it(
     `(1) RED: cuff high-frequency residual is within ${MAX_CUFF_TO_WAISTBAND_HF_RATIO}x the same shell's regularized waistband`,
     () => {
       requireMeasured();
