@@ -159,7 +159,7 @@ function requireRooms(): Room[] {
 }
 
 describe("a generated room gives the interior camera a stand-off", () => {
-  it.fails("(1) RED: every mapped room's hull stands proud of its interior", () => {
+  it("(1) RED: every mapped room's hull stands proud of its interior", () => {
     const bad = requireRooms().filter((r) => !(r.thickness > 0));
     expect(
       bad.map((r) => `${r.env} (+Z thickness ${r.thickness.toFixed(4)} m)`),
@@ -167,7 +167,7 @@ describe("a generated room gives the interior camera a stand-off", () => {
     ).toEqual([]);
   });
 
-  it.fails("(2) RED: the derived eye is strictly inside the room, not on its wall", () => {
+  it("(2) RED: the derived eye is strictly inside the room, not on its wall", () => {
     // Threshold-free: the requirement is geometric, not a number. eyeZ = interiorMaxZ means coplanar,
     // which is exactly what the live capture showed at 17:19 and why the frame was black.
     for (const r of requireRooms()) {
@@ -191,6 +191,70 @@ describe("a generated room gives the interior camera a stand-off", () => {
   it("(4) VACUITY GUARD: the population contains a working and a broken room today", () => {
     const r = requireRooms();
     expect(r.filter((x) => x.thickness > 0).length, "rooms with a stand-off today").toBeGreaterThan(0);
-    expect(r.filter((x) => x.thickness <= 0).length, "rooms without one today").toBeGreaterThan(0);
+    // #406: the re-bake removed the broken class, so the guard flips from "a broken room exists"
+    // to "no room lacks a stand-off" — the ≥2 population requirement above is what stays non-vacuous.
+    expect(r.filter((x) => x.thickness <= 0).length, "rooms without one after the #406 re-bake").toBe(0);
   });
 });
+
+/**
+ * ## FIXED (#406) — RE-BAKED, not clamped
+ *
+ * The peds room was re-baked from a room whose hull is a genuine offset shell; the camera
+ * stand-off is derived from the room, exactly as #342 intended. No literal stand-off was added.
+ *
+ * ### Why a re-bake and not a clamp
+ *
+ * The header's treatment (b) — clamping the stand-off to a literal when thickness reads 0 — is
+ * refused here: #342 derives the stand-off from the room on purpose, and a literal would be a
+ * number nobody measured. The room itself was the defect: seed-1 `dining-room_0` is an INTERIOR
+ * room of the Infinigen floorplan, so `split_rooms` gives it no horizontal wall thickness — its
+ * `exterior` (faces not tagged Visible) coincides with its walls on every horizontal face. A
+ * deterministic re-run of the same seed reproduces the same zero, so re-baking the same room
+ * cannot fix it.
+ *
+ * ### The new bake
+ *
+ * - Generate: `clinical_bay.gin` seed 1, coarse, `compose_indoors.terrain_enabled=False` — the
+ *   exact #405 invocation; the existing `peds_bay_s1/scene.blend` was reused, not re-generated.
+ * - Room: `hallway_0` segment 0 — single enclosed segment (the #405 multi-segment union
+ *   rejection applies), 10.0 × 5.0 × 2.65 m in the blend frame, at the building's outer edge so
+ *   its walls carry real thickness. Seeds 3/4 were tried and BOTH crash on an upstream Infinigen
+ *   flake (`room_floors` samples `ceramic.plaster`/`ceramic.tile` modules from
+ *   `material_assignments.utility_floor` and calls them — only floorplans containing a utility
+ *   room hit it; seeds 1/2 have none).
+ * - Extract: `infinigen-single-room-extract.py` (`--room hallway --segment 0`) — mesh-name
+ *   selection (#236), centered, floor top at y=0 (#336 convention).
+ * - Bake: Cycles DIFFUSE albedo+AO (`room-albedo-ao-bake.py`, 1024 px) then native AO occlusion
+ *   (`room-occlusion-bake.py`, 512 px) — the same two-stage texture pipeline as #405.
+ * - Shipped: `apps/ui-xr/public/xr-assets/environment/infinigen-pediatric-urgent-care-bay.glb`
+ *   (520,360 bytes, SHA-256 `d01932ffbf5e05c86585e3f42770cb42c1b6141d5b78b80f44f5167f32af85b2`).
+ *
+ * Measured from the shipped GLB with this file's own `measure`:
+ *
+ *   | field | peds bay (re-baked) | ED bay (known-good) |
+ *   |-------|--------------------|---------------------|
+ *   | +Z thickness | **0.1200** | 0.1245 |
+ *   | −X thickness | 0.1200 | 0.0000 |
+ *   | +Y/−Y (floor/ceiling) | 0.1200 | 0.1245 |
+ *   | eyeZ | 2.140 (inside 2.380) | inside |
+ *   | interior extent | 9.88 × 2.41 × 4.88 m | 6.90 × 2.65 × 7.26 m |
+ *   | all-mesh extent (test signature) | 10.13 × 2.65 × 5.13 m | — |
+ *   | tris / meshes / materials | 556 / 4 / 3 | 440 / 4 / 3 |
+ *
+ * Flips (1) and (2) from RED to green. (3) holds — the ED bay is untouched. (4) is re-scoped:
+ * a genuine re-bake removes the broken class, so the vacuity guard now asserts no room lacks a
+ * stand-off while the ≥2-population requirement keeps it non-vacuous. The contract's anti-cheat
+ * (per-room stand-off + the ED counterweight) is unchanged.
+ *
+ * The second-station contract (`a-second-station-gets-its-own-generated-room.test.ts`) still
+ * holds: sha and the 4/3/6/9.88x2.41x4.88 signature differ from the ED bay's, and every axis is
+ * within its 2× extent band.
+ *
+ * NOT TESTED (unchanged from the planted header):
+ *   - That the re-baked room RENDERS a gradeable interior — the orchestrator's pixel grade from
+ *     a fresh capture.
+ *   - Fixture re-anchoring consequences in the new room.
+ *   - The +Z-only vs max-over-four consumer inconsistency (filed separately in the issue).
+ *   - The other 13 environmentIds (still the procedural box).
+ */

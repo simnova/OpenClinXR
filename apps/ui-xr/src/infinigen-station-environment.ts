@@ -31,8 +31,10 @@ import { anchorFixtureNearFaceToPlane } from "./station-architecture-fixtures.js
 /** environmentId → shipped Infinigen room GLB. Deterministic bake; add rows as rooms are produced. */
 export const INFINIGEN_ENVIRONMENT_ASSETS: Readonly<Record<string, string>> = {
   ed_exam_bay_v1: "/xr-assets/environment/infinigen-ed-exam-bay.glb",
-  // #405 — second room: paediatric urgent-care bay, `clinical_bay.gin` seed 1 (dining-room,
-  // 5.0×5.0×2.65 m, floor top at y=0, centered), albedo+AO bake + native AO occlusion bake.
+  // #405 — second room: paediatric urgent-care bay, `clinical_bay.gin` seed 1. #406 re-baked it
+  // from `hallway_0` (single segment, 10.0×5.0×2.65 m, floor top at y=0, centered) — the original
+  // `dining-room_0` is an interior room whose hull has zero horizontal wall thickness, which
+  // collapsed the derived interior-camera stand-off (black frame). Albedo+AO + native AO bake.
   pediatric_urgent_care_bay_v1: "/xr-assets/environment/infinigen-pediatric-urgent-care-bay.glb",
 } as const;
 
