@@ -432,6 +432,70 @@ residential sampler with no clinical station addressing, independent of its 86x 
 
 (Transient WIP details — file:line, subagent IDs, capture logs — recorded here per slice. Rehydration reads only the header above + targeted grep on this section. Worker-backlog matrix at `docs/openclinxr/worker-backlog-and-validation-matrix.md` for ownership. Archive old blocks: `pnpm openclaw:checkpoint:archive -- --keep 7`.)
 
+### 2026-08-14 overnight-wave-3 — four landings, and three premises of mine withdrawn (Q1 + Q5)
+
+**Product path advanced.** Four slices landed since the 04:29 checkpoint, plus four REDs planted and
+four more stale rows corrected.
+
+| slice | merge | what it did |
+|---|---|---|
+| #293 | `306febaa` | a second case reaches the body pipeline — descriptor→numeric lookup, cases with a phenotype **1 → 2**, no model in the loop |
+| #199 | `8acadb70` | **the first long sleeve in the pipeline** — CC0 sweater fitted, 0 → 1,040 on-forearm verts, 97% reach to the wrist |
+| #384 | `172d291a` | grade capture renders 4096 — head **104 px → ~330 px** |
+| #386 | `a996aaa1` | locked clinical colour survives its texture — sweater **21% → 60%** brightness, weave SD **0.156 → 0.434** |
+
+**The headline is #384, because it immediately overturned two diagnoses of mine.** I had filed the
+MPFB face defect as "an under-hair material with no hair over it, fit library hair", then corrected it
+to "the skin texture reaches only a jagged UV island". Both wrong. Read from the glTF: the body mesh
+splits into **9 primitives**, the head carries a textured skin primitive **and** an untextured scalp
+primitive (1,506 / 1,234 / 1,373 verts, jaw to crown), at **9.9x / 13.1x / 11.6x** luminance contrast.
+The control disproves the hair fix — **aisha has the most scalp geometry AND fitted hair, and shows the
+same jagged boundary**. Root cause found by reading the source, not the pixels: the region is a
+self-declared placeholder (`automate_blender.py:4245`, *"before a real groom/hair-card source stage
+exists"*) that outlived its replacement when #381 landed real library hair.
+
+**Blueprint/factory tie.** #386 is a composition stage, so **every future textured clinical garment
+inherits it** — two individually-correct stages (locked colour, #360 `.mhmat` consumption) were
+multiplying to a wrong output (D9). #293's lookup is seeded from an authored actor and runs with no
+model in the loop.
+
+**Three premises of mine withdrawn, each before it cost a worker.**
+- **MADR 0052's 02:00/03:00/05:00 ticks were DONE, not unstarted** — `solve_height_macro_from_stature`
+  landed 2026-08-11 under #329, solving child 125→**124.82 cm**. I found it by listing evidence
+  ARTIFACTS after grepping a guessed function name returned zero. I had criticised the 03:19 pass for
+  searching a cited path instead of the tree, then made the same class of error one paragraph later.
+- **#342's title was wrong, not its body** — the ED room is 50.1 m², and a **second** 9.3 m² ED shell
+  also ships, both wired into `main.ts`. Traced: the learner sees the 50.1 m² one.
+- **#388's colour collision was not caused by the commit that last touched the files.** Extracted
+  `cbf1ba6c~1`: the shirts were already identical. **#335's casting** put a child patient and their
+  parent in one station wearing them.
+
+**Risk that remains.**
+- **Main is RED in three contracts and it is my regression** (#389, dispatched). #199 replaced the
+  nurse's scrub shirt; three gates locate the hem by `/t_shirt|scrub_shirt/i`, so the actor silently
+  left three enumerations. **8 failing clauses, every one a counterweight** — the signature of a
+  vanished subject. §9x twice in one night: I verified against the contracts the briefs named.
+- **A known-good column goes red under load** (#390) — 5 s default on a clause spawning three python
+  builds; failed at load 78, green at 5/5 when quiet. Nearly filed as a regression from #293.
+- **I ran 20 contract files while three workers were live**, twice. That contention already corrupted
+  #288's artifact tonight. Stopped until lanes drain.
+- **#381 still landed-not-closed** — peer owns the grade.
+
+**Evidence.** tools typecheck **0 errors**; `agent:alignment` 0; `docs:drift-check` 0; grade captures
+at 4096 with geometry self-check agreeing (2.9e-5 … 4.4e-4); #386 verified from the glTF and graded.
+
+**Next queued slice.** Harvest #385 / #387 / #389, then #342 (Infinigen area bound) once the machine
+is quiet enough for a regeneration.
+
+Token introspection: drift; tier: pro; ccusageΔ=340190918; ccusageModels=claude-opus-5; grok flash=19 pro=27 composer=9; flashΔ=7 proΔ=0 composerΔ=4579; subagents=48 subPeak=393190; grokModels=deepseek-v4-flash|deepseek-v4-pro|grok-4.6; ratio=1.03
+Task cost: $7.39 est; subagents=47; subTokens=8803450; subUsd=$7.37; parentTokens=4579; parentUsd=$0.02; models=grok-4.6:$4.26|deepseek-v4-pro:$2.52|deepseek-v4-flash:$0.60
+
+*(Both lines are the tool's real output from `pnpm openclaw:slice-token:finish`, not reconstructed.
+Caveat: `subagents=47` is a session-wide rollup — it exceeds what this wave dispatched and the
+`grok-4.6` / `deepseek-v4-pro` attribution does not match my dispatches, which were all
+`deepseek-v4-flash`. Recorded as measured; not attributed to this wave.)*
+
+
 ### 2026-08-14 overnight-wave-2 — five landings, and the gate that can finally fail (Q5 + Q1)
 
 **Product path advanced.** Five slices landed since the 00:56 checkpoint, plus five REDs planted and
