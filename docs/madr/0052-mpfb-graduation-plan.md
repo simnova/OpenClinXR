@@ -98,6 +98,26 @@ presentation FIRST and the girth solve runs after.
   which is headless-capable (`setSilentMode(True)`) and ships bone maps that match MPFB rigs exactly.
   **`retarget_bvh` is GPL-2.0-or-later: build-time tooling only**, same posture as MPFB's AGPL, never a
   shipped dependency.
+> **P5 FIRST BIND LANDED AND GRADED 2026-08-14 12:3x** (not by the hourly loop — landed on main as
+> `56c7eee5` + `d88ac161`). `retarget_bvh` bound `cmu_07_01_walk.bvh` onto
+> `mpfb-peds-parent-aisha`'s standard rig via `mcp.load_and_retarget`
+> (`bl_ext.user_default.retarget_bvh`): **22 driven bones, 318 keyframes on clavicle.L, 16.53 rad
+> total rotation**, output to a candidate `mpfb-peds-parent-aisha.motion-bind.glb` (361 KB, NOT the
+> shipped actor). `claimScope: one_actor_one_clip_retarget_bind_not_a_motion_library` — honestly
+> scoped. The consumer exists: `candidate-capture.ts` now prefers `retarget_cmu` clips in
+> `body_motion_probe`, so this is not an orphan stage.
+>
+> **Orchestrator grade (pixels, 6.16 s webm at 1280x1280):** frame diff against t=0.2 s rises
+> monotonically — 292,532 -> 454,617 -> 621,253 pixels changed by >10 grey levels at t=1.5/3.0/4.5 s.
+> **A pixel diff alone cannot separate skeletal motion from a rotating camera**, so I read a frame:
+> at t=3.0 s the figure is **mid-stride with arms down at the sides and hands relaxed**, not in the
+> A-pose the static grade capture shows. A turntable cannot change an arm pose. **The retarget drives
+> the rig.**
+>
+> NOT TESTED: one actor, one clip; the shipped GLBs still carry only the two hand-authored clips
+> (`ClinicalIdleConversation`, `ClinicalExpressionMicroTransition`), so nothing a learner loads is
+> retargeted yet; no foot-slide, ground-contact or clinical-plausibility measurement was made.
+
 - **P6 Evidence.** Graded captures per phase; website only on a real win (D12).
 
 **Hair: UNBLOCKED 2026-08-11.** Operator approved CC0/CC-BY. Acquired `hair01`, 25 `.mhclo` + 25
