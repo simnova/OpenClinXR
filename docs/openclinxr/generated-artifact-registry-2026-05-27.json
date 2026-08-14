@@ -6,11 +6,11 @@
   "counts": {
     "keep-evidence": 118,
     "ignore-local-cache": 2112,
-    "keep-current": 124,
+    "keep-current": 126,
     "keep-compatibility-input": 24,
     "keep-template": 6,
-    "entries": 2386,
-    "total": 2386
+    "entries": 2388,
+    "total": 2388
   },
   "entries": [
     {
@@ -15573,6 +15573,20 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind-report.json",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Dark-factory B motion-bind stage report for one MPFB actor + one CMU clip (retarget_bvh, build-time only)."
+    },
+    {
+      "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Dark-factory B motion-bind output: armature + openclinxr_retarget_cmu_07_01_walk bound onto mpfb-peds-parent-aisha via retarget_bvh."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/reom-local-authored-curved-clinical-top-candidate.glb",
