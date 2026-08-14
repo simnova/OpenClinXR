@@ -104,6 +104,25 @@ import {
  *   - **Poke-through.** Whether fitted hair intersects the scalp or the ears is unmeasured here.
  */
 
+/**
+ * ## RE-PREMISED (#393) — the painted scalp is required without fitted hair and absent under it
+ *
+ * #387 retired aisha's placeholder scalp paint where #381's fitted hair replaced it
+ * (`body_param_stage.scalp_placeholder_retired_for`); measured on the shipped bytes she now
+ * carries 4,976 tris of weighted fitted hair and 0 painted scalp tris. Clause (5) below still
+ * asserted the OLD premise — "the painted scalp region survives on every cast actor" — so it
+ * failed on aisha. The re-premise matches the two contracts #387 already corrected
+ * (`mpfb-scalp-hair-region.test.ts`, `hairline-is-a-line-not-a-sawtooth.test.ts`):
+ *
+ * - the region is REQUIRED on the figures with NO fitted hair (the child, kevin) — the 500-tri
+ *   floor is unchanged;
+ * - the region must be ABSENT on the figure that has it (aisha) — any painted scalp under
+ *   fitted hair is the 2.8%-luminance placeholder #387 closed.
+ *
+ * Measured on the shipped bytes 2026-08-14 (this worktree): child 2,208 tris, kevin 2,792 tris,
+ * aisha 0 tris, library known-good rail reference unchanged at 2,160 tris.
+ */
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const GENERATED = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids");
@@ -131,6 +150,9 @@ const MIN_FITTED_TRIS = 800;
  * cannot be declared out of scope.
  */
 const SLICE_1_ACTOR = "mpfb-ob-patient-aisha";
+/** #393 — the shipped base id of the figure whose placeholder scalp paint is retired
+ * (real fitted hair on disk). See body_param_stage.scalp_placeholder_retired_for. */
+const RETIRED_FIGURE = "mpfb-ob-patient-aisha";
 /** The two actors slice 1 must leave exactly as they are. Clause (3) enforces the peer's fence. */
 const OUT_OF_SLICE = ["mpfb-peds-patient-child", "mpfb-peds-nurse-kevin"] as const;
 /** Their fitted-hair triangle counts today, measured 2026-08-14. Both zero, and must stay zero. */
@@ -266,14 +288,24 @@ describe("cast actors wear the fitted hair the library rail already proves", () 
     expect(problems, "regressions in the library rail's known-good hair fit").toEqual([]);
   });
 
-  it("(5) COUNTERWEIGHT: the painted scalp region survives on every cast actor", () => {
-    // Refuses deleting the painted region while adding geometry. It is what covers the scalp under
-    // and behind the hair; removing it trades a stair-step for a bald patch (SS6p — a contract that
-    // removes something must say what takes over its job).
+  it("(5) COUNTERWEIGHT: the painted scalp region survives on cast actors without fitted hair and is absent where fitted hair replaced it", () => {
+    // #393 re-premise (#387's shape): the painted scalp is a self-declared PLACEHOLDER
+    // (automate_blender.py:4245: "before a real groom/hair-card source stage exists") — it is
+    // required on figures with NO fitted hair (child, kevin) and must be ABSENT on the figure
+    // that has it (aisha, whose body_param_stage.scalp_placeholder_retired_for skips painting
+    // it). Refuses deleting paint to fake a fit, and refuses the opposite: leaving the
+    // placeholder under real fitted hair (the #387 2.8%-luminance grade boundary). The SS6p
+    // duty is met by the fitted hair itself — it takes over covering the scalp under and
+    // behind the hairline, which is what the painted region did before it existed.
     requireMeasured();
     const bald = castRows
+      .filter((r) => r.id !== RETIRED_FIGURE)
       .filter((r) => r.paintedTris < 500)
       .map((r) => `${r.id}: painted scalp region fell to ${r.paintedTris} tris — scalp coverage lost`);
-    expect(bald, "cast actors that lost their painted scalp coverage").toEqual([]);
+    expect(bald, "cast actors without fitted hair that lost their painted scalp coverage").toEqual([]);
+    const stale = castRows
+      .filter((r) => r.id === RETIRED_FIGURE && r.paintedTris > 0)
+      .map((r) => `${r.id}: painted scalp region still present (${r.paintedTris} tris) — placeholder not retired`);
+    expect(stale, "figures with real fitted hair still carrying the placeholder").toEqual([]);
   });
 });
