@@ -81,6 +81,37 @@ import { describe, expect, it } from "vitest";
  *     not match the locked one, never that the locked one is right.
  */
 
+/**
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ * ## FIXED (#386) — appended; the planted header above is immutable
+ *
+ * Root cause, measured: two individually-correct stages multiply. The locked scrub colour IS
+ * applied (`materialize_mpfb_humanoid_candidate.py` sets the factor and #199's ledger entry says
+ * so), and the #360 path consumes the sweater's OWN declared `sweater_fisherman.mhmat` ->
+ * `shirt-knit.png` as baseColorTexture. glTF multiplies baseColorFactor x baseColorTexture, and
+ * shirt-knit's mean luminance is 0.206 — the locked teal rendered at ~10% brightness
+ * (0.48 x 0.206) while the untextured cargo pants beside it (byte-identical factor) rendered at
+ * the full colour. Neither stage was a bug; their product was.
+ *
+ * Fix, 2026-08-14: `garment_material_from_declared` now luminance-normalises every
+ * patch_factor=True (role-coloured) garment texture by its own mean before export — dividing
+ * the authored texels by the mean re-centres the texture so the factor sets the hue and
+ * brightness and the weave survives as relative contrast (authoredMean 0.2057, scale 4.861,
+ * clamped to [0,1]). The re-centred bytes are persisted to a per-bake temp PNG and rebound
+ * before export: the glTF exporter reads a FILE-sourced, non-dirty image straight from disk,
+ * and the first bake shipped the AUTHORED texture byte-identically despite the in-memory edit
+ * (dirty-flag loss mechanism not determined; the file-based persist makes it moot — same
+ * persist-then-export shape as the skin bakes). patch_factor=False slots (footwear) are
+ * untouched: there the texture IS the author's look and no clinical colour is locked onto it.
+ *
+ * Measured post-fix on the shipped bytes (the reader above): sweater texture mean luminance
+ * 0.602 (was 0.206; RED floor 0.5), weave sd 0.434 (floor 0.05); factor still
+ * [0.05, 0.48, 0.52]; cargo pants factor and flatness unchanged. The nurse's knit now renders
+ * near the locked scrub teal instead of near-black. This generalises to every future
+ * role-coloured garment that declares a .mhmat.
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ */
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 /** Overridable so a destructive probe can point the same logic at a doctored asset. */
@@ -201,7 +232,7 @@ function requireMeasured(): void {
 }
 
 describe("a locked clinical colour survives its garment texture", () => {
-  it.fails("(1) RED: every clinical-coloured garment renders at its locked brightness", () => {
+  it("(1) RED: every clinical-coloured garment renders at its locked brightness", () => {
     requireMeasured();
     // Unlocking the sweater would empty `locked` and make this clause vacuous. Pin it.
     expect(
