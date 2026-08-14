@@ -12,8 +12,10 @@
  * notEvidenceFor: clinical realism, Quest readiness, kit-bashed room assets.
  */
 
+import { existsSync, readdirSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { chromium, type Page } from "playwright";
 import { spawnPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
 
@@ -142,10 +144,21 @@ export function refusesHiddenEnvironmentCapture(input: { captureMode: string }):
   return false;
 }
 
-const DEFAULT_SCENARIOS = [
-  "ed_chest_pain_priority_v1",
-  "telehealth_diabetes_health_literacy_v1",
-] as const;
+/** Repo root — this module lives at tools/openclinxr/evidence, three levels down. */
+const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
+
+/**
+ * The default station set is DERIVED from the shipped bundles (#101), never a frozen id list:
+ * a station is a bundle directory that carries the learner runtime bundle. Deriving means a new
+ * scenario joins the routine sweep the day it ships, and a pasted list cannot silently age.
+ */
+function shippedStationIds(): string[] {
+  const bundlesDir = path.join(REPO_ROOT, "apps/ui-xr/public/xr-assets/generated");
+  if (!existsSync(bundlesDir)) return [];
+  return readdirSync(bundlesDir)
+    .filter((d) => existsSync(path.join(bundlesDir, d, "learner-runtime-bundle.v1.json")))
+    .sort();
+}
 
 /** Exported for #83 posture measure (same probe, same scene-overview mode). */
 export const ROOM_CAPTURE_MODE = "scene-overview";
@@ -935,7 +948,7 @@ export async function waitForHumanoidAssetsLoaded(page: Page, timeoutMs = 180_00
 export type CaptureStationEnvironmentRoomsInput = {
   /** Absolute or repo-relative output directory. */
   outputDir?: string;
-  /** Scenario ids to load (default: ED chest pain + telehealth diabetes). */
+  /** Scenario ids to load (default: every shipped station under xr-assets/generated). */
   scenarioIds?: readonly string[];
   captureMode?: string;
   /** Injected base URL skips spawning a dev server (tests / resume). */
@@ -956,7 +969,12 @@ export async function captureStationEnvironmentRooms(
     );
   }
 
-  const scenarioIds = input.scenarioIds ?? [...DEFAULT_SCENARIOS];
+  const scenarioIds = input.scenarioIds ?? shippedStationIds();
+  if (scenarioIds.length === 0) {
+    throw new Error(
+      "no scenarioIds provided and no shipped stations found under apps/ui-xr/public/xr-assets/generated; pass --scenario explicitly",
+    );
+  }
   const outputDir = input.outputDir ?? ROOM_CAPTURE_OUTPUT_DIR;
   await mkdir(outputDir, { recursive: true });
 
