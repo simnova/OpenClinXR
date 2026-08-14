@@ -112,6 +112,41 @@ import { describe, expect, it } from "vitest";
  *     stand between the camera and an actor and nothing here sees them.
  *   - **Whether the resulting captures are good.** This asserts the camera is not behind a door. It
  *     says nothing about whether the new viewpoint frames the cast well — that is a pixel grade.
+ *
+ * ## FIXED (#398)
+ *
+ * The camera is no longer a literal inside the closure. `doorway-overview-camera.ts` derives the
+ * camera x from the shell width and the constants that DEFINE the leaf — `DOOR_WALL_INSET_METERS`
+ * imported from `environment-zone-templates.ts`, the leaf/jamb BoxGeometry widths and the jamb
+ * offset read from `buildDoorLeafFixture` (`station-architecture-fixtures.ts:115-141`) — and
+ * `ui-xr-environment-room-capture.ts` calls it (the `page.evaluate` now receives the derived
+ * camera; the framing tag reads `…doorway_elevated_overview_#398`). No door constant moved.
+ *
+ * NAMED UNLOCKED DECISION — mirror to the −x side when the known-good x is in-band:
+ *   x = 1.35 when 1.35 ∉ leaf span (the eight wide rooms keep today's framing byte-identical),
+ *   x = −1.35 otherwise (the six narrow rooms sit opposite the +x leaf, clear of the band at
+ *       every width: the mirror branch fires only when width ≥ 3.86 m, and then −1.35 <
+ *       width/2 − 1.46). y/z unchanged (elevated doorway-side overview, clause (2) reads them).
+ *
+ * Measured after the flip (same shipped constants, module verdicts):
+ *   environmentId                        width   camera x   leaf x-span       result
+ *   -----------------------------------  -----   --------   --------------    -------
+ *   ed_stroke_bay_v1                      7.20     1.35     [+2.14, +3.02]    clear
+ *   ed_exam_bay_v1                        7.00     1.35     [+2.04, +2.92]    clear
+ *   adult_ed_abdominal_bay_v1             6.80     1.35     [+1.94, +2.82]    clear
+ *   stepdown_room_v1                      6.20     1.35     [+1.64, +2.52]    clear
+ *   inpatient_ward_room_v1                6.00     1.35     [+1.54, +2.42]    clear
+ *   surgical_ward_room_v1                 6.00     1.35     [+1.54, +2.42]    clear
+ *   ob_triage_room_v1                     5.90     1.35     [+1.49, +2.37]    clear
+ *   oncology_consult_room_v1              5.80     1.35     [+1.44, +2.32]    clear
+ *   behavioral_health_private_room_v1     5.60    −1.35     [+1.34, +2.22]    clear (mirrored)
+ *   urgent_care_clinic_room_v1            5.50    −1.35     [+1.29, +2.17]    clear (mirrored)
+ *   pediatric_fever_urgent_care_bay_v1    5.40    −1.35     [+1.24, +2.12]    clear (mirrored)
+ *   pediatric_urgent_care_bay_v1          5.40    −1.35     [+1.24, +2.12]    clear (mirrored)
+ *   telehealth_home_visit_v1              5.20    −1.35     [+1.14, +2.02]    clear (mirrored)
+ *   primary_care_clinic_room_v1           5.00    −1.35     [+1.04, +1.92]    clear (mirrored)
+ * Unseen widths: 4.60 → −1.35 (span [+0.84, +1.72]), 8.00 → 1.35 (span [+2.54, +3.42]) — clause (4).
+ * Clauses (1) and (4) flipped from `it.fails`; (2) and (3) unchanged (true nets, passing).
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -195,7 +230,7 @@ function requireVerdicts(): CameraVerdict[] {
 }
 
 describe("the station camera does not stand behind the door", () => {
-  it.fails("(1) RED: no environment puts the overview camera inside its door leaf's x-span", () => {
+  it("(1) RED: no environment puts the overview camera inside its door leaf's x-span", () => {
     const rows = requireVerdicts();
     const behind = rows
       .filter((r) => r.cameraBehindDoorLeaf)
@@ -251,7 +286,7 @@ describe("the station camera does not stand behind the door", () => {
     expect(/facesWall/u.test(doorSlot), "DOOR_LEAF stays free-standing (facesWall NOT set)").toBe(false);
   });
 
-  it.fails("(4) RED: the rule holds at widths that are not in the shipped bank", () => {
+  it("(4) RED: the rule holds at widths that are not in the shipped bank", () => {
     // Refuses (d). A second literal fitted to today's fourteen bands is the same defect with a new
     // number. 4.60 m and 8.00 m are deliberately absent from the bank; a derived camera answers both.
     const mod = requireVerdicts() && (api as Api);
