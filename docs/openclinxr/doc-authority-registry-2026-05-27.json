@@ -12,7 +12,7 @@
     "agent-memory": 34,
     "historical-synthesis": 11,
     "decision-record": 37,
-    "total": 444
+    "total": 446
   },
   "entries": [
     {
@@ -2914,6 +2914,13 @@
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
       "rationale": "Current product reference, subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/openclinxr/superagent-goal-mpfb-human-realism-2026-08-14.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Handover goal statement for a parallel agent; measured context, not an instruction surface."
     },
     {
       "path": "docs/openclinxr/technology-approach-brief.md",
