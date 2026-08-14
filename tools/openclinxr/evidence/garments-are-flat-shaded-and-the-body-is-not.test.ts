@@ -112,14 +112,22 @@ const isBody = (n: string): boolean => /^mpfb_skin_/i.test(n);
  * boot shaft) warps the band's surface, so 90 above-rim coplanar joins (927 -> 837) dropped below the
  * rim-top floor. The tris are unchanged (2628 — not a remesh) and 837 joins remain (not emptied), so
  * the counterweight's intent binds as before; the floor is now 0.95 x 837 = 795.
+ *
+ * #199 REBASED 2026-08-14 for kevin's upper + pants: the nurse's upper slot is now the CC0
+ * `toigo_fisherman_sweater` (long sleeve, 4,164 tris) instead of the CC-BY scrub shirt (9,384 tris),
+ * and the lower cover shell's top follows the upper garment's hem (`build_cover_shell` bounds the
+ * band cut by the hem), so the pants' band re-cut at the sweater's lower hem: 2,628 -> 2,498 tris,
+ * above-rim coplanar 837 -> 794. Same class as #378 — a legitimate geometry consequence of the
+ * asset swap, not a remesh (the floor is now 0.95 x 794 = 754.3; the smoothing of the NEW garment
+ * is pinned by its own measured row).
  */
 const BASELINE: Record<string, { tris: number; coplanar: number; sharpSplit: number }> = {
   "mpfb-ob-patient-aisha::mat_makeclothes_library_cargo_pants.001": { tris: 2782, coplanar: 966, sharpSplit: 48 },
   "mpfb-ob-patient-aisha::mat_makeclothes_library_footwear_toigo_flats": { tris: 57600, coplanar: 12922, sharpSplit: 3780 },
   "mpfb-ob-patient-aisha::mat_makeclothes_library_toigo_t_shirt": { tris: 2700, coplanar: 800, sharpSplit: 238 },
-  "mpfb-peds-nurse-kevin::mat_makeclothes_library_cargo_pants.001": { tris: 2628, coplanar: 837, sharpSplit: 58 },
+  "mpfb-peds-nurse-kevin::mat_makeclothes_library_cargo_pants.001": { tris: 2498, coplanar: 794, sharpSplit: 177 },
+  "mpfb-peds-nurse-kevin::mat_makeclothes_library_fisherman_sweater": { tris: 4164, coplanar: 1204, sharpSplit: 295 },
   "mpfb-peds-nurse-kevin::mat_makeclothes_library_footwear_culturalibre_male_boots": { tris: 30768, coplanar: 6246, sharpSplit: 1605 },
-  "mpfb-peds-nurse-kevin::mat_makeclothes_library_scrub_shirt": { tris: 9384, coplanar: 3862, sharpSplit: 303 },
   "mpfb-peds-patient-child::mat_makeclothes_library_cargo_pants.001": { tris: 2636, coplanar: 1042, sharpSplit: 49 },
   "mpfb-peds-patient-child::mat_makeclothes_library_footwear_toigo_mj_cloth_shoes": { tris: 1004, coplanar: 144, sharpSplit: 124 },
   "mpfb-peds-patient-child::mat_makeclothes_library_toigo_t_shirt": { tris: 2700, coplanar: 866, sharpSplit: 233 },

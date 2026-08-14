@@ -204,7 +204,7 @@ function requireMeasured(): void {
 }
 
 describe("a long sleeve reaches the wrist on the MPFB rail", () => {
-  it.fails("(1) RED: at least one MPFB actor has garment surface past the forearm midpoint", () => {
+  it("(1) RED: at least one MPFB actor has garment surface past the forearm midpoint", () => {
     requireMeasured();
     const reaching = rows.filter((r) => r.reachT >= WRIST_REACH_T).map((r) => r.actor);
     expect(
@@ -230,7 +230,7 @@ describe("a long sleeve reaches the wrist on the MPFB rail", () => {
     expect(bad, "upper-body garments that are not fitted geometry").toEqual([]);
   });
 
-  it.fails("(3) RED: the forearm is covered along its length, not just at the cuff", () => {
+  it("(3) RED: the forearm is covered along its length, not just at the cuff", () => {
     // Refuses (b): stretching a short sleeve to wrist length thins it to a ribbon — the cuff arrives
     // and the arm between stays bare. SS11s: bound the distribution, not the extreme.
     requireMeasured();

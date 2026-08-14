@@ -46,6 +46,25 @@ HAIR_STYLE_BY_REFERENCE = {
     "peds_patient_child": None,
 }
 
+# #199: the LONG-SLEEVE upper slot. #197/#199 measured that body-surface-derived garments
+# saturate at the elbow on the Anny rail — the Anny body has 0 forearm verts (inverse-bind
+# measurement), so no offset shell can follow the arm below mid-forearm, bounding EVERY
+# garment built that way. The MPFB rail has real forearm verts (122 on kevin), so a long
+# sleeve is achievable there: `toigo_fisherman_sweater` (shirts01 pack) is the ONLY
+# long-sleeve garment in the cache, CC0 by its OWN .mhclo header (`# author MRT`,
+# `# license CC0`), max basemesh ref 11,018 < 13,380 — the same ref shape as the shipping
+# t-shirt (11,016), so it fits the #318 stripped basemesh exactly like the t-shirt. The
+# pack also contains an AGPL3 garment (`skalldyrssuppe_tube_top_funky_colors`) inside the
+# `_cc0` archive — extract by name only (ledger row). Staging (SS8y): a nurse in long
+# sleeves is plausible; a patient in a gown is not. Keyed by reference id like
+# SHOE_BY_REFERENCE (None = the default-macro aisha path). One actor is enough for #199's
+# contract; aisha (patient) and the child keep their existing upper slot.
+LONG_SLEEVE_UPPER_BY_REFERENCE = {
+    None: None,
+    "peds_nurse_kevin": "toigo_fisherman_sweater",
+    "peds_patient_child": None,
+}
+
 # #343 — phenotype skin-tone token -> MpfbSkinMasterColor SkinColor (RGB).
 # Authored DATA table (the same pattern as SHOE_BY_REFERENCE, and the hair_color ->
 # base_color table in automate_blender.py apply_mesh_native_scalp_hair_material_region):
@@ -2568,7 +2587,25 @@ def main():
     _is_clinician = any(
         token in (args.actor_role or "").lower() for token in ("nurse", "clinician", "staff")
     )
-    if _is_clinician:
+    # #199: the LONG-SLEEVE upper slot (see LONG_SLEEVE_UPPER_BY_REFERENCE). The nurse
+    # wears the CC0 fisherman sweater instead of the scrub top. kind stays "scrub" so the
+    # locked clinical colour keeps the cast pairwise distinct (#180 contract); the asset's
+    # OWN declared sweater_fisherman.mhmat -> shirt-knit.png is consumed by the #360
+    # material path (the scrub's .mhmat is not staged, so this slot now consumes a
+    # declared texture where the scrub recorded a skip). The fit is the SAME
+    # ClothesService path and fit order as the t-shirt below (after the #318 strip).
+    _long_sleeve_style = LONG_SLEEVE_UPPER_BY_REFERENCE.get(args.reference)
+    if _is_clinician and _long_sleeve_style:
+        _garment_dir = (
+            REPO_ROOT
+            / ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01"
+            / _long_sleeve_style
+        )
+        garment_obj = _garment_dir / "sweater_fisherman.obj"
+        garment_mhclo = _garment_dir / "toigo_fisherman_sweater.mhclo"
+        _upper_lib_name = "makeclothes_library_fisherman_sweater"
+        _upper_kind = "scrub"
+    elif _is_clinician:
         _garment_dir = (
             REPO_ROOT
             / ".openclinxr-local/provider-cache/garments/sources/makehuman-community-scrub-shirt"
@@ -2588,6 +2625,19 @@ def main():
         _upper_kind = "closed_casual"
     if not garment_obj.is_file() or not garment_mhclo.is_file():
         raise RuntimeError(f"upper garment sources missing in provider cache: {_garment_dir}")
+
+    # #199: bake-time licence re-read for the long-sleeve slot, the same guard the #381
+    # hair fit runs. The shirts01 pack is MIXED (one AGPL3 garment inside the `_cc0`
+    # archive) and this .mhclo was selected by name — the bake refuses a copyleft or
+    # unlicensed header so a wrong extraction can never reach the shipped bytes.
+    if _is_clinician and _long_sleeve_style:
+        _upper_lic_ok, _upper_lic_raw = read_hair_mhclo_licence(garment_mhclo)
+        if not _upper_lic_ok:
+            raise RuntimeError(
+                f"#199: upper garment {_long_sleeve_style} licence NOT permitted per its own "
+                f".mhclo header: {_upper_lic_raw!r} — hard refusal (AGPL/copyleft or unspecified)"
+            )
+        print(f"UPPER_GARMENT_LICENCE {_long_sleeve_style} {_upper_lic_raw!r}")
 
     from bl_ext.user_default.mpfb.entities.clothes.mhclo import Mhclo  # noqa: E402
     from bl_ext.user_default.mpfb.services.clothesservice import ClothesService  # noqa: E402
