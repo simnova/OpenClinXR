@@ -368,7 +368,7 @@ export async function runGlbGradeCapture(options: {
 
     for (const entry of staged.entries) {
       const context = await browser.newContext({
-        viewport: { width: 1280, height: 1280 },
+        viewport: { width: 4096, height: 4096 },
         deviceScaleFactor: 1,
       });
       const page = await context.newPage();
