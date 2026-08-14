@@ -98,6 +98,15 @@ record it was missing. Every row carries a replacement posture, per the operator
 **DEFAULT IF SILENT:** no acquisition. Hair stays a painted region, and I will evaluate the
 CharMorph / MB-Lab procedural hair engines as a lane C cagematch instead, since that needs no approval.
 
+**2026-08-14 — `mhair02` operator override (Kevin).** Patrick sent
+http://www.makehumancommunity.org/clothes/mhair02.html as CC0. The page
+states CC0. The downloaded `.mhclo` header still says `# license AGPL3`
+(uuid `f81a4e9a-e3d7-4ecb-bdf0-16d7fd9070a4`). Same class as visemes02:
+assume the page grant, record the header contradiction, allow **this
+asset only**. Do not glob other AGPL hair. `male_short_hair` (same
+page/header lie, not named) stays refused. Revisit if the author says
+the header is the real grant.
+
 ## 2026-08-11 — the paediatric patient's authored height is unreachable (BLOCKS full cast regeneration)
 
 **RESEARCH BASIS (measured, #302).** `patient_maya_johnson_v1` authors `height_cm: 125` at `age: 0.09`
