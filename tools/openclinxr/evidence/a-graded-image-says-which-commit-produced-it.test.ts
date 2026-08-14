@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -115,7 +116,6 @@ const galleries = newestGalleries();
 function resolvesInRepo(sha: string): boolean {
   if (!SHA40.test(sha)) return false;
   try {
-    const { execFileSync } = require("node:child_process") as typeof import("node:child_process");
     execFileSync("git", ["cat-file", "-e", `${sha}^{commit}`], { cwd: REPO_ROOT, stdio: "ignore" });
     return true;
   } catch {
