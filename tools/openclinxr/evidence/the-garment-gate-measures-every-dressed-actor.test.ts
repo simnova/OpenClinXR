@@ -62,6 +62,23 @@ import { describe, expect, it } from "vitest";
  *     the radial instrument I tried answers "is the shirt outside the coat" and cannot answer "does the
  *     coat cover" (§6t). Not filed as a mechanism.
  *   - **Anny-rail assets.** `mpfb-*.glb` only.
+ *
+ * ## FIXED (#408) — 2026-08-14
+ *
+ * (1) flipped to live: the gate's population is now the full shipped dressed set — seven actors —
+ * selected by the lower-garment CLASS `(cargo|scrub|trouser)_pants`, enumerated from what ships and
+ * re-checked inside the gate itself (see the gate's FIXED #408 block), so every shipped dressed
+ * actor is measured. (2) unchanged. (3) corrected: the planted `actors.length < dressed.length`
+ * assertion is unsatisfiable alongside (1) — (1) requires every dressed actor to be IN the gate
+ * population (|population| >= |dressed|) while (3) demanded |population| < |dressed| — and it
+ * asserted the opposite direction from the defect (a population strictly smaller than the dressed
+ * count IS the SS7j gap). Its vacuity intent (the population must not drift from what ships) is
+ * preserved as `toBe(dressed.length)`: the population must equal the dressed count.
+ *
+ * All seven BASELINE rows were measured on the shipped bytes, not copied (kevin's cuff reach moved
+ * -279.2 -> -308.2 with the scrub_pants re-dress). None of the four newly covered actors fails the
+ * interpenetration measure: nurse, physician, partner and parent all have no trouser/footwear
+ * overlap (low footwear), and kevin's overlap is consistent (boot outside trouser).
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -116,7 +133,7 @@ function requireDressed(): Dressed[] {
 }
 
 describe("the garment gate measures every dressed actor", () => {
-  it.fails("(1) RED: every shipped dressed actor is in the interpenetration gate's population", () => {
+  it("(1) RED: every shipped dressed actor is in the interpenetration gate's population", () => {
     const missing = requireDressed().filter((d) => !actors.includes(d.id));
     expect(
       missing.map((d) => `${d.id} (lower ${d.lowerTris}t, footwear ${d.footwearTris}t)`),
@@ -135,6 +152,12 @@ describe("the garment gate measures every dressed actor", () => {
   it("(3) VACUITY GUARD: the population spans both lower-garment ids today", () => {
     // If every actor wore the same trousers, a selector naming one id would look fine forever.
     expect(requireDressed().length, "dressed actors").toBeGreaterThanOrEqual(6);
-    expect(actors.length, "gate population size").toBeLessThan(dressed.length);
+    // CORRECTED (#408): the planted `toBeLessThan(dressed.length)` is unsatisfiable alongside
+    // (1) — (1) requires every dressed actor to be IN the gate population, so |population| >=
+    // |dressed|, while (3) demanded |population| < |dressed|. It also asserts the OPPOSITE
+    // direction from the defect: a population strictly smaller than the dressed count is exactly
+    // the SS7j gap this contract exists to refuse. The vacuity it guards — the population must
+    // not drift from what ships — is preserved: the population must EQUAL the dressed count.
+    expect(actors.length, "gate population size").toBe(dressed.length);
   });
 });
