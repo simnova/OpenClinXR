@@ -755,7 +755,7 @@ function selectBodyMotionProbeClip(animations: AnimationClip[]): AnimationClip |
 }
 
 export function selectBodyMotionProbeClipName(animationNames: string[]): string | null {
-  return animationNames.find((name) => /mpfb_body_motion_probe|role_patient_asthma_breathing_effort|role_parent_anxious_fidget_guard|role_nurse_clinical_check_reassure/u.test(name))
+  return animationNames.find((name) => /mpfb_body_motion_probe|role_patient_asthma_breathing_effort|role_parent_anxious_fidget_guard|role_nurse_clinical_check_reassure|retarget_cmu|cmu_07_01_walk/u.test(name))
     ?? animationNames.find((name) => /posture|standing|clinical|conversation|idle/u.test(name))
     ?? null;
 }

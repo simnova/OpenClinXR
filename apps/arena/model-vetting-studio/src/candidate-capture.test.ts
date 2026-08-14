@@ -49,6 +49,13 @@ describe("candidate capture GLB selection", () => {
     ])).toBe("openclinxr_mpfb_body_motion_probe_pediatric_breathing");
   });
 
+  it("prefers a factory retarget walk clip over idle so body_motion_probe plays dark-factory-B binds", () => {
+    expect(selectBodyMotionProbeClipName([
+      "openclinxr_clinical_idle_breathing",
+      "openclinxr_retarget_cmu_07_01_walk",
+    ])).toBe("openclinxr_retarget_cmu_07_01_walk");
+  });
+
   it("treats viseme_timeline as a temporal capture bound to the peds asthma patient utterance", () => {
     expect(isTemporalCaptureView("viseme_timeline")).toBe(true);
     const timeline = buildVisemeTimelineFromDialogue(PEDS_ASTHMA_PATIENT_VISeme_DIALOGUE_UTTERANCE);
