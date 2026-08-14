@@ -28,6 +28,15 @@ import {
  * And the station refuses an unresolvable focus instead of falling back
  * silently (`probeHeadFocusRefusal` below pins that).
  *
+ * #394 (2026-08-14): fitted hair broke the derivation — the bob masks the neck
+ * constriction, so `deriveHeadBoxFromPoints` returned null on aisha once #381
+ * fitted her hair. Fitted hair is NOT body: hair meshes are excluded from the
+ * silhouette profile (the neck stays findable) but their bounds union into the
+ * box via `containPoints`, and the containment clause below pins that every
+ * hair vertex lies INSIDE the derived box — derive from body, frame to
+ * body+hair. A box that derives cleanly but decapitates the hairstyle is not a
+ * fix, and this contract is what distinguishes the two.
+ *
  * NOT TESTED here: how the hair LOOKS in the crops — that is the orchestrator's
  * pixel grade of mpfb-head-front.png / anny-head-front.png. This contract only
  * pins that the framing is the head on both rails and the framing is recorded.
@@ -51,16 +60,19 @@ const MIN_HEAD_VERTEX_FRACTION = 0.005;
 const EYE_MESH_RE = /eyes|iris|cornea|sclera/i;
 
 /**
- * #394: fitted hair is not body — hair meshes feed the head BOX (the crop must
- * contain the hair) but never the silhouette profile (hair masks the neck
- * constriction). Returns both point sets from the same traversal.
+ * #394: fitted hair is not body — hair meshes feed the head BOX via
+ * `containPoints` (the crop must contain the hair) but never the silhouette
+ * profile (hair masks the neck constriction). Returns the three point sets
+ * from the same traversal.
  */
 function worldPoints(doc: import("@gltf-transform/core").Document): {
   points: Vec3[];
   silhouettePoints: Vec3[];
+  containPoints: Vec3[];
 } {
   const points: Vec3[] = [];
   const silhouettePoints: Vec3[] = [];
+  const containPoints: Vec3[] = [];
   for (const node of doc.getRoot().listNodes()) {
     const mesh = node.getMesh();
     if (!mesh) continue;
@@ -77,11 +89,12 @@ function worldPoints(doc: import("@gltf-transform/core").Document): {
           z: wm[2] * Number(pos[i]) + wm[6] * Number(pos[i + 1]) + wm[10] * Number(pos[i + 2]) + wm[14],
         };
         points.push(p);
-        if (!isHair) silhouettePoints.push(p);
+        if (isHair) containPoints.push(p);
+        else silhouettePoints.push(p);
       }
     }
   }
-  return { points, silhouettePoints };
+  return { points, silhouettePoints, containPoints };
 }
 
 function bodyBoundsOf(pts: ReadonlyArray<Vec3>): { min: Vec3; max: Vec3 } {
@@ -120,17 +133,19 @@ function headContractFor(file: string, label: string): void {
     let doc: import("@gltf-transform/core").Document;
     let pts: Vec3[];
     let silhouette: Vec3[];
+    let hair: Vec3[];
     let body: { min: Vec3; max: Vec3 };
     beforeAll(async () => {
       doc = await new NodeIO().read(join(REPO_ROOT, GENERATED, file));
       const split = worldPoints(doc);
       pts = split.points;
       silhouette = split.silhouettePoints;
+      hair = split.containPoints;
       body = bodyBoundsOf(pts);
     });
 
     it("derives a head box from the body geometry alone", () => {
-      const head = deriveHeadBoxFromPoints(pts, { silhouettePoints: silhouette });
+      const head = deriveHeadBoxFromPoints(pts, { silhouettePoints: silhouette, containPoints: hair });
       expect(head, "deriveHeadBoxFromPoints returned null on a standing humanoid").not.toBeNull();
       const height = head!.box.max.y - head!.box.min.y;
       const bodyHeight = body.max.y - body.min.y;
@@ -141,7 +156,7 @@ function headContractFor(file: string, label: string): void {
     });
 
     it("cuts the head at the neck, which sits in the anatomical neck band", () => {
-      const head = deriveHeadBoxFromPoints(pts, { silhouettePoints: silhouette });
+      const head = deriveHeadBoxFromPoints(pts, { silhouettePoints: silhouette, containPoints: hair });
       expect(head).not.toBeNull();
       const bodyHeight = body.max.y - body.min.y;
       const neckFraction = (head!.neckPosition - body.min.y) / bodyHeight;
@@ -152,7 +167,7 @@ function headContractFor(file: string, label: string): void {
     });
 
     it("frames a real region — the head box reaches the top of the body and holds a real vertex share", () => {
-      const head = deriveHeadBoxFromPoints(pts, { silhouettePoints: silhouette });
+      const head = deriveHeadBoxFromPoints(pts, { silhouettePoints: silhouette, containPoints: hair });
       expect(head).not.toBeNull();
       expect(head!.box.max.y, "the head box does not reach the top of the body").toBeCloseTo(body.max.y, 2);
       expect(
@@ -162,7 +177,7 @@ function headContractFor(file: string, label: string): void {
     });
 
     it("the head box does NOT span the shoulders (the #354 whole-body failure mode)", () => {
-      const head = deriveHeadBoxFromPoints(pts, { silhouettePoints: silhouette });
+      const head = deriveHeadBoxFromPoints(pts, { silhouettePoints: silhouette, containPoints: hair });
       expect(head).not.toBeNull();
       const headWidth = head!.box.max.x - head!.box.min.x;
       const bodyWidth = body.max.x - body.min.x;
@@ -172,6 +187,38 @@ function headContractFor(file: string, label: string): void {
         headWidth / bodyWidth,
         `head width ${(headWidth / bodyWidth).toFixed(2)} of body width — the frame spans the shoulders`,
       ).toBeLessThan(0.6);
+    });
+
+    it("the head box CONTAINS the fitted hair on every face (#394)", () => {
+      // Only figures with fitted hair carry a containment obligation.
+      if (hair.length === 0) return;
+      const head = deriveHeadBoxFromPoints(pts, { silhouettePoints: silhouette, containPoints: hair });
+      expect(head, "deriveHeadBoxFromPoints returned null on a figure with fitted hair").not.toBeNull();
+
+      // Per-axis cut measurement: how far each hair extreme lies OUTSIDE the box.
+      const cut = (ax: "x" | "y" | "z") => {
+        let lo = Infinity;
+        let hi = -Infinity;
+        for (const p of hair) {
+          if (p[ax] < lo) lo = p[ax];
+          if (p[ax] > hi) hi = p[ax];
+        }
+        const loCut = Math.max(0, head!.box.min[ax] - lo);
+        const hiCut = Math.max(0, hi - head!.box.max[ax]);
+        return { loCut, hiCut, hairLo: lo, hairHi: hi };
+      };
+      const x = cut("x");
+      const y = cut("y");
+      const z = cut("z");
+      const cm = (v: number) => `${(v * 100).toFixed(2)} cm`;
+      const message =
+        "the head box cuts the fitted hair — a head crop would clip the hairstyle:\n"
+        + `  axis   box (cm)                        hair (cm)                        cut lo / hi\n`
+        + `  x      ${(head!.box.min.x * 100).toFixed(1).padStart(7)} .. ${(head!.box.max.x * 100).toFixed(1).padEnd(7)}    ${(x.hairLo * 100).toFixed(1).padStart(7)} .. ${(x.hairHi * 100).toFixed(1).padEnd(7)}    ${cm(x.loCut)} / ${cm(x.hiCut)}\n`
+        + `  y      ${(head!.box.min.y * 100).toFixed(1).padStart(7)} .. ${(head!.box.max.y * 100).toFixed(1).padEnd(7)}    ${(y.hairLo * 100).toFixed(1).padStart(7)} .. ${(y.hairHi * 100).toFixed(1).padEnd(7)}    ${cm(y.loCut)} / ${cm(y.hiCut)}\n`
+        + `  z      ${(head!.box.min.z * 100).toFixed(1).padStart(7)} .. ${(head!.box.max.z * 100).toFixed(1).padEnd(7)}    ${(z.hairLo * 100).toFixed(1).padStart(7)} .. ${(z.hairHi * 100).toFixed(1).padEnd(7)}    ${cm(z.loCut)} / ${cm(z.hiCut)}`;
+      const maxCut = Math.max(x.loCut, x.hiCut, y.loCut, y.hiCut, z.loCut, z.hiCut);
+      expect(maxCut, message).toBeLessThanOrEqual(0.0005);
     });
   });
 }

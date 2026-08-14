@@ -122,8 +122,8 @@ function deriveEyeFocusBounds(root: Object3D): {
  * uses). Works on every rail: MPFB, Anny (eye bones, zero eye geometry), and
  * the hm08 library bodies. Refuses (throws) when no head is derivable — never
  * falls back silently. Fitted hair is NOT body (#394): hair meshes are excluded
- * from the silhouette profile (they mask the neck constriction) but stay in the
- * box, so a head crop still contains the hair.
+ * from the silhouette profile (they mask the neck constriction) but their
+ * bounds union into the box, so a head crop still contains the hair.
  */
 function deriveHeadFocusBounds(root: Object3D): {
   kind: "head_box";
@@ -135,6 +135,7 @@ function deriveHeadFocusBounds(root: Object3D): {
 } {
   const points: Array<{ x: number; y: number; z: number }> = [];
   const silhouettePoints: Array<{ x: number; y: number; z: number }> = [];
+  const containPoints: Array<{ x: number; y: number; z: number }> = [];
   const point = new Vector3();
   root.updateMatrixWorld(true);
   root.traverse((object) => {
@@ -150,10 +151,11 @@ function deriveHeadFocusBounds(root: Object3D): {
       point.fromBufferAttribute(position, i).applyMatrix4(object.matrixWorld);
       const p = { x: point.x, y: point.y, z: point.z };
       points.push(p);
-      if (!isHair) silhouettePoints.push(p);
+      if (isHair) containPoints.push(p);
+      else silhouettePoints.push(p);
     }
   });
-  const derived = deriveHeadBoxFromPoints(points, { silhouettePoints });
+  const derived = deriveHeadBoxFromPoints(points, { silhouettePoints, containPoints });
   if (!derived) {
     throw new Error(
       "focus=head unresolvable: no head-like region derivable from the body bounds "

@@ -67,14 +67,16 @@ export const HEAD_FOCUS_SUBJECTS = [
 type Bounds = { min: Vec3; max: Vec3 };
 
 /**
- * World points of every mesh, plus the body-only silhouette subset.
- * Fitted hair is not body (#394): hair feeds the head BOX (the crop must
- * contain it) but never the silhouette profile (hair masks the neck
- * constriction) — same split the runtime lab and the contract use.
+ * World points of every mesh, plus the body-only silhouette subset and the
+ * hair (containment) subset. Fitted hair is not body (#394): hair feeds the
+ * head BOX via `containPoints` (the crop must contain it) but never the
+ * silhouette profile (hair masks the neck constriction) — same split the
+ * runtime lab and the contract use.
  */
-function worldPoints(doc: Document): { points: Vec3[]; silhouettePoints: Vec3[] } {
+function worldPoints(doc: Document): { points: Vec3[]; silhouettePoints: Vec3[]; containPoints: Vec3[] } {
   const points: Vec3[] = [];
   const silhouettePoints: Vec3[] = [];
+  const containPoints: Vec3[] = [];
   for (const node of doc.getRoot().listNodes()) {
     const mesh = node.getMesh();
     if (!mesh) continue;
@@ -91,11 +93,12 @@ function worldPoints(doc: Document): { points: Vec3[]; silhouettePoints: Vec3[] 
           z: wm[2] * Number(pos[i]) + wm[6] * Number(pos[i + 1]) + wm[10] * Number(pos[i + 2]) + wm[14],
         };
         points.push(p);
-        if (!isHair) silhouettePoints.push(p);
+        if (isHair) containPoints.push(p);
+        else silhouettePoints.push(p);
       }
     }
   }
-  return { points, silhouettePoints };
+  return { points, silhouettePoints, containPoints };
 }
 
 function aabbOf(pts: ReadonlyArray<Vec3>): Bounds {
@@ -287,9 +290,10 @@ export async function writeHeadFocusPreFix(options?: { cwd?: string; outputRoot?
     const split = worldPoints(doc);
     const pts = split.points;
     const silhouettePoints = split.silhouettePoints;
+    const containPoints = split.containPoints;
     const bodyBounds = aabbOf(pts);
     const bodyHeight = bodyBounds.max.y - bodyBounds.min.y;
-    const head = deriveHeadBoxFromPoints(pts, { silhouettePoints }) as HeadBoxGeometry | null;
+    const head = deriveHeadBoxFromPoints(pts, { silhouettePoints, containPoints }) as HeadBoxGeometry | null;
     if (!head) {
       throw new Error(`${s.rail} ${s.glb}: the geometry-derived head box is null — cannot build the before-column`);
     }
