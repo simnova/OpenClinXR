@@ -950,11 +950,13 @@ async function main(argv: string[]): Promise<void> {
   }, null, 2));
 }
 
-// tsx/node: compare path forms so CLI always runs when invoked directly.
+// tsx/node: compare path forms so CLI always runs when invoked directly. The loose
+// `includes(import.meta.url)` fallback fires under vitest (import.meta.url IS this module),
+// starting an orphaned capture for every test import — so match the invoked basename instead.
 const isMain = process.argv[1]
   && (import.meta.url === `file://${process.argv[1]}`
     || import.meta.url.endsWith(process.argv[1].replaceAll("\\", "/"))
-    || import.meta.url.includes("model-vetting-glb-grade-capture"));
+    || path.basename(process.argv[1]).startsWith("model-vetting-glb-grade-capture"));
 if (isMain) {
   main(process.argv.slice(2)).catch((err) => {
     console.error(err);
