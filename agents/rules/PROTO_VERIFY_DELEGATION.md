@@ -5486,3 +5486,35 @@ the only reason recovery was possible.
 NOTED, NOT FIXED: §11s is duplicated **29 times** in this file. That is accretion, not content, and it
 is exactly what the "at most ONE new rule per day" limit at the top exists to prevent. It needs a
 dedup pass as its own slice.
+
+## 12a. Grade at NATIVE resolution — an upscale of a pixel-scale feature manufactures structure
+
+Three times on 2026-08-14 I read a defect out of my own resampling, and each cost measurement time:
+
+| what I "saw" | transform | what was there |
+|---|---|---|
+| blocky region boundaries in the baked skin atlas | 1024→512 **NEAREST** | ordinary UV-island dilation |
+| a hard stair-stepped hairline | ~176 px head, **5× LANCZOS** | a real but sub-pixel-scale boundary |
+| a toothed teal wedge at kevin's boot top | ~60 px boot, **4× LANCZOS** | an ordinary garment boundary |
+
+The third one I filed into a close comment as a residual defect and had to withdraw. It cost an hour of
+refinement work whose entire output was four measurements proving nothing was wrong: cuff rim HF
+identical pre/post (1.14 mm median), boot rim 0.64 mm, and **0 of 90 cells** poking through on a 36×12
+angle-by-height grid.
+
+**Rule:** the grade of record is the **native-resolution** image. Upscale only to *locate* something you
+have already seen at 1×, never to discover it. When a claim rests on an upscaled crop, say the factor
+and the filter next to the claim — and if native and upscaled disagree, **native wins**.
+
+The mechanism is not subtle and applies to any resampler: a feature 2–3 px across has no shape yet.
+Magnify it and the interpolator invents one — LANCZOS rings it into scallops, NEAREST squares it into
+stairs. Both look like manufacturing defects because that is what manufacturing defects look like.
+
+**The tell:** you are describing texture ("ragged", "toothed", "stair-stepped", "blocky") from an image
+you enlarged. Go back to 1× before writing it down.
+
+Corollary, and it is the cheaper half: **when the measurements and the pixels disagree, re-examine the
+pixels first.** Here four independent geometric measurements said clean and I spent the hour hunting a
+fifth mechanism to explain a defect that was in my crop, not the mesh. §6e says two instruments agreeing
+is not correctness; this is the converse — four instruments agreeing against one eyeball is a reason to
+distrust the eyeball.

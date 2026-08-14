@@ -16,6 +16,8 @@
  *
  * #368 remaining half: the artifact records the reframe OUTCOME (target mesh name + world
  * position, or the failure code), so a face-framed capture can say what it actually framed.
+ * Every live sample also records the reframe status at its own instant, so a reframe that
+ * broke mid-capture is locatable instead of showing only as a deduped failure code.
  *
  * claimScope: mouth. notEvidenceFor: anatomy bind-pose, production phoneme timing, Quest.
  */
@@ -322,6 +324,7 @@ export async function runVisemeCapture(): Promise<void> {
         influence: number;
         meshName: string;
         framePath: string | null;
+        reframeStatus: ReframeOutcome["status"];
       }> = [];
       const rawTimeline: SceneSample[] = [];
       const t0 = Date.now();
@@ -333,7 +336,8 @@ export async function runVisemeCapture(): Promise<void> {
       async function sampleStates(framePath: string | null): Promise<void> {
         const t = (Date.now() - t0) / 1000;
         // Keep framing locked (runtime may tweak camera) and record every outcome.
-        reframeOutcomes.push(await reframeCameraOnPatientFace(page));
+        const reframeOutcome = await reframeCameraOnPatientFace(page);
+        reframeOutcomes.push(reframeOutcome);
         const sceneSample = await samplePatientVisemes(page);
         rawTimeline.push({ ...sceneSample, t });
 
@@ -344,6 +348,7 @@ export async function runVisemeCapture(): Promise<void> {
           influence: peak?.influence ?? 0,
           meshName: peak?.meshName ?? "",
           framePath,
+          reframeStatus: reframeOutcome.status,
         });
         for (const r of sceneSample.readings) {
           if (r.influence < 0.5) continue;
@@ -444,6 +449,7 @@ export async function runVisemeCapture(): Promise<void> {
           influence: Number(s.influence.toFixed(4)),
           meshName: s.meshName,
           framePath: s.framePath,
+          reframeStatus: s.reframeStatus,
         })),
         strongVisemeTargets: [...strongByName.entries()].map(([targetName, v]) => ({
           targetName,
@@ -454,6 +460,7 @@ export async function runVisemeCapture(): Promise<void> {
         distinctStrongVisemeCount: strongByName.size,
         distinctDominantStrongCount: distinctStrong().size,
         maxInfluence: Math.max(...liveSamples.map((s) => s.influence), 0),
+        reframeOkSamples: liveSamples.filter((s) => s.reframeStatus === "ok").length,
         rawTimeline: rawTimeline.map((s) => ({
           t: Number(s.t.toFixed(3)),
           peak: s.peak,

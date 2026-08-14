@@ -89,6 +89,16 @@ import { applyGeneratedScalarVisemeToRoot, resolveMorphIndex } from "../../../ap
  *     still right for Anny actors that DO carry those nodes is out of scope and untouched.
  *   - **Asymmetric lids** (unilateral ptosis, facial droop). Clause (1) drives both eyes together;
  *     nothing here exercises a one-sided drive, which is what a stroke station would need.
+ *
+ * ## FIXED (#379)
+ *
+ * The wire landed in apps/ui-xr/src/blink-runtime-wire.ts: `applyBlinkClosureToRoot(root,
+ * blinkIntensity)` drives `openclinxr_eye_left_closure` / `openclinxr_eye_right_closure` on every
+ * mesh under root that carries them, resolved through the shared `resolveMorphIndex` (#354). The
+ * intensity→influence curve is linear (identity on [0,1]), so the applier is monotone and spans
+ * the range. `main.ts` calls it from `applyHumanoidFaceRigControls` where the existing proxy
+ * blink controls run — a call, not an implementation (clause (5)). The proxy-object path stays
+ * for the Anny rail; this drives the morph path the MPFB actors already carry.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -210,7 +220,7 @@ function requireActors(): void {
 }
 
 describe("actors blink with their eyelids", () => {
-  it.fails("(1) RED: at full blink intensity both lid morphs are driven closed", () => {
+  it("(1) RED: at full blink intensity both lid morphs are driven closed", () => {
     requireActors();
     const open = roots
       .map((entry) => ({ entry, at: closureAt(entry, 1) }))
@@ -239,7 +249,7 @@ describe("actors blink with their eyelids", () => {
     expect(shut, "actors whose eyes are not open at rest").toEqual([]);
   });
 
-  it.fails("(3) RED: lid closure tracks blink intensity monotonically across the range", () => {
+  it("(3) RED: lid closure tracks blink intensity monotonically across the range", () => {
     // Refuses (c): a constant satisfies any two-point check and is monotone. Requiring a SPAN as well
     // as monotonicity is what a constant cannot do. SS11s — bound the shape, not only the extremes.
     requireActors();
