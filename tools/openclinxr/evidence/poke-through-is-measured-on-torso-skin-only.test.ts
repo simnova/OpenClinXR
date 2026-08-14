@@ -73,6 +73,34 @@ import { describe, expect, it } from "vitest";
  *     poke-through invisible — and therefore not worth gating — is undetermined and matters for the
  *     bound a later slice chooses.
  *   - **Pose.** Bind pose only. Poke-through classically appears under motion.
+ *
+ * ## FIXED (#392) — 2026-08-14, measured on the shipped bytes
+ *
+ * `torso-poke-through.ts` implements the bone-classified instrument. Every visible-skin vertex
+ * (`^mpfb_skin_` material; `openclinxr_hidden_*` primitives are non-drawing and excluded) is
+ * classified by its dominant joint — argmax WEIGHTS_0, first-wins ties, the same rule as
+ * `_bone_dominant_vertex_indices` (body_param_stage.py:741) — against the exact `_LIMB_BONE_RE`
+ * vocabulary (body_param_stage.py:738: arm|forearm|hand|wrist|finger|thumb|metacarpal). Only
+ * torso-dominant skin is compared against the upper garment's per-(angle, height) radial envelope
+ * (36 buckets x 16 mm bands, garment XZ centroid, 2 mm surface-noise tolerance). The Python
+ * classifier is Blender-bound (no bpy in a TS evidence module), so the exported JOINTS_0/WEIGHTS_0
+ * are read with the same algorithm and vocabulary — a port of the proven classifier, not a second
+ * one. Arms are excluded by construction: the 479 mm radial reading on aisha was bare arms beside
+ * the torso, not fabric failure.
+ *
+ * Calibration artifact: `.openclinxr/evidence/issue-392/torso-poke-through-calibration.json`.
+ *
+ *   actor   upper garment      torso skin   arm excluded   poking   worst
+ *   ------  -----------------  -----------  -------------  -------  ------
+ *   kevin   fisherman_sweater        4,811          4,261        0   0.0 mm
+ *   aisha   toigo_t_shirt            6,468          4,412        2   3.9 mm
+ *   child   toigo_t_shirt            5,584          4,406        3  10.2 mm
+ *
+ * Zero mid-fabric poke-through on all three. The 5 residual vertices (aisha 2, child 3) all sit in
+ * cells whose garment geometry is a single-height rim — the collar edge and the hem edge — where
+ * skin adjacency is expected; no fabric-covered cell shows skin beyond the envelope. Whether
+ * sub-centimetre rim adjacency renders (hide-mask interaction) is NOT TESTED and matters for the
+ * bound a later slice chooses. No threshold is asserted here, per the issue.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -126,7 +154,7 @@ function requireReport(): PokeRow[] {
 }
 
 describe("poke-through is measured on torso skin only", () => {
-  it.fails("(1) RED: every MPFB actor has a torso poke-through reading", () => {
+  it("(1) RED: every MPFB actor has a torso poke-through reading", () => {
     const report = requireReport();
     const missing = MPFB_ACTORS.filter((a) => !report.some((r) => r.actorId.includes(a)));
     expect(missing, "MPFB actors with no poke-through row").toEqual([]);
@@ -136,7 +164,7 @@ describe("poke-through is measured on torso skin only", () => {
     }
   });
 
-  it.fails("(2) COUNTERWEIGHT: the instrument FOUND arm skin and excluded it", () => {
+  it("(2) COUNTERWEIGHT: the instrument FOUND arm skin and excluded it", () => {
     // Refuses (b) and (c). A radial port or an everything-is-torso classifier both produce a reading;
     // neither can show it located arm-dominant vertices. Arms are ~1/6 of a humanoid's skin, so any
     // real bone classification finds thousands.
@@ -147,7 +175,7 @@ describe("poke-through is measured on torso skin only", () => {
     expect(noArms, "actors where no arm skin was found to exclude").toEqual([]);
   });
 
-  it.fails("(3) COUNTERWEIGHT: torso skin is a proper subset of all skin", () => {
+  it("(3) COUNTERWEIGHT: torso skin is a proper subset of all skin", () => {
     // Refuses (c) from the other side: if torsoSkinVerts === totalSkinVerts the classifier did nothing,
     // and the reading is my invalid radial metric wearing a new name.
     const report = requireReport();
