@@ -18,7 +18,9 @@
  *   5. the neck is the global minimum radius BELOW the skull's widest slice
  *      (skull widens, neck constricts, shoulders widen again — the profile
  *      minimum below the skull IS the neck)
- *   6. the head box is the AABB of every vertex at/above the neck cut
+ *   6. the head box is the AABB of every vertex at/above the neck cut, plus
+ *      the fitted-hair bounds (`containPoints`, #394) — derive from body,
+ *      frame to body+hair, so a crop never decapitates the hairstyle.
  *
  * Pure math, no three.js import — the lab (three.js world vertices) and the
  * file-side inspection (gltf-transform bind-pose vertices) call the SAME
@@ -51,6 +53,33 @@ export type HeadBoxGeometry = {
   radiusProfile: number[];
 };
 
+export type DeriveHeadBoxOptions = {
+  /**
+   * Points the silhouette profile (neck-cut derivation) is computed from.
+   * Defaults to `points`. Fitted hair is not body (#394): hair masks the neck
+   * constriction, so hair points belong ONLY in `containPoints` — never here.
+   */
+  silhouettePoints?: ReadonlyArray<Vec3>;
+  /**
+   * Points the returned box must also CONTAIN (fitted hair). These points never
+   * enter the silhouette profile — hair masks the neck constriction — but the
+   * frame must not cut the hair (the bob's lower fringe sits below the neck
+   * cut), so their bounds union into the box. Derive from body, frame to
+   * body+hair (#394).
+   */
+  containPoints?: ReadonlyArray<Vec3>;
+};
+
+/**
+ * Fitted hair is not body (#394): a hair mesh masks the neck constriction in
+ * the silhouette profile, so the head-box derivation must exclude it. The
+ * MakeClothes embed names hair meshes with "hair" (`embed_library_hair.py`),
+ * and this is the same /hair/i rule the fitted-hair contracts use.
+ */
+export function isFittedHairMeshName(name: string): boolean {
+  return /hair/i.test(name);
+}
+
 /** Focus=head is for humanoids; smaller subjects refuse. */
 const MIN_BODY_EXTENT_METERS = 0.4;
 /** Candidate region = topmost 40% of the body extent (head + neck + shoulders). */
@@ -69,9 +98,18 @@ const MIN_SKULL_RADIUS_METERS = 0.02;
 /**
  * Derive the head box from raw mesh vertices. Returns null when the subject has
  * no derivable head (refusal, never silent fallback).
+ *
+ * `silhouettePoints` (options) may exclude fitted hair from the profile — hair
+ * masks the neck constriction — and `containPoints` unions the hair bounds into
+ * the box, so the derivation stays body-only while the frame contains the hair
+ * (#394: derive from body, frame to body+hair).
  */
-export function deriveHeadBoxFromPoints(points: ReadonlyArray<Vec3>): HeadBoxGeometry | null {
-  if (points.length < 200) return null;
+export function deriveHeadBoxFromPoints(
+  points: ReadonlyArray<Vec3>,
+  options?: DeriveHeadBoxOptions,
+): HeadBoxGeometry | null {
+  const silhouette = options?.silhouettePoints ?? points;
+  if (silhouette.length < 200) return null;
 
   let minX = Infinity;
   let minY = Infinity;
@@ -101,12 +139,12 @@ export function deriveHeadBoxFromPoints(points: ReadonlyArray<Vec3>): HeadBoxGeo
   const h1 = di === 2 ? 1 : 2;
   let c0 = 0;
   let c1 = 0;
-  for (const p of points) {
+  for (const p of silhouette) {
     c0 += h0 === 0 ? p.x : p.y;
     c1 += h1 === 1 ? p.y : p.z;
   }
-  c0 /= points.length;
-  c1 /= points.length;
+  c0 /= silhouette.length;
+  c1 /= silhouette.length;
 
   // Candidate band: the topmost 40% of the body extent.
   const bandLo = (di === 0 ? minX : di === 1 ? minY : minZ) + BAND_TOP_FRACTION * bodyExtent;
@@ -117,7 +155,7 @@ export function deriveHeadBoxFromPoints(points: ReadonlyArray<Vec3>): HeadBoxGeo
   const radiusProfile = new Array<number>(SLICE_COUNT).fill(0);
   const coordOf = (p: Vec3): number => (di === 0 ? p.x : di === 1 ? p.y : p.z);
   const horizOf = (p: Vec3, axis: 0 | 1 | 2): number => (axis === 0 ? p.x : axis === 1 ? p.y : p.z);
-  for (const p of points) {
+  for (const p of silhouette) {
     const d = coordOf(p);
     if (d < bandLo || d > bandHi) continue;
     const idx = Math.min(SLICE_COUNT - 1, Math.max(0, Math.floor((d - bandLo) / sliceH)));
@@ -163,16 +201,38 @@ export function deriveHeadBoxFromPoints(points: ReadonlyArray<Vec3>): HeadBoxGeo
   let hMaxX = -Infinity;
   let hMaxY = -Infinity;
   let hMaxZ = -Infinity;
-  let vertexCount = 0;
   for (const p of points) {
     if (coordOf(p) < neckPosition) continue;
-    vertexCount += 1;
     if (p.x < hMinX) hMinX = p.x;
     if (p.y < hMinY) hMinY = p.y;
     if (p.z < hMinZ) hMinZ = p.z;
     if (p.x > hMaxX) hMaxX = p.x;
     if (p.y > hMaxY) hMaxY = p.y;
     if (p.z > hMaxZ) hMaxZ = p.z;
+  }
+
+  // #394: the frame must contain fitted hair even where the neck cut excludes
+  // it — the bob's lower fringe sits below the cut and the hairstyle top can
+  // exceed the body's own top. Union the hair bounds into the box: derivation
+  // stays body-only, framing is body+hair.
+  if (options?.containPoints) {
+    for (const p of options.containPoints) {
+      if (p.x < hMinX) hMinX = p.x;
+      if (p.y < hMinY) hMinY = p.y;
+      if (p.z < hMinZ) hMinZ = p.z;
+      if (p.x > hMaxX) hMaxX = p.x;
+      if (p.y > hMaxY) hMaxY = p.y;
+      if (p.z > hMaxZ) hMaxZ = p.z;
+    }
+  }
+
+  // vertexCount over the FINAL box — the hair union admits points the cut
+  // excluded (the fringe below the neck), so count by containment.
+  let vertexCount = 0;
+  for (const p of points) {
+    if (p.x >= hMinX && p.x <= hMaxX && p.y >= hMinY && p.y <= hMaxY && p.z >= hMinZ && p.z <= hMaxZ) {
+      vertexCount += 1;
+    }
   }
   const headExtent = di === 0 ? hMaxX - hMinX : di === 1 ? hMaxY - hMinY : hMaxZ - hMinZ;
   if (
