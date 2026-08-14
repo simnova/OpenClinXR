@@ -148,7 +148,7 @@ function requireKnownGood(): RoomShape {
 }
 
 describe("a second station gets its own generated room", () => {
-  it.fails(`(1) RED: ${SUBJECT_ENV} resolves to a generated room asset`, () => {
+  it("resolves to a generated room asset", () => {
     requireKnownGood();
     expect(
       subjectUrl,
@@ -157,7 +157,7 @@ describe("a second station gets its own generated room", () => {
     expect(subject, `${SUBJECT_ENV} room GLB readable under apps/ui-xr/public`).not.toBeNull();
   });
 
-  it.fails("(2) RED / ANTI-CHEAT: the second room is not the first one wearing a new name", () => {
+  it("the second room is not the first one wearing a new name", () => {
     // Refuses (b) and (c). One asset serving two ids is #388/#85, which this repo has already shipped
     // once. Hash alone loses to a re-export; signature alone loses to a byte-level copy. Both.
     const k = requireKnownGood();
@@ -182,7 +182,7 @@ describe("a second station gets its own generated room", () => {
     }
   });
 
-  it.fails("(4) RED: the second room is a room, not a placeholder at the right path", () => {
+  it("(4) RED: the second room is a room, not a placeholder at the right path", () => {
     // Refuses (d). NO TRIANGLE GATE — meshoptimizer runs later and the ED bay is a good room at 440
     // tris. Everything here survives decimation: enclosure, material variety, and a plausible size
     // derived from the known-good rather than invented.
@@ -206,3 +206,63 @@ describe("a second station gets its own generated room", () => {
     expect(k.extent.every((v) => Number.isFinite(v) && v > 0), "known-good has a finite extent").toBe(true);
   });
 });
+
+/**
+ * ## FIXED (#405) — a second room is generated, extracted, baked and registered
+ *
+ * Flips (1), (2) and (4) from RED to green; (3) and (5) stay nets as planted.
+ *
+ * Bake, fully deterministic (same config chain as the ED bay, different seed):
+ *   - Generate: `clinical_bay.gin` seed 1, coarse, `compose_indoors.terrain_enabled=False`
+ *     (the proven #271/#336 invocation; ~57 s wall-clock on this machine). Fresh seed — the
+ *     seed-0 floorplan is already shipped as the ED bay and cannot serve a second id (#388).
+ *   - Extract: `tools/openclinxr/asset-pipeline/environment/infinigen-single-room-extract.py`
+ *     selects `dining-room_0` (single segment, 5.0 × 5.0 × 2.65 m — smaller than the ED
+ *     dining-room 6.5 × 6.5, a paediatric scale) by mesh-name selection (#236 technique) and
+ *     centers with floor top at y=0 (#336 convention).
+ *   - Bake: Cycles DIFFUSE albedo+AO (`room-albedo-ao-bake.py`, 3 baseColor textures, geometry
+ *     unchanged 432 tris) then native AO occlusion (`room-occlusion-bake.py`, 3 occlusion
+ *     textures) — the same two-stage texture pipeline as the ED bay.
+ *   - Shipped: `apps/ui-xr/public/xr-assets/environment/infinigen-pediatric-urgent-care-bay.glb`
+ *     (744,552 bytes, SHA-256 `c1f8d4ea6e309c6a69ccc1b8706f7356beed3c7be2b623ea1235f4551afa8bf2`,
+ *     provenance appended to `PROVENANCE.md`).
+ *
+ * Measured (2026-08-14, this slice):
+ *
+ *   | field | peds bay (shipped) | ED bay (known-good) |
+ *   |-------|--------------------|---------------------|
+ *   | meshes | 4 | 4 |
+ *   | materials | 3 | 3 |
+ *   | textures | 6 | 6 |
+ *   | extent | 5.832 × 2.650 × 5.063 m | 6.899 × 2.650 × 7.259 m |
+ *   | tris | 432 | 440 |
+ *
+ * Clause (2) holds on BOTH halves: sha256 differs and the geometric signature
+ * `4/3/6/5.83x2.65x5.06` differs from `4/3/6/6.90x2.65x7.26` — neither a byte copy nor a
+ * re-export of the ED room. Clause (4) holds on every axis within the 2× band of the
+ * known-good (x 3.45–13.80, y 1.33–5.30, z 3.63–14.52).
+ *
+ * DECISIONS TAKEN (with what was rejected):
+ *   - Seed 1 over seeds 0/2: seed 0 is the ED bake's floorplan (shipping it twice is exactly
+ *     the anti-cheat this contract refuses); seed 2's best single-segment rooms are 5.5 × 5.5
+ *     dining/kitchen, closer to the ED square. Seed 1's `dining-room_0` is a clean single
+ *     segment at 5.0 × 5.0 — smaller than the ED room, plausible paediatric scale.
+ *   - `dining-room_0` over the largest room by triangle count (#236's default): seed 1's
+ *     largest is `bedroom_0` — a multi-segment union spanning 22.5 × 15.5 m, outside the
+ *     contract band and not one enclosed room. Extraction therefore targets a named
+ *     single segment.
+ *   - No camera framing change: `main.ts:4023`'s interior-camera derivation
+ *     (`deriveInteriorPreviewCamera`) is generic — it measures the loaded room's geometry and
+ *     the actor bounds, so the second closed shell gets the same treatment automatically.
+ *   - Runtime `positionInfinigenRoom` needs no change: it re-derives floor top and center from
+ *     the room's own geometry on load, like the ED bay.
+ *
+ * NOT TESTED:
+ *   - That the peds room LOOKS right — a pixel grade the orchestrator does from an isolated
+ *     capture. Capture command: the glb-grade capture path against
+ *     `apps/ui-xr/public/xr-assets/environment/infinigen-pediatric-urgent-care-bay.glb`
+ *     (evidence writes under `.openclinxr/evidence/issue-405/`).
+ *   - The other twelve environmentIds (still the procedural box).
+ *   - Clinical suitability of the room for paediatric urgent care — no clinical claim.
+ *   - Browser/WebXR live load of the new row (unit-tested here; live grading is a capture).
+ */
