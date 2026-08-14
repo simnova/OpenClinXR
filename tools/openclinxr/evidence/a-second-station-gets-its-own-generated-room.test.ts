@@ -265,4 +265,11 @@ describe("a second station gets its own generated room", () => {
  *   - The other twelve environmentIds (still the procedural box).
  *   - Clinical suitability of the room for paediatric urgent care — no clinical claim.
  *   - Browser/WebXR live load of the new row (unit-tested here; live grading is a capture).
+ *
+ * **#406 re-bake:** this row's GLB was re-baked from seed-1 `hallway_0` (the shipped `dining-room_0`
+ * has zero horizontal wall thickness — interior room — collapsing the derived interior-camera
+ * stand-off). The clauses above re-measure the file and still hold: sha256 `d01932ff…` and the
+ * signature `4/3/6/10.13x2.65x5.13` differ from the ED bay's, and every axis is inside the 2× band
+ * (x 3.45–13.80, y 1.33–5.30, z 3.63–14.52). See `a-generated-room-gives-the-interior-camera-a-standoff.test.ts`
+ * FIXED (#406) and `PROVENANCE.md`.
  */

@@ -15285,7 +15285,7 @@
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "Generated Infinigen room shell (#405), deterministic clinical_bay.gin seed-1 bake, second environmentId-keyed runtime consumer; provenance in public/xr-assets/environment/PROVENANCE.md."
+      "rationale": "Generated Infinigen room shell (#405), deterministic clinical_bay.gin seed-1 bake; #406 re-baked from hallway_0 (dining-room_0 hull had zero horizontal wall thickness, collapsing the interior camera stand-off); second environmentId-keyed runtime consumer; provenance in public/xr-assets/environment/PROVENANCE.md."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/generated/adult_abdominal_pain_v1/learner-runtime-bundle.v1.json",
