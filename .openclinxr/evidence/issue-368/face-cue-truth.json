@@ -2,7 +2,7 @@
   "schemaVersion": "openclinxr.face-cue-truth.v1",
   "kind": "face_cue_truth_live",
   "label": "face-cue-truth",
-  "generatedAt": "2026-08-13T18:51:50.444Z",
+  "generatedAt": "2026-08-14T03:30:02.644Z",
   "claimScope": [
     "face_cue_primitive_absence_for_real_face_actors_under_face_detail_capture",
     "face_morph_target_count_read_from_live_scene",
@@ -130,8 +130,8 @@
     ]
   },
   "treeStamp": {
-    "head": "b187065295d73618be5b63ad16b75d5822043236",
-    "fingerprint": "a59d4b632badf8ae2e87224052fe7608652b8989209502b7ab63ca42e1221705",
+    "head": "4bf928316ac1a56bb6a0444457fabf3b29e2959e",
+    "fingerprint": "ad2923e574824cbf90ed6a12ffb9257ff7614d1b009bb19d1c2e3c7a612e249e",
     "algorithm": "git-head+status+diff-sha256"
   }
 }
