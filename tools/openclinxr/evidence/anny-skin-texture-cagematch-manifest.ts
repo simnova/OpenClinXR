@@ -220,7 +220,7 @@ export async function buildAnnySkinTextureCagematchManifest(input: {
   ].filter((value): value is string => Boolean(value));
 
   // Build candidates for all 3 (patient/parent/nurse) from clean baselines; shas computed for provenance.
-  const candidates = await Promise.all(actorConfigs.map(async (cfg) => {
+  const candidates: AnnySkinTextureCagematchManifest["candidates"] = await Promise.all(actorConfigs.map(async (cfg) => {
     const bundle = await readJson<CandidateBundle>(cfg.bundlePath);
     const glbPath = stringOr(bundle.outputs?.glbPath, cfg.glbPath);
     const sha = await sha256File(glbPath);

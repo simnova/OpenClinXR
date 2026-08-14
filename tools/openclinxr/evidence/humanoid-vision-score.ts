@@ -22,7 +22,8 @@
  *   REPRO_N=5 ONLY_ID=peds_anxious_parent WRITE_STUDIO_SCORES=0 tsx ...
  */
 
-import type { ChildProcessWithoutNullStreams } from "node:child_process";
+import { spawn, type ChildProcessByStdio } from "node:child_process";
+import type { Readable } from "node:stream";
 import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { homedir, tmpdir } from "node:os";
 import path from "node:path";
@@ -771,7 +772,7 @@ async function main(): Promise<void> {
       (reproN > 0 ? ` REPRO_N=${reproN}` : ""),
   );
 
-  let server: ChildProcessWithoutNullStreams | null = null;
+  let server: ChildProcessByStdio<null, Readable, Readable> | null = null;
   let totalUsd = 0;
   const scores: Record<string, PerViewScores> = {};
   const shotDir = OUT_DIR || path.join(workDir, "shots");

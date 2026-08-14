@@ -23,7 +23,7 @@ describe("briefFromIssue", () => {
   it("refuses an issue with no done_when block rather than inventing proofs", () => {
     const result = briefFromIssue({ number: 29, title: "Composition maturity", body: "Two builders, unclear." });
     expect(result.dispatchable).toBe(false);
-    expect(result.reason).toMatch(/done_when/i);
+    if (!result.dispatchable) expect(result.reason).toMatch(/done_when/i);
   });
 
   it("refuses an issue whose done_when has only narrative rules", () => {
@@ -32,7 +32,7 @@ describe("briefFromIssue", () => {
       number: 1, title: "x", body: "## factory_step: room_generate\n## done_when\n- skeptic:visible\n",
     });
     expect(result.dispatchable).toBe(false);
-    expect(result.reason).toMatch(/tree/i);
+    if (!result.dispatchable) expect(result.reason).toMatch(/tree/i);
   });
 
   it("refuses a done_when rule the evaluator cannot run", () => {
@@ -45,6 +45,7 @@ describe("briefFromIssue", () => {
   it("produces a brief with proofs taken VERBATIM from the issue", () => {
     const result = briefFromIssue({ number: 28, title: "Strictness deltas", body: withProofs });
     expect(result.dispatchable).toBe(true);
+    if (!result.dispatchable) throw new Error("expected dispatchable brief");
     // Verbatim matters: a proof the orchestrator paraphrased is a proof nobody agreed to.
     expect(result.proofs).toEqual([
       "run:pnpm packages:typecheck:agent",
@@ -55,6 +56,7 @@ describe("briefFromIssue", () => {
 
   it("carries the issue body into the brief so the worker sees the ask, not a summary", () => {
     const result = briefFromIssue({ number: 28, title: "Strictness deltas", body: withProofs });
+    if (!result.dispatchable) throw new Error("expected dispatchable brief");
     expect(result.prompt).toContain("Strictness deltas");
     expect(result.prompt).toContain("Fix the deferred strictness deltas.");
   });
@@ -92,7 +94,7 @@ describe("factory_step gate (D9 dark factory)", () => {
   it("refuses an issue with a done_when block but no factory_step line", () => {
     const result = briefFromIssue({ number: 1, title: "x", body: "## done_when\n- run:true\n" });
     expect(result.dispatchable).toBe(false);
-    expect(result.reason).toMatch(/factory_step/i);
+    if (!result.dispatchable) expect(result.reason).toMatch(/factory_step/i);
   });
 
   it("refuses a factory_step value that is not a known station", () => {
@@ -100,7 +102,7 @@ describe("factory_step gate (D9 dark factory)", () => {
       number: 1, title: "x", body: "## factory_step: magic\n## done_when\n- run:true\n",
     });
     expect(result.dispatchable).toBe(false);
-    expect(result.reason).toMatch(/factory_step/i);
+    if (!result.dispatchable) expect(result.reason).toMatch(/factory_step/i);
   });
 
   it("refuses factory_step: instrument with no unblocks line", () => {
@@ -108,7 +110,7 @@ describe("factory_step gate (D9 dark factory)", () => {
       number: 1, title: "x", body: "## factory_step: instrument\n## done_when\n- run:true\n",
     });
     expect(result.dispatchable).toBe(false);
-    expect(result.reason).toMatch(/unblocks/i);
+    if (!result.dispatchable) expect(result.reason).toMatch(/unblocks/i);
   });
 
   it("refuses factory_step: instrument that unblocks instrument", () => {
@@ -117,7 +119,7 @@ describe("factory_step gate (D9 dark factory)", () => {
       body: "## factory_step: instrument\nunblocks: instrument\n## done_when\n- run:true\n",
     });
     expect(result.dispatchable).toBe(false);
-    expect(result.reason).toMatch(/unblocks/i);
+    if (!result.dispatchable) expect(result.reason).toMatch(/unblocks/i);
   });
 
   it("dispatches a valid factory_step with tree proofs", () => {

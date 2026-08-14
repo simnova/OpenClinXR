@@ -106,7 +106,7 @@ async function railMeasure(id: string, rel: string) {
   // (flats L/R, t-shirt + scrub layers).
   const channels: Partial<Record<"upper" | "lower" | "footwear", Box>> = {};
   let bodyVerts = 0;
-  const primitives: Array<{ name: string; box: ReturnType<typeof boxKey> }> = [];
+  const primitives: Array<{ name: string; box: Box }> = [];
 
   for (const mesh of doc.getRoot().listMeshes()) {
     for (const prim of mesh.listPrimitives()) {

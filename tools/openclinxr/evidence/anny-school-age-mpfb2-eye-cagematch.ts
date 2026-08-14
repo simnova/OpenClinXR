@@ -35,6 +35,25 @@ const NOT_EVIDENCE_FOR = [
   "scoring_validity",
 ];
 
+/** Report-level schema contract: exactly the 7 members of ModelVettingReport.notEvidenceFor. */
+const REPORT_NOT_EVIDENCE_FOR: [
+  "b_plus_visual_realism_gate",
+  "scene_placement_readiness",
+  "quest_readiness",
+  "production_asset_readiness",
+  "learner_readiness",
+  "clinical_validity",
+  "scoring_validity",
+] = [
+  "b_plus_visual_realism_gate",
+  "scene_placement_readiness",
+  "quest_readiness",
+  "production_asset_readiness",
+  "learner_readiness",
+  "clinical_validity",
+  "scoring_validity",
+];
+
 const DEFAULT_INPUT_GLB =
   ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-scalp-hair-v3/peds_patient_child.glb";
 const DEFAULT_SCALP_HAIR_SOURCE_RUN_ID = "2026-06-07-school-aged-patient-scalp-hair-v3";
@@ -246,14 +265,17 @@ async function buildMpfb2EyeReport(input: {
     coordinateBasis: "armature_head_bone_parented",
     eyeObjectNames,
     facialFeatureObjectNames: [],
+    headTopY: sourceCandidate.proceduralFaceDetailHandoff?.headTopY ?? null,
+    eyeY: sourceCandidate.proceduralFaceDetailHandoff?.eyeY ?? null,
+    faceZ: sourceCandidate.proceduralFaceDetailHandoff?.faceZ ?? null,
     claimScope: "mpfb2_informed_eye_rig_on_school_age_anny_candidate_not_b_plus_or_readiness",
     notEvidenceFor: ["production_asset_readiness", "b_plus_visual_realism_gate", "scene_placement_readiness"],
   };
   candidate.captureArtifacts = {
     fixedCameraScreenshots: [],
-    turntableVideo: null,
-    morphVisemeTimelineCapture: null,
-    emotionTransitionCapture: null,
+    turntableVideo: undefined,
+    morphVisemeTimelineCapture: undefined,
+    emotionTransitionCapture: undefined,
   };
 
   return {
@@ -270,7 +292,7 @@ async function buildMpfb2EyeReport(input: {
       nextSafeStep:
         "Review school-age Anny MPFB2-informed seated eyes in isolated Model Vetting Studio captures (front/three-quarter/body_motion) before UI-XR runtime mirror or bundle promotion.",
     },
-    notEvidenceFor: NOT_EVIDENCE_FOR,
+    notEvidenceFor: REPORT_NOT_EVIDENCE_FOR,
   };
 }
 

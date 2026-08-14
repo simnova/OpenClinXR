@@ -84,7 +84,7 @@ export type ResumeLoopOptions = {
 
 /** Named error so dispatch callers can distinguish pause from other failures. */
 export class LoopPausedError extends Error {
-  readonly name = "LoopPausedError";
+  override readonly name = "LoopPausedError";
   readonly incidentId: string;
   readonly reason: string;
   readonly record: LoopPauseRecord;

@@ -70,7 +70,6 @@ async function main(): Promise<void> {
         reuseKey: candidate.reuseKey,
         sourceCandidateId: options.candidateId,
         outputCandidateId: candidate.candidateId,
-        sourceManifestPath: candidate.sourceManifestPath,
         sourceReportPath: options.sourceReportPath,
         sourceGlbPath: options.sourceGlbPath,
       },
@@ -147,9 +146,9 @@ async function buildAfterReport(input: {
   afterCandidate.sourceGlbPath = input.publicMirrorUrlPath;
   afterCandidate.captureArtifacts = {
     fixedCameraScreenshots: [],
-    turntableVideo: null,
-    morphVisemeTimelineCapture: null,
-    emotionTransitionCapture: null,
+    turntableVideo: undefined,
+    morphVisemeTimelineCapture: undefined,
+    emotionTransitionCapture: undefined,
   };
   afterCandidate.blockers = [
     ...new Set([
@@ -173,7 +172,6 @@ async function buildAfterReport(input: {
   return {
     ...sourceReport,
     generatedAt: new Date().toISOString(),
-    sourceReportPath: input.sourceReportPath,
     candidates: [afterCandidate],
     decision: {
       ...sourceReport.decision,

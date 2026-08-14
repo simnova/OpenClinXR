@@ -1,5 +1,6 @@
 import { existsSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import type { UprightJoint } from "./humanoid-upright-guard.js";
 
 /**
  * PLANTED CONTRACTS (#67) — six of the seven shipped humanoids are rotated 90 degrees off-axis.
@@ -92,8 +93,8 @@ const loadProbe = async () =>
 type Quat = readonly [number, number, number, number];
 type RootRotation = (glbPath: string) => Promise<Quat | null>;
 
-type Joint = { name: string; worldX: number; worldY: number; worldZ: number };
-type Ordering = (input: { joints: readonly Joint[] }) => { upright: boolean; violations: string[] };
+type Joint = UprightJoint;
+type Ordering = (input: { joints: readonly UprightJoint[] }) => { upright: boolean; violations: string[] };
 
 const SHIPPED = [
   "apps/ui-xr/public/generated-humanoids/peds_patient_child.glb",
@@ -145,13 +146,11 @@ describe("shipped humanoids stand up (#67)", () => {
       { name: "foot.R", worldX: 0.1, worldY: 0.05, worldZ: 0 },
     ];
     expect(ordering!({ joints: upright }).upright).toBe(true);
-    const inverted = upright.map((j) => ({ ...j, worldY: 1.65 - j.worldY }));
+    const inverted = upright.map((j) => ({ ...j, worldY: 1.65 - (j.worldY ?? 0) }));
     expect(ordering!({ joints: inverted }).upright).toBe(false);
 
     // Then the real assets. All seven, no skipping.
-    const { extractJointsFromGlb } = (await import("./humanoid-proportions-probe.js")) as {
-      extractJointsFromGlb: (p: string) => Promise<{ joints: Joint[] }>;
-    };
+    const { extractJointsFromGlb } = await import("./humanoid-proportions-probe.js");
     const failures: string[] = [];
     for (const glbPath of SHIPPED) {
       if (!existsSync(glbPath)) {

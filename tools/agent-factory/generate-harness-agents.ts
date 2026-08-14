@@ -12,6 +12,7 @@ import {
   resolveHarnessModelSpec,
   shouldRecommendMoonbridgeAssist,
   type RepoWorkflowSkillId,
+  type RepoRoleHarnessPolicy,
 } from "../../packages/openclinxr/agent-loop/src/role-harness-policy.js";
 
 const skillPaths: Record<RepoWorkflowSkillId, string> = {
@@ -77,7 +78,8 @@ function codexTomlForRole(role: RoleEntry): string {
       recommendedSkills: ["openclinxr-openclaw"],
       moonbridgeAssistOnCodex: true,
       writeScopeNote: "Read-only repo-agent consultation unless explicitly assigned a non-overlapping write scope.",
-    } as const);
+      pathScope: getRolePathScope(role.role),
+    } satisfies RepoRoleHarnessPolicy);
   const modelSpec = resolveHarnessModelSpec(policy.policyTier, "codex");
   const moonbridgeNote = shouldRecommendMoonbridgeAssist("codex", policy)
     ? " Codex Desktop cannot select DeepSeek in the model picker; optional Moonbridge (`pnpm local:moonbridge:probe`) is allowed only for bounded first-pass review, not implementation or readiness judgment."

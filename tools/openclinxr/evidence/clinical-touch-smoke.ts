@@ -20,7 +20,8 @@
  * Modeled on tools/openclinxr/evidence/bvh-retarget-lab-smoke.ts (CLI + spawn + report).
  */
 
-import type { ChildProcessWithoutNullStreams } from "node:child_process";
+import type { ChildProcessByStdio } from "node:child_process";
+import type { Readable } from "node:stream";
 import { existsSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
@@ -201,7 +202,7 @@ async function buildReport(opts: CliOptions): Promise<Record<string, unknown>> {
     return envelope(opts, null, [`mkdir_failed:${String(e)}`], null, pageErrors, null, regionResults);
   }
 
-  let server: ChildProcessWithoutNullStreams | null = null;
+  let server: ChildProcessByStdio<null, Readable, Readable> | null = null;
   try {
     try {
       const handle = await spawnPortlessDevServer({

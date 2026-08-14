@@ -83,17 +83,11 @@ describe("model assist provider boundary", () => {
   it("fails closed for HTTP and invalid JSON responses", async () => {
     const httpFailure = createModelAssistProvider({
       providerId: "moonbridge_deepseek",
-      fetchImpl: async () => jsonResponse({ error: "nope" }, { ok: false, status: 503 }),
+      fetchImpl: async () => jsonResponse({ error: "nope" }, { status: 503 }),
     });
     const invalidJson = createModelAssistProvider({
       providerId: "moonbridge_deepseek",
-      fetchImpl: async () => ({
-        ok: true,
-        status: 200,
-        json: async () => {
-          throw new Error("not json");
-        },
-      } as Response),
+      fetchImpl: async () => new Response("", { status: 200 }),
     });
 
     await expect(httpFailure.run({ taskKind: "bounded_policy_contract_probe", prompt: "x" })).resolves.toMatchObject({
@@ -130,10 +124,7 @@ describe("model assist provider boundary", () => {
   });
 });
 
-function jsonResponse(body: unknown, init: { ok?: boolean; status?: number } = {}): Response {
-  return {
-    ok: init.ok ?? true,
-    status: init.status ?? 200,
-    json: async () => body,
-  } as Response;
+/** fetch-shaped response for tests; `ok` follows the status, as in real fetch. */
+function jsonResponse(body: unknown, init: { status?: number } = {}): Response {
+  return new Response(JSON.stringify(body), { status: init.status ?? 200 });
 }

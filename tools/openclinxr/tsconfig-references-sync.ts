@@ -21,7 +21,7 @@
  * exit code 1 if any file is stale (printed to stderr).
  */
 
-import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, writeFileSync, type Dirent } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -54,7 +54,7 @@ function collectWorkspacePackages(root: string): Map<string, PkgInfo> {
 
   while (stack.length > 0) {
     const dir = stack.pop()!;
-    let entries: ReturnType<typeof readdirSync>;
+    let entries: Dirent<string>[];
     try {
       entries = readdirSync(dir, { withFileTypes: true });
     } catch {
