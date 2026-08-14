@@ -73,6 +73,33 @@ import { describe, expect, it } from "vitest";
  *   - **Whether the two refusals this session were the only ones.** No history sweep was done.
  */
 
+/**
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ * ## FIXED (#396) — appended; the planted header above is immutable
+ *
+ * Implementer's choice, recorded per the header's NOT TESTED: the pre-flight lives in **`dispatch()`**
+ * (`dispatch-worker.ts`), NOT in `briefFromIssue`. Reasons:
+ *   1. `dispatch()` sees the RESOLVED proof set (`assembled.treeProofs`) — the trusted brief's
+ *      done_when unioned with dispatch proofs AFTER the #246 divergence refusal/refresh, so it never
+ *      evaluates a superseded contract. `briefFromIssue` would evaluate the raw issue body, which can
+ *      differ from the trusted brief exactly as #246 measures.
+ *   2. `dispatch()` sees the RESOLVED opt-out — `assembled.brief.gitignoredProofTargetsAllowed` —
+ *      the same field and the same source `integrate.ts:356-363` reads at land time. `briefFromIssue`
+ *      is a pure function of the issue with no repo root and no brief access, so it cannot honour the
+ *      opt-out, which is the whole "LOUD but not fatal" clause (3).
+ *   3. `dispatch()` already orders its gates BEFORE worktree creation and before spawn ("a refusal
+ *      must cost nothing"), so the pre-flight there costs zero worker tokens.
+ *
+ * Mechanism, 2026-08-14: new `tools/openclinxr/openclaw/proof-target-preflight.ts` exports
+ * `evaluateProofTargetsBeforeDispatch(repoRoot, proofs, allowed)` — it iterates `exists:` /
+ * `min-bytes:` rules, and for each target calls the SAME `evaluateGitignoredProofTarget`
+ * (merge-kill.ts:696) with base=head="HEAD" (the branch does not exist yet; a target untracked in
+ * HEAD can only become landable by force-add or opt-out — exactly what the land gate requires).
+ * `dispatch()` calls it after `assertWorktreeContractGate`, warns loudly on `unlandable` targets,
+ * and records them on the ledger entry as `gitignoredProofTargetsWarned`. Not fatal by design: the
+ * opt-out is a stated decision and a worker may legitimately force-add the target.
+ */
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 
@@ -112,14 +139,14 @@ function requirePreflight(): NonNullable<typeof preflight> {
 }
 
 describe("a gitignored proof target is caught before the worker runs", () => {
-  it.fails("(1) RED: an exists: proof on an untracked, gitignored target is flagged at brief time", () => {
+  it("(1) RED: an exists: proof on an untracked, gitignored target is flagged at brief time", () => {
     const check = requirePreflight();
     const verdicts = check(REPO_ROOT, [`exists:${UNLANDABLE}`]);
     const hit = verdicts.find((v) => v.target === UNLANDABLE);
     expect(hit?.unlandable, `${UNLANDABLE} is untracked and ignored — a clean clone cannot satisfy this proof`).toBe(true);
   });
 
-  it.fails("(2) COUNTERWEIGHT: a TRACKED target under the same ignored tree is NOT flagged", () => {
+  it("(2) COUNTERWEIGHT: a TRACKED target under the same ignored tree is NOT flagged", () => {
     // Refuses (b). Banning the directory would flag the force-added artifact that IS the gate's own
     // recommended remediation, which would make the pre-flight unusable.
     const check = requirePreflight();
@@ -128,7 +155,7 @@ describe("a gitignored proof target is caught before the worker runs", () => {
     expect(hit?.unlandable ?? false, `${LANDABLE} is tracked (force-added) and must pass`).toBe(false);
   });
 
-  it.fails("(3) COUNTERWEIGHT: the opt-out suppresses the flag, as merge-kill's does", () => {
+  it("(3) COUNTERWEIGHT: the opt-out suppresses the flag, as merge-kill's does", () => {
     // Refuses (c). A second implementation drifts from merge-kill's and then pre-flight and land
     // disagree — worse than no pre-flight, because it teaches trust in a verdict the land overturns.
     const check = requirePreflight();
