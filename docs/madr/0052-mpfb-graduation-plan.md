@@ -100,10 +100,24 @@ presentation FIRST and the girth solve runs after.
   shipped dependency.
 - **P6 Evidence.** Graded captures per phase; website only on a real win (D12).
 
-**Hair: UNBLOCKED 2026-08-11.** Operator approved CC0/CC-BY. Acquired `hair01` — **26 hairstyles,
-CC0 1.0**, 25 `.mhclo` + 25 `.mhmat` — into the provider cache with a provenance stamp, tracked in
+**Hair: UNBLOCKED 2026-08-11.** Operator approved CC0/CC-BY. Acquired `hair01`, 25 `.mhclo` + 25
+`.mhmat`, into the provider cache with a provenance stamp, tracked in
 `docs/openclinxr/third-party-asset-licence-ledger.md`. Hair is clothing in MakeHuman topology terms, so
 it fits the **existing** `ClothesService` path — the same one wardrobe uses (P3), not a new mechanism.
+
+> **LICENCE CLAIM CORRECTED 2026-08-14.** This paragraph said *"26 hairstyles, CC0 1.0"*. That was a
+> **pack-page** reading and #330 overturned it by parsing all 25 `.mhclo` headers
+> (`.openclinxr/evidence/issue-330/hair-licence-classification.json`):
+> `total 25 | usable 9 | refusedCopyleft 10 | refusedUnlicensed 4 | refusedTopology 2`.
+> **Ten are AGPL3 — a hard refusal — and four state no licence at all. DO NOT GLOB THIS PACK.** The
+> attribution-free usable set is the six `toigo_*` bobs (CC0, zero helper-vertex refs);
+> `culturalibre_hair_06` is CC-0, and `o4saken_long01` / `elvs_reverse_french_braid_bun` are CC-BY
+> and carry an attribution obligation that must reach any shipped build. This is the same pack-page
+> error the ledger already corrected once for `makehuman-shirts01`.
+>
+> **Consequence for the schedule:** `mpfb-peds-nurse-kevin` is a **recorded male skip**, not an
+> unstarted item — every licence-clean style in the usable subset is a feminine bob, so there is no
+> clean masculine style to fit him. Only the child was ever reachable, and that is #399.
 **Hair therefore joins P3 rather than becoming its own phase**, and lands in an advancement hour after
 the first garment is fitted to a solved MPFB body.
 
