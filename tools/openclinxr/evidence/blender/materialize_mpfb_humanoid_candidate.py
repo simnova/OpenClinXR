@@ -1244,30 +1244,47 @@ def _outer_facing_front_tris(garment_verts, garment_faces) -> np.ndarray:
     return tris[oriented_normals[:, 1] < 0.0]
 
 
-def regularize_waistband_rim(pants, env_window_deg):
-    """issue-373 — the cover shell's top rim is a centroid-band zigzag, not a garment edge.
+def regularize_rim(pants, env_window_deg, envelope="max", which="top", env_source="rim", row3_blend=0.5, row3_mode="blend"):
+    """issue-373/374 — the cover shell's band-cut rims are zigzags, not garment edges.
 
-    The lower LOWER GATE replaces the sparse library fit with the body-derived cover
-    shell (`build_cover_shell`), whose TOP rim is the band cut through body triangles:
-    the rim alternates between "tooth" vertices (one triangle's top, up to one
-    triangle-height above the cut plane) and "valley" vertices (the next triangle's
-    top, below it) at every angle. Measured 2026-08-13 on the shipped bytes: the
-    waistband ring's high-frequency residual (7-neighbour circular moving average
-    over the angular ordering) is 8.4-23x the SAME body's own shirt hem, and the rim
-    spans 18-27 mm of pure alternation. The shirt hem — a fitted .mhclo garment ring
-    — is smooth (0.47-2.01 mm), so the pipeline CAN produce a smooth ring; the shell
-    rim is a band-cut artifact.
+    The LOWER GATE replaces the sparse library fit with the body-derived cover
+    shell (`build_cover_shell`), whose TOP rim is the band cut through body
+    triangles: the rim alternates between "tooth" vertices (one triangle's top, up
+    to one triangle-height above the cut plane) and "valley" vertices (the next
+    triangle's top, below it) at every angle. Measured 2026-08-13 on the shipped
+    bytes: the waistband ring's high-frequency residual (7-neighbour circular
+    moving average over the angular ordering) is 8.4-23x the SAME body's own shirt
+    hem, and the rim spans 18-27 mm of pure alternation. The shirt hem — a fitted
+    .mhclo garment ring — is smooth (0.47-2.01 mm), so the pipeline CAN produce a
+    smooth ring; the shell rim is a band-cut artifact.
 
     The treatment (the issue's option (e) — "re-fit or re-tessellate so the ring
-    follows"): snap every vertex in the rim's own triangles onto the rim's angular
-    ENVELOPE — the local maximum of rim heights within `env_window_deg` (measured per
-    actor: 6 deg keeps the child's front contour dip, 10 deg bridges the sparse
-    adults' front teeth) — interpolated per vertex, and half-raise the triangle ring
-    below so the transition into the untouched shell is gradual. Triangle count,
-    vertex count and the ring's legitimate contour (the teeth envelope follows the
-    body's waistline) are unchanged, so the contract's counterweights — no decimation,
-    no remesh, no flattening, no hem roughening — cannot be satisfied by this edit
-    either.
+    follows"): snap every vertex in the rim's own triangles onto the angular
+    ENVELOPE — the local extremum of the source heights within `env_window_deg`,
+    interpolated per vertex — and half-blend the triangle ring below so the
+    transition into the untouched shell is gradual. Triangle count, vertex count
+    and the ring's legitimate contour are unchanged, so the contract's
+    counterweights — no decimation, no remesh, no flattening, no hem roughening —
+    cannot be satisfied by this edit either.
+
+    issue-374 (2026-08-13): the LOWER rim is the same band cut at the other end.
+    The #341 bisect_plane clip at the ankle landmark left the shipped cuffs as the
+    ragged first row above the cut (graded "shredded into teeth" on the post-#373
+    captures: HF p95 9.13/10.35 mm against the same shell's regularized waistband
+    at 1.51/1.63 mm). The clip is KEPT — it is the straight horizontal hem the
+    shoe junction needs — and the first row above it is regularized the same way:
+    `which="bottom"` selects every boundary loop at the mesh's minimum z (both
+    ankles) and snaps the row onto the local MAXIMUM envelope of the row's own
+    tops (`env_source="zone"` — the waistband's `rim` source cannot be reused
+    here because the cut rim is flat by construction). The sign was verified
+    against the shipped bytes (2026-08-13, kevin pre-fix rim dump): the teeth
+    (100.3-114.2 mm) carry the ankle's contour, the valleys (93.5-97.5 mm) are
+    flat, so a minimum envelope collapses the row to a point. The row above
+    (`row3`) blends toward the envelope with a per-actor fraction and the
+    envelope window is per-actor too (both derived from each actor's measured
+    foot-transition row structure — see the call site for the values and the
+    derivation). The child's trousers stop above the ankle (band span ~2 mm) and
+    is skipped by the band-span gate below.
     """
     mw = pants.matrix_world
     world = [mw @ v.co for v in pants.data.vertices]
@@ -1282,8 +1299,8 @@ def regularize_waistband_rim(pants, env_window_deg):
             a, b = e.verts[0].index, e.verts[1].index
             adj.setdefault(a, []).append(b)
             adj.setdefault(b, []).append(a)
-    # Walk every boundary loop; the RIM is the loop whose verts reach the top of the
-    # mesh (the ankle rim and any limb-hole loops sit far below it).
+    # Walk every boundary loop; for `top` the RIM is the loop whose verts reach the
+    # top of the mesh; for `bottom` every loop at the mesh's minimum z (both ankles).
     visited: set[int] = set()
     loops: list[list[int]] = []
     for start in adj:
@@ -1304,33 +1321,89 @@ def regularize_waistband_rim(pants, env_window_deg):
                 break
         loops.append(loop)
     if not loops:
-        print("WAISTBAND_RIM WARNING: no boundary loop found — regularization skipped")
-        return
-    rim = max(loops, key=lambda l: max(world[i].z for i in l))
+        print(f"RIM_WARNING({which}) no boundary loop found — regularization skipped")
+        return None
+    if which == "top":
+        rims = [max(loops, key=lambda l: max(world[i].z for i in l))]
+    else:
+        z_min = min(world[i].z for l in loops for i in l)
+        # issue-374: the ankle rim is the #341 bisect_plane CUT edge — the vertices
+        # at the mesh's minimum z. The surviving shell-boundary zigzag parts above
+        # the cut are NOT the rim: their triangles reach the second row, so feeding
+        # them into the zone would pollute the envelope with the row above the hem.
+        rims = [
+            [i for i in l if world[i].z < z_min + 0.003]
+            for l in loops
+            if any(world[i].z < z_min + 0.003 for i in l)
+        ]
+        rims = [l for l in rims if l]
+    if not rims:
+        print(f"RIM_WARNING({which}) no rim loops found — regularization skipped")
+        return None
+    rim = [i for l in rims for i in l]
+    rim_z = [world[i].z for i in rim]
+    rim_span = max(rim_z) - min(rim_z)
+
+    # Zone: every vertex of every polygon that contains a rim vertex (the rim's own
+    # triangle ring — the teeth AND the valleys of the zigzag).
+    polygons = [set(p.vertices) for p in pants.data.polygons]
+    vert_faces: dict[int, list[int]] = {}
+    for fi, vs in enumerate(polygons):
+        for v in vs:
+            vert_faces.setdefault(v, []).append(fi)
+    zone: set[int] = set()
+    for r in rim:
+        for fi in vert_faces.get(r, []):
+            zone.update(polygons[fi])
+    zone_span = max(world[i].z for i in zone) - min(world[i].z for i in zone)
+    if which == "bottom":
+        # issue-374: skip actors whose cuff BAND is already smooth. The child's
+        # trousers stop above the ankle — its first-row tops sit ABOVE the band
+        # cutoff, so the measured band (bottom 3% of the mesh) is the flat cut ring
+        # alone (span ~2 mm, HF p95 0.40 mm) and is not the defect; its first-row
+        # triangles are nevertheless ~31 mm tall, so a row-span gate would not
+        # separate it. The band span (the same quantity the contract floors) does:
+        # the adults' bands span 23-25 mm, the child's 2 mm.
+        z_lo = min(world[i].z for i in range(len(world)))
+        z_hi = max(world[i].z for i in range(len(world)))
+        band_cut = z_lo + (z_hi - z_lo) * 0.03
+        band_span = max(world[i].z for i in zone if world[i].z < band_cut) - z_lo
+        if band_span < 0.008:
+            print(f"RIM(bottom,{envelope}) SKIPPED — band span {band_span * 1000:.1f}mm < 8mm (already smooth)")
+            return band_span
 
     cx = sum(w.x for w in world) / len(world)
     cy = sum(w.y for w in world) / len(world)
     ang = lambda i: math.atan2(world[i].y - cy, world[i].x - cx)  # noqa: E731
-    rim_order = sorted(rim, key=ang)
-    rim_angles = [ang(i) for i in rim_order]
+    if env_source == "zone":
+        env_src = sorted(zone, key=ang)
+    else:
+        env_src = sorted(rim, key=ang)
+    src_angles = [ang(i) for i in env_src]
     w_rad = math.radians(env_window_deg)
 
-    # Envelope: per rim vertex, the local maximum rim height within the window.
+    # Envelope: per source vertex, the local extremum of source heights within the window.
     env: list[float] = []
-    for i in rim_order:
+    for i in env_src:
         ai = ang(i)
-        mx = -float("inf")
-        for j, aj in enumerate(rim_angles):
+        if envelope == "max":
+            ex = -float("inf")
+        else:
+            ex = float("inf")
+        for j, aj in enumerate(src_angles):
             d = abs(aj - ai)
             if d > math.pi:
                 d = 2 * math.pi - d
             if d < w_rad:
-                mx = max(mx, world[rim_order[j]].z)
-        env.append(mx)
+                if envelope == "max":
+                    ex = max(ex, world[env_src[j]].z)
+                else:
+                    ex = min(ex, world[env_src[j]].z)
+        env.append(ex)
 
     def env_at(th):
         lo = hi = None
-        for k, ak in enumerate(rim_angles):
+        for k, ak in enumerate(src_angles):
             d = ak - th
             if d > math.pi:
                 d -= 2 * math.pi
@@ -1349,19 +1422,6 @@ def regularize_waistband_rim(pants, env_window_deg):
         w = 0.5 if lo[1] == hi[1] else -lo[1] / (hi[1] - lo[1])
         return env[lo[0]] + (env[hi[0]] - env[lo[0]]) * w
 
-    # Zone: every vertex of every polygon that contains a rim vertex (the rim's own
-    # triangle ring — the teeth AND the valleys of the zigzag).
-    polygons = [set(p.vertices) for p in pants.data.polygons]
-    vert_faces: dict[int, list[int]] = {}
-    for fi, vs in enumerate(polygons):
-        for v in vs:
-            vert_faces.setdefault(v, []).append(fi)
-    rim_set = set(rim)
-    zone: set[int] = set()
-    for r in rim:
-        for fi in vert_faces.get(r, []):
-            zone.update(polygons[fi])
-
     for i in zone:
         world[i].z = env_at(ang(i))
     row3: set[int] = set()
@@ -1371,17 +1431,36 @@ def regularize_waistband_rim(pants, env_window_deg):
     for v in row3:
         if v in zone:
             continue
-        world[v].z = world[v].z + (env_at(ang(v)) - world[v].z) * 0.5
+        if row3_mode == "rigid":
+            # issue-374: move the ring above the first row by the SAME vertical
+            # delta as the first row's top ring at the same angle, so the riser
+            # faces between them keep their original dihedral. The #371 coplanar
+            # counterweight enumerates those joins; a blend (which moves the ring
+            # by a different amount) turns them sharp and drops the count below
+            # the 95% floor — the waistband treatment already used most of the
+            # allowance (post-#373: 1127/1128 against floors 1122/1127).
+            av = ang(v)
+            top_pre = None
+            for z in zone:
+                if abs(ang(z) - av) < 0.06:
+                    if top_pre is None or world_pre[z] > top_pre:
+                        top_pre = world_pre[z]
+            if top_pre is not None:
+                world[v].z = world[v].z + (env_at(av) - top_pre)
+        else:
+            world[v].z = world[v].z + (env_at(ang(v)) - world[v].z) * row3_blend
 
     inv = mw.inverted()
     for i, w in enumerate(world):
         pants.data.vertices[i].co = inv @ w
     bpy.context.view_layer.update()
     print(
-        f"WAISTBAND_RIM rim {len(rim)} verts, zone {len(zone)} raised, "
-        f"row3 {len(row3) - len(zone)} half-raised, envWindow {env_window_deg} deg, "
-        f"loops {len(loops)}"
+        f"RIM({which},{envelope}) rim {len(rim)} verts, span {rim_span * 1000:.1f}mm, "
+        f"zone {len(zone)} snapped (span {zone_span * 1000:.1f}mm), "
+        f"row3 {len(row3) - len(zone)} blended {row3_blend}, "
+        f"envWindow {env_window_deg} deg, src {env_source}, loops {len(loops)}, rims {len(rims)}"
     )
+    return zone_span
 
 
 def main():
@@ -2265,7 +2344,32 @@ def main():
     # contour dip must survive — its span floor fails above 8 deg; the adults' sparse
     # front teeth need a 10 deg bridge to clear their tight 4x-hem ratio).
     _waistband_env_window = 6 if (args.reference or "") == "peds_patient_child" else 10
-    regularize_waistband_rim(pants, _waistband_env_window)
+    regularize_rim(pants, _waistband_env_window, envelope="max", which="top")
+    # issue-374: regularize the LOWER rim (the ankle cuffs) the same way. The
+    # #341 clip stays (it is the straight horizontal hem the shoe junction needs);
+    # what ships ragged is the first row ABOVE the cut — the clip's surviving
+    # teeth (HF p95 9.13/10.35 mm against the same shell's regularized waistband
+    # at 1.51/1.63 mm). The row is snapped onto the local MAXIMUM envelope of its
+    # own tops (`env_source="zone"` — the rim is the flat CUT edge only, so the
+    # cut rim itself carries no contour; the first row's tops do), verified
+    # 2026-08-13 on the shipped bytes: the teeth (100.3-114.2 mm) follow the
+    # ankle contour, the valleys (93.5-97.5 mm) are flat — a minimum envelope
+    # collapses the row to a point. The row above blends toward the envelope at
+    # 0.65 for aisha (her default-macro body's ankle rows are ~14.5 mm apart —
+    # the waist-strength 0.75 blend over-pulls them and caps her band span below
+    # the contract floor) and 0.75 for kevin (his reference body's rows are
+    # ~40 mm apart). The envelope window is re-derived per actor from the ankle's
+    # inter-teeth spacing: aisha's finer foot-transition triangulation carries
+    # her teeth at 4-8 deg spacing, so a 1 deg window follows her contour (10 deg
+    # flattens it to ~5 mm and her span floor then fails); kevin's reference body
+    # is sparser and keeps the waist's 10 deg. The band-span gate inside
+    # regularize_rim skips the child, whose trousers stop above the ankle and
+    # whose band is already smooth (span ~2 mm).
+    _ankle_env_window = 1 if (args.reference or "") == "" else 10
+    _ankle_row3_blend = 0.65 if (args.reference or "") == "" else 0.75
+    regularize_rim(
+        pants, _ankle_env_window, envelope="max", which="bottom", env_source="zone", row3_blend=_ankle_row3_blend
+    )
     # #334: the head joint is the per-body bound below which a hide mask may stop —
     # the reference is the body's OWN skeleton (it cannot be moved by the garment
     # change being measured), not a stature fraction or a fitted constant. Read it
