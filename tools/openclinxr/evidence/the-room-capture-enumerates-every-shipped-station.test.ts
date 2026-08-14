@@ -68,6 +68,19 @@ import { describe, expect, it } from "vitest";
  *   - **Staleness detection.** Whether a capture records the commit it was taken at is #89, untouched.
  *   - **The other capture scripts.** Only `ui-xr-environment-room-capture.ts` is in scope; the grade
  *     and viseme captures have their own subject selection.
+ *
+ * ## FIXED (#101)
+ *
+ * `ui-xr-environment-room-capture.ts` now DERIVES its default station set from the shipped bundles:
+ * `shippedStationIds()` reads `apps/ui-xr/public/xr-assets/generated/` for directories carrying
+ * `learner-runtime-bundle.v1.json` (sorted), and `captureStationEnvironmentRooms` resolves
+ * `input.scenarioIds ?? shippedStationIds()`. The hardcoded pair (`DEFAULT_SCENARIOS`,
+ * ed_chest_pain_priority_v1 + telehealth_diabetes_health_literacy_v1) is gone; an empty derived set
+ * fails closed instead of capturing nothing.
+ *
+ * Measured on disk 2026-08-14: 15 shipped bundles, all 15 now in the routine sweep. No station id
+ * literal remains in the capture module. `--scenario` (clause 2) and the per-station `*-room.png`
+ * write path (clause 3) are untouched.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -113,7 +126,7 @@ function requireMeasured(): void {
 }
 
 describe("the room capture enumerates every shipped station", () => {
-  it.fails("(1) RED: the default station set is derived from the shipped bundles", () => {
+  it("(1) RED: the default station set is derived from the shipped bundles", () => {
     // Refuses (b): asserts the SOURCE of the list, not its length. Fifteen pasted ids still fail.
     requireMeasured();
     const faults: string[] = [];
