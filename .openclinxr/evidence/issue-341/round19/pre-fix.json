@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "openclinxr.issue341.round19.pre-fix.v1",
+  "measuredAgainstCommit": "56c7eee5ad63b75f20c9c94e0d8076ce3542cc74",
+  "measuredAt": "2026-08-14T16:50:00Z",
+  "measuredBy": "worker (text-only) via NodeIO on the SHIPPED bytes of this worktree",
+  "verdict": "DEFECT CONFIRMED — aisha's cargo-pants top ring is a box-topped tube, not a fitted rim. The ring's BACK arc (horizontal angles ~186-353 deg, the vertices behind the body axis) reaches the ring's own maximum height (0.984-0.987 m) and is therefore part of the visible rim (pants vertices within 8 mm of the primitive's top Y). Those back arc vertices sit at radius 64-90 mm from the body axis — the orchestrator's 3.0x rim-radius ratio. kevin (known-good) has no back arc in his rim: his ring's back dips 22-29 mm below his ring's max, so the rim is a smooth front+side arc at radius 157-195 mm (1.24x).",
+  "subject": "aisha trouser waistband rim (ranked defect #1 in the round-19 brief)",
+  "caseDetermination": "the shipped waistband ring follows the shell band cut through the body's triangulation (teeth up to ~19 mm above the cut plane at the shirt hem), and the #373 max-envelope regularization snaps the ring's zone onto the angular maximum of its own teeth — so wherever the teeth are (aisha: at the BACK, 0.984-0.987), the whole local ring is raised to them and the back arc enters the rim. kevin's teeth are at the FRONT (0.955 vs his cut 0.9358), so his back stays low and out of the rim. The same band-cut artifact, opposite tooth position.",
+  "measurements": {
+    "method": "NodeIO on apps/ui-xr/public/generated-humanoids/*.glb. rim = pants vertices within 8 mm of the primitive's top Y (the round-19 brief's own definition). radius = horizontal distance from the body axis. Top ring = the welded (position-merged at 5 dp) top boundary loop of the cargo_pants primitive.",
+    "rimRadius": {
+      "mpfb-ob-patient-aisha": {"rimVerts": 398, "radiusMeanMm": 142, "radiusSdMm": 38.5, "radiusMinMm": 64, "radiusMaxMm": 193, "ratio": 3.0},
+      "mpfb-peds-nurse-kevin": {"rimVerts": 86, "radiusMeanMm": 176, "radiusSdMm": 13.9, "radiusMinMm": 157, "radiusMaxMm": 195, "ratio": 1.24},
+      "mpfb-peds-patient-child": {"rimVerts": 344, "radiusMeanMm": 96, "radiusSdMm": 25.7, "radiusMinMm": 52, "radiusMaxMm": 130, "ratio": 2.5}
+    },
+    "topRingStructure": {
+      "mpfb-ob-patient-aisha": {
+        "weldedVerts": 1470, "weldedFaces": 2782, "boundaryLoops": 3,
+        "topLoopVerts": 72, "topLoopY": [0.9623, 0.9871],
+        "backArcInRim": true,
+        "backArcY": [0.984, 0.987], "backArcZ": [-0.080, -0.064], "backArcX": [-0.115, 0.115],
+        "backArcRadiusFromAxisMm": [64, 90],
+        "frontCenterY": [0.979, 0.983], "sidesY": [0.980, 0.984],
+        "frontDip": {"angleDeg": [46.9, 55.8], "y": [0.962, 0.968], "note": "raw zigzag valley at the front-right, below the rim band"},
+        "note": "the ring's BACK is at the ring's own max — the box top; the rim therefore includes the full back arc at radius 64-90 mm (the orchestrator's 3.0x)."
+      },
+      "mpfb-peds-nurse-kevin": {
+        "weldedVerts": 1305, "weldedFaces": 2498, "boundaryLoops": 3,
+        "topLoopVerts": 46, "topLoopY": [0.926, 0.955],
+        "backArcInRim": false,
+        "backArcY": [0.926, 0.933], "backArcZ": [-0.114, -0.088],
+        "note": "kevin's ring back dips 22-29 mm below his ring max — NOT in the rim; the rim is a smooth front+side arc (known-good)."
+      },
+      "mpfb-peds-patient-child": {
+        "weldedVerts": null, "weldedFaces": 2636, "boundaryLoops": null,
+        "topLoopVerts": null, "topLoopY": null,
+        "backArcInRim": true,
+        "note": "child's back arc also reaches her rim (orchestrator 2.5x) but her trousers sit 93 mm below her shirt hem (#332 adult-band placement, out of scope this round)."
+      }
+    },
+    "shirtHemContour": {
+      "mpfb-ob-patient-aisha": {
+        "hemRingVerts": 36, "hemY": [0.968, 1.004],
+        "frontCenterY": 0.968, "sidesY": [0.989, 1.000], "backCenterY": 0.977, "backSidesY": [0.996, 1.004],
+        "note": "the fitted t-shirt hem follows the body: dips at the front-center (0.968), rises at the sides/back-sides (1.000-1.004). The pants top ring should follow it (the seam), not the band-cut teeth."
+      }
+    },
+    "standoffVsBody": {
+      "note": "nearest-body-surface distance for rim verts (unsigned): aisha mean 30 mm (design standoff 15 mm) vs kevin 13.7 mm — aisha's rim catches the wide hip row AND the pinched back arc.",
+      "aishaRimMeanMm": 30.0, "kevinRimMeanMm": 13.7
+    }
+  },
+  "fixDesign": "REPLACE the #373 waistband max-envelope regularization with a hem-following re-contour: the pants top ring's BACK arc (vertices behind the ring's own mean z) is pulled DOWN to the shirt-hem height at the same angle minus the rim band (8 mm — the round-19 brief's own rim tolerance), never raised (min with the current height). The front and sides keep their current heights (kevin-like: the front rises 11-19 mm above the hem and is the known-good look). The back then sits below the rim band and below the shirt hem: no box top, no back pinch in the rim, no shelf at the back. Topology is unchanged (vertex moves only), so the pants-triangle counters stay green. The row below the ring is blended at 0.5 so the shell surface transitions gradually. Condition: if the ring's back arc is NOT within the rim band (kevin's case), the function leaves the ring untouched and falls back to the current #373 max-envelope so future bakes of kevin/child do not regress to the raw zigzag.",
+  "outOfScope": [
+    "#3 shirt+trousers identical (0.720,0.680,0.550) — #388, operator-blocked",
+    "#4 leopard-print flats — staging",
+    "child's adult-band trouser placement — #332",
+    "the front-center raw-zigzag dip at angles 46.9-55.8 (y 0.962-0.968) — below the rim band; reported as residual"
+  ],
+  "contractsToKeepGreen": [
+    "the-waistband-mask-reaches-the-trouser-rim (all three actors)",
+    "hair-covers-both-sides-of-the-head",
+    "mpfb2-body-is-hidden-under-cloth",
+    "the-waistband-is-as-smooth-as-the-hem (regression net; pants tris pinned at 2782/2498/2636)",
+    "the-ankle-cuff-is-as-smooth-as-the-waistband (regression net)"
+  ]
+}
