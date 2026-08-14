@@ -1494,6 +1494,22 @@ ceremony. If an approach is not written down, it does not exist.
   The binary is fine. This is the same false read as `git -C <missing> status | wc -l` returning 0.
   Confirm the worktree appears in `git worktree list` and check the worker's real cwd with
   `lsof -a -p <pid> -d cwd` before believing any dispatch is isolated.
+- **`dispatch({ worktree: true, resume })` RESETS THE WORKTREE BEFORE IT REATTACHES THE SESSION.**
+  `resolveWorkerWorktree` reuses the managed directory by running `git reset --hard main` + `git clean -fd`
+  — so **`resume` through `dispatch()` destroys exactly the on-disk work you are resuming to save.**
+  Measured 2026-08-14 on #403: 16 files including two freshly-baked MPFB GLBs and their skin PNGs,
+  gone. Untracked binaries are not recoverable from git. **The helper printed the warning in advance**
+  — *"Branch-local commits and untracked non-ignored dirt are discarded... If you needed the previous
+  run's on-disk work, abort and resume that session instead of re-dispatching"* — and I launched
+  without reading it, which is the whole cost.
+  **Rule:** a resume whose purpose is to preserve on-disk work is a bare `grok -p --resume` in the
+  worktree, with `OPENCLINXR_WORKER=1 GROK_SUBAGENTS=1 OPENCLINXR_RAW_GROK_SANCTIONED=1` (§11p) and
+  `contract-verify-cli` afterwards (§11h). `dispatch(resume)` is only for a session whose tree you are
+  content to discard. **Commit a worker's WIP to its branch BEFORE any resume of either kind** — §10j
+  already said to, for reaps; this is a second, self-inflicted way to lose it.
+  The recovery that worked: the session's own transcript survives a worktree reset, so resuming it and
+  saying plainly *"I destroyed your work, re-apply it from your own memory"* replays decisions already
+  made rather than re-deriving them.
 
 
 ## 6v. Measure with the instrument the RUNTIME uses, not the one that reads the file
