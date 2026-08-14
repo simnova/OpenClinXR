@@ -18,7 +18,13 @@ shipped convention ("floor top at y=0, centered at origin").
 
 Usage (inside Blender 5.1 headless):
   blender --background --python infinigen-single-room-extract.py -- \
-    --blend <scene.blend> --room <room_name> --segment <idx> --output <out.glb>
+    --blend <scene.blend> --room <room_name> --segment <idx> --output <out.glb> \
+    [--yaw-deg <degrees>]
+
+`--yaw-deg` rotates the room about the world up axis (blend Z) BEFORE centering,
+so a room whose outer wall (real hull) sits on one side can be oriented to the
+face a consumer needs (e.g. the +Z face the interior-camera derivation uses).
+Geometry is untouched — this is a deterministic orientation transform only (D1).
 
 Exit 0 on success; prints one JSON line: { room, segment, parts,
   triangleCount, meshCount, materialCount, extentMeters, floorTopY, exportPath }.
@@ -27,12 +33,13 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import re
 import sys
 from typing import Dict, List
 
 import bpy
-from mathutils import Vector
+from mathutils import Matrix, Vector
 
 
 def _argv_after_double_dash() -> List[str]:
@@ -47,6 +54,12 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--room", required=True, help="Room name, e.g. dining-room")
     p.add_argument("--segment", required=True, help="Room segment index, e.g. 0")
     p.add_argument("--output", required=True, help="Output GLB path")
+    p.add_argument(
+        "--yaw-deg",
+        type=float,
+        default=0.0,
+        help="Rotate the room about the world up axis (blend Z) before centering/export",
+    )
     return p.parse_args(_argv_after_double_dash())
 
 
@@ -65,6 +78,14 @@ def main() -> int:
         raise SystemExit(
             f"no mesh objects match {prefix!r} in {args.blend} — room name or segment wrong"
         )
+
+    # Optional deterministic orientation: rotate the room about the world up axis
+    # BEFORE the AABB/centering pass, so the centering applies to the rotated room.
+    if args.yaw_deg:
+        rot = Matrix.Rotation(math.radians(args.yaw_deg), 4, "Z")
+        for o in objs:
+            o.matrix_world = rot @ o.matrix_world
+        bpy.context.view_layer.update()
 
     # World AABB over the selection (Z-up blend: X/Y horizontal, Z up).
     mins = [float("inf")] * 3

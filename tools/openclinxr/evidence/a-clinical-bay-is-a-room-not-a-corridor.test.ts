@@ -144,7 +144,7 @@ function requireRooms(): { all: Room[]; good: Room } {
 }
 
 describe("a clinical bay is a room, not a corridor", () => {
-  it.fails("(1) RED: every mapped room's floor aspect is within the known-good's, generously", () => {
+  it("(1) RED: every mapped room's floor aspect is within the known-good's, generously", () => {
     const { all, good } = requireRooms();
     const allowed = ALLOWANCE * good.aspect;
     const bad = all.filter((r) => r.aspect > allowed);
@@ -171,10 +171,93 @@ describe("a clinical bay is a room, not a corridor", () => {
     expect(good.area, "ED bay floor area, measured ~40 m2").toBeGreaterThanOrEqual(30);
   });
 
-  it("(4) VACUITY GUARD: the population contains a compliant and a non-compliant room today", () => {
+  it("(4) VACUITY GUARD: no mapped room is corridor-shaped after the re-bake", () => {
+    // #407: the re-bake removed the corridor class, so the guard flips from "a corridor exists
+    // today" to "no room is a corridor" — the ≥2-population requirement in requireRooms is what
+    // stays non-vacuous (same re-scope the #406 stand-off guard took).
     const { all, good } = requireRooms();
     const allowed = ALLOWANCE * good.aspect;
-    expect(all.filter((r) => r.aspect <= allowed).length, "compliant rooms today").toBeGreaterThan(0);
-    expect(all.filter((r) => r.aspect > allowed).length, "corridor-shaped rooms today").toBeGreaterThan(0);
+    expect(all.filter((r) => r.aspect <= allowed).length, "room-shaped rooms after the re-bake").toBeGreaterThan(0);
+    expect(all.filter((r) => r.aspect > allowed).length, "corridor-shaped rooms after the #407 re-bake").toBe(0);
   });
 });
+
+/**
+ * ## FIXED (#407) — a room-shaped space, re-baked and oriented
+ *
+ * Flips (1) from RED to green; (2) and (3) stay nets as planted; (4) is re-scoped to
+ * "no mapped room is corridor-shaped" — the same re-scope #406's vacuity guard took when a
+ * genuine re-bake removed the broken class.
+ *
+ * ### The new bake (fully deterministic, same chain as #405/#406)
+ *
+ * - Generate: `clinical_bay.gin` seed **13**, coarse, `compose_indoors.terrain_enabled=False`
+ *   (the proven invocation; seeds 3/4/5/9/11/12 crash on upstream Infinigen flakes — the
+ *   #406-documented utility-room material flake plus `Concrete.generate() got an unexpected
+ *   keyword argument 'vertical'`; seeds 1/2/6/7/8/10/13 complete).
+ * - Room: `kitchen_0` segment 0 — single enclosed segment (the #405 multi-segment union
+ *   rejection applies; seed 13's kitchen is the ONLY room-shaped single-segment room among
+ *   the seven completing seeds that carries a horizontal hull).
+ * - Extract: `infinigen-single-room-extract.py --room kitchen --segment 0 --yaw-deg 90` —
+ *   the extract step's new deterministic orientation flag rotates the room about the up axis
+ *   BEFORE centering, so the room's genuine outer wall (measured hull 0.1093 m) faces the +Z
+ *   side that `deriveInteriorPreviewCamera` and the #406 stand-off contract use. Geometry is
+ *   Infinigen's; the rotation is a transform only (D1).
+ * - Bake: Cycles DIFFUSE albedo+AO (`room-albedo-ao-bake.py`, 1024 px) then native AO
+ *   occlusion (`room-occlusion-bake.py`, 512 px) — the same two-stage texture pipeline as
+ *   #405/#406. No literal/clamped stand-off.
+ * - Shipped: `apps/ui-xr/public/xr-assets/environment/infinigen-pediatric-urgent-care-bay.glb`
+ *   (SHA-256 `1783f4687902fd317bf929094cd5b5d822a6bb337445e9584fb3899e3fad68ab`).
+ *
+ * Measured from the shipped GLB with this file's own `measure`:
+ *
+ *   | field | peds bay (re-baked) | ED bay (known-good) |
+ *   |-------|--------------------|--------------------|
+ *   | floor | 5.28 × 5.39 m | 6.38 × 6.25 m |
+ *   | aspect | **1.021** | 1.020 |
+ *   | area | **28.47 m²** | 39.85 m² |
+ *   | +Z hull | 0.1093 m | 0.1245 m |
+ *   | interior | 5.39 × 2.46 × 5.39 m | 6.38 × 2.40 × 6.38 m |
+ *   | all-mesh extent | 5.96 × 2.65 × 6.14 m | 6.90 × 2.65 × 7.26 m |
+ *   | tris / meshes / materials / textures | 380 / 4 / 3 / 6 | 440 / 4 / 3 / 6 |
+ *
+ * (1) now passes with margin 1.021 vs the 1.53 allowance; the corridor class is gone. (2)
+ * holds — 28.47 m² vs the ≥19.9 m² floor-area band — so the fix cannot have cropped its way
+ * to green. (3) holds — the ED bay is untouched. The #406 stand-off contract re-measures the
+ * file: +Z thickness 0.1093 m, derived eye inside the interior, and the second-station
+ * contract's hash/signature/extent clauses all still hold (`4/3/6/5.96x2.65x6.14` vs the ED
+ * bay's `4/3/6/6.90x2.65x7.26`).
+ *
+ * ### Decisions taken (named, with what was rejected)
+ *
+ * - **Seed 13 over the other completing seeds.** Seeds 1/2/7/8/10 complete but their
+ *   room-shaped single-segment rooms are INTERIOR — the wall mesh carries every outer face,
+ *   so the exterior adds no horizontal hull and the #406 stand-off collapses to zero (the
+ *   exact defect that cost the #405 bake). Seed 6's dining-room (4.9 × 4.8 m, 23.5 m²) does
+ *   carry a horizontal hull but on −X/−Z, needing the same orientation treatment at a smaller
+ *   size; seed 13's kitchen is the largest clean room-shaped candidate with a hull. Seeds
+ *   0's floorplan is the ED bake's and is not reused (#388/#85).
+ * - **`--yaw-deg 90` orientation, not a geometry edit.** The room's outer wall is genuine
+ *   (0.1093 m measured, not a literal); the rotation only decides which wall faces the +Z
+ *   side the camera derivation stands on. Rejected: cropping the corridor (refused by clause
+ *   (2) — area), stretching the ED bay's aspect (refused by clause (3)), a selection
+ *   predicate alone (no room in any completing seed satisfies aspect + area + hull
+ *   simultaneously without an orientation step — the predicate would select a corridor or
+ *   nothing), and hunting further seeds (nine complete seeds sampled; the structural pattern
+ *   is that room-shaped rooms are interior and edge rooms are corridors — the ED bay's
+ *   seed-0 dining-room was the one corner room and it is taken).
+ * - **Selection stays by name** (the extract's existing contract). The new flag is an
+ *   orientation transform, not a judgement; no pipeline predicate was added.
+ *
+ * NOT TESTED:
+ *   - **That a room-shaped bay renders well.** Pixel grade, done from a fresh capture
+ *     afterwards — capture command
+ *     `pnpm asset:ui-xr:environment-room-capture --scenario peds_asthma_parent_anxiety_v1`.
+ *   - **The black rectangle** from the #406 frame. Hypothesis only (the far corridor end ~10 m
+ *     from the eye); if it survives a room-shaped bay it was something else.
+ *   - **Fixture re-anchoring in the new room.** The runtime re-derives wall planes from the
+ *     room on load; whether any fixture is visibly misplaced is a pixel-grade question.
+ *   - **Clinical adequacy of any particular dimension.** No clinical claim; this asserts a
+ *     shape relation against another shipped room, nothing more.
+ *   - **The other 13 environmentIds**, which still render the procedural box.
+ */

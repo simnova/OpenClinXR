@@ -15285,7 +15285,7 @@
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "Generated Infinigen room shell (#405), deterministic clinical_bay.gin seed-1 bake; #406 re-baked from hallway_0 (dining-room_0 hull had zero horizontal wall thickness, collapsing the interior camera stand-off); second environmentId-keyed runtime consumer; provenance in public/xr-assets/environment/PROVENANCE.md."
+      "rationale": "Generated Infinigen room shell (#405), deterministic clinical_bay.gin seed-1 bake; #406 re-baked from hallway_0 (dining-room_0 hull had zero horizontal wall thickness, collapsing the interior camera stand-off); #407 re-baked from clinical_bay.gin seed-13 kitchen_0 extracted with --yaw-deg 90 (hallway_0 was a 9.9 m corridor — floor aspect 2.02 — pushing the derived camera ~3.7 m from the cast; seed-13 kitchen_0 is room-shaped at 5.39 x 5.28 m with a genuine 0.1093 m +Z hull, orientation-preserving stand-off); second environmentId-keyed runtime consumer; provenance in public/xr-assets/environment/PROVENANCE.md."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/generated/adult_abdominal_pain_v1/learner-runtime-bundle.v1.json",
