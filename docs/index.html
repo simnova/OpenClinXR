@@ -24,6 +24,7 @@
           <a href="#platform">Platform</a>
           <a href="#now">Now</a>
           <a href="#dark-factory">Factory</a>
+          <a href="#trellis-hatch">Hatch</a>
           <a href="#see-it">See it</a>
           <a href="#roadmap">Roadmap</a>
           <a href="#evidence-docs">Evidence Docs</a>
@@ -160,6 +161,7 @@
               <li><strong>Rig alignment hardened:</strong> full ~163-bone Anny retarget with fail-loud diagnostics, determinism, and a three.js explosion gate.</li>
               <li><strong>Multi-provider delegation, cost-scored:</strong> Claude manages; Grok 4.5 (vision proven, ~$0.09 per image judgment) and DeepSeek 4 execute the grunt; each routing choice is backed by a measured cost/quality ledger—assumptions proven, not asserted.</li>
               <li><strong>Equipment generates itself now:</strong> reference image → Apple Silicon Metal TRELLIS bake → per-subject process isolation → <code>pnpm factory:trellis:bake</code> → a triangle ladder that lands the clock at 34.5k. Three assets, zero hand-modelling, all three visible below.</li>
+              <li><strong>Escape hatch is one command:</strong> text + Grok Imagine → remesh (compact extracts) → <code>pnpm factory:trellis:hatch</code> lands six props at ≤80k. Kit/parametric stay exam SSOT. Not promoted into the learner runtime. <a href="#trellis-hatch">Graded stills below.</a></li>
               <li><strong>A generated asset reached the product:</strong> the TRELLIS wall clock now resolves and renders in a live station at 34,885 triangles — the first procedurally generated equipment to leave the harness. Two layers had to agree: the equipment resolver, and a suppression allowlist that had silently reverted it to a placeholder.</li>
               <li><strong>Multi-view reconstruction, measured both ways:</strong> conditioning TRELLIS on four reference views instead of one closed the torn far side of the ECG cart — far-side fill 0.35 → 0.44, surface area +47%, with 3.7% <em>fewer</em> triangles — and cost the monitor screen, which flattened without camera poses. The technique is adopted; that artifact is not.</li>
               <li><strong>The factory can rebuild what it ships:</strong> both library garment sources were on no disk in the repository, so every re-bake silently degraded the figure — and the guard that was meant to stop that logged a warning and baked anyway. The guard now throws; the sources are tracked and licence-recorded (CC0 trousers, CC-BY shirt). <a href="#grader">Shown above, with the regression that exposed it.</a></li>
@@ -550,7 +552,8 @@ Maximize large flat planes for 3D reconstruction.</pre>
           (partial station, not full multi-actor) · Quest&nbsp;3 device-class ceiling ~1.3–1.8M scene tris
           (Meta native guidance). Draw calls, materials, and fill-rate usually matter more than shaving
           another 15k off one cart. Optimize order: batching → materials → KTX2 → multiview → tris.
-          Pipeline CLIs: <code>pnpm factory:trellis:bake</code> →
+          Pipeline CLIs: <code>pnpm factory:trellis:hatch</code> (text + Imagine PNG → remesh → optimize → pack)
+          or <code>pnpm factory:trellis:bake</code> →
           <code>pnpm factory:trellis:optimize</code> →
           <code>pnpm factory:trellis:pack</code>.
           Skill: <code>.agents/skills/trellis-vr-equipment-optimize/</code>.
@@ -652,6 +655,83 @@ Maximize large flat planes for 3D reconstruction.</pre>
         </div>
         <p class="evidence-note" style="margin-top: 16px;">
           The wall clock is now consumed by the runtime: a station that declares it renders the generated mesh, measured at 34,885 triangles in a live scene, up from a 26-triangle placeholder. The monitor (~106k) and denser ECG cart variants remain isolated harness renders pending grade + multi-prop station share — 106k is still under prop acceptable (≤120k) and far under Quest&nbsp;3 scene class (~1.3–1.8M). None of this is a Quest performance claim, and none of it is evidence of clinical realism.
+        </p>
+      </section>
+
+      <section id="trellis-hatch" class="band band--evidence" aria-labelledby="trellis-hatch-title">
+        <div class="section-heading">
+          <p class="eyebrow">Evidence you can look at · 2026-08-14</p>
+          <h2 id="trellis-hatch-title">Escape hatch: text → Imagine → remesh → 80k.</h2>
+        </div>
+        <p class="status-copy">
+          Last-resort factory when the object is <strong>not</strong> in the kit/parametric store and
+          <strong>not</strong> acquirable CC0/CC-BY. One Grok Imagine upper-¾ on a black void,
+          flood-keyed (Imagine writes JPEG RGB — no native alpha), then TRELLIS.2 Metal with
+          Space-order remesh on compact extracts, then <code>factory:trellis:optimize</code> to the
+          preferred ≤80k stop. Six subjects ran that path. The 49M medication cart is a recorded miss.
+          Kit remains exam SSOT. These GLBs are harness champions — <strong>not</strong> promoted into
+          <code>ui-xr</code>.
+        </p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 20px;">
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #111;">
+            <img src="assets/trellis-hatch/fetal-imagine.png" width="1024" height="1024" alt="Grok Imagine fetal monitor: thick grey CRT box, four square pads, knob, two top pucks, handle, black void" loading="lazy" style="width: 100%; display: block;">
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line); background: #fff;">
+              Fetal monitor · Imagine input. Thick volumes so occupancy keeps a screen face.
+            </figcaption>
+          </figure>
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #111;">
+            <img src="assets/trellis-hatch/fetal-80k.png" width="1280" height="1280" alt="Isolated three-quarter lit grade of the 80k fetal-monitor champion: CRT well, four pads, knob, two pucks survive" loading="lazy" style="width: 100%; display: block;">
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line); background: #fff;">
+              Same subject · 80,000 triangles. CRT well, four pads, knob, two pucks survive. Softer than the Imagine plate — expected after remesh + high-error simplify.
+            </figcaption>
+          </figure>
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #111;">
+            <img src="assets/trellis-hatch/o2-imagine.png" width="1024" height="1024" alt="Grok Imagine wall oxygen port: beige plate, two metal barrels, green bar, latch cube, black void" loading="lazy" style="width: 100%; display: block;">
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line); background: #fff;">
+              Wall O₂ port · Imagine input. Plate + two barrels + green bar + latch.
+            </figcaption>
+          </figure>
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #111;">
+            <img src="assets/trellis-hatch/o2-80k.png" width="1280" height="1280" alt="Isolated three-quarter lit grade of the 80k oxygen-port champion: two barrels, green bar, latch with a dark albedo smudge" loading="lazy" style="width: 100%; display: block;">
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line); background: #fff;">
+              Same subject · 79,991 triangles. Barrels and latch are geometry. Dark blotch on the latch is albedo, not a hole.
+            </figcaption>
+          </figure>
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #111;">
+            <img src="assets/trellis-hatch/pump-imagine.png" width="1152" height="864" alt="Grok Imagine standalone IV pump: brick body, recessed screen, button row, knob, black void" loading="lazy" style="width: 100%; display: block;">
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line); background: #fff;">
+              IV pump · Imagine input. Standalone brick, not a tablet slab.
+            </figcaption>
+          </figure>
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #111;">
+            <img src="assets/trellis-hatch/pump-80k.png" width="1280" height="1280" alt="Isolated three-quarter lit grade of the 80k IV-pump champion: screen well, six buttons, knob, side C-clamp" loading="lazy" style="width: 100%; display: block;">
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line); background: #fff;">
+              Same subject · 79,998 triangles. Screen well, six pads, knob, C-clamp. No crack islands after remesh.
+            </figcaption>
+          </figure>
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #111;">
+            <img src="assets/trellis-hatch/thermo-imagine.png" width="1024" height="1024" alt="Grok Imagine handheld digital thermometer: grey brick, LCD well, square button, metal probe tip, black void" loading="lazy" style="width: 100%; display: block;">
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line); background: #fff;">
+              Digital thermometer · Imagine input. First live <code>factory:trellis:hatch</code> subject.
+            </figcaption>
+          </figure>
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #111;">
+            <img src="assets/trellis-hatch/thermo-80k.png" width="1280" height="1280" alt="Isolated three-quarter lit grade of the 80k thermometer champion after planted-AABB framing: whole brick and probe visible" loading="lazy" style="width: 100%; display: block;">
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line); background: #fff;">
+              Same subject · 80,000 triangles. Whole object after the grade camera framed the planted AABB — the prior humanoid camera sat inside the long brick. Reads as a handheld with a probe, not a photoreal clinical device.
+            </figcaption>
+          </figure>
+        </div>
+        <p class="evidence-note" style="margin-top: 16px;">
+          Orchestrator pixel grade, 2026-08-14: four Imagine plates are isolated black-void product shots;
+          four 80k champions are the same silhouettes with remesh-soft surfaces.
+          Pulse-ox and glucometer also ran the hatch to 80k; their grade crops are either too tight (hinge cavity)
+          or flank-on, so they stay in the ledger and off this page.
+          <strong>claimScope:</strong> escape-hatch factory stills for compact hard-surface props.
+          <strong>notEvidenceFor:</strong> Quest readiness, clinical accuracy, device equivalence,
+          kit replacement, UI-XR promote, Imagine-shader smoothness.
+          CLI: <code>pnpm factory:trellis:hatch</code> (commit <code>c758a276</code>).
+          Evidence: <code>.openclinxr/evidence/trellis-escape-hatch/</code> (gitignored champions).
         </p>
       </section>
 
