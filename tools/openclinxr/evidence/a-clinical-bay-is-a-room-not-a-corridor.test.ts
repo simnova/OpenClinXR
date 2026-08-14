@@ -1,0 +1,180 @@
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join, resolve as pathResolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { NodeIO } from "@gltf-transform/core";
+import { describe, expect, it } from "vitest";
+
+/**
+ * **The room promoted as a paediatric urgent-care bay is a 9.9 metre corridor.**
+ *
+ * Measured on the shipped bakes 2026-08-14, per-node world extents:
+ *
+ *   room                                 | source node   | X x Z (m)      | aspect
+ *   -------------------------------------|---------------|----------------|--------
+ *   **infinigen-pediatric-urgent-care-bay** | `hallway_0`   | **9.88 x 4.88** | **2.02**
+ *   infinigen-ed-exam-bay                | `dining-room_0` | 6.38 x 6.38    | 1.00
+ *
+ * The generator was asked for a clinical bay and the extraction took a HALLWAY. It is enclosed, it has
+ * a floor, walls, a ceiling and (since #406) a genuine offset hull — every existing contract passes.
+ * It is simply the wrong KIND of space.
+ *
+ * ## THE FUNCTIONAL CONSEQUENCE, MEASURED — not an aesthetic complaint
+ *
+ * `deriveInteriorPreviewCamera` stands the eye against the doorway-side wall and then maximises
+ * distance to the nearest actor. In a 9.9 m corridor that pushes the viewpoint to one end:
+ *
+ *   station | camera x | nearestActor
+ *   --------|----------|-------------
+ *   peds    |  -4.64   | **3.71 m**
+ *   ED      |  -3.00   |   1.98 m
+ *
+ * The learner's framing is nearly **twice** as far from the cast, down the long axis, with the far end
+ * ~10 m away. A clinical encounter is conducted at conversational distance; a corridor cannot produce
+ * one however well it is lit.
+ *
+ * ## WHAT I AM NOT CLAIMING (§7q)
+ *
+ * The graded frame also shows **a large black rectangle filling roughly a third of the viewport**
+ * behind the cast. The corridor geometry is a plausible explanation — the far end is ~10 m from the
+ * eye — and **that is a hypothesis, not a measurement.** It is deliberately NOT asserted here and NOT
+ * filed as a mechanism. If the fix produces a room-shaped bay and the rectangle survives, it was
+ * something else.
+ *
+ * ## THE BOUND IS DERIVED FROM THE KNOWN-GOOD (§9h/§9s)
+ *
+ * No invented literal: the allowance is `ALLOWANCE x edBayAspect`, recomputed from the shipped ED bay
+ * at test time. On today's bytes that is `1.5 x 1.00 = 1.50`, and the peds room measures **2.02**, so it
+ * fails by **1.35x**. The margin was computed before the bound was written; this is not a threshold
+ * fitted to clear an observation.
+ *
+ * A square room is not required — 1.5 is deliberately generous, because real clinical bays are
+ * rectangular. What it refuses is a corridor.
+ *
+ * **NO TRIANGLE GATE** — meshoptimizer runs later and the ED bay is a good room at 440 tris.
+ *
+ * ## THE CHEAP FIXES THIS REFUSES
+ *
+ *   treatment                                          | (1) aspect | (2) size | (3) known-good | result
+ *   ----------------------------------------------------|------------|----------|----------------|--------
+ *   a) today — hallway_0                               |  **FAIL**  |   pass   |      pass      | REFUSED
+ *   b) crop the corridor to a 4.88 x 4.88 stub         |    pass    | **FAIL** |      pass      | REFUSED
+ *   c) stretch the ED bay's aspect so 2.02 looks normal |  **FAIL**  |   pass   |   **FAIL**     | REFUSED
+ *   d) extract a room-shaped space from the generator   |    pass    |   pass   |      pass      | ALL PASS
+ *
+ * **(b) is the one to watch.** Trimming the long axis satisfies an aspect check instantly and leaves a
+ * room too small to stage three actors and a bed. Clause (2) requires the floor area to stay within a
+ * band of the ED bay's, so the fix cannot shrink its way to green.
+ *
+ * **(c) is why clause (3) exists** — the comparison is against a shipped asset, so degrading the
+ * reference is the other way to fake it.
+ *
+ * WHICH ARE REDS AND WHICH ARE NETS (#227): **(1) is the sole RED.** **(2) and (3) pass today** and are
+ * true nets. **(4) passes today** and guards vacuity.
+ *
+ * NOT TESTED:
+ *   - **That a room-shaped bay renders well.** Pixel grade, done from a fresh capture afterwards.
+ *   - **The black rectangle.** See above — hypothesis only.
+ *   - **Clinical adequacy of any particular dimension.** No clinical claim is made; this asserts a
+ *     shape relation against another shipped room, nothing more.
+ *   - **The other 13 environmentIds**, which have no generated room at all.
+ *   - **Whether `hallway_0` is the right extraction for a genuine corridor station**, if one is ever
+ *     authored. This contract enumerates the mapped table, so such a station would need its own row.
+ */
+
+const HERE = dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = pathResolve(HERE, "../../..");
+/** Overridable so a destructive probe can point the same logic at doctored assets. */
+const PUBLIC = process.env.OPENCLINXR_ROOM_PROBE_PUBLIC ?? join(REPO_ROOT, "apps/ui-xr/public");
+const MODULE_SRC = join(REPO_ROOT, "apps/ui-xr/src/infinigen-station-environment.ts");
+
+const KNOWN_GOOD_ENV = "ed_exam_bay_v1";
+/** Generous: real bays are rectangular. This refuses a corridor, not a non-square room. */
+const ALLOWANCE = 1.5;
+/** Floor area must stay within this band of the known-good's, so a fix cannot shrink to pass. */
+const AREA_BAND = 2;
+
+type Room = { env: string; x: number; z: number; aspect: number; area: number };
+
+function tableRows(): Array<{ env: string; url: string }> {
+  const src = readFileSync(MODULE_SRC, "utf8");
+  const block = /INFINIGEN_ENVIRONMENT_ASSETS[^{]*\{([\s\S]*?)\n\} as const/u.exec(src)?.[1] ?? "";
+  return [...block.matchAll(/^\s*([a-z0-9_]+)\s*:\s*"([^"]+)"/gmu)].map((m) => ({ env: m[1]!, url: m[2]! }));
+}
+
+async function measure(row: { env: string; url: string }): Promise<Room | null> {
+  const abs = join(PUBLIC, row.url.replace(/^\//u, ""));
+  if (!existsSync(abs)) return null;
+  const doc = await new NodeIO().readBinary(readFileSync(abs));
+  const lo = [Infinity, Infinity];
+  const hi = [-Infinity, -Infinity];
+  for (const node of doc.getRoot().listNodes()) {
+    const mesh = node.getMesh();
+    // The FLOOR defines the usable footprint: walls carry stubs and the hull adds thickness.
+    if (!mesh || !/floor$/iu.test(node.getName())) continue;
+    const t = node.getWorldMatrix();
+    for (const prim of mesh.listPrimitives()) {
+      const a = prim.getAttribute("POSITION")?.getArray();
+      if (!a) continue;
+      for (let i = 0; i < a.length; i += 3) {
+        const x = a[i]!, y = a[i + 1]!, z = a[i + 2]!;
+        const wx = t[0]! * x + t[4]! * y + t[8]! * z + t[12]!;
+        const wz = t[2]! * x + t[6]! * y + t[10]! * z + t[14]!;
+        if (wx < lo[0]!) lo[0] = wx; if (wx > hi[0]!) hi[0] = wx;
+        if (wz < lo[1]!) lo[1] = wz; if (wz > hi[1]!) hi[1] = wz;
+      }
+    }
+  }
+  if (!Number.isFinite(lo[0]!)) return null;
+  const x = hi[0]! - lo[0]!;
+  const z = hi[1]! - lo[1]!;
+  return { env: row.env, x, z, aspect: Math.max(x, z) / Math.min(x, z), area: x * z };
+}
+
+const rooms = (await Promise.all(tableRows().map(measure))).filter((r): r is Room => r !== null);
+
+/**
+ * An empty enumeration must FAIL, never pass vacuously (§7t). Plain `it` on purpose: an `it.fails`
+ * cannot guard its own vacuity — it is satisfied by ANY failure, including this guard throwing.
+ */
+function requireRooms(): { all: Room[]; good: Room } {
+  expect(rooms.length, "rooms measured from INFINIGEN_ENVIRONMENT_ASSETS").toBeGreaterThanOrEqual(2);
+  const good = rooms.find((r) => r.env === KNOWN_GOOD_ENV);
+  expect(good, `${KNOWN_GOOD_ENV} present as the known-good column`).toBeDefined();
+  return { all: rooms, good: good as Room };
+}
+
+describe("a clinical bay is a room, not a corridor", () => {
+  it.fails("(1) RED: every mapped room's floor aspect is within the known-good's, generously", () => {
+    const { all, good } = requireRooms();
+    const allowed = ALLOWANCE * good.aspect;
+    const bad = all.filter((r) => r.aspect > allowed);
+    expect(
+      bad.map((r) => `${r.env} ${r.x.toFixed(2)}x${r.z.toFixed(2)} m aspect ${r.aspect.toFixed(2)}`),
+      `allowed ${allowed.toFixed(2)} (${ALLOWANCE}x the ED bay's ${good.aspect.toFixed(2)})`,
+    ).toEqual([]);
+  });
+
+  it("(2) COUNTERWEIGHT: a room may not shrink its way to a good aspect", () => {
+    // Refuses (b). Cropping the long axis clears clause (1) instantly and leaves a space too small to
+    // stage a cast and a bed. Floor area is pinned within a band of the known-good's.
+    const { all, good } = requireRooms();
+    for (const r of all) {
+      expect(r.area, `${r.env} floor area ${r.area.toFixed(1)} m2 vs ED bay ${good.area.toFixed(1)} m2`)
+        .toBeGreaterThanOrEqual(good.area / AREA_BAND);
+    }
+  });
+
+  it("(3) COUNTERWEIGHT: the known-good ED bay keeps its measured shape", () => {
+    // Refuses (c). The bound is a function of this room, so stretching it widens the gate for everyone.
+    const { good } = requireRooms();
+    expect(good.aspect, "ED bay floor aspect, measured 1.00 on 2026-08-14").toBeLessThanOrEqual(1.2);
+    expect(good.area, "ED bay floor area, measured ~40 m2").toBeGreaterThanOrEqual(30);
+  });
+
+  it("(4) VACUITY GUARD: the population contains a compliant and a non-compliant room today", () => {
+    const { all, good } = requireRooms();
+    const allowed = ALLOWANCE * good.aspect;
+    expect(all.filter((r) => r.aspect <= allowed).length, "compliant rooms today").toBeGreaterThan(0);
+    expect(all.filter((r) => r.aspect > allowed).length, "corridor-shaped rooms today").toBeGreaterThan(0);
+  });
+});
