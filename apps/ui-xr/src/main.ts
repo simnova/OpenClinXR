@@ -135,6 +135,7 @@ import {
   type PedsAdaptiveDialogueBranchResolution,
 } from "./peds-adaptive-dialogue-policy.js";
 import { applyGeneratedScalarVisemeToRoot, applyNamedSpeechVisemes, resolveMorphIndex } from "./viseme-runtime-wire.js";
+import { applyBlinkClosureToRoot } from "./blink-runtime-wire.js";
 import { applyGazeToHumanoid } from "./gaze-drives-eyes.js";
 import {
   actorIdForTraceTag,
@@ -8653,6 +8654,7 @@ function applyHumanoidFaceRigControls(
   offsetRigControl(rightUpperEyelid, 0, -blinkIntensity * 0.002, -blinkIntensity * 0.012);
   scaleRigControl(leftUpperEyelid, 1, 1 + blinkIntensity * 1.8, 1);
   scaleRigControl(rightUpperEyelid, 1, 1 + blinkIntensity * 1.8, 1);
+  applyBlinkClosureToRoot(slot.root, blinkIntensity);
 
   slot.root.userData.openClinXrFaceRigRuntimeCue = {
     currentViseme: viseme,
