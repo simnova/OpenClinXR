@@ -17,7 +17,8 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium, type Page } from "playwright";
-import { spawnPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
+import { deriveDoorwayOverviewCameraForEnvironment } from "./doorway-overview-camera.js";
+import { type PortlessDevServer, spawnPortlessDevServer } from "./lib/portless-server.js";
 
 export const ROOM_CAPTURE_OUTPUT_DIR = ".openclinxr/evidence/ui-xr-environment-room/latest";
 export const ROOM_CAPTURE_MANIFEST_NAME = "capture-manifest.json";
@@ -656,10 +657,10 @@ async function readLiveShellFromPage(page: Page): Promise<LiveShellFromPage> {
  * i.e. stand inside the room, backed against the doorway-side interior wall — the furthest
  * in-room viewpoint the geometry allows — and look at the encounter.
  *
- * With no Infinigen room (unmapped environmentId, e.g. telehealth) the original parametric
- * framing is kept unchanged, so the fallback path's capture is unaffected.
+ * With no Infinigen room the parametric fallback is used; its camera x derives from the
+ * environment's shell width and the door constants (#398) instead of the old literal.
  */
-async function reframeCameraForRoom(page: Page): Promise<string> {
+async function reframeCameraForRoom(page: Page, environmentId: string): Promise<string> {
   // NOTE: string IIFE — keep free of TypeScript syntax so tsx/esbuild cannot inject `__name`.
   const derived = (await page.evaluate(`(() => {
     const scene = window.__openClinXrDebugScene;
@@ -837,7 +838,12 @@ async function reframeCameraForRoom(page: Page): Promise<string> {
     }, derived);
   }
 
-  return page.evaluate(() => {
+  // #398 — the camera derives from the shell width and the door constants, not a literal.
+  // Unmapped ids have no DOOR_LEAF (FALLBACK_ENVIRONMENT_SHELL fixtureSlots), so for them the
+  // legacy framing is kept unchanged — a doorless shell cannot put the camera behind its door.
+  const verdict = deriveDoorwayOverviewCameraForEnvironment(environmentId);
+  const camera = verdict?.camera ?? { x: 1.35, y: 2.05, z: 3.15 };
+  return page.evaluate((cam) => {
     type Cam = {
       position: { set: (x: number, y: number, z: number) => void; x: number; y: number; z: number };
       lookAt: (x: number, y: number, z: number) => void;
@@ -866,17 +872,17 @@ async function reframeCameraForRoom(page: Page): Promise<string> {
     if (!camera) return "no-camera";
 
     // Doorway-side elevated overview looking into the encounter (negative Z).
-    camera.position.set(1.35, 2.05, 3.15);
+    camera.position.set(cam.x, cam.y, cam.z);
     camera.lookAt(0, 1.0, -1.35);
     if (typeof camera.fov === "number") {
       camera.fov = 62;
       camera.updateProjectionMatrix?.();
     }
     if (camera.userData) {
-      camera.userData.openClinXrCameraFraming = "environment_room_capture_doorway_elevated_overview_#69";
+      camera.userData.openClinXrCameraFraming = "environment_room_capture_doorway_elevated_overview_#398";
     }
     return `roomCam=${camera.position.x.toFixed(2)},${camera.position.y.toFixed(2)},${camera.position.z.toFixed(2)}`;
-  });
+  }, camera);
 }
 
 /** Wait until station shell is present (exported for #83 measure). */
@@ -1021,7 +1027,7 @@ export async function captureStationEnvironmentRooms(
           // #85: shell-ready ≠ humanoids loaded; wait for GLB cast rows before screenshot.
           await waitForHumanoidAssetsLoaded(page, 180_000);
 
-          const frameNote = await reframeCameraForRoom(page);
+          const frameNote = await reframeCameraForRoom(page, live.environmentId);
           process.stdout.write(`room-capture: ${scenarioId} live env=${live.environmentId} depth=${String(live.roomDepthMeters)} floor=${String(live.floorColor)} cam=${frameNote}\n`);
 
           // Extra frames after reframe + loads so skinned materials bind before screenshot.
