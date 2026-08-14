@@ -135,6 +135,15 @@ import { describe, expect, it } from "vitest";
  *   is the D1-fitted replacement, the OPPOSITE of the hand-authored sphere #222 refuses,
  *   so it is now excluded by mesh-name prefix — the same convention as the #222 contract's
  *   FITTED_LIBRARY_HAIR_MESH. Any OTHER separate hair mesh still trips the wire.
+ *
+ * ## FIXED (#399) — the child's placeholder retires with her fitted hair
+ *
+ * #399 opened the child with her OWN licence-clean fitted style
+ * (`toigo_curled_under_bob_with_bangs`, CC0, same `ClothesService` fit path as #381), so
+ * her placeholder scalp paint is retired via the shared
+ * `body_param_stage.scalp_placeholder_retired_for` registry exactly like aisha's. The
+ * retired set in clause (1) is therefore {aisha, child}; the nurse alone still carries the
+ * region (no licence-clean masculine style exists in makehuman-hair01).
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -198,26 +207,26 @@ function requireRows(): void {
   expect(rows.length, `MPFB bodies scanned (of ${files.length})`).toBeGreaterThanOrEqual(3);
 }
 
-/** #387 — the shipped base id of the figure whose placeholder scalp paint is retired
- * (real fitted hair on disk). See body_param_stage.scalp_placeholder_retired_for. */
-const RETIRED_FIGURE = "mpfb-ob-patient-aisha.glb";
+/** #387/#399 — the shipped base ids whose placeholder scalp paint is retired (real fitted hair
+ * on disk). #399 retired the child's with her fitted toigo_curled_under_bob_with_bangs. */
+const RETIRED_FIGURES = new Set(["mpfb-ob-patient-aisha.glb", "mpfb-peds-patient-child.glb"]);
 
 describe("the scalp region is the hair mechanism on the body mesh (texture route removed, #359)", () => {
-  it("(1) RED: the scalp region is present on every actor without fitted hair and absent on aisha", () => {
+  it("(1) RED: the scalp region is present on every actor without fitted hair and absent where fitted hair replaced it", () => {
     // #359 reinstated the per-polygon scalp region (the #341 texture route is removed).
-    // #387: the region is a self-declared PLACEHOLDER (automate_blender.py:4245) — it is
-    // required where no real fitted hair exists (the nurse and the child) and must be
-    // ABSENT where #381's fitted replacement is on disk (aisha). Old assertion changed:
+    // #387/#399: the region is a self-declared PLACEHOLDER (automate_blender.py:4245) — it is
+    // required where no real fitted hair exists (the nurse) and must be ABSENT where a fitted
+    // replacement is on disk (aisha, and the child under #399). Old assertion changed:
     // "every MPFB actor carries the scalp region" — that encoded the placeholder as a
-    // required feature; the retirement makes aisha the documented exception.
+    // required feature; the retirement makes the fitted-hair figures documented exceptions.
     requireRows();
     const missing = rows
-      .filter((r) => r.file !== RETIRED_FIGURE)
+      .filter((r) => !RETIRED_FIGURES.has(r.file))
       .filter((r) => r.scalpPrims === 0)
       .map((r) => `${r.file}: scalpPrims=${r.scalpPrims}`);
-    expect(missing, "bodies without the scalp region (aisha exempt: placeholder retired)").toEqual([]);
+    expect(missing, "bodies without the scalp region (aisha and the child exempt: placeholder retired)").toEqual([]);
     const stale = rows
-      .filter((r) => r.file === RETIRED_FIGURE && r.scalpPrims > 0)
+      .filter((r) => RETIRED_FIGURES.has(r.file) && r.scalpPrims > 0)
       .map((r) => `${r.file}: scalpPrims=${r.scalpPrims} — placeholder not retired`);
     expect(stale, "figures with real fitted hair still carrying the placeholder").toEqual([]);
   });
