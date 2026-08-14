@@ -432,6 +432,59 @@ residential sampler with no clinical station addressing, independent of its 86x 
 
 (Transient WIP details — file:line, subagent IDs, capture logs — recorded here per slice. Rehydration reads only the header above + targeted grep on this section. Worker-backlog matrix at `docs/openclinxr/worker-backlog-and-validation-matrix.md` for ownership. Archive old blocks: `pnpm openclaw:checkpoint:archive -- --keep 7`.)
 
+### 2026-08-14 overnight-wave-4 — eight landings, and five wrong instruments of my own (Q1 + Q5)
+
+**Product path advanced.** Eight slices landed since the 07:0x checkpoint.
+
+| slice | merge | what it did |
+|---|---|---|
+| #385 | `14cb08cf` | **Anny builds a school-age child** — 125.00 cm exact, both adults byte-identical. The 115.7 cm ceiling was `extrapolate_phenotypes=False`, a config artifact |
+| #387 | `98de3bd9` | placeholder scalp paint retired where real hair exists — aisha 1,373 verts → 0, the 11.6x luminance step gone |
+| #392 | `26eecc0c` | **poke-through measured** — 0 / 2 / 3 verts, worst 10.23 mm. Essentially absent |
+| #393 | `9577a8aa` | re-premised the two contracts #387 knocked over — my enumeration miss |
+| #394 | `3d5cc610` | head box contains the hair — 0 of 3,085 verts outside, was 1,691 |
+| #395 | `e6241c2c` | **eyes verified to MOVE** — shipped mechanism turns the iris laterally 5.59:1 |
+| #389 | `278e8a03` | slot-derived garment predicate — 8 failing clauses → 0 |
+| #391 | `2aefcfb5` | slot-keyed body strip — aisha's body exactly 26,756, delta 0 |
+
+**MADR 0052 ticks 07:00, 08:00 and 09:00 all closed on measurements**, two of them on findings rather
+than fixes (poke-through absent; eyes already correct, just unverified).
+
+**Three name-keyed matchers broke tonight and are now one shared classifier.** #389 (hem vs a sweater),
+#388 (shared colour surfaced by casting), #391 (garment vocabulary vs hair). Each was a list a
+legitimate new asset invalidated; each failed differently — dropped enumeration, surfaced collision,
+inflated count. `garment-slot.ts` now serves two of the three.
+
+**Five instruments of MY OWN were invalid, and each would have shipped a confident wrong headline.**
+A radial poke-through metric scoring bare arms at **479 mm**; `Vec3` arrays read as `undefined`; file
+position as a proxy for call site; the old one-arg `deriveHeadBoxFromPoints` signature; and a
+`measureDeclaredActorsRendered` that does not exist. Every one was caught by running it, none by
+review. **The pattern is measuring a proxy for the question instead of the question.**
+
+**Risk that remains.**
+- **#344 is unfixed and its field has no writer.** `orchestratorPaths` exists, is threaded, and is
+  never populated — so the isolation detector still blames workers for my writes. It marked #392
+  failed; I landed it by hand after verifying.
+- **Two orphaned Vite dev servers** survived 1h31m and SIGTERM in `issue-389`. Captures do not reap
+  their servers.
+- **252 of 275 worktrees are safely prunable** (#367, dispatched) — 187 clean, 65 hook-churn-only,
+  and only 15 hold real work.
+- **The peer channel has been silent since 01:17** and we share one git identity, so I cannot
+  distinguish their commits from mine.
+
+**Evidence.** tools typecheck 0; alignment 0; drift 0; station capture live with `liveRoots=3
+mismatch=false`; all garment/scalp/eye contracts green on main.
+
+**Next queued slice.** Harvest #367; then #388 once the peer answers the colour question.
+
+Token introspection: drift; tier: pro; ccusageΔ=519624028; ccusageModels=claude-opus-5; grok flash=19 pro=27 composer=9; flashΔ=7 proΔ=0 composerΔ=4579; subagents=48 subPeak=393190; grokModels=deepseek-v4-flash|deepseek-v4-pro|grok-4.6; ratio=1.03
+Task cost: $7.39 est; subagents=47; subTokens=8803450; subUsd=$7.37; parentTokens=4579; parentUsd=$0.02; models=grok-4.6:$4.26|deepseek-v4-pro:$2.52|deepseek-v4-flash:$0.60
+
+*(Tool output from `openclaw:slice-token:finish`. Same attribution caveat as wave 3: `subagents=47` is
+a session-wide rollup and the grok-4.6 / v4-pro split does not match my dispatches, which were all
+deepseek-v4-flash.)*
+
+
 ### 2026-08-14 overnight-wave-3 — four landings, and three premises of mine withdrawn (Q1 + Q5)
 
 **Product path advanced.** Four slices landed since the 04:29 checkpoint, plus four REDs planted and
