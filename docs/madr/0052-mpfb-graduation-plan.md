@@ -91,6 +91,39 @@ presentation FIRST and the girth solve runs after.
   learner loads MPFB bodies.
 - **P3 Wardrobe.** `.mhclo` fitted onto MPFB-matched bodies. Lower-body coverage is the real gap.
 - **P4 Face.** Eyes verified live, then viseme shape keys — the reason D11 names MPFB for lip-sync.
+> **P4 STATUS RE-MEASURED 2026-08-14 13:2x — the viseme half is WIRED, not unstarted.** I came to this
+> hour expecting to operationalize "drive the visemes" and found the resolution layer already built.
+>
+> `MPFB_FACS_MORPH_NAMES` (`packages/openclinxr/asset-registry/src/morph-target-resolver.ts:54`) maps
+> canonical runtime names onto the MPFB FACS set, with an Action Unit justification per row —
+> `viseme_AA -> mouth-open` (AU26 jaw drop), `viseme_OU -> mouth-protusion` (AU18 lip pucker),
+> `viseme_E -> mouth-retraction` (AU20 lip stretcher), and six more, plus both eye closures.
+>
+> Resolved against the SHIPPED bytes (target names read with NodeIO, fed to `resolveMorphTarget`):
+>
+> | actor | targets | canonical names resolved |
+> |---|---:|---|
+> | `mpfb-ob-patient-aisha` | 32 | **13 / 14** |
+> | `mpfb-peds-nurse-kevin` | 32 | **13 / 14** |
+> | `peds_nurse_kevin` (Anny) | 25 | 11 / 14 |
+>
+> The only MPFB miss is `openclinxr_cheek_tension`, and the resolver says why in its own header: *"no
+> honest FACS equivalent in the shipped 32-target set (no cheek target)"* — a declared absence, not a
+> gap. **The MPFB rail resolves more canonical names than the Anny rail it replaces.**
+>
+> And the targets are anatomically clean, which the Anny rail's are not: per-target displacement is
+> 0.24–11.22% of vertices confined to 84–96% of stature (eyes 92–94%, brows 93–96%, mouth 85–92%).
+> Compare #316 on the Anny rail, where `jaw_open`, `smile` and `eye_blink_l/r` move **100% of every
+> vertex**.
+>
+> **What remains for P4 is the same "presence is not drive" step #311 drew for eyes and #395 closed
+> for gaze:** nothing has verified that writing `viseme_AA` produces measurable mouth displacement at
+> runtime. That is a live probe parallel to `gaze-eye-rotation-live.ts`, not a mapping.
+>
+> NOT TESTED: no viseme weight has been driven and measured; no audio, no Rhubarb, no capture; only
+> `mpfb-ob-patient-aisha` and `mpfb-peds-nurse-kevin` were enumerated; whether the encounter loop
+> reaches this code at all (#224 records morph payload the runtime cannot drive).
+
 - **P5 Motion.** Retarget onto the chosen rig. **#70's premise is FALSE and is withdrawn here:**
   Mesh2Motion is a **browser web app** — no CLI, DOM-coupled, its retarget tool is manual drag-and-drop —
   so it cannot run headless and was never a viable motion path, only an unused one. Salvage: its ~150
