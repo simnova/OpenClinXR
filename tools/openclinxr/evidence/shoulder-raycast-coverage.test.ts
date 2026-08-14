@@ -69,10 +69,30 @@ import { describe, expect, it } from "vitest";
  *
  * SCOPE: whether garment occupies the shoulder silhouette. Says nothing about drape, fabric, or
  * poke-through — that last is the research's actual subject and is deliberately a later slice.
+ *
+ * ## FIXED (#383)
+ *
+ * The marker previously failed at IMPORT — TS2307 on `./shoulder-raycast-coverage.js`, the module
+ * #82 deliberately never landed (`wt/issue-82` unmerged at `319cdd1`). A RED that cannot compile
+ * is indistinguishable from rot. Nothing about the problem changed: shoulder coverage is still
+ * unsolved and these three `it.fails` still say so, for their own stated reasons.
+ *
+ * The file is now self-contained. `load()` is declared inline and returns an empty module record,
+ * because there is deliberately no implementation to load; each planted assertion below therefore
+ * fails at ITS OWN first check — the instrument the contract needs does not exist — with a message
+ * naming that reason, instead of failing at a module resolution error. The assertion bodies are
+ * otherwise untouched: they are the real contract, and when an implementation is ever accepted for
+ * #82, restore `load()` to `import("./shoulder-raycast-coverage.js")` and flip the three
+ * `it.fails` to `it`.
  */
 
-const load = async () =>
-  import("./shoulder-raycast-coverage.js") as Promise<Record<string, unknown>>;
+/**
+ * Declared inline, not imported: the module #82 deliberately never landed (see ## FIXED (#383)
+ * above). An empty module record means the planted assertions fail at their own first check — the
+ * instrument does not exist — rather than at import. Restore the dynamic import when an
+ * implementation is accepted.
+ */
+const load = async (): Promise<Record<string, unknown>> => ({});
 
 type SideCoverage = { side: "left" | "right"; coveredFraction: number; sampleCount: number };
 type Assess = (input: { glbPath: string }) => Promise<{ sides: SideCoverage[] }>;
@@ -86,8 +106,14 @@ describe("garment occupies the shoulder silhouette (#82)", () => {
     const mod = await load();
     const assess = mod["assessShoulderRaycastCoverage"] as Assess | undefined;
     const verdict = mod["coverageFractionVerdict"] as Verdict | undefined;
-    expect(assess).toBeTypeOf("function");
-    expect(verdict).toBeTypeOf("function");
+    expect(
+      assess,
+      "assessShoulderRaycastCoverage is not implemented — #82 deliberately left wt/issue-82 unmerged; shoulder coverage is unsolved, so the planted RED fails here (#383)",
+    ).toBeTypeOf("function");
+    expect(
+      verdict,
+      "coverageFractionVerdict is not implemented — #82 deliberately left wt/issue-82 unmerged; shoulder coverage is unsolved, so the planted RED fails here (#383)",
+    ).toBeTypeOf("function");
 
     // Extract the two historical blobs alongside HEAD — fixed, external, already graded bare.
     const { execFileSync } = await import("node:child_process");
@@ -124,7 +150,10 @@ describe("garment occupies the shoulder silhouette (#82)", () => {
     // a lucky asset.
     const mod = await load();
     const verdict = mod["coverageFractionVerdict"] as Verdict | undefined;
-    expect(verdict).toBeTypeOf("function");
+    expect(
+      verdict,
+      "coverageFractionVerdict is not implemented — #82 deliberately left wt/issue-82 unmerged; shoulder coverage is unsolved, so the planted RED fails here (#383)",
+    ).toBeTypeOf("function");
 
     expect(verdict!({ coveredFraction: 0.05 })).toBe(false);
     expect(verdict!({ coveredFraction: 0.3 })).toBe(false);
@@ -138,8 +167,14 @@ describe("garment occupies the shoulder silhouette (#82)", () => {
     const mod = await load();
     const assess = mod["assessShoulderRaycastCoverage"] as Assess | undefined;
     const verdict = mod["coverageFractionVerdict"] as Verdict | undefined;
-    expect(assess).toBeTypeOf("function");
-    expect(verdict).toBeTypeOf("function");
+    expect(
+      assess,
+      "assessShoulderRaycastCoverage is not implemented — #82 deliberately left wt/issue-82 unmerged; shoulder coverage is unsolved, so the planted RED fails here (#383)",
+    ).toBeTypeOf("function");
+    expect(
+      verdict,
+      "coverageFractionVerdict is not implemented — #82 deliberately left wt/issue-82 unmerged; shoulder coverage is unsolved, so the planted RED fails here (#383)",
+    ).toBeTypeOf("function");
 
     for (const glbPath of [PARENT, NURSE]) {
       const { sides } = await assess!({ glbPath });
