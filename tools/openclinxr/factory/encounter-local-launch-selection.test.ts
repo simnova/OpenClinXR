@@ -246,7 +246,7 @@ describe("encounter local launch selection", () => {
       generatedAt: "2026-05-23T12:30:00.000Z",
     });
     const actorRoles = ["patient", "family", "nurse"];
-    const caseDefinedPublication = {
+    const caseDefinedPublication: EncounterPublicationPayloadReport = {
       ...publication,
       status: "materialized" as const,
       blockers: [],

@@ -58,6 +58,11 @@ export type UiXrRuntimeVisualEvidenceCaptureScaffold = {
   scoringValidityClaimed: false;
   claimBoundary: "ui_xr_capture_scaffold_not_runtime_visual_evidence";
   notEvidenceFor: string[];
+  /** Launched-player-world env the scaffold was captured against (factory materialization). */
+  caseDerivedVirtualEnvironment?: {
+    roomType: string;
+    envGltfManifest?: unknown;
+  } | null;
 };
 
 export type UiXrManualPerformanceEvidencePayload = {
@@ -151,7 +156,6 @@ export type UiXrRuntimeEvidenceConsumerPreflightReport = {
     localArtifactPaths: string[];
     rawPayloadDisplayed: false;
     operatorSelectable: true;
-    operatorSelectionSupport: 'subset-via-count';
     claimBoundary: "ui_xr_consumer_preflight_submit_preview_metadata_only";
   };
   operatorSelectionEnabled: true;
@@ -179,8 +183,6 @@ export type UiXrRuntimeEvidenceConsumerPreflightReport = {
   productionAssetReadinessClaimed: false;
   clinicalValidityClaimed: false;
   scoringValidityClaimed: false;
-  operatorSelectionEnabled: true;
-  operatorSelectableAttachmentCount: number;
   claimBoundary: "ui_xr_consumer_preflight_metadata_only_not_runtime_visual_evidence";
   notEvidenceFor: string[];
 };
@@ -251,9 +253,7 @@ export function buildUiXrRuntimeEvidenceConsumerArtifact(input: {
         "raw_payload_hidden",
         "all_execution_and_readiness_gates_false",
       ],
-      operatorSelectable: true,
       nextActions: [
-        `operator-select and submit up to ${scaffold.submitRuntimeVisualEvidenceAttachmentInput.attachments.length} metadata-only UI-XR refs via guarded route (use operatorSelectableAttachmentCount)`,
         "confirm Admin replay projection shows raw payload hidden and all readiness gates false",
         "keep runtime, learner, Quest, production, clinical, and scoring gates blocked until real runtime and visual-QA evidence clears review",
       ],
@@ -274,9 +274,6 @@ export function buildUiXrRuntimeEvidenceConsumerArtifact(input: {
     productionAssetReadinessClaimed: false,
     clinicalValidityClaimed: false,
     scoringValidityClaimed: false,
-    operatorSelectionEnabled: true,
-    operatorSelectableAttachmentCount: typeof preflightReport?.operatorSelectableAttachmentCount === 'number' ? preflightReport.operatorSelectableAttachmentCount : 0,
-    operatorSelectionSupport: 'subset-via-count',
     blockers: [
       "ui_xr_metadata_refs_require_admin_attachment_review",
       "ui_xr_payload_not_runtime_readiness",
@@ -377,6 +374,7 @@ export function buildUiXrRuntimeEvidenceConsumerPreflightReport(input: {
     scoringValidityClaimed: false,
     operatorSelectionEnabled: true,
     operatorSelectableAttachmentCount: attachmentCount,
+    operatorSelectionSupport: 'subset-via-count',
     claimBoundary: "ui_xr_consumer_preflight_metadata_only_not_runtime_visual_evidence",
     notEvidenceFor: [...NOT_EVIDENCE_FOR],
   };
@@ -551,11 +549,12 @@ function validateOperatorSubmissionWorkflow(value: unknown, errors: string[]): v
     "all_execution_and_readiness_gates_false",
   ];
   requireArray(value.preflightChecks, "/operatorSubmissionWorkflow/preflightChecks", errors);
-  if (Array.isArray(value.preflightChecks)) {
+  const preflightChecks = value.preflightChecks;
+  if (Array.isArray(preflightChecks)) {
     expectedPreflightChecks.forEach((check, index) => {
-      requireLiteral(value.preflightChecks[index], check, `/operatorSubmissionWorkflow/preflightChecks/${index}`, errors);
+      requireLiteral(preflightChecks[index], check, `/operatorSubmissionWorkflow/preflightChecks/${index}`, errors);
     });
-    if (value.preflightChecks.length !== expectedPreflightChecks.length) {
+    if (preflightChecks.length !== expectedPreflightChecks.length) {
       errors.push(`/operatorSubmissionWorkflow/preflightChecks must contain ${expectedPreflightChecks.length} checks`);
     }
   }

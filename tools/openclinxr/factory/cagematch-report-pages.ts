@@ -5,6 +5,12 @@ import {
   type HumanoidSourceDecision,
 } from "./humanoid-source-decision-tree.js";
 import type { CagematchReportPage } from "../../../packages/openclinxr/arena/model-vetting/src/cagematch-report.js";
+import type { HumanoidSourcePath } from "./humanoid-source-decision-tree.js";
+
+/** Map the decision tree's blocked literal onto the report-page branch vocabulary. */
+function toBranchChoose(path: HumanoidSourcePath): CagematchReportPage["decisionBranches"][number]["choose"] {
+  return path === "blocked_pending_license_or_probe" ? "blocked_pending_review" : path;
+}
 
 const NOT_EVIDENCE = [
   "b_plus_visual_realism_gate",
@@ -51,7 +57,7 @@ export function buildHumanoidSourceSideBySideReportPage(input: {
     ],
     caseContext: {
       scenarioId: "peds_asthma_parent_anxiety_v1 + ed_chest_pain_priority_v2",
-      actorRoles: ["patient", "parent", "nurse"],
+      actorRole: ["patient", "parent", "nurse"].join(", "),
       actorProfile: "school-age pediatric asthma patient (Maya Johnson, short_sleeve_exam_tshirt) + anxious_parent (casual_top/open_cardigan) + pediatric_nurse (scrub_top/scrub_pocket) + ED adult patient (robert_hayes, hospital_gown for adult/ed gown); real garment sleeves expanded from phenotype.garmentLayers per peds-parent-nurse-garment-asset Q1/Q5 + ed-real-garment-phenotype-expansion + ed-gown-geo-reorchestrate (Q1+Q5: actual gown topology via preset+is_gown branch in apply_role 0.36len/9r14c + cp current/ + 2026-06-07/ evidence + report update; dual MV cagematch + UI-XR visible deforming gown sleeves per MANDATE_VISIBILITY; promotionStatus/realismGrade/notEvidenceFor/realGarmentRegionFromPhenotype embedded in cagematch reports + model-vetting assets)",
     },
     technologies: [
@@ -300,14 +306,14 @@ function buildDecisionBranches(
     {
       branchId: "peds_parametric_child",
       condition: "School-age child actor with case phenotype sliders and embedded eyes/tongue topology",
-      choose: patientDecision.recommendedPath,
+      choose: toBranchChoose(patientDecision.recommendedPath),
       rationale: patientDecision.rationale.join(" "),
       exampleScenarios: ["peds_asthma_parent_anxiety_v1 patient Maya", "any pediatric case with Anny parametric binding"],
     },
     {
       branchId: "mpfb_rig_shapekeys",
       condition: "Actor requires MPFB standard rig, MakeHuman face shape keys, or basemesh wardrobe libraries",
-      choose: parentMpfbProbe.recommendedPath,
+      choose: toBranchChoose(parentMpfbProbe.recommendedPath),
       rationale: parentMpfbProbe.rationale.join(" "),
       exampleScenarios: ["Adult parent/nurse when license review clears", "OB/adult stations needing MakeHuman wardrobe"],
     },

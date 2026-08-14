@@ -2830,7 +2830,6 @@ function locomotionAttemptFromEvidence(evidence: ManualPerformanceInputEvidence)
     case undefined:
       return "not_attempted";
   }
-  return "not_attempted";
 }
 
 function traceInteractionAttemptFor(input: {

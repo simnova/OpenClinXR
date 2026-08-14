@@ -57,7 +57,7 @@ export function buildEncounterMaterializationAttachmentPlan(input: {
   inputManifest: EncounterMaterializationInputManifest;
   generatedAt?: string;
 }): EncounterMaterializationAttachmentPlan {
-  const actorAttachmentSlots = input.inputManifest.actorWorkOrderInputs.flatMap((workOrderInput) =>
+  const actorAttachmentSlots: EncounterMaterializationAttachmentPlan["actorAttachmentSlots"] = input.inputManifest.actorWorkOrderInputs.flatMap((workOrderInput) =>
     workOrderInput.requiredEvidenceRefs.map((requiredEvidenceRef, index) => {
       const requiredCueId = workOrderInput.requiredCueIds[index] ?? lastPathSegment(requiredEvidenceRef);
       return {
@@ -68,7 +68,7 @@ export function buildEncounterMaterializationAttachmentPlan(input: {
         variantSemanticKey: workOrderInput.variantSemanticKey,
         requiredCueId,
         requiredEvidenceRef,
-        expectedArtifactKinds: ["actor_specific_humanoid_glb", "actor_materialization_review_packet", "humanoid_visual_qa_reference"] as const,
+        expectedArtifactKinds: ["actor_specific_humanoid_glb", "actor_materialization_review_packet", "humanoid_visual_qa_reference"],
         attachmentStatus: "missing_evidence" as const,
         providerExecutionAllowed: false as const,
         runtimeSelectionAllowed: false as const,
@@ -76,7 +76,7 @@ export function buildEncounterMaterializationAttachmentPlan(input: {
       };
     })
   );
-  const equipmentAttachmentSlots = input.inputManifest.equipmentWorkOrderInputs.flatMap((workOrderInput) =>
+  const equipmentAttachmentSlots: EncounterMaterializationAttachmentPlan["equipmentAttachmentSlots"] = input.inputManifest.equipmentWorkOrderInputs.flatMap((workOrderInput) =>
     workOrderInput.requiredEvidenceRefs.map((requiredEvidenceRef, index) => {
       const requiredCueId = workOrderInput.requiredCueIds[index] ?? lastPathSegment(requiredEvidenceRef);
       return {
@@ -86,7 +86,7 @@ export function buildEncounterMaterializationAttachmentPlan(input: {
         variantSemanticKey: workOrderInput.variantSemanticKey,
         requiredCueId,
         requiredEvidenceRef,
-        expectedArtifactKinds: ["equipment_specific_glb_or_prefab", "equipment_scale_placement_review_packet", "clinical_affordance_review_packet"] as const,
+        expectedArtifactKinds: ["equipment_specific_glb_or_prefab", "equipment_scale_placement_review_packet", "clinical_affordance_review_packet"],
         attachmentStatus: "missing_evidence" as const,
         providerExecutionAllowed: false as const,
         runtimeSelectionAllowed: false as const,

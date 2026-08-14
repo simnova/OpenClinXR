@@ -14,6 +14,7 @@
  */
 
 import { mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
+import type { Dirent } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import {
@@ -47,7 +48,7 @@ type GlbEntry = { absPath: string; group: string; manifestId: string; glbPath: s
 export async function listGlbFiles(root: string): Promise<string[]> {
   const out: string[] = [];
   async function walk(dir: string): Promise<void> {
-    let entries: Awaited<ReturnType<typeof readdir>>;
+    let entries: Dirent<string>[];
     try {
       entries = await readdir(dir, { withFileTypes: true });
     } catch {

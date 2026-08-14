@@ -4,6 +4,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { buildCagematchOutputHome } from "./generated-output-home.js";
 import { buildLocalCandidateModelVettingMirror } from "./model-vetting-local-candidate-mirror.js";
+import type { AnnyLikeCandidate, AnnyLikePreflightReport } from "../../../packages/openclinxr/arena/model-vetting/src/index.js";
 
 describe("model-vetting local candidate mirror", () => {
   it("exposes a script for browser-serving ignored local candidates", async () => {
@@ -18,7 +19,7 @@ describe("model-vetting local candidate mirror", () => {
     try {
       process.chdir(tempDir);
       await writeFile("candidate.glb", "fixture-glb", "utf8");
-      const preflight = {
+      const preflight: AnnyLikePreflightReport = {
         schemaVersion: "openclinxr.anny-candidate-preflight.v1",
         generatedAt: "2026-06-06T00:00:00.000Z",
         candidates: [
@@ -59,6 +60,7 @@ describe("model-vetting local candidate mirror", () => {
               animationCount: 1,
               morphTargetPrimitiveCount: 1,
               vertexCount: 42,
+              clinicalIdlePoseClipCount: 0,
             },
             rigControlEvidence: {
               canonicalSkeletonNodesPresent: true,
@@ -70,7 +72,6 @@ describe("model-vetting local candidate mirror", () => {
               requiredMorphTargets: ["openclinxr_mouth_open", "openclinxr_brow_concern", "openclinxr_cheek_tension"],
               missingMorphTargets: [],
               observedMorphTargets: ["openclinxr_mouth_open", "openclinxr_brow_concern", "openclinxr_cheek_tension"],
-              observedControlNodes: ["head", "neck"],
             },
             status: "ready_for_webxr_visual_evidence",
             blockers: [],
@@ -102,7 +103,7 @@ describe("model-vetting local candidate mirror", () => {
     try {
       process.chdir(tempDir);
       await writeFile("candidate.glb", "fixture-glb", "utf8");
-      const baseCandidate = {
+      const baseCandidate: AnnyLikeCandidate = {
         candidateId: "peds_patient_child_anny_compatible_candidate",
         scenarioId: "peds_asthma_parent_anxiety_v1",
         actorMapping: {
@@ -139,6 +140,7 @@ describe("model-vetting local candidate mirror", () => {
           animationCount: 1,
           morphTargetPrimitiveCount: 1,
           vertexCount: 42,
+          clinicalIdlePoseClipCount: 0,
         },
         rigControlEvidence: {
           canonicalSkeletonNodesPresent: true,
@@ -150,13 +152,12 @@ describe("model-vetting local candidate mirror", () => {
           requiredMorphTargets: ["openclinxr_mouth_open", "openclinxr_brow_concern", "openclinxr_cheek_tension"],
           missingMorphTargets: [],
           observedMorphTargets: ["openclinxr_mouth_open", "openclinxr_brow_concern", "openclinxr_cheek_tension"],
-          observedControlNodes: ["head", "neck"],
         },
         status: "ready_for_webxr_visual_evidence",
         blockers: [],
         nextEvidenceRequired: ["webxr_only_actor_closeup_screenshot"],
       };
-      const preflight = {
+      const preflight: AnnyLikePreflightReport = {
         schemaVersion: "openclinxr.anny-candidate-preflight.v1",
         generatedAt: "2026-06-06T00:00:00.000Z",
         candidates: [

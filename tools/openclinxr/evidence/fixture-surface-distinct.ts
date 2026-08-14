@@ -24,6 +24,7 @@ import {
   withTreeStamp,
   type MeasurementTreeStamp,
 } from "./lib/measurement-tree-stamp.js";
+import type { PortlessDevServer } from "./lib/portless-server.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "../../..");
@@ -302,7 +303,7 @@ export async function captureSurfacesAfterPng(input?: {
     input?.outputPath
     ?? absEvidence(ISSUE_207_EVIDENCE_DIR, "surfaces-after.png");
 
-  let server: { url: string; proc: { kill: (s: string) => void } } | undefined;
+  let server: PortlessDevServer | undefined;
   let owned = false;
   try {
     const baseUrl =

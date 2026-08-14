@@ -83,6 +83,8 @@ export type ModelVettingProceduralFaceDetailHandoff = {
   eyePlacementMode: string;
   featurePlacementMode: string;
   hairObjectName: string;
+  /** Run id of the generated scalp-hair asset that produced the native scalp region. */
+  scalpHairSourceRunId?: string;
   eyeObjectNames: string[];
   facialFeatureObjectNames: string[];
   coordinateBasis: string;

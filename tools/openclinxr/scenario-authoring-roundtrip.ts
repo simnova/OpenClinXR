@@ -12,25 +12,14 @@
  */
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { createScenarioPlaceholderManifests, InMemoryAssetRegistry } from "../../packages/openclinxr/asset-registry/src/index.js";
-import {
-  createDefaultModelGateway,
-  LocalModelProviderAdapter,
-  MockModelProviderAdapter,
-} from "../../packages/openclinxr/model-gateway/src/index.js";
 import { edChestPainScenario } from "../../packages/openclinxr/scenario-fixtures/src/index.js";
 import {
+  createDefaultScenarioRuntime,
   ScenarioRuntime,
   type ScenarioRuntimeActorTurn,
   type ScenarioRuntimeDurableStore,
 } from "../../packages/openclinxr/scenario-runtime/src/index.js";
 import type { ReviewPacket } from "../../packages/openclinxr/shared-schemas/src/index.js";
-import { InMemoryTraceLedger } from "../../packages/openclinxr/trace-ledger/src/index.js";
-import {
-  createDefaultVoiceGateway,
-  LocalVoiceProviderAdapter,
-  MockVoiceProviderAdapter,
-} from "../../packages/openclinxr/voice-gateway/src/index.js";
 
 export type ScenarioAuthoringRoundtripArtifact = {
   schemaVersion: "openclinxr.scenario-authoring-roundtrip.v1";
@@ -93,23 +82,8 @@ export function createInMemoryAuthoringDurableStore(): {
 export function createAuthoringRoundtripRuntime(
   durableStore?: ScenarioRuntimeDurableStore,
 ): ScenarioRuntime {
-  const assetRegistry = new InMemoryAssetRegistry();
-  for (const manifest of createScenarioPlaceholderManifests(edChestPainScenario)) {
-    assetRegistry.upsert(manifest);
-  }
-
-  return new ScenarioRuntime({
+  return createDefaultScenarioRuntime({
     scenario: edChestPainScenario,
-    ledger: new InMemoryTraceLedger(),
-    assetRegistry,
-    modelGateway: createDefaultModelGateway({
-      routeId: "actor-dialogue-offline-v1",
-      adapters: [new MockModelProviderAdapter(), new LocalModelProviderAdapter({ providerId: "local-model" })],
-    }),
-    voiceGateway: createDefaultVoiceGateway({
-      routeId: "voice-offline-v1",
-      adapters: [new MockVoiceProviderAdapter(), new LocalVoiceProviderAdapter({ providerId: "local-voice" })],
-    }),
     ...(durableStore ? { durableStore } : {}),
   });
 }

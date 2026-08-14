@@ -1,10 +1,10 @@
 import { existsSync, readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
-import { createScenarioPlaceholderManifests, InMemoryAssetRegistry } from "../../../packages/openclinxr/asset-registry/src/index.js";
+import { createScenarioPlaceholderManifests } from "../../../packages/openclinxr/asset-registry/src/index.js";
 import { createStep2CsStyleSeedBlueprint, type ExamBlueprint } from "../../../packages/openclinxr/exam-assembly/src/index.js";
 import { createDefaultModelGateway, MockModelProviderAdapter } from "../../../packages/openclinxr/model-gateway/src/index.js";
 import { scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src/index.js";
-import { ScenarioRuntime } from "../../../packages/openclinxr/scenario-runtime/src/index.js";
+import { createDefaultScenarioRuntime, ScenarioRuntime } from "../../../packages/openclinxr/scenario-runtime/src/index.js";
 import type { InteractionRoutingReason } from "../../../packages/openclinxr/session-state/src/index.js";
 import type { Scenario, TraceEvent } from "../../../packages/openclinxr/shared-schemas/src/index.js";
 import {
@@ -13,7 +13,6 @@ import {
   safeTelemetryAttributes,
   summarizeTelemetrySpans,
 } from "../../../packages/openclinxr/telemetry/src/index.js";
-import { InMemoryTraceLedger } from "../../../packages/openclinxr/trace-ledger/src/index.js";
 import {
   collectVoiceStream,
   createDefaultVoiceGateway,
@@ -817,23 +816,20 @@ function emptyMultiCharacterInterruptionEvidence(input: {
 }
 
 function createScenarioRuntime(scenario: Scenario): ScenarioRuntime {
-  const assetRegistry = new InMemoryAssetRegistry();
-  for (const manifest of createScenarioPlaceholderManifests(scenario)) {
-    assetRegistry.upsert(manifest);
-  }
-
-  return new ScenarioRuntime({
+  // The factory's option types reference the built packages (dist), while this tool runs
+  // the source builds; the classes are identical at runtime, so the src values are cast
+  // across the nominal boundary instead of loading gitignored dist artifacts.
+  type FactoryOptions = NonNullable<Parameters<typeof createDefaultScenarioRuntime>[0]>;
+  return createDefaultScenarioRuntime({
     scenario,
-    ledger: new InMemoryTraceLedger(),
-    assetRegistry,
     modelGateway: createDefaultModelGateway({
       routeId: "blueprint-voice-simulation-spike-v1",
       adapters: [new MockModelProviderAdapter()],
-    }),
+    }) as unknown as FactoryOptions["modelGateway"],
     voiceGateway: createDefaultVoiceGateway({
       routeId: "blueprint-voice-simulation-spike-v1",
       adapters: [new MockVoiceProviderAdapter()],
-    }),
+    }) as unknown as FactoryOptions["voiceGateway"],
   });
 }
 

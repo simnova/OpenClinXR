@@ -11,7 +11,7 @@ import {
 import {
   type Habitus,
   type ComplianceRegion,
-  type GuiardingTriggerEntry,
+  type GuardingTriggerEntry,
   type HabitusBodyRegion,
   type HabitusJoint,
   type JointLimit,
@@ -173,7 +173,7 @@ export function generatePhysicsConfigArtifact(
       realismGrade: "B",
       promotionStatus: false,
       notEvidenceFor: config.notEvidenceFor,
-      determinismScope: config.determinismScope,
+      determinismScope: "local",
       engineId,
       engineVersion,
     },

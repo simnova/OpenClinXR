@@ -26,6 +26,7 @@
 
 import { execSync } from "node:child_process";
 import { existsSync } from "node:fs";
+import { expect } from "vitest";
 
 const DEEPSEEK_KEY = process.env.DEEPSEEK_API_KEY || process.env.DEEPSEEK_API_KEY;
 const BASE = "https://api.deepseek.com";
@@ -109,13 +110,13 @@ async function probeMultimodalShouldFail(model: string) {
   return true; // still a rejection, which is the desired behavior for these models
 }
 
-async function listModels() {
+async function listModels(): Promise<string[]> {
   const res = await fetch(`${BASE}/models`, {
     headers: { Authorization: `Bearer ${DEEPSEEK_KEY}` },
   });
   if (!res.ok) throw new Error(`List models failed: ${res.status}`);
   const json: any = await res.json();
-  const ids = (json.data || []).map((m: any) => m.id).filter((id: string) => id.includes("deepseek-v4"));
+  const ids: string[] = (json.data || []).map((m: any) => m.id).filter((id: string) => id.includes("deepseek-v4"));
   console.log("✓ Models list contains v4 entries:", ids);
   return ids;
 }

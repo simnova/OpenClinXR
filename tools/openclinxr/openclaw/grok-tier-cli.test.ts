@@ -6,6 +6,7 @@ import {
   parseGrokTierId,
 } from "../../../packages/openclinxr/agent-loop/src/grok-tier-routing.js";
 import { buildGrokRepoAgentSpawnSpec } from "../../../packages/openclinxr/agent-loop/src/grok-repo-agent-spawn.js";
+import { getRolePathScope, type RepoRoleHarnessPolicy } from "../../../packages/openclinxr/agent-loop/src/role-harness-policy.js";
 
 describe("grok tier cli helpers", () => {
   it("advises native spawn for scouts", () => {
@@ -41,12 +42,21 @@ describe("DeepSeek model capabilities (confirmed from official api-docs.deepseek
     // - No schema for content: [{type: "text" | "image_url", ...}]
     // - Examples and curl use plain string content only.
     // Vision/multimodal (image_url) lives on separate Janus / limited V4-Vision post-trains, not the standard flash/pro used by the harness.
+    const flashPolicy: RepoRoleHarnessPolicy = {
+      roleId: "productivity-skeptic",
+      policyTier: "fast_bounded",
+      taskType: "bounded_scout",
+      sandboxMode: "read-only",
+      recommendedSkills: ["openclinxr-openclaw"],
+      moonbridgeAssistOnCodex: true,
+      writeScopeNote: "test",
+      pathScope: getRolePathScope("productivity-skeptic"),
+    };
     const flashSpec = buildGrokRepoAgentSpawnSpec({
       roleId: "productivity-skeptic",
       roleDir: "agents/adversarial/productivity-skeptic",
       group: "adversarial",
-      policyTier: "fast_bounded",
-      taskType: "bounded_scout",
+      policy: flashPolicy,
       task: "scout task for test - text only",
     });
 
@@ -59,12 +69,21 @@ describe("DeepSeek model capabilities (confirmed from official api-docs.deepseek
     expect(prompt).not.toMatch(/image_url|type":\s*"image|data:image\//i);
 
     // Pro (execute) is also text-only per same docs
+    const proPolicy: RepoRoleHarnessPolicy = {
+      roleId: "asset-pipeline-lead",
+      policyTier: "standard_execution",
+      taskType: "implementation_worker",
+      sandboxMode: "workspace-write",
+      recommendedSkills: ["anny-asset-pipeline"],
+      moonbridgeAssistOnCodex: false,
+      writeScopeNote: "test",
+      pathScope: getRolePathScope("asset-pipeline-lead"),
+    };
     const proSpec = buildGrokRepoAgentSpawnSpec({
       roleId: "asset-pipeline-lead",
       roleDir: "agents/asset/asset-pipeline-lead",
       group: "asset",
-      policyTier: "standard_execution",
-      taskType: "bounded_execution",
+      policy: proPolicy,
       task: "execute task for test - text only",
     });
     expect(proSpec.model).toBe("deepseek-v4-pro");

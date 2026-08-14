@@ -119,12 +119,12 @@ type Run = {
 function runs(): Run[] {
   if (!existsSync(INSPECTION)) return [];
   const parsed = JSON.parse(readFileSync(INSPECTION, "utf8")) as Record<string, unknown>;
-  return (["parent", "nurse"] as const)
-    .map((label) => {
-      const entry = parsed[label];
-      return entry && typeof entry === "object" ? ({ label, ...(entry as Run) }) : null;
-    })
-    .filter((r): r is Run => r !== null);
+  const rows: Run[] = [];
+  for (const label of ["parent", "nurse"] as const) {
+    const entry = parsed[label];
+    if (entry && typeof entry === "object") rows.push({ label, ...(entry as Run) });
+  }
+  return rows;
 }
 
 /** Every clause guards on this: an empty artifact must FAIL, never pass vacuously (§7t). */

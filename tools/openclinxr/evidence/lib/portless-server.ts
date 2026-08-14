@@ -13,9 +13,10 @@
  */
 
 import {
-  type ChildProcessWithoutNullStreams,
+  type ChildProcessByStdio,
   spawn,
 } from "node:child_process";
+import type { Readable } from "node:stream";
 import { createServer } from "node:net";
 
 export type SpawnPortlessDevServerOptions = {
@@ -37,7 +38,7 @@ export type PortlessDevServer = {
   port: number;
   /** Always `http://127.0.0.1:<port>/` (trailing slash). */
   url: string;
-  proc: ChildProcessWithoutNullStreams;
+  proc: ChildProcessByStdio<null, Readable, Readable>;
 };
 
 /**
@@ -96,7 +97,7 @@ export function findFreePort(host = "127.0.0.1"): Promise<number> {
   });
 }
 
-function killProc(proc: ChildProcessWithoutNullStreams): void {
+function killProc(proc: ChildProcessByStdio<null, Readable, Readable>): void {
   if (proc.exitCode !== null || proc.killed) return;
   try {
     proc.kill("SIGTERM");
@@ -154,7 +155,7 @@ export async function spawnPortlessDevServer(
     cwd,
     env: childEnv,
     stdio: ["ignore", "pipe", "pipe"],
-  }) as ChildProcessWithoutNullStreams;
+  });
 
   let stdoutBuf = "";
   let stderrBuf = "";
@@ -250,7 +251,7 @@ export async function spawnPortlessDevServer(
 }
 
 /** Best-effort SIGTERM (then SIGKILL) for a portless child. */
-export function stopPortlessDevServer(proc: ChildProcessWithoutNullStreams | null | undefined): void {
+export function stopPortlessDevServer(proc: ChildProcessByStdio<null, Readable, Readable> | null | undefined): void {
   if (!proc) return;
   killProc(proc);
 }

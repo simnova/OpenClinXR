@@ -87,7 +87,7 @@ export async function runReviewGlbOptimizationVisualCagematch(options: Partial<C
   const captureRoot = path.join(options.captureRoot ?? DEFAULT_CAPTURE_ROOT, runId);
   const publicRunRoot = path.join(options.publicRoot ?? DEFAULT_PUBLIC_ROOT, runId);
   const publicModelVettingReportPath = path.join(publicRunRoot, "model-vetting-report.json");
-  const views = options.views?.length ? options.views : ["front", "side", "three_quarter"];
+  const views: Array<"front" | "side" | "three_quarter"> = options.views?.length ? options.views : ["front", "side", "three_quarter"];
   const port = options.port ?? 5196;
 
   const benchmark = JSON.parse(await readFile(benchmarkReportPath, "utf8")) as ReviewGlbOptimizationBenchmarkReport;

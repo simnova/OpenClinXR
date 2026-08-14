@@ -190,7 +190,7 @@ function analyzeChannel(channel: AnimationChannel): ChannelMotion {
   const maxScaleDelta = targetPath === "scale" ? maxDistanceFromFirst(output, 3) : 0;
   return {
     targetNodeName,
-    targetPath,
+    targetPath: targetPath ?? "unknown",
     region: classifyBodyRigMotionRegion(targetNodeName),
     sampleCount,
     maxTranslationMeters: round(maxTranslationMeters),

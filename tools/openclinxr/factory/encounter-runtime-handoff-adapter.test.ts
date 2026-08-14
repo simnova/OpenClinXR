@@ -70,6 +70,14 @@ const launchSelection = (): EncounterLocalLaunchSelectionReport => ({
       ],
       claimBoundary: "actor_specific_humanoid_gate_required_before_runtime_launch",
     })),
+    actorEquipmentMaterializationGate: {
+      runtimeSelectionBlockedUntilEvidenceAttached: true,
+      actorBlockers: ["actor_specific_humanoid_realism_gate_not_attached"],
+      equipmentBlockers: ["equipment_specific_glb_or_prefab_evidence_not_attached"],
+      caveats: ["fixture: materialization evidence not attached"],
+      recommendedNextActions: ["attach materialization evidence before runtime selection"],
+      claimBoundary: "materialization_contract_metadata_only_not_runtime_readiness",
+    },
     caseDefinitionCoverage: {
       actorRolesCovered: true,
       traceTagsCovered: true,
@@ -84,6 +92,14 @@ const launchSelection = (): EncounterLocalLaunchSelectionReport => ({
       "quest_webxr_evidence_not_attached",
     ],
     notEvidenceFor: ["runtime_readiness", "quest_readiness", "production_readiness", "clinical_validity", "scoring_validity"],
+  },
+  actorEquipmentMaterializationGate: {
+    runtimeSelectionBlockedUntilEvidenceAttached: true,
+    actorBlockers: ["actor_specific_humanoid_realism_gate_not_attached"],
+    equipmentBlockers: ["equipment_specific_glb_or_prefab_evidence_not_attached"],
+    caveats: ["fixture: materialization evidence not attached"],
+    recommendedNextActions: ["attach materialization evidence before runtime selection"],
+    claimBoundary: "materialization_contract_metadata_only_not_runtime_readiness",
   },
   pedsRuntimeMaterializationHandoff: {
     schemaVersion: "openclinxr.peds-runtime-materialization-handoff-summary.v1",
@@ -121,6 +137,8 @@ const launchSelection = (): EncounterLocalLaunchSelectionReport => ({
   realismEvidenceRefs: {
     claimBoundary: "metadata_only_not_runtime_or_visual_quality_evidence",
     refIds: ["humanoid-realism-gate", "runtime-realism-evidence-check", "visual-qa-evidence-check"],
+    runtimeRealismEvidenceHookCount: 0,
+    visualQaEvidenceHookCount: 0,
     requiredBefore: "guarded_runtime_wiring",
     runtimeExecutionAllowed: false,
     providerExecutionPerformed: false,

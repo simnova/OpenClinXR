@@ -47,9 +47,9 @@ async function main() {
   const { GLTFLoader } = await import(LOADER_MODULE);
   const data = readFileSync(GLB);
   const loader = new GLTFLoader();
-  const gltf = await new Promise<{ scene: THREE.Scene }>((resolveP, rejectP) => {
+  const gltf = await new Promise<{ scene: any }>((resolveP, rejectP) => {
     const buf = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
-    loader.parse(buf, "", (parsed) => resolveP(parsed as { scene: THREE.Scene }), rejectP);
+    loader.parse(buf, "", (parsed: any) => resolveP(parsed as { scene: any }), rejectP);
   });
   const root = gltf.scene;
   const sanitise = (n: string) => n.replaceAll(".", "");
@@ -57,9 +57,9 @@ async function main() {
   const load = async () => {
     // re-parse fresh for each mechanism so no reset bookkeeping can contaminate
     const loader2 = new GLTFLoader();
-    const gltf2 = await new Promise<{ scene: THREE.Scene }>((resolveP, rejectP) => {
+    const gltf2 = await new Promise<{ scene: any }>((resolveP, rejectP) => {
       const buf = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
-      loader2.parse(buf, "", (parsed) => resolveP(parsed as { scene: THREE.Scene }), rejectP);
+      loader2.parse(buf, "", (parsed: any) => resolveP(parsed as { scene: any }), rejectP);
     });
     const r = gltf2.scene;
     r.updateMatrixWorld(true);

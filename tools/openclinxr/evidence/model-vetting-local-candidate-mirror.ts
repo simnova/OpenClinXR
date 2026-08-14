@@ -22,6 +22,15 @@ type CliOptions = {
   stripVisualAuditMarkers: boolean;
 };
 
+type MirroredCandidate = {
+  candidateId: string;
+  actorId: string;
+  sourceGlbPath: string;
+  publicMirrorGlbPath: string;
+  publicMirrorUrlPath: string;
+  visualAuditMarkerCleanupReportPath: string | null;
+};
+
 type LocalCandidateMirrorManifest = {
   schemaVersion: "openclinxr.model-vetting-local-candidate-mirror.v1";
   generatedAt: string;
@@ -29,14 +38,7 @@ type LocalCandidateMirrorManifest = {
   outputHome: CagematchOutputHome;
   localModelVettingReportPath: string;
   publicModelVettingReportPath: string;
-  mirroredCandidates: Array<{
-    candidateId: string;
-    actorId: string;
-    sourceGlbPath: string;
-    publicMirrorGlbPath: string;
-    publicMirrorUrlPath: string;
-    visualAuditMarkerCleanupReportPath: string | null;
-  }>;
+  mirroredCandidates: MirroredCandidate[];
   skippedCandidates: Array<{
     candidateId: string;
     actorId: string;
@@ -83,7 +85,7 @@ export async function buildLocalCandidateModelVettingMirror(input: {
       candidates: candidatesWithExistingGlbs,
     },
   });
-  const mirroredCandidates = await Promise.all(report.candidates.map(async (candidate) => {
+  const mirroredCandidates: MirroredCandidate[] = await Promise.all(report.candidates.map(async (candidate) => {
     const publicMirrorGlbPath = path.join(input.outputHome.publicMirrorDir, path.basename(candidate.sourceGlbPath));
     await mkdir(path.dirname(publicMirrorGlbPath), { recursive: true });
     await copyFile(candidate.sourceGlbPath, publicMirrorGlbPath);

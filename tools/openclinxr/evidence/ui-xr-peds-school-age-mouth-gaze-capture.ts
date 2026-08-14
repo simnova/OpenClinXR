@@ -48,7 +48,7 @@ async function main(): Promise<void> {
           const sceneEvidence = window.__openClinXrSceneAssetEvidence;
           return Boolean(
             evidence?.comparator === "peds_anny_school_age_mpfb2_eye_patient"
-            && evidence.captureMode.includes("mouth-gaze-pose")
+            && evidence.captureMode?.includes("mouth-gaze-pose")
             && (evidence.morphTargetAppliedTargetCount ?? 0) > 0
             && evidence.emotionTransitionCuePresent
             && evidence.visemeTimelineComparatorEvidencePresent

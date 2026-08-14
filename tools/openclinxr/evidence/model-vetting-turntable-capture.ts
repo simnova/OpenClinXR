@@ -288,6 +288,14 @@ declare global {
       meshCount?: number;
       scenePlacementEvidenceAllowed?: boolean;
       productionReadinessClaimAllowed?: boolean;
+      visemeTimelineEvidence?: {
+        morphTargetPlaybackMode?: string;
+        appliedTargetCount?: number;
+      };
+      emotionTransitionEvidence?: {
+        morphTargetPlaybackMode?: string;
+        appliedTargetCount?: number;
+      };
     };
   }
 }

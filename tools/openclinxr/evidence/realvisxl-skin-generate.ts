@@ -584,7 +584,6 @@ export function parseArgs(argv: string[]): CliOptions {
       case "-h":
         printHelp();
         process.exit(0);
-        break;
       default:
         if (arg.startsWith("-")) {
           throw new Error(`Unknown argument: ${arg}`);

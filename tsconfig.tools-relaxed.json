@@ -3,6 +3,16 @@
   "compilerOptions": {
     "exactOptionalPropertyTypes": false,
     "noUncheckedIndexedAccess": false,
+    "noPropertyAccessFromIndexSignature": false,
+    "allowImportingTsExtensions": true,
+    "paths": {
+      "three": [
+        "./apps/ui-xr/node_modules/@types/three/src/Three.d.ts"
+      ],
+      "three/addons/loaders/GLTFLoader.js": [
+        "./apps/ui-xr/node_modules/@types/three/examples/jsm/loaders/GLTFLoader.d.ts"
+      ]
+    },
     "types": ["node"]
   },
   "include": ["tools/**/*.ts"]

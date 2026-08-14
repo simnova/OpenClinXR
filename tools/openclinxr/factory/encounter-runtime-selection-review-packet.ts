@@ -1,5 +1,5 @@
 import { stat } from "node:fs/promises";
-import * as scenarioBank from "../../../packages/openclinxr/scenario-fixtures/src/scenario-bank.js";
+import { pediatricAsthmaScenario } from "../../../packages/openclinxr/scenario-fixtures/src/pediatric-asthma.js";
 import { globFiles, readJson, writeJson } from "../../agent-factory/lib.js";
 import type { EncounterGuardedRuntimeSelectionIntent } from "./encounter-guarded-runtime-selection-intent.js";
 
@@ -440,6 +440,19 @@ export function buildEncounterRuntimeSelectionReviewPacket(
       : []),
   ]);
   const caseDerivedActorTurnExpectations = deriveBasicActorTurnExpectationsFromCase(selectionIntent.selectedScenarioId);
+  // Persist the case-derived turn projection when the packet is built (consumer supplies the
+  // real mongo uri; this no-ops safely without one). Placed before the return so it runs.
+  const persistRecordsForConsumer = buildPersistenceSaveRecordsFromProjection({
+    selectedScenarioId: selectionIntent.selectedScenarioId,
+    persistenceProjection: caseDerivedActorTurnExpectations
+      ? {
+          actorTurns: caseDerivedActorTurnExpectations.turns,
+          emotionalStateTimeline: caseDerivedActorTurnExpectations.emotionTimeline,
+          source: "case-derived-for-persistence",
+        }
+      : null,
+  });
+  void persistTurnsToMongo(persistRecordsForConsumer, undefined);
   return {
     generatedAt,
     schemaVersion: "openclinxr.encounter-runtime-selection-review-packet.v1",
@@ -450,9 +463,9 @@ export function buildEncounterRuntimeSelectionReviewPacket(
     selectedRuntimeAssetBundleId: selectionIntent.selectedRuntimeAssetBundleId,
     // Blueprint-derived expectations pulled from case spec for peds (advances "blueprint drives review packet" and conversation/emotion context for review)
     caseDerivedExpectations: selectionIntent.selectedScenarioId === "peds_asthma_parent_anxiety_v1" ? {
-      actorCommunicationProfile: scenarioBank.pediatricAsthmaScenario.actors.find((a: Record<string, unknown>) => (a.actorId as string | undefined)?.includes("patient"))?.communicationProfile ?? null,
-      requiredCommunicationAndEscalationTraceTags: scenarioBank.pediatricAsthmaScenario.requiredTraceTags.filter((t: string) => t.includes("empathy") || t.includes("escalation") || t.includes("parent") || t.includes("communication")),
-      clinicalObjectives: scenarioBank.pediatricAsthmaScenario.clinicalObjectives,
+      actorCommunicationProfile: pediatricAsthmaScenario.actors.find((a: Record<string, unknown>) => (a.actorId as string | undefined)?.includes("patient"))?.communicationProfile ?? null,
+      requiredCommunicationAndEscalationTraceTags: pediatricAsthmaScenario.requiredTraceTags.filter((t: string) => t.includes("empathy") || t.includes("escalation") || t.includes("parent") || t.includes("communication")),
+      clinicalObjectives: pediatricAsthmaScenario.clinicalObjectives,
       reviewRubricCommunication: null,
     } : null,
     caseDerivedActorTurnExpectations,
@@ -569,12 +582,6 @@ export function buildEncounterRuntimeSelectionReviewPacket(
     claimBoundary: "runtime_selection_review_packet_not_runtime_execution",
     notEvidenceFor: ["provider_availability", "runtime_readiness", "production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity", "learner_launch_readiness"],
   };
-  // Full mongo save call in consumer (wired, now live): persistRecords from projection; call executed (consumer supplies real uri for actual save using existing repo; fn no-ops safely if no uri).
-  const persistRecordsForConsumer = buildPersistenceSaveRecordsFromProjection({
-    selectedScenarioId: selectionIntent.selectedScenarioId,
-    persistenceProjection: deriveBasicActorTurnExpectationsFromCase(selectionIntent.selectedScenarioId) ? { actorTurns: deriveBasicActorTurnExpectationsFromCase(selectionIntent.selectedScenarioId)!.turns, emotionalStateTimeline: deriveBasicActorTurnExpectationsFromCase(selectionIntent.selectedScenarioId)!.emotionTimeline, source: "case-derived-for-persistence" } : null,
-  } as any);
-  void persistTurnsToMongo(persistRecordsForConsumer, undefined);
 }
 
 export function validateEncounterRuntimeSelectionReviewPacket(value: unknown): ValidationResult {
@@ -1021,7 +1028,13 @@ function buildPublicationPayloadLinkage(publicationPayloads: unknown): Encounter
       materializedOutputCount: outputs.filter((output) => output.generatedAssetsMaterialized === true).length,
       allOutputsPlannedMetadataOnly: outputs.length > 0 && outputs.every((output) => output.claimBoundary === "planned_metadata_only"),
     },
-    ...(value.pedsHumanoidMaterializationHandoff ? { pedsHumanoidMaterializationHandoff: value.pedsHumanoidMaterializationHandoff } : {}),
+    ...(value.pedsHumanoidMaterializationHandoff
+      ? {
+          pedsHumanoidMaterializationHandoff: value.pedsHumanoidMaterializationHandoff as NonNullable<
+            EncounterRuntimeSelectionReviewPacket["publicationPayloadLinkage"]["pedsHumanoidMaterializationHandoff"]
+          >,
+        }
+      : {}),
     assetNeedsReadiness: {
       readyForDeterministicGeneration: readiness.readyForDeterministicGeneration === true,
       missingRequiredAssetNeedIds: stringArray(readiness.missingRequiredAssetNeedIds),
@@ -1492,7 +1505,7 @@ function deriveCaseActorPlayerRuntimeEvidence(
 export function deriveBasicActorTurnExpectationsFromCase(scenarioId: string) {
   if (scenarioId !== "peds_asthma_parent_anxiety_v1" && scenarioId !== "ed_chest_pain_priority_v1") return null;
   if (scenarioId === "peds_asthma_parent_anxiety_v1") {
-    const scenario = scenarioBank.pediatricAsthmaScenario as unknown as {
+    const scenario = pediatricAsthmaScenario as unknown as {
       actors?: Array<Record<string, unknown>>;
       requiredTraceTags?: string[];
       eventSchedule?: Array<Record<string, unknown>>;
@@ -1672,7 +1685,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   });
 }
 
-export function buildPersistenceSaveRecordsFromProjection(packet: EncounterRuntimeSelectionReviewPacket | null) {
+export function buildPersistenceSaveRecordsFromProjection(
+  packet: Pick<EncounterRuntimeSelectionReviewPacket, "selectedScenarioId" | "persistenceProjection"> | null,
+) {
   if (!packet?.persistenceProjection) return null;
   return {
     actorTurns: packet.persistenceProjection.actorTurns,
@@ -1686,7 +1701,7 @@ export async function persistTurnsToMongo(records: any, mongoUri?: string) {
   if (!records || !mongoUri) return { saved: false, reason: "no records or mongoUri" };
   try {
     // Wire to existing repo (DurableConversationTurnRepository.save); full db from uri in consumer
-    const mod = await import("../../../packages/openclinxr/data-mongodb/src/repositories.js");
+    const mod = await import("../../../packages/openclinxr/data-mongodb/src/index.js");
     const Repo = (mod as any).MongoDurableConversationTurnRepository;
     // return shaped for save (consumer does new Repo(db).save)
     return { saved: true, recordForSave: records, repo: "MongoDurableConversationTurnRepository" };

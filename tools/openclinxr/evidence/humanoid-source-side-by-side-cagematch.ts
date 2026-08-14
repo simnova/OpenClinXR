@@ -15,7 +15,15 @@ type CliOptions = {
   port: number;
 };
 
-const NOT_EVIDENCE_FOR = [
+const NOT_EVIDENCE_FOR: [
+  "b_plus_visual_realism_gate",
+  "scene_placement_readiness",
+  "quest_readiness",
+  "production_asset_readiness",
+  "learner_readiness",
+  "clinical_validity",
+  "scoring_validity",
+] = [
   "b_plus_visual_realism_gate",
   "scene_placement_readiness",
   "quest_readiness",
