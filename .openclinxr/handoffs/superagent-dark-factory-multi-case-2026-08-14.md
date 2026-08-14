@@ -172,6 +172,42 @@ there is currently one.
 is the only MPFB adult male and he is cast as a nurse); whether the `--hatch` / `--motion-bind` /
 `--viseme` stations run (all default OFF and I did not enable them).
 
+## 4c. CORRECTION 2026-08-14 13:4x — WORKSTREAM C IS WRONG. Lip-sync is NOT missing. Do not build Rhubarb.
+
+**I told you lip-sync was one of three non-deterministic stations and proposed `Rhubarb -> viseme JSON
+-> existing morphs`. That was wrong, and it would have been days of unnecessary work.** The chain
+exists end to end and is already deterministic:
+
+```
+dialogue text
+  -> DIALOGUE_PRONUNCIATIONS  (bank-scoped CMUdict extraction, build-time input, CMU BSD)   #375
+  -> viseme sequence                                                                        #376
+  -> MPFB_FACS_MORPH_NAMES alias                                                            #353
+  -> mouth-open / mouth-protusion / mouth-pursing / ...                                     (32 FACS targets)
+```
+
+**Green contracts, verified by running them just now, not by reading:**
+
+| contract | state |
+|---|---|
+| `viseme-capture-produces-distinct-shapes.test.ts` | 4 clauses, **zero `it.fails`**; `mouth-protusion` and `mouth-compression` observed at **weight 1.0** on MPFB bodies in a live scene (#365) |
+| `dialogue-visemes-follow-pronunciation.test.ts` | **4/4 pass**, incl. homophones producing identical sequences — #376 had measured 0 of 5 (#375 fixed it) |
+
+**Rhubarb is the wrong tool here.** Rhubarb derives visemes from AUDIO. This pipeline has no audio —
+it derives them from authored dialogue text, which is *more* dark-factory, not less: it needs no
+recording, no analysis pass, and it is reproducible from the case definition alone.
+
+**What actually remains for lip-sync is a D12 grade, not a mechanism.** #365's header notes screenshots
+cost ~500 ms each and throttled its own sampling, so nobody has watched a mouth move at a decent frame
+rate. That is a capture-quality problem.
+
+**Why I got it wrong, so you can discount my other station rows appropriately:** I searched for the
+NAME (Rhubarb, audio, lip-sync) rather than the CAPABILITY (does a viseme reach a morph?). MADR 0052
+records the identical error about `solveMacrosForTarget`, and this is the third time I have made it
+today. **Treat §3's station table as a starting point to verify, not as measured fact** — the two rows
+I am now confident in are garment colour (measured, and #388 has since fixed the parent half) and
+motion (which you then built).
+
 ## 5. Traps that will cost you days if you do not know them
 
 Each of these cost this project real time. They are not hypotheticals.

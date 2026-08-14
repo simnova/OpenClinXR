@@ -116,9 +116,28 @@ presentation FIRST and the girth solve runs after.
 > Compare #316 on the Anny rail, where `jaw_open`, `smile` and `eye_blink_l/r` move **100% of every
 > vertex**.
 >
-> **What remains for P4 is the same "presence is not drive" step #311 drew for eyes and #395 closed
-> for gaze:** nothing has verified that writing `viseme_AA` produces measurable mouth displacement at
-> runtime. That is a live probe parallel to `gaze-eye-rotation-live.ts`, not a mapping.
+> **CORRECTED 13:4x, same hour, by me.** I wrote here that "nothing has verified that writing
+> `viseme_AA` produces measurable mouth displacement at runtime". **False — #365 did exactly that on
+> 2026-08-13** and its contract `viseme-capture-produces-distinct-shapes.test.ts` is green with **zero
+> `it.fails`**: the capture runs, the dominant viseme takes >=5 distinct values, weights are
+> non-trivial, and every dominant target is a mouth/lip/jaw morph. Its own header records
+> `mouth-protusion` and `mouth-compression` **observed at weight 1.0 on MPFB bodies in a live scene**.
+>
+> **And the source chain is complete too.** #375 replaced the spelling-based classifier with
+> `DIALOGUE_PRONUNCIATIONS`, a bank-scoped **CMUdict** extraction (build-time input, CMU BSD);
+> `dialogue-visemes-follow-pronunciation.test.ts` passes **4/4**, including homophones producing
+> identical sequences — which #376 had measured failing 0 of 5.
+>
+> **So P4 is substantially COMPLETE, and it is already dark-factory compliant:**
+> `dialogue text -> CMUdict pronunciation -> viseme -> MPFB FACS morph`, deterministic end to end,
+> no audio stage, no Rhubarb, no LLM. This is the third capability I have looked for by NAME today and
+> found already present under a different one — the same error this document's own "Why this column
+> exists" note records about `solveMacrosForTarget`. **Search for the capability: the artifact, the
+> contract, the measured number.**
+>
+> What is genuinely NOT verified for P4: that a human sees the mouth move. #365's header records
+> screenshots at ~500 ms each throttling its own sampling, so the visual half is thin — that is a D12
+> grade, not a mechanism gap.
 >
 > NOT TESTED: no viseme weight has been driven and measured; no audio, no Rhubarb, no capture; only
 > `mpfb-ob-patient-aisha` and `mpfb-peds-nurse-kevin` were enumerated; whether the encounter loop
