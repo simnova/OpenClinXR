@@ -13,5 +13,10 @@
   "include": [
     "src/**/*.ts",
     "vite.config.ts"
+  ],
+  "references": [
+    {
+      "path": "../../packages/openclinxr/asset-registry"
+    }
   ]
 }

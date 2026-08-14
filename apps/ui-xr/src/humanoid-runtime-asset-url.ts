@@ -76,6 +76,18 @@ export const MPFB_PEDS_PATIENT_CHILD_RUNTIME_PATH =
 /** Dark-factory B — peds parent loads the motion-bind GLB. Mirrors actor-casting. */
 export const MPFB_PEDS_PARENT_AISHA_RUNTIME_PATH =
   "/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb";
+/**
+ * #403 — step 2 of the MPFB2 migration: the two ED adult MPFB bodies (nurse-class
+ * and family-class) replace the shared Anny nurse/spouse meshes. Mirrors
+ * actor-casting MPFB_CLINICAL_NURSE_ADULT_GLB / MPFB_FAMILY_PARTNER_ADULT_GLB.
+ */
+export const MPFB_CLINICAL_NURSE_ADULT_RUNTIME_PATH =
+  "/generated-humanoids/mpfb-clinical-nurse-adult.glb";
+export const MPFB_FAMILY_PARTNER_ADULT_RUNTIME_PATH =
+  "/generated-humanoids/mpfb-family-partner-adult.glb";
+/** Bare filenames for pool assignment — mirrors actor-casting #403 constants. */
+const MPFB_CLINICAL_NURSE_ADULT_GLB = "mpfb-clinical-nurse-adult.glb";
+const MPFB_FAMILY_PARTNER_ADULT_GLB = "mpfb-family-partner-adult.glb";
 
 const ADULT_POOL_GLBS = [
   ED_ADULT_CAST_GLB,
@@ -141,7 +153,8 @@ function environmentIdForScenario(scenarioId: string): string {
  */
 const ED_RUNTIME_CAST_BY_ACTOR: Record<string, string> = {
   patient_robert_hayes_v1: ED_ADULT_CAST_RUNTIME_PATH,
-  nurse_maria_alvarez_v1: `/generated-humanoids/${ED_NURSE_GLB}`,
+  // #403: the ED nurse loads the MPFB clinical-nurse body (was the shared Anny nurse mesh).
+  nurse_maria_alvarez_v1: MPFB_CLINICAL_NURSE_ADULT_RUNTIME_PATH,
   spouse_anna_hayes_v1: LIBRARY_ADULT_LEAN_FEMALE_RUNTIME_PATH,
 };
 
@@ -156,13 +169,13 @@ const PEDS_RUNTIME_CAST_BY_ACTOR: Record<string, string> = {
 
 /**
  * Runtime public paths for OB triage cast (#263, mirrors actor-casting table).
- * patient = first promoted MPFB2 asset; nurse/partner keep the pre-promotion
- * Anny pool assignments so within-scenario distinctness holds alongside MPFB.
+ * patient = promoted MPFB2 asset; nurse/partner move to the #403 MPFB adult bodies
+ * so the whole station is on the MPFB rail (three distinct files).
  */
 const OB_RUNTIME_CAST_BY_ACTOR: Record<string, string> = {
   patient_aisha_khan_v1: MPFB_OB_PATIENT_AISHA_RUNTIME_PATH,
-  ob_nurse_williams_v1: `/generated-humanoids/${ED_NURSE_GLB}`,
-  partner_omar_khan_v1: `/generated-humanoids/${ED_SPOUSE_GLB}`,
+  ob_nurse_williams_v1: MPFB_CLINICAL_NURSE_ADULT_RUNTIME_PATH,
+  partner_omar_khan_v1: MPFB_FAMILY_PARTNER_ADULT_RUNTIME_PATH,
 };
 
 function runtimePath(glbFile: string): string {
@@ -210,9 +223,12 @@ function pickAdultGlb(
     || r === "physician"
     || r === "consultant"
   ) {
-    preferred.push(ED_NURSE_GLB, PEDS_NURSE_GLB, ED_ADULT_CAST_GLB, PEDS_PARENT_GLB, ED_SPOUSE_GLB, ADULT_MALE_STREET_CASUAL_GLB);
+    // #403: nurse-class roles take the MPFB clinical-nurse body first (mirrors
+    // actor-casting; the Anny nurse file stays as a second-body fallback).
+    preferred.push(MPFB_CLINICAL_NURSE_ADULT_GLB, ED_NURSE_GLB, PEDS_NURSE_GLB, ED_ADULT_CAST_GLB, PEDS_PARENT_GLB, ED_SPOUSE_GLB, ADULT_MALE_STREET_CASUAL_GLB);
   } else if (r === "family" || r === "family_member" || r === "parent" || r === "spouse") {
-    preferred.push(ED_SPOUSE_GLB, PEDS_PARENT_GLB, ADULT_MALE_STREET_CASUAL_GLB, ED_ADULT_CAST_GLB, ED_NURSE_GLB, PEDS_NURSE_GLB);
+    // #403: family-class roles take the MPFB family-partner body first (mirrors actor-casting).
+    preferred.push(MPFB_FAMILY_PARTNER_ADULT_GLB, ED_SPOUSE_GLB, PEDS_PARENT_GLB, ADULT_MALE_STREET_CASUAL_GLB, ED_ADULT_CAST_GLB, ED_NURSE_GLB, PEDS_NURSE_GLB);
   } else {
     preferred.push(...ADULT_POOL_GLBS);
   }
