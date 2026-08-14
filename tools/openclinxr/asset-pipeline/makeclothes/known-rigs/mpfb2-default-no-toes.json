@@ -1,0 +1,36 @@
+{
+  "name": "MPFB2 default_no_toes",
+  "url": "https://static.makehumancommunity.org/",
+  "fingerprint": ["upperarm01.L", "spine05", "neck01"],
+  "bones": {
+    "root": "hips",
+    "spine05": "spine",
+    "spine04": "spine-1",
+    "spine03": "chest",
+    "neck01": "neck",
+    "head": "head",
+
+    "clavicle.L": "shoulder.L",
+    "upperarm01.L": "upper_arm.L",
+    "lowerarm01.L": "forearm.L",
+    "wrist.L": "hand.L",
+
+    "clavicle.R": "shoulder.R",
+    "upperarm01.R": "upper_arm.R",
+    "lowerarm01.R": "forearm.R",
+    "wrist.R": "hand.R",
+
+    "upperleg01.L": "thigh.L",
+    "upperleg02.L": "thigh_twist.L",
+    "lowerleg01.L": "shin.L",
+    "foot.L": "foot.L",
+    "toe1-1.L": "toe.L",
+
+    "upperleg01.R": "thigh.R",
+    "lowerleg01.R": "shin.R",
+    "foot.R": "foot.R",
+    "toe1-1.R": "toe.R"
+  },
+  "optional": ["upperleg02.L", "toe1-1.L", "toe1-1.R"],
+  "ik-bones": []
+}

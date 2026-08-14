@@ -1,0 +1,136 @@
+{
+  "schemaVersion": "openclinxr.motion-bind-stage.v1",
+  "stageId": "motion_bind_stage",
+  "verdict": "ok",
+  "generatedAt": "2026-08-14T16:19:43.346564+00:00",
+  "sourceClip": "tools/openclinxr/asset-pipeline/anny/proof-animations/diag/cmu_07_01_walk.bvh",
+  "targetRig": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
+  "targetMap": "tools/openclinxr/asset-pipeline/makeclothes/known-rigs/mpfb2-default-no-toes.json",
+  "operator": "mcp.load_and_retarget",
+  "addonModule": "bl_ext.user_default.retarget_bvh",
+  "outputGlb": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb",
+  "clipName": "openclinxr_retarget_cmu_07_01_walk",
+  "drivenBones": [
+    {
+      "bone": "clavicle.L",
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.44332231319276616
+    },
+    {
+      "bone": "clavicle.R",
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.43915052978266544
+    },
+    {
+      "bone": "foot.L",
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.7871233858168125
+    },
+    {
+      "bone": "foot.R",
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.7970550358295441
+    },
+    {
+      "bone": "head",
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.2242803918343066
+    },
+    {
+      "bone": "lowerarm01.L",
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.6830907708499581
+    },
+    {
+      "bone": "lowerarm01.R",
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.7227524735499173
+    },
+    {
+      "bone": "lowerleg01.L",
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.7410020492970943
+    },
+    {
+      "bone": "lowerleg01.R",
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.7112049516290426
+    },
+    {
+      "bone": "neck01",
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.5002764501077781
+    },
+    {
+      "bone": "root",
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.34573595039552174
+    },
+    {
+      "bone": "spine03",
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.3970785027337038
+    },
+    {
+      "bone": "spine04",
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.1801395295187831
+    },
+    {
+      "bone": "spine05",
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.30513889342549305
+    },
+    {
+      "bone": "toe1-1.L",
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.3460982859833166
+    },
+    {
+      "bone": "toe1-1.R",
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.3353104438429
+    },
+    {
+      "bone": "upperarm01.L",
+      "keyframes": 318,
+      "totalRotationDeltaRad": 1.7288949433714151
+    },
+    {
+      "bone": "upperarm01.R",
+      "keyframes": 318,
+      "totalRotationDeltaRad": 1.5552444774657488
+    },
+    {
+      "bone": "upperleg01.L",
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.9901146539486945
+    },
+    {
+      "bone": "upperleg01.R",
+      "keyframes": 318,
+      "totalRotationDeltaRad": 1.006476767361164
+    },
+    {
+      "bone": "wrist.L",
+      "keyframes": 318,
+      "totalRotationDeltaRad": 1.6765555664896965
+    },
+    {
+      "bone": "wrist.R",
+      "keyframes": 318,
+      "totalRotationDeltaRad": 1.6154361888766289
+    }
+  ],
+  "drivenBoneCount": 22,
+  "totalRotationDeltaRad": 16.53148255530295,
+  "outputBytes": 361604,
+  "log": "actor_armature=mpfb_ob_patient_aisha_standard_rig pose_bones=137\nmodule=bl_ext.user_default.retarget_bvh load_and_retarget=True\nprefs_missing addon_keys=['io_anim_bvh']; using headless prefs stand-in\ntarget_map=MPFB2 default_no_toes from tools/openclinxr/asset-pipeline/makeclothes/known-rigs/mpfb2-default-no-toes.json\nload_and_retarget message='BVH file(s) retargeted'\ndriven=22 real=22 action=openclinxr_retarget_cmu_07_01_walk",
+  "claimScope": "one_actor_one_clip_retarget_bind_not_a_motion_library",
+  "notEvidenceFor": [
+    "clinical_motion_realism",
+    "quest_readiness",
+    "visual_walk_quality",
+    "runtime_playback"
+  ]
+}
