@@ -31,6 +31,7 @@ import {
 import type { DoneWhenCheck } from "../../../packages/openclinxr/agent-loop/src/slice-team.js";
 import { resolveSharedCoordinationPath } from "./coordination-root.js";
 import { assertLoopNotPaused } from "./loop-pause.js";
+import { evaluateProofTargetsBeforeDispatch } from "./proof-target-preflight.js";
 import { provisionWorktreeAssetsSync } from "./worktree-asset-provisioning.js";
 import { ensureWorktreeBaseFresh } from "./worktree-base-freshness.js";
 
@@ -204,6 +205,12 @@ export type DispatchLedgerEntry = {
   contractReportPath?: string;
   /** Present when an unproofed dispatch was explicitly opted out of the tier gate. */
   contractReason?: string;
+  /**
+   * Issue #396: proof targets flagged at dispatch start because merge-kill would refuse them at
+   * land (gitignored + untracked in HEAD, not covered by the brief's opt-out). Recorded so the
+   * flag is queryable after the run, not only visible in dispatch's console banner.
+   */
+  gitignoredProofTargetsWarned?: string[];
 };
 
 /**
@@ -1011,6 +1018,36 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
     contractReason: options.contractReason,
   });
 
+  // ISSUE #396 (measured 2026-08-14): the gitignored-proof-target gate used to fire only at MERGE
+  // time — #392 (38 turns) and #367 (51 turns) both completed contract-green and were REFUSED at
+  // land for an `exists:` proof on a gitignored target a clean clone cannot have. Pre-flight it
+  // HERE, before worktree creation and before any spawn, against the RESOLVED proof set and the
+  // trusted brief's opt-out, with the SAME evaluator merge-kill uses at land. LOUD but not fatal:
+  // the opt-out is a stated decision, and a worker may legitimately force-add the target (which is
+  // what the land gate then requires). A refusal would break both, so this warns and records.
+  const gitignoredProofTargetsWarned = evaluateProofTargetsBeforeDispatch(
+    repoRoot,
+    assembled.treeProofs,
+    Array.isArray(assembled.brief?.gitignoredProofTargetsAllowed)
+      ? assembled.brief!.gitignoredProofTargetsAllowed!
+      : undefined,
+  )
+    .filter((v) => v.unlandable)
+    .map((v) => v.target);
+  if (gitignoredProofTargetsWarned.length > 0) {
+    console.warn(
+      [
+        "",
+        "WARNING (issue #396): proof target(s) are gitignored and untracked in HEAD — merge-kill would",
+        "REFUSE this slice at land unless the worker force-adds them or the brief names them in",
+        "gitignoredProofTargetsAllowed:",
+        ...gitignoredProofTargetsWarned.map((t) => `  - ${t}`),
+        "Force-add the target, declare the opt-out, or expect a land refusal after the work is done.",
+        "",
+      ].join("\n"),
+    );
+  }
+
   // #66: brief.assetPaths ∪ dispatch.assetPaths (unique, order preserved). Declaration drives
   // provisionWorktreeAssets inside prepareWorktreeForWorker — a provisioner nothing calls is docs.
   const assetPaths = uniqueStrings([
@@ -1121,6 +1158,7 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
     at: new Date().toISOString(),
     contractSource: assembled.contractSource,
     ...(assembled.contractReason ? { contractReason: assembled.contractReason } : {}),
+    ...(gitignoredProofTargetsWarned.length > 0 ? { gitignoredProofTargetsWarned } : {}),
   };
   recordSession(repoRoot, entry);
   writeFileSync(join(repoRoot, ".openclinxr/openclaw/worker-last-result.json"), output);
