@@ -70,6 +70,16 @@ import { describe, expect, it } from "vitest";
  *     before trusting an image is a habit, not a gate.
  *   - **Retroactive stamping.** Existing captures stay unstamped and unknowable. Nothing here dates
  *     them; they should be treated as undatable rather than assumed current.
+ *
+ * ## FIXED (#89)
+ *
+ * - `runGlbGradeCapture` now stamps every gallery with the capture-time tree: `measuredAgainstCommit`
+ *   (HEAD sha) plus the full `treeStamp` (head + worktree-dirtiness fingerprint), using the existing
+ *   `lib/measurement-tree-stamp.ts` convention that 31 measurement writers already use. Fail-closed:
+ *   a run that cannot resolve `git rev-parse HEAD` writes no gallery at all.
+ * - Both `runDir/gallery.json` and `latest/gallery.json` are the same stamped object.
+ * - Clauses (1) and (2) are flipped live: the newest galleries must name a real, resolvable commit.
+ * - Pre-fix captures are untouched and stay undatable — not retro-dated.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -138,7 +148,7 @@ function requireGalleries(): void {
 }
 
 describe("a graded image says which commit produced it", () => {
-  it.fails("(1) RED: the grade gallery records the commit it was captured against", () => {
+  it("(1) RED: the grade gallery records the commit it was captured against", () => {
     // Refuses (b): `generatedAt` is a wall-clock time. A grader needs the TREE, not the minute.
     requireGalleries();
     const unstamped = galleries
@@ -150,7 +160,7 @@ describe("a graded image says which commit produced it", () => {
     expect(unstamped, "grade galleries with no commit provenance").toEqual([]);
   });
 
-  it.fails("(2) RED: the recorded commit is a real sha, not a placeholder", () => {
+  it("(2) RED: the recorded commit is a real sha, not a placeholder", () => {
     // Refuses (c): a field containing "unknown" looks like provenance in a dump and answers nothing.
     requireGalleries();
     const bogus = galleries

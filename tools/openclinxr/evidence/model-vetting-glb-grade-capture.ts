@@ -28,6 +28,7 @@ import {
   type ModelVettingCandidate,
   type ModelVettingReport,
 } from "../../../packages/openclinxr/arena/model-vetting/src/index.js";
+import { computeMeasurementTreeStamp, type MeasurementTreeStamp } from "./lib/measurement-tree-stamp.js";
 
 // ---------------------------------------------------------------------------
 // Pure exports (planted contracts)
@@ -219,6 +220,13 @@ export type GlbGradeAssetResult = {
 export type GlbGradeGallery = {
   schemaVersion: "openclinxr.glb-grade-capture.v1";
   generatedAt: string;
+  /**
+   * #89 — the TREE this capture ran against, not the minute. A pixel grade is a human judgement
+   * made once and acted on for days; it must say which commit produced it. Same convention as the
+   * measurement writers (31 modules carry `measuredAgainstCommit` / `treeStamp`).
+   */
+  measuredAgainstCommit: string;
+  treeStamp: MeasurementTreeStamp;
   claimScope: "browser_threejs_render_with_independent_geometry_self_check_not_visual_realism_or_readiness";
   purpose: string;
   defaultRelativeTolerance: number;
@@ -337,6 +345,8 @@ export async function runGlbGradeCapture(options: {
   const glbPaths = options.allShippedHumanoids || !options.glbPaths?.length
     ? await listShippedHumanoidGlbs(cwd)
     : options.glbPaths;
+  // #89: fail closed — a gallery that cannot name its tree must not be written at all.
+  const treeStamp = computeMeasurementTreeStamp(cwd);
   const runId = new Date().toISOString().replaceAll(":", "-").replace(/\.\d{3}Z$/, "Z");
   const evidenceRoot = options.outputRoot ?? DEFAULT_EVIDENCE_ROOT;
   const runDir = path.join(cwd, evidenceRoot, runId);
@@ -405,6 +415,8 @@ export async function runGlbGradeCapture(options: {
   const gallery: GlbGradeGallery = {
     schemaVersion: "openclinxr.glb-grade-capture.v1",
     generatedAt: new Date().toISOString(),
+    measuredAgainstCommit: treeStamp.head,
+    treeStamp,
     claimScope: "browser_threejs_render_with_independent_geometry_self_check_not_visual_realism_or_readiness",
     purpose:
       "Render every shipped humanoid through the real model-vetting three.js path, fail-closed when "
