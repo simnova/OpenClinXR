@@ -6,11 +6,11 @@
   "counts": {
     "keep-evidence": 118,
     "ignore-local-cache": 2112,
-    "keep-current": 126,
+    "keep-current": 127,
     "keep-compatibility-input": 24,
     "keep-template": 6,
-    "entries": 2388,
-    "total": 2388
+    "entries": 2389,
+    "total": 2389
   },
   "entries": [
     {
@@ -15279,6 +15279,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Generated Infinigen room shell (#336), deterministic seed-0 bake, environmentId-keyed runtime consumer; provenance in public/xr-assets/environment/PROVENANCE.md + MADR 0053."
+    },
+    {
+      "path": "apps/ui-xr/public/xr-assets/environment/infinigen-pediatric-urgent-care-bay.glb",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated Infinigen room shell (#405), deterministic clinical_bay.gin seed-1 bake, second environmentId-keyed runtime consumer; provenance in public/xr-assets/environment/PROVENANCE.md."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/generated/adult_abdominal_pain_v1/learner-runtime-bundle.v1.json",
