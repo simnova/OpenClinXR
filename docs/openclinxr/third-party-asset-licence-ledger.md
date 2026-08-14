@@ -87,6 +87,21 @@ Full table + poly counts: `docs/openclinxr/equipment-oss-candidates.md`. MADR 00
 | Expy-Kit, Mwni | **No LICENSE file**; GPL claim rests on a single header line. | Not acquired. Recorded so it is not mistaken for cleared. |
 | MakeHuman base mesh | A stale 2016 README in the org's own tree asserts **AGPL** against a 2020 `LICENSE.md` saying **CC0**. No dated relicensing announcement found. | This is the mesh under every body we generate. The contradiction is upstream, not ours, but it is the single most load-bearing licence in the pipeline. |
 
+## Cleared but NOT acquired — G2P pronunciation data (2026-08-13, #375)
+
+| resource | licence, verified at source | verdict |
+|---|---|---|
+| **CMUdict** (Carnegie Mellon Pronouncing Dictionary, ~134k English words to ARPAbet) | **BSD 2-clause**, copyright Carnegie Mellon University. Fetched verbatim from `https://raw.githubusercontent.com/cmusphinx/cmudict/master/LICENSE` on 2026-08-13. Permits redistribution and commercial use provided the copyright notice and conditions are retained; **explicitly not copyleft**. | **CLEARS the bar.** Permissive, non-copyleft, no AGPL contamination. Obligation on use: retain the CMU copyright notice wherever the data is redistributed. |
+| **Rhubarb Lip Sync** | Not investigated — see below. | **NOT APPLICABLE to this pipeline.** Rhubarb consumes AUDIO and this repo has **zero** audio assets (measured 2026-08-13: 0 `.wav`/`.mp3`/`.ogg` under `apps/` and `packages/`, no TTS provider). Named as the lip-sync target in MADR 0052 and `PROTO_VERIFY_DELEGATION.md:45`; that target presumes an audio pipeline that does not exist. Recorded so the licence is not chased for a tool that has no input. |
+
+**Cleared is not acquired.** Nothing from CMUdict is in the tree. #375 is the consuming slice and is
+deliberately un-operationalized pending its extraction question; this entry removes only the licence
+half of that blocker.
+
+**Method note:** verified by fetching the LICENSE file itself, not a summary page or a package-manager
+badge. §PROTO_CURIOUS_RESEARCHER: unspecified is a refusal, so a second-hand claim would not have
+cleared it.
+
 ## Open questions
 
 - **`haireditor` licence.** Worth asking upstream. If it comes back CC0/CC-BY it is the preferred hair

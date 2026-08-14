@@ -866,8 +866,8 @@ describe("static browser assets", () => {
     expect(mainSource).not.toContain("window.__openClinXrHumanoidSpeechEvidence = buildHumanoidSpeechEvidence(null, null, null, [], [], null);");
     expect(mainSource).toContain("localDialogueActorIdForTraceTag");
     expect(mainSource).toContain("live_blueprint_dialogue_emotion_source"); // updated for live turn+emotion bind in speech evidence + mouth-gaze
-    expect(mainSource).toContain("phonemeSequenceForDialogue");
-    expect(mainSource).toContain("visemeForPhoneme");
+    expect(mainSource).toContain("visemesForText");
+    expect(mainSource).toContain("phonemesForText");
     expect(mainSource).toContain("createHumanoidSpeechMouthCue");
     expect(mainSource).toContain("createHumanoidEyeGazeCue");
     expect(mainSource).toContain("createHumanoidEyeFocusCue");
