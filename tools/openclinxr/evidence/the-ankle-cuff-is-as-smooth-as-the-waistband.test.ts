@@ -100,6 +100,14 @@ import { describe, expect, it } from "vitest";
  *   - **Sleeve cuffs and collars.** Both are visible in the same captures and neither is measured here.
  *   - **Whether the child's smooth cuff survives** a treatment tuned on the adults. Clause (1)
  *     enumerates all three, so a regression there fails the RED rather than passing silently.
+ *
+ * ## FIXED (#389) — 2026-08-14, measured on the shipped bytes
+ *
+ * The #199 rebake re-cut kevin's pants cover shell (2,628 -> 2,498 tris — the shell's top follows
+ * the longer sweater's hem; documented in the #199 commit, same class as #378). The kevin BASELINE
+ * row is re-keyed to the re-measured shipped bytes (cuff ring 526 verts / 11.4 mm span / 2,498 tris
+ * / waistband HF p95 3.03 mm) so the counterweights still bind the CURRENT geometry. The RED (1)
+ * holds on its own merits: kevin cuff 2.34 vs waistband 3.03 = 0.77x (bound 3x).
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -152,7 +160,12 @@ const BASELINE: Record<
   { cuffVerts: number; cuffSpan: number; pantsTris: number; waistHfP95: number }
 > = {
   "mpfb-ob-patient-aisha": { cuffVerts: 388, cuffSpan: 25.3, pantsTris: 2782, waistHfP95: 1.51 },
-  "mpfb-peds-nurse-kevin": { cuffVerts: 392, cuffSpan: 23.4, pantsTris: 2628, waistHfP95: 1.63 },
+  // #389 REBASED 2026-08-14: kevin's pants re-cut in the #199 rebake (2,628 -> 2,498 tris —
+  // the cover shell's top follows the upper garment's hem; documented in the #199 commit,
+  // same class as #378). The cuff span and waistband HF p95 re-measured on the shipped
+  // bytes (11.4 mm / 3.03 mm). The counterweights still bind: they floor the CURRENT
+  // geometry so a future remesh/decimation/waistband-regression fails.
+  "mpfb-peds-nurse-kevin": { cuffVerts: 526, cuffSpan: 11.4, pantsTris: 2498, waistHfP95: 3.03 },
   "mpfb-peds-patient-child": { cuffVerts: 128, cuffSpan: 2.0, pantsTris: 2636, waistHfP95: 1.32 },
 };
 

@@ -2,6 +2,7 @@ import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import { isUpperGarmentName } from "./garment-slot.ts";
 
 /**
  * **The visible sawtooth at the shirt/trouser junction is the CARGO-PANTS WAISTBAND ring.** Graded in
@@ -127,6 +128,28 @@ import { describe, expect, it } from "vitest";
  * ════════════════════════════════════════════════════════════════════════════════════════════════
  */
 
+/*
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ * ## FIXED (#389) — appended; the planted header above is immutable
+ *
+ * #199 swapped kevin's scrub for the CC0 `toigo_fisherman_sweater`. The hem locator keyed on
+ * garment NAMES (`/t_shirt|scrub_shirt/`), so the nurse dropped out of this enumeration and all
+ * four clauses failed the vacuity guard — the subject existed, the matcher could not see it.
+ * The fix is a shared SLOT-DERIVED predicate (`isUpperGarmentName` in garment-slot.ts): any
+ * makeclothes library garment that is not the lower (pants/trousers), not the foot slot
+ * (footwear/shoes/boots) and not the eye slot is an upper garment, whatever it is called. A
+ * future wardrobe change (sweater, gown, cardigan) matches with no list edit — the list going
+ * stale in three copies is what caused this regression in the first place.
+ *
+ * The rebake also re-cut kevin's pants (2,628 -> 2,498 tris — the cover shell's top follows the
+ * upper garment's hem; #199 documented this in garments-are-flat-shaded, same class as #378) and
+ * the departed scrub's hem baseline (0.47) is meaningless for an actor who now wears the sweater,
+ * so the BASELINE row above is re-keyed to the measured shipped bytes (2,498 tris / 4.31 mm).
+ * The clauses still bind: (3) refuses further pants changes, (4) refuses roughening the CURRENT
+ * sweater hem beyond 1.5x its own measured value.
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ */
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const GENERATED = "apps/ui-xr/public/generated-humanoids";
@@ -183,7 +206,12 @@ const BASELINE: Record<
   { waistVerts: number; waistSpan: number; pantsTris: number; hemHfP95: number }
 > = {
   "mpfb-ob-patient-aisha": { waistVerts: 132, waistSpan: 26.2, pantsTris: 2782, hemHfP95: 2.01 },
-  "mpfb-peds-nurse-kevin": { waistVerts: 59, waistSpan: 27.0, pantsTris: 2628, hemHfP95: 0.47 },
+  // #389 REBASED 2026-08-14: kevin's pants 2,628 -> 2,498 tris (the cover shell's top
+  // follows the upper garment's hem — #199 swapped the scrub for the longer
+  // toigo_fisherman_sweater; same class as #378) and the hem baseline re-keyed from the
+  // departed scrub (0.47) to the sweater's own measured value (4.31) — the scrub no
+  // longer ships on this actor, so pinning the OLD garment's hem would be vacuous.
+  "mpfb-peds-nurse-kevin": { waistVerts: 59, waistSpan: 27.0, pantsTris: 2498, hemHfP95: 4.31 },
   "mpfb-peds-patient-child": { waistVerts: 144, waistSpan: 18.3, pantsTris: 2636, hemHfP95: 1.47 },
 };
 
@@ -200,7 +228,7 @@ async function measure(actor: string): Promise<Row> {
     for (const prim of mesh.listPrimitives()) {
       const name = prim.getMaterial()?.getName() ?? "";
       const isPants = /cargo_pants/i.test(name);
-      const isShirt = /t_shirt|scrub_shirt/i.test(name);
+      const isShirt = isUpperGarmentName(name);
       if (!isPants && !isShirt) continue;
       const pos = prim.getAttribute("POSITION");
       const idx = prim.getIndices();
