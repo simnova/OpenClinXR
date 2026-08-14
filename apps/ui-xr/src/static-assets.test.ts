@@ -1,6 +1,8 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { resolveScenarioActorCast } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
+import { resolveHumanoidVariantOrCastPath } from "./humanoid-runtime-asset-url.js";
 
 const genericHandAssetHashes = {
   "left.glb": "bc67783144944ea1cda54d9247885825ea5fb9d4651469fe7d00be517a5c2b87",
@@ -597,6 +599,7 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("roleAnimationClipName: \"openclinxr_role_patient_asthma_breathing_effort\"");
     expect(mainSource).toContain("roleAnimationClipName: \"openclinxr_role_parent_anxious_fidget_guard\"");
     expect(mainSource).toContain("roleAnimationClipName: \"openclinxr_role_nurse_clinical_check_reassure\"");
+    expect(mainSource).toContain("openclinxr_retarget_cmu_07_01_walk");
     expect(mainSource).toContain("scenePlacementEvidenceAllowed: false");
     expect(mainSource).toContain("learnerLaunchAllowed: false");
     expect(mainSource).toContain("questEvidenceRefreshAllowed: false");
@@ -1229,5 +1232,30 @@ describe("static browser assets", () => {
     expect(fencedSource).toContain("PRE-PRODUCTION FENCE (physics-realbind-pre-prod-fence-v1)");
     expect(fencedSource).toContain("OPT-IN CAPTURE ONLY");
     expect(fencedSource).toContain("notEvidenceFor: [\n        ...artifact.notEvidenceFor,\n        \"production_physics_readiness\",\n        \"learner_readiness\",\n      ]");
+  });
+
+  it("both resolvers load the peds parent from the motion-bind GLB", () => {
+    const peds = "peds_asthma_parent_anxiety_v1";
+    const cast = resolveScenarioActorCast(peds);
+    const parent = cast.find((a) => a.actorId === "parent_tara_johnson_v1");
+    expect(parent?.runtimeAssetPath).toContain("motion-bind");
+    expect(
+      resolveHumanoidVariantOrCastPath({
+        scenarioId: peds,
+        actorId: "parent_tara_johnson_v1",
+        role: "family",
+        fallbackPath: parent?.runtimeAssetPath ?? "",
+      }),
+    ).toBe(parent?.runtimeAssetPath);
+
+    const child = cast.find((a) => a.actorId === "patient_maya_johnson_v1");
+    const nurse = cast.find((a) => a.actorId === "nurse_kevin_lee_v1");
+    expect(child?.runtimeAssetPath).toBe("/generated-humanoids/mpfb-peds-patient-child.glb");
+    expect(nurse?.runtimeAssetPath).toBe("/generated-humanoids/mpfb-peds-nurse-kevin.glb");
+
+    const ob = resolveScenarioActorCast("ob_headache_preeclampsia_triage_v1");
+    expect(ob.find((a) => a.actorId === "patient_aisha_khan_v1")?.runtimeAssetPath).toBe(
+      "/generated-humanoids/mpfb-ob-patient-aisha.glb",
+    );
   });
 });

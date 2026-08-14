@@ -73,9 +73,9 @@ export const MPFB_PEDS_NURSE_KEVIN_RUNTIME_PATH =
   "/generated-humanoids/mpfb-peds-nurse-kevin.glb";
 export const MPFB_PEDS_PATIENT_CHILD_RUNTIME_PATH =
   "/generated-humanoids/mpfb-peds-patient-child.glb";
-/** #388 — dedicated peds-parent variant. Mirrors actor-casting MPFB_PEDS_PARENT_AISHA_GLB. */
+/** Dark-factory B — peds parent loads the motion-bind GLB. Mirrors actor-casting. */
 export const MPFB_PEDS_PARENT_AISHA_RUNTIME_PATH =
-  "/generated-humanoids/mpfb-peds-parent-aisha.glb";
+  "/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb";
 
 const ADULT_POOL_GLBS = [
   ED_ADULT_CAST_GLB,
@@ -147,8 +147,8 @@ const ED_RUNTIME_CAST_BY_ACTOR: Record<string, string> = {
 
 /** Runtime public paths for peds asthma cast (mirrors actor-casting table). */
 const PEDS_RUNTIME_CAST_BY_ACTOR: Record<string, string> = {
-  // #335: all three peds roles are MPFB bodies. #388: parent is a dedicated
-  // family-palette variant — not the OB aisha GLB (one file / two roles was the cream collision).
+  // #335: child + nurse stay generated MPFB. Parent is the motion-bind GLB
+  // (dark-factory B) so the mixer sees openclinxr_retarget_cmu_07_01_walk.
   patient_maya_johnson_v1: MPFB_PEDS_PATIENT_CHILD_RUNTIME_PATH,
   parent_tara_johnson_v1: MPFB_PEDS_PARENT_AISHA_RUNTIME_PATH,
   nurse_kevin_lee_v1: MPFB_PEDS_NURSE_KEVIN_RUNTIME_PATH,
@@ -325,6 +325,7 @@ export function resolveLocalHumanoidRuntimeAssetUrl(
     blobName.includes("humanoids/candidates/")
     || (fileName.includes("body-param-") && fileName.endsWith("-library.glb"))
     || fileName.startsWith("makeclothes-hm08-")
+    || fileName.endsWith(".motion-bind.glb")
   ) {
     return `/xr-assets/humanoids/candidates/${fileName}`;
   }

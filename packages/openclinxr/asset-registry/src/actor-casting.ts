@@ -96,6 +96,8 @@ export const MPFB_PEDS_PATIENT_CHILD_GLB = "mpfb-peds-patient-child.glb";
  * muted_rose_and_neutral. OB aisha stays cream.
  */
 export const MPFB_PEDS_PARENT_AISHA_GLB = "mpfb-peds-parent-aisha.glb";
+/** Dark-factory B: peds parent runtime is the motion-bind GLB (walk clip). */
+export const MPFB_PEDS_PARENT_AISHA_MOTION_BIND_GLB = "mpfb-peds-parent-aisha.motion-bind.glb";
 
 /** Adult pool only — never includes the child mesh. Order is role-preference default. */
 const ADULT_POOL_GLBS = [
@@ -376,23 +378,20 @@ export function resolveScenarioActorCast(scenarioId: string): ScenarioActorCast[
 
   if (scenarioId === PEDS_ASTHMA_SCENARIO_ID) {
     return [
-      // #335: all three peds roles are MPFB bodies — the case's actors resolve to
-      // MPFB and UI-XR loads them (MADR 0052's 06:00 tick). Child patient -> the
-      // MPFB child (a macro child, not a scaled adult, #328), parent -> dedicated
-      // family-palette aisha-body variant (#388; not the OB patient GLB), nurse ->
-      // the MPFB nurse (adult male). The hm08 library bodies they replace stay on
-      // the pool for other scenarios.
+      // #335: all three peds roles are MPFB bodies. Child/nurse stay on generated
+      // MPFB bakes. Parent loads the motion-bind GLB so the mixer sees
+      // openclinxr_retarget_cmu_07_01_walk (#388 body, dark-factory B clip).
       castEntry({
         actorId: "patient_maya_johnson_v1",
         role: "patient",
         scenarioId: PEDS_ASTHMA_SCENARIO_ID,
         glbFile: MPFB_PEDS_PATIENT_CHILD_GLB,
       }),
-      castEntry({
+      libraryCastEntry({
         actorId: "parent_tara_johnson_v1",
         role: "family",
         scenarioId: PEDS_ASTHMA_SCENARIO_ID,
-        glbFile: MPFB_PEDS_PARENT_AISHA_GLB,
+        glbFile: MPFB_PEDS_PARENT_AISHA_MOTION_BIND_GLB,
       }),
       castEntry({
         actorId: "nurse_kevin_lee_v1",

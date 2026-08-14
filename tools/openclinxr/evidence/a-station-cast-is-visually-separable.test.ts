@@ -2,6 +2,8 @@ import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import { resolveScenarioActorCast } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
+import { resolveHumanoidVariantOrCastPath } from "../../../apps/ui-xr/src/humanoid-runtime-asset-url.js";
 
 /**
  * A learner walking into the peds asthma station sees a child, a parent and a NURSE wearing
@@ -219,5 +221,19 @@ describe("a station cast is visually separable", () => {
       .filter((r) => r.overlapMm < MIN_OVERLAP_MM)
       .map((r) => `${r.role}: overlap=${r.overlapMm.toFixed(1)}mm`);
     expect(bare, `shirt/trouser overlap below ${MIN_OVERLAP_MM} mm`).toEqual([]);
+  });
+
+  it("both resolvers agree the peds parent runtime path is the motion-bind GLB", () => {
+    const peds = "peds_asthma_parent_anxiety_v1";
+    const parent = resolveScenarioActorCast(peds).find((a) => a.actorId === "parent_tara_johnson_v1");
+    expect(parent?.runtimeAssetPath).toContain("motion-bind");
+    expect(
+      resolveHumanoidVariantOrCastPath({
+        scenarioId: peds,
+        actorId: "parent_tara_johnson_v1",
+        role: "family",
+        fallbackPath: parent?.runtimeAssetPath ?? "",
+      }),
+    ).toBe(parent?.runtimeAssetPath);
   });
 });

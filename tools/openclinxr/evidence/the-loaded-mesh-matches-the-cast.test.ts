@@ -84,10 +84,17 @@ describe("the loaded humanoid mesh belongs to the cast path (#366)", () => {
     expect(cast.length, "peds cast is empty").toBeGreaterThanOrEqual(3);
 
     for (const entry of cast) {
-      expect(
-        entry.runtimeAssetPath,
-        `${PEDS}/${entry.actorId} left its MPFB cast path`,
-      ).toMatch(/^\/generated-humanoids\/mpfb-/);
+      if (entry.actorId === "parent_tara_johnson_v1") {
+        expect(
+          entry.runtimeAssetPath,
+          `${PEDS}/${entry.actorId} left the motion-bind parent path`,
+        ).toContain("motion-bind");
+      } else {
+        expect(
+          entry.runtimeAssetPath,
+          `${PEDS}/${entry.actorId} left its MPFB cast path`,
+        ).toMatch(/^\/generated-humanoids\/mpfb-/);
+      }
 
       // The mirror the runtime SSOT uses must agree — a fix may not downgrade either half.
       const resolved = resolveHumanoidVariantOrCastPath({

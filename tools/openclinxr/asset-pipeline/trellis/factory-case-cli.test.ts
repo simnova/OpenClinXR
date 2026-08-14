@@ -35,7 +35,7 @@ const PSYCH = "psych_suicidal_ideation_safety_v1";
 
 const PEDS_MPFB_PATHS = [
   "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb",
-  "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
+  "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb",
   "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
 ] as const;
 
