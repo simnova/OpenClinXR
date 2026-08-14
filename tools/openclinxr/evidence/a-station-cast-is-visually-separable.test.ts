@@ -93,15 +93,17 @@ import { describe, expect, it } from "vitest";
  *   -------------------------------   ----------------  -----------------   -----------------   ----------------
  *   patient_maya_johnson_v1 (child)   toigo_t_shirt     (0.720, 0.680, 0.55) (0.720, 0.680, 0.55) toigo_mj_cloth_shoes
  *   parent_tara_johnson_v1 (aisha)    toigo_t_shirt     (0.420, 0.360, 0.40) (0.420, 0.360, 0.40) toigo_flats
- *   nurse_kevin_lee_v1 (Kevin)        scrub_shirt       (0.050, 0.480, 0.52) (0.050, 0.480, 0.52) culturalibre_male_boots
+ *   nurse_kevin_lee_v1 (Kevin)        fisherman_sweater (0.050, 0.480, 0.52) (0.050, 0.480, 0.52) culturalibre_male_boots
  *
  * Upper colours pairwise distinct (>=0.30 in a channel), lower colours pairwise distinct, nurse
  * upper asset != patients' t-shirt. Clauses (1) and (2) flipped; (3)/(4) hold (footwear still
  * per-actor distinct; shirt/trouser overlap re-measured in the sibling contracts).
  *
  * NOT TESTED (unchanged residual): colour DISTANCE is not appearance — the staged lit capture
- * (group-front + per-actor, EEVEE) is the orchestrator's grade. The scrub is a "close enough"
- * staging judgement, not a clinician's sign-off. Garment TEXTURE stays zero on every actor.
+ * (group-front + per-actor, EEVEE) is the orchestrator's grade. The long-sleeve sweater is a
+ * "close enough" staging judgement (the #199 pick: a nurse in long sleeves), not a clinician's
+ * sign-off. Garment TEXTURE: the nurse's sweater consumes its declared shirt-knit.png; the
+ * patients' t-shirt slots keep their #360 textures (this contract reads baseColorFactor only).
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -139,10 +141,10 @@ async function measure(entry: (typeof CAST)[number]): Promise<Row | null> {
       const name = mesh.getName();
       const c = mat.getBaseColorFactor() ?? [0, 0, 0, 1];
       const rgb: [number, number, number] = [c[0]!, c[1]!, c[2]!];
-      // Garment ASSET id, stripped of the per-actor suffix: `..._library_<asset>_mpfb_<actor>_mesh`.
+      // Upper-body garment ASSET id, stripped of the per-actor suffix: `..._library_<asset>_mpfb_<actor>_mesh`.
       const kind = name.replace(/^.*?library_/, "").replace(/_mpfb[_-].*$/, "");
       const pos = prim.getAttribute("POSITION");
-      if (/t_shirt|scrub|shirt|gown|top/i.test(name)) {
+      if (/t_shirt|scrub|shirt|sweater|gown|top/i.test(name)) {
         row.upper = { kind, rgb };
         if (pos) for (let i = 0; i < pos.getCount(); i++) {
           const y = (pos.getElement(i, [0, 0, 0]) as number[])[1]!;

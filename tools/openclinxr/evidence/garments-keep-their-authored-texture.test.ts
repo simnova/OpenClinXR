@@ -124,6 +124,10 @@ const AUTHORED_TEXTURE: Record<string, { texture: string }> = {
   mat_makeclothes_library_footwear_toigo_flats: { texture: "Shoe.png" },
   mat_makeclothes_library_footwear_toigo_mj_cloth_shoes: { texture: "MJ-shoes3.png" },
   mat_makeclothes_library_footwear_culturalibre_male_boots: { texture: "boot.png" },
+  // #199: the nurse's upper is now the CC0 long-sleeve sweater; its declared
+  // sweater_fisherman.mhmat -> shirt-knit.png (2,316,765 B) is staged and consumed by the #360
+  // path, so it must ship as baseColorTexture exactly like the t-shirt.
+  mat_makeclothes_library_fisherman_sweater: { texture: "shirt-knit.png" },
 };
 
 /**
@@ -248,18 +252,22 @@ describe("a fitted garment ships with the material it was authored with (#372)",
     expect(recoloured, "t-shirt baseColorFactor moved off the #180 role colour").toEqual([]);
   });
 
-  it("(3) NET known-good: kevin's scrub shirt ships flat — the contract keys on authored state", () => {
-    // A garment whose declared .mhmat is not staged (kevin's scrub, every cargo-pants shell) is
-    // flat BY AUTHORED STATE and must not be required to carry a texture. The known-good column
-    // proves the contract distinguishes "authored and dropped" (aisha/child t-shirt, the RED)
-    // from "authored as flat" (kevin's scrub, which never regressed).
+  it("(3) NET known-good: the authored-flat garment stays flat — the contract keys on authored state", () => {
+    // SUBJECT MOVED #199: this clause used to key on kevin's scrub shirt (the original known-good
+    // column, flat by authored state because Scrub_Shirt.mhmat is not staged). #199 replaced
+    // kevin's upper with the textured CC0 fisherman sweater, so the scrub no longer ships on the
+    // cast GLBs; the known-good subject is now the cargo-pants cover shell, which all three actors
+    // still wear and whose declared cargo_pants.mhmat is likewise not staged (flat by authored
+    // state, measured 2026-08-14: GARMENT_MATERIAL_SKIP mhmatStaged=false on the bake). A garment
+    // whose declared .mhmat is not staged must not be required to carry a texture — the known-good
+    // column proves the contract distinguishes "authored and dropped" (the #372 t-shirt RED) from
+    // "authored as flat" (legitimately no texture).
     requireRows();
-    const scrub = rows.filter((r) => r.base === "mat_makeclothes_library_scrub_shirt");
-    expect(scrub.length, "kevin's scrub shirt material was not measured").toBe(1);
+    const cargoPants = rows.filter((r) => r.base === "mat_makeclothes_library_cargo_pants");
+    expect(cargoPants.length, "cargo-pants cover shells measured across the cast").toBe(ACTORS.length);
     expect(
-      scrub[0]!.base in AUTHORED_TEXTURE,
-      "the scrub shirt has no staged authored texture — it must stay flat-classified",
-    ).toBe(false);
-    expect(scrub[0]!.hasTexture, "kevin's scrub shirt must not gain an invented texture").toBe(false);
+      cargoPants.filter((r) => r.hasTexture).map(show),
+      "cargo-pants shells that gained an invented texture",
+    ).toEqual([]);
   });
 });
