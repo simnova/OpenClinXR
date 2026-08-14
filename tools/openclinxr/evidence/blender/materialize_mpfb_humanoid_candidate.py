@@ -93,14 +93,15 @@ HAIR_STYLE_SEARCH_ROOTS = (
 # sleeves is plausible; a patient in a gown is not. Keyed by reference id like
 # SHOE_BY_REFERENCE (None = the default-macro aisha path). One actor is enough for #199's
 # contract; aisha (patient) and the child keep their existing upper slot.
+# 2026-08-14 medical wardrobe: kevin is None so the clinician branch selects the
+# WojackOWL CC-BY scrub shirt (not the fisherman sweater). #403 nurse adult stays
+# on the sweater until that file's own rebake.
 LONG_SLEEVE_UPPER_BY_REFERENCE = {
     None: None,
-    "peds_nurse_kevin": "toigo_fisherman_sweater",
+    "peds_nurse_kevin": None,
     "peds_patient_child": None,
-    # #403 — the ED clinical nurse wears the same CC0 fisherman sweater as the peds
-    # nurse (scrub-class upper, locked clinical colour, proven fit on the same
-    # stripped basemesh). The spouse stays on the patient t-shirt channel: family
-    # class is closed_casual, not scrub.
+    # #403 — the ED clinical nurse still wears the CC0 fisherman sweater until the
+    # next wardrobe slice rebakes that file onto the scrub kit.
     "ed_chest_pain_nurse_adult": "toigo_fisherman_sweater",
 }
 
@@ -2483,12 +2484,10 @@ def main():
 
     # #387 — the scalp paint is a self-declared PLACEHOLDER (its own docstring,
     # automate_blender.py:4245: "before a real groom/hair-card source stage exists").
-    # #381 landed the real thing — a fitted MakeClothes bob on aisha — and nobody retired
-    # the paint underneath: she ships both, and the 2.8%-luminance paint under fitted hair
-    # is the hard 4096-grade boundary this issue closes. The decision lives in the
-    # makeclothes rail (body_param_stage.scalp_placeholder_retired_for) so both producers
-    # share one registry; aisha is the sole figure whose replacement is on disk. The Anny
-    # function is untouched (D1); the call is simply skipped for her.
+    # RULE (2026-08-14 medical wardrobe): do not emit the shell whenever this bake
+    # will fit a hair mesh. The decision lives in body_param_stage.scalp_placeholder_retired_for
+    # so both producers share one rule; figure id is logging only. The Anny function
+    # is untouched (D1); the call is skipped when hair will exist.
     _makeclothes_dir_scalp = REPO_ROOT / "tools/openclinxr/asset-pipeline/makeclothes"
     if str(_makeclothes_dir_scalp) not in sys.path:
         sys.path.insert(0, str(_makeclothes_dir_scalp))
@@ -2499,11 +2498,16 @@ def main():
         if not args.reference
         else f"mpfb-{args.reference.replace('_', '-')}"
     )
-    if scalp_placeholder_retired_for(_shipped_figure_id):
+    _hair_style = HAIR_STYLE_BY_REFERENCE.get(args.reference)
+    _fitted_hair_will_exist = bool(_hair_style)
+    if scalp_placeholder_retired_for(
+        _shipped_figure_id, fitted_hair_present=_fitted_hair_will_exist
+    ):
         scalp_hair_region = {
             "retired": True,
             "figureId": _shipped_figure_id,
-            "reason": "#387 placeholder retired where real fitted hair exists",
+            "reason": "RULE: placeholder scalp suppressed wherever a fitted hair mesh exists",
+            "hairStyle": _hair_style,
         }
     else:
         scalp_hair_region = apply_mesh_native_scalp_hair_material_region(
@@ -2685,9 +2689,12 @@ def main():
         # design, and every pass below (eye-socket unpaint, forehead, hairline snap)
         # legitimately no-ops on a missing region. For every other figure the missing
         # region is still the #338 defect and must fail loudly.
-        if scalp_placeholder_retired_for(_shipped_figure_id):
+        if scalp_placeholder_retired_for(
+            _shipped_figure_id, fitted_hair_present=_fitted_hair_will_exist
+        ):
             print(
-                f"SCALP_REGION retired for {_shipped_figure_id} — "
+                f"SCALP_REGION retired for {_shipped_figure_id} "
+                f"(rule: fitted hair {_hair_style!r}) — "
                 "eye-socket/forehead/hairline passes skipped (no placeholder paint)"
             )
             scalp_idx = -1  # sentinel: no poly matches, passes become no-ops
@@ -2885,7 +2892,8 @@ def main():
     # 2026-08-14: kevin maps to mhair02 via HAIR_STYLE_BY_REFERENCE; the style lives
     # outside hair01 and is resolved by name only (never glob). AGPL still refuses
     # unless the uuid/basename is on HAIR_PAGE_CC0_OVERRIDE.
-    _hair_style = HAIR_STYLE_BY_REFERENCE.get(args.reference)
+    # _hair_style was resolved before the scalp emit so the placeholder RULE can
+    # see whether a fitted hair mesh will exist.
     _hair_fitted = None
     if _hair_style:
         _hair_dir = resolve_hair_style_dir(_hair_style)
@@ -2965,6 +2973,77 @@ def main():
             "fitWallClockS": round(_hair_fit_s, 4),
         }
         print(f"HAIR_FIT {json.dumps(_hair_fitted)}")
+
+    # Clinician scrub pants MUST fit BEFORE the helper strip. Their .mhclo x_scale
+    # refs 13868/14308 are helper verts; ClothesService refuses "not inside" on the
+    # stripped 13,380-vert body (measured 2026-08-14). Interpolation refs max 13351
+    # so the fitted mesh is a separate object and the strip does not touch it.
+    # Patients/family cargo pants (scale refs < 13380) still fit AFTER the strip.
+    _is_clinician = any(
+        token in (args.actor_role or "").lower()
+        for token in ("nurse", "clinician", "staff", "physician", "doctor")
+    )
+    pants = None
+    pants_mhclo = None
+    _lower_lib_name = None
+    _lower_lic_raw = None
+    if _is_clinician:
+        import sys as _sys_pants_pre
+
+        _stage_dir_pants = REPO_ROOT / "tools/openclinxr/asset-pipeline/makeclothes"
+        if str(_stage_dir_pants) not in _sys_pants_pre.path:
+            _sys_pants_pre.path.insert(0, str(_stage_dir_pants))
+        from body_param_stage import import_obj, apply_object_transforms  # noqa: E402
+        from automate_blender import garment_shell_color as _gsc_pre  # noqa: E402
+        from bl_ext.user_default.mpfb.entities.clothes.mhclo import Mhclo as _MhcloPre  # noqa: E402
+        from bl_ext.user_default.mpfb.services.clothesservice import ClothesService as _ClothesPre  # noqa: E402
+
+        _pants_dir = (
+            REPO_ROOT
+            / ".openclinxr-local/provider-cache/garments/sources/makehuman-community-scrub-pants"
+        )
+        pants_obj = _pants_dir / "Scrub_Pants.obj"
+        pants_mhclo = _pants_dir / "Scrub_Pants.mhclo"
+        _lower_lib_name = "makeclothes_library_scrub_pants"
+        if not pants_obj.is_file() or not pants_mhclo.is_file():
+            raise RuntimeError(f"scrub pants sources missing in provider cache: {_pants_dir}")
+        _lower_lic_ok, _lower_lic_raw = read_hair_mhclo_licence(pants_mhclo)
+        if not _lower_lic_ok:
+            raise RuntimeError(
+                f"lower garment {_lower_lib_name} licence NOT permitted per its own "
+                f".mhclo header: {_lower_lic_raw!r} — hard refusal (AGPL/copyleft or unspecified)"
+            )
+        print(f"LOWER_GARMENT_LICENCE {_lower_lib_name} {_lower_lic_raw!r}")
+        pants = import_obj(str(pants_obj), _lower_lib_name, force_z=False)
+        apply_object_transforms(pants)
+        pants.data.materials.clear()
+        _lower_kind = "scrub"
+        _lower_role_colour = _gsc_pre(
+            _lower_kind, args.actor_role, {"fabricPalette": phenotype_fabric_palette(args.reference)}
+        )
+        _pants_mat, _pants_mat_record = garment_material_from_declared(
+            pants_mhclo,
+            _lower_role_colour,
+            f"mat_{_lower_lib_name}",
+            mesh=pants,
+        )
+        pants.data.materials.append(_pants_mat)
+        mhclo_pants = _MhcloPre()
+        mhclo_pants.load(str(pants_mhclo))
+        try:
+            mhclo_pants.clothes = pants
+        except Exception:
+            pass
+        pants_verts_before = len(pants.data.vertices)
+        _ClothesPre.fit_clothes_to_human(pants, human, mhclo=mhclo_pants, set_parent=True)
+        bpy.context.view_layer.update()
+        _pre_ref_tag = args.reference or "ob_patient_aisha"
+        pants.data.name = f"{_lower_lib_name}_mpfb_{_pre_ref_tag}_mesh"
+        print(
+            f"PANTS_FIT_PRESTRIP {pants.name} verts {pants_verts_before} -> {len(pants.data.vertices)} "
+            f"tris {sum(max(len(p.vertices) - 2, 0) for p in pants.data.polygons)} "
+            "(x_scale helper verts require full basemesh)"
+        )
 
     # #318: strip MakeHuman's clothes and hair FITTING SHELLS with the proven MPFB export
     # service (D1). `bpy.ops.mpfb.create_human()` materialises the FULL base.obj including
@@ -3065,9 +3144,8 @@ def main():
     # `Scrub_Shirt.mhclo` (WojackOWL, Medical Scrubs Kit, licence-ledger row) fits the
     # stripped basemesh like the toigo t-shirt (max ref 11,018 < 13,380, measured pre-fix);
     # the CC0 toigo t-shirt stays the patients' closed-casual upper.
-    _is_clinician = any(
-        token in (args.actor_role or "").lower() for token in ("nurse", "clinician", "staff")
-    )
+    # _is_clinician was resolved before the helper strip so scrub pants can fit
+    # against helper-vertex x_scale refs.
     # #199: the LONG-SLEEVE upper slot (see LONG_SLEEVE_UPPER_BY_REFERENCE). The nurse
     # wears the CC0 fisherman sweater instead of the scrub top. kind stays "scrub" so the
     # locked clinical colour keeps the cast pairwise distinct (#180 contract); the asset's
@@ -3107,18 +3185,15 @@ def main():
     if not garment_obj.is_file() or not garment_mhclo.is_file():
         raise RuntimeError(f"upper garment sources missing in provider cache: {_garment_dir}")
 
-    # #199: bake-time licence re-read for the long-sleeve slot, the same guard the #381
-    # hair fit runs. The shirts01 pack is MIXED (one AGPL3 garment inside the `_cc0`
-    # archive) and this .mhclo was selected by name — the bake refuses a copyleft or
-    # unlicensed header so a wrong extraction can never reach the shipped bytes.
-    if _is_clinician and _long_sleeve_style:
-        _upper_lic_ok, _upper_lic_raw = read_hair_mhclo_licence(garment_mhclo)
-        if not _upper_lic_ok:
-            raise RuntimeError(
-                f"#199: upper garment {_long_sleeve_style} licence NOT permitted per its own "
-                f".mhclo header: {_upper_lic_raw!r} — hard refusal (AGPL/copyleft or unspecified)"
-            )
-        print(f"UPPER_GARMENT_LICENCE {_long_sleeve_style} {_upper_lic_raw!r}")
+    # Bake-time licence re-read for the selected upper (same reader as hair).
+    # CC-BY matches `cc[\s_-]*by` — permitted. AGPL / unspecified refuse.
+    _upper_lic_ok, _upper_lic_raw = read_hair_mhclo_licence(garment_mhclo)
+    if not _upper_lic_ok:
+        raise RuntimeError(
+            f"upper garment {_upper_lib_name} licence NOT permitted per its own "
+            f".mhclo header: {_upper_lic_raw!r} — hard refusal (AGPL/copyleft or unspecified)"
+        )
+    print(f"UPPER_GARMENT_LICENCE {_upper_lib_name} {_upper_lic_raw!r}")
 
     from bl_ext.user_default.mpfb.entities.clothes.mhclo import Mhclo  # noqa: E402
     from bl_ext.user_default.mpfb.services.clothesservice import ClothesService  # noqa: E402
@@ -3181,63 +3256,58 @@ def main():
         f"tris {garment_tris} weights {weights}"
     )
 
-    # #326: fit the CC0 cargo pants on the SAME body via the SAME proven
-    # ClothesService path (D1) — the exact garment + service the hm08 library rail
-    # fits (`body-param-cli.ts` `LIBRARY_LOWER_GARMENT_ID` = cortu_cargo_pants,
-    # makehuman-pants01 pack). She ships bare below the waist today (measured:
-    # upper toigo t-shirt 5,400 verts, lower NONE); the library lean_female carries
-    # the same trousers at 8,565 verts through this call. The .mhclo header is
-    # `# Cortu Johnstone - CC0`, basemesh hm08, max vertex ref 13,351 < 13,380 — it
-    # fits the helper-stripped topology exactly like the t-shirt.
-    _pants_dir = (
-        pathlib.Path(__file__).resolve().parents[4]
-        / ".openclinxr-local/provider-cache/garments/sources/makehuman-pants01/cortu_cargo_pants"
-    )
-    pants_obj = _pants_dir / "cargo_pants.obj"
-    pants_mhclo = _pants_dir / "cargo_pants.mhclo"
-    if not pants_obj.is_file() or not pants_mhclo.is_file():
-        raise RuntimeError(f"cargo pants sources missing in provider cache: {_pants_dir}")
+    # Lower slot: clinician scrub pants were fitted PRE-STRIP (helper x_scale).
+    # Patients/family cargo pants fit here on the stripped basemesh.
+    if pants is None:
+        _pants_dir = (
+            REPO_ROOT
+            / ".openclinxr-local/provider-cache/garments/sources/makehuman-pants01/cortu_cargo_pants"
+        )
+        pants_obj = _pants_dir / "cargo_pants.obj"
+        pants_mhclo = _pants_dir / "cargo_pants.mhclo"
+        _lower_lib_name = "makeclothes_library_cargo_pants"
+        if not pants_obj.is_file() or not pants_mhclo.is_file():
+            raise RuntimeError(f"lower garment sources missing in provider cache: {_pants_dir}")
 
-    pants = import_obj(str(pants_obj), "makeclothes_library_cargo_pants", force_z=False)
-    # Same axis bake as the t-shirt (#321 handback): the OBJ importer's rotation is
-    # baked into mesh data so the object is identity/Z-up before the fit writes
-    # body-local coordinates into it.
-    apply_object_transforms(pants)
-    pants.data.materials.clear()
-    # Name matches the LOWER_GARMENT regex the evidence RED reads (cargo/pants) AND
-    # the GARMENT regex of the #323 regression net (makeclothes).
-    # #180: the lower colour follows the SAME palette call as the upper (nurse: locked scrub
-    # colour -> matching set; patients: closed_casual role fallback), so the lower slot is
-    # pairwise distinct across the cast too.
-    # #360: the cargo-pants .mhclo declares cargo_pants.mhmat, which is NOT staged in the
-    # provider cache, so the slot skips with a recorded reason and keeps the flat role colour.
-    # The shipped lower geometry is the #326 body-derived cover shell, which carries NO UV
-    # layer either — a texture would render as garbage. Both facts are recorded; wiring the
-    # lower slot is a fitting-pipeline slice, not a side effect of this material change.
-    _lower_kind = "scrub" if _is_clinician else "closed_casual"
-    _lower_role_colour = garment_shell_color(
-        _lower_kind, args.actor_role, {"fabricPalette": phenotype_fabric_palette(args.reference)}
-    )
-    _pants_mat, _pants_mat_record = garment_material_from_declared(
-        pants_mhclo,
-        _lower_role_colour,
-        "mat_makeclothes_library_cargo_pants",
-        mesh=pants,
-    )
-    pants.data.materials.append(_pants_mat)
-    mhclo_pants = Mhclo()
-    mhclo_pants.load(str(pants_mhclo))
-    try:
-        mhclo_pants.clothes = pants
-    except Exception:
-        pass
-    pants_verts_before = len(pants.data.vertices)
-    ClothesService.fit_clothes_to_human(pants, human, mhclo=mhclo_pants, set_parent=True)
-    bpy.context.view_layer.update()
-    print(
-        f"PANTS_FIT {pants.name} verts {pants_verts_before} -> {len(pants.data.vertices)} "
-        f"tris {sum(max(len(p.vertices) - 2, 0) for p in pants.data.polygons)}"
-    )
+        _lower_lic_ok, _lower_lic_raw = read_hair_mhclo_licence(pants_mhclo)
+        if not _lower_lic_ok:
+            raise RuntimeError(
+                f"lower garment {_lower_lib_name} licence NOT permitted per its own "
+                f".mhclo header: {_lower_lic_raw!r} — hard refusal (AGPL/copyleft or unspecified)"
+            )
+        print(f"LOWER_GARMENT_LICENCE {_lower_lib_name} {_lower_lic_raw!r}")
+
+        pants = import_obj(str(pants_obj), _lower_lib_name, force_z=False)
+        apply_object_transforms(pants)
+        pants.data.materials.clear()
+        _lower_kind = "closed_casual"
+        _lower_role_colour = garment_shell_color(
+            _lower_kind, args.actor_role, {"fabricPalette": phenotype_fabric_palette(args.reference)}
+        )
+        _pants_mat, _pants_mat_record = garment_material_from_declared(
+            pants_mhclo,
+            _lower_role_colour,
+            f"mat_{_lower_lib_name}",
+            mesh=pants,
+        )
+        pants.data.materials.append(_pants_mat)
+        mhclo_pants = Mhclo()
+        mhclo_pants.load(str(pants_mhclo))
+        try:
+            mhclo_pants.clothes = pants
+        except Exception:
+            pass
+        pants_verts_before = len(pants.data.vertices)
+        ClothesService.fit_clothes_to_human(pants, human, mhclo=mhclo_pants, set_parent=True)
+        bpy.context.view_layer.update()
+        pants.data.name = f"{_lower_lib_name}_mpfb_{_ref_tag}_mesh"
+        print(
+            f"PANTS_FIT {pants.name} verts {pants_verts_before} -> {len(pants.data.vertices)} "
+            f"tris {sum(max(len(p.vertices) - 2, 0) for p in pants.data.polygons)}"
+        )
+    else:
+        _lower_kind = "scrub"
+        print(f"PANTS_PRESTRIP_REUSE {pants.name} ({_lower_lib_name})")
     # The raw fit is the sparse 392-triangle trouser (#220: 71% leg coverage, 32 open
     # edges). The LOWER GATE below (mirrored from body_param_stage) measures it against
     # the leg band and replaces a `does_not_cover` fit with the body-derived cover
@@ -3354,7 +3424,18 @@ def main():
         garment_label="lower",
         height_axis=2,
     )
-    if lower_rep["verdict"] == "does_not_cover" or lower_rep["garmentBoundaryEdges"] > 0:
+    # Waist + ankle openings on a real trouser are boundary edges by construction.
+    # The cargo 392-tri open shell needed the edges clause; WojackOWL scrub pants
+    # cover at >0.99 raycast with those openings and must ship as the fitted library
+    # mesh, not a body-derived shell wearing the same name.
+    _sparse_open_shell = (
+        lower_rep["verdict"] == "does_not_cover"
+        or (
+            lower_rep["garmentBoundaryEdges"] > 0
+            and _lower_lib_name != "makeclothes_library_scrub_pants"
+        )
+    )
+    if _sparse_open_shell:
         # #295 — the leg shell must not wrap the hanging hands (measured 3,450
         # hand-dominant verts in the heavy-male lower fallback): exclude
         # arm/forearm/hand-dominant body faces from the shell band selection.
@@ -3379,22 +3460,22 @@ def main():
             ankle_z,
             hem_z,
             standoff=CLOTH_STANDOFF_M,
-            label=f"makeclothes_library_cargo_pants_fallback_mpfb_{args.reference or 'ob_patient_aisha'}",
+            label=f"{_lower_lib_name}_fallback_mpfb_{args.reference or 'ob_patient_aisha'}",
             height_axis=2,
             exclude_faces=shell_limb_exclude,
         )
         shell_obj = mesh_from_numpy(
-            f"makeclothes_library_cargo_pants_mpfb_{args.reference or 'ob_patient_aisha'}",
+            f"{_lower_lib_name}_mpfb_{args.reference or 'ob_patient_aisha'}",
             np.asarray(shell["position"]).reshape(-1, 3),
             np.asarray(shell["indices"]).reshape(-1, 3),
         )
         shell_obj.data.materials.clear()
-        # Name matches the LOWER_GARMENT regex the evidence RED reads (cargo/pants).
+        # Name matches the LOWER_GARMENT regex the evidence RED reads (cargo/pants/scrub).
         # #180: same palette call as the fitted-pants branch so the fallback shell cannot
         # homogenise the lower slot.
         shell_obj.data.materials.append(
             make_material(
-                "mat_makeclothes_library_cargo_pants",
+                f"mat_{_lower_lib_name}",
                 garment_shell_color(
                     _lower_kind, args.actor_role, {"fabricPalette": phenotype_fabric_palette(args.reference)}
                 ),

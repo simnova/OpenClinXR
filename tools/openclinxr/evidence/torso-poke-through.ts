@@ -74,7 +74,7 @@ const LIMB_BONE_RE = /arm|forearm|hand|wrist|finger|thumb|metacarpal/i;
 const SKIN_MATERIAL_RE = /^mpfb_skin_/;
 
 const GARMENT_MATERIAL_BY_ACTOR: Record<string, RegExp> = {
-  "mpfb-peds-nurse-kevin": /fisherman_sweater/i,
+  "mpfb-peds-nurse-kevin": /scrub_shirt/i,
   "mpfb-ob-patient-aisha": /toigo_t_shirt/i,
   "mpfb-peds-patient-child": /toigo_t_shirt/i,
 };

@@ -89,6 +89,15 @@ import { describe, expect, it } from "vitest";
  *     Either the metric is wrong or there is a second defect nobody has seen. Unresolved, not filed.
  *   - **Anny-rail assets.** This enumerates `mpfb-*.glb` only.
  *   - **Whether `with_bangs` should be the default** for new adults.
+ *
+ * ## FIXED (medical-wardrobe 2026-08-14) — RULE, not two more ids
+ *
+ * `scalp_placeholder_retired_for` no longer consults a figure-id frozenset.
+ * The emit site in `materialize_mpfb_humanoid_candidate.py` passes
+ * `fitted_hair_present=bool(HAIR_STYLE_BY_REFERENCE.get(reference))`. A NEW bake
+ * that fits hair is clean without appending an id. This slice rebakes kevin
+ * only; the two #403 adults still carry the shell on disk, so (1) stays
+ * `it.fails` until those files are rebaked. Do not flip (1) by growing a list.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));

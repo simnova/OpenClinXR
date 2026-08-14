@@ -85,7 +85,15 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const GENERATED = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids");
 
-const MPFB = ["mpfb-ob-patient-aisha", "mpfb-peds-nurse-kevin", "mpfb-peds-patient-child"] as const;
+const MPFB = [
+  "mpfb-ob-patient-aisha",
+  "mpfb-peds-nurse-kevin",
+  "mpfb-peds-patient-child",
+  // Medical wardrobe moved kevin onto short-sleeve scrubs. The long-sleeve
+  // proof stays on the #403 clinical nurse, who still wears the sweater until
+  // that file's own rebake.
+  "mpfb-clinical-nurse-adult",
+] as const;
 
 /** A sleeve "reaches the wrist" when garment surface exists past this much of elbow->wrist. */
 const WRIST_REACH_T = 0.75;

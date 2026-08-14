@@ -623,26 +623,25 @@ def transfer_weights_body_to_garment(
 # (automate_blender.py:4245) says it exists "before a real groom/hair-card source stage
 # exists"; #381 landed the real thing (4,976 tris of fitted MakeClothes library hair on
 # aisha) and nobody retired the paint underneath — she ships both, and the 2.8%-luminance
-# paint under fitted hair is the hard 4096-grade boundary this issue closes. Retire the
-# placeholder ONLY where a real fitted replacement is on disk. #399: the child joins under
-# the MADR 0052 P3 advancement hour — her fitted toigo_curled_under_bob_with_bangs (CC0)
-# is on disk, so her paint is retired with aisha's. The nurse keeps it — removing it there
-# would leave a bald skin head. 2026-08-14: kevin now wears mhair02 (page-CC0 /
-# header-AGPL3 uuid allowlist) so his placeholder retires with the rest of the
-# MPFB cast. Keyed by the shipped GLB base id.
-SCALP_PLACEHOLDER_RETIRED_FOR = frozenset(
-    {
-        "mpfb-ob-patient-aisha",
-        "mpfb-peds-parent-aisha",
-        "mpfb-peds-patient-child",
-        "mpfb-peds-nurse-kevin",
-    }
-)
+# paint under fitted hair is the hard 4096-grade boundary this issue closes.
+#
+# RULE (2026-08-14 medical wardrobe), not a longer id list: wherever a fitted hair
+# mesh exists (or will exist on this bake), do not emit
+# `openclinxr_mesh_native_scalp_hair_surface`. A retirement keyed per shipped GLB
+# id is four manual exceptions — every NEW bake with hair (#403 adults) re-introduced
+# the shell. figure_id is accepted for call-site compatibility / logging only.
+# Default fitted_hair_present=False preserves the hm08 library rail, which still
+# paints the placeholder and embeds hair later as a finish step.
 
 
-def scalp_placeholder_retired_for(figure_id: str) -> bool:
-    """#387 — is this figure's placeholder scalp paint retired (real fitted hair on disk)?"""
-    return figure_id in SCALP_PLACEHOLDER_RETIRED_FOR
+def scalp_placeholder_retired_for(figure_id: str, *, fitted_hair_present: bool = False) -> bool:
+    """RULE: suppress the placeholder scalp shell whenever a fitted hair mesh exists.
+
+    figure_id is not consulted. A new bake that fits hair is clean without
+    appending an id. Default False leaves library-rail bodies unchanged.
+    """
+    del figure_id
+    return bool(fitted_hair_present)
 
 
 def apply_scalp_hair_material_region(basemesh: bpy.types.Object) -> dict:
@@ -2666,9 +2665,9 @@ def build_one_body_class(
     # rail. Runs AFTER the coverage gate so the region is measured on the final
     # (aligned, helper-stripped, Z-up standing, face at -Y) body and BEFORE the armature
     # bind so skinning never touches the material indices.
-    # #387 — the paint is a self-declared placeholder; it is retired only where a real
-    # fitted hair replacement is on disk (see scalp_placeholder_retired_for). The hm08
-    # library bodies are not in that set, so this call site's behaviour is unchanged.
+    # RULE: placeholder scalp is suppressed only when this stage itself fits hair.
+    # The hm08 library rail embeds hair later (body-param-cli finish step), so
+    # fitted_hair_present stays False and this call site's behaviour is unchanged.
     if scalp_placeholder_retired_for(body_class_id):
         scalp_hair_region = {"retired": True, "figureId": body_class_id}
     else:
