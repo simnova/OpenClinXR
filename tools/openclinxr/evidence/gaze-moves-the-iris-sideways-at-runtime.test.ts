@@ -76,6 +76,19 @@ import { describe, expect, it } from "vitest";
  *   - **The Anny rail.** `gaze-eye-bones-resolve-on-every-rail` covers bone resolution on both; this
  *     measures iris motion on the MPFB actor only.
  *   - **Vertical gaze.** Only yaw. A pitch axis would need its own control.
+ *
+ * ## FIXED (#395)
+ *
+ * `gaze-eye-rotation-live.ts` now runs under Node: `Reflect.set(globalThis, "self", globalThis.self ?? globalThis)`
+ * before GLTFLoader parses — GLTFLoader.js loadImageSource reads `self.URL` and no browser `self` exists
+ * under Node. Output shape unchanged (`EYE_ROTATION_MECHANISM {json}` lines; the contract parses them).
+ *
+ * Re-measured 2026-08-14 on `mpfb-ob-patient-aisha`, yaw 0.7 rad, both mechanisms in one run:
+ *   FIXED_rotateOnWorldAxis: irisMeanMagMm 10.85, lateralFraction 0.95, verticalFraction 0.17 (5.6:1) — clears 2:1
+ *   SHIPPED_rotation.y=yaw:  irisMeanMagMm  4.85, lateralFraction 0.53, verticalFraction 0.81 (0.65:1) — still fails (control)
+ * The shipped runtime mechanism (`gaze-drives-eyes.ts:64`, rotateOnWorldAxis) moves the iris sideways;
+ * the legacy `rotation.y = yaw` mechanism still moves it mostly vertically, so the probe still
+ * discriminates. The three `it.fails` clauses are flipped to `it`; every assertion is unchanged.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -141,7 +154,7 @@ function requireReadings(): { shipped: Reading; legacy: Reading } {
 }
 
 describe("gaze moves the iris sideways at runtime", () => {
-  it.fails("(1) RED: the shipped mechanism turns the iris laterally, not vertically", () => {
+  it("(1) RED: the shipped mechanism turns the iris laterally, not vertically", () => {
     const { shipped: s } = requireReadings();
     expect(
       s.lateralFraction,
@@ -149,7 +162,7 @@ describe("gaze moves the iris sideways at runtime", () => {
     ).toBeGreaterThanOrEqual(MIN_LATERAL_TO_VERTICAL * s.verticalFraction);
   });
 
-  it.fails("(2) COUNTERWEIGHT: the probe still FAILS the legacy mechanism — it can tell them apart", () => {
+  it("(2) COUNTERWEIGHT: the probe still FAILS the legacy mechanism — it can tell them apart", () => {
     // Refuses (b). The broken mechanism moves the iris 4.85 mm, so a "does it move?" check grades it
     // as working. If the probe can no longer show rotation.y = yaw failing the ratio, it has stopped
     // discriminating and clause (1) is green about nothing.
@@ -160,7 +173,7 @@ describe("gaze moves the iris sideways at runtime", () => {
     ).toBeLessThan(MIN_LATERAL_TO_VERTICAL * l.verticalFraction);
   });
 
-  it.fails("(3) COUNTERWEIGHT: the readings come from the shipped GLB, not a stub", () => {
+  it("(3) COUNTERWEIGHT: the readings come from the shipped GLB, not a stub", () => {
     // Refuses (c): a fabricated report satisfies a ratio for free. Eight iris vertices off the real
     // asset is cheap to verify and cheap to fake, so it is asserted rather than assumed.
     const { shipped: s, legacy: l } = requireReadings();

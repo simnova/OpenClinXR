@@ -25,6 +25,10 @@ import { dirname, resolve as pathResolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { readFileSync } from "node:fs";
 
+// GLTFLoader reads `self.URL` to build texture object URLs (GLTFLoader.js loadImageSource).
+// Under Node there is no browser `self`; aliasing it to globalThis is sufficient to run.
+Reflect.set(globalThis, "self", globalThis.self ?? globalThis);
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 /** Optional CLI arg: relative GLB path (default the OB patient). Usage: tsx <file> [glbPath] */
