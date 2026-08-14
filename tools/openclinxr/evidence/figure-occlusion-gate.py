@@ -100,7 +100,7 @@ def classify(gname: str, material: str) -> str:
         return "hidden"
     if "boot" in n or "shoe" in n or "footwear" in n:
         return "boots"
-    if "t_shirt" in n or "tshirt" in n or "shirt" in n:
+    if "t_shirt" in n or "tshirt" in n or "shirt" in n or "sweater" in n:
         return "tshirt"
     if "pants" in n or "trouser" in n:
         return "pants"
