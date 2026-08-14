@@ -153,7 +153,16 @@ describe("factory:case CLI", () => {
       const idx = c.args.indexOf("--actor");
       return idx >= 0 && c.args[idx + 1] ? [c.args[idx + 1]] : [];
     });
-    expect(actorArgs).toContain("apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb");
+    // Parent runtime is already the motion-bind GLB; isMpfbGeneratedHumanoid
+    // only matches generated-humanoids/mpfb-*.glb, so live bind is child + kevin.
+    expect(actorArgs).toEqual(expect.arrayContaining([
+      "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb",
+      "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
+    ]));
+    expect(actorArgs).not.toContain("apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb");
+    expect(actorArgs).not.toContain(
+      "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb",
+    );
     expect(actorArgs.every((p) => /generated-humanoids\/mpfb-.*\.glb$/.test(p))).toBe(true);
     expect(result.report?.claimScope.some((line) => /live run may invoke motion-bind/.test(line))).toBe(true);
   });
