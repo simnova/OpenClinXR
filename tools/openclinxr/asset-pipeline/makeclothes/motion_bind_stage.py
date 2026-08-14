@@ -146,24 +146,39 @@ def _rename_action(arm: bpy.types.Object, name: str) -> str:
     return ad.action.name
 
 
-def _export_armature_clip(arm: bpy.types.Object, out_path: str) -> None:
+def _drop_objects(objects: set[bpy.types.Object]) -> int:
+    removed = 0
+    for ob in list(objects):
+        if ob.name in bpy.data.objects:
+            bpy.data.objects.remove(ob, do_unlink=True)
+            removed += 1
+    return removed
+
+
+def _drop_imported_source_armatures(keep_objects: set[bpy.types.Object]) -> int:
+    """Remove BVH source armatures added by load_and_retarget. Keep the imported actor."""
+    extras = {
+        ob for ob in bpy.context.scene.objects if ob.type == "ARMATURE" and ob not in keep_objects
+    }
+    return _drop_objects(extras)
+
+
+def _scene_mesh_count() -> int:
+    return sum(1 for ob in bpy.context.scene.objects if ob.type == "MESH")
+
+
+def _export_skinned_actor_clip(out_path: str) -> None:
+    """Skinned meshes + armature + bound clip.
+
+    Reuses the materializer's proven full-object path (export_animations=True,
+    no use_selection). Selection-armature-only left 0 meshes and body_motion_probe
+    could not show a step.
+    """
     Path(out_path).parent.mkdir(parents=True, exist_ok=True)
-    bpy.ops.object.select_all(action="DESELECT")
-    arm.select_set(True)
-    bpy.context.view_layer.objects.active = arm
-    # Armature + its action only — factory stage output, not a recolour of the actor GLB.
     bpy.ops.export_scene.gltf(
         filepath=out_path,
         export_format="GLB",
-        use_selection=True,
         export_animations=True,
-        export_skins=True,
-        export_morph=False,
-        export_materials="NONE",
-        export_texcoords=False,
-        export_normals=False,
-        export_cameras=False,
-        export_lights=False,
     )
 
 
@@ -176,8 +191,13 @@ def main(argv: list[str]) -> int:
             return _reject(args.report, f"missing_input:{required}", "")
 
     try:
+        startup_objects = set(bpy.context.scene.objects)
         arm = _import_actor(args.actor)
-        log_lines.append(f"actor_armature={arm.name} pose_bones={len(arm.pose.bones)}")
+        actor_objects = set(bpy.context.scene.objects) - startup_objects
+        log_lines.append(
+            f"actor_armature={arm.name} pose_bones={len(arm.pose.bones)} "
+            f"actor_objects={len(actor_objects)} actor_meshes={_scene_mesh_count()}"
+        )
     except Exception as exc:  # noqa: BLE001
         return _reject(args.report, "actor_import_failed", f"{exc!r}\n{traceback.format_exc()}")
 
@@ -254,8 +274,30 @@ def main(argv: list[str]) -> int:
             },
         )
 
+    dropped_src = _drop_imported_source_armatures(actor_objects)
+    dropped_startup = _drop_objects(startup_objects)
+    mesh_count = _scene_mesh_count()
+    log_lines.append(
+        f"dropped_source_armatures={dropped_src} dropped_startup={dropped_startup} "
+        f"scene_meshes={mesh_count}"
+    )
+    if mesh_count < 1:
+        return _reject(
+            args.report,
+            "zero_meshes",
+            "\n".join(log_lines),
+            extra={
+                "sourceClip": args.clip,
+                "targetRig": args.actor,
+                "operator": "mcp.load_and_retarget",
+                "drivenBones": driven,
+                "realDrivenCount": len(real),
+                "outputMeshCount": mesh_count,
+            },
+        )
+
     try:
-        _export_armature_clip(arm, args.output)
+        _export_skinned_actor_clip(args.output)
     except Exception as exc:  # noqa: BLE001
         return _reject(
             args.report,
@@ -277,6 +319,7 @@ def main(argv: list[str]) -> int:
         "clipName": clip_name,
         "drivenBones": real,
         "drivenBoneCount": len(real),
+        "outputMeshCount": mesh_count,
         "totalRotationDeltaRad": sum(b["totalRotationDeltaRad"] for b in real),
         "outputBytes": os.path.getsize(args.output) if os.path.isfile(args.output) else 0,
         "log": "\n".join(log_lines),

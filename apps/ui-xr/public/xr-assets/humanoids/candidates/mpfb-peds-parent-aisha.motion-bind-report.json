@@ -2,7 +2,7 @@
   "schemaVersion": "openclinxr.motion-bind-stage.v1",
   "stageId": "motion_bind_stage",
   "verdict": "ok",
-  "generatedAt": "2026-08-14T16:19:43.346564+00:00",
+  "generatedAt": "2026-08-14T16:33:59.707107+00:00",
   "sourceClip": "tools/openclinxr/asset-pipeline/anny/proof-animations/diag/cmu_07_01_walk.bvh",
   "targetRig": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
   "targetMap": "tools/openclinxr/asset-pipeline/makeclothes/known-rigs/mpfb2-default-no-toes.json",
@@ -123,9 +123,10 @@
     }
   ],
   "drivenBoneCount": 22,
+  "outputMeshCount": 7,
   "totalRotationDeltaRad": 16.53148255530295,
-  "outputBytes": 361604,
-  "log": "actor_armature=mpfb_ob_patient_aisha_standard_rig pose_bones=137\nmodule=bl_ext.user_default.retarget_bvh load_and_retarget=True\nprefs_missing addon_keys=['io_anim_bvh']; using headless prefs stand-in\ntarget_map=MPFB2 default_no_toes from tools/openclinxr/asset-pipeline/makeclothes/known-rigs/mpfb2-default-no-toes.json\nload_and_retarget message='BVH file(s) retargeted'\ndriven=22 real=22 action=openclinxr_retarget_cmu_07_01_walk",
+  "outputBytes": 21822968,
+  "log": "actor_armature=mpfb_ob_patient_aisha_standard_rig pose_bones=137 actor_objects=9 actor_meshes=8\nmodule=bl_ext.user_default.retarget_bvh load_and_retarget=True\nprefs_missing addon_keys=['io_anim_bvh']; using headless prefs stand-in\ntarget_map=MPFB2 default_no_toes from tools/openclinxr/asset-pipeline/makeclothes/known-rigs/mpfb2-default-no-toes.json\nload_and_retarget message='BVH file(s) retargeted'\ndriven=22 real=22 action=openclinxr_retarget_cmu_07_01_walk\ndropped_source_armatures=0 dropped_startup=3 scene_meshes=7",
   "claimScope": "one_actor_one_clip_retarget_bind_not_a_motion_library",
   "notEvidenceFor": [
     "clinical_motion_realism",

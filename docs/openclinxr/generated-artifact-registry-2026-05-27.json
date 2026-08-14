@@ -15586,7 +15586,7 @@
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "Dark-factory B motion-bind output: armature + openclinxr_retarget_cmu_07_01_walk bound onto mpfb-peds-parent-aisha via retarget_bvh."
+      "rationale": "Dark-factory B motion-bind output: skinned mesh + armature + openclinxr_retarget_cmu_07_01_walk bound onto mpfb-peds-parent-aisha via retarget_bvh."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/reom-local-authored-curved-clinical-top-candidate.glb",

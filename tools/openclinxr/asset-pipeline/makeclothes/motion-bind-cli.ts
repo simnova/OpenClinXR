@@ -7,7 +7,7 @@
  * Invokes retarget_bvh (GPL-2.0-or-later) at build time only via motion_bind_stage.py.
  * Never a runtime dependency. Does not recolour or overwrite the source actor GLB.
  *
- * claimScope: factory stage that binds one clip to one MPFB armature.
+ * claimScope: factory stage that binds one clip to one MPFB actor (skinned mesh + armature).
  * notEvidenceFor: clinical motion, Quest readiness, visual walk quality.
  */
 
@@ -54,6 +54,7 @@ export type MotionBindInspect = {
   animationCount: number;
   clips: MotionBindClipInfo[];
   retargetClip: MotionBindClipInfo | null;
+  meshCount: number;
 };
 
 function resolveBlender(): string {
@@ -96,22 +97,25 @@ export function isRetargetClipName(name: string): boolean {
 
 export async function inspectMotionBindOutput(glbPath: string): Promise<MotionBindInspect> {
   if (!existsSync(glbPath) || statSync(glbPath).size < 64) {
-    return { animationCount: 0, clips: [], retargetClip: null };
+    return { animationCount: 0, clips: [], retargetClip: null, meshCount: 0 };
   }
   const io = new NodeIO();
   const doc = await io.read(glbPath);
-  const clips: MotionBindClipInfo[] = doc
-    .getRoot()
-    .listAnimations()
-    .map((anim) => ({
-      name: anim.getName() || "(unnamed)",
-      channelCount: anim.listChannels().length,
-    }));
+  const root = doc.getRoot();
+  const clips: MotionBindClipInfo[] = root.listAnimations().map((anim) => ({
+    name: anim.getName() || "(unnamed)",
+    channelCount: anim.listChannels().length,
+  }));
   const retargetClip =
     clips.find((c) => isRetargetClipName(c.name) && c.channelCount > 0) ??
     clips.find((c) => !PREEXISTING_CLIPS.has(c.name) && c.channelCount > 0) ??
     null;
-  return { animationCount: clips.length, clips, retargetClip };
+  return {
+    animationCount: clips.length,
+    clips,
+    retargetClip,
+    meshCount: root.listMeshes().length,
+  };
 }
 
 type CliOpts = {

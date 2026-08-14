@@ -25,6 +25,7 @@ describe("motion-bind stage emits a non-empty retarget clip", () => {
     const empty = await inspectMotionBindOutput("/tmp/openclinxr-no-such-motion-bind.glb");
     expect(empty.animationCount).toBe(0);
     expect(empty.retargetClip).toBeNull();
+    expect(empty.meshCount).toBe(0);
     expect(isRetargetClipName("ClinicalIdleConversation")).toBe(false);
     expect(PREEXISTING_CLIPS.has("ClinicalIdleConversation")).toBe(true);
   });
@@ -38,6 +39,11 @@ describe("motion-bind stage emits a non-empty retarget clip", () => {
     const inspect = await inspectMotionBindOutput(DEFAULT_OUTPUT);
     expect(inspect.retargetClip, `clips=${JSON.stringify(inspect.clips)}`).not.toBeNull();
     expect(inspect.retargetClip?.channelCount ?? 0, "retarget clip channel count").toBeGreaterThan(0);
+  });
+
+  it("output GLB carries at least one mesh (not armature-only)", async () => {
+    const inspect = await inspectMotionBindOutput(DEFAULT_OUTPUT);
+    expect(inspect.meshCount, "mesh count").toBeGreaterThanOrEqual(1);
   });
 
   it("stage report names the operator and a positive driven-bone count", () => {
