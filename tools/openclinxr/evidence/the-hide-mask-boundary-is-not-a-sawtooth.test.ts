@@ -2,6 +2,7 @@ import { join, dirname, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import { isUpperGarmentName } from "./garment-slot.ts";
 
 /**
  * ## HEADLINE WITHDRAWN 2026-08-13 18:2x — THIS FILE MEASURES AN OBJECT THAT CANNOT RENDER.
@@ -27,6 +28,23 @@ import { describe, expect, it } from "vitest";
  * The remaining live question about the masks is DEAD GEOMETRY, not appearance: seven fully-discarded
  * primitives ship per actor (`hidden_upper`/`lower`/`foot`/`orphan`, several duplicated with a `.001`
  * suffix), ~4,570 vertices on aisha, costing draw calls and vertex shading every frame for nothing.
+ *
+ * ## FIXED (#389) — 2026-08-14, matcher + second #199 consequence recorded
+ *
+ * #199 swapped kevin's scrub for the longer `toigo_fisherman_sweater`. Two independent things broke
+ * here; the issue diagnosed the first and the second is recorded because it blocks the run proof:
+ *
+ * 1. **Hem matcher** — the file located the hem by `/t_shirt|scrub_shirt/`, which went blind to
+ *    `fisherman_sweater`. Now uses the shared slot-derived `isUpperGarmentName` (garment-slot.ts).
+ *    kevin's hem ring is measurable again: 354 verts, p95AdjY 6.71 mm.
+ *
+ * 2. **Mask ring unmeasurable post-#199** — the rebake re-cut kevin's `hidden_upper` mask at the
+ *    longer sweater's hem (mask bottom 98.1 -> 93.4 cm). The new bottom band has 5-7 verts in the
+ *    bottom-3% window (was 38 pre-#199), below the instrument's 12-vert floor, so ringStats returns
+ *    null and the vacuity guard fires. The mask renders nothing, so no appearance impact — but the
+ *    counterweights (2)/(3) cannot certify kevin's mask on the current bytes. Not re-baselined:
+ *    there is no ring to floor. A mask re-cut/re-bake that restores a measurable bottom band is a
+ *    separate asset slice.
  *
  * ---
  *
@@ -146,7 +164,7 @@ async function measureActor(actor: string): Promise<{ hem: Ring | null; mask: Ri
   for (const mesh of doc.getRoot().listMeshes()) {
     for (const prim of mesh.listPrimitives()) {
       const name = prim.getMaterial()?.getName() ?? "";
-      const isHem = /t_shirt|scrub_shirt/i.test(name);
+      const isHem = isUpperGarmentName(name);
       const isMask = /hidden_upper/i.test(name);
       if (!isHem && !isMask) continue;
       const pos = prim.getAttribute("POSITION");
