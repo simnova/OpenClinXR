@@ -432,6 +432,27 @@ residential sampler with no clinical station addressing, independent of its 86x 
 
 (Transient WIP details — file:line, subagent IDs, capture logs — recorded here per slice. Rehydration reads only the header above + targeted grep on this section. Worker-backlog matrix at `docs/openclinxr/worker-backlog-and-validation-matrix.md` for ownership. Archive old blocks: `pnpm openclaw:checkpoint:archive -- --keep 7`.)
 
+### 2026-08-14 dark-factory-multi-case campaign close (Q1 + Q5)
+
+**Product path advanced.** Campaign A/B/C/T closed on this session. Not three playable exams. Not #167.
+
+| station | commit | grade |
+|---|---|---|
+| A colour | `a66b3195` | Tara grey-mauve ≠ Maya cream ≠ OB Aisha cream ≠ Omar pink |
+| B motion | `b9cb5de6` + `9a182ca9` | walk clip on disk; parent runtime now loads motion-bind GLB |
+| C visemes | already wired | isolated studio modest aperture; not speech-readable |
+| T compose | `fe273a36` + `9a182ca9` | `factory:case --motion-bind` execs existing CLI; hatch never invoked |
+
+**Evidence:** `.openclinxr/evidence/dark-factory-T/` (gitignored stills). Orchestrator opened native frames. SSOT: `.openclinxr/slices/dark-factory-multi-case/STATE.md`.
+
+**Blueprint/factory tie.** One command inventories a case; live `--motion-bind` is the first station that actually runs. Exam-time still no LLM except dialogue.
+
+**Risk that remains.** Midriff gap; Kevin scalp; Anny blob shoes; psych/OB share nurse/partner mesh; gait ugly; visemes not speech-readable; factory:case test may still expect generated parent on live bind (fixer in flight).
+
+**Next queued slice.** Not this campaign. Do not #167. Optional later: trousers/midriff, scalp, detached-camera room mouth.
+
+**Token introspection:** not captured — campaign spanned hatch + colour + bind + compose.
+
 ### 2026-08-14 overnight-wave-4 — eight landings, and five wrong instruments of my own (Q1 + Q5)
 
 **Product path advanced.** Eight slices landed since the 07:0x checkpoint.
