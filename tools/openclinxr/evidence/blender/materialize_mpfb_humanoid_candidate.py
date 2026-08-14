@@ -1897,6 +1897,215 @@ def regularize_rim(pants, env_window_deg, envelope="max", which="top", env_sourc
     return zone_span
 
 
+def dip_waistband_back(pants, env_window_deg, rim_band_m=0.008):
+    """issue-341 round 19 — the shell top ring's BACK arc must not sit in the visible rim band.
+
+    Measured 2026-08-14 on the shipped bytes (round-19 pre-fix): aisha's cargo-pants top ring
+    ends in a straight horizontal line with square corners at both hips — a box-topped tube.
+    The ring's BACK arc (vertices behind the ring's own mean depth and inside its mean radius)
+    reaches the ring's own maximum height, so it is part of the visible rim (pants vertices
+    within 8 mm of the primitive's top Y), and those back vertices sit at radius 64-90 mm from
+    the body axis — the rim's 3.0x radius ratio against kevin's known-good 1.24x. kevin's ring
+    back dips 22-29 mm below his ring max, so his rim is a smooth front+side arc (the ellipse
+    around the torso the brief names as the shape an ellipse actually has).
+
+    The treatment, both halves derived from the ring's OWN geometry (no fitted constant):
+    (1) snap the whole rim zone onto the angular max envelope exactly as #373 does — the
+        front/sides keep their teeth contour, kevin's known-good look; then
+    (2) pull the BACK arc's ring (and its triangle ring) DOWN to the back arc's OWN
+        minimum height — the back's teeth to its valleys, so the waistband dips at the
+        back the way kevin's known-good ring does. The ring's max..min spread — the
+        quantity the waistband-smooth counterweight floors — is unchanged by
+        construction, and the back leaves the rim band (rim_band_m, the brief's own rim
+        tolerance) so the rim becomes the smooth front+side arc and the flat box top is
+        gone. Triangle count and vertex count are unchanged (the #373 counterweights
+        cannot be satisfied by this edit).
+
+    Returns False when the ring's back is NOT within rim_band_m of the ring max (kevin's
+    case) — the caller then runs the plain #373 max-envelope so the ring still gets its
+    regularization. Returns True when the dip was applied.
+    """
+    mw = pants.matrix_world
+    world = [mw @ v.co for v in pants.data.vertices]
+    import bmesh as _dip_bmesh
+
+    bm = _dip_bmesh.new()
+    bm.from_mesh(pants.data)
+    bm.edges.ensure_lookup_table()
+    adj: dict[int, list[int]] = {}
+    for e in bm.edges:
+        if len(e.link_faces) == 1:
+            a, b = e.verts[0].index, e.verts[1].index
+            adj.setdefault(a, []).append(b)
+            adj.setdefault(b, []).append(a)
+    visited: set[int] = set()
+    loops: list[list[int]] = []
+    for start in adj:
+        if start in visited:
+            continue
+        loop: list[int] = []
+        cur, prev = start, -1
+        while True:
+            loop.append(cur)
+            visited.add(cur)
+            nxt = next((x for x in adj.get(cur, []) if x != prev), None)
+            if nxt is None:
+                break
+            prev, cur = cur, nxt
+            if cur == start:
+                break
+            if len(loop) > 20000:
+                break
+        loops.append(loop)
+    if not loops:
+        print("WAISTBAND_DIP WARNING: no boundary loop found — dip skipped")
+        return False
+    rim = max(loops, key=lambda l: max(world[i].z for i in l))
+
+    cx = sum(w.x for w in world) / len(world)
+    cy = sum(w.y for w in world) / len(world)
+    rim_max = max(world[i].z for i in rim)
+    rim_min = min(world[i].z for i in rim)
+    mean_depth = sum(world[i].y for i in rim) / len(rim)
+    mean_radius = sum(math.hypot(world[i].x - cx, world[i].y - cy) for i in rim) / len(rim)
+    # The stage front axis is -Y (the round-9/17 render-truth convention: front faces'
+    # normals point -Y, and the glTF exporter flips the depth so the shipped GLB's +Z is
+    # this frame's -Y). The BACK arc is therefore the ring vertices on the POSITIVE depth
+    # side inside the ring's mean radius (the central back; the far back-sides at radius
+    # beyond the mean are the legitimate ellipse and are left alone).
+    back = [
+        i
+        for i in rim
+        if world[i].y > mean_depth
+        and math.hypot(world[i].x - cx, world[i].y - cy) < mean_radius
+    ]
+    _depth_vals = [world[i].y for i in rim]
+    print(
+        f"WAISTBAND_DIP ring {len(rim)} verts depth[{min(_depth_vals):.3f},{max(_depth_vals):.3f}] "
+        f"meanDepth {mean_depth:.3f} meanRadius {mean_radius * 1000:.0f}mm "
+        f"candidateBack {len(back)}"
+    )
+    if not back:
+        print("WAISTBAND_DIP skipped — no central-back arc found")
+        return False
+    # The box is the back arc's TEETH reaching the ring's max (its valleys are always
+    # below the rim band). Measure the gap with the back arc's max, not its min.
+    back_gap = rim_max - max(world[i].z for i in back)
+    if back_gap > rim_band_m:
+        print(
+            f"WAISTBAND_DIP skipped — back arc {back_gap * 1000:.1f}mm below ring max "
+            f"(<= {rim_band_m * 1000:.0f}mm rim band means it is NOT in the visible rim)"
+        )
+        return False
+
+    ang = lambda i: math.atan2(world[i].y - cy, world[i].x - cx)  # noqa: E731
+    env_src = sorted(rim, key=ang)
+    src_angles = [ang(i) for i in env_src]
+    w_rad = math.radians(env_window_deg)
+    env: list[float] = []
+    for i in env_src:
+        ai = ang(i)
+        ex = -float("inf")
+        for j, aj in enumerate(src_angles):
+            d = abs(aj - ai)
+            if d > math.pi:
+                d = 2 * math.pi - d
+            if d < w_rad:
+                ex = max(ex, world[env_src[j]].z)
+        env.append(ex)
+
+    def env_at(th):
+        lo = hi = None
+        for k, ak in enumerate(src_angles):
+            d = ak - th
+            if d > math.pi:
+                d -= 2 * math.pi
+            if d < -math.pi:
+                d += 2 * math.pi
+            if d <= 0 and (lo is None or d > lo[1]):
+                lo = (k, d)
+            if d >= 0 and (hi is None or d < hi[1]):
+                hi = (k, d)
+        if lo is None:
+            lo = hi
+        if hi is None:
+            hi = lo
+        if lo[0] == hi[0]:
+            return env[lo[0]]
+        wgt = 0.5 if lo[1] == hi[1] else -lo[1] / (hi[1] - lo[1])
+        return env[lo[0]] + (env[hi[0]] - env[lo[0]]) * wgt
+
+    # (1) the #373 max-envelope over the rim's own triangle ring (the front/sides keep
+    # their teeth contour — kevin's known-good look; the zone is the rim's triangles).
+    polygons = [set(p.vertices) for p in pants.data.polygons]
+    vert_faces: dict[int, list[int]] = {}
+    for fi, vs in enumerate(polygons):
+        for v in vs:
+            vert_faces.setdefault(v, []).append(fi)
+    zone: set[int] = set()
+    for r in rim:
+        for fi in vert_faces.get(r, []):
+            zone.update(polygons[fi])
+    # The back's OWN low contour, captured BEFORE the envelope raises the valleys.
+    back_min_z = min(world[i].z for i in back)
+    for i in zone:
+        world[i].z = env_at(ang(i))
+    _dbg_center = math.atan2(
+        sum(math.sin(ang(i)) for i in back), sum(math.cos(ang(i)) for i in back)
+    )
+    _dbg = min(rim, key=lambda k: abs(ang(k) - (-0.98)))
+    print(
+        f"WAISTBAND_DIP dbg rimVtx z {world[_dbg].z:.4f} ang {math.degrees(ang(_dbg)):.1f} "
+        f"inZone {_dbg in zone} inRim {_dbg in set(rim)} "
+        f"backCenter {math.degrees(_dbg_center):.1f} cy {cy:.4f}"
+    )
+
+    # (2) pull the BACK half's ring down to the back's own minimum with a cosine
+    # falloff measured from the back arc's centre: the central back dips fully (the
+    # back's teeth to its valleys — the waistband dips at the back like kevin's
+    # known-good ring, and the ring's max..min spread, the quantity the
+    # waistband-smooth counterweight floors, is preserved by construction), the pull
+    # fades smoothly to zero at the sides (cosine over the back half, so a hard step
+    # between the dipped back and the kept ellipse — the high-frequency jump the
+    # ankle-cuff counterweight measures — cannot form), and the front half is never
+    # touched. The triangle ring below follows with the same falloff. Vertices are
+    # never raised.
+    back_center = math.atan2(
+        sum(math.sin(ang(i)) for i in back), sum(math.cos(ang(i)) for i in back)
+    )
+
+    def _falloff(th):
+        d = abs((th - back_center + math.pi) % (2 * math.pi) - math.pi)
+        if d >= math.pi / 2:
+            return 0.0
+        return math.cos(d)
+
+    back_set = set(back)
+    for i in rim:
+        f = _falloff(ang(i))
+        if f > 0:
+            world[i].z = min(world[i].z, back_min_z + (world[i].z - back_min_z) * (1.0 - f))
+    for z in back_set:
+        for fi in vert_faces.get(z, []):
+            for v in polygons[fi]:
+                if v in rim:
+                    continue
+                f = _falloff(ang(v))
+                if f > 0:
+                    world[v].z = min(world[v].z, back_min_z + (world[v].z - back_min_z) * (1.0 - f))
+
+    inv = mw.inverted()
+    for i, w in enumerate(world):
+        pants.data.vertices[i].co = inv @ w
+    bpy.context.view_layer.update()
+    print(
+        f"WAISTBAND_DIP rim {len(rim)} verts, max {rim_max:.4f} min {rim_min:.4f}, "
+        f"back {len(back)} verts (gap {back_gap * 1000:.1f}mm) pulled to {back_min_z:.4f}, "
+        f"envWindow {env_window_deg} deg, meanDepth {mean_depth:.4f} meanRadius {mean_radius * 1000:.0f}mm"
+    )
+    return True
+
+
 def _ray_tri_max_hit(origins, dirs, tri_verts, max_t: float) -> np.ndarray:
     """Max (outermost) hit distance per ray against the triangle soup.
 
@@ -3114,8 +3323,15 @@ def main():
     # is measured per actor from the rim's own inter-teeth structure (the child's front
     # contour dip must survive — its span floor fails above 8 deg; the adults' sparse
     # front teeth need a 10 deg bridge to clear their tight 4x-hem ratio).
+    # issue-341 round 19: when the ring's BACK arc is in the visible rim band (aisha's
+    # box-topped tube — measured: back arc at radius 64-90 mm in the rim, 3.0x vs kevin's
+    # 1.24x), `dip_waistband_back` runs the #373 envelope for the front/sides AND dips the
+    # back arc to the ring's own minimum, so the rim becomes the smooth front+side arc and
+    # the back no longer stands proud. kevin's back already dips below the rim band, so the
+    # dip returns False there and the plain #373 envelope runs unchanged.
     _waistband_env_window = 6 if (args.reference or "") == "peds_patient_child" else 10
-    regularize_rim(pants, _waistband_env_window, envelope="max", which="top")
+    if not dip_waistband_back(pants, _waistband_env_window, rim_band_m=0.008):
+        regularize_rim(pants, _waistband_env_window, envelope="max", which="top")
     # issue-374: regularize the LOWER rim (the ankle cuffs) the same way. The
     # #341 clip stays (it is the straight horizontal hem the shoe junction needs);
     # what ships ragged is the first row ABOVE the cut — the clip's surviving
