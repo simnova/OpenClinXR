@@ -79,6 +79,20 @@ import { describe, expect, it } from "vitest";
  *     #338's between-layer instrument is the right tool and is deliberately unbuilt.
  *   - **Which actor should wear one.** Clinical staging (a nurse in long sleeves vs a patient in a
  *     gown) is a staging decision (SS8y), not an implementer one.
+ *
+ * ## FIXED (medical-wardrobe 2026-08-14) — capability proven, cast now short-sleeved
+ *
+ * The nurse-adult rebake (`LONG_SLEEVE_UPPER_BY_REFERENCE["ed_chest_pain_nurse_adult"]=None`)
+ * retired the LAST long-sleeve carrier: the whole shipped cast now wears short-sleeve
+ * tops (WojackOWL scrub shirts for clinicians, toigo t-shirts for patients/family).
+ * The rail capability proof stands as a measured historical fact — t=0.971 along
+ * elbow->wrist on `mpfb-clinical-nurse-adult` wearing `toigo_fisherman_sweater`,
+ * recorded 2026-08-14 in the kevin provenance and this file's header. (1) and (3)
+ * are flipped from "at least one reaches" to the wardrobe end-state tripwire
+ * ("none reach"), so a future long-sleeve staging decision (e.g. a physician coat)
+ * re-opens them deliberately. (2) still guards that every upper garment is fitted
+ * geometry, which the scrub shirts satisfy. The `toigo_fisherman_sweater` fit code
+ * remains in the materializer behind LONG_SLEEVE_UPPER_BY_REFERENCE (all None today).
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -89,9 +103,9 @@ const MPFB = [
   "mpfb-ob-patient-aisha",
   "mpfb-peds-nurse-kevin",
   "mpfb-peds-patient-child",
-  // Medical wardrobe moved kevin onto short-sleeve scrubs. The long-sleeve
-  // proof stays on the #403 clinical nurse, who still wears the sweater until
-  // that file's own rebake.
+  // Medical wardrobe (2026-08-14) moved every clinician onto short-sleeve scrubs;
+  // the nurse-adult rebake retired the last long-sleeve carrier. The rail
+  // capability proof is historical (t=0.971 measured on this actor 2026-08-14).
   "mpfb-clinical-nurse-adult",
 ] as const;
 
@@ -211,14 +225,19 @@ function requireMeasured(): void {
   );
 }
 
-describe("a long sleeve reaches the wrist on the MPFB rail", () => {
-  it("(1) RED: at least one MPFB actor has garment surface past the forearm midpoint", () => {
+describe("a long sleeve reached the wrist on the MPFB rail (capability proven; cast is now short-sleeved)", () => {
+  it("(1) WARDROBE END-STATE: no shipped MPFB actor wears a long sleeve today", () => {
     requireMeasured();
+    // The capability was PROVEN on the nurse-adult sweater at t=0.971 along elbow->wrist
+    // (measured 2026-08-14, recorded in the kevin provenance). The medical wardrobe then
+    // moved every clinician onto short-sleeve WojackOWL scrub shirts, so no actor reaches
+    // the wrist by staging decision (SS8y). This clause is a tripwire: a future long-sleeve
+    // staging decision (e.g. a physician coat) re-opens it deliberately.
     const reaching = rows.filter((r) => r.reachT >= WRIST_REACH_T).map((r) => r.actor);
     expect(
-      reaching.length,
-      `MPFB actors whose upper-body garment reaches t>=${WRIST_REACH_T} along elbow->wrist (today every actor stops at the short-sleeve cuff; measured reach: ${rows.map((r) => `${r.actor} ${r.reachT.toFixed(2)}`).join(", ")})`,
-    ).toBeGreaterThanOrEqual(1);
+      reaching,
+      `MPFB actors whose upper-body garment reaches t>=${WRIST_REACH_T} along elbow->wrist (measured reach: ${rows.map((r) => `${r.actor} ${r.reachT.toFixed(2)}`).join(", ")})`,
+    ).toEqual([]);
   });
 
   it("(2) COUNTERWEIGHT: any sleeve on the arm is fitted geometry, not a floating tube", () => {
@@ -238,18 +257,17 @@ describe("a long sleeve reaches the wrist on the MPFB rail", () => {
     expect(bad, "upper-body garments that are not fitted geometry").toEqual([]);
   });
 
-  it("(3) RED: the forearm is covered along its length, not just at the cuff", () => {
-    // Refuses (b): stretching a short sleeve to wrist length thins it to a ribbon — the cuff arrives
-    // and the arm between stays bare. SS11s: bound the distribution, not the extreme.
+  it("(3) WARDROBE END-STATE: every actor's forearm is short-sleeve bare at every sampled height", () => {
+    // Same wardrobe end-state as (1): with the last long-sleeve carrier gone, all four
+    // actors are bare at all sampled forearm heights. A future long-sleeve staging
+    // decision flips this clause back (see the FIXED block).
     requireMeasured();
-    const bare = rows
-      .filter((r) => r.coveredSamples < FOREARM_SAMPLES.length)
-      .map(
-        (r) =>
-          `${r.actor}: garment surface found at ${r.coveredSamples}/${FOREARM_SAMPLES.length} sampled forearm heights`,
-      );
-    expect(bare.length, `MPFB actors with a bare forearm gap (need at least one fully covered)`).toBeLessThan(
-      rows.length,
-    );
+    const covered = rows
+      .filter((r) => r.coveredSamples === FOREARM_SAMPLES.length)
+      .map((r) => `${r.actor}: ${r.coveredSamples}/${FOREARM_SAMPLES.length}`);
+    expect(
+      covered,
+      `MPFB actors with a fully covered forearm (all sampled heights) — expected NONE in the short-sleeve wardrobe`,
+    ).toEqual([]);
   });
 });

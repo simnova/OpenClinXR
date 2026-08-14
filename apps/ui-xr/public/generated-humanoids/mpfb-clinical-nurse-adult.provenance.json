@@ -20,7 +20,7 @@
   "annyReference": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.anny_base.obj (tracked)",
   "materializedFrom": "MPFB2 HumanService.create_human with macro_detail_dict derived from the tracked Anny reference",
   "generator": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-  "derivationNote": "Issue #403 step 2: the shared Anny nurse mesh (10 cast slots) is replaced by this MPFB2 adult. age=0.6 from the measured head-height fraction (0.100, adult band); height=0.5827 SOLVED by bake-measure-interpolate so the baked+stripped exported body reaches the reference stature (1.76 m). Macros baked into the basis via TargetService.bake_targets immediately after create_human. Standard 137-joint rig; #317 face keys (32 targets / 13 mouth); #318 helper strip (19,158->13,380 verts / 36,972->26,756 tris). Wardrobe: #199 CC0 toigo_fisherman_sweater upper (scrub-class, locked clinical colour 0.05,0.48,0.52, luminance-normalised per #386), cortu_cargo_pants lower cover shell, toigo_flats footwear, #381 CC0 toigo_blunt_bob fitted hair, #356 blue iris (CC0 makehuman system-assets pack), #377 anatomical 24.0 mm eyes, #343 skin tone medium_warm (0.58,0.44,0.36), #370 tangent-space normal map, #359 scalp region (0.898-1.000 H)."
+  "derivationNote": "Issue #403 step 2: the shared Anny nurse mesh (10 cast slots) is replaced by this MPFB2 adult. age=0.6 from the measured head-height fraction (0.100, adult band); height=0.5827 SOLVED by bake-measure-interpolate so the baked+stripped exported body reaches the reference stature (1.76 m). Macros baked into the basis via TargetService.bake_targets immediately after create_human. Standard 137-joint rig; #317 face keys (32 targets / 13 mouth); #318 helper strip (19,158->13,380 verts / 36,972->26,756 tris). Wardrobe (2026-08-14 medical wardrobe): WojackOWL CC-BY Scrub_Shirt (9,384 tris, locked clinical colour 0.05,0.48,0.52) + Scrub_Pants (2,704 tris, fitted BEFORE the #318 helper strip because x_scale refs 13868/14308 are helper verts) via the clinician ClothesService branch; toigo_flats footwear, #381 CC0 toigo_blunt_bob fitted hair, #356 blue iris (CC0 makehuman system-assets pack), #377 anatomical 24.0 mm eyes, #343 skin tone medium_warm (0.58,0.44,0.36), #370 tangent-space normal map, #359 scalp placeholder RETIRED BY RULE (fitted hair present -> no openclinxr_mesh_native_scalp_hair_surface). No lab coat on this file: it still dresses nurse + RT + MA + (until the physician GLB) physician. LONG_SLEEVE_UPPER_BY_REFERENCE[ed_chest_pain_nurse_adult]=None; the toigo_fisherman_sweater and cortu_cargo_pants are gone on this actor. 2026-08-14 nurse-adult rebake via materialize_mpfb_humanoid_candidate.py --actor-role nurse --reference ed_chest_pain_nurse_adult; bake-time licence re-read on both .mhclo headers (CC-BY); midriff measured +2.6 mm min overlap / 0 of 36 gapped buckets (closed). Attribution: WojackOWL, Medical Scrubs Kit, CC-BY."
  },
  "licenseChain": {
   "status": "mpfb2_makehuman_license_not_reverified_at_comparator",
@@ -45,18 +45,22 @@
   "clinical_validity",
   "scoring_validity",
   "scene_placement_readiness",
-  "madr_0051_s5_landmark_match_within_bands"
+  "madr_0051_s5_landmark_match_within_bands",
+  "gown",
+  "physician_coat",
+  "midriff_closed_unless_the_number_says_so"
  ],
  "sourceNotes": [
   "Issue #403 first adult MPFB2 migration slice: the 19-slot Anny nurse/spouse pair is replaced by two MPFB2 adults generated from the tracked Anny references. The Anny GLBs stay on disk as comparators.",
   "gender/muscle/weight/proportions/cupsize/firmness remain MPFB defaults — only age + height are driven by reference measurement this slice.",
   "Exact MADR 0051 §5 landmark match (shoulder, girths, limb lengths) is anny-mpfb-landmark-compare's follow-on; NOT claimed here.",
   "Physician/respiratory_therapist/medical_assistant roles share this nurse-class body by design (named clinical-team look-alike) — not a third bake.",
-  "Baked 2026-08-14 from this worktree with all provider-cache assets staged locally (garments, hair, iris)."
+  "Baked 2026-08-14 from this worktree with all provider-cache assets staged locally (garments, hair, iris).",
+  "2026-08-14 medical wardrobe (nurse-adult): LONG_SLEEVE_UPPER_BY_REFERENCE[ed_chest_pain_nurse_adult]=None so the clinician branch selects WojackOWL CC-BY Scrub_Shirt (9384 tris) + Scrub_Pants (2704 tris, fit BEFORE #318 strip because x_scale refs 13868/14308 are helper verts). Cargo pants and toigo_fisherman_sweater gone on this actor. HAIR_STYLE_BY_REFERENCE kept toigo_blunt_bob (2858 tris). Scalp emit is a RULE (fitted hair present => no openclinxr_mesh_native_scalp_hair_surface). Licence re-read on both mhclo headers (CC-BY). Midriff measured +2.6 mm min overlap / 0 of 36 gapped buckets (closed). Attribution: WojackOWL, Medical Scrubs Kit, CC-BY."
  ],
- "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
+ "claimScope": "nurse_adult_staff_kit_via_clothesservice_scrub_shirt_scrub_pants_toigo_blunt_bob_kept",
  "promotionGates": false,
- "generatedAt": "2026-08-14T16:14:00Z",
- "outputSha256": "20e9ee59680cccc57e43dbf0396ee1832b81eb417f8ecee9bcb218a47a8f9393",
- "outputBytes": 22647888
+ "generatedAt": "2026-08-14T21:33:00Z",
+ "outputSha256": "1201e39754f87804f3cebc10a3be55def2937e53490a9cca5331b95aa6bf57bb",
+ "outputBytes": 21562992
 }

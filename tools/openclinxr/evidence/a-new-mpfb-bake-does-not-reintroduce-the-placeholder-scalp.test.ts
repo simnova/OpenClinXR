@@ -98,6 +98,12 @@ import { describe, expect, it } from "vitest";
  * that fits hair is clean without appending an id. This slice rebakes kevin
  * only; the two #403 adults still carry the shell on disk, so (1) stays
  * `it.fails` until those files are rebaked. Do not flip (1) by growing a list.
+ *
+ * ## FIXED (medical-wardrobe 2026-08-14) — both #403 adults rebaked
+ *
+ * Family `1715007d` + nurse-adult this commit: every shipped `mpfb-*.glb` has
+ * scalpTris 0 under the fitted-hair RULE. (1) is a plain `it`. (4) is an
+ * all-retired tripwire. Do not restore an id list.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -154,7 +160,7 @@ function requireAssets(): Asset[] {
 }
 
 describe("a new MPFB bake does not reintroduce the placeholder scalp", () => {
-  it.fails("(1) RED: no shipped MPFB humanoid carries a placeholder scalp surface", () => {
+  it("(1) no shipped MPFB humanoid carries a placeholder scalp surface", () => {
     const offenders = requireAssets().filter((a) => a.scalpTris > 0);
     expect(
       offenders.map((a) => `${a.id} (${a.scalpTris}t)`),
@@ -180,9 +186,9 @@ describe("a new MPFB bake does not reintroduce the placeholder scalp", () => {
     }
   });
 
-  it("(4) VACUITY GUARD: the population contains both classes today", () => {
+  it("(4) END-STATE: every shipped MPFB humanoid is retired (no shell class remains)", () => {
     const a = requireAssets();
-    expect(a.filter((x) => x.scalpTris > 0).length, "assets carrying the shell today").toBeGreaterThan(0);
-    expect(a.filter((x) => x.scalpTris === 0).length, "assets already retired today").toBeGreaterThan(0);
+    expect(a.filter((x) => x.scalpTris > 0).map((x) => x.id), "assets still carrying the shell").toEqual([]);
+    expect(a.filter((x) => x.scalpTris === 0).length, "retired assets").toBe(a.length);
   });
 });

@@ -94,15 +94,17 @@ HAIR_STYLE_SEARCH_ROOTS = (
 # SHOE_BY_REFERENCE (None = the default-macro aisha path). One actor is enough for #199's
 # contract; aisha (patient) and the child keep their existing upper slot.
 # 2026-08-14 medical wardrobe: kevin is None so the clinician branch selects the
-# WojackOWL CC-BY scrub shirt (not the fisherman sweater). #403 nurse adult stays
-# on the sweater until that file's own rebake.
+# WojackOWL CC-BY scrub shirt (not the fisherman sweater). The ED clinical nurse
+# joins on the same kit (her file's rebake); the physician keeps the sweater until
+# the separate mpfb-clinical-physician-adult.glb exists.
 LONG_SLEEVE_UPPER_BY_REFERENCE = {
     None: None,
     "peds_nurse_kevin": None,
     "peds_patient_child": None,
-    # #403 — the ED clinical nurse still wears the CC0 fisherman sweater until the
-    # next wardrobe slice rebakes that file onto the scrub kit.
-    "ed_chest_pain_nurse_adult": "toigo_fisherman_sweater",
+    # #403 — the ED clinical nurse now wears the scrub shirt via the clinician
+    # branch (WojackOWL, Medical Scrubs Kit, CC-BY). No lab coat on this file:
+    # it still dresses nurse + RT + MA + (until the physician GLB) physician.
+    "ed_chest_pain_nurse_adult": None,
 }
 
 # #343 — phenotype skin-tone token -> MpfbSkinMasterColor SkinColor (RGB).
@@ -3146,13 +3148,13 @@ def main():
     # the CC0 toigo t-shirt stays the patients' closed-casual upper.
     # _is_clinician was resolved before the helper strip so scrub pants can fit
     # against helper-vertex x_scale refs.
-    # #199: the LONG-SLEEVE upper slot (see LONG_SLEEVE_UPPER_BY_REFERENCE). The nurse
-    # wears the CC0 fisherman sweater instead of the scrub top. kind stays "scrub" so the
-    # locked clinical colour keeps the cast pairwise distinct (#180 contract); the asset's
-    # OWN declared sweater_fisherman.mhmat -> shirt-knit.png is consumed by the #360
-    # material path (the scrub's .mhmat is not staged, so this slot now consumes a
-    # declared texture where the scrub recorded a skip). The fit is the SAME
-    # ClothesService path and fit order as the t-shirt below (after the #318 strip).
+    # #199: the LONG-SLEEVE upper slot (see LONG_SLEEVE_UPPER_BY_REFERENCE). The
+    # 2026-08-14 medical wardrobe cleared every reference to None, so this branch
+    # is dormant and clinicians select the WojackOWL CC-BY Scrub_Shirt below (the
+    # long-sleeve rail proof t=0.971 was recorded on 2026-08-14 and is historical).
+    # kind stays "scrub" so the locked clinical colour keeps the cast pairwise
+    # distinct (#180 contract). The fit is the SAME ClothesService path and fit
+    # order as the t-shirt below (after the #318 strip).
     _long_sleeve_style = LONG_SLEEVE_UPPER_BY_REFERENCE.get(args.reference)
     if _is_clinician and _long_sleeve_style:
         _garment_dir = (
