@@ -14,6 +14,8 @@
 
 import {
   driveVisemeTimeline,
+  frameDurationSeconds,
+  totalTimelineDurationSeconds,
   type PhonemeCue,
   type VisemeFrame,
 } from "./viseme-timeline-drive.js";
@@ -103,14 +105,62 @@ export function mapDialoguePhonemeToArkit(phoneme: string): string {
   return DIALOGUE_PHONEME_TO_ARKIT[raw] ?? DIALOGUE_PHONEME_TO_ARKIT[raw.toLowerCase()] ?? raw;
 }
 
-export function mapDialoguePhonemesToCues(
-  phonemes: readonly string[],
-  stepSeconds = 0.12,
-): PhonemeCue[] {
-  return phonemes.map((phoneme, index) => ({
-    phoneme: mapDialoguePhonemeToArkit(phoneme),
-    atSecond: Number((index * stepSeconds).toFixed(4)),
-  }));
+/**
+ * Per-phone dwell weights for a normalised timeline, in seconds. Proportions only: the caller's
+ * `durationMs` scales the whole utterance uniformly, so these numbers choose how the total is
+ * shared, never wall-clock. External reference (no known-good column in this tree — #382):
+ * English conversational speech puts stressed vowels near 100-200 ms and stop closures near
+ * 20-80 ms. Keyed on the raw tokens the pipeline can emit: CMUdict ARPAbet (uppercase) and the
+ * #376 grapheme-fallback letters (lowercase).
+ */
+const VOWEL_DWELL_SECONDS = 0.24;
+const STOP_DWELL_SECONDS = 0.08;
+const NASAL_DWELL_SECONDS = 0.12;
+const FRICATIVE_DWELL_SECONDS = 0.16;
+const GLIDE_DWELL_SECONDS = 0.16;
+const SIL_DWELL_SECONDS = 0.16;
+
+const VOWEL_TOKENS: ReadonlySet<string> = new Set([
+  "AA", "AE", "AH", "AO", "AW", "AY", "EH", "ER", "EY", "IH", "IY", "OW", "OY", "UH", "UW",
+  "a", "e", "i", "o", "u",
+]);
+const STOP_TOKENS: ReadonlySet<string> = new Set(["P", "B", "T", "D", "K", "G", "t", "k"]);
+const NASAL_TOKENS: ReadonlySet<string> = new Set(["M", "N", "NG", "m"]);
+const FRICATIVE_TOKENS: ReadonlySet<string> = new Set([
+  "F", "V", "S", "Z", "SH", "ZH", "TH", "DH", "CH", "JH", "HH", "f",
+]);
+const GLIDE_TOKENS: ReadonlySet<string> = new Set(["L", "R", "W", "Y", "w"]);
+const SILENCE_TOKENS: ReadonlySet<string> = new Set(["sil", "silence", "rest"]);
+
+/** Dwell length for a raw phoneme token; unknown tokens get a mid-length dwell, never zero. */
+function phonemeDwellSeconds(phoneme: string): number {
+  const raw = phoneme.trim();
+  if (SILENCE_TOKENS.has(raw.toLowerCase())) return SIL_DWELL_SECONDS;
+  if (VOWEL_TOKENS.has(raw)) return VOWEL_DWELL_SECONDS;
+  if (STOP_TOKENS.has(raw)) return STOP_DWELL_SECONDS;
+  if (NASAL_TOKENS.has(raw)) return NASAL_DWELL_SECONDS;
+  if (FRICATIVE_TOKENS.has(raw)) return FRICATIVE_DWELL_SECONDS;
+  if (GLIDE_TOKENS.has(raw)) return GLIDE_DWELL_SECONDS;
+  return FRICATIVE_DWELL_SECONDS;
+}
+
+/**
+ * Map dialogue phonemes to duration-weighted cues: each cue carries the phoneme's dwell length
+ * and a cumulative `atSecond`. `pickFrame` selects by time through the total, so dwell is
+ * proportional to the phone's class (vowel > stop) instead of a uniform 1/N division (#382).
+ */
+export function mapDialoguePhonemesToCues(phonemes: readonly string[]): PhonemeCue[] {
+  let at = 0;
+  return phonemes.map((phoneme) => {
+    const durationSeconds = phonemeDwellSeconds(phoneme);
+    const cue: PhonemeCue = {
+      phoneme: mapDialoguePhonemeToArkit(phoneme),
+      atSecond: Number(at.toFixed(4)),
+      durationSeconds,
+    };
+    at += durationSeconds;
+    return cue;
+  });
 }
 
 function pickFrame(frames: readonly VisemeFrame[], progress: number): { frame: VisemeFrame; index: number } {
@@ -118,10 +168,23 @@ function pickFrame(frames: readonly VisemeFrame[], progress: number): { frame: V
     return { frame: { atSecond: 0, weights: {} }, index: 0 };
   }
   const clamped = Math.min(1, Math.max(0, progress));
-  const index =
-    clamped >= 1
-      ? frames.length - 1
-      : Math.min(frames.length - 1, Math.floor(clamped * frames.length));
+  if (clamped >= 1) {
+    return { frame: frames[frames.length - 1]!, index: frames.length - 1 };
+  }
+  // Select by time through the cumulative dwell timeline: each frame owns its dwell band
+  // [atSecond, atSecond + duration), so a long vowel holds the active shape far longer than a
+  // stop closure instead of both owning exactly 1/N of the utterance.
+  const total = totalTimelineDurationSeconds(frames);
+  const t = clamped * total;
+  let acc = 0;
+  let index = frames.length - 1;
+  for (let i = 0; i < frames.length; i += 1) {
+    acc += frameDurationSeconds(frames, i);
+    if (t < acc) {
+      index = i;
+      break;
+    }
+  }
   return { frame: frames[index]!, index };
 }
 

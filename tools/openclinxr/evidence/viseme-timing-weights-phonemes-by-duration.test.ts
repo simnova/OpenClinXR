@@ -81,6 +81,17 @@ import { phonemesForText } from "../../../apps/ui-xr/src/dialogue-visemes.js";
  *   - **Any non-English text.** The bank is English; nothing here speaks for other phone inventories.
  */
 
+/**
+ * ## FIXED (#382) — 2026-08-14
+ *
+ * `mapDialoguePhonemesToCues` now assigns per-phone dwell weights (vowels 0.24 s, stops 0.08 s,
+ * nasals 0.12 s, fricatives/glides/sil 0.16 s) and `pickFrame` selects by time through the
+ * cumulative timeline (`t = progress * totalDwell`, frame = the band `[atSecond, atSecond +
+ * duration)` containing `t`) instead of `floor(progress * frameCount)`. The proportions are
+ * normalised to the caller's `durationMs` — the mouth still finishes the utterance exactly at
+ * progress 1, so the treatment-(b) over-run does not occur and remains NOT TESTED above.
+ */
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const BUNDLES = join(REPO_ROOT, "apps/ui-xr/public/xr-assets/generated");
@@ -180,7 +191,7 @@ function requireUtterance(): void {
 }
 
 describe("viseme timing weights phonemes by duration", () => {
-  it.fails("(1) RED: a vowel dwells longer than a stop consonant", () => {
+  it("(1) RED: a vowel dwells longer than a stop consonant", () => {
     requireUtterance();
     const v = meanOf(vowelIdx);
     const s = meanOf(stopIdx);
@@ -191,7 +202,7 @@ describe("viseme timing weights phonemes by duration", () => {
     ).toBeGreaterThan(MIN_VOWEL_TO_STOP);
   });
 
-  it.fails("(2) RED: dwell time varies across the utterance at all", () => {
+  it("(2) RED: dwell time varies across the utterance at all", () => {
     requireUtterance();
     const mean = dwell.reduce((s, v) => s + v, 0) / dwell.length;
     const sd = Math.sqrt(dwell.reduce((s, v) => s + (v - mean) ** 2, 0) / dwell.length);
