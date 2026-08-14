@@ -1033,3 +1033,52 @@ contract; then #230 registry double-count (53 entries for a derived tree, measur
 Owner: asset-pipeline-lead for the first two, chief-coordinator for #230.
 
 **Token introspection:** not captured — this window spanned seven landings across two lanes.
+
+### 2026-08-13 late: four more landings, and five of my own claims withdrawn on measurement (Q1/Q5)
+
+**What changed.** `ff554305`+`d0b43c47` #374 ankle rim · `2b514caa`+`c56f3468` #375 pronunciation ·
+`04ced55e`+`a3baca28` #376 extraction · `55a15249` #371 clause (3) rescope · `a7aab415` MADR Hair row ·
+`50bfff47` CMUdict licence · REDs `f02c225e` #373, `0eaa08bf` #374, `3b084ff3` #376, `ad35f1db` #375,
+`976e61b9` #377, `975dd09c` #378. Closed #373 #374 #375 #376; filed #377 #378 operationalized.
+
+**Blueprint/factory tie.** The garment lane now holds four cumulative graded wins: smooth garments,
+textured shirt, clean waistband, clean ankle cuff (aisha). The lip-sync station moved from a
+letter-by-letter heuristic to a 246-entry CMUdict extraction — **5/5 homophone pairs now match, from
+0/5**; `though`/`cough` separate; `phone` no longer opens with a lip closure. CMUdict is a build-time
+input, never shipped: the bank speaks **228 distinct words**, 0.17% of the dictionary.
+
+**THE DEFECT PATTERN WORTH CARRYING FORWARD.** Three times now the pixels showed a "ragged rim" and the
+rim was innocent — the real defect was two garments occupying the same space. #364's mask (cannot
+render), #373's shirt hem (tucked 9.6-16.3 mm inside), and now kevin's boot (**279.2 mm of overlap, layer
+order flipping: pants outside in 5 buckets, boot outside in 25**). The instrument that separates them is
+an angular-bucket radial comparison, and it should be the FIRST thing run on any "jagged edge" grade.
+
+**Risk that remains.** #378 kevin boot interpenetration (planted, probed, not dispatched — collides).
+#377 eyeballs **25-34% oversized against sourced anatomy** (29.9/32.1/29.7 mm vs 24/24/22.5), in flight.
+The hairline is **not measurable** by any of three instruments and its numbers in this file and in MADR
+0052 should not be used as a baseline. Sleeve cuffs and collars unmeasured.
+
+**Five of my own claims withdrawn on measurement.** (1) Gaze pitch "6-18° down" — the 4th instrument was
+biased; the 5th, self-validating (pupil lands on the fitted sphere), says **0° to -4°**, and inter-eye
+yaw error is 1.5/4.5/7.3° not 17°. (2) #230's "a worktree regeneration silently drops 2,111 entries" —
+the fail-closed guard **already exists** (#116, tested); I inferred absence from a sentence about a
+*percentage* threshold. (3) #230's shrink-refusal hazard — no absolute floor exists. (4) MADR 0052's Hair
+row — hair is acquired, licence-gated and **already fitted** (4,976 tris on the lean-female library
+body); the gap is engineering, not acquisition. (5) The hairline instrument I declared broken **works** —
+proven against synthetic ground truth, exact recovery at every amplitude.
+
+**A gate I loosened, recorded because SS10s warns against it.** #371's clause (3) refused #374. Measuring
+where the coplanar joins went showed **all of them in the bottom sixth**, five of six height bands exactly
+unchanged — the rim #374 was commissioned to re-tessellate. It also emerged the clause was a CUMULATIVE
+budget: #373 had silently spent 98% of it and kevin passed by **one join**. Rescoped to above-rim with the
+per-band table as evidence. Had the loss been spread across the garment I would have refused the slice.
+
+**Harness: the write-isolation detector false-accused TWICE** (#372, #374) — #344's mechanism. Both times
+the named files were the peer's TRELLIS lane, sharing one mtime, absent from the worker's transcript. On
+#374 it aborted *before* the worker committed, so believing it would have discarded ~40 minutes of Blender.
+`pgrep -f` self-matching produced three more false liveness reads; resolve with `ps -eo command`.
+
+**Next queued slice.** #377 (in flight); then #378 kevin boot layering; then the arc-length boundary
+instrument the hairline needs. Owner: asset-pipeline-lead for the first two.
+
+**Token introspection:** not captured — this window spanned four landings across two lanes.
