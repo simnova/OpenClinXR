@@ -345,3 +345,44 @@ downward.
 NOT TESTED: a second seed sweep beyond 0-3 on the full coarse pipeline (mesh + bake); a longer
 anneal schedule reaching [24,25] (e.g. `solve_steps` increases); baking the 19.25 m2 room and
 re-placing fixtures (the named gating slice); any `environmentId` other than `ed_exam_bay_v1`.
+
+---
+
+## CORRECTION 2026-08-17 — "the hull contributes nothing from inside" is FALSE for a second room
+
+`infinigen-station-environment.ts` §342b records hull-hiding as **MEASURED AND REJECTED**, on the
+grounds that *"from inside, the hull is back-face culled and contributes nothing — byte-identical at
+every sampled point."*
+
+**That measurement is correct for `infinigen-ed-exam-bay` and was written as a property of hulls in
+general. It does not generalise.** On `infinigen-pediatric-urgent-care-bay` (#405 → #406 → #407) the
+hull occludes the interior view completely.
+
+Measured live at the derived interior camera `(-2.42, 1.70, 1.90)`, viewport non-black share:
+
+| state | non-black | mean luma |
+|---|---|---|
+| baseline, hull visible | **0.3 %** | 0.5 |
+| **hull hidden** | **97.4 %** | 44.6 |
+| hull restored | 0.3 % | 0.5 |
+| every material forced `DoubleSide` | 0.3 % | 0.5 |
+
+The toggle reverses cleanly, so this is a controlled result. Forcing `DoubleSide` changes nothing, so
+it is **not** a face-winding / back-face-culling question — the hull is drawn opaque in front of the
+camera in this room and is not in the ED bay.
+
+**NOT DETERMINED: why the two rooms differ.** Both carry hull vertices inside the interior volume in
+similar proportion (peds 7/162, ED 6/184), so "the hull intrudes" does not discriminate them.
+
+Twelve hypotheses were tested for the peds black frame — camera placement, world→local rig conversion,
+projection near/far, frustum occupancy, frame-loop overwrite, materials, lighting, room presence,
+corridor aspect, canvas read-back, hull intrusion, face winding. **Hiding the hull is the only one that
+moved the pixels.**
+
+**This does NOT re-authorise hiding the hull.** That is a runtime workaround and the right layer may be
+the extraction that produces the hull. What it retires is the belief, held in the source since #342,
+that hull visibility cannot affect an interior view. It can, and that belief cost several cycles of
+looking elsewhere (§6e: a correct instrument on one subject does not bound the class).
+
+**Detection is already gated:** `a-station-capture-is-not-a-black-frame.test.ts` (`ac668cfb`) fails
+mechanically when a station's viewport goes black, so this condition cannot ship green again.
