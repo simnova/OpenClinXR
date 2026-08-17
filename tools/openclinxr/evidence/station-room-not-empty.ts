@@ -1,12 +1,16 @@
 /**
  * #133 / #143 — live station room inspector: closed shell + patient support, no double-bed.
+ * #213 — the same sheet now records whether the actors had loaded (live vs cast humanoid count).
  *
  * Enumerates stations from shipped scene manifests, loads each in ui-xr (scene-overview),
  * and reads fixture / ceiling / equipment / actor-vs-furniture facts from the LIVE scene
- * after the render loop advances.
+ * after the render loop advances. Since #213 the capture waits for humanoid assets
+ * (waitForHumanoidAssetsLoaded) and records liveObservedHumanoids beside the cast count.
  *
- * claimScope: closed parametric shell + one patient support path per station + no actor-in-furniture.
- * notEvidenceFor: Quest readiness, trim/detail kit, clinical furniture realism, 180k triangle budget.
+ * claimScope: closed parametric shell + one patient support path per station + no actor-in-furniture
+ * + humanoid presence observed vs declared cast.
+ * notEvidenceFor: Quest readiness, trim/detail kit, clinical furniture realism, 180k triangle budget,
+ * humanoid wardrobe/posture quality.
  */
 
 import { existsSync } from "node:fs";
@@ -23,8 +27,10 @@ import {
 import {
   ROOM_CAPTURE_MODE,
   buildRoomCaptureUrl,
+  waitForHumanoidAssetsLoaded,
   waitForStationShell,
 } from "./ui-xr-environment-room-capture.js";
+import { resolveScenarioActorCast } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
 
 export const STATION_ROOM_EVIDENCE_DIR = ".openclinxr/evidence/issue-133";
 export const PRE_FIX_NAME = "pre-fix.json";
@@ -48,7 +54,29 @@ export type RoomFacts = {
   shellTriangles: number;
   patientSupportSurfaceCount: number;
   actorsIntersectingFurniture: string[];
+  /** Cast humanoids the scenario declares, from resolveScenarioActorCast (Node side). */
+  castExpectedHumanoids: number;
+  /** Outermost openClinXrActorId roots carrying a skinned mesh with nonzero triangles. */
+  liveObservedHumanoids: number;
 };
+
+/** One station's humanoid presence as the artifact must carry it (#213). */
+export type HumanoidPresenceRow = {
+  scenarioId: string;
+  castExpected: number;
+  liveObserved: number;
+};
+
+/**
+ * Scenario ids whose live humanoid count fell below the cast — a panel captured mid-load
+ * must not be indistinguishable from a station with no cast. Consumed by
+ * the-station-sheet-records-whether-the-actors-loaded.test.ts.
+ */
+export function selectHumanoidPresenceMismatches(rows: readonly HumanoidPresenceRow[]): string[] {
+  return rows
+    .filter((row) => row.liveObserved < row.castExpected)
+    .map((row) => row.scenarioId);
+}
 
 export type StationRoomNotEmptyReport = {
   rooms: RoomFacts[];
@@ -164,6 +192,7 @@ export async function writeRoomDump(
       "live_fixture_slot_geometry",
       "live_equipment_patient_support",
       "live_actor_vs_furniture_aabb",
+      "live_humanoid_presence_observed_vs_cast",
     ],
     notEvidenceFor: [
       "quest_readiness",
@@ -215,11 +244,24 @@ async function measureLiveRooms(input: {
           const url = buildRoomCaptureUrl(baseUrl, scenarioId, ROOM_CAPTURE_MODE);
           await page.goto(url, { waitUntil: "load", timeout: 180_000 });
           await waitForStationShell(page, 180_000);
+          // #213: waitForStationShell resolves on the station shell and says NOTHING about
+          // humanoids — the panel used to be captured 8 frames + 900 ms later, loaded or not.
+          // waitForHumanoidAssetsLoaded (ui-xr-environment-room-capture.ts:921) is the wait the
+          // single-station path already relies on. Bounded: a station that never finishes loading
+          // is recorded as liveObserved=0 (a real finding), not allowed to kill the sweep.
+          try {
+            await waitForHumanoidAssetsLoaded(page, 180_000);
+          } catch (err) {
+            process.stdout.write(
+              `  waitForHumanoidAssetsLoaded not satisfied for ${scenarioId}: ${String(err)}\n`,
+            );
+          }
           await waitForFrames(page, 8, 120_000);
           await page.waitForTimeout(900);
           const live = await readLiveRoomFactsFromPage(page);
+          const sid = live.scenarioId || scenarioId;
           const row: RoomFacts = {
-            scenarioId: live.scenarioId || scenarioId,
+            scenarioId: sid,
             environmentId: live.environmentId,
             declaredSlotIds: live.declaredSlotIds,
             builtSlotIds: live.builtSlotIds,
@@ -229,11 +271,14 @@ async function measureLiveRooms(input: {
             shellTriangles: live.shellTriangles,
             patientSupportSurfaceCount: live.patientSupportSurfaceCount,
             actorsIntersectingFurniture: live.actorsIntersectingFurniture,
+            castExpectedHumanoids: resolveScenarioActorCast(sid).length,
+            liveObservedHumanoids: live.liveObservedHumanoids,
           };
           rooms.push(row);
           process.stdout.write(
             `  ${row.scenarioId} env=${row.environmentId} ceiling=${row.hasCeiling} `
             + `shellT=${row.shellTriangles} support=${row.patientSupportSurfaceCount} `
+            + `humanoids=${row.liveObservedHumanoids}/${row.castExpectedHumanoids} `
             + `built=[${row.builtSlotIds.join(",")}] markers=[${row.markerCubeSlotIds.join(",")}] `
             + `actorsInFurn=[${row.actorsIntersectingFurniture.join(",")}]\n`,
           );
@@ -482,6 +527,8 @@ export async function readLiveRoomFactsFromPage(page: Page): Promise<RoomFacts> 
     // or "rests on". Supine/seated on a support is valid clinical staging (#150).
     // Use actor horizontal CENTER inside a shrunken furniture footprint + feet near floor.
     const actorsIntersectingFurniture = [];
+    // Humanoid presence (#213): count of actor roots with real skinned geometry, filled below.
+    let liveObservedHumanoids = 0;
     const supportBoxes = [];
     function pushSupport(root, deckHint) {
       const box = worldBox(root);
@@ -541,6 +588,27 @@ export async function readLiveRoomFactsFromPage(page: Page): Promise<RoomFacts> 
           }
         }
       }
+
+      // Humanoid presence (#213): an actor root counts as OBSERVED only when it carries a skinned
+      // mesh with nonzero triangles. A root that exists without skin is mid-load or a stub and
+      // must not count — the artifact must distinguish "captured mid-load" from "no cast".
+      for (const actor of actorRoots) {
+        let skinnedTris = 0;
+        actor.traverse(function (o) {
+          const isSkinned = o.isSkinnedMesh === true || (o.type === "SkinnedMesh") || (o.isMesh && o.skeleton);
+          if (!isSkinned) return;
+          const geo = o.geometry;
+          if (!geo) return;
+          const index = geo.index;
+          if (index && typeof index.count === "number") {
+            skinnedTris += Math.floor(index.count / 3);
+            return;
+          }
+          const pos = geo.attributes && geo.attributes.position;
+          if (pos && typeof pos.count === "number") skinnedTris += Math.floor(pos.count / 3);
+        });
+        if (skinnedTris > 0) liveObservedHumanoids += 1;
+      }
     }
 
     let environmentId = "";
@@ -560,6 +628,7 @@ export async function readLiveRoomFactsFromPage(page: Page): Promise<RoomFacts> 
       shellTriangles: shellTriangles,
       patientSupportSurfaceCount: patientSupportSurfaceCount,
       actorsIntersectingFurniture: actorsIntersectingFurniture,
+      liveObservedHumanoids: liveObservedHumanoids,
     };
   })()`) as Promise<RoomFacts>;
 }
