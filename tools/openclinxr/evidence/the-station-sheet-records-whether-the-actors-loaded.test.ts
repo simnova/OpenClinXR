@@ -77,6 +77,20 @@ import { describe, expect, it } from "vitest";
  *   - **The single-station capture path**, which already waits correctly and is the control here.
  *   - **Which of the two waits is sufficient** — #187 established the humanoid wait can itself release
  *     at the first skinned mesh, so wiring it is necessary and may not be sufficient.
+ *
+ * ## FIXED (#213)
+ * - `station-room-not-empty.ts` now waits for humanoid assets on the sheet's capture path
+ *   (`waitForHumanoidAssetsLoaded`, the proven wait at `ui-xr-environment-room-capture.ts:921`)
+ *   instead of shell-only + 8 frames + 900 ms. The wait is bounded: a station that never finishes
+ *   loading is recorded as `liveObserved=0` (a real finding), not allowed to kill the sweep.
+ * - `RoomFacts` now carries `castExpectedHumanoids` (from `resolveScenarioActorCast`) and
+ *   `liveObservedHumanoids` (outermost `openClinXrActorId` roots carrying a skinned mesh with
+ *   nonzero triangles), so a mid-load panel is distinguishable in the artifact from a station
+ *   with no cast.
+ * - `selectHumanoidPresenceMismatches(rows)` reports scenario ids whose live count fell below
+ *   the cast; clauses (1) and (3) flipped to plain `it` and pass on the fixture.
+ * - #187's caveat stands: the humanoid wait can itself release at the first skinned mesh, so a
+ *   below-cast row with the wait in place is data about the capture, not noise.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -122,12 +136,12 @@ function requireSelector(): Select {
 }
 
 describe("the station sheet records whether the actors loaded", () => {
-  it.fails("(1) RED: the capture reports a humanoid presence row per station", () => {
+  it("(1) RED: the capture reports a humanoid presence row per station", () => {
     const mismatches = requireSelector()(FIXTURE);
     expect(Array.isArray(mismatches), "a mismatch selector over per-station presence rows").toBe(true);
   });
 
-  it.fails("(3) RED / ANTI-CHEAT: a station whose live count is below its cast is reported", () => {
+  it("(3) RED / ANTI-CHEAT: a station whose live count is below its cast is reported", () => {
     // Refuses (c). If both numbers come from the resolver they can never differ, and the capture that
     // produced the empty psych panel would still pass.
     const mismatches = requireSelector()(FIXTURE);
