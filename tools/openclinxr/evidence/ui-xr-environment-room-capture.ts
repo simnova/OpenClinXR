@@ -765,16 +765,88 @@ async function reframeCameraForRoom(page: Page, environmentId: string): Promise<
       }
       return best;
     };
-    let eyeXZ = candidates[0], bestScore = -1;
+    // Look-ray occlusion test (issue-black-frame): reject a candidate whose eye→look ray
+    // crosses a room wall/floor/ceiling (or the exterior hull) before the look point. The
+    // peds left corner sat in a pocket behind kitchen_00wall, so its first surface was the
+    // partition at 0.94 m while ED's ray passes a doorway portal at 2.2 m — the distance
+    // score alone preferred the pocket and photographed a wall close-up. Only room-root
+    // meshes are tested, so props and actors can never trigger the reject. Plain
+    // Möller–Trumbore: the page has no THREE global to hand a Raycaster.
+    const worldOfLocal = function (e, x, y, z) {
+      return [
+        e[0] * x + e[4] * y + e[8] * z + e[12],
+        e[1] * x + e[5] * y + e[9] * z + e[13],
+        e[2] * x + e[6] * y + e[10] * z + e[14]
+      ];
+    };
+    const surfaceTris = [];
+    roomRoot.traverse(function (o) {
+      if (!(o.isMesh || o.isSkinnedMesh)) return;
+      if (o.visible === false) return;
+      if (!/wall|floor|ceiling|exterior/i.test(o.name || "")) return;
+      const geom = o.geometry;
+      const pos = geom && geom.attributes && geom.attributes.position;
+      const e = o.matrixWorld && o.matrixWorld.elements;
+      if (!pos || !e) return;
+      const arr = pos.array;
+      const index = geom.index ? geom.index.array : null;
+      const triCount = index ? Math.floor(index.length / 3) : Math.floor(pos.count / 3);
+      for (let t = 0; t < triCount; t++) {
+        const i0 = index ? index[t * 3] : t * 3;
+        const i1 = index ? index[t * 3 + 1] : t * 3 + 1;
+        const i2 = index ? index[t * 3 + 2] : t * 3 + 2;
+        surfaceTris.push([
+          worldOfLocal(e, arr[i0 * 3], arr[i0 * 3 + 1], arr[i0 * 3 + 2]),
+          worldOfLocal(e, arr[i1 * 3], arr[i1 * 3 + 1], arr[i1 * 3 + 2]),
+          worldOfLocal(e, arr[i2 * 3], arr[i2 * 3 + 1], arr[i2 * 3 + 2])
+        ]);
+      }
+    });
+    const lookRayHitsWall = function (x, z) {
+      const ox = x, oy = actors.max[1], oz = z;
+      let dx = look[0] - ox, dy = look[1] - oy, dz = look[2] - oz;
+      const len = Math.sqrt(dx * dx + dy * dy + dz * dz);
+      if (len < 1e-6) return false;
+      dx /= len; dy /= len; dz /= len;
+      for (let i = 0; i < surfaceTris.length; i++) {
+        const a = surfaceTris[i][0], b = surfaceTris[i][1], c = surfaceTris[i][2];
+        const e1x = b[0] - a[0], e1y = b[1] - a[1], e1z = b[2] - a[2];
+        const e2x = c[0] - a[0], e2y = c[1] - a[1], e2z = c[2] - a[2];
+        const px = dy * e2z - dz * e2y, py = dz * e2x - dx * e2z, pz = dx * e2y - dy * e2x;
+        const det = e1x * px + e1y * py + e1z * pz;
+        if (det > -1e-12 && det < 1e-12) continue;
+        const invDet = 1.0 / det;
+        const tx = ox - a[0], ty = oy - a[1], tz = oz - a[2];
+        const u = (tx * px + ty * py + tz * pz) * invDet;
+        if (u < 0 || u > 1) continue;
+        const qx = ty * e1z - tz * e1y, qy = tz * e1x - tx * e1z, qz = tx * e1y - ty * e1x;
+        const v = (dx * qx + dy * qy + dz * qz) * invDet;
+        if (v < 0 || u + v > 1) continue;
+        const t = (e2x * qx + e2y * qy + e2z * qz) * invDet;
+        if (t > 1e-6 && t < len) return true;
+      }
+      return false;
+    };
+    const accepted = [];
+    const rejectedCandidates = [];
     for (let i = 0; i < candidates.length; i++) {
-      const s = nearestActorDistance(candidates[i][0], candidates[i][1]);
-      if (s > bestScore) { bestScore = s; eyeXZ = candidates[i]; }
+      if (lookRayHitsWall(candidates[i][0], candidates[i][1])) rejectedCandidates.push(candidates[i]);
+      else accepted.push(candidates[i]);
+    }
+    // Fall back to the full set if the ray test rejects everything — selection must never
+    // produce no camera, and a scene with no open view is better photographed than refused.
+    const pool = accepted.length > 0 ? accepted : candidates;
+    let eyeXZ = pool[0], bestScore = -1;
+    for (let i = 0; i < pool.length; i++) {
+      const s = nearestActorDistance(pool[i][0], pool[i][1]);
+      if (s > bestScore) { bestScore = s; eyeXZ = pool[i]; }
     }
 
     const eye = [eyeXZ[0], actors.max[1], eyeXZ[1]];
     return {
       eye: eye, look: look, wallThickness: wallThickness,
       nearestActorMeters: bestScore,
+      rejectedCandidates: rejectedCandidates,
       interiorMin: interior.min, interiorMax: interior.max,
       actorMin: actors.min, actorMax: actors.max
     };
@@ -783,6 +855,7 @@ async function reframeCameraForRoom(page: Page, environmentId: string): Promise<
     look: [number, number, number];
     wallThickness: number;
     nearestActorMeters: number;
+    rejectedCandidates: Array<[number, number]>;
     interiorMin: [number, number, number];
     interiorMax: [number, number, number];
   } | null;
@@ -834,7 +907,7 @@ async function reframeCameraForRoom(page: Page, environmentId: string): Promise<
         camera.userData["openClinXrCameraFraming"] =
           "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342";
       }
-      return `roomCam(derived)=${d.eye.map((v) => v.toFixed(2)).join(",")} look=${d.look.map((v) => v.toFixed(2)).join(",")} nearestActor=${d.nearestActorMeters.toFixed(2)}m interiorMaxZ=${d.interiorMax[2].toFixed(2)} wallThickness=${d.wallThickness.toFixed(3)}`;
+      return `roomCam(derived)=${d.eye.map((v) => v.toFixed(2)).join(",")} look=${d.look.map((v) => v.toFixed(2)).join(",")} nearestActor=${d.nearestActorMeters.toFixed(2)}m rejected=${d.rejectedCandidates.map((p) => p[0].toFixed(1) + "/" + p[1].toFixed(1)).join(" ")} interiorMaxZ=${d.interiorMax[2].toFixed(2)} wallThickness=${d.wallThickness.toFixed(3)}`;
     }, derived);
   }
 

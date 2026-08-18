@@ -80,6 +80,21 @@ import { describe, expect, it } from "vitest";
  *     three-hour-old frames beside fresh ones. A tree-stamped capture would be strictly better and is
  *     not built; until then a stale PASS is possible and this contract cannot see it.
  *   - **Stations with no capture on disk.** Only what has been captured is measured.
+ *
+ * ## FIXED (2026-08-17) — extract L-sheet + doorway look-ray reject
+ *
+ * Two layers, both required:
+ * 1. `719cadf8` dropped interior-intruding hull faces at extract (10 front-facing
+ *    L-sheet faces on peds, 0 on ED). Capture went 0.1% → 97% non-black but was a
+ *    full-frame surface close-up — orchestrator refused to flip then.
+ * 2. Camera scoring now rejects a doorway candidate whose eye→look ray hits
+ *    /wall|floor|ceiling|exterior/i before the look point. Peds left corner
+ *    `(-2.42, 1.90)` sat behind `kitchen_00wall` (hit 0.94 m, actors 2.05 m).
+ *    Surviving eye `(-1.18, 1.70, 1.90)`.
+ *
+ * Orchestrator pixel grade of the post-scoring capture: floor yes; two+ walls yes;
+ * actors (nurse + child) yes; not a single rectangle. ED known-good still a room.
+ * (1) flips because the station shows an interior, not because the bound moved.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -124,7 +139,7 @@ function requireFrames(): { all: Frame[]; good: Frame } {
 }
 
 describe("a station capture is not a black frame", () => {
-  it.fails("(1) RED: every captured station shows something in its viewport", () => {
+  it("(1) every captured station shows something in its viewport", () => {
     const { all, good } = requireFrames();
     const floor = FLOOR_FRACTION * good.nonBlackPct;
     const black = all.filter((f) => f.nonBlackPct < floor);
