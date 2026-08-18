@@ -80,6 +80,17 @@ import { describe, expect, it } from "vitest";
  *   - Whether doc hygiene's archiving is CORRECT when it does run. Different question entirely.
  */
 
+/**
+ * ## FIXED (#415) 2026-08-18
+ * Clause (2) originally resolved "the main checkout" from the test file's own location
+ * (`REPO_ROOT = pathResolve(HERE, "../../..")`), so when this contract ran inside a managed
+ * worktree — which is exactly where the dispatch proof runs — it measured the worktree, not
+ * main. Once the hook gained the `.grok/worktrees` toplevel guard, (2) and (4) failed by
+ * construction. Main is now resolved from `git worktree list --porcelain` (the first entry
+ * whose path does not contain `.grok/worktrees`); `aManagedWorktree()` and the clause (1)
+ * path are unchanged, and the clause fails loudly if no non-managed entry exists.
+ */
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const HOOK = join(REPO_ROOT, "cf/../.grok/hooks/session-start-docs-hygiene.json".replace("cf/../", ""));
@@ -123,6 +134,31 @@ function aManagedWorktree(): string {
   return managed!;
 }
 
+/**
+ * The MAIN checkout, resolved from git rather than from this file's location.
+ *
+ * `git worktree list --porcelain` lists the main working tree FIRST, and every managed worktree
+ * has `.grok/worktrees` in its path, so the first entry whose path does not contain the marker
+ * IS the main checkout. Clause (2) previously used `REPO_ROOT` for "main", which is the test
+ * file's own repo — inside a managed worktree that IS the worktree, so the clause measured the
+ * wrong tree once the hook gained the path guard (see ## FIXED (#415) above).
+ */
+function mainCheckout(): string {
+  const list = execFileSync("git", ["worktree", "list", "--porcelain"], {
+    cwd: REPO_ROOT,
+    encoding: "utf8",
+  });
+  const paths = [...list.matchAll(/^worktree (.+)$/gm)].map((m) => m[1]!);
+  const main = paths.find((p) => !p.includes(WORKTREE_MARKER));
+  expect(
+    main,
+    "a non-managed (main) checkout must exist in `git worktree list` — the clauses that mean "
+    + "`main` measure the main checkout, never the worktree this test runs in; refusing to "
+    + "default to REPO_ROOT",
+  ).toBeTruthy();
+  return main!;
+}
+
 describe("doc hygiene skips worktree sessions without depending on an env var", () => {
   it("(1) RED: inside a managed worktree the guard skips even with NO env set", () => {
     // The §11p failure: a bare `grok -p --resume` inherits nothing, so the archiver ran in a
@@ -135,20 +171,20 @@ describe("doc hygiene skips worktree sessions without depending on an env var", 
   it("(2) NET known-good: in the MAIN checkout with no env the hook still runs", () => {
     // Refuses (b). Doc hygiene is a real job in an operator session — today's ungated dry-run plans a
     // legitimate `checkpoint` (48 blocks > 20). Disabling it is not the same as scoping it.
-    expect(guardVerdict(REPO_ROOT, {}), "guard verdict in the main checkout, no env").toBe("WOULD_RUN");
+    expect(guardVerdict(mainCheckout(), {}), "guard verdict in the main checkout, no env").toBe("WOULD_RUN");
   });
 
   it("(3) NET known-good: the existing env guards still skip, in the main checkout", () => {
     // Refuses (c). dispatch-worker.ts:47 sets these for every dispatched worker; adding a path check
     // must not remove the guard that already protects them.
-    expect(guardVerdict(REPO_ROOT, { OPENCLINXR_WORKER: "1" }), "OPENCLINXR_WORKER=1").toBe("SKIPPED");
-    expect(guardVerdict(REPO_ROOT, { GROK_SUBAGENT: "x" }), "GROK_SUBAGENT set").toBe("SKIPPED");
+    expect(guardVerdict(mainCheckout(), { OPENCLINXR_WORKER: "1" }), "OPENCLINXR_WORKER=1").toBe("SKIPPED");
+    expect(guardVerdict(mainCheckout(), { GROK_SUBAGENT: "x" }), "GROK_SUBAGENT set").toBe("SKIPPED");
   });
 
   it("(4) VACUITY GUARD: the harness can tell the two verdicts apart", () => {
     // If guardVerdict always returned one value, clauses (1)-(3) would be unfalsifiable together.
-    const a = guardVerdict(REPO_ROOT, {});
-    const b = guardVerdict(REPO_ROOT, { OPENCLINXR_WORKER: "1" });
+    const a = guardVerdict(mainCheckout(), {});
+    const b = guardVerdict(mainCheckout(), { OPENCLINXR_WORKER: "1" });
     expect(a).not.toBe(b);
   });
 });

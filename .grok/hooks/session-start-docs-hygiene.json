@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if [ \"${OPENCLINXR_WORKER:-0}\" = \"1\" ] || [ \"${OPENCLINXR_WORKER:-}\" = \"true\" ] || [ -n \"${GROK_SUBAGENT:-}\" ]; then echo 'DOC HYGIENE: skipped (worker/subagent session; OPENCLINXR_WORKER or GROK_SUBAGENT set)'; exit 0; fi; pnpm docs:hygiene:session-start -- --auto-run 2>/dev/null || echo 'DOC HYGIENE: run pnpm docs:hygiene:session-start -- --auto-run (install/tsx if needed)'",
+            "command": "if [ \"${OPENCLINXR_WORKER:-0}\" = \"1\" ] || [ \"${OPENCLINXR_WORKER:-}\" = \"true\" ] || [ -n \"${GROK_SUBAGENT:-}\" ] || { git_top=\"$(git rev-parse --show-toplevel 2>/dev/null)\" && case \"$git_top\" in *\".grok/worktrees\"*) true ;; *) false ;; esac; }; then echo 'DOC HYGIENE: skipped (worker/subagent session or managed worktree; OPENCLINXR_WORKER, GROK_SUBAGENT, or .grok/worktrees toplevel)'; exit 0; fi; pnpm docs:hygiene:session-start -- --auto-run 2>/dev/null || echo 'DOC HYGIENE: run pnpm docs:hygiene:session-start -- --auto-run (install/tsx if needed)'",
             "timeout": 300
           }
         ]
