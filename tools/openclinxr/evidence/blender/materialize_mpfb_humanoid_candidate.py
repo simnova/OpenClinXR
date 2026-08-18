@@ -3956,10 +3956,28 @@ def main():
         _rt_b_hits = _rt_b_hits.reshape(len(_rt_hidden_idx), 7)
         _rt_outer_behind = np.isfinite(_rt_b_hits)
         _rt_hole = ~_rt_covered & ~_rt_outer_behind
-        _rt_unhide = _rt_hole.any(axis=1)
+        # 2026-08-18 — a face whose CENTROID is itself a viewer-poke must not be unhidden.
+        # Measured on the shipped parent (c3e6d093), two mirror-image waist-flank triangles at
+        # world x=-0.1305/+0.1292, y=0.976: both are 3/7 holes, so any-of-7 unhid them, and both
+        # then rendered visible SKIN in an isolated grade (166/211 skin pixels; the known-good
+        # partner shows 0). Their centroids are NOT holes — front=miss with the shirt only
+        # 0.731 / 0.073 mm behind. That is the opposite class from the round-7 black tooth this
+        # pass exists for: there the centroid is UNDER cloth (front hit) so the z-buffer still
+        # shows the shirt and unhiding only removes a seam tooth. Here unhiding shows the body.
+        # Same any-of-7 rule, opposite product, so the discriminator is the centroid, not the
+        # corners. CLOTH_STANDOFF_M (15 mm), not the 0.5 m hole reach: the jaw case sits
+        # 13-19 cm behind and is not outer-front, so it still unhides.
+        _rt_centroid_poke = (
+            ~_rt_covered[:, 6]
+            & np.isfinite(_rt_b_hits[:, 6])
+            & (_rt_b_hits[:, 6] <= CLOTH_STANDOFF_M)
+        )
+        _rt_unhide = _rt_hole.any(axis=1) & ~_rt_centroid_poke
+        _rt_skipped_poke = int((_rt_hole.any(axis=1) & _rt_centroid_poke).sum())
         _rt_unhidden = int(_rt_unhide.sum())
         hide_mask[_rt_hidden_idx[_rt_unhide]] = False
     print(f"RENDER_TRUTH_UNHIDE upper faces {_rt_unhidden}")
+    print(f"RENDER_TRUTH_UNHIDE_SKIP_POKE {_rt_skipped_poke if len(_rt_hidden_idx) else 0}")
     # #364 — report the hide-mask boundary smoothness in the bake log, using the same
     # instrument the evidence contract uses (bottom 3% of the mask by height, ordered by
     # angle about the body axis, adjacent-height deltas, p95 in mm). The planted RED is
