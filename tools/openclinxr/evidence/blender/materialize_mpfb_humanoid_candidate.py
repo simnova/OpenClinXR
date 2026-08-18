@@ -36,9 +36,6 @@ SHOE_BY_REFERENCE = {
     # same proven zero-helper-ref subset as the existing rows (ledger rows).
     "ed_chest_pain_nurse_adult": "toigo_flats",
     "ed_chest_pain_spouse_adult": "toigo_mj_cloth_shoes",
-    # #412 — the MPFB inpatient solved from the adult cast reference wears the
-    # patient-class default (same CC0 zero-helper-ref subset as the aisha OB patient).
-    "ed_chest_pain_adult_cast": "toigo_flats",
 }
 
 # #381 — slice 1 of the human-realism campaign: the cast actor wears the fitted hair
@@ -1441,9 +1438,6 @@ EYE_DIAMETER_TARGET_MM = {
     # the nurse adult (same Anny reference), so adult axial length applies.
     "mpfb-clinical-physician-adult": 24.0,
     "mpfb-family-partner-adult": 24.0,
-    # #412 — MPFB inpatient solved from the ed_chest_pain_adult_cast reference
-    # (adult, measured stature 1.76 m); adult axial length applies.
-    "mpfb-inpatient-adult-male": 24.0,
 }
 
 
@@ -3130,9 +3124,9 @@ def main():
     # CC0 (mhclo header) and references only body verts (max ref 11,017 < 13,380);
     # the polo references 3,648 helper verts and CANNOT fit a stripped basemesh —
     # it is refused loudly, not fitted against absent indices (clause 3).
-    # CLINICAL CHOICE (#411): the patient wears the staged CC0 crude gown — a hospital
-    # gown is the expected OB triage garment, replacing the street-clothes t-shirt.
-    # A scrub shirt is staff wear and stays off patients.
+    # CLINICAL CHOICE: the least-wrong garment for an OB triage patient. A hospital
+    # gown is not in the cached library and a scrub shirt is staff wear; a patient
+    # presenting in street clothes (a basic t-shirt) is plausible triage staging.
     import sys as _sys3
 
     _stage_dir = REPO_ROOT / "tools/openclinxr/asset-pipeline/makeclothes"
@@ -3154,8 +3148,7 @@ def main():
     # scrub — not by recolouring a patient's t-shirt (probed, refused). The CC-BY
     # `Scrub_Shirt.mhclo` (WojackOWL, Medical Scrubs Kit, licence-ledger row) fits the
     # stripped basemesh like the toigo t-shirt (max ref 11,018 < 13,380, measured pre-fix);
-    # patients wear the staged CC0 crude gown (#411); the CC0 toigo t-shirt stays the
-    # family's closed-casual upper.
+    # the CC0 toigo t-shirt stays the patients' closed-casual upper.
     # _is_clinician was resolved before the helper strip so scrub pants can fit
     # against helper-vertex x_scale refs.
     # #199: the LONG-SLEEVE upper slot (see LONG_SLEEVE_UPPER_BY_REFERENCE). The
@@ -3185,22 +3178,7 @@ def main():
         garment_mhclo = _garment_dir / "Scrub_Shirt.mhclo"
         _upper_lib_name = "makeclothes_library_scrub_shirt"
         _upper_kind = "scrub"
-    elif "patient" in (args.actor_role or "").lower():
-        # #411 — the patient wears the staged CC0 crude gown (`makehuman-community-
-        # crude-gown`, author Joel Palmius, `# license CC0`), fitted through the SAME
-        # ClothesService path after the #318 strip (S0 preflight: max vertex ref
-        # 13,351 < 13,380). The declared CrudeGown.png is not staged, so the locked
-        # #180 gown colour is kept (GARMENT_MATERIAL_SKIP, same as the scrub shirt).
-        _garment_dir = (
-            REPO_ROOT
-            / ".openclinxr-local/provider-cache/garments/sources/makehuman-community-crude-gown"
-        )
-        garment_obj = _garment_dir / "crudegown.obj"
-        garment_mhclo = _garment_dir / "crudegown.mhclo"
-        _upper_lib_name = "makeclothes_library_crudegown"
-        _upper_kind = "gown"
     else:
-        # Family (parent/spouse): the CC0 toigo t-shirt stays the closed-casual upper.
         _garment_dir = (
             REPO_ROOT
             / ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/toigo_basic_tucked_t-shirt"

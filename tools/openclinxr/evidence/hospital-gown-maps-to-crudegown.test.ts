@@ -1,11 +1,6 @@
-import { readFileSync } from "node:fs";
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
-  HM08_TOIGO_T_SHIRT_ID,
   HM08_UPPER_COVER_SHELL_ID,
-  HM08_UPPER_GARMENT_FALLBACK_ID,
   garmentIdForLayers,
   resolveHm08UpperGarment,
 } from "../asset-pipeline/makeclothes/garment-selection-by-role.js";
@@ -63,69 +58,41 @@ import {
  *   - Any bake. No GLB changes in this slice and none is asserted.
  *   - Which ACTOR wears it. `actor-casting.ts` is untouched; Hayes is S4.
  *   - The missing `CrudeGown.png`. A texture gap is not a mapping gap.
+ *
+ * ## WITHDRAWN (#413) — the staged "gown" is an evening dress, not a hospital gown
+ *
+ * Every assertion above is WITHDRAWN. The asset's own header reads `name CrudeGown`,
+ * `# author Joel Palmius`, and "gown" in the MakeHuman wardrobe vocabulary means a FORMAL
+ * DRESS. The S2 bake (`436ea17f`) pixel grade showed a floor-length cyan spaghetti-strap
+ * evening dress: ankle-length, fitted bodice, scooped neckline, two thin straps, no back
+ * opening, no ties. The rooms lane's research line — `Patient hospital gown, hm08,
+ * CC0/CC-BY — NOT FOUND` — was never falsified: the S0/S1/S2 checks covered licence,
+ * index range, presence and placement, none of which is garment CLASS.
+ *
+ * `hospital_gown` therefore maps back to the deterministic body-derived cover shell (the
+ * honest pre-S1 state). This file now asserts the WITHDRAWAL — restored on the land path
+ * as a test modification, not a deletion, so the history stays visible:
+ *
+ *   - `garmentIdForLayers(["hospital_gown"])` is NOT `"crudegown_hm08"`
+ *   - `resolveHm08UpperGarment("patient").kind === "cover_shell"`
+ *
+ * The S1 plant's known-good rows (nurse scrub, family/parent/spouse toigo t-shirt, unknown
+ * fallback, open_cardigan shell) live in `hospital-gown-is-not-an-evening-dress.test.ts`
+ * clause (3) and are not duplicated here.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../..");
-const SELECTOR_SRC = join(REPO_ROOT, "tools/openclinxr/asset-pipeline/makeclothes/garment-selection-by-role.ts");
-const MATERIALIZER_SRC = join(REPO_ROOT, "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py");
-
-const CRUDEGOWN_ID = "crudegown_hm08";
 const GOWN_LAYERS = ["hospital_gown", "patient_gown", "ed_gown", "gown"] as const;
 
-describe("the staged CC0 crude gown is the patient upper garment", () => {
-  it("(1) RED: the patient role resolves to a fitted library gown, not the cover shell", () => {
-    const spec = resolveHm08UpperGarment("patient");
-    expect(spec.garmentId, `patient garmentId (today: ${spec.garmentId})`).toBe(CRUDEGOWN_ID);
-    expect(spec.kind, "a staged .mhclo is a library fit, not a body-derived shell").toBe("library");
-  });
-
-  it("(2) RED: every gown layer routes to the same registered gown id", () => {
+describe("the gown layers do not route to the withdrawn crude gown", () => {
+  it("(1) WITHDRAWN: no gown layer resolves to crudegown_hm08", () => {
     for (const layer of GOWN_LAYERS) {
-      expect(garmentIdForLayers([layer]), `layer ${layer}`).toBe(CRUDEGOWN_ID);
+      expect(garmentIdForLayers([layer]), `layer ${layer}`).not.toBe("crudegown_hm08");
     }
   });
 
-  it("(3) NET known-good: the nurse still wears the WojackOWL scrub shirt", () => {
-    const spec = resolveHm08UpperGarment("nurse");
-    expect(spec.garmentId).toBe(HM08_UPPER_GARMENT_FALLBACK_ID);
-    expect(spec.kind).toBe("library");
-  });
-
-  it("(4) NET known-good: the family roles still wear the CC0 toigo t-shirt", () => {
-    for (const role of ["family", "parent", "spouse"]) {
-      expect(resolveHm08UpperGarment(role).garmentId, `role ${role}`).toBe(HM08_TOIGO_T_SHIRT_ID);
-    }
-  });
-
-  it("(5) COUNTERWEIGHT: an unknown role still falls back to the scrub shirt — the default is not deleted", () => {
-    // Refuses (d). #275: make the default the FALLBACK, do not remove it. Deleting it would make
-    // every role resolve "library" and green clauses (1) and (2) by demolition.
-    const spec = resolveHm08UpperGarment("no_such_role_xyz");
-    expect(spec.garmentId, "unknown role fallback").toBe(HM08_UPPER_GARMENT_FALLBACK_ID);
-    expect(spec.kind).toBe("library");
-  });
-
-  it("(6) COUNTERWEIGHT: open_cardigan still uses the cover shell — no open-front garment is staged", () => {
-    // Refuses (c). The shell must survive for the layer that genuinely has no library asset;
-    // renaming the shell to satisfy the gown clauses would break this one.
-    expect(garmentIdForLayers(["open_cardigan"])).toBe(HM08_UPPER_COVER_SHELL_ID);
-  });
-
-  it("(7) COUNTERWEIGHT: the gown id is backed by crudegown, not by the toigo asset", () => {
-    // Refuses (b) and (c). The resolver alone cannot tell a real remap from a relabel, so this reads
-    // the two source files: the registered mesh prefix must be its own, and the materializer's
-    // patient upper branch must name the staged .mhclo.
-    const selector = readFileSync(SELECTOR_SRC, "utf8");
-    const materializer = readFileSync(MATERIALIZER_SRC, "utf8");
-    expect(selector, "the gown id must be registered in the selector").toContain(CRUDEGOWN_ID);
-    expect(
-      /crudegown/i.test(selector),
-      "the registered gown must carry its own crudegown mesh prefix, not the toigo prefix",
-    ).toBe(true);
-    expect(
-      /crudegown\.mhclo/i.test(materializer),
-      "the materializer patient upper branch must select crudegown.mhclo",
-    ).toBe(true);
+  it("(2) WITHDRAWN: the patient upper garment is the deterministic cover shell", () => {
+    const spec = resolveHm08UpperGarment("patient");
+    expect(spec.garmentId).toBe(HM08_UPPER_COVER_SHELL_ID);
+    expect(spec.kind).toBe("cover_shell");
   });
 });

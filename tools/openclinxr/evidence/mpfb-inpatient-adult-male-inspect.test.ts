@@ -1,8 +1,6 @@
-import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 
 /**
@@ -67,102 +65,54 @@ import { describe, expect, it } from "vitest";
  *   - Hair. No `HAIR_STYLE_BY_REFERENCE` row is added, so a scalp placeholder is expected.
  *   - Which actor loads it. `actor-casting.ts` is untouched; Hayes is S4.
  *   - Fit quality, poke-through, coverage, drape, the missing `CrudeGown.png`.
+ *
+ * ## WITHDRAWN (#413) — the bake it demanded was an evening dress, and it is deleted
+ *
+ * The GLB this contract demanded is WITHDRAWN and deleted from the tree. The fitted "gown"
+ * was `CrudeGown` — `# author Joel Palmius`, CC0 — and in the MakeHuman wardrobe vocabulary
+ * a "gown" is a FORMAL DRESS. The pixel grade of the S2 bake showed a floor-length cyan
+ * spaghetti-strap evening dress: ankle-length, fitted bodice, scooped neckline, two thin
+ * straps, no back opening, no ties. This contract's own NOT TESTED line — "That it LOOKS
+ * like a gown" — is exactly where it failed: presence, placement and provenance cannot
+ * see garment CLASS.
+ *
+ * This file now guards against the bake RETURNING — restored on the land path as a test
+ * modification, not a deletion, so the history stays visible:
+ *
+ *   - `apps/ui-xr/public/generated-humanoids/mpfb-inpatient-adult-male.glb` does NOT exist
+ *   - no value in the layer->garment map is `"crudegown_hm08"`
+ *
+ * The known-good rows this contract once froze (the shipped aisha / peds-parent GLBs) are
+ * untouched by the withdrawal and covered by the surviving runtime contracts; the resolver
+ * known-goods live in `hospital-gown-is-not-an-evening-dress.test.ts` clause (3).
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const GEN = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids");
 const NEW_GLB = join(GEN, "mpfb-inpatient-adult-male.glb");
-const ANNY_CAST = join(GEN, "ed_chest_pain_adult_cast.glb");
-const INSPECT = join(REPO_ROOT, "tools/openclinxr/evidence/mpfb-inpatient-adult-male-inspect.json");
+const SELECTOR_SRC = join(
+  REPO_ROOT,
+  "tools/openclinxr/asset-pipeline/makeclothes/garment-selection-by-role.ts",
+);
 
-/** Frozen at dispatch (HEAD 364a5b6d). A bake that rewrites either of these fails (5)/(6). */
-const FROZEN: Readonly<Record<string, string>> = {
-  "mpfb-ob-patient-aisha.glb": "390ee91f722113f9267641f2ebcc5e7ddeaeef3093d288dd908232120f9c5504",
-  "mpfb-peds-parent-aisha.glb": "2182b8c6e6186071f45f273d69022bca31291c0cdcb7200f719eae946e5964b6",
-};
-
-const sha256 = (p: string): string => createHash("sha256").update(readFileSync(p)).digest("hex");
-
-function requireBaked(): void {
-  expect(existsSync(NEW_GLB), `${NEW_GLB} — S2 bakes this; it does not exist today`).toBe(true);
-}
-
-describe("the MPFB inpatient wears a fitted crude gown", () => {
-  it("(1) RED: a new GLB exists and is not a copy of the Anny cast it was solved from", () => {
-    requireBaked();
-    expect(existsSync(ANNY_CAST), "the Anny reference cast must be present to compare against").toBe(true);
+describe("the evening-dress bake does not return", () => {
+  it("(1) WITHDRAWN: the baked evening-dress body does not exist", () => {
     expect(
-      sha256(NEW_GLB),
-      "a body solved from a reference cannot be byte-identical to that reference's own GLB",
-    ).not.toBe(sha256(ANNY_CAST));
+      existsSync(NEW_GLB),
+      `${NEW_GLB} must stay deleted — a rebake that selects crudegown again would recreate the evening dress as a patient body`,
+    ).toBe(false);
   });
 
-  it("(2) RED: a gown primitive is present with real geometry", async () => {
-    requireBaked();
-    const doc = await new NodeIO().read(NEW_GLB);
-    const gowns: Array<{ name: string; verts: number }> = [];
-    for (const mesh of doc.getRoot().listMeshes()) {
-      for (const prim of mesh.listPrimitives()) {
-        const label = `${mesh.getName()} ${prim.getMaterial()?.getName() ?? ""}`;
-        if (!/gown|crudegown/i.test(label)) continue;
-        gowns.push({ name: mesh.getName(), verts: prim.getAttribute("POSITION")?.getCount() ?? 0 });
-      }
-    }
-    expect(gowns.length, "primitives whose name or material matches /gown|crudegown/i").toBeGreaterThan(0);
-    expect(Math.max(...gowns.map((g) => g.verts)), "the gown primitive must carry vertices").toBeGreaterThan(0);
-  });
-
-  it("(3) RED: the gown sits ACROSS the torso, not merely present somewhere", async () => {
-    // §11s — presence is a count; this bounds PLACEMENT. The band is the body's own mid-height,
-    // derived from the skin primitive, never an authored coordinate (D1).
-    requireBaked();
-    const doc = await new NodeIO().read(NEW_GLB);
-    let bodyLo = Infinity;
-    let bodyHi = -Infinity;
-    let gownLo = Infinity;
-    let gownHi = -Infinity;
-    for (const mesh of doc.getRoot().listMeshes()) {
-      for (const prim of mesh.listPrimitives()) {
-        const label = `${mesh.getName()} ${prim.getMaterial()?.getName() ?? ""}`;
-        const pos = prim.getAttribute("POSITION");
-        if (!pos) continue;
-        const isGown = /gown|crudegown/i.test(label);
-        const isSkin = /skin|_body/i.test(label);
-        if (!isGown && !isSkin) continue;
-        const el: [number, number, number] = [0, 0, 0];
-        for (let i = 0; i < pos.getCount(); i += 1) {
-          const [, y] = pos.getElement(i, el);
-          if (isGown) { gownLo = Math.min(gownLo, y!); gownHi = Math.max(gownHi, y!); }
-          else { bodyLo = Math.min(bodyLo, y!); bodyHi = Math.max(bodyHi, y!); }
-        }
-      }
-    }
-    expect(Number.isFinite(bodyLo) && Number.isFinite(bodyHi), "a skin/body primitive must be measurable").toBe(true);
-    expect(Number.isFinite(gownLo) && Number.isFinite(gownHi), "a gown primitive must be measurable").toBe(true);
-    const bodyMidY = bodyLo + (bodyHi - bodyLo) / 2;
+  it("(2) WITHDRAWN: no layer->garment map value is crudegown_hm08", () => {
+    // HM08_GARMENT_BY_LAYER is module-private in garment-selection-by-role.ts, so the
+    // registered id's absence from the source is read directly (the same two-source read
+    // the #411 plant's clause (7) used). If the id is absent from the file it cannot be
+    // a map value.
+    const selector = readFileSync(SELECTOR_SRC, "utf8");
     expect(
-      gownLo < bodyMidY && gownHi > bodyMidY,
-      `gown spans ${gownLo.toFixed(3)}..${gownHi.toFixed(3)} and must straddle body mid-height ${bodyMidY.toFixed(3)}`,
-    ).toBe(true);
-  });
-
-  it("(4) RED: the inspect JSON records crudegown.mhclo as the consumed upper source", () => {
-    // Refuses (c) and (d). A rename or a painted region can make a prim called "gown"; only a real
-    // fit records the mhclo the bake actually consumed.
-    expect(existsSync(INSPECT), `${INSPECT} — written by the bake, recording what it consumed`).toBe(true);
-    const report = JSON.parse(readFileSync(INSPECT, "utf8")) as { upperGarmentBasename?: string };
-    expect(report.upperGarmentBasename, "the upper garment source the bake consumed").toBe("crudegown.mhclo");
-  });
-
-  it("(5) COUNTERWEIGHT: the shipped OB patient GLB is untouched", () => {
-    // Refuses (e). This lane baked aisha last night; S2 must ADD a body, never rewrite one.
-    const f = "mpfb-ob-patient-aisha.glb";
-    expect(sha256(join(GEN, f)), `${f} must be byte-identical to HEAD at dispatch`).toBe(FROZEN[f]);
-  });
-
-  it("(6) COUNTERWEIGHT: the shipped peds parent GLB is untouched", () => {
-    const f = "mpfb-peds-parent-aisha.glb";
-    expect(sha256(join(GEN, f)), `${f} must be byte-identical to HEAD at dispatch`).toBe(FROZEN[f]);
+      selector,
+      "crudegown_hm08 must not appear anywhere in the selector source",
+    ).not.toContain("crudegown_hm08");
   });
 });

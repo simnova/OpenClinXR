@@ -28,14 +28,11 @@
  *   casual / tshirt  -> toigo_basic_tucked_t-shirt_hm08 (#322: CC0 MakeClothes top
  *                    with sleeves, zero helper refs — replaces the hand-coded shell
  *                    on the roles where a real garment exists)
- *   gown layers      -> crudegown_hm08 (#411: the staged CC0 crude gown, author Joel
- *                    Palmius, max vertex ref 13,351 < the 13,380 helper-strip boundary
- *                    per the S0 preflight — fitted, not a shell)
- *   open_cardigan    -> openclinxr_hm08_upper_cover_shell (the deterministic
- *                    body-derived cover shell, the #277 factory fallback for the one
- *                    remaining garment the library cannot provide — no open-front
- *                    cardigan is staged; no .mhclo is invented — a mapping pointing at
- *                    a missing asset is the #256 trap)
+ *   gown / cardigan  -> openclinxr_hm08_upper_cover_shell (the deterministic
+ *                    body-derived cover shell, the #277 factory fallback for garments
+ *                    that cannot be fitted from the library — no gown or open-front
+ *                    cardigan exists in any cached pack, so the shell stays; no .mhclo
+ *                    is invented — a mapping pointing at a missing asset is the #256 trap)
  *
  * COUNTERWEIGHT: the default is NOT removed. `resolveHm08UpperGarment` returns the
  * scrub shirt for any role without a case-definition garment, so no generated body
@@ -82,22 +79,11 @@ export const HM08_TOIGO_T_SHIRT_ID = "toigo_basic_tucked_t-shirt_hm08";
 export const HM08_TOIGO_T_SHIRT_MESH_PREFIX = "makeclothes_library_toigo_basic_tucked_t_shirt";
 
 /**
- * #411 — the staged CC0 crude gown (`makehuman-community-crude-gown`, author Joel
- * Palmius, `# license CC0`). S0 (`bf64ff70`) preflighted the index range:
- * `crudegown.mhclo` max vertex ref 13,351 against the 13,380 helper-strip boundary
- * (`tools/openclinxr/evidence/crudegown-preflight.json`), so it fits the #318
- * helper-stripped basemesh the same way the t-shirt does. Resolver-only here: which
- * actor wears it is the later casting slice.
- */
-export const HM08_CRUDEGOWN_ID = "crudegown_hm08";
-export const HM08_CRUDEGOWN_MESH_PREFIX = "makeclothes_library_crudegown";
-
-/**
  * The procedural upper garment: the deterministic body-derived cover shell (#277's
  * factory fallback mechanism) used when the case definition selects a garment the
- * .mhclo library cannot provide. #411 routed the four gown layers to the staged CC0
- * crude gown, so open_cardigan is the only layer still on the shell — no open-front
- * cardigan is staged. No `.mhclo` is invented — the stage builds the shell from
+ * .mhclo library cannot provide (open_cardigan / hospital_gown remain; no gown or
+ * open-front cardigan exists in any cached pack — #322 narrowed the surface from
+ * four layers to two). No `.mhclo` is invented — the stage builds the shell from
  * the body surface.
  */
 export const HM08_UPPER_COVER_SHELL_ID = "openclinxr_hm08_upper_cover_shell";
@@ -110,9 +96,6 @@ const HM08_LIBRARY_GARMENTS: Readonly<Record<string, { meshNamePrefix: string }>
   },
   [HM08_TOIGO_T_SHIRT_ID]: {
     meshNamePrefix: HM08_TOIGO_T_SHIRT_MESH_PREFIX,
-  },
-  [HM08_CRUDEGOWN_ID]: {
-    meshNamePrefix: HM08_CRUDEGOWN_MESH_PREFIX,
   },
 };
 
@@ -135,13 +118,13 @@ const HM08_GARMENT_BY_LAYER: Readonly<Record<string, string>> = {
   scrub_top: HM08_UPPER_GARMENT_FALLBACK_ID,
   scrub_pocket: HM08_UPPER_GARMENT_FALLBACK_ID,
   scrub: HM08_UPPER_GARMENT_FALLBACK_ID,
-  hospital_gown: HM08_CRUDEGOWN_ID,
-  patient_gown: HM08_CRUDEGOWN_ID,
-  ed_gown: HM08_CRUDEGOWN_ID,
-  gown: HM08_CRUDEGOWN_ID,
-  // #411 — the four gown layers route to the staged CC0 crude gown (registered
-  // above), not the cover shell. open_cardigan keeps the shell: no open-front
-  // cardigan is staged.
+  hospital_gown: HM08_UPPER_COVER_SHELL_ID,
+  patient_gown: HM08_UPPER_COVER_SHELL_ID,
+  ed_gown: HM08_UPPER_COVER_SHELL_ID,
+  gown: HM08_UPPER_COVER_SHELL_ID,
+  // #322 — casual/t-shirt layers now route to the CC0 MakeClothes t-shirt (fitted,
+  // sleeved) instead of the hand-coded shell. open_cardigan and hospital_gown keep
+  // the shell: no open-front cardigan or gown exists in any cached pack.
   casual_top: HM08_TOIGO_T_SHIRT_ID,
   open_cardigan: HM08_UPPER_COVER_SHELL_ID,
   short_sleeve_exam_tshirt: HM08_TOIGO_T_SHIRT_ID,
@@ -179,10 +162,9 @@ export function garmentIdForLayers(garmentLayers: readonly string[]): string {
  * Resolve the hm08 upper garment for a cast role.
  * The case definition (role -> garmentLayers) is the source when it supplies one;
  * the scrub shirt is the fallback otherwise (COUNTERWEIGHT: nobody ends up undressed).
- * `kind` is "library" when the resolved id names a fitted `.mhclo` (scrub, the #322
- * CC0 t-shirt, or the #411 staged CC0 crude gown); "cover_shell" when the layer
- * still has no library garment (open_cardigan) and the deterministic body-derived
- * shell is used.
+ * `kind` is "library" when the resolved id names a fitted `.mhclo` (scrub or the #322
+ * CC0 t-shirt); "cover_shell" when the layer still has no library garment (gown /
+ * open_cardigan) and the deterministic body-derived shell is used.
  */
 export function resolveHm08UpperGarment(role: string): Hm08UpperGarmentSpec {
   const garmentLayers = resolveAnnyGarmentLayers(role);
