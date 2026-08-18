@@ -29,6 +29,9 @@ describe("Infinigen station environment by environmentId (#336)", () => {
     expect(resolve!("telehealth_home_visit_v1")).toBe(
       "/xr-assets/environment/infinigen-telehealth-home-visit.glb",
     );
+    expect(resolve!("oncology_consult_room_v1")).toBe(
+      "/xr-assets/environment/infinigen-oncology-consult.glb",
+    );
   });
 
   it("hides the procedural box shell meshes but keeps fixture slots", async () => {
@@ -106,7 +109,7 @@ describe("Infinigen station environment by environmentId (#336)", () => {
     const scene = new Group() as never;
     const status = loadFn!({
       scene,
-      environmentId: "oncology_consult_room_v1",
+      environmentId: "urgent_care_clinic_room_v1",
       stationEnvironment: new Group(),
       onStatus: () => {},
     });
@@ -602,4 +605,18 @@ describe("#342c wall fixtures re-anchor onto the generated room", () => {
  * `infinigen-telehealth-home-visit.glb` SHA-256 `476a8e402b2dc8c4f2023536f225325a16006828cd4e865880311923a811aa01`,
  * signature 4 meshes / 3 materials / 6 textures / extent 9.50 x 2.65 x 6.50 m — distinct from
  * the five shipped rooms by hash AND geometric signature.
+ */
+
+/**
+ * ## FIXED (#425) — eighth environmentId maps to its own generated room
+ *
+ * Flips the planted `oncology_consult_room_v1 -> null` assertion to the shipped GLB path and
+ * moves the unmapped example to `urgent_care_clinic_room_v1` (still unmapped). Seed 17
+ * `clinical_bay.gin`, `dining-room_0` segment 0, `--yaw-deg 0`, `--drop-interior-hull-faces`
+ * DEFAULT ON, predicate DEFAULT ON. Predicate PASSES: floorAspect 1.046, floorArea 28.92 m2,
+ * ceilingHeight 2.409 m, hullFrontFacingToDoorwayEyeCount 0, doorwayCandidateSurviveCount 5;
+ * +Z hull 0.1206 m (world). Shipped bytes `infinigen-oncology-consult.glb` SHA-256
+ * `65969fe479bcb6e07e7a1ffdbd314cfb3be0449a8199edc9e79549e33ec9415b`, signature 4 meshes /
+ * 3 materials / 6 textures / extent 6.25 x 2.65 x 6.18 m — distinct from the seven shipped
+ * rooms by hash AND geometric signature.
  */
