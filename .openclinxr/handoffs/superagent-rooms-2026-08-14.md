@@ -1,11 +1,12 @@
 # Superagent brief — promote the remaining station rooms
 
 **From:** hourly-loop orchestrator. **Date:** 2026-08-14.
-**Status:** **STEPDOWN LANDED** `7ed6d7fa`. Eleventh room:
-`stepdown_room_v1` → `infinigen-stepdown.glb` sha `6b098ab7…`
-(seed 26 `bedroom_0` seg 2 yaw 90). Orchestrator grade: **ACCEPT interior**.
-Next: `ob_triage_room_v1` (new seed 27+). No humanoids. Prior ten room
-bytes frozen.
+**Status:** **OB TRIAGE LANDED** `9cad9f17`. Twelfth room:
+`ob_triage_room_v1` → `infinigen-ob-triage.glb` sha `f2e11bab…`
+(seed 27 `dining-room_0` yaw 180). First still REJECTED (door leaf);
+recapture ACCEPT interior. Next: `inpatient_ward_room_v1` (new seed 28+)
+AND door-leaf reject in the doorway scorer. No humanoids. Prior eleven
+room bytes frozen.
 
 ## READ THIS FIRST — one of the two existing rooms renders BLACK
 
