@@ -8,4 +8,5 @@ export const INFINIGEN_ENVIRONMENT_ASSETS = {
   primary_care_clinic_room_v1: "/xr-assets/environment/infinigen-primary-care-clinic.glb",
   ed_stroke_bay_v1: "/xr-assets/environment/infinigen-ed-stroke-bay.glb",
   adult_ed_abdominal_bay_v1: "/xr-assets/environment/infinigen-adult-ed-abdominal-bay.glb",
+  telehealth_home_visit_v1: "/xr-assets/environment/infinigen-telehealth-home-visit.glb",
 } as const;

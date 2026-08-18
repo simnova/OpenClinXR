@@ -15309,6 +15309,13 @@
       "rationale": "Generated Infinigen room shell, fifth environmentId-keyed consumer (adult_ed_abdominal_bay_v1). Deterministic clinical_bay.gin seed-0 kitchen_0 segment 0, yaw 90; extract-time predicate PASSES (aspect 1.0, area 39.08 m2, height 2.401 m, hullFrontFacing 7, doorway survivors 5). SHA-256 54f9172c9b0846a40325e24364f583ab55774912ec1a24b528edd23118edabca. Last unused hulled room from the eight complete on-disk blends. Hand-added row — do not run pnpm docs:artifacts. Provenance in public/xr-assets/environment/PROVENANCE.md."
     },
     {
+      "path": "apps/ui-xr/public/xr-assets/environment/infinigen-telehealth-home-visit.glb",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated Infinigen room shell, sixth environmentId-keyed consumer (telehealth_home_visit_v1). New clinical_bay.gin seed-14 bedroom_0 segment 2, yaw 180; extract-time predicate PASSES (aspect 1.518, area 59.44 m2, height 2.407 m, hullFrontFacing 0, doorway survivors 5). SHA-256 476a8e402b2dc8c4f2023536f225325a16006828cd4e865880311923a811aa01. First room from a newly generated seed after on-disk blends were exhausted of unused hulled rooms. Hand-added row — do not run pnpm docs:artifacts. Provenance in public/xr-assets/environment/PROVENANCE.md."
+    },
+    {
       "path": "apps/ui-xr/public/xr-assets/generated/adult_abdominal_pain_v1/learner-runtime-bundle.v1.json",
       "authority": "keep-current",
       "tracked": true,

@@ -26,7 +26,9 @@ describe("Infinigen station environment by environmentId (#336)", () => {
     expect(ed).toBe("/xr-assets/environment/infinigen-ed-exam-bay.glb");
     // Unknown ids must NOT silently resolve — the procedural box stays the fallback.
     expect(resolve!("no_such_environment_v1")).toBeNull();
-    expect(resolve!("telehealth_home_visit_v1")).toBeNull();
+    expect(resolve!("telehealth_home_visit_v1")).toBe(
+      "/xr-assets/environment/infinigen-telehealth-home-visit.glb",
+    );
   });
 
   it("hides the procedural box shell meshes but keeps fixture slots", async () => {
@@ -588,3 +590,16 @@ describe("#342c wall fixtures re-anchor onto the generated room", () => {
     expect(sample("learner_start")).toEqual(learnerBefore);
   });
 });
+
+/**
+ * ## FIXED (#424) — sixth environmentId maps to its own generated room
+ *
+ * Flips the planted `telehealth_home_visit_v1 -> null` assertion to the shipped GLB path.
+ * Seed 14 `clinical_bay.gin`, `bedroom_0` segment 2 (segment-pruned copy), `--yaw-deg 180`,
+ * `--drop-interior-hull-faces` DEFAULT ON, predicate DEFAULT ON. Predicate PASSES: floorAspect
+ * 1.518, floorArea 59.44 m2, ceilingHeight 2.407 m, hullFrontFacingToDoorwayEyeCount 0,
+ * doorwayCandidateSurviveCount 5; +Z hull 0.1214 m (world). Shipped bytes
+ * `infinigen-telehealth-home-visit.glb` SHA-256 `476a8e402b2dc8c4f2023536f225325a16006828cd4e865880311923a811aa01`,
+ * signature 4 meshes / 3 materials / 6 textures / extent 9.50 x 2.65 x 6.50 m — distinct from
+ * the five shipped rooms by hash AND geometric signature.
+ */
