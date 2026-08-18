@@ -60,9 +60,11 @@ sha `5cf36958…`) **ACCEPT**. Next: `oncology_consult_room_v1` (new seed
 **ACCEPT**. Next: `stepdown_room_v1` (seed 26 `bedroom_0` yaw 90, sha `6b098ab7…`)
 **ACCEPT**. Next: `ob_triage_room_v1` (seed 27 `dining-room_0` yaw 180, sha `f2e11bab…`)
 **ACCEPT** after door-on recapture. Next: `inpatient_ward_room_v1` (new
-seed 28+). Door-leaf doorway-scorer reject landed. Humanoid GLBs untouched.
+`inpatient_ward_room_v1` (seed 29 `bedroom_0` yaw 180, sha `9424e4f6…`)
+**ACCEPT**. Last: `pediatric_fever_urgent_care_bay_v1` (new seed 30+).
+Door-leaf scorer landed `5c81ffd5`. Humanoid GLBs untouched.
 No #167. Frozen aisha/child/parent hashes unchanged. Push still other-AI at quiet tree.
-    Shipped rooms carrying a baked texture ......... 12 of 15
+    Shipped rooms carrying a baked texture ......... 13 of 15
     Shipped rooms carrying baked OCCLUSION ......... 0 of 2  (in flight, #349)
 
 | capability | MPFB rail | evidence |

@@ -1,12 +1,12 @@
 # Superagent brief — promote the remaining station rooms
 
 **From:** hourly-loop orchestrator. **Date:** 2026-08-14.
-**Status:** **OB TRIAGE LANDED** `9cad9f17`. Twelfth room:
-`ob_triage_room_v1` → `infinigen-ob-triage.glb` sha `f2e11bab…`
-(seed 27 `dining-room_0` yaw 180). First still REJECTED (door leaf);
-recapture ACCEPT interior. Next: `inpatient_ward_room_v1` (new seed 28+)
-Door-leaf scorer landed (this commit): production capture of OB now
-picks the interior eye. No humanoids. Prior twelve room bytes frozen.
+**Status:** **INPATIENT WARD LANDED** (this commit). Thirteenth room:
+`inpatient_ward_room_v1` → `infinigen-inpatient-ward.glb` sha `9424e4f6…`
+(seed 29 `bedroom_0` yaw 180). Orchestrator grade: **ACCEPT interior**.
+Door-leaf scorer already on main (`5c81ffd5`). Next and last:
+`pediatric_fever_urgent_care_bay_v1` (new seed 30+). No humanoids. Prior
+twelve room bytes frozen.
 
 ## READ THIS FIRST — one of the two existing rooms renders BLACK
 

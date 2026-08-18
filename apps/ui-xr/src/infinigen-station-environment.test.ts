@@ -38,6 +38,9 @@ describe("Infinigen station environment by environmentId (#336)", () => {
     expect(resolve!("ob_triage_room_v1")).toBe(
       "/xr-assets/environment/infinigen-ob-triage.glb",
     );
+    expect(resolve!("inpatient_ward_room_v1")).toBe(
+      "/xr-assets/environment/infinigen-inpatient-ward.glb",
+    );
   });
 
   it("hides the procedural box shell meshes but keeps fixture slots", async () => {
@@ -115,7 +118,7 @@ describe("Infinigen station environment by environmentId (#336)", () => {
     const scene = new Group() as never;
     const status = loadFn!({
       scene,
-      environmentId: "inpatient_ward_room_v1",
+      environmentId: "pediatric_fever_urgent_care_bay_v1",
       stationEnvironment: new Group(),
       onStatus: () => {},
     });
@@ -787,4 +790,13 @@ describe("#342c wall fixtures re-anchor onto the generated room", () => {
  * `f2e11babc41b70d5ae991452ca074a51ffea3c868d543b2f24ddaf377017f625`, signature 4 meshes /
  * 3 materials / 6 textures / extent 7.5 x 2.65 x 5.58 m — distinct from the eleven shipped
  * rooms by hash AND geometric signature.
+ */
+
+/**
+ * ## FIXED — thirteenth environmentId maps to its own generated room
+ *
+ * Flips the planted `inpatient_ward_room_v1 -> null` assertion to the shipped GLB path
+ * and moves the unmapped example to `pediatric_fever_urgent_care_bay_v1` (still unmapped).
+ * Seed 29 `clinical_bay.gin`, `bedroom_0` segment 0, `--yaw-deg 180`. Predicate PASSES.
+ * SHA-256 `9424e4f6d42f8726ef5a042cc821cc89e9701b429e6acd7dfd02e83671dacbae`.
  */
