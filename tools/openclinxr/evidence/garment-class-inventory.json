@@ -1,0 +1,151 @@
+{
+  "enumeratedFrom": ".openclinxr-local/provider-cache",
+  "measuredAt": "2026-08-18",
+  "method": "MPFB fit_clothes_to_human vertex placement (provider-cache/mpfb): garment vertex = weighted hm08 base-mesh triangle + per-range scale-line offsets; hem = lowest fitted Y as fraction of base.obj height (feet at 0, crown at 1). Shoulder coverage from X-cluster analysis of the garment's top 6% body-height band.",
+  "classVocabulary": [
+    "hospital_gown",
+    "evening_dress",
+    "scrub",
+    "labcoat",
+    "street",
+    "footwear",
+    "other"
+  ],
+  "shoulderCoverageVocabulary": [
+    "sleeve",
+    "strap",
+    "sleeveless-open",
+    "no_shoulder_contact"
+  ],
+  "hospitalGownFound": false,
+  "rows": [
+    {
+      "basename": "crudegown.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-community-crude-gown/crudegown.mhclo",
+      "class": "evening_dress",
+      "hemFractionOfBody": 0.0299,
+      "shoulderCoverage": "strap",
+      "evidence": "hem at 0.030 of body height (feet=0, crown=1), top at 0.835; 2 separated X clusters (widths [0.425, 0.425]) at top band [0.78,0.84] of body height \u2014 fabric does not span the shoulder; class evening_dress"
+    },
+    {
+      "basename": "crudelabcoatopen.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-community-crude-labcoat-female/crudelabcoatopen.mhclo",
+      "class": "labcoat",
+      "hemFractionOfBody": 0.2684,
+      "shoulderCoverage": "sleeve",
+      "evidence": "hem at 0.268 of body height (feet=0, crown=1), top at 0.861; single X cluster spanning 0.97 of body X at top band [0.80,0.86] \u2014 shoulder covered by one continuous piece; class labcoat"
+    },
+    {
+      "basename": "male_crude_labcoatop.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-community-crude-labcoat-male/male_crude_labcoatop.mhclo",
+      "class": "labcoat",
+      "hemFractionOfBody": 0.2234,
+      "shoulderCoverage": "sleeve",
+      "evidence": "hem at 0.223 of body height (feet=0, crown=1), top at 0.869; single X cluster spanning 0.94 of body X at top band [0.81,0.87] \u2014 shoulder covered by one continuous piece; class labcoat"
+    },
+    {
+      "basename": "Scrub_Pants.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-community-scrub-pants/Scrub_Pants.mhclo",
+      "class": "scrub",
+      "hemFractionOfBody": 0.0592,
+      "shoulderCoverage": "no_shoulder_contact",
+      "evidence": "hem at 0.059 of body height (feet=0, crown=1), top at 0.579; no vertices above 0.52 of body height (top at 0.579); class scrub; in-file tag medical + 'Part of Medical Scrubs Kit'"
+    },
+    {
+      "basename": "Scrub_Shirt.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-community-scrub-shirt/Scrub_Shirt.mhclo",
+      "class": "scrub",
+      "hemFractionOfBody": 0.5544,
+      "shoulderCoverage": "sleeve",
+      "evidence": "hem at 0.554 of body height (feet=0, crown=1), top at 0.858; single X cluster spanning 1.01 of body X at top band [0.80,0.86] \u2014 shoulder covered by one continuous piece; class scrub; in-file tag formal/profession + 'Part of Medical Scrubs Kit'"
+    },
+    {
+      "basename": "cargo_pants.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-pants01/cortu_cargo_pants/cargo_pants.mhclo",
+      "class": "street",
+      "hemFractionOfBody": 0.0411,
+      "shoulderCoverage": "no_shoulder_contact",
+      "evidence": "hem at 0.041 of body height (feet=0, crown=1), top at 0.577; no vertices above 0.52 of body height (top at 0.577); class street; ankle-length trousers; no in-file tag, plain cargo silhouette"
+    },
+    {
+      "basename": "elvs_crude_t-shirt_male.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/elvs_crude_t-shirt_male/elvs_crude_t-shirt_male.mhclo",
+      "class": "street",
+      "hemFractionOfBody": 0.5491,
+      "shoulderCoverage": "sleeve",
+      "evidence": "hem at 0.549 of body height (feet=0, crown=1), top at 0.837; single X cluster spanning 1.02 of body X at top band [0.78,0.84] \u2014 shoulder covered by one continuous piece; class street; hip-length sleeved top; t-shirt silhouette"
+    },
+    {
+      "basename": "elvs_crude_t-shirt_male.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/extracted/clothes/elvs_crude_t-shirt_male/elvs_crude_t-shirt_male.mhclo",
+      "class": "street",
+      "hemFractionOfBody": 0.5491,
+      "shoulderCoverage": "sleeve",
+      "evidence": "hem at 0.549 of body height (feet=0, crown=1), top at 0.837; single X cluster spanning 1.02 of body X at top band [0.78,0.84] \u2014 shoulder covered by one continuous piece; class street; duplicate of elvs t-shirt under extracted/"
+    },
+    {
+      "basename": "namuhekam_male_polo_shirt.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/extracted/clothes/namuhekam_male_polo_shirt/namuhekam_male_polo_shirt.mhclo",
+      "class": "street",
+      "hemFractionOfBody": 0.495,
+      "shoulderCoverage": "sleeve",
+      "evidence": "hem at 0.495 of body height (feet=0, crown=1), top at 0.843; single X cluster spanning 1.02 of body X at top band [0.78,0.84] \u2014 shoulder covered by one continuous piece; class street; hip-length sleeved top; tag casual/contemporary (polo)"
+    },
+    {
+      "basename": "toigo_basic_tucked_t-shirt.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/extracted/clothes/toigo_basic_tucked_t-shirt/toigo_basic_tucked_t-shirt.mhclo",
+      "class": "street",
+      "hemFractionOfBody": 0.587,
+      "shoulderCoverage": "sleeve",
+      "evidence": "hem at 0.587 of body height (feet=0, crown=1), top at 0.844; single X cluster spanning 1.00 of body X at top band [0.78,0.84] \u2014 shoulder covered by one continuous piece; class street; hip-length sleeved top; tag casual (t-shirt)"
+    },
+    {
+      "basename": "namuhekam_male_polo_shirt.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/namuhekam_male_polo_shirt/namuhekam_male_polo_shirt.mhclo",
+      "class": "street",
+      "hemFractionOfBody": 0.495,
+      "shoulderCoverage": "sleeve",
+      "evidence": "hem at 0.495 of body height (feet=0, crown=1), top at 0.843; single X cluster spanning 1.02 of body X at top band [0.78,0.84] \u2014 shoulder covered by one continuous piece; class street; duplicate of polo under extracted/"
+    },
+    {
+      "basename": "toigo_basic_tucked_t-shirt.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/toigo_basic_tucked_t-shirt/toigo_basic_tucked_t-shirt.mhclo",
+      "class": "street",
+      "hemFractionOfBody": 0.587,
+      "shoulderCoverage": "sleeve",
+      "evidence": "hem at 0.587 of body height (feet=0, crown=1), top at 0.844; single X cluster spanning 1.00 of body X at top band [0.78,0.84] \u2014 shoulder covered by one continuous piece; class street; duplicate of t-shirt under extracted/"
+    },
+    {
+      "basename": "toigo_fisherman_sweater.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/toigo_fisherman_sweater/toigo_fisherman_sweater.mhclo",
+      "class": "street",
+      "hemFractionOfBody": 0.522,
+      "shoulderCoverage": "sleeve",
+      "evidence": "hem at 0.522 of body height (feet=0, crown=1), top at 0.847; single X cluster spanning 1.02 of body X at top band [0.79,0.85] \u2014 shoulder covered by one continuous piece; class street; hip-length sleeved top; tag knit/casual (sweater)"
+    },
+    {
+      "basename": "culturalibre_male_boots.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/culturalibre_male_boots/culturalibre_male_boots.mhclo",
+      "class": "footwear",
+      "hemFractionOfBody": 0.0166,
+      "shoulderCoverage": "no_shoulder_contact",
+      "evidence": "hem at 0.017 of body height (feet=0, crown=1), top at 0.223; no vertices above 0.16 of body height (top at 0.223); class footwear; foot-covering, top at 0.22 body height"
+    },
+    {
+      "basename": "toigo_flats.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_flats/toigo_flats.mhclo",
+      "class": "footwear",
+      "hemFractionOfBody": 0.0159,
+      "shoulderCoverage": "no_shoulder_contact",
+      "evidence": "hem at 0.016 of body height (feet=0, crown=1), top at 0.052; no vertices above 0.00 of body height (top at 0.052); class footwear; flat sole, top at 0.05 body height"
+    },
+    {
+      "basename": "toigo_mj_cloth_shoes.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_mj_cloth_shoes/toigo_mj_cloth_shoes.mhclo",
+      "class": "footwear",
+      "hemFractionOfBody": 0.0149,
+      "shoulderCoverage": "no_shoulder_contact",
+      "evidence": "hem at 0.015 of body height (feet=0, crown=1), top at 0.059; no vertices above 0.00 of body height (top at 0.059); class footwear; low shoe, top at 0.06 body height"
+    }
+  ]
+}
