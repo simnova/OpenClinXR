@@ -57,9 +57,10 @@ sha `5cf36958…`) **ACCEPT**. Next: `oncology_consult_room_v1` (new seed
 `urgent_care_clinic_room_v1` (seed 22 `bedroom_0` yaw 270, sha
 `5aa1c6f1…`; seed 18 was a dead doorway) **ACCEPT**. Next:
 `surgical_ward_room_v1` (seed 25 `bedroom_0` yaw 90, sha `491c43d6…`)
-**ACCEPT**. Next: `stepdown_room_v1` (new seed 26+). Humanoid GLBs untouched.
+**ACCEPT**. Next: `stepdown_room_v1` (seed 26 `bedroom_0` yaw 90, sha `6b098ab7…`)
+**ACCEPT**. Next: `ob_triage_room_v1` (new seed 27+). Humanoid GLBs untouched.
 No #167. Frozen aisha/child/parent hashes unchanged. Push still other-AI at quiet tree.
-    Shipped rooms carrying a baked texture ......... 10 of 15
+    Shipped rooms carrying a baked texture ......... 11 of 15
     Shipped rooms carrying baked OCCLUSION ......... 0 of 2  (in flight, #349)
 
 | capability | MPFB rail | evidence |

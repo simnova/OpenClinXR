@@ -1,11 +1,11 @@
 # Superagent brief — promote the remaining station rooms
 
 **From:** hourly-loop orchestrator. **Date:** 2026-08-14.
-**Status:** **SURGICAL WARD LANDED** `3276ada5`. Tenth room:
-`surgical_ward_room_v1` → `infinigen-surgical-ward.glb` sha `491c43d6…`
-(seed 25 `bedroom_0` yaw 90). Orchestrator grade: **ACCEPT interior**.
-Next: `stepdown_room_v1` (new seed 26+; skip crash 23/24). No humanoids.
-Prior nine room bytes frozen.
+**Status:** **STEPDOWN LANDED** `7ed6d7fa`. Eleventh room:
+`stepdown_room_v1` → `infinigen-stepdown.glb` sha `6b098ab7…`
+(seed 26 `bedroom_0` seg 2 yaw 90). Orchestrator grade: **ACCEPT interior**.
+Next: `ob_triage_room_v1` (new seed 27+). No humanoids. Prior ten room
+bytes frozen.
 
 ## READ THIS FIRST — one of the two existing rooms renders BLACK
 
