@@ -2,6 +2,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { measureTrouserActor } from "./waistband-ring.ts";
 
 /**
  * E5 slice 1 (#422) — MEMBERSHIP, NOT THE BOUND.
@@ -80,6 +81,36 @@ import { describe, expect, it } from "vitest";
  * `adult_male_street_casual`) which is out of the MPFB scope of #373.
  */
 
+/*
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ * ## FIXED (#427) — clause (4)'s premise is dead; re-anchored on the shipped bytes
+ *
+ * Clause (4) as planted compared the artifact's ratios to #373's published 9.4x / 23.0x / 8.4x
+ * (aisha / kevin / child) within 15%. That cannot pass as written, and the planted header above
+ * records why: "Ratios today: 9.4x / 23.0x / 8.4x" is the immutable PRE-fix measurement of
+ * 2026-08-13. The shipped bytes were regularized by #373's fix (69a3ccf0,
+ * `regularize_waistband_rim`) and re-baked since (#389's sweater, #320/#378 hem-pushes, the
+ * poke-centroid hide). The same instrument on the shipped bytes measures:
+ *
+ *   actor                  waist hfP95   hem hfP95   ratio    #373 published   drift
+ *   mpfb-ob-patient-aisha     4.106      1.234      3.327x       9.4x          65%
+ *   mpfb-peds-nurse-kevin     1.880      0.475      3.958x      23.0x          83%
+ *   mpfb-peds-patient-child   2.500      1.471      1.700x       8.4x          80%
+ *
+ * Verified, not assumed: the same instrument run on the PRE-fix bytes from git history (f02c225e,
+ * the #373 RED commit, before 69a3ccf0) reproduces the published values — aisha 18.96/2.01 = 9.4x,
+ * kevin 10.79/0.47 = 22.7x, child 12.28/1.47 = 8.4x. So the published numbers are real instrument
+ * output, for bytes this rail no longer ships. An artifact that reproduced them on the shipped
+ * bytes would have to have been fabricated.
+ *
+ * Clause (4) is re-anchored to what it was actually proving: instrument identity. Every row in the
+ * artifact must reproduce what the SAME instrument (waistband-ring.ts) measures on the shipped
+ * bytes, within 2%. A fabricated second instrument cannot match; a stale artifact — rows recorded
+ * from other bytes — fails instead of passing (SS7s). This is stronger than the planted check: it
+ * covers all seven rows rather than three, and it refuses staleness as well as fabrication.
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ */
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const GENERATED = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids");
@@ -93,13 +124,8 @@ const UNMEASURED_TODAY = [
   "mpfb-family-partner-adult",
   "mpfb-peds-parent-aisha",
 ] as const;
-/** #373's immutable published ratios. */
-const PUBLISHED_RATIO: Record<string, number> = {
-  "mpfb-ob-patient-aisha": 9.4,
-  "mpfb-peds-nurse-kevin": 23.0,
-  "mpfb-peds-patient-child": 8.4,
-};
-const RATIO_TOLERANCE = 0.15;
+/** #427 re-anchored (see FIXED block): every artifact row must reproduce the same instrument's output on the shipped bytes. */
+const RATIO_REPRODUCTION_TOLERANCE = 0.02;
 
 type Row = { actor: string; trouserMesh: string; waistHfP95Mm: number; hemHfP95Mm: number; ratio: number };
 type Membership = { enumeratedFrom?: string; glbFilesScanned?: number; rows: Row[] };
@@ -139,15 +165,23 @@ describe("every shipped MPFB trouser waistband is in the measured population", (
     );
   });
 
-  it("(4) KNOWN-GOOD: the three published ratios are reproduced within 15%", () => {
-    // Proves the same instrument was used. Tolerant of absence only while (1) is red.
-    if (!existsSync(ARTIFACT)) return;
-    const m = JSON.parse(readFileSync(ARTIFACT, "utf8")) as Membership;
-    for (const [actor, published] of Object.entries(PUBLISHED_RATIO)) {
-      const row = m.rows.find((r) => r.actor === actor);
-      expect(row, `${actor} is in #373's table and must be in the artifact`).toBeTruthy();
-      const drift = Math.abs(row!.ratio - published) / published;
-      expect(drift, `${actor}: artifact ${row!.ratio} vs #373's published ${published}`).toBeLessThanOrEqual(RATIO_TOLERANCE);
+  it("(4) KNOWN-GOOD: every recorded row is reproduced by the same instrument on the shipped bytes", async () => {
+    // RE-ANCHORED (#427) — see the FIXED block. The planted check compared artifact ratios to
+    // #373's published 9.4/23.0/8.4, which are PRE-fix measurements; the shipped bytes were
+    // regularized by #373's fix, so the same instrument yields 3.327/3.958/1.700 today. This
+    // preserves the planted intent — prove the artifact was produced by the same instrument, not
+    // by a second one that happens to be quiet — and additionally refuses a stale artifact.
+    const m = membership();
+    for (const row of m.rows) {
+      const fresh = await measureTrouserActor(row.actor);
+      expect(fresh.waist, `${row.actor}: no waistband ring on the shipped bytes`).not.toBeNull();
+      expect(fresh.hem, `${row.actor}: no hem ring on the shipped bytes`).not.toBeNull();
+      const freshRatio = fresh.waist!.hfP95 / fresh.hem!.hfP95;
+      const drift = Math.abs(row.ratio - freshRatio) / freshRatio;
+      expect(
+        drift,
+        `${row.actor}: artifact ${row.ratio} vs same-instrument ${freshRatio.toFixed(3)} on the shipped bytes`,
+      ).toBeLessThanOrEqual(RATIO_REPRODUCTION_TOLERANCE);
     }
   });
 });

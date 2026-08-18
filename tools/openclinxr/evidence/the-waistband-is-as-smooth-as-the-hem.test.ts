@@ -1,8 +1,8 @@
+import { readFileSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
-import { isUpperGarmentName } from "./garment-slot.ts";
+import { measureTrouserActor } from "./waistband-ring.ts";
 
 /**
  * **The visible sawtooth at the shirt/trouser junction is the CARGO-PANTS WAISTBAND ring.** Graded in
@@ -86,6 +86,46 @@ import { isUpperGarmentName } from "./garment-slot.ts";
 
 /*
  * ════════════════════════════════════════════════════════════════════════════════════════════════
+ * ## FIXED (#427) — kevin's pants rename blinded the matcher; the population guard is now the E5 artifact
+ *
+ * Kevin's wardrobe moved after the #389 rebase (WojackOWL scrubs: scrub_shirt + scrub_pants), and the
+ * pants matcher here was /cargo_pants/ — "scrub_pants" does not match, so kevin measured as waist=n
+ * and all four clauses failed on the vacuity guard: main was red in this contract without anyone
+ * noticing, which is exactly the membership defect E5 (#422) exists to catch.
+ *
+ * Three changes, none touching the 4x bound:
+ *
+ *   1. **Matcher.** The pants test is now the shared `isPantsName` (pants|trousers|cargo) from
+ *      waistband-ring.ts — the same enumeration E5 uses, so a future rename cannot blind only this
+ *      contract. The ring measurement itself is unchanged, and it now lives in waistband-ring.ts
+ *      (one instrument for this contract, the E5 membership contract, and the artifact generator).
+ *   2. **Baseline re-keyed** to the measured shipped bytes: kevin's trousers are the scrub_pants
+ *      cover shell at 2,704 tris with a 222-vert waistband ring (26.6 mm span), hem 0.475 mm. The
+ *      previous row (2,498 tris / sweater hem 4.31 mm) described bytes that no longer ship.
+ *   3. **The vacuity guard is inverted.** It asserted `rows.length === ACTORS.length` — the list
+ *      checked against itself, satisfied by any hardcoded list. It now checks this contract's
+ *      actors against the E5 membership artifact (waistband-membership.json), which is checked
+ *      against the shipped directory; a rename or a missing artifact fails closed instead of
+ *      passing silently.
+ *
+ * Measured 2026-08-18 on the shipped bytes with the shared instrument:
+ *
+ *   actor   ring                      verts   HF p95    ratio vs hem
+ *   ------  ------------------------  -----   -------   ------------
+ *   aisha   PANTS waistband (top)      476      4.106      3.327x
+ *   aisha   toigo_t_shirt hem           124      1.234     (denominator)
+ *   kevin   PANTS waistband (top)      222      1.880      3.958x
+ *   kevin   scrub_shirt hem            448      0.475     (denominator)
+ *   child   PANTS waistband (top)      430      2.500      1.700x
+ *   child   toigo_t_shirt hem          124      1.471     (denominator)
+ *
+ * All three measure under the 4x bound; the four other trouser-carrying actors are measured and
+ * recorded by the E5 membership contract, not asserted here.
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ */
+
+/*
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
  * ## FIXED (#373) — appended; the planted header above is immutable
  *
  * Root cause, measured on the shipped bytes before this slice: the shipped lower garment is the
@@ -152,7 +192,6 @@ import { isUpperGarmentName } from "./garment-slot.ts";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
-const GENERATED = "apps/ui-xr/public/generated-humanoids";
 
 const ACTORS = ["mpfb-ob-patient-aisha", "mpfb-peds-nurse-kevin", "mpfb-peds-patient-child"] as const;
 
@@ -160,42 +199,6 @@ const ACTORS = ["mpfb-ob-patient-aisha", "mpfb-peds-nurse-kevin", "mpfb-peds-pat
 const MAX_WAISTBAND_TO_HEM_HF_RATIO = 4;
 /** The hem is the denominator of clause (1); this pins it absolutely so it cannot be inflated. */
 const HEM_DEGRADATION_ALLOWANCE = 1.5;
-
-type Ring = { verts: number; hfMedian: number; hfP95: number; span: number };
-
-/**
- * Order a boundary ring by angle about the body axis, subtract a 7-neighbour CIRCULAR moving average
- * to remove the legitimate contour, and return the high-frequency residual in millimetres.
- */
-function ringHighFrequency(pts: number[][], which: "top" | "bottom"): Ring | null {
-  if (pts.length < 12) return null;
-  const ys = pts.map((p) => p[1]!);
-  const lo = Math.min(...ys);
-  const hi = Math.max(...ys);
-  const height = hi - lo;
-  const cx = pts.reduce((s, p) => s + p[0]!, 0) / pts.length;
-  const cz = pts.reduce((s, p) => s + p[2]!, 0) / pts.length;
-  const band = pts
-    .filter((p) => (which === "top" ? p[1]! > hi - height * 0.03 : p[1]! < lo + height * 0.03))
-    .map((p) => ({ y: p[1]!, th: Math.atan2(p[2]! - cz, p[0]! - cx) }))
-    .sort((a, b) => a.th - b.th);
-  if (band.length < 12) return null;
-
-  const residual: number[] = [];
-  for (let i = 0; i < band.length; i += 1) {
-    let sum = 0;
-    for (let k = -3; k <= 3; k += 1) sum += band[(i + k + band.length) % band.length]!.y;
-    residual.push(Math.abs(band[i]!.y - sum / 7) * 1000);
-  }
-  const sorted = [...residual].sort((a, b) => a - b);
-  const bandYs = band.map((b) => b.y);
-  return {
-    verts: band.length,
-    hfMedian: sorted[Math.floor(sorted.length / 2)] ?? 0,
-    hfP95: sorted[Math.floor(sorted.length * 0.95)] ?? 0,
-    span: (Math.max(...bandYs) - Math.min(...bandYs)) * 1000,
-  };
-}
 
 /**
  * MEASURED 2026-08-13 on the shipped bytes. Floors refuse (b) hem degradation, (c) ring decimation and
@@ -211,52 +214,36 @@ const BASELINE: Record<
   // toigo_fisherman_sweater; same class as #378) and the hem baseline re-keyed from the
   // departed scrub (0.47) to the sweater's own measured value (4.31) — the scrub no
   // longer ships on this actor, so pinning the OLD garment's hem would be vacuous.
-  "mpfb-peds-nurse-kevin": { waistVerts: 59, waistSpan: 27.0, pantsTris: 2498, hemHfP95: 4.31 },
+  //
+  // #427 REBASED 2026-08-18: kevin's wardrobe moved again (WojackOWL scrubs: scrub_shirt +
+  // scrub_pants), and the pants matcher below was blind to the rename — "scrub_pants" does not
+  // match /cargo_pants/, so this actor measured as waist=n and all four clauses failed on the
+  // vacuity guard. The matcher is now the shared isPantsName (pants|trouser|cargo) and the
+  // baseline is re-keyed to the measured shipped bytes: 2,704 tris, scrub hem 0.475 mm,
+  // waistband 222 verts / 26.6 mm span. The 4x bound is untouched; kevin measures 3.958x.
+  "mpfb-peds-nurse-kevin": { waistVerts: 222, waistSpan: 26.6, pantsTris: 2704, hemHfP95: 0.475 },
   "mpfb-peds-patient-child": { waistVerts: 144, waistSpan: 18.3, pantsTris: 2636, hemHfP95: 1.47 },
 };
 
-type Row = { actor: string; waist: Ring | null; hem: Ring | null; pantsTris: number };
+const ARTIFACT = join(REPO_ROOT, "tools/openclinxr/evidence/waistband-membership.json");
 
-const io = new NodeIO();
-
-async function measure(actor: string): Promise<Row> {
-  const doc = await io.read(join(REPO_ROOT, GENERATED, `${actor}.glb`));
-  let waist: Ring | null = null;
-  let hem: Ring | null = null;
-  let pantsTris = 0;
-  for (const mesh of doc.getRoot().listMeshes()) {
-    for (const prim of mesh.listPrimitives()) {
-      const name = prim.getMaterial()?.getName() ?? "";
-      const isPants = /cargo_pants/i.test(name);
-      const isShirt = isUpperGarmentName(name);
-      if (!isPants && !isShirt) continue;
-      const pos = prim.getAttribute("POSITION");
-      const idx = prim.getIndices();
-      if (!pos) continue;
-      const v = [0, 0, 0];
-      const pts: number[][] = [];
-      for (let i = 0; i < pos.getCount(); i += 1) {
-        pos.getElement(i, v);
-        pts.push([...v]);
-      }
-      if (isPants) {
-        waist = ringHighFrequency(pts, "top");
-        pantsTris = idx ? idx.getCount() / 3 : 0;
-      } else if (!hem) {
-        hem = ringHighFrequency(pts, "bottom");
-      }
-    }
-  }
-  return { actor, waist, hem, pantsTris };
-}
-
-const rows = await Promise.all(ACTORS.map(measure));
+const rows = await Promise.all(ACTORS.map((actor) => measureTrouserActor(actor)));
 
 /**
- * An empty enumeration must FAIL, never pass vacuously (SS7t). Plain `it` on purpose: an `it.fails`
- * cannot guard its own vacuity — it is satisfied by ANY failure, including this guard throwing.
+ * #427 INVERTED GUARD. This used to assert `usable.length === ACTORS.length` — the list checked
+ * against itself, satisfied by any hardcoded list including a list of one (the E5 vacuity #422
+ * names). The population is now owned by the E5 membership artifact, which is checked against the
+ * shipped directory; this contract's own list is checked against THAT, so a wardrobe rename that
+ * blinds this matcher can no longer pass silently and the artifact's absence fails closed.
  */
 function requireMeasured(): void {
+  const artifact = JSON.parse(readFileSync(ARTIFACT, "utf8")) as { rows: { actor: string }[] };
+  const measured = new Set(artifact.rows.map((r) => r.actor));
+  const missing = ACTORS.filter((a) => !measured.has(a));
+  expect(
+    missing,
+    `measured by #373 but absent from the E5 membership artifact (${ARTIFACT}): ${missing.join(", ")}`,
+  ).toEqual([]);
   const usable = rows.filter((r) => r.waist !== null && r.hem !== null);
   expect(
     usable.length,
