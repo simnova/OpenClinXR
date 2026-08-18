@@ -64,8 +64,10 @@ sha `5cf36958…`) **ACCEPT**. Next: `oncology_consult_room_v1` (new seed
 **ACCEPT**. Last room **ACCEPT**: `pediatric_fever_urgent_care_bay_v1`
 (seed 34 `bedroom_0/1` yaw 0, sha `8cc0a75d…`). All 14 station
 `environmentId`s now have a generated Infinigen room. Door-leaf scorer
-landed `5c81ffd5`. Humanoid GLBs untouched.
-No #167. Frozen aisha/child/parent hashes unchanged. Push still other-AI at quiet tree.
+landed `5c81ffd5`. Rooms land did not touch humanoids.
+Later other-lane `5d330d9b`/`3a8ea32b` rewrote aisha + parent motion-bind
+(poke-centroid hide — not a recolour, not Tara-off-walk). No #167.
+Push still other-AI at quiet tree.
     Shipped rooms carrying a baked texture ......... 14 of 14
     Shipped rooms carrying baked OCCLUSION ......... 14 of 14  (file-level maps; #349 consumer is loader convention)
 
