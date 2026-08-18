@@ -27,7 +27,6 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { Box3, type Group, Mesh, type Object3D, type Scene, Vector3 } from "three";
 import type { NamedShellWall } from "@openclinxr/asset-registry/fixture-wall-mounting";
 import { anchorFixtureNearFaceToPlane } from "./station-architecture-fixtures.js";
-
 /** environmentId → shipped Infinigen room GLB. Deterministic bake; add rows as rooms are produced. */
 export const INFINIGEN_ENVIRONMENT_ASSETS: Readonly<Record<string, string>> = {
   ed_exam_bay_v1: "/xr-assets/environment/infinigen-ed-exam-bay.glb",
@@ -36,6 +35,7 @@ export const INFINIGEN_ENVIRONMENT_ASSETS: Readonly<Record<string, string>> = {
   // #407 re-baked from seed 13 `kitchen_0` with `--yaw-deg 90` — room-shaped (5.28×5.39 m, aspect
   // 1.02), hull 0.1093 m on +Z; `hallway_0` was a 9.9 m corridor pushing the camera 3.7 m away.
   pediatric_urgent_care_bay_v1: "/xr-assets/environment/infinigen-pediatric-urgent-care-bay.glb",
+  primary_care_clinic_room_v1: "/xr-assets/environment/infinigen-primary-care-clinic.glb",
 } as const;
 
 export type InfinigenEnvironmentStatus = {
