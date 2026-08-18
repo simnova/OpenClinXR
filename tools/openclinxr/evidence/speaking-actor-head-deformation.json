@@ -1,0 +1,2436 @@
+{
+  "schemaVersion": "openclinxr.speaking-actor-head-deformation.v1",
+  "generatedAt": "2026-08-18T19:31:38.834Z",
+  "source": "live runtime read via playwright headless chromium against the ui-xr portless dev server (spawnPortlessDevServer filter @openclinxr/ui-xr), page.evaluate on window.__openClinXrDebugScene of peds_asthma_parent_anxiety_v1: mesh.morphTargetInfluences[mesh.morphTargetDictionary[name]] and head-region bone matrixWorld elements, sampled at parent-speaking / parent-not-speaking / child-speaking / child-not-speaking instants driven by trace-button dialogue; NOT a static asset read. url=http://127.0.0.1:63697/?openclinxrScenarioId=peds_asthma_parent_anxiety_v1&openclinxrCaptureMode=face-detail&openclinxrPortalStart=encounter&openclinxrAcceleratedExam=1",
+  "url": "http://127.0.0.1:63697/?openclinxrScenarioId=peds_asthma_parent_anxiety_v1&openclinxrCaptureMode=face-detail&openclinxrPortalStart=encounter&openclinxrAcceleratedExam=1",
+  "claimScope": "runtime morph-vs-bone separation for the #402 speaking-parent head deformation, peds asthma station only",
+  "notEvidenceFor": [
+    "the cause (E2 slice 2 names the mechanism)",
+    "any fix",
+    "whether the spike is visible (pixel grade is the orchestrator's)",
+    "other actors or scenarios",
+    "production phoneme timing",
+    "clinical validity",
+    "scoring validity",
+    "quest readiness"
+  ],
+  "states": [
+    {
+      "actor": "parent_tara_johnson_v1",
+      "speaking": true,
+      "morphs": [
+        {
+          "mesh": "mpfb_ob_patient_aisha_body_1",
+          "name": "eyebrows-left-inner-up",
+          "weight": 0.4737
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body_2",
+          "name": "eyebrows-left-inner-up",
+          "weight": 0.4737
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body_3",
+          "name": "eyebrows-left-inner-up",
+          "weight": 0.4737
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body_4",
+          "name": "eyebrows-left-inner-up",
+          "weight": 0.4737
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body_5",
+          "name": "eyebrows-left-inner-up",
+          "weight": 0.4737
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body_6",
+          "name": "eyebrows-left-inner-up",
+          "weight": 0.4737
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body_7",
+          "name": "eyebrows-left-inner-up",
+          "weight": 0.4737
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body_8",
+          "name": "eyebrows-left-inner-up",
+          "weight": 0.4737
+        }
+      ],
+      "bones": [
+        {
+          "bone": "root",
+          "worldMatrix": [
+            1.00464,
+            -0.07858,
+            0.01816,
+            0,
+            -0.01718,
+            0.01391,
+            1.00775,
+            0,
+            -0.08047,
+            -0.98456,
+            0.01154,
+            0,
+            -1.40175,
+            0.94399,
+            0.541,
+            1
+          ]
+        },
+        {
+          "bone": "neck01",
+          "worldMatrix": [
+            0.9829,
+            -0.17119,
+            0.13916,
+            0,
+            0.21333,
+            0.90254,
+            -0.3486,
+            0,
+            -0.06672,
+            0.36311,
+            0.93549,
+            0,
+            -1.3114,
+            1.44139,
+            0.44607,
+            1
+          ]
+        },
+        {
+          "bone": "neck02",
+          "worldMatrix": [
+            0.98019,
+            -0.23009,
+            0.01157,
+            0,
+            0.21798,
+            0.87063,
+            -0.42224,
+            0,
+            0.08818,
+            0.40594,
+            0.91521,
+            0,
+            -1.30384,
+            1.47338,
+            0.43371,
+            1
+          ]
+        },
+        {
+          "bone": "neck03",
+          "worldMatrix": [
+            0.9559,
+            -0.29401,
+            -0.11114,
+            0,
+            0.21024,
+            0.83541,
+            -0.49403,
+            0,
+            0.24106,
+            0.43747,
+            0.87155,
+            0,
+            -1.29398,
+            1.51273,
+            0.41463,
+            1
+          ]
+        },
+        {
+          "bone": "head",
+          "worldMatrix": [
+            0.91068,
+            -0.3613,
+            -0.22577,
+            0,
+            0.1903,
+            0.79778,
+            -0.5621,
+            0,
+            0.38797,
+            0.45688,
+            0.80566,
+            0,
+            -1.28511,
+            1.54798,
+            0.39378,
+            1
+          ]
+        },
+        {
+          "bone": "jaw",
+          "worldMatrix": [
+            0.91068,
+            -0.3613,
+            -0.22577,
+            0,
+            0.03213,
+            -0.45701,
+            0.89246,
+            0,
+            -0.43093,
+            -0.79771,
+            -0.41058,
+            0,
+            -1.27907,
+            1.55835,
+            0.40089,
+            1
+          ]
+        },
+        {
+          "bone": "tongue00",
+          "worldMatrix": [
+            -0.91068,
+            0.3613,
+            0.22577,
+            0,
+            -0.09233,
+            0.34044,
+            -0.94128,
+            0,
+            -0.42215,
+            -0.854,
+            -0.28117,
+            0,
+            -1.27609,
+            1.516,
+            0.4836,
+            1
+          ]
+        },
+        {
+          "bone": "tongue01",
+          "worldMatrix": [
+            -0.91068,
+            0.3613,
+            0.22578,
+            0,
+            0.40198,
+            0.51938,
+            0.75801,
+            0,
+            0.15858,
+            0.75859,
+            -0.62488,
+            0,
+            -1.28145,
+            1.53573,
+            0.42904,
+            1
+          ]
+        },
+        {
+          "bone": "tongue02",
+          "worldMatrix": [
+            -0.91068,
+            0.3613,
+            0.22577,
+            0,
+            0.37674,
+            0.41162,
+            0.83581,
+            0,
+            0.21168,
+            0.82206,
+            -0.51622,
+            0,
+            -1.26975,
+            1.55084,
+            0.4511,
+            1
+          ]
+        },
+        {
+          "bone": "tongue03",
+          "worldMatrix": [
+            -0.85003,
+            0.49791,
+            0.18855,
+            0,
+            0.12375,
+            -0.15511,
+            0.98756,
+            0,
+            0.52745,
+            0.83891,
+            0.07216,
+            0,
+            -1.26212,
+            1.55917,
+            0.46802,
+            1
+          ]
+        },
+        {
+          "bone": "tongue04",
+          "worldMatrix": [
+            -0.94854,
+            0.05446,
+            0.33658,
+            0,
+            0.34082,
+            0.11262,
+            0.94178,
+            0,
+            0.01361,
+            0.97985,
+            -0.12569,
+            0,
+            -1.2609,
+            1.55765,
+            0.47775,
+            1
+          ]
+        },
+        {
+          "bone": "tongue07L",
+          "worldMatrix": [
+            -0.47249,
+            -0.87161,
+            -0.04318,
+            0,
+            0.88823,
+            -0.45807,
+            -0.09312,
+            0,
+            0.06214,
+            -0.07883,
+            1.00274,
+            0,
+            -1.2609,
+            1.55765,
+            0.47775,
+            1
+          ]
+        },
+        {
+          "bone": "tongue07R",
+          "worldMatrix": [
+            0.29383,
+            0.94225,
+            0.07357,
+            0,
+            -0.90668,
+            0.24471,
+            0.36309,
+            0,
+            0.32813,
+            -0.16741,
+            0.93743,
+            0,
+            -1.2609,
+            1.55765,
+            0.47775,
+            1
+          ]
+        },
+        {
+          "bone": "tongue06L",
+          "worldMatrix": [
+            -0.48072,
+            -0.67477,
+            0.5567,
+            0,
+            0.75272,
+            -0.63889,
+            -0.15698,
+            0,
+            0.46732,
+            0.33505,
+            0.82552,
+            0,
+            -1.26212,
+            1.55917,
+            0.46802,
+            1
+          ]
+        },
+        {
+          "bone": "tongue06R",
+          "worldMatrix": [
+            -0.0741,
+            0.89489,
+            -0.41914,
+            0,
+            -0.97008,
+            0.04461,
+            0.27013,
+            0,
+            0.26368,
+            0.41584,
+            0.876,
+            0,
+            -1.26212,
+            1.55917,
+            0.46802,
+            1
+          ]
+        },
+        {
+          "bone": "tongue05L",
+          "worldMatrix": [
+            -0.34775,
+            -0.66707,
+            0.65625,
+            0,
+            0.88865,
+            -0.46571,
+            -0.02265,
+            0,
+            0.32473,
+            0.56025,
+            0.76475,
+            0,
+            -1.26975,
+            1.55084,
+            0.4511,
+            1
+          ]
+        },
+        {
+          "bone": "tongue05R",
+          "worldMatrix": [
+            -0.03541,
+            0.81908,
+            -0.56126,
+            0,
+            -0.88507,
+            0.23799,
+            0.41709,
+            0,
+            0.48111,
+            0.49821,
+            0.72598,
+            0,
+            -1.26975,
+            1.55084,
+            0.4511,
+            1
+          ]
+        },
+        {
+          "bone": "eyeL",
+          "worldMatrix": [
+            -0.89516,
+            0.36919,
+            0.27024,
+            0,
+            0.40344,
+            0.33802,
+            0.85735,
+            0,
+            0.228,
+            0.85157,
+            -0.45602,
+            0,
+            -1.22155,
+            1.60143,
+            0.43111,
+            1
+          ]
+        },
+        {
+          "bone": "eyeR",
+          "worldMatrix": [
+            -0.92414,
+            0.3526,
+            0.18079,
+            0,
+            0.31895,
+            0.37154,
+            0.87829,
+            0,
+            0.24556,
+            0.84461,
+            -0.46037,
+            0,
+            -1.27421,
+            1.62232,
+            0.44416,
+            1
+          ]
+        }
+      ],
+      "cueVisible": true,
+      "rootTransform": {
+        "position": [
+          -1.35,
+          0.95,
+          0.42
+        ],
+        "quaternion": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "scale": [
+          0.92773,
+          0.96,
+          0.92773
+        ]
+      }
+    },
+    {
+      "actor": "patient_maya_johnson_v1",
+      "speaking": false,
+      "morphs": [
+        {
+          "mesh": "mpfb_peds_patient_child_body",
+          "name": "eye-left-closure",
+          "weight": 0.1388
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body",
+          "name": "eye-left-opened-up",
+          "weight": 0.1388
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body",
+          "name": "eyebrows-left-inner-up",
+          "weight": 0.2868
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body",
+          "name": "mouth-compression",
+          "weight": 1
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_1",
+          "name": "eye-left-closure",
+          "weight": 0.1388
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_1",
+          "name": "eye-left-opened-up",
+          "weight": 0.1388
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_1",
+          "name": "eyebrows-left-inner-up",
+          "weight": 0.2868
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_1",
+          "name": "mouth-compression",
+          "weight": 1
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_2",
+          "name": "eye-left-closure",
+          "weight": 0.1388
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_2",
+          "name": "eye-left-opened-up",
+          "weight": 0.1388
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_2",
+          "name": "eyebrows-left-inner-up",
+          "weight": 0.2868
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_2",
+          "name": "mouth-compression",
+          "weight": 1
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_3",
+          "name": "eye-left-closure",
+          "weight": 0.1388
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_3",
+          "name": "eye-left-opened-up",
+          "weight": 0.1388
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_3",
+          "name": "eyebrows-left-inner-up",
+          "weight": 0.2868
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_3",
+          "name": "mouth-compression",
+          "weight": 1
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_4",
+          "name": "eye-left-closure",
+          "weight": 0.1388
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_4",
+          "name": "eye-left-opened-up",
+          "weight": 0.1388
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_4",
+          "name": "eyebrows-left-inner-up",
+          "weight": 0.2868
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_4",
+          "name": "mouth-compression",
+          "weight": 1
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_5",
+          "name": "eye-left-closure",
+          "weight": 0.1388
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_5",
+          "name": "eye-left-opened-up",
+          "weight": 0.1388
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_5",
+          "name": "eyebrows-left-inner-up",
+          "weight": 0.2868
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_5",
+          "name": "mouth-compression",
+          "weight": 1
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_6",
+          "name": "eye-left-closure",
+          "weight": 0.1388
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_6",
+          "name": "eye-left-opened-up",
+          "weight": 0.1388
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_6",
+          "name": "eyebrows-left-inner-up",
+          "weight": 0.2868
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_6",
+          "name": "mouth-compression",
+          "weight": 1
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_7",
+          "name": "eye-left-closure",
+          "weight": 0.1388
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_7",
+          "name": "eye-left-opened-up",
+          "weight": 0.1388
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_7",
+          "name": "eyebrows-left-inner-up",
+          "weight": 0.2868
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_7",
+          "name": "mouth-compression",
+          "weight": 1
+        }
+      ],
+      "bones": [
+        {
+          "bone": "root",
+          "worldMatrix": [
+            0.63986,
+            -0.00025,
+            -0.09916,
+            0,
+            0.09566,
+            0.19209,
+            0.61679,
+            0,
+            0.03165,
+            -0.56127,
+            0.20565,
+            0,
+            -0.13446,
+            0.36003,
+            -1.0936,
+            1
+          ]
+        },
+        {
+          "bone": "neck01",
+          "worldMatrix": [
+            0.62669,
+            0.00666,
+            -0.16307,
+            0,
+            0.01277,
+            0.58918,
+            0.08093,
+            0,
+            0.16332,
+            -0.06887,
+            0.632,
+            0,
+            -0.12999,
+            0.59948,
+            -1.0654,
+            1
+          ]
+        },
+        {
+          "bone": "neck02",
+          "worldMatrix": [
+            0.60728,
+            0.00286,
+            -0.22577,
+            0,
+            -0.01668,
+            0.59199,
+            -0.03352,
+            0,
+            0.22472,
+            0.0382,
+            0.61682,
+            0,
+            -0.12966,
+            0.61497,
+            -1.06327,
+            1
+          ]
+        },
+        {
+          "bone": "neck03",
+          "worldMatrix": [
+            0.58248,
+            -0.01149,
+            -0.28463,
+            0,
+            -0.05664,
+            0.57559,
+            -0.14341,
+            0,
+            0.27764,
+            0.14314,
+            0.57531,
+            0,
+            -0.13025,
+            0.63611,
+            -1.06447,
+            1
+          ]
+        },
+        {
+          "bone": "head",
+          "worldMatrix": [
+            0.55331,
+            -0.03578,
+            -0.33715,
+            0,
+            -0.10543,
+            0.54066,
+            -0.24409,
+            0,
+            0.31985,
+            0.24151,
+            0.50922,
+            0,
+            -0.13211,
+            0.65503,
+            -1.06918,
+            1
+          ]
+        },
+        {
+          "bone": "jaw",
+          "worldMatrix": [
+            0.55331,
+            -0.03578,
+            -0.33715,
+            0,
+            0.26176,
+            -0.32393,
+            0.48085,
+            0,
+            -0.2119,
+            -0.49569,
+            -0.2961,
+            0,
+            -0.12815,
+            0.66101,
+            -1.06323,
+            1
+          ]
+        },
+        {
+          "bone": "tongue00",
+          "worldMatrix": [
+            -0.55331,
+            0.03578,
+            0.33715,
+            0,
+            -0.28692,
+            0.25724,
+            -0.51504,
+            0,
+            -0.17635,
+            -0.53336,
+            -0.23156,
+            0,
+            -0.10962,
+            0.63809,
+            -1.02921,
+            1
+          ]
+        },
+        {
+          "bone": "tongue01",
+          "worldMatrix": [
+            -0.55331,
+            0.03578,
+            0.33715,
+            0,
+            0.28813,
+            0.35642,
+            0.44165,
+            0,
+            -0.17436,
+            0.47287,
+            -0.3519,
+            0,
+            -0.12124,
+            0.64851,
+            -1.05007,
+            1
+          ]
+        },
+        {
+          "bone": "tongue02",
+          "worldMatrix": [
+            -0.55331,
+            0.03578,
+            0.33715,
+            0,
+            0.32054,
+            0.23794,
+            0.51082,
+            0,
+            -0.10332,
+            0.54224,
+            -0.24073,
+            0,
+            -0.11446,
+            0.6569,
+            -1.03967,
+            1
+          ]
+        },
+        {
+          "bone": "tongue03",
+          "worldMatrix": [
+            -0.54319,
+            0.12825,
+            0.32703,
+            0,
+            0.27814,
+            -0.17819,
+            0.55983,
+            0,
+            0.21715,
+            0.55111,
+            0.11048,
+            0,
+            -0.10911,
+            0.66087,
+            -1.03114,
+            1
+          ]
+        },
+        {
+          "bone": "tongue04",
+          "worldMatrix": [
+            -0.50943,
+            -0.14708,
+            0.36851,
+            0,
+            0.36158,
+            0.06444,
+            0.54336,
+            0,
+            -0.17122,
+            0.57108,
+            0.03898,
+            0,
+            -0.10712,
+            0.6596,
+            -1.02713,
+            1
+          ]
+        },
+        {
+          "bone": "tongue07L",
+          "worldMatrix": [
+            -0.15738,
+            -0.57055,
+            -0.0903,
+            0,
+            0.58153,
+            -0.10182,
+            -0.26452,
+            0,
+            0.23798,
+            -0.12661,
+            0.59534,
+            0,
+            -0.10712,
+            0.6596,
+            -1.02713,
+            1
+          ]
+        },
+        {
+          "bone": "tongue07R",
+          "worldMatrix": [
+            0.0572,
+            0.57803,
+            0.14172,
+            0,
+            -0.50597,
+            -0.037,
+            0.40583,
+            0,
+            0.40037,
+            -0.12822,
+            0.49778,
+            0,
+            -0.10712,
+            0.6596,
+            -1.02713,
+            1
+          ]
+        },
+        {
+          "bone": "tongue06L",
+          "worldMatrix": [
+            -0.08558,
+            -0.49865,
+            0.34091,
+            0,
+            0.48493,
+            -0.25584,
+            -0.33051,
+            0,
+            0.42083,
+            0.19448,
+            0.45509,
+            0,
+            -0.10911,
+            0.66087,
+            -1.03114,
+            1
+          ]
+        },
+        {
+          "bone": "tongue06R",
+          "worldMatrix": [
+            -0.2826,
+            0.52245,
+            -0.11656,
+            0,
+            -0.53933,
+            -0.18961,
+            0.2936,
+            0,
+            0.22098,
+            0.2074,
+            0.57686,
+            0,
+            -0.10911,
+            0.66087,
+            -1.03114,
+            1
+          ]
+        },
+        {
+          "bone": "tongue05L",
+          "worldMatrix": [
+            0.01102,
+            -0.48217,
+            0.3788,
+            0,
+            0.58472,
+            -0.14051,
+            -0.23412,
+            0,
+            0.27848,
+            0.31574,
+            0.48401,
+            0,
+            -0.11446,
+            0.6569,
+            -1.03967,
+            1
+          ]
+        },
+        {
+          "bone": "tongue05R",
+          "worldMatrix": [
+            -0.27248,
+            0.49908,
+            -0.21948,
+            0,
+            -0.48955,
+            -0.07105,
+            0.42048,
+            0,
+            0.32506,
+            0.31273,
+            0.45562,
+            0,
+            -0.11446,
+            0.6569,
+            -1.03967,
+            1
+          ]
+        },
+        {
+          "bone": "eyeL",
+          "worldMatrix": [
+            -0.54609,
+            0.11536,
+            0.32784,
+            0,
+            0.34835,
+            0.1868,
+            0.51784,
+            0,
+            -0.00295,
+            0.55111,
+            -0.23858,
+            0,
+            -0.09942,
+            0.68876,
+            -1.05076,
+            1
+          ]
+        },
+        {
+          "bone": "eyeR",
+          "worldMatrix": [
+            -0.55037,
+            -0.04446,
+            0.34027,
+            0,
+            0.30828,
+            0.18939,
+            0.54226,
+            0,
+            -0.14705,
+            0.56042,
+            -0.15077,
+            0,
+            -0.12767,
+            0.69059,
+            -1.03355,
+            1
+          ]
+        }
+      ],
+      "cueVisible": false,
+      "rootTransform": {
+        "position": [
+          -0.12,
+          0.9,
+          -1.05
+        ],
+        "quaternion": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "scale": [
+          0.81777,
+          0.82,
+          0.81777
+        ]
+      }
+    },
+    {
+      "actor": "patient_maya_johnson_v1",
+      "speaking": true,
+      "morphs": [
+        {
+          "mesh": "mpfb_peds_patient_child_body",
+          "name": "eye-left-opened-up",
+          "weight": 0.1242
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body",
+          "name": "eyebrows-left-inner-up",
+          "weight": 0.4984
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body",
+          "name": "mouth-parling",
+          "weight": 1
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_1",
+          "name": "eye-left-opened-up",
+          "weight": 0.1242
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_1",
+          "name": "eyebrows-left-inner-up",
+          "weight": 0.4984
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_1",
+          "name": "mouth-parling",
+          "weight": 1
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_2",
+          "name": "eye-left-opened-up",
+          "weight": 0.1242
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_2",
+          "name": "eyebrows-left-inner-up",
+          "weight": 0.4984
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_2",
+          "name": "mouth-parling",
+          "weight": 1
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_3",
+          "name": "eye-left-opened-up",
+          "weight": 0.1242
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_3",
+          "name": "eyebrows-left-inner-up",
+          "weight": 0.4984
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_3",
+          "name": "mouth-parling",
+          "weight": 1
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_4",
+          "name": "eye-left-opened-up",
+          "weight": 0.1242
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_4",
+          "name": "eyebrows-left-inner-up",
+          "weight": 0.4984
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_4",
+          "name": "mouth-parling",
+          "weight": 1
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_5",
+          "name": "eye-left-opened-up",
+          "weight": 0.1242
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_5",
+          "name": "eyebrows-left-inner-up",
+          "weight": 0.4984
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_5",
+          "name": "mouth-parling",
+          "weight": 1
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_6",
+          "name": "eye-left-opened-up",
+          "weight": 0.1242
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_6",
+          "name": "eyebrows-left-inner-up",
+          "weight": 0.4984
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_6",
+          "name": "mouth-parling",
+          "weight": 1
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_7",
+          "name": "eye-left-opened-up",
+          "weight": 0.1242
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_7",
+          "name": "eyebrows-left-inner-up",
+          "weight": 0.4984
+        },
+        {
+          "mesh": "mpfb_peds_patient_child_body_7",
+          "name": "mouth-parling",
+          "weight": 1
+        }
+      ],
+      "bones": [
+        {
+          "bone": "root",
+          "worldMatrix": [
+            0.64222,
+            0.00577,
+            -0.08152,
+            0,
+            0.07585,
+            0.21618,
+            0.61283,
+            0,
+            0.03354,
+            -0.57293,
+            0.22365,
+            0,
+            -0.14271,
+            0.399,
+            -1.10605,
+            1
+          ]
+        },
+        {
+          "bone": "neck01",
+          "worldMatrix": [
+            0.63073,
+            0.0102,
+            -0.14602,
+            0,
+            0.00144,
+            0.61073,
+            0.05458,
+            0,
+            0.14662,
+            -0.0438,
+            0.63869,
+            0,
+            -0.14259,
+            0.64676,
+            -1.08759,
+            1
+          ]
+        },
+        {
+          "bone": "neck02",
+          "worldMatrix": [
+            0.61315,
+            0.00353,
+            -0.20899,
+            0,
+            -0.02483,
+            0.6087,
+            -0.06064,
+            0,
+            0.20676,
+            0.06694,
+            0.62038,
+            0,
+            -0.14255,
+            0.66282,
+            -1.08615,
+            1
+          ]
+        },
+        {
+          "bone": "neck03",
+          "worldMatrix": [
+            0.59023,
+            -0.01394,
+            -0.2678,
+            0,
+            -0.06145,
+            0.58689,
+            -0.17073,
+            0,
+            0.25919,
+            0.17431,
+            0.57564,
+            0,
+            -0.14344,
+            0.68456,
+            -1.08832,
+            1
+          ]
+        },
+        {
+          "bone": "head",
+          "worldMatrix": [
+            0.56292,
+            -0.04148,
+            -0.31995,
+            0,
+            -0.10686,
+            0.5462,
+            -0.27102,
+            0,
+            0.30171,
+            0.27379,
+            0.50636,
+            0,
+            -0.14546,
+            0.70385,
+            -1.09393,
+            1
+          ]
+        },
+        {
+          "bone": "jaw",
+          "worldMatrix": [
+            0.56292,
+            -0.04148,
+            -0.31995,
+            0,
+            0.25314,
+            -0.31112,
+            0.50195,
+            0,
+            -0.19587,
+            -0.52583,
+            -0.27911,
+            0,
+            -0.14175,
+            0.71031,
+            -1.08815,
+            1
+          ]
+        },
+        {
+          "bone": "tongue00",
+          "worldMatrix": [
+            -0.56292,
+            0.04148,
+            0.31995,
+            0,
+            -0.27631,
+            0.24064,
+            -0.53377,
+            0,
+            -0.16156,
+            -0.56159,
+            -0.21199,
+            0,
+            -0.12384,
+            0.6883,
+            -1.05263,
+            1
+          ]
+        },
+        {
+          "bone": "tongue01",
+          "worldMatrix": [
+            -0.56292,
+            0.04148,
+            0.31995,
+            0,
+            0.27013,
+            0.38912,
+            0.43283,
+            0,
+            -0.17169,
+            0.47104,
+            -0.37751,
+            0,
+            -0.13503,
+            0.69804,
+            -1.07425,
+            1
+          ]
+        },
+        {
+          "bone": "tongue02",
+          "worldMatrix": [
+            -0.56292,
+            0.04148,
+            0.31995,
+            0,
+            0.30241,
+            0.27018,
+            0.50814,
+            0,
+            -0.10487,
+            0.54799,
+            -0.26768,
+            0,
+            -0.12867,
+            0.7072,
+            -1.06406,
+            1
+          ]
+        },
+        {
+          "bone": "tongue03",
+          "worldMatrix": [
+            -0.55395,
+            0.13657,
+            0.30594,
+            0,
+            0.26506,
+            -0.15754,
+            0.57469,
+            0,
+            0.20545,
+            0.5758,
+            0.0914,
+            0,
+            -0.12362,
+            0.71172,
+            -1.05558,
+            1
+          ]
+        },
+        {
+          "bone": "tongue04",
+          "worldMatrix": [
+            -0.51713,
+            -0.14512,
+            0.36072,
+            0,
+            0.34517,
+            0.09323,
+            0.54958,
+            0,
+            -0.18098,
+            0.58759,
+            0.00848,
+            0,
+            -0.12173,
+            0.71059,
+            -1.05146,
+            1
+          ]
+        },
+        {
+          "bone": "tongue07L",
+          "worldMatrix": [
+            -0.14597,
+            -0.59412,
+            -0.06873,
+            0,
+            0.5901,
+            -0.10629,
+            -0.24367,
+            0,
+            0.22314,
+            -0.1036,
+            0.60673,
+            0,
+            -0.12173,
+            0.71059,
+            -1.05146,
+            1
+          ]
+        },
+        {
+          "bone": "tongue07R",
+          "worldMatrix": [
+            0.04431,
+            0.60229,
+            0.117,
+            0,
+            -0.51641,
+            -0.03014,
+            0.39311,
+            0,
+            0.38818,
+            -0.10656,
+            0.51381,
+            0,
+            -0.12173,
+            0.71059,
+            -1.05146,
+            1
+          ]
+        },
+        {
+          "bone": "tongue06L",
+          "worldMatrix": [
+            -0.08737,
+            -0.50206,
+            0.36059,
+            0,
+            0.49778,
+            -0.26914,
+            -0.30526,
+            0,
+            0.40485,
+            0.22476,
+            0.45718,
+            0,
+            -0.12362,
+            0.71172,
+            -1.05558,
+            1
+          ]
+        },
+        {
+          "bone": "tongue06R",
+          "worldMatrix": [
+            -0.2872,
+            0.52966,
+            -0.14769,
+            0,
+            -0.54427,
+            -0.19235,
+            0.28701,
+            0,
+            0.20153,
+            0.23974,
+            0.57274,
+            0,
+            -0.12362,
+            0.71172,
+            -1.05558,
+            1
+          ]
+        },
+        {
+          "bone": "tongue05L",
+          "worldMatrix": [
+            0.00785,
+            -0.4821,
+            0.40032,
+            0,
+            0.59305,
+            -0.14494,
+            -0.21148,
+            0,
+            0.25992,
+            0.34869,
+            0.4767,
+            0,
+            -0.12867,
+            0.7072,
+            -1.06406,
+            1
+          ]
+        },
+        {
+          "bone": "tongue05R",
+          "worldMatrix": [
+            -0.27385,
+            0.5017,
+            -0.24914,
+            0,
+            -0.49989,
+            -0.06441,
+            0.40972,
+            0,
+            0.30731,
+            0.3452,
+            0.44976,
+            0,
+            -0.12867,
+            0.7072,
+            -1.06406,
+            1
+          ]
+        },
+        {
+          "bone": "eyeL",
+          "worldMatrix": [
+            -0.55667,
+            0.12327,
+            0.30726,
+            0,
+            0.33079,
+            0.21817,
+            0.51821,
+            0,
+            -0.00476,
+            0.55877,
+            -0.26319,
+            0,
+            -0.11382,
+            0.73985,
+            -1.07616,
+            1
+          ]
+        },
+        {
+          "bone": "eyeR",
+          "worldMatrix": [
+            -0.55884,
+            -0.04107,
+            0.32677,
+            0,
+            0.29002,
+            0.22118,
+            0.54138,
+            0,
+            -0.15136,
+            0.56957,
+            -0.17986,
+            0,
+            -0.14256,
+            0.74196,
+            -1.05983,
+            1
+          ]
+        }
+      ],
+      "cueVisible": true,
+      "rootTransform": {
+        "position": [
+          -0.12,
+          0.9,
+          -1.05
+        ],
+        "quaternion": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "scale": [
+          0.81993,
+          0.82,
+          0.81993
+        ]
+      }
+    },
+    {
+      "actor": "parent_tara_johnson_v1",
+      "speaking": false,
+      "morphs": [
+        {
+          "mesh": "mpfb_ob_patient_aisha_body_1",
+          "name": "eyebrows-left-inner-up",
+          "weight": 0.0812
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body_1",
+          "name": "mouth-compression",
+          "weight": 1
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body_2",
+          "name": "eyebrows-left-inner-up",
+          "weight": 0.0812
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body_2",
+          "name": "mouth-compression",
+          "weight": 1
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body_3",
+          "name": "eyebrows-left-inner-up",
+          "weight": 0.0812
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body_3",
+          "name": "mouth-compression",
+          "weight": 1
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body_4",
+          "name": "eyebrows-left-inner-up",
+          "weight": 0.0812
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body_4",
+          "name": "mouth-compression",
+          "weight": 1
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body_5",
+          "name": "eyebrows-left-inner-up",
+          "weight": 0.0812
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body_5",
+          "name": "mouth-compression",
+          "weight": 1
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body_6",
+          "name": "eyebrows-left-inner-up",
+          "weight": 0.0812
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body_6",
+          "name": "mouth-compression",
+          "weight": 1
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body_7",
+          "name": "eyebrows-left-inner-up",
+          "weight": 0.0812
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body_7",
+          "name": "mouth-compression",
+          "weight": 1
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body_8",
+          "name": "eyebrows-left-inner-up",
+          "weight": 0.0812
+        },
+        {
+          "mesh": "mpfb_ob_patient_aisha_body_8",
+          "name": "mouth-compression",
+          "weight": 1
+        }
+      ],
+      "bones": [
+        {
+          "bone": "root",
+          "worldMatrix": [
+            1.00341,
+            -0.07923,
+            0.05457,
+            0,
+            -0.0572,
+            -0.03173,
+            1.00588,
+            0,
+            -0.0772,
+            -1.00606,
+            -0.03602,
+            0,
+            -1.40442,
+            0.99774,
+            0.75259,
+            1
+          ]
+        },
+        {
+          "bone": "neck01",
+          "worldMatrix": [
+            0.98615,
+            -0.20907,
+            -0.00241,
+            0,
+            0.19589,
+            0.93103,
+            -0.33727,
+            0,
+            0.07205,
+            0.33004,
+            0.9499,
+            0,
+            -1.32673,
+            1.50773,
+            0.66935,
+            1
+          ]
+        },
+        {
+          "bone": "neck02",
+          "worldMatrix": [
+            0.9643,
+            -0.26332,
+            -0.13075,
+            0,
+            0.18951,
+            0.90167,
+            -0.4121,
+            0,
+            0.22423,
+            0.37026,
+            0.91057,
+            0,
+            -1.31979,
+            1.54073,
+            0.6574,
+            1
+          ]
+        },
+        {
+          "bone": "neck03",
+          "worldMatrix": [
+            0.92156,
+            -0.3223,
+            -0.25153,
+            0,
+            0.17098,
+            0.8692,
+            -0.48355,
+            0,
+            0.37089,
+            0.40008,
+            0.84792,
+            0,
+            -1.31122,
+            1.58148,
+            0.63877,
+            1
+          ]
+        },
+        {
+          "bone": "head",
+          "worldMatrix": [
+            0.85905,
+            -0.38449,
+            -0.36162,
+            0,
+            0.1408,
+            0.83445,
+            -0.54977,
+            0,
+            0.50821,
+            0.4187,
+            0.76358,
+            0,
+            -1.30401,
+            1.61816,
+            0.61836,
+            1
+          ]
+        },
+        {
+          "bone": "jaw",
+          "worldMatrix": [
+            0.85905,
+            -0.38449,
+            -0.36162,
+            0,
+            0.13566,
+            -0.50796,
+            0.86052,
+            0,
+            -0.50961,
+            -0.78332,
+            -0.38052,
+            0,
+            -1.29671,
+            1.62825,
+            0.625,
+            1
+          ]
+        },
+        {
+          "bone": "tongue00",
+          "worldMatrix": [
+            -0.85905,
+            0.38449,
+            0.36162,
+            0,
+            -0.20589,
+            0.39291,
+            -0.90544,
+            0,
+            -0.48551,
+            -0.84691,
+            -0.25589,
+            0,
+            -1.28414,
+            1.58117,
+            0.70475,
+            1
+          ]
+        },
+        {
+          "bone": "tongue01",
+          "worldMatrix": [
+            -0.85905,
+            0.38449,
+            0.36163,
+            0,
+            0.51787,
+            0.48426,
+            0.71705,
+            0,
+            0.0996,
+            0.7982,
+            -0.60921,
+            0,
+            -1.29607,
+            1.60394,
+            0.65227,
+            1
+          ]
+        },
+        {
+          "bone": "tongue02",
+          "worldMatrix": [
+            -0.85905,
+            0.38449,
+            0.36162,
+            0,
+            0.49956,
+            0.37145,
+            0.7931,
+            0,
+            0.16897,
+            0.85654,
+            -0.50625,
+            0,
+            -1.281,
+            1.61804,
+            0.67314,
+            1
+          ]
+        },
+        {
+          "bone": "tongue03",
+          "worldMatrix": [
+            -0.79923,
+            0.5239,
+            0.32212,
+            0,
+            0.24966,
+            -0.20673,
+            0.95454,
+            0,
+            0.56123,
+            0.83801,
+            0.0341,
+            0,
+            -1.27089,
+            1.62556,
+            0.6892,
+            1
+          ]
+        },
+        {
+          "bone": "tongue04",
+          "worldMatrix": [
+            -0.89235,
+            0.06733,
+            0.46396,
+            0,
+            0.4678,
+            0.06246,
+            0.8907,
+            0,
+            0.03069,
+            1.0055,
+            -0.08639,
+            0,
+            -1.26843,
+            1.62352,
+            0.6986,
+            1
+          ]
+        },
+        {
+          "bone": "tongue07L",
+          "worldMatrix": [
+            -0.50404,
+            -0.87427,
+            -0.01419,
+            0,
+            0.85125,
+            -0.48865,
+            -0.2312,
+            0,
+            0.19334,
+            -0.1278,
+            0.98102,
+            0,
+            -1.26843,
+            1.62352,
+            0.6986,
+            1
+          ]
+        },
+        {
+          "bone": "tongue07R",
+          "worldMatrix": [
+            0.33363,
+            0.95009,
+            0.07136,
+            0,
+            -0.84072,
+            0.25913,
+            0.49228,
+            0,
+            0.44491,
+            -0.22282,
+            0.87672,
+            0,
+            -1.26843,
+            1.62352,
+            0.6986,
+            1
+          ]
+        },
+        {
+          "bone": "tongue06L",
+          "worldMatrix": [
+            -0.42487,
+            -0.70037,
+            0.58878,
+            0,
+            0.70219,
+            -0.66646,
+            -0.28342,
+            0,
+            0.58523,
+            0.29118,
+            0.76752,
+            0,
+            -1.27089,
+            1.62556,
+            0.6892,
+            1
+          ]
+        },
+        {
+          "bone": "tongue06R",
+          "worldMatrix": [
+            -0.0985,
+            0.93462,
+            -0.36846,
+            0,
+            -0.92294,
+            0.06091,
+            0.40069,
+            0,
+            0.39313,
+            0.37715,
+            0.84838,
+            0,
+            -1.27089,
+            1.62556,
+            0.6892,
+            1
+          ]
+        },
+        {
+          "bone": "tongue05L",
+          "worldMatrix": [
+            -0.27955,
+            -0.70082,
+            0.66963,
+            0,
+            0.86085,
+            -0.49966,
+            -0.16181,
+            0,
+            0.44369,
+            0.52788,
+            0.73586,
+            0,
+            -1.281,
+            1.61804,
+            0.67314,
+            1
+          ]
+        },
+        {
+          "bone": "tongue05R",
+          "worldMatrix": [
+            -0.08188,
+            0.86259,
+            -0.51748,
+            0,
+            -0.81231,
+            0.2492,
+            0.54253,
+            0,
+            0.5912,
+            0.46185,
+            0.67376,
+            0,
+            -1.281,
+            1.61804,
+            0.67314,
+            1
+          ]
+        },
+        {
+          "bone": "eyeL",
+          "worldMatrix": [
+            -0.83745,
+            0.39007,
+            0.40387,
+            0,
+            0.52633,
+            0.29458,
+            0.8078,
+            0,
+            0.19424,
+            0.88347,
+            -0.44767,
+            0,
+            -1.23419,
+            1.66921,
+            0.64888,
+            1
+          ]
+        },
+        {
+          "bone": "eyeR",
+          "worldMatrix": [
+            -0.87872,
+            0.37804,
+            0.31857,
+            0,
+            0.44663,
+            0.33025,
+            0.84136,
+            0,
+            0.2108,
+            0.87605,
+            -0.45464,
+            0,
+            -1.28387,
+            1.69144,
+            0.66979,
+            1
+          ]
+        }
+      ],
+      "cueVisible": false,
+      "rootTransform": {
+        "position": [
+          -1.35,
+          0.95,
+          0.42
+        ],
+        "quaternion": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "scale": [
+          0.92773,
+          0.96,
+          0.92773
+        ]
+      }
+    }
+  ],
+  "skeletons": {
+    "patient_maya_johnson_v1": [
+      "root",
+      "pelvisL",
+      "upperleg01L",
+      "upperleg02L",
+      "lowerleg01L",
+      "lowerleg02L",
+      "footL",
+      "toe1-1L",
+      "pelvisR",
+      "upperleg01R",
+      "upperleg02R",
+      "lowerleg01R",
+      "lowerleg02R",
+      "footR",
+      "toe1-1R",
+      "spine05",
+      "spine04",
+      "spine03",
+      "spine02",
+      "breastL",
+      "breastR",
+      "spine01",
+      "clavicleL",
+      "shoulder01L",
+      "upperarm01L",
+      "upperarm02L",
+      "lowerarm01L",
+      "lowerarm02L",
+      "wristL",
+      "finger1-1L",
+      "finger1-2L",
+      "finger1-3L",
+      "metacarpal1L",
+      "finger2-1L",
+      "finger2-2L",
+      "finger2-3L",
+      "metacarpal2L",
+      "finger3-1L",
+      "finger3-2L",
+      "finger3-3L",
+      "metacarpal3L",
+      "finger4-1L",
+      "finger4-2L",
+      "finger4-3L",
+      "metacarpal4L",
+      "finger5-1L",
+      "finger5-2L",
+      "finger5-3L",
+      "clavicleR",
+      "shoulder01R",
+      "upperarm01R",
+      "upperarm02R",
+      "lowerarm01R",
+      "lowerarm02R",
+      "wristR",
+      "finger1-1R",
+      "finger1-2R",
+      "finger1-3R",
+      "metacarpal1R",
+      "finger2-1R",
+      "finger2-2R",
+      "finger2-3R",
+      "metacarpal2R",
+      "finger3-1R",
+      "finger3-2R",
+      "finger3-3R",
+      "metacarpal3R",
+      "finger4-1R",
+      "finger4-2R",
+      "finger4-3R",
+      "metacarpal4R",
+      "finger5-1R",
+      "finger5-2R",
+      "finger5-3R",
+      "neck01",
+      "neck02",
+      "neck03",
+      "head",
+      "jaw",
+      "special04",
+      "oris02",
+      "oris01",
+      "oris06L",
+      "oris07L",
+      "oris06R",
+      "oris07R",
+      "tongue00",
+      "tongue01",
+      "tongue02",
+      "tongue03",
+      "tongue04",
+      "tongue07L",
+      "tongue07R",
+      "tongue06L",
+      "tongue06R",
+      "tongue05L",
+      "tongue05R",
+      "levator02L",
+      "levator03L",
+      "levator04L",
+      "levator05L",
+      "levator02R",
+      "levator03R",
+      "levator04R",
+      "levator05R",
+      "special01",
+      "oris04L",
+      "oris03L",
+      "oris04R",
+      "oris03R",
+      "oris06",
+      "oris05",
+      "special03",
+      "levator06L",
+      "levator06R",
+      "special06L",
+      "special05L",
+      "eyeL",
+      "orbicularis03L",
+      "orbicularis04L",
+      "special06R",
+      "special05R",
+      "eyeR",
+      "orbicularis03R",
+      "orbicularis04R",
+      "temporalis01L",
+      "oculi02L",
+      "oculi01L",
+      "temporalis01R",
+      "oculi02R",
+      "oculi01R",
+      "temporalis02L",
+      "risorius02L",
+      "risorius03L",
+      "temporalis02R",
+      "risorius02R",
+      "risorius03R"
+    ],
+    "parent_tara_johnson_v1": [
+      "root",
+      "pelvisL",
+      "upperleg01L",
+      "upperleg02L",
+      "lowerleg01L",
+      "lowerleg02L",
+      "footL",
+      "toe1-1L",
+      "pelvisR",
+      "upperleg01R",
+      "upperleg02R",
+      "lowerleg01R",
+      "lowerleg02R",
+      "footR",
+      "toe1-1R",
+      "spine05",
+      "spine04",
+      "spine03",
+      "spine02",
+      "breastL",
+      "breastR",
+      "spine01",
+      "clavicleL",
+      "shoulder01L",
+      "upperarm01L",
+      "upperarm02L",
+      "lowerarm01L",
+      "lowerarm02L",
+      "wristL",
+      "finger1-1L",
+      "finger1-2L",
+      "finger1-3L",
+      "metacarpal1L",
+      "finger2-1L",
+      "finger2-2L",
+      "finger2-3L",
+      "metacarpal2L",
+      "finger3-1L",
+      "finger3-2L",
+      "finger3-3L",
+      "metacarpal3L",
+      "finger4-1L",
+      "finger4-2L",
+      "finger4-3L",
+      "metacarpal4L",
+      "finger5-1L",
+      "finger5-2L",
+      "finger5-3L",
+      "clavicleR",
+      "shoulder01R",
+      "upperarm01R",
+      "upperarm02R",
+      "lowerarm01R",
+      "lowerarm02R",
+      "wristR",
+      "finger1-1R",
+      "finger1-2R",
+      "finger1-3R",
+      "metacarpal1R",
+      "finger2-1R",
+      "finger2-2R",
+      "finger2-3R",
+      "metacarpal2R",
+      "finger3-1R",
+      "finger3-2R",
+      "finger3-3R",
+      "metacarpal3R",
+      "finger4-1R",
+      "finger4-2R",
+      "finger4-3R",
+      "metacarpal4R",
+      "finger5-1R",
+      "finger5-2R",
+      "finger5-3R",
+      "neck01",
+      "neck02",
+      "neck03",
+      "head",
+      "jaw",
+      "special04",
+      "oris02",
+      "oris01",
+      "oris06L",
+      "oris07L",
+      "oris06R",
+      "oris07R",
+      "tongue00",
+      "tongue01",
+      "tongue02",
+      "tongue03",
+      "tongue04",
+      "tongue07L",
+      "tongue07R",
+      "tongue06L",
+      "tongue06R",
+      "tongue05L",
+      "tongue05R",
+      "levator02L",
+      "levator03L",
+      "levator04L",
+      "levator05L",
+      "levator02R",
+      "levator03R",
+      "levator04R",
+      "levator05R",
+      "special01",
+      "oris04L",
+      "oris03L",
+      "oris04R",
+      "oris03R",
+      "oris06",
+      "oris05",
+      "special03",
+      "levator06L",
+      "levator06R",
+      "special06L",
+      "special05L",
+      "eyeL",
+      "orbicularis03L",
+      "orbicularis04L",
+      "special06R",
+      "special05R",
+      "eyeR",
+      "orbicularis03R",
+      "orbicularis04R",
+      "temporalis01L",
+      "oculi02L",
+      "oculi01L",
+      "temporalis01R",
+      "oculi02R",
+      "oculi01R",
+      "temporalis02L",
+      "risorius02L",
+      "risorius03L",
+      "temporalis02R",
+      "risorius02R",
+      "risorius03R"
+    ]
+  },
+  "samplingNotes": {
+    "parentSpeakingSample": {
+      "traceButtonsTried": [
+        "Parent Communication",
+        "Trigger History",
+        "Urgent Escalation"
+      ],
+      "speechEvidenceActorId": "parent_tara_johnson_v1",
+      "playback": {
+        "latestActorId": "parent_tara_johnson_v1",
+        "latestCue": "parent_communication",
+        "latestSequenceSource": "bundle_dialogue_sequence"
+      }
+    },
+    "childSpeakingSample": {
+      "traceButtonsTried": [
+        "Work of Breathing",
+        "Inhaler History",
+        "Empathy Statement"
+      ],
+      "speechEvidenceActorId": "patient_maya_johnson_v1",
+      "playback": {
+        "latestActorId": "patient_maya_johnson_v1",
+        "latestCue": "work_of_breathing_assessment",
+        "latestSequenceSource": "single_runtime_turn"
+      }
+    }
+  },
+  "verificationNotes": {
+    "liveSceneGraph": "influences read from mesh.morphTargetInfluences[dict[name]]; bones read from skeleton bone matrixWorld after scene.updateMatrixWorld(true); both via __openClinXrDebugScene at one instant per row",
+    "speakingFlagSource": "phoneme-mouth-cue visibility on the actor root at the sampling instant",
+    "notEvidenceForCause": "this artifact separates morph from bone; it does not name the mechanism"
+  }
+}
