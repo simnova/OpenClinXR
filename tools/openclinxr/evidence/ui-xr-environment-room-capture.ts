@@ -765,13 +765,11 @@ async function reframeCameraForRoom(page: Page, environmentId: string): Promise<
       }
       return best;
     };
-    // Look-ray occlusion test (issue-black-frame): reject a candidate whose eye→look ray
-    // crosses a room wall/floor/ceiling (or the exterior hull) before the look point. The
-    // peds left corner sat in a pocket behind kitchen_00wall, so its first surface was the
-    // partition at 0.94 m while ED's ray passes a doorway portal at 2.2 m — the distance
-    // score alone preferred the pocket and photographed a wall close-up. Only room-root
-    // meshes are tested, so props and actors can never trigger the reject. Plain
-    // Möller–Trumbore: the page has no THREE global to hand a Raycaster.
+    // Look-ray occlusion test (issue-black-frame + door-leaf): reject a candidate whose
+    // eye→look ray crosses a room wall/floor/ceiling/exterior OR a door-leaf AABB before
+    // the look point. Wall tris stay room-root only (props/actors never reject). Door
+    // leaves live as fixture-slot siblings of the room, so they are collected from the
+    // scene by node name (door_leaf | fixture-slot.door), never by coordinates.
     const worldOfLocal = function (e, x, y, z) {
       return [
         e[0] * x + e[4] * y + e[8] * z + e[12],
@@ -802,11 +800,44 @@ async function reframeCameraForRoom(page: Page, environmentId: string): Promise<
         ]);
       }
     });
+    const doorBoxes = [];
+    scene.traverse(function (o) {
+      if (!(o.isMesh || o.isSkinnedMesh)) return;
+      if (o.visible === false) return;
+      if (!/door_leaf|fixture-slot\.door/i.test(o.name || "")) return;
+      const box = worldBoxOf(o);
+      if (box) doorBoxes.push(box);
+    });
+    const lookRayHitsDoorAabb = function (ox, oy, oz, dx, dy, dz) {
+      let tmin = 0, tmax = 1;
+      for (let i = 0; i < doorBoxes.length; i++) {
+        const b = doorBoxes[i];
+        tmin = 0; tmax = 1;
+        let miss = false;
+        for (let c = 0; c < 3 && !miss; c++) {
+          const o = c === 0 ? ox : c === 1 ? oy : oz;
+          const d = c === 0 ? dx : c === 1 ? dy : dz;
+          const mn = b.min[c], mx = b.max[c];
+          if (d > -1e-12 && d < 1e-12) {
+            if (o < mn || o > mx) miss = true;
+            continue;
+          }
+          let t1 = (mn - o) / d, t2 = (mx - o) / d;
+          if (t1 > t2) { const tmp = t1; t1 = t2; t2 = tmp; }
+          if (t1 > tmin) tmin = t1;
+          if (t2 < tmax) tmax = t2;
+          if (tmax < tmin) miss = true;
+        }
+        if (!miss && tmax > 1e-6 && tmin < 1) return true;
+      }
+      return false;
+    };
     const lookRayHitsWall = function (x, z) {
       const ox = x, oy = actors.max[1], oz = z;
       let dx = look[0] - ox, dy = look[1] - oy, dz = look[2] - oz;
       const len = Math.sqrt(dx * dx + dy * dy + dz * dz);
       if (len < 1e-6) return false;
+      if (lookRayHitsDoorAabb(ox, oy, oz, dx, dy, dz)) return true;
       dx /= len; dy /= len; dz /= len;
       for (let i = 0; i < surfaceTris.length; i++) {
         const a = surfaceTris[i][0], b = surfaceTris[i][1], c = surfaceTris[i][2];

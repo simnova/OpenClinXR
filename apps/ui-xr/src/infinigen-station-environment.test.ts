@@ -408,6 +408,109 @@ describe("product default preview camera inside a closed generated room (#342b)"
 });
 
 /**
+ * Door-leaf look-ray reject. The magenta fixture
+ * `openclinxr.station-environment.fixture-slot.door_leaf.leaf` is a sibling of the
+ * Infinigen room, so `/wall|floor|ceiling|exterior/i` never saw it. OB calibration
+ * (not production numbers): +X eye look-ray crossed the leaf; left-corner
+ * (-2.80, 1.54, 1.62) cleared it.
+ */
+describe("doorway look-ray rejects a door leaf AABB", () => {
+  const shippedRoom = (): Group => {
+    const room = new Group();
+    room.name = "openclinxr.station-environment.infinigen-room";
+    const wall = new Mesh(new BoxGeometry(6.3755, 2.4011, 6.3755), new MeshStandardMaterial());
+    wall.name = "dining-room_00wall";
+    wall.position.set((-3.25 + 3.1255) / 2, 2.4011 / 2, (-4.025 + 2.3505) / 2);
+    const floorPlane = new Mesh(new BoxGeometry(6.3755, 0.0, 6.251), new MeshStandardMaterial());
+    floorPlane.name = "dining-room_00floor";
+    floorPlane.position.set((-3.25 + 3.1255) / 2, 0, (-3.9005 + 2.3505) / 2);
+    const hull = new Mesh(new BoxGeometry(6.5, 2.65, 6.5), new MeshStandardMaterial());
+    hull.name = "dining-room_00exterior";
+    hull.position.set(0, (-0.1245 + 2.5255) / 2, (-4.025 + 2.475) / 2);
+    room.add(wall, floorPlane, hull);
+    room.updateMatrixWorld(true);
+    return room;
+  };
+
+  type BoxT = { readonly min: readonly [number, number, number]; readonly max: readonly [number, number, number] };
+  /** Actors clustered on −X so the +X doorway candidate wins on distance alone. */
+  const leftClusteredCast = (): BoxT[] => [
+    { min: [-2.2, 0.2, -0.4], max: [-1.1, 1.55, 0.3] },
+    { min: [-1.8, 0.0, -0.1], max: [-0.7, 1.6, 0.5] },
+  ];
+
+  const stationWithDoor = (door: Mesh): { station: Group; room: Group } => {
+    const station = new Group();
+    station.name = "openclinxr.station-environment";
+    const room = shippedRoom();
+    station.add(room, door);
+    station.updateMatrixWorld(true);
+    return { station, room };
+  };
+
+  const derive = async () => {
+    const mod = await load();
+    const fn = mod["deriveInteriorPreviewCamera"] as
+      | ((input: { roomRoot: Group; actorWorldBoxes: readonly BoxT[] }) => {
+          eye: Vector3;
+          lookAt: Vector3;
+        } | null)
+      | undefined;
+    if (fn === undefined) throw new Error("deriveInteriorPreviewCamera is not exported");
+    return fn;
+  };
+
+  it("matches fixture node names, not coordinates", async () => {
+    const mod = await load();
+    const match = mod["isDoorLeafOccluderName"] as ((name: string) => boolean) | undefined;
+    expect(match).toBeTypeOf("function");
+    expect(match!("openclinxr.station-environment.fixture-slot.door_leaf.leaf")).toBe(true);
+    expect(match!("openclinxr.station-environment.fixture-slot.door")).toBe(true);
+    expect(match!("dining-room_00wall")).toBe(false);
+    expect(match!("kitchen_00wall")).toBe(false);
+  });
+
+  it("rejects the +X candidate whose look ray hits a door leaf, and keeps a clearing eye", async () => {
+    const fn = await derive();
+    const leaf = new Mesh(new BoxGeometry(0.12, 1.9, 1.4), new MeshStandardMaterial());
+    leaf.name = "openclinxr.station-environment.fixture-slot.door_leaf.leaf";
+    // On the +X side of the look point, between the +X eye and the left-clustered cast.
+    leaf.position.set(1.6, 1.0, 1.05);
+    const { room } = stationWithDoor(leaf);
+
+    const blocked = fn({ roomRoot: shippedRoom(), actorWorldBoxes: leftClusteredCast() });
+    expect(blocked).not.toBeNull();
+    if (blocked === null) return;
+    // Distance-only (no sibling door) prefers +X — that is the pre-fix scorer.
+    expect(blocked.eye.x).toBeGreaterThan(1.5);
+
+    const cleared = fn({ roomRoot: room, actorWorldBoxes: leftClusteredCast() });
+    expect(cleared).not.toBeNull();
+    if (cleared === null) return;
+    // +X is refused; the surviving pool still picks by nearest-actor distance.
+    expect(cleared.eye.x).toBeLessThan(blocked.eye.x - 0.5);
+    expect(cleared.eye.x).not.toBeCloseTo(blocked.eye.x, 1);
+  });
+
+  it("keeps the distance winner when the leaf is off the look ray", async () => {
+    const fn = await derive();
+    const leaf = new Mesh(new BoxGeometry(0.12, 1.9, 0.4), new MeshStandardMaterial());
+    leaf.name = "openclinxr.station-environment.fixture-slot.door_leaf.leaf";
+    // Parked on +X past the look point's lateral band so the −X winner's ray never hits it.
+    leaf.position.set(2.7, 1.0, -1.8);
+    const { room } = stationWithDoor(leaf);
+
+    const baseline = fn({ roomRoot: shippedRoom(), actorWorldBoxes: leftClusteredCast() });
+    const withDoor = fn({ roomRoot: room, actorWorldBoxes: leftClusteredCast() });
+    expect(baseline).not.toBeNull();
+    expect(withDoor).not.toBeNull();
+    if (baseline === null || withDoor === null) return;
+    expect(withDoor.eye.x).toBeCloseTo(baseline.eye.x, 3);
+    expect(withDoor.eye.z).toBeCloseTo(baseline.eye.z, 3);
+  });
+});
+
+/**
  * ## FIXED (#342b)
  *
  * `deriveInteriorPreviewCamera` + `collectActorWorldBoxes` in

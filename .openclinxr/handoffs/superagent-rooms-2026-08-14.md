@@ -5,8 +5,8 @@
 `ob_triage_room_v1` → `infinigen-ob-triage.glb` sha `f2e11bab…`
 (seed 27 `dining-room_0` yaw 180). First still REJECTED (door leaf);
 recapture ACCEPT interior. Next: `inpatient_ward_room_v1` (new seed 28+)
-AND door-leaf reject in the doorway scorer. No humanoids. Prior eleven
-room bytes frozen.
+Door-leaf scorer landed (this commit): production capture of OB now
+picks the interior eye. No humanoids. Prior twelve room bytes frozen.
 
 ## READ THIS FIRST — one of the two existing rooms renders BLACK
 
