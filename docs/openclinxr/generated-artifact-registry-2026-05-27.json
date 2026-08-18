@@ -15316,6 +15316,13 @@
       "rationale": "Generated Infinigen room shell, sixth environmentId-keyed consumer (telehealth_home_visit_v1). New clinical_bay.gin seed-14 bedroom_0 segment 2, yaw 180; extract-time predicate PASSES (aspect 1.518, area 59.44 m2, height 2.407 m, hullFrontFacing 0, doorway survivors 5). SHA-256 476a8e402b2dc8c4f2023536f225325a16006828cd4e865880311923a811aa01. First room from a newly generated seed after on-disk blends were exhausted of unused hulled rooms. Hand-added row — do not run pnpm docs:artifacts. Provenance in public/xr-assets/environment/PROVENANCE.md."
     },
     {
+      "path": "apps/ui-xr/public/xr-assets/environment/infinigen-behavioral-health-private.glb",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated Infinigen room shell, seventh environmentId-keyed consumer (behavioral_health_private_room_v1). New clinical_bay.gin seed-16 dining-room_0 segment 0, yaw 90; extract-time predicate PASSES (aspect 1.18, area 28.12 m2, height 2.412 m, hullFrontFacing 0, doorway survivors 5). SHA-256 5cf3695848ee6a53abdaf9b6aa4439590569a87c1f1dd424d9a685eab0cf7afa. Seed 15 crashed on Concrete.generate(vertical). Hand-added row — do not run pnpm docs:artifacts. Provenance in public/xr-assets/environment/PROVENANCE.md."
+    },
+    {
       "path": "apps/ui-xr/public/xr-assets/generated/adult_abdominal_pain_v1/learner-runtime-bundle.v1.json",
       "authority": "keep-current",
       "tracked": true,
