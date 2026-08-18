@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "openclinxr.lip-sync-call-citation.v1",
+  "measuredAt": "2026-08-18T22:10:00.000Z",
+  "loadTargets": {
+    "symbol": "load_targets",
+    "file": ".openclinxr-local/provider-cache/mpfb/extracted/services/faceservice.py",
+    "line": 154,
+    "requiredFlags": {
+      "load_microsoft_visemes": false,
+      "load_meta_visemes": true,
+      "load_arkit_faceunits": false
+    },
+    "declaredDefaults": {
+      "load_microsoft_visemes": true,
+      "load_meta_visemes": false,
+      "load_arkit_faceunits": false
+    },
+    "resolutionNote": "The cited source is a gitignored machine-local provider cache (~77 MB extracted tree), now provisioned into worker worktrees via this brief's asset_paths. Line 154 verified: def load_targets(basemesh, load_microsoft_visemes=True, load_meta_visemes=False, load_arkit_faceunits=False). Byte-identical copy also at addons/mpfb/services/faceservice.py."
+  },
+  "configureLipSync": {
+    "symbol": "configure_lip_sync",
+    "file": ".openclinxr-local/provider-cache/mpfb/extracted/services/faceservice.py",
+    "line": 304
+  },
+  "listSizes": {
+    "MICROSOFT_VISEMES": 22,
+    "META_VISEMES": 15,
+    "ARKIT_FACEUNITS": 52
+  },
+  "stagedPack": "makehuman-visemes02 (matches META_VISEMES 15/15, name for name; the only pack under provider-cache/visemes)"
+}
