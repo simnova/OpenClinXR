@@ -1,0 +1,24 @@
+{
+  "maxVertRef": 13351,
+  "helperStripVertex": 13380,
+  "fitsStrippedBasemesh": true,
+  "knownGoodToigoMaxVertRef": 11017,
+  "rowsParsed": {
+    "crudegown": 768,
+    "toigo": 1391
+  },
+  "sourcePaths": {
+    "crudegown": ".openclinxr-local/provider-cache/garments/sources/makehuman-community-crude-gown/crudegown.mhclo",
+    "toigo": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/toigo_basic_tucked_t-shirt/toigo_basic_tucked_t-shirt.mhclo"
+  },
+  "measuredAt": "2026-08-18T15:15:39.994Z",
+  "claimScope": "index-range preflight only — not evidence of fit, coverage, or drape",
+  "notEvidenceFor": [
+    "fit quality",
+    "poke-through",
+    "coverage",
+    "drape",
+    "texture completeness",
+    "resolver mapping"
+  ]
+}
