@@ -908,7 +908,7 @@ async function main(): Promise<void> {
       await browser.close();
     }
   } finally {
-    stopPortlessDevServer(server);
+    await stopPortlessDevServer(server);
   }
 
   // Repro mode already returned

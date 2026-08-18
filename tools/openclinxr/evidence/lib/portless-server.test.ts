@@ -7,7 +7,13 @@
  */
 import { createServer, type AddressInfo } from "node:net";
 import { describe, expect, it } from "vitest";
-import { findFreePort, parseViteLocalPort, stripAnsi } from "./portless-server.js";
+import {
+  findFreePort,
+  parseDevServerProcRows,
+  parseViteLocalPort,
+  selectOrphanedDevServerPids,
+  stripAnsi,
+} from "./portless-server.js";
 
 describe("parseViteLocalPort (ANSI-safe Local: line)", () => {
   it("parses a plain Vite Local line", () => {
@@ -104,5 +110,51 @@ describe("findFreePort (collision-safe for parallel worktrees)", () => {
     } finally {
       await Promise.all(held.map((h) => h.release()));
     }
+  });
+});
+
+describe("selectOrphanedDevServerPids (#397 orphan sweep selector)", () => {
+  it("selects dev:portless wrappers whose parent is init (ppid=1)", () => {
+    const rows = [
+      { pid: 21940, ppid: 1, command: "pnpm --filter @openclinxr/ui-xr dev:portless" },
+      { pid: 23448, ppid: 1, command: "pnpm --filter @openclinxr/ui-xr dev:portless" },
+    ];
+    expect(selectOrphanedDevServerPids(rows)).toEqual([21940, 23448]);
+  });
+
+  it("spares a wrapper with a live parent", () => {
+    const rows = [
+      { pid: 30001, ppid: 29999, command: "pnpm --filter @openclinxr/ui-xr dev:portless" },
+    ];
+    expect(selectOrphanedDevServerPids(rows)).toEqual([]);
+  });
+
+  it("never targets the Vite child, even when its wrapper is an orphan", () => {
+    const rows = [
+      { pid: 21940, ppid: 1, command: "pnpm --filter @openclinxr/ui-xr dev:portless" },
+      { pid: 22149, ppid: 21940, command: "node .../vite/bin/vite.js --host 127.0.0.1 --port 50899" },
+    ];
+    expect(selectOrphanedDevServerPids(rows)).toEqual([21940]);
+  });
+
+  it("recognises a port-prefixed wrapper command (PORT=… pnpm … dev:portless)", () => {
+    const rows = [
+      { pid: 5183, ppid: 1, command: "PORT=5183 pnpm --filter @openclinxr/ui-xr-iwsdk-spike dev:portless" },
+    ];
+    expect(selectOrphanedDevServerPids(rows)).toEqual([5183]);
+  });
+});
+
+describe("parseDevServerProcRows (ps -eo pid=,ppid=,command=)", () => {
+  it("parses pid, ppid and the full command, skipping blanks", () => {
+    const out = "  75662  1 pnpm --filter @openclinxr/ui-xr dev:portless\n  22149 21940 node .../vite.js --port 50899\n";
+    expect(parseDevServerProcRows(out)).toEqual([
+      { pid: 75662, ppid: 1, command: "pnpm --filter @openclinxr/ui-xr dev:portless" },
+      { pid: 22149, ppid: 21940, command: "node .../vite.js --port 50899" },
+    ]);
+  });
+
+  it("returns an empty list for empty output", () => {
+    expect(parseDevServerProcRows("")).toEqual([]);
   });
 });

@@ -390,7 +390,7 @@ async function buildReport(opts: CliOptions): Promise<Record<string, unknown>> {
       }
     }
   } finally {
-    stopPortlessDevServer(server);
+    await stopPortlessDevServer(server);
   }
 
   if (pageErrors.length > 0) blockers.push(`page_errors:${pageErrors.length}`);

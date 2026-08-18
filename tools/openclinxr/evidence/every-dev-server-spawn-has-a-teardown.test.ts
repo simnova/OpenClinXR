@@ -83,6 +83,28 @@ import { describe, expect, it } from "vitest";
  *   - **The 53 callers' own teardown.** They tear down on the normal path; whether each fires on the
  *     throw path is unmeasured and is not this contract's subject.
  *   - **Non-macOS behaviour.** `PR_SET_PDEATHSIG` would make this moot on Linux.
+ *
+ * ## FIXED (#397, 2026-08-17) — the ROOT CAUSE was the teardown, not the callers
+ *
+ * Measured: `stopPortlessDevServer` printed "stopped" while the `pnpm … dev:portless`
+ * wrapper stayed alive 13 minutes later. Three defects in `lib/portless-server.ts`,
+ * all fixed in this slice:
+ *
+ *   1. GROUP KILL — `proc.kill("SIGTERM")` signalled the pnpm wrapper only; the
+ *      signal never reached the Vite child. `spawnPortlessDevServer` now spawns
+ *      `detached: true` (wrapper leads its own process group) and teardown signals
+ *      `-pgid`, so the whole tree is signalled.
+ *   2. AWAITED EXIT — teardown waits for the wrapper to actually exit, and
+ *      `stopPortlessDevServer` REJECTS if it is still alive after SIGTERM+SIGKILL.
+ *   3. ESCALATION THAT FIRES — the SIGKILL escalation was `.unref()`'d AND guarded
+ *      by `!proc.killed` (which is false the moment `kill()` succeeds). The new
+ *      escalation is awaited in-process and keyed off `exitCode`, so it always runs.
+ *
+ * `selectOrphanedDevServerPids` is now exported from `lib/portless-server.ts`
+ * (clauses 1–3 below are live), and `spawnPortlessDevServer` sweeps `ppid=1`
+ * wrappers before spawning, bounding pre-existing orphans that no teardown can
+ * retroactively clean. The three clauses below are no longer expected-fail.
+ * Measurements in the planted header above remain the record — not deleted.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -132,7 +154,7 @@ function requireSweeper(): NonNullable<typeof sweep> {
 }
 
 describe("the dev server spawn refuses to accumulate orphans", () => {
-  it.fails("(1) RED: orphaned dev:portless wrappers are selectable", () => {
+  it("(1) RED: orphaned dev:portless wrappers are selectable", () => {
     const selected = requireSweeper()(FIXTURE);
     expect(
       [...selected].sort((a, b) => a - b),
@@ -140,7 +162,7 @@ describe("the dev server spawn refuses to accumulate orphans", () => {
     ).toEqual(ORPHANS);
   });
 
-  it.fails("(2) COUNTERWEIGHT: a wrapper with a live parent is spared", () => {
+  it("(2) COUNTERWEIGHT: a wrapper with a live parent is spared", () => {
     // Refuses (b). `pkill -f dev:portless` is the obvious one-liner and it kills the server of any
     // capture running concurrently — SS11f records that exact mistake killing a live dispatch.
     const selected = requireSweeper()(FIXTURE);
@@ -149,7 +171,7 @@ describe("the dev server spawn refuses to accumulate orphans", () => {
     );
   });
 
-  it.fails("(3) COUNTERWEIGHT: the Vite child is never targeted directly", () => {
+  it("(3) COUNTERWEIGHT: the Vite child is never targeted directly", () => {
     // Refuses (c). Measured live 2026-08-14: kill and kill -9 on the Vite pid did nothing, because its
     // wrapper parent was alive. Killing the wrappers took all seven children with them.
     const selected = requireSweeper()(FIXTURE);
