@@ -15351,6 +15351,13 @@
       "rationale": "Generated Infinigen room shell, eleventh environmentId-keyed consumer (stepdown_room_v1). New clinical_bay.gin seed-26 bedroom_0/2 yaw 90; extract-time predicate PASSES (aspect 1.096, area 65.89 m2, height 2.402 m, hullFrontFacing 0, doorway survivors 4). SHA-256 6b098ab7e174b3cca768565bf980bb34d197f83fea4b04981d8cc06736510c5b. Camera dump 4/5 survive. Hand-added row — do not run pnpm docs:artifacts. Provenance in public/xr-assets/environment/PROVENANCE.md."
     },
     {
+      "path": "apps/ui-xr/public/xr-assets/environment/infinigen-ob-triage.glb",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated Infinigen room shell, twelfth environmentId-keyed consumer (ob_triage_room_v1). New clinical_bay.gin seed-27 dining-room_0/0 yaw 180; extract-time predicate PASSES (aspect 1.251, area 28.79 m2, height 2.448 m, hullFrontFacing 0, doorway survivors 5). SHA-256 f2e11babc41b70d5ae991452ca074a51ffea3c868d543b2f24ddaf377017f625. First capture was a door-leaf close-up (magenta slab, no actors); recapture from left-corner candidate (-2.80,1.54,1.62). Default scorer still misses door_leaf — follow-on. Hand-added row — do not run pnpm docs:artifacts. Provenance in public/xr-assets/environment/PROVENANCE.md."
+    },
+    {
       "path": "apps/ui-xr/public/xr-assets/generated/adult_abdominal_pain_v1/learner-runtime-bundle.v1.json",
       "authority": "keep-current",
       "tracked": true,

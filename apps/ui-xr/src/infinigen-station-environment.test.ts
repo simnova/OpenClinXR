@@ -35,6 +35,9 @@ describe("Infinigen station environment by environmentId (#336)", () => {
     expect(resolve!("urgent_care_clinic_room_v1")).toBe(
       "/xr-assets/environment/infinigen-urgent-care-clinic.glb",
     );
+    expect(resolve!("ob_triage_room_v1")).toBe(
+      "/xr-assets/environment/infinigen-ob-triage.glb",
+    );
   });
 
   it("hides the procedural box shell meshes but keeps fixture slots", async () => {
@@ -112,7 +115,7 @@ describe("Infinigen station environment by environmentId (#336)", () => {
     const scene = new Group() as never;
     const status = loadFn!({
       scene,
-      environmentId: "ob_triage_room_v1",
+      environmentId: "inpatient_ward_room_v1",
       stationEnvironment: new Group(),
       onStatus: () => {},
     });
@@ -664,5 +667,21 @@ describe("#342c wall fixtures re-anchor onto the generated room", () => {
  * +Z hull 0.124 m (world). Shipped bytes `infinigen-stepdown.glb` SHA-256
  * `6b098ab7e174b3cca768565bf980bb34d197f83fea4b04981d8cc06736510c5b`, signature 4 meshes /
  * 3 materials / 5 textures / extent 8.31 x 2.65 x 8.50 m — distinct from the ten shipped
+ * rooms by hash AND geometric signature.
+ */
+
+/**
+ * ## FIXED — twelfth environmentId maps to its own generated room
+ *
+ * Flips the planted `ob_triage_room_v1 -> null` assertion to the shipped GLB path
+ * and moves the unmapped example to `inpatient_ward_room_v1` (still unmapped). Seed 27
+ * `clinical_bay.gin`, `dining-room_0` segment 0 (segment-pruned copy keeping
+ * `dining-room_0/0.*` wall/floor/ceiling/exterior), `--yaw-deg 180`,
+ * `--drop-interior-hull-faces` DEFAULT ON, predicate DEFAULT ON. Predicate PASSES:
+ * floorAspect 1.251, floorArea 28.79 m2, ceilingHeight 2.448 m,
+ * hullFrontFacingToDoorwayEyeCount 0, doorwayCandidateSurviveCount 5; +Z hull 0.1012 m
+ * (world). Shipped bytes `infinigen-ob-triage.glb` SHA-256
+ * `f2e11babc41b70d5ae991452ca074a51ffea3c868d543b2f24ddaf377017f625`, signature 4 meshes /
+ * 3 materials / 6 textures / extent 7.5 x 2.65 x 5.58 m — distinct from the eleven shipped
  * rooms by hash AND geometric signature.
  */
