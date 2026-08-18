@@ -53,9 +53,10 @@ of unused hulled rooms. Sixth `telehealth_home_visit_v1` (new seed 14
 `bedroom_0` yaw 180, sha `476a8e40…`) **ACCEPT**. Next:
 `behavioral_health_private_room_v1` (seed 16 `dining-room_0` yaw 90,
 sha `5cf36958…`) **ACCEPT**. Next: `oncology_consult_room_v1` (new seed
-17+; skip crash seeds including 15). Humanoid GLBs untouched.
+17 `dining-room_0` yaw 0, sha `65969fe4…`) **ACCEPT**. Next:
+`urgent_care_clinic_room_v1` (new seed 18+). Humanoid GLBs untouched.
 No #167. Frozen aisha/child/parent hashes unchanged. Push still other-AI at quiet tree.
-    Shipped rooms carrying a baked texture ......... 7 of 15
+    Shipped rooms carrying a baked texture ......... 8 of 15
     Shipped rooms carrying baked OCCLUSION ......... 0 of 2  (in flight, #349)
 
 | capability | MPFB rail | evidence |
