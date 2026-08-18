@@ -1,0 +1,76 @@
+{
+  "slice": "issue-412",
+  "factoryStep": "clothing_consume",
+  "upperGarmentBasename": "crudegown.mhclo",
+  "upperGarmentLibName": "makeclothes_library_crudegown",
+  "upperGarmentKind": "gown",
+  "upperGarmentLicence": "CC0",
+  "upperGarmentSourceDir": ".openclinxr-local/provider-cache/garments/sources/makehuman-community-crude-gown",
+  "upperGarmentFit": {
+    "vertsIn": 768,
+    "vertsOut": 768,
+    "tris": 1404,
+    "weightsOk": true,
+    "weightMethod": "knn12_inverse_distance_body_bone_groups",
+    "weightedGroups": 34,
+    "assignedVertices": 768
+  },
+  "gownMaterial": {
+    "recordedAs": "GARMENT_MATERIAL_SKIP",
+    "roleColour": [0.15, 0.55, 0.82, 1.0],
+    "declaredMhmat": "crudegown.mhmat",
+    "declaredDiffuseTexture": "CrudeGown.png",
+    "textureResolves": false,
+    "reason": "declared diffuseTexture CrudeGown.png is not staged (locked #180 gown colour kept)"
+  },
+  "referenceMeasured": {
+    "referenceId": "ed_chest_pain_adult_cast",
+    "statureMeters": 1.76,
+    "headHeightFraction": 0.10000000000000087,
+    "chestSpanMeters": 0.77912,
+    "waistSpanMeters": 1.071742
+  },
+  "macroSolved": {
+    "height": 0.5827,
+    "targetStature": 1.76,
+    "gender": 0.5,
+    "age": 0.6
+  },
+  "bodyCensus": {
+    "statureMeters": 1.7433,
+    "chestSpanMeters": 0.8407,
+    "waistSpanMeters": 1.1055,
+    "chestWaistRatio": 0.7605,
+    "footwear": {
+      "kind": "toigo_flats",
+      "verts": 28808,
+      "tris": 57600,
+      "weights": true,
+      "soleDeltaZ": 0.008395
+    },
+    "hair": null
+  },
+  "renderTruthUnhideSkipPoke": 0,
+  "lowerGarmentLicence": "makeclothes_library_cargo_pants CC0 (matcher=author_dash_cc)",
+  "garmentTextureVerify": {
+    "ok": true,
+    "consumedTextures": ["mat_makeclothes_library_footwear_toigo_flats"]
+  },
+  "exportedGlb": "apps/ui-xr/public/generated-humanoids/mpfb-inpatient-adult-male.glb",
+  "glbAutoSmoothGarments": {
+    "mat_makeclothes_library_cargo_pants.001": 88,
+    "mat_makeclothes_library_crudegown": 768,
+    "mat_makeclothes_library_footwear_toigo_flats": 26787
+  },
+  "measuredAt": "2026-08-18T12:07:56-0400",
+  "claimScope": "the bake consumed crudegown.mhclo and fitted it onto a new MPFB inpatient body solved from the ed_chest_pain_adult_cast reference",
+  "notEvidenceFor": [
+    "fit quality",
+    "poke-through",
+    "coverage",
+    "drape",
+    "that it LOOKS like a gown (orchestrator grades pixels after land)",
+    "sex (gender macro 0.5 unchanged)",
+    "clinical validity"
+  ]
+}
