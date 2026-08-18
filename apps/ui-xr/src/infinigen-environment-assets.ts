@@ -11,4 +11,5 @@ export const INFINIGEN_ENVIRONMENT_ASSETS = {
   telehealth_home_visit_v1: "/xr-assets/environment/infinigen-telehealth-home-visit.glb",
   behavioral_health_private_room_v1: "/xr-assets/environment/infinigen-behavioral-health-private.glb",
   oncology_consult_room_v1: "/xr-assets/environment/infinigen-oncology-consult.glb",
+  urgent_care_clinic_room_v1: "/xr-assets/environment/infinigen-urgent-care-clinic.glb",
 } as const;
