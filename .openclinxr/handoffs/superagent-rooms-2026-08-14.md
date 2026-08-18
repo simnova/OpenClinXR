@@ -1,12 +1,12 @@
 # Superagent brief — promote the remaining station rooms
 
 **From:** hourly-loop orchestrator. **Date:** 2026-08-14.
-**Status:** **ABDOMINAL BAY LANDED** `ce32d0f0`. Fifth room:
-`adult_ed_abdominal_bay_v1` → `infinigen-adult-ed-abdominal-bay.glb`
-sha `54f9172c…` (seed 0 `kitchen_0` seg 0 yaw 90). Orchestrator grade:
-**ACCEPT interior**. Sweep of 8 on-disk blends is exhausted of unused
-hulled rooms. Next: `telehealth_home_visit_v1` needs a **new seed**.
-No humanoids. Prior four room bytes frozen.
+**Status:** **TELEHEALTH LANDED** `18f8e1ce`. Sixth room:
+`telehealth_home_visit_v1` → `infinigen-telehealth-home-visit.glb`
+sha `476a8e40…` (new seed 14 `bedroom_0` seg 2 yaw 180). Orchestrator
+grade: **ACCEPT interior**. Next: `behavioral_health_private_room_v1`
+(new seed 15+; skip crash seeds 3/4/5/9/11/12). No humanoids. Prior
+five room bytes frozen.
 
 ## READ THIS FIRST — one of the two existing rooms renders BLACK
 
