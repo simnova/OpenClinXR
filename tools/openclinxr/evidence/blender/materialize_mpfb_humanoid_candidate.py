@@ -36,6 +36,9 @@ SHOE_BY_REFERENCE = {
     # same proven zero-helper-ref subset as the existing rows (ledger rows).
     "ed_chest_pain_nurse_adult": "toigo_flats",
     "ed_chest_pain_spouse_adult": "toigo_mj_cloth_shoes",
+    # #412 — the MPFB inpatient solved from the adult cast reference wears the
+    # patient-class default (same CC0 zero-helper-ref subset as the aisha OB patient).
+    "ed_chest_pain_adult_cast": "toigo_flats",
 }
 
 # #381 — slice 1 of the human-realism campaign: the cast actor wears the fitted hair
@@ -1438,6 +1441,9 @@ EYE_DIAMETER_TARGET_MM = {
     # the nurse adult (same Anny reference), so adult axial length applies.
     "mpfb-clinical-physician-adult": 24.0,
     "mpfb-family-partner-adult": 24.0,
+    # #412 — MPFB inpatient solved from the ed_chest_pain_adult_cast reference
+    # (adult, measured stature 1.76 m); adult axial length applies.
+    "mpfb-inpatient-adult-male": 24.0,
 }
 
 
