@@ -1,0 +1,287 @@
+{
+  "schemaVersion": "openclinxr.speaking-actor-head-local.v1",
+  "generatedAt": "2026-08-18T21:13:32.077Z",
+  "source": "live runtime read via playwright headless chromium against the ui-xr portless dev server (spawnPortlessDevServer filter @openclinxr/ui-xr); page.evaluate on window.__openClinXrDebugScene of peds_asthma_parent_anxiety_v1; per-vertex CPU skinning replicating the three.js shader (world = mesh.matrixWorld * sum_j weight_j * boneWorld_j * boneInverse_j * bindVertex) sampled in head-bone-local frame (mesh.matrixWorld * boneWorld_head * boneInverse_head)^-1 so rigid head attachment is exactly invariant; speaking flagged by phoneme-mouth-cue visibility on the actor root at the sampling instant; dialogue driven by trace-button clicks; NOT a static asset read",
+  "url": "http://127.0.0.1:55926/?openclinxrScenarioId=peds_asthma_parent_anxiety_v1&openclinxrCaptureMode=face-detail&openclinxrPortalStart=encounter&openclinxrAcceleratedExam=1",
+  "frame": "sampled at page-elapsed seconds: parent not-speaking t=16.05, parent speaking t=20.11 (trace \"parent communication\"); child not-speaking t=26, child speaking t=29.19 (trace \"work of breathing assessment\")",
+  "claimScope": "head-local skinned-vertex delta (speaking vs not) for parent_tara_johnson_v1 and the patient_maya_johnson_v1 control, peds asthma station only; column A of #419 E2.2",
+  "notEvidenceFor": [
+    "the cause (naming a mechanism is a later slice)",
+    "any fix",
+    "whether the spike is visible (pixel grade is the orchestrator's)",
+    "hair-mesh weights specifically (per-mesh extremes are recorded so a later slice can distinguish body skin from fitted hair)",
+    "other actors or scenarios",
+    "production phoneme timing",
+    "clinical validity",
+    "scoring validity",
+    "quest readiness"
+  ],
+  "actors": [
+    {
+      "actor": "parent_tara_johnson_v1",
+      "maxHeadLocalDeltaMm": 8.729,
+      "maxHeadLocalVertexMesh": "mpfb_ob_patient_aisha_body_1",
+      "maxHeadLocalVertexIndex": 4658,
+      "vertexCount": 7451,
+      "totalVertexCount": 147664,
+      "allVerticesMaxHeadLocalDeltaMm": 35.584,
+      "headRigid100MaxDeltaMm": 0,
+      "speakingMorphInfluence": 1,
+      "notSpeakingMorphInfluence": 0.4998,
+      "worldTranslationDeltaMm": 49.041,
+      "rootRelativeBoneDeltaMm": 33.474,
+      "headBoneName": "head",
+      "headDescendantBoneCount": 60,
+      "speakingState": {
+        "stateId": "speaking",
+        "speakingFlag": true,
+        "t": 20.11,
+        "driveTrace": "parent communication"
+      },
+      "notSpeakingState": {
+        "stateId": "not-speaking",
+        "speakingFlag": false,
+        "t": 16.05
+      },
+      "perMesh": [
+        {
+          "name": "makeclothes_library_cargo_pants_mpfb_ob_patient_aisha",
+          "uuid": "eddc3f63-43b5-494b-84b1-db7ad11a7dc4",
+          "vertexCount": 8268,
+          "headAssemblyMaxDeltaMm": 0,
+          "allMaxDeltaMm": 27.408,
+          "extremeVertexIndex": 8199
+        },
+        {
+          "name": "makeclothes_library_footwear_toigo_flats_mpfb_ob_patient_aisha",
+          "uuid": "5f0c7b4b-b3a7-4d44-b916-af839f546cef",
+          "vertexCount": 115206,
+          "headAssemblyMaxDeltaMm": 0,
+          "allMaxDeltaMm": 35.584,
+          "extremeVertexIndex": 99430
+        },
+        {
+          "name": "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh",
+          "uuid": "1342f374-4943-4856-8e42-bd50d4d80f50",
+          "vertexCount": 3086,
+          "headAssemblyMaxDeltaMm": 0,
+          "allMaxDeltaMm": 0,
+          "extremeVertexIndex": 111
+        },
+        {
+          "name": "makeclothes_library_toigo_t_shirt",
+          "uuid": "832b7c43-c6e8-45be-92e3-e913f0ccd9bc",
+          "vertexCount": 5400,
+          "headAssemblyMaxDeltaMm": 0,
+          "allMaxDeltaMm": 3.217,
+          "extremeVertexIndex": 5180
+        },
+        {
+          "name": "mpfb_ob_patient_aisha_body_1",
+          "uuid": "11afd9f6-5863-47a3-97c4-49b862059bbe",
+          "vertexCount": 10871,
+          "headAssemblyMaxDeltaMm": 8.729,
+          "allMaxDeltaMm": 34.844,
+          "extremeVertexIndex": 9906
+        },
+        {
+          "name": "mpfb_ob_patient_aisha_body_2",
+          "uuid": "b8a3538b-f7ad-41ff-acc1-c8ea31ea3105",
+          "vertexCount": 1565,
+          "headAssemblyMaxDeltaMm": 0,
+          "allMaxDeltaMm": 3.007,
+          "extremeVertexIndex": 333
+        },
+        {
+          "name": "mpfb_ob_patient_aisha_body_3",
+          "uuid": "70d3f96f-76a1-4c7d-b9fd-012e87fddd74",
+          "vertexCount": 334,
+          "headAssemblyMaxDeltaMm": 0,
+          "allMaxDeltaMm": 26.862,
+          "extremeVertexIndex": 325
+        },
+        {
+          "name": "mpfb_ob_patient_aisha_body_4",
+          "uuid": "23a8e032-b73f-43fb-b3cb-173844e457da",
+          "vertexCount": 2164,
+          "headAssemblyMaxDeltaMm": 0,
+          "allMaxDeltaMm": 34.977,
+          "extremeVertexIndex": 1026
+        },
+        {
+          "name": "mpfb_ob_patient_aisha_body_5",
+          "uuid": "e2d60769-0dee-48bb-af9f-e92af80e2ccc",
+          "vertexCount": 155,
+          "headAssemblyMaxDeltaMm": 0,
+          "allMaxDeltaMm": 3.27,
+          "extremeVertexIndex": 58
+        },
+        {
+          "name": "mpfb_ob_patient_aisha_body_6",
+          "uuid": "9bb07369-0521-48dc-a79e-ba57acb3a710",
+          "vertexCount": 102,
+          "headAssemblyMaxDeltaMm": 0,
+          "allMaxDeltaMm": 26.722,
+          "extremeVertexIndex": 71
+        },
+        {
+          "name": "mpfb_ob_patient_aisha_body_7",
+          "uuid": "59484288-d0c7-40ac-a767-cb119cec8c53",
+          "vertexCount": 305,
+          "headAssemblyMaxDeltaMm": 0,
+          "allMaxDeltaMm": 34.889,
+          "extremeVertexIndex": 229
+        },
+        {
+          "name": "mpfb_ob_patient_aisha_body_8",
+          "uuid": "ea27f65e-9fe3-46f2-a394-ab7995754497",
+          "vertexCount": 112,
+          "headAssemblyMaxDeltaMm": 0,
+          "allMaxDeltaMm": 33.062,
+          "extremeVertexIndex": 34
+        },
+        {
+          "name": "mpfb_ob_patient_aisha_body_meshlow-poly",
+          "uuid": "7e6159c5-c6f1-4e65-ad20-f5d84fcb565b",
+          "vertexCount": 96,
+          "headAssemblyMaxDeltaMm": 0,
+          "allMaxDeltaMm": 0,
+          "extremeVertexIndex": 92
+        }
+      ]
+    },
+    {
+      "actor": "patient_maya_johnson_v1",
+      "maxHeadLocalDeltaMm": 3.401,
+      "maxHeadLocalVertexMesh": "mpfb_peds_patient_child_body",
+      "maxHeadLocalVertexIndex": 457,
+      "vertexCount": 7134,
+      "totalVertexCount": 33902,
+      "allVerticesMaxHeadLocalDeltaMm": 3.401,
+      "headRigid100MaxDeltaMm": 0.008,
+      "speakingMorphInfluence": 0.5485,
+      "notSpeakingMorphInfluence": 1,
+      "worldTranslationDeltaMm": 21.644,
+      "rootRelativeBoneDeltaMm": 11.568,
+      "headBoneName": "head",
+      "headDescendantBoneCount": 60,
+      "speakingState": {
+        "stateId": "speaking",
+        "speakingFlag": true,
+        "t": 29.19,
+        "driveTrace": "work of breathing assessment"
+      },
+      "notSpeakingState": {
+        "stateId": "not-speaking",
+        "speakingFlag": false,
+        "t": 26
+      },
+      "perMesh": [
+        {
+          "name": "makeclothes_library_cargo_pants_mpfb_peds_patient_child",
+          "uuid": "daf44a29-be55-4219-a656-7cff97e2fba1",
+          "vertexCount": 7892,
+          "headAssemblyMaxDeltaMm": 0,
+          "allMaxDeltaMm": 1.121,
+          "extremeVertexIndex": 702
+        },
+        {
+          "name": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_patient_child",
+          "uuid": "f03f89b8-1716-498e-ab42-cc9b47dd85a1",
+          "vertexCount": 2008,
+          "headAssemblyMaxDeltaMm": 0,
+          "allMaxDeltaMm": 1.316,
+          "extremeVertexIndex": 1075
+        },
+        {
+          "name": "makeclothes_library_hair_toigo_curled_under_bob_with_bangs_mpfb_peds_patient_child_mesh",
+          "uuid": "be5e4f00-d5f4-4da6-b230-da5f8c309df1",
+          "vertexCount": 2769,
+          "headAssemblyMaxDeltaMm": 0,
+          "allMaxDeltaMm": 0,
+          "extremeVertexIndex": 1317
+        },
+        {
+          "name": "makeclothes_library_toigo_t_shirt",
+          "uuid": "66a5ce55-b9d6-4fb8-9d63-9951603035c8",
+          "vertexCount": 5398,
+          "headAssemblyMaxDeltaMm": 0,
+          "allMaxDeltaMm": 0.178,
+          "extremeVertexIndex": 2838
+        },
+        {
+          "name": "mpfb_peds_patient_child_body",
+          "uuid": "0be23f65-e9be-4740-990c-05ed10201aa6",
+          "vertexCount": 10936,
+          "headAssemblyMaxDeltaMm": 3.401,
+          "allMaxDeltaMm": 3.401,
+          "extremeVertexIndex": 457
+        },
+        {
+          "name": "mpfb_peds_patient_child_body_1",
+          "uuid": "dc9629a9-60c8-479c-beda-1ab3de0a6fc6",
+          "vertexCount": 1566,
+          "headAssemblyMaxDeltaMm": 0,
+          "allMaxDeltaMm": 0.171,
+          "extremeVertexIndex": 757
+        },
+        {
+          "name": "mpfb_peds_patient_child_body_2",
+          "uuid": "cc5ca2fb-3feb-44c9-ba76-6f0a03a64e3f",
+          "vertexCount": 339,
+          "headAssemblyMaxDeltaMm": 0,
+          "allMaxDeltaMm": 0.377,
+          "extremeVertexIndex": 183
+        },
+        {
+          "name": "mpfb_peds_patient_child_body_3",
+          "uuid": "0439f39d-1c63-4376-8b21-541e1f2ba917",
+          "vertexCount": 2112,
+          "headAssemblyMaxDeltaMm": 0,
+          "allMaxDeltaMm": 1.311,
+          "extremeVertexIndex": 629
+        },
+        {
+          "name": "mpfb_peds_patient_child_body_4",
+          "uuid": "f6083832-91e0-4aff-a683-b0f738982add",
+          "vertexCount": 199,
+          "headAssemblyMaxDeltaMm": 0,
+          "allMaxDeltaMm": 0.157,
+          "extremeVertexIndex": 195
+        },
+        {
+          "name": "mpfb_peds_patient_child_body_5",
+          "uuid": "e76912fc-1943-49c1-9764-2df9225f52a9",
+          "vertexCount": 39,
+          "headAssemblyMaxDeltaMm": 0,
+          "allMaxDeltaMm": 0.211,
+          "extremeVertexIndex": 30
+        },
+        {
+          "name": "mpfb_peds_patient_child_body_6",
+          "uuid": "e724efca-a9cd-41f9-9ac3-267ddb50350d",
+          "vertexCount": 370,
+          "headAssemblyMaxDeltaMm": 0,
+          "allMaxDeltaMm": 1.313,
+          "extremeVertexIndex": 74
+        },
+        {
+          "name": "mpfb_peds_patient_child_body_7",
+          "uuid": "1f45c35c-853a-4de9-9754-1fa039e897d9",
+          "vertexCount": 178,
+          "headAssemblyMaxDeltaMm": 0,
+          "allMaxDeltaMm": 1.31,
+          "extremeVertexIndex": 118
+        },
+        {
+          "name": "mpfb_peds_patient_child_body_meshlow-poly",
+          "uuid": "95f335ec-ce60-4cef-8824-fedf78d46d34",
+          "vertexCount": 96,
+          "headAssemblyMaxDeltaMm": 0,
+          "allMaxDeltaMm": 0,
+          "extremeVertexIndex": 44
+        }
+      ]
+    }
+  ]
+}
