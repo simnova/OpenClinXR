@@ -1,12 +1,11 @@
 # Superagent brief — promote the remaining station rooms
 
 **From:** hourly-loop orchestrator. **Date:** 2026-08-14.
-**Status:** **PRIMARY CARE LANDED** `7b2daa6b`. Predicate `fcd36844`.
-Peds interior green. First new room through the predicate: `primary_care_clinic_room_v1`
-→ `infinigen-primary-care-clinic.glb` sha `a76a71ea…` (seed 1 `bedroom_0` seg 2).
-Orchestrator grade: **ACCEPT interior**. Next: `ed_stroke_bay_v1` same path.
-**Budget:** `infinigen-station-environment.ts` is at the 600-line ceiling — extract
-`INFINIGEN_ENVIRONMENT_ASSETS` to a sibling module before adding the next row.
+**Status:** **STROKE BAY LANDED** `11a339fe`. Mapping table extracted to
+`infinigen-environment-assets.ts`. Fourth room: `ed_stroke_bay_v1` →
+`infinigen-ed-stroke-bay.glb` sha `dd30ef77…` (seed 2 `bedroom_0` seg 1).
+Orchestrator grade: **ACCEPT interior**. Next: `adult_ed_abdominal_bay_v1`
+— sweep existing complete blends through extract+predicate before generating.
 No humanoids. ED/peds/primary-care bytes frozen.
 
 ## READ THIS FIRST — one of the two existing rooms renders BLACK
