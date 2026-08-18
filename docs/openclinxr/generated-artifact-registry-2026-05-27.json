@@ -15365,6 +15365,13 @@
       "rationale": "Generated Infinigen room shell, thirteenth environmentId-keyed consumer (inpatient_ward_room_v1). New clinical_bay.gin seed-29 bedroom_0/0 yaw 180; extract-time predicate PASSES (aspect 1.158, area 69.93 m2, height 2.434 m, hullFrontFacing 0, doorway survivors 5). SHA-256 9424e4f6d42f8726ef5a042cc821cc89e9701b429e6acd7dfd02e83671dacbae. Seed 28 crashed room_floors. Camera dump 5/5 survive. Hand-added row — do not run pnpm docs:artifacts. Provenance in public/xr-assets/environment/PROVENANCE.md."
     },
     {
+      "path": "apps/ui-xr/public/xr-assets/environment/infinigen-pediatric-fever-urgent-care.glb",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated Infinigen room shell, fourteenth and last real environmentId-keyed consumer (pediatric_fever_urgent_care_bay_v1). New clinical_bay.gin seed-34 bedroom_0/1 yaw 0; extract-time predicate PASSES (aspect 1.035, area 40.83 m2, height 2.431 m, hullFrontFacing 0, doorway survivors 5). SHA-256 8cc0a75d424baa3c7a20c70ae5bded59a939ba2de69bed1157746b8591a862b9. Seeds 30/31 crash; 32/33 no hulled+predicate bay. Distinct from pediatric_urgent_care_bay_v1 (seed 13). Hand-added row — do not run pnpm docs:artifacts. Provenance in public/xr-assets/environment/PROVENANCE.md."
+    },
+    {
       "path": "apps/ui-xr/public/xr-assets/generated/adult_abdominal_pain_v1/learner-runtime-bundle.v1.json",
       "authority": "keep-current",
       "tracked": true,

@@ -1,12 +1,12 @@
 # Superagent brief — promote the remaining station rooms
 
 **From:** hourly-loop orchestrator. **Date:** 2026-08-14.
-**Status:** **INPATIENT WARD LANDED** (this commit). Thirteenth room:
-`inpatient_ward_room_v1` → `infinigen-inpatient-ward.glb` sha `9424e4f6…`
-(seed 29 `bedroom_0` yaw 180). Orchestrator grade: **ACCEPT interior**.
-Door-leaf scorer already on main (`5c81ffd5`). Next and last:
-`pediatric_fever_urgent_care_bay_v1` (new seed 30+). No humanoids. Prior
-twelve room bytes frozen.
+**Status:** **CAMPAIGN CLOSED.** Fourteenth and last room:
+`pediatric_fever_urgent_care_bay_v1` →
+`infinigen-pediatric-fever-urgent-care.glb` sha `8cc0a75d…`
+(seed 34 `bedroom_0/1` yaw 0). Orchestrator grade: **ACCEPT interior**.
+All 14 station `environmentId`s mapped. Door-leaf scorer on main
+(`5c81ffd5`). No humanoids. Prior thirteen room bytes frozen.
 
 ## READ THIS FIRST — one of the two existing rooms renders BLACK
 

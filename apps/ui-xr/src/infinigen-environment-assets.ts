@@ -16,4 +16,5 @@ export const INFINIGEN_ENVIRONMENT_ASSETS = {
   stepdown_room_v1: "/xr-assets/environment/infinigen-stepdown.glb",
   ob_triage_room_v1: "/xr-assets/environment/infinigen-ob-triage.glb",
   inpatient_ward_room_v1: "/xr-assets/environment/infinigen-inpatient-ward.glb",
+  pediatric_fever_urgent_care_bay_v1: "/xr-assets/environment/infinigen-pediatric-fever-urgent-care.glb",
 } as const;

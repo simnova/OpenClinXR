@@ -41,6 +41,9 @@ describe("Infinigen station environment by environmentId (#336)", () => {
     expect(resolve!("inpatient_ward_room_v1")).toBe(
       "/xr-assets/environment/infinigen-inpatient-ward.glb",
     );
+    expect(resolve!("pediatric_fever_urgent_care_bay_v1")).toBe(
+      "/xr-assets/environment/infinigen-pediatric-fever-urgent-care.glb",
+    );
   });
 
   it("hides the procedural box shell meshes but keeps fixture slots", async () => {
@@ -118,7 +121,7 @@ describe("Infinigen station environment by environmentId (#336)", () => {
     const scene = new Group() as never;
     const status = loadFn!({
       scene,
-      environmentId: "pediatric_fever_urgent_care_bay_v1",
+      environmentId: "unmapped_test_only_v1",
       stationEnvironment: new Group(),
       onStatus: () => {},
     });
@@ -799,4 +802,21 @@ describe("#342c wall fixtures re-anchor onto the generated room", () => {
  * and moves the unmapped example to `pediatric_fever_urgent_care_bay_v1` (still unmapped).
  * Seed 29 `clinical_bay.gin`, `bedroom_0` segment 0, `--yaw-deg 180`. Predicate PASSES.
  * SHA-256 `9424e4f6d42f8726ef5a042cc821cc89e9701b429e6acd7dfd02e83671dacbae`.
+ */
+
+/**
+ * ## FIXED — fourteenth environmentId maps to its own generated room
+ *
+ * Flips the planted `pediatric_fever_urgent_care_bay_v1 -> null` assertion to the shipped
+ * GLB path. There is no 15th real environmentId; the unmapped example is now the synthetic
+ * id `unmapped_test_only_v1` (not in the descriptor bank). Seed 34 `clinical_bay.gin`,
+ * `bedroom_0` segment 1 (segment-pruned copy keeping `bedroom_0/1.*`), `--yaw-deg 0`,
+ * `--drop-interior-hull-faces` DEFAULT ON, predicate DEFAULT ON. Predicate PASSES:
+ * floorAspect 1.035, floorArea 40.83 m2, ceilingHeight 2.431 m,
+ * hullFrontFacingToDoorwayEyeCount 0, doorwayCandidateSurviveCount 5; +Z hull 0.1095 m
+ * (world). Shipped bytes `infinigen-pediatric-fever-urgent-care.glb` SHA-256
+ * `8cc0a75d424baa3c7a20c70ae5bded59a939ba2de69bed1157746b8591a862b9`. Seeds 30/31 crashed
+ * (Concrete.generate(vertical) / room_floors not callable); 32/33 complete with no
+ * hulled+predicate-pass bay. Distinct from the thirteen shipped rooms by hash AND
+ * geometric signature. Last real descriptor.
  */
