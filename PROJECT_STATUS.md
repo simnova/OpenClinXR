@@ -33,7 +33,24 @@ reference (operator direction; MADR 0052). Live measure: **graded clean by the o
     MPFB bodies built and on disk .................. 3
     MPFB bodies referenced by the runtime cast ..... 3
     MPFB bodies GRADED CLEAN by the orchestrator ... 0   <-- THE NUMBER TO MOVE
-    Shipped rooms carrying a baked texture ......... 2 of 2  (was 0 of 2)
+
+**Medical wardrobe 2026-08-14 (this session, Patrick go):** Kevin landed
+`e4880c99` — WojackOWL scrub shirt+pants via ClothesService, mhair02 kept,
+scalp **RULE** (fitted hair ⇒ no placeholder shell). Orchestrator pixel grade:
+**ACCEPT kit swap, not presentable-at-a-glance** (neck/sleeve poke-through,
+ragged boot-top hems). Midriff closed: min +2.6 mm / 36 of 36 buckets.
+Family partner landed `1715007d` (street clothes, scalpTris=0; midriff still open).
+Nurse-adult landed `8d23a644` (scrubs, no coat; scalp RED flipped). Physician
+GLB + physician-only resolver in the next commit (coat poke-through named;
+RT/MA stay nurse). Staff-kit campaign closed except patient crude-gown.
+**Rooms campaign:** peds black frame closed (`719cadf8` + `a670feee`). Predicate
+landed `fcd36844`. First new room through the predicate: primary-care clinic
+(`infinigen-primary-care-clinic.glb` sha `a76a71ea…`) — orchestrator grade
+**ACCEPT interior** (`7b2daa6b`). Next: `ed_stroke_bay_v1` same path.
+`infinigen-station-environment.ts` is at the 600-line ceiling — extract the
+mapping table before the next row. Humanoid GLBs untouched.
+No #167. Frozen aisha/child/parent hashes unchanged. Push still other-AI at quiet tree.
+    Shipped rooms carrying a baked texture ......... 3 of 15
     Shipped rooms carrying baked OCCLUSION ......... 0 of 2  (in flight, #349)
 
 | capability | MPFB rail | evidence |
