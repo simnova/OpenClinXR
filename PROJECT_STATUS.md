@@ -46,12 +46,13 @@ RT/MA stay nurse). Staff-kit campaign closed except patient crude-gown.
 **Rooms campaign:** peds black frame closed (`719cadf8` + `a670feee`). Predicate
 landed `fcd36844`. First new room through the predicate: primary-care clinic
 (`infinigen-primary-care-clinic.glb` sha `a76a71ea…`) — orchestrator grade
-**ACCEPT interior** (`7b2daa6b`). Fourth room `ed_stroke_bay_v1` (seed 2
-`bedroom_0` seg 1, sha `dd30ef77…`) grade **ACCEPT interior**. Mapping table
-now `infinigen-environment-assets.ts`. Next: `adult_ed_abdominal_bay_v1`
-(sweep existing blends first). Humanoid GLBs untouched.
+**ACCEPT interior** (`7b2daa6b`). Fourth `ed_stroke_bay_v1` (`11a339fe`,
+sha `dd30ef77…`) **ACCEPT**. Fifth `adult_ed_abdominal_bay_v1` (seed 0
+`kitchen_0` yaw 90, sha `54f9172c…`) **ACCEPT**. On-disk blends exhausted
+of unused hulled rooms. Next: `telehealth_home_visit_v1` (new seed).
+Humanoid GLBs untouched.
 No #167. Frozen aisha/child/parent hashes unchanged. Push still other-AI at quiet tree.
-    Shipped rooms carrying a baked texture ......... 4 of 15
+    Shipped rooms carrying a baked texture ......... 5 of 15
     Shipped rooms carrying baked OCCLUSION ......... 0 of 2  (in flight, #349)
 
 | capability | MPFB rail | evidence |

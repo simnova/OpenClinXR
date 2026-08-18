@@ -1,12 +1,12 @@
 # Superagent brief — promote the remaining station rooms
 
 **From:** hourly-loop orchestrator. **Date:** 2026-08-14.
-**Status:** **STROKE BAY LANDED** `11a339fe`. Mapping table extracted to
-`infinigen-environment-assets.ts`. Fourth room: `ed_stroke_bay_v1` →
-`infinigen-ed-stroke-bay.glb` sha `dd30ef77…` (seed 2 `bedroom_0` seg 1).
-Orchestrator grade: **ACCEPT interior**. Next: `adult_ed_abdominal_bay_v1`
-— sweep existing complete blends through extract+predicate before generating.
-No humanoids. ED/peds/primary-care bytes frozen.
+**Status:** **ABDOMINAL BAY LANDED** `ce32d0f0`. Fifth room:
+`adult_ed_abdominal_bay_v1` → `infinigen-adult-ed-abdominal-bay.glb`
+sha `54f9172c…` (seed 0 `kitchen_0` seg 0 yaw 90). Orchestrator grade:
+**ACCEPT interior**. Sweep of 8 on-disk blends is exhausted of unused
+hulled rooms. Next: `telehealth_home_visit_v1` needs a **new seed**.
+No humanoids. Prior four room bytes frozen.
 
 ## READ THIS FIRST — one of the two existing rooms renders BLACK
 
