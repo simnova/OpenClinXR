@@ -1,0 +1,16 @@
+{
+  "packagerClaim": {
+    "source": ".openclinxr-local/provider-cache/visemes/makehuman-visemes02/packs/visemes02.json",
+    "license": "CC0",
+    "entries": 15,
+    "author": "Mika Suominen"
+  },
+  "pageFetch": {
+    "url": "https://static.makehumancommunity.org/assets/assetpacks/visemes02.html",
+    "httpStatus": 200,
+    "bytes": 73062,
+    "fetchedAt": "2026-08-18T18:37:37-0400"
+  },
+  "pageVerdict": "NOT_FOUND",
+  "quotedLine": null
+}
