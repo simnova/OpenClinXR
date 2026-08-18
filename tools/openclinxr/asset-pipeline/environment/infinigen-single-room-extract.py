@@ -19,27 +19,40 @@ shipped convention ("floor top at y=0, centered at origin").
 Usage (inside Blender 5.1 headless):
   blender --background --python infinigen-single-room-extract.py -- \
     --blend <scene.blend> --room <room_name> --segment <idx> --output <out.glb> \
-    [--yaw-deg <degrees>] [--drop-interior-hull-faces]
+    [--yaw-deg <degrees>] [--keep-interior-hull-faces] \
+    [--predicate-output <path>] [--allow-predicate-refuse]
 
 `--yaw-deg` rotates the room about the world up axis (blend Z) BEFORE centering, so a
 room whose outer wall (real hull) sits on one side can be oriented to the face a
 consumer needs (e.g. the +Z face the interior-camera derivation uses). Geometry is
 untouched — this is a deterministic orientation transform only (D1).
 
-`--drop-interior-hull-faces` removes exterior-mesh faces whose world centroid lies
-strictly inside the wall/floor/ceiling interior volume (2 cm float guard) — the
-black-frame fix for rooms whose Infinigen exterior mesh carries interior wall
-fragments that occlude the derived interior camera. The outer shell survives, so the
-interior-camera stand-off derivation still has its hull.
+`--drop-interior-hull-faces` is ON BY DEFAULT (2026-08-18): the extract removes
+exterior-mesh faces whose world centroid lies strictly inside the wall/floor/ceiling
+interior volume (2 cm float guard) — the black-frame fix for rooms whose Infinigen
+exterior mesh carries interior wall fragments that occlude the derived interior camera.
+The outer shell survives, so the interior-camera stand-off derivation still has its hull.
+`--keep-interior-hull-faces` opts OUT (the pre-fix behaviour; the predicate then flags the
+intruding faces and refuses the bake unless `--allow-predicate-refuse` is given).
+`--drop-interior-hull-faces` is accepted for backward compatibility and is the default.
+
+After export the extract runs the deterministic room predicate
+(`room_extract_predicate.py`): aspect / floor area / ceiling height / hull front-facing
+count toward the doorway-side eyes / doorway-candidate survive count, against thresholds
+derived from the two shipped rooms (ED known-good, peds post-719cadf8). A failed
+predicate REFUSES the bake (exit 2) unless `--allow-predicate-refuse`; `--predicate-output`
+writes the predicate JSON to a file.
 
 Exit 0 on success; prints one JSON line: { room, segment, parts,
-  triangleCount, meshCount, materialCount, extentMeters, floorTopY, exportPath }.
+  triangleCount, meshCount, materialCount, extentMeters, floorTopY, exportPath,
+  predicate, droppedInteriorHullFaces }.
 """
 from __future__ import annotations
 
 import argparse
 import json
 import math
+import os
 import re
 import sys
 from typing import Dict, List
@@ -74,7 +87,29 @@ def parse_args() -> argparse.Namespace:
             "Drop exterior-mesh faces whose world centroid lies strictly inside the "
             "wall/floor/ceiling interior volume (2 cm float guard). Keeps the hull as the "
             "room's outer shell only; removes hull fragments that intrude into the interior "
-            "and would occlude the derived interior camera (black-frame, 2026-08-17)."
+            "and would occlude the derived interior camera (black-frame, 2026-08-17). "
+            "ON BY DEFAULT since 2026-08-18; kept for backward-compatible call sites."
+        ),
+    )
+    p.add_argument(
+        "--keep-interior-hull-faces",
+        action="store_true",
+        help=(
+            "Opt OUT of the default --drop-interior-hull-faces pass. The shipped-bytes "
+            "default is to drop intruding hull faces; the predicate then measures the "
+            "surviving front-facing count and refuses (exit 2) unless --allow-predicate-refuse."
+        ),
+    )
+    p.add_argument(
+        "--predicate-output",
+        help="Optional file to write the room predicate JSON to (the full derived thresholds)",
+    )
+    p.add_argument(
+        "--allow-predicate-refuse",
+        action="store_true",
+        help=(
+            "Continue (exit 0) even when the room predicate refuses the room. Escape hatch "
+            "for experimentation only; the shipped bake path refuses."
         ),
     )
     return p.parse_args(_argv_after_double_dash())
@@ -104,17 +139,20 @@ def main() -> int:
             o.matrix_world = rot @ o.matrix_world
         bpy.context.view_layer.update()
 
-    # Black-frame fix (2026-08-17): drop exterior-mesh faces that intrude into the
-    # interior volume. Measured on `infinigen-pediatric-urgent-care-bay.glb`: the exterior
-    # mesh carried a full-height interior L-shaped wall fragment (10 faces / 7.95 m2,
-    # normals facing the derived interior eye) that occluded the entire viewport from
-    # inside (0.3% non-black; hide-hull flips it to 97.4%). The ED bay's exterior is a
-    # proper offset shell (0 front-facing faces from inside). The interior volume is the
-    # wall/floor/ceiling AABB (the same parts the runtime treats as "interior"); a face
-    # whose world centroid is strictly inside it (2 cm float guard) is an intruding
-    # fragment, not part of the outer shell. The shell faces lie at or outside that AABB,
-    # so they survive and the +Z stand-off the interior-camera derivation needs is kept.
-    if args.drop_interior_hull_faces:
+    # Black-frame fix (2026-08-17, DEFAULT ON since 2026-08-18): drop exterior-mesh
+    # faces that intrude into the interior volume. Measured on
+    # `infinigen-pediatric-urgent-care-bay.glb`: the exterior mesh carried a full-height
+    # interior L-shaped wall fragment (10 faces / 7.95 m2, normals facing the derived
+    # interior eye) that occluded the entire viewport from inside (0.3% non-black;
+    # hide-hull flips it to 97.4%). The interior volume is the wall/floor/ceiling AABB
+    # (the same parts the runtime treats as "interior"); a face whose world centroid is
+    # strictly inside it (2 cm float guard) is an intruding fragment, not part of the
+    # outer shell. The shell faces lie at or outside that AABB, so they survive and the
+    # +Z stand-off the interior-camera derivation needs is kept. `--keep-interior-hull-faces`
+    # opts out (the pre-fix behaviour); the predicate then flags the intruding faces.
+    drop_hull_faces = not args.keep_interior_hull_faces
+    dropped = 0
+    if drop_hull_faces:
         interior_mins = [float("inf")] * 3
         interior_maxs = [float("-inf")] * 3
         for o in objs:
@@ -134,7 +172,6 @@ def main() -> int:
                 for i in range(3)
             )
 
-        dropped = 0
         for o in objs:
             if not re.search(r"\.exterior$", o.name):
                 continue
@@ -206,6 +243,48 @@ def main() -> int:
                 mats.add(slot.material.name)
         parts.add(o.name.split("/")[1])
 
+    # Deterministic extract-time room predicate (2026-08-18): aspect / floor area /
+    # ceiling height / hull front-facing count toward the doorway-side eyes / doorway
+    # candidate survive count, against thresholds derived from the two shipped rooms
+    # (ED known-good, peds post-719cadf8). Measured on the SHIPPED geometry frame the
+    # runtime re-derives (centred, floor top at y=0). A refused room blocks the bake
+    # (exit 2) unless --allow-predicate-refuse — a future bake cannot ship a pocket-only
+    # room or a hull that still intrudes on the derived interior camera.
+    _script_dir = os.path.dirname(os.path.abspath(__file__))
+    if _script_dir not in sys.path:
+        sys.path.insert(0, _script_dir)
+    from room_extract_predicate import evaluate  # same-directory module (D1: one implementation)
+
+    predicate_parts: Dict[str, List[List[List[float]]]] = {}
+    for o in objs:
+        me = o.data
+        me.calc_loop_triangles()
+        tri_list = []
+        for lt in me.loop_triangles:
+            verts = [o.matrix_world @ me.vertices[i].co for i in lt.vertices]
+            # glTF export converts Blender Z-up to glTF Y-up via a -90 deg rotation about
+            # X: (x, y, z)_blend -> (x, z, -y)_glb. The predicate measures the SHIPPED/GLB
+            # frame (floor top y=0, doorway side +Z) — the same frame the runtime
+            # re-derives and the evidence dry-run dumps — so the payload must be in that
+            # frame or the +Z doorway-side convention would silently point at a different
+            # wall. Measured: without this, the peds extract reported aspect 394 / floor
+            # area 0.07 (the floor's depth axis read as its 1.3 cm thickness).
+            tri_list.append(
+                [[round(v[0], 4), round(v[2], 4), round(-v[1], 4)] for v in verts]
+            )
+        predicate_parts[o.name] = tri_list
+
+    predicate = evaluate({"room": args.room, "parts": predicate_parts})
+    if args.predicate_output:
+        with open(args.predicate_output, "w", encoding="utf-8") as pf:
+            json.dump(predicate, pf, indent=2)
+    if not predicate["pass"] and not args.allow_predicate_refuse:
+        raise SystemExit(
+            "room predicate REFUSED this bake: "
+            + "; ".join(predicate["refuseReasons"])
+            + " (re-run with --allow-predicate-refuse to force through; a refused room must not ship)"
+        )
+
     print(
         json.dumps(
             {
@@ -218,6 +297,8 @@ def main() -> int:
                 "extentMeters": [round(maxs[0] - mins[0], 3), round(maxs[1] - mins[1], 3), round(maxs[2] - mins[2], 3)],
                 "floorTopY": round(floor_top, 3),
                 "exportPath": args.output,
+                "predicate": predicate,
+                "droppedInteriorHullFaces": dropped,
             }
         )
     )
