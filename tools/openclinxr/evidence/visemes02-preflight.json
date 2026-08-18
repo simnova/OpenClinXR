@@ -1,0 +1,129 @@
+{
+  "helperStripVertex": 13380,
+  "enumeratedFrom": ".openclinxr-local/provider-cache/visemes/makehuman-visemes02/targets/visemes",
+  "manifest": ".openclinxr-local/provider-cache/visemes/makehuman-visemes02/packs/visemes02.json",
+  "rows": [
+    {
+      "name": "viseme_CH",
+      "vertCount": 1890,
+      "maxIdx": 15119,
+      "helperRows": 19,
+      "helperClean": false
+    },
+    {
+      "name": "viseme_DD",
+      "vertCount": 1633,
+      "maxIdx": 15059,
+      "helperRows": 294,
+      "helperClean": false
+    },
+    {
+      "name": "viseme_E",
+      "vertCount": 2799,
+      "maxIdx": 15059,
+      "helperRows": 410,
+      "helperClean": false
+    },
+    {
+      "name": "viseme_FF",
+      "vertCount": 1554,
+      "maxIdx": 11968,
+      "helperRows": 0,
+      "helperClean": true
+    },
+    {
+      "name": "viseme_I",
+      "vertCount": 1581,
+      "maxIdx": 11968,
+      "helperRows": 0,
+      "helperClean": true
+    },
+    {
+      "name": "viseme_O",
+      "vertCount": 2266,
+      "maxIdx": 15059,
+      "helperRows": 294,
+      "helperClean": false
+    },
+    {
+      "name": "viseme_PP",
+      "vertCount": 2282,
+      "maxIdx": 15059,
+      "helperRows": 294,
+      "helperClean": false
+    },
+    {
+      "name": "viseme_RR",
+      "vertCount": 1667,
+      "maxIdx": 11968,
+      "helperRows": 0,
+      "helperClean": true
+    },
+    {
+      "name": "viseme_SS",
+      "vertCount": 2296,
+      "maxIdx": 14991,
+      "helperRows": 116,
+      "helperClean": false
+    },
+    {
+      "name": "viseme_TH",
+      "vertCount": 1628,
+      "maxIdx": 15059,
+      "helperRows": 294,
+      "helperClean": false
+    },
+    {
+      "name": "viseme_U",
+      "vertCount": 1729,
+      "maxIdx": 11968,
+      "helperRows": 0,
+      "helperClean": true
+    },
+    {
+      "name": "viseme_aa",
+      "vertCount": 2548,
+      "maxIdx": 15059,
+      "helperRows": 294,
+      "helperClean": false
+    },
+    {
+      "name": "viseme_kk",
+      "vertCount": 2090,
+      "maxIdx": 15059,
+      "helperRows": 294,
+      "helperClean": false
+    },
+    {
+      "name": "viseme_nn",
+      "vertCount": 2716,
+      "maxIdx": 15119,
+      "helperRows": 422,
+      "helperClean": false
+    },
+    {
+      "name": "viseme_sil",
+      "vertCount": 0,
+      "maxIdx": -1,
+      "helperRows": 0,
+      "helperClean": true
+    }
+  ],
+  "helperCleanTargets": [
+    "viseme_FF",
+    "viseme_I",
+    "viseme_RR",
+    "viseme_U",
+    "viseme_sil"
+  ],
+  "measuredAt": "2026-08-18T20:54:22.821Z",
+  "claimScope": "index-range preflight only — a row index >= 13380 means the target must be applied before the helper strip (MADR 0052); it is not a verdict against the pack and says nothing about fit or deformation",
+  "notEvidenceFor": [
+    "fit quality",
+    "deformation",
+    "appearance",
+    "lip-sync correctness",
+    "apply path (E6.2)",
+    "bake (E6.3)"
+  ]
+}
