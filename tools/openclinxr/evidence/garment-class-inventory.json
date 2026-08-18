@@ -137,7 +137,7 @@
       "class": "footwear",
       "hemFractionOfBody": 0.0159,
       "shoulderCoverage": "no_shoulder_contact",
-      "evidence": "hem at 0.016 of body height (feet=0, crown=1), top at 0.052; no vertices above 0.00 of body height (top at 0.052); class footwear; flat sole, top at 0.05 body height"
+      "evidence": "hem at 0.016 of body height (feet=0, crown=1), top at 0.052; garment never reaches the shoulder band (0.70-0.84) \u2014 no shoulder contact; class footwear; flat sole, top at 0.05 body height"
     },
     {
       "basename": "toigo_mj_cloth_shoes.mhclo",
@@ -145,7 +145,7 @@
       "class": "footwear",
       "hemFractionOfBody": 0.0149,
       "shoulderCoverage": "no_shoulder_contact",
-      "evidence": "hem at 0.015 of body height (feet=0, crown=1), top at 0.059; no vertices above 0.00 of body height (top at 0.059); class footwear; low shoe, top at 0.06 body height"
+      "evidence": "hem at 0.015 of body height (feet=0, crown=1), top at 0.059; garment never reaches the shoulder band (0.70-0.84) \u2014 no shoulder contact; class footwear; low shoe, top at 0.06 body height"
     }
   ]
 }
