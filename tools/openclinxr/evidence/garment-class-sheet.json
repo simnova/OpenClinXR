@@ -1,0 +1,75 @@
+{
+  "schemaVersion": "openclinxr.garment-class-sheet.v1",
+  "issue": "416",
+  "factoryStep": "instrument",
+  "measuredAt": "2026-08-18T19:04:27.272Z",
+  "renderer": "apps/ui-xr isolated-subject.html `glb` subject kind (three.js WebGLRenderer via ui-xr dev:portless); OBJ->GLB by three.js OBJLoader+GLTFExporter (garment-class-sheet.ts); composited by buildContactSheet from isolated-subject-harness.ts (Playwright HTML composite)",
+  "sheet": "garment-class-sheet.png",
+  "cells": [
+    {
+      "basename": "crudegown.mhclo",
+      "class": "evening_dress",
+      "cell": 0
+    },
+    {
+      "basename": "crudelabcoatopen.mhclo",
+      "class": "labcoat",
+      "cell": 1
+    },
+    {
+      "basename": "male_crude_labcoatop.mhclo",
+      "class": "labcoat",
+      "cell": 2
+    },
+    {
+      "basename": "Scrub_Pants.mhclo",
+      "class": "scrub",
+      "cell": 3
+    },
+    {
+      "basename": "Scrub_Shirt.mhclo",
+      "class": "scrub",
+      "cell": 4
+    },
+    {
+      "basename": "cargo_pants.mhclo",
+      "class": "street",
+      "cell": 5
+    },
+    {
+      "basename": "elvs_crude_t-shirt_male.mhclo",
+      "class": "street",
+      "cell": 6
+    },
+    {
+      "basename": "namuhekam_male_polo_shirt.mhclo",
+      "class": "street",
+      "cell": 7
+    },
+    {
+      "basename": "toigo_basic_tucked_t-shirt.mhclo",
+      "class": "street",
+      "cell": 8
+    },
+    {
+      "basename": "toigo_fisherman_sweater.mhclo",
+      "class": "street",
+      "cell": 9
+    },
+    {
+      "basename": "culturalibre_male_boots.mhclo",
+      "class": "footwear",
+      "cell": 10
+    },
+    {
+      "basename": "toigo_flats.mhclo",
+      "class": "footwear",
+      "cell": 11
+    },
+    {
+      "basename": "toigo_mj_cloth_shoes.mhclo",
+      "class": "footwear",
+      "cell": 12
+    }
+  ]
+}

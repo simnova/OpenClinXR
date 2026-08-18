@@ -10,3 +10,9 @@ declare module "*/three/build/three.module.js" {
 declare module "*/three/examples/jsm/loaders/GLTFLoader.js" {
   export * from "three/addons/loaders/GLTFLoader.js";
 }
+declare module "*/three/examples/jsm/loaders/OBJLoader.js" {
+  export * from "three/addons/loaders/OBJLoader.js";
+}
+declare module "*/three/examples/jsm/exporters/GLTFExporter.js" {
+  export * from "three/addons/exporters/GLTFExporter.js";
+}
