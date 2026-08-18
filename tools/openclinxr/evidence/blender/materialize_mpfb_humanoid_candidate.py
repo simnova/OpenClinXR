@@ -3132,7 +3132,7 @@ def main():
     _stage_dir = REPO_ROOT / "tools/openclinxr/asset-pipeline/makeclothes"
     if str(_stage_dir) not in _sys3.path:
         _sys3.path.insert(0, str(_stage_dir))
-    from body_param_stage import import_obj, apply_object_transforms, transfer_weights_body_to_garment, world_bounds  # noqa: E402
+    from body_param_stage import import_obj, apply_object_transforms, transfer_weights_body_to_garment, world_bounds, fit_upper_hem_to_waistband  # noqa: E402
 
     # #180: the palette function from the Anny rail, imported lazily the same way the
     # scalp-hair region is (above, :1606-1608). Consumed as-is — the locked gown/scrub
@@ -3275,12 +3275,31 @@ def main():
             raise RuntimeError(f"lower garment sources missing in provider cache: {_pants_dir}")
 
         _lower_lic_ok, _lower_lic_raw = read_hair_mhclo_licence(pants_mhclo)
+        _lower_lic_matcher = "hair"
+        if not _lower_lic_ok and _lower_lic_raw is None:
+            # The hair parser (:409) only matches `# license <token>`. GARMENT headers in this
+            # cache also use `# <Author> - CC0`, which the factory ALREADY accepts on the library
+            # rail: fit-cli.ts:198-200 `authorDashCc`, recorded as accepted for THIS exact file in
+            # lower-body-garment-exists.test.ts:107 and shipped-garments-are-reproducible.test.ts:79.
+            # Copied verbatim rather than re-invented (D1). This does NOT relax the hair gate, does
+            # NOT touch the scrub-pants gate at :3015, and adds NO uuid override: AGPL still hard-
+            # refuses above, and an author line carrying no CC0 token still raises below.
+            _lower_hdr = pants_mhclo.read_text(encoding="utf-8", errors="replace")[:4000]
+            _m_dash = re.search(
+                r"#\s*([^\n]*?)\s*[-\u2013\u2014]\s*(CC0|CC-?0|CC-?BY(?:\s*[0-9.]+)?(?:\s*[^#\n]*)?)\s*$",
+                _lower_hdr,
+                re.I | re.M,
+            )
+            if _m_dash and re.search(r"cc\s*[-_ ]?0", _m_dash.group(2), re.I):
+                _lower_lic_ok = True
+                _lower_lic_raw = _m_dash.group(2).strip()
+                _lower_lic_matcher = "author_dash_cc"
         if not _lower_lic_ok:
             raise RuntimeError(
                 f"lower garment {_lower_lib_name} licence NOT permitted per its own "
                 f".mhclo header: {_lower_lic_raw!r} — hard refusal (AGPL/copyleft or unspecified)"
             )
-        print(f"LOWER_GARMENT_LICENCE {_lower_lib_name} {_lower_lic_raw!r}")
+        print(f"LOWER_GARMENT_LICENCE {_lower_lib_name} {_lower_lic_raw!r} matcher={_lower_lic_matcher}")
 
         pants = import_obj(str(pants_obj), _lower_lib_name, force_z=False)
         apply_object_transforms(pants)
@@ -3574,6 +3593,17 @@ def main():
     regularize_rim(
         pants, _ankle_env_window, envelope="max", which="bottom", env_source="zone", row3_blend=_ankle_row3_blend
     )
+
+    # issue-320 / leftover 1 — push the upper hem down to the SHIPPED waistband. Runs here,
+    # not at the cargo fit, because the LOWER GATE (:3401-3519) replaces the sparse 392-tri
+    # library trouser with the body-derived cover shell, and #373's regularize_rim smooths
+    # the band-cut zigzag this function measures. Both must precede it or the terminus is
+    # derived from geometry that never exports. Wired, not re-authored (D1): the same
+    # function the library rail calls at body_param_stage.py:2579. Scrub actors are skipped
+    # (measured closed: kevin 0/36 gapped, min +2.64 mm) and a garment that already meets is
+    # a no-op inside the function anyway.
+    if pants is not None and garment is not None and _lower_kind != "scrub":
+        print("WAIST_MEET_UPPER", fit_upper_hem_to_waistband(garment, pants))
 
     # 2026-08-14 medical wardrobe — the physician's white lab coat as a THIRD layer
     # over the clinician scrub shirt + scrub pants. The coat is the CC0
