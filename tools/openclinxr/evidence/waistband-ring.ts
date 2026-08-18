@@ -6,12 +6,13 @@ import { isUpperGarmentName } from "./garment-slot.ts";
 /**
  * #427 — the shared waistband-ring instrument. ONE copy for every consumer.
  *
- * Three consumers import from here and nowhere else: the shipped smoothness contract
+ * Four consumers import from here and nowhere else: the shipped smoothness contract
  * (the-waistband-is-as-smooth-as-the-hem.test.ts), the E5 membership contract
- * (every-shipped-trouser-waistband-is-measured.test.ts), and the artifact generator
- * (waistband-membership-write.ts). The alternative — each consumer carrying its own copy —
- * is how the matcher went stale in multiple places (#389's warning) and how a second
- * instrument that happens to be quiet can pass a "same instrument" check.
+ * (every-shipped-trouser-waistband-is-measured.test.ts), and the two artifact generators
+ * (waistband-membership-write.ts, waistband-ratio-provenance-write.ts). The alternative —
+ * each consumer carrying its own copy — is how the matcher went stale in multiple places
+ * (#389's warning) and how a second instrument that happens to be quiet can pass a
+ * "same instrument" check.
  *
  * The ring measurement is #373's, unchanged: order the boundary ring by angle about the
  * body axis, subtract a 7-neighbour circular moving average (which removes the contour),
@@ -42,6 +43,10 @@ export type TrouserRow = {
   waist: Ring | null;
   hem: Ring | null;
   pantsTris: number;
+  /** #429 — every upper-slot garment material on the actor, in traversal order. */
+  upperGarments: string[];
+  /** #429 — the material whose bottom ring supplied the hem (the first upper with a measurable ring). */
+  hemMesh: string;
 };
 
 /**
@@ -90,6 +95,8 @@ export async function measureTrouserActor(actor: string, generatedDir: string = 
   let hem: Ring | null = null;
   let pantsTris = 0;
   let trouserMesh = "";
+  const upperGarments: string[] = [];
+  let hemMesh = "";
   for (const mesh of doc.getRoot().listMeshes()) {
     for (const prim of mesh.listPrimitives()) {
       const name = prim.getMaterial()?.getName() ?? "";
@@ -109,10 +116,17 @@ export async function measureTrouserActor(actor: string, generatedDir: string = 
         waist = ringHighFrequency(pts, "top");
         pantsTris = idx ? idx.getCount() / 3 : 0;
         trouserMesh = name;
-      } else if (!hem) {
-        hem = ringHighFrequency(pts, "bottom");
+      } else {
+        upperGarments.push(name);
+        if (!hem) {
+          const ring = ringHighFrequency(pts, "bottom");
+          if (ring) {
+            hem = ring;
+            hemMesh = name;
+          }
+        }
       }
     }
   }
-  return { actor, trouserMesh, waist, hem, pantsTris };
+  return { actor, trouserMesh, waist, hem, pantsTris, upperGarments, hemMesh };
 }

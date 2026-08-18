@@ -1,0 +1,78 @@
+{
+  "enumeratedFrom": "apps/ui-xr/public/generated-humanoids",
+  "glbFilesScanned": 14,
+  "rows": [
+    {
+      "actor": "mpfb-clinical-nurse-adult",
+      "waistRingMesh": "mat_makeclothes_library_scrub_pants",
+      "hemRingMesh": "mat_makeclothes_library_scrub_shirt",
+      "upperGarments": [
+        "mat_makeclothes_library_scrub_shirt"
+      ],
+      "comparable": true,
+      "ratio": 3.958
+    },
+    {
+      "actor": "mpfb-clinical-physician-adult",
+      "waistRingMesh": "mat_makeclothes_library_scrub_pants",
+      "hemRingMesh": "mat_makeclothes_library_lab_coat",
+      "upperGarments": [
+        "mat_makeclothes_library_lab_coat",
+        "mat_makeclothes_library_scrub_shirt"
+      ],
+      "comparable": false,
+      "notComparableReason": "hem ambiguous: 2 upper garments (mat_makeclothes_library_lab_coat, mat_makeclothes_library_scrub_shirt); the first supplied the hem ring",
+      "ratio": 0.239
+    },
+    {
+      "actor": "mpfb-family-partner-adult",
+      "waistRingMesh": "mat_makeclothes_library_cargo_pants.001",
+      "hemRingMesh": "mat_makeclothes_library_toigo_t_shirt",
+      "upperGarments": [
+        "mat_makeclothes_library_toigo_t_shirt"
+      ],
+      "comparable": true,
+      "ratio": 1.592
+    },
+    {
+      "actor": "mpfb-ob-patient-aisha",
+      "waistRingMesh": "mat_makeclothes_library_cargo_pants.001",
+      "hemRingMesh": "mat_makeclothes_library_toigo_t_shirt",
+      "upperGarments": [
+        "mat_makeclothes_library_toigo_t_shirt"
+      ],
+      "comparable": true,
+      "ratio": 3.327
+    },
+    {
+      "actor": "mpfb-peds-nurse-kevin",
+      "waistRingMesh": "mat_makeclothes_library_scrub_pants",
+      "hemRingMesh": "mat_makeclothes_library_scrub_shirt",
+      "upperGarments": [
+        "mat_makeclothes_library_scrub_shirt"
+      ],
+      "comparable": true,
+      "ratio": 3.958
+    },
+    {
+      "actor": "mpfb-peds-parent-aisha",
+      "waistRingMesh": "mat_makeclothes_library_cargo_pants.001",
+      "hemRingMesh": "mat_makeclothes_library_toigo_t_shirt",
+      "upperGarments": [
+        "mat_makeclothes_library_toigo_t_shirt"
+      ],
+      "comparable": true,
+      "ratio": 3.327
+    },
+    {
+      "actor": "mpfb-peds-patient-child",
+      "waistRingMesh": "mat_makeclothes_library_cargo_pants.001",
+      "hemRingMesh": "mat_makeclothes_library_toigo_t_shirt",
+      "upperGarments": [
+        "mat_makeclothes_library_toigo_t_shirt"
+      ],
+      "comparable": true,
+      "ratio": 1.7
+    }
+  ]
+}
