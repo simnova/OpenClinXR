@@ -99,7 +99,7 @@ import { describe, expect, it } from "vitest";
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const PUBLIC = join(REPO_ROOT, "apps/ui-xr/public");
-const MODULE_SRC = join(REPO_ROOT, "apps/ui-xr/src/infinigen-station-environment.ts");
+const MODULE_SRC = join(REPO_ROOT, "apps/ui-xr/src/infinigen-environment-assets.ts");
 
 const KNOWN_GOOD_ENV = "ed_exam_bay_v1";
 /** Measured 2026-08-14 on the shipped ED bay, +Z and +X faces. */

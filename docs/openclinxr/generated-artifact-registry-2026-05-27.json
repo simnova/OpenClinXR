@@ -15295,6 +15295,13 @@
       "rationale": "Generated Infinigen room shell, third environmentId-keyed consumer (primary_care_clinic_room_v1). Deterministic clinical_bay.gin seed-1 bedroom_0 segment 2, yaw 0; extract-time predicate PASSES (aspect 1.038, area 40.69 m2, height 2.41 m, hullFrontFacing 0, doorway survivors 5). SHA-256 a76a71eaa660d856c1bccd039e14fe48f3041901b0f9126ecd55a61d9e36fdf8. Hand-added row — do not run pnpm docs:artifacts. Provenance in public/xr-assets/environment/PROVENANCE.md."
     },
     {
+      "path": "apps/ui-xr/public/xr-assets/environment/infinigen-ed-stroke-bay.glb",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated Infinigen room shell, fourth environmentId-keyed consumer (ed_stroke_bay_v1). Deterministic clinical_bay.gin seed-2 bedroom_0 segment 1, yaw 0; extract-time predicate PASSES (aspect 1.017, area 46.66 m2, height 2.425 m, hullFrontFacing 7, doorway survivors 5). SHA-256 dd30ef77081c535dbe9ed9cb233c6637643c3bf1651327034d34b7d566401fb6. Mapping table extracted to infinigen-environment-assets.ts (600-line ceiling). Hand-added row — do not run pnpm docs:artifacts. Provenance in public/xr-assets/environment/PROVENANCE.md."
+    },
+    {
       "path": "apps/ui-xr/public/xr-assets/generated/adult_abdominal_pain_v1/learner-runtime-bundle.v1.json",
       "authority": "keep-current",
       "tracked": true,
