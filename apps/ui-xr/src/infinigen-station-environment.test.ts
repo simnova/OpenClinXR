@@ -112,7 +112,7 @@ describe("Infinigen station environment by environmentId (#336)", () => {
     const scene = new Group() as never;
     const status = loadFn!({
       scene,
-      environmentId: "surgical_ward_room_v1",
+      environmentId: "stepdown_room_v1",
       stationEnvironment: new Group(),
       onStatus: () => {},
     });
@@ -635,4 +635,19 @@ describe("#342c wall fixtures re-anchor onto the generated room", () => {
  * ceilingHeight 2.427 m, hullFrontFacingToDoorwayEyeCount 0, doorwayCandidateSurviveCount 4;
  * +Z hull 0.1179 m (world). Shipped bytes `infinigen-urgent-care-clinic.glb` — distinct
  * from the eight shipped rooms by hash AND geometric signature.
+ */
+
+/**
+ * ## FIXED — tenth environmentId maps to its own generated room
+ *
+ * Flips the planted `surgical_ward_room_v1 -> null` assertion to the shipped GLB path
+ * and moves the unmapped example to `stepdown_room_v1` (still unmapped). Seed 25
+ * `clinical_bay.gin`, `bedroom_0` segment 0 (segment-pruned copy keeping `bedroom_0/0.*`
+ * wall/floor/ceiling/exterior), `--yaw-deg 90`, `--drop-interior-hull-faces` DEFAULT ON,
+ * predicate DEFAULT ON. Predicate PASSES: floorAspect 1.0, floorArea 54.74 m2,
+ * ceilingHeight 2.447 m, hullFrontFacingToDoorwayEyeCount 5, doorwayCandidateSurviveCount 5;
+ * +Z hull 0.1013 m (world). Shipped bytes `infinigen-surgical-ward.glb` SHA-256
+ * `491c43d6fba5974ff330edc64ae85f1b43e1b201678622a4ae74b2383be37656`, signature 4 meshes /
+ * 4 materials / 6 textures / extent 7.74 x 2.65 x 8.56 m — distinct from the nine shipped
+ * rooms by hash AND geometric signature.
  */
