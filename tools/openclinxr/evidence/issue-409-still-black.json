@@ -1,0 +1,107 @@
+{
+ "issue": 409,
+ "verdict": "NOT_BLACK",
+ "measuredAt": "2026-08-18T19:5x",
+ "method": "regionLuminance (tools/openclinxr/evidence/lib/png-region-luminance.ts) over the shipped station stills in .openclinxr/evidence/ui-xr-environment-room/latest, region {left:0, top:0.1, width:0.68, height:0.8}, blackLuma 8 \u2014 the same region the black-frame gate uses",
+ "subject": {
+  "station": "peds_asthma_parent_anxiety_v1",
+  "stillMtime": "2026-08-18 05:34"
+ },
+ "asFiled": {
+  "nonBlackPct": 0.3,
+  "meanLuma": 0.5,
+  "camera": "(-2.42, 1.70, 1.90) interior derived eye"
+ },
+ "measuredNow": {
+  "nonBlackPct": 99.4,
+  "meanLuma": 79.1,
+  "rankInBank": "2nd brightest of 14"
+ },
+ "resolvedBy": {
+  "commit": "5c81ffd5",
+  "what": "reject doorway cameras whose look ray hits a door leaf",
+  "landedAt": "2026-08-18 05:02",
+  "stillIsPostFix": true
+ },
+ "bankDistribution": [
+  {
+   "station": "ed_stroke_alert_handoff_v1",
+   "nonBlackPct": 42.8,
+   "meanLuma": 28.7
+  },
+  {
+   "station": "peds_fever_v1",
+   "nonBlackPct": 43.3,
+   "meanLuma": 36.9
+  },
+  {
+   "station": "primary_care_dyslipidemia_joint_pain_v1",
+   "nonBlackPct": 49.9,
+   "meanLuma": 41.3
+  },
+  {
+   "station": "stepdown_sepsis_nurse_escalation_v1",
+   "nonBlackPct": 53.8,
+   "meanLuma": 43.9
+  },
+  {
+   "station": "telehealth_diabetes_health_literacy_v1",
+   "nonBlackPct": 68.7,
+   "meanLuma": 47.0
+  },
+  {
+   "station": "ob_headache_preeclampsia_triage_v1",
+   "nonBlackPct": 69.9,
+   "meanLuma": 129.5
+  },
+  {
+   "station": "ed_chest_pain_priority_v1",
+   "nonBlackPct": 70.8,
+   "meanLuma": 76.4
+  },
+  {
+   "station": "adult_abdominal_pain_v1",
+   "nonBlackPct": 71.8,
+   "meanLuma": 53.7
+  },
+  {
+   "station": "clinic_abdominal_pain_interpreter_v1",
+   "nonBlackPct": 72.8,
+   "meanLuma": 47.7
+  },
+  {
+   "station": "postop_fever_consult_pressure_v1",
+   "nonBlackPct": 76.1,
+   "meanLuma": 61.8
+  },
+  {
+   "station": "ward_delirium_med_rec_v1",
+   "nonBlackPct": 82.3,
+   "meanLuma": 62.7
+  },
+  {
+   "station": "psych_suicidal_ideation_safety_v1",
+   "nonBlackPct": 83.8,
+   "meanLuma": 59.2
+  },
+  {
+   "station": "peds_asthma_parent_anxiety_v1",
+   "nonBlackPct": 99.4,
+   "meanLuma": 79.1
+  },
+  {
+   "station": "oncology_bad_news_family_v1",
+   "nonBlackPct": 99.5,
+   "meanLuma": 62.2
+  }
+ ],
+ "orchestratorPixelGrade": "Interior renders: floor, walls, ceiling structure, IV poles, monitors, exam counter, nurse in teal scrubs, child at lower-left, blue door panel at right. No hull occlusion.",
+ "hideExteriorControlNotRun": "The filed control (hide `exterior` -> 97.4%) was not re-run: the baseline it was a control FOR no longer reproduces, so there is nothing for it to control against.",
+ "claimScope": "the peds station's derived-camera still is not a black frame on 2026-08-18 post-5c81ffd5 bytes",
+ "notEvidenceFor": [
+  "that the hull never occludes any camera",
+  "other stations' framing quality",
+  "clinical realism",
+  "Quest"
+ ]
+}
