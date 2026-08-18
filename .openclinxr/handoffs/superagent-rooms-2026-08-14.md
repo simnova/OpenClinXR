@@ -1,11 +1,12 @@
 # Superagent brief — promote the remaining station rooms
 
 **From:** hourly-loop orchestrator. **Date:** 2026-08-14.
-**Status:** **ONCOLOGY LANDED** `e0e5dbbf`. Eighth room:
-`oncology_consult_room_v1` → `infinigen-oncology-consult.glb`
-sha `65969fe4…` (new seed 17 `dining-room_0` yaw 0). Orchestrator grade:
-**ACCEPT interior**. Next: `urgent_care_clinic_room_v1` (new seed 18+).
-No humanoids. Prior seven room bytes frozen.
+**Status:** **URGENT CARE LANDED** `5bcaedb1`. Ninth room:
+`urgent_care_clinic_room_v1` → `infinigen-urgent-care-clinic.glb`
+sha `5aa1c6f1…` (seed 22 `bedroom_0` yaw 270 after seed 18 doorway
+dead-end). Orchestrator grade: **ACCEPT interior**. Next:
+`surgical_ward_room_v1` (new seed 23+; skip 18). No humanoids. Prior
+eight room bytes frozen.
 
 ## READ THIS FIRST — one of the two existing rooms renders BLACK
 
