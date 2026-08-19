@@ -1198,20 +1198,6 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
   const sliceId = options.slice ?? "unscoped";
   assertDispatchRole(options.role, repoRoot);
 
-  // ISSUE #448: the board is the dequeue queue. The dispatcher (machine) ensures the card is on
-  // the board (item-add when absent) and marks Factory=Dispatched BEFORE the spawn, so a worker
-  // that cannot be tracked is never dispatched. A gh failure here REFUSES the dispatch (chosen
-  // and recorded: a silently-untracked worker is the mute-worker state this issue exists to fix,
-  // and gh is already load-bearing for the loop's briefs/comments). Slices with no card (no board
-  // record, not issue-<n>) warn and continue — there is nothing to track.
-  const factoryWrite = setFactoryField(repoRoot, sliceId, "Dispatched");
-  if (!factoryWrite.ok && factoryWrite.skipped) {
-    console.warn(
-      `WARNING (issue #448): no board card resolvable for slice '${sliceId}' — Factory stays unset. `
-      + `Only slices with a board record or an issue-<n> id are tracked.`,
-    );
-  }
-
   // --- Layer-3 contract assembly (trusted plane) ---
   //
   // Ordered BEFORE worktree creation deliberately. When the gate first shipped it ran after, and a
@@ -1233,6 +1219,22 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
     contract: options.contract,
     contractReason: options.contractReason,
   });
+
+  // ISSUE #448: the board is the dequeue queue. The dispatcher (machine) ensures the card is on
+  // the board (item-add when absent) and marks Factory=Dispatched BEFORE any worktree creation or
+  // spawn, so a worker that cannot be tracked is never dispatched. Ordered AFTER the contract
+  // gates so a refused dispatch (divergence, unproofed worktree) leaves the card at Planted — it
+  // was never dispatched. A gh failure here REFUSES the dispatch (chosen and recorded: a
+  // silently-untracked worker is the mute-worker state this issue exists to fix, and gh is
+  // already load-bearing for the loop's briefs/comments). Slices with no card (no board record,
+  // not issue-<n>) warn and continue — there is nothing to track.
+  const factoryWrite = setFactoryField(repoRoot, sliceId, "Dispatched");
+  if (!factoryWrite.ok && factoryWrite.skipped) {
+    console.warn(
+      `WARNING (issue #448): no board card resolvable for slice '${sliceId}' — Factory stays unset. `
+      + `Only slices with a board record or an issue-<n> id are tracked.`,
+    );
+  }
 
   // ISSUE #396 (measured 2026-08-14): the gitignored-proof-target gate used to fire only at MERGE
   // time — #392 (38 turns) and #367 (51 turns) both completed contract-green and were REFUSED at
