@@ -244,10 +244,14 @@ def align_upper_garment_to_neck(garment, human, armature):
 
 
 def make_material(name, color):
+    # Accept RGB or RGBA (the footwear flat fallback passes RGB; every other
+    # caller passes RGBA). Blender's diffuse_color and Principled Base Color
+    # both require 4 channels.
+    rgba = tuple(color) + (1.0,) if len(color) == 3 else tuple(color)
     material = bpy.data.materials.new(name)
-    material.diffuse_color = color
+    material.diffuse_color = rgba
     material.use_nodes = True
-    material.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = color
+    material.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = rgba
     material.node_tree.nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.78
     return material
 
@@ -1371,6 +1375,40 @@ def parse_args():
     return parser.parse_args(argv)
 
 
+def install_visemes02_targets():
+    """#432 — install the staged visemes02 pack into the MPFB data targets tree.
+
+    FaceService.load_targets resolves each viseme name through
+    TargetService.target_full_path, which searches the MPFB extension's
+    data/targets tree (AssetService.get_asset_roots("targets") scans *.target
+    recursively). The staged pack is copied there byte-exactly and idempotently —
+    the standard way a MakeHuman target pack becomes available to MPFB, so the
+    PROVEN service call below resolves the names. Never hand-authored (D1).
+    Returns the installed file paths.
+    """
+    from bl_ext.user_default.mpfb.services.faceservice import META_VISEMES  # noqa: E402
+    from bl_ext.user_default.mpfb.services.locationservice import LocationService  # noqa: E402
+
+    cache = REPO_ROOT / ".openclinxr-local/provider-cache/visemes/makehuman-visemes02/targets/visemes"
+    if not cache.is_dir():
+        raise RuntimeError(
+            f"#432: visemes02 staged cache missing (operator assumption 2026-08-11): {cache}"
+        )
+    dest = pathlib.Path(LocationService.get_mpfb_data("targets/visemes"))
+    dest.mkdir(parents=True, exist_ok=True)
+    installed = []
+    for name in META_VISEMES:
+        src = cache / f"{name}.target"
+        if not src.is_file():
+            raise RuntimeError(f"#432: viseme target {name} missing from staged cache: {cache}")
+        out = dest / f"{name}.target"
+        if not out.is_file() or out.read_bytes() != src.read_bytes():
+            out.write_bytes(src.read_bytes())
+        installed.append(str(out))
+    print(f"VISEMES02_INSTALLED {len(installed)} -> {dest}")
+    return installed
+
+
 # ---------------------------------------------------------------------------
 # #328: derive the MPFB macro dict from a TRACKED Anny reference.
 #
@@ -1438,6 +1476,10 @@ EYE_DIAMETER_TARGET_MM = {
     # the nurse adult (same Anny reference), so adult axial length applies.
     "mpfb-clinical-physician-adult": 24.0,
     "mpfb-family-partner-adult": 24.0,
+    # #432 (E6.3) — the viseme inspect asset is a NEW default-macro adult-female body
+    # (the aisha path); adult axial length applies. Keyed by output GLB stem, like
+    # every other row.
+    "mpfb-viseme-inspect": 24.0,
 }
 
 
@@ -2552,6 +2594,45 @@ def main():
             f"fewer than 8 mouth-named face targets loaded ({len(mouth_named)}); "
             f"a bake that ships without usable mouth morphs must fail loudly"
         )
+
+    # #432 (E6.3) — apply the 15 visemes02 targets BEFORE the #318 helper strip, as clothes
+    # do. FaceService.load_targets is the proven tool (#428: faceservice.py:154): the flags
+    # below load exactly the 15 META_VISEMES names onto the FULL basemesh. Ten of the
+    # targets reference helper verts up to 14,991-15,119 (#426), so the load MUST run while
+    # the full topology exists — the strip deletes those verts and re-maps shape-key blocks,
+    # and a target loaded after the strip would mis-index (the same load-bearing order as
+    # the face keys above, body_param_stage.py #221 A2). The staged pack
+    # (.openclinxr-local/provider-cache/visemes/makehuman-visemes02, operator assumption
+    # 2026-08-11) is installed into the MPFB extension's data targets tree first — the
+    # standard way a MakeHuman target pack becomes available to TargetService.target_full_path
+    # — then the shipped service is called with the #428 flags. configure_lip_sync
+    # (faceservice.py:304) is NOT called: it requires the iocgpoly_lip_sync addon, which is
+    # not installed on this machine; the runtime mapping is out of scope for an inspect GLB
+    # and is recorded in the provenance artifact.
+    install_visemes02_targets()
+    from bl_ext.user_default.mpfb.services.faceservice import FaceService as _FaceService  # noqa: E402
+
+    _FaceService.load_targets(
+        human,
+        load_microsoft_visemes=False,
+        load_meta_visemes=True,
+        load_arkit_faceunits=False,
+    )
+    bpy.context.view_layer.update()
+    _viseme_keys = [
+        kb.name
+        for kb in (human.data.shape_keys.key_blocks if human.data.shape_keys else [])
+        if kb.name.startswith("viseme_")
+    ]
+    if len(_viseme_keys) != 15:
+        raise RuntimeError(
+            f"#432: expected 15 viseme_* shape keys after FaceService.load_targets, "
+            f"got {len(_viseme_keys)}: {sorted(_viseme_keys)}"
+        )
+    for _kb in human.data.shape_keys.key_blocks:
+        if _kb.name != "Basis":
+            _kb.value = 0.0
+    print(f"VISEMES02_LOADED {len(_viseme_keys)} {sorted(_viseme_keys)}")
 
     # #337: fit MakeHuman's default CC0 eyes on the FULL basemesh BEFORE the #318 helper
     # strip. The eye .mhclo (`data/eyes/hm08/low-poly` in the makehumancommunity/makehuman2
