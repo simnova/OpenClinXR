@@ -1,0 +1,190 @@
+{
+  "schemaVersion": "openclinxr.speaking-parent-morph-weights.v1",
+  "generatedAt": "2026-08-19T02:38:38.598Z",
+  "actor": "parent_tara_johnson_v1",
+  "enumeratedFrom": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb",
+  "sourceGlb": "/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb",
+  "sourceGlbSha256": "b8801c637f5fd43bd3c51f140782b4c40da5d27e9eb93a56534cde9b9c7e2ec7",
+  "morphs": [
+    {
+      "name": "eye-left-closure",
+      "speaking": 0,
+      "notSpeaking": 0
+    },
+    {
+      "name": "eye-left-opened-up",
+      "speaking": 0,
+      "notSpeaking": 0
+    },
+    {
+      "name": "eye-left-slit",
+      "speaking": 0,
+      "notSpeaking": 0
+    },
+    {
+      "name": "eye-right-closure",
+      "speaking": 0,
+      "notSpeaking": 0
+    },
+    {
+      "name": "eye-right-opened-up",
+      "speaking": 0,
+      "notSpeaking": 0
+    },
+    {
+      "name": "eye-right-slit",
+      "speaking": 0,
+      "notSpeaking": 0
+    },
+    {
+      "name": "eyebrows-left-down",
+      "speaking": 0,
+      "notSpeaking": 0
+    },
+    {
+      "name": "eyebrows-left-extern-up",
+      "speaking": 0,
+      "notSpeaking": 0
+    },
+    {
+      "name": "eyebrows-left-inner-up",
+      "speaking": 0.5019,
+      "notSpeaking": 0.0819
+    },
+    {
+      "name": "eyebrows-left-up",
+      "speaking": 0,
+      "notSpeaking": 0
+    },
+    {
+      "name": "eyebrows-right-down",
+      "speaking": 0,
+      "notSpeaking": 0
+    },
+    {
+      "name": "eyebrows-right-extern-up",
+      "speaking": 0,
+      "notSpeaking": 0
+    },
+    {
+      "name": "eyebrows-right-inner-up",
+      "speaking": 0,
+      "notSpeaking": 0
+    },
+    {
+      "name": "eyebrows-right-up",
+      "speaking": 0,
+      "notSpeaking": 0
+    },
+    {
+      "name": "mouth-compression",
+      "speaking": 0,
+      "notSpeaking": 1
+    },
+    {
+      "name": "mouth-corner-puller",
+      "speaking": 0,
+      "notSpeaking": 0
+    },
+    {
+      "name": "mouth-depression-retraction",
+      "speaking": 0,
+      "notSpeaking": 0
+    },
+    {
+      "name": "mouth-depression-retraction.001",
+      "speaking": 0,
+      "notSpeaking": 0
+    },
+    {
+      "name": "mouth-elevation",
+      "speaking": 0,
+      "notSpeaking": 0
+    },
+    {
+      "name": "mouth-eversion",
+      "speaking": 0,
+      "notSpeaking": 0
+    },
+    {
+      "name": "mouth-open",
+      "speaking": 0,
+      "notSpeaking": 0
+    },
+    {
+      "name": "mouth-parling",
+      "speaking": 0,
+      "notSpeaking": 0
+    },
+    {
+      "name": "mouth-part-later",
+      "speaking": 0,
+      "notSpeaking": 0
+    },
+    {
+      "name": "mouth-protusion",
+      "speaking": 0,
+      "notSpeaking": 0
+    },
+    {
+      "name": "mouth-pursing",
+      "speaking": 0,
+      "notSpeaking": 0
+    },
+    {
+      "name": "mouth-retraction",
+      "speaking": 0,
+      "notSpeaking": 0
+    },
+    {
+      "name": "mouth-upward-retraction",
+      "speaking": 0,
+      "notSpeaking": 0
+    },
+    {
+      "name": "neck-platysma",
+      "speaking": 0,
+      "notSpeaking": 0
+    },
+    {
+      "name": "nose-compression-uncompress",
+      "speaking": 0,
+      "notSpeaking": 0
+    },
+    {
+      "name": "nose-depression",
+      "speaking": 0,
+      "notSpeaking": 0
+    },
+    {
+      "name": "nose-left-dilatation",
+      "speaking": 0,
+      "notSpeaking": 0
+    },
+    {
+      "name": "nose-left-elevation",
+      "speaking": 0,
+      "notSpeaking": 0
+    }
+  ],
+  "maxOverAllMorphsSpeaking": {
+    "name": "eyebrows-left-inner-up",
+    "value": 0.5019
+  },
+  "verdict": "harness_artefact",
+  "frame": "sampled at page-elapsed seconds: parent not-speaking t=15.63, parent speaking t=27.73 (trace \"parent communication\"); child not-speaking t=37, child speaking t=41.46 (trace \"work of breathing assessment\")",
+  "url": "http://127.0.0.1:50550/?openclinxrScenarioId=peds_asthma_parent_anxiety_v1&openclinxrCaptureMode=face-detail&openclinxrPortalStart=encounter&openclinxrAcceleratedExam=1",
+  "source": "live runtime read via playwright headless chromium against the ui-xr portless dev server (spawnPortlessDevServer filter @openclinxr/ui-xr); page.evaluate on window.__openClinXrDebugScene of peds_asthma_parent_anxiety_v1; per-morph influences read through the runtime's own morphTargetDictionary (populated from glTF extras.targetNames by GLTFLoader, three 0.184) at a quiet (not-speaking) instant and a phoneme-mouth-cue-visible (speaking) instant; same scenario and state selection as E2.2; 32 target names enumerated from the GLB file itself via NodeIO; NOT a static asset read",
+  "claimScope": "named per-morph influence weights for parent_tara_johnson_v1 (mpfb-peds-parent-aisha.motion-bind.glb) at one live speaking instant and one quiet instant, peds asthma station; decides whether the #431 mouth-open-at-1.0 still is a harness artefact; verdict recomputed by the planted clause (3) from these numbers",
+  "notEvidenceFor": [
+    "the cause of the mid-face collapse (weights vs morph authoring vs topology — none measured)",
+    "any fix",
+    "whether the collapse is visible at any weight (pixel grade is the orchestrator's)",
+    "that the speaking sample is the max mouth-opening over the whole utterance (one instant only)",
+    "other actors or scenarios",
+    "production phoneme timing",
+    "clinical validity",
+    "scoring validity",
+    "quest readiness"
+  ]
+}
