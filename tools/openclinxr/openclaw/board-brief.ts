@@ -135,7 +135,7 @@ export function briefFromIssue(issue: BoardIssue): BriefResult {
       dispatchable: false,
       reason:
         `Issue #${issue.number} has no "## done_when" block, so there is nothing a worker could be `
-        + `held to. Add machine-checkable rules (run:, changed:, exists:, min-bytes:) to dispatch it.`,
+        + `held to. Add machine-checkable rules (run:, changed:, exists:, min-bytes:, measured-before:) to dispatch it.`,
     };
   }
 

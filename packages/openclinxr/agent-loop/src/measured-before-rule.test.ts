@@ -79,6 +79,25 @@ import {
  *   - No pixel is graded here and nothing about product appearance is claimed.
  */
 
+/**
+ * ## FIXED (#177) 2026-08-19
+ *
+ * `measured-before:<artifact>:<product>` landed in `done-when-rules.ts` as a tree proof:
+ *   - vocabulary admits it (`DONE_WHEN_RULE_VOCABULARY.prefixes`), `isKnownDoneWhenRule`
+ *     recognises it, and `partitionDoneWhen` classifies it as a tree proof so dispatch's
+ *     at-least-one-tree-proof gate accepts cards that use it;
+ *   - the artifact must exist (`missing` detail, distinct from ordering);
+ *   - every product file matching the product glob that differs from the trusted spawn baseline
+ *     must have an mtime STRICTLY GREATER than the artifact's — ordering comes from the filesystem,
+ *     never from a self-declared timestamp in the artifact;
+ *   - if no product file changed since the baseline, the rule FAILS (not vacuous, §7t);
+ *   - baseline load for this kind skips the exact `targets` membership check (writeBaselineHashes
+ *     records only `changed:` rules) but keeps every other fail-closed validation, including an
+ *     absent baseline refusing.
+ *
+ * Existing vocabulary untouched: the six prefixes and `handoffs:all-done` still evaluate exactly
+ * as before, and no existing card's rule block needs rewriting.
+ */
 const RULE = "measured-before:";
 
 function tmpTree(prefix: string): string {
@@ -137,7 +156,7 @@ function sliceTree(artifactFirst: boolean): { tree: string; baselineDir: string 
 }
 
 describe("a done_when can prove the pre-fix measurement came FIRST", () => {
-  it.fails("(1) RED: the vocabulary admits an ordering rule", () => {
+  it("(1) RED: the vocabulary admits an ordering rule", () => {
     // The single source of truth must list it, or callers that validate proofs before dispatch
     // (board-brief, dispatch-worker) reject every contract that uses it.
     expect(
@@ -150,7 +169,7 @@ describe("a done_when can prove the pre-fix measurement came FIRST", () => {
     ).toBe(true);
   });
 
-  it.fails("(2) RED COUNTERWEIGHT: a LATE artifact is refused — existence is not ordering", async () => {
+  it("(2) RED COUNTERWEIGHT: a LATE artifact is refused — existence is not ordering", async () => {
     // This is the #106 shape and the reason clause (1) alone is not enough. Both orderings below
     // satisfy `exists:` and `changed:` identically; only ordering separates them.
     const good = sliceTree(true);
@@ -181,7 +200,7 @@ describe("a done_when can prove the pre-fix measurement came FIRST", () => {
     }
   });
 
-  it.fails("(3) RED COUNTERWEIGHT: it is not vacuous — an untouched product file refuses", async () => {
+  it("(3) RED COUNTERWEIGHT: it is not vacuous — an untouched product file refuses", async () => {
     // §7t: a rule that passes when no product edit happened is green about nothing. An artifact
     // written into a tree nobody edited must NOT satisfy an ordering claim about that edit.
     const tree = tmpTree("measured-before-vacuous-");
