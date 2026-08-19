@@ -1,0 +1,3159 @@
+{
+  "schemaVersion": "openclinxr.telehealth-room-inspect.v1",
+  "generatedAt": "2026-08-19T13:56:36.400Z",
+  "scenarioId": "telehealth_diabetes_health_literacy_v1",
+  "environmentId": "telehealth_home_visit_v1",
+  "captureMode": "scene-overview",
+  "measuredAgainstCommit": {
+    "head": "0a55962afc8ad2403d7accbded7da6ed62418e7a",
+    "fingerprint": "4e96b29ac4d362035c9534691172845c519fa3fea88c7610fa281300447df351",
+    "algorithm": "git-head+status+diff-sha256"
+  },
+  "camera": {
+    "position": [
+      -0.4,
+      1.3949999871850014,
+      2.5606824590318507
+    ],
+    "target": [
+      -0.4,
+      0.46499999374151235,
+      -0.2000000023469329
+    ],
+    "fov": 60,
+    "derivation": "chair-focused, all inputs measured from the live scene-graph dump (#342 walker): eyeX = chair cluster centre X (-0.400, union of 6 meshes matching /chair/i); eyeY = chair cluster centre Y + cluster height (0.465 + 0.930, min 1.0 m standing eye); eyeZ = interior max Z - 2 x wall thickness (2.804 - 2 x 0.121 = 2.561); look = chair cluster centre; wall thickness = exterior hull max Z - interior max Z, the #342 stand-off rule"
+  },
+  "still": {
+    "path": "tools/openclinxr/evidence/stills/telehealth-room-isolated.png",
+    "bytes": 380463,
+    "luminance": {
+      "mean": 83.86,
+      "sd": 70.11,
+      "nonBlackPct": 96.2
+    }
+  },
+  "hud": {
+    "examHudNodeCount": 0,
+    "examHudNodeCountBeforeRemoval": 119,
+    "removedVia": "exam HUD DOM nodes removed at capture time (measured 0 after removal)"
+  },
+  "meshes": [
+    {
+      "name": "openclinxr.reusable-pre-encounter-anteroom.floor",
+      "path": "openclinxr.reusable-pre-encounter-anteroom / openclinxr.reusable-pre-encounter-anteroom.floor",
+      "worldMin": [
+        -3.5,
+        -0.07600000113248825,
+        0.9699999761581422
+      ],
+      "worldMax": [
+        3.5,
+        0.006000001132488247,
+        2.670000023841858
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.reusable-pre-encounter-anteroom.portal-left-wall",
+      "path": "openclinxr.reusable-pre-encounter-anteroom / openclinxr.reusable-pre-encounter-anteroom.portal-left-wall",
+      "worldMin": [
+        -2.710000014305115,
+        -0.039999961853027344,
+        0.8774999991059304
+      ],
+      "worldMax": [
+        -1.9899999856948853,
+        2.5399999618530273,
+        0.9225000008940697
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.reusable-pre-encounter-anteroom.portal-right-wall",
+      "path": "openclinxr.reusable-pre-encounter-anteroom / openclinxr.reusable-pre-encounter-anteroom.portal-right-wall",
+      "worldMin": [
+        1.9899999856948853,
+        -0.039999961853027344,
+        0.8774999991059304
+      ],
+      "worldMax": [
+        2.710000014305115,
+        2.5399999618530273,
+        0.9225000008940697
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.reusable-pre-encounter-anteroom.portal-header-wall",
+      "path": "openclinxr.reusable-pre-encounter-anteroom / openclinxr.reusable-pre-encounter-anteroom.portal-header-wall",
+      "worldMin": [
+        -2.674999952316284,
+        2.279999998211861,
+        0.8774999991059304
+      ],
+      "worldMax": [
+        2.674999952316284,
+        2.6200000017881395,
+        0.9225000008940697
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.telehealth_diabetes_health_literacy_v1.encounter-portal-dynamic-opening",
+      "path": "openclinxr.reusable-pre-encounter-anteroom / openclinxr.telehealth_diabetes_health_literacy_v1.encounter-portal-dynamic-opening",
+      "worldMin": [
+        -1.875,
+        0.17999999999999994,
+        0.8474999998137355
+      ],
+      "worldMax": [
+        1.875,
+        2.1799999999999997,
+        0.8725000001862645
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.reusable-pre-encounter-anteroom.portal-left-jamb",
+      "path": "openclinxr.reusable-pre-encounter-anteroom / openclinxr.reusable-pre-encounter-anteroom.portal-left-jamb",
+      "worldMin": [
+        -2.0099999986588957,
+        0.049999976158142,
+        0.6800000013411045
+      ],
+      "worldMax": [
+        -1.8900000013411045,
+        2.250000023841858,
+        0.7999999986588955
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.reusable-pre-encounter-anteroom.portal-right-jamb",
+      "path": "openclinxr.reusable-pre-encounter-anteroom / openclinxr.reusable-pre-encounter-anteroom.portal-right-jamb",
+      "worldMin": [
+        1.8900000013411045,
+        0.049999976158142,
+        0.6800000013411045
+      ],
+      "worldMax": [
+        2.0099999986588957,
+        2.250000023841858,
+        0.7999999986588955
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.reusable-pre-encounter-anteroom.portal-lintel",
+      "path": "openclinxr.reusable-pre-encounter-anteroom / openclinxr.reusable-pre-encounter-anteroom.portal-lintel",
+      "worldMin": [
+        -2.009999990463257,
+        2.1900000013411045,
+        0.6800000013411045
+      ],
+      "worldMax": [
+        2.009999990463257,
+        2.3099999986588955,
+        0.7999999986588955
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.telehealth_diabetes_health_literacy_v1.encounter-portal-dynamic-threshold",
+      "path": "openclinxr.reusable-pre-encounter-anteroom / openclinxr.telehealth_diabetes_health_literacy_v1.encounter-portal-dynamic-threshold",
+      "worldMin": [
+        -2.049999952316284,
+        -0.009999999329447746,
+        0.6299999964237213
+      ],
+      "worldMax": [
+        2.049999952316284,
+        0.04999999932944775,
+        0.8100000035762787
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.reusable-pre-encounter-anteroom.patient-note-capture-cue",
+      "path": "openclinxr.reusable-pre-encounter-anteroom / openclinxr.reusable-pre-encounter-anteroom.patient-note-capture-cue",
+      "worldMin": [
+        -2.9944406642187253,
+        0.9899999856948853,
+        0.7359402276862699
+      ],
+      "worldMax": [
+        -1.605559335781274,
+        1.7100000143051148,
+        1.4240597723137303
+      ],
+      "visible": false,
+      "triangles": 2
+    },
+    {
+      "name": "openclinxr.ed-chest-pain.floor",
+      "path": "openclinxr.station-environment-shell / openclinxr.ed-chest-pain.floor",
+      "worldMin": [
+        -2.5999999046325684,
+        -0.07999999910593034,
+        -1.599999976158142
+      ],
+      "worldMax": [
+        2.5999999046325684,
+        -8.940696724635266e-10,
+        0.9499999761581421
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.station-environment.back-wall",
+      "path": "openclinxr.station-environment-shell / openclinxr.station-environment.back-wall",
+      "worldMin": [
+        -2.5999999046325684,
+        -0.0400000476837159,
+        -1.5999999991059302
+      ],
+      "worldMax": [
+        2.5999999046325684,
+        2.360000047683716,
+        -1.5200000008940695
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.station-environment.left-wall",
+      "path": "openclinxr.station-environment-shell / openclinxr.station-environment.left-wall",
+      "worldMin": [
+        -2.5999999991059304,
+        -0.0400000476837159,
+        -1.599999976158142
+      ],
+      "worldMax": [
+        -2.5200000008940697,
+        2.360000047683716,
+        0.9499999761581421
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.station-environment.right-wall",
+      "path": "openclinxr.station-environment-shell / openclinxr.station-environment.right-wall",
+      "worldMin": [
+        2.5200000008940697,
+        -0.0400000476837159,
+        -1.599999976158142
+      ],
+      "worldMax": [
+        2.5999999991059304,
+        2.360000047683716,
+        0.9499999761581421
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.station-environment.ceiling",
+      "path": "openclinxr.station-environment-shell / openclinxr.station-environment.ceiling",
+      "worldMin": [
+        -2.5999999046325684,
+        2.3400000006705524,
+        -1.599999976158142
+      ],
+      "worldMax": [
+        2.5999999046325684,
+        2.399999999329448,
+        0.9499999761581421
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.station-environment.wall-trim",
+      "path": "openclinxr.station-environment-shell / openclinxr.station-environment.wall-trim",
+      "worldMin": [
+        -2.450000047683716,
+        0.9900000006705523,
+        -1.5175000000745056
+      ],
+      "worldMax": [
+        2.450000047683716,
+        1.0499999993294478,
+        -1.482499999925494
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.station-environment.fixture-slot.patient_chair.seat",
+      "path": "openclinxr.station-environment-shell / openclinxr.station-environment.fixture-slot.patient_chair / openclinxr.station-environment.fixture-slot.patient_chair.seat",
+      "worldMin": [
+        -0.639999994635582,
+        0.39999999962747096,
+        -0.439999994635582
+      ],
+      "worldMax": [
+        -0.16000000536441805,
+        0.450000000372529,
+        0.03999999463558196
+      ],
+      "visible": true,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.station-environment.fixture-slot.patient_chair.back",
+      "path": "openclinxr.station-environment-shell / openclinxr.station-environment.fixture-slot.patient_chair / openclinxr.station-environment.fixture-slot.patient_chair.back",
+      "worldMin": [
+        -0.639999994635582,
+        0.4100000095367432,
+        -0.4399999993294478
+      ],
+      "worldMax": [
+        -0.16000000536441805,
+        0.9299999904632569,
+        -0.3800000006705523
+      ],
+      "visible": true,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.station-environment.fixture-slot.patient_chair.leg.0",
+      "path": "openclinxr.station-environment-shell / openclinxr.station-environment.fixture-slot.patient_chair / openclinxr.station-environment.fixture-slot.patient_chair.leg.0",
+      "worldMin": [
+        -0.6050000003725291,
+        -2.980232227667301e-9,
+        -0.40500000037252903
+      ],
+      "worldMax": [
+        -0.554999999627471,
+        0.40000000298023225,
+        -0.354999999627471
+      ],
+      "visible": true,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.station-environment.fixture-slot.patient_chair.leg.1",
+      "path": "openclinxr.station-environment-shell / openclinxr.station-environment.fixture-slot.patient_chair / openclinxr.station-environment.fixture-slot.patient_chair.leg.1",
+      "worldMin": [
+        -0.24500000037252906,
+        -2.980232227667301e-9,
+        -0.40500000037252903
+      ],
+      "worldMax": [
+        -0.194999999627471,
+        0.40000000298023225,
+        -0.354999999627471
+      ],
+      "visible": true,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.station-environment.fixture-slot.patient_chair.leg.2",
+      "path": "openclinxr.station-environment-shell / openclinxr.station-environment.fixture-slot.patient_chair / openclinxr.station-environment.fixture-slot.patient_chair.leg.2",
+      "worldMin": [
+        -0.6050000003725291,
+        -2.980232227667301e-9,
+        -0.04500000037252905
+      ],
+      "worldMax": [
+        -0.554999999627471,
+        0.40000000298023225,
+        0.005000000372529012
+      ],
+      "visible": true,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.station-environment.fixture-slot.patient_chair.leg.3",
+      "path": "openclinxr.station-environment-shell / openclinxr.station-environment.fixture-slot.patient_chair / openclinxr.station-environment.fixture-slot.patient_chair.leg.3",
+      "worldMin": [
+        -0.24500000037252906,
+        -2.980232227667301e-9,
+        -0.04500000037252905
+      ],
+      "worldMax": [
+        -0.194999999627471,
+        0.40000000298023225,
+        0.005000000372529012
+      ],
+      "visible": true,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.station-environment.fixture-slot.laptop_desk.legs",
+      "path": "openclinxr.station-environment-shell / openclinxr.station-environment.fixture-slot.laptop_desk / openclinxr.station-environment.fixture-slot.laptop_desk.legs",
+      "worldMin": [
+        0.15000000596046448,
+        -1.4305114759416426e-8,
+        0.0999999970197678
+      ],
+      "worldMax": [
+        0.8499999940395355,
+        0.7200000143051147,
+        0.5000000029802323
+      ],
+      "visible": true,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.station-environment.fixture-slot.laptop_desk.top",
+      "path": "openclinxr.station-environment-shell / openclinxr.station-environment.fixture-slot.laptop_desk / openclinxr.station-environment.fixture-slot.laptop_desk.top",
+      "worldMin": [
+        0.11000001430511475,
+        0.7200000004470348,
+        0.060000005364418074
+      ],
+      "worldMax": [
+        0.8899999856948853,
+        0.7599999995529652,
+        0.539999994635582
+      ],
+      "visible": true,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.station-environment.fixture-slot.medication_shelf.stand",
+      "path": "openclinxr.station-environment-shell / openclinxr.station-environment.fixture-slot.medication_shelf / openclinxr.station-environment.fixture-slot.medication_shelf.stand",
+      "worldMin": [
+        -1.6399999991059304,
+        -1.1920928910669204e-8,
+        -0.9399999991059304
+      ],
+      "worldMax": [
+        -1.5600000008940698,
+        1.100000011920929,
+        -0.8600000008940697
+      ],
+      "visible": true,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.station-environment.fixture-slot.medication_shelf.panel",
+      "path": "openclinxr.station-environment-shell / openclinxr.station-environment.fixture-slot.medication_shelf / openclinxr.station-environment.fixture-slot.medication_shelf.panel",
+      "worldMin": [
+        -1.8099999934434892,
+        1.0400000035762786,
+        -0.925000000372529
+      ],
+      "worldMax": [
+        -1.390000006556511,
+        1.3599999964237213,
+        -0.874999999627471
+      ],
+      "visible": true,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.station-environment.fixture-slot.door_leaf.jamb.left",
+      "path": "openclinxr.station-environment-shell / openclinxr.station-environment.fixture-slot.door_leaf / openclinxr.station-environment.fixture-slot.door_leaf.jamb.left",
+      "worldMin": [
+        3.0885615049419073,
+        -0.004999976158142072,
+        0.999999999254942
+      ],
+      "worldMax": [
+        3.168561503153768,
+        2.044999976158142,
+        1.100000000745058
+      ],
+      "visible": true,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.station-environment.fixture-slot.door_leaf.jamb.right",
+      "path": "openclinxr.station-environment-shell / openclinxr.station-environment.fixture-slot.door_leaf / openclinxr.station-environment.fixture-slot.door_leaf.jamb.right",
+      "worldMin": [
+        4.048561504941907,
+        -0.004999976158142072,
+        0.999999999254942
+      ],
+      "worldMax": [
+        4.128561503153768,
+        2.044999976158142,
+        1.100000000745058
+      ],
+      "visible": true,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.station-environment.fixture-slot.door_leaf.header",
+      "path": "openclinxr.station-environment-shell / openclinxr.station-environment.fixture-slot.door_leaf / openclinxr.station-environment.fixture-slot.door_leaf.header",
+      "worldMin": [
+        3.088561523121324,
+        2.029999999254942,
+        0.999999999254942
+      ],
+      "worldMax": [
+        4.128561484974352,
+        2.130000000745058,
+        1.100000000745058
+      ],
+      "visible": true,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.station-environment.fixture-slot.door_leaf.leaf",
+      "path": "openclinxr.station-environment-shell / openclinxr.station-environment.fixture-slot.door_leaf / openclinxr.station-environment.fixture-slot.door_leaf.leaf",
+      "worldMin": [
+        3.1685615064320234,
+        0.004999976158142072,
+        1.044999999627471
+      ],
+      "worldMax": [
+        4.048561501663652,
+        1.955000023841858,
+        1.095000000372529
+      ],
+      "visible": true,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.station-environment.fixture-slot.door_leaf.handle",
+      "path": "openclinxr.station-environment-shell / openclinxr.station-environment.fixture-slot.door_leaf / openclinxr.station-environment.fixture-slot.door_leaf.handle",
+      "worldMin": [
+        3.868561505388942,
+        0.9762235879898071,
+        1.104999999627471
+      ],
+      "worldMax": [
+        3.988561502706733,
+        1.0237764120101929,
+        1.1550000003725291
+      ],
+      "visible": true,
+      "triangles": 40
+    },
+    {
+      "name": "openclinxr.station-environment.fixture-slot.wall_board.frame",
+      "path": "openclinxr.station-environment-shell / openclinxr.station-environment.fixture-slot.wall_board / openclinxr.station-environment.fixture-slot.wall_board.frame",
+      "worldMin": [
+        -4.548560631117405,
+        1.0399999856948852,
+        -1.624999988079071
+      ],
+      "worldMax": [
+        -4.508560632011474,
+        1.7600000143051147,
+        -0.475000011920929
+      ],
+      "visible": true,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.station-environment.fixture-slot.wall_board.surface",
+      "path": "openclinxr.station-environment-shell / openclinxr.station-environment.fixture-slot.wall_board / openclinxr.station-environment.fixture-slot.wall_board.surface",
+      "worldMin": [
+        -4.508560631340922,
+        1.0899999976158141,
+        -1.5749999761581421
+      ],
+      "worldMax": [
+        -4.488560631787957,
+        1.7100000023841857,
+        -0.525000023841858
+      ],
+      "visible": true,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.station-environment.fixture-slot.wall_board.marker_rail",
+      "path": "openclinxr.station-environment-shell / openclinxr.station-environment.fixture-slot.wall_board / openclinxr.station-environment.fixture-slot.wall_board.marker_rail",
+      "worldMin": [
+        -4.503560631936969,
+        1.085000000335276,
+        -1.3999999940395356
+      ],
+      "worldMax": [
+        -4.453560631191911,
+        1.1149999996647237,
+        -0.7000000059604645
+      ],
+      "visible": true,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.station-environment.fixture-slot.wall_board.tray",
+      "path": "openclinxr.station-environment-shell / openclinxr.station-environment.fixture-slot.wall_board / openclinxr.station-environment.fixture-slot.wall_board.tray",
+      "worldMin": [
+        -4.518560632309498,
+        0.9600000004470348,
+        -1.3250000059604645
+      ],
+      "worldMax": [
+        -4.418560630819382,
+        0.9999999995529651,
+        -0.7749999940395356
+      ],
+      "visible": true,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.station-environment.fixture-slot.learner_start",
+      "path": "openclinxr.station-environment-shell / openclinxr.station-environment.fixture-slot.learner_start",
+      "worldMin": [
+        -0.09000000357627869,
+        6.705522526129215e-10,
+        1.0099999964237214
+      ],
+      "worldMax": [
+        0.09000000357627869,
+        0.059999999329447745,
+        1.1900000035762788
+      ],
+      "visible": true,
+      "triangles": 12
+    },
+    {
+      "name": "bedroom_02wall",
+      "path": "openclinxr.station-environment-shell / openclinxr.station-environment.infinigen-room / bedroom_02wall",
+      "worldMin": [
+        -4.750000101925965,
+        -8.195638656616211e-8,
+        -3.5750007298341657
+      ],
+      "worldMax": [
+        4.7500008612096885,
+        2.4071187153458595,
+        2.8035598171747864
+      ],
+      "visible": true,
+      "triangles": 210
+    },
+    {
+      "name": "bedroom_02floor",
+      "path": "openclinxr.station-environment-shell / openclinxr.station-environment.infinigen-room / bedroom_02floor",
+      "worldMin": [
+        -4.75000092675454,
+        -7.450580596923828e-9,
+        -3.4535602423358105
+      ],
+      "worldMax": [
+        4.750000018044119,
+        0,
+        2.803559894059128
+      ],
+      "visible": true,
+      "triangles": 48
+    },
+    {
+      "name": "bedroom_02ceiling",
+      "path": "openclinxr.station-environment-shell / openclinxr.station-environment.infinigen-room / bedroom_02ceiling",
+      "worldMin": [
+        -4.628560900428143,
+        2.4071187153458595,
+        -3.4535587934874163
+      ],
+      "worldMax": [
+        4.628558269468174,
+        2.4071187153458595,
+        2.8035613062333944
+      ],
+      "visible": true,
+      "triangles": 36
+    },
+    {
+      "name": "bedroom_02exterior",
+      "path": "openclinxr.station-environment-shell / openclinxr.station-environment.infinigen-room / bedroom_02exterior",
+      "worldMin": [
+        -4.750000054718177,
+        -0.12144073098897934,
+        -3.5750007046259586
+      ],
+      "worldMax": [
+        4.75000092675454,
+        2.5285593643784523,
+        2.9250007298341663
+      ],
+      "visible": true,
+      "triangles": 202
+    },
+    {
+      "name": "openclinxr.telehealth_diabetes_health_literacy_v1.scenario-expectation-visual-review-panel",
+      "path": "openclinxr.telehealth_diabetes_health_literacy_v1.scenario-expectation-visual-review-panel",
+      "worldMin": [
+        -2.1969097153355994,
+        1.3100000035762787,
+        -1.5946762332000342
+      ],
+      "worldMax": [
+        0.0369097153355995,
+        2.129999996423721,
+        -1.3253237667999658
+      ],
+      "visible": true,
+      "triangles": 2
+    },
+    {
+      "name": "ed_exam_bay_floor",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_floor",
+      "worldMin": [
+        -1.2000000476837158,
+        -0.8999999761581421,
+        0.014999999664723873
+      ],
+      "worldMax": [
+        1.2000000476837158,
+        0.8999999761581421,
+        0.04499999899417162
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_back_wall",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_back_wall",
+      "worldMin": [
+        -1.2000000476837158,
+        -1.8199999518692493,
+        -1.5749999284744263
+      ],
+      "worldMax": [
+        1.2000000476837158,
+        -1.779999952763319,
+        -0.5249999761581421
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_left_wall",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_left_wall",
+      "worldMin": [
+        -2.420000094920397,
+        -0.8999999761581421,
+        -1.5749999284744263
+      ],
+      "worldMax": [
+        -2.3800000958144665,
+        0.8999999761581421,
+        -0.5249999761581421
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_headwall_rail",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_headwall_rail",
+      "worldMin": [
+        -1,
+        -1.7375000286847353,
+        -1.06749995239079
+      ],
+      "worldMax": [
+        0.5,
+        -1.7025000285357237,
+        -1.0324999522417784
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_doorway_threshold",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_doorway_threshold",
+      "worldMin": [
+        -0.375,
+        1.7324999999254942,
+        -0.015999999828636646
+      ],
+      "worldMax": [
+        0.375,
+        1.7675000000745058,
+        -0.003999999724328518
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_patient_zone_marker",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_patient_zone_marker",
+      "worldMin": [
+        -0.42500001192092896,
+        -0.2750000059604645,
+        -0.018000000156462193
+      ],
+      "worldMax": [
+        0.42500001192092896,
+        0.2750000059604645,
+        -0.006000000052154064
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_nurse_zone_marker",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_nurse_zone_marker",
+      "worldMin": [
+        -1.5400000214576721,
+        -0.4750000089406967,
+        -0.02000000048428774
+      ],
+      "worldMax": [
+        -1.1600000262260437,
+        0.07500000298023224,
+        -0.00800000037997961
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_family_zone_marker",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_family_zone_marker",
+      "worldMin": [
+        1.1600000262260437,
+        0.25999999046325684,
+        -0.02000000048428774
+      ],
+      "worldMax": [
+        1.5400000214576721,
+        0.6399999856948853,
+        -0.00800000037997961
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_equipment_wall_marker",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_equipment_wall_marker",
+      "worldMin": [
+        -1.9399999976158142,
+        -1.2900000363588333,
+        -0.022000000812113285
+      ],
+      "worldMax": [
+        -1.5600000023841858,
+        -0.8700000494718552,
+        -0.010000000707805157
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_oxygen_flowmeter_panel",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_oxygen_flowmeter_panel",
+      "worldMin": [
+        1.6000000312924385,
+        -1.7275000382214785,
+        -1.3100000321865082
+      ],
+      "worldMax": [
+        1.8400000259280205,
+        -1.6925000380724669,
+        -1.1300000250339508
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_suction_canister",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_suction_canister",
+      "worldMin": [
+        1.2149999886751175,
+        -1.7175000570714474,
+        -1.0999999791383743
+      ],
+      "worldMax": [
+        1.3049999922513962,
+        -1.6625000573694706,
+        -0.939999982714653
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_glove_box_stack",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_glove_box_stack",
+      "worldMin": [
+        -2.3474999237805605,
+        0.46000000834465027,
+        -1.460000030696392
+      ],
+      "worldMax": [
+        -2.312499923631549,
+        0.7800000011920929,
+        -1.22000003606081
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_biohazard_bin",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_biohazard_bin",
+      "worldMin": [
+        -2.270000070333481,
+        0.7799999937415123,
+        -0.48000000417232513
+      ],
+      "worldMax": [
+        -2.0900000631809235,
+        0.9799999967217445,
+        -0.20000000298023224
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_sharps_wall_box",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_sharps_wall_box",
+      "worldMin": [
+        -2.327499942854047,
+        -1.0299999862909317,
+        -0.9099999964237213
+      ],
+      "worldMax": [
+        -2.292499942705035,
+        -0.8699999898672104,
+        -0.7299999892711639
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_privacy_curtain_panel",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_privacy_curtain_panel",
+      "worldMin": [
+        2.207500028423965,
+        -0.4099999666213989,
+        -1.5600000023841858
+      ],
+      "worldMax": [
+        2.232500028796494,
+        0.7699999809265137,
+        -0.6800000071525574
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_ceiling_exam_light",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_ceiling_exam_light",
+      "worldMin": [
+        0.20999999344348907,
+        -0.4700000137090683,
+        -2.092499923892319
+      ],
+      "worldMax": [
+        0.689999982714653,
+        -0.2500000149011612,
+        -2.06749992351979
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_wall_clock",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_wall_clock",
+      "worldMin": [
+        0.8400000184774399,
+        -1.7525000097230077,
+        -1.660000041127205
+      ],
+      "worldMax": [
+        1.0000000149011612,
+        -1.7275000093504786,
+        -1.5000000447034836
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_stretcher_base",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_stretcher_base",
+      "worldMin": [
+        -0.38999998569488525,
+        -0.5099999904632568,
+        -0.3200000002980232
+      ],
+      "worldMax": [
+        0.38999998569488525,
+        0.5099999904632568,
+        -0.24000000208616257
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_stretcher_mattress",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_stretcher_mattress",
+      "worldMin": [
+        -0.36000001430511475,
+        -0.4749999940395355,
+        -0.5399999879300594
+      ],
+      "worldMax": [
+        0.36000001430511475,
+        0.4749999940395355,
+        -0.41999999061226845
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_stretcher_left_rail",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_stretcher_left_rail",
+      "worldMin": [
+        -0.7974999714642763,
+        -0.4399999976158142,
+        -0.8100000321865082
+      ],
+      "worldMax": [
+        -0.7624999713152647,
+        0.4399999976158142,
+        -0.6300000250339508
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_stretcher_right_rail",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_stretcher_right_rail",
+      "worldMin": [
+        0.7624999713152647,
+        -0.4399999976158142,
+        -0.8100000321865082
+      ],
+      "worldMax": [
+        0.7974999714642763,
+        0.4399999976158142,
+        -0.6300000250339508
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_bed_pillow",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_bed_pillow",
+      "worldMin": [
+        -0.20999999344348907,
+        -0.7800000086426735,
+        -0.6600000038743019
+      ],
+      "worldMax": [
+        0.20999999344348907,
+        -0.5800000056624413,
+        -0.5800000056624413
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_bed_blanket_fold",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_bed_blanket_fold",
+      "worldMin": [
+        -0.07999999821186066,
+        -0.0599999874830246,
+        -0.6574999857693911
+      ],
+      "worldMax": [
+        0.3999999910593033,
+        0.42000000178813934,
+        -0.6224999856203794
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_monitor_screen",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_monitor_screen",
+      "worldMin": [
+        -1.0199999958276749,
+        -0.8725000144913793,
+        -1.4200000315904617
+      ],
+      "worldMax": [
+        -0.739999994635582,
+        -0.8475000141188502,
+        -1.2600000351667404
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_monitor_waveform_line",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_monitor_waveform_line",
+      "worldMin": [
+        -0.989999994635582,
+        -0.8299999879673123,
+        -1.3660000143572688
+      ],
+      "worldMax": [
+        -0.7699999958276749,
+        -0.8199999881908298,
+        -1.3540000142529607
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_case_notes_clipboard",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_case_notes_clipboard",
+      "worldMin": [
+        1.010000005364418,
+        0.879999965429306,
+        -0.8524999739602208
+      ],
+      "worldMax": [
+        1.2300000041723251,
+        1.1999999582767487,
+        -0.8274999735876918
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_monitor_vitals_badge",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_monitor_vitals_badge",
+      "worldMin": [
+        -0.5599999986588955,
+        -0.8339999876916409,
+        -1.3950000144541264
+      ],
+      "worldMax": [
+        -0.4400000013411045,
+        -0.8159999884665012,
+        -1.3250000141561031
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_ecg_paper_strip",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_ecg_paper_strip",
+      "worldMin": [
+        1.1700000166893005,
+        0.24000000208616257,
+        -0.8690000139176846
+      ],
+      "worldMax": [
+        1.5300000309944153,
+        0.3200000002980232,
+        -0.8510000146925449
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_nurse_task_tray",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_nurse_task_tray",
+      "worldMin": [
+        0.9200000464916229,
+        0.6200000271201134,
+        -0.9174999762326479
+      ],
+      "worldMax": [
+        1.2400000393390656,
+        0.8200000301003456,
+        -0.8824999760836363
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_doorway_orientation_sign",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_doorway_orientation_sign",
+      "worldMin": [
+        -1.189999982714653,
+        1.7275000093504786,
+        -1.964999958872795
+      ],
+      "worldMax": [
+        -0.8499999791383743,
+        1.7525000097230077,
+        -1.8749999552965164
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_doorway_escalation_badge",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_doorway_escalation_badge",
+      "worldMin": [
+        -0.6650000065565109,
+        1.7275000093504786,
+        -1.9374999776482582
+      ],
+      "worldMax": [
+        -0.5750000029802322,
+        1.7525000097230077,
+        -1.862499974668026
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_monitor_lead_cable",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_monitor_lead_cable",
+      "worldMin": [
+        -0.5399999804794788,
+        -0.7299999892711639,
+        -0.7724999906495214
+      ],
+      "worldMax": [
+        -0.4999999813735485,
+        -0.10999998450279236,
+        -0.7474999902769923
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_bed_wheel_locks",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_bed_wheel_locks",
+      "worldMin": [
+        -0.8699999935925007,
+        0.7699999921023846,
+        -0.22750000283122063
+      ],
+      "worldMax": [
+        -0.7699999921023846,
+        0.8699999935925007,
+        -0.17250000312924385
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_curtain_track_rail",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_curtain_track / ed_exam_bay_curtain_track_rail",
+      "worldMin": [
+        4.305000171996653,
+        -0.19999998807907104,
+        -3.9700000379234552
+      ],
+      "worldMax": [
+        4.335000171326101,
+        1.199999988079071,
+        -3.95000003837049
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_curtain_track_ring_1",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_curtain_track / ed_exam_bay_curtain_track_ring_1",
+      "worldMin": [
+        4.314000171609223,
+        -0.10599999409168959,
+        -3.957000160589814
+      ],
+      "worldMax": [
+        4.326000171713531,
+        -0.09399999398738146,
+        -3.907000159844756
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_curtain_track_ring_2",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_curtain_track / ed_exam_bay_curtain_track_ring_2",
+      "worldMin": [
+        4.314000171609223,
+        0.10399999935179949,
+        -3.957000160589814
+      ],
+      "worldMax": [
+        4.326000171713531,
+        0.11599999945610762,
+        -3.907000159844756
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_curtain_track_ring_3",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_curtain_track / ed_exam_bay_curtain_track_ring_3",
+      "worldMin": [
+        4.314000171609223,
+        0.31399999279528856,
+        -3.957000160589814
+      ],
+      "worldMax": [
+        4.326000171713531,
+        0.3259999928995967,
+        -3.907000159844756
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_curtain_track_ring_4",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_curtain_track / ed_exam_bay_curtain_track_ring_4",
+      "worldMin": [
+        4.314000171609223,
+        0.5239999713376164,
+        -3.957000160589814
+      ],
+      "worldMax": [
+        4.326000171713531,
+        0.5359999714419246,
+        -3.907000159844756
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_curtain_track_ring_5",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_curtain_track / ed_exam_bay_curtain_track_ring_5",
+      "worldMin": [
+        4.314000171609223,
+        0.7340000094845891,
+        -3.957000160589814
+      ],
+      "worldMax": [
+        4.326000171713531,
+        0.7460000095888972,
+        -3.907000159844756
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_curtain_track_ring_6",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_curtain_track / ed_exam_bay_curtain_track_ring_6",
+      "worldMin": [
+        4.314000171609223,
+        0.943999988026917,
+        -3.957000160589814
+      ],
+      "worldMax": [
+        4.326000171713531,
+        0.9559999881312251,
+        -3.907000159844756
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_trash_liner_fold",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_trash_liner_fold",
+      "worldMin": [
+        -2.1399999633431435,
+        0.7600000202655792,
+        -0.5775000024586916
+      ],
+      "worldMax": [
+        -1.9399999603629112,
+        0.9400000274181366,
+        -0.54250000230968
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_iv_tubing_line",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_iv_tubing_line",
+      "worldMin": [
+        0.7374999998137355,
+        0.5275000212714076,
+        -1.2599999457597733
+      ],
+      "worldMax": [
+        0.7625000001862645,
+        0.5525000216439366,
+        -0.8399999588727951
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_floor_scuff_path",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_floor_scuff_path",
+      "worldMin": [
+        -0.7900000214576721,
+        0.5975000038743019,
+        -0.009000000078231096
+      ],
+      "worldMax": [
+        0.4300000071525574,
+        0.6425000056624413,
+        -0.003000000026077032
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_infection_control_sign",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_infection_control_sign",
+      "worldMin": [
+        -2.3724998952820897,
+        1.139999970793724,
+        -1.6499999538064003
+      ],
+      "worldMax": [
+        -2.3474998949095607,
+        1.419999971985817,
+        -1.449999950826168
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_handoff_whiteboard_frame",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_handoff_whiteboard / ed_exam_bay_handoff_whiteboard_frame",
+      "worldMin": [
+        -2.619999945163727,
+        -3.5349999805912375,
+        -3.1949999630451202
+      ],
+      "worldMax": [
+        -1.9799999594688416,
+        -3.50499998126179,
+        -2.8849999606609344
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_handoff_whiteboard_header",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_handoff_whiteboard / ed_exam_bay_handoff_whiteboard_header",
+      "worldMin": [
+        -2.4499999582767487,
+        -3.5100001143291593,
+        -3.174499941058457
+      ],
+      "worldMax": [
+        -2.1499999463558197,
+        -3.5000001145526767,
+        -3.149499940685928
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_handoff_whiteboard_surface",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_handoff_whiteboard / ed_exam_bay_handoff_whiteboard_surface",
+      "worldMin": [
+        -2.589999943971634,
+        -3.518000083975494,
+        -3.1649999618530273
+      ],
+      "worldMax": [
+        -2.0099999606609344,
+        -3.506000083871186,
+        -2.9149999618530273
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_handoff_whiteboard_tray",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_handoff_whiteboard / ed_exam_bay_handoff_whiteboard_tray",
+      "worldMin": [
+        -2.549999952316284,
+        -3.530000114813447,
+        -2.9099999805912375
+      ],
+      "worldMax": [
+        -2.049999952316284,
+        -3.480000114068389,
+        -2.87999998126179
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_supply_drawer_labels",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_supply_drawer_labels",
+      "worldMin": [
+        -1.929999977350235,
+        1.4675000188872218,
+        -0.8899999931454659
+      ],
+      "worldMax": [
+        -1.629999965429306,
+        1.4925000192597508,
+        -0.7499999925494194
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_privacy_zone_floor_tape",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_privacy_zone_floor_tape",
+      "worldMin": [
+        0.47999998927116394,
+        1.0625000428408384,
+        -0.012000000569969416
+      ],
+      "worldMax": [
+        1.1599999964237213,
+        1.09750004298985,
+        -0.004000000189989805
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_skirting_back",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_skirting_back",
+      "worldMin": [
+        -1.1799999475479126,
+        -1.7799999807029963,
+        -0.10000000149011612
+      ],
+      "worldMax": [
+        1.1799999475479126,
+        -1.759999981150031,
+        0
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_skirting_left",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_skirting_left",
+      "worldMin": [
+        -2.3799998853355646,
+        -0.8799999952316284,
+        -0.10000000149011612
+      ],
+      "worldMax": [
+        -2.3599998857825994,
+        0.8799999952316284,
+        0
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_skirting_corner",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_skirting_corner",
+      "worldMin": [
+        -2.3799998853355646,
+        -1.7799999807029963,
+        -0.10000000149011612
+      ],
+      "worldMax": [
+        -2.3599998857825994,
+        -1.759999981150031,
+        0
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_chamfer_back_floor",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_chamfer_back_floor",
+      "worldMin": [
+        -1.2000000476837158,
+        -1.7799999713897705,
+        -0.019999999552965164
+      ],
+      "worldMax": [
+        1.2000000476837158,
+        -1.7599999904632568,
+        0
+      ],
+      "visible": false,
+      "triangles": 8
+    },
+    {
+      "name": "ed_exam_bay_chamfer_left_floor",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_chamfer_left_floor",
+      "worldMin": [
+        -2.380000114440918,
+        -0.8999999761581421,
+        -0.019999999552965164
+      ],
+      "worldMax": [
+        -2.3600001335144043,
+        0.8999999761581421,
+        0
+      ],
+      "visible": false,
+      "triangles": 8
+    },
+    {
+      "name": "ed_exam_bay_chamfer_wall_corner",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_chamfer_wall_corner",
+      "worldMin": [
+        -2.380000114440918,
+        -1.7799999713897705,
+        -2.0999999046325684
+      ],
+      "worldMax": [
+        -2.3600001335144043,
+        -1.7599999904632568,
+        0
+      ],
+      "visible": false,
+      "triangles": 8
+    },
+    {
+      "name": "ed_exam_bay_door_reveal_header",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_door_reveal_header",
+      "worldMin": [
+        -0.4350000023841858,
+        0.8200000151991844,
+        -2.059999980032444
+      ],
+      "worldMax": [
+        0.4350000023841858,
+        0.9000000134110451,
+        -1.9799999818205833
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_door_reveal_jamb_l",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_door_reveal_jamb_l",
+      "worldMin": [
+        -0.43500000052154064,
+        0.8200000151991844,
+        -1.9800000190734863
+      ],
+      "worldMax": [
+        -0.37500000186264515,
+        0.9000000134110451,
+        0
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_door_reveal_jamb_r",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_door_reveal_jamb_r",
+      "worldMin": [
+        0.37500000186264515,
+        0.8200000151991844,
+        -1.9800000190734863
+      ],
+      "worldMax": [
+        0.43500000052154064,
+        0.9000000134110451,
+        0
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_outlet_plate_body",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_outlet_plate / ed_exam_bay_outlet_plate_body",
+      "worldMin": [
+        -1.2775000110268593,
+        -3.5374999712221324,
+        -0.8199999891221523
+      ],
+      "worldMax": [
+        -1.202500008046627,
+        -3.5224999715574086,
+        -0.6999999918043613
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_outlet_plate_socket_l",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_outlet_plate / ed_exam_bay_outlet_plate_socket_l",
+      "worldMin": [
+        -1.2635000571608543,
+        -3.5249999086372554,
+        -0.8124999571591616
+      ],
+      "worldMax": [
+        -1.2415000572800636,
+        -3.516999908257276,
+        -0.77749995701015
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_outlet_plate_socket_r",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_outlet_plate / ed_exam_bay_outlet_plate_socket_r",
+      "worldMin": [
+        -1.2384999617934227,
+        -3.5249999086372554,
+        -0.8124999571591616
+      ],
+      "worldMax": [
+        -1.216499961912632,
+        -3.516999908257276,
+        -0.77749995701015
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_light_switch_plate",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_light_switch / ed_exam_bay_light_switch_plate",
+      "worldMin": [
+        -4.735499687027186,
+        -0.7374999895691872,
+        -2.460000094026327
+      ],
+      "worldMax": [
+        -4.720499687362462,
+        -0.6624999865889549,
+        -2.340000096708536
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_light_switch_toggle",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_light_switch / ed_exam_bay_light_switch_toggle",
+      "worldMin": [
+        -4.723000267054886,
+        -0.7099999878555536,
+        -2.4175000954419374
+      ],
+      "worldMax": [
+        -4.717000267002732,
+        -0.6899999883025885,
+        -2.382500095292926
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_hand_gel_dispenser_bottle",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_hand_gel_dispenser / ed_exam_bay_hand_gel_dispenser_bottle",
+      "worldMin": [
+        1.645000047981739,
+        -3.552499867975712,
+        -2.409999966621399
+      ],
+      "worldMax": [
+        1.7550000473856926,
+        -3.4774998649954796,
+        -2.149999976158142
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_hand_gel_dispenser_bracket",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_hand_gel_dispenser / ed_exam_bay_hand_gel_dispenser_bracket",
+      "worldMin": [
+        1.6775000467896461,
+        -3.5495000649243593,
+        -2.4674998093396425
+      ],
+      "worldMax": [
+        1.7225000485777855,
+        -3.5145000647753477,
+        -2.432499809190631
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "ed_exam_bay_hand_gel_dispenser_nozzle",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / ed_exam_bay_hand_gel_dispenser / ed_exam_bay_hand_gel_dispenser_nozzle",
+      "worldMin": [
+        1.685000048018992,
+        -3.4970001224428415,
+        -2.4149998668581247
+      ],
+      "worldMax": [
+        1.7150000473484397,
+        -3.4470001216977835,
+        -2.3649998661130667
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.telehealth_diabetes_health_literacy_v1.glb-affordance.openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb:room_boundary",
+      "path": "openclinxr.ed-chest-pain.environment-shell / openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb / openclinxr.telehealth_diabetes_health_literacy_v1.glb-affordance.openclinxr-telehealth_diabetes_health_literacy_v1-environment-generated-glb:room_boundary",
+      "worldMin": [
+        -0.054999999701976776,
+        -0.054999999701976776,
+        -0.054999999701976776
+      ],
+      "worldMax": [
+        0.054999999701976776,
+        0.054999999701976776,
+        0.054999999701976776
+      ],
+      "visible": false,
+      "triangles": 352
+    },
+    {
+      "name": "openclinxr.ed-chest-pain.bed",
+      "path": "openclinxr.ed-chest-pain.bed",
+      "worldMin": [
+        -1.594999952316284,
+        0.300000002682209,
+        -0.5400000083446502
+      ],
+      "worldMax": [
+        0.7549999523162843,
+        0.5399999973177909,
+        0.38000000834465025
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.ed-chest-pain.monitor",
+      "path": "openclinxr.ed-chest-pain.monitor",
+      "worldMin": [
+        1.2999999940395355,
+        1.1749999940395355,
+        -0.6899999991059304
+      ],
+      "worldMax": [
+        2.1000000059604647,
+        1.7250000059604644,
+        -0.6100000008940697
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.telehealth_diabetes_health_literacy_v1.glb-affordance.plain-language-plan-card:scenario_context_cue",
+      "path": "openclinxr.telehealth_diabetes_health_literacy_v1.room-prop.plain-language-plan-card / openclinxr.telehealth_diabetes_health_literacy_v1.glb-affordance.plain-language-plan-card:scenario_context_cue",
+      "worldMin": [
+        -0.7166308277996241,
+        0.8150000002980232,
+        -0.7166308277996241
+      ],
+      "worldMax": [
+        -0.583369172200376,
+        0.9249999997019768,
+        -0.583369172200376
+      ],
+      "visible": false,
+      "triangles": 352
+    },
+    {
+      "name": "openclinxr.telehealth_diabetes_health_literacy_v1.glb-affordance.glucometer-log-review:scenario_context_cue",
+      "path": "openclinxr.telehealth_diabetes_health_literacy_v1.room-prop.glucometer-log-review / openclinxr.telehealth_diabetes_health_literacy_v1.glb-affordance.glucometer-log-review:scenario_context_cue",
+      "worldMin": [
+        -1.816630827799624,
+        0.8450000002980232,
+        -1.0166308277996239
+      ],
+      "worldMax": [
+        -1.683369172200376,
+        0.9549999997019768,
+        -0.8833691722003759
+      ],
+      "visible": false,
+      "triangles": 352
+    },
+    {
+      "name": "openclinxr.telehealth_diabetes_health_literacy_v1.glb-affordance.cost-access-barrier-cue:scenario_context_cue",
+      "path": "openclinxr.telehealth_diabetes_health_literacy_v1.room-prop.cost-access-barrier-cue / openclinxr.telehealth_diabetes_health_literacy_v1.glb-affordance.cost-access-barrier-cue:scenario_context_cue",
+      "worldMin": [
+        -1.5166308277996239,
+        0.7150000002980232,
+        0.6533691722003759
+      ],
+      "worldMax": [
+        -1.383369172200376,
+        0.8249999997019768,
+        0.786630827799624
+      ],
+      "visible": false,
+      "triangles": 352
+    },
+    {
+      "name": "openclinxr.equipment.tablet_visit_equipment.bezel",
+      "path": "openclinxr.telehealth_diabetes_health_literacy_v1.generated-equipment-slot.tablet_visit_equipment / openclinxr.equipment.tablet_visit_equipment.bezel",
+      "worldMin": [
+        -1.6599999994039536,
+        0.8999999940395356,
+        -0.8589999996125698
+      ],
+      "worldMax": [
+        -1.4400000005960465,
+        1.2000000059604645,
+        -0.8410000003874302
+      ],
+      "visible": true,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.equipment.tablet_visit_equipment.display",
+      "path": "openclinxr.telehealth_diabetes_health_literacy_v1.generated-equipment-slot.tablet_visit_equipment / openclinxr.equipment.tablet_visit_equipment.display",
+      "worldMin": [
+        -1.6449999988079071,
+        0.9200000047683716,
+        -0.8420000001899898
+      ],
+      "worldMax": [
+        -1.455000001192093,
+        1.1799999952316285,
+        -0.8339999998100102
+      ],
+      "visible": true,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.equipment.tablet_visit_equipment.hand_grip",
+      "path": "openclinxr.telehealth_diabetes_health_literacy_v1.generated-equipment-slot.tablet_visit_equipment / openclinxr.equipment.tablet_visit_equipment.hand_grip",
+      "worldMin": [
+        -1.5799999993294478,
+        0.8600000004470348,
+        -0.8649999996647239
+      ],
+      "worldMax": [
+        -1.5200000006705523,
+        0.8999999995529652,
+        -0.8350000003352761
+      ],
+      "visible": true,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.telehealth_diabetes_health_literacy_v1.actor-nameplate.tablet-visit",
+      "path": "openclinxr.telehealth_diabetes_health_literacy_v1.generated-equipment-slot.tablet_visit_equipment / openclinxr.telehealth_diabetes_health_literacy_v1.actor-nameplate.tablet-visit",
+      "worldMin": [
+        -2.0249999940395353,
+        1.360000002682209,
+        -0.85
+      ],
+      "worldMax": [
+        -1.0750000059604645,
+        1.599999997317791,
+        -0.85
+      ],
+      "visible": false,
+      "triangles": 2
+    },
+    {
+      "name": "openclinxr.equipment.glucometer_review_equipment.base",
+      "path": "openclinxr.telehealth_diabetes_health_literacy_v1.generated-equipment-slot.glucometer_review_equipment / openclinxr.equipment.glucometer_review_equipment.base",
+      "worldMin": [
+        -2.264126779139042,
+        3.3527612630646075e-10,
+        0.43000000268220906
+      ],
+      "worldMax": [
+        -2.035873220860958,
+        0.029999999664723873,
+        0.669999997317791
+      ],
+      "visible": true,
+      "triangles": 40
+    },
+    {
+      "name": "openclinxr.equipment.glucometer_review_equipment.stand",
+      "path": "openclinxr.telehealth_diabetes_health_literacy_v1.generated-equipment-slot.glucometer_review_equipment / openclinxr.equipment.glucometer_review_equipment.stand",
+      "worldMin": [
+        -2.175000000372529,
+        0.025000000000000022,
+        0.524999999627471
+      ],
+      "worldMax": [
+        -2.124999999627471,
+        0.775,
+        0.5750000003725291
+      ],
+      "visible": true,
+      "triangles": 32
+    },
+    {
+      "name": "openclinxr.equipment.glucometer_review_equipment.device_body",
+      "path": "openclinxr.telehealth_diabetes_health_literacy_v1.generated-equipment-slot.glucometer_review_equipment / openclinxr.equipment.glucometer_review_equipment.device_body",
+      "worldMin": [
+        -2.2099999986588954,
+        0.7800000008940696,
+        0.524999999627471
+      ],
+      "worldMax": [
+        -2.0900000013411044,
+        0.8599999991059303,
+        0.5750000003725291
+      ],
+      "visible": true,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.equipment.glucometer_review_equipment.meter_screen",
+      "path": "openclinxr.telehealth_diabetes_health_literacy_v1.generated-equipment-slot.glucometer_review_equipment / openclinxr.equipment.glucometer_review_equipment.meter_screen",
+      "worldMin": [
+        -2.1899999991059302,
+        0.8200000004470348,
+        0.5750000001117588
+      ],
+      "worldMax": [
+        -2.1100000008940696,
+        0.8599999995529651,
+        0.5849999998882414
+      ],
+      "visible": true,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.equipment.glucometer_review_equipment.test_strip",
+      "path": "openclinxr.telehealth_diabetes_health_literacy_v1.generated-equipment-slot.glucometer_review_equipment / openclinxr.equipment.glucometer_review_equipment.test_strip",
+      "worldMin": [
+        -2.089999999552965,
+        0.7950000001117588,
+        0.5100000008940697
+      ],
+      "worldMax": [
+        -2.0500000004470347,
+        0.8049999998882413,
+        0.5899999991059304
+      ],
+      "visible": true,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.telehealth_diabetes_health_literacy_v1.actor-nameplate.glucometer-review",
+      "path": "openclinxr.telehealth_diabetes_health_literacy_v1.generated-equipment-slot.glucometer_review_equipment / openclinxr.telehealth_diabetes_health_literacy_v1.actor-nameplate.glucometer-review",
+      "worldMin": [
+        -2.6249999940395354,
+        1.360000002682209,
+        0.55
+      ],
+      "worldMax": [
+        -1.6750000059604644,
+        1.599999997317791,
+        0.55
+      ],
+      "visible": false,
+      "triangles": 2
+    },
+    {
+      "name": "<Mesh>",
+      "path": "openclinxr.ed-chest-pain.patient-robert-hayes / <Mesh>",
+      "worldMin": [
+        -0.6054360629450322,
+        -0.01759999370574944,
+        -0.4054360629450322
+      ],
+      "worldMax": [
+        -0.19456393705496783,
+        0.9855999937057496,
+        0.005436062945032183
+      ],
+      "visible": false,
+      "triangles": 544
+    },
+    {
+      "name": "<Mesh>",
+      "path": "openclinxr.ed-chest-pain.patient-robert-hayes / <Mesh>",
+      "worldMin": [
+        -0.5867600610176771,
+        0.8359999973773956,
+        -0.3867600610176771
+      ],
+      "worldMax": [
+        -0.21323993898232294,
+        1.1880000026226043,
+        -0.013239938982322924
+      ],
+      "visible": false,
+      "triangles": 720
+    },
+    {
+      "name": "openclinxr.telehealth_diabetes_health_literacy_v1.actor-nameplate.patient-patient-luis-martinez",
+      "path": "openclinxr.ed-chest-pain.patient-robert-hayes / openclinxr.telehealth_diabetes_health_literacy_v1.actor-nameplate.patient-patient-luis-martinez",
+      "worldMin": [
+        -0.8171661762285597,
+        1.196800002360344,
+        -0.22638895651305338
+      ],
+      "worldMax": [
+        0.01716617622855965,
+        1.407999997639656,
+        -0.17361104348694664
+      ],
+      "visible": false,
+      "triangles": 2
+    },
+    {
+      "name": "makeclothes_library_cargo_pants_mpfb_adult_male_street_casual",
+      "path": "openclinxr.ed-chest-pain.patient-robert-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / mpfb_adult_male_street_casual_standard_rig / makeclothes_library_cargo_pants_mpfb_adult_male_street_casual",
+      "worldMin": [
+        -0.6443244938391539,
+        -0.2398174677125245,
+        -0.403132406780612
+      ],
+      "worldMax": [
+        -0.1461554793145169,
+        0.6074989754592546,
+        0.0049987538116032515
+      ],
+      "visible": true,
+      "triangles": 2820
+    },
+    {
+      "name": "makeclothes_library_footwear_culturalibre_male_boots_mpfb_adult_male_street_casual",
+      "path": "openclinxr.ed-chest-pain.patient-robert-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / mpfb_adult_male_street_casual_standard_rig / makeclothes_library_footwear_culturalibre_male_boots_mpfb_adult_male_street_casual",
+      "worldMin": [
+        -0.6859114723692148,
+        -0.3422503809024348,
+        -0.3543109674858771
+      ],
+      "worldMax": [
+        -0.14809861938069038,
+        0.020636510298825184,
+        0.07328765916683636
+      ],
+      "visible": true,
+      "triangles": 30768
+    },
+    {
+      "name": "makeclothes_library_hair_mhair02_mpfb_adult_male_street_casual_mesh",
+      "path": "openclinxr.ed-chest-pain.patient-robert-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / mpfb_adult_male_street_casual_standard_rig / makeclothes_library_hair_mhair02_mpfb_adult_male_street_casual_mesh",
+      "worldMin": [
+        -0.4896394913983968,
+        1.0454999633712414,
+        -0.3232253905146468
+      ],
+      "worldMax": [
+        -0.2931983690106945,
+        1.2402744287268082,
+        -0.09809168788103503
+      ],
+      "visible": true,
+      "triangles": 3460
+    },
+    {
+      "name": "makeclothes_library_toigo_t_shirt",
+      "path": "openclinxr.ed-chest-pain.patient-robert-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / mpfb_adult_male_street_casual_standard_rig / makeclothes_library_toigo_t_shirt",
+      "worldMin": [
+        -0.7016244131445191,
+        0.5693738246610629,
+        -0.4153182387973563
+      ],
+      "worldMax": [
+        -0.08332431526210093,
+        1.011457801668198,
+        0.0005165589850950336
+      ],
+      "visible": true,
+      "triangles": 2700
+    },
+    {
+      "name": "mpfb_adult_male_street_casual_body",
+      "path": "openclinxr.ed-chest-pain.patient-robert-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / mpfb_adult_male_street_casual_standard_rig / mpfb_adult_male_street_casual_body_mesh / mpfb_adult_male_street_casual_body",
+      "worldMin": [
+        -0.9795462962558599,
+        -0.37258079334602084,
+        -0.5399075884166961
+      ],
+      "worldMax": [
+        0.13071484759332436,
+        1.268330601817502,
+        0.2973639909886556
+      ],
+      "visible": true,
+      "triangles": 19114
+    },
+    {
+      "name": "mpfb_adult_male_street_casual_body_1",
+      "path": "openclinxr.ed-chest-pain.patient-robert-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / mpfb_adult_male_street_casual_standard_rig / mpfb_adult_male_street_casual_body_mesh / mpfb_adult_male_street_casual_body_1",
+      "worldMin": [
+        -0.686478241160271,
+        0.5828443604016569,
+        -0.4073272464610303
+      ],
+      "worldMax": [
+        -0.09791526906739967,
+        1.0045772858764772,
+        -0.008265610172913912
+      ],
+      "visible": true,
+      "triangles": 2606
+    },
+    {
+      "name": "mpfb_adult_male_street_casual_body_2",
+      "path": "openclinxr.ed-chest-pain.patient-robert-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / mpfb_adult_male_street_casual_standard_rig / mpfb_adult_male_street_casual_body_mesh / mpfb_adult_male_street_casual_body_2",
+      "worldMin": [
+        -0.6140600898110476,
+        -0.2382810849624089,
+        -0.37807324222310956
+      ],
+      "worldMax": [
+        -0.1774423079378536,
+        0.6064380424169427,
+        -0.01732979781340574
+      ],
+      "visible": true,
+      "triangles": 462
+    },
+    {
+      "name": "mpfb_adult_male_street_casual_body_3",
+      "path": "openclinxr.ed-chest-pain.patient-robert-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / mpfb_adult_male_street_casual_standard_rig / mpfb_adult_male_street_casual_body_mesh / mpfb_adult_male_street_casual_body_3",
+      "worldMin": [
+        -0.6617581910006227,
+        -0.3405562347779131,
+        -0.30870817356770397
+      ],
+      "worldMax": [
+        -0.18089648235225858,
+        -0.23810967885004455,
+        0.051057883043106905
+      ],
+      "visible": true,
+      "triangles": 3612
+    },
+    {
+      "name": "mpfb_adult_male_street_casual_body_4",
+      "path": "openclinxr.ed-chest-pain.patient-robert-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / mpfb_adult_male_street_casual_standard_rig / mpfb_adult_male_street_casual_body_mesh / mpfb_adult_male_street_casual_body_4",
+      "worldMin": [
+        -0.699262586030732,
+        0.5836283829941855,
+        -0.3454627298193143
+      ],
+      "worldMax": [
+        -0.10814833014055236,
+        1.0121992005281657,
+        -0.008562059159777563
+      ],
+      "visible": true,
+      "triangles": 218
+    },
+    {
+      "name": "mpfb_adult_male_street_casual_body_5",
+      "path": "openclinxr.ed-chest-pain.patient-robert-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / mpfb_adult_male_street_casual_standard_rig / mpfb_adult_male_street_casual_body_mesh / mpfb_adult_male_street_casual_body_5",
+      "worldMin": [
+        -0.6130836776598636,
+        -0.23744422410970645,
+        -0.29628716953014145
+      ],
+      "worldMax": [
+        -0.2090269675190993,
+        0.6064560844180562,
+        -0.01723352981344095
+      ],
+      "visible": true,
+      "triangles": 232
+    },
+    {
+      "name": "mpfb_adult_male_street_casual_body_6",
+      "path": "openclinxr.ed-chest-pain.patient-robert-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / mpfb_adult_male_street_casual_standard_rig / mpfb_adult_male_street_casual_body_mesh / mpfb_adult_male_street_casual_body_6",
+      "worldMin": [
+        -0.6609159713385911,
+        -0.3401505532747528,
+        -0.29703073552773845
+      ],
+      "worldMax": [
+        -0.18583170540878063,
+        0.0150327422522889,
+        0.050086299432548304
+      ],
+      "visible": true,
+      "triangles": 392
+    },
+    {
+      "name": "mpfb_adult_male_street_casual_body_7",
+      "path": "openclinxr.ed-chest-pain.patient-robert-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / mpfb_adult_male_street_casual_standard_rig / mpfb_adult_male_street_casual_body_mesh / mpfb_adult_male_street_casual_body_7",
+      "worldMin": [
+        -0.6610750515339636,
+        -0.3419892790487296,
+        -0.38482341594784225
+      ],
+      "worldMax": [
+        -0.14672814742626783,
+        0.9962797247688271,
+        0.03275319712010791
+      ],
+      "visible": true,
+      "triangles": 120
+    },
+    {
+      "name": "mpfb_adult_male_street_casual_body_meshlow-poly",
+      "path": "openclinxr.ed-chest-pain.patient-robert-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / mpfb_adult_male_street_casual_standard_rig / mpfb_adult_male_street_casual_body_meshlow-poly",
+      "worldMin": [
+        -0.4530376165709913,
+        1.122215599931563,
+        -0.16437191084619185
+      ],
+      "worldMax": [
+        -0.3791848932429337,
+        1.1421081101751451,
+        -0.12391957061000818
+      ],
+      "visible": true,
+      "triangles": 172
+    },
+    {
+      "name": "openclinxr.telehealth_diabetes_health_literacy_v1.glb-affordance.openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb:dialogue_target",
+      "path": "openclinxr.ed-chest-pain.patient-robert-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.glb-affordance.openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb:dialogue_target",
+      "worldMin": [
+        -0.4577530681993277,
+        -0.39053225297496635,
+        -0.2637236351309703
+      ],
+      "worldMax": [
+        -0.3318992219073096,
+        -0.28882849273435446,
+        -0.1356217929455475
+      ],
+      "visible": false,
+      "triangles": 352
+    },
+    {
+      "name": "openclinxr.telehealth_diabetes_health_literacy_v1.ragdoll-collision-proxy.openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb",
+      "path": "openclinxr.ed-chest-pain.patient-robert-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.humanoid-interaction-collision.openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.ragdoll-collision-proxy.openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb",
+      "worldMin": [
+        -0.6760615467645976,
+        -0.20325435093118555,
+        -0.4823534057368435
+      ],
+      "worldMax": [
+        -0.09115457356874862,
+        1.1967353751405296,
+        0.02137858516893698
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.telehealth_diabetes_health_literacy_v1.physician-interaction-target.openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb",
+      "path": "openclinxr.ed-chest-pain.patient-robert-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.humanoid-interaction-collision.openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.physician-interaction-target.openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb",
+      "worldMin": [
+        -0.5141876496796287,
+        0.23933817829519227,
+        -0.5153320683790175
+      ],
+      "worldMax": [
+        -0.11421160199049277,
+        0.9881209412667802,
+        -0.3172304761334369
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.telehealth_diabetes_health_literacy_v1.phoneme-mouth-cue.openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb",
+      "path": "openclinxr.ed-chest-pain.patient-robert-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.phoneme-mouth-cue.openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb",
+      "worldMin": [
+        -0.5466625334273526,
+        0.9309928415922324,
+        -0.028755604806029914
+      ],
+      "worldMax": [
+        -0.39693395502683326,
+        0.9822938050254739,
+        0.03874917996000622
+      ],
+      "visible": true,
+      "triangles": 12
+    },
+    {
+      "name": "<Mesh>",
+      "path": "openclinxr.ed-chest-pain.patient-robert-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.eye-focus-cue.openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / <Mesh>",
+      "worldMin": [
+        -0.45871646835583424,
+        1.0573478112674577,
+        0.012550878217218082
+      ],
+      "worldMax": [
+        -0.4285759829028468,
+        1.080239104740159,
+        0.04333482043601647
+      ],
+      "visible": true,
+      "triangles": 168
+    },
+    {
+      "name": "<Mesh>",
+      "path": "openclinxr.ed-chest-pain.patient-robert-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.eye-focus-cue.openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / <Mesh>",
+      "worldMin": [
+        -0.44120473848859354,
+        1.0640094969372722,
+        0.015404898071888825
+      ],
+      "worldMax": [
+        -0.4299020570285257,
+        1.0725937315453855,
+        0.026948875806651135
+      ],
+      "visible": true,
+      "triangles": 80
+    },
+    {
+      "name": "<Mesh>",
+      "path": "openclinxr.ed-chest-pain.patient-robert-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.eye-focus-cue.openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / <Mesh>",
+      "worldMin": [
+        -0.5095737848556612,
+        1.0552241130580828,
+        -0.04812589555162192
+      ],
+      "worldMax": [
+        -0.47943329940267376,
+        1.078115406530784,
+        -0.01734195333282353
+      ],
+      "visible": true,
+      "triangles": 168
+    },
+    {
+      "name": "<Mesh>",
+      "path": "openclinxr.ed-chest-pain.patient-robert-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.eye-focus-cue.openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / <Mesh>",
+      "worldMin": [
+        -0.4920620549884205,
+        1.0618857987278973,
+        -0.04527187569695117
+      ],
+      "worldMax": [
+        -0.48075937352835263,
+        1.0704700333360107,
+        -0.03372789796218886
+      ],
+      "visible": true,
+      "triangles": 80
+    },
+    {
+      "name": "openclinxr.telehealth_diabetes_health_literacy_v1.left-expressive-brow.openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb",
+      "path": "openclinxr.ed-chest-pain.patient-robert-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.runtime-expression-cue.openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.left-expressive-brow.openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb",
+      "worldMin": [
+        -0.5512514931011975,
+        1.1493690642055567,
+        -0.03880780815260344
+      ],
+      "worldMax": [
+        -0.5015822548963761,
+        1.1640382945008436,
+        -0.014421734709369513
+      ],
+      "visible": true,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.telehealth_diabetes_health_literacy_v1.right-expressive-brow.openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb",
+      "path": "openclinxr.ed-chest-pain.patient-robert-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.runtime-expression-cue.openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.right-expressive-brow.openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb",
+      "worldMin": [
+        -0.43484547600434537,
+        1.1493945924114677,
+        0.004856231628116079
+      ],
+      "worldMax": [
+        -0.3850794551522521,
+        1.164096462531443,
+        0.028976455070421316
+      ],
+      "visible": true,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.telehealth_diabetes_health_literacy_v1.emotion-cheek.openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb",
+      "path": "openclinxr.ed-chest-pain.patient-robert-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.runtime-expression-cue.openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.emotion-cheek.openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb",
+      "worldMin": [
+        -0.5932380010795356,
+        1.019745339013485,
+        -0.055140608188652525
+      ],
+      "worldMax": [
+        -0.5397046721759463,
+        1.0461900959101424,
+        -0.02895965478380185
+      ],
+      "visible": true,
+      "triangles": 100
+    },
+    {
+      "name": "openclinxr.telehealth_diabetes_health_literacy_v1.emotion-cheek.openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb",
+      "path": "openclinxr.ed-chest-pain.patient-robert-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.runtime-expression-cue.openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.emotion-cheek.openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb",
+      "worldMin": [
+        -0.39629304566253387,
+        1.0198161115664164,
+        0.018478188866190785
+      ],
+      "worldMax": [
+        -0.34275971675894445,
+        1.0462608684630739,
+        0.04465914227104146
+      ],
+      "visible": true,
+      "triangles": 100
+    },
+    {
+      "name": "openclinxr.telehealth_diabetes_health_literacy_v1.runtime-jaw-viseme-target.openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb",
+      "path": "openclinxr.ed-chest-pain.patient-robert-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.runtime-expression-cue.openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.runtime-jaw-viseme-target.openclinxr-telehealth_diabetes_health_literacy_v1-patient_luis_martinez_v1-generated-humanoid-glb",
+      "worldMin": [
+        -0.5137916101930495,
+        0.9498338823254299,
+        -0.015310806489671716
+      ],
+      "worldMax": [
+        -0.4292185459859748,
+        0.9611869348699132,
+        0.023738004171158247
+      ],
+      "visible": true,
+      "triangles": 12
+    },
+    {
+      "name": "<Mesh>",
+      "path": "openclinxr.ed-chest-pain.nurse-maria-alvarez / <Mesh>",
+      "worldMin": [
+        1.2106110917643067,
+        0.9300000071525574,
+        0.31061109176430673
+      ],
+      "worldMax": [
+        1.6893889082356932,
+        2.0699999928474426,
+        0.7893889082356933
+      ],
+      "visible": false,
+      "triangles": 544
+    },
+    {
+      "name": "<Mesh>",
+      "path": "openclinxr.ed-chest-pain.nurse-maria-alvarez / <Mesh>",
+      "worldMin": [
+        1.2323737153636183,
+        1.8999999970197674,
+        0.3323737153636184
+      ],
+      "worldMax": [
+        1.6676262846363816,
+        2.300000002980232,
+        0.7676262846363817
+      ],
+      "visible": false,
+      "triangles": 720
+    },
+    {
+      "name": "<Mesh>",
+      "path": "openclinxr.ed-chest-pain.spouse-anna-hayes / <Mesh>",
+      "worldMin": [
+        1.1897659881640303,
+        -0.016399994134902895,
+        -0.19023401183596958
+      ],
+      "worldMax": [
+        1.6502340118359695,
+        0.9183999941349029,
+        0.27023401183596957
+      ],
+      "visible": false,
+      "triangles": 544
+    },
+    {
+      "name": "<Mesh>",
+      "path": "openclinxr.ed-chest-pain.spouse-anna-hayes / <Mesh>",
+      "worldMin": [
+        1.2106963486233902,
+        0.7789999975562094,
+        -0.16930365137660972
+      ],
+      "worldMax": [
+        1.6293036513766097,
+        1.1070000024437903,
+        0.24930365137660973
+      ],
+      "visible": false,
+      "triangles": 720
+    },
+    {
+      "name": "openclinxr.telehealth_diabetes_health_literacy_v1.actor-nameplate.family-daughter-elena-martinez",
+      "path": "openclinxr.ed-chest-pain.spouse-anna-hayes / openclinxr.telehealth_diabetes_health_literacy_v1.actor-nameplate.family-daughter-elena-martinez",
+      "worldMin": [
+        1.0527970623844989,
+        1.1152000021994115,
+        -0.08989322075890208
+      ],
+      "worldMax": [
+        1.787202937615501,
+        1.3119999978005885,
+        0.1698932207589021
+      ],
+      "visible": false,
+      "triangles": 2
+    },
+    {
+      "name": "makeclothes_library_cargo_pants_mpfb_ed_chest_pain_spouse_adult",
+      "path": "openclinxr.ed-chest-pain.spouse-anna-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / mpfb_ed_chest_pain_spouse_adult_standard_rig / makeclothes_library_cargo_pants_mpfb_ed_chest_pain_spouse_adult",
+      "worldMin": [
+        1.201508474643041,
+        0.10557563704279348,
+        -0.08444925203765806
+      ],
+      "worldMax": [
+        1.6502471219013175,
+        0.8661992785182958,
+        0.2073972122350325
+      ],
+      "visible": true,
+      "triangles": 2821
+    },
+    {
+      "name": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ed_chest_pain_spouse_adult",
+      "path": "openclinxr.ed-chest-pain.spouse-anna-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / mpfb_ed_chest_pain_spouse_adult_standard_rig / makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ed_chest_pain_spouse_adult",
+      "worldMin": [
+        1.1905786581637952,
+        0.010833775840411388,
+        -0.020681060797298444
+      ],
+      "worldMax": [
+        1.6322258237843175,
+        0.07968600843735107,
+        0.2559341528528386
+      ],
+      "visible": true,
+      "triangles": 1004
+    },
+    {
+      "name": "makeclothes_library_hair_toigo_curled_under_bob_mpfb_ed_chest_pain_spouse_adult_mesh",
+      "path": "openclinxr.ed-chest-pain.spouse-anna-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / mpfb_ed_chest_pain_spouse_adult_standard_rig / makeclothes_library_hair_toigo_curled_under_bob_mpfb_ed_chest_pain_spouse_adult_mesh",
+      "worldMin": [
+        1.3439564927951884,
+        1.2275757789827313,
+        -0.0301174801247127
+      ],
+      "worldMax": [
+        1.526372077313424,
+        1.4521430454538107,
+        0.16598321395899285
+      ],
+      "visible": true,
+      "triangles": 2852
+    },
+    {
+      "name": "makeclothes_library_toigo_t_shirt",
+      "path": "openclinxr.ed-chest-pain.spouse-anna-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / mpfb_ed_chest_pain_spouse_adult_standard_rig / makeclothes_library_toigo_t_shirt",
+      "worldMin": [
+        1.1508706071829355,
+        0.845909946676966,
+        -0.06509138761719575
+      ],
+      "worldMax": [
+        1.7096983229838183,
+        1.2378452139067033,
+        0.21665076943118933
+      ],
+      "visible": true,
+      "triangles": 2700
+    },
+    {
+      "name": "mpfb_ed_chest_pain_spouse_adult_body",
+      "path": "openclinxr.ed-chest-pain.spouse-anna-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / mpfb_ed_chest_pain_spouse_adult_standard_rig / mpfb_ed_chest_pain_spouse_adult_body_mesh / mpfb_ed_chest_pain_spouse_adult_body",
+      "worldMin": [
+        0.9208730719807372,
+        -0.012944769895124676,
+        -0.1399064160308371
+      ],
+      "worldMax": [
+        1.9099046309215189,
+        1.4725311803853591,
+        0.4299688102029581
+      ],
+      "visible": true,
+      "triangles": 20048
+    },
+    {
+      "name": "mpfb_ed_chest_pain_spouse_adult_body_1",
+      "path": "openclinxr.ed-chest-pain.spouse-anna-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / mpfb_ed_chest_pain_spouse_adult_standard_rig / mpfb_ed_chest_pain_spouse_adult_body_mesh / mpfb_ed_chest_pain_spouse_adult_body_1",
+      "worldMin": [
+        1.164200836226759,
+        0.8472087430467169,
+        -0.060456338021086395
+      ],
+      "worldMax": [
+        1.6966221685768652,
+        1.2313737408995495,
+        0.2114706687417523
+      ],
+      "visible": true,
+      "triangles": 2620
+    },
+    {
+      "name": "mpfb_ed_chest_pain_spouse_adult_body_2",
+      "path": "openclinxr.ed-chest-pain.spouse-anna-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / mpfb_ed_chest_pain_spouse_adult_standard_rig / mpfb_ed_chest_pain_spouse_adult_body_mesh / mpfb_ed_chest_pain_spouse_adult_body_2",
+      "worldMin": [
+        1.2270907255828378,
+        0.12245503431878339,
+        -0.06764582250140448
+      ],
+      "worldMax": [
+        1.624880269770302,
+        0.8653482753465421,
+        0.19047920779890815
+      ],
+      "visible": true,
+      "triangles": 422
+    },
+    {
+      "name": "mpfb_ed_chest_pain_spouse_adult_body_3",
+      "path": "openclinxr.ed-chest-pain.spouse-anna-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / mpfb_ed_chest_pain_spouse_adult_standard_rig / mpfb_ed_chest_pain_spouse_adult_body_mesh / mpfb_ed_chest_pain_spouse_adult_body_3",
+      "worldMin": [
+        1.1976682242926928,
+        0.010904973968642264,
+        -0.016832167270172026
+      ],
+      "worldMax": [
+        1.626030115196908,
+        0.068536633730572,
+        0.24570366642309988
+      ],
+      "visible": true,
+      "triangles": 2964
+    },
+    {
+      "name": "mpfb_ed_chest_pain_spouse_adult_body_4",
+      "path": "openclinxr.ed-chest-pain.spouse-anna-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / mpfb_ed_chest_pain_spouse_adult_standard_rig / mpfb_ed_chest_pain_spouse_adult_body_mesh / mpfb_ed_chest_pain_spouse_adult_body_4",
+      "worldMin": [
+        1.1511438836077734,
+        0.8434952947024106,
+        0.004586082826530891
+      ],
+      "worldMax": [
+        1.6998406524901415,
+        1.2397098527393537,
+        0.20774090768846493
+      ],
+      "visible": true,
+      "triangles": 236
+    },
+    {
+      "name": "mpfb_ed_chest_pain_spouse_adult_body_5",
+      "path": "openclinxr.ed-chest-pain.spouse-anna-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / mpfb_ed_chest_pain_spouse_adult_standard_rig / mpfb_ed_chest_pain_spouse_adult_body_mesh / mpfb_ed_chest_pain_spouse_adult_body_5",
+      "worldMin": [
+        1.2371179067935876,
+        0.10450113577074362,
+        0.017580257698250754
+      ],
+      "worldMax": [
+        1.6010654174373657,
+        0.8644483052330285,
+        0.18924868143236112
+      ],
+      "visible": true,
+      "triangles": 44
+    },
+    {
+      "name": "mpfb_ed_chest_pain_spouse_adult_body_6",
+      "path": "openclinxr.ed-chest-pain.spouse-anna-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / mpfb_ed_chest_pain_spouse_adult_standard_rig / mpfb_ed_chest_pain_spouse_adult_body_mesh / mpfb_ed_chest_pain_spouse_adult_body_6",
+      "worldMin": [
+        1.209677886088079,
+        0.011050013434364285,
+        0.004873249908514232
+      ],
+      "worldMax": [
+        1.6125690718927952,
+        0.08105421362381682,
+        0.23395512111122518
+      ],
+      "visible": true,
+      "triangles": 232
+    },
+    {
+      "name": "mpfb_ed_chest_pain_spouse_adult_body_7",
+      "path": "openclinxr.ed-chest-pain.spouse-anna-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / mpfb_ed_chest_pain_spouse_adult_standard_rig / mpfb_ed_chest_pain_spouse_adult_body_mesh / mpfb_ed_chest_pain_spouse_adult_body_7",
+      "worldMin": [
+        1.1900153668724853,
+        0.010773472244603392,
+        -0.049986309892285266
+      ],
+      "worldMax": [
+        1.6532760637167128,
+        1.1975728572939748,
+        0.24338732357191206
+      ],
+      "visible": true,
+      "triangles": 190
+    },
+    {
+      "name": "mpfb_ed_chest_pain_spouse_adult_body_meshlow-poly",
+      "path": "openclinxr.ed-chest-pain.spouse-anna-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / mpfb_ed_chest_pain_spouse_adult_standard_rig / mpfb_ed_chest_pain_spouse_adult_body_meshlow-poly",
+      "worldMin": [
+        1.3865800308206329,
+        1.3379416299020457,
+        0.13790728312300263
+      ],
+      "worldMax": [
+        1.457528883958372,
+        1.3574582544013647,
+        0.1636220997331177
+      ],
+      "visible": true,
+      "triangles": 172
+    },
+    {
+      "name": "openclinxr.telehealth_diabetes_health_literacy_v1.glb-affordance.openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb:dialogue_target",
+      "path": "openclinxr.ed-chest-pain.spouse-anna-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.glb-affordance.openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb:dialogue_target",
+      "worldMin": [
+        1.368482340601921,
+        -0.03464724169614878,
+        -0.013161693530167717
+      ],
+      "worldMax": [
+        1.4782124592985086,
+        0.06136359477893468,
+        0.0955298911460424
+      ],
+      "visible": false,
+      "triangles": 352
+    },
+    {
+      "name": "openclinxr.telehealth_diabetes_health_literacy_v1.ragdoll-collision-proxy.openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb",
+      "path": "openclinxr.ed-chest-pain.spouse-anna-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.humanoid-interaction-collision.openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.ragdoll-collision-proxy.openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb",
+      "worldMin": [
+        1.1637147447271396,
+        0.14817104157747796,
+        -0.14157539587789994
+      ],
+      "worldMax": [
+        1.70259768961279,
+        1.4984318281674784,
+        0.2256942771952228
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.telehealth_diabetes_health_literacy_v1.physician-interaction-target.openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb",
+      "path": "openclinxr.ed-chest-pain.spouse-anna-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.humanoid-interaction-collision.openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.physician-interaction-target.openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb",
+      "worldMin": [
+        1.262526029308234,
+        0.5794638565463899,
+        -0.1916263623187034
+      ],
+      "worldMax": [
+        1.6670642420059651,
+        1.308071964766878,
+        -0.0979950652523303
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.telehealth_diabetes_health_literacy_v1.phoneme-mouth-cue.openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb",
+      "path": "openclinxr.ed-chest-pain.spouse-anna-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.phoneme-mouth-cue.openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb",
+      "worldMin": [
+        1.3400881991571765,
+        1.2450492429793392,
+        0.2877502869624315
+      ],
+      "worldMax": [
+        1.4528137014222968,
+        1.2722662775676752,
+        0.31751058032030616
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "<Mesh>",
+      "path": "openclinxr.ed-chest-pain.spouse-anna-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.eye-focus-cue.openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / <Mesh>",
+      "worldMin": [
+        1.3480862029911322,
+        1.35635596519351,
+        0.28131683451849293
+      ],
+      "worldMax": [
+        1.3720273201354924,
+        1.3773037843563947,
+        0.30503136241884593
+      ],
+      "visible": false,
+      "triangles": 168
+    },
+    {
+      "name": "<Mesh>",
+      "path": "openclinxr.ed-chest-pain.spouse-anna-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.eye-focus-cue.openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / <Mesh>",
+      "worldMin": [
+        1.3539217279228528,
+        1.3629110700415679,
+        0.29892765332689
+      ],
+      "worldMax": [
+        1.362899646387469,
+        1.3707665018212085,
+        0.3078206008294
+      ],
+      "visible": false,
+      "triangles": 80
+    },
+    {
+      "name": "<Mesh>",
+      "path": "openclinxr.ed-chest-pain.spouse-anna-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.eye-focus-cue.openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / <Mesh>",
+      "worldMin": [
+        1.424580691366724,
+        1.355416236465164,
+        0.2936622894746113
+      ],
+      "worldMax": [
+        1.4485218085110843,
+        1.3763640556280488,
+        0.3173768173749643
+      ],
+      "visible": false,
+      "triangles": 168
+    },
+    {
+      "name": "<Mesh>",
+      "path": "openclinxr.ed-chest-pain.spouse-anna-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.eye-focus-cue.openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / <Mesh>",
+      "worldMin": [
+        1.4304162162984448,
+        1.361971341313222,
+        0.31127310828300836
+      ],
+      "worldMax": [
+        1.439394134763061,
+        1.3698267730928626,
+        0.3201660557855184
+      ],
+      "visible": false,
+      "triangles": 80
+    },
+    {
+      "name": "openclinxr.telehealth_diabetes_health_literacy_v1.left-expressive-brow.openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb",
+      "path": "openclinxr.ed-chest-pain.spouse-anna-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.runtime-expression-cue.openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.left-expressive-brow.openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb",
+      "worldMin": [
+        1.3169646194356435,
+        1.407395909891185,
+        0.2837372439883108
+      ],
+      "worldMax": [
+        1.364925215321714,
+        1.421526224705967,
+        0.29810349213830967
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.telehealth_diabetes_health_literacy_v1.right-expressive-brow.openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb",
+      "path": "openclinxr.ed-chest-pain.spouse-anna-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.runtime-expression-cue.openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.right-expressive-brow.openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb",
+      "worldMin": [
+        1.432515140012816,
+        1.4065296598610488,
+        0.3023889258390605
+      ],
+      "worldMax": [
+        1.4805580373907752,
+        1.4195524056904354,
+        0.3167625185993843
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "openclinxr.telehealth_diabetes_health_literacy_v1.emotion-cheek.openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb",
+      "path": "openclinxr.ed-chest-pain.spouse-anna-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.runtime-expression-cue.openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.emotion-cheek.openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb",
+      "worldMin": [
+        1.2745031012539179,
+        1.2859913363863944,
+        0.2719589870778773
+      ],
+      "worldMax": [
+        1.3263211382743898,
+        1.311260105174786,
+        0.28653615061781096
+      ],
+      "visible": false,
+      "triangles": 100
+    },
+    {
+      "name": "openclinxr.telehealth_diabetes_health_literacy_v1.emotion-cheek.openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb",
+      "path": "openclinxr.ed-chest-pain.spouse-anna-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.runtime-expression-cue.openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.emotion-cheek.openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb",
+      "worldMin": [
+        1.4699890159915419,
+        1.283589807413955,
+        0.30350848307684647
+      ],
+      "worldMax": [
+        1.5218070530120138,
+        1.3088585762023466,
+        0.3180856466167801
+      ],
+      "visible": false,
+      "triangles": 100
+    },
+    {
+      "name": "openclinxr.telehealth_diabetes_health_literacy_v1.runtime-jaw-viseme-target.openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb",
+      "path": "openclinxr.ed-chest-pain.spouse-anna-hayes / openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.runtime-expression-cue.openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb / openclinxr.telehealth_diabetes_health_literacy_v1.runtime-jaw-viseme-target.openclinxr-telehealth_diabetes_health_literacy_v1-daughter_elena_martinez_v1-generated-humanoid-glb",
+      "worldMin": [
+        1.3550501623055722,
+        1.2185218155643252,
+        0.2909719268531412
+      ],
+      "worldMax": [
+        1.4372912910537206,
+        1.2298608786553895,
+        0.31251443848256555
+      ],
+      "visible": false,
+      "triangles": 12
+    },
+    {
+      "name": "<Mesh>",
+      "path": "runtime_additional_cast_slot / <Mesh>",
+      "worldMin": [
+        1.7300000011920929,
+        0.9300000071525574,
+        -0.06999999880790711
+      ],
+      "worldMax": [
+        2.1699999988079073,
+        2.0699999928474426,
+        0.3699999988079071
+      ],
+      "visible": false,
+      "triangles": 544
+    },
+    {
+      "name": "<Mesh>",
+      "path": "runtime_additional_cast_slot / <Mesh>",
+      "worldMin": [
+        1.7499999970197677,
+        1.8999999970197674,
+        -0.050000002980232244
+      ],
+      "worldMax": [
+        2.1500000029802324,
+        2.300000002980232,
+        0.35000000298023226
+      ],
+      "visible": false,
+      "triangles": 720
+    },
+    {
+      "name": "openclinxr.ed-chest-pain.wall-clock",
+      "path": "openclinxr.ed-chest-pain.wall-clock",
+      "worldMin": [
+        0.65,
+        3.1,
+        -1.225000000372529
+      ],
+      "worldMax": [
+        1.15,
+        3.6,
+        -1.174999999627471
+      ],
+      "visible": false,
+      "triangles": 192
+    },
+    {
+      "name": "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+      "path": "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+      "worldMin": [
+        -2.6341678428805757,
+        2.045000011920929,
+        -1.8035101480109847
+      ],
+      "worldMax": [
+        -0.4658321571194246,
+        3.194999988079071,
+        -1.036489851989015
+      ],
+      "visible": false,
+      "triangles": 2
+    },
+    {
+      "name": "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+      "path": "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+      "worldMin": [
+        -0.03897629189413665,
+        2.1050000059604645,
+        -1.6756289782162213
+      ],
+      "worldMax": [
+        1.7389762918941365,
+        3.0549999940395356,
+        -1.1643710217837786
+      ],
+      "visible": false,
+      "triangles": 2
+    },
+    {
+      "name": "openclinxr.ed-chest-pain.in-vr-actor-realism-requirements-panel",
+      "path": "openclinxr.ed-chest-pain.in-vr-actor-realism-requirements-panel",
+      "worldMin": [
+        -1.9820598966905094,
+        1.9700000035762786,
+        -1.5188023929789092
+      ],
+      "worldMax": [
+        -0.21794010330949076,
+        2.789999996423721,
+        -1.161197607021091
+      ],
+      "visible": false,
+      "triangles": 2
+    },
+    {
+      "name": "openclinxr.ed-chest-pain.in-vr-input-panel",
+      "path": "openclinxr.ed-chest-pain.in-vr-input-panel",
+      "worldMin": [
+        0.8467016351272142,
+        0.9599999856948853,
+        -1.416402368913262
+      ],
+      "worldMax": [
+        2.353298364872786,
+        1.6800000143051148,
+        -0.743597631086738
+      ],
+      "visible": false,
+      "triangles": 2
+    },
+    {
+      "name": "openclinxr.telehealth_diabetes_health_literacy_v1.conversation-turn-state-panel",
+      "path": "openclinxr.telehealth_diabetes_health_literacy_v1.conversation-turn-state-panel",
+      "worldMin": [
+        -2.4322313927271395,
+        0.8050000059604645,
+        -1.472374441520617
+      ],
+      "worldMax": [
+        -0.6677686072728605,
+        1.7549999940395355,
+        -0.7676255584793832
+      ],
+      "visible": false,
+      "triangles": 2
+    },
+    {
+      "name": "examinee_runtime_position_ring_cue",
+      "path": "openclinxr.examinee-locomotion-trail-cue / examinee_runtime_position_ring_cue",
+      "worldMin": [
+        -0.20000000298023224,
+        0.005999999947845936,
+        -0.20000000298023224
+      ],
+      "worldMax": [
+        0.20000000298023224,
+        0.018000000052154064,
+        0.20000000298023224
+      ],
+      "visible": false,
+      "triangles": 128
+    },
+    {
+      "name": "examinee_runtime_heading_cue",
+      "path": "openclinxr.examinee-locomotion-trail-cue / examinee_runtime_heading_cue",
+      "worldMin": [
+        -0.027499999850988388,
+        0.031000000387430192,
+        -0.3399999964237213
+      ],
+      "worldMax": [
+        0.027499999850988388,
+        0.04899999961256981,
+        -0.02000000357627868
+      ],
+      "visible": false,
+      "triangles": 12
+    }
+  ],
+  "triangleFloor": 0,
+  "visibleDefinition": "visible = effectivelyVisible (the mesh and every ancestor are visible)",
+  "source": "live ui-xr scene (scene-overview capture mode) via playwright headless chromium against the portless dev server; scene read by the #342 ui-xr-live-scene-graph-dump walker; camera derived from measured chair + room bounds, never hardcoded; exam HUD DOM nodes removed at capture time (measured 0 after removal), grid collapsed by capture-time CSS",
+  "claimScope": [
+    "measured_world_space_mesh_inventory_of_the_live_telehealth_station_scene",
+    "hud_free_still_of_that_same_scene_with_derived_camera"
+  ],
+  "notEvidenceFor": [
+    "what the pale bar at left-of-centre IS (orchestrator pixel grade)",
+    "clinical_room_realism",
+    "quest_readiness",
+    "exam_equivalence"
+  ]
+}
