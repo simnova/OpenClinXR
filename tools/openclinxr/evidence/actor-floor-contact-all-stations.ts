@@ -29,6 +29,7 @@ import {
   readLivePostureGeometryFromPage,
   waitForStationShell,
 } from "./ui-xr-environment-room-capture.js";
+import { waitForSceneAssetsSettled } from "./declared-actors-rendered.js";
 
 export const FLOOR_CONTACT_DIR = ".openclinxr/evidence/actor-floor-contact";
 export const FLOOR_CONTACT_NAME = "actor-floor-contact-all-stations.json";
@@ -191,6 +192,15 @@ async function measureLiveAllStations(input: {
           await page.goto(url, { waitUntil: "load", timeout: 180_000 });
           await waitForStationShell(page, 180_000);
           await waitForHumanoidsAndFrames(page, 8, 180_000);
+          // #446: sampling-instant race (same class as #259) — waitForHumanoidsAndFrames
+          // returns as soon as ONE skinned mesh exists, but a heavier cast GLB (OB nurse
+          // is 21.5 MB vs partner 8.6 MB) may still be loading. Mid-load the slot's
+          // primitive scaffold is hidden but measurable, and its capsule bottom sits at
+          // slot-local y≈-0.02 — at the OB framing's elevated nurse slot (y=0.42) that
+          // reads as a 0.41 m floater while the loaded humanoid stands at ≈0 (measured).
+          // Wait for all assets to settle before sampling; a failed asset counts as
+          // settled, so a genuinely-broken load still surfaces as a defect.
+          await waitForSceneAssetsSettled(page, 60_000);
           await page.waitForTimeout(900);
           const live = await readLivePostureGeometryFromPage(page);
           // Prefer URL scenario id if the page report is empty/wrong.
