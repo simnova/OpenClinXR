@@ -362,6 +362,22 @@ export function appendBoardStatusDirective(spawnPrompt: string, sliceId: string,
   return `${spawnPrompt.trimEnd()}\n\n${line}\n`;
 }
 
+/**
+ * gh colorises `--format json` when any color env is forced (measured: NO_COLOR=1 alone is not
+ * enough under FORCE_COLOR — the JSON arrives wrapped in ESC[1;37m… sequences and JSON.parse
+ * throws). Every gh execution goes through a color-free env so machine readers never see ANSI.
+ */
+export function buildGhEnv(): NodeJS.ProcessEnv {
+  return {
+    ...process.env,
+    NO_COLOR: "1",
+    CLICOLOR: "0",
+    CLICOLOR_FORCE: "0",
+    GH_FORCE_TTY: "",
+    TERM: "dumb",
+  };
+}
+
 function runGh(plan: GhCommandPlan, dryRun: boolean): { stdout: string; executed: boolean } {
   if (dryRun) {
     console.log(`DRY-RUN: ${plan.display}`);
@@ -370,7 +386,7 @@ function runGh(plan: GhCommandPlan, dryRun: boolean): { stdout: string; executed
   const [bin, ...args] = plan.argv;
   const result = spawnSync(bin!, args, {
     encoding: "utf8",
-    env: process.env,
+    env: buildGhEnv(),
   });
   if (result.error) {
     throw result.error;
@@ -387,7 +403,7 @@ export function defaultGhRunner(argv: string[]): string {
   const [bin, ...args] = argv;
   const result = spawnSync(bin!, args, {
     encoding: "utf8",
-    env: process.env,
+    env: buildGhEnv(),
   });
   if (result.error) {
     throw result.error;
@@ -397,6 +413,15 @@ export function defaultGhRunner(argv: string[]): string {
     throw new Error(`gh failed (${result.status}): ${err}`);
   }
   return (result.stdout ?? "").trim();
+}
+
+/**
+ * Defensive: a test seam or a future gh version may still emit ANSI — strip before JSON.parse.
+ * Runtime-constructed so the source carries no control-character escape (no-control-regex).
+ */
+const ANSI_ESCAPE = new RegExp("\\u001B" + "\\[[0-9;]*[A-Za-z]", "g");
+export function stripAnsi(text: string): string {
+  return text.replace(ANSI_ESCAPE, "");
 }
 
 /**
@@ -449,7 +474,7 @@ export function planFactoryStageWrite(input: {
 
 /** Resolve the single-select option id for a stage from `gh project field-list` JSON. */
 export function resolveFactoryOptionId(fieldListJson: string, fieldId: string, stage: FactoryStage): string {
-  const parsed = JSON.parse(fieldListJson) as {
+  const parsed = JSON.parse(stripAnsi(fieldListJson)) as {
     fields?: Array<{ id?: string; name?: string; options?: Array<{ id?: string; name?: string }> }>;
   };
   const field = (parsed.fields ?? []).find((f) => f.id === fieldId || f.name === FACTORY_FIELD_NAME);
@@ -539,11 +564,11 @@ export function setFactoryField(
   }
 
   plans.push(planProjectView);
-  const projectId = runner(planProjectView.argv).trim();
+  const projectId = stripAnsi(runner(planProjectView.argv)).trim();
 
   plans.push(planItemList);
   const itemListJson = runner(planItemList.argv);
-  const itemList = JSON.parse(itemListJson) as { items?: Array<{ id?: string; content?: { number?: number } | null }> };
+  const itemList = JSON.parse(stripAnsi(itemListJson)) as { items?: Array<{ id?: string; content?: { number?: number } | null }> };
   let itemId = (itemList.items ?? []).find(
     (item) => item.content != null && Number(item.content.number) === issueNumber,
   )?.id;
@@ -566,7 +591,7 @@ export function setFactoryField(
 
 /** gh project item-add prints the new item id (raw or as --format json). */
 function parseItemAddId(stdout: string): string {
-  const trimmed = stdout.trim();
+  const trimmed = stripAnsi(stdout).trim();
   if (/^PVTI_[A-Za-z0-9]+$/.test(trimmed)) return trimmed;
   try {
     const parsed = JSON.parse(trimmed) as { id?: string };

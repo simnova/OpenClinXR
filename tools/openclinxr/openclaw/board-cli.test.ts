@@ -15,6 +15,7 @@ import {
   boardRecordPath,
   boardStatusDirective,
   buildCloseCommentBody,
+  buildGhEnv,
   buildRoleTaskList,
   buildSliceIssueBody,
   buildStatusCommentBody,
@@ -502,5 +503,39 @@ describe("board Factory field — the dequeue queue has a writer (#448)", () => 
     expect(result.plans.map((p) => p.argv[1])).toEqual(["project", "project", "project", "project", "project"]);
     expect(result.plans.some((p) => p.argv.includes("item-add"))).toBe(true);
     expect(result.plans.at(-1)!.argv).toContain("--single-select-option-id");
+  });
+
+  it("tolerates ANSI-colored gh JSON — measured: NO_COLOR=1 alone is not enough under FORCE_COLOR", () => {
+    const root = tempRoot();
+    seedBoard(root, { sliceId: "issue-452", issueNumber: 452 });
+    // Real shape observed live: ESC[1;37m… wraps every token when a color env is forced.
+    const esc = "\u001B[1;37m";
+    const reset = "\u001B[0m";
+    const calls: string[][] = [];
+    const runner = (argv: string[]): string => {
+      calls.push(argv);
+      const joined = argv.join(" ");
+      if (joined.includes("project view 7")) return `${esc}PVT_1${reset}`;
+      if (joined.includes("project item-list 7")) {
+        return `${esc}{${reset}${esc}"items"${reset}${esc}:${reset}${esc}[${reset}${esc}{${reset}${esc}"id"${reset}${esc}:${reset}${esc}"PVTI_452"${reset}${esc},${reset}${esc}"content"${reset}${esc}:${reset}${esc}{${reset}${esc}"number"${reset}${esc}:${reset}${esc}452${reset}${esc}}${reset}${esc}}${reset}${esc}]${reset}${esc}}${reset}`;
+      }
+      if (joined.includes("project field-list 7")) return `${esc}${FIELD_LIST_JSON}${reset}`;
+      if (joined.includes("project item-edit")) return "";
+      throw new Error(`unexpected gh argv: ${joined}`);
+    };
+    const result = setFactoryField(root, "issue-452", "Dispatched", { runner });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.itemId).toBe("PVTI_452");
+    expect(result.plans.at(-1)!.argv).toContain("o-dispatched");
+  });
+
+  it("buildGhEnv forces a color-free gh environment (NO_COLOR alone is insufficient)", () => {
+    const env = buildGhEnv();
+    expect(env.NO_COLOR).toBe("1");
+    expect(env.CLICOLOR).toBe("0");
+    expect(env.CLICOLOR_FORCE).toBe("0");
+    expect(env.GH_FORCE_TTY).toBe("");
+    expect(env.TERM).toBe("dumb");
   });
 });

@@ -9,6 +9,7 @@ import {
   defaultGhRunner,
   resolveIssueNumberForSlice,
   setFactoryField,
+  stripAnsi,
   type GhCommandRunner,
 } from "./board-cli.js";
 import { stagedTreeHash, writeGateReport } from "./integrate-gate.js";
@@ -408,9 +409,9 @@ export function assertWorkerReported(
   }
 
   const repo = DEFAULT_BOARD_REPO;
-  const commentsJson = runner([
+  const commentsJson = stripAnsi(runner([
     "gh", "issue", "view", String(issueNumber), "--repo", repo, "--json", "comments", "-q", ".comments",
-  ]);
+  ]));
   let comments: Array<{ author?: { login?: string } | null; body?: string }>;
   try {
     comments = JSON.parse(commentsJson) as Array<{ author?: { login?: string } | null; body?: string }>;
