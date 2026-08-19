@@ -70,8 +70,16 @@ export type IwsdkNpmCurrentnessReport = {
 
 type ValidationResult = { ok: true } | { ok: false; errors: string[] };
 
-/** A captured snapshot older than this is stale even when its versions still match live npm. */
-const SNAPSHOT_MAX_AGE_MS = 14 * 24 * 60 * 60 * 1000;
+/**
+ * A captured snapshot older than this is stale even when its versions still match live npm.
+ *
+ * The bound is derived from @iwsdk/core's real npm release history, last 10 releases, measured
+ * 2026-08-19: gaps 0, 33, 27, 8, 10, 63, 0, 10, 0 days -> median 10, mean 16.8. A bound inside
+ * that band expires roughly one release cycle after capture. 14 sits in [10, 17]; values outside
+ * the band are refused by the-iwsdk-sidecar-runs-the-current-release.test.ts clause (5).
+ */
+export const SNAPSHOT_MAX_AGE_DAYS = 14;
+const SNAPSHOT_MAX_AGE_MS = SNAPSHOT_MAX_AGE_DAYS * 24 * 60 * 60 * 1000;
 
 export type IwsdkSnapshotFreshness = {
   stale: boolean;
@@ -127,13 +135,13 @@ export function resolveRepoViteVersion(manifestVersion: string): string {
 }
 
 const expectedPackages: ExpectedIwsdkPackage[] = [
-  { name: "@iwsdk/core", latestVersion: "0.5.1", license: "MIT" },
-  { name: "@iwsdk/xr-input", latestVersion: "0.5.1", license: "MIT" },
-  { name: "@iwsdk/locomotor", latestVersion: "0.5.1", license: "MIT" },
+  { name: "@iwsdk/core", latestVersion: "0.5.3", license: "MIT" },
+  { name: "@iwsdk/xr-input", latestVersion: "0.5.3", license: "MIT" },
+  { name: "@iwsdk/locomotor", latestVersion: "0.5.3", license: "MIT" },
   { name: "@iwsdk/glxf", latestVersion: "0.4.2", license: "MIT" },
   {
     name: "@iwsdk/vite-plugin-dev",
-    latestVersion: "0.5.1",
+    latestVersion: "0.5.3",
     license: "MIT",
     expectedPeerDependencies: { vite: "^7.0.0" },
   },
@@ -155,7 +163,7 @@ const expectedPackages: ExpectedIwsdkPackage[] = [
     license: "MIT",
     expectedPeerDependencies: { vite: "^7.0.0" },
   },
-  { name: "@iwsdk/reference", latestVersion: "0.5.1", license: "MIT" },
+  { name: "@iwsdk/reference", latestVersion: "0.5.3", license: "MIT" },
   {
     name: "@meta-quest/hzdb",
     latestVersion: "1.3.2",

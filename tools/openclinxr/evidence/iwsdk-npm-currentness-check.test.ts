@@ -51,8 +51,8 @@ describe("IWSDK npm currentness check", () => {
       packageByName("@iwsdk/core"),
     ).toMatchObject({
       name: "@iwsdk/core",
-      latest_version: "0.5.1",
-      expected_latest_version: "0.5.1",
+      latest_version: "0.5.3",
+      expected_latest_version: "0.5.3",
       license: {
         source: "MIT",
         expected: "MIT",
@@ -65,8 +65,8 @@ describe("IWSDK npm currentness check", () => {
       packageByName("@iwsdk/vite-plugin-dev"),
     ).toMatchObject({
       name: "@iwsdk/vite-plugin-dev",
-      latest_version: "0.5.1",
-      expected_latest_version: "0.5.1",
+      latest_version: "0.5.3",
+      expected_latest_version: "0.5.3",
       peer_dependencies: {
         vite: "^7.0.0",
       },
@@ -94,7 +94,7 @@ describe("IWSDK npm currentness check", () => {
   it("blocks when a captured IWSDK package latest version moves beyond the approved snapshot", () => {
     const snapshot = metadataSnapshot();
     snapshot.packages = snapshot.packages.map((entry) =>
-      entry.name === "@iwsdk/core" ? { ...entry, latestVersion: "0.5.2" } : entry,
+      entry.name === "@iwsdk/core" ? { ...entry, latestVersion: "0.5.4" } : entry,
     );
 
     const report = buildIwsdkNpmCurrentnessReport({
@@ -106,7 +106,7 @@ describe("IWSDK npm currentness check", () => {
 
     expect(report.ready).toBe(false);
     expect(report.currentness.blockers).toEqual([
-      "npm_latest_version_moved:@iwsdk/core:expected_0.5.1_actual_0.5.2",
+      "npm_latest_version_moved:@iwsdk/core:expected_0.5.3_actual_0.5.4",
     ]);
   });
 
@@ -144,15 +144,15 @@ function metadataSnapshot(): IwsdkNpmMetadataSnapshot {
       registry: "https://registry.npmjs.org/",
     },
     packages: [
-      packageMetadata("@iwsdk/core", "0.5.1", "MIT"),
-      packageMetadata("@iwsdk/xr-input", "0.5.1", "MIT"),
-      packageMetadata("@iwsdk/locomotor", "0.5.1", "MIT"),
+      packageMetadata("@iwsdk/core", "0.5.3", "MIT"),
+      packageMetadata("@iwsdk/xr-input", "0.5.3", "MIT"),
+      packageMetadata("@iwsdk/locomotor", "0.5.3", "MIT"),
       packageMetadata("@iwsdk/glxf", "0.4.2", "MIT"),
-      packageMetadata("@iwsdk/vite-plugin-dev", "0.5.1", "MIT", { vite: "^7.0.0" }),
+      packageMetadata("@iwsdk/vite-plugin-dev", "0.5.3", "MIT", { vite: "^7.0.0" }),
       packageMetadata("@iwsdk/vite-plugin-gltf-optimizer", "0.4.2", "MIT", { vite: "^7.0.0" }),
       packageMetadata("@iwsdk/vite-plugin-uikitml", "0.4.2", "MIT", { vite: "^7.0.0" }),
       packageMetadata("@iwsdk/vite-plugin-metaspatial", "0.4.2", "MIT", { vite: "^7.0.0" }),
-      packageMetadata("@iwsdk/reference", "0.5.1", "MIT"),
+      packageMetadata("@iwsdk/reference", "0.5.3", "MIT"),
       packageMetadata("@meta-quest/hzdb", "1.3.2", "Meta Platform Technologies SDK License"),
     ],
   };
