@@ -99,6 +99,22 @@ import { describe, expect, it } from "vitest";
  *   (4) PASSES TODAY — the other 38 are in band after #446. Net against (e).
  *   (5) PASSES TODAY — it reads the chair's static geometry. Net against (c).
  *
+ * ## MY OWN PROOF-ORDERING DEFECT, FOUND AND FIXED 2026-08-19 (SS6x-ter)
+ *
+ * As first planted, this file only READ
+ * `.openclinxr/evidence/actor-floor-contact/actor-floor-contact-all-stations.json` and #447's
+ * `done_when` listed this contract BEFORE the sweep that produces it. On a clean tree the
+ * artifact does not exist yet, so clause (1) failed with "no floor-contact report" and the
+ * three clauses that read the same rows failed with it — **4 of 5 red no matter what the
+ * worker did**. Measured: with the artifact present all 5 pass; with it cleared,
+ * `contract-verify-cli` exits 2 on this proof and green on the sweep that runs after it.
+ *
+ * That is my defect, not the worker's. `done_when` is write-once per slice (#246), so the
+ * ordering cannot be swapped; the contract now MEASURES rather than assuming someone else
+ * measured first — the same `measureActorFloorContact()` entry point
+ * `actor-floor-contact-all-stations.test.ts` uses (D1: the proven call, not a second reader).
+ * The assertions are unchanged in kind and in threshold.
+ *
  * NOT TESTED:
  *   - **The cause.** This asserts the outcome only.
  *   - **Whether the sit LOOKS right** once the feet land. Hip angle, spine, arm rest and the
@@ -134,9 +150,19 @@ type ActorRow = {
 };
 type MeshRow = { name: string; worldMin: number[]; worldMax: number[] };
 
-const actors: ActorRow[] = existsSync(FLOOR_ARTIFACT)
-  ? ((JSON.parse(readFileSync(FLOOR_ARTIFACT, "utf8")) as { report?: { actors?: ActorRow[] } }).report?.actors ?? [])
-  : [];
+/**
+ * Measure rather than assume a prior proof measured. `measureActorFloorContact()` serves the
+ * stamped artifact when it is fresh and re-measures when the tree has moved, so this costs one
+ * cached read in the common case and one Vite boot on a clean tree.
+ */
+const floorModule = (await import("./actor-floor-contact-all-stations.js")) as {
+  measureActorFloorContact?: () => Promise<{ actors?: ActorRow[] }>;
+};
+const measured = await floorModule.measureActorFloorContact?.();
+const actors: ActorRow[] = measured?.actors
+  ?? (existsSync(FLOOR_ARTIFACT)
+    ? ((JSON.parse(readFileSync(FLOOR_ARTIFACT, "utf8")) as { report?: { actors?: ActorRow[] } }).report?.actors ?? [])
+    : []);
 const meshes: MeshRow[] = existsSync(ROOM_INSPECT)
   ? ((JSON.parse(readFileSync(ROOM_INSPECT, "utf8")) as { meshes?: MeshRow[] }).meshes ?? [])
   : [];
