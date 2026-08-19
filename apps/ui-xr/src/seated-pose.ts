@@ -14,7 +14,7 @@
  * notEvidenceFor: clinical sitting realism, mocap quality, Mesh2Motion retarget success.
  */
 
-import type { Object3D } from "three";
+import { Quaternion, Vector3, type Object3D } from "three";
 import {
   SEATED_CLIP_NAME,
   STANDING_CLIP_NAME,
@@ -181,6 +181,13 @@ export function plantSeatedFeetNearFloor(
  * Apply procedural sit rotations to skinned bones under a loaded humanoid root.
  * Same Euler write path as applyGeneratedHumanoidClinicalIdlePosture (main.ts).
  * Records clip binding userData for evidence.
+ *
+ * #447: the MPFB2 rail (upperleg01.L / lowerleg01.L rigs) has a baked non-identity
+ * rest — the 23-bone Anny-frame absolute eulers warp it into a crushed mass (measured
+ * 2026-08-19: skin 0.31..0.74 on mpfb-street-adult-male.glb). On that rail the GLB's
+ * own rest renders the trunk upright, so the seated fold only aligns the leg bones'
+ * world +Y to seated targets (thigh forward, shin down-tucked). Idempotent — no
+ * rest capture needed, re-applies cleanly every frame.
  */
 export function applyPosturePose(
   humanoidRoot: Object3D,
@@ -204,63 +211,71 @@ export function applyPosturePose(
   }
 
   const bonesTouched: string[] = [];
-  /**
-   * #83: AnimationMixer writes bone.quaternion directly. Setting only Euler .x/.y/.z can leave a
-   * stale quaternion if onChange is suppressed or a later matrix update recomposes from quaternion.
-   * Write Euler then force quaternion.setFromEuler so the sit survives the frame after mixer.update.
-   */
-  const applyEuler = (
-    object: Object3D,
-    rotation: { x?: number; y?: number; z?: number; absolute?: boolean },
-  ) => {
-    // absolute: replace full XYZ (needed for legs whose bind is ~−π on thigh X).
-    // non-absolute: only overwrite provided axes (legacy arm path).
-    const x = rotation.x !== undefined ? rotation.x : object.rotation.x;
-    const y = rotation.y !== undefined ? rotation.y : (rotation.absolute ? 0 : object.rotation.y);
-    const z = rotation.z !== undefined ? rotation.z : (rotation.absolute ? 0 : object.rotation.z);
-    object.rotation.set(x, y, z, object.rotation.order);
-    object.quaternion.setFromEuler(object.rotation);
-    object.userData.openClinXrSeatedPose = SEATED_CLIP_NAME;
-    if (!bonesTouched.includes(object.name)) bonesTouched.push(object.name);
-  };
+  const jointNames = collectJointNames(humanoidRoot);
+  // #447: MPFB2 rigs name the thigh/shin chains upperleg01/02.L, lowerleg01/02.L.
+  const mpfb2Rig = isMpfb2Rig(jointNames);
 
-  // #306: resolve canonical landmarks against the bones actually on this rig (MPFB2 names
-  // upperarm01.L / upperleg01.L etc.) so seated pose applies instead of silently skipping.
-  const resolvedEulers = resolveRotationMap(SEATED_BONE_EULERS, collectJointNames(humanoidRoot));
-
-  // Scene-graph bones (isBone nodes) — match dotted (file) and undotted (runtime) names.
-  humanoidRoot.traverse((object) => {
-    const rotation = resolvedEulers.get(sanitiseBoneName(object.name));
-    if (!rotation) return;
-    applyEuler(object, rotation);
-  });
-
-  // Also write skeleton.bones in case the skinned mesh holds the authoritative list.
-  humanoidRoot.traverse((object) => {
-    const skinned = object as Object3D & {
-      isSkinnedMesh?: boolean;
-      skeleton?: { bones: Object3D[]; update?: () => void };
+  if (mpfb2Rig) {
+    applyMpfb2SeatedFold(humanoidRoot, bonesTouched);
+  } else {
+    /**
+     * #83: AnimationMixer writes bone.quaternion directly. Setting only Euler .x/.y/.z can leave a
+     * stale quaternion if onChange is suppressed or a later matrix update recomposes from quaternion.
+     * Write Euler then force quaternion.setFromEuler so the sit survives the frame after mixer.update.
+     */
+    const applyEuler = (
+      object: Object3D,
+      rotation: { x?: number; y?: number; z?: number; absolute?: boolean },
+    ) => {
+      // absolute: replace full XYZ (needed for legs whose bind is ~−π on thigh X).
+      // non-absolute: only overwrite provided axes (legacy arm path).
+      const x = rotation.x !== undefined ? rotation.x : object.rotation.x;
+      const y = rotation.y !== undefined ? rotation.y : (rotation.absolute ? 0 : object.rotation.y);
+      const z = rotation.z !== undefined ? rotation.z : (rotation.absolute ? 0 : object.rotation.z);
+      object.rotation.set(x, y, z, object.rotation.order);
+      object.quaternion.setFromEuler(object.rotation);
+      object.userData.openClinXrSeatedPose = SEATED_CLIP_NAME;
+      if (!bonesTouched.includes(object.name)) bonesTouched.push(object.name);
     };
-    if (!skinned.isSkinnedMesh || !skinned.skeleton?.bones) return;
-    for (const bone of skinned.skeleton.bones) {
-      const rotation = resolvedEulers.get(sanitiseBoneName(bone.name));
-      if (!rotation) continue;
-      applyEuler(bone, rotation);
-    }
-    skinned.skeleton.update?.();
-  });
 
-  // #119: close the loop on the live thigh segment (the "seated world-anchor" #91 lacked).
-  const handRest = restSeatedHandsOnThighs(humanoidRoot, applyEuler);
-  for (const name of handRest.bonesTouched) {
-    if (!bonesTouched.includes(name)) bonesTouched.push(name);
+    // #306: resolve canonical landmarks against the bones actually on this rig (MPFB2 names
+    // upperarm01.L / upperleg01.L etc.) so seated pose applies instead of silently skipping.
+    const resolvedEulers = resolveRotationMap(SEATED_BONE_EULERS, jointNames);
+
+    // Scene-graph bones (isBone nodes) — match dotted (file) and undotted (runtime) names.
+    humanoidRoot.traverse((object) => {
+      const rotation = resolvedEulers.get(sanitiseBoneName(object.name));
+      if (!rotation) return;
+      applyEuler(object, rotation);
+    });
+
+    // Also write skeleton.bones in case the skinned mesh holds the authoritative list.
+    humanoidRoot.traverse((object) => {
+      const skinned = object as Object3D & {
+        isSkinnedMesh?: boolean;
+        skeleton?: { bones: Object3D[]; update?: () => void };
+      };
+      if (!skinned.isSkinnedMesh || !skinned.skeleton?.bones) return;
+      for (const bone of skinned.skeleton.bones) {
+        const rotation = resolvedEulers.get(sanitiseBoneName(bone.name));
+        if (!rotation) continue;
+        applyEuler(bone, rotation);
+      }
+      skinned.skeleton.update?.();
+    });
+
+    // #119: close the loop on the live thigh segment (the "seated world-anchor" #91 lacked).
+    const handRest = restSeatedHandsOnThighs(humanoidRoot, applyEuler);
+    for (const name of handRest.bonesTouched) {
+      if (!bonesTouched.includes(name)) bonesTouched.push(name);
+    }
+    humanoidRoot.userData.openClinXrSeatedHandRest = {
+      iterations: handRest.iterations,
+      sides: handRest.sides,
+      claimScope: "wrist_to_thigh_iterative_rest",
+      notEvidenceFor: ["natural_sit_appearance", "clinical_posture_appropriateness"],
+    };
   }
-  humanoidRoot.userData.openClinXrSeatedHandRest = {
-    iterations: handRest.iterations,
-    sides: handRest.sides,
-    claimScope: "wrist_to_thigh_iterative_rest",
-    notEvidenceFor: ["natural_sit_appearance", "clinical_posture_appropriateness"],
-  };
 
   humanoidRoot.userData.openClinXrSeatedPoseBones = bonesTouched;
   humanoidRoot.userData.openClinXrActiveRoleAnimationClipName = SEATED_CLIP_NAME;
@@ -287,6 +302,84 @@ export function applyPosturePose(
     posture,
     lowestSupportBoneWorldY,
   };
+}
+
+/**
+ * MPFB2 rail detection: the 137-joint rig names its leg chains upperleg01/02.L and
+ * lowerleg01/02.L (sanitised upperleg01L / lowerleg01L after three.js strips dots —
+ * the trailing L keeps its case, matching the asset-registry alias table).
+ */
+function isMpfb2Rig(jointNames: ReadonlySet<string>): boolean {
+  return jointNames.has("upperleg01L") || jointNames.has("lowerleg01L");
+}
+
+/** Seated shin tuck (radians) for the MPFB2 rail — 30° back under the chair. */
+const MPFB2_SHIN_TUCK_RAD = (30 * Math.PI) / 180;
+
+/**
+ * #447 — fold the MPFB2 rail's legs into a seated configuration.
+ *
+ * The baked rest of these GLBs already renders the trunk upright (the Anny-frame
+ * absolute eulers are what crush it), so this touches ONLY the leg bones: each
+ * bone's world +Y axis is aligned to a target direction (thigh -> world forward,
+ * shin -> world down-tucked). Composition is done in quaternion space via the
+ * parent chain, so chain scale (slot 0.88, breathing 1.01) cannot corrupt the
+ * extraction. Idempotent: once a bone's +Y points at its target the delta is
+ * identity, so the per-frame re-apply in the runtime loop is a no-op.
+ *
+ * Calibration (live, mpfb-street-adult-male.glb, 2026-08-19): knee ≈ 0.45 m
+ * (hip level), lowest skinned vertex ≈ 0.04 m (floor band), head ≈ 1.19 m,
+ * mesh height ≈ 1.15 m — Δh vs the floor-standing family peer ≈ 0.29 m.
+ */
+function applyMpfb2SeatedFold(humanoidRoot: Object3D, bonesTouched: string[]): void {
+  const forward = new Vector3(0, 0, 1);
+  const shinTarget = new Vector3(0, -Math.cos(MPFB2_SHIN_TUCK_RAD), -Math.sin(MPFB2_SHIN_TUCK_RAD));
+
+  /** World quaternion of a bone by composing the live parent chain (no matrices). */
+  const worldQuat = (object: Object3D): Quaternion => {
+    if (object.parent) {
+      return worldQuat(object.parent).multiply(object.quaternion);
+    }
+    return object.quaternion.clone();
+  };
+
+  const align = (bone: Object3D, target: Vector3): void => {
+    const worldQ = worldQuat(bone);
+    const currentY = new Vector3(0, 1, 0).applyQuaternion(worldQ).normalize();
+    const delta = new Quaternion().setFromUnitVectors(currentY, target);
+    if (delta.lengthSq() < 1e-12) return;
+    const newWorldQ = delta.multiply(worldQ);
+    const parentQ = bone.parent ? worldQuat(bone.parent) : new Quaternion();
+    bone.quaternion.copy(parentQ.invert().multiply(newWorldQ)).normalize();
+    bone.userData.openClinXrSeatedPose = SEATED_CLIP_NAME;
+    if (!bonesTouched.includes(bone.name)) bonesTouched.push(bone.name);
+  };
+
+  humanoidRoot.traverse((object) => {
+    if (!isBoneNode(object)) return;
+    const name = object.name ?? "";
+    const lower = name.toLowerCase();
+    const isThigh = lower.startsWith("upperleg01") || lower.startsWith("upperleg02");
+    const isShin = lower.startsWith("lowerleg01") || lower.startsWith("lowerleg02");
+    if (isThigh) align(object, forward);
+    if (isShin) align(object, shinTarget);
+  });
+
+  // Mirror onto skeleton.bones in case the skinned mesh holds the authoritative list.
+  humanoidRoot.traverse((object) => {
+    const skinned = object as Object3D & {
+      isSkinnedMesh?: boolean;
+      skeleton?: { bones: Object3D[]; update?: () => void };
+    };
+    if (!skinned.isSkinnedMesh || !skinned.skeleton?.bones) return;
+    for (const bone of skinned.skeleton.bones) {
+      const lower = (bone.name ?? "").toLowerCase();
+      const isThigh = lower.startsWith("upperleg01") || lower.startsWith("upperleg02");
+      const isShin = lower.startsWith("lowerleg01") || lower.startsWith("lowerleg02");
+      if (isThigh || isShin) align(bone, isThigh ? forward : shinTarget);
+    }
+    skinned.skeleton.update?.();
+  });
 }
 
 type BoneLike = Object3D & { isBone?: boolean; type?: string };

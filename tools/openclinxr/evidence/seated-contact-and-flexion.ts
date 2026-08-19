@@ -572,12 +572,12 @@ export async function readSeatedContactFromPage(page: Page): Promise<SeatedConta
       if (typeof root.updateMatrixWorld === "function") root.updateMatrixWorld(true);
 
       const pelvis = findBone(root, ["pelvis", "hips", "hip"]);
-      const thighL = findBone(root, ["thighl", "thigh.l", "upleg.l", "upper_leg.l", "leftupleg"]);
-      const thighR = findBone(root, ["thighr", "thigh.r", "upleg.r", "upper_leg.r", "rightupleg"]);
-      const shinL = findBone(root, ["shinl", "shin.l", "leg.l", "lower_leg.l", "leftleg"]);
-      const shinR = findBone(root, ["shinr", "shin.r", "leg.r", "lower_leg.r", "rightleg"]);
-      const footL = findBone(root, ["footl", "foot.l", "leftfoot"]);
-      const footR = findBone(root, ["footr", "foot.r", "rightfoot"]);
+      const thighL = findBone(root, ["thighl", "thigh.l", "upleg.l", "upper_leg.l", "leftupleg", "upperleg01", "upperleg01l", "upperleg01.l"]);
+      const thighR = findBone(root, ["thighr", "thigh.r", "upleg.r", "upper_leg.r", "rightupleg", "upperleg01r", "upperleg01.r"]);
+      const shinL = findBone(root, ["shinl", "shin.l", "leg.l", "lower_leg.l", "leftleg", "lowerleg01", "lowerleg01l", "lowerleg01.l"]);
+      const shinR = findBone(root, ["shinr", "shin.r", "leg.r", "lower_leg.r", "rightleg", "lowerleg01r", "lowerleg01.r"]);
+      const footL = findBone(root, ["footl", "foot.l", "leftfoot", "foot01l", "foot01.l"]);
+      const footR = findBone(root, ["footr", "foot.r", "rightfoot", "foot01r", "foot01.r"]);
 
       let pelvisY = null;
       if (pelvis) {

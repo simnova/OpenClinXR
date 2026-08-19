@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "openclinxr.seated-patient-floor-landmarks.v1",
+  "phase": "pre-fix",
+  "generatedAt": "2026-08-19T15:28:07.613Z",
+  "scenarioId": "telehealth_diabetes_health_literacy_v1",
+  "environmentId": "telehealth_home_visit_v1",
+  "measuredAgainstCommit": {
+    "head": "5da7f54af6134b1522e44e4e4f6e245e6d81a7fe",
+    "fingerprint": "364f42bc5be9737939b4e95f2a1961a4d74494bc9a3a5c4327109efddb320bb6",
+    "algorithm": "git-head+status+diff-sha256"
+  },
+  "sampling": {
+    "settled": true,
+    "waitMs": 900,
+    "framesAdvanced": 33
+  },
+  "seatTopWorldY": 0.45,
+  "seatTopSource": "chair-userData-seatHeightMeters",
+  "patient": {
+    "actorId": "patient_luis_martinez_v1",
+    "rootWorldY": -0.34219245143570626,
+    "rootScaleY": 1.0100208594637476,
+    "pelvisWorldY": 0.5590424581989313,
+    "pelvisBoneName": "pelvisL",
+    "kneeWorldY": 0.38545501098869667,
+    "kneeBoneName": "lowerleg01L",
+    "footWorldY": 0.4394711429888314,
+    "footBoneName": "footL",
+    "lowestVertexY": 0.30567617719395374,
+    "highestVertexY": 0.7382829437227518
+  },
+  "claimScope": [
+    "world_y_landmarks_of_the_seated_telehealth_patient_sampled_after_assets_settle",
+    "hip_knee_foot_bones_and_skinned_mesh_bounds_vs_static_chair_seat_top"
+  ],
+  "notEvidenceFor": [
+    "what the sit looks like",
+    "hip_angle_quality",
+    "clinical_plausibility",
+    "quest_readiness"
+  ]
+}
