@@ -1,102 +1,37 @@
 import { execFileSync } from "node:child_process";
-import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
-import { readdir } from "node:fs/promises";
+import { statSync } from "node:fs";
 import path from "node:path";
+import {
+  loadBaseline,
+  resolveExistsTargets,
+  sha256File,
+  type DoneWhenEvalOptions,
+} from "./done-when-tree.js";
 import type { DoneWhenCheck, HandoffStatus, SkepticVerdict, SliceHandoff } from "./slice-team.js";
+export {
+  SLICE_BASELINE_SCHEMA,
+  writeBaselineHashes,
+  type DoneWhenEvalOptions,
+  type SliceBaselineHashes,
+} from "./done-when-tree.js";
 
 /**
  * `done_when` rule evaluation — the machine-checked half of a slice contract.
  *
  * Split out of slice-team.ts when adding `run:` and `changed:` pushed that file past its frozen
- * size ceiling. The ratchet's instruction is split, never raise, and this is the natural seam:
- * globMatch / walkFiles / resolveExistsTargets are used ONLY by the rule evaluator, and rule kinds
- * are the surface most likely to keep growing as new proof types are needed.
+ * size ceiling, and split again into done-when-tree.ts when `measured-before:` (#177) pushed THIS
+ * file past its ceiling. The ratchet's instruction is split, never raise. Rule kinds are the
+ * surface most likely to keep growing as new proof types are needed; the tree + trusted-baseline
+ * machinery they all read lives in done-when-tree.ts.
  *
- * Layer-3 merge-safety: tree proofs (`exists:`, `min-bytes:`, `run:`, `changed:`) re-check the
- * WORKTREE; baseline hashes live in a TRUSTED baselineDir the worker cannot write. Narrative
- * rules (`handoff:`, `skeptic:`, `handoffs:all-done`) are self-reports — never a merge gate.
+ * Layer-3 merge-safety: tree proofs (`exists:`, `min-bytes:`, `run:`, `changed:`,
+ * `measured-before:`) re-check the WORKTREE; baseline hashes live in a TRUSTED baselineDir the
+ * worker cannot write. Narrative rules (`handoff:`, `skeptic:`, `handoffs:all-done`) are
+ * self-reports — never a merge gate.
  */
-
-export const SLICE_BASELINE_SCHEMA = "openclinxr.slice-baseline.v1" as const;
 
 /** Allowlisted binaries for `run:` — argv only, no shell. */
 export const RUN_ALLOWED_BINARIES = ["pnpm", "node", "tsx", "git"] as const;
-
-export type SliceBaselineHashes = {
-  schemaVersion: typeof SLICE_BASELINE_SCHEMA;
-  sliceId: string;
-  recordedAt: string;
-  treeRoot: string;
-  /** The `changed:` rules this snapshot covers. A rule not listed cannot pass against this file. */
-  targets: string[];
-  /**
-   * rel-path → sha256. EMPTY is legal: it means "nothing matched yet when the snapshot was taken".
-   * A file ABSENT from this map (while the baseline record exists) is evidence the worker created it.
-   */
-  files: Record<string, string>;
-};
-
-/**
- * Trusted directory holding baseline-hashes.json. Worker-unwritable. When omitted, falls back
- * to `<treeRoot>/.openclinxr/slices/<sliceId>` — the legacy hand-run behaviour.
- */
-export type DoneWhenEvalOptions = {
-  baselineDir?: string;
-};
-
-function globMatch(pattern: string, candidate: string): boolean {
-  const normalizedPattern = pattern.replaceAll("\\", "/");
-  const normalizedCandidate = candidate.replaceAll("\\", "/");
-  if (!normalizedPattern.includes("*")) {
-    return normalizedCandidate === normalizedPattern || normalizedCandidate.endsWith(`/${normalizedPattern}`);
-  }
-  const regex = new RegExp(
-    `^${normalizedPattern
-      .split("*")
-      .map((part) => part.replace(/[.+?^${}()|[\]\\]/g, "\\$&"))
-      .join(".*")}$`,
-  );
-  return regex.test(normalizedCandidate);
-}
-
-async function walkFiles(dir: string): Promise<string[]> {
-  const results: string[] = [];
-  if (!existsSync(dir)) return results;
-  const entries = await readdir(dir, { withFileTypes: true });
-  for (const entry of entries) {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      results.push(...(await walkFiles(full)));
-    } else if (entry.isFile()) {
-      results.push(full);
-    }
-  }
-  return results;
-}
-
-async function resolveExistsTargets(treeRoot: string, target: string): Promise<string[]> {
-  const absolute = path.isAbsolute(target) ? target : path.join(treeRoot, target);
-  if (!target.includes("*")) {
-    return existsSync(absolute) ? [absolute] : [];
-  }
-  const normalizedTarget = target.replaceAll("\\", "/");
-  const wildcardIndex = normalizedTarget.split("/").findIndex((segment) => segment.includes("*"));
-  if (wildcardIndex < 0) {
-    return [];
-  }
-  const searchRoot = path.join(treeRoot, ...normalizedTarget.split("/").slice(0, wildcardIndex));
-  const pattern = normalizedTarget.split("/").slice(wildcardIndex).join("/");
-  const files = await walkFiles(searchRoot);
-  return files.filter((file) => {
-    const rel = path.relative(searchRoot, file).replaceAll("\\", "/");
-    return globMatch(pattern, rel);
-  });
-}
-
-function sha256File(absPath: string): string {
-  return createHash("sha256").update(readFileSync(absPath)).digest("hex");
-}
 
 /**
  * Parse a `run:` command into argv. NO SHELL.
@@ -183,7 +118,8 @@ export function partitionDoneWhen(rules: string[]): {
       rule.startsWith("exists:") ||
       rule.startsWith("min-bytes:") ||
       rule.startsWith("run:") ||
-      rule.startsWith("changed:")
+      rule.startsWith("changed:") ||
+      rule.startsWith("measured-before:")
     ) {
       treeProofs.push(rule);
     } else if (rule.startsWith("handoff:") || rule.startsWith("skeptic:") || rule === "handoffs:all-done") {
@@ -193,92 +129,6 @@ export function partitionDoneWhen(rules: string[]): {
     }
   }
   return { treeProofs, narrative, unknown };
-}
-
-/**
- * Snapshot every `changed:` target BEFORE the worker runs. Orchestrator-only.
- * Writes into baselineDir (trusted / worker-unwritable plane).
- */
-export async function writeBaselineHashes(input: {
-  treeRoot: string;
-  baselineDir: string;
-  sliceId: string;
-  rules: string[];
-}): Promise<{ path: string; targets: string[]; fileCount: number }> {
-  const changedRules = input.rules.filter((r) => r.startsWith("changed:"));
-  const files: Record<string, string> = {};
-  for (const rule of changedRules) {
-    const target = rule.slice("changed:".length).trim();
-    if (!target) continue;
-    const matches = await resolveExistsTargets(input.treeRoot, target);
-    for (const match of matches) {
-      const rel = path.relative(input.treeRoot, match).replaceAll("\\", "/");
-      files[rel] = sha256File(match);
-    }
-  }
-  const record: SliceBaselineHashes = {
-    schemaVersion: SLICE_BASELINE_SCHEMA,
-    sliceId: input.sliceId,
-    recordedAt: new Date().toISOString(),
-    treeRoot: path.resolve(input.treeRoot),
-    targets: changedRules,
-    files,
-  };
-  mkdirSync(input.baselineDir, { recursive: true });
-  const outPath = path.join(input.baselineDir, "baseline-hashes.json");
-  writeFileSync(outPath, `${JSON.stringify(record, null, 2)}\n`);
-  return { path: outPath, targets: changedRules, fileCount: Object.keys(files).length };
-}
-
-function loadBaseline(
-  baselinePath: string,
-  rule: string,
-): { ok: true; baseline: SliceBaselineHashes } | { ok: false; detail: string } {
-  if (!existsSync(baselinePath)) {
-    return {
-      ok: false,
-      detail: "no baseline recorded for this slice; a change cannot be proven",
-    };
-  }
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(readFileSync(baselinePath, "utf8"));
-  } catch {
-    return { ok: false, detail: "baseline-hashes.json is unparseable JSON" };
-  }
-  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-    return { ok: false, detail: "baseline-hashes.json is not an object" };
-  }
-  const baseline = parsed as Partial<SliceBaselineHashes>;
-  if (baseline.schemaVersion !== SLICE_BASELINE_SCHEMA) {
-    return {
-      ok: false,
-      detail: `baseline schemaVersion must be ${SLICE_BASELINE_SCHEMA} (got ${String(baseline.schemaVersion)})`,
-    };
-  }
-  if (!Array.isArray(baseline.targets)) {
-    return { ok: false, detail: "baseline missing targets[]" };
-  }
-  if (!baseline.targets.includes(rule)) {
-    return {
-      ok: false,
-      detail: `baseline.targets does not include this rule (stale baseline from a different rule set)`,
-    };
-  }
-  if (!baseline.files || typeof baseline.files !== "object" || Array.isArray(baseline.files)) {
-    return { ok: false, detail: "baseline missing files map" };
-  }
-  return {
-    ok: true,
-    baseline: {
-      schemaVersion: SLICE_BASELINE_SCHEMA,
-      sliceId: String(baseline.sliceId ?? ""),
-      recordedAt: String(baseline.recordedAt ?? ""),
-      treeRoot: String(baseline.treeRoot ?? ""),
-      targets: baseline.targets as string[],
-      files: baseline.files as Record<string, string>,
-    },
-  };
 }
 
 /**
@@ -300,7 +150,7 @@ function loadBaseline(
  * know which rules exist imports this; nobody re-lists it.
  */
 export const DONE_WHEN_RULE_VOCABULARY = {
-  prefixes: ["exists:", "min-bytes:", "run:", "changed:", "handoff:", "skeptic:"],
+  prefixes: ["exists:", "min-bytes:", "run:", "changed:", "measured-before:", "handoff:", "skeptic:"],
   exact: ["handoffs:all-done"],
 } as const;
 
@@ -427,6 +277,82 @@ export async function evaluateDoneWhenRule(
         unchanged.length === 0
           ? `changed during this slice: ${changed.join(", ")}`
           : `unchanged since slice baseline (present before the work began): ${unchanged.join(", ")}`,
+    };
+  }
+
+  if (rule.startsWith("measured-before:")) {
+    // #177: `exists:` proves an artifact EXISTS and `changed:` proves a product file DIFFERS from
+    // its spawn baseline — neither proves the artifact was written BEFORE the edit, which is the
+    // whole value of a pre-fix measurement. #106's pre-fix artifact arrived after the resolver
+    // already embodied the fix and every gate stayed green. Ordering is taken from the filesystem
+    // (mtime), not from a self-declared timestamp inside the artifact — a self-declared timestamp
+    // is the worker's own account of itself.
+    //
+    // Scope: ordering ONLY. An empty artifact written first satisfies it; compose `min-bytes:` for
+    // substance. Not forgery-proof (`touch -t` backwards defeats it) — the failure mode it is
+    // built for is an honest worker reconstructing a before-column after the fact (#106, #171).
+    const parts = rule.split(":");
+    const artifactGlob = parts[1]?.trim();
+    const productGlob = parts[2]?.trim();
+    if (parts.length !== 3 || !artifactGlob || !productGlob) {
+      return {
+        rule,
+        passed: false,
+        detail: "invalid measured-before rule (expected measured-before:<artifact>:<product>)",
+      };
+    }
+
+    const artifactMatches = await resolveExistsTargets(treeRoot, artifactGlob);
+    const artifactPath = artifactMatches[0];
+    if (!artifactPath) {
+      return { rule, passed: false, detail: `missing artifact ${artifactGlob}` };
+    }
+
+    const baselineDir =
+      options?.baselineDir ?? path.join(treeRoot, ".openclinxr", "slices", sliceId);
+    const baselinePath = path.join(baselineDir, "baseline-hashes.json");
+    // `measured-before:` never appears in baseline.targets (see writeBaselineHashes), so the
+    // exact-target staleness check is skipped for this kind; every other fail-closed validation
+    // still applies, and an absent baseline still refuses.
+    const loaded = loadBaseline(baselinePath, rule, { requireTarget: false });
+    if (!loaded.ok) {
+      return { rule, passed: false, detail: loaded.detail };
+    }
+
+    const productMatches = await resolveExistsTargets(treeRoot, productGlob);
+    const changedProducts: Array<{ rel: string; mtimeMs: number }> = [];
+    for (const match of productMatches) {
+      const rel = path.relative(treeRoot, match).replaceAll("\\", "/");
+      const hash = sha256File(match);
+      const prior = loaded.baseline.files[rel];
+      // Unchanged since spawn is not "the worker's edit"; absence from baseline.files (while the
+      // record exists) is evidence the worker created it — same reading as `changed:`.
+      if (prior !== undefined && prior === hash) continue;
+      changedProducts.push({ rel, mtimeMs: statSync(match).mtimeMs });
+    }
+    if (changedProducts.length === 0) {
+      return {
+        rule,
+        passed: false,
+        detail: "no product file changed since the slice baseline — nothing for the artifact to precede",
+      };
+    }
+
+    const artifactMtime = statSync(artifactPath).mtimeMs;
+    const late = changedProducts.filter((p) => !(p.mtimeMs > artifactMtime));
+    if (late.length > 0) {
+      return {
+        rule,
+        passed: false,
+        detail:
+          `product files not strictly newer than the artifact: ${late.map((p) => `${p.rel} mtime=${p.mtimeMs}`).join(", ")}`,
+      };
+    }
+    return {
+      rule,
+      passed: true,
+      detail:
+        `artifact ${path.relative(treeRoot, artifactPath).replaceAll("\\", "/")} precedes ${changedProducts.map((p) => p.rel).join(", ")}`,
     };
   }
 
