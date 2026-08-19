@@ -1380,3 +1380,17 @@ the named files were the peer's TRELLIS lane, sharing one mtime, absent from the
 instrument the hairline needs. Owner: asset-pipeline-lead for the first two.
 
 **Token introspection:** not captured — this window spanned four landings across two lanes.
+
+### 2026-08-19: #443 — 50 of 51 dev-server spawn sites now go through the fixed teardown helper (Q1/Q5)
+
+**What changed.** Issue #443 sweep, worker slice (`wt/issue-443`). All **51 real spawn sites** now route teardown through `stopPortlessDevServer(server.proc)` — the #397 fixed helper (group kill, awaited exit, reject-if-alive). Before: 47 sites hand-rolled `server.proc.kill("SIGTERM")` (57 occurrences), 2 callers passed the handle to the helper (silent no-op), 1 correct. After: 0 direct wrapper signals, 0 handle-passing callers. The two handle callers (`clinical-touch-smoke.ts`, `humanoid-vision-score.ts`) were traced and the variable actually held `handle.proc` — changed to hold the `PortlessDevServer` handle so the teardown reads `server.proc` per the contract. `fixture-surface-distinct.ts` uses a dynamic import; its destructure gained `stopPortlessDevServer`.
+
+**Product path advanced.** The D9 throughput path (`tools/openclinxr/dark-factory/multi-case-runner.ts`, one of the 47) now reaps its own Vite process tree per case, so repeated multi-case staging cannot leak wrappers between cases. All capture stations get group-kill + awaited exit.
+
+**Blueprint/factory tie.** Q1/Q5: every capture station in the evidence factory now consumes the proven #397 teardown mechanism instead of re-signalling the wrapper. The contract `every-dev-server-teardown-goes-through-the-fixed-helper.test.ts` flipped all five clauses green (was 2 failed / 3 passed) with the diagnosis tables kept immutable and a `## FIXED (#443)` block appended.
+
+**Evidence.** `pnpm exec vitest run` on `every-dev-server-teardown-goes-through-the-fixed-helper.test.ts` + `every-dev-server-spawn-has-a-teardown.test.ts`: 2 files, 9 tests, all pass. `pnpm typecheck:relaxed` (tools) clean except a pre-existing unrelated error in `the-applied-visemes-move-the-mouth.test.ts:109` (`?? []` unreachable after cast, untouched file). `pnpm packages:typecheck:agent`: 64/66 pass; the 1 failure is pre-existing `@openclinxr/ui-xr#typecheck` (`src/runtime-state.ts:2808` TS2366, untouched file — worktree absence of gitignored assets). `pnpm architecture` 6/6. Architecture global suites 81/81. `agent:alignment` + `docs:drift-check` green.
+
+**Next queued slice.** Per staging unblock: first multi-case run of the dark factory on a clean checkout; then continue the garment lane.
+
+**Token introspection:** not captured — dispatched worker slice (issue-443) under `OPENCLINXR_WORKER=1`; no ccusage baseline taken by the worker.

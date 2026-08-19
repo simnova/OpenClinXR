@@ -8,7 +8,7 @@
 import path from "node:path";
 import { createRequire } from "node:module";
 import { chromium } from "playwright";
-import { spawnPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
+import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
 import {
   buildRoomCaptureUrl,
   ROOM_CAPTURE_MODE,
@@ -258,7 +258,7 @@ async function main(): Promise<void> {
     }
   } finally {
     if (server) {
-      try { server.proc.kill("SIGTERM"); } catch { /* ignore */ }
+      try { await stopPortlessDevServer(server.proc); } catch { /* ignore */ }
     }
   }
 }

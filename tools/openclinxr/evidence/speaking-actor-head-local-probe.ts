@@ -52,7 +52,7 @@ import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { chromium, type Page } from "playwright";
-import { type PortlessDevServer, spawnPortlessDevServer } from "./lib/portless-server.js";
+import { type PortlessDevServer, spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
@@ -982,7 +982,7 @@ export async function runHeadLocalProbe(): Promise<void> {
   } finally {
     if (server) {
       try {
-        server.proc.kill("SIGTERM");
+        await stopPortlessDevServer(server.proc);
       } catch {
         // ignore
       }

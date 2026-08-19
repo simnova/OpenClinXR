@@ -107,6 +107,32 @@ import { describe, expect, it } from "vitest";
  *     A `finally` audit is a different slice.
  *   - Non-macOS behaviour. `PR_SET_PDEATHSIG` would make the orphan class moot on Linux.
  *   - The 21 prose-only mentions. They are docstrings and JSON; nothing to route.
+ *
+ * ## FIXED (#443, 2026-08-19) — all 51 real spawn sites now go through the fixed helper
+ *
+ * Re-measured after the sweep (this test's own classifier, same logic):
+ *
+ *   route                                              | files | group kill | awaited | rejects
+ *   ---------------------------------------------------|------:|:----------:|:-------:|:-------:
+ *   `stopPortlessDevServer(server.proc)` — correct     |  51   |    yes     |   yes   |   yes
+ *
+ *   0 occurrences of `.proc.kill(` across 0 files (was 57 across 47).
+ *   0 helper callers passing a handle (was 2: clinical-touch-smoke.ts:393,
+ *   humanoid-vision-score.ts:911 — both now pass `server.proc`).
+ *   The known-good column (`garment-class-sheet.ts:274`) is unchanged.
+ *
+ * What changed per site: `server.proc.kill("SIGTERM")` → `await
+ * stopPortlessDevServer(server.proc)`, inside the site's existing `finally`
+ * (no second teardown added). Every enclosing function was already async, so
+ * the call is awaited; sites whose cleanup pre-existed as a best-effort
+ * `try { … } catch { /* ignore *\/ }` kept that wrapper (behaviour-preserving).
+ * The two handle callers were one-token fixes. Imports gained
+ * `stopPortlessDevServer` next to the existing `spawnPortlessDevServer`.
+ *
+ * The only edit to this file's code is the clause (2) message template: the
+ * message now renders the helper name from a constant (`HELPER_FN`) so the
+ * classifier does not match its own source — the assertion logic is unchanged.
+ * The diagnosis and measured tables above remain the record — not deleted.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -156,6 +182,9 @@ const HANDROLLED_KILL = /\.proc\.kill\s*\(/gu;
 const HELPER_CALL = /stopPortlessDevServer\s*\(\s*([^),]*)/gu;
 /** Any teardown route at all — clause (4) accepts every spelling, it only refuses NONE. */
 const ANY_TEARDOWN = /\.kill\s*\(|stopPortlessDevServer\s*\(|stopServer\s*\(/u;
+/** Helper name rendered into clause (2)'s message. Kept in a constant so the classifier
+ * (which scans this file's own comment-stripped source) does not match its own template. */
+const HELPER_FN = "stopPortlessDevServer";
 
 describe("every dev-server teardown goes through the fixed helper", () => {
   it("(1) RED: no site signals the wrapper directly", () => {
@@ -186,7 +215,7 @@ describe("every dev-server teardown goes through the fixed helper", () => {
       for (const m of code.matchAll(HELPER_CALL)) {
         const arg = (m[1] ?? "").trim();
         if (arg.length === 0) continue;
-        if (!/\.proc\b/u.test(arg)) wrong.push(`${rel}: stopPortlessDevServer(${arg})`);
+        if (!/\.proc\b/u.test(arg)) wrong.push(`${rel}: ${HELPER_FN}(${arg})`);
       }
     }
     expect(

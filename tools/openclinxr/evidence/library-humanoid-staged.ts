@@ -21,7 +21,7 @@ import {
 import {
   resolveHumanoidVariantOrCastPath,
 } from "../../../apps/ui-xr/src/humanoid-runtime-asset-url.js";
-import { spawnPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
+import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
 import {
   ROOM_CAPTURE_MODE,
   buildRoomCaptureUrl,
@@ -371,7 +371,7 @@ export async function inspectLibraryHumanoidStaged(input?: {
     } finally {
       if (ownedServer && server) {
         try {
-          server.proc.kill("SIGTERM");
+          await stopPortlessDevServer(server.proc);
         } catch {
           // ignore
         }

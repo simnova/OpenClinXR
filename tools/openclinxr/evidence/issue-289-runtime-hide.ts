@@ -37,7 +37,7 @@ import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { chromium, type Page } from "playwright";
 import { PEDS_ASTHMA_SCENARIO_ID, resolveScenarioActorCast } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
-import { spawnPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
+import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
 import { ROOM_CAPTURE_MODE, buildRoomCaptureUrl, waitForStationShell } from "./ui-xr-environment-room-capture.js";
 
 const execFileAsync = promisify(execFile);
@@ -668,7 +668,7 @@ export async function inspectIssue289RuntimeHide(input?: {
     }
   } finally {
     if (ownedServer && server) {
-      try { server.proc.kill("SIGTERM"); } catch { /* ignore */ }
+      try { await stopPortlessDevServer(server.proc); } catch { /* ignore */ }
     }
   }
 

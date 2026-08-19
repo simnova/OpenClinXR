@@ -285,7 +285,7 @@ export async function captureSurfacesAfterPng(input?: {
   outputPath?: string;
 }): Promise<string> {
   const { chromium } = await import("playwright");
-  const { spawnPortlessDevServer } = await import("./lib/portless-server.js");
+  const { spawnPortlessDevServer, stopPortlessDevServer } = await import("./lib/portless-server.js");
   const {
     ROOM_CAPTURE_MODE,
     buildRoomCaptureUrl,
@@ -358,7 +358,7 @@ export async function captureSurfacesAfterPng(input?: {
   } finally {
     if (owned && server) {
       try {
-        server.proc.kill("SIGTERM");
+        await stopPortlessDevServer(server.proc);
       } catch {
         // ignore
       }

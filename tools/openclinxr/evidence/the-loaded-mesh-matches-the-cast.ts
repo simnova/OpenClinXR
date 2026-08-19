@@ -20,7 +20,7 @@ import {
   resolveScenarioActorCast,
   type ScenarioActorCast,
 } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
-import { spawnPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
+import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
 import {
   tryReadStampedArtifact,
   withTreeStamp,
@@ -307,7 +307,7 @@ async function measureLiveCastLoad(input: {
   } finally {
     if (ownedServer && server) {
       try {
-        server.proc.kill("SIGTERM");
+        await stopPortlessDevServer(server.proc);
       } catch {
         // ignore
       }
@@ -630,7 +630,7 @@ async function measureLiveFaceCueTruth(input: {
   } finally {
     if (ownedServer && server) {
       try {
-        server.proc.kill("SIGTERM");
+        await stopPortlessDevServer(server.proc);
       } catch {
         // ignore
       }

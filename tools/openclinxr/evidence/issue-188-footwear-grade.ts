@@ -11,7 +11,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright";
-import { spawnPortlessDevServer } from "./lib/portless-server.js";
+import { spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
 import { SHIPPED_HUMANOID_GLBS } from "./actor-footwear-presence.js";
 
 const OUT_DIR = ".openclinxr/evidence/issue-188";
@@ -151,7 +151,7 @@ async function main(): Promise<void> {
     console.log(JSON.stringify(report, null, 2));
   } finally {
     await browser.close();
-    server.proc.kill("SIGTERM");
+    await stopPortlessDevServer(server.proc);
   }
 }
 

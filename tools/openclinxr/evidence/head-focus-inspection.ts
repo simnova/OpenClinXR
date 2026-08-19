@@ -31,7 +31,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO, type Document, type Mesh } from "@gltf-transform/core";
 import { chromium, type Browser, type Page } from "playwright";
-import { spawnPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
+import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
 import {
   deriveHeadBoxFromPoints,
   isFittedHairMeshName,
@@ -280,7 +280,7 @@ export async function writeHeadFocusPreFix(options?: { cwd?: string; outputRoot?
     }
   } finally {
     if (browser) await browser.close();
-    if (server) server.proc.kill("SIGTERM");
+    if (server) await stopPortlessDevServer(server.proc);
   }
 
   const io = new NodeIO();

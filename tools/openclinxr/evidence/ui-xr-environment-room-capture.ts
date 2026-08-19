@@ -18,7 +18,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium, type Page } from "playwright";
 import { deriveDoorwayOverviewCameraForEnvironment } from "./doorway-overview-camera.js";
-import { type PortlessDevServer, spawnPortlessDevServer } from "./lib/portless-server.js";
+import { type PortlessDevServer, spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
 
 export const ROOM_CAPTURE_OUTPUT_DIR = ".openclinxr/evidence/ui-xr-environment-room/latest";
 export const ROOM_CAPTURE_MANIFEST_NAME = "capture-manifest.json";
@@ -1202,7 +1202,7 @@ export async function captureStationEnvironmentRooms(
   } finally {
     if (ownedServer && server) {
       try {
-        server.proc.kill("SIGTERM");
+        await stopPortlessDevServer(server.proc);
       } catch {
         // ignore
       }

@@ -46,7 +46,7 @@ import { promisify } from "node:util";
 import { NodeIO } from "@gltf-transform/core";
 import { chromium, type Page } from "playwright";
 import { PEDS_ASTHMA_SCENARIO_ID, resolveScenarioActorCast } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
-import { type PortlessDevServer, spawnPortlessDevServer } from "./lib/portless-server.js";
+import { type PortlessDevServer, spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
 import {
   buildRoomCaptureUrl,
   ROOM_CAPTURE_MODE,
@@ -323,7 +323,7 @@ export async function runLiveProbe(input?: { baseUrl?: string }): Promise<LivePr
     }
   } finally {
     if (ownedServer && server) {
-      try { server.proc.kill("SIGTERM"); } catch { /* ignore */ }
+      try { await stopPortlessDevServer(server.proc); } catch { /* ignore */ }
     }
   }
   return probe;

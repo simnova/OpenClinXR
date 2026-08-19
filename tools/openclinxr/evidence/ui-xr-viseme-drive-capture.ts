@@ -25,7 +25,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { chromium, type Page } from "playwright";
-import { type PortlessDevServer, spawnPortlessDevServer } from "./lib/portless-server.js";
+import { type PortlessDevServer, spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
 
 const OUTPUT_DIR = ".openclinxr/evidence/viseme-drive-2026-08-06";
 const INSPECTION_PATH = path.join(OUTPUT_DIR, "inspection.json");
@@ -534,7 +534,7 @@ export async function runVisemeCapture(): Promise<void> {
   } finally {
     if (server) {
       try {
-        server.proc.kill("SIGTERM");
+        await stopPortlessDevServer(server.proc);
       } catch {
         // ignore
       }

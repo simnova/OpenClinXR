@@ -22,8 +22,7 @@
  *   REPRO_N=5 ONLY_ID=peds_anxious_parent WRITE_STUDIO_SCORES=0 tsx ...
  */
 
-import { spawn, type ChildProcessByStdio } from "node:child_process";
-import type { Readable } from "node:stream";
+import { spawn } from "node:child_process";
 import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { homedir, tmpdir } from "node:os";
 import path from "node:path";
@@ -33,6 +32,7 @@ import { estimateUsdFromSplit } from "../../../packages/openclinxr/agent-loop/sr
 import {
   spawnPortlessDevServer,
   stopPortlessDevServer,
+  type PortlessDevServer,
 } from "./lib/portless-server.js";
 
 /** Identical to apps/ui-xr/public/_humanoid-studio/index.html MANIFEST (ids + glb). */
@@ -772,7 +772,7 @@ async function main(): Promise<void> {
       (reproN > 0 ? ` REPRO_N=${reproN}` : ""),
   );
 
-  let server: ChildProcessByStdio<null, Readable, Readable> | null = null;
+  let server: PortlessDevServer | null = null;
   let totalUsd = 0;
   const scores: Record<string, PerViewScores> = {};
   const shotDir = OUT_DIR || path.join(workDir, "shots");
@@ -797,7 +797,7 @@ async function main(): Promise<void> {
         env: PREFERRED_PORT ? { PORT: String(PREFERRED_PORT) } : undefined,
         readyTimeoutMs: SERVER_READY_TIMEOUT_MS,
       });
-      server = handle.proc;
+      server = handle;
       baseUrl = handle.url.replace(/\/$/, "");
       console.log(`[humanoid-vision-score] UI-XR ready on ${baseUrl}/ (bound port=${handle.port})`);
     } else {
@@ -908,7 +908,7 @@ async function main(): Promise<void> {
       await browser.close();
     }
   } finally {
-    await stopPortlessDevServer(server);
+    if (server) await stopPortlessDevServer(server.proc);
   }
 
   // Repro mode already returned

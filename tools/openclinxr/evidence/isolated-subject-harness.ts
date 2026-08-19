@@ -25,7 +25,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { chromium, type Browser, type Page } from "playwright";
 import {
-  spawnPortlessDevServer,
+  spawnPortlessDevServer, stopPortlessDevServer,
   type PortlessDevServer,
 } from "./lib/portless-server.js";
 
@@ -417,7 +417,7 @@ export async function runIsolatedSubjectHarness(options?: {
     return run;
   } finally {
     if (browser) await browser.close();
-    if (server) server.proc.kill("SIGTERM");
+    if (server) await stopPortlessDevServer(server.proc);
   }
 }
 
@@ -613,7 +613,7 @@ export async function renderEquipmentReferencePack(options?: {
     return run;
   } finally {
     if (browser) await browser.close();
-    if (server) server.proc.kill("SIGTERM");
+    if (server) await stopPortlessDevServer(server.proc);
   }
 }
 
@@ -845,7 +845,7 @@ export async function renderEquipmentReferencePackBatch(options?: {
     }
   } finally {
     if (browser) await browser.close();
-    if (server) server.proc.kill("SIGTERM");
+    if (server) await stopPortlessDevServer(server.proc);
   }
 
   const manifest = await buildPackManifest({
@@ -1176,7 +1176,7 @@ export async function renderMpfbEyeFocusCrops(options?: {
     }
   } finally {
     if (browser) await browser.close();
-    if (server) server.proc.kill("SIGTERM");
+    if (server) await stopPortlessDevServer(server.proc);
   }
 
   const run: MpfbEyeCropRun = {
@@ -1375,7 +1375,7 @@ export async function renderHeadFocusCrops(options?: {
     }
   } finally {
     if (browser) await browser.close();
-    if (server) server.proc.kill("SIGTERM");
+    if (server) await stopPortlessDevServer(server.proc);
   }
 
   const run: HeadFocusCropRun = {
@@ -1480,7 +1480,7 @@ export async function probeHeadFocusRefusal(options?: {
     error = err instanceof Error ? err.message : String(err);
   } finally {
     if (browser) await browser.close();
-    if (server) server.proc.kill("SIGTERM");
+    if (server) await stopPortlessDevServer(server.proc);
   }
 
   const probe: HeadFocusRefusalProbe = {

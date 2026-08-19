@@ -50,7 +50,7 @@ import {
   resolveHm08UpperGarment,
 } from "../asset-pipeline/makeclothes/garment-selection-by-role.js";
 import { captureStationEnvironmentRooms } from "../evidence/ui-xr-environment-room-capture.js";
-import { spawnPortlessDevServer, type PortlessDevServer } from "../evidence/lib/portless-server.js";
+import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "../evidence/lib/portless-server.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -892,7 +892,7 @@ export async function runMultiCaseChain(options: RunMultiCaseChainOptions = {}):
   } finally {
     if (server) {
       try {
-        server.proc.kill("SIGTERM");
+        await stopPortlessDevServer(server.proc);
       } catch {
         // ignore
       }
