@@ -1,0 +1,247 @@
+{
+  "rows": [
+    {
+      "style": "cortu_shaggy_green_hair",
+      "sourcePath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/cortu_shaggy_green_hair/cortu_shaggy_green_hair.mhclo",
+      "headerLicence": "NONE",
+      "pageLicence": "CC0",
+      "maxVertRef": 12364,
+      "fitsStrippedBasemesh": true,
+      "mappedToReference": null
+    },
+    {
+      "style": "cortu_short_messy_hair",
+      "sourcePath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/cortu_short_messy_hair/cortu_short_messy_hair.mhclo",
+      "headerLicence": "NONE",
+      "pageLicence": "CC0",
+      "maxVertRef": 12362,
+      "fitsStrippedBasemesh": true,
+      "mappedToReference": null
+    },
+    {
+      "style": "cortu_straight_bangs",
+      "sourcePath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/cortu_straight_bangs/cortu_straight_bangs.mhclo",
+      "headerLicence": "NONE",
+      "pageLicence": "CC0",
+      "maxVertRef": 12360,
+      "fitsStrippedBasemesh": true,
+      "mappedToReference": null
+    },
+    {
+      "style": "cortu_strawberry_cloud_hair",
+      "sourcePath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/cortu_strawberry_cloud_hair/cortu_strawberry_cloud_hair.mhclo",
+      "headerLicence": "NONE",
+      "pageLicence": "CC0",
+      "maxVertRef": 12365,
+      "fitsStrippedBasemesh": true,
+      "mappedToReference": null
+    },
+    {
+      "style": "culturalibre_hair_01",
+      "sourcePath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/culturalibre_hair_01/culturalibre_hair_01.mhclo",
+      "headerLicence": "AGPL3 (see also http://www.makehuman.org/node/320)",
+      "pageLicence": "CC0",
+      "maxVertRef": 19143,
+      "fitsStrippedBasemesh": false,
+      "mappedToReference": null
+    },
+    {
+      "style": "culturalibre_hair_02",
+      "sourcePath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/culturalibre_hair_02/culturalibre_hair_02.mhclo",
+      "headerLicence": "AGPL3 (see also http://www.makehuman.org/node/320)",
+      "pageLicence": "CC0",
+      "maxVertRef": 12367,
+      "fitsStrippedBasemesh": true,
+      "mappedToReference": null
+    },
+    {
+      "style": "culturalibre_hair_05",
+      "sourcePath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/culturalibre_hair_05/culturalibre_hair_05.mhclo",
+      "headerLicence": "CC-0",
+      "pageLicence": "CC0",
+      "maxVertRef": 12366,
+      "fitsStrippedBasemesh": true,
+      "mappedToReference": null
+    },
+    {
+      "style": "culturalibre_hair_06",
+      "sourcePath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/culturalibre_hair_06/culturalibre_hair_06.mhclo",
+      "headerLicence": "CC-0",
+      "pageLicence": "CC0",
+      "maxVertRef": 12366,
+      "fitsStrippedBasemesh": true,
+      "mappedToReference": null
+    },
+    {
+      "style": "elvs_double_mh_braid",
+      "sourcePath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/elvs_double_mh_braid/elvs_double_mh_braid.mhclo",
+      "headerLicence": "AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+      "pageLicence": "CC0",
+      "maxVertRef": 12366,
+      "fitsStrippedBasemesh": true,
+      "mappedToReference": null
+    },
+    {
+      "style": "elvs_french_braid_variation",
+      "sourcePath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/elvs_french_braid_variation/elvs_french_braid_variation.mhclo",
+      "headerLicence": "AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+      "pageLicence": "CC0",
+      "maxVertRef": 12366,
+      "fitsStrippedBasemesh": true,
+      "mappedToReference": null
+    },
+    {
+      "style": "elvs_reverse_french_braid_bun",
+      "sourcePath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/elvs_reverse_french_braid_bun/elvs_reverse_french_braid_bun.mhclo",
+      "headerLicence": "CC_by",
+      "pageLicence": "CC0",
+      "maxVertRef": 7680,
+      "fitsStrippedBasemesh": true,
+      "mappedToReference": null
+    },
+    {
+      "style": "elvs_unkempt_french_braid",
+      "sourcePath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/elvs_unkempt_french_braid/elvs_unkempt_french_braid.mhclo",
+      "headerLicence": "AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+      "pageLicence": "CC0",
+      "maxVertRef": 12366,
+      "fitsStrippedBasemesh": true,
+      "mappedToReference": null
+    },
+    {
+      "style": "faydaen_hair_1",
+      "sourcePath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/faydaen_hair_1/faydaen_hair_1.mhclo",
+      "headerLicence": "CC0",
+      "pageLicence": "CC0",
+      "maxVertRef": 18772,
+      "fitsStrippedBasemesh": false,
+      "mappedToReference": null
+    },
+    {
+      "style": "learning_anime_hair",
+      "sourcePath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/learning_anime_hair/learning_anime_hair.mhclo",
+      "headerLicence": "AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+      "pageLicence": "CC0",
+      "maxVertRef": 12366,
+      "fitsStrippedBasemesh": true,
+      "mappedToReference": null
+    },
+    {
+      "style": "littleright_bobcut_hair",
+      "sourcePath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/littleright_bobcut_hair/littleright_bobcut_hair.mhclo",
+      "headerLicence": "AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+      "pageLicence": "CC0",
+      "maxVertRef": 12361,
+      "fitsStrippedBasemesh": true,
+      "mappedToReference": null
+    },
+    {
+      "style": "male_short_hair",
+      "sourcePath": ".openclinxr-local/provider-cache/hair/sources/makehuman-community-male/male_short_hair/hair_short.mhclo",
+      "headerLicence": "AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+      "pageLicence": "CC0",
+      "maxVertRef": 12161,
+      "fitsStrippedBasemesh": true,
+      "mappedToReference": null
+    },
+    {
+      "style": "mhair02",
+      "sourcePath": ".openclinxr-local/provider-cache/hair/sources/makehuman-community-male/mhair02/mhair02.mhclo",
+      "headerLicence": "AGPL3 (see also http://www.makehuman.org/node/320)",
+      "pageLicence": "CC0",
+      "maxVertRef": 12367,
+      "fitsStrippedBasemesh": true,
+      "mappedToReference": "peds_nurse_kevin, adult_male_street_casual"
+    },
+    {
+      "style": "o4saken_long01",
+      "sourcePath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/o4saken_long01/o4saken_long01.mhclo",
+      "headerLicence": "CC BY 4.0",
+      "pageLicence": "CC0",
+      "maxVertRef": 12366,
+      "fitsStrippedBasemesh": true,
+      "mappedToReference": null
+    },
+    {
+      "style": "rehmanpolanski_hair_bun_brown",
+      "sourcePath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/rehmanpolanski_hair_bun_brown/rehmanpolanski_hair_bun_brown.mhclo",
+      "headerLicence": "AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+      "pageLicence": "CC0",
+      "maxVertRef": 12366,
+      "fitsStrippedBasemesh": true,
+      "mappedToReference": null
+    },
+    {
+      "style": "sonntag78_blond_with_headband",
+      "sourcePath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/sonntag78_blond_with_headband/sonntag78_blond_with_headband.mhclo",
+      "headerLicence": "AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+      "pageLicence": "CC0",
+      "maxVertRef": 12366,
+      "fitsStrippedBasemesh": true,
+      "mappedToReference": null
+    },
+    {
+      "style": "sonntag78_junglebook_hair",
+      "sourcePath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/sonntag78_junglebook_hair/sonntag78_junglebook_hair.mhclo",
+      "headerLicence": "AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+      "pageLicence": "CC0",
+      "maxVertRef": 14533,
+      "fitsStrippedBasemesh": false,
+      "mappedToReference": null
+    },
+    {
+      "style": "toigo_blunt_bob",
+      "sourcePath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/toigo_blunt_bob/toigo_blunt_bob.mhclo",
+      "headerLicence": "CC0",
+      "pageLicence": "CC0",
+      "maxVertRef": 12366,
+      "fitsStrippedBasemesh": true,
+      "mappedToReference": null
+    },
+    {
+      "style": "toigo_blunt_bob_with_bangs",
+      "sourcePath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/toigo_blunt_bob_with_bangs/toigo_blunt_bob_with_bangs.mhclo",
+      "headerLicence": "CC0",
+      "pageLicence": "CC0",
+      "maxVertRef": 12360,
+      "fitsStrippedBasemesh": true,
+      "mappedToReference": null
+    },
+    {
+      "style": "toigo_curled_under_bob",
+      "sourcePath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/toigo_curled_under_bob/toigo_curled_under_bob.mhclo",
+      "headerLicence": "CC0",
+      "pageLicence": "CC0",
+      "maxVertRef": 12366,
+      "fitsStrippedBasemesh": true,
+      "mappedToReference": null
+    },
+    {
+      "style": "toigo_curled_under_bob_with_bangs",
+      "sourcePath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/toigo_curled_under_bob_with_bangs/toigo_curled_under_bob_with_bangs.mhclo",
+      "headerLicence": "CC0",
+      "pageLicence": "CC0",
+      "maxVertRef": 12364,
+      "fitsStrippedBasemesh": true,
+      "mappedToReference": null
+    },
+    {
+      "style": "toigo_inverted_bob",
+      "sourcePath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/toigo_inverted_bob/toigo_inverted_bob.mhclo",
+      "headerLicence": "CC0",
+      "pageLicence": "CC0",
+      "maxVertRef": 12366,
+      "fitsStrippedBasemesh": true,
+      "mappedToReference": null
+    },
+    {
+      "style": "toigo_inverted_bob_with_bangs",
+      "sourcePath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/toigo_inverted_bob_with_bangs/toigo_inverted_bob_with_bangs.mhclo",
+      "headerLicence": "CC0",
+      "pageLicence": "CC0",
+      "maxVertRef": 12366,
+      "fitsStrippedBasemesh": true,
+      "mappedToReference": null
+    }
+  ]
+}

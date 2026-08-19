@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { HELPER_STRIP_VERTEX, maxBodyVertexRef } from "./lib/mhclo-topology.js";
 
 /**
  * S0 of the superagent plan, 2026-08-18 — GOWN HELPER-REF PREFLIGHT.
@@ -76,33 +77,6 @@ const TOIGO_MHCLO = join(CACHE, "makehuman-shirts01/toigo_basic_tucked_t-shirt/t
  * deliverable here, so it lives beside the contract that reads it.
  */
 const PREFLIGHT = join(REPO_ROOT, "tools/openclinxr/evidence/crudegown-preflight.json");
-
-/** MADR 0052 helper-strip boundary. Not tuned — it is the basemesh split point. */
-const HELPER_STRIP_VERTEX = 13380;
-
-/**
- * Max basemesh vertex index referenced anywhere in a `.mhclo` `verts` block.
- * Each data row is `i0 i1 i2 w0 w1 w2 dx dy dz` — the first three are BODY vertex indices.
- */
-function maxBodyVertexRef(mhcloPath: string): { max: number; rows: number } {
-  const lines = readFileSync(mhcloPath, "utf8").split("\n");
-  let inVerts = false;
-  let max = -1;
-  let rows = 0;
-  for (const raw of lines) {
-    const line = raw.trim();
-    if (line.startsWith("verts")) { inVerts = true; continue; }
-    if (!inVerts) continue;
-    if (!line || /^[a-z_]+\s/i.test(line)) { if (rows > 0) break; continue; }
-    const parts = line.split(/\s+/);
-    if (parts.length < 3) continue;
-    const idx = parts.slice(0, 3).map(Number);
-    if (idx.some((n) => !Number.isInteger(n))) continue;
-    rows += 1;
-    for (const n of idx) if (n > max) max = n;
-  }
-  return { max, rows };
-}
 
 /** An unreadable source must FAIL, never pass vacuously (§7t). Plain `it` on purpose. */
 function requireSources(): void {
