@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "openclinxr.issue-446.pre-fix.v1",
+  "kind": "ob_nurse_floor_contact_pre_fix",
+  "generatedAt": "2026-08-19T14:55:00Z",
+  "scenarioId": "ob_headache_preeclampsia_triage_v1",
+  "captureMode": "scene-overview",
+  "measuredOn": "issue-446 worktree at fec8bf86 + uncommitted fix (module edit only)",
+  "claimScope": [
+    "live_ui_xr_skinned_bounds_and_transform_chain_ob_station",
+    "primitive_scaffold_world_bottom_derivation"
+  ],
+  "notEvidenceFor": ["clinical_plausibility", "quest_readiness", "posture_quality", "asset_origin_defect"],
+  "offenderRowsUnfixedProbe": {
+    "note": "actor-floor-contact-all-stations.ts --scenario ob_headache_preeclampsia_triage_v1 --force, run BEFORE the module fix. Same code and URL as the main efcdf5ec RED.",
+    "framesAdvanced": 20,
+    "actors": [
+      { "actorId": "patient_aisha_khan_v1", "declaredPosture": "standing", "lowestVertexY": -0.018 },
+      { "actorId": "ob_nurse_williams_v1", "declaredPosture": "standing", "lowestVertexY": 0.410 },
+      { "actorId": "partner_omar_khan_v1", "declaredPosture": "standing", "lowestVertexY": -0.008 }
+    ]
+  },
+  "loadedStateTrace": {
+    "note": "Same tree, same URL, but sampled only after every OB cast slot gained a skinned mesh (nurse GLB = 21.5 MB, partner = 8.6 MB). Answers 'armature planted high vs mesh offset from armature': NEITHER — both sit at the floor once loaded.",
+    "framesAdvanced": 36,
+    "actors": [
+      {
+        "actorId": "patient_aisha_khan_v1",
+        "lowestVertexY": -0.0007,
+        "effectiveVerticalOffsetMeters": 0,
+        "footOrToeBoneWorldY": [-0.0012, 0.0608, 0.0111, 0.0597, 0.0099]
+      },
+      {
+        "actorId": "ob_nurse_williams_v1",
+        "lowestVertexY": 0.0036,
+        "effectiveVerticalOffsetMeters": -0.84,
+        "rootWorldY": 0.0041,
+        "footOrToeBoneWorldY": [0.0041, 0.0438, 0.0088, 0.045, 0.0101]
+      },
+      {
+        "actorId": "partner_omar_khan_v1",
+        "lowestVertexY": 0.0061,
+        "effectiveVerticalOffsetMeters": -0.913,
+        "footOrToeBoneWorldY": [0.0071, 0.0398, 0.0106, 0.0417, 0.0126]
+      }
+    ]
+  },
+  "mechanism": {
+    "summary": "The 0.41 reading is the hidden primitive scaffold measured mid-load, not the humanoid. The floor-contact probe waits for the FIRST skinned mesh (partner) then samples; the 21.5 MB nurse GLB is still loading, so her slot contains only the hidden scaffold capsule. The scaffold's lowest vertex is at slot-local y = 0.55 - (0.7/2 + 0.22) = -0.02 (CapsuleGeometry(0.22, 0.7, 8, 16) centered at local y=0.55 in createPrimitiveActorMesh).",
+    "slotFraming": "applyCleanEncounterVisualReviewActorFraming OB nurse branch (encounter-actor-framing.ts) places the clinical_team slot at position.y = 0.42, scale 0.5 (ob_nurse_bedside_escalation_plan_position). resolveEffectiveVerticalOffsetMeters then re-solves the load offset (-0.84) so the LOADED humanoid lands at world y ≈ 0 — but the scaffold is a child at local y≈-0.02, so its world bottom = 0.42 + (-0.02 * 0.5) = 0.41.",
+    "patientSameMechanism": "The patient's slot is framed to y=0, scale 0.88, so her mid-load scaffold bottom reads 0 + (-0.02 * 0.88) = -0.018 — the exact value the unfixed probe reported. Same mechanism, in-band by coincidence.",
+    "partnerWhyFine": "The partner's 8.6 MB GLB finishes loading before the sample instant, so the probe measures the real skinned mesh (y0=-0.008).",
+    "fix": "Wait for every recorded scene asset to reach loaded-or-failed (waitForSceneAssetsSettled, the #259 settle pattern already used by supine-patient-on-deck / actor-garment-presence-in-scene) before sampling. A failed asset counts as settled, so a genuinely broken load still surfaces as a defect."
+  }
+}
