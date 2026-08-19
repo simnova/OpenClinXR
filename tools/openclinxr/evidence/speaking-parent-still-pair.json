@@ -1,0 +1,129 @@
+{
+  "schemaVersion": "openclinxr.speaking-parent-still-pair.v2",
+  "generatedAt": "2026-08-19T01:56:40.095Z",
+  "actor": "parent_tara_johnson_v1",
+  "sourceGlb": "/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb",
+  "sourceGlbSha256": "b8801c637f5fd43bd3c51f140782b4c40da5d27e9eb93a56534cde9b9c7e2ec7",
+  "speakingStateNote": "The isolated subject lab cannot drive the runtime speaking state (no dialogue, no mouth cue), so the speaking frame is the sanctioned stand-in: the SAME actor from the SAME GLB bytes with the mouth-open morph (viseme_AA jaw drop, per morph-target-resolver.ts) driven to weight 1.0. not-speaking = all morph influences at 0 (rest). This is a viseme morph stand-in, not the runtime speaking state.",
+  "source": "isolated subject lab renders (apps/ui-xr/isolated-subject.html -> isolated-subject-lab.ts) via playwright headless chromium against the ui-xr portless dev server (spawnPortlessDevServer filter @openclinxr/ui-xr); subjectKind=glb, bodyGlb=mpfb-peds-parent-aisha.motion-bind.glb, focus=head; camera derived by the lab from the head-region AABB of the subject's own unmorphed bounds (computeMeshBounds -> resolveFocus -> frameCamera), never a hardcoded position; the mouth-open morph is applied from an in-page interval the moment the lab exposes the scene root, before its 4-frame render loop draws the final frame; both frames share the derived camera (framing records compared to 1 mm in this probe); NOT the scenario runtime, NOT a static asset read.",
+  "url": "http://127.0.0.1:55233/isolated-subject.html?subject=%7B%22subjectId%22%3A%22parent_tara_johnson_v1%22%2C%22subjectKind%22%3A%22glb%22%2C%22bodyGlb%22%3A%22%2Fxr-assets%2Fhumanoids%2Fcandidates%2Fmpfb-peds-parent-aisha.motion-bind.glb%22%2C%22focus%22%3A%22head%22%2C%22label%22%3A%22parent%20speaking-pair%20subject%22%7D",
+  "frames": [
+    {
+      "stateId": "not-speaking",
+      "speakingFlag": false,
+      "morphInfluence": 0,
+      "still": "tools/openclinxr/evidence/stills/speaking-parent-not-speaking.png",
+      "bytes": 277871,
+      "sha256": "ad16a46f6752c09a7f0218fba688876526920e18341ce78c67f6e0dfd7926269",
+      "labEvidence": {
+        "meshCount": 13,
+        "boundsMeters": {
+          "width": 0.993,
+          "height": 1.687,
+          "depth": 0.438
+        },
+        "packFraming": {
+          "packCamera": null,
+          "boundsMin": {
+            "x": -0.102,
+            "y": 1.4,
+            "z": -0.06
+          },
+          "boundsMax": {
+            "x": 0.105,
+            "y": 1.688,
+            "z": 0.173
+          }
+        },
+        "frameCoverage": 0.26068684895833333,
+        "focusRegion": {
+          "kind": "head_box",
+          "derivation": "topmost band of the body bounds cut at the neck (silhouette width profile); never the eye mesh, never literal coordinates (D1)",
+          "neckPositionMeters": 1.4631,
+          "dominantAxis": "y",
+          "matchedVertexCount": 7911,
+          "boundsMeters": {
+            "min": {
+              "x": -0.1023,
+              "y": 1.3996,
+              "z": -0.0597
+            },
+            "max": {
+              "x": 0.1047,
+              "y": 1.6881,
+              "z": 0.1728
+            }
+          }
+        }
+      },
+      "morphReadback": {
+        "appliedMeshes": 0,
+        "maxInfluence": 0
+      }
+    },
+    {
+      "stateId": "speaking",
+      "speakingFlag": true,
+      "morphInfluence": 1,
+      "still": "tools/openclinxr/evidence/stills/speaking-parent-speaking.png",
+      "bytes": 278162,
+      "sha256": "91fc8fe2588ebcc6e0bade4742a3633d136a00cc73a9cf5bceb55701ad986a40",
+      "labEvidence": {
+        "meshCount": 13,
+        "boundsMeters": {
+          "width": 0.993,
+          "height": 1.687,
+          "depth": 0.438
+        },
+        "packFraming": {
+          "packCamera": null,
+          "boundsMin": {
+            "x": -0.102,
+            "y": 1.4,
+            "z": -0.06
+          },
+          "boundsMax": {
+            "x": 0.105,
+            "y": 1.688,
+            "z": 0.173
+          }
+        },
+        "frameCoverage": 0.26068684895833333,
+        "focusRegion": {
+          "kind": "head_box",
+          "derivation": "topmost band of the body bounds cut at the neck (silhouette width profile); never the eye mesh, never literal coordinates (D1)",
+          "neckPositionMeters": 1.4631,
+          "dominantAxis": "y",
+          "matchedVertexCount": 7911,
+          "boundsMeters": {
+            "min": {
+              "x": -0.1023,
+              "y": 1.3996,
+              "z": -0.0597
+            },
+            "max": {
+              "x": 0.1047,
+              "y": 1.6881,
+              "z": 0.1728
+            }
+          }
+        }
+      },
+      "morphReadback": {
+        "appliedMeshes": 8,
+        "maxInfluence": 1
+      }
+    }
+  ],
+  "claimScope": "an isolated rest-vs-mouth-open-viseme still pair of parent_tara_johnson_v1 (peds asthma parent GLB), same GLB bytes, same derived camera and framing, differing only in the mouth-open morph weight; #402 reproduce / #419 E2.3",
+  "notEvidenceFor": [
+    "the runtime speaking state (this is a viseme stand-in, not dialogue)",
+    "whether a spike is present (the orchestrator grades the pair)",
+    "the cause",
+    "any fix",
+    "production phoneme timing",
+    "clinical validity",
+    "scoring validity",
+    "quest readiness"
+  ]
+}
