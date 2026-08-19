@@ -59,6 +59,7 @@ import {
   MPFB_PEDS_PARENT_AISHA_GLB,
   MPFB_PEDS_PARENT_AISHA_MOTION_BIND_GLB,
   MPFB_PEDS_PATIENT_CHILD_GLB,
+  MPFB_STREET_ADULT_MALE_GLB,
   PEDS_CHILD_GLB,
   PEDS_NURSE_GLB,
   PEDS_PARENT_GLB,
@@ -80,6 +81,7 @@ export {
   MPFB_PEDS_PARENT_AISHA_GLB,
   MPFB_PEDS_PARENT_AISHA_MOTION_BIND_GLB,
   MPFB_PEDS_PATIENT_CHILD_GLB,
+  MPFB_STREET_ADULT_MALE_GLB,
 } from "./cast-asset-constants.js";
 
 
@@ -243,7 +245,11 @@ function pickAdultGlb(
   const preferred: string[] = [];
   if (r === "patient") {
     if (patientWardrobeClass === "street_casual") {
+      // #444: the four street_casual patients take the MPFB male street body first
+      // (137 joints, library t-shirt + cargo trousers); the 23-joint Anny street
+      // body stays immediately behind as the second-body fallback.
       preferred.push(
+        MPFB_STREET_ADULT_MALE_GLB,
         ADULT_MALE_STREET_CASUAL_GLB,
         ED_SPOUSE_GLB,
         PEDS_PARENT_GLB,

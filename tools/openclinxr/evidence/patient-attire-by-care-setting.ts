@@ -4,6 +4,15 @@
  * Asserts CONTENT of the resolved patient GLB (hash + real garment geometry),
  * not labels (clothingLayer, declared markers, wardrobeTags).
  *
+ * ## FIXED (#444) — the MPFB rail's real garments are `makeclothes_library_*`
+ * meshes, not `openclinxr_real_garment_*` (that naming is the Anny rail). Before
+ * #444 the filter only accepted the Anny naming, so the four street_casual
+ * patients measured "bare_no_garment_shell" the moment they moved to the MPFB
+ * body — and the OB aisha patient has measured bare since #263 without any
+ * assertion noticing. The filter now accepts both rails; the contract still
+ * reads real exported geometry (mesh names, triangle counts, base colours),
+ * never labels.
+ *
  * Exercises BOTH cast resolvers:
  *   packages/openclinxr/asset-registry/src/actor-casting.ts
  *   apps/ui-xr/src/humanoid-runtime-asset-url.ts
@@ -62,7 +71,7 @@ const GOWN_GLB = "ed_chest_pain_adult_cast.glb";
 const GOWN_COLOR: [number, number, number] = [0.15, 0.55, 0.82];
 const COLOR_EPS = 0.08;
 
-const REAL_GARMENT_RE = /openclinxr_real_garment/i;
+const REAL_GARMENT_RE = /openclinxr_real_garment|makeclothes_library/i;
 const DECLARED_RE = /declared_upper_layers/i;
 
 function absGlb(fileName: string): string {
