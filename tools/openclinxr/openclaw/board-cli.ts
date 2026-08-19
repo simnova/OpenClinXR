@@ -23,10 +23,9 @@ export const BOARD_ARTIFACT_DIR = ".openclinxr/openclaw";
 /**
  * Board-as-dequeue-queue (issue #448) — the Factory field on project 7.
  *
- * Field id and option ids are GitHub project node ids, resolved at runtime by NAME from
- * `gh project field-list` so the four non-Idle stages never need re-hardcoding when the board
- * drifts. `Planted` option `53aeb5a6` (from the issue) is kept as a documented constant; the
- * runtime lookup is authoritative.
+ * Field id and option ids are GitHub project node ids; option ids are resolved at runtime by NAME
+ * from `gh project field-list` so the four non-Idle stages never need re-hardcoding when the
+ * board drifts. (Measured on the live board: Planted = `53aeb5a6` — documented, not pinned.)
  */
 export const FACTORY_PROJECT_NUMBER = 7;
 export const FACTORY_OWNER = "simnova";
