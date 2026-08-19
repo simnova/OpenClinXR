@@ -5,8 +5,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { resetCoordinationRootCache } from "./coordination-root.js";
+import { setFactoryField } from "./board-cli.js";
 import {
   assembleDispatchContract,
+  assertDispatchRole,
   assertSafeEnvironment,
   assertWorktreeContractGate,
   buildArgv,
@@ -38,7 +40,25 @@ vi.mock("node:child_process", async (importOriginal) => {
   };
 });
 
+// #448: dispatch() marks the board card Factory=Dispatched via board-cli's setFactoryField. The
+// unit tests exercise dispatch mechanics (ledger, parse, prompt, vision denies), not the live
+// board — intercept the shared verb so no test ever runs real gh against project 7.
+vi.mock("./board-cli.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./board-cli.js")>();
+  return {
+    ...actual,
+    setFactoryField: vi.fn(() => ({
+      ok: true,
+      issueNumber: 0,
+      itemId: "PVTI_test",
+      stage: "Dispatched",
+      plans: [],
+    })),
+  };
+});
+
 const spawnMock = vi.mocked(spawn);
+const setFactoryFieldMock = vi.mocked(setFactoryField);
 
 /** The dispatched prompt now lives in the file named by --prompt-file; argv[1] is a path. */
 function readPromptFile(argv: string[]): string {
@@ -65,7 +85,22 @@ function fakeChildWithOutput(output: string, stderr = ""): ReturnType<typeof spa
 afterEach(() => {
   resetCoordinationRootCache();
   delete process.env["OPENCLINXR_COORDINATION_ROOT"];
+  setFactoryFieldMock.mockClear();
 });
+
+/**
+ * #448: dispatch() now FAILS CLOSED without a role — a temp-root dispatch needs the role's
+ * charter/memory/index on disk so the role resolves like it does in the main checkout.
+ */
+function seedRoleForDispatch(root: string): void {
+  const roleDir = join(root, "agents/core", "xr-systems-architect");
+  mkdirSync(roleDir, { recursive: true });
+  writeFileSync(join(roleDir, "charter.md"), "## Persona\nplaceholder");
+  writeFileSync(join(roleDir, "memory.md"), "placeholder memory");
+  writeFileSync(join(roleDir, "index.json"), "{}");
+}
+
+const TEST_ROLE = "xr-systems-architect";
 
 describe("dispatch-worker argv", () => {
   it("passes the prompt via --prompt-file, so embedded flags never reach grok's argument scan", () => {
@@ -778,6 +813,7 @@ describe("dispatch with a streaming-json child (issue #241)", () => {
     // Pre-fix this threw "Dispatch produced no sessionId" after the worker had finished: the
     // parse collapsed to {} and recordSession / the post-exit proof re-run were skipped.
     const root = mkdtempSync(join(tmpdir(), "dispatch-streaming-"));
+    seedRoleForDispatch(root);
     // Flat ACP event shape measured on real streaming-json output (top-level `type`,
     // sessionId/stopReason/num_turns on `end`, text in `data` of `text` events).
     const ndjson = [
@@ -789,6 +825,7 @@ describe("dispatch with a streaming-json child (issue #241)", () => {
 
     const entry = await dispatch(root, {
       prompt: "do the thing",
+      role: TEST_ROLE,
       streaming: true,
       slice: "issue-241-streaming",
       contract: "none",
@@ -876,11 +913,13 @@ describe("issue #242 — text-only models cannot Read images (the 400 fence)", (
 
   it("appends the Read denies to a text-only dispatch's argv before spawn", async () => {
     const root = mkdtempSync(join(tmpdir(), "dispatch-vision-fence-"));
+    seedRoleForDispatch(root);
     spawnMock.mockReturnValue(
       fakeChildWithOutput(JSON.stringify({ text: "done", sessionId: "019f-vision-fence", num_turns: 1, stopReason: "end_turn" })),
     );
     await dispatch(root, {
       prompt: "grade this capture",
+      role: TEST_ROLE,
       model: "deepseek-v4-flash",
       slice: "issue-242-text-only",
       contract: "none",
@@ -894,11 +933,13 @@ describe("issue #242 — text-only models cannot Read images (the 400 fence)", (
 
   it("does not deny Read for a vision-capable model", async () => {
     const root = mkdtempSync(join(tmpdir(), "dispatch-vision-open-"));
+    seedRoleForDispatch(root);
     spawnMock.mockReturnValue(
       fakeChildWithOutput(JSON.stringify({ text: "done", sessionId: "019f-vision-open", num_turns: 1, stopReason: "end_turn" })),
     );
     await dispatch(root, {
       prompt: "grade this capture",
+      role: TEST_ROLE,
       model: "grok-4.5",
       slice: "issue-242-vision",
       contract: "none",
@@ -910,11 +951,13 @@ describe("issue #242 — text-only models cannot Read images (the 400 fence)", (
 
   it("warns the text-only worker in the prompt why image Reads are denied", async () => {
     const root = mkdtempSync(join(tmpdir(), "dispatch-vision-prompt-"));
+    seedRoleForDispatch(root);
     spawnMock.mockReturnValue(
       fakeChildWithOutput(JSON.stringify({ text: "done", sessionId: "019f-vision-prompt", num_turns: 1, stopReason: "end_turn" })),
     );
     await dispatch(root, {
       prompt: "grade this capture",
+      role: TEST_ROLE,
       model: "deepseek-v4-pro",
       slice: "issue-242-prompt",
       contract: "none",
@@ -987,11 +1030,13 @@ describe("buildRoleCharterAppendix (#435)", () => {
 describe("issue #440 — the ledger names the child before it exists", () => {
   it("writes a 'spawned' line before the 'completed' one for a fresh dispatch", async () => {
     const root = mkdtempSync(join(tmpdir(), "dispatch-early-ledger-"));
+    seedRoleForDispatch(root);
     spawnMock.mockReturnValue(
       fakeChildWithOutput(JSON.stringify({ text: "done", sessionId: "019f-early-ledger", num_turns: 2, stopReason: "end_turn" })),
     );
     const entry = await dispatch(root, {
       prompt: "do the thing",
+      role: TEST_ROLE,
       slice: "issue-440-ledger",
       contract: "none",
       contractReason: "issue-440 test: the early entry precedes the spawn",
@@ -1013,11 +1058,13 @@ describe("issue #440 — the ledger names the child before it exists", () => {
 
   it("writes no early line on a resume — the child's own id is the only name", async () => {
     const root = mkdtempSync(join(tmpdir(), "dispatch-resume-ledger-"));
+    seedRoleForDispatch(root);
     spawnMock.mockReturnValue(
       fakeChildWithOutput(JSON.stringify({ text: "done", sessionId: "019f-resumed-child", num_turns: 1, stopReason: "end_turn" })),
     );
     const entry = await dispatch(root, {
       prompt: "do the thing",
+      role: TEST_ROLE,
       resume: "019f-resumed-child",
       slice: "issue-440-resume",
       contract: "none",
@@ -1029,5 +1076,72 @@ describe("issue #440 — the ledger names the child before it exists", () => {
     expect(lines[0]!.phase).toBe("completed");
     expect(lines[0]!.sessionId).toBe("019f-resumed-child");
     expect(entry.sessionId).toBe("019f-resumed-child");
+  });
+});
+
+/**
+ * ISSUE #448 — the board is the dequeue queue, and role is required.
+ *
+ * Seven dispatches (#441-#447) passed role=None and their workers got no charter and no status
+ * directive — mute by construction. The refusal is a hard fail before spawn, like
+ * assertLoopNotPaused. The Factory=Dispatched write is the dispatcher's machine duty; these tests
+ * assert it fires (the live gh board write is mocked out above).
+ */
+describe("issue #448 — role required, Factory=Dispatched on dispatch", () => {
+  it("refuses a dispatch with NO role", () => {
+    expect(() => assertDispatchRole(undefined, "/tmp/nowhere")).toThrow(/role is required/);
+    expect(() => assertDispatchRole("", "/tmp/nowhere")).toThrow(/role is required/);
+    expect(() => assertDispatchRole("   ", "/tmp/nowhere")).toThrow(/role is required/);
+  });
+
+  it("refuses an UNKNOWN role — a present-but-meaningless role is the same hole wearing a label", () => {
+    expect(() => assertDispatchRole("not-a-real-role", "/tmp/nowhere")).toThrow(/not a dispatchable repo role/);
+    expect(() => assertDispatchRole("not-a-real-role", "/tmp/nowhere")).toThrow(/FAIL CLOSED/);
+  });
+
+  it("accepts a known role whose charter is on disk", () => {
+    const root = mkdtempSync(join(tmpdir(), "dispatch-role-ok-"));
+    seedRoleForDispatch(root);
+    expect(() => assertDispatchRole(TEST_ROLE, root)).not.toThrow();
+  });
+
+  it("refuses a known POLICY role whose charter is NOT on disk (empty appendix would mute it)", () => {
+    // xr-systems-architect has a harness policy, but a temp root without agents/** resolves no
+    // charter dir — the appendix would be empty and the worker would get no directive.
+    const root = mkdtempSync(join(tmpdir(), "dispatch-role-missing-dir-"));
+    expect(() => assertDispatchRole(TEST_ROLE, root)).toThrow(/not a dispatchable repo role/);
+  });
+
+  it("dispatch() marks the card Factory=Dispatched before the spawn", async () => {
+    const root = mkdtempSync(join(tmpdir(), "dispatch-factory-"));
+    seedRoleForDispatch(root);
+    spawnMock.mockReturnValue(
+      fakeChildWithOutput(JSON.stringify({ text: "done", sessionId: "019f-factory-write", num_turns: 1, stopReason: "end_turn" })),
+    );
+    await dispatch(root, {
+      prompt: "do the thing",
+      role: TEST_ROLE,
+      slice: "issue-448-factory",
+      contract: "none",
+      contractReason: "issue-448 test: the dispatcher must mark the card Dispatched",
+    });
+    expect(setFactoryFieldMock).toHaveBeenCalledWith(root, "issue-448-factory", "Dispatched");
+    expect(spawnMock).toHaveBeenCalled();
+  });
+
+  it("dispatch() refuses BEFORE spawn when the role is missing (no worktree, no brief, no child)", async () => {
+    const root = mkdtempSync(join(tmpdir(), "dispatch-no-role-"));
+    spawnMock.mockClear();
+    setFactoryFieldMock.mockClear();
+    await expect(
+      dispatch(root, {
+        prompt: "do the thing",
+        slice: "issue-448-no-role",
+        contract: "none",
+        contractReason: "issue-448 test: missing role must refuse",
+      }),
+    ).rejects.toThrow(/role is required/);
+    expect(spawnMock).not.toHaveBeenCalled();
+    expect(setFactoryFieldMock).not.toHaveBeenCalled();
   });
 });
