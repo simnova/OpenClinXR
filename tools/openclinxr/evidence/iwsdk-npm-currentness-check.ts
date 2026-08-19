@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import { globFiles, readJson, writeJson } from "../../agent-factory/lib.js";
@@ -69,6 +70,62 @@ export type IwsdkNpmCurrentnessReport = {
 
 type ValidationResult = { ok: true } | { ok: false; errors: string[] };
 
+/** A captured snapshot older than this is stale even when its versions still match live npm. */
+const SNAPSHOT_MAX_AGE_MS = 14 * 24 * 60 * 60 * 1000;
+
+export type IwsdkSnapshotFreshness = {
+  stale: boolean;
+  blockers: string[];
+};
+
+/**
+ * Pure staleness surface: compares a captured snapshot against live npm versions supplied by the
+ * caller, plus an age bound so a snapshot expires even when no release happened. No network here.
+ */
+export function evaluateSnapshotFreshness(input: {
+  snapshot: { capturedAt: string; packages: Array<{ name: string; latestVersion: string }> };
+  liveLatestVersions: Record<string, string>;
+  now: string;
+}): IwsdkSnapshotFreshness {
+  const blockers: string[] = [];
+  for (const entry of input.snapshot.packages) {
+    const liveVersion = input.liveLatestVersions[entry.name];
+    if (liveVersion === undefined) {
+      continue; // no live data for this package — the caller could not judge it
+    }
+    if (liveVersion !== entry.latestVersion) {
+      blockers.push(
+        `npm_latest_version_moved:${entry.name}:snapshot_${entry.latestVersion}_live_${liveVersion}`,
+      );
+    }
+  }
+  const ageMs = new Date(input.now).getTime() - new Date(input.snapshot.capturedAt).getTime();
+  if (Number.isFinite(ageMs) && ageMs > SNAPSHOT_MAX_AGE_MS) {
+    const ageDays = Math.floor(ageMs / (24 * 60 * 60 * 1000));
+    blockers.push(
+      `npm_metadata_snapshot_too_old:captured_${input.snapshot.capturedAt}_age_days_${ageDays}_max_days_14`,
+    );
+  }
+  return { stale: blockers.length > 0, blockers };
+}
+
+/** pnpm-workspace.yaml default catalog — what a bare `catalog:` reference resolves to. */
+function readCatalogViteVersion(): string {
+  const yaml = readFileSync("pnpm-workspace.yaml", "utf8");
+  const version = /^\s+vite:\s*"([^"]+)"/mu.exec(yaml)?.[1];
+  if (!version) {
+    throw new Error("pnpm-workspace.yaml has no catalog vite version to resolve `catalog:` against");
+  }
+  return version;
+}
+
+export function resolveRepoViteVersion(manifestVersion: string): string {
+  if (manifestVersion === "catalog:") {
+    return readCatalogViteVersion();
+  }
+  return manifestVersion;
+}
+
 const expectedPackages: ExpectedIwsdkPackage[] = [
   { name: "@iwsdk/core", latestVersion: "0.5.1", license: "MIT" },
   { name: "@iwsdk/xr-input", latestVersion: "0.5.1", license: "MIT" },
@@ -127,11 +184,19 @@ export async function main(args = process.argv.slice(2)): Promise<void> {
     throw new Error("Missing --metadata-input or docs/openclinxr/iwsdk-npm-metadata-snapshot-*.json");
   }
 
+  const metadata = await readJson<IwsdkNpmMetadataSnapshot>(metadataPath);
   const report = buildIwsdkNpmCurrentnessReport({
     generatedAt: options.generatedAt,
     metadataFile: metadataPath,
-    metadata: await readJson<IwsdkNpmMetadataSnapshot>(metadataPath),
+    metadata,
     repoViteVersion: options.repoViteVersion ?? await readRepoViteVersion(),
+    // The runner owns the network: when the caller pins --metadata-input the comparison is
+    // hermetic; when the runner loads the on-disk snapshot itself it fetches live npm versions,
+    // so the gate can actually expire. Failures are loud — a check that cannot verify must not
+    // report green.
+    ...(options.metadataInput
+      ? {}
+      : { liveLatestVersions: await fetchLiveLatestVersions(metadata.packages.map((entry) => entry.name)) }),
   });
 
   if (options.outputPath) {
@@ -160,6 +225,8 @@ export function buildIwsdkNpmCurrentnessReport(input: {
   metadataFile: string;
   metadata: IwsdkNpmMetadataSnapshot;
   repoViteVersion: string;
+  liveLatestVersions?: Record<string, string>;
+  now?: string;
 }): IwsdkNpmCurrentnessReport {
   const validation = validateIwsdkNpmMetadataSnapshot(input.metadata);
   const packageMetadata = new Map(input.metadata.packages.map((entry) => [entry.name, entry]));
@@ -196,7 +263,17 @@ export function buildIwsdkNpmCurrentnessReport(input: {
       adoption_blockers: adoptionBlockers,
     };
   });
-  const currentnessBlockers = unique(packages.flatMap((entry) => entry.blockers));
+  const freshness = input.liveLatestVersions
+    ? evaluateSnapshotFreshness({
+        snapshot: input.metadata,
+        liveLatestVersions: input.liveLatestVersions,
+        now: input.now ?? new Date().toISOString(),
+      })
+    : null;
+  const currentnessBlockers = unique([
+    ...packages.flatMap((entry) => entry.blockers),
+    ...(freshness?.blockers ?? []),
+  ]);
 
   return {
     kind: "iwsdk_npm_currentness_check",
@@ -329,7 +406,31 @@ async function readRepoViteVersion(): Promise<string> {
   if (!version) {
     throw new Error("Could not resolve repo Vite version from apps/arena/ui-xr-iwsdk-spike/package.json");
   }
-  return version;
+  return resolveRepoViteVersion(version);
+}
+
+/** Live `latest` versions straight from the npm registry, one request per package. */
+async function fetchLiveLatestVersions(packageNames: string[]): Promise<Record<string, string>> {
+  const entries = await Promise.all(
+    packageNames.map(async (name) => {
+      const response = await fetch(`https://registry.npmjs.org/${encodeURIComponent(name)}/latest`, {
+        signal: AbortSignal.timeout(15000),
+      });
+      if (!response.ok) {
+        throw new Error(`npm registry returned ${response.status} for ${name}`);
+      }
+      const body = (await response.json()) as { version?: string };
+      return [name, body.version] as const;
+    }),
+  );
+  const versions: Record<string, string> = {};
+  for (const [name, version] of entries) {
+    if (version === undefined) {
+      throw new Error(`npm registry response for ${name} has no version field`);
+    }
+    versions[name] = version;
+  }
+  return versions;
 }
 
 function parseArgs(args: string[]): CliOptions {
