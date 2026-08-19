@@ -20,8 +20,6 @@
  * Modeled on tools/openclinxr/evidence/bvh-retarget-lab-smoke.ts (CLI + spawn + report).
  */
 
-import type { ChildProcessByStdio } from "node:child_process";
-import type { Readable } from "node:stream";
 import { existsSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
@@ -31,6 +29,7 @@ import { globFiles, readJson, writeJson } from "../../agent-factory/lib.js";
 import {
   spawnPortlessDevServer,
   stopPortlessDevServer,
+  type PortlessDevServer,
 } from "./lib/portless-server.js";
 
 const SCHEMA_VERSION = "openclinxr.clinical-touch-smoke.v1";
@@ -202,7 +201,7 @@ async function buildReport(opts: CliOptions): Promise<Record<string, unknown>> {
     return envelope(opts, null, [`mkdir_failed:${String(e)}`], null, pageErrors, null, regionResults);
   }
 
-  let server: ChildProcessByStdio<null, Readable, Readable> | null = null;
+  let server: PortlessDevServer | null = null;
   try {
     try {
       const handle = await spawnPortlessDevServer({
@@ -210,7 +209,7 @@ async function buildReport(opts: CliOptions): Promise<Record<string, unknown>> {
         env: opts.port > 0 ? { PORT: String(opts.port) } : undefined,
         readyTimeoutMs: 120_000,
       });
-      server = handle.proc;
+      server = handle;
       // Use the **actual** bound port (may differ from preferred if race / auto-pick).
       opts.port = handle.port;
     } catch (e) {
@@ -390,7 +389,7 @@ async function buildReport(opts: CliOptions): Promise<Record<string, unknown>> {
       }
     }
   } finally {
-    await stopPortlessDevServer(server);
+    if (server) await stopPortlessDevServer(server.proc);
   }
 
   if (pageErrors.length > 0) blockers.push(`page_errors:${pageErrors.length}`);

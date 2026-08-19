@@ -4,7 +4,7 @@
  * (ancestor-aware) visibility of the ragdoll-collision-proxy groups.
  */
 import { chromium } from "playwright";
-import { spawnPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
+import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
 import {
   buildRoomCaptureUrl,
   ROOM_CAPTURE_MODE,
@@ -119,7 +119,7 @@ async function main(): Promise<void> {
     }
   } finally {
     if (server) {
-      try { server.proc.kill("SIGTERM"); } catch { /* ignore */ }
+      try { await stopPortlessDevServer(server.proc); } catch { /* ignore */ }
     }
   }
 }

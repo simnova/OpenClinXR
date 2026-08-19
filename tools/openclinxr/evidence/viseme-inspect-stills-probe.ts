@@ -72,7 +72,7 @@ import { fileURLToPath } from "node:url";
 import { chromium, type Page } from "playwright";
 import {
   type PortlessDevServer,
-  spawnPortlessDevServer,
+  spawnPortlessDevServer, stopPortlessDevServer,
 } from "./lib/portless-server.js";
 import { regionLuminance } from "./lib/png-region-luminance.js";
 
@@ -546,7 +546,7 @@ export async function runVisemeInspectStillsProbe(): Promise<void> {
   } finally {
     if (server) {
       try {
-        server.proc.kill("SIGTERM");
+        await stopPortlessDevServer(server.proc);
       } catch {
         // ignore
       }

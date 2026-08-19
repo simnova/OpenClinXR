@@ -5,7 +5,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
-import { spawnPortlessDevServer } from "./lib/portless-server.js";
+import { spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
 import { buildRoomCaptureUrl } from "./ui-xr-environment-room-capture.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
@@ -68,7 +68,7 @@ async function main(): Promise<void> {
   } finally {
     await browser.close().catch(() => undefined);
     try {
-      server.proc.kill("SIGTERM");
+      await stopPortlessDevServer(server.proc);
     } catch {
       // ignore
     }

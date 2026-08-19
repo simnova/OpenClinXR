@@ -16,7 +16,7 @@ import path from "node:path";
 import { chromium, type Browser, type Page } from "playwright";
 import { buildContactSheet } from "./isolated-subject-harness.js";
 import {
-  spawnPortlessDevServer,
+  spawnPortlessDevServer, stopPortlessDevServer,
   type PortlessDevServer,
 } from "./lib/portless-server.js";
 
@@ -218,7 +218,7 @@ export async function runArticulatingHeadOfBed(options?: {
     return report;
   } finally {
     if (browser) await browser.close();
-    if (server) server.proc.kill("SIGTERM");
+    if (server) await stopPortlessDevServer(server.proc);
   }
 }
 

@@ -19,7 +19,7 @@ import {
   listShippedCastScenarioIds,
   resolveScenarioActorCast,
 } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
-import { spawnPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
+import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
 import {
   tryReadStampedArtifact,
   withTreeStamp,
@@ -240,7 +240,7 @@ async function measureLiveSlotAssignment(input: {
   } finally {
     if (ownedServer && server) {
       try {
-        server.proc.kill("SIGTERM");
+        await stopPortlessDevServer(server.proc);
       } catch {
         // ignore
       }

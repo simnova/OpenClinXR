@@ -41,7 +41,7 @@ import { NodeIO, type Node as GltfNode } from "@gltf-transform/core";
 import { chromium, type Browser, type Page } from "playwright";
 import { buildContactSheet } from "./isolated-subject-harness.js";
 import {
-  spawnPortlessDevServer,
+  spawnPortlessDevServer, stopPortlessDevServer,
   type PortlessDevServer,
 } from "./lib/portless-server.js";
 
@@ -479,7 +479,7 @@ export async function renderInputViewsAndContactSheet(options?: {
     };
   } finally {
     if (browser) await browser.close();
-    if (server) server.proc.kill("SIGTERM");
+    if (server) await stopPortlessDevServer(server.proc);
   }
 }
 
@@ -1076,7 +1076,7 @@ async function renderCandidatePng(outPath: string): Promise<void> {
     });
   } finally {
     if (browser) await browser.close();
-    if (server) server.proc.kill("SIGTERM");
+    if (server) await stopPortlessDevServer(server.proc);
   }
 }
 

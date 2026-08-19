@@ -70,7 +70,7 @@ import { fileURLToPath } from "node:url";
 import { chromium, type Page } from "playwright";
 import {
   type PortlessDevServer,
-  spawnPortlessDevServer,
+  spawnPortlessDevServer, stopPortlessDevServer,
 } from "./lib/portless-server.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -377,7 +377,7 @@ export async function runSpeakingParentStillPairProbe(): Promise<void> {
   } finally {
     if (server) {
       try {
-        server.proc.kill("SIGTERM");
+        await stopPortlessDevServer(server.proc);
       } catch {
         // ignore
       }

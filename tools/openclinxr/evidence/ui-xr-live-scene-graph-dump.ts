@@ -19,7 +19,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { chromium, type Page } from "playwright";
-import { type PortlessDevServer, spawnPortlessDevServer } from "./lib/portless-server.js";
+import { type PortlessDevServer, spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
 import {
   buildRoomCaptureUrl,
   ROOM_CAPTURE_MODE,
@@ -318,7 +318,7 @@ export async function dumpLiveSceneGraph(input: {
   } finally {
     if (ownedServer && server) {
       try {
-        server.proc.kill("SIGTERM");
+        await stopPortlessDevServer(server.proc);
       } catch {
         // ignore
       }

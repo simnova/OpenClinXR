@@ -29,7 +29,7 @@ import {
   listShippedScenarioManifestIds,
   type Footprint,
 } from "./actor-furniture-clearance.js";
-import { spawnPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
+import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
 import {
   tryReadStampedArtifact,
   withTreeStamp,
@@ -317,7 +317,7 @@ async function measureLivePropIntersection(input: {
   } finally {
     if (ownedServer && server) {
       try {
-        server.proc.kill("SIGTERM");
+        await stopPortlessDevServer(server.proc);
       } catch {
         // ignore
       }
@@ -895,7 +895,7 @@ async function measureLiveEquipmentActorOverlap(input: {
   } finally {
     if (ownedServer && server) {
       try {
-        server.proc.kill("SIGTERM");
+        await stopPortlessDevServer(server.proc);
       } catch {
         // ignore
       }
@@ -1311,7 +1311,7 @@ export async function captureActorPropAfterPng(input?: {
   } finally {
     if (ownedServer && server) {
       try {
-        server.proc.kill("SIGTERM");
+        await stopPortlessDevServer(server.proc);
       } catch {
         // ignore
       }

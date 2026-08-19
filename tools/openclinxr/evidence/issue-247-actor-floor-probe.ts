@@ -13,7 +13,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { chromium } from "playwright";
 import { execSync } from "node:child_process";
-import { spawnPortlessDevServer } from "./lib/portless-server.js";
+import { spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
 import {
   buildRoomCaptureUrl,
   ROOM_CAPTURE_MODE,
@@ -465,7 +465,7 @@ async function main(): Promise<void> {
   } finally {
     if (server) {
       try {
-        server.proc.kill("SIGTERM");
+        await stopPortlessDevServer(server.proc);
       } catch {
         // ignore
       }

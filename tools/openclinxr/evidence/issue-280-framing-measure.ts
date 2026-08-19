@@ -29,7 +29,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { chromium, type Page } from "playwright";
-import { spawnPortlessDevServer } from "./lib/portless-server.js";
+import { spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "../../..");
@@ -310,7 +310,7 @@ export async function measureIssue280Prefix(options?: { cwd?: string }): Promise
     }
   } finally {
     if (browser) await browser.close();
-    if (server) server.proc.kill("SIGTERM");
+    if (server) await stopPortlessDevServer(server.proc);
   }
 
   // Cross-check vs the #256 batch manifest — proves the additive instrumentation
