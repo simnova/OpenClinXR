@@ -1456,8 +1456,8 @@ describe("workspace architecture rules", () => {
     const catalogVersion = (dep: string, fallback: string) =>
       expect.stringMatching(new RegExp(`^(?:${fallback.replace(/\./g, "\\.")}|catalog:)$`));
     expect(manifest.dependencies).toMatchObject({
-      "@iwsdk/core": "0.5.1",
-      "@iwsdk/xr-input": "0.5.1",
+      "@iwsdk/core": "0.5.3",
+      "@iwsdk/xr-input": "0.5.3",
       "three": catalogVersion("three", "0.184.0"),
     });
     expect(manifest.devDependencies).toMatchObject({

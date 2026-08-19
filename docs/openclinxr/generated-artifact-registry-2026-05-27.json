@@ -16401,6 +16401,13 @@
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
+      "path": "docs/openclinxr/iwsdk-npm-metadata-snapshot-2026-08-19.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
+    },
+    {
       "path": "docs/openclinxr/iwsdk-phase2-devtools-preinstall-proposal.json",
       "authority": "keep-compatibility-input",
       "tracked": true,

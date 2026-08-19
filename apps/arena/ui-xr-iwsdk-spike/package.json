@@ -12,12 +12,12 @@
     "test": "vitest run --root ."
   },
   "dependencies": {
-    "@iwsdk/core": "0.5.1",
-    "@iwsdk/xr-input": "0.5.1",
+    "@iwsdk/core": "0.5.3",
+    "@iwsdk/xr-input": "0.5.3",
     "@openclinxr/iwsdk-spike": "workspace:*",
     "@openclinxr/scenario-fixtures": "workspace:*",
     "three": "catalog:",
-    "@iwsdk/scene-composition": "0.5.1"
+    "@iwsdk/scene-composition": "0.5.3"
   },
   "devDependencies": {
     "@iwsdk/vite-plugin-dev": "0.5.1",
