@@ -11,6 +11,7 @@ import {
   assertWorktreeContractGate,
   buildArgv,
   buildContractPromptAppendix,
+  buildRoleCharterAppendix,
   buildTextOnlyVisionDenies,
   buildTextOnlyVisionPromptAppendix,
   dispatch,
@@ -904,5 +905,55 @@ describe("issue #242 — text-only models cannot Read images (the 400 fence)", (
     expect(prompt).toContain("TEXT-ONLY MODEL");
     expect(prompt).toContain("deepseek-v4-pro");
     expect(prompt).toContain("400");
+  });
+});
+
+/**
+ * PLANTED CONTRACT (#435) — `role:` was a label reaching only the ledger. `dispatch()` now
+ * composes the PROVEN baker output (buildRepoAgentSpawnPrompt) into the worker prompt so the
+ * dispatched worker runs with its role's charter (Persona, memory, escalate contract). These unit
+ * tests constrain the export contract; the evidence test at
+ * tools/openclinxr/evidence/dispatch-binds-the-role-charter.test.ts asserts the full clause set.
+ */
+describe("buildRoleCharterAppendix (#435)", () => {
+  it("binds a known role's charter: Persona, memory, and escalate contract", () => {
+    const text = buildRoleCharterAppendix("xr-systems-architect");
+    expect(text.length).toBeGreaterThan(200);
+    expect(text).toContain("xr-systems-architect");
+    expect(text).toContain("charter.md");
+    expect(text).toContain("memory.md");
+    expect(text).toContain("UNABLE:");
+  });
+
+  it("returns an empty string for an unknown or blank role id instead of throwing", () => {
+    expect(buildRoleCharterAppendix("no-such-role")).toBe("");
+    expect(buildRoleCharterAppendix("")).toBe("");
+    expect(buildRoleCharterAppendix("   ")).toBe("");
+  });
+
+  it("composes the role charter into the dispatched prompt alongside the contract appendix", async () => {
+    const root = mkdtempSync(join(tmpdir(), "dispatch-role-charter-"));
+    // The resolver discovers agents/<group>/<role> from disk requiring all three files; stub them
+    // in the temp root so the wiring test exercises the real resolution path.
+    const roleDir = join(root, "agents/core", "xr-systems-architect");
+    mkdirSync(roleDir, { recursive: true });
+    writeFileSync(join(roleDir, "charter.md"), "## Persona\nplaceholder");
+    writeFileSync(join(roleDir, "memory.md"), "placeholder memory");
+    writeFileSync(join(roleDir, "index.json"), "{}");
+    spawnMock.mockReturnValue(
+      fakeChildWithOutput(JSON.stringify({ text: "done", sessionId: "019f-role-charter", num_turns: 1, stopReason: "end_turn" })),
+    );
+    await dispatch(root, {
+      prompt: "do the thing",
+      role: "xr-systems-architect",
+      proofs: ["run:node -e \"process.exit(0)\""],
+      slice: "issue-435-wiring",
+    });
+    const argv = spawnMock.mock.calls.at(-1)![1] as string[];
+    const prompt = argv[1] as string;
+    expect(prompt).toContain("ROLE CHARTER");
+    expect(prompt).toContain("xr-systems-architect");
+    expect(prompt).toContain("charter.md");
+    expect(prompt).toContain("CONTRACT PROOFS");
   });
 });
