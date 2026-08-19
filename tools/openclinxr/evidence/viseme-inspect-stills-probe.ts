@@ -53,6 +53,16 @@
  * This probe does not judge whether the shapes look like speech — the lead grades the three
  * on a closed checklist (`mouth_moves_aa` / `lips_close_PP` / `sil_is_rest`). No cause, no
  * fix, no rebake, no GLB touched, no `apps/ui-xr` product edit.
+ *
+ * ## FIXED (#442) — the ROUNDED pair joins the set
+ *
+ * #434's three shapes (aa / PP / sil) are all producible by the lip ring alone, so "the
+ * visemes02 pack is lip-only" was an inference, not a finding. The two shapes that cannot be
+ * faked by lips — `viseme_O` (protrusion + jaw travel) and `viseme_U` (protrusion) — are now
+ * rendered at weight 1.0 through the SAME instrument, camera and GLB. `TARGETS` /
+ * `STILLS` above are the only knobs changed; the in-page applier, the head-box camera
+ * identity check, the sd>8 content refusal and the distinct-hash check now cover five
+ * targets. The lead grades the O/U pair on whether the jaw drops and the lips round.
  */
 
 import { createHash } from "node:crypto";
@@ -69,8 +79,8 @@ import { regionLuminance } from "./lib/png-region-luminance.js";
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 
-/** The three targets the lead grades — exact glTF morph-target names on the asset. */
-const TARGETS = ["viseme_aa", "viseme_PP", "viseme_sil"] as const;
+/** The targets the lead grades — exact glTF morph-target names on the asset. */
+const TARGETS = ["viseme_aa", "viseme_PP", "viseme_sil", "viseme_O", "viseme_U"] as const;
 type Target = (typeof TARGETS)[number];
 
 const SUBJECT = "mpfb-viseme-inspect.glb";
@@ -82,6 +92,8 @@ const STILLS: Record<Target, string> = {
   viseme_aa: "tools/openclinxr/evidence/stills/viseme-inspect-aa.png",
   viseme_PP: "tools/openclinxr/evidence/stills/viseme-inspect-pp.png",
   viseme_sil: "tools/openclinxr/evidence/stills/viseme-inspect-sil.png",
+  viseme_O: "tools/openclinxr/evidence/stills/viseme-inspect-o.png",
+  viseme_U: "tools/openclinxr/evidence/stills/viseme-inspect-u.png",
 };
 const ARTIFACT = join(REPO_ROOT, "tools/openclinxr/evidence/viseme-inspect-stills.json");
 
@@ -483,20 +495,20 @@ export async function runVisemeInspectStillsProbe(): Promise<void> {
     }
     if (stillHashes.size !== TARGETS.length) {
       throw new Error(
-        `three stills are not distinct (${stillHashes.size} unique hashes) — a morph did not bind; refusing to write an artifact that compares nothing`,
+        `the stills are not distinct (${stillHashes.size} unique hashes for ${TARGETS.length} targets) — a morph did not bind; refusing to write an artifact that compares nothing`,
       );
     }
 
     const artifact = {
       schemaVersion: "openclinxr.viseme-inspect-stills.v1",
-      issue: "434",
+      issue: "442",
       subIssueOf: "423",
       generatedAt: new Date().toISOString(),
       subject: SUBJECT,
       subjectGlbSha256: servedSha256,
       camera: {
         derivation:
-          "legacy framing of the lab-derived head box (camera-fit-to-bounds.ts frameCamera, non-view branch), recomputed in this probe from the lab-recorded head AABB (focusRegion.boundsMeters): distance = max(headSize)*2.4, position = headCenter + (d*0.55, radius*0.35, d*0.85), lookAt headCenter + 5% height; fov 35, aspect 1280/960; never a hardcoded position (D1); identical for all three shots by construction (bind-pose bounds) and verified to 1 mm across the loads",
+          "legacy framing of the lab-derived head box (camera-fit-to-bounds.ts frameCamera, non-view branch), recomputed in this probe from the lab-recorded head AABB (focusRegion.boundsMeters): distance = max(headSize)*2.4, position = headCenter + (d*0.55, radius*0.35, d*0.85), lookAt headCenter + 5% height; fov 35, aspect 1280/960; never a hardcoded position (D1); identical for all five shots by construction (bind-pose bounds) and verified to 1 mm across the loads",
         fov: camera.fov,
         aspect: Number(camera.aspect.toFixed(4)),
         position: camera.position,
@@ -514,10 +526,10 @@ export async function runVisemeInspectStillsProbe(): Promise<void> {
         "viseme_sil is the rest control (#426 measured 0 displaced vertices); NOT the scenario runtime, NOT a static asset read, NOT a rebake.",
       shots,
       claimScope:
-        "three stills of mpfb-viseme-inspect.glb (viseme_aa / viseme_PP / viseme_sil, each at weight 1.0 with the other 46 targets at 0), one shared " +
-        "mesh-derived head-framed camera, head AABB bbox occupying >15% of the frame; #423 E6.3 — the artifacts the lead grades",
+        "five stills of mpfb-viseme-inspect.glb (viseme_aa / viseme_PP / viseme_sil / viseme_O / viseme_U, each at weight 1.0 with the other 46 targets at 0), one shared " +
+        "mesh-derived head-framed camera, head AABB bbox occupying >15% of the frame; #423 E6.3 (#434 aa/PP/sil, #442 O/U) — the artifacts the lead grades",
       notEvidenceFor: [
-        "whether the shapes look like speech (the lead grades the three on a closed checklist)",
+        "whether the shapes look like speech (the lead grades the five on a closed checklist)",
         "the runtime speaking state (this is a viseme stand-in, not dialogue)",
         "any cause or fix",
         "production phoneme timing",

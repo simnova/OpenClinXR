@@ -55,13 +55,23 @@ import { describe, expect, it } from "vitest";
  * NOT TESTED: whether the shapes are correct speech — **the lead grades these three**, on a closed
  * checklist (`mouth_moves_aa` / `lips_close_PP` / `sil_is_rest`). Nothing here asserts appearance.
  * No rebake, no shipped actor touched, no runtime wiring.
+ *
+ * ## FIXED (#442) — the record now carries FIVE shots
+ *
+ * The #442 probe extension renders `viseme_O` and `viseme_U` at weight 1.0 through the same
+ * instrument, so this contract's enumeration widens from the shipped three to all five
+ * recorded targets. The assertions are unchanged in kind: every recorded shot exists at
+ * weight 1, carries content (luminance sd, not bytes), has a distinct sha256, and its head
+ * AABB occupies >15% of the frame. The three #434 stills remain the known-good column inside
+ * the five. No assertion here grades appearance — the lead grades the O/U pair on whether
+ * the jaw drops and the lips round (#442).
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const ARTIFACT = join(REPO_ROOT, "tools/openclinxr/evidence/viseme-inspect-stills.json");
 const SUBJECT = "mpfb-viseme-inspect.glb";
-const REQUIRED = ["viseme_aa", "viseme_PP", "viseme_sil"] as const;
+const REQUIRED = ["viseme_aa", "viseme_PP", "viseme_sil", "viseme_O", "viseme_U"] as const;
 /** Calibrated while grading #431 — see the table above. */
 const MIN_CONTENT_SD = 8;
 /** A head framed for mouth reading occupies a real share of the frame, not a few pixels. */
@@ -75,7 +85,7 @@ const doc = (): Doc => {
 };
 
 describe("the viseme inspect stills are gradeable", () => {
-  it("(1) RED: three stills exist, one per target, each at weight 1.0", () => {
+  it("(1) RED: a still exists for every recorded target, each at weight 1.0", () => {
     const d = doc();
     expect(d.subject, "the subject asset").toMatch(new RegExp(SUBJECT.replace(".", "\\.")));
     expect(d.shots?.length, "one shot per target").toBe(REQUIRED.length);
@@ -99,11 +109,11 @@ describe("the viseme inspect stills are gradeable", () => {
     }
   });
 
-  it("(3) COUNTERWEIGHT: the three frames are different images", () => {
-    // Refuses (c). Driving a morph that does not bind produces three identical frames, which would
+  it("(3) COUNTERWEIGHT: every recorded frame is a different image", () => {
+    // Refuses (c). Driving a morph that does not bind produces identical frames, which would
     // read as "the visemes look the same" when nothing was applied.
     const sh = doc().shots!.map((s) => s.sha256);
-    expect(new Set(sh).size, `three distinct stills; got ${sh.length - new Set(sh).size} duplicate(s)`).toBe(3);
+    expect(new Set(sh).size, `distinct stills; got ${sh.length - new Set(sh).size} duplicate(s)`).toBe(REQUIRED.length);
   });
 
   it("(4) COUNTERWEIGHT: the head fills enough of the frame to read a mouth", () => {
