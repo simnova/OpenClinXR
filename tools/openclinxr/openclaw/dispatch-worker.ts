@@ -493,6 +493,28 @@ export function buildContractPromptAppendix(treeProofs: string[]): string {
  * so a bad role id cannot break dispatch. The baker is CALLED, not copied: re-authoring the
  * Persona text here would fork the role contract into a second drifting copy (D1).
  */
+/**
+ * REVERTED FROM THE DISPATCH PATH 2026-08-19 — the function is fine, composing it was not.
+ *
+ * MEASURED, by bisect: with `buildRoleCharterAppendix(options.role, repoRoot)` composed into the
+ * dispatched prompt, `dispatch()` HANGS after "REUSING managed worktree ... Resetting" and **never
+ * exec's grok** — polled 60s, zero child processes, process still alive at 90s. With that single
+ * line disabled and nothing else changed, a grok child spawns in **6 seconds**.
+ *
+ * Three dispatches died this way (#436 x2, one instrumented probe) and there were **zero** worker
+ * merges between b39f7633 and this revert. The last successful dispatch (#435, 70 turns) ran on the
+ * PRE-join dispatcher.
+ *
+ * The function itself is not the fault and is left exported and tested: called directly it returns
+ * 2,596-4,362 chars for all five dispatch roles, binds Persona/charter.md/memory.md/UNABLE:, and
+ * degrades to "" for an unknown role without throwing — including with a worktree passed as
+ * repoRoot. **Isolation proved the function; only the full path proved the hang.** That gap is the
+ * lesson: a unit probe of a composer says nothing about the spawn that consumes its output.
+ *
+ * CAUSE NOT DIAGNOSED. Prompt/argv size, the readdir scan under a worktree root, and an interaction
+ * with the text-only vision appendix are all unexcluded. Do not re-enable this line on a guess;
+ * re-enable only behind a dispatch that is observed to exec grok and complete one turn.
+ */
 export function buildRoleCharterAppendix(roleId: string, repoRoot?: string): string {
   if (!roleId || roleId.trim().length === 0) return "";
   const root = repoRoot ?? defaultRepoRoot();
@@ -1156,7 +1178,9 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
   if (options.role) {
     effective = {
       ...effective,
-      prompt: `${effective.prompt}${buildRoleCharterAppendix(options.role, repoRoot)}`,
+      // DISABLED 2026-08-19 — see REVERT note on buildRoleCharterAppendix below.
+      // Composing the charter here HANGS dispatch before grok is ever exec'd.
+      prompt: `${effective.prompt}`,
     };
   }
 
