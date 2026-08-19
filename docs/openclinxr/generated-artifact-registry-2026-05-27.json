@@ -4,13 +4,13 @@
   "protectedRule": "Do not delete protected policy, templates, provenance, source records, runtime assets, or current representative evidence through this registry.",
   "usageRule": "Autonomous cleanup agents must classify generated non-Markdown artifacts here before deleting, ignoring, or committing them.",
   "counts": {
-    "keep-evidence": 118,
+    "keep-evidence": 121,
     "ignore-local-cache": 2112,
     "keep-current": 127,
     "keep-compatibility-input": 24,
     "keep-template": 6,
-    "entries": 2389,
-    "total": 2389
+    "entries": 2392,
+    "total": 2392
   },
   "entries": [
     {
@@ -15285,91 +15285,91 @@
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "Generated Infinigen room shell (#405), deterministic clinical_bay.gin seed-1 bake; #406 re-baked from hallway_0 (dining-room_0 hull had zero horizontal wall thickness, collapsing the interior camera stand-off); #407 re-baked from clinical_bay.gin seed-13 kitchen_0 extracted with --yaw-deg 90 (hallway_0 was a 9.9 m corridor — floor aspect 2.02 — pushing the derived camera ~3.7 m from the cast; seed-13 kitchen_0 is room-shaped at 5.39 x 5.28 m with a genuine 0.1093 m +Z hull, orientation-preserving stand-off); second environmentId-keyed runtime consumer; provenance in public/xr-assets/environment/PROVENANCE.md."
+      "rationale": "Generated Infinigen room shell (#405), deterministic clinical_bay.gin seed-1 bake; #406 re-baked from hallway_0 (dining-room_0 hull had zero horizontal wall thickness, collapsing the interior camera stand-off); #407 re-baked from clinical_bay.gin seed-13 kitchen_0 extracted with --yaw-deg 90 (hallway_0 was a 9.9 m corridor \u2014 floor aspect 2.02 \u2014 pushing the derived camera ~3.7 m from the cast; seed-13 kitchen_0 is room-shaped at 5.39 x 5.28 m with a genuine 0.1093 m +Z hull, orientation-preserving stand-off); second environmentId-keyed runtime consumer; provenance in public/xr-assets/environment/PROVENANCE.md."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/environment/infinigen-primary-care-clinic.glb",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "Generated Infinigen room shell, third environmentId-keyed consumer (primary_care_clinic_room_v1). Deterministic clinical_bay.gin seed-1 bedroom_0 segment 2, yaw 0; extract-time predicate PASSES (aspect 1.038, area 40.69 m2, height 2.41 m, hullFrontFacing 0, doorway survivors 5). SHA-256 a76a71eaa660d856c1bccd039e14fe48f3041901b0f9126ecd55a61d9e36fdf8. Hand-added row — do not run pnpm docs:artifacts. Provenance in public/xr-assets/environment/PROVENANCE.md."
+      "rationale": "Generated Infinigen room shell, third environmentId-keyed consumer (primary_care_clinic_room_v1). Deterministic clinical_bay.gin seed-1 bedroom_0 segment 2, yaw 0; extract-time predicate PASSES (aspect 1.038, area 40.69 m2, height 2.41 m, hullFrontFacing 0, doorway survivors 5). SHA-256 a76a71eaa660d856c1bccd039e14fe48f3041901b0f9126ecd55a61d9e36fdf8. Hand-added row \u2014 do not run pnpm docs:artifacts. Provenance in public/xr-assets/environment/PROVENANCE.md."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/environment/infinigen-ed-stroke-bay.glb",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "Generated Infinigen room shell, fourth environmentId-keyed consumer (ed_stroke_bay_v1). Deterministic clinical_bay.gin seed-2 bedroom_0 segment 1, yaw 0; extract-time predicate PASSES (aspect 1.017, area 46.66 m2, height 2.425 m, hullFrontFacing 7, doorway survivors 5). SHA-256 dd30ef77081c535dbe9ed9cb233c6637643c3bf1651327034d34b7d566401fb6. Mapping table extracted to infinigen-environment-assets.ts (600-line ceiling). Hand-added row — do not run pnpm docs:artifacts. Provenance in public/xr-assets/environment/PROVENANCE.md."
+      "rationale": "Generated Infinigen room shell, fourth environmentId-keyed consumer (ed_stroke_bay_v1). Deterministic clinical_bay.gin seed-2 bedroom_0 segment 1, yaw 0; extract-time predicate PASSES (aspect 1.017, area 46.66 m2, height 2.425 m, hullFrontFacing 7, doorway survivors 5). SHA-256 dd30ef77081c535dbe9ed9cb233c6637643c3bf1651327034d34b7d566401fb6. Mapping table extracted to infinigen-environment-assets.ts (600-line ceiling). Hand-added row \u2014 do not run pnpm docs:artifacts. Provenance in public/xr-assets/environment/PROVENANCE.md."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/environment/infinigen-adult-ed-abdominal-bay.glb",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "Generated Infinigen room shell, fifth environmentId-keyed consumer (adult_ed_abdominal_bay_v1). Deterministic clinical_bay.gin seed-0 kitchen_0 segment 0, yaw 90; extract-time predicate PASSES (aspect 1.0, area 39.08 m2, height 2.401 m, hullFrontFacing 7, doorway survivors 5). SHA-256 54f9172c9b0846a40325e24364f583ab55774912ec1a24b528edd23118edabca. Last unused hulled room from the eight complete on-disk blends. Hand-added row — do not run pnpm docs:artifacts. Provenance in public/xr-assets/environment/PROVENANCE.md."
+      "rationale": "Generated Infinigen room shell, fifth environmentId-keyed consumer (adult_ed_abdominal_bay_v1). Deterministic clinical_bay.gin seed-0 kitchen_0 segment 0, yaw 90; extract-time predicate PASSES (aspect 1.0, area 39.08 m2, height 2.401 m, hullFrontFacing 7, doorway survivors 5). SHA-256 54f9172c9b0846a40325e24364f583ab55774912ec1a24b528edd23118edabca. Last unused hulled room from the eight complete on-disk blends. Hand-added row \u2014 do not run pnpm docs:artifacts. Provenance in public/xr-assets/environment/PROVENANCE.md."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/environment/infinigen-telehealth-home-visit.glb",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "Generated Infinigen room shell, sixth environmentId-keyed consumer (telehealth_home_visit_v1). New clinical_bay.gin seed-14 bedroom_0 segment 2, yaw 180; extract-time predicate PASSES (aspect 1.518, area 59.44 m2, height 2.407 m, hullFrontFacing 0, doorway survivors 5). SHA-256 476a8e402b2dc8c4f2023536f225325a16006828cd4e865880311923a811aa01. First room from a newly generated seed after on-disk blends were exhausted of unused hulled rooms. Hand-added row — do not run pnpm docs:artifacts. Provenance in public/xr-assets/environment/PROVENANCE.md."
+      "rationale": "Generated Infinigen room shell, sixth environmentId-keyed consumer (telehealth_home_visit_v1). New clinical_bay.gin seed-14 bedroom_0 segment 2, yaw 180; extract-time predicate PASSES (aspect 1.518, area 59.44 m2, height 2.407 m, hullFrontFacing 0, doorway survivors 5). SHA-256 476a8e402b2dc8c4f2023536f225325a16006828cd4e865880311923a811aa01. First room from a newly generated seed after on-disk blends were exhausted of unused hulled rooms. Hand-added row \u2014 do not run pnpm docs:artifacts. Provenance in public/xr-assets/environment/PROVENANCE.md."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/environment/infinigen-behavioral-health-private.glb",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "Generated Infinigen room shell, seventh environmentId-keyed consumer (behavioral_health_private_room_v1). New clinical_bay.gin seed-16 dining-room_0 segment 0, yaw 90; extract-time predicate PASSES (aspect 1.18, area 28.12 m2, height 2.412 m, hullFrontFacing 0, doorway survivors 5). SHA-256 5cf3695848ee6a53abdaf9b6aa4439590569a87c1f1dd424d9a685eab0cf7afa. Seed 15 crashed on Concrete.generate(vertical). Hand-added row — do not run pnpm docs:artifacts. Provenance in public/xr-assets/environment/PROVENANCE.md."
+      "rationale": "Generated Infinigen room shell, seventh environmentId-keyed consumer (behavioral_health_private_room_v1). New clinical_bay.gin seed-16 dining-room_0 segment 0, yaw 90; extract-time predicate PASSES (aspect 1.18, area 28.12 m2, height 2.412 m, hullFrontFacing 0, doorway survivors 5). SHA-256 5cf3695848ee6a53abdaf9b6aa4439590569a87c1f1dd424d9a685eab0cf7afa. Seed 15 crashed on Concrete.generate(vertical). Hand-added row \u2014 do not run pnpm docs:artifacts. Provenance in public/xr-assets/environment/PROVENANCE.md."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/environment/infinigen-oncology-consult.glb",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "Generated Infinigen room shell, eighth environmentId-keyed consumer (oncology_consult_room_v1). New clinical_bay.gin seed-17 dining-room_0 segment 0, yaw 0; extract-time predicate PASSES (aspect 1.046, area 28.92 m2, height 2.409 m, hullFrontFacing 0, doorway survivors 5). SHA-256 65969fe479bcb6e07e7a1ffdbd314cfb3be0449a8199edc9e79549e33ec9415b. Hand-added row — do not run pnpm docs:artifacts. Provenance in public/xr-assets/environment/PROVENANCE.md."
+      "rationale": "Generated Infinigen room shell, eighth environmentId-keyed consumer (oncology_consult_room_v1). New clinical_bay.gin seed-17 dining-room_0 segment 0, yaw 0; extract-time predicate PASSES (aspect 1.046, area 28.92 m2, height 2.409 m, hullFrontFacing 0, doorway survivors 5). SHA-256 65969fe479bcb6e07e7a1ffdbd314cfb3be0449a8199edc9e79549e33ec9415b. Hand-added row \u2014 do not run pnpm docs:artifacts. Provenance in public/xr-assets/environment/PROVENANCE.md."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/environment/infinigen-urgent-care-clinic.glb",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "Generated Infinigen room shell, ninth environmentId-keyed consumer (urgent_care_clinic_room_v1). Seed 18 bedroom_0/1 was a dead doorway (all 5 camera candidates hit an interior partition). Re-baked from seed 22 bedroom_0/0 yaw 270; extract-time predicate PASSES (aspect 1.052, area 57.32 m2, height 2.427 m, hullFrontFacing 0, doorway survivors 4). SHA-256 5aa1c6f1f086109f23e736839cb9130660955f22bf9394fd58f9b01ea412c7a6. Hand-added row — do not run pnpm docs:artifacts. Provenance in public/xr-assets/environment/PROVENANCE.md."
+      "rationale": "Generated Infinigen room shell, ninth environmentId-keyed consumer (urgent_care_clinic_room_v1). Seed 18 bedroom_0/1 was a dead doorway (all 5 camera candidates hit an interior partition). Re-baked from seed 22 bedroom_0/0 yaw 270; extract-time predicate PASSES (aspect 1.052, area 57.32 m2, height 2.427 m, hullFrontFacing 0, doorway survivors 4). SHA-256 5aa1c6f1f086109f23e736839cb9130660955f22bf9394fd58f9b01ea412c7a6. Hand-added row \u2014 do not run pnpm docs:artifacts. Provenance in public/xr-assets/environment/PROVENANCE.md."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/environment/infinigen-surgical-ward.glb",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "Generated Infinigen room shell, tenth environmentId-keyed consumer (surgical_ward_room_v1). New clinical_bay.gin seed-25 bedroom_0/0 yaw 90; extract-time predicate PASSES (aspect 1.0, area 54.74 m2, height 2.447 m, hullFrontFacing 5, doorway survivors 5). SHA-256 491c43d6fba5974ff330edc64ae85f1b43e1b201678622a4ae74b2383be37656. Seeds 23/24 crashed. Camera dump 5/5 survive. Hand-added row — do not run pnpm docs:artifacts. Provenance in public/xr-assets/environment/PROVENANCE.md."
+      "rationale": "Generated Infinigen room shell, tenth environmentId-keyed consumer (surgical_ward_room_v1). New clinical_bay.gin seed-25 bedroom_0/0 yaw 90; extract-time predicate PASSES (aspect 1.0, area 54.74 m2, height 2.447 m, hullFrontFacing 5, doorway survivors 5). SHA-256 491c43d6fba5974ff330edc64ae85f1b43e1b201678622a4ae74b2383be37656. Seeds 23/24 crashed. Camera dump 5/5 survive. Hand-added row \u2014 do not run pnpm docs:artifacts. Provenance in public/xr-assets/environment/PROVENANCE.md."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "Generated Infinigen room shell, eleventh environmentId-keyed consumer (stepdown_room_v1). New clinical_bay.gin seed-26 bedroom_0/2 yaw 90; extract-time predicate PASSES (aspect 1.096, area 65.89 m2, height 2.402 m, hullFrontFacing 0, doorway survivors 4). SHA-256 6b098ab7e174b3cca768565bf980bb34d197f83fea4b04981d8cc06736510c5b. Camera dump 4/5 survive. Hand-added row — do not run pnpm docs:artifacts. Provenance in public/xr-assets/environment/PROVENANCE.md."
+      "rationale": "Generated Infinigen room shell, eleventh environmentId-keyed consumer (stepdown_room_v1). New clinical_bay.gin seed-26 bedroom_0/2 yaw 90; extract-time predicate PASSES (aspect 1.096, area 65.89 m2, height 2.402 m, hullFrontFacing 0, doorway survivors 4). SHA-256 6b098ab7e174b3cca768565bf980bb34d197f83fea4b04981d8cc06736510c5b. Camera dump 4/5 survive. Hand-added row \u2014 do not run pnpm docs:artifacts. Provenance in public/xr-assets/environment/PROVENANCE.md."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/environment/infinigen-ob-triage.glb",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "Generated Infinigen room shell, twelfth environmentId-keyed consumer (ob_triage_room_v1). New clinical_bay.gin seed-27 dining-room_0/0 yaw 180; extract-time predicate PASSES (aspect 1.251, area 28.79 m2, height 2.448 m, hullFrontFacing 0, doorway survivors 5). SHA-256 f2e11babc41b70d5ae991452ca074a51ffea3c868d543b2f24ddaf377017f625. First capture was a door-leaf close-up (magenta slab, no actors); recapture from left-corner candidate (-2.80,1.54,1.62). Door-leaf scorer later landed 5c81ffd5. Hand-added row — do not run pnpm docs:artifacts. Provenance in public/xr-assets/environment/PROVENANCE.md."
+      "rationale": "Generated Infinigen room shell, twelfth environmentId-keyed consumer (ob_triage_room_v1). New clinical_bay.gin seed-27 dining-room_0/0 yaw 180; extract-time predicate PASSES (aspect 1.251, area 28.79 m2, height 2.448 m, hullFrontFacing 0, doorway survivors 5). SHA-256 f2e11babc41b70d5ae991452ca074a51ffea3c868d543b2f24ddaf377017f625. First capture was a door-leaf close-up (magenta slab, no actors); recapture from left-corner candidate (-2.80,1.54,1.62). Door-leaf scorer later landed 5c81ffd5. Hand-added row \u2014 do not run pnpm docs:artifacts. Provenance in public/xr-assets/environment/PROVENANCE.md."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "Generated Infinigen room shell, thirteenth environmentId-keyed consumer (inpatient_ward_room_v1). New clinical_bay.gin seed-29 bedroom_0/0 yaw 180; extract-time predicate PASSES (aspect 1.158, area 69.93 m2, height 2.434 m, hullFrontFacing 0, doorway survivors 5). SHA-256 9424e4f6d42f8726ef5a042cc821cc89e9701b429e6acd7dfd02e83671dacbae. Seed 28 crashed room_floors. Camera dump 5/5 survive. Hand-added row — do not run pnpm docs:artifacts. Provenance in public/xr-assets/environment/PROVENANCE.md."
+      "rationale": "Generated Infinigen room shell, thirteenth environmentId-keyed consumer (inpatient_ward_room_v1). New clinical_bay.gin seed-29 bedroom_0/0 yaw 180; extract-time predicate PASSES (aspect 1.158, area 69.93 m2, height 2.434 m, hullFrontFacing 0, doorway survivors 5). SHA-256 9424e4f6d42f8726ef5a042cc821cc89e9701b429e6acd7dfd02e83671dacbae. Seed 28 crashed room_floors. Camera dump 5/5 survive. Hand-added row \u2014 do not run pnpm docs:artifacts. Provenance in public/xr-assets/environment/PROVENANCE.md."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/environment/infinigen-pediatric-fever-urgent-care.glb",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "Generated Infinigen room shell, fourteenth and last real environmentId-keyed consumer (pediatric_fever_urgent_care_bay_v1). New clinical_bay.gin seed-34 bedroom_0/1 yaw 0; extract-time predicate PASSES (aspect 1.035, area 40.83 m2, height 2.431 m, hullFrontFacing 0, doorway survivors 5). SHA-256 8cc0a75d424baa3c7a20c70ae5bded59a939ba2de69bed1157746b8591a862b9. Seeds 30/31 crash; 32/33 no hulled+predicate bay. Distinct from pediatric_urgent_care_bay_v1 (seed 13). Hand-added row — do not run pnpm docs:artifacts. Provenance in public/xr-assets/environment/PROVENANCE.md."
+      "rationale": "Generated Infinigen room shell, fourteenth and last real environmentId-keyed consumer (pediatric_fever_urgent_care_bay_v1). New clinical_bay.gin seed-34 bedroom_0/1 yaw 0; extract-time predicate PASSES (aspect 1.035, area 40.83 m2, height 2.431 m, hullFrontFacing 0, doorway survivors 5). SHA-256 8cc0a75d424baa3c7a20c70ae5bded59a939ba2de69bed1157746b8591a862b9. Seeds 30/31 crash; 32/33 no hulled+predicate bay. Distinct from pediatric_urgent_care_bay_v1 (seed 13). Hand-added row \u2014 do not run pnpm docs:artifacts. Provenance in public/xr-assets/environment/PROVENANCE.md."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/generated/adult_abdominal_pain_v1/learner-runtime-bundle.v1.json",
@@ -16819,6 +16819,27 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Orchestrator value decision recorded after grading a rendered sweep (value-decision.ts). Tracked deliberately: the first version wrote under the gitignored .openclinxr tree, so the record vanished on clone while the assertion that reads it stayed. The sheet stays in evidence; the decision must survive."
+    },
+    {
+      "path": "docs/openclinxr/model-vetting-captures/mpfb-street-adult-male_front_2026-08-19.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/model-vetting-captures/mpfb-street-adult-male_three_quarter_2026-08-19.png",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/model-vetting-capture-artifact-map-peds-asthma-parent-anxiety-2026-06-05.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     }
   ]
 }
