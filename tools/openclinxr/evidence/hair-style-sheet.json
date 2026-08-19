@@ -1,0 +1,362 @@
+{
+  "schemaVersion": "openclinxr.hair-style-sheet.v1",
+  "issue": "451",
+  "factoryStep": "clothing_consume",
+  "measuredAt": "2026-08-19T21:35:45.533Z",
+  "renderer": "apps/ui-xr isolated-subject.html `glb` subject kind (three.js WebGLRenderer via ui-xr dev:portless); OBJ->GLB by three.js OBJLoader+GLTFExporter (hair-style-sheet.ts); composited by buildContactSheet from isolated-subject-harness.ts (Playwright HTML composite)",
+  "framing": "fit-to-bounds (lab legacy frameCamera solve): distance = max(bounds extent, 0.4 m) * 2.4; camera offset (0.55, 0.35, 0.85) * distance; lookAt bounds centre; subjectOnly=true (#265)",
+  "sheet": "hair-style-sheet.png",
+  "cells": [
+    {
+      "style": "cortu_shaggy_green_hair",
+      "headerLicence": "NONE",
+      "pageLicence": "CC0",
+      "maxVertRef": 12364,
+      "fitsStrippedBasemesh": true,
+      "oversized": false,
+      "cell": 0,
+      "luminance": {
+        "mean": 38.82,
+        "sd": 19.28
+      }
+    },
+    {
+      "style": "cortu_short_messy_hair",
+      "headerLicence": "NONE",
+      "pageLicence": "CC0",
+      "maxVertRef": 12362,
+      "fitsStrippedBasemesh": true,
+      "oversized": false,
+      "cell": 1,
+      "luminance": {
+        "mean": 51.47,
+        "sd": 50.07
+      }
+    },
+    {
+      "style": "cortu_straight_bangs",
+      "headerLicence": "NONE",
+      "pageLicence": "CC0",
+      "maxVertRef": 12360,
+      "fitsStrippedBasemesh": true,
+      "oversized": false,
+      "cell": 2,
+      "luminance": {
+        "mean": 40.63,
+        "sd": 20.38
+      }
+    },
+    {
+      "style": "cortu_strawberry_cloud_hair",
+      "headerLicence": "NONE",
+      "pageLicence": "CC0",
+      "maxVertRef": 12365,
+      "fitsStrippedBasemesh": true,
+      "oversized": false,
+      "cell": 3,
+      "luminance": {
+        "mean": 61.06,
+        "sd": 61.2
+      }
+    },
+    {
+      "style": "culturalibre_hair_01",
+      "headerLicence": "AGPL3 (see also http://www.makehuman.org/node/320)",
+      "pageLicence": "CC0",
+      "maxVertRef": 19143,
+      "fitsStrippedBasemesh": false,
+      "oversized": true,
+      "cell": 4,
+      "luminance": {
+        "mean": 46.93,
+        "sd": 42.24
+      }
+    },
+    {
+      "style": "culturalibre_hair_02",
+      "headerLicence": "AGPL3 (see also http://www.makehuman.org/node/320)",
+      "pageLicence": "CC0",
+      "maxVertRef": 12367,
+      "fitsStrippedBasemesh": true,
+      "oversized": false,
+      "cell": 5,
+      "luminance": {
+        "mean": 42.06,
+        "sd": 23.75
+      }
+    },
+    {
+      "style": "culturalibre_hair_05",
+      "headerLicence": "CC-0",
+      "pageLicence": "CC0",
+      "maxVertRef": 12366,
+      "fitsStrippedBasemesh": true,
+      "oversized": false,
+      "cell": 6,
+      "luminance": {
+        "mean": 53.27,
+        "sd": 52.12
+      }
+    },
+    {
+      "style": "culturalibre_hair_06",
+      "headerLicence": "CC-0",
+      "pageLicence": "CC0",
+      "maxVertRef": 12366,
+      "fitsStrippedBasemesh": true,
+      "oversized": false,
+      "cell": 7,
+      "luminance": {
+        "mean": 36.68,
+        "sd": 13.69
+      }
+    },
+    {
+      "style": "elvs_double_mh_braid",
+      "headerLicence": "AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+      "pageLicence": "CC0",
+      "maxVertRef": 12366,
+      "fitsStrippedBasemesh": true,
+      "oversized": false,
+      "cell": 8,
+      "luminance": {
+        "mean": 35.88,
+        "sd": 20.56
+      }
+    },
+    {
+      "style": "elvs_french_braid_variation",
+      "headerLicence": "AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+      "pageLicence": "CC0",
+      "maxVertRef": 12366,
+      "fitsStrippedBasemesh": true,
+      "oversized": false,
+      "cell": 9,
+      "luminance": {
+        "mean": 37.49,
+        "sd": 29.75
+      }
+    },
+    {
+      "style": "elvs_reverse_french_braid_bun",
+      "headerLicence": "CC_by",
+      "pageLicence": "CC0",
+      "maxVertRef": 7680,
+      "fitsStrippedBasemesh": true,
+      "oversized": false,
+      "cell": 10,
+      "luminance": {
+        "mean": 42.23,
+        "sd": 24.63
+      }
+    },
+    {
+      "style": "elvs_unkempt_french_braid",
+      "headerLicence": "AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+      "pageLicence": "CC0",
+      "maxVertRef": 12366,
+      "fitsStrippedBasemesh": true,
+      "oversized": false,
+      "cell": 11,
+      "luminance": {
+        "mean": 38.45,
+        "sd": 33.83
+      }
+    },
+    {
+      "style": "faydaen_hair_1",
+      "headerLicence": "CC0",
+      "pageLicence": "CC0",
+      "maxVertRef": 18772,
+      "fitsStrippedBasemesh": false,
+      "oversized": true,
+      "cell": 12,
+      "luminance": {
+        "mean": 41.75,
+        "sd": 28.82
+      }
+    },
+    {
+      "style": "learning_anime_hair",
+      "headerLicence": "AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+      "pageLicence": "CC0",
+      "maxVertRef": 12366,
+      "fitsStrippedBasemesh": true,
+      "oversized": false,
+      "cell": 13,
+      "luminance": {
+        "mean": 42.1,
+        "sd": 22.4
+      }
+    },
+    {
+      "style": "littleright_bobcut_hair",
+      "headerLicence": "AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+      "pageLicence": "CC0",
+      "maxVertRef": 12361,
+      "fitsStrippedBasemesh": true,
+      "oversized": false,
+      "cell": 14,
+      "luminance": {
+        "mean": 61.2,
+        "sd": 57.55
+      }
+    },
+    {
+      "style": "male_short_hair",
+      "headerLicence": "AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+      "pageLicence": "CC0",
+      "maxVertRef": 12161,
+      "fitsStrippedBasemesh": true,
+      "oversized": false,
+      "cell": 15,
+      "luminance": {
+        "mean": 38.62,
+        "sd": 17.6
+      }
+    },
+    {
+      "style": "mhair02",
+      "headerLicence": "AGPL3 (see also http://www.makehuman.org/node/320)",
+      "pageLicence": "CC0",
+      "maxVertRef": 12367,
+      "fitsStrippedBasemesh": true,
+      "oversized": false,
+      "cell": 16,
+      "luminance": {
+        "mean": 54.9,
+        "sd": 50.38
+      }
+    },
+    {
+      "style": "o4saken_long01",
+      "headerLicence": "CC BY 4.0",
+      "pageLicence": "CC0",
+      "maxVertRef": 12366,
+      "fitsStrippedBasemesh": true,
+      "oversized": false,
+      "cell": 17,
+      "luminance": {
+        "mean": 46.52,
+        "sd": 43.45
+      }
+    },
+    {
+      "style": "rehmanpolanski_hair_bun_brown",
+      "headerLicence": "AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+      "pageLicence": "CC0",
+      "maxVertRef": 12366,
+      "fitsStrippedBasemesh": true,
+      "oversized": false,
+      "cell": 18,
+      "luminance": {
+        "mean": 40.51,
+        "sd": 23.02
+      }
+    },
+    {
+      "style": "sonntag78_blond_with_headband",
+      "headerLicence": "AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+      "pageLicence": "CC0",
+      "maxVertRef": 12366,
+      "fitsStrippedBasemesh": true,
+      "oversized": false,
+      "cell": 19,
+      "luminance": {
+        "mean": 56.12,
+        "sd": 56.4
+      }
+    },
+    {
+      "style": "sonntag78_junglebook_hair",
+      "headerLicence": "AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)",
+      "pageLicence": "CC0",
+      "maxVertRef": 14533,
+      "fitsStrippedBasemesh": false,
+      "oversized": true,
+      "cell": 20,
+      "luminance": {
+        "mean": 38.18,
+        "sd": 17.79
+      }
+    },
+    {
+      "style": "toigo_blunt_bob",
+      "headerLicence": "CC0",
+      "pageLicence": "CC0",
+      "maxVertRef": 12366,
+      "fitsStrippedBasemesh": true,
+      "oversized": false,
+      "cell": 21,
+      "luminance": {
+        "mean": 43.59,
+        "sd": 26.59
+      }
+    },
+    {
+      "style": "toigo_blunt_bob_with_bangs",
+      "headerLicence": "CC0",
+      "pageLicence": "CC0",
+      "maxVertRef": 12360,
+      "fitsStrippedBasemesh": true,
+      "oversized": false,
+      "cell": 22,
+      "luminance": {
+        "mean": 59.78,
+        "sd": 57.48
+      }
+    },
+    {
+      "style": "toigo_curled_under_bob",
+      "headerLicence": "CC0",
+      "pageLicence": "CC0",
+      "maxVertRef": 12366,
+      "fitsStrippedBasemesh": true,
+      "oversized": false,
+      "cell": 23,
+      "luminance": {
+        "mean": 41.26,
+        "sd": 21.67
+      }
+    },
+    {
+      "style": "toigo_curled_under_bob_with_bangs",
+      "headerLicence": "CC0",
+      "pageLicence": "CC0",
+      "maxVertRef": 12364,
+      "fitsStrippedBasemesh": true,
+      "oversized": false,
+      "cell": 24,
+      "luminance": {
+        "mean": 64.48,
+        "sd": 67.15
+      }
+    },
+    {
+      "style": "toigo_inverted_bob",
+      "headerLicence": "CC0",
+      "pageLicence": "CC0",
+      "maxVertRef": 12366,
+      "fitsStrippedBasemesh": true,
+      "oversized": false,
+      "cell": 25,
+      "luminance": {
+        "mean": 49.53,
+        "sd": 41.45
+      }
+    },
+    {
+      "style": "toigo_inverted_bob_with_bangs",
+      "headerLicence": "CC0",
+      "pageLicence": "CC0",
+      "maxVertRef": 12366,
+      "fitsStrippedBasemesh": true,
+      "oversized": false,
+      "cell": 26,
+      "luminance": {
+        "mean": 40.72,
+        "sd": 22.23
+      }
+    }
+  ]
+}
