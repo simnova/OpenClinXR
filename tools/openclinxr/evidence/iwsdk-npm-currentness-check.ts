@@ -137,6 +137,7 @@ export function resolveRepoViteVersion(manifestVersion: string): string {
 const expectedPackages: ExpectedIwsdkPackage[] = [
   { name: "@iwsdk/core", latestVersion: "0.5.3", license: "MIT" },
   { name: "@iwsdk/xr-input", latestVersion: "0.5.3", license: "MIT" },
+  { name: "@iwsdk/scene-composition", latestVersion: "0.5.3", license: "MIT" },
   { name: "@iwsdk/locomotor", latestVersion: "0.5.3", license: "MIT" },
   { name: "@iwsdk/glxf", latestVersion: "0.4.2", license: "MIT" },
   {
