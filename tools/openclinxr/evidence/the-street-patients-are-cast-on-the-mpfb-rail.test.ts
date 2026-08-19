@@ -88,6 +88,13 @@ import { resolveHumanoidVariantOrCastPath } from "../../../apps/ui-xr/src/humano
  *   (4) PASSES TODAY — it pins the 35 non-street slots. Pure net against (d).
  *   (5) PASSES TODAY — it reads the population and the target asset, not the mapping.
  *
+ * ## FIXED (#444)
+ * Both resolvers now push MPFB_STREET_ADULT_MALE_GLB ahead of the Anny street body in
+ * the `street_casual` patient branch only (actor-casting.ts + the ui-xr mirror). Clauses
+ * (1) and (2) flipped green on 2026-08-19; the Anny body stays on disk and in the pools
+ * as the second-body fallback. Companion instrument fix in patient-attire-by-care-setting.ts:
+ * the real-garment name filter now accepts the MPFB rail's `makeclothes_library_*` meshes.
+ *
  * NOT TESTED:
  *   - **Appearance in a station.** This asserts which path resolves. Whether the figure
  *     reads correctly standing in a clinic room is a pixel grade the orchestrator owes

@@ -46,6 +46,8 @@ const PEDS_NURSE_GLB = "peds_nurse_kevin.glb";
 const PEDS_CHILD_GLB = "peds_patient_child.glb";
 /** Mirrors actor-casting ADULT_MALE_STREET_CASUAL_GLB (#160). */
 const ADULT_MALE_STREET_CASUAL_GLB = "adult_male_street_casual.glb";
+/** #444 — the street_casual patients' MPFB body. Mirrors actor-casting MPFB_STREET_ADULT_MALE_GLB. */
+const MPFB_STREET_ADULT_MALE_GLB = "mpfb-street-adult-male.glb";
 /**
  * #218 — body-param library GLB (tracked under candidates/).
  * Staged on ED spouse only; patient stays Anny gown (#160).
@@ -201,7 +203,10 @@ function pickAdultGlb(
   const preferred: string[] = [];
   if (r === "patient") {
     if (patientWardrobeClass === "street_casual") {
+      // #444: mirrors actor-casting — MPFB male street body first, Anny street
+      // body immediately behind as the second-body fallback.
       preferred.push(
+        MPFB_STREET_ADULT_MALE_GLB,
         ADULT_MALE_STREET_CASUAL_GLB,
         ED_SPOUSE_GLB,
         PEDS_PARENT_GLB,
@@ -340,6 +345,7 @@ export function resolveLocalHumanoidRuntimeAssetUrl(
     || fileName === PEDS_PARENT_GLB
     || fileName === PEDS_NURSE_GLB
     || fileName === ADULT_MALE_STREET_CASUAL_GLB
+    || fileName === MPFB_STREET_ADULT_MALE_GLB
   ) {
     return `/generated-humanoids/${fileName}`;
   }
