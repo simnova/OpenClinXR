@@ -1,54 +1,64 @@
 {
-  "schemaVersion": "openclinxr.speaking-parent-still-pair.v1",
-  "generatedAt": "2026-08-19T00:51:49.050Z",
+  "schemaVersion": "openclinxr.speaking-parent-still-pair.v2",
+  "generatedAt": "2026-08-19T01:56:40.095Z",
   "actor": "parent_tara_johnson_v1",
   "sourceGlb": "/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb",
   "sourceGlbSha256": "b8801c637f5fd43bd3c51f140782b4c40da5d27e9eb93a56534cde9b9c7e2ec7",
-  "source": "live runtime stills via playwright headless chromium against the ui-xr portless dev server (spawnPortlessDevServer filter @openclinxr/ui-xr); peds_asthma_parent_anxiety_v1 with the E2.1/E2.2 capture query; runtime's own static face-detail camera (authored once, never moved); speaking state selected by the E2.2 recipe: speakingFlag = phoneme-mouth-cue visibility on the parent's actor root; not-speaking = sustained quiet window, speaking = trace-button dialogue drive; morph influence = max |morphTargetInfluence| over the parent's skinned meshes at the sampling instant; HTML control panels hidden via the runtime's scene-only-visual-review class once before either capture, so both stills share the same canvas and framing; the only scene difference is the speaking state. NOT a static asset read.",
-  "url": "http://127.0.0.1:60350/?openclinxrScenarioId=peds_asthma_parent_anxiety_v1&openclinxrCaptureMode=face-detail&openclinxrPortalStart=encounter&openclinxrAcceleratedExam=1",
-  "camera": {
-    "framing": "runtime_patient_humanoid_face_lip_eye_detail_capture",
-    "authoredPosition": [
-      -0.72,
-      1.54,
-      3.25
-    ],
-    "authoredLookAt": [
-      -0.72,
-      1.44,
-      -0.12
-    ],
-    "authoredFovDegrees": 48,
-    "note": "camera pose is authored once at scene construction (main.ts) and never moved; values copied from the authored constants, not read from the live camera"
-  },
+  "speakingStateNote": "The isolated subject lab cannot drive the runtime speaking state (no dialogue, no mouth cue), so the speaking frame is the sanctioned stand-in: the SAME actor from the SAME GLB bytes with the mouth-open morph (viseme_AA jaw drop, per morph-target-resolver.ts) driven to weight 1.0. not-speaking = all morph influences at 0 (rest). This is a viseme morph stand-in, not the runtime speaking state.",
+  "source": "isolated subject lab renders (apps/ui-xr/isolated-subject.html -> isolated-subject-lab.ts) via playwright headless chromium against the ui-xr portless dev server (spawnPortlessDevServer filter @openclinxr/ui-xr); subjectKind=glb, bodyGlb=mpfb-peds-parent-aisha.motion-bind.glb, focus=head; camera derived by the lab from the head-region AABB of the subject's own unmorphed bounds (computeMeshBounds -> resolveFocus -> frameCamera), never a hardcoded position; the mouth-open morph is applied from an in-page interval the moment the lab exposes the scene root, before its 4-frame render loop draws the final frame; both frames share the derived camera (framing records compared to 1 mm in this probe); NOT the scenario runtime, NOT a static asset read.",
+  "url": "http://127.0.0.1:55233/isolated-subject.html?subject=%7B%22subjectId%22%3A%22parent_tara_johnson_v1%22%2C%22subjectKind%22%3A%22glb%22%2C%22bodyGlb%22%3A%22%2Fxr-assets%2Fhumanoids%2Fcandidates%2Fmpfb-peds-parent-aisha.motion-bind.glb%22%2C%22focus%22%3A%22head%22%2C%22label%22%3A%22parent%20speaking-pair%20subject%22%7D",
   "frames": [
     {
       "stateId": "not-speaking",
       "speakingFlag": false,
-      "morphInfluence": 1,
+      "morphInfluence": 0,
       "still": "tools/openclinxr/evidence/stills/speaking-parent-not-speaking.png",
-      "bytes": 24922,
-      "sha256": "1d71b242ba9a880877247cb02feac6184ac2aa32a453d9ad7941bbb6aedb1627",
-      "capturedAtPageSeconds": 17.19,
-      "mouthCueVisible": false,
-      "headWorldPosition": [
-        -1.2649,
-        1.6021,
-        0.5511
-      ],
-      "rootWorldPosition": [
-        -1.35,
-        0.95,
-        0.42
-      ],
-      "canvasSize": {
-        "width": 1600,
-        "height": 1600
+      "bytes": 277871,
+      "sha256": "ad16a46f6752c09a7f0218fba688876526920e18341ce78c67f6e0dfd7926269",
+      "labEvidence": {
+        "meshCount": 13,
+        "boundsMeters": {
+          "width": 0.993,
+          "height": 1.687,
+          "depth": 0.438
+        },
+        "packFraming": {
+          "packCamera": null,
+          "boundsMin": {
+            "x": -0.102,
+            "y": 1.4,
+            "z": -0.06
+          },
+          "boundsMax": {
+            "x": 0.105,
+            "y": 1.688,
+            "z": 0.173
+          }
+        },
+        "frameCoverage": 0.26068684895833333,
+        "focusRegion": {
+          "kind": "head_box",
+          "derivation": "topmost band of the body bounds cut at the neck (silhouette width profile); never the eye mesh, never literal coordinates (D1)",
+          "neckPositionMeters": 1.4631,
+          "dominantAxis": "y",
+          "matchedVertexCount": 7911,
+          "boundsMeters": {
+            "min": {
+              "x": -0.1023,
+              "y": 1.3996,
+              "z": -0.0597
+            },
+            "max": {
+              "x": 0.1047,
+              "y": 1.6881,
+              "z": 0.1728
+            }
+          }
+        }
       },
-      "headNdcUnderAuthoredCamera": {
-        "x": null,
-        "y": null,
-        "z": null
+      "morphReadback": {
+        "appliedMeshes": 0,
+        "maxInfluence": 0
       }
     },
     {
@@ -56,39 +66,62 @@
       "speakingFlag": true,
       "morphInfluence": 1,
       "still": "tools/openclinxr/evidence/stills/speaking-parent-speaking.png",
-      "bytes": 24922,
-      "sha256": "1d71b242ba9a880877247cb02feac6184ac2aa32a453d9ad7941bbb6aedb1627",
-      "capturedAtPageSeconds": 21.38,
-      "driveTrace": "parent communication",
-      "mouthCueVisible": true,
-      "headWorldPosition": [
-        -1.2853,
-        1.5613,
-        0.6419
-      ],
-      "rootWorldPosition": [
-        -1.35,
-        0.95,
-        0.42
-      ],
-      "canvasSize": {
-        "width": 1600,
-        "height": 1600
+      "bytes": 278162,
+      "sha256": "91fc8fe2588ebcc6e0bade4742a3633d136a00cc73a9cf5bceb55701ad986a40",
+      "labEvidence": {
+        "meshCount": 13,
+        "boundsMeters": {
+          "width": 0.993,
+          "height": 1.687,
+          "depth": 0.438
+        },
+        "packFraming": {
+          "packCamera": null,
+          "boundsMin": {
+            "x": -0.102,
+            "y": 1.4,
+            "z": -0.06
+          },
+          "boundsMax": {
+            "x": 0.105,
+            "y": 1.688,
+            "z": 0.173
+          }
+        },
+        "frameCoverage": 0.26068684895833333,
+        "focusRegion": {
+          "kind": "head_box",
+          "derivation": "topmost band of the body bounds cut at the neck (silhouette width profile); never the eye mesh, never literal coordinates (D1)",
+          "neckPositionMeters": 1.4631,
+          "dominantAxis": "y",
+          "matchedVertexCount": 7911,
+          "boundsMeters": {
+            "min": {
+              "x": -0.1023,
+              "y": 1.3996,
+              "z": -0.0597
+            },
+            "max": {
+              "x": 0.1047,
+              "y": 1.6881,
+              "z": 0.1728
+            }
+          }
+        }
       },
-      "headNdcUnderAuthoredCamera": {
-        "x": null,
-        "y": null,
-        "z": null
+      "morphReadback": {
+        "appliedMeshes": 8,
+        "maxInfluence": 1
       }
     }
   ],
-  "claimScope": "an isolated speaking/not-speaking still pair of parent_tara_johnson_v1 (peds asthma station), same GLB bytes, same camera and framing, differing only in the speaking state; #402 reproduce / #419 E2.3",
+  "claimScope": "an isolated rest-vs-mouth-open-viseme still pair of parent_tara_johnson_v1 (peds asthma parent GLB), same GLB bytes, same derived camera and framing, differing only in the mouth-open morph weight; #402 reproduce / #419 E2.3",
   "notEvidenceFor": [
+    "the runtime speaking state (this is a viseme stand-in, not dialogue)",
     "whether a spike is present (the orchestrator grades the pair)",
     "the cause",
     "any fix",
     "production phoneme timing",
-    "other actors or scenarios",
     "clinical validity",
     "scoring validity",
     "quest readiness"
