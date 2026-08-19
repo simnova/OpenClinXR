@@ -21,7 +21,12 @@ import {
   buildParentSpawnChecklist,
   type ParentSpawnChecklist,
 } from "./spawn-isolation.js";
-import { WORKER_OUTPUT_BUDGET_DIRECTIVE, WORKER_SHARED_TREE_DIRECTIVE, WORKER_TONE_DIRECTIVE } from "./worker-directives.js";
+import {
+  WORKER_OUTPUT_BUDGET_DIRECTIVE,
+  WORKER_SHARED_TREE_DIRECTIVE,
+  WORKER_STATUS_REPORTING_DIRECTIVE,
+  WORKER_TONE_DIRECTIVE,
+} from "./worker-directives.js";
 
 export type GrokRepoAgentSpawnSurface = "grok_native_spawn_subagent" | "composer_main_thread";
 
@@ -75,7 +80,12 @@ export type GrokRepoAgentSpawnRegistryReport = {
   agents: GrokRepoAgentSpawnSpec[];
 };
 
-export { WORKER_OUTPUT_BUDGET_DIRECTIVE, WORKER_SHARED_TREE_DIRECTIVE, WORKER_TONE_DIRECTIVE } from "./worker-directives.js";
+export {
+  WORKER_OUTPUT_BUDGET_DIRECTIVE,
+  WORKER_SHARED_TREE_DIRECTIVE,
+  WORKER_STATUS_REPORTING_DIRECTIVE,
+  WORKER_TONE_DIRECTIVE,
+} from "./worker-directives.js";
 export {
   GROK_SUBAGENTS_ENV,
   LARGE_TASK_ORCHESTRATION_SKILL,
@@ -212,25 +222,26 @@ export function buildRepoAgentSpawnPrompt(input: {
   // Headless/--yolo workers: OPENCLINXR_WORKER=1 (hooks NO-OP) + GROK_SUBAGENTS=1 (spawn_subagent in -p).
   const workerEnvBlock = isWriter
     ? [
-        `WORKER ENV: headless/--yolo launches MUST use ${OPENCLINXR_WORKER_ENV.headlessPrefix} ${GROK_SUBAGENTS_ENV.headlessPrefix} (or ${OPENCLINXR_WORKER_ENV.exportLine}; ${GROK_SUBAGENTS_ENV.exportLine}).`,
-        "When OPENCLINXR_WORKER=1, SessionStart docs hygiene + CEO coord hooks NO-OP — stay in pathScope; do NOT edit PROJECT_STATUS.md, docs/openclinxr/*registry*, docs/_archive/**, AGENTS.md.",
-        "When GROK_SUBAGENTS=1, headless grok -p exposes spawn_subagent for multi-level cost-tiering (absent without it).",
+        `WORKER ENV: headless/--yolo launches MUST use ${OPENCLINXR_WORKER_ENV.headlessPrefix} ${GROK_SUBAGENTS_ENV.headlessPrefix}.`,
+        "When OPENCLINXR_WORKER=1, SessionStart docs hygiene + CEO coord hooks NO-OP; do NOT edit PROJECT_STATUS.md, docs/openclinxr/*registry*, docs/_archive/**, AGENTS.md.",
+        "When GROK_SUBAGENTS=1, headless grok -p exposes spawn_subagent for multi-level cost-tiering.",
         `TEMP: export ${OPENCLINXR_JOB_TMP_CONVENTION.envVar}=${OPENCLINXR_JOB_TMP_CONVENTION.pattern}; files as ${OPENCLINXR_JOB_TMP_CONVENTION.filePattern}; FORBID fixed ${OPENCLINXR_JOB_TMP_CONVENTION.forbidExample}.`,
-        "PORTS: distinct portless/dev ports per job (never share one fixed port across parallel workers).",
+        "PORTS: distinct portless/dev ports per job (never share one fixed port).",
       ].join(" ")
     : "";
   const fanOutBlock = largeTask || isWriter
     ? largeTask
       ? `LARGE-TASK FAN-OUT (required): decompose into N≥2 disjoint file-scoped workstreams; each gets worktree isolation + unique ${OPENCLINXR_JOB_TMP_CONVENTION.envVar} + distinct ports; prefer deepseek-v4-pro workers over solo frontier. See ${LARGE_TASK_ORCHESTRATION_SKILL}.`
-      : `If task spans multiple packages/meshes/files: self-decompose into disjoint workstreams (worktree + unique temp + ports) rather than soloing on frontier. See ${LARGE_TASK_ORCHESTRATION_SKILL}.`
+      : `If task spans multiple packages/meshes/files: self-decompose into disjoint workstreams (worktree + unique temp + ports) rather than soloing on frontier.`
     : "";
   return [
     WORKER_TONE_DIRECTIVE,
     WORKER_OUTPUT_BUDGET_DIRECTIVE,
+    WORKER_STATUS_REPORTING_DIRECTIVE,
     `Role \`${input.roleId}\` @ /Volumes/files/src/openclinxr. OpenClaw file-backed (not external runtime).`,
-    "Rehydrate: pathScope (below) + charter Persona + memory tight limit + PROJECT_STATUS snapshot header only if needed. Do NOT load full AGENTS.md/LEX unless UNABLE.",
+    "Rehydrate: pathScope (below) + charter Persona + memory tight limit + PROJECT_STATUS snapshot header only if needed; no full AGENTS.md/LEX unless UNABLE.",
     `Read ${input.roleDir}/charter.md (## Persona) + ${input.roleDir}/memory.md (tight).`,
-    "MANDATE_VISIBILITY: see agents/rules/MANDATE_VISIBILITY.md + LEX (pointer only; do not restate).",
+    "MANDATE_VISIBILITY: agents/rules/MANDATE_VISIBILITY.md + LEX (pointer only).",
     compositionPointer,
     `Tier: ${input.policy.policyTier}; model: ${effectiveModel}${multimodalNote ? " (multimodal)" : ""}; task: ${input.policy.taskType}.`,
     input.policy.writeScopeNote,
@@ -238,7 +249,7 @@ export function buildRepoAgentSpawnPrompt(input: {
     workerEnvBlock,
     fanOutBlock,
     formatPathScopeBlock(input.policy.pathScope),
-    `ESCALATION: if below tier capability emit line "UNABLE:" + reason + recommended helper. ${escalateLadder} Coordinator spawns via spawn-spec.`,
+    `ESCALATION: emit "UNABLE:" + reason + recommended helper. ${escalateLadder} Coordinator spawns via spawn-spec.`,
     input.task ?? "Return findings, blockers, recommended next slice, file paths. Q1/Q4/Q5.",
     input.policy.sandboxMode === "read-only"
       ? "Read-only unless assigned non-overlapping write scope."

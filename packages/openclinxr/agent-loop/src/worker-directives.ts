@@ -35,11 +35,28 @@ export const WORKER_TONE_DIRECTIVE =
  * `docs/findings/delegation-reliability.md`.
  */
 export const WORKER_OUTPUT_BUDGET_DIRECTIVE =
-  "OUTPUT BUDGET (obey — workers get killed by output overflow): use the quiet turbo variants " +
-  "`pnpm packages:test:agent` / `packages:typecheck:agent` / `packages:lint:agent` (or add " +
-  "`--ui=stream --output-logs=errors-only`); never run bare `turbo run` across all packages. " +
+  "OUTPUT BUDGET (obey — output overflow kills workers): use the quiet turbo variants " +
+  "`pnpm packages:test:agent` / `packages:typecheck:agent` / `packages:lint:agent` or " +
+  "`--ui=stream --output-logs=errors-only`; never run bare `turbo run` across all packages. " +
   "Single-package `pnpm --filter <pkg> test` is fine. NEVER grep a common identifier repo-wide — " +
-  "scope every grep to a directory and pipe through `| head -20`.";
+  "scope every grep to a directory, pipe `| head -20`.";
+
+/**
+ * Status-reporting directive, baked into every worker prompt.
+ *
+ * #436: workers never reported status because nothing told them to — `dispatch-worker.ts`
+ * mentions `gh` zero times, so nothing blocked reporting; nobody asked for it. The two things a
+ * worker knows and the orchestrator does not (`UNABLE:` and "this proof cannot pass as written")
+ * reached the orchestrator only in a dispatch log. Standing text now reaches every dispatched
+ * worker (the baker is wired into dispatch() as of b39f7633), so wire the mechanism (D1).
+ *
+ * Coordination metadata only. A worker that can close its own card can mark its own homework, so
+ * close/label/Factory-field writes stay with the orchestrator. No product or clinical content.
+ */
+export const WORKER_STATUS_REPORTING_DIRECTIVE =
+  "STATUS REPORTING (coordination metadata only): comment on your OWN issue (`gh issue comment <n>`) " +
+  "with UNABLE:, any proof that cannot pass as written, and a `Factory: Dispatched|Landed` line. " +
+  "Never close, label, or write the Factory project field. No product or clinical content on GitHub.";
 
 /**
  * Shared-tree safety.
