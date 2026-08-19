@@ -26,7 +26,18 @@ import { describe, expect, it } from "vitest";
  *
  *   "## Persona"   true      "ESCALATION"   true       "charter.md"  true
  *   "UNABLE:"      true      "memory.md"    true       roleDir echo  true
- *   "ESCALATION GUARD"  FALSE       "visibility"  FALSE      "noticeab"  FALSE
+ *   "ESCALATION GUARD"  FALSE   <-- the literal header only
+ *
+ * ## CORRECTION (2026-08-19): I ALSO REPORTED "visibility" AND "noticeab" AS ABSENT. THAT WAS WRONG.
+ *
+ * My probe tested the lowercase string `"visibility"`. The baker emits **`MANDATE_VISIBILITY:`** —
+ * re-measured `exact=true`. It also emits `ESCALATION:`; only the two-word header `ESCALATION GUARD`
+ * is absent. So the standing claim that spawn-spec bakes "charter, Persona, escalation guard and
+ * visibility mandate" is substantially TRUE, and my report that two of the four were missing was a
+ * case-sensitivity error in my own instrument, not a gap in the baker.
+ *
+ * The contract below is unaffected — it asserts only Persona/charter/memory/UNABLE:, all of which
+ * were and are emitted. What changes is the follow-up: there is far less to extend than I claimed.
  *
  * So asserting `ESCALATION GUARD` would have been unsatisfiable — the #428 failure, which already
  * cost a dispatch and a resume. **This contract asserts only strings the baker demonstrably
