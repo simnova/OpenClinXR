@@ -4,8 +4,15 @@ import { appendFileSync, existsSync, mkdirSync, readFileSync, readdirSync } from
 import { dirname, join } from "node:path";
 import { resolveSharedCoordinationPath } from "./coordination-root.js";
 import { loadTrustedBrief, readSessions, trustedSliceDir } from "./dispatch-worker.js";
+import {
+  DEFAULT_BOARD_REPO,
+  defaultGhRunner,
+  resolveIssueNumberForSlice,
+  setFactoryField,
+  type GhCommandRunner,
+} from "./board-cli.js";
 import { stagedTreeHash, writeGateReport } from "./integrate-gate.js";
-import { runMergeKill, type MergeKillReport } from "./merge-kill.js";
+import { runMergeKill, type KillFinding, type MergeKillReport } from "./merge-kill.js";
 
 /**
  * The land boundary — the only supported way work reaches main.
@@ -35,6 +42,8 @@ export type IntegrateInput = {
   contract?: { proofsOk: boolean; proofs: { rule: string; passed: boolean; detail: string }[] } | null;
   /** Evaluate and report, but never touch the tree. */
   dryRun?: boolean;
+  /** Test seam for the worker-comment check and the Landed board write. */
+  ghRunner?: GhCommandRunner;
 };
 
 export type IntegrationEvent = {
@@ -364,6 +373,100 @@ export function allowedGitignoredProofTargets(repoRoot: string, slice: string): 
     : [];
 }
 
+/**
+ * The markers the worker status directive (worker-directives.ts) tells a worker to put on its own
+ * card: `UNABLE:`, a proof that cannot pass as written, and a `Factory: Dispatched|Landed` line.
+ * A comment carrying any of them is the worker's voice. The orchestrator's close/resolution
+ * comments ("**resolution**", CLAIM/NOT TESTED) do not match.
+ */
+const WORKER_REPORT_MARKERS = /(UNABLE:|Factory:|cannot pass)/i;
+
+/**
+ * ISSUE #448 — a landing whose worker never spoke is refused.
+ *
+ * All seven slices #441-#447 landed with the worker mute: every comment on #441-#446 was the
+ * orchestrator's and #447 had none. integrate() never looked at the issue, so silence was
+ * invisible. The stricter reading of "the worker spoke" is implemented as: a comment authored by
+ * a login OTHER than the orchestrator's (the moment a worker account exists, that clause binds),
+ * OR a comment body matching the worker directive's report markers. Under the current
+ * single-account setup (everything runs as one login) the author clause is inoperative, so the
+ * operative clause is the marker match — which still refuses the orchestrator-only state of
+ * #441-#446 and is strictly stronger than "any comment at all". Slices with no board card have
+ * nothing to check and pass with a recorded warning.
+ */
+export function assertWorkerReported(
+  repoRoot: string,
+  slice: string,
+  runner: GhCommandRunner = defaultGhRunner,
+): KillFinding | null {
+  const issueNumber = resolveIssueNumberForSlice(repoRoot, slice);
+  if (issueNumber === null) {
+    console.warn(
+      `integrate: slice '${slice}' has no board card (no board record, not issue-<n>) — worker-comment check skipped`,
+    );
+    return null;
+  }
+
+  const repo = DEFAULT_BOARD_REPO;
+  const commentsJson = runner([
+    "gh", "issue", "view", String(issueNumber), "--repo", repo, "--json", "comments", "-q", ".comments",
+  ]);
+  let comments: Array<{ author?: { login?: string } | null; body?: string }>;
+  try {
+    comments = JSON.parse(commentsJson) as Array<{ author?: { login?: string } | null; body?: string }>;
+  } catch {
+    throw new Error(
+      `integrate: could not parse comments for issue #${issueNumber} from gh: ${commentsJson.slice(0, 200)}`,
+    );
+  }
+  const orchestratorLogin = runner(["gh", "api", "user", "-q", ".login"]).trim();
+
+  const workerSpoke = comments.some(
+    (comment) =>
+      (comment.author?.login !== undefined && comment.author.login !== orchestratorLogin)
+      || WORKER_REPORT_MARKERS.test(comment.body ?? ""),
+  );
+  if (workerSpoke) return null;
+
+  return {
+    id: "worker-never-spoke",
+    severity: "kill",
+    title: `worker never spoke on issue #${issueNumber}`,
+    evidence: [
+      {
+        file: `https://github.com/${repo}/issues/${issueNumber}`,
+        excerpt:
+          `${comments.length} comment(s); none carry a worker report marker `
+          + `(UNABLE: / "cannot pass" / "Factory:") and none are authored outside ${orchestratorLogin}`,
+      },
+    ],
+    reason:
+      `integrate refuses a landing whose worker never commented on its own card (issue #448). `
+      + `The worker status directive requires a card comment; all ${comments.length} comment(s) are `
+      + `orchestrator bookkeeping. A mute worker hides UNABLE: and unpassable-proof reports from the lead.`,
+  };
+}
+
+/** Record the card's Factory stage on the board after a successful land (issue #448). */
+function markFactoryLanded(repoRoot: string, slice: string, runner: GhCommandRunner): void {
+  try {
+    const landed = setFactoryField(repoRoot, slice, "Landed", { runner });
+    if (!landed.ok && landed.skipped) {
+      console.warn(
+        `integrate: slice '${slice}' has no board card (no board record, not issue-<n>) — Factory stays unset`,
+      );
+    }
+  } catch (error) {
+    // The merge is already committed to main — refusing after the fact cannot un-commit it, and the
+    // integration event file is the durable land record. A stale board row is a loud warning, not
+    // a failed land (decision recorded in the #448 commit).
+    console.error(
+      `WARNING (issue #448): landed, but marking Factory=Landed failed: `
+      + `${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+}
+
 export function integrate(input: IntegrateInput): IntegrateResult {
   // Operator mistake must be named as such BEFORE merge-kill can reframe it as forgery (#84).
   assertIntegrateHeadUsable(input.head);
@@ -383,6 +486,20 @@ export function integrate(input: IntegrateInput): IntegrateResult {
   if (killReport.killed) {
     return { killReport, landed: false, exitCode: 2 };
   }
+
+  // ISSUE #448: a worker that never spoke must not land — silence hides UNABLE: and
+  // unpassable-proof reports. Runs after merge-kill so the refusal report carries the real tree
+  // findings too, and before the dry-run early return so dry-run evaluates it as well.
+  const workerFinding = assertWorkerReported(input.repoRoot, input.slice, input.ghRunner);
+  if (workerFinding) {
+    const report: MergeKillReport = {
+      ...killReport,
+      findings: [...killReport.findings, workerFinding],
+      killed: true,
+    };
+    return { killReport: report, landed: false, exitCode: 2 };
+  }
+
   if (input.dryRun) {
     return { killReport, landed: false, exitCode: 0 };
   }
@@ -449,6 +566,9 @@ export function integrate(input: IntegrateInput): IntegrateResult {
     at: new Date().toISOString(),
   };
   recordEvent(input.repoRoot, event);
+  // ISSUE #448: integrator (machine) marks the card Landed. Failure is a loud warning, not a
+  // refusal — the land is already committed; the integration event above is the durable record.
+  markFactoryLanded(input.repoRoot, input.slice, input.ghRunner ?? defaultGhRunner);
   return { killReport, landed: true, exitCode: 0, event };
 }
 

@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { integrate, integrationEvents } from "./integrate.js";
+import { FACTORY_FIELD_ID } from "./board-cli.js";
 
 /**
  * Merge is the last enforceable choke point, and merge-kill was the only mechanism that failed
@@ -236,5 +237,125 @@ describe("the rebuild target list is captured before the merge (#203 retro)", ()
       rebuildAt,
       "the rebuild runs before the merge — it must run after the commit so the sources are on the branch",
     ).toBeGreaterThan(mergeAt);
+  });
+});
+
+/**
+ * ISSUE #448 — a landing whose worker never spoke is refused, and a landed card is marked Landed.
+ *
+ * The comment check runs against the board (via an injected gh runner — no live gh in tests) and
+ * requires the STRICTER reading: a comment authored outside the orchestrator login, or a comment
+ * body carrying the worker directive's report markers (UNABLE: / "cannot pass" / "Factory:").
+ * Orchestrator bookkeeping comments (the #441-#446 state) do not satisfy it.
+ */
+describe("issue #448 — the board is the dequeue queue (integrate side)", () => {
+  const FIELD_LIST_JSON = JSON.stringify({
+    fields: [
+      {
+        id: FACTORY_FIELD_ID,
+        name: "Factory",
+        type: "ProjectV2SingleSelectField",
+        options: [
+          { id: "o-idle", name: "Idle" },
+          { id: "53aeb5a6", name: "Planted" },
+          { id: "o-dispatched", name: "Dispatched" },
+          { id: "o-landed", name: "Landed" },
+          { id: "o-graded", name: "Graded" },
+        ],
+      },
+    ],
+  });
+
+  function fakeGh(input: { comments: string; login?: string }) {
+    const calls: string[][] = [];
+    const runner = (argv: string[]): string => {
+      calls.push(argv);
+      const joined = argv.join(" ");
+      if (joined.includes("issue view")) return input.comments;
+      if (joined.includes("api user")) return input.login ?? "gidich";
+      if (joined.includes("project view 7")) return "PVT_1";
+      if (joined.includes("project item-list 7")) {
+        return JSON.stringify({ items: [{ id: "PVTI_448", content: { type: "Issue", number: 448 } }] });
+      }
+      if (joined.includes("project field-list 7")) return FIELD_LIST_JSON;
+      if (joined.includes("project item-edit")) return "";
+      throw new Error(`unexpected gh argv in integrate fake: ${joined}`);
+    };
+    return { runner, calls };
+  }
+
+  const greenContract = { proofsOk: true, proofs: [{ rule: "run:true", passed: true, detail: "ok" }] };
+
+  it("REFUSES an issue-backed landing whose worker never spoke (orchestrator-only comments)", () => {
+    const { root, base, head } = repoWithBenignChange();
+    // The #441-#446 state: every comment is the orchestrator's own bookkeeping.
+    const { runner } = fakeGh({
+      comments: JSON.stringify([
+        { author: { login: "gidich" }, body: "**resolution**\n\nverify ok; slice closed" },
+        { author: { login: "gidich" }, body: "CLAIM: wired. NOT TESTED: nothing." },
+      ]),
+    });
+    const result = integrate({ repoRoot: root, base, head, slice: "issue-448", contract: greenContract, ghRunner: runner });
+    expect(result.landed).toBe(false);
+    expect(result.exitCode).toBe(2);
+    expect(result.killReport.findings.some((f) => f.id === "worker-never-spoke")).toBe(true);
+    // The refusal must have NO land side effect.
+    expect(git(root, ["rev-parse", "HEAD"]).trim()).toBe(base);
+    expect(integrationEvents(root)).toHaveLength(0);
+  });
+
+  it("REFUSES an issue-backed landing with ZERO comments (#447 state)", () => {
+    const { root, base, head } = repoWithBenignChange();
+    const { runner } = fakeGh({ comments: "[]" });
+    const result = integrate({ repoRoot: root, base, head, slice: "issue-448", contract: greenContract, ghRunner: runner });
+    expect(result.landed).toBe(false);
+    expect(result.killReport.findings.some((f) => f.id === "worker-never-spoke")).toBe(true);
+  });
+
+  it("LANDS when the worker commented with the directive markers, and marks the card Landed", () => {
+    const { root, base, head } = repoWithBenignChange();
+    const { runner, calls } = fakeGh({
+      comments: JSON.stringify([
+        { author: { login: "gidich" }, body: "**resolution**\n\nverify ok; slice closed" },
+        { author: { login: "gidich" }, body: "Factory: Dispatched — work complete, proofs green" },
+      ]),
+    });
+    const result = integrate({ repoRoot: root, base, head, slice: "issue-448", contract: greenContract, ghRunner: runner });
+    expect(result.landed).toBe(true);
+    expect(result.exitCode).toBe(0);
+    // The integrator (machine) wrote Factory=Landed after the land.
+    const edits = calls.filter((c) => c.includes("item-edit"));
+    expect(edits.length).toBeGreaterThan(0);
+    expect(edits.flat().join(" ")).toContain("--single-select-option-id o-landed");
+    expect(integrationEvents(root)).toHaveLength(1);
+  });
+
+  it("LANDS and warns (does not fail) when the Landed board write fails after the merge", () => {
+    const { root, base, head } = repoWithBenignChange();
+    const runner = (argv: string[]): string => {
+      const joined = argv.join(" ");
+      if (joined.includes("issue view")) {
+        return JSON.stringify([{ author: { login: "gidich" }, body: "Factory: Dispatched" }]);
+      }
+      if (joined.includes("api user")) return "gidich";
+      throw new Error("gh: network down");
+    };
+    const result = integrate({ repoRoot: root, base, head, slice: "issue-448", contract: greenContract, ghRunner: runner });
+    // The land succeeded; the stale board row is a warning, not a refusal.
+    expect(result.landed).toBe(true);
+    expect(result.exitCode).toBe(0);
+    expect(integrationEvents(root)).toHaveLength(1);
+  });
+
+  it("skips the comment check for slices with no board card (no gh calls)", () => {
+    const { root, base, head } = repoWithBenignChange();
+    const calls: string[][] = [];
+    const runner = (argv: string[]): string => {
+      calls.push(argv);
+      throw new Error("should never run gh for a card-less slice");
+    };
+    const result = integrate({ repoRoot: root, base, head, slice: "clean-slice", contract: greenContract, ghRunner: runner });
+    expect(result.landed).toBe(true);
+    expect(calls).toHaveLength(0);
   });
 });

@@ -8,6 +8,7 @@ import {
   BOARD_FIXED_CHECKLIST,
   BOARD_SCHEMA,
   DEFAULT_BOARD_REPO,
+  FACTORY_FIELD_ID,
   NO_PRODUCT_DATA_BANNER,
   appendBoardStatusDirective,
   assertCoordinationOnlyBody,
@@ -24,11 +25,16 @@ import {
   loadBoardRecord,
   parseBoardArgs,
   parseIssueCreateUrl,
+  planFactoryStageWrite,
   planGhIssueClose,
   planGhIssueComment,
   planGhIssueCreate,
+  resolveFactoryOptionId,
+  resolveIssueNumberForSlice,
   saveBoardRecord,
+  setFactoryField,
   type BoardSliceRecord,
+  type FactoryStage,
 } from "./board-cli.ts";
 
 function tempRoot(): string {
@@ -336,5 +342,165 @@ describe("board merge (single-account review-gate workaround)", () => {
     expect(() => cmdMerge({ repo: "", pr: 9, role: "s", method: "squash", dryRun: true })).toThrow(/repo/);
     expect(() => cmdMerge({ repo: "o/r", pr: 0, role: "s", method: "squash", dryRun: true })).toThrow(/pr/);
     expect(() => cmdMerge({ repo: "o/r", pr: 9, role: "", method: "squash", dryRun: true })).toThrow(/role/);
+  });
+});
+
+/**
+ * ISSUE #448 — the board is the dequeue queue. setFactoryField is the shared verb dispatch()
+ * (Dispatched) and integrate() (Landed) call; the CLI plants (Planted) and grades (Graded).
+ * Every test uses an injected runner — no live gh, ever.
+ */
+describe("board Factory field — the dequeue queue has a writer (#448)", () => {
+  const FIELD_LIST_JSON = JSON.stringify({
+    fields: [
+      { id: "PVTF_1", name: "Title", type: "ProjectV2Field" },
+      {
+        id: FACTORY_FIELD_ID,
+        name: "Factory",
+        type: "ProjectV2SingleSelectField",
+        options: [
+          { id: "o-idle", name: "Idle" },
+          { id: "53aeb5a6", name: "Planted" },
+          { id: "o-dispatched", name: "Dispatched" },
+          { id: "o-landed", name: "Landed" },
+          { id: "o-graded", name: "Graded" },
+        ],
+      },
+    ],
+  });
+
+  function fakeGh(input: { itemList?: string; login?: string; calls?: string[][] }) {
+    const calls: string[][] = input.calls ?? [];
+    return (argv: string[]): string => {
+      calls.push(argv);
+      const joined = argv.join(" ");
+      if (joined.includes("project view 7")) return "PVT_1";
+      if (joined.includes("project item-list 7")) {
+        return input.itemList ?? JSON.stringify({ items: [] });
+      }
+      if (joined.includes("project item-add 7")) {
+        return JSON.stringify({ id: "PVTI_ADDED" });
+      }
+      if (joined.includes("project field-list 7")) return FIELD_LIST_JSON;
+      if (joined.includes("project item-edit")) return "";
+      if (joined.includes("issue view")) return JSON.stringify([]);
+      if (joined.includes("api user")) return input.login ?? "gidich";
+      throw new Error(`unexpected gh argv in fake: ${joined}`);
+    };
+  }
+
+  it("parses --stage in board args", () => {
+    const f = parseBoardArgs(["factory", "--slice-id", "issue-1", "--stage", "Planted", "--dry-run"]);
+    expect(f.command).toBe("factory");
+    expect(f.stage).toBe("Planted");
+    expect(f.dryRun).toBe(true);
+  });
+
+  it("planFactoryStageWrite builds the item-edit argv with --single-select-option-id", () => {
+    const plan = planFactoryStageWrite({
+      projectId: "PVT_1",
+      itemId: "PVTI_9",
+      fieldId: FACTORY_FIELD_ID,
+      optionId: "o-landed",
+      stage: "Landed",
+    });
+    expect(plan.argv).toEqual([
+      "gh", "project", "item-edit",
+      "--project-id", "PVT_1",
+      "--id", "PVTI_9",
+      "--field-id", FACTORY_FIELD_ID,
+      "--single-select-option-id", "o-landed",
+    ]);
+  });
+
+  it("resolves the option id for a stage by name from field-list JSON", () => {
+    expect(resolveFactoryOptionId(FIELD_LIST_JSON, FACTORY_FIELD_ID, "Planted")).toBe("53aeb5a6");
+    expect(resolveFactoryOptionId(FIELD_LIST_JSON, FACTORY_FIELD_ID, "Graded")).toBe("o-graded");
+    expect(() => resolveFactoryOptionId(FIELD_LIST_JSON, FACTORY_FIELD_ID, "Bogus" as FactoryStage)).toThrow(/no option/);
+    expect(() => resolveFactoryOptionId(JSON.stringify({ fields: [] }), FACTORY_FIELD_ID, "Planted")).toThrow(/Factory field not found/);
+  });
+
+  it("resolves the issue number from a board record, then from the issue-<n> slice id", () => {
+    const root = tempRoot();
+    expect(resolveIssueNumberForSlice(root, "issue-448")).toBe(448);
+    expect(resolveIssueNumberForSlice(root, "not-issue-backed")).toBeNull();
+    seedBoard(root, { sliceId: "renamed-slice", issueNumber: 77 });
+    expect(resolveIssueNumberForSlice(root, "renamed-slice")).toBe(77);
+  });
+
+  it("writes the Factory option on a card that is ALREADY on the board (no item-add)", () => {
+    const root = tempRoot();
+    seedBoard(root, { sliceId: "issue-448", issueNumber: 448 });
+    const calls: string[][] = [];
+    const runner = fakeGh({
+      calls,
+      itemList: JSON.stringify({
+        items: [
+          { id: "PVTI_448", content: { type: "Issue", number: 448 } },
+          { id: "PVTI_OTHER", content: { type: "Issue", number: 3 } },
+        ],
+      }),
+    });
+    const result = setFactoryField(root, "issue-448", "Landed", { runner });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.itemId).toBe("PVTI_448");
+    expect(result.stage).toBe("Landed");
+    const joined = calls.map((c) => c.join(" ")).join("\n");
+    expect(joined).toContain("item-edit");
+    expect(joined).toContain("--single-select-option-id o-landed");
+    expect(joined).not.toContain("item-add"); // membership already satisfied
+  });
+
+  it("ensures membership with item-add when the card is NOT on the board, then writes", () => {
+    const root = tempRoot();
+    seedBoard(root, { sliceId: "issue-449", issueNumber: 449 });
+    const calls: string[][] = [];
+    const runner = fakeGh({ calls, itemList: JSON.stringify({ items: [] }) });
+    const result = setFactoryField(root, "issue-449", "Dispatched", { runner });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.itemId).toBe("PVTI_ADDED");
+    const joined = calls.map((c) => c.join(" ")).join("\n");
+    expect(joined).toContain("item-add");
+    expect(joined).toContain("https://github.com/simnova/OpenClinXR/issues/449");
+    expect(joined).toContain("--single-select-option-id o-dispatched");
+  });
+
+  it("skips (does not throw, runs no gh) when the slice has no board card", () => {
+    const root = tempRoot();
+    const calls: string[][] = [];
+    const runner = fakeGh({ calls });
+    const result = setFactoryField(root, "internal-slice", "Planted", { runner });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.skipped).toBe(true);
+    expect(result.reason).toBe("no-issue");
+    expect(calls).toHaveLength(0);
+  });
+
+  it("refuses loudly when gh fails (the caller decides refuse-vs-warn)", () => {
+    const root = tempRoot();
+    seedBoard(root, { sliceId: "issue-450", issueNumber: 450 });
+    const runner = (argv: string[]): string => {
+      throw new Error("gh: network down");
+    };
+    expect(() => setFactoryField(root, "issue-450", "Planted", { runner })).toThrow(/network down/);
+  });
+
+  it("dry-run builds the full command sequence without executing", () => {
+    const root = tempRoot();
+    seedBoard(root, { sliceId: "issue-451", issueNumber: 451 });
+    const calls: string[][] = [];
+    const runner = fakeGh({ calls });
+    const result = setFactoryField(root, "issue-451", "Planted", { runner, dryRun: true });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(calls).toHaveLength(0); // dry-run executes nothing
+    expect(result.plans.map((p) => p.argv[1])).toEqual(["project", "project", "project", "project", "project"]);
+    expect(result.plans.some((p) => p.argv.includes("item-add"))).toBe(true);
+    expect(result.plans.at(-1)!.argv).toContain("--single-select-option-id");
   });
 });

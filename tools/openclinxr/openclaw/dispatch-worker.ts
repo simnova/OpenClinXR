@@ -35,6 +35,7 @@ import {
 import type { DoneWhenCheck } from "../../../packages/openclinxr/agent-loop/src/slice-team.js";
 import { resolveSharedCoordinationPath } from "./coordination-root.js";
 import { assertLoopNotPaused } from "./loop-pause.js";
+import { setFactoryField } from "./board-cli.js";
 import { evaluateProofTargetsBeforeDispatch } from "./proof-target-preflight.js";
 import { provisionWorktreeAssetsSync } from "./worktree-asset-provisioning.js";
 import { ensureWorktreeBaseFresh } from "./worktree-base-freshness.js";
@@ -557,6 +558,35 @@ export function buildRoleCharterAppendix(roleId: string, repoRoot?: string): str
     baked,
     "=== END ROLE CHARTER ===",
   ].join("\n");
+}
+
+/**
+ * ISSUE #448 — a dispatch without a REAL role is refused, never defaulted.
+ *
+ * Seven dispatches (#441-#447) passed role=None and every worker got no charter and no status
+ * reporting directive — they were mute by construction. A missing role, or a role that composes
+ * an EMPTY appendix (no charter directory or no harness policy), FAILS CLOSED before worktree
+ * creation and before any spawn, exactly like assertLoopNotPaused. A present-but-meaningless role
+ * would compose a charter for the wrong agent, which is the same hole wearing a label.
+ *
+ * buildRoleCharterAppendix keeps its degrade-to-empty behaviour for the composed-prompt contract
+ * (the-worker-is-told-to-report-on-its-own-card clause 3); this assert is the hard gate on top.
+ */
+export function assertDispatchRole(roleId: string | undefined, repoRoot: string): void {
+  if (!roleId || roleId.trim().length === 0) {
+    throw new Error(
+      `dispatch: role is required. Seven dispatches (#441-#447) passed no role and their workers `
+      + `got no charter and no status-reporting directive — a worker without a role cannot report `
+      + `on its own card. Pass the agents/** role id (e.g. "openclaw-drift-police", "xr-systems-architect").`,
+    );
+  }
+  if (buildRoleCharterAppendix(roleId, repoRoot) === "") {
+    throw new Error(
+      `dispatch: role "${roleId}" is not a dispatchable repo role (no agents/<group>/<roleId> with `
+      + `charter.md + memory.md + index.json, or no harness policy). A present-but-meaningless role `
+      + `composes a charter for the wrong agent — FAIL CLOSED, never default.`,
+    );
+  }
 }
 
 let moduleRepoRoot: string | undefined;
@@ -1163,13 +1193,31 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
    */
   assertLoopNotPaused(repoRoot);
 
+  // ISSUE #448: role is the worker's charter + status directive. A missing or unknown role
+  // FAILS CLOSED here, before any worktree or brief is created — a refusal must cost nothing.
+  const sliceId = options.slice ?? "unscoped";
+  assertDispatchRole(options.role, repoRoot);
+
+  // ISSUE #448: the board is the dequeue queue. The dispatcher (machine) ensures the card is on
+  // the board (item-add when absent) and marks Factory=Dispatched BEFORE the spawn, so a worker
+  // that cannot be tracked is never dispatched. A gh failure here REFUSES the dispatch (chosen
+  // and recorded: a silently-untracked worker is the mute-worker state this issue exists to fix,
+  // and gh is already load-bearing for the loop's briefs/comments). Slices with no card (no board
+  // record, not issue-<n>) warn and continue — there is nothing to track.
+  const factoryWrite = setFactoryField(repoRoot, sliceId, "Dispatched");
+  if (!factoryWrite.ok && factoryWrite.skipped) {
+    console.warn(
+      `WARNING (issue #448): no board card resolvable for slice '${sliceId}' — Factory stays unset. `
+      + `Only slices with a board record or an issue-<n> id are tracked.`,
+    );
+  }
+
   // --- Layer-3 contract assembly (trusted plane) ---
   //
   // Ordered BEFORE worktree creation deliberately. When the gate first shipped it ran after, and a
   // refused dispatch still left an orphan worktree and branch behind — measured: `demo-no-proofs`
   // existed on disk despite never spawning a worker. A refusal must cost nothing, or the cleanup
   // burden quietly argues for loosening the gate.
-  const sliceId = options.slice ?? "unscoped";
   const assembled = assembleDispatchContract({
     repoRoot,
     sliceId,
