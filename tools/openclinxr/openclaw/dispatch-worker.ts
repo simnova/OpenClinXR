@@ -17,6 +17,7 @@
  */
 
 import { execFileSync, spawn } from "node:child_process";
+import { randomUUID } from "node:crypto";
 import { appendFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync, type Dirent } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { homedir } from "node:os";
@@ -176,6 +177,14 @@ type DispatchOptions = {
    * provisioned — whole-root copy is rejected on cost (see worktree-asset-provisioning.ts).
    */
   assetPaths?: readonly string[];
+  /**
+   * ISSUE #439: the session id the worker's NEW session is created with (`-s`). Chosen by the
+   * caller BEFORE the process exists — never scraped from the child's output — so a dispatch
+   * that dies before `end` still has a name. `buildArgv` generates one when this is omitted.
+   * Never set on a resume: `-s` CREATES, and passing it beside `--resume` would silently fork a
+   * second session and lose the transcript being resumed for.
+   */
+  sessionId?: string;
   /**
    * ISSUE #437: directory for the prompt file written by buildArgv (the prompt is passed via
    * `--prompt-file`, never as the value of `-p`). dispatch() supplies the trusted slice dir;
@@ -597,7 +606,18 @@ const DEFAULT_PROMPT_FILE_DIR = join(homedir(), ".grok", "dispatch-prompts");
 
 export function buildArgv(options: DispatchOptions): string[] {
   const argv = ["--prompt-file", writePromptFile(options)];
-  if (options.resume) argv.push("--resume", options.resume);
+  if (options.resume) {
+    // ISSUE #439: -s CREATES a new session; -r resumes. Using -s on a resume would silently fork
+    // a SECOND session and lose the transcript we were resuming for (probed: the CLI refuses the
+    // pair, but the refusal is not the point — the id must never be conflated). The resumed
+    // session's id can only come from the child.
+    argv.push("--resume", options.resume);
+  } else {
+    // ISSUE #439: choose the id BEFORE the process exists, so a child that dies before `end`
+    // still has a name. randomUUID per dispatch (or the caller's pre-chosen id) — grok errors on
+    // a duplicate UUID, so nothing is keyed on the slice id.
+    argv.push("--session-id", options.sessionId ?? randomUUID());
+  }
   // 2026-08-10 flash-first default (V4-Flash-0731 agentic bench lead); override with options.model
   argv.push("--model", options.model ?? "deepseek-v4-flash");
   argv.push("--always-approve");
@@ -1175,7 +1195,12 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
   // Done here rather than left to callers so no dispatch path can forget the boundary.
   // ISSUE #437: the prompt file lands in the TRUSTED slice dir (the worker cannot write it — the
   // main-tree deny covers it — and it survives as the exact-prompt record for the slice).
-  let effective = { ...options, promptFileDir: assembled.trustedSliceDir };
+  // ISSUE #439: choose the session id HERE, before the process exists. parseResult's scrape of
+  // the child's `end` event used to be the ONLY name a dispatch had — a child that dies before
+  // `end` had no id at all (issue-240 paid that bill). `-s` CREATES; on a resume the id is the
+  // resumed session's own and can only come from the child, so none is chosen here.
+  const chosenSessionId = options.resume ? undefined : randomUUID();
+  let effective = { ...options, sessionId: chosenSessionId, promptFileDir: assembled.trustedSliceDir };
   let worktreePath: string | undefined;
   if (options.worktree) {
     worktreePath = resolveWorkerWorktree(
@@ -1263,9 +1288,24 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
   const output = chunks.join("");
   const parsed = parseResult(output);
 
-  if (!parsed.sessionId) {
+  // ISSUE #439: a fresh dispatch's id was chosen before spawn; parseResult's scrape is now only
+  // the RESUME source (and a consistency check for fresh ones). A child that dies before `end`
+  // keeps the id we gave it.
+  const sessionId = chosenSessionId ?? parsed.sessionId;
+  if (chosenSessionId && parsed.sessionId && parsed.sessionId !== chosenSessionId) {
+    // The docs say `-s` creates the session with the supplied UUID; if grok ever reports a
+    // different id the ledger/report below are keyed on the wrong name and every resume would
+    // confabulate or 404. Surface it rather than let the divergence stay silent.
+    console.warn(
+      `WARNING (issue #439): grok reported session id ${parsed.sessionId}, but dispatch supplied `
+      + `${chosenSessionId}. The ledger and contract report are keyed on the SUPPLIED id.`,
+    );
+  }
+
+  if (!sessionId) {
     // A missing sessionId means an arg-parse abort or an immediate crash — surface stderr, because
-    // this is exactly the case that previously looked like a silent success.
+    // this is exactly the case that previously looked like a silent success. Only reachable on a
+    // resume (a fresh dispatch always has the id chosen above).
     throw new Error(
       `Dispatch produced no sessionId (exit ${code}). This usually means grok rejected the `
       + `arguments and never started. stderr:\n${stderr.join("").slice(0, 800)}`,
@@ -1276,8 +1316,11 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
   // leak abort discarded a correct worker and left NO sessionId — so the one dispatch most worth
   // a retrospective could never be resumed. Partial entry (sessionId present, proofs absent) is
   // worth more than a complete entry that never gets written. Proofs re-append below when present.
+  // ISSUE #439: the same rule now covers a child that dies before `end` — the entry below is
+  // written keyed on the CHOSEN id before the early-death throw, so the dead child has a name in
+  // the ledger and is resumable without scavenging ~/.grok/sessions.
   const entry: DispatchLedgerEntry = {
-    sessionId: parsed.sessionId,
+    sessionId,
     ...(options.slice ? { slice: options.slice } : {}),
     ...(options.role ? { role: options.role } : {}),
     model: options.model ?? "deepseek-v4-flash",
@@ -1291,6 +1334,16 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
     ...(gitignoredProofTargetsWarned.length > 0 ? { gitignoredProofTargetsWarned } : {}),
   };
   recordSession(repoRoot, entry);
+
+  if (!parsed.sessionId && chosenSessionId) {
+    // A fresh dispatch whose child never reached `end` — arg-parse abort, crash, or kill. Fail
+    // loud (a missing end event is never a completed dispatch), but the id above is already in
+    // the ledger, so the child has a name and can be resumed directly.
+    throw new Error(
+      `Dispatch died before emitting an end event (exit ${code}); session id ${sessionId}. `
+      + `The session may still be resumable with --resume ${sessionId}. stderr:\n${stderr.join("").slice(0, 800)}`,
+    );
+  }
   // recordSession resolves through the SHARED coordination root (which may live in the main
   // checkout), but this mirror write is repoRoot-relative — a worktree that never had a
   // .openclinxr/openclaw would ENOENT here. mkdir like recordSession does, or a fresh worktree
@@ -1337,14 +1390,14 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
   if (proofs) {
     const reportDir = resolveSharedCoordinationPath(".openclinxr/openclaw", repoRoot);
     mkdirSync(reportDir, { recursive: true });
-    contractReportPath = join(reportDir, `contract-verify-${parsed.sessionId}.json`);
+    contractReportPath = join(reportDir, `contract-verify-${sessionId}.json`);
     writeFileSync(
       contractReportPath,
       `${JSON.stringify(
         {
           schemaVersion: "openclinxr.contract-verify.v1",
           sliceId,
-          sessionId: parsed.sessionId,
+          sessionId,
           treeRoot: treeRootForProofs,
           baselineDir: assembled.trustedSliceDir,
           contractSource: assembled.contractSource,
