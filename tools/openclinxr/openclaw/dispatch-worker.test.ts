@@ -977,3 +977,57 @@ describe("buildRoleCharterAppendix (#435)", () => {
     expect(prompt).toContain("CONTRACT PROOFS");
   });
 });
+
+/**
+ * ISSUE #440 — the ledger names the child BEFORE it exists. A fresh dispatch writes a
+ * phase-tagged "spawned" line before the spawn (so a dead child still has a name) and re-appends
+ * the "completed" line after exit. The two lines must be distinguishable — the SS6b-bis trap is a
+ * duplicate with no discriminator, where a reader picks one by luck.
+ */
+describe("issue #440 — the ledger names the child before it exists", () => {
+  it("writes a 'spawned' line before the 'completed' one for a fresh dispatch", async () => {
+    const root = mkdtempSync(join(tmpdir(), "dispatch-early-ledger-"));
+    spawnMock.mockReturnValue(
+      fakeChildWithOutput(JSON.stringify({ text: "done", sessionId: "019f-early-ledger", num_turns: 2, stopReason: "end_turn" })),
+    );
+    const entry = await dispatch(root, {
+      prompt: "do the thing",
+      slice: "issue-440-ledger",
+      contract: "none",
+      contractReason: "issue-440 test: the early entry precedes the spawn",
+    });
+
+    const lines = readSessions(root).filter((e) => e.slice === "issue-440-ledger");
+    expect(lines).toHaveLength(2);
+    expect(lines[0]!.phase).toBe("spawned");
+    expect(lines[0]!.sessionId).toBe(entry.sessionId);
+    // Post-exit knowledge must NOT be on the early line — it is not known before the child exits.
+    expect(lines[0]!.turns).toBeUndefined();
+    expect(lines[0]!.stopReason).toBeUndefined();
+    // The last line is authoritative and carries the post-exit knowledge.
+    expect(lines.at(-1)!.phase).toBe("completed");
+    expect(lines.at(-1)!.sessionId).toBe(entry.sessionId);
+    expect(lines.at(-1)!.turns).toBe(2);
+    expect(lines.at(-1)!.stopReason).toBe("end_turn");
+  });
+
+  it("writes no early line on a resume — the child's own id is the only name", async () => {
+    const root = mkdtempSync(join(tmpdir(), "dispatch-resume-ledger-"));
+    spawnMock.mockReturnValue(
+      fakeChildWithOutput(JSON.stringify({ text: "done", sessionId: "019f-resumed-child", num_turns: 1, stopReason: "end_turn" })),
+    );
+    const entry = await dispatch(root, {
+      prompt: "do the thing",
+      resume: "019f-resumed-child",
+      slice: "issue-440-resume",
+      contract: "none",
+      contractReason: "issue-440 test: a resumed session's id is not ours to choose",
+    });
+
+    const lines = readSessions(root).filter((e) => e.slice === "issue-440-resume");
+    expect(lines).toHaveLength(1);
+    expect(lines[0]!.phase).toBe("completed");
+    expect(lines[0]!.sessionId).toBe("019f-resumed-child");
+    expect(entry.sessionId).toBe("019f-resumed-child");
+  });
+});
