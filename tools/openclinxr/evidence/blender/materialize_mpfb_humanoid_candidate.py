@@ -36,6 +36,9 @@ SHOE_BY_REFERENCE = {
     # same proven zero-helper-ref subset as the existing rows (ledger rows).
     "ed_chest_pain_nurse_adult": "toigo_flats",
     "ed_chest_pain_spouse_adult": "toigo_mj_cloth_shoes",
+    # #441 — the street-casual adult male patient wears the male known-good row
+    # kevin proved (culturalibre_male_boots, CC-0, same zero-helper-ref subset).
+    "adult_male_street_casual": "culturalibre_male_boots",
 }
 
 # #381 — slice 1 of the human-realism campaign: the cast actor wears the fitted hair
@@ -61,6 +64,9 @@ HAIR_STYLE_BY_REFERENCE = {
     # child (curled-under WITH bangs) styles.
     "ed_chest_pain_nurse_adult": "toigo_blunt_bob",
     "ed_chest_pain_spouse_adult": "toigo_curled_under_bob",
+    # #441 — the street-casual adult male patient wears the same male style kevin
+    # proved (mhair02; named page-CC0/header-AGPL3 uuid allowlist, no new permit).
+    "adult_male_street_casual": "mhair02",
 }
 
 # Patrick 2026-08-14 pointed at http://www.makehumancommunity.org/clothes/mhair02.html
@@ -120,6 +126,10 @@ LONG_SLEEVE_UPPER_BY_REFERENCE = {
 SKIN_TONE_RGB = {
     "warm_light_child": (0.84, 0.70, 0.60),
     "warm_light": (0.78, 0.62, 0.52),
+    # #441 — the street-casual adult male patient's manifest declares
+    # `warm_medium` (input_params.phenotype.skin_tone); distinct from every other
+    # shipped tone so the baked atlas is not another actor's.
+    "warm_medium": (0.66, 0.50, 0.40),
     "medium_warm": (0.58, 0.44, 0.36),
     "default": (0.68, 0.53, 0.44),
 }
@@ -1480,6 +1490,9 @@ EYE_DIAMETER_TARGET_MM = {
     # (the aisha path); adult axial length applies. Keyed by output GLB stem, like
     # every other row.
     "mpfb-viseme-inspect": 24.0,
+    # #441 — the street-casual adult male patient is an adult; adult axial length
+    # applies (the four street_casual slots are all adult patients).
+    "mpfb-street-adult-male": 24.0,
 }
 
 

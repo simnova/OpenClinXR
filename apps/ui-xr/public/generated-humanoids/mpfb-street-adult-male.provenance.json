@@ -1,0 +1,67 @@
+{
+ "schemaVersion": "openclinxr.generated-humanoid-provenance.v1",
+ "derivationMode": "mpfb2_macro_from_anny_reference",
+ "scenarioId": "telehealth_diabetes_health_literacy_v1",
+ "actorId": "patient_luis_martinez_v1",
+ "actorRole": "patient",
+ "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.glb",
+ "sourceManifestPath": "apps/ui-xr/public/generated-humanoids/adult_male_street_casual.anny_manifest.json",
+ "generatorMode": "mpfb2_humanservice_create_human_with_macro_dict_from_tracked_anny_reference_v1",
+ "sourceKind": "mpfb2_makehuman_basemesh_from_anny_reference",
+ "usesRealAnnyForwardPass": false,
+ "realAnnyWeightsUsed": false,
+ "textureMode": "authored_or_baked",
+ "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
+ "optimizationMode": "unoptimized_post_blender_glb",
+ "realismGrade": "not_graded",
+ "promotionStatus": "baked_not_yet_wired_resolver_swap_out_of_scope",
+ "sourceOriginChain": {
+  "sourceTopologyMode": "mpfb2_standard_basemesh_with_standard_rig_v1",
+  "annyReference": "apps/ui-xr/public/generated-humanoids/adult_male_street_casual.anny_base.obj (tracked)",
+  "materializedFrom": "MPFB2 HumanService.create_human with macro_detail_dict derived from the tracked Anny reference",
+  "generator": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+  "derivationNote": "Issue #441: the four street_casual patient slots (telehealth_diabetes_health_literacy_v1/patient_luis_martinez_v1, clinic_abdominal_pain_interpreter_v1/patient_lucia_morales_v1, oncology_bad_news_family_v1/patient_david_miller_v1, primary_care_dyslipidemia_joint_pain_v1/patient_mario_guzman_v1) all resolved to the 23-joint Anny adult_male_street_casual.glb with NO lower garment and peds_upper_v1 as its only upper. This asset replaces that body on the MPFB rail: age=0.6 from the measured head-height fraction (0.100, adult band); height=0.5827 SOLVED by bake-measure-interpolate so the baked+stripped exported body reaches the reference stature (1.76 m). Macros baked into the basis via TargetService.bake_targets immediately after create_human. Standard 137-joint rig; #317 face keys; #318 helper strip (19,158->13,380 verts / 36,972->26,756 tris); measured exported body: stature 1.7601 m, chest 0.8334, waist 1.1014, chest:waist 0.7567. Wardrobe: #180 closed_casual toigo t-shirt upper (cream 0.72,0.68,0.55 from the manifest's declared olive_knit_and_cream_casual palette; 2,700 tris; #360/#386 consumes the asset's OWN declared T-shirt_basic.png, luminance-normalised by its authored mean 0.5133, baseColorFactor patched post-export), cortu_cargo_pants lower cover shell (LOWER_GATE verdict covers, 2,794 tris; declared cargo_pants.mhmat not staged on the main checkout either — recorded skip keeps the flat cover shell, the same byte class the shipped partner and kevin lower slots ship; #320 hem pushed to the waistband, 84 verts, max deficit 0.0498 m; #373 waistband + #374 ankle-rim regularization; #378 cuff tucked inside the boot shaft), culturalibre_male_boots footwear (male known-good row, 15,308 verts / 30,768 tris, sole grounded to body bottom; #360 consumes male_boots.mhmat -> boot.png, patch_factor=False authored look), #381 mhair02 fitted hair (3,460 tris, weighted to head; named page-CC0/header-AGPL3 uuid f81a4e9a-e3d7-4ecb-bdf0-16d7fd9070a4 allowlist, no new permit), #356 brown iris (patient role, makehuman-system-assets CC0), #377 anatomical 24.0 mm eyes (32.048 -> 24.0 mm, scale 0.7489, re-seated forward 4.024 mm), #343 skin tone warm_medium (0.66,0.50,0.40) from the manifest's input_params.phenotype.skin_tone, #370 tangent-space normal map, #359 scalp placeholder retired (fitted hair present => no placeholder scalp shell)."
+ },
+ "licenseChain": {
+  "status": "mpfb2_makehuman_license_not_reverified_at_comparator",
+  "sourceRecordPath": ".openclinxr-local/provider-cache/mpfb/",
+  "sourceRecordClaimsSupported": [
+   "MPFB2 2.0.15 from Blender Extensions; MPFB is licensed AGPLv3 with a separate license for generated content; MakeHuman basemesh content posture recorded in the Anny source manifest (sources/anny-github-2026.json)."
+  ],
+  "notRun": [
+   "licence_text_reenumeration",
+   "makehuman_license_review",
+   "production_asset_readiness"
+  ],
+  "explicitUnknown": [
+   "MPFB/MakeHuman generated-content licensing has not been formally reviewed for production promotion; this asset is a cagematch comparator for evidence only."
+  ]
+ },
+ "notEvidenceFor": [
+  "b_plus_visual_realism_gate",
+  "production_asset_readiness",
+  "quest_readiness",
+  "learner_readiness",
+  "clinical_validity",
+  "scoring_validity",
+  "scene_placement_readiness",
+  "madr_0051_s5_landmark_match_within_bands",
+  "that_the_four_street_casual_slots_resolve_to_this_asset",
+  "that_the_mhair02_header_was_relicenced",
+  "other_agpl_hair_now_allowed"
+ ],
+ "sourceNotes": [
+  "Issue #441 first slice: the street-casual adult male patient moves from the Anny rail to a parametric MPFB bake wearing library garments (D9's clothing/body rows). The resolver swap is a separate slice and is deliberately out of scope — the four slots still resolve to adult_male_street_casual.glb when this asset lands.",
+  "gender/muscle/weight/proportions/cupsize/firmness remain MPFB defaults — only age + height are driven by reference measurement this slice.",
+  "Exact MADR 0051 §5 landmark match (shoulder, girths, limb lengths) is anny-mpfb-landmark-compare's follow-on; NOT claimed here.",
+  "Unlocked decisions: skin tone token warm_medium (new SKIN_TONE_RGB row, (0.66,0.50,0.40) — not byte-identical to any other actor's tone); eyes row kept (brown iris, 24.0 mm anatomical eyes — no clause required it, but the actor is an adult and the materializer hard-refuses a missing EYE_DIAMETER_TARGET_MM row).",
+  "The manifest's output.obj_path names peds_nurse_kevin.anny_base.obj — a copy defect in the reference manifest; the tracked adult_male_street_casual.anny_base.obj (1.76 m, head-height fraction 0.100) drove the bake, and the manifest's input_params (actor_id patient_luis_martinez_v1, skin_tone warm_medium, fabricPalette olive_knit_and_cream_casual) were consumed as-is.",
+  "Baked 2026-08-19 in the issue-441 worktree with the provider caches staged locally (garments incl. .mhmat + declared textures, hair mhair02, iris makehuman-system-assets, visemes02).",
+  "Out-of-scope wrongness seen and not fixed: the figure's fit quality (poke-through, waistband gap, hem sawtooth #401) was not re-graded for this new body; the orchestrator grades an isolated lit front still."
+ ],
+ "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
+ "promotionGates": false,
+ "generatedAt": "2026-08-19T08:41:00Z",
+ "outputSha256": "2a67433e3070f061c9a58268167f9b736bbd9ad4eefcc7a34a8f8d0da1ffa14f",
+ "outputBytes": 12360872
+}
