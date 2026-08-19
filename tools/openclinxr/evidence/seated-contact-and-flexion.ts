@@ -25,6 +25,10 @@ import {
   buildRoomCaptureUrl,
   waitForStationShell,
 } from "./ui-xr-environment-room-capture.js";
+// #446: sample after the heavy cast GLB settles — frame-20 sampling on a fresh boot
+// caught the patient's 12 MB GLB mid-load (gap −0.45, meshH 0) and made the #87
+// contract flaky on exactly the rig this module was built to measure.
+import { waitForSceneAssetsSettled } from "./declared-actors-rendered.js";
 
 export const SEATED_CONTACT_DIR = ".openclinxr/evidence/seated-posture";
 export const SEATED_CONTACT_NAME = "seated-contact-measurements.json";
@@ -177,6 +181,7 @@ async function measureLiveSeatedContact(input: {
         await page.goto(url, { waitUntil: "load", timeout: 180_000 });
         await waitForStationShell(page, 180_000);
         await waitForHumanoidsAndFrames(page, 8, 180_000);
+        await waitForSceneAssetsSettled(page, 60_000);
         await page.waitForTimeout(900);
         const report = await readSeatedContactFromPage(page);
         if (report.seated.length === 0) {

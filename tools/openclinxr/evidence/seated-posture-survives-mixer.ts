@@ -20,6 +20,9 @@ import {
   waitForStationShell,
   type LivePostureGeometryReport,
 } from "./ui-xr-environment-room-capture.js";
+// #446: sample after the heavy cast GLB settles — frame-19 sampling on a fresh boot
+// measured the patient's primitive scaffold (h≈1.43) before the 12 MB GLB arrived.
+import { waitForSceneAssetsSettled } from "./declared-actors-rendered.js";
 
 export const POSTURE_MEASUREMENTS_DIR = ".openclinxr/evidence/seated-posture";
 export const POSTURE_MEASUREMENTS_NAME = "posture-measurements.json";
@@ -67,6 +70,7 @@ export async function measureLivePostureGeometry(input?: {
         await page.goto(url, { waitUntil: "load", timeout: 180_000 });
         await waitForStationShell(page, 180_000);
         await waitForHumanoidsAndFrames(page, minFrames, 180_000);
+        await waitForSceneAssetsSettled(page, 60_000);
         // Extra settle so mixer + re-seat have run several times after load.
         await page.waitForTimeout(900);
         const report = await readLivePostureGeometryFromPage(page);

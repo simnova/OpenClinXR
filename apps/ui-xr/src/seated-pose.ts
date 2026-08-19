@@ -14,7 +14,7 @@
  * notEvidenceFor: clinical sitting realism, mocap quality, Mesh2Motion retarget success.
  */
 
-import { Quaternion, Vector3, type Object3D } from "three";
+import type { Object3D } from "three";
 import {
   SEATED_CLIP_NAME,
   STANDING_CLIP_NAME,
@@ -23,6 +23,8 @@ import {
   resolvePoseBone,
 } from "@openclinxr/asset-registry";
 import { collectJointNames, resolveRotationMap, sanitiseBoneName } from "./pose-bone-runtime.js";
+// #447: the MPFB2 rail's baked rest is not Anny-frame — the leg fold lives in its own module.
+import { applyMpfb2SeatedFold, isMpfb2Rig } from "./seated-pose-mpfb2.js";
 
 /** Degrees → radians helper. */
 const d2r = (deg: number) => (deg * Math.PI) / 180;
@@ -302,84 +304,6 @@ export function applyPosturePose(
     posture,
     lowestSupportBoneWorldY,
   };
-}
-
-/**
- * MPFB2 rail detection: the 137-joint rig names its leg chains upperleg01/02.L and
- * lowerleg01/02.L (sanitised upperleg01L / lowerleg01L after three.js strips dots —
- * the trailing L keeps its case, matching the asset-registry alias table).
- */
-function isMpfb2Rig(jointNames: ReadonlySet<string>): boolean {
-  return jointNames.has("upperleg01L") || jointNames.has("lowerleg01L");
-}
-
-/** Seated shin tuck (radians) for the MPFB2 rail — 30° back under the chair. */
-const MPFB2_SHIN_TUCK_RAD = (30 * Math.PI) / 180;
-
-/**
- * #447 — fold the MPFB2 rail's legs into a seated configuration.
- *
- * The baked rest of these GLBs already renders the trunk upright (the Anny-frame
- * absolute eulers are what crush it), so this touches ONLY the leg bones: each
- * bone's world +Y axis is aligned to a target direction (thigh -> world forward,
- * shin -> world down-tucked). Composition is done in quaternion space via the
- * parent chain, so chain scale (slot 0.88, breathing 1.01) cannot corrupt the
- * extraction. Idempotent: once a bone's +Y points at its target the delta is
- * identity, so the per-frame re-apply in the runtime loop is a no-op.
- *
- * Calibration (live, mpfb-street-adult-male.glb, 2026-08-19): knee ≈ 0.45 m
- * (hip level), lowest skinned vertex ≈ 0.04 m (floor band), head ≈ 1.19 m,
- * mesh height ≈ 1.15 m — Δh vs the floor-standing family peer ≈ 0.29 m.
- */
-function applyMpfb2SeatedFold(humanoidRoot: Object3D, bonesTouched: string[]): void {
-  const forward = new Vector3(0, 0, 1);
-  const shinTarget = new Vector3(0, -Math.cos(MPFB2_SHIN_TUCK_RAD), -Math.sin(MPFB2_SHIN_TUCK_RAD));
-
-  /** World quaternion of a bone by composing the live parent chain (no matrices). */
-  const worldQuat = (object: Object3D): Quaternion => {
-    if (object.parent) {
-      return worldQuat(object.parent).multiply(object.quaternion);
-    }
-    return object.quaternion.clone();
-  };
-
-  const align = (bone: Object3D, target: Vector3): void => {
-    const worldQ = worldQuat(bone);
-    const currentY = new Vector3(0, 1, 0).applyQuaternion(worldQ).normalize();
-    const delta = new Quaternion().setFromUnitVectors(currentY, target);
-    if (delta.lengthSq() < 1e-12) return;
-    const newWorldQ = delta.multiply(worldQ);
-    const parentQ = bone.parent ? worldQuat(bone.parent) : new Quaternion();
-    bone.quaternion.copy(parentQ.invert().multiply(newWorldQ)).normalize();
-    bone.userData.openClinXrSeatedPose = SEATED_CLIP_NAME;
-    if (!bonesTouched.includes(bone.name)) bonesTouched.push(bone.name);
-  };
-
-  humanoidRoot.traverse((object) => {
-    if (!isBoneNode(object)) return;
-    const name = object.name ?? "";
-    const lower = name.toLowerCase();
-    const isThigh = lower.startsWith("upperleg01") || lower.startsWith("upperleg02");
-    const isShin = lower.startsWith("lowerleg01") || lower.startsWith("lowerleg02");
-    if (isThigh) align(object, forward);
-    if (isShin) align(object, shinTarget);
-  });
-
-  // Mirror onto skeleton.bones in case the skinned mesh holds the authoritative list.
-  humanoidRoot.traverse((object) => {
-    const skinned = object as Object3D & {
-      isSkinnedMesh?: boolean;
-      skeleton?: { bones: Object3D[]; update?: () => void };
-    };
-    if (!skinned.isSkinnedMesh || !skinned.skeleton?.bones) return;
-    for (const bone of skinned.skeleton.bones) {
-      const lower = (bone.name ?? "").toLowerCase();
-      const isThigh = lower.startsWith("upperleg01") || lower.startsWith("upperleg02");
-      const isShin = lower.startsWith("lowerleg01") || lower.startsWith("lowerleg02");
-      if (isThigh || isShin) align(bone, isThigh ? forward : shinTarget);
-    }
-    skinned.skeleton.update?.();
-  });
 }
 
 type BoneLike = Object3D & { isBone?: boolean; type?: string };
