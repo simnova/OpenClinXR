@@ -1213,7 +1213,7 @@ describe("IWSDK spike plan", () => {
   it("defines pre-install package policy for the first IWSDK sidecar dependency proposal", () => {
     expect(buildIwsdkPreInstallPackagePolicy()).toEqual({
       exactVersionRequired: true,
-      allowedFirstSlicePackages: ["@iwsdk/core", "@iwsdk/xr-input"],
+      allowedFirstSlicePackages: ["@iwsdk/core", "@iwsdk/xr-input", "@iwsdk/scene-composition"],
       reviewRequiredPackages: [
         "@iwsdk/glxf",
         "@iwsdk/locomotor",

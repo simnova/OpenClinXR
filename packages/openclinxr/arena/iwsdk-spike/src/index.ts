@@ -1072,7 +1072,7 @@ export function buildIwsdkSidecarReadinessContract(): IwsdkSidecarReadinessContr
 export function buildIwsdkPreInstallPackagePolicy(): IwsdkPreInstallPackagePolicy {
   return {
     exactVersionRequired: true,
-    allowedFirstSlicePackages: ["@iwsdk/core", "@iwsdk/xr-input"],
+    allowedFirstSlicePackages: ["@iwsdk/core", "@iwsdk/xr-input", "@iwsdk/scene-composition"],
     reviewRequiredPackages: [
       "@iwsdk/glxf",
       "@iwsdk/locomotor",

@@ -146,6 +146,7 @@ function metadataSnapshot(): IwsdkNpmMetadataSnapshot {
     packages: [
       packageMetadata("@iwsdk/core", "0.5.3", "MIT"),
       packageMetadata("@iwsdk/xr-input", "0.5.3", "MIT"),
+      packageMetadata("@iwsdk/scene-composition", "0.5.3", "MIT"),
       packageMetadata("@iwsdk/locomotor", "0.5.3", "MIT"),
       packageMetadata("@iwsdk/glxf", "0.4.2", "MIT"),
       packageMetadata("@iwsdk/vite-plugin-dev", "0.5.3", "MIT", { vite: "^7.0.0" }),
