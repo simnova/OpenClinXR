@@ -214,6 +214,14 @@ export type DispatchLedgerEntry = {
   worktree?: string;
   at: string;
   /**
+   * ISSUE #440: which write this line is. A fresh dispatch writes an early "spawned" line BEFORE
+   * the child exists — so a dispatch that dies before returning still has a name in the ledger —
+   * then re-appends the post-exit "completed" line with turns/stopReason/proofs. The last line
+   * for a slice is the authoritative one. Readers that consume EVERY line (delegation-scorecard)
+   * must skip "spawned". Absent on entries written before this field existed.
+   */
+  phase?: "spawned" | "completed";
+  /**
    * INCIDENT (layer-3): after exit, orchestrator re-ran tree proofs against the worktree.
    * Absent means this entry predates contract wiring or contract was explicitly "none".
    */
@@ -964,6 +972,30 @@ function uniqueStrings(values: readonly string[]): string[] {
 }
 
 /**
+ * ISSUE #440: the identity fields both ledger lines for one dispatch share. The early ("spawned")
+ * line and the post-exit ("completed") line must agree on these, or a reader cannot trust either
+ * line's identity. Post-exit-only knowledge (turns, stopReason, proofs) is added by the caller.
+ */
+function ledgerIdentity(
+  options: DispatchOptions,
+  assembled: AssembledContract,
+  worktreePath: string | undefined,
+): Pick<
+  DispatchLedgerEntry,
+  "slice" | "role" | "model" | "resumedFrom" | "worktree" | "contractSource" | "contractReason"
+> {
+  return {
+    ...(options.slice ? { slice: options.slice } : {}),
+    ...(options.role ? { role: options.role } : {}),
+    model: options.model ?? "deepseek-v4-flash",
+    ...(options.resume ? { resumedFrom: options.resume } : {}),
+    ...(worktreePath ? { worktree: worktreePath } : {}),
+    contractSource: assembled.contractSource,
+    ...(assembled.contractReason ? { contractReason: assembled.contractReason } : {}),
+  };
+}
+
+/**
  * Persist the session id where it outlives this process.
  *
  * INCIDENT: 41 session ids from one session existed only in the orchestrator's scratch files.
@@ -1275,6 +1307,24 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
   const binary = join(homedir(), ".grok/bin/grok");
   const mainDirtyBefore = worktreePath ? new Set(mainTreeDirtyPaths(repoRoot)) : undefined;
 
+  // ISSUE #440: name the child BEFORE it exists. A dispatch that dies before returning — arg-parse
+  // abort, crash, reap — used to leave no ledger entry, so recovery meant scavenging
+  // ~/.grok/sessions/<worktree>/ newest-first, where a wrong id does not error, it CONFABULATES.
+  // #439 chose the id up front; this write puts it in the ledger before the spawn. The completed
+  // entry is re-appended after exit so the last line stays authoritative. A resumed session's id
+  // can only come from the child, so a resume writes no early line.
+  const earlyEntry: DispatchLedgerEntry | undefined = chosenSessionId
+    ? {
+        sessionId: chosenSessionId,
+        ...ledgerIdentity(options, assembled, worktreePath),
+        at: new Date().toISOString(),
+        phase: "spawned",
+      }
+    : undefined;
+  if (earlyEntry) {
+    recordSession(repoRoot, earlyEntry);
+  }
+
   const chunks: string[] = [];
   const stderr: string[] = [];
   const child = spawn(binary, argv, {
@@ -1321,16 +1371,11 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
   // the ledger and is resumable without scavenging ~/.grok/sessions.
   const entry: DispatchLedgerEntry = {
     sessionId,
-    ...(options.slice ? { slice: options.slice } : {}),
-    ...(options.role ? { role: options.role } : {}),
-    model: options.model ?? "deepseek-v4-flash",
+    ...ledgerIdentity(options, assembled, worktreePath),
     ...(parsed.turns !== undefined ? { turns: parsed.turns } : {}),
     ...(parsed.stopReason ? { stopReason: parsed.stopReason } : {}),
-    ...(options.resume ? { resumedFrom: options.resume } : {}),
-    ...(worktreePath ? { worktree: worktreePath } : {}),
     at: new Date().toISOString(),
-    contractSource: assembled.contractSource,
-    ...(assembled.contractReason ? { contractReason: assembled.contractReason } : {}),
+    phase: "completed",
     ...(gitignoredProofTargetsWarned.length > 0 ? { gitignoredProofTargetsWarned } : {}),
   };
   recordSession(repoRoot, entry);

@@ -50,6 +50,19 @@ describe("delegation scorecard", () => {
   it("formats without throwing on an empty ledger", () => {
     expect(() => formatScorecard(buildScorecard(process.cwd(), []))).not.toThrow();
   });
+
+  it("counts a dispatch once when the ledger holds several lines for it (#440)", () => {
+    // A fresh dispatch now writes a "spawned" line before the child exists and re-appends the
+    // completed line after exit (and a third, complete line when proofs evaluate). Counting every
+    // line would inflate totalDispatched / byModel by 2-3x per dispatch.
+    const base = entry("double-counted", "deepseek-v4-pro");
+    const spawned = { ...base, phase: "spawned" as const, turns: undefined };
+    const completed = { ...base, phase: "completed" as const, turns: 20 };
+    const complete = { ...base, phase: "completed" as const, turns: 20, proofsOk: true };
+    const card = buildScorecard(process.cwd(), [spawned, completed, complete]);
+    expect(card.totalDispatched).toBe(1);
+    expect(card.byModel["deepseek-v4-pro"]?.dispatched).toBe(1);
+  });
 });
 
 describe("landing is read from integration events, not from commit subjects", () => {

@@ -109,7 +109,16 @@ export function buildScorecard(
   // worker's branch, and pre-worktree dispatches wrote straight into main with no branch to find.
   // Including them produced a 6% land rate that measured the LEDGER's history, not the loop's
   // performance — precisely the kind of number a self-scoring loop would then optimise.
-  const all = (sessions ?? readSessions(repoRoot)).filter((entry) => entry.slice);
+  // ISSUE #440: a fresh dispatch now writes a "spawned" line before the child exists, and a
+  // proofed dispatch re-appends a complete line after proofs evaluate — so one dispatch can
+  // occupy 2-3 ledger lines. De-duplicate by sessionId (the last line carries the most post-exit
+  // knowledge) and skip the early "spawned" lines, or totalDispatched / byModel double-count.
+  const bySession = new Map<string, DispatchLedgerEntry>();
+  for (const entry of sessions ?? readSessions(repoRoot)) {
+    if (!entry.slice || entry.phase === "spawned") continue;
+    bySession.set(entry.sessionId, entry);
+  }
+  const all = [...bySession.values()];
   const worktreeBound = all.filter((entry) => entry.worktree !== undefined);
   // Infrastructure probes (isolation proofs, ceiling sweeps) never produce a merge, by design.
   // Counting them as "did not land" made the live figure read 4/14 = 29% when the real answer for
