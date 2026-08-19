@@ -386,6 +386,8 @@ function runGh(plan: GhCommandPlan, dryRun: boolean): { stdout: string; executed
   const [bin, ...args] = plan.argv;
   const result = spawnSync(bin!, args, {
     encoding: "utf8",
+    // #449 safety net: bounded, but the real fix is not listing the board at all.
+    maxBuffer: 32 * 1024 * 1024,
     env: buildGhEnv(),
   });
   if (result.error) {
@@ -403,6 +405,8 @@ export function defaultGhRunner(argv: string[]): string {
   const [bin, ...args] = argv;
   const result = spawnSync(bin!, args, {
     encoding: "utf8",
+    // #449 safety net: bounded, but the real fix is not listing the board at all.
+    maxBuffer: 32 * 1024 * 1024,
     env: buildGhEnv(),
   });
   if (result.error) {
@@ -534,9 +538,23 @@ export function setFactoryField(
     argv: ["gh", "project", "view", String(projectNumber), "--owner", owner, "--format", "json", "-q", ".id"],
     display: `gh project view ${projectNumber} --owner ${owner} --format json -q .id`,
   };
-  const planItemList: GhCommandPlan = {
-    argv: ["gh", "project", "item-list", String(projectNumber), "--owner", owner, "--format", "json", "--limit", "1000"],
-    display: `gh project item-list ${projectNumber} --owner ${owner} --format json --limit 1000  # membership scan`,
+  /**
+   * ISSUE #449 — resolve the card FROM THE ISSUE, never by listing the board.
+   *
+   * The previous `item-list --limit 1000` shelled 2,518,167 bytes of project JSON to find one
+   * `PVTI_` id, against Node's 1,048,576-byte spawnSync default: measured ENOBUFS twice, and the
+   * same call is what drained GraphQL to 71/5000 and hard-blocked every dispatch once #448 made
+   * this a gate. This hop returns the exact item in 155 bytes.
+   */
+  const planItemResolve: GhCommandPlan = {
+    argv: [
+      "gh", "api", "graphql",
+      "-f", `query=query($owner:String!,$repo:String!,$num:Int!){repository(owner:$owner,name:$repo){issue(number:$num){projectItems(first:20){nodes{id project{number}}}}}}`,
+      "-f", `owner=${repo.split("/")[0]}`,
+      "-f", `repo=${repo.split("/")[1]}`,
+      "-F", `num=${issueNumber}`,
+    ],
+    display: `gh api graphql  # issue #${issueNumber} -> projectItems.nodes.id (155 B; never lists the board)`,
   };
   const planItemAdd: GhCommandPlan = {
     argv: ["gh", "project", "item-add", String(projectNumber), "--owner", owner, "--url", issueUrl, "--format", "json"],
@@ -553,7 +571,7 @@ export function setFactoryField(
       issueNumber,
       itemId: "<item-id>",
       stage,
-      plans: [planProjectView, planItemList, planItemAdd, planFieldList, planFactoryStageWrite({
+      plans: [planProjectView, planItemResolve, planItemAdd, planFieldList, planFactoryStageWrite({
         projectId: "<project-id>",
         itemId: "<item-id>",
         fieldId,
@@ -566,12 +584,8 @@ export function setFactoryField(
   plans.push(planProjectView);
   const projectId = stripAnsi(runner(planProjectView.argv)).trim();
 
-  plans.push(planItemList);
-  const itemListJson = runner(planItemList.argv);
-  const itemList = JSON.parse(stripAnsi(itemListJson)) as { items?: Array<{ id?: string; content?: { number?: number } | null }> };
-  let itemId = (itemList.items ?? []).find(
-    (item) => item.content != null && Number(item.content.number) === issueNumber,
-  )?.id;
+  plans.push(planItemResolve);
+  let itemId = parseProjectItemId(runner(planItemResolve.argv), projectNumber);
 
   if (!itemId) {
     // Card not on the board — ensure membership (issue #448 hole 4: no item-add existed).
@@ -587,6 +601,25 @@ export function setFactoryField(
   runner(writePlan.argv);
 
   return { ok: true, issueNumber, itemId, stage, plans };
+}
+
+/**
+ * #449 — pick this project's item id out of the issue-scoped GraphQL response.
+ *
+ * Returns undefined when the issue is on no board (the caller then runs item-add). An issue can
+ * sit on several projects, so the project NUMBER selects; `first:20` is not paginated and a
+ * 21st board would be missed — recorded, not handled.
+ */
+function parseProjectItemId(stdout: string, projectNumber: number): string | undefined {
+  try {
+    const parsed = JSON.parse(stripAnsi(stdout)) as {
+      data?: { repository?: { issue?: { projectItems?: { nodes?: Array<{ id?: string; project?: { number?: number } }> } } } };
+    };
+    const nodes = parsed.data?.repository?.issue?.projectItems?.nodes ?? [];
+    return nodes.find((n) => Number(n.project?.number) === projectNumber)?.id;
+  } catch {
+    return undefined;
+  }
 }
 
 /** gh project item-add prints the new item id (raw or as --format json). */
@@ -782,7 +815,7 @@ export function cmdReview(input: { repo: string; pr: number; verdict: string; ro
   const reviewBody = `${NO_PRODUCT_DATA_BANNER}\n\n**${input.role} review — ${input.verdict}**\n\n${input.body}`;
   let sha = "<PR_HEAD_SHA>"; // dry-run placeholder; resolved live below
   if (!input.dryRun) {
-    const res = spawnSync("gh", ["pr", "view", String(input.pr), "--repo", input.repo, "--json", "headRefOid", "-q", ".headRefOid"], { encoding: "utf8" });
+    const res = spawnSync("gh", ["pr", "view", String(input.pr), "--repo", input.repo, "--json", "headRefOid", "-q", ".headRefOid"], { encoding: "utf8", maxBuffer: 32 * 1024 * 1024 });
     if (res.status !== 0) throw new Error(`could not resolve PR #${input.pr} head SHA: ${res.stderr || res.stdout}`);
     sha = String(res.stdout).trim();
   }
@@ -801,10 +834,10 @@ export function planGhMerge(input: { repo: string; pr: number; method: string })
 
 /** Read the agent-review/<role> commit status on a PR head (live). */
 export function readReviewStatus(repo: string, pr: number, role: string): { state: string; found: boolean } {
-  const shaRes = spawnSync("gh", ["pr", "view", String(pr), "--repo", repo, "--json", "headRefOid", "-q", ".headRefOid"], { encoding: "utf8" });
+  const shaRes = spawnSync("gh", ["pr", "view", String(pr), "--repo", repo, "--json", "headRefOid", "-q", ".headRefOid"], { encoding: "utf8", maxBuffer: 32 * 1024 * 1024 });
   if (shaRes.status !== 0) throw new Error(`could not resolve PR #${pr}: ${shaRes.stderr}`);
   const sha = String(shaRes.stdout).trim();
-  const st = spawnSync("gh", ["api", `repos/${repo}/commits/${sha}/status`], { encoding: "utf8" });
+  const st = spawnSync("gh", ["api", `repos/${repo}/commits/${sha}/status`], { encoding: "utf8", maxBuffer: 32 * 1024 * 1024 });
   if (st.status !== 0) throw new Error(`could not read status of ${sha}: ${st.stderr}`);
   const data = JSON.parse(String(st.stdout)) as { statuses?: Array<{ context: string; state: string }> };
   const found = (data.statuses ?? []).find((x) => x.context === `agent-review/${role}`);

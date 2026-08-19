@@ -104,6 +104,33 @@ import { describe, expect, it } from "vitest";
  *   (4) PASSES TODAY — it reads the field and option ids. Pure net against (d).
  *   (5) PASSES TODAY — vacuity guard on the file itself.
  *
+ * ## FIXED (#449, 2026-08-19) — hand-landed by the orchestrator under explicit authorisation
+ *
+ * `setFactoryField` no longer lists the board. It resolves the card FROM THE ISSUE:
+ * `gh api graphql` -> `repository.issue.projectItems.nodes{id, project{number}}`, selecting by
+ * project number. `maxBuffer: 32 MB` added to all five `spawnSync` sites as a safety net — NOT
+ * the fix; the fix is that nothing shells 2.5 MB any more.
+ *
+ * LIVE PROOF, the thing the injected-runner tests could not answer:
+ *
+ *   before:  board-cli.ts factory --slice-id issue-449 --stage Planted  -> spawnSync gh ENOBUFS
+ *   then:    same command                                               -> GraphQL rate limit
+ *   after:   same command  -> "factory slice=issue-449 issue=#449 -> Factory=Planted", exit 0
+ *
+ * Verified on the item itself, not through the poll:
+ *   item PVTI_lADOAAIjts4BW0-vzg3MdGo   Status = Todo   Factory = Planted
+ *
+ * WHY THIS WAS HAND-EDITED AND NOT DISPATCHED: #448 made this writer a hard gate on every
+ * dispatch (`dispatch-worker.ts:1231`), so dispatching the fix required the writer being fixed.
+ * Deadlock. The superagent authorised a scoped hand-edit — board-cli.ts and this contract only —
+ * and explicitly REFUSED downgrading the gate, adding a try/catch, or `OPENCLAW_SKIP_HOOKS`.
+ * The gate at :1226-1231 is untouched.
+ *
+ * THE POLL LIED, AND IT IS THE THIRD FALSE INSTRUMENT THIS SESSION:
+ * `gh project item-list --query "factory:Planted"` returned only `[448]` while #449's own item
+ * read `Factory = Planted`. After the limit-200 board read and the cached floor-contact
+ * artifact, that query does not get believed again without corroboration from the item.
+ *
  * NOT TESTED:
  *   - **That the live write then succeeds.** This contract asserts the MECHANISM. The
  *     `done_when` carries the live CLI invocation, which throws ENOBUFS today; that is the
