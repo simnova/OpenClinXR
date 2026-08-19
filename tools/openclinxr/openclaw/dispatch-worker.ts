@@ -9,9 +9,9 @@
  *
  * Each rule is annotated with the incident that produced it.
  *
- * BYPASS CHOKEPOINT: shell-tool attempts to run raw `grok -p` / `--single` are refused by
- * `dispatch-chokepoint.ts` (PreToolUse). This module uses `spawn(binary, argv)` so it never
- * hits that matcher. Orchestrator isolation probes that must run with path denies OFF use the
+ * BYPASS CHOKEPOINT: shell-tool attempts to run raw `grok -p` / `--single` / `--prompt-file` are
+ * refused by `dispatch-chokepoint.ts` (PreToolUse). This module uses `spawn(binary, argv)` so it
+ * never hits that matcher. Orchestrator isolation probes that must run with path denies OFF use the
  * named escape OPENCLINXR_RAW_GROK_SANCTIONED + OPENCLINXR_RAW_GROK_REASON (logged). The
  * chokepoint is a string matcher over shell command text — not an OS sandbox; see that file.
  */
@@ -176,6 +176,12 @@ type DispatchOptions = {
    * provisioned — whole-root copy is rejected on cost (see worktree-asset-provisioning.ts).
    */
   assetPaths?: readonly string[];
+  /**
+   * ISSUE #437: directory for the prompt file written by buildArgv (the prompt is passed via
+   * `--prompt-file`, never as the value of `-p`). dispatch() supplies the trusted slice dir;
+   * callers of buildArgv that omit it fall back to a scratch dir under ~/.grok.
+   */
+  promptFileDir?: string;
   /**
    * ISSUE #246: explicit orchestrator acknowledgment that the dispatch proofs are the INTENDED
    * replacement for the stored brief's done_when. Without it, a dispatch whose proofs differ from
@@ -494,6 +500,9 @@ export function buildContractPromptAppendix(treeProofs: string[]): string {
  * Persona text here would fork the role contract into a second drifting copy (D1).
  */
 /**
+ * RE-ENABLED 2026-08-19 behind `--prompt-file` (issue #437). The revert record follows verbatim —
+ * it is the measured evidence for WHY the prompt moved off argv.
+ *
  * REVERTED FROM THE DISPATCH PATH 2026-08-19 — the function is fine, composing it was not.
  *
  * MEASURED, by bisect: with `buildRoleCharterAppendix(options.role, repoRoot)` composed into the
@@ -511,9 +520,12 @@ export function buildContractPromptAppendix(treeProofs: string[]): string {
  * repoRoot. **Isolation proved the function; only the full path proved the hang.** That gap is the
  * lesson: a unit probe of a composer says nothing about the spawn that consumes its output.
  *
- * CAUSE NOT DIAGNOSED. Prompt/argv size, the readdir scan under a worktree root, and an interaction
- * with the text-only vision appendix are all unexcluded. Do not re-enable this line on a guess;
- * re-enable only behind a dispatch that is observed to exec grok and complete one turn.
+ * CAUSE NOW IDENTIFIED (issue #437, 2026-08-19): the trigger is the prompt travelling as the value
+ * of `-p`. Flag-looking tokens inside the composed appendix (`--output-logs`, `--filter` — the
+ * only two in the whole appendix, both inside chars 400-800) reached grok's OWN argument scan; a
+ * bisect showed 2,843 chars of padding spawns while a 1,421-char appendix does not, metacharacters
+ * and newlines ruled out. `dispatch()` now writes the prompt to a file and passes `--prompt-file`
+ * (a documented first-class headless entry point), and compose is re-enabled behind it.
  */
 export function buildRoleCharterAppendix(roleId: string, repoRoot?: string): string {
   if (!roleId || roleId.trim().length === 0) return "";
@@ -570,8 +582,42 @@ function resolveRoleDir(repoRoot: string, roleId: string): string | null {
  * run aborted with "a value is required for '--single <PROMPT>'". The wrapper shell still exited
  * 0 (the trailing echo), so it LOOKED like a completed worker that had simply done nothing.
  *
- * Correct order is always: `-p "<prompt>"` FIRST, then every other flag.
+ * Correct order is always: `--prompt-file <path>` FIRST, then every other flag.
+ *
+ * ISSUE #437 (2026-08-19, measured by bisect): the prompt is NO LONGER an argv element at all.
+ * Composing the role charter into the `-p` value hung dispatch FIVE times — no grok child, no
+ * exception, process alive past 90 s. The trigger is flag-looking tokens inside the prompt text
+ * (`--output-logs`, `--filter` in the composed appendix) reaching grok's OWN argument scan. The
+ * prompt is written to a file and passed via `--prompt-file` (a documented first-class headless
+ * entry point), which removes the whole class; escaping the two known tokens would re-arm on the
+ * next brief that names a CLI flag, and briefs here routinely do.
  */
+/** Scratch location for prompt files when the caller did not supply a promptFileDir. */
+const DEFAULT_PROMPT_FILE_DIR = join(homedir(), ".grok", "dispatch-prompts");
+
+export function buildArgv(options: DispatchOptions): string[] {
+  const argv = ["--prompt-file", writePromptFile(options)];
+  if (options.resume) argv.push("--resume", options.resume);
+  // 2026-08-10 flash-first default (V4-Flash-0731 agentic bench lead); override with options.model
+  argv.push("--model", options.model ?? "deepseek-v4-flash");
+  argv.push("--always-approve");
+  // streaming-json emits a usage event per turn — the only way to see a stall while the worker is
+  // still alive. Plain json yields aggregates only, i.e. you learn about the death afterwards.
+  argv.push("--output-format", options.streaming ? "streaming-json" : "json");
+  argv.push("--max-turns", String(options.maxTurns ?? DEFAULT_MAX_TURNS));
+  if (options.cwd) argv.push("--cwd", options.cwd);
+  return argv;
+}
+
+/** Write the FULL prompt to disk and return the path buildArgv passes to grok. */
+function writePromptFile(options: DispatchOptions): string {
+  const dir = options.promptFileDir ?? DEFAULT_PROMPT_FILE_DIR;
+  mkdirSync(dir, { recursive: true });
+  const path = join(dir, `prompt-${options.slice ?? "unscoped"}.md`);
+  writeFileSync(path, options.prompt, "utf8");
+  return path;
+}
+
 /** Worktrees live OUTSIDE the main checkout so the main-tree deny cannot block them. */
 export const WORKTREE_ROOT = join(homedir(), ".grok", "worktrees", "src-openclinxr");
 
@@ -636,20 +682,6 @@ export function assertProofShape(proofs: readonly string[]): void {
       );
     }
   }
-}
-
-export function buildArgv(options: DispatchOptions): string[] {
-  const argv = ["-p", options.prompt];
-  if (options.resume) argv.push("--resume", options.resume);
-  // 2026-08-10 flash-first default (V4-Flash-0731 agentic bench lead); override with options.model
-  argv.push("--model", options.model ?? "deepseek-v4-flash");
-  argv.push("--always-approve");
-  // streaming-json emits a usage event per turn — the only way to see a stall while the worker is
-  // still alive. Plain json yields aggregates only, i.e. you learn about the death afterwards.
-  argv.push("--output-format", options.streaming ? "streaming-json" : "json");
-  argv.push("--max-turns", String(options.maxTurns ?? DEFAULT_MAX_TURNS));
-  if (options.cwd) argv.push("--cwd", options.cwd);
-  return argv;
 }
 
 export type ResolveWorkerWorktreeOptions = {
@@ -1141,7 +1173,9 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
 
   // Worktree binding: resolve the tree, point the worker at it, and install the HARD deny on main.
   // Done here rather than left to callers so no dispatch path can forget the boundary.
-  let effective = options;
+  // ISSUE #437: the prompt file lands in the TRUSTED slice dir (the worker cannot write it — the
+  // main-tree deny covers it — and it survives as the exact-prompt record for the slice).
+  let effective = { ...options, promptFileDir: assembled.trustedSliceDir };
   let worktreePath: string | undefined;
   if (options.worktree) {
     worktreePath = resolveWorkerWorktree(
@@ -1152,11 +1186,11 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
       assetPaths.length > 0 ? { assetPaths } : undefined,
     );
     effective = {
-      ...options,
+      ...effective,
       cwd: worktreePath,
       // The worker must never see the main path as its repo root — every absolute path it copies
       // out of a prompt, AGENTS.md, or role memory would otherwise point at main.
-      prompt: options.prompt.split(repoRoot).join(worktreePath),
+      prompt: effective.prompt.split(repoRoot).join(worktreePath),
     };
   }
 
@@ -1175,12 +1209,13 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
 
   // #435: bind the role's charter into the worker prompt — role: is no longer a ledger-only label.
   // Unknown roles compose "" so a bad role id cannot break dispatch.
+  // RE-ENABLED 2026-08-19 (issue #437): compose hung dispatch while the prompt was the value of
+  // `-p` (embedded flag tokens reached grok's argv scan); the prompt now travels via
+  // `--prompt-file`, so compose is safe again — verified by a real dispatch reaching a sessionId.
   if (options.role) {
     effective = {
       ...effective,
-      // DISABLED 2026-08-19 — see REVERT note on buildRoleCharterAppendix below.
-      // Composing the charter here HANGS dispatch before grok is ever exec'd.
-      prompt: `${effective.prompt}`,
+      prompt: `${effective.prompt}${buildRoleCharterAppendix(options.role, repoRoot)}`,
     };
   }
 
@@ -1256,7 +1291,13 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
     ...(gitignoredProofTargetsWarned.length > 0 ? { gitignoredProofTargetsWarned } : {}),
   };
   recordSession(repoRoot, entry);
-  writeFileSync(join(repoRoot, ".openclinxr/openclaw/worker-last-result.json"), output);
+  // recordSession resolves through the SHARED coordination root (which may live in the main
+  // checkout), but this mirror write is repoRoot-relative — a worktree that never had a
+  // .openclinxr/openclaw would ENOENT here. mkdir like recordSession does, or a fresh worktree
+  // turns a completed dispatch into a post-success crash.
+  const lastResultPath = join(repoRoot, ".openclinxr/openclaw/worker-last-result.json");
+  mkdirSync(dirname(lastResultPath), { recursive: true });
+  writeFileSync(lastResultPath, output);
 
   if (mainDirtyBefore) {
     // The deny should have made undeclared main writes impossible. Attribute orchestrator
