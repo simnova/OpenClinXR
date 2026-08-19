@@ -1,0 +1,40 @@
+{
+  "issue": "432",
+  "subissueOf": "423",
+  "asset": "apps/ui-xr/public/generated-humanoids/mpfb-viseme-inspect.glb",
+  "packagerClaim": "CC0",
+  "pageVerdict": "NOT_FOUND",
+  "pageVerdictDetail": "#430 — packager JSON (packs/visemes02.json) declares license CC0 on all 15 entries; the pack page (https://static.makehumancommunity.org/assets/assetpacks/visemes02.html) states no licence sentence, read twice independently. NOT_FOUND is not the restrictive clarification that triggers a revisit.",
+  "operatorAssumption": "2026-08-11 — 'backlog the license chase but assume the best so that we are unblocked and can move forward — we can revisit if we hear otherwise.' Recorded on the makehuman-visemes02 row of docs/openclinxr/third-party-asset-licence-ledger.md. An assumption, not a finding; if clarification returns restrictive, every asset derived from these targets must be re-baked without them (#327 stays open as the licence chase, not a bake gate).",
+  "appliedBeforeStrip": true,
+  "applyBeforeStripReason": "#426 — ten of the 15 targets reference helper verts up to 14,991-15,119, past the #318 helper-strip boundary (13,380). FaceService.load_targets runs on the FULL basemesh before ExportService.bake_modifiers_remove_helpers, exactly as clothes do; the strip re-maps shape-key blocks and a target loaded after it would mis-index.",
+  "loadTargetsFlags": {
+    "load_microsoft_visemes": false,
+    "load_meta_visemes": true,
+    "load_arkit_faceunits": false
+  },
+  "loadTargetsCall": "bl_ext.user_default.mpfb.services.faceservice.FaceService.load_targets (faceservice.py:154) — proven tool, wired at materialize_mpfb_humanoid_candidate.py before the strip (D1: no hand-authored deltas).",
+  "configureLipSyncCalled": false,
+  "configureLipSyncReason": "faceservice.py:304 configure_lip_sync requires the iocgpoly_lip_sync addon, which is not installed on this machine; it is a runtime property mapping, not a morph-target bake concern. The inspect GLB's morph targets are the deliverable.",
+  "morphCount": 47,
+  "visemeNames": [
+    "viseme_aa", "viseme_CH", "viseme_DD", "viseme_E", "viseme_FF",
+    "viseme_I", "viseme_kk", "viseme_nn", "viseme_O", "viseme_PP",
+    "viseme_RR", "viseme_sil", "viseme_SS", "viseme_TH", "viseme_U"
+  ],
+  "measuredDiscriminators": {
+    "viseme_aaMaxDisplacementVertex": 494,
+    "viseme_aaMaxDisplacementMeters": 0.0181557,
+    "viseme_aaDominantJoint": "oris01",
+    "viseme_aaLipWeightSum": 0.9916,
+    "viseme_silMaxDisplacementMeters": 0.0,
+    "lipJointPattern": "^(oris|levator)"
+  },
+  "shippedActorSha256": {
+    "mpfb-ob-patient-aisha": "390ee91f722113f9267641f2ebcc5e7ddeaeef3093d288dd908232120f9c5504",
+    "mpfb-peds-parent-aisha": "2182b8c6e6186071f45f273d69022bca31291c0cdcb7200f719eae946e5964b6",
+    "mpfb-peds-nurse-kevin": "0817dbd1932448185037c35487c9a25f5b9e70cbf6f558fa67098e104a955d72",
+    "mpfb-clinical-nurse-adult": "1201e39754f87804f3cebc10a3be55def2937e53490a9cca5331b95aa6bf57bb",
+    "mpfb-clinical-physician-adult": "6406b579da0b543ebf2f52c937dd2d2042b69aa13050c6541668900678d139f4"
+  }
+}

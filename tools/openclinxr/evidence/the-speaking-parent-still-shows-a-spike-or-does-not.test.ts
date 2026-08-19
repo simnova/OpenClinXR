@@ -1,4 +1,5 @@
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { regionLuminance } from "./lib/png-region-luminance.js";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
@@ -35,15 +36,16 @@ import { describe, expect, it } from "vitest";
  *   a) today — no stills                                       |FAIL |FAIL |FAIL |FAIL | REFUSED
  *   b) two stills captured from DIFFERENT source bytes         | pass|FAIL | pass| pass| REFUSED
  *   c) the same frame written twice under two names            | pass| pass|FAIL | pass| REFUSED
- *   d) a black or near-empty frame that technically exists     | pass| pass| pass|FAIL | REFUSED
+ *   d) a blank GREY frame that clears any byte floor           | pass| pass| pass|FAIL | REFUSED
  *   e) same bytes, two distinct states, both frames renderable | pass| pass| pass| pass| ALL PASS
  *
  * **(c) is the one to watch** — the capture harness is driven by time, and a mistimed pair silently
  * produces the same frame twice, which would read as "no spike" when nothing was compared. Clause
  * (3) requires the two files to differ.
  *
- * **(d) is the #409 class.** A still that exists and shows nothing passes `exists:` and teaches the
- * producer that its obligation is discharged. Clause (4) requires both frames to carry content.
+ * **(d) is the #409 class, and it DEFEATED my first version of clause (4).** A still that exists and
+ * shows nothing passes `exists:`, passes a byte floor, and teaches the producer that its obligation
+ * is discharged. Clause (4) now measures luminance sd — see the FIXED block below.
  *
  * **PROBE FIXTURE NOTE.** My first probe run had treatment (e) FAILING clause (4), and that was a
  * defect in the fixture rather than the contract: flat-colour synthetic PNGs compress to a few
@@ -66,7 +68,25 @@ const ARTIFACT = join(REPO_ROOT, "tools/openclinxr/evidence/speaking-parent-stil
 
 /** E2.2's shipped-bytes measurement — proves both states are reachable. */
 const KNOWN_GOOD_STATES = { speaking: 1.0, notSpeaking: 0.4998 };
-const MIN_STILL_BYTES = 20_000;
+/**
+ * ## FIXED (#431) — a byte floor is not a content check, measured
+ *
+ * The first run of this contract produced two stills I graded as EMPTY grey fields, and the byte
+ * floor passed BOTH: 24,922 B and **134,991 B** — the second six times a 20,000 B floor, and
+ * completely blank. Bytes measure entropy; a noisy empty frame has plenty.
+ *
+ * `nonBlackPct` does not catch it either. Measured on those two frames and on a known-good sheet:
+ *
+ *   frame                       mean     sd      nonBlackPct
+ *   EMPTY speaking             142.7    0.96      100.0%
+ *   EMPTY not-speaking         184.3    1.82      100.0%
+ *   KNOWN-GOOD garment sheet    35.8   26.90      100.0%
+ *
+ * All three are 100% non-black, because the empties are GREY rather than black. Only luminance
+ * **sd** separates them. The floor below sits 4.4x above the worst observed empty and 3.4x below
+ * observed real content — derived from both columns, not fitted to clear one observation.
+ */
+const MIN_CONTENT_SD = 8;
 
 type Frame = { stateId: string; speakingFlag: boolean; morphInfluence: number; still: string; bytes: number; sha256: string };
 type Pair = { actor?: string; sourceGlb?: string; sourceGlbSha256?: string; frames?: Frame[] };
@@ -110,7 +130,12 @@ describe("an isolated speaking/not-speaking still pair exists for the parent", (
     for (const x of f) {
       const abs = join(REPO_ROOT, x.still);
       expect(existsSync(abs), `${x.still} must exist`).toBe(true);
-      expect(statSync(abs).size, `${x.still} is too small to contain a rendered figure`).toBeGreaterThan(MIN_STILL_BYTES);
+      const lum = regionLuminance(readFileSync(abs));
+      expect(lum, `${x.still} must be a readable PNG`).toBeTruthy();
+      expect(
+        lum!.sd,
+        `${x.still} is a flat field (mean ${lum!.mean.toFixed(1)}, sd ${lum!.sd.toFixed(2)}) — no figure was rendered`,
+      ).toBeGreaterThan(MIN_CONTENT_SD);
     }
     const speaking = f.find((x) => x.speakingFlag)!;
     const control = f.find((x) => !x.speakingFlag)!;
