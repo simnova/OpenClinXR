@@ -151,12 +151,15 @@ describe("chokepoint evaluate — control / treatment", () => {
 });
 
 describe("dispatch path remains outside the shell chokepoint", () => {
-  it("buildArgv still produces -p first (dispatch uses spawn, not shell matcher)", async () => {
+  it("buildArgv passes the prompt via --prompt-file, and the chokepoint covers that flag too", async () => {
     // Import from dispatch-worker — proves sanctioned path API still works alongside chokepoint.
+    // ISSUE #437: buildArgv no longer emits `-p` at all (the prompt travels via --prompt-file),
+    // so the chokepoint must match --prompt-file or a raw shell line re-creating buildArgv would
+    // bypass dispatch() and every layer hanging off it.
     const { buildArgv } = await import("./dispatch-worker.js");
     const argv = buildArgv({ prompt: "do work", resume: "sess-1" });
-    expect(argv[0]).toBe("-p");
-    expect(argv[1]).toBe("do work");
+    expect(argv[0]).toBe("--prompt-file");
+    expect(argv).not.toContain("-p");
     // The chokepoint never sees spawn() argv — only shell-tool command strings.
     // A synthetic shell line that re-creates buildArgv would be denied without sanction:
     const fakeShell = `grok ${argv.map((a) => JSON.stringify(a)).join(" ")}`;

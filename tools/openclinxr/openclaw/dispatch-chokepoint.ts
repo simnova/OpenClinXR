@@ -49,7 +49,12 @@ export type SanctionContext = {
   logSanction?: boolean;
 };
 
-const HEADLESS_FLAGS = new Set(["-p", "--single", "--prompt"]);
+// ISSUE #437: `--prompt-file` is now THE way dispatch() enters headless mode, so the matcher must
+// cover it too — otherwise a raw shell `grok --prompt-file …` bypasses dispatch() and every layer
+// hanging off it (contract, worktree deny, loop pause). `--prompt-json` has the same property but
+// is not used by any sanctioned path today; it is deliberately NOT added here to keep the matcher
+// to the flags the pipeline actually emits (adding it would be a separate, named change).
+const HEADLESS_FLAGS = new Set(["-p", "--single", "--prompt", "--prompt-file"]);
 
 /** Path-ish tokens that are the grok CLI binary (not `pnpm grok:tier:…`). */
 export function isGrokBinaryToken(token: string): boolean {
@@ -280,7 +285,7 @@ export function evaluateRawGrokShellCommand(
   if (!commandContainsRawGrokHeadless(command)) {
     return {
       decision: "allow",
-      reason: "not a raw headless grok (-p/--single) invocation",
+      reason: "not a raw headless grok (-p/--single/--prompt-file) invocation",
       matched: false,
     };
   }

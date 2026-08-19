@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process";
 import { EventEmitter } from "node:events";
-import { appendFileSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { appendFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -40,6 +40,13 @@ vi.mock("node:child_process", async (importOriginal) => {
 
 const spawnMock = vi.mocked(spawn);
 
+/** The dispatched prompt now lives in the file named by --prompt-file; argv[1] is a path. */
+function readPromptFile(argv: string[]): string {
+  const i = argv.indexOf("--prompt-file");
+  expect(i, "the dispatch must pass the prompt via --prompt-file").toBeGreaterThanOrEqual(0);
+  return readFileSync(argv[i + 1]!, "utf8");
+}
+
 /** A fake ChildProcess whose stdout emits the given bytes, then closes 0. */
 function fakeChildWithOutput(output: string, stderr = ""): ReturnType<typeof spawn> {
   const stdout = new EventEmitter();
@@ -61,12 +68,18 @@ afterEach(() => {
 });
 
 describe("dispatch-worker argv", () => {
-  it("puts the prompt immediately after -p, because -p CONSUMES the next token", () => {
-    // The 2026-08-05 incident: `-p --resume <id> "<prompt>"` made --resume the value of -p, and
-    // grok aborted with "a value is required for '--single <PROMPT>'" while the wrapper exited 0.
+  it("passes the prompt via --prompt-file, so embedded flags never reach grok's argument scan", () => {
+    // ISSUE #437 (measured): the prompt was the value of -p, and flag-looking tokens inside it
+    // (e.g. "--output-logs", "--filter" in the composed role charter) reached grok's OWN argument
+    // scan and hung dispatch five times — no child, no exception, alive past 90 s. The file must
+    // hold the FULL prompt (a stub would send the worker nothing), and the 2026-08-05 ordering
+    // incident is moot because the prompt is no longer an argv element at all.
     const argv = buildArgv({ prompt: "do the thing", resume: "019f-abc" });
-    expect(argv[0]).toBe("-p");
-    expect(argv[1]).toBe("do the thing");
+    expect(argv[0]).toBe("--prompt-file");
+    expect(argv).not.toContain("-p");
+    const path = argv[1]!;
+    expect(existsSync(path)).toBe(true);
+    expect(readFileSync(path, "utf8")).toBe("do the thing");
     expect(argv.indexOf("--resume")).toBeGreaterThan(1);
   });
 
@@ -901,7 +914,7 @@ describe("issue #242 — text-only models cannot Read images (the 400 fence)", (
       contractReason: "issue-242 test: the text-only prompt appendix must reach the worker",
     });
     const argv = spawnMock.mock.calls.at(-1)![1] as string[];
-    const prompt = argv[1] as string;
+    const prompt = readPromptFile(argv);
     expect(prompt).toContain("TEXT-ONLY MODEL");
     expect(prompt).toContain("deepseek-v4-pro");
     expect(prompt).toContain("400");
@@ -950,7 +963,7 @@ describe("buildRoleCharterAppendix (#435)", () => {
       slice: "issue-435-wiring",
     });
     const argv = spawnMock.mock.calls.at(-1)![1] as string[];
-    const prompt = argv[1] as string;
+    const prompt = readPromptFile(argv);
     expect(prompt).toContain("ROLE CHARTER");
     expect(prompt).toContain("xr-systems-architect");
     expect(prompt).toContain("charter.md");
