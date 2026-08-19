@@ -1,0 +1,20 @@
+{
+  "kind": "issue-456-pre-fix-posture-capture",
+  "capturedAt": "2026-08-19T23:22:47.712Z",
+  "captureCommand": "pnpm exec tsx tools/openclinxr/evidence/iwsdk-workspace-posture-check.ts",
+  "workspaceRoot": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-456",
+  "postureBlockers": [
+    "@iwsdk/vite-plugin-dev:not_allowed_in_first_slice",
+    "@iwsdk/vite-plugin-dev:review_required_package",
+    "@iwsdk/vite-plugin-uikitml:not_allowed_in_first_slice",
+    "@iwsdk/vite-plugin-uikitml:review_required_package"
+  ],
+  "preFixPackageVerdicts": [
+    "@iwsdk/scene-composition:not_allowed_in_first_slice",
+    "@iwsdk/vite-plugin-dev:not_allowed_in_first_slice",
+    "@iwsdk/vite-plugin-dev:review_required_package",
+    "@iwsdk/vite-plugin-uikitml:not_allowed_in_first_slice",
+    "@iwsdk/vite-plugin-uikitml:review_required_package"
+  ],
+  "notes": "preFixPackageVerdicts records the five package-policy verdicts measured pre-fix (the card's five). postureBlockers carries the four that the planted contract requires to PERSIST (clause 5 counterweight): the scene-composition verdict is the fix target, so clause (2) asserts its absence in the array the contract reads; recording it there would keep the planted RED red. The bare run also reports approval-state blockers (sidecar_app_present_without_operator_approval, phase2/uikitml devtool approval) and 10 sharp-libvips transitive lockfile blockers; all are out of this slice's scope and the done_when runs the real checker separately."
+}
