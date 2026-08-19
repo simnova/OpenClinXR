@@ -1,0 +1,113 @@
+{
+  "schemaVersion": "openclinxr.viseme-inspect-stills.v1",
+  "issue": "434",
+  "subIssueOf": "423",
+  "generatedAt": "2026-08-19T02:30:23.437Z",
+  "subject": "mpfb-viseme-inspect.glb",
+  "subjectGlbSha256": "0606fde4e6bc98292348276e0ef423fc145054c6397369e3f5d5d906fcd0341d",
+  "camera": {
+    "derivation": "legacy framing of the lab-derived head box (camera-fit-to-bounds.ts frameCamera, non-view branch), recomputed in this probe from the lab-recorded head AABB (focusRegion.boundsMeters): distance = max(headSize)*2.4, position = headCenter + (d*0.55, radius*0.35, d*0.85), lookAt headCenter + 5% height; fov 35, aspect 1280/960; never a hardcoded position (D1); identical for all three shots by construction (bind-pose bounds) and verified to 1 mm across the loads",
+    "fov": 35,
+    "aspect": 1.3333,
+    "position": {
+      "x": 0.5292,
+      "y": 1.6838499999999998,
+      "z": 0.8725499999999999
+    },
+    "target": {
+      "x": 0.0011999999999999997,
+      "y": 1.5582749999999999,
+      "z": 0.05655
+    },
+    "headBoxMeters": {
+      "min": {
+        "x": -0.1023,
+        "y": 1.3996,
+        "z": -0.0597
+      },
+      "max": {
+        "x": 0.1047,
+        "y": 1.6881,
+        "z": 0.1728
+      }
+    },
+    "framePx": {
+      "width": 1280,
+      "height": 960
+    },
+    "headFrameFractionDerivation": "projected head AABB bbox area / frame area — the 8 head-box corners projected to NDC through the derived camera"
+  },
+  "source": "isolated subject lab renders (apps/ui-xr/isolated-subject.html -> isolated-subject-lab.ts) via playwright headless chromium against the ui-xr portless dev server (spawnPortlessDevServer filter @openclinxr/ui-xr); subjectKind=glb, bodyGlb=generated-humanoids/mpfb-viseme-inspect.glb, focus=head; camera derived by the lab from the head-region AABB of the subject's own unmorphed bounds, never hardcoded; each shot drives ONE viseme target to weight 1.0 with all other influences forced to 0 by an in-page applier running before the lab's 4-frame render loop draws its final frame; viseme_sil is the rest control (#426 measured 0 displaced vertices); NOT the scenario runtime, NOT a static asset read, NOT a rebake.",
+  "shots": [
+    {
+      "target": "viseme_aa",
+      "weight": 1,
+      "still": "tools/openclinxr/evidence/stills/viseme-inspect-aa.png",
+      "bytes": 162405,
+      "sha256": "dced92957e2e9d406f60ee7d0ec9b6b82bf627bc8266dce327977795ff388942",
+      "headFrameFraction": 0.2021,
+      "frameCoverage": 0.2607,
+      "luminance": {
+        "mean": 60.47,
+        "sd": 59.81
+      },
+      "morphReadback": {
+        "targetIndex": 32,
+        "appliedMeshes": 8,
+        "targetMax": 1,
+        "otherMax": 0,
+        "influenceCount": 47
+      }
+    },
+    {
+      "target": "viseme_PP",
+      "weight": 1,
+      "still": "tools/openclinxr/evidence/stills/viseme-inspect-pp.png",
+      "bytes": 161722,
+      "sha256": "190b38e6c310743d31e95e9f54f56bdcb5d3c599fea7d604d68c3a0cd21e3627",
+      "headFrameFraction": 0.2021,
+      "frameCoverage": 0.2607,
+      "luminance": {
+        "mean": 60.46,
+        "sd": 59.79
+      },
+      "morphReadback": {
+        "targetIndex": 41,
+        "appliedMeshes": 8,
+        "targetMax": 1,
+        "otherMax": 0,
+        "influenceCount": 47
+      }
+    },
+    {
+      "target": "viseme_sil",
+      "weight": 1,
+      "still": "tools/openclinxr/evidence/stills/viseme-inspect-sil.png",
+      "bytes": 161718,
+      "sha256": "af9b413817ac8e99053dbfeadf14bceed42e651c97a5570fae25019c37a0d2b2",
+      "headFrameFraction": 0.2021,
+      "frameCoverage": 0.2607,
+      "luminance": {
+        "mean": 60.49,
+        "sd": 59.84
+      },
+      "morphReadback": {
+        "targetIndex": 43,
+        "appliedMeshes": 8,
+        "targetMax": 1,
+        "otherMax": 0,
+        "influenceCount": 47
+      }
+    }
+  ],
+  "claimScope": "three stills of mpfb-viseme-inspect.glb (viseme_aa / viseme_PP / viseme_sil, each at weight 1.0 with the other 46 targets at 0), one shared mesh-derived head-framed camera, head AABB bbox occupying >15% of the frame; #423 E6.3 — the artifacts the lead grades",
+  "notEvidenceFor": [
+    "whether the shapes look like speech (the lead grades the three on a closed checklist)",
+    "the runtime speaking state (this is a viseme stand-in, not dialogue)",
+    "any cause or fix",
+    "production phoneme timing",
+    "clinical validity",
+    "scoring validity",
+    "quest readiness"
+  ]
+}
