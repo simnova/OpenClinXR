@@ -795,7 +795,14 @@ describe("dispatch with a streaming-json child (issue #241)", () => {
       contractReason: "issue-241 test: a streaming-json child must still yield a sessionId",
     });
 
-    expect(entry.sessionId).toBe("019f-dispatch-stream");
+    // ISSUE #439: the entry is keyed on the id dispatch CHOSE before spawn (passed to the child
+    // as --session-id), not the id scraped from the child's output — so the ledger entry exists
+    // and stays resumable even when the child dies before `end`. The old assertion (entry keyed
+    // on the scraped "019f-dispatch-stream") encoded the pre-fix behaviour.
+    const argv = spawnMock.mock.calls[0]![1] as string[];
+    const suppliedId = argv[argv.indexOf("--session-id") + 1]!;
+    expect(entry.sessionId).toBe(suppliedId);
+    expect(entry.sessionId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
     expect(entry.turns).toBe(3);
     expect(entry.stopReason).toBe("end_turn");
     // The raw child output is persisted, so the orchestrator can resume the worker by id.
