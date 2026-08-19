@@ -1,0 +1,96 @@
+{
+  "schemaVersion": "openclinxr.speaking-parent-still-pair.v1",
+  "generatedAt": "2026-08-19T00:51:49.050Z",
+  "actor": "parent_tara_johnson_v1",
+  "sourceGlb": "/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb",
+  "sourceGlbSha256": "b8801c637f5fd43bd3c51f140782b4c40da5d27e9eb93a56534cde9b9c7e2ec7",
+  "source": "live runtime stills via playwright headless chromium against the ui-xr portless dev server (spawnPortlessDevServer filter @openclinxr/ui-xr); peds_asthma_parent_anxiety_v1 with the E2.1/E2.2 capture query; runtime's own static face-detail camera (authored once, never moved); speaking state selected by the E2.2 recipe: speakingFlag = phoneme-mouth-cue visibility on the parent's actor root; not-speaking = sustained quiet window, speaking = trace-button dialogue drive; morph influence = max |morphTargetInfluence| over the parent's skinned meshes at the sampling instant; HTML control panels hidden via the runtime's scene-only-visual-review class once before either capture, so both stills share the same canvas and framing; the only scene difference is the speaking state. NOT a static asset read.",
+  "url": "http://127.0.0.1:60350/?openclinxrScenarioId=peds_asthma_parent_anxiety_v1&openclinxrCaptureMode=face-detail&openclinxrPortalStart=encounter&openclinxrAcceleratedExam=1",
+  "camera": {
+    "framing": "runtime_patient_humanoid_face_lip_eye_detail_capture",
+    "authoredPosition": [
+      -0.72,
+      1.54,
+      3.25
+    ],
+    "authoredLookAt": [
+      -0.72,
+      1.44,
+      -0.12
+    ],
+    "authoredFovDegrees": 48,
+    "note": "camera pose is authored once at scene construction (main.ts) and never moved; values copied from the authored constants, not read from the live camera"
+  },
+  "frames": [
+    {
+      "stateId": "not-speaking",
+      "speakingFlag": false,
+      "morphInfluence": 1,
+      "still": "tools/openclinxr/evidence/stills/speaking-parent-not-speaking.png",
+      "bytes": 24922,
+      "sha256": "1d71b242ba9a880877247cb02feac6184ac2aa32a453d9ad7941bbb6aedb1627",
+      "capturedAtPageSeconds": 17.19,
+      "mouthCueVisible": false,
+      "headWorldPosition": [
+        -1.2649,
+        1.6021,
+        0.5511
+      ],
+      "rootWorldPosition": [
+        -1.35,
+        0.95,
+        0.42
+      ],
+      "canvasSize": {
+        "width": 1600,
+        "height": 1600
+      },
+      "headNdcUnderAuthoredCamera": {
+        "x": null,
+        "y": null,
+        "z": null
+      }
+    },
+    {
+      "stateId": "speaking",
+      "speakingFlag": true,
+      "morphInfluence": 1,
+      "still": "tools/openclinxr/evidence/stills/speaking-parent-speaking.png",
+      "bytes": 24922,
+      "sha256": "1d71b242ba9a880877247cb02feac6184ac2aa32a453d9ad7941bbb6aedb1627",
+      "capturedAtPageSeconds": 21.38,
+      "driveTrace": "parent communication",
+      "mouthCueVisible": true,
+      "headWorldPosition": [
+        -1.2853,
+        1.5613,
+        0.6419
+      ],
+      "rootWorldPosition": [
+        -1.35,
+        0.95,
+        0.42
+      ],
+      "canvasSize": {
+        "width": 1600,
+        "height": 1600
+      },
+      "headNdcUnderAuthoredCamera": {
+        "x": null,
+        "y": null,
+        "z": null
+      }
+    }
+  ],
+  "claimScope": "an isolated speaking/not-speaking still pair of parent_tara_johnson_v1 (peds asthma station), same GLB bytes, same camera and framing, differing only in the speaking state; #402 reproduce / #419 E2.3",
+  "notEvidenceFor": [
+    "whether a spike is present (the orchestrator grades the pair)",
+    "the cause",
+    "any fix",
+    "production phoneme timing",
+    "other actors or scenarios",
+    "clinical validity",
+    "scoring validity",
+    "quest readiness"
+  ]
+}
