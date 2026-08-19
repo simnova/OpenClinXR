@@ -17,9 +17,12 @@
  */
 
 import { execFileSync, spawn } from "node:child_process";
-import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { appendFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync, type Dirent } from "node:fs";
+import { dirname, join, resolve } from "node:path";
 import { homedir } from "node:os";
+import { fileURLToPath } from "node:url";
+import { buildRepoAgentSpawnPrompt } from "../../../packages/openclinxr/agent-loop/src/grok-repo-agent-spawn.js";
+import { getRepoRoleHarnessPolicy } from "../../../packages/openclinxr/agent-loop/src/role-harness-policy.js";
 import {
   DONE_WHEN_RULE_VOCABULARY,
   evaluateDoneWhenRule,
@@ -478,6 +481,65 @@ export function buildContractPromptAppendix(treeProofs: string[]): string {
     ...treeProofs.map((r) => `  - ${r}`),
     "=== END CONTRACT PROOFS ===",
   ].join("\n");
+}
+
+/**
+ * #435: `role:` was a label reaching only the ledger — nothing in the dispatched prompt bound the
+ * role's charter. Compose the PROVEN baker output (buildRepoAgentSpawnPrompt) into the worker
+ * prompt so every dispatch runs with its role's Persona, memory, and escalation contract.
+ *
+ * roleDir is RESOLVED from disk (agents/<group>/<role> requiring charter.md, memory.md,
+ * index.json — the grok-agent-cli.ts discovery shape), never hardcoded. Unknown roles return ""
+ * so a bad role id cannot break dispatch. The baker is CALLED, not copied: re-authoring the
+ * Persona text here would fork the role contract into a second drifting copy (D1).
+ */
+export function buildRoleCharterAppendix(roleId: string, repoRoot?: string): string {
+  if (!roleId || roleId.trim().length === 0) return "";
+  const root = repoRoot ?? defaultRepoRoot();
+  const roleDir = resolveRoleDir(root, roleId);
+  const policy = getRepoRoleHarnessPolicy(roleId);
+  if (!roleDir || !policy) return "";
+  const baked = buildRepoAgentSpawnPrompt({ roleId, roleDir, policy });
+  return [
+    "",
+    "=== ROLE CHARTER (orchestrator-injected) ===",
+    baked,
+    "=== END ROLE CHARTER ===",
+  ].join("\n");
+}
+
+let moduleRepoRoot: string | undefined;
+
+/** Module location determines the default repo root when callers do not pass one. */
+function defaultRepoRoot(): string {
+  if (!moduleRepoRoot) {
+    moduleRepoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+  }
+  return moduleRepoRoot;
+}
+
+/** Resolve agents/<group>/<roleId> from disk, requiring charter.md + memory.md + index.json. */
+function resolveRoleDir(repoRoot: string, roleId: string): string | null {
+  const agentsDir = join(repoRoot, "agents");
+  if (!existsSync(agentsDir)) return null;
+  for (const group of readdirSync(agentsDir, { withFileTypes: true })) {
+    if (!group.isDirectory()) continue;
+    let roleEntries: Dirent[];
+    try {
+      roleEntries = readdirSync(join(agentsDir, group.name), { withFileTypes: true });
+    } catch {
+      continue;
+    }
+    for (const role of roleEntries) {
+      if (!role.isDirectory() || role.name !== roleId) continue;
+      const roleDir = join("agents", group.name, role.name);
+      const required = ["charter.md", "memory.md", "index.json"];
+      if (required.every((file) => existsSync(join(repoRoot, roleDir, file)))) {
+        return roleDir;
+      }
+    }
+  }
+  return null;
 }
 
 /**
@@ -1087,6 +1149,15 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
       sliceId,
       rules: assembled.treeProofs,
     });
+  }
+
+  // #435: bind the role's charter into the worker prompt — role: is no longer a ledger-only label.
+  // Unknown roles compose "" so a bad role id cannot break dispatch.
+  if (options.role) {
+    effective = {
+      ...effective,
+      prompt: `${effective.prompt}${buildRoleCharterAppendix(options.role, repoRoot)}`,
+    };
   }
 
   if (assembled.treeProofs.length > 0) {
