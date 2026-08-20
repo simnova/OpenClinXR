@@ -83,6 +83,23 @@ import { describe, expect, it } from "vitest";
  *   - Whether a difference, if found, is THE cause rather than a symptom.
  */
 
+/**
+ * ## FIXED (#493) — measure-only, third instrument wired
+ *
+ * The lab records a world-space joint dump (`window.__openClinXrSupineJointDump`) after the real
+ * `applyAndPlantSupineOnDeck` call; `supine-pose-two-subject-dump.ts` drives it for both bodies and
+ * writes the tracked `supine-pose-two-subject-dump.json`. Measured (world-space, after
+ * `updateMatrixWorld(true)`), the quantity that differs is HEIGHT / lie, not scale alone:
+ *
+ *   - aabb.minYMeters: control 0.566 vs treatment 1.218 (+0.652 m).
+ *   - joint.root.y: 0.81 vs 1.278 (+0.468); thighL/R.y: +0.476 each.
+ *   - joint.wristL.y: +0.724; wristR.y: +0.774; head.y: −0.198.
+ *   - Both rigs resolved all 7 requested landmarks through the #306 alias map
+ *     (control: pelvis/thighL/chest/handL; treatment: root/upperleg01L/spine01/wristL).
+ *
+ * verdict: `difference_named`. The cause is deliberately NOT tested (two withdrawn diagnoses).
+ */
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const DUMP = join(HERE, "supine-pose-two-subject-dump.json");
@@ -113,7 +130,7 @@ function requireDump(): Dump {
 }
 
 describe("the supine dump names a difference, or says there is none", () => {
-  it.fails("(1) RED: both subjects were dumped through the same pose call", () => {
+  it("(1) both subjects were dumped through the same pose call", () => {
     const d = requireDump();
     const glbs = d.subjects.map((s) => s.bodyGlb.split("/").pop());
     expect(glbs, `control and treatment must BOTH be measured; reasoning about one is not a column`)
@@ -125,7 +142,7 @@ describe("the supine dump names a difference, or says there is none", () => {
     }
   });
 
-  it.fails("(2) RED: the artifact names which quantity differs, or states that none does", () => {
+  it("(2) the artifact names which quantity differs, or states that none does", () => {
     const d = requireDump();
     expect(["difference_named", "reject_measured", "other"]).toContain(d.verdict);
     if (d.verdict === "difference_named") {
@@ -138,7 +155,7 @@ describe("the supine dump names a difference, or says there is none", () => {
     // reject_measured needs no differing quantity — that IS the finding.
   });
 
-  it.fails("(3) RED: the numbers came from CALLING the runtime pose, not from reading the GLB", () => {
+  it("(3) the numbers came from CALLING the runtime pose, not from reading the GLB", () => {
     // Refuses (b) — the mistake I made twice on this very defect. A static glTF read produces a
     // plausible table and answers a different question (SS6v).
     const d = requireDump();
