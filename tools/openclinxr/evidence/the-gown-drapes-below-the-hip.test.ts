@@ -69,6 +69,22 @@ import { describe, expect, it } from "vitest";
  *   - Whether a draped skirt still skins sanely when the patient is seated or supine.
  */
 
+/*
+ * ## FIXED (#481)
+ *
+ * `_build_body_surface_derived_garment` (automate_blender.py) now lofts a single closed
+ * skirt tube below the hip for the `gown` kind. The below-hip body region is cut at
+ * `skirt_top_y` (0.55 * body_height — the same fraction the inspect samples as HIP_FRAC)
+ * and replaced by a tapered ring stack (flare 0.12) whose top ring shares the torso's
+ * cut-ring vertices, so export continuity is inherited rather than re-split (SS6t). The
+ * sleeve coefficient `arm_len * 0.42` (#200) and hem 0.32 (#197) are untouched.
+ *
+ * Clause (1) flipped `it.fails` -> `it`. Clause (5)'s second assertion flipped
+ * `toBeGreaterThan(0)` -> `toBe(0)`: it was a RED-time guard ("the split is present, so (1)
+ * is a real RED") whose premise this fix eliminates. Post-fix no below-hip band may remain
+ * split, which clause (1) already asserts via `worst.gapM <= GAP_MAX_M`.
+ */
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const GENERATED = join(HERE, "../../../apps/ui-xr/public/generated-humanoids");
 const TARGET = join(GENERATED, "mpfb-gown-inspect.glb");
@@ -149,7 +165,7 @@ async function shellOrThrow(p: string): Promise<Shell> {
 }
 
 describe("the gown drapes below the hip instead of wrapping each leg", () => {
-  it.fails("(1) RED: no below-hip band has a midline split", async () => {
+  it("(1) no below-hip band has a midline split", async () => {
     const bands = belowHipBands(await shellOrThrow(TARGET));
     expect(bands.length, "the shell must produce sampleable below-hip bands").toBeGreaterThan(4);
     const worst = bands.reduce((a, b) => (b.gapM > a.gapM ? b : a));
@@ -196,7 +212,7 @@ describe("the gown drapes below the hip instead of wrapping each leg", () => {
     expect(closed.length, `no band clears ${GAP_MAX_M * 1000}mm — the bound may be unreachable:\n  ${fmt(bands)}`)
       .toBeGreaterThanOrEqual(5);
     const split = bands.filter((b) => b.gapM > GAP_MAX_M);
-    expect(split.length, `the split must still be present for (1) to be a real RED:\n  ${fmt(bands)}`)
-      .toBeGreaterThan(0);
+    expect(split.length, `no below-hip band may remain split after the fix:\n  ${fmt(bands)}`)
+      .toBe(0);
   });
 });
