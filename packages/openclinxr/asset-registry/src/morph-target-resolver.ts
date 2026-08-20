@@ -14,7 +14,11 @@
  *
  *   1. IDENTITY first — a body that already carries the canonical name resolves to itself. This
  *      covers the Anny rail and any MPFB body that happens to use the canonical spelling, unchanged.
- *   2. FACS ALIAS MAP second — canonical runtime name → MPFB FACS morph name, wired from the FACS
+ *   2. CASE-VARIANT second (#463) — the wire emits upper-cased tokens (`viseme_AA`); the visemes02
+ *      pack bakes mixed case (`viseme_aa`, `viseme_kk`, `viseme_nn`, `viseme_sil`). A genuine
+ *      case-only variant wins here, so a real baked viseme beats the FACS alias. Renaming the pack
+ *      to suit the resolver would diverge a proven upstream asset (D1).
+ *   3. FACS ALIAS MAP last — canonical runtime name → MPFB FACS morph name, wired from the FACS
  *      target names actually shipped on the library bodies (verified present on both), not invented.
  *
  * WHY THE MAP HAS VISEME ROWS (#353): a `viseme_*` TARGET is not required for a viseme to be
@@ -81,11 +85,27 @@ export const MPFB_FACS_MORPH_NAMES: Readonly<Record<string, string>> = {
 };
 
 /**
+ * The case-only variant of `canonicalName` present in `availableNames`, or null. The caller has
+ * already taken the exact-identity match, so only genuine case differences reach this pass.
+ */
+function resolveCaseVariant(
+  canonicalName: string,
+  availableNames: ReadonlySet<string>,
+): string | null {
+  const lower = canonicalName.toLowerCase();
+  for (const name of availableNames) {
+    if (name.toLowerCase() === lower) return name;
+  }
+  return null;
+}
+
+/**
  * Resolve a canonical runtime morph name to the name present on a given body.
  *
- * Identity-first (covers the Anny rail and any canonical-spelling body), then the MPFB FACS alias
- * map. Returns null when no honest target exists — never a fabricated name, never a fallback that
- * changes which region deforms.
+ * Identity-first (covers the Anny rail and any canonical-spelling body), then a case-insensitive
+ * variant match (#463 — the wire upper-cases tokens but the visemes02 pack bakes mixed case), then
+ * the MPFB FACS alias map. Returns null when no honest target exists — never a fabricated name,
+ * never a fallback that changes which region deforms.
  *
  * @param canonicalName  Canonical runtime morph name (e.g. `openclinxr_mouth_open`).
  * @param availableNames  Morph target names present on the body (`morphTargetDictionary` keys).
@@ -96,6 +116,8 @@ export function resolveMorphTarget(
   availableNames: ReadonlySet<string>,
 ): string | null {
   if (availableNames.has(canonicalName)) return canonicalName;
+  const caseVariant = resolveCaseVariant(canonicalName, availableNames);
+  if (caseVariant !== null) return caseVariant;
   const alias = MPFB_FACS_MORPH_NAMES[canonicalName];
   if (alias !== undefined && availableNames.has(alias)) return alias;
   return null;
