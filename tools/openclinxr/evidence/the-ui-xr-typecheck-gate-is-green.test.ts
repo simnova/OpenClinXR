@@ -74,6 +74,28 @@ import { describe, expect, it } from "vitest";
  *   - Whether the union SHOULD gain a seventh member. Not this slice's question.
  */
 
+/**
+ * ## FIXED (#482)
+ *
+ * Root cause, traced (not assumed): `tsconfig.base.json` sets `exactOptionalPropertyTypes: true`.
+ * Under that flag the `undefined` contributed by an optional property
+ * (`activeLocomotionSource?: Src`) is a *synthetic* undefined, and a `case undefined:` label does
+ * NOT cover it for switch-exhaustiveness — so TS2366 fires even though the switch names all six
+ * members plus `undefined`. Confirmed with both `tsgo` and `tsc` 6.0.3 on a minimal repro; the
+ * behavior is not tsgo-specific.
+ *
+ * Fix: the property union at `runtime-state.ts:203` now declares `| undefined` explicitly, the
+ * `exactOptionalPropertyTypes` idiom for "absent or explicitly undefined". That makes
+ * `case undefined:` count toward exhaustiveness with no `default:`, no suppression, and the
+ * function return type unchanged.
+ *
+ * Also corrected a latent assertion bug in clause (1) itself: the planted form
+ * `errors.join("\n") || \`exit ${run.code}\`` evaluates to `"exit 0"` on a GREEN run (empty errors,
+ * exit 0), so the flipped assertion could not pass when the gate is actually green. It now asserts
+ * on `errors.join("\n")` directly; the separate `expect(run.code).toBe(0)` still catches a crash
+ * that prints no TS error lines. The header's measured tables and provenance are unchanged.
+ */
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const RUNTIME_STATE = join(REPO_ROOT, "apps/ui-xr/src/runtime-state.ts");
@@ -119,11 +141,11 @@ function functionBody(): string {
 }
 
 describe("the ui-xr typecheck gate is green", () => {
-  it.fails("(1) RED: @openclinxr/ui-xr typechecks with zero errors", () => {
+  it("(1) RED: @openclinxr/ui-xr typechecks with zero errors", () => {
     const run = typecheck("@openclinxr/ui-xr");
     const errors = run.out.split("\n").filter((l) => /error TS\d+/.test(l));
     expect(
-      errors.join("\n") || `exit ${run.code}`,
+      errors.join("\n"),
       `tsgo must report no errors; every dispatched brief runs this gate as its first verify step`,
     ).toBe("");
     expect(run.code, "the gate must exit zero").toBe(0);

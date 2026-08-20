@@ -200,7 +200,7 @@ export type ManualPerformanceInputEvidence = {
   locomotionAttempt?: LocomotionAttempt;
   lastInputObservedAtMs?: number | null;
   lastLocomotionAtMs: number | null;
-  activeLocomotionSource?: "none" | "keyboard" | "xr_gamepad" | "xr_hand_gesture" | "xr_room_scale" | "mixed";
+  activeLocomotionSource?: "none" | "keyboard" | "xr_gamepad" | "xr_hand_gesture" | "xr_room_scale" | "mixed" | undefined;
   inputSourceCount?: number;
   inputSourceKinds?: RuntimeInputSourceKind[];
   keyboardVector?: LocomotionVectorEvidence;
