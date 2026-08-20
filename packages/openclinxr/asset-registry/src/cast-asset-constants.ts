@@ -88,6 +88,13 @@ export const MPFB_FAMILY_PARTNER_ADULT_GLB = "mpfb-family-partner-adult.glb";
  * second-body fallback.
  */
 export const MPFB_STREET_ADULT_MALE_GLB = "mpfb-street-adult-male.glb";
+/**
+ * #490 L5 — cast-eligible gowned MPFB adult patient. Blender-only gown bake off the
+ * mpfb-viseme-inspect base via bake_mpfb_gown_inspect.py (D1: gown builder reused, no
+ * authored geometry). Declared here so the cast-eligibility contract can enumerate it;
+ * NOT wired into any pool — L6 owns repointing ED_ADULT_CAST_GLB and the recast.
+ */
+export const MPFB_GOWN_ADULT_PATIENT_GLB = "mpfb-gown-adult-patient.glb";
 
 /**
  * Adult pool — role-agnostic fallback for unknown roles and exhausted preference
