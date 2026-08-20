@@ -89,8 +89,19 @@ export const MPFB_FAMILY_PARTNER_ADULT_GLB = "mpfb-family-partner-adult.glb";
  */
 export const MPFB_STREET_ADULT_MALE_GLB = "mpfb-street-adult-male.glb";
 
-/** Adult pool only — never includes the child mesh. Order is role-preference default. */
+/**
+ * Adult pool — role-agnostic fallback for unknown roles and exhausted preference
+ * lists. MPFB bodies lead (#476: learner-facing adult roles resolve to the
+ * 137-joint MPFB rail, not the 23-joint Anny rail); the Anny bodies stay as
+ * last-resort because the gowned patient, the child band and the ED chest-pain
+ * patient still depend on them. Never includes the child mesh.
+ */
 export const ADULT_POOL_GLBS = [
+  MPFB_CLINICAL_NURSE_ADULT_GLB,
+  MPFB_PEDS_NURSE_KEVIN_GLB,
+  MPFB_CLINICAL_PHYSICIAN_ADULT_GLB,
+  MPFB_FAMILY_PARTNER_ADULT_GLB,
+  MPFB_STREET_ADULT_MALE_GLB,
   ED_ADULT_CAST_GLB,
   ED_NURSE_GLB,
   ED_SPOUSE_GLB,
