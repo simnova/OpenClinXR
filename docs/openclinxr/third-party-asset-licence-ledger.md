@@ -117,6 +117,27 @@ cleared it.
   `.mhclo` headers (#322 re-check) and carries no attribution obligation. This ledger records the
   obligation; it does not discharge it.
 
+## NOT FOUND — searched, absent, do not re-file as a bake
+
+Recorded so nobody re-opens these as generation work. Both are **procurement facts, not bake facts**;
+neither is a shopping ticket and neither unparks P1.
+
+- **`hospital_gown` — NOT FOUND.** E1 classed and rendered every cached garment on 2026-08-19:
+  13 unique garments (16 cache paths; three shirts are duplicated under `makehuman-shirts01/<name>/`
+  and `makehuman-shirts01/extracted/clothes/<name>/`). Classes are `evening_dress` 1, `labcoat` 2,
+  `scrub` 2, `street` 5, `footwear` 3. **Zero gowns.** `crudegown.mhclo` is classed `evening_dress`
+  and the orchestrator's native-resolution grade of `garment-class-sheet.png` confirms it: a coral
+  spaghetti-strap floor-length dress. Presence, placement and provenance are three questions and
+  none of them is class.
+- **Long-sleeve `scrub` upper — NOT FOUND.** The only cached scrub upper is `Scrub_Shirt.mhclo`
+  (CC-BY, WojackOWL), graded on the same sheet as a **short-sleeve V-neck**. #199 established that
+  no body-surface-derived garment can carry a long sleeve on a body with no forearm, and put the CC0
+  `toigo_fisherman_sweater` on the nurse's upper for that reason. Swapping `Scrub_Shirt` back would
+  be a **reversal of #199, not a library consume** — do not do it until a long-sleeve scrub exists.
+
+The clinical wardrobe is therefore **four items**: two labcoats, `Scrub_Shirt`, `Scrub_Pants`.
+`Scrub_Pants` is cached, classed and unconsumed — that one is a real consume and is tracked separately.
+
 ## Not tested / not claimed
 
 Licences here are recorded from the source pages as of the acquisition date. This is a tracking record
