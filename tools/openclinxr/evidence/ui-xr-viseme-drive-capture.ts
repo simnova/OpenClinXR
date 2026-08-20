@@ -32,6 +32,8 @@ const SUMMARY_PATH = path.join("tools", "openclinxr", "evidence", "parent-drives
 const REFRAME_SUMMARY_PATH = path.join("tools", "openclinxr", "evidence", "reframe-subject-in-frame.json");
 /** #468: tracked summary proving the review panel leaves the exam volume after a real crossing. */
 const REVIEW_PANEL_SUMMARY_PATH = path.join("tools", "openclinxr", "evidence", "review-panel-leaves-exam-volume.json");
+/** #472: tracked summary proving the capture anchors on the mouth joint, not the crown apex. */
+const MOUTH_ANCHOR_SUMMARY_PATH = path.join("tools", "openclinxr", "evidence", "capture-aims-at-the-mouth.json");
 
 /**
  * face-detail alone keeps natural dialogue duration (~phonemeCount*90ms) so progress spans
@@ -143,6 +145,14 @@ type ReframeOkOutcome = {
   headWorldY: number;
   /** NEW #465: the Y the camera actually aimed at via lookAt. */
   aimWorldY: number;
+  /** NEW #472: the resolved anchor joint — jaw, eye_midpoint or head. Never an AABB extreme. */
+  aimJointName: string | null;
+  /** NEW #472: crown apex world Y, kept only as the reference for the drop measurement. */
+  crownApexWorldY: number;
+  /** NEW #472: the anchor's full world position — diagnostic for the raycast verdict. */
+  anchorWorldPosition: { x: number; y: number; z: number };
+  /** NEW #472: the camera's world position the ray was cast from. */
+  cameraWorldPosition: { x: number; y: number; z: number };
   /** NEW #465: first mesh the camera->head ray hits — visibility, not just projection. */
   firstHitMeshName: string | null;
   /** NEW #465: distance along the ray to the first hit, in metres. */
@@ -156,7 +166,7 @@ type ReframeOkOutcome = {
 };
 
 type ReframeFailureOutcome = {
-  status: "no-scene" | "no-camera" | "no-parent-mesh";
+  status: "no-scene" | "no-camera" | "no-parent-mesh" | "no-anchor-joint";
 };
 
 type ReframeOutcome = ReframeOkOutcome | ReframeFailureOutcome;
@@ -249,10 +259,10 @@ async function reframeCameraOnParentFace(page: Page): Promise<ReframeOutcome> {
     const px = e ? Number(e[12]) : 0;
     const py = e ? Number(e[13]) : 1.0;
     const pz = e ? Number(e[14]) : 0;
-    // #465: the head is the TOP of the body geometry in bind pose, not a literal +1.12 offset
-    // calibrated for the child. Derive it from the mesh's own bounds so the adult parent is
-    // framed at its actual head height.
-    let localHeadY = 1.12;
+    // #472: the crown apex world Y is kept ONLY as a reference for the drop measurement — never as
+    // the anchor. The anchor is the mouth (jaw joint, or eye midpoint / head fallback), read at
+    // runtime from the live scene graph via getWorldPosition. No AABB extreme, no child literal.
+    let crownApexWorldY = py;
     const geom = isRecord(parentMesh["geometry"]) ? parentMesh["geometry"] : undefined;
     if (geom) {
       if (typeof geom["computeBoundingBox"] === "function" && !isRecord(geom["boundingBox"])) {
@@ -260,23 +270,80 @@ async function reframeCameraOnParentFace(page: Page): Promise<ReframeOutcome> {
       }
       const bb = geom["boundingBox"];
       const bbMax = isRecord(bb) ? bb["max"] : undefined;
-      if (bbMax && typeof bbMax["y"] === "number") {
-        localHeadY = Number(bbMax["y"]);
+      if (bbMax && typeof bbMax["y"] === "number" && e) {
+        crownApexWorldY = Number(e[5] * Number(bbMax["y"]) + e[13]);
       }
     }
-    // World head top = matrixWorld * local (0, localHeadY, 0). The body is ~centered on its
-    // origin in X/Z, so the head projects onto the origin's X/Z at the top Y.
-    const headWorld = {
-      x: e ? Number(e[4] * localHeadY + e[12]) : px,
-      y: e ? Number(e[5] * localHeadY + e[13]) : py + localHeadY,
-      z: e ? Number(e[6] * localHeadY + e[14]) : pz
+
+    // Resolve the mouth anchor from the parent's OWN skeleton (skinned mesh -> skeleton.bones),
+    // never another actor's rig. three.js strips dots (eye.L -> eyeL).
+    const sanitise = function (name) { return String(name).replaceAll(".", ""); };
+    const JAW = "jaw";
+    const EYE_L = sanitise("eye.L");
+    const EYE_R = sanitise("eye.R");
+    const HEAD = "head";
+    const skeletonBones = [];
+    const sk = parentMesh["skeleton"];
+    if (sk && Array.isArray(sk["bones"])) {
+      for (let i = 0; i < sk["bones"].length; i += 1) skeletonBones.push(sk["bones"][i]);
+    }
+    const boneBySanitised = function (target) {
+      for (let i = 0; i < skeletonBones.length; i += 1) {
+        const b = skeletonBones[i];
+        if (b && typeof b["name"] === "string" && sanitise(b["name"]) === target) return b;
+      }
+      return null;
     };
-    const aimWorldY = headWorld.y - 0.04;
+    const boneWorld = function (bone) {
+      const v = { x: 0, y: 0, z: 0 };
+      if (bone && typeof bone["getWorldPosition"] === "function") {
+        const tmp = camera.position.clone();
+        bone["getWorldPosition"](tmp);
+        v.x = Number(tmp.x);
+        v.y = Number(tmp.y);
+        v.z = Number(tmp.z);
+      }
+      return v;
+    };
+    let anchorWorld = null;
+    let aimJointName = null;
+    const jawBone = boneBySanitised(JAW);
+    if (jawBone) {
+      anchorWorld = boneWorld(jawBone);
+      aimJointName = "jaw";
+    }
+    if (!anchorWorld) {
+      const el = boneBySanitised(EYE_L);
+      const er = boneBySanitised(EYE_R);
+      if (el || er) {
+        const lw = boneWorld(el);
+        const rw = boneWorld(er);
+        const n = (el ? 1 : 0) + (er ? 1 : 0);
+        anchorWorld = {
+          x: (lw.x + rw.x) / n,
+          y: (lw.y + rw.y) / n,
+          z: (lw.z + rw.z) / n
+        };
+        aimJointName = "eye_midpoint";
+      }
+    }
+    if (!anchorWorld) {
+      const headBone = boneBySanitised(HEAD);
+      if (headBone) {
+        anchorWorld = boneWorld(headBone);
+        aimJointName = "head";
+      }
+    }
+    // Fail closed: no joint resolves -> refuse the reframe. Never a silent child constant.
+    if (!anchorWorld || aimJointName === null) {
+      return { status: "no-anchor-joint" };
+    }
+    const aimWorldY = anchorWorld.y;
     // Camera is parented under locomotionRig — convert world aim to parent-local.
     const worldCam = {
-      x: headWorld.x + 0.04,
-      y: headWorld.y + 0.04,
-      z: headWorld.z + 0.72
+      x: anchorWorld.x + 0.04,
+      y: anchorWorld.y + 0.04,
+      z: anchorWorld.z + 0.72
     };
     const worldToLocal = parent && typeof parent["worldToLocal"] === "function"
       ? parent["worldToLocal"]
@@ -289,16 +356,16 @@ async function reframeCameraOnParentFace(page: Page): Promise<ReframeOutcome> {
     } else {
       camera.position.set(worldCam.x, worldCam.y, worldCam.z);
     }
-    // lookAt expects world coordinates; aim AT the head, not the mesh origin (#465).
-    camera.lookAt(headWorld.x, aimWorldY, headWorld.z);
+    // lookAt expects world coordinates; aim AT the mouth anchor, not the mesh origin (#472).
+    camera.lookAt(anchorWorld.x, anchorWorld.y, anchorWorld.z);
     camera.fov = 28;
     if (typeof camera.updateProjectionMatrix === "function") camera.updateProjectionMatrix();
     if (typeof camera.updateMatrixWorld === "function") camera.updateMatrixWorld(true);
 
-    // Project the head to normalised device coords so the artifact records WHETHER it is framed,
+    // Project the anchor to normalised device coords so the artifact records WHETHER it is framed,
     // not merely that the reframe ran (#465). status:"ok" 88 times over a wall is the SS6e class.
     const headVec = camera.position.clone();
-    headVec.set(headWorld.x, headWorld.y, headWorld.z);
+    headVec.set(anchorWorld.x, anchorWorld.y, anchorWorld.z);
     headVec.project(camera);
     const headNdc = { x: Number(headVec.x), y: Number(headVec.y) };
     const subjectInFrame = Math.abs(headNdc.x) <= 1 && Math.abs(headNdc.y) <= 1;
@@ -312,6 +379,19 @@ async function reframeCameraOnParentFace(page: Page): Promise<ReframeOutcome> {
         y: m[1] * x + m[5] * y + m[9] * z + m[13],
         z: m[2] * x + m[6] * y + m[10] * z + m[14]
       };
+    };
+    // Column-major 4x4 multiply (three.js Matrix4.elements layout). Used to build each
+    // bone's skinning matrix bone.matrixWorld * boneInverse (Skeleton.update()).
+    const mat4Mul = function (a, b) {
+      const out = new Array(16);
+      for (let c = 0; c < 4; c += 1) {
+        for (let r = 0; r < 4; r += 1) {
+          let s = 0;
+          for (let k = 0; k < 4; k += 1) s += a[k * 4 + r] * b[c * 4 + k];
+          out[c * 4 + r] = s;
+        }
+      }
+      return out;
     };
     const rayAabb = function (ox, oy, oz, dx, dy, dz, wmin, wmax) {
       let tmin = -1e30;
@@ -356,15 +436,77 @@ async function reframeCameraOnParentFace(page: Page): Promise<ReframeOutcome> {
     const rox = camM ? Number(camM[12]) : worldCam.x;
     const roy = camM ? Number(camM[13]) : worldCam.y;
     const roz = camM ? Number(camM[14]) : worldCam.z;
-    let rdx = headWorld.x - rox;
-    let rdy = headWorld.y - roy;
-    let rdz = headWorld.z - roz;
+    let rdx = anchorWorld.x - rox;
+    let rdy = anchorWorld.y - roy;
+    let rdz = anchorWorld.z - roz;
     const rlen = Math.sqrt(rdx * rdx + rdy * rdy + rdz * rdz) || 1;
     rdx /= rlen; rdy /= rlen; rdz /= rlen;
+
+    // #472: the parent is a SkinnedMesh. Its bind-pose geometry is NOT where the face renders —
+    // the skeleton (root rotation + bones) moves the head. Skin the head-region vertices through
+    // the live skeleton and test the ray against the DEFORMED surface, so "first hit" is the face
+    // the camera is actually looking at, not the room hull behind the bind pose.
+    let parentSkinnedHit = null;
+    (function () {
+      const geomP = parentMesh["geometry"];
+      if (!isRecord(geomP)) return;
+      const posAttr = geomP["attributes"] && geomP["attributes"]["position"];
+      const idxAttr = geomP["index"];
+      const skinIdxAttr = geomP["attributes"] && geomP["attributes"]["skinIndex"];
+      const skinWgtAttr = geomP["attributes"] && geomP["attributes"]["skinWeight"];
+      const skeleton = parentMesh["skeleton"];
+      if (!isRecord(posAttr) || !isRecord(posAttr["array"])) return;
+      const posArr = posAttr["array"];
+      const idxArr = idxAttr && isRecord(idxAttr["array"]) ? idxAttr["array"] : undefined;
+      const bindM = isRecord(parentMesh["bindMatrix"]) ? parentMesh["bindMatrix"]["elements"] : undefined;
+      const bones = skeleton && Array.isArray(skeleton["bones"]) ? skeleton["bones"] : undefined;
+      const boneInverses = skeleton && Array.isArray(skeleton["boneInverses"]) ? skeleton["boneInverses"] : undefined;
+      if (!bindM || !bones || !boneInverses) return;
+      const boneMats = [];
+      for (let bi = 0; bi < bones.length; bi += 1) {
+        const bw = bones[bi] && isRecord(bones[bi]["matrixWorld"]) ? bones[bi]["matrixWorld"]["elements"] : undefined;
+        const inv = boneInverses[bi] && isRecord(boneInverses[bi]) ? boneInverses[bi]["elements"] : undefined;
+        boneMats.push(bw && inv ? mat4Mul(bw, inv) : null);
+      }
+      const skinIdxArr = skinIdxAttr && isRecord(skinIdxAttr["array"]) ? skinIdxAttr["array"] : undefined;
+      const skinWgtArr = skinWgtAttr && isRecord(skinWgtAttr["array"]) ? skinWgtAttr["array"] : undefined;
+      const skinVert = function (vi) {
+        const sv = transformPoint(bindM, posArr[vi * 3], posArr[vi * 3 + 1], posArr[vi * 3 + 2]);
+        if (!skinIdxArr || !skinWgtArr) return sv;
+        let wx = 0, wy = 0, wz = 0;
+        for (let k = 0; k < 4; k += 1) {
+          const bi = skinIdxArr[vi * 4 + k];
+          const w = skinWgtArr[vi * 4 + k];
+          if (!(w > 0)) continue;
+          const bm = boneMats[bi];
+          if (!bm) continue;
+          const dv = transformPoint(bm, sv.x, sv.y, sv.z);
+          wx += dv.x * w; wy += dv.y * w; wz += dv.z * w;
+        }
+        return { x: wx, y: wy, z: wz };
+      };
+      // Head-region triangles only (bind-pose Y above the neck) — the ray targets the jaw.
+      const HEAD_REGION_Y = 1.25;
+      const count = idxArr ? idxArr.length / 3 : posArr.length / 3;
+      for (let ti = 0; ti < count; ti += 1) {
+        const i0 = idxArr ? idxArr[ti * 3] : ti * 3;
+        const i1 = idxArr ? idxArr[ti * 3 + 1] : ti * 3 + 1;
+        const i2 = idxArr ? idxArr[ti * 3 + 2] : ti * 3 + 2;
+        if (posArr[i0 * 3 + 1] < HEAD_REGION_Y && posArr[i1 * 3 + 1] < HEAD_REGION_Y && posArr[i2 * 3 + 1] < HEAD_REGION_Y) continue;
+        const a = skinVert(i0);
+        const b = skinVert(i1);
+        const c = skinVert(i2);
+        const d = rayTriangle(rox, roy, roz, rdx, rdy, rdz, a, b, c);
+        if (d !== null && (parentSkinnedHit === null || d < parentSkinnedHit)) parentSkinnedHit = d;
+      }
+    })();
 
     const candidates = [];
     scene.traverse(function (object) {
       if (!isRecord(object)) return;
+      // The parent skinned mesh is handled above against its DEFORMED head surface, not its
+      // bind-pose AABB, which would be tested at the wrong location (#472).
+      if (object === parentMesh) return;
       // A mesh renders only if it and every ancestor are visible. The ragdoll collision proxy
       // (main.ts:6513 group.visible=false) and other debug volumes must not read as the first hit.
       let vis = object;
@@ -441,6 +583,13 @@ async function reframeCameraOnParentFace(page: Page): Promise<ReframeOutcome> {
       }
     }
 
+    // #472: if the ray reached the parent's skinned face closer than any static mesh, that face
+    // is the first hit — the ray now aims at the jaw, so the face lies between camera and anchor.
+    if (parentSkinnedHit !== null && (firstHitObject === null || parentSkinnedHit < firstHitDistance)) {
+      firstHitObject = parentMesh;
+      firstHitDistance = parentSkinnedHit;
+    }
+
     const firstHitMeshName = firstHitObject && typeof firstHitObject["name"] === "string" ? firstHitObject["name"] : null;
     let firstHitActorId = null;
     let hc = firstHitObject;
@@ -460,11 +609,15 @@ async function reframeCameraOnParentFace(page: Page): Promise<ReframeOutcome> {
       targetMeshName: typeof parentMesh["name"] === "string" ? parentMesh["name"] : "",
       targetWorldPosition: { x: Number(px), y: Number(py), z: Number(pz) },
       actorId: actorId,
-      headY: Number(headWorld.y),
+      headY: Number(crownApexWorldY),
       headNdc,
       subjectInFrame,
-      headWorldY: Number(headWorld.y),
+      headWorldY: Number(crownApexWorldY),
       aimWorldY: Number(aimWorldY),
+      aimJointName: aimJointName,
+      crownApexWorldY: Number(crownApexWorldY),
+      anchorWorldPosition: { x: Number(anchorWorld.x), y: Number(anchorWorld.y), z: Number(anchorWorld.z) },
+      cameraWorldPosition: { x: Number(rox), y: Number(roy), z: Number(roz) },
       firstHitMeshName,
       firstHitDistance: firstHitMeshName !== null ? Number(firstHitDistance.toFixed(4)) : null,
       subjectVisible,
@@ -558,6 +711,9 @@ export async function runVisemeCapture(): Promise<void> {
       await page.goto(url, { waitUntil: "networkidle", timeout: 180_000 });
 
       // Wait for the viseme-carrying parent mesh (the only rebaked actor).
+      // NOTE: waitForFunction(pageFunction, arg, options) — the timeout must be the THIRD
+      // argument. Passing it second (as `arg`) silently keeps the 30s default, which under a
+      // loaded machine fails before the humanoids finish loading.
       await page.waitForFunction(
         `(() => {
           const scene = window.__openClinXrDebugScene;
@@ -575,6 +731,7 @@ export async function runVisemeCapture(): Promise<void> {
           });
           return found;
         })()`,
+        undefined,
         { timeout: 180_000 },
       );
 
@@ -933,6 +1090,27 @@ export async function runVisemeCapture(): Promise<void> {
       await writeFile(REVIEW_PANEL_SUMMARY_PATH, `${JSON.stringify(reviewPanelSummary, null, 2)}\n`, "utf8");
       process.stdout.write(
         `reviewPanelSummary: ${REVIEW_PANEL_SUMMARY_PATH} side=${reviewPanelSummary.side} panelOutside=${reviewPanelSummary.panelPresentOutsideEncounter} subjectVisible=${reviewPanelSummary.subjectVisible} firstHit=${reviewPanelSummary.firstHitMeshName}\n`,
+      );
+
+      // #472 land-path summary: prove the camera anchored on the mouth joint (jaw, or the ruled
+      // eye-midpoint / head fallback), not the crown apex. The drop (crown -> aim) and the
+      // first-hit verdict are measured in-page; nothing here is typed. fail-closed statuses are
+      // recorded as nulls so a broken reframe cannot masquerade as a framed mouth.
+      const mouthAnchorSummary = {
+        capturedFrom: `${INSPECTION_PATH} (pnpm asset:ui-xr:viseme-drive-capture)`,
+        aimJointName: firstReframe.status === "ok" ? firstReframe.aimJointName : null,
+        aimWorldY: firstReframe.status === "ok" ? firstReframe.aimWorldY : null,
+        crownApexWorldY: firstReframe.status === "ok" ? firstReframe.crownApexWorldY : null,
+        anchorWorldPosition: firstReframe.status === "ok" ? firstReframe.anchorWorldPosition : null,
+        cameraWorldPosition: firstReframe.status === "ok" ? firstReframe.cameraWorldPosition : null,
+        subjectVisible: firstReframe.status === "ok" ? firstReframe.subjectVisible : false,
+        firstHitMeshName: firstReframe.status === "ok" ? firstReframe.firstHitMeshName : null,
+        subjectInFrame: firstReframe.status === "ok" ? firstReframe.subjectInFrame : false,
+        headNdc: firstReframe.status === "ok" ? firstReframe.headNdc : null,
+      };
+      await writeFile(MOUTH_ANCHOR_SUMMARY_PATH, `${JSON.stringify(mouthAnchorSummary, null, 2)}\n`, "utf8");
+      process.stdout.write(
+        `mouthAnchor: ${MOUTH_ANCHOR_SUMMARY_PATH} aimJoint=${mouthAnchorSummary.aimJointName} aimY=${mouthAnchorSummary.aimWorldY} crownY=${mouthAnchorSummary.crownApexWorldY} subjectVisible=${mouthAnchorSummary.subjectVisible} firstHit=${mouthAnchorSummary.firstHitMeshName}\n`,
       );
     } finally {
       await browser.close();
