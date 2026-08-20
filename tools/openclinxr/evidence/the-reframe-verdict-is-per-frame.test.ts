@@ -87,13 +87,13 @@ function rowsOrThrow(): PerFrame[] {
 }
 
 describe("the reframe verdict is recorded per frame", () => {
-  it.fails("(1) RED: a per-frame reframe array exists", () => {
+  it("(1) a per-frame reframe array exists", () => {
     const rows = summary().reframePerFrame;
     expect(Array.isArray(rows), "reframePerFrame must be an array — today the verdict is one scalar for the whole run").toBe(true);
     expect((rows ?? []).length, "at least one row").toBeGreaterThan(0);
   });
 
-  it.fails("(2) RED: every row carries its OWN verdict, not an inherited one", () => {
+  it("(2) every row carries its OWN verdict, not an inherited one", () => {
     for (const r of rowsOrThrow()) {
       expect(typeof r.subjectInFrame, `row ${r.framePath}: subjectInFrame must be present per row`).toBe("boolean");
       expect(Number.isFinite(r.headNdc?.x) && Number.isFinite(r.headNdc?.y),
@@ -101,7 +101,7 @@ describe("the reframe verdict is recorded per frame", () => {
     }
   });
 
-  it.fails("(3) RED+COUNTERWEIGHT: rows are per-frame, not one scalar stamped N times", () => {
+  it("(3) rows are per-frame, not one scalar stamped N times", () => {
     // Refuses the cheap fix WITHOUT being fitted to today's 6-of-8: distinct framePaths are a
     // property of being per-frame; requiring the VALUES to differ would wrongly fail a capture in
     // which every frame legitimately holds the subject.

@@ -750,6 +750,12 @@ export async function runVisemeCapture(): Promise<void> {
       );
 
       const reframeOutcomes: ReframeOutcome[] = [];
+      /** #473: per-frame reframe verdict — one row per captured frame, not one scalar for the run. */
+      const frameReframes: Array<{
+        framePath: string;
+        subjectInFrame: boolean;
+        headNdc: { x: number; y: number };
+      }> = [];
       const initialReframe = await reframeCameraOnParentFace(page);
       reframeOutcomes.push(initialReframe);
       process.stdout.write(`camera: ${reframeOutcomeSummary(initialReframe)}\n`);
@@ -778,6 +784,16 @@ export async function runVisemeCapture(): Promise<void> {
         // Keep framing locked (runtime may tweak camera) and record every outcome.
         const reframeOutcome = await reframeCameraOnParentFace(page);
         reframeOutcomes.push(reframeOutcome);
+        // #473: the reframe verdict is a per-frame phenomenon (one headNdc/subjectInFrame per
+        // captured frame), not one scalar for the whole run. Only the frame pass carries a real
+        // framePath, so link the verdict to its frame there — the dense states pass passes null.
+        if (framePath !== null && reframeOutcome.status === "ok") {
+          frameReframes.push({
+            framePath,
+            subjectInFrame: reframeOutcome.subjectInFrame,
+            headNdc: reframeOutcome.headNdc,
+          });
+        }
         const sceneSample = await sampleParentVisemes(page);
         rawTimeline.push({ ...sceneSample, t });
 
@@ -1054,6 +1070,11 @@ export async function runVisemeCapture(): Promise<void> {
           framePath: v.framePath,
         })),
         frameLinkage,
+        reframePerFrame: frameReframes.map((r) => ({
+          framePath: r.framePath,
+          subjectInFrame: r.subjectInFrame,
+          headNdc: r.headNdc,
+        })),
         linkageApproximation:
           "strong instants whose viseme was dominant in a frame are linked to that frame; "
           + "any remaining instant is linked to the nearest-timestamp frame (see frameLinkage)",
