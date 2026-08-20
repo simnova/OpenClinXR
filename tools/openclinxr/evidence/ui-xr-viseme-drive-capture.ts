@@ -1,25 +1,23 @@
 /**
- * #63 viseme vertical capture — live mesh morph samples + head-and-shoulders frames.
+ * #464 — prove the runtime mixer drives a real viseme on the peds parent (not just on paper).
  *
- * Reads mesh.morphTargetInfluences[mesh.morphTargetDictionary[name]] via page.evaluate
- * on window.__openClinXrDebugScene (patient mesh only). Driver self-report is not evidence.
+ * Reads mesh.morphTargetInfluences[mesh.morphTargetDictionary[name]] via page.evaluate on
+ * window.__openClinXrDebugScene, sampling the peds PARENT mesh — the one mesh in the cast that
+ * carries `viseme_*` targets after #462's bake. Driver self-report is not evidence.
  *
- * Measured 2026-08-13 (#365): the peds asthma patient renders as the Anny
- * `peds_patient_child` base (9 viseme_* keys driven at weight 1.0 by the named drive),
- * while the parent/nurse are MPFB FACS bodies (`mouth-*`) driven through the #353 alias
- * map — the sampler accepts BOTH spellings and reads all mouth-family morphs by influence.
- * Frames are graded by the orchestrator; the states artifact is the contract surface.
+ * #462 baked 15 visemes02 targets onto the runtime parent GLB
+ * (`mpfb-peds-parent-aisha.motion-bind.glb`, body mesh `mpfb_ob_patient_aisha_body`), and #463
+ * made the resolver reach them (`viseme_AA -> viseme_aa`, FACS alias preserved for un-rebaked
+ * actors). The child/patient and nurse still carry only the 32 MPFB FACS names (`mouth-*`),
+ * driven through the #353 alias map. The sampler targets the viseme-carrying mesh and records
+ * only `viseme_*` drives, so a `mouth-*` FACS fallback cannot masquerade as a real viseme.
  *
- * SUPERSEDED (#366): the peds cast now loads MPFB bodies, so the driven patient mesh is
- * `mpfb_peds_patient_child_body` — the sampler/reframe name regex covers both spellings and
- * the artifact's actor label is derived from the live scene, not this historical note.
+ * The states artifact (inspection.json) stays gitignored (#396, no land path); a small TRACKED
+ * summary is derived from the live run and written to `parent-drives-a-real-viseme.json`, which
+ * is the contract surface. Frames are graded by the orchestrator.
  *
- * #368 remaining half: the artifact records the reframe OUTCOME (target mesh name + world
- * position, or the failure code), so a face-framed capture can say what it actually framed.
- * Every live sample also records the reframe status at its own instant, so a reframe that
- * broke mid-capture is locatable instead of showing only as a deduped failure code.
- *
- * claimScope: mouth. notEvidenceFor: anatomy bind-pose, production phoneme timing, Quest.
+ * claimScope: mouth (named viseme drive on the parent). notEvidenceFor: anatomy bind-pose,
+ * production phoneme timing, legible-speech judgement, Quest.
  */
 
 import { mkdir, writeFile } from "node:fs/promises";
@@ -29,10 +27,11 @@ import { type PortlessDevServer, spawnPortlessDevServer, stopPortlessDevServer }
 
 const OUTPUT_DIR = ".openclinxr/evidence/viseme-drive-2026-08-06";
 const INSPECTION_PATH = path.join(OUTPUT_DIR, "inspection.json");
+const SUMMARY_PATH = path.join("tools", "openclinxr", "evidence", "parent-drives-a-real-viseme.json");
 
 /**
  * face-detail alone keeps natural dialogue duration (~phonemeCount*90ms) so progress spans
- * many visemes. Camera is re-framed in-page onto the patient head (face-detail default looks left).
+ * many visemes. Camera is re-framed in-page onto the parent head (face-detail default looks left).
  */
 const CAPTURE_QUERY =
   "openclinxrScenarioId=peds_asthma_parent_anxiety_v1" +
@@ -54,39 +53,39 @@ type SceneSample = {
   speech?: { activeViseme?: string; activePhoneme?: string; activeMouthOpenness?: number } | null;
 };
 
-async function samplePatientVisemes(page: Page): Promise<SceneSample> {
+async function sampleParentVisemes(page: Page): Promise<SceneSample> {
   // String IIFE (not a TS arrow) so tsx/esbuild cannot inject `__name` into the browser.
   return page.evaluate(`(() => {
     const win = window;
     const scene = win.__openClinXrDebugScene;
-    let patientMesh = null;
+    let parentMesh = null;
     if (scene && typeof scene.traverse === "function") {
       scene.traverse(function (object) {
-        if (patientMesh) return;
+        if (parentMesh) return;
         const dict = object.morphTargetDictionary;
         if (!dict) return;
-        const name = object.name || "";
-        if (!/peds_patient|patient_child/i.test(name)) return;
         const keys = Object.keys(dict);
-        const hasMouthFamily = keys.some(function (k) {
-          const lk = k.toLowerCase();
-          return lk.indexOf("viseme_") === 0 || lk.indexOf("mouth") === 0 || lk.indexOf("openclinxr_mouth") === 0;
+        const hasVisemeTargets = keys.some(function (k) {
+          return k.toLowerCase().indexOf("viseme_") === 0;
         });
-        if (hasMouthFamily) patientMesh = object;
+        if (hasVisemeTargets) parentMesh = object;
       });
     }
 
     const readings = [];
-    const dict = patientMesh && patientMesh.morphTargetDictionary;
-    const influences = patientMesh && patientMesh.morphTargetInfluences;
+    const dict = parentMesh && parentMesh.morphTargetDictionary;
+    const influences = parentMesh && parentMesh.morphTargetInfluences;
     if (dict && influences) {
       for (const targetName of Object.keys(dict)) {
+        // The parent also ships 32 MPFB FACS (mouth-*) targets driven by the expression
+        // path; record only the named viseme_* drive this capture exists to verify.
+        if (targetName.toLowerCase().indexOf("viseme_") !== 0) continue;
         const index = dict[targetName];
         if (typeof index !== "number" || index < 0 || index >= influences.length) continue;
         const influence = influences[index] || 0;
         if (influence <= 0.01) continue;
         readings.push({
-          meshName: patientMesh.name || "",
+          meshName: parentMesh.name || "",
           targetName,
           influence,
           index
@@ -126,7 +125,7 @@ type ReframeOkOutcome = {
 };
 
 type ReframeFailureOutcome = {
-  status: "no-scene" | "no-camera" | "no-patient-mesh";
+  status: "no-scene" | "no-camera" | "no-parent-mesh";
 };
 
 type ReframeOutcome = ReframeOkOutcome | ReframeFailureOutcome;
@@ -145,7 +144,7 @@ function reframeOutcomeSummary(outcome: ReframeOutcome): string {
   );
 }
 
-async function reframeCameraOnPatientFace(page: Page): Promise<ReframeOutcome> {
+async function reframeCameraOnParentFace(page: Page): Promise<ReframeOutcome> {
   // String IIFE (not a TS arrow) so tsx/esbuild cannot inject `__name` into the browser.
   return page.evaluate(`(() => {
     const isRecord = function (value) {
@@ -165,38 +164,34 @@ async function reframeCameraOnPatientFace(page: Page): Promise<ReframeOutcome> {
     // Collector avoids let-null + closure assignment narrowing to never under some TS checkers.
     const found = {
       camera: null,
-      patientMesh: null
+      parentMesh: null
     };
     scene.traverse(function (object) {
       if (!isRecord(object)) return;
       if (object["isPerspectiveCamera"] === true || object["type"] === "PerspectiveCamera") {
         found.camera = object;
       }
-      const name = typeof object["name"] === "string" ? object["name"] : "";
       const dict = object["morphTargetDictionary"];
       if (!isRecord(dict)) return;
       const keys = Object.keys(dict);
-      const hasMouthFamily = keys.some(function (k) {
-        const lk = k.toLowerCase();
-        return lk.indexOf("viseme_") === 0 || lk.indexOf("mouth") === 0 || lk.indexOf("openclinxr_mouth") === 0;
+      const hasVisemeTargets = keys.some(function (k) {
+        return k.toLowerCase().indexOf("viseme_") === 0;
       });
-      if (hasMouthFamily && /peds_patient|patient_child/i.test(name)) {
-        // First match wins — the sampler (samplePatientVisemes) stops at the first
-        // matching mesh, so the camera must frame the same object the sampler reads.
-        // Last-match-wins framed a different mesh (body_8) than the sampler sampled
-        // (body) and the counterweight caught it.
-        if (!found.patientMesh) found.patientMesh = object;
+      if (hasVisemeTargets) {
+        // First match wins — the sampler (sampleParentVisemes) stops at the first
+        // viseme-carrying mesh, so the camera must frame the same object the sampler reads.
+        if (!found.parentMesh) found.parentMesh = object;
       }
     });
 
     if (!hasPositionApi(found.camera)) return { status: "no-camera" };
-    if (!isRecord(found.patientMesh)) return { status: "no-patient-mesh" };
+    if (!isRecord(found.parentMesh)) return { status: "no-parent-mesh" };
     const camera = found.camera;
-    const patientMesh = found.patientMesh;
+    const parentMesh = found.parentMesh;
 
     // Walk up to the humanoid root for the live actor identity — never a hardcoded label.
     let actorId = null;
-    let cursor = patientMesh;
+    let cursor = parentMesh;
     while (cursor && cursor["parent"]) {
       const ud = cursor["userData"];
       if (ud && typeof ud["openClinXrActorId"] === "string") {
@@ -206,9 +201,9 @@ async function reframeCameraOnPatientFace(page: Page): Promise<ReframeOutcome> {
       cursor = cursor["parent"];
     }
 
-    const updateMeshWorld = patientMesh["updateWorldMatrix"];
+    const updateMeshWorld = parentMesh["updateWorldMatrix"];
     if (typeof updateMeshWorld === "function") {
-      updateMeshWorld.call(patientMesh, true, false);
+      updateMeshWorld.call(parentMesh, true, false);
     }
     const parent = isRecord(camera.parent) ? camera.parent : undefined;
     const updateParentWorld = parent && parent["updateWorldMatrix"];
@@ -216,7 +211,7 @@ async function reframeCameraOnPatientFace(page: Page): Promise<ReframeOutcome> {
       updateParentWorld.call(parent, true, false);
     }
 
-    const matrixWorld = isRecord(patientMesh["matrixWorld"]) ? patientMesh["matrixWorld"] : undefined;
+    const matrixWorld = isRecord(parentMesh["matrixWorld"]) ? parentMesh["matrixWorld"] : undefined;
     const elements = matrixWorld && matrixWorld["elements"];
     const e = elements && typeof elements === "object" ? elements : undefined;
     // matrixWorld translation = elements[12,13,14]
@@ -249,7 +244,7 @@ async function reframeCameraOnPatientFace(page: Page): Promise<ReframeOutcome> {
 
     return {
       status: "ok",
-      targetMeshName: typeof patientMesh["name"] === "string" ? patientMesh["name"] : "",
+      targetMeshName: typeof parentMesh["name"] === "string" ? parentMesh["name"] : "",
       targetWorldPosition: { x: Number(px), y: Number(py), z: Number(pz) },
       actorId: actorId,
       headY: Number(headY),
@@ -263,9 +258,11 @@ async function reframeCameraOnPatientFace(page: Page): Promise<ReframeOutcome> {
   })()`);
 }
 
-async function retriggerPatientDialogue(page: Page): Promise<void> {
-  // Click the work-of-breathing trace to restart speech if the first utterance already ended.
-  const button = page.getByRole("button", { name: /Work Of Breathing/i });
+async function retriggerParentDialogue(page: Page): Promise<void> {
+  // Click the parent-communication trace to make the PARENT speak (its turn is authored on
+  // `parent_communication`, actor `parent_tara_johnson_v1`), so the sampling window covers a
+  // full parent utterance from t≈0.
+  const button = page.getByRole("button", { name: /parent communication/i });
   if (await button.count()) {
     await button.first().click({ timeout: 5_000 }).catch(() => undefined);
   }
@@ -287,7 +284,7 @@ export async function runVisemeCapture(): Promise<void> {
       const url = `${server.url}?${CAPTURE_QUERY}`;
       await page.goto(url, { waitUntil: "networkidle", timeout: 180_000 });
 
-      // Wait for ANY mouth-family morph mesh (Anny viseme_* OR MPFB FACS mouth-*).
+      // Wait for the viseme-carrying parent mesh (the only rebaked actor).
       await page.waitForFunction(
         `(() => {
           const scene = window.__openClinXrDebugScene;
@@ -297,8 +294,7 @@ export async function runVisemeCapture(): Promise<void> {
             const dict = o.morphTargetDictionary;
             if (!dict) return;
             for (const k of Object.keys(dict)) {
-              const lk = k.toLowerCase();
-              if (lk.indexOf("viseme_") === 0 || lk.indexOf("mouth") === 0 || lk.indexOf("openclinxr_mouth") === 0) {
+              if (k.toLowerCase().indexOf("viseme_") === 0) {
                 found = true;
                 return;
               }
@@ -310,12 +306,12 @@ export async function runVisemeCapture(): Promise<void> {
       );
 
       const reframeOutcomes: ReframeOutcome[] = [];
-      const initialReframe = await reframeCameraOnPatientFace(page);
+      const initialReframe = await reframeCameraOnParentFace(page);
       reframeOutcomes.push(initialReframe);
       process.stdout.write(`camera: ${reframeOutcomeSummary(initialReframe)}\n`);
       await page.waitForTimeout(600);
-      // Restart the patient's dialogue so the sampling window covers a full utterance from t≈0.
-      await retriggerPatientDialogue(page);
+      // Restart the parent's dialogue so the sampling window covers a full utterance from t≈0.
+      await retriggerParentDialogue(page);
       await page.waitForTimeout(120);
 
       const liveSamples: Array<{
@@ -336,9 +332,9 @@ export async function runVisemeCapture(): Promise<void> {
       async function sampleStates(framePath: string | null): Promise<void> {
         const t = (Date.now() - t0) / 1000;
         // Keep framing locked (runtime may tweak camera) and record every outcome.
-        const reframeOutcome = await reframeCameraOnPatientFace(page);
+        const reframeOutcome = await reframeCameraOnParentFace(page);
         reframeOutcomes.push(reframeOutcome);
-        const sceneSample = await samplePatientVisemes(page);
+        const sceneSample = await sampleParentVisemes(page);
         rawTimeline.push({ ...sceneSample, t });
 
         const peak = sceneSample.peak;
@@ -380,17 +376,17 @@ export async function runVisemeCapture(): Promise<void> {
       }
 
       await denseStatesPass();
-      // If one utterance's samples did not cover five distinct mouth shapes, replay the
+      // If one utterance's samples did not cover five distinct viseme shapes, replay the
       // dialogue and keep sampling (the retrigger restarts the phoneme timeline).
       if (distinctStrong().size < 5) {
-        await retriggerPatientDialogue(page);
+        await retriggerParentDialogue(page);
         await page.waitForTimeout(120);
         await denseStatesPass();
       }
 
       // Frame pass — sparse screenshots for the orchestrator's pixel grade, labelled with the
       // live dominant value sampled at the same instant.
-      await retriggerPatientDialogue(page);
+      await retriggerParentDialogue(page);
       await page.waitForTimeout(120);
       const FRAME_STEP_MS = 250;
       const FRAME_COUNT = 8;
@@ -424,7 +420,7 @@ export async function runVisemeCapture(): Promise<void> {
       const actorLabel =
         firstReframe.status === "ok" && firstReframe.actorId
           ? `${firstReframe.actorId} — driven mesh: ${drivenMeshNames.length > 0 ? drivenMeshNames.join(", ") : "none observed"}`
-          : `peds patient (actor id not stamped on the framed root) — driven mesh: ${drivenMeshNames.length > 0 ? drivenMeshNames.join(", ") : "none observed"}`;
+          : `peds parent (actor id not stamped on the framed root) — driven mesh: ${drivenMeshNames.length > 0 ? drivenMeshNames.join(", ") : "none observed"}`;
       const reframeRecord = {
         status: firstReframe.status,
         targetMeshName: firstReframe.status === "ok" ? firstReframe.targetMeshName : null,
@@ -506,7 +502,7 @@ export async function runVisemeCapture(): Promise<void> {
         ],
         verificationNotes: {
           liveSceneGraph:
-            "influences read from mesh.morphTargetInfluences[dict[name]] via __openClinXrDebugScene (patient meshes)",
+            "influences read from mesh.morphTargetInfluences[dict[name]] via __openClinXrDebugScene (parent mesh)",
           gateNotReliedOn: "morphTargetAppliedTargetCount > 0 (satisfied by mouth-open alone)",
           required: "≥3 timestamps; ≥2 distinct viseme_* names at influence ≥ 0.5",
           framesAreSparse:
@@ -528,6 +524,27 @@ export async function runVisemeCapture(): Promise<void> {
           `Need ≥2 distinct viseme_* at influence ≥0.5; got ${strongByName.size}: ${[...strongByName.keys()].join(",")}`,
         );
       }
+
+      // #464 land-path summary: the inspection.json is gitignored (#396), so derive a small
+      // TRACKED summary from the live run — capturedFrom/meshName/actor come from the live
+      // scene, never typed. Only the viseme_* drive is recorded (the sampler reads visemes
+      // exclusively), so a `mouth-*` FACS fallback cannot satisfy the contract.
+      const summary = {
+        capturedFrom: `${INSPECTION_PATH} (pnpm asset:ui-xr:viseme-drive-capture)`,
+        meshName:
+          (firstReframe.status === "ok" && firstReframe.targetMeshName) ||
+          drivenMeshNames[0] ||
+          "",
+        actor:
+          (firstReframe.status === "ok" && firstReframe.actorId) ||
+          "peds parent (actor id not stamped on the framed root)",
+        samples: [...strongByName.entries()].map(([drivenTargetName, v]) => ({
+          drivenTargetName,
+          influence: Number(v.influence.toFixed(4)),
+        })),
+      };
+      await writeFile(SUMMARY_PATH, `${JSON.stringify(summary, null, 2)}\n`, "utf8");
+      process.stdout.write(`summary: ${SUMMARY_PATH} mesh=${summary.meshName} actor=${summary.actor}\n`);
     } finally {
       await browser.close();
     }
