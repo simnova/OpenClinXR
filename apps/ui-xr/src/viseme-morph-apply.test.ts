@@ -85,4 +85,37 @@ describe("viseme weights are applied by name, not by index (#62)", () => {
 
     expect(target.morphTargetInfluences[0]).toBe(0);
   });
+
+  it("caps FACS mouth-open at 0.3 — direct name and the viseme_AA alias (#460)", async () => {
+    // #460: the shipped parent carries no viseme_AA, so the runtime's AA maps onto mouth-open.
+    // The sweep graded 0.3 ACCEPTABLE, 0.6 DEGRADING, 1.0 UNACCEPTABLE; the cap applies on the
+    // RESOLVED name, so both entry paths land at the cap, and other targets keep full range.
+    const mod = await load();
+    const apply = mod["applyVisemeWeights"] as Apply | undefined;
+    expect(apply).toBeTypeOf("function");
+
+    const direct = {
+      morphTargetDictionary: { "mouth-open": 0, "mouth-eversion": 1 },
+      morphTargetInfluences: [0, 0],
+    };
+    apply!(direct, { "mouth-open": 1 });
+    expect(direct.morphTargetInfluences[0]).toBe(0.3);
+    expect(direct.morphTargetInfluences[1]).toBe(0);
+
+    // Alias rail: viseme_AA resolves to mouth-open on an MPFB FACS-only body.
+    const viaAlias = {
+      morphTargetDictionary: { "mouth-open": 0, "mouth-eversion": 1 },
+      morphTargetInfluences: [0, 0],
+    };
+    apply!(viaAlias, { viseme_AA: 1 });
+    expect(viaAlias.morphTargetInfluences[0]).toBe(0.3);
+
+    // Counterweight: only the swept target is capped.
+    const other = {
+      morphTargetDictionary: { "mouth-open": 0, "mouth-eversion": 1 },
+      morphTargetInfluences: [0, 0],
+    };
+    apply!(other, { "mouth-eversion": 1 });
+    expect(other.morphTargetInfluences[1]).toBe(1);
+  });
 });

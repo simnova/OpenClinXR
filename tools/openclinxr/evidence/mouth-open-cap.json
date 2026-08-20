@@ -1,0 +1,120 @@
+{
+  "schemaVersion": "openclinxr.mouth-open-cap.v1",
+  "issue": "460",
+  "factoryStep": "dialogue_runtime",
+  "generatedAt": "2026-08-20T01:24:59.867Z",
+  "cap": 0.3,
+  "subject": "mpfb-peds-parent-aisha.motion-bind.glb",
+  "sourceGlb": "/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb",
+  "sourceGlbSha256": "b8801c637f5fd43bd3c51f140782b4c40da5d27e9eb93a56534cde9b9c7e2ec7",
+  "appliedThrough": "apps/ui-xr/src/viseme-morph-apply.ts applyVisemeWeights — resolved name 'mouth-open' clamped to 0.3; rest / at-cap / full-request driven through it in-page; sweep-03 / sweep-10 drive the morph directly at its swept weight (mirrors #459's cells, which had no cap)",
+  "midFaceDeltaMm": {
+    "rest": 0,
+    "atCap": 1.4827,
+    "atFullRequest": 1.4827,
+    "atSweep03": 1.4827,
+    "atSweep10": 4.9423
+  },
+  "midFaceMeasure": {
+    "derivation": "mean Euclidean magnitude of the mouth-open morph delta (geometry.morphAttributes.position[index], the exact array the renderer blends) over the mid-face band, scaled by the LIVE applied influence (morphTargetInfluences[index]) and expressed in mm. Mid-face band derived from the bind pose only: head slice = top 20% of body height; face side z >= head-center-z; central |x - head-center-x| < 0.6 half head width; y in [headBottom + 0.30, headBottom + 0.70] of the slice (nose bridge + cheeks + mouth). Same vertex set for all five states; measured in-page in the running scene, not from the file.",
+    "vertexCount": 3180,
+    "bandFractionOfBodyHeight": 0.2,
+    "yBandOfHeadSlice": [
+      0.3,
+      0.7
+    ],
+    "xBandFractionOfHeadHalfWidth": 0.6,
+    "faceSide": "z >= head-center-z"
+  },
+  "states": [
+    {
+      "stateId": "rest",
+      "influence": 0,
+      "targetIndex": 20,
+      "appliedMeshes": 8,
+      "otherMax": 0,
+      "midFaceVertexCount": 3180,
+      "midFaceMeanDeltaMm": 0
+    },
+    {
+      "stateId": "at-cap",
+      "influence": 0.3,
+      "targetIndex": 20,
+      "appliedMeshes": 8,
+      "otherMax": 0,
+      "midFaceVertexCount": 3180,
+      "midFaceMeanDeltaMm": 1.4827
+    },
+    {
+      "stateId": "full-request",
+      "influence": 0.3,
+      "targetIndex": 20,
+      "appliedMeshes": 8,
+      "otherMax": 0,
+      "midFaceVertexCount": 3180,
+      "midFaceMeanDeltaMm": 1.4827
+    },
+    {
+      "stateId": "sweep-03",
+      "influence": 0.3,
+      "targetIndex": 20,
+      "appliedMeshes": 8,
+      "otherMax": 0,
+      "midFaceVertexCount": 3180,
+      "midFaceMeanDeltaMm": 1.4827
+    },
+    {
+      "stateId": "sweep-10",
+      "influence": 1,
+      "targetIndex": 20,
+      "appliedMeshes": 8,
+      "otherMax": 0,
+      "midFaceVertexCount": 3180,
+      "midFaceMeanDeltaMm": 4.9423
+    }
+  ],
+  "camera": {
+    "derivation": "lab-derived head framing (camera-fit-to-bounds.ts resolveFocus('head') -> frameCamera) from the subject's own bind-pose bounds — identical for all five states by construction, verified to 1 mm across the loads via packFraming bounds",
+    "framePx": {
+      "width": 1280,
+      "height": 960
+    },
+    "headBoxMeters": {
+      "min": {
+        "x": -0.1023,
+        "y": 1.3996,
+        "z": -0.0597
+      },
+      "max": {
+        "x": 0.1047,
+        "y": 1.6881,
+        "z": 0.1728
+      }
+    }
+  },
+  "stills": [
+    {
+      "stateId": "rest",
+      "path": "tools/openclinxr/evidence/stills/mouth-open-rest.png"
+    },
+    {
+      "stateId": "at-cap",
+      "path": "tools/openclinxr/evidence/stills/mouth-open-at-cap.png"
+    },
+    {
+      "stateId": "full-request",
+      "path": "tools/openclinxr/evidence/stills/mouth-open-full-request.png"
+    }
+  ],
+  "claimScope": "mouth-open capped at 0.3 in the shipped applier, evidenced by: live influence readbacks (a requested 1.0 lands at 0.3 in the running scene), geometric mid-face vertex displacement at rest / cap / full-request / the #459 sweep's 0.3 and 1.0 cells, and three face-framed stills sharing one derived camera",
+  "notEvidenceFor": [
+    "whether 0.3 reads as speech to a learner (structural intactness is not legibility)",
+    "#402's spike (absent from every graded cell; still open)",
+    "baking viseme_AA onto the parent (the follow-on that could raise or remove this cap)",
+    "other FACS targets at 1.0 (only mouth-open was swept)",
+    "the runtime mixer or dialogue timing",
+    "clinical validity",
+    "scoring validity",
+    "quest readiness"
+  ]
+}
