@@ -58,6 +58,17 @@ import { describe, expect, it } from "vitest";
  *   - The 6 FACS-only MPFB bodies and the 7 Anny bodies — the contract measures the parent.
  *   - Whether `jaw` is the best anchor versus a mouth morph centroid. It is the ruled anchor.
  *   - Quest, clinical validity, exam equivalence.
+ *
+ * ## FIXED (#472)
+ *
+ * (1)-(4) flipped `it.fails` -> `it` on 2026-08-20 after the capture anchored on `jaw` at runtime:
+ *   aimJointName=jaw, aimWorldY=1.5306, crownApexWorldY=1.7284 (drop 0.198 > 0.08 band),
+ *   subjectVisible=true, firstHitMeshName=mpfb_ob_patient_aisha_body_1 (not kitchen_00exterior),
+ *   subjectInFrame=true, headNdc≈(0,0). The raycast now skins the parent's head-region vertices
+ *   through the live skeleton — the bind-pose AABB was at a different place than the skinned face,
+ *   which is why the crown-aimed ray "grazed the silhouette" and hit the room hull. The numeric
+ *   `localHeadY` seed is retired; the anchor comes from `jaw` -> `eye.L`/`eye.R` midpoint -> `head`
+ *   -> fail closed (`no-anchor-joint`), never an AABB extreme. (5) stays the unchanged NET.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -103,7 +114,7 @@ const MPFB_JOINTS = await jointNames(MPFB);
 const ANNY_JOINTS = await jointNames(ANNY);
 
 describe("the viseme capture aims at the mouth, not the crown", () => {
-  it.fails("(1) RED: the anchor is a named joint well below the crown apex", () => {
+  it("(1) RED: the anchor is a named joint well below the crown apex", () => {
     const s = summary();
     expect(ALLOWED_ANCHORS as readonly string[], `anchor was ${s.aimJointName}; an AABB extreme is never allowed`)
       .toContain(s.aimJointName ?? "");
@@ -112,20 +123,20 @@ describe("the viseme capture aims at the mouth, not the crown", () => {
       .toBeGreaterThan(EXISTING_COSMETIC_BAND_M);
   });
 
-  it.fails("(2) RED: the subject is the first hit, not the room hull", () => {
+  it("(2) RED: the subject is the first hit, not the room hull", () => {
     const s = summary();
     expect(s.subjectVisible, "camera->anchor ray must reach the parent").toBe(true);
     expect(s.firstHitMeshName ?? "", "the room hull must not be the first hit").not.toContain("kitchen_00exterior");
     expect(s.firstHitMeshName, "something must actually be hit").not.toBeNull();
   });
 
-  it.fails("(3) RED: the anchor projects inside the frame", () => {
+  it("(3) RED: the anchor projects inside the frame", () => {
     const s = summary();
     expect(s.subjectInFrame, `headNdc ${JSON.stringify(s.headNdc)} must be inside [-1,1]`).toBe(true);
     expect(Math.abs(s.headNdc.x) <= 1 && Math.abs(s.headNdc.y) <= 1, "NDC agrees with the flag").toBe(true);
   });
 
-  it.fails("(4) RED: the child-calibrated literal is gone", () => {
+  it("(4) RED: the child-calibrated literal is gone", () => {
     // Reads the tree. RED today because 1.12 is present. Once retired it also keeps passing, so it
     // doubles as a ratchet against reintroducing a silent constant when a joint fails to resolve.
     // Assert on the CODE, not the string: probe D5 showed "1.12" also appears in the #465 comment

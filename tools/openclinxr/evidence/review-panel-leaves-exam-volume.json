@@ -16,15 +16,27 @@
     "openclinxr.peds_asthma_parent_anxiety_v1.scenario-expectation-visual-review-panel"
   ],
   "panelPresentOutsideEncounter": true,
-  "subjectVisible": false,
-  "firstHitMeshName": "kitchen_00exterior",
+  "subjectVisible": true,
+  "firstHitMeshName": "mpfb_ob_patient_aisha_body_1",
   "visemeInfluences": [
+    {
+      "drivenTargetName": "viseme_I",
+      "influence": 1
+    },
+    {
+      "drivenTargetName": "viseme_TH",
+      "influence": 1
+    },
     {
       "drivenTargetName": "viseme_sil",
       "influence": 1
     },
     {
-      "drivenTargetName": "viseme_TH",
+      "drivenTargetName": "viseme_aa",
+      "influence": 1
+    },
+    {
+      "drivenTargetName": "viseme_E",
       "influence": 1
     }
   ]

@@ -1,0 +1,23 @@
+{
+  "capturedFrom": ".openclinxr/evidence/viseme-drive-2026-08-06/inspection.json (pnpm asset:ui-xr:viseme-drive-capture)",
+  "aimJointName": "jaw",
+  "aimWorldY": 1.5306400998083876,
+  "crownApexWorldY": 1.7283826296994897,
+  "anchorWorldPosition": {
+    "x": -1.2550479181474847,
+    "y": 1.5306400998083876,
+    "z": 0.30644116909317354
+  },
+  "cameraWorldPosition": {
+    "x": -1.2150479181474847,
+    "y": 1.5706400998083876,
+    "z": 1.0264411690931734
+  },
+  "subjectVisible": true,
+  "firstHitMeshName": "mpfb_ob_patient_aisha_body_1",
+  "subjectInFrame": true,
+  "headNdc": {
+    "x": -1.835320409819855e-15,
+    "y": -1.233105900347715e-15
+  }
+}

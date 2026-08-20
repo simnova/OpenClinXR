@@ -93,6 +93,14 @@ import { describe, expect, it } from "vitest";
  *       `viseme_sil` + `viseme_TH` at influence 1, not `viseme_aa`. The committed parent summary
  *       that listed `viseme_aa` is stale against current dialogue. Pre-existing, unrelated to the
  *       panel change.
+ *
+ * ## FIXED (#472) — residuals (2) and (3) are green
+ *
+ * (2) is this issue's follow-on: the capture now anchors the camera->head ray on the `jaw` joint
+ * (read at runtime via getWorldPosition, skinned head-region raycast), so the first hit is
+ * `mpfb_ob_patient_aisha_body_1` and subjectVisible is true. (3) went green on a refreshed capture:
+ * the current dialogue drives `viseme_aa` at influence 1 (alongside `viseme_sil`/`viseme_TH`), so
+ * the stale committed summary is superseded. Flipped `it.fails` -> `it` for both.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -134,14 +142,14 @@ describe("the adversarial review panel leaves the learner exam volume", () => {
     ).toBe(true);
   });
 
-  it.fails("(2) RED: the subject is the first hit, not the billboard", () => {
+  it("(2) RED: the subject is the first hit, not the billboard", () => {
     const s = summary();
     expect(s.subjectVisible, "camera->head ray must reach the head").toBe(true);
     expect(s.firstHitMeshName, "the occluder must not be the first hit").not.toContain(PANEL);
     expect(s.firstHitMeshName, "and something must actually be hit").not.toBeNull();
   });
 
-  it.fails("(3) COUNTERWEIGHT: the viseme mixer still drives", () => {
+  it("(3) COUNTERWEIGHT: the viseme mixer still drives", () => {
     // Refuses spec 1. Routing through shouldUseCleanHumanoidSourceComparatorCapture() returns at
     // main.ts:8371 before the mixer, so these influences collapse to rest. This is the flag detector.
     const s = summary();
