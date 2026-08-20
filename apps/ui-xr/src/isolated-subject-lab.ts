@@ -45,6 +45,8 @@ import {
   STRETCHER_LENGTH_METERS,
 } from "./station-stretcher.js";
 import { applyAndPlantSupineOnDeck } from "./supine-deck-plant.js";
+import { resolvePoseBone } from "@openclinxr/asset-registry";
+import { collectJointNames, findBonesBySanitisedName } from "./pose-bone-runtime.js";
 
 /**
  * Reference-pack capture views (#262). Mirrors the #232 pack view set
@@ -134,12 +136,29 @@ export type IsolatedSubjectEvidence = {
 
 export type { ArticulatingHobMeasure };
 
+/**
+ * #493: world-space joint dump after the real supine pose call. Additive recording
+ * only — the pose path and the subject root are untouched. Consumed by
+ * `supine-pose-two-subject-dump.ts` to answer "which quantity differs, by how much".
+ */
+export type SupineJointDump = {
+  subjectKind: "runtime_posture" | "posture_on_furniture";
+  bodyGlb: string;
+  obtainedBy: string;
+  worldJoints: Record<string, { x: number; y: number; z: number }>;
+  /** Canonical landmark -> bone name actually present on this rig (via #306 resolver). */
+  resolvedBones: Record<string, string | null>;
+  posedMeshAabb: { min: { x: number; y: number; z: number }; max: { x: number; y: number; z: number } };
+  meshCount: number;
+};
+
 declare global {
   interface Window {
     __openClinXrIsolatedSubjectEvidence?: IsolatedSubjectEvidence;
     __openClinXrArticulatingHobMeasure?: ArticulatingHobMeasure;
     __openClinXrIsolatedSceneRoot?: Object3D;
     __openClinXrExportedGlbBase64?: string;
+    __openClinXrSupineJointDump?: SupineJointDump;
   }
 }
 
@@ -219,6 +238,63 @@ async function loadHumanoid(bodyGlb: string): Promise<Object3D> {
   return root;
 }
 
+/**
+ * Canonical landmarks this measurement records, keyed by a stable dump name and
+ * resolved per-rig through the #306 pose-bone resolver (same path the supine map
+ * uses), so control (Anny) and treatment (MPFB recast) are comparable.
+ */
+const SUPINE_DUMP_LANDMARKS: ReadonlyArray<readonly [string, string]> = [
+  ["root", "pelvis"],
+  ["thighL", "thighL"],
+  ["thighR", "thighR"],
+  ["spine01", "chest"],
+  ["wristL", "handL"],
+  ["wristR", "handR"],
+  ["head", "head"],
+];
+
+const round3 = (n: number): number => Math.round(n * 1000) / 1000;
+
+function dumpSupineJointState(
+  humanoid: Object3D,
+  bodyGlb: string,
+  subjectKind: "runtime_posture" | "posture_on_furniture",
+): SupineJointDump {
+  humanoid.updateMatrixWorld(true);
+  const jointNames = collectJointNames(humanoid);
+  const worldJoints: Record<string, { x: number; y: number; z: number }> = {};
+  const resolvedBones: Record<string, string | null> = {};
+  for (const [key, landmark] of SUPINE_DUMP_LANDMARKS) {
+    const resolved = resolvePoseBone(landmark, jointNames);
+    resolvedBones[key] = resolved;
+    if (resolved === null) continue;
+    const bone = findBonesBySanitisedName(humanoid, resolved)[0];
+    if (!bone) continue;
+    const p = new Vector3().setFromMatrixPosition(bone.matrixWorld);
+    worldJoints[key] = { x: round3(p.x), y: round3(p.y), z: round3(p.z) };
+  }
+  let meshCount = 0;
+  humanoid.traverse((o) => {
+    if (o instanceof Mesh) meshCount += 1;
+  });
+  const aabb = computeMeshBounds(humanoid);
+  return {
+    subjectKind,
+    bodyGlb,
+    obtainedBy:
+      "isolated-subject-lab runtime_posture path: applyAndPlantSupineOnDeck (product pose call) "
+      + "then updateMatrixWorld(true); world joints read from Bone matrixWorld via #306 resolvePoseBone, "
+      + "posed mesh AABB from computeMeshBounds over live Mesh geometry",
+    worldJoints,
+    resolvedBones,
+    posedMeshAabb: {
+      min: { x: round3(aabb.min.x), y: round3(aabb.min.y), z: round3(aabb.min.z) },
+      max: { x: round3(aabb.max.x), y: round3(aabb.max.y), z: round3(aabb.max.z) },
+    },
+    meshCount,
+  };
+}
+
 function buildFurniture(
   builder: "patient_stretcher" | "patient_chair",
   inclineDegrees?: number,
@@ -243,17 +319,19 @@ function buildFurniture(
 async function buildSubjectRoot(spec: IsolatedSubjectSpec): Promise<{
   root: Object3D;
   meshCount: number;
+  humanoid: Object3D | null;
 }> {
   const container = new Group();
   container.name = `isolated_subject.${spec.subjectId}`;
   const incline = spec.inclineDegrees ?? 0;
+  let humanoid: Object3D | null = null;
 
   if (spec.subjectKind === "furniture_builder") {
     const builder = spec.builder ?? "patient_stretcher";
     container.add(buildFurniture(builder, incline));
   } else if (spec.subjectKind === "runtime_posture" || spec.subjectKind === "posture_on_furniture") {
     const bodyGlb = spec.bodyGlb ?? "generated-humanoids/ed_chest_pain_adult_cast.glb";
-    const humanoid = await loadHumanoid(bodyGlb);
+    humanoid = await loadHumanoid(bodyGlb);
     let stretcher: Group | null = null;
     if (spec.subjectKind === "posture_on_furniture" || spec.builder === "patient_stretcher") {
       // Deck leads: incline on the stretcher builder, not a body-only tip.
@@ -295,7 +373,7 @@ async function buildSubjectRoot(spec: IsolatedSubjectSpec): Promise<{
   container.traverse((o) => {
     if (o instanceof Mesh) meshCount += 1;
   });
-  return { root: container, meshCount };
+  return { root: container, meshCount, humanoid };
 }
 
 async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSpec): Promise<IsolatedSubjectEvidence> {
@@ -342,10 +420,18 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
     scene.add(ground);
   }
 
-  const { root, meshCount } = await buildSubjectRoot(spec);
+  const { root, meshCount, humanoid } = await buildSubjectRoot(spec);
   scene.add(root);
   window.__openClinXrIsolatedSceneRoot = root;
   root.updateMatrixWorld(true);
+
+  if (humanoid && (spec.subjectKind === "runtime_posture" || spec.subjectKind === "posture_on_furniture")) {
+    window.__openClinXrSupineJointDump = dumpSupineJointState(
+      humanoid,
+      spec.bodyGlb ?? "generated-humanoids/ed_chest_pain_adult_cast.glb",
+      spec.subjectKind,
+    );
+  }
 
   // Measured from the SCENE, not the spec flag — the evidence records what was
   // actually rendered (#265 subject-only discriminator).

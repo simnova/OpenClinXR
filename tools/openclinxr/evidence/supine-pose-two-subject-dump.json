@@ -1,0 +1,255 @@
+{
+  "schemaVersion": "supine-pose-two-subject-dump.v1",
+  "verdict": "difference_named",
+  "verdictNote": "Same applyAndPlantSupineOnDeck call on both bodies produced 20 named quantities differing by >= 0.01 m. Envelope height control=0.466 treatment=0.446; length control=1.76 treatment=1.688; width control=1.078 treatment=0.992. Measure only — whether any difference is rig scale vs postural is NOT diagnosed here.",
+  "differingQuantities": [
+    {
+      "name": "aabb.heightMeters",
+      "control": 0.466,
+      "treatment": 0.446,
+      "deltaMeters": -0.02
+    },
+    {
+      "name": "aabb.lengthMeters",
+      "control": 1.76,
+      "treatment": 1.688,
+      "deltaMeters": -0.072
+    },
+    {
+      "name": "aabb.widthMeters",
+      "control": 1.078,
+      "treatment": 0.992,
+      "deltaMeters": -0.086
+    },
+    {
+      "name": "aabb.minYMeters",
+      "control": 0.566,
+      "treatment": 1.218,
+      "deltaMeters": 0.652
+    },
+    {
+      "name": "joint.root.x",
+      "control": 0.07,
+      "treatment": -0.025,
+      "deltaMeters": -0.095
+    },
+    {
+      "name": "joint.root.y",
+      "control": 0.81,
+      "treatment": 1.278,
+      "deltaMeters": 0.468
+    },
+    {
+      "name": "joint.thighL.x",
+      "control": 0.053,
+      "treatment": -0.095,
+      "deltaMeters": -0.148
+    },
+    {
+      "name": "joint.thighL.y",
+      "control": 0.81,
+      "treatment": 1.286,
+      "deltaMeters": 0.476
+    },
+    {
+      "name": "joint.thighR.x",
+      "control": 0.053,
+      "treatment": -0.095,
+      "deltaMeters": -0.148
+    },
+    {
+      "name": "joint.thighR.y",
+      "control": 0.81,
+      "treatment": 1.286,
+      "deltaMeters": 0.476
+    },
+    {
+      "name": "joint.spine01.x",
+      "control": -0.246,
+      "treatment": -0.151,
+      "deltaMeters": 0.095
+    },
+    {
+      "name": "joint.spine01.y",
+      "control": 0.825,
+      "treatment": 0.921,
+      "deltaMeters": 0.096
+    },
+    {
+      "name": "joint.wristL.x",
+      "control": 0.137,
+      "treatment": 0.055,
+      "deltaMeters": -0.082
+    },
+    {
+      "name": "joint.wristL.y",
+      "control": 0.517,
+      "treatment": 1.241,
+      "deltaMeters": 0.724
+    },
+    {
+      "name": "joint.wristL.z",
+      "control": -0.159,
+      "treatment": -0.115,
+      "deltaMeters": 0.044
+    },
+    {
+      "name": "joint.wristR.x",
+      "control": 0.052,
+      "treatment": 0.133,
+      "deltaMeters": 0.081
+    },
+    {
+      "name": "joint.wristR.y",
+      "control": 0.403,
+      "treatment": 1.177,
+      "deltaMeters": 0.774
+    },
+    {
+      "name": "joint.wristR.z",
+      "control": 0.213,
+      "treatment": 0.156,
+      "deltaMeters": -0.057
+    },
+    {
+      "name": "joint.head.x",
+      "control": -0.561,
+      "treatment": -0.259,
+      "deltaMeters": 0.302
+    },
+    {
+      "name": "joint.head.y",
+      "control": 0.858,
+      "treatment": 0.66,
+      "deltaMeters": -0.198
+    }
+  ],
+  "subjects": [
+    {
+      "bodyGlb": "generated-humanoids/ed_chest_pain_adult_cast.glb",
+      "obtainedBy": "isolated-subject-lab runtime_posture path: applyAndPlantSupineOnDeck (product pose call) then updateMatrixWorld(true); world joints read from Bone matrixWorld via #306 resolvePoseBone, posed mesh AABB from computeMeshBounds over live Mesh geometry",
+      "worldJoints": {
+        "root": {
+          "x": 0.07,
+          "y": 0.81,
+          "z": 0
+        },
+        "thighL": {
+          "x": 0.053,
+          "y": 0.81,
+          "z": -0.108
+        },
+        "thighR": {
+          "x": 0.053,
+          "y": 0.81,
+          "z": 0.108
+        },
+        "spine01": {
+          "x": -0.246,
+          "y": 0.825,
+          "z": 0
+        },
+        "wristL": {
+          "x": 0.137,
+          "y": 0.517,
+          "z": -0.159
+        },
+        "wristR": {
+          "x": 0.052,
+          "y": 0.403,
+          "z": 0.213
+        },
+        "head": {
+          "x": -0.561,
+          "y": 0.858,
+          "z": 0
+        }
+      },
+      "resolvedBones": {
+        "root": "pelvis",
+        "thighL": "thighL",
+        "thighR": "thighR",
+        "spine01": "chest",
+        "wristL": "handL",
+        "wristR": "handR",
+        "head": "head"
+      },
+      "posedMeshAabb": {
+        "min": {
+          "x": -0.88,
+          "y": 0.566,
+          "z": -0.539
+        },
+        "max": {
+          "x": 0.88,
+          "y": 1.032,
+          "z": 0.539
+        }
+      },
+      "meshCount": 8
+    },
+    {
+      "bodyGlb": "generated-humanoids/mpfb-gown-adult-patient.glb",
+      "obtainedBy": "isolated-subject-lab runtime_posture path: applyAndPlantSupineOnDeck (product pose call) then updateMatrixWorld(true); world joints read from Bone matrixWorld via #306 resolvePoseBone, posed mesh AABB from computeMeshBounds over live Mesh geometry",
+      "worldJoints": {
+        "root": {
+          "x": -0.025,
+          "y": 1.278,
+          "z": 0
+        },
+        "thighL": {
+          "x": -0.095,
+          "y": 1.286,
+          "z": -0.101
+        },
+        "thighR": {
+          "x": -0.095,
+          "y": 1.286,
+          "z": 0.101
+        },
+        "spine01": {
+          "x": -0.151,
+          "y": 0.921,
+          "z": 0
+        },
+        "wristL": {
+          "x": 0.055,
+          "y": 1.241,
+          "z": -0.115
+        },
+        "wristR": {
+          "x": 0.133,
+          "y": 1.177,
+          "z": 0.156
+        },
+        "head": {
+          "x": -0.259,
+          "y": 0.66,
+          "z": -0.001
+        }
+      },
+      "resolvedBones": {
+        "root": "root",
+        "thighL": "upperleg01L",
+        "thighR": "upperleg01R",
+        "spine01": "spine01",
+        "wristL": "wristL",
+        "wristR": "wristR",
+        "head": "head"
+      },
+      "posedMeshAabb": {
+        "min": {
+          "x": -0.844,
+          "y": 1.218,
+          "z": -0.496
+        },
+        "max": {
+          "x": 0.844,
+          "y": 1.664,
+          "z": 0.496
+        }
+      },
+      "meshCount": 14
+    }
+  ]
+}
