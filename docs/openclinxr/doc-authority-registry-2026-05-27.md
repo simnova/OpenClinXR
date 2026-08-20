@@ -263,4 +263,6 @@ These files should be summarized, archived, or explicitly marked historical befo
 | `tools/openclinxr/asset-pipeline/trellis/MULTIVIEW-GROK-PACKS.md` | reference | multi-view Grok packs + factory bake CLI wiring (2026-08-10) |
 
 | `.agents/skills/gh-body-file/SKILL.md` | agent-methodology | gh body-file publishing skill (backticks in --body are command substitution) |
+| `.agents/skills/agent-session-continuity/SKILL.md` | agent-methodology | continuing a conversation with an agent (session ids, resumes, wedge detection) |
+| `.agents/skills/orchestrator-dispatch-loop/SKILL.md` | agent-methodology | CEO-side board loop: plant, probe, dispatch, verify, integrate, close |
 | `.agents/skills/trellis-vr-equipment-optimize/SKILL.md` | agent-methodology | TRELLIS VR equipment optimize skill |

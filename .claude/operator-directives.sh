@@ -60,6 +60,30 @@ BEFORE ANY DISPATCH, answer these three IN WRITING (not in your head):
      The measured failure mode is CYCLE-CERTAINTY MAXIMISATION — picking whatever most likely yields
      a green report this cycle. Wiring a PROVEN-BUT-UNCONSUMED component beats proving a new one.
 
+SKILLS — LOAD THESE, DO NOT RE-DERIVE THEM. Each exists because the approach was forgotten and
+re-paid for at least once. `.agents/skills/<name>/SKILL.md`.
+  gh-body-file                  BEFORE any gh issue/PR/comment write. Backticks in --body are
+                                command substitution: the shell eats them, gh exits 0, the body
+                                publishes mangled. Always --body-file from a <<'EOF' heredoc.
+                                Paid twice in one hour, the second time AFTER writing the lesson down.
+  orchestrator-dispatch-loop    BEFORE dispatching or harvesting. dispatch(repoRoot, options) is TWO
+                                args; integrate needs contractForSlice or merge-kill refuses;
+                                factory_step HAS a colon and done_when does NOT; a runner outside the
+                                repo needs an async IIFE. Also the clause hygiene a probe will
+                                otherwise teach you: a vacuity guard cannot live inside the it.fails
+                                it guards, a guard must not forbid the fix, substring checks are
+                                prefix-matchable.
+  agent-session-continuity      BEFORE resuming anything. A wrong session id CONFABULATES, it does not
+                                error. Killed dispatches write NO ledger entry. Resumes need all three
+                                env vars or the docs-hygiene hook dirties the tree. NEVER
+                                dispatch({worktree:true, resume}) — it resets the worktree first.
+  delegated-worker-contract     the WORKER's side; dispatch() already injects it per role.
+  worker-scoped-session         why OPENCLINXR_WORKER=1 is not optional.
+  per-job-temp / turborepo      temp-file and output-budget discipline for anything you spawn.
+
+  If you are about to write a shell one-liner that reproduces something one of these describes, you
+  have already lost the tick. Read the skill.
+
 MECHANICALLY ENFORCED: board-brief.ts refuses any issue lacking `## factory_step: <enum>`, refuses
 `instrument` without `unblocks: <step>`, and refuses a clothing slice naming no tool path.
   dispatch() resolves --model from the ROLE's harness policy and THROWS on a tier downgrade unless

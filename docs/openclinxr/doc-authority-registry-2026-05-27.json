@@ -4,7 +4,7 @@
   "protectedRule": "Protected-policy files are off-limits to routine agents: do not delete, weaken, bypass, rename, or reinterpret them during autonomous work.",
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
-    "agent-methodology": 73,
+    "agent-methodology": 75,
     "current-reference": 211,
     "archive-candidate": 11,
     "evidence": 41,
@@ -12,9 +12,16 @@
     "agent-memory": 34,
     "historical-synthesis": 11,
     "decision-record": 37,
-    "total": 447
+    "total": 449
   },
   "entries": [
+    {
+      "path": ".agents/skills/agent-session-continuity/SKILL.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
+    },
     {
       "path": ".agents/skills/anny-asset-pipeline/SKILL.md",
       "authority": "agent-methodology",
@@ -101,6 +108,13 @@
     },
     {
       "path": ".agents/skills/openclinxr-slice/templates/slice-record-template.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
+    },
+    {
+      "path": ".agents/skills/orchestrator-dispatch-loop/SKILL.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
