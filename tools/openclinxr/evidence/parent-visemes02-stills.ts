@@ -4,7 +4,7 @@
  *
  * THE INSTRUMENT (same isolated subject lab as #459/#460/#434):
  * `apps/ui-xr/isolated-subject.html` (`isolated-subject-lab.ts`), `subjectKind: "glb"`,
- * `bodyGlb: /generated-humanoids/mpfb-peds-parent-aisha.glb`, `focus: "head"`. The lab
+ * `bodyGlb: /xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb`, `focus: "head"`. The lab
  * derives the head box from the body's own bind-pose bounds, so the camera is identical
  * across both states by construction.
  *
@@ -35,8 +35,8 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 
 const TARGET = "viseme_aa";
-const SUBJECT = "mpfb-peds-parent-aisha.glb";
-const GLB_URL_PATH = "/generated-humanoids/mpfb-peds-parent-aisha.glb";
+const SUBJECT = "mpfb-peds-parent-aisha.motion-bind.glb";
+const GLB_URL_PATH = "/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb";
 const GLB_DISK_PATH = join(REPO_ROOT, "apps/ui-xr/public", GLB_URL_PATH);
 
 const LEDGER = join(REPO_ROOT, "tools/openclinxr/evidence/parent-visemes02.json");
