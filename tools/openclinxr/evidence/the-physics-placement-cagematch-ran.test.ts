@@ -84,6 +84,37 @@ import { describe, expect, it } from "vitest";
  *   - Promotion. `apps/ui-xr` stays vanilla three.js whatever this returns.
  */
 
+/**
+ * ## FIXED (#489)
+ *
+ * The bake-off ran and the treatment lost — `reject_measured`, recorded in
+ * `tools/openclinxr/evidence/physics-placement-cagematch.json`.
+ *
+ * MEASURED (Rapier 0.19.3, offline Node, 30 subjects = the scene-manifest room props of
+ * `ed_chest_pain_priority_v1` from `createEdChestPainRuntimeSceneManifest()`):
+ *
+ *   column    worst penetration   resting-on
+ *   --------  ------------------  -------------------------------------------
+ *   control   0.0000 m            2 floor, 28 mounted/floating (null support)
+ *   treatment 0.0011 m            24 floor, 6 fell out the open front
+ *
+ * The authored triples already avoid the solid shell (worst 0), so the penetration axis
+ * does not discriminate — their known defects are floating and object-overlap, a different
+ * class. Impulse-gravity placement settles floor-standing bodies to ~1 mm resting
+ * penetration (Rapier contact tolerance), but cannot express the 28 mounted/floating
+ * subjects: 22 fall to the floor, 6 are authored past the shell's open +z floor edge and
+ * escape. No #457-class aperiodic floor-AABB sink reproduced (worst 1.1 mm, well under the
+ * 20 mm band). `treatmentApi = ["RigidBodyDesc", "dynamic", "applyImpulse"]` — a gravity
+ * loop with a floor clamp was not used.
+ *
+ * POPULATION FINDING (reported, not hidden): `listShippedCastScenarioIds()` returns 14
+ * station ids, but only the ED station ships room props through the runtime-bundles
+ * builder; the factory presets author 16 props in a non-exported helper and the other
+ * stations ship none by design (#149). `equipmentPlacements` carry position but no
+ * dimensions, and the equipment GLBs are gitignored, so equipment penetration is not
+ * measured (sizing them would be invention).
+ */
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const REPORT = join(HERE, "physics-placement-cagematch.json");
@@ -117,7 +148,7 @@ function requireReport(): Report {
 const worst = (c: Column): number => c.reduce((m, r) => Math.max(m, r.penetrationMeters), -Infinity);
 
 describe("the physics-placement cagematch ran and was recorded", () => {
-  it.fails("(1) RED: the artifact exists and names a verdict from the closed vocabulary", () => {
+  it("(1) RED: the artifact exists and names a verdict from the closed vocabulary", () => {
     const r = requireReport();
     expect(VERDICTS as readonly string[], `verdict was ${JSON.stringify(r.verdict)}`).toContain(r.verdict);
     // SS7c: `other` must never be silent — it is where an outcome neither of us imagined lands.
@@ -127,7 +158,7 @@ describe("the physics-placement cagematch ran and was recorded", () => {
     expect(r.engineVersion, "record the engine version the bake-off actually ran").toMatch(/\d+\.\d+/);
   });
 
-  it.fails("(2) RED: BOTH columns are populated, the same size, over the same subjects", () => {
+  it("(2) RED: BOTH columns are populated, the same size, over the same subjects", () => {
     // Refuses (b). A cagematch that measures only the candidate is an adoption with a chart on it.
     const r = requireReport();
     expect(r.control.length, "the authored-placement control must be measured, not assumed").toBeGreaterThan(0);
@@ -138,7 +169,7 @@ describe("the physics-placement cagematch ran and was recorded", () => {
     ).toEqual(r.control.map((x) => x.subjectId).sort());
   });
 
-  it.fails("(3) RED: the treatment used Rapier's real dynamic-body API", () => {
+  it("(3) RED: the treatment used Rapier's real dynamic-body API", () => {
     // Refuses (c) — the SS457 trap in a new costume. A gravity loop with a floor clamp settles
     // objects and teaches nothing about the engine. Impulse-driven dynamic bodies are the subject.
     const r = requireReport();
