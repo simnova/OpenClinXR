@@ -130,10 +130,26 @@ neither is a shopping ticket and neither unparks P1.
   spaghetti-strap floor-length dress. Presence, placement and provenance are three questions and
   none of them is class.
 - **Long-sleeve `scrub` upper — NOT FOUND.** The only cached scrub upper is `Scrub_Shirt.mhclo`
-  (CC-BY, WojackOWL), graded on the same sheet as a **short-sleeve V-neck**. #199 established that
-  no body-surface-derived garment can carry a long sleeve on a body with no forearm, and put the CC0
-  `toigo_fisherman_sweater` on the nurse's upper for that reason. Swapping `Scrub_Shirt` back would
-  be a **reversal of #199, not a library consume** — do not do it until a long-sleeve scrub exists.
+  (CC-BY, WojackOWL), graded on the class sheet as a **short-sleeve V-neck**.
+
+  **CORRECTED 2026-08-19.** An earlier version of this row said swapping `Scrub_Shirt` onto the
+  nurse "would be a reversal of #199, not a library consume". **That reasoning was wrong** and is
+  withdrawn. #199's no-forearm finding is **Anny-only**, and #199 corrects itself further down its
+  own body — *"true for Anny and false for MPFB — a D11 rail split… Anny 0 forearm vertices, MPFB
+  122 and 192."* Verified independently on the shipped bytes: `mpfb-peds-nurse-kevin` carries 137
+  joints with a full `lowerarm01/02.L/R` + `wrist.L/R` chain, while the Anny-rail bodies carry 23
+  joints with `forearm.L/R` and no wrist. `a-long-sleeve-reaches-the-wrist-on-the-mpfb-rail.test.ts`
+  is 3/3 on main, so **MPFB long sleeve is proven and landed**.
+
+  What remains true: no long-sleeve *scrub* upper exists in cache, and we will not invent one.
+  Kevin's upper is therefore a **clinical staging choice, not a geometry block** — long-sleeve
+  street sweater versus short-sleeve clinical scrub. The call is the short-sleeve `Scrub_Shirt`,
+  because a learner should see a nurse in the clinical set rather than a fisherman knit. That is a
+  staging verdict recorded by an engineering process, **not a clinician sign-off** and not a claim
+  about exam-appropriate dress.
+
+  **Anny actors keep short sleeves** — their forearm is genuinely absent. Do not put the sweater
+  on them.
 
 The clinical wardrobe is therefore **four items**: two labcoats, `Scrub_Shirt`, `Scrub_Pants`.
 `Scrub_Pants` is cached, classed and unconsumed — that one is a real consume and is tracked separately.
