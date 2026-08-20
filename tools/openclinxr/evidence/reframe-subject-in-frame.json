@@ -5,18 +5,18 @@
     "targetMeshName": "mpfb_ob_patient_aisha_body_1",
     "reappliedCount": 88,
     "headNdc": {
-      "x": 1.838107430113698e-15,
-      "y": 0.22111737477854373
+      "x": -1.838107430113699e-15,
+      "y": 0.2211173747785451
     },
     "subjectInFrame": true,
-    "headWorldY": 1.7972653463887789,
-    "aimWorldY": 1.7572653463887788
+    "headWorldY": 1.7618852570645935,
+    "aimWorldY": 1.7218852570645935,
+    "firstHitMeshName": "openclinxr.peds_asthma_parent_anxiety_v1.scenario-expectation-visual-review-panel",
+    "firstHitDistance": 2.5547,
+    "subjectVisible": false,
+    "occluderMeshName": "openclinxr.peds_asthma_parent_anxiety_v1.scenario-expectation-visual-review-panel"
   },
   "visemeInstants": [
-    {
-      "targetName": "viseme_TH",
-      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_00.png"
-    },
     {
       "targetName": "viseme_sil",
       "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_01.png"
@@ -28,13 +28,13 @@
     {
       "targetName": "viseme_aa",
       "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_00.png"
+    },
+    {
+      "targetName": "viseme_TH",
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_00.png"
     }
   ],
   "frameLinkage": {
-    "viseme_TH": {
-      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_00.png",
-      "linkage": "nearest-timestamp"
-    },
     "viseme_sil": {
       "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_01.png",
       "linkage": "dominant-match"
@@ -44,6 +44,10 @@
       "linkage": "nearest-timestamp"
     },
     "viseme_aa": {
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_00.png",
+      "linkage": "nearest-timestamp"
+    },
+    "viseme_TH": {
       "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_00.png",
       "linkage": "nearest-timestamp"
     }

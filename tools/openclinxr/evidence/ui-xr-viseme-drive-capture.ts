@@ -50,8 +50,12 @@ type Reading = {
 
 type SceneSample = {
   t: number;
+  /** NEW: the viseme-carrying mesh the sampler read — known even when no viseme is active. */
+  meshName: string;
   readings: Reading[];
   peak: { targetName: string; influence: number; meshName: string } | null;
+  /** NEW: why peak is null — "no viseme active" is a legitimate state, not an empty string. */
+  noActiveVisemeReason?: string | null;
   speech?: { activeViseme?: string; activePhoneme?: string; activeMouthOpenness?: number } | null;
 };
 
@@ -100,10 +104,17 @@ async function sampleParentVisemes(page: Page): Promise<SceneSample> {
       : null;
 
     const speech = win.__openClinXrHumanoidSpeechEvidence;
+    const meshName = parentMesh && typeof parentMesh["name"] === "string" ? parentMesh["name"] : "";
     return {
       t: 0,
+      meshName,
       readings,
       peak,
+      noActiveVisemeReason: peak
+        ? null
+        : (parentMesh
+          ? "no_viseme_target_above_influence_0.01_at_this_instant"
+          : "no_viseme_carrying_mesh_in_scene"),
       speech: speech
         ? {
             activeViseme: speech.activeViseme,
@@ -130,6 +141,14 @@ type ReframeOkOutcome = {
   headWorldY: number;
   /** NEW #465: the Y the camera actually aimed at via lookAt. */
   aimWorldY: number;
+  /** NEW #465: first mesh the camera->head ray hits — visibility, not just projection. */
+  firstHitMeshName: string | null;
+  /** NEW #465: distance along the ray to the first hit, in metres. */
+  firstHitDistance: number | null;
+  /** NEW #465: first hit belongs to the target actor (head/body), not an occluder. */
+  subjectVisible: boolean;
+  /** NEW #465: the occluder's mesh name when subjectVisible is false. */
+  occluderMeshName: string | null;
   fov: number;
   cameraLocal: { x: number; y: number; z: number };
 };
@@ -282,6 +301,158 @@ async function reframeCameraOnParentFace(page: Page): Promise<ReframeOutcome> {
     const headNdc = { x: Number(headVec.x), y: Number(headVec.y) };
     const subjectInFrame = Math.abs(headNdc.x) <= 1 && Math.abs(headNdc.y) <= 1;
 
+    // #465: projection says the head is IN frame but not whether it is VISIBLE. Raycast from the
+    // camera toward the head and record the FIRST hit mesh, so an in-world panel between the
+    // camera and the head is named rather than graded as "no face".
+    const transformPoint = function (m, x, y, z) {
+      return {
+        x: m[0] * x + m[4] * y + m[8] * z + m[12],
+        y: m[1] * x + m[5] * y + m[9] * z + m[13],
+        z: m[2] * x + m[6] * y + m[10] * z + m[14]
+      };
+    };
+    const rayAabb = function (ox, oy, oz, dx, dy, dz, wmin, wmax) {
+      let tmin = -1e30;
+      let tmax = 1e30;
+      const slabs = [[wmin.x, wmax.x, ox, dx], [wmin.y, wmax.y, oy, dy], [wmin.z, wmax.z, oz, dz]];
+      for (let i = 0; i < 3; i += 1) {
+        const lo = slabs[i][0];
+        const hi = slabs[i][1];
+        const o = slabs[i][2];
+        const d = slabs[i][3];
+        if (Math.abs(d) < 1e-12) {
+          if (o < lo || o > hi) return null;
+        } else {
+          let t1 = (lo - o) / d;
+          let t2 = (hi - o) / d;
+          if (t1 > t2) { const t = t1; t1 = t2; t2 = t; }
+          if (t1 > tmin) tmin = t1;
+          if (t2 < tmax) tmax = t2;
+          if (tmin > tmax) return null;
+        }
+      }
+      return tmin >= 0 ? tmin : (tmax >= 0 ? tmax : null);
+    };
+    const rayTriangle = function (ox, oy, oz, dx, dy, dz, a, b, c) {
+      const e1x = b.x - a.x, e1y = b.y - a.y, e1z = b.z - a.z;
+      const e2x = c.x - a.x, e2y = c.y - a.y, e2z = c.z - a.z;
+      const px = dy * e2z - dz * e2y, py = dz * e2x - dx * e2z, pz = dx * e2y - dy * e2x;
+      const det = e1x * px + e1y * py + e1z * pz;
+      if (det > -1e-12 && det < 1e-12) return null;
+      const inv = 1 / det;
+      const tx = ox - a.x, ty = oy - a.y, tz = oz - a.z;
+      const u = (tx * px + ty * py + tz * pz) * inv;
+      if (u < 0 || u > 1) return null;
+      const qx = ty * e1z - tz * e1y, qy = tz * e1x - tx * e1z, qz = tx * e1y - ty * e1x;
+      const v = (dx * qx + dy * qy + dz * qz) * inv;
+      if (v < 0 || u + v > 1) return null;
+      const dist = (e2x * qx + e2y * qy + e2z * qz) * inv;
+      return dist > 1e-6 ? dist : null;
+    };
+
+    const camM = isRecord(camera["matrixWorld"]) ? camera["matrixWorld"]["elements"] : undefined;
+    const rox = camM ? Number(camM[12]) : worldCam.x;
+    const roy = camM ? Number(camM[13]) : worldCam.y;
+    const roz = camM ? Number(camM[14]) : worldCam.z;
+    let rdx = headWorld.x - rox;
+    let rdy = headWorld.y - roy;
+    let rdz = headWorld.z - roz;
+    const rlen = Math.sqrt(rdx * rdx + rdy * rdy + rdz * rdz) || 1;
+    rdx /= rlen; rdy /= rlen; rdz /= rlen;
+
+    const candidates = [];
+    scene.traverse(function (object) {
+      if (!isRecord(object)) return;
+      // A mesh renders only if it and every ancestor are visible. The ragdoll collision proxy
+      // (main.ts:6513 group.visible=false) and other debug volumes must not read as the first hit.
+      let vis = object;
+      while (vis) {
+        if (vis["visible"] === false) return;
+        vis = vis["parent"];
+      }
+      const geometry = object["geometry"];
+      if (!isRecord(geometry)) return;
+      const attrs = geometry["attributes"];
+      const position = attrs && isRecord(attrs["position"]) ? attrs["position"] : undefined;
+      if (!isRecord(position) || !isRecord(position["array"])) return;
+      if (typeof object["updateWorldMatrix"] === "function") object["updateWorldMatrix"](true, false);
+      const mw = isRecord(object["matrixWorld"]) ? object["matrixWorld"]["elements"] : undefined;
+      if (!mw) return;
+      if (typeof geometry["computeBoundingBox"] === "function" && !isRecord(geometry["boundingBox"])) {
+        geometry["computeBoundingBox"]();
+      }
+      const bb = geometry["boundingBox"];
+      if (!isRecord(bb) || !isRecord(bb["min"]) || !isRecord(bb["max"])) return;
+      const mn = bb["min"], mx = bb["max"];
+      const wmin = { x: Infinity, y: Infinity, z: Infinity };
+      const wmax = { x: -Infinity, y: -Infinity, z: -Infinity };
+      const corners = [
+        transformPoint(mw, mn["x"], mn["y"], mn["z"]),
+        transformPoint(mw, mx["x"], mn["y"], mn["z"]),
+        transformPoint(mw, mn["x"], mx["y"], mn["z"]),
+        transformPoint(mw, mn["x"], mn["y"], mx["z"]),
+        transformPoint(mw, mx["x"], mx["y"], mn["z"]),
+        transformPoint(mw, mx["x"], mn["y"], mx["z"]),
+        transformPoint(mw, mn["x"], mx["y"], mx["z"]),
+        transformPoint(mw, mx["x"], mx["y"], mx["z"])
+      ];
+      for (let ci = 0; ci < 8; ci += 1) {
+        const c = corners[ci];
+        if (c.x < wmin.x) wmin.x = c.x;
+        if (c.y < wmin.y) wmin.y = c.y;
+        if (c.z < wmin.z) wmin.z = c.z;
+        if (c.x > wmax.x) wmax.x = c.x;
+        if (c.y > wmax.y) wmax.y = c.y;
+        if (c.z > wmax.z) wmax.z = c.z;
+      }
+      const entry = rayAabb(rox, roy, roz, rdx, rdy, rdz, wmin, wmax);
+      if (entry === null) return;
+      candidates.push({ object: object, entry: entry });
+    });
+    candidates.sort(function (a, b) { return a.entry - b.entry; });
+
+    let firstHitObject = null;
+    let firstHitDistance = Infinity;
+    for (let k = 0; k < candidates.length && firstHitObject === null; k += 1) {
+      const cand = candidates[k];
+      const geometry = cand.object["geometry"];
+      const position = geometry["attributes"]["position"];
+      const arr = position["array"];
+      const indexAttr = geometry["index"];
+      const index = indexAttr && isRecord(indexAttr["array"]) ? indexAttr["array"] : undefined;
+      const mw = cand.object["matrixWorld"]["elements"];
+      const count = index ? index.length / 3 : arr.length / 3;
+      let best = null;
+      for (let ti = 0; ti < count; ti += 1) {
+        const i0 = index ? index[ti * 3] : ti * 3;
+        const i1 = index ? index[ti * 3 + 1] : ti * 3 + 1;
+        const i2 = index ? index[ti * 3 + 2] : ti * 3 + 2;
+        const a = transformPoint(mw, arr[i0 * 3], arr[i0 * 3 + 1], arr[i0 * 3 + 2]);
+        const b = transformPoint(mw, arr[i1 * 3], arr[i1 * 3 + 1], arr[i1 * 3 + 2]);
+        const c = transformPoint(mw, arr[i2 * 3], arr[i2 * 3 + 1], arr[i2 * 3 + 2]);
+        const d = rayTriangle(rox, roy, roz, rdx, rdy, rdz, a, b, c);
+        if (d !== null && (best === null || d < best)) best = d;
+      }
+      if (best !== null) {
+        firstHitObject = cand.object;
+        firstHitDistance = best;
+      }
+    }
+
+    const firstHitMeshName = firstHitObject && typeof firstHitObject["name"] === "string" ? firstHitObject["name"] : null;
+    let firstHitActorId = null;
+    let hc = firstHitObject;
+    while (hc && hc["parent"]) {
+      const hud = hc["userData"];
+      if (hud && typeof hud["openClinXrActorId"] === "string") {
+        firstHitActorId = hud["openClinXrActorId"];
+        break;
+      }
+      hc = hc["parent"];
+    }
+    const subjectVisible = firstHitMeshName !== null
+      && (firstHitActorId !== null ? firstHitActorId === actorId : firstHitMeshName === parentMesh["name"]);
+
     return {
       status: "ok",
       targetMeshName: typeof parentMesh["name"] === "string" ? parentMesh["name"] : "",
@@ -292,6 +463,10 @@ async function reframeCameraOnParentFace(page: Page): Promise<ReframeOutcome> {
       subjectInFrame,
       headWorldY: Number(headWorld.y),
       aimWorldY: Number(aimWorldY),
+      firstHitMeshName,
+      firstHitDistance: firstHitMeshName !== null ? Number(firstHitDistance.toFixed(4)) : null,
+      subjectVisible,
+      occluderMeshName: subjectVisible ? null : firstHitMeshName,
       fov: 28,
       cameraLocal: {
         x: Number(camera.position.x),
@@ -387,7 +562,7 @@ export async function runVisemeCapture(): Promise<void> {
           t,
           targetName: dominant,
           influence: peak?.influence ?? 0,
-          meshName: peak?.meshName ?? "",
+          meshName: sceneSample.meshName,
           framePath,
           reframeStatus: reframeOutcome.status,
         });
@@ -507,6 +682,10 @@ export async function runVisemeCapture(): Promise<void> {
         subjectInFrame: firstReframe.status === "ok" ? firstReframe.subjectInFrame : false,
         headWorldY: firstReframe.status === "ok" ? firstReframe.headWorldY : null,
         aimWorldY: firstReframe.status === "ok" ? firstReframe.aimWorldY : null,
+        firstHitMeshName: firstReframe.status === "ok" ? firstReframe.firstHitMeshName : null,
+        firstHitDistance: firstReframe.status === "ok" ? firstReframe.firstHitDistance : null,
+        subjectVisible: firstReframe.status === "ok" ? firstReframe.subjectVisible : false,
+        occluderMeshName: firstReframe.status === "ok" ? firstReframe.occluderMeshName : null,
       };
 
       const inspection = {
@@ -538,7 +717,9 @@ export async function runVisemeCapture(): Promise<void> {
         reframeOkSamples: liveSamples.filter((s) => s.reframeStatus === "ok").length,
         rawTimeline: rawTimeline.map((s) => ({
           t: Number(s.t.toFixed(3)),
+          meshName: s.meshName,
           peak: s.peak,
+          noActiveVisemeReason: s.noActiveVisemeReason ?? null,
           speech: s.speech,
           nonZeroVisemes: s.readings
             .filter((r) => r.influence > 0.01)
@@ -638,6 +819,10 @@ export async function runVisemeCapture(): Promise<void> {
           subjectInFrame: firstReframe.status === "ok" ? firstReframe.subjectInFrame : false,
           headWorldY: firstReframe.status === "ok" ? firstReframe.headWorldY : null,
           aimWorldY: firstReframe.status === "ok" ? firstReframe.aimWorldY : null,
+          firstHitMeshName: firstReframe.status === "ok" ? firstReframe.firstHitMeshName : null,
+          firstHitDistance: firstReframe.status === "ok" ? firstReframe.firstHitDistance : null,
+          subjectVisible: firstReframe.status === "ok" ? firstReframe.subjectVisible : false,
+          occluderMeshName: firstReframe.status === "ok" ? firstReframe.occluderMeshName : null,
         },
         visemeInstants: [...strongByName.entries()].map(([targetName, v]) => ({
           targetName,
