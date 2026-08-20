@@ -1,0 +1,582 @@
+{
+  "issue": 488,
+  "verdict": "conformal",
+  "asset": "apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.glb",
+  "instrument": "reuses #485 gown-see-through-cause.py `_geom`/`_signed_distance`/`_outward_skirt` (trimesh nearest.on_surface -> signed distance along the shell's outward normal, nearest triangle, full 3D). Open torso shells oriented outward relative to the body (generalizes `_outward_skirt`, which needs a closed tube). Arms excluded by trunk filter |x| < 0.22 m because the bind pose abducts the arms.",
+  "statistic": "stdSignedMeters: standard deviation (ddof=0) of the body->shell signed distance within the band, over trunk vertices. A conformal offset has near-constant clearance (low std); a draped garment's clearance grows under the bust / at the waist (high std). The 0.03 m sub-band profile is the shape evidence.",
+  "bands": {
+    "hemM": 0.534,
+    "hipM": 0.917,
+    "gownTopM": 1.439,
+    "tShirtY": [
+      0.955,
+      1.406
+    ],
+    "trunkXMaxM": 0.22,
+    "torsoProperTopM": 1.35
+  },
+  "perBand": {
+    "conformalControl": {
+      "band": "fitted MakeClothes t-shirt torso (supposed to trace the body)",
+      "mesh": "makeclothes_library_toigo_t_shirt_mpfb_ob_patient_aisha_mesh",
+      "full": {
+        "bandY": [
+          0.955,
+          1.406
+        ],
+        "vertexCount": 346,
+        "meanSignedMeters": -0.0052,
+        "stdSignedMeters": 0.0086,
+        "minSignedMeters": -0.0171,
+        "maxSignedMeters": 0.025
+      },
+      "profile": [
+        {
+          "bandY": [
+            0.955,
+            0.985
+          ],
+          "vertexCount": 20,
+          "meanSignedMeters": 0.0141,
+          "stdSignedMeters": 0.0101,
+          "minSignedMeters": -0.0079,
+          "maxSignedMeters": 0.025
+        },
+        {
+          "bandY": [
+            0.985,
+            1.015
+          ],
+          "vertexCount": 43,
+          "meanSignedMeters": -0.0108,
+          "stdSignedMeters": 0.0029,
+          "minSignedMeters": -0.0161,
+          "maxSignedMeters": -0.0043
+        },
+        {
+          "bandY": [
+            1.015,
+            1.045
+          ],
+          "vertexCount": 76,
+          "meanSignedMeters": -0.0112,
+          "stdSignedMeters": 0.0028,
+          "minSignedMeters": -0.0171,
+          "maxSignedMeters": -0.0037
+        },
+        {
+          "bandY": [
+            1.045,
+            1.075
+          ],
+          "vertexCount": 41,
+          "meanSignedMeters": -0.01,
+          "stdSignedMeters": 0.0019,
+          "minSignedMeters": -0.0129,
+          "maxSignedMeters": -0.0059
+        },
+        {
+          "bandY": [
+            1.075,
+            1.105
+          ],
+          "vertexCount": 13,
+          "meanSignedMeters": -0.0076,
+          "stdSignedMeters": 0.0014,
+          "minSignedMeters": -0.0093,
+          "maxSignedMeters": -0.0056
+        },
+        {
+          "bandY": [
+            1.105,
+            1.135
+          ],
+          "vertexCount": 8,
+          "meanSignedMeters": -0.006,
+          "stdSignedMeters": 0.0004,
+          "minSignedMeters": -0.0064,
+          "maxSignedMeters": -0.0052
+        },
+        {
+          "bandY": [
+            1.135,
+            1.165
+          ],
+          "vertexCount": 8,
+          "meanSignedMeters": -0.006,
+          "stdSignedMeters": 0.0003,
+          "minSignedMeters": -0.0063,
+          "maxSignedMeters": -0.0056
+        },
+        null,
+        {
+          "bandY": [
+            1.195,
+            1.225
+          ],
+          "vertexCount": 4,
+          "meanSignedMeters": -0.0071,
+          "stdSignedMeters": 0.0009,
+          "minSignedMeters": -0.0083,
+          "maxSignedMeters": -0.0058
+        },
+        null,
+        {
+          "bandY": [
+            1.255,
+            1.285
+          ],
+          "vertexCount": 5,
+          "meanSignedMeters": -0.0066,
+          "stdSignedMeters": 0.0009,
+          "minSignedMeters": -0.0083,
+          "maxSignedMeters": -0.0061
+        },
+        {
+          "bandY": [
+            1.285,
+            1.315
+          ],
+          "vertexCount": 20,
+          "meanSignedMeters": -0.0052,
+          "stdSignedMeters": 0.0016,
+          "minSignedMeters": -0.007,
+          "maxSignedMeters": -0.0026
+        },
+        {
+          "bandY": [
+            1.315,
+            1.345
+          ],
+          "vertexCount": 26,
+          "meanSignedMeters": -0.0057,
+          "stdSignedMeters": 0.0032,
+          "minSignedMeters": -0.01,
+          "maxSignedMeters": -0.0007
+        },
+        {
+          "bandY": [
+            1.345,
+            1.375
+          ],
+          "vertexCount": 14,
+          "meanSignedMeters": -0.0027,
+          "stdSignedMeters": 0.0015,
+          "minSignedMeters": -0.006,
+          "maxSignedMeters": -0.0008
+        },
+        {
+          "bandY": [
+            1.375,
+            1.405
+          ],
+          "vertexCount": 68,
+          "meanSignedMeters": 0.0029,
+          "stdSignedMeters": 0.0087,
+          "minSignedMeters": -0.0057,
+          "maxSignedMeters": 0.023
+        },
+        null
+      ]
+    },
+    "drapedControl": {
+      "band": "gown skirt, hem->hip (resampled ring, not tracing the legs)",
+      "mesh": "openclinxr_real_garment_peds_upper_v1_mesh (skirt)",
+      "full": {
+        "bandY": [
+          0.534,
+          0.917
+        ],
+        "vertexCount": 535,
+        "meanSignedMeters": -0.0363,
+        "stdSignedMeters": 0.0361,
+        "minSignedMeters": -0.1269,
+        "maxSignedMeters": 0.0017
+      },
+      "profile": [
+        {
+          "bandY": [
+            0.534,
+            0.564
+          ],
+          "vertexCount": 36,
+          "meanSignedMeters": -0.0382,
+          "stdSignedMeters": 0.0405,
+          "minSignedMeters": -0.1014,
+          "maxSignedMeters": 0.0002
+        },
+        {
+          "bandY": [
+            0.564,
+            0.594
+          ],
+          "vertexCount": 26,
+          "meanSignedMeters": -0.0581,
+          "stdSignedMeters": 0.0428,
+          "minSignedMeters": -0.123,
+          "maxSignedMeters": -0.0084
+        },
+        {
+          "bandY": [
+            0.594,
+            0.624
+          ],
+          "vertexCount": 24,
+          "meanSignedMeters": -0.0425,
+          "stdSignedMeters": 0.0321,
+          "minSignedMeters": -0.0958,
+          "maxSignedMeters": -0.0071
+        },
+        {
+          "bandY": [
+            0.624,
+            0.654
+          ],
+          "vertexCount": 38,
+          "meanSignedMeters": -0.0514,
+          "stdSignedMeters": 0.0464,
+          "minSignedMeters": -0.1269,
+          "maxSignedMeters": -0.0007
+        },
+        {
+          "bandY": [
+            0.654,
+            0.684
+          ],
+          "vertexCount": 42,
+          "meanSignedMeters": -0.0485,
+          "stdSignedMeters": 0.0442,
+          "minSignedMeters": -0.1231,
+          "maxSignedMeters": 0.0017
+        },
+        {
+          "bandY": [
+            0.684,
+            0.714
+          ],
+          "vertexCount": 40,
+          "meanSignedMeters": -0.0719,
+          "stdSignedMeters": 0.0434,
+          "minSignedMeters": -0.1248,
+          "maxSignedMeters": 0.0013
+        },
+        {
+          "bandY": [
+            0.714,
+            0.744
+          ],
+          "vertexCount": 52,
+          "meanSignedMeters": -0.0535,
+          "stdSignedMeters": 0.0418,
+          "minSignedMeters": -0.126,
+          "maxSignedMeters": 0.0006
+        },
+        {
+          "bandY": [
+            0.744,
+            0.774
+          ],
+          "vertexCount": 58,
+          "meanSignedMeters": -0.0304,
+          "stdSignedMeters": 0.0274,
+          "minSignedMeters": -0.096,
+          "maxSignedMeters": -0.0006
+        },
+        {
+          "bandY": [
+            0.774,
+            0.804
+          ],
+          "vertexCount": 48,
+          "meanSignedMeters": -0.0205,
+          "stdSignedMeters": 0.0142,
+          "minSignedMeters": -0.0552,
+          "maxSignedMeters": -0.0054
+        },
+        {
+          "bandY": [
+            0.804,
+            0.834
+          ],
+          "vertexCount": 62,
+          "meanSignedMeters": -0.0199,
+          "stdSignedMeters": 0.0122,
+          "minSignedMeters": -0.0585,
+          "maxSignedMeters": -0.0103
+        },
+        {
+          "bandY": [
+            0.834,
+            0.864
+          ],
+          "vertexCount": 37,
+          "meanSignedMeters": -0.0178,
+          "stdSignedMeters": 0.0109,
+          "minSignedMeters": -0.0421,
+          "maxSignedMeters": -0.0048
+        },
+        {
+          "bandY": [
+            0.864,
+            0.894
+          ],
+          "vertexCount": 39,
+          "meanSignedMeters": -0.0171,
+          "stdSignedMeters": 0.0095,
+          "minSignedMeters": -0.0327,
+          "maxSignedMeters": -0.0024
+        },
+        {
+          "bandY": [
+            0.894,
+            0.917
+          ],
+          "vertexCount": 33,
+          "meanSignedMeters": -0.0176,
+          "stdSignedMeters": 0.0062,
+          "minSignedMeters": -0.0272,
+          "maxSignedMeters": -0.0089
+        }
+      ]
+    },
+    "treatment": {
+      "band": "gown torso (band under test)",
+      "mesh": "openclinxr_real_garment_peds_upper_v1_mesh (torso)",
+      "full": {
+        "bandY": [
+          0.917,
+          1.439
+        ],
+        "vertexCount": 532,
+        "meanSignedMeters": -0.0127,
+        "stdSignedMeters": 0.0229,
+        "minSignedMeters": -0.0324,
+        "maxSignedMeters": 0.0723
+      },
+      "profile": [
+        {
+          "bandY": [
+            0.917,
+            0.947
+          ],
+          "vertexCount": 36,
+          "meanSignedMeters": -0.0196,
+          "stdSignedMeters": 0.0033,
+          "minSignedMeters": -0.0247,
+          "maxSignedMeters": -0.0143
+        },
+        {
+          "bandY": [
+            0.947,
+            0.977
+          ],
+          "vertexCount": 22,
+          "meanSignedMeters": -0.0219,
+          "stdSignedMeters": 0.0004,
+          "minSignedMeters": -0.0225,
+          "maxSignedMeters": -0.0213
+        },
+        {
+          "bandY": [
+            0.977,
+            1.007
+          ],
+          "vertexCount": 34,
+          "meanSignedMeters": -0.0221,
+          "stdSignedMeters": 0.0012,
+          "minSignedMeters": -0.0259,
+          "maxSignedMeters": -0.0171
+        },
+        {
+          "bandY": [
+            1.007,
+            1.037
+          ],
+          "vertexCount": 69,
+          "meanSignedMeters": -0.022,
+          "stdSignedMeters": 0.0006,
+          "minSignedMeters": -0.0231,
+          "maxSignedMeters": -0.02
+        },
+        {
+          "bandY": [
+            1.037,
+            1.067
+          ],
+          "vertexCount": 53,
+          "meanSignedMeters": -0.0224,
+          "stdSignedMeters": 0.0004,
+          "minSignedMeters": -0.023,
+          "maxSignedMeters": -0.0213
+        },
+        {
+          "bandY": [
+            1.067,
+            1.097
+          ],
+          "vertexCount": 17,
+          "meanSignedMeters": -0.0226,
+          "stdSignedMeters": 0.0004,
+          "minSignedMeters": -0.0231,
+          "maxSignedMeters": -0.0222
+        },
+        {
+          "bandY": [
+            1.097,
+            1.127
+          ],
+          "vertexCount": 10,
+          "meanSignedMeters": -0.0227,
+          "stdSignedMeters": 0.0004,
+          "minSignedMeters": -0.0232,
+          "maxSignedMeters": -0.0221
+        },
+        {
+          "bandY": [
+            1.127,
+            1.157
+          ],
+          "vertexCount": 4,
+          "meanSignedMeters": -0.0223,
+          "stdSignedMeters": 0.0,
+          "minSignedMeters": -0.0223,
+          "maxSignedMeters": -0.0222
+        },
+        {
+          "bandY": [
+            1.157,
+            1.187
+          ],
+          "vertexCount": 4,
+          "meanSignedMeters": -0.0222,
+          "stdSignedMeters": 0.0001,
+          "minSignedMeters": -0.0223,
+          "maxSignedMeters": -0.0221
+        },
+        null,
+        {
+          "bandY": [
+            1.217,
+            1.247
+          ],
+          "vertexCount": 4,
+          "meanSignedMeters": -0.0222,
+          "stdSignedMeters": 0.0001,
+          "minSignedMeters": -0.0223,
+          "maxSignedMeters": -0.022
+        },
+        {
+          "bandY": [
+            1.247,
+            1.277
+          ],
+          "vertexCount": 2,
+          "meanSignedMeters": -0.0227,
+          "stdSignedMeters": 0.0,
+          "minSignedMeters": -0.0227,
+          "maxSignedMeters": -0.0227
+        },
+        {
+          "bandY": [
+            1.277,
+            1.307
+          ],
+          "vertexCount": 17,
+          "meanSignedMeters": -0.0224,
+          "stdSignedMeters": 0.0001,
+          "minSignedMeters": -0.0226,
+          "maxSignedMeters": -0.0221
+        },
+        {
+          "bandY": [
+            1.307,
+            1.337
+          ],
+          "vertexCount": 31,
+          "meanSignedMeters": -0.0223,
+          "stdSignedMeters": 0.0001,
+          "minSignedMeters": -0.0224,
+          "maxSignedMeters": -0.0221
+        },
+        {
+          "bandY": [
+            1.337,
+            1.367
+          ],
+          "vertexCount": 13,
+          "meanSignedMeters": -0.0223,
+          "stdSignedMeters": 0.0002,
+          "minSignedMeters": -0.0224,
+          "maxSignedMeters": -0.0219
+        },
+        {
+          "bandY": [
+            1.367,
+            1.397
+          ],
+          "vertexCount": 38,
+          "meanSignedMeters": -0.0194,
+          "stdSignedMeters": 0.0049,
+          "minSignedMeters": -0.0224,
+          "maxSignedMeters": -0.0061
+        },
+        {
+          "bandY": [
+            1.397,
+            1.427
+          ],
+          "vertexCount": 92,
+          "meanSignedMeters": -0.0121,
+          "stdSignedMeters": 0.0131,
+          "minSignedMeters": -0.0278,
+          "maxSignedMeters": 0.0157
+        },
+        {
+          "bandY": [
+            1.427,
+            1.439
+          ],
+          "vertexCount": 86,
+          "meanSignedMeters": 0.0238,
+          "stdSignedMeters": 0.0371,
+          "minSignedMeters": -0.0324,
+          "maxSignedMeters": 0.0723
+        }
+      ]
+    }
+  },
+  "torsoProper": {
+    "conformalControl": {
+      "bandY": [
+        0.955,
+        1.35
+      ],
+      "vertexCount": 268,
+      "meanSignedMeters": -0.0073,
+      "stdSignedMeters": 0.0075,
+      "minSignedMeters": -0.0171,
+      "maxSignedMeters": 0.025
+    },
+    "treatment": {
+      "bandY": [
+        0.917,
+        1.35
+      ],
+      "vertexCount": 308,
+      "meanSignedMeters": -0.0219,
+      "stdSignedMeters": 0.0015,
+      "minSignedMeters": -0.0259,
+      "maxSignedMeters": -0.0143
+    },
+    "drapedControlStd": 0.0361
+  },
+  "discrimination": {
+    "controlsSeparated": true,
+    "drapedOverConformalStdRatio": 4.198,
+    "conformalControlStd": 0.0086,
+    "drapedControlStd": 0.0361,
+    "treatmentStd": 0.0229
+  },
+  "claimScope": "whether the gown TORSO standoff on mpfb-gown-inspect.glb is conformal or draped (static bind pose)",
+  "notEvidenceFor": "runtime skinning/pose deformation, cloth physics, clinical wardrobe policy, the production cast, or the gown skirt/sleeves"
+}
