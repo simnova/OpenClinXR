@@ -146,7 +146,8 @@ async function measure(entry: (typeof CAST)[number]): Promise<Row | null> {
       // Upper-body garment ASSET id, stripped of the per-actor suffix: `..._library_<asset>_mpfb_<actor>_mesh`.
       const kind = name.replace(/^.*?library_/, "").replace(/_mpfb[_-].*$/, "");
       const pos = prim.getAttribute("POSITION");
-      if (/t_shirt|scrub|shirt|sweater|gown|top/i.test(name)) {
+      // `scrub` alone would also match `scrub_pants`; the lookahead keeps trousers in the lower branch.
+      if (/t_shirt|scrub(?!_pants)|shirt|sweater|gown|top/i.test(name)) {
         row.upper = { kind, rgb };
         if (pos) for (let i = 0; i < pos.getCount(); i++) {
           const y = (pos.getElement(i, [0, 0, 0]) as number[])[1]!;
@@ -163,14 +164,26 @@ async function measure(entry: (typeof CAST)[number]): Promise<Row | null> {
       }
     }
   }
-  if (!row.upper || !row.lower) return null;
+  if (!row.upper || !row.lower) {
+    console.warn(
+      `measure(${entry.file}): dropped — upper=${row.upper?.kind ?? "MISSING"}, lower=${row.lower?.kind ?? "MISSING"}`,
+    );
+    return null;
+  }
   row.overlapMm = Number.isFinite(pantsTop) && Number.isFinite(shirtBot) ? (pantsTop - shirtBot) * 1000 : 0;
   return row;
 }
 
-const rows = (await Promise.all(CAST.map((c) => measure(c).catch(() => null)))).filter(
-  (r): r is Row => r !== null,
-);
+const rows = (
+  await Promise.all(
+    CAST.map((c) =>
+      measure(c).catch((reason) => {
+        console.error(`measure(${c.file}) threw: ${reason}`);
+        return null;
+      }),
+    ),
+  )
+).filter((r): r is Row => r !== null);
 
 /** An empty enumeration must FAIL, never pass vacuously (§7t). */
 function requireRows(): void {
