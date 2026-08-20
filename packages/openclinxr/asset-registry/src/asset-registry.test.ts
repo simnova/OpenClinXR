@@ -427,7 +427,7 @@ describe("asset registry", () => {
     });
     expect(resolveRuntimeAssetUrl(bundle.environment)).toBe("/xr-assets/environment/ed-exam-bay-shell.glb");
     expect(resolveRuntimeAssetUrl(findRuntimeActorAsset(bundle, "patient_robert_hayes_v1")?.model ?? bundle.environment))
-      .toBe("/generated-humanoids/ed_chest_pain_adult_cast.glb");
+      .toBe("/generated-humanoids/mpfb-gown-adult-patient.glb");
     expect(resolveRuntimeAssetUrl(findRuntimeEquipmentAsset(bundle, "ecg_cart_equipment")?.model ?? bundle.environment))
       .toBe("/xr-assets/medical-equipment/ecg-cart-12-lead.glb");
     expect(bundle.actors.every((actor) => actor.gazeProfile.supportsActorTargets)).toBe(true);
