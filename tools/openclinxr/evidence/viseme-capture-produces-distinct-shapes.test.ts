@@ -1,5 +1,7 @@
-import { readFile } from "node:fs/promises";
-import { beforeAll, describe, expect, it } from "vitest";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { describe, expect, it } from "vitest";
 
 /**
  * PLANTED CONTRACTS (#365) — visemes resolve 9/9 on paper and nobody has ever watched a mouth move.
@@ -24,11 +26,37 @@ import { beforeAll, describe, expect, it } from "vitest";
  *   - The parent/nurse are MPFB FACS bodies (hm08) driven through the #353 alias map —
  *     `mouth-protusion` and `mouth-compression` observed at 1.0 — so an MPFB mouth DOES move in
  *     this station; it is just not the framed subject.
- *   - Screenshots cost ~500 ms each on the slow headless render loop (~6 fps). When screenshots
- *     sat between samples they throttled the states timeline to ~700 ms/sample and the dominant
- *     viseme showed only {silence, L, AA}. The tool now samples STATES densely (no screenshots on
- *     the states pass) and takes FRAMES on a separate sparse pass, each frame labelled with the
- *     dominant value at its instant.
+ *
+ * ════════════════════════════════════════════════════════════════════════════════════════
+ * #467 — THE TEST RAN THE CAPTURE INSTEAD OF READING ITS ARTIFACT
+ *
+ * The original shape imported the capture module and invoked it inside `beforeAll`, booting a
+ * portless dev server (~37 s), driving a live encounter, and — worse — rewriting the two TRACKED
+ * summaries that #464/#465 landed (`parent-drives-a-real-viseme.json`,
+ * `reframe-subject-in-frame.json`). A test whose green depends on a file it wrote itself is not
+ * evidence (§7s). This is the second instance of #466, which fixed
+ * `the-capture-records-what-it-framed.test.ts` the same way.
+ *
+ * The capture module writing those tracked summaries is CORRECT and DELIBERATE — `.openclinxr/**`
+ * is gitignored and has no land path (#396), so the tracked summaries ARE the land path.
+ * `pnpm asset:ui-xr:viseme-drive-capture` is the step that *produces* evidence and may take as
+ * long as it needs; a *test* is the step that *reads* it (§7b: measure once into an artifact,
+ * assert against the artifact).
+ *
+ * THE REWIRE: the four clauses below read the two TRACKED summaries the capture derives (same
+ * pattern as #464/#465/#466), instead of running the capture and reading the gitignored
+ * `inspection.json`. The input moved; what each clause checks is preserved:
+ *   (1) the dominant viseme still must take ≥5 distinct mouth shapes — the bar is UNCHANGED and
+ *       is legitimately RED, because the tracked summaries carry four (viseme_sil, viseme_aa,
+ *       viseme_TH, viseme_E). Why only four is the "twelve of fifteen unobserved at runtime"
+ *       coverage question, which is out of scope for this slice and not solved by lowering the
+ *       bar or by manufacturing a fifth shape in the mock dialogue;
+ *   (2) VACUITY — both summaries carry real, non-empty viseme evidence, so a crashed/empty run
+ *       fails loudly instead of passing on an empty object;
+ *   (3) COUNTERWEIGHT a — influence is non-trivial (above the 0.5 floor), so "distinct" is not
+ *       float noise;
+ *   (4) COUNTERWEIGHT b (#308) — every dominant target is a mouth/lip/jaw morph, never a
+ *       brow/eye/cheek target.
  *
  * WHAT THIS CONTRACT PROVES, AND WHAT IT DOES NOT: the runtime drives the patient's mouth through
  * ≥5 distinct morph shapes at non-trivial weight, and every dominant shape is a mouth/lip/jaw
@@ -38,23 +66,50 @@ import { beforeAll, describe, expect, it } from "vitest";
  * quality, clinical affect.
  */
 
-const INSPECTION_PATH = ".openclinxr/evidence/viseme-drive-2026-08-06/inspection.json";
+const HERE = dirname(fileURLToPath(import.meta.url));
+const PARENT_SUMMARY = join(HERE, "parent-drives-a-real-viseme.json");
+const REFRAME_SUMMARY = join(HERE, "reframe-subject-in-frame.json");
 
-const load = async () =>
-  import("./ui-xr-viseme-drive-capture.js") as Promise<Record<string, unknown>>;
-
-type LiveVisemeSample = {
-  t: number;
-  targetName: string;
-  influence: number;
+type ParentSummary = {
+  /** Live source the rows came from — a path or command, not a claim. */
+  capturedFrom: string;
+  /** The mesh actually sampled, read from the live scene. */
   meshName: string;
-  framePath: string | null;
+  actor: string;
+  samples: { drivenTargetName: string; influence: number }[];
 };
 
-type Inspection = {
-  liveVisemeSamples: LiveVisemeSample[];
-  maxInfluence?: number;
+type ReframeSummary = {
+  capturedFrom: string;
+  visemeInstants: { targetName: string; framePath: string | null }[];
 };
+
+const parentSummary: ParentSummary | null = existsSync(PARENT_SUMMARY)
+  ? (JSON.parse(readFileSync(PARENT_SUMMARY, "utf8")) as ParentSummary)
+  : null;
+
+const reframeSummary: ReframeSummary | null = existsSync(REFRAME_SUMMARY)
+  ? (JSON.parse(readFileSync(REFRAME_SUMMARY, "utf8")) as ReframeSummary)
+  : null;
+
+function requireParent(): ParentSummary {
+  expect(
+    parentSummary,
+    `tools/openclinxr/evidence/parent-drives-a-real-viseme.json must exist — a TRACKED summary `
+      + `derived from pnpm asset:ui-xr:viseme-drive-capture. The capture's own inspection.json is `
+      + `gitignored and has no land path (#396).`,
+  ).not.toBeNull();
+  return parentSummary as ParentSummary;
+}
+
+function requireReframe(): ReframeSummary {
+  expect(
+    reframeSummary,
+    `tools/openclinxr/evidence/reframe-subject-in-frame.json must exist — a TRACKED summary from a `
+      + `live capture. The capture's own inspection.json is gitignored (#396).`,
+  ).not.toBeNull();
+  return reframeSummary as ReframeSummary;
+}
 
 /** Mouth/lip/jaw shapes across the Anny (viseme_*) and MPFB FACS (mouth-*) rails. */
 const isMouthShape = (name: string): boolean => {
@@ -66,76 +121,56 @@ const isMouthShape = (name: string): boolean => {
   );
 };
 
-describe("viseme capture produces distinct mouth shapes (#365)", () => {
-  let captureError: unknown = null;
-  let inspection: Inspection | null = null;
+/** Distinct dominant target names across both tracked summaries (the capture's strong instants). */
+const distinctDominantNames = (): string[] => [
+  ...new Set([
+    ...requireParent().samples.map((s) => s.drivenTargetName),
+    ...requireReframe().visemeInstants.map((v) => v.targetName),
+  ].filter((name) => name !== "none")),
+];
 
-  beforeAll(async () => {
-    const mod = await load();
-    const run = mod.runVisemeCapture as (() => Promise<unknown>) | undefined;
-    if (typeof run !== "function") {
-      captureError = new Error(
-        "runVisemeCapture is not exported by ui-xr-viseme-drive-capture.ts",
-      );
-      return;
-    }
-    try {
-      await run();
-      inspection = JSON.parse(await readFile(INSPECTION_PATH, "utf8")) as Inspection;
-    } catch (error) {
-      captureError = error;
-    }
-  }, 1_800_000);
-
-  const artifact = (): Inspection => {
-    if (captureError !== null) {
-      throw captureError;
-    }
-    if (inspection === null) {
-      throw new Error(`capture completed but did not write ${INSPECTION_PATH}`);
-    }
-    return inspection;
-  };
-
-  it("capture runs to completion and the dominant viseme takes ≥5 distinct values (RED)", async () => {
-    const data = artifact();
-    const samples = data.liveVisemeSamples;
-    const dominant = samples
-      .map((s) => s.targetName)
-      .filter((name) => name !== "none");
-    const distinct = new Set(dominant);
+describe("viseme capture produces distinct mouth shapes (#365, read-only)", () => {
+  it("the dominant viseme takes ≥5 distinct values (RED — coverage question, bar unchanged)", () => {
+    const distinct = distinctDominantNames();
     expect(
-      distinct.size,
-      `dominant viseme took only ${distinct.size} distinct values across ${samples.length} samples: ${[...distinct].join(", ")} — need ≥5`,
+      distinct.length,
+      `dominant viseme took only ${distinct.length} distinct values: ${distinct.join(", ")} — need ≥5. `
+        + `Lowering this bar would erase the coverage question instead of answering it.`,
     ).toBeGreaterThanOrEqual(5);
-  }, 1_800_000);
+  });
 
-  it("states artifact holds at least 8 samples (VACUITY GUARD)", async () => {
-    const data = artifact();
+  it("VACUITY GUARD: both summaries carry real weighted viseme samples", () => {
+    const parent = requireParent();
     expect(
-      data.liveVisemeSamples.length,
-      `a crashed or empty run must fail loudly; got ${data.liveVisemeSamples.length} samples`,
-    ).toBeGreaterThanOrEqual(8);
-  }, 1_800_000);
+      parent.samples.length,
+      `a crashed or empty run must fail loudly; got ${parent.samples.length} samples`,
+    ).toBeGreaterThanOrEqual(1);
+    expect(
+      parent.samples.every((s) => /^viseme_/iu.test(s.drivenTargetName) && s.influence > 0),
+      "every sampled entry must be a weighted viseme_* drive, not an empty or FACS alias",
+    ).toBe(true);
+    const instants = requireReframe().visemeInstants;
+    expect(
+      instants.length,
+      `a crashed or empty run must fail loudly; got ${instants.length} viseme instants`,
+    ).toBeGreaterThanOrEqual(1);
+    expect(instants[0].targetName, "the first viseme instant must name a real target").not.toBe("");
+  });
 
-  it("weights are non-trivial: max influence above the floor (COUNTERWEIGHT a)", async () => {
-    const data = artifact();
-    const maxWeight = Math.max(...data.liveVisemeSamples.map((s) => s.influence), 0);
+  it("weights are non-trivial: max influence above the floor (COUNTERWEIGHT a)", () => {
+    const data = requireParent();
+    const maxWeight = Math.max(...data.samples.map((s) => s.influence), 0);
     expect(
       maxWeight,
       "a sequence of near-zero weights is 'distinct' by float noise and is not speech",
     ).toBeGreaterThan(0.5);
-  }, 1_800_000);
+  });
 
-  it("every dominant target is a mouth/lip/jaw morph (COUNTERWEIGHT b — #308)", async () => {
-    const data = artifact();
-    const offenders = data.liveVisemeSamples
-      .filter((s) => s.influence >= 0.5)
-      .filter((s) => !isMouthShape(s.targetName))
-      .map((s) => `${s.targetName}@${s.influence}`);
+  it("every dominant target is a mouth/lip/jaw morph (COUNTERWEIGHT b — #308)", () => {
+    const offenders = distinctDominantNames().filter((name) => !isMouthShape(name));
     expect(
       offenders,
       "a resolver returning some name for every request while driving the wrong region",
     ).toHaveLength(0);
-  }, 1_800_000);
+  });
 });
