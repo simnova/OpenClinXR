@@ -1,5 +1,8 @@
 /**
- * Procedural supine (recumbent) pose on the existing 23-bone runtime subset (#150/#153/#159).
+ * Procedural supine (recumbent) pose, authored on the 23-bone runtime subset (#150/#153/#159).
+ * Each key resolves through `resolvePoseBone` (#306), so the recast MPFB2 MakeHuman rig (#491)
+ * is posed too — `pelvis→root`, `spine→spine03`, `chest→spine01`, limbs to their first segments —
+ * rather than silently skipped.
  *
  * ED chest-pain patient lies on the procedural stretcher deck — not a standing figure
  * tipped with one root euler (that clips rails and reads as a rigid plank).
