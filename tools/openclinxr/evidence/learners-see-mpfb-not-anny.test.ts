@@ -61,6 +61,17 @@ import {
  *   - The runtime URL resolver's own Anny list (`humanoid-runtime-asset-url.ts:42-48`), which mirrors
  *     this file and must change WITH it — the dual-resolver agreement is asserted elsewhere.
  *   - Quest, clinical validity, exam equivalence.
+ *
+ * ## FIXED (#476)
+ *
+ * (1) and (3) flipped from `it.fails` to `it` on 2026-08-20. Nurse-class roles now push
+ * `MPFB_PEDS_NURSE_KEVIN_GLB` second (137-joint MPFB, the known-good column), so the two
+ * co-present nurse-class slots that previously fell back to the 23-joint Anny nurse body —
+ * `stepdown_sepsis_nurse_escalation_v1/nurse` and `postop_fever_consult_pressure_v1/consultant` —
+ * resolve to MPFB instead. `ADULT_POOL_GLBS` is seeded with the five MPFB adult role bodies ahead
+ * of the Anny tail, so the exhausted-pool fallback (`actor-casting.ts:290`) is no longer 100% Anny.
+ * Mirrored in `apps/ui-xr/src/humanoid-runtime-asset-url.ts` (both the nurse-class list and its
+ * `ADULT_POOL_GLBS`) so the dual-resolver agreement holds.
  */
 
 const ANNY_GLBS = [
@@ -89,7 +100,7 @@ function everyCast(): { scenarioId: string; cast: Cast }[] {
 }
 
 describe("learners are cast on MPFB bodies, not Anny", () => {
-  it.fails("(1) RED: no in-scope role resolves to an Anny body", () => {
+  it("(1) no in-scope role resolves to an Anny body", () => {
     const offenders = everyCast()
       .filter(({ cast }) => IN_SCOPE_ROLES.test(cast.role ?? "") && isAnny(cast.assetPath ?? ""))
       .map(({ scenarioId, cast }) => `${scenarioId}/${cast.role}=${cast.assetPath}`);
@@ -108,7 +119,7 @@ describe("learners are cast on MPFB bodies, not Anny", () => {
       "at least one gowned patient must still be Anny — this slice does not touch that path").toBe(true);
   });
 
-  it.fails("(3) RED: the exhausted-pool fallback is not 100% Anny", () => {
+  it("(3) the exhausted-pool fallback is not 100% Anny", () => {
     // Refuses the cheap fix. Stripping the four preference tails while ADULT_POOL_GLBS stays
     // all-Anny moves the same outcome one step later: actor-casting.ts:290 walks this pool.
     // The length guard lives in clause (5), NOT here: probe D4 (2026-08-20) emptied the pool and this

@@ -274,10 +274,12 @@ function pickAdultGlb(
     // together — the patient-attire dual-resolver agreement asserts this).
     preferred.push(MPFB_CLINICAL_PHYSICIAN_ADULT_GLB, MPFB_CLINICAL_NURSE_ADULT_GLB, ED_NURSE_GLB, PEDS_NURSE_GLB, ED_ADULT_CAST_GLB, PEDS_PARENT_GLB, ED_SPOUSE_GLB, ADULT_MALE_STREET_CASUAL_GLB);
   } else if (r === "nurse" || r === "medical_assistant" || r === "respiratory_therapist" || r === "consultant") {
-    // #403: nurse-class roles take the MPFB clinical-nurse body first (the Anny
-    // nurse file stays as a second-body fallback for co-present nurse-class actors).
+    // #403: nurse-class roles take the MPFB clinical-nurse body first. #476: the
+    // second MPFB clinical body (peds-nurse-kevin, 137 joints) takes the second
+    // co-present nurse-class slot so learners never fall back to the 23-joint
+    // Anny nurse file; the Anny tail remains as last-resort for a third actor.
     // The physician is NOT here — it has its own body since 2026-08-14.
-    preferred.push(MPFB_CLINICAL_NURSE_ADULT_GLB, ED_NURSE_GLB, PEDS_NURSE_GLB, ED_ADULT_CAST_GLB, PEDS_PARENT_GLB, ED_SPOUSE_GLB, ADULT_MALE_STREET_CASUAL_GLB);
+    preferred.push(MPFB_CLINICAL_NURSE_ADULT_GLB, MPFB_PEDS_NURSE_KEVIN_GLB, ED_NURSE_GLB, PEDS_NURSE_GLB, ED_ADULT_CAST_GLB, PEDS_PARENT_GLB, ED_SPOUSE_GLB, ADULT_MALE_STREET_CASUAL_GLB);
   } else if (r === "family" || r === "family_member" || r === "parent" || r === "spouse") {
     // #403: family-class roles take the MPFB family-partner body first.
     preferred.push(MPFB_FAMILY_PARTNER_ADULT_GLB, ED_SPOUSE_GLB, PEDS_PARENT_GLB, ADULT_MALE_STREET_CASUAL_GLB, ED_ADULT_CAST_GLB, ED_NURSE_GLB, PEDS_NURSE_GLB);
