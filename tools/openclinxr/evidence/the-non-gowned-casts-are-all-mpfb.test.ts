@@ -75,6 +75,12 @@ import {
  * MPFB_FAMILY_PARTNER_ADULT_GLB. Mirrored in apps/ui-xr/src/humanoid-runtime-asset-url.ts
  * (child band + ED_RUNTIME_CAST_BY_ACTOR.spouse_anna_hayes_v1). #218's library-rail coverage is
  * deliberately dropped — LIBRARY_ADULT_LEAN_FEMALE_GLB stays exported for the S2 gowned-patient swap.
+ *
+ * ## FIXED (#491)
+ *
+ * L6 landed the recast: the seven gowned adult patients now resolve to
+ * `MPFB_GOWN_ADULT_PATIENT_GLB` in both resolvers. Clause (3)'s "still on the gowned Anny body"
+ * P1 pin flips to "0 on Anny, 7 on the gowned MPFB body". The Anny FILE still ships; L7 retires it.
  */
 
 const ANNY_OR_LIBRARY = [
@@ -117,15 +123,19 @@ describe("every non-gowned cast is on an MPFB body", () => {
     expect(isMpfb(c.assetPath ?? ""), `resolved ${c.assetPath}; actor-casting.ts:363-368 hardcodes a libraryCastEntry`).toBe(true);
   });
 
-  it("(3) NET: the seven gowned patients are NOT taken by this slice", () => {
-    // Pins the P1-blocked half. hospitalGownFound is false and 13 cached garments include zero gowns,
-    // so moving these dresses clinical patients in street clothes — the S2 failure. If this clause
-    // ever goes red, someone has taken scope the lead explicitly refused.
-    const gowned = everyCast().filter(
+  it("(3) NET: the seven gowned patients are recast onto the gowned MPFB body", () => {
+    // #491 L6 lifted the P1 freeze: the seven gowned adult patients now resolve to
+    // MPFB_GOWN_ADULT_PATIENT_GLB (138 joints + jaw, hospital gown), so none is Anny.
+    const onAnny = everyCast().filter(
       (r) => (r.cast.role ?? "").toLowerCase() === "patient"
         && (r.cast.assetPath ?? "").includes("ed_chest_pain_adult_cast.glb"),
     );
-    expect(gowned.length, "the seven gowned adult patients must still be cast on the gowned Anny body").toBe(7);
+    const onGown = everyCast().filter(
+      (r) => (r.cast.role ?? "").toLowerCase() === "patient"
+        && (r.cast.assetPath ?? "").includes("mpfb-gown-adult-patient.glb"),
+    );
+    expect(onAnny.length, "no gowned adult patient may still be cast on the 23-joint Anny body").toBe(0);
+    expect(onGown.length, "the seven gowned adult patients must resolve to the gowned MPFB body").toBe(7);
   });
 
   it("(4) VACUITY GUARD: the enumeration is real and both target rails are distinguishable", () => {

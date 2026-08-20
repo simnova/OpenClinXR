@@ -53,6 +53,7 @@ import {
   MPFB_CLINICAL_NURSE_ADULT_GLB,
   MPFB_CLINICAL_PHYSICIAN_ADULT_GLB,
   MPFB_FAMILY_PARTNER_ADULT_GLB,
+  MPFB_GOWN_ADULT_PATIENT_GLB,
   MPFB_OB_PATIENT_AISHA_GLB,
   MPFB_PEDS_NURSE_KEVIN_GLB,
   MPFB_PEDS_PARENT_AISHA_GLB,
@@ -256,7 +257,11 @@ function pickAdultGlb(
         ED_ADULT_CAST_GLB,
       );
     } else {
+      // #491 L6: the gowned MPFB patient body leads (138 joints + jaw, eye mesh,
+      // hospital gown). The 23-joint Anny gown body stays as the deep fallback —
+      // L7 retires that FILE; this slice only stops casting it first.
       preferred.push(
+        MPFB_GOWN_ADULT_PATIENT_GLB,
         ED_ADULT_CAST_GLB,
         ED_NURSE_GLB,
         PEDS_NURSE_GLB,
@@ -345,13 +350,13 @@ function castFromScenarioBank(scenarioId: string): ScenarioActorCast[] {
 export function resolveScenarioActorCast(scenarioId: string): ScenarioActorCast[] {
   if (scenarioId === ED_CHEST_PAIN_SCENARIO_ID || scenarioId === "ed_chest_pain_priority_v2") {
     // All three ED roles are adults with role-distinct wardrobe (#96):
-    // patient = male base + hospital_gown; nurse = male scrubs; spouse = female street clothes.
+    // patient = gowned MPFB body (#491 L6); nurse = MPFB scrubs; spouse = female street clothes.
     return [
       castEntry({
         actorId: "patient_robert_hayes_v1",
         role: "patient",
         scenarioId: ED_CHEST_PAIN_SCENARIO_ID,
-        glbFile: ED_ADULT_CAST_GLB,
+        glbFile: MPFB_GOWN_ADULT_PATIENT_GLB,
       }),
       castEntry({
         actorId: "nurse_maria_alvarez_v1",
@@ -361,12 +366,11 @@ export function resolveScenarioActorCast(scenarioId: string): ScenarioActorCast[
         glbFile: MPFB_CLINICAL_NURSE_ADULT_GLB,
       }),
       // #218: stage ONE library body via ordinary cast resolution (spouse only).
-      // Patient keeps Anny gown (#160 counterweight). Nurse keeps Anny scrubs.
-      // #479: the spouse moves OFF the 64-joint library rail (no jaw, no eye mesh)
-      // to the 137-joint MPFB family-partner body the other family-class slots
-      // already cast. #218's library-rail coverage is deliberately dropped;
-      // LIBRARY_ADULT_LEAN_FEMALE_GLB stays exported for the S2 gowned-patient
-      // swap once a hospital-class garment exists (L3-L5).
+      // #491 L6: the patient moves OFF the 23-joint Anny gown rail to the gowned
+      // MPFB body. #479: the spouse moves OFF the 64-joint library rail (no jaw,
+      // no eye mesh) to the 137-joint MPFB family-partner body the other
+      // family-class slots already cast. #218's library-rail coverage is
+      // deliberately dropped; LIBRARY_ADULT_LEAN_FEMALE_GLB stays exported.
       castEntry({
         actorId: "spouse_anna_hayes_v1",
         role: "family",

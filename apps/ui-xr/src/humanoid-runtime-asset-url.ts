@@ -89,12 +89,20 @@ export const MPFB_CLINICAL_PHYSICIAN_ADULT_RUNTIME_PATH =
   "/generated-humanoids/mpfb-clinical-physician-adult.glb";
 export const MPFB_FAMILY_PARTNER_ADULT_RUNTIME_PATH =
   "/generated-humanoids/mpfb-family-partner-adult.glb";
+/**
+ * #491 L6 — the gowned MPFB adult patient (mirrors actor-casting
+ * MPFB_GOWN_ADULT_PATIENT_GLB). The ED gown patient and the six other
+ * inpatient-gown patients resolve here; the Anny gown body stays as deep fallback.
+ */
+export const MPFB_GOWN_ADULT_PATIENT_RUNTIME_PATH =
+  "/generated-humanoids/mpfb-gown-adult-patient.glb";
 /** Bare filenames for pool assignment — mirrors actor-casting #403/#476 constants. */
 const MPFB_CLINICAL_NURSE_ADULT_GLB = "mpfb-clinical-nurse-adult.glb";
 const MPFB_CLINICAL_PHYSICIAN_ADULT_GLB = "mpfb-clinical-physician-adult.glb";
 const MPFB_FAMILY_PARTNER_ADULT_GLB = "mpfb-family-partner-adult.glb";
 const MPFB_PEDS_NURSE_KEVIN_GLB = "mpfb-peds-nurse-kevin.glb";
 const MPFB_PEDS_PATIENT_CHILD_GLB = "mpfb-peds-patient-child.glb";
+const MPFB_GOWN_ADULT_PATIENT_GLB = "mpfb-gown-adult-patient.glb";
 
 const ADULT_POOL_GLBS = [
   MPFB_CLINICAL_NURSE_ADULT_GLB,
@@ -165,7 +173,8 @@ function environmentIdForScenario(scenarioId: string): string {
  * #479: the spouse moves to the MPFB family-partner body (mirrors actor-casting).
  */
 const ED_RUNTIME_CAST_BY_ACTOR: Record<string, string> = {
-  patient_robert_hayes_v1: ED_ADULT_CAST_RUNTIME_PATH,
+  // #491 L6: the ED patient loads the gowned MPFB body (was the 23-joint Anny gown).
+  patient_robert_hayes_v1: MPFB_GOWN_ADULT_PATIENT_RUNTIME_PATH,
   // #403: the ED nurse loads the MPFB clinical-nurse body (was the shared Anny nurse mesh).
   nurse_maria_alvarez_v1: MPFB_CLINICAL_NURSE_ADULT_RUNTIME_PATH,
   spouse_anna_hayes_v1: MPFB_FAMILY_PARTNER_ADULT_RUNTIME_PATH,
@@ -223,7 +232,10 @@ function pickAdultGlb(
         ED_ADULT_CAST_GLB,
       );
     } else {
+      // #491 L6: mirrors actor-casting — the gowned MPFB patient body leads; the
+      // Anny gown body stays as the deep fallback (L7 retires that file).
       preferred.push(
+        MPFB_GOWN_ADULT_PATIENT_GLB,
         ED_ADULT_CAST_GLB,
         ED_NURSE_GLB,
         PEDS_NURSE_GLB,

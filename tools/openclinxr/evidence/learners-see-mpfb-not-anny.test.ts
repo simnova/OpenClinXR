@@ -72,6 +72,13 @@ import {
  * of the Anny tail, so the exhausted-pool fallback (`actor-casting.ts:290`) is no longer 100% Anny.
  * Mirrored in `apps/ui-xr/src/humanoid-runtime-asset-url.ts` (both the nurse-class list and its
  * `ADULT_POOL_GLBS`) so the dual-resolver agreement holds.
+ *
+ * ## FIXED (#491)
+ *
+ * L6 landed the recast: the seven gowned patients now resolve to
+ * `MPFB_GOWN_ADULT_PATIENT_GLB` in both resolvers, so clause (2)'s "at least one gowned patient
+ * must still be Anny" P1 pin is now the opposite — no gowned patient is Anny. The Anny FILE stays
+ * on disk and in the pools as deep fallback; L7 retires it.
  */
 
 const ANNY_GLBS = [
@@ -107,16 +114,15 @@ describe("learners are cast on MPFB bodies, not Anny", () => {
     expect(offenders, `these in-scope roles still land on a 23-joint Anny body`).toEqual([]);
   });
 
-  it("(2) NET: the gowned patient is NOT taken by this slice", () => {
-    // Pins the P1-blocked half. hospitalGownFound is false — no MPFB body carries a hospital-class
-    // garment, so moving the gowned patient dresses a clinical actor in street clothes (the S2
-    // failure). If this clause ever goes red, someone has taken scope the operator did not grant.
+  it("(2) NET: the gowned patient is recast onto the gowned MPFB body", () => {
+    // #491 L6 lifted the P1 freeze: the seven gowned patients now resolve to
+    // MPFB_GOWN_ADULT_PATIENT_GLB (138 joints + jaw, hospital gown), so none is Anny.
     const gowned = everyCast().filter(({ scenarioId, cast }) =>
       (cast.role ?? "").toLowerCase() === "patient"
       && patientWardrobeClassForEnvironment(environmentIdForScenario(scenarioId)) !== "street_casual");
     expect(gowned.length, "the bank must still ship gowned patients").toBeGreaterThan(0);
-    expect(gowned.some(({ cast }) => isAnny(cast.assetPath ?? "")),
-      "at least one gowned patient must still be Anny — this slice does not touch that path").toBe(true);
+    expect(gowned.every(({ cast }) => !isAnny(cast.assetPath ?? "")),
+      "no gowned patient may still be Anny — #491 recast them onto the gowned MPFB body").toBe(true);
   });
 
   it("(3) the exhausted-pool fallback is not 100% Anny", () => {

@@ -85,6 +85,13 @@ import { describe, expect, it } from "vitest";
  * pixel-graded inspect subject was baked from — D1: gown builder reused, no authored geometry).
  * The new GLB is declared by `MPFB_GOWN_ADULT_PATIENT_GLB` in cast-asset-constants.ts and is NOT
  * wired into any pool — L6 owns the recast. Clause (1) flipped `it.fails` -> `it`.
+ *
+ * ## FIXED (#491)
+ *
+ * L6 landed the recast: the seven Anny-cast patients now resolve to
+ * `MPFB_GOWN_ADULT_PATIENT_GLB` in both resolvers. Clause (2)'s freeze (the `annyCast === 7`
+ * counterweight that kept L6 frozen) is now a NET asserting `annyCast === 0` — no shipped cast
+ * row resolves to the Anny body. The Anny FILE still ships; L7 retires it.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -185,9 +192,10 @@ describe("a cast-eligible gowned MPFB adult patient exists", () => {
     expect(s.lowerGarments, `${s.file} must not stack the gown over trousers (#487)`).toEqual([]);
   });
 
-  it("(2) COUNTERWEIGHT: the seven are still cast on the Anny body", async () => {
-    // Refuses (b). Repointing ED_ADULT_CAST_GLB is one line and it IS the migration — which is
-    // exactly why it must not happen inside this slice. L6 is frozen by the superagent.
+  it("(2) NET: the seven are recast off the Anny body", async () => {
+    // #491 L6 landed the recast: the seven Anny-cast patients now resolve to
+    // MPFB_GOWN_ADULT_PATIENT_GLB, so no shipped cast row resolves to the Anny
+    // body. The Anny FILE still ships (L7 retires it); this only stops casting it.
     const { resolveScenarioActorCast, listShippedCastScenarioIds } = (await import(
       "../../../packages/openclinxr/asset-registry/src/actor-casting.js"
     )) as typeof import("../../../packages/openclinxr/asset-registry/src/actor-casting.js");
@@ -201,7 +209,7 @@ describe("a cast-eligible gowned MPFB adult patient exists", () => {
         if ((row.assetPath ?? "").includes("ed_chest_pain_adult_cast.glb")) annyCast += 1;
       }
     }
-    expect(annyCast, `L6 recasts the seven and is frozen; this slice builds the asset only`).toBe(7);
+    expect(annyCast, `L6 recast the seven onto ${"MPFB_GOWN_ADULT_PATIENT_GLB"}; no cast resolves to Anny`).toBe(0);
   });
 
   it("(3) COUNTERWEIGHT: aisha's OB staging is untouched", async () => {

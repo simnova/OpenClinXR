@@ -65,6 +65,16 @@ import {
  *   - The constant-offset torso (`#488`: std 1.5 mm against a 22.4 mm `cloth_offset`).
  *   - Runtime skinning, posture, seated or supine placement, Quest, or any clinical claim.
  *   - That the Anny FILE stops shipping. L7 owns retiring it; this slice only stops CASTING it.
+ *
+ * ## FIXED (#491)
+ *
+ * The seven Anny-cast patients now resolve to `MPFB_GOWN_ADULT_PATIENT_GLB` in BOTH the
+ * registry resolver (`actor-casting.ts`: the ED explicit patient row + the inpatient-gown
+ * branch of `pickAdultGlb`) and the runtime mirror (`humanoid-runtime-asset-url.ts`: the
+ * ED runtime cast map + the mirror `pickAdultGlb`), so the dual-resolver agreement holds.
+ * The 23-joint Anny gown body stays on disk and in the adult pool as the deep fallback; L7
+ * retires the FILE. Clauses (1) and (2) flipped `it.fails` -> `it`; (3) and (4) were nets
+ * and are unchanged.
  */
 
 type CastRow = { role?: string; actorId?: string; assetPath?: string };
@@ -90,7 +100,7 @@ const NON_PATIENT_BASELINE = allCastRows()
   .sort();
 
 describe("no learner meets a patient on the Anny rail", () => {
-  it.fails("(1) RED: no shipped cast resolves a patient to the Anny body", () => {
+  it("(1) RED: no shipped cast resolves a patient to the Anny body", () => {
     const offenders = allCastRows()
       .filter(({ row }) => basename(row.assetPath) === ANNY_PATIENT_GLB)
       .map(({ scenarioId, row }) => `${scenarioId} ${row.role} ${row.actorId}`);
@@ -101,7 +111,7 @@ describe("no learner meets a patient on the Anny rail", () => {
     ).toEqual([]);
   });
 
-  it.fails("(2) RED: every gowned-station patient resolves to the GOWNED MPFB asset", () => {
+  it("(2) RED: every gowned-station patient resolves to the GOWNED MPFB asset", () => {
     // Refuses (b). The pool already holds MPFB adults in street clothes and scrubs; any of them
     // clears "not Anny" and puts a gowned-station patient in the wrong wardrobe.
     const wasAnny = allCastRows().filter(({ row }) => row.role === "patient");
