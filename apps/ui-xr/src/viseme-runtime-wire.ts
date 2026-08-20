@@ -53,6 +53,22 @@ const DIALOGUE_PHONEME_TO_ARKIT: Readonly<Record<string, string>> = {
   r: "L",
   w: "OU",
   y: "IH",
+  // ARPAbet vowels widened onto the visemes02 names the rebaked parent carries (#469).
+  // AH was the defect: dialogue-pronunciations.ts "a": "AH" resolved to nothing. Oculus/ARPAbet
+  // standard vowel→viseme assignment; the contract asserts AH/IY/OW/UW reach distinct baked shapes.
+  AH: "aa",
+  AE: "aa",
+  AO: "O",
+  AW: "O",
+  AY: "aa",
+  EH: "E",
+  ER: "E",
+  EY: "E",
+  IY: "I",
+  OW: "O",
+  OY: "O",
+  UH: "U",
+  UW: "U",
   // ARKit / mesh tokens passthrough
   AA: "AA",
   E: "E",
