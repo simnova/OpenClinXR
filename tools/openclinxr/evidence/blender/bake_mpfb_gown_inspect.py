@@ -32,6 +32,7 @@ import argparse
 import json
 import math
 import pathlib
+import re
 import sys
 
 import bpy
@@ -45,6 +46,30 @@ if str(_ANNY_DIR) not in sys.path:
 from automate_blender import apply_role_clothing_material_regions  # noqa: E402
 
 GEN = REPO_ROOT / "apps/ui-xr/public/generated-humanoids"
+
+# #487: a gowned body never wears trousers. The source MPFB inspect GLB already carries
+# makeclothes_library_cargo_pants as a separate mesh object; it passes through the export
+# untouched unless removed. Classify on name AND a vertex floor, never name alone — the
+# 3-vertex declaration markers must never count as a garment.
+LOWER_GARMENT_RE = re.compile(r"(cargo_pants|_pants|trouser)", re.IGNORECASE)
+MIN_REAL_GARMENT_VERTS = 100
+
+
+def _strip_lower_garments(body):
+    """Remove any real lower garment from the imported scene before the gown is baked.
+
+    The gown builder operates on a copy of the body surface only and never touches the
+    pre-existing cargo_pants object, so it survives to export and pokes through the skirt
+    (#485: +16.6 mm on 56% of thigh-band vertices)."""
+    for o in list(bpy.context.scene.objects):
+        if o.type != "MESH" or o is body:
+            continue
+        if len(o.data.vertices) < MIN_REAL_GARMENT_VERTS:
+            continue
+        if not LOWER_GARMENT_RE.search(o.name):
+            continue
+        print(f"STRIP_LOWER_GARMENT {o.name!r} verts={len(o.data.vertices)}")
+        bpy.data.objects.remove(o, do_unlink=True)
 
 
 def _find_body():
@@ -127,6 +152,9 @@ def main() -> None:
     armature = _find_armature()
     print(f"IMPORTED body={body.name!r} verts={len(body.data.vertices)} armature={armature.name!r}")
     print(f"BODY_LOCAL x={_local_bounds(body)}")
+
+    _strip_lower_garments(body)
+    bpy.context.view_layer.update()
 
     before = {o.name for o in bpy.context.scene.objects}
 

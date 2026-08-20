@@ -86,6 +86,18 @@ import { describe, expect, it } from "vitest";
  *     control shows the identical -61 mm signature, so that reading is an arm and not a defect.
  *     Deliberately NOT filed from an unlocated pixel grade.
  *   - Any body outside `generated-humanoids/`.
+ *
+ * ## FIXED (#487)
+ *
+ * `bake_mpfb_gown_inspect.py` now strips the pre-existing real lower garment from the imported
+ * source before the gown builder runs. The source `mpfb-viseme-inspect.glb` already carries
+ * `makeclothes_library_cargo_pants` (8,262 v) as a separate mesh object the #480 keep-list
+ * never touched, so it passed through to export and stacked under the skirt (#485: +16.6 mm on
+ * 56% of thigh-band vertices). `_strip_lower_garments` removes any >100-vert mesh whose name
+ * matches `cargo_pants|_pants|trouser` — name AND a vertex floor, never name alone — excluding
+ * the body itself. Only this bake path changes; the eight trousered controls are untouched.
+ *
+ * Clause (1) flipped `it.fails` -> `it`.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -122,7 +134,7 @@ const describeRow = (b: Body): string =>
   `${b.file} gown=${b.gownDeclared ? "Y" : "n"} lower=[${b.lower.map((l) => `${l.name}(${l.verts}v)`).join(",") || "-"}]`;
 
 describe("a body declaring a hospital gown does not also wear trousers", () => {
-  it.fails("(1) RED: no shipped body carries both a gown declaration and a lower garment", () => {
+  it("(1) RED: no shipped body carries both a gown declaration and a lower garment", () => {
     const conflicted = bodies.filter((b) => b.gownDeclared && b.lower.length > 0);
     expect(
       conflicted.map(describeRow),
