@@ -60,6 +60,48 @@
       "linkage": "nearest-timestamp"
     }
   },
+  "reframePerFrame": [
+    {
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_00.png",
+      "subjectInFrame": true,
+      "headNdc": { "x": -1.835320409819855e-15, "y": -1.233105900347715e-15 }
+    },
+    {
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_01.png",
+      "subjectInFrame": true,
+      "headNdc": { "x": -1.835320409819855e-15, "y": -1.233105900347715e-15 }
+    },
+    {
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_02.png",
+      "subjectInFrame": true,
+      "headNdc": { "x": -1.835320409819855e-15, "y": -1.233105900347715e-15 }
+    },
+    {
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_03.png",
+      "subjectInFrame": true,
+      "headNdc": { "x": -1.835320409819855e-15, "y": -1.233105900347715e-15 }
+    },
+    {
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_04.png",
+      "subjectInFrame": true,
+      "headNdc": { "x": -1.835320409819855e-15, "y": -1.233105900347715e-15 }
+    },
+    {
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_05.png",
+      "subjectInFrame": true,
+      "headNdc": { "x": -1.835320409819855e-15, "y": -1.233105900347715e-15 }
+    },
+    {
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_06.png",
+      "subjectInFrame": true,
+      "headNdc": { "x": -1.835320409819855e-15, "y": -1.233105900347715e-15 }
+    },
+    {
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_07.png",
+      "subjectInFrame": true,
+      "headNdc": { "x": -1.835320409819855e-15, "y": -1.233105900347715e-15 }
+    }
+  ],
   "linkageApproximation": "strong instants whose viseme was dominant in a frame are linked to that frame; any remaining instant is linked to the nearest-timestamp frame (see frameLinkage)",
   "notEvidenceFor": [
     "legible_lip_motion_is_the_orchestrators_pixel_grade_not_this_contracts_business",
