@@ -55,6 +55,15 @@ import { describe, expect, it } from "vitest";
  *   - The hardcoded-CAST defect above.
  *   - Any pixel claim about whether the peds cast is actually separable to an eye.
  *   - Quest, clinical validity, exam equivalence.
+ *
+ * ## FIXED (#477)
+ *
+ * The sibling's upper pattern `scrub` matched `scrub_pants` first, so Kevin's trousers classified as
+ * an upper and `measure()` dropped the nurse row as "no lower". Fix: the upper pattern now reads
+ * `scrub(?!_pants)`, so `scrub_shirt` stays upper while `scrub_pants` falls through to the lower
+ * `pants|trouser` branch. Clause (1) flipped `it.fails` -> `it`. The sibling also gained diagnostics
+ * naming the file and the missing slot on a dropped row, and reports a thrown `measure()` instead of
+ * swallowing it to null.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -85,7 +94,7 @@ function classify(name: string): "upper" | "lower" | "none" {
 }
 
 describe("the garment classifier does not swallow scrub pants", () => {
-  it.fails("(1) RED: scrub_pants classifies as a LOWER garment", () => {
+  it("(1) RED (FIXED #477): scrub_pants classifies as a LOWER garment", () => {
     expect(classify(SCRUB_PANTS), `${SCRUB_PANTS} must be a lower garment; today "scrub" in the upper pattern claims it first`)
       .toBe("lower");
     expect(classify(SCRUB_SHIRT), "and the scrub shirt must stay an upper — a fix that swaps them is not a fix")
