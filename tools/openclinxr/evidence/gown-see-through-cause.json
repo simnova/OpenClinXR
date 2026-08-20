@@ -1,0 +1,507 @@
+{
+  "issue": 485,
+  "verdict": "mechanism_named",
+  "asset": "apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.glb",
+  "instrument": "trimesh nearest.on_surface -> signed distance along skirt outward normal (fix_normals + signed-volume orientation; nearest skirt triangle, full 3D)",
+  "skirt": {
+    "mesh": "openclinxr_real_garment_peds_upper_v1_mesh",
+    "signedVolumeM3": 0.0701,
+    "awayFromCentroidFraction": 0.8979,
+    "color": [
+      38,
+      140,
+      209,
+      255
+    ]
+  },
+  "bands": {
+    "hemM": 0.534,
+    "hipM": 0.917,
+    "knownGoodBandY": [
+      0.802,
+      0.917
+    ],
+    "treatmentBandY": [
+      0.534,
+      0.706
+    ]
+  },
+  "skin": {
+    "mesh": "mpfb_ob_patient_aisha_body",
+    "color": [
+      102,
+      102,
+      102,
+      255
+    ],
+    "knownGoodBand": {
+      "bandY": [
+        0.802,
+        0.917
+      ],
+      "vertexCount": 171,
+      "pokeCount": 0,
+      "pokeFraction": 0.0,
+      "clearPokeCount": 0,
+      "clearPokeFraction": 0.0,
+      "coincidentFraction": 0.0,
+      "maxSignedMeters": -0.0024,
+      "meanSignedMeters": -0.0183,
+      "frontBackShareOfPoke": null
+    },
+    "treatmentBand": {
+      "bandY": [
+        0.534,
+        0.706
+      ],
+      "vertexCount": 188,
+      "pokeCount": 0,
+      "pokeFraction": 0.0,
+      "clearPokeCount": 0,
+      "clearPokeFraction": 0.0,
+      "coincidentFraction": 0.0638,
+      "maxSignedMeters": 0.0017,
+      "meanSignedMeters": -0.051,
+      "frontBackShareOfPoke": null
+    },
+    "profile": [
+      {
+        "bandY": [
+          0.534,
+          0.564
+        ],
+        "vertexCount": 36,
+        "pokeCount": 0,
+        "pokeFraction": 0.0,
+        "clearPokeCount": 0,
+        "clearPokeFraction": 0.0,
+        "coincidentFraction": 0.1111,
+        "maxSignedMeters": 0.0002,
+        "meanSignedMeters": -0.0382,
+        "frontBackShareOfPoke": null
+      },
+      {
+        "bandY": [
+          0.564,
+          0.594
+        ],
+        "vertexCount": 26,
+        "pokeCount": 0,
+        "pokeFraction": 0.0,
+        "clearPokeCount": 0,
+        "clearPokeFraction": 0.0,
+        "coincidentFraction": 0.0,
+        "maxSignedMeters": -0.0084,
+        "meanSignedMeters": -0.0581,
+        "frontBackShareOfPoke": null
+      },
+      {
+        "bandY": [
+          0.594,
+          0.624
+        ],
+        "vertexCount": 24,
+        "pokeCount": 0,
+        "pokeFraction": 0.0,
+        "clearPokeCount": 0,
+        "clearPokeFraction": 0.0,
+        "coincidentFraction": 0.0,
+        "maxSignedMeters": -0.0071,
+        "meanSignedMeters": -0.0425,
+        "frontBackShareOfPoke": null
+      },
+      {
+        "bandY": [
+          0.624,
+          0.654
+        ],
+        "vertexCount": 38,
+        "pokeCount": 0,
+        "pokeFraction": 0.0,
+        "clearPokeCount": 0,
+        "clearPokeFraction": 0.0,
+        "coincidentFraction": 0.0526,
+        "maxSignedMeters": -0.0007,
+        "meanSignedMeters": -0.0514,
+        "frontBackShareOfPoke": null
+      },
+      {
+        "bandY": [
+          0.654,
+          0.684
+        ],
+        "vertexCount": 42,
+        "pokeCount": 0,
+        "pokeFraction": 0.0,
+        "clearPokeCount": 0,
+        "clearPokeFraction": 0.0,
+        "coincidentFraction": 0.1429,
+        "maxSignedMeters": 0.0017,
+        "meanSignedMeters": -0.0485,
+        "frontBackShareOfPoke": null
+      },
+      {
+        "bandY": [
+          0.684,
+          0.714
+        ],
+        "vertexCount": 40,
+        "pokeCount": 0,
+        "pokeFraction": 0.0,
+        "clearPokeCount": 0,
+        "clearPokeFraction": 0.0,
+        "coincidentFraction": 0.05,
+        "maxSignedMeters": 0.0013,
+        "meanSignedMeters": -0.0719,
+        "frontBackShareOfPoke": null
+      },
+      {
+        "bandY": [
+          0.714,
+          0.744
+        ],
+        "vertexCount": 52,
+        "pokeCount": 0,
+        "pokeFraction": 0.0,
+        "clearPokeCount": 0,
+        "clearPokeFraction": 0.0,
+        "coincidentFraction": 0.0769,
+        "maxSignedMeters": 0.0006,
+        "meanSignedMeters": -0.0535,
+        "frontBackShareOfPoke": null
+      },
+      {
+        "bandY": [
+          0.744,
+          0.774
+        ],
+        "vertexCount": 58,
+        "pokeCount": 0,
+        "pokeFraction": 0.0,
+        "clearPokeCount": 0,
+        "clearPokeFraction": 0.0,
+        "coincidentFraction": 0.0345,
+        "maxSignedMeters": -0.0006,
+        "meanSignedMeters": -0.0304,
+        "frontBackShareOfPoke": null
+      },
+      {
+        "bandY": [
+          0.774,
+          0.804
+        ],
+        "vertexCount": 48,
+        "pokeCount": 0,
+        "pokeFraction": 0.0,
+        "clearPokeCount": 0,
+        "clearPokeFraction": 0.0,
+        "coincidentFraction": 0.0,
+        "maxSignedMeters": -0.0054,
+        "meanSignedMeters": -0.0205,
+        "frontBackShareOfPoke": null
+      },
+      {
+        "bandY": [
+          0.804,
+          0.834
+        ],
+        "vertexCount": 62,
+        "pokeCount": 0,
+        "pokeFraction": 0.0,
+        "clearPokeCount": 0,
+        "clearPokeFraction": 0.0,
+        "coincidentFraction": 0.0,
+        "maxSignedMeters": -0.0103,
+        "meanSignedMeters": -0.0199,
+        "frontBackShareOfPoke": null
+      },
+      {
+        "bandY": [
+          0.834,
+          0.864
+        ],
+        "vertexCount": 37,
+        "pokeCount": 0,
+        "pokeFraction": 0.0,
+        "clearPokeCount": 0,
+        "clearPokeFraction": 0.0,
+        "coincidentFraction": 0.0,
+        "maxSignedMeters": -0.0048,
+        "meanSignedMeters": -0.0178,
+        "frontBackShareOfPoke": null
+      },
+      {
+        "bandY": [
+          0.864,
+          0.894
+        ],
+        "vertexCount": 39,
+        "pokeCount": 0,
+        "pokeFraction": 0.0,
+        "clearPokeCount": 0,
+        "clearPokeFraction": 0.0,
+        "coincidentFraction": 0.0,
+        "maxSignedMeters": -0.0024,
+        "meanSignedMeters": -0.0171,
+        "frontBackShareOfPoke": null
+      },
+      {
+        "bandY": [
+          0.894,
+          0.924
+        ],
+        "vertexCount": 37,
+        "pokeCount": 0,
+        "pokeFraction": 0.0,
+        "clearPokeCount": 0,
+        "clearPokeFraction": 0.0,
+        "coincidentFraction": 0.0,
+        "maxSignedMeters": -0.0089,
+        "meanSignedMeters": -0.0181,
+        "frontBackShareOfPoke": null
+      }
+    ]
+  },
+  "trousers": {
+    "mesh": "makeclothes_library_cargo_pants_mpfb_ob_patient_aisha_mesh",
+    "color": [
+      184,
+      173,
+      140,
+      255
+    ],
+    "knownGoodBand": {
+      "bandY": [
+        0.802,
+        0.917
+      ],
+      "vertexCount": 1121,
+      "pokeCount": 314,
+      "pokeFraction": 0.2801,
+      "clearPokeCount": 162,
+      "clearPokeFraction": 0.1445,
+      "coincidentFraction": 0.2132,
+      "maxSignedMeters": 0.0126,
+      "meanSignedMeters": -0.0044,
+      "frontBackShareOfPoke": 0.7636
+    },
+    "treatmentBand": {
+      "bandY": [
+        0.534,
+        0.706
+      ],
+      "vertexCount": 1092,
+      "pokeCount": 348,
+      "pokeFraction": 0.3187,
+      "clearPokeCount": 264,
+      "clearPokeFraction": 0.2418,
+      "coincidentFraction": 0.044,
+      "maxSignedMeters": 0.0166,
+      "meanSignedMeters": -0.0409,
+      "frontBackShareOfPoke": 0.3185
+    },
+    "profile": [
+      {
+        "bandY": [
+          0.534,
+          0.564
+        ],
+        "vertexCount": 192,
+        "pokeCount": 108,
+        "pokeFraction": 0.5625,
+        "clearPokeCount": 96,
+        "clearPokeFraction": 0.5,
+        "coincidentFraction": 0.0,
+        "maxSignedMeters": 0.0126,
+        "meanSignedMeters": -0.03,
+        "frontBackShareOfPoke": 0.2866
+      },
+      {
+        "bandY": [
+          0.564,
+          0.594
+        ],
+        "vertexCount": 166,
+        "pokeCount": 24,
+        "pokeFraction": 0.1446,
+        "clearPokeCount": 24,
+        "clearPokeFraction": 0.1446,
+        "coincidentFraction": 0.0723,
+        "maxSignedMeters": 0.0078,
+        "meanSignedMeters": -0.0438,
+        "frontBackShareOfPoke": 0.4725
+      },
+      {
+        "bandY": [
+          0.594,
+          0.624
+        ],
+        "vertexCount": 146,
+        "pokeCount": 48,
+        "pokeFraction": 0.3288,
+        "clearPokeCount": 12,
+        "clearPokeFraction": 0.0822,
+        "coincidentFraction": 0.0,
+        "maxSignedMeters": 0.0061,
+        "meanSignedMeters": -0.0469,
+        "frontBackShareOfPoke": 0.1605
+      },
+      {
+        "bandY": [
+          0.624,
+          0.654
+        ],
+        "vertexCount": 204,
+        "pokeCount": 84,
+        "pokeFraction": 0.4118,
+        "clearPokeCount": 48,
+        "clearPokeFraction": 0.2353,
+        "coincidentFraction": 0.0588,
+        "maxSignedMeters": 0.0142,
+        "meanSignedMeters": -0.0261,
+        "frontBackShareOfPoke": 0.3222
+      },
+      {
+        "bandY": [
+          0.654,
+          0.684
+        ],
+        "vertexCount": 228,
+        "pokeCount": 84,
+        "pokeFraction": 0.3684,
+        "clearPokeCount": 84,
+        "clearPokeFraction": 0.3684,
+        "coincidentFraction": 0.1053,
+        "maxSignedMeters": 0.0166,
+        "meanSignedMeters": -0.0358,
+        "frontBackShareOfPoke": 0.3377
+      },
+      {
+        "bandY": [
+          0.684,
+          0.714
+        ],
+        "vertexCount": 228,
+        "pokeCount": 24,
+        "pokeFraction": 0.1053,
+        "clearPokeCount": 24,
+        "clearPokeFraction": 0.1053,
+        "coincidentFraction": 0.0526,
+        "maxSignedMeters": 0.0161,
+        "meanSignedMeters": -0.0611,
+        "frontBackShareOfPoke": 0.4819
+      },
+      {
+        "bandY": [
+          0.714,
+          0.744
+        ],
+        "vertexCount": 336,
+        "pokeCount": 72,
+        "pokeFraction": 0.2143,
+        "clearPokeCount": 72,
+        "clearPokeFraction": 0.2143,
+        "coincidentFraction": 0.0,
+        "maxSignedMeters": 0.0141,
+        "meanSignedMeters": -0.0496,
+        "frontBackShareOfPoke": 0.3277
+      },
+      {
+        "bandY": [
+          0.744,
+          0.774
+        ],
+        "vertexCount": 650,
+        "pokeCount": 156,
+        "pokeFraction": 0.24,
+        "clearPokeCount": 120,
+        "clearPokeFraction": 0.1846,
+        "coincidentFraction": 0.0,
+        "maxSignedMeters": 0.0155,
+        "meanSignedMeters": -0.0552,
+        "frontBackShareOfPoke": 0.3364
+      },
+      {
+        "bandY": [
+          0.774,
+          0.804
+        ],
+        "vertexCount": 474,
+        "pokeCount": 156,
+        "pokeFraction": 0.3291,
+        "clearPokeCount": 70,
+        "clearPokeFraction": 0.1477,
+        "coincidentFraction": 0.0253,
+        "maxSignedMeters": 0.0091,
+        "meanSignedMeters": -0.0199,
+        "frontBackShareOfPoke": 0.398
+      },
+      {
+        "bandY": [
+          0.804,
+          0.834
+        ],
+        "vertexCount": 358,
+        "pokeCount": 86,
+        "pokeFraction": 0.2402,
+        "clearPokeCount": 0,
+        "clearPokeFraction": 0.0,
+        "coincidentFraction": 0.3631,
+        "maxSignedMeters": 0.0038,
+        "meanSignedMeters": -0.0064,
+        "frontBackShareOfPoke": 0.5759
+      },
+      {
+        "bandY": [
+          0.834,
+          0.864
+        ],
+        "vertexCount": 275,
+        "pokeCount": 84,
+        "pokeFraction": 0.3055,
+        "clearPokeCount": 60,
+        "clearPokeFraction": 0.2182,
+        "coincidentFraction": 0.1309,
+        "maxSignedMeters": 0.01,
+        "meanSignedMeters": -0.0047,
+        "frontBackShareOfPoke": 0.772
+      },
+      {
+        "bandY": [
+          0.864,
+          0.894
+        ],
+        "vertexCount": 253,
+        "pokeCount": 84,
+        "pokeFraction": 0.332,
+        "clearPokeCount": 60,
+        "clearPokeFraction": 0.2372,
+        "coincidentFraction": 0.1186,
+        "maxSignedMeters": 0.0126,
+        "meanSignedMeters": -0.0018,
+        "frontBackShareOfPoke": 0.8088
+      },
+      {
+        "bandY": [
+          0.894,
+          0.924
+        ],
+        "vertexCount": 222,
+        "pokeCount": 60,
+        "pokeFraction": 0.2703,
+        "clearPokeCount": 42,
+        "clearPokeFraction": 0.1892,
+        "coincidentFraction": 0.1937,
+        "maxSignedMeters": 0.0056,
+        "meanSignedMeters": -0.0016,
+        "frontBackShareOfPoke": 0.8119
+      }
+    ]
+  },
+  "mechanism": "The pale leg-coloured patches are the cargo_pants trousers, not skin. Skin signed distance is negative everywhere (max +0.2 mm, 0% poking), so the body never protrudes through the closed skirt. The cargo_pants mesh pokes through the skirt along the skirt outward normal: up to +16.6 mm and 56% of thigh-band vertices poking, with a beige base colour [184,173,140] that matches the pale patches. The trousers are wider than the skirt tube (baggy cargo pants), so a full-length gown shell that drapes tight to the legs cannot contain them.",
+  "file": "tools/openclinxr/evidence/blender/bake_mpfb_gown_inspect.py",
+  "line": 119,
+  "fileNote": "The bake imports the source body (which already wears makeclothes_library_cargo_pants) and adds the gown shell as a NEW object; the pre-existing lower garment is never stripped (the keep-list at lines 177-197 retains only the new gown/declaration meshes and the source cargo_pants mesh passes through to the export untouched).",
+  "claimScope": "which mesh pokes through the gown skirt on mpfb-gown-inspect.glb (static bind pose)",
+  "notEvidenceFor": "runtime skinning/pose deformation, cloth physics, clinical wardrobe policy, or the production cast (this measures the inspect asset only)"
+}
