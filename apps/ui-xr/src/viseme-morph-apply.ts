@@ -44,6 +44,18 @@ export function resolveMorphIndex(
  * Write each named weight to the morph index its name maps to in `morphTargetDictionary`.
  * Index 0 is never privileged: only written when a requested name resolves to 0.
  */
+/**
+ * #460 — cap FACS `mouth-open` at 0.3: the last weight where the parent's face survives.
+ * Graded from #459's sweep (`mouth-open-sweep-sheet.png`, graded twice): 0.3 ACCEPTABLE,
+ * 0.6 DEGRADING, 1.0 UNACCEPTABLE. The shipped parent carries no `viseme_AA`, so the runtime's
+ * AA maps onto `mouth-open`; without this cap a full-weight AA request renders the unacceptable
+ * cell. Only the swept target is capped — capping unmeasured targets would be inventing
+ * thresholds (#460 NOT TESTED). Applied on the RESOLVED name, so a direct `mouth-open` request
+ * and the `viseme_AA` alias both land at the cap.
+ */
+const MOUTH_OPEN_CAP = 0.3;
+const CAPPED_FACS_TARGET = "mouth-open";
+
 export function applyVisemeWeights(
   target: MorphTargetLike,
   weights: Record<string, number>,
@@ -71,6 +83,7 @@ export function applyVisemeWeights(
     if (!Number.isFinite(numeric)) {
       continue;
     }
-    influences[index] = Math.min(1, Math.max(0, numeric));
+    const clamped = Math.min(1, Math.max(0, numeric));
+    influences[index] = resolved === CAPPED_FACS_TARGET ? Math.min(MOUTH_OPEN_CAP, clamped) : clamped;
   }
 }

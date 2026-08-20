@@ -131,7 +131,9 @@ describe("viseme runtime wire (#63) — driver → applier → mesh", () => {
     });
     expect(aa.activeTargetName).toBe("viseme_AA");
     expect(aa.influence).toBeGreaterThanOrEqual(0.5);
-    expect(mesh.morphTargetInfluences[mesh.morphTargetDictionary["mouth-open"]!]).toBe(1);
+    // #460: the parent carries no viseme_AA, so AA maps onto mouth-open — capped at 0.3, the
+    // last weight where the face survives (#459 sweep: 0.6 DEGRADING, 1.0 UNACCEPTABLE).
+    expect(mesh.morphTargetInfluences[mesh.morphTargetDictionary["mouth-open"]!]).toBe(0.3);
 
     // frame 3 of 6 -> "o" -> OH -> mouth-eversion; the previous viseme's target returns to 0
     const oh = applyDialogueVisemeTimelineToRoot(root, {
