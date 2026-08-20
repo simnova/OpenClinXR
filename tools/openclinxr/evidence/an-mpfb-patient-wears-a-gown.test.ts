@@ -91,13 +91,13 @@ async function read(p: string): Promise<Body | null> {
 const isGownMesh = (n: string): boolean => /gown/i.test(n);
 
 describe("an MPFB patient body wears a gown", () => {
-  it.fails("(1) RED: a shipped MPFB body carries a gown mesh", async () => {
+  it("(1) RED: a shipped MPFB body carries a gown mesh", async () => {
     const b = await read(TARGET);
     expect(b, `${TARGET} must exist — no MPFB body carries a gown today`).not.toBeNull();
     expect(b!.meshes.some(isGownMesh), `meshes were: ${b!.meshes.join(", ")}`).toBe(true);
   });
 
-  it.fails("(2) RED: the gown is on the MPFB rail, not Anny", async () => {
+  it("(2) RED: the gown is on the MPFB rail, not Anny", async () => {
     // Refuses the rail trap. The Anny gowned body has 23 joints and no jaw; transferring its gown
     // rather than invoking the gown kind on an MPFB mesh would satisfy (1) and defeat the campaign.
     const b = await read(TARGET);
@@ -106,7 +106,7 @@ describe("an MPFB patient body wears a gown", () => {
     expect(b!.joints.includes("jaw"), "an MPFB body carries a jaw joint; the Anny rail does not").toBe(true);
   });
 
-  it.fails("(3) RED: the bake is real, not an orchestrate stub", async () => {
+  it("(3) RED: the bake is real, not an orchestrate stub", async () => {
     // Refuses SS6r. Full orchestrate without the anny package emits ~0.8 MB stubs that pass an
     // exists: check. Bytes AND mesh count, because either alone is satisfiable by a stub.
     const b = await read(TARGET);
