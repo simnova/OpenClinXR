@@ -227,6 +227,31 @@ headContractFor(MPFB_SUBJECT, "MPFB");
 headContractFor(ANNY_SUBJECT, "Anny");
 headContractFor(ANNY_DECOY, "Anny (ED cast)");
 
+/**
+ * #483 — E5 floor: the #394 fitted-hair containment obligation must be LIVE for at least one
+ * subject. `headContractFor` exempts hairless figures at :194; nothing asserted ANY figure carries
+ * the duty, so dropping aisha's hair mesh (or repointing the constant) would let all three subjects
+ * exempt while the clause still reported green. This floor measures the same quantity the exemption
+ * gates on (`containPoints`, the fitted-hair point set) and is a lower bound, never an equality —
+ * a second figure gaining a hairstyle must not red it.
+ */
+describe("the fitted-hair containment obligation is live for at least one subject (#483)", () => {
+  it("at least one of the three subjects carries fitted hair", async () => {
+    const io = new NodeIO();
+    const subjectsWithHair: string[] = [];
+    for (const file of [MPFB_SUBJECT, ANNY_SUBJECT, ANNY_DECOY]) {
+      const doc = await io.read(join(REPO_ROOT, GENERATED, file));
+      const { containPoints } = worldPoints(doc);
+      if (containPoints.length > 0) subjectsWithHair.push(file);
+    }
+    expect(
+      subjectsWithHair.length,
+      `the #394 obligation is dormant — none of ${[MPFB_SUBJECT, ANNY_SUBJECT, ANNY_DECOY].join(", ")}`
+        + ` carries fitted hair, so the containment clause above exempts every subject and still reports green`,
+    ).toBeGreaterThan(0);
+  });
+});
+
 describe("eye mesh presence — the #358 cause, measured file-side", () => {
   it("the MPFB asset carries eye geometry; the Anny assets do not", async () => {
     const io = new NodeIO();
