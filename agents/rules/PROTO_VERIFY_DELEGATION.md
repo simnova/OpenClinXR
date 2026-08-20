@@ -3564,7 +3564,35 @@ fix a contract that measures the wrong thing — it can only satisfy it.
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
 
-## 10c. A killed dispatch never writes a ledger entry — so take the session id from the SESSION DIRECTORY
+## 10c. CORRECTED 2026-08-20 — a fresh dispatch DOES ledger its id before spawn; this applies to resumes only
+
+**The heading below was true when written and is now false for fresh dispatches.** #439 landed the
+fix this section's incident argued for: `dispatch-worker.ts:1354` chooses the UUID up front, `:712`
+passes it as `--session-id`, and `:1448` writes a `phase: "spawned"` ledger line **immediately before**
+`:1453` spawns the child. A kill can no longer orphan an id.
+
+Measured live 2026-08-20, with `#485` still running at the time:
+
+    issue-485  spawned bf0f3c4b-… turns=None          (live, no completion yet)
+    issue-484  spawned a0db1761-… → completed a0db1761-… turns=36
+    issue-483  spawned 73ef3661-… → completed 73ef3661-… turns=23
+
+**So on a kill, grep the ledger first — the id is there.** Scavenging the session directory is now
+the fallback, not the first move, and it cost a cycle today: I scanned
+`~/.grok/sessions/<url-encoded-worktree>/` for #483's id while the ledger already held it.
+
+**The section below remains correct for RESUMES**, which write no early line by construction
+(`:1354` yields `undefined` when `options.resume` is set, so no `--session-id` and no `spawned` row).
+The confabulation hazard it describes is unchanged and is why the identity check still matters.
+
+**The general lesson, which is the durable half:** this file records why each rule was written and
+never records when the underlying defect was fixed. A rule that survives its own cause becomes a
+ritual, and rituals are invisible from the inside — the only tell is that the workaround is still
+being paid. When closing an issue that a rule here was written for, come back and mark the rule.
+
+### The original section, retained as the planting record
+
+## 10c-orig. A killed dispatch never writes a ledger entry — so take the session id from the SESSION DIRECTORY
 
 §6c says take the session id programmatically from the ledger, never by hand, because a wrong id
 confabulates. I violated it today and the failure mode was different and worth recording.
