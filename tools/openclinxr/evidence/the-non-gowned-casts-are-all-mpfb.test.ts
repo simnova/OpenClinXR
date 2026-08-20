@@ -66,6 +66,15 @@ import {
  *     per land, and a child in street clothes replacing a child in an exam t-shirt is a visible change.
  *   - Retiring the Anny files (L7, post-soak; ~168 contract references become inverted guards).
  *   - Quest, clinical validity, exam equivalence.
+ *
+ * ## FIXED (#479)
+ *
+ * (1) and (2) flipped from `it.fails` to `it` on 2026-08-20. `actor-casting.ts` child-band branch
+ * now casts MPFB_PEDS_PATIENT_CHILD_GLB (the peds_fever patient was the only child-band slot outside
+ * the peds_asthma explicit table), and the ED spouse moves off the 64-joint library rail to
+ * MPFB_FAMILY_PARTNER_ADULT_GLB. Mirrored in apps/ui-xr/src/humanoid-runtime-asset-url.ts
+ * (child band + ED_RUNTIME_CAST_BY_ACTOR.spouse_anna_hayes_v1). #218's library-rail coverage is
+ * deliberately dropped — LIBRARY_ADULT_LEAN_FEMALE_GLB stays exported for the S2 gowned-patient swap.
  */
 
 const ANNY_OR_LIBRARY = [
@@ -98,12 +107,12 @@ function castFor(scenarioId: string, actorId: string): Cast {
 }
 
 describe("every non-gowned cast is on an MPFB body", () => {
-  it.fails("(1) RED: the peds_fever child is cast on the MPFB child body", () => {
+  it("(1) the peds_fever child is cast on the MPFB child body", () => {
     const c = castFor("peds_fever_v1", "patient_noah_chen_v1");
     expect(isMpfb(c.assetPath ?? ""), `resolved ${c.assetPath}; actor-casting.ts:320 hardcodes PEDS_CHILD_GLB for any child band`).toBe(true);
   });
 
-  it.fails("(2) RED: the ED spouse is cast on an MPFB body, not the 64-joint library rail", () => {
+  it("(2) the ED spouse is cast on an MPFB body, not the 64-joint library rail", () => {
     const c = castFor("ed_chest_pain_priority_v1", "spouse_anna_hayes_v1");
     expect(isMpfb(c.assetPath ?? ""), `resolved ${c.assetPath}; actor-casting.ts:363-368 hardcodes a libraryCastEntry`).toBe(true);
   });
