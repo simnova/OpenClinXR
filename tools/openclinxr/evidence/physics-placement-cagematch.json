@@ -1,0 +1,321 @@
+{
+  "schemaVersion": "openclinxr.physics-placement-cagematch.v1",
+  "verdict": "reject_measured",
+  "control": [
+    {
+      "subjectId": "ed_chest_pain_priority_v1:oxygen-panel",
+      "penetrationMeters": 0,
+      "restingOnId": null
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:suction-canister",
+      "penetrationMeters": 0,
+      "restingOnId": null
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:glove-box-stack",
+      "penetrationMeters": 0,
+      "restingOnId": null
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:sharps-bin",
+      "penetrationMeters": 0,
+      "restingOnId": null
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:biohazard-trash",
+      "penetrationMeters": 0,
+      "restingOnId": null
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:supply-cabinet",
+      "penetrationMeters": 0,
+      "restingOnId": null
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:hand-sanitizer",
+      "penetrationMeters": 0,
+      "restingOnId": null
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:privacy-curtain",
+      "penetrationMeters": 0,
+      "restingOnId": null
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:wall-clock",
+      "penetrationMeters": 0,
+      "restingOnId": null
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:ceiling-exam-light",
+      "penetrationMeters": 0,
+      "restingOnId": null
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:doorway-station-sign",
+      "penetrationMeters": 0,
+      "restingOnId": null
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:floor-scuff-path",
+      "penetrationMeters": 0,
+      "restingOnId": "floor"
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:infection-control-sign",
+      "penetrationMeters": 0,
+      "restingOnId": null
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:patient-handoff-whiteboard",
+      "penetrationMeters": 0,
+      "restingOnId": null
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:supply-drawer-labels",
+      "penetrationMeters": 0,
+      "restingOnId": null
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:privacy-zone-floor-tape",
+      "penetrationMeters": 0,
+      "restingOnId": "floor"
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:curtain-track-rings",
+      "penetrationMeters": 0,
+      "restingOnId": null
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:ekg-leads-on-bed",
+      "penetrationMeters": 0,
+      "restingOnId": null
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:monitor-lead-cable",
+      "penetrationMeters": 0,
+      "restingOnId": null
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:patient-blanket",
+      "penetrationMeters": 0,
+      "restingOnId": null
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:bed-wheel-locks",
+      "penetrationMeters": 0,
+      "restingOnId": null
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:clipboard-case-notes",
+      "penetrationMeters": 0,
+      "restingOnId": null
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:iv-tubing-line",
+      "penetrationMeters": 0,
+      "restingOnId": null
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:monitor-waveform-card",
+      "penetrationMeters": 0,
+      "restingOnId": null
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:monitor-vitals-badge",
+      "penetrationMeters": 0,
+      "restingOnId": null
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:ecg-paper-strip",
+      "penetrationMeters": 0,
+      "restingOnId": null
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:nurse-task-tray",
+      "penetrationMeters": 0,
+      "restingOnId": null
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:doorway-escalation-badge",
+      "penetrationMeters": 0,
+      "restingOnId": null
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:trash-liner-fold",
+      "penetrationMeters": 0,
+      "restingOnId": null
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:call-light-remote",
+      "penetrationMeters": 0,
+      "restingOnId": null
+    }
+  ],
+  "treatment": [
+    {
+      "subjectId": "ed_chest_pain_priority_v1:oxygen-panel",
+      "penetrationMeters": 0.001069,
+      "restingOnId": "floor"
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:suction-canister",
+      "penetrationMeters": 0.001069,
+      "restingOnId": "floor"
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:glove-box-stack",
+      "penetrationMeters": 0.001069,
+      "restingOnId": "floor"
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:sharps-bin",
+      "penetrationMeters": 0.001069,
+      "restingOnId": "floor"
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:biohazard-trash",
+      "penetrationMeters": 0.001069,
+      "restingOnId": "floor"
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:supply-cabinet",
+      "penetrationMeters": 0.001069,
+      "restingOnId": "floor"
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:hand-sanitizer",
+      "penetrationMeters": 0,
+      "restingOnId": null
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:privacy-curtain",
+      "penetrationMeters": 0.001069,
+      "restingOnId": "floor"
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:wall-clock",
+      "penetrationMeters": 0.001069,
+      "restingOnId": "floor"
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:ceiling-exam-light",
+      "penetrationMeters": 0.001069,
+      "restingOnId": "floor"
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:doorway-station-sign",
+      "penetrationMeters": 0,
+      "restingOnId": null
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:floor-scuff-path",
+      "penetrationMeters": 0.001069,
+      "restingOnId": "floor"
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:infection-control-sign",
+      "penetrationMeters": 0,
+      "restingOnId": null
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:patient-handoff-whiteboard",
+      "penetrationMeters": 0.001069,
+      "restingOnId": "floor"
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:supply-drawer-labels",
+      "penetrationMeters": 0,
+      "restingOnId": null
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:privacy-zone-floor-tape",
+      "penetrationMeters": 0,
+      "restingOnId": null
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:curtain-track-rings",
+      "penetrationMeters": 0.001069,
+      "restingOnId": "floor"
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:ekg-leads-on-bed",
+      "penetrationMeters": 0.001069,
+      "restingOnId": "floor"
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:monitor-lead-cable",
+      "penetrationMeters": 0.001069,
+      "restingOnId": "floor"
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:patient-blanket",
+      "penetrationMeters": 0.001069,
+      "restingOnId": "floor"
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:bed-wheel-locks",
+      "penetrationMeters": 0.001069,
+      "restingOnId": "floor"
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:clipboard-case-notes",
+      "penetrationMeters": 0.001069,
+      "restingOnId": "floor"
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:iv-tubing-line",
+      "penetrationMeters": 0.001069,
+      "restingOnId": "floor"
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:monitor-waveform-card",
+      "penetrationMeters": 0.001069,
+      "restingOnId": "floor"
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:monitor-vitals-badge",
+      "penetrationMeters": 0.001069,
+      "restingOnId": "floor"
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:ecg-paper-strip",
+      "penetrationMeters": 0.001069,
+      "restingOnId": "floor"
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:nurse-task-tray",
+      "penetrationMeters": 0.001069,
+      "restingOnId": "floor"
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:doorway-escalation-badge",
+      "penetrationMeters": 0,
+      "restingOnId": null
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:trash-liner-fold",
+      "penetrationMeters": 0.001069,
+      "restingOnId": "floor"
+    },
+    {
+      "subjectId": "ed_chest_pain_priority_v1:call-light-remote",
+      "penetrationMeters": 0.001069,
+      "restingOnId": "floor"
+    }
+  ],
+  "treatmentApi": [
+    "RigidBodyDesc",
+    "dynamic",
+    "applyImpulse"
+  ],
+  "engineVersion": "0.19.3",
+  "hazards": [
+    "6 of 30 subjects fell out of the room front under gravity settle — their authored positions sit past the shell's open +z floor edge (floor footprint ends at z=0.95), so there is no support under them. Impulse-gravity placement cannot place an object with no support below it.",
+    "2 of 30 authored subjects rest on the floor; the other 28 are wall/ceiling/surface-mounted or floating. Under gravity settle 22 of them fall to the floor and 6 fall out the front — impulse placement is only defined for support-resting objects.",
+    "equipmentPlacements carry position but no dimensions in the scene manifest (ecg_cart_equipment, iv_stand_equipment), and the equipment GLBs are gitignored — equipment penetration is not measured here; sizing them would be invention."
+  ],
+  "rationale": "Bake-off ran offline in Rapier 0.19.3 (dynamic + applyImpulse + CCD + locked rotation + contact settle; 30 subjects, 297 steps/subject avg, 900 max). Control worst penetration 0.0000 m — the authored triples already avoid the solid shell (their known defects are floating and object-overlap, a different class than wall penetration). Treatment worst 0.0011 m and 6 subjects fell out of the open front. Impulse placement settles floor-standing bodies to ~1 mm resting penetration (Rapier contact tolerance), ties the control on penetration, and cannot express the 28 mounted/floating subjects — 22 fall to the floor, 6 escape the open front. On this population the treatment loses on scope and cost without a penetration win, so it is not a drop-in for the authored triple.",
+  "verdictNote": "shipped cast scenarios enumerated: 14; measured population is the 30 scene-manifest room props of ed_chest_pain_priority_v1 (the only station whose room props ship through the runtime-bundles builder; the factory presets author 16 room props in a non-exported helper and the other stations ship none by design, #149). Control holds 0 room penetration; the treatment ties it, drops mounted/unsupported props, and adds cost — reject, not adopt."
+}
