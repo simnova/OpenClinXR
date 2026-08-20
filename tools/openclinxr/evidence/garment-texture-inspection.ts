@@ -215,12 +215,13 @@ export async function inspectGarmentTextures(artifactName = "pre-fix.json"): Pro
     const slots: Record<string, unknown> = {};
     const glbAbs = join(REPO_ROOT, actor.glb);
 
-    // Upper: the materializer's role/reference branch (nurse long-sleeve -> CC0
-    // toigo_fisherman_sweater per LONG_SLEEVE_UPPER_BY_REFERENCE (#199); other
-    // clinicians -> Scrub_Shirt; patients -> toigo t-shirt).
+    // Upper: the materializer's role/reference branch. #403 cleared
+    // LONG_SLEEVE_UPPER_BY_REFERENCE["peds_nurse_kevin"] to None, so the long-sleeve branch is
+    // dormant and every clinician's upper is the WojackOWL CC-BY Scrub_Shirt; patients -> toigo
+    // t-shirt.
     const LONG_SLEEVE_BY_REFERENCE: Record<string, string | null> = {
       None: null,
-      peds_nurse_kevin: "toigo_fisherman_sweater",
+      peds_nurse_kevin: null,
       peds_patient_child: null,
     };
     const longSleeve = LONG_SLEEVE_BY_REFERENCE[String(actor.reference)] ?? LONG_SLEEVE_BY_REFERENCE["None"]!;

@@ -120,13 +120,24 @@ const isBody = (n: string): boolean => /^mpfb_skin_/i.test(n);
  * above-rim coplanar 837 -> 794. Same class as #378 — a legitimate geometry consequence of the
  * asset swap, not a remesh (the floor is now 0.95 x 794 = 754.3; the smoothing of the NEW garment
  * is pinned by its own measured row).
+ *
+ * #458 REBASED 2026-08-19 for kevin's upper + pants, superseding the #199 block above: #403
+ * cleared `LONG_SLEEVE_UPPER_BY_REFERENCE["peds_nurse_kevin"]` to `None`, so the clinician branch
+ * fits the WojackOWL CC-BY scrub shirt and the clinician lower path fits `Scrub_Pants` pre-strip
+ * (materialize_mpfb_humanoid_candidate.py:3104-3106). The nurse ships the clinical kit; the
+ * sweater (4,164) and cargo-pants (2,498) rows are retired and the shipped scrub kit is pinned by
+ * its own rows. `tris` is the independently recorded library count (9384 / 2704 — see
+ * the-nurse-wardrobe-baseline-matches-the-shipped-bytes.test.ts header for the source records);
+ * `coplanar` (above-rim, per this table's convention) and `sharpSplit` were measured 2026-08-19 on
+ * the shipped bytes with this contract's own instrument (scrub_shirt total coplanar 4310 matches
+ * this header's own :18 row).
  */
 const BASELINE: Record<string, { tris: number; coplanar: number; sharpSplit: number }> = {
   "mpfb-ob-patient-aisha::mat_makeclothes_library_cargo_pants.001": { tris: 2782, coplanar: 966, sharpSplit: 48 },
   "mpfb-ob-patient-aisha::mat_makeclothes_library_footwear_toigo_flats": { tris: 57600, coplanar: 12922, sharpSplit: 3780 },
   "mpfb-ob-patient-aisha::mat_makeclothes_library_toigo_t_shirt": { tris: 2700, coplanar: 800, sharpSplit: 238 },
-  "mpfb-peds-nurse-kevin::mat_makeclothes_library_cargo_pants.001": { tris: 2498, coplanar: 794, sharpSplit: 177 },
-  "mpfb-peds-nurse-kevin::mat_makeclothes_library_fisherman_sweater": { tris: 4164, coplanar: 1204, sharpSplit: 295 },
+  "mpfb-peds-nurse-kevin::mat_makeclothes_library_scrub_shirt": { tris: 9384, coplanar: 3862, sharpSplit: 303 },
+  "mpfb-peds-nurse-kevin::mat_makeclothes_library_scrub_pants": { tris: 2704, coplanar: 908, sharpSplit: 147 },
   "mpfb-peds-nurse-kevin::mat_makeclothes_library_footwear_culturalibre_male_boots": { tris: 30768, coplanar: 6246, sharpSplit: 1605 },
   "mpfb-peds-patient-child::mat_makeclothes_library_cargo_pants.001": { tris: 2636, coplanar: 1042, sharpSplit: 49 },
   "mpfb-peds-patient-child::mat_makeclothes_library_footwear_toigo_mj_cloth_shoes": { tris: 1004, coplanar: 144, sharpSplit: 124 },
