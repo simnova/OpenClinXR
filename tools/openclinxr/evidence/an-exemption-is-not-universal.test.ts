@@ -72,6 +72,15 @@ import { describe, expect, it } from "vitest";
  *     machine. Deliberately dormant, not a defect, and NOT in scope.
  *   - Whether `peds_nurse_kevin.glb` SHOULD have hair. `mpfb-peds-nurse-kevin.glb` carries
  *     `mhair02`; the Anny-rail file of a similar name does not. Different asset, different question.
+ *
+ * ## FIXED (#483)
+ *
+ * Added a floor in `head-focus-derivation.test.ts`: a new describe block enumerates the three
+ * subjects through the SAME `worldPoints` traversal the #394 exemption gates on and asserts
+ * `subjectsWithHair.length` is `toBeGreaterThan(0)` — "the fitted-hair containment obligation is
+ * live for at least one subject". Clause (1) flips to green; (2) the per-subject exemption and (3)
+ * the no-equality counterweight both still hold. The floor is a lower bound, not a count, so a
+ * second hairstyle does not red it.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -97,7 +106,7 @@ async function subjectsWithHair(): Promise<string[]> {
 const headFocusSource = readFileSync(HEAD_FOCUS, "utf8");
 
 describe("a conditional exemption in an evidence contract is not universal", () => {
-  it.fails("(1) RED: head-focus asserts its #394 obligation is live for at least one subject", () => {
+  it("(1) RED: head-focus asserts its #394 obligation is live for at least one subject", () => {
     // The floor. `head-focus-derivation` exempts hairless figures and never asserts that ANY figure
     // carries the duty, so the clause can go fully dormant while reporting green.
     const hasFloor =

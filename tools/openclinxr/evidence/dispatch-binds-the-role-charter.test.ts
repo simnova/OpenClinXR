@@ -85,6 +85,11 @@ import { describe, expect, it } from "vitest";
  * WHICH ARE REDS AND WHICH ARE NETS (SS227): **(1) and (2) are RED** — the composer does not exist.
  * **(3) and (4) pass today** and are the nets that stop the fix being a copy-paste or a guess.
  *
+ * CORRECTED (#483): the composer DOES exist — `buildRoleCharterAppendix` was re-enabled 2026-08-19
+ * behind `--prompt-file` (#437), so the `composer === null` guards in (3)/(4) no longer fire and
+ * this contract now runs (1)-(4) green. The "(1) and (2) are RED — the composer does not exist"
+ * analysis above was true only while the composer was absent; it is retained as the planting record.
+ *
  * NOT TESTED: that a worker READS its charter (a prompt containing the instruction is not a worker
  * obeying it); whether Persona changes worker output quality; the visibility mandate and a named
  * escalation header, both absent from the baker and deliberately out of scope; `gh` write scope for
