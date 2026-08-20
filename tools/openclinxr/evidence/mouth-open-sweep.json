@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "openclinxr.mouth-open-sweep.v1",
+  "generatedAt": "2026-08-20T01:05:09.411Z",
+  "actor": "parent_tara_johnson_v1",
+  "sourceGlb": "/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb",
+  "sourceGlbSha256": "b8801c637f5fd43bd3c51f140782b4c40da5d27e9eb93a56534cde9b9c7e2ec7",
+  "weights": [
+    0,
+    0.3,
+    0.6,
+    1
+  ],
+  "cells": [
+    {
+      "morphWeight": 0,
+      "luminance": {
+        "mean": 54.88,
+        "sd": 45.56
+      }
+    },
+    {
+      "morphWeight": 0.3,
+      "luminance": {
+        "mean": 54.87,
+        "sd": 45.55
+      }
+    },
+    {
+      "morphWeight": 0.6,
+      "luminance": {
+        "mean": 54.87,
+        "sd": 45.56
+      }
+    },
+    {
+      "morphWeight": 1,
+      "luminance": {
+        "mean": 54.86,
+        "sd": 45.56
+      }
+    }
+  ],
+  "cameraNote": "one derived camera for all four cells by construction: the lab frames from the subject's unmorphed bind-pose bounds (computeMeshBounds -> resolveFocus -> frameCamera), so the camera is byte-identical across weights; the probe compares each cell's packFraming bounds to the rest cell to 1 mm and refuses to write otherwise.",
+  "source": "isolated subject lab renders (apps/ui-xr/isolated-subject.html -> isolated-subject-lab.ts) via playwright headless chromium against the ui-xr portless dev server (spawnPortlessDevServer filter @openclinxr/ui-xr); subjectKind=glb, bodyGlb=mpfb-peds-parent-aisha.motion-bind.glb, focus=head; mouth-open driven to each sweep weight by the same in-page applier the still-pair probe uses, before the lab's 4-frame render loop draws the final frame; one labelled contact sheet composed by buildContactSheet (Playwright HTML composite, no sharp dep); luminance measured per full-size cell render by regionLuminance (lib/png-region-luminance.ts) over the whole frame.",
+  "url": "http://127.0.0.1:58909/isolated-subject.html?subject=%7B%22subjectId%22%3A%22parent_tara_johnson_v1%22%2C%22subjectKind%22%3A%22glb%22%2C%22bodyGlb%22%3A%22%2Fxr-assets%2Fhumanoids%2Fcandidates%2Fmpfb-peds-parent-aisha.motion-bind.glb%22%2C%22focus%22%3A%22head%22%2C%22label%22%3A%22parent%20mouth-open%20sweep%20subject%22%7D",
+  "claimScope": "an isolated four-weight sweep of mouth-open (0/0.3/0.6/1.0) on parent_tara_johnson_v1 (peds asthma parent GLB), same GLB bytes, same derived camera, one labelled contact sheet for the orchestrator to grade; #459 E2",
+  "notEvidenceFor": [
+    "which weight is clinically acceptable (the orchestrator grades the sheet)",
+    "the runtime mixer (nothing here changes what it emits)",
+    "whether a spike is present (#402 — different shape, out of scope)",
+    "the cause of the mid-face collapse",
+    "any fix",
+    "production phoneme timing",
+    "clinical validity",
+    "scoring validity",
+    "quest readiness"
+  ]
+}
