@@ -23,7 +23,7 @@ import { dirname, join, resolve } from "node:path";
 import { homedir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { buildRepoAgentSpawnPrompt } from "../../../packages/openclinxr/agent-loop/src/grok-repo-agent-spawn.js";
-import { getRepoRoleHarnessPolicy } from "../../../packages/openclinxr/agent-loop/src/role-harness-policy.js";
+import { getRepoRoleHarnessPolicy, resolveHarnessModelSpec } from "../../../packages/openclinxr/agent-loop/src/role-harness-policy.js";
 import {
   DONE_WHEN_RULE_VOCABULARY,
   evaluateDoneWhenRule,
@@ -129,6 +129,13 @@ type DispatchOptions = {
   slice?: string;
   role?: string;
   model?: string;
+  /**
+   * ISSUE #461: the ONLY sanction for running a role below its policy tier. A role whose policy
+   * names a higher model (e.g. standard_execution -> deepseek-v4-pro) with an explicit lower
+   * model and no reason FAILS CLOSED — a warning is what five consecutive write slices did not
+   * notice. fast_bounded / expert_review map to flash BY POLICY and never need this.
+   */
+  modelDowngradeReason?: string;
   resume?: string;
   maxTurns?: number;
   /**
@@ -642,6 +649,54 @@ function resolveRoleDir(repoRoot: string, roleId: string): string | null {
 /** Scratch location for prompt files when the caller did not supply a promptFileDir. */
 const DEFAULT_PROMPT_FILE_DIR = join(homedir(), ".grok", "dispatch-prompts");
 
+/**
+ * ISSUE #461 — dispatch ignored the role registry and silently ran every write role on flash.
+ *
+ * Five consecutive write slices dispatched xr-systems-architect (standard_execution -> pro) and
+ * every one ran flash: the model was defaulted at five sites (`--model` in buildArgv, the ledger,
+ * and the three vision-appendix sites) with no reference to the role. role-harness-policy.ts
+ * already maps tier -> grok model; this is the ONE resolver, called from all five sites.
+ *
+ * A downgrade is a RANK, not "flash is wrong": fast_bounded and expert_review map to flash BY
+ * POLICY, so flash on those roles needs no reason. The refusal is a role whose policy names a
+ * HIGHER tier being run on a lower one, without a stated modelDowngradeReason — a warning is what
+ * five slices ignored. The roleless path stays flash-first (dispatch-worker.test.ts:132 pins it).
+ */
+const MODEL_RANK = new Map<string, number>([
+  ["deepseek-v4-flash", 0],
+  ["deepseek-v4-pro", 1],
+  ["grok-build", 2],
+]);
+
+export type ResolvedDispatchModel = {
+  model: string;
+  /** Policy tier of the bound role ("fast_bounded" | "standard_execution" | ...); undefined roleless. */
+  tier: string | undefined;
+};
+
+export function resolveDispatchModel(
+  options: Pick<DispatchOptions, "role" | "model" | "modelDowngradeReason">,
+): ResolvedDispatchModel {
+  const tier = options.role ? getRepoRoleHarnessPolicy(options.role)?.policyTier : undefined;
+  const policyModel = tier ? resolveHarnessModelSpec(tier, "grok").model : undefined;
+  if (options.model && policyModel && options.model !== policyModel) {
+    const explicitRank = MODEL_RANK.get(options.model);
+    const policyRank = MODEL_RANK.get(policyModel);
+    if (
+      explicitRank !== undefined && policyRank !== undefined
+      && explicitRank < policyRank && !options.modelDowngradeReason
+    ) {
+      throw new Error(
+        `dispatch: role "${options.role}" is ${tier} -> policy model ${policyModel}; explicit model `
+        + `"${options.model}" is a DOWNGRADE with no modelDowngradeReason. Five consecutive write slices silently `
+        + `ran flash because the default ignored the role. Name a reason, or drop the model argument and let `
+        + `policy fill it.`,
+      );
+    }
+  }
+  return { model: options.model ?? policyModel ?? "deepseek-v4-flash", tier };
+}
+
 export function buildArgv(options: DispatchOptions): string[] {
   const argv = ["--prompt-file", writePromptFile(options)];
   if (options.resume) {
@@ -656,8 +711,9 @@ export function buildArgv(options: DispatchOptions): string[] {
     // a duplicate UUID, so nothing is keyed on the slice id.
     argv.push("--session-id", options.sessionId ?? randomUUID());
   }
-  // 2026-08-10 flash-first default (V4-Flash-0731 agentic bench lead); override with options.model
-  argv.push("--model", options.model ?? "deepseek-v4-flash");
+  // ISSUE #461: the model is a property of the role's policy — one resolver, called from all five
+  // sites. The roleless path stays flash-first (dispatch-worker.test.ts:132 pins that).
+  argv.push("--model", resolveDispatchModel(options).model);
   argv.push("--always-approve");
   // streaming-json emits a usage event per turn — the only way to see a stall while the worker is
   // still alive. Plain json yields aggregates only, i.e. you learn about the death afterwards.
@@ -671,7 +727,11 @@ export function buildArgv(options: DispatchOptions): string[] {
 function writePromptFile(options: DispatchOptions): string {
   const dir = options.promptFileDir ?? DEFAULT_PROMPT_FILE_DIR;
   mkdirSync(dir, { recursive: true });
-  const path = join(dir, `prompt-${options.slice ?? "unscoped"}.md`);
+  // ISSUE #461 (exposed by the proof suite): the unscoped scratch fallback shares one dir with
+  // every other unscoped caller, and a fixed name let concurrent callers clobber each other's
+  // prompt file mid-flight — the worker then executes the wrong prompt. A slice id names the
+  // file (the trusted-slice exact-prompt record depends on that); scratch calls get a unique one.
+  const path = join(dir, `prompt-${options.slice ?? randomUUID()}.md`);
   writeFileSync(path, options.prompt, "utf8");
   return path;
 }
@@ -1017,7 +1077,9 @@ function ledgerIdentity(
   return {
     ...(options.slice ? { slice: options.slice } : {}),
     ...(options.role ? { role: options.role } : {}),
-    model: options.model ?? "deepseek-v4-flash",
+    // ISSUE #461: the ledger records the model policy actually resolves — five consecutive write
+    // slices dispatched xr-systems-architect (standard_execution -> pro) and the ledger said flash.
+    model: resolveDispatchModel(options).model,
     ...(options.resume ? { resumedFrom: options.resume } : {}),
     ...(worktreePath ? { worktree: worktreePath } : {}),
     contractSource: assembled.contractSource,
@@ -1198,6 +1260,14 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
   const sliceId = options.slice ?? "unscoped";
   assertDispatchRole(options.role, repoRoot);
 
+  // ISSUE #461: the model is a property of the role's policy, never a per-site default. Five
+  // consecutive write slices dispatched xr-systems-architect (standard_execution -> pro) and
+  // every one ran flash — no warning, no gate. Resolve + refuse HERE, before contract assembly
+  // and worktree creation, so a downgrade refusal costs nothing. The same resolver feeds
+  // buildArgv, the ledger and the vision appendix (all five sites).
+  const dispatchModel = resolveDispatchModel(options);
+  console.log(`dispatch: role=${options.role ?? "(roleless)"} tier=${dispatchModel.tier ?? "none"} model=${dispatchModel.model}`);
+
   // --- Layer-3 contract assembly (trusted plane) ---
   //
   // Ordered BEFORE worktree creation deliberately. When the gate first shipped it ran after, and a
@@ -1336,10 +1406,13 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
   // ISSUE #242: tell the worker it is text-only so a denied image Read is understood rather than
   // puzzled over. The Read denies appended to argv below are the enforcement; this is worker
   // comprehension only.
-  if (isTextOnlyModel(effective.model ?? "deepseek-v4-flash")) {
+  // ISSUE #461: single resolution for the three vision sites — the model is the role's policy
+  // model, never a per-site flash default.
+  const resolvedModel = resolveDispatchModel(effective).model;
+  if (isTextOnlyModel(resolvedModel)) {
     effective = {
       ...effective,
-      prompt: `${effective.prompt}${buildTextOnlyVisionPromptAppendix(effective.model ?? "deepseek-v4-flash")}`,
+      prompt: `${effective.prompt}${buildTextOnlyVisionPromptAppendix(resolvedModel)}`,
     };
   }
 
@@ -1350,7 +1423,7 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
   // Deny the Read tool on image/video extensions mechanically, before spawn, for every text-only
   // dispatch — regardless of what the prompt or proofs say. Denied reads are survivable; the 400
   // is not. Must run even when the model is the implicit default (deepseek-v4-flash).
-  const effectiveModel = effective.model ?? "deepseek-v4-flash";
+  const effectiveModel = resolvedModel;
   if (isTextOnlyModel(effectiveModel)) {
     argv.push(...buildTextOnlyVisionDenies().flatMap((rule) => ["--deny", rule]));
   }
