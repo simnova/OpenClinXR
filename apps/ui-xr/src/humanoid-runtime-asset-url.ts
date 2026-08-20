@@ -94,6 +94,7 @@ const MPFB_CLINICAL_NURSE_ADULT_GLB = "mpfb-clinical-nurse-adult.glb";
 const MPFB_CLINICAL_PHYSICIAN_ADULT_GLB = "mpfb-clinical-physician-adult.glb";
 const MPFB_FAMILY_PARTNER_ADULT_GLB = "mpfb-family-partner-adult.glb";
 const MPFB_PEDS_NURSE_KEVIN_GLB = "mpfb-peds-nurse-kevin.glb";
+const MPFB_PEDS_PATIENT_CHILD_GLB = "mpfb-peds-patient-child.glb";
 
 const ADULT_POOL_GLBS = [
   MPFB_CLINICAL_NURSE_ADULT_GLB,
@@ -161,12 +162,13 @@ function environmentIdForScenario(scenarioId: string): string {
  * Runtime public paths for ED cast (#96 role-distinct wardrobe; #218 library spouse).
  * Mirrors actor-casting: patient gown, nurse scrubs, spouse = body-param library.
  * Rejected full cast migration and patient-library swap (#160 gown counterweight).
+ * #479: the spouse moves to the MPFB family-partner body (mirrors actor-casting).
  */
 const ED_RUNTIME_CAST_BY_ACTOR: Record<string, string> = {
   patient_robert_hayes_v1: ED_ADULT_CAST_RUNTIME_PATH,
   // #403: the ED nurse loads the MPFB clinical-nurse body (was the shared Anny nurse mesh).
   nurse_maria_alvarez_v1: MPFB_CLINICAL_NURSE_ADULT_RUNTIME_PATH,
-  spouse_anna_hayes_v1: LIBRARY_ADULT_LEAN_FEMALE_RUNTIME_PATH,
+  spouse_anna_hayes_v1: MPFB_FAMILY_PARTNER_ADULT_RUNTIME_PATH,
 };
 
 /** Runtime public paths for peds asthma cast (mirrors actor-casting table). */
@@ -281,7 +283,7 @@ function poolPathForIsolatedActor(input: {
   if (/_phone_|_tablet_|telehealth_system/iu.test(input.actorId)) return null;
 
   if (isPedsChildPatient(input.scenarioId, role, input.actorId)) {
-    return runtimePath(PEDS_CHILD_GLB);
+    return runtimePath(MPFB_PEDS_PATIENT_CHILD_GLB);
   }
 
   const wardrobe = patientWardrobeClassForEnvironment(environmentIdForScenario(input.scenarioId));
@@ -319,7 +321,7 @@ export function resolvePoolCastPathWithSiblings(input: {
   for (const actor of ordered) {
     let glb: string;
     if (isPedsChildPatient(input.scenarioId, actor.role, actor.actorId)) {
-      glb = PEDS_CHILD_GLB;
+      glb = MPFB_PEDS_PATIENT_CHILD_GLB;
     } else {
       glb = pickAdultGlb(actor.role, used, wardrobe);
     }

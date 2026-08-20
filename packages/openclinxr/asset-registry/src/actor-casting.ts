@@ -50,7 +50,6 @@ import {
   ED_NURSE_GLB,
   ED_SPOUSE_GLB,
   GENERATED,
-  LIBRARY_ADULT_LEAN_FEMALE_GLB,
   MPFB_CLINICAL_NURSE_ADULT_GLB,
   MPFB_CLINICAL_PHYSICIAN_ADULT_GLB,
   MPFB_FAMILY_PARTNER_ADULT_GLB,
@@ -60,7 +59,6 @@ import {
   MPFB_PEDS_PARENT_AISHA_MOTION_BIND_GLB,
   MPFB_PEDS_PATIENT_CHILD_GLB,
   MPFB_STREET_ADULT_MALE_GLB,
-  PEDS_CHILD_GLB,
   PEDS_NURSE_GLB,
   PEDS_PARENT_GLB,
   RUNTIME_CANDIDATES,
@@ -318,7 +316,11 @@ function castFromScenarioBank(scenarioId: string): ScenarioActorCast[] {
     const band = declareAgeBand({ scenarioId, role: actor.role, actorId: actor.actorId });
     let glbFile: string;
     if (band === "child") {
-      glbFile = PEDS_CHILD_GLB;
+      // #479: the peds child patient casts on the MPFB child body (137 joints,
+      // jaw + FACS mouth/eye targets, eye mesh). The Anny PEDS_CHILD_GLB has no
+      // eye mesh and cannot articulate a face. Known-good: peds_asthma already
+      // casts this body via the explicit table in resolveScenarioActorCast.
+      glbFile = MPFB_PEDS_PATIENT_CHILD_GLB;
       used.add(glbFile);
     } else {
       glbFile = pickAdultGlb(actor.role, used, patientWardrobe);
@@ -360,11 +362,16 @@ export function resolveScenarioActorCast(scenarioId: string): ScenarioActorCast[
       }),
       // #218: stage ONE library body via ordinary cast resolution (spouse only).
       // Patient keeps Anny gown (#160 counterweight). Nurse keeps Anny scrubs.
-      libraryCastEntry({
+      // #479: the spouse moves OFF the 64-joint library rail (no jaw, no eye mesh)
+      // to the 137-joint MPFB family-partner body the other family-class slots
+      // already cast. #218's library-rail coverage is deliberately dropped;
+      // LIBRARY_ADULT_LEAN_FEMALE_GLB stays exported for the S2 gowned-patient
+      // swap once a hospital-class garment exists (L3-L5).
+      castEntry({
         actorId: "spouse_anna_hayes_v1",
         role: "family",
         scenarioId: ED_CHEST_PAIN_SCENARIO_ID,
-        glbFile: LIBRARY_ADULT_LEAN_FEMALE_GLB,
+        glbFile: MPFB_FAMILY_PARTNER_ADULT_GLB,
       }),
     ];
   }
