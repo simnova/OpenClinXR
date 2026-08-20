@@ -76,13 +76,33 @@ const TARGET = join(GENERATED, "mpfb-gown-inspect.glb");
 const MIN_REAL_BAKE_BYTES = 2_000_000;
 const MPFB_JOINT_FLOOR = 100;
 
-type Body = { meshes: string[]; joints: string[]; bytes: number };
+/** One mesh as measured off the file: name, vertex count, and world-Y span. */
+type MeshGeom = { name: string; verts: number; y0: number; y1: number };
+type Body = { meshes: string[]; geoms: MeshGeom[]; joints: string[]; bytes: number };
 
 async function read(p: string): Promise<Body | null> {
   if (!existsSync(p)) return null;
   const doc = await new NodeIO().read(p);
+  const geoms: MeshGeom[] = doc.getRoot().listMeshes().map((m) => {
+    let y0 = Infinity;
+    let y1 = -Infinity;
+    let verts = 0;
+    for (const prim of m.listPrimitives()) {
+      const pos = prim.getAttribute("POSITION");
+      if (!pos) continue;
+      verts += pos.getCount();
+      const el = [0, 0, 0];
+      for (let i = 0; i < pos.getCount(); i += 1) {
+        pos.getElement(i, el);
+        if (el[1]! < y0) y0 = el[1]!;
+        if (el[1]! > y1) y1 = el[1]!;
+      }
+    }
+    return { name: m.getName() ?? "", verts, y0, y1 };
+  });
   return {
-    meshes: doc.getRoot().listMeshes().map((m) => m.getName() ?? ""),
+    meshes: geoms.map((g) => g.name),
+    geoms,
     joints: (doc.getRoot().listSkins()[0]?.listJoints() ?? []).map((j) => j.getName() ?? ""),
     bytes: statSync(p).size,
   };
@@ -90,11 +110,137 @@ async function read(p: string): Promise<Body | null> {
 
 const isGownMesh = (n: string): boolean => /gown/i.test(n);
 
+/**
+ * ## SS11s REPAIR, 2026-08-20 — clause (1) BOUNDED A NAME AND THE MARKER SATISFIED IT
+ *
+ * As dispatched, clause (1) was `meshes.some(n => /gown/i.test(n))`. The bake returned green and the
+ * mesh inventory showed why: `openclinxr_declared_upper_layers__hospital_gown_mesh` has **3 vertices**
+ * and **zero height**. It is the declared-layer SSOT marker consumed by `garment-layer-coverage.ts:35`
+ * `DECLARED_NAME_RE` — and it exists on the ANNY body too, so it was never evidence of THIS bake.
+ * The worker flipped exactly the three clauses it was asked to and touched no assertion; the contract
+ * was the defect, and it is the orchestrator's. Standing lesson, landing on its own author:
+ * **presence, placement and provenance are three questions and none of them is CLASS.**
+ *
+ * The measured record from the landed bake (`mpfb-gown-inspect.glb`, body 0.001 -> 1.667 m):
+ *
+ *   mesh                                          verts     y0      y1   hemFrac  topFrac
+ *   openclinxr_real_garment_peds_upper_v1_mesh     2677   0.534   1.439    0.320    0.863  <- gown shell
+ *   makeclothes_library_toigo_t_shirt_..._mesh     5400   0.955   1.406    0.573    0.843  <- upper control
+ *   makeclothes_library_cargo_pants_..._mesh       8268   0.101   0.986    0.060    0.591  <- lower control
+ *   openclinxr_declared_upper_layers__..._mesh        3   0.917   0.917    0.550    0.550  <- the marker
+ *
+ * ## THE FIRST REPAIR WAS ALSO DEFECTIVE — the destructive probe caught it, not review
+ *
+ * The repair originally bounded the HEM alone at 0.45h. The probe — exclude `real_garment` and the
+ * clause must red — **passed**, because `cargo_pants` hems at 0.060h and cleared it. A trouser leg
+ * satisfies "hems below mid-thigh" trivially. SS11s again, one layer in: a hem is an EXTREME, and a
+ * gown is a SPAN. Two garments differ from it in opposite directions and neither bound alone sees it.
+ *
+ * KNOWN-GOOD COLUMNS (SS9h), both on THIS body, independently authored, pulling opposite ways:
+ *   - `toigo_t_shirt`   covers the torso and stops at the hip  -> fails the HEM bound  (0.573 > 0.45)
+ *   - `cargo_pants`     reaches the ankle but starts at the hip -> fails the TOP bound  (0.591 < 0.70)
+ * Only a single shell spanning shoulder to below mid-thigh clears both. Each boundary is the midpoint
+ * of the pair that straddles it — hem 0.45 between 0.320 and 0.573; top 0.70 between 0.591 and 0.843
+ * — so both are derived from garments nobody baked for this contract, never fitted as a fraction of
+ * the gown's own measurement (SS9s).
+ *
+ * The shell is also NOT named `gown` — the builder names procedural garments by `gname`
+ * (`peds_upper_v1`), not by `kind`. That is precisely why a name match could never have found it.
+ */
+const MIN_SHELL_VERTS = 500;
+const GOWN_HEM_FRAC_MAX = 0.45;
+const GOWN_TOP_FRAC_MIN = 0.7;
+
+/** Hem height as a fraction of body height — 0 is the floor, 1 the crown. */
+function hemFraction(g: MeshGeom, body: MeshGeom): number {
+  return (g.y0 - body.y0) / (body.y1 - body.y0);
+}
+
+/** Highest point of the mesh as a fraction of body height. */
+function topFraction(g: MeshGeom, body: MeshGeom): number {
+  return (g.y1 - body.y0) / (body.y1 - body.y0);
+}
+
+function bodyMesh(b: Body): MeshGeom {
+  const body = b.geoms.find((g) => /_body$/.test(g.name));
+  expect(body, `no *_body mesh in: ${b.meshes.join(", ")}`).toBeDefined();
+  return body!;
+}
+
+/**
+ * A gown-CLASS shell: real geometry (not the 3-vertex marker) forming ONE span from the shoulder to
+ * below mid-thigh. Both bounds are required — see the header for the two controls that defeat each
+ * one alone.
+ */
+function gownClassShells(b: Body): MeshGeom[] {
+  const body = bodyMesh(b);
+  return b.geoms.filter(
+    (g) =>
+      g !== body
+      && g.verts >= MIN_SHELL_VERTS
+      && hemFraction(g, body) <= GOWN_HEM_FRAC_MAX
+      && topFraction(g, body) >= GOWN_TOP_FRAC_MIN,
+  );
+}
+
 describe("an MPFB patient body wears a gown", () => {
-  it("(1) RED: a shipped MPFB body carries a gown mesh", async () => {
+  it("(1) RED: a shipped MPFB body carries gown-CLASS geometry, not a gown-shaped NAME", async () => {
     const b = await read(TARGET);
     expect(b, `${TARGET} must exist — no MPFB body carries a gown today`).not.toBeNull();
-    expect(b!.meshes.some(isGownMesh), `meshes were: ${b!.meshes.join(", ")}`).toBe(true);
+    const shells = gownClassShells(b!);
+    const body = bodyMesh(b!);
+    const inventory = b!.geoms
+      .map(
+        (g) =>
+          `${g.name} verts=${g.verts} hemFrac=${hemFraction(g, body).toFixed(3)} topFrac=${topFraction(g, body).toFixed(3)}`,
+      )
+      .join("\n  ");
+    expect(
+      shells.length,
+      `no shell with >=${MIN_SHELL_VERTS} verts spans top>=${GOWN_TOP_FRAC_MIN}h down to hem<=${GOWN_HEM_FRAC_MAX}h:\n  ${inventory}`,
+    ).toBeGreaterThan(0);
+  });
+
+  it("(1b) COUNTERWEIGHT: the 3-vertex declared-layer marker cannot satisfy (1)", async () => {
+    // This is the clause the ORIGINAL (1) was missing, and the reason it went green on a marker.
+    // The marker is an SSOT row carrying the declared-layer count — it must keep shipping (nothing
+    // here asks for its removal) and it must never be mistaken for the garment it declares.
+    const b = await read(TARGET);
+    expect(b, "the bake must exist").not.toBeNull();
+    const marker = b!.geoms.find((g) => /declared_upper_layers/.test(g.name));
+    expect(marker, "the declared-layer marker must still ship — it is consumed by garment-layer-coverage").toBeDefined();
+    expect(marker!.verts, `the marker carries ${marker!.verts} verts; a garment carries hundreds`).toBeLessThan(MIN_SHELL_VERTS);
+    expect(gownClassShells(b!).map((g) => g.name), "the marker must not be counted as a gown shell").not.toContain(marker!.name);
+  });
+
+  it("(1c) COUNTERWEIGHT: an upper-body garment on the same body fails the hem bound", async () => {
+    // Refuses "rename or re-tag the t-shirt". KNOWN-GOOD column (SS9h): toigo_t_shirt is a real,
+    // independently-authored 5,400-vert garment on THIS body and it hems at 0.573h. If the bound
+    // ever admits it, the bound has stopped discriminating class and is measuring only presence.
+    const b = await read(TARGET);
+    expect(b, "the bake must exist").not.toBeNull();
+    const shirt = b!.geoms.find((g) => /t_shirt/.test(g.name));
+    expect(shirt, "the t-shirt is the known-good NOT-a-gown control on this body").toBeDefined();
+    expect(hemFraction(shirt!, bodyMesh(b!)), "a torso garment hems near mid-hip, well above a gown")
+      .toBeGreaterThan(GOWN_HEM_FRAC_MAX);
+    expect(gownClassShells(b!).map((g) => g.name), "the t-shirt must not be counted as a gown shell").not.toContain(
+      shirt!.name,
+    );
+  });
+
+  it("(1d) COUNTERWEIGHT: a lower-body garment fails the top bound", async () => {
+    // The clause the FIRST repair was missing. cargo_pants hems at 0.060h and cleared a hem-only
+    // bound outright — a trouser leg is not a gown, and only the TOP bound says so. Kept as its own
+    // clause so a future edit that drops topFraction reds here instead of silently widening class.
+    const b = await read(TARGET);
+    expect(b, "the bake must exist").not.toBeNull();
+    const pants = b!.geoms.find((g) => /cargo_pants/.test(g.name));
+    expect(pants, "cargo_pants is the known-good NOT-a-gown lower control on this body").toBeDefined();
+    expect(topFraction(pants!, bodyMesh(b!)), "trousers start at the hip; a gown reaches the shoulder")
+      .toBeLessThan(GOWN_TOP_FRAC_MIN);
+    expect(gownClassShells(b!).map((g) => g.name), "trousers must not be counted as a gown shell").not.toContain(
+      pants!.name,
+    );
   });
 
   it("(2) RED: the gown is on the MPFB rail, not Anny", async () => {
