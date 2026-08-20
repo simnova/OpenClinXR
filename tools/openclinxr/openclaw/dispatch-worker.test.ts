@@ -921,6 +921,7 @@ describe("issue #242 — text-only models cannot Read images (the 400 fence)", (
       prompt: "grade this capture",
       role: TEST_ROLE,
       model: "deepseek-v4-flash",
+      modelDowngradeReason: "issue-242 test: the vision fence is the subject, not the tier",
       slice: "issue-242-text-only",
       contract: "none",
       contractReason: "issue-242 test: a text-only dispatch must carry the Read denies",
