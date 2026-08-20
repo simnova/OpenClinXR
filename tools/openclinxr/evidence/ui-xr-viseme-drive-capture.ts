@@ -30,15 +30,17 @@ const INSPECTION_PATH = path.join(OUTPUT_DIR, "inspection.json");
 const SUMMARY_PATH = path.join("tools", "openclinxr", "evidence", "parent-drives-a-real-viseme.json");
 /** #465: tracked summary proving the reframe puts the subject's head IN frame (not just ran). */
 const REFRAME_SUMMARY_PATH = path.join("tools", "openclinxr", "evidence", "reframe-subject-in-frame.json");
+/** #468: tracked summary proving the review panel leaves the exam volume after a real crossing. */
+const REVIEW_PANEL_SUMMARY_PATH = path.join("tools", "openclinxr", "evidence", "review-panel-leaves-exam-volume.json");
 
 /**
  * face-detail alone keeps natural dialogue duration (~phonemeCount*90ms) so progress spans
  * many visemes. Camera is re-framed in-page onto the parent head (face-detail default looks left).
+ * The portal crossing is earned by locomotion in-page, never by `openclinxrPortalStart` (#468).
  */
 const CAPTURE_QUERY =
   "openclinxrScenarioId=peds_asthma_parent_anxiety_v1" +
   "&openclinxrCaptureMode=face-detail" +
-  "&openclinxrPortalStart=encounter" +
   "&openclinxrAcceleratedExam=1";
 
 type Reading = {
@@ -487,6 +489,58 @@ async function retriggerParentDialogue(page: Page): Promise<void> {
   }
 }
 
+type PortalTransitionSnapshot = {
+  side: string;
+  portalInteriorHiddenObjectNames: string[];
+  transitionProbeZ: number;
+  locomotionRigZ: number;
+};
+
+async function setLocomotionRigZ(page: Page, z: number): Promise<void> {
+  await page.evaluate(`((z) => {
+    const scene = window.__openClinXrDebugScene;
+    if (!scene || typeof scene.traverse !== "function") return;
+    let rig = null;
+    scene.traverse(function (o) {
+      if (!rig && typeof o["name"] === "string" && o["name"].indexOf("locomotion-rig") !== -1) rig = o;
+    });
+    if (rig && rig["position"] && typeof rig["position"]["z"] === "number") {
+      rig["position"]["z"] = z;
+    }
+  })(${z})`);
+}
+
+async function readPortalTransitionSnapshot(page: Page): Promise<PortalTransitionSnapshot | null> {
+  return page.evaluate(`(() => {
+    const evidence = window.__openClinXrPortalTransitionEvidence;
+    if (!evidence) return null;
+    return {
+      side: evidence.side,
+      portalInteriorHiddenObjectNames: Array.isArray(evidence.portalInteriorHiddenObjectNames)
+        ? evidence.portalInteriorHiddenObjectNames.slice()
+        : [],
+      transitionProbeZ: evidence.transitionProbeZ,
+      locomotionRigZ: evidence.locomotionRigZ
+    };
+  })()`);
+}
+
+async function readReviewPanelState(page: Page): Promise<{ present: boolean; visible: boolean }> {
+  return page.evaluate(`(() => {
+    const scene = window.__openClinXrDebugScene;
+    let panel = null;
+    if (scene && typeof scene.traverse === "function") {
+      scene.traverse(function (o) {
+        if (!panel && o.userData && o.userData.openClinXrPortalInteriorReviewAffordance === true) panel = o;
+      });
+    }
+    return {
+      present: Boolean(panel),
+      visible: Boolean(panel) && panel.visible !== false
+    };
+  })()`);
+}
+
 export async function runVisemeCapture(): Promise<void> {
   await mkdir(OUTPUT_DIR, { recursive: true });
 
@@ -522,6 +576,20 @@ export async function runVisemeCapture(): Promise<void> {
           return found;
         })()`,
         { timeout: 180_000 },
+      );
+
+      // #468: cross the portal by locomotion — not by a query parameter — so the review panel is
+      // hidden inside the exam volume, and observe it is still present and visible outside it.
+      // `side` is level-triggered by the rig's world Z and read live from the portal evidence.
+      await setLocomotionRigZ(page, 1.35);
+      await page.waitForTimeout(180);
+      const exteriorSnapshot = await readPortalTransitionSnapshot(page);
+      const exteriorPanel = await readReviewPanelState(page);
+      await setLocomotionRigZ(page, -0.62);
+      await page.waitForTimeout(180);
+      const interiorSnapshot = await readPortalTransitionSnapshot(page);
+      process.stdout.write(
+        `portal: exterior side=${exteriorSnapshot?.side ?? "n/a"} panel=${exteriorPanel.present}/${exteriorPanel.visible} -> interior side=${interiorSnapshot?.side ?? "n/a"} hidden=${(interiorSnapshot?.portalInteriorHiddenObjectNames ?? []).length}\n`,
       );
 
       const reframeOutcomes: ReframeOutcome[] = [];
@@ -843,6 +911,28 @@ export async function runVisemeCapture(): Promise<void> {
       await writeFile(REFRAME_SUMMARY_PATH, `${JSON.stringify(reframeSummary, null, 2)}\n`, "utf8");
       process.stdout.write(
         `reframeSummary: ${REFRAME_SUMMARY_PATH} subjectInFrame=${reframeSummary.reframe.subjectInFrame} headNdc=${JSON.stringify(reframeSummary.reframe.headNdc)}\n`,
+      );
+
+      // #468 land-path summary: the review panel leaves the learner exam volume on a real
+      // locomotion crossing (side + hidden names read live from portal evidence), while still
+      // existing outside it. subjectVisible/firstHitMeshName record the live camera->head raycast
+      // verdict and the viseme mixer's driven influences. Derived from the same live run, never typed.
+      const reviewPanelSummary = {
+        capturedFrom: `${INSPECTION_PATH} (pnpm asset:ui-xr:viseme-drive-capture)`,
+        queryUsed: new URL(url).search,
+        side: interiorSnapshot?.side ?? "no_portal_evidence",
+        portalInteriorHiddenObjectNames: interiorSnapshot?.portalInteriorHiddenObjectNames ?? [],
+        panelPresentOutsideEncounter: exteriorPanel.present && exteriorPanel.visible,
+        subjectVisible: firstReframe.status === "ok" ? firstReframe.subjectVisible : false,
+        firstHitMeshName: firstReframe.status === "ok" ? firstReframe.firstHitMeshName : null,
+        visemeInfluences: [...strongByName.entries()].map(([drivenTargetName, v]) => ({
+          drivenTargetName,
+          influence: Number(v.influence.toFixed(4)),
+        })),
+      };
+      await writeFile(REVIEW_PANEL_SUMMARY_PATH, `${JSON.stringify(reviewPanelSummary, null, 2)}\n`, "utf8");
+      process.stdout.write(
+        `reviewPanelSummary: ${REVIEW_PANEL_SUMMARY_PATH} side=${reviewPanelSummary.side} panelOutside=${reviewPanelSummary.panelPresentOutsideEncounter} subjectVisible=${reviewPanelSummary.subjectVisible} firstHit=${reviewPanelSummary.firstHitMeshName}\n`,
       );
     } finally {
       await browser.close();
