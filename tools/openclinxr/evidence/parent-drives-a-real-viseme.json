@@ -1,0 +1,19 @@
+{
+  "capturedFrom": ".openclinxr/evidence/viseme-drive-2026-08-06/inspection.json (pnpm asset:ui-xr:viseme-drive-capture)",
+  "meshName": "mpfb_ob_patient_aisha_body_1",
+  "actor": "parent_tara_johnson_v1",
+  "samples": [
+    {
+      "drivenTargetName": "viseme_sil",
+      "influence": 1
+    },
+    {
+      "drivenTargetName": "viseme_aa",
+      "influence": 1
+    },
+    {
+      "drivenTargetName": "viseme_TH",
+      "influence": 1
+    }
+  ]
+}
