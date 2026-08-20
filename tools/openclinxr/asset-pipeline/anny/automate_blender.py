@@ -1881,6 +1881,7 @@ def _build_body_surface_derived_garment(
     shoulder_R: tuple,
     elbow_R: tuple,
     wrist_R: tuple,
+    skirt_top_y: Optional[float] = None,
 ) -> bpy.types.Object:
     """
     #121 authoring-class change: garment shell = body surface offset along outward normals.
@@ -2362,6 +2363,117 @@ def _build_body_surface_derived_garment(
             f"[blender] #124 after normal offset: verts={len(bm.verts)} "
             f"y=[{min(_ys_off):.4f},{max(_ys_off):.4f}]"
         )
+
+    # #481: a gown drapes as ONE skirt below the hip. The body has two legs below the
+    # crotch, so offsetting along body normals wraps each leg separately and the shell
+    # reads as a bodysuit. For the gown kind, cut at skirt_top_y and loft a single closed
+    # skirt tube (tapered rings) down to bot_y. The top ring shares the cut torso verts so
+    # export continuity is inherited from the torso — no detached skirt island (SS6t).
+    if skirt_top_y is not None and float(skirt_top_y) > float(bot_y):
+        bm.verts.ensure_lookup_table()
+        bm.edges.ensure_lookup_table()
+        bm.faces.ensure_lookup_table()
+        _below = [v for v in bm.verts if float(v.co.y) < float(skirt_top_y) - 1e-4]
+        if _below:
+            bmesh.ops.delete(bm, geom=_below, context="VERTS")
+        bm.verts.ensure_lookup_table()
+        bm.edges.ensure_lookup_table()
+        bm.faces.ensure_lookup_table()
+        if not bm.verts:
+            bm.free()
+            raise RuntimeError("#481 surface-derived garment: empty after skirt cut")
+        # The cut ring is the lowest surviving boundary loop (arm/neck holes sit far above).
+        _ys_c = [float(v.co.y) for v in bm.verts]
+        y_cut_min = min(_ys_c)
+
+        def _collect_cut_ring(band: float):
+            ring = []
+            for v in bm.verts:
+                if float(v.co.y) <= y_cut_min + band and any(e.is_boundary for e in v.link_edges):
+                    ring.append(v)
+            return ring
+
+        ring = _collect_cut_ring(0.06)
+        for v in ring:
+            v.co.y = float(skirt_top_y)
+        if len(ring) >= 4:
+            ring_set = {v.index for v in ring}
+            ring_edges = []
+            for v in ring:
+                for e in v.link_edges:
+                    ov = e.other_vert(v)
+                    if e.is_boundary and ov is not None and ov.index in ring_set:
+                        ring_edges.append(e)
+            seen_e = set()
+            uniq_e = []
+            for e in ring_edges:
+                if e.index in seen_e:
+                    continue
+                seen_e.add(e.index)
+                uniq_e.append(e)
+            # Densify the ring so every below-hip band clears GAP_MAX_M (40 mm): a fine
+            # ring samples enough X positions that the widest midline interval stays small.
+            target_k = 48
+            if uniq_e and len(uniq_e) < target_k:
+                cuts = max(1, int(math.ceil(target_k / len(uniq_e))) - 1)
+                bmesh.ops.subdivide_edges(bm, edges=uniq_e, cuts=cuts, use_grid_fill=False)
+            bm.verts.ensure_lookup_table()
+            bm.edges.ensure_lookup_table()
+            bm.faces.ensure_lookup_table()
+            ring = _collect_cut_ring(0.08)
+            for v in ring:
+                v.co.y = float(skirt_top_y)
+            keyed = []
+            for v in ring:
+                dx = float(v.co.x) - cx
+                dz = float(v.co.z) - cz
+                keyed.append((math.atan2(dz, dx), v))
+            keyed.sort(key=lambda t: t[0])
+            ring = [v for _, v in keyed]
+            k_ring = len(ring)
+            span = float(skirt_top_y) - float(bot_y)
+            n_rings = max(10, int(round(span / 0.032)))
+            flare = 0.12
+            prev = ring
+            for j in range(1, n_rings + 1):
+                f = j / float(n_rings)
+                yj = float(skirt_top_y) - span * f
+                s = 1.0 + flare * f
+                row = []
+                for v in ring:
+                    nv = bm.verts.new(
+                        (
+                            cx + (float(v.co.x) - cx) * s,
+                            yj,
+                            cz + (float(v.co.z) - cz) * s,
+                        )
+                    )
+                    row.append(nv)
+                bm.verts.ensure_lookup_table()
+                for i in range(k_ring):
+                    a = prev[i]
+                    b = prev[(i + 1) % k_ring]
+                    c = row[(i + 1) % k_ring]
+                    d = row[i]
+                    try:
+                        bm.faces.new((a, b, c, d))
+                    except Exception:
+                        try:
+                            bm.faces.new((a, b, c))
+                        except Exception:
+                            pass
+                        try:
+                            bm.faces.new((a, c, d))
+                        except Exception:
+                            pass
+                prev = row
+            bm.verts.ensure_lookup_table()
+            bm.edges.ensure_lookup_table()
+            bm.faces.ensure_lookup_table()
+            print(
+                f"[blender] #481 skirt below hip: cut_ring={k_ring} rings={n_rings} "
+                f"flare={flare:.2f} verts={len(bm.verts)} faces={len(bm.faces)}"
+            )
 
     # No solidify: rim faces export as detached micro-islands after glTF split-by-normal.
     # Cloth offset alone keeps vertices inside the inspect offset band.
@@ -3521,6 +3633,7 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
             r_base = r_base_shared * radius_stack
             top_y = top_y_shared
             bot_y = bot_y_default
+            skirt_top_y = None
             torso_rows, torso_cols = 9, 14
 
             if kind == "gown":
@@ -3537,6 +3650,9 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 # Long drape well below shared waist (still overlaps painted lower).
                 # Gown hem stays at 0.32 (#197): below-knee hospital gown is intentional.
                 bot_y = body_min_y + body_height * 0.32
+                # #481: skirt begins at the hip (same 0.55 fraction the inspect samples),
+                # so every below-hip band is a single closed drape, not two leg wraps.
+                skirt_top_y = body_min_y + body_height * 0.55
                 r_base = torso_half_w * 1.14 * radius_stack
                 torso_rows, torso_cols = 11, 16
                 topology_class = "closed_gown_drape"
@@ -3688,6 +3804,7 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 shoulder_R=shoulder_R,
                 elbow_R=elbow_R,
                 wrist_R=wrist_R,
+                skirt_top_y=skirt_top_y,
             )
             gmesh = garment.data
             verts = list(gmesh.vertices)
