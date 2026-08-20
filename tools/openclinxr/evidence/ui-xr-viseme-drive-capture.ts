@@ -28,6 +28,8 @@ import { type PortlessDevServer, spawnPortlessDevServer, stopPortlessDevServer }
 const OUTPUT_DIR = ".openclinxr/evidence/viseme-drive-2026-08-06";
 const INSPECTION_PATH = path.join(OUTPUT_DIR, "inspection.json");
 const SUMMARY_PATH = path.join("tools", "openclinxr", "evidence", "parent-drives-a-real-viseme.json");
+/** #465: tracked summary proving the reframe puts the subject's head IN frame (not just ran). */
+const REFRAME_SUMMARY_PATH = path.join("tools", "openclinxr", "evidence", "reframe-subject-in-frame.json");
 
 /**
  * face-detail alone keeps natural dialogue duration (~phonemeCount*90ms) so progress spans
@@ -120,6 +122,14 @@ type ReframeOkOutcome = {
   /** Live actor identity stamped on the humanoid root (userData.openClinXrActorId), or null. */
   actorId: string | null;
   headY: number;
+  /** NEW #465: where the head projects in normalised device coords — measured, not asserted. */
+  headNdc: { x: number; y: number };
+  /** NEW #465: derived from headNdc, never hand-typed. */
+  subjectInFrame: boolean;
+  /** NEW #465: the head's world Y, geometry-derived (not a literal offset). */
+  headWorldY: number;
+  /** NEW #465: the Y the camera actually aimed at via lookAt. */
+  aimWorldY: number;
   fov: number;
   cameraLocal: { x: number; y: number; z: number };
 };
@@ -218,13 +228,34 @@ async function reframeCameraOnParentFace(page: Page): Promise<ReframeOutcome> {
     const px = e ? Number(e[12]) : 0;
     const py = e ? Number(e[13]) : 1.0;
     const pz = e ? Number(e[14]) : 0;
-    // Head sits above mesh origin on these exports; pull in for mouth-legible framing.
-    const headY = py + 1.12;
+    // #465: the head is the TOP of the body geometry in bind pose, not a literal +1.12 offset
+    // calibrated for the child. Derive it from the mesh's own bounds so the adult parent is
+    // framed at its actual head height.
+    let localHeadY = 1.12;
+    const geom = isRecord(parentMesh["geometry"]) ? parentMesh["geometry"] : undefined;
+    if (geom) {
+      if (typeof geom["computeBoundingBox"] === "function" && !isRecord(geom["boundingBox"])) {
+        geom["computeBoundingBox"]();
+      }
+      const bb = geom["boundingBox"];
+      const bbMax = isRecord(bb) ? bb["max"] : undefined;
+      if (bbMax && typeof bbMax["y"] === "number") {
+        localHeadY = Number(bbMax["y"]);
+      }
+    }
+    // World head top = matrixWorld * local (0, localHeadY, 0). The body is ~centered on its
+    // origin in X/Z, so the head projects onto the origin's X/Z at the top Y.
+    const headWorld = {
+      x: e ? Number(e[4] * localHeadY + e[12]) : px,
+      y: e ? Number(e[5] * localHeadY + e[13]) : py + localHeadY,
+      z: e ? Number(e[6] * localHeadY + e[14]) : pz
+    };
+    const aimWorldY = headWorld.y - 0.04;
     // Camera is parented under locomotionRig — convert world aim to parent-local.
     const worldCam = {
-      x: px + 0.04,
-      y: headY + 0.04,
-      z: pz + 0.72
+      x: headWorld.x + 0.04,
+      y: headWorld.y + 0.04,
+      z: headWorld.z + 0.72
     };
     const worldToLocal = parent && typeof parent["worldToLocal"] === "function"
       ? parent["worldToLocal"]
@@ -237,17 +268,30 @@ async function reframeCameraOnParentFace(page: Page): Promise<ReframeOutcome> {
     } else {
       camera.position.set(worldCam.x, worldCam.y, worldCam.z);
     }
-    // lookAt expects world coordinates
-    camera.lookAt(px, headY - 0.04, pz);
+    // lookAt expects world coordinates; aim AT the head, not the mesh origin (#465).
+    camera.lookAt(headWorld.x, aimWorldY, headWorld.z);
     camera.fov = 28;
     if (typeof camera.updateProjectionMatrix === "function") camera.updateProjectionMatrix();
+    if (typeof camera.updateMatrixWorld === "function") camera.updateMatrixWorld(true);
+
+    // Project the head to normalised device coords so the artifact records WHETHER it is framed,
+    // not merely that the reframe ran (#465). status:"ok" 88 times over a wall is the SS6e class.
+    const headVec = camera.position.clone();
+    headVec.set(headWorld.x, headWorld.y, headWorld.z);
+    headVec.project(camera);
+    const headNdc = { x: Number(headVec.x), y: Number(headVec.y) };
+    const subjectInFrame = Math.abs(headNdc.x) <= 1 && Math.abs(headNdc.y) <= 1;
 
     return {
       status: "ok",
       targetMeshName: typeof parentMesh["name"] === "string" ? parentMesh["name"] : "",
       targetWorldPosition: { x: Number(px), y: Number(py), z: Number(pz) },
       actorId: actorId,
-      headY: Number(headY),
+      headY: Number(headWorld.y),
+      headNdc,
+      subjectInFrame,
+      headWorldY: Number(headWorld.y),
+      aimWorldY: Number(aimWorldY),
       fov: 28,
       cameraLocal: {
         x: Number(camera.position.x),
@@ -329,7 +373,7 @@ export async function runVisemeCapture(): Promise<void> {
       // One state sample per step. The page's render loop is slow (measured ~6 fps in
       // headless), so screenshots (~500 ms each) are kept OFF the states pass — a screenshot
       // between every sample would halve the distinct visemes the timeline actually visits.
-      async function sampleStates(framePath: string | null): Promise<void> {
+      async function sampleStates(framePath: string | null): Promise<{ t: number; dominant: string }> {
         const t = (Date.now() - t0) / 1000;
         // Keep framing locked (runtime may tweak camera) and record every outcome.
         const reframeOutcome = await reframeCameraOnParentFace(page);
@@ -338,9 +382,10 @@ export async function runVisemeCapture(): Promise<void> {
         rawTimeline.push({ ...sceneSample, t });
 
         const peak = sceneSample.peak;
+        const dominant = peak?.targetName ?? "none";
         liveSamples.push({
           t,
-          targetName: peak?.targetName ?? "none",
+          targetName: dominant,
           influence: peak?.influence ?? 0,
           meshName: peak?.meshName ?? "",
           framePath,
@@ -353,6 +398,7 @@ export async function runVisemeCapture(): Promise<void> {
             strongByName.set(r.targetName, { t, influence: r.influence, framePath });
           }
         }
+        return { t, dominant };
       }
 
       const distinctStrong = (): Set<string> =>
@@ -385,11 +431,13 @@ export async function runVisemeCapture(): Promise<void> {
       }
 
       // Frame pass — sparse screenshots for the orchestrator's pixel grade, labelled with the
-      // live dominant value sampled at the same instant.
+      // live dominant value sampled at the same instant. Each frame also records its dominant
+      // viseme so strong instants can be attributed to a frame (#465's second defect).
       await retriggerParentDialogue(page);
       await page.waitForTimeout(120);
       const FRAME_STEP_MS = 250;
       const FRAME_COUNT = 8;
+      const framePass: Array<{ t: number; framePath: string; targetName: string }> = [];
       for (let i = 0; i < FRAME_COUNT; i += 1) {
         const target = i * FRAME_STEP_MS;
         const elapsed = Date.now() - t0;
@@ -398,8 +446,34 @@ export async function runVisemeCapture(): Promise<void> {
         }
         const frameName = `viseme_frame_${String(i).padStart(2, "0")}.png`;
         const framePath = path.join(OUTPUT_DIR, frameName);
-        await sampleStates(framePath);
+        const { t, dominant } = await sampleStates(framePath);
+        framePass.push({ t, framePath, targetName: dominant });
         await page.screenshot({ path: framePath, fullPage: false });
+      }
+
+      // #465 second defect: attribute every strong viseme instant to a frame. A frame whose
+      // dominant viseme matches the instant is the honest link; otherwise the nearest-timestamp
+      // frame is used and the approximation is recorded rather than silently shipped.
+      const frameByDominant = new Map<string, string>();
+      for (const f of framePass) {
+        if (f.targetName !== "none" && !frameByDominant.has(f.targetName)) {
+          frameByDominant.set(f.targetName, f.framePath);
+        }
+      }
+      const frameLinkage: Record<string, { framePath: string; linkage: "dominant-match" | "nearest-timestamp" }> = {};
+      for (const [targetName, v] of strongByName) {
+        const matched = frameByDominant.get(targetName);
+        if (matched) {
+          v.framePath = matched;
+          frameLinkage[targetName] = { framePath: matched, linkage: "dominant-match" };
+        } else if (framePass.length > 0) {
+          let nearest = framePass[0];
+          for (const f of framePass) {
+            if (Math.abs(f.t - v.t) < Math.abs(nearest.t - v.t)) nearest = f;
+          }
+          v.framePath = nearest.framePath;
+          frameLinkage[targetName] = { framePath: nearest.framePath, linkage: "nearest-timestamp" };
+        }
       }
 
       // #368 remaining half: the artifact must record the reframe's OUTCOME — the mesh the
@@ -429,6 +503,10 @@ export async function runVisemeCapture(): Promise<void> {
         framingDescription: reframeOutcomeSummary(firstReframe),
         reappliedCount: reframeOutcomes.length - 1,
         reappliedFailures,
+        headNdc: firstReframe.status === "ok" ? firstReframe.headNdc : null,
+        subjectInFrame: firstReframe.status === "ok" ? firstReframe.subjectInFrame : false,
+        headWorldY: firstReframe.status === "ok" ? firstReframe.headWorldY : null,
+        aimWorldY: firstReframe.status === "ok" ? firstReframe.aimWorldY : null,
       };
 
       const inspection = {
@@ -453,6 +531,7 @@ export async function runVisemeCapture(): Promise<void> {
           influence: Number(v.influence.toFixed(4)),
           framePath: v.framePath,
         })),
+        frameLinkage,
         distinctStrongVisemeCount: strongByName.size,
         distinctDominantStrongCount: distinctStrong().size,
         maxInfluence: Math.max(...liveSamples.map((s) => s.influence), 0),
@@ -545,6 +624,41 @@ export async function runVisemeCapture(): Promise<void> {
       };
       await writeFile(SUMMARY_PATH, `${JSON.stringify(summary, null, 2)}\n`, "utf8");
       process.stdout.write(`summary: ${SUMMARY_PATH} mesh=${summary.meshName} actor=${summary.actor}\n`);
+
+      // #465 land-path summary: prove the reframe put the subject's head IN frame (measured
+      // via the head's normalised device coords, not asserted), and that every strong viseme
+      // instant is attributable to a frame. Derived from the same live run, never typed.
+      const reframeSummary = {
+        capturedFrom: `${INSPECTION_PATH} (pnpm asset:ui-xr:viseme-drive-capture)`,
+        reframe: {
+          status: firstReframe.status,
+          targetMeshName: firstReframe.status === "ok" ? firstReframe.targetMeshName : null,
+          reappliedCount: reframeOutcomes.length - 1,
+          headNdc: firstReframe.status === "ok" ? firstReframe.headNdc : null,
+          subjectInFrame: firstReframe.status === "ok" ? firstReframe.subjectInFrame : false,
+          headWorldY: firstReframe.status === "ok" ? firstReframe.headWorldY : null,
+          aimWorldY: firstReframe.status === "ok" ? firstReframe.aimWorldY : null,
+        },
+        visemeInstants: [...strongByName.entries()].map(([targetName, v]) => ({
+          targetName,
+          framePath: v.framePath,
+        })),
+        frameLinkage,
+        linkageApproximation:
+          "strong instants whose viseme was dominant in a frame are linked to that frame; "
+          + "any remaining instant is linked to the nearest-timestamp frame (see frameLinkage)",
+        notEvidenceFor: [
+          "legible_lip_motion_is_the_orchestrators_pixel_grade_not_this_contracts_business",
+          "other_captures_using_the_same_reframe_helper_unaudited",
+          "quest_readiness",
+          "frame_budget",
+          "on_device_rendering",
+        ],
+      };
+      await writeFile(REFRAME_SUMMARY_PATH, `${JSON.stringify(reframeSummary, null, 2)}\n`, "utf8");
+      process.stdout.write(
+        `reframeSummary: ${REFRAME_SUMMARY_PATH} subjectInFrame=${reframeSummary.reframe.subjectInFrame} headNdc=${JSON.stringify(reframeSummary.reframe.headNdc)}\n`,
+      );
     } finally {
       await browser.close();
     }

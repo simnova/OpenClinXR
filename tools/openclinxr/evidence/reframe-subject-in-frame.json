@@ -1,0 +1,59 @@
+{
+  "capturedFrom": ".openclinxr/evidence/viseme-drive-2026-08-06/inspection.json (pnpm asset:ui-xr:viseme-drive-capture)",
+  "reframe": {
+    "status": "ok",
+    "targetMeshName": "mpfb_ob_patient_aisha_body_1",
+    "reappliedCount": 88,
+    "headNdc": {
+      "x": 1.838107430113698e-15,
+      "y": 0.22111737477854373
+    },
+    "subjectInFrame": true,
+    "headWorldY": 1.7972653463887789,
+    "aimWorldY": 1.7572653463887788
+  },
+  "visemeInstants": [
+    {
+      "targetName": "viseme_TH",
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_00.png"
+    },
+    {
+      "targetName": "viseme_sil",
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_01.png"
+    },
+    {
+      "targetName": "viseme_E",
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_00.png"
+    },
+    {
+      "targetName": "viseme_aa",
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_00.png"
+    }
+  ],
+  "frameLinkage": {
+    "viseme_TH": {
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_00.png",
+      "linkage": "nearest-timestamp"
+    },
+    "viseme_sil": {
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_01.png",
+      "linkage": "dominant-match"
+    },
+    "viseme_E": {
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_00.png",
+      "linkage": "nearest-timestamp"
+    },
+    "viseme_aa": {
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_00.png",
+      "linkage": "nearest-timestamp"
+    }
+  },
+  "linkageApproximation": "strong instants whose viseme was dominant in a frame are linked to that frame; any remaining instant is linked to the nearest-timestamp frame (see frameLinkage)",
+  "notEvidenceFor": [
+    "legible_lip_motion_is_the_orchestrators_pixel_grade_not_this_contracts_business",
+    "other_captures_using_the_same_reframe_helper_unaudited",
+    "quest_readiness",
+    "frame_budget",
+    "on_device_rendering"
+  ]
+}
