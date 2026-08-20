@@ -51,9 +51,36 @@ function lastDispatchFor(slice: string): Record<string, unknown> | null {
   return {
     slice, sessionId: last.sessionId ?? null, proofsOk: last.proofsOk ?? null,
     role: last.role ?? null, model: last.model ?? null, turns: last.turns ?? null,
-    // #480 review: a ZERO here on a >70-turn slice is the signal that the third tier went unused.
-    subagentCount: 0,
+    // A ZERO here on a long slice is the signal that the third tier went unused — but ONLY if it was
+    // actually measured. The first version hardcoded 0, which the lead correctly called a lie: a zero
+    // you cannot distinguish from "not measured" is worse than an absent field. Counted from the
+    // session transcript; null when the transcript cannot be found.
+    subagentCount: countSubagentSpawns(String(last.sessionId ?? "")),
   };
+}
+
+/**
+ * Spawns the worker made, counted from its own transcript. Returns null — never 0 — when the
+ * transcript is missing, so "unused" and "unmeasured" stay distinguishable.
+ */
+function countSubagentSpawns(sessionId: string): number | null {
+  if (!sessionId) return null;
+  let dirs: string[] = [];
+  try {
+    dirs = execFileSync("find", [join(process.env.HOME ?? "", ".grok/sessions"), "-type", "d",
+      "-name", sessionId, "-maxdepth", "2"], { encoding: "utf8" }).split("\n").filter(Boolean);
+  } catch { return null; }
+  const dir = dirs[0];
+  if (!dir) return null;
+  try {
+    const log = readFileSync(join(dir, "updates.jsonl"), "utf8");
+    // Match the tool NAME FIELD, never a bare string. The injected role charter names
+    // `spawn_subagent` in prose, so a substring count returns 1 for a worker that spawned nothing —
+    // measured on issue-479: 1 string hit, 0 real invocations. That is a measured lie, which is
+    // worse than the hardcoded 0 it replaced because it looks like evidence.
+    const compact = log.replace(/\s+/g, "");
+    return (compact.match(/"(?:name|tool|tool_name)":"spawn_subagent"/g) ?? []).length;
+  } catch { return null; }
 }
 
 export async function buildCampaignTrack(campaignIssue: number, lanes: Lane[], lastSlice: string) {
