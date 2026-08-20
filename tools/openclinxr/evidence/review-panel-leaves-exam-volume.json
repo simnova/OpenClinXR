@@ -1,0 +1,31 @@
+{
+  "capturedFrom": ".openclinxr/evidence/viseme-drive-2026-08-06/inspection.json (pnpm asset:ui-xr:viseme-drive-capture)",
+  "queryUsed": "?openclinxrScenarioId=peds_asthma_parent_anxiety_v1&openclinxrCaptureMode=face-detail&openclinxrAcceleratedExam=1",
+  "side": "dynamic_encounter_world",
+  "portalInteriorHiddenObjectNames": [
+    "openclinxr.reusable-pre-encounter-anteroom.floor",
+    "openclinxr.reusable-pre-encounter-anteroom.portal-left-wall",
+    "openclinxr.reusable-pre-encounter-anteroom.portal-right-wall",
+    "openclinxr.reusable-pre-encounter-anteroom.portal-header-wall",
+    "openclinxr.peds_asthma_parent_anxiety_v1.encounter-portal-dynamic-opening",
+    "openclinxr.reusable-pre-encounter-anteroom.portal-left-jamb",
+    "openclinxr.reusable-pre-encounter-anteroom.portal-right-jamb",
+    "openclinxr.reusable-pre-encounter-anteroom.portal-lintel",
+    "openclinxr.peds_asthma_parent_anxiety_v1.encounter-portal-dynamic-threshold",
+    "openclinxr.reusable-pre-encounter-anteroom.patient-note-capture-cue",
+    "openclinxr.peds_asthma_parent_anxiety_v1.scenario-expectation-visual-review-panel"
+  ],
+  "panelPresentOutsideEncounter": true,
+  "subjectVisible": false,
+  "firstHitMeshName": "kitchen_00exterior",
+  "visemeInfluences": [
+    {
+      "drivenTargetName": "viseme_sil",
+      "influence": 1
+    },
+    {
+      "drivenTargetName": "viseme_TH",
+      "influence": 1
+    }
+  ]
+}

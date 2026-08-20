@@ -3216,6 +3216,7 @@ function updateReusableExteriorAnteroomVisibility(side: PortalTransitionEvidence
       || object.name.includes("encounter-portal-dynamic-threshold")
       || object.name.includes("encounter-portal-dynamic-opening")
       || object.name.endsWith(".floor")
+      || object.userData.openClinXrPortalInteriorReviewAffordance === true
     ) {
       object.visible = !insideDynamicEncounter;
       object.userData.openClinXrPortalInteriorVisibilityPolicy =
@@ -5042,7 +5043,14 @@ function addScenarioExpectationPanel(scene: Scene, stationContext: ReturnType<ty
   scenarioPanel.mesh.rotation.y = 0.12;
   scenarioPanel.mesh.userData.openClinXrMultimodalReviewCue =
     "scenario_expectations_visible_inside_3d_scene_for_adversarial_visual_comparison";
-  scene.add(scenarioPanel.mesh);
+  // Review affordance belongs to the reusable pre-encounter volume, not the learner exam volume;
+  // the portal hider hides it on entry by this group-membership marker, not its name (#468).
+  scenarioPanel.mesh.userData.openClinXrPortalInteriorReviewAffordance = true;
+  if (reusableExteriorAnteroom) {
+    reusableExteriorAnteroom.add(scenarioPanel.mesh);
+  } else {
+    scene.add(scenarioPanel.mesh);
+  }
 }
 
 function addScenarioSpecificPatientCue(humanoid: Group, actorId: string): void {

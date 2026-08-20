@@ -71,6 +71,28 @@ import { describe, expect, it } from "vitest";
  *   - That a human finds the resulting frame legible. This proves the head is the first hit, not that
  *     twelve remaining visemes read correctly to an eye. That grade is still owed.
  *   - Quest, clinical validity, exam equivalence.
+ *
+ * ## FIXED (#468) — the panel is under live-`side` governance
+ *
+ * The panel is re-parented from `scene` into `reusableExteriorAnteroom` and marked
+ * `openClinXrPortalInteriorReviewAffordance = true`; `updateReusableExteriorAnteroomVisibility`
+ * hides it by that group-membership marker (NOT by adding its name to the name filter, which
+ * clause (7) forbids). The capture crosses by locomotion (no `openclinxrPortalStart`) and reads
+ * `window.__openClinXrPortalTransitionEvidence` live. Clauses (1)(4)(5) are green.
+ *
+ * TWO RESIDUALS REMAIN RED AND ARE OUT OF SCOPE FOR THIS SLICE:
+ *   (2) the camera->head ray is aimed at the crown apex (localHeadY = geometry bbMax.y), a
+ *       tangential graze that misses the head; the raycast therefore reports the first SIMPLE
+ *       mesh behind the head — the room's `kitchen_00exterior` hull at 4.42 m — never the head
+ *       itself (0.71 m). Hiding the panel is correct and necessary, but it does not make
+ *       subjectVisible true; the raycast's subject-visible verdict is blind to the head for any
+ *       camera aiming at the crown. The "the raycast is sound" premise is false for the
+ *       subject-visible half of the verdict.
+ *   (3) the current parent dialogue phonemes are ARPAbet `AH`, which `resolveVisemeTarget` does
+ *       not alias to `viseme_aa` (only lowercase `a` -> `AA` -> `viseme_aa`); the mixer drives
+ *       `viseme_sil` + `viseme_TH` at influence 1, not `viseme_aa`. The committed parent summary
+ *       that listed `viseme_aa` is stale against current dialogue. Pre-existing, unrelated to the
+ *       panel change.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -103,7 +125,7 @@ function summary(): Summary {
 }
 
 describe("the adversarial review panel leaves the learner exam volume", () => {
-  it.fails("(1) RED: a live crossing hides the review panel", () => {
+  it("(1) GREEN: a live crossing hides the review panel", () => {
     const s = summary();
     expect(s.side, "must be a real crossing, not a preview").toBe("dynamic_encounter_world");
     expect(
@@ -130,7 +152,7 @@ describe("the adversarial review panel leaves the learner exam volume", () => {
     }
   });
 
-  it.fails("(4) COUNTERWEIGHT: not satisfiable by a URL parameter", () => {
+  it("(4) GREEN: not satisfiable by a URL parameter", () => {
     // Refuses spec 2, the vacuous one. selectedPortalPreviewStart() returns null with no param and
     // the harness already sends openclinxrPortalStart=encounter, so any fix keyed on the preview
     // would pass while a default learner still faces the billboard.
@@ -141,7 +163,7 @@ describe("the adversarial review panel leaves the learner exam volume", () => {
     ).not.toContain("openclinxrPortalStart");
   });
 
-  it.fails("(5) COUNTERWEIGHT: the panel survives outside the exam volume", () => {
+  it("(5) GREEN: the panel survives outside the exam volume", () => {
     // Deleting the panel is the cheap fix and is refused. It is a legitimate review affordance; the
     // finding is that it is in the wrong VOLUME, not that it should not exist.
     const s = summary();
