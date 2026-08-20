@@ -375,12 +375,23 @@ export function allowedGitignoredProofTargets(repoRoot: string, slice: string): 
 }
 
 /**
- * The markers the worker status directive (worker-directives.ts) tells a worker to put on its own
- * card: `UNABLE:`, a proof that cannot pass as written, and a `Factory: Dispatched|Landed` line.
- * A comment carrying any of them is the worker's voice. The orchestrator's close/resolution
- * comments ("**resolution**", CLAIM/NOT TESTED) do not match.
+ * Worker-voice markers (worker-directives.ts): `UNABLE:` and a proof that cannot pass as written
+ * are the #448 failure reports the gate exists to surface, and `Factory: Dispatched` is the
+ * worker's own dispatch status line (integrate.test.ts). `Factory: Landed` is deliberately NOT a
+ * marker — it is the board FIELD write that fires when a card changes stage, and a stage change
+ * says nothing about whether anyone reported (issue #484).
  */
-const WORKER_REPORT_MARKERS = /(UNABLE:|Factory:|cannot pass)/i;
+const WORKER_REPORT_MARKERS = /(UNABLE:|cannot pass|Factory: Dispatched)/i;
+
+/**
+ * The dispatch contract's report skeleton: IN-SCOPE:, OUT-OF-SCOPE:, CLAIM: and NOT TESTED: in
+ * one comment. Recognising the full skeleton is what lets a clean slice's report satisfy the
+ * gate — the #483 case — while the orchestrator's own close comments stay refused: they can
+ * carry a CLAIM:/NOT TESTED: pair (the #441-#446 state), so two sections alone are deliberately
+ * insufficient.
+ */
+const WORKER_REPORT_SECTIONS = [/IN-SCOPE:/i, /OUT-OF-SCOPE:/i, /CLAIM:/i, /NOT TESTED:/i];
+const isWorkerReport = (body: string): boolean => WORKER_REPORT_SECTIONS.every((r) => r.test(body));
 
 /**
  * ISSUE #448 — a landing whose worker never spoke is refused.
@@ -389,11 +400,13 @@ const WORKER_REPORT_MARKERS = /(UNABLE:|Factory:|cannot pass)/i;
  * orchestrator's and #447 had none. integrate() never looked at the issue, so silence was
  * invisible. The stricter reading of "the worker spoke" is implemented as: a comment authored by
  * a login OTHER than the orchestrator's (the moment a worker account exists, that clause binds),
- * OR a comment body matching the worker directive's report markers. Under the current
- * single-account setup (everything runs as one login) the author clause is inoperative, so the
- * operative clause is the marker match — which still refuses the orchestrator-only state of
- * #441-#446 and is strictly stronger than "any comment at all". Slices with no board card have
- * nothing to check and pass with a recorded warning.
+ * OR a comment body carrying the worker directive's markers (UNABLE: / "cannot pass" /
+ * "Factory: Dispatched") OR the IN-SCOPE/OUT-OF-SCOPE/CLAIM/NOT TESTED report skeleton (issue
+ * #484 — a clean slice's report contains no failure keyword). Under the current single-account
+ * setup (everything runs as one login) the author clause is inoperative, so the operative clauses
+ * are the marker match and the report skeleton — which still refuse the orchestrator-only state
+ * of #441-#446 and are strictly stronger than "any comment at all". Slices with no board card
+ * have nothing to check and pass with a recorded warning.
  */
 export function assertWorkerReported(
   repoRoot: string,
@@ -425,7 +438,8 @@ export function assertWorkerReported(
   const workerSpoke = comments.some(
     (comment) =>
       (comment.author?.login !== undefined && comment.author.login !== orchestratorLogin)
-      || WORKER_REPORT_MARKERS.test(comment.body ?? ""),
+      || WORKER_REPORT_MARKERS.test(comment.body ?? "")
+      || isWorkerReport(comment.body ?? ""),
   );
   if (workerSpoke) return null;
 
@@ -438,7 +452,9 @@ export function assertWorkerReported(
         file: `https://github.com/${repo}/issues/${issueNumber}`,
         excerpt:
           `${comments.length} comment(s); none carry a worker report marker `
-          + `(UNABLE: / "cannot pass" / "Factory:") and none are authored outside ${orchestratorLogin}`,
+          + `(UNABLE: / "cannot pass" / "Factory: Dispatched") or the `
+          + `IN-SCOPE/OUT-OF-SCOPE/CLAIM/NOT TESTED report skeleton, and none are authored `
+          + `outside ${orchestratorLogin}`,
       },
     ],
     reason:

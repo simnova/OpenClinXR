@@ -73,6 +73,41 @@ import { assertWorkerReported } from "../openclaw/integrate.js";
  *   - Whether `Factory:` should be removed from the marker set ENTIRELY, or merely stop counting on
  *     its own. Clause (3b) requires the latter and says nothing about the former.
  *   - Any other merge-kill finding. This bounds `assertWorkerReported` only.
+ *
+ * ## FIXED (#484)
+ *
+ * The gate now recognises report structure, not only failure keywords:
+ *
+ *   integrate.ts  WORKER_REPORT_MARKERS = /(UNABLE:|cannot pass|Factory: Dispatched)/i;
+ *                 WORKER_REPORT_SECTIONS = [/IN-SCOPE:/i, /OUT-OF-SCOPE:/i, /CLAIM:/i, /NOT TESTED:/i]
+ *                 workerSpoke = author-branch || MARKERS || all four sections in one comment
+ *
+ * `Factory:` was narrowed to `Factory: Dispatched`. The board FIELD write "Factory: Landed" is no
+ * longer a marker (clause 3b above), while the worker's own dispatch status line stays one — the
+ * existing #448 suite (integrate.test.ts:315/334) lands on "Factory: Dispatched — work complete,
+ * proofs green", so removing it entirely would break a green land path.
+ *
+ * DEVIATION from the candidate fix, named at discovery: "a comment carrying both CLAIM: and
+ * NOT TESTED:" was probed FIRST and FAILS the existing suite. integrate.test.ts:287 (the
+ * #441-#446 refusal) uses an orchestrator close comment "CLAIM: wired. NOT TESTED: nothing."
+ * and requires it to be REFUSED — the orchestrator's own close comments can carry that pair. The
+ * discriminator is therefore the FULL four-section skeleton (IN-SCOPE: + OUT-OF-SCOPE: + CLAIM: +
+ * NOT TESTED:), which the worker's dispatch contract produces and bookkeeping does not.
+ *
+ * Matrix after the fix (planted contract + existing integrate.test.ts):
+ *
+ *   planted (1)  WORKER_REPORT (full skeleton)          -> spoke      (structure)
+ *   planted (2)  WORKER_UNABLE                          -> spoke      (UNABLE: marker)
+ *   planted (3)  orchestrator bookkeeping               -> refused
+ *   planted (3b) "Factory: Landed" + bookkeeping        -> refused    ("Factory: Landed" not a marker)
+ *   planted (4)  empty card                             -> refused
+ *   itest :287   "CLAIM: wired. NOT TESTED: nothing."   -> refused    (two sections insufficient)
+ *   itest :315   "Factory: Dispatched — work complete, proofs green" -> spoke (dispatch status line)
+ *   itest :334   "Factory: Dispatched"                  -> spoke      (dispatch status line)
+ *
+ * NOT TESTED (unchanged, restated): whether `Factory:` leaves the marker set ENTIRELY (removing
+ * it would break integrate.test.ts:315/334 as written); whether a separate worker identity should
+ * exist. Both remain open.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -111,7 +146,7 @@ function gateVerdict(comments: string[]): "spoke" | "never-spoke" {
 }
 
 describe("the worker-comment gate recognises a report, not a failure keyword", () => {
-  it.fails("(1) RED: a clean worker report satisfies the gate", () => {
+  it("(1) RED→FIXED: a clean worker report satisfies the gate", () => {
     // Measured on #483: this exact report is refused today, because a clean slice contains no
     // UNABLE:, no "cannot pass" and no "Factory:".
     expect(
@@ -136,7 +171,7 @@ describe("the worker-comment gate recognises a report, not a failure keyword", (
     ).toBe("never-spoke");
   });
 
-  it.fails("(3b) RED: a board-stage marker alone does not count as a worker report", () => {
+  it("(3b) RED→FIXED: a board-stage marker alone does not count as a worker report", () => {
     // SPLIT OUT OF (3) AFTER THE PLANT RUN, and the split is the #227 lesson landing on me: I wrote
     // this as a counterweight and it FAILED, because `Factory: Landed` matches the marker regex
     // today. It is a second RED, not a net, and mislabelling it would have hidden a real defect
