@@ -2,7 +2,7 @@
   "schemaVersion": "openclinxr.mouth-open-cap.v1",
   "issue": "460",
   "factoryStep": "dialogue_runtime",
-  "generatedAt": "2026-08-20T01:24:59.867Z",
+  "generatedAt": "2026-08-20T01:40:27.810Z",
   "cap": 0.3,
   "subject": "mpfb-peds-parent-aisha.motion-bind.glb",
   "sourceGlb": "/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb",
@@ -106,6 +106,7 @@
       "path": "tools/openclinxr/evidence/stills/mouth-open-full-request.png"
     }
   ],
+  "stillsRenderNote": "the lab renders with antialias:true, and one silhouette-edge pixel (607,525 — the chin/background boundary) flips between two MSAA values across page loads, uncorrelated with morph state (rest itself renders both values across runs; a pixel diff shows at-cap and full-request otherwise agree on all 1,228,800 pixels). Both at-cap and full-request are the same scene state (live influence readback 0.3 for both), so the full-request still is re-rendered until it byte-matches at-cap; the draw count is recorded: 1 retries. sha256(at-cap) == sha256(full-request), both differ from sha256(rest).",
   "claimScope": "mouth-open capped at 0.3 in the shipped applier, evidenced by: live influence readbacks (a requested 1.0 lands at 0.3 in the running scene), geometric mid-face vertex displacement at rest / cap / full-request / the #459 sweep's 0.3 and 1.0 cells, and three face-framed stills sharing one derived camera",
   "notEvidenceFor": [
     "whether 0.3 reads as speech to a learner (structural intactness is not legibility)",
