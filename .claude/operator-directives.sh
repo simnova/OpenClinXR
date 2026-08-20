@@ -52,12 +52,21 @@ BEFORE WRITING ANY CAPTURE LINE IN A done_when, answer this (D3/D4):
 BEFORE ANY DISPATCH, answer these three IN WRITING (not in your head):
   1. Which directive does this slice serve?
   2. Which does it violate? "None" must be defended, not assumed.
-  3. Am I choosing this because it is RIGHT, or because I already know the file and the fix?
+  3. Whose lane is this, and what does the registry say that role runs on? Role from the PORTFOLIO
+     table, model from role-harness-policy. Unenforced: nothing checks role-against-lane, so
+     picking asset-pipeline-lead over xr-systems-architect for a wardrobe slice is still only your
+     judgement. dispatch() will catch a wrong MODEL; it cannot catch a wrong ROLE.
+  4. Am I choosing this because it is RIGHT, or because I already know the file and the fix?
      The measured failure mode is CYCLE-CERTAINTY MAXIMISATION — picking whatever most likely yields
      a green report this cycle. Wiring a PROVEN-BUT-UNCONSUMED component beats proving a new one.
 
 MECHANICALLY ENFORCED: board-brief.ts refuses any issue lacking `## factory_step: <enum>`, refuses
 `instrument` without `unblocks: <step>`, and refuses a clothing slice naming no tool path.
+  dispatch() resolves --model from the ROLE's harness policy and THROWS on a tier downgrade unless
+  you pass modelDowngradeReason (#461). It is a RANK: fast_bounded/expert_review roles keep flash
+  with no ceremony; a standard_execution role on flash is refused. Roleless stays flash-first.
+  Why this became a throw: five consecutive write slices ran xr-systems-architect on flash because
+  the default ignored the role. Nothing warned. Intention was the only guard and it lost 5/5.
 
 THE TEST THE OPERATOR IS APPLYING: of the next five landed slices, do >=3 move a pipeline station
 from LLM-authored to deterministic? If >=3 are instead another asset-class fix, the stated diagnosis
