@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "openclinxr.parent-visemes02.v1",
+  "issue": "462",
+  "factoryStep": "clothing_generate",
+  "generatedAt": "2026-08-20T02:13:37.054Z",
+  "target": "viseme_aa",
+  "subject": "mpfb-peds-parent-aisha.glb",
+  "sourceGlb": "/generated-humanoids/mpfb-peds-parent-aisha.glb",
+  "sourceGlbSha256": "52e4b8b8abe9d7133f667d6995dd81f778ac9f4e6b6c1e2520312d208ccad248",
+  "appliedThrough": "apps/ui-xr/src/viseme-morph-apply.ts applyVisemeWeights — resolved name 'viseme_aa' at full 1.0 (identity-first on the REAL viseme target, not the FACS mouth-open alias, so #460's 0.3 cap does not apply)",
+  "caseResolution": {
+    "bakedName": "viseme_aa",
+    "runtimeToken": "AA",
+    "measured": "resolveVisemeTarget('AA', [viseme_aa,...]) === 'viseme_aa' (viseme-timeline-drive.ts, case-insensitive); resolveMorphTarget('viseme_aa', names) === 'viseme_aa' (identity-first). No rename needed on either side."
+  },
+  "states": [
+    {
+      "stateId": "rest",
+      "influence": 0,
+      "targetIndex": 32,
+      "appliedMeshes": 8,
+      "otherMax": 0,
+      "influenceCount": 47
+    },
+    {
+      "stateId": "aa-full",
+      "influence": 1,
+      "targetIndex": 32,
+      "appliedMeshes": 8,
+      "otherMax": 0,
+      "influenceCount": 47
+    }
+  ],
+  "stills": [
+    {
+      "stateId": "rest",
+      "path": "tools/openclinxr/evidence/stills/parent-visemes02-rest.png"
+    },
+    {
+      "stateId": "aa-full",
+      "path": "tools/openclinxr/evidence/stills/parent-visemes02-aa-full.png"
+    }
+  ],
+  "claimScope": "the shipped peds parent now carries the 15 visemes02 targets and the shipped applier drives viseme_aa at full 1.0 in the running scene (live influence readback), evidenced by two face-framed isolated stills sharing one derived camera",
+  "notEvidenceFor": [
+    "whether AA@1.0 on the real viseme spares the mid-face (the superagent grades the stills)",
+    "the runtime mixer or dialogue timing",
+    "other actors, Quest, frame budget",
+    "clinical validity",
+    "scoring validity"
+  ]
+}
