@@ -77,6 +77,14 @@ import { describe, expect, it } from "vitest";
  *     nobody with authority called it a blocker; I had invented that precondition and withdrew it.
  *   - Whether the seven SHOULD all share one body. They share one today; L6 owns that question.
  *   - Runtime skinning, seated or supine posture, Quest, or any clinical claim.
+ *
+ * ## FIXED (#490)
+ *
+ * `bake_mpfb_gown_inspect.py` was re-run with only `--output-glb` overridden to
+ * `mpfb-gown-adult-patient.glb` (default input `mpfb-viseme-inspect.glb`, the same base the proven
+ * pixel-graded inspect subject was baked from — D1: gown builder reused, no authored geometry).
+ * The new GLB is declared by `MPFB_GOWN_ADULT_PATIENT_GLB` in cast-asset-constants.ts and is NOT
+ * wired into any pool — L6 owns the recast. Clause (1) flipped `it.fails` -> `it`.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -158,7 +166,7 @@ async function castEligibleGownedPatients(): Promise<Shape[]> {
 }
 
 describe("a cast-eligible gowned MPFB adult patient exists", () => {
-  it.fails("(1) RED: a DECLARED gowned patient asset ships on the MPFB rail", async () => {
+  it("(1) a DECLARED gowned patient asset ships on the MPFB rail", async () => {
     const found = await castEligibleGownedPatients();
     expect(
       found.map((s) => s.file),
