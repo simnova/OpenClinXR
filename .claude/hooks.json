@@ -80,15 +80,6 @@
             "timeout": 15
           }
         ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "if [ \"${OPENCLINXR_WORKER:-0}\" = \"1\" ] || [ \"${OPENCLINXR_WORKER:-}\" = \"true\" ] || [ -n \"${GROK_SUBAGENT:-}\" ]; then exit 0; fi; pnpm grok:hook -- pre-compact 2>/dev/null || pnpm codex:hook -- pre-compact",
-            "timeout": 10
-          }
-        ]
       }
     ],
     "SessionStart": [
