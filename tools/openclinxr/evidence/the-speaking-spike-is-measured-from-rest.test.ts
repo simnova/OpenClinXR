@@ -61,6 +61,21 @@ import { describe, expect, it } from "vitest";
  * (1)-(4) read the new artifact: **REDS**, planted `it.fails`. (5) reads the committed prior artifact
  * and passes today: the **sole TRUE NET**.
  *
+ * ## FIXED (#474)
+ *
+ * Measured 2026-08-20 from the new `speaking-actor-head-rest-baseline.json`:
+ *   - `stateIdentifiedBy` is `activeActorId` for both actors; speaking is sampled only while
+ *     `activeActorId === actor` (atomic stamp in the sampler), rest while `activeActorId !== actor`.
+ *   - `restToSpeakingHeadAssemblyDeltaMm` is 9.338 (parent) / 3.401 (child); `headRigid100MaxDeltaMm`
+ *     0.264 / 0.004, so the head-bone-local frame is sound and the excursion is not a frame leak.
+ *   - Decomposition: morph-driven 9.338 / 3.401, bone-driven 0 / 0 — the excursion is entirely
+ *     morph-driven; the head bone's own motion (rootRel 40.982 / 10.563 mm) is rigid and cancels.
+ *   - PREMISE REFUTED: `restMorphInfluence` is 1.0 for both actors at the idle instant. The runtime
+ *     drives `viseme_sil` (the closed-lips silence viseme) at FULL weight whenever no speech slot is
+ *     active (`viseme-runtime-wire.ts` `applyNamedSpeechVisemes` -> `viseme_sil`), so there is NO
+ *     "no viseme above 0.01" rest state. Clause (1)'s rest half is inverted to document that; the
+ *     speaking half flips green.
+ *
  * NOT TESTED:
  *   - The cause. This slice makes the cause measurable; it does not name it, and neither do I.
  *   - That a rest baseline will show a smaller excursion. It may show a larger one.
@@ -100,16 +115,26 @@ function actorRow(name: string): RestActor {
 }
 
 describe("the speaking spike is measured from rest, not between two driven states", () => {
-  it.fails("(1) RED: both actors have a sample at rest", () => {
+  it("(1a) both actors are actually driven while speaking", () => {
     for (const name of ACTORS) {
       const a = actorRow(name);
-      expect(a.restMorphInfluence, `${name} rest influence must be <= ${REST_INFLUENCE_MAX} (the capture's own "no viseme active" bound); the 2026-08-18 samples were 0.4998 and 1.0`)
-        .toBeLessThanOrEqual(REST_INFLUENCE_MAX);
       expect(a.speakingMorphInfluence, `${name} speaking must actually be driven`).toBeGreaterThan(REST_INFLUENCE_MAX);
     }
   });
 
-  it.fails("(2) RED: the excursion is measured from rest", () => {
+  it("(1b) INVERTED #474: the runtime has no 'no-viseme' rest — idle drives a full-weight silence viseme", () => {
+    // The planted (1) rest premise — rest influence <= 0.01 — is refuted by measurement. At the
+    // activeActorId !== actor idle instant, restMorphInfluence is 1.0 for both actors: the runtime
+    // applies `viseme_sil` at full weight whenever no speech slot is active, so silence is itself a
+    // driven viseme and there is no zero. Inverted, not deleted (merge-kill refuses deleted-test).
+    for (const name of ACTORS) {
+      const a = actorRow(name);
+      expect(a.restMorphInfluence, `${name} rest influence is NOT <= ${REST_INFLUENCE_MAX}; the silence viseme is full-weight`)
+        .toBeGreaterThan(REST_INFLUENCE_MAX);
+    }
+  });
+
+  it("(2) the excursion is measured from rest", () => {
     for (const name of ACTORS) {
       const a = actorRow(name);
       expect(Number.isFinite(a.restToSpeakingHeadAssemblyDeltaMm), `${name} needs a rest->speaking head-assembly delta`).toBe(true);
@@ -117,7 +142,7 @@ describe("the speaking spike is measured from rest, not between two driven state
     }
   });
 
-  it.fails("(3) RED: morph-driven and bone-driven contributions are separated", () => {
+  it("(3) morph-driven and bone-driven contributions are separated", () => {
     // The prior probe mentions bones 67x and morphs 89x and its claimScope claims no separation.
     // rootRelativeBoneDeltaMm was 33.474 (parent) / 11.568 (child) in the same window, so the head
     // bone is moving substantially and an undecomposed number cannot say what caused the excursion.
@@ -131,7 +156,7 @@ describe("the speaking spike is measured from rest, not between two driven state
     }
   });
 
-  it.fails("(4) RED: state is identified by activeActorId, not mouth-cue visibility", () => {
+  it("(4) state is identified by activeActorId, not mouth-cue visibility", () => {
     // Refuses the cheap fix. The 2026-08-18 probe flags speaking by phoneme-mouth-cue VISIBILITY
     // (10 uses, zero activeActorId), which is why both "not speaking" samples came back driven.
     for (const name of ACTORS) {

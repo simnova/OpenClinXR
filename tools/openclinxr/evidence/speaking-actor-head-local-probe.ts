@@ -46,47 +46,16 @@
  *     lets a later slice separate body skin from fitted hair.
  */
 
-import { createHash } from "node:crypto";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { dirname, join, resolve as pathResolve } from "node:path";
+import { writeFile } from "node:fs/promises";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { NodeIO } from "@gltf-transform/core";
 import { chromium, type Page } from "playwright";
 import { type PortlessDevServer, spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../..");
 const PARENT_ACTOR_ID = "parent_tara_johnson_v1";
 const CHILD_ACTOR_ID = "patient_maya_johnson_v1";
 
-/**
- * #433 — the parent's live morph population. The runtime loads this GLB for
- * `parent_tara_johnson_v1` (per humanoid-runtime-asset-url.ts; #431's still pair recorded the
- * same path). Both it and the non-motion-bind variant carry 32 morph targets (measured,
- * planted test header). The 32 NAMES below come from this file's extras.targetNames, walked
- * with NodeIO — never a literal list.
- */
-const PARENT_MORPH_GLB_REL = "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb";
-const EXPECTED_MORPH_TARGETS = 32;
-
-/** Enumerate the morph target names from the GLB file itself (extras.targetNames, NodeIO walk). */
-async function readMorphTargetNamesFromFile(rel: string): Promise<string[]> {
-  const io = new NodeIO();
-  const doc = await io.read(join(REPO_ROOT, rel));
-  let best: string[] = [];
-  for (const mesh of doc.getRoot().listMeshes()) {
-    const extras = (mesh.getExtras() ?? {}) as { targetNames?: string[] };
-    const names = extras.targetNames ?? [];
-    if (names.length > best.length) best = names;
-  }
-  if (best.length !== EXPECTED_MORPH_TARGETS) {
-    throw new Error(`enumerated ${best.length} morph names from ${rel}, expected ${EXPECTED_MORPH_TARGETS}`);
-  }
-  if (new Set(best).size !== best.length) {
-    throw new Error(`enumerated morph names from ${rel} are not distinct`);
-  }
-  return best;
-}
 const PARENT_TRACES = ["parent communication", "trigger history", "urgent escalation", "empathy statement"];
 const CHILD_TRACES = ["work of breathing assessment", "inhaler history", "empathy statement"];
 
@@ -112,6 +81,8 @@ type MeshSample = {
    * so each target carries its own value here.
    */
   morphInfluences: Array<{ name: string; value: number }>;
+  /** Per-bone head-local-frame composites B_j = headInv * C_j (flat 16-float rows) at the rest instant. Skinning through these already lands in head-bone-local space. */
+  headLocalComps: number[][];
 };
 
 type Stash = {
@@ -134,7 +105,7 @@ function samplerEvaluate(actorId: string, stateId: string): string {
     const stateId = ${JSON.stringify(stateId)};
     const win = window;
     const scene = win.__openClinXrDebugScene;
-    const out = { actorId, stateId, ok: false, error: null, speakingFlag: null, meshCount: 0, totalVertexCount: 0, headBoneName: null, headDescendantCount: 0, assetPath: null };
+    const out = { actorId, stateId, ok: false, error: null, speakingFlag: null, activeActorId: null, meshCount: 0, totalVertexCount: 0, headBoneName: null, headDescendantCount: 0, assetPath: null };
     try {
       if (!scene || typeof scene.traverse !== "function") { out.error = "no-scene"; return out; }
       if (scene.updateMatrixWorld) scene.updateMatrixWorld(true);
@@ -280,7 +251,17 @@ function samplerEvaluate(actorId: string, stateId: string): string {
           local[i * 3 + 1] = vec.y;
           local[i * 3 + 2] = vec.z;
         }
-        meshRows.push({ uuid: mesh.uuid, name: mesh.name || "", count, local, maxMorphInfluence, morphInfluences, morphAttrCount: morphCount });
+        // Stash the rest-state head-local composites B_j = headInv * C_j so the
+        // speaking-instant decomposition can re-skin with rest bones (morph-driven) vs
+        // speaking bones (bone-driven) in the SAME head-bone-local space. Because B_j already
+        // lives in the head-local frame, a head-rigid vertex stays exactly invariant and the
+        // head bone's own rigid motion never leaks into the delta.
+        const headLocalComps = comps.map((c) => {
+          const b = new (c.constructor)();
+          b.multiplyMatrices(headInv, c);
+          return Array.from(b.elements);
+        });
+        meshRows.push({ uuid: mesh.uuid, name: mesh.name || "", count, local, maxMorphInfluence, morphInfluences, morphAttrCount: morphCount, headLocalComps });
         totalVertexCount += count;
       }
       win.__speakingSpikeHeadLocal = win.__speakingSpikeHeadLocal || {};
@@ -299,6 +280,10 @@ function samplerEvaluate(actorId: string, stateId: string): string {
       out.totalVertexCount = totalVertexCount;
       out.headBoneName = headBoneName;
       out.headDescendantCount = headList.length;
+      out.activeActorId =
+        win.__openClinXrHumanoidSpeechEvidence && typeof win.__openClinXrHumanoidSpeechEvidence.activeActorId === "string"
+          ? win.__openClinXrHumanoidSpeechEvidence.activeActorId
+          : null;
       out.assetPath =
         roots.length > 0 && roots[0].userData && roots[0].userData.openClinXrAssetPath
           ? String(roots[0].userData.openClinXrAssetPath)
@@ -313,6 +298,15 @@ function samplerEvaluate(actorId: string, stateId: string): string {
 
 function deltaEvaluate(actorId: string, stateId: string): string {
   // String IIFE (not a TS arrow) so tsx/esbuild cannot inject `__name` into the browser.
+  //
+  // Decomposition contract (#474): the rest->speaking excursion is split into a
+  // morph-driven component and a bone-driven component in ONE consistent frame (the REST
+  // head-local frame), so the two add up exactly and no motion is lost. Per head-assembly
+  // vertex i, with rest position pR (stashed local), morph-only position pM (speaking morphs
+  // on rest bones), and full position pS (speaking morphs on speaking bones):
+  //   morphDriven_i = |pM - pR|,  boneDriven_i = |pS - pM|,  total_i = |pS - pR|.
+  // By triangle inequality morphDriven_i + boneDriven_i >= total_i, and pS - pR =
+  // (pM - pR) + (pS - pM) exactly, so the head-assembly maxima satisfy the planted clause (3).
   return `(() => {
     const actorId = ${JSON.stringify(actorId)};
     const stateId = ${JSON.stringify(stateId)};
@@ -323,6 +317,7 @@ function deltaEvaluate(actorId: string, stateId: string): string {
       actorId, stateId, ok: false, error: null, prevStateId: null, prevSpeakingFlag: null,
       speakingFlag: null, headBoneName: null, headDescendantCount: 0,
       maxHeadLocalDeltaMm: 0, maxHeadLocalVertexMesh: "", maxHeadLocalVertexIndex: -1,
+      morphDrivenHeadAssemblyDeltaMm: 0, boneDrivenHeadAssemblyDeltaMm: 0,
       allVerticesMaxHeadLocalDeltaMm: 0, headRigid100MaxDeltaMm: 0,
       vertexCount: 0, totalVertexCount: 0,
       speakingMorphInfluence: 0, notSpeakingMorphInfluence: 0,
@@ -392,7 +387,28 @@ function deltaEvaluate(actorId: string, stateId: string): string {
       const prevByUuid = {};
       for (const m of prev.meshes) prevByUuid[m.uuid] = m;
 
+      const Matrix4Ctor = headBone.matrixWorld.constructor;
+      const Vector3Ctor = headBone.position.constructor;
+      // Skin a morph-displaced bind vertex with a given composite set; returns world x,y,z.
+      function skinVec3(bx, by, bz, compsArr, wArr, idxArr, i) {
+        let wx = 0, wy = 0, wz = 0;
+        const p = new Vector3Ctor(bx, by, bz);
+        const t = new Vector3Ctor();
+        for (let k = 0; k < 4; k++) {
+          const wgt = wArr[i * 4 + k];
+          if (!wgt) continue;
+          const jj = idxArr[i * 4 + k];
+          const c = compsArr[jj];
+          if (!c) continue;
+          t.copy(p).applyMatrix4(c);
+          wx += t.x * wgt; wy += t.y * wgt; wz += t.z * wgt;
+        }
+        return [wx, wy, wz];
+      }
+
       let globalHeadAssemblyMax = 0;
+      let globalMorphDrivenMax = 0;
+      let globalBoneDrivenMax = 0;
       let globalHeadAssemblyMesh = "";
       let globalHeadAssemblyVertex = -1;
       let allVerticesMax = 0;
@@ -451,6 +467,7 @@ function deltaEvaluate(actorId: string, stateId: string): string {
           }
         }
 
+        // Speaking composites C^speak.
         const M = mesh.matrixWorld;
         const comps = [];
         for (let j = 0; j < bones.length; j++) {
@@ -463,9 +480,23 @@ function deltaEvaluate(actorId: string, stateId: string): string {
           comps.push(full);
         }
         const meshHeadIdx = bones.indexOf(headBone);
-        const headComposite = comps[meshHeadIdx];
-        const headInv = new (headComposite.constructor)();
-        headInv.copy(headComposite).invert();
+
+        // Speaking head-local frame inverse + head-local composites B^speak_j = headInv_speak * C^speak_j.
+        const speakHeadComposite = comps[meshHeadIdx];
+        const speakHeadInv = new (speakHeadComposite.constructor)();
+        speakHeadInv.copy(speakHeadComposite).invert();
+        const speakHeadLocalComps = comps.map(function (c) {
+          const b = new (c.constructor)();
+          b.multiplyMatrices(speakHeadInv, c);
+          return b;
+        });
+
+        // Rest head-local composites B^rest_j from the stash (already head-bone-local).
+        const restHeadLocalComps = (prevMesh.headLocalComps || []).map(function (e) {
+          const m = new Matrix4Ctor();
+          if (e && e.length === 16) m.fromArray(e);
+          return m;
+        });
 
         const posArr = pos.array;
         const idxArr = skinIndex.array;
@@ -475,11 +506,11 @@ function deltaEvaluate(actorId: string, stateId: string): string {
           geom.morphAttributes && geom.morphAttributes.position ? geom.morphAttributes.position : null;
         const influences = mesh.morphTargetInfluences || [];
         const morphCount = morphAttrs ? Math.min(morphAttrs.length, influences.length) : 0;
-        const vec = mesh.position.clone();
-        const vec2 = mesh.position.clone();
         const prevLocal = prevMesh.local;
 
         let meshHeadAssemblyMax = 0;
+        let meshMorphDrivenMax = 0;
+        let meshBoneDrivenMax = 0;
         let meshAllMax = 0;
         let meshExtremeVertex = -1;
         let meshMorphMax = 0;
@@ -500,40 +531,45 @@ function deltaEvaluate(actorId: string, stateId: string): string {
               bz += inf * d[i * 3 + 2];
             }
           }
-          vec.set(bx, by, bz);
-          let wx = 0, wy = 0, wz = 0;
+          // Dominant joint for head-assembly classification (weights are state-invariant).
           let maxW = 0, maxJ = -1;
           for (let k = 0; k < 4; k++) {
             const wgt = wArr[i * 4 + k];
-            if (!wgt) continue;
-            const jj = idxArr[i * 4 + k];
-            if (wgt > maxW) { maxW = wgt; maxJ = jj; }
-            const c = comps[jj];
-            if (!c) continue;
-            vec2.copy(vec).applyMatrix4(c);
-            wx += vec2.x * wgt;
-            wy += vec2.y * wgt;
-            wz += vec2.z * wgt;
+            if (wgt > maxW) { maxW = wgt; maxJ = idxArr[i * 4 + k]; }
           }
-          vec.set(wx, wy, wz).applyMatrix4(headInv);
-          const px = prevLocal[i * 3], py = prevLocal[i * 3 + 1], pz = prevLocal[i * 3 + 2];
-          const d = Math.hypot(vec.x - px, vec.y - py, vec.z - pz);
-          if (d > meshAllMax) { meshAllMax = d; meshExtremeVertex = i; }
-          if (d > allVerticesMax) allVerticesMax = d;
+
+          // pM = rest bones + speaking morphs, pS = speaking bones + speaking morphs — both
+          // already in head-bone-local space (the B composites carry headInv), so a rigid
+          // head attachment stays exactly invariant and only jaw/morph articulation shows.
+          const morphLocal = skinVec3(bx, by, bz, restHeadLocalComps, wArr, idxArr, i);
+          const speakLocal = skinVec3(bx, by, bz, speakHeadLocalComps, wArr, idxArr, i);
+          const pM = new Vector3Ctor(morphLocal[0], morphLocal[1], morphLocal[2]);
+          const pS = new Vector3Ctor(speakLocal[0], speakLocal[1], speakLocal[2]);
+          const pR = new Vector3Ctor(prevLocal[i * 3], prevLocal[i * 3 + 1], prevLocal[i * 3 + 2]);
+
+          const morphDriven = pM.distanceTo(pR);
+          const boneDriven = pS.distanceTo(pM);
+          const total = pS.distanceTo(pR);
+          if (total > meshAllMax) { meshAllMax = total; meshExtremeVertex = i; }
+          if (total > allVerticesMax) allVerticesMax = total;
           const boneMax = bones[maxJ];
           if (boneMax && headSet[boneMax.uuid]) {
             headAssemblyVertexCount++;
-            if (d > meshHeadAssemblyMax) meshHeadAssemblyMax = d;
-            if (d > globalHeadAssemblyMax) {
-              globalHeadAssemblyMax = d;
+            if (total > meshHeadAssemblyMax) meshHeadAssemblyMax = total;
+            if (morphDriven > meshMorphDrivenMax) meshMorphDrivenMax = morphDriven;
+            if (boneDriven > meshBoneDrivenMax) meshBoneDrivenMax = boneDriven;
+            if (total > globalHeadAssemblyMax) {
+              globalHeadAssemblyMax = total;
               globalHeadAssemblyMesh = mesh.name || "";
               globalHeadAssemblyVertex = i;
             }
+            if (morphDriven > globalMorphDrivenMax) globalMorphDrivenMax = morphDriven;
+            if (boneDriven > globalBoneDrivenMax) globalBoneDrivenMax = boneDriven;
           }
           // Rigid-100% validity check: weight 1.0 on the head bone exactly.
           if (wArr[i * 4] === 1 && wArr[i * 4 + 1] === 0 && wArr[i * 4 + 2] === 0 && wArr[i * 4 + 3] === 0) {
             const j0 = idxArr[i * 4];
-            if (bones[j0] && bones[j0].name === "head" && d > rigid100Max) rigid100Max = d;
+            if (bones[j0] && bones[j0].name === "head" && total > rigid100Max) rigid100Max = total;
           }
         }
         perMesh.push({
@@ -541,6 +577,8 @@ function deltaEvaluate(actorId: string, stateId: string): string {
           uuid: mesh.uuid,
           vertexCount: count,
           headAssemblyMaxDeltaMm: Number((meshHeadAssemblyMax * 1000).toFixed(3)),
+          morphDrivenHeadAssemblyDeltaMm: Number((meshMorphDrivenMax * 1000).toFixed(3)),
+          boneDrivenHeadAssemblyDeltaMm: Number((meshBoneDrivenMax * 1000).toFixed(3)),
           allMaxDeltaMm: Number((meshAllMax * 1000).toFixed(3)),
           extremeVertexIndex: meshExtremeVertex
         });
@@ -548,6 +586,8 @@ function deltaEvaluate(actorId: string, stateId: string): string {
       }
 
       out.maxHeadLocalDeltaMm = Number((globalHeadAssemblyMax * 1000).toFixed(3));
+      out.morphDrivenHeadAssemblyDeltaMm = Number((globalMorphDrivenMax * 1000).toFixed(3));
+      out.boneDrivenHeadAssemblyDeltaMm = Number((globalBoneDrivenMax * 1000).toFixed(3));
       out.maxHeadLocalVertexMesh = globalHeadAssemblyMesh;
       out.maxHeadLocalVertexIndex = globalHeadAssemblyVertex;
       out.allVerticesMaxHeadLocalDeltaMm = Number((allVerticesMax * 1000).toFixed(3));
@@ -573,48 +613,65 @@ function deltaEvaluate(actorId: string, stateId: string): string {
   })()`;
 }
 
-async function speakingFlag(page: Page, actorId: string): Promise<boolean | null> {
-  return page.evaluate(`(() => {
+/** Read the runtime's current active speaker id (`__openClinXrHumanoidSpeechEvidence.activeActorId`), or null. */
+function activeActorIdEvaluate(): string {
+  return `(() => {
+    const win = window;
+    const ev = win.__openClinXrHumanoidSpeechEvidence;
+    return ev && typeof ev.activeActorId === "string" ? ev.activeActorId : null;
+  })()`;
+}
+
+async function readActiveActorId(page: Page): Promise<string | null> {
+  return page.evaluate(activeActorIdEvaluate()) as Promise<string | null>;
+}
+
+/** Live max |morph influence| across the actor's skinned meshes — no skinning, just the driver input. */
+function actorMaxMorphInfluenceEvaluate(actorId: string): string {
+  return `(() => {
+    const actorId = ${JSON.stringify(actorId)};
     const scene = window.__openClinXrDebugScene;
     if (!scene || typeof scene.traverse !== "function") return null;
-    let flag = null;
+    let max = 0;
+    let found = false;
     scene.traverse(function (o) {
-      if (flag !== null) return;
-      if (o.userData && o.userData.openClinXrActorId === ${JSON.stringify(actorId)}) {
+      if (o.userData && o.userData.openClinXrActorId === actorId) {
         o.traverse(function (c) {
-          if (flag !== null) return;
-          if (c.userData && c.userData.openClinXrCurrentPhoneme !== undefined) flag = !!c.visible;
+          if (c.isSkinnedMesh && c.morphTargetInfluences && c.morphTargetInfluences.length > 0) {
+            found = true;
+            for (let k = 0; k < c.morphTargetInfluences.length; k++) {
+              const v = Math.abs(c.morphTargetInfluences[k] || 0);
+              if (v > max) max = v;
+            }
+          }
         });
       }
     });
-    return flag;
-  })()`) as Promise<boolean | null>;
+    return found ? max : null;
+  })()`;
 }
 
-/** Wait until the actor's mouth cue has been invisible for minQuietMs consecutively. */
-async function waitForQuiet(page: Page, actorId: string, minQuietMs: number, timeoutMs: number): Promise<boolean> {
+async function readActorMaxMorphInfluence(page: Page, actorId: string): Promise<number | null> {
+  return page.evaluate(actorMaxMorphInfluenceEvaluate(actorId)) as Promise<number | null>;
+}
+
+/** Wait until the actor is NOT the active speaker (activeActorId !== actorId). */
+async function waitForIdleByActiveActor(page: Page, actorId: string, timeoutMs: number): Promise<boolean> {
   const deadline = Date.now() + timeoutMs;
-  let quietSince = 0;
   while (Date.now() < deadline) {
-    const flag = await speakingFlag(page, actorId);
-    const now = Date.now();
-    if (flag === false) {
-      if (quietSince === 0) quietSince = now;
-      else if (now - quietSince >= minQuietMs) return true;
-    } else {
-      quietSince = 0;
-    }
+    const active = await readActiveActorId(page);
+    if (active !== actorId) return true;
     await page.waitForTimeout(200);
   }
   return false;
 }
 
-/** Wait until the actor's mouth cue is visible (mid-utterance). */
-async function waitForSpeaking(page: Page, actorId: string, timeoutMs: number): Promise<boolean> {
+/** Wait until the actor IS the active speaker (activeActorId === actorId). */
+async function waitForSpeakingByActiveActor(page: Page, actorId: string, timeoutMs: number): Promise<boolean> {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
-    const flag = await speakingFlag(page, actorId);
-    if (flag === true) return true;
+    const active = await readActiveActorId(page);
+    if (active === actorId) return true;
     await page.waitForTimeout(200);
   }
   return false;
@@ -628,13 +685,14 @@ async function clickTrace(page: Page, traceName: string): Promise<boolean> {
   return true;
 }
 
+/** Drive the actor to speak and wait until it is the active speaker. */
 async function driveActorToSpeak(page: Page, actorId: string, traces: string[]): Promise<{ trace: string | null; attempts: string[] }> {
   const attempts: string[] = [];
   for (const trace of traces) {
     const clicked = await clickTrace(page, trace);
     attempts.push(trace);
     if (!clicked) continue;
-    const spoke = await waitForSpeaking(page, actorId, 14_000);
+    const spoke = await waitForSpeakingByActiveActor(page, actorId, 14_000);
     if (spoke) return { trace, attempts };
   }
   return { trace: null, attempts };
@@ -642,13 +700,9 @@ async function driveActorToSpeak(page: Page, actorId: string, traces: string[]):
 
 type ActorMeasurement = {
   actor: string;
-  speaking: { stateId: string; speakingFlag: boolean | null; t: number; driveTrace: string | null };
-  notSpeaking: { stateId: string; speakingFlag: boolean | null; t: number };
+  rest: { stateId: string; activeActorId: string | null; restInfluence: number | null; t: number };
+  speaking: { stateId: string; activeActorId: string | null; speakingInfluence: number | null; t: number; driveTrace: string | null };
   result: Record<string, unknown>;
-  /** Per-morph-name influence (max across the actor's meshes) at each sampling instant. */
-  morphs: { speaking: Record<string, number>; notSpeaking: Record<string, number> };
-  /** Per-mesh morph attribute/dictionary report for diagnostics (both states, speaking last). */
-  meshReport: Array<{ name: string; morphAttrCount: number; dictKeyCount: number; keys: string[] }>;
   assetPath: string | null;
 };
 
@@ -656,6 +710,7 @@ type SampleOutcome = {
   ok: boolean;
   error: string | null;
   speakingFlag: boolean | null;
+  activeActorId: string | null;
   meshCount: number;
   totalVertexCount: number;
   headBoneName: string | null;
@@ -663,94 +718,59 @@ type SampleOutcome = {
   assetPath?: string | null;
 };
 
-/** Aggregate the stashed sample's per-mesh named morph influences into name -> max value. */
-async function readNamedMorphs(
-  page: Page,
-  actorId: string,
-): Promise<{
-  values: Record<string, number>;
-  report: Array<{ name: string; morphAttrCount: number; dictKeyCount: number; keys: string[] }>;
-}> {
-  const result = (await page.evaluate(`(() => {
-    const stash = window.__speakingSpikeHeadLocal && window.__speakingSpikeHeadLocal[${JSON.stringify(actorId)}];
-    if (!stash || !Array.isArray(stash.meshes)) return { out: {}, report: [] };
-    const out = {};
-    const report = [];
-    for (const m of stash.meshes) {
-      const keys = (m.morphInfluences || []).map((mi) => mi.name);
-      report.push({
-        name: m.name || "",
-        morphAttrCount: (m.morphAttrCount) || 0,
-        dictKeyCount: keys.length,
-        keys: keys.slice(0, 40),
-      });
-      for (const mi of m.morphInfluences || []) {
-        if (typeof mi.name !== "string" || !mi.name) continue;
-        const v = Math.abs(mi.value) || 0;
-        // Record every name (including 0-valued targets) so the file-side 32-name population
-        // is fully addressable; the artifact fills 0 for any name never observed at runtime.
-        if (!(mi.name in out) || v > out[mi.name]) out[mi.name] = v;
-      }
-    }
-    return { out, report };
-  })()`) as { out: Record<string, number>; report: Array<{ name: string; morphAttrCount: number; dictKeyCount: number; keys: string[] }> });
-  return { values: result.out, report: result.report };
-}
-
 async function measureActor(
   page: Page,
   actorId: string,
   traces: string[],
   t0: number,
 ): Promise<ActorMeasurement> {
-  // 1. not-speaking: a sustained quiet window (actor idle, mouth cue invisible).
-  const quiet = await waitForQuiet(page, actorId, 1_400, 120_000);
-  if (!quiet) {
-    throw new Error(`${actorId}: no quiet (not-speaking) window found in 120s`);
+  // 1. rest: the actor is not the active speaker. State identity comes from activeActorId
+  // (clause (4) — never from mouth-cue visibility), and the rest influence is read off the
+  // live driver input below.
+  const idle = await waitForIdleByActiveActor(page, actorId, 120_000);
+  if (!idle) {
+    throw new Error(`${actorId}: activeActorId never left ${actorId} in 120s`);
   }
-  await page.waitForTimeout(500); // settle after last utterance's morphs
-  const notSpeakingT = (Date.now() - t0) / 1000;
-  const notSpeakingSample = (await page.evaluate(
-    samplerEvaluate(actorId, "not-speaking"),
+  // Let any lingering viseme/emotion transition settle before sampling the rest pose.
+  await page.waitForTimeout(1_500);
+  const restInfluence = await readActorMaxMorphInfluence(page, actorId);
+  const restT = (Date.now() - t0) / 1000;
+  const restSample = (await page.evaluate(
+    samplerEvaluate(actorId, "rest"),
   )) as unknown as SampleOutcome;
-  if (!notSpeakingSample.ok) {
-    throw new Error(`${actorId}: not-speaking sample failed: ${notSpeakingSample.error}`);
+  if (!restSample.ok) {
+    throw new Error(`${actorId}: rest sample failed: ${restSample.error}`);
   }
-  if (notSpeakingSample.speakingFlag !== false) {
-    throw new Error(`${actorId}: not-speaking sample had speakingFlag=${notSpeakingSample.speakingFlag}`);
-  }
-  const notSpeakingRead = await readNamedMorphs(page, actorId);
-  const notSpeakingMorphs = notSpeakingRead.values;
-  const notSpeakingReport = notSpeakingRead.report;
-  // 2. speaking: drive via trace buttons until the actor's cue lights.
+  const restActiveActorId = restSample.activeActorId;
+
+  // 2. speaking: drive via trace buttons until the actor is the active speaker, then sample
+  // mid-utterance.
   const drive = await driveActorToSpeak(page, actorId, traces);
   if (!drive.trace) {
     throw new Error(`${actorId}: no trace drove speech (tried ${drive.attempts.join(", ")})`);
   }
-  // The cue can go dark between visibility and the settled sample (a short utterance ending).
-  // Retry on the next visible window rather than failing on one miss; state selection is still
-  // "phoneme-mouth-cue visible at the sampling instant" (same as E2.2).
   let speakingSample: SampleOutcome | null = null;
-  for (let attempt = 0; attempt < 4 && speakingSample === null; attempt++) {
-    const visible = await waitForSpeaking(page, actorId, 20_000);
-    if (!visible) break;
-    await page.waitForTimeout(600); // mid-utterance: viseme morphs near their peak
+  for (let attempt = 0; attempt < 8 && speakingSample === null; attempt++) {
+    const speaking = await waitForSpeakingByActiveActor(page, actorId, 20_000);
+    if (!speaking) break;
     const candidate = (await page.evaluate(
       samplerEvaluate(actorId, "speaking"),
     )) as unknown as SampleOutcome;
-    if (candidate.ok && candidate.speakingFlag === true) {
+    // The sampler atomically stamps activeActorId at the sampling instant, so a short
+    // utterance that ends between the poll and the sample is refused and retried rather
+    // than silently recording a driven actor as "speaking" (clause (4)).
+    if (candidate.ok && candidate.activeActorId === actorId) {
       speakingSample = candidate;
     }
   }
   if (speakingSample === null) {
-    throw new Error(`${actorId}: no cue-visible sample captured after speech drive (${drive.trace})`);
+    throw new Error(`${actorId}: no active-speaker sample captured after speech drive (${drive.trace})`);
   }
   const speakingT = (Date.now() - t0) / 1000;
-  const speakingRead = await readNamedMorphs(page, actorId);
-  const speakingMorphs = speakingRead.values;
-  const speakingReport = speakingRead.report;
+  const speakingActiveActorId = speakingSample.activeActorId;
+  const speakingInfluence = await readActorMaxMorphInfluence(page, actorId);
 
-  // 3. delta.
+  // 3. delta + decomposition.
   const result = (await page.evaluate(
     deltaEvaluate(actorId, "speaking"),
   )) as unknown as Record<string, unknown>;
@@ -759,15 +779,21 @@ async function measureActor(
   }
   return {
     actor: actorId,
-    speaking: { stateId: "speaking", speakingFlag: true, t: Number(speakingT.toFixed(2)), driveTrace: drive.trace },
-    notSpeaking: { stateId: "not-speaking", speakingFlag: false, t: Number(notSpeakingT.toFixed(2)) },
-    result,
-    morphs: {
-      speaking: speakingMorphs,
-      notSpeaking: notSpeakingMorphs,
+    rest: {
+      stateId: "rest",
+      activeActorId: restActiveActorId,
+      restInfluence: restInfluence,
+      t: Number(restT.toFixed(2)),
     },
-    meshReport: speakingReport.length > 0 ? speakingReport : notSpeakingReport,
-    assetPath: speakingSample.assetPath ?? notSpeakingSample.assetPath ?? null,
+    speaking: {
+      stateId: "speaking",
+      activeActorId: speakingActiveActorId,
+      speakingInfluence: speakingInfluence,
+      t: Number(speakingT.toFixed(2)),
+      driveTrace: drive.trace,
+    },
+    result,
+    assetPath: speakingSample.assetPath ?? restSample.assetPath ?? null,
   };
 }
 
@@ -810,108 +836,57 @@ export async function runHeadLocalProbe(): Promise<void> {
       const parent = await measureActor(page, PARENT_ACTOR_ID, PARENT_TRACES, t0);
       const child = await measureActor(page, CHILD_ACTOR_ID, CHILD_TRACES, t0);
 
-      const frame = `sampled at page-elapsed seconds: parent not-speaking t=${parent.notSpeaking.t}, parent speaking t=${parent.speaking.t} (trace "${parent.speaking.driveTrace}"); child not-speaking t=${child.notSpeaking.t}, child speaking t=${child.speaking.t} (trace "${child.speaking.driveTrace}")`;
+      const frame = `sampled at page-elapsed seconds: parent rest t=${parent.rest.t}, parent speaking t=${parent.speaking.t} (trace "${parent.speaking.driveTrace}"); child rest t=${child.rest.t}, child speaking t=${child.speaking.t} (trace "${child.speaking.driveTrace}")`;
 
-      // #433 — the parent's per-morph NAMED weights. The planted test refuses an unnamed max,
-      // so the 32 names come from the GLB itself (NodeIO walk of extras.targetNames) and each
-      // carries its own speaking/not-speaking value from the live samples above. Fail closed:
-      // every file name must be addressable in the runtime's morph dictionary at sample time.
-      const morphFileNames = await readMorphTargetNamesFromFile(PARENT_MORPH_GLB_REL);
-      const runtimeNames = new Set([
-        ...Object.keys(parent.morphs.speaking),
-        ...Object.keys(parent.morphs.notSpeaking),
-      ]);
-      const missingRuntime = morphFileNames.filter((n) => !runtimeNames.has(n));
-      if (missingRuntime.length > 0) {
-        const meshSummary = parent.meshReport
-          .map((m) => `${m.name}(attrs=${m.morphAttrCount},dict=${m.dictKeyCount}:[${m.keys.join(",")}])`)
-          .join(" | ");
-        throw new Error(
-          `${missingRuntime.length} file morph names not addressable at runtime (first: ${missingRuntime.slice(0, 5).join(", ")}); ` +
-            `assetPath=${parent.assetPath ?? "null"}; runtime dict keys (${runtimeNames.size}): ${[...runtimeNames].slice(0, 40).join(", ")}; meshes: ${meshSummary}`,
-        );
-      }
-      const morphs = morphFileNames.map((name) => ({
-        name,
-        speaking: Number((parent.morphs.speaking[name] ?? 0).toFixed(4)),
-        notSpeaking: Number((parent.morphs.notSpeaking[name] ?? 0).toFixed(4)),
-      }));
-      const mouthOpen = morphs.find((m) => m.name === "mouth-open");
-      if (!mouthOpen) {
-        throw new Error("mouth-open not enumerated from the GLB");
-      }
-      // The lead's inherited stop rule, mirroring the planted clause (3) exactly: harness
-      // artefact only when mouth-open stays <= 0.3 AND no mouth/viseme target exceeds 0.3.
-      const anyMouthOrVisemeHigh = morphs.some(
-        (m) => /mouth|viseme/i.test(m.name) && m.speaking > 0.3,
-      );
-      const verdict =
-        mouthOpen.speaking <= 0.3 && !anyMouthOrVisemeHigh
-          ? "harness_artefact"
-          : "reaches_high_in_speech";
-      const maxSpeaking = morphs.reduce((a, b) => (b.speaking > a.speaking ? b : a));
-      const morphWeightsArtifact = {
-        schemaVersion: "openclinxr.speaking-parent-morph-weights.v1",
-        generatedAt: new Date().toISOString(),
-        actor: PARENT_ACTOR_ID,
-        enumeratedFrom: PARENT_MORPH_GLB_REL,
-        sourceGlb: "/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb",
-        sourceGlbSha256: createHash("sha256")
-          .update(await readFile(join(REPO_ROOT, PARENT_MORPH_GLB_REL)))
-          .digest("hex"),
-        morphs,
-        maxOverAllMorphsSpeaking: { name: maxSpeaking.name, value: maxSpeaking.speaking },
-        verdict,
-        frame,
-        url,
-        source:
-          "live runtime read via playwright headless chromium against the ui-xr portless dev server (spawnPortlessDevServer filter @openclinxr/ui-xr); " +
-          "page.evaluate on window.__openClinXrDebugScene of peds_asthma_parent_anxiety_v1; " +
-          "per-morph influences read through the runtime's own morphTargetDictionary (populated from glTF extras.targetNames by GLTFLoader, three 0.184) " +
-          "at a quiet (not-speaking) instant and a phoneme-mouth-cue-visible (speaking) instant; same scenario and state selection as E2.2; " +
-          "32 target names enumerated from the GLB file itself via NodeIO; NOT a static asset read",
-        claimScope:
-          "named per-morph influence weights for parent_tara_johnson_v1 (mpfb-peds-parent-aisha.motion-bind.glb) at one live speaking instant and one quiet instant, peds asthma station; decides whether the #431 mouth-open-at-1.0 still is a harness artefact; verdict recomputed by the planted clause (3) from these numbers",
-        notEvidenceFor: [
-          "the cause of the mid-face collapse (weights vs morph authoring vs topology — none measured)",
-          "any fix",
-          "whether the collapse is visible at any weight (pixel grade is the orchestrator's)",
-          "that the speaking sample is the max mouth-opening over the whole utterance (one instant only)",
-          "other actors or scenarios",
-          "production phoneme timing",
-          "clinical validity",
-          "scoring validity",
-          "quest readiness",
+      // The 2026-08-18 pre-fix numbers, preserved BEFORE any re-run (the OVERWRITE TRAP in the
+      // planted header). These are the driven-to-driven measurement this slice supersedes —
+      // copied verbatim from the issue's MEASURED block, not reconstructed after the fact.
+      const priorObservation = {
+        measuredAt: "2026-08-18T21:13:32.077Z",
+        artifact: "speaking-actor-head-local.json",
+        stateSelection: "speaking vs mouth-cue-invisible (both mid-drive — no rest zero)",
+        actors: [
+          {
+            actor: "parent_tara_johnson_v1",
+            speakingMorphInfluence: 1,
+            notSpeakingMorphInfluence: 0.4998,
+            headAssemblyMaxDeltaMm: 8.729,
+            allVerticesMaxHeadLocalDeltaMm: 35.584,
+            headRigid100MaxDeltaMm: 0,
+            maxHeadLocalVertexMesh: "mpfb_ob_patient_aisha_body_1",
+          },
+          {
+            actor: "patient_maya_johnson_v1",
+            speakingMorphInfluence: 0.5485,
+            notSpeakingMorphInfluence: 1,
+            headAssemblyMaxDeltaMm: 3.401,
+            allVerticesMaxHeadLocalDeltaMm: 3.401,
+            headRigid100MaxDeltaMm: 0.008,
+            maxHeadLocalVertexMesh: "mpfb_peds_patient_child_body",
+          },
         ],
       };
-      const morphWeightsPath = join(HERE, "speaking-parent-morph-weights.json");
-      await writeFile(
-        morphWeightsPath,
-        `${JSON.stringify(morphWeightsArtifact, null, 2)}\n`,
-        "utf8",
-      );
-      process.stdout.write(
-        `${morphWeightsPath} verdict=${verdict} mouth-open(${mouthOpen.notSpeaking}->${mouthOpen.speaking}) maxSpeaking=${maxSpeaking.name}=${maxSpeaking.speaking}\n`,
-      );
 
       const artifact = {
-        schemaVersion: "openclinxr.speaking-actor-head-local.v1",
+        schemaVersion: "openclinxr.speaking-actor-head-rest-baseline.v1",
         generatedAt: new Date().toISOString(),
+        priorObservation,
         source:
           "live runtime read via playwright headless chromium against the ui-xr portless dev server (spawnPortlessDevServer filter @openclinxr/ui-xr); " +
           "page.evaluate on window.__openClinXrDebugScene of peds_asthma_parent_anxiety_v1; " +
           "per-vertex CPU skinning replicating the three.js shader (world = mesh.matrixWorld * sum_j weight_j * boneWorld_j * boneInverse_j * bindVertex) " +
-          "sampled in head-bone-local frame (mesh.matrixWorld * boneWorld_head * boneInverse_head)^-1 so rigid head attachment is exactly invariant; " +
-          "speaking flagged by phoneme-mouth-cue visibility on the actor root at the sampling instant; dialogue driven by trace-button clicks; NOT a static asset read",
+          "sampled in head-bone-local frame; rest is the idle state (activeActorId !== actor), speaking is the active-speaker state (activeActorId === actor, mid-utterance); " +
+          "rest->speaking excursion decomposed into morph-driven and bone-driven components in the rest head-local frame (morphDriven + boneDriven >= total by construction); " +
+          "dialogue driven by trace-button clicks; NOT a static asset read",
         url,
         frame,
         claimScope:
-          "head-local skinned-vertex delta (speaking vs not) for parent_tara_johnson_v1 and the patient_maya_johnson_v1 control, peds asthma station only; column A of #419 E2.2",
+          "rest-to-speaking head-assembly excursion + morph/bone decomposition for parent_tara_johnson_v1 and patient_maya_johnson_v1, peds asthma station; makes #402's spike measurable from a zero",
         notEvidenceFor: [
-          "the cause (naming a mechanism is a later slice)",
+          "the cause (naming a mechanism is the next slice)",
           "any fix",
           "whether the spike is visible (pixel grade is the orchestrator's)",
-          "hair-mesh weights specifically (per-mesh extremes are recorded so a later slice can distinguish body skin from fitted hair)",
+          "hair-mesh weights specifically (per-mesh extremes are recorded)",
           "other actors or scenarios",
           "production phoneme timing",
           "clinical validity",
@@ -921,59 +896,62 @@ export async function runHeadLocalProbe(): Promise<void> {
         actors: [
           {
             actor: parent.actor,
-            maxHeadLocalDeltaMm: parent.result.maxHeadLocalDeltaMm,
-            maxHeadLocalVertexMesh: parent.result.maxHeadLocalVertexMesh,
-            maxHeadLocalVertexIndex: parent.result.maxHeadLocalVertexIndex,
-            vertexCount: parent.result.vertexCount,
-            totalVertexCount: parent.result.totalVertexCount,
+            stateIdentifiedBy: "activeActorId",
+            restMorphInfluence: parent.result.notSpeakingMorphInfluence,
+            speakingMorphInfluence: parent.result.speakingMorphInfluence,
+            restToSpeakingHeadAssemblyDeltaMm: parent.result.maxHeadLocalDeltaMm,
+            morphDrivenHeadAssemblyDeltaMm: parent.result.morphDrivenHeadAssemblyDeltaMm,
+            boneDrivenHeadAssemblyDeltaMm: parent.result.boneDrivenHeadAssemblyDeltaMm,
+            restActiveActorId: parent.rest.activeActorId,
+            speakingActiveActorId: parent.speaking.activeActorId,
             allVerticesMaxHeadLocalDeltaMm: parent.result.allVerticesMaxHeadLocalDeltaMm,
             headRigid100MaxDeltaMm: parent.result.headRigid100MaxDeltaMm,
-            speakingMorphInfluence: parent.result.speakingMorphInfluence,
-            notSpeakingMorphInfluence: parent.result.notSpeakingMorphInfluence,
+            vertexCount: parent.result.vertexCount,
+            totalVertexCount: parent.result.totalVertexCount,
             worldTranslationDeltaMm: parent.result.worldTranslationDeltaMm,
             rootRelativeBoneDeltaMm: parent.result.rootRelativeBoneDeltaMm,
             headBoneName: parent.result.headBoneName,
             headDescendantBoneCount: parent.result.headDescendantCount,
+            maxHeadLocalVertexMesh: parent.result.maxHeadLocalVertexMesh,
+            maxHeadLocalVertexIndex: parent.result.maxHeadLocalVertexIndex,
+            restState: parent.rest,
             speakingState: parent.speaking,
-            notSpeakingState: parent.notSpeaking,
             perMesh: parent.result.perMesh,
           },
           {
             actor: child.actor,
-            maxHeadLocalDeltaMm: child.result.maxHeadLocalDeltaMm,
-            maxHeadLocalVertexMesh: child.result.maxHeadLocalVertexMesh,
-            maxHeadLocalVertexIndex: child.result.maxHeadLocalVertexIndex,
-            vertexCount: child.result.vertexCount,
-            totalVertexCount: child.result.totalVertexCount,
+            stateIdentifiedBy: "activeActorId",
+            restMorphInfluence: child.result.notSpeakingMorphInfluence,
+            speakingMorphInfluence: child.result.speakingMorphInfluence,
+            restToSpeakingHeadAssemblyDeltaMm: child.result.maxHeadLocalDeltaMm,
+            morphDrivenHeadAssemblyDeltaMm: child.result.morphDrivenHeadAssemblyDeltaMm,
+            boneDrivenHeadAssemblyDeltaMm: child.result.boneDrivenHeadAssemblyDeltaMm,
+            restActiveActorId: child.rest.activeActorId,
+            speakingActiveActorId: child.speaking.activeActorId,
             allVerticesMaxHeadLocalDeltaMm: child.result.allVerticesMaxHeadLocalDeltaMm,
             headRigid100MaxDeltaMm: child.result.headRigid100MaxDeltaMm,
-            speakingMorphInfluence: child.result.speakingMorphInfluence,
-            notSpeakingMorphInfluence: child.result.notSpeakingMorphInfluence,
+            vertexCount: child.result.vertexCount,
+            totalVertexCount: child.result.totalVertexCount,
             worldTranslationDeltaMm: child.result.worldTranslationDeltaMm,
             rootRelativeBoneDeltaMm: child.result.rootRelativeBoneDeltaMm,
             headBoneName: child.result.headBoneName,
             headDescendantBoneCount: child.result.headDescendantCount,
+            maxHeadLocalVertexMesh: child.result.maxHeadLocalVertexMesh,
+            maxHeadLocalVertexIndex: child.result.maxHeadLocalVertexIndex,
+            restState: child.rest,
             speakingState: child.speaking,
-            notSpeakingState: child.notSpeaking,
             perMesh: child.result.perMesh,
           },
         ],
       };
 
-      const json = `${JSON.stringify(artifact, null, 2)}\n`;
-      // The planted contract reads `speaking-spike-head-local.json`; the dispatch deliverable
-      // is `speaking-actor-head-local.json`. Write both with identical content so both proofs
-      // hold (the naming mismatch is flagged in the report).
-      const spikePath = join(HERE, "speaking-spike-head-local.json");
-      const actorPath = join(HERE, "speaking-actor-head-local.json");
-      await writeFile(spikePath, json, "utf8");
-      await writeFile(actorPath, json, "utf8");
-      process.stdout.write(`${spikePath}\n`);
-      process.stdout.write(`${actorPath}\n`);
+      const restPath = join(HERE, "speaking-actor-head-rest-baseline.json");
+      await writeFile(restPath, `${JSON.stringify(artifact, null, 2)}\n`, "utf8");
+      process.stdout.write(`${restPath}\n`);
 
       for (const a of artifact.actors) {
         process.stdout.write(
-          `${a.actor}: headLocal=${a.maxHeadLocalDeltaMm}mm all=${a.allVerticesMaxHeadLocalDeltaMm}mm rigid100=${a.headRigid100MaxDeltaMm}mm morph(${a.notSpeakingMorphInfluence}->${a.speakingMorphInfluence}) verts=${a.vertexCount}/${a.totalVertexCount} world=${a.worldTranslationDeltaMm}mm rootRel=${a.rootRelativeBoneDeltaMm}mm\n`,
+          `${a.actor}: rest->speaking=${a.restToSpeakingHeadAssemblyDeltaMm}mm (morph=${a.morphDrivenHeadAssemblyDeltaMm} + bone=${a.boneDrivenHeadAssemblyDeltaMm}) all=${a.allVerticesMaxHeadLocalDeltaMm}mm rigid100=${a.headRigid100MaxDeltaMm}mm morph(${a.restMorphInfluence}->${a.speakingMorphInfluence}) verts=${a.vertexCount}/${a.totalVertexCount} world=${a.worldTranslationDeltaMm}mm rootRel=${a.rootRelativeBoneDeltaMm}mm restActive=${a.restActiveActorId} speakingActive=${a.speakingActiveActorId}\n`,
         );
       }
     } finally {
