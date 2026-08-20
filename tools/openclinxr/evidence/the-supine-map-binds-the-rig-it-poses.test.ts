@@ -3,6 +3,7 @@ import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import { resolvePoseBone } from "../../../packages/openclinxr/asset-registry/src/pose-bone-resolver.js";
 
 /**
  * #492 — the supine pose map binds 3 of its 17 bones on the body it now poses.
@@ -89,6 +90,25 @@ import { describe, expect, it } from "vitest";
  *   - `seated`. Same class, different map, not measured here.
  *   - The other five recast stations, ungraded at the time of writing.
  *   - Whether `pelvis` should map to `root`, `spine01`, or `pelvis.L`+`pelvis.R`. Genuinely open.
+ *
+ * ## FIXED (#492)
+ *
+ * The premise was false. The supine map already binds 17/17 on the recast body AT RUNTIME:
+ * `supine-pose.ts` resolves each key through `resolvePoseBone` (#306), which aliases the canonical
+ * landmarks onto the MakeHuman rig — `pelvis→root`, `spine→spine03`, `chest→spine01`,
+ * `thighL→upperleg01L`, `shinL→lowerleg01L`, `upper_armL→upperarm01L`, `forearmL→lowerarm01L`,
+ * `handL→wristL`, `neck→neck01`, plus `footL`/`footR`/`head` by identity. Verified 17/17 on
+ * `mpfb-gown-adult-patient.glb` against BOTH `src` and `dist` of the resolver, and on the Anny
+ * known-good.
+ *
+ * The RED measured LITERAL name presence — the GLB has no joint literally named `pelvis`, `spine`,
+ * `chest`, etc. (those are segmented), which is NOT how the runtime binds. Clause (1) was therefore
+ * rewritten to measure `resolvePoseBone`, the actual binding path, and flipped `it.fails` -> `it`.
+ * The literal-name table above is retained as the measured record.
+ *
+ * The crumpled-mass pixels are a DIFFERENT bug: the eulers were tuned for the Anny rest pose and the
+ * on-back root basis was authored for the 23-bone rig. Re-tuning is a separate, pixel-graded slice —
+ * not a binding fix. No product behaviour changed here.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -115,15 +135,19 @@ async function jointNames(file: string): Promise<string[]> {
 
 async function bindReport(file: string): Promise<{ joints: number; bound: string[]; missing: string[] }> {
   const names = new Set(await jointNames(file));
+  // The runtime does NOT match literal names — `supine-pose.ts` resolves each map key through
+  // `resolvePoseBone` (#306), which aliases the canonical landmarks onto the MakeHuman rig.
+  // Measure BINDING the way the runtime does, not literal name presence.
+  const resolved = SUPINE_MAP_BONES.map((b) => resolvePoseBone(b, names));
   return {
     joints: names.size,
-    bound: SUPINE_MAP_BONES.filter((b) => names.has(b)),
-    missing: SUPINE_MAP_BONES.filter((b) => !names.has(b)),
+    bound: SUPINE_MAP_BONES.filter((_, i) => resolved[i] !== null),
+    missing: SUPINE_MAP_BONES.filter((_, i) => resolved[i] === null),
   };
 }
 
 describe("the supine map binds the rig it poses", () => {
-  it.fails("(1) RED: the supine map binds on the body supine patients are cast on", async () => {
+  it("(1) the supine map binds on the body supine patients are cast on", async () => {
     const r = await bindReport(SUPINE_TARGET);
     expect(
       r.missing,
