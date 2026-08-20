@@ -61,6 +61,20 @@ import { resolveMorphTarget } from "../../../packages/openclinxr/asset-registry/
  *     phonetic accuracy is a clinical/animation judgement this contract does not make.
  *   - Consonant classes beyond the vowels named below.
  *   - Quest, clinical validity, exam equivalence.
+ *
+ * ## FIXED (#469)
+ *
+ * `DIALOGUE_PHONEME_TO_ARKIT` widened onto the visemes02 names the rebaked parent carries.
+ * ARPAbet vowels → visemes02 (Oculus/ARPAbet standard): AH/AE/AY → aa, EH/ER/EY → E, IY → I,
+ * AO/AW/OW/OY → O, UH/UW → U. The four contract vowels AH/IY/OW/UW now reach baked
+ * `viseme_aa`/`viseme_I`/`viseme_O`/`viseme_U`, all distinct; (1)(2)(3) flipped `it.fails`→`it`.
+ *
+ * Deliberate residual, reported not widened: IH still routes to FACS `mouth-part-later`, and the
+ * lowercase graphemes i/o/u stay on the FACS rail. Re-pointing IH→I (and OH→O, OU→U) would
+ * regress the un-rebaked FACS-only actors (child/nurse), which rely on the resolver's
+ * `viseme_IH/OH/OU` alias rows; a safe change needs `viseme_I/O/U` FACS rows in
+ * `morph-target-resolver.ts` (outside this slice's single-file write root) plus timeline
+ * canonical-fallback entries.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -91,7 +105,7 @@ function driven(token: string): string | null {
 const VOWELS = ["AH", "IY", "OW", "UW"] as const;
 
 describe("the baked visemes02 targets are reachable from dialogue", () => {
-  it.fails("(1) RED: the parent's most common vowel drives a baked viseme", () => {
+  it("(1) RED: the parent's most common vowel drives a baked viseme", () => {
     // dialogue-pronunciations.ts:19 is "a": "AH". Today AH is not a key in DIALOGUE_PHONEME_TO_ARKIT,
     // so it resolves to nothing at all — not even a FACS fallback.
     const target = driven("AH");
@@ -99,12 +113,12 @@ describe("the baked visemes02 targets are reachable from dialogue", () => {
     expect(VISEMES02.has(target ?? ""), `AH resolved to ${target}, which is not one of the baked visemes02`).toBe(true);
   });
 
-  it.fails("(2) RED: each CMUdict vowel reaches a baked viseme", () => {
+  it("(2) RED: each CMUdict vowel reaches a baked viseme", () => {
     const missed = VOWELS.filter((v) => !VISEMES02.has(driven(v) ?? ""));
     expect(missed, `these vowels route past the baked pack: ${missed.join(" ")}`).toEqual([]);
   });
 
-  it.fails("(3) RED+COUNTERWEIGHT: the vowels stay distinguishable", () => {
+  it("(3) RED+COUNTERWEIGHT: the vowels stay distinguishable", () => {
     // Refuses the cheap fix: mapping every vowel onto viseme_aa satisfies (1) and (2) and destroys the
     // only reason to widen the table. A pack whose shapes are all the same shape is not a pack.
     const hit = VOWELS.map((v) => driven(v));
