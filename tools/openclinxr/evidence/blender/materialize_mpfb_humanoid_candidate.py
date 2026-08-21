@@ -1405,6 +1405,17 @@ def parse_args():
             "garment colour; the nurse/clinician role also selects the scrub-shirt asset."
         ),
     )
+    parser.add_argument(
+        "--eye-colour-reference",
+        default=None,
+        help=(
+            "#519 — manifest id to read the case's eye_color from when the body has no "
+            "--reference (the Aisha default-macro path). Defaults to --reference. The peds "
+            "parent shares Aisha's default-macro body, so its eye_color is not reachable "
+            "through --reference; its case (peds_anxious_parent) authors brown, not the "
+            "family fallback green."
+        ),
+    )
     return parser.parse_args(argv)
 
 
@@ -2976,7 +2987,10 @@ def main():
         _sys_eye.path.insert(0, str(_anny_dir_eye))
     from automate_blender import eye_iris_colour  # noqa: E402
 
-    _iris_key = eye_iris_colour(args.actor_role, {"eye_color": phenotype_eye_colour(args.reference)})
+    _iris_key = eye_iris_colour(
+        args.actor_role,
+        {"eye_color": phenotype_eye_colour(args.eye_colour_reference or args.reference)},
+    )
     _eye_mat_dir = (
         pathlib.Path(__file__).resolve().parents[4]
         / ".openclinxr-local/provider-cache/eyes/makehuman-system-assets"

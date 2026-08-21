@@ -91,12 +91,12 @@ async function iris(actor: string): Promise<{ name: string; sha: string }> {
 }
 
 describe("the peds cast's iris matches its authored eye colour", () => {
-  it.fails("(1) RED: the peds parent's iris is the case's brown, not the family default green", async () => {
+  it("(1) RED: the peds parent's iris is the case's brown, not the family default green", async () => {
     const got = await iris("mpfb-peds-parent-aisha");
     expect(got.sha, `case authors brown; shipped is ${got.name}`).toBe(BROWN);
   });
 
-  it.fails("(2) RED: the peds nurse's iris is the case's brown, not the nurse default blue", async () => {
+  it("(2) RED: the peds nurse's iris is the case's brown, not the nurse default blue", async () => {
     const got = await iris("mpfb-peds-nurse-kevin");
     expect(got.sha, `case authors brown; shipped is ${got.name}`).toBe(BROWN);
   });
@@ -117,3 +117,26 @@ describe("the peds cast's iris matches its authored eye colour", () => {
     expect(got.name, "and still the same declared texture").toBe("brown_eye");
   });
 });
+
+/**
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ * ## FIXED (#519) — appended, planted header above is immutable
+ *
+ * (1)(2) Rebaked `mpfb-peds-parent-aisha` and `mpfb-peds-nurse-kevin` through
+ * `materialize_mpfb_humanoid_candidate.py` so `eye_iris_colour` reads the case's
+ * `eye_color: "brown"` (parent via `--eye-colour-reference peds_anxious_parent`; nurse via
+ * `--reference peds_nurse_kevin`). Both ship `brown_eye` sha256[0:12]=4659691c7295.
+ *
+ * (3) Role-default actors untouched — clinical-nurse blue, family-partner green, ob-patient /
+ * street-male brown.
+ *
+ * (4) Maya (`mpfb-peds-patient-child`) byte-identical; hazel still raises ValueError; bank unedited.
+ *
+ * Texture regression on the first rebake (incomplete worktree garment cache missing .mhmat +
+ * diffuse PNGs) was re-run after provisioning those files; Shoe / T-shirt_basic / boot bindings
+ * restored to main's hashes alongside the brown iris.
+ *
+ * NOT TESTED: pixel grade of the brown iris or garment appearance (orchestrator); whether a
+ * worktree that lacks garment .mhmat files can ever green without provisioning.
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ */
