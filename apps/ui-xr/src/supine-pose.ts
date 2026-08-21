@@ -85,6 +85,18 @@ export type ApplySupinePoseResult = {
   posture: ActorPosture;
 };
 
+/**
+ * #495 ablation — opt-in control over the pose's two mechanisms. Existing callers
+ * omit the options object and are unchanged.
+ */
+export type ApplySupinePoseOptions = {
+  /**
+   * When false, apply only the on-back root basis and skip the 17 joint eulers.
+   * Default true preserves today's behaviour.
+   */
+  applyJointEulers?: boolean;
+};
+
 function applyEuler(
   object: Object3D,
   rotation: { x?: number; y?: number; z?: number; absolute?: boolean },
@@ -103,7 +115,8 @@ function applyEuler(
  * Apply procedural recumbent rotations + root Z reorientation.
  * Call plantSupineBodyOnDeck after this to rest the back on the deck top.
  */
-export function applySupinePose(humanoidRoot: Object3D): ApplySupinePoseResult {
+export function applySupinePose(humanoidRoot: Object3D, options: ApplySupinePoseOptions = {}): ApplySupinePoseResult {
+  const applyJointEulers = options.applyJointEulers !== false;
   const binding = clipBindingForPosture("supine");
   humanoidRoot.userData.openClinXrActorPosture = "supine";
   humanoidRoot.userData.openClinXrPostureClipName = binding.clipName;
@@ -120,29 +133,31 @@ export function applySupinePose(humanoidRoot: Object3D): ApplySupinePoseResult {
 
   const bonesTouched: string[] = [];
 
-  // #306: resolve canonical landmarks against the bones actually on this rig so MPFB2 actors
-  // (upperarm01.L / upperleg01.L / spine03 ...) get posed instead of silently skipped.
-  const resolvedEulers = resolveRotationMap(SUPINE_BONE_EULERS, collectJointNames(humanoidRoot));
+  if (applyJointEulers) {
+    // #306: resolve canonical landmarks against the bones actually on this rig so MPFB2 actors
+    // (upperarm01.L / upperleg01.L / spine03 ...) get posed instead of silently skipped.
+    const resolvedEulers = resolveRotationMap(SUPINE_BONE_EULERS, collectJointNames(humanoidRoot));
 
-  humanoidRoot.traverse((object) => {
-    const rotation = resolvedEulers.get(sanitiseBoneName(object.name));
-    if (!rotation) return;
-    applyEuler(object, rotation, bonesTouched);
-  });
+    humanoidRoot.traverse((object) => {
+      const rotation = resolvedEulers.get(sanitiseBoneName(object.name));
+      if (!rotation) return;
+      applyEuler(object, rotation, bonesTouched);
+    });
 
-  humanoidRoot.traverse((object) => {
-    const skinned = object as Object3D & {
-      isSkinnedMesh?: boolean;
-      skeleton?: { bones: Object3D[]; update?: () => void };
-    };
-    if (!skinned.isSkinnedMesh || !skinned.skeleton?.bones) return;
-    for (const bone of skinned.skeleton.bones) {
-      const rotation = resolvedEulers.get(sanitiseBoneName(bone.name));
-      if (!rotation) continue;
-      applyEuler(bone, rotation, bonesTouched);
-    }
-    skinned.skeleton.update?.();
-  });
+    humanoidRoot.traverse((object) => {
+      const skinned = object as Object3D & {
+        isSkinnedMesh?: boolean;
+        skeleton?: { bones: Object3D[]; update?: () => void };
+      };
+      if (!skinned.isSkinnedMesh || !skinned.skeleton?.bones) return;
+      for (const bone of skinned.skeleton.bones) {
+        const rotation = resolvedEulers.get(sanitiseBoneName(bone.name));
+        if (!rotation) continue;
+        applyEuler(bone, rotation, bonesTouched);
+      }
+      skinned.skeleton.update?.();
+    });
+  }
 
   humanoidRoot.userData.openClinXrSupinePoseBones = bonesTouched;
   // Staging marker for #153 contracts: neck last written by the supine map.

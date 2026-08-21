@@ -75,6 +75,16 @@ import { describe, expect, it } from "vitest";
  * map or a re-authored root basis would work; the sheet tells us which to try, not that it works.
  * `Mesh2Motion` (#70, approved and unused) as a clip-driven alternative — a read-only inventory runs
  * in parallel and touches nothing here.
+ *
+ * ## FIXED (#495)
+ *
+ * `applySupinePose` gained an opt-in `ApplySupinePoseOptions` (default `{}`) with
+ * `applyJointEulers?: boolean` (default true), and `applyAndPlantSupineOnDeck` threads it through —
+ * existing callers are untouched. The isolated lab reads a `supineRootOnly` spec flag and records a
+ * per-cell `__openClinXrSubjectAabb` plus `ranSupineCall` / `appliedJointEulers` on the supine dump.
+ * `supine-ablation-sheet.ts` renders standing (glb) / root_only (runtime_posture,
+ * applyJointEulers=false) / full (runtime_posture) and writes the tracked sheet + report. Clause (1)
+ * flipped `it.fails` -> `it`.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -104,7 +114,7 @@ function requireReport(): Report {
 }
 
 describe("the supine ablation sheet exists and is gradeable", () => {
-  it.fails("(1) RED: a three-cell ablation sheet was rendered from the runtime path", () => {
+  it("(1) RED: a three-cell ablation sheet was rendered from the runtime path", () => {
     expect(existsSync(SHEET), `${SHEET} must exist — the orchestrator grades this image`).toBe(true);
     // A byte floor teaches "the capture ran" (SS8n), so it is paired with the per-cell record below
     // rather than standing alone.
