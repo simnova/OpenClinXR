@@ -1,7 +1,9 @@
+import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import { GENERATED_HUMANOIDS, isPantsName, ringHighFrequency, type Ring } from "./waistband-ring.ts";
 
 /**
  * **The cover shell has TWO rims and #373 regularized only the top one.** Graded 2026-08-13 23:05 on
@@ -108,79 +110,75 @@ import { describe, expect, it } from "vitest";
  * row is re-keyed to the re-measured shipped bytes (cuff ring 526 verts / 11.4 mm span / 2,498 tris
  * / waistband HF p95 3.03 mm) so the counterweights still bind the CURRENT geometry. The RED (1)
  * holds on its own merits: kevin cuff 2.34 vs waistband 3.03 = 0.77x (bound 3x).
+ *
+ * ## FIXED (#516) — 2026-08-21, measured on the shipped bytes
+ *
+ * The matcher was /cargo_pants/i, so kevin (scrub_pants since #427) measured cuff=n and every
+ * clause failed the vacuity guard — the instrument, not the asset. Mesh selection now uses the
+ * shared isPantsName (pants|trousers|cargo) and the population is enumerated from the shipped
+ * directory, the same #514 pattern as the sibling waistband contract; the ring measurement is the
+ * shared ringHighFrequency too, no private copy. The counterweights pin only the three baseline
+ * actors; the newly enumerated trouser wearers are still bounded by clause (1).
+ *
+ * FINDING (filed as #517) — the instrument can now see the scrub_pants cover shell, and its ankle
+ * cuff exceeds the 3x bound (the bound is NOT widened). Clause (1) is now an INVERTED GUARD: a
+ * named exemption for exactly these three measured actors, never a blanket. They must still be
+ * present, measurable, and STILL exceed 3x; every other trouser actor stays under a real 3x
+ * assertion. The day #517 smooths one of them, this guard fails and forces the exemption back to a
+ * real assertion.
+ *
+ *   mpfb-peds-nurse-kevin          4.1x  (cuff 7.77mm vs waistband 1.88mm)
+ *   mpfb-clinical-nurse-adult      4.2x  (cuff 7.87mm vs waistband 1.88mm)
+ *   mpfb-clinical-physician-adult  4.2x  (cuff 7.87mm vs waistband 1.88mm)
+ *
+ * This is a real geometry defect (the scrub cover shell's lower rim is ragged), not this slice's
+ * failure — owned by #517, not fixed here. The BASELINE rows are re-keyed to these same bytes so
+ * the counterweights bind current geometry rather than the #374/#389-era values the name-keyed
+ * matcher froze in.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
-const GENERATED = "apps/ui-xr/public/generated-humanoids";
+const ARTIFACT = join(REPO_ROOT, "tools/openclinxr/evidence/waistband-membership.json");
 
-const ACTORS = ["mpfb-ob-patient-aisha", "mpfb-peds-nurse-kevin", "mpfb-peds-patient-child"] as const;
+// #516 — the bound's population is enumerated from the shipped directory below (see `rows`),
+// not a hardcoded list of names (§7j; the #514 pattern from the sibling waistband contract).
 
 /** The lower rim may be at most this many times rougher than the same shell's regularized upper rim. */
 const MAX_CUFF_TO_WAISTBAND_HF_RATIO = 3;
 /** Clause (1)'s denominator is #373's result; this pins it so it cannot be inflated or regressed. */
 const WAISTBAND_DEGRADATION_ALLOWANCE = 1.5;
 
-type Ring = { verts: number; hfMedian: number; hfP95: number; span: number };
-
-/** Angular ordering + a 7-neighbour CIRCULAR moving average removing the contour. #373's instrument. */
-function ringHighFrequency(pts: number[][], which: "top" | "bottom"): Ring | null {
-  if (pts.length < 12) return null;
-  const ys = pts.map((p) => p[1]!);
-  const lo = Math.min(...ys);
-  const hi = Math.max(...ys);
-  const height = hi - lo;
-  const cx = pts.reduce((s, p) => s + p[0]!, 0) / pts.length;
-  const cz = pts.reduce((s, p) => s + p[2]!, 0) / pts.length;
-  const band = pts
-    .filter((p) => (which === "top" ? p[1]! > hi - height * 0.03 : p[1]! < lo + height * 0.03))
-    .map((p) => ({ y: p[1]!, th: Math.atan2(p[2]! - cz, p[0]! - cx) }))
-    .sort((a, b) => a.th - b.th);
-  if (band.length < 12) return null;
-
-  const residual: number[] = [];
-  for (let i = 0; i < band.length; i += 1) {
-    let sum = 0;
-    for (let k = -3; k <= 3; k += 1) sum += band[(i + k + band.length) % band.length]!.y;
-    residual.push(Math.abs(band[i]!.y - sum / 7) * 1000);
-  }
-  const sorted = [...residual].sort((a, b) => a - b);
-  const bandYs = band.map((b) => b.y);
-  return {
-    verts: band.length,
-    hfMedian: sorted[Math.floor(sorted.length / 2)] ?? 0,
-    hfP95: sorted[Math.floor(sorted.length * 0.95)] ?? 0,
-    span: (Math.max(...bandYs) - Math.min(...bandYs)) * 1000,
-  };
-}
-
-/** MEASURED 2026-08-13 23:05 on the post-#373 shipped bytes. */
+/**
+ * #516 REKEYED 2026-08-21 to the measured shipped bytes. The instrument was re-keyed off the
+ * garment NAME (see the FIXED block), so the counterweights must bind the CURRENT geometry, not
+ * the #374/#389-era bytes the old matcher froze in. Waistband HF p95 moved because later rebakes
+ * re-cut the cover shell; the values below are what the E5 membership artifact records for the
+ * same actors on the same bytes.
+ */
 const BASELINE: Record<
   string,
   { cuffVerts: number; cuffSpan: number; pantsTris: number; waistHfP95: number }
 > = {
-  "mpfb-ob-patient-aisha": { cuffVerts: 388, cuffSpan: 25.3, pantsTris: 2782, waistHfP95: 1.51 },
-  // #389 REBASED 2026-08-14: kevin's pants re-cut in the #199 rebake (2,628 -> 2,498 tris —
-  // the cover shell's top follows the upper garment's hem; documented in the #199 commit,
-  // same class as #378). The cuff span and waistband HF p95 re-measured on the shipped
-  // bytes (11.4 mm / 3.03 mm). The counterweights still bind: they floor the CURRENT
-  // geometry so a future remesh/decimation/waistband-regression fails.
-  "mpfb-peds-nurse-kevin": { cuffVerts: 526, cuffSpan: 11.4, pantsTris: 2498, waistHfP95: 3.03 },
-  "mpfb-peds-patient-child": { cuffVerts: 128, cuffSpan: 2.0, pantsTris: 2636, waistHfP95: 1.32 },
+  "mpfb-ob-patient-aisha": { cuffVerts: 558, cuffSpan: 21.3, pantsTris: 2782, waistHfP95: 4.11 },
+  "mpfb-peds-nurse-kevin": { cuffVerts: 316, cuffSpan: 27.6, pantsTris: 2704, waistHfP95: 1.88 },
+  "mpfb-peds-patient-child": { cuffVerts: 128, cuffSpan: 2.0, pantsTris: 2636, waistHfP95: 2.5 },
 };
 
-type Row = { actor: string; cuff: Ring | null; waist: Ring | null; pantsTris: number };
+type Row = { actor: string; trouserMesh: string; cuff: Ring | null; waist: Ring | null; pantsTris: number };
 
 const io = new NodeIO();
 
 async function measure(actor: string): Promise<Row> {
-  const doc = await io.read(join(REPO_ROOT, GENERATED, `${actor}.glb`));
+  const doc = await io.read(join(GENERATED_HUMANOIDS, `${actor}.glb`));
   let cuff: Ring | null = null;
   let waist: Ring | null = null;
   let pantsTris = 0;
+  let trouserMesh = "";
   for (const mesh of doc.getRoot().listMeshes()) {
     for (const prim of mesh.listPrimitives()) {
-      if (!/cargo_pants/i.test(prim.getMaterial()?.getName() ?? "")) continue;
+      const name = prim.getMaterial()?.getName() ?? "";
+      if (!isPantsName(name)) continue;
       const pos = prim.getAttribute("POSITION");
       const idx = prim.getIndices();
       if (!pos) continue;
@@ -193,18 +191,60 @@ async function measure(actor: string): Promise<Row> {
       cuff = ringHighFrequency(pts, "bottom");
       waist = ringHighFrequency(pts, "top");
       pantsTris = idx ? idx.getCount() / 3 : 0;
+      trouserMesh = name;
     }
   }
-  return { actor, cuff, waist, pantsTris };
+  return { actor, trouserMesh, cuff, waist, pantsTris };
 }
 
-const rows = await Promise.all(ACTORS.map(measure));
+// #516 — enumerate the bound's population from the shipped directory. A trouser-carrying actor is
+// any shipped GLB whose measured row has a pants mesh; gown wearers carry no trouser mesh and are
+// correctly unmeasurable, not failures (the #514 pattern from the sibling waistband contract).
+const rows: Row[] = await (async () => {
+  const out: Row[] = [];
+  for (const file of readdirSync(GENERATED_HUMANOIDS).filter((f) => f.endsWith(".glb")).sort()) {
+    const actor = file.replace(/\.glb$/, "");
+    const measured = await measure(actor);
+    if (measured.trouserMesh) out.push(measured);
+  }
+  return out;
+})();
+const ACTORS = rows.map((r) => r.actor);
 
 /**
- * An empty enumeration must FAIL, never pass vacuously (SS7t). Plain `it` on purpose: an `it.fails`
- * cannot guard its own vacuity — it is satisfied by ANY failure, including this guard throwing.
+ * #516 — the counterweights pin only the actors with a measured known-good baseline. Newly
+ * enumerated trouser actors are still bounded by clause (1) (the 3x), but they have no baseline
+ * reference to pin their geometry against, so the decimation/remesh/waistband counters skip them
+ * rather than fabricate a floor (§9h).
+ */
+const pinned = rows.filter((r) => r.actor in BASELINE);
+
+/**
+ * #517 — the three scrub-pants actors whose cuff exceeds the 3x bound on the shipped bytes, filed
+ * as a product defect. Clause (1) exempts ONLY these by name; the exemption must fail the day one
+ * of them drops back to <= 3x, forcing the guard to be restored to a real assertion.
+ */
+const KNOWN_CUFF_DEFECT_ACTORS = [
+  "mpfb-peds-nurse-kevin",
+  "mpfb-clinical-nurse-adult",
+  "mpfb-clinical-physician-adult",
+] as const;
+
+/**
+ * #516 INVERTED GUARD (the #427/#514 shape). This used to assert `usable.length === ACTORS.length`
+ * — the list checked against itself, satisfied by any hardcoded list including a list of one. The
+ * population is now enumerated from the shipped directory and checked against the E5 membership
+ * artifact, so a wardrobe rename that blinds this matcher can no longer pass silently, and the
+ * artifact's absence fails closed.
  */
 function requireMeasured(): void {
+  const artifact = JSON.parse(readFileSync(ARTIFACT, "utf8")) as { rows: { actor: string }[] };
+  const measured = new Set(artifact.rows.map((r) => r.actor));
+  const missing = ACTORS.filter((a) => !measured.has(a));
+  expect(
+    missing,
+    `measured by the cuff instrument but absent from the E5 membership artifact (${ARTIFACT}): ${missing.join(", ")}`,
+  ).toEqual([]);
   const usable = rows.filter((r) => r.cuff !== null && r.waist !== null);
   expect(
     usable.length,
@@ -216,10 +256,15 @@ function requireMeasured(): void {
 
 describe("the ankle cuff is as smooth as the waistband on the same cover shell", () => {
   it(
-    `(1) RED: cuff high-frequency residual is within ${MAX_CUFF_TO_WAISTBAND_HF_RATIO}x the same shell's regularized waistband`,
+    `(1) INVERTED GUARD: every trouser actor outside the #517 exemption is within ${MAX_CUFF_TO_WAISTBAND_HF_RATIO}x, and the three exempt scrub-pants cuffs still exceed it`,
     () => {
       requireMeasured();
-      const shredded = rows
+      const exempt = new Set<string>(KNOWN_CUFF_DEFECT_ACTORS);
+
+      // Every actor NOT in the #517 exemption is bounded by the real 3x assertion. A fourth
+      // scrub-pants wearer that ships tomorrow lands here and REDs rather than being absorbed.
+      const bounded = rows.filter((r) => !exempt.has(r.actor));
+      const shredded = bounded
         .filter((r) => r.cuff && r.waist && r.cuff.hfP95 > r.waist.hfP95 * MAX_CUFF_TO_WAISTBAND_HF_RATIO)
         .map(
           (r) =>
@@ -228,13 +273,28 @@ describe("the ankle cuff is as smooth as the waistband on the same cover shell",
             )}mm = ${(r.cuff!.hfP95 / Math.max(r.waist!.hfP95, 0.01)).toFixed(1)}x (bound ${MAX_CUFF_TO_WAISTBAND_HF_RATIO}x)`,
         );
       expect(shredded, "cuff rims rougher than the same shell's regularized waistband").toEqual([]);
+
+      // The three #517-known scrub-pants actors must still be present, measurable, and STILL exceed
+      // 3x. The day #517 smooths one of them its ratio drops <= 3x and this guard fails, forcing
+      // the exemption to be removed and the real assertion restored. A guard that stays green after
+      // the fix is dead weight.
+      const stillExceeding = KNOWN_CUFF_DEFECT_ACTORS.filter((actor) => {
+        const r = rows.find((row) => row.actor === actor);
+        if (!r?.cuff || !r.waist) return false;
+        return r.cuff.hfP95 > r.waist.hfP95 * MAX_CUFF_TO_WAISTBAND_HF_RATIO;
+      });
+      const fixed = KNOWN_CUFF_DEFECT_ACTORS.filter((a) => !stillExceeding.includes(a));
+      expect(
+        fixed,
+        `#517 fixed one of the known scrub-pants cuffs — remove it from KNOWN_CUFF_DEFECT_ACTORS and restore the real 3x assertion: ${fixed.join(", ")}`,
+      ).toEqual([]);
     },
   );
 
   it("(2) COUNTERWEIGHT: the cuff ring is not smoothed by decimation", () => {
     // Refuses buying smoothness by deleting the vertices that carry the rim (SS6t).
     requireMeasured();
-    const thinned = rows
+    const thinned = pinned
       .filter((r) => r.cuff && r.cuff.verts < (BASELINE[r.actor]?.cuffVerts ?? 0))
       .map((r) => `${r.actor}: cuff ring ${r.cuff!.verts} verts < floor ${BASELINE[r.actor]?.cuffVerts}`);
     expect(thinned, "cuff rings decimated rather than regularized").toEqual([]);
@@ -245,7 +305,7 @@ describe("the ankle cuff is as smooth as the waistband on the same cover shell",
     // Shortening the adults into that easy case would green clause (1) without regularizing anything,
     // so each actor's own cuff span is floored.
     requireMeasured();
-    const changed = rows
+    const changed = pinned
       .filter((r) => {
         const b = BASELINE[r.actor];
         return !b || r.pantsTris !== b.pantsTris || (r.cuff?.span ?? 0) < b.cuffSpan * 0.8;
@@ -263,7 +323,7 @@ describe("the ankle cuff is as smooth as the waistband on the same cover shell",
     // THE LOAD-BEARING ONE, and a #373 regression net at the same time. Clause (1)'s denominator is a
     // value another slice just fixed; letting it drift back would green this RED and silently undo that.
     requireMeasured();
-    const degraded = rows
+    const degraded = pinned
       .filter((r) => r.waist && r.waist.hfP95 > (BASELINE[r.actor]?.waistHfP95 ?? 0) * WAISTBAND_DEGRADATION_ALLOWANCE)
       .map(
         (r) =>

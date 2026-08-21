@@ -71,6 +71,18 @@ import { isPantsName } from "./waistband-ring.ts";
  *   - Whether any cuff LOOKS ragged. Angular-ordered HF residual; the pixel verdict is the
  *     orchestrator's.
  *   - Sleeve cuffs and collars, which that contract already records as unmeasured.
+ *
+ * ## FIXED (#516) — 2026-08-21
+ *
+ * The cuff contract now imports the shared isPantsName from waistband-ring.ts, selects trouser
+ * meshes with it, and enumerates its population from the shipped directory — no garment-name
+ * regex, no literal actor list, and the 3x bound is untouched. All four RED clauses above now
+ * hold: kevin (scrub_pants) is visible to the cuff contract, the shared predicate is imported,
+ * no garment-name literal gates mesh selection, and the population is disk-enumerated.
+ *
+ * The instrument now seeing kevin surfaces a geometry finding, not a failure of this slice:
+ * kevin's scrub cover-shell cuff is 4.1x the 3x bound, and the two scrub-clad clinical adults
+ * are 4.2x (recorded in the ankle-cuff contract's own FIXED block; the bound is not widened).
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -96,7 +108,7 @@ async function trouserMaterials(actor: string): Promise<string[]> {
 }
 
 describe("the cuff instrument is not keyed to one garment name", () => {
-  it.fails("(1) RED: every actor the shared predicate calls trousered is visible to the cuff contract", async () => {
+  it("(1) RED: every actor the shared predicate calls trousered is visible to the cuff contract", async () => {
     // Kevin ships scrub_pants and the shared predicate matches it. The cuff contract must see him.
     const kevin = await trouserMaterials(BLIND_SPOT);
     expect(kevin.length, `${BLIND_SPOT} must carry a trouser mesh the shared predicate matches`)
@@ -111,14 +123,14 @@ describe("the cuff instrument is not keyed to one garment name", () => {
     }
   });
 
-  it.fails("(2) RED: the cuff contract imports the SHARED predicate rather than re-implementing it", () => {
+  it("(2) RED: the cuff contract imports the SHARED predicate rather than re-implementing it", () => {
     // Refuses (a). Two implementations of one measurement is how this went blind (D1).
     const src = readFileSync(CUFF_SRC, "utf8");
     expect(/from "\.\/waistband-ring\.ts"/.test(src), "must import from the shared instrument").toBe(true);
     expect(/isPantsName/.test(src), "must use the shared isPantsName").toBe(true);
   });
 
-  it.fails("(3) RED: no garment-name literal remains in the cuff contract's mesh selection", () => {
+  it("(3) RED: no garment-name literal remains in the cuff contract's mesh selection", () => {
     // Refuses (b) AND (c). A widened regex is the same defect one name later; a shrunk population
     // is a coverage check turned into decoration.
     const src = readFileSync(CUFF_SRC, "utf8");
@@ -132,7 +144,7 @@ describe("the cuff instrument is not keyed to one garment name", () => {
     ).toBe(false);
   });
 
-  it.fails("(3b) RED: the cuff contract's population is not a literal list of actor names", () => {
+  it("(3b) RED: the cuff contract's population is not a literal list of actor names", () => {
     // Refuses (c) with its OWN fail line (§8i): bundled into (3) it would never run, because
     // vitest stops at the first failing expect and the regex check fails first. A cause without
     // its own proof is how a two-cause slice gets half-fixed.
