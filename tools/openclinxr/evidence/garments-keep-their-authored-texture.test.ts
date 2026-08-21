@@ -151,8 +151,9 @@ const FLAT_BY_AUTHORED_STATE = new Set<string>([
   "mat_makeclothes_library_scrub_shirt",
 ]);
 
-/** The #180 locked role colour for the patients' closed_casual upper, as shipped pre-#371. */
-const TOIGO_ROLE_COLOUR = [0.72, 0.68, 0.55] as const;
+/** #506: the patients' closed_casual upper role colour — no longer the skin-adjacent
+ * cream [0.72, 0.68, 0.55] (28.7 RGB from aisha's skin texture mean). Muted olive-green. */
+const TOIGO_ROLE_COLOUR = [0.34, 0.44, 0.34] as const;
 /**
  * #400 (2026-08-14): the child's t-shirt factor is now case-driven like the rest of the cast —
  * `soft_blue_and_warm_white` resolves through `garment_shell_color` to (0.55, 0.68, 0.80)

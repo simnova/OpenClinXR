@@ -89,10 +89,11 @@ const CAST = [
   "mpfb-peds-nurse-kevin.glb",
 ] as const;
 
-/** OB aisha stays cream — measured separately so clause (3) does not compare across stations. */
+/** #506: OB aisha's closed_casual role colour — muted olive, no longer the skin-adjacent
+ * cream. Measured separately so clause (3) does not compare across stations. */
 const OB_AISHA = "mpfb-ob-patient-aisha.glb";
 
-const CREAM: [number, number, number] = [0.72, 0.68, 0.55];
+const OLIVE: [number, number, number] = [0.34, 0.44, 0.34];
 const TEAL: [number, number, number] = [0.05, 0.48, 0.52];
 const CYAN: [number, number, number] = [0.08, 0.52, 0.95];
 /**
@@ -209,7 +210,7 @@ describe("eye colour is case-driven, not one constant for everyone", () => {
     expect(same, "parent and child still share an upper colour (one-GLB-two-roles not split)").toBe(false);
   });
 
-  it("(3c) COUNTERWEIGHT: child soft-blue, kevin teal, OB aisha cream — no cyan, no grey-everyone", async () => {
+  it("(3c) COUNTERWEIGHT: child soft-blue, kevin teal, OB aisha olive — no cyan, no grey-everyone", async () => {
     requireRows();
     const child = rows.find((r) => r.file === "mpfb-peds-patient-child.glb");
     const parent = rows.find((r) => r.file === "mpfb-peds-parent-aisha.glb");
@@ -220,9 +221,9 @@ describe("eye colour is case-driven, not one constant for everyone", () => {
       Boolean(got && want.every((v, k) => Math.abs(v - got[k]!) < MIN_GARMENT_CHANNEL_DELTA));
     expect(near(child?.upperRgb, SOFT_BLUE), `child recolored away from her declared soft blue: ${child?.upperRgb}`).toBe(true);
     expect(near(kevin?.upperRgb, TEAL), `kevin recolored away from teal: ${kevin?.upperRgb}`).toBe(true);
-    expect(near(aisha?.upperRgb, CREAM), `OB aisha recolored away from cream: ${aisha?.upperRgb}`).toBe(true);
+    expect(near(aisha?.upperRgb, OLIVE), `OB aisha recolored away from olive: ${aisha?.upperRgb}`).toBe(true);
     expect(near(parent?.upperRgb, CYAN), "parent used the forbidden cyan probe colour").toBe(false);
-    expect(near(parent?.upperRgb, CREAM), "parent still cream — second variant not baked").toBe(false);
+    expect(near(parent?.upperRgb, OLIVE), "parent shares OB aisha's olive — family must stay muted-rose").toBe(false);
     const greys = [child, parent, kevin]
       .filter((r) => {
         const c = r?.upperRgb;
