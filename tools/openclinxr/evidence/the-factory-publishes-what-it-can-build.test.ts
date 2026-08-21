@@ -79,7 +79,7 @@ function packFromSelector(): string[] {
 }
 
 describe("the factory publishes what it can build", () => {
-  it.fails("(1) RED: an eye-colour capability manifest exists and lists every buildable colour", () => {
+  it("(1) RED: an eye-colour capability manifest exists and lists every buildable colour", () => {
     expect(existsSync(MANIFEST), `${MANIFEST} — the authoring side has no list to choose from`).toBe(true);
     const m = JSON.parse(readFileSync(MANIFEST, "utf8")) as { options?: { id: string; licence?: string }[] };
     const ids = (m.options ?? []).map((o) => o.id).sort();
@@ -89,7 +89,15 @@ describe("the factory publishes what it can build", () => {
     }
   });
 
-  it.fails("(2) RED: the manifest is DERIVED from the selector's pack, not a second literal", () => {
+  /*
+   * ## FIXED (#522)
+   * Half 1: manifest derived live from iris_palette._EYE_IRIS_PACK via
+   * generate_iris_capability_manifest.py (not a hand-copied second literal).
+   * Half 2: ResolvedPhenotypeField carries value/source/seed/from.
+   * Clause (4) NET unchanged — hazel still refused; bank and schema unedited.
+   */
+
+  it("(2) RED: the manifest is DERIVED from the selector's pack, not a second literal", () => {
     // Refuses (b). #514 and #516 were both a literal drifting from reality; a manifest that
     // advertises a colour the selector rejects is that defect pointed at the author.
     const m = JSON.parse(readFileSync(MANIFEST, "utf8")) as { derivedFrom?: string; generatedBy?: string };
@@ -102,7 +110,7 @@ describe("the factory publishes what it can build", () => {
     expect(ids, "manifest and selector must not have drifted").toEqual(packFromSelector());
   });
 
-  it.fails("(3) RED: a resolved phenotype field is typed — value, source, seed, from", () => {
+  it("(3) RED: a resolved phenotype field is typed — value, source, seed, from", () => {
     // Refuses (c). D13 permits a random pick; an unrecorded one re-rolls every bake and breaks D9.
     expect(existsSync(RESOLVED), `${RESOLVED} — a random pick with no seed is random PER BAKE`).toBe(true);
     const src = readFileSync(RESOLVED, "utf8");
