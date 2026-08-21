@@ -91,15 +91,20 @@ function bandToRect(b: RegionBand): [number, number, number, number] {
   return [b.left, b.top, b.width, b.height];
 }
 
-function buildCombinedUrl(baseUrl: string, scenarioId: string, captureMode: string): string {
+/** IBL capture URL — same as #543 combined path. Exported for #544. */
+export function buildThreeFixesCombinedUrl(
+  baseUrl: string,
+  scenarioId: string,
+  captureMode: string,
+): string {
   const url = new URL(buildRoomCaptureUrl(baseUrl, scenarioId, captureMode));
   // Non-control station lighting — same IBL path as #529 / #534.
   url.searchParams.set("stationLighting", "room_environment_ibl");
   return url.toString();
 }
 
-/** Hide non-3D HUD — verbatim from interior-wall-ao-probe.ts (#529). */
-async function hideHudPanels(page: Page): Promise<void> {
+/** Hide non-3D HUD — verbatim from interior-wall-ao-probe.ts (#529). Exported for #544. */
+export async function hideHudPanels(page: Page): Promise<void> {
   await page.evaluate(`(() => {
     const root = document.body;
     if (!root) return;
@@ -123,8 +128,9 @@ async function hideHudPanels(page: Page): Promise<void> {
 /**
  * Place the camera INSIDE the Infinigen room looking at an interior wall.
  * Verbatim from interior-wall-ao-probe.ts forceInteriorWallCamera (D1 reuse of #529 path).
+ * Exported for #544 wall-roughness-probe (same camera, no fourth harness).
  */
-async function forceInteriorWallCamera(page: Page): Promise<string> {
+export async function forceInteriorWallCamera(page: Page): Promise<string> {
   return page.evaluate(`(() => {
     const scene = window.__openClinXrDebugScene;
     if (!scene || typeof scene.traverse !== "function") return "roomCam=missing-scene";
@@ -205,8 +211,8 @@ async function forceInteriorWallCamera(page: Page): Promise<string> {
   })()`) as Promise<string>;
 }
 
-/** Runtime-only aoMapIntensity — verbatim from interior-wall-ao-probe.ts (#529). */
-async function setAoMapIntensity(page: Page, intensity: 0 | 1): Promise<number> {
+/** Runtime-only aoMapIntensity — verbatim from interior-wall-ao-probe.ts (#529). Exported for #544. */
+export async function setAoMapIntensity(page: Page, intensity: 0 | 1): Promise<number> {
   return page.evaluate(`((intensity) => {
     const scene = window.__openClinXrDebugScene;
     if (!scene || typeof scene.traverse !== "function") return 0;
@@ -236,8 +242,9 @@ async function setAoMapIntensity(page: Page, intensity: 0 | 1): Promise<number> 
 /**
  * Confirm #534 hull assignment is live on the product load path
  * (`assignMissingRoomPrimitiveMaterials` tags openClinXrAssignedMaterialAtLoad).
+ * Exported for #544.
  */
-async function readHullMaterialFacts(page: Page): Promise<{
+export async function readHullMaterialFacts(page: Page): Promise<{
   hullMaterialsApplied: boolean;
   hullAssignedCount: number;
   exteriorWithMaterial: number;
@@ -314,7 +321,7 @@ export async function renderThreeFixesCombinedProbe(input?: {
     const browser = await chromium.launch({ headless: true });
     try {
       const page = await browser.newPage({ viewport: { width: 1007, height: 900 } });
-      const url = buildCombinedUrl(baseUrl, scenarioId, captureMode);
+      const url = buildThreeFixesCombinedUrl(baseUrl, scenarioId, captureMode);
       process.stdout.write(`three-fixes-combined-probe: goto room_environment_ibl\n`);
       await page.goto(url, { waitUntil: "load", timeout: 180_000 });
       await waitForStationShell(page, 180_000);

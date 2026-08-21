@@ -99,7 +99,7 @@ const cell = (id: string): Cell | undefined => (probe().cells ?? []).find((c) =>
 const reg = (c: Cell | undefined, id: string): Region | undefined => (c?.regions ?? []).find((r) => r.id === id);
 
 describe("the wall receives what its roughness allows", () => {
-  it.fails("(1) RED: both cells rendered — wall roughness as authored (0.10) and overridden", () => {
+  it("(1) RED: both cells rendered — wall roughness as authored (0.10) and overridden", () => {
     const lo = cell("wall_rough_010"), hi = cell("wall_rough_070");
     expect(lo?.regions, `${ARTIFACT} missing the as-authored cell`).toBeTypeOf("object");
     expect(hi?.regions, `${ARTIFACT} missing the overridden cell`).toBeTypeOf("object");
@@ -167,3 +167,14 @@ describe("the wall receives what its roughness allows", () => {
     void ALBEDO;
   });
 });
+
+/*
+## FIXED (#544)
+- Probe: `wall-roughness-probe.ts` extends #543 three-fixes helpers (IBL + ao=0 + hull +
+  interior camera). Runtime hexagon-wall roughness 0.10 vs 0.70; GLB untouched.
+- Corrected rects: ceiling y10-35%, wall y40-65%, floor y75-90% at x8-50%. Non-room meshes
+  hidden so the wall rect is unimodal (actorless camera tag made real).
+- Measured rend/albedo: control wall 0.137 → treatment wall 0.325; ceiling held ~0.810.
+  Roughness IS a term (wall moved); did NOT reach ceiling's 0.816 — residual lateral IBL.
+- assetEdited=false; authored hexagon roughness stays 0.10 in the GLB.
+*/

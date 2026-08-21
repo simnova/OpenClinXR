@@ -1,0 +1,132 @@
+{
+  "schemaVersion": "openclinxr.wall-roughness-probe.v1",
+  "generatedAt": "2026-08-21T22:11:07.129Z",
+  "room": "infinigen-primary-care-clinic",
+  "scenarioId": "primary_care_dyslipidemia_joint_pain_v1",
+  "captureMode": "scene-overview",
+  "lightingVariant": "room_environment_ibl",
+  "aoMapIntensity": 0,
+  "hullMaterialsApplied": true,
+  "hullAssignedCount": 1,
+  "productDefaultVariant": "control",
+  "camera": "roomCam(interiorWall)=0.00,1.68,2.44 look=0.00,1.45,-3.46 wallThickness=0.120",
+  "image": "wall-roughness/wall_rough_070.png",
+  "glbSha256": "4239db019bebaf0e0d15d412abd950667adc694cdc8a3ae9d2a53a929203c115",
+  "assetEdited": false,
+  "albedo": {
+    "wall": 190.5,
+    "ceiling": 254.8,
+    "floor": 247
+  },
+  "cells": [
+    {
+      "id": "wall_rough_010",
+      "wallRoughness": 0.1,
+      "materialsTouched": 1,
+      "materialNames": [
+        "shader_marble_shader_hexagon_tile_tile"
+      ],
+      "regions": [
+        {
+          "id": "wall",
+          "meanL": 26.1,
+          "sd": 5.32,
+          "rect": [
+            0.08,
+            0.4,
+            0.42,
+            0.25
+          ],
+          "albedo": 190.5,
+          "rendOverAlbedo": 0.137
+        },
+        {
+          "id": "ceiling",
+          "meanL": 206.39,
+          "sd": 14.49,
+          "rect": [
+            0.08,
+            0.1,
+            0.42,
+            0.25
+          ],
+          "albedo": 254.8,
+          "rendOverAlbedo": 0.81
+        },
+        {
+          "id": "floor",
+          "meanL": 98.12,
+          "sd": 6.18,
+          "rect": [
+            0.08,
+            0.75,
+            0.42,
+            0.15
+          ],
+          "albedo": 247,
+          "rendOverAlbedo": 0.3972
+        }
+      ],
+      "image": "wall-roughness/wall_rough_010.png"
+    },
+    {
+      "id": "wall_rough_070",
+      "wallRoughness": 0.7,
+      "materialsTouched": 1,
+      "materialNames": [
+        "shader_marble_shader_hexagon_tile_tile"
+      ],
+      "regions": [
+        {
+          "id": "wall",
+          "meanL": 61.93,
+          "sd": 27.42,
+          "rect": [
+            0.08,
+            0.4,
+            0.42,
+            0.25
+          ],
+          "albedo": 190.5,
+          "rendOverAlbedo": 0.3251
+        },
+        {
+          "id": "ceiling",
+          "meanL": 206.5,
+          "sd": 13.19,
+          "rect": [
+            0.08,
+            0.1,
+            0.42,
+            0.25
+          ],
+          "albedo": 254.8,
+          "rendOverAlbedo": 0.8104
+        },
+        {
+          "id": "floor",
+          "meanL": 98.12,
+          "sd": 6.18,
+          "rect": [
+            0.08,
+            0.75,
+            0.42,
+            0.15
+          ],
+          "albedo": 247,
+          "rendOverAlbedo": 0.3972
+        }
+      ],
+      "image": "wall-roughness/wall_rough_070.png"
+    }
+  ],
+  "claimScope": "whether a runtime roughness override on the wall material changes how much light it receives, measured as rend/albedo at corrected per-surface rects on one room",
+  "notEvidenceFor": [
+    "product lighting default",
+    "whether the room LOOKS right",
+    "other rooms",
+    "whether marble should be smooth as authored",
+    "quest_readiness",
+    "clinical_validity"
+  ]
+}
