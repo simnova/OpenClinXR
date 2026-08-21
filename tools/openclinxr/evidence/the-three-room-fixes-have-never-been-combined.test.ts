@@ -72,10 +72,37 @@ import { describe, expect, it } from "vitest";
  *   the other 13 rooms; whether the room looks CORRECT, only whether its surfaces are lit.
  */
 
+/**
+ * ## RECT CORRECTION (#543 grade, 2026-08-21) — the contract went green on a bimodal rect I wrote
+ *
+ * `#543` landed with `wall: meanL 93.7, sd 86.08` and a wall:ceiling ratio of 0.848, which cleared
+ * clause (3) comfortably. **My pixel grade says the wall is still black.** The rect was wrong.
+ *
+ * `WALL_RECT` was `[0.08, 0.18, 0.42, 0.48]` — y 18%..66% — which straddles the lit ceiling and the
+ * dark wall. Row-band profile of the landed capture, x 8%..50%:
+ *
+ *     y 10-35%   mean 208.0   sd  0.5    <- CEILING, flat and lit
+ *     y 40-65%   mean  26-39  sd  5-46   <- WALL, still dark
+ *     y 75-90%   mean  98-111 sd 21-26   <- FLOOR, lit
+ *
+ * 208-bright rows averaged with 26-dark rows give 93.76 at sd 85.91. **A bimodal mean, exactly the
+ * failure #529 already cost a slice for and #536 was withdrawn over.** Third instance.
+ *
+ * The CONTRACT was sound and the bound was right: on the corrected rects the true wall:ceiling ratio
+ * is **≈0.15**, far below the 0.37 floor, so clause (3) FAILS as it should have. Only my rectangle
+ * was wrong. Rects corrected below from the landed capture's own row profile; the high sd that gave
+ * it away is now itself a clause (see (2b)).
+ */
 const ARTIFACT = "tools/openclinxr/evidence/three-fixes-combined-probe.json";
 
 /** Measured INSIDE UV coverage on the shipped GLB, 2026-08-21. The #536 lesson. */
 const ALBEDO = { wall: 0.747, ceiling: 0.999 } as const;
+
+/**
+ * Rects corrected from #543's landed row profile. A region whose sd approaches its own mean is
+ * straddling two surfaces, not measuring one — that is what (2b) refuses.
+ */
+const MAX_REGION_SD_TO_MEAN = 0.5;
 /** Derived, not invented: half the albedo ratio. See the header. */
 const MIN_WALL_TO_CEILING_RATIO = (ALBEDO.wall / ALBEDO.ceiling) / 2;
 
@@ -104,6 +131,20 @@ describe("the three room fixes have never been combined", () => {
       expect(Array.isArray(r?.rect) && r!.rect!.length === 4,
         `${id} must record the rect it measured so I can check it against the image`).toBe(true);
     }
+  });
+
+  it.fails("(2b) RED: no region is bimodal — sd must not approach its own mean", () => {
+    // #543's `wall` came back mean 93.7 / sd 86.08 and cleared clause (3) at ratio 0.848. My pixel
+    // grade said the wall was black. The rect spanned a lit ceiling (row mean 208) and a dark wall
+    // (row mean 26-39); the average is an artifact. A single surface under one light does not
+    // produce sd approaching its mean. This is the clause that would have caught MY rectangle, and
+    // it is derived from that failure rather than invented. Third instance of the bimodal-mean
+    // error in this campaign (#529 sd, #536 whole-atlas, this).
+    const bad = (probe().regions ?? [])
+      .filter((r) => typeof r.meanL === "number" && typeof (r as { sd?: number }).sd === "number")
+      .filter((r) => ((r as { sd: number }).sd / Math.max(1, r.meanL!)) > MAX_REGION_SD_TO_MEAN)
+      .map((r) => `${r.id}: mean ${r.meanL} sd ${(r as { sd: number }).sd}`);
+    expect(bad, "regions whose sd approaches their mean are straddling two surfaces").toEqual([]);
   });
 
   it("(3) RED: the rendered wall:ceiling ratio is not far below their albedo ratio", () => {
