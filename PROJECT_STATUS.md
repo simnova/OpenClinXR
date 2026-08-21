@@ -390,6 +390,44 @@ rediscovering it each cycle.
 | Asset factory | ED seed humanoid from case def | — | asset-pipeline-lead |
 | Encounter authoring | Scenario bank review packet loop | — | implementation-planning-lead |
 
+## Work-selection SSOT — ruled 2026-08-21, measured
+
+**The board says what EXISTS. It does not say what to do next.** Three planes, and conflating them
+is what prompted this ruling:
+
+| plane | where | role |
+|---|---|---|
+| **Inventory (HOT)** | GitHub project **7** `OpenClinXR-Planning` | 533 items, 451 Done / 82 Todo, min #2 max #539. **Every open issue is on it.** Complete and auto-tracking. |
+| **Selection** | the active lane + this file's Next dequeue | **This is what gets acted on.** |
+| **Portfolio** | `.openclinxr/handoffs/superagent-portfolio-2026-08-18.md` | A dated COLD snapshot. **Audit only — dequeuing from it is the thing that was wrong.** E1–E5 are a stale assignment, not a collision matrix; E2/E3/E5 are already downstream of later landings. Do not revive them to block or to fill a tick. |
+
+`EXEC_REHYDRATE`'s "dequeue queue → GitHub" means **cards live on GitHub**, not "pick any dispatchable
+Todo". `AGENTS.md` binds selection to this file and the active lane.
+
+**Dispatchability, measured over all 82 open cards via `briefFromIssue`:** 5 dispatchable, 77 refused
+for no `## done_when`. Of the 5: `#401` (P2) and `#404` (P3) are parked; `#519` was already landed and
+merely unclosed; `#510` and `#213` are ruled not-now (see below). **Zero genuinely takeable board
+items outside the active lane.**
+
+- `#510` is dispatchable *as written* and its premise is dead: filling `$diffusetexture` would bake
+  the white blob, and `a-painted-skin-clears-its-licence-header.test.ts:52` requires that slot to stay
+  empty until a skin ships its own licence header. Re-issuing it would violate a landed contract.
+- `#213` measures a capture instrument against room albedo that is still cave-dark — a moving target
+  until the rooms lane grades.
+
+**Operationalizing the 77 is toil if it becomes the work.** `PROTO_BOARD_LOOP`'s "dispatch or
+operationalize ONE" applies when the **active lane** has nothing runnable. Never a 77-card campaign;
+when blocked, operationalize exactly one *in-lane* card.
+
+**Board 8 `OpenClinXR-AI-Artifacts` is empty and stays that way.** Created for AI-artifact custom
+fields; empty means unused, not a missing queue. Do not populate it, do not build a syncer, do not
+delete it — deletion is the operator's call.
+
+**Harvest gap found while measuring this:** `#519` landed at `884d91bc` + `efdec1f6` (both ancestors
+of HEAD) and was never closed, so it re-appeared as one of five "dispatchable" cards. `integrate()`
+writes the integration event but closing the card is a separate manual step with nothing enforcing
+it. **How many other landed slices sit open is NOT MEASURED.**
+
 ## Stable Principles
 
 Blueprint-driven encounter factory. Sizable collaborative vertical slices only (multi-role team body, provable by interacting/showcasing in Model Vetting or UI-XR or asset pipeline). Q1/Q4/Q5 gate per GUARD_BLUEPRINT.md. Visibility/noticeability mandate (expand until skeptic-noticeable delta in tester or sample). Anti-toil (after 1 evidence-only -> product; after 2 -> coordinator+drift-police review + pivot). Cheap-first tiering + self-escalation. Persona-constrained BLUF. Conversation tooling first-class. No clinical/Quest claims without hardware evidence.
