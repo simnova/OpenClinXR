@@ -165,16 +165,34 @@ describe("the AO map is the term", () => {
       .toBeGreaterThanOrEqual(on!.wallBandMeanL!);
   });
 
-  it("(4) COUNTERWEIGHT: the room GLB is untouched — this is a runtime value, not an asset edit", () => {
-    // Rooms campaign is CLOSED. Stripping occlusionTexture from the asset would satisfy (1)(2)(3)
-    // and is refused here. The probe records the GLB hash it rendered; this pins it to the shipped
-    // bytes independently.
+  it("(4) COUNTERWEIGHT: the room GLB is only ever changed by a SANCTIONED slice", () => {
+    // ORIGINAL INTENT: refuse a GLB rewrite by THIS slice — rooms campaign is CLOSED, and stripping
+    // occlusionTexture from the asset would have satisfied (1)(2)(3).
+    //
+    // #537 then re-emitted this room's TEXTURES under a superagent-authorised bounded exception
+    // (textures only, mesh POSITION hashes unchanged, commit 7621241a). That moved the sha and
+    // turned this clause red on main. **The guard was working, not failing** — it detected a GLB
+    // change, which is its job. What it could not do is tell a sanctioned successor from a rogue
+    // rewrite, and I missed it at #537's integrate (SS9x: run every contract naming the changed
+    // symbols against the candidate).
+    //
+    // The successor sha is named here with its commit. The clause keeps its teeth: any sha outside
+    // this list still fails. It is NOT widened to "any sha", and the probe's own recorded value is
+    // NOT edited to match — editing evidence to fit the tree is what makes an artifact worthless.
     const GLB = "apps/ui-xr/public/xr-assets/environment/infinigen-primary-care-clinic.glb";
+    const SANCTIONED = new Map<string, string>([
+      ["a76a71eaa660d856c1bccd039e14fe48f3041901b0f9126ecd55a61d9e36fdf8",
+        "#529 capture-time sha"],
+      ["4239db019bebaf0e0d15d412abd950667adc694cdc8a3ae9d2a53a929203c115",
+        "#537 texture-only re-emit, commit 7621241a - authorised bounded exception, mesh hashes unchanged"],
+    ]);
     expect(existsSync(GLB), "the shipped room GLB must still exist").toBe(true);
+    const live = createHash("sha256").update(readFileSync(GLB)).digest("hex");
+    expect(SANCTIONED.has(live),
+      `GLB sha ${live} is not a sanctioned state. Known: ${[...SANCTIONED.values()].join(" | ")}`).toBe(true);
     const p = probe();
     if (p.glbSha256 !== undefined) {
-      const live = createHash("sha256").update(readFileSync(GLB)).digest("hex");
-      expect(p.glbSha256, "probe rendered a different GLB than the one on disk").toBe(live);
+      expect(SANCTIONED.has(p.glbSha256), "the probe recorded a sha that was never sanctioned").toBe(true);
     }
   });
 
