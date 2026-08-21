@@ -68,6 +68,14 @@ import { describe, expect, it } from "vitest";
  *   its garment classification is unambiguous.
  * notEvidenceFor: whether any actor's waist LOOKS right (the seam is ungraded); RIM_FRACTION or the
  *   overlap bounds being correct; the other garment gates.
+ *
+ * ## FIXED (#549)
+ *
+ * `garments-meet-at-the-waist.test.ts` now classifies via `isUpperGarmentName` / `isPantsName` (scrub_pants
+ * is lower-only), keeps non-overlapping UPPER/LOWER patterns for this contract's source parse, enumerates
+ * the live cast through `live-scenario-actor-cast.ts`, publishes `waist-fit-coverage.json`, and declares
+ * `mpfb-gown-adult-patient` a skip with reason. Library known-good ids retained; MIN/MAX/RIM untouched.
+ * `it.fails` on (1) and (2) flipped to `it`.
  */
 
 const ARTIFACT = "tools/openclinxr/evidence/waist-fit-coverage.json";
@@ -91,7 +99,7 @@ async function liveCastBasenames(): Promise<string[]> {
 }
 
 describe("the waist gate covers the shipped cast", () => {
-  it.fails("(1) RED: every live-cast actor appears in the waist gate's measured population", async () => {
+  it("(1) RED→GREEN: every live-cast actor appears in the waist gate's measured population", async () => {
     const rows = cov().subjects ?? [];
     expect(rows.length, `${ARTIFACT} missing — the gate publishes no coverage`).toBeGreaterThan(0);
     const seen = new Set(rows.map((r) => r.id));
@@ -99,8 +107,8 @@ describe("the waist gate covers the shipped cast", () => {
     expect(missing, "shipped cast actors the waist gate does not measure").toEqual([]);
   });
 
-  it.fails("(2) RED: no mesh is classified as BOTH upper and lower", () => {
-    // scrub_pants matches UPPER and LOWER on main. Read the sibling's own patterns rather than
+  it("(2) RED→GREEN: no mesh is classified as BOTH upper and lower", () => {
+    // scrub_pants matched UPPER and LOWER on main. Read the sibling's own patterns rather than
     // restating them, so a fix there is what flips this rather than a copy here.
     const src = readFileSync(SIBLING, "utf8");
     const up = /const UPPER = \/([^/]+)\/i/.exec(src)?.[1];

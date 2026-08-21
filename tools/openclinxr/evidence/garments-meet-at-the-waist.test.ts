@@ -1,7 +1,14 @@
 import { dirname, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import {
+  LIBRARY_WAIST_SUBJECTS,
+  measureWaistAt,
+  measureWaistFit,
+  type WaistCoverageRow,
+  type WaistFit,
+} from "./garments-meet-at-the-waist-measure.ts";
+import { listUniqueLiveCastMpfbAssetPaths } from "./live-scenario-actor-cast.ts";
 
 /**
  * The learner-visible adult female shows a ragged band of bare skin at the waist, between the top and
@@ -96,15 +103,26 @@ import { describe, expect, it } from "vitest";
  * The `it.fails` marker on (1) was flipped to `it`; all four clauses pass on the re-baked bytes. The
  * same marginality disclosure from the header still applies: a green here means "no visible gap", not
  * "a well-tailored waist" — the ragged ~30 mm span of both edges is deliberately not bounded.
+ *
+ * ## FIXED (#549)
+ *
+ * Population was two hardcoded library ids under `candidates/` — 0 of 9 shipped cast actors. Regexes
+ * `UPPER=/shirt|top|scrub|gown|tshirt/i` dual-matched `scrub_pants` (substring race). Fix: classify
+ * with shared slot helpers `isUpperGarmentName` / `isPantsName` (D1); keep non-overlapping UPPER/LOWER
+ * patterns for the coverage contract's source parse; enumerate cast via `live-scenario-actor-cast.ts`;
+ * publish `waist-fit-coverage.json`; declare `mpfb-gown-adult-patient` (no lower mesh) as a skip with
+ * reason. Library known-good column retained. Bounds untouched (MIN=0, MAX=0.1, RIM=0.12).
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
-const CANDIDATES = `${REPO_ROOT}/apps/ui-xr/public/xr-assets/humanoids/candidates`;
 
-const UPPER = /shirt|top|scrub|gown|tshirt/i;
+/**
+ * Slot-safe patterns for the coverage contract's dual-match check (#549).
+ * Classification uses isUpperGarmentName / isPantsName — these must not dual-match scrub_pants.
+ */
+const UPPER = /shirt|top|scrub_shirt|gown|tshirt|sweater|cardigan|lab_coat/i;
 const LOWER = /pants|trouser|short/i;
-const BUCKETS = 36;
 /** Fraction of a garment's own Y range treated as its rim band. */
 const RIM_FRACTION = 0.12;
 /** Zero is the definition of "the garments meet". Not tuned. */
@@ -112,63 +130,22 @@ const MIN_OVERLAP_M = 0;
 /** Refuses turning a shirt into a tunic to clear the floor. Loose by design; see header. */
 const MAX_OVERLAP_M = 0.1;
 
-type WaistFit = { id: string; overlaps: number[]; gapped: number };
+void UPPER;
+void LOWER;
+void RIM_FRACTION;
 
-const io = new NodeIO();
+const female = await measureWaistFit(LIBRARY_WAIST_SUBJECTS[0]!.glbPath, LIBRARY_WAIST_SUBJECTS[0]!.id);
+const male = await measureWaistFit(LIBRARY_WAIST_SUBJECTS[1]!.glbPath, LIBRARY_WAIST_SUBJECTS[1]!.id);
 
-/**
- * Per-angle overlap between the upper garment's hem and the lower garment's waistband.
- * Positive means the waistband sits ABOVE the hem — they overlap. Negative is a gap.
- */
-async function measureWaist(id: string): Promise<WaistFit> {
-  const doc = await io.read(`${CANDIDATES}/${id}.glb`);
-  let hem: number[] | null = null;
-  let waist: number[] | null = null;
-
-  for (const mesh of doc.getRoot().listMeshes()) {
-    for (const prim of mesh.listPrimitives()) {
-      const name = prim.getMaterial()?.getName() ?? "";
-      if (!/makeclothes/i.test(name)) continue;
-      const isUpper = UPPER.test(name);
-      const isLower = LOWER.test(name);
-      if (!isUpper && !isLower) continue;
-
-      const pos = prim.getAttribute("POSITION");
-      if (!pos) continue;
-      const el: [number, number, number] = [0, 0, 0];
-      const verts: [number, number, number][] = [];
-      for (let i = 0; i < pos.getCount(); i += 1) {
-        const [x, y, z] = pos.getElement(i, el);
-        verts.push([x!, y!, z!]);
-      }
-      const ys = verts.map((v) => v[1]);
-      const lo = Math.min(...ys);
-      const hi = Math.max(...ys);
-      const ref = isUpper ? lo : hi;
-
-      const edge = new Array<number>(BUCKETS).fill(isUpper ? Infinity : -Infinity);
-      for (const [x, y, z] of verts) {
-        if (Math.abs(y - ref) > (hi - lo) * RIM_FRACTION) continue;
-        const angle = Math.atan2(z, x);
-        const b = Math.floor(((angle + Math.PI) / (2 * Math.PI)) * BUCKETS) % BUCKETS;
-        edge[b] = isUpper ? Math.min(edge[b]!, y) : Math.max(edge[b]!, y);
-      }
-      if (isUpper) hem = edge;
-      else waist = edge;
-    }
-  }
-
-  const overlaps: number[] = [];
-  if (hem && waist) {
-    for (let b = 0; b < BUCKETS; b += 1) {
-      if (Number.isFinite(hem[b]!) && Number.isFinite(waist[b]!)) overlaps.push(waist[b]! - hem[b]!);
-    }
-  }
-  return { id, overlaps, gapped: overlaps.filter((o) => o < MIN_OVERLAP_M).length };
+const coverageSubjects: WaistCoverageRow[] = [];
+for (const lib of LIBRARY_WAIST_SUBJECTS) {
+  coverageSubjects.push(await measureWaistAt(lib.id, lib.glbPath, "library"));
 }
-
-const female = await measureWaist("body-param-adult_lean_female-library");
-const male = await measureWaist("body-param-adult_heavy_male-library");
+for (const rel of listUniqueLiveCastMpfbAssetPaths()) {
+  const id = rel.split("/").pop()!.replace(/\.glb$/i, "");
+  coverageSubjects.push(await measureWaistAt(id, pathResolve(REPO_ROOT, rel), "cast"));
+}
+coverageSubjects.sort((a, b) => a.id.localeCompare(b.id));
 
 /** An unmeasured rail must FAIL every clause, never pass vacuously (§7t). */
 function requireMeasured(fit: WaistFit): void {
@@ -205,5 +182,23 @@ describe("the upper and lower garments meet at the waist", () => {
       const biggest = Math.max(...fit.overlaps);
       expect(biggest, `${fit.id}: largest overlap ${mm(biggest)}`).toBeLessThanOrEqual(MAX_OVERLAP_M);
     }
+  });
+
+  it("(5) CAST: every non-skipped live-cast subject meets at the waist without widening bounds", () => {
+    const measured = coverageSubjects.filter((r) => r.source === "cast" && !r.skipped);
+    expect(measured.length, "expected cast subjects with both upper+lower").toBeGreaterThan(0);
+    for (const row of measured) {
+      expect(row.gapped, `${row.id}: gapped buckets`).toBe(0);
+      expect(row.overlaps.length, `${row.id}: comparable buckets`).toBeGreaterThanOrEqual(12);
+      const biggest = Math.max(...row.overlaps);
+      expect(biggest, `${row.id}: largest overlap ${mm(biggest)}`).toBeLessThanOrEqual(MAX_OVERLAP_M);
+    }
+  });
+
+  it("(6) CAST: gown / no-lower is a declared skip, never a silent pass", () => {
+    const gown = coverageSubjects.find((r) => r.id === "mpfb-gown-adult-patient");
+    expect(gown, "mpfb-gown-adult-patient must appear in coverage").toBeTruthy();
+    expect(gown!.skipped, "gown must be skipped").toBe(true);
+    expect(gown!.skipReason?.trim().length ?? 0, "skip reason must be substantive").toBeGreaterThanOrEqual(12);
   });
 });
