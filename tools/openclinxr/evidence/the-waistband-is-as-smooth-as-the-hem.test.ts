@@ -1,8 +1,8 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { measureTrouserActor } from "./waistband-ring.ts";
+import { GENERATED_HUMANOIDS, measureTrouserActor, type TrouserRow } from "./waistband-ring.ts";
 
 /**
  * **The visible sawtooth at the shirt/trouser junction is the CARGO-PANTS WAISTBAND ring.** Graded in
@@ -193,7 +193,8 @@ import { measureTrouserActor } from "./waistband-ring.ts";
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 
-const ACTORS = ["mpfb-ob-patient-aisha", "mpfb-peds-nurse-kevin", "mpfb-peds-patient-child"] as const;
+// #514 — the bound's population is enumerated from the shipped directory below (see `rows`),
+// not a hardcoded list of names (§7j).
 
 /** The waistband may be at most this many times rougher than the same body's own shirt hem. */
 const MAX_WAISTBAND_TO_HEM_HF_RATIO = 4;
@@ -227,7 +228,27 @@ const BASELINE: Record<
 
 const ARTIFACT = join(REPO_ROOT, "tools/openclinxr/evidence/waistband-membership.json");
 
-const rows = await Promise.all(ACTORS.map((actor) => measureTrouserActor(actor)));
+// #514 — enumerate the bound's population from the shipped directory. A trouser-carrying actor is
+// any shipped GLB whose measured row has a pants mesh; gown wearers carry no trouser mesh and are
+// correctly unmeasurable, not failures.
+const rows: TrouserRow[] = await (async () => {
+  const out: TrouserRow[] = [];
+  for (const file of readdirSync(GENERATED_HUMANOIDS).filter((f) => f.endsWith(".glb")).sort()) {
+    const actor = file.replace(/\.glb$/, "");
+    const measured = await measureTrouserActor(actor);
+    if (measured.trouserMesh) out.push(measured);
+  }
+  return out;
+})();
+const ACTORS = rows.map((r) => r.actor);
+
+/**
+ * #514 — the counterweights pin only the actors with a measured known-good baseline. Newly enumerated
+ * trouser actors are still bounded by clause (1) (the 4x), but they have no baseline reference to pin
+ * their geometry against, so the decimation/remesh/hem counters skip them rather than fabricate a
+ * floor (§9h).
+ */
+const pinned = rows.filter((r) => r.actor in BASELINE);
 
 /**
  * #427 INVERTED GUARD. This used to assert `usable.length === ACTORS.length` — the list checked
@@ -274,7 +295,7 @@ describe("the cargo-pants waistband is as smooth as the hem on the same body", (
     // Refuses buying smoothness by deleting the vertices that carry the boundary (SS6t).
     // A genuine re-tessellation RAISES this count; decimation lowers it.
     requireMeasured();
-    const thinned = rows
+    const thinned = pinned
       .filter((r) => r.waist && r.waist.verts < (BASELINE[r.actor]?.waistVerts ?? 0))
       .map((r) => `${r.actor}: waistband ring ${r.waist!.verts} verts < floor ${BASELINE[r.actor]?.waistVerts}`);
     expect(thinned, "waistband rings decimated rather than re-tessellated").toEqual([]);
@@ -284,7 +305,7 @@ describe("the cargo-pants waistband is as smooth as the hem on the same body", (
     // Refuses changing the geometry instead of its smoothness — a remesh, or collapsing the ring's
     // contour so there is nothing left to be ragged.
     requireMeasured();
-    const changed = rows
+    const changed = pinned
       .filter((r) => {
         const b = BASELINE[r.actor];
         return !b || r.pantsTris !== b.pantsTris || (r.waist?.span ?? 0) < b.waistSpan * 0.8;
@@ -303,7 +324,7 @@ describe("the cargo-pants waistband is as smooth as the hem on the same body", (
     // Roughening the hem would green it while making the product visibly worse in a second place,
     // so the hem is pinned ABSOLUTELY against its own measured value, not relatively.
     requireMeasured();
-    const degraded = rows
+    const degraded = pinned
       .filter((r) => r.hem && r.hem.hfP95 > (BASELINE[r.actor]?.hemHfP95 ?? 0) * HEM_DEGRADATION_ALLOWANCE)
       .map(
         (r) =>
