@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "openclinxr.interior-wall-ao-probe.v1",
+  "generatedAt": "2026-08-21T18:24:51.180Z",
+  "room": "infinigen-primary-care-clinic",
+  "scenarioId": "primary_care_dyslipidemia_joint_pain_v1",
+  "captureMode": "scene-overview",
+  "lightingVariant": "room_environment_ibl",
+  "cameraNote": "roomCam(interiorWall)=0.00,1.68,2.44 look=0.00,1.45,-3.46 wallThickness=0.120",
+  "wallBandRegion": {
+    "left": 0.08,
+    "top": 0.18,
+    "width": 0.42,
+    "height": 0.48
+  },
+  "glbSha256": "a76a71eaa660d856c1bccd039e14fe48f3041901b0f9126ecd55a61d9e36fdf8",
+  "plasterUv2Falsifier": {
+    "meshName": "bedroom_02ceiling",
+    "materialName": "shader_plaster.022",
+    "hasUv2": true,
+    "withAoMap": true
+  },
+  "claimScope": "whether the wall-band speckle under RoomEnvironment IBL is produced by the aoMap term on one Infinigen room",
+  "notEvidenceFor": [
+    "product lighting default",
+    "AO remedy choice",
+    "plaster_albedo_variation_R2",
+    "other rooms",
+    "quest_readiness",
+    "clinical_validity"
+  ],
+  "cells": [
+    {
+      "id": "ibl_ao1",
+      "aoMapIntensity": 1,
+      "camera": "roomCam(interiorWall)=0.00,1.68,2.44 look=0.00,1.45,-3.46 wallThickness=0.120",
+      "wallBandMeanL": 26.92,
+      "wallBandSd": 33.96,
+      "wallBandHf": 2.32,
+      "image": "interior-wall-ao-probe/ibl_ao1.png",
+      "materialsWithAoMap": 3
+    },
+    {
+      "id": "ibl_ao0",
+      "aoMapIntensity": 0,
+      "camera": "roomCam(interiorWall)=0.00,1.68,2.44 look=0.00,1.45,-3.46 wallThickness=0.120",
+      "wallBandMeanL": 95.77,
+      "wallBandSd": 85.26,
+      "wallBandHf": 0.7,
+      "image": "interior-wall-ao-probe/ibl_ao0.png",
+      "materialsWithAoMap": 3
+    }
+  ]
+}

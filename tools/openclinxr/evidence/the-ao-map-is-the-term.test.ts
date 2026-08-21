@@ -111,6 +111,8 @@ function probe(): { cells?: Cell[]; glbSha256?: string } {
 const cell = (id: string): Cell | undefined => (probe().cells ?? []).find((c) => c.id === id);
 
 describe("the AO map is the term", () => {
+  // #529 measured: ao0 sd ROSE (33.96 → 85.26). Premise false for the sd discriminator — leave
+  // it.fails (assertion unchanged). HF reading fell 2.32 → 0.70 (not asserted). See FIXED below.
   it.fails("(1) RED: switching aoMapIntensity to 0 lowers wall-band sd under the same IBL camera", () => {
     const on = cell("ibl_ao1"), off = cell("ibl_ao0");
     expect(on?.wallBandSd, "ibl_ao1 cell missing from the probe artifact").toBeTypeOf("number");
@@ -122,7 +124,7 @@ describe("the AO map is the term", () => {
       .toBeLessThan(on!.wallBandSd!);
   });
 
-  it.fails("(2) RED known-good: the AO-on cell reproduces #525's landed room_environment_ibl measurement", () => {
+  it("(2) RED known-good: the AO-on cell reproduces #525's landed room_environment_ibl measurement", () => {
     const on = cell("ibl_ao1");
     expect(on?.wallBandSd, "ibl_ao1 cell missing").toBeTypeOf("number");
     // If this does not reproduce, the probe is measuring something else and clause (1) is void.
@@ -133,7 +135,7 @@ describe("the AO map is the term", () => {
       `meanL ${on!.wallBandMeanL} vs landed ${LANDED_IBL_MEAN_L}`).toBeLessThanOrEqual(REPRO_TOLERANCE);
   });
 
-  it.fails("(3) COUNTERWEIGHT: turning AO off must not DARKEN the wall — sd may not be bought with exposure", () => {
+  it("(3) COUNTERWEIGHT: turning AO off must not DARKEN the wall — sd may not be bought with exposure", () => {
     const on = cell("ibl_ao1"), off = cell("ibl_ao0");
     expect(off?.wallBandMeanL, "ibl_ao0 cell missing").toBeTypeOf("number");
     // Physics, not a fit: aoMap only ever attenuates indirect light, so removing it can brighten or
@@ -155,7 +157,7 @@ describe("the AO map is the term", () => {
     }
   });
 
-  it.fails("(5) RED/VACUITY: both cells exist, share one camera, and carry real images", () => {
+  it("(5) RED/VACUITY: both cells exist, share one camera, and carry real images", () => {
     // `it.fails` because the artifact does not exist yet — this is part of the RED set, not a
     // pre-existing guard. It flips with the others and then permanently refuses an empty artifact.
     const p = probe();
@@ -173,3 +175,21 @@ describe("the AO map is the term", () => {
     }
   });
 });
+
+/*
+ * ## FIXED (#529)
+ *
+ * Probe shipped: `tools/openclinxr/evidence/interior-wall-ao-probe.ts` extends the #525 lighting
+ * path (same interior-wall camera, WALL_BAND, regionLuminance). Runtime `aoMapIntensity` 1 then 0
+ * on room_environment_ibl; GLB untouched (sha a76a71ea…).
+ *
+ * Measured (do not grade pixels here):
+ *
+ *   cell       intensity  meanL   sd     hf(reading)  camera
+ *   ibl_ao1    1          26.92   33.96  2.32         roomCam(interiorWall)=0.00,1.68,2.44 …
+ *   ibl_ao0    0          95.77   85.26  0.70         same
+ *
+ * (2)(3)(4)(5) hold. (1) does NOT: ao0 sd ROSE 33.96 → 85.26. Premise false for the sd discriminator.
+ * Recorded HF fell 2.32 → 0.70 (shape reading only — not asserted). Plaster falsifier survived
+ * (shader_plaster.022 / bedroom_02ceiling tris=30, uv+uv1, aoMap.channel=1).
+ */
