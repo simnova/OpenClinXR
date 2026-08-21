@@ -28,8 +28,13 @@ import { Box3, type Group, Mesh, type Object3D, type Scene, Vector3 } from "thre
 import type { NamedShellWall } from "@openclinxr/asset-registry/fixture-wall-mounting";
 import { anchorFixtureNearFaceToPlane } from "./station-architecture-fixtures.js";
 import { INFINIGEN_ENVIRONMENT_ASSETS } from "./infinigen-environment-assets.js";
+import { assignMissingRoomPrimitiveMaterials } from "./infinigen-room-primitive-materials.js";
 import { roomInteriorAndHull } from "./interior-preview-camera.js";
 export { INFINIGEN_ENVIRONMENT_ASSETS } from "./infinigen-environment-assets.js";
+export {
+  assignMissingRoomPrimitiveMaterials,
+  isGltfMissingAuthoredMaterial,
+} from "./infinigen-room-primitive-materials.js";
 export {
   collectActorWorldBoxes,
   collectDoorLeafWorldBoxes,
@@ -395,6 +400,9 @@ export function loadInfinigenEnvironmentIntoStation(input: {
         roomRoot.userData.openClinXrEnvironmentId = input.environmentId;
         roomRoot.userData.openClinXrInfinigenPolicy =
           "generated_room_loaded_by_environmentId_procedural_box_is_fallback";
+        // #534 — material-less wall prims → black void; assign plaster-derived dielectric at load.
+        const assignedMaterials = assignMissingRoomPrimitiveMaterials(roomRoot);
+        roomRoot.userData.openClinXrAssignedRoomPrimitiveMaterials = assignedMaterials;
         const placement = positionInfinigenRoom(roomRoot, input.stationEnvironment);
         const hiddenShellMeshes = hideProceduralShellMeshes(input.stationEnvironment);
         roomRoot.userData.openClinXrInfinigenPlacement = placement;

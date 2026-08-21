@@ -117,14 +117,21 @@ function probe(): { shells?: Shell[]; glbSha256?: Record<string, string> } {
 const shell = (glb: string): Shell | undefined => (probe().shells ?? []).find((s) => s.glb === glb);
 
 describe("every room primitive has a material", () => {
-  it.fails("(1) RED: the primary-care shell has zero material-less primitives in the LIVE scene graph", () => {
+  /**
+   * ## FIXED (#534)
+   * Loader-side: `assignMissingRoomPrimitiveMaterials` after GLTFLoader clones a DoubleSide
+   * dielectric from each room's plaster onto every material-less primitive (enumerated from the
+   * live graph, not a name list). GLB bytes unchanged (clause 3). Probe artifact records
+   * wallRegionMeanL / ceilingRegionMeanL as readings only.
+   */
+  it("(1) RED: the primary-care shell has zero material-less primitives in the LIVE scene graph", () => {
     const s = shell(PRIMARY);
     expect(s?.prims, `${PRIMARY} missing from the probe artifact`).toBeTypeOf("object");
     const bare = (s!.prims ?? []).filter((p) => !p.material).map((p) => p.mesh ?? "?").sort();
     expect(bare, "primitives with no material after GLTFLoader").toEqual([]);
   });
 
-  it.fails("(2) RED: all 14 Infinigen shells are clean in the live scene graph", () => {
+  it("(2) RED: all 14 Infinigen shells are clean in the live scene graph", () => {
     const missing = Object.keys(NO_MATERIAL_IN_FILE).filter((g) => !shell(g));
     expect(missing, "shells absent from the probe artifact").toEqual([]);
     const dirty = Object.keys(NO_MATERIAL_IN_FILE)
@@ -149,7 +156,7 @@ describe("every room primitive has a material", () => {
       .toEqual(NO_MATERIAL_IN_FILE);
   });
 
-  it.fails("(4) COUNTERWEIGHT: the wall primitive is VISIBLE with real bounds — void must not become absence", () => {
+  it("(4) COUNTERWEIGHT: the wall primitive is VISIBLE with real bounds — void must not become absence", () => {
     // A black wall and a deleted wall are indistinguishable from inside a box, and deleting makes
     // every luminance number improve. This is the cheap fix the slice is most likely to reach for.
     const s = shell(PRIMARY);
@@ -162,7 +169,7 @@ describe("every room primitive has a material", () => {
     }
   });
 
-  it.fails("(5) COUNTERWEIGHT: the assigned material is DERIVED from the room, not an invented albedo", () => {
+  it("(5) COUNTERWEIGHT: the assigned material is DERIVED from the room, not an invented albedo", () => {
     // "Clone that room's plaster" is the directive. An invented colour is hand-authoring (D1) and
     // will differ from room to room for no reason. Each assignment must name where it came from.
     const s = shell(PRIMARY);
@@ -178,6 +185,8 @@ describe("every room primitive has a material", () => {
   it("(6) VACUITY: the probe carries a wall-region luminance READING for the primary-care camera", () => {
     // Recorded, never asserted (§9d). #529: I bounded sd, the premise was false, and the unasserted
     // HF column answered it. The grade of whether the walls read as walls is the orchestrator's.
+    // NOTE (#534 worker): when the artifact is absent this clause returns early by design — clause (1)
+    // owns the missing-artifact failure. That early return is intentional; do not "fix" it.
     const s = shell(PRIMARY);
     if (!s) return; // clause (1) owns the missing-artifact failure
     expect(typeof s.wallRegionMeanL, "wallRegionMeanL must be recorded as a reading").toBe("number");
