@@ -31,6 +31,22 @@
  *
  * claimScope: whether a tracked report names why the two instruments disagree.
  * notEvidenceFor: that either instrument is correct, or that any station's luminance is right.
+ *
+ * ## FIXED (#507) — 2026-08-21
+ *
+ * Reproduced the non-determinism, FALSIFIED the inferred fallback-camera race. Focused re-measure
+ * (tools/openclinxr/evidence/sweep-determinism-measure.ts, same helpers both instruments import):
+ * primary_care region median 23/23/23/17/16 (sweep-style, one server) and 17/21/23/21/23
+ * (per-station-style, fresh server each) — the sweep varies (spread 7) AND the per-station path
+ * varies (spread 6), so the header's "per-station 23.0 five times" did not reproduce. Every one of
+ * the ten frame notes reads roomCam(derived)=3.01,<Y>,2.44 with an empty rejected list: the
+ * generated room was loaded and the derived interior camera framed each time, so the room-load race
+ * reaching the fallback camera never fired. Control: ed_chest_pain_priority_v1 sweep-style was
+ * bit-exact at 36 across 4 captures in the same environment — the variance is specific to
+ * primary_care's rendered scene, present in BOTH instruments, not a sweep defect and not general
+ * capture noise. The deeper cause of primary_care's scene-level variance is NOT DETERMINED (not the
+ * camera, not the room load; left for a follow-up, since actor-bound motion alone does not explain
+ * it — the control's actors also moved while its luminance stayed fixed).
  */
 import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
@@ -45,7 +61,7 @@ describe("#507 the sweep agrees with the per-station capture, or we know why not
     expect(existsSync("tools/openclinxr/evidence/ui-xr-environment-room-capture.ts")).toBe(true);
   });
 
-  it.fails("(1) a tracked report names the mechanism, or honestly rejects", () => {
+  it("(1) a tracked report names the mechanism, or honestly rejects", () => {
     expect(existsSync(REPORT), `${REPORT} must exist and be TRACKED (#396)`).toBe(true);
     const r = JSON.parse(readFileSync(REPORT, "utf8")) as Record<string, unknown>;
 
