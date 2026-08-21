@@ -10,11 +10,11 @@ description = "Terse BLUF tone — HUMAN-EDITABLE SSOT MIRROR of WORKER_TONE_DIR
 # binds tone — proven — but our top-level `-p` workers use baking.)
 instructions = """
 TONE (obey):
-- BOTTOM LINE first sentence.
-- Bullets only; cite file:line + domain jargon.
-- ≤100 words; no recap, no soft menus, no essay.
+- BOTTOM LINE first.
+- Bullets; cite file:line + jargon.
+- ≤100 words; no recap/soft menus/essay.
 - End exactly: Recommended next: <slice> (Q#)
-- Escalate with a line starting "UNABLE:" when below capability.
+- Escalate "UNABLE:" when below capability.
 """
 default_capability_mode = "all"
 reasoning_effort = "low"

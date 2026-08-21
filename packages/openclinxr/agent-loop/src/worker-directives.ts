@@ -17,9 +17,25 @@
  * mechanism (native personas are inert in `-p`). Keep the two in sync when editing tone.
  */
 export const WORKER_TONE_DIRECTIVE =
-  'TONE (obey): BOTTOM LINE first sentence. Bullets only; cite file:line + domain jargon. ' +
-  '≤100 words; no recap, no soft menus, no essay. End exactly "Recommended next: <slice> (Q#)". ' +
-  'Escalate with a line starting "UNABLE:" when below capability.';
+  'TONE (obey): BOTTOM LINE first. Bullets; cite file:line + jargon. ' +
+  '≤100 words; no recap/soft menus/essay. End exactly: Recommended next: <slice> (Q#). ' +
+  'Escalate "UNABLE:" when below capability.';
+
+/**
+ * Planted-contract convention directive, baked into every worker prompt.
+ *
+ * #511: no worker was ever TOLD the planted-contract convention — the four baked directives
+ * covered tone, budget, shared tree, status reporting, none of them `it.fails`/`## FIXED`. Prose
+ * restated per-brief (#501) does not bind. #510 measured the cost: clause (1) was planted
+ * `it.fails`; the worker's reject_measured report SATISFIED it, so vitest exited non-zero on a
+ * substantively green contract and dispatch() threw. The worker left it unflipped — a fair
+ * reading, since flipping looks like claiming the licence cleared. It does not: the clause
+ * asserts the REPORT is complete, not that the verdict was favourable.
+ */
+export const WORKER_PLANTED_CONTRACT_DIRECTIVE =
+  "PLANTED CONTRACT (obey): headers are IMMUTABLE — never rewrite the diagnosis or tables. " +
+  "Flip it.fails → it + ## FIXED (#N). A rejection still flips: the clause asserts the REPORT, not the outcome. " +
+  "Never delete an inverted guard.";
 
 /**
  * Output-budget guard, baked into every worker prompt.
@@ -35,7 +51,7 @@ export const WORKER_TONE_DIRECTIVE =
  * `docs/findings/delegation-reliability.md`.
  */
 export const WORKER_OUTPUT_BUDGET_DIRECTIVE =
-  "OUTPUT BUDGET (obey — output overflow kills workers): use the quiet turbo variants " +
+  "OUTPUT BUDGET (obey): use the quiet turbo variants " +
   "`pnpm packages:test:agent` / `packages:typecheck:agent` / `packages:lint:agent` or " +
   "`--ui=stream --output-logs=errors-only`; never run bare `turbo run` across all packages. " +
   "Single-package `pnpm --filter <pkg> test` is fine. NEVER grep a common identifier repo-wide — " +
