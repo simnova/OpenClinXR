@@ -8,11 +8,11 @@
     "current-reference": 211,
     "archive-candidate": 11,
     "evidence": 41,
-    "protected-policy": 10,
+    "protected-policy": 11,
     "agent-memory": 34,
     "historical-synthesis": 11,
     "decision-record": 37,
-    "total": 449
+    "total": 450
   },
   "entries": [
     {
@@ -1353,6 +1353,13 @@
       "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
+      "path": "LICENSE-CLASHES.md",
+      "authority": "protected-policy",
+      "agentInstructionWeight": "highest",
+      "action": "protect",
+      "rationale": "Operator-owned licence override surface; agents read section 2 before treating a cached asset as blocked and must not rewrite it."
+    },
+    {
       "path": "PROJECT_COORDINATION_INDEX.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
@@ -1945,63 +1952,63 @@
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/coordination/2026-08/AUTONOMOUS_WORK_PLAN.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/coordination/2026-08/PROJECT_COORDINATION_INDEX.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/iterations/0009/07-final-synthesis.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/wiki/index.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/wiki/topics/agent-factory-iterations.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/wiki/topics/agent-ops-revisions.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/wiki/topics/coordination-ledgers.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/wiki/topics/openclinxr-product-docs.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/agent-factory/README.md",
@@ -2506,7 +2513,7 @@
       "agentInstructionWeight": "medium",
       "action": "treat-as-evidence",
       "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue.",
-      "title": "0054 \u2014 Equipment three-lane factory (bank / thin parametric / modular kit)"
+      "title": "0054 — Equipment three-lane factory (bank / thin parametric / modular kit)"
     },
     {
       "path": "docs/madr/0055-equipment-asset-catalog-ssot.md",
@@ -2514,7 +2521,7 @@
       "agentInstructionWeight": "medium",
       "action": "treat-as-evidence",
       "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue.",
-      "title": "0055 \u2014 Equipment asset catalogue file-first SSOT (+ optional Mongo)"
+      "title": "0055 — Equipment asset catalogue file-first SSOT (+ optional Mongo)"
     },
     {
       "path": "docs/madr/0056-room-realism-is-material-not-geometry.md",

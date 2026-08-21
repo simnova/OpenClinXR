@@ -146,6 +146,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `.grok/rules/MANDATE_VISIBILITY.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.grok/rules/PROTO_SUBAGENT.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `AGENTS.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
+- `LICENSE-CLASHES.md` - protected-policy; Operator-owned licence override surface; agents read section 2 before treating a cached asset as blocked and must not rewrite it.
 - `PROJECT_STATUS.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `README.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `apps/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
