@@ -153,7 +153,7 @@ const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..
  * a station is a bundle directory that carries the learner runtime bundle. Deriving means a new
  * scenario joins the routine sweep the day it ships, and a pasted list cannot silently age.
  */
-function shippedStationIds(): string[] {
+export function shippedStationIds(): string[] {
   const bundlesDir = path.join(REPO_ROOT, "apps/ui-xr/public/xr-assets/generated");
   if (!existsSync(bundlesDir)) return [];
   return readdirSync(bundlesDir)

@@ -45,6 +45,28 @@
  *
  * claimScope: whether every shipped station captures at least as bright as it does today.
  * notEvidenceFor: framing quality, clinical realism, or that any station is well-composed.
+ *
+ * ## FIXED (#505) — 2026-08-21
+ *
+ * Premise FALSIFIED by before/after measurement — no capture-code change was required.
+ * I reverted `ui-xr-environment-room-capture.ts` to db6679d7 (pre-#503), measured
+ * primary_care three times, restored, and measured five more across two boots:
+ *
+ *   pre-#503   median 21 / 12 / 23        (gradeable, same variance)
+ *   post-#503  median 21 / 23 / 13 / 16 / 17 (gradeable)
+ *
+ * The 0.0 in the floor table does not reproduce. The mechanism is visible in the #503 diff:
+ * primary_care's room ships a SINGLE fused wall mesh `bedroom_02wall` (258 tris) whose own
+ * name already matches /wall/ — so the ancestor-walk fix (built for ed_stroke's
+ * multi-primitive `bedroom_01wall` Group wrapping `Circle022` primitives) never changes its
+ * classification — and its world AABB spans x[-3.25,3.25] z[-3.70,2.68], which contains all
+ * five doorway-side candidates, so it is never pushed to `wallPartitionBoxes`. The camera
+ * derivation for this station is byte-identical pre/post #503. The recorded 0.0 is therefore
+ * NOT a reproducible #503 regression; I did not reproduce it, and its cause is UNVERIFIED
+ * (my inference — a transient room-load race hitting the fallback camera — was not measured).
+ *
+ * Full 15-station sweep (station-luminance-sweep.json, tracked): primary_care median 16
+ * (>= 12), ed_stroke 24 (>= 12), every station within floor-2, ceilings hold.
  */
 import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
@@ -72,13 +94,13 @@ const load = (): Record<string, { median: number }> => {
 };
 
 describe("#505 no shipped station captures darker than it does today", () => {
-  it.fails("(1) the regressed station is restored AND #503's win is kept", () => {
+  it("(1) the regressed station is restored AND #503's win is kept", () => {
     const s = load();
     expect(s.primary_care_dyslipidemia_joint_pain_v1?.median, "primary_care was 21, is 0").toBeGreaterThanOrEqual(12);
     expect(s.ed_stroke_alert_handoff_v1?.median, "#503 took this 0 -> 24; do not undo it").toBeGreaterThanOrEqual(12);
   });
 
-  it.fails("(2) EVERY shipped station is at least as bright as its recorded floor", () => {
+  it("(2) EVERY shipped station is at least as bright as its recorded floor", () => {
     const s = load();
     for (const [id, floor] of Object.entries(FLOORS)) {
       expect(s[id], `${id} missing from the sweep`).toBeTruthy();
@@ -86,13 +108,13 @@ describe("#505 no shipped station captures darker than it does today", () => {
     }
   });
 
-  it.fails("(3) COUNTERWEIGHT: the sweep is the WHOLE bank, enumerated dynamically — not a chosen pair", () => {
+  it("(3) COUNTERWEIGHT: the sweep is the WHOLE bank, enumerated dynamically — not a chosen pair", () => {
     const s = load();
     expect(Object.keys(s).length, "sweep must cover every shipped station").toBeGreaterThanOrEqual(14);
     for (const id of Object.keys(FLOORS)) expect(s[id], `${id} absent — no cherry-picking`).toBeTruthy();
   });
 
-  it.fails("(4) COUNTERWEIGHT: nothing is brightened wholesale — known-good stations stay in band", () => {
+  it("(4) COUNTERWEIGHT: nothing is brightened wholesale — known-good stations stay in band", () => {
     const s = load();
     for (const [id, ceil] of Object.entries(CEILINGS)) {
       expect(s[id]!.median, `${id} lifted above ${ceil} — that is a global exposure bump, not a framing fix`)
