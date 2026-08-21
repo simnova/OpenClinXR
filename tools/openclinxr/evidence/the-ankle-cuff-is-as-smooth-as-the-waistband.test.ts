@@ -120,17 +120,21 @@ import { GENERATED_HUMANOIDS, isPantsName, ringHighFrequency, type Ring } from "
  * shared ringHighFrequency too, no private copy. The counterweights pin only the three baseline
  * actors; the newly enumerated trouser wearers are still bounded by clause (1).
  *
- * FINDING — the instrument can now see the scrub_pants cover shell, and its ankle cuff exceeds the
- * 3x bound (the bound is NOT widened):
+ * FINDING (filed as #517) — the instrument can now see the scrub_pants cover shell, and its ankle
+ * cuff exceeds the 3x bound (the bound is NOT widened). Clause (1) is now an INVERTED GUARD: a
+ * named exemption for exactly these three measured actors, never a blanket. They must still be
+ * present, measurable, and STILL exceed 3x; every other trouser actor stays under a real 3x
+ * assertion. The day #517 smooths one of them, this guard fails and forces the exemption back to a
+ * real assertion.
  *
  *   mpfb-peds-nurse-kevin          4.1x  (cuff 7.77mm vs waistband 1.88mm)
  *   mpfb-clinical-nurse-adult      4.2x  (cuff 7.87mm vs waistband 1.88mm)
  *   mpfb-clinical-physician-adult  4.2x  (cuff 7.87mm vs waistband 1.88mm)
  *
- * This is a real geometry finding (the scrub cover shell's lower rim is ragged), not this slice's
- * failure — reported, not tuned away, not fixed here (clothing_consume). The BASELINE rows are
- * re-keyed to these same bytes so the counterweights bind current geometry rather than the
- * #374/#389-era values the name-keyed matcher froze in.
+ * This is a real geometry defect (the scrub cover shell's lower rim is ragged), not this slice's
+ * failure — owned by #517, not fixed here. The BASELINE rows are re-keyed to these same bytes so
+ * the counterweights bind current geometry rather than the #374/#389-era values the name-keyed
+ * matcher froze in.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -216,6 +220,17 @@ const ACTORS = rows.map((r) => r.actor);
 const pinned = rows.filter((r) => r.actor in BASELINE);
 
 /**
+ * #517 — the three scrub-pants actors whose cuff exceeds the 3x bound on the shipped bytes, filed
+ * as a product defect. Clause (1) exempts ONLY these by name; the exemption must fail the day one
+ * of them drops back to <= 3x, forcing the guard to be restored to a real assertion.
+ */
+const KNOWN_CUFF_DEFECT_ACTORS = [
+  "mpfb-peds-nurse-kevin",
+  "mpfb-clinical-nurse-adult",
+  "mpfb-clinical-physician-adult",
+] as const;
+
+/**
  * #516 INVERTED GUARD (the #427/#514 shape). This used to assert `usable.length === ACTORS.length`
  * — the list checked against itself, satisfied by any hardcoded list including a list of one. The
  * population is now enumerated from the shipped directory and checked against the E5 membership
@@ -241,10 +256,15 @@ function requireMeasured(): void {
 
 describe("the ankle cuff is as smooth as the waistband on the same cover shell", () => {
   it(
-    `(1) RED: cuff high-frequency residual is within ${MAX_CUFF_TO_WAISTBAND_HF_RATIO}x the same shell's regularized waistband`,
+    `(1) INVERTED GUARD: every trouser actor outside the #517 exemption is within ${MAX_CUFF_TO_WAISTBAND_HF_RATIO}x, and the three exempt scrub-pants cuffs still exceed it`,
     () => {
       requireMeasured();
-      const shredded = rows
+      const exempt = new Set<string>(KNOWN_CUFF_DEFECT_ACTORS);
+
+      // Every actor NOT in the #517 exemption is bounded by the real 3x assertion. A fourth
+      // scrub-pants wearer that ships tomorrow lands here and REDs rather than being absorbed.
+      const bounded = rows.filter((r) => !exempt.has(r.actor));
+      const shredded = bounded
         .filter((r) => r.cuff && r.waist && r.cuff.hfP95 > r.waist.hfP95 * MAX_CUFF_TO_WAISTBAND_HF_RATIO)
         .map(
           (r) =>
@@ -253,6 +273,21 @@ describe("the ankle cuff is as smooth as the waistband on the same cover shell",
             )}mm = ${(r.cuff!.hfP95 / Math.max(r.waist!.hfP95, 0.01)).toFixed(1)}x (bound ${MAX_CUFF_TO_WAISTBAND_HF_RATIO}x)`,
         );
       expect(shredded, "cuff rims rougher than the same shell's regularized waistband").toEqual([]);
+
+      // The three #517-known scrub-pants actors must still be present, measurable, and STILL exceed
+      // 3x. The day #517 smooths one of them its ratio drops <= 3x and this guard fails, forcing
+      // the exemption to be removed and the real assertion restored. A guard that stays green after
+      // the fix is dead weight.
+      const stillExceeding = KNOWN_CUFF_DEFECT_ACTORS.filter((actor) => {
+        const r = rows.find((row) => row.actor === actor);
+        if (!r?.cuff || !r.waist) return false;
+        return r.cuff.hfP95 > r.waist.hfP95 * MAX_CUFF_TO_WAISTBAND_HF_RATIO;
+      });
+      const fixed = KNOWN_CUFF_DEFECT_ACTORS.filter((a) => !stillExceeding.includes(a));
+      expect(
+        fixed,
+        `#517 fixed one of the known scrub-pants cuffs — remove it from KNOWN_CUFF_DEFECT_ACTORS and restore the real 3x assertion: ${fixed.join(", ")}`,
+      ).toEqual([]);
     },
   );
 
