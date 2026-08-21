@@ -71,6 +71,16 @@ import { describe, expect, it } from "vitest";
  *   achieves on one subject from one CC0 clip.
  * notEvidenceFor: whether the motion LOOKS right (orchestrator grades any render); clinical
  *   primitives; physics or ragdoll; the other 10 actors; runtime wiring; promotion.
+ *
+ * ## FIXED (#547)
+ *
+ * Map grew 23 → 34 keys (symmetric: added upperleg02.R + paired limb/finger expansions).
+ * Driven count 22 → 26 on mpfb-ob-patient-aisha from cmu_07_01_walk.bvh.
+ * Binding stop (unbound, still mapped): upperleg02.L/R, upperarm02.L/R, lowerarm02.L/R,
+ * shoulder01.L/R — CMU source has no twist channels; shoulder01 shares canonical with clavicle
+ * but retarget assigns only one target. Finger1-1 + finger2-1 (thumb/index) are the +4 driven.
+ * Report: tools/openclinxr/evidence/mpfb-bone-map-coverage.json
+ * Generator: tools/openclinxr/evidence/generate-mpfb-bone-map-coverage.ts
  */
 
 const MAP = "tools/openclinxr/asset-pipeline/makeclothes/known-rigs/mpfb2-default-no-toes.json";
@@ -89,7 +99,7 @@ type Report = { subject?: string; subjectJoints?: string[]; mapKeys?: number; bo
 const report = (): Report => (existsSync(REPORT) ? JSON.parse(readFileSync(REPORT, "utf8")) as Report : {});
 
 describe("the MPFB bone map is symmetric and growing", () => {
-  it.fails("(1) RED: no sided key exists without its mirror", () => {
+  it("(1) RED: no sided key exists without its mirror", () => {
     // upperleg02.L has no .R, and upperleg02.R IS present on the subject. Every other sided entry
     // is paired — the known-good column is inside this same file.
     const k = mapKeys();
@@ -100,7 +110,7 @@ describe("the MPFB bone map is symmetric and growing", () => {
     expect([...orphanL, ...orphanR], "sided map keys with no mirror").toEqual([]);
   });
 
-  it.fails("(2) RED: the map covers more of the 137 joints than the #545 control", () => {
+  it("(2) RED: the map covers more of the 137 joints than the #545 control", () => {
     // No target number — see the header. Only "more than 23", so the slice must actually expand.
     expect(mapKeys().length, `map keys vs the ${CONTROL.mapKeys}-key control`)
       .toBeGreaterThan(CONTROL.mapKeys);
@@ -116,7 +126,7 @@ describe("the MPFB bone map is symmetric and growing", () => {
     expect(missing, "map keys naming bones absent from the subject").toEqual([]);
   });
 
-  it.fails("(4) RED: MORE bones are actually driven, not merely mapped", () => {
+  it("(4) RED: MORE bones are actually driven, not merely mapped", () => {
     // Refuses (b) and (d). Key count is trivially inflatable; only the driven count is evidence,
     // and deleting the orphan would satisfy symmetry while driving one bone FEWER.
     const r = report();
