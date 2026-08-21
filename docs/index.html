@@ -245,6 +245,52 @@
       </section>
 
 
+      <section id="case-driven-iris" class="band band--evidence" aria-labelledby="iris-title">
+        <div class="section-heading">
+          <p class="eyebrow">Evidence you can look at</p>
+          <h2 id="iris-title">The case says brown eyes. Now the figure has brown eyes.</h2>
+        </div>
+        <p class="status-copy">
+          A case definition describes a person: age, build, hair colour, eye colour. The factory was
+          reading almost none of it. Every shipped figure's iris came from a <em>role default</em> —
+          patients brown, family green, nurses blue — assigned by matching words in a job title. The
+          case's own <code>eye_color</code> field was carried all the way to the bake and then
+          dropped, because the one call site passed an empty dictionary where the phenotype belonged.
+        </p>
+
+        <figure style="margin: 20px 0 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
+          <img src="assets/iris-case-driven-2026-08-21.png" alt="Four close-up crops of rendered eyes. Top row: the paediatric parent, green irises before and brown irises after. Bottom row: the nurse, blue irises before and brown irises after." style="width: 100%; display: block;" loading="lazy">
+          <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+            Isolated renders at 4096&#178;, cropped to the eyes at native resolution &#183; parent green &#8594; brown, nurse blue &#8594; brown, both as their case authored
+          </figcaption>
+        </figure>
+
+        <p class="status-copy" style="margin-top: 16px;">
+          The more useful half is what happens when a case asks for something the factory
+          <em>cannot</em> build. One patient is authored with hazel eyes. There is no hazel material
+          in the licensed set, and the old behaviour was to silently fall back to a role default —
+          the case asked for one thing, the learner saw another, and nothing anywhere said so. The
+          factory now <strong>refuses</strong> that value out loud, and publishes the nine colours it
+          can actually produce, each with its licence, generated from the same list the renderer
+          reads so the two cannot drift apart.
+        </p>
+
+        <p class="status-copy">
+          That refusal is deliberate and it is the point. A factory that quietly substitutes is a
+          factory whose output nobody can trust to match the case; a factory that refuses forces the
+          question upstream, where a human or an authoring tool can answer it against a real list of
+          options. The hazel patient is still unbuilt, and that is the correct state until someone
+          chooses.
+        </p>
+
+        <p class="status-copy" style="color: var(--muted); font-size: 0.85rem;">
+          Not claimed: that these faces look finished. The skin is procedurally baked and carries no
+          painted facial detail, which is visible in these crops and tracked separately. This shows
+          one field of the case definition reaching one property of the render, verified by
+          comparing the shipped bytes and by looking at the pixels.
+        </p>
+      </section>
+
       <section id="nude-patients" class="band band--evidence" aria-labelledby="nude-title">
         <div class="section-heading">
           <p class="eyebrow">Evidence you can look at</p>
