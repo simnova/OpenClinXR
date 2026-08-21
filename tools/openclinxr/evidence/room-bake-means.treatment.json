@@ -1,0 +1,24 @@
+{
+  "room": "infinigen-primary-care-clinic.glb",
+  "loggedBeforeExport": true,
+  "rows": [
+    {
+      "surface": "wall",
+      "material": "shader_marble_shader_hexagon_tile_tile",
+      "texture": "openclinxr_room_bake_shader_marble_shader_hexagon_tile_tile",
+      "meanL": 13.88453550190181
+    },
+    {
+      "surface": "floor",
+      "material": "shader_marble_shader_square_tile_tile",
+      "texture": "openclinxr_room_bake_shader_marble_shader_square_tile_tile",
+      "meanL": 2.219165010278927
+    },
+    {
+      "surface": "ceiling",
+      "material": "shader_plaster.022",
+      "texture": "openclinxr_room_bake_shader_plaster",
+      "meanL": 254.99999999999997
+    }
+  ]
+}
