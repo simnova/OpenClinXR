@@ -89,6 +89,32 @@ import { describe, expect, it } from "vitest";
  * the deck plant (`#494`). `seated`. The other 13 stations.
  */
 
+/**
+ * ## FIXED (#497)
+ *
+ * Measured 2026-08-20, MEASURE ONLY — `reject_measured` (this closes successfully).
+ *
+ * The CC0 recumbent BVH does NOT bind on the MPFB rail through the existing stage and map.
+ * `motion_bind_stage.py` ran the full path — actor imported (137 pose bones), target map injected
+ * (target identified as `MPFB2 default_no_toes`), `mcp.load_and_retarget` invoked — and the target
+ * armature ended with `action=None`, `drivenBoneCount=0`, stage verdict `zero_or_thin_channels`.
+ *
+ * Root cause is the SOURCE map, the open question #492 named: retarget_bvh source-rig
+ * auto-identification misidentifies the MakeHuman `breast.L`/`breast.R` leaf joints as shoulders and
+ * raises `Shoulder breast.R has no children` (retarget_bvh armature.py:215) before any action is baked.
+ *
+ * Two further findings, both recorded in the report:
+ * - The asset is a SINGLE-FRAME pose (`Frames: 1`), not a motion clip — even a successful retarget
+ *   would face the stage's `_driven_bones` ≥2-keyframe / >0.01 rad-delta filter (motion_bind_stage.py).
+ * - The .bvh file contains NO licence line anywhere in its 1016 lines; the page states `License: CC0`.
+ *
+ * Pre-existing environment issue (NOT this slice): `_import_actor` (motion_bind_stage.py:77) crashes
+ * on every shipped MPFB actor in Blender 5.1 — the glTF `weights` animation
+ * `ClinicalExpressionMicroTransition` raises `IndexError` in `animation_weight.py:73`. The measurement
+ * above stripped the actor's animations (armature-only) into a temp GLB to reach the bind path; this
+ * regression blocks the stage on the shipped actors independently of the source-map result.
+ */
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const REPORT = join(HERE, "cc0-bed-pose-bind-report.json");
@@ -115,7 +141,7 @@ function requireReport(): Report {
 }
 
 describe("a CC0 recumbent BVH is measured against the MPFB rail", () => {
-  it.fails("(1) RED: the bind was attempted and a verdict recorded", () => {
+  it("(1) RED: the bind was attempted and a verdict recorded", () => {
     const r = requireReport();
     expect(VERDICTS as readonly string[], `verdict was ${JSON.stringify(r.verdict)}`).toContain(r.verdict);
     if (r.verdict === "other") {
