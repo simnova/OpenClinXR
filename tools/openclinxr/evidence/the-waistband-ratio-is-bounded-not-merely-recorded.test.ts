@@ -81,6 +81,21 @@ import { describe, expect, it } from "vitest";
  *   - Actors with no trouser mesh. Gown wearers are correctly unmeasurable, not failures.
  */
 
+/*
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ * ## FIXED (#514) — appended; the planted header above is immutable
+ *
+ * The artifact was regenerated from the shipped directory (`waistband-membership-write.ts`), so
+ * `glbFilesScanned` is 18 (was 14 — four GLBs shipped since) and the physician's row is re-measured
+ * on the rebaked bytes (ratio 0.239 -> 0.296). The bound's population in
+ * the-waistband-is-as-smooth-as-the-hem.test.ts is now enumerated from
+ * apps/ui-xr/public/generated-humanoids instead of a three-name literal: clause (1) bounds all nine
+ * trouser-carrying actors while the geometry counterweights pin only the three baseline actors. All
+ * nine shipped ratios sit under #373's 4x (max 3.958), so the bound is a NET today — this slice is
+ * coverage and staleness, not a ragged waistband.
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ */
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const ARTIFACT = join(REPO_ROOT, "tools/openclinxr/evidence/waistband-membership.json");
@@ -99,7 +114,7 @@ function rows(): Row[] {
 }
 
 describe("the waistband ratio is bounded, not merely recorded", () => {
-  it.fails("(1) RED: the artifact covers every shipped MPFB GLB", async () => {
+  it("(1) RED: the artifact covers every shipped MPFB GLB", async () => {
     const { readdirSync } = await import("node:fs");
     const shipped = readdirSync(GENERATED).filter((f) => f.startsWith("mpfb") && f.endsWith(".glb"));
     const scanned = JSON.parse(readFileSync(ARTIFACT, "utf8")).glbFilesScanned as number;
@@ -119,7 +134,7 @@ describe("the waistband ratio is bounded, not merely recorded", () => {
     }
   });
 
-  it.fails("(3) RED: the BOUND's population is enumerated from disk, not a hardcoded ACTORS list", async () => {
+  it("(3) RED: the BOUND's population is enumerated from disk, not a hardcoded ACTORS list", async () => {
     // Refuses (a), (b) and (c). The bound is real and applied; it simply runs over three names.
     const { readdirSync } = await import("node:fs");
     const src = readFileSync(BOUND_SRC, "utf8");
