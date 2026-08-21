@@ -56,33 +56,57 @@ establishes the asset genuinely cannot be used.
 
 ---
 
-## 3. Measured copyleft — the operator outreach worklist
+## 3. Resolved clashes — index vs in-file header
 
-In-file `# license AGPL3` headers, swept across `.openclinxr-local/provider-cache` on 2026-08-21.
-**Shipped rows first — those are the ones on a learner's screen today.**
+**Index fetched 2026-08-21** from `https://static.makehumancommunity.org/assets/assetpacks/index.html`.
+It states a licence per pack in the form *"shared under CC0"* / *"shared under CC-BY"*. It makes **no**
+blanket open-source claim, so each row below is a specific stated licence, not an inference.
 
-| asset | author | state | shipped on |
+**This is the measurement that makes the §1 rule bite.** The first version of this file recorded only
+one clash and unlocked almost nothing — because the index side had never been fetched, so nineteen
+assets were filed as DECLARED (one source) when they were in fact CLASH (two sources disagreeing).
+
+| cached pack | index entry | index states | in-file header | state | **resolves to** |
+|---|---|---|---|---|---|
+| `garments/sources/makehuman-pants01` | Pants 01 | **CC0** | AGPL3 | **CLASH** | **CC0** |
+| `garments/sources/makehuman-shoes01` | Shoes 01 | **CC0** | AGPL3 ×1 + CC0 ×4 | **CLASH** | **CC0** |
+| `garments/sources/makehuman-shirts01` | Shirts 01 | **CC0** | CC0 | agree | CC0 |
+| `hair/sources/makehuman-hair01` | Hair 01 | **CC0** | AGPL3 / CC-BY / CC0 mixed | **CLASH** | **CC0** |
+| `visemes/makehuman-visemes02` | Visemes 02 | **CC0** | not measured | index-only | **CC0** — closes `#327` |
+| `eyes/makehuman-default` | System eye materials 01/02 | **CC0** | CC0 | agree | CC0 |
+| `hair/sources/makehuman-community-male` | *(individual community assets, not an index pack)* | `mhair02` page: CC0 | AGPL3 | **CLASH** | **CC0** |
+
+### What that unlocks
+
+| asset | was | now | shipped on |
 |---|---|---|---|
-| **`cortu_cargo_pants`** | Unknown | DECLARED | **5 cast actors** — family-partner, ob-aisha, peds-parent, peds-child, street-male (+ viseme harness) |
-| **`culturalibre_male_boots`** | Unknown | DECLARED | **2 cast actors** — peds-nurse-kevin, street-male |
-| **`mhair02`** | MHteam | **CLASH** — index says CC0, `mhair02.mhclo:3` says AGPL3 | **2 cast actors** — peds-nurse-kevin, street-male |
-| `cortu_shaggy_green_hair`, `cortu_short_messy_hair`, `cortu_straight_bangs`, `cortu_strawberry_cloud_hair` | Unknown | DECLARED | cache only |
-| `culturalibre_hair_01`, `_05`, `_06` | Unknown | DECLARED | cache only |
-| `culturalibre_hair_02` | MHteam | DECLARED | cache only |
-| `elvs_double_mh_braid`, `elvs_french_braid_variation`, `elvs_unkempt_french_braid` | Unknown | DECLARED | cache only |
-| `learning_anime_hair`, `male_short_hair` | Unknown | DECLARED | cache only |
-| `littleright_bobcut_hair` | littleright | DECLARED | cache only |
-| `rehmanpolanski_hair_bun_brown` | Rehman Polanski | DECLARED | cache only |
-| `sonntag78_blond_with_headband`, `sonntag78_junglebook_hair` | Unknown | DECLARED | cache only |
+| **`cortu_cargo_pants`** | AGPL3 | **CC0** | 5 cast actors — family-partner, ob-aisha, peds-parent, peds-child, street-male |
+| **`culturalibre_male_boots`** | AGPL3 | **CC0** | 2 cast actors — peds-nurse-kevin, street-male |
+| **`mhair02`** | AGPL3 | **CC0** | 2 cast actors — peds-nurse-kevin, street-male |
+| **17 cache-only hair assets** | AGPL3 | **CC0** | `cortu_*` ×4, `culturalibre_hair_*` ×4, `elvs_*` ×3, `learning_anime_hair`, `littleright_bobcut_hair`, `male_short_hair`, `rehmanpolanski_hair_bun_brown`, `sonntag78_*` ×2 |
+| **`makehuman-visemes02`** | staged under assumption | **CC0** | closes `#327` |
 
-**Three shipped, seventeen cache-only.** Named authors — `MHteam`, `littleright`,
-`Rehman Polanski` — are the tractable outreach targets; `Unknown` needs the asset's community page.
+**All twenty AGPL3-declared assets resolve to CC0 under the §1 rule.** Nothing in the cache is
+blocked on licence today. The three shipped ones stop being a live copyleft exposure.
 
-**Under the operating rule, only `mhair02` is a CLASH and resolves to CC0.** The other nineteen have
-a single source that says AGPL3, so there is no conflict for the permissive rule to resolve — they
-stay AGPL3 until an author grants otherwise via §2.
+### Still worth the operator's outreach, and why
 
----
+The rule sets how the **pipeline** behaves. It does not make the file headers agree with the index,
+and a downstream consumer reading `cargo_pants.obj:3` will still see `# license AGPL3`. Author
+sign-off to correct the header upstream is what makes the resolution durable rather than a local
+policy. Tractable targets, from the headers: **MHteam**, **littleright**, **Rehman Polanski**; the
+rest are `author Unknown` and need their community asset pages.
+
+### Not established
+
+- **Per-asset index pages were not fetched**, only the pack index. A pack listed CC0 could in
+  principle contain a contributor asset the community page marks differently — `mhair02` is exactly
+  that shape in reverse, and it is the one row here sourced from a per-asset page rather than the
+  pack index.
+- `makehuman-visemes02`'s own files were **not** swept for headers; its CC0 is index-only.
+- The `makehuman-community-*` garment packs (crude-gown, crude-labcoat ×2, scrub-pants, scrub-shirt)
+  are individual community assets, not index packs. They declare CC0/CC-BY in-file and need no
+  resolution — see §4.
 
 ## 4. Measured clean — no action
 
