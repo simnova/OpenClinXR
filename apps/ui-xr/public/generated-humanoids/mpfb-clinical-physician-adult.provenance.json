@@ -57,11 +57,12 @@
   "Eye iris: physician falls through eye_iris_colour to the patient/brown default — NOT the nurse's blue. This is a deliberate distinctness choice (the ward nurse and senior resident are co-present); it was not specified in the brief.",
   "gender/muscle/weight/proportions/cupsize/firmness remain MPFB defaults — only age + height are driven by reference measurement this slice.",
   "Exact MADR 0051 §5 landmark match (shoulder, girths, limb lengths) is anny-mpfb-landmark-compare's follow-on; NOT claimed here.",
-  "Baked 2026-08-14 from this worktree with all provider-cache assets staged locally (garments, hair, iris, labcoat)."
+  "Baked 2026-08-14 from this worktree with all provider-cache assets staged locally (garments, hair, iris, labcoat).",
+  "2026-08-21 #504: coat separated from the under-shirt by 15 mm via cloth_outward_offset (separate_layered_garment.py); only the lab-coat POSITION accessor changed."
  ],
  "claimScope": "physician_adult_staff_kit_via_clothesservice_scrub_shirt_scrub_pants_plus_cc0_lab_coat_over_scrubs",
  "promotionGates": false,
  "generatedAt": "2026-08-14T17:56:00Z",
- "outputSha256": "6406b579da0b543ebf2f52c937dd2d2042b69aa13050c6541668900678d139f4",
+ "outputSha256": "30940a3e7583d7dc6fb4e8da643c5f1fb1893d827a9f15961653d7b3812c9cc5",
  "outputBytes": 21798760
 }
