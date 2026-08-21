@@ -38,6 +38,16 @@
  *
  * claimScope: whether the injected directive's stated comment shape is one the land gate accepts.
  * notEvidenceFor: whether any worker actually reports well, or that the gate's own logic is right.
+ *
+ * ## FIXED (#501)
+ *
+ * The directive (worker-directives.ts:56-59) now names all four report headers, so a clean slice
+ * following it verbatim writes IN-SCOPE:/OUT-OF-SCOPE:/CLAIM:/NOT TESTED: and the gate accepts
+ * the comment. The gate itself is UNTOUCHED — `Factory: Landed` alone (the board field write) and
+ * a three-header report still refuse, asserted by clause (3). Clauses (1) and (2) flipped green
+ * with the directive change; the 4500-char spawn-prompt budget test still passes for all roles
+ * (architect 4464→4482, the tightest). #498's shape — `Factory: Landed` + prose, no headers — is
+ * still refused because the directive no longer offers that as the report shape.
  */
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
@@ -67,7 +77,7 @@ describe("#501 the worker directive names a shape the land gate accepts", () => 
     expect(gateAccepts(AUTOMATION_FIELD_WRITE)).toBe(false);
   });
 
-  it.fails(
+  it(
     "(1) the injected directive names all four report headers a clean slice must write",
     () => {
       const src = readFileSync(DIRECTIVE_SRC, "utf8");
@@ -78,7 +88,7 @@ describe("#501 the worker directive names a shape the land gate accepts", () => 
     },
   );
 
-  it.fails(
+  it(
     "(2) a clean slice following the directive VERBATIM satisfies the gate — comment built from what the directive itself names",
     () => {
       // Derived from the directive text, NOT hardcoded: whatever headers the directive tells a

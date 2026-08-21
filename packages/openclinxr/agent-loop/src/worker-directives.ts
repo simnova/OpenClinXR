@@ -50,13 +50,19 @@ export const WORKER_OUTPUT_BUDGET_DIRECTIVE =
  * reached the orchestrator only in a dispatch log. Standing text now reaches every dispatched
  * worker (the baker is wired into dispatch() as of b39f7633), so wire the mechanism (D1).
  *
+ * #501: the directive names the four report headers (IN-SCOPE:/OUT-OF-SCOPE:/CLAIM:/NOT TESTED:)
+ * so a clean slice's comment — no UNABLE, no unpassable proof — is still a shape the land gate
+ * accepts. `Factory: Landed` alone is refused by design: it is also the board FIELD write (#484),
+ * and a stage change says nothing about whether anyone reported.
+ *
  * Coordination metadata only. A worker that can close its own card can mark its own homework, so
  * close/label/Factory-field writes stay with the orchestrator. No product or clinical content.
  */
 export const WORKER_STATUS_REPORTING_DIRECTIVE =
-  "STATUS REPORTING (coordination metadata only): comment on your OWN issue (`gh issue comment <n>`) " +
-  "with UNABLE:, any proof that cannot pass as written, and a `Factory: Dispatched|Landed` line. " +
-  "Never close, label, or write the Factory project field. No product or clinical content on GitHub.";
+  "STATUS REPORTING (metadata only): comment on YOUR issue (`gh issue comment <n>`) with UNABLE:, " +
+  "any proof that cannot pass as written, a `Factory: Dispatched|Landed` line, and all four report " +
+  "headers IN-SCOPE:, OUT-OF-SCOPE:, CLAIM:, NOT TESTED:. " +
+  "Never close/label/Factory field. No product/clinical content.";
 
 /**
  * Shared-tree safety.
