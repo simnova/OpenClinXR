@@ -26,6 +26,7 @@
           <a href="#dark-factory">Factory</a>
           <a href="#trellis-hatch">Hatch</a>
           <a href="#supine">Patient</a>
+          <a href="#nude-patients">Patients</a>
           <a href="#garment-class">Wardrobe</a>
           <a href="#see-it">See it</a>
           <a href="#roadmap">Roadmap</a>
@@ -240,6 +241,80 @@
           are gone, and the answer to it is a retargeted recumbent motion clip — not a second table of
           hand-authored angles. That work is open. Nothing here is a claim about clinical validity of
           the pose; it is a claim that a figure on a bed reads as a human being.
+        </p>
+      </section>
+
+
+      <section id="nude-patients" class="band band--evidence" aria-labelledby="nude-title">
+        <div class="section-heading">
+          <p class="eyebrow">Evidence you can look at</p>
+          <h2 id="nude-title">Five patients were rendering nude. Their clothes were the colour of their skin.</h2>
+        </div>
+        <p class="status-copy">
+          Every automated garment check passed on these figures. The clothes were <em>present</em>,
+          correctly <em>placed</em>, correctly <em>licensed</em>, and the right <em>class</em>. They
+          were also a beige within 21 RGB units of the patient's own skin, which at any viewing
+          distance is indistinguishable from bare flesh. A learner walking into five of the fourteen
+          stations met an undressed patient.
+        </p>
+
+        <p class="status-copy">
+          The measurement that found it is a same-garment control. Two actors wear the identical
+          library trousers and t-shirt; only the tint differs:
+        </p>
+
+        <div style="overflow-x: auto; margin-top: 12px;">
+          <table style="border-collapse: collapse; font-size: 0.85rem; min-width: 460px;">
+            <thead><tr style="border-bottom: 1px solid var(--line);">
+              <th style="text-align:left; padding: 6px 14px 6px 0;">actor</th>
+              <th style="text-align:right; padding: 6px 14px;">garment</th>
+              <th style="text-align:right; padding: 6px 14px;">own skin</th>
+              <th style="text-align:right; padding: 6px 0;">distance</th>
+            </tr></thead>
+            <tbody style="font-variant-numeric: tabular-nums;">
+              <tr><td style="padding: 5px 14px 5px 0;">street-casual patient <em>(4 stations)</em></td><td style="text-align:right; padding: 5px 14px;">184,173,140</td><td style="text-align:right; padding: 5px 14px;">198,172,156</td><td style="text-align:right; padding: 5px 0;"><strong>21.0</strong></td></tr>
+              <tr><td style="padding: 5px 14px 5px 0;">OB triage patient</td><td style="text-align:right; padding: 5px 14px;">184,173,140</td><td style="text-align:right; padding: 5px 14px;">201,177,163</td><td style="text-align:right; padding: 5px 0;"><strong>28.7</strong></td></tr>
+              <tr><td style="padding: 5px 14px 5px 0;">family partner — <em>same two garments</em></td><td style="text-align:right; padding: 5px 14px;">107,92,102</td><td style="text-align:right; padding: 5px 14px;">215,191,176</td><td style="text-align:right; padding: 5px 0;">163.9</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 20px;">
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
+            <img src="assets/ob-patient-clothed-2026-08-21.png" alt="Isolated render of the OB triage patient in a sage-green t-shirt and trousers, clearly distinct from her skin tone, standing on a grid floor." style="width: 100%; display: block;" loading="lazy">
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+              OB triage patient after the fix · 28.7 → 151.9
+            </figcaption>
+          </figure>
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
+            <img src="assets/street-patient-clothed-2026-08-21.png" alt="Isolated render of the street-casual adult male patient in a sage-green t-shirt and trousers with brown boots, clothing clearly distinct from skin." style="width: 100%; display: block;" loading="lazy">
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+              Street-casual patient, worn by four stations · 21.0 → 152
+            </figcaption>
+          </figure>
+        </div>
+
+        <p class="status-copy" style="margin-top: 16px;">
+          The cause was one line: a palette entry named <code>closed_casual</code>, commented
+          <em>“cream under-layer”</em>, holding <code>(0.72, 0.68, 0.55)</code> — which is
+          <code>184,173,140</code> exactly. It was written for a garment worn <em>under</em>
+          something else and then became the whole outfit for every patient who wears no cardigan.
+        </p>
+
+        <p class="status-copy">
+          <strong>The standing lesson gains an axis.</strong> This project already had a rule from an
+          earlier failure: <em>presence, placement and provenance are three questions, and none of
+          them is class.</em> Contrast is a fifth, and no gate we had asked it. A garment can be
+          there, fitted, licensed, and the correct kind of clothing — and still leave the figure
+          reading as naked.
+        </p>
+
+        <p class="status-copy">
+          <strong>Not fixed, and visible in both images:</strong> the trousers end mid-calf with a
+          ragged hem, there is a step where the shirt meets the waistband, and both faces render as a
+          pale mask against the neck. All three are open and tracked. The OB patient is also
+          specified as <em>34 weeks pregnant</em> and the figure is not — the case text says it and
+          nothing in the humanoid pipeline reads it.
         </p>
       </section>
 
