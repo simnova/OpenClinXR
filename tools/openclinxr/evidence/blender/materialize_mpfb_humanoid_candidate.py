@@ -178,6 +178,29 @@ def phenotype_fabric_palette(reference_id):
     except Exception:
         return ""
 
+def phenotype_eye_colour(reference_id):
+    """Read the reference's declared eye_color from its tracked anny manifest (#518).
+
+    Same manifest + field shape as the skin-tone / fabricPalette helpers above: the case
+    definition's `input_params.phenotype.eye_color` (snake_case — the blueprint field).
+    None/absent -> "" so `eye_iris_colour` keeps its role fallback. An unbuildable value
+    (e.g. the bank's "hazel") is passed through verbatim so the selector REFUSES it loudly
+    rather than this materializer silently swallowing it into the role default.
+    """
+    if not reference_id:
+        return ""
+    manifest = (
+        REPO_ROOT / "apps/ui-xr/public/generated-humanoids" / f"{reference_id}.anny_manifest.json"
+    )
+    if not manifest.is_file():
+        return ""
+    try:
+        m = json.loads(manifest.read_text(encoding="utf-8"))
+        colour = m.get("input_params", {}).get("phenotype", {}).get("eye_color")
+        return colour if colour else ""
+    except Exception:
+        return ""
+
 
 # #335/#332 — the anatomical neck band (MADR 0051 §4, anny-mpfb-landmark-compare.ts
 # BAND_WINDOWS.neck): the narrowest torso slice below the head, as a fraction of
@@ -2953,7 +2976,7 @@ def main():
         _sys_eye.path.insert(0, str(_anny_dir_eye))
     from automate_blender import eye_iris_colour  # noqa: E402
 
-    _iris_key = eye_iris_colour(args.actor_role, {})
+    _iris_key = eye_iris_colour(args.actor_role, {"eye_color": phenotype_eye_colour(args.reference)})
     _eye_mat_dir = (
         pathlib.Path(__file__).resolve().parents[4]
         / ".openclinxr-local/provider-cache/eyes/makehuman-system-assets"

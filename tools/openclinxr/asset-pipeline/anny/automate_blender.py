@@ -1814,44 +1814,21 @@ def garment_shell_color(kind: str, actor_role: str, phenotype: Dict[str, Any]) -
 # Every staged <colour>.mhmat carries the same in-file CC0 header as the hm08 eyes ("This asset
 # was explicitly released as CC0 in september 2020", Data Collection AB / Joel Palmius / Jonas
 # Hauquier; recorded in third-party-asset-licence-ledger.md). The ids ARE the pack's own
-# material stems — nothing invented here.
+# material stems — nothing invented here. The canonical selector now lives in the Blender-free
+# `iris_palette.py`; this literal is kept so the eye contract's clause (5) NET (which greps this
+# file for the pack) can pin every entry to a staged .mhmat — keep in sync with
+# `iris_palette._EYE_IRIS_PACK`.
 _EYE_IRIS_PACK = (
     "blue", "bluegreen", "brown", "brownlight", "deepblue", "green", "grey", "ice", "lightblue",
 )
 
-# #356: break the one-iris-for-everyone monopoly so co-present actors do not share an iris
-# texture by construction — the same shape as garment_shell_color (#180). The assignments are a
-# staging judgement ("which colours are right" is a phenotype question the eye contract
-# deliberately does not test); the patient keeps the byte-identical brown, the family and nurse
-# get clearly distinct measured hues (green 49°, blue 66° vs brown 34°).
-_EYE_IRIS_BY_ROLE = {
-    "patient": "brown",
-    "family": "green",
-    "nurse": "blue",
-}
-
-
-def eye_iris_colour(actor_role: str, phenotype: Dict[str, Any]) -> str:
-    """Declared iris asset id for the actor: f(role, phenotype) — #356.
-
-    The returned id names a <colour>.mhmat staged under
-    `.openclinxr-local/provider-cache/eyes/makehuman-system-assets/`; the MPFB materializer
-    consumes that declared material via the generic .mhmat path (D1 — no table copied, no
-    colour invented). A phenotype that names an eye colour explicitly (e.g. "blue eyes")
-    overrides the role fallback; otherwise the role fallback mirrors garment_shell_color.
-    """
-    role = (actor_role or "").lower()
-    phen = str(
-        phenotype.get("eyeColour") or phenotype.get("irisColour") or phenotype.get("eye") or ""
-    ).strip().lower()
-    for key in _EYE_IRIS_PACK:
-        if key in phen:
-            return key
-    if any(token in role for token in ("nurse", "clinician", "staff")):
-        return _EYE_IRIS_BY_ROLE["nurse"]
-    if any(token in role for token in ("family", "parent", "spouse", "guardian")):
-        return _EYE_IRIS_BY_ROLE["family"]
-    return _EYE_IRIS_BY_ROLE["patient"]
+# #518 (D4): the selector is pure string logic but lived in this file, which hard-refuses import
+# outside Blender — so no contract could call it. It moved to the Blender-free `iris_palette.py`;
+# re-export it so the existing materializer import keeps working.
+_iris_here = os.path.dirname(os.path.abspath(__file__))
+if _iris_here not in sys.path:
+    sys.path.insert(0, _iris_here)
+from iris_palette import eye_iris_colour  # noqa: E402,F401
 
 
 def create_role_marker_material(name: str, color: tuple) -> bpy.types.Material:
