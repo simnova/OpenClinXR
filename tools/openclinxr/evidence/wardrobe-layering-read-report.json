@@ -1,0 +1,125 @@
+{
+  "schemaVersion": "openclinxr.wardrobe-layering-read-report.v1",
+  "generatedAt": "2026-08-21T03:06:13.461Z",
+  "claimScope": "pipeline_can_read_z_depth_and_delete_verts_out_of_a_cached_mhclo_header",
+  "notEvidenceFor": [
+    "any_garment_renders_correctly",
+    "poke_through_is_fixed",
+    "layering_is_applied_in_the_bake"
+  ],
+  "filesScanned": 16,
+  "distinctZDepths": [
+    50,
+    70
+  ],
+  "controls": {
+    "culturalibre_male_boots": {
+      "zDepth": 70
+    },
+    "male_crude_labcoatop": {
+      "zDepth": 50,
+      "deleteVertsCount": 428
+    },
+    "Scrub_Shirt": {
+      "deleteVertsCount": 0
+    }
+  },
+  "rows": [
+    {
+      "basename": "crudegown.mhclo",
+      "rel": ".openclinxr-local/provider-cache/garments/sources/makehuman-community-crude-gown/crudegown.mhclo",
+      "zDepth": 50,
+      "deleteVertsCount": 0
+    },
+    {
+      "basename": "crudelabcoatopen.mhclo",
+      "rel": ".openclinxr-local/provider-cache/garments/sources/makehuman-community-crude-labcoat-female/crudelabcoatopen.mhclo",
+      "zDepth": 50,
+      "deleteVertsCount": 2371
+    },
+    {
+      "basename": "male_crude_labcoatop.mhclo",
+      "rel": ".openclinxr-local/provider-cache/garments/sources/makehuman-community-crude-labcoat-male/male_crude_labcoatop.mhclo",
+      "zDepth": 50,
+      "deleteVertsCount": 428
+    },
+    {
+      "basename": "Scrub_Pants.mhclo",
+      "rel": ".openclinxr-local/provider-cache/garments/sources/makehuman-community-scrub-pants/Scrub_Pants.mhclo",
+      "zDepth": 50,
+      "deleteVertsCount": 0
+    },
+    {
+      "basename": "Scrub_Shirt.mhclo",
+      "rel": ".openclinxr-local/provider-cache/garments/sources/makehuman-community-scrub-shirt/Scrub_Shirt.mhclo",
+      "zDepth": 50,
+      "deleteVertsCount": 0
+    },
+    {
+      "basename": "cargo_pants.mhclo",
+      "rel": ".openclinxr-local/provider-cache/garments/sources/makehuman-pants01/cortu_cargo_pants/cargo_pants.mhclo",
+      "zDepth": 50,
+      "deleteVertsCount": 0
+    },
+    {
+      "basename": "elvs_crude_t-shirt_male.mhclo",
+      "rel": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/elvs_crude_t-shirt_male/elvs_crude_t-shirt_male.mhclo",
+      "zDepth": 50,
+      "deleteVertsCount": 892
+    },
+    {
+      "basename": "elvs_crude_t-shirt_male.mhclo",
+      "rel": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/extracted/clothes/elvs_crude_t-shirt_male/elvs_crude_t-shirt_male.mhclo",
+      "zDepth": 50,
+      "deleteVertsCount": 892
+    },
+    {
+      "basename": "namuhekam_male_polo_shirt.mhclo",
+      "rel": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/extracted/clothes/namuhekam_male_polo_shirt/namuhekam_male_polo_shirt.mhclo",
+      "zDepth": 50,
+      "deleteVertsCount": 0
+    },
+    {
+      "basename": "toigo_basic_tucked_t-shirt.mhclo",
+      "rel": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/extracted/clothes/toigo_basic_tucked_t-shirt/toigo_basic_tucked_t-shirt.mhclo",
+      "zDepth": 50,
+      "deleteVertsCount": 0
+    },
+    {
+      "basename": "namuhekam_male_polo_shirt.mhclo",
+      "rel": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/namuhekam_male_polo_shirt/namuhekam_male_polo_shirt.mhclo",
+      "zDepth": 50,
+      "deleteVertsCount": 0
+    },
+    {
+      "basename": "toigo_basic_tucked_t-shirt.mhclo",
+      "rel": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/toigo_basic_tucked_t-shirt/toigo_basic_tucked_t-shirt.mhclo",
+      "zDepth": 50,
+      "deleteVertsCount": 0
+    },
+    {
+      "basename": "toigo_fisherman_sweater.mhclo",
+      "rel": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/toigo_fisherman_sweater/toigo_fisherman_sweater.mhclo",
+      "zDepth": 50,
+      "deleteVertsCount": 0
+    },
+    {
+      "basename": "culturalibre_male_boots.mhclo",
+      "rel": ".openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/culturalibre_male_boots/culturalibre_male_boots.mhclo",
+      "zDepth": 70,
+      "deleteVertsCount": 2758
+    },
+    {
+      "basename": "toigo_flats.mhclo",
+      "rel": ".openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_flats/toigo_flats.mhclo",
+      "zDepth": 50,
+      "deleteVertsCount": 0
+    },
+    {
+      "basename": "toigo_mj_cloth_shoes.mhclo",
+      "rel": ".openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_mj_cloth_shoes/toigo_mj_cloth_shoes.mhclo",
+      "zDepth": 50,
+      "deleteVertsCount": 1730
+    }
+  ]
+}
