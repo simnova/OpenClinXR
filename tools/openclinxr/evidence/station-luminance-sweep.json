@@ -1,0 +1,49 @@
+{
+  "stations": {
+    "adult_abdominal_pain_v1": {
+      "median": 24
+    },
+    "clinic_abdominal_pain_interpreter_v1": {
+      "median": 25
+    },
+    "ed_chest_pain_priority_v1": {
+      "median": 36
+    },
+    "ed_chest_pain_priority_v2": {
+      "median": 36
+    },
+    "ed_stroke_alert_handoff_v1": {
+      "median": 24
+    },
+    "ob_headache_preeclampsia_triage_v1": {
+      "median": 183
+    },
+    "oncology_bad_news_family_v1": {
+      "median": 27
+    },
+    "peds_asthma_parent_anxiety_v1": {
+      "median": 33
+    },
+    "peds_fever_v1": {
+      "median": 2
+    },
+    "postop_fever_consult_pressure_v1": {
+      "median": 26
+    },
+    "primary_care_dyslipidemia_joint_pain_v1": {
+      "median": 16
+    },
+    "psych_suicidal_ideation_safety_v1": {
+      "median": 35
+    },
+    "stepdown_sepsis_nurse_escalation_v1": {
+      "median": 15
+    },
+    "telehealth_diabetes_health_literacy_v1": {
+      "median": 36
+    },
+    "ward_delirium_med_rec_v1": {
+      "median": 28
+    }
+  }
+}
