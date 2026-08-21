@@ -465,6 +465,42 @@ until it exists** — not six more REDs.
   slices never exceeded ~35 turns (§8a). **If the brief still says "cause unknown", keep it small.
   If `file:line` is located, 2–3× is cheap.**
 
+### Staged dispatch — checkpoint returns (superagent retraction, 2026-08-21)
+
+The rule "a running dispatch is not addressable by design" (PROTO_VERIFY_DELEGATION, top) was written
+before #439 and is DEAD for its stated cause: `dispatch-worker.ts:1354` picks the UUID up front and
+`:1448` writes `phase:"spawned"` carrying it BEFORE `:1453` spawns. Measured: **84/84** spawned rows
+carry an id; **20 of 469** slices already ran resume chains (issue-341 ran 18); **9 of 546** issues
+carry a conversation id, so board decoration is unbuilt rather than impossible. §10c records the fix
+and the dead rule survived beside it — a rule outliving its cause, the exact ritual §10c warns about.
+
+**WHAT CHANGED:** intercept no longer exists only BETWEEN slices. **A process that has RETURNED is the
+intercept.** A large slice can therefore be steered without being fully pre-specified.
+
+**WHAT DID NOT CHANGE:** thinner contract / larger observable stands and is ORTHOGONAL. Staging is HOW
+a large thin contract earns intercepts; it does not license a fat fully-specified brief that happens to
+checkpoint. Two processes on one transcript is still real — the id in the ledger is kill-recovery, not
+a licence to talk to a live child.
+
+RULES:
+
+- Checkpoint-return, then a **bare** `grok -p --resume` in that worktree with `OPENCLINXR_WORKER=1
+  GROK_SUBAGENTS=1 OPENCLINXR_RAW_GROK_SANCTIONED=1`. **NEVER** resume a slice whose ledger shows a
+  `spawned` row with no `completed`. **NEVER** `dispatch({worktree:true, resume})` — it resets the tree (#403).
+- Stage gate = existing `done_when` **groups**. `assert-contract-live` on THAT GROUP'S TITLES ONLY is
+  the stage green. Do not invent `stage:`/`handoff:` rules — `briefFromIssue` refuses narrative proofs.
+  Integrate still requires the FULL proof list; never point integrate at a subset report.
+- The brief MUST say, in the `done_when`: **returning with group A green and B-C UNRUN IS SUCCESS for
+  this process.** Without that sentence the worker does not stop and staging never happens (predicted
+  first failure; same gradient as optional wiring and `changed:<file>`).
+- Board carries a **pointer cache in the issue BODY** (never a comment, §11b): `sessionId` / `worktree`
+  / `slice` / `treeSha`, overwritten each spawn and resume. SSOT stays the last `spawned|completed`
+  ledger row. Before any resume: grep the ledger, confirm `Session ... found locally` on stdout, confirm
+  the transcript names THIS issue. A wrong-but-existing id **confabulates** (§6c); a nonexistent one
+  404s. Measured live this tick: the standing prompt's superagent id `01a0127d` is stale (Aug 19); the
+  live thread is `01a01dad`.
+
+
 ## Work-selection SSOT — ruled 2026-08-21, measured
 
 **The board says what EXISTS. It does not say what to do next.** Three planes, and conflating them
