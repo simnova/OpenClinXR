@@ -406,6 +406,65 @@ removes the approval step, not the standard.
 checking against `origin/main`. The real figure at grant time was **25**. Count with
 `git rev-list --count origin/main..main`, never a worktree-relative count.
 
+## Slice shape — THINNER CONTRACT, LARGER OBSERVABLE (operator challenge 2026-08-21, ruled)
+
+**Operator:** *"take on bigger efforts each tick... if each effort grabbed swaths of effort it would
+yield better results."* **Measured from the logs, and he is right:**
+
+| | measured |
+|---|---|
+| dispatches today | 31, mean **43.6** turns |
+| configured budget | `maxTurns` 120 (×14) / 150 (×6) — **~70% unused** |
+| trend | early 494–511 mean ~56 → late 528–549 mean ~29. **Monotone shrink.** |
+| `spawn_subagent` invocations | **3 across 14 sessions**, all in one slice. **13 of 14 workers ran solo.** |
+| dispatches hitting maxTurns or returning `UNABLE:` | **zero** |
+
+**The ceiling is my briefing discipline, not worker capacity** — "I will not start what I have not
+fully pre-specified" caps every slice at what fits one of my ticks. `agents/rules/PROTO_VERIFY_DELEGATION.md`
+§6d already named this ("optimizing for the smallest provable unit… individually verifiable and
+collectively useless") and I did it anyway all session.
+
+### The fix is NOT bigger briefs and NOT a planning agent
+
+Six fully planted REDs cost **my tick × 6** and fix nothing. A planning dispatch in front of every
+tick is another 20-turn evidence card — and this session's planners-without-pixels would have planned
+IBL, `mixamo_unity`, and "enumerate materials", all three of which measurement killed.
+
+**Write a THINNER contract around a LARGER observable:**
+
+- **Observable:** one learner-visible change (§6d) — e.g. *"the Infinigen wall and floor are gradeable
+  at native resolution"*, not *"aoMapIntensity 0 vs 1"*.
+- **Unlocked table:** the knobs the worker may choose among (bake energy, drop-AO-or-not, IBL-or-not).
+  Name them as unlocked, do not pre-decide them (§6c).
+- **Forbidden list:** GLB geometry, door-leaf, loader RGB lift, Mixamo rebake — the cheap fixes.
+- **`done_when`:** the measure artifact as **proof 1**, then **one fail-line per cause** (§8i), never
+  one aggregate green.
+- **The worker measures then executes in the same slice.** That is what "a plan could be built and
+  executed" means.
+
+### Subagents: conditional, not mandatory
+
+**Do not mandate `spawn_subagent`.** Solo IC is correct for a located `file:line` flip (17–29 turns).
+**Mandate it when the slice spans two write roots or two roles** (measure vs implement, asset vs
+runtime). Zero spawns on a 25-turn RED is fine; zero spawns on *"rooms gradeable"* or *"137-bone
+motion"* is the miss. Do not spawn children to decorate the log.
+
+### What this costs, and the mitigation
+
+**Inter-slice intercept.** This session's highest-value work was my own dead premises caught *between*
+slices — the fail-closed registry, the metals, hull-vs-wall, the whole-atlas albedo. A 3× slice buries
+those until harvest. **Mitigation: the measure artifact is proof 1 and no product edit is permitted
+until it exists** — not six more REDs.
+
+### Do NOT
+
+- **Raise `maxTurns` as the response.** Unused budget is not unused capability; late-session 17–29
+  turn slices are diagnosis-complete/implementation-only (§10b) and the plateau #11r named.
+- **Invent a turn threshold.** Error rate tracks *undiagnosed mechanism*, not the cap. `#542`'s
+  four-session marathon was a wrong premise, not 150 turns of capacity. Product work in the 92-turn
+  slices never exceeded ~35 turns (§8a). **If the brief still says "cause unknown", keep it small.
+  If `file:line` is located, 2–3× is cheap.**
+
 ## Work-selection SSOT — ruled 2026-08-21, measured
 
 **The board says what EXISTS. It does not say what to do next.** Three planes, and conflating them
