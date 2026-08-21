@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
@@ -81,6 +82,7 @@ import { describe, expect, it } from "vitest";
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const GENERATED = "apps/ui-xr/public/generated-humanoids";
+const BANK = join(REPO_ROOT, "packages/openclinxr/scenario-fixtures/src/pediatric-asthma.ts");
 
 /** Same-station peds asthma files (#388: parent is a dedicated family-palette variant). */
 const CAST = [
@@ -88,6 +90,73 @@ const CAST = [
   "mpfb-peds-parent-aisha.glb",
   "mpfb-peds-nurse-kevin.glb",
 ] as const;
+
+/** File → case actorId — phenotype.eye_color is read from the bank, never invented. */
+const CAST_ACTOR_ID: Record<(typeof CAST)[number], string> = {
+  "mpfb-peds-patient-child.glb": "patient_maya_johnson_v1",
+  "mpfb-peds-parent-aisha.glb": "parent_tara_johnson_v1",
+  "mpfb-peds-nurse-kevin.glb": "nurse_kevin_lee_v1",
+};
+
+/**
+ * CC0 makehuman-system-assets pack stems (#356 / iris_palette._EYE_IRIS_PACK). An authored
+ * eye_color outside this set is unbuildable and is out of clause (1)'s match duty (Maya/hazel).
+ */
+const EYE_IRIS_PACK = new Set([
+  "blue",
+  "bluegreen",
+  "brown",
+  "brownlight",
+  "deepblue",
+  "green",
+  "grey",
+  "ice",
+  "lightblue",
+]);
+
+/**
+ * Measured sha256[0:12] of each pack colour's iris PNG (baked into shipped GLBs / FIXED #356
+ * table). brown/green/blue are the three that have reached a learner; others are absent until
+ * a case authors them.
+ */
+const IRIS_SHA_BY_COLOUR: Record<string, string> = {
+  brown: "4659691c7295",
+  green: "b9864ac4f4fa",
+  blue: "572ddc93ab3e",
+};
+
+function authoredColour(actorId: string): string {
+  const src = readFileSync(BANK, "utf8");
+  const needle = `actorId: "${actorId}"`;
+  const idx = src.indexOf(needle);
+  if (idx < 0) throw new Error(`bank missing actorId ${actorId}`);
+  // Slice to the next actorId (or EOF) so Maya's long dialogue block still yields eye_color.
+  const next = src.indexOf("actorId:", idx + needle.length);
+  const block = src.slice(idx, next < 0 ? undefined : next);
+  const m = block.match(/eye_color:\s*"([a-z_]+)"/);
+  if (!m) throw new Error(`bank missing eye_color for ${actorId}`);
+  return m[1]!;
+}
+
+/** (b) helper — two different pack-authored colours must not share an iris sha. */
+function sharedIrisAcrossDifferentAuthored(
+  actors: Array<{ file: string; authoredColour: string; irisSha: string | null }>,
+): string[] {
+  const inPack = actors.filter((a) => EYE_IRIS_PACK.has(a.authoredColour));
+  const clashes: string[] = [];
+  for (let i = 0; i < inPack.length; i++) {
+    for (let j = i + 1; j < inPack.length; j++) {
+      const a = inPack[i]!;
+      const b = inPack[j]!;
+      if (a.authoredColour !== b.authoredColour && a.irisSha !== null && a.irisSha === b.irisSha) {
+        clashes.push(
+          `${a.file}(${a.authoredColour})/${b.file}(${b.authoredColour}) share iris ${a.irisSha}`,
+        );
+      }
+    }
+  }
+  return clashes;
+}
 
 /** #506: OB aisha's closed_casual role colour — muted olive, no longer the skin-adjacent
  * cream. Measured separately so clause (3) does not compare across stations. */
@@ -160,14 +229,42 @@ function requireRows(): void {
 }
 
 describe("eye colour is case-driven, not one constant for everyone", () => {
-  it("(1) RED (FIXED #356): co-present actors do not all share one iris", () => {
+  it("(1) RED (FIXED #519): iris matches authored pack eye_color; different authored pack colours differ", () => {
+    // Re-keyed from the #356 anti-monopoly proxy (cast-wide distinctness floor). Uniformity is
+    // permitted when the CASE is uniform — #519 made parent+nurse both author brown and ship brown.
     requireRows();
-    const shas = rows.map((r) => r.irisSha);
-    const distinct = new Set(shas.filter(Boolean)).size;
+    const withAuthored = rows.map((r) => {
+      const actorId = CAST_ACTOR_ID[r.file as (typeof CAST)[number]];
+      return { ...r, authoredColour: authoredColour(actorId) };
+    });
+
+    // (a) every actor whose authored eye_color is in the pack ships exactly that colour.
+    const mismatches: string[] = [];
+    for (const r of withAuthored) {
+      if (!EYE_IRIS_PACK.has(r.authoredColour)) continue;
+      const expected = IRIS_SHA_BY_COLOUR[r.authoredColour];
+      expect(expected, `pack colour ${r.authoredColour} needs a measured iris sha`).toBeTruthy();
+      if (!r.irisSha?.startsWith(expected!)) {
+        mismatches.push(
+          `${r.file}: authoredColour=${r.authoredColour} expected sha ${expected} got ${r.irisSha}`,
+        );
+      }
+    }
+    expect(mismatches, "authored pack eye_color must reach the shipped iris").toEqual([]);
+
+    // (b) two actors authoring DIFFERENT pack colours ship DIFFERENT irises — hardcode defense.
     expect(
-      distinct >= 2,
-      `all ${rows.length} actors share iris ${shas[0] ?? "none"} — ${distinct} distinct texture(s) across the cast`,
-    ).toBe(true);
+      sharedIrisAcrossDifferentAuthored(withAuthored),
+      "different authored pack colours must not share one iris",
+    ).toEqual([]);
+    // Fixture: a hardcode (one iris for two pack colours) must still fail (b).
+    expect(
+      sharedIrisAcrossDifferentAuthored([
+        { file: "fixture-a.glb", authoredColour: "brown", irisSha: "4659691c7295ad62" },
+        { file: "fixture-b.glb", authoredColour: "blue", irisSha: "4659691c7295ad62" },
+      ]).length,
+      "fixture with two pack colours sharing one iris must be rejected",
+    ).not.toBe(0);
   });
 
   it("(2) NET known-good: the eye is still a textured iris, not a flat colour", () => {
@@ -299,5 +396,19 @@ describe("eye colour is case-driven, not one constant for everyone", () => {
  * must not recolour garments — is unchanged and now expects the child's declared soft blue.
  * Measured post-fix on the shipped bytes: child (0.55, 0.68, 0.80), parent rose
  * (0.42, 0.36, 0.40), nurse teal (0.05, 0.48, 0.52), OB aisha cream (0.72, 0.68, 0.55).
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ *
+ * ## FIXED (#519) — appended; the planted header above is immutable
+ *
+ * #519 made the peds cast honour its authored `eye_color` (parent green→brown, nurse blue→brown).
+ * Clause (1)'s anti-monopoly proxy (cast-wide distinctness floor) then reds on a correct,
+ * case-driven cast: the bank authors brown / brown / hazel, hazel is unbuildable, both adults
+ * ship brown `4659691c7295`. Uniformity is a TRUE statement about the case, not a hardcode.
+ *
+ * FIX (#520 instrument): re-key clause (1) to the case —
+ *   (a) every actor whose authored `eye_color` is in the CC0 pack ships that colour's iris sha;
+ *   (b) two actors authoring DIFFERENT pack colours ship DIFFERENT irises (hardcode still fails;
+ *       a brown+blue fixture sharing one sha is rejected). Maya/hazel stays out of (a) — not in
+ *       pack. Clauses (2)/(3)/(3b)/(3c) untouched. Bank unedited.
  * ════════════════════════════════════════════════════════════════════════════════════════════════
  */
