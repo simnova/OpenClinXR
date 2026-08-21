@@ -43,6 +43,23 @@
  *
  * claimScope: whether clinician actors wear high-saturation patterned footwear.
  * notEvidenceFor: frame budget, vertex counts, or any patient's wardrobe.
+ *
+ * ## FIXED (#502)
+ *
+ * The generator now bakes clinician `toigo_flats` flat: `materialize_mpfb_humanoid_candidate.py`
+ * skips the declared leopard "Shoe" texture when `_is_clinician and shoe_kind == "toigo_flats"`,
+ * falling back to the flat dark factor (0.10, 0.09, 0.08) — the exact `mpfb-gown-adult-patient`
+ * precedent (26,23,20). Patients still consume the print (ob patient aisha), and kevin's
+ * `culturalibre_male_boots` is a different shoe_kind and stays textured.
+ *
+ * The two already-shipped clinician GLBs were migrated with the same per-actor MATERIAL SWAP via
+ * `strip-clinician-footwear-pattern.py` (GLB JSON-chunk patch, BIN verbatim): baseColorTexture
+ * removed from `mat_makeclothes_library_footwear_toigo_flats`, baseColorFactor set to
+ * (0.10, 0.09, 0.08, 1.0). The shared "Shoe" texture was NOT edited (clause 4); the orphaned
+ * image bytes stay in the GLB until a future rebake reclaims them — size is a side effect, not
+ * the justification.
+ *
+ * Clause (1) flipped `it.fails` -> `it`.
  */
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
@@ -81,7 +98,7 @@ describe("#502 clinicians do not wear patterned party shoes", () => {
     expect(s!.sd, "the shipped plain control sits at sd 25.1").toBeLessThan(30);
   });
 
-  it.fails("(1) every clinician's footwear is not a loud patterned shoe", async () => {
+  it("(1) every clinician's footwear is not a loud patterned shoe", async () => {
     const seen = new Set<string>();
     for (const { role, glb } of await cast()) {
       if (!CLINICIAN.test(role) || seen.has(glb)) continue;
