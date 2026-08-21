@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "openclinxr.interior-wall-lighting-variants.v1",
+  "generatedAt": "2026-08-21T17:58:19.264Z",
+  "room": "infinigen-primary-care-clinic",
+  "scenarioId": "primary_care_dyslipidemia_joint_pain_v1",
+  "captureMode": "scene-overview",
+  "cameraNote": "roomCam(interiorWall)=0.00,1.68,2.44 look=0.00,1.45,-3.46 wallThickness=0.120",
+  "wallBandRegion": {
+    "left": 0.08,
+    "top": 0.18,
+    "width": 0.42,
+    "height": 0.48
+  },
+  "graderNote": "Orchestrator picks. Default product path remains control until that grade. No intensity/colour/HDRI in this sheet is the shipped answer.",
+  "claimScope": "wall-band mean luminance under named product-path lighting variants on one Infinigen room",
+  "notEvidenceFor": [
+    "permanent product lighting pick",
+    "quest_readiness",
+    "clinical_validity",
+    "metal_appearance_grade",
+    "plaster_albedo_variation_R2"
+  ],
+  "variants": [
+    {
+      "id": "control",
+      "label": "control (current hemisphere + key)",
+      "wallBandMeanL": 7.41,
+      "wallBandSd": 12.89,
+      "viewportMeanL": 20.15,
+      "image": "interior-wall-lighting-variants/control.png"
+    },
+    {
+      "id": "lab_ambient_fill",
+      "label": "candidate: lab ambient + counter-fill (isolated-subject-lab)",
+      "wallBandMeanL": 21.15,
+      "wallBandSd": 24.19,
+      "viewportMeanL": 28.96,
+      "image": "interior-wall-lighting-variants/lab_ambient_fill.png"
+    },
+    {
+      "id": "raised_hemisphere_ground",
+      "label": "candidate: raised hemisphere ground",
+      "wallBandMeanL": 22.44,
+      "wallBandSd": 25.95,
+      "viewportMeanL": 30.6,
+      "image": "interior-wall-lighting-variants/raised_hemisphere_ground.png"
+    },
+    {
+      "id": "room_environment_ibl",
+      "label": "candidate: RoomEnvironment IBL + control lights",
+      "wallBandMeanL": 27.24,
+      "wallBandSd": 34.71,
+      "viewportMeanL": 39.95,
+      "image": "interior-wall-lighting-variants/room_environment_ibl.png"
+    }
+  ]
+}
