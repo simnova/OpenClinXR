@@ -25,6 +25,8 @@
           <a href="#now">Now</a>
           <a href="#dark-factory">Factory</a>
           <a href="#trellis-hatch">Hatch</a>
+          <a href="#supine">Patient</a>
+          <a href="#garment-class">Wardrobe</a>
           <a href="#see-it">See it</a>
           <a href="#roadmap">Roadmap</a>
           <a href="#evidence-docs">Evidence Docs</a>
@@ -174,6 +176,119 @@
         <p class="progress-note">
           Source of truth for status is the repo ledger (<code>PROJECT_STATUS.md</code>), not this page.
           Public copy here is a snapshot for humans—updated when the product story actually moves.
+        </p>
+      </section>
+
+
+      <section id="supine" class="band band--evidence" aria-labelledby="supine-title">
+        <div class="section-heading">
+          <p class="eyebrow">Evidence you can look at</p>
+          <h2 id="supine-title">The patient on the bed was a wad of geometry. Now she is a person.</h2>
+        </div>
+        <p class="status-copy">
+          Three of the fourteen stations lay their patient down. For weeks those three rendered a
+          crumpled knot on the mattress. <strong>Five separate fixes landed and none of them changed
+          a pixel</strong> — each was aimed at a cause nobody had located. On 2026-08-20 the sixth
+          worked, because an ablation was run first instead of a sixth guess: render the pose's two
+          mechanisms separately and see which one is the damage.
+        </p>
+
+        <figure style="margin: 20px 0 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
+          <img
+            src="assets/supine-ablation-2026-08-20.png"
+            alt="Three-cell ablation contact sheet. Left: the gowned MPFB body standing upright, no supine call. Centre: the same body lying on its back with only the root basis applied. Right: the full supine path. Centre and right are identical."
+            style="width: 100%; display: block;"
+            loading="lazy"
+          >
+          <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+            The ablation, isolated harness, product renderer. <code>standing</code> · <code>root_only</code> ·
+            <code>full</code>. The centre cell was always a person; the right cell used to be the knot.
+          </figcaption>
+        </figure>
+
+        <p class="status-copy" style="margin-top: 16px;">
+          The cause was seventeen joint rotations hand-tuned against Anny's 23-bone skeleton, being
+          applied to an MPFB body with <strong>138 joints</strong>. They are correct for the rail they
+          were written for, so the fix was not to delete them — it was to scope them. Anny keeps its
+          table; MPFB skips it. One switch, and the right-hand cell above became the centre cell.
+        </p>
+
+        <p class="status-copy">
+          <strong>The part worth keeping is the measurement that could not tell them apart.</strong>
+          Before the fix, the knot and the person had <em>identical</em> envelope metrics — height
+          446&nbsp;mm, minimum Y 0.570, to three decimal places. One was a patient and one was refuse,
+          and every bounding-box assertion in the repository scored them the same. Any future contract
+          that grades a lying figure by its bounding box is measuring nothing.
+        </p>
+
+        <figure style="margin: 20px 0 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
+          <img
+            src="assets/supine-patient-is-a-person-2026-08-20.png"
+            alt="Assembled postoperative ward station: a patient in a blue gown lying on her back on the bed, with a nurse and a surgical resident standing near the doorway, EHR panel to the right."
+            style="width: 100%; display: block;"
+            loading="lazy"
+          >
+          <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+            <code>postop_fever_consult_pressure_v1</code>, assembled station, graded by eye. All three
+            recumbent stations were re-captured and all three now render a person on the bed.
+          </figcaption>
+        </figure>
+
+        <p class="status-copy" style="margin-top: 16px;">
+          <strong>Not fixed, and visible in that capture:</strong> her arms rest raised in the air
+          rather than at her sides. That is the bind pose showing through now that the wrong rotations
+          are gone, and the answer to it is a retargeted recumbent motion clip — not a second table of
+          hand-authored angles. That work is open. Nothing here is a claim about clinical validity of
+          the pose; it is a claim that a figure on a bed reads as a human being.
+        </p>
+      </section>
+
+      <section id="garment-class" class="band" aria-labelledby="garment-class-title">
+        <div class="section-heading">
+          <p class="eyebrow">Evidence you can look at</p>
+          <h2 id="garment-class-title">Every garment we own, classified. None of them is a hospital gown.</h2>
+        </div>
+        <p class="status-copy">
+          The section above this one says clothing is not yet good enough to show. That used to be a
+          judgement. It is now a measurement: every cached MakeHuman garment in the repository has been
+          fitted, rendered and given a class, and the class the clinical work needs
+          has <strong>zero members</strong>.
+        </p>
+
+        <figure style="margin: 20px 0 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
+          <img
+            src="assets/garment-class-sheet-2026-08-20.png"
+            alt="Thirteen-cell contact sheet of every cached garment, each fitted and rendered in a distinct colour with its filename and assigned class: an evening dress, two open lab coats, scrub top and trousers, several t-shirts and a sweater, boots, flats and cloth shoes."
+            style="width: 100%; display: block;"
+            loading="lazy"
+          >
+          <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+            13 unique garments from 16 cached files. Classes derived from fitted geometry — hem height
+            and shoulder coverage — not from the filename.
+          </figcaption>
+        </figure>
+
+        <p class="status-copy" style="margin-top: 16px;">
+          <code>street&nbsp;8 · footwear&nbsp;3 · labcoat&nbsp;2 · scrub&nbsp;2 · evening_dress&nbsp;1 ·
+          hospital_gown&nbsp;0</code>. Nothing fell into <code>other</code> and nothing was left unknown.
+        </p>
+
+        <p class="status-copy">
+          <strong>The first cell is the whole reason this was built.</strong> A file named
+          <code>crudegown.mhclo</code> once passed three machine contracts — its licence was verified,
+          its vertex indices were verified, its presence on the body was verified — and then somebody
+          looked at the render and found a floor-length spaghetti-strap evening dress. Presence,
+          placement and provenance are three questions, and none of them is <em>class</em>. The
+          inventory now answers the fourth one from geometry, in machine-readable form, before anyone
+          opens an image: <code>crudegown → evening_dress</code>, hem at 3% of body height.
+        </p>
+
+        <p class="status-copy">
+          The practical consequence is a piece of work we are <em>not</em> doing. Dressing eleven more
+          patients in a hospital gown is off the queue until a hospital-class garment actually exists,
+          because mapping the name onto the closest available asset is how the evening dress got there
+          the first time. <strong>The honest answer to “where is the gown” is NOT FOUND</strong>, and
+          that is a better artifact than a green contract over the wrong garment.
         </p>
       </section>
 
