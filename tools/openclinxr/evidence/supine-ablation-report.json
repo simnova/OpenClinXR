@@ -32,7 +32,7 @@
     {
       "cell": "full",
       "ranSupineCall": true,
-      "appliedJointEulers": true,
+      "appliedJointEulers": false,
       "posedMeshAabb": {
         "min": {
           "y": 0.57
