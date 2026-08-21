@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "openclinxr.cc0-bed-pose-bind-report.v1",
+  "verdict": "reject_measured",
+  "verdictNote": "load_and_retarget produced action=None on the target armature (zero driven bones). retarget_bvh source-rig auto-identification raised 'Shoulder breast.R has no children' (armature.py:215) on the MakeHuman BVH's breast.L/breast.R leaf joints, so no retarget action was baked. The target map was correctly injected (target identified as 'MPFB2 default_no_toes'); the SOURCE side is the failure, exactly the open question #492 named.",
+  "headerLicence": "FILE CONTAINS NO LICENCE LINE. Grepped all 1016 lines of 'Laying on Back 0001.bvh' for license|licence|CC0|CC-0|CC BY|AGPL|GPL|author|copyright|public domain|creative commons: zero matches. The file header is a bare BVH HIERARCHY block with no comment/author/licence stanza: 'HIERARCHY / ROOT root / { / OFFSET 0.000000 0.062323 0.826733 / CHANNELS 6 Xposition Yposition Zposition Xrotation Yrotation Zrotation / JOINT spine05 ...' Frames: 1, Frame Time: 0.041667.",
+  "sourceUrl": "http://www.makehumancommunity.org/content/laying_on_bed_001.html (direct file: http://www.makehumancommunity.org/sites/default/files/poses/7247/556577774/Laying%20on%20Back%200001.bvh)",
+  "targetMap": "tools/openclinxr/asset-pipeline/makeclothes/known-rigs/mpfb2-default-no-toes.json",
+  "drivenBoneCount": 0,
+  "obtainedBy": "motion_bind_stage.py --actor <mpfb glb> --clip 'Laying on Back 0001.bvh' --map mpfb2-default-no-toes.json -> mcp.load_and_retarget (retarget_bvh) -> stage rejected with zero_or_thin_channels (driven=0 real=0, target action=None)"
+}
