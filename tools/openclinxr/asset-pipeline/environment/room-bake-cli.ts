@@ -111,6 +111,8 @@ export async function runRoomBake(options: {
   output?: string;
   resolution?: number;
   report?: string;
+  meansLog?: string;
+  lightRig?: "legacy" | "distributed";
 }): Promise<BakeReport> {
   const input = options.input;
   const output = options.output ?? input;
@@ -120,6 +122,7 @@ export async function runRoomBake(options: {
   const inputMeasure = await measureGlb(input);
   const started = Date.now();
 
+  const meansLog = options.meansLog ?? "tools/openclinxr/evidence/room-bake-means.json";
   await execFileAsync("blender", [
     "--background",
     "--python",
@@ -131,6 +134,12 @@ export async function runRoomBake(options: {
     output,
     "--resolution",
     String(resolution),
+    "--means-log",
+    meansLog,
+    "--room-name",
+    path.basename(output),
+    "--light-rig",
+    options.lightRig ?? "distributed",
   ], {
     timeout: BLENDER_BAKE_TIMEOUT_MS,
     maxBuffer: 20 * 1024 * 1024,

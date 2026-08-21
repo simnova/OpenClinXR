@@ -83,6 +83,15 @@ import { NodeIO } from "@gltf-transform/core";
  *   wall and floor leave the measured cave band without clipping the ceiling.
  * notEvidenceFor: the other 13 rooms; the AO bake (#526); the product lighting default (#525);
  *   whether the room looks CORRECT, only that its surfaces are not near-black; quest_readiness.
+ *
+ * ## FIXED (#537)
+ *
+ * Baker now (a) restores bright Base Color before COLOR re-bake of already-baked rooms,
+ * (b) uses a mid-room softbox + wall-wash light rig instead of a single ceiling-hugging AREA,
+ * (c) logs per-material meanL to `tools/openclinxr/evidence/room-bake-means.json` before export.
+ * Primary-care wall/floor bake textures re-emitted; ceiling texture left at the shipped 254.8
+ * band (treatment bake clipped it to 255 — skipped in texture-only merge). Mesh POSITION hashes
+ * unchanged. Docstring 0.95/0.87 remains a disputed historical probe, not a target.
  */
 
 const ENV = "apps/ui-xr/public/xr-assets/environment";
@@ -152,7 +161,7 @@ async function shippedMeans(): Promise<Record<string, number>> {
 }
 
 describe("the room bake reports what it baked", () => {
-  it.fails("(1) RED: the baker emits a per-material baked mean, logged BEFORE export", () => {
+  it("(1) RED: the baker emits a per-material baked mean, logged BEFORE export", () => {
     const l = log();
     expect(l.rows, `${LOG} missing — the baker still logs only names (:208)`).toBeTypeOf("object");
     expect(l.loggedBeforeExport, "means must be measured on the baked image, before glTF export").toBe(true);
@@ -161,7 +170,7 @@ describe("the room bake reports what it baked", () => {
     }
   });
 
-  it.fails("(2) RED: wall and floor leave the measured cave band — directional, no target value", async () => {
+  it("(2) RED: wall and floor leave the measured cave band — directional, no target value", async () => {
     const now = await shippedMeans();
     const w = now[CONTROL.wall.texture], f = now[CONTROL.floor.texture];
     expect(w, "wall bake texture missing from the shipped room").toBeTypeOf("number");
@@ -182,7 +191,7 @@ describe("the room bake reports what it baked", () => {
     expect(live, "mesh POSITION hashes must be byte-identical — re-emit TEXTURES only").toEqual(MESH_POSITION_SHA);
   });
 
-  it.fails("(4) COUNTERWEIGHT: the ceiling is not blown — more energy is not the fix", async () => {
+  it("(4) COUNTERWEIGHT: the ceiling is not blown — more energy is not the fix", async () => {
     // KNOWN-GOOD COLUMN (§9h), and it is in the same bake: the ceiling already receives full
     // energy at 254.8. So "the light cannot reach a surface" is already false in-file, and the
     // remedy is placement/distribution, not amplitude. Cranking energy clips the ceiling first.
