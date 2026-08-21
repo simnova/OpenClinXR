@@ -143,12 +143,36 @@ const AUTHORED_TEXTURE: Record<string, { texture: string }> = {
 };
 
 /**
- * Garments whose declared .mhmat is NOT staged in the provider cache: the flat role colour IS
- * the authored material (kevin's scrub shirt is the known-good column — flat, unregressed).
+ * Garments that ship a FLAT role colour because their authored texture never reaches the bake —
+ * the flat colour IS the authored state (kevin's scrub shirt is the known-good column: flat,
+ * unregressed).
+ *
+ * TWO DISTINCT SKIP REASONS land here, and the original wording ("declared .mhmat is NOT staged")
+ * only covered the first. Widened 2026-08-21 after `scrub_pants` was measured:
+ *
+ *   1. the declared `.mhmat` itself is absent from the provider cache
+ *   2. the `.mhmat` IS staged but the PNG it declares is not — `scrub_pants` stages
+ *      `Scrub_Pants.mhmat` (which names `diffuseTexture "ScrubsMain_Pants_BaseColor_Utility -
+ *      sRGB - Texture.png"`) and that PNG is absent, so the bake takes `GARMENT_MATERIAL_SKIP`
+ *      (`materialize_mpfb_humanoid_candidate.py`) and falls back to the flat factor.
+ *
+ * Same shipped outcome, different reason. Measured on all three wearers: `tex=NONE`,
+ * `factor=[0.05, 0.48, 0.52]`.
+ *
+ * **This Set is a REGISTRY, not a cache of what happens to ship.** The enumeration guard below
+ * fails closed on any garment in neither table precisely so a new one cannot pass silently (§7t).
+ * Do NOT replace it with an enumeration of shipped materials — that converts a working
+ * fail-closed guard into a vacuous pass, which is the defect it exists to prevent. Adding a
+ * measured row here IS the designed workflow.
+ *
+ * `scrub_pants` is classified flat on the evidence above; whether it SHOULD be textured is a
+ * separate acquisition question (the PNG is nameable and unstaged) and is tracked on #521.
  */
 const FLAT_BY_AUTHORED_STATE = new Set<string>([
   "mat_makeclothes_library_cargo_pants",
   "mat_makeclothes_library_scrub_shirt",
+  // #521 — .mhmat staged, declared PNG absent -> GARMENT_MATERIAL_SKIP -> flat teal factor.
+  "mat_makeclothes_library_scrub_pants",
 ]);
 
 /** #506: the patients' closed_casual upper role colour — no longer the skin-adjacent
