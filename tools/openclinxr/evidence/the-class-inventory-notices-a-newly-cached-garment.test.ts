@@ -101,8 +101,26 @@ const REPO_ROOT = pathResolve(HERE, "../../..");
 const CACHE = join(REPO_ROOT, ".openclinxr-local/provider-cache");
 const INVENTORY = join(REPO_ROOT, "tools/openclinxr/evidence/garment-class-inventory.json");
 
-/** Measured 2026-08-21. Floors, never equalities — the cache is expected to grow. */
-const IN_SCOPE_UNIQUE_FLOOR = 13;
+/**
+ * Measured 2026-08-21 on the ORCHESTRATOR MACHINE: 16 files / 13 unique in-scope.
+ *
+ * ## CORRECTION (orchestrator, 2026-08-21) — the original clause (1) was UNSATISFIABLE in a worktree
+ *
+ * The first version of this contract asserted `uniqueCount >= 13` and called it "a floor, not an
+ * equality — the cache is expected to grow". That reasoning only considered growth. `.openclinxr-local/`
+ * is GITIGNORED, so a worker's worktree gets a PROVISIONED PARTIAL cache — measured on issue-512:
+ * 7 files (6 garments + the eyes asset) against this machine's 44. The clause could never pass where
+ * the work is done. That is my defect, not the worker's (§6x-ter), and it is #64's second-order bite:
+ * a guard over a gitignored tree cannot assume the tree it sees is the tree I measured.
+ *
+ * An absolute count is therefore NOT a portable property. What IS portable, and what this contract
+ * now asserts, is the RELATIONSHIP between the enumeration and whatever cache is present:
+ *   - the known-good garments are provisioned into every worktree, so they must always be found;
+ *   - clause (2)'s staging probe proves the walk is live, which is the thing the count was a proxy for;
+ *   - clause (3) proves the inventory covers whatever is there.
+ * The machine-specific count survives only as a recorded observation below, asserted against nothing.
+ */
+const IN_SCOPE_UNIQUE_ON_ORCHESTRATOR_MACHINE = 13; // observation, deliberately not asserted
 const HAIR_FILES_MEASURED = 27;
 
 /** §9h — the calibration column. Any exclusion rule that drops one of these is wrong. */
@@ -128,8 +146,10 @@ describe("the class inventory notices a newly cached garment", () => {
     const { enumerateCachedGarments } = await loadEnumerator();
     const found = enumerateCachedGarments(CACHE);
     const names = new Set(found.map((g) => g.basename));
-    expect(names.size, `unique in-scope garments (13 cached 2026-08-21; floor, cache may grow)`)
-      .toBeGreaterThanOrEqual(IN_SCOPE_UNIQUE_FLOOR);
+    // NO ABSOLUTE COUNT — see the CORRECTION above. A worktree carries a provisioned partial cache
+    // (7 files on issue-512 vs 44 here), so any floor taken from this machine is unsatisfiable where
+    // the work happens. The known-good three are provisioned everywhere; that is the portable floor.
+    expect(names.size, "the enumeration must return something").toBeGreaterThan(0);
     for (const kg of KNOWN_GOOD) expect(names.has(kg), `${kg} is a known-good garment and must be in scope`).toBe(true);
     for (const g of found) expect(g.sourcePath.includes("provider-cache"), `${g.basename} path`).toBe(true);
   });
