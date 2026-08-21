@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "supine-rail-euler-switch.v1",
+  "obtainedBy": "isolated-subject-lab runtime_posture path: applyAndPlantSupineOnDeck → applySupinePose with default options on a loaded three.js graph; jointCount from collectJointNames over live Bone + skeleton.bones; appliedJointEulers from openClinXrSupinePoseBones after the product pose call",
+  "rails": [
+    {
+      "bodyGlb": "generated-humanoids/ed_chest_pain_adult_cast.glb",
+      "rail": "anny",
+      "jointCount": 23,
+      "appliedJointEulers": true
+    },
+    {
+      "bodyGlb": "generated-humanoids/mpfb-gown-adult-patient.glb",
+      "rail": "mpfb",
+      "jointCount": 138,
+      "appliedJointEulers": false
+    }
+  ]
+}

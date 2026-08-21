@@ -62,6 +62,16 @@ import { describe, expect, it } from "vitest";
  * NOT TESTED: that the result LOOKS right — the orchestrator's re-captured ED grade decides that,
  * and it is the gate. `seated`. Whether the stiff arms read acceptably to a clinician. Whether the
  * BVH supersedes this entirely, which is the parallel slice's question.
+ *
+ * ## FIXED (#496)
+ *
+ * `applySupinePose` now defaults `applyJointEulers` per rail via `isMpfb2Rig` (seated-pose-mpfb2):
+ * the MPFB2 recast skips the 17 Anny-tuned eulers, the Anny rail keeps them, and an explicit
+ * `applyJointEulers` still overrides either way. `isolated-subject-lab` records `jointCount`
+ * (collectJointNames size) on its supine dump. `supine-rail-euler-switch.ts` drives both rails
+ * through `applyAndPlantSupineOnDeck → applySupinePose` and writes the tracked
+ * `supine-rail-euler-switch.json`. Clause (1) flipped `it.fails` -> `it`. Measured: anny 23
+ * joints / eulers applied, mpfb 138 joints / eulers skipped.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -89,7 +99,7 @@ const railOf = (r: Report, rail: "mpfb" | "anny"): Rail => {
 };
 
 describe("a supine MPFB patient is posed by the rail that fits it", () => {
-  it.fails("(1) RED: the MPFB rail skips the Anny-tuned joint eulers", () => {
+  it("(1) RED: the MPFB rail skips the Anny-tuned joint eulers", () => {
     const r = requireReport();
     // SS6v: the numbers must come from CALLING applySupinePose on a loaded graph, never from a
     // static read. Two of my diagnoses on this defect died by measuring a proxy.
