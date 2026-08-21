@@ -11,14 +11,24 @@
     "head": "head",
 
     "clavicle.L": "shoulder.L",
+    "shoulder01.L": "shoulder.L",
     "upperarm01.L": "upper_arm.L",
+    "upperarm02.L": "upper_arm_twist.L",
     "lowerarm01.L": "forearm.L",
+    "lowerarm02.L": "forearm_twist.L",
     "wrist.L": "hand.L",
+    "finger1-1.L": "f_thumb.01.L",
+    "finger2-1.L": "f_index.01.L",
 
     "clavicle.R": "shoulder.R",
+    "shoulder01.R": "shoulder.R",
     "upperarm01.R": "upper_arm.R",
+    "upperarm02.R": "upper_arm_twist.R",
     "lowerarm01.R": "forearm.R",
+    "lowerarm02.R": "forearm_twist.R",
     "wrist.R": "hand.R",
+    "finger1-1.R": "f_thumb.01.R",
+    "finger2-1.R": "f_index.01.R",
 
     "upperleg01.L": "thigh.L",
     "upperleg02.L": "thigh_twist.L",
@@ -27,10 +37,26 @@
     "toe1-1.L": "toe.L",
 
     "upperleg01.R": "thigh.R",
+    "upperleg02.R": "thigh_twist.R",
     "lowerleg01.R": "shin.R",
     "foot.R": "foot.R",
     "toe1-1.R": "toe.R"
   },
-  "optional": ["upperleg02.L", "toe1-1.L", "toe1-1.R"],
+  "optional": [
+    "upperleg02.L",
+    "upperleg02.R",
+    "upperarm02.L",
+    "upperarm02.R",
+    "lowerarm02.L",
+    "lowerarm02.R",
+    "shoulder01.L",
+    "shoulder01.R",
+    "finger1-1.L",
+    "finger1-1.R",
+    "finger2-1.L",
+    "finger2-1.R",
+    "toe1-1.L",
+    "toe1-1.R"
+  ],
   "ik-bones": []
 }
