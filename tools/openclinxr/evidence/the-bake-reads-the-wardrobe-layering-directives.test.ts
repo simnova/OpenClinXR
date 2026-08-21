@@ -34,6 +34,18 @@
  * notEvidenceFor: that any garment renders correctly, that poke-through is fixed, or that
  *                 layering is APPLIED in the bake. Reading is the first step, not the outcome.
  */
+
+/**
+ * ## FIXED (#498)
+ *
+ * Added `readMhcloLayering` (fit-cli.ts) — reads `z_depth` and `delete_verts` off a
+ * cached .mhclo header, `delete_verts` expanded into flat vertex indices (ranges
+ * `a - b` inclusive, dash as its own token). Flipped the three `it.fails` → `it`.
+ *
+ * Measured on the full 16-file cache: boots zDepth 70 (only non-50), labcoat
+ * deleteVerts 428 expanded / Scrub_Shirt 0. Sweep artifact:
+ * tools/openclinxr/evidence/wardrobe-layering-read-report.json.
+ */
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -70,7 +82,7 @@ describe("#498 the bake can read the wardrobe layering directives", () => {
     expect(FILES.some((f) => f.endsWith("male_crude_labcoatop.mhclo"))).toBe(true);
   });
 
-  it.fails(
+  it(
     "(1) a reader returns z_depth and delete_verts, and DISCRIMINATES — boots 70, labcoat populated, Scrub_Shirt empty",
     async () => {
       const mod = (await import(
@@ -93,7 +105,7 @@ describe("#498 the bake can read the wardrobe layering directives", () => {
     },
   );
 
-  it.fails(
+  it(
     "(2) COUNTERWEIGHT: every cached file, enumerated dynamically, matches ground truth read off disk — a hardcoded table cannot satisfy this",
     async () => {
       const mod = (await import(
@@ -106,7 +118,7 @@ describe("#498 the bake can read the wardrobe layering directives", () => {
     },
   );
 
-  it.fails(
+  it(
     "(3) the reader reports a SPREAD, not a constant — at least two distinct z_depth values across the cache",
     async () => {
       const mod = (await import(

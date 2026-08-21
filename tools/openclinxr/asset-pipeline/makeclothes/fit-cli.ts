@@ -222,6 +222,52 @@ export function readMhcloLicense(mhcloPath: string): {
   return { token, source, rawHeader: header };
 }
 
+export type MhcloLayeringDirectives = {
+  /** MakeHuman layer-order key (`z_depth <n>`); null when the file carries none. */
+  zDepth: number | null;
+  /** Basemesh vertex indices the garment deletes; empty when the key is absent or empty. */
+  deleteVerts: number[];
+};
+
+/**
+ * Layering directives from a cached .mhclo — z_depth (layer order) and delete_verts
+ * (basemesh vertices removed under the garment). #498: the bake ships both but reads
+ * neither. Parsed straight off the file, never invented (D1).
+ *
+ * `delete_verts` is the terminal directive: a whitespace-separated list of indices and
+ * inclusive ranges (`a - b`, dash as its own token), running to end-of-file.
+ */
+export function readMhcloLayering(mhcloPath: string): MhcloLayeringDirectives {
+  const text = readFileSync(mhcloPath, "utf8");
+  const zMatch = text.match(/^z_depth\s+(\d+)/im);
+  const zDepth = zMatch ? Number(zMatch[1]) : null;
+
+  const deleteVerts: number[] = [];
+  const dvMatch = text.match(/^delete_verts\s*$/im);
+  if (dvMatch) {
+    const tokens = text
+      .slice(dvMatch.index! + dvMatch[0].length)
+      .trim()
+      .split(/\s+/);
+    for (let i = 0; i < tokens.length; i += 1) {
+      const tok = tokens[i]!;
+      if (/^\d+$/.test(tok)) {
+        const a = Number(tok);
+        if (i + 2 < tokens.length && tokens[i + 1] === "-" && /^\d+$/.test(tokens[i + 2]!)) {
+          const b = Number(tokens[i + 2]);
+          const lo = Math.min(a, b);
+          const hi = Math.max(a, b);
+          for (let v = lo; v <= hi; v += 1) deleteVerts.push(v);
+          i += 2;
+        } else {
+          deleteVerts.push(a);
+        }
+      }
+    }
+  }
+  return { zDepth, deleteVerts };
+}
+
 /** Permitted factory wardrobe tokens (copyleft refused regardless of convenience). */
 export function isPermittedGarmentLicense(token: string): boolean {
   return /cc0|cc-?0|cc-?by|public\s*domain/i.test(token) && !/agpl|gpl(?!\s*font)/i.test(token);
