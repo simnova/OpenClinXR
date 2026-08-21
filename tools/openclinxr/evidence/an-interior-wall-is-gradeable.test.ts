@@ -79,6 +79,13 @@ import { describe, expect, it } from "vitest";
  *   - Whether the five metals change appearance once anything reflective exists. Predicted and
  *     EXPECTED — grade it, do not file it as a regression.
  *   - Ceiling occlusion. Void probe, see above.
+ *
+ * ## FIXED (#525)
+ * Product-path lighting variants in `apps/ui-xr/src/station-interior-lighting.ts`; main.ts
+ * applies via `?stationLighting=` (default remains `control` — orchestrator picks). Labelled
+ * sheet: `tools/openclinxr/evidence/interior-wall-lighting-variants.json` with control +
+ * lab_ambient_fill + raised_hemisphere_ground + room_environment_ibl, each with measured
+ * wallBandMeanL on primary-care interior framing. No room GLB change; no capture-only fill.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -99,7 +106,7 @@ function sheet(): { variants?: Variant[]; room?: string; graderNote?: string } {
 }
 
 describe("an interior wall is gradeable", () => {
-  it.fails("(1) RED: a labelled variant sheet exists with a control and candidates", () => {
+  it("(1) RED: a labelled variant sheet exists with a control and candidates", () => {
     const s = sheet();
     const v = s.variants ?? [];
     expect(v.length, "control plus at least two candidates").toBeGreaterThanOrEqual(3);
@@ -114,7 +121,7 @@ describe("an interior wall is gradeable", () => {
       "the sheet must name a shipped room it was rendered from").toBe(true);
   });
 
-  it.fails("(2) RED: at least one variant lifts the wall band clear of the measured floor", () => {
+  it("(2) RED: at least one variant lifts the wall band clear of the measured floor", () => {
     // Refuses (a). No target value is named — only that SOMETHING beats today, so the orchestrator
     // has a real choice to grade. A sheet where every row matches the control has swept nothing.
     const v = (sheet().variants ?? []).filter((x) => Number.isFinite(x.wallBandMeanL));

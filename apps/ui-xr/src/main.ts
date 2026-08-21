@@ -63,7 +63,8 @@ import {
   describeRuntimeBundleScenarioMatch,
   resolveEffectiveVerticalOffsetMeters,
 } from "./actor-floor-composition.js";
-import { createCaptureKeyLight, enableCaptureRendererShadowMap, isCaptureShadowPath, markActorCastShadow, markFloorReceiveShadow } from "./capture-shadow-map.js";
+import { enableCaptureRendererShadowMap, isCaptureShadowPath, markActorCastShadow, markFloorReceiveShadow } from "./capture-shadow-map.js";
+import { applyStationInteriorLighting, resolveStationInteriorLightingVariantId } from "./station-interior-lighting.js";
 import {
   addGeneratedHumanoidRoleContinuityWardrobeCue,
   applyCleanEncounterVisualReviewActorFraming as applyEncounterActorFraming,
@@ -104,7 +105,6 @@ import {
   CylinderGeometry,
   DoubleSide,
   Group,
-  HemisphereLight,
   Line,
   LineBasicMaterial,
   LoadingManager,
@@ -3336,11 +3336,7 @@ function createStationScene(): StationSceneRuntime {
   locomotionRig.add(camera);
   comparatorCaptureCamera = camera;
 
-  const ambient = new HemisphereLight(0xf4f0dc, 0x223042, 2.2);
-  ambient.name = iwsdkStationSceneObjects.ambientLight;
-  scene.add(ambient);
-
-  createCaptureKeyLight({ name: iwsdkStationSceneObjects.keyLight, scene, active: isCaptureShadowPath(selectedCaptureMode()) });
+  applyStationInteriorLighting({ scene, renderer, variantId: resolveStationInteriorLightingVariantId(new URLSearchParams(window.location.search).get("stationLighting")), ambientLightName: iwsdkStationSceneObjects.ambientLight, keyLightName: iwsdkStationSceneObjects.keyLight, keyCastShadow: isCaptureShadowPath(selectedCaptureMode()) });
 
   addReusableExteriorPreEncounterRoom(scene, doorwayTheme);
 

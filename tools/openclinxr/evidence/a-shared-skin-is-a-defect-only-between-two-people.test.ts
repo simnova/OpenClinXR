@@ -248,19 +248,29 @@ describe("a shared skin is a defect only between two people", () => {
     expect(typed, "sibling assertions on a hand-typed population count").toEqual([]);
   });
 
-  it("(5) COUNTERWEIGHT: narrowing to the cast must NOT silence the real pair", async () => {
+  it("(5) COUNTERWEIGHT: narrowing to the cast must NOT silence the real pair, and must not be reached by skipping", async () => {
     // Refuses treatment (c). Narrowing the population to the CAST is correct; narrowing until the
-    // ward_delirium collision stops being reported is the defect wearing a fix (§10s). Asserted
-    // both here and through the siblings, so a repair cannot go quiet in either place.
+    // ward_delirium collision stops being reported is the defect wearing a fix (§10s).
+    //
+    // This computes the collision INDEPENDENTLY of the siblings, so it holds whether they end up
+    // green (pair carried as an inverted guard, the #517/#516 shape) or red. An earlier draft also
+    // required both names to appear in `siblingOutput`, which is unsatisfiable the moment a sibling
+    // legitimately goes green — a passing test prints no assertion text.
     const dupes = await coStagedDuplicates();
     expect(dupes.length, "co-staged duplicate pairs still detected after narrowing").toBeGreaterThan(0);
     expect(
       dupes.some((d) => KNOWN_DUPLICATE_PAIR.every((g) => d.includes(g))),
-      "the ward_delirium physician/nurse pair is still reported",
+      "the ward_delirium physician/nurse pair (#527) is still reported",
     ).toBe(true);
+
+    // The other way to a clean sibling run is to stop running the assertions. Skipping, `.only`,
+    // and deletion are all refused here; merge-kill independently refuses deletion.
+    expect(/\bskipped\b/.test(siblingOutput), "a sibling assertion was skipped rather than repaired").toBe(false);
+    const total = /Tests\s+(?:(\d+) failed \| )?(\d+) passed(?: \| (\d+) (?:skipped|todo))?\s+\((\d+)\)/.exec(siblingOutput);
+    expect(total, `could not parse the sibling test total from:\n${siblingOutput.slice(-1200)}`).not.toBeNull();
     expect(
-      KNOWN_DUPLICATE_PAIR.every((g) => siblingOutput.includes(g)),
-      "both members of the real pair still named by a sibling after the repair",
-    ).toBe(true);
+      Number(total![4]),
+      "sibling assertion count must not shrink — 15 were running when this was planted",
+    ).toBeGreaterThanOrEqual(15);
   });
 });
