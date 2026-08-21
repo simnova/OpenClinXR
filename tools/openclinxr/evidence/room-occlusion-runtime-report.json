@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "openclinxr.room-occlusion-runtime.v1",
+  "generatedAt": "2026-08-21T17:07:55.935Z",
+  "probedBy": "playwright page.evaluate on window.__openClinXrIsolatedSceneRoot after isolated-subject-lab subjectKind=glb load via three.js GLTFLoader (apps/ui-xr/src/isolated-subject-lab.ts); bodyGlb=xr-assets/environment/ed-exam-bay-shell.glb",
+  "forcedIntensity": false,
+  "rooms": [
+    {
+      "room": "ed-exam-bay-shell.glb",
+      "materials": 29,
+      "withAoMap": 28,
+      "aoMapIntensities": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "aoMapUvSet": 1
+    }
+  ],
+  "claimScope": "runtime aoMap / aoMapIntensity / UV-channel observation for one shipped room GLB via isolated-subject-lab",
+  "notEvidenceFor": [
+    "whether rooms LOOK better (pixel grade is the orchestrator's)",
+    "occlusion colour space",
+    "humanoid or clothing materials",
+    "aoMapIntensity tuning (measurement only; no forcedIntensity)",
+    "clinical validity",
+    "quest readiness"
+  ]
+}

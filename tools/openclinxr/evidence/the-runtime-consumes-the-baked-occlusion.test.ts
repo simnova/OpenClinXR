@@ -63,6 +63,14 @@ import { describe, expect, it } from "vitest";
  *   - MADR "0055" is DOUBLE-ALLOCATED (an accepted equipment MADR and a Proposed room one).
  *     This slice is motivated by the PROPOSED room MADR as a ranking, NOT as governing law, and
  *     nothing here may cite it as accepted.
+ *
+ * ## FIXED (#523)
+ * Ran `tools/openclinxr/evidence/room-occlusion-runtime-probe.ts` against
+ * `ed-exam-bay-shell.glb` via isolated-subject-lab `subjectKind: "glb"` + page.evaluate on
+ * `window.__openClinXrIsolatedSceneRoot` (GLTFLoader path). Measured:
+ *   materials=29, withAoMap=28, aoMapIntensities all 1.0, aoMapUvSet=1.
+ * Outcome: already wired by the loader at intensity ~1.0 — closes R1; no product tune.
+ * Report: `tools/openclinxr/evidence/room-occlusion-runtime-report.json` (tracked).
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -84,7 +92,7 @@ function report(): { rooms?: Row[]; probedBy?: string } {
 }
 
 describe("the runtime consumes the baked occlusion", () => {
-  it.fails("(1) RED: a runtime probe reports aoMap state for a real room load", () => {
+  it("(1) RED: a runtime probe reports aoMap state for a real room load", () => {
     const r = report();
     expect(Array.isArray(r.rooms) && r.rooms.length > 0, "at least one room probed").toBe(true);
     for (const row of r.rooms ?? []) {
@@ -99,7 +107,7 @@ describe("the runtime consumes the baked occlusion", () => {
     ).toBe(true);
   });
 
-  it.fails("(2) RED: the probed room is one that actually ships an occlusionTexture", () => {
+  it("(2) RED: the probed room is one that actually ships an occlusionTexture", () => {
     // Refuses (b) and a probe pointed at an unrelated asset. The known-good is the glTF side.
     const r = report();
     const probed = (r.rooms ?? []).map((x) => x.room.replace(/\.glb$/, ""));
