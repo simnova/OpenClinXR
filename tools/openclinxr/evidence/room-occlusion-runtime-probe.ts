@@ -24,6 +24,16 @@ export const ROOM_OCCLUSION_RUNTIME_REPORT = join(
 /** Default: parametric shell — known 15/15 AO carrier with the densest material set. */
 export const DEFAULT_ROOM_GLB = "xr-assets/environment/ed-exam-bay-shell.glb";
 
+/**
+ * Bank sample for R1 close: shell (control) + one ACCEPT-graded Infinigen + the 2-of-3 AO outlier.
+ * Same loader path; different bake/material populations.
+ */
+export const DEFAULT_ROOM_GLBS: readonly string[] = [
+  DEFAULT_ROOM_GLB,
+  "xr-assets/environment/infinigen-primary-care-clinic.glb",
+  "xr-assets/environment/infinigen-stepdown.glb",
+];
+
 export type RoomOcclusionRow = {
   room: string;
   materials: number;
@@ -132,11 +142,14 @@ async function readAoFromIsolatedScene(page: Page): Promise<{
 }
 
 export async function probeRoomOcclusionRuntime(input?: {
+  /** Single room (legacy). Prefer bodyGlbs for bank coverage. */
   bodyGlb?: string;
+  bodyGlbs?: readonly string[];
   baseUrl?: string;
 }): Promise<RoomOcclusionRuntimeReport> {
-  const bodyGlb = input?.bodyGlb ?? DEFAULT_ROOM_GLB;
-  const roomBase = bodyGlb.split("/").pop() ?? bodyGlb;
+  const bodyGlbs =
+    input?.bodyGlbs
+    ?? (input?.bodyGlb ? [input.bodyGlb] : [...DEFAULT_ROOM_GLBS]);
 
   let server: PortlessDevServer | undefined;
   let ownedServer = false;
@@ -156,29 +169,41 @@ export async function probeRoomOcclusionRuntime(input?: {
     const browser = await chromium.launch({ headless: true });
     try {
       const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
-      const url = subjectUrl(baseUrl, bodyGlb);
-      process.stdout.write(`room-occlusion-runtime: goto ${url}\n`);
-      await page.goto(url, { waitUntil: "domcontentloaded", timeout: 180_000 });
-      await page.waitForFunction(
-        () => {
-          const evidence = (
-            window as unknown as {
-              __openClinXrIsolatedSubjectEvidence?: { meshCount?: number };
-            }
-          ).__openClinXrIsolatedSubjectEvidence;
-          return evidence && typeof evidence.meshCount === "number" && evidence.meshCount > 0;
-        },
-        null,
-        { timeout: 180_000 },
-      );
-      // One paint settle so materials are fully bound.
-      await page.waitForTimeout(400);
-      const live = await readAoFromIsolatedScene(page);
-      process.stdout.write(
-        `room-occlusion-runtime: meshes=${live.meshCount} materials=${live.materials} `
-          + `withAoMap=${live.withAoMap} intensities=[${live.aoMapIntensities.join(",")}] `
-          + `uvSet=${live.aoMapUvSet}\n`,
-      );
+      const rooms: RoomOcclusionRow[] = [];
+
+      for (const bodyGlb of bodyGlbs) {
+        const roomBase = bodyGlb.split("/").pop() ?? bodyGlb;
+        const url = subjectUrl(baseUrl, bodyGlb);
+        process.stdout.write(`room-occlusion-runtime: goto ${url}\n`);
+        await page.goto(url, { waitUntil: "domcontentloaded", timeout: 180_000 });
+        await page.waitForFunction(
+          () => {
+            const evidence = (
+              window as unknown as {
+                __openClinXrIsolatedSubjectEvidence?: { meshCount?: number };
+              }
+            ).__openClinXrIsolatedSubjectEvidence;
+            return evidence && typeof evidence.meshCount === "number" && evidence.meshCount > 0;
+          },
+          null,
+          { timeout: 180_000 },
+        );
+        // One paint settle so materials are fully bound.
+        await page.waitForTimeout(400);
+        const live = await readAoFromIsolatedScene(page);
+        process.stdout.write(
+          `room-occlusion-runtime: ${roomBase} meshes=${live.meshCount} materials=${live.materials} `
+            + `withAoMap=${live.withAoMap} intensities=[${live.aoMapIntensities.join(",")}] `
+            + `uvSet=${live.aoMapUvSet}\n`,
+        );
+        rooms.push({
+          room: roomBase,
+          materials: live.materials,
+          withAoMap: live.withAoMap,
+          aoMapIntensities: live.aoMapIntensities,
+          aoMapUvSet: live.aoMapUvSet,
+        });
+      }
 
       return {
         schemaVersion: "openclinxr.room-occlusion-runtime.v1",
@@ -186,19 +211,12 @@ export async function probeRoomOcclusionRuntime(input?: {
         probedBy:
           "playwright page.evaluate on window.__openClinXrIsolatedSceneRoot after "
           + "isolated-subject-lab subjectKind=glb load via three.js GLTFLoader "
-          + `(apps/ui-xr/src/isolated-subject-lab.ts); bodyGlb=${bodyGlb}`,
+          + `(apps/ui-xr/src/isolated-subject-lab.ts); bodyGlbs=${bodyGlbs.join(",")}`,
         forcedIntensity: false,
-        rooms: [
-          {
-            room: roomBase,
-            materials: live.materials,
-            withAoMap: live.withAoMap,
-            aoMapIntensities: live.aoMapIntensities,
-            aoMapUvSet: live.aoMapUvSet,
-          },
-        ],
+        rooms,
         claimScope:
-          "runtime aoMap / aoMapIntensity / UV-channel observation for one shipped room GLB via isolated-subject-lab",
+          "runtime aoMap / aoMapIntensity / UV-channel observation for shipped room GLBs via isolated-subject-lab "
+          + "(parametric shell + Infinigen hull sample)",
         notEvidenceFor: [
           "whether rooms LOOK better (pixel grade is the orchestrator's)",
           "occlusion colour space",
@@ -223,9 +241,12 @@ export async function probeRoomOcclusionRuntime(input?: {
 }
 
 export async function writeRoomOcclusionRuntimeReport(
-  input?: { bodyGlb?: string; outPath?: string },
+  input?: { bodyGlb?: string; bodyGlbs?: readonly string[]; outPath?: string },
 ): Promise<{ reportPath: string; report: RoomOcclusionRuntimeReport }> {
-  const report = await probeRoomOcclusionRuntime({ bodyGlb: input?.bodyGlb });
+  const report = await probeRoomOcclusionRuntime({
+    bodyGlb: input?.bodyGlb,
+    bodyGlbs: input?.bodyGlbs,
+  });
   const outPath = input?.outPath ?? ROOM_OCCLUSION_RUNTIME_REPORT;
   writeFileSync(outPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
   process.stdout.write(`room-occlusion-runtime: wrote ${outPath}\n`);
