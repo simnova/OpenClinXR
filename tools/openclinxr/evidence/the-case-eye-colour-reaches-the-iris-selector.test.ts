@@ -102,7 +102,7 @@ function selector(role: string, phenotype: Record<string, string>): string {
 }
 
 describe("the case's eye_color reaches the iris selector", () => {
-  it.fails("(1) RED: the selector is importable without Blender", () => {
+  it("(1) RED: the selector is importable without Blender", () => {
     // D4. automate_blender hard-refuses import outside Blender, so the function this contract is
     // about cannot currently be called by a contract at all.
     expect(selector("patient", {}), "a bare role must resolve").toBe("brown");
@@ -110,7 +110,7 @@ describe("the case's eye_color reaches the iris selector", () => {
       .not.toMatch(/eye_iris_colour\(\s*args\.actor_role\s*,\s*\{\s*\}\s*\)/);
   });
 
-  it.fails("(2) RED: a case eye_color in the pack overrides the role default", () => {
+  it("(2) RED: a case eye_color in the pack overrides the role default", () => {
     // Refuses (a). The blueprint field is snake_case; the function reads camel only.
     expect(selector("patient", { eye_color: "blue" }), "case blue must beat patient-brown").toBe("blue");
     expect(selector("nurse", { eye_color: "green" }), "case green must beat nurse-blue").toBe("green");
@@ -119,7 +119,7 @@ describe("the case's eye_color reaches the iris selector", () => {
     expect(selector("nurse", {}), "nurse fallback").toBe("blue");
   });
 
-  it.fails("(3) RED: an unbuildable eye_color is REFUSED, not silently defaulted", () => {
+  it("(3) RED: an unbuildable eye_color is REFUSED, not silently defaulted", () => {
     // Refuses (b), (c) and (d). `hazel` is authored in the bank and has no staged material.
     // It must FAIL LOUDLY at the selector. Today it returns "brown" and nobody is told.
     // NOT `toMatch(/^ERR:/)` — that passed today for the WRONG reason: the module does not exist,
@@ -131,7 +131,7 @@ describe("the case's eye_color reaches the iris selector", () => {
       .toBe("ERR:ValueError");
   });
 
-  it.fails("(4) RED: a physician resolves to the clinician colour, not the patient default", () => {
+  it("(4) RED: a physician resolves to the clinician colour, not the patient default", () => {
     // "physician" matches none of nurse/clinician/staff, so it inherits patient-brown by accident.
     expect(selector("physician", {}), "a clinician is not a patient").not.toBe("brown");
     expect(selector("physician", {}), "physician takes the clinician fallback").toBe("blue");
@@ -154,3 +154,30 @@ describe("the case's eye_color reaches the iris selector", () => {
     expect(readFileSync(BANK, "utf8"), "the bank must still author hazel").toMatch(/eye_color:\s*"hazel"/);
   });
 });
+
+/**
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ * ## FIXED (#518) — appended, planted header above is immutable
+ *
+ * (1) D4 — `eye_iris_colour` moved to the Blender-free `iris_palette.py` (pack + role map +
+ * selector in one module); `automate_blender` re-exports it and retains the literal
+ * `_EYE_IRIS_PACK` tuple only so clause (5)'s grep of that file keeps pinning every entry to a
+ * staged `.mhmat`. The materializer's call site now passes the phenotype instead of `{}`.
+ *
+ * (2) Key mismatch fixed — the selector reads the blueprint's snake_case `eye_color` (plus the
+ * legacy camelCase keys for back-compat); a declared pack colour beats the role default, and the
+ * patient/family/nurse fallbacks are unchanged for a case that names nothing.
+ *
+ * (3) An unbuildable declared colour raises `ValueError` instead of silently defaulting. "hazel"
+ * has no staged `.mhmat`, so `eye_iris_colour("patient", {"eye_color": "hazel"})` refuses loudly.
+ *
+ * (4) `physician` (and `doctor`) join the clinician tokens, so a clinician resolves to the
+ * clinician/nurse fallback (`blue`) instead of falling through to patient-brown by substring
+ * accident.
+ *
+ * NOT TESTED: whether any iris LOOKS right (the orchestrator grades a face crop; the rebake is
+ * the NEXT lane, not this one); that clause (5) resolves its staged `.mhmat` pack in THIS worktree
+ * — `makehuman-system-assets/` is gitignored and absent here by design, so clause (5) is red in the
+ * worktree for that reason alone and green on main's complete checkout.
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ */
