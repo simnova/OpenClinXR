@@ -86,6 +86,38 @@ HAIR_STYLE_SEARCH_ROOTS = (
     pathlib.Path(".openclinxr-local/provider-cache/hair/sources/makehuman-community-male"),
 )
 
+# #542 — eyebrows mirror the fitted-hair rail (D1). Pack is CC0 on every .mhclo header
+# (Mindfront); no uuid override. Named dirs only — never glob. A single default is
+# acceptable (order = all 11); co-present pairs get distinct styles where two stand together.
+EYEBROW_STYLE_BY_REFERENCE = {
+    None: "mindfront_eyebrows_05",
+    "peds_nurse_kevin": "mindfront_eyebrows_08",
+    "peds_patient_child": "mindfront_eyebrows_03",
+    "ed_chest_pain_nurse_adult": "mindfront_eyebrows_06",
+    "ed_chest_pain_spouse_adult": "mindfront_eyebrows_10",
+    "adult_male_street_casual": "mindfront_eyebrows_08",
+}
+EYEBROW_STYLE_SEARCH_ROOTS = (
+    pathlib.Path(
+        ".openclinxr-local/provider-cache/facial/sources/makehuman-eyebrows01/extracted/eyebrows"
+    ),
+)
+
+# #542 — hm08 feature helpers that must survive as SEPARATE meshes. Fitting cages
+# (helper-tights / skirt / hair / genital) stay stripped by remove_helpers=True.
+# Do NOT set remove_helpers=False wholesale — that re-targets every garment fit.
+# Eyelashes: retain these helper groups (not a second fit of eyelashes01).
+HM08_FEATURE_HELPER_GROUPS = {
+    "eyelash": (
+        "helper-l-eyelashes-1",
+        "helper-l-eyelashes-2",
+        "helper-r-eyelashes-1",
+        "helper-r-eyelashes-2",
+    ),
+    "teeth": ("helper-upper-teeth", "helper-lower-teeth"),
+    "tongue": ("helper-tongue",),
+}
+
 # #199: the LONG-SLEEVE upper slot. #197/#199 measured that body-surface-derived garments
 # saturate at the elbow on the Anny rail — the Anny body has 0 forearm verts (inverse-bind
 # measurement), so no offset shell can follow the arm below mid-forearm, bounding EVERY
@@ -441,6 +473,131 @@ def resolve_hair_style_dir(style):
         f"#381: hair style {style!r} not found as a named dir under the hair "
         f"search roots (never globbed): {missing}"
     )
+
+
+def resolve_eyebrow_style_dir(style):
+    """Find `<style>/<style>.mhclo` under EYEBROW_STYLE_SEARCH_ROOTS. Never globs."""
+    missing = []
+    for rel_root in EYEBROW_STYLE_SEARCH_ROOTS:
+        cand = REPO_ROOT / rel_root / style
+        mhclo = cand / f"{style}.mhclo"
+        if mhclo.is_file():
+            return cand
+        missing.append(str(cand))
+    raise RuntimeError(
+        f"#542: eyebrow style {style!r} not found as a named dir under the "
+        f"eyebrow search roots (never globbed): {missing}"
+    )
+
+
+def _vertex_indices_in_groups(basemesh, group_names):
+    """Return sorted unique vertex indices that belong to any named vertex group."""
+    name_to_idx = {g.name: g.index for g in basemesh.vertex_groups}
+    wanted = {name_to_idx[n] for n in group_names if n in name_to_idx}
+    if not wanted:
+        return []
+    out = []
+    for v in basemesh.data.vertices:
+        for ge in v.groups:
+            if ge.group in wanted:
+                out.append(v.index)
+                break
+    return out
+
+
+def extract_hm08_feature_helpers(basemesh, armature, ref_tag):
+    """#542 — copy teeth/tongue/eyelash helper verts to SEPARATE meshes, then leave
+    the basemesh alone for remove_helpers=True (cages still strip; body stays 26,756 tris).
+
+    MakeHuman stores feature geometry inside HelperGeometry alongside fitting cages.
+    Wholesale remove_helpers=False would retain cages and re-target every garment fit
+    (contract clause 3). Extracting feature verts onto their own objects is the
+    selective retention the brief requires. Eyelashes come from these helpers — the
+    eyelashes01 pack is staged but not also fitted.
+    """
+    import bmesh
+
+    extracted = {}
+    missing_groups = []
+    for feature, group_names in HM08_FEATURE_HELPER_GROUPS.items():
+        present = [n for n in group_names if n in basemesh.vertex_groups]
+        absent = [n for n in group_names if n not in basemesh.vertex_groups]
+        missing_groups.extend(absent)
+        idxs = _vertex_indices_in_groups(basemesh, present)
+        if len(idxs) < 3:
+            raise RuntimeError(
+                f"#542: feature {feature!r} has too few helper verts ({len(idxs)}); "
+                f"present_groups={present} absent={absent}"
+            )
+
+        mesh_name = f"openclinxr_hm08_{feature}_mpfb_{ref_tag}_mesh"
+        new_mesh = bpy.data.meshes.new(mesh_name)
+        new_obj = bpy.data.objects.new(mesh_name, new_mesh)
+        bpy.context.collection.objects.link(new_obj)
+
+        src_bm = bmesh.new()
+        src_bm.from_mesh(basemesh.data)
+        src_bm.verts.ensure_lookup_table()
+        keep = set(idxs)
+        # Tag BEFORE any delete — bmesh compacts indices on delete, so index
+        # membership against the original `keep` set would wipe the feature.
+        for v in src_bm.verts:
+            v.tag = v.index in keep
+        faces_del = [f for f in src_bm.faces if not all(v.tag for v in f.verts)]
+        bmesh.ops.delete(src_bm, geom=faces_del, context="FACES")
+        verts_del = [v for v in src_bm.verts if not v.tag]
+        bmesh.ops.delete(src_bm, geom=verts_del, context="VERTS")
+        bmesh.ops.recalc_face_normals(src_bm, faces=src_bm.faces)
+        src_bm.to_mesh(new_mesh)
+        src_bm.free()
+        new_mesh.update()
+
+        # Simple opaque material so the part is a distinct mesh (pixel grade is
+        # the orchestrator's). Teeth/tongue read pale; lashes dark.
+        mat = bpy.data.materials.new(name=f"mat_{mesh_name}")
+        mat.use_nodes = True
+        bsdf = mat.node_tree.nodes.get("Principled BSDF")
+        if feature == "eyelash":
+            color = (0.02, 0.02, 0.02, 1.0)
+        elif feature == "teeth":
+            color = (0.92, 0.90, 0.86, 1.0)
+        else:
+            color = (0.85, 0.45, 0.45, 1.0)
+        if bsdf:
+            bsdf.inputs["Base Color"].default_value = color
+        new_obj.data.materials.append(mat)
+        for poly in new_obj.data.polygons:
+            poly.use_smooth = True
+
+        if armature is not None:
+            bone_names = [b.name for b in armature.data.bones]
+            candidates = ["head", "Head", "mixamorig:Head", "spine.006", "neck"]
+            bone = next((b for b in candidates if b in bone_names), None)
+            if bone is None:
+                # MPFB standard rig uses lowercase head.
+                bone = next((b for b in bone_names if b.lower() == "head" or b.lower().endswith("head")), None)
+            if bone is None:
+                raise RuntimeError(f"#542: no head bone for {feature} weighting (have {bone_names[:16]})")
+            vg = new_obj.vertex_groups.new(name=bone)
+            vg.add(list(range(len(new_obj.data.vertices))), 1.0, "REPLACE")
+            mod = new_obj.modifiers.new(f"openclinxr_{feature}_armature", "ARMATURE")
+            mod.object = armature
+            mod.use_vertex_groups = True
+            mod.use_bone_envelopes = False
+            new_obj.parent = armature
+
+        tris = sum(max(len(p.vertices) - 2, 0) for p in new_obj.data.polygons)
+        extracted[feature] = {
+            "mesh": mesh_name,
+            "tris": tris,
+            "verts": len(new_obj.data.vertices),
+            "groups": list(present),
+        }
+        print(f"HM08_FEATURE_EXTRACT {feature} {json.dumps(extracted[feature])}")
+
+    if missing_groups:
+        print(f"HM08_FEATURE_MISSING_GROUPS {missing_groups}")
+    return extracted
 
 
 def read_hair_mhclo_licence(mhclo_path):
@@ -3110,6 +3267,71 @@ def main():
         }
         print(f"HAIR_FIT {json.dumps(_hair_fitted)}")
 
+    # #542 — fitted eyebrows BEFORE the helper strip (same load-bearing order as hair
+    # / eyes). Pack is CC0 on every .mhclo header; ClothesService fits against hm08
+    # basemesh refs. The fitted mesh is a SEPARATE object, so the strip does not
+    # touch it. Eyelashes are NOT fitted from eyelashes01 here — they are retained
+    # from hm08 helper groups just below (do not do both).
+    _eyebrow_style = EYEBROW_STYLE_BY_REFERENCE.get(
+        args.reference, EYEBROW_STYLE_BY_REFERENCE[None]
+    )
+    _eyebrow_fitted = None
+    if _eyebrow_style:
+        _brow_dir = resolve_eyebrow_style_dir(_eyebrow_style)
+        _brow_mhclo = _brow_dir / f"{_eyebrow_style}.mhclo"
+        _brow_obj = _brow_dir / declared_hair_obj_file(_brow_mhclo)
+        if not _brow_mhclo.is_file() or not _brow_obj.is_file():
+            raise RuntimeError(f"#542: eyebrow sources missing: {_brow_dir}")
+        _brow_lic_ok, _brow_lic_raw = read_hair_mhclo_licence(_brow_mhclo)
+        if not _brow_lic_ok:
+            raise RuntimeError(
+                f"#542: eyebrow {_eyebrow_style} licence NOT permitted per its own "
+                f".mhclo header: {_brow_lic_raw!r} — hard refusal"
+            )
+        import sys as _sys_brow
+
+        _mc_dir_brow = REPO_ROOT / "tools/openclinxr/asset-pipeline/makeclothes"
+        if str(_mc_dir_brow) not in _sys_brow.path:
+            _sys_brow.path.insert(0, str(_mc_dir_brow))
+        from embed_library_hair import (  # noqa: E402
+            create_material as _brow_create_material,
+            fit_hair as _fit_brow,
+            weight_hair_to_head as _weight_brow_to_head,
+        )
+
+        _brow_ref_tag = args.reference or "ob_patient_aisha"
+        _brow_mesh_name = (
+            f"openclinxr_fitted_eyebrow_{_eyebrow_style}_mpfb_{_brow_ref_tag}_mesh"
+        )
+        _brow, _brow_fit_s = _fit_brow(
+            str(_brow_mhclo), str(_brow_obj), human, _brow_mesh_name
+        )
+        # Dark brow colour — role hair colour is too brown for a brow silhouette;
+        # near-black reads as eyebrow geometry for presence (pixel grade is separate).
+        _brow_mat = _brow_create_material(
+            f"openclinxr_fitted_eyebrow_{_eyebrow_style}_mpfb_{_brow_ref_tag}_mat",
+            (0.05, 0.03, 0.02, 1.0),
+        )
+        _brow.data.materials.append(_brow_mat)
+        _brow_arm = next(
+            (o for o in bpy.context.scene.objects if o.type == "ARMATURE"), None
+        )
+        if _brow_arm is None:
+            raise RuntimeError("#542: no armature for eyebrow weighting")
+        _brow_bone = _weight_brow_to_head(_brow, _brow_arm)
+        for _poly in _brow.data.polygons:
+            _poly.use_smooth = True
+        _brow_tris = sum(max(len(p.vertices) - 2, 0) for p in _brow.data.polygons)
+        _eyebrow_fitted = {
+            "style": _eyebrow_style,
+            "mesh": _brow_mesh_name,
+            "tris": _brow_tris,
+            "weightedBone": _brow_bone,
+            "licence": _brow_lic_raw,
+            "fitWallClockS": round(_brow_fit_s, 4),
+        }
+        print(f"EYEBROW_FIT {json.dumps(_eyebrow_fitted)}")
+
     # Clinician scrub pants MUST fit BEFORE the helper strip. Their .mhclo x_scale
     # refs 13868/14308 are helper verts; ClothesService refuses "not inside" on the
     # stripped 13,380-vert body (measured 2026-08-14). Interpolation refs max 13351
@@ -3181,6 +3403,18 @@ def main():
             "(x_scale helper verts require full basemesh)"
         )
 
+    # #542 — SELECTIVE retention of hm08 feature helpers BEFORE the #318 strip.
+    # Teeth / tongue / eyelashes live in HelperGeometry alongside fitting cages.
+    # Extract them onto separate named meshes first; then remove_helpers=True still
+    # strips cages so the body stays at 26,756 tris (clause 3). Do NOT flip
+    # remove_helpers to False — that was probed and re-targets every garment fit.
+    _feature_ref_tag = args.reference or "ob_patient_aisha"
+    _feature_arm = next(
+        (o for o in bpy.context.scene.objects if o.type == "ARMATURE"), None
+    )
+    _hm08_features = extract_hm08_feature_helpers(human, _feature_arm, _feature_ref_tag)
+    print(f"HM08_FEATURES {json.dumps(_hm08_features)}")
+
     # #318: strip MakeHuman's clothes and hair FITTING SHELLS with the proven MPFB export
     # service (D1). `bpy.ops.mpfb.create_human()` materialises the FULL base.obj including
     # helper geometry — 36,972 tris, exactly MADR 0052's "with helpers" figure — and Aisha
@@ -3192,7 +3426,8 @@ def main():
     # topology above — deleting helper verts re-maps shape-key blocks, and a target loaded
     # after the strip would mis-index (body_param_stage.py #221 A2). The FACS keys loaded
     # above survive on body-surface verts; Blender updates their key blocks when the helper
-    # verts are deleted.
+    # verts are deleted. #542 extracts teeth/tongue/eyelashes to separate objects above
+    # so the strip can still delete HelperGeometry wholesale without losing those features.
     verts_before_strip = len(human.data.vertices)
     tris_before_strip = sum(max(len(p.vertices) - 2, 0) for p in human.data.polygons)
     from bl_ext.user_default.mpfb.services.exportservice import ExportService  # noqa: E402
