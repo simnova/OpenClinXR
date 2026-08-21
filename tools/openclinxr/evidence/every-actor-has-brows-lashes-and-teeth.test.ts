@@ -101,7 +101,7 @@ describe("every actor has brows, lashes and teeth", () => {
     expect(ACTORS.length, "no mpfb actors found — the population is wrong").toBeGreaterThanOrEqual(11);
   });
 
-  it.fails("(1) RED: every actor carries eyelash, teeth and tongue geometry", async () => {
+  it("(1) RED: every actor carries eyelash, teeth and tongue geometry", async () => {
     const missing: string[] = [];
     for (const a of ACTORS) {
       const n = await meshNames(a);
@@ -113,14 +113,21 @@ describe("every actor has brows, lashes and teeth", () => {
     }
     expect(missing, "actors missing hm08 features that remove_helpers=True deletes").toEqual([]);
   });
+  // ## FIXED (#542)
+  // Selective retention: extract helper-*-eyelashes / helper-*-teeth / helper-tongue onto
+  // separate meshes BEFORE ExportService.bake_modifiers_remove_helpers(..., remove_helpers=True).
+  // Body stays 26,756 tris; cages still strip. Eyelashes from hm08 helpers (not eyelashes01 pack).
 
-  it.fails("(2) RED: every actor carries an eyebrow mesh fitted from the CC0 eyebrows01 pack", async () => {
+  it("(2) RED: every actor carries an eyebrow mesh fitted from the CC0 eyebrows01 pack", async () => {
     const missing: string[] = [];
     for (const a of ACTORS) {
       if (!has(await meshNames(a), /eyebrow/i)) missing.push(a);
     }
     expect(missing, "actors with no eyebrow mesh").toEqual([]);
   });
+  // ## FIXED (#542)
+  // EYEBROW_STYLE_BY_REFERENCE + EYEBROW_STYLE_SEARCH_ROOTS mirror the hair rail; ClothesService
+  // fits mindfront_eyebrows_* (CC0, basemesh hm08) before the helper strip.
 
   it("(3) COUNTERWEIGHT: the garment fit target is unchanged — cages stay stripped", async () => {
     // Refuses treatment (b). `remove_helpers=False` wholesale would retain helper-tights /
