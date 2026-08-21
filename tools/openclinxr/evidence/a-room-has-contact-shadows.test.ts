@@ -6,7 +6,7 @@ import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 
 /**
- * MADR 0055 decided that room realism is a MATERIAL problem, not a geometry problem, and ranked
+ * MADR 0056 decided that room realism is a MATERIAL problem, not a geometry problem, and ranked
  * **baked lighting and ambient occlusion as the single largest lever** — zero triangles, zero runtime
  * cost. #345–#348 landed the texture and material half of that decision. The light half never shipped.
  *
@@ -24,7 +24,7 @@ import { describe, expect, it } from "vitest";
  *
  * WHAT THIS IS NOT. It is not a claim that the rooms are untextured — they are not, as of #345–#348,
  * and `a-room-is-lit-and-textured.test.ts` gates that. It is not a claim about punctual lights;
- * MADR 0055 deliberately separated baked occlusion (needs no light node) from whether the runtime
+ * MADR 0056 deliberately separated baked occlusion (needs no light node) from whether the runtime
  * should carry `KHR_lights_punctual`, and bundling them would make one proof stand for two mechanisms.
  *
  * THE CHEAP FIXES THIS REFUSES, probed 2026-08-12 before planting:
@@ -41,9 +41,9 @@ import { describe, expect, it } from "vitest";
  * texture's existence or its byte size. A byte floor would be the §8n error — it proves an encoder
  * ran, not that anything is shadowed.
  *
- * (c) is refused on purpose even though MADR 0055's own wording ("bake lighting and AO into the
+ * (c) is refused on purpose even though MADR 0056's own wording ("bake lighting and AO into the
  * albedo") permits it. Multiplying occlusion into base colour is unrecoverable: the albedo can never
- * be re-lit, re-tinted, or atlased afterwards, and MADR 0055 item 6 (atlas the generator's materials)
+ * be re-lit, re-tinted, or atlased afterwards, and MADR 0056 item 6 (atlas the generator's materials)
  * depends on that being possible. A separate `KHR` occlusion channel is the same bake, kept separable.
  * **If you believe that is the wrong call, say so in your report and implement it this way anyway.**
  *
@@ -71,11 +71,11 @@ import { describe, expect, it } from "vitest";
  *
  * ## FIXED (#349, 2026-08-12)
  * The RED flipped to green by wiring the native Cycles AO bake as a SEPARATE occlusion channel
- * (MADR 0055 item 1, light half; issue-349). `room-occlusion-bake.py` bakes type="AO" per material
+ * (MADR 0056 item 1, light half; issue-349). `room-occlusion-bake.py` bakes type="AO" per material
  * into a packed image, feeds it into the material's "glTF Settings" node group "Occlusion" input
  * (the exporter's occlusionTexture convention, verified against the installed Blender 5.1.1
  * exporter source), and exports. Base colour is untouched — nothing is multiplied into albedo
- * (refused: unrecoverable, MADR 0055 item 6 atlas). Measured on the shipped assets:
+ * (refused: unrecoverable, MADR 0056 item 6 atlas). Measured on the shipped assets:
  *
  *   asset                          tris   materials   withOcclusion   baseColorTex   occlusion sd range (0-255)
  *   ----------------------------   ----   ---------   --------------   ------------   ------------------------

@@ -1,9 +1,9 @@
 /**
- * #346 — decimate instead of extract (MADR 0055 item 2).
+ * #346 — decimate instead of extract (MADR 0056 item 2).
  *
  * The shipped room carries 440 triangles of a 15,650,564-triangle generator output —
  * 1 in 35,570 — because the hull extraction selects meshes and discards every UV,
- * material, texture and light the generator produced. MADR 0055 item 2 says: take the
+ * material, texture and light the generator produced. MADR 0056 item 2 says: take the
  * generator's FULL output and run meshoptimizer / quadric simplification to budget,
  * preserving UVs and normals, rather than hand-rolling the reduction as selection.
  *

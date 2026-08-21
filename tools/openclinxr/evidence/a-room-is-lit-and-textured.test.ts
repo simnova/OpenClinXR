@@ -49,7 +49,7 @@ import { describe, expect, it } from "vitest";
  * environment today. (3) PASSES today and is a regression net — it must keep passing, and a fix that
  * satisfies (1) by inflating geometry is not a fix.
  *
- * TWO MORE REDS, added 2026-08-12 by #347 (MADR 0055 items 4+5). They are separate assertions with
+ * TWO MORE REDS, added 2026-08-12 by #347 (MADR 0056 items 4+5). They are separate assertions with
  * separate cheap-fix refusals (§8i — one green must not stand for both):
  *
  *   (4) TRIM: the PARAMETRIC shell (`ed-exam-bay-shell.glb`) carries skirting boards, chamfered
@@ -72,7 +72,7 @@ import { describe, expect, it } from "vitest";
  *     clinical room should contain. Those are different defects that happen to share a subject.
  *
  * ## FIXED (#345, 2026-08-12)
- * Both REDs flipped to green by wiring the proven Cycles bake (MADR 0055 item 1):
+ * Both REDs flipped to green by wiring the proven Cycles bake (MADR 0056 item 1):
  *   - `tools/openclinxr/asset-pipeline/environment/room-albedo-ao-bake.py` — deterministic
  *     Cycles DIFFUSE bake (interior area light + world 0.12, samples 32, #343 mechanism) to a
  *     packed baseColorTexture per material; bake light deleted before export. Measured:
@@ -284,7 +284,7 @@ describe("a shipped room is textured, not a flat-lit hull", () => {
   });
 
   it("(4) RED: the parametric shell carries trim — skirting, chamfered corners, door reveals", async () => {
-    // #347 MADR 0055 item 4. The Infinigen room is another lane (#346); this asserts the
+    // #347 MADR 0056 item 4. The Infinigen room is another lane (#346); this asserts the
     // parametric shell only. Each sub-assertion fails on the pre-fix shell (0 trim nodes).
     const shell = await readShellNodeIndex(`${ENV_DIR}/ed-exam-bay-shell.glb`);
     expect(shell.length, "parametric shell node graph").toBeGreaterThan(0);
@@ -305,7 +305,7 @@ describe("a shipped room is textured, not a flat-lit hull", () => {
   });
 
   it("(5) RED: the parametric shell carries recognisable scale-setting props, not flat boxes", async () => {
-    // #347 MADR 0055 item 5. A flat-coloured box sets no scale; every prop root must be
+    // #347 MADR 0056 item 5. A flat-coloured box sets no scale; every prop root must be
     // multi-part and carry a known-size anchor. Pre-fix every shell node is a single
     // 12-triangle cube, so each sub-assertion fails.
     const shell = await readShellNodeIndex(`${ENV_DIR}/ed-exam-bay-shell.glb`);

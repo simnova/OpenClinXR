@@ -1,5 +1,5 @@
 /**
- * Room albedo+AO bake CLI (issue-345, MADR 0055 item 1).
+ * Room albedo+AO bake CLI (issue-345, MADR 0056 item 1).
  *
  * Runs the deterministic Cycles bake in tools/openclinxr/asset-pipeline/environment/
  * room-albedo-ao-bake.py over a shipped environment GLB and writes a bake-measure

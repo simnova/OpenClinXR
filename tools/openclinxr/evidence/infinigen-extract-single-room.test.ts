@@ -88,7 +88,7 @@ describe("Infinigen extract single room from multi-room shell (#236)", () => {
  * NOT TESTED: clinical room semantics (bedroom ≠ exam bay); ui-xr placement/scale;
  * /tmp re-home; decimation LOD; batch extraction of all rooms.
  *
- * ## ADDED (#346) — decimation stage (MADR 0055 item 2)
+ * ## ADDED (#346) — decimation stage (MADR 0056 item 2)
  *
  * `inspectInfinigenExtractSingleRoom` now runs the meshoptimizer decimation stage
  * (`room-decimate.ts` `decimateGlb`) on the extracted room GLB and records the result in

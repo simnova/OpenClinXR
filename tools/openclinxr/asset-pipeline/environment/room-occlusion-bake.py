@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-Room occlusion bake for shipped environment GLBs (issue-349, MADR 0055 item 1, light half).
+Room occlusion bake for shipped environment GLBs (issue-349, MADR 0056 item 1, light half).
 
 #345 shipped the albedo half (Cycles DIFFUSE baseColorTexture per material). This script
 ships the OTHER half: a SEPARATE glTF `occlusionTexture` per material, baked with the
 native Cycles AO bake type. Nothing is multiplied into base colour (that is refused —
-unrecoverable; MADR 0055 item 6 atlas depends on clean albedo). The bake is deterministic:
+unrecoverable; MADR 0056 item 6 atlas depends on clean albedo). The bake is deterministic:
 same input GLB + fixed parameters -> same output. No LLM in the path (D1). No light nodes
 ship (AO bake needs none). Triangle count untouched.
 

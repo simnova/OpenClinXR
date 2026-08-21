@@ -95,16 +95,16 @@ export async function writeEnvironmentArtifacts(options?: {
     blenderPath: process.env["BLENDER"] ?? "blender",
     edExamBayShellGlbPath: artifactPaths.edExamBayShellGlb,
   });
-  // MADR 0055 item 1: bake albedo + AO into a baseColorTexture (issue-345). The
+  // MADR 0056 item 1: bake albedo + AO into a baseColorTexture (issue-345). The
   // build above exports flat materials; the Cycles DIFFUSE bake (proven in #343,
   // this week) makes the shipped room carry a real texture.
   await runRoomAlbedoAoBake({
     blenderPath: process.env["BLENDER"] ?? "blender",
     edExamBayShellGlbPath: artifactPaths.edExamBayShellGlb,
   });
-  // Issue-349 (MADR 0055 item 1, light half): bake a SEPARATE glTF occlusionTexture per
+  // Issue-349 (MADR 0056 item 1, light half): bake a SEPARATE glTF occlusionTexture per
   // material with the native Cycles AO bake type (D1). Kept separable from base colour —
-  // albedo stays clean for MADR 0055 item 6 atlas. See room-occlusion-bake.py.
+  // albedo stays clean for MADR 0056 item 6 atlas. See room-occlusion-bake.py.
   await runRoomOcclusionBake({
     blenderPath: process.env["BLENDER"] ?? "blender",
     edExamBayShellGlbPath: artifactPaths.edExamBayShellGlb,
@@ -495,7 +495,7 @@ def cube(name, location, scale, mat):
     obj.data.materials.append(mat)
     return obj
 
-# --- Parametric room geometry constants (#347, MADR 0055 items 4+5) -------------
+# --- Parametric room geometry constants (#347, MADR 0056 items 4+5) -------------
 # The room shell is driven by these numbers: walls, floor, skirting, chamfers,
 # the door reveal frame and every scale-setting prop derive from them, so the
 # next room case reuses the builder instead of hand-authoring another room.
@@ -550,7 +550,7 @@ def empty_root(name, location):
     return root
 
 clear_scene()
-# #348 — PBR channel differentiation per surface (MADR 0055 item 3). Roughness/metallic
+# #348 — PBR channel differentiation per surface (MADR 0056 item 3). Roughness/metallic
 # are the channels that separate vinyl from plaster from steel; zero geometry cost.
 #   vinyl floor            -> low-mid roughness, metallic 0 (specular sheen)
 #   painted gypsum wall    -> high roughness, metallic 0 (matte)
@@ -634,7 +634,7 @@ cube("ed_exam_bay_iv_tubing_line", (0.75, 1.05, 0.54), (0.025, 0.42, 0.025), lig
 cube("ed_exam_bay_floor_scuff_path", (-0.18, 0.006, 0.62), (1.22, 0.006, 0.045), scuff_mat)
 cube("ed_exam_bay_infection_control_sign", (-2.36, 1.55, 1.28), (0.025, 0.2, 0.28), sign_mat)
 # Handoff whiteboard — recognisable frame + surface + marker tray + header strip
-# (was a single flat box; #347 MADR 0055 item 5). Scale cue: 0.64 m wide board.
+# (was a single flat box; #347 MADR 0056 item 5). Scale cue: 0.64 m wide board.
 whiteboard_root = empty_root("ed_exam_bay_handoff_whiteboard", (-1.15, 1.52, -1.76))
 whiteboard_frame = cube("ed_exam_bay_handoff_whiteboard_frame", (-1.15, 1.52, -1.76), (0.64, 0.31, 0.03), whiteboard_frame_mat)
 whiteboard_surface = cube("ed_exam_bay_handoff_whiteboard_surface", (-1.15, 1.52, -1.752), (0.58, 0.25, 0.012), whiteboard_surface_mat)

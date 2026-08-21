@@ -31,7 +31,7 @@ const REPO_ROOT = path.resolve(HERE, "../../..");
 const EVIDENCE_DIR = path.join(REPO_ROOT, ".openclinxr/evidence/issue-236");
 const MEASURE_PATH = path.join(EVIDENCE_DIR, "extract-measure.json");
 const EXTRACT_GLB_PATH = path.join(EVIDENCE_DIR, "extracted-single-room.glb");
-/** Decimation stage output — MADR 0055 item 2: decimate instead of extract. */
+/** Decimation stage output — MADR 0056 item 2: decimate instead of extract. */
 const DECIMATED_GLB_PATH = path.join(
   REPO_ROOT,
   ".openclinxr/evidence/room-decimate/extracted-room-decimated.glb",
@@ -71,7 +71,7 @@ export type ExtractMeasure = {
   measuredAt: string;
   blendVersion: string | null;
   /**
-   * Decimation stage (#346, MADR 0055 item 2) — meshoptimizer simplify applied to the
+   * Decimation stage (#346, MADR 0056 item 2) — meshoptimizer simplify applied to the
    * extracted room GLB. Null when the stage did not run (blocked earlier in the flow).
    */
   decimationStage: {
@@ -477,7 +477,7 @@ export async function inspectInfinigenExtractSingleRoom(): Promise<ExtractMeasur
   const doorOpeningSurvives = extraction.doorOpeningSurvives;
   const sourceWallCount = extraction.sourceWallCount;
 
-  // #346 decimation stage (MADR 0055 item 2): meshoptimizer simplify of the extracted
+  // #346 decimation stage (MADR 0056 item 2): meshoptimizer simplify of the extracted
   // room GLB to the room-lane budget. Never gates the extraction verdict — the stage
   // is recorded, and a failure here is a "failed" row, not an extraction failure.
   let decimationStage: ExtractMeasure["decimationStage"] = null;

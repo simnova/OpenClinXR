@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-Room albedo+AO bake for shipped environment GLBs (issue-345, MADR 0055 item 1).
+Room albedo+AO bake for shipped environment GLBs (issue-345, MADR 0056 item 1).
 
 Every shipped room carried zero textured materials and zero lights (measured
 2026-08-12: infinigen-ed-exam-bay.glb 440 tris / 3 mats / 0 textured;
 ed-exam-bay-shell.glb 492 tris / 15 mats / 0 textured). This is the
-highest-leverage MADR 0055 item and it has a PROVEN path in this repo:
+highest-leverage MADR 0056 item and it has a PROVEN path in this repo:
 
   #343 established that Blender 5.1's glTF exporter does NOT bake a procedural
   node tree (flat [1,1,1,1] on export), while an explicit Cycles bake DOES

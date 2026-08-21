@@ -117,7 +117,7 @@ and cannot bake against the helper-stripped basemesh. So the child gets the one 
 shoe that survives the strip. Correcting an earlier read of mine: the library is not short of shoes,
 the topology blocker is what makes 20 of them unusable.
 
-**Room realism (MADR 0055):** rooms ship 440 of a 15,650,564-triangle generator output (1 in 35,570),
+**Room realism (MADR 0056):** rooms ship 440 of a 15,650,564-triangle generator output (1 in 35,570),
 so the ceiling is untouched and the floor is material, not geometry. The albedo half landed
 (#345-#348: 0 -> 32 textured materials, 1 -> 15 roughness values, 0 -> 5 metals, geometry provably
 unchanged through three sequential re-emits). The light half is #349, in flight: **0 of 32 materials
