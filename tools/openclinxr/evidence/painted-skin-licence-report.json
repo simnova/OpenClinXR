@@ -1,0 +1,38 @@
+{
+  "slice": "issue-510",
+  "role": "license-provenance-specialist",
+  "verdict": "reject_measured",
+  "claimScope": "whether an acquirable painted MakeHuman skin (skins01 / skins02 community packs) clears its OWN header licence, read in the file",
+  "notEvidenceFor": [
+    "that any skin contains facial detail",
+    "that the bake can consume any skin",
+    "that any face renders better",
+    "any clinical validity or readiness claim"
+  ],
+  "sourceUrl": "https://static.makehumancommunity.org/assets/assetpacks/skins01.html",
+  "sourceArchiveSkins01": "https://files2.makehumancommunity.org/asset_packs/skins01/skins01_cc0.zip",
+  "sourceArchiveSkins02": "https://files2.makehumancommunity.org/asset_packs/skins02/skins02_cc0.zip",
+  "pageLicence": "CC0 (per-asset page 'License' column on skins01.html / skins02.html; archives named skins01_cc0.zip / skins02_cc0.zip)",
+  "headerLicence": "3 of 36 .mhmat headers carry, verbatim: '# This file is licensed AGPLv3' (MakeHuman template header, copyright Data Collection AB / Joel Palmius / Jonas Hauquier); the remaining 33 carry NO licence line at all",
+  "headerReadFrom": ".openclinxr-local/provider-cache/skins/sources/skins01/skins/blindsaypatten_uniform_skin_texture/blindsaypatten_uniform_skin_texture.mhmat",
+  "pageAndHeaderAgree": false,
+  "reproducedBy": "pnpm exec vitest run tools/openclinxr/evidence/a-painted-skin-clears-its-licence-header.test.ts",
+  "measuredOn": "2026-08-21",
+  "scan": {
+    "mhmatHeadersRead": 36,
+    "skins01": { "mhmat": 23, "archivedBytes": 104227958 },
+    "skins02": { "mhmat": 13, "archivedBytes": 76112708 },
+    "explicitAgpl3Headers": [
+      "blindsaypatten_uniform_skin_texture",
+      "callharvey3d_midtoned_female",
+      "rehmanpolanski_skin_viking_tattoos"
+    ],
+    "silentHeaders": 33,
+    "packagerJsonClaim": "packs/skins01.json and packs/skins02.json declare \"license\": \"CC0\" on all 36 entries — a PACKAGER claim, not a per-asset grant (#430 visemes02 class)",
+    "pngMetadataLicenceChunks": 0,
+    "pngsScanned": 40,
+    "allDeclaredDiffuseTexturesResolve": true,
+    "otherTextFilesInArchives": "none (no README/LICENSE/txt/md)"
+  },
+  "conclusion": "No acquirable painted skin in skins01 or skins02 clears its own header licence: 3 files state AGPLv3 (copyleft, hard refusal) and 33 state nothing (unspecified is a refusal, #497 class). The $diffusetexture_filename slot stays empty until a skin whose OWN file header clears exists. This is the fourth page-CC0 vs file mismatch on this site (mhair02 AGPL3 header, hair01 MIXED, #497 silent, now skins01/02)."
+}

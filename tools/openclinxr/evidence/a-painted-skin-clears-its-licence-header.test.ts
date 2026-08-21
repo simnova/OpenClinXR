@@ -33,6 +33,24 @@
  * claimScope: whether an acquirable painted MakeHuman skin clears its own header licence.
  * notEvidenceFor: that it contains facial detail, that the bake can consume it, or that any face
  *                 renders better. Those follow only if this gate clears.
+ *
+ * ## FIXED (#510) — clause (1) flipped `it.fails` -> `it`, 2026-08-21 (orchestrator convention
+ * correction: the clause asserts the report RECORDS the header licence; a reject_measured report
+ * records it perfectly well, so the clause is satisfied and was never about the outcome being
+ * `cleared`).
+ *
+ * MEASURED 2026-08-21 (license-provenance-specialist, dispatch): verdict `reject_measured`.
+ *   36 .mhmat headers read inside the files of both archives (skins01 23, skins02 13).
+ *   3 carry the MakeHuman template header verbatim `# This file is licensed AGPLv3`
+ *     (blindsaypatten_uniform_skin_texture, callharvey3d_midtoned_female,
+ *      rehmanpolanski_skin_viking_tattoos) — copyleft, hard refusal.
+ *   33 carry no licence line at all — unspecified is a refusal (#497 class).
+ *   Pack page and archive filename (`skins01_cc0.zip` / `skins02_cc0.zip`) both claim CC0;
+ *   `packs/skins0X.json` declares `"license": "CC0"` on all entries — a packager claim, not a
+ *   per-asset grant (#430 class). PNG metadata chunks: 0 licence chunks across 40 PNGs.
+ *   No LICENSE/COPYING/README file exists anywhere in either archive.
+ *   `$diffusetexture_filename` STAYS EMPTY — the slot is not filled until a skin whose OWN
+ *   header clears exists.
  */
 import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
@@ -52,7 +70,7 @@ describe("#510 a painted skin clears its own licence header", () => {
       expect(b.head, `${a} baseline`).toBeLessThan(b.forearm);
   });
 
-  it.fails("(1) a tracked report records the header licence, read from the FILE", () => {
+  it("(1) a tracked report records the header licence, read from the FILE", () => {
     expect(existsSync(REPORT), `${REPORT} must exist and be TRACKED (#396)`).toBe(true);
     const r = JSON.parse(readFileSync(REPORT, "utf8")) as Record<string, unknown>;
 
