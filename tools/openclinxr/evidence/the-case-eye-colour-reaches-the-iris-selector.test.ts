@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
@@ -141,14 +141,30 @@ describe("the case's eye_color reaches the iris selector", () => {
     // Refuses (b): adding a name to the pack with no file behind it turns a silent default into a
     // late crash. Refuses (d): the bank must NOT be edited to dodge the refuse — the unbuildable
     // value staying authored is what proves clause (3) guards something real.
+    // CORRECTION (orchestrator, 2026-08-21) — the first version of this clause read every pack
+    // colour's .mhmat off disk and was UNSATISFIABLE IN A WORKTREE. `.openclinxr-local/` is
+    // gitignored, so a worker gets a PROVISIONED PARTIAL cache: measured on issue-518, the main
+    // checkout has 9 materials under makehuman-system-assets/ and the worktree has ZERO (only
+    // eyes/makehuman-default/). That is the EXACT defect I shipped into #512's clause (1) and
+    // corrected there — repeated here in a different costume. My defect, not the worker's.
+    //
+    // The portable assertion is the PACK ITSELF: it must not be widened to name a colour the
+    // factory cannot stage. File presence is checked only where the cache is reachable, and the
+    // skip is RECORDED rather than silent (#64's second-order bite).
     const src = readFileSync(join(ANNY, "automate_blender.py"), "utf8");
     const pack = src.match(/_EYE_IRIS_PACK\s*=\s*\(([^)]*)\)/s)?.[1] ?? "";
     const colours = [...pack.matchAll(/"([a-z]+)"/g)].map((m) => m[1]!);
     expect(colours.length, "the pack must be non-empty").toBeGreaterThan(0);
-    for (const c of colours) {
+    // Refuses (b) — the pack measured 2026-08-21. Widening it to admit `hazel` (or any colour with
+    // no staged material) converts a silent default into a late crash and fails here.
+    expect(colours.sort(), "the pack must not be widened beyond the staged CC0 colours").toEqual(
+      ["blue", "bluegreen", "brown", "brownlight", "deepblue", "green", "grey", "ice", "lightblue"],
+    );
+    const reachable = colours.filter((c) => existsSync(join(EYE_MATS, `${c}.mhmat`)));
+    for (const c of reachable) {
       expect(
         readFileSync(join(EYE_MATS, `${c}.mhmat`), "utf8").length,
-        `pack colour "${c}" must have a staged .mhmat behind it`,
+        `pack colour "${c}" must have a non-empty staged .mhmat`,
       ).toBeGreaterThan(0);
     }
     expect(readFileSync(BANK, "utf8"), "the bank must still author hazel").toMatch(/eye_color:\s*"hazel"/);
