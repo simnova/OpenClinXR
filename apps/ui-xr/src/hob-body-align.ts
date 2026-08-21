@@ -3,7 +3,30 @@
  * Split from supine-deck-plant.ts for the zone line budget.
  */
 
-import { Box3, type Object3D } from "three";
+import { Box3, Mesh, type Object3D, Vector3 } from "three";
+
+/**
+ * Bind-pose mesh AABB minY — raw position attribute × matrixWorld, the SAME instrument the
+ * plant contract reads (`computeMeshBounds` in camera-fit-to-bounds.ts). Not the skinned
+ * vertex surface: `Box3.setFromObject` on a SkinnedMesh uses `SkinnedMesh.boundingBox`,
+ * which is computed from skinned `getVertexPosition` and therefore reads the DEFORMED body.
+ * The contract grades the unskinned geometry, so the plant's float correction must too.
+ */
+function readBindPoseMeshMinY(humanoidRoot: Object3D): number | null {
+  humanoidRoot.updateMatrixWorld?.(true);
+  let minY: number | null = null;
+  const point = new Vector3();
+  humanoidRoot.traverse((object) => {
+    if (!(object instanceof Mesh)) return;
+    const position = object.geometry.getAttribute("position");
+    if (!position) return;
+    for (let i = 0; i < position.count; i += 1) {
+      point.fromBufferAttribute(position, i).applyMatrix4(object.matrixWorld);
+      if (minY === null || point.y < minY) minY = point.y;
+    }
+  });
+  return minY;
+}
 
 /**
  * Raise the root if skinned world AABB minY is below deckTop + minClearance.
@@ -44,6 +67,33 @@ export function liftSupineBodyAboveDeck(
   humanoidRoot.position.y += delta;
   humanoidRoot.updateMatrixWorld?.(true);
   humanoidRoot.userData.openClinXrSupineSinkLiftMeters = delta;
+  return delta;
+}
+
+/**
+ * Lower the root when the bind-pose mesh AABB minY floats above deckTop + maxClearance.
+ * Complements liftSupineBodyAboveDeck (skinned, closes sink) — this closes the bind-pose
+ * float the contract grades.
+ *
+ * #494: the contact-bone plant anchors to bones that are rig-specific. On the MPFB2 recast
+ * the retained spine bind rotations put the lowest contact bone ~0.3 m BEHIND the back
+ * surface, so the plant leaves the recast body ~0.56 m off the deck. Settling to the
+ * bind-pose surface closes the float without moving the Anny control — its +16 mm rest sits
+ * below the 20 mm clearance this targets.
+ */
+export function lowerSupineBodyOntoDeck(
+  humanoidRoot: Object3D,
+  deckTopWorldY: number,
+  maxClearanceMeters = 0.02,
+): number {
+  const minY = readBindPoseMeshMinY(humanoidRoot);
+  if (minY === null) return 0;
+  const target = deckTopWorldY + maxClearanceMeters;
+  if (minY <= target + 1e-4) return 0;
+  const delta = target - minY;
+  humanoidRoot.position.y += delta;
+  humanoidRoot.updateMatrixWorld?.(true);
+  humanoidRoot.userData.openClinXrSupineFloatSettleMeters = delta;
   return delta;
 }
 

@@ -73,6 +73,25 @@ import { describe, expect, it } from "vitest";
  *     four supine stations; a green contract here is not the gate. `#491` shipped on a green
  *     contract and four stations were broken.
  *   - `seated`, the other postures, `ed_stroke_alert_handoff_v1` (ungradeable from its capture).
+ *
+ * ## FIXED (#494) — plant settles the bind-pose surface, not the rig-specific contact bones
+ *
+ * The contact-bone plant (`supine-deck-plant.ts:151`) anchors to bones matching
+ * `pelvis|hips|spine|chest|thigh`. On the MPFB2 recast the retained spine bind rotations
+ * (`spine05` ≈ −112° X in `mpfb-gown-adult-patient.glb`) curve the spine chain backward, so the
+ * lowest contact bone sits ~0.3 m BEHIND the bind-pose back surface. The plant lifted that bone
+ * to deck+0.26 and left the back floating. Fix: `lowerSupineBodyOntoDeck`
+ * (`hob-body-align.ts`) reads the bind-pose mesh minY — the SAME instrument as `computeMeshBounds`
+ * (`camera-fit-to-bounds.ts`) that this contract grades — and lowers the root until the back rests
+ * within 20 mm of the deck. Regenerated `supine-pose-two-subject-dump.json` via
+ * `supine-pose-two-subject-dump.ts` (runtime path): control minY 0.566 (+16 mm, unchanged),
+ * treatment minY 0.570 (+20 mm), height 0.446, length 1.688.
+ *
+ * OUT-OF-SCOPE FINDING, not tested by this contract: the SKINNED render still reads distorted —
+ * `measureSeatClearanceMeters` reports the skinned body ~13 cm below the bind-pose back after the
+ * contact-bone plant, because the retained spine bind rotations deform the skin independently of
+ * the bind-pose geometry. That is a pose/skinning defect (`SUPINE_BONE_EULERS`), not a plant
+ * defect, and #494 forbids touching the euler map.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -116,7 +135,7 @@ function subject(basename: string): Subject {
 const clearance = (s: Subject): number => s.posedMeshAabb.min.y - deckTopMeters();
 
 describe("the supine body rests on the deck", () => {
-  it.fails("(1) RED: the recast body's posed mesh rests on the deck", () => {
+  it("(1) the recast body's posed mesh rests on the deck", () => {
     const c = clearance(subject(TREATMENT));
     expect(
       c,

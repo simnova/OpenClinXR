@@ -31,6 +31,7 @@ import { applySupinePose, type ApplySupinePoseResult } from "./supine-pose.js";
 import {
   alignSupineHeadToPillow,
   liftSupineBodyAboveDeck,
+  lowerSupineBodyOntoDeck,
   centerSupineBodyOnDeck,
 } from "./hob-body-align.js";
 
@@ -480,6 +481,7 @@ export function applyAndPlantSupineOnDeck(
   } else {
     plantSupineBodyOnDeck(humanoidRoot, input.deckTopWorldY, thickness, { contactMode: "all_torso" });
     liftSupineBodyAboveDeck(humanoidRoot, input.deckTopWorldY, -0.02);
+    lowerSupineBodyOntoDeck(humanoidRoot, input.deckTopWorldY, 0.02);
     recordPlantStep(humanoidRoot, "final_flat", incline, input.stretcher, input.deckTopWorldY);
   }
   humanoidRoot.userData.openClinXrSupinePlantDeltaY = plant.deltaY;
