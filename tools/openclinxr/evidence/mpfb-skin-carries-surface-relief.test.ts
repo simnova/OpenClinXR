@@ -1,10 +1,10 @@
-import { readdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { inflateSync } from "node:zlib";
 import { NodeIO, type Primitive } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import { listUniqueLiveCastMpfbAssetPaths } from "./live-scenario-actor-cast.js";
 
 /**
  * #370 — the MPFB skin must carry SURFACE RELIEF (a normal map), not only albedo.
@@ -52,7 +52,6 @@ import { describe, expect, it } from "vitest";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
-const GENERATED = "apps/ui-xr/public/generated-humanoids";
 
 /** A stub or 1x1 normal map is nowhere near this; a real 1024^2 bake is hundreds of KB. */
 const MIN_NORMAL_TEXTURE_BYTES = 2048;
@@ -260,9 +259,8 @@ async function measure(rel: string): Promise<Row | null> {
   };
 }
 
-const files = readdirSync(join(REPO_ROOT, GENERATED))
-  .filter((n: string) => n.startsWith("mpfb-") && n.endsWith(".glb") && !/candidate/i.test(n))
-  .map((n: string) => `${GENERATED}/${n}`);
+/** Live cast MPFB paths — never a directory scan of harness subjects (#528). */
+const files = listUniqueLiveCastMpfbAssetPaths();
 
 const rows = (await Promise.all(files.map((f) => measure(f).catch(() => null)))).filter(
   (r): r is Row => r !== null,
@@ -270,7 +268,7 @@ const rows = (await Promise.all(files.map((f) => measure(f).catch(() => null))))
 
 /** An empty enumeration must FAIL, never pass vacuously (§7t). */
 function requireRows(): void {
-  expect(rows.length, `MPFB bodies measured (scanned ${files.length})`).toBeGreaterThanOrEqual(3);
+  expect(rows.length, `MPFB bodies measured (live cast ${files.length})`).toBeGreaterThanOrEqual(3);
 }
 
 describe("MPFB skin carries a tangent-space normal map without breaking the albedo (#370)", () => {

@@ -1,10 +1,10 @@
-import { readdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { inflateSync } from "node:zlib";
-import { NodeIO, type Document, type Primitive } from "@gltf-transform/core";
+import { NodeIO, type Primitive } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import { listUniqueLiveCastMpfbAssetPaths } from "./live-scenario-actor-cast.js";
 
 /**
  * #343 RETRY — the skin atlas must carry SUBSURFACE tint, not baked occlusion.
@@ -61,9 +61,12 @@ import { describe, expect, it } from "vitest";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
-const GENERATED = "apps/ui-xr/public/generated-humanoids";
 
-/** Pre-fix block-mean (16x16) luminance sd, measured with the UV-coverage instrument below. */
+/**
+ * Pre-fix block-mean (16x16) luminance sd, measured with the UV-coverage instrument below.
+ * ONLY the three atlases that existed when this baseline was taken (2026-08-13). #528: cast grew;
+ * atlases without a row are SKIPPED WITH REASON — never stamped with today's values (§9s).
+ */
 const PRE_FIX_BLOCK_SD: Record<string, number> = {
   "mpfb-ob-patient-aisha.glb": 1.58,
   "mpfb-peds-nurse-kevin.glb": 1.39,
@@ -281,20 +284,19 @@ async function measure(rel: string): Promise<Row | null> {
   };
 }
 
-const files = readdirSync(join(REPO_ROOT, GENERATED))
-  .filter((n: string) => n.startsWith("mpfb-") && n.endsWith(".glb") && !/candidate/i.test(n))
-  .map((n: string) => `${GENERATED}/${n}`);
+/** Live cast MPFB paths — never a directory scan of harness subjects (#528). */
+const files = listUniqueLiveCastMpfbAssetPaths();
 
 const rows = (await Promise.all(files.map((f) => measure(f).catch(() => null)))).filter(
   (r): r is Row => r !== null,
 );
 
 function requireRows(): void {
-  expect(rows.length, `MPFB skin atlases measured (scanned ${files.length})`).toBeGreaterThanOrEqual(3);
+  expect(rows.length, `MPFB skin atlases measured (live cast ${files.length})`).toBeGreaterThanOrEqual(3);
 }
 
 describe("an MPFB skin atlas carries subsurface tint, not baked occlusion (#343)", () => {
-  it("(4) VACUITY: all three atlases decode and cover a real skin area", () => {
+  it("(4) VACUITY: live-cast atlases decode and cover a real skin area", () => {
     requireRows();
     for (const r of rows) {
       expect(r.coveredTexels, `${r.file}: skin coverage below ${MIN_SKIN_TEXELS} texels`).toBeGreaterThanOrEqual(MIN_SKIN_TEXELS);
@@ -304,12 +306,37 @@ describe("an MPFB skin atlas carries subsurface tint, not baked occlusion (#343)
 
   it("(1) RED: block-mean (16x16) luminance sd exceeds the pre-fix value", () => {
     requireRows();
+    // #528: atlases without a real before-column are enumerated skips — never compared to
+    // undefined (xNaN), and never stamped with today's measurements (§9s).
+    const skippedNoBaseline = rows
+      .filter((r) => PRE_FIX_BLOCK_SD[r.file] === undefined)
+      .map((r) => r.file)
+      .sort();
+    const gated = rows.filter((r) => PRE_FIX_BLOCK_SD[r.file] !== undefined);
+    expect(
+      gated.length,
+      "the original three pre-fix baselines must still gate (do not delete the before-column)",
+    ).toBe(Object.keys(PRE_FIX_BLOCK_SD).length);
+    expect(
+      skippedNoBaseline.length,
+      `cast atlases lacking a pre-fix blockSd baseline (enumerated skip-with-reason): ${skippedNoBaseline.join(", ")}`,
+    ).toBeGreaterThan(0);
+    // Every measured atlas is either gated or explicitly skipped.
+    expect(
+      rows.every((r) => PRE_FIX_BLOCK_SD[r.file] !== undefined || skippedNoBaseline.includes(r.file)),
+      "an atlas was neither gated nor listed in the skip set",
+    ).toBe(true);
+
     const below = rows
       .filter((r) => {
         const pre = PRE_FIX_BLOCK_SD[r.file];
-        return pre === undefined || r.blockMeanSd <= pre * MIN_BLOCK_SD_FACTOR;
+        if (pre === undefined) return false;
+        return r.blockMeanSd <= pre * MIN_BLOCK_SD_FACTOR;
       })
-      .map((r) => `${r.file}: blockSd ${r.blockMeanSd.toFixed(2)} vs pre-fix ${PRE_FIX_BLOCK_SD[r.file]} (x${(r.blockMeanSd / PRE_FIX_BLOCK_SD[r.file]!).toFixed(2)})`);
+      .map((r) => {
+        const pre = PRE_FIX_BLOCK_SD[r.file]!;
+        return `${r.file}: blockSd ${r.blockMeanSd.toFixed(2)} vs pre-fix ${pre} (x${(r.blockMeanSd / pre).toFixed(2)})`;
+      });
     expect(below, "atlases whose spatial tone structure did not clear the subsurface factor").toEqual([]);
   });
 

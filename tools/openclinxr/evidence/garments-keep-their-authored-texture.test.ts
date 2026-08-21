@@ -2,6 +2,7 @@ import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import { listUniqueLiveCastMpfbAssetPaths } from "./live-scenario-actor-cast.js";
 import { pngLuminanceSd } from "./mpfb-eyes-inspection.js";
 
 /**
@@ -82,9 +83,19 @@ import { pngLuminanceSd } from "./mpfb-eyes-inspection.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
-const GENERATED = "apps/ui-xr/public/generated-humanoids";
 
 /**
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ * ## FIXED (#528) — appended; the planted header above is immutable
+ *
+ * Population was a hand-typed three-actor literal (`ACTORS = [aisha, kevin, child]`) that clause
+ * (3) compared cargo-pants wearers against (`expected 2 to be 3`). Cast is now live-enumerated
+ * from `resolveScenarioActorCast` over `listShippedCastScenarioIds` via
+ * `live-scenario-actor-cast.ts`. Cargo-pants known-good asserts wearers found are flat and
+ * non-empty — never `===` a typed cast size. `lab_coat` classified FLAT (measured on physician:
+ * tex=NONE, factor ~[0.92,0.92,0.90]). Clause (2b) only pins actors with an authored factor row.
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ *
  * ════════════════════════════════════════════════════════════════════════════════════════════════
  * ## FIXED (#372) — appended; the planted header above is immutable
  *
@@ -122,8 +133,6 @@ const GENERATED = "apps/ui-xr/public/generated-humanoids";
  * t-shirt factor (0.55, 0.68, 0.80), both with the authored T-shirt_basic.png texture (861,166 B).
  * ════════════════════════════════════════════════════════════════════════════════════════════════
  */
-
-const ACTORS = ["mpfb-ob-patient-aisha", "mpfb-peds-nurse-kevin", "mpfb-peds-patient-child"] as const;
 
 /**
  * MEASURED 2026-08-13 from the staged provider cache (see the header table). Material BASE name
@@ -173,6 +182,8 @@ const FLAT_BY_AUTHORED_STATE = new Set<string>([
   "mat_makeclothes_library_scrub_shirt",
   // #521 — .mhmat staged, declared PNG absent -> GARMENT_MATERIAL_SKIP -> flat teal factor.
   "mat_makeclothes_library_scrub_pants",
+  // #528 — physician lab coat: measured tex=NONE, factor ~[0.92,0.92,0.90] (flat by authored state).
+  "mat_makeclothes_library_lab_coat",
 ]);
 
 /** #506: the patients' closed_casual upper role colour — no longer the skin-adjacent
@@ -214,8 +225,9 @@ function stripSuffix(name: string): string {
   return name.replace(/\.\d{3}$/, "");
 }
 
-async function measure(actor: string): Promise<Row[]> {
-  const doc = await io.read(join(REPO_ROOT, GENERATED, `${actor}.glb`));
+async function measure(assetPath: string): Promise<Row[]> {
+  const actor = (assetPath.split("/").pop() ?? "").replace(/\.glb$/i, "");
+  const doc = await io.read(join(REPO_ROOT, assetPath));
   const out: Row[] = [];
   const seen = new Set<string>();
   for (const material of doc.getRoot().listMaterials()) {
@@ -239,13 +251,20 @@ async function measure(actor: string): Promise<Row[]> {
   return out;
 }
 
-const rows = (await Promise.all(ACTORS.map(measure))).flat();
+/** Live cast MPFB paths — never a hand-typed three-actor literal (#528). */
+const CAST_MPFB_PATHS = listUniqueLiveCastMpfbAssetPaths();
+const rows = (await Promise.all(CAST_MPFB_PATHS.map((p) => measure(p)))).flat();
 
 /** An empty enumeration must FAIL, never pass vacuously (§7t). */
 function requireRows(): void {
-  expect(rows.length, `garment materials measured across ${ACTORS.length} actors`).toBeGreaterThanOrEqual(
-    ACTORS.length * 2,
-  );
+  expect(
+    CAST_MPFB_PATHS.length,
+    "live cast must enumerate more than the historical three-actor literal",
+  ).toBeGreaterThanOrEqual(3);
+  expect(
+    rows.length,
+    `garment materials measured across ${CAST_MPFB_PATHS.length} live-cast MPFB assets`,
+  ).toBeGreaterThanOrEqual(CAST_MPFB_PATHS.length * 2);
   // Every garment material must be classified by the authored state, or the enumeration is blind.
   const unclassified = rows.filter(
     (r) => !(r.base in AUTHORED_TEXTURE) && !FLAT_BY_AUTHORED_STATE.has(r.base),
@@ -291,11 +310,12 @@ describe("a fitted garment ships with the material it was authored with (#372)",
     // keeps the role-fallback tan; the child's factor follows her declared fabricPalette
     // (soft_blue_and_warm_white -> 0.55, 0.68, 0.80). A factor matching neither still fails.
     requireRows();
+    // #528: only actors with a pinned factor row — live cast grew past the three-actor table.
     const recoloured = rows
       .filter((r) => r.base === "mat_makeclothes_library_toigo_t_shirt")
+      .filter((r) => r.actor in TOIGO_ROLE_COLOUR_BY_ACTOR)
       .filter((r) => {
-        const expected = TOIGO_ROLE_COLOUR_BY_ACTOR[r.actor];
-        if (!expected) return true; // an actor wearing the t-shirt with no pinned factor
+        const expected = TOIGO_ROLE_COLOUR_BY_ACTOR[r.actor]!;
         return (
           Math.abs(r.baseColorFactor[0]! - expected[0]) > FACTOR_EPS ||
           Math.abs(r.baseColorFactor[1]! - expected[1]) > FACTOR_EPS ||
@@ -310,15 +330,15 @@ describe("a fitted garment ships with the material it was authored with (#372)",
     // SUBJECT MOVED #199: this clause used to key on kevin's scrub shirt (the original known-good
     // column, flat by authored state because Scrub_Shirt.mhmat is not staged). #199 replaced
     // kevin's upper with the textured CC0 fisherman sweater, so the scrub no longer ships on the
-    // cast GLBs; the known-good subject is now the cargo-pants cover shell, which all three actors
-    // still wear and whose declared cargo_pants.mhmat is likewise not staged (flat by authored
-    // state, measured 2026-08-14: GARMENT_MATERIAL_SKIP mhmatStaged=false on the bake). A garment
-    // whose declared .mhmat is not staged must not be required to carry a texture — the known-good
-    // column proves the contract distinguishes "authored and dropped" (the #372 t-shirt RED) from
-    // "authored as flat" (legitimately no texture).
+    // cast GLBs; the known-good subject is now the cargo-pants cover shell, whose declared
+    // cargo_pants.mhmat is likewise not staged (flat by authored state). #528: wearers are
+    // enumerated from the live cast — do not assert wearer count === a typed population size.
     requireRows();
     const cargoPants = rows.filter((r) => r.base === "mat_makeclothes_library_cargo_pants");
-    expect(cargoPants.length, "cargo-pants cover shells measured across the cast").toBe(ACTORS.length);
+    expect(
+      cargoPants.length,
+      "cargo-pants cover shells measured across the live cast (wearers, not typed population size)",
+    ).toBeGreaterThan(0);
     expect(
       cargoPants.filter((r) => r.hasTexture).map(show),
       "cargo-pants shells that gained an invented texture",
