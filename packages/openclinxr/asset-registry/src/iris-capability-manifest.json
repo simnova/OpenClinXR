@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "field": "eye_color",
+  "derivedFrom": "tools/openclinxr/asset-pipeline/anny/iris_palette.py::_EYE_IRIS_PACK",
+  "generatedBy": "python3 tools/openclinxr/asset-pipeline/anny/generate_iris_capability_manifest.py",
+  "licenceSource": "docs/openclinxr/third-party-asset-licence-ledger.md row 47 (makehuman_system_assets eyes; headers verified 2026-08-13 #356)",
+  "options": [
+    {
+      "id": "blue",
+      "licence": "CC0 1.0"
+    },
+    {
+      "id": "bluegreen",
+      "licence": "CC0 1.0"
+    },
+    {
+      "id": "brown",
+      "licence": "CC0 1.0"
+    },
+    {
+      "id": "brownlight",
+      "licence": "CC0 1.0"
+    },
+    {
+      "id": "deepblue",
+      "licence": "CC0 1.0"
+    },
+    {
+      "id": "green",
+      "licence": "CC0 1.0"
+    },
+    {
+      "id": "grey",
+      "licence": "CC0 1.0"
+    },
+    {
+      "id": "ice",
+      "licence": "CC0 1.0"
+    },
+    {
+      "id": "lightblue",
+      "licence": "CC0 1.0"
+    }
+  ]
+}
