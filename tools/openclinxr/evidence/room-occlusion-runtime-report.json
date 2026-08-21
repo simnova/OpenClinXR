@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.room-occlusion-runtime.v1",
-  "generatedAt": "2026-08-21T17:07:55.935Z",
-  "probedBy": "playwright page.evaluate on window.__openClinXrIsolatedSceneRoot after isolated-subject-lab subjectKind=glb load via three.js GLTFLoader (apps/ui-xr/src/isolated-subject-lab.ts); bodyGlb=xr-assets/environment/ed-exam-bay-shell.glb",
+  "generatedAt": "2026-08-21T17:12:49.099Z",
+  "probedBy": "playwright page.evaluate on window.__openClinXrIsolatedSceneRoot after isolated-subject-lab subjectKind=glb load via three.js GLTFLoader (apps/ui-xr/src/isolated-subject-lab.ts); bodyGlbs=xr-assets/environment/ed-exam-bay-shell.glb,xr-assets/environment/infinigen-primary-care-clinic.glb,xr-assets/environment/infinigen-stepdown.glb",
   "forcedIntensity": false,
   "rooms": [
     {
@@ -39,9 +39,30 @@
         1
       ],
       "aoMapUvSet": 1
+    },
+    {
+      "room": "infinigen-primary-care-clinic.glb",
+      "materials": 4,
+      "withAoMap": 3,
+      "aoMapIntensities": [
+        1,
+        1,
+        1
+      ],
+      "aoMapUvSet": 1
+    },
+    {
+      "room": "infinigen-stepdown.glb",
+      "materials": 4,
+      "withAoMap": 2,
+      "aoMapIntensities": [
+        1,
+        1
+      ],
+      "aoMapUvSet": 1
     }
   ],
-  "claimScope": "runtime aoMap / aoMapIntensity / UV-channel observation for one shipped room GLB via isolated-subject-lab",
+  "claimScope": "runtime aoMap / aoMapIntensity / UV-channel observation for shipped room GLBs via isolated-subject-lab (parametric shell + Infinigen hull sample)",
   "notEvidenceFor": [
     "whether rooms LOOK better (pixel grade is the orchestrator's)",
     "occlusion colour space",

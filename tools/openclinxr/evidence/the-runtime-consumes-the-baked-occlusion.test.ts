@@ -71,6 +71,11 @@ import { describe, expect, it } from "vitest";
  *   materials=29, withAoMap=28, aoMapIntensities all 1.0, aoMapUvSet=1.
  * Outcome: already wired by the loader at intensity ~1.0 — closes R1; no product tune.
  * Report: `tools/openclinxr/evidence/room-occlusion-runtime-report.json` (tracked).
+ *
+ * ## FIXED (#523 bank sample)
+ * Same harness, appended Infinigen rows (no restructure): primary-care 4/3 aoMap@1.0 uv1;
+ * stepdown 4/2 aoMap@1.0 uv1 (matches glTF 2-of-3 outlier). Bank sample same as shell —
+ * loader default works; no intensity tune.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
