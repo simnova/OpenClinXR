@@ -45,6 +45,29 @@
  * claimScope: whether a tracked report names a mechanism for the near-black capture.
  * notEvidenceFor: that the mechanism is correct (that is the orchestrator's grade), or that
  *                 anything is fixed. Nothing here asks for a fix.
+ *
+ * ## FIXED (#500) — 2026-08-21
+ *
+ * `it.fails` flipped; a tracked report now names the mechanism (verdict `mechanism_named`).
+ *
+ * MEASURED LIVE (one portless-server boot, three stations, `reframeCameraForRoom` applied, then
+ * greyscale over the 3D viewport y70:820 x0:1005):
+ *   ed_stroke  median 0, mean 27.7, p90 141, nonBlack 41.5%
+ *   ward       median 28, mean 60.9, p90 136, nonBlack 81.8%
+ *   postop     median 26, mean 60.5, p90 152, nonBlack 75.0%
+ * The treatment median is 0 and the known-good medians are 28/26 — the original collapse reproduced,
+ * not copied from the header above.
+ *
+ * THE MECHANISM: ed_stroke_bay_v1's Infinigen wall mesh (Circle.022) has a SECOND primitive
+ * (`Circle022_1`) wearing `shader_dark_art.001`, whose `text_texture` base-colour map is 93%
+ * pure black (median 0, p90 0). Live it is a full-height ~3.5m-deep near-black panel at
+ * x[-1.50,-1.39], y[0,2.43], z[-0.96,2.54]. The derived capture eye (-3.16,1.64,2.31) looks
+ * toward the cast centre; its look ray crosses x=-1.44 at z≈1.29, so the panel sits directly
+ * between camera and cast and fills the viewport, while the lit cast/doorway stay bright (p90 141).
+ * Known-good rooms do not have this panel: inpatient-ward's wall is one bright-plaster primitive,
+ * and surgical-ward's second wall primitive is a 2-triangle bright strip.
+ *
+ * NOT TESTED: the fix. Nothing here was fixed; the report names the mechanism for someone else.
  */
 import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
@@ -61,7 +84,7 @@ describe("#500 the near-black station has a named mechanism", () => {
     }
   });
 
-  it.fails("(1) a tracked report names a mechanism, or honestly rejects", () => {
+  it("(1) a tracked report names a mechanism, or honestly rejects", () => {
     expect(existsSync(REPORT), `${REPORT} must exist and be TRACKED (#396)`).toBe(true);
     const r = JSON.parse(readFileSync(REPORT, "utf8")) as Record<string, unknown>;
 

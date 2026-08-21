@@ -660,7 +660,7 @@ async function readLiveShellFromPage(page: Page): Promise<LiveShellFromPage> {
  * With no Infinigen room the parametric fallback is used; its camera x derives from the
  * environment's shell width and the door constants (#398) instead of the old literal.
  */
-async function reframeCameraForRoom(page: Page, environmentId: string): Promise<string> {
+export async function reframeCameraForRoom(page: Page, environmentId: string): Promise<string> {
   // NOTE: string IIFE — keep free of TypeScript syntax so tsx/esbuild cannot inject `__name`.
   const derived = (await page.evaluate(`(() => {
     const scene = window.__openClinXrDebugScene;
