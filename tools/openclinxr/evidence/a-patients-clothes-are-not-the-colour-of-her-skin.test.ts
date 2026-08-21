@@ -81,7 +81,7 @@ describe("#506 a patient's clothes are distinguishable from her skin", () => {
     expect(fam.garments.length, "family partner cargo_pants + toigo_t_shirt").toBe(2);
   });
 
-  it.fails("(1) the OB patient's garments contrast with her own skin", async () => {
+  it("(1) the OB patient's garments contrast with her own skin", async () => {
     const ob = await readActor("mpfb-ob-patient-aisha.glb");
     for (const g of ob.garments) {
       expect(dist(g.rgb, ob.skin), `${g.name} is ${dist(g.rgb, ob.skin).toFixed(1)} from skin — reads nude`)
@@ -108,3 +108,26 @@ describe("#506 a patient's clothes are distinguishable from her skin", () => {
     expect(byName["makeclothes_library_toigo_t_shirt"], "t_shirt must not be removed").toBe(5400);
   });
 });
+
+/**
+ * ## FIXED (#506) — appended; the planted header above is immutable
+ *
+ * CAUSE, measured (neither of the two planted leads): `garment_shell_color`'s patient-role
+ * fallback resolves `closed_casual` through `_FABRIC_PALETTE_KIND_COLORS`
+ * `["olive_knit_and_cream_casual"]` to `(0.72, 0.68, 0.55)` — the "cream under-layer". For the
+ * OB patient (and the other street-casual patients) the t-shirt + cargo-pants ARE the whole
+ * visible outfit (no cardigan), so cream reads as skin: 28.7 RGB from (201,177,163).
+ *
+ * FIX = two edits. (1) Root cause, in `automate_blender.py`: the `closed_casual` value is now
+ * `(0.34, 0.44, 0.34)` — muted olive-green, ~153 RGB from the OB skin mean and clearly distinct
+ * from the family muted-rose (0.42,0.36,0.40) and the nurse teal. (2) Shipped bytes: the
+ * tracked `mpfb-ob-patient-aisha.glb` is updated with the materializer's OWN proven post-export
+ * `patch_glb_base_color_factors` (materialize_mpfb_humanoid_candidate.py:697) rather than a
+ * full re-bake — the worktree lacks the gitignored visemes02/hair provider-cache and a full
+ * bake would risk drifting the pinned skin sha and vertex counts. Only the two garment
+ * baseColorFactors change; BIN/geometry/skin bytes are copied verbatim.
+ *
+ * Post-fix measured (NodeIO): cargo_pants + toigo_t_shirt baseColorFactor (0.34, 0.44, 0.34) —
+ * 152.9 RGB from (201,177,163), clearing MIN_CONTRAST 60 with margin. Control unchanged
+ * (107,92,102). Skin sha e49a8dfcb6304aa5 and vertex counts 8262/5400 byte-identical.
+ */

@@ -1751,7 +1751,11 @@ _FABRIC_PALETTE_KIND_COLORS: Dict[str, Dict[str, tuple]] = {
     },
     "olive_knit_and_cream_casual": {
         "open_front": (0.48, 0.42, 0.28, 1.0),  # warm olive cardigan (street patient)
-        "closed_casual": (0.72, 0.68, 0.55, 1.0),  # cream under-layer
+        # #506: the cream under-layer was 28.7 RGB from a light-skinned patient's skin
+        # texture mean (201,177,163) and read as nude whenever it is the only garment —
+        # the OB patient and street-casual patients wear no cardigan. Muted olive-green:
+        # ~152 RGB from that skin, distinct from the family muted-rose (0.42,0.36,0.40).
+        "closed_casual": (0.34, 0.44, 0.34, 1.0),
     },
 }
 
