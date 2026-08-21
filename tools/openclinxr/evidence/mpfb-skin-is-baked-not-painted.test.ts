@@ -1,9 +1,9 @@
-import { readdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import { listUniqueLiveCastMpfbAssetPaths } from "./live-scenario-actor-cast.js";
 
 /**
  * **Every MPFB actor's skin is a hand-authored flat colour, and the shipped procedural shader has
@@ -80,7 +80,6 @@ import { describe, expect, it } from "vitest";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
-const GENERATED = "apps/ui-xr/public/generated-humanoids";
 
 /** A solid or 1x1 bake is not a procedural skin. Iris textures on these bodies are ~4-40 KB. */
 const MIN_SKIN_TEXTURE_BYTES = 2048;
@@ -122,9 +121,8 @@ async function measure(rel: string): Promise<Row | null> {
   };
 }
 
-const files = readdirSync(join(REPO_ROOT, GENERATED))
-  .filter((n: string) => n.startsWith("mpfb-") && n.endsWith(".glb") && !/candidate/i.test(n))
-  .map((n: string) => `${GENERATED}/${n}`);
+/** Live cast MPFB paths — never a directory scan of harness subjects (#528). */
+const files = listUniqueLiveCastMpfbAssetPaths();
 
 const rows = (await Promise.all(files.map((f) => measure(f).catch(() => null)))).filter(
   (r): r is Row => r !== null,
@@ -136,7 +134,7 @@ const rows = (await Promise.all(files.map((f) => measure(f).catch(() => null))))
  * ANY reason — including this guard throwing. That trap cost me a wrong-reason green on the #361 plant.
  */
 function requireRows(): void {
-  expect(rows.length, `MPFB bodies measured (scanned ${files.length})`).toBeGreaterThanOrEqual(3);
+  expect(rows.length, `MPFB bodies measured (live cast ${files.length})`).toBeGreaterThanOrEqual(3);
 }
 
 describe("MPFB skin is baked from the shipped shader, not painted", () => {

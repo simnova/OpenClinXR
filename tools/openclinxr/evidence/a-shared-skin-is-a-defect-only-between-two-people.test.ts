@@ -1,6 +1,8 @@
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { readdirSync } from "node:fs";
+import { dirname, resolve as pathResolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { beforeAll, describe, expect, it } from "vitest";
 import { NodeIO } from "@gltf-transform/core";
 
@@ -104,9 +106,20 @@ import { NodeIO } from "@gltf-transform/core";
  *   learner can see together in one station.
  * notEvidenceFor: how strongly the duplication reads in a rendered room; garment differentiation;
  *   whether any atlas is of good quality; runtime skinning.
+ *
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ * ## FIXED (#528) — appended; the planted header above is immutable
+ *
+ * One shared live-cast helper (`live-scenario-actor-cast.ts`) now feeds all four siblings via
+ * `resolveScenarioActorCast()` over `listShippedCastScenarioIds()`. Directory scans and the
+ * three-actor `ACTORS` literal are gone. `PRE_FIX_BLOCK_SD` gaps are enumerated skip-with-reason
+ * (not post-hoc stamps). Clauses (2)(3)(4) flipped `it.fails` → `it`. Clause (1) inverted guard
+ * for #527 retained.
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
  */
 
-const REPO_ROOT = "/Volumes/files/src/openclinxr";
+const HERE = dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = pathResolve(HERE, "../../..");
 const GENERATED = "apps/ui-xr/public/generated-humanoids";
 
 /** The four contracts under measurement. Named files only — never a directory sweep (#195). */
@@ -116,7 +129,7 @@ const SIBLINGS = [
   "tools/openclinxr/evidence/mpfb-skin-is-baked-not-painted.test.ts",
   "tools/openclinxr/evidence/skin-atlas-has-subsurface-not-occlusion.test.ts",
 ];
-const CASTING = "/Volumes/files/src/openclinxr/packages/openclinxr/asset-registry/src/actor-casting.ts";
+const CASTING = `${REPO_ROOT}/packages/openclinxr/asset-registry/src/actor-casting.ts`;
 
 /** The known co-staged duplicate pair. Tracked as PRODUCT card #527; see the header. */
 const KNOWN_DUPLICATE_PAIR = [
@@ -213,7 +226,7 @@ describe("a shared skin is a defect only between two people", () => {
     ]);
   });
 
-  it.fails("(2) RED: no sibling reports an asset the live cast never returns", async () => {
+  it("(2) RED: no sibling reports an asset the live cast never returns", async () => {
     const cast = await liveCast();
     const castGlbs = new Set<string>();
     for (const v of cast.values()) for (const a of v) castGlbs.add(a.glb);
@@ -227,7 +240,7 @@ describe("a shared skin is a defect only between two people", () => {
     expect(leaked, "never-cast harness assets named in sibling assertion output").toEqual([]);
   });
 
-  it.fails("(3) RED: no sibling compares a measurement against an absent baseline", () => {
+  it("(3) RED: no sibling compares a measurement against an absent baseline", () => {
     // `blockSd 3.07 vs pre-fix undefined (xNaN)`. Satisfiable EITHER by a real pre-fix value OR by
     // an enumerated skip-with-reason. NOT by stamping today's numbers into the before-column (§9s).
     const nan = siblingOutput
@@ -238,7 +251,7 @@ describe("a shared skin is a defect only between two people", () => {
     expect(nan, "sibling assertions comparing against an undefined baseline").toEqual([]);
   });
 
-  it.fails("(4) RED: no sibling asserts a population count that a growing cast invalidates", () => {
+  it("(4) RED: no sibling asserts a population count that a growing cast invalidates", () => {
     // `cargo-pants cover shells measured across the cast: expected 2 to be 3` — ACTORS.length is a
     // hand-typed population. Satisfied by enumerating wearers from the live cast.
     const typed = siblingOutput
