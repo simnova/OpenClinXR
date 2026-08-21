@@ -80,6 +80,20 @@ import { describe, expect, it } from "vitest";
  *     in-tree idiom (`the-hair-pack-...test.ts:233`) and HARD-REQUIRES the cache rather than
  *     skipping, because a population guard that silently passes when it cannot see the population
  *     is the #64 second-order bite and would reintroduce exactly the vacuity being repaired.
+ *
+ * ## FIXED (#512)
+ *
+ *   Module: tools/openclinxr/evidence/cached-garment-population.ts — `enumerateCachedGarments`
+ *     walks the cache with readdirSync and applies GARMENT_EXCLUSION_RULE (eyes/ by directory,
+ *     hair/ by directory), returning the 16 files / 13 unique in-scope garments measured above.
+ *     All four clauses flipped it.fails → it.
+ *   Exclusion rule: directory-based for BOTH eyes and hair. The plant preferred a filename
+ *     token for hair, but o4saken_long01.mhclo and sonntag78_blond_with_headband.mhclo are hair
+ *     styles whose filenames carry no hair/bob/braid/bangs/mhair token — a filename-token rule
+ *     leaks them as garments and clause (3) refuses. Directory (`hair/`) is the recorded rule.
+ *   Repaired: clause (4) of cached-garments-have-a-measured-class.test.ts now delegates to the
+ *     enumerator (coverage: every enumerated in-scope garment must carry a class) instead of
+ *     string-matching the JSON.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -127,7 +141,7 @@ async function loadEnumerator(): Promise<Enumerator> {
 }
 
 describe("the class inventory notices a newly cached garment", () => {
-  it.fails("(1) RED: the in-scope population is enumerated from disk by an importable module", async () => {
+  it("(1) RED: the in-scope population is enumerated from disk by an importable module", async () => {
     expect(existsSync(CACHE), "the provider cache must be readable for any of this to mean anything").toBe(true);
     const { enumerateCachedGarments } = await loadEnumerator();
     const found = enumerateCachedGarments(CACHE);
@@ -140,7 +154,7 @@ describe("the class inventory notices a newly cached garment", () => {
     for (const g of found) expect(g.sourcePath.includes("provider-cache"), `${g.basename} path`).toBe(true);
   });
 
-  it.fails("(2) RED: staging a garment in the cache CHANGES the enumerated population", async () => {
+  it("(2) RED: staging a garment in the cache CHANGES the enumerated population", async () => {
     // This is the measured blindness, automated. Refuses (a) and (b): a list that cannot grow is
     // indistinguishable from a hardcoded one, which is what clause (4) of the repaired contract
     // claims to refuse and cannot see.
@@ -161,7 +175,7 @@ describe("the class inventory notices a newly cached garment", () => {
     expect(after.size, "removing the probe must restore the population").toBe(before.size);
   });
 
-  it.fails("(3) RED: the inventory is checked against that population, and the check BITES", async () => {
+  it("(3) RED: the inventory is checked against that population, and the check BITES", async () => {
     const { enumerateCachedGarments } = await loadEnumerator();
     const rows = JSON.parse(readFileSync(INVENTORY, "utf8")).rows as { basename: string }[];
     const classed = new Set(rows.map((r) => r.basename));
@@ -186,7 +200,7 @@ describe("the class inventory notices a newly cached garment", () => {
     }
   });
 
-  it.fails("(4) NET: the exclusion rule is recorded, and does not swallow a real garment", async () => {
+  it("(4) NET: the exclusion rule is recorded, and does not swallow a real garment", async () => {
     // Refuses (c) and (d). The cheapest green for clause (3) is to widen the exclusion until the
     // uncovered file leaves the population — so the rule must be inspectable data, hair and eyes
     // must stay out, and every known-good garment must survive it.
