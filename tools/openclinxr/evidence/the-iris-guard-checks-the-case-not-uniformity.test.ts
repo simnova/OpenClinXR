@@ -73,7 +73,7 @@ const GUARD = join(HERE, "eye-colour-is-case-driven.test.ts");
 const BANK = join(HERE, "../../../packages/openclinxr/scenario-fixtures/src/pediatric-asthma.ts");
 
 describe("the iris guard checks the case, not uniformity", () => {
-  it.fails("(1) RED: the guard no longer fails merely because the cast is uniform", () => {
+  it("(1) RED: the guard no longer fails merely because the cast is uniform", () => {
     const src = readFileSync(GUARD, "utf8");
     // The old proxy: `distinct >= 2` over the whole cast, regardless of what the case says.
     expect(/distinct\s*>=\s*2/.test(src), "the bare uniformity proxy must be gone").toBe(false);
@@ -81,7 +81,7 @@ describe("the iris guard checks the case, not uniformity", () => {
     expect(/it\(\s*["'`]\(1\)/.test(src), "clause (1) must be rewritten, never removed").toBe(true);
   });
 
-  it.fails("(2) RED: the guard checks an authored colour against the shipped iris", () => {
+  it("(2) RED: the guard checks an authored colour against the shipped iris", () => {
     // CODE ONLY. Matching the whole file matched the HEADER PROSE and passed today for the wrong
     // reason — §7k, a marker check in my own plant. Comments are stripped before matching.
     const code = readFileSync(GUARD, "utf8")
@@ -109,3 +109,15 @@ describe("the iris guard checks the case, not uniformity", () => {
     expect((bank.match(/eye_color:\s*"brown"/g) ?? []).length, "both adults still author brown").toBe(2);
   });
 });
+
+/**
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ * ## FIXED (#520) — appended; the planted header above is immutable
+ *
+ * Clause (1)/(2) flipped: `eye-colour-is-case-driven.test.ts` clause (1) no longer carries the
+ * cast-wide distinctness proxy; it reads bank `eye_color` / `authoredColour` and requires (a)
+ * pack-authored colours to match shipped iris sha and (b) different pack colours to differ
+ * (`not.toBe` fixture). Bank still authors hazel + two browns. Clauses (2)/(3)/(3b)/(3c) of the
+ * guard file untouched.
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ */
