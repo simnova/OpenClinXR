@@ -1394,3 +1394,34 @@ instrument the hairline needs. Owner: asset-pipeline-lead for the first two.
 **Next queued slice.** Per staging unblock: first multi-case run of the dark factory on a clean checkout; then continue the garment lane.
 
 **Token introspection:** not captured — dispatched worker slice (issue-443) under `OPENCLINXR_WORKER=1`; no ccusage baseline taken by the worker.
+
+## Orchestration review #4 — 2026-08-21 — adopted, three changes
+
+Measured: `#512`, `#514`, `#516` are ALL `factory_step: instrument` with `unblocks: clothing_consume`,
+and `clothing_consume` (`asset-pipeline/makeclothes/`) has ONE commit today — `#504`, which predates
+all three. The board gate enforces "measuring is not building" PER SLICE and is silent across a
+sequence. Two lands in ~10 ticks, both E5 guards, neither publishable.
+
+Verdict accepted: this window is a measurement lab. The three lanes falsified before a worker was
+spent (`#498` coat-apply, `#510` fill-`$diffusetexture`, L7-as-delete) were the process EARNING its
+keep; the two landings plus `#513`/`#515`/`#516` on cousin vacuity are drift.
+
+ADOPTED, effective now:
+
+1. **STOP opening an E5 card per hardcoded population.** After `#516` lands, that class is closed
+   unless main is red on a genuinely DIFFERENT predicate. No successor card for the next
+   `ACTORS = [...]`.
+2. **Invert the assign order.** The orchestrator runs ONE falsifying command against a proposed
+   remedy BEFORE the superagent assigns it — one falsifier, not a study. Both `#498`-apply and
+   `#510`-fill were assigned from a grep gap and died to a single measurement.
+3. **Two consecutive E5 lands ⇒ the next dispatch is PRODUCT, or the loop idles.** Idling is the
+   sanctioned outcome; inventing a third guard is not.
+
+Deliberately NOT built: a streak detector in `dispatch()`. Mechanising the anti-toil gate would
+itself be a fourth consecutive `instrument` slice — the exact drift it detects. Behavioural adoption
+is the cheaper and more honest instrument here.
+
+Self-inflicted friction (three field-name errors, an unsatisfiable clause shipped into `#512`, a
+false premise written into the `#514` plant, two `find /` timeouts, a vitest-4 reporter flag, a
+silent shell arithmetic zero) is real at roughly 15–20% of tool calls and is explicitly the SECOND
+priority. Class-repeat first.
