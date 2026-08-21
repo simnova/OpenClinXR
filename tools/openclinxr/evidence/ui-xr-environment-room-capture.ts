@@ -650,10 +650,13 @@ async function readLiveShellFromPage(page: Page): Promise<LiveShellFromPage> {
  * with an untextured exterior hull, so the same camera stood outside it and photographed the
  * hull: a flat grey viewport, while every probe field reported success.
  *
- * Derivation, all four inputs measured live, no constants:
- *   eyeX  = centre X of the actor bounds        eyeY = top Y of the actor bounds (standing eye)
- *   eyeZ  = interior max Z - wall thickness,    where wall thickness = exteriorMaxZ - interiorMaxZ
+ * Derivation, all inputs measured live, no constants:
+ *   eyeZ  = interior max Z - 2×wall thickness,  where wall thickness = exteriorMaxZ - interiorMaxZ
+ *   eyeY  = top Y of the actor bounds (standing eye height)
  *   look  = centre of the actor bounds
+ *   eyeX  = one of five doorway-side candidate Xs (interior corners + edge midpoints, each inset
+ *           by 2×wall thickness) whose eye→look ray is NOT blocked by a room surface or door leaf,
+ *           chosen to MAXIMISE the distance to the NEAREST actor box in the XZ plane
  * i.e. stand inside the room, backed against the doorway-side interior wall — the furthest
  * in-room viewpoint the geometry allows — and look at the encounter.
  *
@@ -767,9 +770,12 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
     };
     // Look-ray occlusion test (issue-black-frame + door-leaf): reject a candidate whose
     // eye→look ray crosses a room wall/floor/ceiling/exterior OR a door-leaf AABB before
-    // the look point. Wall tris stay room-root only (props/actors never reject). Door
-    // leaves live as fixture-slot siblings of the room, so they are collected from the
-    // scene by node name (door_leaf | fixture-slot.door), never by coordinates.
+    // the look point. Walls and door leaves are tested as WORLD BOXES (a wall is a solid
+    // partition — looking through a doorway still photographs wall, not cast); floor,
+    // ceiling and exterior are tested per-triangle because the camera stands inside the
+    // room and only a ray that actually reaches them matters. Door leaves live as
+    // fixture-slot siblings of the room, so they are collected from the scene by node
+    // name (door_leaf | fixture-slot.door), never by coordinates.
     const worldOfLocal = function (e, x, y, z) {
       return [
         e[0] * x + e[4] * y + e[8] * z + e[12],
@@ -777,11 +783,52 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
         e[2] * x + e[6] * y + e[10] * z + e[14]
       ];
     };
+    // A room-surface mesh may carry the wall/floor/ceiling/exterior name itself
+    // (single-primitive GLB node), or inherit it from the Group a multi-primitive
+    // GLB mesh is wrapped in: the Group carries e.g. bedroom_0/1.wall while the
+    // primitive meshes are named Circle022 / Circle022_1. Classify by the mesh or its
+    // nearest ancestor up to roomRoot so both shapes resolve. Props/actors are never
+    // under roomRoot, so they still cannot reject.
+    const roomSurfaceKind = function (mesh) {
+      let p = mesh;
+      while (p && p !== roomRoot) {
+        const m = /(wall|floor|ceiling|exterior)/i.exec(p.name || "");
+        if (m) return m[1].toLowerCase();
+        p = p.parent;
+      }
+      return null;
+    };
+    const wallPartitionBoxes = [];
     const surfaceTris = [];
     roomRoot.traverse(function (o) {
       if (!(o.isMesh || o.isSkinnedMesh)) return;
       if (o.visible === false) return;
-      if (!/wall|floor|ceiling|exterior/i.test(o.name || "")) return;
+      const kind = roomSurfaceKind(o);
+      if (!kind) return;
+      if (kind === "wall") {
+        const box = worldBoxOf(o);
+        if (!box) return;
+        // A wall the capture camera stands OUTSIDE of is a partition: the eye→look
+        // ray must not cross it, even through a doorway, because the cast would then
+        // be photographed through a hole in a wall (and a dark wall still fills the
+        // frame). A wall that CONTAINS the candidate viewpoints is the room's own
+        // perimeter shell, so it stays per-triangle and real openings stay passable.
+        let containsCandidate = false;
+        for (let ci = 0; ci < candidates.length; ci++) {
+          const cx = candidates[ci][0], cy = actors.max[1], cz = candidates[ci][1];
+          if (cx >= box.min[0] && cx <= box.max[0]
+            && cy >= box.min[1] && cy <= box.max[1]
+            && cz >= box.min[2] && cz <= box.max[2]) {
+            containsCandidate = true;
+            break;
+          }
+        }
+        if (!containsCandidate) {
+          wallPartitionBoxes.push(box);
+          return;
+        }
+        // perimeter wall — fall through to per-triangle collection below
+      }
       const geom = o.geometry;
       const pos = geom && geom.attributes && geom.attributes.position;
       const e = o.matrixWorld && o.matrixWorld.elements;
@@ -808,11 +855,10 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
       const box = worldBoxOf(o);
       if (box) doorBoxes.push(box);
     });
-    const lookRayHitsDoorAabb = function (ox, oy, oz, dx, dy, dz) {
-      let tmin = 0, tmax = 1;
-      for (let i = 0; i < doorBoxes.length; i++) {
-        const b = doorBoxes[i];
-        tmin = 0; tmax = 1;
+    const lookRayHitsBoxes = function (ox, oy, oz, dx, dy, dz, boxes) {
+      for (let i = 0; i < boxes.length; i++) {
+        const b = boxes[i];
+        let tmin = 0, tmax = 1;
         let miss = false;
         for (let c = 0; c < 3 && !miss; c++) {
           const o = c === 0 ? ox : c === 1 ? oy : oz;
@@ -837,7 +883,8 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
       let dx = look[0] - ox, dy = look[1] - oy, dz = look[2] - oz;
       const len = Math.sqrt(dx * dx + dy * dy + dz * dz);
       if (len < 1e-6) return false;
-      if (lookRayHitsDoorAabb(ox, oy, oz, dx, dy, dz)) return true;
+      if (lookRayHitsBoxes(ox, oy, oz, dx, dy, dz, doorBoxes)) return true;
+      if (lookRayHitsBoxes(ox, oy, oz, dx, dy, dz, wallPartitionBoxes)) return true;
       dx /= len; dy /= len; dz /= len;
       for (let i = 0; i < surfaceTris.length; i++) {
         const a = surfaceTris[i][0], b = surfaceTris[i][1], c = surfaceTris[i][2];
@@ -937,6 +984,11 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
       if (camera.userData) {
         camera.userData["openClinXrCameraFraming"] =
           "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342";
+        // #503 — surface the occlusion verdict so a framing report can assert on it
+        // instead of re-deriving it. Same "x/z" rendering as the returned framing note.
+        camera.userData["openClinXrRejectedViewpoints"] = d.rejectedCandidates.map(
+          (p) => `${p[0].toFixed(1)}/${p[1].toFixed(1)}`,
+        );
       }
       return `roomCam(derived)=${d.eye.map((v) => v.toFixed(2)).join(",")} look=${d.look.map((v) => v.toFixed(2)).join(",")} nearestActor=${d.nearestActorMeters.toFixed(2)}m rejected=${d.rejectedCandidates.map((p) => p[0].toFixed(1) + "/" + p[1].toFixed(1)).join(" ")} interiorMaxZ=${d.interiorMax[2].toFixed(2)} wallThickness=${d.wallThickness.toFixed(3)}`;
     }, derived);

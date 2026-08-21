@@ -1,0 +1,23 @@
+{
+  "stations": {
+    "ward_delirium_med_rec_v1": {
+      "median": 28,
+      "p90": 133,
+      "cameraInsideInterior": true,
+      "darkPanelPresentAndVisible": false,
+      "rejectedViewpoints": [
+        "-4.3/3.0"
+      ]
+    },
+    "ed_stroke_alert_handoff_v1": {
+      "median": 24,
+      "p90": 69,
+      "cameraInsideInterior": true,
+      "darkPanelPresentAndVisible": true,
+      "rejectedViewpoints": [
+        "-3.2/2.3",
+        "-1.6/2.3"
+      ]
+    }
+  }
+}

@@ -46,6 +46,21 @@
  * claimScope: whether every shipped station's capture is bright enough to grade, with the dark
  *             panel still present and the camera still inside the room.
  * notEvidenceFor: clinical realism, Quest readiness, or that this is the only cause of a dark frame.
+ *
+ * ## FIXED (#503) — 2026-08-21
+ *
+ * `it.fails` flipped. `reframeCameraForRoom`'s occlusion walk now classifies a room-surface mesh
+ * by its own name OR its nearest ancestor up to roomRoot (a multi-primitive GLB wall wraps its
+ * primitives in a Group carrying e.g. bedroom_0/1.wall while the primitives are named Circle022 /
+ * Circle022_1), and treats a wall the camera stands OUTSIDE of as a solid partition (world-AABB
+ * reject) rather than per-triangle — so the eye→look ray cannot pass through the dark wall's
+ * doorway to the cast.
+ *
+ * MEASURED LIVE (framing-rejection-report.json, tracked):
+ *   ward_delirium_med_rec_v1      median 28, p90 133, rejected [-4.3/3.0], panel false
+ *   ed_stroke_alert_handoff_v1    median 24, p90  69, rejected [-3.2/2.3, -1.6/2.3], panel true
+ * Both cameras inside; the dark panel (shader_dark_art) stays present and visible. The previously
+ * chosen -3.16 corner is now rejected and the capture picks +3.27, on the cast's side of the panel.
  */
 import { describe, expect, it } from "vitest";
 
@@ -63,7 +78,7 @@ async function load(): Promise<Record<string, Row>> {
 }
 
 describe("#503 the framing rejects a viewpoint blocked by room geometry", () => {
-  it.fails("(1) BOTH stations capture bright enough to grade — median >= 12", async () => {
+  it("(1) BOTH stations capture bright enough to grade — median >= 12", async () => {
     const s = await load();
     for (const id of [KNOWN_GOOD, TREATMENT]) {
       expect(s[id], `${id} missing from the report`).toBeTruthy();
@@ -71,7 +86,7 @@ describe("#503 the framing rejects a viewpoint blocked by room geometry", () => 
     }
   });
 
-  it.fails(
+  it(
     "(2) COUNTERWEIGHT: the known-good station is not brightened to get there — it stays in band 18..45",
     async () => {
       const s = await load();
@@ -80,7 +95,7 @@ describe("#503 the framing rejects a viewpoint blocked by room geometry", () => 
     },
   );
 
-  it.fails(
+  it(
     "(3) COUNTERWEIGHT: the dark panel is STILL in the scene and STILL visible — it is legitimate wall art, not the thing to delete",
     async () => {
       const s = await load();
@@ -88,7 +103,7 @@ describe("#503 the framing rejects a viewpoint blocked by room geometry", () => 
     },
   );
 
-  it.fails(
+  it(
     "(5) THE MECHANISM, not the outcome: the rejection actually FIRES on the blocked station — today its list is empty",
     async () => {
       const s = await load();
@@ -101,7 +116,7 @@ describe("#503 the framing rejects a viewpoint blocked by room geometry", () => 
     },
   );
 
-  it.fails(
+  it(
     "(4) COUNTERWEIGHT: the camera stays INSIDE the measured interior for both stations",
     async () => {
       const s = await load();
