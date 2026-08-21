@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { enumerateCachedGarments } from "./cached-garment-population.ts";
 
 /**
  * E1 slice 1 of the superagent portfolio, 2026-08-18 — CLASS, THE FOURTH QUESTION.
@@ -67,11 +68,22 @@ import { describe, expect, it } from "vitest";
  *     this contract bounds only that the measurement exists, discriminates, and enumerates.
  *   - Fit, coverage, drape, poke-through, licence. All measured elsewhere.
  *   - Whether a hospital gown exists. If the inventory says NOT FOUND, that is a successful outcome.
+ *
+ * ## FIXED (#512)
+ *
+ *   Clause (4) was blind: it asserted `inv.enumeratedFrom` matches /provider-cache/ and each row's
+ *   `sourcePath` contains "provider-cache" — both properties of the JSON FILE, so a hardcoded list
+ *   carrying the right strings passed it and a newly staged garment stayed invisible. It now
+ *   delegates to tools/openclinxr/evidence/cached-garment-population.ts and asserts the
+ *   RELATIONSHIP: every in-scope garment the enumerator walks out of the cache carries a class in
+ *   the inventory. No absolute count is asserted, so the guard holds on a worktree's provisioned
+ *   partial cache (7 files) and on a full machine cache (44 files) alike.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const INVENTORY = join(REPO_ROOT, "tools/openclinxr/evidence/garment-class-inventory.json");
+const CACHE = join(REPO_ROOT, ".openclinxr-local/provider-cache");
 
 /** The three garments whose class is not in dispute — the calibration column (§9h). */
 const KNOWN_GOOD: Readonly<Record<string, string>> = {
@@ -139,6 +151,12 @@ describe("every cached garment has a measured class", () => {
     // Refuses (c). A hardcoded list is wrong the day a garment is staged — which is exactly how the
     // rooms lane's crudegown sat unnoticed. §7j: whenever a check names its subjects explicitly,
     // that list is the thing that will be wrong later.
+    //
+    // ## FIXED (#512) — the guard was BLIND. It asserted strings in the JSON (`enumeratedFrom`
+    // matches /provider-cache/, each `sourcePath` contains "provider-cache") — both properties of
+    // the FILE. Nothing opened a directory, so a hardcoded list carrying the right strings passed
+    // it and a newly staged garment stayed invisible. Delegate to the enumerator and assert the
+    // RELATIONSHIP: the inventory covers whatever cache is actually present.
     const inv = inventory();
     expect(
       typeof inv.enumeratedFrom === "string" && /provider-cache/.test(inv.enumeratedFrom),
@@ -153,6 +171,15 @@ describe("every cached garment has a measured class", () => {
         r.sourcePath?.includes("provider-cache"),
         `${r.basename} must record the cache path it was measured from`,
       ).toBe(true);
+    }
+    // The population is enumerated from disk, never taken from the JSON. Every in-scope cached
+    // garment must carry a class; a newly staged garment is IN the population today (#512).
+    // Portable across a worktree's provisioned partial cache AND the full machine cache: this
+    // asserts the relationship (coverage), never an absolute count.
+    expect(existsSync(CACHE), "the provider cache must be readable for the population guard").toBe(true);
+    const classed = new Set(inv.rows.map((r) => r.basename));
+    for (const g of enumerateCachedGarments(CACHE)) {
+      expect(classed.has(g.basename), `${g.basename} is cached and in scope but carries no class`).toBe(true);
     }
   });
 });
