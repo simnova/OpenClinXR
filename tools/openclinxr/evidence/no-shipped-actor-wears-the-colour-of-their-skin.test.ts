@@ -98,7 +98,7 @@ describe("#508 no shipped actor wears the colour of their own skin", () => {
     expect(assets).toContain("mpfb-street-adult-male.glb");
   });
 
-  it.fails("(1) every VISIBLE garment contrasts with its own actor's skin", async () => {
+  it("(1) every VISIBLE garment contrasts with its own actor's skin", async () => {
     for (const glb of await shippedAssets()) {
       const skin = SKIN[glb];
       if (!skin) continue; // only actors whose skin mean is pinned above
@@ -133,3 +133,25 @@ describe("#508 no shipped actor wears the colour of their own skin", () => {
     }
   });
 });
+
+/**
+ * ## FIXED (#508) — appended; the planted header above is immutable
+ *
+ * CAUSE, measured: `mpfb-street-adult-male.glb` was the last shipped actor still carrying the
+ * pre-#506 `closed_casual` cream baseColorFactor (0.72, 0.68, 0.55) on both garments. #506 fixed
+ * the root cause in `automate_blender.py` (`_FABRIC_PALETTE_KIND_COLORS` `closed_casual` ->
+ * muted olive) but could not re-bake this asset — its worktree lacked the gitignored viseme/hair
+ * provider cache — so this GLB kept cream and read nude against its own skin (21.0 RGB).
+ *
+ * FIX = wire the SAME proven post-export tool #506 used on aisha,
+ * `patch_glb_base_color_factors` (materialize_mpfb_humanoid_candidate.py:697), verbatim, to set
+ * the two garment materials on the shipped GLB to the #506 olive (0.34, 0.44, 0.34). No full
+ * re-bake; only the JSON chunk's baseColorFactor entries change, so geometry/BIN/skin bytes are
+ * copied verbatim. The OCCLUDED exception (mpfb-gown-adult-patient's under-gown cream t-shirt)
+ * is untouched and stays exactly one entry.
+ *
+ * Post-fix measured (NodeIO): cargo_pants + toigo_t_shirt baseColorFactor (0.34, 0.44, 0.34) —
+ * 144.1 RGB from this actor's skin (198,172,156), clearing MIN_CONTRAST 60. Skin texture sha
+ * b6fed13037774c6a and garment vertex counts 8322/5400 unchanged. Family/child/aisha counterweight
+ * (clause 4) holds — none were touched.
+ */
