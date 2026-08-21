@@ -4282,13 +4282,29 @@ def main():
     # CC0/CC-0 per the licence ledger). patch_factor=False: the #180 contract pins footwear by
     # ASSET, not colour, and the #337/#338 ban on tinting via baseColorFactor when a texture is
     # bound applies — the declared texture IS the author's look.
-    _shoe_mat, _shoe_mat_record = garment_material_from_declared(
-        shoe_mhclo,
-        (0.10, 0.09, 0.08),
-        f"mat_makeclothes_library_footwear_{shoe_kind}",
-        mesh=shoe,
-        patch_factor=False,
-    )
+    # #502: a nurse/physician in toigo_flats' leopard "Shoe" print is not clinically plausible.
+    # The in-tree precedent (mpfb-gown-adult-patient) ships the SAME mesh with the texture
+    # stripped and the flat dark factor below. Follow it — strip the print for clinicians only.
+    # Patients legitimately wear it (ob patient aisha), and kevin's plain brown boots are a
+    # different shoe_kind and stay textured (the #502 counterweight clause floors their sd > 12).
+    if _is_clinician and shoe_kind == "toigo_flats":
+        _shoe_mat = make_material(
+            f"mat_makeclothes_library_footwear_{shoe_kind}", (0.10, 0.09, 0.08)
+        )
+        _shoe_mat_record = {
+            "name": f"mat_makeclothes_library_footwear_{shoe_kind}",
+            "consumed": False,
+            "reason": "#502: clinician toigo_flats stays plain — gown-patient precedent (strip leopard print)",
+        }
+        print(f"GARMENT_MATERIAL_PLAIN {json.dumps(_shoe_mat_record)}")
+    else:
+        _shoe_mat, _shoe_mat_record = garment_material_from_declared(
+            shoe_mhclo,
+            (0.10, 0.09, 0.08),
+            f"mat_makeclothes_library_footwear_{shoe_kind}",
+            mesh=shoe,
+            patch_factor=False,
+        )
     shoe.data.materials.append(_shoe_mat)
     mhclo_shoe = Mhclo()
     mhclo_shoe.load(str(shoe_mhclo))
