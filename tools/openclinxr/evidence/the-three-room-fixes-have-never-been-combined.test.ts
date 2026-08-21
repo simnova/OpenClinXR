@@ -88,7 +88,7 @@ const probe = (): Probe => (existsSync(ARTIFACT) ? JSON.parse(readFileSync(ARTIF
 const region = (id: string): Region | undefined => (probe().regions ?? []).find((r) => r.id === id);
 
 describe("the three room fixes have never been combined", () => {
-  it.fails("(1) RED: one capture has station lighting, aoMapIntensity 0 AND the materialised hull", () => {
+  it("(1) RED: one capture has station lighting, aoMapIntensity 0 AND the materialised hull", () => {
     const p = probe();
     expect(p.lightingVariant, `${ARTIFACT} missing — no combined capture exists`).toBeTypeOf("string");
     expect(p.lightingVariant, "must not be the control rig").not.toBe("control");
@@ -96,7 +96,7 @@ describe("the three room fixes have never been combined", () => {
     expect(p.hullMaterialsApplied, "the #534 hull assignment must be active").toBe(true);
   });
 
-  it.fails("(2) RED: wall, ceiling and floor are recorded as SEPARATE named regions with their rects", () => {
+  it("(2) RED: wall, ceiling and floor are recorded as SEPARATE named regions with their rects", () => {
     // #536 died because a whole-image mean averaged across things that were not the subject.
     for (const id of ["wall", "ceiling", "floor"]) {
       const r = region(id);
@@ -106,7 +106,7 @@ describe("the three room fixes have never been combined", () => {
     }
   });
 
-  it.fails("(3) RED: the rendered wall:ceiling ratio is not far below their albedo ratio", () => {
+  it("(3) RED: the rendered wall:ceiling ratio is not far below their albedo ratio", () => {
     const w = region("wall")?.meanL, c = region("ceiling")?.meanL;
     expect(w, "wall region missing").toBeTypeOf("number");
     expect(c, "ceiling region missing").toBeTypeOf("number");
@@ -138,3 +138,13 @@ describe("the three room fixes have never been combined", () => {
     expect(typeof p.camera, "the capture must state its camera").toBe("string");
   });
 });
+
+/*
+## FIXED (#543)
+- Probe: `tools/openclinxr/evidence/three-fixes-combined-probe.ts` extends #529 AO override +
+  #534 hull-on-load + #525 `room_environment_ibl` URL (D1 — no third harness).
+- Artifact: `three-fixes-combined-probe.json` + `three-fixes-combined/combined-ibl-ao0-hull.png`.
+- Measured (named regions): wallL=93.70 ceilingL=110.48 floorL=95.81; ratio=0.848 (≥ 0.37 floor).
+- Product default left at `control`; aoMapIntensity=0 is runtime-only in the probe (clause 4).
+- Premise check: `grep aoMapIntensity apps/ui-xr/src` still empty — NOT shipped.
+*/
