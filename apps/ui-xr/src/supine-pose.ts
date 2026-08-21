@@ -1,8 +1,12 @@
 /**
  * Procedural supine (recumbent) pose, authored on the 23-bone runtime subset (#150/#153/#159).
- * Each key resolves through `resolvePoseBone` (#306), so the recast MPFB2 MakeHuman rig (#491)
- * is posed too — `pelvis→root`, `spine→spine03`, `chest→spine01`, limbs to their first segments —
- * rather than silently skipped.
+ * Each key resolves through `resolvePoseBone` (#306), so a 23-bone rail posed by this table gets
+ * `pelvis→root`, `spine→spine03`, `chest→spine01`, limbs to their first segments — rather than
+ * silently skipped.
+ *
+ * #496: the 17 eulers are tuned against the 23-bone Anny rest pose. The MPFB2 recast (137 joints,
+ * `isMpfb2Rig`) skips them by default — on that rail they crumple the body (graded `#495`) while
+ * the root basis alone already renders a recognisable recumbent person. The Anny rail keeps them.
  *
  * ED chest-pain patient lies on the procedural stretcher deck — not a standing figure
  * tipped with one root euler (that clips rails and reads as a rigid plank).
@@ -21,6 +25,7 @@ import {
   resolvePoseBone,
 } from "@openclinxr/asset-registry";
 import { collectJointNames, resolveRotationMap, sanitiseBoneName } from "./pose-bone-runtime.js";
+import { isMpfb2Rig } from "./seated-pose-mpfb2.js";
 
 const d2r = (deg: number) => (deg * Math.PI) / 180;
 
@@ -86,13 +91,14 @@ export type ApplySupinePoseResult = {
 };
 
 /**
- * #495 ablation — opt-in control over the pose's two mechanisms. Existing callers
- * omit the options object and are unchanged.
+ * #495 ablation seam, now the #496 rail decision — `applyJointEulers` defaults per rail
+ * (true on Anny, false on MPFB2) and can be overridden explicitly.
  */
 export type ApplySupinePoseOptions = {
   /**
    * When false, apply only the on-back root basis and skip the 17 joint eulers.
-   * Default true preserves today's behaviour.
+   * Default: true on the Anny rail (the 23-bone rest the table was tuned for),
+   * false on the MPFB2 rail (#496) — unless explicitly set here.
    */
   applyJointEulers?: boolean;
 };
@@ -116,7 +122,10 @@ function applyEuler(
  * Call plantSupineBodyOnDeck after this to rest the back on the deck top.
  */
 export function applySupinePose(humanoidRoot: Object3D, options: ApplySupinePoseOptions = {}): ApplySupinePoseResult {
-  const applyJointEulers = options.applyJointEulers !== false;
+  const jointNames = collectJointNames(humanoidRoot);
+  // #496: the 17 SUPINE_BONE_EULERS are tuned against the 23-bone Anny rest pose. On the
+  // MPFB2 recast they are the crumple (#495), so that rail skips them by default.
+  const applyJointEulers = options.applyJointEulers ?? !isMpfb2Rig(jointNames);
   const binding = clipBindingForPosture("supine");
   humanoidRoot.userData.openClinXrActorPosture = "supine";
   humanoidRoot.userData.openClinXrPostureClipName = binding.clipName;
@@ -136,7 +145,7 @@ export function applySupinePose(humanoidRoot: Object3D, options: ApplySupinePose
   if (applyJointEulers) {
     // #306: resolve canonical landmarks against the bones actually on this rig so MPFB2 actors
     // (upperarm01.L / upperleg01.L / spine03 ...) get posed instead of silently skipped.
-    const resolvedEulers = resolveRotationMap(SUPINE_BONE_EULERS, collectJointNames(humanoidRoot));
+    const resolvedEulers = resolveRotationMap(SUPINE_BONE_EULERS, jointNames);
 
     humanoidRoot.traverse((object) => {
       const rotation = resolvedEulers.get(sanitiseBoneName(object.name));
@@ -162,7 +171,7 @@ export function applySupinePose(humanoidRoot: Object3D, options: ApplySupinePose
   humanoidRoot.userData.openClinXrSupinePoseBones = bonesTouched;
   // Staging marker for #153 contracts: neck last written by the supine map.
   // #306: the neck landmark may resolve to `neck01` on the MPFB2 rig, so compare resolved names.
-  const resolvedNeck = resolvePoseBone("neck", collectJointNames(humanoidRoot));
+  const resolvedNeck = resolvePoseBone("neck", jointNames);
   humanoidRoot.userData.openClinXrNeckPoseSource = resolvedNeck !== null && bonesTouched.includes(resolvedNeck)
     ? "supine_map"
     : "supine_map_missing_neck";

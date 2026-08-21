@@ -152,6 +152,8 @@ export type SupineJointDump = {
   resolvedBones: Record<string, string | null>;
   posedMeshAabb: { min: { x: number; y: number; z: number }; max: { x: number; y: number; z: number } };
   meshCount: number;
+  /** #496: sanitised joint-name set size (collectJointNames) — 23 on Anny, >100 on MPFB2. */
+  jointCount: number;
   /** #495 ablation: true — this dump is only written after applyAndPlantSupineOnDeck ran. */
   ranSupineCall: boolean;
   /** #495 ablation: false when applySupinePose was called with applyJointEulers=false (root basis only). */
@@ -300,6 +302,7 @@ function dumpSupineJointState(
       max: { x: round3(aabb.max.x), y: round3(aabb.max.y), z: round3(aabb.max.z) },
     },
     meshCount,
+    jointCount: jointNames.size,
     ranSupineCall: true,
     appliedJointEulers: ((humanoid.userData.openClinXrSupinePoseBones as string[] | undefined) ?? []).length > 0,
   };
