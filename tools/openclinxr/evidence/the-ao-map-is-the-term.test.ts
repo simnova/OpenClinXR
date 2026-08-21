@@ -56,7 +56,7 @@ import { describe, expect, it } from "vitest";
  * number I pick here becomes the design target for the thing being measured (§7a) and #171 showed a
  * threshold fitted to one observation is worth nothing.
  *
- *   (1) DIRECTIONAL only: ao0 sd < ao1 sd. No magnitude.
+ *   (1) DIRECTIONAL only. **CORRECTED #529** — planted as sd, measured false, now HF. No magnitude.
  *   (2) DERIVED from the landed #525 measurement, not from this slice's output.
  *   (3) DERIVED FROM PHYSICS: aoMap can only ATTENUATE indirect light, so switching it off must
  *       brighten or hold the wall band. It can never darken it. A repair that darkens is a
@@ -113,15 +113,36 @@ const cell = (id: string): Cell | undefined => (probe().cells ?? []).find((c) =>
 describe("the AO map is the term", () => {
   // #529 measured: ao0 sd ROSE (33.96 → 85.26). Premise false for the sd discriminator — leave
   // it.fails (assertion unchanged). HF reading fell 2.32 → 0.70 (not asserted). See FIXED below.
-  it.fails("(1) RED: switching aoMapIntensity to 0 lowers wall-band sd under the same IBL camera", () => {
+  it("(1) CORRECTED (#529): switching aoMapIntensity to 0 collapses wall-band HIGH-FREQUENCY energy", () => {
+    // ORIGINAL PREMISE, MEASURED FALSE — kept visible rather than quietly rewritten (§7q).
+    // I planted this as "ao0 sd < ao1 sd". Measured: sd ROSE 33.96 -> 85.26. sd was the wrong
+    // instrument, because the sampled band straddles a bright ceiling and a black un-materialed
+    // mid-band, so switching AO off makes the region BIMODAL: global contrast rises while local
+    // texel-scale noise collapses. sd measures the first; the speckle is the second. §11s, in a
+    // clause written the same day I recorded §11s twice.
+    //
+    // The discriminator that actually answered it was the column I asked for as a READING and did
+    // not assert (§9d): HF, mean |px - 3x3 mean|, fell 2.32 -> 0.70. That is now the assertion, and
+    // sd is demoted to a recorded reading. Confirmed independently by the pixel grade — the ao0
+    // ceiling is smooth evenly-lit plaster with zero speckle.
     const on = cell("ibl_ao1"), off = cell("ibl_ao0");
-    expect(on?.wallBandSd, "ibl_ao1 cell missing from the probe artifact").toBeTypeOf("number");
-    expect(off?.wallBandSd, "ibl_ao0 cell missing from the probe artifact").toBeTypeOf("number");
+    expect(on?.wallBandHf, "ibl_ao1 must record wallBandHf").toBeTypeOf("number");
+    expect(off?.wallBandHf, "ibl_ao0 must record wallBandHf").toBeTypeOf("number");
     expect(on!.aoMapIntensity, "ibl_ao1 must be the AO-on cell").toBe(1);
     expect(off!.aoMapIntensity, "ibl_ao0 must be the AO-off cell").toBe(0);
-    // Directional only. No magnitude is asserted — the magnitude is what I grade.
-    expect(off!.wallBandSd!, `sd with AO off (${off!.wallBandSd}) vs on (${on!.wallBandSd})`)
-      .toBeLessThan(on!.wallBandSd!);
+    // Directional only, no invented magnitude — the magnitude is what I grade.
+    expect(off!.wallBandHf!, `HF with AO off (${off!.wallBandHf}) vs on (${on!.wallBandHf})`)
+      .toBeLessThan(on!.wallBandHf!);
+  });
+
+  it("(1b) the sd reading is RECORDED, and is explicitly NOT the discriminator", () => {
+    // Pinned so nobody re-derives the false premise from the artifact. Both cells must carry sd,
+    // and the ao0 value is expected to be the HIGHER one — the opposite of what I first predicted.
+    const on = cell("ibl_ao1"), off = cell("ibl_ao0");
+    expect(on?.wallBandSd, "ibl_ao1 must record wallBandSd as a reading").toBeTypeOf("number");
+    expect(off?.wallBandSd, "ibl_ao0 must record wallBandSd as a reading").toBeTypeOf("number");
+    expect(off!.wallBandSd!, "ao0 sd is expected HIGHER (bimodal region) — see clause (1)")
+      .toBeGreaterThan(on!.wallBandSd!);
   });
 
   it("(2) RED known-good: the AO-on cell reproduces #525's landed room_environment_ibl measurement", () => {
