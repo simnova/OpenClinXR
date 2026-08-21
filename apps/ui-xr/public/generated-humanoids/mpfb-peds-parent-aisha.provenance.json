@@ -20,7 +20,7 @@
     "materializedFrom": "same default-macro adult-female body as mpfb-ob-patient-aisha (no --reference); dedicated family-palette variant so peds parent and OB patient are not one GLB",
     "sourceRecordPath": ".openclinxr-local/provider-cache/mpfb/",
     "generator": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "derivationNote": "Issue #388 (2026-08-14): second aisha-body variant for peds parent_tara_johnson_v1. Recolouring mpfb-ob-patient-aisha.glb would collide with Omar (muted rose already on ed_chest_pain_spouse_adult) and the OB patient must stay cream. Bake: blender --background --python tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py -- --output apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb --actor-role parent (no --reference — the aisha default-macro path). garment_shell_color maps closed_casual + role=parent to muted_rose_and_neutral; exported upper+lower baseColorFactor (0.42, 0.36, 0.40). Fitted hair is the same toigo_blunt_bob_with_bangs CC0 bob #381 proved on aisha. Iris is family green via eye_iris_colour. Anatomical eye target 24.0 mm (same adult as aisha). Placeholder scalp paint retired. Child cream, kevin teal, OB aisha cream unchanged."
+    "derivationNote": "Issue #388 (2026-08-14): second aisha-body variant for peds parent_tara_johnson_v1. Recolouring mpfb-ob-patient-aisha.glb would collide with Omar (muted rose already on ed_chest_pain_spouse_adult) and the OB patient must stay cream. Bake: blender --background --python tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py -- --output apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb --actor-role parent (no --reference \u2014 the aisha default-macro path). garment_shell_color maps closed_casual + role=parent to muted_rose_and_neutral; exported upper+lower baseColorFactor (0.42, 0.36, 0.40). Fitted hair is the same toigo_blunt_bob_with_bangs CC0 bob #381 proved on aisha. Iris was family green via eye_iris_colour until #519 rebake selected case brown via --eye-colour-reference peds_anxious_parent. Anatomical eye target 24.0 mm (same adult as aisha). Placeholder scalp paint retired. Child cream, kevin teal, OB aisha cream unchanged."
   },
   "licenseChain": {
     "status": "mpfb2_makehuman_license_not_reverified_at_promotion",
@@ -61,12 +61,13 @@
     "scene_placement_readiness"
   ],
   "sourceNotes": [
-    "Issue #388: dedicated peds-parent variant. Same adult-female default-macro body as OB aisha; --actor-role parent so shirt and cargo take muted_rose_and_neutral. Do not recolour mpfb-ob-patient-aisha.glb. Do not gown anyone. Do not runtime-recolour. Do not orchestrate_character."
+    "Issue #388: dedicated peds-parent variant. Same adult-female default-macro body as OB aisha; --actor-role parent so shirt and cargo take muted_rose_and_neutral. Do not recolour mpfb-ob-patient-aisha.glb. Do not gown anyone. Do not runtime-recolour. Do not orchestrate_character.",
+    "Issue #519 (2026-08-21): rebaked via materialize_mpfb_humanoid_candidate.py --actor-role parent --eye-colour-reference peds_anxious_parent so eye_iris_colour selects case brown (not family green). Colour came through the #518 selector, not a hand-swapped iris. Maya unrebaked. Garment .mhmat+diffuse (Shoe.png, T-shirt_basic.png) must be staged or footwear/t-shirt textures drop."
   ],
   "claimScope": "second_mpfb2_aisha_body_variant_for_peds_parent_not_readiness",
   "promotionGates": false,
-  "outputSha256": "c3e6d093ed4ae00ba137bddb04db66c55897db0a5546e45c5786f5edaabf6b5a",
-  "outputBytes": 21574848,
-  "generatedAt": "2026-08-14T12:01:00Z",
-  "method": "mpfb2_materializer_rebake_family_palette_on_aisha_body"
+  "outputSha256": "f51eef7296e65fc6d2b165413d1cfea47b333914e9aed5d50b8571f70ce46ea5",
+  "outputBytes": 22918052,
+  "generatedAt": "2026-08-21T15:18:19.255Z",
+  "method": "mpfb2_materializer_rebake_family_palette_on_aisha_body_case_brown_iris_519"
 }
