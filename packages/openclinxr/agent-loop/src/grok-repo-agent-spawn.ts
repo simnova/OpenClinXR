@@ -23,6 +23,7 @@ import {
 } from "./spawn-isolation.js";
 import {
   WORKER_OUTPUT_BUDGET_DIRECTIVE,
+  WORKER_PLANTED_CONTRACT_DIRECTIVE,
   WORKER_SHARED_TREE_DIRECTIVE,
   WORKER_STATUS_REPORTING_DIRECTIVE,
   WORKER_TONE_DIRECTIVE,
@@ -82,6 +83,7 @@ export type GrokRepoAgentSpawnRegistryReport = {
 
 export {
   WORKER_OUTPUT_BUDGET_DIRECTIVE,
+  WORKER_PLANTED_CONTRACT_DIRECTIVE,
   WORKER_SHARED_TREE_DIRECTIVE,
   WORKER_STATUS_REPORTING_DIRECTIVE,
   WORKER_TONE_DIRECTIVE,
@@ -213,8 +215,8 @@ export function buildRepoAgentSpawnPrompt(input: {
     ? " MULTIMODAL: images/cagematch/UI-XR/png/webm/Imagine/trellis → grok-4.6; never deepseek text-only for vision."
     : "";
   const escalateLadder = isMultimodal
-    ? "UNABLE: escalate grok-4.6 → grok-build (no deepseek for vision)."
-    : "UNABLE: escalate flash → pro → grok-build (cheap-first).";
+    ? "(grok-4.6 → grok-build, no deepseek for vision)"
+    : "(flash → pro → grok-build, cheap-first)";
   const compositionPointer =
     isWriter
       ? "COMPOSITION-ROOTS: feature→packages; apps compose/boot only; tools CLI. Residual topology/DI/seedwork → architect. See docs/agent-ops/COMPOSITION-ROOTS.md."
@@ -224,7 +226,7 @@ export function buildRepoAgentSpawnPrompt(input: {
     ? [
         `WORKER ENV: headless/--yolo launches MUST use ${OPENCLINXR_WORKER_ENV.headlessPrefix} ${GROK_SUBAGENTS_ENV.headlessPrefix}.`,
         "When OPENCLINXR_WORKER=1, SessionStart docs hygiene + CEO coord hooks NO-OP; do NOT edit PROJECT_STATUS.md, docs/openclinxr/*registry*, docs/_archive/**, AGENTS.md.",
-        "When GROK_SUBAGENTS=1, headless grok -p exposes spawn_subagent for multi-level cost-tiering.",
+        "When GROK_SUBAGENTS=1, headless grok -p exposes spawn_subagent.",
         `TEMP: export ${OPENCLINXR_JOB_TMP_CONVENTION.envVar}=${OPENCLINXR_JOB_TMP_CONVENTION.pattern}; files as ${OPENCLINXR_JOB_TMP_CONVENTION.filePattern}; FORBID fixed ${OPENCLINXR_JOB_TMP_CONVENTION.forbidExample}.`,
         "PORTS: distinct portless/dev ports per job (never share one fixed port).",
       ].join(" ")
@@ -232,15 +234,16 @@ export function buildRepoAgentSpawnPrompt(input: {
   const fanOutBlock = largeTask || isWriter
     ? largeTask
       ? `LARGE-TASK FAN-OUT (required): decompose into N≥2 disjoint file-scoped workstreams; each gets worktree isolation + unique ${OPENCLINXR_JOB_TMP_CONVENTION.envVar} + distinct ports; prefer deepseek-v4-pro workers over solo frontier. See ${LARGE_TASK_ORCHESTRATION_SKILL}.`
-      : `If task spans multiple packages/meshes/files: self-decompose into disjoint workstreams (worktree + unique temp + ports) rather than soloing on frontier.`
+      : `If task spans multiple packages/meshes/files: self-decompose into disjoint workstreams (worktree + unique temp + ports).`
     : "";
   return [
     WORKER_TONE_DIRECTIVE,
     WORKER_OUTPUT_BUDGET_DIRECTIVE,
     WORKER_STATUS_REPORTING_DIRECTIVE,
+    WORKER_PLANTED_CONTRACT_DIRECTIVE,
     `Role \`${input.roleId}\` @ /Volumes/files/src/openclinxr. OpenClaw file-backed (not external runtime).`,
-    "Rehydrate: pathScope (below) + charter Persona + memory tight limit + PROJECT_STATUS snapshot header only if needed; no full AGENTS.md/LEX unless UNABLE.",
-    `Read ${input.roleDir}/charter.md (## Persona) + ${input.roleDir}/memory.md (tight).`,
+    "Rehydrate: pathScope (below) + charter Persona + memory (tight) + PROJECT_STATUS snapshot header as needed; no full AGENTS.md/LEX unless UNABLE. " +
+    `Read ${input.roleDir}/charter.md + memory.md.`,
     "MANDATE_VISIBILITY: agents/rules/MANDATE_VISIBILITY.md + LEX (pointer only).",
     compositionPointer,
     `Tier: ${input.policy.policyTier}; model: ${effectiveModel}${multimodalNote ? " (multimodal)" : ""}; task: ${input.policy.taskType}.`,
@@ -249,7 +252,7 @@ export function buildRepoAgentSpawnPrompt(input: {
     workerEnvBlock,
     fanOutBlock,
     formatPathScopeBlock(input.policy.pathScope),
-    `ESCALATION: emit "UNABLE:" + reason + recommended helper. ${escalateLadder} Coordinator spawns via spawn-spec.`,
+    `ESCALATION: emit "UNABLE:" + reason + recommended helper ${escalateLadder}. Coordinator spawns via spawn-spec.`,
     input.task ?? "Return findings, blockers, recommended next slice, file paths. Q1/Q4/Q5.",
     input.policy.sandboxMode === "read-only"
       ? "Read-only unless assigned non-overlapping write scope."

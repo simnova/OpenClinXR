@@ -291,7 +291,7 @@ export function assertTouchedWithinWriteRoots(
  * Used by formatPathScopeBlock + parent spawn checklist warnings.
  */
 export const PREFERRED_CLI_SOFT_WARN =
-  "If running package tests/builds, prefer preferredCli filters; avoid root-wide pnpm test/typecheck unless slice requires monorepo gate.";
+  "prefer preferredCli filters; avoid root-wide test/typecheck unless slice requires monorepo gate.";
 
 /**
  * Roles that may use image_gen / image_edit / video tools for multimodal evidence.

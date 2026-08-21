@@ -46,6 +46,29 @@
  *
  * claimScope: whether a dispatched worker is told the planted-contract convention, within budget.
  * notEvidenceFor: that any worker then follows it (#501 measured that prose alone does not bind).
+ *
+ * ## FIXED (#511) — 2026-08-21
+ *
+ * `it.fails` flipped. A fifth directive, WORKER_PLANTED_CONTRACT_DIRECTIVE, is baked into the
+ * composition array in buildRepoAgentSpawnPrompt (grok-repo-agent-spawn.ts:243) and imported
+ * from worker-directives.ts, so every dispatched worker is handed the three planted-contract
+ * rules verbatim: headers IMMUTABLE, flip it.fails -> it + ## FIXED (#N), and a rejection
+ * verdict still flips (the clause asserts the REPORT, not the outcome). Room was funded without
+ * raising the 4500 cap: WORKER_TONE_DIRECTIVE compressed 242 -> 191 chars (all five tone
+ * semantics retained, >80 floor; mirror terse-bluf.toml synced), the Rehydrate + Read-charter
+ * lines merged, PREFERRED_CLI_SOFT_WARN shortened (documented overlap with the output-budget
+ * directive), and explanation-only tails trimmed from the worker-env/fan-out/escalation lines.
+ *
+ * MEASURED LIVE (buildRepoAgentSpawnPrompt output, task "T" as the test invokes it):
+ *   chief-coordinator              3144   headroom 1356
+ *   asset-pipeline-lead            4224   headroom  276
+ *   xr-systems-architect           4222   headroom  278
+ *   hrbp                           4042   headroom  458
+ *   openclaw-drift-police          2753   headroom 1747
+ *   license-provenance-specialist  2708   headroom 1792
+ * All six prompts match IMMUTABLE / it.fails / rejection / inverted guard; the four pre-existing
+ * directives remain >80 chars. Binding constraint is the no-task variant (role-harness-policy
+ * test): architect 4465, headroom 35 — better than the 11 it had before this slice.
  */
 import { describe, expect, it } from "vitest";
 
@@ -74,7 +97,7 @@ describe("#511 the spawn prompt states the planted-contract convention", () => {
     for (const [r, text] of Object.entries(p)) expect(text.length, `${r} empty`).toBeGreaterThan(1000);
   });
 
-  it.fails("(1) every dispatched worker is told the three planted-contract rules", async () => {
+  it("(1) every dispatched worker is told the three planted-contract rules", async () => {
     for (const [role, text] of Object.entries(await prompts())) {
       expect(text, `${role}: header immutability`).toMatch(/IMMUTABLE/i);
       expect(text, `${role}: when to flip`).toMatch(/it\.fails/);
