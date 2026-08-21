@@ -1,0 +1,105 @@
+{
+  "generatedBy": "tools/openclinxr/evidence/waist-fit-coverage-write.ts",
+  "enumeratedFrom": "live-scenario-actor-cast.ts + library known-good rails",
+  "subjects": [
+    {
+      "id": "body-param-adult_heavy_male-library",
+      "source": "library",
+      "overlapMm": 5,
+      "bucketCount": 16,
+      "upperName": "mat_makeclothes_library_scrub_shirt_adult_heavy_male",
+      "lowerName": "mat_makeclothes_library_cargo_pants_adult_heavy_male.001",
+      "gapped": 0
+    },
+    {
+      "id": "body-param-adult_lean_female-library",
+      "source": "library",
+      "overlapMm": 5,
+      "bucketCount": 12,
+      "upperName": "mat_makeclothes_library_toigo_basic_tucked_t_shirt_adult_lean_female",
+      "lowerName": "mat_makeclothes_library_cargo_pants_adult_lean_female.001",
+      "gapped": 0
+    },
+    {
+      "id": "mpfb-clinical-nurse-adult",
+      "source": "cast",
+      "overlapMm": 2.6,
+      "bucketCount": 36,
+      "upperName": "mat_makeclothes_library_scrub_shirt",
+      "lowerName": "mat_makeclothes_library_scrub_pants",
+      "gapped": 0
+    },
+    {
+      "id": "mpfb-clinical-physician-adult",
+      "source": "cast",
+      "overlapMm": 2.6,
+      "bucketCount": 36,
+      "upperName": "mat_makeclothes_library_scrub_shirt",
+      "lowerName": "mat_makeclothes_library_scrub_pants",
+      "gapped": 0
+    },
+    {
+      "id": "mpfb-family-partner-adult",
+      "source": "cast",
+      "overlapMm": 5,
+      "bucketCount": 35,
+      "upperName": "mat_makeclothes_library_toigo_t_shirt",
+      "lowerName": "mat_makeclothes_library_cargo_pants.001",
+      "gapped": 0
+    },
+    {
+      "id": "mpfb-gown-adult-patient",
+      "source": "cast",
+      "skipped": true,
+      "skipReason": "no lower trouser mesh — gowned or single-layer wardrobe; waist meet is not applicable",
+      "upperName": "mat_makeclothes_library_toigo_t_shirt",
+      "lowerName": null,
+      "gapped": 0
+    },
+    {
+      "id": "mpfb-ob-patient-aisha",
+      "source": "cast",
+      "overlapMm": 5,
+      "bucketCount": 36,
+      "upperName": "mat_makeclothes_library_toigo_t_shirt",
+      "lowerName": "mat_makeclothes_library_cargo_pants.001",
+      "gapped": 0
+    },
+    {
+      "id": "mpfb-peds-nurse-kevin",
+      "source": "cast",
+      "overlapMm": 2.6,
+      "bucketCount": 36,
+      "upperName": "mat_makeclothes_library_scrub_shirt",
+      "lowerName": "mat_makeclothes_library_scrub_pants",
+      "gapped": 0
+    },
+    {
+      "id": "mpfb-peds-parent-aisha.motion-bind",
+      "source": "cast",
+      "overlapMm": 5,
+      "bucketCount": 36,
+      "upperName": "mat_makeclothes_library_toigo_t_shirt",
+      "lowerName": "mat_makeclothes_library_cargo_pants.001",
+      "gapped": 0
+    },
+    {
+      "id": "mpfb-peds-patient-child",
+      "source": "cast",
+      "overlapMm": 5,
+      "bucketCount": 36,
+      "upperName": "mat_makeclothes_library_toigo_t_shirt",
+      "lowerName": "mat_makeclothes_library_cargo_pants.001",
+      "gapped": 0
+    },
+    {
+      "id": "mpfb-street-adult-male",
+      "source": "cast",
+      "overlapMm": 5,
+      "bucketCount": 34,
+      "upperName": "mat_makeclothes_library_toigo_t_shirt",
+      "lowerName": "mat_makeclothes_library_cargo_pants.001",
+      "gapped": 0
+    }
+  ]
+}
