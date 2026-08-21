@@ -1,0 +1,2171 @@
+{
+  "schemaVersion": "openclinxr.room-primitive-material-probe.v1",
+  "generatedAt": "2026-08-21T18:49:24.985Z",
+  "room": "infinigen-primary-care-clinic",
+  "scenarioId": "primary_care_dyslipidemia_joint_pain_v1",
+  "claimScope": "whether every primitive in the shipped Infinigen room shells carries a material in the live three.js scene graph after loader-side plaster-derived assignment; GLBs unmodified",
+  "notEvidenceFor": [
+    "product lighting default",
+    "AO remedy",
+    "plaster_albedo_variation_R2",
+    "quest_readiness",
+    "clinical_validity",
+    "whether walls look correct"
+  ],
+  "shells": [
+    {
+      "glb": "infinigen-adult-ed-abdominal-bay.glb",
+      "prims": [
+        {
+          "mesh": "kitchen_00wall",
+          "material": "shader_plaster.002",
+          "visible": true,
+          "worldExtent": [
+            6.500002145408654,
+            2.401069164276123,
+            6.375536253513195
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "kitchen_00floor",
+          "material": "shader_rug",
+          "visible": true,
+          "worldExtent": [
+            6.251071653447976,
+            1.4901161193847656e-8,
+            6.2510702229370825
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "kitchen_00ceiling",
+          "material": "shader_plaster.025",
+          "visible": true,
+          "worldExtent": [
+            6.251071653447976,
+            0,
+            6.2510702229370825
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "kitchen_00exterior",
+          "material": "shader_plaster.002__load_fill",
+          "assignedAtLoad": true,
+          "visible": true,
+          "worldExtent": [
+            6.500002191635716,
+            2.6500000953674316,
+            6.5000021916357165
+          ],
+          "side": "DoubleSide",
+          "materialSource": "shader_plaster.002",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "glb": "infinigen-behavioral-health-private.glb",
+      "prims": [
+        {
+          "mesh": "dining-room_00wall",
+          "material": "shader_plaster.009",
+          "visible": true,
+          "worldExtent": [
+            5.0000020130057425,
+            2.4116004705429077,
+            5.880801902917478
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "dining-room_00floor",
+          "material": "shader_ceramic_shader_rectangle_tile_tile.003",
+          "visible": true,
+          "worldExtent": [
+            4.880802220006981,
+            1.4901161193847656e-8,
+            5.761602109918716
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "dining-room_00ceiling",
+          "material": "shader_plaster.021",
+          "visible": true,
+          "worldExtent": [
+            4.880802220006981,
+            2.384185791015625e-7,
+            5.761602109918716
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "dining-room_00exterior",
+          "material": "shader_plaster.009__load_fill",
+          "assignedAtLoad": true,
+          "visible": true,
+          "worldExtent": [
+            5.000002057276923,
+            2.6500000953674316,
+            6.000001651645057
+          ],
+          "side": "DoubleSide",
+          "materialSource": "shader_plaster.009",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "glb": "infinigen-ed-exam-bay.glb",
+      "prims": [
+        {
+          "mesh": "dining-room_00wall",
+          "material": "shader_plaster.014",
+          "visible": true,
+          "worldExtent": [
+            6.3755340576171875,
+            2.401069164276123,
+            6.375534534454346
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "dining-room_00floor",
+          "material": "shader_ceramic_shader_square_tile_tile.002",
+          "visible": true,
+          "worldExtent": [
+            6.3755340576171875,
+            2.9802322387695312e-8,
+            6.25106954574585
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "dining-room_00ceiling",
+          "material": "shader_plaster.021",
+          "visible": true,
+          "worldExtent": [
+            6.251069068908691,
+            0,
+            6.25106954574585
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "dining-room_00exterior",
+          "material": "shader_plaster.014__load_fill",
+          "assignedAtLoad": true,
+          "visible": true,
+          "worldExtent": [
+            6.5,
+            2.6500000953674316,
+            6.5
+          ],
+          "side": "DoubleSide",
+          "materialSource": "shader_plaster.014",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "glb": "infinigen-ed-stroke-bay.glb",
+      "prims": [
+        {
+          "mesh": "Circle022",
+          "material": "shader_plaster.001",
+          "visible": true,
+          "worldExtent": [
+            6.887369155883789,
+            2.424761176109314,
+            6.887368679046631
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "Circle022_1",
+          "material": "shader_dark_art.001",
+          "visible": true,
+          "worldExtent": [
+            0.11263084411621094,
+            2.424737811088562,
+            3.5
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "bedroom_01floor",
+          "material": "shader_wood_shader_crossed_tile_tile",
+          "visible": true,
+          "worldExtent": [
+            6.887369155883789,
+            0.000011675059795379639,
+            6.77473783493042
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "bedroom_01ceiling",
+          "material": "shader_plaster.019",
+          "visible": true,
+          "worldExtent": [
+            6.774738311767578,
+            0.000011682510375976562,
+            6.77473783493042
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "bedroom_01exterior",
+          "material": "shader_plaster.001__load_fill",
+          "assignedAtLoad": true,
+          "visible": true,
+          "worldExtent": [
+            7,
+            2.6500000953674316,
+            7
+          ],
+          "side": "DoubleSide",
+          "materialSource": "shader_plaster.001",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "glb": "infinigen-inpatient-ward.glb",
+      "prims": [
+        {
+          "mesh": "bedroom_00wall",
+          "material": "shader_plaster.007",
+          "visible": true,
+          "worldExtent": [
+            9.000001190570835,
+            2.447732448577881,
+            7.884795594191715
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "bedroom_00floor",
+          "material": "shader_dirt_shader_staggered_tile_tile",
+          "visible": true,
+          "worldExtent": [
+            9.000001173175281,
+            0.014071866869926453,
+            7.769590067839786
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "bedroom_00ceiling",
+          "material": "shader_plaster.020",
+          "visible": true,
+          "worldExtent": [
+            8.76958964363423,
+            0.014071941375732422,
+            7.769589794630034
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "bedroom_00exterior",
+          "material": "shader_plaster.007__load_fill",
+          "assignedAtLoad": true,
+          "visible": true,
+          "worldExtent": [
+            9.000001207966456,
+            2.6500000953674316,
+            8.000001597380802
+          ],
+          "side": "DoubleSide",
+          "materialSource": "shader_plaster.007",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "glb": "infinigen-ob-triage.glb",
+      "prims": [
+        {
+          "mesh": "dining-room_00wall",
+          "material": "shader_plaster.002",
+          "visible": true,
+          "worldExtent": [
+            6.000000739696565,
+            2.447577476501465,
+            4.898789834960411
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "dining-room_00floor",
+          "material": "shader_marble_shader_rectangle_tile_tile.003",
+          "visible": true,
+          "worldExtent": [
+            6.0000007244140825,
+            7.450580596923828e-9,
+            4.7975785255274275
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "dining-room_00ceiling",
+          "material": "shader_plaster.023",
+          "visible": true,
+          "worldExtent": [
+            5.89878917656252,
+            0,
+            4.797578510244909
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "dining-room_00exterior",
+          "material": "shader_plaster.002__load_fill",
+          "assignedAtLoad": true,
+          "visible": true,
+          "worldExtent": [
+            6.000000754979013,
+            2.6500000953674316,
+            5.000000905974815
+          ],
+          "side": "DoubleSide",
+          "materialSource": "shader_plaster.002",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "glb": "infinigen-oncology-consult.glb",
+      "prims": [
+        {
+          "mesh": "dining-room_00wall",
+          "material": "shader_plaster.002",
+          "visible": true,
+          "worldExtent": [
+            5.5,
+            2.408876895904541,
+            5.379438400268555
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "dining-room_00floor",
+          "material": "shader_wood_shader_staggered_tile_tile",
+          "visible": true,
+          "worldExtent": [
+            5.5,
+            1.4901161193847656e-8,
+            5.258876800537109
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "dining-room_00ceiling",
+          "material": "shader_plaster.030",
+          "visible": true,
+          "worldExtent": [
+            5.5,
+            2.384185791015625e-7,
+            5.258876800537109
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "dining-room_00exterior",
+          "material": "shader_plaster.002__load_fill",
+          "assignedAtLoad": true,
+          "visible": true,
+          "worldExtent": [
+            5.5,
+            2.6500000953674316,
+            5.5
+          ],
+          "side": "DoubleSide",
+          "materialSource": "shader_plaster.002",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "glb": "infinigen-pediatric-fever-urgent-care.glb",
+      "prims": [
+        {
+          "mesh": "Circle037",
+          "material": "shader_plaster.019",
+          "visible": true,
+          "worldExtent": [
+            6.5,
+            2.430975317955017,
+            6.280975341796875
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "Circle037_1",
+          "material": "shader_text.001",
+          "visible": true,
+          "worldExtent": [
+            6.280975341796875,
+            2.430975317955017,
+            0
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "bedroom_01floor",
+          "material": "shader_marble_shader_square_tile_tile.002",
+          "visible": true,
+          "worldExtent": [
+            6.5,
+            7.450580596923828e-9,
+            6.280975341796875
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "bedroom_01ceiling",
+          "material": "shader_plaster.037",
+          "visible": true,
+          "worldExtent": [
+            6.280975341796875,
+            0,
+            6.280975341796875
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "bedroom_01exterior",
+          "material": "shader_plaster.019__load_fill",
+          "assignedAtLoad": true,
+          "visible": true,
+          "worldExtent": [
+            6.5,
+            2.6500000953674316,
+            6.5
+          ],
+          "side": "DoubleSide",
+          "materialSource": "shader_plaster.019",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "glb": "infinigen-pediatric-urgent-care-bay.glb",
+      "prims": [
+        {
+          "mesh": "kitchen_00wall",
+          "material": "shader_plaster.005",
+          "visible": true,
+          "worldExtent": [
+            5.390678792850185,
+            2.458060383796692,
+            5.390678554431703
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "kitchen_00floor",
+          "material": "shader_wood_shader_crossed_tile_tile.001",
+          "visible": true,
+          "worldExtent": [
+            5.281355533423828,
+            0.013353347778320312,
+            5.390678513828682
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "kitchen_00ceiling",
+          "material": "shader_plaster.020",
+          "visible": true,
+          "worldExtent": [
+            5.281355533423828,
+            0.013353347778320312,
+            5.390678513828682
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "kitchen_00exterior",
+          "material": "shader_plaster.005__load_fill",
+          "assignedAtLoad": true,
+          "visible": true,
+          "worldExtent": [
+            5.500001735251704,
+            2.6500000953674316,
+            5.500001854460946
+          ],
+          "side": "DoubleSide",
+          "materialSource": "shader_plaster.005",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "glb": "infinigen-primary-care-clinic.glb",
+      "prims": [
+        {
+          "mesh": "bedroom_02wall",
+          "material": "shader_marble_shader_hexagon_tile_tile",
+          "visible": true,
+          "worldExtent": [
+            6.5,
+            2.409963011741638,
+            6.37998104095459
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "bedroom_02floor",
+          "material": "shader_marble_shader_square_tile_tile",
+          "visible": true,
+          "worldExtent": [
+            6.5,
+            7.450580596923828e-9,
+            6.25996208190918
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "bedroom_02ceiling",
+          "material": "shader_plaster.022",
+          "visible": true,
+          "worldExtent": [
+            6.259963035583496,
+            2.384185791015625e-7,
+            6.25996208190918
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "bedroom_02exterior",
+          "material": "shader_plaster.022__load_fill",
+          "assignedAtLoad": true,
+          "visible": true,
+          "worldExtent": [
+            6.5,
+            2.6500000953674316,
+            6.5
+          ],
+          "side": "DoubleSide",
+          "materialSource": "shader_plaster.022",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "wallRegionMeanL": 27.06,
+      "ceilingRegionMeanL": 32.75
+    },
+    {
+      "glb": "infinigen-stepdown.glb",
+      "prims": [
+        {
+          "mesh": "bedroom_02wall",
+          "material": "shader_wood_shader_rectangle_tile_tile.003",
+          "visible": true,
+          "worldExtent": [
+            8.500002588168364,
+            2.401981830596924,
+            7.751983673143971
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "bedroom_02floor",
+          "material": "shader_bone_shader_rectangle_tile_tile",
+          "visible": true,
+          "worldExtent": [
+            8.500002588168364,
+            1.4901161193847656e-8,
+            7.75198367314397
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "bedroom_02ceiling",
+          "material": "shader_plaster.022",
+          "visible": true,
+          "worldExtent": [
+            8.251984331887165,
+            0,
+            7.75198358102917
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "bedroom_02exterior",
+          "material": "shader_plaster.022__load_fill",
+          "assignedAtLoad": true,
+          "visible": true,
+          "worldExtent": [
+            8.500002680283519,
+            2.6500000953674316,
+            8.000002883099452
+          ],
+          "side": "DoubleSide",
+          "materialSource": "shader_plaster.022",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "glb": "infinigen-surgical-ward.glb",
+      "prims": [
+        {
+          "mesh": "Circle022",
+          "material": "shader_plaster.003",
+          "visible": true,
+          "worldExtent": [
+            7.50000249119446,
+            2.4474387168884277,
+            7.398721843037633
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "Circle022_1",
+          "material": "shader_plaster.009",
+          "visible": true,
+          "worldExtent": [
+            0.10128100774284476,
+            0,
+            0.8669014056482647
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "bedroom_00floor",
+          "material": "shader_wood_shader_composite_tile_tile",
+          "visible": true,
+          "worldExtent": [
+            7.398721805421651,
+            1.4901161193847656e-8,
+            7.398721805421651
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "bedroom_00ceiling",
+          "material": "shader_plaster.011",
+          "visible": true,
+          "worldExtent": [
+            7.297441119648841,
+            2.384185791015625e-7,
+            7.398721767805668
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "bedroom_00exterior",
+          "material": "shader_plaster.003__load_fill",
+          "assignedAtLoad": true,
+          "visible": true,
+          "worldExtent": [
+            7.50000229039187,
+            2.6500000953674316,
+            7.500002528810352
+          ],
+          "side": "DoubleSide",
+          "materialSource": "shader_plaster.003",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "glb": "infinigen-telehealth-home-visit.glb",
+      "prims": [
+        {
+          "mesh": "bedroom_02wall",
+          "material": "shader_plaster.008",
+          "visible": true,
+          "worldExtent": [
+            9.500000963135653,
+            2.407118797302246,
+            6.378560547008952
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "bedroom_02floor",
+          "material": "shader_ceramic_shader_hexagon_tile_tile.002",
+          "visible": true,
+          "worldExtent": [
+            9.50000094479866,
+            7.450580596923828e-9,
+            6.2571201363949385
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "bedroom_02ceiling",
+          "material": "shader_plaster.028",
+          "visible": true,
+          "worldExtent": [
+            9.257119169896317,
+            0,
+            6.25712009972081
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "bedroom_02exterior",
+          "material": "shader_plaster.008__load_fill",
+          "assignedAtLoad": true,
+          "visible": true,
+          "worldExtent": [
+            9.500000981472716,
+            2.6500000953674316,
+            6.500001434460124
+          ],
+          "side": "DoubleSide",
+          "materialSource": "shader_plaster.008",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "glb": "infinigen-urgent-care-clinic.glb",
+      "prims": [
+        {
+          "mesh": "Circle034",
+          "material": "shader_plaster.013",
+          "visible": true,
+          "worldExtent": [
+            7.500002654184768,
+            1.457057237625122,
+            7.837571754011299
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "Circle034_1",
+          "material": "shader_plaster.024",
+          "visible": true,
+          "worldExtent": [
+            7.500002654184768,
+            0.9821826219558716,
+            7.837571754011299
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "bedroom_00floor",
+          "material": "shader_wood_shader_crossed_tile_tile.003",
+          "visible": true,
+          "worldExtent": [
+            7.382134207531201,
+            0.012487836182117462,
+            7.764265629064542
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "bedroom_00ceiling",
+          "material": "shader_plaster.033",
+          "visible": true,
+          "worldExtent": [
+            7.264266264940896,
+            0.012487649917602539,
+            7.7642655852879985
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "bedroom_00exterior",
+          "material": "shader_plaster.013__load_fill",
+          "assignedAtLoad": true,
+          "visible": true,
+          "worldExtent": [
+            7.500002714512089,
+            2.6500000953674316,
+            8.000002511696156
+          ],
+          "side": "DoubleSide",
+          "materialSource": "shader_plaster.013",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "glb": "ed-exam-bay-shell.glb",
+      "prims": [
+        {
+          "mesh": "ed_exam_bay_floor",
+          "material": "ed_bay_warm_gray_floor",
+          "visible": true,
+          "worldExtent": [
+            2.4000000953674316,
+            1.7999999523162842,
+            0.029999999329447746
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_back_wall",
+          "material": "ed_bay_soft_blue_wall",
+          "visible": true,
+          "worldExtent": [
+            2.4000000953674316,
+            0.03999999910593033,
+            1.0499999523162842
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_left_wall",
+          "material": "ed_bay_soft_blue_wall",
+          "visible": true,
+          "worldExtent": [
+            0.03999999910593033,
+            1.7999999523162842,
+            1.0499999523162842
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_headwall_rail",
+          "material": "clinical_wall_rail",
+          "visible": true,
+          "worldExtent": [
+            1.5,
+            0.03500000014901161,
+            0.03500000014901161
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_doorway_threshold",
+          "material": "subtle_interaction_zone_markers",
+          "visible": true,
+          "worldExtent": [
+            0.75,
+            0.03500000014901161,
+            0.012000000104308128
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_patient_zone_marker",
+          "material": "subtle_interaction_zone_markers",
+          "visible": true,
+          "worldExtent": [
+            0.8500000238418579,
+            0.550000011920929,
+            0.012000000104308128
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_nurse_zone_marker",
+          "material": "subtle_interaction_zone_markers",
+          "visible": true,
+          "worldExtent": [
+            0.3799999952316284,
+            0.550000011920929,
+            0.012000000104308128
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_family_zone_marker",
+          "material": "subtle_interaction_zone_markers",
+          "visible": true,
+          "worldExtent": [
+            0.3799999952316284,
+            0.3799999952316284,
+            0.012000000104308128
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_equipment_wall_marker",
+          "material": "subtle_interaction_zone_markers",
+          "visible": true,
+          "worldExtent": [
+            0.3799999952316284,
+            0.41999998688697815,
+            0.012000000104308128
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_oxygen_flowmeter_panel",
+          "material": "clinical_equipment_context",
+          "visible": true,
+          "worldExtent": [
+            0.23999999463558197,
+            0.03500000014901161,
+            0.18000000715255737
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_suction_canister",
+          "material": "clinical_equipment_context",
+          "visible": true,
+          "worldExtent": [
+            0.09000000357627869,
+            0.054999999701976776,
+            0.1599999964237213
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_glove_box_stack",
+          "material": "clinical_equipment_context",
+          "visible": true,
+          "worldExtent": [
+            0.03500000014901161,
+            0.3199999928474426,
+            0.23999999463558197
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_biohazard_bin",
+          "material": "safety_red_cues",
+          "visible": true,
+          "worldExtent": [
+            0.18000000715255737,
+            0.20000000298023224,
+            0.2800000011920929
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_sharps_wall_box",
+          "material": "safety_red_cues",
+          "visible": true,
+          "worldExtent": [
+            0.03500000014901161,
+            0.1599999964237213,
+            0.18000000715255737
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_privacy_curtain_panel",
+          "material": "privacy_curtain_blue_linen",
+          "visible": true,
+          "worldExtent": [
+            0.02500000037252903,
+            1.1799999475479126,
+            0.8799999952316284
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_ceiling_exam_light",
+          "material": "warm_exam_light_panel",
+          "visible": true,
+          "worldExtent": [
+            0.47999998927116394,
+            0.2199999988079071,
+            0.02500000037252903
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_wall_clock",
+          "material": "clinical_equipment_context",
+          "visible": true,
+          "worldExtent": [
+            0.1599999964237213,
+            0.02500000037252903,
+            0.1599999964237213
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_stretcher_base",
+          "material": "brushed_clinical_metal",
+          "visible": true,
+          "worldExtent": [
+            0.7799999713897705,
+            1.0199999809265137,
+            0.07999999821186066
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_stretcher_mattress",
+          "material": "stretcher_mattress_blue_gray",
+          "visible": true,
+          "worldExtent": [
+            0.7200000286102295,
+            0.949999988079071,
+            0.11999999731779099
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_stretcher_left_rail",
+          "material": "brushed_clinical_metal",
+          "visible": true,
+          "worldExtent": [
+            0.03500000014901161,
+            0.8799999952316284,
+            0.18000000715255737
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_stretcher_right_rail",
+          "material": "brushed_clinical_metal",
+          "visible": true,
+          "worldExtent": [
+            0.03500000014901161,
+            0.8799999952316284,
+            0.18000000715255737
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_bed_pillow",
+          "material": "case_note_paper",
+          "visible": true,
+          "worldExtent": [
+            0.41999998688697815,
+            0.20000000298023224,
+            0.07999999821186066
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_bed_blanket_fold",
+          "material": "stretcher_mattress_blue_gray",
+          "visible": true,
+          "worldExtent": [
+            0.47999998927116394,
+            0.47999998927116394,
+            0.03500000014901161
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_monitor_screen",
+          "material": "monitor_dark_screen_with_waveform",
+          "visible": true,
+          "worldExtent": [
+            0.2800000011920929,
+            0.02500000037252903,
+            0.1599999964237213
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_monitor_waveform_line",
+          "material": "warm_exam_light_panel",
+          "visible": true,
+          "worldExtent": [
+            0.2199999988079071,
+            0.009999999776482582,
+            0.012000000104308128
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_case_notes_clipboard",
+          "material": "case_note_paper",
+          "visible": true,
+          "worldExtent": [
+            0.2199999988079071,
+            0.3199999928474426,
+            0.02500000037252903
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_monitor_vitals_badge",
+          "material": "warm_exam_light_panel",
+          "visible": true,
+          "worldExtent": [
+            0.11999999731779099,
+            0.017999999225139618,
+            0.07000000029802322
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_ecg_paper_strip",
+          "material": "case_note_paper",
+          "visible": true,
+          "worldExtent": [
+            0.36000001430511475,
+            0.07999999821186066,
+            0.017999999225139618
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_nurse_task_tray",
+          "material": "clinical_equipment_context",
+          "visible": true,
+          "worldExtent": [
+            0.3199999928474426,
+            0.20000000298023224,
+            0.03500000014901161
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_doorway_orientation_sign",
+          "material": "privacy_zone_floor_tape_yellow",
+          "visible": true,
+          "worldExtent": [
+            0.3400000035762787,
+            0.02500000037252903,
+            0.09000000357627869
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_doorway_escalation_badge",
+          "material": "safety_red_cues",
+          "visible": true,
+          "worldExtent": [
+            0.09000000357627869,
+            0.02500000037252903,
+            0.07500000298023224
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_monitor_lead_cable",
+          "material": "monitor_dark_screen_with_waveform",
+          "visible": true,
+          "worldExtent": [
+            0.03999999910593033,
+            0.6200000047683716,
+            0.02500000037252903
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_bed_wheel_locks",
+          "material": "safety_red_cues",
+          "visible": true,
+          "worldExtent": [
+            0.10000000149011612,
+            0.10000000149011612,
+            0.054999999701976776
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_curtain_track_rail",
+          "material": "curtain_track_rail_metal",
+          "visible": true,
+          "worldExtent": [
+            0.029999999329447746,
+            1.399999976158142,
+            0.019999999552965164
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_curtain_track_ring_1",
+          "material": "curtain_track_ring_metal",
+          "visible": true,
+          "worldExtent": [
+            0.012000000104308128,
+            0.012000000104308128,
+            0.05000000074505806
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_curtain_track_ring_2",
+          "material": "curtain_track_ring_metal",
+          "visible": true,
+          "worldExtent": [
+            0.012000000104308128,
+            0.012000000104308128,
+            0.05000000074505806
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_curtain_track_ring_3",
+          "material": "curtain_track_ring_metal",
+          "visible": true,
+          "worldExtent": [
+            0.012000000104308128,
+            0.012000000104308128,
+            0.05000000074505806
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_curtain_track_ring_4",
+          "material": "curtain_track_ring_metal",
+          "visible": true,
+          "worldExtent": [
+            0.012000000104308128,
+            0.012000000104308128,
+            0.05000000074505806
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_curtain_track_ring_5",
+          "material": "curtain_track_ring_metal",
+          "visible": true,
+          "worldExtent": [
+            0.012000000104308128,
+            0.012000000104308128,
+            0.05000000074505806
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_curtain_track_ring_6",
+          "material": "curtain_track_ring_metal",
+          "visible": true,
+          "worldExtent": [
+            0.012000000104308128,
+            0.012000000104308128,
+            0.05000000074505806
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_trash_liner_fold",
+          "material": "clinical_equipment_context",
+          "visible": true,
+          "worldExtent": [
+            0.20000000298023224,
+            0.18000000715255737,
+            0.03500000014901161
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_iv_tubing_line",
+          "material": "warm_exam_light_panel",
+          "visible": true,
+          "worldExtent": [
+            0.02500000037252903,
+            0.02500000037252903,
+            0.41999998688697815
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_floor_scuff_path",
+          "material": "subtle_floor_scuff_wear",
+          "visible": true,
+          "worldExtent": [
+            1.2200000286102295,
+            0.04500000178813934,
+            0.006000000052154064
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_infection_control_sign",
+          "material": "infection_control_and_handoff_signage",
+          "visible": true,
+          "worldExtent": [
+            0.02500000037252903,
+            0.2800000011920929,
+            0.20000000298023224
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_handoff_whiteboard_frame",
+          "material": "whiteboard_frame_gray",
+          "visible": true,
+          "worldExtent": [
+            0.6399999856948853,
+            0.029999999329447746,
+            0.3100000023841858
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_handoff_whiteboard_header",
+          "material": "safety_red_cues",
+          "visible": true,
+          "worldExtent": [
+            0.30000001192092896,
+            0.009999999776482582,
+            0.02500000037252903
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_handoff_whiteboard_surface",
+          "material": "whiteboard_surface_white",
+          "visible": true,
+          "worldExtent": [
+            0.5799999833106995,
+            0.012000000104308128,
+            0.25
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_handoff_whiteboard_tray",
+          "material": "whiteboard_marker_tray_dark",
+          "visible": true,
+          "worldExtent": [
+            0.5,
+            0.05000000074505806,
+            0.029999999329447746
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_supply_drawer_labels",
+          "material": "case_note_paper",
+          "visible": true,
+          "worldExtent": [
+            0.30000001192092896,
+            0.02500000037252903,
+            0.14000000059604645
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_privacy_zone_floor_tape",
+          "material": "privacy_zone_floor_tape_yellow",
+          "visible": true,
+          "worldExtent": [
+            0.6800000071525574,
+            0.03500000014901161,
+            0.00800000037997961
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_skirting_back",
+          "material": "architectural_trim_white",
+          "visible": true,
+          "worldExtent": [
+            2.359999895095825,
+            0.019999999552965164,
+            0.10000000149011612
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_skirting_left",
+          "material": "architectural_trim_white",
+          "visible": true,
+          "worldExtent": [
+            0.019999999552965164,
+            1.7599999904632568,
+            0.10000000149011612
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_skirting_corner",
+          "material": "architectural_trim_white",
+          "visible": true,
+          "worldExtent": [
+            0.019999999552965164,
+            0.019999999552965164,
+            0.10000000149011612
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_chamfer_back_floor",
+          "material": "wall_chamfer_soft_blue",
+          "visible": true,
+          "worldExtent": [
+            2.4000000953674316,
+            0.019999980926513672,
+            0.019999999552965164
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_chamfer_left_floor",
+          "material": "wall_chamfer_soft_blue",
+          "visible": true,
+          "worldExtent": [
+            0.019999980926513672,
+            1.7999999523162842,
+            0.019999999552965164
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_chamfer_wall_corner",
+          "material": "wall_chamfer_soft_blue",
+          "visible": true,
+          "worldExtent": [
+            0.019999980926513672,
+            0.019999980926513672,
+            2.0999999046325684
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_door_reveal_header",
+          "material": "architectural_trim_white",
+          "visible": true,
+          "worldExtent": [
+            0.8700000047683716,
+            0.07999999821186066,
+            0.07999999821186066
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_door_reveal_jamb_l",
+          "material": "architectural_trim_white",
+          "visible": true,
+          "worldExtent": [
+            0.05999999865889549,
+            0.07999999821186066,
+            1.9800000190734863
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_door_reveal_jamb_r",
+          "material": "architectural_trim_white",
+          "visible": true,
+          "worldExtent": [
+            0.05999999865889549,
+            0.07999999821186066,
+            1.9800000190734863
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_outlet_plate_body",
+          "material": "outlet_plate_white",
+          "visible": true,
+          "worldExtent": [
+            0.07500000298023224,
+            0.014999999664723873,
+            0.11999999731779099
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_outlet_plate_socket_l",
+          "material": "outlet_socket_dark",
+          "visible": true,
+          "worldExtent": [
+            0.02199999988079071,
+            0.00800000037997961,
+            0.03500000014901161
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_outlet_plate_socket_r",
+          "material": "outlet_socket_dark",
+          "visible": true,
+          "worldExtent": [
+            0.02199999988079071,
+            0.00800000037997961,
+            0.03500000014901161
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_light_switch_plate",
+          "material": "light_switch_plate_ivory",
+          "visible": true,
+          "worldExtent": [
+            0.014999999664723873,
+            0.07500000298023224,
+            0.11999999731779099
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_light_switch_toggle",
+          "material": "light_switch_toggle_white",
+          "visible": true,
+          "worldExtent": [
+            0.006000000052154064,
+            0.019999999552965164,
+            0.03500000014901161
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_hand_gel_dispenser_bottle",
+          "material": "hand_gel_bottle_teal",
+          "visible": true,
+          "worldExtent": [
+            0.10999999940395355,
+            0.07500000298023224,
+            0.25999999046325684
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_hand_gel_dispenser_bracket",
+          "material": "hand_gel_bracket_metal",
+          "visible": true,
+          "worldExtent": [
+            0.04500000178813934,
+            0.03500000014901161,
+            0.03500000014901161
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "mesh": "ed_exam_bay_hand_gel_dispenser_nozzle",
+          "material": "hand_gel_nozzle_dark",
+          "visible": true,
+          "worldExtent": [
+            0.029999999329447746,
+            0.05000000074505806,
+            0.05000000074505806
+          ],
+          "side": "DoubleSide",
+          "baseColor": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    }
+  ],
+  "glbSha256": {
+    "infinigen-adult-ed-abdominal-bay.glb": "54f9172c9b0846a40325e24364f583ab55774912ec1a24b528edd23118edabca",
+    "infinigen-behavioral-health-private.glb": "5cf3695848ee6a53abdaf9b6aa4439590569a87c1f1dd424d9a685eab0cf7afa",
+    "infinigen-ed-exam-bay.glb": "a3b5e68699e3e709a1863b999576ca7c92960daf2059f2313dc51067cfadc5f4",
+    "infinigen-ed-stroke-bay.glb": "dd30ef77081c535dbe9ed9cb233c6637643c3bf1651327034d34b7d566401fb6",
+    "infinigen-inpatient-ward.glb": "9424e4f6d42f8726ef5a042cc821cc89e9701b429e6acd7dfd02e83671dacbae",
+    "infinigen-ob-triage.glb": "f2e11babc41b70d5ae991452ca074a51ffea3c868d543b2f24ddaf377017f625",
+    "infinigen-oncology-consult.glb": "65969fe479bcb6e07e7a1ffdbd314cfb3be0449a8199edc9e79549e33ec9415b",
+    "infinigen-pediatric-fever-urgent-care.glb": "8cc0a75d424baa3c7a20c70ae5bded59a939ba2de69bed1157746b8591a862b9",
+    "infinigen-pediatric-urgent-care-bay.glb": "731fed258393fc386a669b626ad78e9b0d42c7652d9230177e19c3226d7eff9e",
+    "infinigen-primary-care-clinic.glb": "a76a71eaa660d856c1bccd039e14fe48f3041901b0f9126ecd55a61d9e36fdf8",
+    "infinigen-stepdown.glb": "6b098ab7e174b3cca768565bf980bb34d197f83fea4b04981d8cc06736510c5b",
+    "infinigen-surgical-ward.glb": "491c43d6fba5974ff330edc64ae85f1b43e1b201678622a4ae74b2383be37656",
+    "infinigen-telehealth-home-visit.glb": "476a8e402b2dc8c4f2023536f225325a16006828cd4e865880311923a811aa01",
+    "infinigen-urgent-care-clinic.glb": "5aa1c6f1f086109f23e736839cb9130660955f22bf9394fd58f9b01ea412c7a6",
+    "ed-exam-bay-shell.glb": "e390697fea990ea41701fc220224c94b1be2b18ce4cde9778e892261c07124f9"
+  }
+}
