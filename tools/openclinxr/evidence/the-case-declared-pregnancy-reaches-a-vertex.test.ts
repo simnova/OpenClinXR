@@ -34,6 +34,28 @@
  *
  * claimScope: whether a case-declared pregnancy changes the generated body's abdomen.
  * notEvidenceFor: clinical accuracy of the resulting silhouette, fundal height, or gestational age.
+ *
+ * ## FIXED (#509) — REJECT_MEASURED (worker measurement 2026-08-21)
+ *
+ * Measurement 1 — the parametric channel IS reachable headlessly:
+ *   `TargetService.load_target` + `TargetService.bake_targets` applies
+ *   stomach-pregnant-incr from the MPFB data tree through `blender --background`
+ *   (probe: create_human -> load_target -> bake -> strip -> export -> measure).
+ *
+ * Measurement 2 — the morph is BROAD, not a localized gravid abdomen:
+ *   607 vertex deltas concentrated at stature 0.50-0.70. The CHEST band (.62-.70)
+ *   receives 238 deltas (sum|d| 62.8) — as much as the abdomen band (.50-.58: 163
+ *   deltas, sum|d| 63.2). Through the real path at weight 1.0 the clean body grows
+ *   chest +72 mm and abdomen +92 mm; abdomen/chest moves ~1.19 -> ~1.22, nowhere
+ *   near 1.476, and the chest counterweight (<=4 mm) fails by ~18x. No other
+ *   pregnancy/belly target exists in the MPFB tree (only stomach-pregnant-decr,
+ *   pelvis/bulge, torso-scale-*; none localized to .50-.58 anterior).
+ *
+ * VERDICT: the factory cannot express a LOCALIZED 34-week gravid abdomen through
+ *   the available parametric morph today. stomach-pregnant-incr widens the mid-torso
+ *   (the counterweight-forbidden "obese figure"); no weight reaches the threshold.
+ *   Hand-authoring a belly mesh is refused (D1). Clause (1) stays it.fails — the gap
+ *   is real and open.
  */
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
