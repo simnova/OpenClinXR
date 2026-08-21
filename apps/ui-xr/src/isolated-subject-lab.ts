@@ -98,6 +98,8 @@ export type IsolatedSubjectSpec = {
    * Never literal coordinates (D1). An unresolvable focus REFUSES.
    */
   focus?: "eyes" | "head";
+  /** #495 ablation: when true, applySupinePose skips the 17 joint eulers (root basis only). */
+  supineRootOnly?: boolean;
   label?: string;
 };
 
@@ -150,6 +152,10 @@ export type SupineJointDump = {
   resolvedBones: Record<string, string | null>;
   posedMeshAabb: { min: { x: number; y: number; z: number }; max: { x: number; y: number; z: number } };
   meshCount: number;
+  /** #495 ablation: true — this dump is only written after applyAndPlantSupineOnDeck ran. */
+  ranSupineCall: boolean;
+  /** #495 ablation: false when applySupinePose was called with applyJointEulers=false (root basis only). */
+  appliedJointEulers: boolean;
 };
 
 declare global {
@@ -159,6 +165,8 @@ declare global {
     __openClinXrIsolatedSceneRoot?: Object3D;
     __openClinXrExportedGlbBase64?: string;
     __openClinXrSupineJointDump?: SupineJointDump;
+    /** #495 ablation: the framed subject's live world AABB, recorded for every subject kind. */
+    __openClinXrSubjectAabb?: { min: { x: number; y: number; z: number }; max: { x: number; y: number; z: number } };
   }
 }
 
@@ -292,6 +300,8 @@ function dumpSupineJointState(
       max: { x: round3(aabb.max.x), y: round3(aabb.max.y), z: round3(aabb.max.z) },
     },
     meshCount,
+    ranSupineCall: true,
+    appliedJointEulers: ((humanoid.userData.openClinXrSupinePoseBones as string[] | undefined) ?? []).length > 0,
   };
 }
 
@@ -344,6 +354,7 @@ async function buildSubjectRoot(spec: IsolatedSubjectSpec): Promise<{
       deckCenter: { x: 0, z: 0 },
       pillowWorldX,
       ...(stretcher ? { stretcher } : { inclineDegrees: incline }),
+      ...(spec.supineRootOnly === true ? { applyJointEulers: false } : {}),
     });
     humanoid.updateMatrixWorld(true);
     // Framing: lateral (Z) recenter only. X recenter after hinge tip slides the body along
@@ -445,6 +456,13 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
     throw new Error(`Subject ${spec.subjectId} produced empty mesh bounds`);
   }
   const size = bounds.getSize(new Vector3());
+
+  // #495 ablation: the framed subject AABB for every kind (glb "standing" cell has
+  // no supine dump, so the report reads this instead).
+  window.__openClinXrSubjectAabb = {
+    min: { x: round3(bounds.min.x), y: round3(bounds.min.y), z: round3(bounds.min.z) },
+    max: { x: round3(bounds.max.x), y: round3(bounds.max.y), z: round3(bounds.max.z) },
+  };
 
   // #354/#358: focus framing — the frame is driven to the DERIVED region, never
   // a literal camera position. An unresolvable focus REFUSES (#358) instead of

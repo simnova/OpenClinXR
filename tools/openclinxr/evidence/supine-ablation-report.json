@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "supine-ablation-report.v1",
+  "bodyGlb": "generated-humanoids/mpfb-gown-adult-patient.glb",
+  "renderer": "apps/ui-xr three.js WebGLRenderer via isolated-subject-lab.ts (subjectKind glb | runtime_posture) driving applySupinePose / applyAndPlantSupineOnDeck",
+  "cells": [
+    {
+      "cell": "standing",
+      "ranSupineCall": false,
+      "appliedJointEulers": false,
+      "posedMeshAabb": {
+        "min": {
+          "y": 0.001
+        },
+        "max": {
+          "y": 1.688
+        }
+      }
+    },
+    {
+      "cell": "root_only",
+      "ranSupineCall": true,
+      "appliedJointEulers": false,
+      "posedMeshAabb": {
+        "min": {
+          "y": 0.57
+        },
+        "max": {
+          "y": 1.016
+        }
+      }
+    },
+    {
+      "cell": "full",
+      "ranSupineCall": true,
+      "appliedJointEulers": true,
+      "posedMeshAabb": {
+        "min": {
+          "y": 0.57
+        },
+        "max": {
+          "y": 1.016
+        }
+      }
+    }
+  ]
+}

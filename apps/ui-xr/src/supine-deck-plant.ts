@@ -360,6 +360,11 @@ export function applyAndPlantSupineOnDeck(
      * Fallback incline when stretcher is absent (harness). Prefer stretcher SSOT.
      */
     inclineDegrees?: number;
+    /**
+     * #495 ablation — opt-in. When false, applySupinePose skips the 17 joint eulers
+     * (root basis only). Default true preserves today's behaviour.
+     */
+    applyJointEulers?: boolean;
   },
 ): {
   plantDeltaY: number;
@@ -389,7 +394,7 @@ export function applyAndPlantSupineOnDeck(
    * lift that cannot push back gap past 0.05 (or is skipped when already floating).
    */
   humanoidRoot.userData.openClinXrPlantSteps = [];
-  applySupinePose(humanoidRoot);
+  applySupinePose(humanoidRoot, input.applyJointEulers === false ? { applyJointEulers: false } : {});
   const plant = plantSupineBodyOnDeck(humanoidRoot, input.deckTopWorldY, thickness, {
     contactMode,
   });
