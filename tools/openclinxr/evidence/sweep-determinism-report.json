@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "openclinxr.sweep-determinism-report.v1",
+  "generatedAt": "2026-08-21T08:15:54.265Z",
+  "station": "primary_care_dyslipidemia_joint_pain_v1",
+  "verdict": "mechanism_named",
+  "reproduced": true,
+  "mechanism": "Reproduced the non-determinism but NOT the fallback-camera mechanism: primary_care's region median varied 16..23 (sweep) and 17..23 (per-station), while reframeCameraForRoom returned roomCam(derived)=3.01,<Y>,2.44 with an empty rejection list in all ten samples — the generated Infinigen room was loaded and the derived interior camera framed every time, so the inferred room-load race reaching the fallback camera never fired. The control station ed_chest_pain_priority_v1 was bit-exact at median 36 across four sweep-style captures in the same environment, so the variance is specific to primary_care's rendered scene, present in BOTH instruments (contradicting the header's 'per-station 23.0 five times'), and is neither a sweep defect nor general capture noise.",
+  "locator": "ui-xr-environment-room-capture.ts:672 (if (!roomRoot) return null — the fallback path the race hypothesis points at, which never fired) and :923 (const eye = [eyeXZ[0], actors.max[1], eyeXZ[1]] — the actor-derived eye whose Y varied 1.64..1.70 across samples)",
+  "sweepSamples": [23, 23, 23, 17, 16],
+  "perStationSamples": [17, 21, 23, 21, 23],
+  "reproducedBy": "pnpm exec tsx tools/openclinxr/evidence/sweep-determinism-measure.ts --runs=5",
+  "cameraDerivedInAllSamples": true,
+  "fallbackCameraFired": false,
+  "controlStation": {
+    "id": "ed_chest_pain_priority_v1",
+    "sweepSamples": [36, 36, 36, 36]
+  }
+}
