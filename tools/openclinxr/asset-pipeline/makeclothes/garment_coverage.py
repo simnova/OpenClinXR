@@ -950,6 +950,73 @@ def cloth_offset(
     return out
 
 
+def cloth_outward_offset(
+    garment_verts,
+    body_verts,
+    body_faces,
+    gap: float = CLOTH_STANDOFF_M,
+) -> np.ndarray:
+    """#504 — push every garment vertex `gap` FURTHER OUT along the body's outward normal.
+
+    The additive sibling of `cloth_offset`. `cloth_offset` SNAPS each garment vertex to
+    `nearest_body_vertex + normal * standoff`, which flattens an open garment whose own
+    silhouette already stands off the body (a lab coat's open-front hem sits ~11 cm out;
+    snapping it to 1.5 cm collapses the flare). This instead ADDS `gap` to each vertex's
+    existing position along the body normal at its nearest body vertex, so the over-garment
+    separates from an under-garment that shares its z_depth while keeping its fitted shape.
+    Same deterministic normal field + grid nearest-neighbour as `cloth_offset`; topology
+    unchanged (D9).
+    """
+    v = _as_np(body_verts)
+    f = np.asarray(body_faces, dtype=np.int64)
+    gv = _as_np(garment_verts)
+
+    face_normals = _orient_outward(v, f)
+    tri_verts = v[f]
+    tri_area = (
+        0.5 * np.linalg.norm(
+            np.cross(tri_verts[:, 1] - tri_verts[:, 0], tri_verts[:, 2] - tri_verts[:, 0]),
+            axis=1,
+        )
+    )
+    vert_norm = np.zeros_like(v)
+    vert_w = np.zeros(len(v))
+    for k in range(3):
+        np.add.at(vert_norm, f[:, k], face_normals * tri_area[:, None])
+        np.add.at(vert_w, f[:, k], tri_area)
+    nz = vert_w > 1e-12
+    vert_norm[nz] /= vert_w[nz, None]
+    vn = vert_norm / (np.linalg.norm(vert_norm, axis=1, keepdims=True) + 1e-12)
+
+    cell = 0.02
+    grid: dict[tuple[int, int, int], list[int]] = {}
+    for i, p in enumerate(v):
+        key = (int(math.floor(p[0] / cell)), int(math.floor(p[1] / cell)), int(math.floor(p[2] / cell)))
+        grid.setdefault(key, []).append(i)
+
+    out = gv.copy()
+    for i, p in enumerate(gv):
+        cx, cy, cz = (
+            int(math.floor(p[0] / cell)),
+            int(math.floor(p[1] / cell)),
+            int(math.floor(p[2] / cell)),
+        )
+        best_i: int | None = None
+        best_d2 = np.inf
+        for dx in (-2, -1, 0, 1, 2):
+            for dy in (-2, -1, 0, 1, 2):
+                for dz in (-2, -1, 0, 1, 2):
+                    for j in grid.get((cx + dx, cy + dy, cz + dz), ()):
+                        d2 = float(np.dot(v[j] - p, v[j] - p))
+                        if d2 < best_d2:
+                            best_d2 = d2
+                            best_i = j
+        if best_i is None:
+            best_i = int(np.argmin(np.sum((v - p) ** 2, axis=1)))
+        out[i] = p + vn[best_i] * gap
+    return out
+
+
 def _load_mesh_json(path: str) -> tuple[np.ndarray, np.ndarray]:
     data = json.loads(Path(path).read_text(encoding="utf-8"))
     pos = np.asarray(data["position"], dtype=float).reshape(-1, 3)

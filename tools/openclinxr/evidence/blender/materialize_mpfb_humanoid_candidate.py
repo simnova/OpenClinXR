@@ -3525,6 +3525,7 @@ def main():
         CLOTH_STANDOFF_M,
         build_cover_shell,
         cloth_offset,
+        cloth_outward_offset,
         coverage_report,
     )
     from body_param_stage import _LIMB_BONE_RE, _bone_dominant_vertex_indices  # noqa: E402
@@ -3747,6 +3748,20 @@ def main():
             pass
         coat_verts_before = len(coat.data.vertices)
         ClothesService.fit_clothes_to_human(coat, human, mhclo=mhclo_coat, set_parent=True)
+        bpy.context.view_layer.update()
+        # #504 — the coat and the scrub shirt both land at the raw MakeClothes fit
+        # (~0.7 mm from the skin) because they declare the SAME z_depth (50 == 50),
+        # so the shirt pokes through the coat in the render. Consuming z_depth
+        # faithfully yields no offset between them, and delete_verts removes BODY
+        # vertices, not the shirt. Introduce the separation the shipped data does not
+        # express: push the OUTER layer out by CLOTH_STANDOFF_M along the body's
+        # outward normal (the additive sibling of cloth_offset — a snap-to-standoff
+        # would collapse the open coat's own flare). D1 — the proven normal field,
+        # not authored geometry; topology is unchanged.
+        _coat_v, _coat_f = _triangulate_numpy(coat)
+        _coat_v_off = cloth_outward_offset(_coat_v, body_verts, body_faces, CLOTH_STANDOFF_M)
+        for _ci, _cv in enumerate(coat.data.vertices):
+            _cv.co = tuple(float(_c) for _c in _coat_v_off[_ci])
         bpy.context.view_layer.update()
         coat.data.name = f"makeclothes_library_lab_coat_mpfb_{args.reference or 'ob_patient_aisha'}_mesh"
         coat_weights = transfer_weights_body_to_garment(human, coat, armature)

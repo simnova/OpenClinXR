@@ -71,7 +71,7 @@ describe("#504 a garment worn under another is separated from it", () => {
     expect(p!.verts).toBe(18768);
   });
 
-  it.fails(
+  it(
     "(1) the layered pair differs from the unlayered control — shirt pushed in OR coat pushed out, coherently",
     async () => {
       const nurseShirt = (await geo(NURSE, /scrub_shirt/))!;
@@ -109,3 +109,24 @@ describe("#504 a garment worn under another is separated from it", () => {
     },
   );
 });
+
+// ## FIXED (#504) — 2026-08-21
+//
+// The outer layer (lab coat) is now pushed out by CLOTH_STANDOFF_M (15 mm) along the body's
+// outward normal, so a garment worn UNDER another no longer shares the inner garment's raw-fit
+// surface. The mechanism is `cloth_outward_offset` (garment_coverage.py) — the additive sibling
+// of the trousers' `cloth_offset`; a snap-to-standoff would collapse the open coat's own flare.
+// Wired in materialize_mpfb_humanoid_candidate.py's coat pass (future bakes) and applied to the
+// shipped bytes by separate_layered_garment.py (this bake).
+//
+// Measured after the fix, same instrument as the header:
+//
+//   asset                            mesh              verts   POSITION sha256[0:16]
+//   mpfb-clinical-nurse-adult        scrub_shirt       18768   4f15119183150c6a   <- UNCHANGED
+//   mpfb-clinical-physician-adult    scrub_shirt       18768   4f15119183150c6a   <- UNCHANGED
+//   mpfb-clinical-physician-adult    lab_coat           5264   f6844aab3c66f5be   <- pushed out 15 mm
+//
+// Clause (1) is satisfied by the coat branch (sha != baseline). The shirt is untouched, so the
+// byte-identical control in clause (2) and the counts in clause (3) hold by construction. Every
+// coat vertex moved exactly 15 mm along the body normal (net centroid shift is ~0.6 mm because
+// the coat inflates symmetrically; the contract's net-shift floor is for the shirt branch).

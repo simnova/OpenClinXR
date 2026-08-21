@@ -84,7 +84,9 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   "mpfb-peds-parent-aisha": "2182b8c6e6186071f45f273d69022bca31291c0cdcb7200f719eae946e5964b6",
   "mpfb-peds-nurse-kevin": "0817dbd1932448185037c35487c9a25f5b9e70cbf6f558fa67098e104a955d72",
   "mpfb-clinical-nurse-adult": "1201e39754f87804f3cebc10a3be55def2937e53490a9cca5331b95aa6bf57bb",
-  "mpfb-clinical-physician-adult": "6406b579da0b543ebf2f52c937dd2d2042b69aa13050c6541668900678d139f4",
+  // #504 re-pinned 2026-08-21: the physician's coat was pushed out 15 mm (wardrobe layer
+  // separation); the viseme morph targets and every other buffer are untouched.
+  "mpfb-clinical-physician-adult": "30940a3e7583d7dc6fb4e8da643c5f1fb1893d827a9f15961653d7b3812c9cc5",
 };
 
 type Prov = {
