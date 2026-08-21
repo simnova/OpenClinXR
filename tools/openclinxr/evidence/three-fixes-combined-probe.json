@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "openclinxr.three-fixes-combined-probe.v1",
+  "generatedAt": "2026-08-21T20:40:25.646Z",
+  "room": "infinigen-primary-care-clinic",
+  "scenarioId": "primary_care_dyslipidemia_joint_pain_v1",
+  "captureMode": "scene-overview",
+  "lightingVariant": "room_environment_ibl",
+  "aoMapIntensity": 0,
+  "hullMaterialsApplied": true,
+  "hullAssignedCount": 1,
+  "productDefaultVariant": "control",
+  "camera": "roomCam(interiorWall)=0.00,1.68,2.44 look=0.00,1.45,-3.46 wallThickness=0.120",
+  "image": "three-fixes-combined/combined-ibl-ao0-hull.png",
+  "glbSha256": "4239db019bebaf0e0d15d412abd950667adc694cdc8a3ae9d2a53a929203c115",
+  "regions": [
+    {
+      "id": "wall",
+      "meanL": 93.7,
+      "sd": 86.08,
+      "rect": [
+        0.08,
+        0.18,
+        0.42,
+        0.48
+      ]
+    },
+    {
+      "id": "ceiling",
+      "meanL": 110.48,
+      "sd": 92.61,
+      "rect": [
+        0.08,
+        0.02,
+        0.42,
+        0.12
+      ]
+    },
+    {
+      "id": "floor",
+      "meanL": 95.81,
+      "sd": 35.93,
+      "rect": [
+        0.08,
+        0.72,
+        0.42,
+        0.22
+      ]
+    }
+  ],
+  "wallToCeilingRatio": 0.8481,
+  "claimScope": "whether one capture with station lighting, aoMapIntensity 0 and the materialised hull all active produces a lit interior, with wall/ceiling/floor measured as separate regions",
+  "notEvidenceFor": [
+    "product lighting default",
+    "AO remedy choice (invert vs zero vs rebake)",
+    "other rooms",
+    "whether the room looks CORRECT",
+    "quest_readiness",
+    "clinical_validity"
+  ]
+}
