@@ -390,6 +390,22 @@ rediscovering it each cycle.
 | Asset factory | ED seed humanoid from case def | — | asset-pipeline-lead |
 | Encounter authoring | Scenario bank review packet loop | — | implementation-planning-lead |
 
+## Push authority — STANDING, operator-granted 2026-08-21
+
+> *"You're welcome to keep pushing main to origin without any operator approval."*
+
+**Pushing `main` to `origin` is the ordinary end of a slice and needs no approval.** This supersedes
+the recurring cron line *"Not a lane: 557 unpushed commits — no push without explicit operator
+authorisation."* Do not re-ask, and do not let the cron text re-impose the old rule.
+
+The gate before a push is unchanged and is mine, not the operator's: **main must be green**, and any
+appearance claim must have been pixel-graded. Pushing a red main is still wrong — the authorisation
+removes the approval step, not the standard.
+
+**Correction to my own reporting:** I reported "47/48/49/51 ahead" across several ticks without ever
+checking against `origin/main`. The real figure at grant time was **25**. Count with
+`git rev-list --count origin/main..main`, never a worktree-relative count.
+
 ## Work-selection SSOT — ruled 2026-08-21, measured
 
 **The board says what EXISTS. It does not say what to do next.** Three planes, and conflating them
