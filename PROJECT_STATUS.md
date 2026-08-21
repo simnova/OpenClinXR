@@ -1425,3 +1425,24 @@ Self-inflicted friction (three field-name errors, an unsatisfiable clause shippe
 false premise written into the `#514` plant, two `find /` timeouts, a vitest-4 reporter flag, a
 silent shell arithmetic zero) is real at roughly 15–20% of tool calls and is explicitly the SECOND
 priority. Class-repeat first.
+
+## OPERATOR BLOCKER — DeepSeek balance exhausted, 2026-08-21
+
+**Both worker tiers return `402 Insufficient Balance`.** Probed directly, one minimal call each:
+
+```
+deepseek-v4-flash    402 INSUFFICIENT BALANCE
+deepseek-v4-pro      402 INSUFFICIENT BALANCE
+```
+
+Discovered when `#519` died mid-rebake at **53 model calls / 12.3M tokens** — the 402 arrives partway
+through a session, so the cost is paid and the work is left uncommitted on disk. That dispatch's work
+was recoverable only because the orchestrator commits worker WIP after a kill (`2f3d0710`).
+
+**Consequence for the loop:** the standing rule is `grok-4.5` ONLY on a 402. This is a *persistent*
+402, so every dispatch now either starts on `grok-4.5` or wastes a session discovering the balance is
+gone. Recorded here rather than in `operator-steering-needed-questions.md`, which is currently one of
+the unowned dirty files the orchestrator is instructed not to touch.
+
+**Needs:** DeepSeek credit topped up, or an explicit instruction to run workers on `grok-4.5` until it
+is. The orchestrator is not changing the standing model policy unilaterally.
