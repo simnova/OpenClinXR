@@ -35,6 +35,10 @@ export type RegionLuminance = {
   sd: number;
   /** Percentage of sampled texels brighter than `blackLuma`. */
   nonBlackPct: number;
+  /** Median luma of sampled texels (0..255). */
+  median: number;
+  /** 90th-percentile luma of sampled texels (0..255). */
+  p90: number;
 };
 
 /** Rec.709 luma of one texel. */
@@ -106,6 +110,7 @@ export function regionLuminance(
 
   const prev = new Uint8Array(stride);
   const cur = new Uint8Array(stride);
+  const hist = new Uint32Array(256);
   let samples = 0;
   let sum = 0;
   let sumSq = 0;
@@ -130,6 +135,8 @@ export function regionLuminance(
       for (let x = x0; x < x1; x += step) {
         const i = x * chans;
         const l = chans >= 3 ? luma(cur[i]!, cur[i + 1]!, cur[i + 2]!) : cur[i]!;
+        const li = Math.max(0, Math.min(255, Math.round(l)));
+        hist[li]! += 1;
         samples += 1;
         sum += l;
         sumSq += l * l;
@@ -140,6 +147,23 @@ export function regionLuminance(
   }
   if (samples === 0) return null;
   const mean = sum / samples;
+  let median = 0;
+  let p90 = 0;
+  let cum = 0;
+  let medianSet = false;
+  const half = samples / 2;
+  const nineTen = samples * 0.9;
+  for (let v = 0; v < 256; v++) {
+    cum += hist[v]!;
+    if (!medianSet && cum >= half) {
+      median = v;
+      medianSet = true;
+    }
+    if (cum >= nineTen) {
+      p90 = v;
+      break;
+    }
+  }
   return {
     width: w,
     height: h,
@@ -147,5 +171,7 @@ export function regionLuminance(
     mean,
     sd: Math.sqrt(Math.max(0, sumSq / samples - mean * mean)),
     nonBlackPct: (100 * nonBlack) / samples,
+    median,
+    p90,
   };
 }

@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "openclinxr.dark-station-mechanism.v1",
+  "kind": "dark_station_mechanism",
+  "issue": 500,
+  "generatedAt": "2026-08-21T00:00:00.000Z",
+  "verdict": "mechanism_named",
+  "mechanism": "ed_stroke_bay_v1's Infinigen wall mesh (Circle.022) has a second primitive — Circle022_1 — wearing shader_dark_art.001, whose text_texture base-colour map is 93% pure black (median 0, p90 0). Live, this primitive is a full-height, ~3.5m-deep near-black panel at x≈-1.44 (x[-1.50,-1.39], y[0,2.43], z[-0.96,2.54]). The capture camera (reframeCameraForRoom) picks the (-X,+Z) corner eye (-3.16,1.64,2.31) to maximise actor distance; its look ray to the cast centre crosses x=-1.44 at z≈1.29, so the black panel sits directly between camera and cast and fills the viewport (measured 59% of texels luma<12, median 0) while the lit cast/doorway stay bright (p90 141). The known-good rooms lack this panel: inpatient-ward's wall is a single bright-plaster primitive, and surgical-ward's second wall primitive is a 2-triangle bright strip.",
+  "locator": "apps/ui-xr/public/xr-assets/environment/infinigen-ed-stroke-bay.glb wall mesh Circle.022 primitive[1] (runtime name Circle022_1), material shader_dark_art.001 -> text_texture (93% black, median 0, p90 0)",
+  "treatmentMedian": 0,
+  "knownGood": {
+    "ward_delirium_med_rec_v1": 28,
+    "postop_fever_consult_pressure_v1": 26
+  },
+  "reproducedBy": "pnpm exec tsx tools/openclinxr/evidence/ui-xr-environment-room-capture.ts --scenario ed_stroke_alert_handoff_v1 --scenario ward_delirium_med_rec_v1 --scenario postop_fever_consult_pressure_v1 --output-dir .openclinxr/evidence/dark-station-repro",
+  "measurement": {
+    "viewport": "3D viewport only (y 70:820, x 0:1005; HUD starts ~1020px)",
+    "reMeasuredLuminance": {
+      "ed_stroke_alert_handoff_v1": { "median": 0, "mean": 27.7, "p90": 141, "nonBlackPct": 41.5 },
+      "ward_delirium_med_rec_v1": { "median": 28, "mean": 60.9, "p90": 136, "nonBlackPct": 81.8 },
+      "postop_fever_consult_pressure_v1": { "median": 26, "mean": 60.5, "p90": 152, "nonBlackPct": 75.0 }
+    },
+    "darkPanelWorldBoxMeters": { "min": [-1.50, 0, -0.963], "max": [-1.387, 2.425, 2.537], "triangles": 25, "material": "shader_dark_art.001", "texture": "text_texture" },
+    "textureLuminance": { "text_texture": { "mean": 4.8, "median": 0, "p90": 0, "blackPct": 93.1 } },
+    "camera": { "eye": [-3.162, 1.643, 2.312], "look": [0.25, 0.80, 0.27], "nearestActorMeters": 2.57 },
+    "contrastKnownGoodWallSecondPrimitive": {
+      "inpatient_ward": "wall mesh Circle.028 has 1 primitive (bright shader_plaster.007) — no second primitive",
+      "surgical_ward": "wall mesh Circle.022 has 2 primitives but primitive[1] is shader_plaster.009, a 2-triangle bright strip at x[3.65,3.75]"
+    }
+  },
+  "claimScope": [
+    "the near-black frame is caused by the shader_dark_art/text_texture wall panel (Circle022_1) standing between the derived capture camera and the cast in ed_stroke_bay_v1",
+    "known-good rooms do not contain this large near-black wall panel"
+  ],
+  "notEvidenceFor": [
+    "that any fix is correct (this is measure-only; no product edit was made)",
+    "clinical realism or Quest readiness",
+    "that the panel is the only way a black frame can arise"
+  ]
+}
