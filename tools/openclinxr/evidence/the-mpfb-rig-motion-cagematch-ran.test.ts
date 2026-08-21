@@ -57,6 +57,14 @@ import { describe, expect, it } from "vitest";
  *   bone-binding measurements against the hm08 52/52 control.
  * notEvidenceFor: which candidate is best; whether any motion LOOKS right (orchestrator grades any
  *   visual); runtime wiring; Quest budgets; promotion; the other 10 actors.
+ *
+ * ## FIXED (#545)
+ * Bake-off ran on `mpfb-ob-patient-aisha` (137 bones). Artifact:
+ * `tools/openclinxr/evidence/mpfb-rig-motion-cagematch.json`.
+ * Outcomes: mesh2motion `reject_measured` (0/53 map, no CLI); bvh_retarget_mpfb_bone_map `partial`
+ * (22/137 via mpfb2-default-no-toes.json + mcp.load_and_retarget); rapier_joint_chain_ragdoll
+ * `reject_measured` (22 proxy joints, 0 skinned bones). `adopted: null`. mixamo falsifier still
+ * 0/52 — premise holds. Decision: continue BVH/MPFB2 map path; do not adopt a factory default.
  */
 
 const ARTIFACT = "tools/openclinxr/evidence/mpfb-rig-motion-cagematch.json";
@@ -77,7 +85,7 @@ type Report = { subject?: string; control?: { mapped?: number; of?: number }; ca
 const rep = (): Report => (existsSync(ARTIFACT) ? JSON.parse(readFileSync(ARTIFACT, "utf8")) as Report : {});
 
 describe("the MPFB rig motion cagematch ran", () => {
-  it.fails("(1) RED: the bake-off ran with at least three candidates, each carrying a valid outcome", () => {
+  it("(1) RED: the bake-off ran with at least three candidates, each carrying a valid outcome", () => {
     const c = rep().candidates ?? [];
     expect(c.length, `${ARTIFACT} missing or thin — the cagematch has not run`).toBeGreaterThanOrEqual(3);
     const bad = c.filter((x) => !x.outcome || !(OUTCOMES as readonly string[]).includes(x.outcome))
@@ -85,7 +93,7 @@ describe("the MPFB rig motion cagematch ran", () => {
     expect(bad, `outcome must be one of ${OUTCOMES.join(" | ")}`).toEqual([]);
   });
 
-  it.fails("(2) RED: every candidate that RAN records how many of the 137 bones it drove", () => {
+  it("(2) RED: every candidate that RAN records how many of the 137 bones it drove", () => {
     // A verdict with no measurement is an opinion. Candidates that never ran are exempt — that is
     // what `inconclusive_blocked` is for, and (4) makes them justify it.
     const ran = (rep().candidates ?? []).filter((x) => x.outcome !== "inconclusive_blocked");
@@ -118,7 +126,7 @@ describe("the MPFB rig motion cagematch ran", () => {
     expect(bare, "escape-value candidates with no substantive reason").toEqual([]);
   });
 
-  it.fails("(5) VACUITY: the hm08 control is recorded so the comparison is anchored", () => {
+  it("(5) VACUITY: the hm08 control is recorded so the comparison is anchored", () => {
     // Without the 52/52 control a 0/137 result reads as "motion is impossible here" rather than
     // "motion works on a rail we do not ship". SS9h — the known-good column.
     const r = rep();

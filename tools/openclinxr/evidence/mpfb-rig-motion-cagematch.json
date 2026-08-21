@@ -1,0 +1,121 @@
+{
+  "schemaVersion": "openclinxr.mpfb-rig-motion-cagematch.v1",
+  "kind": "mpfb_rig_motion_cagematch",
+  "issue": 545,
+  "factoryStep": "motion_retarget",
+  "generatedAt": "2026-08-21T21:45:00.000Z",
+  "subject": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+  "subjectBones": 137,
+  "falsifier": {
+    "claim": "If mixamo.json already carries MPFB2 bone names, the 0/52 framing is stale",
+    "mixamoMapHitsOnSubject": 0,
+    "mixamoMapSize": 52,
+    "result": "premise_holds",
+    "note": "mixamo.json remains 0/52 on mpfb-ob-patient-aisha. The shipping-rail gap is real. The workable path is not mixamo — it is the injected MPFB2 target map."
+  },
+  "control": {
+    "rail": "hm08-library",
+    "bones": 64,
+    "mapped": 52,
+    "of": 52,
+    "map": "retarget_bvh known_rigs/mixamo.json",
+    "evidence": "tools/openclinxr/evidence/retarget-drives-the-library-rig.test.ts"
+  },
+  "liveCastNote": "resolveScenarioActorCast over shipped cast: 9/9 MPFB, 0 Anny — Anny is already out of learner casting",
+  "candidates": [
+    {
+      "id": "mesh2motion",
+      "outcome": "reject_measured",
+      "bonesDriven": 0,
+      "bonesTotal": 137,
+      "reason": "Mesh2Motion app at ~/.openclinxr-tools/mesh2motion-app is a Vite browser app (package name model-motionizer) with no CLI bin; scripts are only dev/build/test. retarget_bvh mesh2motion.json bone map hits 0/53 on MPFB2 native names. Cannot drive the skinned armature headless. Aligns with MADR 0036/0052 (browser-only, declined as pipeline armature).",
+      "measurements": {
+        "hasBin": false,
+        "boneMapHitsOnSubject": 0,
+        "boneMapSize": 53,
+        "licenceNotes": "App licences LICENSE-CC0.MD + LICENSE-MIT.MD present on disk; no new acquisition this slice."
+      }
+    },
+    {
+      "id": "bvh_retarget_mpfb_bone_map",
+      "outcome": "partial",
+      "bonesDriven": 22,
+      "bonesTotal": 137,
+      "reason": "retarget_bvh mcp.load_and_retarget with injected tools/openclinxr/asset-pipeline/makeclothes/known-rigs/mpfb2-default-no-toes.json (23 map keys, all present on subject) drove 22 real bones on mpfb-ob-patient-aisha from cmu_07_01_walk.bvh. mixamo.json stays 0/52 — the MPFB map is what closes the binding gap for a core subset. Not full 137-bone coverage (fingers/face/breasts unmapped). Clinical clip corpus still open.",
+      "measurements": {
+        "targetMap": "tools/openclinxr/asset-pipeline/makeclothes/known-rigs/mpfb2-default-no-toes.json",
+        "targetMapKeys": 23,
+        "targetMapHitsOnSubject": 23,
+        "sourceClip": "tools/openclinxr/asset-pipeline/anny/proof-animations/diag/cmu_07_01_walk.bvh",
+        "operator": "mcp.load_and_retarget",
+        "addonModule": "bl_ext.user_default.retarget_bvh",
+        "clipName": "openclinxr_retarget_cmu_07_01_walk",
+        "drivenBones": [
+          "clavicle.L",
+          "clavicle.R",
+          "foot.L",
+          "foot.R",
+          "head",
+          "lowerarm01.L",
+          "lowerarm01.R",
+          "lowerleg01.L",
+          "lowerleg01.R",
+          "neck01",
+          "root",
+          "spine03",
+          "spine04",
+          "spine05",
+          "toe1-1.L",
+          "toe1-1.R",
+          "upperarm01.L",
+          "upperarm01.R",
+          "upperleg01.L",
+          "upperleg01.R",
+          "wrist.L",
+          "wrist.R"
+        ],
+        "bindReport": "tools/openclinxr/evidence/mpfb-rig-motion-cagematch-bvh-bind-report.json",
+        "outputGlbEphemeral": true,
+        "licence": "retarget_bvh GPL-2.0-or-later build-time only; CMU BVH already in tree"
+      }
+    },
+    {
+      "id": "rapier_joint_chain_ragdoll",
+      "outcome": "reject_measured",
+      "bonesDriven": 0,
+      "bonesTotal": 137,
+      "reason": "Offline Rapier (@dimforge/rapier3d-compat) created 22 spherical impulse joints across 23 proxy rigid bodies named for the MPFB2 core. Proxies move under gravity and stay constrained (connected mean parent-child sep 0.07 m). No writeback maps physics state onto the 137-bone skinned armature — skinnedArmatureBonesDriven=0, subject GLB animations unchanged. Proxy simulation ≠ driving the MPFB rig. First actor-ragdoll attempt here; #457/#489 were placement rejects only.",
+      "measurements": {
+        "rapierPackage": "@dimforge/rapier3d-compat",
+        "proxyBodies": 23,
+        "jointsCreated": 22,
+        "connectedMeanParentChildSepMeters": 0.07,
+        "skinnedArmatureBonesDriven": 0,
+        "claimScope": "offline_impulse_joint_chain_on_named_subset_not_skinned_mesh_ragdoll"
+      }
+    }
+  ],
+  "adopted": null,
+  "decision": {
+    "summary": "Only BVH retarget with the MPFB2 default_no_toes map moves the skinned MPFB rig (22/137 bones). Mesh2Motion cannot bind (0/53 map, no CLI). Rapier ragdoll proxies do not write the armature. Do not adopt any candidate as the factory motion default; continue the partial BVH/MPFB2 path and expand the map if fuller coverage is required.",
+    "recommendedPath": "bvh_retarget_mpfb_bone_map",
+    "adoptFactoryDefault": false,
+    "madrResidual": "Parent/CEO: file MADR 0057 from this decision block (worker pathScope excludes docs/madr/**).",
+    "notEvidenceFor": [
+      "clinical_motion_realism",
+      "visual_walk_quality",
+      "quest_readiness",
+      "runtime_wiring",
+      "full_137_bone_coverage",
+      "rapier_skinned_ragdoll"
+    ]
+  },
+  "claimScope": "offline_harness_cagematch_whether_any_candidate_drives_mpfb_137_bone_skinned_rig_on_one_subject",
+  "notEvidenceFor": [
+    "which_candidate_looks_best",
+    "quest_budgets",
+    "promotion",
+    "runtime_default_change",
+    "other_10_actors"
+  ]
+}
