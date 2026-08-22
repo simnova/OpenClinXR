@@ -131,3 +131,42 @@ occurred - `CONSULTED (<who>):`. **A verdict paragraph containing neither prefix
 publish or file it.** "Upright, limbs present, proportions plausible" is a
 pixel grade. "A patient here would be gowned" is a consulted clinical opinion, and neither is a
 clinician sign-off.
+
+## Read what the capture mode is FOR before grading it
+
+Measured 2026-08-22. I graded two frames from `openclinxrCaptureMode=mouth-gaze-pose`, saw a blank 3D
+viewport with a fully-rendered HUD, and concluded no station renders. **Withdrawn.** That mode is a
+face/pose review harness — `main.ts:1248-1255` sets `actorPoseReviewCapture`, hides XR controllers,
+forces in-scene evidence panels and stretches the window to 45 s. It is not a scene view.
+
+`asset:ui-xr:environment-room-capture` — the room-framing capture — showed **15 stations rendering**,
+manifest `infinigenRoom: present, effectivelyVisible: true` for every one.
+
+**Rule:** a harness answering a different question looks exactly like a broken product. Before grading,
+name the mode and what it frames. If the verdict is scene-wide, the capture must be scene-framed.
+
+## Both files were 113 KB — a byte floor cannot tell them apart
+
+The blank-viewport frame was **113,516 bytes**. `exists:` passed. `min-bytes:` passed. This repo already
+shipped 113 KB error screenshots once as "WebXR Sample Scene Evidence". A byte floor proves a renderer
+ran; it says nothing about content, and it is satisfied identically by a good frame and an empty one.
+
+## A known-good figure in the SAME frame is the strongest grade you can get
+
+In the peds bay: the nurse renders correctly — teal scrubs, brown boots, upright, plausible proportions
+— while the parent beside her reads nude and the child intersects the exam furniture. Same lighting,
+same camera, same pass.
+
+That co-presence is what makes the verdict unambiguous rather than a lighting or exposure artifact, and
+it is what let the follow-up measurement use the nurse as the ambient reference. **When grading a
+multi-actor frame, say explicitly which figure is the known-good and why** — and if every figure is
+wrong, say that too, because then the defect may be the pass rather than the assets.
+
+## Name the region and what it looks like, then go measure it
+
+"The parent looks nude" was a correct pixel observation and a wrong mechanism. Her GLB carries a t-shirt
+(2,700 tris) and cargo pants (2,782 tris), both weighted, both `loaded`. Measured properly — texture-mean
+x baseColorFactor, CIELAB — her garments sit at **ΔE 11.1/11.6** from her own skin against a working
+population at **20.6–39.1**. The clothing is present, placed, and effectively invisible.
+
+The grade told me WHERE to look. It did not tell me WHAT was wrong, and the two are not the same claim.

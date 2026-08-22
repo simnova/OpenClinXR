@@ -103,3 +103,63 @@ requires this of workers' proofs - hold yourself to the same string.
 
 Words that unlock architecture - *hard*, *boundary*, *guarantee* - need a higher bar than words that
 describe a filter.
+
+## Compare like with like, or the check is vacuous
+
+Measured 2026-08-22, twice in one day, both mine.
+
+**Wrong space.** A contract asserted a garment's `baseColorFactor` differed from the body's
+`baseColorFactor`. It passed 3/3 and measured nothing: the body's colour lives in an 801 KB **texture**
+and its factor is `1,1,1`, so the comparison was garment-versus-white and returned a 0.58 delta on a
+figure that reads nude. The honest instrument is `texture-mean x factor` on BOTH sides, in one colour
+space. A superagent named the same defect in a plan I proposed: comparing one actor's factor reading
+against another's texture-mean is invalid *even when both numbers are real*.
+
+**Substring noise.** `grep -rn '1147'` returned **896 hits** and I reported it as 896 consumers. They
+were BVH motion-capture floats — `0.1147`, `-4.1147`. Word-boundary `\b1147\b` returns 84, all inside
+`.bvh`, and the actual consumer count is **0**. A grep for a number needs `\b`, and a count that large
+for a specific constant is itself the tell.
+
+**Rule:** before believing a delta, state what space each side is in. Before believing a count, look at
+three matches.
+
+## `loaded` is not `rendered`, and `rendered` is not `correct`
+
+Three questions, three instruments, and this repo's scene JSON only ever answers the first.
+
+- `loadedCount 4, failedCount 0, fallbackActive false` — the file arrived. Says nothing about pixels.
+- a room capture showing furniture and figures — it renders. Says nothing about whether the figures are
+  right.
+- the pixel grade — in the same frame that reported 4/4 loaded, one actor had garments within
+  ΔE 11 of her own skin and read as nude, and a child intersected the exam furniture.
+
+Same genus as presence/placement/provenance. When a report says an asset is fine, ask which of the
+three it measured.
+
+## Grade the instrument before the artifact
+
+I graded two captures from `mouth-gaze-pose` and concluded no station renders. That mode is a
+**face/pose review harness** — it hides controllers, forces evidence panels, and frames close. It is
+not a scene view, and the scene-wide verdict drawn from it was withdrawn. The room-framing capture
+showed 15 stations rendering correctly.
+
+**Rule:** before grading, read what the capture mode is FOR. A harness answering a different question
+looks exactly like a broken product.
+
+## A threshold comes from a distribution, never from the observation
+
+Having measured one bad value, the temptation is a threshold just above it. That is fitting the gate to
+the finding (see `contract-design`). The defensible sequence, run 2026-08-22:
+
+1. Measure the SAME quantity with ONE instrument across the whole population — 17 humanoids, 20
+   skin-to-garment ΔE pairs.
+2. Look for structure. Three bands appeared: **10.6–11.6** (2 actors), **20.6–22.0** (4), **35.8–39.1**
+   (4). The gap between 11.6 and 20.6 is empty.
+3. Put the threshold in the empty gap. The ambient set sets it; the offenders fall below it; the
+   observation validates it.
+4. Anchor to an external floor where one exists — here CIELAB ΔE against the published JND (~2.3) times
+   a stated multiplier, so the number survives someone asking "why that value".
+
+**The population measurement also found a second offender I had not seen** (`mpfb-family-partner-adult`
+at 10.6/10.9, beside the peds parent at 11.1/11.6). Planting from the single graded frame would have
+shipped a fix for one actor and left the other.
