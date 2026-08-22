@@ -190,3 +190,38 @@ What would pass instead: a **deterministic binder** that takes a clip file and w
 **Do not gate it "behind the source map." Do not run it "just to see."** A later Lane C bake-off is
 permitted only if the operator explicitly asks; it is not implied by the 2026-08-21 brief.
 
+## GRADED 2026-08-21 — Mesh2Motion `Sleeping` is NOT side-sleep; back-vs-front NOT DETERMINED
+
+The ledger row for the `mesh2motion` clip library recorded *"whether `Sleeping` is back-flat or
+side-sleep is **NOT graded**"*. Half of that is now settled, by measurement rather than by eye — the
+shipped preview is a 3.5 KB thumbnail and §11l forbids a fine verdict from a thumbnail.
+
+Measured from `static/animations/human-addon-animations.glb`, clip `Sleeping` (198 channels),
+rotation channels at t=0:
+
+    root      q = [-0.707, 0.000, 0.000, 0.707]   -> -90 deg about X ONLY
+    pelvis    q = [ 0.126, 0.000, 0.000, 0.992]   -> 14.5 deg forward tilt, no roll
+    spine_01  q = [-0.065, 0.000, 0.000, 0.998]   ->  7.4 deg, no roll
+
+**CLAIM: it is not side-lying.** A side-sleep pose requires a ROLL about the body's forward axis; the
+root chain carries a pure X pitch and **zero Y/Z rotation anywhere**, so no roll is introduced.
+
+**NOT DETERMINED: back (supine) vs front (prone).** That depends on the rest-pose forward convention,
+which I could not establish — every foot/ball/toe node's local translation lies along bone-local Y
+(Blender bone-axis convention), so those translations carry no world-forward information. **The
+instrument is blind to this question**; resolving it needs one rendered frame of the clip on a mesh.
+
+**MORE USEFUL FINDING — the clinically relevant clips are not `Sleeping`.** Enumerated from the two
+human GLBs (87 base + 75 addon):
+
+    Sitting_Idle · Sitting_Enter · Sitting_Exit · Sitting_Talking
+    Idle_Talking · Idle_TalkingPhone · Idle Listening · Idle Hurt · Idle_Subtle · LayToIdle
+
+For a Step 2 CS-style station — a patient seated, conversing, being listened to — `Sitting_Talking`
+and `Idle Listening` are worth more than a sleeping pose, and `Sitting_Enter`/`Sitting_Exit` are the
+transitions a station actually needs. **If one clip is to be mapped first (the standing ruling is ONE
+clip, not the library), the candidate should be chosen from these, not from `Sleeping`.**
+
+Licence unchanged: CC0 VERIFIED (`LICENSE-CC0.MD` in the local clone). Rig unchanged: 66-joint
+Mixamo-adjacent, so a **66->137 SOURCE map** is required either way.
+
