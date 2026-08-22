@@ -35,6 +35,7 @@ import {
 import type { DoneWhenCheck } from "../../../packages/openclinxr/agent-loop/src/slice-team.js";
 import { resolveSharedCoordinationPath } from "./coordination-root.js";
 import { assertLoopNotPaused } from "./loop-pause.js";
+import { assertProductLaneNotStarved } from "./product-lane-gate.js";
 import { setFactoryField } from "./board-cli.js";
 import { evaluateProofTargetsBeforeDispatch } from "./proof-target-preflight.js";
 import { provisionWorktreeAssetsSync } from "./worktree-asset-provisioning.js";
@@ -208,6 +209,14 @@ type DispatchOptions = {
    * overwrite would let an accidentally-weak proof set silently replace a strict contract.
    */
   refreshTrustedBrief?: boolean;
+  /**
+   * PRODUCT-LANE GATE (2026-08-22): declare this dispatch targets a RELEASE lane (apps/,
+   * packages/, asset-pipeline, factory). Product dispatches are never refused by
+   * assertProductLaneNotStarved; non-product dispatches are refused once the product clock has
+   * expired. Declaring product on a dispatch that lands no product bytes is visible at land —
+   * the clock simply keeps running.
+   */
+  product?: boolean;
 };
 
 export type DispatchLedgerEntry = {
@@ -1264,6 +1273,14 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
   // FAILS CLOSED here, before any worktree or brief is created — a refusal must cost nothing.
   const sliceId = options.slice ?? "unscoped";
   assertDispatchRole(options.role, repoRoot);
+
+  // PRODUCT-LANE GATE (superagent ruling 2026-08-22): the 06:00Z..14:55Z window landed 40 commits
+  // and ZERO on any product path — four slices on one capture-harness predicate, four on ledger
+  // accounting, while 36 of 38 fixture actors have no phenotype and the materializer consumes
+  // none of it. Evidence-only stretches are now BOUNDED mechanically: once PRODUCT_IDLE_LIMIT
+  // consecutive commits land without touching a release lane, every non-product dispatch refuses
+  // here, before any worktree or worker token. Escape is exactly one act: land product bytes.
+  assertProductLaneNotStarved(repoRoot, { slice: sliceId, product: options.product === true });
 
   // ISSUE #461: the model is a property of the role's policy, never a per-site default. Five
   // consecutive write slices dispatched xr-systems-architect (standard_execution -> pro) and
