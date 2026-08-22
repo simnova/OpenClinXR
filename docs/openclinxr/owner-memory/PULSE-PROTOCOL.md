@@ -27,10 +27,38 @@ output; it only surfaces REFUSAL-class rows to this thread.
 
 ## Verdict rule (mechanical)
 
-- PROGRESS_IMPROVING: graded_transitions_1h >= prior run AND pass_rate_1h >= 0.85 AND rework_1h <= 1
-- ACTIVITY_INCREASING: (completions_1h OR product_commits_1h) above rolling median while graded_transitions_1h == 0 for 2 consecutive runs, OR rework_1h >= 2
-- else: NUMBERS_ONLY (report, no verdict)
-- DATA_STALE: board query failed or ledger unreadable — counts as one strike toward the silence alarm
+SUPERAGENT RULING 2026-08-22 (#573): this section previously specified two branches the code
+never implemented, and both were wrong on measurement over 11 rows:
+
+- REMOVED — ACTIVITY_INCREASING "(completions OR product_commits above rolling median while
+  graded==0 for 2 consecutive runs)": fires 9/10 transitions in the ledger window (90%) — it is
+  background noise wearing an alarm's name, not a signal.
+- REJECTED — PROGRESS_IMPROVING "graded >= prior run": evaluates TRUE at a flat zero, calling a
+  dead factory improving. Code uses graded > 0 (strictly positive), which is correct.
+
+The code is now the SSOT for the rule; this doc describes it:
+
+- DATA_STALE: any source unreadable (row carries degraded:true + null_fields). Counts toward the
+  silence alarm. dispatch() refuses on a freshest-row DATA_STALE until repaired (pulse gate).
+- PROGRESS_IMPROVING: graded_transitions_1h > 0 AND pass_rate_1h >= 0.85 AND rework_1h <= 1
+- PRODUCING_NOTHING: graded == 0 AND product_commits == 0 AND total_commits >= 3 AND
+  completions >= 3 — real execution happened, none of it touched a release lane. Reference
+  input is commit VOLUME, which slice selection cannot inflate without landing release bytes.
+  Fires on corrected replay of the 2026-08-22 08:51 row (total 15, completions 10, product 0).
+- ACTIVITY_INCREASING: rework_1h >= 2 with completions or commits present — wasted execution,
+  the delegate-retry smell. (Kept narrow; the broad median branch above was the false alarm.)
+- else NUMBERS_ONLY.
+
+product_commits_1h uses the SAME release-lane definition as dispatch()'s product-lane gate
+(tools/openclinxr/openclaw/product-lane-gate.ts isProductPath). Capture harness
+(apps/arena/model-vetting-studio) and loop machinery (packages/openclinxr/agent-loop,
+test-harness) are NOT product; the 2026-08-22 derailment certified 6/1/11/2 "product" commits
+through an inline regex before this ruling unified the definition.
+
+Consumption (binding, not aspirational): every tick report cites the last pulse row's verdict
+verbatim (R1). PRODUCING_NOTHING or ACTIVITY_INCREASING obliges a NEEDS-DECISION line in that
+same tick naming the lane decision — a verdict nobody answers within one tick is the failure
+mode this protocol exists to prevent.
 
 ## Sampling rule (NOT read hourly)
 
