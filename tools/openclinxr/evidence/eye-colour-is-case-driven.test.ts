@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
+import type { Document, Material } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 
 /**
@@ -191,32 +192,62 @@ type Row = {
 
 const io = new NodeIO();
 
+/**
+ * The eye material is the one CARRYING A baseColorTexture — not "any name containing eye".
+ * #569: the old last-wins `/eye/i` scan attributed the EYELASH's factor (0.02) to the iris,
+ * because eyebrow/eyelash names also contain "eye" and document order is not a guarantee.
+ */
+function eyeRowFromDoc(doc: Document): Omit<Row, "file" | "upperRgb"> | null {
+  let irisMat: Material | null = null;
+  for (const mesh of doc.getRoot().listMeshes()) {
+    for (const prim of mesh.listPrimitives()) {
+      const mat = prim.getMaterial();
+      if (!mat || !mat.getBaseColorTexture()) continue;
+      if (/eye/i.test(`${mesh.getName()}/${mat.getName()}`)) {
+        irisMat = mat;
+        break;
+      }
+    }
+    if (irisMat) break;
+  }
+  if (!irisMat) return null;
+  const img = irisMat.getBaseColorTexture()?.getImage();
+  const c = irisMat.getBaseColorFactor();
+  return {
+    irisSha: img ? createHash("sha256").update(img).digest("hex").slice(0, 16) : null,
+    irisKb: img ? img.length / 1024 : 0,
+    factor: [c[0]!, c[1]!, c[2]!],
+  };
+}
+
+export async function readEyeRow(path: string): Promise<Omit<Row, "file" | "upperRgb">> {
+  const doc = await io.read(path);
+  const row = eyeRowFromDoc(doc);
+  if (!row) {
+    throw new Error(
+      `no textured /eye/ material in ${path} — the iris is identified by carrying a `
+        + `baseColorTexture, never by document order (#569)`,
+    );
+  }
+  return row;
+}
+
 async function measure(file: string): Promise<Row | null> {
   const doc = await io.read(join(REPO_ROOT, GENERATED, file));
-  let irisSha: string | null = null;
-  let irisKb = 0;
-  let factor: [number, number, number] = [1, 1, 1];
+  const eye = eyeRowFromDoc(doc);
   let upperRgb: [number, number, number] | null = null;
   for (const mesh of doc.getRoot().listMeshes()) {
     for (const prim of mesh.listPrimitives()) {
       const mat = prim.getMaterial();
       if (!mat) continue;
-      const name = `${mesh.getName()}/${mat.getName()}`;
-      if (/eye/i.test(name)) {
-        const img = mat.getBaseColorTexture()?.getImage();
-        if (img) {
-          irisSha = createHash("sha256").update(img).digest("hex").slice(0, 16);
-          irisKb = img.length / 1024;
-        }
-        const c = mat.getBaseColorFactor();
-        if (c) factor = [c[0]!, c[1]!, c[2]!];
-      } else if (/t_shirt|scrub|sweater/i.test(mesh.getName())) {
+      if (/t_shirt|scrub|sweater/i.test(mesh.getName())) {
         const c = mat.getBaseColorFactor();
         if (c) upperRgb = [c[0]!, c[1]!, c[2]!];
       }
     }
   }
-  return { file, irisSha, irisKb, factor, upperRgb };
+  if (!eye) return null;
+  return { file, ...eye, upperRgb };
 }
 
 const rows = (await Promise.all(CAST.map((f) => measure(f).catch(() => null)))).filter(
