@@ -739,9 +739,16 @@ async function addScaledCaptureModel(scene: Scene, model: Object3D, offsetX: num
   return { meshCount };
 }
 
-export function buildAnimationEvidence(animations: Array<{ name?: string; tracks?: unknown[] }>): ModelVettingCandidateCaptureEvidence["animationEvidence"] {
+export function buildAnimationEvidence(animations: AnimationClip[]): ModelVettingCandidateCaptureEvidence["animationEvidence"] {
   const animationNames = animations.map((animation, index) => animation.name || `unnamed_animation_${index}`);
-  const bodyMotionProbeClipName = selectBodyMotionProbeClipName(animationNames);
+  // Evidence must name the same clip the mixer plays (candidate-capture.ts:328): selection by
+  // CONTENT - rotation channels, then authored name tier, then duration. The former
+  // selectBodyMotionProbeClipName call rebuilt every candidate as a zero-track placeholder, so the
+  // record described a name-tier guess whenever content outranked the name tier.
+  const rankedCandidates = animations.map((animation, index) => (
+    animation.name ? animation : new AnimationClip(`unnamed_animation_${index}`, -1, animation.tracks)
+  ));
+  const bodyMotionProbeClipName = selectBodyMotionProbeClip(rankedCandidates)?.name ?? null;
   return {
     animationCount: animations.length,
     animationNames,

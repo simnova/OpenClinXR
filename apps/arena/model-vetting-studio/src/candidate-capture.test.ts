@@ -1,3 +1,4 @@
+import { AnimationClip, NumberKeyframeTrack } from "three";
 import { describe, expect, it } from "vitest";
 import { buildVisemeTimelineFromDialogue, PEDS_ASTHMA_PATIENT_VISeme_DIALOGUE_UTTERANCE } from "@openclinxr/model-vetting";
 import { buildAnimationEvidence, glbUrlForPath, isFixedCameraView, isTemporalCaptureView, selectBodyMotionProbeClipName } from "./candidate-capture.js";
@@ -21,9 +22,12 @@ describe("candidate capture GLB selection", () => {
   });
 
   it("flags imported MPFB2 eye-look probe animation without promoting readiness", () => {
+    // buildAnimationEvidence takes real AnimationClips (it ranks them by content, as the mixer does);
+    // track counts here mirror the former placeholder fixtures so totalChannelCount is unchanged.
+    const track = (target: string) => new NumberKeyframeTrack(target, [0, 1], [0, 1]);
     expect(buildAnimationEvidence([
-      { name: "openclinxr_clinical_idle_breathing", tracks: [{}, {}] },
-      { name: "openclinxr_mpfb2_eye_look_probe.001", tracks: [{}] },
+      new AnimationClip("openclinxr_clinical_idle_breathing", 1, [track("a.quaternion"), track("b.quaternion")]),
+      new AnimationClip("openclinxr_mpfb2_eye_look_probe.001", 1, [track("c.morphTargetInfluences[0]")]),
     ])).toEqual({
       animationCount: 2,
       animationNames: ["openclinxr_clinical_idle_breathing", "openclinxr_mpfb2_eye_look_probe.001"],

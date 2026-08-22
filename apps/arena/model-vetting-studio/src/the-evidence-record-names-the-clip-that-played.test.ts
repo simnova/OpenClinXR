@@ -61,7 +61,7 @@ const SHIPPED_KNOWN_GOOD = [
 ];
 
 describe("the evidence record names the clip that played", () => {
-  it.fails("(1) RED: the evidence record names the mixer's clip when content overrides the name tier", () => {
+  it("(1) the evidence record names the mixer's clip when content overrides the name tier", () => {
     const evidence = buildAnimationEvidence(CONTENT_OVERRIDES_NAME);
     expect(
       evidence.bodyMotionProbeClipName,
@@ -69,6 +69,19 @@ describe("the evidence record names the clip that played", () => {
         + "describes a capture that did not happen",
     ).toBe(selectBodyMotionProbeClip(CONTENT_OVERRIDES_NAME)?.name);
   });
+
+  /**
+   * ## FIXED (#559)
+   *
+   * Clause (1) was planted `it.fails` against the name-only evidence path and went green the moment
+   * buildAnimationEvidence routed through the content ranker. Measured before the fix:
+   * bodyMotionProbeClipName=openclinxr_retarget_cmu_07_01_walk while
+   * selectBodyMotionProbeClip(CONTENT_OVERRIDES_NAME) returned zzz_unlisted_motion_clip_v1 - a
+   * 12-channel listed clip recorded for a capture that played a 40-channel unlisted one. The fix
+   * (candidate-capture.ts:742) tightened the parameter to AnimationClip[] and ranked real clips via
+   * selectBodyMotionProbeClip, preserving unnamed_animation_N renaming. Clauses (2)-(4) passed
+   * unchanged on the first fixed run.
+   */
 
   it("(2) KNOWN-GOOD COLUMN: on shipped shapes the two already agree, and must keep agreeing", () => {
     // Passes today because #560's name tier decides this case on both paths. A fix that makes the
