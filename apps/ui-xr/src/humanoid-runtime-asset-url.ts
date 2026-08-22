@@ -75,7 +75,10 @@ export const MPFB_PEDS_NURSE_KEVIN_RUNTIME_PATH =
   "/generated-humanoids/mpfb-peds-nurse-kevin.glb";
 export const MPFB_PEDS_PATIENT_CHILD_RUNTIME_PATH =
   "/generated-humanoids/mpfb-peds-patient-child.glb";
-/** Dark-factory B — peds parent loads the motion-bind GLB. Mirrors actor-casting. */
+/**
+ * #557 — the peds parent loads the motion-bind GLB carrying the CC0 seated clip
+ * (openclinxr_retarget_seated_talking_cc0). Mirrors actor-casting.
+ */
 export const MPFB_PEDS_PARENT_AISHA_RUNTIME_PATH =
   "/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb";
 /**
@@ -183,7 +186,7 @@ const ED_RUNTIME_CAST_BY_ACTOR: Record<string, string> = {
 /** Runtime public paths for peds asthma cast (mirrors actor-casting table). */
 const PEDS_RUNTIME_CAST_BY_ACTOR: Record<string, string> = {
   // #335: child + nurse stay generated MPFB. Parent is the motion-bind GLB
-  // (dark-factory B) so the mixer sees openclinxr_retarget_cmu_07_01_walk.
+  // (#557) so the mixer sees openclinxr_retarget_seated_talking_cc0.
   patient_maya_johnson_v1: MPFB_PEDS_PATIENT_CHILD_RUNTIME_PATH,
   parent_tara_johnson_v1: MPFB_PEDS_PARENT_AISHA_RUNTIME_PATH,
   nurse_kevin_lee_v1: MPFB_PEDS_NURSE_KEVIN_RUNTIME_PATH,

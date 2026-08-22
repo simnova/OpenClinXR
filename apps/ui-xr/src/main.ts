@@ -625,7 +625,7 @@ function buildActorPlayerRuntimeMetadataSummary(
         actorId: "parent_tara_johnson_v1",
         turnCount: 2,
         sampleCount: 6,
-        roleAnimationClipNames: ["openclinxr_retarget_cmu_07_01_walk", "openclinxr_role_parent_anxious_fidget_guard"],
+        roleAnimationClipNames: ["openclinxr_retarget_seated_talking_cc0", "openclinxr_role_parent_anxious_fidget_guard"],
         sceneExecutionStatus: "not_scene_executed",
         blockerIds,
       },

@@ -57,7 +57,7 @@ type Report = {
 const rpt = (): Report => (existsSync(REPORT) ? JSON.parse(readFileSync(REPORT, "utf8")) as Report : {});
 
 describe("a seated clinical clip drives the MPFB rig", () => {
-  it.fails("(1) RED: a seated CC0 clip binds more of the 137-bone rig than the walk does", () => {
+  it("(1) a seated CC0 clip binds more of the 137-bone rig than the walk does", () => {
     const r = rpt();
     expect(r.bonesDriven, `${REPORT} missing - measure the bind before wiring anything`).toBeTypeOf("number");
     expect(r.subjectJoints, "the report must record the subject's joint count").toBe(137);
@@ -67,7 +67,7 @@ describe("a seated clinical clip drives the MPFB rig", () => {
       .toBeGreaterThan(CMU_CONTROL_BONES_DRIVEN);
   });
 
-  it.fails("(2) RED: the mixer names the clip, so it can actually play", () => {
+  it("(2) the mixer names the clip, so it can actually play", () => {
     // A bound clip nothing plays is a file, not a capability. main.ts:628 is where the runtime learns
     // clip names.
     const r = rpt();
@@ -95,3 +95,27 @@ describe("a seated clinical clip drives the MPFB rig", () => {
     }
   });
 });
+
+/** ## FIXED (#557)
+ *
+ * Clauses (1) and (2) were planted it.fails; both flipped to it( in the same change that made
+ * them pass. Measured 2026-08-22:
+ *
+ * - Source: Sitting_Talking measured 66 joints via NodeIO (matches the header). The addon's
+ *   glTF path round-trips glTF->BVH with all 66 names preserved, BUT the 87-clip library imports
+ *   as ONE stacked Blender action - so the bind consumes a single-clip extraction.
+ * - Bind: retarget_bvh consumed the NEW source map (52 entries, sized to what the clip drives,
+ *   not padded to 66) by RENAMING source joints to MHX canonical names; the target map tags MPFB
+ *   bones with the same MHX names. Result: bonesDriven 46 of 137 vs control 26 (clavicle.L/R +
+ *   28 finger joints moving up to ~0.24 rad) - re-probed independently from the returned GLB.
+ * - Target map grew 34 -> 60 keys (+26 finger entries, none removed). Under cmu_07_01_walk those
+ *   bind nothing (unbound 8 -> 34); every unbound key is declared optional (optional 14 -> 36),
+ *   and mpfb-bone-map-coverage.json was regenerated under the grown map so the control stayed
+ *   honestly 26. The seated clip binds 25 of the 26 new keys.
+ * - Mixer: main.ts roleAnimationClipNames for parent_tara_johnson_v1 names
+ *   openclinxr_retarget_seated_talking_cc0; the runtime GLB
+ *   (candidates/mpfb-peds-parent-aisha.motion-bind.glb) was rebound on the SAME rail to carry the
+ *   clip while preserving the #462 viseme bake (47 targets / 15 visemes) and MORE of the original
+ *   actor than the previous walk GLB (10 meshes vs 6 - the old bake had dropped
+ *   eyebrow/eyelash/teeth/tongue).
+ */

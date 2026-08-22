@@ -65,7 +65,7 @@ export const MPFB_PEDS_PATIENT_CHILD_GLB = "mpfb-peds-patient-child.glb";
  * muted_rose_and_neutral. OB aisha stays cream.
  */
 export const MPFB_PEDS_PARENT_AISHA_GLB = "mpfb-peds-parent-aisha.glb";
-/** Dark-factory B: peds parent runtime is the motion-bind GLB (walk clip). */
+/** Dark-factory B: peds parent runtime is the motion-bind GLB (#557 CC0 seated clip). */
 export const MPFB_PEDS_PARENT_AISHA_MOTION_BIND_GLB = "mpfb-peds-parent-aisha.motion-bind.glb";
 /**
  * #403 — step 2 of the MPFB2 migration: two adult MPFB bodies replace the shared
