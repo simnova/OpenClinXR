@@ -1,0 +1,110 @@
+{
+ "asset": {
+  "version": "2.0",
+  "generator": "openclinxr #569 fixture: eyelash listed BEFORE the iris"
+ },
+ "scene": 0,
+ "scenes": [
+  {
+   "nodes": [
+    0,
+    1
+   ]
+  }
+ ],
+ "nodes": [
+  {
+   "mesh": 0
+  },
+  {
+   "mesh": 1
+  }
+ ],
+ "meshes": [
+  {
+   "name": "openclinxr_hm08_eyelash_fixture_mesh",
+   "primitives": [
+    {
+     "attributes": {
+      "POSITION": 0
+     },
+     "material": 0
+    }
+   ]
+  },
+  {
+   "name": "makeclothes_library_eyes_low_poly_fixture_mesh",
+   "primitives": [
+    {
+     "attributes": {
+      "POSITION": 0
+     },
+     "material": 1
+    }
+   ]
+  }
+ ],
+ "materials": [
+  {
+   "name": "mat_openclinxr_hm08_eyelash_fixture",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.02,
+     0.02,
+     0.02,
+     1
+    ]
+   }
+  },
+  {
+   "name": "mat_makeclothes_library_eyes_fixture",
+   "pbrMetallicRoughness": {
+    "baseColorTexture": {
+     "index": 0
+    }
+   }
+  }
+ ],
+ "textures": [
+  {
+   "source": 0
+  }
+ ],
+ "images": [
+  {
+   "name": "brown_eye",
+   "uri": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGOoDzAAAAJRAQBxdOeiAAAAAElFTkSuQmCC"
+  }
+ ],
+ "accessors": [
+  {
+   "bufferView": 0,
+   "componentType": 5126,
+   "count": 3,
+   "type": "VEC3",
+   "min": [
+    0,
+    0,
+    0
+   ],
+   "max": [
+    1,
+    1,
+    0
+   ]
+  }
+ ],
+ "bufferViews": [
+  {
+   "buffer": 0,
+   "byteOffset": 0,
+   "byteLength": 36
+  }
+ ],
+ "buffers": [
+  {
+   "byteLength": 36,
+   "uri": "data:application/octet-stream;base64,AAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAgD8AAAAA"
+  }
+ ]
+}
