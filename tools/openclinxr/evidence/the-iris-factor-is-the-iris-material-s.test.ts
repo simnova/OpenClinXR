@@ -64,7 +64,7 @@ describe("the iris factor is the iris material's", () => {
     expect(order, "fixture must list the untextured eyelash before the textured iris").toEqual(["lash", "IRIS"]);
   });
 
-  it.fails("(1) RED: a shipped asset's iris factor is neutral, not the eyelash's hair colour", async () => {
+  it("(1) GUARD (flipped from RED #569): a shipped asset's iris factor is neutral, not the eyelash's hair colour", async () => {
     const row = await readRow(SHIPPED);
     const worst = Math.max(...row.factor.map((v) => Math.abs(v - 1)));
     expect(
@@ -73,14 +73,14 @@ describe("the iris factor is the iris material's", () => {
     ).toBeLessThan(NEUTRAL);
   });
 
-  it.fails("(2) RED + COUNTERWEIGHT: order does not decide — the eyelash-first fixture still yields the iris", async () => {
+  it("(2) GUARD + COUNTERWEIGHT (flipped from RED #569): order does not decide — the eyelash-first fixture still yields the iris", async () => {
     // Refuses `break`-on-first-match, which passes on all 11 shipped assets and fails here.
     const row = await readRow(REORDERED);
     const worst = Math.max(...row.factor.map((v) => Math.abs(v - 1)));
     expect(worst, "taking the FIRST /eye/ match returns the eyelash's 0.02 here").toBeLessThan(NEUTRAL);
   });
 
-  it.fails("(3) COUNTERWEIGHT: the iris texture is still identified, on both", async () => {
+  it("(3) COUNTERWEIGHT GUARD (flipped from RED #569): the iris texture is still identified, on both", async () => {
     // Refuses a fix that narrows the match so hard it stops finding the iris at all. The shipped
     // asset's iris is the 597 KB brown_eye; the fixture's is a 1x1 stub, so only presence is asserted.
     const shipped = await readRow(SHIPPED);
