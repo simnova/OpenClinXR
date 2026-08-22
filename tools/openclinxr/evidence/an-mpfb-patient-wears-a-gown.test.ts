@@ -65,6 +65,15 @@ import { describe, expect, it } from "vitest";
  *     S0/S1/S2 lesson is that presence, placement and provenance are three questions and none is CLASS.
  *   - Recasting the seven patients — that is L6, and P1 stays parked until this lands.
  *   - Quest, clinical validity, exam equivalence.
+ *
+ * ## FIXED (#550) — appended; the planted header above is immutable
+ *
+ * `ece7f143` / #485 stripped `cargo_pants` from this body (poke-through). Clause (1d) still asserted
+ * `cargo_pants` as a must-be-present known-good lower control. NodeIO inventory
+ * (`named-control-inventory.json`): no mesh matching `cargo_pants|_pants|trouser` remains — there is
+ * **no** surviving lower-body garment of the right kind on `mpfb-gown-inspect.glb` (unlike kevin,
+ * which still has `scrub_pants`). Choice: **inverted guard** recording that absence. Do not restore
+ * `cargo_pants`. (1b)/(1c)/`_body` controls still present and unchanged.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -229,18 +238,20 @@ describe("an MPFB patient body wears a gown", () => {
   });
 
   it("(1d) COUNTERWEIGHT: a lower-body garment fails the top bound", async () => {
-    // The clause the FIRST repair was missing. cargo_pants hems at 0.060h and cleared a hem-only
-    // bound outright — a trouser leg is not a gown, and only the TOP bound says so. Kept as its own
-    // clause so a future edit that drops topFraction reds here instead of silently widening class.
+    // FIXED (#550): inverted guard. The planted counterweight required cargo_pants as a live
+    // known-good that fails GOWN_TOP_FRAC_MIN. #485 stripped that mesh; NodeIO shows no
+    // cargo_pants|_pants|trouser remnant on this body — no replacement lower control of the right
+    // kind exists (footwear is not a trouser-class defeat of the top bound). Assert ABSENCE instead
+    // of retargeting. Re-introducing trousers would red here and is refused by #487 as well.
     const b = await read(TARGET);
     expect(b, "the bake must exist").not.toBeNull();
-    const pants = b!.geoms.find((g) => /cargo_pants/.test(g.name));
-    expect(pants, "cargo_pants is the known-good NOT-a-gown lower control on this body").toBeDefined();
-    expect(topFraction(pants!, bodyMesh(b!)), "trousers start at the hip; a gown reaches the shoulder")
-      .toBeLessThan(GOWN_TOP_FRAC_MIN);
-    expect(gownClassShells(b!).map((g) => g.name), "trousers must not be counted as a gown shell").not.toContain(
-      pants!.name,
+    const lower = b!.geoms.filter(
+      (g) => g.verts >= 100 && /(cargo_pants|_pants|trouser)/i.test(g.name),
     );
+    expect(
+      lower.map((g) => g.name),
+      "no lower-body garment may remain on mpfb-gown-inspect (#485 stripped cargo_pants; do not restore)",
+    ).toEqual([]);
   });
 
   it("(2) RED: the gown is on the MPFB rail, not Anny", async () => {
