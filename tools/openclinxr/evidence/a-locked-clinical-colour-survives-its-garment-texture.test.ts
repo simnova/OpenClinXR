@@ -267,7 +267,12 @@ describe("a locked clinical colour survives its garment texture", () => {
     const texturedLocked = locked.filter((g) => g.hasTexture);
     expect(
       texturedLocked.map((g) => g.name),
-      "no locked clinical garment on this asset carries a weave after sweater→scrub retarget — inverted guard, not a deleted clause",
+      "absence of textured locked clinical garments is expected ONLY while none carry a weave " +
+        `(today: scrub_shirt untextured after sweater→scrub). If this fires, a textured locked ` +
+        `garment has arrived (${texturedLocked.map((g) => g.name).join(", ") || "named above"}) — ` +
+        "RESTORE the original #360 weave counterweight (texture present + texSD >= MIN_TEXTURE_SD 0.05; " +
+        "shirt-knit shape measured sd 0.156 on 2026-08-14) against that new subject. " +
+        "Do NOT delete or weaken this clause.",
     ).toEqual([]);
   });
 
