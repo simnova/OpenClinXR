@@ -1,0 +1,468 @@
+{
+  "slice": "issue-550",
+  "group": "A",
+  "measuredAt": "2026-08-22T00:12:10.829Z",
+  "method": "NodeIO @gltf-transform/core — mesh/material names enumerated from GLB bytes; presence never hand-typed",
+  "assetsEnumerated": [
+    "mpfb-gown-inspect.glb",
+    "mpfb-peds-nurse-kevin.glb"
+  ],
+  "controls": [
+    {
+      "file": "tools/openclinxr/evidence/an-mpfb-patient-wears-a-gown.test.ts",
+      "clause": "(1b) COUNTERWEIGHT: the 3-vertex declared-layer marker cannot satisfy (1)",
+      "control": "declared_upper_layers",
+      "controlRegex": "declared_upper_layers",
+      "matchKind": "mesh",
+      "presencePolarity": "must_be_present",
+      "assetInspected": "mpfb-gown-inspect.glb",
+      "assetExists": true,
+      "presentInAsset": true,
+      "presentUnderContractFilter": true,
+      "contractNameFilter": null,
+      "matchedNames": [
+        "openclinxr_declared_upper_layers__hospital_gown_mesh"
+      ],
+      "survivingCandidates": [
+        "makeclothes_library_eyes_low_poly_mpfb_ob_patient_aisha_mesh",
+        "makeclothes_library_footwear_toigo_flats_mpfb_ob_patient_aisha_mesh",
+        "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh",
+        "makeclothes_library_toigo_t_shirt_mpfb_ob_patient_aisha_mesh",
+        "openclinxr_real_garment_peds_upper_v1_mesh"
+      ],
+      "allMeshesInAsset": [
+        "makeclothes_library_eyes_low_poly_mpfb_ob_patient_aisha_mesh",
+        "makeclothes_library_footwear_toigo_flats_mpfb_ob_patient_aisha_mesh",
+        "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh",
+        "makeclothes_library_toigo_t_shirt_mpfb_ob_patient_aisha_mesh",
+        "mpfb_ob_patient_aisha_body",
+        "openclinxr_declared_upper_layers__hospital_gown_mesh",
+        "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh",
+        "openclinxr_hm08_eyelash_mpfb_ob_patient_aisha_mesh",
+        "openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh",
+        "openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh",
+        "openclinxr_real_garment_peds_upper_v1_mesh"
+      ],
+      "allMaterialsInAsset": [
+        "mat_makeclothes_library_eyes_ob_patient_aisha",
+        "mat_makeclothes_library_footwear_toigo_flats",
+        "mat_makeclothes_library_toigo_t_shirt",
+        "mat_openclinxr_hm08_eyelash_mpfb_ob_patient_aisha_mesh",
+        "mat_openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh",
+        "mat_openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh",
+        "mpfb_skin_ob_patient_aisha",
+        "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mat",
+        "openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mat",
+        "openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+        "openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+        "openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+        "openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+        "openclinxr_hidden_orphan_mpfb_ob_patient_aisha_body_mesh",
+        "openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+        "openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+        "openclinxr_real_garment_hospital_gown_phenotype_L0"
+      ],
+      "contractFilteredMaterialNames": null
+    },
+    {
+      "file": "tools/openclinxr/evidence/an-mpfb-patient-wears-a-gown.test.ts",
+      "clause": "(1c) COUNTERWEIGHT: an upper-body garment on the same body fails the hem bound",
+      "control": "t_shirt",
+      "controlRegex": "t_shirt",
+      "matchKind": "mesh",
+      "presencePolarity": "must_be_present",
+      "assetInspected": "mpfb-gown-inspect.glb",
+      "assetExists": true,
+      "presentInAsset": true,
+      "presentUnderContractFilter": true,
+      "contractNameFilter": null,
+      "matchedNames": [
+        "makeclothes_library_toigo_t_shirt_mpfb_ob_patient_aisha_mesh"
+      ],
+      "survivingCandidates": [
+        "makeclothes_library_eyes_low_poly_mpfb_ob_patient_aisha_mesh",
+        "makeclothes_library_footwear_toigo_flats_mpfb_ob_patient_aisha_mesh",
+        "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh",
+        "openclinxr_real_garment_peds_upper_v1_mesh"
+      ],
+      "allMeshesInAsset": [
+        "makeclothes_library_eyes_low_poly_mpfb_ob_patient_aisha_mesh",
+        "makeclothes_library_footwear_toigo_flats_mpfb_ob_patient_aisha_mesh",
+        "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh",
+        "makeclothes_library_toigo_t_shirt_mpfb_ob_patient_aisha_mesh",
+        "mpfb_ob_patient_aisha_body",
+        "openclinxr_declared_upper_layers__hospital_gown_mesh",
+        "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh",
+        "openclinxr_hm08_eyelash_mpfb_ob_patient_aisha_mesh",
+        "openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh",
+        "openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh",
+        "openclinxr_real_garment_peds_upper_v1_mesh"
+      ],
+      "allMaterialsInAsset": [
+        "mat_makeclothes_library_eyes_ob_patient_aisha",
+        "mat_makeclothes_library_footwear_toigo_flats",
+        "mat_makeclothes_library_toigo_t_shirt",
+        "mat_openclinxr_hm08_eyelash_mpfb_ob_patient_aisha_mesh",
+        "mat_openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh",
+        "mat_openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh",
+        "mpfb_skin_ob_patient_aisha",
+        "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mat",
+        "openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mat",
+        "openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+        "openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+        "openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+        "openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+        "openclinxr_hidden_orphan_mpfb_ob_patient_aisha_body_mesh",
+        "openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+        "openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+        "openclinxr_real_garment_hospital_gown_phenotype_L0"
+      ],
+      "contractFilteredMaterialNames": null
+    },
+    {
+      "file": "tools/openclinxr/evidence/an-mpfb-patient-wears-a-gown.test.ts",
+      "clause": "(1d) COUNTERWEIGHT: a lower-body garment fails the top bound",
+      "control": "cargo_pants",
+      "controlRegex": "cargo_pants",
+      "matchKind": "mesh",
+      "presencePolarity": "must_be_present",
+      "assetInspected": "mpfb-gown-inspect.glb",
+      "assetExists": true,
+      "presentInAsset": false,
+      "presentUnderContractFilter": false,
+      "contractNameFilter": null,
+      "matchedNames": [],
+      "survivingCandidates": [
+        "makeclothes_library_eyes_low_poly_mpfb_ob_patient_aisha_mesh",
+        "makeclothes_library_footwear_toigo_flats_mpfb_ob_patient_aisha_mesh",
+        "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh",
+        "makeclothes_library_toigo_t_shirt_mpfb_ob_patient_aisha_mesh",
+        "openclinxr_real_garment_peds_upper_v1_mesh"
+      ],
+      "allMeshesInAsset": [
+        "makeclothes_library_eyes_low_poly_mpfb_ob_patient_aisha_mesh",
+        "makeclothes_library_footwear_toigo_flats_mpfb_ob_patient_aisha_mesh",
+        "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh",
+        "makeclothes_library_toigo_t_shirt_mpfb_ob_patient_aisha_mesh",
+        "mpfb_ob_patient_aisha_body",
+        "openclinxr_declared_upper_layers__hospital_gown_mesh",
+        "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh",
+        "openclinxr_hm08_eyelash_mpfb_ob_patient_aisha_mesh",
+        "openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh",
+        "openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh",
+        "openclinxr_real_garment_peds_upper_v1_mesh"
+      ],
+      "allMaterialsInAsset": [
+        "mat_makeclothes_library_eyes_ob_patient_aisha",
+        "mat_makeclothes_library_footwear_toigo_flats",
+        "mat_makeclothes_library_toigo_t_shirt",
+        "mat_openclinxr_hm08_eyelash_mpfb_ob_patient_aisha_mesh",
+        "mat_openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh",
+        "mat_openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh",
+        "mpfb_skin_ob_patient_aisha",
+        "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mat",
+        "openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mat",
+        "openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+        "openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+        "openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+        "openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+        "openclinxr_hidden_orphan_mpfb_ob_patient_aisha_body_mesh",
+        "openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+        "openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+        "openclinxr_real_garment_hospital_gown_phenotype_L0"
+      ],
+      "contractFilteredMaterialNames": null
+    },
+    {
+      "file": "tools/openclinxr/evidence/an-mpfb-patient-wears-a-gown.test.ts",
+      "clause": "bodyMesh (shared by (1)/(1b)/(1c)/(1d))",
+      "control": "_body",
+      "controlRegex": "_body$",
+      "matchKind": "mesh",
+      "presencePolarity": "must_be_present",
+      "assetInspected": "mpfb-gown-inspect.glb",
+      "assetExists": true,
+      "presentInAsset": true,
+      "presentUnderContractFilter": true,
+      "contractNameFilter": null,
+      "matchedNames": [
+        "mpfb_ob_patient_aisha_body"
+      ],
+      "survivingCandidates": [
+        "makeclothes_library_eyes_low_poly_mpfb_ob_patient_aisha_mesh",
+        "makeclothes_library_footwear_toigo_flats_mpfb_ob_patient_aisha_mesh",
+        "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh",
+        "makeclothes_library_toigo_t_shirt_mpfb_ob_patient_aisha_mesh",
+        "openclinxr_real_garment_peds_upper_v1_mesh"
+      ],
+      "allMeshesInAsset": [
+        "makeclothes_library_eyes_low_poly_mpfb_ob_patient_aisha_mesh",
+        "makeclothes_library_footwear_toigo_flats_mpfb_ob_patient_aisha_mesh",
+        "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh",
+        "makeclothes_library_toigo_t_shirt_mpfb_ob_patient_aisha_mesh",
+        "mpfb_ob_patient_aisha_body",
+        "openclinxr_declared_upper_layers__hospital_gown_mesh",
+        "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh",
+        "openclinxr_hm08_eyelash_mpfb_ob_patient_aisha_mesh",
+        "openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh",
+        "openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh",
+        "openclinxr_real_garment_peds_upper_v1_mesh"
+      ],
+      "allMaterialsInAsset": [
+        "mat_makeclothes_library_eyes_ob_patient_aisha",
+        "mat_makeclothes_library_footwear_toigo_flats",
+        "mat_makeclothes_library_toigo_t_shirt",
+        "mat_openclinxr_hm08_eyelash_mpfb_ob_patient_aisha_mesh",
+        "mat_openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh",
+        "mat_openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh",
+        "mpfb_skin_ob_patient_aisha",
+        "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mat",
+        "openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mat",
+        "openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+        "openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+        "openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+        "openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+        "openclinxr_hidden_orphan_mpfb_ob_patient_aisha_body_mesh",
+        "openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+        "openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+        "openclinxr_real_garment_hospital_gown_phenotype_L0"
+      ],
+      "contractFilteredMaterialNames": null
+    },
+    {
+      "file": "tools/openclinxr/evidence/a-locked-clinical-colour-survives-its-garment-texture.test.ts",
+      "clause": "requireMeasured + (1)/(2) — fisherman sweater",
+      "control": "sweater",
+      "controlRegex": "sweater",
+      "matchKind": "material",
+      "presencePolarity": "must_be_present",
+      "assetInspected": "mpfb-peds-nurse-kevin.glb",
+      "assetExists": true,
+      "presentInAsset": false,
+      "presentUnderContractFilter": false,
+      "contractNameFilter": "makeclothes_library",
+      "matchedNames": [],
+      "survivingCandidates": [
+        "footwear_culturalibre_male_boots",
+        "makeclothes_library_eyes_low_poly_mpfb_peds_nurse_kevin_mesh",
+        "makeclothes_library_footwear_culturalibre_male_boots_mpfb_peds_nurse_kevin_mesh",
+        "makeclothes_library_hair_mhair02_mpfb_peds_nurse_kevin_mesh",
+        "makeclothes_library_scrub_pants_mpfb_peds_nurse_kevin_mesh",
+        "makeclothes_library_scrub_shirt_mpfb_peds_nurse_kevin_mesh",
+        "scrub_pants",
+        "scrub_shirt"
+      ],
+      "allMeshesInAsset": [
+        "makeclothes_library_eyes_low_poly_mpfb_peds_nurse_kevin_mesh",
+        "makeclothes_library_footwear_culturalibre_male_boots_mpfb_peds_nurse_kevin_mesh",
+        "makeclothes_library_hair_mhair02_mpfb_peds_nurse_kevin_mesh",
+        "makeclothes_library_scrub_pants_mpfb_peds_nurse_kevin_mesh",
+        "makeclothes_library_scrub_shirt_mpfb_peds_nurse_kevin_mesh",
+        "mpfb_peds_nurse_kevin_body",
+        "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_peds_nurse_kevin_mesh",
+        "openclinxr_hm08_eyelash_mpfb_peds_nurse_kevin_mesh",
+        "openclinxr_hm08_teeth_mpfb_peds_nurse_kevin_mesh",
+        "openclinxr_hm08_tongue_mpfb_peds_nurse_kevin_mesh"
+      ],
+      "allMaterialsInAsset": [
+        "mat_makeclothes_library_eyes_peds_nurse_kevin",
+        "mat_makeclothes_library_footwear_culturalibre_male_boots",
+        "mat_makeclothes_library_scrub_pants",
+        "mat_makeclothes_library_scrub_shirt",
+        "mat_openclinxr_hm08_eyelash_mpfb_peds_nurse_kevin_mesh",
+        "mat_openclinxr_hm08_teeth_mpfb_peds_nurse_kevin_mesh",
+        "mat_openclinxr_hm08_tongue_mpfb_peds_nurse_kevin_mesh",
+        "mpfb_skin_peds_nurse_kevin",
+        "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_peds_nurse_kevin_mat",
+        "openclinxr_fitted_hair_mhair02_mpfb_peds_nurse_kevin_mat",
+        "openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh",
+        "openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh.001",
+        "openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh",
+        "openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh.001",
+        "openclinxr_hidden_orphan_mpfb_peds_nurse_kevin_body_mesh",
+        "openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh",
+        "openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh.001"
+      ],
+      "contractFilteredMaterialNames": [
+        "eyes_peds_nurse_kevin",
+        "footwear_culturalibre_male_boots",
+        "scrub_pants",
+        "scrub_shirt"
+      ]
+    },
+    {
+      "file": "tools/openclinxr/evidence/a-locked-clinical-colour-survives-its-garment-texture.test.ts",
+      "clause": "requireMeasured + (3) COUNTERWEIGHT known-good: the untextured garment",
+      "control": "cargo_pants",
+      "controlRegex": "cargo_pants",
+      "matchKind": "material",
+      "presencePolarity": "must_be_present",
+      "assetInspected": "mpfb-peds-nurse-kevin.glb",
+      "assetExists": true,
+      "presentInAsset": false,
+      "presentUnderContractFilter": false,
+      "contractNameFilter": "makeclothes_library",
+      "matchedNames": [],
+      "survivingCandidates": [
+        "footwear_culturalibre_male_boots",
+        "makeclothes_library_eyes_low_poly_mpfb_peds_nurse_kevin_mesh",
+        "makeclothes_library_footwear_culturalibre_male_boots_mpfb_peds_nurse_kevin_mesh",
+        "makeclothes_library_hair_mhair02_mpfb_peds_nurse_kevin_mesh",
+        "makeclothes_library_scrub_pants_mpfb_peds_nurse_kevin_mesh",
+        "makeclothes_library_scrub_shirt_mpfb_peds_nurse_kevin_mesh",
+        "scrub_pants",
+        "scrub_shirt"
+      ],
+      "allMeshesInAsset": [
+        "makeclothes_library_eyes_low_poly_mpfb_peds_nurse_kevin_mesh",
+        "makeclothes_library_footwear_culturalibre_male_boots_mpfb_peds_nurse_kevin_mesh",
+        "makeclothes_library_hair_mhair02_mpfb_peds_nurse_kevin_mesh",
+        "makeclothes_library_scrub_pants_mpfb_peds_nurse_kevin_mesh",
+        "makeclothes_library_scrub_shirt_mpfb_peds_nurse_kevin_mesh",
+        "mpfb_peds_nurse_kevin_body",
+        "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_peds_nurse_kevin_mesh",
+        "openclinxr_hm08_eyelash_mpfb_peds_nurse_kevin_mesh",
+        "openclinxr_hm08_teeth_mpfb_peds_nurse_kevin_mesh",
+        "openclinxr_hm08_tongue_mpfb_peds_nurse_kevin_mesh"
+      ],
+      "allMaterialsInAsset": [
+        "mat_makeclothes_library_eyes_peds_nurse_kevin",
+        "mat_makeclothes_library_footwear_culturalibre_male_boots",
+        "mat_makeclothes_library_scrub_pants",
+        "mat_makeclothes_library_scrub_shirt",
+        "mat_openclinxr_hm08_eyelash_mpfb_peds_nurse_kevin_mesh",
+        "mat_openclinxr_hm08_teeth_mpfb_peds_nurse_kevin_mesh",
+        "mat_openclinxr_hm08_tongue_mpfb_peds_nurse_kevin_mesh",
+        "mpfb_skin_peds_nurse_kevin",
+        "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_peds_nurse_kevin_mat",
+        "openclinxr_fitted_hair_mhair02_mpfb_peds_nurse_kevin_mat",
+        "openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh",
+        "openclinxr_hidden_foot_mpfb_peds_nurse_kevin_body_mesh.001",
+        "openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh",
+        "openclinxr_hidden_lower_mpfb_peds_nurse_kevin_body_mesh.001",
+        "openclinxr_hidden_orphan_mpfb_peds_nurse_kevin_body_mesh",
+        "openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh",
+        "openclinxr_hidden_upper_mpfb_peds_nurse_kevin_body_mesh.001"
+      ],
+      "contractFilteredMaterialNames": [
+        "eyes_peds_nurse_kevin",
+        "footwear_culturalibre_male_boots",
+        "scrub_pants",
+        "scrub_shirt"
+      ]
+    },
+    {
+      "file": "tools/openclinxr/evidence/a-cast-eligible-gowned-mpfb-patient-exists.test.ts",
+      "clause": "(1)/(4) LOWER_GARMENT_RE — cargo_pants|_pants|trouser must be absent on gowned body",
+      "control": "cargo_pants",
+      "controlRegex": "cargo_pants|_pants|trouser",
+      "matchKind": "mesh",
+      "presencePolarity": "must_be_absent",
+      "assetInspected": "mpfb-gown-inspect.glb",
+      "assetExists": true,
+      "presentInAsset": false,
+      "presentUnderContractFilter": false,
+      "contractNameFilter": null,
+      "matchedNames": [],
+      "survivingCandidates": [
+        "makeclothes_library_eyes_low_poly_mpfb_ob_patient_aisha_mesh",
+        "makeclothes_library_footwear_toigo_flats_mpfb_ob_patient_aisha_mesh",
+        "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh",
+        "makeclothes_library_toigo_t_shirt_mpfb_ob_patient_aisha_mesh",
+        "openclinxr_real_garment_peds_upper_v1_mesh"
+      ],
+      "allMeshesInAsset": [
+        "makeclothes_library_eyes_low_poly_mpfb_ob_patient_aisha_mesh",
+        "makeclothes_library_footwear_toigo_flats_mpfb_ob_patient_aisha_mesh",
+        "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh",
+        "makeclothes_library_toigo_t_shirt_mpfb_ob_patient_aisha_mesh",
+        "mpfb_ob_patient_aisha_body",
+        "openclinxr_declared_upper_layers__hospital_gown_mesh",
+        "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh",
+        "openclinxr_hm08_eyelash_mpfb_ob_patient_aisha_mesh",
+        "openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh",
+        "openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh",
+        "openclinxr_real_garment_peds_upper_v1_mesh"
+      ],
+      "allMaterialsInAsset": [
+        "mat_makeclothes_library_eyes_ob_patient_aisha",
+        "mat_makeclothes_library_footwear_toigo_flats",
+        "mat_makeclothes_library_toigo_t_shirt",
+        "mat_openclinxr_hm08_eyelash_mpfb_ob_patient_aisha_mesh",
+        "mat_openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh",
+        "mat_openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh",
+        "mpfb_skin_ob_patient_aisha",
+        "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mat",
+        "openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mat",
+        "openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+        "openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+        "openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+        "openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+        "openclinxr_hidden_orphan_mpfb_ob_patient_aisha_body_mesh",
+        "openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+        "openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+        "openclinxr_real_garment_hospital_gown_phenotype_L0"
+      ],
+      "contractFilteredMaterialNames": null
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "present": 3,
+    "absent": 4,
+    "staleMustBePresent": [
+      {
+        "file": "an-mpfb-patient-wears-a-gown.test.ts",
+        "clause": "(1d) COUNTERWEIGHT: a lower-body garment fails the top bound",
+        "control": "cargo_pants",
+        "asset": "mpfb-gown-inspect.glb",
+        "survivingCandidates": [
+          "makeclothes_library_eyes_low_poly_mpfb_ob_patient_aisha_mesh",
+          "makeclothes_library_footwear_toigo_flats_mpfb_ob_patient_aisha_mesh",
+          "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh",
+          "makeclothes_library_toigo_t_shirt_mpfb_ob_patient_aisha_mesh",
+          "openclinxr_real_garment_peds_upper_v1_mesh"
+        ]
+      },
+      {
+        "file": "a-locked-clinical-colour-survives-its-garment-texture.test.ts",
+        "clause": "requireMeasured + (1)/(2) — fisherman sweater",
+        "control": "sweater",
+        "asset": "mpfb-peds-nurse-kevin.glb",
+        "survivingCandidates": [
+          "footwear_culturalibre_male_boots",
+          "makeclothes_library_eyes_low_poly_mpfb_peds_nurse_kevin_mesh",
+          "makeclothes_library_footwear_culturalibre_male_boots_mpfb_peds_nurse_kevin_mesh",
+          "makeclothes_library_hair_mhair02_mpfb_peds_nurse_kevin_mesh",
+          "makeclothes_library_scrub_pants_mpfb_peds_nurse_kevin_mesh",
+          "makeclothes_library_scrub_shirt_mpfb_peds_nurse_kevin_mesh",
+          "scrub_pants",
+          "scrub_shirt"
+        ]
+      },
+      {
+        "file": "a-locked-clinical-colour-survives-its-garment-texture.test.ts",
+        "clause": "requireMeasured + (3) COUNTERWEIGHT known-good: the untextured garment",
+        "control": "cargo_pants",
+        "asset": "mpfb-peds-nurse-kevin.glb",
+        "survivingCandidates": [
+          "footwear_culturalibre_male_boots",
+          "makeclothes_library_eyes_low_poly_mpfb_peds_nurse_kevin_mesh",
+          "makeclothes_library_footwear_culturalibre_male_boots_mpfb_peds_nurse_kevin_mesh",
+          "makeclothes_library_hair_mhair02_mpfb_peds_nurse_kevin_mesh",
+          "makeclothes_library_scrub_pants_mpfb_peds_nurse_kevin_mesh",
+          "makeclothes_library_scrub_shirt_mpfb_peds_nurse_kevin_mesh",
+          "scrub_pants",
+          "scrub_shirt"
+        ]
+      }
+    ],
+    "healthyMustBeAbsent": [
+      {
+        "file": "a-cast-eligible-gowned-mpfb-patient-exists.test.ts",
+        "control": "cargo_pants",
+        "asset": "mpfb-gown-inspect.glb"
+      }
+    ]
+  }
+}
