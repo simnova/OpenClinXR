@@ -34,6 +34,15 @@ import { dispatch, readSessions } from "./dispatch-worker.js";
  *   metrics are correct (its row-vs-session double count is a separate defect, recorded on #562).
  */
 
+/**
+ * ## FIXED (#563)
+ *
+ * dispatch-worker.ts now derives phase at the ledger write: `phase: parsed.sessionId ? "completed"
+ * : "died"`, with "died" added to the SessionLedgerRow.phase union ("spawned" | "completed" |
+ * "died"). A child with no end event gets the terminal line labeled "died", still carrying its
+ * resumable session id. Clause (1) flipped from it.fails to it; clauses (2)-(4) untouched.
+ */
+
 vi.mock("node:child_process", async (importOriginal) => {
   const actual = await importOriginal<typeof import("node:child_process")>();
   return { ...actual, spawn: vi.fn() };
@@ -96,7 +105,7 @@ afterEach(() => {
 });
 
 describe("a dead dispatch is not a completion", () => {
-  it.fails("(1) RED: a child that dies before any turn does not record phase 'completed'", async () => {
+  it("(1) RED: a child that dies before any turn does not record phase 'completed'", async () => {
     const root = mkdtempSync(join(tmpdir(), "dead-dispatch-"));
     seedRole(root);
     spawnMock.mockReturnValue(fakeChild("", PROVIDER_402, 1));
