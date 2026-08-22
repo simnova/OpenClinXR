@@ -58,7 +58,7 @@ const clipOf = (
   (i < movingChannels ? track : frozenTrack)(`b${i}`, duration)));
 
 describe("a frozen clip does not outrank a moving one", () => {
-  it.fails("(1) RED: a clip whose bones never rotate loses to one whose bones do", () => {
+  it("(1) RED: a clip whose bones never rotate loses to one whose bones do", () => {
     // Equal channel counts and equal duration, so the name tier is the only thing separating them
     // today - and it points at the frozen clip.
     const candidates = [
@@ -72,6 +72,18 @@ describe("a frozen clip does not outrank a moving one", () => {
     ).toBe("zzz_unlisted_real_motion_v1");
   });
 
+  /**
+   * ## FIXED (#566)
+   *
+   * Ranking now leads with aggregate rotation travel (sum over rotation channels of the max
+   * geodesic angle from the channel's first key), ahead of channel count. Chosen because the
+   * measured table is an aggregate story - idle mean 0.11 deg vs seated 13.92 deg - and an
+   * extreme keyed on the single most-travelled bone would call the idle alive at 5.73 deg max.
+   * Frozen channels contribute exactly zero regardless of key count; morph-only clips still
+   * contribute nothing. All three planted REDs flipped on the first fixed run; clauses (2)
+   * and (5) passed unchanged.
+   */
+
   it("(2) KNOWN-GOOD COLUMN: the real shipped pair still selects the retargeted clip", () => {
     // Passes today via the name tier. It must keep passing when motion becomes the discriminator -
     // and it should, because the seated clip measures 13.92 deg mean against the idle's 0.11.
@@ -82,7 +94,7 @@ describe("a frozen clip does not outrank a moving one", () => {
     expect(selectBodyMotionProbeClip(real)?.name).toBe("openclinxr_retarget_seated_talking_cc0");
   });
 
-  it.fails("(3) RED: 10 moving channels lose to 137, whatever the names say", () => {
+  it("(3) RED: 10 moving channels lose to 137, whatever the names say", () => {
     // Same cause as (1) from another angle, and mislabelled in the first draft of this file: both
     // clips carry 137 CHANNELS, so the ranker ties and the name tier hands it to the listed clip.
     // Channel count is presence; moving-channel count is not measured at all.
@@ -110,7 +122,7 @@ describe("a frozen clip does not outrank a moving one", () => {
     ).toBe("zzz_unlisted_whole_body_v1");
   });
 
-  it.fails("(4) RED + COUNTERWEIGHT: one wildly-moving bone does not beat a whole body moving less", () => {
+  it("(4) RED + COUNTERWEIGHT: one wildly-moving bone does not beat a whole body moving less", () => {
     // Refuses ranking on the EXTREME. The shipped idle clip's max travel is 5.73 deg while its mean
     // is 0.11 - a max-keyed ranker calls it alive. The aggregate is the discriminator, and a clip
     // with a single flailing bone is not a body-motion clip.
@@ -123,4 +135,15 @@ describe("a frozen clip does not outrank a moving one", () => {
       "1 moving channel against 137: the extreme is equal, the aggregate is not",
     ).toBe("zzz_unlisted_whole_body_v1");
   });
+
+  /**
+   * ## FIXED (#566)
+   *
+   * Clauses (3) and (4) flipped on the same fixed run as clause (1): aggregate travel leads
+   * the ranking, ahead of channel count, so 137 moving channels outrank 10 and 137 outrank
+   * 1. Clause (4)'s two clips carry identical per-channel extremes (the same ~45 deg sweep);
+   * only the summed aggregate separates them, which is exactly why an extreme-keyed ranker
+   * could never pass this clause. The relabelled-from-counterweight history of (3), recorded
+   * in the immutable header above, stands as planted.
+   */
 });
