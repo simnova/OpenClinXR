@@ -1,0 +1,241 @@
+{
+  "schemaVersion": "openclinxr.open-mouth-interior.v1",
+  "issue": "551",
+  "factoryStep": "instrument",
+  "generatedAt": "2026-08-22T00:38:43.412Z",
+  "method": "NodeIO on mpfb-viseme-inspect.glb. Lip verts = dominant JOINTS_0 on oris*/levator* (#425). Anterior rim = lip verts with rest Z >= 60th percentile. lipGapMeters = max(0, min(upper-anterior Y) - max(lower-anterior Y)) after morph POSITION delta @ weight 1.0. thresholdMeters = 0.5 * teeth mesh AABB height (teeth input only).",
+  "subject": "apps/ui-xr/public/generated-humanoids/mpfb-viseme-inspect.glb",
+  "bodyMeshName": "mpfb_ob_patient_aisha_body",
+  "lipVertexCount": 830,
+  "anteriorLipVertexCount": 333,
+  "anteriorZCutMeters": 0.15093998610973358,
+  "lipRestMidYMeters": 1.4875749981546977,
+  "mechanism": "lip_aperture_below_teeth_derived_threshold: anterior oris/levator rim after viseme_aa has lipGapMeters=0 (overlap=0.0002300739288330078, span=0.07095003128051758) which does not clear thresholdMeters=0.020725011825561523 (0.5*teethH). Teeth mesh present+alpha-visible, sit posterior to lip surface (teethMaxZ=0.15107998251914978 < lipMaxZ=0.16613999009132385), Y-overlapping the lip band — occluded at this weight. File-level cull/zero-opacity ruled out; draw-time lighting not NodeIO-visible.",
+  "thresholdMeters": 0.020725011825561523,
+  "thresholdDerivation": "thresholdMeters = 0.5 * aabbHeight(openclinxr_hm08_teeth POSITION) = 0.5 * 0.04145002365112305 = 0.020725011825561523 m. Measured with NodeIO on mesh \"openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh\" (min=[-0.031080005690455437,1.459662914276123,0.09414997696876526], max=[0.031080005690455437,1.501112937927246,0.15107998251914978]). Half the dental-arcade height is the minimum lip aperture that can expose teeth; derived from the teeth mesh (input), never from observed lipGap (effect).",
+  "visemes": [
+    {
+      "name": "viseme_aa",
+      "lipGapMeters": 0,
+      "lipSpanMeters": 0.07095003128051758,
+      "lipOverlapMeters": 0.0002300739288330078,
+      "upperLipMinY": 1.4857428073883057,
+      "lowerLipMaxY": 1.4859728813171387,
+      "maxDisplacementMeters": 0.018155692904924237,
+      "interiorRevealed": false
+    },
+    {
+      "name": "viseme_sil",
+      "lipGapMeters": 0.00026988983154296875,
+      "lipSpanMeters": 0.05568993091583252,
+      "lipOverlapMeters": 0,
+      "upperLipMinY": 1.4878427982330322,
+      "lowerLipMaxY": 1.4875729084014893,
+      "maxDisplacementMeters": 0,
+      "interiorRevealed": false
+    }
+  ],
+  "teeth": {
+    "meshName": "openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh",
+    "present": true,
+    "visible": true,
+    "aabbHeightMeters": 0.04145002365112305,
+    "aabb": {
+      "min": [
+        -0.031080005690455437,
+        1.459662914276123,
+        0.09414997696876526
+      ],
+      "max": [
+        0.031080005690455437,
+        1.501112937927246,
+        0.15107998251914978
+      ],
+      "height": 0.04145002365112305,
+      "width": 0.06216001138091087,
+      "depth": 0.05693000555038452
+    },
+    "material": {
+      "name": "mat_openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh",
+      "baseColorFactor": [
+        0.9200000166893005,
+        0.8999999761581421,
+        0.8600000143051147,
+        1
+      ],
+      "alphaMode": "OPAQUE",
+      "doubleSided": true,
+      "emissiveFactor": [
+        0,
+        0,
+        0
+      ]
+    },
+    "relativeToLips": {
+      "teethBehindLipsAnteriorZ": true,
+      "lipBandOverlapsTeethY": true,
+      "lipRestAabb": {
+        "min": [
+          -0.042030010372400284,
+          1.4593628644943237,
+          0.12827998399734497
+        ],
+        "max": [
+          0.042030010372400284,
+          1.5218428373336792,
+          0.16613999009132385
+        ]
+      },
+      "deltaZLipsMinusTeethMax": 0.015060007572174072
+    }
+  },
+  "tongue": {
+    "meshName": "openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh",
+    "present": true,
+    "material": {
+      "name": "mat_openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh",
+      "baseColorFactor": [
+        0.8500000238418579,
+        0.44999998807907104,
+        0.44999998807907104,
+        1
+      ],
+      "alphaMode": "OPAQUE",
+      "doubleSided": true
+    }
+  },
+  "meshInventory": [
+    {
+      "name": "makeclothes_library_cargo_pants_mpfb_ob_patient_aisha_mesh.001",
+      "verts": 8262,
+      "mat": "mat_makeclothes_library_cargo_pants.001",
+      "alpha": 1,
+      "alphaMode": "OPAQUE"
+    },
+    {
+      "name": "makeclothes_library_footwear_toigo_flats_mpfb_ob_patient_aisha_mesh",
+      "verts": 115196,
+      "mat": "mat_makeclothes_library_footwear_toigo_flats",
+      "alpha": 1,
+      "alphaMode": "OPAQUE"
+    },
+    {
+      "name": "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh",
+      "verts": 3085,
+      "mat": "openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mat",
+      "alpha": 1,
+      "alphaMode": "OPAQUE"
+    },
+    {
+      "name": "makeclothes_library_toigo_t_shirt_mpfb_ob_patient_aisha_mesh",
+      "verts": 5400,
+      "mat": "mat_makeclothes_library_toigo_t_shirt",
+      "alpha": 1,
+      "alphaMode": "OPAQUE"
+    },
+    {
+      "name": "mpfb_ob_patient_aisha_body",
+      "verts": 10871,
+      "mat": "mpfb_skin_ob_patient_aisha",
+      "alpha": 1,
+      "alphaMode": "OPAQUE"
+    },
+    {
+      "name": "mpfb_ob_patient_aisha_body",
+      "verts": 1565,
+      "mat": "openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh",
+      "alpha": 0,
+      "alphaMode": "MASK"
+    },
+    {
+      "name": "mpfb_ob_patient_aisha_body",
+      "verts": 334,
+      "mat": "openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh",
+      "alpha": 0,
+      "alphaMode": "MASK"
+    },
+    {
+      "name": "mpfb_ob_patient_aisha_body",
+      "verts": 2164,
+      "mat": "openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
+      "alpha": 0,
+      "alphaMode": "MASK"
+    },
+    {
+      "name": "mpfb_ob_patient_aisha_body",
+      "verts": 155,
+      "mat": "openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh.001",
+      "alpha": 0,
+      "alphaMode": "MASK"
+    },
+    {
+      "name": "mpfb_ob_patient_aisha_body",
+      "verts": 102,
+      "mat": "openclinxr_hidden_lower_mpfb_ob_patient_aisha_body_mesh.001",
+      "alpha": 0,
+      "alphaMode": "MASK"
+    },
+    {
+      "name": "mpfb_ob_patient_aisha_body",
+      "verts": 304,
+      "mat": "openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
+      "alpha": 0,
+      "alphaMode": "MASK"
+    },
+    {
+      "name": "mpfb_ob_patient_aisha_body",
+      "verts": 112,
+      "mat": "openclinxr_hidden_orphan_mpfb_ob_patient_aisha_body_mesh",
+      "alpha": 0,
+      "alphaMode": "MASK"
+    },
+    {
+      "name": "makeclothes_library_eyes_low_poly_mpfb_ob_patient_aisha_mesh",
+      "verts": 96,
+      "mat": "mat_makeclothes_library_eyes_ob_patient_aisha",
+      "alpha": 1,
+      "alphaMode": "OPAQUE"
+    },
+    {
+      "name": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh",
+      "verts": 21468,
+      "mat": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mat",
+      "alpha": 1,
+      "alphaMode": "OPAQUE"
+    },
+    {
+      "name": "openclinxr_hm08_eyelash_mpfb_ob_patient_aisha_mesh",
+      "verts": 250,
+      "mat": "mat_openclinxr_hm08_eyelash_mpfb_ob_patient_aisha_mesh",
+      "alpha": 1,
+      "alphaMode": "OPAQUE"
+    },
+    {
+      "name": "openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh",
+      "verts": 136,
+      "mat": "mat_openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh",
+      "alpha": 1,
+      "alphaMode": "OPAQUE"
+    },
+    {
+      "name": "openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh",
+      "verts": 253,
+      "mat": "mat_openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh",
+      "alpha": 1,
+      "alphaMode": "OPAQUE"
+    }
+  ],
+  "verdict": "mechanism_located",
+  "ruledOut": [
+    "teeth_or_tongue_absent_from_glb — both meshes enumerated",
+    "teeth_zero_opacity_in_file — baseColorFactor alpha > 0.01"
+  ],
+  "notProvenByNodeIO": [
+    "draw-time frustum cull / renderer visibility flags",
+    "whether the inspect lab leaves the interior unlit (pixel luminance 78.7 is consistent with sealed lips OR unlit cavity)"
+  ],
+  "notes": [
+    "Premise held: lips deform (aa maxDisp~18.16 mm, span sil→aa increases) while interior stays sealed.",
+    "GROUP A only — no product edit; GROUP B tests unrun."
+  ]
+}
