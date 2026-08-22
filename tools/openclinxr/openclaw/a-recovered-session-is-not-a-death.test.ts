@@ -68,10 +68,29 @@ describe("a recovered session is not a death", () => {
     expect(buildScorecard(REPO, DIED_THEN_RESUMED, NO_MERGES).totalDispatched).toBe(1);
   });
 
-  it.fails("(2) RED: a session that died and later completed is not reported dead", () => {
+  it("(2) a session that died and later completed is not reported dead", () => {
     expect(
       notes(DIED_THEN_RESUMED).some((n) => DEATH_NOTE.test(n)),
       "s-same recovered and completed; the FIXED comment on #565 states it is not reported dead",
     ).toBe(false);
   });
 });
+
+/**
+ * ## FIXED (#567)
+ *
+ * Resolution chosen: "dispatches lost". The death note's own wording — "excluded from the
+ * scoreable set" — describes dispatches that stayed dead, and the ## FIXED (#565) block in
+ * `a-provider-death-is-not-a-delegate-failure.test.ts` already claims recovered sessions are not
+ * reported dead. Making the CODE agree with both statements (rather than rewriting two comments)
+ * keeps the note honest as a provider-health signal: it now counts sessions that never produced a
+ * completed line.
+ *
+ * Change, `delegation-scorecard.ts` de-duplication loop: after the unconditional `died` collect,
+ * a non-died line for the same session runs `diedSessionIds.delete(entry.sessionId)` before
+ * entering `bySession`. A recovered session therefore leaves the dead set exactly when it becomes
+ * scoreable; the scored metric is untouched (clause (1) still green). Clause (0) confirms the
+ * unrecovered-death report survives, so the #565 skip-and-note choice is intact. The rejected
+ * treatment — silencing the note entirely — would have failed clause (0), per the probe recorded
+ * on #567.
+ */
