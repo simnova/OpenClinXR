@@ -126,6 +126,11 @@ export function buildScorecard(
       diedSessionIds.add(entry.sessionId);
       continue;
     }
+    // ISSUE #567: a completed line supersedes an earlier died line for the same session —
+    // the dispatch was resumed to completion, so it is no longer a LOST dispatch. Without
+    // this removal the death note counted every session that ever died, contradicting the
+    // comment above and the ## FIXED (#565) note.
+    diedSessionIds.delete(entry.sessionId);
     bySession.set(entry.sessionId, entry);
   }
   const all = [...bySession.values()];
