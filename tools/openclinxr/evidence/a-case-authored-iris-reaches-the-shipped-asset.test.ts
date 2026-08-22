@@ -13,6 +13,20 @@ import { describe, expect, it } from "vitest";
  * staged and licence-cleared (`third-party-asset-licence-ledger.md`, verified in the asset headers,
  * no attribution obligation).
  *
+ * ## PREMISE WITHDRAWN 2026-08-22 — the RED clauses asserted the opposite of the case data.
+ *
+ * I wrote clauses (2) and (3) from the licence ledger's #356 row ("parent/family -> green,
+ * nurse -> blue"). That row records what #356 IMPLEMENTED IN 2026-08-13; it is not a live spec.
+ * #518 (ac1a215e) made the manifest `eye_color` the override and demoted the role cast to a
+ * fallback, #519 documented "parent and nurse keep case-driven brown_eye", and #520 (a2e92481)
+ * re-keyed an iris clause "to case-driven eye_color, not cast uniformity" - the exact error I then
+ * made. Verified in the source: pediatric-asthma.ts:169 authors eye_color "brown" for the parent
+ * and :216 authors "brown" for the nurse.
+ *
+ * So all-brown IS the wired selector's correct output for these two, and no correct implementation
+ * could have satisfied the REDs. They are rewritten below as INVERTED GUARDS asserting the true
+ * behaviour, not deleted - a superseded contract becomes a guard.
+ *
  * MEASURED on the shipped GLBs' embedded image buffers, 2026-08-22:
  *
  *   ALL 11 shipped mpfb-*.glb embed one byte-identical iris:
@@ -87,18 +101,21 @@ describe("a case-authored iris reaches the shipped asset", () => {
     expect(iris.sha, "child/patient -> brown, and brown is the verified upstream asset").toBe("4659691c7295");
   });
 
-  it.fails("(2) RED: the parent's iris differs from the child's, because the cast says green", () => {
+  it("(2) GUARD (was a RED, premise withdrawn): the parent ships brown because tara's case authors brown", () => {
+    // pediatric-asthma.ts:169 - eye_color "brown" on adult_standard_parent. #518 makes that the
+    // override. A regression to #356's role cast would turn this green and fail here.
     expect(
       irisOf(PARENT)!.sha,
-      "the wired eye_iris_colour maps parent/family to green; the shipped GLB carries the brown bytes",
-    ).not.toBe(irisOf(CHILD)!.sha);
+      "the parent's case authors brown; matching the child's brown is correct, not a collapse",
+    ).toBe(irisOf(CHILD)!.sha);
   });
 
-  it.fails("(3) RED: the nurse's iris differs from the child's, because the cast says blue", () => {
+  it("(3) GUARD (was a RED, premise withdrawn): the nurse ships brown because kevin's case authors brown", () => {
+    // pediatric-asthma.ts:216 - eye_color "brown" on adult_male_nurse.
     expect(
       irisOf(NURSE)!.sha,
-      "the wired eye_iris_colour maps nurse to blue; the shipped GLB carries the brown bytes",
-    ).not.toBe(irisOf(CHILD)!.sha);
+      "the nurse's case authors brown; a flip to blue would be the role cast overriding the case",
+    ).toBe(irisOf(CHILD)!.sha);
   });
 
   it("(4) COUNTERWEIGHT: the iris stays a real staged texture, not a recolour", () => {
