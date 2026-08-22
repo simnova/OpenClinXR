@@ -1,9 +1,9 @@
-import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import { NodeIO } from "@gltf-transform/core";
+import { readEyeRow, eyeRowFromDoc, type EyeRow } from "./eye-colour-is-case-driven.js";
 
 /**
  * Every actor in the peds asthma station has the same brown eyes, by construction. A case definition
@@ -193,30 +193,20 @@ const io = new NodeIO();
 
 async function measure(file: string): Promise<Row | null> {
   const doc = await io.read(join(REPO_ROOT, GENERATED, file));
-  let irisSha: string | null = null;
-  let irisKb = 0;
-  let factor: [number, number, number] = [1, 1, 1];
+  const eye = eyeRowFromDoc(doc);
   let upperRgb: [number, number, number] | null = null;
   for (const mesh of doc.getRoot().listMeshes()) {
     for (const prim of mesh.listPrimitives()) {
       const mat = prim.getMaterial();
       if (!mat) continue;
-      const name = `${mesh.getName()}/${mat.getName()}`;
-      if (/eye/i.test(name)) {
-        const img = mat.getBaseColorTexture()?.getImage();
-        if (img) {
-          irisSha = createHash("sha256").update(img).digest("hex").slice(0, 16);
-          irisKb = img.length / 1024;
-        }
-        const c = mat.getBaseColorFactor();
-        if (c) factor = [c[0]!, c[1]!, c[2]!];
-      } else if (/t_shirt|scrub|sweater/i.test(mesh.getName())) {
+      if (/t_shirt|scrub|sweater/i.test(mesh.getName())) {
         const c = mat.getBaseColorFactor();
         if (c) upperRgb = [c[0]!, c[1]!, c[2]!];
       }
     }
   }
-  return { file, irisSha, irisKb, factor, upperRgb };
+  if (!eye) return null;
+  return { file, ...eye, upperRgb };
 }
 
 const rows = (await Promise.all(CAST.map((f) => measure(f).catch(() => null)))).filter(
