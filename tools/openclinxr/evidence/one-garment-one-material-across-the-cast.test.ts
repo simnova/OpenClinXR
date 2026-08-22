@@ -43,6 +43,13 @@ import { describe, expect, it } from "vitest";
  * claimScope: material-treatment consistency of one authored garment across the shipped cast.
  * notEvidenceFor: which treatment is correct; how the shoes LOOK (the orchestrator grades that from
  *   the comparison sheet); any garment other than those enumerated; Quest readiness.
+ *
+ * ## GROUP B progress (#553) — planted it.fails on (1) NOT flipped yet
+ *
+ * Cast `toigo_flats` is now consistent plain (strip on aisha + generator drop-for-all; no rebake).
+ * Clause (1) still expected-fails because cast `toigo_t_shirt` remains split:
+ * gown-adult-patient textureBytes=0 vs four textured cast wearers at 656,736 B. Attaching
+ * T-shirt_basic.png to the gown GLB requires a bake (or texture inject) — separate card.
  */
 
 const ARTIFACT = "tools/openclinxr/evidence/garment-material-consistency.json";

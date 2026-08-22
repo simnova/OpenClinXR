@@ -132,6 +132,14 @@ const REPO_ROOT = pathResolve(HERE, "../../..");
  * role fallback still fails. Measured post-fix: aisha t-shirt factor (0.72, 0.68, 0.55), child
  * t-shirt factor (0.55, 0.68, 0.80), both with the authored T-shirt_basic.png texture (861,166 B).
  * ════════════════════════════════════════════════════════════════════════════════════════════════
+ *
+ * ## FIXED (#553) — appended; the planted header above is immutable
+ *
+ * `mat_makeclothes_library_footwear_toigo_flats` moved from AUTHORED_TEXTURE to
+ * FLAT_BY_AUTHORED_STATE: Shoe.png is a leopard-print atlas; #553 drops it for every wearer
+ * (plain bcf 0.10,0.09,0.08). The .mhmat still declares the PNG; the bake intentionally skips it.
+ * t-shirt / mj_cloth_shoes / male_boots authored-texture rows unchanged.
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
  */
 
 /**
@@ -142,7 +150,7 @@ const REPO_ROOT = pathResolve(HERE, "../../..");
  */
 const AUTHORED_TEXTURE: Record<string, { texture: string }> = {
   mat_makeclothes_library_toigo_t_shirt: { texture: "T-shirt_basic.png" },
-  mat_makeclothes_library_footwear_toigo_flats: { texture: "Shoe.png" },
+  // #553: toigo_flats Shoe.png is a leopard-print atlas — moved to FLAT_BY_AUTHORED_STATE.
   mat_makeclothes_library_footwear_toigo_mj_cloth_shoes: { texture: "MJ-shoes3.png" },
   mat_makeclothes_library_footwear_culturalibre_male_boots: { texture: "boot.png" },
   // #199: the nurse's upper is now the CC0 long-sleeve sweater; its declared
@@ -184,6 +192,9 @@ const FLAT_BY_AUTHORED_STATE = new Set<string>([
   "mat_makeclothes_library_scrub_pants",
   // #528 — physician lab coat: measured tex=NONE, factor ~[0.92,0.92,0.90] (flat by authored state).
   "mat_makeclothes_library_lab_coat",
+  // #553 — .mhmat declares Shoe.png (leopard atlas); bake intentionally skips it for clinical
+  // plausibility (#502 clinicians, #553 all cast wearers). Plain bcf (0.10,0.09,0.08) ships.
+  "mat_makeclothes_library_footwear_toigo_flats",
 ]);
 
 /** #506: the patients' closed_casual upper role colour — no longer the skin-adjacent
