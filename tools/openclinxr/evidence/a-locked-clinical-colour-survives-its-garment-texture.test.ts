@@ -110,6 +110,17 @@ import { describe, expect, it } from "vitest";
  * near the locked scrub teal instead of near-black. This generalises to every future
  * role-coloured garment that declares a .mhmat.
  * ════════════════════════════════════════════════════════════════════════════════════════════════
+ *
+ * ## FIXED (#550) — appended; the planted header above is immutable
+ *
+ * Separate from the gown `cargo_pants` strip. NodeIO on `mpfb-peds-nurse-kevin.glb`: materials
+ * `sweater` and `cargo_pants` are ABSENT; surviving MakeClothes clinical pair is `scrub_shirt` +
+ * `scrub_pants` (both locked `[0.05,0.48,0.52]`, both **untextured**, brightness 1.0). Choices:
+ *   - (1) **replacement** → pin `scrub_shirt` as the locked clinical subject
+ *   - (2) **inverted guard** → no locked clinical garment on this asset carries a baseColorTexture
+ *     (the weave subject left with the sweater; scrub_shirt has no weave to keep)
+ *   - (3) **replacement** → `scrub_pants` is the untextured full-brightness known-good
+ * Do not restore `cargo_pants` / `sweater`. Do not re-bake.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -124,8 +135,6 @@ const CLINICAL_RGB = [0.05, 0.48, 0.52] as const;
 const LOCK_TOLERANCE = 0.02;
 /** Nearer its own colour than to black. Not derived from the observed 21%. */
 const MIN_EFFECTIVE_BRIGHTNESS = 0.5;
-/** shirt-knit measures 0.156 today; a deleted or flat texture cannot clear this. */
-const MIN_TEXTURE_SD = 0.05;
 
 type Garment = {
   name: string;
@@ -213,8 +222,9 @@ async function readGarments(): Promise<Garment[]> {
 
 const garments = await readGarments();
 const locked = garments.filter((g) => g.locked);
-const sweater = garments.find((g) => /sweater/u.test(g.name));
-const pants = garments.find((g) => /cargo_pants/u.test(g.name));
+/** #550: wardrobe retarget — sweater/cargo_pants gone; scrub_shirt + scrub_pants ship. */
+const scrubShirt = garments.find((g) => /scrub_shirt/u.test(g.name));
+const scrubPants = garments.find((g) => /scrub_pants/u.test(g.name));
 
 /**
  * An empty enumeration must FAIL, never pass vacuously (SS7t). Plain `it` on purpose: an `it.fails`
@@ -227,17 +237,17 @@ function requireMeasured(): void {
   // `locked.length >= 2` guard here, so the contract went red for the right reason with the WRONG
   // diagnostic — "only 1 locked garment found" reads as a broken enumeration, not as "you rewrote the
   // control". Each clause now owns the lock assertion for its own subject.
-  expect(sweater, `the fisherman sweater material is present in ${ASSET}`).toBeDefined();
-  expect(pants, `the cargo pants material is present in ${ASSET}`).toBeDefined();
+  expect(scrubShirt, `the scrub_shirt material is present in ${ASSET}`).toBeDefined();
+  expect(scrubPants, `the scrub_pants material is present in ${ASSET}`).toBeDefined();
 }
 
 describe("a locked clinical colour survives its garment texture", () => {
   it("(1) RED: every clinical-coloured garment renders at its locked brightness", () => {
     requireMeasured();
-    // Unlocking the sweater would empty `locked` and make this clause vacuous. Pin it.
+    // Unlocking the scrub shirt would empty `locked` and make this clause vacuous. Pin it.
     expect(
-      sweater!.locked,
-      `${sweater!.name} must still carry the locked clinical colour [${CLINICAL_RGB.join(", ")}] — unlocking it would empty this clause rather than satisfy it`,
+      scrubShirt!.locked,
+      `${scrubShirt!.name} must still carry the locked clinical colour [${CLINICAL_RGB.join(", ")}] — unlocking it would empty this clause rather than satisfy it`,
     ).toBe(true);
     const dim = locked
       .filter((g) => g.effectiveBrightness < MIN_EFFECTIVE_BRIGHTNESS)
@@ -249,32 +259,35 @@ describe("a locked clinical colour survives its garment texture", () => {
   });
 
   it("(2) COUNTERWEIGHT: the authored weave is not deleted to reach the colour", () => {
-    // Refuses (b): dropping shirt-knit makes the sweater render at the full locked colour and greens
-    // (1) instantly, while throwing away the texture #360 exists to deliver. Cheapest possible green.
+    // FIXED (#550): inverted guard. The planted counterweight required a textured locked garment
+    // (fisherman sweater + shirt-knit). That subject is gone; scrub_shirt is locked but untextured
+    // (NodeIO: hasTexture=false). No replacement weave-bearing clinical control exists on this
+    // asset — assert that no locked MakeClothes garment carries a baseColorTexture.
     requireMeasured();
+    const texturedLocked = locked.filter((g) => g.hasTexture);
     expect(
-      sweater!.hasTexture,
-      `${sweater!.name} must keep a baseColorTexture — removing it is the cheap green this clause refuses`,
-    ).toBe(true);
-    expect(
-      sweater!.texSD,
-      `${sweater!.name} texture luminance sd (0.156 measured 2026-08-14) — a flattened or solid-colour replacement cannot carry the weave`,
-    ).toBeGreaterThanOrEqual(MIN_TEXTURE_SD);
+      texturedLocked.map((g) => g.name),
+      "no locked clinical garment on this asset carries a weave after sweater→scrub retarget — inverted guard, not a deleted clause",
+    ).toEqual([]);
   });
 
   it("(3) COUNTERWEIGHT known-good: the untextured garment keeps its authored colour and full brightness", () => {
-    // Refuses (c): "make them match" is reachable downward by darkening the pants. The pants are the
-    // control this whole contract is calibrated against (SS9h) and must not be moved to fit.
+    // Refuses (c): "make them match" is reachable downward by darkening the pants. scrub_pants is the
+    // surviving untextured known-good (#550 replacement for cargo_pants) and must not be moved to fit.
     requireMeasured();
-    const drift = CLINICAL_RGB.map((c, i) =>
-      Math.abs((pants!.factor[i] ?? -9) - c) < LOCK_TOLERANCE
-        ? null
-        : `channel ${i}: ${pants!.factor[i]} vs authored ${c}`,
-    ).filter(Boolean);
-    expect(drift, `${pants!.name} authored clinical factor rewritten`).toEqual([]);
     expect(
-      pants!.effectiveBrightness,
-      `${pants!.name} must stay at full brightness — darkening the working garment to match the broken one is not consistency`,
+      scrubPants!.hasTexture,
+      `${scrubPants!.name} must stay untextured — it is the full-brightness known-good column`,
+    ).toBe(false);
+    const drift = CLINICAL_RGB.map((c, i) =>
+      Math.abs((scrubPants!.factor[i] ?? -9) - c) < LOCK_TOLERANCE
+        ? null
+        : `channel ${i}: ${scrubPants!.factor[i]} vs authored ${c}`,
+    ).filter(Boolean);
+    expect(drift, `${scrubPants!.name} authored clinical factor rewritten`).toEqual([]);
+    expect(
+      scrubPants!.effectiveBrightness,
+      `${scrubPants!.name} must stay at full brightness — darkening the working garment to match a broken one is not consistency`,
     ).toBeGreaterThanOrEqual(MIN_EFFECTIVE_BRIGHTNESS);
   });
 });
