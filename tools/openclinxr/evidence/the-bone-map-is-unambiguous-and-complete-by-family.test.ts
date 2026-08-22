@@ -39,12 +39,35 @@ import { describe, expect, it } from "vitest";
  * Rigify-style `f_thumb.01.L` / `shin.L`, but I am not deciding it); which of `clavicle` or
  * `shoulder01` owns `shoulder.*`, and what the other becomes.
  *
+ * ## WITHDRAWN BEFORE DISPATCH (#546) — clauses (2) and (3) as first planted were WRONG
+ *
+ * The planted diagnosis above is left intact; this corrects it. I measured the SOURCE CLIP that the
+ * only consumer (`motion-bind-cli.ts` / `motion_bind_stage.py`) actually retargets —
+ * `anny/proof-animations/diag/cmu_07_01_walk.bvh`, 31 joints:
+ *
+ *     Twist channels: 0.  Clavicle channels: 0.  Shoulder: 2 (LeftShoulder/RightShoulder).
+ *     Fingers: LeftFingerBase, LeftHandIndex1, LThumb only — no middle, ring or pinky.
+ *
+ * And `mpfb-bone-map-coverage.json` (#547): 34 keys, bonesDriven 26, unbound 8, and **every unbound
+ * key is declared `optional`** — `unbound - optional` is empty. Six optional keys DID bind
+ * (finger1-1, finger2-1, toe1-1 both sides) because the clip carries exactly those channels.
+ *
+ * So the map is HONEST and near-complete FOR THIS CLIP. Completing the twist family or adding
+ * fingers 3-5 would add keys the source cannot drive: bonesDriven would stay 26 while the key count
+ * rose — which is precisely the coverage-chasing clause (4) exists to refuse. **My own clauses (2)
+ * and (3) mandated the cheap green my own clause (4) forbids.** They are replaced below by guards on
+ * the property that is actually true and worth protecting.
+ *
+ * WHAT SURVIVES: the target collision is real, and the clip explains it — `Clavicle: 0` means
+ * `clavicle.*` wins `shoulder.*` and `shoulder01.*` binds nothing. That is one defect, not three.
+ *
  * claimScope: internal consistency of the map against the shipped 137-joint subject.
  * notEvidenceFor: whether any clip retargets correctly; motion quality; #546's mixamo_unity question.
  */
 
 const RIG = "tools/openclinxr/asset-pipeline/makeclothes/known-rigs/mpfb2-default-no-toes.json";
 const SUBJECT = "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb";
+const COVERAGE = "tools/openclinxr/evidence/mpfb-bone-map-coverage.json";
 
 /** #547's landed key count. Growth is its clause; here it is only a floor against deletion. */
 const CONTROL_KEYS = 34;
@@ -70,27 +93,29 @@ describe("the bone map is unambiguous and complete by family", () => {
     expect(collisions, "targets driven by more than one source joint — a retarget cannot honour both").toEqual([]);
   });
 
-  it.fails("(2) RED: the limb twist family is finished — lowerleg02 is the outlier", async () => {
-    const joints = new Set(await subjectJoints());
-    const m = bones();
-    const missing: string[] = [];
-    for (const fam of LIMB_TWISTS) for (const side of ["L", "R"]) {
-      const j = `${fam}.${side}`;
-      // Only a joint the SUBJECT actually has can be required — never assert on a bone that is absent.
-      if (joints.has(j) && !(j in m)) missing.push(j);
-    }
-    expect(missing, "limb twist joints present on the subject but absent from the map").toEqual([]);
+  it("(2) NET: every key that binds nothing is declared optional — the map states its own limits", async () => {
+    // Was a RED demanding lowerleg02. WITHDRAWN: the source clip has zero twist channels, so the
+    // whole twist family is inert and a fourth member would be a dead key. What matters instead is
+    // that the map never hides a non-binding key. Measured today: unbound 8, all 8 in `optional`.
+    const rig = JSON.parse(readFileSync(RIG, "utf8")) as { bones: Record<string, string>; optional?: string[] };
+    const cov = JSON.parse(readFileSync(COVERAGE, "utf8")) as { unbound?: string[]; bonesDriven?: number };
+    const optional = new Set(rig.optional ?? []);
+    const undeclared = (cov.unbound ?? []).filter((k) => !optional.has(k));
+    expect(undeclared, "keys that bind nothing and are not declared optional — the map must state its limits")
+      .toEqual([]);
   });
 
-  it.fails("(3) RED: the finger family is finished — thumb and index are 2 of 5", async () => {
-    const joints = new Set(await subjectJoints());
-    const m = bones();
-    const missing: string[] = [];
-    for (const n of FINGERS) for (const side of ["L", "R"]) {
-      const j = `finger${n}-1.${side}`;
-      if (joints.has(j) && !(j in m)) missing.push(j);
-    }
-    expect(missing, "proximal finger joints present on the subject but absent from the map").toEqual([]);
+  it("(3) NET: growth must be earned — a new key binds, or is declared optional", async () => {
+    // Was a RED demanding fingers 3-5. WITHDRAWN: the clip carries only FingerBase/Index/Thumb, so
+    // middle/ring/pinky have no source. This guards the property that survives: the map may grow,
+    // but every key beyond the landed control must either bind or be declared a known limitation.
+    const rig = JSON.parse(readFileSync(RIG, "utf8")) as { bones: Record<string, string>; optional?: string[] };
+    const cov = JSON.parse(readFileSync(COVERAGE, "utf8")) as { unbound?: string[]; bonesDriven?: number };
+    const optional = new Set(rig.optional ?? []);
+    const unbound = new Set(cov.unbound ?? []);
+    const silentlyDead = Object.keys(rig.bones).filter((k) => unbound.has(k) && !optional.has(k));
+    expect(silentlyDead, "keys added that neither bind nor are declared optional").toEqual([]);
+    expect(cov.bonesDriven, "the coverage report must record what actually bound").toBeTypeOf("number");
   });
 
   it("(4) COUNTERWEIGHT: fixing a collision must not delete a key, and coverage is not the metric", async () => {
