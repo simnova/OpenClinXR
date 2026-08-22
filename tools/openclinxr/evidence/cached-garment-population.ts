@@ -39,6 +39,16 @@ export const GARMENT_EXCLUSION_RULE: GarmentExclusionRule[] = [
       "the filename and a filename-token rule would leak them as garments",
     test: (relPath) => relPath === "hair" || relPath.startsWith("hair/"),
   },
+  {
+    reason:
+      "eyebrow and eyelash proxies live under facial/ and are anatomy, not garments — " +
+      "the eyebrows/lashes factory work (#542) cached 19 .mhclo there, which leaked into the " +
+      "garment walk and made the staleness clause demand a garment CLASS for " +
+      "mindfront_eyebrows_01.mhclo. Excluded by directory for the same reason as hair/: the " +
+      "filenames carry no reliable token (elvs_eyelashes_01 and mindfront_eyebrows_01 differ), " +
+      "and classing anatomy as street/other would be a wrong green that hides the real question",
+    test: (relPath) => relPath === "facial" || relPath.startsWith("facial/"),
+  },
 ];
 
 function isExcluded(relPath: string): boolean {
