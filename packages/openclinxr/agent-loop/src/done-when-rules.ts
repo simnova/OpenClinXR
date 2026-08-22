@@ -1,18 +1,20 @@
 import { execFileSync } from "node:child_process";
-import { statSync } from "node:fs";
+import { readFileSync, statSync } from "node:fs";
 import path from "node:path";
+import { countPlantedItFails } from "./done-when-live.js";
 import {
+  type DoneWhenEvalOptions,
   loadBaseline,
   resolveExistsTargets,
   sha256File,
-  type DoneWhenEvalOptions,
 } from "./done-when-tree.js";
 import type { DoneWhenCheck, HandoffStatus, SkepticVerdict, SliceHandoff } from "./slice-team.js";
+
 export {
-  SLICE_BASELINE_SCHEMA,
-  writeBaselineHashes,
   type DoneWhenEvalOptions,
+  SLICE_BASELINE_SCHEMA,
   type SliceBaselineHashes,
+  writeBaselineHashes,
 } from "./done-when-tree.js";
 
 /**
@@ -119,7 +121,8 @@ export function partitionDoneWhen(rules: string[]): {
       rule.startsWith("min-bytes:") ||
       rule.startsWith("run:") ||
       rule.startsWith("changed:") ||
-      rule.startsWith("measured-before:")
+      rule.startsWith("measured-before:") ||
+      rule.startsWith("live:")
     ) {
       treeProofs.push(rule);
     } else if (rule.startsWith("handoff:") || rule.startsWith("skeptic:") || rule === "handoffs:all-done") {
@@ -150,7 +153,16 @@ export function partitionDoneWhen(rules: string[]): {
  * know which rules exist imports this; nobody re-lists it.
  */
 export const DONE_WHEN_RULE_VOCABULARY = {
-  prefixes: ["exists:", "min-bytes:", "run:", "changed:", "measured-before:", "handoff:", "skeptic:"],
+  prefixes: [
+    "exists:",
+    "min-bytes:",
+    "run:",
+    "changed:",
+    "measured-before:",
+    "live:",
+    "handoff:",
+    "skeptic:",
+  ],
   exact: ["handoffs:all-done"],
 } as const;
 
@@ -353,6 +365,44 @@ export async function evaluateDoneWhenRule(
       passed: true,
       detail:
         `artifact ${path.relative(treeRoot, artifactPath).replaceAll("\\", "/")} precedes ${changedProducts.map((p) => p.rel).join(", ")}`,
+    };
+  }
+
+  if (rule.startsWith("live:")) {
+    // #570: a planted RED is `it.fails(...)`, and vitest counts an expected fail as a PASS — so
+    // `run:<the plant>` exits 0 while the defect is still present. Measured on #569's third
+    // attempt: "Tests 1 passed | 3 expected fail", exit code 0, contract-verify reported all
+    // proofs green. Nine slices flipped their REDs anyway, so the proof held by diligence, not by
+    // construction. `live:` closes that hole for the slice that OWNS the plant: zero remaining
+    // planted markers in the named file.
+    //
+    // Deliberately NOT folded into `run:` (clause (4) of the #570 plant pins run:'s behaviour):
+    // eleven legitimately-red plants sit on main waiting for their slice, and a run: that refused
+    // expected-fails would make every one unlandable. Only a slice's own done_when knows its REDs.
+    const target = rule.slice("live:".length).trim();
+    if (!target) {
+      return { rule, passed: false, detail: "invalid live rule (missing test file path)" };
+    }
+    const matches = await resolveExistsTargets(treeRoot, target);
+    if (matches.length === 0) {
+      return { rule, passed: false, detail: `missing ${target}` };
+    }
+    if (matches.length > 1) {
+      return {
+        rule,
+        passed: false,
+        detail: `ambiguous live target (${matches.length} files match): ${target}`,
+      };
+    }
+    const rel = path.relative(treeRoot, matches[0] ?? "").replaceAll("\\", "/");
+    const remaining = countPlantedItFails(readFileSync(matches[0] ?? "", "utf8"));
+    return {
+      rule,
+      passed: remaining === 0,
+      detail:
+        remaining === 0
+          ? `${rel} is live: no it.fails clauses remain`
+          : `${rel} still has ${remaining} unflipped it.fails clause(s) — flip each to it() once its behaviour is fixed`,
     };
   }
 

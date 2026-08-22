@@ -32,6 +32,22 @@ import { DONE_WHEN_RULE_VOCABULARY, evaluateDoneWhenRule, isKnownDoneWhenRule } 
  *   deliberately leaves alone.
  */
 
+/**
+ * ## FIXED (#570)
+ *
+ * `live:<file>` landed as a tree proof in `done-when-rules.ts`: recognised by
+ * DONE_WHEN_RULE_VOCABULARY + isKnownDoneWhenRule, classified as a tree proof by partitionDoneWhen
+ * (so dispatch's at-least-one-tree-proof gate accepts cards using it), evaluated as zero remaining
+ * planted markers via countPlantedItFails (`done-when-live.ts`). The counter strips comments and
+ * string bodies before matching `\bit\s*\.\s*fails\s*\(`, so prose that documents the marker does
+ * not over-count — the caveat clause (0)'s own regex shares.
+ *
+ * Detail strings: fail names the FILE and the REMAINING COUNT ("still has 3 unflipped it.fails
+ * clause(s)"), pass says "no it.fails clauses remain"; missing/ambiguous targets refuse. `run:`'s
+ * behaviour is untouched (clause (4) pins it) — live: binds only a slice's own done_when, which is
+ * the only place that should know about expected-fails.
+ */
+
 const ROOT = "/Volumes/files/src/openclinxr";
 const UNFLIPPED = "tools/openclinxr/evidence/the-iris-factor-is-the-iris-material-s.test.ts";
 const FLIPPED = "tools/openclinxr/openclaw/a-recovered-session-is-not-a-death.test.ts";
@@ -48,7 +64,7 @@ describe("a live: rule refuses an unflipped plant", () => {
     expect(count(FLIPPED), `${FLIPPED} landed with every RED flipped`).toBe(0);
   });
 
-  it.fails("(1) RED: live: is a recognised done_when rule", () => {
+  it("(1) live: is a recognised done_when rule", () => {
     expect(
       isKnownDoneWhenRule(`live:${FLIPPED}`),
       "an unrecognised rule is refused at brief time, so a slice cannot ask for this at all",
@@ -56,7 +72,7 @@ describe("a live: rule refuses an unflipped plant", () => {
     expect(DONE_WHEN_RULE_VOCABULARY.prefixes).toContain("live:");
   });
 
-  it.fails("(2) RED: live: FAILS on an unflipped plant, and says WHY", async () => {
+  it("(2) live: FAILS on an unflipped plant, and says WHY", async () => {
     // The detail assertion is the whole clause. An UNKNOWN rule already returns
     // `passed: false, detail: "unsupported rule"`, so asserting `passed === false` alone is green
     // today for the wrong reason — vacuous until `live:` exists. Requiring the detail to name the
@@ -70,7 +86,7 @@ describe("a live: rule refuses an unflipped plant", () => {
     expect(String(check.detail), "the detail names how many REDs are still unflipped").toMatch(/\b3\b/u);
   });
 
-  it.fails("(3) RED + KNOWN-GOOD: live: PASSES on a plant that went green", async () => {
+  it("(3) live: PASSES on a plant that went green", async () => {
     // The landed #567 plant. A rule that refuses everything would satisfy clause (2) alone; this is
     // what stops it.
     const check = await evaluate(`live:${FLIPPED}`);

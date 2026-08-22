@@ -561,6 +561,7 @@ describe("rule vocabulary binds to the evaluator (A ↔ B)", () => {
     "run:": "run:true",
     "changed:": "changed:package.json",
     "measured-before:": "measured-before:package.json:package.json",
+    "live:": "live:package.json",
     "handoff:": "handoff:some-role:done",
     "skeptic:": "skeptic:visible",
     "handoffs:all-done": "handoffs:all-done",

@@ -204,13 +204,20 @@ describe("partitionDoneWhen", () => {
       "min-bytes:foo:10",
       "run:pnpm test",
       "changed:src/**",
+      "live:src/a.test.ts",
       "handoff:asset-pipeline-lead:done",
       "skeptic:visible",
       "handoffs:all-done",
       "sole-author:oops",
     ];
     const { treeProofs, narrative, unknown } = partitionDoneWhen(rules);
-    expect(treeProofs).toEqual(["exists:foo", "min-bytes:foo:10", "run:pnpm test", "changed:src/**"]);
+    expect(treeProofs).toEqual([
+      "exists:foo",
+      "min-bytes:foo:10",
+      "run:pnpm test",
+      "changed:src/**",
+      "live:src/a.test.ts",
+    ]);
     expect(narrative).toEqual([
       "handoff:asset-pipeline-lead:done",
       "skeptic:visible",
