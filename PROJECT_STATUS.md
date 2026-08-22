@@ -14,46 +14,36 @@ parseable_sections: 6
 <!-- WAKE-BLUF:BEGIN -->
 ## WAKE BLUF - replace this block every wake, never append
 
-**2026-08-22 00:17 | main 46b96c8c | pushed, level with origin**
+**2026-08-22 00:49 | main d09c1be1 | pushed, level with origin**
 
 **IN FLIGHT**
-- `#557` G2 seated-clip bind (rigging-animation-specialist, ox-alpha). **Working, 613 turns, 0 retries.**
-  6 files including a **baked GLB**. Bind report `verdict: ok` via `mcp.load_and_retarget` on the proven
-  `retarget_bvh` addon (D1: wired, not hand-authored). Output
-  `mpfb-peds-parent-aisha.seated-talking.glb`, clip `openclinxr_retarget_seated_talking_cc0`.
-  **`clavicle.L/R` and finger joints driven, 90 keyframes each, nonzero deltas** - what the CMU walk
-  structurally cannot do.
+- `#557` seated-clip bind, ox-alpha, resumed. 1147 turns, 0 retries, still running.
+  Of the two failing proofs: `seated-clip-bind-report.json` now exists at the contracted path
+  (9,680 B). `main.ts` still has 0 references to `openclinxr_retarget_seated_talking_cc0`, so the
+  mixer is not wired and the clip reaches no learner.
+  Worker WIP committed by me as 20884c31 so a reap cannot take it. Not a land.
 
-**TO WEIGH AT HARVEST (not judged - the worker is live, and mid-flight tree reads have produced a
-false accusation here before)**
-- It **grew the TARGET map 34 -> 60** (+26 finger keys), zero removed, zero retargeted. Clause (3)
-  forbids SHRINKING to force a bind, so that passes, and it extended rather than swapped. But #546
-  closed finger-key expansion as **cosmetic** - correctly, because the CMU walk has no finger channels.
-  This source has them, so the same keys now earn their place. **The measurement to make at harvest:**
-  the CMU coverage artifact moved `unbound 8 -> 34` while `bonesDriven` stayed 26, and `optional`
-  moved 14 -> 36. If every newly-inert key is declared optional, my planted guards hold and this is an
-  artifact-SCOPE question (a CMU-walk artifact judging a map that now serves two sources), not a
-  regression.
+**VERIFIED BY MY OWN PROBE, not the worker's report**
+- `openclinxr_retarget_seated_talking_cc0` drives 71 of 137 bones over 90 keyframes.
+  clavicle.L 0.11825 rad, clavicle.R 0.10836 rad, 28 finger joints up to 0.24066 rad.
+  Clip diff against the source GLB: ADDED 1, REMOVED 0.
+  This is what `cmu_07_01_walk` cannot do: that BVH has Twist 0 and Clavicle 0.
 
-**LANDED SINCE LAST WAKE**
-- skills optimised for Claude retrieval: merged to **six**, descriptions rewritten as retrieval keys,
-  six doctrine rules rebound as checkable artifacts
-- **two silent YAML defects caught in my own live listing** - `##` truncated one description, a
-  colon-space made `pre-dispatch-alignment` **vanish entirely**. All six now quoted and strict-parse.
-
-**BLOCKED / NOT STARTED, with reason**
-- `#554` G1-B gown t-shirt - **inject, not bake** (PNG staged, absent from the GLB). Root busy.
-- `#552` viseme_aa bake - sequenced after a face diffuse exists; teeth on a blank face grade as nothing.
-- `#510` - **no human skin diffuse is staged** (verified), so not the cheap inject it looked like.
+**NOT STARTED, with reason**
+- `#554` gown t-shirt inject, `#552` viseme aperture, `#548` irises: all blocked on write-root
+  collision with `#557`, which holds evidence and asset roots.
 - P1/P2/P3 parked. Rooms closed. Animato refused on D1.
 
 **OPEN QUESTION FOR THE OPERATOR** (one, with a default)
-- `mpfb-gown-adult-patient.glb` is cast as **seven distinct named patients** sharing one byte-identical
-  skin atlas. Deliberate cost decision, or identity collapse? **Default if silent: treat as collapse,
-  queue behind the motion lane.** P1 stays parked either way.
+- `mpfb-gown-adult-patient.glb` is cast as seven distinct named patients sharing one byte-identical
+  skin atlas. Deliberate cost decision or identity collapse? Default if silent: treat as collapse,
+  queue behind the motion lane. P1 stays parked either way.
 
-**NEXT**: harvest `#557` - verify the optional-declaration covers the newly-inert keys, grade the
-seated pose, confirm `main.ts` names the clip; then `#554` inject.
+**NEXT**: when `#557` returns, re-run contract-verify, confirm main.ts names the clip, then the
+product owner grades a 4-frame capture under a tracked path.
+
+NOT TESTED: whether the newly-inert finger keys added to the target map are all declared optional;
+whether the seated pose reads correctly in a render. Neither is measured yet.
 <!-- WAKE-BLUF:END -->
 
 
