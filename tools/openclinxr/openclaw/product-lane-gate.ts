@@ -23,9 +23,14 @@
  */
 
 import { execFileSync } from "node:child_process";
+import { existsSync, readFileSync, statSync } from "node:fs";
+import { join } from "node:path";
 
 /** Evidence-only commits tolerated before the next product commit is REQUIRED. */
 export const PRODUCT_IDLE_LIMIT = 4;
+
+/** A pulse row older than this is STALE and must be refreshed before it can gate a dispatch. */
+export const PULSE_STALE_MS = 90 * 60 * 1000;
 
 /**
  * Release lanes: paths whose commits RESET the product clock (Q1 blueprint-to-runtime generation,
@@ -115,6 +120,89 @@ export function measureProductLaneState(repoRoot: string): ProductLaneState {
 }
 
 export class ProductLaneGateError extends Error {}
+
+/**
+ * PULSE FRESHNESS GATE (superagent ruling 2026-08-22). The 2026-08-22 derailment ran with the
+ * hourly pulse firing but nobody consuming it, including a 4h05m hole caused by worker-heavy
+ * stretches: dispatched workers skip the SessionStart hook via env, so the sampler goes blind
+ * exactly when dispatch volume is highest. A right number in a file nobody opens is decoration.
+ *
+ * Mechanism: dispatch() force-refreshes a stale pulse ITSELF (the pulse needs only git, the
+ * ledger, unified.jsonl and gh — all present orchestrator-side before any spawn; the refresh is
+ * ~10 s inside the dispatch budget), then refuses only if the measurement is STILL unusable:
+ *   - refresh attempted and the state file is still stale (refresh itself failed), or
+ *   - the last row carries degraded:true (DATA_STALE — a source was unreadable).
+ * Fail-closed on "I cannot see", never on "what I see is bad": PRODUCING_NOTHING /
+ * ACTIVITY_INCREASING rows are data for the tick's NEEDS-DECISION record, not a halt — blocking
+ * dispatch over them starves the owner grading cadence that produces graded transitions, which
+ * compounds the disease it punishes. Behavioral bounds stay with assertProductLaneNotStarved;
+ * this gate answers one question: is the factory's self-measurement alive?
+ */
+export type PulseGateResult = { refreshed: boolean; verdict: string | null };
+
+const PULSE_STATE_REL = join(".openclinxr", "openclaw", "factory-pulse-last.json");
+const PULSE_ROWS_REL = join("docs", "openclinxr", "owner-memory", "pulse.jsonl");
+
+function lastPulseVerdict(repoRoot: string): string | null {
+  try {
+    const content = readFileSync(join(repoRoot, PULSE_ROWS_REL), "utf8");
+    const rows = content.trim().split("\n").filter(Boolean);
+    const last = rows[rows.length - 1];
+    return last ? (JSON.parse(last).verdict as string) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function assertPulseMeasurementAlive(repoRoot: string): PulseGateResult {
+  // Unmeasurable root (test fixture / scratch dir): no runner to refresh — skip, like
+  // measureProductLaneState falls back to clock-fresh. The gate binds the REAL repo only.
+  if (!existsSync(join(repoRoot, "package.json")) || !existsSync(join(repoRoot, ".git"))) {
+    return { refreshed: false, verdict: null };
+  }
+  const statePath = join(repoRoot, PULSE_STATE_REL);
+  let stale: boolean;
+  if (!existsSync(statePath)) {
+    stale = true; // never run — first refresh creates it
+  } else {
+    try {
+      stale = Date.now() - statSync(statePath).mtimeMs > PULSE_STALE_MS;
+    } catch {
+      stale = true; // unreadable state file is itself a broken measurement
+    }
+  }
+  if (!stale) return { refreshed: false, verdict: lastPulseVerdict(repoRoot) };
+
+  // Self-heal: refresh from the orchestrator side, where git/gh/ledger are all reachable.
+  try {
+    execFileSync("pnpm", ["openclinxr:factory-pulse"], { cwd: repoRoot, encoding: "utf8", timeout: 120_000 });
+  } catch {
+    throw new ProductLaneGateError(
+      [
+        "PULSE GATE: factory pulse is stale and the in-dispatch refresh FAILED.",
+        "dispatch() cannot verify the factory's self-measurement is alive — refusing.",
+        `Fix the runner manually: pnpm openclinxr:factory-pulse (state: ${statePath}).`,
+      ].join("\n"),
+    );
+  }
+  const stillStale = Date.now() - statSync(statePath).mtimeMs > PULSE_STALE_MS;
+  if (stillStale) {
+    throw new ProductLaneGateError(
+      "PULSE GATE: refresh ran but the state file did not move — refusing on unverifiable measurement.",
+    );
+  }
+  const verdict = lastPulseVerdict(repoRoot);
+  if (verdict === "DATA_STALE") {
+    throw new ProductLaneGateError(
+      [
+        "PULSE GATE: the freshest pulse row is DATA_STALE (a source was unreadable at measure time).",
+        "Refusing on broken measurement. Repair the unreadable source named in the row's",
+        "null_fields, or fix the runner — do not clear the row by hand.",
+      ].join("\n"),
+    );
+  }
+  return { refreshed: true, verdict };
+}
 
 /**
  * Refuse a dispatch when the product clock has expired and this dispatch is not itself product-lane.

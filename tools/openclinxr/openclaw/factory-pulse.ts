@@ -23,6 +23,18 @@ import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { pathToFileURL, fileURLToPath } from "node:url";
 
+import { isProductPath } from "./product-lane-gate.js";
+
+/** Count git-log blocks (one per commit: hash line + file lines) whose files touch a release lane. */
+export function countProductCommitBlocks(blocks: string[]): number {
+  return blocks.filter((b) =>
+    b
+      .split("\n")
+      .slice(1) // block[0] is the %H hash line; the rest are --name-only paths
+      .some((line) => line.trim() !== "" && isProductPath(line.trim())),
+  ).length;
+}
+
 const REPO = join(dirname(new URL(import.meta.url).pathname), "../../..");
 const LEDGER = join(REPO, ".openclinxr/openclaw/worker-sessions.jsonl");
 const UNIFIED = join(homedir(), ".grok/logs/unified.jsonl");
@@ -37,7 +49,17 @@ function readState(): State | null {
 }
 
 function sh(cmd: string, args: string[]): string {
-  return execFileSync(cmd, args, { cwd: REPO, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
+  // ANSI STRIP (superagent ruling 2026-08-22, the DATA_STALE root cause): this harness sets
+  // FORCE_COLOR/CLICOLOR_FORCE, so `gh project item-list --format json` emits ANSI-coloured
+  // "JSON" and JSON.parse throws — every board query since the env landed has been silently
+  // degraded to nullFields:["board"], the same class as the §6g Vite ready-line matcher.
+  // Disable colour at the source AND strip any escapes that survive (belt and suspenders).
+  const raw = execFileSync(cmd, args, {
+    cwd: REPO, encoding: "utf8", maxBuffer: 64 * 1024 * 1024,
+    env: { ...process.env, NO_COLOR: "1", CLICOLOR: "0", CLICOLOR_FORCE: "0", FORCE_COLOR: "0" },
+  });
+  // eslint-disable-next-line no-control-regex
+  return raw.replace(/\x1B\[[0-9;]*[A-Za-z]/g, "");
 }
 
 /**
@@ -120,12 +142,20 @@ function main(): void {
   } catch { nullFields.push("unified"); }
 
   // --- git: product commits vs churn ------------------------------------------------------------
+  // SUPERAGENT RULING 2026-08-22: the release-lane definition is owned by product-lane-gate.ts,
+  // not re-derived here. The previous inline regex (/\n(apps|packages)\//) counted
+  // apps/arena/model-vetting-studio (capture harness — all four #558-#566 clip-ranking toil
+  // slices) and packages/openclinxr/agent-loop (done_when machinery) as PRODUCT, reporting
+  // 6/1/11/2 product commits across the 2026-08-22 derailment window while the tree held 44
+  // consecutive non-product commits. Two instruments defining "product" differently is how the
+  // hourly review certified toil; there is exactly one definition in the tree and the pulse
+  // imports it. Agreement is pinned by the-pulse-product-lanes-match-the-gate.test.ts.
   let productCommits = 0, totalCommits = 0;
   try {
     const log = sh("git", ["log", `--since=${since}`, "--pretty=format:%H", "--name-only"]);
     const blocks = log.split(/\n(?=[0-9a-f]{40}\n)/u).filter(Boolean);
     totalCommits = blocks.length;
-    productCommits = blocks.filter((b) => /\n(apps|packages)\//u.test(b)).length;
+    productCommits = countProductCommitBlocks(blocks);
   } catch { nullFields.push("git"); }
 
   // --- board: Graded transitions ----------------------------------------------------------------
@@ -143,9 +173,25 @@ function main(): void {
   } catch { nullFields.push("board"); }
 
   // --- verdict, thresholds owned by PULSE-PROTOCOL ----------------------------------------------
+  // PRODUCING_NOTHING (superagent ruling 2026-08-22, supersedes the bare ACTIVITY_INCREASING
+  // reading): real execution happened in the window — completions and commits both above noise —
+  // yet zero commits touched a release lane. The reference input is commit VOLUME, which slice
+  // selection cannot inflate without landing release-lane bytes, so the clause cannot be gamed
+  // by dispatching more. Calibration: it fires on a corrected replay of the 2026-08-22 08:51
+  // row (total=15, completions=10, product=0) four hours before any other signal fired, and
+  // stays silent on a quiet morning (1 commit, 0 completions). Any genuinely productive hour
+  // has product_commits > 0 and cannot fire.
+  const producingNothing =
+    nullFields.length === 0 &&
+    graded === 0 &&
+    productCommits === 0 &&
+    totalCommits >= 3 &&
+    completions >= 3;
+
   let verdict: string;
   if (nullFields.length > 0) verdict = "DATA_STALE";
   else if (graded > 0 && passRate !== null && passRate >= 0.85 && rework <= 1) verdict = "PROGRESS_IMPROVING";
+  else if (producingNothing) verdict = "PRODUCING_NOTHING";
   else if (graded === 0 && rework >= 2 && (completions > 0 || totalCommits > 0)) verdict = "ACTIVITY_INCREASING";
   else verdict = "NUMBERS_ONLY";
 

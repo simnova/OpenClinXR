@@ -35,7 +35,7 @@ import {
 import type { DoneWhenCheck } from "../../../packages/openclinxr/agent-loop/src/slice-team.js";
 import { resolveSharedCoordinationPath } from "./coordination-root.js";
 import { assertLoopNotPaused } from "./loop-pause.js";
-import { assertProductLaneNotStarved } from "./product-lane-gate.js";
+import { assertProductLaneNotStarved, assertPulseMeasurementAlive } from "./product-lane-gate.js";
 import { setFactoryField } from "./board-cli.js";
 import { evaluateProofTargetsBeforeDispatch } from "./proof-target-preflight.js";
 import { provisionWorktreeAssetsSync } from "./worktree-asset-provisioning.js";
@@ -1281,6 +1281,16 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
   // consecutive commits land without touching a release lane, every non-product dispatch refuses
   // here, before any worktree or worker token. Escape is exactly one act: land product bytes.
   assertProductLaneNotStarved(repoRoot, { slice: sliceId, product: options.product === true });
+
+  // PULSE FRESHNESS GATE (same ruling, second half): the hourly pulse fired through that window
+  // but nothing consumed it, with a 4h05m hole because worker-heavy stretches suppress the
+  // SessionStart hook. dispatch() self-heals a stale pulse by refreshing it (~10 s) and refuses
+  // only on BROKEN measurement (refresh failed / DATA_STALE row), never on a bad verdict —
+  // PRODUCING_NOTHING is data for the tick's NEEDS-DECISION record, not a halt.
+  const pulseGate = assertPulseMeasurementAlive(repoRoot);
+  if (pulseGate.refreshed) {
+    console.log(`dispatch: pulse refreshed in-dispatch; verdict=${pulseGate.verdict ?? "none"}`);
+  }
 
   // ISSUE #461: the model is a property of the role's policy, never a per-site default. Five
   // consecutive write slices dispatched xr-systems-architect (standard_execution -> pro) and
