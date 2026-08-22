@@ -532,6 +532,40 @@ adding keys to `mpfb2-default-no-toes.json`, which never sees `spine_01` / `thig
 CMU takes "CC0" because the walk already shipped.
 
 
+### ox-alpha is MULTIMODAL — verified 2026-08-21, and what it does NOT change
+
+Operator: *"that new model super smart — give it giant efforts — it's multimodal so can also aid in
+evaluations."* Vision tested before adopting, on an image whose filename gave nothing away
+(`Shoe.png` copied to `asset_0417.png`), with an explicit "say CANNOT VIEW rather than guess" escape:
+
+> "Leopard print fur. A golden-mustard yellow base covered in dense dark brown-to-black rosette spots
+> ... upper 55% of frame ... a narrow horizontal strip of dark gold/mustard ribbed fabric ... lower
+> third split into five blocks, deep red solid on the left edge."
+
+That matches my own grade and adds detail I had not recorded. **It can genuinely see.**
+
+**WHAT THIS UNLOCKS:** the standing "workers are TEXT-ONLY, never ask one to Read an image" constraint
+is superseded FOR THIS MODEL. Visual evaluation stops being serialized on me, so slices whose evidence
+is a capture can verify themselves mid-flight instead of waiting for a checkpoint return. Combined
+with a 1,048,576 context, slice scope can grow substantially.
+
+**WHAT IT MUST NOT CHANGE — the producer/grader split.** `PROTO_BOARD_LOOP`: *"either a human looks, or
+the grader is not the producer."* The failure this repo already paid for (#17, a fabricated
+`score.json`) was an agent scoring work it had done itself. A model being able to see does not make it
+disinterested. So:
+
+- A worker MAY grade **another** slice's artifacts, or a control/treatment pair it did not author.
+- A worker MAY NOT be the sole grader of **its own** slice's output. Its visual report is evidence, not
+  a verdict.
+- **I still own the final grade on anything that decides a claim** (D12), and on anything that closes a
+  card. Worker vision reduces how often I am the critical path; it does not transfer the duty.
+- A slice whose `done_when` rests on appearance still names the renderer and framing (§10y) and carries
+  a closed per-artifact checklist (§8m/§11d) — a model that can see still filters to the brief.
+
+NOT TESTED: whether its visual judgement holds on the failure modes that fooled MY eye — sub-pixel
+features, upscaled crops (§12a), thumbnails (§11l), or two instruments agreeing while both blind (§6e).
+
+
 ### Worker model — OX ALPHA via OpenRouter (operator, 2026-08-21)
 
 Operator supplied an OpenRouter key and directed: **use `ox-alpha` exclusively going forward.**
