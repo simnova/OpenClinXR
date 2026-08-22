@@ -11,6 +11,40 @@ last_measured: 2026-08-10
 parseable_sections: 6
 ---
 
+<!-- WAKE-BLUF:BEGIN -->
+## WAKE BLUF - replace this block every wake, never append
+
+**2026-08-21 23:46 | main 8c445aad | pushed, level with origin**
+
+**IN FLIGHT**
+- `#557` G2 seated-clip bind, rigging-animation-specialist, ox-alpha. **Writing** - source map
+  `mesh2motion-human-66.json` at **52 entries** (sized to the clip, NOT padded to the 66 in the brief)
+  plus a source-validate artifact. 376 turns, **0 inference retries**. Supersedes `#556`, which
+  stalled on `empty_response` and wrote nothing.
+
+**LANDED SINCE LAST WAKE**
+- `#555` pruned **15.77 MB** of unbound leopard texture; orphans across all 18 humanoids now 0.00 MB
+- rules deduped: `PROTO_VERIFY_DELEGATION` 350 KB -> 278 KB (28 identical copies of one section)
+- six on-demand skills in `.claude/skills/` (27.8 KB) against the 403 KB always-injected rules
+
+**BLOCKED / NOT STARTED, with reason**
+- `#554` G1-B gown t-shirt - **inject, not bake** (PNG staged, absent from the GLB). Waiting on a free
+  write root.
+- `#552` viseme_aa bake - deliberately sequenced AFTER a face diffuse exists; teeth parting on a blank
+  face grades as nothing.
+- `#510` face diffuse - **no human skin diffuse is staged in the provider cache** (verified), so it is
+  not the cheap inject a peer proposed.
+- P1/P2/P3 parked. Rooms closed. Animato refused on D1.
+
+**OPEN QUESTION FOR THE OPERATOR** (one, with a default)
+- `mpfb-gown-adult-patient.glb` is cast as **seven distinct named patients** sharing one byte-identical
+  skin atlas. Deliberate cost decision, or identity collapse? **Default if silent: treat as collapse and
+  queue it behind the current motion lane.** P1 stays parked either way.
+
+**NEXT**: harvest `#557`; then `#554` inject once its root frees.
+<!-- WAKE-BLUF:END -->
+
+
 ## MPFB TRANSITION SCOREBOARD (measured 2026-08-12 21:05; regenerate, do not narrate)
 
 > **DIRECTION 2026-08-14 (Patrick, via `direction-mpfb2-throughout-2026-08-14.md`): MPFB2 IS THE
