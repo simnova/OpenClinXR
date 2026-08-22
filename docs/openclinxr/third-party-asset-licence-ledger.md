@@ -225,3 +225,40 @@ clip, not the library), the candidate should be chosen from these, not from `Sle
 Licence unchanged: CC0 VERIFIED (`LICENSE-CC0.MD` in the local clone). Rig unchanged: 66-joint
 Mixamo-adjacent, so a **66->137 SOURCE map** is required either way.
 
+
+## CORRECTION 2026-08-21 — my `Sleeping` mechanism was wrong; the verdict survives on other evidence
+
+Grading the seated clips exposed an error in the `Sleeping` entry above. I wrote that
+`root q = [-0.707, 0, 0, 0.707]` (a -90 deg X pitch) meant the body was laid flat. **It does not.**
+Measured on `human-base-animations.glb`, the STANDING clip `Idle_A` carries the identical root
+rotation. The -90 deg X pitch is the rig's up-axis convention, present in every clip, and carries no
+pose information at all.
+
+**What survives, and why the verdict is unchanged:** the `Sleeping` claim was "NOT side-lying", and its
+evidence was **zero Y/Z rotation anywhere in the root chain** — a side-lying pose needs a ROLL about
+the forward axis. That measurement stands and is independent of the root convention. `Sleeping` is
+still not side-sleep.
+
+**The real evidence that `Sleeping` is horizontal is the PELVIS, not the root:**
+
+    clip             pelvis pitchX     thigh pitchX        calf pitchX
+    Idle_A (stand)      99.1 deg      151.8 / 178.7      21.4 / 14.1
+    Sitting_Idle       104.5 deg       80.0 /  80.2      84.7 / 83.5
+    Sleeping            14.5 deg              --                --
+
+`Sleeping`'s pelvis sits ~85 deg away from both upright poses. That is the discriminator I should have
+used, and the correction is recorded here rather than appended quietly to the original claim.
+
+## GRADED 2026-08-21 — the seated clips are genuinely seated, and two of them are identical at frame 0
+
+`Sitting_Idle`: hips flexed 80.0/80.2 deg, knees flexed 84.7/83.5 deg. Against the standing control
+`Idle_A` (thighs 151.8/178.7, calves 21.4/14.1) that is an unambiguous seated posture. **PASS.**
+
+**`Sitting_Idle` and `Sitting_Talking` are BYTE-IDENTICAL at frame 0** — every measured quaternion
+matches to three decimals. Their difference is temporal, not postural. Consequence for the one-clip
+rule: **a frame-0 still cannot choose between them**, so the choice must be made on what the station
+needs (a conversing patient => `Sitting_Talking`) or on a mid-clip sample, not on a first-frame grade.
+
+NOT DETERMINED: whether either clip's motion is clinically plausible over its full duration — I graded
+the entry pose, not the animation. And the 66-joint Mixamo-adjacent rig still requires a 66->137 SOURCE
+map before any of this reaches a learner.
