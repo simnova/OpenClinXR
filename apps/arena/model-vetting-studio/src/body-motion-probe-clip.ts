@@ -5,12 +5,18 @@ import { AnimationClip } from "three";
  *
  * Replaces the #558 name allowlist (see tools/openclinxr/evidence/
  * the-capture-selects-the-subjects-motion-clip.test.ts): selection is by CONTENT - most
- * rotation channels first (body motion = bones rotating), then longest duration, name only
- * as a final tiebreak among otherwise-equal clips. There is no admission allowlist: an
- * unlisted clip still ranks and stays selectable, so a new clip name can never again
- * silently render a static bind pose. The tie ladders exist because some assets ship several
- * near-static clips; they demote known non-body micro-animation (eye probes, expression
- * transitions) rather than gate which clips may play.
+ * rotation channels first (body motion = bones rotating), then authored-provenance name
+ * tier, then longest duration. There is no admission allowlist: an unlisted clip still
+ * ranks and stays selectable, so a new clip name can never again silently render a static
+ * bind pose.
+ *
+ * #560 reordered tier above duration. Measured on shipped GLBs, every body clip ties at 23
+ * rotation channels, so duration alone decided - and duration carries no authored intent:
+ * openclinxr_posture_shift_standing (3.75 s) beat the 2.25 s role clip, and
+ * ClinicalIdleConversation (3.75 s) beat a 3.71 s bound seated clip by 40 ms. The tiers are
+ * weights, not a gate: they ORDER clips by authored provenance (role/retarget clips up,
+ * eye/expression micro-animation down) without excluding anything - a clip matching no
+ * pattern with strictly more rotation channels still wins outright.
  */
 const BODY_MOTION_NAME_TIEBREAK_TIERS: Array<{ weight: number; pattern: RegExp }> = [
   { weight: -1, pattern: /mpfb2_eye_look_probe|expression_micro_transition|viseme/iu },
@@ -39,8 +45,8 @@ export function rankBodyMotionProbeClips(animations: AnimationClip[]): Animation
   };
   return [...animations].sort((a, b) =>
     rotationChannelCount(b) - rotationChannelCount(a)
-    || durationOf(b) - durationOf(a)
     || bodyMotionNameTiebreakWeight(b.name) - bodyMotionNameTiebreakWeight(a.name)
+    || durationOf(b) - durationOf(a)
     || animations.indexOf(a) - animations.indexOf(b));
 }
 
