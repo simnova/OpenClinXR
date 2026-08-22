@@ -1,0 +1,114 @@
+import { readFileSync } from "node:fs";
+import { describe, expect, it } from "vitest";
+
+/**
+ * **OBSERVABLE: the MPFB→standard bone map names one source per target, and finishes the joint
+ * families it starts.** #547's sibling contract is 5/5 green while all three defects below stand,
+ * because it checks the KEY side (symmetry, growth, no phantom keys) and never the TARGET side or
+ * family completeness. That is §11s: it bounds a QUANTITY, the defect lives in the SHAPE.
+ *
+ * ## MEASURED ON HEAD — do not re-derive
+ *
+ * `mpfb2-default-no-toes.json`: 34 keys against a 137-joint subject (`mpfb-ob-patient-aisha.glb`,
+ * skins[0].joints).
+ *
+ * **(a) TWO TARGET COLLISIONS.** Two source joints drive one target, on both sides:
+ *     shoulder.L <- [clavicle.L, shoulder01.L]
+ *     shoulder.R <- [clavicle.R, shoulder01.R]
+ * A retarget cannot honour both; one silently wins and which one is undefined by the map.
+ *
+ * **(b) THE LIMB TWIST FAMILY IS 3 OF 4.** upperarm02.L/R, lowerarm02.L/R and upperleg02.L/R are all
+ * mapped to `*_twist`; `lowerleg02.L/R` exist on the subject and are NOT mapped. **This is the
+ * known-good column (§9h): three quarters of the family establish the pattern, so the fourth is an
+ * outlier rather than a judgement call.** Note the `*02` suffix ALSO appears on face-muscle helpers
+ * (levator02, oculi02, risorius02, temporalis02) which are correctly unmapped — a naive `/02\.[LR]$/`
+ * sweep reports 10 "missing" and 8 of them are wrong. The family is LIMB twists, not the suffix.
+ *
+ * **(c) THE FINGER FAMILY IS 2 OF 5.** finger1-1 (thumb) and finger2-1 (index) map to
+ * `f_thumb.01` / `f_index.01`; finger3-1, finger4-1, finger5-1 exist on both hands and are unmapped.
+ *
+ * ## NOT A DEFECT, and the contract must not treat it as one
+ *
+ * 103 of 137 joints are unmapped and that is CORRECT — MPFB carries face-muscle, breast, metacarpal
+ * and secondary-spine joints with no standard-rig counterpart. **Coverage is not the metric.** A
+ * contract that drives the mapped count toward 137 would be the cheap green this refuses.
+ *
+ * ## UNLOCKED
+ *
+ * The target names for the three missing fingers and for `lowerleg02` (the existing entries follow
+ * Rigify-style `f_thumb.01.L` / `shin.L`, but I am not deciding it); which of `clavicle` or
+ * `shoulder01` owns `shoulder.*`, and what the other becomes.
+ *
+ * claimScope: internal consistency of the map against the shipped 137-joint subject.
+ * notEvidenceFor: whether any clip retargets correctly; motion quality; #546's mixamo_unity question.
+ */
+
+const RIG = "tools/openclinxr/asset-pipeline/makeclothes/known-rigs/mpfb2-default-no-toes.json";
+const SUBJECT = "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb";
+
+/** #547's landed key count. Growth is its clause; here it is only a floor against deletion. */
+const CONTROL_KEYS = 34;
+/** The limb twist family, by NAME not by suffix — face helpers share the `02` suffix. */
+const LIMB_TWISTS = ["upperarm02", "lowerarm02", "upperleg02", "lowerleg02"] as const;
+const FINGERS = [1, 2, 3, 4, 5] as const;
+
+const bones = (): Record<string, string> => JSON.parse(readFileSync(RIG, "utf8")).bones as Record<string, string>;
+
+async function subjectJoints(): Promise<string[]> {
+  const { NodeIO } = await import("@gltf-transform/core");
+  const doc = await new NodeIO().read(SUBJECT);
+  const skin = doc.getRoot().listSkins()[0];
+  expect(skin, "the subject must carry a skin").toBeTruthy();
+  return skin!.listJoints().map((j) => j.getName());
+}
+
+describe("the bone map is unambiguous and complete by family", () => {
+  it.fails("(1) RED: no target is claimed by two source joints", () => {
+    const inv = new Map<string, string[]>();
+    for (const [src, tgt] of Object.entries(bones())) inv.set(tgt, [...(inv.get(tgt) ?? []), src]);
+    const collisions = [...inv].filter(([, s]) => s.length > 1).map(([t, s]) => `${t} <- [${s.join(", ")}]`);
+    expect(collisions, "targets driven by more than one source joint — a retarget cannot honour both").toEqual([]);
+  });
+
+  it.fails("(2) RED: the limb twist family is finished — lowerleg02 is the outlier", async () => {
+    const joints = new Set(await subjectJoints());
+    const m = bones();
+    const missing: string[] = [];
+    for (const fam of LIMB_TWISTS) for (const side of ["L", "R"]) {
+      const j = `${fam}.${side}`;
+      // Only a joint the SUBJECT actually has can be required — never assert on a bone that is absent.
+      if (joints.has(j) && !(j in m)) missing.push(j);
+    }
+    expect(missing, "limb twist joints present on the subject but absent from the map").toEqual([]);
+  });
+
+  it.fails("(3) RED: the finger family is finished — thumb and index are 2 of 5", async () => {
+    const joints = new Set(await subjectJoints());
+    const m = bones();
+    const missing: string[] = [];
+    for (const n of FINGERS) for (const side of ["L", "R"]) {
+      const j = `finger${n}-1.${side}`;
+      if (joints.has(j) && !(j in m)) missing.push(j);
+    }
+    expect(missing, "proximal finger joints present on the subject but absent from the map").toEqual([]);
+  });
+
+  it("(4) COUNTERWEIGHT: fixing a collision must not delete a key, and coverage is not the metric", async () => {
+    const m = bones();
+    const joints = new Set(await subjectJoints());
+    // Refuses the cheap green on (1): dropping clavicle.* or shoulder01.* removes the ambiguity by
+    // removing a joint. The map may only GROW.
+    expect(Object.keys(m).length, `map keys vs the ${CONTROL_KEYS} landed control — do not delete to disambiguate`)
+      .toBeGreaterThanOrEqual(CONTROL_KEYS);
+    for (const k of ["clavicle.L", "clavicle.R", "shoulder01.L", "shoulder01.R"]) {
+      expect(k in m, `${k} must still be mapped — disambiguate by retargeting it, not by deleting it`).toBe(true);
+    }
+    // Refuses the opposite cheap green: mapping everything to raise coverage. Face-muscle, breast and
+    // metacarpal joints have no standard-rig counterpart and must stay unmapped.
+    const forbidden = [...joints].filter((j) => /^(levator|oculi|risorius|temporalis|orbicularis|breast|metacarpal)/.test(j));
+    expect(forbidden.length, "the subject must still carry the no-counterpart joints this guards").toBeGreaterThan(0);
+    const overmapped = forbidden.filter((j) => j in m);
+    expect(overmapped, "joints with no standard-rig counterpart must NOT be mapped — coverage is not the metric")
+      .toEqual([]);
+  });
+});
