@@ -56,6 +56,7 @@ export type BoardSliceRecord = {
   title: string;
   repo: string;
   dryRun: boolean;
+  noGrade?: boolean;
   createdAt: string;
   closedAt?: string;
 };
@@ -81,6 +82,7 @@ export type BoardCliFlags = {
   method?: string;
   stage?: string;
   dryRun: boolean;
+  noGrade?: boolean;
   json: boolean;
   help: boolean;
 };
@@ -100,6 +102,7 @@ export function parseBoardArgs(argv: string[]): BoardCliFlags {
     dryRun: false,
     json: false,
     help: false,
+    noGrade: false,
   };
   const positional: string[] = [];
   for (let i = 0; i < argv.length; i += 1) {
@@ -111,6 +114,11 @@ export function parseBoardArgs(argv: string[]): BoardCliFlags {
       flags.dryRun = true;
     } else if (arg === "--json") {
       flags.json = true;
+    } else if (arg === "--no-grade") {
+      // Close WITHOUT advancing Factory to Graded. For closing a card as rot, superseded, or a dead
+      // premise — those are closes, not grades, and marking them Graded would inflate the one number
+      // D12 depends on.
+      flags.noGrade = true;
     } else if (arg === "--slice-id" && argv[i + 1]) {
       flags.sliceId = argv[++i];
     } else if (arg === "--title" && argv[i + 1]) {
@@ -643,6 +651,7 @@ export function cmdSliceOpen(
     roles: string[];
     repo: string;
     dryRun: boolean;
+  noGrade?: boolean;
   },
 ): { record: BoardSliceRecord; plan: GhCommandPlan; recordPath: string } {
   if (!input.sliceId) throw new Error("slice-open requires --slice-id");
@@ -694,6 +703,7 @@ export function cmdStatus(
     body: string;
     session?: string;
     dryRun: boolean;
+  noGrade?: boolean;
   },
 ): { plan: GhCommandPlan; issueNumber: number; commentBody: string } {
   if (!input.sliceId) throw new Error("status requires --slice-id");
@@ -723,6 +733,7 @@ export function cmdClose(
     sliceId: string;
     body: string;
     dryRun: boolean;
+  noGrade?: boolean;
   },
 ): { closePlan: GhCommandPlan; commentPlan: GhCommandPlan; issueNumber: number } {
   if (!input.sliceId) throw new Error("close requires --slice-id");
@@ -769,7 +780,9 @@ function printHelp(): void {
 Usage:
   pnpm openclaw:board -- slice-open --slice-id <id> --title <t> --roles <r1,r2,..> [--repo ${DEFAULT_BOARD_REPO}] [--dry-run]
   pnpm openclaw:board -- status --slice-id <id> --role <r> --body <text> [--dry-run]
-  pnpm openclaw:board -- close --slice-id <id> --body <resolution> [--dry-run]
+  pnpm openclaw:board -- close --slice-id <id> --body <resolution> [--no-grade] [--dry-run]
+      advances Factory to Graded unless --no-grade (use --no-grade to close rot,
+      a superseded card, or a dead premise — those are closes, not grades)
   pnpm openclaw:board -- factory --slice-id <id> --stage Planted|Dispatched|Landed|Graded [--dry-run]
 
 All commands support --dry-run (print gh command, do not execute).
@@ -934,9 +947,35 @@ async function main(): Promise<void> {
             2,
           ),
         );
-      } else {
+      }
+      // ISSUE #553 board audit: Factory had FIVE stages and only four writers. dispatch() wrote
+      // Dispatched, integrate() wrote Landed, and `Graded` was reachable only by a separate manual
+      // command nobody ran — so the board's terminal state was unreachable in practice and could not
+      // answer "what landed but was never graded", which is the query D12 needs. The grade is written
+      // in the close comment, so the close is where the stage belongs. NOT written by integrate():
+      // that would be the producer grading itself.
+      let graded = false;
+      if (!flags.dryRun && !flags.noGrade && flags.sliceId) {
+        // setFactoryField THROWS on gh failure. The issue is ALREADY CLOSED by this point, so a throw
+        // here would report a failed close that actually succeeded — the #448 shape, where a stale
+        // board write must be a loud warning and never an after-the-fact refusal.
+        try {
+          const g = setFactoryField(repoRoot, flags.sliceId, "Graded");
+          graded = g.ok === true;
+          if (!graded && !g.skipped) {
+            console.warn(`close: issue closed, but Factory=Graded did not write: ${g.reason ?? "unknown"}`);
+          }
+        } catch (error) {
+          console.warn(
+            `close: issue closed, but Factory=Graded threw: ` +
+              `${error instanceof Error ? error.message : String(error)}`,
+          );
+        }
+      }
+      if (!flags.json) {
         console.log(
-          `close ${flags.dryRun ? "DRY-RUN " : ""}issue=#${result.issueNumber}`,
+          `close ${flags.dryRun ? "DRY-RUN " : ""}issue=#${result.issueNumber}` +
+            (graded ? " → Factory=Graded" : flags.noGrade ? " (--no-grade)" : ""),
         );
       }
       return;
