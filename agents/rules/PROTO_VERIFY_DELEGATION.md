@@ -2857,46 +2857,6 @@ now measured rather than argued.
 from the contract without calibrating it first (§9h — it had no known-good column). Removing one
 threshold does not remove the others.
 
-## 11s. A contract bounds a QUANTITY; the defect usually lives in the SHAPE — four measured instances in one day
-
-2026-08-11. Four contracts I wrote went green and the pixels were still wrong. Three share one error and
-it is mine, not the workers': **I bounded an extreme or a presence, and the defect lived in the variation
-or the placement.**
-
-| slice | what I bounded | what the pixels showed | the gap |
-|---|---|---|---|
-| #295 | no hand-dominant vertex belongs to a garment | mittens gone, **sleeve gone with them** | bounded a PRESENCE, said nothing about what replaces it (§6p) |
-| #320 | `min(overlap) >= 0` per angular bucket | hem still visibly **sawtoothed** | bounded an EXTREME; raggedness is VARIATION, 23.7 mm span survived |
-| #321 | garment primitive count and vertex count | garment **lying on the floor**, body nude | bounded PRESENCE; placement unasserted (§6t, sixth instance) |
-| #319 | (inherited from #295) | shell went **torso-only**, X ±0.50 → ±0.17 | same as #295 |
-
-Each contract was satisfied exactly as written. Each fix was the cheapest thing that satisfied it. That
-is the system working; the briefs were the defect.
-
-**The tell, and it is checkable before dispatch.** Ask of every clause:
-
-> Can this pass on geometry that is **in the wrong place**, or that has the right **extremes** and the
-> wrong **distribution between them**?
-
-If yes, the clause measures a quantity and the defect can hide in the shape. Three concrete repairs,
-each of which would have caught one of the rows above:
-
-- **Presence → placement.** A count of primitives or vertices never says *where*. Pair every presence
-  clause with a relationship to a landmark — a joint from the inverse bind matrices, another garment's
-  rim, the body's own bounding box. Never a literal coordinate (D1).
-- **Extreme → distribution.** `min`, `max` and "no bucket worse than X" are satisfied by a saw-tooth
-  whose teeth all clear the line. If the grade word is *ragged*, *jagged*, *patchy* or *uneven*, bound
-  the **spread** — sd or span across the sampled set — not the worst sample.
-- **Deletion → replacement.** §6p already says a contract that removes something must state what takes
-  over its job. The measured cost of omitting it is #295 and #319: two slices to remove a mitten and
-  discover the sleeve went with it.
-
-**Where this goes:** into the clause list at planting time, not into a worker brief. The worker cannot
-fix a contract that measures the wrong thing — it can only satisfy it.
-
-
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
-
 ## 9l. A byte floor on an image does not just fail to prove it — it RESHAPES it
 
 §8n established that `exists:` + `min-bytes:` teaches a worker "the capture ran". #164 shows the
@@ -2986,46 +2946,6 @@ probe output goes in the brief as a fact. Warning a worker about a trap you left
 is charging them for your cleanup — and §6w already established that thrash is the orchestrator's
 failure, not evidence about slice size.
 
-## 11s. A contract bounds a QUANTITY; the defect usually lives in the SHAPE — four measured instances in one day
-
-2026-08-11. Four contracts I wrote went green and the pixels were still wrong. Three share one error and
-it is mine, not the workers': **I bounded an extreme or a presence, and the defect lived in the variation
-or the placement.**
-
-| slice | what I bounded | what the pixels showed | the gap |
-|---|---|---|---|
-| #295 | no hand-dominant vertex belongs to a garment | mittens gone, **sleeve gone with them** | bounded a PRESENCE, said nothing about what replaces it (§6p) |
-| #320 | `min(overlap) >= 0` per angular bucket | hem still visibly **sawtoothed** | bounded an EXTREME; raggedness is VARIATION, 23.7 mm span survived |
-| #321 | garment primitive count and vertex count | garment **lying on the floor**, body nude | bounded PRESENCE; placement unasserted (§6t, sixth instance) |
-| #319 | (inherited from #295) | shell went **torso-only**, X ±0.50 → ±0.17 | same as #295 |
-
-Each contract was satisfied exactly as written. Each fix was the cheapest thing that satisfied it. That
-is the system working; the briefs were the defect.
-
-**The tell, and it is checkable before dispatch.** Ask of every clause:
-
-> Can this pass on geometry that is **in the wrong place**, or that has the right **extremes** and the
-> wrong **distribution between them**?
-
-If yes, the clause measures a quantity and the defect can hide in the shape. Three concrete repairs,
-each of which would have caught one of the rows above:
-
-- **Presence → placement.** A count of primitives or vertices never says *where*. Pair every presence
-  clause with a relationship to a landmark — a joint from the inverse bind matrices, another garment's
-  rim, the body's own bounding box. Never a literal coordinate (D1).
-- **Extreme → distribution.** `min`, `max` and "no bucket worse than X" are satisfied by a saw-tooth
-  whose teeth all clear the line. If the grade word is *ragged*, *jagged*, *patchy* or *uneven*, bound
-  the **spread** — sd or span across the sampled set — not the worst sample.
-- **Deletion → replacement.** §6p already says a contract that removes something must state what takes
-  over its job. The measured cost of omitting it is #295 and #319: two slices to remove a mitten and
-  discover the sleeve went with it.
-
-**Where this goes:** into the clause list at planting time, not into a worker brief. The worker cannot
-fix a contract that measures the wrong thing — it can only satisfy it.
-
-
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
-
 ## 9p. `pnpm test | tail` reports TAIL's exit code — my health gate was measuring the wrong process
 
 Measured 2026-08-07. Every health check in a long autonomous session had the shape:
@@ -3054,46 +2974,6 @@ to myself.
 The generalisation: **any transformation between a check and its reported status can invert the
 result.** Grep, tail, tee, a wrapper script, a background waiter. Ask what process the status you are
 reading actually belongs to.
-
-## 11s. A contract bounds a QUANTITY; the defect usually lives in the SHAPE — four measured instances in one day
-
-2026-08-11. Four contracts I wrote went green and the pixels were still wrong. Three share one error and
-it is mine, not the workers': **I bounded an extreme or a presence, and the defect lived in the variation
-or the placement.**
-
-| slice | what I bounded | what the pixels showed | the gap |
-|---|---|---|---|
-| #295 | no hand-dominant vertex belongs to a garment | mittens gone, **sleeve gone with them** | bounded a PRESENCE, said nothing about what replaces it (§6p) |
-| #320 | `min(overlap) >= 0` per angular bucket | hem still visibly **sawtoothed** | bounded an EXTREME; raggedness is VARIATION, 23.7 mm span survived |
-| #321 | garment primitive count and vertex count | garment **lying on the floor**, body nude | bounded PRESENCE; placement unasserted (§6t, sixth instance) |
-| #319 | (inherited from #295) | shell went **torso-only**, X ±0.50 → ±0.17 | same as #295 |
-
-Each contract was satisfied exactly as written. Each fix was the cheapest thing that satisfied it. That
-is the system working; the briefs were the defect.
-
-**The tell, and it is checkable before dispatch.** Ask of every clause:
-
-> Can this pass on geometry that is **in the wrong place**, or that has the right **extremes** and the
-> wrong **distribution between them**?
-
-If yes, the clause measures a quantity and the defect can hide in the shape. Three concrete repairs,
-each of which would have caught one of the rows above:
-
-- **Presence → placement.** A count of primitives or vertices never says *where*. Pair every presence
-  clause with a relationship to a landmark — a joint from the inverse bind matrices, another garment's
-  rim, the body's own bounding box. Never a literal coordinate (D1).
-- **Extreme → distribution.** `min`, `max` and "no bucket worse than X" are satisfied by a saw-tooth
-  whose teeth all clear the line. If the grade word is *ragged*, *jagged*, *patchy* or *uneven*, bound
-  the **spread** — sd or span across the sampled set — not the worst sample.
-- **Deletion → replacement.** §6p already says a contract that removes something must state what takes
-  over its job. The measured cost of omitting it is #295 and #319: two slices to remove a mitten and
-  discover the sleeve went with it.
-
-**Where this goes:** into the clause list at planting time, not into a worker brief. The worker cannot
-fix a contract that measures the wrong thing — it can only satisfy it.
-
-
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
 
 ## 9q. Workers do not know which gates kill — name the suppression ban in the brief
 
@@ -3141,46 +3021,6 @@ diagnosis.
 **Practical consequence today:** a resumed worker inherits a dirty tree it did not create, and the
 first thing it must do is clean up after us. Check `git status` in the worktree before resuming and
 hand over a clean tree.
-
-## 11s. A contract bounds a QUANTITY; the defect usually lives in the SHAPE — four measured instances in one day
-
-2026-08-11. Four contracts I wrote went green and the pixels were still wrong. Three share one error and
-it is mine, not the workers': **I bounded an extreme or a presence, and the defect lived in the variation
-or the placement.**
-
-| slice | what I bounded | what the pixels showed | the gap |
-|---|---|---|---|
-| #295 | no hand-dominant vertex belongs to a garment | mittens gone, **sleeve gone with them** | bounded a PRESENCE, said nothing about what replaces it (§6p) |
-| #320 | `min(overlap) >= 0` per angular bucket | hem still visibly **sawtoothed** | bounded an EXTREME; raggedness is VARIATION, 23.7 mm span survived |
-| #321 | garment primitive count and vertex count | garment **lying on the floor**, body nude | bounded PRESENCE; placement unasserted (§6t, sixth instance) |
-| #319 | (inherited from #295) | shell went **torso-only**, X ±0.50 → ±0.17 | same as #295 |
-
-Each contract was satisfied exactly as written. Each fix was the cheapest thing that satisfied it. That
-is the system working; the briefs were the defect.
-
-**The tell, and it is checkable before dispatch.** Ask of every clause:
-
-> Can this pass on geometry that is **in the wrong place**, or that has the right **extremes** and the
-> wrong **distribution between them**?
-
-If yes, the clause measures a quantity and the defect can hide in the shape. Three concrete repairs,
-each of which would have caught one of the rows above:
-
-- **Presence → placement.** A count of primitives or vertices never says *where*. Pair every presence
-  clause with a relationship to a landmark — a joint from the inverse bind matrices, another garment's
-  rim, the body's own bounding box. Never a literal coordinate (D1).
-- **Extreme → distribution.** `min`, `max` and "no bucket worse than X" are satisfied by a saw-tooth
-  whose teeth all clear the line. If the grade word is *ragged*, *jagged*, *patchy* or *uneven*, bound
-  the **spread** — sd or span across the sampled set — not the worst sample.
-- **Deletion → replacement.** §6p already says a contract that removes something must state what takes
-  over its job. The measured cost of omitting it is #295 and #319: two slices to remove a mitten and
-  discover the sleeve went with it.
-
-**Where this goes:** into the clause list at planting time, not into a worker brief. The worker cannot
-fix a contract that measures the wrong thing — it can only satisfy it.
-
-
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
 
 ## 9s. The threshold-fit tell is the MARGIN, and it is one subtraction
 
@@ -3230,46 +3070,6 @@ depend on which it is.
 
 The general form: when you disagree with a delegate's judgement rather than its facts, the disagreement
 is still resolved by a measurement neither of you has taken yet. Name that measurement.
-
-## 11s. A contract bounds a QUANTITY; the defect usually lives in the SHAPE — four measured instances in one day
-
-2026-08-11. Four contracts I wrote went green and the pixels were still wrong. Three share one error and
-it is mine, not the workers': **I bounded an extreme or a presence, and the defect lived in the variation
-or the placement.**
-
-| slice | what I bounded | what the pixels showed | the gap |
-|---|---|---|---|
-| #295 | no hand-dominant vertex belongs to a garment | mittens gone, **sleeve gone with them** | bounded a PRESENCE, said nothing about what replaces it (§6p) |
-| #320 | `min(overlap) >= 0` per angular bucket | hem still visibly **sawtoothed** | bounded an EXTREME; raggedness is VARIATION, 23.7 mm span survived |
-| #321 | garment primitive count and vertex count | garment **lying on the floor**, body nude | bounded PRESENCE; placement unasserted (§6t, sixth instance) |
-| #319 | (inherited from #295) | shell went **torso-only**, X ±0.50 → ±0.17 | same as #295 |
-
-Each contract was satisfied exactly as written. Each fix was the cheapest thing that satisfied it. That
-is the system working; the briefs were the defect.
-
-**The tell, and it is checkable before dispatch.** Ask of every clause:
-
-> Can this pass on geometry that is **in the wrong place**, or that has the right **extremes** and the
-> wrong **distribution between them**?
-
-If yes, the clause measures a quantity and the defect can hide in the shape. Three concrete repairs,
-each of which would have caught one of the rows above:
-
-- **Presence → placement.** A count of primitives or vertices never says *where*. Pair every presence
-  clause with a relationship to a landmark — a joint from the inverse bind matrices, another garment's
-  rim, the body's own bounding box. Never a literal coordinate (D1).
-- **Extreme → distribution.** `min`, `max` and "no bucket worse than X" are satisfied by a saw-tooth
-  whose teeth all clear the line. If the grade word is *ragged*, *jagged*, *patchy* or *uneven*, bound
-  the **spread** — sd or span across the sampled set — not the worst sample.
-- **Deletion → replacement.** §6p already says a contract that removes something must state what takes
-  over its job. The measured cost of omitting it is #295 and #319: two slices to remove a mitten and
-  discover the sleeve went with it.
-
-**Where this goes:** into the clause list at planting time, not into a worker brief. The worker cannot
-fix a contract that measures the wrong thing — it can only satisfy it.
-
-
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
 
 ## 9u. If a residual WORSENS after a fix, the fix is the first suspect — before any gate moves
 
@@ -3342,46 +3142,6 @@ myself; I would not have prioritised it over more plant thrash unless the brief 
 instinct to keep tuning against a single scalar is strong enough that naming the dump is worth doing
 every time.
 
-## 11s. A contract bounds a QUANTITY; the defect usually lives in the SHAPE — four measured instances in one day
-
-2026-08-11. Four contracts I wrote went green and the pixels were still wrong. Three share one error and
-it is mine, not the workers': **I bounded an extreme or a presence, and the defect lived in the variation
-or the placement.**
-
-| slice | what I bounded | what the pixels showed | the gap |
-|---|---|---|---|
-| #295 | no hand-dominant vertex belongs to a garment | mittens gone, **sleeve gone with them** | bounded a PRESENCE, said nothing about what replaces it (§6p) |
-| #320 | `min(overlap) >= 0` per angular bucket | hem still visibly **sawtoothed** | bounded an EXTREME; raggedness is VARIATION, 23.7 mm span survived |
-| #321 | garment primitive count and vertex count | garment **lying on the floor**, body nude | bounded PRESENCE; placement unasserted (§6t, sixth instance) |
-| #319 | (inherited from #295) | shell went **torso-only**, X ±0.50 → ±0.17 | same as #295 |
-
-Each contract was satisfied exactly as written. Each fix was the cheapest thing that satisfied it. That
-is the system working; the briefs were the defect.
-
-**The tell, and it is checkable before dispatch.** Ask of every clause:
-
-> Can this pass on geometry that is **in the wrong place**, or that has the right **extremes** and the
-> wrong **distribution between them**?
-
-If yes, the clause measures a quantity and the defect can hide in the shape. Three concrete repairs,
-each of which would have caught one of the rows above:
-
-- **Presence → placement.** A count of primitives or vertices never says *where*. Pair every presence
-  clause with a relationship to a landmark — a joint from the inverse bind matrices, another garment's
-  rim, the body's own bounding box. Never a literal coordinate (D1).
-- **Extreme → distribution.** `min`, `max` and "no bucket worse than X" are satisfied by a saw-tooth
-  whose teeth all clear the line. If the grade word is *ragged*, *jagged*, *patchy* or *uneven*, bound
-  the **spread** — sd or span across the sampled set — not the worst sample.
-- **Deletion → replacement.** §6p already says a contract that removes something must state what takes
-  over its job. The measured cost of omitting it is #295 and #319: two slices to remove a mitten and
-  discover the sleeve went with it.
-
-**Where this goes:** into the clause list at planting time, not into a worker brief. The worker cannot
-fix a contract that measures the wrong thing — it can only satisfy it.
-
-
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
-
 ## 9x. Verify against the contracts that OWN the mechanism, not the ones the brief mentioned
 
 §7l tells the orchestrator to grep for what consumes a shared behaviour and resolve the interaction in
@@ -3419,46 +3179,6 @@ because it consumes a worker.
 and treat a suspiciously fast contract result as unverified in both directions. When handing a failure
 to a worker, state that you ran it from a cleared cache — otherwise they cannot distinguish your red
 from a stale one, and they will pay for the difference.
-
-## 11s. A contract bounds a QUANTITY; the defect usually lives in the SHAPE — four measured instances in one day
-
-2026-08-11. Four contracts I wrote went green and the pixels were still wrong. Three share one error and
-it is mine, not the workers': **I bounded an extreme or a presence, and the defect lived in the variation
-or the placement.**
-
-| slice | what I bounded | what the pixels showed | the gap |
-|---|---|---|---|
-| #295 | no hand-dominant vertex belongs to a garment | mittens gone, **sleeve gone with them** | bounded a PRESENCE, said nothing about what replaces it (§6p) |
-| #320 | `min(overlap) >= 0` per angular bucket | hem still visibly **sawtoothed** | bounded an EXTREME; raggedness is VARIATION, 23.7 mm span survived |
-| #321 | garment primitive count and vertex count | garment **lying on the floor**, body nude | bounded PRESENCE; placement unasserted (§6t, sixth instance) |
-| #319 | (inherited from #295) | shell went **torso-only**, X ±0.50 → ±0.17 | same as #295 |
-
-Each contract was satisfied exactly as written. Each fix was the cheapest thing that satisfied it. That
-is the system working; the briefs were the defect.
-
-**The tell, and it is checkable before dispatch.** Ask of every clause:
-
-> Can this pass on geometry that is **in the wrong place**, or that has the right **extremes** and the
-> wrong **distribution between them**?
-
-If yes, the clause measures a quantity and the defect can hide in the shape. Three concrete repairs,
-each of which would have caught one of the rows above:
-
-- **Presence → placement.** A count of primitives or vertices never says *where*. Pair every presence
-  clause with a relationship to a landmark — a joint from the inverse bind matrices, another garment's
-  rim, the body's own bounding box. Never a literal coordinate (D1).
-- **Extreme → distribution.** `min`, `max` and "no bucket worse than X" are satisfied by a saw-tooth
-  whose teeth all clear the line. If the grade word is *ragged*, *jagged*, *patchy* or *uneven*, bound
-  the **spread** — sd or span across the sampled set — not the worst sample.
-- **Deletion → replacement.** §6p already says a contract that removes something must state what takes
-  over its job. The measured cost of omitting it is #295 and #319: two slices to remove a mitten and
-  discover the sleeve went with it.
-
-**Where this goes:** into the clause list at planting time, not into a worker brief. The worker cannot
-fix a contract that measures the wrong thing — it can only satisfy it.
-
-
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
 
 ## 9z. Give the SHAPE, not the story that produced it — a worker named my noise for the first time
 
@@ -3524,46 +3244,6 @@ like a small slice.
 carried — `diagnosis-complete`, `cause-stated-not-traced`, or `cause-unknown`. A 17-turn
 diagnosis-complete slice and a 17-turn cause-unknown slice are not the same measurement and must never
 be averaged.
-
-## 11s. A contract bounds a QUANTITY; the defect usually lives in the SHAPE — four measured instances in one day
-
-2026-08-11. Four contracts I wrote went green and the pixels were still wrong. Three share one error and
-it is mine, not the workers': **I bounded an extreme or a presence, and the defect lived in the variation
-or the placement.**
-
-| slice | what I bounded | what the pixels showed | the gap |
-|---|---|---|---|
-| #295 | no hand-dominant vertex belongs to a garment | mittens gone, **sleeve gone with them** | bounded a PRESENCE, said nothing about what replaces it (§6p) |
-| #320 | `min(overlap) >= 0` per angular bucket | hem still visibly **sawtoothed** | bounded an EXTREME; raggedness is VARIATION, 23.7 mm span survived |
-| #321 | garment primitive count and vertex count | garment **lying on the floor**, body nude | bounded PRESENCE; placement unasserted (§6t, sixth instance) |
-| #319 | (inherited from #295) | shell went **torso-only**, X ±0.50 → ±0.17 | same as #295 |
-
-Each contract was satisfied exactly as written. Each fix was the cheapest thing that satisfied it. That
-is the system working; the briefs were the defect.
-
-**The tell, and it is checkable before dispatch.** Ask of every clause:
-
-> Can this pass on geometry that is **in the wrong place**, or that has the right **extremes** and the
-> wrong **distribution between them**?
-
-If yes, the clause measures a quantity and the defect can hide in the shape. Three concrete repairs,
-each of which would have caught one of the rows above:
-
-- **Presence → placement.** A count of primitives or vertices never says *where*. Pair every presence
-  clause with a relationship to a landmark — a joint from the inverse bind matrices, another garment's
-  rim, the body's own bounding box. Never a literal coordinate (D1).
-- **Extreme → distribution.** `min`, `max` and "no bucket worse than X" are satisfied by a saw-tooth
-  whose teeth all clear the line. If the grade word is *ragged*, *jagged*, *patchy* or *uneven*, bound
-  the **spread** — sd or span across the sampled set — not the worst sample.
-- **Deletion → replacement.** §6p already says a contract that removes something must state what takes
-  over its job. The measured cost of omitting it is #295 and #319: two slices to remove a mitten and
-  discover the sleeve went with it.
-
-**Where this goes:** into the clause list at planting time, not into a worker brief. The worker cannot
-fix a contract that measures the wrong thing — it can only satisfy it.
-
-
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
 
 ## 10c. CORRECTED 2026-08-20 — a fresh dispatch DOES ledger its id before spawn; this applies to resumes only
 
@@ -3639,46 +3319,6 @@ fresh dispatch.
 empty tree at main's HEAD means the kill preceded the brief and a fresh dispatch is correct. Never
 decide from the task status alone — the harness reports "killed" identically in both cases.
 
-## 11s. A contract bounds a QUANTITY; the defect usually lives in the SHAPE — four measured instances in one day
-
-2026-08-11. Four contracts I wrote went green and the pixels were still wrong. Three share one error and
-it is mine, not the workers': **I bounded an extreme or a presence, and the defect lived in the variation
-or the placement.**
-
-| slice | what I bounded | what the pixels showed | the gap |
-|---|---|---|---|
-| #295 | no hand-dominant vertex belongs to a garment | mittens gone, **sleeve gone with them** | bounded a PRESENCE, said nothing about what replaces it (§6p) |
-| #320 | `min(overlap) >= 0` per angular bucket | hem still visibly **sawtoothed** | bounded an EXTREME; raggedness is VARIATION, 23.7 mm span survived |
-| #321 | garment primitive count and vertex count | garment **lying on the floor**, body nude | bounded PRESENCE; placement unasserted (§6t, sixth instance) |
-| #319 | (inherited from #295) | shell went **torso-only**, X ±0.50 → ±0.17 | same as #295 |
-
-Each contract was satisfied exactly as written. Each fix was the cheapest thing that satisfied it. That
-is the system working; the briefs were the defect.
-
-**The tell, and it is checkable before dispatch.** Ask of every clause:
-
-> Can this pass on geometry that is **in the wrong place**, or that has the right **extremes** and the
-> wrong **distribution between them**?
-
-If yes, the clause measures a quantity and the defect can hide in the shape. Three concrete repairs,
-each of which would have caught one of the rows above:
-
-- **Presence → placement.** A count of primitives or vertices never says *where*. Pair every presence
-  clause with a relationship to a landmark — a joint from the inverse bind matrices, another garment's
-  rim, the body's own bounding box. Never a literal coordinate (D1).
-- **Extreme → distribution.** `min`, `max` and "no bucket worse than X" are satisfied by a saw-tooth
-  whose teeth all clear the line. If the grade word is *ragged*, *jagged*, *patchy* or *uneven*, bound
-  the **spread** — sd or span across the sampled set — not the worst sample.
-- **Deletion → replacement.** §6p already says a contract that removes something must state what takes
-  over its job. The measured cost of omitting it is #295 and #319: two slices to remove a mitten and
-  discover the sleeve went with it.
-
-**Where this goes:** into the clause list at planting time, not into a worker brief. The worker cannot
-fix a contract that measures the wrong thing — it can only satisfy it.
-
-
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
-
 ## 10e. When two measures move in opposite directions, stop diagnosing single-cause — that IS the finding
 
 #171 took four attempts because each one fixed one constraint by breaking the other: seat clearance
@@ -3739,46 +3379,6 @@ a ranked cause): a measurement earns its place partly by **excluding** shapes. W
 say which alternative forms it rules out — here, that `1-cos` gave 2.93/1.58/0.93 and did not fit —
 because that half is what stops a worker exploring a dead geometry.
 
-## 11s. A contract bounds a QUANTITY; the defect usually lives in the SHAPE — four measured instances in one day
-
-2026-08-11. Four contracts I wrote went green and the pixels were still wrong. Three share one error and
-it is mine, not the workers': **I bounded an extreme or a presence, and the defect lived in the variation
-or the placement.**
-
-| slice | what I bounded | what the pixels showed | the gap |
-|---|---|---|---|
-| #295 | no hand-dominant vertex belongs to a garment | mittens gone, **sleeve gone with them** | bounded a PRESENCE, said nothing about what replaces it (§6p) |
-| #320 | `min(overlap) >= 0` per angular bucket | hem still visibly **sawtoothed** | bounded an EXTREME; raggedness is VARIATION, 23.7 mm span survived |
-| #321 | garment primitive count and vertex count | garment **lying on the floor**, body nude | bounded PRESENCE; placement unasserted (§6t, sixth instance) |
-| #319 | (inherited from #295) | shell went **torso-only**, X ±0.50 → ±0.17 | same as #295 |
-
-Each contract was satisfied exactly as written. Each fix was the cheapest thing that satisfied it. That
-is the system working; the briefs were the defect.
-
-**The tell, and it is checkable before dispatch.** Ask of every clause:
-
-> Can this pass on geometry that is **in the wrong place**, or that has the right **extremes** and the
-> wrong **distribution between them**?
-
-If yes, the clause measures a quantity and the defect can hide in the shape. Three concrete repairs,
-each of which would have caught one of the rows above:
-
-- **Presence → placement.** A count of primitives or vertices never says *where*. Pair every presence
-  clause with a relationship to a landmark — a joint from the inverse bind matrices, another garment's
-  rim, the body's own bounding box. Never a literal coordinate (D1).
-- **Extreme → distribution.** `min`, `max` and "no bucket worse than X" are satisfied by a saw-tooth
-  whose teeth all clear the line. If the grade word is *ragged*, *jagged*, *patchy* or *uneven*, bound
-  the **spread** — sd or span across the sampled set — not the worst sample.
-- **Deletion → replacement.** §6p already says a contract that removes something must state what takes
-  over its job. The measured cost of omitting it is #295 and #319: two slices to remove a mitten and
-  discover the sleeve went with it.
-
-**Where this goes:** into the clause list at planting time, not into a worker brief. The worker cannot
-fix a contract that measures the wrong thing — it can only satisfy it.
-
-
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
-
 ## 10h. Ask the peer for ALTERNATIVES, not only for an attack — standing operator direction
 
 Operator, 2026-08-07:
@@ -3828,46 +3428,6 @@ additional stage costs in the units that matter — for us, faces and wall-clock
 default" is how a 2,528-face shell arrived attached to 11,362,518 faces of furniture and got rejected
 as a whole.
 
-## 11s. A contract bounds a QUANTITY; the defect usually lives in the SHAPE — four measured instances in one day
-
-2026-08-11. Four contracts I wrote went green and the pixels were still wrong. Three share one error and
-it is mine, not the workers': **I bounded an extreme or a presence, and the defect lived in the variation
-or the placement.**
-
-| slice | what I bounded | what the pixels showed | the gap |
-|---|---|---|---|
-| #295 | no hand-dominant vertex belongs to a garment | mittens gone, **sleeve gone with them** | bounded a PRESENCE, said nothing about what replaces it (§6p) |
-| #320 | `min(overlap) >= 0` per angular bucket | hem still visibly **sawtoothed** | bounded an EXTREME; raggedness is VARIATION, 23.7 mm span survived |
-| #321 | garment primitive count and vertex count | garment **lying on the floor**, body nude | bounded PRESENCE; placement unasserted (§6t, sixth instance) |
-| #319 | (inherited from #295) | shell went **torso-only**, X ±0.50 → ±0.17 | same as #295 |
-
-Each contract was satisfied exactly as written. Each fix was the cheapest thing that satisfied it. That
-is the system working; the briefs were the defect.
-
-**The tell, and it is checkable before dispatch.** Ask of every clause:
-
-> Can this pass on geometry that is **in the wrong place**, or that has the right **extremes** and the
-> wrong **distribution between them**?
-
-If yes, the clause measures a quantity and the defect can hide in the shape. Three concrete repairs,
-each of which would have caught one of the rows above:
-
-- **Presence → placement.** A count of primitives or vertices never says *where*. Pair every presence
-  clause with a relationship to a landmark — a joint from the inverse bind matrices, another garment's
-  rim, the body's own bounding box. Never a literal coordinate (D1).
-- **Extreme → distribution.** `min`, `max` and "no bucket worse than X" are satisfied by a saw-tooth
-  whose teeth all clear the line. If the grade word is *ragged*, *jagged*, *patchy* or *uneven*, bound
-  the **spread** — sd or span across the sampled set — not the worst sample.
-- **Deletion → replacement.** §6p already says a contract that removes something must state what takes
-  over its job. The measured cost of omitting it is #295 and #319: two slices to remove a mitten and
-  discover the sleeve went with it.
-
-**Where this goes:** into the clause list at planting time, not into a worker brief. The worker cannot
-fix a contract that measures the wrong thing — it can only satisfy it.
-
-
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
-
 ## 10j. `--resume` can restore and then execute NOTHING — count turns, not restorations
 
 #184 was "resumed" four times. Every attempt printed
@@ -3896,46 +3456,6 @@ state in the prompt. The committed tree carries the context that `--resume` was 
 orchestrator committing a worker's partial state to a worktree branch — labelled WIP, hooks bypassed,
 never a land — costs nothing and removes the hostage. That is §10d's rule taken one step further after
 three reaps proved "the worker will commit eventually" unsafe.
-
-## 11s. A contract bounds a QUANTITY; the defect usually lives in the SHAPE — four measured instances in one day
-
-2026-08-11. Four contracts I wrote went green and the pixels were still wrong. Three share one error and
-it is mine, not the workers': **I bounded an extreme or a presence, and the defect lived in the variation
-or the placement.**
-
-| slice | what I bounded | what the pixels showed | the gap |
-|---|---|---|---|
-| #295 | no hand-dominant vertex belongs to a garment | mittens gone, **sleeve gone with them** | bounded a PRESENCE, said nothing about what replaces it (§6p) |
-| #320 | `min(overlap) >= 0` per angular bucket | hem still visibly **sawtoothed** | bounded an EXTREME; raggedness is VARIATION, 23.7 mm span survived |
-| #321 | garment primitive count and vertex count | garment **lying on the floor**, body nude | bounded PRESENCE; placement unasserted (§6t, sixth instance) |
-| #319 | (inherited from #295) | shell went **torso-only**, X ±0.50 → ±0.17 | same as #295 |
-
-Each contract was satisfied exactly as written. Each fix was the cheapest thing that satisfied it. That
-is the system working; the briefs were the defect.
-
-**The tell, and it is checkable before dispatch.** Ask of every clause:
-
-> Can this pass on geometry that is **in the wrong place**, or that has the right **extremes** and the
-> wrong **distribution between them**?
-
-If yes, the clause measures a quantity and the defect can hide in the shape. Three concrete repairs,
-each of which would have caught one of the rows above:
-
-- **Presence → placement.** A count of primitives or vertices never says *where*. Pair every presence
-  clause with a relationship to a landmark — a joint from the inverse bind matrices, another garment's
-  rim, the body's own bounding box. Never a literal coordinate (D1).
-- **Extreme → distribution.** `min`, `max` and "no bucket worse than X" are satisfied by a saw-tooth
-  whose teeth all clear the line. If the grade word is *ragged*, *jagged*, *patchy* or *uneven*, bound
-  the **spread** — sd or span across the sampled set — not the worst sample.
-- **Deletion → replacement.** §6p already says a contract that removes something must state what takes
-  over its job. The measured cost of omitting it is #295 and #319: two slices to remove a mitten and
-  discover the sleeve went with it.
-
-**Where this goes:** into the clause list at planting time, not into a worker brief. The worker cannot
-fix a contract that measures the wrong thing — it can only satisfy it.
-
-
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
 
 ## 10k. A green proof beats a request to report a broken one — demand it AT DISCOVERY
 
@@ -4061,46 +3581,6 @@ The general shape is §7t's vacuous proof arriving through a comparison rather t
 assertion cannot fail on the axis it was written for, and the only tell is that a worker quietly drops
 that axis from scope.
 
-## 11s. A contract bounds a QUANTITY; the defect usually lives in the SHAPE — four measured instances in one day
-
-2026-08-11. Four contracts I wrote went green and the pixels were still wrong. Three share one error and
-it is mine, not the workers': **I bounded an extreme or a presence, and the defect lived in the variation
-or the placement.**
-
-| slice | what I bounded | what the pixels showed | the gap |
-|---|---|---|---|
-| #295 | no hand-dominant vertex belongs to a garment | mittens gone, **sleeve gone with them** | bounded a PRESENCE, said nothing about what replaces it (§6p) |
-| #320 | `min(overlap) >= 0` per angular bucket | hem still visibly **sawtoothed** | bounded an EXTREME; raggedness is VARIATION, 23.7 mm span survived |
-| #321 | garment primitive count and vertex count | garment **lying on the floor**, body nude | bounded PRESENCE; placement unasserted (§6t, sixth instance) |
-| #319 | (inherited from #295) | shell went **torso-only**, X ±0.50 → ±0.17 | same as #295 |
-
-Each contract was satisfied exactly as written. Each fix was the cheapest thing that satisfied it. That
-is the system working; the briefs were the defect.
-
-**The tell, and it is checkable before dispatch.** Ask of every clause:
-
-> Can this pass on geometry that is **in the wrong place**, or that has the right **extremes** and the
-> wrong **distribution between them**?
-
-If yes, the clause measures a quantity and the defect can hide in the shape. Three concrete repairs,
-each of which would have caught one of the rows above:
-
-- **Presence → placement.** A count of primitives or vertices never says *where*. Pair every presence
-  clause with a relationship to a landmark — a joint from the inverse bind matrices, another garment's
-  rim, the body's own bounding box. Never a literal coordinate (D1).
-- **Extreme → distribution.** `min`, `max` and "no bucket worse than X" are satisfied by a saw-tooth
-  whose teeth all clear the line. If the grade word is *ragged*, *jagged*, *patchy* or *uneven*, bound
-  the **spread** — sd or span across the sampled set — not the worst sample.
-- **Deletion → replacement.** §6p already says a contract that removes something must state what takes
-  over its job. The measured cost of omitting it is #295 and #319: two slices to remove a mitten and
-  discover the sleeve went with it.
-
-**Where this goes:** into the clause list at planting time, not into a worker brief. The worker cannot
-fix a contract that measures the wrong thing — it can only satisfy it.
-
-
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
-
 ## 10p. A ledger field named in English gets implemented as whatever is easy — give the formula
 
 #195's contract type declared `sleeveExtent: number` with the comment *"furthest extent of the sleeve
@@ -4190,46 +3670,6 @@ structure and unreliable about mechanism — verify tree claims before acting. F
 **The failure mode to watch:** this round is the one most likely to produce agreement, because it asks
 about a strategy I have been narrating confidently for several cycles. If it comes back approving, that
 is weak evidence — check whether the prompt gave it anything to disagree with.
-
-## 11s. A contract bounds a QUANTITY; the defect usually lives in the SHAPE — four measured instances in one day
-
-2026-08-11. Four contracts I wrote went green and the pixels were still wrong. Three share one error and
-it is mine, not the workers': **I bounded an extreme or a presence, and the defect lived in the variation
-or the placement.**
-
-| slice | what I bounded | what the pixels showed | the gap |
-|---|---|---|---|
-| #295 | no hand-dominant vertex belongs to a garment | mittens gone, **sleeve gone with them** | bounded a PRESENCE, said nothing about what replaces it (§6p) |
-| #320 | `min(overlap) >= 0` per angular bucket | hem still visibly **sawtoothed** | bounded an EXTREME; raggedness is VARIATION, 23.7 mm span survived |
-| #321 | garment primitive count and vertex count | garment **lying on the floor**, body nude | bounded PRESENCE; placement unasserted (§6t, sixth instance) |
-| #319 | (inherited from #295) | shell went **torso-only**, X ±0.50 → ±0.17 | same as #295 |
-
-Each contract was satisfied exactly as written. Each fix was the cheapest thing that satisfied it. That
-is the system working; the briefs were the defect.
-
-**The tell, and it is checkable before dispatch.** Ask of every clause:
-
-> Can this pass on geometry that is **in the wrong place**, or that has the right **extremes** and the
-> wrong **distribution between them**?
-
-If yes, the clause measures a quantity and the defect can hide in the shape. Three concrete repairs,
-each of which would have caught one of the rows above:
-
-- **Presence → placement.** A count of primitives or vertices never says *where*. Pair every presence
-  clause with a relationship to a landmark — a joint from the inverse bind matrices, another garment's
-  rim, the body's own bounding box. Never a literal coordinate (D1).
-- **Extreme → distribution.** `min`, `max` and "no bucket worse than X" are satisfied by a saw-tooth
-  whose teeth all clear the line. If the grade word is *ragged*, *jagged*, *patchy* or *uneven*, bound
-  the **spread** — sd or span across the sampled set — not the worst sample.
-- **Deletion → replacement.** §6p already says a contract that removes something must state what takes
-  over its job. The measured cost of omitting it is #295 and #319: two slices to remove a mitten and
-  discover the sleeve went with it.
-
-**Where this goes:** into the clause list at planting time, not into a worker brief. The worker cannot
-fix a contract that measures the wrong thing — it can only satisfy it.
-
-
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
 
 ## 10s. A false PREMISE needs the same at-discovery rule as a broken proof — and never let a worker narrow its own contract to accommodate one
 
@@ -4329,46 +3769,6 @@ generalising from it. Ask how a good behaviour arose before treating it as evide
 transferred — the honest answer is often that the data was already there.
 
 
-## 11s. A contract bounds a QUANTITY; the defect usually lives in the SHAPE — four measured instances in one day
-
-2026-08-11. Four contracts I wrote went green and the pixels were still wrong. Three share one error and
-it is mine, not the workers': **I bounded an extreme or a presence, and the defect lived in the variation
-or the placement.**
-
-| slice | what I bounded | what the pixels showed | the gap |
-|---|---|---|---|
-| #295 | no hand-dominant vertex belongs to a garment | mittens gone, **sleeve gone with them** | bounded a PRESENCE, said nothing about what replaces it (§6p) |
-| #320 | `min(overlap) >= 0` per angular bucket | hem still visibly **sawtoothed** | bounded an EXTREME; raggedness is VARIATION, 23.7 mm span survived |
-| #321 | garment primitive count and vertex count | garment **lying on the floor**, body nude | bounded PRESENCE; placement unasserted (§6t, sixth instance) |
-| #319 | (inherited from #295) | shell went **torso-only**, X ±0.50 → ±0.17 | same as #295 |
-
-Each contract was satisfied exactly as written. Each fix was the cheapest thing that satisfied it. That
-is the system working; the briefs were the defect.
-
-**The tell, and it is checkable before dispatch.** Ask of every clause:
-
-> Can this pass on geometry that is **in the wrong place**, or that has the right **extremes** and the
-> wrong **distribution between them**?
-
-If yes, the clause measures a quantity and the defect can hide in the shape. Three concrete repairs,
-each of which would have caught one of the rows above:
-
-- **Presence → placement.** A count of primitives or vertices never says *where*. Pair every presence
-  clause with a relationship to a landmark — a joint from the inverse bind matrices, another garment's
-  rim, the body's own bounding box. Never a literal coordinate (D1).
-- **Extreme → distribution.** `min`, `max` and "no bucket worse than X" are satisfied by a saw-tooth
-  whose teeth all clear the line. If the grade word is *ragged*, *jagged*, *patchy* or *uneven*, bound
-  the **spread** — sd or span across the sampled set — not the worst sample.
-- **Deletion → replacement.** §6p already says a contract that removes something must state what takes
-  over its job. The measured cost of omitting it is #295 and #319: two slices to remove a mitten and
-  discover the sleeve went with it.
-
-**Where this goes:** into the clause list at planting time, not into a worker brief. The worker cannot
-fix a contract that measures the wrong thing — it can only satisfy it.
-
-
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
-
 ## 10x. Authorising "your gate is wrong" removes pressure, it does not create it
 
 #208's brief said: *"If you conclude the GATE is wrong rather than the assets, say so and stop rather
@@ -4419,46 +3819,6 @@ resolved in favour of whatever is cheapest to produce.
 Note the honest tension: the cheap instrument was the right call for a *structural* claim, and a cold
 studio boot for every slice is real cost. The brief has to decide which claim it is buying.
 
-
-## 11s. A contract bounds a QUANTITY; the defect usually lives in the SHAPE — four measured instances in one day
-
-2026-08-11. Four contracts I wrote went green and the pixels were still wrong. Three share one error and
-it is mine, not the workers': **I bounded an extreme or a presence, and the defect lived in the variation
-or the placement.**
-
-| slice | what I bounded | what the pixels showed | the gap |
-|---|---|---|---|
-| #295 | no hand-dominant vertex belongs to a garment | mittens gone, **sleeve gone with them** | bounded a PRESENCE, said nothing about what replaces it (§6p) |
-| #320 | `min(overlap) >= 0` per angular bucket | hem still visibly **sawtoothed** | bounded an EXTREME; raggedness is VARIATION, 23.7 mm span survived |
-| #321 | garment primitive count and vertex count | garment **lying on the floor**, body nude | bounded PRESENCE; placement unasserted (§6t, sixth instance) |
-| #319 | (inherited from #295) | shell went **torso-only**, X ±0.50 → ±0.17 | same as #295 |
-
-Each contract was satisfied exactly as written. Each fix was the cheapest thing that satisfied it. That
-is the system working; the briefs were the defect.
-
-**The tell, and it is checkable before dispatch.** Ask of every clause:
-
-> Can this pass on geometry that is **in the wrong place**, or that has the right **extremes** and the
-> wrong **distribution between them**?
-
-If yes, the clause measures a quantity and the defect can hide in the shape. Three concrete repairs,
-each of which would have caught one of the rows above:
-
-- **Presence → placement.** A count of primitives or vertices never says *where*. Pair every presence
-  clause with a relationship to a landmark — a joint from the inverse bind matrices, another garment's
-  rim, the body's own bounding box. Never a literal coordinate (D1).
-- **Extreme → distribution.** `min`, `max` and "no bucket worse than X" are satisfied by a saw-tooth
-  whose teeth all clear the line. If the grade word is *ragged*, *jagged*, *patchy* or *uneven*, bound
-  the **spread** — sd or span across the sampled set — not the worst sample.
-- **Deletion → replacement.** §6p already says a contract that removes something must state what takes
-  over its job. The measured cost of omitting it is #295 and #319: two slices to remove a mitten and
-  discover the sleeve went with it.
-
-**Where this goes:** into the clause list at planting time, not into a worker brief. The worker cannot
-fix a contract that measures the wrong thing — it can only satisfy it.
-
-
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
 
 ## 10z. The gate-is-suspect line, measured across a matched pair in one cycle
 
@@ -4514,46 +3874,6 @@ stops being fully ignored. **A command's safety is a property of the tree it run
 command.**
 
 
-## 11s. A contract bounds a QUANTITY; the defect usually lives in the SHAPE — four measured instances in one day
-
-2026-08-11. Four contracts I wrote went green and the pixels were still wrong. Three share one error and
-it is mine, not the workers': **I bounded an extreme or a presence, and the defect lived in the variation
-or the placement.**
-
-| slice | what I bounded | what the pixels showed | the gap |
-|---|---|---|---|
-| #295 | no hand-dominant vertex belongs to a garment | mittens gone, **sleeve gone with them** | bounded a PRESENCE, said nothing about what replaces it (§6p) |
-| #320 | `min(overlap) >= 0` per angular bucket | hem still visibly **sawtoothed** | bounded an EXTREME; raggedness is VARIATION, 23.7 mm span survived |
-| #321 | garment primitive count and vertex count | garment **lying on the floor**, body nude | bounded PRESENCE; placement unasserted (§6t, sixth instance) |
-| #319 | (inherited from #295) | shell went **torso-only**, X ±0.50 → ±0.17 | same as #295 |
-
-Each contract was satisfied exactly as written. Each fix was the cheapest thing that satisfied it. That
-is the system working; the briefs were the defect.
-
-**The tell, and it is checkable before dispatch.** Ask of every clause:
-
-> Can this pass on geometry that is **in the wrong place**, or that has the right **extremes** and the
-> wrong **distribution between them**?
-
-If yes, the clause measures a quantity and the defect can hide in the shape. Three concrete repairs,
-each of which would have caught one of the rows above:
-
-- **Presence → placement.** A count of primitives or vertices never says *where*. Pair every presence
-  clause with a relationship to a landmark — a joint from the inverse bind matrices, another garment's
-  rim, the body's own bounding box. Never a literal coordinate (D1).
-- **Extreme → distribution.** `min`, `max` and "no bucket worse than X" are satisfied by a saw-tooth
-  whose teeth all clear the line. If the grade word is *ragged*, *jagged*, *patchy* or *uneven*, bound
-  the **spread** — sd or span across the sampled set — not the worst sample.
-- **Deletion → replacement.** §6p already says a contract that removes something must state what takes
-  over its job. The measured cost of omitting it is #295 and #319: two slices to remove a mitten and
-  discover the sleeve went with it.
-
-**Where this goes:** into the clause list at planting time, not into a worker brief. The worker cannot
-fix a contract that measures the wrong thing — it can only satisfy it.
-
-
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
-
 ## 11b. A brief delta posted as a COMMENT never reaches the worker — the dispatcher reads the BODY
 
 The dispatch script builds its prompt from
@@ -4596,46 +3916,6 @@ text is absent from the prompt. Filed rather than built mid-flight, because sile
 mode here and a warning would have caught it in one line.
 
 
-## 11s. A contract bounds a QUANTITY; the defect usually lives in the SHAPE — four measured instances in one day
-
-2026-08-11. Four contracts I wrote went green and the pixels were still wrong. Three share one error and
-it is mine, not the workers': **I bounded an extreme or a presence, and the defect lived in the variation
-or the placement.**
-
-| slice | what I bounded | what the pixels showed | the gap |
-|---|---|---|---|
-| #295 | no hand-dominant vertex belongs to a garment | mittens gone, **sleeve gone with them** | bounded a PRESENCE, said nothing about what replaces it (§6p) |
-| #320 | `min(overlap) >= 0` per angular bucket | hem still visibly **sawtoothed** | bounded an EXTREME; raggedness is VARIATION, 23.7 mm span survived |
-| #321 | garment primitive count and vertex count | garment **lying on the floor**, body nude | bounded PRESENCE; placement unasserted (§6t, sixth instance) |
-| #319 | (inherited from #295) | shell went **torso-only**, X ±0.50 → ±0.17 | same as #295 |
-
-Each contract was satisfied exactly as written. Each fix was the cheapest thing that satisfied it. That
-is the system working; the briefs were the defect.
-
-**The tell, and it is checkable before dispatch.** Ask of every clause:
-
-> Can this pass on geometry that is **in the wrong place**, or that has the right **extremes** and the
-> wrong **distribution between them**?
-
-If yes, the clause measures a quantity and the defect can hide in the shape. Three concrete repairs,
-each of which would have caught one of the rows above:
-
-- **Presence → placement.** A count of primitives or vertices never says *where*. Pair every presence
-  clause with a relationship to a landmark — a joint from the inverse bind matrices, another garment's
-  rim, the body's own bounding box. Never a literal coordinate (D1).
-- **Extreme → distribution.** `min`, `max` and "no bucket worse than X" are satisfied by a saw-tooth
-  whose teeth all clear the line. If the grade word is *ragged*, *jagged*, *patchy* or *uneven*, bound
-  the **spread** — sd or span across the sampled set — not the worst sample.
-- **Deletion → replacement.** §6p already says a contract that removes something must state what takes
-  over its job. The measured cost of omitting it is #295 and #319: two slices to remove a mitten and
-  discover the sleeve went with it.
-
-**Where this goes:** into the clause list at planting time, not into a worker brief. The worker cannot
-fix a contract that measures the wrong thing — it can only satisfy it.
-
-
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
-
 ## 11c. Independent scalar bounds do not add up to ATTACHMENT — the §6t class, sixth instance
 
 §6t records five gates written for "does the garment cover the shoulder", all defeated by DETACHED
@@ -4671,46 +3951,6 @@ check) applied to a conjunction rather than to two instruments.
   because that is what a shoe should do. **Real intent, decorative number.** Worth knowing which of
   your numbers are load-bearing before defending any of them.
 
-
-## 11s. A contract bounds a QUANTITY; the defect usually lives in the SHAPE — four measured instances in one day
-
-2026-08-11. Four contracts I wrote went green and the pixels were still wrong. Three share one error and
-it is mine, not the workers': **I bounded an extreme or a presence, and the defect lived in the variation
-or the placement.**
-
-| slice | what I bounded | what the pixels showed | the gap |
-|---|---|---|---|
-| #295 | no hand-dominant vertex belongs to a garment | mittens gone, **sleeve gone with them** | bounded a PRESENCE, said nothing about what replaces it (§6p) |
-| #320 | `min(overlap) >= 0` per angular bucket | hem still visibly **sawtoothed** | bounded an EXTREME; raggedness is VARIATION, 23.7 mm span survived |
-| #321 | garment primitive count and vertex count | garment **lying on the floor**, body nude | bounded PRESENCE; placement unasserted (§6t, sixth instance) |
-| #319 | (inherited from #295) | shell went **torso-only**, X ±0.50 → ±0.17 | same as #295 |
-
-Each contract was satisfied exactly as written. Each fix was the cheapest thing that satisfied it. That
-is the system working; the briefs were the defect.
-
-**The tell, and it is checkable before dispatch.** Ask of every clause:
-
-> Can this pass on geometry that is **in the wrong place**, or that has the right **extremes** and the
-> wrong **distribution between them**?
-
-If yes, the clause measures a quantity and the defect can hide in the shape. Three concrete repairs,
-each of which would have caught one of the rows above:
-
-- **Presence → placement.** A count of primitives or vertices never says *where*. Pair every presence
-  clause with a relationship to a landmark — a joint from the inverse bind matrices, another garment's
-  rim, the body's own bounding box. Never a literal coordinate (D1).
-- **Extreme → distribution.** `min`, `max` and "no bucket worse than X" are satisfied by a saw-tooth
-  whose teeth all clear the line. If the grade word is *ragged*, *jagged*, *patchy* or *uneven*, bound
-  the **spread** — sd or span across the sampled set — not the worst sample.
-- **Deletion → replacement.** §6p already says a contract that removes something must state what takes
-  over its job. The measured cost of omitting it is #295 and #319: two slices to remove a mitten and
-  discover the sleeve went with it.
-
-**Where this goes:** into the clause list at planting time, not into a worker brief. The worker cannot
-fix a contract that measures the wrong thing — it can only satisfy it.
-
-
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
 
 ## 11d. A closed checklist whose cells RESTATE the question is not a gate — decompose the quality
 
@@ -4760,46 +4000,6 @@ Three minutes of origin/import-map thrash on the first capture attempt, but the 
 doubt. Keep doing it — the rule holds on its first controlled outing.
 
 
-## 11s. A contract bounds a QUANTITY; the defect usually lives in the SHAPE — four measured instances in one day
-
-2026-08-11. Four contracts I wrote went green and the pixels were still wrong. Three share one error and
-it is mine, not the workers': **I bounded an extreme or a presence, and the defect lived in the variation
-or the placement.**
-
-| slice | what I bounded | what the pixels showed | the gap |
-|---|---|---|---|
-| #295 | no hand-dominant vertex belongs to a garment | mittens gone, **sleeve gone with them** | bounded a PRESENCE, said nothing about what replaces it (§6p) |
-| #320 | `min(overlap) >= 0` per angular bucket | hem still visibly **sawtoothed** | bounded an EXTREME; raggedness is VARIATION, 23.7 mm span survived |
-| #321 | garment primitive count and vertex count | garment **lying on the floor**, body nude | bounded PRESENCE; placement unasserted (§6t, sixth instance) |
-| #319 | (inherited from #295) | shell went **torso-only**, X ±0.50 → ±0.17 | same as #295 |
-
-Each contract was satisfied exactly as written. Each fix was the cheapest thing that satisfied it. That
-is the system working; the briefs were the defect.
-
-**The tell, and it is checkable before dispatch.** Ask of every clause:
-
-> Can this pass on geometry that is **in the wrong place**, or that has the right **extremes** and the
-> wrong **distribution between them**?
-
-If yes, the clause measures a quantity and the defect can hide in the shape. Three concrete repairs,
-each of which would have caught one of the rows above:
-
-- **Presence → placement.** A count of primitives or vertices never says *where*. Pair every presence
-  clause with a relationship to a landmark — a joint from the inverse bind matrices, another garment's
-  rim, the body's own bounding box. Never a literal coordinate (D1).
-- **Extreme → distribution.** `min`, `max` and "no bucket worse than X" are satisfied by a saw-tooth
-  whose teeth all clear the line. If the grade word is *ragged*, *jagged*, *patchy* or *uneven*, bound
-  the **spread** — sd or span across the sampled set — not the worst sample.
-- **Deletion → replacement.** §6p already says a contract that removes something must state what takes
-  over its job. The measured cost of omitting it is #295 and #319: two slices to remove a mitten and
-  discover the sleeve went with it.
-
-**Where this goes:** into the clause list at planting time, not into a worker brief. The worker cannot
-fix a contract that measures the wrong thing — it can only satisfy it.
-
-
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
-
 ## 11f. `pkill -f <tool>` kills your own worker — it is running that tool too
 
 I ran `pkill -f "vitest"` to stop a hung full-suite run and free the machine for a worker I had just
@@ -4841,46 +4041,6 @@ Two practical consequences, both cheap:
 Still worth diagnosing properly. A hook, a session-start action, or something in the dispatch path is
 the candidate set, and nobody has measured which.
 
-
-## 11s. A contract bounds a QUANTITY; the defect usually lives in the SHAPE — four measured instances in one day
-
-2026-08-11. Four contracts I wrote went green and the pixels were still wrong. Three share one error and
-it is mine, not the workers': **I bounded an extreme or a presence, and the defect lived in the variation
-or the placement.**
-
-| slice | what I bounded | what the pixels showed | the gap |
-|---|---|---|---|
-| #295 | no hand-dominant vertex belongs to a garment | mittens gone, **sleeve gone with them** | bounded a PRESENCE, said nothing about what replaces it (§6p) |
-| #320 | `min(overlap) >= 0` per angular bucket | hem still visibly **sawtoothed** | bounded an EXTREME; raggedness is VARIATION, 23.7 mm span survived |
-| #321 | garment primitive count and vertex count | garment **lying on the floor**, body nude | bounded PRESENCE; placement unasserted (§6t, sixth instance) |
-| #319 | (inherited from #295) | shell went **torso-only**, X ±0.50 → ±0.17 | same as #295 |
-
-Each contract was satisfied exactly as written. Each fix was the cheapest thing that satisfied it. That
-is the system working; the briefs were the defect.
-
-**The tell, and it is checkable before dispatch.** Ask of every clause:
-
-> Can this pass on geometry that is **in the wrong place**, or that has the right **extremes** and the
-> wrong **distribution between them**?
-
-If yes, the clause measures a quantity and the defect can hide in the shape. Three concrete repairs,
-each of which would have caught one of the rows above:
-
-- **Presence → placement.** A count of primitives or vertices never says *where*. Pair every presence
-  clause with a relationship to a landmark — a joint from the inverse bind matrices, another garment's
-  rim, the body's own bounding box. Never a literal coordinate (D1).
-- **Extreme → distribution.** `min`, `max` and "no bucket worse than X" are satisfied by a saw-tooth
-  whose teeth all clear the line. If the grade word is *ragged*, *jagged*, *patchy* or *uneven*, bound
-  the **spread** — sd or span across the sampled set — not the worst sample.
-- **Deletion → replacement.** §6p already says a contract that removes something must state what takes
-  over its job. The measured cost of omitting it is #295 and #319: two slices to remove a mitten and
-  discover the sleeve went with it.
-
-**Where this goes:** into the clause list at planting time, not into a worker brief. The worker cannot
-fix a contract that measures the wrong thing — it can only satisfy it.
-
-
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
 
 ## 11h. A `grok -p --resume` handback produces NO contract report — integrate will refuse it, correctly
 
@@ -4927,46 +4087,6 @@ change can alter appearance, name the renderer and the framing for a fresh captu
 decomposed checklist (§11d). "Fix the red" is a `done_when` with one rule in it, and it buys exactly
 one rule's worth of evidence.
 
-
-## 11s. A contract bounds a QUANTITY; the defect usually lives in the SHAPE — four measured instances in one day
-
-2026-08-11. Four contracts I wrote went green and the pixels were still wrong. Three share one error and
-it is mine, not the workers': **I bounded an extreme or a presence, and the defect lived in the variation
-or the placement.**
-
-| slice | what I bounded | what the pixels showed | the gap |
-|---|---|---|---|
-| #295 | no hand-dominant vertex belongs to a garment | mittens gone, **sleeve gone with them** | bounded a PRESENCE, said nothing about what replaces it (§6p) |
-| #320 | `min(overlap) >= 0` per angular bucket | hem still visibly **sawtoothed** | bounded an EXTREME; raggedness is VARIATION, 23.7 mm span survived |
-| #321 | garment primitive count and vertex count | garment **lying on the floor**, body nude | bounded PRESENCE; placement unasserted (§6t, sixth instance) |
-| #319 | (inherited from #295) | shell went **torso-only**, X ±0.50 → ±0.17 | same as #295 |
-
-Each contract was satisfied exactly as written. Each fix was the cheapest thing that satisfied it. That
-is the system working; the briefs were the defect.
-
-**The tell, and it is checkable before dispatch.** Ask of every clause:
-
-> Can this pass on geometry that is **in the wrong place**, or that has the right **extremes** and the
-> wrong **distribution between them**?
-
-If yes, the clause measures a quantity and the defect can hide in the shape. Three concrete repairs,
-each of which would have caught one of the rows above:
-
-- **Presence → placement.** A count of primitives or vertices never says *where*. Pair every presence
-  clause with a relationship to a landmark — a joint from the inverse bind matrices, another garment's
-  rim, the body's own bounding box. Never a literal coordinate (D1).
-- **Extreme → distribution.** `min`, `max` and "no bucket worse than X" are satisfied by a saw-tooth
-  whose teeth all clear the line. If the grade word is *ragged*, *jagged*, *patchy* or *uneven*, bound
-  the **spread** — sd or span across the sampled set — not the worst sample.
-- **Deletion → replacement.** §6p already says a contract that removes something must state what takes
-  over its job. The measured cost of omitting it is #295 and #319: two slices to remove a mitten and
-  discover the sleeve went with it.
-
-**Where this goes:** into the clause list at planting time, not into a worker brief. The worker cannot
-fix a contract that measures the wrong thing — it can only satisfy it.
-
-
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
 
 ## 11j. A `changed:<file>` rule COMPELS an edit — it silently defeats the instrument-artifact stop
 
@@ -5025,46 +4145,6 @@ anyone acts on it.** §8s asked for the pre-fix table to include measurements th
 traced cause; here that happened by construction and it worked.
 
 
-## 11s. A contract bounds a QUANTITY; the defect usually lives in the SHAPE — four measured instances in one day
-
-2026-08-11. Four contracts I wrote went green and the pixels were still wrong. Three share one error and
-it is mine, not the workers': **I bounded an extreme or a presence, and the defect lived in the variation
-or the placement.**
-
-| slice | what I bounded | what the pixels showed | the gap |
-|---|---|---|---|
-| #295 | no hand-dominant vertex belongs to a garment | mittens gone, **sleeve gone with them** | bounded a PRESENCE, said nothing about what replaces it (§6p) |
-| #320 | `min(overlap) >= 0` per angular bucket | hem still visibly **sawtoothed** | bounded an EXTREME; raggedness is VARIATION, 23.7 mm span survived |
-| #321 | garment primitive count and vertex count | garment **lying on the floor**, body nude | bounded PRESENCE; placement unasserted (§6t, sixth instance) |
-| #319 | (inherited from #295) | shell went **torso-only**, X ±0.50 → ±0.17 | same as #295 |
-
-Each contract was satisfied exactly as written. Each fix was the cheapest thing that satisfied it. That
-is the system working; the briefs were the defect.
-
-**The tell, and it is checkable before dispatch.** Ask of every clause:
-
-> Can this pass on geometry that is **in the wrong place**, or that has the right **extremes** and the
-> wrong **distribution between them**?
-
-If yes, the clause measures a quantity and the defect can hide in the shape. Three concrete repairs,
-each of which would have caught one of the rows above:
-
-- **Presence → placement.** A count of primitives or vertices never says *where*. Pair every presence
-  clause with a relationship to a landmark — a joint from the inverse bind matrices, another garment's
-  rim, the body's own bounding box. Never a literal coordinate (D1).
-- **Extreme → distribution.** `min`, `max` and "no bucket worse than X" are satisfied by a saw-tooth
-  whose teeth all clear the line. If the grade word is *ragged*, *jagged*, *patchy* or *uneven*, bound
-  the **spread** — sd or span across the sampled set — not the worst sample.
-- **Deletion → replacement.** §6p already says a contract that removes something must state what takes
-  over its job. The measured cost of omitting it is #295 and #319: two slices to remove a mitten and
-  discover the sleeve went with it.
-
-**Where this goes:** into the clause list at planting time, not into a worker brief. The worker cannot
-fix a contract that measures the wrong thing — it can only satisfy it.
-
-
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
-
 ## 11l. A thumbnail in a contact sheet cannot support a NEGATIVE verdict
 
 I filed #211 — "the suicidal-ideation station declares three actors and renders none" — from one panel
@@ -5104,46 +4184,6 @@ manufactured nothing. 28 turns, no wasted product edit, and a real inspection ca
 a report of "no defect found" satisfies it. If any rule requires a file to change, the permission is
 decorative — the contract will win, as it should (§6q).
 
-
-## 11s. A contract bounds a QUANTITY; the defect usually lives in the SHAPE — four measured instances in one day
-
-2026-08-11. Four contracts I wrote went green and the pixels were still wrong. Three share one error and
-it is mine, not the workers': **I bounded an extreme or a presence, and the defect lived in the variation
-or the placement.**
-
-| slice | what I bounded | what the pixels showed | the gap |
-|---|---|---|---|
-| #295 | no hand-dominant vertex belongs to a garment | mittens gone, **sleeve gone with them** | bounded a PRESENCE, said nothing about what replaces it (§6p) |
-| #320 | `min(overlap) >= 0` per angular bucket | hem still visibly **sawtoothed** | bounded an EXTREME; raggedness is VARIATION, 23.7 mm span survived |
-| #321 | garment primitive count and vertex count | garment **lying on the floor**, body nude | bounded PRESENCE; placement unasserted (§6t, sixth instance) |
-| #319 | (inherited from #295) | shell went **torso-only**, X ±0.50 → ±0.17 | same as #295 |
-
-Each contract was satisfied exactly as written. Each fix was the cheapest thing that satisfied it. That
-is the system working; the briefs were the defect.
-
-**The tell, and it is checkable before dispatch.** Ask of every clause:
-
-> Can this pass on geometry that is **in the wrong place**, or that has the right **extremes** and the
-> wrong **distribution between them**?
-
-If yes, the clause measures a quantity and the defect can hide in the shape. Three concrete repairs,
-each of which would have caught one of the rows above:
-
-- **Presence → placement.** A count of primitives or vertices never says *where*. Pair every presence
-  clause with a relationship to a landmark — a joint from the inverse bind matrices, another garment's
-  rim, the body's own bounding box. Never a literal coordinate (D1).
-- **Extreme → distribution.** `min`, `max` and "no bucket worse than X" are satisfied by a saw-tooth
-  whose teeth all clear the line. If the grade word is *ragged*, *jagged*, *patchy* or *uneven*, bound
-  the **spread** — sd or span across the sampled set — not the worst sample.
-- **Deletion → replacement.** §6p already says a contract that removes something must state what takes
-  over its job. The measured cost of omitting it is #295 and #319: two slices to remove a mitten and
-  discover the sleeve went with it.
-
-**Where this goes:** into the clause list at planting time, not into a worker brief. The worker cannot
-fix a contract that measures the wrong thing — it can only satisfy it.
-
-
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
 
 ## 11n. §11j has a sibling — a BREADTH requirement also defeats the instrument-artifact stop
 
@@ -5202,46 +4242,6 @@ the worker's warning: the day a legitimate low-poly proxy ships, that floor beco
 (§7a) — the correct response is to say so, not to raise it.
 
 
-## 11s. A contract bounds a QUANTITY; the defect usually lives in the SHAPE — four measured instances in one day
-
-2026-08-11. Four contracts I wrote went green and the pixels were still wrong. Three share one error and
-it is mine, not the workers': **I bounded an extreme or a presence, and the defect lived in the variation
-or the placement.**
-
-| slice | what I bounded | what the pixels showed | the gap |
-|---|---|---|---|
-| #295 | no hand-dominant vertex belongs to a garment | mittens gone, **sleeve gone with them** | bounded a PRESENCE, said nothing about what replaces it (§6p) |
-| #320 | `min(overlap) >= 0` per angular bucket | hem still visibly **sawtoothed** | bounded an EXTREME; raggedness is VARIATION, 23.7 mm span survived |
-| #321 | garment primitive count and vertex count | garment **lying on the floor**, body nude | bounded PRESENCE; placement unasserted (§6t, sixth instance) |
-| #319 | (inherited from #295) | shell went **torso-only**, X ±0.50 → ±0.17 | same as #295 |
-
-Each contract was satisfied exactly as written. Each fix was the cheapest thing that satisfied it. That
-is the system working; the briefs were the defect.
-
-**The tell, and it is checkable before dispatch.** Ask of every clause:
-
-> Can this pass on geometry that is **in the wrong place**, or that has the right **extremes** and the
-> wrong **distribution between them**?
-
-If yes, the clause measures a quantity and the defect can hide in the shape. Three concrete repairs,
-each of which would have caught one of the rows above:
-
-- **Presence → placement.** A count of primitives or vertices never says *where*. Pair every presence
-  clause with a relationship to a landmark — a joint from the inverse bind matrices, another garment's
-  rim, the body's own bounding box. Never a literal coordinate (D1).
-- **Extreme → distribution.** `min`, `max` and "no bucket worse than X" are satisfied by a saw-tooth
-  whose teeth all clear the line. If the grade word is *ragged*, *jagged*, *patchy* or *uneven*, bound
-  the **spread** — sd or span across the sampled set — not the worst sample.
-- **Deletion → replacement.** §6p already says a contract that removes something must state what takes
-  over its job. The measured cost of omitting it is #295 and #319: two slices to remove a mitten and
-  discover the sleeve went with it.
-
-**Where this goes:** into the clause list at planting time, not into a worker brief. The worker cannot
-fix a contract that measures the wrong thing — it can only satisfy it.
-
-
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
-
 ## 11p. The doc-archive churn was a SessionStart hook, and my resume command was missing the guard
 
 Open since #99, narrowed by §9r to "present in the worktree before any product edit, mechanism NOT
@@ -5279,46 +4279,6 @@ everything dispatch does for you.
 **What was actually wasted:** three handback attempts across two slices, each starting dirty, one of
 which I then had to reset and re-run. Roughly a cycle. The fix is one prefix.
 
-
-## 11s. A contract bounds a QUANTITY; the defect usually lives in the SHAPE — four measured instances in one day
-
-2026-08-11. Four contracts I wrote went green and the pixels were still wrong. Three share one error and
-it is mine, not the workers': **I bounded an extreme or a presence, and the defect lived in the variation
-or the placement.**
-
-| slice | what I bounded | what the pixels showed | the gap |
-|---|---|---|---|
-| #295 | no hand-dominant vertex belongs to a garment | mittens gone, **sleeve gone with them** | bounded a PRESENCE, said nothing about what replaces it (§6p) |
-| #320 | `min(overlap) >= 0` per angular bucket | hem still visibly **sawtoothed** | bounded an EXTREME; raggedness is VARIATION, 23.7 mm span survived |
-| #321 | garment primitive count and vertex count | garment **lying on the floor**, body nude | bounded PRESENCE; placement unasserted (§6t, sixth instance) |
-| #319 | (inherited from #295) | shell went **torso-only**, X ±0.50 → ±0.17 | same as #295 |
-
-Each contract was satisfied exactly as written. Each fix was the cheapest thing that satisfied it. That
-is the system working; the briefs were the defect.
-
-**The tell, and it is checkable before dispatch.** Ask of every clause:
-
-> Can this pass on geometry that is **in the wrong place**, or that has the right **extremes** and the
-> wrong **distribution between them**?
-
-If yes, the clause measures a quantity and the defect can hide in the shape. Three concrete repairs,
-each of which would have caught one of the rows above:
-
-- **Presence → placement.** A count of primitives or vertices never says *where*. Pair every presence
-  clause with a relationship to a landmark — a joint from the inverse bind matrices, another garment's
-  rim, the body's own bounding box. Never a literal coordinate (D1).
-- **Extreme → distribution.** `min`, `max` and "no bucket worse than X" are satisfied by a saw-tooth
-  whose teeth all clear the line. If the grade word is *ragged*, *jagged*, *patchy* or *uneven*, bound
-  the **spread** — sd or span across the sampled set — not the worst sample.
-- **Deletion → replacement.** §6p already says a contract that removes something must state what takes
-  over its job. The measured cost of omitting it is #295 and #319: two slices to remove a mitten and
-  discover the sleeve went with it.
-
-**Where this goes:** into the clause list at planting time, not into a worker brief. The worker cannot
-fix a contract that measures the wrong thing — it can only satisfy it.
-
-
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
 
 ## 11q. Clearing the evidence cache DESTROYS the `exists:` artifacts the same contract requires
 
@@ -5358,46 +4318,6 @@ with an explicit `reconstructionNote`, plus: *if you cannot reconstruct the rows
 and stop — I would rather the land stay blocked than have a fabricated before-column.* An honest "I no
 longer have these values" has to be an acceptable answer, or the request is an invitation to invent.
 
-
-## 11s. A contract bounds a QUANTITY; the defect usually lives in the SHAPE — four measured instances in one day
-
-2026-08-11. Four contracts I wrote went green and the pixels were still wrong. Three share one error and
-it is mine, not the workers': **I bounded an extreme or a presence, and the defect lived in the variation
-or the placement.**
-
-| slice | what I bounded | what the pixels showed | the gap |
-|---|---|---|---|
-| #295 | no hand-dominant vertex belongs to a garment | mittens gone, **sleeve gone with them** | bounded a PRESENCE, said nothing about what replaces it (§6p) |
-| #320 | `min(overlap) >= 0` per angular bucket | hem still visibly **sawtoothed** | bounded an EXTREME; raggedness is VARIATION, 23.7 mm span survived |
-| #321 | garment primitive count and vertex count | garment **lying on the floor**, body nude | bounded PRESENCE; placement unasserted (§6t, sixth instance) |
-| #319 | (inherited from #295) | shell went **torso-only**, X ±0.50 → ±0.17 | same as #295 |
-
-Each contract was satisfied exactly as written. Each fix was the cheapest thing that satisfied it. That
-is the system working; the briefs were the defect.
-
-**The tell, and it is checkable before dispatch.** Ask of every clause:
-
-> Can this pass on geometry that is **in the wrong place**, or that has the right **extremes** and the
-> wrong **distribution between them**?
-
-If yes, the clause measures a quantity and the defect can hide in the shape. Three concrete repairs,
-each of which would have caught one of the rows above:
-
-- **Presence → placement.** A count of primitives or vertices never says *where*. Pair every presence
-  clause with a relationship to a landmark — a joint from the inverse bind matrices, another garment's
-  rim, the body's own bounding box. Never a literal coordinate (D1).
-- **Extreme → distribution.** `min`, `max` and "no bucket worse than X" are satisfied by a saw-tooth
-  whose teeth all clear the line. If the grade word is *ragged*, *jagged*, *patchy* or *uneven*, bound
-  the **spread** — sd or span across the sampled set — not the worst sample.
-- **Deletion → replacement.** §6p already says a contract that removes something must state what takes
-  over its job. The measured cost of omitting it is #295 and #319: two slices to remove a mitten and
-  discover the sleeve went with it.
-
-**Where this goes:** into the clause list at planting time, not into a worker brief. The worker cannot
-fix a contract that measures the wrong thing — it can only satisfy it.
-
-
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
 
 ## 11r. Orchestration review #3 — the instruments are thickening while the generators stay primitive
 
@@ -5458,46 +4378,6 @@ scope has been flat.
 **This entry is the one rule for today, and it retires more than it adds** — items 1–6 above replace
 the reflex that produced the accretion it is complaining about.
 
-
-## 11s. A contract bounds a QUANTITY; the defect usually lives in the SHAPE — four measured instances in one day
-
-2026-08-11. Four contracts I wrote went green and the pixels were still wrong. Three share one error and
-it is mine, not the workers': **I bounded an extreme or a presence, and the defect lived in the variation
-or the placement.**
-
-| slice | what I bounded | what the pixels showed | the gap |
-|---|---|---|---|
-| #295 | no hand-dominant vertex belongs to a garment | mittens gone, **sleeve gone with them** | bounded a PRESENCE, said nothing about what replaces it (§6p) |
-| #320 | `min(overlap) >= 0` per angular bucket | hem still visibly **sawtoothed** | bounded an EXTREME; raggedness is VARIATION, 23.7 mm span survived |
-| #321 | garment primitive count and vertex count | garment **lying on the floor**, body nude | bounded PRESENCE; placement unasserted (§6t, sixth instance) |
-| #319 | (inherited from #295) | shell went **torso-only**, X ±0.50 → ±0.17 | same as #295 |
-
-Each contract was satisfied exactly as written. Each fix was the cheapest thing that satisfied it. That
-is the system working; the briefs were the defect.
-
-**The tell, and it is checkable before dispatch.** Ask of every clause:
-
-> Can this pass on geometry that is **in the wrong place**, or that has the right **extremes** and the
-> wrong **distribution between them**?
-
-If yes, the clause measures a quantity and the defect can hide in the shape. Three concrete repairs,
-each of which would have caught one of the rows above:
-
-- **Presence → placement.** A count of primitives or vertices never says *where*. Pair every presence
-  clause with a relationship to a landmark — a joint from the inverse bind matrices, another garment's
-  rim, the body's own bounding box. Never a literal coordinate (D1).
-- **Extreme → distribution.** `min`, `max` and "no bucket worse than X" are satisfied by a saw-tooth
-  whose teeth all clear the line. If the grade word is *ragged*, *jagged*, *patchy* or *uneven*, bound
-  the **spread** — sd or span across the sampled set — not the worst sample.
-- **Deletion → replacement.** §6p already says a contract that removes something must state what takes
-  over its job. The measured cost of omitting it is #295 and #319: two slices to remove a mitten and
-  discover the sleeve went with it.
-
-**Where this goes:** into the clause list at planting time, not into a worker brief. The worker cannot
-fix a contract that measures the wrong thing — it can only satisfy it.
-
-
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
 
 ## 11t. Never chain a destructive command as "cleanup" — this tree has another writer in it
 
