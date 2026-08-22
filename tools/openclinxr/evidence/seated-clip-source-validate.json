@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "openclinxr.seated-clip-source-validate.v1",
+  "stage": "validate",
+  "generatedAt": "2026-08-21T00:00:00Z",
+  "sourceGlb": "/Users/patrick/.openclinxr-tools/mesh2motion-app/static/animations/human-base-animations.glb",
+  "sourceLicence": "CC0 (LICENSE-CC0.MD present in mesh2motion-app clone; remote https://github.com/Mesh2Motion/mesh2motion-app)",
+  "libraryClips": 87,
+  "clip": "Sitting_Talking",
+  "measuredSourceJoints": 66,
+  "roundTrip": {
+    "method": "Blender 5.1 headless: import_scene.gltf -> export_anim.bvh (global_scale=1), mirroring retarget_bvh load.py saveGltf2Bvh:382",
+    "importedPoseBones": 66,
+    "actionBoneCountAfterImport": 66,
+    "namesPreserved": true,
+    "bvhBytes": 143605,
+    "note": "All 66 joint names survive glTF->BVH verbatim (ball_l ... upperarm_r). The importer STACKS all 87 clips into one action (active action after import was 'Chest_Open'), so a raw-library load_and_retarget would bind the wrong motion; the bind consumes an extracted single-clip GLB instead."
+  },
+  "fingerprintCheck": {
+    "required": ["spine_02", "calf_l", "clavicle_l"],
+    "allPresentInImportedRig": true
+  },
+  "targetActor": {
+    "path": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
+    "skinJoints": 137,
+    "preexistingAnimations": ["ClinicalIdleConversation", "ClinicalExpressionMicroTransition"]
+  },
+  "control": {
+    "report": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind-report.json",
+    "clipName": "openclinxr_retarget_cmu_07_01_walk",
+    "drivenBoneCount": 22,
+    "note": "The shipped stage report counts 22 real-driven bones (keyframes>1 && totalRotationDeltaRad>0.01). The planted contract's control constant is 26 - the count of channels the CMU bind produced before that filter. Clause (1) must beat 26."
+  },
+  "mapConsumptionMechanism": {
+    "verified": true,
+    "summary": "retarget_bvh consumes a SOURCE map by RENAMING imported source bones to MHX canonical names (load.py renameBones:679 via BD.activeSrcInfo.boneNames keyed on utils.py canonicalName:234 lower/underscore); the TARGET map tags MPFB bones with the same MHX names for the actual transfer. Map keys are exact source joint names; values are MHX names shared with mpfb2-default-no-toes.json.",
+    "autoSourceDefault": "useAutoSource=True falls back to armature.py findArmature geometry heuristics when no map matches; our map matches by name so renameBones uses it directly"
+  },
+  "claimScope": "single_clip_roundtrip_and_map_mechanism_validation_not_a_bind_result",
+  "notEvidenceFor": ["bind_success", "motion_quality", "runtime_playback"]
+}
