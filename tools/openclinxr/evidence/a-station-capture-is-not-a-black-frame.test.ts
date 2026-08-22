@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { regionLuminance } from "./lib/png-region-luminance.js";
+import { classifyCaptureFrame, UNIFORM_SD_CEILING, regionLuminance } from "./lib/png-region-luminance.js";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
@@ -95,6 +95,20 @@ import { describe, expect, it } from "vitest";
  * Orchestrator pixel grade of the post-scoring capture: floor yes; two+ walls yes;
  * actors (nurse + child) yes; not a single rectangle. ED known-good still a room.
  * (1) flips because the station shows an interior, not because the bound moved.
+ *
+ * ## FIXED (#172, 2026-08-22) — the other end: uniform WHITE refused too
+ *
+ * `nonBlackPct < floor` bounds ONE end. A blank WHITE frame scores nonBlackPct 100.0 — the maximum —
+ * and passed every clause here. #172 measured the failure class on fixtures
+ * (a-uniform-frame-is-refused-at-either-end.test.ts): the original white artifact is gone, but the
+ * black peds capture WAS a uniform frame (sd 4.9), and white is that same failure at the other
+ * exposure. Variance separates "rendered nothing" from "rendered something" at either end.
+ *
+ * Wiring, not just export: `classifyCaptureFrame(bytes)` from `lib/png-region-luminance.js` is now
+ * consumed by clauses (1) and (4). Its ceiling is derived on ambient evidence — real uniform frame
+ * sd 4.9 vs dimmest textured fixture sd 17.36, geometric midpoint 9.22 — with the dimmest real
+ * shipped capture of 15 stations at sd 36.01, 3.9x above the ceiling. Derivation lives beside the
+ * function; no number here is fitted to clear an observation.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -109,7 +123,7 @@ const FLOOR_FRACTION = 0.5;
 /** Luminance below this counts as black. A rendered dark surface still carries texture noise above it. */
 const BLACK_LUMA = 12;
 
-type Frame = { id: string; nonBlackPct: number; mean: number };
+type Frame = { id: string; nonBlackPct: number; mean: number; sd: number; classification: ReturnType<typeof classifyCaptureFrame> };
 
 async function readFrames(): Promise<Frame[]> {
   if (!existsSync(CAPTURE_DIR)) return [];
@@ -120,7 +134,13 @@ async function readFrames(): Promise<Frame[]> {
     // The 3D viewport: left 68%, excluding the top strip and the bottom status bar.
     const r = regionLuminance(readFileSync(abs), { left: 0, top: 0.1, width: 0.68, height: 0.8 }, { blackLuma: BLACK_LUMA, step: 6 });
     if (!r) continue;
-    out.push({ id: file.replace(/-room\.png$/u, ""), nonBlackPct: r.nonBlackPct, mean: r.mean });
+    out.push({
+      id: file.replace(/-room\.png$/u, ""),
+      nonBlackPct: r.nonBlackPct,
+      mean: r.mean,
+      sd: r.sd,
+      classification: classifyCaptureFrame(readFileSync(abs)),
+    });
   }
   return out;
 }
@@ -139,14 +159,33 @@ function requireFrames(): { all: Frame[]; good: Frame } {
 }
 
 describe("a station capture is not a black frame", () => {
-  it("(1) every captured station shows something in its viewport", () => {
-    const { all, good } = requireFrames();
-    const floor = FLOOR_FRACTION * good.nonBlackPct;
-    const black = all.filter((f) => f.nonBlackPct < floor);
+  it("(1) every captured station renders something — INVERTED GUARD (#172), was `nonBlackPct < floor`", () => {
+    // Superseded assertion, kept as an inverted guard: nonBlackPct bounds only the dark end, so the
+    // old form alone admitted a blank WHITE frame at 100%. The verdict now comes from
+    // classifyCaptureFrame, which refuses a UNIFORM frame at either exposure on variance.
+    const { all } = requireFrames();
+    const uniform = all.filter((f) => f.classification?.uniform);
     expect(
-      black.map((f) => `${f.id} ${f.nonBlackPct.toFixed(1)}% non-black (mean luma ${f.mean.toFixed(1)})`),
-      `floor ${floor.toFixed(1)}% = ${FLOOR_FRACTION} x the known-good's ${good.nonBlackPct.toFixed(1)}%`,
+      uniform.map((f) => `${f.id} classified uniform: sd ${f.sd.toFixed(2)} <= ceiling ${UNIFORM_SD_CEILING}`),
+      "a station that rendered nothing is refused whether it came out black or white",
     ).toEqual([]);
+    // The original dark-end bound survives beside the generalised verdict, so the floor's
+    // known-good column keeps doing its job.
+    const { good } = requireFrames();
+    const floor = FLOOR_FRACTION * good.nonBlackPct;
+    expect(all.filter((f) => f.nonBlackPct < floor).map((f) => `${f.id} ${f.nonBlackPct.toFixed(1)}%`)).toEqual([]);
+  });
+
+  it("(4) #172 COUNTERWEIGHT: no captured station is a UNIFORM frame at either exposure", () => {
+    // The white half of the defect, stated against the live population. classifyCaptureFrame is
+    // exposure-blind by derivation: the black peds failure sat at viewport sd 4.9, the dimmest
+    // textured fixture at 17.36, and every one of today's shipped stations measured well above the
+    // 9.22 ceiling (dimmest real capture: ed_stroke_alert_handoff_v1 at 36.01).
+    const { all } = requireFrames();
+    const undecodable = all.filter((f) => f.classification === null);
+    expect(undecodable.map((f) => f.id), "every capture decodes; an undecodable frame is undetermined").toEqual([]);
+    const uniform = all.filter((f) => f.classification?.uniform);
+    expect(uniform.map((f) => f.id), `ceiling ${UNIFORM_SD_CEILING} derived in lib/png-region-luminance.ts`).toEqual([]);
   });
 
   it("(2) COUNTERWEIGHT: the known-good frame is not darkened to lower the bar", () => {

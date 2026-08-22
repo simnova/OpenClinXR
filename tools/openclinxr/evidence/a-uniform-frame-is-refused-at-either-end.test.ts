@@ -83,18 +83,18 @@ describe("a uniform frame is refused at either end", () => {
     expect(luma("textured-dim").nonBlackPct).toBeLessThan(luma("uniform-white").nonBlackPct);
   });
 
-  it.fails("(2) RED: a blank white frame is classified as rendering nothing", async () => {
+  it("(2) RED: a blank white frame is classified as rendering nothing", async () => {
     const v = await classify(read("uniform-white"));
     expect(v.uniform, "nonBlackPct 100.0 and sd 0.00 - the brightest possible frame with no scene in it").toBe(true);
   });
 
-  it.fails("(3) RED: a blank near-black frame is still classified as rendering nothing", async () => {
+  it("(3) RED: a blank near-black frame is still classified as rendering nothing", async () => {
     // The property the landed contract already has must survive being generalised.
     const v = await classify(read("uniform-near-black"));
     expect(v.uniform, "sd 0.00 at mean 8.0 - the case the black-frame contract catches today").toBe(true);
   });
 
-  it.fails("(4) RED + COUNTERWEIGHT: a legitimately DIM but textured frame is not refused", async () => {
+  it("(4) RED + COUNTERWEIGHT: a legitimately DIM but textured frame is not refused", async () => {
     // Refuses the cheap fix - raising the brightness floor. #162 records that closing the ceilings
     // darkened every room, so a dim room is a real shipped state. textured-dim sits at nonBlackPct
     // 77.4 and mean 29.1: a floor tuned to catch white or black by brightness alone takes this with
@@ -103,7 +103,7 @@ describe("a uniform frame is refused at either end", () => {
     expect(v.uniform, "a dark room with geometry in it is a rendered scene").toBe(false);
   });
 
-  it.fails("(5) COUNTERWEIGHT: a bright frame with NO dark pixels at all is not refused", async () => {
+  it("(5) COUNTERWEIGHT: a bright frame with NO dark pixels at all is not refused", async () => {
     // Refuses the other cheap fix - widening nonBlackPct to bite at both ends. That rule
     // misclassifies this fixture, which mirrors a REAL healthy capture: the black-frame contract's
     // own header records telehealth_diabetes_health_literacy_v1 at mean 136.6, sd 55.9,
@@ -114,8 +114,24 @@ describe("a uniform frame is refused at either end", () => {
     expect(v.uniform, "mean 134.4, sd 49.65, nonBlackPct 100.0 - bright, varied, and real").toBe(false);
   });
 
-  it.fails("(6) COUNTERWEIGHT: an ordinary lit frame is not refused", async () => {
+  it("(6) COUNTERWEIGHT: an ordinary lit frame is not refused", async () => {
     const v = await classify(read("textured-lit"));
     expect(v.uniform, "sd 60.30, inside the 55.9-78.2 range measured on real shipped captures").toBe(false);
   });
 });
+
+/**
+ * ## FIXED (#172, 2026-08-22)
+ *
+ * `classifyCaptureFrame(bytes)` landed in `lib/png-region-luminance.ts` (exported; same module the
+ * black-frame contract already imports). Verdict = viewport-region luminance sd <= 9.22. All five
+ * `it.fails` above flipped to `it` — every clause passes its assertion, including both
+ * counterweights: textured-dim (viewport sd 17.36) and textured-lit-no-dark-pixels (42.74) are
+ * classified NOT uniform.
+ *
+ * Ceiling derivation (also recorded beside the function): geometric midpoint sqrt(4.9 x 17.36) of
+ * the binding pair — the REAL uniform failure's viewport sd 4.9 vs the dimmest textured fixture's
+ * 17.36 under the function's own sampling (viewport region, step 6). Ambient floor: dimmest real
+ * shipped capture of 15 stations, ed_stroke_alert_handoff_v1 at 36.01 — 3.9x above the ceiling.
+ * No number fitted to clear an observation; equal-ratio separation from both sides (1.88x each).
+ */
