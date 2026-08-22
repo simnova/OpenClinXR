@@ -4244,6 +4244,16 @@ the worker's warning: the day a legitimate low-poly proxy ships, that floor beco
 
 ## 11p. The doc-archive churn was a SessionStart hook, and my resume command was missing the guard
 
+**SUPERSEDED 2026-08-22 by commit `3bbe5d5c` — the env prefix is no longer what closes this.**
+The hook now skips on git toplevel (`*.grok/worktrees*`) as well as on the env, so a bare
+`grok -p --resume` into a managed worktree does not archive. Probed four cells: worktree/no-env and
+main/`WORKER=1` skip; main/no-env and non-git/no-env would archive, so the guard discriminates.
+Thirteen of thirteen worktrees created since the fix carry zero archive churn. #99 closed.
+Keep the env vars on handbacks for the OTHER things they gate (§11h contract verification is not
+one of them — that still needs `contract-verify-cli`); do not keep them *for this*.
+The durable half is §10c's: this rule outlived its cause for four days and the only tell was that
+the workaround was still being paid.
+
 Open since #99, narrowed by §9r to "present in the worktree before any product edit, mechanism NOT
 DETERMINED", and recorded again in §11g as still costing turns. It has a cause and the cause is mine.
 
