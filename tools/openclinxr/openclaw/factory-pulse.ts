@@ -21,6 +21,7 @@ import { execFileSync } from "node:child_process";
 import { appendFileSync, existsSync, readFileSync, statSync, writeFileSync, mkdirSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
+import { pathToFileURL, fileURLToPath } from "node:url";
 
 const REPO = join(dirname(new URL(import.meta.url).pathname), "../../..");
 const LEDGER = join(REPO, ".openclinxr/openclaw/worker-sessions.jsonl");
@@ -39,6 +40,57 @@ function sh(cmd: string, args: string[]): string {
   return execFileSync(cmd, args, { cwd: REPO, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
 }
 
+/**
+ * Ledger aggregation over one window of already-filtered ledger rows.
+ *
+ * Counts DISPATCHES (distinct sessionIds), not lines: dispatch writes two "completed" rows for one
+ * run (exit, then contract verification with proofsOk resolved), so line counts double-count every
+ * proofed slice (#562, measured 1.67x on the live ledger). Rework counts slices dispatched to more
+ * than one DISTINCT session that each actually ran - a provider-failure spawn ("died", or
+ * spawned-only with no terminal row) never started a worker and is not delegate rework (#565).
+ */
+export function summariseLedgerWindow(rows: Record<string, unknown>[]): {
+  completions: number; passed: number; failed: number; passRate: number | null; rework: number;
+} {
+  const terminalBySession = new Map<string, { phase: unknown; proofsOk: unknown }>();
+  const spawnSessionsBySlice = new Map<string, Set<string>>();
+  for (const r of rows) {
+    const sid = String(r.sessionId ?? "");
+    if (!sid) continue;
+    const phase = r.phase;
+    if (phase === "spawned") {
+      const set = spawnSessionsBySlice.get(String(r.slice ?? "")) ?? new Set<string>();
+      set.add(sid);
+      spawnSessionsBySlice.set(String(r.slice ?? ""), set);
+      continue;
+    }
+    // Terminal rows repeat per session (completed is written at exit and again after proof
+    // verification). Last write wins; within one session they agree on phase and resolve proofsOk.
+    terminalBySession.set(sid, { phase, proofsOk: r.proofsOk });
+  }
+
+  const ran = [...terminalBySession.values()].filter((t) => t.phase === "completed");
+  const completions = ran.length;
+  const passed = ran.filter((t) => t.proofsOk === true).length;
+  const failed = ran.filter((t) => t.proofsOk === false).length;
+  const passRate = completions > 0 ? passed / completions : null;
+
+  // Rework = a slice whose workers genuinely ran more than once. SessionIds with only a "spawned"
+  // or "died" line never took a turn (provider auth/balance failures), so they are excluded here.
+  const ranSessionsBySlice = new Map<string, Set<string>>();
+  for (const r of rows) {
+    if (r.phase !== "completed") continue;
+    const sid = String(r.sessionId ?? "");
+    if (!sid) continue;
+    const slice = String(r.slice ?? "");
+    const set = ranSessionsBySlice.get(slice) ?? new Set<string>();
+    set.add(sid);
+    ranSessionsBySlice.set(slice, set);
+  }
+  const rework = [...ranSessionsBySlice.values()].filter((sessions) => sessions.size > 1).length;
+  return { completions, passed, failed, passRate, rework };
+}
+
 function main(): void {
   const now = new Date();
   const prev = readState();
@@ -48,20 +100,12 @@ function main(): void {
 
   // --- ledger: completions, pass rate, rework -------------------------------------------------
   let completions = 0, passed = 0, failed = 0, rework = 0;
+  let passRate: number | null = null;
   try {
     const rows = readFileSync(LEDGER, "utf8").split("\n").filter(Boolean)
       .map((l) => JSON.parse(l) as Record<string, unknown>)
       .filter((r) => typeof r.at === "string" && (r.at as string) >= since);
-    const done = rows.filter((r) => r.phase === "completed");
-    completions = done.length;
-    passed = done.filter((r) => r.proofsOk === true).length;
-    failed = done.filter((r) => r.proofsOk === false).length;
-    const perSlice = new Map<string, number>();
-    for (const r of rows.filter((r) => r.phase === "spawned")) {
-      const s = String(r.slice ?? "");
-      perSlice.set(s, (perSlice.get(s) ?? 0) + 1);
-    }
-    rework = [...perSlice.values()].filter((n) => n > 1).length;
+    ({ completions, passed, failed, passRate, rework } = summariseLedgerWindow(rows));
   } catch { nullFields.push("ledger"); }
 
   // --- unified log: provider health ------------------------------------------------------------
@@ -99,7 +143,6 @@ function main(): void {
   } catch { nullFields.push("board"); }
 
   // --- verdict, thresholds owned by PULSE-PROTOCOL ----------------------------------------------
-  const passRate = completions > 0 ? passed / completions : null;
   let verdict: string;
   if (nullFields.length > 0) verdict = "DATA_STALE";
   else if (graded > 0 && passRate !== null && passRate >= 0.85 && rework <= 1) verdict = "PROGRESS_IMPROVING";
@@ -132,4 +175,9 @@ export function staleLine(): string | null {
   } catch { return existsSync(STATE) ? null : "FACTORY PULSE STALE: never run"; }
 }
 
-main();
+// ISSUE #562: this module is imported by tests (the planted contract imports it to reach
+// summariseLedgerWindow), so the hook must not fire on import - a 9-second board query plus an
+// append to the tracked pulse.jsonl per import. Run only when executed directly as the entrypoint.
+if (process.argv[1] && fileURLToPath(import.meta.url) === fileURLToPath(pathToFileURL(process.argv[1]).href)) {
+  main();
+}

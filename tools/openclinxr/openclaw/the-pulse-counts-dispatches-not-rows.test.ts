@@ -43,6 +43,18 @@ import { describe, expect, it } from "vitest";
  *   whether any dispatch was correct.
  */
 
+/**
+ * ## FIXED (#562)
+ *
+ * factory-pulse.ts exports summariseLedgerWindow(rows) (the contract's name kept): it dedupes
+ * terminal rows by distinct sessionId before counting completions/passed/failed/passRate, and
+ * computes rework from slices whose DISTINCT sessions each produced a "completed" row - so
+ * provider-death spawns ("died"/spawned-only) never count as delegate rework. The required side
+ * effect also landed: main() no longer runs at module scope; the entrypoint is guarded by an
+ * argv/import-meta comparison, so importing the module no longer fires the 9-second board query or
+ * appends to the tracked pulse.jsonl. Clauses (1)-(5) flipped from it.fails to it.
+ */
+
 type Row = Record<string, unknown>;
 
 /** Mirrors the measured shape of the live ledger. Values are MEASURED, not chosen as targets. */
@@ -92,7 +104,7 @@ describe("the pulse counts dispatches, not rows", () => {
     expect(line === null || line.startsWith("FACTORY PULSE STALE")).toBe(true);
   });
 
-  it.fails("(1) RED: two completed lines for one session are one completion", async () => {
+  it("(1) RED: two completed lines for one session are one completion", async () => {
     const s = await summarise(LEDGER_WINDOW);
     expect(
       s["completions"],
@@ -101,7 +113,7 @@ describe("the pulse counts dispatches, not rows", () => {
     ).toBe(3);
   });
 
-  it.fails("(2) RED: a slice re-dispatched after a provider death is not rework", async () => {
+  it("(2) RED: a slice re-dispatched after a provider death is not rework", async () => {
     const s = await summarise(LEDGER_WINDOW);
     expect(
       s["rework"],
@@ -110,7 +122,7 @@ describe("the pulse counts dispatches, not rows", () => {
     ).toBe(0);
   });
 
-  it.fails("(3) POST-FIX GUARD: the pass rate over resolved proofs must stay right", async () => {
+  it("(3) POST-FIX GUARD: the pass rate over resolved proofs must stay right", async () => {
     // This one is NOT broken today by the row/session confusion - each dispatch contributes exactly
     // one row carrying a boolean proofsOk. It is here so a fix cannot disturb it while repairing the
     // counts. It is marked it.fails only because the export it calls does not exist yet.
@@ -119,7 +131,7 @@ describe("the pulse counts dispatches, not rows", () => {
     expect(s["failed"], "s-c ran and failed its proofs").toBe(1);
   });
 
-  it.fails("(4) COUNTERWEIGHT: a genuine re-dispatch after a worker RAN is still rework", async () => {
+  it("(4) COUNTERWEIGHT: a genuine re-dispatch after a worker RAN is still rework", async () => {
     // Refuses the over-correction of ignoring repeat spawns entirely. A worker that ran, failed and
     // was sent again is exactly what this metric exists to see.
     const genuine: Row[] = [
@@ -133,7 +145,7 @@ describe("the pulse counts dispatches, not rows", () => {
     expect(s["rework"], "issue-d ran twice; that is the rework this metric is for").toBe(1);
   });
 
-  it.fails("(5) COUNTERWEIGHT: a died row is never a completion", async () => {
+  it("(5) COUNTERWEIGHT: a died row is never a completion", async () => {
     // Guards #563's landing. Before it, the two dead issue-560 rows were labelled "completed" and
     // scored as throughput.
     const allDead: Row[] = LEDGER_WINDOW.filter((r) => r["phase"] !== "completed");
