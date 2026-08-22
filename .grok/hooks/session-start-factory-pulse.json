@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ \"${OPENCLINXR_WORKER:-0}\" = \"1\" ] || [ -n \"${GROK_SUBAGENT:-}\" ]; then exit 0; fi; S=.openclinxr/openclaw/factory-pulse-last.json; if [ -f \"$S\" ] && [ -n \"$(find \"$S\" -mmin +90 2>/dev/null)\" ]; then echo \"FACTORY PULSE STALE: last run $(date -r \"$S\" -u +%Y-%m-%dT%H:%M:%SZ)\"; fi; pnpm openclinxr:factory-pulse || true",
+            "timeout": 300
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -9,10 +9,10 @@
     "archive-candidate": 11,
     "evidence": 47,
     "protected-policy": 11,
-    "agent-memory": 38,
+    "agent-memory": 39,
     "historical-synthesis": 11,
     "decision-record": 43,
-    "total": 455,
+    "total": 456,
     "generated-evidence": 1,
     "reference": 1
   },
@@ -2853,6 +2853,13 @@
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
       "rationale": "Product-owner durable memory: decisions with reasons, measurements with verdicts, calibration strikes, and the bootstrap protocol a fresh owner thread reads instead of a delegator-written summary. Authored by the product owner, never by the delegator."
+    },
+    {
+      "path": "docs/openclinxr/owner-memory/PULSE-PROTOCOL.md",
+      "authority": "agent-memory",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Product-owner pulse protocol: read order, computed metrics, and the mechanical verdict rule separating progress from activity. Process law for the owner loop and the factory-pulse script; advisory elsewhere. Authored by the product owner."
     },
     {
       "path": "docs/openclinxr/owner-memory/calibration.md",

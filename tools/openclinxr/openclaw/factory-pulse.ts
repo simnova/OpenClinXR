@@ -1,0 +1,135 @@
+/**
+ * factory-pulse - the hourly factory review, per the product owner's PULSE-PROTOCOL.
+ *
+ * Spec authored by the product owner (docs/openclinxr/owner-memory/PULSE-PROTOCOL.md). This file is
+ * glue: it reads, computes, appends one row, and never decides anything. The verdict rule and its
+ * thresholds are the owner's; changing them here without changing the protocol is a silent fork.
+ *
+ * WHY IT EXISTS. Completions, turns and proofsOk measure execution health, not product movement, so
+ * the loop could not tell "progress improving" from "activity increasing". The two metrics that
+ * separate them - board Factory transitions to Graded, and rework (a slice dispatched more than once)
+ * - live nowhere in the logs. This reads them.
+ *
+ * FAILS OPEN, ALWAYS. Any unreadable source still appends a row with degraded:true and the failing
+ * field named. It never exits nonzero, because it runs from a SessionStart hook and a nonzero exit
+ * there would break the wake it is meant to observe.
+ *
+ * THROTTLE. Hourly via a 55-minute guard against its own state file, not per wake: wakes are ~15
+ * minutes and the board query costs ~9 s and ~3 MB.
+ */
+import { execFileSync } from "node:child_process";
+import { appendFileSync, existsSync, readFileSync, statSync, writeFileSync, mkdirSync } from "node:fs";
+import { homedir } from "node:os";
+import { dirname, join } from "node:path";
+
+const REPO = join(dirname(new URL(import.meta.url).pathname), "../../..");
+const LEDGER = join(REPO, ".openclinxr/openclaw/worker-sessions.jsonl");
+const UNIFIED = join(homedir(), ".grok/logs/unified.jsonl");
+const PULSE = join(REPO, "docs/openclinxr/owner-memory/pulse.jsonl");
+const STATE = join(REPO, ".openclinxr/openclaw/factory-pulse-last.json");
+const THROTTLE_MS = 55 * 60 * 1000;
+
+type State = { lastRunIso: string; boardItems: Record<string, string> };
+
+function readState(): State | null {
+  try { return JSON.parse(readFileSync(STATE, "utf8")) as State; } catch { return null; }
+}
+
+function sh(cmd: string, args: string[]): string {
+  return execFileSync(cmd, args, { cwd: REPO, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
+}
+
+function main(): void {
+  const now = new Date();
+  const prev = readState();
+  if (prev && now.getTime() - new Date(prev.lastRunIso).getTime() < THROTTLE_MS) return; // silent, per spec
+  const since = prev?.lastRunIso ?? new Date(now.getTime() - 3600_000).toISOString();
+  const nullFields: string[] = [];
+
+  // --- ledger: completions, pass rate, rework -------------------------------------------------
+  let completions = 0, passed = 0, failed = 0, rework = 0;
+  try {
+    const rows = readFileSync(LEDGER, "utf8").split("\n").filter(Boolean)
+      .map((l) => JSON.parse(l) as Record<string, unknown>)
+      .filter((r) => typeof r.at === "string" && (r.at as string) >= since);
+    const done = rows.filter((r) => r.phase === "completed");
+    completions = done.length;
+    passed = done.filter((r) => r.proofsOk === true).length;
+    failed = done.filter((r) => r.proofsOk === false).length;
+    const perSlice = new Map<string, number>();
+    for (const r of rows.filter((r) => r.phase === "spawned")) {
+      const s = String(r.slice ?? "");
+      perSlice.set(s, (perSlice.get(s) ?? 0) + 1);
+    }
+    rework = [...perSlice.values()].filter((n) => n > 1).length;
+  } catch { nullFields.push("ledger"); }
+
+  // --- unified log: provider health ------------------------------------------------------------
+  const provider = { empty_response: 0, inference_retry: 0, auth_lock: 0 };
+  try {
+    for (const line of readFileSync(UNIFIED, "utf8").split("\n")) {
+      if (!line || line < `{"ts":"${since}`) continue;
+      if (line.includes("empty_response")) provider.empty_response += 1;
+      if (line.includes("inference_retry")) provider.inference_retry += 1;
+      if (line.includes("auth lock")) provider.auth_lock += 1;
+    }
+  } catch { nullFields.push("unified"); }
+
+  // --- git: product commits vs churn ------------------------------------------------------------
+  let productCommits = 0, totalCommits = 0;
+  try {
+    const log = sh("git", ["log", `--since=${since}`, "--pretty=format:%H", "--name-only"]);
+    const blocks = log.split(/\n(?=[0-9a-f]{40}\n)/u).filter(Boolean);
+    totalCommits = blocks.length;
+    productCommits = blocks.filter((b) => /\n(apps|packages)\//u.test(b)).length;
+  } catch { nullFields.push("git"); }
+
+  // --- board: Graded transitions ----------------------------------------------------------------
+  let graded = 0;
+  const boardItems: Record<string, string> = {};
+  try {
+    const raw = sh("gh", ["project", "item-list", "7", "--owner", "simnova", "--limit", "2000", "--format", "json"]);
+    const items = (JSON.parse(raw) as { items?: Record<string, unknown>[] }).items ?? [];
+    for (const it of items) {
+      const id = String(it["id"] ?? "");
+      const f = String(it["factory"] ?? "");
+      if (id) boardItems[id] = f;
+      if (f === "Graded" && prev && prev.boardItems[id] !== "Graded") graded += 1;
+    }
+  } catch { nullFields.push("board"); }
+
+  // --- verdict, thresholds owned by PULSE-PROTOCOL ----------------------------------------------
+  const passRate = completions > 0 ? passed / completions : null;
+  let verdict: string;
+  if (nullFields.length > 0) verdict = "DATA_STALE";
+  else if (graded > 0 && passRate !== null && passRate >= 0.85 && rework <= 1) verdict = "PROGRESS_IMPROVING";
+  else if (graded === 0 && rework >= 2 && (completions > 0 || totalCommits > 0)) verdict = "ACTIVITY_INCREASING";
+  else verdict = "NUMBERS_ONLY";
+
+  const row = {
+    ts: now.toISOString(), since,
+    completions_1h: completions, pass_rate_1h: passRate, rework_1h: rework,
+    graded_transitions_1h: graded, product_commits_1h: productCommits, total_commits_1h: totalCommits,
+    provider_failures_1h: provider, verdict,
+    degraded: nullFields.length > 0, null_fields: nullFields,
+  };
+  try {
+    mkdirSync(dirname(PULSE), { recursive: true });
+    appendFileSync(PULSE, `${JSON.stringify(row)}\n`, "utf8");
+    mkdirSync(dirname(STATE), { recursive: true });
+    writeFileSync(STATE, JSON.stringify({ lastRunIso: row.ts, boardItems }, null, 2), "utf8");
+    console.log(`FACTORY PULSE ${verdict} completions=${completions} graded=${graded} rework=${rework}`);
+  } catch (error) {
+    console.warn(`FACTORY PULSE: could not append row: ${error instanceof Error ? error.message : String(error)}`);
+  }
+}
+
+/** Stale alarm: printed by the hook wrapper when this file's state has not moved in 90 minutes. */
+export function staleLine(): string | null {
+  try {
+    const age = Date.now() - statSync(STATE).mtimeMs;
+    return age > 90 * 60 * 1000 ? `FACTORY PULSE STALE: last run ${new Date(statSync(STATE).mtimeMs).toISOString()}` : null;
+  } catch { return existsSync(STATE) ? null : "FACTORY PULSE STALE: never run"; }
+}
+
+main();

@@ -73,3 +73,13 @@ visual proof of the seated pose is the remaining gate.
 Note: this also means EVERY prior "body_motion_probe" capture in this repo that
 was graded as showing motion may have been camera-orbit-only — audit candidate,
 not assumed. Flagged to owner by owner; check before trusting old motion probes.
+
+## 2026-08-22 — owner error: card asserted a missing mixer; selector was the cause
+Wrote "do not assume the capture script already has a mixer — frames prove it
+renders without playback" from pixel evidence alone. Delegator measured the code:
+mixer exists (candidate-capture.ts:324-329), playback is conditional, defeated by
+selectBodyMotionProbeClipName returning null (allowlist missing retarget_seated +
+case-sensitive fallback missing CamelCase). Class: mechanism inferred from
+outcome — the exact measure-before-claiming failure, committed by the rule's
+author. Rule for owner: cards state observed SYMPTOMS as facts; mechanism claims
+require a code citation or are written as hypotheses.

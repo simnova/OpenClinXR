@@ -1,0 +1,1 @@
+{"ts":"2026-08-22T07:00:45.135Z","since":"2026-08-22T06:00:45.135Z","completions_1h":0,"pass_rate_1h":null,"rework_1h":0,"graded_transitions_1h":0,"product_commits_1h":0,"total_commits_1h":1,"provider_failures_1h":{"empty_response":0,"inference_retry":0,"auth_lock":0},"verdict":"NUMBERS_ONLY","degraded":false,"null_fields":[]}
