@@ -21,6 +21,10 @@ hairline", a "toothed wedge" - all of them the interpolator, none of them the me
 - If a claim rests on an enlarged crop, state the factor and filter beside it. **Native wins.**
 - To inspect a small region, **crop and paste at 1:1** - that is not a resample. Or use NEAREST, which
   only shows existing pixels larger.
+- **Compared captures must share their render conditions.** Measured: a measurement pass ran with
+  lighting OFF, produced a finding AND a ranking inversion, and had to be withdrawn -
+  *"confirm you're using lighting when doing readings"*. Record lighting state, exposure and camera
+  beside the artifact; a ranking built on mismatched captures passes every other rule in this file.
 - The tell: you are describing texture - *ragged, toothed, blocky, stair-stepped* - from an image you
   enlarged.
 
@@ -46,6 +50,8 @@ decisive where a thumbnail is not. Two useful habits:
 
 - **Locate the feature before measuring it.** A box placed by guessed coordinates reported 0% on every
   frame - the box was off the subject. Find it by colour/landmark first, then measure.
+- **One run is one sample.** Measured: I had to be told *"run the sweep three times to measure
+  instrument variance"*. A verdict from a single sweep has unknown noise - repeat before ranking.
 - **Check what a shared convention hides.** A root rotation identical across standing AND lying clips
   is a coordinate convention, not pose information. Find the joint that actually discriminates.
 
@@ -78,6 +84,10 @@ This repo has already shipped a fabricated score from an agent grading its own o
 Name the RENDERER and the SUBJECT, or silence is resolved in favour of whatever is cheapest to produce
 (a point cloud, a schematic, a floor plan). "Capture" does not mean "render". If a structural artifact
 is sufficient, say so explicitly.
+
+**Demand the INPUTS too, not just the output.** Measured: I could not evaluate a generated asset until
+I asked for the source images and the prompts fed to the generator. A polished output from unknown
+inputs is ungradeable - require the input provenance in the same artifact.
 
 ## After grading
 
