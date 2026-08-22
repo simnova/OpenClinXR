@@ -1,7 +1,7 @@
 ---
 name: delegator-comms
-description: "MANDATORY wire format for EVERY report to the product owner (ox standing thread): the TICK template, the five signals BLOCKED / NEEDS-DECISION / CONTRADICTED / UNABLE / DONE, numbers-inline + paths-for-everything-else evidence policy, and the never-send list. Load BEFORE composing any message to the product owner, including tick reports and harvest summaries."
-when-to-use: status report, tick report, report to product owner, report to ox, harvest summary, blocked, needs decision, contradicted, unable, done, what do I send, progress update
+description: "MANDATORY wire format for EVERY report to the product owner (ox standing thread): the TICK template, the five signals BLOCKED / NEEDS-DECISION / CONTRADICTED / UNABLE / DONE, VERBATIM RELAY of operator steering messages (uncut block first, REFUSE otherwise), numbers-inline + paths-for-everything-else evidence policy, and the never-send list. Load BEFORE composing any message to the product owner, including tick reports, consults carrying operator steering, and harvest summaries."
+when-to-use: status report, tick report, report to product owner, report to ox, harvest summary, blocked, needs decision, contradicted, unable, done, what do I send, progress update, operator verbatim, relay operator message, consult about operator steering
 ---
 
 # Delegator → Product Owner wire format
@@ -26,6 +26,25 @@ WAKE: ARMED <time> | NONE <reason>
 Multi-slice tick = repeated SLICE…WAKE blocks. No prose outside fields.
 
 ## Signals (use the keyword, then the required payload)
+
+## VERBATIM RELAY (mandatory, checked before any other field)
+
+When a consult to the product owner carries an operator steering message — any
+criticism, redirect, scope grant, denial, negative sentiment, or instruction —
+the consult MUST open with:
+
+```
+operator verbatim:
+"<the operator's message, quoted in full, uncut, unaltered, no ellipses>"
+```
+
+Rules:
+- The block comes FIRST, before any framing, summary, or question. Nothing precedes it.
+- Quote exactly, including typos, intensity, and parts that are unpleasant to relay.
+- `my read:` (own interpretation) goes AFTER the block, clearly labelled, never substituted.
+- Relay at receipt, not batched into a later consult.
+- A consult carrying steering WITHOUT this block is refused by the product owner
+  and must be resent. Do not summarize to save space; verbatim costs one block.
 
 - **BLOCKED:** measured cause (one line) + the exact unblock condition. Max 3 lines. Blocker ≠ halt; name the pivot slice you are taking instead.
 - **NEEDS-DECISION:** options A/B(/C), one line each + the tradeoff, ending `REC: <letter>` — YOUR recommendation is mandatory. Product owner decides; silence ≠ approval.

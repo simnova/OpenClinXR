@@ -795,6 +795,16 @@ residential sampler with no clinical station addressing, independent of its 86x 
 
 ## Per-Slice Checkpoints
 
+## 2026-08-22 Orchestration topology change (operator-directed)
+Product owner (ox standing thread) owns: slice selection, brief/card authorship,
+done-gates, grades. Delegator reduced to: command execution, mechanical tree
+verification, integration (serial), captures, WAKE/TICK. Board project 7 is the
+instruction conduit; cards are owner-authored and consumed unaltered via
+briefFromIssue. Concurrency raised 1->2 (disjoint lanes), N=3 gated on measured
+interference. Workers staged to return <300 turns (ox-alpha context ceiling).
+Thread-decay mitigation: proactive re-open before empty_response zone.
+
+
 (Transient WIP details — file:line, subagent IDs, capture logs — recorded here per slice. Rehydration reads only the header above + targeted grep on this section. Worker-backlog matrix at `docs/openclinxr/worker-backlog-and-validation-matrix.md` for ownership. Archive old blocks: `pnpm openclaw:checkpoint:archive -- --keep 7`.)
 
 ### 2026-08-14 operator: MPFB2 throughout, Anny comparator-only (Q1)

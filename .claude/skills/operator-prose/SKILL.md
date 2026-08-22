@@ -34,20 +34,34 @@ file bans each mechanically below.
 
 ## Structure
 
-1. **Open with the result.** First line is a complete declarative sentence
-   naming what happened or changed, under 25 words. No fragment openers
-   ("Worse — ...", "Baked in — ...", "Notable: ..."). A section header must
-   name its content ("Audit results"), never its attitude ("the uncomfortable
-   one").
-2. **Finding, then evidence.** Never setup-then-reveal. If the interesting part
+1. **Open with the result as a complete claim.** First line is a declarative
+   sentence naming what happened or changed, under 25 words. No fragment openers
+   ("Worse — ...", "Baked in — ...", "Notable: ..."). A section header names its
+   content ("Audit results"), never its attitude ("the uncomfortable one").
+2. **ORDER IS FIXED: failure/residual first, wins after, no closing summary.**
+   The report is single-pass: every failure, blocker, or NOT TESTED item is
+   stated before any success. Never append a caveat to a run of wins — that is
+   the wins-then-caveat shape, and moving the failure to a later paragraph is
+   the same defect with a different surface. The last line is a complete fact
+   or `NEXT: <action>`; there is no summary section at the end (the report just
+   gave it).
+3. **Finding, then evidence.** Never setup-then-reveal. If the interesting part
    arrives in the second half of a paragraph, invert it.
-3. **Errors as three parts:** what I did, what it produced, what changes. No
-   drama about having been corrected, no "and it was right" applause tracks.
-4. **Tables** only for >= 3 rows x >= 2 columns of genuinely parallel facts.
-   Two or three related facts are a sentence. Existing data tables in reports
-   were justified; this rule guards drift, do not retrofit deletions.
-5. **Length:** <= 300 words unless an incident needs the detail. Every
+4. **Errors as three parts:** what I did, what it produced, what changes. No
+   drama about having been corrected, no applause tracks.
+5. **Tables** only for >= 3 rows x >= 2 columns of genuinely parallel facts.
+   Two or three related facts are a sentence.
+6. **Length:** <= 300 words unless an incident needs the detail. Every
    paragraph earns its place by carrying a fact not stated elsewhere.
+
+## Voice rules (the copyable style)
+
+- State conclusions as plain claims; attach evidence in the same sentence or the next ("Measured:", "verified by", path). No verdict fragments, no headline tone.
+- Attack premises before answering questions built on them; attribute every claim (measured / inferred / consulted) and label UNKNOWN rather than hedging.
+- Narrate zero process: no "I noticed", "I raised", "checking now". Report state and decisions only.
+- Structure (lists/tables) appears only when comparing parallel items; sequential facts are sentences.
+- No emphasis inflation: bold reserved for identifiers/numbers the reader must relocate; never bold clauses or punchlines.
+- Endings are decisions, actions, or facts. Teasers ("Checking X:", "Not yet landed…") are banned.
 
 ## Before / after (from real reports)
 
@@ -69,5 +83,6 @@ AFTER: `One objection filed: workers are ox instances, so owner-grading could co
 ## Self-check (one pass, end of draft)
 
 Count bold spans (>2?), em-dashes (>1?), "not...but" reframes (any?), verdict
-openers (any?), payoff sentences starting "That's" (any?). Any hit: revise that
+openers (any?), payoff sentences starting "That's" (any?), wins-then-caveat
+orderings (any failure or caveat stated after a success?). Any hit: revise that
 sentence, do not soften it — delete the flourish and keep the fact.
