@@ -532,6 +532,37 @@ adding keys to `mpfb2-default-no-toes.json`, which never sees `spine_01` / `thig
 CMU takes "CC0" because the walk already shipped.
 
 
+### Worker model — OX ALPHA via OpenRouter (operator, 2026-08-21)
+
+Operator supplied an OpenRouter key and directed: **use `ox-alpha` exclusively going forward.**
+Resolved against the OpenRouter model list: the slug is **`stealth/ox-alpha`**, listed at
+`prompt=0 completion=0` (free promotional window) with a **1,048,576-token context**.
+
+**This supersedes DeepSeek routing, which has returned `402 Insufficient Balance` on every dispatch
+this session** — that is why recent workers ran `grok-4.5` under the standing 402 rule.
+
+VERIFIED before routing anything to it, both through the real `grok` binary:
+- text: returned `OX-ALPHA-OK` exactly (134,552 in / 61 out)
+- **tool use: wrote `probe.txt`, read it back, 3 model calls** — a model that cannot tool-call is
+  useless for workers, so this was the gating check, not the text reply.
+
+WIRING, and where the secret lives:
+- `~/.grok/config.toml` gains `[model.ox-alpha]` — `base_url = https://openrouter.ai/api/v1`,
+  `api_backend = chat_completions`, `env_key = "OPENROUTER_API_KEY"`, `context_window = 1048576`.
+- `[subagents.models]` in the **USER** config now routes `explore` / `plan` / `general-purpose` all to
+  `ox-alpha`. Project `[subagents.models]` does NOT merge (proven 2026-08-04), so the user config is
+  the binding surface.
+- The key is exported in `~/.zshrc`, **outside the repo**. The project config already carried the rule
+  *"Never put the literal sk-... value in any .toml"* — a repo-wide grep for `sk-or-v1-` returns
+  nothing, and it must stay that way.
+
+STILL TO WATCH: dispatches pass `model` explicitly, and `#461` fails closed when a role's policy names
+a higher tier than the passed model without a `modelDowngradeReason`. Dispatches on `ox-alpha` should
+carry the reason "operator directive 2026-08-21 + DeepSeek 402" rather than being forced through.
+NOT TESTED: `ox-alpha` on a long multi-file slice, its behaviour under the worktree deny rules, or
+whether the free window's rate limits bite under a 150-turn dispatch.
+
+
 ## Work-selection SSOT — ruled 2026-08-21, measured
 
 **The board says what EXISTS. It does not say what to do next.** Three planes, and conflating them
