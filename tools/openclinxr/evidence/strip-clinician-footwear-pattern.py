@@ -1,25 +1,21 @@
 #!/usr/bin/env python3
-"""#502 — strip the leopard "Shoe" print from clinician footwear in shipped MPFB GLBs.
+"""#502/#553 — strip the leopard "Shoe" print from toigo_flats in shipped MPFB GLBs.
 
 Follows the in-tree precedent byte-for-byte: `mpfb-gown-adult-patient.glb` ships the SAME
 `mat_makeclothes_library_footwear_toigo_flats` material with NO `baseColorTexture` and a flat
 dark `baseColorFactor` (0.10, 0.09, 0.08 — the 26,23,20 the evidence RED reads). This is a
-per-actor MATERIAL SWAP, not an edit to the shared "Shoe" texture: the ob patient (aisha)
-legitimately wears the print and clause (4) of the #502 contract forbids degrading it.
+per-actor MATERIAL SWAP, not an edit to the shared "Shoe" texture bytes.
 
-The generator-level fix lives in `materialize_mpfb_humanoid_candidate.py` (clinician
-`toigo_flats` now bakes flat). This script migrates the two already-shipped clinician GLBs the
-same way — GLB JSON-chunk patch, BIN chunk copied verbatim, exactly the proven
-`patch_glb_base_color_factors` shape. Geometry, rig, skin and morph targets are untouched.
+#502: clinicians. #553: cast patients too — Shoe.png is a leopard-print atlas and nothing in
+any case definition authors it; generator now drops toigo_flats for every wearer.
 
-The orphaned "Shoe" image/texture stays in the GLB (unreferenced) — dropping it needs a
-bufferView re-index and is explicitly NOT the justification of this slice; a future rebake
-reclaims the bytes for free.
+JSON-chunk patch, BIN chunk copied verbatim. Geometry, rig, skin and morph targets untouched.
+Orphaned "Shoe" image may remain unreferenced until a future rebake reclaim.
 
 Usage:
   python3 tools/openclinxr/evidence/strip-clinician-footwear-pattern.py \
-      apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb \
-      apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb
+      apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb \
+      apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb
 """
 
 import json
@@ -62,7 +58,7 @@ def strip(path: str) -> None:
     out += bin_chunk
     with open(path, "wb") as f:
         f.write(out)
-    print(f"#502 STRIPPED {path} -> {FOOTWEAR_MATERIAL} baseColorFactor={PLAIN_FACTOR}")
+    print(f"#553 STRIPPED {path} -> {FOOTWEAR_MATERIAL} baseColorFactor={PLAIN_FACTOR}")
 
 
 if __name__ == "__main__":
