@@ -1,0 +1,91 @@
+---
+name: contract-design
+description: Design a planted RED that cannot be satisfied by the cheap fix. Known-good columns, counterweights, derived-not-fitted thresholds, and the proof shapes that go green about nothing. Read BEFORE writing a contract or a done_when.
+when-to-use: plant a RED, write a contract, done_when, counterweight, known-good column, threshold, it.fails, destructive probe, vacuous proof, why did a green contract ship a defect
+---
+
+# Designing a contract that can actually fail
+
+Distilled from ~50 KB of measured incidents. Every rule here cost a slice.
+
+## The four parts
+
+1. **The RED** - fails today, for the real defect.
+2. **The known-good column** - something in-tree that already has the property. Without it your
+   threshold is invented. If nothing is known-good, SAY SO: that absence is itself a finding.
+3. **The counterweight** - refuses the cheapest way to make the RED pass.
+4. **The destructive probe** - plant a violation, prove it fails, revert, prove it passes.
+   **Confirm the substitution actually matched** (print the before/after) or you have tested nothing.
+
+## The failure that recurs most: bounding a QUANTITY when the defect is a SHAPE
+
+Four contracts went green while the pixels stayed wrong. Ask of every clause:
+
+> Can this pass on geometry that is **in the wrong place**, or that has the right **extremes** and the
+> wrong **distribution between them**?
+
+| you bounded | it passes anyway when | fix |
+|---|---|---|
+| PRESENCE (a count of parts/vertices) | the thing exists in the wrong place | pair with a relationship to a landmark |
+| an EXTREME (`min`/`max`/"no worse than X") | a sawtooth whose teeth all clear the line | bound the SPREAD (sd/span) |
+| a DELETION ("no X where Y exists") | Y does not cover what X covered | state what takes over the job |
+
+## Thresholds
+
+- **A number in a contract becomes the design target.** If the cheapest way to clear it distorts the
+  thing being measured, that is what you bought.
+- **Derived, not fitted.** A self-calibrated threshold is meaningless if its reference depends on the
+  effect. Sound references: ambient variation measured BEFORE any edit; an external floor; **the INPUT
+  of the causal chain**. The tell: you can cancel a term and get a constant ratio.
+- **The margin is the audit.** Subtract measured from threshold. Clearing by 1 cm on a 20 cm allowance
+  means the number was written after the measurement.
+- **When a value is genuinely uncertain, do not pick it** - assert the mechanism and require a sweep
+  you grade. That removes your invented number from the contract entirely.
+- **A number in a planted FIXTURE is read as a specification too.** Use obviously-non-spec values, or
+  say in the header that fixture values are illustrative.
+
+## Proof shapes that go green about nothing
+
+- **`run:` on a file whose RED is `it.fails` passes ONLY while the defect stands.** Fixing it makes
+  `it.fails` error. So contract-green can mean nothing was fixed. **Require the conversion to `it(`
+  in the same change**, and pair with an `exists:` artifact that records the result.
+- **`exists:` + `min-bytes:` on an image proves a renderer ran.** It teaches the worker its obligation
+  is discharged. Always pair with a closed per-artifact checklist, and grade the pixels yourself.
+- **A byte floor also RESHAPES the artifact** - a worker will enlarge a layout to clear it. Set it
+  where a legitimate minimal result already passes, or use `exists:` alone.
+- **Vacuous is as bad as broken.** Ask the worker to flag any proof that cannot pass as written, OR
+  passes trivially against the ambient range, OR asserts the opposite direction from the defect.
+- **A large margin is not automatically vacuous** - if a known failure mode sits on the far side, it
+  is a regression net. Name that failure mode in the contract, or delete the clause.
+
+## Closed vocabularies
+
+Every enum needs an escape value (`other` / `inconclusive` / `control_only`) plus a required free-text
+field - and **read the escape values first**, that is where real findings hide. If two values could
+describe the same run, state the discriminator in one sentence beside the enum.
+
+## Fixtures
+
+**The fixture must actually exhibit the defect.** A contract about ignored paths uses an ignored path;
+about a detached mesh, a detached mesh. A nearby healthy stand-in tests nothing. The tell: you picked
+it because it was easy to name.
+
+## Aggregation and derived fields
+
+Any field the report introduces that is not read directly off an existing API needs one line saying
+where it comes from - **an expression, not a sentence**. If a measurement collapses N objects into one
+number, state the aggregation (min/max/mean/per-item). The tell: the subject is plural.
+
+## Superseding, never deleting
+
+Merge-kill fires on `deleted-test` with no opt-out. A superseded clause becomes an **inverted guard**
+that records the absence, and **its failure message must name the restoration** - what to reinstate,
+against which artifact, and that widening or deleting it is wrong. Otherwise the next engineer to hit
+that red deletes it.
+
+## Before dispatch
+
+- Copy the `done_when` invocation from a slice that passed; hand-written ones break.
+- `## factory_step:` (WITH colon) must be in the allowlist; `instrument` additionally needs `unblocks:`.
+- Commit the plant to main BEFORE dispatch or the merge fails on untracked files.
+- `exists:` under a gitignored path has no land path - use a tracked one.
