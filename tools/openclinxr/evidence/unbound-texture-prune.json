@@ -1,0 +1,68 @@
+{
+  "slice": "issue-555",
+  "factory_step": "instrument",
+  "tool": "gltf-transform prune",
+  "toolVersion": "4.3.0",
+  "command": "pnpm exec gltf-transform prune <input> <output> --keep-attributes true --keep-indices true",
+  "rebake": false,
+  "orchestrate_character": false,
+  "files": [
+    {
+      "path": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+      "tool": "gltf-transform prune",
+      "orphanNameRemoved": "Shoe",
+      "fileBytesBefore": 24291640,
+      "fileBytesAfter": 16405412,
+      "bytesFreed": 7886228,
+      "orphanBytesAfter": 0,
+      "invariants": {
+        "boundTextures": 4,
+        "boundBytes": 3168198,
+        "meshes": 10,
+        "materials": 17,
+        "tris": 131328,
+        "joints": 137,
+        "animations": 2
+      },
+      "texturesAfter": [
+        "T-shirt_basic.png",
+        "mpfb-ob-patient-aisha.skin-normal",
+        "mpfb-ob-patient-aisha.skin-baked",
+        "brown_eye"
+      ]
+    },
+    {
+      "path": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
+      "tool": "gltf-transform prune",
+      "orphanNameRemoved": "Shoe",
+      "fileBytesBefore": 24291644,
+      "fileBytesAfter": 16405412,
+      "bytesFreed": 7886232,
+      "orphanBytesAfter": 0,
+      "invariants": {
+        "boundTextures": 4,
+        "boundBytes": 3168198,
+        "meshes": 10,
+        "materials": 17,
+        "tris": 131328,
+        "joints": 137,
+        "animations": 2
+      },
+      "texturesAfter": [
+        "T-shirt_basic.png",
+        "mpfb-peds-parent-aisha.skin-normal",
+        "mpfb-peds-parent-aisha.skin-baked",
+        "brown_eye"
+      ]
+    }
+  ],
+  "totalBytesFreed": 15772460,
+  "claimScope": "unbound image payload pruned from two shipped humanoid GLBs",
+  "notEvidenceFor": [
+    "how anything looks",
+    "whether bound textures are correct",
+    "Quest readiness",
+    "mpfb-gown-adult-patient mat_makeclothes_library_toigo_t_shirt missing diffuse (GROUP B)"
+  ],
+  "groupB": "UNRUN"
+}

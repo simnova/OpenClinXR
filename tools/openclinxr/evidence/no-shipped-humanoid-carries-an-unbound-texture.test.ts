@@ -31,6 +31,15 @@ import { describe, expect, it } from "vitest";
  * claimScope: unbound image payload in shipped humanoid GLBs.
  * notEvidenceFor: how anything looks; whether the bound textures are correct; Quest readiness; the
  *   gown patient's missing t-shirt texture (that is the same card's second proof, not this one).
+ *
+ * ## FIXED (#555) — appended; the planted header above is immutable
+ *
+ *   tool: gltf-transform prune (CLI 4.3.0) — Removed types... Texture (1) per file; no rebake.
+ *   mpfb-ob-patient-aisha.glb    24291640 → 16405412  (−7,886,228 B)  orphanBytesAfter=0
+ *   mpfb-peds-parent-aisha.glb   24291644 → 16405412  (−7,886,232 B)  orphanBytesAfter=0
+ *   Pinned invariants held: boundTextures 4, boundBytes 3168198, meshes 10, materials 17,
+ *   tris 131328, joints 137, animations 2. Shoe.png not re-consumed.
+ *   Evidence: tools/openclinxr/evidence/unbound-texture-prune.json
  */
 
 const DIR = "apps/ui-xr/public/generated-humanoids";
@@ -61,7 +70,7 @@ async function shapeOf(file: string): Promise<Shape> {
 }
 
 describe("no shipped humanoid carries an unbound texture", () => {
-  it.fails("(1) RED: every shipped humanoid GLB has zero orphaned image bytes", async () => {
+  it("(1) FIXED (#555): every shipped humanoid GLB has zero orphaned image bytes", async () => {
     const offenders: string[] = [];
     for (const f of readdirSync(DIR).filter((x) => x.endsWith(".glb")).sort()) {
       const s = await shapeOf(f);
