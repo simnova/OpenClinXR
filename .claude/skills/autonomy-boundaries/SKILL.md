@@ -32,6 +32,10 @@ times.* **Directed work needs a status, not an approval.**
 Verbatim, and said twice: *"confirm with the superagent before you ever ask me"*, and *"questions that
 you asked me - ask the superagent and take their advise"*.
 
+**The mechanics now live in `ask-the-superagent`** - one persistent ox thread with a stored
+conversation id, so context accumulates instead of restarting. Load it the moment you catch yourself
+drafting a question for the operator.
+
 Every question passes three gates, in order:
 
 1. **The repo** - SSOT, MADRs, PROJECT_STATUS, the code. Most questions die here.
