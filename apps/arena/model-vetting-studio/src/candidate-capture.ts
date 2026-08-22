@@ -31,6 +31,10 @@ import {
   WebGLRenderer,
 } from "three";
 import { magentaSwapMaterials } from "./hide-mask-magenta.js";
+import { selectBodyMotionProbeClip, selectBodyMotionProbeClipName } from "./body-motion-probe-clip.js";
+
+// Public surface kept on this module: the capture contract and evidence tests import here.
+export { selectBodyMotionProbeClipName };
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import type { ModelVettingStudioEvidence } from "./studio-state.js";
@@ -747,17 +751,6 @@ export function buildAnimationEvidence(animations: Array<{ name?: string; tracks
     bodyMotionProbePresent: bodyMotionProbeClipName !== null,
     runtimeImportEvidenceOnly: true,
   };
-}
-
-function selectBodyMotionProbeClip(animations: AnimationClip[]): AnimationClip | undefined {
-  const selectedName = selectBodyMotionProbeClipName(animations.map((animation, index) => animation.name || `unnamed_animation_${index}`));
-  return animations.find((animation, index) => (animation.name || `unnamed_animation_${index}`) === selectedName);
-}
-
-export function selectBodyMotionProbeClipName(animationNames: string[]): string | null {
-  return animationNames.find((name) => /mpfb_body_motion_probe|role_patient_asthma_breathing_effort|role_parent_anxious_fidget_guard|role_nurse_clinical_check_reassure|retarget_cmu|cmu_07_01_walk/u.test(name))
-    ?? animationNames.find((name) => /posture|standing|clinical|conversation|idle/u.test(name))
-    ?? null;
 }
 
 function captureClaimForView(view: CandidateCaptureView): ModelVettingCandidateCaptureEvidence["captureClaim"] {
