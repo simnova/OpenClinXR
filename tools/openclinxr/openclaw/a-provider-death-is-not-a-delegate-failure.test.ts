@@ -37,6 +37,17 @@ import type { DispatchLedgerEntry } from "./dispatch-worker.js";
  *   about why a dispatch died.
  */
 
+/**
+ * ## FIXED (#565)
+ *
+ * `delegation-scorecard.ts` now collects `phase === "died"` session ids during the same
+ * de-duplication loop instead of letting them fall into `bySession`, and surfaces the count as a
+ * scorecard note. Chosen over a dedicated column because probes and pre-worktree dispatches use
+ * exactly this skip-and-note shape; a new field would change the Scorecard contract every consumer
+ * reads. A died id whose session later resumed and completed stays scoreable through its
+ * completed line (last-line-wins de-duplication) and is NOT reported dead.
+ */
+
 const REPO = "/Volumes/files/src/openclinxr";
 const NO_MERGES = { events: [], mergeSubjects: [] };
 
@@ -58,7 +69,7 @@ describe("a provider death is not a delegate failure", () => {
     expect(buildScorecard(REPO, RAN_ONLY, NO_MERGES).totalDispatched).toBe(2);
   });
 
-  it.fails("(1) RED: a session that never started a worker is not a dispatched slice", () => {
+  it("(1) a session that never started a worker is not a dispatched slice", () => {
     expect(
       buildScorecard(REPO, DIED_THEN_RAN, NO_MERGES).totalDispatched,
       "s-402 and s-401 exited before any turn; counting them makes a provider outage read as two "

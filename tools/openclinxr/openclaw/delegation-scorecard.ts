@@ -113,9 +113,19 @@ export function buildScorecard(
   // proofed dispatch re-appends a complete line after proofs evaluate — so one dispatch can
   // occupy 2-3 ledger lines. De-duplicate by sessionId (the last line carries the most post-exit
   // knowledge) and skip the early "spawned" lines, or totalDispatched / byModel double-count.
+  // ISSUE #565: a "died" line (#563) is the terminal row for a child that exited WITHOUT an end
+  // event — provider 402/401, arg-parse abort, kill. No worker ran, so there is no delegate
+  // attempt to score against landing; skipping it outright would instead hide provider health,
+  // so it is collected and surfaced in notes below. A died id that later RESUMED and completed
+  // stays scoreable through its completed line and is not reported as dead.
   const bySession = new Map<string, DispatchLedgerEntry>();
+  const diedSessionIds = new Set<string>();
   for (const entry of sessions ?? readSessions(repoRoot)) {
     if (!entry.slice || entry.phase === "spawned") continue;
+    if (entry.phase === "died") {
+      diedSessionIds.add(entry.sessionId);
+      continue;
+    }
     bySession.set(entry.sessionId, entry);
   }
   const all = [...bySession.values()];
@@ -162,6 +172,13 @@ export function buildScorecard(
     notes.push(
       `${skipped} pre-worktree dispatch(es) excluded — they had no branch, so landing is not `
       + `detectable for them. Scoring only what is measurable beats reporting a number that is not.`,
+    );
+  }
+  if (diedSessionIds.size > 0) {
+    notes.push(
+      `${diedSessionIds.size} dispatch(es) died before any worker turn (provider outage, kill, or `
+      + `abort) and are excluded from the scoreable set — a provider death is not a delegate `
+      + `failure, but it is reported here so provider health stays visible.`,
     );
   }
   if (outcomes.length < 10) {
