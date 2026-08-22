@@ -119,3 +119,25 @@ complementary, not competing.
    manifest records generator + prompt + script hash, and re-baking is reproducible.
 
 **Not started. No slice opened. Requires operator or superagent approval on point 3 before any work.**
+
+### RULING 2026-08-21 (superagent) — Animato REFUSED; Mesh2Motion is ONE clip, not a library
+
+**Animato: refused as a factory station.** The committed-script resolution I proposed was attacked and
+does not survive: freezing script N does not change the station, because clip N+1 is another inference.
+Recorded in `docs/openclinxr/third-party-asset-licence-ledger.md`. Not gated behind anything — refused.
+
+**Mesh2Motion: the sequence is ONE clip, and the inventory is the trap.** Mapping 87+75 clips before
+anything reaches the mixer is the same inventory-ahead-of-consumer error that closed F3. The honest
+next motion slice, after the F1/F2 lane clears:
+
+1. **I grade `Sleeping` myself** — back-flat vs side-sleep is currently NOT GRADED, and it decides
+   whether the clip is the pose the mixer should play at all.
+2. If it is: plant **one** clip + a **66→137 SOURCE map** + `motion_bind` + a mixer name, proven by
+   `bonesDriven` on the 137-bone rig — not by key count, and not by clip count.
+
+No Mixamo target swap. No NC datasets. No LLM-authored `bpy`.
+
+**Predicted error, recorded so it binds:** writing a complete 66→137 table for the whole library before
+`openclinxr_retarget_*` appears in the mixer, or running Animato "just to see" and treating a baked GLB
+as a factory win.
+

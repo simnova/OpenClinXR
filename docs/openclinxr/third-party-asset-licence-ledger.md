@@ -168,3 +168,25 @@ The clinical wardrobe is therefore **four items**: two labcoats, `Scrub_Shirt`, 
 Licences here are recorded from the source pages as of the acquisition date. This is a tracking record
 maintained by an engineering process, **not a legal review**, and nothing in it constitutes clearance
 for commercial distribution.
+
+## REFUSED — Animato (`github.com/otdnnc/Animato`), 2026-08-21
+
+**Licence is not the problem — MIT tool, output inherits the input. It is refused on D1.**
+
+Mechanism: inspect the skeleton, build a prompt, an LLM writes one short `bpy` script, headless Blender
+bakes the clip. **One inference per animation.**
+
+Proposed and REJECTED: commit the generated script so re-bakes are deterministic. That makes clip N
+replayable; **clip N+1 is another LLM call.** It is per-asset toil with git history, which is precisely
+the anti-pattern D1 names ("not a handful of LLMs toiling in non-deterministic ways building things in
+the factory"). D9's "the exam runs with no LLM" is necessary and **not sufficient** — D9's motion row
+is *retargeted clips*, not LLM-authored `bpy` at bake time. A dark factory may bake for hours; it may
+not have an LLM on the floor for each new pose.
+
+What would pass instead: a **deterministic binder** that takes a clip file and writes animation onto the
+137-bone rig with the same code every case. **That already exists** — `motion_bind_stage.py` /
+`motion-bind-cli.ts`. Animato would only sit in front of it as a non-deterministic clip author.
+
+**Do not gate it "behind the source map." Do not run it "just to see."** A later Lane C bake-off is
+permitted only if the operator explicitly asks; it is not implied by the 2026-08-21 brief.
+
