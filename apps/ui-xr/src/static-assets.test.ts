@@ -599,7 +599,8 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("roleAnimationClipName: \"openclinxr_role_patient_asthma_breathing_effort\"");
     expect(mainSource).toContain("roleAnimationClipName: \"openclinxr_role_parent_anxious_fidget_guard\"");
     expect(mainSource).toContain("roleAnimationClipName: \"openclinxr_role_nurse_clinical_check_reassure\"");
-    expect(mainSource).toContain("openclinxr_retarget_cmu_07_01_walk");
+    // #557: the parent's mixer clip is the CC0 seated talking bind (was openclinxr_retarget_cmu_07_01_walk).
+    expect(mainSource).toContain("openclinxr_retarget_seated_talking_cc0");
     expect(mainSource).toContain("scenePlacementEvidenceAllowed: false");
     expect(mainSource).toContain("learnerLaunchAllowed: false");
     expect(mainSource).toContain("questEvidenceRefreshAllowed: false");

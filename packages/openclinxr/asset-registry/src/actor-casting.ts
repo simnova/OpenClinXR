@@ -384,7 +384,7 @@ export function resolveScenarioActorCast(scenarioId: string): ScenarioActorCast[
     return [
       // #335: all three peds roles are MPFB bodies. Child/nurse stay on generated
       // MPFB bakes. Parent loads the motion-bind GLB so the mixer sees
-      // openclinxr_retarget_cmu_07_01_walk (#388 body, dark-factory B clip).
+      // openclinxr_retarget_seated_talking_cc0 (#557 CC0 seated clip).
       castEntry({
         actorId: "patient_maya_johnson_v1",
         role: "patient",
