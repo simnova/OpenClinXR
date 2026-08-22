@@ -29,6 +29,20 @@ import {
  *   the learner runtime (apps/ui-xr does not import this selector), or any past capture artifact.
  */
 
+/**
+ * ## FIXED (#560)
+ *
+ * Ranking reordered to rotationChannels → nameTier → duration (was rotationChannels → duration
+ * → nameTier). On shipped GLBs all body clips tie at 23 rotation channels, so duration alone
+ * decided; duration carries no authored intent (40 ms margins decide between authored and
+ * generic clips). The #558 name tiers are provenance weights, not an admission gate: promoting
+ * them above duration orders authored clips first while every clip still ranks - clause (5)
+ * still refuses any membership test. Policy chosen by this slice per the brief ("the ranking
+ * policy is yours to choose"); rejected alternatives recorded in the issue:
+ * rotation-magnitude ranking (no measured reason it separates real-authored pairs) and
+ * allowlist restoration (clause 5 refuses; re-authors the static-bind defect).
+ */
+
 const rotTrack = (bone: string, duration: number) =>
   new QuaternionKeyframeTrack(`${bone}.quaternion`, [0, duration], [0, 0, 0, 1, 0, 0, 0.1, 0.99]);
 
@@ -60,7 +74,7 @@ const WALK_REBIND_KNOWN_GOOD = [
 ];
 
 describe("the authored clip outranks a generic one", () => {
-  it.fails("(1) RED: a shipped Anny-rail humanoid selects its own role clip, not the longest generic one", () => {
+  it("(1) RED: a shipped Anny-rail humanoid selects its own role clip, not the longest generic one", () => {
     expect(
       selectBodyMotionProbeClip(SHIPPED_ANNY_RAIL)?.name,
       "all four body clips tie at 23 rotation channels, so duration alone decides and "
@@ -68,7 +82,7 @@ describe("the authored clip outranks a generic one", () => {
     ).toBe("openclinxr_role_parent_anxious_fidget_guard");
   });
 
-  it.fails("(2) RED: the retargeted seated clip outranks an idle 40 ms longer than it", () => {
+  it("(2) RED: the retargeted seated clip outranks an idle 40 ms longer than it", () => {
     expect(
       selectBodyMotionProbeClip(SEATED_REBIND)?.name,
       "137 rotation channels each; the idle wins on 3.75 s vs 3.71 s, so the capture renders a "
@@ -85,7 +99,7 @@ describe("the authored clip outranks a generic one", () => {
     ).toBe("openclinxr_retarget_cmu_07_01_walk");
   });
 
-  it.fails("(4) RED + COUNTERWEIGHT: the mixer view and the evidence view agree on every measured asset", () => {
+  it("(4) RED + COUNTERWEIGHT: the mixer view and the evidence view agree on every measured asset", () => {
     // candidate-capture.ts:328 drives the AnimationMixer from selectBodyMotionProbeClip, while :744
     // writes the evidence record from selectBodyMotionProbeClipName. Fixing only one leaves the
     // capture's own evidence naming a clip it did not render. Both must resolve identically.
