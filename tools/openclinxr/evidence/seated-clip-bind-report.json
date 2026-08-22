@@ -331,5 +331,12 @@
     ],
     "note": "This slice added 26 finger keys; 25 bind under the seated clip, 1 (finger2-3.L, left index tip has zero travel in the source) is inert and declared optional. The other 11 unbound keys are pre-existing: 8 twist/shoulder/toe keys already inert under CMU (all optional), plus root/head/spine05 which this clip animates below the 0.01-rad delta threshold - they were bound keys of the landed map, unchanged by this slice."
   },
-  "undeclaredNewlyInertKeys": []
+  "undeclaredNewlyInertKeys": [],
+  "walkClipRestoration": {
+    "removedClip": "openclinxr_retarget_cmu_07_01_walk",
+    "reason": "replaced by openclinxr_retarget_seated_talking_cc0; CMU is CONDITIONAL-licensed, the replacement is CC0",
+    "lastWalkBearingCommit": "21357528ac7f519326656e518ad1411cfd52478f",
+    "restoreCommand": "git checkout 21357528ac7f519326656e518ad1411cfd52478f -- apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb",
+    "recordedBy": "orchestrator, product-owner condition 2 on the OPTION 1 ruling"
+  }
 }
