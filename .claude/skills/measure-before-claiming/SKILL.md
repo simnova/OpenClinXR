@@ -1,6 +1,6 @@
 ---
 name: measure-before-claiming
-description: How to avoid filing, diagnosing, or reporting from an unmeasured premise. Symptoms constrain a cause but never name it; a liveness check needs three fields; a name match is a marker check. Read before opening an issue, attributing a failure, or accepting a peer or worker claim.
+description: "Required before - opening or updating an issue, naming any cause or mechanism, attributing a stall/failure/red to a worker or a landing, trusting a suspiciously fast or cached gate result, closing a card, or accepting a peer/worker/superagent claim. Symptoms constrain a cause, never name it; liveness = state + git-history + tree probe; name matches are marker checks - read counts, bytes, hashes; measure through the loader the runtime uses; every proof ends with a literal NOT TESTED line. Appearance and visual claims route to pixel-grading."
 when-to-use: file an issue, diagnose a failure, is this card still live, premise, withdraw a claim, attribute a stall, verify a worker report, peer consult, marker check, why did my measurement lie
 ---
 
@@ -63,6 +63,11 @@ running code find this"*, go through the loader.
   gate whose exit code you trust.
 - **A responding port is not YOUR server.** When a service "does not pick up a change", first check
   the process answering is the one you started.
+- **A config file can fail SILENTLY and differently at each layer.** Measured on my own skills:
+  an UNQUOTED YAML `description:` containing `##` truncated at the comment marker (the skill loaded
+  with half a retrieval key), and one containing `Direction: /` **dropped the skill from the listing
+  entirely** - it simply was not there. Neither errored. **Always quote a YAML scalar that contains
+  user prose**, and verify by reading the rendered surface, not the file you wrote.
 - **Your own tooling fails too.** A `tsc` error can be your bad path; a `no tests` result can be a
   collection failure, not a pass. Attribute the failure before reporting it.
 
@@ -85,6 +90,13 @@ nor the assertion, the verdict cannot have changed.
 - **Correct a premise where it is STATED**, not in an appended note - the next reader starts at the top.
 
 ## Two sentences to end every proof
+
+Every proof run, report and close comment ends with the exact literal line:
+
+> `NOT TESTED: <residual>`
+
+**A proof block without that literal string is unfinished regardless of green.** The board loop already
+requires this of workers' proofs - hold yourself to the same string.
 
 - **Claim:** exactly what was shown.
 - **Not tested:** the residual.

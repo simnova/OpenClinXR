@@ -1,6 +1,6 @@
 ---
 name: loop-continuation
-description: Keep the autonomous loop alive with zero operator intervention. Re-arm the next wake at the END of every turn including notification-driven ones, publish a durable status BLUF every wake, audit your own background tasks, and land visible wins on the public surface in the same cycle. Read at the START of any turn you did not schedule yourself.
+description: "Fires at TURN END - especially notification-driven turns (a worker finished, a background command completed - these FEEL like endings and are not) - and at every scheduled wake - re-arm the next wake as the last action, publish the dated status BLUF to SSOT first, audit and kill stale background jobs (verify the spawner died), recover after sleep gaps, land visible wins publicly the same cycle. Also fires on 'why did you stop' / 'progress update' / 'what is running' / 'keep going' - each such operator ask is a defect report against this skill."
 when-to-use: end of turn, task-notification, loop lapsed, keep going, why did you stop, ScheduleWakeup, re-arm, progress update, what is running, check your shells, orphan process, machine slept, website update, publish wins
 ---
 
@@ -43,7 +43,10 @@ those asks is a wake that failed to publish.
 *"check status of shells you have running - are some of them things that should be killed?"* - the
 operator saw orphans I was not tracking.
 
-- List live background tasks and long shells each wake; kill what is stale.
+- List live background tasks and long shells each wake. **Kill iff EITHER: no advance in log lines
+  or target-file mtimes across two consecutive wakes; OR the spawner is gone while the child
+  persists.** Record each as `killed <pid> <artifact-checked>` in that wake's BLUF. **"Looked idle"
+  is not a criterion.**
 - **Kill means kill AND prevent re-spawn**: *"did you kill it and prevent it from spawning again?"*
   Verify the spawner is gone, not just the child. A job a loop relaunches next wake was not killed.
 - Judge liveness by durable artifacts - log lines, file mtimes, CPU over a window. Never by `pgrep -f`,

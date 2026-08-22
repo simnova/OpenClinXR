@@ -1,6 +1,6 @@
 ---
 name: pixel-grading
-description: How to grade a rendered artifact without inventing the defect. Native resolution only, thumbnails cannot support fine verdicts, structure pass vs lit pass, and the producer/grader split that a multimodal worker does not dissolve. Read before judging any image or accepting a visual claim.
+description: "Fires whenever a render, screenshot, capture PNG, contact sheet, or webm ARRIVES for judgment, before writing any visual verdict or appearance claim, and when writing the visual requirements inside a worker brief. Native resolution only (upscaling invents defects); thumbnails prove presence, never absence; structure pass outranks lit pass on structure; prefer the geometric measurement; demand named renderer + subject + input provenance; closed checklists whose cells the suspected defect FAILS; the producer/grader split survives multimodal workers; label MY GRADE vs CONSULTED on every verdict."
 when-to-use: grade an image, pixel grade, capture, render, still, contact sheet, does it look right, upscale, thumbnail, visual verdict, appearance claim, screenshot evidence
 ---
 
@@ -55,6 +55,13 @@ decisive where a thumbnail is not. Two useful habits:
 - **Check what a shared convention hides.** A root rotation identical across standing AND lying clips
   is a coordinate convention, not pose information. Find the joint that actually discriminates.
 
+## Video
+
+- Grade motion at **native frame rate**. A frame-stepped or re-encoded playback changes what motion
+  looks like, the same way an upscale changes what an edge looks like.
+- **A single watched playthrough supports motion-present / motion-absent only** - never amplitude,
+  smoothness, or plausibility. Those need a per-frame measurement.
+
 ## The producer/grader split - and multimodal workers do NOT dissolve it
 
 This repo has already shipped a fabricated score from an agent grading its own output.
@@ -91,6 +98,8 @@ inputs is ungradeable - require the input provenance in the same artifact.
 
 ## After grading
 
-Say which verdict is yours and which is consulted. "Upright, limbs present, proportions plausible" is a
+**Every written visual verdict contains two prefixed lines:** `MY GRADE:` and - only if a consult
+occurred - `CONSULTED (<who>):`. **A verdict paragraph containing neither prefix is ungraded; do not
+publish or file it.** "Upright, limbs present, proportions plausible" is a
 pixel grade. "A patient here would be gowned" is a consulted clinical opinion, and neither is a
 clinician sign-off.

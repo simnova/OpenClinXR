@@ -1,6 +1,6 @@
 ---
 name: contract-design
-description: Design a planted RED that cannot be satisfied by the cheap fix. Known-good columns, counterweights, derived-not-fitted thresholds, and the proof shapes that go green about nothing. Read BEFORE writing a contract or a done_when.
+description: "Clause-design gate for writing or reviewing any done_when block, planted RED, proof line, threshold, enum, or test fixture - before the brief is sent, not after it fails green. Known-good column, counterweight against the cheapest pass, thresholds derived not fitted (cite the source beside every number), quantity-vs-shape bounding, proof shapes that go green about nothing (it.fails, exists plus min-bytes, vacuous floors), escape values, fixtures that exhibit the defect. Dispatch MECHANICS live in orchestrator-dispatch-loop; slice SELECTION lives in pre-dispatch-alignment."
 when-to-use: plant a RED, write a contract, done_when, counterweight, known-good column, threshold, it.fails, destructive probe, vacuous proof, why did a green contract ship a defect
 ---
 
@@ -34,6 +34,10 @@ Four contracts went green while the pixels stayed wrong. Ask of every clause:
 
 - **A number in a contract becomes the design target.** If the cheapest way to clear it distorts the
   thing being measured, that is what you bought.
+- **Every numeric threshold carries its provenance inline, in parentheses**, e.g.
+  `<= 0.08 (IV pole, known-good, declared-equipment-mounted.ts:41)` or
+  `(median bone-tip motion / 2, pre-fix.json)`. **A number with an empty source fails self-review -
+  no source, no dispatch.**
 - **Derived, not fitted.** A self-calibrated threshold is meaningless if its reference depends on the
   effect. Sound references: ambient variation measured BEFORE any edit; an external floor; **the INPUT
   of the causal chain**. The tell: you can cancel a term and get a constant ratio.
@@ -85,7 +89,6 @@ that red deletes it.
 
 ## Before dispatch
 
-- Copy the `done_when` invocation from a slice that passed; hand-written ones break.
-- `## factory_step:` (WITH colon) must be in the allowlist; `instrument` additionally needs `unblocks:`.
-- Commit the plant to main BEFORE dispatch or the merge fails on untracked files.
-- `exists:` under a gitignored path has no land path - use a tracked one.
+**Mechanics live in `orchestrator-dispatch-loop`** - signatures, the commit-the-plant-first rule, the
+`factory_step:` colon, gitignored `exists:` targets. Two copies of a mechanical fact WILL drift; that
+skill is the single source.
