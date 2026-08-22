@@ -72,6 +72,10 @@ import {
 import { generatedDriveScalar, type GeneratedDriveScalarValue } from "./generated-drive-scalar.js";
 import { phonemesForText, visemesForText } from "./dialogue-visemes.js";
 import { generatedHumanoidSourceProvenance } from "./generated-humanoid-source-provenance.js";
+import {
+  resolveLocalEnvironmentRuntimeAssetFileName,
+  resolveLocalEquipmentRuntimeAssetFileName,
+} from "./runtime-local-asset-filenames.js";
 import { createPrimitiveActorMesh } from "./primitive-actor-mesh.js";
 import { applyPosturePose, plantSeatedPelvisOnSeat } from "./seated-pose.js";
 import { applySupinePose } from "./supine-pose.js";
@@ -9298,23 +9302,6 @@ function resolveEmulatorRuntimeAssetUrl(asset: EncounterRuntimeAsset): string {
     return `/xr-assets/medical-equipment/${resolveLocalEquipmentRuntimeAssetFileName(fileName)}`;
   }
   return resolveRuntimeAssetUrl(asset);
-}
-
-function resolveLocalEnvironmentRuntimeAssetFileName(fileName: string): string {
-  if (fileName === "ed.glb") {
-    return "ed-exam-bay-shell.glb";
-  }
-  return fileName;
-}
-
-function resolveLocalEquipmentRuntimeAssetFileName(fileName: string): string {
-  if (fileName === "ecg.glb") {
-    return "ecg-cart-12-lead.glb";
-  }
-  if (fileName === "iv-pole.glb" || fileName === "iv_pole.glb") {
-    return "iv-pole-with-pump.glb";
-  }
-  return fileName;
 }
 
 function runtimeGeneratedSceneObjectName(asset: EncounterRuntimeAsset): string {
