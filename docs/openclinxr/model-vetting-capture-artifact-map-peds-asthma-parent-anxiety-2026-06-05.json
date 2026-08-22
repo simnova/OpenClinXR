@@ -2,6 +2,21 @@
   "schemaVersion": "openclinxr.model-vetting-capture-artifact-map.v1",
   "artifacts": [
     {
+      "candidateId": "turntable_glb_mpfb-peds-parent-aisha_motion-bind",
+      "slotId": "body_motion_probe_video",
+      "artifactPath": "docs/openclinxr/model-vetting-captures/mpfb-peds-parent-aisha_motion-bind_body_motion_probe_2026-08-22.webm"
+    },
+    {
+      "candidateId": "turntable_glb_mpfb-peds-parent-aisha_motion-bind",
+      "slotId": "front_screenshot",
+      "artifactPath": "docs/openclinxr/model-vetting-captures/mpfb-peds-parent-aisha_motion-bind_front_2026-08-22.png"
+    },
+    {
+      "candidateId": "turntable_glb_mpfb-peds-parent-aisha_motion-bind",
+      "slotId": "three_quarter_screenshot",
+      "artifactPath": "docs/openclinxr/model-vetting-captures/mpfb-peds-parent-aisha_motion-bind_three_quarter_2026-08-22.png"
+    },
+    {
       "candidateId": "turntable_glb_mpfb-street-adult-male",
       "slotId": "front_screenshot",
       "artifactPath": "docs/openclinxr/model-vetting-captures/mpfb-street-adult-male_front_2026-08-19.png"
