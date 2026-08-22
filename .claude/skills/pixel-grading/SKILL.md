@@ -62,6 +62,34 @@ decisive where a thumbnail is not. Two useful habits:
 - **A single watched playthrough supports motion-present / motion-absent only** - never amplitude,
   smoothness, or plausibility. Those need a per-frame measurement.
 
+## WHO GRADES - changed 2026-08-22 by product-owner decision
+
+**I no longer issue visual verdicts.** The product owner (ox standing thread) holds the JUDGMENT
+plane; I hold the MEASUREMENT plane. My prose verdicts stop; my probes do not.
+
+It corrected my objection and the correction is right: *same model* is not *same producer*. The #17
+rule bars an agent grading its OWN output; the owner grading a worker artifact it did not produce
+preserves the split. The real reason this division is better is **instrument independence** - a numeric
+probe catches the case where its vision fails or flatters.
+
+Binding amendments, from that ruling:
+
+- **A1 - fixed probe menu, declared PRE-dispatch.** Each artifact class gets its metric written into
+  the brief BEFORE dispatch, from: atlas perceptual-hash distance / lip-aperture px / joint angular
+  deltas / garment-hue pixel fraction / luminance stats. **No post-hoc metric selection** - a number
+  chosen after seeing a grade is threshold-fitting.
+- **A2 - disagreement protocol.** Its grade vs my numbers disagreeing means neither side wins: I send
+  `CONTRADICTED` with both values, it re-grades from a 1:1 native crop, we reconcile on the card.
+  **Silent resolution is banned in both directions.**
+- **A3 - calibration strikes.** Each time a decisive measurement overturns its grade, log one strike
+  against that artifact class. **Two strikes flips the class measurement-primary** until it passes a
+  fresh ground-truth pair (the smooth/ragged control pattern).
+- **A4 - citation shape.** Close comments carry `GRADE: <owner>` and `MEASURE: <mine>` lines. Worker
+  visual claims remain EVIDENCE-not-verdict everywhere, so no self-graded visual exists anywhere.
+
+Everything below still governs HOW to measure and how to specify a capture in a brief - that work is
+still mine. Only the verdict moved.
+
 ## The producer/grader split - and multimodal workers do NOT dissolve it
 
 This repo has already shipped a fabricated score from an agent grading its own output.
