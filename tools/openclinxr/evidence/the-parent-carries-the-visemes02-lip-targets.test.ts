@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
@@ -66,6 +66,15 @@ import { describe, expect, it } from "vitest";
  *     the superagent grades it — this contract asserts the pair exists, never that it looks good.
  *   - Raising the cap. Explicitly a later slice.
  *   - Other actors, Quest, frame budget, lip-sync timing.
+ *
+ * ## FIXED (#551)
+ *
+ * Clause (5) was a scope fence: `mpfb-peds-patient-child.glb` must carry ZERO visemes so a worker
+ * would not mass-rebake every actor. `e9ef9e3f` (#542) then rolled visemes02 to all 11 shipped
+ * `mpfb-*.glb` under a direct operator instruction, so the fence outlived its slice and went RED
+ * on main (`expected 15 to be +0`). Inverted: every shipped `mpfb-*.glb` a learner can resolve
+ * carries 15 `viseme_*` targets. The inspect-GLB-is-not-the-parent half of the counterweight is
+ * kept (resolver-swap refusal).
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -142,14 +151,26 @@ describe("the parent carries the visemes02 lip targets", () => {
     expect(src, `the FACS cap constant stays at 0.3 in this slice`).toMatch(/MOUTH_OPEN_CAP\s*=\s*0\.3/u);
   });
 
-  it("(5) COUNTERWEIGHT: no other humanoid is rebaked, and the parent is not aliased away", async () => {
-    // Refuses (c) and (d). Pointing the parent's path at the inspect GLB is a resolver swap, which
-    // is the S2 mistake the portfolio parks P1 for.
-    const child = await targetNames(join(GEN, "mpfb-peds-patient-child.glb"));
-    expect(visemesOf(child).length, `one actor is enough; the child is not in this slice`).toBe(0);
+  it("(5) COUNTERWEIGHT: every shipped mpfb-*.glb carries 15 viseme_*, and the parent is not aliased away", async () => {
+    // #551 inverted the child-zero scope fence after e9ef9e3f rolled visemes to all 11 actors.
+    // Still refuses (d): pointing the parent's path at the inspect GLB is a resolver swap.
+    const shipped = readdirSync(GEN)
+      .filter((f: string) => f.startsWith("mpfb-") && f.endsWith(".glb"))
+      .sort();
+    expect(shipped.length, "shipped mpfb population must be non-empty").toBeGreaterThanOrEqual(11);
+    const short: string[] = [];
+    for (const f of shipped) {
+      const n = visemesOf(await targetNames(join(GEN, f))).length;
+      if (n !== EXPECTED_VISEME_COUNT) short.push(`${f}:${n}`);
+    }
+    expect(
+      short,
+      `every shipped mpfb-*.glb must carry ${EXPECTED_VISEME_COUNT} viseme_* (post-e9ef9e3f); short: ${short.join(", ")}`,
+    ).toEqual([]);
     expect(existsSync(INSPECT), `the inspect GLB stays as its own artifact, not the parent's file`).toBe(
       true,
     );
+    expect(PARENT, "parent must remain a distinct file from the inspect harness GLB").not.toBe(INSPECT);
   });
 
   it("(6) VACUITY GUARD: the known-good column is real and distinct from the subject", () => {

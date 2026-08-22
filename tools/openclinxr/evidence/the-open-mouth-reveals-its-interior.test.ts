@@ -41,17 +41,42 @@ import { describe, expect, it } from "vitest";
  *   GLB, and if not, which mechanism prevents it.
  * notEvidenceFor: runtime lip-sync from audio; intelligibility; clinical or linguistic adequacy of
  *   the viseme set; any other actor's render.
+ *
+ * ## FIXED (#551)
+ *
+ * Stage A (`open-mouth-interior.json`, commit `17aa693a`) located the mechanism: at `viseme_aa`
+ * weight 1.0 the anterior oris/levator rim still overlaps by ~0.23 mm (`lipGapMeters=0`), while
+ * `thresholdMeters=0.5*teethH=0.020725` m. Teeth are present, OPAQUE, visible, and posterior to the
+ * lips — occluded only because nothing opens. Re-baking `mpfb-viseme-inspect.glb` is forbidden in
+ * this slice, so clause (1) is an INVERTED GUARD recording that the interior cannot be revealed on
+ * the current bake. A future bake that DOES open the mouth must trip this guard; the correct
+ * response is to restore the original positive assertion
+ * (`lipGapMeters >= thresholdMeters` and `interiorRevealed === true` against
+ * `tools/openclinxr/evidence/open-mouth-interior.json`), never to delete or widen this clause.
  */
 
 const ARTIFACT = "tools/openclinxr/evidence/open-mouth-interior.json";
 
+/** #551 measured on the inspect GLB — pinned so a silent remeasure rewrite cannot hide an open mouth. */
+const MEASURED_AA_GAP = 0;
+const MEASURED_AA_OVERLAP = 0.0002300739288330078;
+const MEASURED_AA_MAX_DISP = 0.018155692904924237;
+const MEASURED_TEETH_THRESHOLD = 0.020725011825561523;
+
+type VisemeRow = {
+  name: string;
+  lipGapMeters?: number;
+  lipOverlapMeters?: number;
+  maxDisplacementMeters?: number;
+  interiorRevealed?: boolean;
+};
 type Probe = {
   method?: string;
   mechanism?: string;
   /** Derived from the teeth mesh, never from the observed lip gap. */
   thresholdMeters?: number;
   thresholdDerivation?: string;
-  visemes?: { name: string; lipGapMeters?: number; interiorRevealed?: boolean }[];
+  visemes?: VisemeRow[];
   teeth?: { meshName?: string; present?: boolean; visible?: boolean; aabbHeightMeters?: number };
   verdict?: "revealed" | "mechanism_located" | "cannot_be_revealed";
 };
@@ -65,16 +90,38 @@ function requireMeasured(): Probe {
 }
 
 describe("the open mouth reveals its interior", () => {
-  it.fails("(1) RED: at viseme_aa the interior is reachable, against a teeth-derived threshold", () => {
+  it("(1) INVERTED GUARD: viseme_aa still does not clear the teeth-derived aperture threshold (#551)", () => {
+    // Records Stage A's cannot-reveal-on-this-bake finding. A future bake that opens the mouth
+    // FAILS here on purpose — restore the original positive assertion against ${ARTIFACT}
+    // (lipGapMeters >= thresholdMeters && interiorRevealed === true). Do NOT delete or widen
+    // this clause (merge-kill: deleted-test).
     const p = requireMeasured();
     expect(typeof p.thresholdDerivation === "string" && p.thresholdDerivation.length >= 30,
       "state where the threshold came from — it must reference the TEETH geometry, not the lip gap").toBe(true);
     expect(p.teeth?.present, "the teeth mesh must still ship — do not delete it to pass").toBe(true);
+    expect(p.thresholdMeters, "teeth-derived threshold must match Stage A").toBeCloseTo(MEASURED_TEETH_THRESHOLD, 8);
+
     const aa = vis("viseme_aa");
     expect(aa?.lipGapMeters, "viseme_aa lip gap not measured").toBeTypeOf("number");
-    expect(aa!.lipGapMeters!, `aa lip gap ${aa!.lipGapMeters} must clear the teeth-derived threshold ${p.thresholdMeters}`)
-      .toBeGreaterThanOrEqual(p.thresholdMeters!);
-    expect(aa!.interiorRevealed, "aa must reveal the interior").toBe(true);
+    expect(
+      aa!.interiorRevealed,
+      `TRIPWIRE: viseme_aa opened the interior (gap=${aa!.lipGapMeters}, overlap=${aa!.lipOverlapMeters}, `
+        + `maxDisp=${aa!.maxDisplacementMeters}, threshold=${p.thresholdMeters}). `
+        + `A future bake cleared the #551 sealed-lip state. Restore the ORIGINAL positive assertion — `
+        + `expect(aa.lipGapMeters).toBeGreaterThanOrEqual(p.thresholdMeters) and `
+        + `expect(aa.interiorRevealed).toBe(true) against ${ARTIFACT} — do not delete or widen this inverted guard.`,
+    ).toBe(false);
+    expect(
+      aa!.lipGapMeters! < p.thresholdMeters!,
+      `TRIPWIRE: aa lipGapMeters=${aa!.lipGapMeters} cleared teeth threshold ${p.thresholdMeters} `
+        + `(Stage A: gap=${MEASURED_AA_GAP}, overlap=${MEASURED_AA_OVERLAP}, `
+        + `maxDisp=${MEASURED_AA_MAX_DISP}, threshold=${MEASURED_TEETH_THRESHOLD}). `
+        + `Restore the original positive assertion against ${ARTIFACT}; do not delete or widen this guard.`,
+    ).toBe(true);
+    // Pin the sealed-lip numbers so a rewritten artifact cannot silently claim "still sealed".
+    expect(aa!.lipGapMeters, "Stage A sealed aperture (gap 0)").toBe(MEASURED_AA_GAP);
+    expect(aa!.lipOverlapMeters ?? 0, "Stage A anterior-rim overlap ~0.23 mm").toBeCloseTo(MEASURED_AA_OVERLAP, 8);
+    expect(aa!.maxDisplacementMeters ?? 0, "Stage A aa max lip displacement ~18.2 mm").toBeCloseTo(MEASURED_AA_MAX_DISP, 8);
   });
 
   it("(2) KNOWN-GOOD COLUMN: sil stays closed — a fix that opens everything fails here", () => {
