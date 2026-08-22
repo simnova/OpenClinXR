@@ -227,8 +227,13 @@ export type DispatchLedgerEntry = {
    * then re-appends the post-exit "completed" line with turns/stopReason/proofs. The last line
    * for a slice is the authoritative one. Readers that consume EVERY line (delegation-scorecard)
    * must skip "spawned". Absent on entries written before this field existed.
+   *
+   * ISSUE #563: "died" is the terminal line for a fresh dispatch whose child exited WITHOUT an
+   * end event (arg-parse abort, crash, kill, provider auth/billing failure). It carries the
+   * resumable session id (#439) but is NOT a completion: factory-pulse and campaign-track select
+   * `phase === "completed"`, and a dead row there scored provider failures as throughput.
    */
-  phase?: "spawned" | "completed";
+  phase?: "spawned" | "completed" | "died";
   /**
    * INCIDENT (layer-3): after exit, orchestrator re-ran tree proofs against the worktree.
    * Absent means this entry predates contract wiring or contract was explicitly "none".
@@ -1498,7 +1503,7 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
     ...(parsed.turns !== undefined ? { turns: parsed.turns } : {}),
     ...(parsed.stopReason ? { stopReason: parsed.stopReason } : {}),
     at: new Date().toISOString(),
-    phase: "completed",
+    phase: parsed.sessionId ? "completed" : "died",
     ...(gitignoredProofTargetsWarned.length > 0 ? { gitignoredProofTargetsWarned } : {}),
   };
   recordSession(repoRoot, entry);
