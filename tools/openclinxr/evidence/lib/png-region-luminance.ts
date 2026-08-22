@@ -175,3 +175,58 @@ export function regionLuminance(
     p90,
   };
 }
+
+/**
+ * Whether a captured frame rendered ANYTHING, independent of exposure.
+ *
+ * `nonBlackPct` bounds one end only — a blank WHITE frame scores 100.0 and passes every
+ * brightness-floor gate. Variance separates "rendered nothing" from "rendered something" at either
+ * end, because a uniform frame has almost none whatever it weighs.
+ *
+ * ## DERIVATION (2026-08-22) — every number anchored on ambient evidence, none fitted to clear an
+ * observation. All sd figures use the sampling below (viewport region, step 6), the same protocol
+ * that produced the historical numbers:
+ *
+ *   evidence                                                   | viewport sd
+ *   ------------------------------------------------------------|------------
+ *   REAL uniform failure: black peds capture, recorded in the   |      4.9
+ *     a-station-capture-is-not-a-black-frame.test.ts header     |
+ *   Dimmest TEXTURED fixture (textured-dim.png, #172)           |     17.36
+ *   Dimmest REAL shipped capture of 15 stations                 |     36.01
+ *     (ed_stroke_alert_handoff_v1, measured 2026-08-22)         |
+ *
+ * Ceiling = geometric midpoint of the BINDING pair: sqrt(4.9 x 17.36) = **9.22** — equal-ratio
+ * separation from both sides (1.88x above the real uniform frame, 1.88x below the dimmest textured
+ * evidence). The ambient floor sits 3.9x above the ceiling, so no real station is near it.
+ *
+ * Rejected treatments, probed on the #172 fixtures: brightness-only misclassifies textured-dim
+ * (clause 4 of the uniform contract refuses it); widening nonBlackPct to bite at both ends
+ * misclassifies textured-lit-no-dark-pixels, which mirrors the REAL healthy telehealth capture at
+ * nonBlackPct 100.0 (clause 5 refuses it). Variance misclassifies neither.
+ *
+ * claimScope: whether the frame is UNIFORM, i.e. renders nothing.
+ * notEvidenceFor: whether a non-uniform frame looks correct, or why any frame came out uniform.
+ */
+export type CaptureFrameClass = {
+  uniform: boolean;
+  /** Viewport-region luminance sd the verdict derives from. */
+  sd: number;
+  nonBlackPct: number;
+};
+
+/** Matches the station-capture contract's viewport: left 68%, excluding top strip and status bar. */
+const VIEWPORT_REGION: RegionFractions = { left: 0, top: 0.1, width: 0.68, height: 0.8 };
+
+/** Derived above: geometric midpoint of the binding pair (real uniform 4.9 vs dimmest textured 17.36). */
+export const UNIFORM_SD_CEILING = 9.22;
+
+/**
+ * Classify a capture PNG. Returns null when the bytes are not a decodable 8-bit non-interlaced
+ * greyscale/RGB(A) image (same rules as `regionLuminance`) — callers must treat null as
+ * undetermined, never as healthy or broken.
+ */
+export function classifyCaptureFrame(bytes: Uint8Array): CaptureFrameClass | null {
+  const r = regionLuminance(bytes, VIEWPORT_REGION, { blackLuma: 12, step: 6 });
+  if (!r) return null;
+  return { uniform: r.sd <= UNIFORM_SD_CEILING, sd: r.sd, nonBlackPct: r.nonBlackPct };
+}
