@@ -532,6 +532,41 @@ adding keys to `mpfb2-default-no-toes.json`, which never sees `spine_01` / `thig
 CMU takes "CC0" because the walk already shipped.
 
 
+### ox-alpha vision CALIBRATED against the traps that fooled me (2026-08-21)
+
+Recording that its visual judgement was NOT TESTED against my own known failure modes was pointless
+unless I tested it. Three probes, ground truth known to me in each:
+
+| probe | ground truth | ox-alpha | warned? |
+|---|---|---|---|
+| 100x120 thumbnail, "is this figure on its BACK or its SIDE?" | not resolvable by pixels alone; my skeleton measurement said zero roll | **BACK**, and it rejected interpolated upscaling ON ITS OWN in favour of nearest-neighbor plus per-pixel colour classification | warned |
+| 60x28 native lip crop at 6x LANCZOS, "smooth or ragged?" | SMOOTH | **SMOOTH** | UNWARNED |
+| same crop with a real 3px zigzag injected, same 6x LANCZOS | RAGGED | **RAGGED** | UNWARNED |
+
+**The second and third together are the result that matters.** A single "SMOOTH" proves nothing - a
+model that always answers SMOOTH would score it. The injected-zigzag control is what shows the
+instrument DISCRIMINATES, and it does so unwarned, on a 6x interpolated blow-up. That is the §12a trap
+which produced three false findings of mine on 2026-08-14 (blocky atlas boundaries, a stair-stepped
+hairline, a toothed teal boot wedge - all of them the interpolator, none of them the mesh).
+
+On the thumbnail it independently reached the §11l/§12a discipline: it said an interpolated enlarge
+"invents structure that was never there" and switched to nearest-neighbor. Its side-lying exclusion
+("on its side the legs would stack into a single limb") agrees with my skeleton measurement, which is
+two independent instruments converging rather than one echoing the other.
+
+**HONEST LIMITS - three samples, and one caveat that matters.** The ragged control was SYNTHETIC: I
+injected the zigzag, so it is a strong positive but not a naturally-occurring failure. Its BACK vs
+FRONT call rested on a weaker cue ("chest-side clothing facing the camera") than its BACK vs SIDE call.
+And the first run of probe 1 was INCONCLUSIVE because I set maxTurns 5 and it ran out mid-analysis -
+my harness limit, not a model failure, and I re-ran rather than record a false negative.
+
+**STILL NOT TESTED:** sub-pixel features; the §6e case where two instruments agree while both blind to
+the same thing; and whether it filters to the brief (§8m) - the failure a closed per-artifact checklist
+exists to prevent. So briefs that rest on appearance still name the renderer and framing and carry the
+checklist. Calibration lowers how much I distrust a worker's visual report; it does not make the
+report a verdict on its own output.
+
+
 ### ox-alpha is MULTIMODAL — verified 2026-08-21, and what it does NOT change
 
 Operator: *"that new model super smart — give it giant efforts — it's multimodal so can also aid in
