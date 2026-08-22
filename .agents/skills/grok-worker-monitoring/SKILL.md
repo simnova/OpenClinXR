@@ -197,6 +197,45 @@ story-fitting. "Candidates, unranked, and they may all be wrong" is free.
 
 ---
 
+## 4b. GIVE ABSOLUTE PATHS FOR EVERY OUT-OF-REPO INPUT
+
+An early-artifact instruction cannot bind if the worker cannot reach the input.
+
+**Measured.** A brief said *"proof 1 of 5 is due in your first ~10 actions"* and named its source as
+`human-base-animations.glb` - a bare filename. The file lives OUTSIDE the repo under
+`~/.openclinxr-tools/...`. The worker burned roughly ten actions searching for it:
+
+```
+find . -iname "*human-base-anim*"
+grep -rln "human-base-animations" --include=...
+mdfind -name "human-base-animations.glb"
+find /Users/patrick -...
+D=/Users/patrick/.openclinxr-tools/mesh2motion-app; find "$D" -name ...
+```
+
+By the time it had the path, the "first ~10 actions" budget was gone - **the instruction did not fail,
+it was made unreachable.** The worker did nothing wrong; searching was the only way to proceed.
+
+**Rule.** Every input the brief names gets an ABSOLUTE path if it is outside the repo, and a
+repo-relative path if inside. Verify each one resolves before dispatching:
+
+```bash
+for f in "$SRC_CLIP" "$TARGET_MAP" "$SUBJECT_GLB"; do
+  [ -e "$f" ] && echo "ok   $f" || echo "MISSING  $f"   # a MISSING here is a brief defect, not a worker one
+done
+```
+
+This is the §6k family - *name the probe that already works*. Naming a thing is not naming where it
+is. The same applies to tools installed outside the repo (Blender addons, provider caches, model
+clones): give the full path once, in the brief.
+
+**Corollary for monitoring.** When a worker's action trace shows repeated `find` / `mdfind` /
+`grep -rln` for the same token, that is not exploration - it is a missing path in your brief. It is
+visible in the transcript within the first few minutes, and it is cheap to prevent and expensive to
+watch.
+
+---
+
 ## 5. QUICK REFERENCE
 
 ```bash
