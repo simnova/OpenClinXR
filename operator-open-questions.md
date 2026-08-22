@@ -79,3 +79,43 @@ Garment-source-geometry-hint-v1 path is **aborted** after skeptic review (subage
 ## Quest foreground performance capture blocked (unchanged)
 
 ## 2026-06-05 Anny local package/source manifest (unchanged)
+
+## 2026-08-21 — Mesh2Motion + Animato evaluation (operator brief; recorded, NOT approved scope)
+
+Operator supplied a full evaluation package: Mesh2Motion as a **static CC0 clip library**, Animato
+(`github.com/otdnnc/Animato`, MIT) as **on-demand clinical motion generation** — an LLM writes one
+short `bpy` script per animation, headless Blender bakes it into an already-rigged actor. Framed as
+complementary, not competing.
+
+**RECORDED AS-IS. Three collisions with measurements already on disk — resolve before any slice.**
+
+1. **The brief's "primary topology: Anny (~163-bone)" is STALE.** Measured 2026-08-21 via
+   `resolveScenarioActorCast` over `listShippedCastScenarioIds`: **39 of 39 cast slots resolve to
+   `mpfb-`**, zero Anny slots reach a learner; Anny retirement is #478. So every retarget target in
+   the brief is **137 joints, not ~163**, and §4.1 step 2 must be re-read accordingly.
+
+2. **Mesh2Motion is already adjudicated, and the trap is named.** #545 `reject_measured` it as a
+   RIGGER (browser Vite app, no CLI bin; its `mesh2motion.json` map hits 0/53 on MPFB2 native names).
+   The CLIP LIBRARY is the salvage and its licence is **CC0 VERIFIED** (local clone carries
+   `LICENSE-MIT.MD` + `LICENSE-CC0.MD`; 87 + 75 human clips). Its skeleton is **66-joint
+   Mixamo-adjacent** (`spine_01..03`, `thigh_l`), so the work is a **NEW 66→137 SOURCE map**, NOT keys
+   added to `mpfb2-default-no-toes.json` — which never sees those names. That mistake is the
+   superagent's explicitly predicted next error, recorded 2026-08-21 in PROJECT_STATUS.
+   Lying-adjacent clips `Sleeping`, `LayToIdle`, `Rest Pose` are VERIFIED present; whether `Sleeping`
+   is back-flat or side-sleep is **NOT GRADED**.
+
+3. **Animato collides with D1 and D9 and the collision is unresolved.** D1: "wire proven tools, never
+   hand-author... not a handful of LLMs toiling in non-deterministic ways building things in the
+   factory." D9: "dark software factory with minimal LLM involvement... LLMs can only be used in the
+   final product for narrow purposes (e.g. dynamic dialogue generation)." Animato's core mechanism is
+   an LLM authoring bespoke `bpy` per animation.
+   The defensible reading: it is BUILD-TIME, the runtime artifact is a baked deterministic GLB, and an
+   exam still runs with no LLM in the path — which is what D9 actually protects. The hostile reading:
+   non-deterministic per-animation authoring is precisely D1's anti-pattern, and the same clip is not
+   reproducible from the same input.
+   **A resolution that would satisfy both, if approved:** treat the generated `bpy` script as the
+   deliverable rather than the animation — generate once, review, COMMIT THE SCRIPT, and re-run it
+   deterministically thereafter. The LLM then authors a tool once instead of toiling per asset, the
+   manifest records generator + prompt + script hash, and re-baking is reproducible.
+
+**Not started. No slice opened. Requires operator or superagent approval on point 3 before any work.**
