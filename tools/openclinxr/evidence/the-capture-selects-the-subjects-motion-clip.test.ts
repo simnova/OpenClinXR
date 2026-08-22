@@ -49,7 +49,7 @@ const WALK_GLB_CLIPS = [
 ] as const;
 
 describe("the capture harness selects the subject's motion clip", () => {
-  it.fails("(1) RED: a retargeted seated clip is selected for body_motion_probe", () => {
+  it("(1) a retargeted seated clip is selected for body_motion_probe", () => {
     expect(
       selectBodyMotionProbeClipName([...SEATED_GLB_CLIPS]),
       "the seated clip must be selected; null means the mixer is never constructed and the capture "
@@ -66,7 +66,7 @@ describe("the capture harness selects the subject's motion clip", () => {
     ).toBe("openclinxr_retarget_cmu_07_01_walk");
   });
 
-  it.fails("(3) RED + COUNTERWEIGHT: selection does not depend on a name allowlist", () => {
+  it("(3) COUNTERWEIGHT: selection does not depend on a name allowlist", () => {
     // Refuses the rejected treatment. A clip whose name matches nothing in the current allowlist,
     // carrying obvious motion content, must still be selectable. Content decides, names tiebreak.
     const unnamedMotion = ["ClinicalExpressionMicroTransition", "zzz_unlisted_motion_clip_v1"];
