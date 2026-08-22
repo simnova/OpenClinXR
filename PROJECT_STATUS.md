@@ -501,6 +501,37 @@ RULES:
   live thread is `01a01dad`.
 
 
+### Before a RED that ADDS a binding, measure the consumer's channel (earned 2026-08-21, F3)
+
+I planted three REDs on the MPFB bone map and **two of them fought my own counterweight**. Clauses (2)
+and (3) demanded `lowerleg02` and fingers 3-5 be mapped; clause (4) refused coverage-chasing. Both were
+true at once, so a worker would have added 8 keys that raise `mapKeys` while `bonesDriven` stays 26.
+
+Caught only because I measured the SOURCE CLIP before dispatching, not because the contract was
+self-checking. `cmu_07_01_walk.bvh`, the only clip the only consumer retargets, has **Twist: 0,
+Clavicle: 0**, and fingers limited to `FingerBase`/`HandIndex1`/`Thumb`. And `#547`'s coverage report
+shows `unbound - optional = EMPTY` — the map already declares every key it cannot drive.
+
+**THE CHECK, now standing:** before writing a RED that requires an entry to be **added** — a map key, a
+registry row, a binding, a declared layer — measure whether the **bound consumer has a channel that can
+exercise it**. A RED that cannot move the functional number (`bonesDriven` here) is **cosmetic by
+construction**, and it will be satisfied by growth that means nothing. Also count SOURCE-side collisions
+before demanding a second key onto the same source name.
+
+The tell: the contract's own counterweight forbids the metric the new clause would move.
+
+**Standing licence facts from the same consult, so they are not re-litigated:** CMU mocap is
+**CONDITIONAL, not CC0** (free use, no resale even converted, NSF acknowledgement) — `cmu_07_01_walk`
+is the one allowed exception already shipped, NOT a pack to grow. Mesh2Motion clips ARE CC0 but are
+**Mixamo-named**, so they need a SOURCE map and do not exercise `mpfb2-default-no-toes.json`; #545
+already `reject_measured` Mesh2Motion as a rigger. The laying-on-bed BVH is **refused** — page CC0,
+file silent, and its retarget died on `breast.*` leaves.
+
+**Predicted next error, recorded so it binds:** fetching a Mesh2Motion CC0 clip and spending a slice
+adding keys to `mpfb2-default-no-toes.json`, which never sees `spine_01` / `thigh_l`; or calling more
+CMU takes "CC0" because the walk already shipped.
+
+
 ## Work-selection SSOT — ruled 2026-08-21, measured
 
 **The board says what EXISTS. It does not say what to do next.** Three planes, and conflating them
