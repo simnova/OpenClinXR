@@ -101,9 +101,9 @@ describe("a dead dispatch is not a completion", () => {
     seedRole(root);
     spawnMock.mockReturnValue(fakeChild("", PROVIDER_402, 1));
 
-    await dispatchExpectingDeath(root, "issue-560-dead");
+    await dispatchExpectingDeath(root, "issue-563-dead");
 
-    const rows = readSessions(root).filter((r) => r.slice === "issue-560-dead");
+    const rows = readSessions(root).filter((r) => r.slice === "issue-563-dead");
     const completed = rows.filter((r) => r.phase === "completed");
     expect(
       completed,
@@ -127,14 +127,14 @@ describe("a dead dispatch is not a completion", () => {
       prompt: "do the thing",
       role: TEST_ROLE,
       streaming: true,
-      slice: "issue-560-alive",
+      slice: "issue-563-alive",
       contract: "none",
       contractReason: "known-good column: a real end event must still record a completion",
     });
 
     expect(entry.turns).toBe(7);
     const completed = readSessions(root)
-      .filter((r) => r.slice === "issue-560-alive" && r.phase === "completed");
+      .filter((r) => r.slice === "issue-563-alive" && r.phase === "completed");
     expect(completed.length, "a dispatch that ran must still record exactly one completion").toBe(1);
     expect(completed[0]?.turns).toBe(7);
   });
@@ -147,9 +147,9 @@ describe("a dead dispatch is not a completion", () => {
     seedRole(root);
     spawnMock.mockReturnValue(fakeChild("", PROVIDER_402, 1));
 
-    await dispatchExpectingDeath(root, "issue-560-resumable");
+    await dispatchExpectingDeath(root, "issue-563-resumable");
 
-    const rows = readSessions(root).filter((r) => r.slice === "issue-560-resumable");
+    const rows = readSessions(root).filter((r) => r.slice === "issue-563-resumable");
     const terminal = rows.filter((r) => r.phase !== "spawned");
     // The `spawned` row is written before the child starts, so "a row exists" is satisfied by a
     // dispatch that is still RUNNING. Only a TERMINAL row distinguishes died from in-flight, and
@@ -180,7 +180,7 @@ describe("a dead dispatch is not a completion", () => {
       prompt: "do the thing",
       role: TEST_ROLE,
       streaming: true,
-      slice: "issue-560-maxturns",
+      slice: "issue-563-maxturns",
       contract: "none",
       contractReason: "a worker that exhausted its turns still ran; it is a completion",
     });
@@ -188,7 +188,7 @@ describe("a dead dispatch is not a completion", () => {
     expect(entry.turns).toBe(150);
     expect(entry.stopReason).toBe("max_turns");
     const completed = readSessions(root)
-      .filter((r) => r.slice === "issue-560-maxturns" && r.phase === "completed");
+      .filter((r) => r.slice === "issue-563-maxturns" && r.phase === "completed");
     expect(completed.length, "hitting maxTurns is a completed dispatch, not a dead one").toBe(1);
   });
 });
