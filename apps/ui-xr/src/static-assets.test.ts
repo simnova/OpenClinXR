@@ -641,6 +641,8 @@ describe("static browser assets", () => {
       readFileSync(new URL("./humanoid-runtime-asset-url.ts", import.meta.url), "utf8"),
       readFileSync(new URL("./clinical-idle-posture.ts", import.meta.url), "utf8"),
       readFileSync(new URL("./room-prop-geometry.ts", import.meta.url), "utf8"),
+      // #575 — env/equipment filename resolvers split out of main.ts (shrink-only ratchet).
+      readFileSync(new URL("./runtime-local-asset-filenames.ts", import.meta.url), "utf8"),
     ].join("\n");
     const runtimeStateSource = readFileSync(new URL("./runtime-state.ts", import.meta.url), "utf8");
 
