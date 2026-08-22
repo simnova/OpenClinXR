@@ -30,6 +30,19 @@ import { NodeIO } from "@gltf-transform/core";
  * notEvidenceFor: whether the clip plays, whether the pose is right, or any runtime behaviour.
  */
 
+/**
+ * ## FIXED (#572)
+ *
+ * Writer fixed, not the file. `seated_clip_bind_stage.py` now derives its default report path from
+ * `--output` (the `.glb` suffix replaced by `-report.json`, the exact filename
+ * `motion-bind-cli.ts:39-42` ships beside this same GLB and the name `factory-case-cli.ts`
+ * `motionBindOutputs()` emits for the actor), so a rebake without `--report` can no longer fork its
+ * provenance into `tools/openclinxr/evidence/`. The stage's measured record for the shipped 08-22 bake
+ * was relocated to the asset-adjacent filename; `tools/openclinxr/evidence/seated-clip-bind-report.json`
+ * is retained as the enriched record consumed by `a-seated-clinical-clip-drives-the-mpfb-rig.test.ts:43`.
+ * Both stages now agree on the clip in the GLB.
+ */
+
 const ROOT = join(import.meta.dirname, "../../..");
 const GLB = join(ROOT, "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb");
 const ADJACENT = join(ROOT, "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind-report.json");
@@ -50,7 +63,7 @@ describe("the asset-adjacent bind report names the shipped clip", () => {
     expect(names, "the seated clip is the one under discussion").toContain("openclinxr_retarget_seated_talking_cc0");
   });
 
-  it.fails("(1) RED: the report beside the asset names a clip the asset contains", async () => {
+  it("(1) the report beside the asset names a clip the asset contains", async () => {
     const names = await clipNamesInGlb();
     const declared = String(readJson(ADJACENT)["clipName"] ?? "");
     expect(
@@ -60,7 +73,7 @@ describe("the asset-adjacent bind report names the shipped clip", () => {
     ).toContain(declared);
   });
 
-  it.fails("(2) RED + COUNTERWEIGHT: the two stages claiming this GLB agree on its clip", async () => {
+  it("(2) COUNTERWEIGHT: the two stages claiming this GLB agree on its clip", async () => {
     // Refuses a hand-edit of the JSON. Editing the adjacent file alone satisfies (1) and leaves the
     // seated stage still writing its record to an evidence path, so the next rebake re-forks them.
     const adjacent = String(readJson(ADJACENT)["clipName"] ?? "");

@@ -4,6 +4,12 @@
 Mirrors motion_bind_stage.py but injects a SOURCE map too: the source rig is
 renamed from raw joint names to MHX canonical names before retarget, so the
 target map's clavicle/finger entries actually bind.
+
+Report routing (#572): both this stage and motion_bind_stage write the SAME
+output GLB, so this stage defaults its report to the asset-adjacent filename
+derived from --output (<stem>.motion-bind-report.json beside the GLB) unless
+--report is passed explicitly. Writing the default into tools/evidence left
+the shipped asset's provenance describing a superseded bake.
 """
 import argparse, json, os, sys, traceback
 from datetime import datetime, timezone
@@ -26,8 +32,22 @@ def _parse_args(argv):
     ap.add_argument("--map", required=True)
     ap.add_argument("--source-map", required=True)
     ap.add_argument("--output", required=True)
-    ap.add_argument("--report", required=True)
+    ap.add_argument("--report", default=None)
     return ap.parse_args(argv)
+
+
+def _default_report_path(output_path):
+    """Asset-adjacent provenance name: the output GLB's '.glb' suffix replaced by '-report.json'.
+
+    mpfb-peds-parent-aisha.motion-bind.glb -> mpfb-peds-parent-aisha.motion-bind-report.json —
+    the exact filename motion-bind-cli.ts DEFAULT_REPORT ships beside the same GLB (and the one
+    factory-case-cli.ts motionBindOutputs emits for the actor). Both stages write the same GLB,
+    so the seated stage must not fork its record into tools/openclinxr/evidence (#572).
+    """
+    out = Path(output_path).resolve()
+    if out.suffix == ".glb":
+        return str(out.with_name(out.name[: -len(".glb")] + "-report.json"))
+    return str(out.with_suffix(".json"))
 
 def _write_report(path, payload):
     Path(path).parent.mkdir(parents=True, exist_ok=True)
@@ -125,6 +145,10 @@ def _driven_bones(arm):
 
 def main(argv):
     args = _parse_args(argv)
+    # #572: default the provenance record to the asset-adjacent filename; an explicit
+    # --report still wins so callers can route a copy into tools/openclinxr/evidence.
+    if not args.report:
+        args.report = _default_report_path(args.output)
     log_lines = []
     for required in (args.actor, args.clip, args.map, args.source_map):
         if not os.path.isfile(required):
@@ -233,6 +257,7 @@ def main(argv):
         "outputMeshCount": mesh_count,
         "totalRotationDeltaRad": sum(b["totalRotationDeltaRad"] for b in real),
         "outputBytes": os.path.getsize(args.output),
+        "reportPath": args.report,
         "log": "\n".join(log_lines),
         "claimScope": "one_actor_one_cc0_seated_clip_retarget_bind_not_a_motion_library",
         "notEvidenceFor": ["clinical_motion_realism", "quest_readiness", "visual_motion_quality", "runtime_playback"],
