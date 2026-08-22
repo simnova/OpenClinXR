@@ -262,3 +262,28 @@ needs (a conversing patient => `Sitting_Talking`) or on a mid-clip sample, not o
 NOT DETERMINED: whether either clip's motion is clinically plausible over its full duration — I graded
 the entry pose, not the animation. And the 66-joint Mixamo-adjacent rig still requires a 66->137 SOURCE
 map before any of this reaches a learner.
+
+## TOOL FACT 2026-08-21 - retarget_bvh already ingests glTF; there is NO format bridge to build
+
+Surfaced while #556 worked the Mesh2Motion bind. Worth recording because the obvious assumption is
+wrong and would cost a slice: the proven path binds `cmu_07_01_walk.BVH`, and Mesh2Motion ships
+**glTF animations**, so it looks like a converter is needed. It is not.
+
+Measured in the installed addon
+(`~/Library/Application Support/Blender/5.1/extensions/user_default/retarget_bvh/load.py`):
+
+    :20   filter_glob = "*.bvh;*.fbx;*.glb;*.gltf"
+    :222  elif ext in ('.glb','.gltf'):
+    :231      gltfpath = self.saveGltf2Bvh(context, act, filepath)
+    :232      rig = self.loadBvhFile(context, gltfpath)
+    :382  def saveGltf2Bvh(self, context, act, filepath):
+    :383      gltf_path = "%s.bvh" % os.path.splitext(os.path.realpath(filepath))[0]
+
+So the loader takes a `.glb` directly and converts to BVH internally per action. **Do not write a
+glTF->BVH converter** - that is the D1 anti-pattern (hand-authoring where a proven tool exists), and
+the tool is already a dependency of the shipped bind path.
+
+NOT TESTED: whether `saveGltf2Bvh` preserves the 66-joint source names the source map will key on, or
+whether the BVH round-trip renames or flattens them. That is the first thing to measure if a bind
+comes back with unexpectedly low coverage - the map may be correct and the round-trip lossy.
+
