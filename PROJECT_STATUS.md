@@ -14,34 +14,46 @@ parseable_sections: 6
 <!-- WAKE-BLUF:BEGIN -->
 ## WAKE BLUF - replace this block every wake, never append
 
-**2026-08-21 23:46 | main 8c445aad | pushed, level with origin**
+**2026-08-22 00:17 | main 46b96c8c | pushed, level with origin**
 
 **IN FLIGHT**
-- `#557` G2 seated-clip bind, rigging-animation-specialist, ox-alpha. **Writing** - source map
-  `mesh2motion-human-66.json` at **52 entries** (sized to the clip, NOT padded to the 66 in the brief)
-  plus a source-validate artifact. 376 turns, **0 inference retries**. Supersedes `#556`, which
-  stalled on `empty_response` and wrote nothing.
+- `#557` G2 seated-clip bind (rigging-animation-specialist, ox-alpha). **Working, 613 turns, 0 retries.**
+  6 files including a **baked GLB**. Bind report `verdict: ok` via `mcp.load_and_retarget` on the proven
+  `retarget_bvh` addon (D1: wired, not hand-authored). Output
+  `mpfb-peds-parent-aisha.seated-talking.glb`, clip `openclinxr_retarget_seated_talking_cc0`.
+  **`clavicle.L/R` and finger joints driven, 90 keyframes each, nonzero deltas** - what the CMU walk
+  structurally cannot do.
+
+**TO WEIGH AT HARVEST (not judged - the worker is live, and mid-flight tree reads have produced a
+false accusation here before)**
+- It **grew the TARGET map 34 -> 60** (+26 finger keys), zero removed, zero retargeted. Clause (3)
+  forbids SHRINKING to force a bind, so that passes, and it extended rather than swapped. But #546
+  closed finger-key expansion as **cosmetic** - correctly, because the CMU walk has no finger channels.
+  This source has them, so the same keys now earn their place. **The measurement to make at harvest:**
+  the CMU coverage artifact moved `unbound 8 -> 34` while `bonesDriven` stayed 26, and `optional`
+  moved 14 -> 36. If every newly-inert key is declared optional, my planted guards hold and this is an
+  artifact-SCOPE question (a CMU-walk artifact judging a map that now serves two sources), not a
+  regression.
 
 **LANDED SINCE LAST WAKE**
-- `#555` pruned **15.77 MB** of unbound leopard texture; orphans across all 18 humanoids now 0.00 MB
-- rules deduped: `PROTO_VERIFY_DELEGATION` 350 KB -> 278 KB (28 identical copies of one section)
-- six on-demand skills in `.claude/skills/` (27.8 KB) against the 403 KB always-injected rules
+- skills optimised for Claude retrieval: merged to **six**, descriptions rewritten as retrieval keys,
+  six doctrine rules rebound as checkable artifacts
+- **two silent YAML defects caught in my own live listing** - `##` truncated one description, a
+  colon-space made `pre-dispatch-alignment` **vanish entirely**. All six now quoted and strict-parse.
 
 **BLOCKED / NOT STARTED, with reason**
-- `#554` G1-B gown t-shirt - **inject, not bake** (PNG staged, absent from the GLB). Waiting on a free
-  write root.
-- `#552` viseme_aa bake - deliberately sequenced AFTER a face diffuse exists; teeth parting on a blank
-  face grades as nothing.
-- `#510` face diffuse - **no human skin diffuse is staged in the provider cache** (verified), so it is
-  not the cheap inject a peer proposed.
+- `#554` G1-B gown t-shirt - **inject, not bake** (PNG staged, absent from the GLB). Root busy.
+- `#552` viseme_aa bake - sequenced after a face diffuse exists; teeth on a blank face grade as nothing.
+- `#510` - **no human skin diffuse is staged** (verified), so not the cheap inject it looked like.
 - P1/P2/P3 parked. Rooms closed. Animato refused on D1.
 
 **OPEN QUESTION FOR THE OPERATOR** (one, with a default)
 - `mpfb-gown-adult-patient.glb` is cast as **seven distinct named patients** sharing one byte-identical
-  skin atlas. Deliberate cost decision, or identity collapse? **Default if silent: treat as collapse and
-  queue it behind the current motion lane.** P1 stays parked either way.
+  skin atlas. Deliberate cost decision, or identity collapse? **Default if silent: treat as collapse,
+  queue behind the motion lane.** P1 stays parked either way.
 
-**NEXT**: harvest `#557`; then `#554` inject once its root frees.
+**NEXT**: harvest `#557` - verify the optional-declaration covers the newly-inert keys, grade the
+seated pose, confirm `main.ts` names the clip; then `#554` inject.
 <!-- WAKE-BLUF:END -->
 
 
