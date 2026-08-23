@@ -330,6 +330,52 @@ def params_from_case_definition(case_id: str, actor_id: str) -> Optional[Tuple[D
     return params, actor_role, pipeline_output_name_for(actor_id, case_id)
 
 
+def allowed_case_actor_preset_ids() -> list[str]:
+    """Allow-list for --case-actor-preset: legacy presets UNION export entries with phenotype.
+
+    Keeps the #276 refuse gate for actors the export does not cover — never "anything typed".
+    """
+    allowed = set(CASE_ACTOR_PRESETS.keys())
+    for case_id, actors in load_actor_phenotype_export().items():
+        if not isinstance(actors, dict):
+            continue
+        for actor_id, entry in actors.items():
+            if not isinstance(entry, dict):
+                continue
+            ph = entry.get("phenotype")
+            if isinstance(ph, dict) and len(ph) > 0:
+                allowed.add(f"{case_id}:{actor_id}")
+    return sorted(allowed)
+
+
+def resolve_case_actor_params(case_id: str, actor_id: str) -> Dict[str, Any]:
+    """Public seam: resolve generator params for one case actor (issue #601).
+
+    Prefer a legacy CASE_ACTOR_PRESETS row when present; otherwise derive from the
+    committed actor-phenotype export via params_from_case_definition. Authored
+    top-level fields (age, body_profile, pose) are mirrored into phenotype so
+    seam consumers see the same authored numbers the export stores under phenotype.
+    """
+    preset_key = f"{case_id}:{actor_id}"
+    preset = CASE_ACTOR_PRESETS.get(preset_key)
+    if preset is not None:
+        params = dict(preset["params"])
+    else:
+        fixture = params_from_case_definition(case_id, actor_id)
+        if fixture is None:
+            raise KeyError(
+                f"no case-actor params for '{preset_key}': neither a CASE_ACTOR_PRESETS "
+                f"row nor a phenotype export entry exists (#276)"
+            )
+        params = dict(fixture[0])
+    phenotype = dict(params.get("phenotype") or {})
+    for key in GENERATOR_TOP_LEVEL_PHENOTYPE_KEYS:
+        if params.get(key) is not None and key not in phenotype:
+            phenotype[key] = params[key]
+    params["phenotype"] = phenotype
+    return params
+
+
 def run_cmd(cmd: list[str], cwd: Optional[str] = None, timeout: Optional[int] = None) -> None:
     print(f"[orchestrate] $ {' '.join(cmd)}")
     subprocess.check_call(cmd, cwd=cwd, timeout=timeout)
@@ -652,7 +698,11 @@ def main() -> None:
     ap.add_argument("--params-file", help="Path to JSON params file. Equivalent to --params-json @file.")
     ap.add_argument("--output-glb")
     ap.add_argument("--output-dir", help="Directory for preset output when --output-glb is omitted.")
-    ap.add_argument("--case-actor-preset", choices=sorted(CASE_ACTOR_PRESETS), help="Case actor preset to materialize locally.")
+    ap.add_argument(
+        "--case-actor-preset",
+        choices=allowed_case_actor_preset_ids(),
+        help="Case actor id (legacy preset row OR phenotype-export entry) to materialize locally.",
+    )
     ap.add_argument("--list-presets", action="store_true", help="List built-in case actor presets and exit.")
     ap.add_argument("--use-comfy", action="store_true")
     ap.add_argument("--comfy-url", default="http://127.0.0.1:8188")
