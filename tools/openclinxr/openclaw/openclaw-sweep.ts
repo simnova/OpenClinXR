@@ -31,11 +31,22 @@ import { stripAnsi } from "./board-cli.js";
  * - File mtimes in a fresh git worktree are CHECKOUT times, not add times — mtime cannot
  *   answer "added in the last 24h". S3 uses `git log --diff-filter=A --since` instead.
  * - node_modules contains vendored test files; walking it produced 1449 junk hits. Skipped.
+ * - (#586, 2026-08-23) Sessions nest ONE level deeper than this file assumed:
+ *   `~/.grok/sessions/<encoded>/<sessionUuid>/updates.jsonl`. The original flat read found
+ *   0 of 2301 real files and returned 0 unconditionally — quiet=0 was the bug's shape, not a
+ *   measurement. Both S5 counters therefore walk the nested layout and take the sessions
+ *   root as their FIRST parameter so contracts can build fixtures.
+ *
+ * WORKER FLOOR (#586): the standing parallelism ruling sets a floor of 3 concurrent live
+ * workers; nothing computed it before this file did. countLiveWorkers counts worktree
+ * sessions (decoded path ending in `/issue-<n>`) whose updates.jsonl changed within
+ * LIVE_WINDOW_MS; the SWEEP line carries `workers=<n>/<floor>` and prints BREACH below the
+ * floor, which exits 2 — distinct from the section-error exit 1.
  *
  * CLAIM: summariseUnfinishedInventory(root) returns reds/oldestRedId/undispatchable/uncarded/
- * quietThreads; plantedRedCount(root, rel) is the per-file stripping counter exposed for
- * verification. The CLI prints one machine-greppable SWEEP line and exits nonzero on section
- * errors.
+ * quietThreads/liveWorkers/workerFloor; plantedRedCount(root, rel) is the per-file stripping
+ * counter exposed for verification. The CLI prints one machine-greppable SWEEP line, exits 1 on
+ * section errors and 2 on a worker-floor breach.
  * NOT TESTED HERE: whether anyone reads the line; S3's filename heuristic beyond the limits
  * stated at the function; network reachability for S4 (degrades to NOT DETERMINED).
  */
@@ -56,6 +67,10 @@ export type SweepInventory = {
   releaseTag?: string;
   /** S5 — threads active in the last 24h whose newest update is older than 30 minutes. */
   quietThreads: number;
+  /** Live dispatched workers (worktree sessions touched within LIVE_WINDOW_MS); -1 = section error. */
+  liveWorkers: number;
+  /** Parallelism floor from the routine-2 ruling; below it the sweep prints BREACH and exits 2. */
+  workerFloor: number;
 };
 
 const SCAN_ROOTS = ["apps", "packages", "tools"] as const;
@@ -208,52 +223,137 @@ export async function checkReleaseDrift(
 /** Quiet window for S5: active in the last day, nothing appended for half an hour. */
 const QUIET_WINDOW_MS = 30 * 60 * 1000;
 const ACTIVE_WINDOW_MS = 24 * 60 * 60 * 1000;
+/** Live-worker window (#586): an updates.jsonl touched this recently means the worker is running. */
+const LIVE_WINDOW_MS = 3 * 60 * 1000;
+/** Parallelism floor from the superagent routine-2 ruling; BREACH + exit 2 below it. */
+export const WORKER_FLOOR = 3;
+
+type UpdatesRead =
+  | { kind: "error" }
+  | { kind: "ok"; mtimeMs: number; newestUpdateMs: number | undefined };
+
+/** Resolves a session's updates.jsonl at its REAL location: `<encoded>/<sessionUuid>/updates.jsonl`. */
+function resolveSessionUpdatesPath(base: string, encodedDir: string): string | undefined {
+  try {
+    const uuids = readdirSync(join(base, encodedDir)).filter((name) => !name.startsWith("."));
+    for (const uuid of uuids) {
+      const candidate = join(base, encodedDir, uuid, "updates.jsonl");
+      if (existsSync(candidate)) return candidate;
+    }
+  } catch {
+    return undefined;
+  }
+  return undefined;
+}
+
+/**
+ * Reads one updates.jsonl. Timestamps are numeric epoch SECONDS ("timestamp":1787451692);
+ * mtime is the fallback when a file has no parseable stamps. Callers MUST stat and apply their
+ * window filter BEFORE calling this: the sessions tree held 2301 files on head (#586), and
+ * reading all of them synchronously timed out the sweep's own entry-point contract (~14s vs
+ * ~850ms). Stat-then-read is sound because the last write sets mtime >= the newest stamp, so
+ * a file failing an mtime window cannot pass the same window on its timestamps.
+ */
+function readUpdatesFile(updatesPath: string): UpdatesRead {
+  let stat: Stats;
+  try {
+    stat = statSync(updatesPath);
+  } catch {
+    return { kind: "error" };
+  }
+  let lines: string[] = [];
+  try {
+    lines = readFileSync(updatesPath, "utf8").split("\n").filter(Boolean);
+  } catch {
+    return { kind: "error" };
+  }
+  const stamps = lines
+    .map((line) => {
+      try {
+        const value = JSON.parse(line)?.timestamp;
+        return typeof value === "number" ? value * 1000 : undefined;
+      } catch {
+        return undefined;
+      }
+    })
+    .filter((value): value is number => value !== undefined);
+  // Timestamps are authoritative; fall back to mtime only when a file carries no parseable ones.
+  const newestUpdateMs =
+    stamps.length > 0 ? Math.max(...stamps) : lines.length > 0 ? stat.mtimeMs : undefined;
+  return { kind: "ok", mtimeMs: stat.mtimeMs, newestUpdateMs };
+}
+
+/** Stats a resolved updates.jsonl; undefined means unreadable or missing (caller skips). */
+function statSessionUpdates(base: string, encodedDir: string): { path: string; mtimeMs: number } | undefined {
+  const updatesPath = resolveSessionUpdatesPath(base, encodedDir);
+  if (!updatesPath) return undefined;
+  try {
+    return { path: updatesPath, mtimeMs: statSync(updatesPath).mtimeMs };
+  } catch {
+    return undefined;
+  }
+}
+
+/** Enumerates the sessions root's `<encoded>` directories; null signals an unreadable root. */
+function listEncodedSessionDirs(base: string): string[] | null {
+  try {
+    return readdirSync(base).filter((name) => name.startsWith("%2F"));
+  } catch {
+    return null;
+  }
+}
 
 /**
  * S5. A consult thread that stops producing turns between wakes has gone quiet; the pulse
  * measures throughput and never sees this. Counts sessions whose updates.jsonl was touched in
- * the last 24h but carries no update newer than QUIET_WINDOW_MS. Timestamps are numeric epoch
- * seconds (measured: `"timestamp":1787451692`), not ISO strings.
+ * the last 24h but carries no update newer than QUIET_WINDOW_MS. `base` is injectable so
+ * contracts can build fixtures; production passes the default `$HOME/.grok/sessions` root.
+ * mtime gates the content read: mtime ages monotonically with the newest stamp, so anything
+ * outside ACTIVE_WINDOW_MS is skippable without opening the file.
  */
-export function countQuietThreads(now = Date.now()): number {
-  const base = join(process.env.HOME ?? "", ".grok/sessions");
-  let dirs: string[] = [];
-  try {
-    dirs = readdirSync(base).filter((name) => name.startsWith("%2F"));
-  } catch {
-    return -1; // unreadable sessions root is a section error, not "no quiet threads"
-  }
+export function countQuietThreads(base?: string, now: number = Date.now()): number {
+  const root = base ?? join(process.env.HOME ?? "", ".grok/sessions");
+  const dirs = listEncodedSessionDirs(root);
+  if (!dirs) return -1; // unreadable sessions root is a section error, not "no quiet threads"
   let quiet = 0;
   for (const dir of dirs) {
-    const updatesPath = join(base, dir, "updates.jsonl");
-    if (!existsSync(updatesPath)) continue;
-    let stat: Stats;
-    try {
-      stat = statSync(updatesPath);
-    } catch {
-      continue;
-    }
-    if (now - stat.mtimeMs > ACTIVE_WINDOW_MS) continue; // long-dead sessions are history, not quiet
-    let lines: string[] = [];
-    try {
-      lines = readFileSync(updatesPath, "utf8").split("\n").filter(Boolean);
-    } catch {
-      continue;
-    }
-    const stamps = lines
-      .map((line) => {
-        try {
-          const value = JSON.parse(line)?.timestamp;
-          return typeof value === "number" ? value * 1000 : undefined;
-        } catch {
-          return undefined;
-        }
-      })
-      .filter((value): value is number => value !== undefined);
-    const newest = Math.max(...stamps, Number.NEGATIVE_INFINITY);
-    if (stamps.length > 0 && now - newest > QUIET_WINDOW_MS) quiet += 1;
+    // mtime gates the content read (see readUpdatesFile): only files young enough to possibly
+    // fall inside ACTIVE_WINDOW_MS are opened, keeping the walk O(recent sessions).
+    const entry = statSessionUpdates(root, dir);
+    if (!entry || now - entry.mtimeMs > ACTIVE_WINDOW_MS) continue; // long-dead sessions are history
+    const read = readUpdatesFile(entry.path);
+    if (read.kind === "error") continue;
+    if (read.newestUpdateMs !== undefined && now - read.newestUpdateMs > QUIET_WINDOW_MS) quiet += 1;
   }
   return quiet;
+}
+
+/**
+ * The worker floor's missing implementation (#586). A dispatched worker runs in a managed git
+ * worktree, so its encoded sessions dir decodes to a path ending in `/issue-<n>`; the
+ * orchestrator's own thread lives in the main checkout and must not satisfy the floor. Live =
+ * updates.jsonl touched within LIVE_WINDOW_MS. Unreadable root stays -1 (section error).
+ */
+export function countLiveWorkers(base?: string, now: number = Date.now()): number {
+  const root = base ?? join(process.env.HOME ?? "", ".grok/sessions");
+  const dirs = listEncodedSessionDirs(root);
+  if (!dirs) return -1;
+  const worktreeRe = /%2Fissue-\d+$/u;
+  let live = 0;
+  for (const dir of dirs) {
+    if (!worktreeRe.test(dir)) continue;
+    // Same mtime gate as S5: hundreds of historical worktree sessions carry multi-MB logs, and
+    // reading all of them cost 5s measured (#586 retro-fix). A stale mtime cannot be live.
+    const entry = statSessionUpdates(root, dir);
+    if (!entry || now - entry.mtimeMs > LIVE_WINDOW_MS) continue;
+    const read = readUpdatesFile(entry.path);
+    if (read.kind === "error") continue;
+    const stampLive =
+      read.newestUpdateMs !== undefined && now - read.newestUpdateMs <= LIVE_WINDOW_MS;
+    const mtimeLive = now - read.mtimeMs <= LIVE_WINDOW_MS;
+    if (stampLive || mtimeLive) live += 1;
+  }
+  return live;
 }
 
 export async function summariseUnfinishedInventory(root: string): Promise<SweepInventory> {
@@ -297,10 +397,17 @@ export async function summariseUnfinishedInventory(root: string): Promise<SweepI
     uncardedFiles: uncardedResult.files.slice(0, 50),
     releaseTag: releaseResult.error ? undefined : releaseResult.tag,
     quietThreads: countQuietThreads(),
+    liveWorkers: countLiveWorkers(),
+    workerFloor: WORKER_FLOOR,
   };
 }
 
-/** One machine-greppable line: `SWEEP: reds=N(oldest #id) undisp=N uncarded=N rel=<tag> quiet=N` */
+/**
+ * One machine-greppable line:
+ * `SWEEP: reds=N(oldest #id) undisp=N uncarded=N rel=<tag> quiet=N workers=n/floor[ BREACH]`.
+ * `NOT DETERMINED` marks a section error; a worker-floor breach appends BREACH so the line is
+ * self-reporting without parsing numbers.
+ */
 export function formatSweepLine(inventory: SweepInventory): string {
   const oldest = inventory.oldestRedId ? `(oldest ${inventory.oldestRedId})` : "";
   const undisp =
@@ -308,9 +415,14 @@ export function formatSweepLine(inventory: SweepInventory): string {
   const uncarded =
     inventory.uncarded < 0 ? "NOT DETERMINED" : String(inventory.uncarded);
   const rel = inventory.releaseTag ?? "NOT DETERMINED";
+  const workers =
+    inventory.liveWorkers < 0
+      ? `workers=NOT DETERMINED/${inventory.workerFloor}`
+      : `workers=${inventory.liveWorkers}/${inventory.workerFloor}`;
+  const breach = inventory.liveWorkers >= 0 && inventory.liveWorkers < inventory.workerFloor ? " BREACH" : "";
   return (
     `SWEEP: reds=${inventory.reds}${oldest} undisp=${undisp} `
-      + `uncarded=${uncarded} rel=${rel} quiet=${inventory.quietThreads}`
+      + `uncarded=${uncarded} rel=${rel} quiet=${inventory.quietThreads} ${workers}${breach}`
   );
 }
 
@@ -331,7 +443,11 @@ export async function main(argv: readonly string[] = process.argv.slice(2)): Pro
     inventory.uncarded < 0 ||
     inventory.quietThreads < 0 ||
     inventory.redFiles.some((entry) => entry.count < 0);
-  return sectionsErrored ? 1 : 0;
+  // Exit 1 = section error; exit 2 = worker-floor breach, so a breach cannot be conflated with a
+  // broken scan (the two need different responses from whatever consumes the sweep).
+  if (sectionsErrored) return 1;
+  if (inventory.liveWorkers >= 0 && inventory.liveWorkers < inventory.workerFloor) return 2;
+  return 0;
 }
 
 if (process.argv[1]?.endsWith("openclaw-sweep.ts")) {
