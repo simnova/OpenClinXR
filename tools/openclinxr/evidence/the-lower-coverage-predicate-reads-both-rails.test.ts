@@ -55,6 +55,19 @@ import { inspectGarmentHemBoundary } from "./garment-hem-boundary.js";
  *
  * claimScope: whether the lower-coverage predicate can express what each rail does.
  * notEvidenceFor: whether any humanoid is adequately dressed; garment fit; the gown's silhouette.
+ *
+ * ## FIXED (#594)
+ * Header fix order followed. Crash: wired the proven single-pass `min-max-bounds.js` helpers over
+ * every spread site in garment-hem-boundary.ts (collectBodyMesh x6, hem-loop scored/lowestY,
+ * spanFlags z-bounds) — clause (3) went green first. Vocabulary: measurePaintedLower now reads
+ * BOTH `openclinxr_role_mesh_clothing_*_lower` (anny_paint) AND `openclinxr_hidden_lower`
+ * (mpfb_hide); `lowerCoverageRail` records which vocabulary was PRESENT (an anny asset with zero
+ * measurable tris would report "anny_paint", never "unknown"). Instrument repair surfaced while
+ * planting: `inspectGarmentHemBoundary` silently ignored its options' `glbPaths`, so every
+ * row() here measured the alphabetically-first shipped asset instead of the named one — clause
+ * (2) would have passed trivially against an Anny body. Now honored. Measured rows: MPFB gown
+ * {hasPaintedLowerRegion: true, rail: mpfb_hide, paintedLowerTopY: 0.9774}; Anny kevin unchanged
+ * {true, anny_paint, 0.908}.
  */
 
 const MPFB = "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb";
@@ -73,21 +86,21 @@ async function row(glb: string): Promise<Row> {
 }
 
 describe("the lower-coverage predicate reads both rails", () => {
-  it.fails("(1) RED: an MPFB asset's verdict names the vocabulary it was measured in", async () => {
+  it("(1) an MPFB asset's verdict names the vocabulary it was measured in", async () => {
     // Today there is no such field: the predicate reports a bare false and the caller cannot tell a
     // real zero from an unsupported rail.
     const r = await row(MPFB);
     expect(typeof r.lowerCoverageRail, "the verdict must say which rail vocabulary it read").toBe("string");
   });
 
-  it.fails("(2) RED: MPFB hide-regions are recognised as lower coverage", async () => {
+  it("(2) MPFB hide-regions are recognised as lower coverage", async () => {
     // mpfb-gown-adult-patient carries openclinxr_hidden_lower_* at 402 tris. The MPFB rail expresses
     // coverage by hiding body faces rather than painting them; the predicate must read that.
     const r = await row(MPFB);
     expect(r.hasPaintedLowerRegion, "MPFB lower coverage is invisible to the Anny-only matcher").toBe(true);
   });
 
-  it.fails("(3) KNOWN-GOOD COLUMN — BLOCKED BY A CRASH, see header: the Anny rail still measures as today", async () => {
+  it("(3) the Anny rail still measures as today", async () => {
     // peds_nurse_kevin carries 2144 + 2840 painted lower tris. This must not change, and it pins the
     // premise: without a rail that genuinely reports true, clause (2) could be satisfied by making
     // the predicate return true for everything.
@@ -95,7 +108,7 @@ describe("the lower-coverage predicate reads both rails", () => {
     expect(r.hasPaintedLowerRegion, "the Anny control must keep reporting real painted coverage").toBe(true);
   });
 
-  it.fails("(4) COUNTERWEIGHT: an unrecognised vocabulary is NOT treated as coverage", async () => {
+  it("(4) COUNTERWEIGHT: an unrecognised vocabulary is NOT treated as coverage", async () => {
     // Refuses the cheap green on (2) — "if we cannot tell, say covered" would green the whole rail
     // vacuously and destroy the only signal this predicate carries. A rail the code does not
     // understand must report a NAMED unknown, never a silent true.
