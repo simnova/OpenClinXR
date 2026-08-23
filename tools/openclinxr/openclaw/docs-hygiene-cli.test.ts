@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
   countCheckpointBlocks,
@@ -59,5 +60,15 @@ describe("docs-hygiene-cli", () => {
       staleDaysThreshold: 0,
     });
     expect(m.banner).toMatch(/PMO|unattended|pmo/i);
+  });
+
+  // #580 safety rail: the automated hygiene run may clear only bookkeeping removals
+  // (files gone from disk). The guard now refuses "still present" removals even with
+  // the flag, so this pass-through cannot re-create the #90 registry pruning.
+  it("authority step passes --allow-shrink to docs:authority", () => {
+    const source = readFileSync(new URL("./docs-hygiene-cli.ts", import.meta.url), "utf8");
+    const stepMatch = /run\(\s*"docs:authority"[\s\S]*?\]\s*\)/.exec(source);
+    expect(stepMatch, "docs:authority step not found in hygiene CLI").not.toBeNull();
+    expect(stepMatch![0]).toContain('"--allow-shrink"');
   });
 });

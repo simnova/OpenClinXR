@@ -97,6 +97,28 @@ import { decideRegistryShrink } from "../../agent-factory/registry-shrink-guard.
  *     Untouched.
  */
 
+/**
+ * ## FIXED (#580)
+ *
+ * `decideRegistryShrink` gained the derived input this contract named: `ShrinkGuardInput.pathExists`,
+ * resolved against the regenerating tree's root by both builders (`path.resolve(cwd, registeredPath)`),
+ * defaulting to real `existsSync` from process cwd in production. Kept name, kept call site.
+ *
+ * Treatment (d): removals are classified via `classifyRemovals`. `--allow-shrink` clears only
+ * MISSING (bookkeeping); any PRESENT removal refuses with its own message even under the flag —
+ * no second flag, no per-path allowlist yet. Rejected alternatives:
+ *   - treatment (b) blanket-refuse — strands main forever; clause (2) forbids it;
+ *   - treatment (c) classify-for-message-only — one flag would still clear both classes.
+ *
+ * Consumers wired in the same slice:
+ *   - both builders pass `cwd`-resolved existence (#116 harness stays green);
+ *   - `docs-hygiene-cli.ts` authority step now passes `--allow-shrink`, giving the drift-check
+ *     remediation a working automated remedy that can only ever clear bookkeeping removals.
+ *
+ * The refusal message reports both classes ("N gone from disk (bookkeeping), M still exist on disk
+ * (suspicious)"), so an operator can see the judgement they are being asked for.
+ */
+
 /** Measured on main 2026-08-14: three registered paths whose files are gone. */
 const MISSING = [
   ".openclinxr/evidence/body-rigging/appendage-motion-cagematch/2026-06-07-two-test-models/body-rig-appendage-motion-cagematch.md",
@@ -128,7 +150,7 @@ function decide(nextPaths: readonly string[], allowShrink: boolean) {
 }
 
 describe("the shrink opt-in does not authorize removing a file that exists", () => {
-  it.fails("(1) RED: --allow-shrink does not write when a removed path is still on disk", () => {
+  it("(1) --allow-shrink does not write when a removed path is still on disk", () => {
     // Refuses (a) and (c). Asserts allowWrite, not the message — a fix that only classifies for the
     // text still destroys the record.
     const d = decide(NEXT_ALL, true);

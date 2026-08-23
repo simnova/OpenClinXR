@@ -349,7 +349,17 @@ export function runDocsHygiene(options: {
   }
 
   if (acts.has("authority") || acts.has("freeze") || acts.has("force_freeze")) {
-    ok = run("docs:authority", "pnpm", ["docs:authority"]) && ok;
+    ok =
+      run(
+        "docs:authority",
+        "pnpm",
+        [
+          "docs:authority",
+          // #580: the guard clears only removals whose files are gone; this opt-in can no
+          // longer drop a registered path that still exists on disk.
+          "--allow-shrink",
+        ],
+      ) && ok;
   }
 
   if (acts.has("worktree_list") || acts.has("force_freeze")) {
