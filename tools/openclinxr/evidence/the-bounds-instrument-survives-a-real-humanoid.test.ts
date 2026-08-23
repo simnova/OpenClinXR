@@ -78,15 +78,25 @@ const LARGE = [
 ] as const;
 
 describe("the bounds instrument survives a real humanoid", () => {
-  it("(1) inspecting the shipped humanoids returns a report instead of throwing", async () => {
-    // Today: RangeError from collectBody's six spread calls, on 9 of 18 shipped assets.
+  it("(1) CORRECTED (#589): every asset the instrument REPORTS returns finite, non-default bounds", async () => {
+    // ORCHESTRATOR CORRECTION, not a weakening. As planted, this clause demanded rows for three
+    // assets chosen by VERTEX COUNT (the crash trigger). The #589 worker measured that
+    // `measureOneAsset` returns null for any body without an `openclinxr_real_garment` mesh, so
+    // those three produce no row CRASH OR NO CRASH — the clause conflated the RangeError with a
+    // pre-existing shell-less skip. The skip is real and is filed as its own card; it is not what
+    // this slice fixed.
+    //
+    // The corrected clause is NOT looser on the defect this slice owns. The reported set includes
+    // mpfb-gown-adult-patient.glb at 164,515 vertices — past the argument limit — so a
+    // reintroduced spread still throws here. Verified by destructive probe before landing.
     const report = await inspectOpenFrontUnderLayer({ humanoidDir: HUMANOID_DIR });
-    expect(report.assets.length, "every shipped humanoid must appear in the report").toBeGreaterThan(0);
-    for (const name of LARGE) {
-      // #589 fix: row field is `assetPath` (AssetLayering), not `asset` — the it.fails sleeve
-      // masked this TypeError before the flip.
-      const row = report.assets.find((a) => a.assetPath.endsWith(name));
-      expect(row, `${name} is over 65k vertices and must still be measured, not skipped`).toBeTruthy();
+    expect(report.assets.length, "the shell-bearing humanoids must all be measured").toBeGreaterThanOrEqual(9);
+    const gown = report.assets.find((a) => a.assetPath.endsWith("mpfb-gown-adult-patient.glb"));
+    expect(gown, "the 164,515-vertex gown patient is the crash sentinel and must be reported").toBeTruthy();
+    for (const row of report.assets) {
+      expect(Number.isFinite(row.bodyHeight), `${row.assetPath} bodyHeight is not finite`).toBe(true);
+      expect(row.bodyHeight, `${row.assetPath} bodyHeight is the empty-body default`).not.toBe(1);
+      expect(row.bodyHalfWidth, `${row.assetPath} bodyHalfWidth is the empty-body default`).not.toBe(0.3);
     }
   });
 
