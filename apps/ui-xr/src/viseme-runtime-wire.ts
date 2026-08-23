@@ -89,11 +89,61 @@ export type NamedVisemeDriveResult = {
   activeTargetName: string | null;
   influence: number;
   weights: Record<string, number>;
+  /** Jaw bone aperture from the driven frame (#552). */
+  jawOpenRadians: number;
   availableTargets: string[];
   appliedMeshCount: number;
+  /** How many `jaw` bones received the aperture rotation. */
+  jawBonesTouched: number;
   frameIndex: number;
   frameCount: number;
 };
+
+type JawBoneLike = {
+  name?: string;
+  isBone?: boolean;
+  type?: string;
+  rotation: { x: number; y: number; z: number };
+  userData?: Record<string, unknown>;
+};
+
+/**
+ * Apply `jawOpenRadians` to every bone named `jaw` under the root (scene graph + skinned skeletons).
+ * Rest local X is cached on first touch so silence restores the bind pose rather than stacking.
+ * Axis: local X — MPFB/MakeHuman jaw hinge. Sign: positive X opens the mouth on the shipped Y-up rig.
+ */
+export function applyJawOpenToRoot(root: MorphRootLike, jawOpenRadians: number): number {
+  const open = Number.isFinite(jawOpenRadians) ? jawOpenRadians : 0;
+  const touched = new Set<JawBoneLike>();
+
+  const consider = (bone: JawBoneLike | null | undefined): void => {
+    if (!bone) return;
+    const name = typeof bone.name === "string" ? bone.name : "";
+    if (name !== "jaw" && name.toLowerCase() !== "jaw") return;
+    if (touched.has(bone)) return;
+    touched.add(bone);
+    const ud = (bone.userData ??= {});
+    if (typeof ud.openClinXrJawRestRotationX !== "number") {
+      ud.openClinXrJawRestRotationX = bone.rotation.x;
+    }
+    bone.rotation.x = (ud.openClinXrJawRestRotationX as number) + open;
+  };
+
+  root.traverse((object) => {
+    const node = object as JawBoneLike & {
+      isSkinnedMesh?: boolean;
+      skeleton?: { bones: JawBoneLike[]; update?: () => void };
+    };
+    const isBone = node.isBone === true || node.type === "Bone";
+    if (isBone) consider(node);
+    if (node.isSkinnedMesh && node.skeleton?.bones) {
+      for (const bone of node.skeleton.bones) consider(bone);
+      node.skeleton.update?.();
+    }
+  });
+
+  return touched.size;
+}
 
 export type LiveVisemeInfluenceSample = {
   meshName: string;
@@ -181,7 +231,7 @@ export function mapDialoguePhonemesToCues(phonemes: readonly string[]): PhonemeC
 
 function pickFrame(frames: readonly VisemeFrame[], progress: number): { frame: VisemeFrame; index: number } {
   if (frames.length === 0) {
-    return { frame: { atSecond: 0, weights: {} }, index: 0 };
+    return { frame: { atSecond: 0, weights: {}, jawOpenRadians: 0 }, index: 0 };
   }
   const clamped = Math.min(1, Math.max(0, progress));
   if (clamped >= 1) {
@@ -235,6 +285,7 @@ export function applyDialogueVisemeTimelineToRoot(
   const { frames } = driveVisemeTimeline({ phonemes: cues, availableTargets });
   const { frame, index } = pickFrame(frames, input.progress);
   const weights = frame.weights;
+  const jawOpenRadians = frame.jawOpenRadians ?? 0;
 
   let appliedMeshCount = 0;
   root.traverse((object) => {
@@ -245,14 +296,17 @@ export function applyDialogueVisemeTimelineToRoot(
     applyVisemeWeights(mesh, weights);
     appliedMeshCount += 1;
   });
+  const jawBonesTouched = applyJawOpenToRoot(root, jawOpenRadians);
 
   const active = activeVisemeFromWeights(weights);
   const result: NamedVisemeDriveResult = {
     activeTargetName: active.name,
     influence: active.influence,
     weights,
+    jawOpenRadians,
     availableTargets,
     appliedMeshCount,
+    jawBonesTouched,
     frameIndex: index,
     frameCount: frames.length,
   };
@@ -290,15 +344,19 @@ export function applyGeneratedScalarVisemeToRoot(root: MorphRootLike, weight: nu
     for (const name of Object.keys(scaled)) {
       scaled[name] = name === result.activeTargetName ? clamped : 0;
     }
+    const scaledJaw = result.jawOpenRadians * clamped;
     root.traverse((object) => {
       const mesh = object as MorphTargetLike | null;
       if (!mesh?.morphTargetDictionary || !mesh.morphTargetInfluences?.length) return;
       applyVisemeWeights(mesh, scaled);
     });
+    const jawBonesTouched = applyJawOpenToRoot(root, scaledJaw);
     return {
       ...result,
       weights: scaled,
       influence: clamped,
+      jawOpenRadians: scaledJaw,
+      jawBonesTouched,
     };
   }
   return result;

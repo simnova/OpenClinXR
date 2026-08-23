@@ -25,6 +25,12 @@ export type VisemeFrame = {
   /** Dwell length in seconds; absent when the caller supplied no per-phone durations. */
   durationSeconds?: number;
   weights: Record<string, number>;
+  /**
+   * Jaw bone rotation (radians) that parts the lips. Viseme morphs are lip-surface shapes only
+   * (#552); the mouth opens via the `jaw` bone. Unit is radians so the runtime can apply a bone
+   * rotation — metres-per-radian is a per-asset lever arm the driver does not know.
+   */
+  jawOpenRadians: number;
 };
 
 export type DriveVisemeTimelineInput = {
@@ -55,6 +61,82 @@ const CANONICAL_FALLBACK_VISEME_NAMES: readonly string[] = [
 ];
 
 const SILENCE_TOKENS: ReadonlySet<string> = new Set(["sil", "silence", "rest"]);
+
+/**
+ * Minimum jaw rotation that clears the teeth-derived anterior aperture on the shipped
+ * `mpfb-viseme-inspect.glb` rig: asin(0.020725011825561523 / 0.137901) ≈ 0.15086 rad (8.64°).
+ * Both inputs are bind-pose / mesh properties — never fitted to an effect (#552).
+ */
+export const JAW_OPEN_TEETH_CLEAR_RADIANS = Math.asin(0.020725011825561523 / 0.137901);
+
+/**
+ * Per-shape jaw aperture as a fraction of {@link JAW_OPEN_TEETH_CLEAR_RADIANS}.
+ * Coarse classes only — Rhubarb collapses many consonants (#582); do not invent per-phone precision.
+ * Recorded in `.openclinxr/evidence/issue-552/jaw-aperture.json`.
+ */
+const JAW_APERTURE_FRACTION: Readonly<Record<string, number>> = {
+  // Closed / bilabial stop — lips sealed, jaw shut.
+  sil: 0,
+  silence: 0,
+  rest: 0,
+  pp: 0,
+  b: 0,
+  m: 0,
+  // Open vowels — full teeth-clearing aperture (widest).
+  aa: 1,
+  ah: 1,
+  ae: 1,
+  ay: 1,
+  a: 1,
+  // Rounded / back open — near-full.
+  o: 0.85,
+  oh: 0.85,
+  ao: 0.85,
+  ow: 0.85,
+  oy: 0.85,
+  // Mid vowels.
+  e: 0.45,
+  eh: 0.45,
+  er: 0.45,
+  ey: 0.45,
+  // Close / near-close.
+  i: 0.35,
+  ih: 0.35,
+  iy: 0.35,
+  u: 0.4,
+  uh: 0.4,
+  uw: 0.4,
+  ou: 0.5,
+  // Partials (fricatives / liquids / residual consonants).
+  fv: 0.15,
+  th: 0.25,
+  ss: 0.2,
+  ch: 0.25,
+  nn: 0.2,
+  rr: 0.3,
+  l: 0.3,
+  w: 0.35,
+  y: 0.3,
+};
+
+/** Jaw aperture in radians for a phoneme token. Unknown tokens get a mid partial, never invent names. */
+export function jawOpenRadiansForPhoneme(phoneme: string): number {
+  const raw = phoneme.trim();
+  if (!raw) return 0;
+  const lower = raw.toLowerCase();
+  if (SILENCE_TOKENS.has(lower)) return 0;
+  const fraction = JAW_APERTURE_FRACTION[lower];
+  if (typeof fraction === "number") {
+    return Number((fraction * JAW_OPEN_TEETH_CLEAR_RADIANS).toFixed(6));
+  }
+  // Unknown consonant / residual — partial, not sealed and not full-open.
+  return Number((0.25 * JAW_OPEN_TEETH_CLEAR_RADIANS).toFixed(6));
+}
+
+/** Snapshot of the aperture table for evidence / inspection (fractions of teeth-clear radians). */
+export function jawApertureFractionTable(): Readonly<Record<string, number>> {
+  return { ...JAW_APERTURE_FRACTION };
+}
 
 /** Canonical name for a phoneme token, or null when the token is not in the ARKit set. */
 function canonicalVisemeName(phoneme: string): string | null {
@@ -136,7 +218,11 @@ export function driveVisemeTimeline(
     if (active !== null && !(active in weights) && availableTargets.includes(active)) {
       weights[active] = 1;
     }
-    const frame: VisemeFrame = { atSecond: cue.atSecond, weights };
+    const frame: VisemeFrame = {
+      atSecond: cue.atSecond,
+      weights,
+      jawOpenRadians: jawOpenRadiansForPhoneme(cue.phoneme),
+    };
     if (cue.durationSeconds !== undefined) frame.durationSeconds = cue.durationSeconds;
     return frame;
   });

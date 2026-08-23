@@ -136,24 +136,25 @@ async function shippedVisemeTargets(): Promise<string[]> {
 }
 
 describe("the viseme driver opens the jaw", () => {
-  it.fails("(1) RED: an aperture-bearing cue carries a non-zero jawOpenRadians, and silence carries zero", async () => {
-    // Today VisemeFrame is { atSecond, durationSeconds?, weights } — there is no jaw channel at all,
-    // so `aa` and `sil` are indistinguishable in everything except which morph weight is 1.
+  it("(1) an aperture-bearing cue carries a non-zero jawOpenRadians, and silence carries zero", async () => {
+    // ## FIXED (#552)
+    // VisemeFrame now carries `jawOpenRadians`. `aa` emits the teeth-clearing aperture;
+    // `sil` emits 0. Morph weights alone still cannot open the mouth — the jaw channel does.
     const targets = await shippedVisemeTargets();
-    const aa = frameFor("aa", targets) as VisemeFrame & { jawOpenRadians?: number };
-    const sil = frameFor("sil", targets) as VisemeFrame & { jawOpenRadians?: number };
+    const aa = frameFor("aa", targets);
+    const sil = frameFor("sil", targets);
 
     expect(typeof aa.jawOpenRadians, "the open vowel /aa/ must carry a jaw aperture").toBe("number");
-    expect(aa.jawOpenRadians!, "/aa/ must open the jaw").toBeGreaterThan(0);
+    expect(aa.jawOpenRadians, "/aa/ must open the jaw").toBeGreaterThan(0);
     expect(sil.jawOpenRadians ?? 0, "silence must close the jaw — a mouth held open is not speech").toBe(0);
   });
 
-  it.fails("(2) RED: the emitted rotation actually parts the lips past the teeth threshold", async () => {
-    // The connection clause (SS6d): a number nobody applies is worth nothing. Convert the driver's
-    // rotation into lower-lip drop through the rig's OWN measured lever arm and require it to clear
-    // the teeth-derived aperture. A driver that emits 0.001 rad satisfies clause (1) and fails here.
+  it("(2) the emitted rotation actually parts the lips past the teeth threshold", async () => {
+    // ## FIXED (#552)
+    // Connection clause: `aa.jawOpenRadians` through the rig's measured lever arm drops oris01
+    // past the teeth-derived threshold. Runtime applier: `applyJawOpenToRoot` in viseme-runtime-wire.
     const targets = await shippedVisemeTargets();
-    const aa = frameFor("aa", targets) as VisemeFrame & { jawOpenRadians?: number };
+    const aa = frameFor("aa", targets);
     const { byName } = await readRig();
 
     const jaw = byName.get("jaw");

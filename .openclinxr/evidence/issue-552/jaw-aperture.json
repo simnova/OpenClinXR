@@ -1,0 +1,211 @@
+{
+  "schema": "openclinxr.jaw-aperture.v1",
+  "issue": 552,
+  "claimScope": "VisemeFrame.jawOpenRadians per phoneme class; aa clears teeth threshold via measured lever arm",
+  "notEvidenceFor": [
+    "how_the_opened_mouth_looks",
+    "interior_lighting",
+    "coarticulation_or_jaw_timing_realism",
+    "clinical_or_readiness"
+  ],
+  "inputs": {
+    "teethThresholdM": 0.020725011825561523,
+    "measuredLeverArmM": 0.137901,
+    "teethClearRadians": 0.15086064830819468,
+    "derivation": "asin(teethThresholdM / measuredLeverArmM)"
+  },
+  "decisions": {
+    "fieldName": "jawOpenRadians",
+    "unit": "radians",
+    "runtimeApplier": "applyJawOpenToRoot (viseme-runtime-wire.ts) — local X on bone named jaw",
+    "aperturePolicy": "coarse classes only: aa/AH/AE/AY full; O* near-full; E/I/U mid-close; sil/PP/B/M closed; fricatives partial"
+  },
+  "table": {
+    "sil": {
+      "fractionOfTeethClear": 0,
+      "jawOpenRadians": 0,
+      "expectedLowerLipDropM": 0
+    },
+    "silence": {
+      "fractionOfTeethClear": 0,
+      "jawOpenRadians": 0,
+      "expectedLowerLipDropM": 0
+    },
+    "rest": {
+      "fractionOfTeethClear": 0,
+      "jawOpenRadians": 0,
+      "expectedLowerLipDropM": 0
+    },
+    "pp": {
+      "fractionOfTeethClear": 0,
+      "jawOpenRadians": 0,
+      "expectedLowerLipDropM": 0
+    },
+    "b": {
+      "fractionOfTeethClear": 0,
+      "jawOpenRadians": 0,
+      "expectedLowerLipDropM": 0
+    },
+    "m": {
+      "fractionOfTeethClear": 0,
+      "jawOpenRadians": 0,
+      "expectedLowerLipDropM": 0
+    },
+    "aa": {
+      "fractionOfTeethClear": 1,
+      "jawOpenRadians": 0.150861,
+      "expectedLowerLipDropM": 0.02072506
+    },
+    "ah": {
+      "fractionOfTeethClear": 1,
+      "jawOpenRadians": 0.150861,
+      "expectedLowerLipDropM": 0.02072506
+    },
+    "ae": {
+      "fractionOfTeethClear": 1,
+      "jawOpenRadians": 0.150861,
+      "expectedLowerLipDropM": 0.02072506
+    },
+    "ay": {
+      "fractionOfTeethClear": 1,
+      "jawOpenRadians": 0.150861,
+      "expectedLowerLipDropM": 0.02072506
+    },
+    "a": {
+      "fractionOfTeethClear": 1,
+      "jawOpenRadians": 0.150861,
+      "expectedLowerLipDropM": 0.02072506
+    },
+    "o": {
+      "fractionOfTeethClear": 0.85,
+      "jawOpenRadians": 0.128232,
+      "expectedLowerLipDropM": 0.017634898
+    },
+    "oh": {
+      "fractionOfTeethClear": 0.85,
+      "jawOpenRadians": 0.128232,
+      "expectedLowerLipDropM": 0.017634898
+    },
+    "ao": {
+      "fractionOfTeethClear": 0.85,
+      "jawOpenRadians": 0.128232,
+      "expectedLowerLipDropM": 0.017634898
+    },
+    "ow": {
+      "fractionOfTeethClear": 0.85,
+      "jawOpenRadians": 0.128232,
+      "expectedLowerLipDropM": 0.017634898
+    },
+    "oy": {
+      "fractionOfTeethClear": 0.85,
+      "jawOpenRadians": 0.128232,
+      "expectedLowerLipDropM": 0.017634898
+    },
+    "e": {
+      "fractionOfTeethClear": 0.45,
+      "jawOpenRadians": 0.067887,
+      "expectedLowerLipDropM": 0.009354496
+    },
+    "eh": {
+      "fractionOfTeethClear": 0.45,
+      "jawOpenRadians": 0.067887,
+      "expectedLowerLipDropM": 0.009354496
+    },
+    "er": {
+      "fractionOfTeethClear": 0.45,
+      "jawOpenRadians": 0.067887,
+      "expectedLowerLipDropM": 0.009354496
+    },
+    "ey": {
+      "fractionOfTeethClear": 0.45,
+      "jawOpenRadians": 0.067887,
+      "expectedLowerLipDropM": 0.009354496
+    },
+    "i": {
+      "fractionOfTeethClear": 0.35,
+      "jawOpenRadians": 0.052801,
+      "expectedLowerLipDropM": 0.007277928
+    },
+    "ih": {
+      "fractionOfTeethClear": 0.35,
+      "jawOpenRadians": 0.052801,
+      "expectedLowerLipDropM": 0.007277928
+    },
+    "iy": {
+      "fractionOfTeethClear": 0.35,
+      "jawOpenRadians": 0.052801,
+      "expectedLowerLipDropM": 0.007277928
+    },
+    "u": {
+      "fractionOfTeethClear": 0.4,
+      "jawOpenRadians": 0.060344,
+      "expectedLowerLipDropM": 0.008316449
+    },
+    "uh": {
+      "fractionOfTeethClear": 0.4,
+      "jawOpenRadians": 0.060344,
+      "expectedLowerLipDropM": 0.008316449
+    },
+    "uw": {
+      "fractionOfTeethClear": 0.4,
+      "jawOpenRadians": 0.060344,
+      "expectedLowerLipDropM": 0.008316449
+    },
+    "ou": {
+      "fractionOfTeethClear": 0.5,
+      "jawOpenRadians": 0.07543,
+      "expectedLowerLipDropM": 0.010392011
+    },
+    "fv": {
+      "fractionOfTeethClear": 0.15,
+      "jawOpenRadians": 0.022629,
+      "expectedLowerLipDropM": 0.003120295
+    },
+    "th": {
+      "fractionOfTeethClear": 0.25,
+      "jawOpenRadians": 0.037715,
+      "expectedLowerLipDropM": 0.005199703
+    },
+    "ss": {
+      "fractionOfTeethClear": 0.2,
+      "jawOpenRadians": 0.030172,
+      "expectedLowerLipDropM": 0.004160118
+    },
+    "ch": {
+      "fractionOfTeethClear": 0.25,
+      "jawOpenRadians": 0.037715,
+      "expectedLowerLipDropM": 0.005199703
+    },
+    "nn": {
+      "fractionOfTeethClear": 0.2,
+      "jawOpenRadians": 0.030172,
+      "expectedLowerLipDropM": 0.004160118
+    },
+    "rr": {
+      "fractionOfTeethClear": 0.3,
+      "jawOpenRadians": 0.045258,
+      "expectedLowerLipDropM": 0.006238993
+    },
+    "l": {
+      "fractionOfTeethClear": 0.3,
+      "jawOpenRadians": 0.045258,
+      "expectedLowerLipDropM": 0.006238993
+    },
+    "w": {
+      "fractionOfTeethClear": 0.35,
+      "jawOpenRadians": 0.052801,
+      "expectedLowerLipDropM": 0.007277928
+    },
+    "y": {
+      "fractionOfTeethClear": 0.3,
+      "jawOpenRadians": 0.045258,
+      "expectedLowerLipDropM": 0.006238993
+    }
+  },
+  "verification": {
+    "aaRadians": 0.150861,
+    "silRadians": 0,
+    "aaLowerLipDropM": 0.02072506,
+    "clearsTeethThreshold": true
+  }
+}
