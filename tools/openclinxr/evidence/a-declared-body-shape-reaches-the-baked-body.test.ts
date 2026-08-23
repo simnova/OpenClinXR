@@ -179,6 +179,12 @@ function measureBody(assetPath: string): Promise<Body> {
       for (const prim of mesh.listPrimitives()) {
         const matName = prim.getMaterial()?.getName() ?? "";
         if (NON_BODY.test(mn) || NON_BODY.test(matName)) continue;
+        // CORRECTED 2026-08-23: #576's worker shipped a stray `base.002` at 14517 verts with NO
+        // material, larger than the real 11166-vert body, and it cleared NON_BODY. Both clause (1)
+        // and clause (4) then measured the leak: profileDelta 0.4008 with band 10 at 0.6099 vs
+        // 0.2091, and a stature of 1.6472 read as tara's. A shipped body primitive always carries a
+        // material; an unmaterialed mesh is a leaked base, never the subject. Refuse it.
+        if (!prim.getMaterial()) continue;
         const pos = prim.getAttribute("POSITION") as Attr | null;
         if (pos && pos.getCount() > bestCount) { bestCount = pos.getCount(); best = pos; meshName = mn; }
       }
