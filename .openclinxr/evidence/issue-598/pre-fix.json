@@ -1,0 +1,59 @@
+{
+  "measuredAt": "2026-08-23T17:35:01.245Z",
+  "measuredAgainstCommit": "b63635683fdceefac6eb85f87ff337bae6085048",
+  "ambientFailureClass": "product defect: SHOE_BY_REFERENCE None + ed_chest_pain_nurse_adult map to toigo_flats leopard party flats; strip-clinician-footwear-pattern.py exists solely to undo that asset after each bake",
+  "minimalFalsifier": {
+    "offender": "mpfb-clinical-nurse-adult.glb",
+    "knownGoodControl": "mpfb-family-partner-adult.glb"
+  },
+  "rows": [
+    {
+      "glb": "mpfb-clinical-nurse-adult.glb",
+      "footwearMeshName": "makeclothes_library_footwear_toigo_flats_mpfb_ed_chest_pain_nurse_adult_mesh",
+      "footwearTriangles": 57600,
+      "sourceMhcloBasename": "toigo_flats.mhclo",
+      "mechanism": "SHOE_BY_REFERENCE maps this actor (or its None default) to toigo_flats; ClothesService.fit embeds mat_makeclothes_library_footwear_toigo_flats",
+      "failing": true
+    },
+    {
+      "glb": "mpfb-family-partner-adult.glb",
+      "footwearMeshName": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ed_chest_pain_spouse_adult_mesh",
+      "footwearTriangles": 1004,
+      "sourceMhcloBasename": "toigo_mj_cloth_shoes.mhclo",
+      "mechanism": "known-good: SHOE_BY_REFERENCE already maps this actor to a plain library shoe",
+      "failing": false
+    },
+    {
+      "glb": "mpfb-clinical-physician-adult.glb",
+      "footwearMeshName": "makeclothes_library_footwear_toigo_flats_mpfb_ed_chest_pain_nurse_adult_mesh",
+      "footwearTriangles": 57600,
+      "sourceMhcloBasename": "toigo_flats.mhclo",
+      "mechanism": "SHOE_BY_REFERENCE maps this actor (or its None default) to toigo_flats; ClothesService.fit embeds mat_makeclothes_library_footwear_toigo_flats",
+      "failing": true
+    },
+    {
+      "glb": "mpfb-gown-adult-patient.glb",
+      "footwearMeshName": "makeclothes_library_footwear_toigo_flats_mpfb_ob_patient_aisha_mesh",
+      "footwearTriangles": 57600,
+      "sourceMhcloBasename": "toigo_flats.mhclo",
+      "mechanism": "SHOE_BY_REFERENCE maps this actor (or its None default) to toigo_flats; ClothesService.fit embeds mat_makeclothes_library_footwear_toigo_flats",
+      "failing": true
+    },
+    {
+      "glb": "mpfb-ob-patient-aisha.glb",
+      "footwearMeshName": "makeclothes_library_footwear_toigo_flats_mpfb_ob_patient_aisha_mesh",
+      "footwearTriangles": 57600,
+      "sourceMhcloBasename": "toigo_flats.mhclo",
+      "mechanism": "SHOE_BY_REFERENCE maps this actor (or its None default) to toigo_flats; ClothesService.fit embeds mat_makeclothes_library_footwear_toigo_flats",
+      "failing": true
+    },
+    {
+      "glb": "mpfb-peds-parent-aisha.glb",
+      "footwearMeshName": "makeclothes_library_footwear_toigo_flats_mpfb_ob_patient_aisha_mesh",
+      "footwearTriangles": 57600,
+      "sourceMhcloBasename": "toigo_flats.mhclo",
+      "mechanism": "SHOE_BY_REFERENCE maps this actor (or its None default) to toigo_flats; ClothesService.fit embeds mat_makeclothes_library_footwear_toigo_flats",
+      "failing": true
+    }
+  ]
+}

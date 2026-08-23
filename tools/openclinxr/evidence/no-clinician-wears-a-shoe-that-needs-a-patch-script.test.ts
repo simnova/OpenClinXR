@@ -56,6 +56,14 @@ import { describe, expect, it } from "vitest";
  * notEvidenceFor: any triangle-budget or Quest claim; that either shoe is clinically correct
  * (that is a pixel grade nobody has taken); the licence status of anything but the two `.mhclo`
  * headers quoted above; that the swapped bake was run.
+ *
+ * ## FIXED (#598)
+ *
+ * `SHOE_BY_REFERENCE` `None` + `ed_chest_pain_nurse_adult` now map to `toigo_mj_cloth_shoes`
+ * (was `toigo_flats`). Five cast GLBs rebaked; each footwear mesh is
+ * `…footwear_toigo_mj_cloth_shoes…` at 1,004 tris. `strip-clinician-footwear-pattern.py` and the
+ * in-script `if shoe_kind == "toigo_flats"` branch left on disk (dead — no reference maps there).
+ * Inspect GLBs (`mpfb-gown-inspect` / `mpfb-viseme-inspect`) not rebaked this slice.
  */
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));

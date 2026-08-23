@@ -45,8 +45,12 @@ import { describe, expect, it } from "vitest";
 const DIR = "apps/ui-xr/public/generated-humanoids";
 /** Pinned from HEAD. A prune must not move any of these. */
 const PINNED = {
-  "mpfb-ob-patient-aisha.glb":  { fileBytes: 24291640, textures: 5, boundTextures: 4, boundBytes: 3168198, meshes: 10, materials: 17, tris: 131328, joints: 137, animations: 2 },
-  "mpfb-peds-parent-aisha.glb": { fileBytes: 24291644, textures: 5, boundTextures: 4, boundBytes: 3168198, meshes: 10, materials: 17, tris: 131328, joints: 137, animations: 2 },
+  // #598 re-pinned 2026-08-23: full shoe-swap rebake (flats→mj_cloth_shoes). Old:
+  // fileBytes 24291640, boundTextures 4, boundBytes 3168198, tris 131328.
+  "mpfb-ob-patient-aisha.glb":  { fileBytes: 11395580, textures: 5, boundTextures: 5, boundBytes: 4580867, meshes: 10, materials: 17, tris: 74642, joints: 137, animations: 2 },
+  // #598 re-pinned 2026-08-23: same rebake. Old: fileBytes 24291644, boundTextures 4,
+  // boundBytes 3168198, tris 131328.
+  "mpfb-peds-parent-aisha.glb": { fileBytes: 11456228, textures: 5, boundTextures: 5, boundBytes: 4598965, meshes: 10, materials: 17, tris: 74732, joints: 137, animations: 2 },
 } as const;
 /** Derived from the measurement, not chosen: the orphan is 7.41 MB, so the file must lose most of it. */
 const MIN_BYTES_FREED = 7_000_000;

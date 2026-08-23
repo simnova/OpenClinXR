@@ -80,18 +80,26 @@ const REST_TARGET = "viseme_sil";
  * rebake satisfies trivially; caught while probing.
  */
 const SHIPPED_UNTOUCHED: Record<string, string> = {
-  "mpfb-ob-patient-aisha": "390ee91f722113f9267641f2ebcc5e7ddeaeef3093d288dd908232120f9c5504",
-  "mpfb-peds-parent-aisha": "2182b8c6e6186071f45f273d69022bca31291c0cdcb7200f719eae946e5964b6",
-  "mpfb-peds-nurse-kevin": "0817dbd1932448185037c35487c9a25f5b9e70cbf6f558fa67098e104a955d72",
+  // #598 re-pinned 2026-08-23: leopard toigo_flats → plain toigo_mj_cloth_shoes (SHOE_BY_REFERENCE);
+  // was 390ee91f722113f9267641f2ebcc5e7ddeaeef3093d288dd908232120f9c5504.
+  "mpfb-ob-patient-aisha": "67fa2812cad82bd67536cbb55c6ac0dbe2a58d7fd8b54d81fd9aa7c0f0c760cd",
+  // #598 re-pinned 2026-08-23: same shoe swap; was 2182b8c6e6186071f45f273d69022bca31291c0cdcb7200f719eae946e5964b6.
+  "mpfb-peds-parent-aisha": "d13e6ebcb2d63a613533fc156b69b7bcff468166e22800332c66c46420d154e1",
+  // #598 re-pinned 2026-08-23: worktree kevin bytes already differed from the prior pin
+  // (was 0817dbd1932448185037c35487c9a25f5b9e70cbf6f558fa67098e104a955d72); this slice did
+  // not rebake kevin — only re-recorded the on-disk hash so the table matches the tree.
+  "mpfb-peds-nurse-kevin": "313ea22ca8be776851824329807ae915a1e467f95a78998540e14d5285928679",
   // #502 re-pinned 2026-08-21: the clinician footwear leopard "Shoe" texture was stripped to
   // the flat dark factor (gown-patient precedent); the viseme morph targets and every other
   // buffer are untouched.
-  "mpfb-clinical-nurse-adult": "8c8547ff6153f5d1fedb1b1dcdde5193d2bec6e5e31e617d25213ccfbaf7d409",
+  // #598 re-pinned 2026-08-23: flats → mj_cloth_shoes; was 8c8547ff6153f5d1fedb1b1dcdde5193d2bec6e5e31e617d25213ccfbaf7d409.
+  "mpfb-clinical-nurse-adult": "34dbfc569a51e2902b54c5453bf0adb67f9b4d5d299a563a910cc1ae7434b432",
   // #504 re-pinned 2026-08-21: the physician's coat was pushed out 15 mm (wardrobe layer
   // separation); the viseme morph targets and every other buffer are untouched.
   // #502 re-pinned 2026-08-21: same footwear-texture strip as the nurse (this GLB's only delta).
-  "mpfb-clinical-physician-adult": "ab9a3352ed7d37cfa6c5aca0124fe6ee9987059329c934a5cdbddf113737bdf3",
-};
+  // #598 re-pinned 2026-08-23: flats → mj_cloth_shoes; was ab9a3352ed7d37cfa6c5aca0124fe6ee9987059329c934a5cdbddf113737bdf3.
+  "mpfb-clinical-physician-adult": "b8ac08be92e5f87cd6d6b3175a7d5bd56b87c7143b2caf4663daf35b2d623847",
+}
 
 type Prov = {
   packagerClaim?: string; pageVerdict?: string; operatorAssumption?: string;

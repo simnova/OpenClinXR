@@ -27,14 +27,17 @@ from garment_coverage import _orient_outward, _ray_tri_hits  # noqa: E402
 # culturalibre_male_boots CC-0; every .mhclo references only basemesh verts < 13,380),
 # so each fits the #318 helper-stripped 13,380-vert basemesh like the t-shirt/pants.
 SHOE_BY_REFERENCE = {
-    None: "toigo_flats",
+    # #598 — default + clinician rows leave the leopard toigo_flats party shoe.
+    # Plain CC0 toigo_mj_cloth_shoes already bakes on spouse/child; both .mhclo
+    # headers are CC0/MRT; author-side 502 faces vs flats' 28,800. The #502/#553
+    # toigo_flats strip branch below becomes dead code once no row maps here.
+    None: "toigo_mj_cloth_shoes",
     "peds_nurse_kevin": "culturalibre_male_boots",
     "peds_patient_child": "toigo_mj_cloth_shoes",
-    # #403 — the two ED adult females (nurse + spouse) get distinct CC0 footwear
-    # assets so the family-class wardrobe differs from the scrub-class one beyond
-    # the upper garment and iris. Flats (nurse) and mj cloth shoes (spouse) are the
-    # same proven zero-helper-ref subset as the existing rows (ledger rows).
-    "ed_chest_pain_nurse_adult": "toigo_flats",
+    # #403 — ED adult females keep distinct wardrobe beyond footwear; #598 moves
+    # the nurse onto the same plain cloth shoe the spouse already wears (the
+    # leopard flat was never a clinical distinguisher — it was a patch subject).
+    "ed_chest_pain_nurse_adult": "toigo_mj_cloth_shoes",
     "ed_chest_pain_spouse_adult": "toigo_mj_cloth_shoes",
     # #441 — the street-casual adult male patient wears the male known-good row
     # kevin proved (culturalibre_male_boots, CC-0, same zero-helper-ref subset).

@@ -133,6 +133,10 @@ const ACTORS = [
   "mpfb-clinical-physician-adult",
   "mpfb-family-partner-adult",
   "mpfb-peds-parent-aisha",
+  // #598: enumeration catch-up — these two already ship dressed and the SS7j miss
+  // refused every clause before shoeTris could be re-pinned.
+  "mpfb-street-adult-male",
+  "mpfb-viseme-inspect",
 ] as const;
 
 /** A bucket counts as "outside" only beyond this, so surface noise is not read as a layer flip. */
@@ -225,13 +229,21 @@ async function measure(actor: string): Promise<Pair | null> {
 
 /** MEASURED 2026-08-14 on the shipped bytes — one row per enumerated actor, never copied (see FIXED #408). */
 const BASELINE: Record<string, { cuffReachMm: number; shoeTris: number }> = {
-  "mpfb-ob-patient-aisha": { cuffReachMm: 28.0, shoeTris: 57600 },
+  // #598 re-pinned 2026-08-23: toigo_flats 57600 → toigo_mj_cloth_shoes 1004; cuffReach was 28.0.
+  "mpfb-ob-patient-aisha": { cuffReachMm: 9.5, shoeTris: 1004 },
   "mpfb-peds-nurse-kevin": { cuffReachMm: -308.2, shoeTris: 30768 },
   "mpfb-peds-patient-child": { cuffReachMm: 39.5, shoeTris: 1004 },
-  "mpfb-clinical-nurse-adult": { cuffReachMm: 29.6, shoeTris: 57600 },
-  "mpfb-clinical-physician-adult": { cuffReachMm: 29.6, shoeTris: 57600 },
+  // #598 re-pinned 2026-08-23: shoeTris was 57600 / cuffReach was 29.6.
+  "mpfb-clinical-nurse-adult": { cuffReachMm: 8.8, shoeTris: 1004 },
+  // #598 re-pinned 2026-08-23: shoeTris was 57600 / cuffReach was 29.6.
+  "mpfb-clinical-physician-adult": { cuffReachMm: 8.8, shoeTris: 1004 },
   "mpfb-family-partner-adult": { cuffReachMm: 36.1, shoeTris: 1004 },
-  "mpfb-peds-parent-aisha": { cuffReachMm: 28.0, shoeTris: 57600 },
+  // #598 re-pinned 2026-08-23: shoeTris was 57600 / cuffReach was 28.0.
+  "mpfb-peds-parent-aisha": { cuffReachMm: 9.5, shoeTris: 1004 },
+  // #598: newly enumerated (were missing from ACTORS; SS7j miss).
+  "mpfb-street-adult-male": { cuffReachMm: -279.2, shoeTris: 30768 },
+  // Still on toigo_flats — inspect file, not rebaked this slice.
+  "mpfb-viseme-inspect": { cuffReachMm: 28.0, shoeTris: 57600 },
 };
 
 /** Shipped mpfb actors carrying BOTH a lower garment (any class) and footwear. */
