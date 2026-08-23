@@ -1,5 +1,7 @@
 import { edChestPainScenario, pediatricAsthmaScenario, scenarioBank } from "@openclinxr/scenario-fixtures";
 import { describe, expect, it } from "vitest";
+// #592: import the casting SSOT directly from its module rather than repeating the literal.
+import { MPFB_GOWN_ADULT_PATIENT_GLB } from "./cast-asset-constants.js";
 import {
   type AssetManifest,
   buildAssetProductionReviewPacket,
@@ -427,7 +429,7 @@ describe("asset registry", () => {
     });
     expect(resolveRuntimeAssetUrl(bundle.environment)).toBe("/xr-assets/environment/ed-exam-bay-shell.glb");
     expect(resolveRuntimeAssetUrl(findRuntimeActorAsset(bundle, "patient_robert_hayes_v1")?.model ?? bundle.environment))
-      .toBe("/generated-humanoids/mpfb-gown-adult-patient.glb");
+      .toBe(`/generated-humanoids/${MPFB_GOWN_ADULT_PATIENT_GLB}`);
     expect(resolveRuntimeAssetUrl(findRuntimeEquipmentAsset(bundle, "ecg_cart_equipment")?.model ?? bundle.environment))
       .toBe("/xr-assets/medical-equipment/ecg-cart-12-lead.glb");
     expect(bundle.actors.every((actor) => actor.gazeProfile.supportsActorTargets)).toBe(true);

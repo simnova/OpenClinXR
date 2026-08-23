@@ -28,6 +28,10 @@
       "types": "./dist/actor-posture.d.ts",
       "default": "./dist/actor-posture.js"
     },
+    "./cast-asset-constants": {
+      "types": "./dist/cast-asset-constants.d.ts",
+      "default": "./dist/cast-asset-constants.js"
+    },
     "./environment-zone-templates": {
       "types": "./dist/environment-zone-templates.d.ts",
       "default": "./dist/environment-zone-templates.js"

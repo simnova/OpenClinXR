@@ -3,6 +3,7 @@ import {
   buildEncounterFactorySummaryContracts,
   createEdChestPainLocalLearnerRuntimeAssetBundle,
 } from "@openclinxr/asset-registry";
+import { MPFB_GOWN_ADULT_PATIENT_GLB, PEDS_CHILD_GLB, PEDS_PARENT_GLB } from "@openclinxr/asset-registry/cast-asset-constants";
 import { AssetGenerationCapabilityFacade } from "@openclinxr/capability-gateway";
 import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql";
 import { edChestPainScenario, pediatricAsthmaScenario } from "@openclinxr/scenario-fixtures";
@@ -118,7 +119,7 @@ describe("OpenClinXR API shell", () => {
     //
     // The learner-safe assertions around it are untouched and still pass: opaque identity scope,
     // no tenantId/userId/examRunId/encounterId, productionCloudCall false.
-    expect(body.actors[0]?.model.blob.url).toBe("/generated-humanoids/ed_chest_pain_adult_cast.glb");
+    expect(body.actors[0]?.model.blob.url).toBe(`/generated-humanoids/${MPFB_GOWN_ADULT_PATIENT_GLB}`);
     expect(body.equipment.map((equipment) => equipment.equipmentId)).toEqual(["ecg_cart_equipment", "iv_stand_equipment"]);
     expect(body.notEvidenceFor).toContain("quest_readiness");
   });
@@ -2088,7 +2089,7 @@ describe("OpenClinXR API shell", () => {
       assets: expect.arrayContaining([
         expect.objectContaining({
           actorRole: "patient",
-          runtimeAssetPath: "/generated-humanoids/peds_patient_child.glb",
+          runtimeAssetPath: `/generated-humanoids/${PEDS_CHILD_GLB}`,
           realAnnyWeightsUsed: false,
           realismGrade: "B",
           promotionStatus: "runtime_candidate_not_realism_gate_pass",
@@ -2103,7 +2104,7 @@ describe("OpenClinXR API shell", () => {
         }),
         expect.objectContaining({
           actorRole: "anxious_parent",
-          runtimeAssetPath: "/generated-humanoids/peds_anxious_parent.glb",
+          runtimeAssetPath: `/generated-humanoids/${PEDS_PARENT_GLB}`,
           realAnnyWeightsUsed: false,
           realismGrade: "B",
           promotionStatus: "runtime_candidate_not_realism_gate_pass",
