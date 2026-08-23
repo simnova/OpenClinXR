@@ -7,12 +7,12 @@
     "agent-methodology": 79,
     "current-reference": 213,
     "archive-candidate": 11,
-    "evidence": 51,
+    "evidence": 52,
     "protected-policy": 11,
     "agent-memory": 39,
     "historical-synthesis": 11,
     "decision-record": 43,
-    "total": 460,
+    "total": 461,
     "generated-evidence": 1,
     "reference": 1
   },
@@ -3049,6 +3049,13 @@
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
       "rationale": "Current product reference, subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/openclinxr/vibevoice-cpp-cagematch-2026-08-23.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
       "path": "docs/openclinxr/virtual-patient-agent-model.md",
