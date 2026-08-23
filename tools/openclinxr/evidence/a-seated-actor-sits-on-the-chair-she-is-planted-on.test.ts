@@ -51,6 +51,43 @@ import { describe, expect, it } from "vitest";
  *   whether 0.45 m is the right seat height; any station other than the one measured.
  */
 
+/**
+ * ## FIXED (#591)
+ *
+ * LIVE (this module, 2026-08-23, frames=24, after waitForSceneAssetsSettled):
+ *
+ * | actor                   | posture  | pelvisWorldY | slot XZ          | dXZ-to-seat | footClear |
+ * |-------------------------|----------|--------------|------------------|-------------|-----------|
+ * | parent_tara_johnson_v1  | seated   | 0.487        | (-0.552, -0.750) | 0.003       | 0.269     |
+ * | patient_maya_johnson_v1 | standing | 0.444        | (-0.902,  0.080) | -           | 0.047     |
+ * | nurse_kevin_lee_v1      | standing | 0.899        | ( 0.643,  0.300) | -           | 0.083     |
+ *
+ * Pre-fix (same probe): parent slot (1.416, 0.039) vs chair (-0.550, -0.750) — 1.97 m off
+ * her seat, pelvis at seat height in MID-AIR, feet 0.256 m above the floor.
+ *
+ * CAUSE (two writers, both fixed):
+ *   1. main.ts:3795 peds three-actor review reframe moved the family slot to z=0.42 AFTER the
+ *      #574 family_chair anchoring, with no posture check.
+ *   2. main.ts:3801 applyCleanEncounterVisualReviewActorFraming -> generic family branch hard-set
+ *      slot to (1.42, 0.04). Its guard could not see posture: openClinXrSlotKind /
+ *      openClinXrActorPosture were stamped on line 3807 AFTER the framing call (order defect).
+ *
+ * FIX:
+ *   - main.ts: seated parents keep the authored family_chair anchor (rotation-only reframe);
+ *     standing parents keep the legacy three-actor reframe. Slot identity userData stamps moved
+ *      BEFORE the framing call so the framing's new seated guard reads real values.
+ *   - encounter-actor-framing.ts: seated actors keep their seat anchor; only rotation/scale are
+ *     framed (staging "seated_actor_keeps_authored_seat_anchor_framed_in_place"). OB/telehealth
+ *     branches run first and are unchanged.
+ *
+ * Call-site comparison (issue question #2): main.ts:998 resolveFixtureSlotPosition(slot, desc,
+ * desc) and station-environment.ts:203 resolveFixtureSlotsForRoom(desc dims, desc dims) agree
+ * EXACTLY with each other and with the live chair group: (-0.55, -0.75), all three. The
+ * resolvers were never the defect.
+ *
+ * Foot clearance is REPORTED (0.269 m post-fix), not gated — no invented magnitude (§9k).
+ */
+
 /** `station-chair.ts:20`. Authored, not chosen here. */
 const SEAT_TOP_METERS = 0.45;
 /** `station-chair.ts:49` — seat is BoxGeometry(0.48, t, 0.48). Half-width, authored, not chosen here. */
@@ -81,7 +118,7 @@ async function loadInspect(): Promise<
 }
 
 describe("a seated actor sits on the chair she is planted on", () => {
-  it.fails("(1) RED: the measurement exists and reports pelvis + chair world placement", async () => {
+  it("(1) the measurement exists and reports pelvis + chair world placement", async () => {
     // Today there is no module that reports pelvis Y or chair XZ, so the two candidate causes
     // cannot be separated at all. This clause fails on absence, which is the honest first defect.
     const inspect = await loadInspect();
@@ -94,7 +131,7 @@ describe("a seated actor sits on the chair she is planted on", () => {
     expect(row!.chairSeatTopY, "the chair's seat top must be measured from the live mesh").not.toBeNull();
   });
 
-  it.fails("(2) RED: her pelvis is not BELOW the authored seat top", async () => {
+  it("(2) her pelvis is not BELOW the authored seat top", async () => {
     // Refuses the cheap fix on (3): translating the actor down until her feet touch the floor
     // satisfies a naive foot-contact check while sinking her pelvis through the seat.
     const inspect = await loadInspect();
@@ -105,7 +142,7 @@ describe("a seated actor sits on the chair she is planted on", () => {
       .toBeGreaterThanOrEqual(SEAT_TOP_METERS);
   });
 
-  it.fails("(3) RED: she is over the seat, not merely near the chair", async () => {
+  it("(3) she is over the seat, not merely near the chair", async () => {
     const inspect = await loadInspect();
     expect(typeof inspect).toBe("function");
     const rows = await inspect!({ scenarioId: SCENARIO });
@@ -118,7 +155,7 @@ describe("a seated actor sits on the chair she is planted on", () => {
       .toBeLessThanOrEqual(SEAT_HALF_WIDTH_METERS);
   });
 
-  it.fails("(4) COUNTERWEIGHT: the standing actors in the same station stay on the floor", async () => {
+  it("(4) COUNTERWEIGHT: the standing actors in the same station stay on the floor", async () => {
     // Refuses a global Y translation that seats the parent by lifting or sinking everyone, and
     // pins the KNOWN-GOOD COLUMN: these two measured 0.010 and 0.013 before any change.
     const inspect = await loadInspect();

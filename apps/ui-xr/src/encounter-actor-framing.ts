@@ -19,6 +19,8 @@ export type EncounterActorFramingInput = {
   actorId: string;
   scenarioId: string;
   role: string;
+  /** Resolved posture when the caller has it before the slot tag exists (seated keeps seat anchor). */
+  posture?: "standing" | "seated" | "supine" | undefined;
   /** Face / pose / close-realism captures keep placement tables untouched. */
   skipFraming: boolean;
   onWardrobeCue?: (actor: Group, roleCue: "patient" | "clinical" | "family") => void;
@@ -99,6 +101,20 @@ export function applyCleanEncounterVisualReviewActorFraming(
     typeof actor.userData.openClinXrSlotKind === "string"
       ? actor.userData.openClinXrSlotKind
       : "";
+
+  // #591: a SEATED actor's XZ is owned by her authored seat anchor (runtimeActorPlacement
+  // #574 family_chair resolution). The generic floor-standing frames below unseat her —
+  // pre-fix live: seated parent slot (1.42, 0.04) vs chair (−0.55, −0.75), feet 0.256 m
+  // above the floor. Only rotation/scale are framed; the chair owns position.
+  if (
+    (actor.userData.openClinXrActorPosture ?? "") === "seated"
+    || (input.posture ?? "") === "seated"
+  ) {
+    actor.rotation.y = -0.26;
+    actor.scale.setScalar(0.82);
+    actor.userData.openClinXrEncounterStaging = "seated_actor_keeps_authored_seat_anchor_framed_in_place";
+    return;
+  }
 
   if (slotKind === "additional_cast") {
     actor.position.set(ADDITIONAL_CAST_FRAMING_XZ.x, 0, ADDITIONAL_CAST_FRAMING_XZ.z);
