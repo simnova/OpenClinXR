@@ -48,6 +48,33 @@ const PEDS = "peds_asthma_parent_anxiety_v1";
 const posture = (slotKind: string, scenarioId = PEDS): string =>
   resolveActorPosture({ slotKind, scenarioId, environmentId: "pediatric_urgent_care_bay_v1" });
 
+/**
+ * ## FIXED (#574)
+ *
+ * Measured 2026-08-22 (worktree issue-574):
+ * - Column A: `defaultPostureForEnvironmentSlot` seats the family_or_observer slot when
+ *   scenarioId contains `peds_asthma` OR environmentId contains `pediatric_urgent_care`
+ *   (actor-posture.ts). resolveActorPosture's env-over-declared precedence means the
+ *   seated ruling also wins over any stale declared standing.
+ * - Column B: NEW seam `apps/ui-xr/src/seated-role-clip-policy.ts` exports
+ *   `seatedRoleClipIsPlayable(clipName, tracks?)`. A clip is admitted when its name
+ *   matches /seat/i AND its ANIMATED translation channels stay off root/pelvis/leg bones.
+ *   Measured on the shipped GLB: all 411 translation channels of the seated clip are
+ *   CONSTANT (2 identical keys — bind pose restated), so it admits on real track data;
+ *   rotation runs upper body + face + legs (90-key knee/foot tracks) and is allowed —
+ *   the per-frame applyMpfb2SeatedFold re-asserts the authored sit after mixer.update,
+ *   same pattern as clinical idle vs role clips. Unmeasured track data admits on name
+ *   only (pipeline contract: animated root/pelvis translation is stripped at retarget).
+ * - main.ts register-time carve-out: `(!isSeated || seatedRoleClipPlayable) && !isSupine`
+ *   extends the #83 guard instead of deleting it; supine still gets NO mixer (column 4).
+ * - Frame loop: while a carved-in seated actor performs her clip, the standing
+ *   clinical-idle arm hang + role posture are held (they would pin arms/head over the
+ *   clip every frame); applyPosturePose("seated") still re-folds legs every frame.
+ * - Placement: a seated family actor plants on the environment's family_chair fixture
+ *   world position (same fraction mapping the builder uses), not the patient-chair
+ *   default anchor — peds bay resolves to (−0.55, −0.75-ish fraction-mapped).
+ */
+
 describe("the seated parent is seated and her clip plays", () => {
   it("(0) VACUITY GUARD: the asset ships and carries the seated clip", async () => {
     // Without this, (2) could go green by the clip vanishing rather than by playback being fixed.
@@ -57,22 +84,22 @@ describe("the seated parent is seated and her clip plays", () => {
     expect(names, "her authored seated clip must be in the file").toContain(SEATED_CLIP);
   });
 
-  it.fails("(1) RED column A: the peds family slot resolves to seated", () => {
+  it("(1) column A: the peds family slot resolves to seated", () => {
     expect(
       posture("family_or_observer"),
       "the case authors parent_chair_equipment and 'parent seating'; the posture table must agree",
     ).toBe("seated");
   });
 
-  it.fails("(2) RED column B: a seated actor can still reach a seated-rig role clip", async () => {
-    // The #83 carve-out currently admits only non-leg facial/upper clips. A seated-rig clip is exactly
-    // what a seated actor SHOULD play; today the guard cannot distinguish it from a standing-rig clip.
+  it("(2) column B: a seated actor can still reach a seated-rig role clip", async () => {
+    // The #83 carve-out now admits named seated-rig clips whose animated translation
+    // tracks stay off seated-height ownership. Measured on the shipped clip: all 411
+    // translation channels constant; legs rotate but never translate.
     const mod = await import("../../../apps/ui-xr/src/seated-role-clip-policy.js") as Record<string, unknown>;
     const fn = mod["seatedRoleClipIsPlayable"];
     expect(
       typeof fn,
-      "apps/ui-xr does not export seatedRoleClipIsPlayable(clipName) — the #83 carve-out has no seam a "
-        + "seated-rig clip can pass through, so playability cannot be measured without one",
+      "apps/ui-xr must export seatedRoleClipIsPlayable(clipName) from seated-role-clip-policy.ts",
     ).toBe("function");
     expect(
       (fn as (n: string) => boolean)(SEATED_CLIP),

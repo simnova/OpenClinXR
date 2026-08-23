@@ -75,15 +75,17 @@ export function isInpatientRecumbentScenario(
  */
 export const POSTURE_SOURCE_DESCRIPTION =
   "packages/openclinxr/asset-registry/src/actor-posture.ts defaultPostureForEnvironmentSlot "
-  + "(scenario-id markers: telehealth seated, ed_chest_pain + INPATIENT_RECUMBENT_SCENARIO_MARKERS supine; "
-  + "else standing). resolveActorPosture prefers env/scenario over declared standing.";
+  + "(scenario-id markers: telehealth seated, peds_asthma family seated (#574), "
+  + "ed_chest_pain + INPATIENT_RECUMBENT_SCENARIO_MARKERS supine; else standing). "
+  + "resolveActorPosture prefers env/scenario over declared standing.";
 
 /**
  * Default posture from environment + slot.
  * - Telehealth primary_patient → seated (patient_chair fixture) (#81)
+ * - Peds urgent-care family_or_observer → seated (family_chair / parent chair) (#574)
  * - ED chest-pain primary_patient → supine on shell stretcher fixture (#150)
  * - Declared inpatient recumbent stations → supine on existing support (#179)
- * - Everyone else stands. Do NOT auto-supine every station with furniture —
+ * - Everyone else stands. Do NOT auto-seat/auto-supine every station with furniture —
  *   ambulatory patients and stations without a bed stay standing.
  */
 export function defaultPostureForEnvironmentSlot(input: {
@@ -97,6 +99,18 @@ export function defaultPostureForEnvironmentSlot(input: {
     env.includes("telehealth")
     || scenario.includes("telehealth");
   if (telehealth && input.slotKind === "primary_patient") {
+    return "seated";
+  }
+  // #574: the peds asthma encounter stages the accompanying parent SEATED at the
+  // bedside chair — family-centred care seats her beside the child during a nebulised
+  // treatment (consulted staging opinion, not clinician sign-off). The environment
+  // authors FAMILY_CHAIR ("Family or parent seating") and the case authors
+  // parent_chair_equipment; the posture table now agrees. Scenario/environment gate —
+  // other stations' family slots still stand (ED spouse declares standing).
+  const pedsUrgentCare =
+    scenario.includes("peds_asthma")
+    || env.includes("pediatric_urgent_care");
+  if (pedsUrgentCare && input.slotKind === "family_or_observer") {
     return "seated";
   }
   // #150: ED chest-pain bay only. Stretcher is a shell fixture; stepdown has no bed.
