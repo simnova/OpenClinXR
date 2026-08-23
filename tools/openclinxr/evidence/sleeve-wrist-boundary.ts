@@ -12,6 +12,7 @@ import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { NodeIO, type Document } from "@gltf-transform/core";
 import { extractJointsFromDocument } from "./humanoid-proportions-probe.js";
+import { maxOf, minMaxXyz, minOf } from "./min-max-bounds.js";
 
 const GARMENT_MESH_RE = /openclinxr_real_garment/i;
 const DECLARED_ANY_RE = /openclinxr_declared_upper_layers__/i;
@@ -300,8 +301,9 @@ function distalBand(samples: ArmSample[], distalFraction: number): ArmSample[] {
   }
   const out: ArmSample[] = [];
   for (const list of bySide.values()) {
-    const sMin = Math.min(...list.map((x) => x.s));
-    const sMax = Math.max(...list.map((x) => x.s));
+    // Arm-segment sample lists grow with body density — single-pass (#595).
+    const sMin = minOf(list.map((x) => x.s));
+    const sMax = maxOf(list.map((x) => x.s));
     const cut = sMax - Math.max((sMax - sMin) * distalFraction, 0.04);
     for (const x of list) {
       if (x.s >= cut) out.push(x);
@@ -350,8 +352,8 @@ function measureClothingBoundaryToHand(
   const meanD = nD > 0 ? sumD / nD : 999;
 
   // Max s of clothing along elbow→hand (0=elbow, 1=hand bone).
-  const maxS = Math.max(...armClothed.map((v) => v.s));
-  const meshMaxS = Math.max(...samples.map((v) => v.s));
+  const maxS = maxOf(armClothed.map((v) => v.s));
+  const meshMaxS = maxOf(samples.map((v) => v.s));
   // How close clothing gets to the mesh distal tip (1 = gloves to tip).
   const tipCoverage = meshMaxS > 0.01 ? maxS / meshMaxS : 1;
 
@@ -387,7 +389,7 @@ function detectShortSleeve(
     const lateral = shell.positions.filter((v) => Math.abs(v.x - body.cx) >= latThresh);
     if (lateral.length < 16) continue;
     anyLateral = true;
-    const cuffY = Math.min(...lateral.map((v) => v.y));
+    const cuffY = minOf(lateral.map((v) => v.y));
     if (cuffY > shortCuffThreshold) {
       highestShortCuffY = Math.max(highestShortCuffY, cuffY);
     }
@@ -503,23 +505,19 @@ function collectBody(document: Document): {
       halfW: 0.3,
     };
   }
-  const minY = Math.min(...verts.map((v) => v.y));
-  const maxY = Math.max(...verts.map((v) => v.y));
-  const minX = Math.min(...verts.map((v) => v.x));
-  const maxX = Math.max(...verts.map((v) => v.x));
-  const minZ = Math.min(...verts.map((v) => v.z));
-  const maxZ = Math.max(...verts.map((v) => v.z));
+  // Single-pass bounds (min-max-bounds) — body verts exceed spread arg limit (#595).
+  const b = minMaxXyz(verts);
   return {
     verts,
     tris,
-    minY,
-    maxY,
-    minX,
-    maxX,
-    cx: (minX + maxX) * 0.5,
-    cz: (minZ + maxZ) * 0.5,
-    height: Math.max(maxY - minY, 0.001),
-    halfW: Math.max((maxX - minX) * 0.5, 0.001),
+    minY: b.minY,
+    maxY: b.maxY,
+    minX: b.minX,
+    maxX: b.maxX,
+    cx: (b.minX + b.maxX) * 0.5,
+    cz: (b.minZ + b.maxZ) * 0.5,
+    height: Math.max(b.maxY - b.minY, 0.001),
+    halfW: Math.max((b.maxX - b.minX) * 0.5, 0.001),
   };
 }
 

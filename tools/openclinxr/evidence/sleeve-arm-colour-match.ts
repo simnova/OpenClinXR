@@ -11,6 +11,7 @@
 import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { NodeIO, type Document } from "@gltf-transform/core";
+import { maxOf, minMaxXyz, minOf } from "./min-max-bounds.js";
 
 const GARMENT_MESH_RE = /openclinxr_real_garment/i;
 const DECLARED_ANY_RE = /openclinxr_declared_upper_layers__/i;
@@ -181,9 +182,8 @@ function collectShells(document: Document): Shell[] {
       } else {
         for (let i = 0; i < positions.length; i++) indices.push(i);
       }
-      const ys = positions.map((p) => p.y);
-      const xs = positions.map((p) => p.x);
-      const zs = positions.map((p) => p.z);
+      // Single-pass bounds — garment shell POSITION arrays exceed spread arg limit (#595).
+      const b = minMaxXyz(positions);
       shells.push({
         meshName,
         positions,
@@ -191,10 +191,10 @@ function collectShells(document: Document): Shell[] {
         triCount: Math.floor(indices.length / 3),
         isUnder: /__under_/i.test(meshName),
         colour: baseColor(prim.getMaterial()),
-        minY: Math.min(...ys),
-        maxY: Math.max(...ys),
-        cx: (Math.min(...xs) + Math.max(...xs)) * 0.5,
-        cz: (Math.min(...zs) + Math.max(...zs)) * 0.5,
+        minY: b.minY,
+        maxY: b.maxY,
+        cx: (b.minX + b.maxX) * 0.5,
+        cz: (b.minZ + b.maxZ) * 0.5,
       });
       break;
     }
@@ -274,25 +274,21 @@ function collectBody(document: Document): {
       skinColour: null,
     };
   }
-  const minY = Math.min(...positions.map((v) => v.y));
-  const maxY = Math.max(...positions.map((v) => v.y));
-  const minX = Math.min(...positions.map((v) => v.x));
-  const maxX = Math.max(...positions.map((v) => v.x));
-  const minZ = Math.min(...positions.map((v) => v.z));
-  const maxZ = Math.max(...positions.map((v) => v.z));
+  // Single-pass bounds (min-max-bounds) — body POSITION arrays exceed spread arg limit (#595).
+  const b = minMaxXyz(positions);
   return {
     positions,
     tris,
-    minY,
-    maxY,
-    minX,
-    maxX,
-    minZ,
-    maxZ,
-    cx: (minX + maxX) * 0.5,
-    cz: (minZ + maxZ) * 0.5,
-    height: Math.max(maxY - minY, 0.001),
-    halfW: Math.max((maxX - minX) * 0.5, 0.001),
+    minY: b.minY,
+    maxY: b.maxY,
+    minX: b.minX,
+    maxX: b.maxX,
+    minZ: b.minZ,
+    maxZ: b.maxZ,
+    cx: (b.minX + b.maxX) * 0.5,
+    cz: (b.minZ + b.maxZ) * 0.5,
+    height: Math.max(b.maxY - b.minY, 0.001),
+    halfW: Math.max((b.maxX - b.minX) * 0.5, 0.001),
     skinColour,
   };
 }
@@ -318,7 +314,7 @@ function measureArmBelowCuffAcrossShells(
     const lateral = shell.positions.filter((v) => Math.abs(v.x - body.cx) >= latThresh);
     if (lateral.length < 16) continue;
     anyLateral = true;
-    const cuffY = Math.min(...lateral.map((v) => v.y));
+    const cuffY = minOf(lateral.map((v) => v.y));
     if (cuffY > shortCuffThreshold) {
       highestShortCuffY = Math.max(highestShortCuffY, cuffY);
     }
