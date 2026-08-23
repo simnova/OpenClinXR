@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.dark-factory-multi-case-rollup.v1",
-  "generatedAt": "2026-08-11T01:25:02.543Z",
+  "generatedAt": "2026-08-23T08:37:36.597Z",
   "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
   "population": [
     {
@@ -72,14 +72,14 @@
       "room": 15,
       "equipment": 5,
       "staging_placement": 15,
-      "render": 15,
       "case_to_actor_params": 2,
       "body": 2,
-      "rigging": 1
+      "rigging": 2,
+      "render": 10
     },
     "frontierCounts": {
       "case_to_actor_params": 13,
-      "rigging": 1
+      "render": 1
     },
     "coverageNotes": [
       "The roll-up reports what happened per case per station; no pass rate is asserted.",
@@ -100,7 +100,7 @@
         "staging_placement",
         "render"
       ],
-      "generatedAt": "2026-08-11T01:22:52.041Z",
+      "generatedAt": "2026-08-23T08:25:48.359Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
         "case_to_actor_params": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --list-presets",
@@ -120,8 +120,8 @@
           "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:203 CASE_ACTOR_PRESETS (data-driven preset map, no LLM)",
           "artifactPaths": [],
           "notes": [
-            "CASE_ACTOR_PRESETS (orchestrate_character.py:203) has no entry for adult_abdominal_pain_v1; the data-driven preset map only covers ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
-            "The case definition itself carries no phenotype.garmentLayers in the scenario bank (#275 verified: zero phenotype fields), so no case->actor params exist to materialize for this case."
+            "Neither the case definition (scenario fixture phenotype export, issue-291) nor CASE_ACTOR_PRESETS (orchestrate_character.py:203) carries a phenotype for adult_abdominal_pain_v1; the data-driven maps only cover ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
+            "issue-291 gave the case definition a phenotype home; cases that do not author one are refused by the generator (REFUSE, no generic-adult default #276), so no case->actor params exist to materialize for this case."
           ]
         },
         {
@@ -131,7 +131,7 @@
           "implementation": "tools/openclinxr/asset-pipeline/anny/generate_mesh.py:394 build_source_body (deterministic parametric stub; real-Anny forward pass is a separate blocked path)",
           "artifactPaths": [],
           "notes": [
-            "No case-actor preset for adult_abdominal_pain_v1; generate_mesh.py build_source_body requires preset params (age/body_profile/phenotype) that do not exist for this case."
+            "No case-actor preset and no case-definition phenotype for adult_abdominal_pain_v1; generate_mesh.py build_source_body requires authored phenotype (age/body_profile/phenotype) that does not exist for this case (issue-291: the generator REFUSES rather than defaulting to a generic adult)."
           ]
         },
         {
@@ -198,15 +198,11 @@
         {
           "stationId": "render",
           "stationName": "render",
-          "classification": "deterministic",
+          "classification": "error",
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
-          "artifactPaths": [
-            ".openclinxr/evidence/issue-288/cases/adult_abdominal_pain_v1/stage-render/capture/adult_abdominal_pain_v1-room.png",
-            ".openclinxr/evidence/issue-288/cases/adult_abdominal_pain_v1/stage-render/capture/capture-manifest.json"
-          ],
+          "artifactPaths": [],
           "notes": [
-            "RAN live: loaded adult_abdominal_pain_v1 in scene-overview capture mode, waited for station shell + humanoid assets, screenshot written.",
-            "Live env=adult_ed_abdominal_bay_v1; capture-manifest source=live_scene."
+            "Capture failed for adult_abdominal_pain_v1: page.screenshot: Timeout 30000ms exceeded. Call log: \u001b[2m  - taking page screenshot\u001b[22m"
           ]
         }
       ]
@@ -224,7 +220,7 @@
         "staging_placement",
         "render"
       ],
-      "generatedAt": "2026-08-11T01:22:57.112Z",
+      "generatedAt": "2026-08-23T08:27:11.837Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
         "case_to_actor_params": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --list-presets",
@@ -244,8 +240,8 @@
           "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:203 CASE_ACTOR_PRESETS (data-driven preset map, no LLM)",
           "artifactPaths": [],
           "notes": [
-            "CASE_ACTOR_PRESETS (orchestrate_character.py:203) has no entry for clinic_abdominal_pain_interpreter_v1; the data-driven preset map only covers ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
-            "The case definition itself carries no phenotype.garmentLayers in the scenario bank (#275 verified: zero phenotype fields), so no case->actor params exist to materialize for this case."
+            "Neither the case definition (scenario fixture phenotype export, issue-291) nor CASE_ACTOR_PRESETS (orchestrate_character.py:203) carries a phenotype for clinic_abdominal_pain_interpreter_v1; the data-driven maps only cover ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
+            "issue-291 gave the case definition a phenotype home; cases that do not author one are refused by the generator (REFUSE, no generic-adult default #276), so no case->actor params exist to materialize for this case."
           ]
         },
         {
@@ -255,7 +251,7 @@
           "implementation": "tools/openclinxr/asset-pipeline/anny/generate_mesh.py:394 build_source_body (deterministic parametric stub; real-Anny forward pass is a separate blocked path)",
           "artifactPaths": [],
           "notes": [
-            "No case-actor preset for clinic_abdominal_pain_interpreter_v1; generate_mesh.py build_source_body requires preset params (age/body_profile/phenotype) that do not exist for this case."
+            "No case-actor preset and no case-definition phenotype for clinic_abdominal_pain_interpreter_v1; generate_mesh.py build_source_body requires authored phenotype (age/body_profile/phenotype) that does not exist for this case (issue-291: the generator REFUSES rather than defaulting to a generic adult)."
           ]
         },
         {
@@ -319,15 +315,11 @@
         {
           "stationId": "render",
           "stationName": "render",
-          "classification": "deterministic",
+          "classification": "error",
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
-          "artifactPaths": [
-            ".openclinxr/evidence/issue-288/cases/clinic_abdominal_pain_interpreter_v1/stage-render/capture/clinic_abdominal_pain_interpreter_v1-room.png",
-            ".openclinxr/evidence/issue-288/cases/clinic_abdominal_pain_interpreter_v1/stage-render/capture/capture-manifest.json"
-          ],
+          "artifactPaths": [],
           "notes": [
-            "RAN live: loaded clinic_abdominal_pain_interpreter_v1 in scene-overview capture mode, waited for station shell + humanoid assets, screenshot written.",
-            "Live env=urgent_care_clinic_room_v1; capture-manifest source=live_scene."
+            "Capture failed for clinic_abdominal_pain_interpreter_v1: page.screenshot: Timeout 30000ms exceeded. Call log: \u001b[2m  - taking page screenshot\u001b[22m"
           ]
         }
       ]
@@ -345,7 +337,7 @@
         "staging_placement",
         "render"
       ],
-      "generatedAt": "2026-08-11T01:23:03.985Z",
+      "generatedAt": "2026-08-23T08:28:49.146Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
         "case_to_actor_params": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --list-presets",
@@ -365,8 +357,8 @@
           "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:203 CASE_ACTOR_PRESETS (data-driven preset map, no LLM)",
           "artifactPaths": [],
           "notes": [
-            "CASE_ACTOR_PRESETS (orchestrate_character.py:203) has no entry for ed_chest_pain_priority_v1; the data-driven preset map only covers ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
-            "The case definition itself carries no phenotype.garmentLayers in the scenario bank (#275 verified: zero phenotype fields), so no case->actor params exist to materialize for this case."
+            "Neither the case definition (scenario fixture phenotype export, issue-291) nor CASE_ACTOR_PRESETS (orchestrate_character.py:203) carries a phenotype for ed_chest_pain_priority_v1; the data-driven maps only cover ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
+            "issue-291 gave the case definition a phenotype home; cases that do not author one are refused by the generator (REFUSE, no generic-adult default #276), so no case->actor params exist to materialize for this case."
           ]
         },
         {
@@ -376,7 +368,7 @@
           "implementation": "tools/openclinxr/asset-pipeline/anny/generate_mesh.py:394 build_source_body (deterministic parametric stub; real-Anny forward pass is a separate blocked path)",
           "artifactPaths": [],
           "notes": [
-            "No case-actor preset for ed_chest_pain_priority_v1; generate_mesh.py build_source_body requires preset params (age/body_profile/phenotype) that do not exist for this case."
+            "No case-actor preset and no case-definition phenotype for ed_chest_pain_priority_v1; generate_mesh.py build_source_body requires authored phenotype (age/body_profile/phenotype) that does not exist for this case (issue-291: the generator REFUSES rather than defaulting to a generic adult)."
           ]
         },
         {
@@ -443,15 +435,11 @@
         {
           "stationId": "render",
           "stationName": "render",
-          "classification": "deterministic",
+          "classification": "error",
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
-          "artifactPaths": [
-            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v1/stage-render/capture/ed_chest_pain_priority_v1-room.png",
-            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v1/stage-render/capture/capture-manifest.json"
-          ],
+          "artifactPaths": [],
           "notes": [
-            "RAN live: loaded ed_chest_pain_priority_v1 in scene-overview capture mode, waited for station shell + humanoid assets, screenshot written.",
-            "Live env=ed_exam_bay_v1; capture-manifest source=live_scene."
+            "Capture failed for ed_chest_pain_priority_v1: page.screenshot: Timeout 30000ms exceeded. Call log: \u001b[2m  - taking page screenshot\u001b[22m"
           ]
         }
       ]
@@ -469,7 +457,7 @@
         "staging_placement",
         "render"
       ],
-      "generatedAt": "2026-08-11T01:23:26.697Z",
+      "generatedAt": "2026-08-23T08:31:37.427Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
         "case_to_actor_params": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --list-presets",
@@ -579,15 +567,11 @@
         {
           "stationId": "render",
           "stationName": "render",
-          "classification": "deterministic",
+          "classification": "error",
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
-          "artifactPaths": [
-            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v2/stage-render/capture/ed_chest_pain_priority_v2-room.png",
-            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v2/stage-render/capture/capture-manifest.json"
-          ],
+          "artifactPaths": [],
           "notes": [
-            "RAN live: loaded ed_chest_pain_priority_v2 in scene-overview capture mode, waited for station shell + humanoid assets, screenshot written.",
-            "Live env=ed_exam_bay_v1; capture-manifest source=live_scene."
+            "Capture failed for ed_chest_pain_priority_v2: page.screenshot: Timeout 30000ms exceeded. Call log: \u001b[2m  - taking page screenshot\u001b[22m"
           ]
         }
       ]
@@ -605,7 +589,7 @@
         "staging_placement",
         "render"
       ],
-      "generatedAt": "2026-08-11T01:23:33.142Z",
+      "generatedAt": "2026-08-23T08:32:48.760Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
         "case_to_actor_params": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --list-presets",
@@ -625,8 +609,8 @@
           "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:203 CASE_ACTOR_PRESETS (data-driven preset map, no LLM)",
           "artifactPaths": [],
           "notes": [
-            "CASE_ACTOR_PRESETS (orchestrate_character.py:203) has no entry for ed_stroke_alert_handoff_v1; the data-driven preset map only covers ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
-            "The case definition itself carries no phenotype.garmentLayers in the scenario bank (#275 verified: zero phenotype fields), so no case->actor params exist to materialize for this case."
+            "Neither the case definition (scenario fixture phenotype export, issue-291) nor CASE_ACTOR_PRESETS (orchestrate_character.py:203) carries a phenotype for ed_stroke_alert_handoff_v1; the data-driven maps only cover ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
+            "issue-291 gave the case definition a phenotype home; cases that do not author one are refused by the generator (REFUSE, no generic-adult default #276), so no case->actor params exist to materialize for this case."
           ]
         },
         {
@@ -636,7 +620,7 @@
           "implementation": "tools/openclinxr/asset-pipeline/anny/generate_mesh.py:394 build_source_body (deterministic parametric stub; real-Anny forward pass is a separate blocked path)",
           "artifactPaths": [],
           "notes": [
-            "No case-actor preset for ed_stroke_alert_handoff_v1; generate_mesh.py build_source_body requires preset params (age/body_profile/phenotype) that do not exist for this case."
+            "No case-actor preset and no case-definition phenotype for ed_stroke_alert_handoff_v1; generate_mesh.py build_source_body requires authored phenotype (age/body_profile/phenotype) that does not exist for this case (issue-291: the generator REFUSES rather than defaulting to a generic adult)."
           ]
         },
         {
@@ -700,15 +684,11 @@
         {
           "stationId": "render",
           "stationName": "render",
-          "classification": "deterministic",
+          "classification": "error",
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
-          "artifactPaths": [
-            ".openclinxr/evidence/issue-288/cases/ed_stroke_alert_handoff_v1/stage-render/capture/ed_stroke_alert_handoff_v1-room.png",
-            ".openclinxr/evidence/issue-288/cases/ed_stroke_alert_handoff_v1/stage-render/capture/capture-manifest.json"
-          ],
+          "artifactPaths": [],
           "notes": [
-            "RAN live: loaded ed_stroke_alert_handoff_v1 in scene-overview capture mode, waited for station shell + humanoid assets, screenshot written.",
-            "Live env=ed_stroke_bay_v1; capture-manifest source=live_scene."
+            "Capture failed for ed_stroke_alert_handoff_v1: page.screenshot: Timeout 30000ms exceeded. Call log: \u001b[2m  - taking page screenshot\u001b[22m"
           ]
         }
       ]
@@ -726,7 +706,7 @@
         "staging_placement",
         "render"
       ],
-      "generatedAt": "2026-08-11T01:23:39.715Z",
+      "generatedAt": "2026-08-23T08:33:42.275Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
         "case_to_actor_params": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --list-presets",
@@ -746,8 +726,8 @@
           "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:203 CASE_ACTOR_PRESETS (data-driven preset map, no LLM)",
           "artifactPaths": [],
           "notes": [
-            "CASE_ACTOR_PRESETS (orchestrate_character.py:203) has no entry for ob_headache_preeclampsia_triage_v1; the data-driven preset map only covers ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
-            "The case definition itself carries no phenotype.garmentLayers in the scenario bank (#275 verified: zero phenotype fields), so no case->actor params exist to materialize for this case."
+            "Neither the case definition (scenario fixture phenotype export, issue-291) nor CASE_ACTOR_PRESETS (orchestrate_character.py:203) carries a phenotype for ob_headache_preeclampsia_triage_v1; the data-driven maps only cover ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
+            "issue-291 gave the case definition a phenotype home; cases that do not author one are refused by the generator (REFUSE, no generic-adult default #276), so no case->actor params exist to materialize for this case."
           ]
         },
         {
@@ -757,7 +737,7 @@
           "implementation": "tools/openclinxr/asset-pipeline/anny/generate_mesh.py:394 build_source_body (deterministic parametric stub; real-Anny forward pass is a separate blocked path)",
           "artifactPaths": [],
           "notes": [
-            "No case-actor preset for ob_headache_preeclampsia_triage_v1; generate_mesh.py build_source_body requires preset params (age/body_profile/phenotype) that do not exist for this case."
+            "No case-actor preset and no case-definition phenotype for ob_headache_preeclampsia_triage_v1; generate_mesh.py build_source_body requires authored phenotype (age/body_profile/phenotype) that does not exist for this case (issue-291: the generator REFUSES rather than defaulting to a generic adult)."
           ]
         },
         {
@@ -847,7 +827,7 @@
         "staging_placement",
         "render"
       ],
-      "generatedAt": "2026-08-11T01:23:44.946Z",
+      "generatedAt": "2026-08-23T08:34:19.195Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
         "case_to_actor_params": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --list-presets",
@@ -867,8 +847,8 @@
           "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:203 CASE_ACTOR_PRESETS (data-driven preset map, no LLM)",
           "artifactPaths": [],
           "notes": [
-            "CASE_ACTOR_PRESETS (orchestrate_character.py:203) has no entry for oncology_bad_news_family_v1; the data-driven preset map only covers ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
-            "The case definition itself carries no phenotype.garmentLayers in the scenario bank (#275 verified: zero phenotype fields), so no case->actor params exist to materialize for this case."
+            "Neither the case definition (scenario fixture phenotype export, issue-291) nor CASE_ACTOR_PRESETS (orchestrate_character.py:203) carries a phenotype for oncology_bad_news_family_v1; the data-driven maps only cover ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
+            "issue-291 gave the case definition a phenotype home; cases that do not author one are refused by the generator (REFUSE, no generic-adult default #276), so no case->actor params exist to materialize for this case."
           ]
         },
         {
@@ -878,7 +858,7 @@
           "implementation": "tools/openclinxr/asset-pipeline/anny/generate_mesh.py:394 build_source_body (deterministic parametric stub; real-Anny forward pass is a separate blocked path)",
           "artifactPaths": [],
           "notes": [
-            "No case-actor preset for oncology_bad_news_family_v1; generate_mesh.py build_source_body requires preset params (age/body_profile/phenotype) that do not exist for this case."
+            "No case-actor preset and no case-definition phenotype for oncology_bad_news_family_v1; generate_mesh.py build_source_body requires authored phenotype (age/body_profile/phenotype) that does not exist for this case (issue-291: the generator REFUSES rather than defaulting to a generic adult)."
           ]
         },
         {
@@ -968,7 +948,7 @@
         "staging_placement",
         "render"
       ],
-      "generatedAt": "2026-08-11T01:24:23.916Z",
+      "generatedAt": "2026-08-23T08:36:25.699Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
         "case_to_actor_params": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --list-presets",
@@ -1030,14 +1010,27 @@
         {
           "stationId": "rigging",
           "stationName": "rigging",
-          "classification": "error",
+          "classification": "deterministic",
           "implementation": "tools/openclinxr/asset-pipeline/anny/automate_blender.py:4620 main (Blender armature + auto weights; 23 bones, 25 morph targets) via orchestrate_character.py",
-          "artifactPaths": [],
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_patient_child.glb",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_patient_child_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_patient_child.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_patient_child.bundle.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_anxious_parent.glb",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_anxious_parent_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_anxious_parent.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_anxious_parent.bundle.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_nurse_kevin.glb",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_nurse_kevin_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_nurse_kevin.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_nurse_kevin.bundle.json"
+          ],
           "notes": [
             "peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
+            "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
             "peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
-            "FAILURE: peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1: orchestrate_character.py exited 0 but produced no GLB/rigging report (glb=false report=false); Blender-stage failure is swallowed by the station and must be named, not trusted",
-            "Station ran partially: 2 of 3 actors produced the full glb+report+provenance+bundle set. Not fixed per issue-288 scope (do not fix a station found broken; name it)."
+            "GAP: the MakeClothes `.mhclo` fit stage (fit_stage.py / body_param_stage.py) is not_run — the gitignored staging `.mhclo` assets are absent from worktrees by design; the garment embed ran through the phenotype-derived cover-shell path inside automate_blender.py."
           ]
         },
         {
@@ -1107,7 +1100,7 @@
         "staging_placement",
         "render"
       ],
-      "generatedAt": "2026-08-11T01:24:29.568Z",
+      "generatedAt": "2026-08-23T08:36:36.069Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
         "case_to_actor_params": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --list-presets",
@@ -1127,8 +1120,8 @@
           "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:203 CASE_ACTOR_PRESETS (data-driven preset map, no LLM)",
           "artifactPaths": [],
           "notes": [
-            "CASE_ACTOR_PRESETS (orchestrate_character.py:203) has no entry for peds_fever_v1; the data-driven preset map only covers ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
-            "The case definition itself carries no phenotype.garmentLayers in the scenario bank (#275 verified: zero phenotype fields), so no case->actor params exist to materialize for this case."
+            "Neither the case definition (scenario fixture phenotype export, issue-291) nor CASE_ACTOR_PRESETS (orchestrate_character.py:203) carries a phenotype for peds_fever_v1; the data-driven maps only cover ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
+            "issue-291 gave the case definition a phenotype home; cases that do not author one are refused by the generator (REFUSE, no generic-adult default #276), so no case->actor params exist to materialize for this case."
           ]
         },
         {
@@ -1138,7 +1131,7 @@
           "implementation": "tools/openclinxr/asset-pipeline/anny/generate_mesh.py:394 build_source_body (deterministic parametric stub; real-Anny forward pass is a separate blocked path)",
           "artifactPaths": [],
           "notes": [
-            "No case-actor preset for peds_fever_v1; generate_mesh.py build_source_body requires preset params (age/body_profile/phenotype) that do not exist for this case."
+            "No case-actor preset and no case-definition phenotype for peds_fever_v1; generate_mesh.py build_source_body requires authored phenotype (age/body_profile/phenotype) that does not exist for this case (issue-291: the generator REFUSES rather than defaulting to a generic adult)."
           ]
         },
         {
@@ -1231,7 +1224,7 @@
         "staging_placement",
         "render"
       ],
-      "generatedAt": "2026-08-11T01:24:35.145Z",
+      "generatedAt": "2026-08-23T08:36:46.577Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
         "case_to_actor_params": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --list-presets",
@@ -1251,8 +1244,8 @@
           "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:203 CASE_ACTOR_PRESETS (data-driven preset map, no LLM)",
           "artifactPaths": [],
           "notes": [
-            "CASE_ACTOR_PRESETS (orchestrate_character.py:203) has no entry for postop_fever_consult_pressure_v1; the data-driven preset map only covers ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
-            "The case definition itself carries no phenotype.garmentLayers in the scenario bank (#275 verified: zero phenotype fields), so no case->actor params exist to materialize for this case."
+            "Neither the case definition (scenario fixture phenotype export, issue-291) nor CASE_ACTOR_PRESETS (orchestrate_character.py:203) carries a phenotype for postop_fever_consult_pressure_v1; the data-driven maps only cover ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
+            "issue-291 gave the case definition a phenotype home; cases that do not author one are refused by the generator (REFUSE, no generic-adult default #276), so no case->actor params exist to materialize for this case."
           ]
         },
         {
@@ -1262,7 +1255,7 @@
           "implementation": "tools/openclinxr/asset-pipeline/anny/generate_mesh.py:394 build_source_body (deterministic parametric stub; real-Anny forward pass is a separate blocked path)",
           "artifactPaths": [],
           "notes": [
-            "No case-actor preset for postop_fever_consult_pressure_v1; generate_mesh.py build_source_body requires preset params (age/body_profile/phenotype) that do not exist for this case."
+            "No case-actor preset and no case-definition phenotype for postop_fever_consult_pressure_v1; generate_mesh.py build_source_body requires authored phenotype (age/body_profile/phenotype) that does not exist for this case (issue-291: the generator REFUSES rather than defaulting to a generic adult)."
           ]
         },
         {
@@ -1352,7 +1345,7 @@
         "staging_placement",
         "render"
       ],
-      "generatedAt": "2026-08-11T01:24:40.133Z",
+      "generatedAt": "2026-08-23T08:36:54.947Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
         "case_to_actor_params": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --list-presets",
@@ -1372,8 +1365,8 @@
           "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:203 CASE_ACTOR_PRESETS (data-driven preset map, no LLM)",
           "artifactPaths": [],
           "notes": [
-            "CASE_ACTOR_PRESETS (orchestrate_character.py:203) has no entry for primary_care_dyslipidemia_joint_pain_v1; the data-driven preset map only covers ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
-            "The case definition itself carries no phenotype.garmentLayers in the scenario bank (#275 verified: zero phenotype fields), so no case->actor params exist to materialize for this case."
+            "Neither the case definition (scenario fixture phenotype export, issue-291) nor CASE_ACTOR_PRESETS (orchestrate_character.py:203) carries a phenotype for primary_care_dyslipidemia_joint_pain_v1; the data-driven maps only cover ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
+            "issue-291 gave the case definition a phenotype home; cases that do not author one are refused by the generator (REFUSE, no generic-adult default #276), so no case->actor params exist to materialize for this case."
           ]
         },
         {
@@ -1383,7 +1376,7 @@
           "implementation": "tools/openclinxr/asset-pipeline/anny/generate_mesh.py:394 build_source_body (deterministic parametric stub; real-Anny forward pass is a separate blocked path)",
           "artifactPaths": [],
           "notes": [
-            "No case-actor preset for primary_care_dyslipidemia_joint_pain_v1; generate_mesh.py build_source_body requires preset params (age/body_profile/phenotype) that do not exist for this case."
+            "No case-actor preset and no case-definition phenotype for primary_care_dyslipidemia_joint_pain_v1; generate_mesh.py build_source_body requires authored phenotype (age/body_profile/phenotype) that does not exist for this case (issue-291: the generator REFUSES rather than defaulting to a generic adult)."
           ]
         },
         {
@@ -1473,7 +1466,7 @@
         "staging_placement",
         "render"
       ],
-      "generatedAt": "2026-08-11T01:24:45.840Z",
+      "generatedAt": "2026-08-23T08:37:05.318Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
         "case_to_actor_params": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --list-presets",
@@ -1493,8 +1486,8 @@
           "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:203 CASE_ACTOR_PRESETS (data-driven preset map, no LLM)",
           "artifactPaths": [],
           "notes": [
-            "CASE_ACTOR_PRESETS (orchestrate_character.py:203) has no entry for psych_suicidal_ideation_safety_v1; the data-driven preset map only covers ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
-            "The case definition itself carries no phenotype.garmentLayers in the scenario bank (#275 verified: zero phenotype fields), so no case->actor params exist to materialize for this case."
+            "Neither the case definition (scenario fixture phenotype export, issue-291) nor CASE_ACTOR_PRESETS (orchestrate_character.py:203) carries a phenotype for psych_suicidal_ideation_safety_v1; the data-driven maps only cover ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
+            "issue-291 gave the case definition a phenotype home; cases that do not author one are refused by the generator (REFUSE, no generic-adult default #276), so no case->actor params exist to materialize for this case."
           ]
         },
         {
@@ -1504,7 +1497,7 @@
           "implementation": "tools/openclinxr/asset-pipeline/anny/generate_mesh.py:394 build_source_body (deterministic parametric stub; real-Anny forward pass is a separate blocked path)",
           "artifactPaths": [],
           "notes": [
-            "No case-actor preset for psych_suicidal_ideation_safety_v1; generate_mesh.py build_source_body requires preset params (age/body_profile/phenotype) that do not exist for this case."
+            "No case-actor preset and no case-definition phenotype for psych_suicidal_ideation_safety_v1; generate_mesh.py build_source_body requires authored phenotype (age/body_profile/phenotype) that does not exist for this case (issue-291: the generator REFUSES rather than defaulting to a generic adult)."
           ]
         },
         {
@@ -1594,7 +1587,7 @@
         "staging_placement",
         "render"
       ],
-      "generatedAt": "2026-08-11T01:24:51.474Z",
+      "generatedAt": "2026-08-23T08:37:15.952Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
         "case_to_actor_params": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --list-presets",
@@ -1614,8 +1607,8 @@
           "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:203 CASE_ACTOR_PRESETS (data-driven preset map, no LLM)",
           "artifactPaths": [],
           "notes": [
-            "CASE_ACTOR_PRESETS (orchestrate_character.py:203) has no entry for stepdown_sepsis_nurse_escalation_v1; the data-driven preset map only covers ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
-            "The case definition itself carries no phenotype.garmentLayers in the scenario bank (#275 verified: zero phenotype fields), so no case->actor params exist to materialize for this case."
+            "Neither the case definition (scenario fixture phenotype export, issue-291) nor CASE_ACTOR_PRESETS (orchestrate_character.py:203) carries a phenotype for stepdown_sepsis_nurse_escalation_v1; the data-driven maps only cover ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
+            "issue-291 gave the case definition a phenotype home; cases that do not author one are refused by the generator (REFUSE, no generic-adult default #276), so no case->actor params exist to materialize for this case."
           ]
         },
         {
@@ -1625,7 +1618,7 @@
           "implementation": "tools/openclinxr/asset-pipeline/anny/generate_mesh.py:394 build_source_body (deterministic parametric stub; real-Anny forward pass is a separate blocked path)",
           "artifactPaths": [],
           "notes": [
-            "No case-actor preset for stepdown_sepsis_nurse_escalation_v1; generate_mesh.py build_source_body requires preset params (age/body_profile/phenotype) that do not exist for this case."
+            "No case-actor preset and no case-definition phenotype for stepdown_sepsis_nurse_escalation_v1; generate_mesh.py build_source_body requires authored phenotype (age/body_profile/phenotype) that does not exist for this case (issue-291: the generator REFUSES rather than defaulting to a generic adult)."
           ]
         },
         {
@@ -1715,7 +1708,7 @@
         "staging_placement",
         "render"
       ],
-      "generatedAt": "2026-08-11T01:24:56.667Z",
+      "generatedAt": "2026-08-23T08:37:24.436Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
         "case_to_actor_params": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --list-presets",
@@ -1735,8 +1728,8 @@
           "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:203 CASE_ACTOR_PRESETS (data-driven preset map, no LLM)",
           "artifactPaths": [],
           "notes": [
-            "CASE_ACTOR_PRESETS (orchestrate_character.py:203) has no entry for telehealth_diabetes_health_literacy_v1; the data-driven preset map only covers ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
-            "The case definition itself carries no phenotype.garmentLayers in the scenario bank (#275 verified: zero phenotype fields), so no case->actor params exist to materialize for this case."
+            "Neither the case definition (scenario fixture phenotype export, issue-291) nor CASE_ACTOR_PRESETS (orchestrate_character.py:203) carries a phenotype for telehealth_diabetes_health_literacy_v1; the data-driven maps only cover ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
+            "issue-291 gave the case definition a phenotype home; cases that do not author one are refused by the generator (REFUSE, no generic-adult default #276), so no case->actor params exist to materialize for this case."
           ]
         },
         {
@@ -1746,7 +1739,7 @@
           "implementation": "tools/openclinxr/asset-pipeline/anny/generate_mesh.py:394 build_source_body (deterministic parametric stub; real-Anny forward pass is a separate blocked path)",
           "artifactPaths": [],
           "notes": [
-            "No case-actor preset for telehealth_diabetes_health_literacy_v1; generate_mesh.py build_source_body requires preset params (age/body_profile/phenotype) that do not exist for this case."
+            "No case-actor preset and no case-definition phenotype for telehealth_diabetes_health_literacy_v1; generate_mesh.py build_source_body requires authored phenotype (age/body_profile/phenotype) that does not exist for this case (issue-291: the generator REFUSES rather than defaulting to a generic adult)."
           ]
         },
         {
@@ -1836,7 +1829,7 @@
         "staging_placement",
         "render"
       ],
-      "generatedAt": "2026-08-11T01:25:02.542Z",
+      "generatedAt": "2026-08-23T08:37:36.597Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
         "case_to_actor_params": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --list-presets",
@@ -1856,8 +1849,8 @@
           "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:203 CASE_ACTOR_PRESETS (data-driven preset map, no LLM)",
           "artifactPaths": [],
           "notes": [
-            "CASE_ACTOR_PRESETS (orchestrate_character.py:203) has no entry for ward_delirium_med_rec_v1; the data-driven preset map only covers ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
-            "The case definition itself carries no phenotype.garmentLayers in the scenario bank (#275 verified: zero phenotype fields), so no case->actor params exist to materialize for this case."
+            "Neither the case definition (scenario fixture phenotype export, issue-291) nor CASE_ACTOR_PRESETS (orchestrate_character.py:203) carries a phenotype for ward_delirium_med_rec_v1; the data-driven maps only cover ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
+            "issue-291 gave the case definition a phenotype home; cases that do not author one are refused by the generator (REFUSE, no generic-adult default #276), so no case->actor params exist to materialize for this case."
           ]
         },
         {
@@ -1867,7 +1860,7 @@
           "implementation": "tools/openclinxr/asset-pipeline/anny/generate_mesh.py:394 build_source_body (deterministic parametric stub; real-Anny forward pass is a separate blocked path)",
           "artifactPaths": [],
           "notes": [
-            "No case-actor preset for ward_delirium_med_rec_v1; generate_mesh.py build_source_body requires preset params (age/body_profile/phenotype) that do not exist for this case."
+            "No case-actor preset and no case-definition phenotype for ward_delirium_med_rec_v1; generate_mesh.py build_source_body requires authored phenotype (age/body_profile/phenotype) that does not exist for this case (issue-291: the generator REFUSES rather than defaulting to a generic adult)."
           ]
         },
         {

@@ -2,7 +2,7 @@
   "schemaVersion": "openclinxr.head-focus.crop-run.v1",
   "issue": "358",
   "factoryStep": "instrument",
-  "measuredAt": "2026-08-14T12:23:25.411Z",
+  "measuredAt": "2026-08-23T08:34:00.326Z",
   "generator": {
     "tool": "renderHeadFocusCrops",
     "file": "tools/openclinxr/evidence/isolated-subject-harness.ts",
@@ -16,7 +16,7 @@
     "produced": 2,
     "devServerBoots": 1,
     "browserLaunches": 1,
-    "wallClockMs": 4062
+    "wallClockMs": 6187
   },
   "crops": [
     {
@@ -24,19 +24,19 @@
       "role": "adult_female (MPFB rail)",
       "view": "front",
       "imagePath": ".openclinxr/evidence/head-focus/mpfb-head-front.png",
-      "bytes": 369091,
+      "bytes": 360718,
       "pngDimensions": {
         "width": 1024,
         "height": 1024
       },
-      "frameCoverage": 0.4315681457519531,
+      "frameCoverage": 0.4303140640258789,
       "frameSpanFraction": 0.8000188406129219,
       "focusRegion": {
         "kind": "head_box",
         "derivation": "topmost band of the body bounds cut at the neck (silhouette width profile); never the eye mesh, never literal coordinates (D1)",
         "neckPositionMeters": 1.4631,
         "dominantAxis": "y",
-        "matchedVertexCount": 7910,
+        "matchedVertexCount": 30017,
         "boundsMeters": {
           "min": {
             "x": -0.1023,
