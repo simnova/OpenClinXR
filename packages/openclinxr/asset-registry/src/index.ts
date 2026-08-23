@@ -22,13 +22,6 @@ export {
   type EnvironmentZoneTemplate,
   type ResolvedEnvironmentShell,
 } from "./environment-descriptors.js";
-// #574: family-chair world position for seated family placement (main.ts runtimeActorPlacement).
-export {
-  FAMILY_CHAIR,
-  resolveFixtureSlotPosition,
-  shellFloorCenterZ,
-  type RoomPlanDimensions,
-} from "./environment-zone-templates.js";
 import {
   buildSpatialZonesForEnvironment,
   type EnvironmentSpatialZone,

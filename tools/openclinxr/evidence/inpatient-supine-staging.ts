@@ -15,6 +15,7 @@ import { chromium, type Page } from "playwright";
 import { listShippedCastScenarioIds } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
 import { scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src/index.js";
 import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
+import { waitForSceneAssetsSettled } from "./declared-actors-rendered.js";
 import {
   tryReadStampedArtifact,
   withTreeStamp,
@@ -240,6 +241,13 @@ async function measureLive(input: {
           await page.goto(url, { waitUntil: "load", timeout: 180_000 });
           await waitForStationShell(page, 180_000);
           await waitForHumanoidsAndFrames(page, 6, 180_000);
+          // #574: sampling-instant race (same class as #259/#446) — waitForHumanoidsAndFrames
+          // returns on the FIRST skinned mesh + 6 frames, but sibling cast GLBs (15 MB) may
+          // still be loading, so the primary_patient root is unregistered at read time and
+          // the row records posture="standing" patient="unknown". Which station loses moves
+          // run to run. Wait for the runtime's settle signal before sampling; a failed asset
+          // counts as settled, so a broken load still reports instead of masking.
+          await waitForSceneAssetsSettled(page, 60_000);
           await page.waitForTimeout(900);
 
           const live = await readLiveStationFromPage(page);
