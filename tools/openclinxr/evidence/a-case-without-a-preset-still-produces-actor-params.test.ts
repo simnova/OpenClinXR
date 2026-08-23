@@ -115,7 +115,7 @@ function phenotypeOf(params: Record<string, unknown> | null): Record<string, unk
 }
 
 describe("a case without a preset still produces actor params", () => {
-  it.fails("(1) RED: the preset-less case resolves params from its authored phenotype", () => {
+  it("(1) RED: the preset-less case resolves params from its authored phenotype", () => {
     // peds_fever_v1's patient carries age 8 / height_cm 125 / bmi 16.5 in the committed #291 export
     // and has no CASE_ACTOR_PRESETS row, so station one produces nothing for him today.
     const params = resolveParams(WITHOUT_PRESET.caseId, WITHOUT_PRESET.actorId);
@@ -128,7 +128,7 @@ describe("a case without a preset still produces actor params", () => {
     expect(Number(ph.age), "the authored age must reach the resolved params").toBe(8);
   });
 
-  it.fails("(2) RED: both actors resolve through the SAME entry point", () => {
+  it("(2) RED: both actors resolve through the SAME entry point", () => {
     // Refuses a fix that special-cases the new actor on a side path. Identical phenotype numbers must
     // produce a resolution for both, through one call.
     for (const target of [WITH_PRESET, WITHOUT_PRESET]) {
@@ -158,3 +158,14 @@ describe("a case without a preset still produces actor params", () => {
     expect(Number(noah.age), "and his authored age").toBe(8);
   });
 });
+
+/*
+## FIXED (#601)
+
+- Added `resolve_case_actor_params(case_id, actor_id)`: preset row when present, else
+  `params_from_case_definition` (committed phenotype export). Authored top-level keys
+  (age/body_profile/pose) mirrored into `phenotype` so seam consumers see export numbers.
+- `--case-actor-preset` choices = `allowed_case_actor_preset_ids()` = CASE_ACTOR_PRESETS
+  UNION export entries with non-empty phenotype (#276 refuse retained for uncovered actors).
+- CASE_ACTOR_PRESETS left at 4 — no hand-authored Noah row.
+*/
