@@ -63,14 +63,22 @@ import { describe, expect, it } from "vitest";
  *
  * claimScope: internal consistency of the map against the shipped 137-joint subject.
  * notEvidenceFor: whether any clip retargets correctly; motion quality; #546's mixamo_unity question.
+ *
+ * ## FIXED (#585)
+ *
+ * Clause (1) collision cleared without deleting keys. Decision: `clavicle.L/R` keep
+ * `shoulder.L/R` (clip drives those sources; mhx2/mesh2motion same); `shoulder01.L/R` retarget to
+ * `unused.L/R` (retarget_bvh canonical sentinel — smpl.json consumes it; no free distinct shoulder
+ * DOF left). `shoulder01.*` stay in `optional`. Clause (4) CONTROL_KEYS raised 34→60 (map-may-only-
+ * grow floor = current key count at the guard, not a historical constant).
  */
 
 const RIG = "tools/openclinxr/asset-pipeline/makeclothes/known-rigs/mpfb2-default-no-toes.json";
 const SUBJECT = "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb";
 const COVERAGE = "tools/openclinxr/evidence/mpfb-bone-map-coverage.json";
 
-/** #547's landed key count. Growth is its clause; here it is only a floor against deletion. */
-const CONTROL_KEYS = 34;
+/** Current map key count — floor against deletion (map may only grow). Raised 34→60 in #585. */
+const CONTROL_KEYS = 60;
 /** The limb twist family, by NAME not by suffix — face helpers share the `02` suffix. */
 const LIMB_TWISTS = ["upperarm02", "lowerarm02", "upperleg02", "lowerleg02"] as const;
 const FINGERS = [1, 2, 3, 4, 5] as const;
@@ -86,7 +94,7 @@ async function subjectJoints(): Promise<string[]> {
 }
 
 describe("the bone map is unambiguous and complete by family", () => {
-  it.fails("(1) RED: no target is claimed by two source joints", () => {
+  it("(1) RED: no target is claimed by two source joints", () => {
     const inv = new Map<string, string[]>();
     for (const [src, tgt] of Object.entries(bones())) inv.set(tgt, [...(inv.get(tgt) ?? []), src]);
     const collisions = [...inv].filter(([, s]) => s.length > 1).map(([t, s]) => `${t} <- [${s.join(", ")}]`);
