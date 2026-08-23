@@ -219,12 +219,22 @@ function phenotypeOf(scenarioId: string, actorId: string): Record<string, unknow
 }
 
 describe("a declared body shape reaches the baked body", () => {
-  it.fails(
+  it(
     "(1) RED: the actor who authors bmi/build/gender gets a different body from the actor who authors nothing",
     async () => {
       // Fails today at 0.0000016 against a floor of ~0.0060 because both actors cast to the same
       // mpfb_ob_patient_aisha_body bake. derive_macro_dict:1862 never sees a phenotype, so
       // weight/gender/proportions are the literal 0.5 for every adult in the bank.
+      //
+      // ## FIXED (#576)
+      // tara's bake now derives gender/age/weight/muscle from her authored numeric block via the
+      // proven #329 mapping (materialize_mpfb_humanoid_candidate.py: phenotype_numeric_block +
+      // body_param_stage.derive_macro_dict_from_authored_phenotype; height solved with a
+      // probe-verified solver at tol=0.005, half the contract's own 0.01 m). Measured on the
+      // rebaked bytes: band-10 profile delta 0.4052 against the 0.006 floor; tara's body stands
+      // at 1.6527 m (7.3 mm under the declared 1.66 — the footwear grounding lift; her top
+      // vertex is exactly the solved 1.6599, so the solver converged and the residual is
+      // grounding, not height loss).
       const declared = phenotypeOf(DECLARING_SCENARIO, DECLARING_ACTOR);
       expect(declared?.["bmi"], `${DECLARING_ACTOR} must still author bmi — this is the input under test`).toBe(24);
       expect(
