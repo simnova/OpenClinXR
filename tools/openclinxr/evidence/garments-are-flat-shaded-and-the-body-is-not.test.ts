@@ -133,9 +133,12 @@ const isBody = (n: string): boolean => /^mpfb_skin_/i.test(n);
  * this header's own :18 row).
  */
 const BASELINE: Record<string, { tris: number; coplanar: number; sharpSplit: number }> = {
-  "mpfb-ob-patient-aisha::mat_makeclothes_library_cargo_pants.001": { tris: 2782, coplanar: 966, sharpSplit: 48 },
-  "mpfb-ob-patient-aisha::mat_makeclothes_library_footwear_toigo_flats": { tris: 57600, coplanar: 12922, sharpSplit: 3780 },
-  "mpfb-ob-patient-aisha::mat_makeclothes_library_toigo_t_shirt": { tris: 2700, coplanar: 800, sharpSplit: 238 },
+  // #598 re-pinned 2026-08-23: cargo after shoe-swap rebake; was tris 2782 / coplanar 966 / sharpSplit 48.
+  "mpfb-ob-patient-aisha::mat_makeclothes_library_cargo_pants.001": { tris: 2692, coplanar: 906, sharpSplit: 160 },
+  // #598 re-pinned 2026-08-23: key was ...footwear_toigo_flats { tris: 57600, coplanar: 12922, sharpSplit: 3780 }.
+  "mpfb-ob-patient-aisha::mat_makeclothes_library_footwear_toigo_mj_cloth_shoes": { tris: 1004, coplanar: 134, sharpSplit: 146 },
+  // #598 re-pinned 2026-08-23: was coplanar 800 / sharpSplit 238.
+  "mpfb-ob-patient-aisha::mat_makeclothes_library_toigo_t_shirt": { tris: 2700, coplanar: 851, sharpSplit: 245 },
   "mpfb-peds-nurse-kevin::mat_makeclothes_library_scrub_shirt": { tris: 9384, coplanar: 3862, sharpSplit: 303 },
   "mpfb-peds-nurse-kevin::mat_makeclothes_library_scrub_pants": { tris: 2704, coplanar: 908, sharpSplit: 147 },
   "mpfb-peds-nurse-kevin::mat_makeclothes_library_footwear_culturalibre_male_boots": { tris: 30768, coplanar: 6246, sharpSplit: 1605 },
