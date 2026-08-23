@@ -58,7 +58,9 @@ const CRASHING: Array<[string, string]> = [
 
 describe("the garment instruments measure the shipped rail", () => {
   for (const [mod, fn] of CRASHING) {
-    it.fails(`(1.${mod}) RED: ${mod} returns a report instead of throwing`, async () => {
+    // ## FIXED (#595): vertex-scale Math.min/max spreads → minOf/maxOf/minMaxXyz from
+    // min-max-bounds.ts. Modules return reports for generated-humanoids instead of RangeError.
+    it(`(1.${mod}) RED: ${mod} returns a report instead of throwing`, async () => {
       const r = await runs(mod, fn);
       expect(r.ok, `${mod} still fails: ${r.why}`).toBe(true);
     });
@@ -86,7 +88,8 @@ describe("the garment instruments measure the shipped rail", () => {
     expect(spreads, "shoulder-coverage's small-array spreads must be left alone").toBe(7);
   });
 
-  it.fails("(4) RED: the shared helper is consumed by every module this card fixes", async () => {
+  // ## FIXED (#595): all three crash sites import ./min-max-bounds.js (D1 — no second helper).
+  it("(4) RED: the shared helper is consumed by every module this card fixes", async () => {
     // Refuses a second helper (D1) and refuses fixing one module by hand while leaving its siblings.
     const { readFileSync } = await import("node:fs");
     const unwired = CRASHING

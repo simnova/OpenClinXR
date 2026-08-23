@@ -13,6 +13,7 @@
 import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { NodeIO, type Document } from "@gltf-transform/core";
+import { maxOf, minMaxXyz, minOf } from "./min-max-bounds.js";
 
 const GARMENT_MESH_RE = /openclinxr_real_garment/i;
 const DECLARED_ANY_RE = /openclinxr_declared_upper_layers__/i;
@@ -224,20 +225,17 @@ function collectBodyMesh(
       halfW: 0.25,
     };
   }
-  const minY = Math.min(...positions.map((v) => v.y));
-  const maxY = Math.max(...positions.map((v) => v.y));
-  const minX = Math.min(...positions.map((v) => v.x));
-  const maxX = Math.max(...positions.map((v) => v.x));
-  const minZ = Math.min(...positions.map((v) => v.z));
-  const maxZ = Math.max(...positions.map((v) => v.z));
+  // Single-pass bounds (min-max-bounds) — spread over a body-scale POSITION array
+  // (~115k verts) throws RangeError past the ~65k argument limit; #589/#594/#595 class.
+  const b = minMaxXyz(positions);
   return {
     positions,
     triangleCount,
-    minY,
-    maxY,
-    cx: (minX + maxX) * 0.5,
-    cz: (minZ + maxZ) * 0.5,
-    halfW: Math.max((maxX - minX) * 0.5, 0.001),
+    minY: b.minY,
+    maxY: b.maxY,
+    cx: (b.minX + b.maxX) * 0.5,
+    cz: (b.minZ + b.maxZ) * 0.5,
+    halfW: Math.max((b.maxX - b.minX) * 0.5, 0.001),
   };
 }
 
@@ -323,8 +321,8 @@ function spanFlags(
   // Front/back from the garment's own Z range (body AABB cz is unreliable when depth is thin).
   const zs = comp.map((vi) => positions[vi]?.z).filter((z): z is number => z !== undefined);
   if (zs.length < 8) return empty;
-  const zMin = Math.min(...zs);
-  const zMax = Math.max(...zs);
+  const zMin = minOf(zs);
+  const zMax = maxOf(zs);
   const zSpan = Math.max(zMax - zMin, 0.001);
   const frontZ = zMin + zSpan * 0.65; // anterior third of garment depth
   const backZ = zMin + zSpan * 0.35; // posterior third
