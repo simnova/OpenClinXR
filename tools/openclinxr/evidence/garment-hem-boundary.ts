@@ -11,10 +11,16 @@
 import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { NodeIO, type Document } from "@gltf-transform/core";
+import { maxOf, minMaxXyz, minOf } from "./min-max-bounds.js";
 
 const GARMENT_MESH_RE = /openclinxr_real_garment/i;
 const DECLARED_ANY_RE = /openclinxr_declared_upper_layers__/i;
 const LOWER_PAINT_MAT_RE = /openclinxr_role_mesh_clothing_.*_lower/i;
+// #594 — MPFB expresses lower coverage by hiding body faces under the garment
+// (body_param_stage.apply_body_hide_material_region paints alpha-0 only where a garment covers),
+// not by painting them. Without this vocabulary every MPFB asset reported hasPaintedLowerRegion=false
+// by construction.
+const LOWER_HIDE_MAT_RE = /openclinxr_hidden_lower/i;
 
 type Vec3 = { x: number; y: number; z: number };
 
@@ -30,6 +36,13 @@ export type HemBoundary = {
   paintedLowerTopY: number;
   shoulderSpannedByOneComponent: boolean;
   hasPaintedLowerRegion: boolean;
+  /**
+   * #594 — which coverage vocabulary the verdict came from: "anny_paint" (Anny rail paints
+   * body regions), "mpfb_hide" (MPFB rail hides covered body faces), or "unknown" (neither
+   * vocabulary present — a genuine no-coverage zero, not an unsupported one). A future reader
+   * can tell a real zero from a rail the instrument does not understand.
+   */
+  lowerCoverageRail: "anny_paint" | "mpfb_hide" | "unknown";
 };
 
 export type HemBoundaryReport = {
@@ -42,11 +55,11 @@ export type HemBoundaryReport = {
  * Enumerate every shipped humanoid GLB and measure hem-boundary facts from the exported glTF.
  */
 export async function inspectGarmentHemBoundary(
-  opts: { humanoidDir?: string } = {},
+  opts: { humanoidDir?: string; glbPaths?: string[] } = {},
 ): Promise<HemBoundaryReport> {
   const humanoidDir = opts.humanoidDir
     ? path.isAbsolute(opts.humanoidDir)
-      ? opts.humanoidDir
+      ? path.resolve(process.cwd(), opts.humanoidDir)
       : path.resolve(process.cwd(), opts.humanoidDir)
     : path.resolve(process.cwd(), "apps/ui-xr/public/generated-humanoids");
 
@@ -54,10 +67,21 @@ export async function inspectGarmentHemBoundary(
     throw new Error(`inspectGarmentHemBoundary: dir not found: ${humanoidDir}`);
   }
 
-  const glbs = readdirSync(humanoidDir)
-    .filter((f) => f.endsWith(".glb") && !f.includes("rigging"))
-    .filter((f) => !f.endsWith(".anny_base.glb"))
-    .sort();
+  // #594 — an explicit glbPaths selection measures exactly those assets. Silently ignoring the
+  // option measured the alphabetically-first asset instead of the requested one.
+  const glbs =
+    opts.glbPaths && opts.glbPaths.length > 0
+      ? opts.glbPaths.map((p) => {
+          const abs = path.isAbsolute(p) ? p : path.resolve(process.cwd(), p);
+          if (!existsSync(abs)) {
+            throw new Error(`inspectGarmentHemBoundary: glb not found: ${abs}`);
+          }
+          return path.basename(abs);
+        })
+      : readdirSync(humanoidDir)
+          .filter((f) => f.endsWith(".glb") && !f.includes("rigging"))
+          .filter((f) => !f.endsWith(".anny_base.glb"))
+          .sort();
 
   const assets: HemBoundary[] = [];
   for (const file of glbs) {
@@ -119,6 +143,7 @@ async function measureOneAsset(
     paintedLowerTopY: round4(paint.topY),
     shoulderSpannedByOneComponent,
     hasPaintedLowerRegion: paint.hasPaint,
+    lowerCoverageRail: paint.rail,
   };
 }
 
@@ -166,9 +191,11 @@ function collectGarmentShells(document: Document): MeshGeom[] {
 function measurePaintedLower(
   document: Document,
   garmentMeshName: string,
-): { hasPaint: boolean; topY: number } {
+): { hasPaint: boolean; topY: number; rail: "anny_paint" | "mpfb_hide" | "unknown" } {
   let maxY = -Infinity;
   let triCount = 0;
+  let sawAnnyPaint = false;
+  let sawMpfbHide = false;
   for (const mesh of document.getRoot().listMeshes()) {
     const name = mesh.getName() || "";
     if (GARMENT_MESH_RE.test(name) || DECLARED_ANY_RE.test(name) || name === garmentMeshName) {
@@ -176,7 +203,9 @@ function measurePaintedLower(
     }
     for (const prim of mesh.listPrimitives()) {
       const matName = prim.getMaterial()?.getName() || "";
-      if (!LOWER_PAINT_MAT_RE.test(matName)) continue;
+      if (!LOWER_PAINT_MAT_RE.test(matName) && !LOWER_HIDE_MAT_RE.test(matName)) continue;
+      if (LOWER_PAINT_MAT_RE.test(matName)) sawAnnyPaint = true;
+      else sawMpfbHide = true;
       const pos = prim.getAttribute("POSITION")?.getArray();
       const idx = prim.getIndices()?.getArray();
       if (!pos) continue;
@@ -199,10 +228,15 @@ function measurePaintedLower(
       }
     }
   }
+  // #594 — the rail label is decided by which vocabulary was PRESENT, not by triCount. An asset
+  // carrying Anny lower-paint material with zero measurable triangles is an anny_paint zero, not
+  // "unknown"; only an asset with NEITHER vocabulary reports unknown.
+  const rail =
+    sawAnnyPaint ? "anny_paint" : sawMpfbHide ? "mpfb_hide" : ("unknown" as const);
   if (triCount === 0 || !Number.isFinite(maxY)) {
-    return { hasPaint: false, topY: 0 };
+    return { hasPaint: false, topY: 0, rail };
   }
-  return { hasPaint: true, topY: maxY };
+  return { hasPaint: true, topY: maxY, rail };
 }
 
 /**
@@ -314,7 +348,7 @@ function measureHemLoop(
   const scored = (candidates.length > 0 ? candidates : loops).map((loop) => {
     const ys = loop.map((vi) => positions[vi]?.y ?? 0);
     const meanY = ys.reduce((s, y) => s + y, 0) / Math.max(ys.length, 1);
-    return { loop, meanY, minY: Math.min(...ys) };
+    return { loop, meanY, minY: minOf(ys) };
   });
   scored.sort((a, b) => a.meanY - b.meanY);
 
@@ -322,8 +356,8 @@ function measureHemLoop(
   let hemPath: number[] = scored[0]?.loop ?? [];
   if (hemPath.length > 0) {
     const allY = hemPath.map((vi) => positions[vi]!.y);
-    const lo = Math.min(...allY);
-    const hi = Math.max(...allY);
+    const lo = minOf(allY);
+    const hi = maxOf(allY);
     const span = Math.max(hi - lo, 0.001);
     // Bottom 22% of the loop's own Y range — captures hem without climbing the front opening.
     const bandTop = lo + span * 0.22;
@@ -349,8 +383,8 @@ function measureHemLoop(
 
   const lowestY =
     hemPath.length > 0
-      ? Math.min(...hemPath.map((vi) => positions[vi]!.y))
-      : Math.min(...positions.map((p) => p.y));
+      ? minOf(hemPath.map((vi) => positions[vi]!.y))
+      : minOf(positions.map((p) => p.y));
 
   if (hemPath.length < 3) {
     return {
@@ -506,20 +540,17 @@ function collectBodyMesh(
       halfW: 0.25,
     };
   }
-  const minY = Math.min(...positions.map((v) => v.y));
-  const maxY = Math.max(...positions.map((v) => v.y));
-  const minX = Math.min(...positions.map((v) => v.x));
-  const maxX = Math.max(...positions.map((v) => v.x));
-  const minZ = Math.min(...positions.map((v) => v.z));
-  const maxZ = Math.max(...positions.map((v) => v.z));
+  // Single-pass bounds (min-max-bounds) — spread over a body-scale POSITION array
+  // (~115k verts) throws RangeError past the ~65k argument limit; #589/#594 class.
+  const b = minMaxXyz(positions);
   return {
     positions,
     triangleCount,
-    minY,
-    maxY,
-    cx: (minX + maxX) * 0.5,
-    cz: (minZ + maxZ) * 0.5,
-    halfW: Math.max((maxX - minX) * 0.5, 0.001),
+    minY: b.minY,
+    maxY: b.maxY,
+    cx: (b.minX + b.maxX) * 0.5,
+    cz: (b.minZ + b.maxZ) * 0.5,
+    halfW: Math.max((b.maxX - b.minX) * 0.5, 0.001),
   };
 }
 
@@ -594,8 +625,8 @@ function spanFlags(
   const lat = body.halfW * 0.32;
   const zs = comp.map((vi) => positions[vi]?.z).filter((z): z is number => z !== undefined);
   if (zs.length < 8) return empty;
-  const zMin = Math.min(...zs);
-  const zMax = Math.max(...zs);
+  const zMin = minOf(zs);
+  const zMax = maxOf(zs);
   const zSpan = Math.max(zMax - zMin, 0.001);
   const frontZ = zMin + zSpan * 0.65;
   const backZ = zMin + zSpan * 0.35;
