@@ -14,7 +14,7 @@ parseable_sections: 6
 <!-- WAKE-BLUF:BEGIN -->
 ## WAKE BLUF - replace this block every wake, never append
 
-**2026-08-23 16:50 | main `650d66eb` | Claude Opus 5 CEO session**
+**2026-08-23 17:55 | main `6e806bc5` | Claude Opus 5 session, loop stood down, operator-directed**
 
 **OPERATOR MODEL LADDERS (2026-08-23) — CODIFIED in the `model-routing` skill, first available wins**
 - Worker agents: `ox-alpha` (free) -> `deepseek-v4-flash` -> `deepseek-v4-flash-vision-exp` (vision)
@@ -49,11 +49,28 @@ parseable_sections: 6
 - The write root `materialize_mpfb_humanoid_candidate.py` is HELD. A second worker into it collides.
   Per the drain loop's own step 2: a live product worker means harvest-only.
 
-**THIS SESSION (Claude Opus 5, `f06447e0`) HAS STOOD DOWN 2026-08-23 17:30.** The 15-minute
-autonomous board loop (`4fb4e97e`) reconnected and owns the loop. No wake is armed here.
+**THIS SESSION'S LOOP IS STOPPED (Claude Opus 5, `f06447e0`, 2026-08-23 17:30).** The 15-minute
+autonomous board loop (`4fb4e97e`) reconnected and owns board dequeue. No wake is armed here and this
+session will not dispatch. It is still LIVE and taking direct operator instruction, so commits with
+this session id after 17:30 are operator-directed, not loop output.
 
-**NEXT**: `#576` return -> `contract-verify-cli` -> integrate -> pixel grade. Then `#603` (38 of 42
-shipped actors carry no numeric phenotype — the resolver #601 landed has nothing to read).
+**OUTSIDE REVIEW LANDED (codex `gpt-5.6-sol`, xhigh, 295k tokens, read-only).** Two of its claims
+re-verified by my own probe, not taken on trust:
+- **`#576` CANNOT MOVE THE D9 ROLLUP.** `grep -c materialize_mpfb tools/openclinxr/dark-factory/
+  multi-case-runner.ts` = **0**. That runner drives `orchestrate_character.py`, `generate_mesh.py`,
+  `body_param_stage.py`, `fit_stage.py`, `automate_blender.py`. #576 is still right on the D11 MPFB
+  learner rail; it is NOT the D9 frontier and must stop being quoted as such.
+- **`#601`'s resolver has no read path into the metric.** `multi-case-runner.ts:234` does
+  `from orchestrate_character import CASE_ACTOR_PRESETS` directly, never `resolve_case_actor_params`.
+  So the rollup measures the preset table #601 was landed to bypass.
+- NOT RE-VERIFIED by me, and load-bearing if true: that `casesFullyDeterministic: 1` certifies an
+  ORPHAN actor (`ed_chest_pain_priority_v2` declares 3 actors, the preset actor is not among them),
+  that "downstream is 15/15" is false, and that the 6 adults are now 4 topology classes rather than
+  one body. Verify before acting. Full text: scratchpad `codex-review-answer.md`.
+
+**NEXT**: `#576` return -> `contract-verify-cli` -> integrate -> pixel grade, on its own merits.
+Then the metric itself, ahead of `#603`: the rollup cannot direct the queue while it reads a table
+two landed slices were meant to retire.
 
 NOT TESTED: whether any profile band above 0 is reachable by a wardrobe hide-carve; only the foot
 carve was measured to move. Whether wiring `macro_detail_dict` changes exported mesh dimensions —
@@ -1767,7 +1784,21 @@ false premise written into the `#514` plant, two `find /` timeouts, a vitest-4 r
 silent shell arithmetic zero) is real at roughly 15–20% of tool calls and is explicitly the SECOND
 priority. Class-repeat first.
 
-## OPERATOR BLOCKER — DeepSeek balance exhausted, 2026-08-21
+## RESOLVED 2026-08-23 — DeepSeek balance exhausted, 2026-08-21 (was: OPERATOR BLOCKER)
+
+> **THIS BLOCKER IS CLOSED. Everything below is the 2026-08-21 record and is retained as a fence, not
+> as standing policy.** Re-probed 2026-08-23 17:50 with a tool-using turn against a ground truth of
+> 43: `deepseek-v4-flash` answered in 13 s and `deepseek-v4-flash-vision-exp` in 18 s, both exit 0
+> and correct. The 402 does not reproduce.
+>
+> **The "grok-4.5 ONLY on a 402" rule below is SUPERSEDED** by the operator ladders in the WAKE BLUF
+> and the `model-routing` skill: `ox-alpha` -> `deepseek-v4-flash` -> `deepseek-v4-flash-vision-exp`
+> (image slices only, and only when ox is down) -> `grok-4.6`. Grok is the LAST rung now, not the
+> 402 fallback. Do not route a dispatch from the paragraph below.
+>
+> What survives as a real lesson: a 402 arrives PARTWAY THROUGH a session, so the cost is paid and
+> the work is left uncommitted. That is why the orchestrator commits worker WIP after a kill.
+
 
 **Both worker tiers return `402 Insufficient Balance`.** Probed directly, one minimal call each:
 
