@@ -46,7 +46,8 @@ actually lives.
 | # | Hand-authored artifact | Generated at | Measured cost | Proposed stand-in | Licence, quoted from the asset's OWN header | Fit compat | Verdict |
 |---|---|---|---|---|---|---|---|
 | 1 | **`toigo_flats` as clinical footwear** — a *leopard-print party flat* dressing every clinician | `materialize_mpfb_humanoid_candidate.py:30,37` (`SHOE_BY_REFERENCE`) | **4 cards burned** (#502 C, #553 C, #538 O, #554 O) + a 68-line dedicated patch script + **7,769,810 orphaned texture bytes** still shipped; 57,600 tris on 5 cast GLBs | **`toigo_mj_cloth_shoes`** — plain cloth, **already cached**, already baking on 2 shipped actors | `# license CC0` / `# author MRT` — `toigo_mj_cloth_shoes.mhclo:2-3`, read 2026-08-23 | **PASS** — max basemesh ref **13,331** < 13,380 (#318) | **REPLACE — filed as #598** |
-| 2 | **43 of 51 equipment rows built from `BoxGeometry`/`CylinderGeometry`** | `apps/ui-xr/src/station-equipment*.ts` + `room-prop-*.ts` | **3,546 LOC across 21 files, 43 `build*Equipment` functions, 62 station-slot appearances, 14 scenarios** — 84 % of the catalog | 8 GLB-backed rows already prove the loader (`main.ts:3647,9400`); a CC0/CC-BY medical-equipment library would extend it | pending — see NOT DETERMINED below | **REPLACE (larger, unclaimed)** |
+| 2 | **9 FURNITURE-class rows built from `BoxGeometry`** — chairs are five boxes (`station-equipment-builders.ts:335`), `small_table` is a box top on four box legs (`station-equipment-tables.ts:18-33`) | `apps/ui-xr/src/station-equipment*.ts` | part of 43 parametric rows / 62 station-slot appearances | **Kenney Furniture Kit 2.0 — 140 GLBs, ALREADY DOWNLOADED, ZERO consumers** | `License: (Creative Commons Zero, CC0)` — `.openclinxr/staging/equipment/kenney-furniture-kit/License.txt:8`, read 2026-08-23; *"free to use in personal, educational and commercial projects"*, attribution *"not mandatory"* | n/a (GLB, not MakeClothes); **needs offline scale-up** — per-object factors 1.40–2.26, and `applyGltfEquipmentFootprintFit` is shrink-only (`station-equipment.ts:299`) | **REPLACE (larger, unclaimed)** |
+| 2b | **34 CLINICAL-DEVICE parametric rows** (monitors, pumps, cannulae, trays) | same | same | — | — | — | **KEEP — no CC0 source exists; see NOT FOUND** |
 | 3 | **Anny 80-tri shoe blobs** `openclinxr_footwear_*_L/R_mesh` (42 v each, 7 assets) | `automate_blender.py` | bare toes through the shell on all 7 | — | — | — | **KEEP — pinned by operator direction** |
 | 4 | **One garment shell for the whole Anny cast** — `openclinxr_real_garment_peds_upper_v1_mesh` dresses nurse, spouse, parent AND adult patient, distinguished only by material | `automate_blender.py` | 7 of 7 Anny assets; this IS the gown-relabelling mechanism | — | — | — | **KEEP — pinned (same rail); mechanism already carded #596** |
 | 5 | **Hospital gown** | — | — | `makehuman-community-crude-gown` cached; **withdrawn as an evening dress (#413)**; CC0 lab coat now proposed | `# license CC0` / `# author Joel Palmius` — `crudegown.mhclo:2-3` | max ref **13,351** < 13,380 | **ALREADY OWNED — #596 open, do not duplicate** |
@@ -165,13 +166,65 @@ resolve `/xr-assets/medical-equipment/${fileName}`, and eight assets ship throug
 "build the consumer" slice — the consumer works. It is a **supply** slice: 43 of 51 rows have no
 asset to load.
 
-No open card claims this. Left un-carded deliberately — the brief asked for **one** card, and
-candidate 1 is the tighter, already-cached, already-proven one.
+### The supply already exists for the furniture half, and nothing consumes it
 
-**Ledger-worthy, flagged not fixed:** four of the eight shipped equipment GLBs are named
-`*-sketchfab-ccby.glb` while `equipment-catalog.v1.json` records `"licenceStatus": "internal"` on
-all eight. A filename is not a licence and neither is a catalog string. **The licence lane should
-read those four `.provenance.json` files and reconcile.** I did not edit the ledger.
+**VERIFIED 2026-08-23, re-measured after a prior-art scout reported it (§1b — a finding that would
+overturn a claim gets independently re-run):**
+
+```
+.openclinxr/staging/equipment/kenney-furniture-kit/   20 MB
+  License.txt:8   "License: (Creative Commons Zero, CC0)"
+                  "free to use in personal, educational and commercial projects"
+                  "Support us by crediting Kenney ... (this is not mandatory)"
+  Models/GLTF format/                                 140 .glb
+```
+
+`grep -rn kenney apps/ tools/ packages/` returns **nothing**. Downloaded, CC0, unpacked, and
+**wired to zero code** — *"proven and unconsumed"*, which D9 names as the factory's characteristic
+defect.
+
+Nine of the 43 parametric rows are furniture rather than clinical devices and carry **no deck
+constraint** (`SUPPORT_SURFACE_DECK_TOP_BY_EQUIPMENT_ID` lists only five bed/stretcher/exam-table
+ids): `chairs`, `parent_chair`, `safe_room_chair`, `small_table`, `consultation_desk`, `ehr_screen`,
+`lab_results_panel`, `tablet_visit`, `medication_cart`. Kenney ships `chair`, `chairDesk`,
+`loungeChair`, `sideTable`, `table`, `desk`, `computerScreen`, `trashcan` at 68–588 triangles and
+6–38 KB — against 1.4–4.7 MB for the four Sketchfab bank assets.
+
+**The earlier Kenney rejection was bed-specific and does not generalise.** `bedSingle` was refused on
+deck height (0.375 m against a 0.58 spec) because a bed must satisfy length *and* deck height under
+one uniform scale. Chairs and tables have no deck to satisfy.
+
+**Known blocker, measured, not a guess:** Kenney models are not metric and the scale factor is
+**per object**, not uniform across the kit — chair 1.91, desk 1.93, table 2.26, sideTable 1.43,
+trashcan 1.40. `applyGltfEquipmentFootprintFit` is shrink-only by construction
+(`Math.min(1, …)`, `station-equipment.ts:299`), so scale-up must happen offline at promote time.
+`normalize-equipment-glb.py:218` already does exactly that via `--target-height`, with no clamp.
+
+**And the whole promote lane already exists**, unconsumed for this kit:
+`tools/openclinxr/factory/equipment-lane/` — `normalize-equipment-glb.py`, `measure-deck-glb.py`,
+`render-glb-multiview-pack.py`, `sketchfab-download.ts`, `equipment-catalog-cli.ts`. Adding a bank
+asset is a map entry in `REAL_EQUIPMENT_GLTF_BY_ID` (`station-equipment.ts:84`) plus a SHA-256 in
+`static-assets.test.ts:24-32`.
+
+**#64 applies and must be handled by whoever takes this:** `.openclinxr/` is gitignored
+(`.gitignore:9`), so a Kenney GLB left in staging has **no land path**. The promote step must copy
+into `apps/ui-xr/public/xr-assets/medical-equipment/` (tracked) with a `.provenance.json` sidecar,
+the way all eight existing bank assets did.
+
+No open card claims this. Left un-carded deliberately — the brief asked for **one** card, and
+candidate 1 is the tighter, already-cached, already-proven, already-baking one. **This is the
+strongest next card** once #598 lands.
+
+**Ledger-worthy, flagged not fixed — and the CAUSE is located.** Four of the eight shipped
+equipment GLBs are named `*-sketchfab-ccby.glb` while `equipment-catalog.v1.json` records
+`"licenceStatus": "internal"` on all eight. That is not a stale catalog: **the generator hardcodes
+it.** `tools/openclinxr/factory/equipment-lane/inventory.ts:153` emits
+`licenceStatus: hasGlbFile ? "internal" : "n/a"` and `:157` emits `ledgerSource: null`,
+unconditionally. So four CC BY 4.0 assets carrying a live attribution obligation are labelled
+`internal` with no ledger link, and the attribution survives only in `PROVENANCE.md` and the
+sidecars. The ledger is supposed to BE the compliance surface CC-BY is conditional on (#193), and
+its machine-readable half currently cannot express one. **The licence lane owns this. I did not
+edit the ledger.**
 
 ---
 
@@ -187,9 +240,32 @@ read those four `.provenance.json` files and reconcile.** I did not edit the led
   re-search MakeHuman for a gown.**
 - **A stand-in for the Anny 80-tri shoes or the shared `peds_upper_v1` shell.** Not searched, by
   direction — those actors leave the rail. **Pinned, not unfound.**
-- **A CC0/CC-BY low-poly medical-equipment library for candidate 2.** **NOT DETERMINED at the time
-  of writing** — a prior-art scout was dispatched and had not returned. The audit records the
-  *demand* (43 rows, 62 slots) as measured; the *supply* is open.
+- **A CC0 source of CLINICAL equipment — beds, IV poles, patient monitors, stethoscopes,
+  wheelchairs, exam tables, defibrillators.** **NOT FOUND, and this is now the second independent
+  sweep to conclude it.** The repo reached it on 2026-08-12
+  (`docs/openclinxr/equipment-oss-candidates.md:65`); a fresh sweep on 2026-08-23 reproduced it:
+  - **Poly Haven** — CC0, hosts models across 15 categories, **no medical category**.
+  - **Kenney** — CC0, **no hospital pack**; the Furniture Kit is the adjacent value (candidate 2).
+  - **Quaternius** — CC0, **no medical pack**.
+  - **ambientCG** — CC0, ~15 models, all food and hardware.
+  - **Sketchfab** `license=cc0&downloadable=true` — **zero results** for hospital bed, IV pole,
+    patient monitor, stethoscope, wheelchair, exam table, syringe, defibrillator. A `chair` control
+    returns 5, so the filter works. The same queries under `license=by` return abundant results.
+  - **NIH 3D** — anatomy, pathogens, prosthetics, PPE in STL. No room equipment.
+  - **Smithsonian Open Access** — cultural-heritage photogrammetry.
+  - **BlendSwap** — has a CC-0 filter and ~20 hospital models, but per-model licences were
+    Cloudflare-blocked and **remain unread**. The one genuinely open thread.
+
+  **The only paths are CC BY with attribution** — which this repo already operates for four assets —
+  **or procedural.** *Do not re-search this.* A researcher handed this question again spends a cycle
+  rebuilding the same table.
+- **Already refused on licence, do not re-litigate:** Sketchfab *Medical Monitor* (pistonstone,
+  licence null), *Medical Cart* (yazzywazzy, CC BY-SA — ShareAlike), *Patient Monitor* (Guardiano,
+  CC BY-NC), itch.io `atomicrealm/hospital-assets` (custom licence forbidding redistribution, which
+  conflicts with serving GLB to a browser). Sweet Home 3D beds are Free Art License, outside the bar.
+- **Already refused on GEOMETRY, not licence:** Kenney `bedSingle` (CC0, deck 0.375 m vs 0.58 spec)
+  and OpenGameArt *Small Hospital Bed* (CC BY 3.0, deck 0.462 m). **Bed-specific** — the rejection
+  does not extend to chairs or tables, which have no deck constraint.
 
 ## claimScope / notEvidenceFor
 
