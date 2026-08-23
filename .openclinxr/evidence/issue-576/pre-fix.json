@@ -1,0 +1,105 @@
+{
+  "slice": "issue-576",
+  "measuredAt": "2026-08-23T21:34:13.062Z",
+  "head": "650d66eb (worktree HEAD at measurement)",
+  "instrument": "same band-profile algorithm as a-declared-body-shape-reaches-the-baked-body.test.ts",
+  "input": {
+    "declaringActor": "parent_tara_johnson_v1",
+    "declaringScenario": "peds_asthma_parent_anxiety_v1",
+    "declaringPhenotype": {
+      "age": 34,
+      "body_profile": "adult_standard_parent",
+      "pose": "standing_anxious_guardian",
+      "skin_tone": "warm_light",
+      "hair_color": "dark_brown",
+      "eye_color": "brown",
+      "gender_presentation": "adult_female_parent",
+      "height_cm": 166,
+      "build": "average_parent",
+      "hair_density": 0.72,
+      "brow_tension": 0.36,
+      "anxious": 0.82,
+      "flush": 0.28,
+      "age_wrinkle": 0.22,
+      "bmi": 24,
+      "clothing_style": "muted_rose_guardian_cardigan",
+      "clothing_color": "muted_rose",
+      "role_visual_cue": "anxious_parent_guardian",
+      "wardrobeRole": "anxious_parent_casual",
+      "garmentLayers": [
+        "casual_top",
+        "open_cardigan"
+      ],
+      "fabricPalette": "muted_rose_and_neutral",
+      "materialFinish": "cotton_knit_matte",
+      "accessoryMarkers": [],
+      "fitProfile": "adult_parent_average_fit"
+    },
+    "undeclaredActor": "patient_aisha_khan_v1",
+    "undeclaredScenario": "ob_headache_preeclampsia_triage_v1",
+    "undeclaredPhenotype": null
+  },
+  "bodies": {
+    "declaring": {
+      "assetPath": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb",
+      "meshName": "mpfb_ob_patient_aisha_body",
+      "vertexCount": 10871,
+      "statureMeters": 1.6658859994495288
+    },
+    "undeclared": {
+      "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+      "meshName": "mpfb_ob_patient_aisha_body",
+      "vertexCount": 11139,
+      "statureMeters": 1.6658903360366821
+    }
+  },
+  "deltas": {
+    "maxProfileDeltaAllBands": 0.012497201028138338,
+    "maxProfileDeltaAboveAnkle": 0.0000016225330834451768,
+    "statureDelta": 0.000004336587153375149,
+    "perBand": [
+      0.012497201028138338,
+      6.543862827168567e-7,
+      6.194145665827655e-7,
+      6.377731600615277e-7,
+      6.012881145767146e-7,
+      5.529667536641192e-7,
+      5.407735822748894e-7,
+      5.450864326017602e-7,
+      5.828036643562573e-7,
+      5.791916362352101e-7,
+      5.800752720663827e-7,
+      0.0000016225330834451768,
+      0.0000013261973323963616,
+      0.0000012274609152429505,
+      0.0000010518165385886569,
+      7.669847665869867e-7,
+      2.7333544530550036e-7,
+      2.2745660954726077e-7,
+      2.7480433384408087e-7,
+      2.3408215071851757e-7
+    ]
+  },
+  "failingRows": [
+    {
+      "row": "(1) tara (declared bmi 24/build average_parent/adult_female_parent/height_cm 166) vs aisha (no phenotype) share a body to six decimals",
+      "measured": "max profile delta above ankle 0.0000016225330834451768; stature delta 0.000004336587153375149; both meshes mpfb_ob_patient_aisha_body",
+      "mechanism": "tara's shipped bake passed no --reference (mpfb-peds-parent-aisha.provenance.json sourceNotes #519 invocation), so materialize_mpfb_humanoid_candidate.py main() took the else branch at :2694: HumanService.create_human(feet_on_ground=True) with macro_detail_dict=None -> MPFB TargetService.get_default_macro_info_dict (gender/age/muscle/weight/proportions all 0.5). derive_macro_dict(:1862) and solve_height_macro(:1971) NEVER RAN on this actor; the manifest's numeric block (height_cm/bmi/build/gender_presentation) is read by nothing on this rail — materialize consumes phenotype only for skin_tone(:170)/fabricPalette(:191)/eye_color(:213). aisha has no manifest at all, so the same default-macro path produced her body. Identical inputs -> identical body."
+    }
+  ],
+  "counterweightBaseline": {
+    "distinctCastReachableMpfbAssets": 9,
+    "distinctBodyMeshes": 6,
+    "statures": {
+      "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": 1.665888,
+      "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": 1.751986,
+      "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": 1.647304,
+      "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb": 1.241018,
+      "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb": 1.665886,
+      "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": 1.760077,
+      "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": 1.751986,
+      "apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.glb": 1.760077,
+      "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb": 1.66589
+    }
+  }
+}

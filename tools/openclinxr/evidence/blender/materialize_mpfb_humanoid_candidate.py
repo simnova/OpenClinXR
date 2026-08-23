@@ -237,6 +237,38 @@ def phenotype_eye_colour(reference_id):
         return ""
 
 
+def phenotype_numeric_block(manifest_id):
+    """Read the case's NUMERIC body identity from the tracked anny manifest (#576).
+
+    Same manifest + `input_params.phenotype` dict the skin-tone / fabricPalette /
+    eye_color helpers above already read one cosmetic string out of; this returns
+    the numeric block (`height_cm`, `bmi`, `build`, `gender_presentation`, authored
+    floats) that previously reached no macro at all. None/absent -> {} so a manifest
+    with no declared identity keeps the exact default-macro path (aisha must stay
+    byte-stable). Unbuildable values are passed through verbatim: the #329 mapping
+    and MPFB's own macro application refuse loudly rather than this materializer
+    silently clamping (the iris_palette.py posture).
+    """
+    if not manifest_id:
+        return {}
+    manifest = (
+        REPO_ROOT / "apps/ui-xr/public/generated-humanoids" / f"{manifest_id}.anny_manifest.json"
+    )
+    if not manifest.is_file():
+        return {}
+    try:
+        m = json.loads(manifest.read_text(encoding="utf-8"))
+        block = m.get("input_params", {}).get("phenotype", {})
+        numeric = {
+            k: block[k]
+            for k in ("height_cm", "bmi", "build", "gender_presentation", "gender", "age", "muscle", "weight", "proportions", "cupsize", "firmness")
+            if k in block
+        }
+        return numeric
+    except Exception:
+        return {}
+
+
 # #335/#332 — the anatomical neck band (MADR 0051 §4, anny-mpfb-landmark-compare.ts
 # BAND_WINDOWS.neck): the narrowest torso slice below the head, as a fraction of
 # the body's own stature. A fitted upper garment whose COLLAR (top vertex) sits
@@ -2688,10 +2720,36 @@ def main():
         human.name = f"{prefix}_body_mesh"
         human.data.name = f"{prefix}_body"
     else:
-        # No reference: default macros, matching the pre-#328 Aisha bake byte-for-byte
-        # (the UI operator this replaces also called HumanService.create_human with
-        # default macros; only the panel-side select/rename steps were dropped).
-        human = HumanService.create_human(feet_on_ground=True)
+        # No reference: default macros UNLESS the case declares a numeric identity
+        # (#576). The manifest id comes through --eye-colour-reference (the #519
+        # per-actor seam this file already established for exactly this actor: the
+        # peds parent shares Aisha's default-macro body, so her authored block is
+        # not reachable through --reference) and the macros come from the PROVEN
+        # #329 mapping in body_param_stage (D1 — wire, never hand-author a second
+        # translation). A bake with no manifest / no numeric identity keeps the
+        # literal default-macro path byte-for-byte (aisha).
+        _numeric = phenotype_numeric_block(args.eye_colour_reference)
+        if _numeric:
+            from body_param_stage import derive_macro_dict_from_authored_phenotype  # noqa: E402
+
+            macro, _macro_derivation = derive_macro_dict_from_authored_phenotype(_numeric)
+            macro["height"] = 0.5  # solved below against the DECLARED stature, #329 discipline
+            print(f"MACRO_BASE {json.dumps(macro)}")
+            print(f"MACRO_DERIVATION {json.dumps(_macro_derivation)}")
+            tmp_dir = pathlib.Path(args.output).parent / f".{pathlib.Path(args.output).name}.height-solve"
+            tmp_dir.mkdir(parents=True, exist_ok=True)
+            try:
+                h_solved = solve_height_macro(macro, float(_numeric["height_cm"]) / 100.0, tmp_dir)
+            finally:
+                import shutil
+
+                shutil.rmtree(tmp_dir, ignore_errors=True)
+            macro["height"] = round(h_solved, 4)
+            print(
+                f"MACRO_SOLVED height={macro['height']} "
+                f"target_stature={float(_numeric['height_cm']) / 100.0:.4f}"
+            )
+        human = HumanService.create_human(feet_on_ground=True, **({"macro_detail_dict": macro} if _numeric else {}))
         human.name = "mpfb_ob_patient_aisha_body_mesh"
         human.data.name = "mpfb_ob_patient_aisha_body"
 
