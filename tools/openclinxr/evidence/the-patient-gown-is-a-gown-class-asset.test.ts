@@ -45,6 +45,15 @@ import { describe, expect, it } from "vitest";
  *
  * claimScope: garment source provenance on the MPFB rail, and the patient's upper garment class.
  * notEvidenceFor: how the gown looks; fit quality; whether the Anny assets are retired.
+ *
+ * ## FIXED (#596)
+ *
+ * Provenance stamp (`stamp-garment-provenance.ts`) writes `sourceMhclo` / `garmentClass` /
+ * `licence` onto every MakeClothes / real_garment mesh extra. Patient upper is now
+ * `openclinxr_real_garment_labcoat_crudelabcoatopen_mesh` fitted from CC0
+ * `crudelabcoatopen.mhclo` via ClothesService (bake_mpfb_gown_inspect.py); peds_upper shell
+ * removed. Physician lab coat records the same source+CC0. hm08 role map routes
+ * hospital_gown → lab coat (garment-selection-by-role.ts). Flipped it.fails → it.
  */
 
 const GOWN = "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb";
@@ -68,7 +77,7 @@ async function garmentProvenance(glb: string): Promise<Array<{ mesh: string; pro
 }
 
 describe("the patient gown is a gown-class asset", () => {
-  it.fails("(1) RED: every garment mesh records the .mhclo it was fitted from", async () => {
+  it("(1) RED: every garment mesh records the .mhclo it was fitted from", async () => {
     // Today: asset.extras is NONE and no mesh carries extras. Without this, clause (2) has nothing
     // to read and the material name is the only signal — which is the defect.
     const rows = await garmentProvenance(GOWN);
@@ -79,7 +88,7 @@ describe("the patient gown is a gown-class asset", () => {
     }
   });
 
-  it.fails("(2) RED: the patient's upper garment derives from a gown- or labcoat-class source", async () => {
+  it("(2) RED: the patient's upper garment derives from a gown- or labcoat-class source", async () => {
     // Refuses the shipped state: peds_upper_v1 relabelled `hospital_gown`.
     const rows = await garmentProvenance(GOWN);
     const upper = rows.filter((r) => /real_garment/i.test(r.mesh));
@@ -89,7 +98,7 @@ describe("the patient gown is a gown-class asset", () => {
       `upper garment classes were ${JSON.stringify(classes)} — none is gown or labcoat`).toBe(true);
   });
 
-  it.fails("(3) COUNTERWEIGHT: a material NAMED hospital_gown does not satisfy clause (2)", async () => {
+  it("(3) COUNTERWEIGHT: a material NAMED hospital_gown does not satisfy clause (2)", async () => {
     // The exact cheat that shipped. The class must come from recorded PROVENANCE; a mesh whose only
     // gown evidence is its material string must still fail. Asserting the negative directly: no
     // upper garment may claim a gown class while its source .mhclo is the peds upper shell.
@@ -106,7 +115,7 @@ describe("the patient gown is a gown-class asset", () => {
     expect(rows.some((r) => r.prov.garmentClass), "no garment records a class at all").toBe(true);
   });
 
-  it.fails("(4) KNOWN-GOOD COLUMN: the physician's lab coat records crudelabcoatopen and CC0", async () => {
+  it("(4) KNOWN-GOOD COLUMN: the physician's lab coat records crudelabcoatopen and CC0", async () => {
     // The physician bake ALREADY fits this asset successfully — it is the proof the stand-in works
     // on this rail. Planted RED only because provenance does not exist yet; it must go green for
     // the right reason (the stamp), not because the assertion was loosened.

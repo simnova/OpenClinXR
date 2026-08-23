@@ -5143,6 +5143,13 @@ def main():
     if GARMENT_FACTOR_PATCH:
         patch_glb_base_color_factors(str(output), GARMENT_FACTOR_PATCH)
 
+    # #596: persist the .mhclo path the bake already held at fit time onto mesh.extras
+    # (sourceMhclo / garmentClass / licence). Without this stamp the material name is the
+    # only signal — which is how a peds_upper shell shipped as hospital_gown.
+    from stamp_garment_provenance import stamp_garment_provenance_glb  # noqa: E402
+
+    stamp_garment_provenance_glb(str(output))
+
     # #371: every MakeClothes garment shipped flat-shaded (100% split coplanar joins) while the
     # body shipped smooth, because the bake had no smoothing call at all. The Anny rail's
     # auto-smooth-at-60-deg knob is applied post-export to the garment NORMAL accessors

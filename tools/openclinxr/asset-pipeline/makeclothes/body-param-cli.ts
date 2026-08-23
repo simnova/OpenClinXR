@@ -46,6 +46,7 @@ import {
   HM08_UPPER_GARMENT_FALLBACK_ID,
   HM08_UPPER_GARMENT_FALLBACK_MESH_PREFIX,
   HM08_TOIGO_T_SHIRT_ID,
+  HM08_LAB_COAT_ID,
   hm08BodyClassCastRoles,
   resolveHm08UpperGarment,
 } from "./garment-selection-by-role.js";
@@ -127,6 +128,18 @@ const TOIGO_T_SHIRT = {
     ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/toigo_basic_tucked_t-shirt/toigo_basic_tucked_t-shirt.mhclo",
   objRel:
     ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/toigo_basic_tucked_t-shirt/t_shirt_basic_tucked.obj",
+};
+
+/**
+ * #596 — CC0 crude-labcoat-female as the hospital-gown stand-in. Already consumed by
+ * the physician materialize bake; max interpolation ref 13,351 < 13,380.
+ */
+const LAB_COAT = {
+  garmentId: HM08_LAB_COAT_ID,
+  mhcloRel:
+    ".openclinxr-local/provider-cache/garments/sources/makehuman-community-crude-labcoat-female/crudelabcoatopen.mhclo",
+  objRel:
+    ".openclinxr-local/provider-cache/garments/sources/makehuman-community-crude-labcoat-female/crudelabcoatopen.obj",
 };
 
 /**
@@ -766,6 +779,35 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
     );
   }
 
+  // #596 — stage the CC0 lab-coat gown stand-in next to the scrub/toigo uppers.
+  const labCoatMhcloPath = path.join(STAGING_DIR, "crudelabcoatopen.mhclo");
+  const labCoatObjPath = path.join(STAGING_DIR, "crudelabcoatopen.obj");
+  const cachedLabCoatMhclo = path.join(REPO_ROOT, LAB_COAT.mhcloRel);
+  const cachedLabCoatObj = path.join(REPO_ROOT, LAB_COAT.objRel);
+  if (
+    !existsSync(cachedLabCoatMhclo)
+    || !existsSync(cachedLabCoatObj)
+    || statSync(cachedLabCoatMhclo).size < 50
+    || statSync(cachedLabCoatObj).size < 50
+  ) {
+    throw new Error(
+      `[body-param] #596 find-or-stop: crudelabcoatopen sources missing from the ` +
+        `tracked provider cache (${LAB_COAT.mhcloRel}, ${LAB_COAT.objRel}). ` +
+        `Stage makehuman-community-crude-labcoat-female under ` +
+        `.openclinxr-local/provider-cache/garments/sources/ and re-run — do NOT fall ` +
+        `back to crudegown (evening_dress) or the peds_upper shell.`,
+    );
+  }
+  copyFileSync(cachedLabCoatMhclo, labCoatMhcloPath);
+  copyFileSync(cachedLabCoatObj, labCoatObjPath);
+  const labCoatLicense = readMhcloLicense(labCoatMhcloPath);
+  if (!isPermittedGarmentLicense(labCoatLicense.token)) {
+    throw new Error(
+      `[body-param] #596 lab coat licence not permitted from its own .mhclo header: ` +
+        `token=${labCoatLicense.token} source=${labCoatLicense.source}`,
+    );
+  }
+
   // #220 find-or-stop — examine lower candidates (licence from .mhclo header only).
   ensureDir(EVIDENCE_DIR_220);
   const lowerExamined = examineLowerGarmentCandidates(REPO_ROOT);
@@ -848,13 +890,18 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
       licenseSource: COVER_SHELL_LICENSE.source,
     };
     if (resolved.kind === "library") {
-      // #322 — which fitted .mhclo a body class uses is named by the resolved garment
-      // id. Each garment's licence record is read from ITS OWN staged .mhclo header.
+      // Which fitted .mhclo a body class uses is named by the resolved garment id.
+      // Each garment's licence record is read from ITS OWN staged .mhclo header.
       if (resolved.garmentId === HM08_TOIGO_T_SHIRT_ID) {
         garment.mhcloPath = toigoMhcloPath;
         garment.objPath = toigoObjPath;
         garment.licenseToken = toigoLicense.token;
         garment.licenseSource = toigoLicense.source;
+      } else if (resolved.garmentId === HM08_LAB_COAT_ID) {
+        garment.mhcloPath = labCoatMhcloPath;
+        garment.objPath = labCoatObjPath;
+        garment.licenseToken = labCoatLicense.token;
+        garment.licenseSource = labCoatLicense.source;
       } else {
         garment.mhcloPath = mhcloPath;
         garment.objPath = objPath;
