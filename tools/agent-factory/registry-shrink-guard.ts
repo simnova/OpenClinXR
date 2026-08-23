@@ -11,6 +11,11 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
+/** Default existence probe: registered paths are repo-root-relative. (#580) */
+function defaultPathExists(registeredPath: string): boolean {
+  return existsSync(path.resolve(process.cwd(), registeredPath));
+}
+
 /** CLI flag accepted by both registry builders. */
 export const ALLOW_SHRINK_FLAG = "--allow-shrink";
 
@@ -29,6 +34,12 @@ export type ShrinkGuardInput = {
   nextPaths: string[];
   /** True when operator passed --allow-shrink or the env opt-in. */
   allowShrink: boolean;
+  /**
+   * Does a registered path still exist on disk? (#580) Resolved against the repo
+   * root by both builders; injectable so contracts need no fixture files.
+   * Default: real `existsSync`.
+   */
+  pathExists?: (registeredPath: string) => boolean;
   /** Max paths listed in messages (default REMOVAL_SAMPLE_LIMIT). */
   sampleLimit?: number;
 };
@@ -97,6 +108,30 @@ export function findRemovedPaths(previousPaths: readonly string[], nextPaths: re
   return previousPaths.filter((p) => !next.has(p)).sort((a, b) => a.localeCompare(b));
 }
 
+/**
+ * Classify removals by whether the file still exists (#580).
+ * - `missing`: bookkeeping — the file is gone; clearing the record is safe.
+ * - `present`: suspicious — the file exists but left the scan; removing the
+ *   record would drop a live file. Never cleared by `--allow-shrink`.
+ */
+export type RemovalClassification = {
+  missing: string[];
+  present: string[];
+};
+
+export function classifyRemovals(
+  removedPaths: readonly string[],
+  pathExists: (registeredPath: string) => boolean,
+): RemovalClassification {
+  const missing: string[] = [];
+  const present: string[] = [];
+  for (const p of removedPaths) {
+    if (pathExists(p)) present.push(p);
+    else missing.push(p);
+  }
+  return { missing, present };
+}
+
 function formatPathSample(paths: readonly string[], sampleLimit: number): string {
   if (paths.length === 0) return "(none)";
   const sample = paths.slice(0, sampleLimit);
@@ -107,19 +142,41 @@ function formatPathSample(paths: readonly string[], sampleLimit: number): string
 
 /**
  * Decide whether a regeneration that would drop registered paths may write.
- * Zero removals without opt-in. With opt-in, writes and reports what went.
+ *
+ * Zero removals without opt-in. With opt-in (#580): only removals whose file
+ * no longer exists on disk are cleared — bookkeeping. A removal whose file
+ * still exists is refused even with the flag; it needs an explicit per-path
+ * allowlist decision, not the routine cleanup reflex.
  */
 export function decideRegistryShrink(input: ShrinkGuardInput): ShrinkGuardDecision {
   const sampleLimit = input.sampleLimit ?? REMOVAL_SAMPLE_LIMIT;
+  const pathExists = input.pathExists ?? defaultPathExists;
   const removedPaths = findRemovedPaths(input.previousPaths, input.nextPaths);
 
   if (removedPaths.length === 0) {
     return { removedPaths, allowWrite: true, message: "" };
   }
 
+  const { missing, present } = classifyRemovals(removedPaths, pathExists);
+  const classes =
+    `${missing.length} gone from disk (bookkeeping), ` +
+    `${present.length} still exist on disk (suspicious)`;
+
+  if (input.allowShrink && present.length > 0) {
+    const message =
+      `[${input.registryLabel}] REFUSED despite ${ALLOW_SHRINK_FLAG}: ` +
+      `${present.length} removed path(s) still exist on disk — dropping them would lose live files.\n` +
+      `Still present:\n${formatPathSample(present, sampleLimit)}\n` +
+      `Re-run without ${ALLOW_SHRINK_FLAG} to see both classes; clear "still present" removals only ` +
+      `via an explicit per-path decision, never via the shrink opt-in.\n` +
+      `Nothing was written.`;
+    return { removedPaths, allowWrite: false, message };
+  }
+
   if (input.allowShrink) {
     const message =
-      `[${input.registryLabel}] --allow-shrink: removing ${removedPaths.length} registered path(s):\n` +
+      `[${input.registryLabel}] --allow-shrink: removing ${removedPaths.length} registered path(s)` +
+      ` (${classes}):\n` +
       `${formatPathSample(removedPaths, sampleLimit)}\n` +
       `(opt-in: ${ALLOW_SHRINK_FLAG} or ${ALLOW_SHRINK_ENV}=1)`;
     return { removedPaths, allowWrite: true, message };
@@ -127,10 +184,11 @@ export function decideRegistryShrink(input: ShrinkGuardInput): ShrinkGuardDecisi
 
   const message =
     `[${input.registryLabel}] REFUSED: regeneration would shrink the protected registry ` +
-    `(${removedPaths.length} path(s) removed, 0 allowed without opt-in).\n` +
+    `(${removedPaths.length} path(s) removed: ${classes}; 0 allowed without opt-in).\n` +
     `A registry is a record: add/update is free; removal requires an explicit opt-in.\n` +
     `Would remove:\n${formatPathSample(removedPaths, sampleLimit)}\n` +
-    `Re-run with ${ALLOW_SHRINK_FLAG} (or ${ALLOW_SHRINK_ENV}=1) to allow shrink cleanup.\n` +
+    `Re-run with ${ALLOW_SHRINK_FLAG} (or ${ALLOW_SHRINK_ENV}=1) to allow shrink cleanup of ` +
+    `files that are gone from disk. Files that still exist are refused even with the flag.\n` +
     `Nothing was written.`;
 
   return { removedPaths, allowWrite: false, message };

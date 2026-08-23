@@ -239,6 +239,8 @@ export function buildGeneratedArtifactRegistry(
     previousPaths,
     nextPaths,
     allowShrink,
+    // #580: existence is judged against the tree being regenerated, not process cwd.
+    pathExists: (registeredPath) => existsSync(path.resolve(cwd, registeredPath)),
   });
 
   if (decision.message) {

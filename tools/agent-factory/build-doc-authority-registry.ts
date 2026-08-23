@@ -1,4 +1,4 @@
-import { mkdirSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -495,6 +495,8 @@ export function buildDocAuthorityRegistry(
     previousPaths,
     nextPaths,
     allowShrink,
+    // #580: existence is judged against the tree being regenerated, not process cwd.
+    pathExists: (registeredPath) => existsSync(path.resolve(cwd, registeredPath)),
   });
 
   if (decision.message) {
