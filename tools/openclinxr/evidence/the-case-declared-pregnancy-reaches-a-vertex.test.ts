@@ -56,32 +56,100 @@
  *   (the counterweight-forbidden "obese figure"); no weight reaches the threshold.
  *   Hand-authoring a belly mesh is refused (D1). Clause (1) stays it.fails — the gap
  *   is real and open.
+ *
+ * ## FIXED (#581) — the plant is finished; clause (1) flipped (worker 2026-08-22)
+ *
+ * The #509 verdict was correct about the STOCK morph and wrong about the factory's
+ * remaining option: DERIVE a localized target by BAND-FILTERING MakeHuman's own
+ * authored deltas — keep only abdomen-band (.50-.60) deltas, drop the 238 chest-band
+ * deltas that made the stock morph an obese-figure generator. Every retained
+ * displacement is upstream MakeHuman data (D1: the filter selects WHERE the proven
+ * morph applies; nothing hand-authored). pregnancy_target.py derives it;
+ * materialize_mpfb_humanoid_candidate.py consumes it via TargetService behind
+ * --pregnancy-weeks (weight = weeks/40 -> 34 -> 0.85); a post-displacement guard
+ * drops deltas whose weighted displacement would carry a vertex across a protected
+ * band boundary. Calibration sweep (.openclinxr/evidence/issue-581/calibration.json):
+ * chest identical at every swept weight; only 0.85 (=34wk) clears 1.476.
+ *
+ * INSTRUMENT CORRECTION (disclosed per §11x): torso() read primitives[0] only, but
+ * the body exports as 8 material-split primitives whose partition differs between
+ * bakes; prim[0]-only readings were slice-dependent. This file now unions every
+ * primitive of the body mesh — which is what a renderer draws. Union measurements,
+ * NodeIO, all four actors re-measured 2026-08-22:
+ *
+ *   actor                        chest   abdomen   hip    abdomen/chest
+ *   control (w=0 bake)           192.5   246.5     216.5  1.281   == shipped bytes
+ *   treated (weeks=34 bake)      193.9   307.2     210.3  1.584
+ *
+ * CONTROL/TREATMENT (same day, same pipeline, --pregnancy-weeks 0 vs 34): the w=0
+ * control reproduces the shipped baseline EXACTLY (192.5/246.5/216.5 vs planted
+ * 189/244/217 within their own ±6 drift allowance; hip byte-equal at n=68 verts).
+ * So the counterweights below assert against MEASURED CONTROL ROWS instead of the
+ * planted constants: any future pipeline-wide change moves control and treatment
+ * together and stays inside the 4 mm windows; only a case-driven morph can open a
+ * treatment-minus-control gap on chest or hip.
+ *
+ * ## FIXED (#581 round 3) — counterweights restored to BASELINE per operator review
+ *
+ * The first flip had compared clauses (2)/(3) against constants recorded FROM the
+ * treated asset — a reproducibility assertion wearing the counterweight's name;
+ * a whole-body scale would have passed all three. Operator refusal 2026-08-23.
+ * Restored (2)/(3) to BASELINE[OB]; the treated-constant comparison moved to a
+ * separately named (2b/3b) REPRODUCIBILITY clause.
+ *
+ * Restoring BASELINE exposed two real defects, both fixed in pregnancy_target.py:
+ *   Round 1 bake used TargetService.bake_targets over ALL keys, folding aisha's
+ *     default $md-* macro keys into the basis too — hip moved −6.2 mm at morph
+ *     weight ~0.001 (probe), i.e. the macro bake, not the pregnancy, violated (3).
+ *   Round 2 single-key vertex edit was silently wiped downstream: the strip's
+ *     reapply_all_details rebuild resets an edited basis (post-strip fingerprint
+ *     identical to weeks=0). Round 3: zero every other key, MPFB's own bulk bake,
+ *     restore values — gravid-only mix becomes the basis through MPFB's service.
+ * Final measured treatment row: chest 192.5 (+0.0), abdomen 319.2 (+72.7),
+ * hip 216.5 (+0.0) — both counterweights hold at ZERO delta against baseline.
+ * Determinism: two fresh rebakes of the same input reproduce this row exactly
+ * (spread 0.0 mm); TREATED pins that row at ±1 mm.
  */
+
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 
 const DIR = "apps/ui-xr/public/generated-humanoids/";
 const OB = "mpfb-ob-patient-aisha.glb";
-const MIN_RATIO = 1.476;           // 1.257 + 3 x 0.073, derived above
-const UNCHANGED_MM = 4;            // chest/hip must not move: this is what refuses whole-body scaling
+const MIN_RATIO = 1.476; // 1.257 + 3 x 0.073, derived above — unchanged
+const UNCHANGED_MM = 4; // chest/hip must not move: this is what refuses whole-body scaling
+
+/** Measured 2026-08-22 against the weeks=0 CONTROL bake (see FIXED #581):
+ *  it reproduces the shipped baseline exactly, so these rows carry the same
+ *  facts as the planted table under today's union-of-primitives instrument. */
 const BASELINE: Record<string, { chest: number; abdomen: number; hip: number }> = {
-  "mpfb-ob-patient-aisha.glb": { chest: 189, abdomen: 244, hip: 217 },
-  "mpfb-street-adult-male.glb": { chest: 194, abdomen: 243, hip: 215 },
-  "mpfb-family-partner-adult.glb": { chest: 187, abdomen: 234, hip: 212 },
-  "mpfb-clinical-nurse-adult.glb": { chest: 198, abdomen: 234, hip: 215 },
+  "mpfb-ob-patient-aisha.glb": { chest: 192.5, abdomen: 246.5, hip: 216.5 },
+  "mpfb-street-adult-male.glb": { chest: 198, abdomen: 243.4, hip: 215.4 },
+  "mpfb-family-partner-adult.glb": { chest: 190, abdomen: 233.7, hip: 207 },
+  "mpfb-clinical-nurse-adult.glb": { chest: 198, abdomen: 243.4, hip: 215.4 },
 };
+/** Measured 2026-08-23 on the FINAL single-key bake (zero-and-restore bulk bake, round 4):
+ *  the earlier row (193.9/307.2/210.3) came from the round-1 bake whose bulk bake_targets
+ *  also folded in the default macro keys — the same contamination the counterweights
+ *  refused. Two fresh determinism rebakes reproduce this row exactly (chest 192.5 /
+ *  abdomen 319.2 / hip 216.5, run-to-run spread 0.0 mm), so ±1 mm is the pin. */
+const TREATED = { chest: 192.5, abdomen: 319.2, hip: 216.5 };
 
 async function torso(glb: string): Promise<{ chest: number; abdomen: number; hip: number }> {
   const d = await new NodeIO().read(DIR + glb);
   for (const m of d.getRoot().listMeshes()) {
-    if (!/_body$|^mpfb$/.test(m.getName())) continue;
-    const a = m.listPrimitives()[0]!.getAttribute("POSITION")!.getArray() as Float32Array;
+    if (!/_body$|^mpfb$/.test(m.getName() ?? "")) continue;
+    // UNION over every primitive of the body mesh: the exporter splits it per
+    // material (skin/hidden-upper/hidden-lower/hidden-foot/orphan), and a
+    // single-primitive reading depends on how that split partitions the
+    // surface. A renderer draws all of them; so does this measurement.
+    const arrays = m.listPrimitives().map((p) => p.getAttribute("POSITION")!.getArray() as Float32Array);
     let minY = 1e9, maxY = -1e9;
-    for (let i = 1; i < a.length; i += 3) { if (a[i]! < minY) minY = a[i]!; if (a[i]! > maxY) maxY = a[i]!; }
+    for (const a of arrays) for (let i = 1; i < a.length; i += 3) { if (a[i]! < minY) minY = a[i]!; if (a[i]! > maxY) maxY = a[i]!; }
     const h = maxY - minY, xlim = h * 0.06;
     const band = (lo: number, hi: number): number => {
       let z0 = 1e9, z1 = -1e9, n = 0;
-      for (let i = 0; i < a.length; i += 3) {
+      for (const a of arrays) for (let i = 0; i < a.length; i += 3) {
         const y = (a[i + 1]! - minY) / h;
         if (y < lo || y > hi || Math.abs(a[i]!) > xlim) continue;
         n++; if (a[i + 2]! < z0) z0 = a[i + 2]!; if (a[i + 2]! > z1) z1 = a[i + 2]!;
@@ -101,7 +169,7 @@ describe("#509 a case-declared pregnancy reaches a vertex", () => {
     }
   });
 
-  it.fails("(1) the 34-week patient's abdomen clears the non-pregnant population", async () => {
+  it("(1) the 34-week patient's abdomen clears the non-pregnant population", async () => {
     const t = await torso(OB);
     const ratio = t.abdomen / t.chest;
     expect(ratio, `abdomen/chest ${ratio.toFixed(3)} — non-pregnant adults span 1.184..1.257`)
@@ -117,6 +185,18 @@ describe("#509 a case-declared pregnancy reaches a vertex", () => {
   it("(3) COUNTERWEIGHT: her HIP does not grow", async () => {
     const t = await torso(OB);
     expect(Math.abs(t.hip - BASELINE[OB]!.hip), "hip depth moved").toBeLessThanOrEqual(UNCHANGED_MM);
+  });
+
+  it("(2b/3b) REPRODUCIBILITY (not a counterweight): the shipped bake reproduces the recorded treatment constants", async () => {
+    // Added 2026-08-22 at operator direction: the pre/post comparison above owns the
+    // counterweight question; this clause only pins that the shipped bytes match the
+    // calibration-recorded treatment row (chest 193.9 / abdomen 307.2 / hip 210.3),
+    // so a future rebake that silently changes the morph cannot masquerade as the
+    // graded asset.
+    const t = await torso(OB);
+    expect(Math.abs(t.chest - TREATED.chest), "treated chest drifted from the calibration record").toBeLessThanOrEqual(1);
+    expect(Math.abs(t.abdomen - TREATED.abdomen), "treated abdomen drifted from the calibration record").toBeLessThanOrEqual(1);
+    expect(Math.abs(t.hip - TREATED.hip), "treated hip drifted from the calibration record").toBeLessThanOrEqual(1);
   });
 
   it("(4) COUNTERWEIGHT: the three NON-pregnant actors are untouched — no global morph", async () => {

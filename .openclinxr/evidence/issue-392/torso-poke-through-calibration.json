@@ -1,8 +1,8 @@
 {
   "slice": "issue-392",
   "title": "torso poke-through calibration — bone-classified, upper garment, bind pose",
-  "measuredAt": "2026-08-14T15:21:16.401Z",
-  "measuredAtCommit": "023f55e4627e37c091b53993869b32102f60109d",
+  "measuredAt": "2026-08-23T02:57:53.938Z",
+  "measuredAtCommit": "3fc86006b28f4f472a1181e5fc29fae0fc280f5a",
   "method": {
     "skinDefinition": "visible skin primitive only (material ^mpfb_skin_); openclinxr_hidden_* are non-drawing and excluded",
     "limbVocabulary": "arm|forearm|hand|wrist|finger|thumb|metacarpal (case-insensitive) — _LIMB_BONE_RE from body_param_stage.py:738",
@@ -14,33 +14,33 @@
   "actors": [
     {
       "actorId": "mpfb-peds-nurse-kevin",
-      "garment": "fisherman_sweater",
-      "totalSkinVerts": 9072,
-      "torsoSkinVerts": 4811,
-      "armSkinExcluded": 4261,
-      "pokingVerts": 0,
-      "worstMm": 0,
-      "mechanism": "zero torso-dominant skin vertices beyond the upper garment's radial envelope — no drawn skin outside the garment silhouette detected at bind pose"
+      "garment": "scrub_shirt",
+      "totalSkinVerts": 10846,
+      "torsoSkinVerts": 6413,
+      "armSkinExcluded": 4433,
+      "pokingVerts": 1,
+      "worstMm": 2.73,
+      "mechanism": "1 torso-dominant skin vertices sit 2.7 mm median (worst 2.7 mm) beyond the garment envelope; 0 of 1 are at garment free edges (single-height collar/hem rim cells, densest at -53°, 430 mm above the hem) — no fabric-covered cell shows skin beyond the envelope; whether sub-centimetre rim adjacency renders is not determined here (hide-mask interaction is NOT TESTED in the issue) and matters for the bound"
     },
     {
       "actorId": "mpfb-ob-patient-aisha",
       "garment": "toigo_t_shirt",
-      "totalSkinVerts": 10880,
-      "torsoSkinVerts": 6468,
+      "totalSkinVerts": 10871,
+      "torsoSkinVerts": 6459,
       "armSkinExcluded": 4412,
-      "pokingVerts": 2,
-      "worstMm": 3.91,
-      "mechanism": "2 torso-dominant skin vertices sit 3.9 mm median (worst 3.9 mm) beyond the garment envelope; all are at garment free edges (single-height collar/hem rim cells, densest at 139°, 374 mm above the hem) — no fabric-covered cell shows skin beyond the envelope; whether sub-centimetre rim adjacency renders is not determined here (hide-mask interaction is NOT TESTED in the issue) and matters for the bound"
+      "pokingVerts": 4,
+      "worstMm": 22.61,
+      "mechanism": "4 torso-dominant skin vertices sit 19.5 mm median (worst 22.6 mm) beyond the garment envelope; all are at garment free edges (single-height collar/hem rim cells, densest at 139°, 386 mm above the hem) — no fabric-covered cell shows skin beyond the envelope; whether sub-centimetre rim adjacency renders is not determined here (hide-mask interaction is NOT TESTED in the issue) and matters for the bound"
     },
     {
       "actorId": "mpfb-peds-patient-child",
       "garment": "toigo_t_shirt",
-      "totalSkinVerts": 10987,
-      "torsoSkinVerts": 6581,
+      "totalSkinVerts": 10934,
+      "torsoSkinVerts": 6528,
       "armSkinExcluded": 4406,
-      "pokingVerts": 3,
-      "worstMm": 10.23,
-      "mechanism": "3 torso-dominant skin vertices sit 9.8 mm median (worst 10.2 mm) beyond the garment envelope; all are at garment free edges (single-height collar/hem rim cells, densest at -148°, 322 mm above the hem) — no fabric-covered cell shows skin beyond the envelope; whether sub-centimetre rim adjacency renders is not determined here (hide-mask interaction is NOT TESTED in the issue) and matters for the bound"
+      "pokingVerts": 0,
+      "worstMm": 0,
+      "mechanism": "zero torso-dominant skin vertices beyond the upper garment's radial envelope — no drawn skin outside the garment silhouette detected at bind pose"
     }
   ]
 }
