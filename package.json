@@ -322,6 +322,7 @@
     "openclaw:watchdog": "tsx tools/openclinxr/openclaw/openclaw-slice-runner.ts --watchdog",
     "openclaw:lease": "tsx tools/openclinxr/openclaw/openclaw-automation-lease.ts",
     "openclaw:slice:init": "tsx tools/openclinxr/openclaw/slice-team-cli.ts init",
+    "openclaw:sweep": "tsx tools/openclinxr/openclaw/openclaw-sweep.ts",
     "openclaw:team-spawn": "tsx tools/openclinxr/openclaw/slice-team-cli.ts team-spawn",
     "openclaw:board": "tsx tools/openclinxr/openclaw/board-cli.ts",
     "openclaw:slice:verify": "tsx tools/openclinxr/openclaw/slice-team-cli.ts verify",

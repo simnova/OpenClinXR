@@ -51,7 +51,7 @@ describe("the sweep counts planted REDs, not prose", () => {
       .toBeGreaterThan(0);
   });
 
-  it.fails("(1) RED: a sweep entry point exists and reports the unfinished inventory", async () => {
+  it("(1) RED: a sweep entry point exists and reports the unfinished inventory", async () => {
     const mod = await import("./openclaw-sweep.js") as Record<string, unknown>;
     const fn = mod["summariseUnfinishedInventory"];
     expect(
@@ -59,13 +59,13 @@ describe("the sweep counts planted REDs, not prose", () => {
       "tools/openclinxr/openclaw/openclaw-sweep.ts does not export summariseUnfinishedInventory() — "
         + "the loop has no enumeration step, which is the whole defect",
     ).toBe("function");
-    const out = (fn as (root: string) => Record<string, unknown>)(ROOT);
+    const out = await (fn as (root: string) => Promise<Record<string, unknown>>)(ROOT);
     for (const k of ["reds", "oldestRedId", "undispatchable", "uncarded", "quietThreads"]) {
       expect(out, `the inventory must report ${k}`).toHaveProperty(k);
     }
   });
 
-  it.fails("(2) RED + COUNTERWEIGHT: the RED count strips prose, and still finds the real ones", async () => {
+  it("(2) RED + COUNTERWEIGHT: the RED count strips prose, and still finds the real ones", async () => {
     // Refuses the cheap fix: shelling out to grep. The prose file must NOT be counted; the genuinely
     // red file must be. A counter that returns 0 for both, or N for both, fails here.
     const mod = await import("./openclaw-sweep.js") as Record<string, unknown>;
@@ -84,3 +84,20 @@ describe("the sweep counts planted REDs, not prose", () => {
     ).toBeGreaterThanOrEqual(1);
   });
 });
+
+/**
+ * ## FIXED (#584)
+ *
+ * Both REDs flipped to live `it()` after `tools/openclinxr/openclaw/openclaw-sweep.ts` landed:
+ *
+ * - (1) imports the module, finds all five keys, and `summariseUnfinishedInventory(ROOT)`
+ *   resolves in ~850 ms (S1 walk + S2 gh + S3 git log + S4 npm + S5 sessions, parallelised).
+ * - (2) `plantedRedCount(ROOT, PROSE_FILE)` = 0 (stripper holds) and
+ *   `plantedRedCount(ROOT, REAL_REDS)` = 3 (>= 3 required). The naive grep still counts the
+ *   prose file (clause 3 unchanged), so the counter is doing real work.
+ *
+ * Measured traps fixed on the way, recorded in openclaw-sweep.ts's header: gh ANSI-decorates
+ * JSON under FORCE_COLOR (parse failed until NO_COLOR + strip); node_modules vendored tests
+ * poisoned the S3 walk (1449 junk hits); worktree mtimes are checkout times, so S3 uses
+ * `git log --diff-filter=A` instead.
+ */
