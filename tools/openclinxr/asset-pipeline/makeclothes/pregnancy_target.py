@@ -196,15 +196,54 @@ def apply_case_driven_gravid_morph(
 
 
 def bake_gravid_morph_into_basis(human) -> None:
-    """Fold every current shape key into the basis (MPFB TargetService.bake_targets).
+    """Fold ONLY the gravid morph into the basis via MPFB's own bulk bake.
 
-    Same discipline the materializer applies to macros: the exported body must
-    carry the deformation in its geometry, not as a rider morph, so downstream
-    garment fits and the helper strip see the gravid torso directly.
+    MEASURED 2026-08-22, two rounds:
+
+    Round 1 — TargetService.bake_targets folds EVERY key: aisha's default $md-*
+    macro keys baked in too, moving hip/stature/head far outside the gravid
+    bands (hip reading −6.2 mm at morph weight ~0.001) and failing the planted
+    hip counterweight. The macro bake is not a no-op on this path.
+
+    Round 2 — a hand vertex-loop + shape_key_remove (basis += key delta, drop
+    the key) is silently wiped downstream: ExportService.bake_modifiers_remove_helpers
+    runs TargetService.reapply_all_details when any non-viseme key exists, and
+    the rebuild path resets the edited basis back to the macro-defined body
+    (measured: post-strip fingerprint identical to the weeks=0 control).
+
+    Round 3 (this) — zero every other key's value, call MPFB's own
+    TargetService.bake_targets so the mix (= pristine macros + gravid only)
+    becomes the basis, then restore every key's prior value. Face/expression/
+    viseme keys ride at their original values on the new basis; the materializer's
+    post-strip MACRO_KEYS_REMOVED guard deletes re-added $md keys exactly as it
+    does on the weeks=0 path. D1: the deformation still flows through MPFB's
+    service; only the VALUES are staged around its call.
     """
+    key_blocks = list(human.data.shape_keys.key_blocks) if human.data.shape_keys else []
+    gravid = next((kb for kb in key_blocks if kb.name == "derived-gravid-abdomen"), None)
+    if gravid is None:
+        raise RuntimeError(
+            "#581: derived-gravid-abdomen key not found — apply_case_driven_gravid_morph "
+            "must run before bake_gravid_morph_into_basis"
+        )
+    restored: list[tuple[object, float]] = []
+    for kb in key_blocks:
+        if kb.name == "derived-gravid-abdomen":
+            continue
+        if abs(kb.value) > 1e-9:
+            restored.append((kb, kb.value))
+            kb.value = 0.0
+    # Bake at the key's own case-driven value (weeks/40), NOT 1.0 — measured round 3:
+    # baking at 1.0 overshoots the calibration-swept weight and inflates the abdomen
+    # reading past the graded treatment row. The mix = pristine macros + gravid at
+    # its own value; other keys contribute nothing (zeroed).
+
     from bl_ext.user_default.mpfb.services.targetservice import TargetService  # noqa: E402
 
     TargetService.bake_targets(human)
+
+    for kb, value in restored:
+        kb.value = value
     bpy.context.view_layer.update()
 
 

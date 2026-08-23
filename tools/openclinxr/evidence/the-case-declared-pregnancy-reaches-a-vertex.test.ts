@@ -156,13 +156,25 @@ describe("#509 a case-declared pregnancy reaches a vertex", () => {
 
   it("(2) COUNTERWEIGHT: her CHEST does not grow — a wider body is not a pregnant one", async () => {
     const t = await torso(OB);
-    expect(Math.abs(t.chest - TREATED.chest),
+    expect(Math.abs(t.chest - BASELINE[OB]!.chest),
       "chest depth moved; scaling the torso produces an obese figure, not a gravid one").toBeLessThanOrEqual(UNCHANGED_MM);
   });
 
   it("(3) COUNTERWEIGHT: her HIP does not grow", async () => {
     const t = await torso(OB);
-    expect(Math.abs(t.hip - TREATED.hip), "hip depth moved").toBeLessThanOrEqual(UNCHANGED_MM);
+    expect(Math.abs(t.hip - BASELINE[OB]!.hip), "hip depth moved").toBeLessThanOrEqual(UNCHANGED_MM);
+  });
+
+  it("(2b/3b) REPRODUCIBILITY (not a counterweight): the shipped bake reproduces the recorded treatment constants", async () => {
+    // Added 2026-08-22 at operator direction: the pre/post comparison above owns the
+    // counterweight question; this clause only pins that the shipped bytes match the
+    // calibration-recorded treatment row (chest 193.9 / abdomen 307.2 / hip 210.3),
+    // so a future rebake that silently changes the morph cannot masquerade as the
+    // graded asset.
+    const t = await torso(OB);
+    expect(Math.abs(t.chest - TREATED.chest), "treated chest drifted from the calibration record").toBeLessThanOrEqual(1);
+    expect(Math.abs(t.abdomen - TREATED.abdomen), "treated abdomen drifted from the calibration record").toBeLessThanOrEqual(1);
+    expect(Math.abs(t.hip - TREATED.hip), "treated hip drifted from the calibration record").toBeLessThanOrEqual(1);
   });
 
   it("(4) COUNTERWEIGHT: the three NON-pregnant actors are untouched — no global morph", async () => {
