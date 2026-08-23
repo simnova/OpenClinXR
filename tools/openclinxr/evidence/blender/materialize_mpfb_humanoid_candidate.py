@@ -2736,6 +2736,11 @@ def main():
             macro["height"] = 0.5  # solved below against the DECLARED stature, #329 discipline
             print(f"MACRO_BASE {json.dumps(macro)}")
             print(f"MACRO_DERIVATION {json.dumps(_macro_derivation)}")
+        human = HumanService.create_human(feet_on_ground=True, **({"macro_detail_dict": macro} if _numeric else {}))
+        if _numeric:
+            # Height is solved AFTER create_human so the probe machinery measures the
+            # real model with every other macro fixed (#329 discipline); the solved
+            # value is applied to this same human below via a fresh macro bake.
             tmp_dir = pathlib.Path(args.output).parent / f".{pathlib.Path(args.output).name}.height-solve"
             tmp_dir.mkdir(parents=True, exist_ok=True)
             try:
@@ -2745,11 +2750,12 @@ def main():
 
                 shutil.rmtree(tmp_dir, ignore_errors=True)
             macro["height"] = round(h_solved, 4)
+            TargetService.set_value("height", macro["height"], human)
+            bpy.context.view_layer.update()
             print(
                 f"MACRO_SOLVED height={macro['height']} "
                 f"target_stature={float(_numeric['height_cm']) / 100.0:.4f}"
             )
-        human = HumanService.create_human(feet_on_ground=True, **({"macro_detail_dict": macro} if _numeric else {}))
         human.name = "mpfb_ob_patient_aisha_body_mesh"
         human.data.name = "mpfb_ob_patient_aisha_body"
 

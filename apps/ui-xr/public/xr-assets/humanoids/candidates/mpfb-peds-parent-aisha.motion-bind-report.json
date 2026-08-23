@@ -1,342 +1,157 @@
 {
-  "schemaVersion": "openclinxr.seated-clip-bind.v1",
-  "stageId": "seated_clip_bind_stage",
-  "factoryStep": "motion_retarget",
-  "generatedAt": "2026-08-22T04:48:31.638926+00:00",
-  "clip": "Sitting_Talking",
-  "clipName": "openclinxr_retarget_seated_talking_cc0",
-  "mixerClipName": "openclinxr_retarget_seated_talking_cc0",
-  "licence": "CC0 (LICENSE-CC0.MD in the Mesh2Motion/mesh2motion-app clone; remote verified https://github.com/Mesh2Motion/mesh2motion-app)",
-  "sourceGlb": "/Users/patrick/.openclinxr-tools/mesh2motion-app/static/animations/human-base-animations.glb#Sitting_Talking",
-  "sourceMap": "tools/openclinxr/asset-pipeline/makeclothes/known-rigs/mesh2motion-human-66.json",
-  "sourceMapEntries": 52,
-  "sourceJoints": 66,
-  "subjectJoints": 137,
-  "actor": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
-  "outputGlb": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb",
-  "outputBytes": 16724372,
-  "targetMap": "tools/openclinxr/asset-pipeline/makeclothes/known-rigs/mpfb2-default-no-toes.json",
+  "schemaVersion": "openclinxr.motion-bind-stage.v1",
+  "stageId": "motion_bind_stage",
+  "verdict": "ok",
+  "generatedAt": "2026-08-23T21:58:18.540687+00:00",
+  "sourceClip": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-576/tools/openclinxr/asset-pipeline/anny/proof-animations/diag/cmu_07_01_walk.bvh",
+  "targetRig": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-576/apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
+  "targetMap": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-576/tools/openclinxr/asset-pipeline/makeclothes/known-rigs/mpfb2-default-no-toes.json",
   "operator": "mcp.load_and_retarget",
   "addonModule": "bl_ext.user_default.retarget_bvh",
-  "stageScript": "tools/openclinxr/asset-pipeline/makeclothes/seated_clip_bind_stage.py",
-  "bonesDriven": 46,
+  "outputGlb": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-576/apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb",
+  "clipName": "openclinxr_retarget_cmu_07_01_walk",
   "drivenBones": [
     {
       "bone": "clavicle.L",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.09250278220856245
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.44595178440063776
     },
     {
       "bone": "clavicle.R",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.07768002348887748
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.4526637462550376
     },
     {
       "bone": "finger1-1.L",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.2538335062565693
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.5152772981673479
     },
     {
       "bone": "finger1-1.R",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.14793345815263592
-    },
-    {
-      "bone": "finger1-2.L",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.0657424950622918
-    },
-    {
-      "bone": "finger1-2.R",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.18138132788588734
-    },
-    {
-      "bone": "finger1-3.L",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.19340308575193887
-    },
-    {
-      "bone": "finger1-3.R",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.625319765036707
+      "keyframes": 318,
+      "totalRotationDeltaRad": 1.288321426138264
     },
     {
       "bone": "finger2-1.L",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.05603695451281965
+      "keyframes": 318,
+      "totalRotationDeltaRad": 1.690633853431791
     },
     {
       "bone": "finger2-1.R",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.39998237299732864
-    },
-    {
-      "bone": "finger2-2.L",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.02545948719489388
-    },
-    {
-      "bone": "finger2-2.R",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.34094052473665215
-    },
-    {
-      "bone": "finger2-3.R",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.18019791999617496
-    },
-    {
-      "bone": "finger3-1.L",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 1.0569058256223798
-    },
-    {
-      "bone": "finger3-1.R",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.469060686416924
-    },
-    {
-      "bone": "finger3-2.L",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.9983703637262806
-    },
-    {
-      "bone": "finger3-2.R",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.6106417266419157
-    },
-    {
-      "bone": "finger3-3.L",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 1.0106371866087898
-    },
-    {
-      "bone": "finger3-3.R",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.33679722669759826
-    },
-    {
-      "bone": "finger4-1.L",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 1.0198992267251015
-    },
-    {
-      "bone": "finger4-1.R",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.6838152427226305
-    },
-    {
-      "bone": "finger4-2.L",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.9779736138880253
-    },
-    {
-      "bone": "finger4-2.R",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.45301329297944903
-    },
-    {
-      "bone": "finger4-3.L",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.9722633226920081
-    },
-    {
-      "bone": "finger4-3.R",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.32589911879035327
-    },
-    {
-      "bone": "finger5-1.L",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 1.0017576776444912
-    },
-    {
-      "bone": "finger5-1.R",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.6882677152752876
-    },
-    {
-      "bone": "finger5-2.L",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.9628978481050581
-    },
-    {
-      "bone": "finger5-2.R",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.4472274137660861
-    },
-    {
-      "bone": "finger5-3.L",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.8878434016373902
-    },
-    {
-      "bone": "finger5-3.R",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.2664587304458266
+      "keyframes": 318,
+      "totalRotationDeltaRad": 1.5343562327325344
     },
     {
       "bone": "foot.L",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.1822955638596664
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.7823966927826405
     },
     {
       "bone": "foot.R",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.2186210037470795
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.7851366214454174
+    },
+    {
+      "bone": "head",
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.2242806516878857
     },
     {
       "bone": "lowerarm01.L",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 1.3146262862719595
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.6661089435219765
     },
     {
       "bone": "lowerarm01.R",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 1.1606873583514243
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.7050358895212412
     },
     {
       "bone": "lowerleg01.L",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.9676398355513811
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.7660486614331603
     },
     {
       "bone": "lowerleg01.R",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.9822073644027114
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.7352886097505689
     },
     {
       "bone": "neck01",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.11499350441956258
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.4946450334973531
+    },
+    {
+      "bone": "root",
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.34085641172714176
     },
     {
       "bone": "spine03",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.11388763249847256
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.39351852264142284
     },
     {
       "bone": "spine04",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.1134596414627973
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.1828178884461522
+    },
+    {
+      "bone": "spine05",
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.3057692162692547
+    },
+    {
+      "bone": "toe1-1.L",
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.39936388877686113
+    },
+    {
+      "bone": "toe1-1.R",
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.3847552983352216
     },
     {
       "bone": "upperarm01.L",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 1.0905903121456504
+      "keyframes": 318,
+      "totalRotationDeltaRad": 1.7375494702864671
     },
     {
       "bone": "upperarm01.R",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 1.057744043879211
+      "keyframes": 318,
+      "totalRotationDeltaRad": 1.5695062807644717
     },
     {
       "bone": "upperleg01.L",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.21866281516849995
+      "keyframes": 318,
+      "totalRotationDeltaRad": 0.9886528961360455
     },
     {
       "bone": "upperleg01.R",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 0.22867866279557347
+      "keyframes": 318,
+      "totalRotationDeltaRad": 1.0084052756428719
     },
     {
       "bone": "wrist.L",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 1.2784388018772006
+      "keyframes": 318,
+      "totalRotationDeltaRad": 1.6779642384499311
     },
     {
       "bone": "wrist.R",
-      "keyframes": 90,
-      "totalRotationDeltaRad": 1.0226062019355595
+      "keyframes": 318,
+      "totalRotationDeltaRad": 1.6167764067649841
     }
   ],
-  "totalRotationDeltaRad": 25.875282352033686,
-  "unbound": [
-    "finger2-3.L",
-    "head",
-    "lowerarm02.L",
-    "lowerarm02.R",
-    "root",
-    "shoulder01.L",
-    "shoulder01.R",
-    "spine05",
-    "toe1-1.L",
-    "toe1-1.R",
-    "upperarm02.L",
-    "upperarm02.R",
-    "upperleg02.L",
-    "upperleg02.R"
-  ],
-  "mapKeysTotal": 60,
-  "mapOptionalCount": 36,
-  "newlyInertKeys": [
-    "finger2-3.L"
-  ],
-  "newlyInertKeysDeclaredOptional": true,
-  "undeclaredInertKeys": [
-    "head",
-    "root",
-    "spine05"
-  ],
-  "control": {
-    "clip": "openclinxr_retarget_cmu_07_01_walk",
-    "contractControlConstant": 26,
-    "re-measuredUnderGrownMap": {
-      "report": "tools/openclinxr/evidence/mpfb-bone-map-coverage.json",
-      "mapKeys": 60,
-      "bonesDriven": 26,
-      "unbound": 34,
-      "optional": 36,
-      "note": "cmu_07_01_walk BVH structurally lacks clavicle and finger-chain sources, so the 26 new finger keys bind nothing under it. Every unbound key (34) is declared optional in the target map - scoped growth, not regression."
-    }
-  },
-  "roundTripValidation": "tools/openclinxr/evidence/seated-clip-source-validate.json",
-  "extractionNote": "The 87-clip library imports as ONE stacked Blender action; the bind consumes a single-clip extraction (Sitting_Talking only, 66 joints) produced with @gltf-transform dedup.",
-  "claimScope": "one_cc0_seated_clip_bound_to_the_shipped_137_joint_mpfb_rig_and_named_to_the_mixer",
+  "drivenBoneCount": 26,
+  "outputMeshCount": 12,
+  "totalRotationDeltaRad": 21.692081239006683,
+  "outputBytes": 12318116,
+  "log": "actor_armature=mpfb_ob_patient_aisha_standard_rig pose_bones=137 actor_objects=14 actor_meshes=13\nmodule=bl_ext.user_default.retarget_bvh load_and_retarget=True\nprefs_missing addon_keys=['io_anim_bvh']; using headless prefs stand-in\ntarget_map=MPFB2 default_no_toes from /Users/patrick/.grok/worktrees/src-openclinxr/issue-576/tools/openclinxr/asset-pipeline/makeclothes/known-rigs/mpfb2-default-no-toes.json\nload_and_retarget message='BVH file(s) retargeted'\ndriven=26 real=26 action=openclinxr_retarget_cmu_07_01_walk\ndropped_source_armatures=0 dropped_startup=3 scene_meshes=12",
+  "claimScope": "one_actor_one_clip_retarget_bind_not_a_motion_library",
   "notEvidenceFor": [
     "clinical_motion_realism",
-    "visual_gesture_quality",
     "quest_readiness",
-    "runtime_playback_until_runtime_path_promotion",
-    "other_clips",
-    "other_stations"
-  ],
-  "log": "actor_armature=mpfb_ob_patient_aisha_standard_rig pose_bones=137 actor_objects=13\nmodule=bl_ext.user_default.retarget_bvh load_and_retarget=True\nprefs_missing; using headless prefs stand-in\ninjected source_map=Mesh2Motion human-base-animations (Sitting_Talking) entries=52\nload_and_retarget message='BVH file(s) retargeted'\ndriven=54 real=46 action=openclinxr_retarget_seated_talking_cc0\nscene_meshes=11",
-  "inertKeyAccounting": {
-    "keysAddedByThisSlice": 30,
-    "ofThoseInertUnderSeatedClip": [
-      "finger2-3.L"
-    ],
-    "allDeclaredOptional": true,
-    "preExistingInertUnderCmuWalk": [
-      "lowerarm02.L",
-      "lowerarm02.R",
-      "lowerleg02.L",
-      "lowerleg02.R",
-      "shoulder01.L",
-      "shoulder01.R",
-      "toe1-1.L",
-      "toe1-1.R",
-      "upperarm02.L",
-      "upperarm02.R",
-      "upperleg02.L",
-      "upperleg02.R"
-    ],
-    "preExistingKeysThisClipBarelyMoves": [
-      "root",
-      "head",
-      "spine05"
-    ],
-    "note": "This slice added 26 finger keys; 25 bind under the seated clip, 1 (finger2-3.L, left index tip has zero travel in the source) is inert and declared optional. The other 11 unbound keys are pre-existing: 8 twist/shoulder/toe keys already inert under CMU (all optional), plus root/head/spine05 which this clip animates below the 0.01-rad delta threshold - they were bound keys of the landed map, unchanged by this slice."
-  },
-  "undeclaredNewlyInertKeys": [],
-  "walkClipRestoration": {
-    "removedClip": "openclinxr_retarget_cmu_07_01_walk",
-    "reason": "replaced by openclinxr_retarget_seated_talking_cc0; CMU is CONDITIONAL-licensed, the replacement is CC0",
-    "lastWalkBearingCommit": "21357528ac7f519326656e518ad1411cfd52478f",
-    "restoreCommand": "git checkout 21357528ac7f519326656e518ad1411cfd52478f -- apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb",
-    "recordedBy": "orchestrator, product-owner condition 2 on the OPTION 1 ruling"
-  }
+    "visual_walk_quality",
+    "runtime_playback"
+  ]
 }
