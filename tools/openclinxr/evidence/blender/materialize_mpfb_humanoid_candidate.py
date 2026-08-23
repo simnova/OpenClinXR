@@ -1573,6 +1573,17 @@ def parse_args():
             "family fallback green."
         ),
     )
+    parser.add_argument(
+        "--pregnancy-weeks",
+        type=float,
+        default=0.0,
+        help=(
+            "#509 — declared gestational age driving the localized gravid abdomen morph "
+            "(pregnancy_target.derive_localized_gravid_target + TargetService.load_target; "
+            "weight = weeks/40). 0 disables the morph — every non-pregnant actor bakes "
+            "byte-stable. Source of the OB patient's 34: ob-preeclampsia.ts persona brief."
+        ),
+    )
     return parser.parse_args(argv)
 
 
@@ -2680,6 +2691,45 @@ def main():
         human = HumanService.create_human(feet_on_ground=True)
         human.name = "mpfb_ob_patient_aisha_body_mesh"
         human.data.name = "mpfb_ob_patient_aisha_body"
+
+    # #509/#581 — case-declared pregnancy reaches a vertex. The OB fixture declares
+    # 34 weeks; before this wiring nothing in the pipeline consumed it (the planted
+    # contract measured the shipped body INSIDE the non-pregnant band). The morph is
+    # DERIVED, not authored: pregnancy_target keeps only the abdomen-band deltas
+    # MakeHuman itself wrote in stock stomach-pregnant-incr (237 of 607 kept; the 238
+    # chest-band deltas are dropped — applying them whole produced +72 mm chest and
+    # the counterweight-forbidden obese figure). It loads through MPFB's own
+    # TargetService and is baked into the basis immediately (same discipline as the
+    # macro bake: the exported geometry must carry it, garment fits see the gravid
+    # torso). Weight = weeks/40 (34 -> 0.85), chosen by sweep calibration
+    # (.openclinxr/evidence/issue-581/calibration.json): the only swept weight whose
+    # abdomen/chest clears the contract's derived 1.476 threshold while chest/hip
+    # hold. weeks=0 is the no-op path — non-pregnant actors are untouched.
+    if getattr(args, "pregnancy_weeks", 0) > 0:
+        _makeclothes_dir_preg = REPO_ROOT / "tools/openclinxr/asset-pipeline/makeclothes"
+        if str(_makeclothes_dir_preg) not in sys.path:
+            sys.path.insert(0, str(_makeclothes_dir_preg))
+        from pregnancy_target import (  # noqa: E402
+            apply_case_driven_gravid_morph,
+            bake_gravid_morph_into_basis,
+            derive_localized_gravid_target,
+        )
+
+        _preg_target = (
+            REPO_ROOT / ".openclinxr/evidence/issue-581/derived-gravid-abdomen.target"
+        )
+        _preg_report = derive_localized_gravid_target(
+            REPO_ROOT / ".openclinxr-local/provider-cache/mpfb/extracted",
+            _preg_target,
+            weight=float(args.pregnancy_weeks) / 40.0,
+        )
+        _preg_applied = apply_case_driven_gravid_morph(
+            human, weeks=float(args.pregnancy_weeks), target_path=_preg_target
+        )
+        bake_gravid_morph_into_basis(human)
+        print(
+            f"GRAVID_MORPH {json.dumps({'derivation': _preg_report, 'applied': _preg_applied})}"
+        )
     human.data.materials.clear()
     skin_material_name = f"mpfb_skin_{args.reference or 'ob_patient_aisha'}"
 
