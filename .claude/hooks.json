@@ -80,6 +80,15 @@
             "timeout": 15
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ \"${OPENCLINXR_WORKER:-0}\" = \"1\" ] || [ \"${OPENCLINXR_WORKER:-}\" = \"true\" ] || [ -n \"${GROK_SUBAGENT:-}\" ]; then exit 0; fi; pnpm grok:hook -- pre-compact 2>/dev/null || pnpm codex:hook -- pre-compact",
+            "timeout": 10
+          }
+        ]
       }
     ],
     "SessionStart": [
@@ -114,7 +123,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if [ \"${OPENCLINXR_WORKER:-0}\" = \"1\" ] || [ \"${OPENCLINXR_WORKER:-}\" = \"true\" ] || [ -n \"${GROK_SUBAGENT:-}\" ]; then echo 'DOC HYGIENE: skipped (worker/subagent session; OPENCLINXR_WORKER or GROK_SUBAGENT set)'; exit 0; fi; pnpm docs:hygiene:session-start -- --auto-run 2>/dev/null || echo 'DOC HYGIENE: run pnpm docs:hygiene:session-start -- --auto-run (install/tsx if needed)'",
+            "command": "if [ \"${OPENCLINXR_WORKER:-0}\" = \"1\" ] || [ \"${OPENCLINXR_WORKER:-}\" = \"true\" ] || [ -n \"${GROK_SUBAGENT:-}\" ] || { git_top=\"$(git rev-parse --show-toplevel 2>/dev/null)\" && case \"$git_top\" in *\".grok/worktrees\"*) true ;; *) false ;; esac; }; then echo 'DOC HYGIENE: skipped (worker/subagent session or managed worktree; OPENCLINXR_WORKER, GROK_SUBAGENT, or .grok/worktrees toplevel)'; exit 0; fi; pnpm docs:hygiene:session-start -- --auto-run 2>/dev/null || echo 'DOC HYGIENE: run pnpm docs:hygiene:session-start -- --auto-run (install/tsx if needed)'",
             "timeout": 300
           }
         ]
@@ -123,7 +132,16 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if [ \"${OPENCLINXR_WORKER:-0}\" = \"1\" ] || [ \"${OPENCLINXR_WORKER:-}\" = \"true\" ] || [ -n \"${GROK_SUBAGENT:-}\" ]; then echo 'SessionStart: worker/subagent \u2014 skip CEO rehydrate banner'; exit 0; fi; echo 'SessionStart: Composer = primary OpenClaw orchestrator (chief-coordinator). Rehydrate PROJECT_STATUS.md snapshot (~60 lines) + LEX_AGENTIC.md. Cheap consult: pnpm grok:tier:brief 2>/dev/null || true; pnpm openclaw:lease -- status 2>/dev/null || true'",
+            "command": "if [ \"${OPENCLINXR_WORKER:-0}\" = \"1\" ] || [ -n \"${GROK_SUBAGENT:-}\" ]; then exit 0; fi; S=.openclinxr/openclaw/factory-pulse-last.json; if [ -f \"$S\" ] && [ -n \"$(find \"$S\" -mmin +90 2>/dev/null)\" ]; then echo \"FACTORY PULSE STALE: last run $(date -r \"$S\" -u +%Y-%m-%dT%H:%M:%SZ)\"; fi; pnpm openclinxr:factory-pulse || true",
+            "timeout": 300
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ \"${OPENCLINXR_WORKER:-0}\" = \"1\" ] || [ \"${OPENCLINXR_WORKER:-}\" = \"true\" ] || [ -n \"${GROK_SUBAGENT:-}\" ]; then echo 'SessionStart: worker/subagent — skip CEO rehydrate banner'; exit 0; fi; echo 'SessionStart: Composer = primary OpenClaw orchestrator (chief-coordinator). Rehydrate PROJECT_STATUS.md snapshot (~60 lines) + LEX_AGENTIC.md. Cheap consult: pnpm grok:tier:brief 2>/dev/null || true; pnpm openclaw:lease -- status 2>/dev/null || true'",
             "timeout": 10
           }
         ]
@@ -147,17 +165,6 @@
             "type": "command",
             "command": "if [ \"${OPENCLINXR_WORKER:-0}\" = \"1\" ] || [ \"${OPENCLINXR_WORKER:-}\" = \"true\" ] || [ -n \"${GROK_SUBAGENT:-}\" ]; then exit 0; fi; echo 'PostToolUse Bash: consider affected package test or runner if coord change (see tools/openclinxr/openclaw/agentic-hook-runner.ts --profile local-exam or pre-commit)'",
             "timeout": 5
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/operator-directives.sh\" 2>/dev/null || true",
-            "timeout": 10
           }
         ]
       }

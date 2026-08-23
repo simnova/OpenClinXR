@@ -1,3 +1,24 @@
+> # FROZEN 2026-08-23 — no new numbered rules
+>
+> **This file is closed to additions.** Measured today: 4,456 lines, 46,540 words, 165 numbered
+> headings. A document that size is an incident archive, not an execution protocol, and its own
+> hard-limits block below has been violated repeatedly by the same hand that wrote it.
+>
+> The rule it kept stating and never enforcing is the one that closes it: *"A rule that is not
+> grepped by a worker brief or enforced by a test is dead weight."*
+>
+> **Where new learning goes instead**, in this order:
+> 1. `dispatch()`, `briefFromIssue`, or a contract clause — something that FAILS CLOSED.
+> 2. The brief template, so a worker reads it at the moment it matters.
+> 3. A scoped skill under `.claude/skills/` or `.agents/skills/`, which loads on a trigger rather
+>    than sitting in a 4,456-line wall. `model-routing` is the pattern.
+>
+> Corrections to EXISTING sections are still allowed and still required — §7q says correct a premise
+> where it is stated. What is forbidden is a new numbered section.
+>
+> Unfreezing needs an operator instruction, not an orchestrator's judgement that this one is
+> different. It always feels different.
+
 # OPERATOR DIRECTIVES — READ BEFORE EVERY DISPATCH
 
 These are standing instructions from the human. They are at the TOP because everything below is
