@@ -79,15 +79,22 @@ function repoWithMerge(carried: string, depth: number): string {
 }
 
 describe("the lane gate sees what a merge carried", () => {
-  it.fails("(1) RED: a merge carrying a product path resets the evidence-only clock", () => {
+  it("(1) RED: a merge carrying a product path resets the evidence-only clock", () => {
     // 6 evidence commits then a merge carrying packages/**. The clock must read 0 — the newest
     // commit IS a product landing. Today --name-only reports the merge as touching nothing.
+    //
+    // ## FIXED (#590)
+    // measureProductLaneState now passes `--first-parent -m` so merge commits emit the
+    // first-parent file list. A merge carrying packages/** resets evidenceOnlyCommits to 0.
     const root = repoWithMerge(PRODUCT_FILE, 6);
     const state = measureProductLaneState(root);
     expect(state.evidenceOnlyCommits, "the merge carried a product path and must reset the clock").toBe(0);
   });
 
-  it.fails("(2) RED: the reset names the merge, not a commit behind it", () => {
+  it("(2) RED: the reset names the merge, not a commit behind it", () => {
+    // ## FIXED (#590)
+    // lastProductCommit.hash/subject are taken from the merge entry itself (the newest commit
+    // whose first-parent diff hits a product path), not from a commit behind the merge.
     const root = repoWithMerge(PRODUCT_FILE, 6);
     const state = measureProductLaneState(root);
     expect(state.lastProductCommit?.subject ?? "", "lastProductCommit must be the merge itself")

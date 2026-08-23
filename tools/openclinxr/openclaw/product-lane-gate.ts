@@ -81,9 +81,23 @@ function git(repoRoot: string, args: string[]): string {
 export function measureProductLaneState(repoRoot: string): ProductLaneState {
   // Newest-first with per-commit file lists. Entries are [header, file...]; a header line
   // contains tabs (%h%x09%ad%x09%s). Walk until the first entry whose FILES hit a product path.
+  //
+  // `--name-only` alone emits ZERO file lines for a merge commit (integrate uses --no-ff).
+  // `-m` shows the first-parent diff for merges; `--first-parent` keeps the walk on the
+  // integration line and avoids a second parent block that would double-count landings.
+  // History only — never the working tree (#590).
   let log: string;
   try {
-    log = git(repoRoot, ["log", "--date=iso-strict", "--pretty=format:%h%x09%ad%x09%s", "--name-only", "-n", "400"]);
+    log = git(repoRoot, [
+      "log",
+      "--first-parent",
+      "-m",
+      "--date=iso-strict",
+      "--pretty=format:%h%x09%ad%x09%s",
+      "--name-only",
+      "-n",
+      "400",
+    ]);
   } catch {
     // Not a git repo (test fixtures, scratch roots): no measurable history -> clock fresh.
     // The gate bounds a measurable evidence-only STRETCH on the real repo; an unmeasurable
