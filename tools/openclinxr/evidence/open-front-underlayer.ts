@@ -12,6 +12,7 @@
 import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { NodeIO, type Document } from "@gltf-transform/core";
+import { maxOf, minMaxXyz, minOf } from "./min-max-bounds.js";
 
 const GARMENT_MESH_RE = /openclinxr_real_garment/i;
 const DECLARED_ANY_RE = /openclinxr_declared_upper_layers__/i;
@@ -25,6 +26,10 @@ type Vec3 = { x: number; y: number; z: number };
 export type AssetLayering = {
   assetPath: string;
   garmentKind: string;
+  /** Measured body height in metres; distinguishes a real measurement from the empty-body default (1.0). */
+  bodyHeight: number;
+  /** Measured body half-width in metres; empty-body default is exactly 0.3. */
+  bodyHalfWidth: number;
   hasClosedUnderLayerAcrossMidline: boolean;
   underLayerTriangleCount: number;
   outerRetainsAnteriorOpening: boolean;
@@ -142,6 +147,10 @@ async function measureOneAsset(
   return {
     assetPath,
     garmentKind,
+    // #589: measured body bounds surfaced on the row so contracts can distinguish a real
+    // measurement from the collectBody empty-body default (height 1, halfW 0.3).
+    bodyHeight: round4(body.height),
+    bodyHalfWidth: round4(body.halfW),
     hasClosedUnderLayerAcrossMidline: midline.hasClosed,
     underLayerTriangleCount: midline.triCount,
     outerRetainsAnteriorOpening,
@@ -173,13 +182,12 @@ function collectShells(document: Document): Shell[] {
       } else {
         for (let i = 0; i < positions.length; i++) indices.push(i);
       }
-      const ys = positions.map((p) => p.y);
-      const xs = positions.map((p) => p.x);
-      const zs = positions.map((p) => p.z);
-      const minY = Math.min(...ys);
-      const maxY = Math.max(...ys);
-      const cx = (Math.min(...xs) + Math.max(...xs)) * 0.5;
-      const cz = (Math.min(...zs) + Math.max(...zs)) * 0.5;
+      // #589: single-pass bounds — spreads overflow on large shells; no per-axis copies kept.
+      const b = minMaxXyz(positions);
+      const minY = b.minY;
+      const maxY = b.maxY;
+      const cx = (b.minX + b.maxX) * 0.5;
+      const cz = (b.minZ + b.maxZ) * 0.5;
       shells.push({
         meshName,
         positions,
@@ -260,12 +268,14 @@ function collectBody(document: Document): {
       halfW: 0.3,
     };
   }
-  const minY = Math.min(...positions.map((v) => v.y));
-  const maxY = Math.max(...positions.map((v) => v.y));
-  const minX = Math.min(...positions.map((v) => v.x));
-  const maxX = Math.max(...positions.map((v) => v.x));
-  const minZ = Math.min(...positions.map((v) => v.z));
-  const maxZ = Math.max(...positions.map((v) => v.z));
+  // #589: single-pass bounds — 9 of 18 shipped humanoids exceed the spread argument limit.
+  const b = minMaxXyz(positions);
+  const minY = b.minY;
+  const maxY = b.maxY;
+  const minX = b.minX;
+  const maxX = b.maxX;
+  const minZ = b.minZ;
+  const maxZ = b.maxZ;
   return {
     positions,
     tris,
@@ -347,7 +357,7 @@ function measureArmBelowCuff(
     // No distinct sleeve volume — treat as long / n/a (not short exposure).
     return { hasShortSleeve: false, clothedFraction: 1 };
   }
-  const cuffY = Math.min(...lateral.map((v) => v.y));
+  const cuffY = minOf(lateral.map((v) => v.y));
   // Wrist / hand band roughly lower 12–18% of body height.
   const wristY = body.minY + body.height * 0.14;
   // Short when cuff is substantially above the wrist (upper arm / mid forearm).
@@ -394,7 +404,7 @@ function measurePaintedLower(body: ReturnType<typeof collectBody>): {
 /** Lowest Y of the outer shell (hem approximation; sufficient for overlap vs paint top). */
 function measureHemLowestY(outer: Shell): number {
   if (outer.positions.length === 0) return 0;
-  return Math.min(...outer.positions.map((p) => p.y));
+  return minOf(outer.positions.map((p) => p.y));
 }
 
 /**
@@ -577,8 +587,8 @@ function spanFlags(
   const lat = body.halfW * 0.32;
   const zs = comp.map((vi) => positions[vi]?.z).filter((z): z is number => z !== undefined);
   if (zs.length < 8) return empty;
-  const zMin = Math.min(...zs);
-  const zMax = Math.max(...zs);
+  const zMin = minOf(zs);
+  const zMax = maxOf(zs);
   const zSpan = Math.max(zMax - zMin, 0.001);
   const frontZ = zMin + zSpan * 0.65;
   const backZ = zMin + zSpan * 0.35;

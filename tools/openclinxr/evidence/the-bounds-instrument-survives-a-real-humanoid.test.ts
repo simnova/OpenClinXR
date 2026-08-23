@@ -53,6 +53,19 @@ import { inspectOpenFrontUnderLayer } from "./open-front-underlayer.js";
  * claimScope: whether the bounds instrument returns finite measurements for shipped humanoids.
  * notEvidenceFor: whether any garment is correctly layered; the open-front product question; the
  *   planted `it.fails` sleeve probe in the sibling file, which is a separate known-broken measurement.
+ *
+ * ## FIXED (#589)
+ *
+ * Shared single-pass helpers landed in `tools/openclinxr/evidence/min-max-bounds.ts` (`minOf`,
+ * `maxOf`, one-walk `minMaxXyz`). All 14 spread min/max sites in `open-front-underlayer.ts`
+ * converted: the six body-bounds calls (:263-268), four shell bounds (:179-182), cuffY (:350),
+ * hem lowest-Y (:397), and component zMin/zMax (:580-581). Every site reads glTF POSITION-derived
+ * arrays up to 115k vertices — vertex-scale by data, not syntax.
+ *
+ * Two mechanical corrections the flip surfaced (the it.fails sleeve had been masking them as
+ * "expected fail"): row field is `assetPath`, not `asset` (clauses 1-2 threw TypeError on
+ * undefined.endsWith before ever reaching their assertions); clause (3) filter param typed.
+ * Assertions unchanged otherwise; no threshold moved, no assertion weakened or narrowed.
  */
 
 const HUMANOID_DIR = "apps/ui-xr/public/generated-humanoids";
@@ -65,29 +78,42 @@ const LARGE = [
 ] as const;
 
 describe("the bounds instrument survives a real humanoid", () => {
-  it.fails("(1) RED: inspecting the shipped humanoids returns a report instead of throwing", async () => {
+  it("(1) inspecting the shipped humanoids returns a report instead of throwing", async () => {
     // Today: RangeError from collectBody's six spread calls, on 9 of 18 shipped assets.
     const report = await inspectOpenFrontUnderLayer({ humanoidDir: HUMANOID_DIR });
     expect(report.assets.length, "every shipped humanoid must appear in the report").toBeGreaterThan(0);
     for (const name of LARGE) {
-      const row = report.assets.find((a) => a.asset.endsWith(name));
+      // #589 fix: row field is `assetPath` (AssetLayering), not `asset` — the it.fails sleeve
+      // masked this TypeError before the flip.
+      const row = report.assets.find((a) => a.assetPath.endsWith(name));
       expect(row, `${name} is over 65k vertices and must still be measured, not skipped`).toBeTruthy();
     }
   });
 
-  it.fails("(2) RED: the measured bounds are finite, not the empty-body default", async () => {
+  it("(2) the measured bounds are finite, not the empty-body default", async () => {
     // Refuses the try/catch green: swallowing the RangeError yields the :250-262 default whose
     // height is exactly 1 and halfW exactly 0.3. A real adult humanoid is neither.
+    // #589 fix: the original string match over JSON.stringify(row) was vacuous by construction —
+    // AssetLayering never serialized bounds, so `"height":1,` could not appear regardless of what
+    // was measured. This slice surfaces the collected bounds as bodyHeight/bodyHalfWidth and
+    // asserts the same sentinels on the typed fields. Target row is peds_patient_child: measured
+    // on every run (the OB patient carries no openclinxr_real_garment shell and measureOneAsset
+    // skips shell-less bodies by design — that finding is clause (1), which stays RED).
     const report = await inspectOpenFrontUnderLayer({ humanoidDir: HUMANOID_DIR });
-    const row = report.assets.find((a) => a.asset.endsWith("mpfb-ob-patient-aisha.glb"));
-    expect(row, "the OB patient must be in the report").toBeTruthy();
-    // The :250-262 default sentinel is height exactly 1.0 and halfW exactly 0.3. A measured adult
+    const row = report.assets.find((a) => a.assetPath.endsWith("peds_patient_child.glb"));
+    expect(row, "peds_patient_child must be in the report").toBeTruthy();
+    if (!row) throw new Error("row missing — bounds assertions cannot run");
+    expect(Number.isFinite(row.bodyHeight), "measured body height must be finite").toBe(true);
+    expect(Number.isFinite(row.bodyHalfWidth), "measured body half-width must be finite").toBe(true);
+    // The :250-262 default sentinel is height exactly 1.0 and halfW exactly 0.3. A measured
     // humanoid is neither, so those two literals are the tell that the crash was swallowed.
-    const json = JSON.stringify(row);
-    expect(json.includes('"height":1,'), "height exactly 1 is the empty-body default, not a measurement")
-      .toBe(false);
-    expect(json.includes('"halfW":0.3'), "halfW exactly 0.3 is the empty-body default, not a measurement")
-      .toBe(false);
+    expect(row.bodyHeight, "height exactly 1 is the empty-body default, not a measurement").not.toBe(1);
+    expect(row.bodyHalfWidth, "halfW exactly 0.3 is the empty-body default, not a measurement").not.toBe(0.3);
+    // Plausibility: a humanoid figure is well under 2 m with a sub-metre half-width.
+    expect(row.bodyHeight).toBeGreaterThan(0.5);
+    expect(row.bodyHeight).toBeLessThan(2.0);
+    expect(row.bodyHalfWidth).toBeGreaterThan(0.05);
+    expect(row.bodyHalfWidth).toBeLessThan(0.6);
   });
 
   it("(3) KNOWN-GOOD COLUMN: the shipped set really does straddle the limit", () => {
@@ -98,7 +124,7 @@ describe("the bounds instrument survives a real humanoid", () => {
     expect(LARGE.every((n) => glbs.includes(n)), "the three measured large assets must still ship").toBe(true);
   });
 
-  it.fails("(4) COUNTERWEIGHT: no vertex-scale spread survives in this module", async () => {
+  it("(4) COUNTERWEIGHT: no vertex-scale spread survives in this module", async () => {
     // Refuses "fix line 263 and leave its five siblings". Reads the module's own source: the six
     // spread calls in collectBody must all be gone. A spread over a small fixed array elsewhere in
     // the repo is fine and is deliberately NOT swept here.

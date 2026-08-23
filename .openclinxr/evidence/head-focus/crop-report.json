@@ -2,7 +2,7 @@
   "schemaVersion": "openclinxr.head-focus.crop-run.v1",
   "issue": "358",
   "factoryStep": "instrument",
-  "measuredAt": "2026-08-23T02:57:57.448Z",
+  "measuredAt": "2026-08-23T10:17:59.475Z",
   "generator": {
     "tool": "renderHeadFocusCrops",
     "file": "tools/openclinxr/evidence/isolated-subject-harness.ts",
@@ -16,7 +16,7 @@
     "produced": 2,
     "devServerBoots": 1,
     "browserLaunches": 1,
-    "wallClockMs": 4254
+    "wallClockMs": 10754
   },
   "crops": [
     {
@@ -24,12 +24,12 @@
       "role": "adult_female (MPFB rail)",
       "view": "front",
       "imagePath": ".openclinxr/evidence/head-focus/mpfb-head-front.png",
-      "bytes": 360718,
+      "bytes": 215433,
       "pngDimensions": {
         "width": 1024,
         "height": 1024
       },
-      "frameCoverage": 0.4303140640258789,
+      "frameCoverage": 0.43031883239746094,
       "frameSpanFraction": 0.8000188406129219,
       "focusRegion": {
         "kind": "head_box",

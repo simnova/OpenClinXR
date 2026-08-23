@@ -1,7 +1,61 @@
 {
   "schemaVersion": "openclinxr.shoe-candidates.v1",
-  "examinedAt": "2026-08-09T04:01:43.502Z",
+  "examinedAt": "2026-08-23T10:26:06.840Z",
   "candidates": [
+    {
+      "garmentId": "culturalibre_male_boots",
+      "sourceNote": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-589/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/culturalibre_male_boots/culturalibre_male_boots.mhclo",
+      "localMhcloPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-589/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/culturalibre_male_boots/culturalibre_male_boots.mhclo",
+      "localObjPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-589/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/culturalibre_male_boots/male_boots.obj",
+      "licenseToken": "CC-0",
+      "accepted": true,
+      "rejectionReason": null
+    },
+    {
+      "garmentId": "toigo_flats",
+      "sourceNote": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-589/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_flats/toigo_flats.mhclo",
+      "localMhcloPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-589/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_flats/toigo_flats.mhclo",
+      "localObjPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-589/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_flats/flats.obj",
+      "licenseToken": "CC0",
+      "accepted": true,
+      "rejectionReason": null
+    },
+    {
+      "garmentId": "toigo_mj_cloth_shoes",
+      "sourceNote": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-589/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_mj_cloth_shoes/toigo_mj_cloth_shoes.mhclo",
+      "localMhcloPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-589/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_mj_cloth_shoes/toigo_mj_cloth_shoes.mhclo",
+      "localObjPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-589/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_mj_cloth_shoes/mj_shoes.obj",
+      "licenseToken": "CC0",
+      "accepted": true,
+      "rejectionReason": null
+    },
+    {
+      "garmentId": "culturalibre_male_boots",
+      "sourceNote": "/Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/culturalibre_male_boots/culturalibre_male_boots.mhclo",
+      "localMhcloPath": "/Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/culturalibre_male_boots/culturalibre_male_boots.mhclo",
+      "localObjPath": "/Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/culturalibre_male_boots/male_boots.obj",
+      "licenseToken": "CC-0",
+      "accepted": true,
+      "rejectionReason": null
+    },
+    {
+      "garmentId": "toigo_flats",
+      "sourceNote": "/Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_flats/toigo_flats.mhclo",
+      "localMhcloPath": "/Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_flats/toigo_flats.mhclo",
+      "localObjPath": "/Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_flats/flats.obj",
+      "licenseToken": "CC0",
+      "accepted": true,
+      "rejectionReason": null
+    },
+    {
+      "garmentId": "toigo_mj_cloth_shoes",
+      "sourceNote": "/Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_mj_cloth_shoes/toigo_mj_cloth_shoes.mhclo",
+      "localMhcloPath": "/Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_mj_cloth_shoes/toigo_mj_cloth_shoes.mhclo",
+      "localObjPath": "/Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_mj_cloth_shoes/mj_shoes.obj",
+      "licenseToken": "CC0",
+      "accepted": true,
+      "rejectionReason": null
+    },
     {
       "garmentId": "combat_boots",
       "sourceNote": "makehumancommunity combat_boots — http://www.makehumancommunity.org/sites/default/files/clothes/combat_boots/combatboots.mhclo returned 404",

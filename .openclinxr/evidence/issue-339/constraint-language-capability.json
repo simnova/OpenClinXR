@@ -3,7 +3,7 @@
   "question": "Can a CLINICAL room type be authored with real constraints (footprint bounds, door on a named wall) so environmentId drives GENERATION rather than selecting a pre-baked seed?",
   "verdict": "reject_measured",
   "verdictReason": "The constraint language is a real, maintained authoring surface and CAN express hard room-area + aspect-ratio bounds that the room annealer honours (feasible target [36,48] m2 landed 41.25 m2 in-bounds), but it CANNOT author a clinical room type end-to-end: (1) footprint bounds are only satisfiable when the random initial segmentation already sits near the target — a 2x target [78,84] m2 froze the anneal at zero acceptances, returning the initial 44.0 m2; (2) door-on-a-named-wall is not expressible — aperture position is uniform-random in solidifier.py:549/565 and aperture type is a fixed room-pair probability table (solidifier.py:83-141). environmentId cannot drive generation; bake-and-pin is the ceiling.",
-  "measuredAt": "2026-08-12T02:09:50.371Z",
+  "measuredAt": "2026-08-23T10:26:19.255Z",
   "installPath": "/Users/patrick/.openclinxr-tools/infinigen/source",
   "languageCanExpress": [
     {
