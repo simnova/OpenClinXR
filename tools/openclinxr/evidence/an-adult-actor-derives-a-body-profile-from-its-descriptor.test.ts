@@ -71,7 +71,7 @@ function derived(actorId: string): Record<string, unknown> | undefined {
 }
 
 describe("an adult actor derives a body profile from its descriptor", () => {
-  it.fails("(1) RED: three adults of different roles each derive a numeric body profile", () => {
+  it("(1) RED: three adults of different roles each derive a numeric body profile", () => {
     // Today the table maps only pediatric_school_age, so every one of these returns undefined.
     for (const t of ADULT_TARGETS) {
       const d = derived(t.actorId);
@@ -84,7 +84,7 @@ describe("an adult actor derives a body profile from its descriptor", () => {
     }
   });
 
-  it.fails("(2) RED: an adult profile is not the child profile wearing a new name", () => {
+  it("(2) RED: an adult profile is not the child profile wearing a new name", () => {
     // Refuses the cheapest table edit — widening the pediatric pattern to match adult text. The
     // child's numbers are 125 cm / 16.5 BMI / age 8; an adult that derives those has not derived.
     const child = derived(CHILD) ?? {};
@@ -127,3 +127,21 @@ describe("an adult actor derives a body profile from its descriptor", () => {
     }
   });
 });
+
+/*
+## FIXED (#605)
+
+- `descriptor-phenotype-lookup.ts` `DESCRIPTOR_TO_BODY_PROFILE` gained two adult rows:
+  clinical-team roles (`nurse|physician|resident|consultant|respiratory therapist|medical
+  assistant`) -> `adult_clinical_team`, and adult patients/family (age-band words + role words)
+  -> `adult_standard_parent`. The pediatric row stays FIRST so the child keeps resolving.
+- `seededProfileIdentity()` now reads ALL of the seed scenario's authored phenotypes (child,
+  parent, nurse) instead of only the child, so the two adult profiles resolve to identities
+  that already existed — no new clinical authoring (route (2) on #603).
+- `DESCRIPTOR_LOOKUP_VERSION` v1 -> v2.
+- Measured after: 25 of the 37 uncovered human actors now derive (all 25 that carry descriptor
+  text); 12 still carry no descriptor text and remain refused (Stage B). The three planted
+  targets derive `adult_standard_parent` (patient_robert_hayes_v1, patient_margaret_ellis_v1)
+  and `adult_clinical_team` (nurse_maria_alvarez_v1), none at the child's numbers.
+- Both clauses flipped `it.fails` -> `it`; clauses (3) and (4) hold unchanged.
+*/

@@ -108,7 +108,7 @@ const DRIVING_FIELDS = [
   "bmi",
 ] as const;
 
-type Row = { scenarioId: string; actorId: string; hasPhenotype: boolean; drivingFields: number };
+type Row = { scenarioId: string; actorId: string; hasPhenotype: boolean; derived: boolean; drivingFields: number };
 
 const raw = JSON.parse(readFileSync(join(REPO_ROOT, EXPORT_PATH), "utf8")) as {
   entries?: Record<string, Record<string, { phenotype?: Record<string, unknown> }>>;
@@ -121,6 +121,11 @@ const rows: Row[] = CAST.map(([scenarioId, actorId]) => {
     scenarioId,
     actorId,
     hasPhenotype: phenotype !== undefined,
+    // issue-605: descriptor-derived entries (descriptor_derived) are deliberately
+    // partial — the lookup supplies body_profile/age/height_cm/bmi and nothing
+    // more (#293). They must not count as authored stubs, or every derived actor
+    // trips this counterweight on the missing cosmetic fields.
+    derived: phenotype?.descriptor_derived === true,
     drivingFields: phenotype ? DRIVING_FIELDS.filter((f) => phenotype[f] !== undefined).length : 0,
   };
 });
@@ -157,9 +162,10 @@ describe("every cast actor has an authored phenotype", () => {
 
   it("(2) COUNTERWEIGHT: an authored phenotype carries the fields the generator reads", () => {
     // Refuses `phenotype: {}` stubs. The generator reads height_cm/build/skin_tone/…, not the key.
+    // Derived (#293/#605) entries are excluded: they are lookup output — partial by design.
     requireRows();
     const stubs = rows
-      .filter((r) => r.hasPhenotype && r.drivingFields < DRIVING_FIELDS.length)
+      .filter((r) => r.hasPhenotype && !r.derived && r.drivingFields < DRIVING_FIELDS.length)
       .map((r) => `${r.actorId}: ${r.drivingFields}/${DRIVING_FIELDS.length} driving fields`);
     expect(stubs, "authored phenotypes that drive nothing").toEqual([]);
   });
