@@ -3793,20 +3793,31 @@ function createStationScene(): StationSceneRuntime {
     spouse.visible = false;
   }
   if (isPediatricAsthmaRuntimeScenario() && runtimeFamilyActorId()) {
-    spouse.position.x = Math.max(spouse.position.x, -1.42);
-    spouse.position.z = 0.42;
-    spouse.rotation.y = -0.26;
-    spouse.userData.openClinXrDynamicScenePolicy = "parent_actor_reframed_from_case_defined_parent_chair_zone_for_visible_three_actor_review";
+    // #591: a SEATED parent stays on her authored family_chair anchor (#574) — moving her
+    // XZ off the chair unseats her (pre-fix live: slot (1.42, 0.04) vs chair (−0.55, −0.75),
+    // feet 0.256 m above the floor). Standing parents keep the three-actor review reframe.
+    if (spousePlacement.posture === "seated") {
+      spouse.rotation.y = -0.26;
+      spouse.userData.openClinXrDynamicScenePolicy =
+        "parent_seated_on_authored_family_chair_anchor_for_visible_three_actor_review";
+    } else {
+      spouse.position.x = Math.max(spouse.position.x, -1.42);
+      spouse.position.z = 0.42;
+      spouse.rotation.y = -0.26;
+      spouse.userData.openClinXrDynamicScenePolicy = "parent_actor_reframed_from_case_defined_parent_chair_zone_for_visible_three_actor_review";
+    }
   }
+  // #591: stamp slot identity BEFORE framing — the framing's seated guard reads these, and
+  // they were previously written only after applyCleanEncounterVisualReviewActorFraming ran.
+  spouse.userData.openClinXrSlotKind = "family_or_observer";
+  spouse.userData.openClinXrActorPosture = spousePlacement.posture ?? "standing";
+  spouse.userData.openClinXrActorId = runtimeFamilyActorId();
   spouse.scale.set(spousePlacement.scale.x, spousePlacement.scale.y, spousePlacement.scale.z);
   if (runtimeFamilyActorId()) applyCleanEncounterVisualReviewActorFraming(spouse, runtimeFamilyActorId());
   if (runtimeFamilyActorId()) {
     spouse.add(createActorNameplate(actorNameplateLabel(spousePlacement.labelPrefix, runtimeFamilyActorId()), 0x9b642d));
   }
   scene.add(spouse);
-  spouse.userData.openClinXrSlotKind = "family_or_observer";
-  spouse.userData.openClinXrActorPosture = spousePlacement.posture ?? "standing";
-  spouse.userData.openClinXrActorId = runtimeFamilyActorId();
   if (runtimeFamilyActorId()) {
     loadGeneratedHumanoidIntoActorSlot(spouse, {
       assetPath: resolveEmulatorRuntimeAssetUrl(spouseRuntimeHumanoidAsset),
@@ -4423,6 +4434,7 @@ function applyCleanEncounterVisualReviewActorFraming(actor: Group, actorId: stri
     actorId,
     scenarioId: selectedScenarioId(),
     role: runtimeActorRole(actorId) ?? String(actor.userData.openClinXrActorRole ?? ""),
+    posture: (actor.userData.openClinXrActorPosture as ActorPosture | undefined) ?? undefined,
     skipFraming:
       isHumanoidFaceDetailCaptureMode()
       || isActorPoseReviewCaptureMode()
