@@ -7,12 +7,12 @@
     "agent-methodology": 79,
     "current-reference": 213,
     "archive-candidate": 11,
-    "evidence": 48,
+    "evidence": 49,
     "protected-policy": 11,
     "agent-memory": 39,
     "historical-synthesis": 11,
     "decision-record": 43,
-    "total": 457,
+    "total": 458,
     "generated-evidence": 1,
     "reference": 1
   },
@@ -2601,6 +2601,13 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "#578 cagematch finding of record: Rhubarb requires audio; -d dialog text is an aid to recognition, not a standalone text-to-viseme path. Measured 2026-08-22."
+    },
+    {
+      "path": "docs/openclinxr/cagematch/findings/local-tts-to-viseme-chain.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "#582 cagematch finding of record: offline say->Rhubarb->viseme chain adopted; 17/17 cues resolve through driveVisemeTimeline against targets enumerated from shipped GLBs. Measured 2026-08-22."
     },
     {
       "path": "docs/openclinxr/cagematch-spec-local-stt-and-quest-transport-2026-08-05.md",
