@@ -18,9 +18,9 @@
   "promotionStatus": "runtime_candidate_not_realism_gate_pass",
   "sourceOriginChain": {
     "sourceRecordPath": "sources/anny-github-2026.json",
-    "meshStage": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-303/tools/openclinxr/asset-pipeline/anny/generate_mesh.py",
-    "blenderStage": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-303/tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "orchestrator": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-303/tools/openclinxr/asset-pipeline/anny/orchestrate_character.py",
+    "meshStage": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-583/tools/openclinxr/asset-pipeline/anny/generate_mesh.py",
+    "blenderStage": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-583/tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "orchestrator": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-583/tools/openclinxr/asset-pipeline/anny/orchestrate_character.py",
     "optimizationStage": null,
     "sourceManifestKind": "real_anny_candidate_unverified",
     "sourceTopologyMode": "real_anny_mpfb2_forward_pass_v1"

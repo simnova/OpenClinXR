@@ -84,14 +84,33 @@ import { describe, expect, it } from "vitest";
  * the absent module, so "planted contracts that fail to compile rather than to assert" is a live
  * assertion rather than a RED. Shoulder coverage itself remains unsolved — nothing here claims
  * otherwise, and (2) keeps the marker that says so.
+ *
+ * ## FIXED (#583)
+ *
+ * The premise above is now DEAD, superseded rather than deleted: issue #583 implemented
+ * `shoulder-raycast-coverage.ts` for real (area-weighted outward-normal raycast, calibrated on the
+ * same graded-bare blobs), regenerated parent+nurse, and flipped all three `it.fails` in the
+ * planted contract per its own header instruction. wt/issue-82 stays unmerged — the rejected
+ * approach was NOT resurrected.
+ *
+ * What each clause guards AFTER resolution:
+ *   (1) unchanged — the planted file must never again fail at IMPORT.
+ *   (2) inverted from "marker kept" to "resolution recorded": the planted file still exists and
+ *       carries ## FIXED (#583). Deleting the record is still the worst outcome; silently keeping
+ *       a solved `it.fails` is now the second worst (an `it.fails` on a passing suite reads as a
+ *       failing test and breaks CI semantics).
+ *   (3) inverted from "no stub module" to "no STUB masquerading as the implementation": the module
+ *       must exist AND export the two contract entrypoints. An empty-record stub would make the
+ *       planted assertions run against nothing (§6x) — exactly what this clause refused before,
+ *       one step later in the pipeline.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const EVIDENCE = join(REPO_ROOT, "tools/openclinxr/evidence");
 const PLANTED = join(EVIDENCE, "shoulder-raycast-coverage.test.ts");
-/** The module #82 deliberately never landed. It must stay absent. */
-const ABSENT_MODULE = join(EVIDENCE, "shoulder-raycast-coverage.ts");
+/** Landed by #583; must exist and be a real implementation, never a stub. */
+const IMPL_MODULE = join(EVIDENCE, "shoulder-raycast-coverage.ts");
 
 const source = existsSync(PLANTED) ? readFileSync(PLANTED, "utf8") : "";
 
@@ -116,23 +135,38 @@ describe("a planted RED fails for its own reason", () => {
     ).toEqual([]);
   });
 
-  it("(2) COUNTERWEIGHT: the marker is not deleted", () => {
-    // Refuses (b): deleting the file makes typecheck green and silently retires a known-unsolved
-    // problem. Worse than leaving it broken, because broken is at least visible.
+  it("(2) COUNTERWEIGHT (inverted #583): the resolution is recorded, not silently kept or deleted", () => {
+    // Refuses (b): deleting the file retires the record entirely. The #583 inversion also refuses
+    // the mirror failure: keeping the it.fails markers AFTER the module exists, which would read
+    // as failing tests on a green suite.
     requirePlanted();
-    const stillPlanted = /it\.fails\(/u.test(source);
     expect(
-      stillPlanted,
-      `${PLANTED} must keep at least one it.fails — shoulder coverage is unsolved and this file is what says so`,
+      /##\s*FIXED\s*\(#583\)/u.test(source),
+      `${PLANTED} must carry a ## FIXED (#583) block — shoulder coverage was implemented; the record must say so`,
     ).toBe(true);
+    const stillRed = /(?<![`\w])it\.fails\(/u.test(source);
+    expect(
+      stillRed ? [`${PLANTED} still contains executable it.fails(...) after #583 landed the implementation — a solved contract left as it.fails reads as a failing test`] : [],
+      "solved contracts are flipped, not kept red",
+    ).toEqual([]);
   });
 
-  it("(3) COUNTERWEIGHT: no stub module is conjured to satisfy the import", () => {
-    // Refuses (c): a stub satisfies the import and runs the assertions against nothing (SS6x).
-    // #82 measured the real implementation and rejected it; a stub is strictly worse than that.
+  it("(3) COUNTERWEIGHT (inverted #583): the implementation exists and is not a stub", () => {
+    // Refuses (c), one step later: before #583 the module had to stay absent; now it must EXIST
+    // and export the contract entrypoints. A stub (empty record, missing exports) would make the
+    // planted assertions run against nothing (§6x) — the same defect this clause always refused.
+    requirePlanted();
     expect(
-      existsSync(ABSENT_MODULE),
-      `${ABSENT_MODULE} must stay absent — #82 deliberately left its implementation unmerged, and a stub would make the planted assertions run against nothing`,
-    ).toBe(false);
+      existsSync(IMPL_MODULE),
+      `${IMPL_MODULE} must exist after #583 — the implementation was accepted and landed`,
+    ).toBe(true);
+    const impl = readFileSync(IMPL_MODULE, "utf8");
+    expect(impl.length, "implementation is non-trivial").toBeGreaterThan(1000);
+    for (const symbol of ["assessShoulderRaycastCoverage", "coverageFractionVerdict"]) {
+      expect(
+        impl.includes(`export function ${symbol}`) || impl.includes(`export async function ${symbol}`) || impl.includes(`export const ${symbol}`),
+        `${IMPL_MODULE} must export ${symbol} — a stub would make the planted assertions run against nothing`,
+      ).toBe(true);
+    }
   });
 });

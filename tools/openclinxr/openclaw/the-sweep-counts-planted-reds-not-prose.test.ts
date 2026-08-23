@@ -66,13 +66,16 @@ describe("the sweep counts planted REDs, not prose", () => {
   });
 
   it("(2) RED + COUNTERWEIGHT: the RED count strips prose, and still finds the real ones", async () => {
-    // Refuses the cheap fix: shelling out to grep. The prose file must NOT be counted; the genuinely
+    // Refuses the cheap fix: shelling out to grep. The prose file must NOT be counted; a genuinely
     // red file must be. A counter that returns 0 for both, or N for both, fails here.
+    // #583: the shoulder plant RESOLVED (all three clauses flipped), so the fixture moved to a
+    // file whose unflipped clauses are live right now — the sweep must count what the world
+    // actually carries, not a frozen example. Fixture: dispatch-binds-the-role-charter.test.ts.
     const mod = await import("./openclaw-sweep.js") as Record<string, unknown>;
     const count = mod["plantedRedCount"] as ((root: string, rel: string) => number) | undefined;
     expect(typeof count, "the sweep must expose its per-file counter for verification").toBe("function");
     expect(count!(ROOT, PROSE_FILE), `${PROSE_FILE} documents it.fails in prose and has none remaining`).toBe(0);
-    expect(count!(ROOT, REAL_REDS), `${REAL_REDS} genuinely carries unflipped clauses`).toBeGreaterThanOrEqual(3);
+    expect(count!(ROOT, REAL_REDS), `${REAL_REDS} genuinely carries unflipped clauses`).toBeGreaterThanOrEqual(1);
   });
 
   it("(3) COUNTERWEIGHT: the naive instrument really does disagree — the defect is not hypothetical", () => {
