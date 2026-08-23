@@ -4,7 +4,7 @@
   "protectedRule": "Protected-policy files are off-limits to routine agents: do not delete, weaken, bypass, rename, or reinterpret them during autonomous work.",
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
-    "agent-methodology": 79,
+    "agent-methodology": 80,
     "current-reference": 213,
     "archive-candidate": 11,
     "evidence": 52,
@@ -12,7 +12,7 @@
     "agent-memory": 39,
     "historical-synthesis": 11,
     "decision-record": 43,
-    "total": 461,
+    "total": 462,
     "generated-evidence": 1,
     "reference": 1
   },
@@ -61,6 +61,13 @@
     },
     {
       "path": ".agents/skills/large-task-orchestration/SKILL.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
+    },
+    {
+      "path": ".agents/skills/model-routing/SKILL.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",

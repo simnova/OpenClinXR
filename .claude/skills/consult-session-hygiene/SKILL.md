@@ -5,6 +5,9 @@ description: "Running long-lived superagent/peer consult threads without losing 
 
 # Consult session hygiene
 
+**Model for this thread:** `ox-alpha` first, `grok-4.6` as the last resort. No DeepSeek rung on
+the superagent. Full ladders and the fallback rule live in the `model-routing` skill.
+
 Two superagent threads died on 2026-08-22. The superagent diagnosed itself from its own session
 artifacts; everything here is its forensics plus what I measured. Each failure mode is **n=1** — these
 are conservative first cuts, to be tightened with the third incident.

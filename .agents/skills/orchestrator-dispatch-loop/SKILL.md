@@ -21,7 +21,9 @@ integrate({ repoRoot, base, head, slice, contract })
 contractForSlice(repoRoot, slice, head)      // MUST be passed to integrate
 ```
 
-`dispatch()` composes the role's charter via `buildRepoAgentSpawnPrompt` (`dispatch-worker.ts:561`) and **fails closed** on an empty appendix. `role` also resolves the model from `role-harness-policy` — passing a lower model without `modelDowngradeReason` throws (#461). **Never hand-pick a model.**
+`dispatch()` composes the role's charter via `buildRepoAgentSpawnPrompt` (`dispatch-worker.ts:561`) and **fails closed** on an empty appendix. `role` also resolves the model from `role-harness-policy` — passing a lower model without `modelDowngradeReason` throws (#461). **Never hand-pick a model** — EXCEPT from the operator ladders in the `model-routing` skill,
+which are the one standing exception and are NOT enforced by `MODEL_RANK`. Load `model-routing`
+before passing `model:`.
 
 ## Traps, each paid for
 

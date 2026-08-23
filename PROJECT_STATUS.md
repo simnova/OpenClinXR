@@ -16,10 +16,16 @@ parseable_sections: 6
 
 **2026-08-23 16:50 | main `650d66eb` | Claude Opus 5 CEO session**
 
-**OPERATOR DIRECTION THIS TURN — worker model priority order, first available wins**
-`ox-alpha` (free) -> `deepseek-v4-flash` (cheap) -> `deepseek-v4-flash-vision-exp` (cheap, vision)
--> `grok-4.6` (not cheap). Supersedes the "grok-4.5 only on a 402" fallback recorded below; the
-Grok tier is now LAST, not second. `ox-alpha` probed live before this dispatch.
+**OPERATOR MODEL LADDERS (2026-08-23) — CODIFIED in the `model-routing` skill, first available wins**
+- Worker agents: `ox-alpha` (free) -> `deepseek-v4-flash` -> `deepseek-v4-flash-vision-exp` (vision)
+  -> `grok-4.6` (last resort).
+- Superagent: `ox-alpha` -> `grok-4.6`. No DeepSeek rung; its work is judgment, not bounded execution.
+- Supersedes "grok-4.5 only on a 402". The Grok tier is LAST, not second.
+- `ox-alpha` VERIFIED 2026-08-23 17:38: tool-using probe returned `OXPROBE 43` against a ground truth
+  of 43 in 26 s, and worker `ef42e49d` held it 50+ min / 572 session lines. The one `issue-605` death
+  was 17 s after spawn, an immediate provider fault rather than a session burn.
+- NOT ENFORCED IN CODE: `ox-alpha` is in zero executable files; `MODEL_RANK` has 3 entries and none
+  is `ox-alpha`, so it passes the #461 guard by being unrecognized. The skill is the enforcement.
 
 **LANDED**
 - `#570` `bced6456` — the Codex session's verified fix, blocked on a read-only `.git`, is committed.
