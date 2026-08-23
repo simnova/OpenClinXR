@@ -14,37 +14,34 @@ parseable_sections: 6
 <!-- WAKE-BLUF:BEGIN -->
 ## WAKE BLUF - replace this block every wake, never append
 
-**2026-08-22 00:49 | main d09c1be1 | pushed, level with origin**
+**2026-08-23 16:50 | main `650d66eb` | Claude Opus 5 CEO session**
+
+**OPERATOR DIRECTION THIS TURN — worker model priority order, first available wins**
+`ox-alpha` (free) -> `deepseek-v4-flash` (cheap) -> `deepseek-v4-flash-vision-exp` (cheap, vision)
+-> `grok-4.6` (not cheap). Supersedes the "grok-4.5 only on a 402" fallback recorded below; the
+Grok tier is now LAST, not second. `ox-alpha` probed live before this dispatch.
+
+**LANDED**
+- `#570` `bced6456` — the Codex session's verified fix, blocked on a read-only `.git`, is committed.
+  Its `live:` negative fixture had gone green when `#569` landed; repointed at
+  `the-shipped-room-matches-its-declared-shape.test.ts` (1 unflipped `it.fails`). 5/5.
+- `#576` plant `650d66eb` — clause (1) was PASSING on main. Not a dead premise: `#598`'s shoe swap
+  moved the foot hide-carve, band 0 delta `0.012497` against a `0.006003` floor while bands 1-19
+  stayed at `0.0000016` (7,700x smaller). Band 0 excluded; the remaining max is EXACTLY the
+  `81d06dd6` recorded value. Plant is RED again for the right reason.
 
 **IN FLIGHT**
-- `#557` seated-clip bind, ox-alpha, resumed. 1147 turns, 0 retries, still running.
-  Of the two failing proofs: `seated-clip-bind-report.json` now exists at the contracted path
-  (9,680 B). `main.ts` still has 0 references to `openclinxr_retarget_seated_talking_cc0`, so the
-  mixer is not wired and the clip reaches no learner.
-  Worker WIP committed by me as 20884c31 so a reap cannot take it. Not a land.
+- `#576` numeric phenotype -> MPFB macro. `ox-alpha`, `asset-pipeline-lead`, worktree, 250 turns,
+  4 proofs including the new `live:`. Requires a real Blender bake of `mpfb-peds-parent-aisha.glb`.
 
-**VERIFIED BY MY OWN PROBE, not the worker's report**
-- `openclinxr_retarget_seated_talking_cc0` drives 71 of 137 bones over 90 keyframes.
-  clavicle.L 0.11825 rad, clavicle.R 0.10836 rad, 28 finger joints up to 0.24066 rad.
-  Clip diff against the source GLB: ADDED 1, REMOVED 0.
-  This is what `cmu_07_01_walk` cannot do: that BVH has Twist 0 and Clavicle 0.
+**NEXT**: `#576` return -> `contract-verify-cli` -> integrate -> pixel grade. Then `#603` (38 of 42
+shipped actors carry no numeric phenotype — the resolver #601 landed has nothing to read).
 
-**NOT STARTED, with reason**
-- `#554` gown t-shirt inject, `#552` viseme aperture, `#548` irises: all blocked on write-root
-  collision with `#557`, which holds evidence and asset roots.
-- P1/P2/P3 parked. Rooms closed. Animato refused on D1.
-
-**OPEN QUESTION FOR THE OPERATOR** (one, with a default)
-- `mpfb-gown-adult-patient.glb` is cast as seven distinct named patients sharing one byte-identical
-  skin atlas. Deliberate cost decision or identity collapse? Default if silent: treat as collapse,
-  queue behind the motion lane. P1 stays parked either way.
-
-**NEXT**: when `#557` returns, re-run contract-verify, confirm main.ts names the clip, then the
-product owner grades a 4-frame capture under a tracked path.
-
-NOT TESTED: whether the newly-inert finger keys added to the target map are all declared optional;
-whether the seated pose reads correctly in a render. Neither is measured yet.
+NOT TESTED: whether any profile band above 0 is reachable by a wardrobe hide-carve; only the foot
+carve was measured to move. Whether wiring `macro_detail_dict` changes exported mesh dimensions —
+that is what `#576` is dispatched to find out.
 <!-- WAKE-BLUF:END -->
+
 
 
 ## MPFB TRANSITION SCOREBOARD (measured 2026-08-12 21:05; regenerate, do not narrate)
@@ -1772,3 +1769,66 @@ the unowned dirty files the orchestrator is instructed not to touch.
 
 **Needs:** DeepSeek credit topped up, or an explicit instruction to run workers on `grok-4.5` until it
 is. The orchestrator is not changing the standing model policy unilaterally.
+
+## 2026-08-23 Codex pickup checkpoint — #570 evaluator / #569 harvest gate
+
+Product path advanced: Picked up the active WAKE BLUF lane. `pnpm openclaw:run-next` initially failed through the `tsx` CLI IPC pipe under sandboxed temp paths; recovered with `node --import tsx tools/openclinxr/openclaw/openclaw-slice-runner.ts`, which exposed a parser artifact selection of `re-selection` because the snapshot header uses `**NEXT**` issue ordering rather than a normal `**Next dequeue:**` line. Acquired lease for `issue-570`. Verified `#570` commit `a6fd16e3` is reachable from `main`, then found its plant test stale after `#569` landed: the former negative fixture `the-iris-factor-is-the-iris-material-s.test.ts` now has zero `it.fails`. Delegated a bounded worker repair to update the #570 negative fixture to current-main unflipped plant `tools/openclinxr/evidence/the-shipped-room-matches-its-declared-shape.test.ts` (1 `it.fails`) without changing `run:` behavior.
+
+Blueprint/factory tie: Q5 contract-layer verification for `done_when live:<file>` so dispatch proof vocabulary distinguishes unflipped planted contracts from `run:` outcome checks. This protects future Q1/Q4/Q5 slices from false-green done_when proofs.
+
+Touched files: `packages/openclinxr/agent-loop/src/a-live-rule-refuses-an-unflipped-plant.test.ts` only from the delegated repair. Existing unrelated dirty files were left untouched. Local reports written: `.openclinxr/openclaw/slice-verify-issue-570.json` and `.openclinxr/openclaw/contract-verify-issue-570-merge.json` (gitignored/local evidence).
+
+Evidence: `pnpm exec vitest run packages/openclinxr/agent-loop/src/a-live-rule-refuses-an-unflipped-plant.test.ts` passed 5/5; `pnpm exec vitest run packages/openclinxr/agent-loop/src/done-when-rules.test.ts` passed 14/14; `pnpm packages:typecheck:agent` passed 67/67 tasks; `pnpm architecture` passed 88/88 architecture tests; `pnpm --filter @openclinxr/agent-loop test` passed 13 files / 173 tests; `node --import tsx tools/openclinxr/openclaw/slice-team-cli.ts verify --slice-id issue-570` returned ok=true; `node --import tsx tools/openclinxr/openclaw/contract-verify-cli.ts --slice issue-570 --json` returned proofsOk=true. `#569` harvest proofs also pass on current `main`: `the-iris-factor-is-the-iris-material-s.test.ts` 4/4 and `eye-colour-is-case-driven.test.ts` 5/5; commit `1b3458f1` is reachable from `main`.
+
+Blocker: Commit/stage is blocked in this Codex session because `.git` is read-only under the managed permission profile and approval policy is `never`; `git add packages/openclinxr/agent-loop/src/a-live-rule-refuses-an-unflipped-plant.test.ts && git commit ...` was rejected before execution. The verified code change remains unstaged in the worktree.
+
+Next queued slice: complete #570 commit from a session with `.git` write access, then harvest/report #569 per WAKE BLUF, then continue #568 / #527.
+
+## 2026-08-23 Claude Opus 5 checkpoint — #570 unblocked, #576 plant repaired and dispatched
+
+**Operator direction received this turn.** Worker model priority order, first available wins:
+`ox-alpha` (free) -> `deepseek-v4-flash` (cheap) -> `deepseek-v4-flash-vision-exp` (cheap, with
+vision) -> `grok-4.6` (not cheap). This supersedes both "use ox-alpha exclusively" (2026-08-21) and
+the standing "grok-4.5 only on a 402" fallback: DeepSeek is now the second rung and the Grok tier is
+last. `ox-alpha` was probed live (`modelCalls 1`) before anything was routed to it.
+
+**Product path advanced.** Two commits, both unblocking the frontier lane rather than describing it.
+
+`bced6456` — `#570`. The prior Codex session had verified this fix and could not stage it: `.git` was
+read-only under its permission profile. Committed here unchanged in substance. The `live:` rule's own
+negative fixture (`the-iris-factor-is-the-iris-material-s.test.ts`) went green when `#569` landed, so
+the rule was passing on its own negative case. Repointed at
+`the-shipped-room-matches-its-declared-shape.test.ts`, 1 unflipped `it.fails`, asserted count 3 -> 1.
+
+`650d66eb` — `#576` plant repair. Re-running the plant before dispatch returned
+`Error: Expect test to fail`: clause (1) was PASSING on main. **Measured before concluding anything.**
+`#598` (`99c56fd5`) rebaked `mpfb-ob-patient-aisha.glb` to swap `toigo_flats` for
+`toigo_mj_cloth_shoes`; that moved the body's `openclinxr_hidden_foot_...` carve (2164+305 verts on
+tara's bake vs 1908+572 on aisha's) and the visible body primitive went 10803 -> 11139 verts.
+Per-band, tara vs aisha: band 0 `0.012497201028138338`, bands 1-19 `0.0000016225330834451768` max,
+floor `0.006002811718991801`. Band 0 is 7,700x every other band and the only one over the floor.
+Nineteen of twenty bands identical to six decimal places, so the premise was untouched and the
+instrument was wrong. Band 0 excluded (`WARDROBE_CARVED_BANDS = 1`); the max over the remainder is
+exactly the `MEASURED_PROFILE_DELTA` recorded on `81d06dd6` — a restoration, not a new threshold.
+
+**Blueprint/factory tie.** Q1: `#576` is the D9 frontier hop — a case definition's numeric identity
+(`height_cm`, `bmi`, `build`, `gender_presentation`) reaching an MPFB macro instead of three cosmetic
+colour tokens. Q5: `live:` now closes the hole where `run:` exits 0 on an unflipped plant, and the
+band-0 exclusion closes the hole where a shoe swap certified a body slice.
+
+**Touched files.** `packages/openclinxr/agent-loop/src/a-live-rule-refuses-an-unflipped-plant.test.ts`,
+`tools/openclinxr/evidence/a-declared-body-shape-reaches-the-baked-body.test.ts`, `PROJECT_STATUS.md`,
+GitHub issue 576 body. Unrelated dirty files owned by other writers left untouched.
+
+**Evidence.** `a-live-rule-refuses-an-unflipped-plant.test.ts` 5/5. `#576` plant 3 passed | 1 expected
+fail (4). Per-band probe under `.openclinxr/evidence/issue-576/` (gitignored). Pre-commit hook profile
+green on both commits: integrate gate, drift check, coordination alignment, 81 architecture tests,
+post-slice record.
+
+**Risk that remains.** Not tested whether any profile band above 0 is reachable by a wardrobe
+hide-carve — only the foot carve was measured to move. Not tested whether wiring `macro_detail_dict`
+changes exported mesh dimensions; that is what `#576` is dispatched to find out.
+
+**Next queued slice.** `#576` return -> `contract-verify-cli --slice issue-576` -> integrate -> pixel
+grade the rebaked parent. Then `#603` (38 of 42 shipped actors carry no numeric phenotype, so `#601`'s
+landed resolver has nothing to read).
