@@ -94,6 +94,16 @@ def _inject_target_map(scn: bpy.types.Scene, map_path: str) -> None:
     BD.ensureInited(scn)
     info = CTargetInfo(scn, TARGET_NAME)
     info.readFile(map_path)
+    # #585 sentinel follow-up: nameOrNone turns the map's "None" values into Python
+    # None, and this addon's addManualBones then assigns None into the Bone
+    # StringProperty — Blender 5.1 RNA refuses that ("doesn't support None from
+    # string types") BEFORE the consumer's own skip at retarget.py:157 ever runs.
+    # The empty string is the RNA-default no-counterpart value: addManualBones
+    # accepts it, and the consumer skips it ("" is never a BVH bone name), which is
+    # exactly the semantics the map's "None" declares. Sanitize here so the map
+    # file keeps its loader-documented spelling.
+    info.bones = [(bname, "" if mhx is None else mhx) for (bname, mhx) in info.bones]
+    info.boneNames = dict(info.bones)
     BD.targetInfos[TARGET_NAME] = info
     if not any(item[0] == TARGET_NAME for item in BD.targetEnums):
         BD.targetEnums = list(BD.targetEnums) + [(TARGET_NAME, TARGET_NAME, TARGET_NAME)]
