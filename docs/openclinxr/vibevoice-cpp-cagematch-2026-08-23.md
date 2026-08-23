@@ -369,3 +369,255 @@ pronunciation accuracy, or ASR accuracy of vibevoice.cpp (never executed against
 behaviour over the realtime WebSocket transport (never wired); Quest, WebXR, or microphone-capture
 readiness (untouched); the consent or provenance of the published voice presets; production, learner,
 scoring, or clinical fitness of any kind; and any claim that this candidate should be adopted.
+
+---
+
+## BENCHMARK RESULT (2026-08-23)
+
+The gate §4 said would decide the candidate has now been run. Weights were downloaded (TTS-only
+subset, 1.71 GB) and the engine was executed against a real authored line from the scenario bank.
+
+### VERDICT — `reject_measured`
+
+**vibevoice.cpp beats the recorded Python baseline on every axis measured — RTF 5.24 → 1.43,
+first-audio 9,000 ms → 1,122 ms, peak RSS 9.18 GB → 3.55 GB — and still never reaches
+real-time factor < 1.0 in any configuration tested, so the adapter's `real_time_factor_above_1`
+blocker stands and `health()` must stay `blocked`.**
+
+This is `reject_measured`, not `inconclusive_blocked`: the engine ran, produced intelligible-
+amplitude 24 kHz speech audio, and lost on a named constraint. It is also not `adopt`: a 3.7×
+improvement over a path that was 5× too slow is still too slow.
+
+| gate | verdict | basis |
+|---|---|---|
+| **Real-time factor < 1.0** | **FAIL** | measured — best observed 1.071, at a 4× cut in diffusion steps |
+| **Beats the 5.24 Python baseline** | **PASS** | measured — 1.43 at defaults, a 3.7× improvement |
+| **First-audio latency** | **PASS** | measured — 1,122 ms vs 9,000 ms, an 8.0× improvement |
+| **Peak RSS** | **PASS** | measured — 3.55 GB vs 9.18 GB, a 2.6× improvement |
+| **Runs on the default (Metal) backend** | **FAIL** | measured — 3/3 runs killed by the macOS GPU watchdog, zero audio |
+| **Streaming, not file-generation** | **PASS** | measured — 6 incremental PCM windows per utterance |
+
+### What was measured
+
+| | |
+|---|---|
+| Machine | Apple M1 Max, 64 GB, macOS 26.5.2 (25F84) |
+| Engine | `localai-org/vibevoice.cpp` @ `000e37282bc5bb09edc20f7047a47924122ba3a0` |
+| Weights | `vibevoice-realtime-0.5B-q8_0.gguf` (1,699,832,128 B) + `tokenizer.gguf` + `voice-en-Carter_man.gguf` |
+| Text | `"It feels heavy, like someone is sitting on my chest."` |
+| Text provenance | `packages/openclinxr/scenario-fixtures/src/ed-chest-pain.ts:37` — `ed_chest_pain_priority_v1` / `patient_robert_hayes_v1` / `openingUtterance` |
+| Seed | `12345` fixed, so audio duration is identical across runs |
+| RTF convention | **synthesis-only**, excluding model load — the same convention the 5.24 baseline used |
+
+Model load is reported separately rather than folded into RTF, because a sidecar loads once and
+synthesizes many times. At 0.45–0.50 s it is not the problem either way.
+
+### Runs — Metal backend (the build default; GPU preferred over CPU)
+
+All three fail. `vibevoice_tts_generate` returns `rc=-6`, the CLI exits 4, and **no WAV is written**.
+
+| run | rc | wall | audio produced | RTF | peak RSS |
+|---|---|---:|---|---|---:|
+| 1 | 4 | 186.6 s | **none** | n/a | 2.195 GB |
+| 2 | 4 | 319.9 s | **none** | n/a | 2.195 GB |
+| 3 | 4 | 240.9 s | **none** | n/a | 2.193 GB |
+
+The failure is the macOS GPU watchdog killing the acoustic decoder's command buffer:
+
+```
+ggml_metal_synchronize: error: command buffer 0 failed with status 5
+error: Impacting Interactivity (0000000e:kIOGPUCommandBufferCallbackErrorImpactingInteractivity)
+ggml_metal_graph_compute: backend is in error state from a previous command buffer failure
+tts: generate failed (rc=-6)
+```
+
+The wall-clock spread (186–320 s) is watchdog stall, not compute — the process sits at 0% CPU
+blocked on the GPU throughout. Frame generation itself reaches frame 4 in 0.28 s before the first
+decoder dispatch hangs. A separate cold-start run also recorded a **10.09 s** one-time Metal shader
+library compile; subsequent runs load in ~0.65 s from cache.
+
+**This means the candidate does not work at all on its own default backend on this machine.** Every
+number below required `VIBEVOICE_BACKEND=cpu`.
+
+### Runs — CPU backend, default 20 diffusion steps
+
+| run | RTF (synthesis) | first audio | peak RSS | audio | synthesis wall | model load |
+|---|---:|---:|---:|---:|---:|---:|
+| 1 | **1.432** | 1,122.0 ms | 3.547 GB | 4.133 s | 5.917 s | 0.453 s |
+| 2 | **1.442** | 1,148.7 ms | 3.546 GB | 4.133 s | 5.962 s | 0.495 s |
+| 3 | **1.425** | 1,104.6 ms | 3.546 GB | 4.133 s | 5.890 s | 0.460 s |
+| median | **1.432** | **1,122.0 ms** | **3.546 GB** | | | |
+
+Spread across runs is under 1.2% on RTF and under 4% on first-audio. This is not a one-sample result.
+
+### Against the recorded Python baseline
+
+| metric | Python `VibeVoice-Realtime-0.5B` on `mps` | vibevoice.cpp CPU | change | gate |
+|---|---:|---:|---:|---|
+| real-time factor | 5.24 | **1.432** | **3.7× faster** | still **> 1.0** — FAIL |
+| first-speech latency | ~9,000 ms | **1,122 ms** | **8.0× faster** | PASS |
+| peak memory | 9.18 GB | **3.546 GB** | **2.6× smaller** | PASS |
+| output mode | file generation | **6 incremental PCM windows** | — | PASS |
+
+Three of four blockers move the right way, decisively. The one that decides adoption does not.
+
+### Why the remaining gap is structural, not a tuning problem
+
+`--steps` (DPM-Solver diffusion steps) is the obvious knob. Swept on CPU, three runs each:
+
+| steps | RTF run 1 | run 2 | run 3 | median | first audio (median) |
+|---:|---:|---:|---:|---:|---:|
+| 20 (default) | 1.432 | 1.442 | 1.425 | **1.432** | 1,122 ms |
+| 10 | 1.222 | 1.229 | 1.198 | **1.222** | 956 ms |
+| 5 | 1.076 | 1.071 | 1.097 | **1.076** | 897 ms |
+
+A 4× cut in diffusion steps buys 25% and still lands above 1.0. The reason is visible in the
+per-window breakdown: the pipeline emits one PCM window per 6 latent frames = 0.8 s of audio, and
+**every steady-state window costs more wall-clock than the audio it contains**, at every setting.
+
+| steps | window 1 | 2 | 3 | 4 | 5 | steady-state ratio |
+|---:|---:|---:|---:|---:|---:|---:|
+| 20 | 1.122 s | 1.139 s | 1.095 s | 1.106 s | 1.071 s | **1.34 – 1.42** |
+| 10 | 0.979 s | 0.943 s | 0.943 s | 0.914 s | 0.925 s | **1.14 – 1.22** |
+| 5 | 0.897 s | 0.835 s | 0.864 s | 0.824 s | — | **1.03 – 1.12** |
+
+Splitting a window into its two stages at default steps, the **acoustic decoder alone** accounts for
+0.72–0.89 s of each ~1.10 s window:
+
+```
+window 1: decode >= 0.749s for 0.800s audio
+window 2: decode >= 0.893s for 0.800s audio
+window 3: decode >= 0.738s for 0.800s audio
+window 4: decode >= 0.894s for 0.800s audio
+window 5: decode >= 0.720s for 0.800s audio
+```
+
+So the decoder by itself consumes roughly **90–112% of the real-time budget**, and `--steps` does
+not touch it — it only reduces the diffusion head layered on top. Even a free diffusion head leaves
+this path at the real-time boundary rather than under it. A stream would starve continuously, not
+merely at startup, so the good 1,122 ms first-audio number cannot be spent as buffer.
+
+`mudler/vibevoice.cpp-models` publishes exactly one realtime TTS quant (`q8_0`), so there is no
+smaller variant to fall back to.
+
+### The audio is real
+
+Checked rather than assumed — a written file is not proof of speech:
+
+| artifact | duration | format | RMS | peak | non-silent 20 ms blocks |
+|---|---:|---|---:|---:|---:|
+| `steps=20` | 4.13 s | 24 kHz mono s16 | 1525.8 | 12191 | 133 / 206 |
+| `steps=10` | 4.13 s | 24 kHz mono s16 | 1467.8 | 11651 | 132 / 206 |
+| `steps=5` | 3.87 s | 24 kHz mono s16 | 1288.8 | 14099 | 142 / 193 |
+
+Amplitude and the ~65% voiced fraction are consistent with speech containing pauses. Format matches
+the 24 kHz mono s16 documented at `vibevoice_capi.h:74`, confirming §3b's resample-and-Opus-encode
+gap is real and would add to every number above.
+
+### What this changes for the adapter — nothing yet, and deliberately so
+
+`packages/openclinxr/voice-gateway/src/adapters.ts` was **not modified**. On this evidence it must
+not be:
+
+- **`real_time_factor_above_1`** — emitted when `realTimeFactor === null || > 1`. Measured 1.432.
+  The blocker is correct and stays.
+- **`runtime_file_generation_only`** — this one *would* clear. Six incremental PCM windows per
+  utterance is genuine streaming, not file-then-chunk. But clearing it alone changes nothing while
+  the RTF blocker holds.
+- Everything in §3e stays `false`. `productionUseAllowed: false` stays false.
+
+### Recommendation
+
+**Do not open the sidecar slice, and do not write a MADR 0023 successor.** §4 made adoption
+conditional on RTF < 1.0 and called anything above it "a clean `reject_measured`". That is the
+outcome.
+
+Two things are worth keeping rather than discarding, because they are cheap and already paid for:
+
+1. **The measurement itself is the useful artifact.** A candidate that is 3.7× faster, 8× lower
+   latency and 2.6× lighter than the approved path, and *still* fails, calibrates how far off the
+   whole VibeVoice family is. The gap to close is not 5.24 → 1.0; it is 1.43 → 1.0 against a
+   decoder floor of ~0.9–1.1 on its own. That is a different and much better-posed question.
+2. **The bottleneck is now named and localised** — `run_decoder_chunk_streaming`
+   (`src/vibevoice_tts.cpp:642`), the acoustic VAE decoder, on CPU. Any future re-test should
+   measure that function first and stop early if it has not moved.
+
+Re-test triggers, in priority order:
+
+- The Metal decoder path is fixed upstream and completes without tripping the watchdog. GPU
+  execution is the only untested lever with plausible order-of-magnitude headroom, and it is
+  currently broken rather than slow — those are different failures and this one is not ours to fix.
+- A smaller or differently-quantized realtime TTS decoder is published.
+- The port's last push (`2026-07-09`) advances materially.
+
+### What I did NOT test — stated explicitly
+
+- **No Metal RTF, because Metal produced no audio.** The 186–320 s figures are watchdog stalls and
+  must not be quoted as a real-time factor. Whether GPU execution would be faster than CPU if the
+  watchdog issue were fixed is **not yet evidenced** in either direction.
+- **No workaround for the Metal watchdog was attempted** — not graph splitting, not
+  `GGML_METAL_GRAPH_OPTIMIZE_DISABLE`, not `GGML_METAL_CONCURRENCY_DISABLE`, not a headless session,
+  not a smaller window size. Whether any of these recovers the GPU path is unknown.
+- **No audio was ear-graded.** RMS, peak and voiced-fraction are amplitude statistics, not quality.
+  No opinion is offered on whether this sounds like a plausible standardized patient, and no
+  clinical-terminology pronunciation review was performed — an explicit MADR 0023 gate that remains
+  open.
+- **One utterance, one voice, one speaker.** `voice-en-Carter_man.gguf` only; `voice-en-Emma.gguf`
+  untested. No multi-speaker dialog, no `Speaker N:` tagging, no longer or shorter text, no other
+  station's lines. RTF may vary with utterance length; this was not characterised.
+- **The resample to 48 kHz and the Opus encode required by `realtimeVoiceProtocol` were not built
+  or measured.** Every number above therefore *understates* the true cost of satisfying the declared
+  gateway contract.
+- **No sidecar, no WebSocket.** Nothing crossed `/voice/realtime/ws`. `vv_capi_tts_stream` was read
+  and its window behaviour observed through the CLI's batch path, which uses the same
+  `run_decoder_chunk_streaming` internals; the C API entry point itself was never called.
+- **No ASR.** Unchanged from §5 — the 7B ASR weights (10.4–13.9 GB) were not downloaded.
+- **No thread-count sweep.** CPU ran at ggml's auto-detected default on a 10-core M1 Max;
+  `n_threads` was not tuned.
+- **`local-voice-runtime-benchmark.ts` was not extended.** The §3d trap stands — that script is
+  still hard-pinned to the Python path and cannot measure this engine. These numbers come from a
+  throwaway harness in `/tmp`, not from a repo validator, so they are **not yet evidenced in tree**
+  by `pnpm local:voice:runtime:validate`.
+- **Quest, WebXR and microphone capture untouched**, as in §5.
+
+### Reproduction
+
+```sh
+# weights — TTS-only subset, 1.71 GB, outside the repo
+mkdir -p /tmp/vibevoice-cage/models && cd /tmp/vibevoice-cage/models
+for f in tokenizer.gguf voice-en-Carter_man.gguf vibevoice-realtime-0.5B-q8_0.gguf; do
+  curl -sSL -o "$f" "https://huggingface.co/mudler/vibevoice.cpp-models/resolve/main/$f"
+done
+
+# Metal (default backend) — fails, writes no WAV
+./build/bin/vibevoice-cli tts --model models/vibevoice-realtime-0.5B-q8_0.gguf \
+  --tokenizer models/tokenizer.gguf --voice models/voice-en-Carter_man.gguf \
+  --text "It feels heavy, like someone is sitting on my chest." \
+  --out out.wav --seed 12345 --verbose
+
+# CPU — succeeds, RTF 1.43
+VIBEVOICE_BACKEND=cpu ./build/bin/vibevoice-cli tts ...same args...
+```
+
+RTF is `(timestamp of "tts: generated N samples") - (timestamp of "[tts] N input text tokens")`
+divided by the WAV duration. First-audio is the offset of the first `[tts] window 1:` line from the
+same synthesis start. Peak RSS is `maximum resident set size` from `/usr/bin/time -l` (bytes on
+macOS). Weights stayed in `/tmp`; no repo file outside this document was modified.
+
+---
+
+`claimScope` (this section): the synthesis-only real-time factor, first-audio latency, peak resident
+set size, emitted PCM window count and output audio amplitude statistics of
+`localai-org/vibevoice.cpp` @ `000e3728` with `vibevoice-realtime-0.5B-q8_0.gguf` and
+`voice-en-Carter_man.gguf`, synthesizing one authored patient utterance from
+`ed_chest_pain_priority_v1` at seed 12345, on one macOS 26.5.2 Apple M1 Max 64 GB machine, across
+three runs at each of 20, 10 and 5 diffusion steps on the CPU backend; and the reproducible failure
+of that same configuration on the Metal backend.
+
+`notEvidenceFor` (this section): the audio quality, intelligibility, clinical-terminology
+pronunciation, or standardized-patient plausibility of this engine (never listened to); its
+performance on the Metal or any GPU backend (never completed a synthesis); its performance on other
+voices, other utterances, other utterance lengths, multi-speaker dialog, or other hardware; the cost
+of the 24 kHz → 48 kHz resample and Opus encode the gateway contract requires (never built); its
+behaviour over `/voice/realtime/ws` (never wired); ASR accuracy (never run); and any claim that this
+candidate should be adopted, or that `local-vibevoice`'s `health()` should move off `blocked`.
