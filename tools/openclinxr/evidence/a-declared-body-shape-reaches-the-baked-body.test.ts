@@ -128,6 +128,34 @@ const MEASURED_CHILD_STATURE_METERS = 1.2410184621810913;
 const NON_BODY = /hidden|makeclothes|garment|toigo|boot|shoe|scalp|hair|eyelash|eyebrow|teeth|tongue|eyes/iu;
 const PROFILE_BANDS = 20;
 
+/**
+ * ## CORRECTED 2026-08-23 on HEAD `bced6456` — clause (1) had gone GREEN ON A SHOE SWAP
+ *
+ * The header above is the HEAD `81d06dd6` record and is NOT rewritten. What changed since is not
+ * the premise, it is the instrument.
+ *
+ * `#598` (`99c56fd5`) rebaked `mpfb-ob-patient-aisha.glb` to swap `toigo_flats` for
+ * `toigo_mj_cloth_shoes`. A footwear swap moves the body's wardrobe HIDE-REGION carve at the feet —
+ * `openclinxr_hidden_foot_...` is 2164 + 305 verts on tara's bake against 1908 + 572 on aisha's —
+ * and with it the band-0 lateral extent. Measured per band, tara vs aisha, on this HEAD:
+ *
+ *     band  0 (feet)   delta 0.012497201028138338   <-- the ONLY band over the 0.006002811 floor
+ *     bands 1-19       delta 0.0000016225330834451768 max, ~3,700x UNDER the floor
+ *
+ * Band 0's delta is 7,700x every other band's. Nineteen of twenty bands are still identical to six
+ * decimal places, so THE CARD'S PREMISE IS UNCHANGED: no number reaches a macro. But a
+ * max-over-all-bands signature now passes on wardrobe carving, which is a false green — it would
+ * certify a slice that wired nothing.
+ *
+ * Band 0 is therefore excluded. Note that the max over the remaining bands is
+ * `0.0000016225330834451768`, EXACTLY the `MEASURED_PROFILE_DELTA` recorded on `81d06dd6` — the
+ * exclusion restores the original measurement rather than choosing a new one.
+ *
+ * NOT TESTED: whether any other band can be reached by a wardrobe hide-carve. Only the foot carve
+ * was measured to move.
+ */
+const WARDROBE_CARVED_BANDS = 1;
+
 type Attr = { getCount(): number; getElement(i: number, target: number[]): number[] };
 type Body = { meshName: string; vertexCount: number; statureMeters: number; profile: number[] };
 
@@ -201,7 +229,13 @@ describe("a declared body shape reaches the baked body", () => {
       const a = await measureBody(castAssetPath(DECLARING_SCENARIO, DECLARING_ACTOR));
       const b = await measureBody(castAssetPath(UNDECLARED_SCENARIO, UNDECLARED_ACTOR));
       const floor = PIPELINE_LENGTH_TOLERANCE_METERS / a.statureMeters;
-      const delta = Math.max(...a.profile.map((v, i) => Math.abs(v - b.profile[i]!)));
+      // Band 0 excluded: a footwear swap moves the foot hide-carve and nothing else (see
+      // WARDROBE_CARVED_BANDS above). bmi/build/gender must show in the body, not in the shoe cut.
+      const delta = Math.max(
+        ...a.profile
+          .slice(WARDROBE_CARVED_BANDS)
+          .map((v, i) => Math.abs(v - b.profile[i + WARDROBE_CARVED_BANDS]!)),
+      );
       expect(
         delta,
         `${DECLARING_ACTOR} (bmi ${String(declared?.["bmi"])}, build ${String(declared?.["build"])}, `
