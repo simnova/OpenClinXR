@@ -30,9 +30,16 @@ Grok tier is now LAST, not second. `ox-alpha` probed live before this dispatch.
   stayed at `0.0000016` (7,700x smaller). Band 0 excluded; the remaining max is EXACTLY the
   `81d06dd6` recorded value. Plant is RED again for the right reason.
 
-**IN FLIGHT**
-- `#576` numeric phenotype -> MPFB macro. `ox-alpha`, `asset-pipeline-lead`, worktree, 250 turns,
-  4 proofs including the new `live:`. Requires a real Blender bake of `mpfb-peds-parent-aisha.glb`.
+**IN FLIGHT — HARVEST THIS, DO NOT RE-DISPATCH IT**
+- `#576` numeric phenotype -> MPFB macro. Worker session `ef42e49d`, `ox-alpha`,
+  `asset-pipeline-lead`, worktree `~/.grok/worktrees/src-openclinxr/issue-576`, 250 turns, 4 proofs
+  including the new `live:`. Spawned 20:47:58Z, LIVE. Requires a real Blender bake of
+  `mpfb-peds-parent-aisha.glb`.
+- The write root `materialize_mpfb_humanoid_candidate.py` is HELD. A second worker into it collides.
+  Per the drain loop's own step 2: a live product worker means harvest-only.
+
+**THIS SESSION (Claude Opus 5, `f06447e0`) HAS STOOD DOWN 2026-08-23 17:30.** The 15-minute
+autonomous board loop (`4fb4e97e`) reconnected and owns the loop. No wake is armed here.
 
 **NEXT**: `#576` return -> `contract-verify-cli` -> integrate -> pixel grade. Then `#603` (38 of 42
 shipped actors carry no numeric phenotype — the resolver #601 landed has nothing to read).
