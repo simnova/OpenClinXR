@@ -45,6 +45,19 @@ import { MPFB_GOWN_ADULT_PATIENT_GLB } from "../../../packages/openclinxr/asset-
  *
  * claimScope: whether the API shell's actor-asset expectation tracks the casting SSOT.
  * notEvidenceFor: whether the cast choice is clinically right; garment appearance; any other suite.
+ *
+ * ## FIXED (#592)
+ *
+ * Both suites now import the casting constants through their package boundary instead of repeating
+ * the literal:
+ * - `apps/api/src/app.test.ts` imports `MPFB_GOWN_ADULT_PATIENT_GLB`, `PEDS_CHILD_GLB`,
+ *   `PEDS_PARENT_GLB` from `@openclinxr/asset-registry` (which re-exports
+ *   `cast-asset-constants.js`); the stale pre-#491 expectation and both peds fixture literals
+ *   interpolate the constants.
+ * - `packages/openclinxr/asset-registry/src/asset-registry.test.ts` adds
+ *   `MPFB_GOWN_ADULT_PATIENT_GLB` to its existing `./index.js` import; line 430 interpolates it.
+ * Clauses (1) and (2) flipped from `it.fails` to passing `it` clauses. No resolver, casting-table,
+ * or constant value changed.
  */
 
 const API_TEST = "apps/api/src/app.test.ts";
@@ -53,7 +66,7 @@ const REGISTRY_TEST = "packages/openclinxr/asset-registry/src/asset-registry.tes
 const HARDCODED_GLB = /["'`]\/generated-humanoids\/[A-Za-z0-9_.-]+\.glb["'`]/gu;
 
 describe("a cast recast does not red the api shell", () => {
-  it.fails("(1) RED: the api shell suite is green", async () => {
+  it("(1) the api shell suite is green", async () => {
     // Today: 1 failed | 132 passed, on a stale basename. Fails here as a compile-free proxy so the
     // defect is visible without shelling out to another package's runner.
     const src = readFileSync(API_TEST, "utf8");
@@ -62,7 +75,7 @@ describe("a cast recast does not red the api shell", () => {
       .toBe(false);
   });
 
-  it.fails("(2) RED: no suite repeats a generated-humanoids basename the casting table owns", () => {
+  it("(2) no suite repeats a generated-humanoids basename the casting table owns", () => {
     // Refuses the cheap fix on (1): swapping one literal for the CURRENT one leaves the same
     // brittleness and guarantees a third occurrence at the next recast.
     const offenders: string[] = [];
