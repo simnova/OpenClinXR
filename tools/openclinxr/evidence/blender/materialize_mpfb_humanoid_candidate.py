@@ -258,12 +258,18 @@ def phenotype_numeric_block(manifest_id):
         return {}
     try:
         m = json.loads(manifest.read_text(encoding="utf-8"))
-        block = m.get("input_params", {}).get("phenotype", {})
+        input_params = m.get("input_params", {})
+        block = input_params.get("phenotype", {})
         numeric = {
             k: block[k]
             for k in ("height_cm", "bmi", "build", "gender_presentation", "gender", "age", "muscle", "weight", "proportions", "cupsize", "firmness")
             if k in block
         }
+        # The manifest authors age at input_params.age (top level), OUTSIDE the
+        # phenotype dict the cosmetic tokens read. It is part of the authored
+        # numeric identity and belongs in the macro derivation (#329 years map).
+        if "age" not in numeric and isinstance(input_params.get("age"), (int, float)):
+            numeric["age"] = input_params["age"]
         return numeric
     except Exception:
         return {}
@@ -2003,9 +2009,18 @@ def _bake_and_export_probe(macro, out_path):
     return measure_glb_body(str(out_path))
 
 
-def solve_height_macro(base_macro, target_stature, tmp_dir, tol=0.01):
+def solve_height_macro(base_macro, target_stature, tmp_dir, tol=0.005):
     """Solve the height macro so the baked+stripped EXPORTED body reaches the reference
-    stature. Self-calibrating (probe -> measure -> interpolate); no fitted constants."""
+    stature. Self-calibrating (probe -> measure -> interpolate); no fitted constants.
+
+    tol is half the planted contract's PIPELINE_LENGTH_TOLERANCE_METERS (0.01 m):
+    the solver converges inside the contract's own limit with margin instead of
+    exactly at it (derived from the contract's stated limit, not from any actor's
+    residual). Every returned height macro has been probed and measured within tol
+    — a solver must never return a value it has not measured (the #576 refinement
+    branch once returned an interpolated h_f unprobed, shipping a body 12.8 mm
+    short of its declared height).
+    """
     if target_stature <= 0:
         raise RuntimeError(f"#328: non-positive target stature {target_stature}")
 
@@ -2032,19 +2047,35 @@ def solve_height_macro(base_macro, target_stature, tmp_dir, tol=0.01):
             f"#328: target stature {target_stature:.3f} m outside the measured height-macro "
             f"range [{min(s0, s1):.3f}, {max(s0, s1):.3f}] m — the macro range is exhausted"
         )
-    h_c = h0 + (h1 - h0) * (target_stature - s0) / (s1 - s0)
-    h_c = min(max(h_c, 0.0), 1.0)
-    s_c = probe(h_c)
-    if abs(s_c - target_stature) <= tol:
-        return h_c
-    # One refinement: interpolate within the bracketing pair that contains the target.
-    points = sorted(bracket + [(h_c, s_c)], key=lambda kv: kv[0])
-    for i in range(len(points) - 1):
-        a, b = points[i], points[i + 1]
-        if min(a[1], b[1]) <= target_stature <= max(a[1], b[1]):
-            h_f = a[0] + (b[0] - a[0]) * (target_stature - a[1]) / (b[1] - a[1])
-            return min(max(h_f, 0.0), 1.0)
-    return h_c
+    # Bounded refinement: each candidate is interpolated within the bracketing pair
+    # that contains the target, PROBED, and only returned when measured within tol.
+    # The new measured point is folded back into the bracket for the next step.
+    points = bracket
+    last_residual = None
+    for step in range(1, 5):
+        pair = None
+        for i in range(len(points) - 1):
+            a, b = points[i], points[i + 1]
+            if min(a[1], b[1]) <= target_stature <= max(a[1], b[1]):
+                pair = (a, b)
+                break
+        if pair is None:
+            raise RuntimeError(
+                f"#576: height-macro refinement lost the target bracket for "
+                f"target {target_stature:.4f} m"
+            )
+        a, b = pair
+        h_f = a[0] + (b[0] - a[0]) * (target_stature - a[1]) / (b[1] - a[1])
+        h_f = min(max(h_f, 0.0), 1.0)
+        s_f = probe(h_f)
+        last_residual = abs(s_f - target_stature)
+        if last_residual <= tol:
+            return h_f
+        points = sorted(points + [(h_f, s_f)], key=lambda kv: kv[0])
+    raise RuntimeError(
+        f"#576: height-macro refinement did not converge: residual "
+        f"{last_residual:.4f} m after {step} steps (target {target_stature:.4f} m)"
+    )
 
 
 def _area_sample_points(tris: np.ndarray) -> np.ndarray:
@@ -2703,6 +2734,38 @@ def main():
             f"target_stature={reference['statureMeters']:.4f}"
         )
 
+    # #576 — the no-reference path can still carry a case-authored numeric identity
+    # (height_cm/bmi/build/gender_presentation) through --eye-colour-reference, the
+    # #519 per-actor seam (the peds parent shares Aisha's default-macro body, so her
+    # authored block is not reachable through --reference). The macros come from the
+    # PROVEN #329 mapping in body_param_stage (D1 — wire, never hand-author a second
+    # translation). The height solve runs HERE, before the scene clear below, so the
+    # probe machinery's own scene wipes cannot leave a stripped probe body in the
+    # export — the same ordering the reference path uses.
+    _numeric = None
+    if not args.reference:
+        _numeric = phenotype_numeric_block(args.eye_colour_reference)
+        if _numeric:
+            from body_param_stage import derive_macro_dict_from_authored_phenotype  # noqa: E402
+
+            macro, _macro_derivation = derive_macro_dict_from_authored_phenotype(_numeric)
+            macro["height"] = 0.5  # solved below against the DECLARED stature, #329 discipline
+            print(f"MACRO_BASE {json.dumps(macro)}")
+            print(f"MACRO_DERIVATION {json.dumps(_macro_derivation)}")
+            tmp_dir = pathlib.Path(args.output).parent / f".{pathlib.Path(args.output).name}.height-solve"
+            tmp_dir.mkdir(parents=True, exist_ok=True)
+            try:
+                h_solved = solve_height_macro(macro, float(_numeric["height_cm"]) / 100.0, tmp_dir)
+            finally:
+                import shutil
+
+                shutil.rmtree(tmp_dir, ignore_errors=True)
+            macro["height"] = round(h_solved, 4)
+            print(
+                f"MACRO_SOLVED height={macro['height']} "
+                f"target_stature={float(_numeric['height_cm']) / 100.0:.4f}"
+            )
+
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.object.delete()
 
@@ -2727,35 +2790,16 @@ def main():
         # not reachable through --reference) and the macros come from the PROVEN
         # #329 mapping in body_param_stage (D1 — wire, never hand-author a second
         # translation). A bake with no manifest / no numeric identity keeps the
-        # literal default-macro path byte-for-byte (aisha).
-        _numeric = phenotype_numeric_block(args.eye_colour_reference)
-        if _numeric:
-            from body_param_stage import derive_macro_dict_from_authored_phenotype  # noqa: E402
-
-            macro, _macro_derivation = derive_macro_dict_from_authored_phenotype(_numeric)
-            macro["height"] = 0.5  # solved below against the DECLARED stature, #329 discipline
-            print(f"MACRO_BASE {json.dumps(macro)}")
-            print(f"MACRO_DERIVATION {json.dumps(_macro_derivation)}")
+        # literal default-macro path byte-for-byte (aisha). The macro TARGETS are
+        # baked into the basis exactly like the reference path above — without the
+        # bake the exported body does not reflect the macro dict (measured, see the
+        # module docstring).
         human = HumanService.create_human(feet_on_ground=True, **({"macro_detail_dict": macro} if _numeric else {}))
         if _numeric:
-            # Height is solved AFTER create_human so the probe machinery measures the
-            # real model with every other macro fixed (#329 discipline); the solved
-            # value is applied to this same human below via a fresh macro bake.
-            tmp_dir = pathlib.Path(args.output).parent / f".{pathlib.Path(args.output).name}.height-solve"
-            tmp_dir.mkdir(parents=True, exist_ok=True)
-            try:
-                h_solved = solve_height_macro(macro, float(_numeric["height_cm"]) / 100.0, tmp_dir)
-            finally:
-                import shutil
+            from bl_ext.user_default.mpfb.services.targetservice import TargetService  # noqa: E402
 
-                shutil.rmtree(tmp_dir, ignore_errors=True)
-            macro["height"] = round(h_solved, 4)
-            TargetService.set_value("height", macro["height"], human)
+            TargetService.bake_targets(human)
             bpy.context.view_layer.update()
-            print(
-                f"MACRO_SOLVED height={macro['height']} "
-                f"target_stature={float(_numeric['height_cm']) / 100.0:.4f}"
-            )
         human.name = "mpfb_ob_patient_aisha_body_mesh"
         human.data.name = "mpfb_ob_patient_aisha_body"
 
