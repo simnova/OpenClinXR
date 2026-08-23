@@ -61,7 +61,7 @@ function stations(...pairs: Array<[string, Classification]>): StationLike[] {
 }
 
 describe("the gauge sees what the resolver resolves", () => {
-  it.fails("(1) RED: a case resolvable through resolve_case_actor_params is visible to the gauge", async () => {
+  it("(1) RED: a case resolvable through resolve_case_actor_params is visible to the gauge", async () => {
     // Today dumpCasePresets reads CASE_ACTOR_PRESETS directly, so a case that resolves via the
     // #601 seam is invisible and station one reports it blocked.
     const seen = await runner.caseIdsWithPresets();
@@ -69,7 +69,7 @@ describe("the gauge sees what the resolver resolves", () => {
       .toContain(RESOLVABLE_BUT_UNSEEN);
   }, 60000);
 
-  it.fails("(2) RED: a station that is not applicable does not disqualify the case", () => {
+  it("(2) RED: a station that is not applicable does not disqualify the case", () => {
     // Requires the inline predicate at :856 to be extracted as an exported pure function.
     const fn = (runner as unknown as {
       isCaseFullyDeterministic?: (s: StationLike[]) => boolean;
@@ -117,3 +117,21 @@ describe("the gauge sees what the resolver resolves", () => {
     }
   });
 });
+
+/*
+## FIXED (#607)
+
+- `dumpCasePresets` / `listPresets` now resolve through the #601 seam
+  (`allowed_case_actor_preset_ids` UNION `params_from_case_definition` /
+  `resolve_case_actor_params`) instead of iterating `CASE_ACTOR_PRESETS`
+  directly; `caseIdsWithPresets()` therefore includes every case the resolver
+  can materialize (peds_fever_v1 and the rest of the authored-phenotype
+  population), not just the two legacy preset cases.
+- Extracted the inline roll-up predicate as exported pure
+  `isCaseFullyDeterministic(stations)`: `absent` (NOT APPLICABLE) no longer
+  disqualifies a case; `error` / `not_run` still do. The roll-up frontier now
+  keys off the first `error`/`not_run` station, so a case whose only
+  non-deterministic station is `absent` counts as fully deterministic.
+- `multi-case-runner.ts` header/implementation/execution-command strings and
+  the station-one note now name the resolver seam rather than the raw dict.
+*/
