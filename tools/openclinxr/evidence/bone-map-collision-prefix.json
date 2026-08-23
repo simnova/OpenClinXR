@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "openclinxr.bone-map-collision-prefix.v1",
+  "issue": 585,
+  "measuredAgainstCommit": "730ed56f",
+  "rig": "tools/openclinxr/asset-pipeline/makeclothes/known-rigs/mpfb2-default-no-toes.json",
+  "coverage": "tools/openclinxr/evidence/mpfb-bone-map-coverage.json",
+  "keys": 60,
+  "optionalCount": 36,
+  "collisions": [
+    {
+      "target": "shoulder.L",
+      "sources": [
+        "clavicle.L",
+        "shoulder01.L"
+      ]
+    },
+    {
+      "target": "shoulder.R",
+      "sources": [
+        "clavicle.R",
+        "shoulder01.R"
+      ]
+    }
+  ],
+  "bonesDriven": 26,
+  "unbound": [
+    "finger1-2.L",
+    "finger1-2.R",
+    "finger1-3.L",
+    "finger1-3.R",
+    "finger2-2.L",
+    "finger2-2.R",
+    "finger2-3.L",
+    "finger2-3.R",
+    "finger3-1.L",
+    "finger3-1.R",
+    "finger3-2.L",
+    "finger3-2.R",
+    "finger3-3.L",
+    "finger3-3.R",
+    "finger4-1.L",
+    "finger4-1.R",
+    "finger4-2.L",
+    "finger4-2.R",
+    "finger4-3.L",
+    "finger4-3.R",
+    "finger5-1.L",
+    "finger5-1.R",
+    "finger5-2.L",
+    "finger5-2.R",
+    "finger5-3.L",
+    "finger5-3.R",
+    "lowerarm02.L",
+    "lowerarm02.R",
+    "shoulder01.L",
+    "shoulder01.R",
+    "upperarm02.L",
+    "upperarm02.R",
+    "upperleg02.L",
+    "upperleg02.R"
+  ]
+}

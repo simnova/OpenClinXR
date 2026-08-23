@@ -63,14 +63,25 @@ import { describe, expect, it } from "vitest";
  *
  * claimScope: internal consistency of the map against the shipped 137-joint subject.
  * notEvidenceFor: whether any clip retargets correctly; motion quality; #546's mixamo_unity question.
+ *
+ * ## FIXED (#585)
+ *
+ * Measured: `retarget_bvh` `CAnimation.__init__` (retarget.py:157-164) SKIPS SILENTLY when the
+ * canonical value is absent from the renamed source armature (`continue` — no warn, no raise).
+ * `mesh2motion-human-66.json` (same known-rigs dir) has one shoulder DOF per side
+ * (`clavicle_l/r` → `shoulder.L/R`) and no second-shoulder target in its 52-value namespace.
+ * Decision: `clavicle.L/R` keep `shoulder.L/R`; `shoulder01.L/R` → `"None"` (retarget_bvh
+ * `nameOrNone` in the addon `utils.py` — first-class "no counterpart"; key kept + stays
+ * `optional` because clause (4) forbids deletion). Clause (4) CONTROL_KEYS 34→60 (may-only-grow
+ * floor = current key count). Prior `unused.L/R` withdrawn: not in this repo's known-rigs.
  */
 
 const RIG = "tools/openclinxr/asset-pipeline/makeclothes/known-rigs/mpfb2-default-no-toes.json";
 const SUBJECT = "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb";
 const COVERAGE = "tools/openclinxr/evidence/mpfb-bone-map-coverage.json";
 
-/** #547's landed key count. Growth is its clause; here it is only a floor against deletion. */
-const CONTROL_KEYS = 34;
+/** Current map key count — floor against deletion (map may only grow). Raised 34→60 in #585. */
+const CONTROL_KEYS = 60;
 /** The limb twist family, by NAME not by suffix — face helpers share the `02` suffix. */
 const LIMB_TWISTS = ["upperarm02", "lowerarm02", "upperleg02", "lowerleg02"] as const;
 const FINGERS = [1, 2, 3, 4, 5] as const;
@@ -86,9 +97,13 @@ async function subjectJoints(): Promise<string[]> {
 }
 
 describe("the bone map is unambiguous and complete by family", () => {
-  it.fails("(1) RED: no target is claimed by two source joints", () => {
+  it("(1) RED: no live target is claimed by two source joints", () => {
     const inv = new Map<string, string[]>();
-    for (const [src, tgt] of Object.entries(bones())) inv.set(tgt, [...(inv.get(tgt) ?? []), src]);
+    for (const [src, tgt] of Object.entries(bones())) {
+      // "None" = retarget_bvh nameOrNone unmapped sentinel — not a live DOF a retarget can honour.
+      if (tgt === "None") continue;
+      inv.set(tgt, [...(inv.get(tgt) ?? []), src]);
+    }
     const collisions = [...inv].filter(([, s]) => s.length > 1).map(([t, s]) => `${t} <- [${s.join(", ")}]`);
     expect(collisions, "targets driven by more than one source joint — a retarget cannot honour both").toEqual([]);
   });
@@ -128,6 +143,10 @@ describe("the bone map is unambiguous and complete by family", () => {
     for (const k of ["clavicle.L", "clavicle.R", "shoulder01.L", "shoulder01.R"]) {
       expect(k in m, `${k} must still be mapped — disambiguate by retargeting it, not by deleting it`).toBe(true);
     }
+    // Standard rig has no second shoulder DOF (mesh2motion-human-66.json: clavicle_* → shoulder.* only).
+    // "None" is the loader-understood no-counterpart value (retarget_bvh nameOrNone).
+    expect(m["shoulder01.L"], "shoulder01 has no distinct standard-rig DOF").toBe("None");
+    expect(m["shoulder01.R"], "shoulder01 has no distinct standard-rig DOF").toBe("None");
     // Refuses the opposite cheap green: mapping everything to raise coverage. Face-muscle, breast and
     // metacarpal joints have no standard-rig counterpart and must stay unmapped.
     const forbidden = [...joints].filter((j) => /^(levator|oculi|risorius|temporalis|orbicularis|breast|metacarpal)/.test(j));
