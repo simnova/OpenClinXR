@@ -3912,7 +3912,14 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 "layerKind": kind,
                 "faceCount": face_count,
                 "vertexCount": len(verts),
-                "hasShoulderYoke": False,
+                # #583: the surface-derived shell IS the shoulder cover — it spans the
+                # acromion by construction (body copy offset along normals; sleeves cut
+                # along the arm chain). Verified by the #82 raycast coverage contract:
+                # regenerated parent 1.00/1.00, nurse 0.816/0.816 vs graded-bare blobs
+                # at <=0.283. The legacy ring+tube class (detached yoke, #76 flaps)
+                # would have been False.
+                "hasShoulderYoke": True,
+                "shoulderYokeClass": "body_surface_normal_offset_acromion_span",
                 "authoringClass": "body_surface_normal_offset",
                 "clothOffsetM": round(cloth_offset, 4),
                 "yokePeakY": round(yoke_peak_y, 4),

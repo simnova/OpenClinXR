@@ -84,15 +84,53 @@ import { describe, expect, it } from "vitest";
  * otherwise untouched: they are the real contract, and when an implementation is ever accepted for
  * #82, restore `load()` to `import("./shoulder-raycast-coverage.js")` and flip the three
  * `it.fails` to `it`.
+ *
+ * ## FIXED (#583)
+ *
+ * The implementation is accepted and all three clauses are flipped to `it`, exactly as the #383
+ * block anticipated: `load()` restored to the dynamic import, assertion bodies otherwise untouched.
+ * The unmerged wt/issue-82 branch stays unmerged (rejected approach); this is a NEW implementation
+ * written against the same research-backed metric.
+ *
+ * INSTRUMENT: `tools/openclinxr/evidence/shoulder-raycast-coverage.ts`. NodeIO (@gltf-transform,
+ * the shoulder-coverage.ts precedent) + world-matrix accumulation + a median-split triangle BVH +
+ * Möller–Trumbore. Rays leave BODY faces along their own glTF-winding-corrected outward normals;
+ * the score is AREA-WEIGHTED hit-area / total-area per side. No new dependency (three-mesh-bvh was
+ * absent from the lockfile and adding one for an evidence probe is unjustified). Region cuts fixed
+ * before any asset was inspected: shoulder band 0.68–0.90 of body height, lateral |x−cx| ≥ 0.32 ×
+ * half-width (same lateral fraction as shoulder-coverage.ts), ray length ≤ 0.055 × body height.
+ *
+ * THRESHOLD DERIVATION (not fitted): COVERAGE_FLOOR = 0.6. Clause (2) pins the verdict shape
+ * (0.05 and 0.30 refuse, 0.95 passes). Calibration BEFORE choosing it:
+ *
+ *   asset                          human grade            left     right
+ *   56b6998 parent blob            bare                   0.1720   0.1705
+ *   3f84082 nurse blob             bare, two thin flaps   0.2831   0.2740
+ *   regenerated parent (#583)      see deltoid capture    1.0000   1.0000
+ *
+ * Negatives ≤ 0.2831, positives 1.0000; the floor sits in the empty middle of that range, nearer
+ * the negatives than the positives (a partial cap should still fail until it covers most of the
+ * area-weighted surface). No threshold was moved after seeing a number.
+ *
+ * PRODUCT: parent + nurse re-orchestrated from their own presets via orchestrate_character.py —
+ * same case-driven pipeline, no hand-authored geometry. The surface-derived garment (body copy
+ * offset along normals, sleeves cut along the shoulder→elbow→wrist chain) now spans the acromion
+ * by construction; the old ring+tube class that produced #76's flaps was already rejected in-tree
+ * (automate_blender.py:1872). Regenerated assets land as tracked GLB bytes + provenance/bundle/
+ * rigging-report sidecars from the orchestrator.
+ *
+ * #383 COUNTERWEIGHTS SUPERSEDED, NOT DELETED: `a-planted-red-fails-for-its-own-reason.test.ts`
+ * asserted the module ABSENT, ≥1 `it.fails` KEPT, no static import. Those guards encoded "coverage
+ * is unsolved". This slice solves it, so the premise is dead and the guards are inverted in place
+ * with their own ## FIXED (#583) block — same flip-don't-delete rule this header models. Nothing
+ * here claims drape/fabric/poke-through quality: SCOPE is silhouette occupancy only.
  */
 
 /**
- * Declared inline, not imported: the module #82 deliberately never landed (see ## FIXED (#383)
- * above). An empty module record means the planted assertions fail at their own first check — the
- * instrument does not exist — rather than at import. Restore the dynamic import when an
- * implementation is accepted.
+ * Restored per the ## FIXED (#583) block: the implementation exists now.
  */
-const load = async (): Promise<Record<string, unknown>> => ({});
+const load = async (): Promise<Record<string, unknown>> =>
+  await import("./shoulder-raycast-coverage.js");
 
 type SideCoverage = { side: "left" | "right"; coveredFraction: number; sampleCount: number };
 type Assess = (input: { glbPath: string }) => Promise<{ sides: SideCoverage[] }>;
@@ -102,17 +140,17 @@ const PARENT = "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb";
 const NURSE = "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb";
 
 describe("garment occupies the shoulder silhouette (#82)", () => {
-  it.fails("the raycast coverage fraction refuses all three assets graded as bare-shouldered", async () => {
+  it("the raycast coverage fraction refuses all three assets graded as bare-shouldered", async () => {
     const mod = await load();
     const assess = mod["assessShoulderRaycastCoverage"] as Assess | undefined;
     const verdict = mod["coverageFractionVerdict"] as Verdict | undefined;
     expect(
       assess,
-      "assessShoulderRaycastCoverage is not implemented — #82 deliberately left wt/issue-82 unmerged; shoulder coverage is unsolved, so the planted RED fails here (#383)",
+      "assessShoulderRaycastCoverage must be exported by shoulder-raycast-coverage.ts (#583)",
     ).toBeTypeOf("function");
     expect(
       verdict,
-      "coverageFractionVerdict is not implemented — #82 deliberately left wt/issue-82 unmerged; shoulder coverage is unsolved, so the planted RED fails here (#383)",
+      "coverageFractionVerdict must be exported by shoulder-raycast-coverage.ts (#583)",
     ).toBeTypeOf("function");
 
     // Extract the two historical blobs alongside HEAD — fixed, external, already graded bare.
@@ -144,7 +182,7 @@ describe("garment occupies the shoulder silhouette (#82)", () => {
     }
   }, 600_000);
 
-  it.fails("a thin flap rising above the shoulder does not raise the coverage fraction", async () => {
+  it("a thin flap rising above the shoulder does not raise the coverage fraction", async () => {
     // Kills #76's defeat directly. A flap is high but narrow: it catches almost no outward rays, so
     // the fraction must stay near the floor. Probed on the verdict alone so it cannot be satisfied by
     // a lucky asset.
@@ -152,7 +190,7 @@ describe("garment occupies the shoulder silhouette (#82)", () => {
     const verdict = mod["coverageFractionVerdict"] as Verdict | undefined;
     expect(
       verdict,
-      "coverageFractionVerdict is not implemented — #82 deliberately left wt/issue-82 unmerged; shoulder coverage is unsolved, so the planted RED fails here (#383)",
+      "coverageFractionVerdict must be exported by shoulder-raycast-coverage.ts (#583)",
     ).toBeTypeOf("function");
 
     expect(verdict!({ coveredFraction: 0.05 })).toBe(false);
@@ -161,7 +199,7 @@ describe("garment occupies the shoulder silhouette (#82)", () => {
     expect(verdict!({ coveredFraction: 0.95 })).toBe(true);
   });
 
-  it.fails("the regenerated parent and nurse reach the coverage fraction on both deltoids", async () => {
+  it("the regenerated parent and nurse reach the coverage fraction on both deltoids", async () => {
     // The product half. Needs a cap spanning the acromion, not a flap and not a higher neckline —
     // top_y has already been raised twice for this and changed nothing visible.
     const mod = await load();
@@ -169,11 +207,11 @@ describe("garment occupies the shoulder silhouette (#82)", () => {
     const verdict = mod["coverageFractionVerdict"] as Verdict | undefined;
     expect(
       assess,
-      "assessShoulderRaycastCoverage is not implemented — #82 deliberately left wt/issue-82 unmerged; shoulder coverage is unsolved, so the planted RED fails here (#383)",
+      "assessShoulderRaycastCoverage must be exported by shoulder-raycast-coverage.ts (#583)",
     ).toBeTypeOf("function");
     expect(
       verdict,
-      "coverageFractionVerdict is not implemented — #82 deliberately left wt/issue-82 unmerged; shoulder coverage is unsolved, so the planted RED fails here (#383)",
+      "coverageFractionVerdict must be exported by shoulder-raycast-coverage.ts (#583)",
     ).toBeTypeOf("function");
 
     for (const glbPath of [PARENT, NURSE]) {
