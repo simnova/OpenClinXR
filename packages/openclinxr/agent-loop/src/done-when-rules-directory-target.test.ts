@@ -80,7 +80,7 @@ function makeFixture(): Fixture {
 const NO_HANDOFFS = {};
 
 describe("a changed: rule can name a directory", () => {
-  it.fails(
+  it(
     "(1) RED: a directory target snapshots the files beneath it and goes green when one of them changes",
     async () => {
       const { root, baselineDir } = makeFixture();
@@ -104,7 +104,7 @@ describe("a changed: rule can name a directory", () => {
     },
   );
 
-  it.fails(
+  it(
     "(2) RED COUNTERWEIGHT: a directory target stays RED when only a file OUTSIDE it changed — it is not a free pass",
     async () => {
       const { root, baselineDir } = makeFixture();
@@ -159,3 +159,22 @@ describe("a changed: rule can name a directory", () => {
     expect(untouchedFile.passed, untouchedFile.detail).toBe(false);
   });
 });
+
+/**
+ * ## FIXED (#579)
+ *
+ * Both REDs flipped; the header's diagnosis and measured table are untouched above.
+ *
+ * - `resolveExistsTargets` (done-when-tree.ts) now expands a non-wildcard DIRECTORY target to the
+ *   files beneath it via the proven `walkFiles` helper (recursive, files-only) — the same helper
+ *   the wildcard branch already used. The EISDIR crash at baseline-write and eval time is gone,
+ *   and `measured-before:`'s identical hashing exposure is repaired by the same change.
+ * - The `changed:` branch (done-when-rules.ts) aggregates DIRECTORY targets AT-LEAST-ONE
+ *   (`passed = changed.length > 0`); file and wildcard targets keep all-must-change semantics
+ *   exactly as before (clause (3) pins this and passes unmodified).
+ * - DECISION (header-mandated, restated): a directory target means "at least one file beneath it
+ *   changed". It is not refused at brief time and not every-file.
+ *
+ * NOT TESTED (unchanged from header, plus): breadth strictness of a broad root like
+ * `changed:apps`; symlinked files under a directory target are still skipped by `walkFiles`.
+ */

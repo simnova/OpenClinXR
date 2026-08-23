@@ -270,6 +270,11 @@ export async function evaluateDoneWhenRule(
     if (matches.length === 0) {
       return { rule, passed: false, detail: `missing ${target}` };
     }
+    // #93: a DIRECTORY target aggregates AT-LEAST-ONE — "some file under the subtree changed" is
+    // the assertion both crashing slices meant, and every-file is unsatisfiable for any real
+    // subtree. File and wildcard targets keep all-must-change semantics exactly as before.
+    const targetAbs = path.isAbsolute(target) ? target : path.join(treeRoot, target);
+    const isDirectoryTarget = statSync(targetAbs).isDirectory();
     const changed: string[] = [];
     const unchanged: string[] = [];
     for (const match of matches) {
@@ -281,6 +286,16 @@ export async function evaluateDoneWhenRule(
       // "unchanged"; that would ban creating new files and make the rule worthless for greenfield.
       if (prior !== undefined && prior === hash) unchanged.push(rel);
       else changed.push(rel);
+    }
+    if (isDirectoryTarget) {
+      return {
+        rule,
+        passed: changed.length > 0,
+        detail:
+          changed.length > 0
+            ? `changed during this slice beneath ${target}: ${changed.join(", ")}`
+            : `no file beneath ${target} changed since slice baseline (${unchanged.length} present and unchanged)`,
+      };
     }
     return {
       rule,

@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { readdir } from "node:fs/promises";
 import path from "node:path";
 
@@ -70,7 +70,12 @@ async function walkFiles(dir: string): Promise<string[]> {
 export async function resolveExistsTargets(treeRoot: string, target: string): Promise<string[]> {
   const absolute = path.isAbsolute(target) ? target : path.join(treeRoot, target);
   if (!target.includes("*")) {
-    return existsSync(absolute) ? [absolute] : [];
+    // #93: a directory target expands to the files beneath it (recursive, files-only) via the
+    // same proven walkFiles helper the wildcard branch uses — previously the directory inode
+    // itself was returned and `sha256File` threw EISDIR at baseline-write and eval time.
+    if (!existsSync(absolute)) return [];
+    if (statSync(absolute).isDirectory()) return walkFiles(absolute);
+    return [absolute];
   }
   const normalizedTarget = target.replaceAll("\\", "/");
   const wildcardIndex = normalizedTarget.split("/").findIndex((segment) => segment.includes("*"));
