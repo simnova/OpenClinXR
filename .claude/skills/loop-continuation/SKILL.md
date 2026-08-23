@@ -67,3 +67,48 @@ progress"*.
   public surface reflects it. Part of the landing checklist, not a follow-up.
 - Only graded, skeptic-passable images go public. A 26 KB error screenshot shipped as "evidence" once
   already. Grade first, publish second.
+
+## 6. ENUMERATE before you select — the missing step
+
+Diagnosed 2026-08-22 by the superagent, after the operator found four pieces of unfinished work in one
+hour that I had not: *"Your tick enumerates STATES (harvest → killed-check → collision-check) and then
+calls a selector. Nothing in the pipeline ever builds the candidate list from the world. Sweep is an
+ENUMERATION step, and there is no enumeration step."*
+
+A perfect selector cannot select work it never enumerated. Duties 1–5 above are all reactive by
+construction — task-notification, scheduled wake, operator ask. **None of them compares the world
+against the ledger.** And the pulse cannot cover for it: the pulse measures **throughput, never
+inventory**, so `NUMBERS_ONLY` reads healthy-flat on an 86-card backlog with 13 abandoned contracts,
+because activity metrics see flow and not stock.
+
+**Every tick prints this line, next to the pulse row:**
+
+```
+SWEEP: reds=N(oldest #id) undisp=N uncarded=N rel=<tag> quiet=N
+```
+
+A tick report without it is an invalid tick — the same enforcement class as post-slice failing on a
+missing token-introspection line, which is the only gate that has ever actually held.
+
+The five queries behind it, ~15 s total:
+
+| # | query | a hit means | do |
+|---|---|---|---|
+| S1 | `it.fails(` across `apps packages tools` test files, minus files containing `## FIXED` | a planted RED still unmet — a slice **started and abandoned** | bucket it; dispatch or close one per tick |
+| S2 | open cards carrying `lane:` but no `## factory_step:` | assigned work that cannot dispatch | operationalize at most 2 |
+| S3 | `git log --since=24h --diff-filter=A` over test/evidence paths, diffed against closed cards | a contract landed with no card tracking its flip | open the flip card the same tick |
+| S4 | upstream release tag vs the version pinned in the tree | a dependency moved while nobody looked | pin-bump card, or record the non-use reason |
+| S5 | newest session `updates.jsonl` line counts across wakes | a consult thread went silent mid-thought | resume or close it explicitly |
+
+**All four of the operator's catches map to these**: lip-sync was S3, eyebrows S1, Rhubarb S2 verbatim,
+IWSDK S4 verbatim. Four for four — none needed judgement, only enumeration.
+
+**Secondary trigger:** if `reds` grows between consecutive ticks, the next action is a bucket decision
+on the RED list **before any new dispatch**. Growth means work is being abandoned faster than finished.
+
+## 7. PRODUCING_NOTHING obliges a NEEDS-DECISION record in the SAME tick
+
+Not next tick. The verdict exists because `ACTIVITY_INCREASING` read like praise and got skimmed for
+nine hours. When it fires, the tick states plainly what is in flight, why product bytes are zero, and
+what would change it — or admits the loop is spinning. **Do not explain the verdict away**; it fires on
+`graded==0 && productCommits==0 && totalCommits>=3 && completions>=3`, and every one of those is a fact.
