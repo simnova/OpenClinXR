@@ -94,6 +94,7 @@ import { initialDialogueTextForScenario } from "./initial-dialogue-text.js";
 import { stationContextForScenario } from "./station-context.js";
 import {
   resolveActorPosture,
+  resolveEnvironmentShellDescriptor,
   seatedActorWorldPosition,
   seatedVerticalOffsetForSeatHeight,
   supineActorWorldPosition,
@@ -103,7 +104,6 @@ import {
 // #196 pattern: subpath avoids growing the frozen asset-registry barrel (index.ts freeze 2843).
 import {
   FAMILY_CHAIR,
-  resolveEnvironmentShellDescriptor,
   resolveFixtureSlotPosition,
 } from "@openclinxr/asset-registry/environment-zone-templates";
 import {
