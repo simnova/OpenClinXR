@@ -63,7 +63,7 @@ const NOW = 1_787_500_000_000;
 const WT = (n: number): string => `%2FUsers%2Fp%2F.grok%2Fworktrees%2Fsrc-openclinxr%2Fissue-${n}`;
 
 describe("the sweep sees quiet threads and counts live workers", () => {
-  it.fails("(1) RED: a nested session stale for 60 min counts as quiet", () => {
+  it("(1) RED→LIVE (#586): a nested session stale for 60 min counts as quiet", () => {
     const root = mkdtempSync(join(tmpdir(), "sweep-quiet-"));
     session(root, WT(901), "aaaaaaaa-0000-0000-0000-000000000001", 60 * MIN, NOW);
     expect(
@@ -86,7 +86,7 @@ describe("the sweep sees quiet threads and counts live workers", () => {
     ).toBe(0);
   });
 
-  it.fails("(3) RED: countLiveWorkers reports the concurrent worker count the floor needs", async () => {
+  it("(3) RED→LIVE (#586): countLiveWorkers reports the concurrent worker count the floor needs", async () => {
     const root = mkdtempSync(join(tmpdir(), "sweep-live-"));
     session(root, WT(903), "aaaaaaaa-0000-0000-0000-000000000003", 5_000, NOW);      // live
     session(root, WT(904), "aaaaaaaa-0000-0000-0000-000000000004", 20_000, NOW);     // live
@@ -99,7 +99,7 @@ describe("the sweep sees quiet threads and counts live workers", () => {
     expect(mod.countLiveWorkers!(root, NOW), "two worktree sessions are live within the window").toBe(2);
   });
 
-  it.fails("(4) COUNTERWEIGHT: an unreadable root stays -1, and a non-worktree session is not a worker", async () => {
+  it("(4) RED→LIVE (#586) COUNTERWEIGHT: an unreadable root stays -1, and a non-worktree session is not a worker", async () => {
     // Refuses the cheap rewrite. Returning 0 for an unreadable root makes a broken scan and a clean
     // scan print the same line — the exact failure this card exists to remove.
     expect(
@@ -122,3 +122,22 @@ describe("the sweep sees quiet threads and counts live workers", () => {
     }
   });
 });
+
+/**
+ * ## FIXED (#586)
+ *
+ * All three REDs flipped after `tools/openclinxr/openclaw/openclaw-sweep.ts` landed:
+ *
+ * - S5 now reads `<encoded>/<sessionUuid>/updates.jsonl` via a shared reader
+ *   (`readSessionUpdates`) used by both counters; `countQuietThreads(base?, now?)` and
+ *   `countLiveWorkers(base?, now?)` take the sessions root as their FIRST parameter
+ *   (`now` kept second), so fixtures build without touching `$HOME`. Timestamps remain the
+ *   authoritative recency signal with mtime as fallback when a file has no parseable stamps.
+ * - Clause (2) is now load-bearing as predicted: the injectable base makes the fresh-thread
+ *   zero a real reading rather than the blind function's unconditional 0.
+ * - `countLiveWorkers` exists; only encoded dirs decoding to `%2Fissue-<n>` count (the main
+ *   checkout is not a worker), live = updates.jsonl touched within 3 min. Unreadable root
+ *   still returns -1 for BOTH counters — clause (4)'s honesty contract holds.
+ * - `formatSweepLine` appends ` workers=<n>/<floor>` plus ` BREACH` below floor=3;
+ *   `main()` exits 2 on breach, distinct from section-error exit 1.
+ */
