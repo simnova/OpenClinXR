@@ -21,9 +21,14 @@ parseable_sections: 6
   -> `grok-4.6` (last resort).
 - Superagent: `ox-alpha` -> `grok-4.6`. No DeepSeek rung; its work is judgment, not bounded execution.
 - Supersedes "grok-4.5 only on a 402". The Grok tier is LAST, not second.
-- `ox-alpha` VERIFIED 2026-08-23 17:38: tool-using probe returned `OXPROBE 43` against a ground truth
-  of 43 in 26 s, and worker `ef42e49d` held it 50+ min / 572 session lines. The one `issue-605` death
-  was 17 s after spawn, an immediate provider fault rather than a session burn.
+- ALL FOUR RUNGS VERIFIED 2026-08-23 17:50, identical tool-using probe, ground truth 43:
+  `ox-alpha` 34 s / `deepseek-v4-flash` 13 s / `deepseek-v4-flash-vision-exp` 18 s / `grok-4.6` 24 s,
+  every one exit 0 and correct. `ox-alpha` also held worker `ef42e49d` 50+ min / 572 session lines.
+- **THE DEEPSEEK `402 Insufficient Balance` RECORDED BELOW NO LONGER REPRODUCES.** Both DeepSeek rungs
+  answered. Treat that 402 as a historical incident and re-probe rather than assuming it.
+- Rung 3 is CONDITIONAL, not sequential: `deepseek-v4-flash-vision-exp` only when a slice needs the
+  worker to read an image AND `ox-alpha` is down. `ox-alpha` is itself multimodal. On an identical
+  text-only probe the vision model cost 730 output tokens against 135 for plain flash.
 - NOT ENFORCED IN CODE: `ox-alpha` is in zero executable files; `MODEL_RANK` has 3 entries and none
   is `ox-alpha`, so it passes the #461 guard by being unrecognized. The skill is the enforcement.
 

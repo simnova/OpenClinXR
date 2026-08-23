@@ -18,6 +18,14 @@ failure, never on preference.
 | 3 | `deepseek-v4-flash-vision-exp` | cheap, with vision |
 | 4 | `grok-4.6` | not cheap, last resort |
 
+> **RUNG 3 IS CONDITIONAL, NOT SEQUENTIAL.** Take `deepseek-v4-flash-vision-exp` ONLY when the slice
+> genuinely needs the worker to read an image AND `ox-alpha` is unavailable. `ox-alpha` is itself
+> multimodal (verified 2026-08-21 on an image whose filename gave nothing away), so while rung 1 is
+> up there is no reason to reach for rung 3 at all. If no image is involved, rung 3 does not apply
+> and rung 2 is the fallback. Measured cost of the mistake: on an identical text-only probe the
+> vision model spent 730 output tokens against 135 for plain flash, 5.4x, for the same answer.
+> Pixel grading is the orchestrator's job (`pixel-grading`), so a worker needing vision is rare.
+
 ## Superagent (the standing advisory / ox thread)
 
 | rung | model | cost |
@@ -27,6 +35,55 @@ failure, never on preference.
 
 No DeepSeek rung on the superagent. Its work is judgment, direction and verdicts, and the cheap
 tier is not a substitute for that.
+
+## Exactly how to call each one
+
+Aliases are defined in `~/.grok/config.toml`. Use the ALIAS, never the wire model id.
+
+| alias to pass | wire model | endpoint / backend | env key | context |
+|---|---|---|---|---|
+| `ox-alpha` | `stealth/ox-alpha` | `openrouter.ai/api/v1`, `chat_completions` | `OPENROUTER_API_KEY` | 1,048,576 |
+| `deepseek-v4-flash` | `deepseek-v4-flash` | `api.deepseek.com`, `chat_completions` | `DEEPSEEK_API_KEY` | 1,000,000 |
+| `deepseek-v4-flash-vision-exp` | `deepseek-v4-flash-vision-exp` | `api.deepseek.com`, `chat_completions` | `DEEPSEEK_API_KEY` | 1,000,000 |
+| `grok-4.6` | built-in, no `[model.*]` block | native | bundled auth | `[models] default` |
+
+### A worker slice — always through `dispatch()`, never raw
+
+```ts
+await dispatch(REPO, {
+  prompt: brief.prompt,       // from briefFromIssue(issue), never hand-written
+  slice: brief.slice,
+  role: "asset-pipeline-lead",
+  model: "ox-alpha",          // the rung, chosen from the ladder above
+  maxTurns: 250,
+  worktree: true,             // string | true. OMITTING IT MEANS NO ISOLATION.
+  proofs: brief.proofs,
+});
+```
+
+`dispatch(repoRoot, options)` takes TWO arguments. `worktree: true` is what adds the path-scoped deny
+on the main checkout; without it the worker runs in the main tree.
+
+### A consult, probe, or handback — raw `grok -p`
+
+Per `~/.grok/docs/user-guide/14-headless-mode.md`. The env prefix is NOT optional: a bare
+`grok -p` outside the sanctioned path skips the worker guard and the chokepoint denies it.
+
+```bash
+OPENCLINXR_RAW_GROK_SANCTIONED=1 OPENCLINXR_WORKER=1 GROK_SUBAGENTS=1   ~/.grok/bin/grok -p "<prompt>"     --model <ALIAS>     --output-format json     --max-turns <N>     --cwd /Volumes/files/src/openclinxr
+```
+
+Flags that matter, all documented in `14-headless-mode.md`: `-p/--single` is the prompt and TAKES IT
+AS ITS VALUE (`-p "<prompt>" --resume <id>` is correct; `-p --resume <id> "<prompt>"` aborts silently
+and still exits 0). The answer is in `.text`, never `.result`, which is always null. `-r/--resume <ID>`
+continues a thread; `--reasoning-effort` accepts `none|minimal|low|medium|high|xhigh|max` and a model
+only accepts what its own menu advertises.
+
+### Never
+
+- Never set `RUST_LOG` or a debug file. Grok logs the bearer token in plaintext.
+- Never `pkill -f grok` while any worker is live. Kill by PID.
+- Never rotate models mid-fire to "try again". Step down once and record it.
 
 ## Stepping down — the rule
 
@@ -54,8 +111,26 @@ OPENCLINXR_RAW_GROK_SANCTIONED=1 OPENCLINXR_WORKER=1 GROK_SUBAGENTS=1 \
   --model ox-alpha --output-format json --max-turns 4 --cwd /Volumes/files/src/openclinxr
 ```
 
-Compare the count against `ls <repo> | wc -l`. Verified 2026-08-23: 43 of 43, 26 s cold, and a
-worker held `ox-alpha` for 50+ minutes and 572 session lines on issue-576 without dying.
+Compare the count against `ls <repo> | wc -l`. All four rungs measured 2026-08-23 against a ground
+truth of 43, identical prompt, `--max-turns 4`:
+
+| model | exit | wall | answer | output tokens |
+|---|---|---|---|---|
+| `ox-alpha` | 0 | 34 s | `43` | 218 |
+| `deepseek-v4-flash` | 0 | 13 s | `43` | 135 |
+| `deepseek-v4-flash-vision-exp` | 0 | 18 s | `43` | 730 |
+| `grok-4.6` | 0 | 24 s | `43` | 157 |
+
+Every rung is LIVE. **The `402 Insufficient Balance` on DeepSeek recorded in `PROJECT_STATUS.md` no
+longer reproduces** — both DeepSeek rungs answered here. Treat that 402 as a historical incident, and
+re-probe rather than assuming it when a dispatch fails.
+
+`ox-alpha` also held a 50+ minute worker (issue-576, session `ef42e49d`, 572 session lines) without
+dying, so rung 1 is proven under sustained load and not only on a cold probe.
+
+`grok-4.6` was the only rung that did not follow "reply with exactly" literally — it prefixed a
+sentence of narration before the required string. It answered correctly. Worth knowing if you parse
+a rung-4 reply with a strict matcher.
 
 ## What is NOT enforced — do not assume a guard catches you
 
