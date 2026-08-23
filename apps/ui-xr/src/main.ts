@@ -86,13 +86,17 @@ import {
   applyGeneratedHumanoidClinicalIdlePosture,
   applyHumanoidJointRotationsByAlias,
 } from "./clinical-idle-posture.js";
+import { animatedTranslationBoneNames, seatedRoleClipIsPlayable } from "./seated-role-clip-policy.js";
 import { PATIENT_CHAIR_SEAT_HEIGHT_METERS } from "./station-chair.js";
 import { findProceduralStretcherInSceneOf, STRETCHER_DECK_TOP_METERS } from "./station-stretcher.js";
 import { createVirtualDeviceActorAffordance as buildVirtualDeviceActorAffordance } from "./virtual-device-actor.js";
 import { initialDialogueTextForScenario } from "./initial-dialogue-text.js";
 import { stationContextForScenario } from "./station-context.js";
 import {
+  FAMILY_CHAIR,
   resolveActorPosture,
+  resolveEnvironmentShellDescriptor,
+  resolveFixtureSlotPosition,
   seatedActorWorldPosition,
   seatedVerticalOffsetForSeatHeight,
   supineActorWorldPosition,
@@ -951,6 +955,13 @@ function runtimeActorPlacement(
   const seated = posture === "seated";
   const supine = posture === "supine";
   // #150: never seatedVerticalOffsetForSeatHeight for supine (hip-on-chair ≠ torso-on-deck).
+  // #574: a seated FAMILY actor plants on the family_chair fixture slot, not the patient
+  // chair anchor — resolve the same fraction-mapped world position the environment builder
+  // used for the chair so she sits ON her authored seat. Unknown env → patient-chair
+  // default (telehealth keeps its existing anchor).
+  const familyChairWorldPosition = seated && slotKind === "family_or_observer"
+    ? familyChairFixtureWorldPosition(resolveActiveEnvironmentId())
+    : null;
   const verticalOffsetMeters = seated
     ? seatedVerticalOffsetForSeatHeight(PATIENT_CHAIR_SEAT_HEIGHT_METERS)
     : supine ? supineVerticalOffsetSeed()
@@ -958,12 +969,42 @@ function runtimeActorPlacement(
   const position = hasVector3(placement?.position) ? placement.position : fallback.position;
   return {
     ...fallback, ...placement,
-    position: seated ? seatedActorWorldPosition({}) : supine ? supineActorWorldPosition({}) : position,
+    position: seated
+      ? (familyChairWorldPosition ?? seatedActorWorldPosition({}))
+      : supine ? supineActorWorldPosition({}) : position,
     scale: hasVector3(placement?.scale) ? placement.scale : fallback.scale,
     verticalOffsetMeters,
     labelPrefix: placement?.labelPrefix ?? fallback.labelPrefix,
     posture,
   };
+}
+
+/**
+ * #574: world XZ of the family/parent chair fixture for `environmentId`, resolved with
+ * the same fraction mapping the environment builder uses (resolveFixtureSlotsForRoom),
+ * so a seated family actor lands ON the authored seat instead of the patient-chair
+ * default anchor. Returns null when the environment does not author family seating —
+ * callers keep the seatedActorWorldPosition default.
+ */
+function familyChairFixtureWorldPosition(environmentId: string): { x: number; y: number; z: number } | null {
+  const resolved = resolveEnvironmentShellDescriptor(environmentId);
+  const familyChair = resolved.descriptor.fixtureSlots.find((slot) => slot.slotId === FAMILY_CHAIR.slotId);
+  if (!familyChair) {
+    return null;
+  }
+  return resolveFixtureSlotPosition(
+    familyChair,
+    {
+      widthMeters: resolved.descriptor.roomWidthMeters,
+      depthMeters: resolved.descriptor.roomDepthMeters,
+      heightMeters: resolved.descriptor.roomHeightMeters,
+    },
+    {
+      widthMeters: resolved.descriptor.roomWidthMeters,
+      depthMeters: resolved.descriptor.roomDepthMeters,
+      heightMeters: resolved.descriptor.roomHeightMeters,
+    },
+  );
 }
 
 function buildRuntimeSceneManifestEvidence(bundle: LearnerRuntimeAssetBundle): RuntimeSceneManifestEvidence {
@@ -7441,18 +7482,29 @@ function registerGeneratedHumanoidAnimation(input: {
   const isSupine =
     input.humanoid.userData.openClinXrActorPosture === "supine"
     || input.actorSlot.userData.openClinXrActorPosture === "supine";
-  // #150: no mixer for supine — standing tracks undo the recumbent plant.
-  const mixer = input.playbackEnabled && input.animationClips.length > 0 && !isSeated && !isSupine
-    ? new AnimationMixer(input.humanoid)
-    : undefined;
-  // Response clips are registered on roleAnimationClipNames for discoverability but must not
-  // auto-loop as role idle — they are one-shot via handleClinicalTouch / respondToTouch.
+  // #574: the #574 carve-out — a NAMED seated-rig role clip may play on a seated actor.
+  // The clip was retargeted from a seated source take, so performing it does not fight the
+  // sit (translation channels are constant; legs re-folded per frame by applyPosturePose).
   const oneShotResponseClipNames = new Set(clinicalTouchResponseClipNamesForActor(input.actorId));
   const selectedRoleClips = input.animationClips.filter((clip): clip is AnimationClip =>
     clip instanceof AnimationClip
     && input.roleAnimationClipNames.includes(clip.name)
     && !oneShotResponseClipNames.has(clip.name)
   );
+  const seatedRoleClipPlayable =
+    isSeated && !isSupine
+    && selectedRoleClips.length > 0
+    && selectedRoleClips.every((clip) => seatedRoleClipIsPlayable(
+      clip.name,
+      { translationBoneNames: animatedTranslationBoneNames(clip.tracks) },
+    ));
+  // #150: no mixer for supine — standing tracks undo the recumbent plant.
+  // #83 invariant intact for every other seated actor: no mixer without the carve-out.
+  const mixer = input.playbackEnabled && input.animationClips.length > 0 && (!isSeated || seatedRoleClipPlayable) && !isSupine
+    ? new AnimationMixer(input.humanoid)
+    : undefined;
+  // Response clips are registered on roleAnimationClipNames for discoverability but must not
+  // auto-loop as role idle — they are one-shot via handleClinicalTouch / respondToTouch.
   const selectedGazeProbeClips = input.animationClips.filter((clip): clip is AnimationClip =>
     clip instanceof AnimationClip && input.gazeProbeAnimationClipNames.includes(clip.name)
   );
@@ -7494,6 +7546,16 @@ function registerGeneratedHumanoidAnimation(input: {
   }
   const activeRoleAnimationClipName = selectedRoleClips[0]?.name;
   const activeGazeProbeAnimationClipName = selectedGazeProbeClips[0]?.name;
+  // #574 evidence: the carve-out decision is stamped so captures and tests can read
+  // WHICH seated actor got a mixer and why, instead of re-deriving it from source.
+  input.humanoid.userData.openClinXrSeatedRoleClipCarveout =
+    mixer && isSeated && seatedRoleClipPlayable
+      ? {
+          admitted: true,
+          clipNames: selectedRoleClips.map((clip) => clip.name),
+          policy: "seated_role_clip_policy.seatedRoleClipIsPlayable",
+        }
+      : { admitted: false, clipNames: [] as string[], policy: "seated_role_clip_policy.seatedRoleClipIsPlayable" };
   const slot = {
     assetId: input.assetId,
     actorId: input.actorId,
@@ -8067,6 +8129,20 @@ function gazeProbeAnimationClipNamesFromGltf(animationClips: unknown[]): string[
     .map((clip) => clip.name);
 }
 
+/**
+ * #574: true when this actor's seated role-clip carve-out admitted clips at register
+ * time (userData stamped by registerGeneratedHumanoidAnimation). The frame loop holds
+ * the standing clinical-idle arm hang for such actors so the clip's upper-body
+ * performance is not overwritten every frame.
+ */
+function seatedRoleClipAutoLoopActive(humanoidRoot: Object3D, actorId: string): boolean {
+  void actorId;
+  const carveout = humanoidRoot.userData.openClinXrSeatedRoleClipCarveout as
+    | { admitted?: boolean }
+    | undefined;
+  return carveout?.admitted === true;
+}
+
 function updateGeneratedHumanoidAnimations(deltaSeconds: number, nowMs: number, camera: PerspectiveCamera, drive?: GeneratedRuntimeDrive | null): void {
   const actorCues: RuntimeHumanoidActingCueEvidence["actorCues"] = [];
   for (const slot of generatedHumanoidAnimationSlots) {
@@ -8093,15 +8169,22 @@ function updateGeneratedHumanoidAnimations(deltaSeconds: number, nowMs: number, 
     const isSupineFrame =
       slot.root.userData.openClinXrActorPosture === "supine"
       || slot.actorSlot.userData.openClinXrActorPosture === "supine";
+    const isSeatedFrame =
+      slot.root.userData.openClinXrActorPosture === "seated"
+      || slot.actorSlot.userData.openClinXrActorPosture === "seated";
+    // #574: while a seated-rig role clip performs under the carve-out, the standing
+    // clinical-idle arm hang would pin arms/head over the clip every frame — hold both.
+    // Legs stay owned by applyPosturePose either way.
+    const seatedClipPerforming = isSeatedFrame && seatedRoleClipAutoLoopActive(slot.root, slot.actorId);
     // Supine: skip standing clinical-idle arm hang (would fight recumbent limb map).
-    if (!isSupineFrame) {
+    if (!isSupineFrame && !seatedClipPerforming) {
       applyGeneratedHumanoidClinicalIdlePosture(slot.root);
       applyGeneratedHumanoidRoleSpecificPosture(slot.root, slot.actorId);
     }
     // #81/#83: re-apply seated pose after mixer/clinical idle so legs stay folded (rotation-only sit).
     // #150: re-apply supine after idle path so arm hang does not undo recumbent limbs.
     // Do not re-plant every frame (would fight baseY); plant once at register, keep baseY.
-    if (slot.root.userData.openClinXrActorPosture === "seated" || slot.actorSlot.userData.openClinXrActorPosture === "seated") {
+    if (isSeatedFrame) {
       applyPosturePose(slot.root, "seated");
     }
     if (isSupineFrame) {
