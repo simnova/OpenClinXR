@@ -2,6 +2,41 @@
   "schemaVersion": "openclinxr.actor-phenotype.v1",
   "source": "packages/openclinxr/scenario-fixtures/src (scenarioBank + edChestPainScenarioV2); regenerate via pnpm exec tsx tools/openclinxr/dark-factory/export-actor-phenotype.ts",
   "entries": {
+    "ed_chest_pain_priority_v1": {
+      "patient_robert_hayes_v1": {
+        "role": "patient",
+        "phenotype": {
+          "body_profile": "adult_standard_parent",
+          "age": 34,
+          "height_cm": 166,
+          "bmi": 24,
+          "descriptor_derived": true,
+          "gender_presentation": "adult_female_parent"
+        }
+      },
+      "spouse_anna_hayes_v1": {
+        "role": "family",
+        "phenotype": {
+          "body_profile": "adult_standard_parent",
+          "age": 34,
+          "height_cm": 166,
+          "bmi": 24,
+          "descriptor_derived": true,
+          "gender_presentation": "adult_female_parent"
+        }
+      },
+      "nurse_maria_alvarez_v1": {
+        "role": "nurse",
+        "phenotype": {
+          "body_profile": "adult_clinical_team",
+          "age": 29,
+          "height_cm": 176,
+          "bmi": 23,
+          "descriptor_derived": true,
+          "gender_presentation": "adult_male_nurse"
+        }
+      }
+    },
     "peds_asthma_parent_anxiety_v1": {
       "patient_maya_johnson_v1": {
         "role": "patient",
@@ -102,6 +137,248 @@
         }
       }
     },
+    "ward_delirium_med_rec_v1": {
+      "patient_margaret_ellis_v1": {
+        "role": "patient",
+        "phenotype": {
+          "body_profile": "adult_standard_parent",
+          "age": 34,
+          "height_cm": 166,
+          "bmi": 24,
+          "descriptor_derived": true,
+          "gender_presentation": "adult_female_parent"
+        }
+      },
+      "daughter_lena_ellis_v1": {
+        "role": "family",
+        "phenotype": {
+          "body_profile": "adult_standard_parent",
+          "age": 34,
+          "height_cm": 166,
+          "bmi": 24,
+          "descriptor_derived": true,
+          "gender_presentation": "adult_female_parent"
+        }
+      }
+    },
+    "telehealth_diabetes_health_literacy_v1": {
+      "patient_luis_martinez_v1": {
+        "role": "patient",
+        "phenotype": {
+          "body_profile": "adult_standard_parent",
+          "age": 34,
+          "height_cm": 166,
+          "bmi": 24,
+          "descriptor_derived": true,
+          "gender_presentation": "adult_female_parent"
+        }
+      }
+    },
+    "ob_headache_preeclampsia_triage_v1": {
+      "patient_aisha_khan_v1": {
+        "role": "patient",
+        "phenotype": {
+          "body_profile": "adult_standard_parent",
+          "age": 34,
+          "height_cm": 166,
+          "bmi": 24,
+          "descriptor_derived": true,
+          "gender_presentation": "adult_female_parent"
+        }
+      },
+      "partner_omar_khan_v1": {
+        "role": "family",
+        "phenotype": {
+          "body_profile": "adult_standard_parent",
+          "age": 34,
+          "height_cm": 166,
+          "bmi": 24,
+          "descriptor_derived": true,
+          "gender_presentation": "adult_female_parent"
+        }
+      }
+    },
+    "psych_suicidal_ideation_safety_v1": {
+      "patient_jordan_reed_v1": {
+        "role": "patient",
+        "phenotype": {
+          "body_profile": "adult_standard_parent",
+          "age": 34,
+          "height_cm": 166,
+          "bmi": 24,
+          "descriptor_derived": true,
+          "gender_presentation": "adult_female_parent"
+        }
+      }
+    },
+    "ed_stroke_alert_handoff_v1": {
+      "patient_samuel_brooks_v1": {
+        "role": "patient",
+        "phenotype": {
+          "body_profile": "adult_standard_parent",
+          "age": 34,
+          "height_cm": 166,
+          "bmi": 24,
+          "descriptor_derived": true,
+          "gender_presentation": "adult_female_parent"
+        }
+      },
+      "son_eric_brooks_v1": {
+        "role": "family",
+        "phenotype": {
+          "body_profile": "adult_standard_parent",
+          "age": 34,
+          "height_cm": 166,
+          "bmi": 24,
+          "descriptor_derived": true,
+          "gender_presentation": "adult_female_parent"
+        }
+      }
+    },
+    "stepdown_sepsis_nurse_escalation_v1": {
+      "patient_helen_carter_v1": {
+        "role": "patient",
+        "phenotype": {
+          "body_profile": "adult_standard_parent",
+          "age": 34,
+          "height_cm": 166,
+          "bmi": 24,
+          "descriptor_derived": true,
+          "gender_presentation": "adult_female_parent"
+        }
+      },
+      "stepdown_nurse_rivera_v1": {
+        "role": "nurse",
+        "phenotype": {
+          "body_profile": "adult_clinical_team",
+          "age": 29,
+          "height_cm": 176,
+          "bmi": 23,
+          "descriptor_derived": true,
+          "gender_presentation": "adult_male_nurse"
+        }
+      }
+    },
+    "clinic_abdominal_pain_interpreter_v1": {
+      "patient_lucia_morales_v1": {
+        "role": "patient",
+        "phenotype": {
+          "body_profile": "adult_standard_parent",
+          "age": 34,
+          "height_cm": 166,
+          "bmi": 24,
+          "descriptor_derived": true,
+          "gender_presentation": "adult_female_parent"
+        }
+      },
+      "father_carlos_morales_v1": {
+        "role": "family",
+        "phenotype": {
+          "body_profile": "adult_standard_parent",
+          "age": 34,
+          "height_cm": 166,
+          "bmi": 24,
+          "descriptor_derived": true,
+          "gender_presentation": "adult_female_parent"
+        }
+      }
+    },
+    "oncology_bad_news_family_v1": {
+      "patient_david_miller_v1": {
+        "role": "patient",
+        "phenotype": {
+          "body_profile": "adult_standard_parent",
+          "age": 34,
+          "height_cm": 166,
+          "bmi": 24,
+          "descriptor_derived": true,
+          "gender_presentation": "adult_female_parent"
+        }
+      },
+      "sister_rachel_miller_v1": {
+        "role": "family",
+        "phenotype": {
+          "body_profile": "adult_standard_parent",
+          "age": 34,
+          "height_cm": 166,
+          "bmi": 24,
+          "descriptor_derived": true,
+          "gender_presentation": "adult_female_parent"
+        }
+      }
+    },
+    "postop_fever_consult_pressure_v1": {
+      "patient_priya_shah_v1": {
+        "role": "patient",
+        "phenotype": {
+          "body_profile": "adult_standard_parent",
+          "age": 34,
+          "height_cm": 166,
+          "bmi": 24,
+          "descriptor_derived": true,
+          "gender_presentation": "adult_female_parent"
+        }
+      },
+      "floor_nurse_bennett_v1": {
+        "role": "nurse",
+        "phenotype": {
+          "body_profile": "adult_clinical_team",
+          "age": 29,
+          "height_cm": 176,
+          "bmi": 23,
+          "descriptor_derived": true,
+          "gender_presentation": "adult_male_nurse"
+        }
+      }
+    },
+    "primary_care_dyslipidemia_joint_pain_v1": {
+      "patient_mario_guzman_v1": {
+        "role": "patient",
+        "phenotype": {
+          "body_profile": "adult_standard_parent",
+          "age": 34,
+          "height_cm": 166,
+          "bmi": 24,
+          "descriptor_derived": true,
+          "gender_presentation": "adult_female_parent"
+        }
+      }
+    },
+    "adult_abdominal_pain_v1": {
+      "patient_elena_vasquez_v1": {
+        "role": "patient",
+        "phenotype": {
+          "body_profile": "adult_standard_parent",
+          "age": 34,
+          "height_cm": 166,
+          "bmi": 24,
+          "descriptor_derived": true,
+          "gender_presentation": "adult_female_parent"
+        }
+      },
+      "partner_diego_vasquez_v1": {
+        "role": "family",
+        "phenotype": {
+          "body_profile": "adult_standard_parent",
+          "age": 34,
+          "height_cm": 166,
+          "bmi": 24,
+          "descriptor_derived": true,
+          "gender_presentation": "adult_female_parent"
+        }
+      },
+      "nurse_priya_nair_v1": {
+        "role": "nurse",
+        "phenotype": {
+          "body_profile": "adult_clinical_team",
+          "age": 29,
+          "height_cm": 176,
+          "bmi": 23,
+          "descriptor_derived": true,
+          "gender_presentation": "adult_male_nurse"
+        }
+      }
+    },
     "peds_fever_v1": {
       "patient_noah_chen_v1": {
         "role": "patient",
@@ -112,6 +389,63 @@
           "bmi": 16.5,
           "descriptor_derived": true,
           "gender_presentation": "child"
+        }
+      },
+      "parent_mei_chen_v1": {
+        "role": "family",
+        "phenotype": {
+          "body_profile": "adult_standard_parent",
+          "age": 34,
+          "height_cm": 166,
+          "bmi": 24,
+          "descriptor_derived": true,
+          "gender_presentation": "adult_female_parent"
+        }
+      },
+      "nurse_aisha_brooks_v1": {
+        "role": "nurse",
+        "phenotype": {
+          "body_profile": "adult_clinical_team",
+          "age": 29,
+          "height_cm": 176,
+          "bmi": 23,
+          "descriptor_derived": true,
+          "gender_presentation": "adult_male_nurse"
+        }
+      }
+    },
+    "ed_chest_pain_priority_v2": {
+      "patient_robert_hayes_v1": {
+        "role": "patient",
+        "phenotype": {
+          "body_profile": "adult_standard_parent",
+          "age": 34,
+          "height_cm": 166,
+          "bmi": 24,
+          "descriptor_derived": true,
+          "gender_presentation": "adult_female_parent"
+        }
+      },
+      "spouse_anna_hayes_v1": {
+        "role": "family",
+        "phenotype": {
+          "body_profile": "adult_standard_parent",
+          "age": 34,
+          "height_cm": 166,
+          "bmi": 24,
+          "descriptor_derived": true,
+          "gender_presentation": "adult_female_parent"
+        }
+      },
+      "nurse_maria_alvarez_v1": {
+        "role": "nurse",
+        "phenotype": {
+          "body_profile": "adult_clinical_team",
+          "age": 29,
+          "height_cm": 176,
+          "bmi": 23,
+          "descriptor_derived": true,
+          "gender_presentation": "adult_male_nurse"
         }
       }
     }

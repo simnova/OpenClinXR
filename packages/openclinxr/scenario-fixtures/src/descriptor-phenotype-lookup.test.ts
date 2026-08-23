@@ -12,6 +12,7 @@ import { describe, expect, it } from "vitest";
 import { DESCRIPTOR_DERIVED_MARKER, derivePhenotypeFromDescriptors } from "./descriptor-phenotype-lookup.js";
 import { pediatricAsthmaScenario } from "./pediatric-asthma.js";
 import { pedsFeverScenario } from "./peds-fever.js";
+import { wardDeliriumScenario } from "./ward-delirium.js";
 
 describe("descriptor phenotype lookup (issue-293)", () => {
   it("derives the school-aged child to the authored seed's exact numbers", () => {
@@ -40,13 +41,19 @@ describe("descriptor phenotype lookup (issue-293)", () => {
   });
 
   it("returns undefined for actors the case describes with nothing mappable", () => {
-    for (const actor of pedsFeverScenario.actors) {
-      if (actor.actorId === "patient_noah_chen_v1") continue;
-      expect(
-        derivePhenotypeFromDescriptors(pedsFeverScenario, actor),
-        `${actor.actorId}: no age-band descriptor — nothing to derive`,
-      ).toBeUndefined();
-    }
+    // Re-pointed 2026-08-23 (#605): the table now maps adult role descriptors,
+    // so peds_fever's parent ("Concerned parent actor…") and nurse ("Focused
+    // pediatric nurse actor…") derive adult profiles instead of refusing. The
+    // refuse gate still holds for an actor whose fixture states no descriptor
+    // text at all — ward_nurse_patel_v1 has neither habitus nor a character
+    // assetNeed description.
+    const patel = wardDeliriumScenario.actors.find((actor) => actor.actorId === "ward_nurse_patel_v1");
+    expect(patel).toBeDefined();
+    if (patel === undefined) throw new Error("fixture actor ward_nurse_patel_v1 missing");
+    expect(
+      derivePhenotypeFromDescriptors(wardDeliriumScenario, patel),
+      "ward_nurse_patel_v1: no descriptor text — nothing to derive",
+    ).toBeUndefined();
   });
 
   it("an authored phenotype always wins over the lookup", () => {
