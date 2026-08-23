@@ -87,11 +87,28 @@
  * So the counterweights below assert against MEASURED CONTROL ROWS instead of the
  * planted constants: any future pipeline-wide change moves control and treatment
  * together and stays inside the 4 mm windows; only a case-driven morph can open a
- * treatment-minus-control gap on chest or hip. The treated hip reading sits 6.2 mm
- * below control because the guarded waist deltas shorten the body's normalized
- * stature by ~6.5 mm, shifting the .44-.50 sampling window — measured at weight
- * ~0.001 the isolated probe reports the SAME 210.3, so it is a normalization
- * artifact of the window shift, not hip growth; the assertion pins the artifact.
+ * treatment-minus-control gap on chest or hip.
+ *
+ * ## FIXED (#581 round 3) — counterweights restored to BASELINE per operator review
+ *
+ * The first flip had compared clauses (2)/(3) against constants recorded FROM the
+ * treated asset — a reproducibility assertion wearing the counterweight's name;
+ * a whole-body scale would have passed all three. Operator refusal 2026-08-23.
+ * Restored (2)/(3) to BASELINE[OB]; the treated-constant comparison moved to a
+ * separately named (2b/3b) REPRODUCIBILITY clause.
+ *
+ * Restoring BASELINE exposed two real defects, both fixed in pregnancy_target.py:
+ *   Round 1 bake used TargetService.bake_targets over ALL keys, folding aisha's
+ *     default $md-* macro keys into the basis too — hip moved −6.2 mm at morph
+ *     weight ~0.001 (probe), i.e. the macro bake, not the pregnancy, violated (3).
+ *   Round 2 single-key vertex edit was silently wiped downstream: the strip's
+ *     reapply_all_details rebuild resets an edited basis (post-strip fingerprint
+ *     identical to weeks=0). Round 3: zero every other key, MPFB's own bulk bake,
+ *     restore values — gravid-only mix becomes the basis through MPFB's service.
+ * Final measured treatment row: chest 192.5 (+0.0), abdomen 319.2 (+72.7),
+ * hip 216.5 (+0.0) — both counterweights hold at ZERO delta against baseline.
+ * Determinism: two fresh rebakes of the same input reproduce this row exactly
+ * (spread 0.0 mm); TREATED pins that row at ±1 mm.
  */
 
 import { NodeIO } from "@gltf-transform/core";
@@ -111,7 +128,12 @@ const BASELINE: Record<string, { chest: number; abdomen: number; hip: number }> 
   "mpfb-family-partner-adult.glb": { chest: 190, abdomen: 233.7, hip: 207 },
   "mpfb-clinical-nurse-adult.glb": { chest: 198, abdomen: 243.4, hip: 215.4 },
 };
-const TREATED = { chest: 193.9, abdomen: 307.2, hip: 210.3 };
+/** Measured 2026-08-23 on the FINAL single-key bake (zero-and-restore bulk bake, round 4):
+ *  the earlier row (193.9/307.2/210.3) came from the round-1 bake whose bulk bake_targets
+ *  also folded in the default macro keys — the same contamination the counterweights
+ *  refused. Two fresh determinism rebakes reproduce this row exactly (chest 192.5 /
+ *  abdomen 319.2 / hip 216.5, run-to-run spread 0.0 mm), so ±1 mm is the pin. */
+const TREATED = { chest: 192.5, abdomen: 319.2, hip: 216.5 };
 
 async function torso(glb: string): Promise<{ chest: number; abdomen: number; hip: number }> {
   const d = await new NodeIO().read(DIR + glb);
