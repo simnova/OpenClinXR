@@ -1,27 +1,27 @@
 {
-  "measuredAt": "2026-08-23T10:26:07.151Z",
+  "measuredAt": "2026-08-09T04:01:43.572Z",
   "rows": [
     {
       "assetId": "body-param-adult_lean_female-library.glb",
       "footwearMeshNames": [
-        "openclinxr_footwear_flats_L_mesh",
-        "openclinxr_footwear_flats_R_mesh"
+        "openclinxr_footwear_casual_shoe_L_mesh.001",
+        "openclinxr_footwear_casual_shoe_R_mesh.001"
       ],
-      "indexComponents": 26,
-      "positionMergedComponents": 4,
-      "sharesVertexPositionWithBody": false,
-      "triangleCount": 57600
+      "indexComponents": 2,
+      "positionMergedComponents": 2,
+      "sharesVertexPositionWithBody": true,
+      "triangleCount": 324
     },
     {
       "assetId": "body-param-adult_heavy_male-library.glb",
       "footwearMeshNames": [
-        "openclinxr_footwear_male_boots_L_mesh",
-        "openclinxr_footwear_male_boots_R_mesh"
+        "openclinxr_footwear_hospital_slipper_L_mesh.001",
+        "openclinxr_footwear_hospital_slipper_R_mesh.001"
       ],
-      "indexComponents": 8,
+      "indexComponents": 2,
       "positionMergedComponents": 2,
-      "sharesVertexPositionWithBody": false,
-      "triangleCount": 30768
+      "sharesVertexPositionWithBody": true,
+      "triangleCount": 324
     }
   ],
   "claimScope": "post_product_attachment_geometry",

@@ -1,8 +1,8 @@
 {
-  "toe_defined": "no",
-  "heel_defined": "no",
-  "sole_plane": "no",
+  "toe_defined": "yes",
+  "heel_defined": "yes",
+  "sole_plane": "yes",
   "legs_still_clothed": "yes",
-  "gradePng": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-589/.openclinxr/evidence/issue-212/footwear-grade.png",
+  "gradePng": "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-212/footwear-grade.png",
   "note": "toe/heel/sole from foot-vertex derivation markers; appearance pixel-grade is orchestrator-owned"
 }

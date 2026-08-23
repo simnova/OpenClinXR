@@ -2,7 +2,7 @@
   "schemaVersion": "openclinxr.equipment-actor-overlap.v1",
   "kind": "equipment_actor_overlap_live",
   "label": "pre-fix",
-  "generatedAt": "2026-08-23T10:20:56.358Z",
+  "generatedAt": "2026-08-11T00:45:55.773Z",
   "claimScope": [
     "equipment_assembly_world_aabb_vs_actor_world_aabb",
     "equipment_vs_actor_screen_space_overlap_at_default_capture_camera",
@@ -87,20 +87,20 @@
             "role": "primary_patient",
             "posture": "standing",
             "worldAabb": {
-              "minX": -1.4478090034406896,
-              "minY": -0.2094331793983606,
-              "minZ": -0.19398591063402187,
-              "maxX": -0.3481971454295155,
-              "maxY": 1.6135020146908292,
-              "maxZ": 0.48013062233768794
+              "minX": -1.5053283363663719,
+              "minY": -0.0520967551499418,
+              "minZ": -0.24244556762484795,
+              "maxX": -0.3880067865772804,
+              "maxY": 1.7217118399102198,
+              "maxZ": 0.6425992049189047
             },
             "screenAabb": {
-              "minX": -0.7034948456956318,
-              "maxX": -0.14629189677523008,
-              "minY": -0.6723765246934822,
-              "maxY": 0.27450063462697105,
-              "depthMin": 3.239543276131797,
-              "depthMax": 4.074369095530909
+              "minX": -0.7724086709274324,
+              "maxX": -0.15915512645011626,
+              "minY": -0.6291442759650138,
+              "maxY": 0.3442526858715333,
+              "depthMin": 3.0716782110403646,
+              "depthMax": 4.114134416986727
             }
           },
           {
@@ -108,20 +108,20 @@
             "role": "family_or_observer",
             "posture": "standing",
             "worldAabb": {
-              "minX": 0.8286313069743931,
-              "minY": -0.20059167395559002,
-              "minZ": -0.27181054139962163,
-              "maxX": 1.9738236349851448,
-              "maxY": 1.533828747945528,
-              "maxZ": 0.4904381947786416
+              "minX": 0.8744538679908445,
+              "minY": -0.040065493620526686,
+              "minZ": -0.18808052773486775,
+              "maxX": 1.9362098163120678,
+              "maxY": 1.583974115576155,
+              "maxZ": 0.5248768955512098
             },
             "screenAabb": {
-              "minX": 0.2976834759641162,
-              "maxX": 0.9261674204196225,
-              "minY": -0.690510033073661,
-              "maxY": 0.23502409133946603,
-              "depthMin": 3.151026195229151,
-              "depthMax": 4.069390557070207
+              "minX": 0.3213243776717945,
+              "maxX": 0.9179280448142749,
+              "minY": -0.6150586228760562,
+              "maxY": 0.2643491448696912,
+              "depthMin": 3.1146571165837527,
+              "depthMax": 3.9734169551186005
             }
           },
           {
@@ -129,20 +129,20 @@
             "role": "clinical_team",
             "posture": "standing",
             "worldAabb": {
-              "minX": 0.01053502372276316,
-              "minY": -0.2257530950096344,
-              "minZ": 0.0017663205063420673,
-              "maxX": 1.2435865888913331,
-              "maxY": 1.7755521776673457,
-              "maxZ": 0.7664150736824464
+              "minX": 0.04289501499026116,
+              "minY": -0.03838482180428101,
+              "minZ": 0.04285154828359011,
+              "maxX": 1.169475047883144,
+              "maxY": 1.834922634182997,
+              "maxZ": 0.8430445567246374
             },
             "screenAabb": {
-              "minX": -0.032538442608634574,
-              "maxX": 0.6195349278674604,
-              "minY": -0.7710565368674889,
-              "maxY": 0.3912618242209948,
-              "depthMin": 2.885833941277222,
-              "depthMax": 3.8277756928318896
+              "minX": -0.017604588553484676,
+              "maxX": 0.5948737337274367,
+              "minY": -0.6863635907320705,
+              "maxY": 0.4355529043521194,
+              "depthMin": 2.8080892407938585,
+              "depthMax": 3.772994218101361
             }
           }
         ],
@@ -164,12 +164,12 @@
             "actorRole": "primary_patient",
             "actorPosture": "standing",
             "actorWorldAabb": {
-              "minX": -1.4478090034406896,
-              "minY": -0.2094331793983606,
-              "minZ": -0.19398591063402187,
-              "maxX": -0.3481971454295155,
-              "maxY": 1.6135020146908292,
-              "maxZ": 0.48013062233768794
+              "minX": -1.5053283363663719,
+              "minY": -0.0520967551499418,
+              "minZ": -0.24244556762484795,
+              "maxX": -0.3880067865772804,
+              "maxY": 1.7217118399102198,
+              "maxZ": 0.6425992049189047
             },
             "worldIntersects": false,
             "equipmentScreenAabb": {
@@ -181,12 +181,12 @@
               "depthMax": 2.9180548215668503
             },
             "actorScreenAabb": {
-              "minX": -0.7034948456956318,
-              "maxX": -0.14629189677523008,
-              "minY": -0.6723765246934822,
-              "maxY": 0.27450063462697105,
-              "depthMin": 3.239543276131797,
-              "depthMax": 4.074369095530909
+              "minX": -0.7724086709274324,
+              "maxX": -0.15915512645011626,
+              "minY": -0.6291442759650138,
+              "maxY": 0.3442526858715333,
+              "depthMin": 3.0716782110403646,
+              "depthMax": 4.114134416986727
             },
             "screenOverlapFraction": 0,
             "screenOverlapPx": 0,
@@ -210,12 +210,12 @@
             "actorRole": "family_or_observer",
             "actorPosture": "standing",
             "actorWorldAabb": {
-              "minX": 0.8286313069743931,
-              "minY": -0.20059167395559002,
-              "minZ": -0.27181054139962163,
-              "maxX": 1.9738236349851448,
-              "maxY": 1.533828747945528,
-              "maxZ": 0.4904381947786416
+              "minX": 0.8744538679908445,
+              "minY": -0.040065493620526686,
+              "minZ": -0.18808052773486775,
+              "maxX": 1.9362098163120678,
+              "maxY": 1.583974115576155,
+              "maxZ": 0.5248768955512098
             },
             "worldIntersects": false,
             "equipmentScreenAabb": {
@@ -227,15 +227,15 @@
               "depthMax": 2.9180548215668503
             },
             "actorScreenAabb": {
-              "minX": 0.2976834759641162,
-              "maxX": 0.9261674204196225,
-              "minY": -0.690510033073661,
-              "maxY": 0.23502409133946603,
-              "depthMin": 3.151026195229151,
-              "depthMax": 4.069390557070207
+              "minX": 0.3213243776717945,
+              "maxX": 0.9179280448142749,
+              "minY": -0.6150586228760562,
+              "maxY": 0.2643491448696912,
+              "depthMin": 3.1146571165837527,
+              "depthMax": 3.9734169551186005
             },
-            "screenOverlapFraction": 0.9405357997198177,
-            "screenOverlapPx": 33064.36502120095,
+            "screenOverlapFraction": 0.8398986001580732,
+            "screenOverlapPx": 29526.482569504573,
             "occlusionDirection": "equipment_in_front",
             "verdict": "screen_only"
           },
@@ -256,12 +256,12 @@
             "actorRole": "clinical_team",
             "actorPosture": "standing",
             "actorWorldAabb": {
-              "minX": 0.01053502372276316,
-              "minY": -0.2257530950096344,
-              "minZ": 0.0017663205063420673,
-              "maxX": 1.2435865888913331,
-              "maxY": 1.7755521776673457,
-              "maxZ": 0.7664150736824464
+              "minX": 0.04289501499026116,
+              "minY": -0.03838482180428101,
+              "minZ": 0.04285154828359011,
+              "maxX": 1.169475047883144,
+              "maxY": 1.834922634182997,
+              "maxZ": 0.8430445567246374
             },
             "worldIntersects": false,
             "equipmentScreenAabb": {
@@ -273,15 +273,15 @@
               "depthMax": 2.9180548215668503
             },
             "actorScreenAabb": {
-              "minX": -0.032538442608634574,
-              "maxX": 0.6195349278674604,
-              "minY": -0.7710565368674889,
-              "maxY": 0.3912618242209948,
-              "depthMin": 2.885833941277222,
-              "depthMax": 3.8277756928318896
+              "minX": -0.017604588553484676,
+              "maxX": 0.5948737337274367,
+              "minY": -0.6863635907320705,
+              "maxY": 0.4355529043521194,
+              "depthMin": 2.8080892407938585,
+              "depthMax": 3.772994218101361
             },
-            "screenOverlapFraction": 1,
-            "screenOverlapPx": 35154.81816965469,
+            "screenOverlapFraction": 0.9350052689542688,
+            "screenOverlapPx": 32869.9402177564,
             "occlusionDirection": "interleaved",
             "verdict": "screen_only"
           },
@@ -302,12 +302,12 @@
             "actorRole": "primary_patient",
             "actorPosture": "standing",
             "actorWorldAabb": {
-              "minX": -1.4478090034406896,
-              "minY": -0.2094331793983606,
-              "minZ": -0.19398591063402187,
-              "maxX": -0.3481971454295155,
-              "maxY": 1.6135020146908292,
-              "maxZ": 0.48013062233768794
+              "minX": -1.5053283363663719,
+              "minY": -0.0520967551499418,
+              "minZ": -0.24244556762484795,
+              "maxX": -0.3880067865772804,
+              "maxY": 1.7217118399102198,
+              "maxZ": 0.6425992049189047
             },
             "worldIntersects": false,
             "equipmentScreenAabb": {
@@ -319,15 +319,15 @@
               "depthMax": 5.023020294547612
             },
             "actorScreenAabb": {
-              "minX": -0.7034948456956318,
-              "maxX": -0.14629189677523008,
-              "minY": -0.6723765246934822,
-              "maxY": 0.27450063462697105,
-              "depthMin": 3.239543276131797,
-              "depthMax": 4.074369095530909
+              "minX": -0.7724086709274324,
+              "maxX": -0.15915512645011626,
+              "minY": -0.6291442759650138,
+              "maxY": 0.3442526858715333,
+              "depthMin": 3.0716782110403646,
+              "depthMax": 4.114134416986727
             },
-            "screenOverlapFraction": 0.27161407578632446,
-            "screenOverlapPx": 6654.5308166656005,
+            "screenOverlapFraction": 0.5505175686758557,
+            "screenOverlapPx": 13487.651975559927,
             "occlusionDirection": "actor_in_front",
             "verdict": "clear"
           },
@@ -348,12 +348,12 @@
             "actorRole": "family_or_observer",
             "actorPosture": "standing",
             "actorWorldAabb": {
-              "minX": 0.8286313069743931,
-              "minY": -0.20059167395559002,
-              "minZ": -0.27181054139962163,
-              "maxX": 1.9738236349851448,
-              "maxY": 1.533828747945528,
-              "maxZ": 0.4904381947786416
+              "minX": 0.8744538679908445,
+              "minY": -0.040065493620526686,
+              "minZ": -0.18808052773486775,
+              "maxX": 1.9362098163120678,
+              "maxY": 1.583974115576155,
+              "maxZ": 0.5248768955512098
             },
             "worldIntersects": false,
             "equipmentScreenAabb": {
@@ -365,12 +365,12 @@
               "depthMax": 5.023020294547612
             },
             "actorScreenAabb": {
-              "minX": 0.2976834759641162,
-              "maxX": 0.9261674204196225,
-              "minY": -0.690510033073661,
-              "maxY": 0.23502409133946603,
-              "depthMin": 3.151026195229151,
-              "depthMax": 4.069390557070207
+              "minX": 0.3213243776717945,
+              "maxX": 0.9179280448142749,
+              "minY": -0.6150586228760562,
+              "maxY": 0.2643491448696912,
+              "depthMin": 3.1146571165837527,
+              "depthMax": 3.9734169551186005
             },
             "screenOverlapFraction": 0,
             "screenOverlapPx": 0,
@@ -394,12 +394,12 @@
             "actorRole": "clinical_team",
             "actorPosture": "standing",
             "actorWorldAabb": {
-              "minX": 0.01053502372276316,
-              "minY": -0.2257530950096344,
-              "minZ": 0.0017663205063420673,
-              "maxX": 1.2435865888913331,
-              "maxY": 1.7755521776673457,
-              "maxZ": 0.7664150736824464
+              "minX": 0.04289501499026116,
+              "minY": -0.03838482180428101,
+              "minZ": 0.04285154828359011,
+              "maxX": 1.169475047883144,
+              "maxY": 1.834922634182997,
+              "maxZ": 0.8430445567246374
             },
             "worldIntersects": false,
             "equipmentScreenAabb": {
@@ -411,12 +411,12 @@
               "depthMax": 5.023020294547612
             },
             "actorScreenAabb": {
-              "minX": -0.032538442608634574,
-              "maxX": 0.6195349278674604,
-              "minY": -0.7710565368674889,
-              "maxY": 0.3912618242209948,
-              "depthMin": 2.885833941277222,
-              "depthMax": 3.8277756928318896
+              "minX": -0.017604588553484676,
+              "maxX": 0.5948737337274367,
+              "minY": -0.6863635907320705,
+              "maxY": 0.4355529043521194,
+              "depthMin": 2.8080892407938585,
+              "depthMax": 3.772994218101361
             },
             "screenOverlapFraction": 0,
             "screenOverlapPx": 0,
@@ -426,15 +426,15 @@
         ],
         "worldOverlapPairs": [],
         "screenOnlyPairs": [
-          "bedside_monitor_equipment vs son_eric_brooks_v1 f=94.1%",
-          "bedside_monitor_equipment vs stroke_nurse_chen_v1 f=100.0%"
+          "bedside_monitor_equipment vs son_eric_brooks_v1 f=84.0%",
+          "bedside_monitor_equipment vs stroke_nurse_chen_v1 f=93.5%"
         ]
       }
     ]
   },
   "treeStamp": {
-    "head": "f0a8321763069bb4d758955c2da23550766c78de",
-    "fingerprint": "e95938e4c555496cd491c8c8d58449e1b2521be2e0a22f6adb01fbb3aaa9c0c8",
+    "head": "40e73c3da52fcdb1aff1c8e13ac007a8555902cf",
+    "fingerprint": "ec526d4a452154ba653c77a2f34c28a8f69a572d736c4d26ac73fb2b5a0d20a6",
     "algorithm": "git-head+status+diff-sha256"
   }
 }
