@@ -29,6 +29,21 @@ row carries a **replacement posture**, not just a licence.
   - It **narrows and does not repeal** the four "page is not the licence" findings below (`mhair02`,
     `hair01`, `skins01/02`, `laying-on-bed`). Those are this same direction — page claiming more than the
     file — and are now sanctioned rather than refused.
+- **DELIVERY MODEL: this product REDISTRIBUTES raw asset files. It does not embed them.**
+  Assets live in `apps/ui-xr/public/xr-assets/**` — Vite's public directory, served at the site root —
+  so every `.glb` is a URL any browser can fetch and save. That is materially different from a
+  compiled game binary, and it is the reason this ledger's bar is stricter than a game studio's.
+  - **A licence permitting "use in your project" but forbidding redistribution of the raw file does
+    not clear here, at any price.** The Mixamo row below already refuses on exactly that ground
+    (*"no redistribution of raw animation files... free commercial use only when embedded"*), and the
+    CMU row notes *"you may not resell this data directly, even in converted form"*. Those are not
+    edge cases; they are the common shape of marketplace EULAs.
+  - This is why CC0 and CC-BY are the bar rather than a preference: both explicitly permit
+    redistribution. Most marketplace licences (Epic/Fab Standard, Sketchfab Standard, Unity/Unreal
+    store terms) permit *use* while restricting *redistribution*, which this delivery model performs
+    by construction.
+  - **Ask of any candidate: may a stranger download this file from our site and keep it?** If the
+    licence does not permit that, the asset cannot ship here however the page describes its price.
 - **OPERATOR APPROVAL 2026-08-24 — CC-BY 3D assets are approved for PRODUCT use, with attribution
   served from a licences page.** Verbatim: *"yes allow CC-BY for 3d assets - and we'll incorporate into
   product - as the product starts from a webpage in VR (webxr) we can likely make linkable from that
@@ -138,6 +153,7 @@ Full table + poly counts: `docs/openclinxr/equipment-oss-candidates.md`. MADR 00
 
 | item | uncertainty | why it matters |
 |---|---|---|
+| **fab.com listing `833b6c3d-cb22-466a-9324-4ab5c36b0c9a`** (operator-supplied 2026-08-24) | **NOT DETERMINED — could not read the listing.** Both the page and Fab's internal `/i/listings/` endpoint return **HTTP 403** behind a Cloudflare challenge, so the asset's identity, price and licence are unknown to me and I am not guessing them. **What can be said at the CLASS level:** Fab is Epic's marketplace and its default terms are the Epic **Standard License** (personal/professional tiers) — a proprietary EULA, not Creative Commons. Fab does host some CC-BY/CC0 items migrated from the Sketchfab store, labelled as such, so a specific listing *can* clear. **The decisive question here is redistribution, not price** (see the delivery-model rule above): this product serves raw `.glb` files from a public directory, and marketplace EULAs commonly permit use while restricting redistribution. **To resolve:** open the listing and read the licence block — if it says CC-BY or CC0, it clears; if it says Epic Standard or similar, it does not, free or paid. |
 | `haireditor` pack | The CC0 grant found is **the distributor's, not the author's**. Tomáš Klecer authored `hair.blend`/`fur.blend` as a CS bachelor thesis; a distributor cannot grant CC0 on someone else's work. **One forum question to the author or MPFB maintainers closes this.** | Blocks the procedural (D2-aligned) hair path. The geo-nodes *engine* is already installed in MPFB 2.0.15; only the two `.blend` templates are missing. |
 | `retarget_bvh` (Diffeomorphic) | **GPL-2.0-or-later.** Clear licence, but copyleft. | **Build-time tooling only**, same posture as MPFB's AGPL — never linked into or shipped with the runtime. Recorded so nobody promotes it to a dependency. |
 | CMU mocap clips | *"free for all uses"*, commercial embedding permitted, but **"you may not resell this data directly, even in converted form"**, plus a requested NSF EIA-0196217 acknowledgement. | Usable, with an attribution obligation and a resale restriction that must survive into any distribution. **2026-08-14 workstream B consumed the already-in-tree diagnostic clip** `tools/openclinxr/asset-pipeline/anny/proof-animations/diag/cmu_07_01_walk.bvh` (cgspeed conversion; `LICENSE-CMU-DIAG.txt`) as the first `motion_bind_stage` input. Not a new acquisition. Build-time retarget only — the derived GLB is a factory artifact, not a resale of the BVH. Acknowledgement: NSF EIA-0196217. |
