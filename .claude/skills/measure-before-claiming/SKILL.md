@@ -34,6 +34,12 @@ the grep found nothing, because the commit that killed the premise cited a DIFFE
 enumerating the actual assets showed all 11 already had them. **A premise can die by a commit that
 never names the card.**
 
+**And run this BEFORE the work, not after.** Measured 2026-08-24: a standing portfolio line listed E1
+as live, so I re-measured its whole done-condition and re-graded its contact sheet — then found #499
+and its gate card #416 had both been CLOSED three days earlier. The grade agreed, so the cost was only
+a tick; the error was ordering. **A line in a standing prompt is not state. The board is state** — and
+a prompt that is re-sent verbatim each cycle will keep asserting a finished effort is live forever.
+
 ## A name match is a marker check
 
 `grep`-ing for a name tells you what something is CALLED. When the question is whether something
