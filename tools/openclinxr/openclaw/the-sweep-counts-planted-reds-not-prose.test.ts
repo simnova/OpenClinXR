@@ -104,3 +104,70 @@ describe("the sweep counts planted REDs, not prose", () => {
  * poisoned the S3 walk (1449 junk hits); worktree mtimes are checkout times, so S3 uses
  * `git log --diff-filter=A` instead.
  */
+
+/**
+ * A PLANT IS CARDED IF IT CITES A CARD — IN ITS PATH OR IN ITS BODY.
+ *
+ * MEASURED 2026-08-24 across the 24 recently-added plants this check flagged: **22 cite an issue
+ * number in their content**, several citing three. Only 2 genuinely have none, and both trace to
+ * commits rather than cards.
+ *
+ * Reading the path alone was described as "structurally incompatible" with this repo's naming
+ * convention and written off as unfixable noise. It is neither: plants are named for the OBSERVABLE
+ * they assert, deliberately, and the card is recorded in the header where the reasoning lives. The
+ * instrument read the wrong place and saturated at 24 where the honest answer is 2.
+ */
+describe("a plant is carded by its body, not only its filename", () => {
+  const write = async (dir: string, rel: string, body: string) => {
+    const { mkdirSync, writeFileSync } = await import("node:fs");
+    const { dirname, join: j } = await import("node:path");
+    mkdirSync(dirname(j(dir, rel)), { recursive: true });
+    writeFileSync(j(dir, rel), body, "utf8");
+  };
+
+  it("(1) counts a prose-named plant that cites its card in the header as CARDED", async () => {
+    const { execFileSync } = await import("node:child_process");
+    const { mkdtempSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join: j } = await import("node:path");
+    const { countUncardedRecentFiles } = await import("./openclaw-sweep.js");
+
+    const root = mkdtempSync(j(tmpdir(), "sweep-"));
+    const git = (...a: string[]) => execFileSync("git", a, { cwd: root, encoding: "utf8" });
+    git("init", "-q");
+    git("config", "user.email", "t@t"); git("config", "user.name", "t");
+
+    // The real convention: named for the observable, card in the header.
+    await write(root, "tools/a-declared-body-shape-reaches-the-baked-body.test.ts",
+      "/** MEASURED per #576 — the numeric identity must reach a macro. */\nexport {};\n");
+    // Genuinely uncarded: no number anywhere.
+    await write(root, "tools/an-orphan-plant-with-no-card.test.ts", "/** no card cited */\nexport {};\n");
+    git("add", "-A"); git("commit", "-qm", "plants");
+
+    const r = countUncardedRecentFiles(root);
+    expect(r.files.some((f) => f.includes("declared-body-shape")),
+      "a header citing #576 is a carded plant — the filename is deliberately prose").toBe(false);
+    expect(r.files.some((f) => f.includes("orphan-plant")),
+      "a plant citing no card anywhere is genuinely uncarded").toBe(true);
+    expect(r.count, "exactly one of the two is uncarded").toBe(1);
+  });
+
+  it("(2) an unreadable path stays UNCARDED — the failure direction is conservative", async () => {
+    const { execFileSync } = await import("node:child_process");
+    const { mkdtempSync, rmSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join: j } = await import("node:path");
+    const { countUncardedRecentFiles } = await import("./openclaw-sweep.js");
+
+    const root = mkdtempSync(j(tmpdir(), "sweep-"));
+    const git = (...a: string[]) => execFileSync("git", a, { cwd: root, encoding: "utf8" });
+    git("init", "-q"); git("config", "user.email", "t@t"); git("config", "user.name", "t");
+    await write(root, "tools/a-plant-that-gets-deleted.test.ts", "/** cites #999 */\nexport {};\n");
+    git("add", "-A"); git("commit", "-qm", "plant");
+    rmSync(j(root, "tools/a-plant-that-gets-deleted.test.ts"));
+
+    // Added in history, absent from disk: must not be silently treated as carded.
+    expect(countUncardedRecentFiles(root).count,
+      "an unreadable file counts as uncarded rather than assumed fine").toBe(1);
+  });
+});

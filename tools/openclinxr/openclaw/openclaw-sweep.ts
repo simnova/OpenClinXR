@@ -176,7 +176,34 @@ export function countUncardedRecentFiles(root: string, now = Date.now()): { coun
   } catch {
     return { count: -1, files: [] }; // no git, no honest answer — error rather than zero
   }
-  const files = [...added].filter((rel) => !/#\d+/u.test(rel)).sort();
+  /**
+   * A plant is CARDED if it cites a card — in its PATH or in its BODY.
+   *
+   * MEASURED 2026-08-24: of 24 recently-added plants this check flagged as uncarded, **22 cite an
+   * issue number in their content** and often several — `a-declared-body-shape-reaches-the-baked-body`
+   * names #329 #479 #576, `the-gauge-sees-what-the-resolver-resolves` names #601 #603 #605. Only 2
+   * genuinely have no card, and both trace to commits instead.
+   *
+   * Reading the path alone was called "structurally incompatible with the prose-observable naming
+   * convention" and treated as unfixable noise. It is neither. This repo names plants for the
+   * OBSERVABLE they assert, deliberately, and records the card in the header where the reasoning
+   * lives. The instrument was looking in the wrong place, so it reported 24 where the honest answer
+   * is 2 and the metric was saturated into uselessness.
+   *
+   * A deleted file cannot be read; treat an unreadable path as uncarded rather than silently carded,
+   * so the failure direction stays conservative.
+   */
+  const CARD = /#\d+/u;
+  const files = [...added]
+    .filter((rel) => {
+      if (CARD.test(rel)) return false;
+      try {
+        return !CARD.test(readFileSync(join(root, rel), "utf8"));
+      } catch {
+        return true;
+      }
+    })
+    .sort();
   return { count: files.length, files };
 }
 
