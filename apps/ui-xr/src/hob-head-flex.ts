@@ -124,5 +124,20 @@ export function flexSupineHeadOntoPillow(
   humanoidRoot.userData.openClinXrSupineHeadFlexRad = appliedRad;
   humanoidRoot.userData.openClinXrSupineHeadFlexJoints = chain.map((j) => j.name ?? "");
   humanoidRoot.userData.openClinXrSupineHeadGapMeters = lastGap;
+  // #621: on the MPFB2 rail the supine joint map is skipped (#496), so applySupinePose's marker
+  // reads "supine_map_missing_neck" even though this flex DID write the neck chain joints. Mark
+  // them truthfully when they were rotated — the inspector reads this marker to verify the neck
+  // was not left to the standing idle.
+  if (appliedRad > 0) {
+    const neckJoints = chain.filter((joint) => /neck/i.test(joint.name ?? ""));
+    for (const joint of neckJoints) {
+      joint.userData.openClinXrNeckPoseSource = "supine_map";
+      joint.userData.openClinXrNeckPoseSourceDetail = "supine_map_head_flex";
+    }
+    if (neckJoints.length > 0) {
+      humanoidRoot.userData.openClinXrNeckPoseSource = "supine_map";
+      humanoidRoot.userData.openClinXrNeckPoseSourceDetail = "supine_map_head_flex";
+    }
+  }
   return { appliedRad, headGapMeters: lastGap };
 }

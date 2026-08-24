@@ -30,6 +30,7 @@ import {
 } from "./hob-extremity-flex.js";
 import { applySupinePose, type ApplySupinePoseResult } from "./supine-pose.js";
 import { flexSupineHeadOntoPillow } from "./hob-head-flex.js";
+import { flexSupineArmsOntoDeck } from "./hob-arm-flex.js";
 import {
   alignSupineHeadToPillow,
   liftSupineBodyAboveDeck,
@@ -400,7 +401,7 @@ export function applyAndPlantSupineOnDeck(
    * lift that cannot push back gap past 0.05 (or is skipped when already floating).
    */
   humanoidRoot.userData.openClinXrPlantSteps = [];
-  applySupinePose(humanoidRoot, input.applyJointEulers === false ? { applyJointEulers: false } : {});
+  const poseResult = applySupinePose(humanoidRoot, input.applyJointEulers === false ? { applyJointEulers: false } : {});
   const plant = plantSupineBodyOnDeck(humanoidRoot, input.deckTopWorldY, thickness, {
     contactMode,
   });
@@ -514,6 +515,14 @@ export function applyAndPlantSupineOnDeck(
     liftSupineBodyAboveDeck(humanoidRoot, input.deckTopWorldY, -0.02);
     lowerSupineBodyOntoDeck(humanoidRoot, input.deckTopWorldY, 0.02);
     recordPlantStep(humanoidRoot, "final_flat", incline, input.stretcher, input.deckTopWorldY);
+  }
+  // #621: rails that SKIPPED the 17 joint eulers (MPFB2, #496) keep their bind arms — measured
+  // 0.748 m above the deck, 2.1× the #153 bound. Close it with the closed-loop arm sweep; the
+  // eulers rail already poses the arms, so skip there (bonesTouched > 0). Runs after every plant
+  // step so the wrist residual is closed against the settled deck, and the root stays put.
+  if (poseResult.bonesTouched.length === 0) {
+    const armFlex = flexSupineArmsOntoDeck(humanoidRoot, input.deckTopWorldY);
+    humanoidRoot.userData.openClinXrSupineArmFlex = armFlex;
   }
   humanoidRoot.userData.openClinXrSupinePlantDeltaY = plant.deltaY;
   humanoidRoot.userData.openClinXrSupinePlantBodyMinBefore = plant.bodyMinYBefore;
