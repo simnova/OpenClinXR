@@ -208,7 +208,10 @@ async function measureLive(input: {
           const url = buildRoomCaptureUrl(baseUrl, scenarioId, ROOM_CAPTURE_MODE);
           await page.goto(url, { waitUntil: "load", timeout: 180_000 });
           await waitForStationShell(page, 180_000);
-          await waitForHumanoidsAndFrames(page, 12, 180_000);
+          // ED casts exactly three staged actors (patient, nurse, spouse) — require all three
+          // humanoid roots before reading, so the patient's larger GLB cannot be mid-load (#621).
+          const minActors = scenarios.length === 1 && scenarios[0] === ED_SCENARIO ? 3 : 1;
+          await waitForHumanoidsAndFrames(page, 12, 180_000, minActors);
           // Extra settle so per-frame supine re-apply is visible to the inspector.
           await page.waitForTimeout(1500);
 
@@ -253,26 +256,40 @@ async function waitForHumanoidsAndFrames(
   page: Page,
   minFrames: number,
   timeoutMs: number,
+  minStagedActors = 1,
 ): Promise<void> {
+  // #621: `skinned > 0` alone resolves as soon as the FIRST humanoid mesh lands — the ED patient's
+  // GLB is the largest and frequently finishes after the nurse/spouse, so the limb inspector read a
+  // 1-2 actor scene (flaky RED). Wait for the number of DISTINCT staged-actor roots the measurement
+  // needs, matching the discriminator readLiveLimbRestFromPage uses.
   await page.waitForFunction(
-    ({ minFrames: need }) => {
+    ({ minFrames: need, minActors }) => {
       const win = window as unknown as {
         __openClinXrFrameStats?: { framesObserved?: number };
         __openClinXrDebugScene?: {
-          traverse?: (cb: (o: { isSkinnedMesh?: boolean }) => void) => void;
+          traverse?: (cb: (o: { isSkinnedMesh?: boolean; userData?: Record<string, unknown>; parent?: unknown }) => void) => void;
         };
       };
       const frames = win.__openClinXrFrameStats?.framesObserved ?? 0;
       if (frames < need) return false;
       const scene = win.__openClinXrDebugScene;
       if (!scene || typeof scene.traverse !== "function") return false;
-      let skinned = 0;
+      const roots: unknown[] = [];
       scene.traverse((o) => {
-        if (o.isSkinnedMesh) skinned += 1;
+        if (!o.isSkinnedMesh) return;
+        let root: unknown = o;
+        let depth = 0;
+        while ((root as { parent?: unknown }).parent && depth < 12) {
+          const p = (root as { parent?: unknown }).parent;
+          if (p === scene) break;
+          root = p;
+          depth += 1;
+        }
+        if (roots.indexOf(root) < 0) roots.push(root);
       });
-      return skinned > 0;
+      return roots.length >= minActors;
     },
-    { minFrames },
+    { minFrames, minActors: minStagedActors },
     { timeout: timeoutMs },
   );
 }
@@ -430,7 +447,8 @@ async function readLiveLimbRestFromPage(page: Page): Promise<{
     }
 
     function neckSource(byName) {
-      const neck = pickBone(byName, ["neck", "Neck"]);
+      // MPFB2 rig names the neck bones neck01-03 (sanitised); the 23-bone rails carry "neck".
+      const neck = pickBone(byName, ["neck", "Neck", "neck01", "neck02", "neck03"]);
       const head = pickBone(byName, ["head", "Head"]);
       const candidates = [neck, head].filter(Boolean);
       for (let i = 0; i < candidates.length; i++) {
@@ -515,17 +533,26 @@ async function readLiveLimbRestFromPage(page: Page): Promise<{
       const shoulderSpan = Math.hypot(shoulderL.x - shoulderR.x, shoulderL.z - shoulderR.z);
       const torsoHalfWidth = Math.max(0.08, shoulderSpan * 0.5);
 
-      // Root-level neck source marker (written by applySupinePose when neck is mapped).
+      // Root-level neck source marker. applySupinePose writes it on the HUMANoid root, which sits
+      // one level below the actor-slot root this probe walks up to — search the subtree so the
+      // marker is found on either layout (#621).
       let neckPoseSource = neckSource(byName);
-      if (root.userData && typeof root.userData.openClinXrNeckPoseSource === "string") {
-        neckPoseSource = root.userData.openClinXrNeckPoseSource;
-      } else if (
-        root.userData
-        && Array.isArray(root.userData.openClinXrSupinePoseBones)
-        && root.userData.openClinXrSupinePoseBones.indexOf("neck") >= 0
-      ) {
-        neckPoseSource = "supine_map";
+      let rootMarker = null;
+      if (typeof root.traverse === "function") {
+        root.traverse(function (o) {
+          if (rootMarker) return;
+          const ud = o.userData || {};
+          if (typeof ud.openClinXrNeckPoseSource === "string" && ud.openClinXrNeckPoseSource.length > 0) {
+            rootMarker = ud.openClinXrNeckPoseSource;
+          } else if (
+            Array.isArray(ud.openClinXrSupinePoseBones)
+            && ud.openClinXrSupinePoseBones.indexOf("neck") >= 0
+          ) {
+            rootMarker = "supine_map";
+          }
+        });
       }
+      if (rootMarker) neckPoseSource = rootMarker;
 
       actors.push({
         scenarioId: scenarioId,
