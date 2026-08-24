@@ -6,7 +6,8 @@
  * all eight stations deterministically but its per-stage runner scripts lived under
  * `.openclinxr/evidence/issue-286/` and never landed (git ls-files shows JSON/OBJ/PNG
  * outputs and no `.ts`). This module is the landed, reusable replacement: it takes a
- * scenario id, runs the same eight stations #286 defined, and emits the same
+ * scenario id, runs the same eight stations #286 defined plus the lip_sync
+ * station (#608), and emits the same
  * station-table shape (`openclinxr.dark-factory-station-table.v1`).
  *
  * NO station is reimplemented and NO geometry is authored. Every station chains the
@@ -21,6 +22,8 @@
  *   6. equipment             — apps/ui-xr/src/station-equipment-builders.ts buildDeclaredEquipmentGeometry
  *   7. staging_placement     — packages/openclinxr/asset-registry/src/actor-placement.ts generatedActorPlacement
  *   8. render                — tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms
+ *   9. lip_sync              — multi-case-runner.ts runLipSyncStation (offline macOS say -> afconvert ->
+ *                            rhubarb --exportFormat json; viseme timing baked at build time, no network, no model)
  *
  * COUNTERWEIGHT (per issue-288): a station may be classified `deterministic` ONLY
  * with an on-disk artifact proving it ran; `not_run`, `absent` and `error` are
@@ -34,6 +37,7 @@
  */
 
 import { execFile } from "node:child_process";
+import { createHash } from "node:crypto";
 import { access, mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
@@ -77,6 +81,7 @@ export const DARK_FACTORY_CHAIN_STATIONS = [
   "equipment",
   "staging_placement",
   "render",
+  "lip_sync",
 ] as const;
 
 export type DarkFactoryStationId = (typeof DARK_FACTORY_CHAIN_STATIONS)[number];
@@ -173,6 +178,8 @@ const IMPLEMENTATIONS: Record<DarkFactoryStationId, string> = {
     "packages/openclinxr/asset-registry/src/actor-placement.ts:24 generatedActorPlacement (deterministic scene-manifest placement; slotKind/position/posture per cast role)",
   render:
     "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
+  lip_sync:
+    "multi-case-runner.ts runLipSyncStation (offline macOS say -> afconvert -> rhubarb 1.14.0 --exportFormat json; viseme timing baked at build time, no network, no model)",
 };
 
 const STATION_NAMES: Record<DarkFactoryStationId, string> = {
@@ -184,6 +191,7 @@ const STATION_NAMES: Record<DarkFactoryStationId, string> = {
   equipment: "equipment",
   staging_placement: "staging / placement",
   render: "render",
+  lip_sync: "lip sync",
 };
 
 /* ------------------------------------------------------------------ */
@@ -769,6 +777,151 @@ function minimalRuntimeActor(actorId: string, role: string, runtimeAssetPath: st
 }
 
 /* ------------------------------------------------------------------ */
+/* Station 9: lip_sync (offline viseme timing, baked at build time)     */
+/* ------------------------------------------------------------------ */
+
+/**
+ * One timed mouth cue, matching the rhubarb JSON export shape
+ * (`mouthCues[]`: `{ start, end, value }`).
+ */
+export type LipSyncCue = { start: number; end: number; value: string };
+
+export type RunLipSyncStationOptions = {
+  utterance: string;
+  /** Directory the synthesized audio + cue artifacts are written into. */
+  outDir: string;
+};
+
+export type LipSyncStationResult = {
+  cues: LipSyncCue[];
+  /** Tool that produced the cues (always "rhubarb" for this station). */
+  tool: string;
+  /** The explicitly-resolved binary path (rhubarb is NOT on PATH). */
+  binary: string;
+  /** Audio duration in seconds, from the rhubarb metadata. */
+  audioDurationSeconds: number;
+  /** Absolute path of the written mouth-cues artifact. */
+  cueArtifactPath: string;
+  /** Absolute path of the written manifest. */
+  manifestArtifactPath: string;
+};
+
+/**
+ * Resolve the rhubarb binary EXPLICITLY. It is NOT on PATH (measured 2026-08-23:
+ * only reachable at ~/.openclinxr-tools/rhubarb/rhubarb), so a station that ran
+ * `rhubarb` bare would fail on every machine that has not been hand-configured.
+ * An env override is honoured for machines that keep the binary elsewhere; the
+ * default is the measured location, not a PATH lookup.
+ */
+export function resolveRhubarbBinary(home: string = process.env.HOME ?? ""): string {
+  return process.env.OPENCLINXR_RHUBARB_BIN ?? path.join(home, ".openclinxr-tools", "rhubarb", "rhubarb");
+}
+
+/**
+ * The first authored spoken line a case declares: the patient cold-open
+ * (`openingUtterance`, ActorCardSchema), else the first touch-response
+ * `dialogueLine`. The case definition drives what gets baked (Q1).
+ */
+function firstAuthoredUtterance(scenario: Scenario | undefined): string | undefined {
+  if (!scenario) return undefined;
+  for (const actor of scenario.actors) {
+    if (actor.openingUtterance) return actor.openingUtterance;
+    for (const touch of actor.bodyMechanics?.touchResponses ?? []) {
+      if (touch.dialogueLine) return touch.dialogueLine;
+    }
+  }
+  return undefined;
+}
+
+/**
+ * The offline lip-sync seam (issue #608): synthesize the utterance with the
+ * macOS `say` TTS, convert to a 16-bit mono WAV with `afconvert`, and run the
+ * rhubarb binary (resolved explicitly) with `--exportFormat json` to get timed
+ * mouth cues. NO network call, NO model: `say` is the local macOS speech
+ * synthesizer and rhubarb is a local binary — the same pipeline measured end to
+ * end on the authored line before this slice.
+ *
+ * Artifact names derive from a content hash of the utterance, so the same line
+ * bakes the same files on every run (D9 determinism).
+ */
+export async function runLipSyncStation(options: RunLipSyncStationOptions): Promise<LipSyncStationResult> {
+  const { utterance, outDir } = options;
+  const binary = resolveRhubarbBinary();
+  await mkdir(outDir, { recursive: true });
+
+  const base = `utterance-${createHash("sha1").update(utterance).digest("hex").slice(0, 10)}`;
+  const aiffPath = path.join(outDir, `${base}.aiff`);
+  const wavPath = path.join(outDir, `${base}.wav`);
+  const cueArtifactPath = path.join(outDir, `${base}.mouth-cues.json`);
+  const manifestArtifactPath = path.join(outDir, "lip-sync-manifest.json");
+
+  await execFileAsync("say", ["-o", aiffPath, utterance]);
+  await execFileAsync("afconvert", ["-f", "WAVE", "-d", "LEI16@22050", "-c", "1", aiffPath, wavPath]);
+  await execFileAsync(binary, ["--exportFormat", "json", "-o", cueArtifactPath, wavPath]);
+
+  const raw = JSON.parse(await readFile(cueArtifactPath, "utf8")) as {
+    metadata?: { duration?: number };
+    mouthCues?: LipSyncCue[];
+  };
+  const cues = raw.mouthCues ?? [];
+  const audioDurationSeconds = raw.metadata?.duration ?? 0;
+
+  await writeFile(
+    manifestArtifactPath,
+    `${JSON.stringify({
+      schemaVersion: "openclinxr.dark-factory.station-lip-sync.v1",
+      station: "lip_sync",
+      tool: "rhubarb",
+      binary,
+      utterance,
+      audioDurationSeconds,
+      cueCount: cues.length,
+      distinctShapes: [...new Set(cues.map((c) => c.value))].sort(),
+      notes: [
+        "Offline build-time bake: macOS `say` -> `afconvert` (16-bit mono WAV) -> rhubarb --exportFormat json. No network call, no model.",
+        "notEvidenceFor: timing ACCURACY for the audio, mouth appearance (no pixel grade exists), voice quality, runtime playback, and the `say` TTS used as a probe convenience, not a production voice decision.",
+      ],
+    }, null, 2)}\n`,
+    "utf8",
+  );
+
+  return { cues, tool: "rhubarb", binary, audioDurationSeconds, cueArtifactPath, manifestArtifactPath };
+}
+
+/**
+ * Chain station 9: run the lip-sync bake for a case's first authored spoken
+ * line. `absent` when the case authors no spoken line (matches how the
+ * equipment station treats "declares none"); `error` when the offline pipeline
+ * fails on a case that does speak.
+ */
+async function runLipSyncStage(caseId: string, stageDir: string): Promise<StationRun> {
+  const scenario = findFixtureById(caseId);
+  const utterance = firstAuthoredUtterance(scenario);
+  if (!utterance) {
+    return {
+      row: makeRow("lip_sync", "absent", [], [
+        `Scenario ${caseId} authors no spoken line (no actor openingUtterance and no touch-response dialogueLine in the fixture); viseme timing is not applicable.`,
+      ]),
+    };
+  }
+  await mkdir(stageDir, { recursive: true });
+  try {
+    const result = await runLipSyncStation({ utterance, outDir: stageDir });
+    return {
+      row: makeRow("lip_sync", "deterministic", [relStage(stageDir, path.basename(result.cueArtifactPath))], [
+        `RAN offline: ${result.cues.length} cues, ${new Set(result.cues.map((c) => c.value)).size} distinct shapes via ${result.tool} (${result.binary}) for "${utterance}".`,
+      ]),
+    };
+  } catch (err) {
+    return {
+      row: makeRow("lip_sync", "error", [], [
+        `offline rhubarb pipeline failed for ${caseId}: ${errMessage(err)}`,
+      ]),
+    };
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /* Chain assembly                                                      */
 /* ------------------------------------------------------------------ */
 
@@ -792,11 +945,12 @@ function executionCommandsFor(): Record<string, string> {
     equipment: "in-process apps/ui-xr/src/station-equipment-builders.ts buildDeclaredEquipmentGeometry(<equipmentId>)",
     staging_placement: "in-process packages/openclinxr/asset-registry/src/actor-placement.ts generatedActorPlacement(cast, index)",
     render: "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)",
+    lip_sync: "in-process multi-case-runner.ts runLipSyncStation (offline macOS `say` -> `afconvert` -> rhubarb --exportFormat json; binary resolved explicitly from ~/.openclinxr-tools/rhubarb/rhubarb, NOT on PATH)",
   };
 }
 
 /**
- * Run the eight-station dark-factory chain for one scenario id.
+ * Run the nine-station dark-factory chain for one scenario id.
  * Writes per-stage artifacts under `<evidenceDir>/<caseId>/stage-<name>/` and returns
  * the station table (#286 shape).
  */
@@ -817,6 +971,7 @@ export async function runCaseChain(
   stations.push((await runEquipmentStage(scenarioId, path.join(caseDir, "stage-equipment"))).row);
   stations.push((await runPlacementStage(scenarioId, path.join(caseDir, "stage-placement"))).row);
   stations.push((await runRenderStage(scenarioId, path.join(caseDir, "stage-render"), { serverUrl: options.renderServerUrl })).row);
+  stations.push((await runLipSyncStage(scenarioId, path.join(caseDir, "stage-lip-sync"))).row);
 
   const table: PipelineStationTable = {
     schemaVersion: "openclinxr.dark-factory-station-table.v1",
