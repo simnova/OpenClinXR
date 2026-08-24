@@ -1,8 +1,8 @@
 # MADR 0057: Model selection is a predicate, not a ladder — and a breaker needs a reason field first
 
-Status: Proposed
+Status: Accepted (peer-reviewed 2026-08-24, gpt-5.6 two-round consult)
 Date: 2026-08-24
-Issue: #626 (routing conflict), #629 (pre-flight probe), #630 (provider breaker)
+Issue: #626 (routing conflict), #629 (pre-flight probe), #630 (provider breaker), #632 (queue starvation)
 Evidence:
 
 - `.openclinxr/openclaw/worker-sessions.jsonl` — 16 deaths since 2026-08-20, measured 2026-08-24
@@ -116,3 +116,51 @@ The operator's ladder becomes the **cost ordering input** — which is what it i
 
 - **claimScope:** the measured failure rates and shapes above as of `a6b00fae`, and the design position that selection is a predicate over capability/health/budget/cost.
 - **notEvidenceFor:** any breaker threshold or reset window; whether ox-alpha should be demoted (a cost/reliability tradeoff that is the operator's call, tracked in #626); why ox-alpha fails more (not diagnosed — could be capacity, auth, or free-tier limits); or that the classifier's end-to-end hop has been exercised (it has not — the probe was correctly refused by the product-lane gate).
+
+## Peer review, 2026-08-24 — two rounds, gpt-5.6 at medium effort
+
+The operator delegated these decisions to me and the reviewer jointly. Recorded because three of my
+claims were corrected and the sequencing changed.
+
+**What the review corrected in me:**
+
+1. **Two denominators were wrong** — flash published as 0/19 and grok-4.5 as 0/26, actually 0/16 and
+   0/22. I had pasted an all-contract-source count into a like-for-like table. Verified and fixed in
+   `10c6494d`, with the query definition now shipped beside the metric.
+2. **`.claude/skills/model-routing/SKILL.md:187` carries a directive dated 2026-08-24** — *"Ox should
+   be primary for everything you delegate"* — which POST-DATES the 08-23 ladder. I had been weighing
+   "flash first" against reliability data without knowing this existed. It settles #626's direction.
+3. **`dispatch-worker.ts:713`'s `MODEL_RANK` contains only `flash=0, pro=1, grok-build=2`.**
+   `ox-alpha`, `grok-4.6` and the vision model are absent from the ranking entirely.
+
+**Where I falsified the reviewer:** it claimed `Factory` is absent from the `gh project item-list`
+payload (citing `orchestrator-dispatch-loop/SKILL.md:53`) and recommended composing the Planted
+filter at the CLI layer. The live payload carries it — keys are content, factory, id, priority,
+repository, status, title — so the skill doc is stale. Its architectural point still holds for the
+DISPATCHABILITY half, which genuinely needs issue bodies, and that half is followed.
+
+**Decisions reached jointly:**
+
+- **#626 — keep ox-alpha primary, health-gated.** Not "flash first": that would contradict the
+  08-24 directive rather than interpret it, and the 19% figure does not establish provider
+  unreliability while historical deaths carry no classification. Remove `deepseek-v4-pro` from
+  automatic routing; permit it only as a recorded, explicit exception. The minimum change is NOT
+  adding models to `MODEL_RANK` — omission still resolves through role policy to Pro — but making an
+  omitted model resolve to `ox-alpha` and requiring a recorded reason for any explicit non-Ox pick.
+- **#627 — neither of my options.** Do not invent an `unblocks:` value, and do not add `land_path` to
+  `FACTORY_STEPS` (land-path integrity is not a production station). Add a separate narrow
+  classification — `work_class: substrate` + `substrate_reason: land_path_integrity` — admitted only
+  for the enumerated override class. My option (b), orchestrator-direct repair, was rejected with a
+  better argument than I had: *it bypasses the very delegated land path being repaired.*
+- **Sequencing changed on new evidence.** The dequeue defect outranks everything: a repaired gate is
+  worth less if the selector feeds the loop refused cards. Landed as `a2859b47`. Then #627, then
+  #626, then #629 as the health INPUT to #626's selector (not a probe before every healthy
+  dispatch), then #630 only once probe data exists.
+
+**The pushback worth keeping:** I had grouped all five open cards as equivalent "instrument work".
+They are not — #627 is broken land-path integrity, #626 is contradictory execution policy, #629/#630
+are availability instrumentation, #625 is orphan cleanup. The reviewer's read of the two anti-toil
+refusals I triggered: *"You are over-indexing on work with crisp contracts... The proper response is
+not to abandon substrate; it is to spend exactly one substrate slot where integrity is broken, keep
+the other slot building product, and refuse speculative breaker tuning."*
+
