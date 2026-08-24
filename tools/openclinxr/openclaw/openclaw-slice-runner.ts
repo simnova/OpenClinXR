@@ -388,6 +388,26 @@ async function writeLocalReport(
  * must not hard-crash the runner either — it falls through to the anchored markdown tiers, which now
  * refuse rather than scrape. `--no-board` skips the call for offline use.
  */
+/**
+ * Maps `selectNextBoardCard`'s FLAT return — { ok, number, priority, title, fetched, totalCount } —
+ * onto a slice id. Extracted so the mapping is testable WITHOUT a live board.
+ *
+ * It is separate for a measured reason. The first version read `picked.item.content.number`, the
+ * nested path of the raw board JSON rather than the selector's own shape, so a successful
+ * `ok: true` read silently produced null and the board tier never fired. Both unit clauses passed
+ * throughout, because they inject a BoardCardSelection directly and never exercise this hop — the
+ * defect was only visible in an end-to-end run.
+ */
+export function boardCardFromSelection(
+  picked: { ok?: boolean; number?: unknown; priority?: unknown },
+): BoardCardSelection | null {
+  if (!picked?.ok || typeof picked.number !== "number") return null;
+  return {
+    sliceId: `issue-${picked.number}`,
+    priority: typeof picked.priority === "string" ? picked.priority : undefined,
+  };
+}
+
 function boardCardOrNull(skip: boolean): BoardCardSelection | null {
   if (skip) return null;
   try {
@@ -398,8 +418,11 @@ function boardCardOrNull(skip: boolean): BoardCardSelection | null {
       execFileSync(argv[0] as string, argv.slice(1), {
         encoding: "utf8", maxBuffer: 64 * 1024 * 1024, stdio: ["ignore", "pipe", "pipe"],
       }));
-    if (!picked.ok || !picked.item?.content?.number) return null;
-    return { sliceId: `issue-${picked.item.content.number}`, priority: picked.item.priority };
+    // `selectNextBoardCard` returns a FLAT shape — { ok, number, priority, title, fetched,
+    // totalCount } — not the nested `item.content.number` of the raw board JSON. The first version
+    // read the nested path, so `ok:true` silently yielded null and the board tier never fired. Only
+    // the end-to-end run caught it; both unit clauses pass either way because they inject the card.
+    return boardCardFromSelection(picked);
   } catch {
     return null;
   }

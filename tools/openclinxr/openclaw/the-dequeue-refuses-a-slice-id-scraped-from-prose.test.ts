@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
-import { buildOpenClawRunNextPlan, selectNextSlice } from "./openclaw-slice-runner.js";
+import { boardCardFromSelection, buildOpenClawRunNextPlan, selectNextSlice } from "./openclaw-slice-runner.js";
 
 /**
  * OBSERVABLE: `pnpm openclaw:run-next` returns a slice id scraped out of English prose, and reports
@@ -135,5 +135,32 @@ describe("the dequeue refuses a slice id scraped from prose", () => {
     expect(plan.selectedSlice).toBeNull();
     expect(plan.nextCommand, "an empty queue must not name work").toBeNull();
     expect(plan.sliceTeam.teamSpawnCommand).toBeNull();
+  });
+
+  it("(8) the board hop maps the selector's ACTUAL shape, not the raw board JSON's", () => {
+    // MEASURED LIVE, and this is why the clause exists. The first version of this mapping read
+    // `picked.item.content.number` — the nested path of the raw `gh project item-list` payload —
+    // while `selectNextBoardCard` returns a FLAT object. A successful read therefore yielded null,
+    // the board tier never fired, and clauses (2) and (6) stayed green throughout because they
+    // inject a BoardCardSelection and never exercise this hop.
+    //
+    // The literal below is the selector's real return, captured 2026-08-24 from a 620/620 read.
+    const real = {
+      ok: true, number: 603, priority: "P0",
+      title: "FRONTIER AFTER #601: 38 of 42 shipped actors have no numeric phenotype",
+      fetched: 620, totalCount: 620,
+    };
+    expect(boardCardFromSelection(real)).toEqual({ sliceId: "issue-603", priority: "P0" });
+  });
+
+  it("(9) COUNTERWEIGHT: a refused or shapeless read maps to null, never to a fabricated slice", () => {
+    expect(boardCardFromSelection({ ok: false, number: 603 }), "a refusal is not a card").toBeNull();
+    expect(boardCardFromSelection({ ok: true }), "ok with no number is not a card").toBeNull();
+    // The nested shape the first version expected. If someone reintroduces that reading, this is
+    // what it looks like — and it must not silently become issue-undefined.
+    expect(
+      boardCardFromSelection({ ok: true, ...{ item: { content: { number: 603 } } } } as never),
+      "the raw board JSON shape carries no top-level number and must refuse",
+    ).toBeNull();
   });
 });
