@@ -26,8 +26,10 @@ import {
 import {
   raiseSupineFeetOntoSeat,
   reapplyStoredSupineFootFlex,
+  findSupineBone,
 } from "./hob-extremity-flex.js";
 import { applySupinePose, type ApplySupinePoseResult } from "./supine-pose.js";
+import { flexSupineHeadOntoPillow } from "./hob-head-flex.js";
 import {
   alignSupineHeadToPillow,
   liftSupineBodyAboveDeck,
@@ -244,6 +246,9 @@ function readPelvisWorld(humanoid: Object3D): Vector3 | null {
   });
   return found;
 }
+
+/** World position of the head bone (base of skull) — same discriminator the plant contract reads. */
+export { readSupineHeadWorld } from "./hob-head-flex.js";
 
 /**
  * Tip the recumbent body so the torso follows the deck incline.
@@ -491,6 +496,17 @@ export function applyAndPlantSupineOnDeck(
     // settle (measured #620), so a 0 target lands the contract reading ~mid-band, not at 0.05.
     settleSupineFloatOntoDeck(humanoidRoot, input.deckTopWorldY, 0.0);
     recordPlantStep(humanoidRoot, "skinned_float_settle", incline, input.stretcher, input.deckTopWorldY);
+
+    // #181: the inclined body is a rigid plank (MPFB rail skips the joint eulers) — the head ends
+    // ~0.3 m above the pillow with the seat already planted. Close the residual with distributed
+    // upper-spine/neck flex; the root stays put so the seat plant above survives.
+    if (input.stretcher) {
+      const flexPillow = readStretcherPillowWorld(input.stretcher);
+      if (flexPillow) {
+        flexSupineHeadOntoPillow(humanoidRoot, flexPillow);
+        recordPlantStep(humanoidRoot, "head_flex", incline, input.stretcher, input.deckTopWorldY);
+      }
+    }
 
     recordPlantStep(humanoidRoot, "final", incline, input.stretcher, input.deckTopWorldY);
   } else {

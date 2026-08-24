@@ -4224,7 +4224,13 @@ function createStationScene(): StationSceneRuntime {
       captureSummary,
       humanoidSpeechEvidence: window.__openClinXrHumanoidSpeechEvidence ?? null,
     });
-    patient.rotation.y = Math.sin(now / 1200) * 0.08;
+    // Standing-idle sway only. A supine root's orientation is owned by the plant hold
+    // (applySupinePoseHoldingIncline + stored hinge quat); a per-frame yaw here re-derives the
+    // actor quaternion away from the stored tip and lifts the head off the pillow (#181).
+    const patientActorSupine = patient.userData?.openClinXrActorPosture === "supine"
+      || (Array.isArray(patient.children)
+        && patient.children.some((c) => c.userData?.openClinXrActorPosture === "supine"));
+    patient.rotation.y = patientActorSupine ? patient.rotation.y : Math.sin(now / 1200) * 0.08;
     nurse.rotation.y = Math.sin(now / 900) * 0.12;
     renderer.render(scene, camera);
   }
