@@ -656,7 +656,9 @@ async function readLiveShellFromPage(page: Page): Promise<LiveShellFromPage> {
  *   look  = centre of the actor bounds
  *   eyeX  = one of five doorway-side candidate Xs (interior corners + edge midpoints, each inset
  *           by 2×wall thickness) whose eye→look ray is NOT blocked by a room surface or door leaf,
- *           chosen to MAXIMISE the distance to the NEAREST actor box in the XZ plane
+ *           chosen to MAXIMISE the distance to the NEAREST actor box in the XZ plane; candidates
+ *           scoring within one 0.05 m tie band (2× the measured near-tie gap, #638) resolve to
+ *           the first in candidate order so the choice never depends on actor settle
  * i.e. stand inside the room, backed against the doorway-side interior wall — the furthest
  * in-room viewpoint the geometry allows — and look at the encounter.
  *
@@ -914,10 +916,20 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
     // Fall back to the full set if the ray test rejects everything — selection must never
     // produce no camera, and a scene with no open view is better photographed than refused.
     const pool = accepted.length > 0 ? accepted : candidates;
+    // The score is a LIVE measurement of actor boxes, so a strict argmax is settle-order
+    // sensitive: sub-centimetre load-to-load actor jitter made two near-symmetric viewpoints
+    // swap the winner run to run (#638 — primary_care's two extremes tie within ~0.7%, and
+    // the derived eye flipped side 1-in-5 then 1-in-6). Treat scores within one tie band as
+    // equal and keep the FIRST candidate in pool order — the pool order is deterministic (the
+    // interior-corner list), so the eye is a pure function of the room geometry again.
+    // The band is 2x the widest measured inter-candidate gap (#638: 3.1295..3.1368 vs
+    // 3.1523..3.1546), large enough to absorb actor settle and far below any standoff
+    // difference that would change the frame.
+    const scoreTieBandMeters = 0.05;
     let eyeXZ = pool[0], bestScore = -1;
     for (let i = 0; i < pool.length; i++) {
       const s = nearestActorDistance(pool[i][0], pool[i][1]);
-      if (s > bestScore) { bestScore = s; eyeXZ = pool[i]; }
+      if (s > bestScore + scoreTieBandMeters) { bestScore = s; eyeXZ = pool[i]; }
     }
 
     const eye = [eyeXZ[0], actors.max[1], eyeXZ[1]];

@@ -40,6 +40,22 @@ import { eyeSpreadMeters, measureRoomCameraLandings, type CameraLanding }
  *   these two stations.
  * notEvidenceFor: which of the two positions is correct; whether the room is too dark from either;
  *   the other twelve stations (not measured); why every candidate is rejected.
+ *
+ * ## FIXED (#638)
+ *
+ * `it.fails` flipped. The selection loop in `reframeCameraForRoom`
+ * (`ui-xr-environment-room-capture.ts:916-933`) scored interior-corner candidates against the LIVE
+ * actor boxes and took a strict argmax (`s > bestScore`), so sub-centimetre load-to-load actor
+ * settle was enough to swap two near-symmetric viewpoints whose scores tie within ~0.7% (measured
+ * bands 3.1295..3.1368 vs 3.1523..3.1546). The eye flipped side 1-in-5 then 1-in-6, which made
+ * every capture-derived number for the station — luminance, framing, occlusion — a sample of a
+ * coin flip.
+ *
+ * The argmax is now banded: scores within 0.05 m (2x the widest measured inter-candidate gap) are
+ * treated as tied and the FIRST candidate in pool order wins. The pool order is deterministic (the
+ * interior-corner list), so the eye is a pure function of the room geometry again. The band sits
+ * far below any standoff difference that would change the frame, and it does not touch the
+ * known-good column: psych's candidates are separated by metres, so its winner is unchanged.
  */
 
 const UNSTABLE = "primary_care_dyslipidemia_joint_pain_v1";
@@ -62,7 +78,7 @@ beforeAll(async () => {
 }, BOOT_TIMEOUT_MS);
 
 describe("the room camera lands in the same place twice", () => {
-  it.fails("(1) the unstable station derives the same eye every run", () => {
+  it("(1) the unstable station derives the same eye every run", () => {
     const rows = forStation(UNSTABLE);
     expect(rows.length, "no landings measured for the unstable station").toBeGreaterThanOrEqual(3);
     expect(
