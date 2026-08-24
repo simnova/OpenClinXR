@@ -75,6 +75,7 @@ happen.
 | duty | the number | how it lies |
 |---|---|---|
 | 1 | `findings[].chronic` | every transient flagged, so the chronic ones drown |
+| 1 | `findings[].occurrences` | it saturated at 3 until `c8962322` — a 9-window chronic read as "seen 3x" |
 | 2 | `readyDepth.productForward` | ten **instrument** cards "satisfying" a product floor |
 | 3 | `doneClaims[].ok` | a commit that *cites* an issue read as proof the work *landed* |
 
@@ -98,9 +99,20 @@ minutes later. A commit existing is not a commit landing.
 plausible proofs from a title makes the contract layer decorative — a worker judged against criteria
 nobody chose, which is worse than no contract because it looks like one.
 
-**If duty 2 is short, the correction is operationalizing real product cards** — not filing new ones
-to make a number go up. The backlog already holds 55 open issues with no contract (#632); the
-shortfall is almost never a shortage of *work*.
+**If duty 2 is short, DO NOT convert the shortfall into that many cards.** Corrected 2026-08-24
+after the peer caught the loop serving its own gauge: `readyDepth` short by 2 was reducing, every
+iteration, to "operationalize 2 cards" — which is exactly the campaign `PROJECT_STATUS.md:728`
+forbids (*"Never a 77-card campaign; when blocked, operationalize exactly one in-lane card"*).
+
+Operationalize a card because **an imminent dispatch would otherwise starve**, or because product
+sequencing needs that contract. Never because `10 − 8 = 2`. The backlog holds 57 open issues with
+no contract; the shortfall is almost never a shortage of *work*, and a depth that returns to 8
+after refill is throughput, not a defect.
+
+**The gauge cannot currently tell refill from burn** — history persists finding *keys* only, never
+ready-card membership, so "10 → dispatch 2 → refill 2 → 8" and "stuck at 8" are identical in the
+record (#654). Until that is fixed, treat `readyDepth.productForward` as **telemetry**, and raise a
+duty-4 correction only when a dequeue actually starves.
 
 ## What this loop must not become
 
