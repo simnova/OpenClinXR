@@ -452,8 +452,32 @@ async function runBodyStage(
       ]),
     };
   }
+  /**
+   * READ the manifest; do not assert the sub-path.
+   *
+   * MEASURED 2026-08-24: this note was an UNCONDITIONAL hard-coded string claiming
+   * `generator_mode=stub, uses_real_anny_forward_pass=false` — and it even claimed to be "verified by
+   * reading the manifest generator_mode field". It read nothing. All 33 body manifests on disk say
+   * `generator_mode=real_anny_local_forward_pass` with `uses_real_anny_forward_pass=true`, written
+   * BEFORE the rollup that contradicted them.
+   *
+   * The direction matters: this understated the factory. A hard-coded GAP note makes real capability
+   * look absent, which is how a working sub-path gets rebuilt by someone reading the rollup. A claim
+   * that names its own evidence source and does not read it is worse than no claim.
+   */
+  const modes = new Set<string>();
+  for (const rel of artifactPaths.filter((a) => a.endsWith("-manifest.json"))) {
+    try {
+      const m = JSON.parse(await readFile(path.join(cwd, rel), "utf8")) as Record<string, unknown>;
+      const mode = m["generator_mode"];
+      if (typeof mode === "string") modes.add(mode);
+    } catch { modes.add("unreadable"); }
+  }
+  const observed = [...modes].sort();
   notes.push(
-    "GAP: the real Anny forward pass sub-path is not_run — generator_mode=stub, uses_real_anny_forward_pass=false (verified from the written manifest); the Anny rail is blocked per #192, operator declined the restore. The chain ran the deterministic parametric stub body.",
+    observed.length === 0
+      ? "generator_mode: NOT DETERMINED — no manifest was readable, so the sub-path is unmeasured rather than absent"
+      : `generator_mode (read from ${artifactPaths.filter((a) => a.endsWith("-manifest.json")).length} manifest(s)): ${observed.join(", ")}`,
   );
   return { row: makeRow("body", "deterministic", artifactPaths, notes) };
 }
