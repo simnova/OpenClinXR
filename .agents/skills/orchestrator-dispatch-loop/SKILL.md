@@ -12,6 +12,35 @@ The worker's obligations live in `delegated-worker-contract`. This is the parent
 
 **HARVEST first** — a returned dispatch blocks the write root. Then killed/maxTurns recovery. Then start a slice only if its write root is free.
 
+## Selecting the next slice — read the BOARD, not a standing prompt
+
+**Measured 2026-08-24: this was the loop's biggest hole.** A tick ended with "nothing to delegate"
+while the board held a **P0 and five P1s**, because the standing prompt's step 4 says *"lowest-id IDLE
+effort"* and that was read as the named portfolio (E1–E5). When the portfolio emptied, the loop
+concluded the queue was empty. **The portfolio is a subset of the board, never a substitute for it.**
+
+Every tick, after HARVEST and before concluding anything is idle, run:
+
+```bash
+gh project item-list 7 --owner simnova --limit 200 --format json \
+  | python3 -c "import json,sys;[print(f\"[{i.get('priority')}] #{i['content']['number']} {i['content']['title'][:70]}\") for i in sorted((x for x in json.load(sys.stdin)['items'] if x.get('priority') and x.get('status')=='Todo'), key=lambda x:(x['priority'], x['content']['number']))]"
+```
+
+- **Dequeue order is `priority` then number — P0 → P1 → P2. NOT lowest id.** Lowest-id picks #2 (a P2)
+  ahead of the P0 and every P1. The two orderings disagree on the very first item.
+- The real board fields are **`priority`** and **`status`** (`Todo`/`Done`). A guessed key name returns
+  `(none)` for everything and reads as an empty board — that is your instrument, not the queue.
+- `board-cli.ts:25-36` also defines a `Factory` single-select (`Idle → Planted → Dispatched → Landed →
+  Graded`, issue #448) for slice lifecycle. It is NOT exposed by `item-list --format json`; read it via
+  the GraphQL field id when you need lifecycle rather than priority.
+- **`board -- next` does not exist.** `board-conduit` instructs the delegator to run it; `board-cli`
+  implements only `slice-open|status|close|review|merge|factory`. Until it exists, the query above IS
+  the dequeue.
+
+**A tick may end without a dispatch — but only for a stated reason**, and "the portfolio is empty" is
+not one. Legitimate: the write root is held by a live worker; the top card is operator-gated; the top
+card is parked. Name the card and the reason in the tick report.
+
 ## Signatures — get these wrong and you lose a tick
 
 ```ts
