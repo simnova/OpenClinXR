@@ -65,7 +65,7 @@ const reply = (content: string) => async () =>
     { status: 200, headers: { "content-type": "application/json" } });
 
 describe("the local rung does not leak reasoning to a learner", () => {
-  it.fails("(1) the local request carries a thinking-suppression the server actually honours", async () => {
+  it("(1) the local request carries a thinking-suppression the server actually honours", async () => {
     const fetchImpl = vi.fn(reply("It feels heavy."));
     await local(fetchImpl as unknown as typeof fetch).generateActorResponse(TURN);
     const body = JSON.parse(String((fetchImpl.mock.calls[0] as unknown as [string, RequestInit])[1].body));
@@ -76,7 +76,7 @@ describe("the local rung does not leak reasoning to a learner", () => {
     ).toBe(false);
   });
 
-  it.fails("(3) COUNTERWEIGHT: an UNTERMINATED think block never reaches the learner", async () => {
+  it("(3) COUNTERWEIGHT: an UNTERMINATED think block never reaches the learner", async () => {
     // Measured live at max_tokens 256, 2 runs in 3: the budget runs out mid-reasoning and no closing
     // tag is emitted. A strip keyed on <think>…</think> matches nothing and the reasoning ships.
     const truncated = "<think>\nOkay, the user is asking me to describe the pain. Let me recall the "
@@ -103,3 +103,37 @@ describe("the local rung does not leak reasoning to a learner", () => {
     expect(res.responseKind).toBe("spoken_actor_response");
   });
 });
+
+/**
+ * ## FIXED (#624)
+ *
+ * Implementation (2026-08-24): two changes in
+ * `packages/openclinxr/model-gateway/src/openai-compatible-adapter.ts`.
+ *
+ * Request (clause 1): the thinking control is now rung-specific. llama-server is controlled by
+ * `chat_template_kwargs.enable_thinking` (measured 6/6 clean at the SAME 256 budget); OpenRouter
+ * honours `reasoning:{effort:"low"}` and must not receive the llama parameter. The adapter
+ * discriminates on `providerId === "local-llama"` — the id `createActorDialogueModelGateway`
+ * assigns the local rung (`index.ts:478`) — and sends each rung its own control. The request
+ * body is a plain object literal passed straight to `JSON.stringify`
+ * (`openai-compatible-adapter.ts:130-142`), so unknown keys are NOT dropped during
+ * serialisation; there is no builder defect — the key was simply never added.
+ *
+ * Response (clause 3, the counterweight): `normaliseAssistantText` first strips closed
+ * `<think>…</think>` blocks, then drops everything from an UNTERMINATED `<think>` tag to the
+ * end of the string, so a budget-truncated reasoning block (no closing tag, measured 2 in 3 at
+ * 256) cannot reach the learner even if suppression is dropped, changed upstream, or
+ * unsupported by a future server. When normalisation empties the response entirely (the reply
+ * WAS reasoning), the adapter returns the same in-character `blocked_fallback` the guardrail
+ * refusal uses, with guardrail reason `reasoning_only_response_suppressed` and the measured
+ * latency, instead of throwing — a learner gets a safe line, never a crash and never the
+ * reasoning.
+ *
+ * Unlocked decisions, recorded per the brief:
+ *  - Suppression parameter: sent ONLY to the local-llama rung. Sending `chat_template_kwargs`
+ *    to OpenRouter could 400 the rung #623 made work.
+ *  - max_tokens: NOT raised. The measured fix is 6/6 at the same 256 budget (comp 30-32), so
+ *    there is no budget pressure once thinking is off.
+ *  - The unterminated-block guard lives in the SAME normaliser as the closed-block strip, so
+ *    every candidate from every provider passes through it.
+ */

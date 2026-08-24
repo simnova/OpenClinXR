@@ -87,6 +87,11 @@ export class OpenAiCompatibleModelProviderAdapter implements ModelProviderAdapte
   private readonly apiKey: string | undefined;
   private readonly fetchImpl: typeof fetch;
 
+  /** llama-server (the local rung) is controlled by `chat_template_kwargs`, not `reasoning`. */
+  private get isLlamaServerRung(): boolean {
+    return this.id === "local-llama";
+  }
+
   constructor(options: OpenAiCompatibleProviderOptions) {
     this.id = options.providerId;
     this.baseUrl = options.baseUrl;
@@ -132,11 +137,14 @@ export class OpenAiCompatibleModelProviderAdapter implements ModelProviderAdapte
       body: JSON.stringify({
         model: this.model,
         messages,
-        // Reasoning models (measured: ox via OpenRouter, Qwen3 via llama-server) spend the
-        // completion budget on chain-of-thought; the default 128-token cap on ox exhausted
-        // itself reasoning and returned content: null. effort:"low" is the measured least-
-        // reasoning config that still yields content; max_tokens gives the reply headroom.
-        reasoning: { effort: "low" },
+        // Thinking control is rung-specific (measured 2026-08-24): ox honours
+        // `reasoning:{effort:"low"}` (OpenRouter); llama-server ignores it and is controlled
+        // by `chat_template_kwargs.enable_thinking` (measured 6/6 clean at the same 256
+        // budget, ~8x faster). The llama control goes only to the local rung — sending it to
+        // OpenRouter could 400 the rung #623 made work.
+        ...(this.isLlamaServerRung
+          ? { chat_template_kwargs: { enable_thinking: false } }
+          : { reasoning: { effort: "low" } }),
         max_tokens: 256,
       }),
       signal: AbortSignal.timeout(30_000),
@@ -150,8 +158,14 @@ export class OpenAiCompatibleModelProviderAdapter implements ModelProviderAdapte
 
     const payload: unknown = await response.json();
     const completionText = extractAssistantContent(payload);
-    if (!completionText) {
+    if (completionText === undefined) {
       throw new Error(`OpenAI-compatible provider ${this.id} returned a malformed chat_completions response`);
+    }
+    if (completionText.length === 0) {
+      // The reply WAS reasoning (e.g. a truncated <think> block with no closing tag) and
+      // normalisation suppressed all of it. The learner hears the same in-character fallback
+      // as a guardrail refusal — never the reasoning, never a crash.
+      return this.suppressedReasoningFallback(input, Date.now() - startedAtMs, payload);
     }
 
     return this.spokenResponse(input, completionText, Date.now() - startedAtMs, payload);
@@ -168,6 +182,26 @@ export class OpenAiCompatibleModelProviderAdapter implements ModelProviderAdapte
         completionTokens: 0,
         totalTokens: estimateTokens(input.learnerUtterance),
       }),
+    };
+  }
+
+  /** The provider replied with reasoning only; suppression emptied it. Trace the suppression, keep the learner safe. */
+  private suppressedReasoningFallback(
+    input: ActorResponseRequest,
+    latencyMs: number,
+    payload: unknown,
+  ): ActorResponseResult {
+    const guardrail: GuardrailResult = { status: "blocked", reason: "reasoning_only_response_suppressed" };
+    const usage = extractTokenUsage(payload) ?? {
+      promptTokens: estimateTokens(buildActorPersonaSystemPrompt(input) + input.learnerUtterance),
+      completionTokens: 0,
+      totalTokens: estimateTokens(buildActorPersonaSystemPrompt(input) + input.learnerUtterance),
+    };
+    return {
+      text: `${input.actorDisplayName}: I can only respond as this simulated patient from information that has been appropriately elicited.`,
+      responseKind: "blocked_fallback",
+      traceTags: [...input.traceContextTags],
+      provenance: this.provenance(input, guardrail, latencyMs, usage),
     };
   }
 
@@ -255,8 +289,15 @@ function extractAssistantContent(payload: unknown): string | undefined {
 function normaliseAssistantText(text: string): string {
   // Qwen3's thinking suppression empties the tag rather than removing it (measured:
   // "<think>\n\n</think>\n\nIt feels heavy, like someone is sitting on my chest.").
-  // Strip every block so the learner hears the reply, not the wrapper.
-  return text.replace(/<think>[\s\S]*?<\/think>\s*/g, "").trim();
+  // Strip every closed block so the learner hears the reply, not the wrapper.
+  const closed = text.replace(/<think>[\s\S]*?<\/think>\s*/g, "");
+  // COUNTERWEIGHT (#624): when the completion budget runs out mid-reasoning no closing tag is
+  // emitted (measured 2 in 3 at max_tokens 256) and the closed-block strip matches nothing.
+  // Everything from an unterminated <think> tag on is reasoning, never reply — drop it, so a
+  // truncated block cannot reach the learner even if suppression is dropped, changed upstream,
+  // or unsupported by a future server. Strips closed blocks first so reply text after a closed
+  // block survives.
+  return closed.replace(/<think(?:\s|>)[\s\S]*$/g, "").trim();
 }
 
 function extractTokenUsage(payload: unknown): { promptTokens: number; completionTokens: number; totalTokens: number } | undefined {
