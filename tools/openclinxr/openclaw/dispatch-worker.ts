@@ -35,6 +35,7 @@ import {
 import type { DoneWhenCheck } from "../../../packages/openclinxr/agent-loop/src/slice-team.js";
 import { resolveSharedCoordinationPath } from "./coordination-root.js";
 import { shouldRefuseDispatch, type BreakerRow } from "./retry-circuit-breaker.js";
+import { deriveHandoffState } from "./worker-handoff-state.js";
 import { assertLoopNotPaused } from "./loop-pause.js";
 import { assertProductLaneNotStarved, assertPulseMeasurementAlive } from "./product-lane-gate.js";
 import { setFactoryField } from "./board-cli.js";
@@ -242,6 +243,15 @@ export type DispatchLedgerEntry = {
   model: string;
   turns?: number;
   stopReason?: string;
+  /**
+   * Whether the worktree is actually integrable. `phase: "completed"` means the worker RAN;
+   * issue-620 proved that is not the same fact — its final row was completed + cancelled +
+   * proofsOk:true with four uncommitted files. Monitors should read THIS, not infer readiness.
+   */
+  handoff?: "ready_to_integrate" | "needs_resume" | "unknown";
+  handoffDirtyFiles?: number;
+  handoffAheadCommits?: number;
+  handoffDetail?: string;
   resumedFrom?: string;
   /** Set when the worker was bound to its own worktree (concurrent-writer safe). */
   worktree?: string;
@@ -1552,11 +1562,30 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
   // ISSUE #439: the same rule now covers a child that dies before `end` — the entry below is
   // written keyed on the CHOSEN id before the early-death throw, so the dead child has a name in
   // the ledger and is resumable without scavenging ~/.grok/sessions.
+  /**
+   * MACHINE-DERIVED HANDOFF STATE — `completed` means the worker RAN, not that its work is ready.
+   *
+   * MEASURED on issue-620: the authoritative final row read `completed / turns 150 / cancelled /
+   * proofsOk: true` while FOUR files sat dirty and uncommitted. factory-pulse.ts:94 counted it as a
+   * completion and a pass; campaign-track.ts:48 selected it as the slice's outcome. A bare resume
+   * later committed the work and wrote no row, so the ledger's last word stayed the intermediate
+   * state. Integration was never at risk — its own commit/diff gates refuse an uncommitted land —
+   * so this is a monitoring and recovery ambiguity.
+   *
+   * `phase` is deliberately unchanged; readiness gets its own field so monitors stop inferring it.
+   */
+  const handoffAssessment = worktreePath ? deriveHandoffState(worktreePath) : undefined;
   const entry: DispatchLedgerEntry = {
     sessionId,
     ...ledgerIdentity(options, assembled, worktreePath),
     ...(parsed.turns !== undefined ? { turns: parsed.turns } : {}),
     ...(parsed.stopReason ? { stopReason: parsed.stopReason } : {}),
+    ...(handoffAssessment ? {
+      handoff: handoffAssessment.handoff,
+      handoffDirtyFiles: handoffAssessment.dirtyFiles,
+      handoffAheadCommits: handoffAssessment.aheadCommits,
+      handoffDetail: handoffAssessment.detail,
+    } : {}),
     at: new Date().toISOString(),
     phase: parsed.sessionId ? "completed" : "died",
     ...(gitignoredProofTargetsWarned.length > 0 ? { gitignoredProofTargetsWarned } : {}),
