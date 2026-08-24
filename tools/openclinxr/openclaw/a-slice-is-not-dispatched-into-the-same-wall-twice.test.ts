@@ -62,15 +62,23 @@ describe("a slice is not dispatched into the same wall twice", () => {
     // inside the 24 h window passed their proofs — 12:52 (cancelled at 150 AND passing), 16:41,
     // 18:16, 22:10. The original breaker refused all four. Success must reset the gate, or the
     // breaker blocks the recovery it exists to allow.
-    const justAfterAPass = Date.parse("2026-08-12T12:52:15.920Z") + 1000;
-    const v = shouldRefuseDispatch(fx.rows, "issue-341", justAfterAPass);
-    expect(v.refuse, "a slice that just passed its proofs is making progress, not hitting a wall")
-      .toBe(false);
-    for (const at of ["2026-08-12T16:41:49.435Z", "2026-08-12T18:16:55.560Z", "2026-08-12T22:10:11.902Z"]) {
-      expect(
-        shouldRefuseDispatch(fx.rows, "issue-341", Date.parse(at) + 1000).refuse,
-        `${at} passed its proofs and must stay dispatchable`,
-      ).toBe(false);
+    // CORRECTED AGAIN. This clause used to evaluate ONE SECOND AFTER the 12:52 PASS row, which let
+    // that row reset its own gate — vacuous. A breaker runs BEFORE a dispatch, when the pass it
+    // would produce does not exist yet. Measured at the honest instant:
+    //
+    //     1 ms BEFORE the recovery dispatch  -> REFUSE (repeated-ceiling)
+    //     1 s  AFTER it recorded its PASS    -> ALLOW
+    //
+    // So success-reset alone is CIRCULAR: the breaker refuses the recovery, so the pass that would
+    // reset it can never be recorded. Only an explicit reasoned override breaks that loop.
+    const justBeforeTheRecovery = Date.parse("2026-08-12T12:52:15.920Z") - 1;
+    const v = shouldRefuseDispatch(fx.rows, "issue-341", justBeforeTheRecovery);
+    // The PURE breaker is RIGHT to refuse here — it cannot see a pass that has not happened. The
+    // circularity is a SYSTEM property, and the escape is the reasoned override at the dispatch
+    // layer, pinned by the override clauses below. Asserting `false` here would demand clairvoyance.
+    expect(v.refuse, "the pure gate cannot see the future and correctly refuses").toBe(true);
+    if (v.refuse) {
+      expect(v.lastPassAt, "no pass had happened yet — lastPassAt cannot discriminate here").toBeNull();
     }
   });
 
@@ -154,5 +162,61 @@ describe("a breaker refusal leaves a durable record", () => {
     const { assertNotRepeatingIntoTheSameWall } = await import("./dispatch-worker.js");
     // A nonexistent repo root makes both the ledger read and the event append fail.
     expect(() => assertNotRepeatingIntoTheSameWall("/nonexistent-root-xyz", "probe-slice")).not.toThrow();
+  });
+});
+
+
+/**
+ * THE CIRCULARITY, AND ITS ONLY ESCAPE.
+ *
+ * MEASURED on issue-341: the breaker refuses the 12:52 dispatch one millisecond before it runs, and
+ * that dispatch went on to PASS its proofs. Success-reset cannot fix this by itself —
+ *
+ *     breaker must permit recovery -> recovery PASS resets breaker
+ *     breaker refuses recovery     -> PASS can never be recorded
+ *
+ * — so a reasoned override is the only way out, and it is RECORDED rather than silent.
+ */
+describe("a reasoned override is the only escape from the breaker", () => {
+  const stormRoot = async () => {
+    const { mkdtempSync, mkdirSync, writeFileSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join: j } = await import("node:path");
+    const root = mkdtempSync(j(tmpdir(), "breaker-ovr-"));
+    mkdirSync(j(root, ".openclinxr/openclaw"), { recursive: true });
+    const iso = (m: number) => new Date(Date.now() - m * 60_000).toISOString();
+    writeFileSync(j(root, ".openclinxr/openclaw/worker-sessions.jsonl"),
+      [{ sessionId: "s1", slice: "recovery-slice", at: iso(10), turns: 1, stopReason: "cancelled" },
+       { sessionId: "s2", slice: "recovery-slice", at: iso(5), turns: 1, stopReason: "cancelled" }]
+        .map((r) => JSON.stringify(r)).join("\n") + "\n");
+    return root;
+  };
+
+  it("(1) refuses without a reason", async () => {
+    const { assertNotRepeatingIntoTheSameWall } = await import("./dispatch-worker.js");
+    const root = await stormRoot();
+    expect(() => assertNotRepeatingIntoTheSameWall(root, "recovery-slice")).toThrow(/REFUSED/u);
+  });
+
+  it("(2) an EMPTY reason is not a reason", async () => {
+    const { assertNotRepeatingIntoTheSameWall } = await import("./dispatch-worker.js");
+    const root = await stormRoot();
+    expect(() => assertNotRepeatingIntoTheSameWall(root, "recovery-slice", "   ")).toThrow(/REFUSED/u);
+  });
+
+  it("(3) a reasoned override dispatches AND is recorded, not silenced", async () => {
+    const { readFileSync, existsSync } = await import("node:fs");
+    const { join: j } = await import("node:path");
+    const { assertNotRepeatingIntoTheSameWall } = await import("./dispatch-worker.js");
+    const root = await stormRoot();
+    const reason = "worktree reprovisioned; the startup death was a missing node_modules";
+    expect(() => assertNotRepeatingIntoTheSameWall(root, "recovery-slice", reason)).not.toThrow();
+
+    const ev = j(root, ".openclinxr/openclaw/breaker-events.jsonl");
+    expect(existsSync(ev), "an override must still leave a record").toBe(true);
+    const rec = JSON.parse(readFileSync(ev, "utf8").trim()) as Record<string, unknown>;
+    expect(rec["kind"]).toBe("dispatch-breaker-overridden");
+    expect(rec["overrideReason"]).toBe(reason);
+    expect((rec["triggeredBy"] as unknown[]).length, "the record still names what fired").toBe(2);
   });
 });

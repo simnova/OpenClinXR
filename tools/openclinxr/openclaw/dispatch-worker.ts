@@ -140,6 +140,19 @@ type DispatchOptions = {
    * notice. fast_bounded / expert_review map to flash BY POLICY and never need this.
    */
   modelDowngradeReason?: string;
+  /**
+   * The ONLY way past the retry circuit breaker, and it must carry a reason.
+   *
+   * MEASURED: success-reset alone is CIRCULAR. On issue-341 the breaker refuses the dispatch at
+   * 12:52 one millisecond before it runs, and that dispatch went on to PASS its proofs. The gate
+   * blocks the recovery, so the pass that would reset it can never be recorded:
+   *
+   *     breaker must permit recovery -> recovery PASS resets breaker
+   *     breaker refuses recovery     -> PASS can never be recorded
+   *
+   * A reasoned override is the only escape. It is recorded, not silent.
+   */
+  retryBreakerOverrideReason?: string;
   resume?: string;
   maxTurns?: number;
   /**
@@ -1282,7 +1295,7 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
    * Placed with the pause check, BEFORE the worktree and the spawn, so a refusal costs zero tokens.
    * Refuses only an automatic repeat; the message names what to change instead.
    */
-  assertNotRepeatingIntoTheSameWall(repoRoot, sliceId2(options));
+  assertNotRepeatingIntoTheSameWall(repoRoot, sliceId2(options), options.retryBreakerOverrideReason);
 
   // ISSUE #448: role is the worker's charter + status directive. A missing or unknown role
   // FAILS CLOSED here, before any worktree or brief is created — a refusal must cost nothing.
@@ -1649,7 +1662,11 @@ function sliceId2(options: Pick<DispatchOptions, "slice">): string {
  * a guard that fails open on absent history is correct and one that fails closed would brick a
  * fresh checkout.
  */
-export function assertNotRepeatingIntoTheSameWall(repoRoot: string, slice: string): void {
+export function assertNotRepeatingIntoTheSameWall(
+  repoRoot: string,
+  slice: string,
+  overrideReason?: string,
+): void {
   if (slice === "unscoped") return;
   let rows: BreakerRow[] = [];
   try {
@@ -1673,11 +1690,18 @@ export function assertNotRepeatingIntoTheSameWall(repoRoot: string, slice: strin
    * that was measured on issue-341 and fixed in 3baa71af. Written best-effort — a failed append
    * must never be the reason a dispatch cannot be refused.
    */
+  /**
+   * An override does not silence the gate — it changes the record from a refusal to a documented
+   * decision, so the next reader sees BOTH that the breaker fired and who chose to proceed.
+   */
+  const overridden = typeof overrideReason === "string" && overrideReason.trim().length > 0;
+
   try {
     appendFileSync(
       join(repoRoot, BREAKER_EVENTS),
       `${JSON.stringify({
-        kind: "dispatch-refused",
+        kind: overridden ? "dispatch-breaker-overridden" : "dispatch-refused",
+        overrideReason: overridden ? overrideReason.trim() : undefined,
         at: verdict.evaluatedAt,
         slice,
         clause: verdict.clause,
@@ -1689,10 +1713,14 @@ export function assertNotRepeatingIntoTheSameWall(repoRoot: string, slice: strin
     );
   } catch { /* the record is evidence, never a gate */ }
 
+  if (overridden) return;
+
   throw new Error(
     `dispatch REFUSED (${verdict.clause}): ${verdict.detail} ` +
     `Last proof PASS for this slice: ${verdict.lastPassAt ?? "none"}. ` +
-    `Recorded to ${BREAKER_EVENTS}. This is a circuit breaker, not a permanent close — it clears ` +
+    `Recorded to ${BREAKER_EVENTS}. Pass retryBreakerOverrideReason to proceed anyway — a reasoned ` +
+    `override is the ONLY escape, because success-reset alone is circular: the gate refuses the very ` +
+    `dispatch whose PASS would reset it. This is a circuit breaker, not a permanent close — it clears ` +
     `when the window rolls off, and a PASS resets it immediately. ` +
     `Repeating the dispatch unchanged is the behaviour that produced 16 of 62 measured proof failures.`,
   );
