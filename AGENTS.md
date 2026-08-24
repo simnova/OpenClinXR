@@ -4,7 +4,7 @@ Repo-level operating contract for Codex, Grok, Claude, Cursor, and OpenClaw-styl
 
 ## BLUF (execute immediately)
 - **Main session = orchestrator CEO only (HARD)** — `.grok/config.toml` `[agent] name = "orchestrator"`. Never product IC on main. Rule: `agents/rules/orchestrator-only-main.md`. Voice: `docs/agent-ops/CEO-VOICE.md`. Escape hatch only if human explicitly says implement yourself / exit orchestrator mode.
-- Dequeue from `PROJECT_STATUS.md` **Next dequeue** — not chat. Run `pnpm openclaw:run-next` → lease → slice-team.
+- Dequeue from the **project board** (the HOT plane per `agents/rules/EXEC_REHYDRATE.md`) — not chat, not prose. Run `pnpm openclaw:run-next` → lease → slice-team. It reads the board first and falls back to an *anchored* `**Next dequeue:**` header in `PROJECT_STATUS.md`; with neither it returns `null` rather than naming work.
 - Every slice: Q1/Q4/Q5 gate + skeptic-visible evidence in Model Vetting **or** UI-XR (expand scope if invisible).
 - State only in `PROJECT_STATUS.md` + worker-backlog snapshots; details in `agents/rules/*`.
 - No propose-and-wait. Human override via `PAUSED` in `PROJECT_STATUS.md` or explicit pause/stop.

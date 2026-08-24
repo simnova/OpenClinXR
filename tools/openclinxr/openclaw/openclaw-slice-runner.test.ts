@@ -56,13 +56,34 @@ describe("openclaw slice runner", () => {
     expect(selection.source).toBe("next-dequeue");
   });
 
-  it("falls back to legacy AUTONOMOUS_WORK_PLAN queue", () => {
+  // AMENDED 2026-08-24 (see the-dequeue-refuses-a-slice-id-scraped-from-prose.test.ts).
+  //
+  // The old assertion here was:
+  //     expect(selection.source).toBe("legacy-plan");
+  //     expect(selection.sliceId).toBeTruthy();
+  // against `legacyPlanSnapshot`, whose queue is a single bare bullet:
+  //     "1. Worker 9/7/11 UI-XR runtime evidence consumer + Admin ReviewReplay stay metadata-only."
+  //
+  // MEASURED: that produced sliceId `"metadata-only"` — a word scraped off the end of the sentence
+  // "...stay metadata-only." `toBeTruthy()` was satisfied by it, so the clause was green on a
+  // scraped English word. The unlabelled bullet tier is removed; the LABELLED directive below is
+  // kept, because "Explicit next queued:" states an intent rather than being mined for one.
+  it("honours a LABELLED explicit directive in the legacy plan", () => {
+    const selection = selectNextSlice({
+      "PROJECT_STATUS.md": "# status\n",
+      "AUTONOMOUS_WORK_PLAN.md": "# plan\n\nExplicit next queued: `peds-evidence-loop` (Q5)\n",
+    });
+    expect(selection.source).toBe("legacy-plan");
+    expect(selection.sliceId).toBe("peds-evidence-loop");
+  });
+
+  it("does NOT mine a bare bullet in the legacy plan for a slice id", () => {
     const selection = selectNextSlice({
       "PROJECT_STATUS.md": "# status\n",
       "AUTONOMOUS_WORK_PLAN.md": legacyPlanSnapshot,
     });
-    expect(selection.source).toBe("legacy-plan");
-    expect(selection.sliceId).toBeTruthy();
+    expect(selection.sliceId, "previously returned the scraped word 'metadata-only'").toBeNull();
+    expect(selection.source).toBeNull();
   });
 
   it("builds slice-team init when brief is missing", () => {

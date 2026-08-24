@@ -1,9 +1,10 @@
 import { existsSync, readFileSync } from "node:fs";
-import { spawnSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { sliceBriefPath } from "../../../packages/openclinxr/agent-loop/src/slice-team.js";
+import { selectNextBoardCard } from "./board-next-selector.js";
 
 export const DEFAULT_OPENCLAW_RUN_NEXT_REPORT_PATH = ".openclinxr/openclaw/run-next-report.json";
 const DEFAULT_WATCHDOG_IDLE_MINUTES = 60;
@@ -13,7 +14,7 @@ type StateFiles = Record<string, string>;
 export type SliceSelection = {
   sliceId: string | null;
   templateId: string | null;
-  source: "next-dequeue" | "backlog-table" | "legacy-plan" | null;
+  source: "board" | "next-dequeue" | "backlog-table" | "legacy-plan" | null;
 };
 
 export const SLICE_TEMPLATE_MAP: Record<string, string> = {
@@ -29,6 +30,9 @@ export type OpenClawRunNextInput = {
   now?: Date;
   stateFiles: StateFiles;
   gitStatusShort: string;
+  /** Live queue card. Supplied by main() from the project board; omitted in tests so the plan
+   *  builder stays pure and does not shell out to `gh`. */
+  boardCard?: BoardCardSelection | null;
 };
 
 export type OpenClawRunNextPlan = {
@@ -85,9 +89,29 @@ export function extractSliceIdFromText(text: string): string | null {
   return kebab ?? null;
 }
 
-export function selectNextSlice(stateFiles: StateFiles): SliceSelection {
+/** A card handed in from the live queue. `agents/rules/EXEC_REHYDRATE.md:38` puts the dequeue
+ * queue on the GitHub project board, so a supplied card outranks every markdown tier below. */
+export type BoardCardSelection = { sliceId: string; priority?: string };
+
+export function selectNextSlice(
+  stateFiles: StateFiles,
+  opts?: { boardCard?: BoardCardSelection | null },
+): SliceSelection {
+  const boardCard = opts?.boardCard;
+  if (boardCard?.sliceId) {
+    return {
+      sliceId: boardCard.sliceId,
+      templateId: SLICE_TEMPLATE_MAP[boardCard.sliceId] ?? null,
+      source: "board",
+    };
+  }
+
   const status = stateFiles["PROJECT_STATUS.md"] ?? "";
-  const nextDequeue = status.match(/\*\*Next dequeue:\*\*\s*(.+?)(?:\n|$)/u)?.[1]?.trim();
+  // ANCHORED to a line start. Unanchored, this matched the `**Next dequeue:**` markup used mid-
+  // sentence inside a dated checkpoint at PROJECT_STATUS.md:1474 and returned the word
+  // "re-selection", lifted from prose describing this very failure. A pointer is a header, not a
+  // phrase inside a paragraph about headers.
+  const nextDequeue = status.match(/^\*\*Next dequeue:\*\*\s*(.+?)$/mu)?.[1]?.trim();
   if (nextDequeue) {
     const firstOption = nextDequeue.split(/\s+or\s+/iu)[0]?.trim() ?? nextDequeue;
     let sliceId = extractSliceIdFromText(firstOption);
@@ -120,16 +144,11 @@ export function selectNextSlice(stateFiles: StateFiles): SliceSelection {
     }
   }
 
-  const backlogRow = status.match(
-    /\|[^\n]+\|\n\|[-| :]+\|\n\|[^|]+\|\s*`?([a-z0-9][a-z0-9-]*)`?/u,
-  )?.[1];
-  if (backlogRow) {
-    return {
-      sliceId: backlogRow,
-      templateId: SLICE_TEMPLATE_MAP[backlogRow] ?? null,
-      source: "backlog-table",
-    };
-  }
+  // TIER 2 REMOVED (2026-08-24). It read the first cell of the first markdown table in the file:
+  //     status.match(/\|[^\n]+\|\n\|[-| :]+\|\n\|[^|]+\|\s*`?([a-z0-9][a-z0-9-]*)`?/u)
+  // MEASURED against the live PROJECT_STATUS.md it returned the word `lateral`. A table cell is not
+  // a queue and the tier carried no label saying it was one, so it could only ever produce a
+  // plausible-looking token. Anchoring tier 1 alone just moved the false positive here.
 
   const plan = stateFiles["AUTONOMOUS_WORK_PLAN.md"] ?? "";
   const explicit = plan.match(/Explicit next queued:\s*(.+?)(?:\n|$)/u)?.[1]?.trim();
@@ -143,21 +162,12 @@ export function selectNextSlice(stateFiles: StateFiles): SliceSelection {
     };
   }
 
-  const queueMatch = plan.match(/## Active Product Advancement Queue\s*\n([\s\S]*?)(?:\n## |\n# |$)/u);
-  const queue = queueMatch?.[1] ?? plan;
-  const firstItem = queue
-    .split(/\r?\n/u)
-    .map((line) => line.trim())
-    .find((line) => /^\d+\.\s+/.test(line) || /^[-*]\s+/.test(line));
-  if (firstItem) {
-    const stripped = stripMarkdownListPrefix(firstItem);
-    const sliceId = extractSliceIdFromText(stripped) ?? stripped;
-    return {
-      sliceId,
-      templateId: SLICE_TEMPLATE_MAP[sliceId] ?? null,
-      source: "legacy-plan",
-    };
-  }
+  // TIER 4 REMOVED (2026-08-24). It took the first list item under "Active Product Advancement
+  // Queue" in AUTONOMOUS_WORK_PLAN.md — a file `agents/rules/source-of-truth.md:18` classifies as a
+  // "historical audit ledger only ... evidence, not active marching orders". Tier 3 above survives
+  // because "Explicit next queued:" is a LABELLED directive; a bare bullet in a retired ledger is
+  // not. Refusing here is the point: with no labelled pointer anywhere, the honest answer is that
+  // nothing is queued, and the caller should read the board.
 
   return { sliceId: null, templateId: null, source: null };
 }
@@ -178,7 +188,7 @@ export function buildSliceTeamCommands(selection: SliceSelection): OpenClawRunNe
 }
 
 export function buildOpenClawRunNextPlan(input: OpenClawRunNextInput): OpenClawRunNextPlan {
-  const selection = selectNextSlice(input.stateFiles);
+  const selection = selectNextSlice(input.stateFiles, { boardCard: input.boardCard });
   const sliceBriefExists = selection.sliceId
     ? existsSync(path.join(process.cwd(), sliceBriefPath(selection.sliceId)))
     : false;
@@ -369,12 +379,39 @@ async function writeLocalReport(
   await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
 }
 
+/**
+ * Reads the live dequeue queue. `agents/rules/EXEC_REHYDRATE.md:38` puts the queue on the project
+ * board; `AGENTS.md:7` tells every agent to dequeue by running this command. Before this existed the
+ * two disagreed and this command answered from markdown prose.
+ *
+ * Fails SOFT on purpose: a `gh` outage, no auth, or a truncated read must not fabricate a slice, and
+ * must not hard-crash the runner either — it falls through to the anchored markdown tiers, which now
+ * refuse rather than scrape. `--no-board` skips the call for offline use.
+ */
+function boardCardOrNull(skip: boolean): BoardCardSelection | null {
+  if (skip) return null;
+  try {
+    const picked = selectNextBoardCard((argv) =>
+      // maxBuffer is NOT optional here. The live board serialises to 3.29 MB against execFileSync's
+      // 1 MB default; omitting it truncates the read, and `selectNextBoardCard` then correctly
+      // refuses with `incomplete-read` rather than picking from a partial board. Measured 2026-08-24.
+      execFileSync(argv[0] as string, argv.slice(1), {
+        encoding: "utf8", maxBuffer: 64 * 1024 * 1024, stdio: ["ignore", "pipe", "pipe"],
+      }));
+    if (!picked.ok || !picked.item?.content?.number) return null;
+    return { sliceId: `issue-${picked.item.content.number}`, priority: picked.item.priority };
+  } catch {
+    return null;
+  }
+}
+
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const watchdog = args.includes("--watchdog");
   const dryRun = args.includes("--dry-run");
   const stateFiles = await loadStateFiles();
-  const plan = buildOpenClawRunNextPlan({ stateFiles, gitStatusShort: gitStatusShort() });
+  const boardCard = boardCardOrNull(args.includes("--no-board"));
+  const plan = buildOpenClawRunNextPlan({ stateFiles, gitStatusShort: gitStatusShort(), boardCard });
 
   if (!watchdog) {
     if (!dryRun) {
