@@ -103,6 +103,33 @@ running code find this"*, go through the loader.
 - **Your own tooling fails too.** A `tsc` error can be your bad path; a `no tests` result can be a
   collection failure, not a pass. Attribute the failure before reporting it.
 
+## `object.visible` is not visibility, and a leaf flag is not a chain
+
+Measured 2026-08-24, after it cost three published readings on one issue. In three.js an object renders
+only if **every** node from it to the scene root is visible. A leaf mesh carrying `visible: true` under a
+group with `visible = false` never renders.
+
+I read the leaf and wrote "a debug cue renders visible in a shipped station". The group was hidden at its
+own flag, in the source, three lines from where it is created.
+
+**The rule generalises past three.js:** when a property is inherited or composed along a chain -
+visibility, opacity, enabled-ness, permissions, transforms - reading the leaf answers a different
+question. AND the chain, and say in the claim that you did.
+
+**And it is symmetric.** Reading only the GROUP would have produced the opposite error - "it is hidden" -
+on a child that had been individually re-shown.
+
+## Stop proposing mechanisms from the same frame
+
+Same issue, same day: three mechanisms for one head-like shape in a capture, all measured false - an
+orphan head, a cross-station node leak (**214 of 214** meshes carried the "foreign" root name), and the
+cue above. Each was cheap to falsify and none was cheap enough to be worth proposing.
+
+**After the second failed mechanism from one image, stop.** Record the observation, mark the cause NOT
+DETERMINED, and name the *class* of measurement that would settle it - here, project the scene to screen
+space and ask what covers those pixels. A third guess from the same pixels is not diagnosis, it is
+pattern-matching with a longer changelog.
+
 ## Attribution: stash before you blame
 
 When a landing turns something red, the question is not "what did the slice break" but "what did that
