@@ -88,13 +88,29 @@ export function summariseLedgerWindow(rows: Record<string, unknown>[]): {
     }
     // Terminal rows repeat per session (completed is written at exit and again after proof
     // verification). Last write wins; within one session they agree on phase and resolve proofsOk.
-    terminalBySession.set(sid, { phase, proofsOk: r.proofsOk });
+    terminalBySession.set(sid, { phase, proofsOk: r.proofsOk, handoff: r["handoff"] as string | undefined });
   }
 
   const ran = [...terminalBySession.values()].filter((t) => t.phase === "completed");
   const completions = ran.length;
   const passed = ran.filter((t) => t.proofsOk === true).length;
   const failed = ran.filter((t) => t.proofsOk === false).length;
+
+  /**
+   * COMPLETED IS NOT INTEGRABLE, and this counter used to conflate them.
+   *
+   * MEASURED on issue-620: a row reading `completed / cancelled / proofsOk:true` was counted here as
+   * one completion and one pass — while FOUR files sat dirty and uncommitted in the worktree. A bare
+   * resume later committed the work and wrote no ledger row, so the pulse's view of that slice stayed
+   * the intermediate state.
+   *
+   * `handoff` is derived from the worktree itself (worker-handoff-state.ts) and is the field to read.
+   * Rows written before it existed carry `undefined`, which is counted as unknown rather than
+   * silently good — an unmeasured tree is unmeasured.
+   */
+  const needsResume = ran.filter((t) => t.handoff === "needs_resume").length;
+  const readyToIntegrate = ran.filter((t) => t.handoff === "ready_to_integrate").length;
+  const handoffUnknown = ran.filter((t) => t.handoff !== "needs_resume" && t.handoff !== "ready_to_integrate").length;
   const passRate = completions > 0 ? passed / completions : null;
 
   // Rework = a slice whose workers genuinely ran more than once. SessionIds with only a "spawned"
@@ -110,7 +126,7 @@ export function summariseLedgerWindow(rows: Record<string, unknown>[]): {
     ranSessionsBySlice.set(slice, set);
   }
   const rework = [...ranSessionsBySlice.values()].filter((sessions) => sessions.size > 1).length;
-  return { completions, passed, failed, passRate, rework };
+  return { completions, passed, failed, passRate, rework, needsResume, readyToIntegrate, handoffUnknown };
 }
 
 function main(): void {
@@ -122,12 +138,13 @@ function main(): void {
 
   // --- ledger: completions, pass rate, rework -------------------------------------------------
   let completions = 0, passed = 0, failed = 0, rework = 0;
+  let needsResume = 0, readyToIntegrate = 0, handoffUnknown = 0;
   let passRate: number | null = null;
   try {
     const rows = readFileSync(LEDGER, "utf8").split("\n").filter(Boolean)
       .map((l) => JSON.parse(l) as Record<string, unknown>)
       .filter((r) => typeof r.at === "string" && (r.at as string) >= since);
-    ({ completions, passed, failed, passRate, rework } = summariseLedgerWindow(rows));
+    ({ completions, passed, failed, passRate, rework, needsResume, readyToIntegrate, handoffUnknown } = summariseLedgerWindow(rows));
   } catch { nullFields.push("ledger"); }
 
   // --- unified log: provider health ------------------------------------------------------------
@@ -198,6 +215,9 @@ function main(): void {
   const row = {
     ts: now.toISOString(), since,
     completions_1h: completions, pass_rate_1h: passRate, rework_1h: rework,
+    // A completion whose worktree is dirty is NOT integrable — issue-620 counted as a pass with
+    // four uncommitted files. Surfaced separately so monitoring stops inferring readiness.
+    needs_resume_1h: needsResume, ready_to_integrate_1h: readyToIntegrate, handoff_unknown_1h: handoffUnknown,
     graded_transitions_1h: graded, product_commits_1h: productCommits, total_commits_1h: totalCommits,
     provider_failures_1h: provider, verdict,
     degraded: nullFields.length > 0, null_fields: nullFields,
