@@ -206,7 +206,20 @@ export function verifyDoneClaim(root: string, issue: number, stage: string): Don
   const onMain = shas.some(isAncestor);
   const artifact = join(root, `.openclinxr/openclaw/contract-verify-issue-${issue}-merge.json`);
   const verified = existsSync(artifact);
-  const ok = onMain && shas.length > 0;
+  /**
+   * VERIFIED means landed AND re-proved at merge, not landed alone.
+   *
+   * FOUND ON ITERATION 1 by the peer, verified against the tree: `verified` was computed and then
+   * never used here, so a card whose work landed but whose proofs were never re-run at merge
+   * reported ok=true. That is duty 3's own blind spot, inside the duty whose entire purpose is
+   * refusing to take "done" on trust.
+   *
+   * `contract-verify-cli` exists precisely because verifying only at dispatch lets a LATER commit
+   * drop the proof before the branch is merged — its report is anchored to the head sha being
+   * landed. A claim without it has been verified against a tree that may no longer be the one on
+   * main.
+   */
+  const ok = onMain && shas.length > 0 && verified;
   const bySubject = subjectShas.length > 0;
   const why = shas.length === 0
     ? `no commit cites #${issue} — the card says ${stage} and nothing in git claims it`

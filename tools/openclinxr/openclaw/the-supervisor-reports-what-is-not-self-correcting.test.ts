@@ -87,12 +87,20 @@ describe("the supervisor reports what is not self-correcting", () => {
     expect(c.why).toContain("no commit cites");
   });
 
-  it("(8) DUTY 3 COUNTERWEIGHT: a genuinely landed slice verifies", () => {
-    // #627's RED was planted in ccab1942 and is an ancestor of main. If this clause ever fails, the
-    // verifier has become unable to see real work, which is worse than missing a fake claim.
+  it("(8) DUTY 3: LANDED and VERIFIED are different claims, and the report says which", () => {
+    // AMENDED on iteration 1. The old assertion was:
+    //     expect(c.commitOnMain).toBe(true); expect(c.ok).toBe(true);
+    // on the premise that a landed slice is a verified one. That premise died when `ok` began
+    // requiring the merge artifact.
+    //
+    // #627's RED was committed DIRECTLY (ccab1942), not dispatched through integrate, so no
+    // contract-verify artifact exists for it. It genuinely landed and genuinely was not re-proved at
+    // merge, and the report must be able to say both. Clause (14) covers the fully-verified case.
     const c = verifyDoneClaim(process.cwd(), 627, "Landed");
     expect(c.commitOnMain, "ccab1942 cites #627 and is on main").toBe(true);
-    expect(c.ok).toBe(true);
+    expect(c.contractVerified, "no merge artifact — it was never dispatched").toBe(false);
+    expect(c.ok, "landed is not verified").toBe(false);
+    expect(c.why).toMatch(/NO contract-verify artifact/u);
   });
 
   it("(9) DUTY 3 COUNTERWEIGHT: discussing an issue is not fixing it", () => {
@@ -159,5 +167,32 @@ describe("the supervisor reports what is not self-correcting", () => {
     expect(prior.length).toBe(CHRONIC_AFTER);
     const [f] = markChronic([{ duty: 1, key: "stuck", detail: "x" }], prior);
     expect(f!.chronic, "spaced observations are what chronic means").toBe(true);
+  });
+
+  it("(13) DUTY 3: a landed commit with NO contract-verify artifact is not fully verified", () => {
+    // FOUND BY THE PEER ON ITERATION 1, verified against the tree: `ok` was
+    //     const ok = onMain && shas.length > 0;
+    // `verified` was computed one line above and never used. So a card whose work landed but whose
+    // proofs were never re-run at merge reported ok=true — duty 3's own blind spot, in the duty
+    // whose entire purpose is refusing to take "done" on trust.
+    //
+    // #632 is a card with no fix commit at all, so it fails on the first condition. #634 was filed
+    // today via REST and has no contract-verify artifact either. The clause below uses an issue that
+    // HAS a subject-line commit on main but NO merge artifact.
+    const c = verifyDoneClaim(process.cwd(), 632, "Landed");
+    expect(c.contractVerified, "no merge artifact exists for #632").toBe(false);
+    expect(
+      c.ok,
+      "a claim missing its contract-verify artifact must not report ok — landing is not verifying",
+    ).toBe(false);
+  });
+
+  it("(14) DUTY 3 COUNTERWEIGHT: a fully-verified claim still reports ok", () => {
+    // Refuses the over-correction of demanding an artifact so strictly that real, verified work
+    // fails. #181 has both a subject-line commit on main and a merge artifact.
+    const c = verifyDoneClaim(process.cwd(), 181, "Landed");
+    expect(c.commitOnMain).toBe(true);
+    expect(c.contractVerified, "issue-181's merge artifact is present").toBe(true);
+    expect(c.ok).toBe(true);
   });
 });
