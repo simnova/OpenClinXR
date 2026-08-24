@@ -1,7 +1,7 @@
 ---
 name: model-routing
-description: "The operator's model ladders for worker agents and the superagent, with the fallback rule and the probe. Load BEFORE passing `model:` to dispatch(), before spawning any worker or subagent, before opening or resuming a superagent consult, and whenever a dispatch dies on a provider error. Carries what is enforced in code and what is NOT, so a wrong model is never assumed to be caught by a guard."
-when-to-use: "dispatch a worker, pass a model, which model, spawn subagent, resume superagent, ox-alpha, deepseek, grok-4.6, provider died, 402, empty response, model fell back, escalate model, worker model policy"
+description: "The operator's model ladders for worker agents and the superagent, with the fallback rule and the probe. Load BEFORE passing `model:` to dispatch(), before spawning any worker or subagent, before opening or resuming a superagent consult, and whenever a dispatch dies on a provider error. Carries what is enforced in code and what is NOT, so a wrong model is never assumed to be caught by a guard. ALSO load before writing that a model is broken, dead, stalled, unresponsive, or returning nothing: ox measured 85% delegation success and 7 of 8 \"ox is down\" claims in one session were the caller's own invocation error (nohup, missing key, buffered json, wrong signature, missing role)."
+when-to-use: "ox is down, ox not working, model is broken, dispatch died, 0 bytes, empty response, no_visible_content, stalled, unresponsive, step down a rung, dispatch a worker, pass a model, which model, spawn subagent, resume superagent, ox-alpha, deepseek, grok-4.6, provider died, 402, model fell back, escalate model, worker model policy"
 ---
 
 # Model routing
@@ -84,6 +84,49 @@ only accepts what its own menu advertises.
 - Never set `RUST_LOG` or a debug file. Grok logs the bearer token in plaintext.
 - Never `pkill -f grok` while any worker is live. Kill by PID.
 - Never rotate models mid-fire to "try again". Step down once and record it.
+
+## Before you say ox is down — it was you seven times out of eight
+
+Measured 2026-08-23 across one session. `ox-alpha` as a DELEGATION channel, whole ledger:
+
+```
+completed 56 | died 10   ->  85% success
+including issue-576 at 250 turns, which produced a landed fix
+```
+
+As a CONSULT channel the same day: `OXPROBE 43` against `ls`=43 in 24 s, a 515-byte direction check
+answered in 89 s, and a 4 KB brief answered with 22,774 output tokens. **Ox works on both surfaces.**
+
+In that same session I claimed "ox is not working" or stepped down a rung **eight times**. Seven were
+my own invocation. Run this list before touching the ladder — every row is a real incident:
+
+| symptom I saw | what it actually was | the tell |
+|---|---|---|
+| 0 bytes, 5 consults in a row | `nohup … &` around the call — `PROTO_VERIFY_DELEGATION:1501`, *"wrapper exits 0, log is 0 bytes"* | the harness backgrounds for you; a second layer detaches it |
+| `http_status: 401`, auth rejected | `OPENROUTER_API_KEY` lives in `~/.zshrc` and is **absent from every fresh Bash shell** | `dispatch()` sources it, so workers run while my bare calls 401 |
+| 0 bytes at 90 s, "it stalled" | `--output-format json` **buffers until completion** | byte count is not a first-token signal; read the session dir |
+| `Cannot read properties of undefined (reading 'proofs')` | `dispatch(repoRoot, options)` takes **two positional args** | see `orchestrator-dispatch-loop` §Signatures |
+| `role is required` | I omitted `role` | the error names the prior incident (#441-#447) |
+| `DOWNGRADE with no modelDowngradeReason` | role policy outranks a bare `model:` | name the reason or drop the argument |
+| `no_visible_content` | **4 model calls × ~120k = 479k total.** A single call at 139k succeeded the same hour | multi-turn consults re-send the prefix each call; see below |
+
+**The ONE genuine ox failure signature** is a dispatch that dies **under ~60 s after spawn with no
+turns** — measured at 15 s on issue-607. That is the 15% tail, it is a provider fault, and stepping
+to `deepseek-v4-flash` is the correct response. Anything else, suspect yourself first.
+
+**Never write "ox is down" without pasting the probe output next to it.** The probe is 24 s and
+settles the question; an assertion without it has been wrong 7 times out of 8.
+
+### The consult-shape rule this session added
+
+`consult-session-hygiene` watches `inputTokens ÷ modelCalls` and alarms at 150k. The failure above
+was at **119.8k per call — below the alarm** — because the damage is in the PRODUCT, not the
+quotient: four calls re-sending the prefix reached 479k total.
+
+The prompt shape chose that. Asking a consult to *"attack this specifically"* and *"disagree if the
+evidence does not support it"* invites tool use and iteration; asking for a **verdict** returns in one
+call. **Consults ask for a verdict. Investigation is what a dispatched worker with a worktree is
+for**, and a generous `--max-turns` on a consult is a licence to accumulate, not a safety cap.
 
 ## Stepping down — the rule
 
