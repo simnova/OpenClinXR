@@ -1,8 +1,15 @@
-import { describe, expect, it } from "vitest";
-import { runEdChestPainSimulation } from "./index.js";
 import { scenarioDialogueSeedBank } from "@openclinxr/scenario-fixtures";
+import { beforeEach, describe, expect, it } from "vitest";
+import { runEdChestPainSimulation } from "./index.js";
 
 describe("ED chest pain deterministic simulation", () => {
+  beforeEach(() => {
+    // The default runtime factory composes live rungs from ambient env; this test pins
+    // the offline deterministic simulation, so clear the keys before the runtime is built.
+    delete process.env["OPENROUTER_API_KEY"];
+    delete process.env["OPENCLINXR_LOCAL_LLAMA_BASE_URL"];
+  });
+
   it("runs from fixture to review packet without cloud services", async () => {
     const result = await runEdChestPainSimulation();
 

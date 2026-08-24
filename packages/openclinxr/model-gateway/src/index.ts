@@ -1,5 +1,6 @@
 import { type ProviderAuditRecord, type ProviderHealth, validateProviderHealth } from "@cellix/provider-contracts";
 import { isHiddenTruthExtractionAttempt } from "./hidden-truth-guardrail.js";
+import { OpenAiCompatibleModelProviderAdapter } from "./openai-compatible-adapter.js";
 
 export type ModelCapability = "actor_response" | "scenario_draft" | "scenario_review";
 
@@ -426,5 +427,69 @@ export function createOllamaModelProviderAdapter(options: LocalModelProviderStub
   });
 }
 
-export { OpenAiCompatibleModelProviderAdapter } from "./openai-compatible-adapter.js";
+const DEFAULT_OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";
+const DEFAULT_OPENROUTER_MODEL = "stealth/ox-alpha";
+const DEFAULT_LOCAL_LLAMA_MODEL = "qwen3-8b";
+
+export type CreateActorDialogueModelGatewayOptions = {
+  /** Route label for the composed gateway (health/error surface). */
+  routeId?: string;
+  /** OpenRouter key for the ox rung. Defaults to `OPENROUTER_API_KEY`; when absent the rung is omitted. */
+  openRouterApiKey?: string;
+  openRouterBaseUrl?: string;
+  openRouterModel?: string;
+  /** Base URL of a local OpenAI-compatible server (llama-server). Defaults to `OPENCLINXR_LOCAL_LLAMA_BASE_URL`; when absent the rung is omitted. */
+  localBaseUrl?: string;
+  localModel?: string;
+};
+
+/**
+ * Compose the actor-dialogue gateway the runtime uses by default: ox (OpenRouter)
+ * first, local llama-server second, mock last. Priority is list order —
+ * `firstReadyAdapter` returns the first adapter whose health is `ready`.
+ *
+ * Reachability is decided from CONFIG ONLY — no network call at import or health
+ * time: the ox rung is present when an API key is configured, the local rung when
+ * a base URL is configured. With neither configured the offline pair (mock + a
+ * `not_configured` local stub) answers from the mock, so a dev boot with no model
+ * configured returns an utterance and never throws.
+ */
+export function createActorDialogueModelGateway(
+  options: CreateActorDialogueModelGatewayOptions = {},
+): ModelGateway {
+  const adapters: ModelProviderAdapter[] = [];
+
+  const openRouterApiKey = options.openRouterApiKey ?? process.env["OPENROUTER_API_KEY"];
+  if (openRouterApiKey && openRouterApiKey.trim().length > 0) {
+    adapters.push(
+      new OpenAiCompatibleModelProviderAdapter({
+        providerId: "ox-alpha",
+        baseUrl: options.openRouterBaseUrl ?? DEFAULT_OPENROUTER_BASE_URL,
+        model: options.openRouterModel ?? DEFAULT_OPENROUTER_MODEL,
+        apiKey: openRouterApiKey,
+      }),
+    );
+  }
+
+  const localBaseUrl = options.localBaseUrl ?? process.env["OPENCLINXR_LOCAL_LLAMA_BASE_URL"];
+  if (localBaseUrl && localBaseUrl.trim().length > 0) {
+    adapters.push(
+      new OpenAiCompatibleModelProviderAdapter({
+        providerId: "local-llama",
+        baseUrl: localBaseUrl,
+        model: options.localModel ?? DEFAULT_LOCAL_LLAMA_MODEL,
+      }),
+    );
+  }
+
+  adapters.push(new MockModelProviderAdapter());
+  adapters.push(new LocalModelProviderAdapter({ providerId: "local-model" }));
+
+  return createDefaultModelGateway({
+    routeId: options.routeId ?? "actor-dialogue-runtime-v1",
+    adapters,
+  });
+}
+
 export type { OpenAiCompatibleProviderOptions } from "./openai-compatible-adapter.js";
+export { OpenAiCompatibleModelProviderAdapter } from "./openai-compatible-adapter.js";
