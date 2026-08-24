@@ -422,18 +422,48 @@ export function assertWorkerReported(
   }
 
   const repo = DEFAULT_BOARD_REPO;
-  const commentsJson = stripAnsi(runner([
-    "gh", "issue", "view", String(issueNumber), "--repo", repo, "--json", "comments", "-q", ".comments",
+
+  /**
+   * ONE round trip for both the comments and the viewer login.
+   *
+   * This previously made TWO calls — `gh issue view --json comments` then `gh api user -q .login` —
+   * on every worker-comment check, against a GraphQL budget shared by every agent on the account.
+   *
+   * The login is deliberately NOT cached, unlike project/field identifiers. A stale identifier fails
+   * LOUDLY when GitHub rejects a write; a stale login fails SILENTLY by misattributing who spoke,
+   * which would let this gate credit an orchestrator comment as the worker's and pass a mute worker.
+   * Fetching it in the same query costs nothing and keeps it exact.
+   */
+  const combined = stripAnsi(runner([
+    "gh", "api", "graphql",
+    "-f", `query=query($owner:String!,$repo:String!,$num:Int!){viewer{login} repository(owner:$owner,name:$repo){issue(number:$num){comments(first:100){nodes{author{login} body}}}}}`,
+    "-f", `owner=${repo.split("/")[0]}`,
+    "-f", `repo=${repo.split("/")[1]}`,
+    "-F", `num=${issueNumber}`,
   ]));
   let comments: Array<{ author?: { login?: string } | null; body?: string }>;
+  let viewerLogin = "";
   try {
-    comments = JSON.parse(commentsJson) as Array<{ author?: { login?: string } | null; body?: string }>;
+    const parsed = JSON.parse(combined) as {
+      data?: {
+        viewer?: { login?: string };
+        repository?: { issue?: { comments?: { nodes?: Array<{ author?: { login?: string } | null; body?: string }> } } };
+      };
+    };
+    comments = parsed.data?.repository?.issue?.comments?.nodes ?? [];
+    viewerLogin = parsed.data?.viewer?.login ?? "";
   } catch {
     throw new Error(
-      `integrate: could not parse comments for issue #${issueNumber} from gh: ${commentsJson.slice(0, 200)}`,
+      `integrate: could not parse comments for issue #${issueNumber} from gh: ${combined.slice(0, 200)}`,
     );
   }
-  const orchestratorLogin = runner(["gh", "api", "user", "-q", ".login"]).trim();
+  /**
+   * The login came back with the comments above. Fall back to the separate call only if the
+   * combined query did not carry it — a missing login must not silently become "" and match every
+   * author, which would make `workerSpoke` true for orchestrator-only comments and pass a mute
+   * worker. The fallback keeps the gate exact rather than convenient.
+   */
+  const orchestratorLogin = viewerLogin || runner(["gh", "api", "user", "-q", ".login"]).trim();
 
   const workerSpoke = comments.some(
     (comment) =>

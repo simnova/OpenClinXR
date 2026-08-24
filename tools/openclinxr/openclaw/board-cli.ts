@@ -612,13 +612,28 @@ export function setFactoryField(
    * because a stale id fails LOUDLY when GitHub rejects the write while a stale value fails
    * silently. See github-coordination-cache.ts.
    */
-  const resolveIds = options?.metadataResolver ?? ((root, o, num, field, option) => {
-    try {
-      return resolveSingleSelect(root, o, num, field, option);
-    } catch {
-      return null; // any cache trouble falls back to the legacy calls below
-    }
-  });
+  /**
+   * AN INJECTED RUNNER DISABLES THE CACHE. Measured defect, caught by integrate.test.ts:348.
+   *
+   * A caller that injects `runner` intends to control every `gh` call — a unit test, a dry probe, a
+   * fake. The cache SUBSTITUTES for two of those calls, so honouring it would silently feed the
+   * caller ids it never provided. That is exactly what happened: a unit test asserted the fake's
+   * `o-landed` option id and received the REAL board's id, read from this machine's live cache file.
+   *
+   * A test that reaches live state is worse than a slow one, and this repo has been bitten by the
+   * class repeatedly. So: no injected runner, no cache.
+   */
+  const usingInjectedRunner = options?.runner !== undefined;
+  const resolveIds = options?.metadataResolver
+    ?? (usingInjectedRunner
+      ? () => null
+      : (root, o, num, field, option) => {
+        try {
+          return resolveSingleSelect(root, o, num, field, option);
+        } catch {
+          return null; // any cache trouble falls back to the legacy calls below
+        }
+      });
   const cached = resolveIds(repoRoot, owner, projectNumber, FACTORY_FIELD_NAME, stage);
 
   let projectId: string;

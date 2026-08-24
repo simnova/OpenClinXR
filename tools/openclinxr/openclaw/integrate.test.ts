@@ -271,8 +271,27 @@ describe("issue #448 — the board is the dequeue queue (integrate side)", () =>
     const runner = (argv: string[]): string => {
       calls.push(argv);
       const joined = argv.join(" ");
+      /**
+       * The worker-comment gate now fetches comments AND viewer.login in ONE graphql round trip
+       * instead of `gh issue view --json comments` plus `gh api user`. The gate's CONTRACT is
+       * unchanged — these fakes encode the transport, so they move with it.
+       */
+      if (joined.includes("graphql") && joined.includes("viewer{login}")) {
+        return JSON.stringify({
+          data: {
+            viewer: { login: input.login ?? "gidich" },
+            repository: { issue: { comments: { nodes: JSON.parse(input.comments) as unknown[] } } },
+          },
+        });
+      }
       if (joined.includes("issue view")) return input.comments;
       if (joined.includes("api user")) return input.login ?? "gidich";
+      /** #449 — setFactoryField resolves the card FROM THE ISSUE, never by listing the board. */
+      if (joined.includes("graphql") && joined.includes("projectItems")) {
+        return JSON.stringify({
+          data: { repository: { issue: { projectItems: { nodes: [{ id: "PVTI_448", project: { number: 7 } }] } } } },
+        });
+      }
       if (joined.includes("project view 7")) return "PVT_1";
       if (joined.includes("project item-list 7")) {
         return JSON.stringify({ items: [{ id: "PVTI_448", content: { type: "Issue", number: 448 } }] });
@@ -334,6 +353,16 @@ describe("issue #448 — the board is the dequeue queue (integrate side)", () =>
     const { root, base, head } = repoWithBenignChange();
     const runner = (argv: string[]): string => {
       const joined = argv.join(" ");
+      // The worker-comment check is one graphql round trip (comments + viewer.login). It must
+      // SUCCEED here — this test's premise is that the land works and only the BOARD WRITE fails.
+      if (joined.includes("graphql") && joined.includes("viewer{login}")) {
+        return JSON.stringify({
+          data: {
+            viewer: { login: "gidich" },
+            repository: { issue: { comments: { nodes: [{ author: { login: "gidich" }, body: "Factory: Dispatched" }] } } },
+          },
+        });
+      }
       if (joined.includes("issue view")) {
         return JSON.stringify([{ author: { login: "gidich" }, body: "Factory: Dispatched" }]);
       }
