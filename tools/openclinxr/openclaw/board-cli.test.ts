@@ -379,6 +379,27 @@ describe("board Factory field — the dequeue queue has a writer (#448)", () => 
       if (joined.includes("project item-list 7")) {
         return input.itemList ?? JSON.stringify({ items: [] });
       }
+      // #449 replaced board-listing with a targeted GraphQL lookup ("resolve the board card from
+      // the issue, never by listing the board", 41cb8231a, 2026-08-19). The fake still simulated
+      // only the retired item-list path, so setFactoryField threw here and this file has been RED
+      // on main since that day. The response is DERIVED from the same `itemList` input so the two
+      // scenarios below keep their meaning: card present -> node returned -> no item-add;
+      // card absent -> empty nodes -> item-add.
+      if (joined.includes("api graphql") && joined.includes("projectItems")) {
+        const numArg = argv.find((a) => a.startsWith("num="));
+        const num = Number(numArg?.slice(4) ?? NaN);
+        const items = (JSON.parse(input.itemList ?? '{"items":[]}') as
+          { items?: Array<{ id?: string; content?: { number?: number } }> }).items ?? [];
+        const nodes = items
+          .filter((i) => Number(i.content?.number) === num)
+          .map((i) => ({ id: i.id, project: { number: 7 } }));
+        // A DECOY from another project, first in the list. An issue can sit on several boards, and
+        // the real query asks for up to 20 of them; without this the product's
+        // `project.number === projectNumber` filter is never exercised and a regression that took
+        // nodes[0] would pass. Verified: removing that filter turns these clauses red.
+        const withDecoy = nodes.length ? [{ id: "PVTI_WRONG_BOARD", project: { number: 99 } }, ...nodes] : nodes;
+        return JSON.stringify({ data: { repository: { issue: { projectItems: { nodes: withDecoy } } } } });
+      }
       if (joined.includes("project item-add 7")) {
         return JSON.stringify({ id: "PVTI_ADDED" });
       }
@@ -500,7 +521,11 @@ describe("board Factory field — the dequeue queue has a writer (#448)", () => 
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(calls).toHaveLength(0); // dry-run executes nothing
-    expect(result.plans.map((p) => p.argv[1])).toEqual(["project", "project", "project", "project", "project"]);
+    // AMENDED 2026-08-24. Was five "project" hops. #449 (41cb8231a, 2026-08-19) replaced the
+    // `project item-list` membership scan with a targeted `api graphql` lookup on the issue, so
+    // hop 2 is now "api". The clause still pins the SHAPE of the sequence — it is not loosened to
+    // an arbitrary length — and item-add plus the option write are still asserted below.
+    expect(result.plans.map((p) => p.argv[1])).toEqual(["project", "api", "project", "project", "project"]);
     expect(result.plans.some((p) => p.argv.includes("item-add"))).toBe(true);
     expect(result.plans.at(-1)!.argv).toContain("--single-select-option-id");
   });
@@ -518,6 +543,14 @@ describe("board Factory field — the dequeue queue has a writer (#448)", () => 
       if (joined.includes("project view 7")) return `${esc}PVT_1${reset}`;
       if (joined.includes("project item-list 7")) {
         return `${esc}{${reset}${esc}"items"${reset}${esc}:${reset}${esc}[${reset}${esc}{${reset}${esc}"id"${reset}${esc}:${reset}${esc}"PVTI_452"${reset}${esc},${reset}${esc}"content"${reset}${esc}:${reset}${esc}{${reset}${esc}"number"${reset}${esc}:${reset}${esc}452${reset}${esc}}${reset}${esc}}${reset}${esc}]${reset}${esc}}${reset}`;
+      }
+      // Same #449 migration as fakeGh above. ANSI-wrapped on purpose: this clause exists to prove
+      // stripAnsi is applied on the membership hop too, which is where the itemId is now resolved.
+      if (joined.includes("api graphql") && joined.includes("projectItems")) {
+        const body = JSON.stringify({
+          data: { repository: { issue: { projectItems: { nodes: [{ id: "PVTI_452", project: { number: 7 } }] } } } },
+        });
+        return `${esc}${body}${reset}`;
       }
       if (joined.includes("project field-list 7")) return `${esc}${FIELD_LIST_JSON}${reset}`;
       if (joined.includes("project item-edit")) return "";
