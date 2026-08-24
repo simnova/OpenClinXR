@@ -20,7 +20,16 @@ CORE_RULES=(
 
 echo "Syncing agentic files for multi-harness support."
 
-rm -rf .grok/skills/* .claude/skills/* .cursor/skills/* .codex/skills/* .grok/rules/* .claude/rules/* .cursor/rules/* 2>/dev/null || true
+# Rules ONLY. The skills globs were removed 2026-08-24 after this line destroyed 12 tracked files —
+# every Claude-native skill, including measure-before-claiming and contract-design.
+#
+# Skills are resolved from config ([skills].paths), which is what the echo below has said since the
+# symlink layout was retired: this script does not manage them, so wiping them deleted sources and
+# regenerated nothing. The rules globs are safe because the ln -sfn loops rebuild them immediately.
+#
+# Guarded by tools/agent-factory/the-harness-sync-never-deletes-a-tracked-file.test.ts — any new rm
+# target here must be a directory this script also repopulates.
+rm -rf .grok/rules/* .claude/rules/* .cursor/rules/* 2>/dev/null || true
 rm -rf .claude/hooks .cursor/hooks 2>/dev/null || true
 
 mkdir -p .grok/skills .claude/skills .cursor/skills .codex/skills
