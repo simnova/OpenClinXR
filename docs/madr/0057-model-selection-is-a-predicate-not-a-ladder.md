@@ -29,8 +29,19 @@ Deaths since 2026-08-20, **like-for-like on `synthesized` contracts**:
 |---|---:|---:|---|
 | ox-alpha | 36 | 7 | **19%** |
 | deepseek-v4-pro | 49 | 2 | **4%** |
-| deepseek-v4-flash | 19 | 0 | 0% |
-| grok-4.5 | 26 | 0 | 0% |
+| deepseek-v4-flash | 16 | 0 | 0% |
+| grok-4.5 | 22 | 0 | 0% |
+
+**Query definition, committed with the metric** (a peer review caught the first version mixing denominators — flash and grok-4.5 were first published as 19 and 26, taken from an all-contract-source count pasted into a like-for-like table):
+
+```
+rows   = worker-sessions.jsonl
+filter = at >= 2026-08-20 AND contractSource == "synthesized"
+spawns = distinct sessionId where phase == "spawned"
+died   = distinct sessionId where phase == "died"
+```
+
+Deduplicating by `sessionId` matters: a completed dispatch writes two rows (one at exit, one when contract verification resolves `proofsOk`), so row counts overstate.
 
 A first pass reported ox-alpha at 26.4% (14/53 over all contract sources). That was **inflated by workload mix** — ox-alpha carries 17 of 18 `brief+dispatch` dispatches, and that contract source dies at 41% regardless of model. The corrected like-for-like gap is ~5x, not ~7x.
 
