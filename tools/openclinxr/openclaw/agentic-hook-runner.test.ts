@@ -16,7 +16,17 @@ describe("agentic-hook-runner path-scoped architecture", () => {
 
     const steps = stepsForProfile("pre-commit", staged);
     expect(steps.some((step) => step.label.toLowerCase().includes("architecture"))).toBe(false);
+    // AMENDED 2026-08-24. `f87967652` (2026-08-06) added the integrate gate to the pre-commit
+    // profile and this exact list was not updated, so the file has been red for eighteen days —
+    // invisible because the pre-commit profile runs only the four architecture-rules files and never
+    // this suite.
+    //
+    // The clause's SUBJECT is unchanged and still asserted above: architecture is omitted for staged
+    // files that cannot introduce architecture violations. The integrate gate is a different guard
+    // that short-circuits on a non-land commit ("not an integrate land — gate not applicable"), so
+    // its presence does not weaken what this clause is for.
     expect(steps.map((step) => step.label)).toEqual([
+      "Integrate gate (land path only)",
       "OpenClaw drift check",
       "Agent coordination alignment",
       "OpenClaw post-slice record check",
