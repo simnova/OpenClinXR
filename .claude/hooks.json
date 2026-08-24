@@ -40,6 +40,16 @@
             "timeout": 30
           }
         ]
+      },
+      {
+        "matcher": "Bash|run_terminal_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pnpm exec tsx tools/openclinxr/openclaw/board-close-chokepoint.ts",
+            "timeout": 10
+          }
+        ]
       }
     ],
     "Stop": [
@@ -141,7 +151,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if [ \"${OPENCLINXR_WORKER:-0}\" = \"1\" ] || [ \"${OPENCLINXR_WORKER:-}\" = \"true\" ] || [ -n \"${GROK_SUBAGENT:-}\" ]; then echo 'SessionStart: worker/subagent — skip CEO rehydrate banner'; exit 0; fi; echo 'SessionStart: Composer = primary OpenClaw orchestrator (chief-coordinator). Rehydrate PROJECT_STATUS.md snapshot (~60 lines) + LEX_AGENTIC.md. Cheap consult: pnpm grok:tier:brief 2>/dev/null || true; pnpm openclaw:lease -- status 2>/dev/null || true'",
+            "command": "if [ \"${OPENCLINXR_WORKER:-0}\" = \"1\" ] || [ \"${OPENCLINXR_WORKER:-}\" = \"true\" ] || [ -n \"${GROK_SUBAGENT:-}\" ]; then echo 'SessionStart: worker/subagent \u2014 skip CEO rehydrate banner'; exit 0; fi; echo 'SessionStart: Composer = primary OpenClaw orchestrator (chief-coordinator). Rehydrate PROJECT_STATUS.md snapshot (~60 lines) + LEX_AGENTIC.md. Cheap consult: pnpm grok:tier:brief 2>/dev/null || true; pnpm openclaw:lease -- status 2>/dev/null || true'",
             "timeout": 10
           }
         ]
