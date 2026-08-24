@@ -11,8 +11,8 @@
     "protected-policy": 11,
     "agent-memory": 39,
     "historical-synthesis": 11,
-    "decision-record": 43,
-    "total": 462,
+    "decision-record": 44,
+    "total": 463,
     "generated-evidence": 1,
     "reference": 1
   },
@@ -2818,6 +2818,13 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "docs/openclinxr/iwsdk-station-cagematch-2026-08-24.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Lane-C cagematch decision record for IWSDK 0.5.3 factory-station candidates; negative verdict closes issue #616; subordinate to AGENTS.md, protected guardrails, and active queue."
     },
     {
       "path": "docs/openclinxr/kimodo-cpp-cagematch-2026-08-23.md",
