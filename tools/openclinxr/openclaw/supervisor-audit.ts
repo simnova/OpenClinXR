@@ -232,7 +232,16 @@ export function verifyDoneClaim(root: string, issue: number, stage: string): Don
         + (verified ? ", contract-verify artifact present" : "; NO contract-verify artifact — verified at dispatch only")
       : `${shas.length} commit(s) cite #${issue} but NONE is an ancestor of main — work exists on a branch, not in the product`;
   const residue = verified ? expectedFailureResidue(root, artifact) : undefined;
-  return { issue, stage, commitOnMain: onMain, contractVerified: verified, ok, why,
+  /**
+   * A card whose own RED was unflipped AT THE VERIFIED SHA was never verified, whatever the artifact
+   * says. This is the contradiction the audit reported for four iterations: "ok: true" beside "its
+   * own proof file still carries an unflipped it.fails".
+   */
+  const okFinal = ok && residue?.status !== "unflipped_at_verification";
+  return { issue, stage, commitOnMain: onMain, contractVerified: verified, ok: okFinal,
+    why: residue?.status === "unflipped_at_verification"
+      ? `${why} — BUT its RED was already unflipped at the verified sha, so "verified" was never true`
+      : why,
     ...(residue && residue.status !== "none" ? { residue } : {}) };
 }
 
@@ -278,13 +287,33 @@ export function proofFilesFromArtifact(artifactPath: string): string[] {
  * strings, and its own contract pins that a prose mention of `it.fails` is not a planted RED.
  */
 export type ResidueReport = {
-  status: "none" | "warning" | "not_determined";
+  status: "none" | "warning" | "not_determined" | "unflipped_at_verification";
+  /** Proof files whose RED was ALREADY unflipped at the artifact's own headSha — verification was
+   *  never true for this card, as distinct from a RED planted later by someone else. */
+  unflippedAtVerification?: string[];
   total: number;
   files: Array<{ file: string; count: number }>;
   /** Tree the artifact was verified against, and the tree residue was counted in. See below. */
   artifactHeadSha?: string;
   measuredHeadSha?: string;
 };
+
+/**
+ * Counts planted REDs in a file AS IT WAS at a given commit, not as it is now.
+ *
+ * This is what separates "the card shipped with its own RED unflipped" from "somebody planted a RED
+ * in that file afterwards". Reading the current tree cannot tell those apart — the module said so in
+ * its own comment and the peer review turned that admission into the fix.
+ */
+function plantedRedCountAtSha(root: string, sha: string, rel: string): number {
+  try {
+    const src = execFileSync("git", ["show", `${sha}:${rel}`],
+      { cwd: root, encoding: "utf8", maxBuffer: 16 * 1024 * 1024, stdio: ["ignore", "pipe", "ignore"] });
+    // Same stripping rule as plantedRedCount, applied to historical content.
+    const stripped = src.replace(/\/\*[\s\S]*?\*\//gu, "").replace(/^\s*\/\/.*$/gmu, "");
+    return (stripped.match(/\bit\.fails\s*\(/gu) ?? []).length;
+  } catch { return -1; }
+}
 
 export function expectedFailureResidue(
   root: string, artifactPath: string, measuredHeadSha?: string,
@@ -305,10 +334,28 @@ export function expectedFailureResidue(
     return { status: "not_determined", total: -1, files: unreadable,
       ...(measuredHeadSha ? { measuredHeadSha } : {}), ...shaOf(artifactPath) };
   }
+  /**
+   * RESIDUE AT THE ARTIFACT'S OWN SHA IS A FAILURE, NOT A WARNING.
+   *
+   * The distinction the earlier version could not draw. If the RED was already unflipped at the
+   * commit the contract was verified against, then "verified" was never true for that card — the
+   * artifact records only that vitest exited zero, and vitest counts an expected failure as a pass.
+   * MEASURED on #181: artifact headSha ec5cbd42, and the principal clause is `it.fails` there too.
+   *
+   * Residue introduced AFTER that sha is a different thing: the card may have shipped honestly and a
+   * later slice planted a RED in the same file. That stays a warning, which is what the peer review
+   * asked for and what removes the contradiction of reporting "ok" and "its own RED is unflipped"
+   * about the same card in the same breath.
+   */
+  const artifactSha = shaOf(artifactPath).artifactHeadSha;
+  const atSha = artifactSha
+    ? withResidue.filter((r) => plantedRedCountAtSha(root, artifactSha, r.file) > 0)
+    : [];
   return {
-    status: withResidue.length > 0 ? "warning" : "none",
+    status: atSha.length > 0 ? "unflipped_at_verification" : (withResidue.length > 0 ? "warning" : "none"),
     total: withResidue.reduce((n, r) => n + r.count, 0),
     files: withResidue,
+    ...(atSha.length > 0 ? { unflippedAtVerification: atSha.map((r) => r.file) } : {}),
     ...(measuredHeadSha ? { measuredHeadSha } : {}),
     ...shaOf(artifactPath),
   };

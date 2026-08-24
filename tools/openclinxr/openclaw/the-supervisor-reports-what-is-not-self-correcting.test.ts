@@ -121,8 +121,11 @@ describe("the supervisor reports what is not self-correcting", () => {
   it("(10) DUTY 3 COUNTERWEIGHT: a real conventional fix is still recognised as one", () => {
     // Refuses the over-correction of demanding a subject line so strictly that real work fails.
     // `ec5cbd42 fix(#181): distributed upper-spine/neck flex...` is exactly the conventional form.
+    // AMENDED iteration 4: previously `expect(c.ok).toBe(true)`. #181's RED was already unflipped at
+    // its own verified sha, so ok is now false — clause (20) owns that. What this clause is FOR is
+    // that a conventional `fix(#N):` subject is still RECOGNISED as one, which is unchanged.
     const c = verifyDoneClaim(process.cwd(), 181, "Landed");
-    expect(c.ok).toBe(true);
+    expect(c.commitOnMain).toBe(true);
     expect(c.why).toContain("subject-line fix commit");
   });
 
@@ -191,10 +194,12 @@ describe("the supervisor reports what is not self-correcting", () => {
   it("(14) DUTY 3 COUNTERWEIGHT: a fully-verified claim still reports ok", () => {
     // Refuses the over-correction of demanding an artifact so strictly that real, verified work
     // fails. #181 has both a subject-line commit on main and a merge artifact.
+    // AMENDED iteration 4: previously asserted `ok === true` on #181. The premise died when residue
+    // at the verified sha began falsifying `ok`. The clause's SUBJECT — that landing plus a merge
+    // artifact are both recognised — is unchanged and still asserted.
     const c = verifyDoneClaim(process.cwd(), 181, "Landed");
     expect(c.commitOnMain).toBe(true);
     expect(c.contractVerified, "issue-181's merge artifact is present").toBe(true);
-    expect(c.ok).toBe(true);
   });
 
   it("(15) DUTY 3: a green merge artifact does not prove the RED was flipped", () => {
@@ -206,7 +211,9 @@ describe("the supervisor reports what is not self-correcting", () => {
     const c = verifyDoneClaim(process.cwd(), 181, "Landed");
     expect(c.contractVerified, "the artifact exists and is green").toBe(true);
     expect(c.residue, "and a proof file named by its artifact still carries an unflipped RED").toBeDefined();
-    expect(c.residue!.status).toBe("warning");
+    // AMENDED iteration 4: was "warning". Reading the proof file at the artifact's own sha showed
+    // the RED was unflipped THERE too, which is the stronger verdict.
+    expect(c.residue!.status).toBe("unflipped_at_verification");
     expect(c.residue!.files.some((r) => /supine-head-rests-on-its-pillow/u.test(r.file))).toBe(true);
     expect(c.residue!.artifactHeadSha, "the artifact's tree is reported so the temporal gap is visible").toBeDefined();
   });
@@ -222,15 +229,32 @@ describe("the supervisor reports what is not self-correcting", () => {
       ["tools/openclinxr/evidence/the-supine-head-rests-on-its-pillow.test.ts"]);
   });
 
-  it("(17) COUNTERWEIGHT: residue is a WARNING and must NOT flip ok", () => {
-    // Overloading `ok` would turn an honest warning into a false failure. A proof file can carry
-    // planted REDs for OTHER, unrelated work — this repo runs several plants in one directory — so
-    // residue means "a human must look", not "this card is unfinished". If these are ever merged,
-    // the signal becomes noise and people learn to ignore it.
-    const c = verifyDoneClaim(process.cwd(), 181, "Landed");
-    expect(c.residue!.total, "#181 has residue").toBeGreaterThan(0);
-    expect(c.ok, "and is still ok by the landed+verified predicate — the two are different claims").toBe(true);
+  it("(17) COUNTERWEIGHT: residue introduced AFTER verification is a warning and must NOT flip ok", () => {
+    // AMENDED iteration 4. This clause previously asserted, on #181, that residue never flips ok.
+    // That was the contradiction: the audit reported ok:true beside "its own RED is unflipped".
+    //
+    // The rule is now split by WHEN. Residue at the artifact's own sha falsifies verification (clause
+    // 20). Residue planted LATER, by someone else's slice, is not this card's fault and stays a
+    // warning — otherwise a card is retroactively unverified by work it never touched.
+    //
+    // Tested on a synthetic artifact whose sha is real but whose proof file did not exist there, so
+    // the at-sha count is unavailable and the current-tree count is all there is.
+    const { mkdtempSync, writeFileSync, mkdirSync, copyFileSync } = require("node:fs") as typeof import("node:fs");
+    const { tmpdir } = require("node:os") as typeof import("node:os");
+    const root = mkdtempSync(join(tmpdir(), "residue-later-"));
+    mkdirSync(join(root, ".openclinxr/openclaw"), { recursive: true });
+    mkdirSync(join(root, "tools/openclinxr/evidence"), { recursive: true });
+    writeFileSync(join(root, "tools/openclinxr/evidence/x.test.ts"), 'it.fails("planted later", () => {});\n');
+    const art = join(root, ".openclinxr/openclaw/contract-verify-issue-1-merge.json");
+    writeFileSync(art, JSON.stringify({
+      headSha: "0000000000000000000000000000000000000000",
+      checks: [{ rule: "run:pnpm exec vitest run tools/openclinxr/evidence/x.test.ts", passed: true }],
+    }));
+    const r = expectedFailureResidue(root, art);
+    expect(r.status, "unknown at the artifact sha falls back to a warning, not a failure").toBe("warning");
+    expect(r.unflippedAtVerification, "nothing is claimed to have been unflipped at verification").toBeUndefined();
   });
+
 
   it("(18) COUNTERWEIGHT: no artifact means no residue claim, not a false alarm", () => {
     // #632 has no merge artifact at all. Reporting residue for it would be inventing a finding about
@@ -259,5 +283,31 @@ describe("the supervisor reports what is not self-correcting", () => {
     expect(r.status, "a file that could not be read is unknown, not clean").toBe("not_determined");
     expect(r.total).toBe(-1);
     expect(r.artifactHeadSha).toBe("deadbeef");
+  });
+
+  it("(20) DUTY 3: a RED unflipped AT THE VERIFIED SHA means verification was never true", () => {
+    // THE CONTRADICTION, resolved. For four iterations this audit reported #181 as ok:true beside a
+    // finding that its own proof file carries an unflipped it.fails. Both were computed correctly and
+    // together they were nonsense.
+    //
+    // The artifact records only that vitest exited zero (headSha ec5cbd42), and vitest counts an
+    // expected failure as a pass. Reading the proof file AT THAT SHA separates "shipped with its own
+    // RED unflipped" from "somebody planted a RED there afterwards" — the first was never verified,
+    // the second is a warning about someone else's work.
+    const c = verifyDoneClaim(process.cwd(), 181, "Landed");
+    expect(c.residue?.status).toBe("unflipped_at_verification");
+    expect(c.residue?.unflippedAtVerification?.some((f) => /supine-head-rests-on-its-pillow/u.test(f))).toBe(true);
+    expect(c.ok, "a card whose RED was unflipped at its verified sha is not ok").toBe(false);
+    expect(c.why).toMatch(/never true/u);
+  });
+
+  it("(21) COUNTERWEIGHT: a clean card is unaffected by the stricter rule", () => {
+    // Refuses the over-correction of a rule so strict that verified work fails. #627 has no merge
+    // artifact at all, so it reports not-ok for the ORIGINAL reason (ef24debb) and gains no residue
+    // claim — the new rule must not change what it says.
+    const c = verifyDoneClaim(process.cwd(), 627, "Landed");
+    expect(c.commitOnMain).toBe(true);
+    expect(c.residue, "no artifact means no residue claim").toBeUndefined();
+    expect(c.why).toMatch(/NO contract-verify artifact/u);
   });
 });
