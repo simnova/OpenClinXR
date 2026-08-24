@@ -6,12 +6,32 @@
       "patient_robert_hayes_v1": {
         "role": "patient",
         "phenotype": {
-          "body_profile": "adult_standard_parent",
-          "age": 34,
-          "height_cm": 166,
-          "bmi": 24,
-          "descriptor_derived": true,
-          "gender_presentation": "adult_female_parent"
+          "age": 52,
+          "body_profile": "adult_standard",
+          "pose": "standing_neutral_chest_pain_priority",
+          "skin_tone": "warm_medium",
+          "hair_color": "brown",
+          "eye_color": "brown",
+          "gender_presentation": "adult_male",
+          "height_cm": 178,
+          "build": "average_adult",
+          "hair_density": 0.65,
+          "brow_tension": 0.55,
+          "anxious": 0.65,
+          "flush": 0.15,
+          "age_wrinkle": 0.18,
+          "bmi": 26,
+          "clothing_style": "clinical_exam_tshirt_chest_pain",
+          "clothing_color": "soft_blue",
+          "role_visual_cue": "ed_chest_pain_patient",
+          "wardrobeRole": "ed_patient_exam",
+          "garmentLayers": [
+            "hospital_gown"
+          ],
+          "fabricPalette": "hospital_gown_blue_pattern",
+          "materialFinish": "cotton_slight_sheen",
+          "accessoryMarkers": [],
+          "fitProfile": "adult_standard_fit"
         }
       },
       "spouse_anna_hayes_v1": {
@@ -418,12 +438,32 @@
       "patient_robert_hayes_v1": {
         "role": "patient",
         "phenotype": {
-          "body_profile": "adult_standard_parent",
-          "age": 34,
-          "height_cm": 166,
-          "bmi": 24,
-          "descriptor_derived": true,
-          "gender_presentation": "adult_female_parent"
+          "age": 52,
+          "body_profile": "adult_standard",
+          "pose": "standing_neutral_chest_pain_priority",
+          "skin_tone": "warm_medium",
+          "hair_color": "brown",
+          "eye_color": "brown",
+          "gender_presentation": "adult_male",
+          "height_cm": 178,
+          "build": "average_adult",
+          "hair_density": 0.65,
+          "brow_tension": 0.55,
+          "anxious": 0.65,
+          "flush": 0.15,
+          "age_wrinkle": 0.18,
+          "bmi": 26,
+          "clothing_style": "clinical_exam_tshirt_chest_pain",
+          "clothing_color": "soft_blue",
+          "role_visual_cue": "ed_chest_pain_patient",
+          "wardrobeRole": "ed_patient_exam",
+          "garmentLayers": [
+            "hospital_gown"
+          ],
+          "fabricPalette": "hospital_gown_blue_pattern",
+          "materialFinish": "cotton_slight_sheen",
+          "accessoryMarkers": [],
+          "fitProfile": "adult_standard_fit"
         }
       },
       "spouse_anna_hayes_v1": {
