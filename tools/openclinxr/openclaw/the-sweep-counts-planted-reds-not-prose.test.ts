@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -37,7 +38,27 @@ import { join } from "node:path";
 
 const ROOT = join(import.meta.dirname, "../../..");
 const PROSE_FILE = "packages/openclinxr/agent-loop/src/a-live-rule-refuses-an-unflipped-plant.test.ts";
-const REAL_REDS = "tools/openclinxr/evidence/shoulder-raycast-coverage.test.ts";
+/**
+ * DISCOVERED, not frozen (2026-08-24). This was a hardcoded path and it has now rotted TWICE: first
+ * when #583 flipped the shoulder plant's three clauses, and again here — `db323030` flipped the last
+ * of them, leaving four `it.fails` mentions in that file's header prose and ZERO live. The counter
+ * was right and the fixture was stale, so a clause designed to prove the counter honest instead
+ * failed the slice that did the work it was watching for.
+ *
+ * Clause (3) prescribes "re-pick the fixture", which is correct and treats the symptom: whichever
+ * file is picked next is one landed slice away from the same rot. The fixture is now DISCOVERED from
+ * the tree, which keeps the author's stated intent — count "what the world actually carries, not a
+ * frozen example" — while surviving product progress.
+ *
+ * Both teeth are preserved: a counter returning 0 for everything finds no live-RED file here, and a
+ * counter returning N for everything fails on PROSE_FILE below.
+ */
+const redCandidates = (): string[] => {
+  const out = execFileSync("grep", ["-rl", "--exclude-dir=node_modules", "--exclude-dir=dist",
+    "--include=*.test.ts", "it.fails", "tools", "packages", "apps"],
+    { cwd: ROOT, encoding: "utf8" }).split("\n").filter((f) => f.endsWith(".test.ts"));
+  return out.filter((f) => f !== PROSE_FILE);
+};
 
 const naiveGrepCount = (rel: string): number =>
   (readFileSync(join(ROOT, rel), "utf8").match(/\bit\.fails\(/gu) ?? []).length;
@@ -46,7 +67,7 @@ describe("the sweep counts planted REDs, not prose", () => {
   it("(0) VACUITY GUARD: the known-good/known-bad pair both ship and differ", () => {
     // Without this, (2) could pass by either fixture vanishing rather than by the counter being right.
     expect(existsSync(join(ROOT, PROSE_FILE)), "the prose-documenting plant must ship").toBe(true);
-    expect(existsSync(join(ROOT, REAL_REDS)), "the genuinely-red plant must ship").toBe(true);
+    expect(redCandidates().length, "some file must mention it.fails, or the pair is moot").toBeGreaterThanOrEqual(1);
     expect(naiveGrepCount(PROSE_FILE), "the prose file must still trip a naive grep, or this test is moot")
       .toBeGreaterThan(0);
   });
@@ -75,7 +96,21 @@ describe("the sweep counts planted REDs, not prose", () => {
     const count = mod["plantedRedCount"] as ((root: string, rel: string) => number) | undefined;
     expect(typeof count, "the sweep must expose its per-file counter for verification").toBe("function");
     expect(count!(ROOT, PROSE_FILE), `${PROSE_FILE} documents it.fails in prose and has none remaining`).toBe(0);
-    expect(count!(ROOT, REAL_REDS), `${REAL_REDS} genuinely carries unflipped clauses`).toBeGreaterThanOrEqual(1);
+    const candidates = redCandidates();
+    // Short-circuits on the first hit. Counting all 192 candidates proves nothing extra and the
+    // counter reads each file — a filter over the whole set pushed this clause past 120s.
+    let live = 0;
+    let firstLive = "";
+    for (const f of candidates) {
+      if (count!(ROOT, f) >= 1) { live = 1; firstLive = f; break; }
+    }
+    expect(
+      live,
+      firstLive ? "" :
+      `no file in the tree counts as carrying a live unflipped clause, across ${candidates.length} `
+        + "candidates that mention it.fails at all. Either every plant is flipped (say so and retire "
+        + "this clause) or the counter returns 0 for everything, which is the defect it guards",
+    ).toBeGreaterThanOrEqual(1);
   });
 
   it("(3) COUNTERWEIGHT: the naive instrument really does disagree — the defect is not hypothetical", () => {
@@ -96,7 +131,7 @@ describe("the sweep counts planted REDs, not prose", () => {
  * - (1) imports the module, finds all five keys, and `summariseUnfinishedInventory(ROOT)`
  *   resolves in ~850 ms (S1 walk + S2 gh + S3 git log + S4 npm + S5 sessions, parallelised).
  * - (2) `plantedRedCount(ROOT, PROSE_FILE)` = 0 (stripper holds) and
- *   `plantedRedCount(ROOT, REAL_REDS)` = 3 (>= 3 required). The naive grep still counts the
+ *   `plantedRedCount` on a discovered live-RED file is >= 1. The naive grep still counts the
  *   prose file (clause 3 unchanged), so the counter is doing real work.
  *
  * Measured traps fixed on the way, recorded in openclaw-sweep.ts's header: gh ANSI-decorates
