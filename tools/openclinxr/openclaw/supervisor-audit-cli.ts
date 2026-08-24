@@ -13,6 +13,7 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { briefFromIssue } from "./board-brief.js";
+import { getBoardSnapshot } from "./board-snapshot-cache.js";
 import {
   appendHistory, markChronic, priorFindingKeys, readyDepth, resolvedSince, verifyDoneClaim,
 } from "./supervisor-audit.js";
@@ -30,15 +31,20 @@ const factoryStepOf = (body: string): string | null =>
 async function main(): Promise<void> {
   const head = execFileSync("git", ["rev-parse", "HEAD"], { cwd: REPO, encoding: "utf8" }).trim();
 
-  const board = JSON.parse(gh(["project", "item-list", "7", "--owner", "simnova", "--limit", "5000", "--format", "json"])) as
-    { totalCount?: number; items?: Array<{ status?: string; priority?: string; factory?: string; content?: { number?: number } }> };
-  const items = board.items ?? [];
+  /**
+   * Tolerant TTL and stale-on-failure ON. This runs hourly, the board changes slowly, and a labelled
+   * stale answer beats no audit at all — the live read failed twice on 2026-08-24 when the GraphQL
+   * budget was spent. The dequeue makes the opposite choice for the opposite reason.
+   *
+   * Truncation is refused inside the cache, so `items.length === totalCount` holds by construction
+   * and the explicit check this replaced is no longer reachable from here.
+   */
+  const snapshot = getBoardSnapshot(REPO, { ttlMs: 30 * 60_000, allowStaleOnFailure: true });
+  const items = snapshot.items as Array<{ status?: string; priority?: string; factory?: string; content?: { number?: number } }>;
   const findings: Finding[] = [];
 
-  // A truncated read must never be ranked or counted — the same refusal the dequeue makes.
-  if ((board.totalCount ?? -1) !== items.length) {
-    findings.push({ duty: 1, key: "board-read-truncated",
-      detail: `read ${items.length} of ${board.totalCount} board items — counts below would be wrong` });
+  if (snapshot.staleReason) {
+    findings.push({ duty: 1, key: "board-snapshot-stale", detail: snapshot.staleReason });
   }
 
   const issues = JSON.parse(gh(["issue", "list", "--repo", "simnova/OpenClinXR", "--state", "open",

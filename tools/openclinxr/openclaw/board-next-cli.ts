@@ -9,10 +9,13 @@
 import { execFileSync } from "node:child_process";
 import { selectNextBoardCard } from "./board-next-selector.js";
 
+/** Short TTL and no stale-on-failure: a stale board can hand out a card another agent took. */
+const REPO_ROOT_FOR_CACHE = new URL("../../..", import.meta.url).pathname;
+
 const runner = (argv: string[]): string =>
   execFileSync(argv[0]!, argv.slice(1), { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
 
-const v = selectNextBoardCard(runner);
+const v = selectNextBoardCard(runner, { cacheRoot: REPO_ROOT_FOR_CACHE, ttlMs: 60_000 });
 if (v.ok) {
   process.stdout.write(`[${v.priority}] #${v.number} ${v.title}\n`);
   process.stdout.write(`(complete read: ${v.fetched}/${v.totalCount} board items)\n`);

@@ -1,4 +1,5 @@
 import type { GhCommandRunner } from "./board-cli.js";
+import { getBoardSnapshot } from "./board-snapshot-cache.js";
 
 /**
  * **Select the next board card by priority — or fail closed. Never rank a truncated prefix.**
@@ -126,17 +127,33 @@ export function selectNextFromBoard(page: BoardPage): NextSelection {
  */
 export function selectNextBoardCard(
   runner: GhCommandRunner,
-  opts: { owner?: string; projectNumber?: number; limit?: number } = {},
+  opts: { owner?: string; projectNumber?: number; limit?: number; cacheRoot?: string; ttlMs?: number } = {},
 ): NextSelection {
   const owner = opts.owner ?? "simnova";
   const projectNumber = opts.projectNumber ?? 7;
   const limit = opts.limit ?? 5000;
   let page: BoardPage;
   try {
-    page = JSON.parse(runner([
+    const fetchPage = (): string => runner([
       "gh", "project", "item-list", String(projectNumber), "--owner", owner,
       "--limit", String(limit), "--format", "json",
-    ])) as BoardPage;
+    ]);
+    /**
+     * Caching is OPT-IN via cacheRoot, so an injected runner still behaves exactly as before and the
+     * existing contracts keep exercising the real code path rather than a cache.
+     *
+     * NOTE THE ASYMMETRY WITH THE AUDIT, which is deliberate. The dequeue takes a SHORT ttl and does
+     * NOT allow stale-on-failure: acting on a stale board can hand out a card another agent has
+     * already taken, and a wrong dispatch costs more than a skipped cycle. The hourly audit makes the
+     * opposite trade because a labelled stale report beats no report.
+     */
+    page = opts.cacheRoot
+      ? (() => {
+          const snap = getBoardSnapshot(opts.cacheRoot!, { ttlMs: opts.ttlMs ?? 60_000, fetcher: fetchPage,
+            owner, projectNumber });
+          return { totalCount: snap.totalCount, items: snap.items as BoardPage["items"] };
+        })()
+      : JSON.parse(fetchPage()) as BoardPage;
   } catch (cause) {
     return {
       ok: false, reason: "incomplete-read", fetched: 0, totalCount: -1,
