@@ -97,7 +97,7 @@ function okFetch() {
 }
 
 describe("an OpenAI-compatible provider adapter generates actor dialogue", () => {
-  it.fails("(1) the adapter exists, reports ready when configured, and POSTs a chat_completions request", async () => {
+  it("(1) the adapter exists, reports ready when configured, and POSTs a chat_completions request", async () => {
     const Ctor = adapterCtor();
     expect(Ctor, "no OpenAiCompatibleModelProviderAdapter export - every utterance is still a template").toBeDefined();
     const fetchImpl = okFetch();
@@ -143,7 +143,7 @@ describe("an OpenAI-compatible provider adapter generates actor dialogue", () =>
     expect(attack.text).not.toContain("HIDDEN_DIAGNOSIS");
   });
 
-  it.fails("(3) COUNTERWEIGHT: a hidden-truth attempt is refused WITHOUT any network call", async () => {
+  it("(3) COUNTERWEIGHT: a hidden-truth attempt is refused WITHOUT any network call", async () => {
     const Ctor = adapterCtor();
     expect(Ctor).toBeDefined();
     const fetchImpl = okFetch();
@@ -163,7 +163,7 @@ describe("an OpenAI-compatible provider adapter generates actor dialogue", () =>
     ).not.toHaveBeenCalled();
   });
 
-  it.fails("(4) COUNTERWEIGHT: the SAME adapter serves a local llama-server with no api key", async () => {
+  it("(4) COUNTERWEIGHT: the SAME adapter serves a local llama-server with no api key", async () => {
     const Ctor = adapterCtor();
     expect(Ctor).toBeDefined();
     const fetchImpl = okFetch();
@@ -182,3 +182,44 @@ describe("an OpenAI-compatible provider adapter generates actor dialogue", () =>
     ).toBeUndefined();
   });
 });
+
+/**
+ * ## FIXED (#26)
+ *
+ * Implementation (2026-08-24): one exported `OpenAiCompatibleModelProviderAdapter`
+ * in `src/openai-compatible-adapter.ts`, re-exported from `src/index.ts`. Constructor
+ * takes exactly the contract's shape: `{providerId, baseUrl, model, apiKey?, fetchImpl?}`.
+ * It is vendor-neutral — clause (4) passes with `providerId: "local-llama"`,
+ * `baseUrl: http://127.0.0.1:8080/v1`, no apiKey, and no `Authorization` header on the
+ * wire. Nothing in the module mentions any specific hosted vendor.
+ *
+ * Unlocked decisions, recorded per the brief:
+ *  - Request shape: chat_completions `{model, messages}` with a system message built
+ *    from the actor persona + visibleFacts + communication profile (when present) and
+ *    a user message carrying only `learnerUtterance`. `hiddenFacts` never enter the
+ *    payload — they are not referenced anywhere in this module.
+ *  - Failure mapping: non-2xx status THROWS (`provider request failed with status N`)
+ *    and a 2xx body without extractable assistant content THROWS (malformed). Throwing
+ *    is the honest mapping: scenario-runtime catches gateway throws and emits
+ *    `actor.response.failed` trace events (scenario-runtime.ts:691-710); there is no
+ *    truthful text to return for a transport failure.
+ *  - health() reports from CONFIG ONLY (ready when baseUrl+model are non-empty,
+ *    not_configured otherwise). No endpoint probe: clause (1) counts fetch calls after
+ *    `health()` + one generate and asserts exactly 1, which forbids a probe.
+ *
+ * Guardrail deduplication: the predicate moved to `src/hidden-truth-guardrail.ts`
+ * (leaf module; no import cycle) and BOTH adapters call it. The mock's refusal text,
+ * responseKind, and guardrail reason are byte-identical to before (clause 2 green).
+ * The adapter refuses locally BEFORE constructing any request — clause (3)'s
+ * `fetchImpl` receives zero calls on a hidden-truth attempt.
+ *
+ * Provenance parity: same ModelProvenance shape as the mock (requestId fallback
+ * `${stationRunId}:${actorId}:turn-${n}`, policy fields, latencyMs, tokenUsage from
+ * the response's `usage` when present, estimated at ~chars/5 when absent,
+ * costEstimateUsd 0).
+ *
+ * File placement: `packages/openclinxr/` carries a hard 500-line file-size budget;
+ * index.ts was already 439 lines, so appending ~150 would have breached it (and
+ * raising ceilings / adding freeze entries is forbidden by the brief). New-module
+ * extraction is what the budget rule exists to force.
+ */
