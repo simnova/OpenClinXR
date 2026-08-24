@@ -85,6 +85,29 @@ only accepts what its own menu advertises.
 - Never `pkill -f grok` while any worker is live. Kill by PID.
 - Never rotate models mid-fire to "try again". Step down once and record it.
 
+## THREE OX FAILURES = STOP GUESSING. Write it up, consult, change the approach.
+
+**Operator directive, 2026-08-24.** Counting from the ledger's `died` rows for `model: ox-alpha`,
+**three failures is a hard trigger.** At the third, you do not re-dispatch, you do not invent a fourth
+theory, and you do not step down a rung and move on. You:
+
+1. **Write a complete write-up.** Every ox death with its ledger timestamp, the elapsed
+   spawn→death, the verbatim stderr, what changed between attempts, and what you already ruled out.
+   No summarising — the exact error strings, because they have differed every time.
+2. **Consult grok with it** and ask for a diagnosis and a concrete change to the delegation approach,
+   not reassurance. Ask for the cause ranked, and say plainly which of your own hypotheses you have
+   already been wrong about.
+3. **Update the delegation approach here** with what comes back, and record which attempt number the
+   change was made at.
+
+**Why this exists.** Between 00:24 and 00:38 on 2026-08-24 I produced four ox dispatch deaths and a
+different theory for each — provider fault, then missing key, then "the key fixed it", then a fourth
+error entirely. Two of those theories went into THIS FILE as guidance and had to be retracted. The
+pattern is generalising from one death, and it is worse than useless because it writes false rules.
+
+**One death is an incident. Two is a coincidence. Three is a defect you do not understand, and the
+correct response to not understanding something is to stop and find out.**
+
 ## OX IS PRIMARY FOR EVERYTHING DELEGATED — and you must ask for it BY NAME
 
 **Operator directive, 2026-08-24: "Ox should be primary for everything you delegate."**
