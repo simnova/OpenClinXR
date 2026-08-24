@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "openclinxr.generated-humanoid-provenance.v1",
+  "derivationMode": "orchestrate",
+  "scenarioId": "peds_fever_v1",
+  "actorId": "patient_noah_chen_v1",
+  "actorRole": "patient",
+  "assetPath": "apps/ui-xr/public/generated-humanoids/peds_fever_patient_child.glb",
+  "riggingReportPath": "apps/ui-xr/public/generated-humanoids/peds_fever_patient_child_rigging_report.json",
+  "sourceManifestPath": "apps/ui-xr/public/generated-humanoids/peds_fever_patient_child.anny_manifest.json",
+  "generatorMode": "real_anny_local_forward_pass_plus_blender_procedural",
+  "sourceKind": "real_anny_candidate_unverified",
+  "usesRealAnnyForwardPass": true,
+  "realAnnyWeightsUsed": false,
+  "textureMode": "procedural_fallback",
+  "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
+  "optimizationMode": "unoptimized_post_blender_glb",
+  "realismGrade": "B",
+  "promotionStatus": "runtime_candidate_not_realism_gate_pass",
+  "sourceOriginChain": {
+    "sourceRecordPath": "sources/anny-github-2026.json",
+    "meshStage": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-653/tools/openclinxr/asset-pipeline/anny/generate_mesh.py",
+    "blenderStage": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-653/tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "orchestrator": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-653/tools/openclinxr/asset-pipeline/anny/orchestrate_character.py",
+    "optimizationStage": null,
+    "sourceManifestKind": "real_anny_candidate_unverified",
+    "sourceTopologyMode": "real_anny_mpfb2_forward_pass_v1"
+  },
+  "licenseChain": {
+    "status": "enumerated_from_source_record_at_orchestrate",
+    "annyCode": "Apache-2.0 per sources/anny-github-2026.json",
+    "mpfb2AdaptedAssets": "CC0 per sources/anny-github-2026.json",
+    "generatedCandidate": "OpenClinXR local Anny forward-pass candidate; no cloud provider, paid API, credential, external model download, or noncommercial download helper used",
+    "sourceRecordPath": "sources/anny-github-2026.json",
+    "notRun": []
+  },
+  "derivativeLineage": {
+    "status": "orchestrate_derivative",
+    "caseId": "peds_fever_v1",
+    "actorId": "patient_noah_chen_v1",
+    "actorRole": "patient",
+    "reuseKey": "peds_fever_v1:patient_noah_chen_v1:patient:anny_candidate",
+    "sourceParametersHash": "f8c419d22728d42d55dd46993cf6ee7b5a96cbd8c484d43c8a7cc6622ca538a2",
+    "notRun": []
+  },
+  "toolVersion": "openclinxr-real-anny-local-forward-pass-blender-v1-case-actor-presets",
+  "promptOrCaseParameterHash": "f8c419d22728d42d55dd46993cf6ee7b5a96cbd8c484d43c8a7cc6622ca538a2",
+  "notEvidenceFor": [
+    "b_plus_visual_realism_gate",
+    "quest_readiness",
+    "production_asset_readiness",
+    "learner_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "scene_placement_readiness",
+    "provider_runtime_readiness",
+    "production_asset_readiness",
+    "quest_readiness",
+    "learner_readiness",
+    "clinical_validity",
+    "scoring_validity"
+  ],
+  "sourceNotes": [
+    "Generated through the installed local Anny package forward pass plus Blender procedural rigging/material fallback; preserved as a quarantined source candidate until isolated model-vetting evidence clears.",
+    "This is evidence of local Anny source generation only, not B+ realism, production, Quest, learner, clinical, or scoring readiness."
+  ],
+  "phenotypeSource": "case_definition"
+}

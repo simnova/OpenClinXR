@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "openclinxr.anny-local-candidate-bundle.v1",
+  "claimScope": "local_real_anny_candidate_bundle_not_readiness",
+  "scenarioId": "peds_fever_v1",
+  "actorId": "patient_noah_chen_v1",
+  "actorRole": "patient",
+  "outputs": {
+    "objPath": "apps/ui-xr/public/generated-humanoids/peds_fever_patient_child.anny_base.obj",
+    "sourceManifestPath": "apps/ui-xr/public/generated-humanoids/peds_fever_patient_child.anny_manifest.json",
+    "glbPath": "apps/ui-xr/public/generated-humanoids/peds_fever_patient_child.glb",
+    "riggingReportPath": "apps/ui-xr/public/generated-humanoids/peds_fever_patient_child_rigging_report.json",
+    "provenancePath": "apps/ui-xr/public/generated-humanoids/peds_fever_patient_child.provenance.json",
+    "optimizationReportPath": null
+  },
+  "generation": {
+    "meshStage": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-653/tools/openclinxr/asset-pipeline/anny/generate_mesh.py",
+    "blenderStage": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-653/tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "generatorMode": "real_anny_local_forward_pass_plus_blender_procedural",
+    "usesRealAnnyForwardPass": true,
+    "realAnnyWeightsUsed": false,
+    "useComfy": false,
+    "seed": 55996,
+    "paramsHash": "5b71f1530f34711db1fbdb816fc87ccdfa6a47dbed86b1155b4c4d98f0c119c1",
+    "optimizationApplied": false,
+    "optimizationStage": "none",
+    "meshoptEnabled": false
+  },
+  "providerExecution": {
+    "cloudProviderUsed": false,
+    "paidApiUsed": false,
+    "modelDownloadUsed": false,
+    "comfyUsed": false
+  },
+  "gates": {
+    "realAnnyModelOutput": true,
+    "bPlusVisualRealismGate": false,
+    "scenePlacementReadiness": false,
+    "questReadiness": false,
+    "productionReadiness": false,
+    "learnerReadiness": false,
+    "clinicalValidity": false,
+    "scoringValidity": false
+  },
+  "notEvidenceFor": [
+    "b_plus_visual_realism_gate",
+    "scene_placement_readiness",
+    "quest_readiness",
+    "production_asset_readiness",
+    "learner_readiness",
+    "clinical_validity",
+    "scoring_validity"
+  ]
+}

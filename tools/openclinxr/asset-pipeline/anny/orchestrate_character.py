@@ -216,6 +216,13 @@ CASE_ACTOR_PRESETS = {
     **{f"ed_chest_pain_priority_v2:{actor_id}": preset for actor_id, preset in ED_CHEST_PAIN_PRESETS.items()},
 }
 
+# issue-653: which source described the human the resolver chose. The provenance
+# writer records this so a case-driven body and a preset-driven body are
+# distinguishable after the bake (#650 gave the pipeline both; the artifact
+# recorded neither).
+PHENOTYPE_SOURCE_CASE_DEFINITION = "case_definition"
+PHENOTYPE_SOURCE_CASE_ACTOR_PRESET = "case_actor_preset"
+
 # ---------------------------------------------------------------------------
 # issue-291/issue-650: case-definition phenotype reader
 #
@@ -364,8 +371,8 @@ def allowed_case_actor_preset_ids() -> list[str]:
     return sorted(allowed)
 
 
-def resolve_case_actor_params(case_id: str, actor_id: str) -> Dict[str, Any]:
-    """Public seam: resolve generator params for one case actor (issue #601).
+def resolve_case_actor_params_with_source(case_id: str, actor_id: str) -> Tuple[Dict[str, Any], str]:
+    """Resolve generator params AND the phenotype source that described the human (issue-653).
 
     Prefer the case-definition phenotype export when the case authors this actor
     (issue-650: the case is the source of its actors' bodies); fall back to the
@@ -373,11 +380,17 @@ def resolve_case_actor_params(case_id: str, actor_id: str) -> Dict[str, Any]:
     pre-migration actors the export does not cover. Authored top-level fields
     (age, body_profile, pose) are mirrored into phenotype so seam consumers see
     the same authored numbers the export stores under phenotype.
+
+    Returns ``(params, source)`` where ``source`` is
+    :data:`PHENOTYPE_SOURCE_CASE_DEFINITION` or
+    :data:`PHENOTYPE_SOURCE_CASE_ACTOR_PRESET` — the same call that returns the
+    params names which source chose them, so the provenance writer can record it.
     """
     preset_key = f"{case_id}:{actor_id}"
     fixture = params_from_case_definition(case_id, actor_id)
     if fixture is not None:
         params = dict(fixture[0])
+        source = PHENOTYPE_SOURCE_CASE_DEFINITION
     else:
         preset = CASE_ACTOR_PRESETS.get(preset_key)
         if preset is None:
@@ -386,12 +399,22 @@ def resolve_case_actor_params(case_id: str, actor_id: str) -> Dict[str, Any]:
                 f"row nor a phenotype export entry exists (#276)"
             )
         params = dict(preset["params"])
+        source = PHENOTYPE_SOURCE_CASE_ACTOR_PRESET
     phenotype = dict(params.get("phenotype") or {})
     for key in GENERATOR_TOP_LEVEL_PHENOTYPE_KEYS:
         if params.get(key) is not None and key not in phenotype:
             phenotype[key] = params[key]
     params["phenotype"] = phenotype
-    return params
+    return params, source
+
+
+def resolve_case_actor_params(case_id: str, actor_id: str) -> Dict[str, Any]:
+    """Public seam: resolve generator params for one case actor (issue #601).
+
+    Params only; see :func:`resolve_case_actor_params_with_source` for the
+    (params, phenotype source) pair that names which source chose the human.
+    """
+    return resolve_case_actor_params_with_source(case_id, actor_id)[0]
 
 
 def run_cmd(cmd: list[str], cwd: Optional[str] = None, timeout: Optional[int] = None) -> None:
@@ -458,7 +481,7 @@ def read_optional_json(path: Optional[str]) -> Optional[Dict[str, Any]]:
     return value if isinstance(value, dict) else None
 
 
-def write_provenance(params: Dict[str, Any], case_id: str, actor_role: str, output_glb: str, report_path: str, manifest_path: str, optimization_report_path: Optional[str] = None) -> str:
+def write_provenance(params: Dict[str, Any], case_id: str, actor_role: str, output_glb: str, report_path: str, manifest_path: str, optimization_report_path: Optional[str] = None, phenotype_source: Optional[str] = None) -> str:
     """Write orchestrate-mode provenance via shared mode-tagged builder (issue #142)."""
     provenance_path = provenance_path_for(output_glb)
     actor_id = str(params.get("actor_id") or params.get("actorId") or f"{actor_role}_candidate")
@@ -496,6 +519,7 @@ def write_provenance(params: Dict[str, Any], case_id: str, actor_role: str, outp
         tool_version=source_summary["toolVersion"],
         source_origin_chain_extra=source_origin,
         optimization_handoff=optimization_handoff,
+        phenotype_source=phenotype_source,
     )
     return write_provenance_document(provenance_path, payload)
 
@@ -583,7 +607,7 @@ def apply_mpfb2_eye_rig(output_glb: str) -> str:
     return report_path
 
 
-def generate(params: Dict[str, Any], case_id: str, actor_role: str, output_glb: str, use_comfy: bool = False, comfy_url: str = "http://127.0.0.1:8188", optimize_meshopt: bool = False, mpfb2_eye_rig: bool = False, garment_source_geometry_hint: bool = False) -> Dict[str, str]:  # garment_source_geometry_hint legacy (aborted); phenotype.garmentLayers drives real embed garment in apply_role_clothing_material_regions (automate:1050) for Q1 blueprint case->skinned-sleeve-geo; patient preset re-orchestrated v2 for expanded obvious sleeves (0.27/0.35r/7x12 + folds/ripple/vivid)
+def generate(params: Dict[str, Any], case_id: str, actor_role: str, output_glb: str, use_comfy: bool = False, comfy_url: str = "http://127.0.0.1:8188", optimize_meshopt: bool = False, mpfb2_eye_rig: bool = False, garment_source_geometry_hint: bool = False, phenotype_source: Optional[str] = None) -> Dict[str, str]:  # garment_source_geometry_hint legacy (aborted); phenotype.garmentLayers drives real embed garment in apply_role_clothing_material_regions (automate:1050) for Q1 blueprint case->skinned-sleeve-geo; patient preset re-orchestrated v2 for expanded obvious sleeves (0.27/0.35r/7x12 + folds/ripple/vivid)
     if use_comfy:
         raise SystemExit("--use-comfy is approval-gated; keep StableGen/ComfyUI off until explicitly approved.")
     # issue-291/294 refuse gate: a case-driven generation with a missing OR
@@ -647,7 +671,7 @@ def generate(params: Dict[str, Any], case_id: str, actor_role: str, output_glb: 
             "--rigging-report", str(report_path),
         ], timeout=120)
 
-    provenance_path = write_provenance(params, case_id, actor_role, output_glb, report_path, str(manifest), optimization_report_path)
+    provenance_path = write_provenance(params, case_id, actor_role, output_glb, report_path, str(manifest), optimization_report_path, phenotype_source)
     bundle_path = write_bundle_sidecar(params, case_id, actor_role, output_glb, report_path, provenance_path, str(manifest), str(obj), use_comfy, optimization_report_path)
 
     print(f"[orchestrate] SUCCESS: {output_glb} + report + provenance + bundle")
@@ -657,7 +681,7 @@ def generate(params: Dict[str, Any], case_id: str, actor_role: str, output_glb: 
     return result
 
 
-def resolve_generation_inputs(args: argparse.Namespace) -> Tuple[Dict[str, Any], str, str, str]:
+def resolve_generation_inputs(args: argparse.Namespace) -> Tuple[Dict[str, Any], str, str, str, Optional[str]]:
     if args.case_actor_preset:
         # Preset ids are "<case_id>:<actor_id>". The case-definition phenotype
         # export takes precedence when it authors this actor (issue-291); the
@@ -675,7 +699,7 @@ def resolve_generation_inputs(args: argparse.Namespace) -> Tuple[Dict[str, Any],
             else:
                 output_dir = args.output_dir or ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1"
                 output_glb = str(Path(output_dir) / output_name)
-            return params, case_id, actor_role, output_glb
+            return params, case_id, actor_role, output_glb, PHENOTYPE_SOURCE_CASE_DEFINITION
         preset = CASE_ACTOR_PRESETS.get(args.case_actor_preset)
         if not preset:
             raise SystemExit(
@@ -693,7 +717,7 @@ def resolve_generation_inputs(args: argparse.Namespace) -> Tuple[Dict[str, Any],
         else:
             output_dir = args.output_dir or ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1"
             output_glb = str(Path(output_dir) / preset["output_name"])
-        return params, case_id, actor_role, output_glb
+        return params, case_id, actor_role, output_glb, PHENOTYPE_SOURCE_CASE_ACTOR_PRESET
 
     params_source = args.params_json or (f"@{args.params_file}" if getattr(args, "params_file", None) else None)
     if not args.case_id or not args.actor_role or not params_source or not args.output_glb:
@@ -705,7 +729,7 @@ def resolve_generation_inputs(args: argparse.Namespace) -> Tuple[Dict[str, Any],
             params = json.load(f)
     else:
         params = json.loads(params_str)
-    return params, args.case_id, args.actor_role, args.output_glb
+    return params, args.case_id, args.actor_role, args.output_glb, None
 
 
 def main() -> None:
@@ -744,8 +768,8 @@ def main() -> None:
         }, indent=2))
         return
 
-    params, case_id, actor_role, output_glb = resolve_generation_inputs(args)
-    out = generate(params, case_id, actor_role, output_glb, args.use_comfy, args.comfy_url, args.optimize_meshopt, args.mpfb2_eye_rig, getattr(args, "garment_source_geometry_hint", False))
+    params, case_id, actor_role, output_glb, phenotype_source = resolve_generation_inputs(args)
+    out = generate(params, case_id, actor_role, output_glb, args.use_comfy, args.comfy_url, args.optimize_meshopt, args.mpfb2_eye_rig, getattr(args, "garment_source_geometry_hint", False), phenotype_source)
     print("ORCHESTRATE_SUCCESS")
     print(json.dumps(out))
 
@@ -783,8 +807,8 @@ try:
             case_actor_preset=req.case_actor_preset,
             garment_source_geometry_hint=getattr(req, "garment_source_geometry_hint", False),  # legacy only
         )
-        params, case_id, actor_role, output_glb = resolve_generation_inputs(namespace)
-        out = generate(params, case_id, actor_role, output_glb, req.use_comfy, req.comfy_url, req.optimize_meshopt, getattr(req, "mpfb2_eye_rig", False), getattr(req, "garment_source_geometry_hint", False))  # phenotype.garmentLayers now primary for real sleeved garment in blender stage; re-orchestrated peds patient preset triggers expanded sleeve geometry on next orchestrate_character --case-actor-preset patient_maya_johnson_v1
+        params, case_id, actor_role, output_glb, phenotype_source = resolve_generation_inputs(namespace)
+        out = generate(params, case_id, actor_role, output_glb, req.use_comfy, req.comfy_url, req.optimize_meshopt, getattr(req, "mpfb2_eye_rig", False), getattr(req, "garment_source_geometry_hint", False), phenotype_source)  # phenotype.garmentLayers now primary for real sleeved garment in blender stage; re-orchestrated peds patient preset triggers expanded sleeve geometry on next orchestrate_character --case-actor-preset patient_maya_johnson_v1
         return {"ok": True, "glb": out.get("glb"), "report": out.get("report"), "provenance": out.get("provenance"), "bundle": out.get("bundle")}
 
 except ImportError:

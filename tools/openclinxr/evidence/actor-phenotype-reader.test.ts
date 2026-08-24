@@ -164,13 +164,14 @@ ns = argparse.Namespace(
     case_id=None, actor_role=None, output_glb="/tmp/issue291-ed.glb", output_dir=None,
     params_json=None, params_file=None,
 )
-params, case_id, actor_role, output_glb = resolve_generation_inputs(ns)
+params, case_id, actor_role, output_glb, phenotype_source = resolve_generation_inputs(ns)
 print(json.dumps({
     "fixture_entry_absent": fixture_entry is None,
     "preset_still_present": "ed_chest_pain_priority_v2:patient_ed_chest_pain_v1" in CASE_ACTOR_PRESETS,
     "resolved_case": case_id,
     "resolved_role": actor_role,
     "resolved_output": output_glb,
+    "phenotype_source": phenotype_source,
 }))
 `);
     const parsed = JSON.parse(stdout) as {
@@ -178,10 +179,12 @@ print(json.dumps({
       preset_still_present: boolean;
       resolved_case: string;
       resolved_role: string;
+      phenotype_source: string;
     };
     expect(parsed.fixture_entry_absent).toBe(true);
     expect(parsed.preset_still_present).toBe(true);
     expect(parsed.resolved_case).toBe("ed_chest_pain_priority_v2");
     expect(parsed.resolved_role).toBe("patient");
+    expect(parsed.phenotype_source).toBe("case_actor_preset");
   });
 });
