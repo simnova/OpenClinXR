@@ -1,0 +1,23 @@
+{
+  "schema_version": "openclinxr.anny-source-manifest.v1",
+  "generator": "materialize_mpfb_humanoid_candidate.py no-reference Aisha path (#647)",
+  "generator_mode": "mpfb2_default_macro_body_with_case_authored_height_cm",
+  "source_kind": "case-authored phenotype numeric block transport",
+  "uses_real_anny_forward_pass": false,
+  "real_anny_weights_used": false,
+  "fallback_active": true,
+  "input_params": {
+    "actor_id": "patient_aisha_khan_v1",
+    "phenotype": {
+      "height_cm": 172
+    }
+  },
+  "phenotype_summary": "numeric block only: height_cm 172. The full authored phenotype lives in the case fixture (ob-preeclampsia.ts patient_aisha_khan_v1) and the committed actor-phenotype export; only the measured axis is transported here, per #647 expected NOT TESTED (build/skin_tone/gender_presentation may not reach a vertex).",
+  "not_evidence_for": [
+    "clinical_body_realism",
+    "quest_readiness",
+    "any phenotype field other than height_cm reaching a vertex",
+    "garments or the Anny rail"
+  ],
+  "notes": "#647 — second shipped case driving its own cast's body dimensions. The no-reference materializer path reads input_params.phenotype via phenotype_numeric_block (materialize_mpfb_humanoid_candidate.py:2747); the height macro is SOLVED against the authored 172 cm by bake-measure-interpolate (solve_height_macro, never a hand-picked macro). Cosmetic tokens (skin_tone, eye_color, fabricPalette) and top-level age are intentionally absent so the bake keeps today's default-macro cosmetic path byte-stable; only the height macro differs from the pre-#647 bytes."
+}

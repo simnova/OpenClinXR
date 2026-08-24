@@ -133,12 +133,17 @@ const isBody = (n: string): boolean => /^mpfb_skin_/i.test(n);
  * this header's own :18 row).
  */
 const BASELINE: Record<string, { tris: number; coplanar: number; sharpSplit: number }> = {
-  // #598 re-pinned 2026-08-23: cargo after shoe-swap rebake; was tris 2782 / coplanar 966 / sharpSplit 48.
-  "mpfb-ob-patient-aisha::mat_makeclothes_library_cargo_pants.001": { tris: 2692, coplanar: 906, sharpSplit: 160 },
-  // #598 re-pinned 2026-08-23: key was ...footwear_toigo_flats { tris: 57600, coplanar: 12922, sharpSplit: 3780 }.
-  "mpfb-ob-patient-aisha::mat_makeclothes_library_footwear_toigo_mj_cloth_shoes": { tris: 1004, coplanar: 134, sharpSplit: 146 },
-  // #598 re-pinned 2026-08-23: was coplanar 800 / sharpSplit 238.
-  "mpfb-ob-patient-aisha::mat_makeclothes_library_toigo_t_shirt": { tris: 2700, coplanar: 851, sharpSplit: 245 },
+  // #647 re-pinned 2026-08-24: the OB case drives its own body height (1.72 m),
+  // so the pants re-fit the taller body — tris 2692->2724, aboveRim 906->972,
+  // sharpSplit 160->176. Measured with this contract's own instrument (the same
+  // that validated the pre-#647 rows exactly).
+  "mpfb-ob-patient-aisha::mat_makeclothes_library_cargo_pants.001": { tris: 2724, coplanar: 972, sharpSplit: 176 },
+  // #647 re-pinned 2026-08-24: shoe re-fit on the taller foot — tris unchanged,
+  // aboveRim 134->136, sharpSplit 146->112 (fewer >60deg joins on the new fit).
+  "mpfb-ob-patient-aisha::mat_makeclothes_library_footwear_toigo_mj_cloth_shoes": { tris: 1004, coplanar: 136, sharpSplit: 112 },
+  // #647 re-pinned 2026-08-24: t-shirt fit moved up the taller torso — tris
+  // unchanged, aboveRim 851->935, sharpSplit 245->232.
+  "mpfb-ob-patient-aisha::mat_makeclothes_library_toigo_t_shirt": { tris: 2700, coplanar: 935, sharpSplit: 232 },
   "mpfb-peds-nurse-kevin::mat_makeclothes_library_scrub_shirt": { tris: 9384, coplanar: 3862, sharpSplit: 303 },
   "mpfb-peds-nurse-kevin::mat_makeclothes_library_scrub_pants": { tris: 2704, coplanar: 908, sharpSplit: 147 },
   "mpfb-peds-nurse-kevin::mat_makeclothes_library_footwear_culturalibre_male_boots": { tris: 30768, coplanar: 6246, sharpSplit: 1605 },

@@ -12,17 +12,18 @@ export const obPreeclampsiaScenario = draftScenario({
     "Explain risk to patient and partner respectfully",
   ],
   actors: [
-    actor(
-      "patient_aisha_khan_v1",
-      "patient",
-      "Aisha Khan",
-      "34 weeks pregnant, worried, headache with visual symptoms",
-      [
+    {
+      actorId: "patient_aisha_khan_v1",
+      role: "patient",
+      displayName: "Aisha Khan",
+      demeanor: "34 weeks pregnant, worried, headache with visual symptoms",
+      openingUtterance: "My headache is getting worse, and the lights are bothering my eyes.",
+      hiddenFacts: [
         "Headache has persistent pressure quality",
         "Visual spots and swelling are present if asked",
         "First pregnancy and no seizure history",
       ],
-      {
+      communicationProfile: {
         styleFamily: "satir",
         style: "appeaser",
         intensity: 0.64,
@@ -34,8 +35,40 @@ export const obPreeclampsiaScenario = draftScenario({
         escalationTriggers: ["visual_symptoms_ignored", "severe_bp_unexplained", "partner_excluded"],
         culturalLanguageNotes: ["respectful pregnancy language", "plain maternal-fetal risk explanation", "include partner with consent"],
       },
-      "My headache is getting worse, and the lights are bothering my eyes.",
-    ),
+      // Case-definition home for the generated body (issue-291): the asset factory
+      // reads this instead of a generator-side Python dict. #647 — a SECOND shipped
+      // case drives its own cast's body dimensions: the authored height_cm reaches
+      // the MPFB vertex through the actor-phenotype export -> anny manifest numeric
+      // block -> materialize_mpfb_humanoid_candidate.py no-reference solve (#576
+      // wiring). The other authored fields stay on the record here; only the numeric
+      // block is transported to the bake (see #647 expected NOT TESTED).
+      phenotype: {
+        age: 31,
+        body_profile: "adult_standard_parent",
+        pose: "seated_ob_triage_comfort",
+        skin_tone: "warm_medium",
+        hair_color: "dark_brown",
+        eye_color: "green",
+        gender_presentation: "adult_female_patient",
+        height_cm: 172,
+        build: "average_pregnant",
+        bmi: 28,
+        hair_density: 0.6,
+        brow_tension: 0.5,
+        anxious: 0.55,
+        flush: 0.15,
+        age_wrinkle: 0.18,
+        clothing_style: "warm_neutral_maternity_casual",
+        clothing_color: "warm_neutral",
+        role_visual_cue: "ob_patient",
+        wardrobeRole: "patient_casual_ob",
+        garmentLayers: ["casual_top", "cargo_pants"],
+        fabricPalette: "warm_neutral_and_soft_green",
+        materialFinish: "cotton_matte",
+        accessoryMarkers: [],
+        fitProfile: "adult_pregnant_patient_fit",
+      },
+    },
     actor(
       "partner_omar_khan_v1",
       "family",

@@ -178,12 +178,33 @@
       "patient_aisha_khan_v1": {
         "role": "patient",
         "phenotype": {
+          "age": 31,
           "body_profile": "adult_standard_parent",
-          "age": 34,
-          "height_cm": 166,
-          "bmi": 24,
-          "descriptor_derived": true,
-          "gender_presentation": "adult_female_parent"
+          "pose": "seated_ob_triage_comfort",
+          "skin_tone": "warm_medium",
+          "hair_color": "dark_brown",
+          "eye_color": "green",
+          "gender_presentation": "adult_female_patient",
+          "height_cm": 172,
+          "build": "average_pregnant",
+          "bmi": 28,
+          "hair_density": 0.6,
+          "brow_tension": 0.5,
+          "anxious": 0.55,
+          "flush": 0.15,
+          "age_wrinkle": 0.18,
+          "clothing_style": "warm_neutral_maternity_casual",
+          "clothing_color": "warm_neutral",
+          "role_visual_cue": "ob_patient",
+          "wardrobeRole": "patient_casual_ob",
+          "garmentLayers": [
+            "casual_top",
+            "cargo_pants"
+          ],
+          "fabricPalette": "warm_neutral_and_soft_green",
+          "materialFinish": "cotton_matte",
+          "accessoryMarkers": [],
+          "fitProfile": "adult_pregnant_patient_fit"
         }
       },
       "partner_omar_khan_v1": {

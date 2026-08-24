@@ -41,6 +41,20 @@ import { describe, expect, it } from "vitest";
  *   authored `height_cm` reaches its cast's vertices.
  * notEvidenceFor: any other phenotype field (build, skin_tone, gender_presentation are unmeasured);
  *   whether the resulting figure looks right; garments; the Anny rail.
+ *
+ * ## FIXED (#647)
+ *
+ * The OB triage case now drives its own cast body: `patient_aisha_khan_v1` authors
+ * `height_cm: 172` in `ob-preeclampsia.ts`; the committed actor-phenotype export
+ * carries it; the tracked manifest `mpfb-ob-patient-aisha.anny_manifest.json`
+ * transports the numeric block to the no-reference materializer path, which SOLVES
+ * the height macro (0.5519) against the authored 1.72 m via bake-measure-interpolate
+ * (#576 wiring, D1 — never a hand-picked macro) and re-bakes
+ * `mpfb-ob-patient-aisha.glb`. Measured on the shipped bytes: aisha stands off the
+ * 1.666 default at her authored 1.72. `body-param-cli.ts` now feeds
+ * `authoredPhenotype` into the body-class dict from the same export, completing the
+ * diagnosed incomplete loop (the #329 solver in body_param_stage.py was reading a
+ * field nothing wrote).
  */
 
 const HUMANOIDS = "apps/ui-xr/public/generated-humanoids";
@@ -70,7 +84,7 @@ const isDefault = (h: number): boolean =>
   DEFAULT_HEIGHTS.some((d) => Math.abs(h - d) < AUTHORED_TOLERANCE_M);
 
 describe("a second case drives its own body dimensions", () => {
-  it.fails("(1) a case other than paediatric asthma has a cast body off the generator defaults", async () => {
+  it("(1) a case other than paediatric asthma has a cast body off the generator defaults", async () => {
     const candidates = [
       "mpfb-clinical-nurse-adult.glb", "mpfb-clinical-physician-adult.glb",
       "mpfb-street-adult-male.glb", "mpfb-family-partner-adult.glb", "mpfb-ob-patient-aisha.glb",

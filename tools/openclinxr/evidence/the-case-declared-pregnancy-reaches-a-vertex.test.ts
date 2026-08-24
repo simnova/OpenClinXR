@@ -132,8 +132,14 @@ const BASELINE: Record<string, { chest: number; abdomen: number; hip: number }> 
  *  the earlier row (193.9/307.2/210.3) came from the round-1 bake whose bulk bake_targets
  *  also folded in the default macro keys — the same contamination the counterweights
  *  refused. Two fresh determinism rebakes reproduce this row exactly (chest 192.5 /
- *  abdomen 319.2 / hip 216.5, run-to-run spread 0.0 mm), so ±1 mm is the pin. */
-const TREATED = { chest: 192.5, abdomen: 319.2, hip: 216.5 };
+ *  abdomen 319.2 / hip 216.5, run-to-run spread 0.0 mm), so ±1 mm is the pin.
+ *  #647 RE-PINNED 2026-08-24: the OB case drives its own body height (1.72 m), so
+ *  the treated row moved with the taller torso — chest 194.0 / abdomen 312.9 /
+ *  hip 215.2, measured on the shipped bytes with this contract's own instrument.
+ *  The morph itself is unchanged (same derived target, same weight 0.85): the
+ *  abdomen still bulges +66 mm over the recorded control and the ratio 1.61 clears
+ *  MIN_RATIO — this row only records where the taller body lands. */
+const TREATED = { chest: 194.0, abdomen: 312.9, hip: 215.2 };
 
 async function torso(glb: string): Promise<{ chest: number; abdomen: number; hip: number }> {
   const d = await new NodeIO().read(DIR + glb);

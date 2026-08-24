@@ -53,6 +53,10 @@ import {
   listShippedCastScenarioIds,
   resolveScenarioActorCast,
 } from "../../../../packages/openclinxr/asset-registry/src/actor-casting.js";
+import {
+  buildActorPhenotypeExport,
+  type ActorPhenotypeExport,
+} from "../../../../packages/openclinxr/scenario-fixtures/src/actor-phenotype-export.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "../../../..");
@@ -677,6 +681,27 @@ async function renderFinishedFigureGrade(
   }
 }
 
+/**
+ * #647 — a body class that a shipped case casts onto carries that case's authored
+ * phenotype (`height_cm`, `bmi`, ...). The stage's `authoredPhenotype` reader was
+ * unfed: `BODY_CLASSES` were raw macro literals with `height: 0.5`, so the #329
+ * solver (`body_param_stage.py:2148-2170`) sat unused. Resolve the class's primary
+ * cast role from the actor-casting SSOT and attach the case's authored phenotype;
+ * the stage then derives every macro from it and SOLVES the height against the
+ * authored `height_cm`. A class no case casts onto keeps the legacy literal path
+ * (counterweight — a hand-picked macro is the defect this feed removes).
+ */
+export function resolveAuthoredPhenotypeForBodyClass(
+  castRoles: ReadonlyArray<{ scenarioId: string; actorId: string; role: string }>,
+  exported: ActorPhenotypeExport,
+): Record<string, unknown> | undefined {
+  const primary = castRoles[0];
+  if (!primary) return undefined;
+  const entry = exported.entries[primary.scenarioId]?.[primary.actorId];
+  if (!entry) return undefined;
+  return entry.phenotype;
+}
+
 export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
   ensureDir(EVIDENCE_DIR);
   ensureDir(EVIDENCE_DIR_216);
@@ -823,6 +848,10 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
     scenarios: listShippedCastScenarioIds(),
     resolveCast: (scenarioId) => resolveScenarioActorCast(scenarioId),
   });
+  // #647 — the case definition feeds the stage. The committed actor-phenotype
+  // export carries each fixture actor's authored phenotype; attach it to the body
+  // class the cast resolves onto so `authoredPhenotype` stops being a dead field.
+  const phenotypeExport = buildActorPhenotypeExport();
   const bodyClassesWithGarments = BODY_CLASSES.map((bc) => {
     const roles = castRolesByClass[bc.bodyClassId] ?? [];
     const primaryRole = roles[0]?.role ?? "";
@@ -865,12 +894,17 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
       garment.bandLowFraction = resolved.bandLowFraction;
       garment.bandHighFraction = resolved.bandHighFraction;
     }
+    const authoredPhenotype = resolveAuthoredPhenotypeForBodyClass(roles, phenotypeExport);
     return {
       ...bc,
       garment,
       garmentRole: primaryRole,
       garmentLayers: resolved.garmentLayers,
       garmentSourceField: resolved.sourceField,
+      // #647 — the stage reads `authoredPhenotype` and solves macros from it
+      // (body_param_stage.py:2148); a class with no case-driven cast keeps the
+      // legacy literal path (key absent -> legacy macros, byte-stable).
+      ...(authoredPhenotype ? { authoredPhenotype } : {}),
     };
   });
   const upperGarmentByClass = new Map<string, (typeof bodyClassesWithGarments)[number]["garment"]>();

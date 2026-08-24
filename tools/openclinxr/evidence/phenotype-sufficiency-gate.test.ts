@@ -184,7 +184,11 @@ describe("the phenotype gate refuses an insufficient phenotype, not merely an ab
     "(4) KNOWN-GOOD: the reachable authored peds actors keep producing the same bodies; the child now builds (#385)",
     () => {
       const authored = authoredPhenotypes();
-      expect(authored.length).toBe(3);
+      // #647: patient_aisha_khan_v1 (OB triage) is the second case to author a
+      // phenotype — the authored set grows from the peds trio to four. The trio's
+      // rows below are byte-identical to the pre-#647 pins; aisha's row was
+      // measured 2026-08-24 with this file's own instrument (buildOutcome).
+      expect(authored.length).toBe(4);
       // Measured 2026-08-11 after the #302 height-macro solve (see ## FIXED (#302)
       // above): the child (125 cm) was outside Anny's reachable height band and
       // refused loudly; the two reachable adults produce bodies whose hashes changed
@@ -197,6 +201,7 @@ describe("the phenotype gate refuses an insufficient phenotype, not merely an ab
         ["patient_maya_johnson_v1", { hash: "54219676ef5f4960" }],
         ["parent_tara_johnson_v1", { hash: "b203a3a97db29d06" }],
         ["nurse_kevin_lee_v1", { hash: "6e926cada2b87565" }],
+        ["patient_aisha_khan_v1", { hash: "e4803a2374dba3ee" }],
       ]);
       for (const { actorId, phenotype } of authored) {
         const expectation = expected.get(actorId);
@@ -210,10 +215,11 @@ describe("the phenotype gate refuses an insufficient phenotype, not merely an ab
         }
       }
     },
-    // Three full anny body builds in one subprocess (the child now solves the height
+    // Four full anny body builds in one subprocess (the child now solves the height
     // macro instead of refusing): the vitest 5s default flaked under parallel suite
-    // load in BOTH the #385 run and the baseline run (10.1s vs 9.7s observed).
-    30_000,
+    // load in BOTH the #385 run and the baseline run (10.1s vs 9.7s observed);
+    // #647 adds aisha's build on top of the peds trio.
+    50_000,
   );
 
   it("(5) the empty phenotype keeps refusing — #291's gate must not regress", () => {
