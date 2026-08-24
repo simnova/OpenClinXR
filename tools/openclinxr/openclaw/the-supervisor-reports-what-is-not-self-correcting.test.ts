@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { CHRONIC_AFTER, MIN_AUDIT_GAP_MS, READY_DEPTH_TARGET, markChronic, priorFindingKeys, readyDepth, resolvedSince, verifyDoneClaim } from "./supervisor-audit.js";
+import { join } from "node:path";
+import { CHRONIC_AFTER, MIN_AUDIT_GAP_MS, READY_DEPTH_TARGET, expectedFailureResidue, markChronic, priorFindingKeys, proofFilesFromArtifact, readyDepth, resolvedSince, verifyDoneClaim } from "./supervisor-audit.js";
 import type { Finding } from "./supervisor-audit.js";
 
 /**
@@ -194,5 +195,69 @@ describe("the supervisor reports what is not self-correcting", () => {
     expect(c.commitOnMain).toBe(true);
     expect(c.contractVerified, "issue-181's merge artifact is present").toBe(true);
     expect(c.ok).toBe(true);
+  });
+
+  it("(15) DUTY 3: a green merge artifact does not prove the RED was flipped", () => {
+    // THE BLIND SPOT, closed. MEASURED on #181 across three audits: its merge artifact reports
+    // `proofsOk: true` AND its single check `passed: true`, while the principal assertion at
+    // the-supine-head-rests-on-its-pillow.test.ts:59 is still `it.fails`. Vitest counts an expected
+    // failure as a pass, so a green artifact is entirely consistent with a defect nobody fixed.
+    // Two iterations of this loop reported #181 as verified; a human caught it, not the instrument.
+    const c = verifyDoneClaim(process.cwd(), 181, "Landed");
+    expect(c.contractVerified, "the artifact exists and is green").toBe(true);
+    expect(c.residue, "and a proof file named by its artifact still carries an unflipped RED").toBeDefined();
+    expect(c.residue!.status).toBe("warning");
+    expect(c.residue!.files.some((r) => /supine-head-rests-on-its-pillow/u.test(r.file))).toBe(true);
+    expect(c.residue!.artifactHeadSha, "the artifact's tree is reported so the temporal gap is visible").toBeDefined();
+  });
+
+  it("(16) DUTY 3: proof files are DERIVED from the artifact, never guessed from the issue number", () => {
+    // The artifact's checks[].rule carries the literal command it ran. Matching filenames against
+    // issue numbers cannot work in this repo by construction — the plant-naming convention is a
+    // prose observable ("the-supine-head-rests-on-its-pillow"), not an id. #632 records that same
+    // incompatibility from the other direction.
+    const files = proofFilesFromArtifact(
+      join(process.cwd(), ".openclinxr/openclaw/contract-verify-issue-181-merge.json"));
+    expect(files, "one run: rule, one .test.ts path").toEqual(
+      ["tools/openclinxr/evidence/the-supine-head-rests-on-its-pillow.test.ts"]);
+  });
+
+  it("(17) COUNTERWEIGHT: residue is a WARNING and must NOT flip ok", () => {
+    // Overloading `ok` would turn an honest warning into a false failure. A proof file can carry
+    // planted REDs for OTHER, unrelated work — this repo runs several plants in one directory — so
+    // residue means "a human must look", not "this card is unfinished". If these are ever merged,
+    // the signal becomes noise and people learn to ignore it.
+    const c = verifyDoneClaim(process.cwd(), 181, "Landed");
+    expect(c.residue!.total, "#181 has residue").toBeGreaterThan(0);
+    expect(c.ok, "and is still ok by the landed+verified predicate — the two are different claims").toBe(true);
+  });
+
+  it("(18) COUNTERWEIGHT: no artifact means no residue claim, not a false alarm", () => {
+    // #632 has no merge artifact at all. Reporting residue for it would be inventing a finding about
+    // a file the audit never identified.
+    expect(expectedFailureResidue(process.cwd(),
+      join(process.cwd(), ".openclinxr/openclaw/contract-verify-issue-632-merge.json")).status).toBe("none");
+    expect(proofFilesFromArtifact("/nonexistent/artifact.json"), "unreadable is empty, not a throw").toEqual([]);
+  });
+
+  it("(19) COUNTERWEIGHT: an UNREADABLE proof file is not_determined, never 'clean'", () => {
+    // CAUGHT BY PEER REVIEW BEFORE LANDING. `plantedRedCount` returns -1 when a file cannot be read
+    // (openclaw-sweep.ts:105-109, its own comment: "unreadable file is not 'zero reds'"). The first
+    // version filtered on `count > 0`, which silently turned -1 into "no residue" — a check
+    // reporting clean about a file it never opened, which is the defect class this whole audit
+    // exists to catch.
+    const { mkdtempSync, writeFileSync, mkdirSync } = require("node:fs") as typeof import("node:fs");
+    const { tmpdir } = require("node:os") as typeof import("node:os");
+    const root = mkdtempSync(join(tmpdir(), "residue-"));
+    mkdirSync(join(root, ".openclinxr/openclaw"), { recursive: true });
+    const art = join(root, ".openclinxr/openclaw/contract-verify-issue-1-merge.json");
+    writeFileSync(art, JSON.stringify({
+      headSha: "deadbeef",
+      checks: [{ rule: "run:pnpm exec vitest run tools/does/not/exist.test.ts", passed: true }],
+    }));
+    const r = expectedFailureResidue(root, art);
+    expect(r.status, "a file that could not be read is unknown, not clean").toBe("not_determined");
+    expect(r.total).toBe(-1);
+    expect(r.artifactHeadSha).toBe("deadbeef");
   });
 });

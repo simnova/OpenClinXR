@@ -32,6 +32,7 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, appendFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { plantedRedCount } from "./openclaw-sweep.js";
 
 export const READY_DEPTH_TARGET = 10;
 
@@ -66,6 +67,9 @@ export type DoneClaim = {
   contractVerified: boolean;
   ok: boolean;
   why: string;
+  /** Proof files that still carry an unflipped `it.fails`. A WARNING, not a verdict — see
+   *  expectedFailureResidue(). Empty when the artifact is missing or nothing is unflipped. */
+  residue?: ResidueReport;
 };
 
 export type SupervisorAudit = {
@@ -227,7 +231,103 @@ export function verifyDoneClaim(root: string, issue: number, stage: string): Don
       ? `${bySubject ? "subject-line fix commit" : "MENTION ONLY — no conventional fix(#N) subject"} on main`
         + (verified ? ", contract-verify artifact present" : "; NO contract-verify artifact — verified at dispatch only")
       : `${shas.length} commit(s) cite #${issue} but NONE is an ancestor of main — work exists on a branch, not in the product`;
-  return { issue, stage, commitOnMain: onMain, contractVerified: verified, ok, why };
+  const residue = verified ? expectedFailureResidue(root, artifact) : undefined;
+  return { issue, stage, commitOnMain: onMain, contractVerified: verified, ok, why,
+    ...(residue && residue.status !== "none" ? { residue } : {}) };
+}
+
+
+/**
+ * Proof files a card's merge artifact actually ran, read from the artifact rather than guessed.
+ *
+ * The artifact's `checks` array carries the literal rule it executed, e.g.
+ *   { "rule": "run:pnpm exec vitest run tools/openclinxr/evidence/the-supine-head-rests-on-its-pillow.test.ts",
+ *     "passed": true }
+ * so the files belonging to a card are DERIVABLE. The alternative — matching filenames against issue
+ * numbers — fails on this repo by construction, because the plant-naming convention here is a prose
+ * observable ("the-supine-head-rests-on-its-pillow"), not an id.
+ */
+export function proofFilesFromArtifact(artifactPath: string): string[] {
+  try {
+    const d = JSON.parse(readFileSync(artifactPath, "utf8")) as { checks?: Array<{ rule?: string }> };
+    const files = new Set<string>();
+    for (const c of d.checks ?? []) {
+      const rule = String(c.rule ?? "");
+      if (!rule.startsWith("run:")) continue;
+      for (const m of rule.matchAll(/(\S+\.test\.ts)\b/gu)) files.add(m[1] as string);
+    }
+    return [...files];
+  } catch { return []; }
+}
+
+/**
+ * EXPECTED-FAILURE RESIDUE — a card whose own proof file still carries an unflipped `it.fails`.
+ *
+ * WHY EXISTENCE OF THE ARTIFACT WAS NEVER ENOUGH. MEASURED on #181: its merge artifact reports
+ * `proofsOk: true` and the check `passed: true`, while the principal assertion at
+ * the-supine-head-rests-on-its-pillow.test.ts:59 is STILL `it.fails`. Vitest counts an expected
+ * failure as a pass, so a green artifact is entirely consistent with a defect nobody fixed. `ok`
+ * requiring the artifact (landed in ef24debb) cannot see this and never could.
+ *
+ * DELIBERATELY A SEPARATE FIELD, NOT FOLDED INTO `ok`. A proof file can legitimately carry planted
+ * REDs for OTHER, unrelated work — this repo runs several plants concurrently in one directory. So
+ * residue is a signal that a human must look, not a verdict that the card is unfinished. Overloading
+ * `ok` would turn an honest warning into a false failure and train people to ignore it.
+ *
+ * Reuses `plantedRedCount` rather than writing a second counter: it already strips comments and
+ * strings, and its own contract pins that a prose mention of `it.fails` is not a planted RED.
+ */
+export type ResidueReport = {
+  status: "none" | "warning" | "not_determined";
+  total: number;
+  files: Array<{ file: string; count: number }>;
+  /** Tree the artifact was verified against, and the tree residue was counted in. See below. */
+  artifactHeadSha?: string;
+  measuredHeadSha?: string;
+};
+
+export function expectedFailureResidue(
+  root: string, artifactPath: string, measuredHeadSha?: string,
+): ResidueReport {
+  const counted = proofFilesFromArtifact(artifactPath)
+    .map((file) => ({ file, count: plantedRedCount(root, file) }));
+
+  /**
+   * A NEGATIVE COUNT IS NOT ZERO. `plantedRedCount` returns -1 when a file cannot be read
+   * (openclaw-sweep.ts:105-109, and its own comment says "unreadable is not zero reds"). The first
+   * version of this filtered on `count > 0`, which silently turned -1 into "no residue" — a check
+   * reporting clean about a file it never opened, which is the defect class this audit exists to
+   * catch. Caught by peer review before it landed.
+   */
+  const unreadable = counted.filter((r) => r.count < 0);
+  const withResidue = counted.filter((r) => r.count > 0);
+  if (unreadable.length > 0) {
+    return { status: "not_determined", total: -1, files: unreadable,
+      ...(measuredHeadSha ? { measuredHeadSha } : {}), ...shaOf(artifactPath) };
+  }
+  return {
+    status: withResidue.length > 0 ? "warning" : "none",
+    total: withResidue.reduce((n, r) => n + r.count, 0),
+    files: withResidue,
+    ...(measuredHeadSha ? { measuredHeadSha } : {}),
+    ...shaOf(artifactPath),
+  };
+}
+
+/**
+ * The artifact's headSha, so a reader can see the TEMPORAL gap this measurement has.
+ *
+ * The proof file is named by an artifact verified at one tree; the residue is counted in the CURRENT
+ * tree. A card can therefore land legitimately and later show residue because a DIFFERENT card
+ * planted a new RED in the same file. That false positive is real and is not detected here — both
+ * shas are reported so the reader can see when they diverge. Whether it has occurred in this repo is
+ * NOT DETERMINED.
+ */
+function shaOf(artifactPath: string): { artifactHeadSha?: string } {
+  try {
+    const d = JSON.parse(readFileSync(artifactPath, "utf8")) as { headSha?: string };
+    return d.headSha ? { artifactHeadSha: d.headSha } : {};
+  } catch { return {}; }
 }
 
 /** Duty 2: is the ready set deep enough, and is it real product work? */

@@ -112,7 +112,20 @@ export function extractFactoryStep(body: string): string | null {
 
 /** Reads an `unblocks: <step>` line — required when the step is `instrument`. */
 export function extractUnblocks(body: string): string | null {
-  const m = /^\s*unblocks:\s*([a-z_]+)\s*$/im.exec(body);
+  /**
+   * Accepts BOTH `## unblocks: <step>` and a bare `unblocks: <step>`.
+   *
+   * The sibling directive one function up REQUIRES `##` (factory_step, :109) while this one's
+   * original `^\s*` could not match it — so a card writing both to the documented convention had its
+   * factory_step parsed and its unblocks silently dropped, and was refused as "no valid unblocks
+   * line". MEASURED on the live board: #614, #613 and #612 all use the `##` form; only #635 uses the
+   * bare one. The trap fires when someone operationalizes an instrument card, i.e. on correct
+   * behaviour.
+   *
+   * Permissive on purpose: tightening this to demand `##` would instead refuse #635. `^#{0,3}\s*`
+   * still anchors to a line start, so prose mentioning the word mid-sentence is not a directive.
+   */
+  const m = /^#{0,3}\s*unblocks:\s*([a-z_]+)\s*$/im.exec(body);
   return m ? m[1]! : null;
 }
 

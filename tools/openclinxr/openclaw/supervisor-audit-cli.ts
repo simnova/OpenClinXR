@@ -85,6 +85,29 @@ async function main(): Promise<void> {
       detail: `#${c.issue} verified ${c.stage} on main but the issue is still OPEN` });
   }
 
+  /**
+   * Residue is reported SEPARATELY from ok, and it is the finding `ok` structurally cannot make.
+   * MEASURED on #181: merge artifact `proofsOk: true`, check `passed: true`, and the principal
+   * assertion still `it.fails` — Vitest counts an expected failure as a pass.
+   */
+  // Filtered to ok claims: an ALREADY-unverified claim generates redundant noise, and the reader
+  // has a stronger finding for it already.
+  for (const c of doneClaims.filter((x) => x.ok && x.residue && x.residue.status !== "none")) {
+    const r0 = c.residue!;
+    const where = r0.files.map((r) => `${r.file} (${r.count})`).join(", ");
+    if (r0.status === "not_determined") {
+      findings.push({ duty: 3, key: `expected-failure-residue-unreadable-${c.issue}`,
+        detail: `#${c.issue}: a proof file named by its artifact could not be read (${where}) — residue NOT DETERMINED, not clean` });
+      continue;
+    }
+    findings.push({ duty: 3, key: `expected-failure-residue-${c.issue}`,
+      detail: `#${c.issue} (${c.stage}) reports verified, but a proof file named by its artifact still carries an `
+        + `unflipped it.fails: ${where}. A green merge artifact cannot see this — vitest counts an `
+        + `expected failure as a pass. Look before believing the claim. `
+        + `(artifact headSha ${String(r0.artifactHeadSha).slice(0, 8)}; residue counted in the CURRENT tree — `
+        + `a later card planting a RED in the same file would look identical.)` });
+  }
+
   const prior = priorFindingKeys(REPO);
   const marked = markChronic(findings, prior);
   const audit: SupervisorAudit = {
