@@ -85,6 +85,43 @@ only accepts what its own menu advertises.
 - Never `pkill -f grok` while any worker is live. Kill by PID.
 - Never rotate models mid-fire to "try again". Step down once and record it.
 
+## OX IS PRIMARY FOR EVERYTHING DELEGATED — and you must ask for it BY NAME
+
+**Operator directive, 2026-08-24: "Ox should be primary for everything you delegate."**
+
+Passing no `model:` does NOT get you ox. It gets you the role's policy model:
+
+```
+MODEL_RANK = { deepseek-v4-flash: 0, deepseek-v4-pro: 1, grok-build: 2 }   <- ox-alpha is ABSENT
+role asset-pipeline-lead -> standard_execution -> deepseek-v4-pro
+```
+
+Measured 2026-08-24: `dispatch(root, { role: "asset-pipeline-lead", … })` with **no** `model:` spawned
+`issue-608` on `deepseek-v4-pro`. The role policy silently outranks the operator ladder whenever the
+argument is omitted, and the earlier guard's advice — *"drop the model argument and let policy fill
+it"* — routes AWAY from ox. That advice resolves a downgrade error; it does not honour this directive.
+
+**So every dispatch names it:**
+
+```ts
+await dispatch(repoRoot, {
+  slice, role, prompt, proofs, worktree: true,
+  model: "ox-alpha",          // REQUIRED — omitting it routes to role-policy deepseek
+  maxTurns: 200,              // stage under the ~300 empty-response zone
+});
+```
+
+`ox-alpha` is not in `MODEL_RANK`, so it is accepted by being **unrecognised, not approved** — no
+`modelDowngradeReason` is demanded and no guard will catch a wrong value. **This file is the
+enforcement.** A dispatch whose ledger row shows a model other than `ox-alpha` without a recorded
+measured failure is a defect, and the ledger is how you check:
+
+```bash
+grep '"phase":"spawned"' .openclinxr/openclaw/worker-sessions.jsonl | tail -5   # read the model field
+```
+
+Step off ox only on a measured failure from the list below, and record which rung you landed on.
+
 ## Before you say ox is down — it was you seven times out of eight
 
 Measured 2026-08-23 across one session. `ox-alpha` as a DELEGATION channel, whole ledger:
