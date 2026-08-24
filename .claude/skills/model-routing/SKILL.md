@@ -313,31 +313,37 @@ the orchestrator's job (`pixel-grading`), so needing vision is rare.
 Never rotate models inside a running loop fire to "try again". Record the failure, step down once,
 and say which rung you landed on.
 
-## MEASURED OUTAGE — `ox-alpha` returned 401 on 2026-08-24 ~05:45
+## THERE WAS NO OUTAGE — the 401 was a dropped `direnv exec` (2026-08-24, the 8th of 8)
 
-Two independent invocations, seven seconds apart, identical failure:
+**Withdrawn in full, and rewritten here rather than appended, because the next reader starts at the top.**
+I recorded an `ox-alpha` outage on two reproducible HTTP 401s and stepped the whole worker lane down to
+`deepseek-v4-flash`. That was wrong. ox-alpha was never down.
 
-```
-Internal error: {"message":"Auth recovery succeeded but 4 authenticated inference requests
-were still rejected (401); giving up after 3 retries. Turn ran 7s wall-clock.",
-"http_status":401}
-```
+**The control/treatment that settles it** — same prompt, same env vars, same `--cwd`, same model, one
+difference:
 
-Note the shape: **auth recovery SUCCEEDED and the inference requests were still rejected.** That is not
-a missing key — `OPENROUTER_API_KEY` is present (len 73, sha `fc172a53`) and was present for the
-`ox-alpha` dispatches that landed #26 and #175 earlier the same session. Treat it as the promotional
-window closing or an upstream entitlement change, not as a local config fault, until measured otherwise.
+| invocation | result |
+|---|---|
+| `~/.grok/bin/grok -p … --model ox-alpha` | `401 — Auth recovery succeeded but 4 authenticated inference requests were still rejected` |
+| `direnv exec <repo> env … ~/.grok/bin/grok -p … --model ox-alpha` | `{"text":"OXPROBE","stopReason":"end_turn"}` |
 
-**Step-down taken, per the rule below:**
+And confirmed from outside the CLI entirely: `GET /api/v1/key` → **200** (valid, `is_free_tier: False`,
+no limit), and `POST /api/v1/chat/completions` with `stealth/ox-alpha` → **200** with a real completion
+from provider `Stealth`.
 
-| ladder | from | to | verified |
-|---|---|---|---|
-| worker | `ox-alpha` | `deepseek-v4-flash` | **yes** — probe returned `DSPROBE 43` against a ground truth of 43, tool actually invoked |
-| superagent / consult | `ox-alpha` | `grok-4.6` | not probed; it is the only remaining rung |
+**Why the error message misleads.** *"Auth recovery succeeded but … still rejected (401)"* reads like an
+upstream entitlement problem, so it invites exactly the wrong diagnosis. It is the CLI's own auth-recovery
+path failing because `OPENROUTER_API_KEY` was never in its environment. **A bare `grok` has no key.** The
+operator flagged this in as many words — *"your shell doesn't have access to the ox key by default, it's
+in direnv"* — and `direnv exec` is codified as the canonical dispatch form for precisely this reason. The
+two dispatches that landed #26 and #175 both used it; the two calls that "failed" both dropped it.
 
-**Re-probe `ox-alpha` before assuming it is still down.** A 401 that recovers is cheaper to retest than
-to route around: one probe, ~7 s. Do not rotate models mid-loop to "try again" — probe deliberately at
-the start of a tick, record the result, and stay on the rung you landed on for that tick.
+**The rule this earns, and it is the cheap one:** before writing that any model is down, run the SAME
+command through `direnv exec` once. Seven seconds. Then, if it still fails, hit the provider's own HTTP
+endpoint with the key to separate *your CLI* from *their service* — those are different failures with
+different fixes, and the CLI's error text does not distinguish them.
+
+**No step-down was warranted.** Workers stay on `ox-alpha`.
 
 ## Probe before a long dispatch
 
