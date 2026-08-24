@@ -385,7 +385,8 @@
     "factory:trellis:hatch": "tsx tools/openclinxr/asset-pipeline/trellis/trellis-hatch-cli.ts",
     "factory:trellis:optimize": "tsx tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts",
     "factory:trellis:pack": "tsx tools/openclinxr/asset-pipeline/trellis/trellis-pack-cli.ts",
-    "openclinxr:factory-pulse": "tsx tools/openclinxr/openclaw/factory-pulse.ts"
+    "openclinxr:factory-pulse": "tsx tools/openclinxr/openclaw/factory-pulse.ts",
+    "openclaw:supervisor": "tsx tools/openclinxr/openclaw/supervisor-audit-cli.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",
