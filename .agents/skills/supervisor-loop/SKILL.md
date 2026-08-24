@@ -39,6 +39,17 @@ That is a real constraint on cadence: an hourly loop competes with every other b
 repo for one 5,000-point budget. If the audit fails on budget, that is not a defect to chase — note
 it, skip the iteration, and do not retry into an exhausted limit.
 
+**Duty 4 still works when GraphQL is spent.** The two budgets are separate, and `gh issue create`
+uses GraphQL while the REST endpoint does not. Measured 2026-08-24 with graphql at 0/5000:
+
+```bash
+gh api -X POST repos/simnova/OpenClinXR/issues \
+  -f title="..." -F body=@/path/to/body.md --jq '.number'
+```
+
+filed #634 for one core point. So an iteration that cannot MEASURE can still file the corrections it
+already knows about. Never skip duty 4 for lack of budget without trying this first.
+
 ## Step 2 — consult the peer, with the raw report
 
 Per D10, this is a **conversation**, not a single message. Hand over the report itself, not a summary.
