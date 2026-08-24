@@ -15,7 +15,7 @@ import { dirname, join } from "node:path";
 import { briefFromIssue } from "./board-brief.js";
 import { getBoardSnapshot } from "./board-snapshot-cache.js";
 import {
-  appendHistory, markChronic, priorFindingKeys, readyDepth, resolvedSince, verifyDoneClaim,
+  appendHistory, markChronic, PERSISTENCE_WINDOW, priorFindingKeys, readyDepth, resolvedSince, verifyDoneClaim,
 } from "./supervisor-audit.js";
 import type { Finding, SupervisorAudit } from "./supervisor-audit.js";
 
@@ -121,7 +121,10 @@ async function main(): Promise<void> {
   }
 
   const prior = priorFindingKeys(REPO);
-  const marked = markChronic(findings, prior);
+  // Two windows, two questions: `prior` is the tight chronic predicate, `persistence` is how long it
+  // has gone without clearing. Feeding one window to both pinned severity at CHRONIC_AFTER + 1.
+  const persistence = priorFindingKeys(REPO, PERSISTENCE_WINDOW);
+  const marked = markChronic(findings, prior, persistence);
   const audit: SupervisorAudit = {
     schemaVersion: "openclinxr.supervisor-audit.v1",
     at: new Date().toISOString(), head,

@@ -39,6 +39,17 @@ export const READY_DEPTH_TARGET = 10;
 /** Consecutive appearances before a finding is called chronic rather than transient. */
 export const CHRONIC_AFTER = 2;
 
+/**
+ * How far back PERSISTENCE is counted — a different question from whether a finding is CHRONIC.
+ *
+ * MEASURED 2026-08-24: `ready-depth-below-floor` sat in all 15 rows of the live history and the audit
+ * reported "seen 3x", because one bounded window fed both questions. CHRONIC_AFTER must stay small
+ * (clause 11: unbounded counting made everything chronic when the operator re-ran the audit three
+ * times in five minutes). Persistence must not — severity IS persistence, and a gauge pinned at
+ * CHRONIC_AFTER + 1 says a 15-run failure and a 3-run failure are the same thing.
+ */
+export const PERSISTENCE_WINDOW = 200;
+
 export type Duty = 1 | 2 | 3 | 4;
 
 export type Finding = {
@@ -140,14 +151,36 @@ export function priorFindingKeys(root: string, limit = CHRONIC_AFTER, nowMs = Da
  * and reporting it as chronic would drown the real ones. Requiring an unbroken run is the
  * conservative direction, and duty 1 asks specifically for what is NOT self-correcting.
  */
-export function markChronic(findings: Finding[], prior: string[][]): Finding[] {
+export function markChronic(
+  findings: Finding[],
+  prior: string[][],
+  persistence: string[][] = prior,
+): Finding[] {
   return findings.map((f) => {
     if (prior.length < CHRONIC_AFTER) return f;
     const runs = prior.filter((keys) => keys.includes(f.key)).length;
+    const occurrences = consecutiveStreak(f.key, persistence) + 1;
     return runs >= CHRONIC_AFTER
-      ? { ...f, occurrences: runs + 1, chronic: true }
-      : { ...f, occurrences: runs + 1 };
+      ? { ...f, occurrences, chronic: true }
+      : { ...f, occurrences };
   });
+}
+
+/**
+ * Unbroken appearances counting back from the most recent observation, stopping at the first gap.
+ *
+ * A STREAK, not a lifetime tally. A finding that fired twelve times, cleared, and returned twice has
+ * not persisted for fourteen runs — it self-corrected once, and that is the most important thing
+ * duty 1 can say about it. `prior` arrives newest-first because `priorFindingKeys` walks the jsonl in
+ * reverse, so this reads forward from index 0.
+ */
+export function consecutiveStreak(key: string, windows: string[][]): number {
+  let n = 0;
+  for (const keys of windows) {
+    if (!keys.includes(key)) break;
+    n += 1;
+  }
+  return n;
 }
 
 /** Prior findings absent from this run — they corrected themselves. */

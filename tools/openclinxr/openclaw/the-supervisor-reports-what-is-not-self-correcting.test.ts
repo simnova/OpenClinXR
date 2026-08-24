@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { join } from "node:path";
-import { CHRONIC_AFTER, MIN_AUDIT_GAP_MS, READY_DEPTH_TARGET, expectedFailureResidue, markChronic, priorFindingKeys, proofFilesFromArtifact, readyDepth, resolvedSince, verifyDoneClaim } from "./supervisor-audit.js";
+import { CHRONIC_AFTER, MIN_AUDIT_GAP_MS, PERSISTENCE_WINDOW, READY_DEPTH_TARGET, expectedFailureResidue, markChronic, priorFindingKeys, proofFilesFromArtifact, readyDepth, resolvedSince, verifyDoneClaim } from "./supervisor-audit.js";
 import type { Finding } from "./supervisor-audit.js";
 
 /**
@@ -49,6 +49,60 @@ describe("the supervisor reports what is not self-correcting", () => {
     const prior = [["flicker"], ["something-else"]];
     const [only] = markChronic([f("flicker")], prior);
     expect(only!.chronic, "an unbroken run is required, not a majority").toBeFalsy();
+  });
+
+  it("(22) DUTY 1: persistence is REPORTED HONESTLY — 15 unbroken audits is not 'seen 3x'", () => {
+    // MEASURED 2026-08-24 by the peer, verified against the tree before acting.
+    //
+    // `ready-depth-below-floor` appears in ALL FIFTEEN rows of the live history jsonl and has never
+    // once cleared. The audit reported it as "seen 3x", and I relayed that number to the operator.
+    //
+    // The cause is that ONE window feeds TWO questions. `priorFindingKeys` is bounded to
+    // CHRONIC_AFTER on purpose — clause (11) exists because unbounded counting made every finding
+    // chronic when the operator hit enter three times in five minutes, and that bounding is right for
+    // the chronic PREDICATE. But the CLI feeds that same two-row slice to `markChronic`, which derives
+    // `occurrences` from it, so persistence saturates at CHRONIC_AFTER + 1 = 3 and cannot distinguish
+    // "never cleared in fifteen runs" from "seen twice".
+    //
+    // Not cosmetic. Duty 1 asks what is NOT self-correcting, and severity IS persistence. A gauge
+    // pinned at 3 says a 15-run failure and a 3-run failure are the same thing — which is why I kept
+    // "correcting" this finding for six hours without noticing it had never moved.
+    const { mkdtempSync, writeFileSync, mkdirSync } = require("node:fs") as typeof import("node:fs");
+    const { tmpdir } = require("node:os") as typeof import("node:os");
+    const { join: j } = require("node:path") as typeof import("node:path");
+    const root = mkdtempSync(j(tmpdir(), "sup-persist-"));
+    mkdirSync(j(root, ".openclinxr/openclaw"), { recursive: true });
+    const now = Date.parse("2026-08-24T12:00:00Z");
+    // 15 genuinely spaced audits, every one carrying the finding. Oldest first, as production writes.
+    const rows = Array.from({ length: 15 }, (_, i) => JSON.stringify({
+      at: new Date(now - (14 - i) * (MIN_AUDIT_GAP_MS + 60_000)).toISOString(),
+      keys: ["never-cleared"],
+    })).join("\n");
+    writeFileSync(j(root, ".openclinxr/openclaw/supervisor-audit-history.jsonl"), `${rows}\n`);
+
+    const persistence = priorFindingKeys(root, PERSISTENCE_WINDOW, now);
+    const [only] = markChronic([f("never-cleared")], priorFindingKeys(root, CHRONIC_AFTER, now), persistence);
+    expect(only!.chronic, "fifteen unbroken runs is chronic by any definition").toBe(true);
+    expect(only!.occurrences, "persistence must not saturate at the chronic window").toBe(16);
+  });
+
+  it("(23) DUTY 1 COUNTERWEIGHT: persistence is the UNBROKEN STREAK, not a lifetime tally", () => {
+    // Refuses the cheap fix of counting every appearance in history. A finding that fired 12 times,
+    // cleared, then came back twice has NOT persisted for 14 runs — it self-corrected once, and that
+    // is the single most important thing duty 1 can say about it. Count back from the most recent
+    // observation and stop at the first gap. `prior` is newest-first (priorFindingKeys walks the
+    // jsonl in reverse), so the streak reads forward from index 0.
+    //
+    // The numbers are chosen to discriminate against BOTH wrong answers. A 5-run streak followed by a
+    // gap and nine older sightings must read 6 — not 3 (what the bounded chronic window returns today,
+    // which would make this clause vacuous) and not 15 (what a lifetime tally would return).
+    const persistence = [
+      ...Array.from({ length: 5 }, () => ["back"]),
+      ["gone-that-run"],
+      ...Array.from({ length: 9 }, () => ["back"]),
+    ];
+    const [only] = markChronic([f("back")], [["back"], ["back"]], persistence);
+    expect(only!.occurrences, "a gap resets the streak; today returns 3, a lifetime tally 15").toBe(6);
   });
 
   it("(4) DUTY 1: a finding that vanished is REPORTED as resolved, not silently dropped", () => {
