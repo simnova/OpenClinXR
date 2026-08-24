@@ -90,11 +90,35 @@ only accepts what its own menu advertises.
 Write-up + grok-4.6 consult + the discriminating grep, per the rule below. **This replaces every
 earlier theory in this file.** Ox deaths are bimodal and the split is two distinct mechanisms:
 
-**FAST (13–29 s) — missing `OPENROUTER_API_KEY` in the dispatch parent.** `dispatch()` spawns with the
-environment you hand it and does not read `~/.zshrc`. Verbatim: *"Auth recovery succeeded but 4
-authenticated inference requests were still rejected (401)… Turn ran 7s wall-clock."* Fixed by
-exporting the key. issue-608 is the control: 13 s/401, then with only the key changed, 409 s and a
-different error.
+**FAST (13–29 s) — the dispatch parent has no `OPENROUTER_API_KEY`.** `dispatch()` spawns with the
+environment you hand it. Verbatim: *"Auth recovery succeeded but 4 authenticated inference requests
+were still rejected (401)… Turn ran 7s wall-clock."* issue-608 is the control: 13 s/401, then with
+only the environment changed, 409 s and a different error.
+
+### ALWAYS launch through `direnv exec` — never reconstruct the environment by hand
+
+```bash
+direnv exec /Volumes/files/src/openclinxr env \
+  OPENCLINXR_WORKER=1 GROK_SUBAGENTS=1 OPENCLINXR_RAW_GROK_SANCTIONED=1 \
+  pnpm -s exec tsx <your-dispatch-script>.mts
+```
+
+**Why this and not an export.** Every Bash tool call is a fresh NON-INTERACTIVE shell: no direnv hook,
+no `~/.zshrc`, no key. The project's `.envrc` is `use mise`, and `mise.toml [env]._.file` loads
+`.env.local` — which `.envrc` itself labels as the only place secrets belong: *"Secrets live in
+.env.local (gitignored)… do not put API keys in this file."*
+
+**An earlier version of this section told you to `grep ~/.zshrc` for the key. That was my workaround
+and it is wrong.** It reads a file the project explicitly forbids for secrets, and it goes stale
+silently the moment `.env.local` is rotated while the shell profile is not. Measured 2026-08-24: the
+two happened to be byte-identical (`sha fc172a53`, both 73 chars), so the value was fine and the
+METHOD was not. Do not depend on that coincidence.
+
+Confirm before a long run — the dispatch script should print it, and it costs nothing:
+
+```ts
+console.log("key present in dispatch parent:", process.env.OPENROUTER_API_KEY ? "yes" : "NO");
+```
 
 **SLOW (161–1769 s) — a provider empty on the FIRST inference, amplified by the retry ladder.**
 From `~/.grok/logs/unified.jsonl` for the 409 s issue-608 session:
@@ -113,8 +137,8 @@ fault** — so never read a long ox death as "it was working for a while".
 
 ### The delegation approach, changed at death #4
 
-1. **Export `OPENROUTER_API_KEY` in the dispatch parent** before every dispatch and consult. Kills the
-   fast cluster outright.
+1. **Launch every dispatch and consult through `direnv exec`** (form above). Kills the fast cluster
+   outright, and does not go stale when `.env.local` rotates.
 2. **Kill on the FIRST `empty_response`.** Do not let 15 retries run — that is a 16 s failure wearing a
    409 s costume. Fresh session only; never `--resume` an empty.
 3. **Consults: `--max-turns 1`, ask for a VERDICT, new session every time.** The measured consult death was
@@ -215,7 +239,7 @@ my own invocation. Run this list before touching the ladder — every row is a r
 | symptom I saw | what it actually was | the tell |
 |---|---|---|
 | 0 bytes, 5 consults in a row | `nohup … &` around the call — `PROTO_VERIFY_DELEGATION:1501`, *"wrapper exits 0, log is 0 bytes"* | the harness backgrounds for you; a second layer detaches it |
-| `http_status: 401`, auth rejected | `OPENROUTER_API_KEY` lives in `~/.zshrc` and is **absent from every fresh Bash shell** | applies to CONSULTS **and DISPATCHES** — see the correction below |
+| `http_status: 401`, auth rejected | the key comes from `.env.local` via mise/direnv and is **absent from every fresh non-interactive shell** | launch through `direnv exec`; never grep a shell profile |
 | 0 bytes at 90 s, "it stalled" | `--output-format json` **buffers until completion** | byte count is not a first-token signal; read the session dir |
 | `Cannot read properties of undefined (reading 'proofs')` | `dispatch(repoRoot, options)` takes **two positional args** | see `orchestrator-dispatch-loop` §Signatures |
 | `role is required` | I omitted `role` | the error names the prior incident (#441-#447) |
@@ -244,8 +268,13 @@ Exporting the key and changing nothing else, issue-608 spawned on `ox-alpha` and
 in the dispatch parent shell, exactly as for a consult:**
 
 ```bash
-export OPENROUTER_API_KEY=$(grep -m1 OPENROUTER_API_KEY ~/.zshrc | sed -E 's/.*=["'"'"']?([^"'"'"' ]+).*/\1/')
+direnv exec /Volumes/files/src/openclinxr env \
+  OPENCLINXR_WORKER=1 GROK_SUBAGENTS=1 OPENCLINXR_RAW_GROK_SANCTIONED=1 \
+  ~/.grok/bin/grok -p "$(cat brief.md)" --model ox-alpha --output-format json --max-turns 1
 ```
+
+**Never `grep` a shell profile for the key** — secrets live in `.env.local` via mise/direnv, and a
+profile copy goes stale silently when that rotates.
 
 **Consequences for the numbers above.** The `10 died` in the ledger is not a provider characteristic;
 it is this defect, counted. **Ox's true failure rate is UNMEASURED** — every death on record has a
