@@ -1,0 +1,93 @@
+{
+  "schemaVersion": "openclinxr.breaker-findings.v1",
+  "session": "2026-08-23 20:43-21:52 EDT, Claude Opus 5 + codex gpt-5.6-sol session 01a03123",
+  "method": "every claim re-derived against the ledger before acting; 1,156 rows merged to 584 sessions",
+  "shipped": [
+    {
+      "commit": "1ea4ee98",
+      "what": "retry circuit breaker wired into dispatch()"
+    },
+    {
+      "commit": "6ea43dfe",
+      "what": "unpassable done_when path rules refused at brief time"
+    },
+    {
+      "commit": "3baa71af",
+      "what": "success resets the breaker"
+    },
+    {
+      "commit": "28e65260",
+      "what": "durable refusal record with triggeredBy + lastPassAt"
+    },
+    {
+      "commit": "6ecbf29e",
+      "what": "reasoned override \u2014 the only escape from the circularity"
+    },
+    {
+      "commit": "afeeb634",
+      "what": "process-death clause D \u2014 WITHDRAWN by f0839caf"
+    },
+    {
+      "commit": "f0839caf",
+      "what": "override record fails closed; clause D withdrawn"
+    },
+    {
+      "commit": "9efe964a",
+      "what": "shared-path fix \u2014 the gate was inert in worktrees"
+    }
+  ],
+  "measuredFacts": {
+    "proofRefusalRate": {
+      "raw": "62/440 = 14.1%",
+      "stormAdjusted": "46/414 = 11.1%",
+      "firstAttemptPerSlice": "43/398 = 10.8%"
+    },
+    "strongestPredictor": {
+      "end_turn": "39/395 = 9.9%",
+      "cancelled": "23/45 = 51.1%",
+      "oneTurnCancel": "12/12 = 100%"
+    },
+    "contractSource": {
+      "brief": "0/14",
+      "synthesized": "38/363 = 10.5%",
+      "brief+dispatch": "20/48 = 41.7%, storm-adjusted 22.6%"
+    },
+    "changedOnlyFailures": "24 of 62 \u2014 every other proof green, one named file did not change",
+    "retryStorms": {
+      "issue-341": "18 sessions, 7 ceilings at 150 turns, but SEVEN passes \u2014 never a pure storm",
+      "issue-436": "15 sessions, 12 one-turn cancellations, second 15 s after the first"
+    },
+    "lifecycleGap": "11 terminal died across 7 slices, 13 terminal spawned across 10 \u2014 invisible to clauses A-C",
+    "longestEventualSuccess": "89.8 min; 25 of 121 completed sessions ran over 30 min"
+  },
+  "defectsFoundInMyOwnShippedCode": [
+    "the breaker refused four issue-341 sessions that PASSED their proofs (fixed 3baa71af)",
+    "my counterweight evaluated AFTER the pass row, letting it reset its own gate \u2014 vacuous (fixed 6ecbf29e)",
+    "an override could proceed unrecorded through a swallowed append (fixed f0839caf)",
+    "clause D fires zero times on historical replay (withdrawn f0839caf)",
+    "the breaker read join(repoRoot, LEDGER) while writers use the shared resolver \u2014 INERT in worktrees (fixed 9efe964a)"
+  ],
+  "OPEN_NOT_BUILT": {
+    "oneShotOverrideConsumption": {
+      "why": "the override is unlimited and reusable; a caller retaining the reason bypasses the gate forever",
+      "design": "refusal writes eventId; override cites refusalEventId + reason; re-evaluate the breaker first; compare a conditionId = hash(breakerRuleVersion, slice, clause, lastPassAt, sorted triggeredSessionIds); consume via writeFileSync(claimPath, {flag:'wx'}) for atomicity \u2014 a read-then-append JSONL check is a check-then-act race that authorises two dispatches",
+      "crashWindow": "generate the candidate worker sessionId BEFORE consuming and put intendedSessionId in the claim, else a crash burns the token with no worker started",
+      "rateLimit": "provisional: at most 2 override dispatches per slice since its latest PASS and 2 in 24h. NOT validated \u2014 there is no override population yet. One-per-PASS would recreate the circular block (issue-341: after its 22:10 PASS, one recovery failed at 10:07 and the next passed at 10:17)",
+      "notBuiltBecause": "atomic consumption needs a race-free claim and there are zero overrides to validate a limit against. A half-atomic one-shot would document duplicate overrides without preventing them."
+    },
+    "sessionLinkage": {
+      "why": "cannot tell whether an overridden dispatch passed, failed, or never started",
+      "design": "add breakerOverrideEventId to DispatchLedgerEntry and feed it through ledgerIdentity(), which already carries values into the spawned, terminal and proof-complete rows",
+      "notBuiltBecause": "only correct AFTER atomic consumption; attaching it to a non-atomic one-shot documents duplicates without preventing them"
+    },
+    "resumeAwareChangedBaseline": {
+      "why": "the largest remaining explanation for brief+dispatch failures",
+      "evidence": "issue-300 and issue-343 were resumes where the required edit ALREADY existed in the previous worker's commit; the fresh baseline made changed: mechanically impossible and the workers refused to manufacture an edit. issue-349 encoded '(WAIVED if you report the premise as dead)' INSIDE the changed: target, so the annotation became part of the filename. issue-550 got a GROUP A only prompt against a full-slice contract."
+    }
+  },
+  "NOT_TESTED": [
+    "whether any override is ever used \u2014 the population is zero",
+    "whether the 11.1% storm-adjusted refusal rate holds on future dispatches",
+    "net ROI: break-even needs a refused bad merge to cost 7.1x a contract-authoring unit (11.3x on clean returns only), and authoring time is not in the ledger"
+  ]
+}

@@ -270,3 +270,58 @@ describe("the breaker reads the same ledger the dispatcher writes", () => {
     expect(wt, "if these ever diverge the breaker goes blind in worktrees again").toBe(main);
   });
 });
+
+/**
+ * END-TO-END: the reader and the writer compose through the SHARED root at runtime.
+ *
+ * The clauses above assert source shape and resolver equivalence. Neither invokes the breaker with a
+ * ledger that exists ONLY in the shared root — which is exactly the production arrangement and
+ * exactly the case that was broken. Before 9efe964a a worktree-bound dispatch read
+ * `<worktree>/.openclinxr/...`, found nothing, and failed open, so the gate had no real enforcement
+ * in the only context dispatches run in.
+ */
+describe("the breaker enforces from a worktree against the shared ledger", () => {
+  it("refuses using history it can only see through the coordination root, and records there", async () => {
+    const { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join: j } = await import("node:path");
+    const { resetCoordinationRootCache } = await import("./coordination-root.js");
+    const { assertNotRepeatingIntoTheSameWall } = await import("./dispatch-worker.js");
+
+    const sharedRoot = mkdtempSync(j(tmpdir(), "shared-"));
+    const worktreeRoot = mkdtempSync(j(tmpdir(), "worktree-"));
+    const prev = process.env["OPENCLINXR_COORDINATION_ROOT"];
+    process.env["OPENCLINXR_COORDINATION_ROOT"] = sharedRoot;
+    resetCoordinationRootCache();
+    try {
+      // History exists ONLY in the shared root. The worktree has nothing.
+      mkdirSync(j(sharedRoot, ".openclinxr/openclaw"), { recursive: true });
+      const iso = (m: number) => new Date(Date.now() - m * 60_000).toISOString();
+      writeFileSync(
+        j(sharedRoot, ".openclinxr/openclaw/worker-sessions.jsonl"),
+        [
+          { sessionId: "w1", slice: "wt-slice", at: iso(9), turns: 1, stopReason: "cancelled" },
+          { sessionId: "w2", slice: "wt-slice", at: iso(3), turns: 1, stopReason: "cancelled" },
+        ].map((r) => JSON.stringify(r)).join("\n") + "\n",
+      );
+
+      expect(
+        () => assertNotRepeatingIntoTheSameWall(worktreeRoot, "wt-slice"),
+        "the breaker must see history the worktree does not contain",
+      ).toThrow(/REFUSED/u);
+
+      const sharedEvents = j(sharedRoot, ".openclinxr/openclaw/breaker-events.jsonl");
+      expect(existsSync(sharedEvents), "the refusal must be recorded in the SHARED root").toBe(true);
+      expect(JSON.parse(readFileSync(sharedEvents, "utf8").trim())["slice"]).toBe("wt-slice");
+
+      expect(
+        existsSync(j(worktreeRoot, ".openclinxr/openclaw/breaker-events.jsonl")),
+        "nothing may be written inside the worktree — a record there is invisible to the next dispatch",
+      ).toBe(false);
+    } finally {
+      if (prev === undefined) delete process.env["OPENCLINXR_COORDINATION_ROOT"];
+      else process.env["OPENCLINXR_COORDINATION_ROOT"] = prev;
+      resetCoordinationRootCache();
+    }
+  });
+});
