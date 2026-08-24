@@ -70,7 +70,7 @@ const json = (body: unknown) => async () =>
   new Response(JSON.stringify(body), { status: 200, headers: { "content-type": "application/json" } });
 
 describe("the adapter extracts an utterance from a reasoning model", () => {
-  it.fails("(1) ox's shape — content null, reasoning populated — yields a spoken utterance", async () => {
+  it("(1) ox's shape — content null, reasoning populated — yields a spoken utterance", async () => {
     // Verbatim shape measured from OpenRouter 2026-08-24.
     const a = adapter(vi.fn(json({
       choices: [{ finish_reason: "stop", message: {
@@ -108,3 +108,41 @@ describe("the adapter extracts an utterance from a reasoning model", () => {
     expect(fetchImpl, "reply extraction must not become a way around the guard").not.toHaveBeenCalled();
   });
 });
+
+/**
+ * ## FIXED (#623)
+ *
+ * Implementation (2026-08-24) in `packages/openclinxr/model-gateway/src/openai-compatible-adapter.ts`:
+ * extraction now tries `message.content`, then the provider's reasoning surface
+ * (`message.reasoning`, then `reasoning_details[0].text`), and passes whichever is
+ * present through one normaliser (`normaliseAssistantText`) that strips
+ * `<think>…</think>` blocks and trims. Both measured shapes funnel through that
+ * single normaliser, so the strip lives in the shared extraction point rather than
+ * in a rung-specific branch.
+ *
+ * Unlocked decisions, recorded per the brief:
+ *  - Reasoning fallback: reads `message.reasoning` (with `reasoning_details[0].text`
+ *    as a second fallback) — the fixture's `content: null` shape cannot be fixed
+ *    request-side, so extraction is required. Clause (1) is green on the reasoning
+ *    text when the reply budget was consumed by chain-of-thought.
+ *  - Request side: ALSO sends `reasoning: { effort: "low" }` (the measured
+ *    least-reasoning config that keeps `content` present on ox) plus
+ *    `max_tokens: 256` (headroom past the measured 128-token starvation that
+ *    produced `finish_reason: "length"`). Both fields are tolerated by the local
+ *    llama-server on this machine (probed live 2026-08-24: no 400, fields ignored
+ *    or honoured); neither changes the wire shape asserted by the package suite.
+ *  - One normaliser: yes — content and the reasoning fallbacks share
+ *    `normaliseAssistantText`, so a `reasoning` field that itself contains a think
+ *    block is stripped defensively.
+ *
+ * Counterweights held: clause (2) — a plain non-reasoning reply passes through the
+ * same normaliser unchanged (no think tags, no trim damage); clause (3) — the
+ * hidden-truth guardrail still runs before any fetch, and extraction is downstream
+ * of it, so it cannot become a route around the guard.
+ *
+ * Live-probe notes (not asserted): an UNSOPPRESSED local llama-server spends its
+ * whole completion budget on the think block and may return no closing `</think>`
+ * (`finish_reason: "length"`); such content has no separable reply, and the
+ * normaliser's residual behaviour on an unterminated block is out of this card's
+ * scope (the measured local shape is the suppressed, properly-closed one).
+ */

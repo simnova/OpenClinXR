@@ -20,6 +20,12 @@ import { isHiddenTruthExtractionAttempt } from "./hidden-truth-guardrail.js";
  * Safety posture: the hidden-truth guardrail runs BEFORE any network call — the
  * request is refused locally, exactly like the mock. `hiddenFacts` are never placed
  * in the outbound payload; they exist only for local evaluation surfaces.
+ *
+ * Both wired rungs are reasoning models (measured 2026-08-24): ox can return
+ * `content: null` with the budget spent on `reasoning`, and Qwen3 wraps the reply
+ * in a `<think>…</think>` block. Extraction therefore falls back to the provider's
+ * reasoning surface when content is empty and normalises every candidate by
+ * stripping think blocks, so neither shape throws nor reaches a learner verbatim.
  */
 
 export type OpenAiCompatibleProviderOptions = {
@@ -123,7 +129,16 @@ export class OpenAiCompatibleModelProviderAdapter implements ModelProviderAdapte
     const response = await this.fetchImpl(chatCompletionsUrl(this.baseUrl), {
       method: "POST",
       headers,
-      body: JSON.stringify({ model: this.model, messages }),
+      body: JSON.stringify({
+        model: this.model,
+        messages,
+        // Reasoning models (measured: ox via OpenRouter, Qwen3 via llama-server) spend the
+        // completion budget on chain-of-thought; the default 128-token cap on ox exhausted
+        // itself reasoning and returned content: null. effort:"low" is the measured least-
+        // reasoning config that still yields content; max_tokens gives the reply headroom.
+        reasoning: { effort: "low" },
+        max_tokens: 256,
+      }),
       signal: AbortSignal.timeout(30_000),
     });
 
@@ -211,10 +226,37 @@ function modelRequestId(input: ActorResponseRequest): string {
     : `${input.stationRunId}:${input.actorId}:turn-${input.conversationTurn}`;
 }
 
+type ChatCompletionsAssistantMessage = {
+  content?: unknown;
+  reasoning?: unknown;
+  reasoning_details?: Array<{ text?: unknown }>;
+};
+
 function extractAssistantContent(payload: unknown): string | undefined {
-  const choices = (payload as { choices?: Array<{ message?: { content?: unknown } }> } | null)?.choices;
-  const content = choices?.[0]?.message?.content;
-  return typeof content === "string" && content.trim().length > 0 ? content : undefined;
+  const message = (payload as { choices?: Array<{ message?: ChatCompletionsAssistantMessage }> } | null)
+    ?.choices?.[0]?.message;
+  // Reasoning models measured on the two wired rungs: ox (OpenRouter) returns content: null with
+  // the reply budget spent on `reasoning`; Qwen3 (llama-server) returns content wrapped in a
+  // <think>…</think> block. Try content first, then the provider's reasoning surface, and pass
+  // whichever is present through the same normaliser.
+  const candidates = [
+    message?.content,
+    message?.reasoning,
+    message?.reasoning_details?.[0]?.text,
+  ];
+  for (const candidate of candidates) {
+    if (typeof candidate === "string" && candidate.trim().length > 0) {
+      return normaliseAssistantText(candidate);
+    }
+  }
+  return undefined;
+}
+
+function normaliseAssistantText(text: string): string {
+  // Qwen3's thinking suppression empties the tag rather than removing it (measured:
+  // "<think>\n\n</think>\n\nIt feels heavy, like someone is sitting on my chest.").
+  // Strip every block so the learner hears the reply, not the wrapper.
+  return text.replace(/<think>[\s\S]*?<\/think>\s*/g, "").trim();
 }
 
 function extractTokenUsage(payload: unknown): { promptTokens: number; completionTokens: number; totalTokens: number } | undefined {
