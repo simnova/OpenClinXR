@@ -15,8 +15,20 @@ import { selectNextBoardCard, selectNextFromBoard, type BoardItem } from "./boar
  * seventeen. That is why the guard is an equality against the server's own `totalCount` rather than
  * a larger number.
  */
-const item = (n: number, priority: string | undefined, status = "Todo"): BoardItem => ({
-  id: `PVTI_${n}`, status, priority, content: { number: n, title: `card ${n}` },
+/**
+ * AMENDED 2026-08-24: `factory: "Planted"` added.
+ *
+ * `selectNextFromBoard` now also filters `factory === "Planted"` (board-next-selector.ts:102),
+ * because it was returning cards no worker could run — #603 was selected as top P0 while nine
+ * Planted, dispatchable cards sat behind it. These fixtures predate that field and set no factory,
+ * so every one of them became invisible to the selector and clauses (1), (5) and (6) went red.
+ *
+ * This is an ASSUMPTION change, not a weakening: this contract is about truncated reads and priority
+ * ordering, and defaulting the fixtures to Planted keeps every one of its assertions exactly as
+ * written. Nothing here asserted anything about lifecycle stage, before or after.
+ */
+const item = (n: number, priority: string | undefined, status = "Todo", factory = "Planted"): BoardItem => ({
+  id: `PVTI_${n}`, status, priority, factory, content: { number: n, title: `card ${n}` },
 });
 
 /** The real shape: P1s early, both P0s at the tail, exactly as the live board was ordered. */

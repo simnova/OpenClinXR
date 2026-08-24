@@ -32,6 +32,8 @@ import type { GhCommandRunner } from "./board-cli.js";
  */
 
 export type BoardItem = {
+  /** Lifecycle stage from the board's Factory field: Idle|Planted|Dispatched|Landed|Graded. */
+  factory?: string;
   id?: string;
   status?: string;
   priority?: string;
@@ -80,6 +82,26 @@ export function selectNextFromBoard(page: BoardPage): NextSelection {
 
   const candidates = items
     .filter((i) => i.status === "Todo" && typeof i.priority === "string" && i.priority.length > 0)
+    /**
+     * PLANTED ONLY. Added 2026-08-24 after this selector returned a card no worker could run.
+     *
+     * MEASURED: `pnpm openclaw:run-next` returned #603 — top P0, `Factory: None` — and
+     * `briefFromIssue` refused it for having no `## done_when`. Nine cards carrying
+     * `Factory: Planted` sat unselected behind it, all of them real product work (#597, #588, #526).
+     * Priority alone ranks CARDS; the loop needs the highest-priority RUNNABLE card, and Planted is
+     * the lifecycle flag that says a contract has been written.
+     *
+     * `Landed` and `Graded` are excluded by the same test — #181 and #622 are Todo/Landed on the live
+     * board, and selecting one hands a worker finished work.
+     *
+     * This is a regression in 71156df4/1839a185, both mine: I proved the board hop returned A CARD
+     * and never that the card was runnable.
+     *
+     * Dispatchability itself is NOT checked here. It needs the issue BODY, which this payload does
+     * not carry — that check belongs to the caller. `factory` IS in the payload (measured keys:
+     * content, factory, id, priority, repository, status, title), so this filter costs no extra call.
+     */
+    .filter((i) => i.factory === "Planted")
     .filter((i) => typeof i.content?.number === "number")
     .sort((a, b) => TIER(a.priority) - TIER(b.priority) || (a.content!.number! - b.content!.number!));
 
@@ -87,7 +109,7 @@ export function selectNextFromBoard(page: BoardPage): NextSelection {
   if (!top) {
     return {
       ok: false, reason: "no-candidate", fetched, totalCount,
-      detail: "the board is complete and carries no Todo item with a priority — an empty queue is a result, not a failure",
+      detail: "the board is complete and carries no Todo item that is both prioritized and Factory: Planted — an empty ready set is a result, not a failure",
     };
   }
   return {
