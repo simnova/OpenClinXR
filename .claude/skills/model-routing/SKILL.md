@@ -85,6 +85,58 @@ only accepts what its own menu advertises.
 - Never `pkill -f grok` while any worker is live. Kill by PID.
 - Never rotate models mid-fire to "try again". Step down once and record it.
 
+## DIAGNOSED 2026-08-24 at the fourth death — two mechanisms, and the ladder is the real cost
+
+Write-up + grok-4.6 consult + the discriminating grep, per the rule below. **This replaces every
+earlier theory in this file.** Ox deaths are bimodal and the split is two distinct mechanisms:
+
+**FAST (13–29 s) — missing `OPENROUTER_API_KEY` in the dispatch parent.** `dispatch()` spawns with the
+environment you hand it and does not read `~/.zshrc`. Verbatim: *"Auth recovery succeeded but 4
+authenticated inference requests were still rejected (401)… Turn ran 7s wall-clock."* Fixed by
+exporting the key. issue-608 is the control: 13 s/401, then with only the key changed, 409 s and a
+different error.
+
+**SLOW (161–1769 s) — a provider empty on the FIRST inference, amplified by the retry ladder.**
+From `~/.grok/logs/unified.jsonl` for the 409 s issue-608 session:
+
+```
+empty_response events : 15        max_retries exhausted
+distinct sampler ids  : 1         ONE request retried — no context accumulation
+first attempt         : 00:31:34  spawn was 00:31:18 -> 16 SECONDS in, turn ~1
+last  attempt         : 00:38:06  the 409s is ENTIRELY the ladder
+```
+
+**The model returned empty on the first call. The harness then spent 6.5 minutes retrying the
+identical request 15 times.** This rules out accumulated context (one sampler id), prompt shape and
+tool-looping (never reached turn 2), and turn depth. **Elapsed time measures the ladder, not the
+fault** — so never read a long ox death as "it was working for a while".
+
+### The delegation approach, changed at death #4
+
+1. **Export `OPENROUTER_API_KEY` in the dispatch parent** before every dispatch and consult. Kills the
+   fast cluster outright.
+2. **Kill on the FIRST `empty_response`.** Do not let 15 retries run — that is a 16 s failure wearing a
+   409 s costume. Fresh session only; never `--resume` an empty.
+3. **Consults: `--max-turns 1`, ask for a VERDICT, new session every time.** The measured consult death was
+   a 4-call, 479,107-input-token path.
+4. **Workers: keep `model: "ox-alpha"`, `maxTurns: 200`.** Do NOT cut maxTurns to treat a first-turn
+   empty — the two are unrelated, and 56 dispatches completed including one at 250 turns.
+5. **After a slow death, run the OXPROBE.** Probe dies → step to `deepseek-v4-flash` and record it.
+   Probe lives → re-dispatch the slice once, fresh session, same model.
+
+### The discriminator, if this recurs
+
+```bash
+grep <sessionId> ~/.grok/logs/unified.jsonl | grep empty_response
+```
+
+Read `attempt`, the timestamp against spawn, and `sampler_request_id`:
+
+- attempt 1 within seconds of spawn, one sampler id → **provider empty at ambient context** (this case)
+- attempts climbing over minutes → retry amplification, which is duration only
+- empty only after many tool turns → accumulated context, a different fix
+- no `empty_response` line at all → a third mechanism; stop theorising from the ledger
+
 ## THREE OX FAILURES = STOP GUESSING. Write it up, consult, change the approach.
 
 **Operator directive, 2026-08-24.** Counting from the ledger's `died` rows for `model: ox-alpha`,
