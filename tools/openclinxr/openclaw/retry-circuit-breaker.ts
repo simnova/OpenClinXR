@@ -79,7 +79,35 @@ export function shouldRefuseDispatch(
   slice: string,
   nowMs: number,
 ): BreakerVerdict {
-  const mine = mergeSessions(rows).filter((r) => r.slice === slice);
+  const all = mergeSessions(rows).filter((r) => r.slice === slice);
+
+  /**
+   * SUCCESS RESETS THE BREAKER. Only sessions since the slice's most recent PASS count.
+   *
+   * CORRECTED 2026-08-24, same night as the original, after a peer attacked it against the ledger.
+   * The first version counted every session in the window. On `issue-341` that would have refused
+   * FOUR sessions with `proofsOk: true` — 12:52 (cancelled at 150 turns and still passing its
+   * contract), 16:41, 18:16 and 22:10. A slice that is passing its proofs is not walking into a
+   * wall, and a breaker that cannot see progress refuses the recovery it exists to allow.
+   *
+   * Note the shape of the worst case: a session CANCELLED at a ceiling can still pass every proof.
+   * Cancellation is a budget outcome, not a verdict on the work, so a ceiling hit alone must never
+   * be treated as failure.
+   *
+   * My own test asserted those four sessions were "saved". Counting passes as waste is the
+   * wrong-direction assertion this repo already documents.
+   */
+  // Bounded by nowMs: a breaker evaluated at time T cannot see a pass that happens after T.
+  // Without this bound the reset reads the future and the gate never fires at the moment it should.
+  const lastPass = all
+    .filter((r) => r.proofsOk === true && r.at)
+    .map((r) => Date.parse(r.at as string))
+    .filter((t) => Number.isFinite(t) && t <= nowMs)
+    .reduce((a, b) => Math.max(a, b), Number.NEGATIVE_INFINITY);
+  const mine = all.filter((r) => {
+    const t = r.at ? Date.parse(r.at) : Number.NaN;
+    return !Number.isFinite(lastPass) || !Number.isFinite(t) || t > lastPass;
+  });
 
   // A. STARTUP STORM — two one-turn cancellations in 30 minutes means the environment is the wall,
   //    not the task. issue-436 did this twelve times.
@@ -96,7 +124,10 @@ export function shouldRefuseDispatch(
 
   // B. REPEATED CEILING — the same turn ceiling hit twice in 24h means the scope exceeds the budget.
   //    issue-341 hit 150 repeatedly. Raising maxTurns without changing scope is the same attempt.
-  const day = mine.filter((r) => r.stopReason === "cancelled" && within(r, nowMs, 24 * 60 * 60_000));
+  // A ceiling hit that PASSED its proofs is productive work meeting a budget, not a wall.
+  const day = mine.filter(
+    (r) => r.stopReason === "cancelled" && r.proofsOk !== true && within(r, nowMs, 24 * 60 * 60_000),
+  );
   for (const ceiling of CEILINGS) {
     const at = day.filter((r) => r.turns === ceiling);
     if (at.length >= 2) {

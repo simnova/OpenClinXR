@@ -43,22 +43,55 @@ describe("a slice is not dispatched into the same wall twice", () => {
     if (v.refuse) expect(v.clause).toBe("repeated-ceiling");
   });
 
-  it("(3) firing at those instants is what makes it worth having — count the sessions saved", () => {
-    const after = (slice: string, t: number) =>
-      mergeSessions(fx.rows).filter((r) => r.slice === slice && r.at && Date.parse(r.at) > t).length;
-    // Everything after the trigger is a dispatch the breaker would have refused.
-    expect(after("issue-436", T436), "issue-436 sessions after its trigger").toBeGreaterThanOrEqual(9);
-    expect(after("issue-341", T341), "issue-341 sessions after its trigger").toBeGreaterThanOrEqual(5);
+  it("(3) counts only sessions that FAILED or had no verdict as saved — never passes", () => {
+    // CORRECTED. The first version counted every later session as "saved". On issue-341 four of
+    // them had proofsOk:true, including 12:52 which was CANCELLED at 150 turns and still passed
+    // its contract. Counting a pass as waste is a wrong-direction assertion.
+    const wasted = (slice: string, t: number) =>
+      mergeSessions(fx.rows).filter(
+        (r) => r.slice === slice && r.at && Date.parse(r.at) > t && r.proofsOk !== true,
+      ).length;
+    expect(wasted("issue-436", T436), "issue-436 non-passing sessions after its trigger")
+      .toBeGreaterThanOrEqual(9);
+    expect(wasted("issue-341", T341), "issue-341 non-passing sessions after its trigger")
+      .toBeGreaterThanOrEqual(2);
   });
 
-  it("(4) COUNTERWEIGHT: ordinary multi-session slices stay dispatchable", () => {
+  it("(4) FALSE-REFUSAL COUNTERWEIGHT: a slice that PASSES again is not refused", () => {
+    // The defect a peer found in the first version: after issue-341's second ceiling, four sessions
+    // inside the 24 h window passed their proofs — 12:52 (cancelled at 150 AND passing), 16:41,
+    // 18:16, 22:10. The original breaker refused all four. Success must reset the gate, or the
+    // breaker blocks the recovery it exists to allow.
+    const justAfterAPass = Date.parse("2026-08-12T12:52:15.920Z") + 1000;
+    const v = shouldRefuseDispatch(fx.rows, "issue-341", justAfterAPass);
+    expect(v.refuse, "a slice that just passed its proofs is making progress, not hitting a wall")
+      .toBe(false);
+    for (const at of ["2026-08-12T16:41:49.435Z", "2026-08-12T18:16:55.560Z", "2026-08-12T22:10:11.902Z"]) {
+      expect(
+        shouldRefuseDispatch(fx.rows, "issue-341", Date.parse(at) + 1000).refuse,
+        `${at} passed its proofs and must stay dispatchable`,
+      ).toBe(false);
+    }
+  });
+
+  it("(5) a ceiling hit that PASSED its proofs never counts toward the ceiling clause", () => {
+    // issue-341 12:52 was cancelled at exactly 150 turns and returned proofsOk:true. Cancellation
+    // is a budget outcome, not a verdict on the work.
+    const passingCeiling = mergeSessions(fx.rows).find(
+      (r) => r.slice === "issue-341" && r.turns === 150 && r.stopReason === "cancelled" && r.proofsOk === true,
+    );
+    expect(passingCeiling, "the fixture must contain a passing ceiling hit or this proves nothing")
+      .toBeDefined();
+  });
+
+  it("(6) COUNTERWEIGHT: ordinary multi-session slices stay dispatchable", () => {
     // Without this, a breaker that refuses everything passes clauses (1) and (2).
     const refused = fx.controlSlices.filter((s) => shouldRefuseDispatch(fx.rows, s, NOW).refuse);
     expect(refused, `these are normal slices and must not trip: ${refused.join(", ")}`).toEqual([]);
     expect(fx.controlSlices.length, "the control set must be non-trivial").toBeGreaterThanOrEqual(4);
   });
 
-  it("(5) counts by sessionId, not by row — the ledger writes up to 3 rows per session", () => {
+  it("(7) counts by sessionId, not by row — the ledger writes up to 3 rows per session", () => {
     const rows436 = fx.rows.filter((r) => r.slice === "issue-436");
     const sessions436 = mergeSessions(rows436);
     expect(rows436.length, "rows outnumber sessions — this is why row counting trips early")
@@ -72,7 +105,7 @@ describe("a slice is not dispatched into the same wall twice", () => {
     ).toBe(false);
   });
 
-  it("(6) an empty or unrelated history never refuses", () => {
+  it("(8) an empty or unrelated history never refuses", () => {
     expect(shouldRefuseDispatch([], "issue-999", NOW).refuse).toBe(false);
     expect(shouldRefuseDispatch(fx.rows, "issue-999", NOW).refuse).toBe(false);
   });
