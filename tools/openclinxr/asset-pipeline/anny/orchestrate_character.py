@@ -204,21 +204,30 @@ ED_CHEST_PAIN_PRESETS: Dict[str, Dict[str, Any]] = {
     },
 }
 
+# issue-650: these four rows are the PINNED KNOWN-GOOD baseline the #650 contract
+# pins (the heights 125/166/176/178 must keep appearing here). They are NOT the
+# source of the people: per-actor phenotype comes from the case-definition export
+# (see resolve_case_actor_params below), and covering a new case means authoring a
+# fixture phenotype, not editing this table. The rows remain functional only as
+# the fallback for pre-migration actors whose fixture does not author them (e.g.
+# ed_chest_pain_priority_v2:patient_ed_chest_pain_v1).
 CASE_ACTOR_PRESETS = {
     **{f"peds_asthma_parent_anxiety_v1:{actor_id}": preset for actor_id, preset in PEDS_ASTHMA_PARENT_ANXIETY_PRESETS.items()},
     **{f"ed_chest_pain_priority_v2:{actor_id}": preset for actor_id, preset in ED_CHEST_PAIN_PRESETS.items()},
 }
 
 # ---------------------------------------------------------------------------
-# issue-291: case-definition phenotype reader
+# issue-291/issue-650: case-definition phenotype reader
 #
 # The encounter specification (scenario fixture actor record) is the home for
-# authored clinical/cosmetic phenotype. The legacy CASE_ACTOR_PRESETS Python
-# dict above remains as the fallback for pre-migration cases (e.g.
-# ed_chest_pain_priority_v2) and as the known-good baseline for the migrated
-# peds case. Resolution order for --case-actor-preset:
-#   1. fixture export entry (case-definition phenotype) if present,
-#   2. CASE_ACTOR_PRESETS entry if present (legacy path),
+# authored clinical/cosmetic phenotype. Resolution order for --case-actor-preset
+# and the #601 seam (resolve_case_actor_params):
+#   1. fixture export entry (case-definition phenotype) if present — the case is
+#      the source; a new case authors its actors' phenotypes and needs NO Python
+#      edit to become bakeable (#650),
+#   2. CASE_ACTOR_PRESETS entry if present (issue-650: pinned known-good rows for
+#      pre-migration actors only — the four heights clause (2) of the #650
+#      contract pins in place; a regression record, not the source),
 #   3. REFUSE (SystemExit) — never silently default to a generic adult (#276).
 # ---------------------------------------------------------------------------
 REPO_ROOT = HERE.parent.parent.parent.parent  # tools/openclinxr/asset-pipeline/anny -> repo root
@@ -246,6 +255,13 @@ PIPELINE_PHENOTYPE_DEFAULTS: Dict[str, Dict[str, Any]] = {
         "sleeveGeometryExpansion": "v2_obvious_sleeves_0.27_len_r0.35_7r12c_rippled_folds_vivid_blue",
     },
     "patient_ed_chest_pain_v1": {
+        "anny_topology": "default",
+        "sleeveGeometryExpansion": "v2_gown_sleeves_0.35_len_r0.38_9r14c_rippled_folds_vivid_gown_blue",
+    },
+    # issue-650: the ED case now authors its patient's phenotype in the fixture;
+    # these pipeline-only knobs preserve the proven garment-geometry path the
+    # legacy preset carried (the case definition deliberately does not author them).
+    "patient_robert_hayes_v1": {
         "anny_topology": "default",
         "sleeveGeometryExpansion": "v2_gown_sleeves_0.35_len_r0.38_9r14c_rippled_folds_vivid_gown_blue",
     },
@@ -351,23 +367,25 @@ def allowed_case_actor_preset_ids() -> list[str]:
 def resolve_case_actor_params(case_id: str, actor_id: str) -> Dict[str, Any]:
     """Public seam: resolve generator params for one case actor (issue #601).
 
-    Prefer a legacy CASE_ACTOR_PRESETS row when present; otherwise derive from the
-    committed actor-phenotype export via params_from_case_definition. Authored
-    top-level fields (age, body_profile, pose) are mirrored into phenotype so
-    seam consumers see the same authored numbers the export stores under phenotype.
+    Prefer the case-definition phenotype export when the case authors this actor
+    (issue-650: the case is the source of its actors' bodies); fall back to the
+    legacy CASE_ACTOR_PRESETS rows, which remain as the pinned known-good for
+    pre-migration actors the export does not cover. Authored top-level fields
+    (age, body_profile, pose) are mirrored into phenotype so seam consumers see
+    the same authored numbers the export stores under phenotype.
     """
     preset_key = f"{case_id}:{actor_id}"
-    preset = CASE_ACTOR_PRESETS.get(preset_key)
-    if preset is not None:
-        params = dict(preset["params"])
+    fixture = params_from_case_definition(case_id, actor_id)
+    if fixture is not None:
+        params = dict(fixture[0])
     else:
-        fixture = params_from_case_definition(case_id, actor_id)
-        if fixture is None:
+        preset = CASE_ACTOR_PRESETS.get(preset_key)
+        if preset is None:
             raise KeyError(
                 f"no case-actor params for '{preset_key}': neither a CASE_ACTOR_PRESETS "
                 f"row nor a phenotype export entry exists (#276)"
             )
-        params = dict(fixture[0])
+        params = dict(preset["params"])
     phenotype = dict(params.get("phenotype") or {})
     for key in GENERATOR_TOP_LEVEL_PHENOTYPE_KEYS:
         if params.get(key) is not None and key not in phenotype:

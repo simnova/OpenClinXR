@@ -42,6 +42,27 @@ import { describe, expect, it } from "vitest";
  *   statically from the sources named above.
  * notEvidenceFor: whether a newly covered actor bakes to a good-looking figure; the non-height
  *   phenotype fields; garments; rigging; whether 104 actors SHOULD all have distinct bodies.
+ *
+ * ## FIXED (#650)
+ *
+ * `ed-chest-pain.ts` now authors a `phenotype` block for `patient_robert_hayes_v1`
+ * (the ED patient; the v2/v3 fixtures spread the v1 actor record, so the block
+ * lands in both exported ED variants). The values reproduce the legacy ED
+ * preset's described human (height 178 cm is a pinned known-good) minus the
+ * pipeline-only knobs (seed, output_name, anny_topology, sleeveGeometryExpansion).
+ * `orchestrate_character.py` flipped its #601 seam (`resolve_case_actor_params`)
+ * to resolve from the case-definition export FIRST — the case is the source; the
+ * four legacy preset rows remain as the pinned known-good baseline clauses (2)-(4)
+ * pin in place, and remain functional only as the fallback for the one preset
+ * actor the export does not cover (ed_chest_pain_priority_v2:patient_ed_chest_pain_v1).
+ * `PIPELINE_PHENOTYPE_DEFAULTS` gained `patient_robert_hayes_v1` so the proven
+ * ED gown geometry path is preserved for the newly authored actor.
+ * `actor-phenotype.v1.json` was regenerated from the fixtures (15 cases / 32
+ * actors; only robert's entries changed, derived -> authored).
+ * Measured after: **2** cases author a phenotype in fixture source
+ * (pediatric-asthma, ed-chest-pain); all four pinned heights still resolve to
+ * the same params; the three migrated peds actors' params are byte-identical
+ * to the legacy preset params they replaced as the primary source.
  */
 
 const ORCHESTRATE = "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py";
@@ -61,7 +82,7 @@ const casesAuthoringAPhenotype = (): string[] =>
   CASES.filter((c) => /phenotype:\s*\{/u.test(readFileSync(`${FIXTURE_DIR}/${c}.ts`, "utf8")));
 
 describe("a case actor bakes without a python preset", () => {
-  it.fails("(1) more than one case authors the humans its own actors are baked from", () => {
+  it("(1) more than one case authors the humans its own actors are baked from", () => {
     const authoring = casesAuthoringAPhenotype();
     expect(
       authoring,

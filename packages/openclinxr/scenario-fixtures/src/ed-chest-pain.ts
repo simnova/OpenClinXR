@@ -116,6 +116,39 @@ export const edChestPainScenario: Scenario = {
           },
         ],
       },
+      // Case-definition home for the generated body (issue-650): the asset
+      // factory reads this instead of restating it in orchestrate_character.py.
+      // Values reproduce the legacy ED preset's described human (height 178 cm
+      // is a pinned known-good); pipeline-only knobs (seed, output_name,
+      // anny_topology, sleeveGeometryExpansion) intentionally stay in the
+      // generator. The v2/v3 fixtures spread this actor record, so the block
+      // reaches the export entries for all three variants.
+      phenotype: {
+        age: 52,
+        body_profile: "adult_standard",
+        pose: "standing_neutral_chest_pain_priority",
+        skin_tone: "warm_medium",
+        hair_color: "brown",
+        eye_color: "brown",
+        gender_presentation: "adult_male",
+        height_cm: 178,
+        build: "average_adult",
+        hair_density: 0.65,
+        brow_tension: 0.55,
+        anxious: 0.65,
+        flush: 0.15,
+        age_wrinkle: 0.18,
+        bmi: 26.0,
+        clothing_style: "clinical_exam_tshirt_chest_pain",
+        clothing_color: "soft_blue",
+        role_visual_cue: "ed_chest_pain_patient",
+        wardrobeRole: "ed_patient_exam",
+        garmentLayers: ["hospital_gown"],
+        fabricPalette: "hospital_gown_blue_pattern",
+        materialFinish: "cotton_slight_sheen",
+        accessoryMarkers: [],
+        fitProfile: "adult_standard_fit",
+      },
     },
     {
       actorId: "spouse_anna_hayes_v1",

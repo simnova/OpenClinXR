@@ -103,6 +103,14 @@ import { describe, expect, it } from "vitest";
  * (the extrapolation flag is a no-op for macros inside [0, 1]). The `#302` refusal channel
  * survives for targets above the extrapolated band, so nothing about the insufficiency gate
  * changed — the child pin is a known-good recalibration, the same class as the #302 hash moves.
+ *
+ * ## FIXED (#650) — clause (4) corpus grew by one authored actor
+ *
+ * `ed-chest-pain.ts` now authors `patient_robert_hayes_v1`'s phenotype (issue-650), so the
+ * authored corpus is 3 peds + the ED patient, who appears in BOTH exported ED variants (the
+ * v2/v3 fixtures spread v1's actors array). `authored.length` is now 5. The three peds pins are
+ * unchanged; robert must BUILD but carries no byte-identity pin (a newly covered actor has no
+ * regression record to pin against yet).
  */
 
 // Tree-relative so the contract proof re-runs against the WORKTREE it runs in, not
@@ -184,7 +192,10 @@ describe("the phenotype gate refuses an insufficient phenotype, not merely an ab
     "(4) KNOWN-GOOD: the reachable authored peds actors keep producing the same bodies; the child now builds (#385)",
     () => {
       const authored = authoredPhenotypes();
-      expect(authored.length).toBe(3);
+      // peds (3) + the ED patient robert, who appears in BOTH
+      // ed_chest_pain_priority_v1 and _v2 export entries (the v2/v3 fixtures
+      // spread v1's actors array, so the #650 authored block lands in both).
+      expect(authored.length).toBe(5);
       // Measured 2026-08-11 after the #302 height-macro solve (see ## FIXED (#302)
       // above): the child (125 cm) was outside Anny's reachable height band and
       // refused loudly; the two reachable adults produce bodies whose hashes changed
@@ -197,6 +208,10 @@ describe("the phenotype gate refuses an insufficient phenotype, not merely an ab
         ["patient_maya_johnson_v1", { hash: "54219676ef5f4960" }],
         ["parent_tara_johnson_v1", { hash: "b203a3a97db29d06" }],
         ["nurse_kevin_lee_v1", { hash: "6e926cada2b87565" }],
+        // issue-650: newly-authored ED patient. Must BUILD (the gate must accept a
+        // real authored case), but there is no byte-identity record to pin against
+        // for a newly covered actor — the KNOWN-GOOD pins are the migrated peds three.
+        ["patient_robert_hayes_v1", {}],
       ]);
       for (const { actorId, phenotype } of authored) {
         const expectation = expected.get(actorId);
@@ -206,7 +221,9 @@ describe("the phenotype gate refuses an insufficient phenotype, not merely an ab
           expect(outcome.refused, `${actorId}: expected refusal (#302), got a body`).toBe(true);
         } else {
           expect(outcome.refused, `${actorId} refused`).toBe(false);
-          expect(outcome.hash, `${actorId} body hash moved`).toBe(expectation!.hash);
+          if (expectation!.hash !== undefined) {
+            expect(outcome.hash, `${actorId} body hash moved`).toBe(expectation!.hash);
+          }
         }
       }
     },
