@@ -39,7 +39,19 @@ async function main(): Promise<void> {
    * Truncation is refused inside the cache, so `items.length === totalCount` holds by construction
    * and the explicit check this replaced is no longer reachable from here.
    */
-  const snapshot = getBoardSnapshot(REPO, { ttlMs: 30 * 60_000, allowStaleOnFailure: true });
+  /**
+   * TTL 0 — the audit always reads fresh. It may still serve a STALE snapshot when the live read
+   * FAILS, which is the case the cache is genuinely for here.
+   *
+   * MEASURED on iteration 5, by the loop against itself: a 30-minute TTL made the audit report
+   * ready=6 immediately after a correction that made it 7. The snapshot was 7.5 minutes old and
+   * predated the change. So duty 2 under-reported precisely when the loop was working, and an
+   * iteration could not see its own correction.
+   *
+   * The cost is one board read per hourly run — which is what it was before caching. The cache's
+   * real beneficiary is the DEQUEUE (60s TTL, many calls per cycle), and that is untouched.
+   */
+  const snapshot = getBoardSnapshot(REPO, { ttlMs: 0, allowStaleOnFailure: true });
   const items = snapshot.items as Array<{ status?: string; priority?: string; factory?: string; content?: { number?: number } }>;
   const findings: Finding[] = [];
 

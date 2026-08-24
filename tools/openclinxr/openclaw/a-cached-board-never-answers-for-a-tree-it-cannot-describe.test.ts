@@ -115,4 +115,28 @@ describe("a cached board never answers for a tree it cannot describe", () => {
       `${JSON.stringify({ items: [{ id: "a" }], totalCount: 9, fetchedAtIso: new Date().toISOString() })}\n`);
     expect(readCachedSnapshot(r), "items.length !== totalCount is unusable").toBeNull();
   });
+
+  it("(8) a zero TTL always refetches, and STILL serves stale when the live read fails", () => {
+    // The supervisor audit uses ttlMs 0. FOUND BY THE LOOP AGAINST ITSELF on iteration 5: a 30-minute
+    // TTL made the audit report ready=6 immediately after a correction that made it 7, because the
+    // snapshot predated the change by 7.5 minutes. Duty 2 under-reported exactly when the loop was
+    // working, and an iteration could not see its own correction.
+    //
+    // Both halves matter: fresh by default, but a failed live read must still fall back rather than
+    // losing the whole audit — that is the case the cache is genuinely for here.
+    const r = root();
+    let calls = 0;
+    const fetcher = (): string => { calls++; return page(3); };
+    const now = Date.parse("2026-08-24T12:00:00Z");
+    getBoardSnapshot(r, { fetcher, nowMs: now, ttlMs: 0 });
+    getBoardSnapshot(r, { fetcher, nowMs: now + 1, ttlMs: 0 });
+    expect(calls, "a zero TTL never serves from cache on a healthy read").toBe(2);
+
+    const stale = getBoardSnapshot(r, {
+      fetcher: () => { throw new Error("GraphQL: API rate limit exceeded"); },
+      nowMs: now + 60_000, ttlMs: 0, allowStaleOnFailure: true,
+    });
+    expect(stale.fromCache, "a failed read still falls back").toBe(true);
+    expect(stale.staleReason).toMatch(/rate limit/u);
+  });
 });
