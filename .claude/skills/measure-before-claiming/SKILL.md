@@ -95,6 +95,17 @@ nor the assertion, the verdict cannot have changed.
   as much an over-claim as the original; ask what it did and did not reproduce.
 - **Correct a premise where it is STATED**, not in an appended note - the next reader starts at the top.
 
+## Never pass prose through `--body` or `-m` — use a file
+
+Measured twice in one session, hours apart: a `gh issue comment --body "…"` and a `git commit -m "…"`
+both contained backticked code spans, and zsh ran them as command substitutions. Output:
+`command not found: skipFraming`, `command not found: headCenterY`, `no matches found: matrixWorld[13]`.
+The commit landed with a hole in it; the comment posted mangled and had to be replaced.
+
+Any text containing backticks, `$`, or `!` goes in a heredoc file and is passed as `--body-file` /
+`git commit -F -`. This is not a style preference — the shell silently deletes the most technical part
+of the sentence, which is exactly the part worth writing down.
+
 ## Two sentences to end every proof
 
 Every proof run, report and close comment ends with the exact literal line:
