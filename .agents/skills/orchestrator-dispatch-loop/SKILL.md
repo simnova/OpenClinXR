@@ -22,9 +22,31 @@ concluded the queue was empty. **The portfolio is a subset of the board, never a
 Every tick, after HARVEST and before concluding anything is idle, run:
 
 ```bash
-gh project item-list 7 --owner simnova --limit 200 --format json \
-  | python3 -c "import json,sys;[print(f\"[{i.get('priority')}] #{i['content']['number']} {i['content']['title'][:70]}\") for i in sorted((x for x in json.load(sys.stdin)['items'] if x.get('priority') and x.get('status')=='Todo'), key=lambda x:(x['priority'], x['content']['number']))]"
+pnpm exec tsx tools/openclinxr/openclaw/board-next-cli.ts
 ```
+
+**DO NOT hand-roll `gh project item-list | python3 …` for this.** That is how the queue broke.
+
+MEASURED 2026-08-24: nine dequeue reads used `--limit 200` against a **614-item** board. The filter
+and sort were CORRECT — `status == "Todo"`, required `priority`, sorted by tier. The data never
+arrived:
+
+```
+P0/P1 Todo on the board .... 17
+visible in the first 200 ....  3
+invisible ................... 14, INCLUDING BOTH P0s   (#603 at position 597, #610 at 604)
+```
+
+`item-list` returns project position order, which here matches insertion, so the newest and most
+recently prioritized cards are always LAST. **Any fixed cap below the board's eventual size fails the
+same way and moves the cliff rather than removing it.** A ranked list of three looks exactly like a
+ranked list of seventeen, so the failure is silent by construction.
+
+The selector asserts `fetched === totalCount` from the server's own count and **refuses with a
+non-zero exit** when they differ. A refusal is the correct output of a truncated read; a plausible
+wrong pick is not. Live check on the real board: complete read picks P0 `#603`; the same call capped
+at 200 returns `REFUSED (incomplete-read) fetched=200/614`.
+
 
 - **Dequeue order is `priority` then number — P0 → P1 → P2. NOT lowest id.** Lowest-id picks #2 (a P2)
   ahead of the P0 and every P1. The two orderings disagree on the very first item.
