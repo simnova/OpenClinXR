@@ -231,10 +231,30 @@ dispatch whose `model:` was not chosen from a ladder above as a defect.
 
 ## OpenAI / codex, for analysis rather than for slices
 
-`codex exec -m gpt-5.6-sol -c model_reasoning_effort="xhigh" -s read-only` runs on the operator's
-ChatGPT login rather than a metered key, so it does not consume the token budget a worker does. Use
-it for outside review and analysis (`PROTO_VERIFY_DELEGATION` §10r), not as a worker rung. It is
-absent from both ladders on purpose.
+Runs on the operator's ChatGPT login rather than a metered key, so it does not consume the token
+budget a worker does. Use it for outside review and analysis, not as a worker rung. It is absent
+from both ladders on purpose.
+
+```bash
+codex exec -m gpt-5.6-sol -c model_reasoning_effort="high" -c sandbox_mode="read-only" \
+  --skip-git-repo-check -o <answer.md> "$(cat <prompt.md>)" < /dev/null
+```
+
+**`< /dev/null` IS NOT OPTIONAL.** A backgrounded call inherits a pipe that never closes, so codex
+prints `Reading additional input from stdin...` and blocks forever on a prompt it already has.
+Measured 2026-08-23: 34 minutes at 0% CPU with no rollout file ever created. The tell is the log
+containing only that one line — check for a rollout under `~/.codex/sessions/<date>/` before
+concluding anything about the model, because no rollout means no turn ever began.
+
+**Reasoning effort: `high`, not `xhigh`** (operator, 2026-08-23). Measured on an `xhigh` run over
+616 s: `token_count -> reasoning` alone was **307.5 s, 50% of wall clock**, and model-side time
+totalled **88%** against 12% local execution. Network is not the constraint — provider round-trip is
+6-7 ms to openai/deepseek/openrouter — and neither is disk, at ~855 MB/s locally. The one lever that
+moves this is reasoning effort. Reserve `xhigh` for a consult where a wrong answer costs a slice.
+
+Note the opposite profile for Blender: 9.7 s per body at 100% CPU with no network at all. Model
+calls are latency-bound and parallelise nearly free; bakes are CPU-bound and serialise. Schedule
+them differently.
 
 ## Related
 
