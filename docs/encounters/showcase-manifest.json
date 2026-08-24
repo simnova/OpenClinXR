@@ -1,0 +1,142 @@
+{
+  "schemaVersion": "openclinxr.encounter-showcase.v1",
+  "generatedAt": "2026-08-24T22:51:41.471Z",
+  "generatorHeadSha": "fab1cd5ee44c9299f0c0f23ea18a4f99b6c28547",
+  "entries": [
+    {
+      "scenarioId": "adult_abdominal_pain_v1",
+      "title": "Adult Abdominal Pain",
+      "summary": "Curtained ED bay with stretcher, bedside monitor, abdominal exam lighting, and hallway interruptions for family pressure.",
+      "image": "/encounters/images/adult_abdominal_pain_v1.png",
+      "gradeVerdict": null,
+      "gradedAt": null,
+      "capturedAtHeadSha": null
+    },
+    {
+      "scenarioId": "clinic_abdominal_pain_interpreter_v1",
+      "title": "Clinic Abdominal Pain Interpreter",
+      "summary": "Urgent care room with exam table, stool, abdominal exam zone, tablet interpreter station, and vitals panel.",
+      "image": "/encounters/images/clinic_abdominal_pain_interpreter_v1.png",
+      "gradeVerdict": null,
+      "gradedAt": null,
+      "capturedAtHeadSha": null
+    },
+    {
+      "scenarioId": "ed_chest_pain_priority_v1",
+      "title": "Ed Chest Pain Priority",
+      "summary": "Curtained ED bay with stretcher, bedside monitor, ECG cart nearby, and hallway interruptions.",
+      "image": "/encounters/images/ed_chest_pain_priority_v1.png",
+      "gradeVerdict": null,
+      "gradedAt": null,
+      "capturedAtHeadSha": null
+    },
+    {
+      "scenarioId": "ed_chest_pain_priority_v2",
+      "title": "Ed Chest Pain Priority",
+      "summary": "",
+      "image": "/encounters/images/ed_chest_pain_priority_v2.png",
+      "gradeVerdict": null,
+      "gradedAt": null,
+      "capturedAtHeadSha": null
+    },
+    {
+      "scenarioId": "ed_stroke_alert_handoff_v1",
+      "title": "Ed Stroke Alert Handoff",
+      "summary": "ED hallway-to-stroke-bay setting with bed, monitor, wall clock, CT direction sign, neuro exam props, and family chair.",
+      "image": "/encounters/images/ed_stroke_alert_handoff_v1.png",
+      "gradeVerdict": null,
+      "gradedAt": null,
+      "capturedAtHeadSha": null
+    },
+    {
+      "scenarioId": "ob_headache_preeclampsia_triage_v1",
+      "title": "Ob Headache Preeclampsia Triage",
+      "summary": "OB triage bay with bed, fetal monitor prop, blood-pressure cuff, urine cup, call light, fetal-heart audio placeholder, and privacy curtain.",
+      "image": "/encounters/images/ob_headache_preeclampsia_triage_v1.png",
+      "gradeVerdict": null,
+      "gradedAt": null,
+      "capturedAtHeadSha": null
+    },
+    {
+      "scenarioId": "oncology_bad_news_family_v1",
+      "title": "Oncology Bad News Family",
+      "summary": "Calm oncology room with desk, chairs, tissue box, imaging report panel, and subdued lighting.",
+      "image": "/encounters/images/oncology_bad_news_family_v1.png",
+      "gradeVerdict": null,
+      "gradedAt": null,
+      "capturedAtHeadSha": null
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "title": "Peds Asthma Parent Anxiety",
+      "summary": "",
+      "image": "/encounters/images/peds_asthma_parent_anxiety_v1.png",
+      "gradeVerdict": null,
+      "gradedAt": null,
+      "capturedAtHeadSha": null
+    },
+    {
+      "scenarioId": "peds_fever_v1",
+      "title": "Peds Fever",
+      "summary": "Child-sized urgent-care bay with pulse oximeter, thermometer tray, parent chair, and pediatric distraction items.",
+      "image": "/encounters/images/peds_fever_v1.png",
+      "gradeVerdict": "bad — floor renders pure black across the whole room while cast and furniture are lit; three figures and the exam table read correctly. Graded from the room capture 2026-08-24.",
+      "gradedAt": "2026-08-24",
+      "capturedAtHeadSha": null
+    },
+    {
+      "scenarioId": "postop_fever_consult_pressure_v1",
+      "title": "Postop Fever Consult Pressure",
+      "summary": "Post-op ward room with abdominal dressing, drain, incentive spirometer, vitals board, medication list, and IV props.",
+      "image": "/encounters/images/postop_fever_consult_pressure_v1.png",
+      "gradeVerdict": null,
+      "gradedAt": null,
+      "capturedAtHeadSha": null
+    },
+    {
+      "scenarioId": "primary_care_dyslipidemia_joint_pain_v1",
+      "title": "Primary Care Dyslipidemia Joint Pain",
+      "summary": "Primary care room with exam table, chairs, EHR screen, lab results, joint diagram, and medication list.",
+      "image": "/encounters/images/primary_care_dyslipidemia_joint_pain_v1.png",
+      "gradeVerdict": null,
+      "gradedAt": null,
+      "capturedAtHeadSha": null
+    },
+    {
+      "scenarioId": "psych_suicidal_ideation_safety_v1",
+      "title": "Psych Suicidal Ideation Safety",
+      "summary": "Quiet room with safe furniture, visible door, privacy constraints, and nurse access for safety observation.",
+      "image": "/encounters/images/psych_suicidal_ideation_safety_v1.png",
+      "gradeVerdict": null,
+      "gradedAt": null,
+      "capturedAtHeadSha": null
+    },
+    {
+      "scenarioId": "stepdown_sepsis_nurse_escalation_v1",
+      "title": "Stepdown Sepsis Nurse Escalation",
+      "summary": "Stepdown room with monitor, IV pump, oxygen, blood-culture kit prop, medication cart, and sepsis alert panel.",
+      "image": "/encounters/images/stepdown_sepsis_nurse_escalation_v1.png",
+      "gradeVerdict": null,
+      "gradedAt": null,
+      "capturedAtHeadSha": null
+    },
+    {
+      "scenarioId": "telehealth_diabetes_health_literacy_v1",
+      "title": "Telehealth Diabetes Health Literacy",
+      "summary": "Video visit view of patient at home with low-bandwidth interruptions, medication bottles, and caregiver offscreen/on-screen transitions.",
+      "image": "/encounters/images/telehealth_diabetes_health_literacy_v1.png",
+      "gradeVerdict": null,
+      "gradedAt": null,
+      "capturedAtHeadSha": null
+    },
+    {
+      "scenarioId": "ward_delirium_med_rec_v1",
+      "title": "Ward Delirium Med Rec",
+      "summary": "Medical ward room with bed rails, medication cart, IV pump, whiteboard, call bell, fall-risk sign, and EHR laptop.",
+      "image": "/encounters/images/ward_delirium_med_rec_v1.png",
+      "gradeVerdict": "mixed — walls and cast render well, supine patient reads as a person on the bed; floor is black as in every other station. Graded from the room capture 2026-08-24.",
+      "gradedAt": "2026-08-24",
+      "capturedAtHeadSha": null
+    }
+  ]
+}

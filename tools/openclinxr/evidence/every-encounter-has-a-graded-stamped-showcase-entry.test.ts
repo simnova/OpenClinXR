@@ -31,6 +31,16 @@ import { join } from "node:path";
  *
  * So the entry must carry a GRADE, and the grade must name the tree it graded.
  *
+ * ## PARTIALLY FIXED — clause (1) flipped `it.fails` -> `it`, 2026-08-24.
+ *
+ * `build-encounter-showcase.ts` generates the manifest from what SHIPS: 15 entries, summaries read
+ * from the scenario bank rather than hand-authored, images copied beside the page.
+ *
+ * Clause (2) REMAINS RED and that is the design working. 13 of 15 entries have `gradeVerdict: null`
+ * because only two images have actually been opened and assessed, and the capture manifest records
+ * no `headSha`, so `capturedAtHeadSha` is null on all 15. The generator refuses to invent either —
+ * an ungraded gallery must not be publishable as though someone had looked.
+ *
  * claimScope: that every shipped encounter has a showcase entry with a summary, an image, a grade,
  *   and the commit that image was captured at.
  * notEvidenceFor: that any image LOOKS correct — a grade field records that a human or the
@@ -60,7 +70,7 @@ const shippedEncounterIds = (): string[] => {
 };
 
 describe("every encounter has a graded, stamped showcase entry", () => {
-  it.fails("(1) a showcase manifest exists with one entry per shipped encounter", () => {
+  it("(1) a showcase manifest exists with one entry per shipped encounter", () => {
     const m = readManifest();
     expect(m, `no showcase manifest at docs/encounters/showcase-manifest.json`).not.toBeNull();
     const ids = new Set((m?.entries ?? []).map((e) => e.scenarioId));
