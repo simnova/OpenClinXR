@@ -37,6 +37,46 @@ before passing `model:`.
 | `exists:` under `.openclinxr/evidence/**` | passes in the worktree, never lands | gitignored; use a tracked path (`tools/openclinxr/evidence/…`) |
 | plant not committed before dispatch | merge fails on *untracked working tree files would be overwritten* | commit the RED to main first |
 
+## The worker report — four literals, and three workers dropped the SAME one
+
+`integrate.ts:393` matches these unanchored, and merge-kill refuses with `worker-never-spoke` unless
+**all four** appear in a comment on the card:
+
+```
+IN-SCOPE:      OUT-OF-SCOPE:      CLAIM:      NOT TESTED:
+```
+
+**Measured 2026-08-24: #576, #609 and #608 each shipped correct, contract-green work and each omitted
+exactly `OUT-OF-SCOPE:`.** Three resume cycles for one missing heading. That is a brief-template
+defect, not three worker defects — so put this in every brief, verbatim:
+
+> Your report MUST be ONE comment on the card containing all four of these literals, each at LINE
+> START with its trailing colon: `IN-SCOPE:`, `OUT-OF-SCOPE:`, `CLAIM:`, `NOT TESTED:`.
+> **`OUT-OF-SCOPE:` is the one workers forget.** If you genuinely touched nothing outside the slice,
+> write the heading and say so — do not omit it. Do not decorate the literal: one worker wrote
+> `OUT-OF-SCOPE (seen, not fixed):` and the parenthetical broke the exact match.
+
+**You cannot repair this yourself.** A comment of YOURS carrying those markers satisfies the mute gate
+on the worker's behalf — the laundering the check exists to prevent. Resume the worker for a
+report-only turn instead, and say plainly that the code is fine and only the heading is missing.
+
+**Check before integrating, not after:**
+
+```bash
+gh issue view <N> --json comments -q '.comments[-1].body' > /tmp/r.txt
+for m in 'IN-SCOPE:' 'OUT-OF-SCOPE:' 'CLAIM:' 'NOT TESTED:'; do printf '%-14s %s\n' "$m" "$(grep -ci -- "$m" /tmp/r.txt)"; done
+```
+
+**Ask for two things beyond the gate** — they cost the worker nothing and have twice been worth more
+than the fix. On #609 they produced *"patient_robert_hayes_v1 (male) derives gender_presentation:
+adult_female_parent"*; on #608, *"the chain bakes exactly ONE utterance per case"*, which named the
+next slice:
+
+1. the one question whose answer you cannot infer from a green contract, phrased so that the
+   unwelcome answer is explicitly acceptable;
+2. any out-of-scope wrongness seen and not fixed — **name the object and what it looks like**, never a
+   category word like "deformed".
+
 ## Planting a RED — clause hygiene the probe will otherwise teach you
 
 - **A vacuity guard cannot live inside the `it.fails` it guards.** An `it.fails` is satisfied by ANY failure including the guard's own throw. Put length/population guards in a plain `it`.
