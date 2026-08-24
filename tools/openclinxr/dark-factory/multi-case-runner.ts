@@ -11,7 +11,9 @@
  *
  * NO station is reimplemented and NO geometry is authored. Every station chains the
  * adopted implementation #286 recorded:
- *   1. case_to_actor_params  — tools/openclinxr/asset-pipeline/anny/orchestrate_character.py CASE_ACTOR_PRESETS
+ *   1. case_to_actor_params  — tools/openclinxr/asset-pipeline/anny/orchestrate_character.py resolve_case_actor_params
+ *                            (legacy CASE_ACTOR_PRESETS row when present, else the committed case-definition
+ *                            phenotype export; the #601 seam — the gauge never reads the raw dict alone)
  *   2. body                  — tools/openclinxr/asset-pipeline/anny/generate_mesh.py build_source_body
  *   3. clothing              — tools/openclinxr/asset-pipeline/makeclothes/garment-selection-by-role.ts
  *   4. rigging               — tools/openclinxr/asset-pipeline/anny/automate_blender.py (via orchestrate_character.py)
@@ -103,7 +105,7 @@ export type CaseFrontier = {
   caseId: string;
   fullyDeterministic: boolean;
   deterministicStationCount: number;
-  /** First station (in chain order) that is not `deterministic`. */
+  /** First station (in chain order) that blocked completion (`error`/`not_run`). */
   firstNonDeterministicStation: DarkFactoryStationId | null;
   stoppedAtReason: string;
 };
@@ -160,7 +162,7 @@ export type RunMultiCaseChainOptions = {
 /** IMPLEMENTATION lines (same adopted implementation #286 recorded). */
 const IMPLEMENTATIONS: Record<DarkFactoryStationId, string> = {
   case_to_actor_params:
-    "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:203 CASE_ACTOR_PRESETS (data-driven preset map, no LLM)",
+    "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:351 resolve_case_actor_params (legacy preset row else case-definition phenotype export; data-driven, no LLM)",
   body: "tools/openclinxr/asset-pipeline/anny/generate_mesh.py:394 build_source_body (deterministic parametric stub; real-Anny forward pass is a separate blocked path)",
   clothing:
     "tools/openclinxr/asset-pipeline/makeclothes/garment-selection-by-role.ts:76 ROLE_TO_GARMENT_LAYERS (deterministic role->layer map) + resolveHm08UpperGarment",
@@ -226,17 +228,33 @@ async function runPython(script: string, args: string[], cwd: string): Promise<s
   return stdout;
 }
 
-/** Dump the full CASE_ACTOR_PRESETS entry set for a case id (params included). */
+/**
+ * Dump the resolvable case-actor entry set for a case id (params included).
+ * Resolution goes through the #601 seam (`allowed_case_actor_preset_ids` +
+ * `params_from_case_definition`): a legacy CASE_ACTOR_PRESETS row when present,
+ * else the committed case-definition phenotype export. The raw dict alone was
+ * the gauge's blind spot — cases resolvable only through the export (e.g.
+ * peds_fever_v1) were invisible (issue #607).
+ */
 async function dumpCasePresets(caseId: string, cwd: string): Promise<Record<string, PresetEntry>> {
   const snippet = [
     "import sys, json",
     "sys.path.insert(0, 'tools/openclinxr/asset-pipeline/anny')",
-    "from orchestrate_character import CASE_ACTOR_PRESETS",
+    "from orchestrate_character import CASE_ACTOR_PRESETS, allowed_case_actor_preset_ids, params_from_case_definition",
     "case_id = sys.argv[1]",
     "out = {}",
-    "for pid, p in CASE_ACTOR_PRESETS.items():",
-    "    if p.get('case_id') == case_id:",
-    "        out[pid] = {'case_id': p['case_id'], 'actor_id': p['actor_id'], 'actor_role': p['actor_role'], 'output_name': p['output_name'], 'params': p['params']}",
+    "for preset_id in allowed_case_actor_preset_ids():",
+    "    cid, actor_id = preset_id.split(':', 1)",
+    "    if cid != case_id:",
+    "        continue",
+    "    preset = CASE_ACTOR_PRESETS.get(preset_id)",
+    "    if preset is not None:",
+    "        out[preset_id] = {'case_id': preset['case_id'], 'actor_id': preset['actor_id'], 'actor_role': preset['actor_role'], 'output_name': preset['output_name'], 'params': preset['params']}",
+    "    else:",
+    "        fixture = params_from_case_definition(cid, actor_id)",
+    "        if fixture is not None:",
+    "            params, actor_role, output_name = fixture",
+    "            out[preset_id] = {'case_id': cid, 'actor_id': actor_id, 'actor_role': actor_role, 'output_name': output_name, 'params': params}",
     "print(json.dumps(out, default=str))",
   ].join("\n");
   const stdout = await runPython("-c", [snippet, caseId], cwd);
@@ -244,11 +262,33 @@ async function dumpCasePresets(caseId: string, cwd: string): Promise<Record<stri
   return parsed;
 }
 
-/** Run `orchestrate_character.py --list-presets` once and memoize. */
+/**
+ * List resolvable case-actor ids once and memoize: legacy CASE_ACTOR_PRESETS rows
+ * UNION committed phenotype-export entries with authored phenotype — the #601
+ * seam (`allowed_case_actor_preset_ids`), not the raw dict alone. A case the
+ * resolver can materialize is visible to the gauge (issue #607).
+ */
 let listPresetsCache: Record<string, { case_id: string; actor_id: string; actor_role: string; output_name: string }> | null = null;
 async function listPresets(): Promise<Record<string, { case_id: string; actor_id: string; actor_role: string; output_name: string }>> {
   if (listPresetsCache !== null) return listPresetsCache;
-  const stdout = await runPython(ORCHESTRATE, ["--list-presets"], REPO_ROOT);
+  const snippet = [
+    "import sys, json",
+    "sys.path.insert(0, 'tools/openclinxr/asset-pipeline/anny')",
+    "from orchestrate_character import CASE_ACTOR_PRESETS, allowed_case_actor_preset_ids, params_from_case_definition",
+    "out = {}",
+    "for preset_id in allowed_case_actor_preset_ids():",
+    "    case_id, actor_id = preset_id.split(':', 1)",
+    "    preset = CASE_ACTOR_PRESETS.get(preset_id)",
+    "    if preset is not None:",
+    "        out[preset_id] = {'case_id': preset['case_id'], 'actor_id': preset['actor_id'], 'actor_role': preset['actor_role'], 'output_name': preset['output_name']}",
+    "    else:",
+    "        fixture = params_from_case_definition(case_id, actor_id)",
+    "        if fixture is not None:",
+    "            _, actor_role, output_name = fixture",
+    "            out[preset_id] = {'case_id': case_id, 'actor_id': actor_id, 'actor_role': actor_role, 'output_name': output_name}",
+    "print(json.dumps(out, default=str))",
+  ].join("\n");
+  const stdout = await runPython("-c", [snippet], REPO_ROOT);
   listPresetsCache = JSON.parse(stdout) as Record<string, { case_id: string; actor_id: string; actor_role: string; output_name: string }>;
   return listPresetsCache;
 }
@@ -341,7 +381,7 @@ async function runCaseToActorParams(
     caseId,
     resolvedActorCount: Object.keys(presets).length,
     actorIds: Object.values(presets).map((p) => p.actor_id),
-    notes: ["Resolved presets in-process from CASE_ACTOR_PRESETS (legacy dict). For the migrated peds case, orchestrate_character.py now prefers the case-definition phenotype export (issue-291), which reproduces these params byte-identically (verified by tools/openclinxr/evidence/actor-phenotype-reader.test.ts)."],
+    notes: ["Resolved case-actor params in-process via the #601 seam (resolve_case_actor_params): legacy preset row when present, else the committed case-definition phenotype export (issue-291). The gauge no longer reads CASE_ACTOR_PRESETS as the source of truth."],
   }, null, 2)}\n`, "utf8");
   return {
     row: makeRow("case_to_actor_params", "deterministic", [
@@ -744,7 +784,7 @@ function errMessage(err: unknown): string {
 
 function executionCommandsFor(): Record<string, string> {
   return {
-    case_to_actor_params: "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --list-presets",
+    case_to_actor_params: "in-process orchestrate_character.py resolve_case_actor_params (legacy preset row else case-definition phenotype export)",
     body: "python3 tools/openclinxr/asset-pipeline/anny/generate_mesh.py --params <preset params> --output <obj> --manifest <json>",
     clothing: "in-process tools/openclinxr/asset-pipeline/makeclothes/garment-selection-by-role.ts resolveAnnyGarmentLayers / resolveHm08UpperGarment",
     rigging: "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --case-actor-preset <id> --output-glb <glb>",
@@ -821,6 +861,22 @@ export async function writePreFixArtifact(options: {
 }
 
 /**
+ * A case is fully deterministic when no station is `error` or `not_run`.
+ * `absent` means NOT APPLICABLE — the scenario declares nothing for that
+ * station — and is a successful outcome, so it does not disqualify (issue #607:
+ * ten of fourteen bank cases declare no equipment; barring them on `absent`
+ * capped the headline forever). Extracted from the inline roll-up predicate so
+ * the rule is a pure, testable function of the station classifications alone.
+ */
+export function isCaseFullyDeterministic(
+  stations: readonly { classification: StationClassification }[],
+): boolean {
+  return !stations.some(
+    (s) => s.classification === "error" || s.classification === "not_run",
+  );
+}
+
+/**
  * Run the chain over the whole population and emit one station table per case
  * plus a roll-up. The render station shares ONE dev server for the whole batch.
  */
@@ -850,19 +906,21 @@ export async function runMultiCaseChain(options: RunMultiCaseChainOptions = {}):
           deterministicStationTotals[station.stationId] = (deterministicStationTotals[station.stationId] ?? 0) + 1;
         }
       }
-      const firstNonDeterministic = table.stations.find((s) => s.classification !== "deterministic");
+      const firstBlocked = table.stations.find(
+        (s) => s.classification === "error" || s.classification === "not_run",
+      );
       const frontier: CaseFrontier = {
         caseId: table.caseId,
-        fullyDeterministic: firstNonDeterministic === undefined,
+        fullyDeterministic: isCaseFullyDeterministic(table.stations),
         deterministicStationCount: table.stations.filter((s) => s.classification === "deterministic").length,
-        firstNonDeterministicStation: firstNonDeterministic?.stationId ?? null,
-        stoppedAtReason: firstNonDeterministic
-          ? `station ${firstNonDeterministic.stationId}: ${firstNonDeterministic.notes[0] ?? firstNonDeterministic.classification}`
+        firstNonDeterministicStation: firstBlocked?.stationId ?? null,
+        stoppedAtReason: firstBlocked
+          ? `station ${firstBlocked.stationId}: ${firstBlocked.notes[0] ?? firstBlocked.classification}`
           : "",
       };
       frontiers.push(frontier);
-      if (firstNonDeterministic) {
-        frontierCounts[firstNonDeterministic.stationId] = (frontierCounts[firstNonDeterministic.stationId] ?? 0) + 1;
+      if (firstBlocked) {
+        frontierCounts[firstBlocked.stationId] = (frontierCounts[firstBlocked.stationId] ?? 0) + 1;
       }
     }
 
@@ -881,7 +939,7 @@ export async function runMultiCaseChain(options: RunMultiCaseChainOptions = {}):
         frontierCounts,
         coverageNotes: [
           "The roll-up reports what happened per case per station; no pass rate is asserted.",
-          "case_to_actor_params/body/rigging are bounded by CASE_ACTOR_PRESETS (only preset cases traverse them); room/equipment/placement/render are bounded by the scenario fixtures and run over the full population.",
+          "case_to_actor_params/body/rigging are bounded by the resolver union (resolve_case_actor_params: legacy preset rows + authored phenotype-export entries); room/equipment/placement/render are bounded by the scenario fixtures and run over the full population.",
         ],
       },
       cases: tables,
