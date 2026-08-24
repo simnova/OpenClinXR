@@ -4,6 +4,7 @@
  */
 
 import { Box3, Mesh, type Object3D, Vector3 } from "three";
+import { measureSeatClearanceMeters } from "./hob-contact-metrics.js";
 
 /**
  * Bind-pose mesh AABB minY — raw position attribute × matrixWorld, the SAME instrument the
@@ -95,6 +96,29 @@ export function lowerSupineBodyOntoDeck(
   humanoidRoot.updateMatrixWorld?.(true);
   humanoidRoot.userData.openClinXrSupineFloatSettleMeters = delta;
   return delta;
+}
+
+/**
+ * Close the FLOAT side of the deck contact with the SKINNED instrument the #620 contract
+ * grades. The flat path's lowerSupineBodyOntoDeck settles the BIND-pose surface (#494), which
+ * cannot see skinned deformation; the inclined path (#171) closed only SINKING (bounded seat
+ * lift), so a 30° ED patient sat 0.221 m above the deck while penetration read 0 and every
+ * #150 clause passed. Lower the root until the lowest skinned vertex rests on the deck top.
+ * Samples at the contract instrument's density (count/4000) so the landing is measured where
+ * the contract reads it. Never raises — the lift side owns the back-gap trade (#171).
+ */
+export function settleSupineFloatOntoDeck(
+  humanoidRoot: Object3D,
+  deckTopWorldY: number,
+  restClearanceMeters = 0.02,
+): number {
+  const clearance = measureSeatClearanceMeters(humanoidRoot, deckTopWorldY, 4000);
+  const excess = clearance - restClearanceMeters;
+  if (!Number.isFinite(excess) || excess <= 1e-4) return 0;
+  humanoidRoot.position.y -= excess;
+  humanoidRoot.updateMatrixWorld?.(true);
+  humanoidRoot.userData.openClinXrSupineFloatSettleSkinnedMeters = excess;
+  return excess;
 }
 
 /**

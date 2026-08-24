@@ -41,6 +41,44 @@ import { inspectSupinePatientOnDeck } from "./supine-patient-on-deck.js";
  * deck top, as the repo's own inspector reports it.
  * notEvidenceFor: why the body is suspended; the head-to-pillow gap (#181); the body's tilt, which is
  * real (0.879 m vertical span for a recumbent adult) but is a separate defect; any other station.
+ *
+ * ## FIXED (#620) — inclined-path skinned float settle in supine-deck-plant.ts
+ *
+ * The ED patient is the MPFB gown adult (`ED_RUNTIME_CAST_BY_ACTOR.patient_robert_hayes_v1`
+ * → `mpfb-gown-adult-patient.glb`), and the inclined path had NO float-close: the flat path
+ * settles the bind-pose surface (#494) but the inclined branch only closed SINKING (bounded
+ * seat lift), so a 30° body sat 0.221 m above the deck while penetration read 0. Fix:
+ * `settleSupineFloatOntoDeck` (hob-body-align.ts) measures the skinned AABB minY with the
+ * contract inspector's own sampling density (count/4000) and lowers the root until the lowest
+ * rendered vertex rests on the deck top. It runs after the bounded seat lift and never raises
+ * (the lift owns the sink side with the back-gap trade).
+ *
+ * MEASURED 2026-08-24 after the fix, live inspector, same bank:
+ *
+ *   bodyMinY                  0.581        (was 0.771)
+ *   bodyMaxY                  1.461        (was 1.650)
+ *   clearanceAboveDeckMeters  0.031        (was 0.221; ≤ 0.05 now)
+ *   deckPenetrationMeters     0.000        (was 0.000 — #150 guarantee intact)
+ *   posture                   "supine"     longestAxis "x"   (unchanged)
+ *
+ * The settle targets the deck top (rest clearance 0), because the contract inspector reads
+ * ~29–31 mm ABOVE the register-time settle on this rig (measured across three runs: target
+ * 0.02 → 0.047–0.049; target 0.0 → 0.031). The contract reading therefore lands mid-band
+ * with ~19 mm of margin each way; the body's lowest point never goes below the deck top, so
+ * penetration stays 0.
+ *
+ * DECISIONS RECORDED: root translate (a deck-relative offset), not a per-bone plant — the
+ * whole body was elevated ~0.3–0.5 m along its length and a single translate lands the lowest
+ * point. Other stretcher stations (ed_chest_pain_priority_v2, ward_delirium, stepdown, postop,
+ * adult_abdominal) are LEFT for a follow-up: they float less (0.127–0.129 m) on the FLAT path,
+ * whose bind-pose settle is pinned by #492/#494's dump contract — landing them with a skinned
+ * settle would sink their bind-pose surface below the deck and break that contract's known-good
+ * column. The #159 harness (Anny body) is unaffected: it rests already, so the settle no-ops
+ * there (verified live, back gap +0.02 / pelvis on seat at every incline).
+ *
+ * OUT-OF-SCOPE, unchanged by this fix: the body is still tilted (vertical span 0.880 m) — the
+ * back floats above the back section while the lowest point rests. That is the separate defect
+ * this contract deliberately does not bound.
  */
 
 const ED = "ed_chest_pain_priority_v1";
@@ -58,7 +96,7 @@ beforeAll(async () => {
 const MAX_CONTACT_GAP_METERS = 0.05;
 
 describe("the supine ED patient rests ON the deck, not above it", () => {
-  it.fails("(1) the body's lowest point is within contact tolerance of the deck top", () => {
+  it("(1) the body's lowest point is within contact tolerance of the deck top", () => {
     expect(patients.length, "no ED primary patient in the live scene").toBeGreaterThan(0);
 
     for (const p of patients) {

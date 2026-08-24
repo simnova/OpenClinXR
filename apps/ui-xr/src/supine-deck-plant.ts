@@ -33,6 +33,7 @@ import {
   liftSupineBodyAboveDeck,
   lowerSupineBodyOntoDeck,
   centerSupineBodyOnDeck,
+  settleSupineFloatOntoDeck,
 } from "./hob-body-align.js";
 
 export type PlantStepMetrics = {
@@ -482,6 +483,15 @@ export function applyAndPlantSupineOnDeck(
       }
       recordPlantStep(humanoidRoot, "bounded_seat_lift", incline, input.stretcher, input.deckTopWorldY);
     }
+
+    // #620: the inclined path closed SINKING (bounded seat lift) but never closed FLOAT — the
+    // ED patient sat 0.221 m above the deck while penetration read 0 and every #150 clause
+    // passed. Lower the root with the same skinned instrument the contract grades. Target the
+    // deck top (rest clearance 0): the contract inspector reads ~29 mm ABOVE the register-time
+    // settle (measured #620), so a 0 target lands the contract reading ~mid-band, not at 0.05.
+    settleSupineFloatOntoDeck(humanoidRoot, input.deckTopWorldY, 0.0);
+    recordPlantStep(humanoidRoot, "skinned_float_settle", incline, input.stretcher, input.deckTopWorldY);
+
     recordPlantStep(humanoidRoot, "final", incline, input.stretcher, input.deckTopWorldY);
   } else {
     plantSupineBodyOnDeck(humanoidRoot, input.deckTopWorldY, thickness, { contactMode: "all_torso" });
