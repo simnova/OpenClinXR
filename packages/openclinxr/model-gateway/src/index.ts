@@ -1,4 +1,5 @@
 import { type ProviderAuditRecord, type ProviderHealth, validateProviderHealth } from "@cellix/provider-contracts";
+import { isHiddenTruthExtractionAttempt } from "./hidden-truth-guardrail.js";
 
 export type ModelCapability = "actor_response" | "scenario_draft" | "scenario_review";
 
@@ -373,19 +374,6 @@ function modelRequestId(input: ActorResponseRequest): string {
     : `${input.stationRunId}:${input.actorId}:turn-${input.conversationTurn}`;
 }
 
-function isHiddenTruthExtractionAttempt(utterance: string): boolean {
-  const normalized = utterance.toLowerCase();
-  return [
-    "hidden fact",
-    "hidden facts",
-    "secret",
-    "ignore your instructions",
-    "ignore instructions",
-    "system prompt",
-    "developer message",
-  ].some((phrase) => normalized.includes(phrase));
-}
-
 export type LocalModelProviderOptions = {
   providerId: string;
   blockers?: string[];
@@ -437,3 +425,6 @@ export function createOllamaModelProviderAdapter(options: LocalModelProviderStub
     blockers: options.blockers ?? ["ollama_model_runtime_not_configured"],
   });
 }
+
+export { OpenAiCompatibleModelProviderAdapter } from "./openai-compatible-adapter.js";
+export type { OpenAiCompatibleProviderOptions } from "./openai-compatible-adapter.js";
