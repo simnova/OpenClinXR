@@ -110,3 +110,49 @@ describe("a slice is not dispatched into the same wall twice", () => {
     expect(shouldRefuseDispatch(fx.rows, "issue-999", NOW).refuse).toBe(false);
   });
 });
+
+/**
+ * A SILENT GATE CANNOT BE AUDITED. The breaker runs before the board update and before any session
+ * ledger row, so without a durable record nothing explains why a slice stopped dispatching.
+ *
+ * `lastPassAt` beside `triggeredBy` is what lets a later reader spot a FALSE refusal without
+ * re-running the breaker: a refusal whose last pass is recent relative to its triggering sessions is
+ * the shape measured on issue-341 and fixed in 3baa71af.
+ */
+describe("a breaker refusal leaves a durable record", () => {
+  it("writes clause, triggering sessions and lastPassAt to breaker-events.jsonl", async () => {
+    const { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join: j } = await import("node:path");
+    const { assertNotRepeatingIntoTheSameWall } = await import("./dispatch-worker.js");
+
+    const root = mkdtempSync(j(tmpdir(), "breaker-"));
+    mkdirSync(j(root, ".openclinxr/openclaw"), { recursive: true });
+    const iso = (minsAgo: number) => new Date(Date.now() - minsAgo * 60_000).toISOString();
+    writeFileSync(
+      j(root, ".openclinxr/openclaw/worker-sessions.jsonl"),
+      [
+        { sessionId: "s1", slice: "probe-slice", at: iso(10), turns: 1, stopReason: "cancelled" },
+        { sessionId: "s2", slice: "probe-slice", at: iso(5), turns: 1, stopReason: "cancelled" },
+      ].map((r) => JSON.stringify(r)).join("\n") + "\n",
+    );
+
+    expect(() => assertNotRepeatingIntoTheSameWall(root, "probe-slice")).toThrow(/REFUSED/u);
+
+    const ev = j(root, ".openclinxr/openclaw/breaker-events.jsonl");
+    expect(existsSync(ev), "the refusal must be durable, not only thrown").toBe(true);
+    const rec = JSON.parse(readFileSync(ev, "utf8").trim()) as {
+      clause: string; lastPassAt: string | null; triggeredBy: { sessionId?: string }[];
+    };
+    expect(rec.clause).toBe("startup-storm");
+    expect(rec.triggeredBy.map((t) => t.sessionId), "name the sessions, do not make the reader re-derive them")
+      .toEqual(["s1", "s2"]);
+    expect(rec.lastPassAt, "null here means no pass was ignored — the refusal is sound").toBeNull();
+  });
+
+  it("a failed append never blocks the refusal — the record is evidence, not a gate", async () => {
+    const { assertNotRepeatingIntoTheSameWall } = await import("./dispatch-worker.js");
+    // A nonexistent repo root makes both the ledger read and the event append fail.
+    expect(() => assertNotRepeatingIntoTheSameWall("/nonexistent-root-xyz", "probe-slice")).not.toThrow();
+  });
+});

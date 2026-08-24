@@ -38,9 +38,32 @@ export type BreakerRow = {
   proofsOk?: boolean | null;
 };
 
+export type BreakerClause = "startup-storm" | "repeated-ceiling" | "repeated-proof-refusal";
+
+/**
+ * A refusal carries the evidence that produced it.
+ *
+ * The gate is otherwise SILENT: it throws to its immediate caller, runs before the board update and
+ * before any session ledger row, so nothing durable explains why a slice stopped dispatching. The
+ * next reader would have to re-run the breaker to find out — and could not tell a correct refusal
+ * from a false one at all.
+ *
+ * `lastPassAt` is the field that makes that distinguishable. A refusal whose `lastPassAt` is recent
+ * relative to `triggeredBy` is the false-refusal shape: the slice was making progress and the gate
+ * ignored it. That is exactly the defect measured on issue-341 and fixed in 3baa71af.
+ */
 export type BreakerVerdict =
   | { refuse: false }
-  | { refuse: true; clause: "startup-storm" | "repeated-ceiling" | "repeated-proof-refusal"; detail: string };
+  | {
+      refuse: true;
+      clause: BreakerClause;
+      detail: string;
+      /** Sessions that produced the refusal — the reader should not have to re-derive them. */
+      triggeredBy: { sessionId?: string; at?: string; turns?: number | null; stopReason?: string | null; proofsOk?: boolean | null }[];
+      /** Most recent PASS at or before evaluation, or null. Recent + refused = suspect. */
+      lastPassAt: string | null;
+      evaluatedAt: string;
+    };
 
 /** Turn counts that are configured ceilings rather than a worker's own stopping point. */
 const CEILINGS = [50, 80, 150, 200, 250];
@@ -64,6 +87,11 @@ export function mergeSessions(rows: readonly BreakerRow[]): BreakerRow[] {
   }
   return [...byId.values()];
 }
+
+/** Project a row down to the fields a later reader needs to judge the refusal. */
+const evidence = (r: BreakerRow) => ({
+  sessionId: r.sessionId, at: r.at, turns: r.turns, stopReason: r.stopReason, proofsOk: r.proofsOk,
+});
 
 const within = (row: BreakerRow, now: number, ms: number): boolean => {
   const t = row.at ? Date.parse(row.at) : Number.NaN;
@@ -104,6 +132,8 @@ export function shouldRefuseDispatch(
     .map((r) => Date.parse(r.at as string))
     .filter((t) => Number.isFinite(t) && t <= nowMs)
     .reduce((a, b) => Math.max(a, b), Number.NEGATIVE_INFINITY);
+  const lastPassAt = Number.isFinite(lastPass) ? new Date(lastPass).toISOString() : null;
+  const evaluatedAt = new Date(nowMs).toISOString();
   const mine = all.filter((r) => {
     const t = r.at ? Date.parse(r.at) : Number.NaN;
     return !Number.isFinite(lastPass) || !Number.isFinite(t) || t > lastPass;
@@ -119,6 +149,9 @@ export function shouldRefuseDispatch(
       refuse: true,
       clause: "startup-storm",
       detail: `${startup.length} one-turn cancellations for ${slice} in 30 min — the dispatch dies before the first turn. Change the environment, not the attempt.`,
+      triggeredBy: startup.map(evidence),
+      lastPassAt,
+      evaluatedAt,
     };
   }
 
@@ -135,6 +168,9 @@ export function shouldRefuseDispatch(
         refuse: true,
         clause: "repeated-ceiling",
         detail: `${at.length} sessions for ${slice} cancelled at exactly ${ceiling} turns in 24h — scope exceeds the budget. Re-scope or re-model; do not raise the ceiling.`,
+        triggeredBy: at.map(evidence),
+        lastPassAt,
+        evaluatedAt,
       };
     }
   }
@@ -151,6 +187,9 @@ export function shouldRefuseDispatch(
         refuse: true,
         clause: "repeated-ceiling",
         detail: `${n} sessions for ${slice} cancelled at exactly ${turns} turns in 24h — a ceiling this dispatch keeps hitting.`,
+        triggeredBy: day.filter((r) => r.turns === turns).map(evidence),
+        lastPassAt,
+        evaluatedAt,
       };
     }
   }
@@ -163,6 +202,9 @@ export function shouldRefuseDispatch(
       refuse: true,
       clause: "repeated-proof-refusal",
       detail: `${refused.length} sessions for ${slice} failed their proofs in 24h — the contract refused twice. Fix the contract or the work; do not re-run it.`,
+      triggeredBy: refused.map(evidence),
+      lastPassAt,
+      evaluatedAt,
     };
   }
 

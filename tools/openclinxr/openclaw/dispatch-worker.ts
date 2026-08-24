@@ -125,6 +125,8 @@ export function buildTextOnlyVisionPromptAppendix(model: string): string {
 
 /** Where session ids survive the orchestrator process that created them. */
 const LEDGER = ".openclinxr/openclaw/worker-sessions.jsonl";
+/** Durable record of every breaker refusal — a silent gate cannot be audited. */
+const BREAKER_EVENTS = ".openclinxr/openclaw/breaker-events.jsonl";
 
 type DispatchOptions = {
   prompt: string;
@@ -1660,9 +1662,38 @@ export function assertNotRepeatingIntoTheSameWall(repoRoot: string, slice: strin
   }
   const verdict = shouldRefuseDispatch(rows, slice, Date.now());
   if (!verdict.refuse) return;
+
+  /**
+   * A SILENT GATE IS THE WORST KIND. This guard runs before the board update and before any session
+   * ledger row, so without this append nothing durable explains why a slice stopped dispatching and
+   * the next reader would have to re-run the breaker to find out.
+   *
+   * `lastPassAt` beside `triggeredBy` is what makes a FALSE refusal recognisable without re-running
+   * anything: a refusal whose last pass is recent relative to its triggering sessions is the shape
+   * that was measured on issue-341 and fixed in 3baa71af. Written best-effort — a failed append
+   * must never be the reason a dispatch cannot be refused.
+   */
+  try {
+    appendFileSync(
+      join(repoRoot, BREAKER_EVENTS),
+      `${JSON.stringify({
+        kind: "dispatch-refused",
+        at: verdict.evaluatedAt,
+        slice,
+        clause: verdict.clause,
+        detail: verdict.detail,
+        lastPassAt: verdict.lastPassAt,
+        triggeredBy: verdict.triggeredBy,
+      })}\n`,
+      "utf8",
+    );
+  } catch { /* the record is evidence, never a gate */ }
+
   throw new Error(
     `dispatch REFUSED (${verdict.clause}): ${verdict.detail} ` +
-    `This is a circuit breaker, not a permanent close — it clears when the window rolls off. ` +
+    `Last proof PASS for this slice: ${verdict.lastPassAt ?? "none"}. ` +
+    `Recorded to ${BREAKER_EVENTS}. This is a circuit breaker, not a permanent close — it clears ` +
+    `when the window rolls off, and a PASS resets it immediately. ` +
     `Repeating the dispatch unchanged is the behaviour that produced 16 of 62 measured proof failures.`,
   );
 }
