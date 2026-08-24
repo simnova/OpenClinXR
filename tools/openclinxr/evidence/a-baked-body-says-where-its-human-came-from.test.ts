@@ -44,6 +44,20 @@ import { describe, expect, it } from "vitest";
  *   the sidecars, plus the four preset heights in the pipeline script.
  * notEvidenceFor: whether the baked figure looks right; whether the case-resolved values are correct;
  *   any mesh geometry; garments; rigging.
+ *
+ * ## FIXED (#653)
+ *
+ * `resolve_case_actor_params_with_source` (orchestrate_character.py) now returns the phenotype source
+ * beside the params — `case_definition` when the case-definition export authored the actor, else
+ * `case_actor_preset`. `resolve_generation_inputs` carries it through `generate()` /
+ * `write_provenance()` into `build_provenance_document`, which records it as `phenotypeSource` on the
+ * sidecar. The two branches are distinguishable after the bake: a case-driven body names
+ * `phenotypeSource: "case_definition"`, a preset-driven body names `"case_actor_preset"`.
+ *
+ * Shipped evidence: `peds_fever_v1:patient_noah_chen_v1` was baked through the seam (a case that
+ * authors its phenotype and had no shipped GLB — no existing humanoid re-baked or replaced), and its
+ * sidecar names `case_definition`. The raw `--params-json` path resolves no phenotype source and
+ * honestly omits the field.
  */
 
 const HUMANOIDS = "apps/ui-xr/public/generated-humanoids";
@@ -60,7 +74,7 @@ const namesItsSource = (body: Record<string, unknown>): boolean =>
   SOURCE_FIELDS.some((f) => typeof body[f] === "string" && (body[f] as string).length > 0);
 
 describe("a baked body says where its human came from", () => {
-  it.fails("(1) at least one shipped humanoid names the source of its phenotype", () => {
+  it("(1) at least one shipped humanoid names the source of its phenotype", () => {
     const all = sidecars();
     expect(all.length, "no provenance sidecars found — the reader is pointed at the wrong tree")
       .toBeGreaterThanOrEqual(14);

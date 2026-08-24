@@ -1,0 +1,81 @@
+{
+  "schema_version": "openclinxr.anny-source-manifest.v1",
+  "generator": "tools/openclinxr/asset-pipeline/anny/generate_mesh.py",
+  "source_kind": "real_anny_candidate_unverified",
+  "generator_mode": "real_anny_local_forward_pass",
+  "uses_real_anny_forward_pass": true,
+  "real_anny_weights_used": false,
+  "fallback_active": false,
+  "input_params": {
+    "age": 8,
+    "body_profile": "pediatric_school_age",
+    "pose": null,
+    "seed": 55996,
+    "phenotype": {
+      "height_cm": 125,
+      "bmi": 16.5,
+      "descriptor_derived": true,
+      "gender_presentation": "child"
+    },
+    "actor_id": "patient_noah_chen_v1"
+  },
+  "output": {
+    "obj_path": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-653/apps/ui-xr/public/generated-humanoids/peds_fever_patient_child.anny_base.obj",
+    "vertex_count": 13348,
+    "face_count": 13346,
+    "has_uvs": true,
+    "source_topology_mode": "real_anny_mpfb2_forward_pass_v1",
+    "uv_coverage_note": "planar normalized review UVs over real Anny source mesh"
+  },
+  "anny_forward_pass": {
+    "kind": "real_anny_forward_pass",
+    "package_path": "/Users/patrick/.local/share/mise/installs/python/3.13.14/lib/python3.13/site-packages/anny",
+    "model": "anny.create_fullbody_model(default/default-noeyes-notongue)",
+    "topology": "default-noeyes-notongue",
+    "topologyIncludesEyes": false,
+    "topologyIncludesTongue": false,
+    "source_vertex_count": 13348,
+    "source_face_count": 13346,
+    "source_height": 1.2497695684432983,
+    "target_height": 1.25,
+    "scale": 1.0001843792347966,
+    "external_network_used": false,
+    "model_download_used": false,
+    "noncommercial_download_used": false
+  },
+  "phenotype_summary": {
+    "height_cm": 125,
+    "bmi": 16.5,
+    "descriptor_derived": true,
+    "gender_presentation": "child"
+  },
+  "material_hints": {
+    "skin": "warm_light",
+    "hair": "brown",
+    "sourceTopologyMode": "real_anny_mpfb2_forward_pass_v1",
+    "role": {
+      "wardrobeRole": "pediatric_patient",
+      "garmentLayers": [
+        "pediatric_patient_local_fixture_clothing"
+      ],
+      "fabricPalette": "role_distinction_neutral",
+      "materialFinish": "matte_local_fixture_cloth",
+      "accessoryMarkers": [],
+      "fitProfile": "case_actor_basic_fit",
+      "clothing_style": "pediatric_patient_local_fixture_clothing",
+      "clothing_color": "role_distinction_neutral",
+      "role_visual_cue": "pediatric_patient",
+      "claim_scope": "procedural_role_distinction_marker_not_production_costume"
+    }
+  },
+  "not_evidence_for": [
+    "b_plus_visual_realism_gate",
+    "production_asset_readiness",
+    "quest_readiness"
+  ],
+  "notes": [
+    "This source OBJ came from a local Anny forward pass using bundled package data; no external provider, credential, paid API, model download, or noncommercial download helper was used.",
+    "This remains a quarantined source candidate and is not a B+ realism, production, Quest, learner, clinical, or scoring readiness claim.",
+    "The produced OBJ + this manifest are the handoff into the headless Blender stage (automate_blender.py)."
+  ]
+}

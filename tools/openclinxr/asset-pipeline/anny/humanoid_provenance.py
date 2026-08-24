@@ -199,6 +199,9 @@ def build_provenance_document(
     # orchestrate-only extras
     source_origin_chain_extra: Optional[Mapping[str, Any]] = None,
     optimization_handoff: Optional[Mapping[str, Any]] = None,
+    # issue-653: which phenotype source described the human (case_definition /
+    # case_actor_preset) — emitted by the resolver that chose it, recorded here.
+    phenotype_source: Optional[str] = None,
     # rebake-only extras
     source_topology_mode: str = "real_anny_mpfb2_forward_pass_v1",
     garment_authoring_class: str = "body_surface_normal_offset_issue_121",
@@ -268,6 +271,8 @@ def build_provenance_document(
 
     if optimization_handoff is not None:
         doc["optimizationHandoff"] = dict(optimization_handoff)
+    if phenotype_source is not None:
+        doc["phenotypeSource"] = phenotype_source
     if claim_scope is not None:
         doc["claimScope"] = claim_scope
     if promotion_gates is not None:
@@ -434,6 +439,7 @@ def _self_test(tmpdir: Path) -> None:
             "blenderStage": "automate_blender.py",
             "orchestrator": "orchestrate_character.py",
         },
+        phenotype_source="case_definition",
     )
     orch_path = tmpdir / "orchestrate.provenance.json"
     write_provenance_document(orch_path, orch_doc)
@@ -442,6 +448,7 @@ def _self_test(tmpdir: Path) -> None:
     assert "annyCode" in orch_loaded["licenseChain"]
     assert orch_loaded["licenseChain"]["status"] == "enumerated_from_source_record_at_orchestrate"
     assert orch_loaded["derivativeLineage"]["status"] == "orchestrate_derivative"
+    assert orch_loaded["phenotypeSource"] == "case_definition"
     print("humanoid_provenance self-test OK")
 
 
