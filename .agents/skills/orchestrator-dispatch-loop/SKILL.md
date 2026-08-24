@@ -65,6 +65,8 @@ before passing `model:`.
 | brief delta posted as a COMMENT | worker never sees it | the dispatcher reads `body` only — edit the body with `--body-file` |
 | `exists:` under `.openclinxr/evidence/**` | passes in the worktree, never lands | gitignored; use a tracked path (`tools/openclinxr/evidence/…`) |
 | plant not committed before dispatch | merge fails on *untracked working tree files would be overwritten* | commit the RED to main first |
+| `board slice-open` on a card that ALREADY exists | **mints a duplicate issue** (#26 -> minted #617) and points `board-<slice>.json` at the new number | `slice-open` is for NEW slices. For an existing card, write `.openclinxr/openclaw/board-<slice>.json` by hand with the real `issueNumber`, then `board close`. The dry-run tell is `issue=n/a` — it is about to CREATE, not attach |
+| `board close` arg names | `close requires --slice-id`, then `close requires --body` | it is `--slice-id <id> --body "<text>"` — **not** `--issue`, **not** `--body-file`. Use `--body "$(cat file)"` |
 
 ## The worker report — four literals, and three workers dropped the SAME one
 
