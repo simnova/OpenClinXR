@@ -111,8 +111,13 @@ const REPO = pathResolve(HERE, "../../..");
 /** The two actors compared: one authors a full numeric identity, one authors nothing. */
 const DECLARING_SCENARIO = "peds_asthma_parent_anxiety_v1";
 const DECLARING_ACTOR = "parent_tara_johnson_v1";
-const UNDECLARED_SCENARIO = "ob_headache_preeclampsia_triage_v1";
-const UNDECLARED_ACTOR = "patient_aisha_khan_v1";
+// issue-609: the no-phenotype control was patient_aisha_khan_v1 until #605's adult table rows made
+// her derive — her patient_aisha_khan_character assetNeed says "Pregnant patient...", which matches
+// the adult_standard_parent row. The control is now partner_sam_reed_v1, who cannot derive by
+// construction (no bodyMechanics, no partner_sam_reed_character assetNeed — see the CORRECTED block
+// in the header).
+const UNDECLARED_SCENARIO = "psych_suicidal_ideation_safety_v1";
+const UNDECLARED_ACTOR = "partner_sam_reed_v1";
 
 /** materialize_mpfb_humanoid_candidate.py:1971 — solve_height_macro(..., tol=0.01), in metres. */
 const PIPELINE_LENGTH_TOLERANCE_METERS = 0.01;
@@ -153,9 +158,42 @@ const PROFILE_BANDS = 20;
  *
  * NOT TESTED: whether any other band can be reached by a wardrobe hide-carve. Only the foot carve
  * was measured to move.
+ *
+ * ## CORRECTED 2026-08-23 (issue-609) — the control is re-pinned to an actor the table cannot derive
+ *
+ * The `81d06dd6` record above says `patient_aisha_khan_v1` authors NOTHING. That was true until
+ * `#605` extended `DESCRIPTOR_TO_BODY_PROFILE` with adult rows
+ * (`packages/openclinxr/scenario-fixtures/src/descriptor-phenotype-lookup.ts:56-77`): aisha's OB
+ * scenario carries a `patient_aisha_khan_character` assetNeed whose description begins
+ * "Pregnant patient..." (`ob-preeclampsia.ts:107`) — "pregnant" matches the adult_standard_parent
+ * row, so she now derives `{age 34, bmi 24, height_cm 166, body_profile adult_standard_parent,
+ * descriptor_derived true}`. The control dissolved a second time: `#598` greened the clause once
+ * (repaired at `650d66eb`), and `#605`'s table extension is what dissolves it now. The clause and
+ * the comparison are unchanged; only WHO the undeclared actor is has changed.
+ *
+ * The control is now `partner_sam_reed_v1` in `psych_suicidal_ideation_safety_v1`, and it cannot
+ * derive BY CONSTRUCTION, not by accident:
+ *   - the actor row authors no `bodyMechanics` at all (`psychiatric-safety.ts:44-60`), so there is
+ *     no `habitus`;
+ *   - the scenario's `assetNeeds` carry only `patient_jordan_reed_character` and
+ *     `behavioral_health_room_environment` (`psychiatric-safety.ts:140-152`) — there is no
+ *     `partner_sam_reed_character`, so the `<actorId>_character` convention has nothing to match;
+ *   - `descriptorTextFor()` therefore returns the empty string and `derivePhenotypeFromDescriptors()`
+ *     refuses at its second gate (`descriptor-phenotype-lookup.ts:149-151`: empty text -> undefined).
+ *   A table extension matches TEXT, and there is no text. This control dissolves only if someone
+ *   authors descriptor text onto the actor — a clinical authoring act, not a table edit.
+ *
+ * Measured on the re-pinned pair with this file's own instrument (bands 1-19): tara's body
+ * (`mpfb_ob_patient_aisha_body`, 11531 verts, 1.6527 m) vs sam's cast body
+ * (`mpfb_ed_chest_pain_spouse_adult_body`, 11365 verts, 1.6473 m) — max band delta 0.018768 against
+ * the ~0.006051 floor (3.1x). The family-partner body is the closest default adult to tara's in the
+ * whole cast, so the comparison stays the most discriminating one available.
+ *
+ * NOT TESTED: whether any OTHER gate of `derivePhenotypeFromDescriptors` can reach sam — his row
+ * has no phenotype, no habitus and no character assetNeed today, and the derivation call itself
+ * returning undefined is the verification.
  */
 const WARDROBE_CARVED_BANDS = 1;
-
 type Attr = { getCount(): number; getElement(i: number, target: number[]): number[] };
 type Body = { meshName: string; vertexCount: number; statureMeters: number; profile: number[] };
 
