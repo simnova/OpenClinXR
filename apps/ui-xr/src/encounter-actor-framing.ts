@@ -8,6 +8,9 @@
  * #81: telehealth primary patient parks at patient_chair (not floor-standing mid-bay).
  * #123: prefer openClinXrSlotKind so additional_cast / second clinical do not collapse
  * onto the single clinical_team framing point (coincident nurse+RT / nurse+consultant).
+ * #175: this pass runs LAST over four placement sources. When it discards a position
+ * another source resolved, it records it as openClinXrFramingOverrodePlacement {x,y,z}
+ * so a placement fix upstream cannot look applied while a capture shows otherwise.
  */
 
 import type { Group } from "three";
@@ -26,9 +29,26 @@ export type EncounterActorFramingInput = {
   onWardrobeCue?: (actor: Group, roleCue: "patient" | "clinical" | "family") => void;
 };
 
+/** #175: a position another placement source resolved, discarded by this pass. */
+type FramingOverrideRecord = { x: number; y: number; z: number };
+
+/**
+ * #175: record the pre-frame position whenever this pass actually rewrites XZ.
+ * The skip path and rotation/scale-only branches never call this — an override
+ * is a discarded declared placement, not a framing touch.
+ */
+function recordPlacementOverride(actor: Group): void {
+  actor.userData.openClinXrFramingOverrodePlacement = {
+    x: actor.position.x,
+    y: actor.position.y,
+    z: actor.position.z,
+  } satisfies FramingOverrideRecord;
+}
+
 /**
  * Apply deterministic floor-standing (or OB seated) framing for clean encounter
- * visual review. Sets openClinXrEncounterStaging on the actor slot.
+ * visual review. Sets openClinXrEncounterStaging on the actor slot. When it
+ * rewrites a position another source resolved, records it (#175).
  */
 export function applyCleanEncounterVisualReviewActorFraming(
   input: EncounterActorFramingInput,
@@ -45,6 +65,7 @@ export function applyCleanEncounterVisualReviewActorFraming(
       // standing. Keep the bed at OFFSET (clears WORK_SURFACE 1.75,-0.85); move the
       // ambulatory patient to the shared standing plant, clear of the deck.
       // Rejected: re-authoring another local +X bed that re-collides the desk (#206).
+      recordPlacementOverride(actor);
       actor.position.set(-0.72, 0, 0.08);
       actor.rotation.y = 0.16;
       actor.scale.setScalar(0.88);
@@ -61,6 +82,7 @@ export function applyCleanEncounterVisualReviewActorFraming(
       || role.includes("consultant")
       || role.includes("therapist")
     ) {
+      recordPlacementOverride(actor);
       actor.position.set(-0.22, 0.42, -0.04);
       actor.rotation.y = -0.24;
       actor.scale.setScalar(0.5);
@@ -70,6 +92,7 @@ export function applyCleanEncounterVisualReviewActorFraming(
     }
 
     if (role.includes("family") || role.includes("spouse") || role.includes("parent")) {
+      recordPlacementOverride(actor);
       actor.position.set(0.26, 0.42, -0.2);
       actor.rotation.y = -0.34;
       actor.scale.setScalar(0.46);
@@ -82,6 +105,7 @@ export function applyCleanEncounterVisualReviewActorFraming(
 
   // Telehealth home visit: patient sits on the procedural patient_chair (#81).
   if (scenarioId.includes("telehealth") && role.includes("patient")) {
+    recordPlacementOverride(actor);
     actor.position.set(
       DEFAULT_PATIENT_CHAIR_POSITION.x,
       0,
@@ -117,16 +141,19 @@ export function applyCleanEncounterVisualReviewActorFraming(
   }
 
   if (slotKind === "additional_cast") {
+    recordPlacementOverride(actor);
     actor.position.set(ADDITIONAL_CAST_FRAMING_XZ.x, 0, ADDITIONAL_CAST_FRAMING_XZ.z);
     actor.rotation.y = -0.12;
     actor.scale.setScalar(0.86);
     actor.userData.openClinXrEncounterStaging =
       "additional_cast_team_adjacent_secondary_not_doorway";
   } else if (slotKind === "family_or_observer" || role.includes("family") || role.includes("parent") || role.includes("spouse")) {
+    recordPlacementOverride(actor);
     actor.position.set(1.42, 0, 0.04);
     actor.rotation.y = -0.34;
     actor.scale.setScalar(0.82);
   } else if (role.includes("patient") || slotKind === "primary_patient") {
+    recordPlacementOverride(actor);
     actor.position.set(-0.9, 0, 0.08);
     actor.rotation.y = 0.16;
     actor.scale.setScalar(0.88);
@@ -138,6 +165,7 @@ export function applyCleanEncounterVisualReviewActorFraming(
     || role.includes("physician")
     || slotKind === "clinical_team"
   ) {
+    recordPlacementOverride(actor);
     actor.position.set(0.64, 0, 0.3);
     actor.rotation.y = -0.18;
     actor.scale.setScalar(0.86);
