@@ -56,7 +56,7 @@ function actorWithDeclaredPlacement(): Group {
 }
 
 describe("the visual-review framing pass does not silently discard a declared placement", () => {
-  it.fails("(1) overriding a pre-resolved position is RECORDED on the actor", () => {
+  it("(1) overriding a pre-resolved position is RECORDED on the actor", () => {
     const actor = actorWithDeclaredPlacement();
     const before = actor.position.clone();
 
@@ -101,4 +101,18 @@ describe("the visual-review framing pass does not silently discard a declared pl
       "the staging tag other surfaces read must survive",
     ).toBe("ob_patient_standing_beside_offset_stretcher_clear_of_deck_and_work_surface");
   });
+
+  /**
+   * ## FIXED (#175)
+   *
+   * MEASURED after the fix, same harness:
+   *   - clause (1), flipped: PASS — OB patient (1.234, 0, 5.678) → (-0.72, 0, 0.08),
+   *     openClinXrFramingOverrodePlacement { x:1.234, y:0, z:5.678 } present on userData.
+   *   - all 8 position.set branches (OB patient/nurse/family, telehealth chair,
+   *     additional_cast, family_or_observer, primary_patient fallback, clinical_team)
+   *     now call recordPlacementOverride(actor) immediately BEFORE position.set.
+   *   - the seated branch (#591) rewrites rotation/scale only and does NOT call it;
+   *     an override is a discarded declared placement, not a framing touch.
+   *   - skip path untouched (clause (2) green); framing still frames (clause (3) green).
+   */
 });
