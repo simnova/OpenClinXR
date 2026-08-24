@@ -59,12 +59,12 @@ const RHUBARB = `${process.env.HOME}/.openclinxr-tools/rhubarb/rhubarb`;
 type Cue = { start: number; end: number; value: string };
 
 describe("the factory bakes viseme timing for every speaking actor", () => {
-  it.fails("(1) RED: the dark-factory chain has a lip_sync station", () => {
+  it("(1) RED: the dark-factory chain has a lip_sync station", () => {
     // Eight stations today, none of them lip_sync. Timing therefore has no build-time producer.
     expect(CHAIN, "DARK_FACTORY_CHAIN_STATIONS must include a lip_sync station").toContain("lip_sync");
   });
 
-  it.fails("(2) RED: the chain exposes a runnable, offline viseme-timing step", () => {
+  it("(2) RED: the chain exposes a runnable, offline viseme-timing step", () => {
     // Requires an exported station runner that takes an utterance and returns timed cues WITHOUT a
     // network call or a model. Named explicitly so the seam is not invented: the export must be
     // `runLipSyncStation({ utterance, outDir })` returning `{ cues: Cue[]; tool: string }`.
@@ -105,3 +105,26 @@ describe("the factory bakes viseme timing for every speaking actor", () => {
     expect([...starts].sort((a, b) => a - b)).toEqual(starts);
   }, 120000);
 });
+
+/*
+## FIXED (#608)
+
+- `DARK_FACTORY_CHAIN_STATIONS` now has a ninth entry, `lip_sync`, appended after
+  `render` (multi-case-runner.ts): the eight shipped stations keep their order and
+  names, so clause (3)'s known-good column is untouched.
+- The chain runner exports `runLipSyncStation({ utterance, outDir })` returning
+  `{ cues: LipSyncCue[]; tool: string; binary: string; audioDurationSeconds: number;
+  cueArtifactPath: string; manifestArtifactPath: string }`. The seam is exactly the
+  one named in clause (2): no PATH lookup, no network call, no model.
+- The station resolves the rhubarb binary EXPLICITLY at
+  `~/.openclinxr-tools/rhubarb/rhubarb` (honouring `OPENCLINXR_RHUBARB_BIN` when
+  set) and runs the measured offline pipeline: macOS `say` -> `afconvert`
+  (16-bit mono WAV) -> `rhubarb --exportFormat json`, parsing `mouthCues[]` into
+  `{ start, end, value }` cues. Same utterance -> same artifact names (sha1 content
+  hash), so the bake is deterministic (D9).
+- `runCaseChain` gains a ninth station row (`stage-lip-sync`): it bakes the case's
+  first authored spoken line (`openingUtterance`, else the first touch-response
+  `dialogueLine`), classified `deterministic` with on-disk cue artifacts, `absent`
+  when the case authors no spoken line, `error` when the offline pipeline fails on
+  a case that does speak.
+*/
