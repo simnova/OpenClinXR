@@ -220,3 +220,48 @@ describe("a reasoned override is the only escape from the breaker", () => {
     expect((rec["triggeredBy"] as unknown[]).length, "the record still names what fired").toBe(2);
   });
 });
+
+/**
+ * CLAUSE D — sessions that never reach a verdict are invisible to A-C.
+ *
+ * MEASURED: 11 terminal `died` across 7 slices, 13 terminal `spawned` across 10. The threshold is 3
+ * rather than 2 because OUTCOME separates them, not because 3 looked right: issue-594 and issue-569
+ * had three events each and NEVER recovered; issue-585 and issue-591 had two each and both went on
+ * to pass. At a threshold of 2 this clause interrupts two genuine recoveries.
+ */
+describe("a slice whose process keeps dying is refused, and a recovering one is not", () => {
+  const at = (slice: string, n: number) =>
+    mergeSessions(fx.rows).filter((r) => r.slice === slice && (r.phase === "died" || r.phase === "spawned"))
+      .map((r) => Date.parse(r.at as string)).sort((a, b) => a - b)[n]!;
+
+  it("(1) refuses issue-594 at its THIRD death", () => {
+    const v = shouldRefuseDispatch(fx.rows, "issue-594", at("issue-594", 2) + 1000);
+    expect(v.refuse, "three deaths in an hour is the process, not the task").toBe(true);
+    if (v.refuse) expect(v.clause).toBe("repeated-process-death");
+  });
+
+  it("(2) refuses issue-569 at its THIRD terminal spawn", () => {
+    const v = shouldRefuseDispatch(fx.rows, "issue-569", at("issue-569", 2) + 1000);
+    expect(v.refuse).toBe(true);
+  });
+
+  it("(3) COUNTERWEIGHT: two deaths do NOT refuse — issue-585 and issue-591 both recovered", () => {
+    // This is the whole reason the threshold is 3. Both of these slices later produced a PASS.
+    for (const slice of ["issue-585", "issue-591"]) {
+      const second = at(slice, 1);
+      expect(
+        shouldRefuseDispatch(fx.rows, slice, second + 1000).refuse,
+        `${slice} died twice and then recovered — refusing it would block the recovery`,
+      ).toBe(false);
+    }
+  });
+
+  it("(4) a session that spawned and then COMPLETED is not a death", () => {
+    // mergeSessions takes the LAST phase, not any non-null one.
+    const merged = mergeSessions([
+      { sessionId: "x", slice: "s", at: new Date().toISOString(), phase: "spawned" },
+      { sessionId: "x", slice: "s", at: new Date().toISOString(), phase: "completed" },
+    ]);
+    expect(merged[0]!.phase, "a completed session must not read as spawned").toBe("completed");
+  });
+});
