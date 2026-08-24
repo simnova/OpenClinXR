@@ -1,5 +1,5 @@
 import { type ProviderAuditRecord, type ProviderHealth, validateProviderHealth } from "@cellix/provider-contracts";
-import { isHiddenTruthExtractionAttempt } from "./hidden-truth-guardrail.js";
+import { MockModelProviderAdapter } from "./mock-adapter.js";
 import { OpenAiCompatibleModelProviderAdapter } from "./openai-compatible-adapter.js";
 
 export type ModelCapability = "actor_response" | "scenario_draft" | "scenario_review";
@@ -161,19 +161,41 @@ export class ModelGateway {
   }
 
   async generateActorResponse(input: ActorResponseRequest): Promise<ActorResponseResult> {
-    const adapter = await this.firstReadyAdapter("actor_response");
-    return adapter.generateActorResponse(input);
-  }
+    const readyAdapters = await this.readyAdapters("actor_response");
 
-  private async firstReadyAdapter(capability: ModelCapability): Promise<ModelProviderAdapter> {
-    for (const adapter of this.options.adapters) {
-      const health = await adapter.health();
-      if (validateProviderHealth(health).ok && health.status === "ready" && adapter.capabilities.includes(capability)) {
-        return adapter;
+    if (readyAdapters.length === 0) {
+      throw new Error(`No ready model provider for route ${this.options.routeId}`);
+    }
+
+    // Failover walks the ready list in priority order. The distinguishing rule is the
+    // throw/result split: a THROW means the provider broke (429, network failure, malformed
+    // reply) and the next adapter gets the turn; a RETURNED result — including a guardrail
+    // refusal (`blocked_fallback`) — is the provider's answer and is used as-is. Refusals
+    // are typed results and are never thrown, so a refusal can never be re-asked of a fresh
+    // provider (#631).
+    const failures: unknown[] = [];
+    for (const adapter of readyAdapters) {
+      try {
+        return await adapter.generateActorResponse(input);
+      } catch (error) {
+        failures.push(error);
       }
     }
 
-    throw new Error(`No ready model provider for route ${this.options.routeId}`);
+    // Every ready adapter threw. Surface the primary's failure, the operator's chosen
+    // provider and the most informative error for the caller.
+    throw failures[0];
+  }
+
+  private async readyAdapters(capability: ModelCapability): Promise<ModelProviderAdapter[]> {
+    const ready: ModelProviderAdapter[] = [];
+    for (const adapter of this.options.adapters) {
+      const health = await adapter.health();
+      if (validateProviderHealth(health).ok && health.status === "ready" && adapter.capabilities.includes(capability)) {
+        ready.push(adapter);
+      }
+    }
+    return ready;
   }
 }
 
@@ -293,88 +315,6 @@ function cloneActorCommunicationProfile(profile: ActorCommunicationProfileContex
   };
 }
 
-export class MockModelProviderAdapter implements ModelProviderAdapter {
-  readonly id = "mock-model";
-  readonly capabilities: ModelCapability[] = ["actor_response", "scenario_draft", "scenario_review"];
-
-  async health(): Promise<ProviderHealth> {
-    return { providerId: this.id, status: "ready" };
-  }
-
-  async generateActorResponse(input: ActorResponseRequest): Promise<ActorResponseResult> {
-    if (isHiddenTruthExtractionAttempt(input.learnerUtterance)) {
-      return actorResponse(input, {
-        text: `${input.actorDisplayName}: I can only respond as this simulated patient from information that has been appropriately elicited.`,
-        responseKind: "blocked_fallback",
-        guardrail: {
-          status: "blocked",
-          reason: "hidden_truth_extraction_attempt",
-        },
-      });
-    }
-
-    const groundingFact = input.visibleFacts[0] ?? "I am still trying to describe what I feel.";
-    const text = `${input.actorDisplayName}: ${groundingFact}`;
-
-    return actorResponse(input, {
-      text,
-      responseKind: "spoken_actor_response",
-      guardrail: {
-        status: "pass",
-        reason: "deterministic mock response",
-      },
-    });
-  }
-}
-
-function actorResponse(
-  input: ActorResponseRequest,
-  response: {
-    text: string;
-    responseKind: ActorResponseResult["responseKind"];
-    guardrail: GuardrailResult;
-  },
-): ActorResponseResult {
-  const completionTokens = Math.max(8, Math.ceil(response.text.length / 5));
-  const promptTokens = Math.max(12, Math.ceil((input.learnerUtterance.length + input.visibleFacts.join(" ").length) / 5));
-
-  return {
-    text: response.text,
-    responseKind: response.responseKind,
-    traceTags: [...input.traceContextTags],
-    provenance: {
-      requestId: modelRequestId(input),
-      providerId: "mock-model",
-      modelId: "deterministic-mock",
-      modelVersion: "1.0.0",
-      modelRuntimeName: "deterministic-mock-runtime",
-      requestPolicyId: input.policy.requestPolicyId,
-      promptTemplateId: input.policy.promptTemplateId,
-      scenarioId: input.scenarioId,
-      scenarioVersion: input.scenarioVersion,
-      actorId: input.actorId,
-      actorCardVersion: "fixture-v1",
-      retrievedMemoryIds: [...input.retrievedMemoryIds],
-      safetyPolicyVersion: input.policy.safetyPolicyVersion,
-      latencyMs: 0,
-      tokenUsage: {
-        promptTokens,
-        completionTokens,
-        totalTokens: promptTokens + completionTokens,
-      },
-      costEstimateUsd: 0,
-      safetyStatus: response.guardrail.status,
-      guardrail: response.guardrail,
-    },
-  };
-}
-
-function modelRequestId(input: ActorResponseRequest): string {
-  return input.requestId && input.requestId.trim().length > 0
-    ? input.requestId
-    : `${input.stationRunId}:${input.actorId}:turn-${input.conversationTurn}`;
-}
-
 export type LocalModelProviderOptions = {
   providerId: string;
   blockers?: string[];
@@ -445,8 +385,9 @@ export type CreateActorDialogueModelGatewayOptions = {
 
 /**
  * Compose the actor-dialogue gateway the runtime uses by default: ox (OpenRouter)
- * first, local llama-server second, mock last. Priority is list order —
- * `firstReadyAdapter` returns the first adapter whose health is `ready`.
+ * first, local llama-server second, mock last. Priority is list order — the gateway
+ * walks the ready adapters in order and fails over to the next when one throws, so a
+ * rate-limited ox (429) falls through to the mock instead of reaching the learner.
  *
  * Reachability is decided from CONFIG ONLY — no network call at import or health
  * time: the ox rung is present when an API key is configured, the local rung when
@@ -491,5 +432,6 @@ export function createActorDialogueModelGateway(
   });
 }
 
+export { MockModelProviderAdapter } from "./mock-adapter.js";
 export type { OpenAiCompatibleProviderOptions } from "./openai-compatible-adapter.js";
 export { OpenAiCompatibleModelProviderAdapter } from "./openai-compatible-adapter.js";

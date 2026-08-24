@@ -42,6 +42,14 @@ import * as gateway from "../../../packages/openclinxr/model-gateway/src/index.j
  * first succeeds, and does not when the first refuses on the guardrail.
  * notEvidenceFor: whether health() should probe live rather than report from config; retry/backoff
  * policy; latency; the confabulation defect (#628), which is separate.
+ *
+ * ## FIXED (#631) — clause (1) flipped `it.fails` -> `it`, 2026-08-24 (orchestrator dispatch).
+ *
+ * The distinguishing rule is the throw/result split: refusals are typed results
+ * (`responseKind: "blocked_fallback"`) and are never thrown, so only a throw means "the provider
+ * broke" and triggers failover. `ModelGateway.generateActorResponse` now walks the ready adapters
+ * in priority order (`model-gateway/src/index.ts:163-186`), failing over on a throw and returning
+ * the first returned result as-is — a refused turn is never re-asked of a fresh provider.
  */
 
 const TURN: gateway.ActorResponseRequest = {
@@ -75,7 +83,7 @@ function counting(inner: gateway.ModelProviderAdapter, calls: { n: number }): ga
 }
 
 describe("the gateway falls over when a provider fails", () => {
-  it.fails("(1) a 429 from the primary falls through to the next ready provider", async () => {
+  it("(1) a 429 from the primary falls through to the next ready provider", async () => {
     const primary = { n: 0 }, backup = { n: 0 };
     const gw = gateway.createDefaultModelGateway({
       routeId: "actor-dialogue-failover-v1",
