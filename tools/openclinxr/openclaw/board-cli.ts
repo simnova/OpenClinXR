@@ -710,12 +710,39 @@ export function cmdSliceOpen(
     roles: string[];
     repo: string;
     dryRun: boolean;
+    /** Explicit opt-in to create a NEW issue even when the slice id names an existing one. */
+    allowDuplicateIssue?: boolean;
   noGrade?: boolean;
   },
 ): { record: BoardSliceRecord; plan: GhCommandPlan; recordPath: string } {
   if (!input.sliceId) throw new Error("slice-open requires --slice-id");
   if (!input.title) throw new Error("slice-open requires --title");
   if (!input.roles.length) throw new Error("slice-open requires --roles <r1,r2,...>");
+
+  /**
+   * AN `issue-N` SLICE ID ALREADY NAMES A REAL ISSUE — refuse to mint a duplicate.
+   *
+   * MEASURED 2026-08-24: a direct dispatch left no local board record, so `board close` refused. The
+   * operator reached for `slice-open` to reconstruct the lifecycle state — and this function plans
+   * `gh issue create` unconditionally. It minted **#617** as a duplicate of the existing #26. The
+   * card carried only the generated coordination skeleton, lived 36 seconds, and was closed without
+   * grading. The dry-run had already said `issue=n/a`; it was run anyway.
+   *
+   * `resolveIssueNumberForSlice` (:447) already treats `issue-<n>` as naming GitHub issue n. This
+   * makes that convention binding here instead of advisory, so a recovery path cannot silently
+   * become a creation path. Pass `allowDuplicateIssue` only when a genuinely new card is intended.
+   */
+  const namesExistingIssue = /^issue-(\d+)$/u.exec(input.sliceId);
+  if (namesExistingIssue && !input.allowDuplicateIssue) {
+    throw new Error(
+      `slice-open REFUSED: slice id "${input.sliceId}" already names GitHub issue #${namesExistingIssue[1]}, `
+      + `and slice-open creates a NEW issue unconditionally. Measured 2026-08-24: this minted #617 as a `
+      + `duplicate of #26, which lived 36 seconds and closed ungraded. `
+      + `To reconstruct a missing local board record for an existing card, write the record for `
+      + `#${namesExistingIssue[1]} rather than opening a slice. Pass allowDuplicateIssue only if a genuinely `
+      + `new card is intended.`,
+    );
+  }
 
   const body = buildSliceIssueBody({
     sliceId: input.sliceId,
