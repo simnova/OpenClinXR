@@ -8,6 +8,32 @@ when-to-use: file an issue, diagnose a failure, is this card still live, premise
 
 The single largest source of wasted slices here is a confident inference from a real observation.
 
+## SEARCH BEFORE YOU MEASURE — the one subtraction from the 2026-08-24 orchestration review
+
+**No probe runs until you have searched `tools/openclinxr/evidence/`, the relevant contract headers, and
+the skills index for the same measurement.** If it exists, cite it and move on. If it genuinely does not,
+measure ONCE and record where the next orchestrator will find it.
+
+This replaces reaching for a fresh measurement loop, and it is a subtraction, not an addition. The review
+that produced it rejected my own account of why I keep erring. I said "I verify the thing I changed, not
+the thing I might have broken"; it answered that this fails on three of seven cases because **nothing had
+regressed** in them, and named the real common denominator:
+
+> "Every one had a cheap mechanical check you already possessed, and you skipped it… That is not a
+> verification-coverage gap. It is acting on an unverified premise when the falsifier was one lookup
+> away — the same genus as the fabrication fingerprint in your own rules file, pointed at yourself."
+
+And the second-order shape, which is the one to watch: **you treat your own recent output as ground truth
+without re-reading it** — your own skill file, your own flag, your own plant, your own header.
+
+**The operational test for whether you are doing IC work:** *if the work could have been a `done_when`
+clause, doing it yourself is IC work.* A pre-dispatch measurement to size a brief is legitimate. Five
+ticks to reach a conclusion a contract header already recorded is diagnosis theatre.
+
+**Cost that earned this:** five ticks re-deriving a dark-room defect already written down three days
+earlier — including using as a "known-good column" an asset that same header flagged ANOMALOUS — plus a
+hand-rolled luminance sweep duplicating `station-luminance-sweep.ts`.
+
 ## The core rule
 
 **Symptoms constrain a cause. They never name it.**
