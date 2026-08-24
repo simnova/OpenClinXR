@@ -134,8 +134,16 @@ function mulMat4(a: ArrayLike<number>, b: ArrayLike<number>): number[] {
 /**
  * Seat-plane clearance via true skinned verts (#150 skinnedWorldAabb family).
  * Bind verts × matrixWorld alone ignore bone flex — knee/hip flex looked like a no-op.
+ *
+ * `sampleDivisor` matches the contract instrument density (supine-patient-on-deck.ts uses
+ * count/4000; the plant's lift/flex logic uses count/3000). The #620 float settle passes 4000
+ * so it lands the body where the CONTRACT reads it, not where a coarser sample does.
  */
-export function measureSeatClearanceMeters(humanoid: Object3D, deckTopY: number): number {
+export function measureSeatClearanceMeters(
+  humanoid: Object3D,
+  deckTopY: number,
+  sampleDivisor = 3000,
+): number {
   humanoid.updateMatrixWorld(true);
   let minY: number | null = null;
   humanoid.traverse((object) => {
@@ -182,7 +190,7 @@ export function measureSeatClearanceMeters(humanoid: Object3D, deckTopY: number)
     const bindMatrixInverse = mesh.bindMatrixInverse?.elements;
     const meshMw = mesh.matrixWorld?.elements;
     if (!meshMw) return;
-    const stride = Math.max(1, Math.floor(pos.count / 3000));
+    const stride = Math.max(1, Math.floor(pos.count / sampleDivisor));
     const useSkin =
       Boolean(skinIndex && skinWeight && skeleton?.bones?.length && bindMatrix && bindMatrixInverse);
 
