@@ -95,13 +95,38 @@ const sh = (argv: string[], cwd: string): string => {
  * a NEW finding, not a chronic one, and treating it as chronic would misreport a regression as
  * long-standing neglect.
  */
-export function priorFindingKeys(root: string, limit = CHRONIC_AFTER): string[][] {
+export const MIN_AUDIT_GAP_MS = 20 * 60 * 1000;
+
+export function priorFindingKeys(root: string, limit = CHRONIC_AFTER, nowMs = Date.now()): string[][] {
   const p = join(root, HISTORY);
   if (!existsSync(p)) return [];
-  const lines = readFileSync(p, "utf8").split("\n").filter(Boolean);
-  return lines.slice(-limit).reverse().map((l) => {
-    try { return ((JSON.parse(l) as { keys?: string[] }).keys ?? []); } catch { return []; }
-  });
+  const rows = readFileSync(p, "utf8").split("\n").filter(Boolean)
+    .map((l) => { try { return JSON.parse(l) as { at?: string; keys?: string[] }; } catch { return null; } })
+    .filter((r): r is { at?: string; keys?: string[] } => r !== null);
+
+  /**
+   * DISTINCT TIME WINDOWS, not distinct runs.
+   *
+   * MEASURED on the first live day: running the audit three times inside five minutes marked every
+   * finding CHRONIC, because recurrence counted invocations. That makes "not self-correcting" a
+   * function of how often the operator hits enter — the metric would scream loudest exactly when
+   * someone is iterating on the audit itself.
+   *
+   * Runs closer together than MIN_AUDIT_GAP_MS collapse to the newest, so a finding is chronic only
+   * if it survived genuinely separate observations. Bounded by nowMs so a clock-skewed future row
+   * cannot manufacture a window.
+   */
+  const spaced: Array<{ at?: string; keys?: string[] }> = [];
+  let lastMs = Number.POSITIVE_INFINITY;
+  for (const r of [...rows].reverse()) {
+    const t = Date.parse(String(r.at ?? ""));
+    if (!Number.isFinite(t) || t > nowMs) continue;
+    if (lastMs - t < MIN_AUDIT_GAP_MS) continue;
+    spaced.push(r);
+    lastMs = t;
+    if (spaced.length >= limit) break;
+  }
+  return spaced.map((r) => r.keys ?? []);
 }
 
 /**
@@ -150,8 +175,25 @@ export function verifyDoneClaim(root: string, issue: number, stage: string): Don
   // `\b` is NOT supported by git's ERE and silently matches NOTHING — measured 2026-08-24, the
   // counterweight clause caught it: `--grep=#627\b -E` returned zero commits while `--grep=#627`
   // returned two. An explicit digit boundary is required, or #627 also matches #6270.
-  const shas = sh(["git", "log", "--all", "--format=%H", `--grep=(^|[^0-9])#${issue}([^0-9]|$)`, "-E"], root)
-    .split("\n").filter(Boolean);
+  /**
+   * SUBJECT-LINE citation, not any mention.
+   *
+   * MEASURED on this module's own first live run: #181 and #622 matched FOUR commits each, two of
+   * which were my own supervisor commits whose BODIES say "#181 and #622 are verified Landed and
+   * still OPEN" — the audit's own prose counted as a claim that the work was done. A commit
+   * discussing an issue is not a commit fixing it, and treating them alike lets any card be
+   * "verified" by being talked about.
+   *
+   * The conventional-commit subject (`fix(#N):`, `feat(#N):`, `test(#N):`) is the deliberate claim.
+   * Body mentions are collected separately so a genuinely-fixed card whose author skipped the
+   * convention is reported as UNCONVENTIONAL rather than silently failed — refusing real work is a
+   * worse failure than admitting a weaker signal.
+   */
+  const subjectShas = sh(["git", "log", "--all", "--format=%H",
+    `--grep=^(fix|feat|test|refactor|perf|chore)\\(#${issue}\\)`, "-E"], root).split("\n").filter(Boolean);
+  const anyShas = sh(["git", "log", "--all", "--format=%H",
+    `--grep=(^|[^0-9])#${issue}([^0-9]|$)`, "-E"], root).split("\n").filter(Boolean);
+  const shas = subjectShas.length > 0 ? subjectShas : anyShas;
   // `git merge-base --is-ancestor` signals by EXIT CODE, not stdout — it prints nothing either way.
   // Reading its stdout (which is what a `sh()` helper returns) cannot tell "is an ancestor" from
   // "command failed", so this must be a try/catch on the exit status.
@@ -165,10 +207,12 @@ export function verifyDoneClaim(root: string, issue: number, stage: string): Don
   const artifact = join(root, `.openclinxr/openclaw/contract-verify-issue-${issue}-merge.json`);
   const verified = existsSync(artifact);
   const ok = onMain && shas.length > 0;
+  const bySubject = subjectShas.length > 0;
   const why = shas.length === 0
     ? `no commit cites #${issue} — the card says ${stage} and nothing in git claims it`
     : onMain
-      ? (verified ? "commit on main, contract-verify artifact present" : "commit on main; NO contract-verify artifact — verified at dispatch only")
+      ? `${bySubject ? "subject-line fix commit" : "MENTION ONLY — no conventional fix(#N) subject"} on main`
+        + (verified ? ", contract-verify artifact present" : "; NO contract-verify artifact — verified at dispatch only")
       : `${shas.length} commit(s) cite #${issue} but NONE is an ancestor of main — work exists on a branch, not in the product`;
   return { issue, stage, commitOnMain: onMain, contractVerified: verified, ok, why };
 }

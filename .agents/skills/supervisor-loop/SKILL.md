@@ -29,6 +29,16 @@ self-correcting under load, and reporting it as chronic buries the ones that nev
 
 Read the report. Do not re-measure what it already counted.
 
+### The audit needs GitHub budget
+
+It reads the full board (~3.3 MB, paginated) and all open issues. **Check `gh api rate_limit` first.**
+A GraphQL budget under ~200 will fail the board read, and the audit exits with a `gh` command error
+rather than a report — measured 2026-08-24, twice in one afternoon.
+
+That is a real constraint on cadence: an hourly loop competes with every other board write in the
+repo for one 5,000-point budget. If the audit fails on budget, that is not a defect to chase — note
+it, skip the iteration, and do not retry into an exhausted limit.
+
 ## Step 2 — consult the peer, with the raw report
 
 Per D10, this is a **conversation**, not a single message. Hand over the report itself, not a summary.

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CHRONIC_AFTER, READY_DEPTH_TARGET, markChronic, readyDepth, resolvedSince, verifyDoneClaim } from "./supervisor-audit.js";
+import { CHRONIC_AFTER, MIN_AUDIT_GAP_MS, READY_DEPTH_TARGET, markChronic, priorFindingKeys, readyDepth, resolvedSince, verifyDoneClaim } from "./supervisor-audit.js";
 import type { Finding } from "./supervisor-audit.js";
 
 /**
@@ -93,5 +93,71 @@ describe("the supervisor reports what is not self-correcting", () => {
     const c = verifyDoneClaim(process.cwd(), 627, "Landed");
     expect(c.commitOnMain, "ccab1942 cites #627 and is on main").toBe(true);
     expect(c.ok).toBe(true);
+  });
+
+  it("(9) DUTY 3 COUNTERWEIGHT: discussing an issue is not fixing it", () => {
+    // FOUND BY THIS MODULE'S OWN FIRST LIVE RUN. #181 and #622 each matched four commits, two of
+    // which were the supervisor's own commits whose BODIES read "#181 and #622 are verified Landed
+    // and still OPEN". The audit's prose about a card counted as a claim the card was done.
+    //
+    // #632 is a card filed today and discussed in commit bodies, with NO `fix(#632)`/`feat(#632)`
+    // subject anywhere. It must not read as a subject-line fix.
+    const c = verifyDoneClaim(process.cwd(), 632, "Landed");
+    expect(
+      c.why,
+      "a body mention must be labelled as such, not reported as a fix commit",
+    ).toMatch(/MENTION ONLY|no commit cites/u);
+  });
+
+  it("(10) DUTY 3 COUNTERWEIGHT: a real conventional fix is still recognised as one", () => {
+    // Refuses the over-correction of demanding a subject line so strictly that real work fails.
+    // `ec5cbd42 fix(#181): distributed upper-spine/neck flex...` is exactly the conventional form.
+    const c = verifyDoneClaim(process.cwd(), 181, "Landed");
+    expect(c.ok).toBe(true);
+    expect(c.why).toContain("subject-line fix commit");
+  });
+
+  it("(11) DUTY 1: three audits in five minutes are ONE observation, not three", () => {
+    // FOUND ON THE FIRST LIVE DAY. Running the audit three times inside five minutes reported every
+    // finding CHRONIC, because recurrence counted invocations. That makes "not self-correcting" a
+    // function of how often someone hits enter — the metric would scream loudest exactly while a
+    // person iterates on the audit itself.
+    const { mkdtempSync, writeFileSync, mkdirSync } = require("node:fs") as typeof import("node:fs");
+    const { tmpdir } = require("node:os") as typeof import("node:os");
+    const { join } = require("node:path") as typeof import("node:path");
+    const root = mkdtempSync(join(tmpdir(), "sup-"));
+    mkdirSync(join(root, ".openclinxr/openclaw"), { recursive: true });
+    const now = Date.parse("2026-08-24T12:00:00Z");
+    // APPEND ORDER — oldest first, exactly as the real history jsonl is written. Writing it
+    // newest-first made this fixture disagree with production and hid the real ordering.
+    const rows = [2, 1, 0].map((i) => JSON.stringify({
+      at: new Date(now - i * 60_000).toISOString(), keys: ["same-thing"],
+    })).join("\n");
+    writeFileSync(join(root, ".openclinxr/openclaw/supervisor-audit-history.jsonl"), `${rows}\n`);
+
+    const prior = priorFindingKeys(root, CHRONIC_AFTER, now);
+    expect(prior.length, "three runs one minute apart collapse to one observation").toBe(1);
+    const [f] = markChronic([{ duty: 1, key: "same-thing", detail: "x" }], prior);
+    expect(f!.chronic, "one real observation cannot establish chronic").toBeFalsy();
+  });
+
+  it("(12) DUTY 1 COUNTERWEIGHT: genuinely spaced audits DO establish chronic", () => {
+    // Refuses the over-correction of spacing so aggressively that a real chronic finding never
+    // qualifies. Two observations a full gap apart are exactly what the metric is for.
+    const { mkdtempSync, writeFileSync, mkdirSync } = require("node:fs") as typeof import("node:fs");
+    const { tmpdir } = require("node:os") as typeof import("node:os");
+    const { join } = require("node:path") as typeof import("node:path");
+    const root = mkdtempSync(join(tmpdir(), "sup2-"));
+    mkdirSync(join(root, ".openclinxr/openclaw"), { recursive: true });
+    const now = Date.parse("2026-08-24T12:00:00Z");
+    const rows = [2, 1, 0].map((i) => JSON.stringify({
+      at: new Date(now - i * (MIN_AUDIT_GAP_MS + 60_000)).toISOString(), keys: ["stuck"],
+    })).join("\n");
+    writeFileSync(join(root, ".openclinxr/openclaw/supervisor-audit-history.jsonl"), `${rows}\n`);
+
+    const prior = priorFindingKeys(root, CHRONIC_AFTER, now);
+    expect(prior.length).toBe(CHRONIC_AFTER);
+    const [f] = markChronic([{ duty: 1, key: "stuck", detail: "x" }], prior);
+    expect(f!.chronic, "spaced observations are what chronic means").toBe(true);
   });
 });
