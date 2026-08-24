@@ -35,6 +35,7 @@ import {
 import type { DoneWhenCheck } from "../../../packages/openclinxr/agent-loop/src/slice-team.js";
 import { resolveSharedCoordinationPath } from "./coordination-root.js";
 import { shouldRefuseDispatch, type BreakerRow } from "./retry-circuit-breaker.js";
+import { classifyDeath } from "./death-reason.js";
 import { deriveHandoffState } from "./worker-handoff-state.js";
 import { assertLoopNotPaused } from "./loop-pause.js";
 import { assertProductLaneNotStarved, assertPulseMeasurementAlive } from "./product-lane-gate.js";
@@ -269,6 +270,13 @@ export type DispatchLedgerEntry = {
    * `phase === "completed"`, and a dead row there scored provider failures as throughput.
    */
   phase?: "spawned" | "completed" | "died";
+  /** Death classification — present only on `died` rows. See death-reason.ts for why `phase` alone
+   *  is not a measurable signal, and why a provider breaker must key on `deathCountsAgainstModel`. */
+  deathClass?: string;
+  deathRetryability?: string;
+  deathCountsAgainstModel?: boolean;
+  deathEvidence?: string;
+  exitCode?: number;
   /**
    * INCIDENT (layer-3): after exit, orchestrator re-ran tree proofs against the worktree.
    * Absent means this entry predates contract wiring or contract was explicitly "none".
@@ -1588,6 +1596,29 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
     } : {}),
     at: new Date().toISOString(),
     phase: parsed.sessionId ? "completed" : "died",
+    /**
+     * WHY it died, classified from the child's own stderr and exit code.
+     *
+     * Before this, a death row carried no reason at all: a 402, a 429, a 500 and a missing-worktree
+     * ENOENT were one value, `phase: "died"`. That made provider health unmeasurable — the 16 deaths
+     * measured 2026-08-24 cannot be told apart, and the ox-alpha 19% vs deepseek-v4-pro 4% split
+     * being used to weigh the model ladder (#626) cannot distinguish an unreliable provider from a
+     * harness bug handing it a worktree that did not exist.
+     *
+     * `deathCountsAgainstModel` is the field a future provider breaker must key on — never `phase`.
+     * Harness failures and reaper kills are false by construction, so a breaker cannot open on a
+     * healthy provider because the dispatcher misfired.
+     */
+    ...(parsed.sessionId ? {} : (() => {
+      const d = classifyDeath(stderr.join(""), code);
+      return {
+        deathClass: d.deathClass,
+        deathRetryability: d.retryability,
+        deathCountsAgainstModel: d.countsAgainstModel,
+        ...(d.evidence ? { deathEvidence: d.evidence } : {}),
+        ...(d.exitCode !== null ? { exitCode: d.exitCode } : {}),
+      };
+    })()),
     ...(gitignoredProofTargetsWarned.length > 0 ? { gitignoredProofTargetsWarned } : {}),
   };
   recordSession(repoRoot, entry);
