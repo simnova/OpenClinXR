@@ -50,6 +50,16 @@
             "timeout": 10
           }
         ]
+      },
+      {
+        "matcher": "Bash|run_terminal_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pnpm exec tsx tools/openclinxr/openclaw/shell-prose-chokepoint.ts",
+            "timeout": 10
+          }
+        ]
       }
     ],
     "Stop": [
