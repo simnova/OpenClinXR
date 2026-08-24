@@ -244,6 +244,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `templates/decision-record.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `templates/risk-record.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `templates/source-record.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
+- `docs/openclinxr/iwsdk-station-cagematch-2026-08-24.md` - decision-record; Lane-C cagematch decision record for IWSDK 0.5.3 factory-station candidates (issue #616); negative verdict closes the item. Subordinate to protected guardrails and active queue.
 
 ## Cleanup Candidates
 
