@@ -236,3 +236,37 @@ describe("a reasoned override is the only escape from the breaker", () => {
  * threshold 3 fires ZERO times, and at threshold 2 it refuses two dispatches that went on to PASS.
  * See the withdrawal note in retry-circuit-breaker.ts for what evidence would make it buildable.
  */
+
+/**
+ * THE GATE WAS INERT IN A WORKTREE, which is where dispatches actually run.
+ *
+ * PROVEN 2026-08-24 for root `/Users/patrick/.grok/worktrees/src-openclinxr/issue-576`:
+ *
+ *     resolveSharedCoordinationPath -> /Volumes/files/src/openclinxr/.openclinxr/.../worker-sessions.jsonl
+ *     join(repoRoot, LEDGER)        -> <worktree>/.openclinxr/.../worker-sessions.jsonl
+ *
+ * The ledger WRITERS use the resolver. My breaker read used a raw join, so a worktree-bound dispatch
+ * read a file that does not exist, saw no history, and failed open. A guard that is silent exactly
+ * where it is needed is not a guard.
+ */
+describe("the breaker reads the same ledger the dispatcher writes", () => {
+  it("resolves the ledger and the event log through the shared coordination root", async () => {
+    const { readFileSync } = await import("node:fs");
+    const { join: j } = await import("node:path");
+    const src = readFileSync(j(import.meta.dirname, "dispatch-worker.ts"), "utf8");
+    // The breaker's own reads/writes must not use a bare repoRoot join for these two files.
+    expect(src, "ledger read must go through the shared resolver")
+      .not.toMatch(/readFileSync\(join\(repoRoot, LEDGER\)/u);
+    expect(src, "breaker events must go through the shared resolver")
+      .not.toMatch(/join\(repoRoot, BREAKER_EVENTS\)/u);
+    expect(src).toMatch(/resolveSharedCoordinationPath\(LEDGER, repoRoot\)/u);
+    expect(src).toMatch(/resolveSharedCoordinationPath\(BREAKER_EVENTS, repoRoot\)/u);
+  });
+
+  it("a worktree root and the main root resolve to the SAME shared file", async () => {
+    const { resolveSharedCoordinationPath } = await import("./coordination-root.js");
+    const main = resolveSharedCoordinationPath(".openclinxr/openclaw/worker-sessions.jsonl", "/Volumes/files/src/openclinxr");
+    const wt = resolveSharedCoordinationPath(".openclinxr/openclaw/worker-sessions.jsonl", "/Users/patrick/.grok/worktrees/src-openclinxr/issue-576");
+    expect(wt, "if these ever diverge the breaker goes blind in worktrees again").toBe(main);
+  });
+});

@@ -1670,7 +1670,11 @@ export function assertNotRepeatingIntoTheSameWall(
   if (slice === "unscoped") return;
   let rows: BreakerRow[] = [];
   try {
-    const raw = readFileSync(join(repoRoot, LEDGER), "utf8");
+    // MUST use the shared resolver, not join(repoRoot, ...). Proven 2026-08-24: from a worktree
+    // root the two diverge — shared resolves to the MAIN checkout's ledger, raw to a file inside the
+    // worktree that does not exist. The ledger WRITERS already use the resolver, so a raw read made
+    // this gate see no history and fail open silently in exactly the context dispatches run in.
+    const raw = readFileSync(resolveSharedCoordinationPath(LEDGER, repoRoot), "utf8");
     rows = raw.split("\n").filter(Boolean).flatMap((l) => {
       try { return [JSON.parse(l) as BreakerRow]; } catch { return []; }
     });
@@ -1709,7 +1713,7 @@ export function assertNotRepeatingIntoTheSameWall(
    * through in silence.
    */
   const record = () => appendFileSync(
-      join(repoRoot, BREAKER_EVENTS),
+      resolveSharedCoordinationPath(BREAKER_EVENTS, repoRoot),
       `${JSON.stringify({
         kind: overridden ? "dispatch-breaker-overridden" : "dispatch-refused",
         overrideReason: overridden ? overrideReason.trim() : undefined,
