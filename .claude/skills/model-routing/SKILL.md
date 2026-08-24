@@ -140,16 +140,44 @@ my own invocation. Run this list before touching the ladder — every row is a r
 | symptom I saw | what it actually was | the tell |
 |---|---|---|
 | 0 bytes, 5 consults in a row | `nohup … &` around the call — `PROTO_VERIFY_DELEGATION:1501`, *"wrapper exits 0, log is 0 bytes"* | the harness backgrounds for you; a second layer detaches it |
-| `http_status: 401`, auth rejected | `OPENROUTER_API_KEY` lives in `~/.zshrc` and is **absent from every fresh Bash shell** | `dispatch()` sources it, so workers run while my bare calls 401 |
+| `http_status: 401`, auth rejected | `OPENROUTER_API_KEY` lives in `~/.zshrc` and is **absent from every fresh Bash shell** | applies to CONSULTS **and DISPATCHES** — see the correction below |
 | 0 bytes at 90 s, "it stalled" | `--output-format json` **buffers until completion** | byte count is not a first-token signal; read the session dir |
 | `Cannot read properties of undefined (reading 'proofs')` | `dispatch(repoRoot, options)` takes **two positional args** | see `orchestrator-dispatch-loop` §Signatures |
 | `role is required` | I omitted `role` | the error names the prior incident (#441-#447) |
 | `DOWNGRADE with no modelDowngradeReason` | role policy outranks a bare `model:` | name the reason or drop the argument |
 | `no_visible_content` | **4 model calls × ~120k = 479k total.** A single call at 139k succeeded the same hour | multi-turn consults re-send the prefix each call; see below |
 
-**The ONE genuine ox failure signature** is a dispatch that dies **under ~60 s after spawn with no
-turns** — measured at 15 s on issue-607. That is the 15% tail, it is a provider fault, and stepping
-to `deepseek-v4-flash` is the correct response. Anything else, suspect yourself first.
+**CORRECTED 2026-08-24, hours after this section was written — the claim it replaced was mine and
+was false.** I wrote here that `dispatch()` sources the key "so workers run while my bare calls 401",
+and that a sub-60 s death was a provider fault worth stepping down for. Both are wrong.
+
+`dispatch()` spawns the worker with **whatever environment you hand it**. It does not read `~/.zshrc`.
+Every ox dispatch death on record has the same cause:
+
+```
+Auth recovery succeeded but 4 authenticated inference requests were still rejected (401);
+giving up after 3 retries. Turn ran 7s wall-clock.
+```
+
+| slice | ox outcome | what I called it | what it was |
+|---|---|---|---|
+| issue-605 | died, fell back to flash | provider fault | **401, missing key** |
+| issue-607 | died 15 s, fell back to flash | provider fault, "the 15% tail" | **401, missing key** |
+| issue-608 | died 13 s | provider fault | **401, missing key** |
+
+Exporting the key and changing nothing else, issue-608 spawned on `ox-alpha` and ran. **So export it
+in the dispatch parent shell, exactly as for a consult:**
+
+```bash
+export OPENROUTER_API_KEY=$(grep -m1 OPENROUTER_API_KEY ~/.zshrc | sed -E 's/.*=["'"'"']?([^"'"'"' ]+).*/\1/')
+```
+
+**Consequences for the numbers above.** The `10 died` in the ledger is not a provider characteristic;
+it is this defect, counted. **Ox's true failure rate is UNMEASURED** — every death on record has a
+known non-provider cause. Treat the 85% as a floor, not an estimate.
+
+**And there is no known genuine ox failure signature.** A sub-60 s death means check the key first.
+Do not step down a rung on one until you have seen a death with the key demonstrably present.
 
 **Never write "ox is down" without pasting the probe output next to it.** The probe is 24 s and
 settles the question; an assertion without it has been wrong 7 times out of 8.
