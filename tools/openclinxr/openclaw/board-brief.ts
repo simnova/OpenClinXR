@@ -128,8 +128,52 @@ export function clothingSliceLacksToolPath(step: string, body: string, title: st
   return !namesTool;
 }
 
+/**
+ * Rules whose target is a PATH. A markdown-formatted target parses as a literal path containing the
+ * formatting, so it can never match a file and the proof can never pass.
+ *
+ * MEASURED 2026-08-24 across 62 proof failures in the dispatch ledger: 24 of them were
+ * `changed:`-ONLY — every other proof green, the worker did real work, and one named file did not
+ * change. One of those rules was literally:
+ *
+ *     changed: `tools/openclinxr/openclaw/dispatch-worker.ts`
+ *
+ * `done-when-rules.ts:261` does `rule.slice("changed:".length).trim()`, so the target is
+ * "`tools/...`" WITH the backticks. No such file exists. A worker cannot satisfy that rule by any
+ * action, and it was discovered only after the dispatch had already spent its turns.
+ *
+ * This refuses it at brief time, where a refusal costs nothing.
+ */
+const PATH_RULES = ["changed:", "exists:", "min-bytes:", "live:"] as const;
+/** Characters that cannot appear in a repo path here and indicate markdown leaked into the rule. */
+const FORMATTING = /[`"'*\[\]()]/u;
+
+export function malformedPathTargets(rules: readonly string[]): string[] {
+  const bad: string[] = [];
+  for (const rule of rules) {
+    const prefix = PATH_RULES.find((p) => rule.startsWith(p));
+    if (!prefix) continue;
+    let target = rule.slice(prefix.length).trim();
+    // min-bytes: carries "<path>:<n>" — the count is not part of the path.
+    if (prefix === "min-bytes:") target = target.replace(/:\d+\s*$/u, "");
+    if (target.length > 0 && FORMATTING.test(target)) bad.push(rule);
+  }
+  return bad;
+}
+
 export function briefFromIssue(issue: BoardIssue): BriefResult {
   const rules = extractDoneWhen(issue.body);
+  const malformed = malformedPathTargets(rules);
+  if (malformed.length > 0) {
+    return {
+      dispatchable: false,
+      reason:
+        `Issue #${issue.number} has ${malformed.length} done_when rule(s) whose path target carries `
+        + `markdown formatting, so the target is a literal string no file can match and the proof can `
+        + `NEVER pass: ${malformed.join(" | ")}. Strip the backticks/quotes/brackets from the path. `
+        + `Measured: 24 of 62 ledger proof failures were changed:-only, one of them exactly this shape.`,
+    };
+  }
   if (rules.length === 0) {
     return {
       dispatchable: false,
