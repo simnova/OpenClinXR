@@ -1,0 +1,716 @@
+{
+ "note": "REAL ledger rows. issue-341 and issue-436 are the two measured retry storms; the control slices are ordinary multi-session slices that must NOT trip the breaker.",
+ "measuredAt": "2026-08-24T00:52Z",
+ "stormSlices": [
+  "issue-341",
+  "issue-436"
+ ],
+ "controlSlices": [
+  "dispatch-chokepoint",
+  "issue-64",
+  "issue-139",
+  "issue-259",
+  "issue-335",
+  "issue-92"
+ ],
+ "rows": [
+  {
+   "slice": "issue-341",
+   "sessionId": "019ff3dc-542f-7100-8691-30a981a91a34",
+   "at": "2026-08-12T03:32:25.652Z",
+   "turns": 247,
+   "stopReason": "end_turn",
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-341",
+   "sessionId": "019ff48d-39dd-7902-903b-841f21ea0a4e",
+   "at": "2026-08-12T06:39:56.111Z",
+   "turns": 169,
+   "stopReason": "end_turn",
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-341",
+   "sessionId": "019ff4bf-a236-71b0-a863-4264bb327998",
+   "at": "2026-08-12T07:49:24.780Z",
+   "turns": 240,
+   "stopReason": "end_turn",
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-341",
+   "sessionId": "019ff4fe-62df-7410-8627-1026f163934d",
+   "at": "2026-08-12T08:58:41.705Z",
+   "turns": 150,
+   "stopReason": "cancelled",
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-341",
+   "sessionId": "019ff548-ff23-7733-a533-a694227de56a",
+   "at": "2026-08-12T10:11:02.825Z",
+   "turns": 150,
+   "stopReason": "cancelled",
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-341",
+   "sessionId": "019ff5d2-fee7-73b3-a21f-ab2b477cad5e",
+   "at": "2026-08-12T12:52:15.920Z",
+   "turns": 150,
+   "stopReason": "cancelled",
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-341",
+   "sessionId": "019ff5d2-fee7-73b3-a21f-ab2b477cad5e",
+   "at": "2026-08-12T12:52:15.920Z",
+   "turns": 150,
+   "stopReason": "cancelled",
+   "proofsOk": true,
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-341",
+   "sessionId": "019ff61e-06fe-7230-aad6-049b7a51d068",
+   "at": "2026-08-12T14:18:26.734Z",
+   "turns": 150,
+   "stopReason": "cancelled",
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-341",
+   "sessionId": "019ff6c6-3855-76c3-94c0-36aeedfe570a",
+   "at": "2026-08-12T16:41:49.435Z",
+   "turns": 120,
+   "stopReason": "end_turn",
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-341",
+   "sessionId": "019ff6c6-3855-76c3-94c0-36aeedfe570a",
+   "at": "2026-08-12T16:41:49.435Z",
+   "turns": 120,
+   "stopReason": "end_turn",
+   "proofsOk": true,
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-341",
+   "sessionId": "019ff6e5-7858-7aa1-b0fd-8da76fad9b3b",
+   "at": "2026-08-12T17:49:25.132Z",
+   "turns": 150,
+   "stopReason": "cancelled",
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-341",
+   "sessionId": "019ff722-fce4-7632-8cab-aa3289e7751a",
+   "at": "2026-08-12T18:16:55.560Z",
+   "turns": 90,
+   "stopReason": "end_turn",
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-341",
+   "sessionId": "019ff722-fce4-7632-8cab-aa3289e7751a",
+   "at": "2026-08-12T18:16:55.560Z",
+   "turns": 90,
+   "stopReason": "end_turn",
+   "proofsOk": true,
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-341",
+   "sessionId": "019ff767-791b-7ac2-af78-3652685a3a8b",
+   "at": "2026-08-12T20:19:14.470Z",
+   "turns": 150,
+   "stopReason": "cancelled",
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-341",
+   "sessionId": "019ff767-791b-7ac2-af78-3652685a3a8b",
+   "at": "2026-08-12T20:19:14.470Z",
+   "turns": 150,
+   "stopReason": "cancelled",
+   "proofsOk": false,
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-341",
+   "sessionId": "019ff7d9-4c4c-78e3-a9f6-5000768b6bac",
+   "at": "2026-08-12T22:10:11.902Z",
+   "turns": 144,
+   "stopReason": "end_turn",
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-341",
+   "sessionId": "019ff7d9-4c4c-78e3-a9f6-5000768b6bac",
+   "at": "2026-08-12T22:10:11.902Z",
+   "turns": 144,
+   "stopReason": "end_turn",
+   "proofsOk": true,
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-341",
+   "sessionId": "019ff820-4277-7720-be03-394f4b8100c4",
+   "at": "2026-08-12T23:00:31.418Z",
+   "turns": 73,
+   "stopReason": "end_turn",
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-341",
+   "sessionId": "019ff820-4277-7720-be03-394f4b8100c4",
+   "at": "2026-08-12T23:00:31.418Z",
+   "turns": 73,
+   "stopReason": "end_turn",
+   "proofsOk": false,
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-341",
+   "sessionId": "019ff868-d7ef-7190-ae46-4a1ced5860cc",
+   "at": "2026-08-13T00:37:57.685Z",
+   "turns": 105,
+   "stopReason": "end_turn",
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-341",
+   "sessionId": "019ff868-d7ef-7190-ae46-4a1ced5860cc",
+   "at": "2026-08-13T00:37:57.685Z",
+   "turns": 105,
+   "stopReason": "end_turn",
+   "proofsOk": false,
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-341",
+   "sessionId": "019ffa8e-8f30-7ec1-87e4-63fb3b2331a6",
+   "at": "2026-08-13T10:07:37.577Z",
+   "turns": 52,
+   "stopReason": "end_turn",
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-341",
+   "sessionId": "019ffa8e-8f30-7ec1-87e4-63fb3b2331a6",
+   "at": "2026-08-13T10:07:37.577Z",
+   "turns": 52,
+   "stopReason": "end_turn",
+   "proofsOk": false,
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-341",
+   "sessionId": "019ffaa0-59fd-7fa3-beae-4f686bb87fb1",
+   "at": "2026-08-13T10:17:34.028Z",
+   "turns": 1,
+   "stopReason": "end_turn",
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-341",
+   "sessionId": "019ffaa0-59fd-7fa3-beae-4f686bb87fb1",
+   "at": "2026-08-13T10:17:34.028Z",
+   "turns": 1,
+   "stopReason": "end_turn",
+   "proofsOk": true,
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-341",
+   "sessionId": "01a00101-a8ab-70f0-a88b-b6b2ba225592",
+   "at": "2026-08-14T16:19:21.475Z",
+   "turns": 100,
+   "stopReason": "end_turn",
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-341",
+   "sessionId": "01a00101-a8ab-70f0-a88b-b6b2ba225592",
+   "at": "2026-08-14T16:19:21.475Z",
+   "turns": 100,
+   "stopReason": "end_turn",
+   "proofsOk": true,
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-341",
+   "sessionId": "01a0011a-52ff-7f92-9068-b2df3106c990",
+   "at": "2026-08-14T17:26:12.448Z",
+   "turns": 150,
+   "stopReason": "cancelled",
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-341",
+   "sessionId": "01a0011a-52ff-7f92-9068-b2df3106c990",
+   "at": "2026-08-14T17:26:12.448Z",
+   "turns": 150,
+   "stopReason": "cancelled",
+   "proofsOk": true,
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-436",
+   "sessionId": "01a01809-43a2-78e2-85b4-9b64705ed628",
+   "at": "2026-08-19T03:36:33.720Z",
+   "turns": 66,
+   "stopReason": "end_turn",
+   "model": "deepseek-v4-flash",
+   "role": "openclaw-drift-police"
+  },
+  {
+   "slice": "issue-436",
+   "sessionId": "01a01809-43a2-78e2-85b4-9b64705ed628",
+   "at": "2026-08-19T03:36:33.720Z",
+   "turns": 66,
+   "stopReason": "end_turn",
+   "proofsOk": true,
+   "model": "deepseek-v4-flash",
+   "role": "openclaw-drift-police"
+  },
+  {
+   "slice": "issue-436",
+   "sessionId": "01a0180b-6fc5-7292-ac7a-d0dd5e3e7d6e",
+   "at": "2026-08-19T03:41:26.512Z",
+   "turns": 78,
+   "stopReason": "end_turn",
+   "model": "deepseek-v4-flash",
+   "role": "openclaw-drift-police"
+  },
+  {
+   "slice": "issue-436",
+   "sessionId": "01a0180b-6fc5-7292-ac7a-d0dd5e3e7d6e",
+   "at": "2026-08-19T03:41:26.512Z",
+   "turns": 78,
+   "stopReason": "end_turn",
+   "proofsOk": true,
+   "model": "deepseek-v4-flash",
+   "role": "openclaw-drift-police"
+  },
+  {
+   "slice": "issue-436",
+   "sessionId": "01a01817-c3b0-79f3-b870-fd7180a5ba5f",
+   "at": "2026-08-19T03:42:35.317Z",
+   "turns": 37,
+   "stopReason": "end_turn",
+   "model": "deepseek-v4-flash",
+   "role": "openclaw-drift-police"
+  },
+  {
+   "slice": "issue-436",
+   "sessionId": "01a01817-c3b0-79f3-b870-fd7180a5ba5f",
+   "at": "2026-08-19T03:42:35.317Z",
+   "turns": 37,
+   "stopReason": "end_turn",
+   "proofsOk": true,
+   "model": "deepseek-v4-flash",
+   "role": "openclaw-drift-police"
+  },
+  {
+   "slice": "issue-436",
+   "sessionId": "01a0182a-253e-7de0-b791-ca38a6d4fe47",
+   "at": "2026-08-19T03:57:06.139Z",
+   "turns": 1,
+   "stopReason": "cancelled",
+   "model": "deepseek-v4-flash",
+   "role": "openclaw-drift-police"
+  },
+  {
+   "slice": "issue-436",
+   "sessionId": "01a0182a-253e-7de0-b791-ca38a6d4fe47",
+   "at": "2026-08-19T03:57:06.139Z",
+   "turns": 1,
+   "stopReason": "cancelled",
+   "proofsOk": false,
+   "model": "deepseek-v4-flash",
+   "role": "openclaw-drift-police"
+  },
+  {
+   "slice": "issue-436",
+   "sessionId": "01a0182a-69ce-7fb3-80ed-b464b85acf64",
+   "at": "2026-08-19T03:57:21.389Z",
+   "turns": 1,
+   "stopReason": "cancelled",
+   "model": "deepseek-v4-flash",
+   "role": "openclaw-drift-police"
+  },
+  {
+   "slice": "issue-436",
+   "sessionId": "01a0182a-69ce-7fb3-80ed-b464b85acf64",
+   "at": "2026-08-19T03:57:21.389Z",
+   "turns": 1,
+   "stopReason": "cancelled",
+   "proofsOk": false,
+   "model": "deepseek-v4-flash",
+   "role": "openclaw-drift-police"
+  },
+  {
+   "slice": "issue-436",
+   "sessionId": "01a01830-d3b3-7e31-a635-8f99bb683143",
+   "at": "2026-08-19T04:04:23.397Z",
+   "turns": 1,
+   "stopReason": "cancelled",
+   "model": "deepseek-v4-flash",
+   "role": "openclaw-drift-police"
+  },
+  {
+   "slice": "issue-436",
+   "sessionId": "01a01830-d3b3-7e31-a635-8f99bb683143",
+   "at": "2026-08-19T04:04:23.397Z",
+   "turns": 1,
+   "stopReason": "cancelled",
+   "proofsOk": false,
+   "model": "deepseek-v4-flash",
+   "role": "openclaw-drift-police"
+  },
+  {
+   "slice": "issue-436",
+   "sessionId": "01a01831-15e1-7250-a752-2088f91e001b",
+   "at": "2026-08-19T04:04:41.403Z",
+   "turns": 1,
+   "stopReason": "cancelled",
+   "model": "deepseek-v4-flash",
+   "role": "openclaw-drift-police"
+  },
+  {
+   "slice": "issue-436",
+   "sessionId": "01a01831-15e1-7250-a752-2088f91e001b",
+   "at": "2026-08-19T04:04:41.403Z",
+   "turns": 1,
+   "stopReason": "cancelled",
+   "proofsOk": false,
+   "model": "deepseek-v4-flash",
+   "role": "openclaw-drift-police"
+  },
+  {
+   "slice": "issue-436",
+   "sessionId": "01a01831-fd63-7351-8f1e-f625493048ce",
+   "at": "2026-08-19T04:05:37.793Z",
+   "turns": 1,
+   "stopReason": "cancelled",
+   "model": "deepseek-v4-flash",
+   "role": "openclaw-drift-police"
+  },
+  {
+   "slice": "issue-436",
+   "sessionId": "01a01831-fd63-7351-8f1e-f625493048ce",
+   "at": "2026-08-19T04:05:37.793Z",
+   "turns": 1,
+   "stopReason": "cancelled",
+   "proofsOk": false,
+   "model": "deepseek-v4-flash",
+   "role": "openclaw-drift-police"
+  },
+  {
+   "slice": "issue-436",
+   "sessionId": "01a01832-38a1-7b21-a0db-e8b0c97deecd",
+   "at": "2026-08-19T04:05:53.481Z",
+   "turns": 1,
+   "stopReason": "cancelled",
+   "model": "deepseek-v4-flash",
+   "role": "openclaw-drift-police"
+  },
+  {
+   "slice": "issue-436",
+   "sessionId": "01a01832-38a1-7b21-a0db-e8b0c97deecd",
+   "at": "2026-08-19T04:05:53.481Z",
+   "turns": 1,
+   "stopReason": "cancelled",
+   "proofsOk": false,
+   "model": "deepseek-v4-flash",
+   "role": "openclaw-drift-police"
+  },
+  {
+   "slice": "issue-436",
+   "sessionId": "01a01833-117b-77d0-90eb-9af481c1d9ee",
+   "at": "2026-08-19T04:06:51.777Z",
+   "turns": 1,
+   "stopReason": "cancelled",
+   "model": "deepseek-v4-flash",
+   "role": "openclaw-drift-police"
+  },
+  {
+   "slice": "issue-436",
+   "sessionId": "01a01833-117b-77d0-90eb-9af481c1d9ee",
+   "at": "2026-08-19T04:06:51.777Z",
+   "turns": 1,
+   "stopReason": "cancelled",
+   "proofsOk": false,
+   "model": "deepseek-v4-flash",
+   "role": "openclaw-drift-police"
+  },
+  {
+   "slice": "issue-436",
+   "sessionId": "01a01833-598d-7190-950c-5703edbf8df5",
+   "at": "2026-08-19T04:07:04.502Z",
+   "turns": 1,
+   "stopReason": "cancelled",
+   "model": "deepseek-v4-flash",
+   "role": "openclaw-drift-police"
+  },
+  {
+   "slice": "issue-436",
+   "sessionId": "01a01833-598d-7190-950c-5703edbf8df5",
+   "at": "2026-08-19T04:07:04.502Z",
+   "turns": 1,
+   "stopReason": "cancelled",
+   "proofsOk": false,
+   "model": "deepseek-v4-flash",
+   "role": "openclaw-drift-police"
+  },
+  {
+   "slice": "issue-436",
+   "sessionId": "01a01834-19e7-79d1-aa20-fc5f69665e50",
+   "at": "2026-08-19T04:07:57.337Z",
+   "turns": 1,
+   "stopReason": "cancelled",
+   "model": "deepseek-v4-flash",
+   "role": "openclaw-drift-police"
+  },
+  {
+   "slice": "issue-436",
+   "sessionId": "01a01834-19e7-79d1-aa20-fc5f69665e50",
+   "at": "2026-08-19T04:07:57.337Z",
+   "turns": 1,
+   "stopReason": "cancelled",
+   "proofsOk": false,
+   "model": "deepseek-v4-flash",
+   "role": "openclaw-drift-police"
+  },
+  {
+   "slice": "issue-436",
+   "sessionId": "01a01834-59ab-7642-8e9c-1485bce2e871",
+   "at": "2026-08-19T04:08:11.111Z",
+   "turns": 1,
+   "stopReason": "cancelled",
+   "model": "deepseek-v4-flash",
+   "role": "openclaw-drift-police"
+  },
+  {
+   "slice": "issue-436",
+   "sessionId": "01a01834-59ab-7642-8e9c-1485bce2e871",
+   "at": "2026-08-19T04:08:11.111Z",
+   "turns": 1,
+   "stopReason": "cancelled",
+   "proofsOk": false,
+   "model": "deepseek-v4-flash",
+   "role": "openclaw-drift-police"
+  },
+  {
+   "slice": "issue-436",
+   "sessionId": "01a01840-84ea-79a2-a1ff-303147db6638",
+   "at": "2026-08-19T04:21:37.316Z",
+   "turns": 1,
+   "stopReason": "cancelled",
+   "model": "deepseek-v4-flash",
+   "role": "openclaw-drift-police"
+  },
+  {
+   "slice": "issue-436",
+   "sessionId": "01a01840-84ea-79a2-a1ff-303147db6638",
+   "at": "2026-08-19T04:21:37.316Z",
+   "turns": 1,
+   "stopReason": "cancelled",
+   "proofsOk": false,
+   "model": "deepseek-v4-flash",
+   "role": "openclaw-drift-police"
+  },
+  {
+   "slice": "issue-436",
+   "sessionId": "01a0184f-b0fe-7571-b940-08eb5ec2f9c7",
+   "at": "2026-08-19T04:38:03.653Z",
+   "turns": 1,
+   "stopReason": "cancelled",
+   "model": "deepseek-v4-flash",
+   "role": "openclaw-drift-police"
+  },
+  {
+   "slice": "issue-436",
+   "sessionId": "01a0184f-b0fe-7571-b940-08eb5ec2f9c7",
+   "at": "2026-08-19T04:38:03.653Z",
+   "turns": 1,
+   "stopReason": "cancelled",
+   "proofsOk": false,
+   "model": "deepseek-v4-flash",
+   "role": "openclaw-drift-police"
+  },
+  {
+   "slice": "dispatch-chokepoint",
+   "sessionId": "019fd4f4-cbb6-79e0-a7cf-13d8e6eca50b",
+   "at": "2026-08-06T02:52:33.751Z",
+   "turns": 44,
+   "stopReason": "end_turn",
+   "proofsOk": true,
+   "model": "grok-4.5"
+  },
+  {
+   "slice": "dispatch-chokepoint",
+   "sessionId": "019fd4f4-cbb6-79e0-a7cf-13d8e6eca50b",
+   "at": "2026-08-06T02:52:33.751Z",
+   "turns": 44,
+   "stopReason": "end_turn",
+   "proofsOk": true,
+   "model": "grok-4.5"
+  },
+  {
+   "slice": "dispatch-chokepoint",
+   "sessionId": "019fd4f5-8db0-7ff2-bc80-a8261b229540",
+   "at": "2026-08-06T02:52:36.284Z",
+   "turns": 40,
+   "stopReason": "end_turn",
+   "proofsOk": true,
+   "model": "grok-4.5"
+  },
+  {
+   "slice": "dispatch-chokepoint",
+   "sessionId": "019fd4f5-8db0-7ff2-bc80-a8261b229540",
+   "at": "2026-08-06T02:52:36.284Z",
+   "turns": 40,
+   "stopReason": "end_turn",
+   "proofsOk": true,
+   "model": "grok-4.5"
+  },
+  {
+   "slice": "issue-64",
+   "sessionId": "019fd82d-cfe0-75b3-bc3b-ed699bbba42e",
+   "at": "2026-08-06T17:57:33.795Z",
+   "turns": 47,
+   "stopReason": "end_turn",
+   "model": "grok-4.5"
+  },
+  {
+   "slice": "issue-64",
+   "sessionId": "019fd82d-cfe0-75b3-bc3b-ed699bbba42e",
+   "at": "2026-08-06T17:57:33.795Z",
+   "turns": 47,
+   "stopReason": "end_turn",
+   "proofsOk": true,
+   "model": "grok-4.5"
+  },
+  {
+   "slice": "issue-64",
+   "sessionId": "019fd839-646b-77e2-8d59-f2c7c4174af8",
+   "at": "2026-08-06T17:59:51.421Z",
+   "turns": 9,
+   "stopReason": "end_turn",
+   "model": "grok-4.5"
+  },
+  {
+   "slice": "issue-64",
+   "sessionId": "019fd839-646b-77e2-8d59-f2c7c4174af8",
+   "at": "2026-08-06T17:59:51.421Z",
+   "turns": 9,
+   "stopReason": "end_turn",
+   "proofsOk": true,
+   "model": "grok-4.5"
+  },
+  {
+   "slice": "issue-139",
+   "sessionId": "019fdd4f-95cb-7b02-9eae-d1f4498a79bd",
+   "at": "2026-08-07T17:51:22.546Z",
+   "turns": 40,
+   "stopReason": "end_turn",
+   "model": "grok-4.5"
+  },
+  {
+   "slice": "issue-139",
+   "sessionId": "019fdd4f-95cb-7b02-9eae-d1f4498a79bd",
+   "at": "2026-08-07T17:51:22.546Z",
+   "turns": 40,
+   "stopReason": "end_turn",
+   "proofsOk": true,
+   "model": "grok-4.5"
+  },
+  {
+   "slice": "issue-139",
+   "sessionId": "019fdd68-7c6d-7062-8fa6-9c6f3237f234",
+   "at": "2026-08-07T18:15:43.660Z",
+   "turns": 34,
+   "stopReason": "end_turn",
+   "model": "grok-4.5"
+  },
+  {
+   "slice": "issue-139",
+   "sessionId": "019fdd68-7c6d-7062-8fa6-9c6f3237f234",
+   "at": "2026-08-07T18:15:43.660Z",
+   "turns": 34,
+   "stopReason": "end_turn",
+   "proofsOk": false,
+   "model": "grok-4.5"
+  },
+  {
+   "slice": "issue-259",
+   "sessionId": "019fed11-4974-7490-be72-084f70f9b268",
+   "at": "2026-08-10T19:21:16.444Z",
+   "turns": 64,
+   "stopReason": "end_turn",
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-335",
+   "sessionId": "019ff34b-ea0f-7752-a801-213d32b57d9e",
+   "at": "2026-08-12T00:49:44.146Z",
+   "turns": 190,
+   "stopReason": "end_turn",
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-335",
+   "sessionId": "019ff34b-ea0f-7752-a801-213d32b57d9e",
+   "at": "2026-08-12T00:49:44.146Z",
+   "turns": 190,
+   "stopReason": "end_turn",
+   "proofsOk": true,
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-259",
+   "sessionId": "019ff502-a0d3-7e10-9ef1-455df126ecbe",
+   "at": "2026-08-12T08:44:21.042Z",
+   "turns": 150,
+   "stopReason": "cancelled",
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-92",
+   "sessionId": "019ffa28-dc38-7313-add0-78321048f245",
+   "at": "2026-08-13T08:07:41.144Z",
+   "turns": 4,
+   "stopReason": "end_turn",
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-92",
+   "sessionId": "019ffa2c-d820-7481-809c-0d0aa5e7aac2",
+   "at": "2026-08-13T08:51:09.676Z",
+   "turns": 69,
+   "stopReason": "end_turn",
+   "model": "deepseek-v4-flash"
+  },
+  {
+   "slice": "issue-335",
+   "sessionId": "019ffb67-e10d-7292-a7b7-7c37b12d5ce3",
+   "at": "2026-08-13T13:59:36.349Z",
+   "turns": 20,
+   "stopReason": "end_turn",
+   "model": "deepseek-v4-pro"
+  },
+  {
+   "slice": "issue-335",
+   "sessionId": "019ffb67-e10d-7292-a7b7-7c37b12d5ce3",
+   "at": "2026-08-13T13:59:36.349Z",
+   "turns": 20,
+   "stopReason": "end_turn",
+   "proofsOk": false,
+   "model": "deepseek-v4-pro"
+  }
+ ]
+}

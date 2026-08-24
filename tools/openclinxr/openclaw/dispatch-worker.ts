@@ -34,6 +34,7 @@ import {
 } from "../../../packages/openclinxr/agent-loop/src/done-when-rules.js";
 import type { DoneWhenCheck } from "../../../packages/openclinxr/agent-loop/src/slice-team.js";
 import { resolveSharedCoordinationPath } from "./coordination-root.js";
+import { shouldRefuseDispatch, type BreakerRow } from "./retry-circuit-breaker.js";
 import { assertLoopNotPaused } from "./loop-pause.js";
 import { assertProductLaneNotStarved, assertPulseMeasurementAlive } from "./product-lane-gate.js";
 import { setFactoryField } from "./board-cli.js";
@@ -1269,6 +1270,18 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
    */
   assertLoopNotPaused(repoRoot);
 
+  /**
+   * MEASURED 2026-08-24 over 1,156 ledger rows: two slices consumed 33 of 584 dispatch sessions and
+   * produced nothing. `issue-436` was cancelled at ONE TURN twelve times, the second only fifteen
+   * seconds after the first; `issue-341` hit a 150-turn ceiling seven times, the second 1.2 h after
+   * the first. Together they hold 16 of 62 proof failures — a quarter of the factory's measured
+   * failure is re-dispatching an unchanged slice into an unchanged wall.
+   *
+   * Placed with the pause check, BEFORE the worktree and the spawn, so a refusal costs zero tokens.
+   * Refuses only an automatic repeat; the message names what to change instead.
+   */
+  assertNotRepeatingIntoTheSameWall(repoRoot, sliceId2(options));
+
   // ISSUE #448: role is the worker's charter + status directive. A missing or unknown role
   // FAILS CLOSED here, before any worktree or brief is created — a refusal must cost nothing.
   const sliceId = options.slice ?? "unscoped";
@@ -1619,4 +1632,37 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
   }
 
   return entry;
+}
+
+
+/** `options.slice` before the local `sliceId` is computed — the guard runs first by design. */
+function sliceId2(options: Pick<DispatchOptions, "slice">): string {
+  return options.slice ?? "unscoped";
+}
+
+/**
+ * Fail closed when the ledger shows this slice already walked into the same wall twice.
+ *
+ * Reads the ledger defensively: a missing or malformed ledger must never block a dispatch, because
+ * a guard that fails open on absent history is correct and one that fails closed would brick a
+ * fresh checkout.
+ */
+export function assertNotRepeatingIntoTheSameWall(repoRoot: string, slice: string): void {
+  if (slice === "unscoped") return;
+  let rows: BreakerRow[] = [];
+  try {
+    const raw = readFileSync(join(repoRoot, LEDGER), "utf8");
+    rows = raw.split("\n").filter(Boolean).flatMap((l) => {
+      try { return [JSON.parse(l) as BreakerRow]; } catch { return []; }
+    });
+  } catch {
+    return; // no ledger, no history, no refusal
+  }
+  const verdict = shouldRefuseDispatch(rows, slice, Date.now());
+  if (!verdict.refuse) return;
+  throw new Error(
+    `dispatch REFUSED (${verdict.clause}): ${verdict.detail} ` +
+    `This is a circuit breaker, not a permanent close — it clears when the window rolls off. ` +
+    `Repeating the dispatch unchanged is the behaviour that produced 16 of 62 measured proof failures.`,
+  );
 }
