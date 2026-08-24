@@ -1914,6 +1914,14 @@ def _build_body_surface_derived_garment(
     bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
     bm.normal_update()
 
+    # #126: the shell is a copy of the body surface, so every surviving vertex can name the body
+    # vertex it came from. Record it before any edit reorders bmesh indices; the garment weight
+    # transfer reads it back after to_mesh fixes export order. +1 so 0 means "no source" (lofted
+    # skirt verts created below the hip cut, #481, and subdivide-created ring verts).
+    src_layer = bm.verts.layers.int.new("openclinxr_src_body_vertex")
+    for _v in bm.verts:
+        _v[src_layer] = int(_v.index) + 1
+
     def _polyline_length(pts: list) -> float:
         total = 0.0
         for i in range(len(pts) - 1):
@@ -3013,9 +3021,22 @@ def _build_body_surface_derived_garment(
         else:
             print(f"[blender] #124 hem finish at bot_y={bot_y:.4f} EMPTY")
 
+    # #126: carry the recorded source-body-vertex index out of bmesh into a mesh INT attribute
+    # the garment weight transfer reads (to_mesh copies the layer by name; an INT custom
+    # attribute is not exported by the glTF writer).
+    if "openclinxr_src_body_vertex" not in gmesh.attributes:
+        gmesh.attributes.new(name="openclinxr_src_body_vertex", type="INT", domain="POINT")
     bm.to_mesh(gmesh)
     bm.free()
     gmesh.update()
+    _src_attr = gmesh.attributes.get("openclinxr_src_body_vertex")
+    if _src_attr is not None:
+        _sv = [_src_attr.data[i].value for i in range(min(64, len(gmesh.vertices)))]
+        _nz = sum(1 for i in range(len(gmesh.vertices)) if int(_src_attr.data[i].value) > 0)
+        print(
+            f"[blender] #126 src_body_vertex attr: verts={len(gmesh.vertices)} "
+            f"nonzero={_nz} sample={_sv[:8]}"
+        )
     _ys_out = [float(v.co.y) for v in gmesh.vertices]
     print(
         f"[blender] #124 to_mesh garment: verts={len(gmesh.vertices)} "
@@ -3042,14 +3063,125 @@ def _build_body_surface_derived_garment(
     return garment
 
 
+def _transfer_body_weights_to_garment(
+    garment: bpy.types.Object,
+    body_obj: bpy.types.Object,
+    arm_obj: bpy.types.Object,
+) -> None:
+    """#126: copy the body's skin weights onto the garment shell by recorded correspondence.
+
+    The shell is a body-surface copy, so each exported garment vertex names the body vertex it
+    came from (recorded by the builder as `openclinxr_src_body_vertex` before any edit reordered
+    bmesh indices). Weights are copied verbatim from that source vertex onto identically-named
+    vertex groups (armature bone names), replacing the position-threshold paint that put the
+    cloth on a different bone mix from the limb under it — sleeve lag/tear under motion.
+
+    Verts with no recorded source (lofted gown-skirt verts below the hip cut, #481) fall back to
+    the nearest body vertex by position: Data Transfer's NEAREST_VERTEX correspondence, computed
+    deterministically (uniform 2 cm grid) so a headless bake cannot depend on modifier evaluation.
+    """
+    gmesh = garment.data
+    src_attr = gmesh.attributes.get("openclinxr_src_body_vertex")
+    body_verts = body_obj.data.vertices
+    body_groups = {g.index: g.name for g in body_obj.vertex_groups}
+    n_body = len(body_verts)
+    bone_names = {b.name for b in arm_obj.data.bones}
+
+    # Vertex groups are OBJECT-level in Blender 5.x (the Mesh copy does not carry them), so the
+    # garment starts with none; wipe whatever a previous layer iteration left and rebuild from
+    # the transfer so export writes one coherent set of JOINTS_0/WEIGHTS_0.
+    while garment.vertex_groups:
+        garment.vertex_groups.remove(garment.vertex_groups[0])
+    groups: Dict[str, bpy.types.VertexGroup] = {}
+    used: set = set()
+
+    def _group(name: str) -> Optional[bpy.types.VertexGroup]:
+        if name not in bone_names:
+            return None
+        g = groups.get(name)
+        if g is None:
+            g = garment.vertex_groups.new(name=name)
+            groups[name] = g
+        return g
+
+    CELL = 0.02
+    grid: Dict[tuple, list] = {}
+    for _bv in body_verts:
+        grid.setdefault(
+            (int(_bv.co.x // CELL), int(_bv.co.y // CELL), int(_bv.co.z // CELL)), []
+        ).append(_bv)
+
+    def _nearest_body_vertex(p) -> Optional[bpy.types.MeshVertex]:
+        k = (int(p.x // CELL), int(p.y // CELL), int(p.z // CELL))
+        best = None
+        best_d2 = float("inf")
+        for r in range(1, 5):
+            if best is not None:
+                break
+            for dx in range(-r, r + 1):
+                for dy in range(-r, r + 1):
+                    for dz in range(-r, r + 1):
+                        for cand in grid.get((k[0] + dx, k[1] + dy, k[2] + dz), ()):
+                            d2 = (cand.co - p).length_squared
+                            if d2 < best_d2:
+                                best_d2 = d2
+                                best = cand
+        return best
+
+    n_transferred = 0
+    n_fallback = 0
+    src_dist_sum = 0.0
+    src_dist_n = 0
+    src_dist_max = 0.0
+    for vi, v in enumerate(gmesh.vertices):
+        src = int(src_attr.data[vi].value) if src_attr is not None else 0
+        src_vert = None
+        if 1 <= src <= n_body:
+            src_vert = body_verts[src - 1]
+            n_transferred += 1
+            # Sanity: the recorded source must sit near the garment vertex (the shell is the
+            # body offset by 1-2 cm along normals). A scrambled index order shows up here as
+            # metre-scale distances instead of a wrong-looking but plausible weight mix.
+            if src_dist_n < 512 and vi % 8 == 0:
+                d = (src_vert.co - v.co).length
+                src_dist_sum += d
+                src_dist_n += 1
+                src_dist_max = max(src_dist_max, d)
+        else:
+            src_vert = _nearest_body_vertex(v.co)
+            n_fallback += 1
+        if src_vert is None or not src_vert.groups:
+            continue
+        for entry in src_vert.groups:
+            gname = body_groups.get(entry.group)
+            if gname is None or float(entry.weight) <= 1e-6:
+                continue
+            g = _group(gname)
+            if g is not None:
+                g.add([vi], min(1.0, max(0.0, float(entry.weight))), "ADD")
+                used.add(gname)
+    for name in [g.name for g in garment.vertex_groups]:
+        if name not in used:
+            garment.vertex_groups.remove(garment.vertex_groups.get(name))
+    print(
+        f"[blender] #126 garment weight transfer: verts={len(gmesh.vertices)} "
+        f"recorded={n_transferred} nearest_fallback={n_fallback} "
+        f"bones={[g.name for g in garment.vertex_groups]} "
+        f"src_dist_mean={src_dist_sum / max(1, src_dist_n):.4f} "
+        f"src_dist_max={src_dist_max:.4f}"
+    )
+
+
 def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role: str, phenotype: Dict[str, Any], arm_obj: Optional[bpy.types.Object] = None) -> Dict[str, Any]:
     """
     Assign simple case-driven clothing materials to the humanoid mesh itself.
     EXPANDED (pivot embed-real-garment-region-from-phenotype Q1 Q5 + peds-parent-nurse-garment-asset):
     reads phenotype.garmentLayers (e.g. ["short_sleeve_exam_tshirt"] patient; ["casual_top","open_cardigan"] parent_tara_johnson_v1; ["scrub_top","scrub_pocket"] nurse_kevin_lee_v1 from peds_asthma_parent_anxiety_v1).
     For upper garment layers on patient/parent/nurse, emits REAL body-surface-derived (#121) torso+shoulder+sleeve
-    geometry with vertex weights on Anny canonical armature bones (clavicle.L/R, upper_arm.L/R, chest, spine, neck)
-    + ARMATURE modifier so sleeves deform (deformsWithBreathing=true). Keeps body mesh-native material regions.
+    geometry + ARMATURE modifier so sleeves deform (deformsWithBreathing=true). Vertex weights are TRANSFERRED
+    from the body vertex each shell vertex was derived from (#126 recorded correspondence) — skinned to the
+    Anny canonical armature bones the body itself uses (clavicle.L/R, upper_arm.L/R, chest, spine, neck, ...),
+    not painted from position thresholds. Keeps body mesh-native material regions.
     SOLIDIFY + weighted normals for volume. SLEEVE-FIT (garment-sleeve-fit-parent-nurse-v1): torso r_base from shoulder-band/depth (not arm-span AABB); sleeves as tubes along upper_arm bone (clavicle→elbow), not vertical -Y mid-body boxes; tighter sleeve_r0 + thinner SOLIDIFY; denser 9x12+; vivid (0.08,0.52,0.95); faceCount~300+; bind pose remains body-local Y height.
 
     #73 material-region hygiene: when a real garment mesh will own the silhouette, do NOT paint
@@ -3819,47 +3951,11 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 arm_mod = garment.modifiers.new("openclinxr_real_garment_armature", "ARMATURE")
                 arm_mod.object = arm_use
                 arm_mod.use_vertex_groups = True
-                bone_names = [b.name for b in arm_use.data.bones]
-                groups: Dict[str, Any] = {}
-                for bn in ["clavicle.L", "clavicle.R", "upper_arm.L", "upper_arm.R", "chest", "spine", "neck"]:
-                    if bn in bone_names:
-                        groups[bn] = garment.vertex_groups.get(bn) or garment.vertex_groups.new(name=bn)
-                gvs = list(garment.data.vertices)
-                if gvs:
-                    gys = [v.co.y for v in gvs]
-                    gxs = [v.co.x for v in gvs]
-                    gmin_y, gmax_y = min(gys), max(gys)
-                    gheight = max(gmax_y - gmin_y, 0.001)
-                    gwidth = max(max(gxs) - min(gxs), 0.001) or 1.0
-                    gcx = (min(gxs) + max(gxs)) / 2
-                    sleeve_x_thresh = max(body_width * 0.16, gwidth * 0.22)
-                    for vi, v in enumerate(gvs):
-                        yn = (v.co.y - gmin_y) / gheight
-                        xa = abs(v.co.x - gcx)
-                        side = ".L" if v.co.x >= gcx else ".R"
-                        if xa > sleeve_x_thresh:
-                            aw = 0.72 if xa > sleeve_x_thresh * 1.35 else 0.55
-                            if f"upper_arm{side}" in groups:
-                                groups[f"upper_arm{side}"].add([vi], aw, "ADD")
-                            if f"clavicle{side}" in groups:
-                                groups[f"clavicle{side}"].add([vi], 0.28, "ADD")
-                        elif yn > 0.55:
-                            if xa > gwidth * 0.10:
-                                if f"clavicle{side}" in groups:
-                                    groups[f"clavicle{side}"].add([vi], 0.45, "ADD")
-                                if "chest" in groups:
-                                    groups["chest"].add([vi], 0.40, "ADD")
-                            else:
-                                if "chest" in groups:
-                                    groups["chest"].add([vi], 0.70, "ADD")
-                                if "spine" in groups:
-                                    groups["spine"].add([vi], 0.22, "ADD")
-                        else:
-                            if "chest" in groups:
-                                groups["chest"].add([vi], 0.58, "ADD")
-                            if "spine" in groups:
-                                groups["spine"].add([vi], 0.30, "ADD")
-                weighted_bones = list(groups.keys())
+                # #126: the shell inherits the skin weights of the body vertex it was derived
+                # from (recorded in the builder) instead of a position-threshold paint, so the
+                # cloth follows the limb under it rather than lagging/tearing under motion.
+                _transfer_body_weights_to_garment(garment, mesh_obj, arm_use)
+                weighted_bones = [g.name for g in garment.vertex_groups]
             garment.parent = mesh_obj
             garment.matrix_parent_inverse = Matrix.Identity(4)
             garment.location = (0.0, 0.0, 0.0)

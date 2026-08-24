@@ -39,6 +39,25 @@ import { measureGarmentWeightCorrespondence } from "./garment-weight-corresponde
  *   shipped assets, at bind pose, read from the exported glTF.
  * notEvidenceFor: how the cloth looks under motion; poke-through; whether the correspondence index is
  *   the right transfer mechanism; any asset not named here; the MakeClothes-fitted lower garments.
+ *
+ * ## FIXED (#126)
+ *
+ * `automate_blender.py` now records which body vertex each shell vertex was derived from (an INT mesh
+ * attribute written before the bmesh edits reorder indices) and copies that source vertex's skin
+ * weights verbatim onto identically-named bone groups (`_transfer_body_weights_to_garment`), replacing
+ * the position-threshold paint that used to sit at `:3825-3861`. Measured on the re-baked
+ * `adult_male_street_casual.glb` (Blender-only rebake, 2026-08-24, recorded correspondence for all
+ * 2128+3914 garment verts, no fallback needed):
+ *
+ *   rail                          banded median   compared   mean influences
+ *   ANNY pre-fix (painted)        0.1795          244        3.03
+ *   ANNY post-fix (transferred)   0.0000          244        2.21
+ *   MPFB toigo (transferred)      0.0139          1892       3.59
+ *
+ * Clause (4) was written for the pre-fix world where the Anny rail was painted; with both named rails
+ * transferred their medians legitimately converge, so the vacuity guard now compares the transferred
+ * Anny rail against `peds_anxious_parent.glb` — the same pipeline, still position-painted (0.1795,
+ * 228 banded verts). The instrument still separates painted from transferred.
  */
 
 const HUMANOIDS = "apps/ui-xr/public/generated-humanoids";
@@ -56,7 +75,7 @@ const mpfbGarment = () => measureGarmentWeightCorrespondence(
   MPFB_GLB, (n) => /_body$/u.test(n), (n) => /toigo_t_shirt/u.test(n), BAND_M);
 
 describe("a garment deforms like the body under it", () => {
-  it.fails("(1) the Anny garment shell inherits the skin weights of the body it was derived from", async () => {
+  it("(1) the Anny garment shell inherits the skin weights of the body it was derived from", async () => {
     const r = await annyGarment();
     expect(
       r.medianDisagreement,
@@ -92,12 +111,21 @@ describe("a garment deforms like the body under it", () => {
     // Without this, (1) and (2) could both pass on an instrument that returns a constant. Pins that
     // the metric is a function of the asset. Deliberately NOT an assertion about which is better -
     // only that they are distinguishable, so the contract cannot go green on a broken reader.
-    const [anny, mpfb] = await Promise.all([annyGarment(), mpfbGarment()]);
+    // ## FIXED (#126): the treated Anny rail is now transferred too, so comparing it to MPFB (also
+    // transferred) no longer distinguishes anything. The guard compares it against the still-painted
+    // peds_anxious_parent rail instead (same pipeline, position paint, median 0.1795).
+    const [anny, painted] = await Promise.all([
+      annyGarment(),
+      measureGarmentWeightCorrespondence(
+        `${HUMANOIDS}/peds_anxious_parent.glb`, (n) => /anny_base/u.test(n), (n) => /real_garment_peds_upper_v1_mesh$/u.test(n), BAND_M),
+    ]);
     expect(anny.comparedVertices, "the Anny band must not be empty or clause (1) is green about nothing")
       .toBeGreaterThan(100);
+    expect(painted.comparedVertices, "the painted control must have banded verts to compare")
+      .toBeGreaterThan(100);
     expect(
-      Math.abs(anny.medianDisagreement - mpfb.medianDisagreement),
-      "the two rails must measure differently today; if they do not, the reader is broken",
+      Math.abs(anny.medianDisagreement - painted.medianDisagreement),
+      "the metric must still separate a transferred rail from a painted one; if it does not, the reader is broken",
     ).toBeGreaterThan(0.02);
   }, 60_000);
 });

@@ -77,6 +77,7 @@ def run_blender(
     garment_coeff_overrides: Path | None = None,
 ) -> Path:
     report = output_glb.with_name(output_glb.stem + "_rigging_report.json")
+    pre_size = output_glb.stat().st_size if output_glb.is_file() else 0
     cmd = [
         BLENDER,
         "--background",
@@ -101,8 +102,11 @@ def run_blender(
     if not output_glb.is_file():
         raise SystemExit(f"blender did not write {output_glb}")
     bytes_ = output_glb.stat().st_size
-    if bytes_ < 1_000_000:
-        raise SystemExit(f"GLB too small ({bytes_} B) — stub/quality fail: {output_glb}")
+    if bytes_ < 1_000_000 or bytes_ == pre_size:
+        raise SystemExit(
+            f"GLB not rewritten ({bytes_} B, pre-bake {pre_size} B) — Blender exited 0 on a "
+            f"script exception and left the stale file; check the bake log: {output_glb}"
+        )
     return report
 
 
