@@ -74,7 +74,7 @@ function composer(): ((opts?: unknown) => gateway.ModelGateway) | undefined {
 }
 
 describe("the runtime composes a real model provider, with the mock as last resort", () => {
-  it.fails("(1) an OpenAI-compatible adapter is composed AHEAD of the mock", async () => {
+  it("(1) an OpenAI-compatible adapter is composed AHEAD of the mock", async () => {
     const make = composer();
     expect(
       make,
@@ -136,3 +136,43 @@ describe("the runtime composes a real model provider, with the mock as last reso
     ).not.toHaveBeenCalled();
   });
 });
+
+/**
+ * ## FIXED (#622)
+ *
+ * Implementation (2026-08-24): `createActorDialogueModelGateway` is exported from
+ * `packages/openclinxr/model-gateway/src/index.ts` (composer block appended before the
+ * adapter re-exports; index.ts stays under the 500-line package budget). The default
+ * runtime factory now composes its gateway through it instead of building
+ * `[Mock, LocalModelProviderAdapter]` inline, so the adapter #26 built is constructed
+ * on every default boot and a configured model is reached instead of the template.
+ *
+ * Composition — priority is list order, `firstReadyAdapter` returns the first adapter
+ * whose health is `ready`:
+ *   1. ox — `OpenAiCompatibleModelProviderAdapter`, providerId `ox-alpha`, OpenRouter
+ *      base URL, present only when an API key is configured (option or
+ *      `OPENROUTER_API_KEY`).
+ *   2. local llama-server — the SAME adapter at `baseUrl` (option or
+ *      `OPENCLINXR_LOCAL_LLAMA_BASE_URL`; default `http://127.0.0.1:8080/v1`), present
+ *      only when configured, no api key — clause (4) of #26 (no `Authorization` header).
+ *   3. mock — `MockModelProviderAdapter`, always present.
+ *   4. legacy `LocalModelProviderAdapter({ providerId: "local-model" })` stub —
+ *      `not_configured`, never wins the gate; keeps the known-good offline pair
+ *      byte-identical to the shipped default (clause (2) parity).
+ *
+ * Unlocked decisions, recorded per the brief:
+ *  - Composer lives in model-gateway (where the adapters + gateway already live);
+ *    scenario-runtime stays a consumer via `createActorDialogueModelGateway`, per
+ *    composition-roots (feature → packages; apps compose/boot).
+ *  - Reachability detection is CONFIG ONLY — no network call at import or health
+ *    time: an empty key/base URL omits the rung. `health()` reports from config
+ *    (unchanged adapter behaviour), so a configured-but-down server surfaces as a
+ *    fetch error on generate, never as a boot failure.
+ *  - Defaults: ox model `stealth/ox-alpha`; local model `qwen3-8b` (the Qwen3-8B
+ *    Q4_K_M weights decision from the issue; both overridable via options).
+ *
+ * Test determinism: the default factory is env-driven, so `scenario-runtime.test.ts`
+ * and `station-simulation.test.ts` clear the two env keys in `beforeEach` to pin the
+ * offline default (their assertions are unchanged). A new
+ * `actor-dialogue-gateway.test.ts` pins the env composition in model-gateway.
+ */

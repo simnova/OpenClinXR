@@ -1,23 +1,19 @@
+import { InMemoryTraceLedger } from "@cellix/trace-ledger";
 import { createScenarioPlaceholderManifests, InMemoryAssetRegistry } from "@openclinxr/asset-registry";
 import { createDefaultConversationPolicy } from "@openclinxr/conversation-policy";
-import {
-  createDefaultModelGateway,
-  LocalModelProviderAdapter,
-  MockModelProviderAdapter,
-} from "@openclinxr/model-gateway";
+import { createActorDialogueModelGateway } from "@openclinxr/model-gateway";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
-import { InMemoryTraceLedger } from "@cellix/trace-ledger";
 import {
   createDefaultVoiceGateway,
   LocalVoiceProviderAdapter,
   MockVoiceProviderAdapter,
 } from "@openclinxr/voice-gateway";
 import { createDurableStoreFromPersistenceHooks } from "./provider-support.js";
-import { ScenarioRuntime } from "./scenario-runtime.js";
 import type {
   CreateDefaultScenarioRuntimeOptions,
   DurableStorePersistenceHooks,
 } from "./runtime-types.js";
+import { ScenarioRuntime } from "./scenario-runtime.js";
 
 /**
  * Create a default ScenarioRuntime with in-memory providers.
@@ -38,16 +34,15 @@ export function createDefaultScenarioRuntime(
     scenario,
     ledger: new InMemoryTraceLedger(),
     assetRegistry,
-    // Default to the offline adapter pair, but let the composing process substitute its own.
-    // The default is deliberately Mock-first: LocalModelProviderAdapter reports `not_configured`
-    // and throws if asked to generate, so the health gate falls through to Mock rather than
-    // failing a dev boot. A process wiring a real provider passes its own gateway here.
+    // Default: ox (OpenRouter) -> local llama-server -> mock, composed by
+    // createActorDialogueModelGateway. The live rungs are present only when configured
+    // (OPENROUTER_API_KEY / OPENCLINXR_LOCAL_LLAMA_BASE_URL); with neither set, the
+    // offline pair (mock + a `not_configured` local stub) answers from the mock, so a
+    // dev boot with no model configured never throws. A process wiring its own
+    // providers passes its own gateway here.
     modelGateway:
       options?.modelGateway ??
-      createDefaultModelGateway({
-        routeId: "actor-dialogue-offline-v1",
-        adapters: [new MockModelProviderAdapter(), new LocalModelProviderAdapter({ providerId: "local-model" })],
-      }),
+      createActorDialogueModelGateway({ routeId: "actor-dialogue-runtime-v1" }),
     voiceGateway:
       options?.voiceGateway ??
       createDefaultVoiceGateway({

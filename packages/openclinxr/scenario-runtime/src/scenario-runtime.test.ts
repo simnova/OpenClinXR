@@ -1,4 +1,6 @@
+import { InMemoryTraceLedger } from "@cellix/trace-ledger";
 import { createEdChestPainPlaceholderManifests, InMemoryAssetRegistry } from "@openclinxr/asset-registry";
+import type { EmotionEventKind, CaseEmotionPolicy as EngineCaseEmotionPolicy } from "@openclinxr/conversation-policy";
 import {
   type ActorResponseRequest,
   type ActorResponseResult,
@@ -8,31 +10,35 @@ import {
   type ModelCapability,
   type ModelProviderAdapter,
 } from "@openclinxr/model-gateway";
-import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
-import { pediatricAsthmaScenario } from "@openclinxr/scenario-fixtures";
-import { InMemoryTraceLedger } from "@cellix/trace-ledger";
+import { edChestPainScenario, pediatricAsthmaScenario } from "@openclinxr/scenario-fixtures";
+import type { CaseEmotionPolicy, ReviewPacket, Scenario } from "@openclinxr/shared-schemas";
 import {
   createDefaultVoiceGateway,
   LocalVoiceProviderAdapter,
   MockVoiceProviderAdapter,
   type VoiceProviderAdapter,
 } from "@openclinxr/voice-gateway";
-import { describe, expect, it } from "vitest";
-import type { CaseEmotionPolicy as EngineCaseEmotionPolicy, EmotionEventKind } from "@openclinxr/conversation-policy";
+import { beforeEach, describe, expect, it } from "vitest";
 import {
   createDefaultScenarioRuntime,
   createDurableStoreFromPersistenceHooks,
   createScenarioRuntimeWithPersistenceHooks,
-  ScenarioRuntime,
-  resolveScenarioById,
   type DurableStorePersistenceHooks,
+  resolveScenarioById,
   type ScenarioCatalogPort,
+  ScenarioRuntime,
   type ScenarioRuntimeActorTurn,
   type ScenarioRuntimeDurableStore,
 } from "./index.js";
-import type { CaseEmotionPolicy, ReviewPacket, Scenario } from "@openclinxr/shared-schemas";
 
 describe("scenario runtime", () => {
+  beforeEach(() => {
+    // The default factory composes the live ox/local rungs from ambient env. These tests
+    // pin the OFFLINE default, so clear the keys before each runtime is constructed.
+    delete process.env["OPENROUTER_API_KEY"];
+    delete process.env["OPENCLINXR_LOCAL_LLAMA_BASE_URL"];
+  });
+
   it("starts an ED station with provider and asset readiness visible", async () => {
     const runtime = createDefaultScenarioRuntime();
     const session = await runtime.startSession({ learnerId: "learner_001", consentAccepted: true });
