@@ -15,6 +15,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
+import { resolveSingleSelect } from "./github-coordination-cache.js";
 
 export const BOARD_SCHEMA = "openclinxr.board-slice.v1" as const;
 export const DEFAULT_BOARD_REPO = "simnova/OpenClinXR";
@@ -528,6 +529,15 @@ export function setFactoryField(
     dryRun?: boolean;
     runner?: GhCommandRunner;
     fieldId?: string;
+    /**
+     * Test seam for the cached id resolver. Return `null` to force the legacy two-call path.
+     *
+     * Unit tests must not reach live GitHub, and the cache's whole point is that a warm hit shells
+     * nothing — so it cannot be exercised through the injected `runner`.
+     */
+    metadataResolver?: (
+      repoRoot: string, owner: string, projectNumber: number, field: string, option: string,
+    ) => { projectId: string; fieldId: string; optionId: string } | null;
   },
 ): FactoryFieldWriteResult {
   const repo = options?.repo ?? DEFAULT_BOARD_REPO;
@@ -589,8 +599,35 @@ export function setFactoryField(
     };
   }
 
-  plans.push(planProjectView);
-  const projectId = stripAnsi(runner(planProjectView.argv)).trim();
+  /**
+   * CACHED IDENTIFIERS — two of the four calls here were re-resolving constants.
+   *
+   * `gh project view` returns a project node id that never changes; `gh project field-list` returns
+   * field and option ids that change only when someone edits the board schema. Both ran on EVERY
+   * transition. The 2026-08-23 sweep did ~70 transitions, so ~140 calls asked GitHub to repeat
+   * answers it had already given, against a GraphQL budget shared by every agent on the account —
+   * which that session exhausted at 0/5000.
+   *
+   * A warm cache issues neither call. IDENTIFIERS only: item Factory VALUES are never cached,
+   * because a stale id fails LOUDLY when GitHub rejects the write while a stale value fails
+   * silently. See github-coordination-cache.ts.
+   */
+  const resolveIds = options?.metadataResolver ?? ((root, o, num, field, option) => {
+    try {
+      return resolveSingleSelect(root, o, num, field, option);
+    } catch {
+      return null; // any cache trouble falls back to the legacy calls below
+    }
+  });
+  const cached = resolveIds(repoRoot, owner, projectNumber, FACTORY_FIELD_NAME, stage);
+
+  let projectId: string;
+  if (cached) {
+    projectId = cached.projectId;
+  } else {
+    plans.push(planProjectView);
+    projectId = stripAnsi(runner(planProjectView.argv)).trim();
+  }
 
   plans.push(planItemResolve);
   let itemId = parseProjectItemId(runner(planItemResolve.argv), projectNumber);
@@ -601,10 +638,17 @@ export function setFactoryField(
     itemId = parseItemAddId(runner(planItemAdd.argv));
   }
 
-  plans.push(planFieldList);
-  const optionId = resolveFactoryOptionId(runner(planFieldList.argv), fieldId, stage);
+  let optionId: string;
+  let writeFieldId = fieldId;
+  if (cached) {
+    optionId = cached.optionId;
+    writeFieldId = cached.fieldId;
+  } else {
+    plans.push(planFieldList);
+    optionId = resolveFactoryOptionId(runner(planFieldList.argv), fieldId, stage);
+  }
 
-  const writePlan = planFactoryStageWrite({ projectId, itemId, fieldId, optionId, stage });
+  const writePlan = planFactoryStageWrite({ projectId, itemId, fieldId: writeFieldId, optionId, stage });
   plans.push(writePlan);
   runner(writePlan.argv);
 

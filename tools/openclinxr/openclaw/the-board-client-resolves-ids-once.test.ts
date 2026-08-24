@@ -106,3 +106,58 @@ describe("the board client resolves ids once", () => {
     expect(existsSync(join(root, ".openclinxr/openclaw/github-project-metadata.json"))).toBe(true);
   });
 });
+
+/**
+ * WIRED: a warm Factory transition shells NEITHER `project view` NOR `field-list`.
+ *
+ * A cache nothing calls is this repo's most-repeated defect — `merge-kill` with no invoker, a
+ * contract report `integrate` passed null for, a viseme driver with no applier, `assetPaths` with no
+ * writer. `8c4e06f9` shipped the cache and nothing called it. These clauses pin the wiring.
+ */
+describe("a warm Factory transition does not re-resolve constants", () => {
+  const CACHED = { projectId: "PVT_x", fieldId: "PVTSSF_x", optionId: "opt_planted" };
+
+  it("(1) issues neither project view nor field-list on a warm cache", async () => {
+    const { setFactoryField } = await import("./board-cli.js");
+    const argvs: string[][] = [];
+    const res = setFactoryField("/repo", "issue-999", "Planted", {
+      issueNumber: 999,
+      metadataResolver: () => CACHED,
+      runner: (argv) => {
+        argvs.push(argv);
+        if (argv.includes("graphql")) {
+          return JSON.stringify({ data: { repository: { issue: { projectItems: { nodes: [{ id: "PVTI_a", project: { number: 7 } }] } } } } });
+        }
+        return "";
+      },
+    });
+    expect(res.ok).toBe(true);
+    const flat = argvs.map((a) => a.join(" "));
+    expect(flat.some((c) => c.includes("project view")), "project id is cached").toBe(false);
+    expect(flat.some((c) => c.includes("field-list")), "field/option ids are cached").toBe(false);
+    // The write itself must still carry the CACHED ids, not placeholders.
+    expect(flat.some((c) => c.includes("opt_planted") && c.includes("PVT_x"))).toBe(true);
+  });
+
+  it("(3) a cache miss falls back to project view AND field-list", async () => {
+    const { setFactoryField } = await import("./board-cli.js");
+    const argvs: string[][] = [];
+    setFactoryField("/repo", "issue-999", "Planted", {
+      issueNumber: 999,
+      metadataResolver: () => null, // miss
+      runner: (argv) => {
+        argvs.push(argv);
+        if (argv.includes("graphql")) {
+          return JSON.stringify({ data: { repository: { issue: { projectItems: { nodes: [{ id: "PVTI_a", project: { number: 7 } }] } } } } });
+        }
+        if (argv.includes("field-list")) {
+          return JSON.stringify({ fields: [{ id: "PVTSSF_legacy", name: "Factory", options: [{ id: "legacy_planted", name: "Planted" }] }] });
+        }
+        return "PVT_legacy";
+      },
+    });
+    const flat = argvs.map((a) => a.join(" "));
+    expect(flat.some((c) => c.includes("project view")), "a miss must fall back").toBe(true);
+    expect(flat.some((c) => c.includes("field-list")), "a miss must fall back").toBe(true);
+  });
+});
