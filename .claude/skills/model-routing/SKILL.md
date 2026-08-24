@@ -345,6 +345,36 @@ different fixes, and the CLI's error text does not distinguish them.
 
 **No step-down was warranted.** Workers stay on `ox-alpha`.
 
+## `direnv exec` or the ladder lies to you — measured twice
+
+**Both times I "found" an ox outage, the first symptom was a 401 and the first symptom was mine.**
+A bare `pnpm exec tsx` / `grok` inherits **no** `OPENROUTER_API_KEY`; `direnv exec . <cmd>` supplies it.
+The empty-string sha is `da39a3ee` — if a key hash reads `da39a3ee`, there is no key.
+
+Every dispatch and every probe runs as `direnv exec . …`. Without it the failure is an auth
+rejection dressed as a provider fault, and the ladder steps down for nothing.
+
+**The tell that a step-down is real: the error CHANGES when you add `direnv exec`.**
+2026-08-24, in order: `401 ... 4 authenticated inference requests were still rejected` (mine) →
+add `direnv exec` → `Provider returned error` (theirs). Only the second is a measured rung failure.
+
+### 2026-08-24 — ox-alpha rung DOWN, control/treatment in the same shell
+
+| model | invocation | result |
+|---|---|---|
+| `ox-alpha` | `direnv exec` + raw `grok -p` | `Provider returned error`, **2 of 2** |
+| `deepseek-v4-flash` | same shell, same second, same flags | `DSPROBE`, clean |
+
+Same env, same key, same minute — the fault is the rung. Dispatched `#126` on rung 2.
+Re-probe ox before assuming it is still down; it recovered mid-test once already (`#631`).
+
+### `dispatch()` refuses a downgrade without a reason, and it is right
+
+`role: "asset-pipeline-lead"` is `standard_execution` → policy model `deepseek-v4-pro`. Passing
+`deepseek-v4-flash` throws unless `modelDowngradeReason` is set — *"Five consecutive write slices
+silently ran flash because the default ignored the role."* Put the MEASUREMENT in that field, not
+a preference.
+
 ## Probe before a long dispatch
 
 A text echo proves nothing. Use a turn that must call a tool and whose answer you can check:
