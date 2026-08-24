@@ -1696,8 +1696,19 @@ export function assertNotRepeatingIntoTheSameWall(
    */
   const overridden = typeof overrideReason === "string" && overrideReason.trim().length > 0;
 
-  try {
-    appendFileSync(
+  /**
+   * ASYMMETRIC DURABILITY, and the asymmetry is the point.
+   *
+   * A REFUSAL's record is best-effort: the dispatch is being stopped either way, so a failed append
+   * must never become the reason a storm cannot be refused.
+   *
+   * An OVERRIDE's record FAILS CLOSED. An override that proceeds without leaving a record is
+   * strictly worse than no override at all — it is an unlogged bypass of a safety gate, and the
+   * whole justification for allowing one is that it is documented. Measured hole in 6ecbf29e: the
+   * append sat in a swallowed try/catch followed by `return`, so a write failure let the dispatch
+   * through in silence.
+   */
+  const record = () => appendFileSync(
       join(repoRoot, BREAKER_EVENTS),
       `${JSON.stringify({
         kind: overridden ? "dispatch-breaker-overridden" : "dispatch-refused",
@@ -1711,9 +1722,23 @@ export function assertNotRepeatingIntoTheSameWall(
       })}\n`,
       "utf8",
     );
-  } catch { /* the record is evidence, never a gate */ }
 
-  if (overridden) return;
+  if (overridden) {
+    try {
+      record();
+    } catch (cause) {
+      throw new Error(
+        `dispatch REFUSED (${verdict.clause}): an override was supplied but its record could not be `
+        + `written to ${BREAKER_EVENTS}, and an unrecorded override is an unlogged bypass of a safety `
+        + `gate. Fix the write and retry. Cause: ${String(cause)}`,
+      );
+    }
+    return;
+  }
+
+  try {
+    record();
+  } catch { /* a refusal's record is evidence, never a gate — the dispatch stops regardless */ }
 
   throw new Error(
     `dispatch REFUSED (${verdict.clause}): ${verdict.detail} ` +

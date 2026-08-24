@@ -214,41 +214,30 @@ export function shouldRefuseDispatch(
   }
 
   /**
-   * D. REPEATED PROCESS DEATH — sessions that never reached a verdict at all.
+   * D. REPEATED PROCESS DEATH — BUILT, MEASURED, AND DELIBERATELY NOT SHIPPED.
    *
-   * Clauses A-C read `stopReason` and `proofsOk`, so a session that dies or hangs before either is
-   * written is INVISIBLE to them. Measured across 584 sessions: 11 terminal `died` across 7 slices
-   * and 13 terminal `spawned` across 10 slices, none of which any earlier clause can see.
+   * Clauses A-C read `stopReason` and `proofsOk`, so a session that dies before either is written is
+   * invisible to them: 11 terminal `died` across 7 slices and 13 terminal `spawned` across 10.
+   * That gap is real. A hard clause for it is not justified by this ledger, and here is why, so
+   * nobody rebuilds it without new evidence:
    *
-   * THRESHOLD 3, NOT 2, AND THE REASON IS OUTCOME — not a tuned number:
+   * 1. HISTORICAL REPLAY FIRES ZERO TIMES. At `died`-only, >=3, 60 min, replaying every dispatch
+   *    instant refuses nothing. `issue-594` had exactly three deaths and no fourth attempt, so the
+   *    gate would have prevented no waste at all.
+   * 2. AT A THRESHOLD OF 2 IT IS ACTIVELY HARMFUL. It refuses three historical dispatches, and TWO
+   *    of them PASSED: issue-585 (19 turns) and issue-591 (129 turns). Only issue-594 was a true
+   *    positive. One correct refusal against two false ones.
+   * 3. `spawned` IS NOT A FAILURE STATE. It means no terminal row exists yet; the worker may be
+   *    alive. 25 of 121 completed sessions ran over 30 minutes and the longest eventual SUCCESS ran
+   *    89.8 minutes. One counted "failure" was 5.9 minutes into `spawned` when the next worker
+   *    launched.
+   * 4. The threshold that avoids (2) separates two cases from two cases. That is a coincidence with
+   *    units, not a law.
    *
-   *     issue-594  3 died     gaps 4.3, 36.6 min    later passes: 0
-   *     issue-569  3 spawned  gaps 28.8, 25.1 min   later passes: 0
-   *     issue-585  2 died     gap  7.1 min          later passes: 1   <- recovered
-   *     issue-591  2 died     gap  7.2 min          later passes: 1   <- recovered
-   *
-   * At 2 this clause fires on all four and interrupts two genuine recoveries. At 3 it fires on
-   * exactly the two slices that never recovered. The 60-minute window is the span the two firing
-   * slices actually needed (40.9 and 53.9 min end to end), not a round number.
-   *
-   * NOT TESTED, and the honest limit: this separates 2 cases from 2 cases. It is a small-n
-   * discriminator validated by outcome rather than a law, and the override exists precisely because
-   * a rule this thinly evidenced will sometimes be wrong.
+   * WHAT WOULD MAKE IT BUILDABLE: a `leaseExpiresAt`, a heartbeat, a process-liveness result, or a
+   * terminal `orphaned` phase in the ledger. With any of those, death becomes observable instead of
+   * inferred from silence.
    */
-  const DEAD_PHASES = new Set(["died", "spawned"]);
-  const dead = mine.filter(
-    (r) => typeof r.phase === "string" && DEAD_PHASES.has(r.phase) && within(r, nowMs, 60 * 60_000),
-  );
-  if (dead.length >= 3) {
-    return {
-      refuse: true,
-      clause: "repeated-process-death",
-      detail: `${dead.length} sessions for ${slice} never reached a verdict in 60 min (phase died/spawned) — the process is failing before the work starts, so a fourth attempt changes nothing.`,
-      triggeredBy: dead.map(evidence),
-      lastPassAt,
-      evaluatedAt,
-    };
-  }
 
   return { refuse: false };
 }
