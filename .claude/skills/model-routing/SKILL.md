@@ -313,6 +313,32 @@ the orchestrator's job (`pixel-grading`), so needing vision is rare.
 Never rotate models inside a running loop fire to "try again". Record the failure, step down once,
 and say which rung you landed on.
 
+## MEASURED OUTAGE — `ox-alpha` returned 401 on 2026-08-24 ~05:45
+
+Two independent invocations, seven seconds apart, identical failure:
+
+```
+Internal error: {"message":"Auth recovery succeeded but 4 authenticated inference requests
+were still rejected (401); giving up after 3 retries. Turn ran 7s wall-clock.",
+"http_status":401}
+```
+
+Note the shape: **auth recovery SUCCEEDED and the inference requests were still rejected.** That is not
+a missing key — `OPENROUTER_API_KEY` is present (len 73, sha `fc172a53`) and was present for the
+`ox-alpha` dispatches that landed #26 and #175 earlier the same session. Treat it as the promotional
+window closing or an upstream entitlement change, not as a local config fault, until measured otherwise.
+
+**Step-down taken, per the rule below:**
+
+| ladder | from | to | verified |
+|---|---|---|---|
+| worker | `ox-alpha` | `deepseek-v4-flash` | **yes** — probe returned `DSPROBE 43` against a ground truth of 43, tool actually invoked |
+| superagent / consult | `ox-alpha` | `grok-4.6` | not probed; it is the only remaining rung |
+
+**Re-probe `ox-alpha` before assuming it is still down.** A 401 that recovers is cheaper to retest than
+to route around: one probe, ~7 s. Do not rotate models mid-loop to "try again" — probe deliberately at
+the start of a tick, record the result, and stay on the rung you landed on for that tick.
+
 ## Probe before a long dispatch
 
 A text echo proves nothing. Use a turn that must call a tool and whose answer you can check:
