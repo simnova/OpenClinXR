@@ -98,10 +98,9 @@ export const MPFB_GOWN_ADULT_PATIENT_GLB = "mpfb-gown-adult-patient.glb";
 
 /**
  * Adult pool — role-agnostic fallback for unknown roles and exhausted preference
- * lists. MPFB bodies lead (#476: learner-facing adult roles resolve to the
- * 137-joint MPFB rail, not the 23-joint Anny rail); the Anny bodies stay as
- * last-resort because the gowned patient, the child band and the ED chest-pain
- * patient still depend on them. Never includes the child mesh.
+ * lists. MPFB bodies ONLY (#652: the operator P0 retired the raw Anny rail from
+ * casting — a same-class roster deep enough to drain this pool previously handed
+ * out Anny bodies from the old mixed-membership pool). Never includes the child mesh.
  */
 export const ADULT_POOL_GLBS = [
   MPFB_CLINICAL_NURSE_ADULT_GLB,
@@ -109,12 +108,6 @@ export const ADULT_POOL_GLBS = [
   MPFB_CLINICAL_PHYSICIAN_ADULT_GLB,
   MPFB_FAMILY_PARTNER_ADULT_GLB,
   MPFB_STREET_ADULT_MALE_GLB,
-  ED_ADULT_CAST_GLB,
-  ED_NURSE_GLB,
-  ED_SPOUSE_GLB,
-  PEDS_PARENT_GLB,
-  PEDS_NURSE_GLB,
-  ADULT_MALE_STREET_CASUAL_GLB,
 ] as const;
 
 export const ED_ADULT_CAST_RUNTIME_PATH = `${RUNTIME_GENERATED}/${ED_ADULT_CAST_GLB}`;

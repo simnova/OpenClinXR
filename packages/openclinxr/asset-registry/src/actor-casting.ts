@@ -41,14 +41,10 @@ export const OB_HEADACHE_PREECLAMPSIA_SCENARIO_ID = "ob_headache_preeclampsia_tr
 // resolver within its file-size budget). Re-export the previously-exported symbols
 // so the import surface is unchanged.
 import {
-  ADULT_MALE_STREET_CASUAL_GLB,
   ADULT_POOL_GLBS,
   CANDIDATES,
-  ED_ADULT_CAST_GLB,
   ED_ADULT_CAST_PROVENANCE_PATH,
   ED_ADULT_CAST_RUNTIME_PATH,
-  ED_NURSE_GLB,
-  ED_SPOUSE_GLB,
   GENERATED,
   MPFB_CLINICAL_NURSE_ADULT_GLB,
   MPFB_CLINICAL_PHYSICIAN_ADULT_GLB,
@@ -60,8 +56,6 @@ import {
   MPFB_PEDS_PARENT_AISHA_MOTION_BIND_GLB,
   MPFB_PEDS_PATIENT_CHILD_GLB,
   MPFB_STREET_ADULT_MALE_GLB,
-  PEDS_NURSE_GLB,
-  PEDS_PARENT_GLB,
   RUNTIME_CANDIDATES,
   RUNTIME_GENERATED,
 } from "./cast-asset-constants.js";
@@ -244,30 +238,24 @@ function pickAdultGlb(
   const preferred: string[] = [];
   if (r === "patient") {
     if (patientWardrobeClass === "street_casual") {
-      // #444: the four street_casual patients take the MPFB male street body first
-      // (137 joints, library t-shirt + cargo trousers); the 23-joint Anny street
-      // body stays immediately behind as the second-body fallback.
+      // #444: the street_casual patients take the MPFB male street body first
+      // (137 joints, library t-shirt + cargo trousers). #652: the Anny rail is
+      // retired from casting — the tail is MPFB-only.
       preferred.push(
         MPFB_STREET_ADULT_MALE_GLB,
-        ADULT_MALE_STREET_CASUAL_GLB,
-        ED_SPOUSE_GLB,
-        PEDS_PARENT_GLB,
-        ED_NURSE_GLB,
-        PEDS_NURSE_GLB,
-        ED_ADULT_CAST_GLB,
+        MPFB_FAMILY_PARTNER_ADULT_GLB,
+        MPFB_CLINICAL_NURSE_ADULT_GLB,
+        MPFB_PEDS_NURSE_KEVIN_GLB,
       );
     } else {
       // #491 L6: the gowned MPFB patient body leads (138 joints + jaw, eye mesh,
-      // hospital gown). The 23-joint Anny gown body stays as the deep fallback —
-      // L7 retires that FILE; this slice only stops casting it first.
+      // hospital gown). #652: the Anny deep fallback is retired from casting.
       preferred.push(
         MPFB_GOWN_ADULT_PATIENT_GLB,
-        ED_ADULT_CAST_GLB,
-        ED_NURSE_GLB,
-        PEDS_NURSE_GLB,
-        ED_SPOUSE_GLB,
-        PEDS_PARENT_GLB,
-        ADULT_MALE_STREET_CASUAL_GLB,
+        MPFB_FAMILY_PARTNER_ADULT_GLB,
+        MPFB_CLINICAL_NURSE_ADULT_GLB,
+        MPFB_PEDS_NURSE_KEVIN_GLB,
+        MPFB_STREET_ADULT_MALE_GLB,
       );
     }
   } else if (r === "physician") {
@@ -275,17 +263,19 @@ function pickAdultGlb(
     // physician body (scrub shirt + scrub pants + CC0 lab coat) first. Mirrors
     // the runtime copy in humanoid-runtime-asset-url.ts (both must change
     // together — the patient-attire dual-resolver agreement asserts this).
-    preferred.push(MPFB_CLINICAL_PHYSICIAN_ADULT_GLB, MPFB_CLINICAL_NURSE_ADULT_GLB, ED_NURSE_GLB, PEDS_NURSE_GLB, ED_ADULT_CAST_GLB, PEDS_PARENT_GLB, ED_SPOUSE_GLB, ADULT_MALE_STREET_CASUAL_GLB);
+    // #652: Anny tails removed — the second-body fallbacks are MPFB-only.
+    preferred.push(MPFB_CLINICAL_PHYSICIAN_ADULT_GLB, MPFB_CLINICAL_NURSE_ADULT_GLB, MPFB_FAMILY_PARTNER_ADULT_GLB, MPFB_STREET_ADULT_MALE_GLB, MPFB_PEDS_NURSE_KEVIN_GLB);
   } else if (r === "nurse" || r === "medical_assistant" || r === "respiratory_therapist" || r === "consultant") {
     // #403: nurse-class roles take the MPFB clinical-nurse body first. #476: the
     // second MPFB clinical body (peds-nurse-kevin, 137 joints) takes the second
-    // co-present nurse-class slot so learners never fall back to the 23-joint
-    // Anny nurse file; the Anny tail remains as last-resort for a third actor.
+    // co-present nurse-class slot so learners never fall back to a non-nurse body.
     // The physician is NOT here — it has its own body since 2026-08-14.
-    preferred.push(MPFB_CLINICAL_NURSE_ADULT_GLB, MPFB_PEDS_NURSE_KEVIN_GLB, ED_NURSE_GLB, PEDS_NURSE_GLB, ED_ADULT_CAST_GLB, PEDS_PARENT_GLB, ED_SPOUSE_GLB, ADULT_MALE_STREET_CASUAL_GLB);
+    // #652: the Anny tail is retired from casting; deeper collisions draw from ADULT_POOL_GLBS (MPFB-only).
+    preferred.push(MPFB_CLINICAL_NURSE_ADULT_GLB, MPFB_PEDS_NURSE_KEVIN_GLB, MPFB_CLINICAL_PHYSICIAN_ADULT_GLB);
   } else if (r === "family" || r === "family_member" || r === "parent" || r === "spouse") {
     // #403: family-class roles take the MPFB family-partner body first.
-    preferred.push(MPFB_FAMILY_PARTNER_ADULT_GLB, ED_SPOUSE_GLB, PEDS_PARENT_GLB, ADULT_MALE_STREET_CASUAL_GLB, ED_ADULT_CAST_GLB, ED_NURSE_GLB, PEDS_NURSE_GLB);
+    // #652: the Anny tail is retired from casting.
+    preferred.push(MPFB_FAMILY_PARTNER_ADULT_GLB, MPFB_STREET_ADULT_MALE_GLB);
   } else {
     preferred.push(...ADULT_POOL_GLBS);
   }
@@ -295,8 +285,10 @@ function pickAdultGlb(
   for (const glb of ADULT_POOL_GLBS) {
     if (!used.has(glb)) return glb;
   }
-  // Exhausted pool — prefer gown body as last resort for clinical safety of default.
-  return ED_ADULT_CAST_GLB;
+  // Exhausted pool (#652): every adult body in the pool is taken. The gowned MPFB
+  // patient is the clinical-safety default — an adult in a hospital gown, not a
+  // street-clothed duplicate of a co-present actor.
+  return MPFB_GOWN_ADULT_PATIENT_GLB;
 }
 
 function castFromScenarioBank(scenarioId: string): ScenarioActorCast[] {
