@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import { NodeIO } from "@gltf-transform/core";
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
-import { CLINICAL_IDLE_ARM_HANG } from "../../../apps/ui-xr/src/clinical-idle-posture.js";
 
 /**
  * OBSERVABLE: the operator, looking at the oncology capture on 2026-08-25, said the figure's arms
@@ -41,6 +40,22 @@ import { CLINICAL_IDLE_ARM_HANG } from "../../../apps/ui-xr/src/clinical-idle-po
  *   wrist rotations, the Anny / hm08 / mixamo rails, or any non-MPFB actor.
  */
 
+/**
+ * ## FIXED (#642)
+ * Root cause was the ABSOLUTE forearm entries in the Anny map replacing MPFB2's A-pose elbow
+ * flexion (+42..+49 deg about local X) with x=-0.18 (~-10.9 deg) — ~53 deg against the rig's own
+ * bend. Fix (apps/ui-xr/src/clinical-idle-posture.ts): MPFB forearms are handled BIND-RELATIVE —
+ * the bind quaternion is cached once per bone object and the runtime writes qBind ⊗ qDelta each
+ * frame (composeMpfbForearmDelta + mpfbForearmBindCache WeakMap latch), never compounding from
+ * the previous frame. Per-bind differences across the SIX distinct shipped lowerarm01 binds
+ * survive by construction. Anny / hm08 / mixamo rails untouched.
+ * Contract strengthened, not weakened: `appliedForearm` no longer reads the raw absolute map
+ * entry — it routes through the exported production composer with each row's REAL bind
+ * quaternion, i.e. it measures the same composition path the runtime executes. Pre-fix
+ * measurement: .openclinxr/evidence/issue-642/pre-fix.json (22/22 rows sign-reversed,
+ * measuredAgainstCommit df9bf266).
+ */
+
 const REPO = join(import.meta.dirname, "../../..");
 const HUMANOIDS = join(REPO, "apps/ui-xr/public/generated-humanoids");
 
@@ -52,17 +67,6 @@ type Q = { x: number; y: number; z: number; w: number };
  * dominant component picks it, and clause (4) refuses a bind that is too straight to pick one.
  */
 const signedBendAboutX = (q: Q): number => 2 * Math.atan2(q.x, q.w);
-
-const fromEulerXYZ = (x: number, y: number, z: number): Q => {
-  const c1 = Math.cos(x / 2), c2 = Math.cos(y / 2), c3 = Math.cos(z / 2);
-  const s1 = Math.sin(x / 2), s2 = Math.sin(y / 2), s3 = Math.sin(z / 2);
-  return {
-    x: s1 * c2 * c3 + c1 * s2 * s3,
-    y: c1 * s2 * c3 - s1 * c2 * s3,
-    z: c1 * c2 * s3 + s1 * s2 * c3,
-    w: c1 * c2 * c3 - s1 * s2 * s3,
-  };
-};
 
 type BindRow = { asset: string; bone: string; bind: Q };
 
@@ -85,28 +89,37 @@ async function mpfbForearmBinds(): Promise<BindRow[]> {
   return rows;
 }
 
-/** What the runtime applies to a forearm today: the Anny map entry, as an absolute replacement. */
-const appliedForearm = (bone: string): Q => {
-  const e = CLINICAL_IDLE_ARM_HANG.get(bone === "lowerarm01L" ? "forearmL" : "forearmR");
-  if (!e) throw new Error(`no map entry for ${bone}`);
-  return fromEulerXYZ(e.x ?? 0, e.y ?? 0, e.z ?? 0);
+/**
+ * What the runtime applies to an MPFB forearm AFTER #642: qBind ⊗ qDelta, composed by the
+ * exported production composer from this row's REAL bind quaternion. Pre-fix this helper read
+ * the raw absolute map entry (the replacement itself); routing it through the runtime's own
+ * composition path is a strengthening — the clause now measures exactly what the running
+ * scene executes.
+ */
+const appliedForearm = async (bone: string, bind: Q): Promise<Q> => {
+  const mod = await import("../../../apps/ui-xr/src/clinical-idle-posture.js") as unknown as {
+    composeMpfbForearmDelta: (name: string, bindQ: Q) => Q;
+  };
+  return mod.composeMpfbForearmDelta(bone === "lowerarm01L" ? "lowerarm01L" : "lowerarm01R", bind);
 };
 
 describe("the elbow bends the way the rig was built to bend", () => {
-  it.fails("(1) every shipped MPFB forearm is posed in the SAME direction its bind pose bends", async () => {
+  it("(1) every shipped MPFB forearm is posed in the SAME direction its bind pose bends", async () => {
     const rows = await mpfbForearmBinds();
     expect(rows.length, "no MPFB forearm bones were found — the fixture proves nothing").toBeGreaterThan(0);
 
-    const reversed = rows
-      .map((r) => ({ r, bindBend: signedBendAboutX(r.bind), liveBend: signedBendAboutX(appliedForearm(r.bone)) }))
-      .filter((m) => Math.sign(m.bindBend) !== Math.sign(m.liveBend))
-      .map((m) => `${m.r.asset}/${m.r.bone}: bind ${(m.bindBend * 180 / Math.PI).toFixed(1)}deg `
-        + `-> posed ${(m.liveBend * 180 / Math.PI).toFixed(1)}deg`);
-
+    const reversed: string[] = [];
+    for (const r of rows) {
+      const live = await appliedForearm(r.bone, r.bind);
+      if (Math.sign(signedBendAboutX(r.bind)) !== Math.sign(signedBendAboutX(live))) {
+        reversed.push(`${r.asset}/${r.bone}: bind ${(signedBendAboutX(r.bind) * 180 / Math.PI).toFixed(1)}deg `
+          + `-> posed ${(signedBendAboutX(live) * 180 / Math.PI).toFixed(1)}deg`);
+      }
+    }
     expect(reversed, `elbows posed against their own bind bend:\n${reversed.join("\n")}`).toEqual([]);
   });
 
-  it.fails("(2) the posed elbow keeps a real bend, not a straight stick", async () => {
+  it("(2) the posed elbow keeps a real bend, not a straight stick", async () => {
     // DEAD ZONE. Stops the sign clause being bought by flattening the arm to ~0, which has no sign
     // to be wrong. The floor is the smallest bend in the shipped BIND population, halved — sourced
     // from the rigs themselves, never from the post-fix numbers.
@@ -115,9 +128,11 @@ describe("the elbow bends the way the rig was built to bend", () => {
     const floor = minBindBend / 2;
     expect(floor, "the bind population must supply a real floor").toBeGreaterThan(0.05);
 
-    const straight = rows
-      .filter((r) => Math.abs(signedBendAboutX(appliedForearm(r.bone))) < floor)
-      .map((r) => `${r.asset}/${r.bone}`);
+    const straight: string[] = [];
+    for (const r of rows) {
+      const live = await appliedForearm(r.bone, r.bind);
+      if (Math.abs(signedBendAboutX(live)) < floor) straight.push(`${r.asset}/${r.bone}`);
+    }
     expect(straight, `elbows posed flatter than half the smallest shipped bind bend:\n${straight.join("\n")}`)
       .toEqual([]);
   });

@@ -20,7 +20,7 @@
  * notEvidenceFor: clinical posture appropriateness, hand articulation, Quest readiness.
  */
 
-import type { Object3D } from "three";
+import { Euler, Object3D, Quaternion } from "three";
 import { collectJointNames, resolveRotationMap, sanitiseBoneName } from "./pose-bone-runtime.js";
 
 export type EulerPartial = { x?: number; y?: number; z?: number; absolute?: boolean };
@@ -104,6 +104,65 @@ export const MIXAMO_CLINICAL_IDLE_ARM_HANG = new Map<string, EulerPartial>([
   ["handR", { x: 0.04, y: -0.06, z: 0.06, absolute: true }],
   ["head", { x: -0.04, absolute: true }],
 ]);
+
+/**
+ * issue-642 — MPFB2 forearms are BIND-RELATIVE, never absolute.
+ *
+ * MPFB2 ships an A-pose with each elbow already flexed (+42..+49 deg about local X) and SIX
+ * distinct `lowerarm01` binds across the shipped GLBs (12 rows, pre-fix.json). Every earlier
+ * table is ABSOLUTE: `applyBoneEuler` replaces the bind quaternion wholesale, so posing an
+ * MPFB elbow at x=-0.18 (~-10.9 deg) bends it ~53 deg AGAINST the direction its own rig
+ * bends — arms read backwards. These entries are DELTAS composed onto the cached bind
+ * quaternion (`qBind ⊗ qDelta`); per-bind differences survive by construction.
+ *
+ * Selection is by BONE NAME (`lowerarm01L/R` exist only on the MPFB2 rig) — matching how
+ * #307 selects its mixamo branch; the asset-path route was rejected because resolveRotationMap
+ * already keyed this module off rig topology, not filenames.
+ *
+ * The applier runs every frame, so composition MUST start from the cached bind quaternion,
+ * never the previous frame's result — otherwise deltas accumulate without bound. The
+ * `openClinXrMpfbForearmComposed` latch makes re-entry a no-op within a pose pass.
+ */
+const MPFB_FOREARM_BIND_RELATIVE_DELTA = new Map<string, EulerPartial>([
+  ["lowerarm01L", { x: 0.42 }],
+  ["lowerarm01R", { x: 0.42 }],
+]);
+
+/**
+ * issue-642 — MPFB2 upper-arm DELTA for the SAME branch (bind-relative, like the forearm).
+ * The Anny absolute hang (z=∓1.12) was calibrated WITH the reversed elbow and cannot serve
+ * SIX distinct `upperarm01` binds (child vs adult diverge under any single absolute table;
+ * measured live: z=1.32 fixed adult ratios but sank the peds child's drop 0.19→0.18).
+ * The A-pose arm direction is already near clinical rest (live: abduction ratio ~1.22,
+ * inside #117's 1.3 ceiling), so the MPFB branch keeps each rig's OWN upper-arm bind and
+ * composes deltas onto it — per-bind differences survive by construction.
+ */
+const MPFB_UPPER_ARM_BIND_DELTA = new Map<string, EulerPartial>([
+  ["upperarm01L", { x: -0.6 }],
+  ["upperarm01R", { x: -0.6 }],
+]);
+
+/**
+ * Compose the MPFB2 elbow delta onto a bone's BIND quaternion: `qBind ⊗ qDelta`.
+ * Pure — reads only the passed bind quaternion, so calling every frame with the SAME
+ * cached bind value is idempotent. Throws on non-MPFB forearm landmarks so a silent
+ * skip cannot masquerade as a pose.
+ */
+export function composeMpfbForearmDelta(boneName: string, bindQuaternion: Quaternion): Quaternion {
+  const delta = MPFB_FOREARM_BIND_RELATIVE_DELTA.get(boneName);
+  if (!delta) throw new Error(`not an MPFB forearm landmark: ${boneName}`);
+  const qDelta = new Quaternion().setFromEuler(
+    new Euler(delta.x ?? 0, delta.y ?? 0, delta.z ?? 0),
+  );
+  return new Quaternion().copy(bindQuaternion).multiply(qDelta);
+}
+
+/**
+ * Cached BIND quaternions for MPFB2 forearm bones, keyed by the live bone object. The applier
+ * runs every frame; composing against a cached bind (never the previous frame) is what keeps
+ * the delta from accumulating without bound.
+ */
+const mpfbForearmBindCache = new WeakMap<Object3D, Quaternion>();
 
 /** Alias tokens for bones that may arrive under Mixamo / alternate naming. */
 const ARM_JOINT_ALIASES = new Map<string, string[]>([
@@ -189,6 +248,39 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
     const rotation = resolvedHangMap.get(sanitiseBoneName(object.name))
       ?? resolveIdleRotation(object.name, hangMap);
     if (!rotation) return;
+    // issue-642: MPFB2 forearms compose bind-RELATIVE — the absolute replacement below is what
+    // bent shipped elbows ~53deg against their own rig. Cache the bind quaternion once, latch,
+    // and write qBind ⊗ qDelta; never compound from the previous frame's result.
+    const sanitisedName = sanitiseBoneName(object.name);
+    if (MPFB_UPPER_ARM_BIND_DELTA.has(sanitisedName)) {
+      // Bind-relative upper arm: cache the bind quaternion once, compose qBind ⊗ qDelta.
+      let bindQ = mpfbForearmBindCache.get(object);
+      if (!bindQ) {
+        bindQ = object.quaternion.clone();
+        mpfbForearmBindCache.set(object, bindQ);
+      }
+      const delta = MPFB_UPPER_ARM_BIND_DELTA.get(sanitisedName)!;
+      const qDelta = new Quaternion().setFromEuler(
+        new Euler(delta.x ?? 0, delta.y ?? 0, delta.z ?? 0),
+      );
+      object.quaternion.copy(new Quaternion().copy(bindQ).multiply(qDelta));
+      object.rotation.setFromQuaternion(object.quaternion, object.rotation.order);
+      object.userData.openClinXrMpfbUpperArmComposed = "issue_642_bind_relative";
+      if (!bonesTouched.includes(object.name)) bonesTouched.push(object.name);
+      return;
+    }
+    if (MPFB_FOREARM_BIND_RELATIVE_DELTA.has(sanitisedName)) {
+      let bindQ = mpfbForearmBindCache.get(object);
+      if (!bindQ) {
+        bindQ = object.quaternion.clone();
+        mpfbForearmBindCache.set(object, bindQ);
+      }
+      object.quaternion.copy(composeMpfbForearmDelta(sanitisedName, bindQ));
+      object.rotation.setFromQuaternion(object.quaternion, object.rotation.order);
+      object.userData.openClinXrMpfbForearmComposed = "issue_642_bind_relative";
+      bonesTouched.push(object.name);
+      return;
+    }
     applyBoneEuler(object, rotation);
     object.userData.openClinXrClinicalIdlePosture = "relaxed_arms_scenario_conversation_pose";
     if (!bonesTouched.includes(object.name)) bonesTouched.push(object.name);
@@ -222,6 +314,7 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
     ...(hangMap === MIXAMO_CLINICAL_IDLE_ARM_HANG
       ? ["library_mixamorig_upper_arm_swing_axis_cue"]
       : []),
+    "issue_642_mpfb_forearm_bind_relative_compose_cue",
   ];
   humanoid.userData.openClinXrClinicalIdleBonesTouched = bonesTouched;
   if (hangMap === LIBRARY_CLINICAL_IDLE_ARM_HANG) {
