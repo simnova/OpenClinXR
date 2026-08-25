@@ -1289,8 +1289,55 @@ describe("asset-generation job facade", () => {
     await expect(facade.get("failed-1")).resolves.toMatchObject({ status: "failed" });
   });
 
-  it("fails jobs whose returned manifest does not match the requested capability", async () => {
-    const mismatchedAdapter: AssetGenerationWorkerAdapter = {
+  it("fails succeeded jobs that reference artifacts nobody wrote (#610)", async () => {
+    const fabricatingAdapter: AssetGenerationWorkerAdapter = {
+      capabilityId: "character-generation",
+      providerId: "fabricating-worker",
+      providerKind: "deterministic-mock",
+      implementationLanguage: "typescript",
+      transport: "in-process",
+      async run() {
+        return {
+          artifacts: [
+            {
+              kind: "mesh",
+              path: ".openclinxr/asset-generation/never-written-1/fabricated.glb",
+              mediaType: "model/gltf-binary",
+            },
+          ],
+          manifest: {
+            schemaVersion: "asset-generation-manifest.v1",
+            capabilityId: "character-generation",
+            outputs: ["fabricated.glb"],
+          },
+          provenance: {
+            license: "fixture-only",
+            spendCents: 0,
+            externalNetworkUsed: false,
+          },
+        };
+      },
+    };
+    const facade = new AssetGenerationCapabilityFacade({
+      adapters: [fabricatingAdapter],
+      idFactory: () => "never-written-1",
+    });
+
+    const record = await facade.submit({
+      profile: "local-development",
+      capabilityId: "character-generation",
+      payload: {},
+    });
+
+    expect(record.status).toBe("failed");
+    expect(record.error?.message).toBe(
+      "Asset generation worker referenced artifacts that were never written: "
+      + "mesh: .openclinxr/asset-generation/never-written-1/fabricated.glb",
+    );
+    expect(record.history.map((event) => event.status)).toEqual(["queued", "running", "failed"]);
+  });
+
+  it("fails jobs whose returned manifest does not match the requested capability", async () => {    const mismatchedAdapter: AssetGenerationWorkerAdapter = {
       capabilityId: "character-generation",
       providerId: "mismatched-manifest-worker",
       providerKind: "deterministic-mock",
