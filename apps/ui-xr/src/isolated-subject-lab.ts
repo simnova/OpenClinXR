@@ -72,7 +72,7 @@ export type IsolatedSubjectSpec = {
   equipmentId?: string;
   /** posture when kind needs it. */
   posture?: "supine";
-  /** Repo-public path under ui-xr public/, e.g. generated-humanoids/ed_chest_pain_adult_cast.glb */
+  /** Repo-public path under ui-xr public/, e.g. generated-humanoids/mpfb-gown-adult-patient.glb */
   bodyGlb?: string;
   /**
    * Head-of-bed incline degrees. Applied to the stretcher SSOT first; body follows.
@@ -343,7 +343,7 @@ async function buildSubjectRoot(spec: IsolatedSubjectSpec): Promise<{
     const builder = spec.builder ?? "patient_stretcher";
     container.add(buildFurniture(builder, incline));
   } else if (spec.subjectKind === "runtime_posture" || spec.subjectKind === "posture_on_furniture") {
-    const bodyGlb = spec.bodyGlb ?? "generated-humanoids/ed_chest_pain_adult_cast.glb";
+    const bodyGlb = spec.bodyGlb ?? "generated-humanoids/mpfb-gown-adult-patient.glb";
     humanoid = await loadHumanoid(bodyGlb);
     let stretcher: Group | null = null;
     if (spec.subjectKind === "posture_on_furniture" || spec.builder === "patient_stretcher") {
@@ -377,7 +377,7 @@ async function buildSubjectRoot(spec: IsolatedSubjectSpec): Promise<{
     }
     container.add(buildDeclaredEquipmentGeometry(equipmentId));
   } else if (spec.subjectKind === "glb") {
-    const bodyGlb = spec.bodyGlb ?? "generated-humanoids/ed_chest_pain_adult_cast.glb";
+    const bodyGlb = spec.bodyGlb ?? "generated-humanoids/mpfb-gown-adult-patient.glb";
     container.add(await loadHumanoid(bodyGlb));
   } else {
     throw new Error(`Unsupported subjectKind: ${spec.subjectKind}`);
@@ -442,7 +442,7 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
   if (humanoid && (spec.subjectKind === "runtime_posture" || spec.subjectKind === "posture_on_furniture")) {
     window.__openClinXrSupineJointDump = dumpSupineJointState(
       humanoid,
-      spec.bodyGlb ?? "generated-humanoids/ed_chest_pain_adult_cast.glb",
+      spec.bodyGlb ?? "generated-humanoids/mpfb-gown-adult-patient.glb",
       spec.subjectKind,
     );
   }

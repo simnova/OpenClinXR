@@ -1,7 +1,7 @@
 import { edChestPainScenario, pediatricAsthmaScenario, scenarioBank } from "@openclinxr/scenario-fixtures";
 import { describe, expect, it } from "vitest";
 // #592: import the casting SSOT directly from its module rather than repeating the literal.
-import { MPFB_GOWN_ADULT_PATIENT_GLB } from "./cast-asset-constants.js";
+import { MPFB_FAMILY_PARTNER_ADULT_GLB, MPFB_GOWN_ADULT_PATIENT_GLB } from "./cast-asset-constants.js";
 import {
   type AssetManifest,
   buildAssetProductionReviewPacket,
@@ -620,12 +620,14 @@ describe("asset registry", () => {
         ]),
         generatedAssetRefs: expect.arrayContaining([
           expect.objectContaining({
-            // #218: same spouse assetId, library blob path (ordinary cast — not Anny street shell).
+            // #479: same spouse assetId, now the MPFB family-partner body (the
+            // casting table's explicit ED row — #652 updates this stale #218-rail
+            // expectation, which was red on main before this slice).
             assetId: "ed_chest_pain_adult_cast_spouse_glb",
             scenarioAssetId: "spouse_anna_hayes_character",
             blobRef: expect.objectContaining({
               storeKind: "app_public_fixture",
-              blobName: "xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb",
+              blobName: `generated-humanoids/${MPFB_FAMILY_PARTNER_ADULT_GLB}`,
             }),
           }),
         ]),

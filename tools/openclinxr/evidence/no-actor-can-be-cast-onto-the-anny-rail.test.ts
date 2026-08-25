@@ -119,7 +119,7 @@ const bankRosters = (): { scenarioId: string; roster: Roster }[] =>
     }));
 
 describe("no actor can be cast onto the anny rail", () => {
-  it.fails("(1) a same-class roster deep enough to drain the pool casts NO Anny asset", () => {
+  it("(1) a same-class roster deep enough to drain the pool casts NO Anny asset", () => {
     // Six same-class actors in one scenario. The shipped bank's maximum is 2, so this is the
     // authored-actor case the bank has not reached yet — not a hypothetical.
     const roster: Roster = Array.from({ length: 6 }, (_, i) => ({
@@ -134,7 +134,7 @@ describe("no actor can be cast onto the anny rail", () => {
     ).toEqual([]);
   });
 
-  it.fails("(2) the exhausted-pool last resort is not an Anny asset", () => {
+  it("(2) the exhausted-pool last resort is not an Anny asset", () => {
     // actor-casting.ts:298 says "prefer gown body ... for clinical safety of default" and returns
     // ED_ADULT_CAST_GLB = ed_chest_pain_adult_cast.glb, which is Anny. The gown body is MPFB.
     const roster: Roster = Array.from({ length: ADULT_POOL_GLBS.length + 3 }, (_, i) => ({
@@ -184,3 +184,32 @@ describe("no actor can be cast onto the anny rail", () => {
     ).toEqual([...NON_EMBODIED_ACTOR_IDS].sort());
   });
 });
+
+/*
+ * ## FIXED (#652)
+ *
+ * Both REDs flipped to passing `it` clauses on 2026-08-25. The fix is CASTING-only — no
+ * GLB file was deleted, moved, or rebaked:
+ *
+ *   1. ADULT_POOL_GLBS (cast-asset-constants.ts) drops its six Anny members and keeps the
+ *      five MPFB adult bodies. Mirrored in humanoid-runtime-asset-url.ts.
+ *   2. Every Anny member is removed from pickAdultGlb's preference lists in BOTH resolvers
+ *      (patient street/gown branches, physician, nurse-class, family-class), with MPFB
+ *      second-body fallbacks (family-partner / clinical-nurse / peds-nurse / street) put
+ *      where Anny bodies used to sit.
+ *   3. The exhausted-pool last resort returns MPFB_GOWN_ADULT_PATIENT_GLB instead of
+ *      ED_ADULT_CAST_GLB, so actor-casting.ts's comment ("prefer gown body ... for clinical
+ *      safety of default") and the returned constant now agree.
+ *
+ * THE TRACED HOP: the header's n=14 probe ended on peds_anxious_parent because pool drain
+ * happens BEFORE the :299 tail — the second loop over ADULT_POOL_GLBS hands out the six
+ * Anny members while the pool still has them; the tail return was unreachable at n = 14
+ * (pool length + 3). Clause (2)'s roster of pool+3 now exhausts the five-member MPFB pool
+ * and lands on the new gown last resort.
+ *
+ * UNLOCKED DECISIONS TAKEN (recorded per brief): BOTH halves of the defect were fixed —
+ * the six Anny members removed from the pool AND the :299 tail repointed. The tail choice
+ * is the gowned MPFB patient: it is the only adult body whose wardrobe matches a
+ * clinical default (hospital gown), and clause (3)/(4) pin that the shipped bank never
+ * reaches any of this.
+ */
