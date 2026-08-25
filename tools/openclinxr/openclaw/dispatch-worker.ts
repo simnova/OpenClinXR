@@ -923,7 +923,53 @@ export function mainTreeDirtyPaths(mainRoot: string): string[] {
 }
 
 /**
- * Attribute main-tree dirt to worker leak vs orchestrator concurrent work.
+ * HEAD sha of the main checkout at snapshot time — the leak-window anchor (#344).
+ * Undefined when the sha cannot be read; the caller then filters nothing (fail closed).
+ */
+export function mainHeadSha(mainRoot: string): string | undefined {
+  try {
+    return execFileSync("git", ["rev-parse", "HEAD"], { cwd: mainRoot, encoding: "utf8" }).trim();
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * Repo-relative paths touched by commits made to the main checkout in (sinceSha, HEAD].
+ *
+ * #344: any such path is positive evidence of a second writer — a peer lane's direct commits or
+ * another dispatch's `--no-ff` integrate (a merge commit, hence `-m --first-parent` to read the
+ * first-parent diff). A worker that only writes files cannot forge this evidence. Empty on any
+ * git error (unknown sha, rewritten history) — the caller then filters nothing, keeping the
+ * detector strict.
+ */
+export function pathsTouchedByCommitsSince(mainRoot: string, sinceSha: string): string[] {
+  try {
+    const commits = execFileSync("git", ["rev-list", `${sinceSha}..HEAD`], {
+      cwd: mainRoot,
+      encoding: "utf8",
+    })
+      .split("\n")
+      .filter(Boolean);
+    const touched = new Set<string>();
+    for (const commit of commits) {
+      const files = execFileSync(
+        "git",
+        ["diff-tree", "--first-parent", "-m", "--no-commit-id", "--name-only", "-r", commit],
+        { cwd: mainRoot, encoding: "utf8" },
+      )
+        .split("\n")
+        .filter(Boolean);
+      for (const file of files) touched.add(file);
+    }
+    return [...touched];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Attribute main-tree dirt to worker leak vs concurrent work by any other writer.
  *
  * INCIDENT (#48 / #41): snapshotted main dirty set at dispatch start, then treated ANY new dirt
  * as a worker leak. The orchestrator had created board-session-map.ts in main while the worker
@@ -935,16 +981,31 @@ export function mainTreeDirtyPaths(mainRoot: string): string[] {
  * declared here — or (b) a real deny escape. Trusting ALL main dirt would silence the detector;
  * the detector is the only watcher for computed-path escapes past the literal `--deny` matcher.
  *
- * Returns paths in `after` that are newly dirty relative to `before` AND not in orchestratorPaths.
+ * INCIDENT (#344 / #665): the declared-set mechanism admits exactly TWO writers — the worker and
+ * the orchestrator. A PEER AGENT LANE is neither, so its main writes fell through to "real deny
+ * escape" by elimination and failed two healthy dispatches whose windows overlapped a peer
+ * lane's (#344's equipment lane; #665's landmark commit `5fae7afd`). Commit evidence closes the
+ * committed half: a commit made to main during the window is positive proof somebody else wrote
+ * the path, cheap to obtain, and unforgeable by a worker that only writes files. Paths touched
+ * by such commits arrive in `concurrentlyCommittedPaths` and are not attributed to the worker.
+ * An UNCOMMITTED peer-lane write remains misattributed — no evidence distinguishes it from an
+ * escape, and the detector stays strict rather than going blind.
+ *
+ * Returns paths in `after` that are newly dirty relative to `before`, not in orchestratorPaths,
+ * and not touched by a concurrently-committed path.
  */
 export function attributeIsolationLeak(input: {
   before: readonly string[];
   after: readonly string[];
   orchestratorPaths?: readonly string[];
+  concurrentlyCommittedPaths?: readonly string[];
 }): string[] {
   const beforeSet = new Set(input.before);
   const orchestratorSet = new Set(input.orchestratorPaths ?? []);
-  return input.after.filter((path) => !beforeSet.has(path) && !orchestratorSet.has(path));
+  const committedSet = new Set(input.concurrentlyCommittedPaths ?? []);
+  return input.after.filter(
+    (path) => !beforeSet.has(path) && !orchestratorSet.has(path) && !committedSet.has(path),
+  );
 }
 
 /**
@@ -1507,6 +1568,10 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
   }
   const binary = join(homedir(), ".grok/bin/grok");
   const mainDirtyBefore = worktreePath ? new Set(mainTreeDirtyPaths(repoRoot)) : undefined;
+  // #344: anchor the leak window at the same instant as the dirty snapshot. A commit made to
+  // main after this sha is evidence of a second writer (a peer lane or another integrate), and
+  // the paths it touches must not be attributed to this worker.
+  const mainHeadBefore = worktreePath ? mainHeadSha(repoRoot) : undefined;
 
   // ISSUE #440: name the child BEFORE it exists. A dispatch that dies before returning — arg-parse
   // abort, crash, reap — used to leave no ledger entry, so recovery meant scavenging
@@ -1642,11 +1707,15 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
 
   if (mainDirtyBefore) {
     // The deny should have made undeclared main writes impossible. Attribute orchestrator
-    // concurrent work out of the leak set first (#48) — then fail loudly on residual dirt.
+    // concurrent work out of the leak set first (#48), then paths a peer lane committed during
+    // the window (#344) — then fail loudly on residual dirt.
     const leaked = attributeIsolationLeak({
       before: [...mainDirtyBefore],
       after: mainTreeDirtyPaths(repoRoot),
       orchestratorPaths: options.orchestratorPaths,
+      concurrentlyCommittedPaths: mainHeadBefore
+        ? pathsTouchedByCommitsSince(repoRoot, mainHeadBefore)
+        : undefined,
     });
     if (leaked.length > 0) {
       throw new Error(
