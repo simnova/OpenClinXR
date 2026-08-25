@@ -9,6 +9,36 @@ when-to-use: grade an image, pixel grade, capture, render, still, contact sheet,
 Grading is the orchestrator's duty and the last line where a green contract meets reality. It is also
 where I have manufactured defects that were not there.
 
+## ISOLATE THE SUBJECT FIRST — operator directive, 2026-08-25
+
+> "Evaluation of models should be done in isolation first - not within an environment."
+
+This is D3/D4 applied to grading. A full-room capture proves ASSEMBLY. It cannot diagnose a
+SUBJECT, because room lighting, framing, occlusion and every other asset are confounds.
+
+**Rule: if the question names one asset, the first artifact is that asset alone.** In-situ
+capture comes second, and only to answer a composition question ("does it fit the room").
+
+The harness already exists and takes one flag — do not build another:
+
+```bash
+pnpm asset:model-vetting:glb-grade -- --glb <path-to.glb>
+```
+
+It emits exactly four images — `front` and `three_quarter`, each `lit` and `structure` — and
+runs an independent self-check (glTF-Transform NodeIO probe outside the browser vs the
+in-page three.js scene-graph AABB; it REFUSES above 15% relative error). Compose those four
+into one sheet and grade that.
+
+**Measured cost of getting this wrong, 2026-08-25:** #646 asked "do these chairs read as
+clinic or domestic?" — a subject question — and its grade request captured
+`captureMode: "scene-overview"` of a whole oncology room at `nearestActorM: 1.78`. The
+principal chair was partially framed and the verdict could not be settled. The isolated 4-up
+took one command and agreed with its own probe at 0.03% relative error.
+
+**The tell:** the grade question names an asset, a material, a garment or a body, and the
+capture you are about to send contains a room.
+
 ## Grade at NATIVE resolution
 
 **Upscaling a pixel-scale feature invents structure.** LANCZOS rings a 2-3 px feature into scallops;
