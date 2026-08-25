@@ -190,7 +190,24 @@ describe("a baked room occlusion map is not the room's own darkness", () => {
     const rows = await census();
     const hand = rows.filter((r) => r.glb === HAND_BUILT);
     expect(hand.length, `${HAND_BUILT} must ship AO maps to serve as the known-good`).toBeGreaterThan(10);
-    const bound = median(hand.map((r) => r.mean));
+    /**
+     * BOUND RE-DERIVED IN AN UNCONTAMINATED SPACE, 2026-08-25, after the #526 worker proved the
+     * original measured UV packing (clause (7)).
+     *
+     * Same source (the hand-built shell), same statistic (median), computed over the texels the
+     * RENDERER ACTUALLY SAMPLES. Filler lies outside every UV island, so no face reads it - the
+     * worker's words: "runtime-wise the filler is invisible, so the whole-texture statistic also
+     * diverges from what a learner's renderer sees."
+     *
+     *   hand-built whole-texture median   117.91   <- contaminated; its own maps are 15.9% filler
+     *   hand-built REAL-content median     75.02   <- this bound
+     *
+     * NOT a threshold lowered to admit the population. It REORDERS the verdict rather than relaxing
+     * it: pediatric-fever-urgent-care, which failed the old bound, passes here at 90.22; and
+     * primary-care-clinic, which PASSED the old bound at 168.31 on 58.2% filler, fails at 47.69.
+     * One shell still fails, so this clause stays RED - now for a measured reason.
+     */
+    const bound = median(hand.map((r) => r.meanExcludingFiller));
 
     const generated = [...new Set(rows.filter((r) => r.glb !== HAND_BUILT).map((r) => r.glb))].sort();
     expect(generated.length, "all fourteen generated shells must be present").toBe(14);
@@ -198,11 +215,11 @@ describe("a baked room occlusion map is not the room's own darkness", () => {
     const tooDark = generated
       .map((glb) => ({
         glb,
-        brightest: round2(Math.max(...rows.filter((r) => r.glb === glb).map((r) => r.mean))),
+        brightest: round2(Math.max(...rows.filter((r) => r.glb === glb).map((r) => r.meanExcludingFiller))),
       }))
       .filter((s) => s.brightest < bound);
 
-    expect(tooDark, `every shell's brightest AO map must reach the hand-built median of ${round2(bound)}`)
+    expect(tooDark, `every shell's brightest AO map must reach the hand-built REAL-content median of ${round2(bound)}`)
       .toEqual([]);
   });
 
