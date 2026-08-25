@@ -41,8 +41,7 @@
           "age": 34,
           "height_cm": 166,
           "bmi": 24,
-          "descriptor_derived": true,
-          "gender_presentation": "adult_female_parent"
+          "descriptor_derived": true
         }
       },
       "nurse_maria_alvarez_v1": {
@@ -52,8 +51,7 @@
           "age": 29,
           "height_cm": 176,
           "bmi": 23,
-          "descriptor_derived": true,
-          "gender_presentation": "adult_male_nurse"
+          "descriptor_derived": true
         }
       }
     },
@@ -165,8 +163,7 @@
           "age": 34,
           "height_cm": 166,
           "bmi": 24,
-          "descriptor_derived": true,
-          "gender_presentation": "adult_female_parent"
+          "descriptor_derived": true
         }
       },
       "daughter_lena_ellis_v1": {
@@ -176,8 +173,7 @@
           "age": 34,
           "height_cm": 166,
           "bmi": 24,
-          "descriptor_derived": true,
-          "gender_presentation": "adult_female_parent"
+          "descriptor_derived": true
         }
       }
     },
@@ -189,8 +185,7 @@
           "age": 34,
           "height_cm": 166,
           "bmi": 24,
-          "descriptor_derived": true,
-          "gender_presentation": "adult_female_parent"
+          "descriptor_derived": true
         }
       }
     },
@@ -202,8 +197,7 @@
           "age": 34,
           "height_cm": 166,
           "bmi": 24,
-          "descriptor_derived": true,
-          "gender_presentation": "adult_female_parent"
+          "descriptor_derived": true
         }
       },
       "partner_omar_khan_v1": {
@@ -213,8 +207,7 @@
           "age": 34,
           "height_cm": 166,
           "bmi": 24,
-          "descriptor_derived": true,
-          "gender_presentation": "adult_female_parent"
+          "descriptor_derived": true
         }
       }
     },
@@ -226,8 +219,7 @@
           "age": 34,
           "height_cm": 166,
           "bmi": 24,
-          "descriptor_derived": true,
-          "gender_presentation": "adult_female_parent"
+          "descriptor_derived": true
         }
       }
     },
@@ -239,8 +231,7 @@
           "age": 34,
           "height_cm": 166,
           "bmi": 24,
-          "descriptor_derived": true,
-          "gender_presentation": "adult_female_parent"
+          "descriptor_derived": true
         }
       },
       "son_eric_brooks_v1": {
@@ -250,8 +241,7 @@
           "age": 34,
           "height_cm": 166,
           "bmi": 24,
-          "descriptor_derived": true,
-          "gender_presentation": "adult_female_parent"
+          "descriptor_derived": true
         }
       }
     },
@@ -263,8 +253,7 @@
           "age": 34,
           "height_cm": 166,
           "bmi": 24,
-          "descriptor_derived": true,
-          "gender_presentation": "adult_female_parent"
+          "descriptor_derived": true
         }
       },
       "stepdown_nurse_rivera_v1": {
@@ -274,8 +263,7 @@
           "age": 29,
           "height_cm": 176,
           "bmi": 23,
-          "descriptor_derived": true,
-          "gender_presentation": "adult_male_nurse"
+          "descriptor_derived": true
         }
       }
     },
@@ -287,8 +275,7 @@
           "age": 34,
           "height_cm": 166,
           "bmi": 24,
-          "descriptor_derived": true,
-          "gender_presentation": "adult_female_parent"
+          "descriptor_derived": true
         }
       },
       "father_carlos_morales_v1": {
@@ -298,8 +285,7 @@
           "age": 34,
           "height_cm": 166,
           "bmi": 24,
-          "descriptor_derived": true,
-          "gender_presentation": "adult_female_parent"
+          "descriptor_derived": true
         }
       }
     },
@@ -311,8 +297,7 @@
           "age": 34,
           "height_cm": 166,
           "bmi": 24,
-          "descriptor_derived": true,
-          "gender_presentation": "adult_female_parent"
+          "descriptor_derived": true
         }
       },
       "sister_rachel_miller_v1": {
@@ -322,8 +307,7 @@
           "age": 34,
           "height_cm": 166,
           "bmi": 24,
-          "descriptor_derived": true,
-          "gender_presentation": "adult_female_parent"
+          "descriptor_derived": true
         }
       }
     },
@@ -335,8 +319,7 @@
           "age": 34,
           "height_cm": 166,
           "bmi": 24,
-          "descriptor_derived": true,
-          "gender_presentation": "adult_female_parent"
+          "descriptor_derived": true
         }
       },
       "floor_nurse_bennett_v1": {
@@ -346,8 +329,7 @@
           "age": 29,
           "height_cm": 176,
           "bmi": 23,
-          "descriptor_derived": true,
-          "gender_presentation": "adult_male_nurse"
+          "descriptor_derived": true
         }
       }
     },
@@ -359,8 +341,7 @@
           "age": 34,
           "height_cm": 166,
           "bmi": 24,
-          "descriptor_derived": true,
-          "gender_presentation": "adult_female_parent"
+          "descriptor_derived": true
         }
       }
     },
@@ -372,8 +353,7 @@
           "age": 34,
           "height_cm": 166,
           "bmi": 24,
-          "descriptor_derived": true,
-          "gender_presentation": "adult_female_parent"
+          "descriptor_derived": true
         }
       },
       "partner_diego_vasquez_v1": {
@@ -383,8 +363,7 @@
           "age": 34,
           "height_cm": 166,
           "bmi": 24,
-          "descriptor_derived": true,
-          "gender_presentation": "adult_female_parent"
+          "descriptor_derived": true
         }
       },
       "nurse_priya_nair_v1": {
@@ -394,8 +373,7 @@
           "age": 29,
           "height_cm": 176,
           "bmi": 23,
-          "descriptor_derived": true,
-          "gender_presentation": "adult_male_nurse"
+          "descriptor_derived": true
         }
       }
     },
@@ -407,8 +385,7 @@
           "age": 8,
           "height_cm": 125,
           "bmi": 16.5,
-          "descriptor_derived": true,
-          "gender_presentation": "child"
+          "descriptor_derived": true
         }
       },
       "parent_mei_chen_v1": {
@@ -418,8 +395,7 @@
           "age": 34,
           "height_cm": 166,
           "bmi": 24,
-          "descriptor_derived": true,
-          "gender_presentation": "adult_female_parent"
+          "descriptor_derived": true
         }
       },
       "nurse_aisha_brooks_v1": {
@@ -429,8 +405,7 @@
           "age": 29,
           "height_cm": 176,
           "bmi": 23,
-          "descriptor_derived": true,
-          "gender_presentation": "adult_male_nurse"
+          "descriptor_derived": true
         }
       }
     },
@@ -473,8 +448,7 @@
           "age": 34,
           "height_cm": 166,
           "bmi": 24,
-          "descriptor_derived": true,
-          "gender_presentation": "adult_female_parent"
+          "descriptor_derived": true
         }
       },
       "nurse_maria_alvarez_v1": {
@@ -484,8 +458,7 @@
           "age": 29,
           "height_cm": 176,
           "bmi": 23,
-          "descriptor_derived": true,
-          "gender_presentation": "adult_male_nurse"
+          "descriptor_derived": true
         }
       }
     }
