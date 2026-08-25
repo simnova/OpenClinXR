@@ -8,7 +8,20 @@
  */
 import { inflateSync } from "node:zlib";
 
-export type DecodedPng = { w: number; h: number; lum: Float32Array };
+export type DecodedPng = {
+  w: number;
+  h: number;
+  lum: Float32Array;
+  /**
+   * True when every decoded pixel has R === G === B (or the image is single-channel).
+   *
+   * Load-bearing for occlusion maps: three.js reads AO from ONE channel, so a statistic over
+   * the luminance mix (0.299R + 0.587G + 0.114B) describes what the runtime consumes ONLY when
+   * the map is greyscale. A caller asserting on `lum` for an AO map must also assert this, or
+   * it is measuring a channel nobody reads.
+   */
+  greyscale: boolean;
+};
 
 export function decodePng(bytes: Uint8Array): DecodedPng | null {
   if (bytes.length < 8 || bytes[0] !== 0x89 || bytes[1] !== 0x50) return null;
@@ -46,6 +59,7 @@ export function decodePng(bytes: Uint8Array): DecodedPng | null {
   if (raw.length < (stride + 1) * h) return null;
 
   const lum = new Float32Array(w * h);
+  let greyscale = true;
   const prev = new Uint8Array(stride);
   const cur = new Uint8Array(stride);
   let p = 0;
@@ -72,9 +86,10 @@ export function decodePng(bytes: Uint8Array): DecodedPng | null {
     p += stride;
     for (let x = 0; x < w; x += 1) {
       const i = x * chans;
+      if (chans >= 3 && (cur[i]! !== cur[i + 1]! || cur[i]! !== cur[i + 2]!)) greyscale = false;
       lum[y * w + x] = chans >= 3 ? 0.299 * cur[i]! + 0.587 * cur[i + 1]! + 0.114 * cur[i + 2]! : cur[i]!;
     }
     prev.set(cur);
   }
-  return { w, h, lum };
+  return { w, h, lum, greyscale };
 }

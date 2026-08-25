@@ -91,7 +91,7 @@ const BAKER = "tools/openclinxr/asset-pipeline/environment/room-occlusion-bake.p
 /** The known-good wall, pinned by clause (3). Measured on HEAD 81d06dd6. */
 const KNOWN_GOOD_WALL = "ed_bay_soft_blue_wall";
 
-type AoMap = { glb: string; material: string; mean: number; sd: number; black: number; strength: number; sha: string };
+type AoMap = { glb: string; material: string; mean: number; sd: number; black: number; strength: number; sha: string; greyscale: boolean };
 
 let cache: AoMap[] | null = null;
 
@@ -130,6 +130,7 @@ async function census(): Promise<AoMap[]> {
         strength: material.getOcclusionStrength(),
         // DECODED luminance, not the encoded PNG bytes: re-encoding the same pixels with different
         // compression or an extra ancillary chunk yields a different file hash and an identical image.
+        greyscale: png.greyscale,
         sha: createHash("sha256").update(Buffer.from(png.lum.buffer, png.lum.byteOffset, png.lum.byteLength)).digest("hex").slice(0, 16),
       });
     }
@@ -291,11 +292,11 @@ describe("a baked room occlusion map is not the room's own darkness", () => {
 
     // Detector proof: these predicates must FLAG a planted cheat, or the clause is decoration.
     const synthetic: AoMap[] = [
-      { glb: "a.glb", material: "m1", mean: 216, sd: 62, black: 0.05, strength: 1, sha: "deadbeefdeadbeef" },
-      { glb: "b.glb", material: "m2", mean: 216, sd: 62, black: 0.05, strength: 1, sha: "deadbeefdeadbeef" },
-      { glb: "c.glb", material: "m3", mean: 216, sd: 62, black: 0.05, strength: 0, sha: "0123456789abcdef" },
+      { glb: "a.glb", material: "m1", mean: 216, sd: 62, black: 0.05, strength: 1, sha: "deadbeefdeadbeef", greyscale: true },
+      { glb: "b.glb", material: "m2", mean: 216, sd: 62, black: 0.05, strength: 1, sha: "deadbeefdeadbeef", greyscale: true },
+      { glb: "c.glb", material: "m3", mean: 216, sd: 62, black: 0.05, strength: 0, sha: "0123456789abcdef", greyscale: true },
       // epsilon strength: renders no occlusion, and `> 0` used to let it through.
-      { glb: "d.glb", material: "m4", mean: 216, sd: 62, black: 0.05, strength: 0.000001, sha: "fedcba9876543210" },
+      { glb: "d.glb", material: "m4", mean: 216, sd: 62, black: 0.05, strength: 0.000001, sha: "fedcba9876543210", greyscale: true },
     ];
     expect(duplicateShaGroups(synthetic).length, "the duplicate detector must flag a planted copy").toBe(1);
     expect(silenced(synthetic).length, "the silence detector must flag BOTH strength-0 and epsilon-strength maps").toBe(2);
@@ -309,6 +310,17 @@ describe("a baked room occlusion map is not the room's own darkness", () => {
     expect(
       silenced(rows),
       "no occlusion map may ship at strength 0 - a silenced map is a deleted map wearing a texture slot",
+    ).toEqual([]);
+
+    // THE THIRD HOLE, closed. The uniqueness hash is computed over DECODED LUMINANCE
+    // (0.299R + 0.587G + 0.114B, decode-png.ts). three.js reads aoMap from ONE channel, so
+    // luminance describes what the runtime consumes only while the map is GREYSCALE - otherwise
+    // identical AO in R could carry distinct hashes by varying G/B, and the copy cheat returns
+    // wearing a colour cast. Measured: every shipped AO map is R === G === B today, which is what
+    // makes the luminance statistics in clauses (1), (2) and (4) mean anything at all.
+    expect(
+      rows.filter((r) => !r.greyscale).map((r) => `${r.glb}/${r.material}`),
+      "every occlusion map must be greyscale - otherwise every luminance clause here measures a channel the runtime does not read",
     ).toEqual([]);
   });
 
