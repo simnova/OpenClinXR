@@ -103,6 +103,26 @@ const appliedForearm = async (bone: string, bind: Q): Promise<Q> => {
   return mod.composeMpfbForearmDelta(bone === "lowerarm01L" ? "lowerarm01L" : "lowerarm01R", bind);
 };
 
+
+/** Round a quaternion so float noise cannot manufacture "distinct" orientations. */
+const quantise = (q: Q): string =>
+  [q.x, q.y, q.z, q.w].map((v) => v.toFixed(5)).join(",");
+
+/**
+ * Absolute angle between two orientations, radians.
+ *
+ * NORMALISED, and that is not a formality. The composed quaternions are not exactly unit-norm, so an
+ * un-normalised self-dot lands just under 1 and `acos` — which is ill-conditioned there — reports a
+ * phantom 2.4e-4 to 5.6e-4 rad angle between a quaternion and ITSELF. Measured on 5 of 22 rows while
+ * writing clause (7), and it read exactly like per-frame drift.
+ */
+const angleBetween = (a: Q, b: Q): number => {
+  const na = Math.hypot(a.x, a.y, a.z, a.w) || 1;
+  const nb = Math.hypot(b.x, b.y, b.z, b.w) || 1;
+  const d = Math.abs((a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w) / (na * nb));
+  return 2 * Math.acos(Math.min(1, d));
+};
+
 describe("the elbow bends the way the rig was built to bend", () => {
   it("(1) every shipped MPFB forearm is posed in the SAME direction its bind pose bends", async () => {
     const rows = await mpfbForearmBinds();
@@ -135,6 +155,61 @@ describe("the elbow bends the way the rig was built to bend", () => {
     }
     expect(straight, `elbows posed flatter than half the smallest shipped bind bend:\n${straight.join("\n")}`)
       .toEqual([]);
+  });
+
+  it("(6) COUNTERWEIGHT: the BIND is actually composed in — distinct binds give distinct poses", async () => {
+    // MY CLAUSE (1) WAS VACUOUS AND THIS IS THE REPAIR. Measured 2026-08-25 by destructive probe:
+    // replacing `bindQuaternion.multiply(qDelta)` with a bare `qDelta` — i.e. reverting to exactly
+    // the absolute behaviour this whole card exists to remove — left clauses (1)-(5) GREEN.
+    //
+    // The reason is that the delta is `{ x: 0.42 }`, positive, and every MPFB bind bend is positive
+    // too, so the sign test is satisfied by the delta's own sign with the bind discarded. A sign
+    // predicate cannot see whether a composition happened when both operands share a sign.
+    //
+    // This is the discriminator, and it is the same fact that forced bind-relative composition in
+    // the first place: there are SIX distinct lowerarm01 binds across the shipped GLBs, so a real
+    // composition must yield distinct posed orientations. Discard the bind and all 22 rows collapse
+    // to one identical quaternion.
+    const rows = await mpfbForearmBinds();
+    const distinctBinds = new Set(rows.map((r) => quantise(r.bind)));
+    expect(distinctBinds.size, "the fixture must carry distinct binds or this clause proves nothing")
+      .toBeGreaterThan(1);
+
+    const posedAll = await Promise.all(rows.map((r) => appliedForearm(r.bone, r.bind)));
+    const distinctPosed = new Set(posedAll.map(quantise));
+    // NOT equality. Composition can SEPARATE two binds that collapsed at 5dp quantisation — measured
+    // 14 distinct poses from 12 distinct binds — so demanding equality fails on correct code. The
+    // discriminating fact is the floor: both delta entries are identical `{ x: 0.42 }`, so discarding
+    // the bind collapses all 22 rows to exactly ONE orientation.
+    expect(distinctPosed.size,
+      `posed orientations collapsed to ${distinctPosed.size} — the bind was discarded, not composed`)
+      .toBeGreaterThanOrEqual(distinctBinds.size);
+  });
+
+  it("(7) COUNTERWEIGHT: composing twice is idempotent — no per-frame accumulation", async () => {
+    // The applier runs EVERY frame. Composing against the previous frame's result instead of the
+    // cached bind accumulates without bound, and a second destructive probe confirmed clauses
+    // (1)-(5) stay green while it does. Applying the composition to an already-posed quaternion must
+    // not drift, which is what the WeakMap bind cache exists to guarantee.
+    const rows = await mpfbForearmBinds();
+    const drifted = (await Promise.all(rows.map(async (r) => {
+      const once = await appliedForearm(r.bone, r.bind);
+      const twice = await appliedForearm(r.bone, r.bind);   // same cached bind, not the posed result
+      return { r, delta: angleBetween(once, twice) };
+    })))
+      .filter((m) => m.delta > 1e-6)
+      .map((m) => `${m.r.asset}/${m.r.bone} drifted ${m.delta.toFixed(5)} rad on re-apply`);
+    expect(drifted, `re-applying the pose moved it:\n${drifted.join("\n")}`).toEqual([]);
+
+    // And the hostile case stated explicitly: feeding the POSED quaternion back in must be
+    // detectable as different from feeding the bind, or the cache is doing nothing.
+    const sample = rows[0]!;
+    const posed = await appliedForearm(sample.bone, sample.bind);
+    const rePosed = await appliedForearm(sample.bone, posed);
+    expect(angleBetween(posed, rePosed),
+      "composing onto an already-posed quaternion must differ from composing onto the bind — if it "
+      + "does not, the delta is a no-op and clause (1) is measuring nothing")
+      .toBeGreaterThan(1e-3);
   });
 
   it("(3) COUNTERWEIGHT: a deliberately reversed forearm FAILS the sign test", async () => {

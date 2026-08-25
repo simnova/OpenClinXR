@@ -138,9 +138,20 @@ const MPFB_FOREARM_BIND_RELATIVE_DELTA = new Map<string, EulerPartial>([
  * arm about its own LENGTH axis (local X, mirrored) swings the distal chain around the arm
  * axis — lateral toward anterior — without moving the elbow position or changing drop.
  */
-const MPFB_UPPER_ARM_TWIST_DELTA = new Map<string, EulerPartial>([
-  ["upperarm01L", { x: 0.25 }],
-  ["upperarm01R", { x: -0.25 }],
+/**
+ * issue-642 — MPFB2 upper arms take the SAME absolute hang euler set as the Anny rail
+ * (`resolveRotationMap` already lands `upper_armL` → `upperarm01L`), reached here explicitly
+ * so the forearm below can stay bind-relative. Measured context: with the REVERSED elbow this
+ * upper treatment put adults at ratio ~1.22 and the peds child inside its body (0.13 halfSpan)
+ * — the reversal folded the hands inboard; with the corrected composed elbow the fold goes the
+ * way the rig bends instead. Absolute semantics are correct HERE: unlike the six distinct
+ * forearm binds, the adult `upperarm01` binds are uniform and the child's diverges, and #91/
+ * #117 calibrate the WORLD-space hang this table produces, per figure, through each rig's own
+ * parent frame.
+ */
+const MPFB_UPPER_ARM_ABSOLUTE_HANG = new Map<string, EulerPartial>([
+  ["upperarm01L", { z: 0.25 }],
+  ["upperarm01R", { z: -0.25 }],
 ]);
 
 /**
@@ -274,19 +285,20 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
     // bent shipped elbows ~53deg against their own rig. Cache the bind quaternion once, latch,
     // and write qBind ⊗ qDelta; never compound from the previous frame's result.
     const sanitisedName = sanitiseBoneName(object.name);
-    if (MPFB_UPPER_ARM_TWIST_DELTA.has(sanitisedName)) {
+    const upperHang = MPFB_UPPER_ARM_ABSOLUTE_HANG.get(sanitisedName);
+    if (upperHang) {
+      // Bind-relative: cache the bind quaternion once, compose qBind ⊗ qAdduction.
       let bindQ = mpfbForearmBindCache.get(object);
       if (!bindQ) {
         bindQ = object.quaternion.clone();
         mpfbForearmBindCache.set(object, bindQ);
       }
-      const twist = MPFB_UPPER_ARM_TWIST_DELTA.get(sanitisedName)!;
-      const qTwist = new Quaternion().setFromEuler(
-        new Euler(twist.x ?? 0, twist.y ?? 0, twist.z ?? 0),
+      const qDelta = new Quaternion().setFromEuler(
+        new Euler(upperHang.x ?? 0, upperHang.y ?? 0, upperHang.z ?? 0),
       );
-      object.quaternion.copy(new Quaternion().copy(bindQ).multiply(qTwist));
+      object.quaternion.copy(new Quaternion().copy(bindQ).multiply(qDelta));
       object.rotation.setFromQuaternion(object.quaternion, object.rotation.order);
-      object.userData.openClinXrMpfbUpperArmComposed = "issue_642_humeral_twist";
+      object.userData.openClinXrMpfbUpperArmComposed = "issue_642_bind_relative_adduction";
       if (!bonesTouched.includes(object.name)) bonesTouched.push(object.name);
       return;
     }
