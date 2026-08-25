@@ -6,11 +6,11 @@
   "counts": {
     "keep-evidence": 130,
     "ignore-local-cache": 2112,
-    "keep-current": 139,
+    "keep-current": 141,
     "keep-compatibility-input": 24,
     "keep-template": 6,
-    "entries": 2392,
-    "total": 2411
+    "entries": 2394,
+    "total": 2413
   },
   "entries": [
     {
@@ -16889,6 +16889,20 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Orchestrator value decision recorded after grading a rendered sweep (value-decision.ts). Tracked deliberately: the first version wrote under the gitignored .openclinxr tree, so the record vanished on clone while the assertion that reads it stayed. The sheet stays in evidence; the decision must survive."
+    },
+    {
+      "path": "apps/ui-xr/public/xr-assets/medical-equipment/clinic-chair-kenney-cc0.glb",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/public/xr-assets/medical-equipment/clinic-chair-kenney-cc0.provenance.json",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     }
   ]
 }

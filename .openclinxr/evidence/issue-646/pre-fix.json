@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "openclinxr.issue-646.pre-fix.v1",
+  "sliceId": "issue-646",
+  "measuredAt": "2026-08-24T21:00:00.000Z",
+  "worktreeSha": "a13013ec",
+  "defect": "the emitted clinic chair (chairs_equipment) resolves a parametric box builder; 140 CC0 Kenney furniture GLBs sit on disk with zero consumers",
+  "ambientFailureClass": "REAL_EQUIPMENT_GLTF_BY_ID (apps/ui-xr/src/station-equipment.ts:84-99) has no chairs_equipment entry, so collectDeclaredEquipmentMountTargets (:427-433) resolves source=parametric; the runtime shrink-only footprint fit (applyGltfEquipmentFootprintFit :282-312) cannot rescue an undersized asset at load (scale=min(1, env/glb), never grows)",
+  "measured": {
+    "realEquipmentGltfByIdEntries": [
+      "ecg_cart_equipment", "iv_stand_equipment", "wall_clock_equipment", "bedside_monitor_equipment",
+      "hospital_bed_equipment", "stretcher_equipment", "exam_table_equipment", "privacy_curtain_equipment"
+    ],
+    "chairs_equipmentInRealEquipmentGltfById": false,
+    "medicalEquipmentDirChairGlb": null,
+    "bundleChairsEquipmentModelBlob": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb",
+    "bundleChairsEquipmentBlobNote": "positional copy artifact: generated-ed-station-runtime-bundle.ts:197-205 maps equipment ids to equipmentAssets[index % length]; the report lists only ecg cart + iv pole, so chairs_equipment (index 0) copies the ecg cart blob. Runtime geometry does NOT come from the bundle blob (main.ts:3646 loads /xr-assets/medical-equipment/<gltfFileName> from REAL_EQUIPMENT_GLTF_BY_ID), so this is metadata-only today.",
+    "bundleFrozenForEncounter": true,
+    "kenneyKit": {
+      "path": ".openclinxr/staging/equipment/kenney-furniture-kit/Models/GLTF format",
+      "glbCount": 140,
+      "licensePresent": true,
+      "licenseText": "Creative Commons Zero (CC0)",
+      "chairCandidates": ["chair.glb", "chairCushion.glb", "chairDesk.glb", "chairModernCushion.glb", "chairModernFrameCushion.glb", "chairRounded.glb", "loungeChair.glb", "loungeChairRelax.glb", "loungeDesignChair.glb"],
+      "grepsForConsumers": 0
+    },
+    "chairGlbMeasured": {
+      "file": "chair.glb",
+      "aabbM": { "w": 0.2, "h": 0.47, "d": 0.2 },
+      "triangleCount": 170,
+      "detectedSeatY": 0.24,
+      "detectedSeatArea": 0.0368,
+      "detectionMethod": "largest horizontal (|ny|>0.85) face cluster by area, world space; not AABB max (back top 0.47 would be the AABB max)",
+      "backTopY": 0.47
+    },
+    "parametricChairCurrentlyRendered": {
+      "builder": "buildSimpleChairEquipment (apps/ui-xr/src/station-equipment-builders.ts:335-383)",
+      "seatHeightMeters": 0.45,
+      "source": "parametric box composite",
+      "triangleEstimate": "box primitives (legs 0.48x0.4x0.45, seat 0.45x0.05x0.45, back 0.45x0.48x0.05)"
+    },
+    "runtimeShrinkOnlyFit": {
+      "reference": "applyGltfEquipmentFootprintFit apps/ui-xr/src/station-equipment.ts:296-303 (scale=Math.min(1, envelopeWidth/glbWidth, envelopeDepth/glbDepth))",
+      "parametricEnvelopeM": { "w": 0.45, "d": 0.45 },
+      "consequence": "a 0.20 m wide raw Kenney chair mounts at scale=1 (envelope/glb > 1) but renders as a 0.20 m doll chair beside a 1.7 m humanoid; a 0.375 m promoted chair stays at scale=1 (min(1, 0.45/0.375, 0.45/0.375)=1)"
+    }
+  },
+  "notEvidenceFor": [
+    "whether the other 8 glb_present bank assets are any good",
+    "learner-visible salience (viewing distance/occlusion/gaze)",
+    "clinical realism",
+    "quest_readiness"
+  ]
+}
