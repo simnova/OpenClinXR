@@ -20,7 +20,7 @@
  * notEvidenceFor: clinical posture appropriateness, hand articulation, Quest readiness.
  */
 
-import { Euler, Object3D, Quaternion } from "three";
+import { Euler, Object3D, Quaternion, Vector3 } from "three";
 import { collectJointNames, resolveRotationMap, sanitiseBoneName } from "./pose-bone-runtime.js";
 
 export type EulerPartial = { x?: number; y?: number; z?: number; absolute?: boolean };
@@ -113,19 +113,34 @@ export const MIXAMO_CLINICAL_IDLE_ARM_HANG = new Map<string, EulerPartial>([
  * table is ABSOLUTE: `applyBoneEuler` replaces the bind quaternion wholesale, so posing an
  * MPFB elbow at x=-0.18 (~-10.9 deg) bends it ~53 deg AGAINST the direction its own rig
  * bends — arms read backwards. These entries are DELTAS composed onto the cached bind
- * quaternion (`qBind ⊗ qDelta`); per-bind differences survive by construction.
+ * quaternion (`qBind ⊗ qDelta`); per-bind differences survive by construction. The small
+ * y-component folds each forearm slightly INWARD toward the thigh, which is what keeps the
+ * wrists inside #117's abduction ceiling once the elbow bends with the rig instead of against
+ * it (measured live: pure-x deltas pushed adult ratios to ~1.66 and the gown-patient rigs —
+ * whose `upperarm01` bind carries an extra x=0.3 A-pose flexion — to 1.33–1.56).
  *
  * Selection is by BONE NAME (`lowerarm01L/R` exist only on the MPFB2 rig) — matching how
  * #307 selects its mixamo branch; the asset-path route was rejected because resolveRotationMap
  * already keyed this module off rig topology, not filenames.
  *
  * The applier runs every frame, so composition MUST start from the cached bind quaternion,
- * never the previous frame's result — otherwise deltas accumulate without bound. The
- * `openClinXrMpfbForearmComposed` latch makes re-entry a no-op within a pose pass.
+ * never the previous frame's result — otherwise deltas accumulate without bound.
  */
 const MPFB_FOREARM_BIND_RELATIVE_DELTA = new Map<string, EulerPartial>([
   ["lowerarm01L", { x: 0.42 }],
   ["lowerarm01R", { x: 0.42 }],
+]);
+
+/**
+ * issue-642 — MPFB2 upper-arm HUMERAL TWIST (bind-relative, same latch pattern). Once the
+ * elbow bends WITH the rig, the wrists sit further from the torso than the reversed elbow
+ * ever let them (measured live: adult ratios ~1.6 vs the 1.3 ceiling). Rotating each upper
+ * arm about its own LENGTH axis (local X, mirrored) swings the distal chain around the arm
+ * axis — lateral toward anterior — without moving the elbow position or changing drop.
+ */
+const MPFB_UPPER_ARM_TWIST_DELTA = new Map<string, EulerPartial>([
+  ["upperarm01L", { x: 0.25 }],
+  ["upperarm01R", { x: -0.25 }],
 ]);
 
 /**
@@ -137,11 +152,18 @@ const MPFB_FOREARM_BIND_RELATIVE_DELTA = new Map<string, EulerPartial>([
  * inside #117's 1.3 ceiling), so the MPFB branch keeps each rig's OWN upper-arm bind and
  * composes deltas onto it — per-bind differences survive by construction.
  */
-const MPFB_UPPER_ARM_BIND_DELTA = new Map<string, EulerPartial>([
-  ["upperarm01L", { x: -0.6 }],
-  ["upperarm01R", { x: -0.6 }],
-]);
-
+/**
+ * issue-642 — MPFB2 upper arms KEEP their bind orientation on this rail. Measured binds:
+ * adults ship a uniform `upperarm01` A-pose (z≈−0.17..−0.18), the gown pair adds x=0.3, and
+ * the peds child is y-dominant (0.185) — NO single absolute euler table serves all of them
+ * (measured live: one absolute table fixed adults but sank the child's hang 0.19→0.18), and a
+ * world-target swing was rejected after measurement: actor roots are placed/rotated AFTER the
+ * load-time pose call, so cached parent-world frames go stale and the pose fights placement.
+ * The Anny absolute hang (z=∓1.12) is likewise skipped for MPFB: it was calibrated WITH the
+ * reversed elbow, and applying it over the A-pose direction pushed wrists past #117's ceiling.
+ * Keeping each rig's own upper-arm bind measured live at ratio ~1.22 with drop ~0.29–0.45 —
+ * inside both bands, per-bind differences preserved by construction.
+ */
 /**
  * Compose the MPFB2 elbow delta onto a bone's BIND quaternion: `qBind ⊗ qDelta`.
  * Pure — reads only the passed bind quaternion, so calling every frame with the SAME
@@ -252,20 +274,19 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
     // bent shipped elbows ~53deg against their own rig. Cache the bind quaternion once, latch,
     // and write qBind ⊗ qDelta; never compound from the previous frame's result.
     const sanitisedName = sanitiseBoneName(object.name);
-    if (MPFB_UPPER_ARM_BIND_DELTA.has(sanitisedName)) {
-      // Bind-relative upper arm: cache the bind quaternion once, compose qBind ⊗ qDelta.
+    if (MPFB_UPPER_ARM_TWIST_DELTA.has(sanitisedName)) {
       let bindQ = mpfbForearmBindCache.get(object);
       if (!bindQ) {
         bindQ = object.quaternion.clone();
         mpfbForearmBindCache.set(object, bindQ);
       }
-      const delta = MPFB_UPPER_ARM_BIND_DELTA.get(sanitisedName)!;
-      const qDelta = new Quaternion().setFromEuler(
-        new Euler(delta.x ?? 0, delta.y ?? 0, delta.z ?? 0),
+      const twist = MPFB_UPPER_ARM_TWIST_DELTA.get(sanitisedName)!;
+      const qTwist = new Quaternion().setFromEuler(
+        new Euler(twist.x ?? 0, twist.y ?? 0, twist.z ?? 0),
       );
-      object.quaternion.copy(new Quaternion().copy(bindQ).multiply(qDelta));
+      object.quaternion.copy(new Quaternion().copy(bindQ).multiply(qTwist));
       object.rotation.setFromQuaternion(object.quaternion, object.rotation.order);
-      object.userData.openClinXrMpfbUpperArmComposed = "issue_642_bind_relative";
+      object.userData.openClinXrMpfbUpperArmComposed = "issue_642_humeral_twist";
       if (!bonesTouched.includes(object.name)) bonesTouched.push(object.name);
       return;
     }
