@@ -321,9 +321,39 @@ process says it should already be gone.
 `PROTO_CURIOUS_RESEARCHER` names it explicitly as the call that was hand-rolled around. Implementing
 it makes the Anny stature-align unnecessary and moves Anny back to step 3 where it belongs.
 
-**So the remaining work is: derive macros from the Anny reference, pass them to `create_human`, and
-delete the fit-time Anny import.** Until then the station produces a default-shaped body wearing a
-correctly fitted garment.
+### Do NOT hand-roll the macro derivation — four proven pieces already exist
+
+| what | where |
+|---|---|
+| authored phenotype -> MPFB macro dict (age, bmi, build, gender_presentation) | `body_param_stage.py:1870` `derive_macro_dict_from_authored_phenotype` |
+| stature -> height macro, via create/bake/strip/export/measure, refuses out-of-band targets | `body_param_stage.py:2033` `solve_height_macro_from_stature` |
+| tracked-Anny-reference path: measure OBJ -> macro seed -> solve height -> `create_human(macro_detail_dict=...)` | `materialize_mpfb_humanoid_candidate.py:1879` |
+| Anny/MPFB landmark comparator (INSPECTOR, not an inverse solver) | `anny-reference-mpfb-match.ts` |
+
+### ORDER IS LOAD-BEARING: bake, or the macros do nothing
+
+Macros must be baked with `TargetService.bake_targets` IMMEDIATELY after `create_human`. Without it
+the glTF basis is the default human and the macros ride along as zero-weight morph targets — measured:
+five macro sets exported byte-identical bases, and baking made exported stature differ 1.00-2.37 m
+across the height macro. **The fit station's `create_human` call does not bake**, so macros added
+there today would silently do nothing. The call site carries this warning.
+
+### Even the proven path is only a PARTIAL step 3
+
+`derive_macro_dict` sets `gender: 0.5, age: 0.5` and solves stature. Muscle, weight, proportions, cup
+size, firmness and race stay at MPFB defaults. It MEASURES `chestSpanMeters` and `waistSpanMeters`
+(`materialize_mpfb_humanoid_candidate.py:1926-1927`) and then **does not consume them**.
+
+So "same body structure" is not achieved by wiring the existing derivation — it gets age and stature.
+MADR 0052 explicitly rejects a hand-written coupled macro Jacobian for girths and prescribes
+one-dimensional fitting against MPFB's shipped `measure-*` targets for bust/chest, waist and hips
+after macro-driven stature and build.
+
+### The architecturally correct fix
+
+This station should not build a phenotype body at all. Under the operator's process the materializer
+owns steps 1-4 and this station owns step 5, so it should take an ALREADY-MATERIALIZED MPFB body.
+That also deletes the fit-time Anny import which currently violates step 4.
 
 ## claimScope / notEvidenceFor
 

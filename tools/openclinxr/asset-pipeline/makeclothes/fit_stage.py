@@ -319,6 +319,29 @@ def main() -> None:
             mh = import_obj(args.mh_base_obj, args.body_mesh_name, force_z=False)
             create_human_used = False
         else:
+            # NO macro_detail_dict — this is MPFB's DEFAULT human, deliberately, and it is NOT
+            # step 3 of the operator's process ("build a make human that looks like the anny model").
+            #
+            # DO NOT simply add macros here. Two things make that a trap:
+            #
+            #  1. ORDER IS LOAD-BEARING. `materialize_mpfb_humanoid_candidate.py:1714` records that
+            #     macros must be BAKED with TargetService.bake_targets IMMEDIATELY after create_human.
+            #     Without the bake the glTF basis is the default human and the macros ride along as
+            #     zero-weight morph targets — measured there: five macro sets exported byte-identical
+            #     bases, and baking made exported stature differ 1.00-2.37 m across the height macro.
+            #     This call does not bake, so macros added here would silently do nothing.
+            #
+            #  2. THE DERIVATION ALREADY EXISTS and must not be hand-rolled a second time.
+            #     `materialize_mpfb_humanoid_candidate.py` derives the dict from a TRACKED Anny
+            #     reference BY MEASUREMENT — age from the reference's head-height fraction (0.100
+            #     adult vs 0.160 child), height SOLVED so the baked-and-stripped EXPORTED body reaches
+            #     the reference stature, the rest MPFB defaults.
+            #
+            # The architecturally correct fix is not to build a phenotype body here at all. Under the
+            # operator's process the materializer owns steps 1-4 (describe -> Anny phenotype -> MPFB
+            # match -> drop Anny) and this station owns step 5 (clothe it). This station should take an
+            # ALREADY-MATERIALIZED MPFB body, which also deletes the fit-time Anny import that
+            # currently violates step 4.
             mh = HumanService.create_human(
                 mask_helpers=True,
                 detailed_helpers=True,

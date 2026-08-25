@@ -48,7 +48,7 @@
     },
     "clothesServiceFit": {
       "api": "ClothesService.fit_clothes_to_human",
-      "wallClockS": 0.0137,
+      "wallClockS": 0.0135,
       "garmentMeshName": "makeclothes_library_scrub_shirt",
       "bodyMeshName": "hm08_basemesh_library",
       "garmentBounds": {
@@ -96,5 +96,5 @@
   "bodyMeshNames": [
     "hm08_basemesh_library"
   ],
-  "totalWallClockS": 0.768
+  "totalWallClockS": 0.838
 }
