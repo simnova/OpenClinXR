@@ -1,13 +1,99 @@
 {
   "schemaVersion": "openclinxr.makeclothes-fit-stage.v1",
   "producedByStage": "makeclothes_fit_stage",
-  "status": "completed",
+  "notEvidenceFor": [
+    "clinical_appropriateness",
+    "quest_readiness",
+    "learner_readiness",
+    "converting_shipped_anny_roles",
+    "shipping_mpfb_or_gpl_code_in_repo",
+    "full_anny_to_hm08_migration"
+  ],
+  "mpfb": {
+    "module": "bl_ext.user_default.mpfb",
+    "enabled": true,
+    "error": null,
+    "version": null,
+    "manifestPath": "/Users/patrick/Library/Application Support/Blender/5.1/extensions/user_default/mpfb/blender_manifest.toml",
+    "licenseSpdxFromManifest": "GPL-3.0-or-later",
+    "manifestVersion": "2.0.15"
+  },
   "steps": {
+    "mhLoad": {
+      "source": "mpfb_data_3dobjs_base.obj",
+      "path": "/Users/patrick/Library/Application Support/Blender/5.1/extensions/user_default/mpfb/data/3dobjs/base.obj",
+      "bounds": {
+        "min": [
+          -4.973199844360352,
+          -3.2563998699188232,
+          -8.448800086975098
+        ],
+        "max": [
+          4.973199844360352,
+          1.1033999919891357,
+          8.496700286865234
+        ],
+        "size": [
+          9.946399688720703,
+          4.359799861907959,
+          16.945500373840332
+        ],
+        "vertexCount": 19158
+      },
+      "statureMeters": 16.945500373840332,
+      "objectIsBasemesh": true,
+      "vertexCount": 19158,
+      "createHumanUsed": false
+    },
     "clothesServiceFit": {
       "api": "ClothesService.fit_clothes_to_human",
-      "regeneratedBy": "pnpm asset:body-param:fit -- --once",
-      "note": "stage report re-stamped beside tracked library GLB for clean-clone discovery (#226)"
+      "wallClockS": 0.1263,
+      "garmentMeshName": "makeclothes_library_scrub_shirt",
+      "bodyMeshName": "hm08_basemesh_library",
+      "garmentBounds": {
+        "min": [
+          -2.714817523956299,
+          -1.6218756437301636,
+          0.9462950825691223
+        ],
+        "max": [
+          2.6828560829162598,
+          0.8602832555770874,
+          6.092377662658691
+        ],
+        "size": [
+          5.397673606872559,
+          2.482158899307251,
+          5.146082580089569
+        ],
+        "vertexCount": 4688
+      },
+      "garmentVertexCount": 4688,
+      "garmentPolygonCount": 4692,
+      "garmentTriangleEstimate": 9384,
+      "mhclo": "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-215/staging/Scrub_Shirt.mhclo",
+      "garmentObj": "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-215/staging/Scrub_Shirt.obj",
+      "fittedOnNativeBaseObj": true,
+      "notBodySurfaceDerived": true
+    },
+    "annyStatureAlign": {
+      "uniformScale": 0.10386237845333522,
+      "referenceStatureMeters": 1.759999972908938,
+      "bodyStatureBeforeScaleMeters": 16.945500373840332,
+      "bodyStatureAfterScaleMeters": 1.7599999925474987
     }
   },
-  "generatedAt": "2026-08-11T21:43:49.644Z"
+  "artifacts": {
+    "libraryGlb": "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-215/work/makeclothes-hm08-scrub-shirt-library.glb",
+    "gradePng": "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-215/work/fitted-garment-grade.png"
+  },
+  "errors": [],
+  "status": "completed",
+  "garmentMeshNames": [
+    "makeclothes_library_scrub_shirt"
+  ],
+  "bodyMeshNames": [
+    "hm08_basemesh_library"
+  ],
+  "totalWallClockS": 1.688
 }

@@ -1,13 +1,14 @@
 {
   "schemaVersion": "openclinxr.makeclothes-library-catalog.v1",
-  "generatedAt": "2026-08-11T21:43:49.644Z",
+  "generatedAt": "2026-08-25T04:59:35.882Z",
   "producedByStage": "makeclothes_fit_stage",
-  "claimScope": "factory_makeclothes_fit_stage_library_glb_with_provenance",
+  "claimScope": "factory_makeclothes_fit_stage_one_cc_by_scrub_on_hm08_library_glb_with_provenance",
   "notEvidenceFor": [
     "clinical_appropriateness",
     "quest_readiness",
     "converting_shipped_anny_roles",
-    "shipping_mpfb_gpl"
+    "shipping_mpfb_gpl",
+    "full_body_migration"
   ],
   "entries": [
     {
@@ -20,17 +21,16 @@
       ],
       "garmentTriangleCount": 9384,
       "licenseToken": "CC-BY",
-      "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-215/.openclinxr/evidence/issue-215/staging/Scrub_Shirt.mhclo",
+      "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-215/staging/Scrub_Shirt.mhclo",
       "producedByStage": "makeclothes_fit_stage",
-      "mhcloPath": "Scrub_Shirt.mhclo",
+      "mhcloPath": ".openclinxr/evidence/issue-215/staging/Scrub_Shirt.mhclo",
       "stageReportPath": "apps/ui-xr/public/xr-assets/humanoids/candidates/makeclothes-fit-stage-report.json",
       "clothesServiceApi": "ClothesService.fit_clothes_to_human",
-      "fitWallClockS": null,
+      "fitWallClockS": 0.1263,
       "glbSha256": "7274dc7e7d117540f362c97aaaf9c0b021002261673364c8f72060a2e2c2480d",
-      "gradePngPath": ""
+      "gradePngPath": ".openclinxr/evidence/issue-215/fitted-garment-grade.png"
     }
   ],
   "stageReportPath": "apps/ui-xr/public/xr-assets/humanoids/candidates/makeclothes-fit-stage-report.json",
-  "blenderExecutable": "/opt/homebrew/bin/blender",
-  "regeneratedByCommand": "pnpm asset:body-param:fit -- --once"
+  "blenderExecutable": "/opt/homebrew/bin/blender"
 }

@@ -90,6 +90,91 @@ them.
   survived its own weld pass; the MakeClothes library rail had none. If you are comparing rails, that
   is a real difference and not noise.
 
+
+## RUN IT: the fit works, and its own grade render is unreadable
+
+Measured 2026-08-25 by running `pnpm asset:makeclothes:fit -- --once` end to end.
+
+```
+ok: true   garmentId: wojackowl_scrubs_shirt_hm08   garmentTriangleCount: 9384
+licenseToken: CC-BY (from mhclo_header:Scrub_Shirt.mhclo, author WojackOWL)
+fitWallClockS: 0.1263
+```
+
+The GLB rewrote **byte-identically** — only the report and catalog changed — so the fit is
+deterministic. `fitWallClockS` is the ClothesService binding step alone, not the Blender boot, so a
+tenth of a second there is not the stale-cache smell it looks like.
+
+### The output GLB, measured — this is what the numbers say
+
+| mesh | verts | tris | Y range |
+|---|---:|---:|---|
+| `hm08_basemesh_library` | 73,920 | 36,972 | 0.000 – 1.760 |
+| `makeclothes_library_scrub_shirt` | 18,768 | 9,384 | **0.976 – 1.510** |
+
+The garment spans hip to shoulder. **It is a shirt.** Do not conclude otherwise from a render.
+
+### THE RENDER TRAP, which has now caught two different reviewers
+
+`.openclinxr/evidence/issue-215/fitted-garment-grade.png` shows what looks like a hooded,
+floor-length robe. `PROTO_VERIFY_DELEGATION` already records an orchestrator misreading that exact
+image as a robe and blaming Blender Workbench discarding Principled Base Color. **That explanation is
+incomplete and the render is worse than "wrong colours".**
+
+MEASURED: render the body with the garment HIDDEN and with it SHOWN. The two frames are
+**pixel-identical**. The robe is therefore the BODY mesh, not the garment and not a shading artifact.
+The fitted shirt sits UNDERNEATH it and only shows as teal slivers at the shoulders.
+
+**INFERRED, not yet proven:** that shape is MakeHuman helper geometry — the loose outer shell used
+for clothes fitting, which reads as a shapeless robe from shoulders to ankles, with helper blobs at
+the feet and strips at the head. `ExportService.bake_modifiers_remove_helpers()` is the proven API
+for stripping it, and `mpfb2-actor-is-stripped-of-helpers.test.ts` exists for the MPFB rail. The
+library rail's basemesh appears never to have been stripped.
+
+**The measurement that would settle it** (not yet run): at hip height, count distinct surface radii
+along a horizontal ray. A body plus a helper shell gives two concentric surfaces; a bare body gives
+one. Vertex-index stripping will NOT work here — the exported mesh is 73,920 verts with **zero
+vertex groups**, and separating by loose parts yields **18,474 islands** of ~4 verts each, so the
+glTF export is fully unwelded and carries no helper grouping to key off.
+
+**Consequence for anyone grading this station:** its shipped grade PNG cannot show whether a garment
+fitted correctly, because the body mesh occludes the garment entirely. Grade the NUMBERS (the mesh
+Y-range table above), or strip helpers before rendering.
+
+## grok-imagine → clothing: the binding is the crux, and MPFB can compute it
+
+A `.mhclo` is a **binding, not a mesh**. Each garment vertex is bound to three basemesh vertex
+indices with barycentric weights plus an offset:
+
+```
+basemesh hm08
+verts 0
+8191 8163 8209  0.2699 0.4253 0.3048  0.0003 0.0034 0.0066
+```
+
+That is why one garment fits any body: the base deforms and every garment vertex rides its triangle.
+A TRELLIS mesh from an image has no such binding, so it cannot be MakeClothes clothing as-is.
+
+**But the installed MPFB can CREATE the binding**, which is the part that makes this feasible:
+
+- `ClothesService.create_mhclo_from_clothes_matching(basemesh, clothes, ...)` — `clothesservice.py:724`
+- `ClothesService.mesh_is_valid_as_clothes(mesh_object, basemesh)` — `clothesservice.py:619`
+- the authoring UI ships too: `ui/create_assets/makeclothes/` with `extractclothes.py` and
+  `writeclothes.py`
+
+`mesh_is_valid_as_clothes` names the gate a generated mesh must pass: a real MESH object with
+vertices, **every vertex in at least one and at most one vertex group**, every vertex belonging to a
+face, uniform face type, clothes groups present on the basemesh, and matching scale.
+
+**So the pipeline is: image → mesh → align to the basemesh → assign vertex groups → create_mhclo →
+ClothesService fits it to any body.** The two hard parts are the vertex-group requirement (a TRELLIS
+blob has none) and topology class: TRELLIS produces a closed watertight solid, while a garment needs
+an open shell with neck, arm and hem openings.
+
+**The cheap variant worth trying first:** generate a fabric or pattern IMAGE and apply it as a
+texture to an already-fitted garment. That needs no binding at all and gets visual variety
+immediately. Reserve mesh generation for the case where the garment SHAPE is genuinely missing.
+
 ## claimScope / notEvidenceFor
 
 - **claimScope:** the installed toolchain, the CLIs, the measured library-versus-worn gap, and the
