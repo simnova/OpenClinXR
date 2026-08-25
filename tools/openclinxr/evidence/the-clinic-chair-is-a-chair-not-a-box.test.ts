@@ -46,6 +46,27 @@ import { join } from "node:path";
  * notEvidenceFor: any other equipment id; `safe_room_chair_equipment`; whether the chair reads as
  *   clinical rather than domestic (clause 5 requires a GRADE be recorded, not that it be favourable);
  *   or the other 41 thin-parametric rows.
+ *
+ * ## FIXED (#646) — 2026-08-24
+ *
+ * Promoted a Kenney CC0 chair into the medical-equipment library and wired it into the runtime.
+ * Measured by kenney-promote-cli.ts and verified independently on the promoted GLB (verify-promoted-glb.ts):
+ *
+ *   source chair.glb (unedited staging kit)      seat 0.24 m    AABB W 0.200 H 0.470 D 0.200   170 tris
+ *   promoted clinic-chair-kenney-cc0.glb         seat 0.45 m    AABB W 0.375 H 0.881 D 0.375   170 tris
+ *   scale 1.875 baked into vertices; min Y = 0 (feet on floor); runtime footprint-fit scale
+ *   = min(1, 0.45/0.375, 0.45/0.375) = 1 -> NO runtime shrink (applyGltfEquipmentFootprintFit,
+ *   clinic parametric composite envelope W/D 0.45).
+ *
+ * REAL_EQUIPMENT_GLTF_BY_ID now maps chairs_equipment -> clinic-chair-kenney-cc0.glb
+ * (apps/ui-xr/src/station-equipment.ts:96), so collectDeclaredEquipmentMountTargets emits
+ * source=gltf and the runtime loads the chair into the mount slot (main.ts:3646). Psych's
+ * safe_room_chair_equipment is a different id and is untouched (clause 3). The staging kit is
+ * byte-identical; provenance sidecar records source + promoted SHA-256 and the CC0 licence chain
+ * (clause 4). Clause 5's grade: the head-stamped oncology capture is
+ * .openclinxr/evidence/issue-646/capture/oncology_bad_news_family_v1.png — orchestrator pixel
+ * grade pending (text-only worker cannot read images); the question is clinical-context fit
+ * (chairs read clinical vs domestic).
  */
 
 const REPO = join(import.meta.dirname, "../../..");
@@ -60,7 +81,7 @@ const promotedChair = (): string | null => {
 };
 
 describe("the clinic chair is a chair, not a box", () => {
-  it.fails("(1) the emitted chairs_equipment resolves a promoted GLB, not a parametric builder", () => {
+  it("(1) the emitted chairs_equipment resolves a promoted GLB, not a parametric builder", () => {
     // Discovered from the bundle, never a hardcoded list — the catalogue's own scenarioIds column is
     // stale, so a literal would encode the wrong reach.
     const bundle = readFileSync(BUNDLE, "utf8");
@@ -74,7 +95,7 @@ describe("the clinic chair is a chair, not a box", () => {
     ).toMatch(/chairs_equipment[\s\S]{0,400}?\.glb/u);
   });
 
-  it.fails("(2) the promoted chair has real geometry and its seat lands at human height", () => {
+  it("(2) the promoted chair has real geometry and its seat lands at human height", () => {
     // The scale clause. A 0.47 m Kenney chair beside a 1.7 m humanoid is the defect; runtime cannot
     // fix it because scaling is shrink-only.
     const chair = promotedChair();

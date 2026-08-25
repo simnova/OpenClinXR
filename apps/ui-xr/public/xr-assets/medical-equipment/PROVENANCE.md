@@ -29,6 +29,10 @@ entries in `REAL_EQUIPMENT_GLTF_BY_ID` (`apps/ui-xr/src/station-equipment.ts`).
   Curtain and Vital Signs Monitor by Ethan Cragun**; height-fit 2.2 m; see
   sidecar)
 - SHA-256: `89ccdab93ce4f6ca1cdd0c8f94afe834db431ed667ddac4580bbd9cc3c22a8bf`
+- `clinic-chair-kenney-cc0.glb` (issue #646 — **Kenney Furniture Kit**, CC0,
+  seat-height normalized: detected seat surface 0.24 m → 0.45 m, uniform scale
+  1.875 baked into vertices; 170 tris; see sidecar)
+- SHA-256: `47547fd2f8293360eebc43a489aff535e61833f7879007b5298c9d029f6cbfc0`
 
 ## Not present (and not commissioned)
 
@@ -66,6 +70,15 @@ content — not missing product. Do not treat the names below as a commission li
   issue-250 global-simplify control (silhouette IoU 0.9854, exterior area 0.9992),
   then promoted byte-identical here (issue #253). Full chain in the sidecar
   `bedside-monitor-generated.provenance.json`.
+- `clinic-chair-kenney-cc0.glb` (issue #646) is a **Kenney Furniture Kit CC0
+  derivative**: raw `chair.glb` from the unedited staging kit
+  (`.openclinxr/staging/equipment/kenney-furniture-kit/`, 140 assets, CC0, no
+  attribution obligation) normalized by `kenney-promote-cli.ts`
+  (`tools/openclinxr/asset-pipeline/equipment/`): largest horizontal surface
+  detected at 0.24 m, uniform scale 1.875 baked into vertices so the seat lands
+  at 0.45 m (the parametric builder's semantic constant) and the runtime's
+  shrink-only footprint fit leaves it untouched. Kit byte-identical; both hashes
+  in the sidecar.
 
 ## Policy
 

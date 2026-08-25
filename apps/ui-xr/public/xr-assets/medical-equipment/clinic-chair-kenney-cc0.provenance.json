@@ -1,0 +1,97 @@
+{
+  "schemaVersion": "openclinxr.medical-equipment-provenance.v1",
+  "derivationMode": "kenney_cc0_seat_height_normalize_promote",
+  "scenarioId": null,
+  "assetId": "chairs_equipment",
+  "assetPath": "apps/ui-xr/public/xr-assets/medical-equipment/clinic-chair-kenney-cc0.glb",
+  "sourceRecordPath": ".openclinxr/staging/equipment/kenney-furniture-kit/provenance.json",
+  "generatorMode": "kenney_promote_cli_tsx_bake_world_transform_and_uniform_scale",
+  "sourceKind": "third_party_kenney_cc0",
+  "usesRealTrellisForwardPass": false,
+  "backgroundRemovalUsed": false,
+  "textureMode": "author_embedded_materials",
+  "animationMode": "none_static_equipment",
+  "optimizationMode": "seat_height_uniform_normalize_no_decimation",
+  "realismGrade": null,
+  "promotionStatus": "runtime_candidate_not_readiness_gate_pass",
+  "sha256": "47547fd2f8293360eebc43a489aff535e61833f7879007b5298c9d029f6cbfc0",
+  "bytes": 10424,
+  "measuredNormalize": {
+    "sourceFile": "chair.glb",
+    "sourceBytes": 10756,
+    "sourceSha256": "c8a11eec93e89e31250ba91afc1b8d56c3bec7ae86640fd1239f595ff4180883",
+    "sourceAabbM": {
+      "w": 0.2,
+      "h": 0.47,
+      "d": 0.2
+    },
+    "detectedSurfaceY": 0.24,
+    "detectedSurfaceArea": 0.037,
+    "detectionMethod": "largest horizontal (|ny|>0.85) face cluster by area in world space; NOT the AABB maximum (a chair back is not a seat)",
+    "scaleFactor": 1.875,
+    "targetHeightM": 0.45,
+    "promotedAabbM": {
+      "w": 0.375,
+      "h": 0.881,
+      "d": 0.375
+    },
+    "promotedSurfaceY": 0.45,
+    "promotedSurfaceArea": 0.129,
+    "promotedTriangleCount": 170,
+    "runtimeFit": "applyGltfEquipmentFootprintFit scale=min(1, env/glb); promoted footprint must be <= parametric composite envelope so the runtime does not shrink it"
+  },
+  "sourceOriginChain": {
+    "sourceTopologyMode": "kenney_asset_pack_download",
+    "downloadUrl": "https://kenney.nl/media/pages/assets/furniture-kit/440e0608a4-1677580847/kenney_furniture-kit.zip",
+    "rawZipPath": ".openclinxr/staging/equipment/kenney_furniture-kit.zip",
+    "rawZipBytes": 5130729,
+    "rawDownloadedAt": "2026-08-12T08:40:00.000Z",
+    "kitLicense": "CC0",
+    "derivationNote": "Promoted from the unedited CC0 staging kit (Models/GLTF format/chair.glb). Uniform scale baked into vertices so runtime shrink-only footprint fit leaves it untouched. Staging kit byte-identical (never edited)."
+  },
+  "licenseChain": {
+    "status": "verified_at_download_cc0_no_attribution",
+    "licence": "CC0 (Public Domain)",
+    "attributionRequired": false,
+    "attribution": "Kenney Furniture Kit (https://kenney.nl/assets/furniture-kit) — CC0, no attribution required",
+    "licenseSource": "kenney.nl page text + .openclinxr/staging/equipment/kenney-furniture-kit/License.txt",
+    "sourceRecordClaimsSupported": [
+      "Kenney Furniture Kit is CC0 Public Domain (source page text, read 2026-08-12).",
+      "No attribution obligation for CC0 (Kenney CC0 policy).",
+      "License.txt beside the kit states: Creative Commons Zero (CC0)."
+    ],
+    "notRun": [
+      "reverification_after_promote",
+      "author_page_html_reparse"
+    ],
+    "explicitUnknown": [
+      "whether embedded textures include third-party content beyond the CC0 grant"
+    ],
+    "notes": "CC0 carries no attribution obligation at all — no licences page required (contrast CC-BY route, issue #645). License.txt first line: \t\r"
+  },
+  "derivativeLineage": {
+    "status": "kenney_cc0_normalize_promote_derivative",
+    "assetId": "chairs_equipment",
+    "method": "bake_world_transform_and_uniform_scale_into_vertices_then_copy_to_tracked_library",
+    "promotedFrom": ".openclinxr/staging/equipment/kenney-furniture-kit/Models/GLTF format/chair.glb",
+    "lineageSteps": [
+      "Raw CC0 kit GLB read from unedited staging path.",
+      "Seat surface detected as largest horizontal face cluster (world space).",
+      "Uniform scale = targetHeightM / detectedSurfaceY applied to all axes.",
+      "World transforms + scale baked into POSITION (NORMAL re-oriented), node TRS reset to identity.",
+      "Promoted byte-copy into apps/ui-xr/public/xr-assets/medical-equipment/.",
+      "Wire REAL_EQUIPMENT_GLTF_BY_ID + PROVENANCE.md entry."
+    ]
+  },
+  "toolVersion": "openclinxr-equipment-bank-promote-v1",
+  "promotedAt": "2026-08-25T00:53:13.502Z",
+  "notEvidenceFor": [
+    "b_plus_visual_realism_gate",
+    "quest_readiness",
+    "production_asset_readiness",
+    "learner_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "scene_placement_readiness"
+  ]
+}

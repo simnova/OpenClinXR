@@ -96,6 +96,10 @@ export const REAL_EQUIPMENT_GLTF_BY_ID: Readonly<Record<string, string>> = {
   stretcher_equipment: "stretcher-sketchfab-ccby.glb",
   exam_table_equipment: "exam-table-sketchfab-ccby.glb",
   privacy_curtain_equipment: "privacy-curtain-monitor-sketchfab-ccby.glb",
+  // #646: Kenney Furniture Kit CC0 — promoted via kenney-promote-cli.ts (seat-height
+  // normalize: detected seat 0.24 m -> 0.45 m, scale 1.875 baked into vertices). CC0 needs
+  // no attribution surface. Staging kit untouched; provenance sidecar records both hashes.
+  chairs_equipment: "clinic-chair-kenney-cc0.glb",
 };
 
 export function countEquipmentGeometry(root: Object3D): { meshCount: number; triangleCount: number } {
