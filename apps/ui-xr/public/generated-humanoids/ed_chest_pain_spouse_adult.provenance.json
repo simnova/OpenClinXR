@@ -88,5 +88,7 @@
   "garmentLayers": [
     "casual_top",
     "open_cardigan"
-  ]
+  ],
+  "runtimeRole": "comparator",
+  "runtimeRoleWhy": "Anny rail. PROJECT_STATUS.md:83 (operator, 2026-08-14): 'MPFB2 IS THE LEARNER RAIL THROUGHOUT. Anny stays as reference + comparator only - do not polish its eyes/arm-weights/shoes.' Slated for removal by #652. NOT a cast member: do not improve it."
 }

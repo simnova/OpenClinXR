@@ -240,6 +240,23 @@ function buildBaseOpenClawSteps(profile: HookProfile, changedFiles: string[]): H
       command: pnpm("agent:alignment"),
       reason: "canonical state files remain coherent for repo-native agents",
     },
+      /**
+       * UNCONDITIONAL, and that is the point. On 2026-08-24 four commits improved a published
+       * humanoid nothing loads, and every gate in this file passed all of them, because each
+       * accepted a self-description of product relevance — a path, a declared factory step, an
+       * attached proof. None consulted the consumer graph. This step IS the consumer graph.
+       *
+       * It is deliberately NOT path-scoped like the architecture step: the asset that caused this
+       * was emitted as a SIDE EFFECT of a provenance slice, so a commit need not look asset-shaped
+       * to publish an orphan.
+       *
+       * See docs/openclinxr/postmortem-anny-fixture-polish-2026-08-25.md.
+       */
+      {
+        label: "Published humanoids are cast or declared",
+        command: pnpm("assets:reachability"),
+        reason: "a published humanoid must be reachable by the cast resolver or say what it is instead",
+      },
   ];
 
   const architectureStep = buildArchitectureStep(profile, changedFiles);

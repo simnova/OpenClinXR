@@ -62,5 +62,7 @@
   "sourceNotes": [
     "Generated through the installed local Anny package forward pass plus Blender procedural rigging/material fallback; preserved as a quarantined source candidate until isolated model-vetting evidence clears.",
     "This is evidence of local Anny source generation only, not B+ realism, production, Quest, learner, clinical, or scoring readiness."
-  ]
+  ],
+  "runtimeRole": "comparator",
+  "runtimeRoleWhy": "Anny rail. PROJECT_STATUS.md:83 (operator, 2026-08-14): 'MPFB2 IS THE LEARNER RAIL THROUGHOUT. Anny stays as reference + comparator only - do not polish its eyes/arm-weights/shoes.' Slated for removal by #652. NOT a cast member: do not improve it."
 }

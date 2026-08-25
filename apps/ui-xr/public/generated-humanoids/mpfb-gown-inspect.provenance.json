@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "openclinxr.humanoid-provenance.declaration-only.v1",
+  "asset": "mpfb-gown-inspect.glb",
+  "declarationOnly": true,
+  "declarationNote": "This sidecar records what the asset is FOR, not how it was baked. It was written by the orchestrator on 2026-08-25 because the asset shipped with no provenance at all and runtime-humanoid-reachability requires every published humanoid to say what it is. It makes no claim about the bake.",
+  "runtimeRole": "inspection_fixture",
+  "runtimeRoleWhy": "Inspection subject for garment/gown contracts. Never cast; the shipped-bank cast resolver does not name it."
+}

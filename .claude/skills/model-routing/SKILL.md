@@ -66,14 +66,16 @@ on the main checkout; without it the worker runs in the main tree.
 
 ### A consult, probe, or handback — raw `grok -p`
 
-Per `~/.grok/docs/user-guide/14-headless-mode.md`. The env prefix is NOT optional: a bare
+Per the Grok CLI's bundled headless-mode guide, which ships with the CLI install OUTSIDE this
+repo (14-headless-mode.md under the grok user-guide directory in $HOME). The env prefix is NOT
+optional: a bare
 `grok -p` outside the sanctioned path skips the worker guard and the chokepoint denies it.
 
 ```bash
 OPENCLINXR_RAW_GROK_SANCTIONED=1 OPENCLINXR_WORKER=1 GROK_SUBAGENTS=1   ~/.grok/bin/grok -p "<prompt>"     --model <ALIAS>     --output-format json     --max-turns <N>     --cwd /Volumes/files/src/openclinxr
 ```
 
-Flags that matter, all documented in `14-headless-mode.md`: `-p/--single` is the prompt and TAKES IT
+Flags that matter, all documented in that same bundled guide: `-p/--single` is the prompt and TAKES IT
 AS ITS VALUE (`-p "<prompt>" --resume <id>` is correct; `-p --resume <id> "<prompt>"` aborts silently
 and still exits 0). The answer is in `.text`, never `.result`, which is always null. `-r/--resume <ID>`
 continues a thread; `--reasoning-effort` accepts `none|minimal|low|medium|high|xhigh|max` and a model

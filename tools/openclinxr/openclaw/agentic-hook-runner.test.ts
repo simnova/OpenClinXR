@@ -29,6 +29,10 @@ describe("agentic-hook-runner path-scoped architecture", () => {
       "Integrate gate (land path only)",
       "OpenClaw drift check",
       "Agent coordination alignment",
+      // ADDED 2026-08-25 and UNCONDITIONAL. The old expectation ended here, which is exactly the
+      // shape that let four commits publish an orphaned humanoid: every step was path- or
+      // claim-scoped and none consulted the consumer graph.
+      "Published humanoids are cast or declared",
       "OpenClaw post-slice record check",
     ]);
   });
