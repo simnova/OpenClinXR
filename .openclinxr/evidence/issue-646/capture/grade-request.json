@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "openclinxr.issue-646.grade-request.v1",
+  "sliceId": "issue-646",
+  "capture": ".openclinxr/evidence/issue-646/capture/oncology_bad_news_family_v1-room.png",
+  "captureMode": "scene-overview",
+  "camera": { "worldPosition": [-2.51, 1.49, 1.79], "lookAt": [0.26, 0.73, 0.16], "nearestActorM": 1.78 },
+  "chairsPlacementM": { "x": -1.55, "y": 0, "z": -0.85 },
+  "question": "clinical-context fit: do the promoted Kenney chairs (clinic-chair-kenney-cc0.glb, seat 0.45 m, 0.375 x 0.881 x 0.375 m) read as clinic chairs in the oncology consult room, or domestic?",
+  "verdicts": {
+    "reads_clinical": null,
+    "reads_domestic": null,
+    "notes": "A verdict of 'reads domestic, not clinical' is a legitimate and useful outcome — record it, do not suppress it. The Kenney kit chairs are simple wooden chairs; the expected risk is domestic furniture styling (the issue's own notEvidenceFor).",
+    "gradedBy": "orchestrator pixel grade (worker is text-only; cannot read images)",
+    "gradedAt": null
+  },
+  "notEvidenceFor": ["learner-visible salience", "visual realism gate", "quest_readiness", "clinical validity"]
+}

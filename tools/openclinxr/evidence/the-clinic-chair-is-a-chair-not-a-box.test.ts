@@ -44,7 +44,11 @@ import { join } from "node:path";
  * claimScope: that the emitted clinic chair resolves a promoted CC0 GLB whose seat lands at human
  *   height without runtime shrink, with provenance and a graded capture.
  * notEvidenceFor: any other equipment id; `safe_room_chair_equipment`; whether the chair reads as
- *   clinical rather than domestic (clause 5 requires a GRADE be recorded, not that it be favourable);
+ *   clinical rather than domestic. CORRECTED 2026-08-25 at integration, by the orchestrator who
+ *   planted this: the line here previously read "clause 5 requires a GRADE be recorded". IT DOES NOT.
+ *   Clause 5 is the vacuity guard on the source kit; NO clause in this file requires a grade, so the
+ *   "graded capture" in claimScope above was unbacked by any assertion. My defect, not the worker's —
+ *   and the worker produced a grade-request artifact anyway, which is more than the contract asked.
  *   or the other 41 thin-parametric rows.
  *
  * ## FIXED (#646) — 2026-08-24
