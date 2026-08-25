@@ -18,12 +18,18 @@
  *
  * WHAT IS DERIVED and WHAT IS NOT:
  *   - derived: body_profile (from the age-band descriptor) and the profile's
- *     numeric identity (age, height_cm, bmi) plus gender_presentation, READ FROM
- *     the authored seed so the mapping is derived FROM it, not an output of it.
- *   - NOT derived, deliberately absent: hair_color, eye_color, skin_tone, build,
- *     pose, clothing — identity and disease-specific fields the descriptor cannot
- *     supply. Exporting them would be inventing clinical content: #276 refused the
- *     silent generic-adult default, #293 refuses the silent generic-child.
+ *     numeric identity (age, height_cm, bmi).
+ *   - NOT derived, deliberately absent: gender_presentation (#664), hair_color,
+ *     eye_color, skin_tone, build, pose, clothing — identity and
+ *     disease-specific fields the descriptor cannot supply. Exporting them would
+ *     be inventing clinical content: #276 refused the silent generic-adult
+ *     default, #293 refuses the silent generic-child. #664 removed
+ *     gender_presentation from this side specifically: the seed's sex belongs to
+ *     THE SEED'S PERSON (Maria Alvarez is not Kevin Lee), so reading it out of
+ *     another actor's authored row invents a person. Consumers treat an absent
+ *     presentation as MPFB/Anny's neutral default, which is honest about a case
+ *     that does not state a sex.
+ *
  *   - An actor whose descriptors match nothing returns undefined: the case keeps
  *     the refuse gate rather than a defaulted body.
  *
@@ -79,7 +85,6 @@ type ProfileIdentity = {
   age: number;
   height_cm: number;
   bmi: number;
-  gender_presentation?: string;
 };
 
 /**
@@ -108,10 +113,8 @@ function seededProfileIdentity(): ReadonlyMap<string, ProfileIdentity> {
       continue;
     }
     const identity: ProfileIdentity = { age, height_cm: heightCm, bmi };
-    const genderPresentation = authored.gender_presentation;
-    if (typeof genderPresentation === "string" && genderPresentation.length > 0) {
-      identity.gender_presentation = genderPresentation;
-    }
+    // #664: gender_presentation is deliberately NOT carried here. The seed's sex
+    // belongs to the seed's person; a derived row must not inherit it.
     map.set(bodyProfile, identity);
   }
   return map;
@@ -158,9 +161,8 @@ export function derivePhenotypeFromDescriptors(
     height_cm: identity.height_cm,
     bmi: identity.bmi,
     [DESCRIPTOR_DERIVED_MARKER]: true,
-    ...(identity.gender_presentation !== undefined
-      ? { gender_presentation: identity.gender_presentation }
-      : {}),
+    // gender_presentation is deliberately absent (#664): sex is an identity field
+    // a role descriptor cannot supply. Consumers keep their neutral default.
   };
   return derived;
 }

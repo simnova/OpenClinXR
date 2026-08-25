@@ -70,7 +70,7 @@ function derivedRows(): { actorId: string; role: string; derived: Record<string,
 }
 
 describe("the lookup does not invent a person's sex", () => {
-  it.fails("(1) no derived row supplies gender_presentation", () => {
+  it("(1) no derived row supplies gender_presentation", () => {
     const rows = derivedRows();
     expect(rows.length, "the derived population must not vanish out from under this contract")
       .toBeGreaterThan(10);
@@ -111,3 +111,36 @@ describe("the lookup does not invent a person's sex", () => {
     ).toBeGreaterThan(0);
   });
 });
+
+/*
+## FIXED (#664)
+
+- `descriptor-phenotype-lookup.ts`: `gender_presentation` moved from the derived
+  side to the module's deliberately-absent list. `seededProfileIdentity()` no
+  longer copies the seed's presentation onto the profile row (the `ProfileIdentity`
+  type dropped the optional field), and `derivePhenotypeFromDescriptors` no longer
+  spreads it into the derived record. The seed's sex belongs to the seed's person.
+- Header comment of the module updated to name #664 and state why: reading Maria
+  Alvarez's sex out of Kevin Lee's authored row invents clinical content laundered
+  through a seed; consumers (`materialize_mpfb_humanoid_candidate.py`,
+  `body_param_stage.py:1808 _gender_presentation_to_macro`,
+  anny `generate_mesh.py`) keep their neutral default when the field is absent,
+  which is honest about a case that does not state a sex.
+- SCOPE DECISIONS (recorded per brief):
+  1. Dropped from BOTH the derived row AND `seededProfileIdentity()` — keeping it
+     on the profile identity would preserve a dead field with no reader, since
+     derivation was its only consumer inside this module. Authored phenotypes are
+     untouched; they state gender_presentation themselves.
+  2. Module header comment now lists `gender_presentation` FIRST on the
+     deliberately-absent list with the #664 citation.
+- `packages/.../descriptor-phenotype-lookup.test.ts`: first test's old assertion
+  pinned `gender_presentation: "child"` on the DERIVED row — rewrote that pin out;
+  added a test asserting the field is absent from derived rows, authored rows keep
+  theirs, and (synthetic failure-class injection) the nurse seed's
+  `adult_male_nurse` must not appear on any adult_standard_parent derived row.
+- Regenerated `packages/openclinxr/scenario-fixtures/generated/actor-phenotype.v1.json`
+  via the export CLI: all descriptor_derived rows lost `gender_presentation`
+  (measured 27 such rows across the bank + ED v2 population); authored entries
+  byte-identical apart from the removed keys.
+- Clauses (2) KNOWN-GOOD and (3) COUNTERWEIGHT hold unchanged after the fix.
+*/

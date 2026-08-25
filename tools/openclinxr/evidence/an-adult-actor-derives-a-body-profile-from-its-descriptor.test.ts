@@ -110,8 +110,11 @@ describe("an adult actor derives a body profile from its descriptor", () => {
       height_cm: 125,
       bmi: 16.5,
       descriptor_derived: true,
-      gender_presentation: "child",
     });
+    // Old assertion (pre-#664): this clause also pinned
+    // `gender_presentation: "child"` on the DERIVED row. #664 moved that field to
+    // the module's deliberately-absent list — a derived row carries no sex.
+    expect(d?.["gender_presentation"], "#664: a derived row carries no sex").toBeUndefined();
   });
 
   it("(4) COUNTERWEIGHT: no phenotype is authored onto these fixtures", () => {

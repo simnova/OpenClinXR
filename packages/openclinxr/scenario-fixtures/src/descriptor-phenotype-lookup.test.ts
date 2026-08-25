@@ -25,9 +25,37 @@ describe("descriptor phenotype lookup (issue-293)", () => {
       age: 8,
       height_cm: 125,
       bmi: 16.5,
-      gender_presentation: "child",
       [DESCRIPTOR_DERIVED_MARKER]: true,
     });
+  });
+
+  it("does not supply a person's sex from another person's authored seed (#664)", () => {
+    // Old assertion (pre-#664): this file's first test pinned
+    // `gender_presentation: "child"` on noah's DERIVED row, encoding the
+    // role-tracked sex this contract removes. The field now sits on the module's
+    // deliberately-absent list beside skin_tone and build.
+    const noah = pedsFeverScenario.actors.find((actor) => actor.actorId === "patient_noah_chen_v1");
+    if (noah === undefined) throw new Error("fixture actor patient_noah_chen_v1 missing");
+    const derived = derivePhenotypeFromDescriptors(pedsFeverScenario, noah);
+    expect(derived).toBeDefined();
+    expect(derived?.["gender_presentation"], "a derived row carries no sex").toBeUndefined();
+
+    // Synthetic injection of the failure class: the seed's own presentation must
+    // stay OUT of every derived profile row, not just the ones whose seed happens
+    // to carry a matching one. The nurse seed authors `adult_male_nurse`; without
+    // the #664 fix that value leaked onto adult_standard_parent rows too (Maria
+    // Alvarez -> male; Luis Martinez -> female).
+    const tara = pediatricAsthmaScenario.actors.find((actor) => actor.actorId === "parent_tara_johnson_v1");
+    expect(tara?.phenotype).toBeDefined();
+    expect(String(tara?.phenotype?.["gender_presentation"])).toBe("adult_female_parent");
+
+    // The AUTHORED rows keep their presentation — only derivation changed.
+    for (const seed of pediatricAsthmaScenario.actors) {
+      expect(
+        seed.phenotype?.["gender_presentation"],
+        `${seed.actorId}: authored phenotype untouched`,
+      ).toBeDefined();
+    }
   });
 
   it("never invents identity or disease-specific fields the descriptor cannot supply", () => {
