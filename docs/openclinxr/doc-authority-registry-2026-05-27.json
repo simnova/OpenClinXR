@@ -5,14 +5,14 @@
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
     "agent-methodology": 80,
-    "current-reference": 213,
+    "current-reference": 214,
     "archive-candidate": 11,
     "evidence": 52,
     "protected-policy": 11,
     "agent-memory": 39,
     "historical-synthesis": 11,
     "decision-record": 44,
-    "total": 463,
+    "total": 464,
     "generated-evidence": 1,
     "reference": 1
   },
@@ -2944,6 +2944,13 @@
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
       "rationale": "Current product reference, subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/openclinxr/postmortem-anny-fixture-polish-2026-08-25.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Post-mortem: four commits improved a learner-unreachable asset while five gates passed and two reviewers confirmed it. Records the enforcement gap and the reachability invariant that closes it."
     },
     {
       "path": "docs/openclinxr/psychometric-and-review-governance.md",
