@@ -163,6 +163,51 @@ Read `attempt`, the timestamp against spawn, and `sampler_request_id`:
 - empty only after many tool turns → accumulated context, a different fix
 - no `empty_response` line at all → a third mechanism; stop theorising from the ledger
 
+## FOURTH DIAGNOSIS, 2026-08-25 — the deaths track TRANSCRIPT SIZE, not provider health
+
+Three `Provider returned error` deaths on #526 in one afternoon, and the discriminator rules out
+every previously documented mechanism:
+
+| # | session | died at | empty_response events |
+|---|---|---|---:|
+| 1 | dispatch 568bd27e | **turn 1** | 0 |
+| 2 | dispatch 130ba229 | **turn 145**, after 145 good turns producing 19 correct files | 0 |
+| 3 | `--resume` of 130ba229 | **immediately** | 0 |
+
+`OXPROBE` returned `OXPROBE` / `end_turn` before AND after all three, through `direnv exec`, with
+the key present. So this is NOT the 401 class (§ the key was there and the error text differs), NOT
+the empty-response-plus-retry-ladder class (zero such events), and NOT provider downtime (the probe
+works either side of each death).
+
+**What correlates is accumulated context.** A 1-turn probe is tiny and always survives. Death 2 came
+deep into a long session. Death 3 was a `--resume` of that same 145-turn transcript, which re-sends
+the whole thing, and it died before doing any work. That is the "empty only after many tool turns →
+accumulated context, a different fix" row of the discriminator, arriving as a hard provider error
+rather than an empty.
+
+**INFERRED, not proven** — I have not measured the transcript byte size at each death, and doing so
+is the next step if this recurs.
+
+### The approach change
+
+**Do not `--resume` a long session after a provider death.** Commit the worker's WIP to its worktree
+branch (§10j), then start a **FRESH session in the same worktree** with the state in the prompt —
+`grok -p` with `--cwd <worktree>` and NO `--resume`. The committed tree carries the context the
+transcript was carrying, at a fraction of the tokens.
+
+**Do not reach for `dispatch({worktree: true})` to do that** — it runs `git reset --hard main` and
+would discard the WIP commit you just made to protect the work. Bare `grok -p` with the env prefix
+(§11p) does not touch the tree.
+
+**A death after many productive turns is not a rung failure.** Measure what landed before treating
+it as one: death 2 left a working generator, a locality fixture, a locality contract, an isolated
+capture script and 14 rebaked rooms. Stepping down a rung there would have been a step down from a
+model that was working.
+
+**Consult still owed.** The three-failure rule requires a peer consult on the write-up, and this
+entry records the diagnosis and the approach change without it. Do that before the next long
+dispatch.
+
 ## THREE OX FAILURES = STOP GUESSING. Write it up, consult, change the approach.
 
 **Operator directive, 2026-08-24.** Counting from the ledger's `died` rows for `model: ox-alpha`,
