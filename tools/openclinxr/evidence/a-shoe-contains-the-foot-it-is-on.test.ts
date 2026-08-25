@@ -41,6 +41,26 @@ import { describe, expect, it } from "vitest";
  * claimScope: whether foot vertices fall outside the footwear AABB, on the four named assets.
  * notEvidenceFor: how any shoe looks; whether the shell is the right SHAPE for a shoe; the hands,
  *   hair and face defects graded on the same asset; any actor not named here.
+ *
+ * ## FIXED (#659)
+ *
+ * Root cause: `embed_role_footwear_shells` (_build_one) centers each ring ellipse at 45% of the
+ * shoe's own height and relies on a "flatten sole" branch to push the bottom down to the sole plane
+ * (y0 + 0.002) when `cy_ring - ry` dips below y0 + 0.006. For the child's hospital_slipper the
+ * rings are short (height_scale x0.72 and the low y1 cap at 12% of body height), so the ellipse
+ * bottom stayed at y = +0.0097 — above the body's lowest point (0.0) — and the flatten branch
+ * never fired: the shoe floated 9.7 mm off the ground and 37.8% of the foot band lay outside it.
+ * Kevin's clinical shoe is tall enough that the same ellipse dips below the sole, the flatten
+ * fires, and his sole lands at -0.002 — hence 0.000. The fix re-anchors each ring between its own
+ * top (cy_ring + ry, unchanged) and the sole plane when the bottom would float; it is a strict
+ * no-op on shells whose bottom already reaches the sole (Kevin's geometry is byte-identical).
+ * Child shoe y: [0.0097, 0.0985] -> [-0.002, 0.0985]; measured fraction 0.000 (was 0.378).
+ *
+ * Clause (4) third assertion updated: it asserted the two assets measured 0.378 apart, i.e. it
+ * asserted the planted defect itself. The fix's purpose is to bring the child to the known-good
+ * rail, so the difference is now 0.0 and the old assertion cannot pass alongside clause (1). The
+ * vacuity intent (the reader selects real foot geometry) lives in the two `footVertices > 500`
+ * checks, which are unchanged; the difference assertion now asserts the gap is closed.
  */
 
 const HUMANOIDS = "apps/ui-xr/public/generated-humanoids";
@@ -82,7 +102,7 @@ async function footFit(basename: string): Promise<FootFit> {
 }
 
 describe("a shoe contains the foot it is on", () => {
-  it.fails("(1) the child's foot is inside its own shoe", async () => {
+  it("(1) the child's foot is inside its own shoe", async () => {
     const f = await footFit("peds_fever_patient_child.glb");
     expect(
       f.fraction,
@@ -109,13 +129,14 @@ describe("a shoe contains the foot it is on", () => {
     }
   }, 120_000);
 
-  it("(4) VACUITY GUARD: the reader finds real feet and separates the two assets today", async () => {
+  it("(4) VACUITY GUARD: the reader finds real feet and measures the fix", async () => {
     // Without this, clause (1) passes on a reader that selects no foot vertices at all.
     const child = await footFit("peds_fever_patient_child.glb");
     const kevin = await footFit("peds_nurse_kevin.glb");
     expect(child.footVertices, "the foot band must select real geometry").toBeGreaterThan(500);
     expect(kevin.footVertices, "the foot band must select real geometry").toBeGreaterThan(500);
-    expect(child.fraction - kevin.fraction, "the two assets measured 0.378 apart when this was planted")
-      .toBeGreaterThan(0.1);
+    // Post-fix: the child now measures like the known-good rail (was 0.378 apart when planted).
+    expect(Math.abs(child.fraction - kevin.fraction), "the fix must close the gap to the known-good rail")
+      .toBeLessThan(0.05);
   }, 120_000);
 });

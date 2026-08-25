@@ -604,8 +604,9 @@
           "weightedBones": [
             "foot.L"
           ],
-          "minY": 0.009716,
+          "minY": -0.002,
           "maxY": 0.098521,
+          "solePlaneY": -0.002,
           "footVertCount": 1115
         },
         {
@@ -618,8 +619,9 @@
           "weightedBones": [
             "foot.R"
           ],
-          "minY": 0.009716,
+          "minY": -0.002,
           "maxY": 0.098521,
+          "solePlaneY": -0.002,
           "footVertCount": 1115
         }
       ],
@@ -818,7 +820,7 @@
   },
   "provenance": {
     "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=peds_fever_v1, actor=patient)",
-    "generatedAt": "2026-08-25T00:28:44.168823Z",
+    "generatedAt": "2026-08-25T02:01:55.673754Z",
     "phenotypeKey": "{\"bmi\": 16.5, \"descriptor_derived\": true, \"gender_presentation\": \"child\", \"height_cm\": 125}"
   },
   "licenseExceptionRequired": false,
