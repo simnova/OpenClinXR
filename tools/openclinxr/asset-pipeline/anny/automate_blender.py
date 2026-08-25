@@ -1840,6 +1840,78 @@ def create_role_marker_material(name: str, color: tuple) -> bpy.types.Material:
     return mat
 
 
+def _welded_boundary_loop_sizes(bm_or_mesh, dp: int = 5) -> list:
+    """Weld-first boundary-loop finder (issue #656; mirrors the planted evidence reader).
+
+    Welds by vertex position at `dp` decimals so glTF export splits (material/UV/sharp
+    seams) cannot fake open edges, counts triangle-edge multiplicity, keeps only
+    multiplicity-1 edges, and returns the connected-component sizes of that boundary
+    graph, descending. A size < 6 is a missing triangle — a hem, cuff or neckline is
+    never that small.
+    """
+    import bmesh as _bm
+
+    if isinstance(bm_or_mesh, _bm.types.BMesh):
+        bm_local = bm_or_mesh
+        bm_local.verts.ensure_lookup_table()
+        bm_local.faces.ensure_lookup_table()
+        key = {}
+        for v in bm_local.verts:
+            key[v.index] = (
+                round(float(v.co.x), dp),
+                round(float(v.co.y), dp),
+                round(float(v.co.z), dp),
+            )
+        faces = [(v.index for v in f.verts) for f in bm_local.faces]
+    else:
+        mesh_local = bm_or_mesh
+        key = {
+            i: (
+                round(float(v.co.x), dp),
+                round(float(v.co.y), dp),
+                round(float(v.co.z), dp),
+            )
+            for i, v in enumerate(mesh_local.vertices)
+        }
+        faces = [p.vertices for p in mesh_local.polygons]
+
+    edges = {}
+    for vids in faces:
+        vids = list(vids)
+        n = len(vids)
+        for i in range(n):
+            a = key[vids[i]]
+            b = key[vids[(i + 1) % n]]
+            e = (a, b) if a <= b else (b, a)
+            edges[e] = edges.get(e, 0) + 1
+    adj = {}
+    for e, cnt in edges.items():
+        if cnt != 1:
+            continue
+        a, b = e
+        adj.setdefault(a, set()).add(b)
+        adj.setdefault(b, set()).add(a)
+    seen = set()
+    sizes = []
+    for start in adj:
+        if start in seen:
+            continue
+        stack = [start]
+        comp = set()
+        while stack:
+            x = stack.pop()
+            if x in comp:
+                continue
+            comp.add(x)
+            seen.add(x)
+            for nb in adj.get(x, ()):
+                if nb not in comp:
+                    stack.append(nb)
+        sizes.append(len(comp))
+    sizes.sort(reverse=True)
+    return sizes
+
+
 def _build_body_surface_derived_garment(
     mesh_obj: bpy.types.Object,
     *,
@@ -2469,6 +2541,8 @@ def _build_body_surface_derived_garment(
 
     # Weld seams so glTF export keeps shared indices (export splits on UV/sharp seams —
     # the undiagnosed #82/§6t detached-blade failure class).
+    _loops_pre_weld = _welded_boundary_loop_sizes(bm)
+    print(f"[blender] #656 boundary loops PRE-weld: {_loops_pre_weld}")
     if bm.verts:
         bmesh.ops.remove_doubles(bm, verts=list(bm.verts), dist=5e-4)
         bm.verts.ensure_lookup_table()
@@ -2511,6 +2585,9 @@ def _build_body_surface_derived_garment(
         )
     if bm.faces:
         bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
+
+    _loops_post_weld = _welded_boundary_loop_sizes(bm)
+    print(f"[blender] #656 boundary loops POST-weld: {_loops_post_weld}")
 
     # Open-front second pass: cut anterior wedge in the GARMENT's own frame so the
     # mid-height angular gap is large enough for hasAnteriorOpening (#46). Body-AABB
@@ -2576,7 +2653,19 @@ def _build_body_surface_derived_garment(
         bm.verts.ensure_lookup_table()
         if bm.verts:
             # Aggressive weld on the hem plane to erase the staircase polyline.
-            bmesh.ops.remove_doubles(bm, verts=list(bm.verts), dist=0.008)
+            # #656: scope this weld to the hem band. Welding ALL verts at 8 mm also
+            # collapses dense-region triangles — neck ring, cuffs and open-front cut
+            # edges have edges down to ~8 mm — and every collapsed triangle is deleted,
+            # opening a 1-edge slit that reads as a 2-vertex boundary loop. The
+            # staircase is the snapped band plus the first rows above the plane; nothing
+            # else at this step needs an 8 mm weld.
+            hem_weld_band = max(0.025, (neck_y - bot_y) * 0.02)
+            hem_weld_verts = [
+                v for v in bm.verts
+                if abs(float(v.co.y) - bot_y) <= hem_weld_band
+            ]
+            if hem_weld_verts:
+                bmesh.ops.remove_doubles(bm, verts=hem_weld_verts, dist=0.008)
             bm.verts.ensure_lookup_table()
             bm.edges.ensure_lookup_table()
             bm.faces.ensure_lookup_table()
@@ -3024,6 +3113,8 @@ def _build_body_surface_derived_garment(
     # #126: carry the recorded source-body-vertex index out of bmesh into a mesh INT attribute
     # the garment weight transfer reads (to_mesh copies the layer by name; an INT custom
     # attribute is not exported by the glTF writer).
+    _loops_final = _welded_boundary_loop_sizes(bm)
+    print(f"[blender] #656 boundary loops FINAL: {_loops_final}")
     if "openclinxr_src_body_vertex" not in gmesh.attributes:
         gmesh.attributes.new(name="openclinxr_src_body_vertex", type="INT", domain="POINT")
     bm.to_mesh(gmesh)
