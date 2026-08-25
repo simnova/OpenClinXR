@@ -4325,12 +4325,22 @@ def embed_role_footwear_shells(
             if kind == "hospital_slipper":
                 height_scale *= 0.72
             z = (aabb["min"][2] - pad_z * 0.5) + t * (aabb["sz"] + pad_z)
+            # issue-659: the ellipse bottom (cy_ring - ry) can float above the body's
+            # lowest point when the ring is short (hospital_slipper height_scale x0.72
+            # and the y1 cap), so the sole-flatten branch below never fires and the
+            # shoe never reaches the ground. Re-anchor the ellipse between its own top
+            # and the sole plane when the bottom would float; keep the top unchanged.
+            y_sole = y0 + 0.002  # sole plane (same as the flatten branch below)
             for j in range(n_circ):
                 ang = (j / n_circ) * 2.0 * math.pi
                 # y from sole up; x lateral about foot center.
                 rx = hx * width_scale
                 ry = (y1 - y0) * 0.5 * height_scale
                 cy_ring = y0 + (y1 - y0) * 0.45  # mass slightly above sole
+                ring_top = cy_ring + ry
+                if cy_ring - ry > y_sole:
+                    cy_ring = (ring_top + y_sole) * 0.5
+                    ry = (ring_top - y_sole) * 0.5
                 x = cx + rx * math.cos(ang)
                 y = cy_ring + ry * math.sin(ang)
                 # Flatten sole: bottom half sits flat-ish.
@@ -4407,11 +4417,12 @@ def embed_role_footwear_shells(
             "weightedBones": weighted_bones,
             "minY": round(min(ys), 6),
             "maxY": round(max(ys), 6),
+            "solePlaneY": round(y0 + 0.002, 6),
             "footVertCount": len(pts),
         }
         print(
             f"[blender] #188 footwear {side} kind={kind} faces={face_count} "
-            f"y=[{meta['minY']},{meta['maxY']}] bone={bone_name}"
+            f"y=[{meta['minY']},{meta['maxY']}] solePlaneY={meta['solePlaneY']} bone={bone_name}"
         )
         return meta
 
