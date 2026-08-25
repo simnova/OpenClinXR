@@ -161,3 +161,40 @@ there discards nearly half the mesh. Every asset needs its own A/B before the ru
 and with it being a DUPLICATE sitting a millimetre off a surface that already has it. Geometry alone
 cannot separate those. **The A/B render — same camera, all components vs main only — is the only
 discriminator.** Run it before writing a conclusion about what a fragment is.
+
+## o2-port settled WITHOUT a render — the size regime tells parts from duplicates
+
+`o2-port` was the open question: largest component only 51.5%, so is that a defect or a correctly
+multi-part object? Answered geometrically, no renderer needed:
+
+```
+41205t  51.5%  diag=1.294  centre=[-0.00, 0.00,-0.05]   main body
+17690t  22.1%  diag=0.456  centre=[-0.20, 0.06, 0.09]   LEFT
+16413t  20.5%  diag=0.456  centre=[ 0.20, 0.06, 0.09]   RIGHT
+ 1486t   1.9%  diag=1.175  centre=[ 0.00,-0.02,-0.05]
+```
+
+Two components at **22.1% and 20.5%**, with **identical diagonals (0.456)** and centres mirrored about
+x=0 at ∓0.20, same y and z. That is a **mirror-symmetric pair of real parts** — on a wall O2 port, the
+two outlet assemblies. **keep-largest on this asset would delete 48.5% of the mesh including both.**
+
+### The discriminator, and it is a regime not a threshold
+
+| | shoe fragments | o2-port fragments |
+|---|---|---|
+| largest non-main | 1061t = **1.4%** | 17690t = **22.1%** |
+| shape | scattered, no twin | **mirrored pair, identical diagonal** |
+| verdict | duplicates, safe to drop | **real parts, never drop** |
+
+Two independent signals, and they agree here:
+
+1. **Share of mesh.** Double-digit percentages are structure. Sub-2% is candidate debris.
+2. **A mirror twin.** Two components with the same triangle count to ~7%, the same bounding diagonal,
+   and centres reflected across an axis are a symmetric pair of parts. Duplicate geometry does not
+   come in mirrored pairs — it sits on top of what it duplicates.
+
+**Check for the twin before applying keep-largest to any asset.** It is cheap, it needs no renderer,
+and on `o2-port` it is the difference between a cleanup and amputating both outlets.
+
+**Still per-asset.** This gives a fast screen, not a licence to automate: the A/B render remains the
+only thing that proves nothing visible was lost.
