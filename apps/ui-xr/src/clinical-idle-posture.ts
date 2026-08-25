@@ -42,7 +42,7 @@ export type EulerPartial = { x?: number; y?: number; z?: number; absolute?: bool
  *
  * Pre-fix (#117): standing ratio 2.14–2.29; halfSpan 0.141–0.201; k=1.3 from shoulder geometry.
  */
-const CLINICAL_IDLE_ARM_HANG = new Map<string, EulerPartial>([
+export const CLINICAL_IDLE_ARM_HANG = new Map<string, EulerPartial>([
   // Canonical undotted runtime names (pre-fix: scene graph reports upper_armL not upper_arm.L).
   // #117: |z| 0.74 → ~1.12 (hang-from-T toward side rest; trial z=1.25 sat ratio~0.8, slightly
   // inside half-span; 1.12 targets ratio ~1.0–1.2 without calibrating k). Mild elbow flexion kept.
@@ -68,7 +68,7 @@ const CLINICAL_IDLE_ARM_HANG = new Map<string, EulerPartial>([
  * while local upper_armL matched exactly (−0.22, 0.06, −1.12). Live probe: flip upper_arm Z sign
  * → lateral 0.337 m ≈ Anny median 0.340 m. Not a name mismatch (§6v already ruled that out).
  */
-const LIBRARY_CLINICAL_IDLE_ARM_HANG = new Map<string, EulerPartial>([
+export const LIBRARY_CLINICAL_IDLE_ARM_HANG = new Map<string, EulerPartial>([
   ["upper_armL", { x: -0.22, y: 0.06, z: 1.12, absolute: true }],
   ["forearmL", { x: -0.18, y: -0.10, z: 0.22, absolute: true }],
   ["handL", { x: 0.04, y: 0.06, z: -0.06, absolute: true }],
@@ -95,7 +95,7 @@ const LIBRARY_CLINICAL_IDLE_ARM_HANG = new Map<string, EulerPartial>([
  * 0.42 m below the shoulder — inside the #219 finish-parity band (0.22–0.46 m), same as
  * the Anny median. Right side mirrored (−y, +z).
  */
-const MIXAMO_CLINICAL_IDLE_ARM_HANG = new Map<string, EulerPartial>([
+export const MIXAMO_CLINICAL_IDLE_ARM_HANG = new Map<string, EulerPartial>([
   ["upper_armL", { x: 1.4, y: 0.55, z: -0.3, absolute: true }],
   ["forearmL", { x: 0, y: 0.6, z: 0, absolute: true }],
   ["handL", { x: 0.04, y: 0.06, z: -0.06, absolute: true }],
