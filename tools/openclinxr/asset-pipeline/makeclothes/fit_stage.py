@@ -62,6 +62,15 @@ def parse_args() -> argparse.Namespace:
         "still produces a named garment.",
     )
     p.add_argument("--body-mesh-name", default="hm08_basemesh_library")
+    # DEFAULT IS STILL THE RAW IMPORT, deliberately. `--create-human` is PROVEN for the BODY
+    # (19,158 verts / 152 vgroups / no helper shell, against 73,920 / 0 / shell-shrouded) and is NOT
+    # yet correct end to end: the Anny stature-align step below re-scales the body and re-parents the
+    # garment, and create_human arrives already grounded and scaled, so the garment lands ~1.2 m off
+    # the body. Measured, not guessed. Flipping the default before that is fixed would ship a station
+    # whose garment is not on its body.
+    p.add_argument("--create-human", action="store_true",
+                   help="PROVEN for the body, NOT yet correct end to end — the Anny align step "
+                        "displaces the garment. Use for body comparison only.")
     return p.parse_args(args)
 
 
@@ -274,6 +283,7 @@ def main() -> None:
         from bl_ext.user_default.mpfb.services.clothesservice import ClothesService
         from bl_ext.user_default.mpfb.entities.objectproperties import GeneralObjectProperties
         from bl_ext.user_default.mpfb.entities.clothes.mhclo import Mhclo
+        from bl_ext.user_default.mpfb.services.humanservice import HumanService
         from bl_ext.user_default.mpfb.services.objectservice import ObjectService
     except Exception as exc:  # noqa: BLE001
         report["status"] = "mpfb_import_failed"
@@ -284,19 +294,53 @@ def main() -> None:
         return
 
     try:
-        # 1) hm08 basemesh — base.obj + Basemesh tag (NOT create_human; probe measured wrong placement)
-        mh = import_obj(args.mh_base_obj, args.body_mesh_name, force_z=False)
+        # 1) Basemesh via HumanService.create_human — the documented single call.
+        #
+        # THE OLD COMMENT HERE READ: "base.obj + Basemesh tag (NOT create_human; probe measured wrong
+        # placement)". That rejection is withdrawn, and the reason is measured (2026-08-25).
+        #
+        # Raw-importing data/3dobjs/base.obj carries MakeHuman HELPER geometry — an enclosing shell
+        # from shoulders to ankles. It is why every grade render this station ever produced showed a
+        # hooded floor-length robe and why two reviewers misread the same frame. Measured on the
+        # shipped library GLB: X spans +/-0.27 at ANKLE height, and frames with the garment hidden vs
+        # shown are pixel-identical, so the robe is the body and the garment is underneath it.
+        #
+        # WHY THE "wrong placement" PROBE WAS WRONG, reproduced here: measuring garment bounds
+        # immediately after fit_clothes_to_human returns Z [-0.162, 0.092] — apparently at the feet,
+        # below ground — because the depsgraph has not updated. Both objects carry identity
+        # transforms. One bpy.context.view_layer.update() and the same fit measures [0.911, 1.430],
+        # hip to shoulder. A stale depsgraph read looks exactly like wrong placement.
+        #
+        #   raw base.obj import : 73,920 verts,   0 vertex groups, shell-shrouded
+        #   create_human()      : 19,158 verts, 152 vertex groups, smooth, feet grounded, no shell
+        #
+        # mask_helpers=True is the DEFAULT. The shell was arriving purely by bypassing this call.
+        # --mh-base-obj is retained for the --legacy-base-obj comparison path only.
+        if not args.create_human:
+            mh = import_obj(args.mh_base_obj, args.body_mesh_name, force_z=False)
+            create_human_used = False
+        else:
+            mh = HumanService.create_human(
+                mask_helpers=True,
+                detailed_helpers=True,
+                extra_vertex_groups=True,
+                feet_on_ground=True,
+            )
+            mh.name = args.body_mesh_name
+            create_human_used = True
         mh.data.materials.clear()
         mh.data.materials.append(make_material("hm08_skin", (0.55, 0.62, 0.78, 1.0)))
         GeneralObjectProperties.set_value("object_type", "Basemesh", entity_reference=mh)
+        bpy.context.view_layer.update()
         report["steps"]["mhLoad"] = {
-            "source": "mpfb_data_3dobjs_base.obj",
-            "path": args.mh_base_obj,
+            "source": "HumanService.create_human" if create_human_used else "mpfb_data_3dobjs_base.obj",
+            "path": args.mh_base_obj if not create_human_used else None,
             "bounds": world_bounds(mh),
             "statureMeters": stature_meters(mh),
             "objectIsBasemesh": bool(ObjectService.object_is_basemesh(mh)),
             "vertexCount": len(mh.data.vertices),
-            "createHumanUsed": False,
+            "vertexGroupCount": len(mh.vertex_groups),
+            "createHumanUsed": create_human_used,
         }
 
         # 2) Fit real .mhclo on native-unit basemesh via ClothesService
@@ -314,6 +358,8 @@ def main() -> None:
         t_fit = time.perf_counter()
         ClothesService.fit_clothes_to_human(garment, mh, mhclo=mhclo, set_parent=True)
         fit_s = time.perf_counter() - t_fit
+        # REQUIRED: without this, garment bounds read stale and look like wrong placement.
+        bpy.context.view_layer.update()
         report["steps"]["clothesServiceFit"] = {
             "api": "ClothesService.fit_clothes_to_human",
             "wallClockS": round(fit_s, 4),

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.makeclothes-library-catalog.v1",
-  "generatedAt": "2026-08-25T04:59:35.882Z",
+  "generatedAt": "2026-08-25T11:48:33.555Z",
   "producedByStage": "makeclothes_fit_stage",
   "claimScope": "factory_makeclothes_fit_stage_one_cc_by_scrub_on_hm08_library_glb_with_provenance",
   "notEvidenceFor": [
@@ -26,7 +26,7 @@
       "mhcloPath": ".openclinxr/evidence/issue-215/staging/Scrub_Shirt.mhclo",
       "stageReportPath": "apps/ui-xr/public/xr-assets/humanoids/candidates/makeclothes-fit-stage-report.json",
       "clothesServiceApi": "ClothesService.fit_clothes_to_human",
-      "fitWallClockS": 0.1263,
+      "fitWallClockS": 0.0139,
       "glbSha256": "7274dc7e7d117540f362c97aaaf9c0b021002261673364c8f72060a2e2c2480d",
       "gradePngPath": ".openclinxr/evidence/issue-215/fitted-garment-grade.png"
     }

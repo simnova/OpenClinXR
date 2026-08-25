@@ -43,11 +43,12 @@
       "statureMeters": 16.945500373840332,
       "objectIsBasemesh": true,
       "vertexCount": 19158,
+      "vertexGroupCount": 0,
       "createHumanUsed": false
     },
     "clothesServiceFit": {
       "api": "ClothesService.fit_clothes_to_human",
-      "wallClockS": 0.1263,
+      "wallClockS": 0.0139,
       "garmentMeshName": "makeclothes_library_scrub_shirt",
       "bodyMeshName": "hm08_basemesh_library",
       "garmentBounds": {
@@ -95,5 +96,5 @@
   "bodyMeshNames": [
     "hm08_basemesh_library"
   ],
-  "totalWallClockS": 1.688
+  "totalWallClockS": 0.646
 }

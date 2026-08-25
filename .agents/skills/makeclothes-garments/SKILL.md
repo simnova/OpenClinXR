@@ -211,10 +211,23 @@ call".
 
 Proven by running it:
 
-| | verts | vertex groups | body |
-|---|---:|---:|---|
-| raw `base.obj` import (what the station does) | 73,920 | **0** | faceted, shell-shrouded |
-| `HumanService.create_human()` | **19,158** | **152** | smooth, feet grounded, no shell |
+**CORRECTED 2026-08-25, same day, where it was stated.** My first version of this table read
+"73,920 verts" for the raw import against 19,158 for `create_human`. That compared a POST-EXPORT count
+against a PRE-EXPORT one — glTF splits vertices at UV and normal seams, so 19,158 becomes 73,920 in
+the GLB. Not like for like. The real comparison is better and sharper:
+
+| | verts | vertex groups | stature |
+|---|---:|---:|---:|
+| raw `base.obj` import (what the station does) | 19,158 | **0** | **16.945 m** |
+| `HumanService.create_human()` | 19,158 | **152** | **1.694 m** |
+
+**Same geometry. The helper shell is in BOTH.** `mask_helpers=True` works by masking helper VERTEX
+GROUPS, and a raw `.obj` import has none — so the mask has nothing to bind to and the shell survives
+to export. That is the actual mechanism, and it is not "create_human gives a different mesh".
+
+The stature column is the other half: the raw import is in MakeHuman native decimetres (16.9 units),
+which is why the stage has an Anny stature-align step at all. `create_human` applies `scale=0.1` and
+grounds the feet, so it arrives already at 1.694 m.
 
 ```python
 bpy.ops.preferences.addon_enable(module="bl_ext.user_default.mpfb")   # namespaced; bare `mpfb` fails
@@ -253,11 +266,23 @@ is why it is the one you will reach for.
 `set_parent=True` did NOT parent the garment (`garment.parent` is None afterwards). It does not need
 to for the fit to be correct, but do not rely on parenting to carry a transform.
 
-### What is left to move the station
+### What is left to move the station — and why it is NOT a one-line change
 
-Replace the `--mh-base-obj` raw import with the `create_human` call above. The garment path,
-ClothesService call and export are unchanged. That is the whole change, and it delivers a gradeable
-render as a side effect because there is no shell to cull.
+`--create-human` is wired into `fit_stage.py` and is OPT-IN, deliberately. Run it and the body is
+correct: smooth, grounded, no shell, and the grade PNG finally shows a real basemesh.
+
+**But the garment lands ~1.2 m off the body**, measured. The stage has an Anny stature-align step
+(`align_body_to_reference`) that re-scales the body from native decimetres and re-parents the garment
+through `matrix_parent_inverse`. `create_human` arrives ALREADY scaled and grounded, so that align
+runs a second time on an already-correct body and the garment's captured world matrix no longer
+matches.
+
+So the remaining work is the align step, not the body call. Either skip the align when
+`--create-human` is set (the body is already at stature), or re-fit the garment after aligning rather
+than carrying it through the parent dance.
+
+**Do not flip the default until that is fixed.** A station whose garment is not on its body is worse
+than one with a shell, because the shell at least ships a correct GLB underneath it.
 
 ## claimScope / notEvidenceFor
 

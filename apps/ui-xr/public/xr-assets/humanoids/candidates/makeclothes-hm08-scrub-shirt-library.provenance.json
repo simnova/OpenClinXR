@@ -8,7 +8,7 @@
   "mhcloBasename": "Scrub_Shirt.mhclo",
   "clothesServiceApi": "ClothesService.fit_clothes_to_human",
   "glbSha256": "7274dc7e7d117540f362c97aaaf9c0b021002261673364c8f72060a2e2c2480d",
-  "generatedAt": "2026-08-25T04:59:35.882Z",
+  "generatedAt": "2026-08-25T11:48:33.555Z",
   "notEvidenceFor": [
     "clinical_appropriateness",
     "quest_readiness",
