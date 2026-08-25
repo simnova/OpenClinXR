@@ -356,7 +356,21 @@ export function verifyDoneClaim(root: string, issue: number, stage: string): Don
       ? `${bySubject ? "subject-line fix commit" : "MENTION ONLY — no conventional fix(#N) subject"} on main`
         + (verified ? ", contract-verify artifact present" : "; NO contract-verify artifact — verified at dispatch only")
       : `${shas.length} commit(s) cite #${issue} but NONE is an ancestor of main — work exists on a branch, not in the product`;
-  const residue = verified ? expectedFailureResidue(root, artifact) : undefined;
+  /**
+   * Files this card's OWN commits modified. Residue in a shared proof file the card never opened
+   * belongs to whoever planted it — see residueFilesOwnedByCard. A git failure yields undefined,
+   * which falls back to counting every proof file rather than silently clearing them.
+   */
+  let touchedFiles: Set<string> | undefined;
+  try {
+    const names = shas.flatMap((sha) =>
+      execFileSync("git", ["show", "--name-only", "--format=", sha], { cwd: root, encoding: "utf8" })
+        .split("\n").map((l) => l.trim()).filter(Boolean));
+    touchedFiles = names.length > 0 ? new Set(names) : undefined;
+  } catch {
+    touchedFiles = undefined;
+  }
+  const residue = verified ? expectedFailureResidue(root, artifact, undefined, touchedFiles) : undefined;
   /**
    * A card whose own RED was unflipped AT THE VERIFIED SHA was never verified, whatever the artifact
    * says. This is the contradiction the audit reported for four iterations: "ok: true" beside "its
@@ -440,10 +454,35 @@ function plantedRedCountAtSha(root: string, sha: string, rel: string): number {
   } catch { return -1; }
 }
 
+/**
+ * The proof files whose expected-failure residue a card is answerable for.
+ *
+ * A card's `done_when` may name a shared proof file that carries ANOTHER issue's standing
+ * `it.fails` — the counterweight convention actively encourages exactly that. Counting it makes
+ * duty 3 permanently red on a card whose own contract was flipped and verified, and a permanent
+ * false red buries the real unflipped-RED it exists to surface.
+ *
+ * Measured on #664: of its two named proofs, the one it flipped carried 0 residue and the one it
+ * never opened carried 5, planted for #293 and labelled as such in its own header.
+ *
+ * `touched === undefined` means ownership could not be determined, and that falls back to counting
+ * EVERY proof file. Narrowing on unknown input would report clean about files nobody inspected,
+ * which is the defect class this module already warns about at `expectedFailureResidue`.
+ */
+export function residueFilesOwnedByCard(
+  proofFiles: readonly string[],
+  touched: ReadonlySet<string> | undefined,
+): string[] {
+  if (!touched) return [...proofFiles];
+  return proofFiles.filter((f) => touched.has(f));
+}
+
 export function expectedFailureResidue(
   root: string, artifactPath: string, measuredHeadSha?: string,
+  /** Files the card's own commits modified. Undefined = unknown, so every proof file counts. */
+  touchedFiles?: ReadonlySet<string>,
 ): ResidueReport {
-  const counted = proofFilesFromArtifact(artifactPath)
+  const counted = residueFilesOwnedByCard(proofFilesFromArtifact(artifactPath), touchedFiles)
     .map((file) => ({ file, count: plantedRedCount(root, file) }));
 
   /**
