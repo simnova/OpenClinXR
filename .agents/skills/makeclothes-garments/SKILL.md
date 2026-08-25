@@ -5,6 +5,43 @@ description: "Fit a MakeHuman .mhclo garment onto a body through the MakeClothes
 
 # MakeClothes garments
 
+## READ THIS FIRST: there are TWO MakeClothes consumers, and the fit station is NOT the production one
+
+Measured 2026-08-25, after I spent a whole loop improving the wrong one.
+
+| | `fit_stage.py` (the fit station) | `materialize_mpfb_humanoid_candidate.py` |
+|---|---|---|
+| reached by | an OPT-IN comparator, `main.ts:7340` | the live cast |
+| garments | ONE, the scrub shirt | shirt, pants, shoes, hair, eyebrows, gown |
+| phenotype | none — MPFB's default body | Anny-reference macro seed + solved stature |
+| output | a library GLB under `candidates/` | the shipped `mpfb-*.glb` cast assets |
+
+**The shipped nurse already wears `makeclothes_library_scrub_shirt` at 18,768 verts** — the same
+garment the fit station fits. The production path was there the whole time.
+
+The materializer already encodes what I "found" the slow way. `materialize_mpfb_humanoid_candidate.py:25-28`:
+
+> `culturalibre_male_boots CC-0; every .mhclo references only basemesh verts < 13,380`, so each fits
+> the #318 helper-stripped 13,380-vert basemesh
+
+That is both the licence nuance AND the binding constraint, already written down in the production
+consumer, while `#540` refused those same boots on the `.obj` line.
+
+**So: if the job is to dress a learner-facing actor, work in the materializer. The fit station is a
+comparator and improving it does not move the product.**
+
+### A conclusion I recorded and then measured to be WRONG
+
+I wrote that the fit station "should take an ALREADY-MATERIALIZED MPFB body" via a `--body-glb` flag.
+**That cannot work.** A `.mhclo` binds garment vertices to basemesh vertex INDICES, and a GLB
+round-trip re-indexes: the shipped MPFB body exports at **16,048** verts from a 13,380-vert stripped
+mesh, because glTF splits vertices at UV and normal seams. The binding would map onto wrong vertices.
+
+The binding indices themselves are fine — the highest one this garment references is **11,018**, well
+inside 13,380 — which is exactly why the materializer can fit garments to a stripped in-Blender body.
+It is the EXPORT that destroys the ordering, not the strip.
+
+
 MakeClothes is **already integrated**. Anyone told otherwise should check before acting: there is a
 dedicated pipeline directory, two CLIs, and six garments on live-cast actors.
 
