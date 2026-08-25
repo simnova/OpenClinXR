@@ -25,6 +25,33 @@ import { join } from "node:path";
  * and `MPFB_FACS_MORPH_NAMES` (`packages/openclinxr/asset-registry/src/morph-target-resolver.ts:54`)
  * already maps canonical names onto it with an Action Unit justification per row.
  *
+ * ## NOT A VALID COMPLETION ORACLE — corrected 2026-08-25 where it is stated, not appended
+ *
+ * DO NOT flip clause (1) and call the rail retired. Clause (1) does
+ *
+ *     const shipped = [...prov.entries()].filter(([name]) => resolver.includes(`${name}.glb`));
+ *
+ * which is a STRING SEARCH OVER THE RESOLVER'S SOURCE TEXT, not a call to the resolver. Deleting the
+ * literals turns it green while proving nothing about generated bundles, comparator routes, the
+ * exhausted-pool return at `actor-casting.ts:292`, isolated-lab defaults, or the 33 Anny-named files
+ * sitting in `apps/ui-xr/dist` today. It is the marker-check class, and it is mine.
+ *
+ * Two counts in the block below are also STALE:
+ *   - "ED counterpart = NONE" is FALSE. `mpfb-gown-adult-patient.glb` ships at 11,203,280 bytes and
+ *     leads both the runtime resolver and registry casting. It has NO provenance sidecar, which is
+ *     exactly why a provenance-keyed census omits it — add that sidecar before any audit trusts
+ *     provenance.
+ *   - "seven" is now EIGHT: `peds_fever_patient_child` was created 2026-08-24 19:21 and took four
+ *     commits the same evening.
+ *
+ * The real oracle is #652 step 2: an audit that INVOKES both cast resolvers over the shipped bank plus
+ * synthetic exhausted-pool cases, and reports `runtimeRawAnnyModelCount = 0`. Until that exists, this
+ * file measures a text file and nothing else.
+ *
+ * AND THE LEARNER FRAMING BELOW IS OVERSTATED. `learners-see-mpfb-not-anny` and
+ * `no-learner-meets-an-anny-patient` pass 9/9 today — no learner meets an Anny asset. The case for
+ * retirement is stop-the-toil, not a recast.
+ *
  * SIX OF SEVEN COUNTERPARTS ALREADY EXIST, so this is a resolver rewire, not a regeneration:
  *   adult_male_street_casual   -> mpfb-street-adult-male
  *   ed_chest_pain_nurse_adult  -> mpfb-clinical-nurse-adult
