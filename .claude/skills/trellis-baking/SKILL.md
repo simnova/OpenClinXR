@@ -59,3 +59,54 @@ triangles at 15.8 MB. A sweep is affordable overnight but not inside one tick.
 - **notEvidenceFor:** what any knob does to output quality — nothing here has been varied yet; whether
   the mapping above is complete; behaviour of the multi-view path, which takes a different branch
   (`run_multiview`) than the single-view `pipeline.run`.
+
+## Published tiers and what the knobs mean — researched 2026-08-25
+
+Sources: [TRELLIS repo](https://github.com/microsoft/TRELLIS),
+[TRELLIS.2 model card](https://huggingface.co/microsoft/TRELLIS.2-4B),
+[Kynkäänniemi et al. 2024](https://arxiv.org/pdf/2404.07724),
+[Clore.ai parameter guide](https://docs.clore.ai/guides/3d-generation/trellis-3d).
+
+**Our defaults are the vendor's BALANCED tier, not its quality tier.** Three published configurations:
+
+| tier | sparse_structure | slat | wall-clock (vendor's hardware) |
+|---|---|---|---|
+| fast preview | steps 6, cfg 7.5 | steps 6, cfg 3.0 | ~15 s |
+| **balanced (what we run)** | **steps 12, cfg 7.5** | **steps 12** | — |
+| quality | steps 20, cfg 9.0 | steps 20, cfg 4.5 | ~60 s |
+
+So the first sweep point is not a guess: the vendor's own quality tier is a documented target. On this
+machine that is roughly double the measured 409 s shape generation.
+
+**`guidance_interval` is a published technique, not a tuning knob someone invented.** Our sampler is
+`FlowEulerGuidanceIntervalSampler` and the interval comes from Kynkäänniemi et al.: guidance is
+**harmful at high noise levels early in the chain**, unnecessary at low noise levels late, and
+beneficial only in the middle. Restricting it improved ImageNet-512 FID from 1.81 to 1.40.
+
+**Why that matters for floating fragments.** Debris is a structural error laid down early, in exactly
+the high-noise region the paper says guidance hurts. Shifting or widening `guidance_interval` on the
+**sparse_structure** stage is therefore a principled variant, not a blind sweep. Our current interval
+there is `[0.6, 1.0]`.
+
+**Microsoft acknowledges the artifact class.** The TRELLIS.2 documentation states generated raw meshes
+"may occasionally contain small holes or minor topological discontinuities". A post-generation
+component filter is expected practice, not a workaround for something we broke.
+
+**What is NOT published anywhere I could find:** measured component counts against sampler settings.
+The relationship between `sparse_structure` parameters and fragment count appears untested publicly, so
+a sweep here produces a new number rather than reproducing a known result.
+
+## Measuring a bake's output
+
+Component structure is the metric that caught the #661 debris, and it must weld by position before
+counting — an unwelded count is wrong by orders of magnitude (measured: 6605 vs 76 on one asset).
+
+    components (welded 5dp)   largest share
+    library footwear pair              4          46.9%   <- a PAIR is legitimately 2+ components
+    TRELLIS shoe champion             76          93.8%
+    TRELLIS shoe RAW bake             76          96.7%   <- same count; debris is from GENERATION
+
+Sole area — fraction of triangle area whose normal is within 15° of straight down — only works on an
+**axis-aligned** mesh. TRELLIS output is normalised to a 2×2×2 cube in arbitrary orientation, so the
+figure is meaningless until the asset is oriented. Do not quote it on a raw champion.
+
