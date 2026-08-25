@@ -1,9 +1,16 @@
+import { existsSync } from "node:fs";
 import type {
   CapabilityTransport,
   ImplementationLanguage,
   ProviderKind,
   RuntimeProfile,
 } from "./index.js";
+import {
+  createDeterministicAssetGenerationAdapter,
+  resolveRepositoryArtifactPath,
+} from "./deterministic-asset-adapter.js";
+
+export { createDeterministicAssetGenerationAdapter } from "./deterministic-asset-adapter.js";
 
 export type AssetGenerationCapabilityId =
   | "character-generation"
@@ -685,6 +692,7 @@ export class AssetGenerationCapabilityFacade {
         commandRunner: this.commandRunner,
       });
       validateWorkerResult(result, policy, request.capabilityId);
+      validateWorkerArtifactsExist(result.artifacts);
       const completedAt = this.now();
       record = {
         ...record,
@@ -1682,49 +1690,6 @@ function runDefaultEncounterAssetGenerationStage(
   };
 }
 
-export function createDeterministicAssetGenerationAdapter(
-  capabilityId: AssetGenerationCapabilityId,
-): AssetGenerationWorkerAdapter {
-  return {
-    capabilityId,
-    providerId: `deterministic-${capabilityId}`,
-    providerKind: "deterministic-mock",
-    implementationLanguage: "typescript",
-    transport: "in-process",
-    async run(_request, policy, context) {
-      const basePath = `${policy.sandboxWorkdir}/${context.jobId}`;
-      return {
-        artifacts: [
-          {
-            kind: "manifest",
-            path: `${basePath}/${capabilityId}-manifest.json`,
-            mediaType: "application/json",
-          },
-          {
-            kind: "source",
-            path: `${basePath}/${capabilityId}-source.asset.json`,
-            mediaType: "application/json",
-          },
-        ],
-        manifest: {
-          schemaVersion: "asset-generation-manifest.v1",
-          capabilityId,
-          outputs: [
-            `${capabilityId}-manifest.json`,
-            `${capabilityId}-source.asset.json`,
-          ],
-        },
-        provenance: {
-          generator: `deterministic-${capabilityId}`,
-          license: "openclinxr-deterministic-test-fixture",
-          spendCents: 0,
-          externalNetworkUsed: false,
-        },
-      };
-    },
-  };
-}
-
 function normalizePolicy(
   policy: AssetGenerationJobPolicyInput | undefined,
   adapter: AssetGenerationWorkerAdapter,
@@ -2073,6 +2038,19 @@ function validateWorkerResult(
   }
   if (result.provenance.spendCents !== 0) {
     throw new Error("Asset generation worker reported non-zero spend");
+  }
+}
+
+/**
+ * #610 gate: a succeeded job may only reference artifacts that exist on disk. Workers that do
+ * their own materialization are unaffected; a worker that returns paths nobody wrote lands the
+ * job in `failed` with this message instead of reporting success for fabricated artifacts.
+ */
+function validateWorkerArtifactsExist(artifacts: AssetGenerationArtifact[]): void {
+  const missing = artifacts.filter((artifact) => !existsSync(resolveRepositoryArtifactPath(artifact.path)));
+  if (missing.length > 0) {
+    const listed = missing.map((artifact) => `${artifact.kind}: ${artifact.path}`).join(", ");
+    throw new Error(`Asset generation worker referenced artifacts that were never written: ${listed}`);
   }
 }
 

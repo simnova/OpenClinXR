@@ -1,3 +1,5 @@
+import { mkdirSync, writeFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   AssetGenerationCapabilityFacade,
@@ -16,6 +18,7 @@ import {
   encodeAzureStorageQueueMessage,
   processEncounterAssetGenerationQueueMessage,
   processNextEncounterAssetGenerationQueueMessage,
+  type AssetGenerationWorkerResult,
 } from "./index.js";
 
 describe("asset-generation job facade", () => {
@@ -1192,7 +1195,15 @@ describe("asset-generation job facade", () => {
               if (result.exitCode !== 0) {
                 throw new Error(result.stderr || `Worker exited with ${result.exitCode}`);
               }
-              return JSON.parse(result.stdout);
+              // #610: the facade refuses succeeded jobs that reference unwritten files, so this
+              // fake native worker materializes its own fixture before returning the reference.
+              const parsed = JSON.parse(result.stdout) as AssetGenerationWorkerResult;
+              for (const artifact of parsed.artifacts) {
+                const absolutePath = resolve(process.cwd(), artifact.path);
+                mkdirSync(dirname(absolutePath), { recursive: true });
+                writeFileSync(absolutePath, "fixture-bake-output", "utf8");
+              }
+              return parsed;
             });
           },
         } satisfies AssetGenerationWorkerAdapter,
