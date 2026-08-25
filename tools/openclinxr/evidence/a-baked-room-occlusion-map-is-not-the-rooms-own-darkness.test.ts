@@ -128,7 +128,9 @@ async function census(): Promise<AoMap[]> {
         sd: Math.sqrt(sq / n),
         black: below64 / n,
         strength: material.getOcclusionStrength(),
-        sha: createHash("sha256").update(tex.getImage()!).digest("hex").slice(0, 16),
+        // DECODED luminance, not the encoded PNG bytes: re-encoding the same pixels with different
+        // compression or an extra ancillary chunk yields a different file hash and an identical image.
+        sha: createHash("sha256").update(Buffer.from(png.lum.buffer, png.lum.byteOffset, png.lum.byteLength)).digest("hex").slice(0, 16),
       });
     }
   }
@@ -150,9 +152,15 @@ function duplicateShaGroups(rows: readonly AoMap[]): string[] {
   return [...by.entries()].filter(([, ks]) => ks.length > 1).map(([sha, ks]) => `${sha}: ${ks.join(" | ")}`);
 }
 
-/** AO maps wired at zero strength - present in the slot, absent from the render. */
+/**
+ * AO maps not wired at FULL strength - present in the slot, absent (or nearly) from the render.
+ *
+ * `> 0` was the first version of this predicate and it was a hole: `strength = 0.000001` passes it
+ * while rendering no occlusion at all. Measured on the shipped population: all 69 maps carry
+ * exactly 1, so full strength is the ambient fact, not a target invented here.
+ */
 function silenced(rows: readonly AoMap[]): string[] {
-  return rows.filter((r) => !(r.strength > 0)).map((r) => `${r.glb}/${r.material} strength=${r.strength}`);
+  return rows.filter((r) => r.strength !== 1).map((r) => `${r.glb}/${r.material} strength=${r.strength}`);
 }
 
 describe("a baked room occlusion map is not the room's own darkness", () => {
@@ -286,9 +294,11 @@ describe("a baked room occlusion map is not the room's own darkness", () => {
       { glb: "a.glb", material: "m1", mean: 216, sd: 62, black: 0.05, strength: 1, sha: "deadbeefdeadbeef" },
       { glb: "b.glb", material: "m2", mean: 216, sd: 62, black: 0.05, strength: 1, sha: "deadbeefdeadbeef" },
       { glb: "c.glb", material: "m3", mean: 216, sd: 62, black: 0.05, strength: 0, sha: "0123456789abcdef" },
+      // epsilon strength: renders no occlusion, and `> 0` used to let it through.
+      { glb: "d.glb", material: "m4", mean: 216, sd: 62, black: 0.05, strength: 0.000001, sha: "fedcba9876543210" },
     ];
     expect(duplicateShaGroups(synthetic).length, "the duplicate detector must flag a planted copy").toBe(1);
-    expect(silenced(synthetic).length, "the silence detector must flag a planted strength-0 map").toBe(1);
+    expect(silenced(synthetic).length, "the silence detector must flag BOTH strength-0 and epsilon-strength maps").toBe(2);
 
     // The real population: measured 69 maps, 69 distinct hashes, all at full strength.
     expect(rows.length, "the AO population must not vanish out from under this clause").toBeGreaterThan(40);
