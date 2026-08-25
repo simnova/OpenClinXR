@@ -53,7 +53,7 @@ dedicated pipeline directory, two CLIs, and six garments on live-cast actors.
 | CLIs | `pnpm asset:makeclothes:fit -- --once`, `pnpm asset:body-param:fit` |
 | toolchain | Blender 5.1 + the MPFB extension at `~/Library/Application Support/Blender/5.1/extensions/user_default/mpfb` |
 | cached sources | 12 distinct `.mhclo` garments across 8 packs under `.openclinxr-local/provider-cache/garments/sources/` |
-| worn by the live cast | **6** — `lab_coat`, `toigo_t_shirt`, `fisherman_sweater`, `hair_toigo_blunt_bob_with_bangs`, `hair_mhair02`, `eyes_low_poly` |
+| worn by the live cast | **14 families across 18 shipped bodies** (re-measured 2026-08-25 from GLB mesh names + triangle counts, not provenance strings): `eyes_low_poly` x11, `toigo_t_shirt` x8, `footwear_toigo_mj_cloth_shoes` x7, `cargo_pants` x7, `hair_toigo_blunt_bob_with_bangs` x5, `scrub_shirt` x3, `scrub_pants` x3, `hair_mhair02` x2, `footwear_toigo_flats` x2, `footwear_culturalibre_male_boots` x2, `lab_coat` x1, plus 3 more hair variants. **An earlier row here said 6 and was understated** — it counted a narrower set before the eyebrow/footwear/eye fits landed. |
 
 MPFB is **not vendored**. The stage drives Blender's user-extension MPFB, so a machine without that
 extension cannot fit anything, and that is a blocked-environment result rather than a garment failure.
