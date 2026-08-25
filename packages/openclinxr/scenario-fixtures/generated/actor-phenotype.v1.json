@@ -175,6 +175,42 @@
           "bmi": 24,
           "descriptor_derived": true
         }
+      },
+      "senior_resident_ward_v1": {
+        "role": "physician",
+        "phenotype": {
+          "age": 34,
+          "body_profile": "adult_clinical_physician",
+          "pose": "standing_clinical_ready",
+          "skin_tone": "medium_warm",
+          "hair_color": "dark_brown",
+          "eye_color": "brown",
+          "gender_presentation": "adult_male_physician",
+          "height_cm": 172,
+          "build": "average_clinical_team",
+          "hair_density": 0.6,
+          "brow_tension": 0.25,
+          "anxious": 0.2,
+          "flush": 0.05,
+          "age_wrinkle": 0.15,
+          "bmi": 23.5,
+          "clothing_style": "white_lab_coat_over_scrubs",
+          "clothing_color": "clinical_white",
+          "role_visual_cue": "senior_resident_physician",
+          "wardrobeRole": "physician_clinical",
+          "garmentLayers": [
+            "scrub_shirt",
+            "scrub_pants",
+            "lab_coat"
+          ],
+          "fabricPalette": "clinical_teal_and_white",
+          "materialFinish": "cotton_matte",
+          "accessoryMarkers": [
+            "stethoscope",
+            "badge"
+          ],
+          "fitProfile": "adult_clinical_average_fit"
+        }
       }
     },
     "telehealth_diabetes_health_literacy_v1": {

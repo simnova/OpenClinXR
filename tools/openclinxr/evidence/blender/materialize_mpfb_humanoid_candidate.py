@@ -72,6 +72,16 @@ HAIR_STYLE_BY_REFERENCE = {
     "adult_male_street_casual": "mhair02",
 }
 
+# #665 — per-output-stem hair override for actors the reference tables cannot key.
+# The no-reference authored-identity path (--eye-colour-reference, #576) has no
+# reference id to key HAIR_STYLE_BY_REFERENCE on, so the default female bob would
+# apply. The physician is a case-authored male senior resident (ward-delirium.ts);
+# the male style is the same mhair02 kevin/street-casual already prove. Keyed by
+# output GLB stem, the same convention as EYE_DIAMETER_TARGET_MM.
+HAIR_STYLE_BY_OUTPUT_STEM = {
+    "mpfb-clinical-physician-adult": "mhair02",
+}
+
 # Patrick 2026-08-14 pointed at http://www.makehumancommunity.org/clothes/mhair02.html
 # as CC0. The downloaded `.mhclo` header still says `# license AGPL3` (uuid
 # f81a4e9a-e3d7-4ecb-bdf0-16d7fd9070a4). Same class as visemes02: assume the page
@@ -2938,7 +2948,10 @@ def main():
         if not args.reference
         else f"mpfb-{args.reference.replace('_', '-')}"
     )
-    _hair_style = HAIR_STYLE_BY_REFERENCE.get(args.reference)
+    _hair_style = (
+        HAIR_STYLE_BY_OUTPUT_STEM.get(pathlib.Path(args.output).stem)
+        or HAIR_STYLE_BY_REFERENCE.get(args.reference)
+    )
     _fitted_hair_will_exist = bool(_hair_style)
     if scalp_placeholder_retired_for(
         _shipped_figure_id, fitted_hair_present=_fitted_hair_will_exist

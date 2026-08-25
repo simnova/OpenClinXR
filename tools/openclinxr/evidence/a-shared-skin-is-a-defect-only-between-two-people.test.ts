@@ -116,6 +116,15 @@ import { NodeIO } from "@gltf-transform/core";
  * (not post-hoc stamps). Clauses (2)(3)(4) flipped `it.fails` → `it`. Clause (1) inverted guard
  * for #527 retained.
  * ════════════════════════════════════════════════════════════════════════════════════════════════
+ * ## FIXED (#665) — appended 2026-08-25; the planted header above is immutable
+ *
+ * The #527 product defect is FIXED: `senior_resident_ward_v1` now authors its own identity
+ * (ward-delirium.ts phenotype) and `mpfb-clinical-physician-adult.glb` was re-baked as a distinct
+ * body (body vertex buffer 6ba48d646cc7, was the nurse's 3f9d4f4eceb0). Clauses (1) and (5)
+ * inverted guards flipped to positive assertions: no co-staged distinct identities share a body
+ * mesh, and the known physician/nurse pair must not be reported. The sibling-run discipline
+ * (no skips, ≥15 tests) is preserved. The #528 fix and this one together close #527.
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -216,14 +225,12 @@ describe("a shared skin is a defect only between two people", () => {
     }
   }, 300_000);
 
-  it("(1) INVERTED GUARD: the ward_delirium physician/nurse pair is STILL one person (#527) — flip this when it is baked apart", async () => {
+  it("(1) the ward_delirium physician/nurse pair is no longer one person (#665)", async () => {
+    // Flipped from the #527 inverted guard on 2026-08-25: the physician got its own
+    // described identity (ward-delirium.ts authored phenotype) and a distinct baked
+    // body, so the co-staged duplicate pair is gone. Positive assertion now.
     const dupes = await coStagedDuplicates();
-    // Asserts the DEFECT IS PRESENT so the instrument slice can land honestly. When the physician
-    // gets a distinct body this FAILS, which is the forced flip — rewrite as the positive
-    // assertion `expect(dupes).toEqual([])`. Never delete (merge-kill: deleted-test).
-    expect(dupes, "co-staged distinct identities sharing one body mesh").toEqual([
-      `ward_delirium_med_rec_v1: ${[...KNOWN_DUPLICATE_PAIR].sort().join(" + ")}`,
-    ]);
+    expect(dupes, "co-staged distinct identities sharing one body mesh").toEqual([]);
   });
 
   it("(2) RED: no sibling reports an asset the live cast never returns", async () => {
@@ -261,20 +268,18 @@ describe("a shared skin is a defect only between two people", () => {
     expect(typed, "sibling assertions on a hand-typed population count").toEqual([]);
   });
 
-  it("(5) COUNTERWEIGHT: narrowing to the cast must NOT silence the real pair, and must not be reached by skipping", async () => {
-    // Refuses treatment (c). Narrowing the population to the CAST is correct; narrowing until the
-    // ward_delirium collision stops being reported is the defect wearing a fix (§10s).
-    //
-    // This computes the collision INDEPENDENTLY of the siblings, so it holds whether they end up
-    // green (pair carried as an inverted guard, the #517/#516 shape) or red. An earlier draft also
-    // required both names to appear in `siblingOutput`, which is unsatisfiable the moment a sibling
-    // legitimately goes green — a passing test prints no assertion text.
+  it("(5) COUNTERWEIGHT: the ward_delirium pair is GONE, and the flip was not reached by skipping", async () => {
+    // Flipped with clause (1) on 2026-08-25 (#665). The original counterweight refused
+    // treatment (c) — narrowing the population until the collision stopped being reported.
+    // The collision is now gone for the real reason (the physician was baked a distinct
+    // body from an authored identity), so the assertion direction inverts: the pair must
+    // NOT be reported, and the sibling-run discipline (no skips, assertion count) still holds.
     const dupes = await coStagedDuplicates();
-    expect(dupes.length, "co-staged duplicate pairs still detected after narrowing").toBeGreaterThan(0);
     expect(
       dupes.some((d) => KNOWN_DUPLICATE_PAIR.every((g) => d.includes(g))),
-      "the ward_delirium physician/nurse pair (#527) is still reported",
-    ).toBe(true);
+      "the ward_delirium physician/nurse pair (#527) must no longer be reported — a regression "
+        + "that reintroduces the shared body reds here",
+    ).toBe(false);
 
     // The other way to a clean sibling run is to stop running the assertions. Skipping, `.only`,
     // and deletion are all refused here; merge-kill independently refuses deletion.
