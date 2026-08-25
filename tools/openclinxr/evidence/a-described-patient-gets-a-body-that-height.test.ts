@@ -109,7 +109,7 @@ async function measureAuthoredActors(): Promise<Row[]> {
 }
 
 describe("a described patient gets a body that height", () => {
-  it.fails("(1) every actor whose case declares a height renders a body that height", async () => {
+  it("(1) every actor whose case declares a height renders a body that height", async () => {
     const rows = await measureAuthoredActors();
     expect(rows.length, "the authored population must not vanish out from under this contract")
       .toBeGreaterThan(3);
@@ -148,3 +148,49 @@ describe("a described patient gets a body that height", () => {
     expect(drifted, "these three agree today and must still agree after the fix").toEqual([]);
   });
 });
+
+/*
+ * ## FIXED (#651)
+ *
+ * Clause (1) flipped from `it.fails` to `it` on 2026-08-25. Measured after the
+ * fix (same instrument, same band):
+ *
+ *   actor                     declared  body    err     body mesh
+ *   nurse_kevin_lee_v1          176     176.0    0.0    mpfb_peds_nurse_kevin_body
+ *   parent_tara_johnson_v1      166     165.3   -0.7    mpfb_ob_patient_aisha_body
+ *   patient_maya_johnson_v1     125     124.1   -0.9    mpfb_peds_patient_child_body
+ *   patient_robert_hayes_v1     178     177.6   -0.4    mpfb_ob_patient_aisha_body (rebaked, male)
+ *
+ * THE FIX IS A REBAKE DRIVEN BY ROBERT'S OWN PHENOTYPE, not an asset swap and not a
+ * rescale. The #576 case-driven numeric-identity bake path in materialize_mpfb_humanoid_candidate.py
+ * (--eye-colour-reference manifest -> phenotype_numeric_block -> body_param_stage.derive_macro_dict_from_authored_phenotype
+ * -> solve_height_macro against height_cm) already existed on main but had never been run for this actor.
+ *
+ *   MACRO_BASE   {"gender": 1.0, "age": 0.7532, "muscle": 0.5, "weight": 0.5929, ...}
+ *                (adult_male / age 52 / bmi 26.0, straight from ed-chest-pain.ts:126-141 via the
+ *                staged robert_reference anny manifest — the same schema generate_mesh.py writes)
+ *   MACRO_SOLVED height=0.5627 target_stature=1.7800 (bake-measure-interpolate, tol 5 mm; no closed-form scale)
+ *
+ * The shipped body went 166.6 cm -> 177.6 cm (-0.4 cm vs declared, inside the 0.9 cm ambient
+ * spread), and the body is now MALE (gender macro 1.0 vs the previous androgynous 0.5 default).
+ * The defect was never the mapping table in humanoid-runtime-asset-url.ts — Robert's ED_RUNTIME_CAST_BY_ACTOR
+ * row is correct; the ASSET it names carried the wrong person. All seven actors resolving
+ * mpfb-gown-adult-patient.glb keep that asset id; the six undeclared adults are unchanged relative
+ * to casting (they now share a taller gowned adult instead of Tara's body).
+ *
+ * UNLOCKED DECISIONS TAKEN:
+ *   1. Drive the existing bake from Robert's phenotype (option 3). Re-mapping him onto the 176 cm
+ *      street/kevin bodies would land exactly ON the 2.0 cm contract edge (176.0 measured) with zero
+ *      margin, would put him in street clothes/cargo trousers under a hospital gown station, and the
+ *      nurse body is female. No shipped adult stands at 178.
+ *   2. The other six actors resolving the gown asset declare no height, so clause (1) cannot see them;
+ *      they ride along with the rebaked asset (same wardrobe, hide masks, hair, eyes as before).
+ *
+ * Materializer changes (tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py):
+ *   - _anny_manifest_for(): shared manifest locator — shipped generated-humanoids first, then the
+ *     issue's staged evidence reference (same input_params schema).
+ *   - EYE_DIAMETER_TARGET_MM: registered the output stem at the adult 24 mm axial length (the gate
+ *     refuses unregistered new actors by design).
+ *   - hair_licence_permits(): header-first licence read + the existing named uuid allowlist applied
+ *     INSIDE the fit gate, so the mhair02 page-CC0/header-AGPL3 exception is enforced at one place.
+ */
