@@ -96,6 +96,45 @@ if (!extra.includes(plantedBasename)) throw new Error("brief names a different t
 
 A brief that names the wrong artifact is my defect, and the worker has no way to know.
 
+## 6. When the isolation guard fires, ask the CHEAP question first
+
+Measured 2026-08-25. The guard failed a dispatch:
+
+> Worktree-bound worker leaked writes into the MAIN checkout despite the path deny:
+> `.openclinxr/evidence/issue-297/landmark-comparison.json`
+
+I diagnosed it as `REPO_ROOT = resolve(HERE, "../../..")` — scripts rooting themselves at their own file
+location, so a worktree-bound process running a main-rooted script writes to main. I counted 72 such
+scripts and published it as the cause. **It was wrong.** The leaked change was a `generatedAt`
+timestamp, and:
+
+```
+5fae7afd  10:42  fix(#297): landmark instrument refuses a disconnected surface
+```
+
+A peer lane committed at exactly that timestamp, touching that very instrument. My worker never went
+near `issue-297`. The windows overlapped, and `#344` already documents this detector answering
+*"did main get dirty during this dispatch's window?"* while reporting *"did THIS worker write to main?"*
+
+**The order to work in, cheapest first:**
+
+1. **What changed?** `git diff <leaked path>`. A timestamp or a regenerated artifact points at a tool
+   run, not a worker edit.
+2. **Was anyone else writing?** — the question I skipped:
+   ```
+   git log --all --since="<dispatch start>" --until="<now>" --format="%h %ad %an %s" --date=format:"%H:%M"
+   ```
+   A commit inside the window touching the same area ends the investigation.
+3. **Was the file already dirty before the dispatch?** Compare against a `git status` you took earlier.
+4. **Only then** reach for a mechanism inside your own worker.
+
+**Search the board before filing.** `gh issue list --search` on the guard's own wording found `#344`,
+`#51` and `#34` already covering it. I nearly filed a duplicate carrying a wrong cause.
+
+**The general failure:** I ran an expensive, interesting diagnosis and skipped a one-command check that
+would have refuted it. A plausible mechanism you can describe in detail is not evidence — it is the
+`§1b` fabrication shape wearing an engineer's clothes.
+
 ## The gate, compressed
 
 One line each, before every dispatch:
@@ -105,5 +144,6 @@ One line each, before every dispatch:
 3. **Collision** - which handoffs and commits were checked?
 4. **Size** - why is this not two slices?
 5. **Brief text** - if this script was copied, which filenames did I re-check? (§5)
+6. **On a guard failure** - did I check for a concurrent writer before diagnosing? (§6)
 
-**Five answers is aligned. Five silences is drift on credit.**
+**Six answers is aligned. Six silences is drift on credit.**
