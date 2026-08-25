@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { join } from "node:path";
-import { CHRONIC_AFTER, MIN_AUDIT_GAP_MS, PERSISTENCE_WINDOW, READY_DEPTH_TARGET, expectedFailureResidue, markChronic, priorFindingKeys, proofFilesFromArtifact, readyDepth, resolvedSince, verifyDoneClaim } from "./supervisor-audit.js";
+import { CHRONIC_AFTER, classifyDoneClaims, MIN_AUDIT_GAP_MS, PERSISTENCE_WINDOW, READY_DEPTH_TARGET, expectedFailureResidue, markChronic, priorFindingKeys, proofFilesFromArtifact, readyDepth, resolvedSince, verifyDoneClaim } from "./supervisor-audit.js";
 import type { Finding } from "./supervisor-audit.js";
 
 /**
@@ -108,6 +108,39 @@ describe("the supervisor reports what is not self-correcting", () => {
   it("(4) DUTY 1: a finding that vanished is REPORTED as resolved, not silently dropped", () => {
     const resolved = resolvedSince([f("still-here")], [["still-here", "went-away"]]);
     expect(resolved, "a defect that fixed itself is information, not absence").toEqual(["went-away"]);
+  });
+
+  it("(24) DUTY 3: an OPEN card marked Landed is AWAITING GRADE, not board drift", () => {
+    // MEASURED 2026-08-25 by the peer, verified against the tree before acting.
+    //
+    // `integrate.ts:500` writes Factory=Landed MECHANICALLY after a merge. `board-cli` advances to
+    // Graded only on a reviewed close, and its own comment says --no-grade exists so rot and dead
+    // premises can be closed WITHOUT inflating "the one number that means a human looked".
+    //
+    // So Open+Landed is the NORMAL intermediate state of every slice between merge and grade, and
+    // the classifier reports it as drift. #646 is the live instance: it landed, its pixel grade
+    // belongs to the product owner, and I deliberately left it open — the correct lifecycle state,
+    // reported as a defect.
+    //
+    // The cost is that duty 3 cries wolf on its own happy path, which is how a reader learns to
+    // skip it. Worse, the pressure it creates is to CLOSE a card to silence the finding, which
+    // would mark ungraded work as done.
+    const findings = classifyDoneClaims([
+      { issue: 646, stage: "Landed", ok: true, commitOnMain: true, contractVerified: true, why: "" },
+    ] as never);
+    expect(findings.map((f) => f.key), "a landed card awaiting its grade is not drift")
+      .toEqual(["awaiting-grade-646"]);
+  });
+
+  it("(25) DUTY 3 COUNTERWEIGHT: an OPEN card marked GRADED still IS drift", () => {
+    // Refuses the over-correction of calling every open done-claim expected. Graded means a human
+    // looked and signed off; leaving it open after that is exactly the drift the original finding
+    // was written for, and it must keep firing.
+    const findings = classifyDoneClaims([
+      { issue: 999, stage: "Graded", ok: true, commitOnMain: true, contractVerified: true, why: "" },
+    ] as never);
+    expect(findings.map((f) => f.key), "graded and still open is genuine drift")
+      .toEqual(["done-but-open-999"]);
   });
 
   it("(5) DUTY 2: ten instrument cards do NOT satisfy a product-forward floor", () => {

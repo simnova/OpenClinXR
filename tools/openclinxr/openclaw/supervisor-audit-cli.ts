@@ -15,7 +15,7 @@ import { dirname, join } from "node:path";
 import { briefFromIssue } from "./board-brief.js";
 import { getBoardSnapshot } from "./board-snapshot-cache.js";
 import {
-  appendHistory, markChronic, PERSISTENCE_WINDOW, priorFindingKeys, readyDepth, resolvedSince, verifyDoneClaim,
+  appendHistory, classifyDoneClaims, markChronic, PERSISTENCE_WINDOW, priorFindingKeys, readyDepth, resolvedSince, verifyDoneClaim,
 } from "./supervisor-audit.js";
 import type { Finding, SupervisorAudit } from "./supervisor-audit.js";
 
@@ -86,16 +86,10 @@ async function main(): Promise<void> {
     .filter((it) => (it.factory === "Landed" || it.factory === "Graded") && typeof it.content?.number === "number")
     .filter((it) => byNumber.has(it.content!.number!))
     .map((it) => verifyDoneClaim(REPO, it.content!.number!, String(it.factory)));
-  for (const c of doneClaims.filter((x) => !x.ok)) {
-    findings.push({ duty: 3, key: `done-unverified-${c.issue}`, detail: `#${c.issue} (${c.stage}): ${c.why}` });
-  }
-
-  // An OPEN issue marked Landed/Graded is board drift — the work is claimed done and the card is not
-  // closed. Reported separately from a failed verification: they need different corrections.
-  for (const c of doneClaims.filter((x) => x.ok)) {
-    findings.push({ duty: 3, key: `done-but-open-${c.issue}`,
-      detail: `#${c.issue} verified ${c.stage} on main but the issue is still OPEN` });
-  }
+    // Landed-and-open is the NORMAL state between merge and grade, not drift; only Graded-and-open
+    // is drift. Extracted to `classifyDoneClaims` so the distinction is unit-testable — it was
+    // inline and untested, and reported duty 3's own happy path as a defect. Clauses (24) and (25).
+    findings.push(...classifyDoneClaims(doneClaims));
 
   /**
    * Residue is reported SEPARATELY from ok, and it is the finding `ok` structurally cannot make.

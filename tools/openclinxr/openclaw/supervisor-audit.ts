@@ -183,6 +183,42 @@ export function consecutiveStreak(key: string, windows: string[][]): number {
   return n;
 }
 
+/**
+ * Turn verified done-claims into duty-3 findings, distinguishing the lifecycle's NORMAL intermediate
+ * state from real drift.
+ *
+ * MEASURED 2026-08-25: the classifier previously emitted `done-but-open` for every verified open
+ * claim regardless of stage. `integrate.ts:500` writes Factory=Landed MECHANICALLY on merge, and
+ * `board-cli` advances to Graded only on a reviewed close — so Open+Landed is where every slice sits
+ * between merging and being graded, and duty 3 was reporting its own happy path as a defect.
+ *
+ * That is not cosmetic. The pressure a false finding creates is to CLOSE the card to silence it,
+ * which marks ungraded work as done — the exact inflation `board-cli`'s own `--no-grade` escape was
+ * built to prevent.
+ *
+ * Open + Landed -> awaiting grade (expected). Open + Graded -> drift (a human signed off and nobody
+ * closed it). No age threshold: "overdue" needs a number nobody has calibrated, and inventing one
+ * here would be fitting a gate to an observation.
+ */
+export function classifyDoneClaims(claims: DoneClaim[]): Finding[] {
+  const out: Finding[] = [];
+  for (const c of claims.filter((x) => !x.ok)) {
+    out.push({ duty: 3, key: `done-unverified-${c.issue}`, detail: `#${c.issue} (${c.stage}): ${c.why}` });
+  }
+  for (const c of claims.filter((x) => x.ok)) {
+    out.push(String(c.stage) === "Graded"
+      ? {
+        duty: 3, key: `done-but-open-${c.issue}`,
+        detail: `#${c.issue} verified Graded on main but the issue is still OPEN — a human signed off and nobody closed it`,
+      }
+      : {
+        duty: 3, key: `awaiting-grade-${c.issue}`,
+        detail: `#${c.issue} verified ${c.stage} on main and open pending its grade — the expected state between merge and review`,
+      });
+  }
+  return out;
+}
+
 /** Prior findings absent from this run — they corrected themselves. */
 export function resolvedSince(current: Finding[], prior: string[][]): string[] {
   const now = new Set(current.map((f) => f.key));
