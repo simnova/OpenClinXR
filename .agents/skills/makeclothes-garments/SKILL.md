@@ -200,6 +200,65 @@ an open shell with neck, arm and hem openings.
 texture to an already-fitted garment. That needs no binding at all and gets visual variety
 immediately. Reserve mesh generation for the case where the garment SHAPE is genuinely missing.
 
+
+## THE WORKING MPFB RECIPE — proven end to end 2026-08-25
+
+The station's problem is one line: `fit_stage.py` takes `--mh-base-obj` and raw-imports MPFB's
+`data/3dobjs/base.obj` via `bpy.ops.wm.obj_import`. **That raw file ships helper geometry**, which is
+the enclosing shell. `PROTO_CURIOUS_RESEARCHER` already recorded this exact hand-rolling — base-import
+plus a separate macro pass plus grounding in post, "three steps that are parameters on one documented
+call".
+
+Proven by running it:
+
+| | verts | vertex groups | body |
+|---|---:|---:|---|
+| raw `base.obj` import (what the station does) | 73,920 | **0** | faceted, shell-shrouded |
+| `HumanService.create_human()` | **19,158** | **152** | smooth, feet grounded, no shell |
+
+```python
+bpy.ops.preferences.addon_enable(module="bl_ext.user_default.mpfb")   # namespaced; bare `mpfb` fails
+from bl_ext.user_default.mpfb.services.humanservice import HumanService
+from bl_ext.user_default.mpfb.services.clothesservice import ClothesService
+from bl_ext.user_default.mpfb.entities.clothes.mhclo import Mhclo
+
+basemesh = HumanService.create_human(mask_helpers=True, detailed_helpers=True,
+                                     extra_vertex_groups=True, feet_on_ground=True)
+
+bpy.ops.wm.obj_import(filepath=MHCLO.replace(".mhclo", ".obj"))
+garment = <the newly added MESH>
+mhclo = Mhclo(); mhclo.load(MHCLO); mhclo.clothes = garment
+ClothesService.fit_clothes_to_human(garment, basemesh, mhclo=mhclo, set_parent=True)
+
+bpy.context.view_layer.update()      # REQUIRED — see below
+```
+
+Result: body Z [-0.027, 1.667], garment Z **[0.911, 1.430]** — hip to shoulder, correctly fitted, and
+the render shows a clean teal scrub top on a smooth body with no shell to cull.
+
+`mask_helpers=True` is the DEFAULT on `create_human`. The station gets helpers only because it bypasses
+this call entirely.
+
+### `view_layer.update()` is not optional, and skipping it fabricates a bug
+
+Measuring garment bounds straight after `fit_clothes_to_human` returned Z **[-0.162, 0.092]** — the
+garment apparently at the feet, below ground. I diagnosed a unit-scale mismatch between MakeHuman
+decimetres and Blender metres and started writing the fix.
+
+**That diagnosis was wrong.** Both objects had identity transforms; the depsgraph simply had not
+updated. One `bpy.context.view_layer.update()` and the same fit measures [0.911, 1.430]. A stale
+depsgraph read looks exactly like a scale bug, and the scale bug is the more interesting story, which
+is why it is the one you will reach for.
+
+`set_parent=True` did NOT parent the garment (`garment.parent` is None afterwards). It does not need
+to for the fit to be correct, but do not rely on parenting to carry a transform.
+
+### What is left to move the station
+
+Replace the `--mh-base-obj` raw import with the `create_human` call above. The garment path,
+ClothesService call and export are unchanged. That is the whole change, and it delivers a gradeable
+render as a side effect because there is no shell to cull.
+
 ## claimScope / notEvidenceFor
 
 - **claimScope:** the installed toolchain, the CLIs, the measured library-versus-worn gap, and the
