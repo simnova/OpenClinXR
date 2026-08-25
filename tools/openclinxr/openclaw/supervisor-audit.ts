@@ -282,10 +282,67 @@ export function resolvedSince(current: Finding[], prior: string[][]): string[] {
     .filter((k) => !k.startsWith("awaiting-grade-"));
 }
 
+export type ReadyDepthTrend = {
+  status: "stagnant" | "churning" | "draining" | "unknown";
+  entered: number[];
+  left: number[];
+};
+
+/**
+ * Is the ready queue MOVING, across recorded windows?
+ *
+ * Duty 1 asks whether a finding is self-correcting. For `ready-depth-below-floor` — chronic for 24
+ * audits — that was unanswerable, because a history row recorded finding KEYS and nothing else. A
+ * queue that burns two cards and refills two, and a queue frozen for a day, wrote identical rows.
+ *
+ *   stagnant  same membership throughout: the finding is NOT self-correcting and the shortfall is
+ *             real work not being queued
+ *   churning  cards both leave and arrive: dequeue is flowing and the number is throughput
+ *   draining  cards only leave: the peer's "net thinning" reading, now checkable instead of inferred
+ *   unknown   fewer than two windows, or any window with no recorded membership
+ *
+ * `unknown` on missing membership is load-bearing: every row written before card recording has no
+ * `cards`, and reading that as an empty queue would report DRAINING across the whole backfill —
+ * a fabricated signal burying the real one.
+ */
+/** The last `limit` recorded windows, newest last, for readyDepthTrend. */
+export function priorReadyWindows(root: string, limit = 6): Array<{ at: string; cards?: number[] }> {
+  const p = join(root, HISTORY);
+  if (!existsSync(p)) return [];
+  return readFileSync(p, "utf8").split("\n").filter(Boolean)
+    .map((l) => { try { return JSON.parse(l) as { at?: string; cards?: number[] }; } catch { return null; } })
+    .filter((r): r is { at: string; cards?: number[] } => r !== null && typeof r.at === "string")
+    .slice(-limit);
+}
+
+export function readyDepthTrend(
+  windows: ReadonlyArray<{ at: string; cards?: readonly number[] }>,
+): ReadyDepthTrend {
+  if (windows.length < 2) return { status: "unknown", entered: [], left: [] };
+  if (windows.some((w) => !Array.isArray(w.cards))) return { status: "unknown", entered: [], left: [] };
+
+  const first = new Set(windows[0]!.cards!);
+  const last = new Set(windows[windows.length - 1]!.cards!);
+  const entered = [...last].filter((n) => !first.has(n)).sort((a, b) => a - b);
+  const left = [...first].filter((n) => !last.has(n)).sort((a, b) => a - b);
+
+  if (entered.length === 0 && left.length === 0) return { status: "stagnant", entered, left };
+  if (entered.length === 0) return { status: "draining", entered, left };
+  return { status: "churning", entered, left };
+}
+
 export function appendHistory(root: string, audit: SupervisorAudit): void {
   const p = join(root, HISTORY);
   mkdirSync(dirname(p), { recursive: true });
-  appendFileSync(p, `${JSON.stringify({ at: audit.at, head: audit.head, keys: audit.findings.map((f) => f.key) })}\n`, "utf8");
+  appendFileSync(p, `${JSON.stringify({
+    at: audit.at,
+    head: audit.head,
+    keys: audit.findings.map((f) => f.key),
+    // Ready-card MEMBERSHIP, not just the count: without it `readyDepthTrend` cannot tell a queue
+    // that burns and refills from one that is frozen, which is what made the chronic ready-depth
+    // finding uninterpretable for 24 windows.
+    cards: audit.readyDepth.cards,
+  })}\n`, "utf8");
 }
 
 /**

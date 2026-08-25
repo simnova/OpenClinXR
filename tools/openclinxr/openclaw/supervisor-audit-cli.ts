@@ -15,7 +15,7 @@ import { dirname, join } from "node:path";
 import { briefFromIssue } from "./board-brief.js";
 import { getBoardSnapshot } from "./board-snapshot-cache.js";
 import {
-  appendHistory, classifyDoneClaims, markChronic, PERSISTENCE_WINDOW, priorFindingKeys, readyDepth, resolvedSince, verifyDoneClaim, doneClaimRowsToVerify, } from "./supervisor-audit.js";
+  appendHistory, classifyDoneClaims, markChronic, PERSISTENCE_WINDOW, priorFindingKeys, readyDepth, resolvedSince, verifyDoneClaim, doneClaimRowsToVerify, readyDepthTrend, priorReadyWindows } from "./supervisor-audit.js";
 import type { Finding, SupervisorAudit } from "./supervisor-audit.js";
 
 const REPO = join(dirname(new URL(import.meta.url).pathname), "../../..");
@@ -84,9 +84,20 @@ async function main(): Promise<void> {
 
   const depth = readyDepth(cards);
   if (depth.shortfall > 0) {
+    // Whether this finding is SELF-CORRECTING is duty 1's actual question, and a count alone cannot
+    // answer it. The trend reads recorded card MEMBERSHIP across windows: stagnant means the queue
+    // is frozen and the shortfall is real; churning means dequeue is flowing and the number is
+    // throughput; draining means cards leave without replacement. `unknown` while history predates
+    // card recording — a missing membership is not an empty queue.
+    const trend = readyDepthTrend([...priorReadyWindows(REPO), { at: new Date().toISOString(), cards: depth.cards }]);
+    const movement = trend.status === "unknown"
+      ? "trend UNKNOWN (history predates card recording)"
+      : `trend ${trend.status.toUpperCase()}`
+        + (trend.entered.length > 0 ? `; entered ${trend.entered.join(", ")}` : "")
+        + (trend.left.length > 0 ? `; left ${trend.left.join(", ")}` : "");
     findings.push({ duty: 2, key: "ready-depth-below-floor",
       detail: `${depth.productForward} product-forward ready cards against a floor of ${depth.target} `
-        + `(${depth.includingInstrument} ready including instrument). Short by ${depth.shortfall}.` });
+        + `(${depth.includingInstrument} ready including instrument). Short by ${depth.shortfall}. ${movement}.` });
   }
 
   // Duty 3: every card the board says is finished.
