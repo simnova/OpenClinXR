@@ -68,9 +68,8 @@ def parse_args() -> argparse.Namespace:
     # garment, and create_human arrives already grounded and scaled, so the garment lands ~1.2 m off
     # the body. Measured, not guessed. Flipping the default before that is fixed would ship a station
     # whose garment is not on its body.
-    p.add_argument("--create-human", action="store_true",
-                   help="PROVEN for the body, NOT yet correct end to end — the Anny align step "
-                        "displaces the garment. Use for body comparison only.")
+    p.add_argument("--legacy-base-obj", action="store_true",
+                   help="Comparison path: raw-import data/3dobjs/base.obj, WITH its helper shell.")
     return p.parse_args(args)
 
 
@@ -316,7 +315,7 @@ def main() -> None:
         #
         # mask_helpers=True is the DEFAULT. The shell was arriving purely by bypassing this call.
         # --mh-base-obj is retained for the --legacy-base-obj comparison path only.
-        if not args.create_human:
+        if args.legacy_base_obj:
             mh = import_obj(args.mh_base_obj, args.body_mesh_name, force_z=False)
             create_human_used = False
         else:
@@ -358,8 +357,26 @@ def main() -> None:
         t_fit = time.perf_counter()
         ClothesService.fit_clothes_to_human(garment, mh, mhclo=mhclo, set_parent=True)
         fit_s = time.perf_counter() - t_fit
-        # REQUIRED: without this, garment bounds read stale and look like wrong placement.
         bpy.context.view_layer.update()
+
+        # THE IMPORTER ROTATION MUST GO. Measured, after four wrong explanations.
+        #
+        # Blender's OBJ importer applies its Y-up -> Z-up conversion as an OBJECT ROTATION rather than
+        # baking it into mesh data. `fit_clothes_to_human` then writes garment vertices in MESH-LOCAL
+        # space to match the basemesh, whose data is already Z-up under an identity transform. The
+        # garment's leftover importer rotation tips those correct local coords back to Y-up in world.
+        #
+        # Symptom with --create-human before this line: body longest axis Z (1.695 m standing) while
+        # the garment's height ran along Y, bounds Y [-1.430, -0.911] — the exact span the torso
+        # occupies on Z. Same magnitudes, rotated -90 deg about X.
+        #
+        # Explanations that were WRONG, recorded so nobody re-walks them: the Anny stature-align
+        # (A/B'd out, bounds byte-identical with it skipped), a decimetre/metre scale mismatch, a
+        # differing staging .obj (sha256-identical to the provider cache), and a rotation carried by
+        # create_human (its transform is identity and its mesh data is already Z-up).
+        if create_human_used:
+            garment.matrix_world = mh.matrix_world.copy()
+            bpy.context.view_layer.update()
         report["steps"]["clothesServiceFit"] = {
             "api": "ClothesService.fit_clothes_to_human",
             "wallClockS": round(fit_s, 4),

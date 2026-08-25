@@ -281,8 +281,49 @@ So the remaining work is the align step, not the body call. Either skip the alig
 `--create-human` is set (the body is already at stature), or re-fit the garment after aligning rather
 than carrying it through the parent dance.
 
-**Do not flip the default until that is fixed.** A station whose garment is not on its body is worse
-than one with a shell, because the shell at least ships a correct GLB underneath it.
+**RESOLVED 2026-08-25 — the default IS now `create_human`.** The displacement was never the align:
+A/B-ing the align out left the garment bounds byte-identical. Blender's OBJ importer applies its
+Y-up -> Z-up conversion as an OBJECT ROTATION, `fit_clothes_to_human` writes garment verts in
+mesh-local space to match the Z-up basemesh, and the garment's leftover importer rotation tips them
+back to Y-up. One line after the fit — `garment.matrix_world = mh.matrix_world.copy()` — fixes it.
+
+Measured A/B on the station:
+
+| path | source | vgroups | stature | garment Z |
+|---|---|---:|---:|---|
+| default | `create_human` | 152 | 1.695 m | 0.911 -> 1.430 |
+| `--legacy-base-obj` | raw `base.obj` | 0 | 16.946 m | — |
+
+
+## THE CANONICAL PROCESS (operator, 2026-08-25) — and where the stage still deviates
+
+> 1. describe the person
+> 2. generate the anny phenotype
+> 3. build a make human that looks like the anny model (same body structure)
+> 4. stop using the anny phenotype — no longer needed (keep as a hidden asset to pair for future
+>    reference if ever needed) solely use the make human afterwards
+> 5. clothe the make human appropriately
+> 6. whatever next for the make human asset
+
+Anny is a REFERENCE that produces an MPFB match and is then **out of the picture**. It is not a
+runtime rail and it is not present downstream of step 3.
+
+### Step 3 is not implemented yet, and the stage fakes it
+
+`create_human()` is currently called with **no `macro_detail_dict`**, so the body is MPFB's DEFAULT
+human, not one matched to an Anny phenotype. The stage then runs `align_body_to_reference`, which
+imports Anny at FIT time and uniform-scales the body to Anny's stature.
+
+That is a scale-only approximation of "same body structure", and it puts Anny at step 5 where the
+process says it should already be gone.
+
+`create_human(macro_detail_dict=...)` is the documented parameter for step 3 —
+`PROTO_CURIOUS_RESEARCHER` names it explicitly as the call that was hand-rolled around. Implementing
+it makes the Anny stature-align unnecessary and moves Anny back to step 3 where it belongs.
+
+**So the remaining work is: derive macros from the Anny reference, pass them to `create_human`, and
+delete the fit-time Anny import.** Until then the station produces a default-shaped body wearing a
+correctly fitted garment.
 
 ## claimScope / notEvidenceFor
 

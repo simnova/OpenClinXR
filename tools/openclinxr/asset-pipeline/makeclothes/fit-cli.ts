@@ -466,6 +466,10 @@ export async function runMakeclothesFitOnce(): Promise<LibraryCatalog> {
   const tmpGrade = path.join(EVIDENCE_DIR, "work", "fitted-garment-grade.png");
   ensureDir(path.dirname(tmpGlb));
 
+  // A/B levers. create_human is now the DEFAULT; these opt BACK to the old path for comparison.
+  const extraStageFlags: string[] = [];
+  if (process.env.OPENCLINXR_FIT_LEGACY_BASE_OBJ) extraStageFlags.push("--legacy-base-obj");
+
   const blenderArgs = [
     "--background",
     "--python",
@@ -485,11 +489,12 @@ export async function runMakeclothesFitOnce(): Promise<LibraryCatalog> {
     STAGE_REPORT_PATH,
     // #275 — authoritative mesh name from the shared selection module; the Python
     // argparse default is only a raw-invocation fallback.
+    ...extraStageFlags,
     "--garment-mesh-name",
     HM08_UPPER_GARMENT_FALLBACK_MESH_PREFIX,
   ];
   if (existsSync(ANNY_REFERENCE_OBJ)) {
-    blenderArgs.push("--anny-obj", ANNY_REFERENCE_OBJ);
+    if (!process.env.OPENCLINXR_FIT_NO_ANNY) blenderArgs.push("--anny-obj", ANNY_REFERENCE_OBJ);
   }
 
   const result = await runCmd(blender, blenderArgs, {
