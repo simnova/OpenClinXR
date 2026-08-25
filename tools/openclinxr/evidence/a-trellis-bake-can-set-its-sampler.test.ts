@@ -45,6 +45,18 @@ import { describe, expect, it } from "vitest";
  * claimScope: which arguments the bake CLI and the Python script accept, read from their source.
  * notEvidenceFor: what any sampler value does to output quality — nothing has been varied yet; whether
  *   the pipeline honours a passed value; the multi-view path, which takes a different branch.
+ *
+ * ## FIXED (#662)
+ *
+ * All fifteen knobs are reachable end to end. Flag naming: `--<prefix>-<knob>` with prefix
+ * ss|shape|tex and knob steps|guidance-strength|guidance-rescale|guidance-interval (two floats
+ * LO HI)|rescale-t — e.g. `--ss-steps 8 --shape-guidance-interval 0.4 1.0`. Only explicitly
+ * passed values are forwarded; run_bake_isolated.py merges them over the pipeline defaults
+ * (user wins) in both single-view and multi-view branches, and records the effective merged
+ * table under `effectiveSamplerParams` plus explicit overrides under `samplerOverrides`
+ * (`--hf-demo`'s `samplerParams` key is untouched). The second gap is closed in the same pass:
+ * `--decimation-target` and `--texture-size` were declared in Python but never forwarded by
+ * trellis-bake-cli.ts; they now parse, appear in dry-run plans, and reach argv.
  */
 
 const PY = "tools/openclinxr/evidence/blender/run_bake_isolated.py";
@@ -56,7 +68,7 @@ const py = (): string => readFileSync(PY, "utf8");
 const ts = (): string => readFileSync(TS, "utf8");
 
 describe("a trellis bake can set its sampler", () => {
-  it.fails("(1) the bake exposes sampler knobs and forwards them", () => {
+  it("(1) the bake exposes sampler knobs and forwards them", () => {
     const p = py(); const t = ts();
     const missingPython = REQUIRED_FLAGS.filter((f) => !p.includes(`"${f}"`));
     expect(
