@@ -15,8 +15,7 @@ import { dirname, join } from "node:path";
 import { briefFromIssue } from "./board-brief.js";
 import { getBoardSnapshot } from "./board-snapshot-cache.js";
 import {
-  appendHistory, classifyDoneClaims, markChronic, PERSISTENCE_WINDOW, priorFindingKeys, readyDepth, resolvedSince, verifyDoneClaim,
-} from "./supervisor-audit.js";
+  appendHistory, classifyDoneClaims, markChronic, PERSISTENCE_WINDOW, priorFindingKeys, readyDepth, resolvedSince, verifyDoneClaim, doneClaimRowsToVerify, } from "./supervisor-audit.js";
 import type { Finding, SupervisorAudit } from "./supervisor-audit.js";
 
 const REPO = join(dirname(new URL(import.meta.url).pathname), "../../..");
@@ -63,6 +62,15 @@ async function main(): Promise<void> {
     "--limit", "500", "--json", "number,title,body"])) as Array<{ number: number; title: string; body: string }>;
   const byNumber = new Map(issues.map((i) => [i.number, i]));
 
+  // Duty 3 must also see work that FINISHED. An open-only fetch drops every Landed/Graded row whose
+  // issue has been closed — i.e. exactly the successful end state — so a landing became invisible to
+  // this instrument the moment it was completed. Bounded to the most recent closures: duty 3 is
+  // re-verifying recent claims, not auditing the whole history.
+  const closedIssues = JSON.parse(gh(["issue", "list", "--repo", "simnova/OpenClinXR", "--state", "closed",
+    "--limit", "40", "--json", "number"])) as Array<{ number: number }>;
+  const closedNumbers = new Set(closedIssues.map((i) => i.number));
+  const openNumbers = new Set(issues.map((i) => i.number));
+
   const cards = issues.map((i) => {
     const row = items.find((it) => it.content?.number === i.number);
     return {
@@ -82,14 +90,15 @@ async function main(): Promise<void> {
   }
 
   // Duty 3: every card the board says is finished.
-  const doneClaims = items
-    .filter((it) => (it.factory === "Landed" || it.factory === "Graded") && typeof it.content?.number === "number")
-    .filter((it) => byNumber.has(it.content!.number!))
-    .map((it) => verifyDoneClaim(REPO, it.content!.number!, String(it.factory)));
+  const doneClaims = doneClaimRowsToVerify(
+    items as ReadonlyArray<{ factory: string; content?: { number?: number } }>,
+    openNumbers,
+    closedNumbers,
+  ).map((n) => verifyDoneClaim(REPO, n, String(items.find((it) => it.content?.number === n)!.factory)));
     // Landed-and-open is the NORMAL state between merge and grade, not drift; only Graded-and-open
     // is drift. Extracted to `classifyDoneClaims` so the distinction is unit-testable — it was
     // inline and untested, and reported duty 3's own happy path as a defect. Clauses (24) and (25).
-    const classified = classifyDoneClaims(doneClaims);
+    const classified = classifyDoneClaims(doneClaims, openNumbers);
     findings.push(...classified.findings);
     // pendingReviews is TELEMETRY: reported in the artifact, never a finding, never chronic-eligible.
     const pendingReviews = classified.pendingReviews;

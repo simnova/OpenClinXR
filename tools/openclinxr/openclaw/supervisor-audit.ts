@@ -203,7 +203,44 @@ export function consecutiveStreak(key: string, windows: string[][]): number {
  * closed it). No age threshold: "overdue" needs a number nobody has calibrated, and inventing one
  * here would be fitting a gate to an observation.
  */
-export function classifyDoneClaims(claims: DoneClaim[]): {
+/**
+ * Which board rows duty 3 must verify.
+ *
+ * A row counts when it CLAIMS completion (`Landed` or `Graded`) and the audit knows the issue —
+ * whether it is open or CLOSED. Closing is the normal successful end state, so an open-only rule
+ * verifies exactly the work that is not yet finished and drops the work that is. Measured: the
+ * moment #646 was graded and closed, `doneClaims` went from one entry to zero, and #665 landed and
+ * closed between two audits without duty 3 ever seeing it.
+ *
+ * An unknown number is skipped rather than verified: it would cost a `gh` round-trip per phantom
+ * and report failures for issues this audit never fetched.
+ */
+export function doneClaimRowsToVerify(
+  rows: ReadonlyArray<{ factory: string; content?: { number?: number } }>,
+  openNumbers: ReadonlySet<number>,
+  closedNumbers: ReadonlySet<number>,
+): number[] {
+  const out: number[] = [];
+  for (const row of rows) {
+    if (row.factory !== "Landed" && row.factory !== "Graded") continue;
+    const n = row.content?.number;
+    if (typeof n !== "number") continue;
+    if (!openNumbers.has(n) && !closedNumbers.has(n)) continue;
+    out.push(n);
+  }
+  return out;
+}
+
+export function classifyDoneClaims(
+  claims: DoneClaim[],
+  /**
+   * Issue numbers that are OPEN. When supplied, a `Graded` claim whose issue is NOT in this set is
+   * correctly finished and produces no drift finding — it was graded and then closed, which is the
+   * intended end state. Omitting it preserves the original behaviour (every claim treated as open),
+   * which was safe only while the caller fetched open issues exclusively.
+   */
+  openIssueNumbers?: ReadonlySet<number>,
+): {
   findings: Finding[];
   pendingReviews: PendingReview[];
 } {
@@ -214,6 +251,8 @@ export function classifyDoneClaims(claims: DoneClaim[]): {
     findings.push({ duty: 3, key: `done-unverified-${c.issue}`, detail: `#${c.issue} (${c.stage}): ${c.why}` });
   }
   for (const c of claims.filter((x) => x.ok)) {
+    const isOpen = openIssueNumbers ? openIssueNumbers.has(c.issue) : true;
+    if (!isOpen) continue; // graded/landed AND closed: the finished state, nothing to report
     if (String(c.stage) === "Graded") {
       findings.push({
         duty: 3, key: `done-but-open-${c.issue}`,
