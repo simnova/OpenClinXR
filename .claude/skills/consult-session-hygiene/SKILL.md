@@ -107,3 +107,37 @@ Why empty generations begin at ~246k on this route when a different model carrie
 The 400 response body is discarded before logging, so the context-envelope and image-payload hypotheses
 remain confounded. **Capture the full response body on terminal API errors** — that would likely settle
 it on the next occurrence.
+
+## The restore stall recurred at the SAME numbers — n=2, 2026-08-25
+
+Thread A died at 3,662 messages / 18 MB. Seven days later a different long-lived superagent thread
+stalled at **3,662 lines / 19,117,759 bytes (18.2 MB)** — the same two numbers to three significant
+figures. That is no longer an anecdote; treat **~3,600 update lines or ~18 MB as a hard ceiling** on
+this route and retire a thread before it gets there.
+
+History in the dead thread: **155 × HTTP 429** and **one 402**. Zero `no_visible_content`. So the
+documented fire alarm did NOT fire — a thread can reach the restore ceiling through ordinary rate
+limiting without ever emitting the empty-generation signature.
+
+### The cheapest detector is the FILE MTIME, not CPU and not connections
+
+The stall presents as a live process doing nothing. Ranked by cost to check:
+
+| signal | cost | verdict here |
+|---|---|---|
+| **`stat` the session's `updates.jsonl`** | one command | mtime **22:23**, resume launched **01:53** — frozen four hours |
+| process CPU | one command | 0.0% — consistent with stall AND with a healthy long inference |
+| session line count over 45 s | two commands + a wait | flat, but flat is also normal mid-turn |
+| `no_visible_content` grep | one command | **absent — would have missed this entirely** |
+
+**An mtime older than the resume's own launch time is conclusive.** The process cannot be mid-turn on a
+session whose transcript predates the request. Nothing else on the list distinguishes stall from work.
+
+I waited **71 minutes** on 0.0% CPU before checking mtime. The skill already said waiting buys nothing
+past 120 s; the reason I waited is that I was watching the wrong instrument.
+
+### Do not resume a thread you are only guessing is alive
+
+The kill is `kill <pid> 2>/dev/null || true` and costs nothing. The transcript survives, so a genuinely
+useful thread can be resumed later — but at 3,600 lines it should not be. Open fresh, state plainly
+what died, and carry the measurements inline (§"Starting fresh").
