@@ -62,6 +62,40 @@ then the same correction **again**, near-verbatim. One repeat is a pattern.
   Staging mechanics live in `grok-worker-monitoring` section 3.
 - **If two consecutive slices could have been one, that was one slice.** Log it.
 
+## 5. The brief text itself - a sed-derived dispatch carries stale references
+
+Measured 2026-08-25. I built #651's dispatch by `sed`-ing #652's script. The `if (issue.number !== N)
+exit(1)` guard - added after a dispatch once ran against the wrong issue - passed, because the NUMBER
+was right. The **payload** was not: the appended brief still said
+
+> "The planted header in `no-actor-can-be-cast-onto-the-anny-rail.test.ts` is IMMUTABLE. Flip the two
+> `it.fails`..."
+
+That is the PREVIOUS slice's landed, green contract, and #651's contract has ONE `it.fails`. A worker
+following it would have edited the wrong file. Caught at 60 seconds; killed, corrected, re-dispatched.
+
+**The guard covered the address and not the letter.** Third stale-reference incident from a copied
+dispatch script.
+
+**The mechanical check, before every dispatch built from a previous one:**
+
+```
+grep -o '[a-z0-9-]*\.test\.ts' <dispatch script> | sort -u
+```
+
+Every filename it prints must appear in this slice's `done_when` proofs. If one does not, it is a
+leftover. Also count the `it.fails` clauses in the planted contract and check the brief's number
+matches.
+
+**Better: assert it in the script rather than eyeballing it.**
+
+```js
+const planted = brief.proofs.find((p) => String(p).includes(".test.ts"));
+if (!extra.includes(plantedBasename)) throw new Error("brief names a different test than the contract");
+```
+
+A brief that names the wrong artifact is my defect, and the worker has no way to know.
+
 ## The gate, compressed
 
 One line each, before every dispatch:
@@ -70,5 +104,6 @@ One line each, before every dispatch:
 2. **Prior art** - which registry was searched, what was found?
 3. **Collision** - which handoffs and commits were checked?
 4. **Size** - why is this not two slices?
+5. **Brief text** - if this script was copied, which filenames did I re-check? (§5)
 
-**Four answers is aligned. Four silences is drift on credit.**
+**Five answers is aligned. Five silences is drift on credit.**
