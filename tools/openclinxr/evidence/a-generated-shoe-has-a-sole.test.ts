@@ -44,6 +44,15 @@ import { describe, expect, it } from "vitest";
  * claimScope: downward-facing area fraction and distinct-normal count of the named footwear meshes.
  * notEvidenceFor: whether a soled shell looks like a shoe to a human; the toe-region shape defect
  *   measured on adult_male_street_casual, which is AABB-invisible and separate; any actor not named.
+ *
+ * ## FIXED (#660)
+ * The generator replaced the bottom three ring vertices (j=5..7) of each ring with a flat strip on
+ * the sole plane; the strip half-width is 0.30 * (rx + ry), scaling with ring size so the short
+ * hospital-slipper rings get a narrower strip than the taller clinical shoe. Measured on the
+ * regenerated GLBs: peds_fever_patient_child sole 0.159, peds_nurse_kevin sole 0.153 (both were
+ * 0.000). Both sit in [0.15, 0.162): above the 0.15 threshold and below the 0.262 - 0.1 vacuity
+ * ceiling. #659's containment guarantee is unchanged — the flat vertices stay inside the shoe AABB,
+ * so the foot-outside fraction remains 0.000 for both actors.
  */
 
 const HUMANOIDS = "apps/ui-xr/public/generated-humanoids";
@@ -107,7 +116,7 @@ async function footOutsideFraction(basename: string): Promise<number> {
 }
 
 describe("a generated shoe has a sole", () => {
-  it.fails("(1) the generated shells have a flat sole, not an ellipsoid bottom", async () => {
+  it("(1) the generated shells have a flat sole, not an ellipsoid bottom", async () => {
     for (const asset of ["peds_fever_patient_child.glb", "peds_nurse_kevin.glb"]) {
       const s = await shoeShape(asset, /footwear|slipper|shoe/u);
       expect(

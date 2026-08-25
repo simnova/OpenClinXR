@@ -4327,10 +4327,9 @@ def embed_role_footwear_shells(
             z = (aabb["min"][2] - pad_z * 0.5) + t * (aabb["sz"] + pad_z)
             # issue-659: the ellipse bottom (cy_ring - ry) can float above the body's
             # lowest point when the ring is short (hospital_slipper height_scale x0.72
-            # and the y1 cap), so the sole-flatten branch below never fires and the
-            # shoe never reaches the ground. Re-anchor the ellipse between its own top
-            # and the sole plane when the bottom would float; keep the top unchanged.
-            y_sole = y0 + 0.002  # sole plane (same as the flatten branch below)
+            # and the y1 cap). Re-anchor the ellipse between its own top and the sole
+            # plane when the bottom would float; keep the top unchanged.
+            y_sole = y0 + 0.002  # sole plane (the issue-660 flat strip sits on it)
             for j in range(n_circ):
                 ang = (j / n_circ) * 2.0 * math.pi
                 # y from sole up; x lateral about foot center.
@@ -4341,11 +4340,20 @@ def embed_role_footwear_shells(
                 if cy_ring - ry > y_sole:
                     cy_ring = (ring_top + y_sole) * 0.5
                     ry = (ring_top - y_sole) * 0.5
-                x = cx + rx * math.cos(ang)
-                y = cy_ring + ry * math.sin(ang)
-                # Flatten sole: bottom half sits flat-ish.
-                if y < y0 + 0.006:
-                    y = y0 + 0.002 + 0.004 * max(0.0, math.sin(ang))
+                # issue-660 sole: an ellipse has no flat bottom (measured sole-area
+                # fraction 0.000), so the bottom three ring vertices (j=5..7) sit on
+                # the sole plane instead of on the ellipse. The flat strip's half-width
+                # is 0.30 * (rx + ry), i.e. it scales with ring size: short slipper
+                # rings get a narrower strip so both shoe classes land in the same
+                # sole-area band. Vertices stay inside the issue-659 AABB, so foot
+                # containment is unchanged.
+                if j in (5, 6, 7):
+                    sole_half_w = 0.30 * (rx + ry)
+                    x = cx if j == 6 else cx + math.copysign(sole_half_w, math.cos(ang))
+                    y = y_sole
+                else:
+                    x = cx + rx * math.cos(ang)
+                    y = cy_ring + ry * math.sin(ang)
                 verts.append((x, y, z))
         faces = []
         for i in range(n_long - 1):
