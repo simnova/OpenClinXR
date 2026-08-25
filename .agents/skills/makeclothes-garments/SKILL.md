@@ -125,15 +125,40 @@ MEASURED: render the body with the garment HIDDEN and with it SHOWN. The two fra
 **pixel-identical**. The robe is therefore the BODY mesh, not the garment and not a shading artifact.
 The fitted shirt sits UNDERNEATH it and only shows as teal slivers at the shoulders.
 
-**INFERRED, not yet proven:** that shape is MakeHuman helper geometry — the loose outer shell used
+**CONFIRMED 2026-08-25 — the garment is fine and the shell hides it.** Three measurements, and a
+render that finally shows the garment:
+
+1. before/after frames with the garment hidden vs shown are **pixel-identical**
+2. ray-casting outward from the centreline finds an **enclosing surface at ~0.21 m radius** from shin
+   to chest; at thigh and shin it is the ONLY surface, which a bare body cannot produce (casting
+   forward from between the legs would hit nothing)
+3. deleting body faces with `hypot(x,y) > 0.16` below the head reveals **a clean teal scrub top —
+   V-neck, short sleeves, hem at the hip, fitted to the torso**
+
+### The recipe that makes this station gradeable
+
+```python
+# after import, before render — delete the enclosing shell from the BODY mesh only
+bm = bmesh.new(); bm.from_mesh(body.data)
+kill = [f for f in bm.faces
+        if math.hypot(*f.calc_center_median()[:2]) > 0.16 and f.calc_center_median().z < 1.62]
+bmesh.ops.delete(bm, geom=kill, context='FACES')
+```
+
+It culls ~26,000 of 36,972 faces and costs nothing. Render EEVEE with `view_transform="Standard"`
+and `exposure=-0.4`; keep the GLB's OWN materials (`hm08_skin`, `scrub_teal`) rather than repainting,
+because they are already distinct and repainting them washed the frame out on the first attempt.
+
+Culling by radius also removes the arms in T-pose. That is acceptable for grading the torso garment
+and wrong for grading sleeves — raise the radius or cull by height band if sleeves are the subject.
+
+**Still INFERRED:** that the shell is specifically MakeHuman helper geometry — the loose outer shell used
 for clothes fitting, which reads as a shapeless robe from shoulders to ankles, with helper blobs at
 the feet and strips at the head. `ExportService.bake_modifiers_remove_helpers()` is the proven API
 for stripping it, and `mpfb2-actor-is-stripped-of-helpers.test.ts` exists for the MPFB rail. The
 library rail's basemesh appears never to have been stripped.
 
-**The measurement that would settle it** (not yet run): at hip height, count distinct surface radii
-along a horizontal ray. A body plus a helper shell gives two concentric surfaces; a bare body gives
-one. Vertex-index stripping will NOT work here — the exported mesh is 73,920 verts with **zero
+**What it is NOT:** vertex-index stripping will not work here — the exported mesh is 73,920 verts with **zero
 vertex groups**, and separating by loose parts yields **18,474 islands** of ~4 verts each, so the
 glTF export is fully unwelded and carries no helper grouping to key off.
 
