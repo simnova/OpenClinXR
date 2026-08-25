@@ -1,5 +1,6 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { createHash } from "node:crypto";
 import { NodeIO } from "@gltf-transform/core";
 import { decodePng } from "./decode-png.js";
 
@@ -90,7 +91,7 @@ const BAKER = "tools/openclinxr/asset-pipeline/environment/room-occlusion-bake.p
 /** The known-good wall, pinned by clause (3). Measured on HEAD 81d06dd6. */
 const KNOWN_GOOD_WALL = "ed_bay_soft_blue_wall";
 
-type AoMap = { glb: string; material: string; mean: number; sd: number; black: number; strength: number };
+type AoMap = { glb: string; material: string; mean: number; sd: number; black: number; strength: number; sha: string };
 
 let cache: AoMap[] | null = null;
 
@@ -127,6 +128,7 @@ async function census(): Promise<AoMap[]> {
         sd: Math.sqrt(sq / n),
         black: below64 / n,
         strength: material.getOcclusionStrength(),
+        sha: createHash("sha256").update(tex.getImage()!).digest("hex").slice(0, 16),
       });
     }
   }
@@ -140,6 +142,18 @@ const median = (xs: number[]): number => {
   const h = s.length >> 1;
   return s.length % 2 === 1 ? s[h]! : (s[h - 1]! + s[h]!) / 2;
 };
+
+/** Groups of AO maps sharing one image hash. A copied map is the cheapest way to fake a bake. */
+function duplicateShaGroups(rows: readonly AoMap[]): string[] {
+  const by = new Map<string, string[]>();
+  for (const r of rows) by.set(r.sha, [...(by.get(r.sha) ?? []), `${r.glb}/${r.material}`]);
+  return [...by.entries()].filter(([, ks]) => ks.length > 1).map(([sha, ks]) => `${sha}: ${ks.join(" | ")}`);
+}
+
+/** AO maps wired at zero strength - present in the slot, absent from the render. */
+function silenced(rows: readonly AoMap[]): string[] {
+  return rows.filter((r) => !(r.strength > 0)).map((r) => `${r.glb}/${r.material} strength=${r.strength}`);
+}
 
 describe("a baked room occlusion map is not the room's own darkness", () => {
   it.fails("(1) RED: every generated room's BRIGHTEST occlusion map is darker than the hand-built shell's MEDIAN one", async () => {
@@ -253,6 +267,39 @@ describe("a baked room occlusion map is not the room's own darkness", () => {
     const flattened = rows.filter((r) => r.sd < threshold).map((r) => `${r.glb}/${r.material} sd=${round2(r.sd)}`);
     expect(flattened, `every wired map must clear the baker's own gate of ${threshold} — a flat white is not a fix`)
       .toEqual([]);
+  });
+
+  it("(6) COUNTERWEIGHT: no AO map is a COPY of another, and none ships silenced", async () => {
+    // THE SECOND CHEAP FIX, NAMED (found by a gpt-5.6-sol review 2026-08-25, then reproduced):
+    // clauses (1), (2) and (4) are all LUMINANCE STATISTICS. Copying the hand-built known-good
+    // wall AO into every generated material clears all three at once - mean 216.30 beats the
+    // 117.91 median, black 0.0585 beats the 0.9533 floor, sd 62.68 beats the gate of 6 - while
+    // encoding the WRONG GEOMETRY for every generated room. SS11s: the clauses bound a QUANTITY
+    // while the defect lives in the SHAPE.
+    //
+    // This does NOT prove locality (see NOT TESTED). It kills wholesale copying and silencing,
+    // the two cheapest routes to a green that ships no real occlusion.
+    const rows = await census();
+
+    // Detector proof: these predicates must FLAG a planted cheat, or the clause is decoration.
+    const synthetic: AoMap[] = [
+      { glb: "a.glb", material: "m1", mean: 216, sd: 62, black: 0.05, strength: 1, sha: "deadbeefdeadbeef" },
+      { glb: "b.glb", material: "m2", mean: 216, sd: 62, black: 0.05, strength: 1, sha: "deadbeefdeadbeef" },
+      { glb: "c.glb", material: "m3", mean: 216, sd: 62, black: 0.05, strength: 0, sha: "0123456789abcdef" },
+    ];
+    expect(duplicateShaGroups(synthetic).length, "the duplicate detector must flag a planted copy").toBe(1);
+    expect(silenced(synthetic).length, "the silence detector must flag a planted strength-0 map").toBe(1);
+
+    // The real population: measured 69 maps, 69 distinct hashes, all at full strength.
+    expect(rows.length, "the AO population must not vanish out from under this clause").toBeGreaterThan(40);
+    expect(
+      duplicateShaGroups(rows),
+      "no occlusion map may be byte-identical to another - a copied map encodes another room's geometry",
+    ).toEqual([]);
+    expect(
+      silenced(rows),
+      "no occlusion map may ship at strength 0 - a silenced map is a deleted map wearing a texture slot",
+    ).toEqual([]);
   });
 
   it("(5) READING (SS9d): the generated-room AO census is recorded, not asserted", async () => {
