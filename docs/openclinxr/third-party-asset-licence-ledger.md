@@ -354,3 +354,49 @@ NOT TESTED: whether `saveGltf2Bvh` preserves the 66-joint source names the sourc
 whether the BVH round-trip renames or flattens them. That is the first thing to measure if a bind
 comes back with unexpectedly low coverage - the map may be correct and the round-trip lossy.
 
+
+## CORRECTION 2026-08-25 — `.obj` AGPL3 boilerplate is NOT the asset licence; two refusals reversed
+
+**Operator, 2026-08-25:** *"recall that license files are sometimes off and you need to check the make
+human website for the reference to the more permissive license."* Checked, and the hint was right.
+
+`#540` refused `cortu_cargo_pants` and `culturalibre_male_boots` on a single line in their `.obj`:
+
+```
+# license AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)
+```
+
+**That line is stale template boilerplate and its URL is dead.** `makehuman.org` is now a parked
+domain advertising itself for sale, so the document the header defers to no longer exists. The header
+also defers to an *external tools* licence — MakeHuman the software — not to the asset.
+
+Three sources measured 2026-08-25, and the two ASSET-SPECIFIC ones agree:
+
+| source | `culturalibre_male_boots` | `cortu_cargo_pants` |
+|---|---|---|
+| pack page, `static.makehumancommunity.org/assets/assetpacks/shoes01.html` / `pants01.html` | **CC0** (author culturalibre) | **CC0** (author Cortu) |
+| `.mhclo` asset descriptor | **`# license CC-0`** | (no licence line) |
+| `.obj` mesh header | `# license AGPL3` + dead URL | `# license AGPL3` + dead URL |
+
+Both pack pages list every asset with an explicit per-asset licence column, and neither page mentions
+AGPL anywhere. shoes01 is CC0 across all 23 entries; pants01 is CC0 across all 4.
+
+**RULING: the `.mhclo` is the asset descriptor MakeClothes authors, and the pack page is the
+publisher's per-asset record. Where those two agree, a boilerplate line in the `.obj` deferring to a
+dead external-tools page does not override them.** `cortu_cargo_pants` and `culturalibre_male_boots`
+are **CC0 and cleared**, which also clears them for the six cast actors already wearing them.
+
+**WHAT THIS DOES NOT REVERSE.** The `skins01`/`skins02` refusals stand and are a different shape: those
+carry `# This file is licensed AGPLv3` as an explicit per-file statement in the asset's OWN `.mhmat`
+descriptor, not boilerplate in a mesh, and 21 of 23 carry no licence line at all. The rule that
+*unspecified is a refusal* is unchanged. So is the `#497` finding that a page alone cannot clear a
+file — what clears these two is the DESCRIPTOR agreeing with the page, not the page by itself.
+
+**Precedence for future intake, in order:**
+1. the asset's own descriptor (`.mhclo` / `.mhmat`) — the author's declaration
+2. the publisher's per-asset pack page
+3. a mesh-header line — only when it is asset-specific, never when it is template boilerplate
+   deferring to an external-tools document
+
+Silence anywhere still refuses. Two sources disagreeing still refuses unless one is demonstrably
+boilerplate, as here.

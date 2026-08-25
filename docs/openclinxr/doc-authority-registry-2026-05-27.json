@@ -4,7 +4,7 @@
   "protectedRule": "Protected-policy files are off-limits to routine agents: do not delete, weaken, bypass, rename, or reinterpret them during autonomous work.",
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
-    "agent-methodology": 80,
+    "agent-methodology": 81,
     "current-reference": 214,
     "archive-candidate": 11,
     "evidence": 52,
@@ -12,7 +12,7 @@
     "agent-memory": 39,
     "historical-synthesis": 11,
     "decision-record": 44,
-    "total": 464,
+    "total": 465,
     "generated-evidence": 1,
     "reference": 1
   },
@@ -65,6 +65,13 @@
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
       "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
+    },
+    {
+      "path": ".agents/skills/makeclothes-garments/SKILL.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "MakeClothes garment station: installed toolchain, the hm08-vs-MPFB targeting trap, the measured library-vs-worn gap, and the licence precedence that reversed two wrong AGPL refusals."
     },
     {
       "path": ".agents/skills/model-routing/SKILL.md",
