@@ -23,6 +23,15 @@
  *   or clinical validity; learner readiness; Quest readiness. This is a comparison
  *   instrument, not a measurement standard.
  *
+ * WHAT THE GIRTH METRIC CANNOT SEE (#297, measured 2026-08-25). The girths are
+ * CONNECTIVITY-dependent and stature is not. On a mesh whose faces no longer share
+ * vertices, this instrument used to return near-zero girths as ordinary numbers — waist
+ * EXACTLY 0.0000 m on geometry bit-identical to a body measuring 0.7347 m — while stature
+ * stayed correct to 4 decimal places. It now refuses that input
+ * (`MIN_SHARED_VERTEX_FRACTION`), because a solve loop minimising girth error would read a
+ * destroyed mesh as a perfect match. A faceless point cloud is still accepted and takes the
+ * lateral XZ clustering path; that is a different case and not degraded.
+ *
  * Every artifact records `annyPath: real_anny_forward_pass` only when the adjacent
  * provenance record carries `real_anny_mpfb2_forward_pass_v1` (verified by reading the
  * file, not assumed) — per MADR 0051's BLOCKER note that a stub reference is not
@@ -520,6 +529,43 @@ export type LandmarkSet = {
  *    use a limb width minimum where one is a real local minimum; otherwise the
  *    documented anthropometric fallback fraction is used and labelled in `methods`.
  */
+/**
+ * Fraction of USED vertices that more than one face references — the mesh's surface
+ * connectivity, in one number.
+ *
+ * Measured 2026-08-25: 1.0000 on all 8 tracked `.anny_base.obj` references, 0.9821 /
+ * 0.9884 on real exported MPFB GLB round-trips, and 0.0000 when every face is put on
+ * private vertices. `faces` empty returns 0 and the caller must not treat that as
+ * degraded — a point cloud has no connectivity to lose and takes the documented lateral
+ * XZ clustering path instead.
+ */
+export function sharedVertexFraction(
+  vertexCount: number,
+  faces: readonly number[][],
+): number {
+  const degree = new Uint32Array(vertexCount);
+  for (const face of faces) for (const vi of face) degree[vi]++;
+  let used = 0;
+  let shared = 0;
+  for (let i = 0; i < degree.length; i++) {
+    if (degree[i] > 0) {
+      used++;
+      if (degree[i] > 1) shared++;
+    }
+  }
+  return used === 0 ? 0 : shared / used;
+}
+
+/**
+ * Below this, a faced mesh is treated as having no usable surface connectivity.
+ *
+ * NOT fitted to an observation. The measured classes are 1.0000 (intact references),
+ * 0.9821-0.9884 (real glTF exports) and 0.0000 (connectivity destroyed); 0.5 is the
+ * midpoint of an entirely empty gap. The upper class is the one that matters — the guard
+ * must never refuse the pipeline's own exported bodies.
+ */
+export const MIN_SHARED_VERTEX_FRACTION = 0.5;
+
 export function extractLandmarks(meshId: string, objText: string): LandmarkSet {
   // #301: refuse a MakeHuman-helper-bearing mesh rather than measure it. A
   // measurement taken on the clothes/hair fitting shells is a wrong surface that
@@ -537,6 +583,25 @@ export function extractLandmarks(meshId: string, objText: string): LandmarkSet {
     );
   }
   const { positions, faces } = parseObj(objText);
+  // Refuse a mesh whose surface connectivity is gone, for the same reason as #301 above:
+  // the girth measures walk MESH-SURFACE connectivity to separate the torso from the
+  // arms, and on a disconnected surface they do not fail — they return near-zero girths
+  // that read as measurements (measured: waist EXACTLY 0.0000 m on geometry that is
+  // otherwise bit-identical to a body measuring 0.7347 m). A solve loop driving girth
+  // error toward zero would read that as a perfect match. Stature is a bounding measure
+  // and is unaffected, which is what makes the failure look plausible.
+  if (faces.length > 0) {
+    const shared = sharedVertexFraction(positions.length, faces);
+    if (shared < MIN_SHARED_VERTEX_FRACTION) {
+      throw new Error(
+        `#297: ${meshId} has no usable surface connectivity ` +
+          `(shared-vertex fraction ${shared.toFixed(4)} < ${MIN_SHARED_VERTEX_FRACTION}). ` +
+          `The girth measures separate torso from arms by mesh-surface connectivity and would ` +
+          `silently return near-zero girths on this mesh. Pass a mesh with shared vertices, or ` +
+          `pass positions with no faces to take the documented lateral XZ clustering path.`,
+      );
+    }
+  }
   const { stature, bands } = buildBandProfile(positions, faces);
   const inWindow = (b: BandProfile, w: readonly [number, number]) =>
     b.frac >= w[0] && b.frac <= w[1];
