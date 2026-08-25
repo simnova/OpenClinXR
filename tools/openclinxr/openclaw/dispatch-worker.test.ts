@@ -1,6 +1,7 @@
 import { spawn } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { EventEmitter } from "node:events";
-import { appendFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { appendFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -20,7 +21,9 @@ import {
   isTextOnlyModel,
   latestSessionFor,
   loadTrustedBrief,
+  mainHeadSha,
   parseResult,
+  pathsTouchedByCommitsSince,
   readSessions,
   assertProofShape,
   recordSession,
@@ -629,6 +632,81 @@ describe("dispatch path does not tax or destroy the work it supervises (#47, #48
     const prepare = mod["prepareWorktreeForWorker"] as undefined | ((path: string) => unknown);
     // 3/3 retro'd workers burned opening turns discovering node_modules was absent.
     expect(prepare).toBeTypeOf("function");
+  });
+});
+
+/**
+ * #344 — commit evidence for the leak-window attribution (the mechanism beside the planted
+ * contract in evidence/a-peer-lanes-commit-is-not-a-worker-leak.test.ts).
+ *
+ * `pathsTouchedByCommitsSince` gathers repo-relative paths touched by commits made to main in
+ * (sinceSha, HEAD]. The planted contract asserts the exclusion; these tests assert the evidence
+ * itself is gathered — including from `--no-ff` integrate merges, which is how peer dispatches
+ * land on main (integrate.ts), and that an unreadable anchor fails closed (no filtering).
+ */
+describe("#344 commit evidence — pathsTouchedByCommitsSince", () => {
+  const tempRoots: string[] = [];
+
+  afterEach(() => {
+    while (tempRoots.length > 0) {
+      const root = tempRoots.pop();
+      if (root) rmSync(root, { recursive: true, force: true });
+    }
+    resetCoordinationRootCache();
+  });
+
+  function git(cwd: string, args: string[]): string {
+    return execFileSync("git", args, {
+      cwd,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+      env: {
+        ...process.env,
+        GIT_AUTHOR_NAME: "dispatch-worker-test",
+        GIT_AUTHOR_EMAIL: "dispatch-worker-test@example.com",
+        GIT_COMMITTER_NAME: "dispatch-worker-test",
+        GIT_COMMITTER_EMAIL: "dispatch-worker-test@example.com",
+      },
+    });
+  }
+
+  it("returns paths touched by commits in (sinceSha, HEAD], including a --no-ff integrate merge", () => {
+    const root = mkdtempSync(join(tmpdir(), "dispatch-worker-"));
+    tempRoots.push(root);
+    git(root, ["init", "-q", "-b", "main"]);
+    git(root, ["config", "user.email", "t@example.com"]);
+    git(root, ["config", "user.name", "t"]);
+    writeFileSync(join(root, "a.md"), "a\n");
+    git(root, ["add", "-A"]);
+    git(root, ["commit", "-q", "-m", "init"]);
+    const base = git(root, ["rev-parse", "HEAD"]).trim();
+    // A peer lane's direct commit, then another lane landing through integrate's --no-ff merge.
+    writeFileSync(join(root, "peer.md"), "peer\n");
+    git(root, ["add", "-A"]);
+    git(root, ["commit", "-q", "-m", "peer lane commit"]);
+    git(root, ["checkout", "-q", "-b", "wt/lane"]);
+    writeFileSync(join(root, "merged.md"), "merged\n");
+    git(root, ["add", "-A"]);
+    git(root, ["commit", "-q", "-m", "lane work"]);
+    git(root, ["checkout", "-q", "main"]);
+    git(root, ["merge", "--no-ff", "-q", "-m", "integrate lane", "wt/lane"]);
+
+    const touched = pathsTouchedByCommitsSince(root, base);
+    expect(touched).toEqual(expect.arrayContaining(["peer.md", "merged.md"]));
+    expect(touched).not.toContain("a.md");
+  });
+
+  it("fails closed on an unreadable anchor — no filtering evidence, detector stays strict", () => {
+    const root = mkdtempSync(join(tmpdir(), "dispatch-worker-"));
+    tempRoots.push(root);
+    git(root, ["init", "-q", "-b", "main"]);
+    git(root, ["config", "user.email", "t@example.com"]);
+    git(root, ["config", "user.name", "t"]);
+    writeFileSync(join(root, "a.md"), "a\n");
+    git(root, ["add", "-A"]);
+    git(root, ["commit", "-q", "-m", "init"]);
+
+    expect(pathsTouchedByCommitsSince(root, "deadbeef".repeat(5))).toEqual([]);
   });
 });
 

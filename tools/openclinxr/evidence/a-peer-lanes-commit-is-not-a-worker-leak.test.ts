@@ -44,6 +44,22 @@ import { attributeIsolationLeak } from "../openclaw/dispatch-worker.js";
  * notEvidenceFor: whether the deny matcher is a sandbox (it is not); whether any real cross-worktree
  *   write has ever occurred; the detector's behaviour on a peer lane that writes WITHOUT committing,
  *   which this contract does not address and which remains misattributed.
+ *
+ * ## FIXED (#344)
+ *
+ * `attributeIsolationLeak` now takes `concurrentlyCommittedPaths` — paths touched by commits made
+ * to the main checkout between the dispatch's spawn snapshot and its exit. A path in that set is
+ * attributed to whoever made the commit, never to the worker: a worker only writes files and
+ * cannot forge a commit. The evidence is gathered by `pathsTouchedByCommitsSince(repoRoot,
+ * mainHeadBefore)` at the leak check inside `dispatch()`; the window is anchored at the same
+ * instant as the `mainDirtyBefore` snapshot (`mainHeadSha` — `git rev-parse HEAD` at spawn), and
+ * `--no-ff` integrate merges are read via their first-parent diff. Uncommitted peer-lane writes
+ * are NOT covered — they remain misattributed (notEvidenceFor above). `orchestratorPaths`
+ * survives as the #48/#41 fix (clause 3); no production dispatch caller sets it, but the
+ * orchestrator cannot pre-declare mid-dispatch discoveries, so the declared set stays the
+ * mechanism for uncommitted orchestrator work.
+ *
+ * Clause (1) flipped `it.fails` -> `it`.
  */
 
 const WORKER_LEAK = "packages/openclinxr/asset-registry/src/leaked-by-worker.ts";
@@ -51,7 +67,7 @@ const PEER_COMMITTED = ".openclinxr/evidence/issue-297/landmark-comparison.json"
 const ORCHESTRATOR = "tools/openclinxr/openclaw/board-session-map.ts";
 
 describe("a peer lane's commit is not a worker leak", () => {
-  it.fails("(1) dirt explained by a commit made during the window is not a worker leak", () => {
+  it("(1) dirt explained by a commit made during the window is not a worker leak", () => {
     // The #665 shape: main was clean at spawn; a peer lane committed a change to PEER_COMMITTED while
     // the worker ran. The worker never touched it.
     const leaked = (attributeIsolationLeak as (input: {
