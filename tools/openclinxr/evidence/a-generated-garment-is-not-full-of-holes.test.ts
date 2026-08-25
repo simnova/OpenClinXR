@@ -48,6 +48,33 @@ import { describe, expect, it } from "vitest";
  * claimScope: boundary-loop topology of the named garment meshes, read from the shipped glTF.
  * notEvidenceFor: how any garment looks; fit; coverage; whether the holes are visible at runtime;
  *   the feet, hands, and hair defects graded on the same asset, which are separate meshes.
+ *
+ * ## FIXED (#656)
+ *
+ * CAUSE, MEASURED 2026-08-25: the micro-loops are created AFTER the repair pass at
+ * `automate_blender.py:2473` (remove_doubles 5e-4 + dissolve_degenerate — both clean). The
+ * hem-finish step "Aggressive weld on the hem plane" ran `remove_doubles(dist=0.008)` over ALL
+ * mesh verts. In the dense neck ring, cuffs and open-front cut edges (edges down to ~8 mm), that
+ * weld merges triangle verts; each merged-degenerate triangle is deleted and opens a 1-edge slit
+ * that reads as a 2- or 3-vertex boundary loop. Instrumented stage tables (child):
+ *
+ *   stage                          loops
+ *   PRE-weld                       [98, 26, 26, 22, 22]        no micro
+ *   POST-weld (5e-4 + degenerate)  [98, 43, 26, 26]            no micro
+ *   after hem snap + weld(0.008)   [73, 24, 22, 20, 18, 2, 2]  micro born here
+ *   FINAL (shipped)                [73, 46, 24, 22, 2, 2]
+ *
+ * FIX: scope the 0.008 hem weld to the hem band (`|y - bot_y| <= max(0.025, (neck_y - bot_y)*0.02)`)
+ * — the staircase polyline it exists to erase is all within a few rows of the plane; the neck,
+ * cuffs and open-front edges need no 8 mm weld. Threshold 6 and the library known-good column
+ * are untouched. Post-fix shipped loops:
+ *
+ *   rail       garment mesh                         loops                tris
+ *   GENERATED  real_garment_peds_upper (child)      [98, 44, 26, 26]     4883
+ *   GENERATED  real_garment_peds_upper (street)     casual [58, 39, 26, 26]; cardigan [58, 50, 21, 21]
+ *
+ * No library boundary changed. NOT TESTED (unchanged from header): runtime visibility, fit,
+ * coverage, and the separate feet/hands/hair defects.
  */
 
 const HUMANOIDS = "apps/ui-xr/public/generated-humanoids";
@@ -103,7 +130,7 @@ async function garmentTopology(basename: string, meshMatch: RegExp): Promise<Gar
 }
 
 describe("a generated garment is not full of holes", () => {
-  it.fails("(1) the procedurally generated garment has no torn micro-boundaries", async () => {
+  it("(1) the procedurally generated garment has no torn micro-boundaries", async () => {
     const t = await garmentTopology("peds_fever_patient_child.glb", /real_garment_peds_upper/u);
     const torn = t.loops.filter((n) => n < MIN_LEGITIMATE_LOOP_VERTICES);
     expect(
@@ -138,16 +165,21 @@ describe("a generated garment is not full of holes", () => {
     expect(t.triangles, "a garment that vanished has no holes and also no garment").toBeGreaterThan(200);
   }, 120_000);
 
-  it("(4) VACUITY GUARD: the welded loop finder distinguishes the two rails today", async () => {
-    // Without this, clause (1) passes on a finder that returns nothing and clause (2) on one that
-    // returns a single component for everything. Pins that it separates the assets it is comparing.
+  it("(4) VACUITY GUARD: the welded loop finder still separates the two rails after the fix", async () => {
+    // Before #656 the discriminator was "the child has micro-loops"; the fix removes them,
+    // so the discriminator is now the loop COUNT: a fixed generated garment has exactly its
+    // legitimate boundaries (neck, hem, two cuffs) while a watertight library garment has
+    // none. Zero loops on the child would mean the finder returns nothing (clause (1) green
+    // about nothing); any loops on the scrub would mean it returns a single component for
+    // everything.
     const child = await garmentTopology("peds_fever_patient_child.glb", /real_garment_peds_upper/u);
     const scrub = await garmentTopology("mpfb-clinical-nurse-adult.glb", /scrub_shirt/u);
     expect(
-      child.loops.filter((n) => n < MIN_LEGITIMATE_LOOP_VERTICES).length,
-      "the child garment carried two 2-vertex boundaries when this was planted; zero here means the "
-      + "welded loop finder is returning nothing and clause (1) is green about nothing",
-    ).toBeGreaterThan(0);
-    expect(scrub.loops.filter((n) => n < MIN_LEGITIMATE_LOOP_VERTICES)).toHaveLength(0);
+      child.loops.length,
+      "the child garment carries four legitimate boundaries (neck, hem, two cuffs); zero here "
+      + "means the welded loop finder is returning nothing and clause (1) is green about nothing",
+    ).toBeGreaterThanOrEqual(4);
+    expect(child.loops.filter((n) => n < MIN_LEGITIMATE_LOOP_VERTICES)).toHaveLength(0);
+    expect(scrub.loops).toHaveLength(0);
   }, 120_000);
 });
