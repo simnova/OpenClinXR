@@ -91,7 +91,7 @@ const BAKER = "tools/openclinxr/asset-pipeline/environment/room-occlusion-bake.p
 /** The known-good wall, pinned by clause (3). Measured on HEAD 81d06dd6. */
 const KNOWN_GOOD_WALL = "ed_bay_soft_blue_wall";
 
-type AoMap = { glb: string; material: string; mean: number; sd: number; black: number; strength: number; sha: string; greyscale: boolean };
+type AoMap = { glb: string; material: string; mean: number; sd: number; black: number; strength: number; sha: string; greyscale: boolean ; fillerFraction: number; meanExcludingFiller: number };
 
 let cache: AoMap[] | null = null;
 
@@ -116,6 +116,17 @@ async function census(): Promise<AoMap[]> {
         if (v < 64) below64 += 1;
       }
       const mean = sum / n;
+      // UV FILLER. paint_bounded_ao leaves texels OUTSIDE the UV islands at full white. They are
+      // not occlusion - they are unpainted background - and their share is set by how tightly
+      // smart_project packed that room. Measured across the shipped shells: 4.3% to 68.8%.
+      let fillerCount = 0;
+      let realSum = 0;
+      let realN = 0;
+      for (let i = 0; i < n; i += 1) {
+        const v = png.lum[i]!;
+        if (v >= 254.5) fillerCount += 1;
+        else { realSum += v; realN += 1; }
+      }
       let sq = 0;
       for (let i = 0; i < n; i += 1) {
         const d = png.lum[i]! - mean;
@@ -131,6 +142,8 @@ async function census(): Promise<AoMap[]> {
         // DECODED luminance, not the encoded PNG bytes: re-encoding the same pixels with different
         // compression or an extra ancillary chunk yields a different file hash and an identical image.
         greyscale: png.greyscale,
+        fillerFraction: fillerCount / n,
+        meanExcludingFiller: realN > 0 ? realSum / realN : 0,
         sha: createHash("sha256").update(Buffer.from(png.lum.buffer, png.lum.byteOffset, png.lum.byteLength)).digest("hex").slice(0, 16),
       });
     }
@@ -322,6 +335,44 @@ describe("a baked room occlusion map is not the room's own darkness", () => {
       rows.filter((r) => !r.greyscale).map((r) => `${r.glb}/${r.material}`),
       "every occlusion map must be greyscale - otherwise every luminance clause here measures a channel the runtime does not read",
     ).toEqual([]);
+  });
+
+  it("(7) CONTAMINATION: clause (1) ranks UV packing, not occlusion", async () => {
+    // FOUND BY THE #526 WORKER, which took the gate-is-wrong branch of its brief after measuring
+    // instead of forcing a green, and INDEPENDENTLY REPRODUCED by the orchestrator on the shipped
+    // bytes before this was written.
+    //
+    // Clause (1) bounds the MEAN over every texel. `paint_bounded_ao` leaves texels outside the UV
+    // islands at full white, and that share is packing luck, so clause (1) is substantially a
+    // measure of filler fraction:
+    //
+    //   shell                          brightest   filler%   mean EXCLUDING filler
+    //   urgent-care-clinic                200.31      68.8            79.71
+    //   oncology-consult                  183.99      67.6            36.16
+    //   ed-stroke-bay                     128.54      18.9            99.10
+    //   pediatric-fever-urgent-care        97.35       4.3            90.22   <- the FAILING shell
+    //
+    // TEN shells that PASS clause (1) carry DARKER real content than the one that FAILS it, so the
+    // split clause (1) produces does not order the rooms by occlusion at all. My own "13 of 14 now
+    // pass" report was reading packing luck.
+    //
+    // This clause does NOT repair clause (1) - a UV-packing-invariant bound is a design question,
+    // and inventing one here would be fitting a gate to this observation. It makes the confound
+    // visible, and it fails if the spread ever collapses, i.e. if someone "fixes" clause (1) by
+    // inflating filler until every room looks bright.
+    const rows = await census();
+    expect(rows.length, "the AO population must not vanish out from under this clause").toBeGreaterThan(40);
+    expect(
+      rows.filter((r) => !Number.isFinite(r.fillerFraction) || !Number.isFinite(r.meanExcludingFiller)).map((r) => r.glb),
+      "every map must report a finite filler fraction and real-content mean",
+    ).toEqual([]);
+    const fillers = rows.map((r) => r.fillerFraction);
+    const spread = Math.max(...fillers) - Math.min(...fillers);
+    // Recorded, not fitted. A floor of 0.10 asserts only that the confound is REAL and still
+    // present; if a future bake genuinely equalises packing this clause must be revisited
+    // deliberately rather than passing silently on a changed mechanism.
+    expect(spread, `filler spread ${spread.toFixed(3)}: clause (1) stays contaminated while this is large`)
+      .toBeGreaterThan(0.1);
   });
 
   it("(5) READING (SS9d): the generated-room AO census is recorded, not asserted", async () => {
