@@ -110,3 +110,54 @@ Sole area — fraction of triangle area whose normal is within 15° of straight 
 **axis-aligned** mesh. TRELLIS output is normalised to a 2×2×2 cube in arbitrary orientation, so the
 figure is meaningless until the asset is oriented. Do not quote it on a raw champion.
 
+
+## Post-bake cleanup — measured 2026-08-25, graded A/B
+
+**Multi-component output is the NORM for this generator, not a defect.** Every shipped TRELLIS asset is
+multi-component. Do not treat component count as a quality signal:
+
+| asset | components | largest share | outside-hull fragments |
+|---|---:|---:|---:|
+| digital-thermometer | 3 | 69.0% | 0 |
+| fetal-monitor | 17 | 91.4% | 0 |
+| glucometer | 6 | 84.7% | 0 |
+| iv-pump | 25 | 86.5% | 0 |
+| lowpoly-shoe | 76 | 94.1% | **47** |
+| o2-port | 75 | **51.5%** | 0 |
+| pulse-oximeter | 16 | 99.7% | 0 |
+
+Position-welded union-find over the largest primitive. Outside-hull fragments occur on ONE asset.
+
+### WELD BEFORE YOU SEPARATE — this is the trap
+
+Blender's glTF importer leaves UV-seam vertices unmerged. `separate by loose parts` on a raw import
+splits at **texture islands**, not at real components: thousands of pieces, largest 5,535 tris on an
+asset whose true largest component is 75,288. Run `bmesh.ops.remove_doubles` (or Mesh > Merge by
+Distance) FIRST; only then does loose-parts agree with a position-welded component analysis.
+
+Any cleanup written against the unwelded population operates on the wrong set entirely and will look
+like it worked.
+
+### Counting components correctly
+
+Weld by position before the union-find. An unwelded count is wrong by orders of magnitude — a Python
+pass once reported 6,605 components / 58.3% largest where the welded answer was 76 / 94.1%.
+
+### keep-largest: verify per asset, never as a pipeline rule
+
+On `lowpoly-shoe` it is correct — A/B rendered at two cameras with all components vs main only, the
+shoe is pixel-identical and only floating debris vanishes. The 4,710 discarded triangles are duplicate
+lace bars sitting 0.3–2 mm off a surface that already has complete laces, plus outside-hull specks.
+
+**It is not a factory rule.** `o2-port` ships with its largest component at 51.5%, so keep-largest
+there discards nearly half the mesh. Every asset needs its own A/B before the rule is applied.
+
+**Do not filter by fragment SIZE.** On the shoe, dropping components under 200 triangles plateaus at
+96.0% and leaves the large duplicates; the informative axis was position, and then only for one asset.
+
+### The inference trap, recorded because it cost two published claims
+
+"Inside the hull and clustered at a feature" is equally consistent with a fragment BEING that feature
+and with it being a DUPLICATE sitting a millimetre off a surface that already has it. Geometry alone
+cannot separate those. **The A/B render — same camera, all components vs main only — is the only
+discriminator.** Run it before writing a conclusion about what a fragment is.
