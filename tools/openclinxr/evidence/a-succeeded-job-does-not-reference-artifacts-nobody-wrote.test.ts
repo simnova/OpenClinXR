@@ -43,6 +43,21 @@ import {
  *   provenance, publication, or whether the artifact CONTENTS are correct — only that they exist.
  */
 
+/**
+ * ## FIXED (#610)
+ *
+ * Fix chosen: option 1's adapter-materialization variant (not queue wiring).
+ * - `createDeterministicAssetGenerationAdapter` now WRITES the manifest/source fixture files it
+ *   references (`asset-generation-jobs.ts`) before returning them, so the default path reports
+ *   real files instead of fabricated ones.
+ * - The facade gained `validateWorkerArtifactsExist`: any succeeded job referencing an artifact
+ *   nobody wrote now lands in `failed` ("Asset generation worker referenced artifacts that were
+ *   never written: ...") instead of `succeeded`. This holds every adapter, including a future
+ *   one that fronts the real encounter worker (`tools/openclinxr/factory/
+ *   encounter-asset-generation-worker.ts`, still unwired from the API — unchanged by this fix).
+ * - Clause (3)'s pending exit is untouched: an honest queued/pending job owes nothing.
+ */
+
 const REPO = join(import.meta.dirname, "../../..");
 
 const submitOnce = async (): Promise<{ status: string; artifacts: Array<{ kind: string; path: string }> }> => {
@@ -54,7 +69,7 @@ const submitOnce = async (): Promise<{ status: string; artifacts: Array<{ kind: 
 };
 
 describe("a succeeded job does not reference artifacts nobody wrote", () => {
-  it.fails("(1) every artifact on a SUCCEEDED job resolves to a file that exists", async () => {
+  it("(1) every artifact on a SUCCEEDED job resolves to a file that exists", async () => {
     const rec = await submitOnce();
     expect(rec.status, "the default path reports success today").toBe("succeeded");
     const missing = rec.artifacts

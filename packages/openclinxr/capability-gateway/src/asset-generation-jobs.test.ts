@@ -1,3 +1,5 @@
+import { mkdirSync, writeFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   AssetGenerationCapabilityFacade,
@@ -16,6 +18,7 @@ import {
   encodeAzureStorageQueueMessage,
   processEncounterAssetGenerationQueueMessage,
   processNextEncounterAssetGenerationQueueMessage,
+  type AssetGenerationWorkerResult,
 } from "./index.js";
 
 describe("asset-generation job facade", () => {
@@ -1192,7 +1195,15 @@ describe("asset-generation job facade", () => {
               if (result.exitCode !== 0) {
                 throw new Error(result.stderr || `Worker exited with ${result.exitCode}`);
               }
-              return JSON.parse(result.stdout);
+              // #610: the facade refuses succeeded jobs that reference unwritten files, so this
+              // fake native worker materializes its own fixture before returning the reference.
+              const parsed = JSON.parse(result.stdout) as AssetGenerationWorkerResult;
+              for (const artifact of parsed.artifacts) {
+                const absolutePath = resolve(process.cwd(), artifact.path);
+                mkdirSync(dirname(absolutePath), { recursive: true });
+                writeFileSync(absolutePath, "fixture-bake-output", "utf8");
+              }
+              return parsed;
             });
           },
         } satisfies AssetGenerationWorkerAdapter,
@@ -1278,8 +1289,55 @@ describe("asset-generation job facade", () => {
     await expect(facade.get("failed-1")).resolves.toMatchObject({ status: "failed" });
   });
 
-  it("fails jobs whose returned manifest does not match the requested capability", async () => {
-    const mismatchedAdapter: AssetGenerationWorkerAdapter = {
+  it("fails succeeded jobs that reference artifacts nobody wrote (#610)", async () => {
+    const fabricatingAdapter: AssetGenerationWorkerAdapter = {
+      capabilityId: "character-generation",
+      providerId: "fabricating-worker",
+      providerKind: "deterministic-mock",
+      implementationLanguage: "typescript",
+      transport: "in-process",
+      async run() {
+        return {
+          artifacts: [
+            {
+              kind: "mesh",
+              path: ".openclinxr/asset-generation/never-written-1/fabricated.glb",
+              mediaType: "model/gltf-binary",
+            },
+          ],
+          manifest: {
+            schemaVersion: "asset-generation-manifest.v1",
+            capabilityId: "character-generation",
+            outputs: ["fabricated.glb"],
+          },
+          provenance: {
+            license: "fixture-only",
+            spendCents: 0,
+            externalNetworkUsed: false,
+          },
+        };
+      },
+    };
+    const facade = new AssetGenerationCapabilityFacade({
+      adapters: [fabricatingAdapter],
+      idFactory: () => "never-written-1",
+    });
+
+    const record = await facade.submit({
+      profile: "local-development",
+      capabilityId: "character-generation",
+      payload: {},
+    });
+
+    expect(record.status).toBe("failed");
+    expect(record.error?.message).toBe(
+      "Asset generation worker referenced artifacts that were never written: "
+      + "mesh: .openclinxr/asset-generation/never-written-1/fabricated.glb",
+    );
+    expect(record.history.map((event) => event.status)).toEqual(["queued", "running", "failed"]);
+  });
+
+  it("fails jobs whose returned manifest does not match the requested capability", async () => {    const mismatchedAdapter: AssetGenerationWorkerAdapter = {
       capabilityId: "character-generation",
       providerId: "mismatched-manifest-worker",
       providerKind: "deterministic-mock",
