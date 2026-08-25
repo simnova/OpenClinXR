@@ -1,6 +1,7 @@
 #!/usr/bin/env tsx
 import { execFileSync } from "node:child_process";
 import { appendFileSync, existsSync, mkdirSync, readFileSync, readdirSync } from "node:fs";
+import { acquireIntegrationLock, releaseIntegrationLock } from "./integration-lock.js";
 import { dirname, join } from "node:path";
 import { resolveSharedCoordinationPath } from "./coordination-root.js";
 import { loadTrustedBrief, readSessions, trustedSliceDir } from "./dispatch-worker.js";
@@ -565,58 +566,84 @@ export function integrate(input: IntegrateInput): IntegrateResult {
   // the function, not the integration.
   const rebuildTargets = packagesNeedingRebuild(input.repoRoot, input.base, input.head);
 
-  execFileSync("git", ["merge", "--no-edit", "--no-ff", "--no-commit", input.head], {
-    cwd: input.repoRoot,
-    stdio: ["ignore", "pipe", "pipe"],
-  });
-  writeGateReport(input.repoRoot, {
-    killed: false,
-    treeHash: stagedTreeHash(input.repoRoot),
-    base: input.base,
-    head: input.head,
-    mode: "merge",
-  });
+  /**
+   * ATOMIC INTEGRATION LOCK (#657 concurrency). Everything below mutates the SHARED main checkout:
+   * `git merge --no-ff --no-commit`, the gate report, the merge commit, the rebuild, the event.
+   * Two orchestrators worked this board on 2026-08-25 and main moved twice inside one iteration.
+   *
+   * `Factory=Dispatched` does not prevent this — `setFactoryField` writes unconditionally with no
+   * expected-stage compare-and-set, so it is telemetry, not ownership. The automation lease does not
+   * either: it permits disjoint slices by design and acquires via a read-modify-write.
+   */
+  const lockOwner = `integrate:${input.slice ?? input.head}:${process.pid}`;
+  const lock = acquireIntegrationLock(input.repoRoot, lockOwner);
+  if (!lock.acquired) {
+    throw new Error(
+      `integrate: REFUSED — another integrator holds the lock (${lock.heldBy}). `
+      + "Landing onto a main that is moving underneath you can merge a candidate whose contract was "
+      + "verified against a different base. Wait for it, or clear "
+      + ".openclinxr/openclaw/integration.lock if that holder is known dead.",
+    );
+  }
+  if (lock.stoleFrom !== undefined) {
+    process.stderr.write(`integrate: took over a stale integration lock from ${lock.stoleFrom}\n`);
+  }
   try {
-    execFileSync("git", ["commit", "--no-edit"], {
+    execFileSync("git", ["merge", "--no-edit", "--no-ff", "--no-commit", input.head], {
       cwd: input.repoRoot,
       stdio: ["ignore", "pipe", "pipe"],
-      env: { ...process.env, OPENCLINXR_INTEGRATING: "1" },
     });
-  } catch (error) {
-    const detail = error instanceof Error && "stderr" in error ? String((error as { stderr?: Buffer }).stderr) : "";
-    throw new Error(`integrate: merge commit failed — ${detail.slice(0, 300)}`);
-  }
-
-  // Rebuild AFTER the commit: the sources are now on the branch, and a failure here is a stale
-  // checkout rather than a reason to refuse a merge that already passed every gate.
-  const rebuilt = rebuildTargets;
-  for (const pkg of rebuilt) {
+    writeGateReport(input.repoRoot, {
+      killed: false,
+      treeHash: stagedTreeHash(input.repoRoot),
+      base: input.base,
+      head: input.head,
+      mode: "merge",
+    });
     try {
-      execFileSync("pnpm", ["--filter", pkg, "build"], {
+      execFileSync("git", ["commit", "--no-edit"], {
         cwd: input.repoRoot,
         stdio: ["ignore", "pipe", "pipe"],
+        env: { ...process.env, OPENCLINXR_INTEGRATING: "1" },
       });
     } catch (error) {
       const detail = error instanceof Error && "stderr" in error ? String((error as { stderr?: Buffer }).stderr) : "";
-      throw new Error(
-        `integrate: landed, but rebuilding ${pkg} FAILED — the checkout is stale and contracts will `
-        + `fail against a dist/ that predates this merge. ${detail.slice(0, 300)}`,
-      );
+      throw new Error(`integrate: merge commit failed — ${detail.slice(0, 300)}`);
     }
-  }
 
-  const event: IntegrationEvent = {
-    slice: input.slice,
-    ...(rebuilt.length > 0 ? { rebuiltPackages: rebuilt } : {}),
-    base: input.base,
-    head: input.head,
-    at: new Date().toISOString(),
-  };
-  recordEvent(input.repoRoot, event);
-  // ISSUE #448: integrator (machine) marks the card Landed. Failure is a loud warning, not a
-  // refusal — the land is already committed; the integration event above is the durable record.
-  markFactoryLanded(input.repoRoot, input.slice, input.ghRunner ?? defaultGhRunner);
-  return { killReport, landed: true, exitCode: 0, event };
+    // Rebuild AFTER the commit: the sources are now on the branch, and a failure here is a stale
+    // checkout rather than a reason to refuse a merge that already passed every gate.
+    const rebuilt = rebuildTargets;
+    for (const pkg of rebuilt) {
+      try {
+        execFileSync("pnpm", ["--filter", pkg, "build"], {
+          cwd: input.repoRoot,
+          stdio: ["ignore", "pipe", "pipe"],
+        });
+      } catch (error) {
+        const detail = error instanceof Error && "stderr" in error ? String((error as { stderr?: Buffer }).stderr) : "";
+        throw new Error(
+          `integrate: landed, but rebuilding ${pkg} FAILED — the checkout is stale and contracts will `
+          + `fail against a dist/ that predates this merge. ${detail.slice(0, 300)}`,
+        );
+      }
+    }
+
+    const event: IntegrationEvent = {
+      slice: input.slice,
+      ...(rebuilt.length > 0 ? { rebuiltPackages: rebuilt } : {}),
+      base: input.base,
+      head: input.head,
+      at: new Date().toISOString(),
+    };
+    recordEvent(input.repoRoot, event);
+    // ISSUE #448: integrator (machine) marks the card Landed. Failure is a loud warning, not a
+    // refusal — the land is already committed; the integration event above is the durable record.
+    markFactoryLanded(input.repoRoot, input.slice, input.ghRunner ?? defaultGhRunner);
+    return { killReport, landed: true, exitCode: 0, event };
+  } finally {
+    releaseIntegrationLock(input.repoRoot, lockOwner);
+  }
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
