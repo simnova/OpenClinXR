@@ -178,23 +178,37 @@ Two components at **22.1% and 20.5%**, with **identical diagonals (0.456)** and 
 x=0 at ∓0.20, same y and z. That is a **mirror-symmetric pair of real parts** — on a wall O2 port, the
 two outlet assemblies. **keep-largest on this asset would delete 48.5% of the mesh including both.**
 
-### The discriminator, and it is a regime not a threshold
+### CORRECTED the same day: the mirror twin is NOT an independent signal
 
-| | shoe fragments | o2-port fragments |
-|---|---|---|
-| largest non-main | 1061t = **1.4%** | 17690t = **22.1%** |
-| shape | scattered, no twin | **mirrored pair, identical diagonal** |
-| verdict | duplicates, safe to drop | **real parts, never drop** |
+I first wrote this as two signals — share of mesh, and the presence of a mirror twin — and said they
+were independent. **Then I ran the screen across all seven assets and it flagged the SHOE as
+multi-part**, on `twins: 1 [30t/30t on axis2]`. Thirty triangles out of 79,998 is **0.04%**, and the
+shoe is the one asset with an A/B render proving keep-largest is safe. A false positive on the only
+ground truth available.
 
-Two independent signals, and they agree here:
+The twin test has no size floor, so any two tiny symmetric specks trip it — and TRELLIS output is full
+of tiny symmetric specks.
 
-1. **Share of mesh.** Double-digit percentages are structure. Sub-2% is candidate debris.
-2. **A mirror twin.** Two components with the same triangle count to ~7%, the same bounding diagonal,
-   and centres reflected across an axis are a symmetric pair of parts. Duplicate geometry does not
-   come in mirrored pairs — it sits on top of what it duplicates.
+**What survives: the size signal alone.**
 
-**Check for the twin before applying keep-largest to any asset.** It is cheap, it needs no renderer,
-and on `o2-port` it is the difference between a cleanup and amputating both outlets.
+| asset | largest non-main fragment | verdict |
+|---|---:|---|
+| pulse-oximeter | 0.3% | fragments only |
+| lowpoly-shoe | **1.4%** | fragments only — **A/B confirmed** |
+| fetal-monitor | 2.1% | fragments only |
+| glucometer | 0.8% (but one ≥10% component) | multi-part |
+| digital-thermometer | one ≥10% component | multi-part |
+| iv-pump | one ≥10% component | multi-part |
+| o2-port | **22.1%** | multi-part |
 
-**Still per-asset.** This gives a fast screen, not a licence to automate: the A/B render remains the
-only thing that proves nothing visible was lost.
+**The rule: if any non-main component carries ≥10% of the mesh, the asset is multi-part and
+keep-largest is amputation.** That single test gets all seven right against what is known.
+
+**The twin observation was corroboration, not evidence.** On `o2-port` the 22.1% share already said
+"structure"; the mirror symmetry was a satisfying detail that added nothing decidable. Do not screen on
+it, and do not add a size floor to rescue it — a floor chosen to make the shoe pass would be fitted to
+one observation, which is the failure this file already records elsewhere.
+
+**Do not treat 10% as derived.** It separates the measured population cleanly and nothing more; the
+gap between 2.1% and 22.1% is wide enough that any cut in it works, which means the data does not
+constrain the number. The A/B render remains the only thing that proves nothing visible was lost.
