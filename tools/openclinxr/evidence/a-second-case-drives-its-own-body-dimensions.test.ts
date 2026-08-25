@@ -70,7 +70,7 @@ const isDefault = (h: number): boolean =>
   DEFAULT_HEIGHTS.some((d) => Math.abs(h - d) < AUTHORED_TOLERANCE_M);
 
 describe("a second case drives its own body dimensions", () => {
-  it.fails("(1) a case other than paediatric asthma has a cast body off the generator defaults", async () => {
+  it("(1) a case other than paediatric asthma has a cast body off the generator defaults", async () => {
     const candidates = [
       "mpfb-clinical-nurse-adult.glb", "mpfb-clinical-physician-adult.glb",
       "mpfb-street-adult-male.glb", "mpfb-family-partner-adult.glb", "mpfb-ob-patient-aisha.glb",
@@ -114,3 +114,16 @@ describe("a second case drives its own body dimensions", () => {
     expect(h).toBeLessThan(2.2);
   }, 120_000);
 });
+
+/*
+## FIXED (#665) — appended 2026-08-25; the planted header above is immutable
+
+- Clause (1) flipped `it.fails` -> `it`: the ward senior resident is now a second
+  case that authors its cast body. `ward-delirium.ts` authors
+  `senior_resident_ward_v1` at height_cm 172; `mpfb-clinical-physician-adult.glb`
+  re-baked through the #576 case-driven numeric-identity path measures 1.7219 m —
+  off every generator default (1.76 / 1.666 / 1.655) and within 2 mm of the
+  authored 1.72, satisfying clause (3)'s counterweight (height traces to the
+  case, not to a scale trick).
+- The peds-asthma pair (clause 2) is untouched: child 1.241 / parent 1.660 m.
+*/
