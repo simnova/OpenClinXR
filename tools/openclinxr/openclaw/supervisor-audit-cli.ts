@@ -89,7 +89,10 @@ async function main(): Promise<void> {
     // Landed-and-open is the NORMAL state between merge and grade, not drift; only Graded-and-open
     // is drift. Extracted to `classifyDoneClaims` so the distinction is unit-testable — it was
     // inline and untested, and reported duty 3's own happy path as a defect. Clauses (24) and (25).
-    findings.push(...classifyDoneClaims(doneClaims));
+    const classified = classifyDoneClaims(doneClaims);
+    findings.push(...classified.findings);
+    // pendingReviews is TELEMETRY: reported in the artifact, never a finding, never chronic-eligible.
+    const pendingReviews = classified.pendingReviews;
 
   /**
    * Residue is reported SEPARATELY from ok, and it is the finding `ok` structurally cannot make.
@@ -122,7 +125,7 @@ async function main(): Promise<void> {
   const audit: SupervisorAudit = {
     schemaVersion: "openclinxr.supervisor-audit.v1",
     at: new Date().toISOString(), head,
-    readyDepth: depth, doneClaims, findings: marked,
+    readyDepth: depth, doneClaims, pendingReviews, findings: marked,
     resolved: resolvedSince(marked, prior),
   };
 

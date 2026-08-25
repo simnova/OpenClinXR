@@ -71,6 +71,9 @@ export type ReadyDepth = {
   cards: number[];
 };
 
+/** A landed card waiting on a human grade. Telemetry — reported, never counted as a defect. */
+export type PendingReview = { issue: number; stage: string; detail: string };
+
 export type DoneClaim = {
   issue: number;
   stage: string;
@@ -200,30 +203,44 @@ export function consecutiveStreak(key: string, windows: string[][]): number {
  * closed it). No age threshold: "overdue" needs a number nobody has calibrated, and inventing one
  * here would be fitting a gate to an observation.
  */
-export function classifyDoneClaims(claims: DoneClaim[]): Finding[] {
-  const out: Finding[] = [];
+export function classifyDoneClaims(claims: DoneClaim[]): {
+  findings: Finding[];
+  pendingReviews: PendingReview[];
+} {
+  const findings: Finding[] = [];
+  const pendingReviews: PendingReview[] = [];
+
   for (const c of claims.filter((x) => !x.ok)) {
-    out.push({ duty: 3, key: `done-unverified-${c.issue}`, detail: `#${c.issue} (${c.stage}): ${c.why}` });
+    findings.push({ duty: 3, key: `done-unverified-${c.issue}`, detail: `#${c.issue} (${c.stage}): ${c.why}` });
   }
   for (const c of claims.filter((x) => x.ok)) {
-    out.push(String(c.stage) === "Graded"
-      ? {
+    if (String(c.stage) === "Graded") {
+      findings.push({
         duty: 3, key: `done-but-open-${c.issue}`,
         detail: `#${c.issue} verified Graded on main but the issue is still OPEN — a human signed off and nobody closed it`,
-      }
-      : {
-        duty: 3, key: `awaiting-grade-${c.issue}`,
-        detail: `#${c.issue} verified ${c.stage} on main and open pending its grade — the expected state between merge and review`,
       });
+      continue;
+    }
+    pendingReviews.push({
+      issue: c.issue,
+      stage: String(c.stage),
+      detail: `#${c.issue} verified ${c.stage} on main and open pending its grade — the expected state between merge and review`,
+    });
   }
-  return out;
+  return { findings, pendingReviews };
 }
 
 /** Prior findings absent from this run — they corrected themselves. */
 export function resolvedSince(current: Finding[], prior: string[][]): string[] {
   const now = new Set(current.map((f) => f.key));
   const last = prior[0] ?? [];
-  return last.filter((k) => !now.has(k));
+  return last
+    .filter((k) => !now.has(k))
+    // A key that stopped being a FINDING because it was RECLASSIFIED as telemetry did not resolve.
+    // `awaiting-grade-*` moved to `pendingReviews` on 2026-08-25, and without this the next audit
+    // announces each one as self-corrected while the card sits there ungraded. "Resolved" is a claim
+    // about the world, not about this module's bookkeeping.
+    .filter((k) => !k.startsWith("awaiting-grade-"));
 }
 
 export function appendHistory(root: string, audit: SupervisorAudit): void {

@@ -111,6 +111,9 @@ describe("the supervisor reports what is not self-correcting", () => {
   });
 
   it("(24) DUTY 3: an OPEN card marked Landed is AWAITING GRADE, not board drift", () => {
+    // SUPERSEDED IN PART by clause (26) on 2026-08-25: awaiting-grade is no longer a FINDING at all,
+    // it is telemetry in `pendingReviews`. What this clause still pins is the half that matters and
+    // came first — a Landed-and-open card must never be classified as drift.
     // MEASURED 2026-08-25 by the peer, verified against the tree before acting.
     //
     // `integrate.ts:500` writes Factory=Landed MECHANICALLY after a merge. `board-cli` advances to
@@ -125,22 +128,64 @@ describe("the supervisor reports what is not self-correcting", () => {
     // The cost is that duty 3 cries wolf on its own happy path, which is how a reader learns to
     // skip it. Worse, the pressure it creates is to CLOSE a card to silence the finding, which
     // would mark ungraded work as done.
-    const findings = classifyDoneClaims([
+    const { findings, pendingReviews } = classifyDoneClaims([
       { issue: 646, stage: "Landed", ok: true, commitOnMain: true, contractVerified: true, why: "" },
     ] as never);
-    expect(findings.map((f) => f.key), "a landed card awaiting its grade is not drift")
-      .toEqual(["awaiting-grade-646"]);
+    expect(findings.map((f) => f.key), "a landed card awaiting its grade is not drift").toEqual([]);
+    expect(pendingReviews.map((p) => p.issue), "and it is still reported").toEqual([646]);
   });
 
   it("(25) DUTY 3 COUNTERWEIGHT: an OPEN card marked GRADED still IS drift", () => {
     // Refuses the over-correction of calling every open done-claim expected. Graded means a human
     // looked and signed off; leaving it open after that is exactly the drift the original finding
     // was written for, and it must keep firing.
-    const findings = classifyDoneClaims([
+    const { findings } = classifyDoneClaims([
       { issue: 999, stage: "Graded", ok: true, commitOnMain: true, contractVerified: true, why: "" },
     ] as never);
     expect(findings.map((f) => f.key), "graded and still open is genuine drift")
       .toEqual(["done-but-open-999"]);
+  });
+
+  it("(26) DUTY 3: an awaiting-grade state is TELEMETRY, not a finding", () => {
+    // MEASURED 2026-08-25: `awaiting-grade-646` went CHRONIC at 3 windows. It stays true until a
+    // HUMAN grades a capture, which is outside this loop's control, so it can never self-correct.
+    // With ready-depth chronic at 12 windows, BOTH duty findings were permanent — and a report where
+    // every finding is permanent is a report nobody reads.
+    //
+    // Renaming it last iteration fixed the LABEL and left it in `findings`, where it inflates the
+    // count, enters history, and is eligible for chronic marking. The state is normal work; calling
+    // it a finding at all is what created this.
+    const { findings, pendingReviews } = classifyDoneClaims([
+      { issue: 646, stage: "Landed", ok: true, commitOnMain: true, contractVerified: true, why: "" },
+    ] as never);
+    expect(findings, "a card awaiting its grade is not a defect").toEqual([]);
+    expect(pendingReviews.map((p) => p.issue), "but it must still be REPORTED, not silently dropped")
+      .toEqual([646]);
+  });
+
+  it("(27) DUTY 3 COUNTERWEIGHT: Open+Graded is still a FINDING", () => {
+    // Refuses the over-correction of emptying duty 3. Graded means a human looked and signed off;
+    // leaving it open after that is genuine drift and must keep firing.
+    const { findings, pendingReviews } = classifyDoneClaims([
+      { issue: 999, stage: "Graded", ok: true, commitOnMain: true, contractVerified: true, why: "" },
+    ] as never);
+    expect(findings.map((f) => f.key)).toEqual(["done-but-open-999"]);
+    expect(pendingReviews, "a graded card is not pending review").toEqual([]);
+  });
+
+  it("(28) RECLASSIFYING a finding must not masquerade as RESOLVING it", () => {
+    // THE MIGRATION TRAP, found by the peer and verified at supervisor-audit.ts:222 — `resolvedSince`
+    // returns every prior key absent from the current findings. So the first audit after this change
+    // would announce `awaiting-grade-646` as RESOLVED, claiming a defect fixed itself when it was
+    // merely moved to telemetry. #646 is still sitting there ungraded.
+    //
+    // "Resolved" is a claim about the world, not about this module's bookkeeping.
+    const resolved = resolvedSince(
+      [f("still-here")],
+      [["still-here", "awaiting-grade-646", "genuinely-went-away"]],
+    );
+    expect(resolved, "a reclassified informational key is not a resolved defect")
+      .toEqual(["genuinely-went-away"]);
   });
 
   it("(5) DUTY 2: ten instrument cards do NOT satisfy a product-forward floor", () => {
