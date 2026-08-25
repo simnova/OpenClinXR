@@ -146,6 +146,12 @@ describe("two shipped roles are not the same body", () => {
   physician): MACRO gender 1.0 (gender_presentation), age 0.6191 (34y), weight
   0.4798 (bmi 23.5), height solved to 1.720 m (measured 1.7219 m). Body vertex
   buffer now b0d889cd5af7 (was the nurse's 3f9d4f4eceb0); the two bodies are
+ *
+ * ORCHESTRATOR CORRECTION 2026-08-25, appended not rewritten: the worker's account above is its own
+ * and stays as written, but that hash is STALE. Measured on main after the merge, the physician body
+ * vertex buffer is 3dd761e204cc at 11,065 verts (nurse 3f9d4f4eceb0 at 11,577). A peer review caught
+ * it; I confirmed it directly. The CLAIM the block makes — the two bodies are distinct — holds; only
+ * the identifier was wrong, and a stale hash in a landed artifact is the next reader's trap.
   distinct and 11 of 11 shipped GLBs carry distinct bodies (clauses 1 and 3). Wardrobe: CC-BY
   scrub shirt + scrub pants, CC0 crude-labcoat-female as a third layer (locked
   white), mhair02 male hair (page-CC0/header-AGPL3 uuid allowlist), toigo_mj_
