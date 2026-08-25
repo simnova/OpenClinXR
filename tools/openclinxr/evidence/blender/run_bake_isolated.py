@@ -23,7 +23,23 @@ import argparse, json, os, sys, time, traceback, zlib
 
 
 def run_multiview(pipeline, images, num_samples, seed, preprocess_image=True,
-                  pipeline_type=None, max_num_tokens=49152):
+                  pipeline_type=None, max_num_tokens=49152,
+                  sampler_overrides=None, result=None):
+    """Mirror Trellis2ImageTo3DPipeline.run() but condition on N images.
+
+    The vendored run() wraps ONE image in a list and passes it to get_cond
+    (`self.get_cond([image], 512)`), which batch-stacks into (1, L, C). For N views
+    that would produce a batch of N, which the flow-model cross-attention cannot
+    consume with num_samples=1 (batch mismatch — see issue-255 pre-fix probe). The
+    training-time MultiImageConditionedMixin.encode_images instead FLATTENS the N
+    view embeddings along the sequence dim into (1, N*L, C). We mirror that here;
+    run() itself is not edited (vendored tree).
+
+    #662: sampler_overrides ({sampler_key: {knob: value}}) are forwarded into each
+    sample_* call; the vendored methods merge them over the pipeline defaults
+    ({**self.<name>, **user}), so only explicitly passed values change. Effective
+    merged params are recorded into `result` under effectiveSamplerParams.
+    """
     """Mirror Trellis2ImageTo3DPipeline.run() but condition on N images.
 
     The vendored run() wraps ONE image in a list and passes it to get_cond
@@ -48,20 +64,46 @@ def run_multiview(pipeline, images, num_samples, seed, preprocess_image=True,
         c['cond'] = c['cond'].reshape(1, -1, c['cond'].shape[-1]).contiguous()
         c['neg_cond'] = c['neg_cond'].reshape(1, -1, c['neg_cond'].shape[-1]).contiguous()
 
+    # #662: per-sampler overrides, merged over pipeline defaults exactly like the
+    # vendored sample_* methods do internally ({**self.<name>, **user}); the user dict
+    # wins. Recorded into result["effectiveSamplerParams"] when a result sink is given.
+    overrides = sampler_overrides or {}
+    ss_user = overrides.get("sparse_structure_sampler_params", {})
+    shape_user = overrides.get("shape_slat_sampler_params", {})
+    tex_user = overrides.get("tex_slat_sampler_params", {})
+
+    def _effective(name, user):
+        merged = dict(getattr(pipeline, name, {}) or {})
+        merged.update(user)
+        return merged
+
+    effective = {
+        "sparse_structure_sampler_params": _effective("sparse_structure_sampler_params", ss_user),
+        "shape_slat_sampler_params": _effective("shape_slat_sampler_params", shape_user),
+        "tex_slat_sampler_params": _effective("tex_slat_sampler_params", tex_user),
+    }
+    if result is not None:
+        result["effectiveSamplerParams"] = effective
+
     ss_res = {'512': 32, '1024': 64, '1024_cascade': 32, '1536_cascade': 32}[pipeline_type]
-    coords = pipeline.sample_sparse_structure(cond_512, ss_res, num_samples)
+    coords = pipeline.sample_sparse_structure(cond_512, ss_res, num_samples,
+                                              sampler_params=ss_user)
 
     if pipeline_type == '512':
         shape_slat = pipeline.sample_shape_slat(
-            cond_512, pipeline.models['shape_slat_flow_model_512'], coords)
+            cond_512, pipeline.models['shape_slat_flow_model_512'], coords,
+            sampler_params=shape_user)
         tex_slat = pipeline.sample_tex_slat(
-            cond_512, pipeline.models['tex_slat_flow_model_512'], shape_slat)
+            cond_512, pipeline.models['tex_slat_flow_model_512'], shape_slat,
+            sampler_params=tex_user)
         res = 512
     elif pipeline_type == '1024':
         shape_slat = pipeline.sample_shape_slat(
-            cond_1024, pipeline.models['shape_slat_flow_model_1024'], coords)
+            cond_1024, pipeline.models['shape_slat_flow_model_1024'], coords,
+            sampler_params=shape_user)
         tex_slat = pipeline.sample_tex_slat(
-            cond_1024, pipeline.models['tex_slat_flow_model_1024'], shape_slat)
+            cond_1024, pipeline.models['tex_slat_flow_model_1024'], shape_slat,
+            sampler_params=tex_user)
         res = 1024
     elif pipeline_type in ('1024_cascade', '1536_cascade'):
         res_hi = 1024 if pipeline_type == '1024_cascade' else 1536
@@ -70,10 +112,12 @@ def run_multiview(pipeline, images, num_samples, seed, preprocess_image=True,
             pipeline.models['shape_slat_flow_model_512'],
             pipeline.models['shape_slat_flow_model_1024'],
             512, res_hi, coords,
+            sampler_params=shape_user,
             max_num_tokens=max_num_tokens,
         )
         tex_slat = pipeline.sample_tex_slat(
-            cond_1024, pipeline.models['tex_slat_flow_model_1024'], shape_slat)
+            cond_1024, pipeline.models['tex_slat_flow_model_1024'], shape_slat,
+            sampler_params=tex_user)
     else:
         raise ValueError(f"Invalid pipeline type: {pipeline_type}")
 
@@ -83,6 +127,71 @@ def run_multiview(pipeline, images, num_samples, seed, preprocess_image=True,
         torch.mps.empty_cache()
 
     return pipeline.decode_latent(shape_slat, tex_slat, res)
+
+
+def _add_sampler_args(parser):
+    """#662: per-sampler knobs for the three FlowEulerGuidanceIntervalSampler samplers.
+
+    Defaults are None = use the pipeline's own value from pipeline.json (measured
+    2026-08-25: ss steps=12 gs=7.5 gr=0.7 gi=[0.6,1.0] rescale_t=5.0;
+    shape ...gs=7.5 gr=0.5 gi=[0.6,1.0] rescale_t=3.0; tex ...gs=1.0 gr=0.0
+    gi=[0.6,0.9] rescale_t=3.0). Only explicitly passed values are forwarded,
+    so a no-flag bake behaves exactly as before (counterweight).
+    Declared explicitly (no prefix loop) so every flag is literally greppable here.
+    """
+    parser.add_argument("--ss-steps", type=int, default=None,
+                        help="sparse structure sampler steps")
+    parser.add_argument("--ss-guidance-strength", type=float, default=None,
+                        help="sparse structure sampler guidance strength")
+    parser.add_argument("--ss-guidance-rescale", type=float, default=None,
+                        help="sparse structure sampler guidance rescale")
+    parser.add_argument("--ss-guidance-interval", nargs=2, type=float, metavar=("LO", "HI"),
+                        default=None, help="sparse structure sampler guidance interval (default 0.6 1.0)")
+    parser.add_argument("--ss-rescale-t", type=float, default=None,
+                        help="sparse structure sampler t rescale (default 5.0)")
+    parser.add_argument("--shape-steps", type=int, default=None,
+                        help="shape slat sampler steps")
+    parser.add_argument("--shape-guidance-strength", type=float, default=None,
+                        help="shape slat sampler guidance strength")
+    parser.add_argument("--shape-guidance-rescale", type=float, default=None,
+                        help="shape slat sampler guidance rescale")
+    parser.add_argument("--shape-guidance-interval", nargs=2, type=float, metavar=("LO", "HI"),
+                        default=None, help="shape slat sampler guidance interval (default 0.6 1.0)")
+    parser.add_argument("--shape-rescale-t", type=float, default=None,
+                        help="shape slat sampler t rescale (default 3.0)")
+    parser.add_argument("--tex-steps", type=int, default=None,
+                        help="texture slat sampler steps")
+    parser.add_argument("--tex-guidance-strength", type=float, default=None,
+                        help="texture slat sampler guidance strength")
+    parser.add_argument("--tex-guidance-rescale", type=float, default=None,
+                        help="texture slat sampler guidance rescale")
+    parser.add_argument("--tex-guidance-interval", nargs=2, type=float, metavar=("LO", "HI"),
+                        default=None, help="texture slat sampler guidance interval (default 0.6 0.9)")
+    parser.add_argument("--tex-rescale-t", type=float, default=None,
+                        help="texture slat sampler t rescale (default 3.0)")
+
+
+def _collect_sampler_overrides(args):
+    """Gather only the flags the caller actually set → {sampler_key: {knob: value}}."""
+    overrides = {}
+    for prefix, key in (("ss", "sparse_structure_sampler_params"),
+                        ("shape", "shape_slat_sampler_params"),
+                        ("tex", "tex_slat_sampler_params")):
+        params = {}
+        if getattr(args, f"{prefix}_steps") is not None:
+            params["steps"] = getattr(args, f"{prefix}_steps")
+        if getattr(args, f"{prefix}_guidance_strength") is not None:
+            params["guidance_strength"] = getattr(args, f"{prefix}_guidance_strength")
+        if getattr(args, f"{prefix}_guidance_rescale") is not None:
+            params["guidance_rescale"] = getattr(args, f"{prefix}_guidance_rescale")
+        if getattr(args, f"{prefix}_guidance_interval") is not None:
+            lo, hi = getattr(args, f"{prefix}_guidance_interval")
+            params["guidance_interval"] = [lo, hi]
+        if getattr(args, f"{prefix}_rescale_t") is not None:
+            params["rescale_t"] = getattr(args, f"{prefix}_rescale_t")
+        if params:
+            overrides[key] = params
+    return overrides
 
 
 def main():
@@ -108,7 +217,9 @@ def main():
                         help="Final decimation target faces (default 300000)")
     parser.add_argument("--texture-size", type=int, default=2048,
                         help="Baked texture resolution (default 2048)")
+    _add_sampler_args(parser)
     args = parser.parse_args()
+    sampler_overrides = _collect_sampler_overrides(args)
 
     os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
 
@@ -149,6 +260,8 @@ def main():
         "inputImagePaths": input_paths,
         "viewCount": len(input_paths),
         "seed": seed,
+        "samplerOverrides": sampler_overrides,
+        "effectiveSamplerParams": {},
         "hfDemo": hf_demo,
         "remeshRequested": remesh,
         "remesh": "space_order_band1_project0" if remesh else "not_requested",
@@ -223,6 +336,19 @@ def main():
         write_result()
         return 1
 
+    # #662: record the EFFECTIVE sampler table (pipeline defaults + any user overrides)
+    # for all three samplers, regardless of path. Distinct from --hf-demo's
+    # samplerParams (which records only what that flag passes).
+    result["effectiveSamplerParams"] = {
+        key: dict(getattr(pipeline, key, {}) or {}) for key in (
+            "sparse_structure_sampler_params",
+            "shape_slat_sampler_params",
+            "tex_slat_sampler_params",
+        )
+    }
+    for key, params in sampler_overrides.items():
+        result["effectiveSamplerParams"].setdefault(key, {}).update(params)
+
     # Shape generation
     try:
         print(f"[ISOLATED:{subject_id}] Running image→shape generation "
@@ -250,6 +376,13 @@ def main():
                     "shape_slat_sampler_params": getattr(pipeline, "shape_slat_sampler_params", {}),
                     "tex_slat_sampler_params": getattr(pipeline, "tex_slat_sampler_params", {}),
                 }
+            if sampler_overrides:
+                # #662: user flags win over both defaults and --hf-demo (dict merge order).
+                for key, params in sampler_overrides.items():
+                    merged = dict(getattr(pipeline, key, {}) or {})
+                    merged.update(params)
+                    run_kwargs[key] = merged
+                    result["effectiveSamplerParams"][key] = merged
             outputs = pipeline.run(images[0], **run_kwargs)
         else:
             # Multi-view (#255): sequence-concatenated cond, mirroring run() internals.
@@ -259,6 +392,8 @@ def main():
                 num_samples=1,
                 seed=seed,
                 preprocess_image=True,
+                sampler_overrides=sampler_overrides,
+                result=result,
             )
         shape_time = time.time() - t_shape
         result["stages"]["shape_generation"] = "runs"

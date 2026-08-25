@@ -220,6 +220,19 @@ const KNOWN_SUBJECTS: SubjectEntry[] = [
 // Types
 // ---------------------------------------------------------------------------
 
+interface SamplerOverrides {
+  ss: Partial<SamplerKnobs>;
+  shape: Partial<SamplerKnobs>;
+  tex: Partial<SamplerKnobs>;
+}
+
+/** #662 flags the caller actually set (null = leave the pipeline default in place). */
+interface NumericFlags {
+  seed: number | null;
+  decimationTarget: number | null;
+  textureSize: number | null;
+}
+
 interface DryRunPlan {
   subjectId: string;
   displayName: string;
@@ -239,6 +252,9 @@ interface DryRunPlan {
   hfDemo: boolean;
   remesh: boolean;
   noRemesh: boolean;
+  decimationTarget: number | null;
+  textureSize: number | null;
+  samplerOverrides: SamplerOverrides;
   mode: "dry-run";
 }
 
@@ -283,6 +299,32 @@ FLAGS
   --remesh          Space-order remesh: simplify(16_777_216) then remesh band=1 project=0
   --no-remesh       Force remesh off (default)
 
+SAMPLER KNOBS (#662 — all optional; only passed values override the pipeline defaults;
+run_bake_isolated.py merges them over pipeline.json, user value wins):
+  --ss-steps <n>                  sparse structure sampler steps (default 12)
+  --ss-guidance-strength <f>      ss guidance strength (default 7.5)
+  --ss-guidance-rescale <f>       ss guidance rescale (default 0.7)
+  --ss-guidance-interval <lo hi>  ss guidance interval (default 0.6 1.0)
+  --ss-rescale-t <f>              ss t rescale (default 5.0)
+  --shape-steps <n>               shape slat steps (default 12)
+  --shape-guidance-strength <f>   shape guidance strength (default 7.5)
+  --shape-guidance-rescale <f>    shape guidance rescale (default 0.5)
+  --shape-guidance-interval <lo hi>  shape guidance interval (default 0.6 1.0)
+  --shape-rescale-t <f>           shape t rescale (default 3.0)
+  --tex-steps <n>                 texture slat steps (default 12)
+  --tex-guidance-strength <f>     tex guidance strength (default 1.0)
+  --tex-guidance-rescale <f>      tex guidance rescale (default 0.0)
+  --tex-guidance-interval <lo hi>  tex guidance interval (default 0.6 0.9)
+  --tex-rescale-t <f>             tex t rescale (default 3.0)
+
+EXPORT (#662 — previously declared in Python but not forwarded by this CLI):
+  --decimation-target <n>         Final decimation target faces (default 300000)
+  --texture-size <n>              Baked texture resolution (default 2048)
+
+The bake records the effective merged sampler table in bake-measure.json under
+"effectiveSamplerParams"; explicit overrides are echoed under "samplerOverrides".
+--hf-demo keeps writing "samplerParams" exactly as before.
+
 SUBJECTS
   wall-clock, bedside-monitor, ecg-cart, ecg-cart-midband, ecg-cart-midband-6view,
   ecg-cart-midband-2tq, ecg-cart-midband-2oblique, iv-pole, o2-port,
@@ -323,7 +365,57 @@ interface ParsedArgs {
   hfDemo: boolean;
   remesh: boolean;
   noRemesh: boolean;
+  decimationTarget: number | null;
+  textureSize: number | null;
+  samplerOverrides: SamplerOverrides;
   invalid: string[];
+}
+
+/**
+ * #662: the fifteen TRELLIS sampler knobs, three samplers x five knobs each.
+ * Each is optional; only explicitly passed values are forwarded to Python, which
+ * merges them over the pipeline defaults (user wins). `kind` drives argv typing:
+ * "int" for steps, "float" for guidance/rescale knobs.
+ */
+const SAMPLER_FLAGS = [
+  { group: "ss", flag: "--ss-steps", knob: "steps", kind: "int" },
+  { group: "ss", flag: "--ss-guidance-strength", knob: "guidance_strength", kind: "float" },
+  { group: "ss", flag: "--ss-guidance-rescale", knob: "guidance_rescale", kind: "float" },
+  { group: "ss", flag: "--ss-rescale-t", knob: "rescale_t", kind: "float" },
+  { group: "shape", flag: "--shape-steps", knob: "steps", kind: "int" },
+  { group: "shape", flag: "--shape-guidance-strength", knob: "guidance_strength", kind: "float" },
+  { group: "shape", flag: "--shape-guidance-rescale", knob: "guidance_rescale", kind: "float" },
+  { group: "shape", flag: "--shape-rescale-t", knob: "rescale_t", kind: "float" },
+  { group: "tex", flag: "--tex-steps", knob: "steps", kind: "int" },
+  { group: "tex", flag: "--tex-guidance-strength", knob: "guidance_strength", kind: "float" },
+  { group: "tex", flag: "--tex-guidance-rescale", knob: "guidance_rescale", kind: "float" },
+  { group: "tex", flag: "--tex-rescale-t", knob: "rescale_t", kind: "float" },
+] as const;
+
+const SAMPLER_INTERVAL_FLAGS = [
+  { group: "ss", flag: "--ss-guidance-interval" },
+  { group: "shape", flag: "--shape-guidance-interval" },
+  { group: "tex", flag: "--tex-guidance-interval" },
+] as const;
+
+function parseNumericFlag(argv: string[], iRef: { i: number }, flagName: string,
+                          invalid: string[], integer: boolean): number | null {
+  const next = argv[iRef.i + 1];
+  if (next === undefined) {
+    invalid.push(`${flagName} requires a value`);
+    return null;
+  }
+  const n = Number(next);
+  if (!Number.isFinite(n)) {
+    invalid.push(`${flagName} requires a number, got: ${next}`);
+    return null;
+  }
+  if (integer && !Number.isInteger(n)) {
+    invalid.push(`${flagName} requires an integer, got: ${next}`);
+    return null;
+  }
+  iRef.i++;
+  return n;
 }
 
 function parseArgs(argv: string[]): ParsedArgs {
@@ -336,11 +428,14 @@ function parseArgs(argv: string[]): ParsedArgs {
     hfDemo: false,
     remesh: false,
     noRemesh: false,
+    decimationTarget: null,
+    textureSize: null,
+    samplerOverrides: { ss: {}, shape: {}, tex: {} },
     invalid: [],
   };
-  let i = 0;
-  while (i < argv.length) {
-    const a = argv[i];
+  const iRef = { i: 0 };
+  while (iRef.i < argv.length) {
+    const a = argv[iRef.i];
     if (a === "--help" || a === "-h") {
       result.help = true;
     } else if (a === "--dry-run") {
@@ -354,24 +449,50 @@ function parseArgs(argv: string[]): ParsedArgs {
     } else if (a === "--no-remesh") {
       result.noRemesh = true;
     } else if (a === "--subject") {
-      i++;
-      if (i < argv.length) result.subject = argv[i];
+      const next = argv[iRef.i + 1];
+      if (next !== undefined) { result.subject = next; iRef.i++; }
       else result.invalid.push("--subject requires a value");
     } else if (a === "--seed") {
-      i++;
-      if (i < argv.length) {
-        const n = Number(argv[i]);
-        if (Number.isFinite(n)) result.seed = n;
-        else result.invalid.push(`--seed requires a number, got: ${argv[i]}`);
-      } else {
-        result.invalid.push("--seed requires a value");
+      result.seed = parseNumericFlag(argv, iRef, "--seed", result.invalid, true);
+    } else if (a === "--decimation-target") {
+      result.decimationTarget = parseNumericFlag(argv, iRef, "--decimation-target", result.invalid, true);
+    } else if (a === "--texture-size") {
+      result.textureSize = parseNumericFlag(argv, iRef, "--texture-size", result.invalid, true);
+    } else if (SAMPLER_INTERVAL_FLAGS.some((f) => f.flag === a)) {
+      // guidance_interval takes TWO floats: LO HI.
+      const lo = parseNumericFlag(argv, iRef, `${a} LO`, result.invalid, false);
+      let hi: number | null = null;
+      if (lo !== null) hi = parseNumericFlag(argv, iRef, `${a} HI`, result.invalid, false);
+      if (lo !== null && hi !== null) {
+        const group = SAMPLER_INTERVAL_FLAGS.find((f) => f.flag === a)!.group;
+        result.samplerOverrides[group].guidance_interval = [lo, hi];
       }
+    } else if (SAMPLER_FLAGS.some((f) => f.flag === a)) {
+      const def = SAMPLER_FLAGS.find((f) => f.flag === a)!;
+      const n = parseNumericFlag(argv, iRef, a, result.invalid, def.kind === "int");
+      if (n !== null) result.samplerOverrides[def.group][def.knob] = n;
     } else if (a.startsWith("-")) {
       result.invalid.push(`unknown flag: ${a}`);
     }
-    i++;
+    iRef.i++;
   }
   return result;
+}
+
+/** #662: push the sampler overrides + orphaned numeric knobs into the Python argv. */
+function pushBakeFlags(argv: string[], args: ParsedArgs): void {
+  for (const f of SAMPLER_FLAGS) {
+    const v = args.samplerOverrides[f.group][f.knob];
+    if (v != null) argv.push(f.flag, String(v));
+  }
+  for (const f of SAMPLER_INTERVAL_FLAGS) {
+    const iv = args.samplerOverrides[f.group].guidance_interval;
+    if (iv) argv.push(f.flag, String(iv[0]), String(iv[1]));
+  }
+  // #662 gap fix: both were declared in run_bake_isolated.py but never forwarded
+  // by this CLI before — unreachable from the factory station despite existing.
+  if (args.decimationTarget != null) argv.push("--decimation-target", String(args.decimationTarget));
+  if (args.textureSize != null) argv.push("--texture-size", String(args.textureSize));
 }
 
 // ---------------------------------------------------------------------------
@@ -389,6 +510,10 @@ function dryRunPlan(subjectId: string, args: ParsedArgs): string {
   const viewCount = inputImagePaths.length;
   const outputDir = path.join(trellisOutRoot(), subjectId);
   const remesh = args.remesh && !args.noRemesh;
+
+  // #662: the dry-run plan shows the exact extra argv a live bake would push.
+  const plannedArgv: string[] = [];
+  pushBakeFlags(plannedArgv, args);
 
   const plan: DryRunPlan = {
     subjectId: entry.subjectId,
@@ -408,8 +533,15 @@ function dryRunPlan(subjectId: string, args: ParsedArgs): string {
     hfDemo: args.hfDemo,
     remesh,
     noRemesh: args.noRemesh,
+    decimationTarget: args.decimationTarget,
+    textureSize: args.textureSize,
+    samplerOverrides: args.samplerOverrides,
     mode: "dry-run",
   };
+
+  if (plannedArgv.length > 0) {
+    (plan as DryRunPlan & { extraArgv: string[] }).extraArgv = plannedArgv;
+  }
 
   return JSON.stringify(plan, null, 2);
 }
@@ -469,6 +601,7 @@ function liveBake(subjectId: string, args: ParsedArgs): void {
   if (args.hfDemo) argv.push("--hf-demo");
   if (args.remesh) argv.push("--remesh");
   if (args.noRemesh) argv.push("--no-remesh");
+  pushBakeFlags(argv, args);
   for (const img of inputImagePaths) {
     argv.push("--input-image", img);
   }
