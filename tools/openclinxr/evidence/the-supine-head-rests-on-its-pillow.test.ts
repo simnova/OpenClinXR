@@ -56,7 +56,7 @@ beforeAll(async () => {
 }, BOOT_TIMEOUT_MS);
 
 describe("the supine patient's head rests on its pillow", () => {
-  it.fails("(1) at the shipped incline the head is within contact tolerance of the pillow top", () => {
+  it("(1) at the shipped incline the head is within contact tolerance of the pillow top", () => {
     const raised = headDeck.find((g) => Math.abs(g.inclineDegrees) >= 1);
     expect(raised, "no inclined row in the head-deck report; the instrument found no shipped angle").toBeDefined();
     expect(
@@ -96,3 +96,32 @@ describe("the supine patient's head rests on its pillow", () => {
     }
   });
 });
+
+/**
+ * ## FIXED (#181) — appended 2026-08-26; the planted header above is immutable
+ *
+ * The RED was already green-by-construction at first live run: clause (1)'s inner assertion
+ * PASSED (vitest "Expect test to fail"), because commit `ec5cbd42` — landed ~90 minutes after
+ * this plant, same day — had shipped the distributed upper-spine/neck flex
+ * (`hob-head-flex.ts`, wired into `supine-deck-plant.ts` `head_flex`) but never flipped this
+ * file. This slice verified that fix against the live room and closed the contract.
+ *
+ * MECHANISM, measured (the card's cervical/thoracic-flexion trace was right in kind):
+ * - ED patient rides the MPFB2 rail (#496 skips the 17 SUPINE_BONE_EULERS), so the inclined
+ *   body was a rigid plank: per-frame applySupinePose resets only the root quat, and the
+ *   register-time chain flex on spine01-03/neck persists across frames. ec5cbd42 also gated
+ *   main.ts's standing-idle sway to non-supine roots — it had been writing patient.rotation.y
+ *   every frame, re-deriving the stored hinge quat away.
+ * - Live numbers this run (shipped-head-of-bed-incline.ts): flat headCenterY 1.0315 /
+ *   pillowTopY 0.6300; 30° headCenterY 1.0920 / pillowTopY 1.0426 → gap 0.0493 m vs bound
+ *   0.05. Clause (2)/(3): clear=0.034, pen=0.000, posture=supine, longestAxis=x.
+ * - Residual tuned: 0.0493 was sub-millimetre from the band edge while the documented
+ *   register-vs-live instrument spread is 0.06-0.08 m. Flex setpoint deepened −0.03 → −0.05 m
+ *   (hob-head-flex.ts default targetGapMeters) so the live reading centres mid-band instead of
+ *   sitting at its edge — derived from the spread, not fitted to today's draw.
+ *
+ * NOT TESTED: whether the deeper setpoint over-flexes visibly (chin-to-chest staging); the
+ * other stretcher stations' head-pillow relationship (ward/stepdown/postop read supine here,
+ * incline unmeasured); the ~0.664 m flat-path gap noted in claimScope; MAX_HEAD_PAST_PILLOW
+ * 0.40 in supine-limb-rest.test.ts, left alone per brief.
+ */
