@@ -2340,15 +2340,15 @@ export function validateAssetManifestStructure(manifest: unknown): ValidationRes
   return validateSharedAssetManifest(manifest);
 }
 
-export function evaluateScenarioAssetBudget(manifests: readonly AssetManifest[]): ScenarioAssetBudget {
-  const totals = manifests.reduce(
-    (sum, manifest) => ({
-      totalTriangles: sum.totalTriangles + manifest.geometryBudget.maxTriangles,
-      totalTextureMegabytes: sum.totalTextureMegabytes + manifest.geometryBudget.maxTextureMegabytes,
-      totalDrawCalls: sum.totalDrawCalls + manifest.geometryBudget.maxDrawCalls,
-    }),
-    { totalTriangles: 0, totalTextureMegabytes: 0, totalDrawCalls: 0 },
-  );
+export function evaluateScenarioAssetBudget(
+  manifests: readonly AssetManifest[],
+  measuredTriangleCounts?: Readonly<Record<string, number>>,
+): ScenarioAssetBudget {
+  const totals = manifests.reduce((sum, manifest) => ({
+    totalTriangles: sum.totalTriangles + (measuredTriangleCounts?.[manifest.assetId] ?? manifest.geometryBudget.maxTriangles),
+    totalTextureMegabytes: sum.totalTextureMegabytes + manifest.geometryBudget.maxTextureMegabytes,
+    totalDrawCalls: sum.totalDrawCalls + manifest.geometryBudget.maxDrawCalls,
+  }), { totalTriangles: 0, totalTextureMegabytes: 0, totalDrawCalls: 0 });
   const blockers = [
     totals.totalTriangles > quest3StationBudget.maxVisibleTriangles ? "station_triangle_budget_exceeded" : undefined,
     totals.totalTextureMegabytes > quest3StationBudget.maxTextureMegabytes ? "station_texture_budget_exceeded" : undefined,
