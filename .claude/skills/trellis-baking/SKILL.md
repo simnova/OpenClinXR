@@ -298,9 +298,26 @@ shipped 80k, despite 11.8x fewer triangles. Re-baking the same subject at lower 
 low-frequency form, not fine texture, so it survives a quarter of the texels. That is the load-
 bearing measurement: without it, "use a smaller map" would be a guess about quality.
 
-**So the shippable configuration is 25k + a 512 map at 8.68 MB — 12.6% SMALLER than the 80k that
-ships today, with 55,000 fewer triangles.** Both budgets improve at once, which is why resolution
-had to be swept before the technique was judged.
+**So the shippable configuration FOR THIS ASSET is 25k + a 512 map at 8.68 MB — 12.6% SMALLER than
+the 80k that ships today, with 55,000 fewer triangles.** Both budgets improve at once, which is why
+resolution had to be swept before the technique was judged.
+
+**CORRECTED 2026-08-26 — "25k + 512" IS NOT A UNIVERSAL CONFIGURATION. The usable rung is
+ASSET-DEPENDENT and it is set by SILHOUETTE, not by triangle count.**
+
+`lowpoly-shoe` at the identical 25k rung and identical 512 map comes back with a faithful map — no
+speckle, nothing invented — and a FACETED OUTLINE: hard planes across the toe box, a blocky sole,
+visible in the mapped and unmapped cells alike. Same reduction ratio as pulse-oximeter (~11.8x from a
+~294k raw), opposite outcome.
+
+The difference is FORM, not statistics. pulse-oximeter is boxy: its silhouette survives coarse
+triangulation because it is mostly straight edges. The shoe is organic — continuous curvature across
+the toe and sole — and curvature is exactly what a triangle budget buys. A normal map shades the
+facets and cannot move the outline.
+
+**So the rung must be chosen per asset by looking at the outline, not inherited from another
+subject.** Boxy subjects go deep; curved subjects do not. Anyone adopting 25k as a factory default on
+the strength of the pulse-oximeter measurement will ship faceted shoes.
 
 ALWAYS sweep map resolution before reporting the byte cost of a bake. The first number I produced
 said the technique was uneconomic, and it was measuring an arbitrary 2048 default.
