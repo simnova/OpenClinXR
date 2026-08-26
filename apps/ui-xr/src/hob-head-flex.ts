@@ -73,10 +73,12 @@ export function flexSupineHeadOntoPillow(
   const chain = collectSupineHeadFlexChain(humanoidRoot);
   if (chain.length < 2) return { appliedRad: 0, headGapMeters: null };
   // Pillow mesh centre + half-thickness = pillow top; the head bone (base of skull) rests there.
-  // #181 calibration: the live room reading runs ~0.06 m ABOVE the register-time plant (#171
+  // #181 calibration: the live room reading runs ~0.06-0.08 m ABOVE the register-time plant (#171
   // register-vs-live tip quat quirk, measured before AND after this flex), so the register target
-  // sits slightly INTO the pillow top so the live reading lands inside the 0.05 contact band.
-  const target = pillowWorld.y + 0.04 + (options?.targetGapMeters ?? -0.03);
+  // sits INTO the pillow top so the live reading lands mid-band. -0.03 left the live gap at
+  // 0.0493 against the 0.05 bound (measured 2026-08-26) — sub-millimetre headroom on a 60-80 mm
+  // instrument spread; -0.05 centres the live reading in the band instead of at its edge.
+  const target = pillowWorld.y + 0.04 + (options?.targetGapMeters ?? -0.05);
   let appliedRad = 0;
   let lastGap: number | null = null;
   let prevGap: number | null = null;
