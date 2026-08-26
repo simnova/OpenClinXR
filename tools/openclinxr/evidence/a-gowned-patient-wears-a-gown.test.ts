@@ -144,7 +144,7 @@ function describeSpans(spans: AssetSpans): string {
 }
 
 describe("a gowned patient wears a gown (#684)", () => {
-  it.fails(
+  it(
     "(1) the gowned-patient cast asset carries one garment mesh spanning hip to shoulder",
     async () => {
       const spans = await measureSpans(CAST);
@@ -198,3 +198,31 @@ describe("a gowned patient wears a gown (#684)", () => {
     120_000,
   );
 });
+
+/*
+ * ## FIXED (#684)
+ *
+ * Clause (1) flipped from `it.fails` to `it` on 2026-08-26. Measured after the
+ * fix (same instrument, same landmarks):
+ *
+ *     mpfb-gown-adult-patient.glb   body 1.7756 m (height survives #651)
+ *     openclinxr_real_garment_hospital_gown_phenotype_L0   6654t  0.320..0.869   ONE mesh
+ *     mat_makeclothes_library_toigo_t_shirt                 2700t  0.588..0.860   (under-gown layer)
+ *     (unnamed) declaration marker                            1t
+ *
+ * THE CAUSE, TRACED: the gown was never part of `materialize_mpfb_humanoid_candidate.py`'s
+ * wardrobe. Every pre-#651 gown-carrying bake of this asset was TWO stages: the materializer
+ * produced the body, then `bake_mpfb_gown_inspect.py` (--input-glb <body> --output-glb
+ * mpfb-gown-adult-patient.glb) added the gown — see the #598 report's "Gown fifth invocation"
+ * and its exact invocation. #651's height rebake ran ONLY the first stage with the cast asset as
+ * --output, so the wardrobe was rebuilt from the default set (t-shirt + cargo_pants) and the gown
+ * stage was never run again. Nothing measured wardrobe preservation across the rebake.
+ *
+ * THE FIX: re-ran the second stage on the #651 output (input == the 177.6 cm cast asset), which
+ * strips the cargo_pants (bake_mpfb_gown_inspect.py `_strip_lower_garments`), invokes the same
+ * `apply_role_clothing_material_regions` gown builder the known-good ships, and exports. The body
+ * is imported and exported, never regenerated, so the #651 height is preserved by construction.
+ * The t-shirt persists underneath the gown (matching the pre-#651 cast composition and the
+ * known-good); the gown covers 0.320..0.869, replacing the pants' 0.056..0.607 coverage down to
+ * the knee-length hem — the same exposure profile as the pixel-graded known-good.
+ */
