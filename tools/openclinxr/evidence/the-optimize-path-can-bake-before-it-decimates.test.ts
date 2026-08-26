@@ -203,5 +203,22 @@ describe("decimated rungs are baked, rendered and graded before a champion is na
   });
 });
 
+// KNOWN WEAKNESS IN CLAUSE (1b), named by a consult AFTER it landed at 252e3370 and recorded here
+// rather than left for the next reader to discover. It compares hash STRINGS INSIDE ONE REPORT and
+// never recomputes a hash from an artifact on disk. A worker can author a perfectly self-consistent
+// fictional chain and satisfy it, and nothing here proves `iterate-optimize.ts` produced the report
+// at all. It is strictly better than the source grep it replaced — a comment no longer satisfies
+// anything — and it is NOT SOUND.
+//
+// The sound form recomputes SHA-256 from every referenced artifact path, asserts BOTH bake inputs
+// (the high source and the UV-bearing low mesh), binds the grade plan by hash before execution, and
+// proves the pipeline command produced the receipts. Timestamps stay diagnostic metadata and are
+// never acceptance evidence: `gradePlan.createdAt <= bake.startedAt` is self-declared chronology and
+// weaker than the filesystem `measured-before:` rule this repo already removed from the
+// plant-protection set.
+//
+// #694 IS QUARANTINED (`Factory: Idle`) until that lands and #693 returns. A comment on a card does
+// not stop a dequeue; clearing Planted does.
+
 // NOT TESTED: whether any rung in the band actually beats the shipped 80k. "No rung beats it, the
 // technique does not pay on this asset" satisfies every clause above and closes the card.
