@@ -1,0 +1,718 @@
+{
+  "schemaVersion": "openclinxr.mpfb-bake-question.component-census.v1",
+  "generatedAt": "2026-08-26T18:05:32.167Z",
+  "head": "470550ef",
+  "method": "NodeIO read (same instrument as the contract test); positions welded at 5dp across ALL primitives and meshes; union-find over triangle edges; component sizes in triangles and vertices. Unwelded counts are wrong by orders of magnitude on this generator (trellis-baking SKILL.md).",
+  "referencePoints": {
+    "pulseOximeterSafe": {
+      "components": 16,
+      "largestShare": 0.997
+    },
+    "o2PortContaminated": {
+      "components": 75,
+      "largestShare": 0.515
+    },
+    "cardBand": ">= ~0.99 largest-component share is the safe class; ~0.50 is the o2-port contamination class"
+  },
+  "stationArithmetic": {
+    "edFourActorTotalTris": 360524,
+    "edBudget": 180000,
+    "edOverBy": 180524,
+    "pedsThreeActorTotalTris": 238804,
+    "pedsBudget": 180000,
+    "pedsOverBy": 58804
+  },
+  "assets": [
+    {
+      "file": "mpfb-clinical-nurse-adult.glb",
+      "sha256": "b96ee02554257c9dc60442a7e705b9e3f8186e98b20d4349e5ba398e7d9a1a45",
+      "totalTris": 75854,
+      "meshCount": 10,
+      "hasNormalMap": true,
+      "hasTangent": false,
+      "weldedVertexCount": 43428,
+      "components": 1792,
+      "largestShareTris": 0.3527,
+      "secondLargestShareTris": 0.1237,
+      "largestShareVerts": 0.3081,
+      "largestComponentMeshTris": [
+        {
+          "mesh": "mpfb_ed_chest_pain_nurse_adult_body",
+          "tris": 26756
+        }
+      ],
+      "perMeshTris": [
+        {
+          "name": "openclinxr_fitted_eyebrow_mindfront_eyebrows_06_mpfb_ed_chest_pain_nurse_adult_mesh",
+          "tris": 31968
+        },
+        {
+          "name": "mpfb_ed_chest_pain_nurse_adult_body",
+          "tris": 26756
+        },
+        {
+          "name": "makeclothes_library_scrub_shirt_mpfb_ed_chest_pain_nurse_adult_mesh",
+          "tris": 9384
+        },
+        {
+          "name": "makeclothes_library_hair_toigo_blunt_bob_mpfb_ed_chest_pain_nurse_adult_mesh",
+          "tris": 2858
+        },
+        {
+          "name": "makeclothes_library_scrub_pants_mpfb_ed_chest_pain_nurse_adult_mesh",
+          "tris": 2704
+        },
+        {
+          "name": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ed_chest_pain_nurse_adult_mesh",
+          "tris": 1004
+        },
+        {
+          "name": "openclinxr_hm08_tongue_mpfb_ed_chest_pain_nurse_adult_mesh",
+          "tris": 448
+        },
+        {
+          "name": "openclinxr_hm08_eyelash_mpfb_ed_chest_pain_nurse_adult_mesh",
+          "tris": 368
+        },
+        {
+          "name": "openclinxr_hm08_teeth_mpfb_ed_chest_pain_nurse_adult_mesh",
+          "tris": 192
+        },
+        {
+          "name": "makeclothes_library_eyes_low_poly_mpfb_ed_chest_pain_nurse_adult_mesh",
+          "tris": 172
+        }
+      ]
+    },
+    {
+      "file": "mpfb-clinical-physician-adult.glb",
+      "sha256": "266370e3de6a71319057f7c4abcb7e6d219ee0781b9d14e27f202309a36d73ca",
+      "totalTris": 82454,
+      "meshCount": 11,
+      "hasNormalMap": true,
+      "hasTangent": false,
+      "weldedVertexCount": 45794,
+      "components": 1359,
+      "largestShareTris": 0.3245,
+      "secondLargestShareTris": 0.1138,
+      "largestShareVerts": 0.2922,
+      "largestComponentMeshTris": [
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "tris": 26756
+        }
+      ],
+      "perMeshTris": [
+        {
+          "name": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh",
+          "tris": 35334
+        },
+        {
+          "name": "mpfb_ob_patient_aisha_body",
+          "tris": 26756
+        },
+        {
+          "name": "makeclothes_library_scrub_shirt_mpfb_ob_patient_aisha_mesh",
+          "tris": 9384
+        },
+        {
+          "name": "makeclothes_library_hair_mhair02_mpfb_ob_patient_aisha_mesh",
+          "tris": 3460
+        },
+        {
+          "name": "makeclothes_library_scrub_pants_mpfb_ob_patient_aisha_mesh",
+          "tris": 2704
+        },
+        {
+          "name": "makeclothes_library_lab_coat_mpfb_ob_patient_aisha_mesh",
+          "tris": 2632
+        },
+        {
+          "name": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ob_patient_aisha_mesh",
+          "tris": 1004
+        },
+        {
+          "name": "openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh",
+          "tris": 448
+        },
+        {
+          "name": "openclinxr_hm08_eyelash_mpfb_ob_patient_aisha_mesh",
+          "tris": 368
+        },
+        {
+          "name": "openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh",
+          "tris": 192
+        },
+        {
+          "name": "makeclothes_library_eyes_low_poly_mpfb_ob_patient_aisha_mesh",
+          "tris": 172
+        }
+      ]
+    },
+    {
+      "file": "mpfb-family-partner-adult.glb",
+      "sha256": "6dee97e59080e0b158ce2e51ef06541ef3ab218766384ed2aca61e156b0360dd",
+      "totalTris": 72331,
+      "meshCount": 10,
+      "hasNormalMap": true,
+      "hasTangent": false,
+      "weldedVertexCount": 42696,
+      "components": 2125,
+      "largestShareTris": 0.3699,
+      "secondLargestShareTris": 0.0394,
+      "largestShareVerts": 0.3134,
+      "largestComponentMeshTris": [
+        {
+          "mesh": "mpfb_ed_chest_pain_spouse_adult_body",
+          "tris": 26756
+        }
+      ],
+      "perMeshTris": [
+        {
+          "name": "openclinxr_fitted_eyebrow_mindfront_eyebrows_10_mpfb_ed_chest_pain_spouse_adult_mesh",
+          "tris": 35028
+        },
+        {
+          "name": "mpfb_ed_chest_pain_spouse_adult_body",
+          "tris": 26756
+        },
+        {
+          "name": "makeclothes_library_hair_toigo_curled_under_bob_mpfb_ed_chest_pain_spouse_adult_mesh",
+          "tris": 2852
+        },
+        {
+          "name": "makeclothes_library_cargo_pants_mpfb_ed_chest_pain_spouse_adult_mesh.001",
+          "tris": 2811
+        },
+        {
+          "name": "makeclothes_library_toigo_t_shirt_mpfb_ed_chest_pain_spouse_adult_mesh",
+          "tris": 2700
+        },
+        {
+          "name": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ed_chest_pain_spouse_adult_mesh",
+          "tris": 1004
+        },
+        {
+          "name": "openclinxr_hm08_tongue_mpfb_ed_chest_pain_spouse_adult_mesh",
+          "tris": 448
+        },
+        {
+          "name": "openclinxr_hm08_eyelash_mpfb_ed_chest_pain_spouse_adult_mesh",
+          "tris": 368
+        },
+        {
+          "name": "openclinxr_hm08_teeth_mpfb_ed_chest_pain_spouse_adult_mesh",
+          "tris": 192
+        },
+        {
+          "name": "makeclothes_library_eyes_low_poly_mpfb_ed_chest_pain_spouse_adult_mesh",
+          "tris": 172
+        }
+      ]
+    },
+    {
+      "file": "mpfb-gown-adult-patient.glb",
+      "sha256": "eb25c0e5ee27a546edd442efa2e2c117019ebc976bd57eb7bfb894edc7bfd4e9",
+      "totalTris": 129885,
+      "meshCount": 11,
+      "hasNormalMap": true,
+      "hasTangent": false,
+      "weldedVertexCount": 69308,
+      "components": 1286,
+      "largestShareTris": 0.446,
+      "secondLargestShareTris": 0.206,
+      "largestShareVerts": 0.4214,
+      "largestComponentMeshTris": [
+        {
+          "mesh": "openclinxr_real_garment_peds_upper_v1_mesh",
+          "tris": 57935
+        }
+      ],
+      "perMeshTris": [
+        {
+          "name": "openclinxr_real_garment_peds_upper_v1_mesh",
+          "tris": 57935
+        },
+        {
+          "name": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh",
+          "tris": 35334
+        },
+        {
+          "name": "mpfb_ob_patient_aisha_body",
+          "tris": 26756
+        },
+        {
+          "name": "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh",
+          "tris": 4975
+        },
+        {
+          "name": "makeclothes_library_toigo_t_shirt_mpfb_ob_patient_aisha_mesh",
+          "tris": 2700
+        },
+        {
+          "name": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ob_patient_aisha_mesh",
+          "tris": 1004
+        },
+        {
+          "name": "openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh",
+          "tris": 448
+        },
+        {
+          "name": "openclinxr_hm08_eyelash_mpfb_ob_patient_aisha_mesh",
+          "tris": 368
+        },
+        {
+          "name": "openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh",
+          "tris": 192
+        },
+        {
+          "name": "makeclothes_library_eyes_low_poly_mpfb_ob_patient_aisha_mesh",
+          "tris": 172
+        },
+        {
+          "name": "openclinxr_declared_upper_layers__hospital_gown_mesh",
+          "tris": 1
+        }
+      ]
+    },
+    {
+      "file": "mpfb-gown-inspect.glb",
+      "sha256": "15ae44942704bc7dfae4ae10366c25ed2268d86db26c7f528cf10cbb4a2c2374",
+      "totalTris": 134375,
+      "meshCount": 11,
+      "hasNormalMap": true,
+      "hasTangent": false,
+      "weldedVertexCount": 71338,
+      "components": 1284,
+      "largestShareTris": 0.1991,
+      "secondLargestShareTris": 0.1148,
+      "largestShareVerts": 0.1876,
+      "largestComponentMeshTris": [
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "tris": 26756
+        }
+      ],
+      "perMeshTris": [
+        {
+          "name": "makeclothes_library_footwear_toigo_flats_mpfb_ob_patient_aisha_mesh",
+          "tris": 57600
+        },
+        {
+          "name": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh",
+          "tris": 35334
+        },
+        {
+          "name": "mpfb_ob_patient_aisha_body",
+          "tris": 26756
+        },
+        {
+          "name": "openclinxr_real_garment_peds_upper_v1_mesh",
+          "tris": 5829
+        },
+        {
+          "name": "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh",
+          "tris": 4975
+        },
+        {
+          "name": "makeclothes_library_toigo_t_shirt_mpfb_ob_patient_aisha_mesh",
+          "tris": 2700
+        },
+        {
+          "name": "openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh",
+          "tris": 448
+        },
+        {
+          "name": "openclinxr_hm08_eyelash_mpfb_ob_patient_aisha_mesh",
+          "tris": 368
+        },
+        {
+          "name": "openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh",
+          "tris": 192
+        },
+        {
+          "name": "makeclothes_library_eyes_low_poly_mpfb_ob_patient_aisha_mesh",
+          "tris": 172
+        },
+        {
+          "name": "openclinxr_declared_upper_layers__hospital_gown_mesh",
+          "tris": 1
+        }
+      ]
+    },
+    {
+      "file": "mpfb-ob-patient-aisha.glb",
+      "sha256": "67fa2812cad82bd67536cbb55c6ac0dbe2a58d7fd8b54d81fd9aa7c0f0c760cd",
+      "totalTris": 74642,
+      "meshCount": 10,
+      "hasNormalMap": true,
+      "hasTangent": false,
+      "weldedVertexCount": 41508,
+      "components": 1283,
+      "largestShareTris": 0.3585,
+      "secondLargestShareTris": 0.0362,
+      "largestShareVerts": 0.3223,
+      "largestComponentMeshTris": [
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "tris": 26756
+        }
+      ],
+      "perMeshTris": [
+        {
+          "name": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh",
+          "tris": 35334
+        },
+        {
+          "name": "mpfb_ob_patient_aisha_body",
+          "tris": 26756
+        },
+        {
+          "name": "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh",
+          "tris": 4976
+        },
+        {
+          "name": "makeclothes_library_toigo_t_shirt_mpfb_ob_patient_aisha_mesh",
+          "tris": 2700
+        },
+        {
+          "name": "makeclothes_library_cargo_pants_mpfb_ob_patient_aisha_mesh.001",
+          "tris": 2692
+        },
+        {
+          "name": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ob_patient_aisha_mesh",
+          "tris": 1004
+        },
+        {
+          "name": "openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh",
+          "tris": 448
+        },
+        {
+          "name": "openclinxr_hm08_eyelash_mpfb_ob_patient_aisha_mesh",
+          "tris": 368
+        },
+        {
+          "name": "openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh",
+          "tris": 192
+        },
+        {
+          "name": "makeclothes_library_eyes_low_poly_mpfb_ob_patient_aisha_mesh",
+          "tris": 172
+        }
+      ]
+    },
+    {
+      "file": "mpfb-peds-nurse-kevin.glb",
+      "sha256": "313ea22ca8be776851824329807ae915a1e467f95a78998540e14d5285928679",
+      "totalTris": 102968,
+      "meshCount": 10,
+      "hasNormalMap": true,
+      "hasTangent": false,
+      "weldedVertexCount": 55428,
+      "components": 1218,
+      "largestShareTris": 0.2601,
+      "secondLargestShareTris": 0.1494,
+      "largestShareVerts": 0.2417,
+      "largestComponentMeshTris": [
+        {
+          "mesh": "mpfb_peds_nurse_kevin_body",
+          "tris": 26756
+        },
+        {
+          "mesh": "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_peds_nurse_kevin_mesh",
+          "tris": 30
+        }
+      ],
+      "perMeshTris": [
+        {
+          "name": "makeclothes_library_footwear_culturalibre_male_boots_mpfb_peds_nurse_kevin_mesh",
+          "tris": 30768
+        },
+        {
+          "name": "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_peds_nurse_kevin_mesh",
+          "tris": 28716
+        },
+        {
+          "name": "mpfb_peds_nurse_kevin_body",
+          "tris": 26756
+        },
+        {
+          "name": "makeclothes_library_scrub_shirt_mpfb_peds_nurse_kevin_mesh",
+          "tris": 9384
+        },
+        {
+          "name": "makeclothes_library_hair_mhair02_mpfb_peds_nurse_kevin_mesh",
+          "tris": 3460
+        },
+        {
+          "name": "makeclothes_library_scrub_pants_mpfb_peds_nurse_kevin_mesh",
+          "tris": 2704
+        },
+        {
+          "name": "openclinxr_hm08_tongue_mpfb_peds_nurse_kevin_mesh",
+          "tris": 448
+        },
+        {
+          "name": "openclinxr_hm08_eyelash_mpfb_peds_nurse_kevin_mesh",
+          "tris": 368
+        },
+        {
+          "name": "openclinxr_hm08_teeth_mpfb_peds_nurse_kevin_mesh",
+          "tris": 192
+        },
+        {
+          "name": "makeclothes_library_eyes_low_poly_mpfb_peds_nurse_kevin_mesh",
+          "tris": 172
+        }
+      ]
+    },
+    {
+      "file": "mpfb-peds-parent-aisha.glb",
+      "sha256": "1f148c9ec80e824f47f0142767f1d803dc6c61c4b859e726671e9706e8583ac3",
+      "totalTris": 74768,
+      "meshCount": 10,
+      "hasNormalMap": true,
+      "hasTangent": false,
+      "weldedVertexCount": 41537,
+      "components": 1284,
+      "largestShareTris": 0.3579,
+      "secondLargestShareTris": 0.0377,
+      "largestShareVerts": 0.3221,
+      "largestComponentMeshTris": [
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "tris": 26756
+        }
+      ],
+      "perMeshTris": [
+        {
+          "name": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh",
+          "tris": 35334
+        },
+        {
+          "name": "mpfb_ob_patient_aisha_body",
+          "tris": 26756
+        },
+        {
+          "name": "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh",
+          "tris": 4976
+        },
+        {
+          "name": "makeclothes_library_cargo_pants_mpfb_ob_patient_aisha_mesh.001",
+          "tris": 2818
+        },
+        {
+          "name": "makeclothes_library_toigo_t_shirt_mpfb_ob_patient_aisha_mesh",
+          "tris": 2700
+        },
+        {
+          "name": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ob_patient_aisha_mesh",
+          "tris": 1004
+        },
+        {
+          "name": "openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh",
+          "tris": 448
+        },
+        {
+          "name": "openclinxr_hm08_eyelash_mpfb_ob_patient_aisha_mesh",
+          "tris": 368
+        },
+        {
+          "name": "openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh",
+          "tris": 192
+        },
+        {
+          "name": "makeclothes_library_eyes_low_poly_mpfb_ob_patient_aisha_mesh",
+          "tris": 172
+        }
+      ]
+    },
+    {
+      "file": "mpfb-peds-patient-child.glb",
+      "sha256": "c5c0ce30240e3916ab093ae2fcf7873d1ec268871685c26f660d0074e4be3a64",
+      "totalTris": 61068,
+      "meshCount": 10,
+      "hasNormalMap": true,
+      "hasTangent": false,
+      "weldedVertexCount": 34477,
+      "components": 1227,
+      "largestShareTris": 0.4381,
+      "secondLargestShareTris": 0.0442,
+      "largestShareVerts": 0.3881,
+      "largestComponentMeshTris": [
+        {
+          "mesh": "mpfb_peds_patient_child_body",
+          "tris": 26756
+        }
+      ],
+      "perMeshTris": [
+        {
+          "name": "mpfb_peds_patient_child_body",
+          "tris": 26756
+        },
+        {
+          "name": "openclinxr_fitted_eyebrow_mindfront_eyebrows_03_mpfb_peds_patient_child_mesh",
+          "tris": 21816
+        },
+        {
+          "name": "makeclothes_library_hair_toigo_curled_under_bob_with_bangs_mpfb_peds_patient_child_mesh",
+          "tris": 4976
+        },
+        {
+          "name": "makeclothes_library_toigo_t_shirt_mpfb_peds_patient_child_mesh",
+          "tris": 2700
+        },
+        {
+          "name": "makeclothes_library_cargo_pants_mpfb_peds_patient_child_mesh.001",
+          "tris": 2636
+        },
+        {
+          "name": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_patient_child_mesh",
+          "tris": 1004
+        },
+        {
+          "name": "openclinxr_hm08_tongue_mpfb_peds_patient_child_mesh",
+          "tris": 448
+        },
+        {
+          "name": "openclinxr_hm08_eyelash_mpfb_peds_patient_child_mesh",
+          "tris": 368
+        },
+        {
+          "name": "openclinxr_hm08_teeth_mpfb_peds_patient_child_mesh",
+          "tris": 192
+        },
+        {
+          "name": "makeclothes_library_eyes_low_poly_mpfb_peds_patient_child_mesh",
+          "tris": 172
+        }
+      ]
+    },
+    {
+      "file": "mpfb-street-adult-male.glb",
+      "sha256": "0e6ad5cb7348fce0e1e97450b1a92662a4fa7417af025183fef910f27c53009e",
+      "totalTris": 96400,
+      "meshCount": 10,
+      "hasNormalMap": true,
+      "hasTangent": false,
+      "weldedVertexCount": 52221,
+      "components": 1218,
+      "largestShareTris": 0.2779,
+      "secondLargestShareTris": 0.1596,
+      "largestShareVerts": 0.2565,
+      "largestComponentMeshTris": [
+        {
+          "mesh": "mpfb_adult_male_street_casual_body",
+          "tris": 26756
+        },
+        {
+          "mesh": "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_adult_male_street_casual_mesh",
+          "tris": 30
+        }
+      ],
+      "perMeshTris": [
+        {
+          "name": "makeclothes_library_footwear_culturalibre_male_boots_mpfb_adult_male_street_casual_mesh",
+          "tris": 30768
+        },
+        {
+          "name": "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_adult_male_street_casual_mesh",
+          "tris": 28716
+        },
+        {
+          "name": "mpfb_adult_male_street_casual_body",
+          "tris": 26756
+        },
+        {
+          "name": "makeclothes_library_hair_mhair02_mpfb_adult_male_street_casual_mesh",
+          "tris": 3460
+        },
+        {
+          "name": "makeclothes_library_cargo_pants_mpfb_adult_male_street_casual_mesh.001",
+          "tris": 2820
+        },
+        {
+          "name": "makeclothes_library_toigo_t_shirt_mpfb_adult_male_street_casual_mesh",
+          "tris": 2700
+        },
+        {
+          "name": "openclinxr_hm08_tongue_mpfb_adult_male_street_casual_mesh",
+          "tris": 448
+        },
+        {
+          "name": "openclinxr_hm08_eyelash_mpfb_adult_male_street_casual_mesh",
+          "tris": 368
+        },
+        {
+          "name": "openclinxr_hm08_teeth_mpfb_adult_male_street_casual_mesh",
+          "tris": 192
+        },
+        {
+          "name": "makeclothes_library_eyes_low_poly_mpfb_adult_male_street_casual_mesh",
+          "tris": 172
+        }
+      ]
+    },
+    {
+      "file": "mpfb-viseme-inspect.glb",
+      "sha256": "301fe2b4bfaa8e45ab561df9fd33cc8ff47cd58a10beb7ff2a4f37a2691eccb0",
+      "totalTris": 131328,
+      "meshCount": 10,
+      "hasNormalMap": true,
+      "hasTangent": false,
+      "weldedVertexCount": 69814,
+      "components": 1283,
+      "largestShareTris": 0.2037,
+      "secondLargestShareTris": 0.1174,
+      "largestShareVerts": 0.1917,
+      "largestComponentMeshTris": [
+        {
+          "mesh": "mpfb_ob_patient_aisha_body",
+          "tris": 26756
+        }
+      ],
+      "perMeshTris": [
+        {
+          "name": "makeclothes_library_footwear_toigo_flats_mpfb_ob_patient_aisha_mesh",
+          "tris": 57600
+        },
+        {
+          "name": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh",
+          "tris": 35334
+        },
+        {
+          "name": "mpfb_ob_patient_aisha_body",
+          "tris": 26756
+        },
+        {
+          "name": "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh",
+          "tris": 4976
+        },
+        {
+          "name": "makeclothes_library_cargo_pants_mpfb_ob_patient_aisha_mesh.001",
+          "tris": 2782
+        },
+        {
+          "name": "makeclothes_library_toigo_t_shirt_mpfb_ob_patient_aisha_mesh",
+          "tris": 2700
+        },
+        {
+          "name": "openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh",
+          "tris": 448
+        },
+        {
+          "name": "openclinxr_hm08_eyelash_mpfb_ob_patient_aisha_mesh",
+          "tris": 368
+        },
+        {
+          "name": "openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh",
+          "tris": 192
+        },
+        {
+          "name": "makeclothes_library_eyes_low_poly_mpfb_ob_patient_aisha_mesh",
+          "tris": 172
+        }
+      ]
+    }
+  ]
+}

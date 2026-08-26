@@ -111,7 +111,7 @@ describe("a humanoid bake is judged before it is shipped", () => {
    * The census is still worth having: cheap, reproducible, and a real record of the asset
    * population. It is a RECORD, not a gate. Clause (7) holds the gate.
    */
-  it.fails("(2) a component census exists as a record of the asset population", () => {
+  it("(2) a component census exists as a record of the asset population", () => {
     expect(
       existsSync(CENSUS),
       "worth recording before any bake — but this number decides nothing on its own; share has "
@@ -189,3 +189,23 @@ describe("a humanoid bake is judged before it is shipped", () => {
 // (PROTO_VERIFY_DELEGATION.md:3424), so clause (1) proves a DECLARED budget is breached and nothing
 // about real frame cost. Nor whether decimation is the right remedy: fewer actors, a shared body
 // mesh, and GPU instancing are alternatives these clauses do not evaluate.
+
+// ## FIXED (#692) — clause (2) only
+//
+// The census exists at `.openclinxr/evidence/mpfb-bake-question/component-census.json`, produced by
+// `tools/openclinxr/evidence/mpfb-component-census.ts` with the same NodeIO instrument this file
+// uses, positions welded at 5dp across all primitives and meshes before the union-find.
+//
+// MEASURED, eleven shipped assets: largest-component share 0.199–0.446, 1,218–2,125 welded
+// components each. On ten of eleven the largest component is the body mesh (26,756 tris, 21–37% of
+// the asset). On the gown patient it is the GOWN mesh at 57,935 tris — 44.6% of that asset and 2.2x
+// its body — which makes the gown the single largest mesh on the single largest actor.
+//
+// WHAT THIS DOES NOT SAY. The worker's commit concluded from these numbers that every asset is the
+// o2-port contamination class and a cage bake would be contaminated. THAT INFERENCE IS WITHDRAWN and
+// is not reproduced here. Largest-component share is a retired predictor — see the clause (2)
+// docblock above and `trellis-baking` SKILL.md:292-305, where it predicts wrong in both directions.
+// These numbers are a record of the asset population and decide nothing about a bake.
+//
+// Clauses (1) and (7) stay red. (7) names what is actually missing: one humanoid, one cage bake,
+// one graded render. No bake was run and no asset bytes were changed by this landing.
