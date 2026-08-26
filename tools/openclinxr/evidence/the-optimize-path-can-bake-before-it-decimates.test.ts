@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -121,12 +121,23 @@ describe("the optimize path can bake before it decimates", () => {
     ).toHaveLength(0);
   });
 
-  it("(6) COUNTERWEIGHT: the shipped champion's byte figure is unchanged", () => {
+  /**
+   * CORRECTED 2026-08-26, same day it was written. The original compared `SHIPPED_80K_BYTES` to the
+   * literal it is declared as — a constant against itself, which cannot fail. That is the vacuous
+   * proof my own `contract-design` rule tells workers to flag, committed by me hours after writing
+   * the rule. Caught by a consult, not by my own self-review.
+   */
+  it("(6) COUNTERWEIGHT: the shipped shoe champion on disk is not silently replaced", () => {
+    const shipped = join(
+      process.cwd(),
+      ".openclinxr/evidence/trellis-escape-hatch/lowpoly-shoe/optimize/champion.glb",
+    );
+    expect(existsSync(shipped), "every 'vs shipped' percentage is against this file").toBe(true);
     expect(
-      SHIPPED_80K_BYTES,
-      "every 'vs shipped' percentage in this sweep is against this number; moving it silently "
-        + "re-baselines the whole comparison",
-    ).toBe(9_234_576);
+      statSync(shipped).size,
+      "re-baselining the comparison by swapping the champion would make every percentage in the "
+        + "sweep meaningless while every other clause stayed green",
+    ).toBe(SHIPPED_80K_BYTES);
   });
 });
 
