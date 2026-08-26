@@ -172,7 +172,11 @@ describe("the nurse wardrobe baseline matches the shipped bytes", () => {
     for (const [actor, material, tris] of [
       ["mpfb-ob-patient-aisha", "toigo_t_shirt", 2700],
       ["mpfb-peds-patient-child", "toigo_t_shirt", 2700],
-      ["mpfb-peds-patient-child", "cargo_pants.001", 2636],
+      // #681 re-pinned 2636 -> 2628: the child's re-bake ran the current pipeline, which includes
+      // the #656 hem-weld scoping that her last bake (2026-08-21) predates — the sibling
+      // flat-shading contract re-pinned the same row for the same reason. Not treatment (e): the
+      // edit records current-code geometry, it does not make a stale nurse baseline line up.
+      ["mpfb-peds-patient-child", "cargo_pants.001", 2628],
     ] as const) {
       const re = new RegExp(`"${actor}::mat_makeclothes_library_${material.replace(/\./gu, "\\.")}"\\s*:\\s*\\{\\s*tris:\\s*${tris}`, "u");
       expect(re.test(baselineSrc), `${actor} ${material} must stay at ${tris}`).toBe(true);

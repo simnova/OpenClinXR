@@ -119,14 +119,32 @@ describe("the factory publishes what it can build", () => {
     }
   });
 
-  it("(4) NET: hazel is still refused, the bank is unedited, and eye_color is still a free string", () => {
+  it("(4) NET: the refusal survives, the resolution is recorded, the pack is untouched", () => {
     // Refuses (d). Making the bank validate by widening the pack or enum-ing the schema are both
-    // ways to hide the gap this manifest exists to expose.
-    expect(readFileSync(BANK, "utf8"), "Maya still authors hazel").toMatch(/eye_color:\s*"hazel"/);
+    // ways to hide the gap this manifest exists to expose. #681 resolved Maya's hazel to green —
+    // a recorded D13 pick in the case (pediatric-asthma.ts:122), not a pack change: the selector
+    // must still refuse any OTHER unbuildable name loudly, and the pack must stay the nine.
+    const bank = readFileSync(BANK, "utf8");
+    expect(bank, "Maya's unbuildable hazel is resolved (green, #681), not silently deleted")
+      .not.toMatch(/eye_color:\s*"hazel"/);
+    expect(bank, "Maya authors a pack member").toMatch(/eye_color:\s*"green"/);
     expect(packFromSelector(), "the pack must not be widened to admit hazel").not.toContain("hazel");
     expect(
       readFileSync(SCHEMAS, "utf8"),
-      "eye_color stays Type.String() — enum-ing it reds the bank until Maya's colour is picked",
+      "eye_color stays Type.String() — the refusal, not an enum, is what forces resolution",
     ).toMatch(/eye_color:\s*Type\.Optional\(Type\.String\(\)\)/);
   });
 });
+
+/**
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ * ## FIXED (#681) — appended; the planted header above is immutable
+ *
+ * Clause (4) re-keyed: #681 took the D13 decision this contract's NOT TESTED deferred ("Maya's
+ * colour... operator's under D13") and recorded it IN THE CASE — pediatric-asthma.ts:122 resolves
+ * hazel -> green with the rationale in a comment, the anny manifest matches, and the child GLB was
+ * re-baked. The refusal is untouched (the selector still raises ValueError on any other
+ * unbuildable name), the pack is still the nine, and eye_color is still Type.String(). The
+ * manifest (1)/(2)/(3) are unaffected.
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ */

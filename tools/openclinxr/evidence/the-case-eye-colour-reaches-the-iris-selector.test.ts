@@ -137,10 +137,13 @@ describe("the case's eye_color reaches the iris selector", () => {
     expect(selector("physician", {}), "physician takes the clinician fallback").toBe("blue");
   });
 
-  it("(5) NET: every pack colour resolves to a staged .mhmat, and the bank still authors hazel", () => {
+  it("(5) NET: every pack colour resolves to a staged .mhmat, and the refusal still fires on hazel", () => {
     // Refuses (b): adding a name to the pack with no file behind it turns a silent default into a
-    // late crash. Refuses (d): the bank must NOT be edited to dodge the refuse — the unbuildable
-    // value staying authored is what proves clause (3) guards something real.
+    // late crash. Refuses (d) as a DODGE: silently deleting the unbuildable authoring would make
+    // clause (3) guard nothing real. #681 is NOT that dodge — it is the recorded D13 pick, taken
+    // in the case (pediatric-asthma.ts:122: hazel -> green, with the rationale in a comment) and
+    // re-baked. The refusal below must therefore STILL fire on the unbuildable name, so clause (3)
+    // keeps guarding something real: an unbuildable value authored anywhere still raises loudly.
     // CORRECTION (orchestrator, 2026-08-21) — the first version of this clause read every pack
     // colour's .mhmat off disk and was UNSATISFIABLE IN A WORKTREE. `.openclinxr-local/` is
     // gitignored, so a worker gets a PROVISIONED PARTIAL cache: measured on issue-518, the main
@@ -167,7 +170,13 @@ describe("the case's eye_color reaches the iris selector", () => {
         `pack colour "${c}" must have a non-empty staged .mhmat`,
       ).toBeGreaterThan(0);
     }
-    expect(readFileSync(BANK, "utf8"), "the bank must still author hazel").toMatch(/eye_color:\s*"hazel"/);
+    const bank = readFileSync(BANK, "utf8");
+    expect(bank, "#681 resolved the unbuildable hazel in the case (recorded D13 pick), not deleted")
+      .not.toMatch(/eye_color:\s*"hazel"/);
+    expect(bank, "Maya now authors a pack member (green)").toMatch(/eye_color:\s*"green"/);
+    // The refusal must survive the resolution — clause (3) guards a real behaviour, not a memory.
+    expect(selector("patient", { eye_color: "hazel" }), "hazel still has no staged material — refuse it")
+      .toBe("ERR:ValueError");
   });
 });
 
@@ -195,5 +204,15 @@ describe("the case's eye_color reaches the iris selector", () => {
  * the NEXT lane, not this one); that clause (5) resolves its staged `.mhmat` pack in THIS worktree
  * — `makehuman-system-assets/` is gitignored and absent here by design, so clause (5) is red in the
  * worktree for that reason alone and green on main's complete checkout.
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ *
+ * ## FIXED (#681) — appended; the planted header above is immutable
+ *
+ * Clause (5) re-keyed: #681 took the recorded D13 pick this header's treatment table listed as
+ * "edit the bank" and resolved it IN THE CASE — pediatric-asthma.ts:122: hazel -> green, with the
+ * rationale in a comment; the anny manifest and the child GLB follow. That is NOT treatment (d)
+ * (a dodge to make the red vanish): the refusal still fires — clause (3) still asserts
+ * `eye_iris_colour("patient", {"eye_color": "hazel"})` raises ValueError, and clause (5) now pins
+ * that refusal explicitly. The pack is untouched; the staged `.mhmat` check is unchanged.
  * ════════════════════════════════════════════════════════════════════════════════════════════════
  */

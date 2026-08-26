@@ -119,7 +119,17 @@ export const pediatricAsthmaScenario: Scenario = {
         pose: "standing_neutral_work_of_breathing",
         skin_tone: "warm_light_child",
         hair_color: "light_brown",
-        eye_color: "hazel",
+        // #681: resolved from "hazel" (unbuildable — not in the staged CC0
+        // makehuman-system-assets iris pack) to "green", the closest staged CC0
+        // material to the authored hazel intent among the pack colours the selector
+        // resolves to themselves (hazel reads as light brown with green; the
+        // compound pack names bluegreen/brownlight/deepblue/lightblue collapse to
+        // their component under the selector's substring match — measured, see
+        // pre-fix artifact). Chosen over "brown" so the shipped iris is observably
+        // case-driven, not the patient role default (D13: random-once and RECORDED
+        // here, never random-per-bake — the same blueprint must bake the same
+        // human every run).
+        eye_color: "green",
         gender_presentation: "child",
         height_cm: 125,
         build: "slender_asthma",

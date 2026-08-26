@@ -164,7 +164,13 @@ const BASELINE: Record<
   // updated; aisha was not touched by #568).
   "mpfb-ob-patient-aisha": { cuffVerts: 558, cuffSpan: 21.3, pantsTris: 2692, waistHfP95: 4.11 },
   "mpfb-peds-nurse-kevin": { cuffVerts: 316, cuffSpan: 27.6, pantsTris: 2704, waistHfP95: 1.88 },
-  "mpfb-peds-patient-child": { cuffVerts: 128, cuffSpan: 2.0, pantsTris: 2636, waistHfP95: 2.5 },
+  // #681 re-recorded 2026-08-26: the child's re-bake ran the current pipeline, which includes the
+  // #656 hem-weld scoping (2026-08-24) that her last bake (076890cc, 2026-08-21) predates — the
+  // pants re-cut (2636 -> 2628) moved the cuff ring (128 -> 120 verts, span 2.0 -> 2.6 mm); the
+  // waistband is unchanged. Same class as the #568 aisha re-record above and the #378/#199
+  // re-baselines in the sibling flat-shading contract — a legitimate geometry consequence, not a
+  // remesh. Measured with this contract's own shared instrument on the re-baked bytes.
+  "mpfb-peds-patient-child": { cuffVerts: 120, cuffSpan: 2.6, pantsTris: 2628, waistHfP95: 2.51 },
 };
 
 type Row = { actor: string; trouserMesh: string; cuff: Ring | null; waist: Ring | null; pantsTris: number };

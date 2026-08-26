@@ -80,7 +80,7 @@ function authoredEyeColours(): ReadonlyArray<{ where: string; value: string }> {
 }
 
 describe("an authored eye colour is one the factory can build (#681)", () => {
-  it.fails("(1) every eye_color the bank authors is a member of the iris pack", () => {
+  it("(1) every eye_color the bank authors is a member of the iris pack", () => {
     const pack = new Set(irisPack());
     const authored = authoredEyeColours();
     expect(authored.length, "no authored eye_color found — the extractor is broken").toBeGreaterThan(0);
@@ -123,3 +123,20 @@ describe("an authored eye colour is one the factory can build (#681)", () => {
     ).toBeGreaterThanOrEqual(5);
   });
 });
+
+/**
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ * ## FIXED (#681) — appended; the planted header above is immutable
+ *
+ * Clause (1) flipped `it.fails` -> `it`. `pediatric-asthma.ts:122` resolved "hazel" -> "green"
+ * (the closest staged CC0 pack colour to the authored hazel intent among the pack members the
+ * selector resolves to themselves — the compounds bluegreen/brownlight/deepblue/lightblue
+ * collapse to their component under the `key in declared` substring match, measured in the
+ * pre-fix artifact). D13: the pick is recorded in the case comment, frozen, not random-per-bake.
+ * The anny manifest `peds_patient_child.anny_manifest.json` eye_color fields (input_params +
+ * phenotype_summary) were updated to match — the MPFB materializer reads the tracked manifest
+ * at bake time and does NOT rewrite it. Re-baked `mpfb-peds-patient-child.glb`; shipped iris is
+ * now green (sha256[0:12] b9864ac4f4fa, 662,241 B) — observably the case's, not the patient role
+ * default brown. Clause (2) (pack unchanged) and clause (3) (still 5 authorings) untouched.
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ */

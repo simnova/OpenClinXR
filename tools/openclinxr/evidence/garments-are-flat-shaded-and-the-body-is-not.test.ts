@@ -131,6 +131,13 @@ const isBody = (n: string): boolean => /^mpfb_skin_/i.test(n);
  * `coplanar` (above-rim, per this table's convention) and `sharpSplit` were measured 2026-08-19 on
  * the shipped bytes with this contract's own instrument (scrub_shirt total coplanar 4310 matches
  * this header's own :18 row).
+ *
+ * #681 REBASED 2026-08-26 for the child's pants only: the #681 re-bake ran the CURRENT pipeline,
+ * which includes the #656 hem-weld scoping (2026-08-24) that the child's last bake (076890cc,
+ * 2026-08-21) predates. The weld change removes boundary-loop tris from the lower cover shell:
+ * 2636 -> 2628 (a real geometry state of current code, not a remesh — no decimation, and the
+ * coplanar population is not emptied: above-rim 1039 -> 1038, sharp splits 49 -> 103). Re-pinned
+ * 2026-08-26 with this contract's own instrument on the re-baked bytes.
  */
 const BASELINE: Record<string, { tris: number; coplanar: number; sharpSplit: number }> = {
   // #598 re-pinned 2026-08-23: cargo after shoe-swap rebake; was tris 2782 / coplanar 966 / sharpSplit 48.
@@ -142,7 +149,7 @@ const BASELINE: Record<string, { tris: number; coplanar: number; sharpSplit: num
   "mpfb-peds-nurse-kevin::mat_makeclothes_library_scrub_shirt": { tris: 9384, coplanar: 3862, sharpSplit: 303 },
   "mpfb-peds-nurse-kevin::mat_makeclothes_library_scrub_pants": { tris: 2704, coplanar: 908, sharpSplit: 147 },
   "mpfb-peds-nurse-kevin::mat_makeclothes_library_footwear_culturalibre_male_boots": { tris: 30768, coplanar: 6246, sharpSplit: 1605 },
-  "mpfb-peds-patient-child::mat_makeclothes_library_cargo_pants.001": { tris: 2636, coplanar: 1042, sharpSplit: 49 },
+  "mpfb-peds-patient-child::mat_makeclothes_library_cargo_pants.001": { tris: 2628, coplanar: 1038, sharpSplit: 103 },
   "mpfb-peds-patient-child::mat_makeclothes_library_footwear_toigo_mj_cloth_shoes": { tris: 1004, coplanar: 144, sharpSplit: 124 },
   "mpfb-peds-patient-child::mat_makeclothes_library_toigo_t_shirt": { tris: 2700, coplanar: 866, sharpSplit: 233 },
 };

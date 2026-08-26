@@ -210,13 +210,20 @@ describe("an actor's eyes are not the patient's eyes (#568)", () => {
     "(2) COUNTERWEIGHT: patients still ship brown — the fix must not simply recolour everyone",
     async () => {
       // Refuses the cheapest way to satisfy clause (1): change the pipeline default, or give the
-      // whole cast a non-brown iris. Patients authoring brown must keep it.
+      // whole cast a non-brown iris. Patients authoring brown (or served brown via the role
+      // fallback) must keep it. #681 is the one exception, and it is case-driven, not a recolour:
+      // the child's case authored an unbuildable hazel, resolved to green under D13 (#681) — her
+      // case says green, so green is what she must ship.
       const wrong: string[] = [];
       for (const glb of mpfbAssets()) {
         if (roleOf(glb) !== "patient") continue;
+        if (glb === "mpfb-peds-patient-child.glb") continue; // case-authored green (#681)
         const iris = await irisOf(glb);
         if (iris !== "brown") wrong.push(`${glb}: patient ships ${iris}, expected brown`);
       }
+      const childIris = await irisOf("mpfb-peds-patient-child.glb");
+      expect(childIris, "the child's resolved case colour reaches her shipped iris (#681)")
+        .toBe("green");
       expect(wrong, "a patient's authored/served brown must survive the fix").toEqual([]);
     },
     600_000,
@@ -267,4 +274,13 @@ describe("an actor's eyes are not the patient's eyes (#568)", () => {
  * procedural eyes (ed_chest_pain_nurse_adult.glb etc.) keep their brown default — the ruling
  * covers the shipped MPFB assets; #667's payload-redundancy card (this fix's distinct-sha count
  * is its input, not its scope).
+ *
+ * ## FIXED (#681) — appended; the planted header above is immutable
+ *
+ * Clause (2) re-keyed for the one case-driven exception: #681 resolved the child's unbuildable
+ * authored hazel to green (D13 pick, recorded in pediatric-asthma.ts:122, manifest updated,
+ * GLB re-baked). The child is a patient whose CASE authors green, so she ships green
+ * (sha256[0:12] b9864ac4f4fa) and is pinned to it; every other patient asset (authored or
+ * served brown) must still ship brown. The authoring-actor guard in clause (1) is unchanged —
+ * patient_maya_johnson_v1 still authors an eye_color.
  */

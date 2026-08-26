@@ -94,28 +94,30 @@ describe("a case-authored iris reaches the shipped asset", () => {
     }
   });
 
-  it("(1) KNOWN-GOOD COLUMN: the child patient ships the brown iris its case declares", () => {
-    // brown is byte-identical to the CC0 upstream (ledger #340, sha256 4659691c7295, 610,817 B).
-    // A fix that makes every actor unique must NOT disturb the one the cast already gets right.
+  it("(1) KNOWN-GOOD COLUMN: the child patient ships the green iris her case now declares", () => {
+    // #681 resolved the child's authored hazel (unbuildable) to green — the closest staged pack
+    // colour to the hazel intent that the selector resolves to itself (the compound pack names
+    // collapse to their component under the substring match). green_eye.png is the CC0 pack
+    // member (sha256[0:12] b9864ac4f4fa, 662,241 B, hue 49° per the #356 measurement).
     const iris = irisOf(CHILD)!;
-    expect(iris.sha, "child/patient -> brown, and brown is the verified upstream asset").toBe("4659691c7295");
+    expect(iris.sha, "child/patient -> green, the case's resolved iris (D13, #681)").toBe("b9864ac4f4fa");
   });
 
   it("(2) GUARD (was a RED, premise withdrawn): the parent ships brown because tara's case authors brown", () => {
-    // pediatric-asthma.ts:169 - eye_color "brown" on adult_standard_parent. #518 makes that the
-    // override. A regression to #356's role cast would turn this green and fail here.
+    // tara's case authors brown; the verified upstream brown must reach her GLB. Comparing to the
+    // pack brown directly (not "== child") — the child's case now authors green, so the two
+    // SHOULD differ; that is the case, not a collapse.
     expect(
       irisOf(PARENT)!.sha,
-      "the parent's case authors brown; matching the child's brown is correct, not a collapse",
-    ).toBe(irisOf(CHILD)!.sha);
+      "the parent's case authors brown; she must ship the verified upstream brown",
+    ).toBe("4659691c7295");
   });
 
   it("(3) GUARD (was a RED, premise withdrawn): the nurse ships brown because kevin's case authors brown", () => {
-    // pediatric-asthma.ts:216 - eye_color "brown" on adult_male_nurse.
     expect(
       irisOf(NURSE)!.sha,
       "the nurse's case authors brown; a flip to blue would be the role cast overriding the case",
-    ).toBe(irisOf(CHILD)!.sha);
+    ).toBe("4659691c7295");
   });
 
   it("(4) COUNTERWEIGHT: the iris stays a real staged texture, not a recolour", () => {
@@ -132,3 +134,16 @@ describe("a case-authored iris reaches the shipped asset", () => {
     }
   });
 });
+
+/**
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ * ## FIXED (#681) — appended; the planted header above is immutable
+ *
+ * Clause (1) re-keyed to the case's RESOLVED colour: #681 resolved the child's unbuildable
+ * authored hazel to green (D13 pick, recorded in pediatric-asthma.ts:122). The child now ships
+ * green_eye (sha256[0:12] b9864ac4f4fa, 662,241 B — the CC0 pack member, not a recolour).
+ * Clauses (2)/(3) now compare the parent/nurse to the verified upstream brown (4659691c7295)
+ * directly instead of "== child", because the child's case colour legitimately differs now.
+ * Clause (4) unchanged — green_eye sits inside the pack's measured size range.
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ */
