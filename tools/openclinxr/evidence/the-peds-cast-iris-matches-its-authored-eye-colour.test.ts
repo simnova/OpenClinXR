@@ -109,12 +109,15 @@ describe("the peds cast's iris matches its authored eye colour", () => {
     expect((await iris("mpfb-street-adult-male")).sha, "patient fallback stays brown").toBe(BROWN);
   });
 
-  it("(4) NET: Maya is untouched — hazel is unbuildable and her colour is not ours to pick", async () => {
-    // Refuses (d), and any silent hazel resolution. #518's selector RAISES on hazel; a rebake of
-    // this actor crashes, and making it stop requires a decision nobody in this slice may take.
+  it("(4) NET: Maya ships her RECORDED case colour, and the refusal still fires on hazel", async () => {
+    // Refuses (d) — a blanket "rebake the whole cast" that buys (1)/(2) green — and refuses a
+    // SILENT hazel resolution. #681 is the operator decision this header's NOT TESTED deferred
+    // ("sits with the operator, or with an authoring surface that offers the nine buildable
+    // colours"): hazel resolved to green IN THE CASE (pediatric-asthma.ts:122, rationale in a
+    // comment), the manifest updated, the GLB re-baked. Not silent: recorded, seeded, frozen.
     const got = await iris("mpfb-peds-patient-child");
-    expect(got.sha, "mpfb-peds-patient-child must be byte-identical to today").toBe(BROWN);
-    expect(got.name, "and still the same declared texture").toBe("brown_eye");
+    expect(got.sha, "mpfb-peds-patient-child ships her resolved case colour (green, #681)").toBe(GREEN);
+    expect(got.name, "and the declared texture is the pack's green_eye").toBe("green_eye");
   });
 });
 
@@ -138,5 +141,16 @@ describe("the peds cast's iris matches its authored eye colour", () => {
  *
  * NOT TESTED: pixel grade of the brown iris or garment appearance (orchestrator); whether a
  * worktree that lacks garment .mhmat files can ever green without provisioning.
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ *
+ * ## FIXED (#681) — appended; the planted header above is immutable
+ *
+ * Clause (4) re-keyed: #681 took the D13 pick this header deferred to the operator and recorded it
+ * in the case — pediatric-asthma.ts:122 resolves hazel -> green (rationale in a comment), the
+ * tracked anny manifest matches, and `mpfb-peds-patient-child.glb` was re-baked through the #518
+ * selector. Maya now ships green_eye (sha256[0:12] b9864ac4f4fa, 662,241 B) — her case's colour,
+ * not the patient role default. The refusal is untouched: `eye_iris_colour` still raises
+ * ValueError on any unbuildable name (see the-case-eye-colour-reaches-the-iris-selector clause (3)
+ * and (5)). Clauses (1)(2)(3) unchanged.
  * ════════════════════════════════════════════════════════════════════════════════════════════════
  */

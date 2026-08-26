@@ -401,4 +401,15 @@ describe("eye colour is case-driven, not one constant for everyone", () => {
  *       a brown+blue fixture sharing one sha is rejected). Maya/hazel stays out of (a) — not in
  *       pack. Clauses (2)/(3)/(3b)/(3c) untouched. Bank unedited.
  * ════════════════════════════════════════════════════════════════════════════════════════════════
+ *
+ * ## FIXED (#681) — appended; the planted header above is immutable
+ *
+ * Maya's authored hazel is resolved to green under #681 (D13 pick recorded in
+ * pediatric-asthma.ts:122; manifest + GLB re-baked). She therefore moves INTO clause (1)(a):
+ * green is in `EYE_IRIS_PACK`, `IRIS_SHA_BY_COLOUR` already carries green (b9864ac4f4fa, the
+ * family-partner row measured in #356/#519), and the child's re-baked GLB ships that sha. The
+ * clause's own (a)/(b) logic needed no change — the new authored colour is a pack member with a
+ * measured sha, and it differs from the adults' brown, so (b)'s hardcode defence now covers her
+ * too. Clauses (2)/(3)/(3b)/(3c) untouched.
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
  */

@@ -14,7 +14,7 @@
     "phenotype": {
       "skin_tone": "warm_light_child",
       "hair_color": "light_brown",
-      "eye_color": "hazel",
+      "eye_color": "green",
       "anny_topology": "default",
       "gender_presentation": "child",
       "height_cm": 125,
@@ -67,7 +67,7 @@
   "phenotype_summary": {
     "skin_tone": "warm_light_child",
     "hair_color": "light_brown",
-    "eye_color": "hazel",
+    "eye_color": "green",
     "anny_topology": "default",
     "gender_presentation": "child",
     "height_cm": 125,

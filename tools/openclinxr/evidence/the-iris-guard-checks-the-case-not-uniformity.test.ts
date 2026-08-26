@@ -101,11 +101,13 @@ describe("the iris guard checks the case, not uniformity", () => {
     ).toBe(true);
   });
 
-  it("(3) NET: the bank is unedited and Maya's colour is not invented", () => {
+  it("(3) NET: the resolution is recorded, not invented, and the pack is untouched", () => {
     // Refuses (c) and (d). Making the cast vary by changing authored identity is an operator
-    // decision under D13, not a way to buy a green.
+    // decision under D13, not a way to buy a green. #681 IS that decision, taken and RECORDED in
+    // the case: Maya's unbuildable hazel resolved to green (a pack member), adults unchanged.
     const bank = readFileSync(BANK, "utf8");
-    expect(bank, "Maya still authors hazel").toMatch(/eye_color:\s*"hazel"/);
+    expect(bank, "Maya's hazel must be gone — resolved, not silently deleted").not.toMatch(/eye_color:\s*"hazel"/);
+    expect(bank, "Maya now authors a pack member (green), recorded in the case").toMatch(/eye_color:\s*"green"/);
     expect((bank.match(/eye_color:\s*"brown"/g) ?? []).length, "both adults still author brown").toBe(2);
   });
 });
@@ -119,5 +121,16 @@ describe("the iris guard checks the case, not uniformity", () => {
  * pack-authored colours to match shipped iris sha and (b) different pack colours to differ
  * (`not.toBe` fixture). Bank still authors hazel + two browns. Clauses (2)/(3)/(3b)/(3c) of the
  * guard file untouched.
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ *
+ * ## FIXED (#681) — appended; the planted header above is immutable
+ *
+ * Clause (3) re-keyed: #681 resolved Maya's unbuildable hazel to green (a pack member) under
+ * D13, recorded in pediatric-asthma.ts:122 with the rationale (closest staged pack colour to
+ * the hazel intent among the colours the selector resolves to themselves; observable, not the
+ * patient role default). This is the operator decision this guard's NOT TESTED line deferred to
+ * D13 — distinct from treatment (d) "invent a colour so the cast varies": the pick is recorded,
+ * seeded, frozen, and justified by buildability + semantic closeness, not by the distinctness
+ * side effect. Adults still author brown; the pack is untouched; the refusal is unchanged.
  * ════════════════════════════════════════════════════════════════════════════════════════════════
  */
