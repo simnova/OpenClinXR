@@ -599,6 +599,31 @@ function shaOf(artifactPath: string): { artifactHeadSha?: string } {
 }
 
 /** Duty 2: is the ready set deep enough, and is it real product work? */
+/**
+ * Can this card's own proofs tell whether its RED was FLIPPED?
+ *
+ * The third axis of readiness. `dispatchable` says a contract exists; `flippable` says a RED exists;
+ * neither says the contract can SEE the flip.
+ *
+ * Structural, not per-card: **vitest counts an expected failure as a pass.** A planted `it.fails`
+ * that is still failing exits 0; flip it to `it` and it exits 0. A `run:` rule is satisfied
+ * identically before and after the work, and `changed:<file>` is satisfied by touching the file.
+ *
+ * MEASURED 2026-08-26 across every dispatchable card: detects 1, CANNOT detect 8, no run: proof 2.
+ * Found by the delegator on #644, whose four proofs all passed while its three planted `it.fails`
+ * were byte-identical to pre-dispatch.
+ *
+ * `undefined` = undetermined (nothing executable was run). Undetermined is NOT "cannot" — reporting
+ * an unmeasured card as undetectable manufactures a finding out of an absence of measurement.
+ */
+export function proofsCanDetectFlip(
+  proofs: ReadonlyArray<{ rule: string; exitsNonZeroToday?: boolean }>,
+): boolean | undefined {
+  const executable = proofs.filter((p) => typeof p.exitsNonZeroToday === "boolean");
+  if (executable.length === 0) return undefined;
+  return executable.some((p) => p.exitsNonZeroToday === true);
+}
+
 export function readyDepth(
   cards: Array<{
     number: number; dispatchable: boolean; factoryStep: string | null; planted: boolean; prioritized: boolean;
