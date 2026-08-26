@@ -360,8 +360,24 @@ Exported the mapped low-poly and re-read it with the runtime's own loader:
 | champion (ships) | 79,999 | no | **NO** | 9,928,748 |
 | champion-mapped | 79,998 | **yes**, 3.8 MB PNG | **yes** | 15,393,216 |
 
-The `TANGENT` attribute is not optional — a tangent-space map without it is undefined in three.js.
-Blender emits it only with `export_tangents=True`. The `glb-grade` three.js pass renders the seam,
+**CORRECTED 2026-08-26 — the claim this file made here was FALSE and I repeated it.**
+
+It said: *"The `TANGENT` attribute is not optional — a tangent-space map without it is undefined in
+three.js."* Verified against the runtime and it is wrong:
+
+- `three/src/renderers/shaders/ShaderChunk/normalmap_pars_fragment.glsl.js:15` —
+  `#if !defined(USE_TANGENT) && defined(USE_NORMALMAP_TANGENTSPACE)` → `getTangentFrame()`,
+  which reconstructs a tangent basis from `dFdx`/`dFdy` screen-space derivatives.
+- `materialize_mpfb_humanoid_candidate.py` (#370) omits tangents **deliberately** and says why:
+  *"three.js renders a tangent-space normal map without a TANGENT attribute via its derivative-based
+  getTangentFrame fallback, and omitting tangents keeps the exported body geometry byte-identical to
+  the pre-normal-map bytes (no UV/tangent seam vertex splits)."*
+
+So exported MikkTSpace tangents are an **experimental factor with a byte and vertex-split cost**, not
+a requirement. They may be more stable at seams; that is untested here. `export_tangents=True` was
+used on the TRELLIS bake and the result was good — but the tangents were not what made it work, and
+nobody has A/B'd it.
+
 hinge and lip that the unmapped asset loses, so the runtime consumes it.
 
 One triangle is lost in the Blender round-trip (79,999 -> 79,998). Harmless here, worth knowing
