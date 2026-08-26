@@ -66,6 +66,42 @@ import { describe, expect, it } from "vitest";
  *   orchestrator's pixel grade remains the oracle for that; that the albedo face/forearm gap in #510's
  *   table is closed, which this contract does not touch; that 5 degrees of slope is the right
  *   perceptual floor, which was derived from the encoding and never validated against a viewer.
+ *
+ * ## FIXED (#671) — clause (1) flipped `it.fails` -> `it`, 2026-08-26. THE HONEST STOP: the
+ * head/forearm inversion does NOT hold on the normal map.
+ *
+ * Measured 2026-08-26 on the shipped bytes by `tools/openclinxr/evidence/head-vs-forearm-normal-detail.ts`
+ * (report `head-vs-forearm-normal-detail.json`, TRACKED). Statistic: sd(R) over interior texels of the
+ * region's UV coverage, atlas gutter excluded, 1024². Region assignment is per-actor joint weights:
+ * head = the `head` joint + its descendants (jaw, oris*, oculi*, temporalis*, levator*, orbicularis*,
+ * risorius*, special*, tongue*, eye*), forearm = `lowerarm*`/`forearm*`/`lower_arm*`; a triangle
+ * belongs to whichever family its single max-weight joint (across the triangle's three vertices) is in.
+ * Neck bones are in neither family, so the neck cannot inflate the head number.
+ *
+ *   actor                          head island   forearm island   ratio
+ *   mpfb-clinical-nurse-adult         10.30           5.83         1.77
+ *   mpfb-clinical-physician-adult     10.36           6.40         1.62
+ *   mpfb-family-partner-adult         10.87           5.93         1.83
+ *   mpfb-gown-adult-patient           10.05           6.38         1.58
+ *   mpfb-ob-patient-aisha             10.69           6.41         1.67
+ *   mpfb-peds-nurse-kevin             10.23           6.01         1.70
+ *   mpfb-peds-parent-aisha            10.83           5.94         1.82
+ *   mpfb-peds-patient-child           13.13           8.69         1.51
+ *   mpfb-street-adult-male            10.23           6.01         1.70
+ *
+ * The head island carries MORE relief than the forearm island of the same map on nine of nine shipped
+ * cast actors — the inversion the card was filed against does not exist on the normal map, so clause
+ * (1) flips and passes as written, and no bake knob was touched (there is no `changed:` rule on the
+ * bake script for exactly this reason). Cross-check against the established whole-map instrument:
+ * aisha whole-map sd(R) 9.24 sits between head 10.69 and forearm 6.41; child 12.02 between 13.13 and
+ * 8.69 — the region numbers sit on the same channel and the same spread shape as
+ * `the-skin-normal-map-carries-surface-detail.test.ts`.
+ *
+ * The face flatness the pixel grades showed is therefore an ALBEDO defect with no licence-clean route:
+ * #510's albedo table shows the same four actors with head luminance sd BELOW forearm (5.55-7.60 vs
+ * 9.04-11.04), `enhanced_skin.json` has 0 procedural colour generators, and every MakeHuman skin
+ * bitmap route is licence-refused (`painted-skin-licence-report.json`, verdict `reject_measured`,
+ * counterweight (4)). The normal map is not where the flatness lives.
  */
 
 const REPO = join(import.meta.dirname, "../../..");
@@ -108,7 +144,7 @@ function report(): { rows: IslandRow[] } {
 }
 
 describe("the face carries as much relief as the forearm (#671)", () => {
-  it.fails("(1) every shipped actor's head island is at least as detailed as its forearm island", () => {
+  it("(1) every shipped actor's head island is at least as detailed as its forearm island", () => {
     const rows = report().rows;
     const inverted = rows
       .filter((r) => r.headSd < r.forearmSd)
