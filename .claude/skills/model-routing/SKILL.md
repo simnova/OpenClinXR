@@ -9,6 +9,47 @@ when-to-use: "ox is down, ox not working, model is broken, dispatch died, 0 byte
 Two ladders, set by the operator on 2026-08-23. First available wins; step down only on a measured
 failure, never on preference.
 
+## THE MEASURED PRICE OF RUNG 1 — read this before defending ox
+
+Everything below about ox being fine is about INVOCATION errors, and it is still true. This
+section is about the residual after those, and it is not small. Measured 2026-08-25 over the whole
+ledger (1,277 rows), counting only rows carrying a terminal phase:
+
+| model | dispatches | death % | turns done | **deaths / 1000 turns** |
+|---|---:|---:|---:|---:|
+| **ox-alpha** | 97 | **21.6%** | 6,630 | **3.17** |
+| deepseek-v4-flash | 87 | 2.3% | 6,273 | 0.32 |
+| deepseek-v4-pro | 84 | 2.4% | 3,964 | 0.50 |
+| grok-4.5 | 47 | 0.0% | 1,229 | 0.00 |
+
+**Normalised by TURNS on purpose.** Ox runs the longest sessions (median 65, max 250), so more
+exposure could have explained more deaths. It does not: ox still dies ~10x more per unit of work,
+on the largest sample in the fleet.
+
+**Every one of the six most expensive deaths is ox** — 145 turns lost on #526, then 84, 51, 23,
+10, 2. And repeated dispatch is death-driven rather than brief failure: #608 took 5 spawns / 4
+deaths / 1 completion, #594 3 spawns / 3 deaths / 0 completions, #526 2 / 2 / 0.
+
+**Both things are true at once, and the reader must hold both:**
+
+- A sub-60s ox death is still almost always YOUR invocation error — missing `direnv exec`, a
+  `nohup` wrapper, a bad signature. Check that FIRST, every time. The eight-incident table below
+  is unchanged and still the first thing to run.
+- AND ox's residual failure rate is ~10x its alternatives on comparable volume. An unknown share
+  of the 21 deaths are those same invocation errors, so **21.6% is a CEILING, not a clean provider
+  rate** — but deepseek's 2.3% carries the same contamination, and a 10x gap is not explained by it.
+
+**This does NOT countermand the operator directive.** Ox is rung 1 because it is free and because
+the operator said so, and 76 completions including a 250-turn slice say it does real work. What
+changes is that the price is now known rather than assumed: roughly **300 lost turns per ~100
+dispatches**, concentrated in the long slices where a death costs the most.
+
+**The operational consequence, and it is cheap:** on a long ox slice, commit the worker's WIP to
+its branch EARLY and PUSH it — do not wait for a death to think about preservation. Measured this
+week: three WIP commits made "so the work is not hostage to the next reap" were never pushed, so
+they lived only in a local worktree that a prune would have destroyed. Preservation that is not
+pushed is not preservation.
+
 ## Worker agents (anything dispatched through `grok` / `dispatch()`)
 
 | rung | model | cost |
