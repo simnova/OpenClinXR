@@ -188,11 +188,28 @@ export function briefFromIssue(issue: BoardIssue): BriefResult {
     };
   }
   if (rules.length === 0) {
+    /**
+     * TWO DIFFERENT FAILURES, and they need different actions. `extractDoneWhen` returns [] both
+     * when the heading is absent and when it is present above prose, and this branch used to
+     * describe only the first — so a card whose block exists was told to add the block.
+     *
+     * Measured on the live board: #34, #51, #663 and #667 have no heading (message was correct);
+     * #625 has `## done_when` at body line 31 above a deliberate "not operationalized" note
+     * (message was wrong). The named remediation is the one thing that cannot help there: adding a
+     * second heading is inert, because the extractor takes the FIRST match and would never read the
+     * new rules beneath it.
+     */
+    const hasHeading = /##\s*done_when\s*\n/i.test(issue.body);
     return {
       dispatchable: false,
-      reason:
-        `Issue #${issue.number} has no "## done_when" block, so there is nothing a worker could be `
-        + `held to. Add machine-checkable rules (run:, changed:, exists:, min-bytes:, measured-before:) to dispatch it.`,
+      reason: hasHeading
+        ? `Issue #${issue.number} has a "## done_when" block but no machine-checkable RULES in it — `
+          + `only prose, so there is nothing a worker could be held to. Add bullets (run:, changed:, `
+          + `exists:, min-bytes:, measured-before:) UNDER THE EXISTING HEADING; a second `
+          + `"## done_when" is inert because only the first is read. If the card is deliberately `
+          + `un-operationalized, that is a valid state and it should stay un-dispatchable.`
+        : `Issue #${issue.number} has no "## done_when" block, so there is nothing a worker could be `
+          + `held to. Add machine-checkable rules (run:, changed:, exists:, min-bytes:, measured-before:) to dispatch it.`,
     };
   }
 
