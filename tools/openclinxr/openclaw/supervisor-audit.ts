@@ -34,7 +34,50 @@ import { existsSync, readFileSync, appendFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { plantedRedCount } from "./openclaw-sweep.js";
 
-export const READY_DEPTH_TARGET = 10;
+/**
+ * Maximum concurrent workers this pipeline has ever reached.
+ *
+ * MEASURED 2026-08-26 from `.openclinxr/openclaw/worker-sessions.jsonl` — 183 paired spawn/terminal
+ * dispatches over ~162h, walking the events as a +1/-1 sweep:
+ *
+ *     0 workers  63.9% of wall-clock
+ *     1 worker   31.7%
+ *     2 workers   4.0%
+ *     3 workers   0.4%   <- the maximum, ever
+ *
+ * Re-take it when lanes scale. That is the point of deriving the floor from a measurement instead
+ * of typing a literal: the number goes stale visibly rather than silently.
+ */
+export const OBSERVED_MAX_CONCURRENT_WORKERS = 3;
+
+/**
+ * The ready-depth floor, DERIVED.
+ *
+ * The floor's only job is to stop a dequeue starving, and a dequeue starves when the ready set is
+ * smaller than the number of lanes that can be filled at once. That is the observed max
+ * concurrency — below it a lane provably idles for want of a card; at or above it, none does.
+ *
+ * NO BUFFER IS ADDED. A buffer hedges refill latency, and sizing one needs a refill-rate
+ * measurement. The only data is 12 windows of ready-set membership (~10h): 3 cards left, 0 entered,
+ * 0.00 cards/hour. Too thin to derive from, and picking a buffer anyway would repeat the defect
+ * this replaces.
+ *
+ * PRIOR VALUE: a bare `= 10`, which fired in 33 consecutive audits and never cleared (#654). It was
+ * 3.3x the maximum concurrency ever observed and ~10x the typical load. A finding that fires
+ * against a number with no basis is not a signal.
+ */
+export function deriveReadyDepthTarget(maxConcurrentWorkers: number): number {
+  if (!Number.isInteger(maxConcurrentWorkers) || maxConcurrentWorkers < 1) {
+    throw new Error(
+      `deriveReadyDepthTarget: max concurrency must be a positive integer, got `
+      + `${String(maxConcurrentWorkers)}. A floor of 0 is worse than a wrong floor — the finding `
+      + `could never fire again and the gauge would die silently.`,
+    );
+  }
+  return maxConcurrentWorkers;
+}
+
+export const READY_DEPTH_TARGET = deriveReadyDepthTarget(OBSERVED_MAX_CONCURRENT_WORKERS);
 
 /** Consecutive appearances before a finding is called chronic rather than transient. */
 export const CHRONIC_AFTER = 2;
