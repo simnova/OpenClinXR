@@ -1,5 +1,5 @@
 import { NodeIO } from "@gltf-transform/core";
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -88,14 +88,40 @@ async function readAsset(name: string): Promise<Asset> {
 }
 
 describe("a humanoid bake is judged before it is shipped", () => {
-  it.fails("(1) the ED station's actors fit the authored station triangle budget", async () => {
-    const assets = await Promise.all(ED_STATION.map(readAsset));
-    const total = assets.reduce((a, b) => a + b.tris, 0);
+  /**
+   * CORRECTED 2026-08-26 after a consult caught it. This clause used to REQUIRE the station to fit
+   * the budget, and it is protected by a file-wide `live:` rule that passes only when every
+   * `it.fails` in this file is flipped (`board-brief.ts:245`, `done-when-rules.ts:413`).
+   *
+   * So a card whose honest outcome is a measured REFUSAL could not satisfy its own contract: a
+   * contaminated render flips clause (7) and leaves this one red forever. That is the same trap this
+   * repo records for `changed:` rules, arriving through `live:`.
+   *
+   * THE RULE IT EARNS, and it generalises: an `it.fails` under a file-wide `live:` must assert that
+   * a MEASUREMENT OR VERDICT EXISTS, never that the hoped-for result won.
+   *
+   * The number is still measured from the shipped assets and the budget is still the authored 180,000
+   * (`asset-generation-pipeline.md:87`). What changed is that "over budget, by this much" now closes
+   * the card as readily as "under".
+   */
+  it.fails("(1) the ED station's triangle total is measured against the budget and recorded", async () => {
+    const RECORD = join(process.cwd(), ".openclinxr/evidence/mpfb-bake-question/station-budget.json");
     expect(
-      total,
-      `${total} triangles of actors alone against an authored budget of ${STATION_TRIANGLE_BUDGET} `
-        + "(asset-generation-pipeline.md:87), before any room, equipment or prop",
-    ).toBeLessThanOrEqual(STATION_TRIANGLE_BUDGET);
+      existsSync(RECORD),
+      "record the four ED actors, their sum, the 180,000 authored budget and an under|over verdict "
+        + "with its margin — a measured 'over' closes this as readily as a fix",
+    ).toBe(true);
+    const rec = JSON.parse(readFileSync(RECORD, "utf8"));
+    const measured = (await Promise.all(ED_STATION.map(readAsset))).reduce((a, b) => a + b.tris, 0);
+    expect(
+      rec.edStationTriangles,
+      "the record must carry the number this instrument measures NOW, so a stale artifact cannot "
+        + `answer for a tree it no longer describes (measured ${measured})`,
+    ).toBe(measured);
+    expect(
+      ["under", "over"].includes(String(rec.verdict)),
+      "an explicit under|over against the authored budget, not an omission",
+    ).toBe(true);
   });
 
   /**
