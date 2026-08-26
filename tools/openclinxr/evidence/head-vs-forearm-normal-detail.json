@@ -1,0 +1,99 @@
+{
+  "schemaVersion": "openclinxr.head-vs-forearm-normal-detail.v1",
+  "kind": "head_vs_forearm_normal_detail",
+  "generatedAt": "2026-08-26T22:10:45.296Z",
+  "method": {
+    "statistic": "sd(R) over interior texels of the region's UV coverage, atlas gutter excluded",
+    "headFamily": "head joint + all descendants (jaw, oris*, oculi*, temporalis*, levator*, orbicularis*, risorius*, special*, tongue*, eye*)",
+    "forearmFamily": "lowerarm* / forearm* / lower_arm* bones",
+    "resolution": 1024
+  },
+  "rows": [
+    {
+      "actor": "mpfb-clinical-nurse-adult",
+      "headSd": 10.29720755644593,
+      "forearmSd": 5.833237981828522,
+      "headTexels": 199801,
+      "forearmTexels": 17652,
+      "headTriangles": 2447,
+      "forearmTriangles": 578
+    },
+    {
+      "actor": "mpfb-clinical-physician-adult",
+      "headSd": 10.363397390344412,
+      "forearmSd": 6.396579690889889,
+      "headTexels": 200177,
+      "forearmTexels": 17825,
+      "headTriangles": 2319,
+      "forearmTriangles": 583
+    },
+    {
+      "actor": "mpfb-family-partner-adult",
+      "headSd": 10.865260513315675,
+      "forearmSd": 5.9303284566807,
+      "headTexels": 199058,
+      "forearmTexels": 17757,
+      "headTriangles": 2444,
+      "forearmTriangles": 565
+    },
+    {
+      "actor": "mpfb-gown-adult-patient",
+      "headSd": 10.05278212755411,
+      "forearmSd": 6.381388400676449,
+      "headTexels": 200297,
+      "forearmTexels": 17905,
+      "headTriangles": 3205,
+      "forearmTriangles": 670
+    },
+    {
+      "actor": "mpfb-ob-patient-aisha",
+      "headSd": 10.687525466640896,
+      "forearmSd": 6.412652673451513,
+      "headTexels": 201293,
+      "forearmTexels": 17485,
+      "headTriangles": 8214,
+      "forearmTriangles": 968
+    },
+    {
+      "actor": "mpfb-peds-nurse-kevin",
+      "headSd": 10.227958610513774,
+      "forearmSd": 6.010241888654559,
+      "headTexels": 201293,
+      "forearmTexels": 17485,
+      "headTriangles": 8214,
+      "forearmTriangles": 968
+    },
+    {
+      "actor": "mpfb-peds-parent-aisha",
+      "headSd": 10.825809878429983,
+      "forearmSd": 5.938785001353021,
+      "headTexels": 201293,
+      "forearmTexels": 17485,
+      "headTriangles": 8214,
+      "forearmTriangles": 968
+    },
+    {
+      "actor": "mpfb-peds-patient-child",
+      "headSd": 13.134213202197389,
+      "forearmSd": 8.691994032552651,
+      "headTexels": 201293,
+      "forearmTexels": 17485,
+      "headTriangles": 8214,
+      "forearmTriangles": 968
+    },
+    {
+      "actor": "mpfb-street-adult-male",
+      "headSd": 10.228031336149964,
+      "forearmSd": 6.010241888654559,
+      "headTexels": 201293,
+      "forearmTexels": 17485,
+      "headTriangles": 8214,
+      "forearmTriangles": 968
+    }
+  ],
+  "treeStamp": {
+    "head": "bd0a7dc3d9e59c70005617665be8ef97d3b9f7dc",
+    "fingerprint": "1c210902b916690a28f6bb7318416194b233d4ff8c036be92d7b4e974fa3d779",
+    "algorithm": "git-head+status+diff-sha256"
+  }
+}
