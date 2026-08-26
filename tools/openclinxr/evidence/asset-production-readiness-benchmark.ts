@@ -1,7 +1,10 @@
+import { join } from "node:path";
 import { pathToFileURL } from "node:url";
+import { NodeIO } from "@gltf-transform/core";
 import {
   type AssetManifest,
   createEdChestPainLocalAssetEvidenceFixtureManifests,
+  createEdChestPainLocalEncounterRuntimeAssetBundle,
   createEdChestPainPlaceholderManifests,
   evaluateScenarioAssetBudget,
   evaluateScenarioGenerationEvidence,
@@ -121,6 +124,8 @@ type StationBudgetEvidence = {
   placeholderOnly: boolean;
   observed: boolean;
   blockers: string[];
+  /** #699: measured GLB triangle counts per manifest assetId, via the runtime-bundle join. */
+  measuredTriangles?: Record<string, number>;
 };
 
 export type AssetProductionReadinessReport = {
@@ -223,11 +228,18 @@ export async function runAssetProductionReadinessCli(args: string[]): Promise<vo
     throw new Error("Missing Blender asset bake smoke report. Run asset:blender:bake first or pass --blender-smoke.");
   }
 
+  const localEvidenceFixtureManifests = options.useLocalAssetEvidenceFixture
+    ? createEdChestPainLocalAssetEvidenceFixtureManifests()
+    : undefined;
   const report = buildAssetProductionReadinessReport({
     gltfSmokeFile,
     blenderAssetBakeSmokeFile,
     gltfSmoke: await readJson<GltfSourceSmokeReport>(gltfSmokeFile),
     blenderAssetBakeSmoke: await readJson<BlenderAssetBakeSmokeReport>(blenderAssetBakeSmokeFile),
+    stationBudgetEvidence: buildEdChestPainStationBudgetEvidence(
+      localEvidenceFixtureManifests,
+      await measureEdChestPainCharacterTriangles(),
+    ),
     useLocalAssetEvidenceFixture: options.useLocalAssetEvidenceFixture,
   });
 
@@ -648,6 +660,16 @@ function validateStationBudgetEvidence(value: unknown, pathName: string, errors:
   requireBoolean(value.placeholderOnly, `${pathName}/placeholderOnly`, errors);
   requireBoolean(value.observed, `${pathName}/observed`, errors);
   requireStringArray(value.blockers, `${pathName}/blockers`, errors);
+  if (value.measuredTriangles !== undefined) {
+    requireRecord(value.measuredTriangles, `${pathName}/measuredTriangles`, errors);
+    if (isRecord(value.measuredTriangles)) {
+      for (const [assetId, count] of Object.entries(value.measuredTriangles)) {
+        if (typeof count !== "number" || !Number.isFinite(count)) {
+          errors.push(`${pathName}/measuredTriangles/${assetId} must be finite number`);
+        }
+      }
+    }
+  }
 }
 
 function validateGenerationEvidence(value: unknown, pathName: string, errors: string[]): void {
@@ -790,9 +812,46 @@ function requireOneOf<T extends string>(
   }
 }
 
-function buildEdChestPainStationBudgetEvidence(inputManifests?: readonly AssetManifest[]): StationBudgetEvidence {
+/**
+ * #699: measure the shipped ED character GLBs through the production
+ * manifest-to-GLB join (createEdChestPainLocalEncounterRuntimeAssetBundle →
+ * the actor-casting cast table), keyed by manifest assetId. Fails closed when a
+ * joined character GLB cannot be read — a missing shipped asset is a finding,
+ * not a reason to fall back to the declared budget.
+ */
+async function measureEdChestPainCharacterTriangles(): Promise<Record<string, number>> {
+  const bundle = createEdChestPainLocalEncounterRuntimeAssetBundle();
+  const io = new NodeIO();
+  const measured: Record<string, number> = {};
+  for (const actor of bundle.actors) {
+    const blobName = actor.model.blob.blobName;
+    const file = blobName.replace(/^generated-humanoids\//u, "");
+    if (!file.endsWith(".glb")) {
+      continue;
+    }
+    const path = join(import.meta.dirname, "../../..", "apps/ui-xr/public/generated-humanoids", file);
+    let total = 0;
+    try {
+      const doc = await io.read(path);
+      for (const mesh of doc.getRoot().listMeshes()) {
+        for (const prim of mesh.listPrimitives()) {
+          total += (prim.getIndices()?.getCount() ?? prim.getAttribute("POSITION")?.getCount() ?? 0) / 3;
+        }
+      }
+    } catch (error) {
+      throw new Error(`#699 measure: cannot read shipped ED character GLB ${path}: ${(error as Error).message}`);
+    }
+    measured[actor.model.scenarioAssetId] = Math.round(total);
+  }
+  return measured;
+}
+
+function buildEdChestPainStationBudgetEvidence(
+  inputManifests?: readonly AssetManifest[],
+  measuredTriangleCounts?: Readonly<Record<string, number>>,
+): StationBudgetEvidence {
   const manifests = inputManifests ?? createEdChestPainPlaceholderManifests();
-  const budget = evaluateScenarioAssetBudget(manifests);
+  const budget = evaluateScenarioAssetBudget(manifests, measuredTriangleCounts);
   const usesLocalEvidenceFixture = inputManifests !== undefined;
 
   return {
@@ -805,6 +864,7 @@ function buildEdChestPainStationBudgetEvidence(inputManifests?: readonly AssetMa
     placeholderOnly: manifestsArePlaceholderOnly(manifests),
     observed: budget.blockers.length === 0,
     blockers: [...budget.blockers],
+    ...(measuredTriangleCounts !== undefined ? { measuredTriangles: { ...measuredTriangleCounts } } : {}),
   };
 }
 

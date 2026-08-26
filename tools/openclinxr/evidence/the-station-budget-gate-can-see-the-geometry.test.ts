@@ -1,7 +1,7 @@
-import { describe, expect, it } from "vitest";
-import { NodeIO } from "@gltf-transform/core";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { NodeIO } from "@gltf-transform/core";
+import { describe, expect, it } from "vitest";
 
 /**
  * OBSERVABLE: the station budget gate can tell a 32,000-triangle asset from an 18,000-triangle one.
@@ -56,6 +56,20 @@ import { join } from "node:path";
  *   `cast-asset-constants.ts` filename constants and NEITHER RAIL'S JOIN TO THE OTHER IS
  *   ESTABLISHED, so one rail is joined and one is not; the environment and equipment manifests'
  *   actual counts, which are unmeasured.
+ *
+ * ## FIXED (#699)
+ *
+ * `evaluateScenarioAssetBudget` now takes a second, optional parameter
+ * `measuredTriangleCounts?: Readonly<Record<string, number>>` keyed by manifest assetId
+ * (packages/openclinxr/asset-registry/src/index.ts:2343). A measured GLB triangle count
+ * overrides the declared `maxTriangles` budget for that manifest when present (nullish counts
+ * fall back to the declaration); declared maxima remain the fallback for unmeasured assets and
+ * pre-build planning. The asset-production-readiness-benchmark CLI feeds it measured counts
+ * resolved through the production join (`createEdChestPainLocalEncounterRuntimeAssetBundle`
+ * actor `model.scenarioAssetId` → `model.blob.blobName`, which the cast table resolves to the
+ * MPFB rail), so the station gate now reads shipped geometry and a shipped asset over its
+ * budget can trip `station_triangle_budget_exceeded`. Declared texture megabytes and draw calls
+ * are still summed without reading artifacts (out of scope, named in the slice report).
  */
 
 const REPO = join(import.meta.dirname, "../../..");
@@ -85,12 +99,12 @@ async function measuredTriangles(glb: string): Promise<number> {
 function budgetEvaluatorSignature(): string {
   const src = readFileSync(REGISTRY, "utf8");
   const hit = /export function evaluateScenarioAssetBudget\(([^)]*)\)/.exec(src);
-  if (!hit) throw new Error("evaluateScenarioAssetBudget declaration not found in " + REGISTRY);
-  return hit[1]!.trim();
+  if (!hit) throw new Error(`evaluateScenarioAssetBudget declaration not found in ${REGISTRY}`);
+  return hit[1]?.trim();
 }
 
 describe("the station budget gate can see the geometry (#699)", () => {
-  it.fails("(1) the budget evaluator takes an input carrying measured geometry", () => {
+  it("(1) the budget evaluator takes an input carrying measured geometry", () => {
     const params = budgetEvaluatorSignature();
     const carriesGeometry = /\bglb\b|\bmeasured\b|\bactual\b|triangleCount|geometryReader|\bbytes\b/i.test(params);
     expect(
