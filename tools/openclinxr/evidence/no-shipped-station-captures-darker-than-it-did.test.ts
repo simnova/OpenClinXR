@@ -67,58 +67,68 @@
  *
  * Full 15-station sweep (station-luminance-sweep.json, tracked): primary_care median 16
  * (>= 12), ed_stroke 24 (>= 12), every station within floor-2, ceilings hold.
+ *
+ * ## WITHDRAWN (#644) — 2026-08-26
+ *
+ * The per-station floors and ceilings in the tables above are WITHDRAWN as active assertions.
+ * They are kept here as the record of what was measured; they no longer gate anything.
+ *
+ * WHY. #644 graded four station frames by eye against their live medians and the metric does not
+ * separate good from bad in either direction: primary_care 23 GOOD, primary_care 83 BAD (other
+ * camera side), ward_delirium 84 GOOD, peds_asthma 118 BAD. A bright surface pressed against the
+ * lens outscores a well-lit room, so no per-station brightness band — floor or ceiling — can be
+ * trusted to mean anything about how a station looks. The bands in the tables above also predate
+ * #638, which made the derived room camera deterministic; before that fix every recorded number
+ * was a sample of a camera-side coin flip, so the bands were calibrated on noise.
+ *
+ * WHAT REPLACES THEM. The successor contract is
+ * `the-luminance-gate-only-claims-what-it-can-see.test.ts`: one WHOLE-BANK floor that only
+ * refuses a black frame (median at or near zero = a render that did not happen), plus the
+ * known-good spread clause pinning the two frames graded equally good 3.7x apart, plus a
+ * counterweight refusing to ratchet that floor into a quality bar. Freshness is owned by
+ * `the-darkness-gate-knows-which-tree-it-measured.test.ts`, which refuses a sweep artifact whose
+ * `measuredAgainstCommit` stamp does not match the runtime at HEAD.
+ *
+ * RE-RUN OUTCOME ON THIS TREE (2026-08-26, station-luminance-sweep.ts re-run, worktree at
+ * 8911a94c): the re-run did NOT reproduce #644's measured table — see that issue's stop rule.
+ * The successor's three clauses therefore remain RED here (peds_fever median 2 < floor 10;
+ * primary_care 0; lowest 2 < 2x floor). This guard asserts the WITHDRAWAL, not the successor's
+ * pass state: it fails only if the blind per-station shape is re-introduced, not if the current
+ * numbers are dark.
  */
 import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 const REPORT = "tools/openclinxr/evidence/station-luminance-sweep.json";
-const NOISE = 2;
-const FLOORS: Record<string, number> = {
-  primary_care_dyslipidemia_joint_pain_v1: 0, peds_fever_v1: 2,
-  stepdown_sepsis_nurse_escalation_v1: 15, ed_stroke_alert_handoff_v1: 24,
-  adult_abdominal_pain_v1: 24, clinic_abdominal_pain_interpreter_v1: 25,
-  postop_fever_consult_pressure_v1: 27, oncology_bad_news_family_v1: 28,
-  ward_delirium_med_rec_v1: 28, peds_asthma_parent_anxiety_v1: 32,
-  psych_suicidal_ideation_safety_v1: 35, telehealth_diabetes_health_literacy_v1: 36,
-  ed_chest_pain_priority_v1: 36, ed_chest_pain_priority_v2: 36,
-  ob_headache_preeclampsia_triage_v1: 183,
-};
-/** Stations whose brightness must not be lifted wholesale — catches a global exposure bump. */
-const CEILINGS: Record<string, number> = {
-  ward_delirium_med_rec_v1: 45, oncology_bad_news_family_v1: 45, peds_asthma_parent_anxiety_v1: 50,
-};
+/** The successor contract that now owns the brightness claim (#644). */
+const SUCCESSOR = "tools/openclinxr/evidence/the-luminance-gate-only-claims-what-it-can-see.test.ts";
 
 const load = (): Record<string, { median: number }> => {
   if (!existsSync(REPORT)) throw new Error(`${REPORT} missing — TRACKED path required (#396)`);
   return (JSON.parse(readFileSync(REPORT, "utf8")) as { stations: Record<string, { median: number }> }).stations;
 };
 
-describe("#505 no shipped station captures darker than it does today", () => {
-  it("(1) the regressed station is restored AND #503's win is kept", () => {
-    const s = load();
-    expect(s.primary_care_dyslipidemia_joint_pain_v1?.median, "primary_care was 21, is 0").toBeGreaterThanOrEqual(12);
-    expect(s.ed_stroke_alert_handoff_v1?.median, "#503 took this 0 -> 24; do not undo it").toBeGreaterThanOrEqual(12);
+describe("#644 no shipped station captures darker than it did — WITHDRAWN, kept as an inverted guard", () => {
+  it("(1) the successor contract exists and owns the brightness claim", () => {
+    // The old per-station bands are withdrawn; the successor file is where any brightness
+    // assertion lives now. If it is deleted, this guard fails closed instead of going silent.
+    expect(existsSync(SUCCESSOR), `${SUCCESSOR} must exist — the successor contract is the withdrawal's replacement`).toBe(true);
   });
 
-  it("(2) EVERY shipped station is at least as bright as its recorded floor", () => {
+  it("(2) the sweep artifact carries no per-station brightness bands", () => {
+    // The blind shape was a per-station table (FLOORS + CEILINGS keyed by station id). The
+    // successor measures ONE whole-bank floor; a re-introduced per-station band would surface
+    // here as a per-row field and this clause reds.
     const s = load();
-    for (const [id, floor] of Object.entries(FLOORS)) {
-      expect(s[id], `${id} missing from the sweep`).toBeTruthy();
-      expect(s[id]!.median, `${id} floor ${floor}`).toBeGreaterThanOrEqual(floor - NOISE);
+    for (const [id, row] of Object.entries(s)) {
+      expect(Object.keys(row).sort(), `${id} row shape — medians only, no per-station bands`).toEqual(["median"]);
     }
   });
 
-  it("(3) COUNTERWEIGHT: the sweep is the WHOLE bank, enumerated dynamically — not a chosen pair", () => {
+  it("(3) the whole bank is still measured — the withdrawal did not shrink the population", () => {
+    // The old gate covered every shipped station; the successor's vacuity guard does the same.
+    // A withdrawal that quietly stopped measuring stations would be a different defect.
     const s = load();
-    expect(Object.keys(s).length, "sweep must cover every shipped station").toBeGreaterThanOrEqual(14);
-    for (const id of Object.keys(FLOORS)) expect(s[id], `${id} absent — no cherry-picking`).toBeTruthy();
-  });
-
-  it("(4) COUNTERWEIGHT: nothing is brightened wholesale — known-good stations stay in band", () => {
-    const s = load();
-    for (const [id, ceil] of Object.entries(CEILINGS)) {
-      expect(s[id]!.median, `${id} lifted above ${ceil} — that is a global exposure bump, not a framing fix`)
-        .toBeLessThanOrEqual(ceil);
-    }
+    expect(Object.keys(s).length, "sweep must still cover every shipped station").toBeGreaterThanOrEqual(14);
   });
 });
