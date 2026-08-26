@@ -173,11 +173,31 @@ the bake did nothing — and it is useless as a quality signal, because a contam
 faithful one both score high. I used it as a quality signal for two iterations and it agreed with me
 until it met an asset where it was wrong.
 
-**The discriminator is component topology, and it is knowable BEFORE baking.** Check largest-
-component share first:
+**The discriminator is component topology — but SHARE IS NOT IT. Corrected 2026-08-26 by the third
+asset, which falsified the rule two assets had agreed with.**
 
-    >= ~99%  one surface; a cage bake is safe            (pulse-oximeter, 99.7%)
-    ~50%     many co-located components; expect cross-hits (o2-port, 51.5%)
+    asset            components  largest  2nd largest  predicted  ACTUAL
+    pulse-oximeter           16    99.7%         0.3%      clean   CLEAN
+    o2-port                  75    51.5%        22.1%    contam.   CONTAMINATED
+    fetal-monitor            17    93.9%         1.6%      clean   **CONTAMINATED**
+
+`fetal-monitor` has NO component at or above 10% — by the size rule recorded further down this file
+it is "fragments only" — and its bake still came back speckled on the top knobs, the buttons and the
+dial. The map simultaneously FIXED the screen-recess facet the unmapped 25k shows, so the same bake
+was both recovering form and inventing detail.
+
+**What that kills:** largest-component share as the admission test. It was a two-point hypothesis and
+the third point refuted it.
+
+**What it suggests, INFERRED and untested:** the hazard is PROXIMITY, not share. A 1.6% fragment
+sitting a millimetre off a knob is exactly as good a cross-hit target as a 22% one — the cage does not
+care how big the wrong surface is, only that it is within `max_ray_distance`. pulse-oximeter's
+fragments total 0.3% AND are the only ones measured as not co-located with a feature.
+
+**The test to build, and it has not been built:** for each non-main component, the minimum distance
+from it to the main component, compared against the cage's `objectDiagonal * 0.04`. Anything closer
+than the ray reach is a contamination source regardless of its triangle count. Until that exists,
+NOTHING cheaply predicts the verdict and the render is the only oracle.
 
 For the second class the cage needs per-component isolation, or the bake needs to be done
 per-component, or the asset is simply not a bake candidate. NOT DETERMINED which; I did not test a
