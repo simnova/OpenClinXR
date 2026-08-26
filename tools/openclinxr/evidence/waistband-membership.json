@@ -1,34 +1,41 @@
 {
   "enumeratedFrom": "apps/ui-xr/public/generated-humanoids",
-  "glbFilesScanned": 18,
+  "glbFilesScanned": 19,
   "rows": [
     {
       "actor": "mpfb-clinical-nurse-adult",
       "trouserMesh": "mat_makeclothes_library_scrub_pants",
-      "waistHfP95Mm": 1.88,
-      "hemHfP95Mm": 0.475,
-      "ratio": 3.958
+      "waistHfP95Mm": 2.696,
+      "hemHfP95Mm": 0.807,
+      "ratio": 3.341
     },
     {
       "actor": "mpfb-clinical-physician-adult",
       "trouserMesh": "mat_makeclothes_library_scrub_pants",
-      "waistHfP95Mm": 1.88,
-      "hemHfP95Mm": 6.355,
-      "ratio": 0.296
+      "waistHfP95Mm": 1.688,
+      "hemHfP95Mm": 4.805,
+      "ratio": 0.351
     },
     {
       "actor": "mpfb-family-partner-adult",
       "trouserMesh": "mat_makeclothes_library_cargo_pants.001",
-      "waistHfP95Mm": 1.673,
-      "hemHfP95Mm": 1.051,
-      "ratio": 1.592
+      "waistHfP95Mm": 5.055,
+      "hemHfP95Mm": 4.667,
+      "ratio": 1.083
+    },
+    {
+      "actor": "mpfb-gown-adult-patient",
+      "trouserMesh": "mat_makeclothes_library_cargo_pants.001",
+      "waistHfP95Mm": 3.521,
+      "hemHfP95Mm": 1.638,
+      "ratio": 2.15
     },
     {
       "actor": "mpfb-ob-patient-aisha",
       "trouserMesh": "mat_makeclothes_library_cargo_pants.001",
-      "waistHfP95Mm": 4.106,
-      "hemHfP95Mm": 1.234,
-      "ratio": 3.327
+      "waistHfP95Mm": 1.723,
+      "hemHfP95Mm": 5.674,
+      "ratio": 0.304
     },
     {
       "actor": "mpfb-peds-nurse-kevin",
@@ -40,16 +47,16 @@
     {
       "actor": "mpfb-peds-parent-aisha",
       "trouserMesh": "mat_makeclothes_library_cargo_pants.001",
-      "waistHfP95Mm": 4.106,
-      "hemHfP95Mm": 1.234,
-      "ratio": 3.327
+      "waistHfP95Mm": 4.911,
+      "hemHfP95Mm": 3.78,
+      "ratio": 1.299
     },
     {
       "actor": "mpfb-peds-patient-child",
       "trouserMesh": "mat_makeclothes_library_cargo_pants.001",
       "waistHfP95Mm": 2.5,
-      "hemHfP95Mm": 1.471,
-      "ratio": 1.7
+      "hemHfP95Mm": 1.368,
+      "ratio": 1.827
     },
     {
       "actor": "mpfb-street-adult-male",

@@ -137,6 +137,9 @@ const ACTORS = [
   // refused every clause before shoeTris could be re-pinned.
   "mpfb-street-adult-male",
   "mpfb-viseme-inspect",
+  // #568: enumeration catch-up — the gowned patient retains the base cargo_pants +
+  // footwear materials and was missing from ACTORS since its 08-25 re-bake.
+  "mpfb-gown-adult-patient",
 ] as const;
 
 /** A bucket counts as "outside" only beyond this, so surface noise is not read as a layer flip. */
@@ -234,16 +237,22 @@ const BASELINE: Record<string, { cuffReachMm: number; shoeTris: number }> = {
   "mpfb-peds-nurse-kevin": { cuffReachMm: -308.2, shoeTris: 30768 },
   "mpfb-peds-patient-child": { cuffReachMm: 39.5, shoeTris: 1004 },
   // #598 re-pinned 2026-08-23: shoeTris was 57600 / cuffReach was 29.6.
-  "mpfb-clinical-nurse-adult": { cuffReachMm: 8.8, shoeTris: 1004 },
+  // #568 re-pinned 2026-08-26: nurse rebaked (iris fix); was cuffReach 8.8.
+  "mpfb-clinical-nurse-adult": { cuffReachMm: 12.2, shoeTris: 1004 },
   // #598 re-pinned 2026-08-23: shoeTris was 57600 / cuffReach was 29.6.
   "mpfb-clinical-physician-adult": { cuffReachMm: 8.8, shoeTris: 1004 },
-  "mpfb-family-partner-adult": { cuffReachMm: 36.1, shoeTris: 1004 },
+  // #568 re-pinned 2026-08-26: family rebaked (iris fix); was cuffReach 36.1.
+  "mpfb-family-partner-adult": { cuffReachMm: 47.8, shoeTris: 1004 },
   // #598 re-pinned 2026-08-23: shoeTris was 57600 / cuffReach was 28.0.
-  "mpfb-peds-parent-aisha": { cuffReachMm: 9.5, shoeTris: 1004 },
+  // #568 re-recorded 2026-08-26: #588 rebaked the parent's garments today (trouser hem moved
+  // up 9.5 -> 31.4 mm); the parent was not touched by #568. Flagged for visual verification.
+  "mpfb-peds-parent-aisha": { cuffReachMm: 31.4, shoeTris: 1004 },
   // #598: newly enumerated (were missing from ACTORS; SS7j miss).
   "mpfb-street-adult-male": { cuffReachMm: -279.2, shoeTris: 30768 },
   // Still on toigo_flats — inspect file, not rebaked this slice.
   "mpfb-viseme-inspect": { cuffReachMm: 28.0, shoeTris: 57600 },
+  // #568: newly enumerated — the gowned patient retains base cargo_pants + footwear.
+  "mpfb-gown-adult-patient": { cuffReachMm: 13.3, shoeTris: 1004 },
 };
 
 /** Shipped mpfb actors carrying BOTH a lower garment (any class) and footwear. */

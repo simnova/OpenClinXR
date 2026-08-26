@@ -14,7 +14,6 @@
     "phenotype": {
       "skin_tone": "medium_warm",
       "hair_color": "black",
-      "eye_color": "brown",
       "gender_presentation": "adult_female_nurse",
       "height_cm": 176,
       "build": "average_clinical_team",
@@ -39,13 +38,13 @@
         "scrub_pocket"
       ],
       "fitProfile": "adult_clinical_team_fit",
-      "anny_topology": "default",
-      "sleeveGeometryExpansion": "v2_scrubs_from_preset_factory_no_hand_tune"
+      "sleeveGeometryExpansion": "v2_scrubs_from_preset_factory_no_hand_tune",
+      "anny_topology": "default"
     },
     "actor_id": "nurse_maria_alvarez_v1"
   },
   "output": {
-    "obj_path": "/Volumes/files/src/openclinxr/apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.anny_base.obj",
+    "obj_path": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-583/apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.anny_base.obj",
     "vertex_count": 13348,
     "face_count": 13346,
     "has_uvs": true,
@@ -54,16 +53,16 @@
   },
   "anny_forward_pass": {
     "kind": "real_anny_forward_pass",
-    "package_path": "/Users/patrick/Library/Python/3.11/lib/python/site-packages/anny",
+    "package_path": "/Users/patrick/.local/share/mise/installs/python/3.13.14/lib/python3.13/site-packages/anny",
     "model": "anny.create_fullbody_model(default/default-noeyes-notongue)",
     "topology": "default-noeyes-notongue",
     "topologyIncludesEyes": false,
     "topologyIncludesTongue": false,
     "source_vertex_count": 13348,
     "source_face_count": 13346,
-    "source_height": 1.6728533506393433,
+    "source_height": 1.7583909034729004,
     "target_height": 1.76,
-    "scale": 1.0520946138687832,
+    "scale": 1.000915096025532,
     "external_network_used": false,
     "model_download_used": false,
     "noncommercial_download_used": false
@@ -71,8 +70,7 @@
   "phenotype_summary": {
     "skin_tone": "medium_warm",
     "hair_color": "black",
-    "eye_color": "brown",
-    "gender_presentation": "adult_male_nurse",
+    "gender_presentation": "adult_female_nurse",
     "height_cm": 176,
     "build": "average_clinical_team",
     "hair_density": 0.58,
@@ -84,7 +82,7 @@
     "clothing_style": "teal_clinical_scrubs_with_name_badge",
     "clothing_color": "teal_scrubs",
     "role_visual_cue": "clinical_nurse",
-    "wardrobeRole": "pediatric_nurse_scrubs",
+    "wardrobeRole": "ed_nurse_scrubs",
     "garmentLayers": [
       "scrub_top",
       "scrub_pocket"
@@ -95,7 +93,9 @@
       "name_badge",
       "scrub_pocket"
     ],
-    "fitProfile": "adult_clinical_team_fit"
+    "fitProfile": "adult_clinical_team_fit",
+    "sleeveGeometryExpansion": "v2_scrubs_from_preset_factory_no_hand_tune",
+    "anny_topology": "default"
   },
   "material_hints": {
     "skin": "medium_warm",

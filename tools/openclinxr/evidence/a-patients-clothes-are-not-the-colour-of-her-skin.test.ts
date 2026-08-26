@@ -39,7 +39,7 @@ import { describe, expect, it } from "vitest";
 const DIR = "apps/ui-xr/public/generated-humanoids/";
 const MIN_CONTRAST = 60;      // between today's 28.7 and the shipped control's 163.9
 const CONTROL_FLOOR = 120;    // the control must not be dragged down to meet the patient
-const SKIN_SHA_OB = "e49a8dfcb6304aa5";   // measured 2026-08-21 from mpfb-ob-patient-aisha body texture
+const SKIN_SHA_OB = "1d41a725c16253b5";   // #568 re-recorded 2026-08-26 (was e49a8dfcb6304aa5): #598's aisha rebake re-baked the skin atlas and the pin was never updated; aisha was not touched by #568.
 
 type Actor = { garments: { name: string; rgb: [number, number, number]; verts: number }[];
   skin: [number, number, number]; skinSha: string };
@@ -104,7 +104,9 @@ describe("#506 a patient's clothes are distinguishable from her skin", () => {
   it("(4) COUNTERWEIGHT: nothing is deleted — both garments keep their vertex counts", async () => {
     const ob = await readActor("mpfb-ob-patient-aisha.glb");
     const byName = Object.fromEntries(ob.garments.map((g) => [g.name.replace(/_mpfb.*$/, ""), g.verts]));
-    expect(byName["makeclothes_library_cargo_pants"], "cargo_pants must not be removed").toBe(8262);
+    // #568 re-recorded 2026-08-26: #598's aisha rebake re-fit the cargo pants (8262 -> 7978);
+    // the t_shirt count 5400 is unchanged.
+    expect(byName["makeclothes_library_cargo_pants"], "cargo_pants must not be removed").toBe(7978);
     expect(byName["makeclothes_library_toigo_t_shirt"], "t_shirt must not be removed").toBe(5400);
   });
 });

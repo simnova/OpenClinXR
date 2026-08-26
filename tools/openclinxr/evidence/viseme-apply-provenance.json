@@ -32,9 +32,9 @@
   },
   "shippedActorSha256": {
     "mpfb-ob-patient-aisha": "67fa2812cad82bd67536cbb55c6ac0dbe2a58d7fd8b54d81fd9aa7c0f0c760cd",
-    "mpfb-peds-parent-aisha": "d13e6ebcb2d63a613533fc156b69b7bcff468166e22800332c66c46420d154e1",
+    "mpfb-peds-parent-aisha": "1f148c9ec80e824f47f0142767f1d803dc6c61c4b859e726671e9706e8583ac3",
     "mpfb-peds-nurse-kevin": "313ea22ca8be776851824329807ae915a1e467f95a78998540e14d5285928679",
-    "mpfb-clinical-nurse-adult": "34dbfc569a51e2902b54c5453bf0adb67f9b4d5d299a563a910cc1ae7434b432",
-    "mpfb-clinical-physician-adult": "b8ac08be92e5f87cd6d6b3175a7d5bd56b87c7143b2caf4663daf35b2d623847"
+    "mpfb-clinical-nurse-adult": "b96ee02554257c9dc60442a7e705b9e3f8186e98b20d4349e5ba398e7d9a1a45",
+    "mpfb-clinical-physician-adult": "266370e3de6a71319057f7c4abcb7e6d219ee0781b9d14e27f202309a36d73ca"
   }
 }

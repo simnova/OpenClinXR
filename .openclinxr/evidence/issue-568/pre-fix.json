@@ -1,0 +1,174 @@
+{
+  "schemaVersion": "openclinxr.issue-568.census.v1",
+  "issue": "568",
+  "measuredAt": "2026-08-26T10:05:14.014Z",
+  "dir": "apps/ui-xr/public/generated-humanoids",
+  "distinctIrisShaCount": 1,
+  "rows": [
+    {
+      "asset": "mpfb-clinical-nurse-adult.glb",
+      "role": "nurse",
+      "actorId": "nurse_maria_alvarez_v1",
+      "scenarioId": "ed_chest_pain_priority_v1",
+      "authoredEyeColor": null,
+      "irisTextureName": "brown_eye",
+      "irisSha256": "4659691c7295ad6206c78b003e5fd0e5f91dcd53032fa914a229bb48cabe424b",
+      "irisSha256Short": "4659691c7295",
+      "irisBytes": 610817,
+      "allIrisShas": [
+        "4659691c7295"
+      ],
+      "irisTextureCount": 1
+    },
+    {
+      "asset": "mpfb-clinical-physician-adult.glb",
+      "role": "physician",
+      "actorId": "senior_resident_ward_v1",
+      "scenarioId": "ed_chest_pain_priority_v1",
+      "authoredEyeColor": "brown",
+      "irisTextureName": "brown_eye",
+      "irisSha256": "4659691c7295ad6206c78b003e5fd0e5f91dcd53032fa914a229bb48cabe424b",
+      "irisSha256Short": "4659691c7295",
+      "irisBytes": 610817,
+      "allIrisShas": [
+        "4659691c7295"
+      ],
+      "irisTextureCount": 1
+    },
+    {
+      "asset": "mpfb-family-partner-adult.glb",
+      "role": "family",
+      "actorId": "spouse_anna_hayes_v1",
+      "scenarioId": "ed_chest_pain_priority_v1",
+      "authoredEyeColor": null,
+      "irisTextureName": "brown_eye",
+      "irisSha256": "4659691c7295ad6206c78b003e5fd0e5f91dcd53032fa914a229bb48cabe424b",
+      "irisSha256Short": "4659691c7295",
+      "irisBytes": 610817,
+      "allIrisShas": [
+        "4659691c7295"
+      ],
+      "irisTextureCount": 1
+    },
+    {
+      "asset": "mpfb-gown-adult-patient.glb",
+      "role": "patient",
+      "actorId": null,
+      "scenarioId": null,
+      "authoredEyeColor": null,
+      "irisTextureName": "brown_eye",
+      "irisSha256": "4659691c7295ad6206c78b003e5fd0e5f91dcd53032fa914a229bb48cabe424b",
+      "irisSha256Short": "4659691c7295",
+      "irisBytes": 610817,
+      "allIrisShas": [
+        "4659691c7295"
+      ],
+      "irisTextureCount": 1
+    },
+    {
+      "asset": "mpfb-gown-inspect.glb",
+      "role": "patient",
+      "actorId": null,
+      "scenarioId": null,
+      "authoredEyeColor": null,
+      "irisTextureName": "brown_eye",
+      "irisSha256": "4659691c7295ad6206c78b003e5fd0e5f91dcd53032fa914a229bb48cabe424b",
+      "irisSha256Short": "4659691c7295",
+      "irisBytes": 610817,
+      "allIrisShas": [
+        "4659691c7295"
+      ],
+      "irisTextureCount": 1
+    },
+    {
+      "asset": "mpfb-ob-patient-aisha.glb",
+      "role": "patient",
+      "actorId": "patient_aisha_khan_v1",
+      "scenarioId": "ob_headache_preeclampsia_triage_v1",
+      "authoredEyeColor": null,
+      "irisTextureName": "brown_eye",
+      "irisSha256": "4659691c7295ad6206c78b003e5fd0e5f91dcd53032fa914a229bb48cabe424b",
+      "irisSha256Short": "4659691c7295",
+      "irisBytes": 610817,
+      "allIrisShas": [
+        "4659691c7295"
+      ],
+      "irisTextureCount": 1
+    },
+    {
+      "asset": "mpfb-peds-nurse-kevin.glb",
+      "role": "nurse",
+      "actorId": "nurse_kevin_lee_v1",
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "authoredEyeColor": "brown",
+      "irisTextureName": "brown_eye",
+      "irisSha256": "4659691c7295ad6206c78b003e5fd0e5f91dcd53032fa914a229bb48cabe424b",
+      "irisSha256Short": "4659691c7295",
+      "irisBytes": 610817,
+      "allIrisShas": [
+        "4659691c7295"
+      ],
+      "irisTextureCount": 1
+    },
+    {
+      "asset": "mpfb-peds-parent-aisha.glb",
+      "role": "parent",
+      "actorId": "parent_tara_johnson_v1",
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "authoredEyeColor": "brown",
+      "irisTextureName": "brown_eye",
+      "irisSha256": "4659691c7295ad6206c78b003e5fd0e5f91dcd53032fa914a229bb48cabe424b",
+      "irisSha256Short": "4659691c7295",
+      "irisBytes": 610817,
+      "allIrisShas": [
+        "4659691c7295"
+      ],
+      "irisTextureCount": 1
+    },
+    {
+      "asset": "mpfb-peds-patient-child.glb",
+      "role": "patient",
+      "actorId": "patient_maya_johnson_v1",
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "authoredEyeColor": "hazel",
+      "irisTextureName": "brown_eye",
+      "irisSha256": "4659691c7295ad6206c78b003e5fd0e5f91dcd53032fa914a229bb48cabe424b",
+      "irisSha256Short": "4659691c7295",
+      "irisBytes": 610817,
+      "allIrisShas": [
+        "4659691c7295"
+      ],
+      "irisTextureCount": 1
+    },
+    {
+      "asset": "mpfb-street-adult-male.glb",
+      "role": "patient",
+      "actorId": "patient_luis_martinez_v1",
+      "scenarioId": "telehealth_diabetes_health_literacy_v1",
+      "authoredEyeColor": null,
+      "irisTextureName": "brown_eye",
+      "irisSha256": "4659691c7295ad6206c78b003e5fd0e5f91dcd53032fa914a229bb48cabe424b",
+      "irisSha256Short": "4659691c7295",
+      "irisBytes": 610817,
+      "allIrisShas": [
+        "4659691c7295"
+      ],
+      "irisTextureCount": 1
+    },
+    {
+      "asset": "mpfb-viseme-inspect.glb",
+      "role": "patient",
+      "actorId": null,
+      "scenarioId": null,
+      "authoredEyeColor": null,
+      "irisTextureName": "brown_eye",
+      "irisSha256": "4659691c7295ad6206c78b003e5fd0e5f91dcd53032fa914a229bb48cabe424b",
+      "irisSha256Short": "4659691c7295",
+      "irisBytes": 610817,
+      "allIrisShas": [
+        "4659691c7295"
+      ],
+      "irisTextureCount": 1
+    }
+  ]
+}

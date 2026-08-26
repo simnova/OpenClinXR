@@ -53,8 +53,21 @@ def overlay_manifest(
     src = json.loads(source_manifest.read_text(encoding="utf-8"))
     params = dict(src.get("input_params") or {})
     phenotype = dict(params.get("phenotype") or {})
+    # #568: inherited is NOT authored. The base actor's eye_color belongs to the base
+    # person (e.g. kevin's authored brown), not to this actor; it must not leak into a
+    # derived actor's phenotype. The derived manifest carries eye_color only when THIS
+    # actor's overlay declares one — otherwise iris_palette.py's role fallback decides
+    # at bake time (#356: nurse blue / family green).
+    phenotype.pop("eye_color", None)
     phenotype.update(phenotype_overlay)
     params["phenotype"] = phenotype
+    # #670: the derived manifest's phenotype_summary is the same stale-inheritance class.
+    # generate_mesh.py:625 writes phenotype_summary = phenotype at manifest generation;
+    # the overlay previously copied the BASE actor's summary verbatim, so the ED nurse's
+    # summary still described kevin (male) while her phenotype said female — the #670 sex
+    # guard refused the bake. Refresh the summary to the derived phenotype, the same
+    # convention the generator uses.
+    src["phenotype_summary"] = phenotype
     params["actor_id"] = actor_id
     if extra_params:
         for k, v in extra_params.items():
@@ -212,7 +225,9 @@ def rebake_ed_nurse() -> None:
     phenotype = {
         "skin_tone": "medium_warm",
         "hair_color": "black",
-        "eye_color": "brown",
+        # #568: no eye_color here — nurse_maria_alvarez_v1's case authors none; the
+        # role fallback (nurse -> blue) decides at bake. The base actor's brown must
+        # not leak through overlay_manifest.
         "anny_topology": "default",
         "gender_presentation": "adult_female_nurse",
         "height_cm": 176,
@@ -276,7 +291,9 @@ def rebake_ed_spouse() -> None:
     phenotype = {
         "skin_tone": "warm_light",
         "hair_color": "dark_brown",
-        "eye_color": "brown",
+        # #568: no eye_color here — spouse_anna_hayes_v1's case authors none; the
+        # role fallback (family -> green) decides at bake. The base actor's brown
+        # must not leak through overlay_manifest.
         "gender_presentation": "adult_female",
         "height_cm": 166,
         "build": "average_adult",

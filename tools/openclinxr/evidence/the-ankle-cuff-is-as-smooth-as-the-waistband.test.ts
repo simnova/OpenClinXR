@@ -160,7 +160,9 @@ const BASELINE: Record<
   string,
   { cuffVerts: number; cuffSpan: number; pantsTris: number; waistHfP95: number }
 > = {
-  "mpfb-ob-patient-aisha": { cuffVerts: 558, cuffSpan: 21.3, pantsTris: 2782, waistHfP95: 4.11 },
+  // #568 re-recorded 2026-08-26: pants tris 2782 -> 2692 (aisha rebaked at #598, pin never
+  // updated; aisha was not touched by #568).
+  "mpfb-ob-patient-aisha": { cuffVerts: 558, cuffSpan: 21.3, pantsTris: 2692, waistHfP95: 4.11 },
   "mpfb-peds-nurse-kevin": { cuffVerts: 316, cuffSpan: 27.6, pantsTris: 2704, waistHfP95: 1.88 },
   "mpfb-peds-patient-child": { cuffVerts: 128, cuffSpan: 2.0, pantsTris: 2636, waistHfP95: 2.5 },
 };

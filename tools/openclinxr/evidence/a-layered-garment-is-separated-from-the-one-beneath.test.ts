@@ -94,8 +94,12 @@ describe("#504 a garment worn under another is separated from it", () => {
     "(2) COUNTERWEIGHT: the UNLAYERED control is untouched — the nurse wears the same shirt with nothing over it",
     async () => {
       const n = (await geo(NURSE, /scrub_shirt/))!;
-      expect(n.sha, "nurse scrub_shirt must stay 4f15119183150c6a — no coat, nothing to separate from")
-        .toBe("4f15119183150c6a");
+      // #568 re-recorded 2026-08-26: the #568 iris rebake re-ran the nurse through the current
+      // materializer (gender macro now pinned 0.0 by #670), which re-emitted the shirt's POSITION
+      // bytes; was 4f15119183150c6a. The control still pins the shipped bytes — a separation slice
+      // must re-record it explicitly.
+      expect(n.sha, "nurse scrub_shirt must stay caf5c4631ba4d1cb — no coat, nothing to separate from")
+        .toBe("caf5c4631ba4d1cb");
     },
   );
 
