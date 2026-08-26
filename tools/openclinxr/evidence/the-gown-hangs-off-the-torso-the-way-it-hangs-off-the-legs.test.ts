@@ -75,6 +75,39 @@ import { NodeIO } from "@gltf-transform/core";
  *   stands off the legs.
  * notEvidenceFor: whether the bodice LOOKS like cloth (that is the orchestrator's grade); whether
  *   any other garment has the same defect; whether the collar notch artifact shares a cause.
+ *
+ * ## FIXED (#686)
+ *
+ * The bodice now has its OWN drape instead of a bigger offset. Cause: the bodice was a conformal
+ * normal offset (automate_blender.py:2410-2426, 3966) — the shell is a copy of the body surface
+ * pushed out 10-22 mm along its own normals, so every garment facet stays parallel to the body
+ * facet beneath it and the median normal-dot reads 0.991 (the definition of an offset shell).
+ * The skirt is a lofted tube around the centreline (2433-2543) and drapes at 0.782, so the ratio
+ * half-way between them is the 0.891 this clause asserts. A worker satisfied the old level-only
+ * clause by flaring the bodice radially (27.7 -> 45.1 mm, ratio 0.582) and the shape moved only
+ * 3% (0.991 -> 0.962) — a radial scale preserves parallelism.
+ *
+ * The fix (gown kind only, in `_build_body_surface_derived_garment`): subdivide the shell two
+ * levels so gathers are resolved, gather the trunk in 16 vertical fold-backs (triangle-wave
+ * cross-section, crest at the front centre) whose flank normals decorrelate from the body
+ * surface, and lift the trunk radially about the body centreline (0.24) so the level clause
+ * clears. The sleeves are gathered about the arm axis (5 x 20 mm) and lifted 8% with it — the
+ * level population includes the sleeves, and a loose gathered sleeve is the garment's own drape,
+ * not the refused attempt's centreline-flared cone. Every treatment fades to zero at the hip
+ * ring (the skirt's loft and the shared ring stay untouched), at the collar, and at the sleeve
+ * roots. Measured on the re-baked `mpfb-gown-adult-patient.glb`:
+ *
+ *     band       n      median clearance   median normal-dot
+ *     bodice     5655   43.4 mm            0.869        <- was 27.7 mm / 0.991
+ *     waist      1022   40.5 mm            0.882
+ *     skirt      1852   79.8 mm            0.778        <- unchanged drape (clause 2 anchor)
+ *
+ * The bodice normal-dot moved from 0.991 to 0.869 (0.11 of the 0.12 gap to the skirt's 0.778)
+ * and the clearance from 27.7 to 43.4 mm (ratio 0.544 against the 0.5 line). Margins: shape
+ * clears by 0.022, level by 8.8%. The shape is carried by the gather flanks (exported normals
+ * are area-averaged, so the geometry must over-deliver); the level by the radial lift. The
+ * subdivision raises the gown from 3,419 to ~29,000 vertices; the skirt's measured median rises
+ * to 79.8 mm (clause 2's floor is 62).
  */
 
 const DIR = "apps/ui-xr/public/generated-humanoids";
@@ -196,7 +229,7 @@ async function measure() {
 }
 
 describe("the gown hangs off the torso the way it hangs off the legs (#686)", () => {
-  it.fails("(1) the bodice hangs off the torso in SHAPE as well as in distance", async () => {
+  it("(1) the bodice hangs off the torso in SHAPE as well as in distance", async () => {
     const m = await measure();
     const fraction = m.bodice.medianMm / m.skirt.medianMm;
     const failures: string[] = [];
