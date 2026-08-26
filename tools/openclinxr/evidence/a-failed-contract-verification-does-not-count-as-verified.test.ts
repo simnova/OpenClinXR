@@ -34,6 +34,13 @@ import { verifyDoneClaim } from "../openclaw/supervisor-audit.js";
  * planted RED. Clauses (2) and (3) are the counterweights and pass on HEAD: they hold the
  * currently-green behaviour so the fix cannot be "return false".
  *
+ * ## FIXED (supervisor duty 3)
+ *
+ * `contractVerifiedFromArtifact` replaces the bare `existsSync` at supervisor-audit.ts:437. It
+ * reads the artifact, requires `proofsOk === true`, requires a non-empty `checks` array, and
+ * requires every check to have `passed === true`. Unreadable, unparseable, empty-checks and
+ * missing-checks all report NOT verified. The five clauses above are green at this commit.
+ *
  * KNOWN-GOOD COLUMN: all 32 done-claims in the 987b7580 audit carry `proofsOk: true`, zero failed
  * checks, and an artifact headSha that is an ancestor of main. Clause (2) holds that column green,
  * so the cheapest fix — always returning false — is refused.
@@ -78,7 +85,7 @@ const PASSED = JSON.stringify({
 });
 
 describe("a failed contract verification does not count as verified", () => {
-  it.fails("(1) an artifact whose proofsOk is FALSE must not report contractVerified", () => {
+  it("(1) an artifact whose proofsOk is FALSE must not report contractVerified", () => {
     const root = fixtureRoot(9991, FAILED);
     const claim = verifyDoneClaim(root, 9991, "Landed");
     expect(
@@ -105,7 +112,7 @@ describe("a failed contract verification does not count as verified", () => {
     expect(claim.why, "and it must keep saying WHY, not silently drop to false").toMatch(/NO contract-verify artifact/);
   });
 
-  it.fails("(4) RED: an unparseable artifact must not verify", () => {
+  it("(4) RED: an unparseable artifact must not verify", () => {
     const root = fixtureRoot(9994, "{ this is not json");
     const claim = verifyDoneClaim(root, 9994, "Landed");
     expect(
@@ -115,7 +122,7 @@ describe("a failed contract verification does not count as verified", () => {
     ).toBe(false);
   });
 
-  it.fails("(5) RED: an artifact with a FAILED check but proofsOk true must not verify", () => {
+  it("(5) RED: an artifact with a FAILED check but proofsOk true must not verify", () => {
     const root = fixtureRoot(9995, JSON.stringify({
       schemaVersion: 1, phase: "merge", sliceId: "issue-9995", headSha: "0".repeat(40),
       proofsOk: true,

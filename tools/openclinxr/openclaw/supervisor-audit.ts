@@ -400,6 +400,40 @@ export function appendHistory(root: string, audit: SupervisorAudit): void {
  * that also matched the word UNVERIFIED, against a commit that was never on main. Reopened four
  * minutes later. A commit existing is not a commit landing.
  */
+/**
+ * Does a contract-verify artifact record a verification that actually PASSED?
+ *
+ * EXISTENCE IS NOT CONTENT. `contract-verify-cli.ts:128` writes the report unconditionally and only
+ * then, at `:184`, exits 2 when `proofsOk` is false — so a FAILED merge verification leaves a file
+ * on disk that is byte-for-byte as present as a passing one. Reading `existsSync` alone made duty 3
+ * report `contractVerified: true` for a verification that failed. Four such artifacts already sit in
+ * `.openclinxr/openclaw/` (issues 241, 349, 355, 635); none was in the audit window when this was
+ * found, so the defect was latent rather than live.
+ *
+ * Reads BOTH the summary flag and the checks it summarises: a hand-edited or writer-bugged artifact
+ * can carry `proofsOk: true` beside a failed check, and trusting the summary over its own evidence
+ * is the same substitution one level down.
+ *
+ * Unreadable or unparseable is NOT verified. Defaulting a corrupt artifact to true would satisfy the
+ * headline clause while re-opening the hole underneath it.
+ */
+export function contractVerifiedFromArtifact(artifactPath: string): boolean {
+  if (!existsSync(artifactPath)) return false;
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(readFileSync(artifactPath, "utf8"));
+  } catch {
+    return false;
+  }
+  if (typeof parsed !== "object" || parsed === null) return false;
+  const record = parsed as { proofsOk?: unknown; checks?: unknown };
+  if (record.proofsOk !== true) return false;
+  // A missing checks array is not an implicit pass: an artifact that records no checks recorded no
+  // verification. An explicit empty array is equally not evidence of a proof having run.
+  if (!Array.isArray(record.checks) || record.checks.length === 0) return false;
+  return record.checks.every((c) => (c as { passed?: unknown })?.passed === true);
+}
+
 export function verifyDoneClaim(root: string, issue: number, stage: string): DoneClaim {
   // `\b` is NOT supported by git's ERE and silently matches NOTHING — measured 2026-08-24, the
   // counterweight clause caught it: `--grep=#627\b -E` returned zero commits while `--grep=#627`
@@ -434,7 +468,7 @@ export function verifyDoneClaim(root: string, issue: number, stage: string): Don
   };
   const onMain = shas.some(isAncestor);
   const artifact = join(root, `.openclinxr/openclaw/contract-verify-issue-${issue}-merge.json`);
-  const verified = existsSync(artifact);
+  const verified = contractVerifiedFromArtifact(artifact);
   /**
    * VERIFIED means landed AND re-proved at merge, not landed alone.
    *
