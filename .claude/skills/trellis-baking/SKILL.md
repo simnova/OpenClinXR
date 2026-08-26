@@ -194,10 +194,37 @@ sitting a millimetre off a knob is exactly as good a cross-hit target as a 22% o
 care how big the wrong surface is, only that it is within `max_ray_distance`. pulse-oximeter's
 fragments total 0.3% AND are the only ones measured as not co-located with a feature.
 
-**The test to build, and it has not been built:** for each non-main component, the minimum distance
-from it to the main component, compared against the cage's `objectDiagonal * 0.04`. Anything closer
-than the ray reach is a contamination source regardless of its triangle count. Until that exists,
-NOTHING cheaply predicts the verdict and the render is the only oracle.
+**The proximity test WAS built, on 2026-08-26, and it is VACUOUS.** Minimum distance from each
+non-main component to the main one, against the cage's `objectDiagonal * 0.04`:
+
+| asset | known verdict | fragments within reach |
+|---|---|---|
+| pulse-oximeter | **CLEAN** | 11 of 11 |
+| o2-port | CONTAMINATED | 11 of 11 |
+| fetal-monitor | CONTAMINATED | 11 of 11 |
+
+Every asset has fragments inside the ray reach, most around 2 mm. The test flags everything, so it
+separates nothing. Second failed mechanism; do not build a third from these points.
+
+**AND SHARE IS NOT MERELY INSUFFICIENT — IT IS UNINFORMATIVE. Four assets, and the predictions made
+from share were wrong in BOTH directions:**
+
+| asset | largest | 2nd | predicted from share | ACTUAL |
+|---|---:|---:|---|---|
+| pulse-oximeter | 99.9% | 0.1% | clean | CLEAN |
+| o2-port | 61.6% | 22.1% | contaminated | CONTAMINATED |
+| fetal-monitor | 93.9% | 1.6% | clean | **CONTAMINATED** |
+| iv-pump | 87.4% | **10.15%** | contaminated | **CLEAN** |
+
+`iv-pump` has a 10.15% second component — the shape that made o2-port multi-part — and its bake came
+back clean, fixing the screen's white wash with no speckle introduced. `fetal-monitor` has nothing
+above 1.6% and contaminated. Two of four predictions wrong, one in each direction. A rule that fails
+both ways is not a weak rule, it is the wrong variable.
+
+**CAUSE NOT DETERMINED, and stop guessing at it.** Two mechanisms have now been proposed and killed
+by measurement. What discriminates a clean bake from a contaminated one on this generator's output is
+unknown, and the RENDER IS THE ONLY ORACLE. Bake, look at the pixels, record the verdict. Do not
+gate on component statistics — they cost a firing each and have predicted nothing.
 
 For the second class the cage needs per-component isolation, or the bake needs to be done
 per-component, or the asset is simply not a bake candidate. NOT DETERMINED which; I did not test a
