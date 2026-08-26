@@ -1,0 +1,99 @@
+{
+  "seed": "operator-prose-r5-pilot-2026-08-26",
+  "promptIndices": [
+    147,
+    93,
+    105,
+    37,
+    194,
+    50,
+    6,
+    3,
+    111,
+    89,
+    12,
+    108,
+    85,
+    109,
+    120,
+    104
+  ],
+  "model": "opus",
+  "effort": "high",
+  "pairs": 16,
+  "arms": {
+    "t": "hook + skill",
+    "t2": "hook + skill, narration suppressed",
+    "c": "skill only (hook suppressed via OPENCLINXR_SKILL_PREFLIGHT=0)",
+    "n": "no skill (--disable-slash-commands)"
+  },
+  "fidelity": {
+    "treatmentHookDelivered": "16/16",
+    "treatmentSkillInvoked": "16/16",
+    "controlHookDelivered": "0/16",
+    "controlSkillInvoked": "16/16",
+    "noSkillArmSkillInvoked": "0/16"
+  },
+  "mechanical": {
+    "t": {
+      "bold": 14,
+      "em": 1,
+      "words": 5273,
+      "anaphSurface": 6,
+      "breached": 13
+    },
+    "t2": {
+      "bold": 12,
+      "em": 0,
+      "words": 5335,
+      "anaphSurface": 7,
+      "breached": 13
+    },
+    "c": {
+      "bold": 13,
+      "em": 1,
+      "words": 5246,
+      "anaphSurface": 6,
+      "breached": 13
+    },
+    "n": {
+      "bold": 98,
+      "em": 92,
+      "words": 5233,
+      "anaphSurface": 4,
+      "breached": 16
+    }
+  },
+  "historicalSamePrompts": {
+    "bold": 126,
+    "em": 119,
+    "words": 9696,
+    "anaphSurface": 8,
+    "breached": 16
+  },
+  "blindedJudge": {
+    "skillVsNoSkill": {
+      "preferred": "skill 16, none 0",
+      "proseFails": "36 vs 72",
+      "adequacyFails": "3 vs 9",
+      "clarity": "4.44 vs 3.56",
+      "effort": "3.06 vs 3.88",
+      "countRuleFails": "10 vs 11"
+    },
+    "hookVsSkill_CONFOUNDED": {
+      "note": "concatenated pre-tool preamble into the report; WITHDRAWN",
+      "preferred": "skill 12, hook 4",
+      "proseFails": "33 vs 60"
+    },
+    "hookVsSkill_corrected": {
+      "basis": "text after the last tool call only",
+      "preferred": "hook 9, skill 7",
+      "proseFails": "28 vs 31",
+      "countRuleFails": "8 vs 11",
+      "adequacyFails": "3 vs 5",
+      "clarity": "4.13 vs 4.13"
+    }
+  },
+  "claimScope": "16 paired single-turn opus runs rewriting historical fact records into operator reports, 2026-08-26.",
+  "notEvidenceFor": "the hook in a long multi-turn tool-heavy session, which is where auto-selection actually failed (1 invocation in 713 messages) and which this pilot did not reproduce; nor that the count rule works, which showed no measurable effect."
+}

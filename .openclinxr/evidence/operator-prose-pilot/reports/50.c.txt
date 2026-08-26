@@ -1,0 +1,17 @@
+Done. The tree is clean of my work: nothing staged, no conflicts, the `wt/issue-263` stash intact, and 15 dirty files remaining, all pre-existing and owned by other writers.
+
+Before that, two files sat staged from my bad stash pop, matching the `wt/issue-263` stash exactly. Left alone they would have ridden into whoever committed next.
+
+**177 commits are unpushed.** Most are not mine. Standing authority covers a push, but a push that size with another agent actively working is your call.
+
+Defects found in my own landed work: five, all in code I had already committed and reported working. A gate that refused four passing sessions, a vacuous counterweight, an override that could bypass silently, a clause that fired zero times, and a guard inert in worktrees. Each surfaced by attacking the code rather than trusting it.
+
+I also made four false statements from truncated or polluted queries: a 300-item read of a 603-item board, a `dist`-polluted grep, a field list that stopped at 14 rows, and a transcript grep counting the tool's own echoed output. All four were one command from being right.
+
+Twelve commits landed across two efforts.
+
+Delegation loop: a circuit breaker refusing to re-dispatch a slice into the same wall, sized off a measurement that two slices consumed 33 of 584 sessions and held 16 of 62 proof failures. It was attacked four times and repaired four times, including one clause I withdrew after shipping because a historical replay fired it zero times.
+
+Board: from 46 of 85 open issues tracked with zero priorities, to all 64 open issues tracked and prioritized, 26 closed as verified dead, five integration cards filed, nine cards marked `Planted`. The drain loop had no dispatchable work; it now has nine.
+
+Rate limits: a shared identifier cache drops a warm Factory transition from four `gh` calls to two; a chokepoint refuses raw `gh issue close`, which was silently skipping the Factory grade 111-to-21; `integrate`'s comment check went from two round trips to one.

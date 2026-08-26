@@ -1,0 +1,21 @@
+Emotion expression is already implemented and running. The decision-changing problem is that the case bank declares emotions the runtime cannot render.
+
+The bank uses 9 emotion labels, with occurrence counts: anxious 18, frustrated 7, worried 6, guarded 3, fearful 2, calm 2, and one each for withdrawn, tearful, neutral. The runtime defines 5 emotion states. Only `anxious` and `neutral` match by name across the two sets. The bank labels `frustrated`, `guarded`, `fearful`, `withdrawn` and `tearful` have no runtime expression: they fall through the regex to neutral. The runtime states `pain`, `concerned` and `reassured` do not appear in the bank. That is a blueprint-to-runtime break, against the guardrail requiring the blueprint to drive emotion state and transitions.
+
+Second limitation: the runtime drives 3 face channels (`mouthOpen`, `browConcern`, `cheekTension`). Three channels separate concern from calm. They cannot separate anxious from fearful (fear widens the eyes), or frustrated from worried (frustration drives the brow down, concern raises it inward), and cannot express tearful at all.
+
+What runs today: `main.ts:8856` maps emotion to face weights eased over time (`lerp(…, eased * 0.34)`), driven by `emotionForDialogueText()`, a regex over the spoken line. Trace cue `emotion_aligned_expression_transition_cue` fires on transitions.
+
+| emotion | mouthOpen | browConcern | cheekTension |
+|---|---|---|---|
+| neutral | 0.04 | 0.08 | 0.08 |
+| anxious | 0.18 | 0.62 | 0.48 |
+| concerned | 0.12 | 0.72 | 0.36 |
+| reassured | 0.08 | 0.18 | 0.18 |
+| pain | 0.34 | 0.86 | 0.72 |
+
+For emotion the ARKit case is stronger than for lip-sync: `browDownLeft/Right`, `browInnerUp`, `eyeWideLeft/Right`, `eyeSquint`, `mouthFrown` and `mouthPress` are the separating channels. Before regenerating 38 assets with 52 ARKit shapes, note the rigging reports show `brow_furrow` already baked onto the shipped humanoids with nothing driving it.
+
+NOT TESTED: the 85 existing morph names have not been measured against the bank's 9 emotions.
+
+NEXT: run that measurement and file it. It decides whether ARKit is required or optional.

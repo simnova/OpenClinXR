@@ -1,0 +1,23 @@
+## The Anny rail isn't dead — it grew today
+
+Measured on `main` just now, across shipped humanoids:
+
+| sourceKind | count |
+|---|---|
+| `real_anny_candidate_unverified` | **8** |
+| `mpfb2_makehuman_basemesh_from_anny_reference` | 6 |
+| `mpfb2_makehuman_basemesh` | 2 |
+
+Eight shipped humanoids are Anny-derived, and `humanoid-runtime-asset-url.ts` still resolves them for learners: `ed_chest_pain_*`, `peds_*`, `adult_male_street_casual`. (My earlier contract header recorded seven — it was stamped at an older commit.)
+
+**Your architectural model is correct**, and it's already how the MPFB assets get built: six of the eight are `from_anny_reference`, which is MADR 0051's Anny-as-reference protocol. Anny supplies age, size and gender; MPFB supplies the rig, face and wardrobe. That part works.
+
+The defect is that both rails ship simultaneously, and it got worse today. `peds_fever_patient_child` did not exist a few hours ago — created 19:21, then four commits of work: the garment hem weld and both shoe fixes (22:06, 23:28). Every improvement landed on a new Anny-derived asset, on the rail we intend to retire. The rail isn't lingering; it's actively growing.
+
+**On cleanup:** deleting Anny references is the wrong move — Anny-as-reference is load-bearing for phenotype, and D11 names it first-class for that job. The valuable cleanup is the resolver rewire, which is **#652**. My contract header records it as cheap: six of the seven counterparts already exist, so it's a pointer change, not a regeneration. Switching the resolver also delivers face units on every humanoid, since FACS units arrive with the MPFB rail and no Anny asset carries any.
+
+`peds_fever_patient_child` is the exception and needs a fresh bake — no MPFB counterpart exists.
+
+I'd raise #652's priority. Today it cost four commits.
+
+**Not tested:** whether the six existing MPFB counterparts are phenotypically equivalent to the Anny assets they'd replace. The card asserts they exist; nobody has compared them. A wrong match would change how those actors look.

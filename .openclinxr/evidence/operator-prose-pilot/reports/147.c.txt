@@ -1,0 +1,23 @@
+The bake ran and produced a normal map carrying real detail. It has not been through the runtime.
+
+**NOT TESTED**: whether the baked map survives glTF export and reads correctly in three.js. I rendered in Blender with the map attached. I did not export a new GLB or load it in ui-xr. That is the step that decides whether this is usable, and it is the next one.
+
+Also stating it plainly: this was not started when you asked. I confirmed the gap and delivered the camera match, then spent the interval in the supervisor loop and the peer thread.
+
+## What ran
+
+A `selected_to_active` normal bake, 296,226-tri raw source onto the 79,999-tri champion, 2048², Cycles. Reused the existing bake tooling at `automate_blender.py:1362` rather than hand-rolling; that path is a procedural-to-texture bake with `use_selected_to_active = False`, so the transfer needed selected-to-active plus a cage. Cage extrusion derived from geometry at 2% of the object's measured 1.334 m diagonal, not a chosen number.
+
+Map is not flat: 42.9% of texels deviate from neutral, mean deviation 16.08, max 182, blue channel 247 (correct for tangent space). A bake that reports success and writes flat 128/128/255 is the silent failure mode here, so that check was the point.
+
+## A/B
+
+Same camera, same two lamps, only the normal map differs. On the baked side the panel seam reads as a crease, the clamshell lip has a defined edge instead of a soft roll, the lower body shows surface structure where the other side is featureless, and hinge detail returns. I am not scoring it past that description; the verdict is yours.
+
+## Pipeline
+
+The optimize path is high-error direct targets, weld, quantize, with no bake stage. Adding one is a post-process on artifacts already on disk for all seven assets, roughly 2 minutes of Cycles each.
+
+## Peer
+
+Stopped on #510, verified it independently, filed #671 fresh rather than reopening. Both its lanes are red-verified (#597, #181). It self-declared a stale clause-count in a derived brief.

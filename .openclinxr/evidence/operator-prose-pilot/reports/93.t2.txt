@@ -1,0 +1,20 @@
+The site was three days stale when you asked. It now carries the #650 phenotype win.
+
+**docs/index.html** last changed 08-21 12:17 (efdec1f6, "publish the case-driven iris win"). Today's commits under `docs/` were the licence ledger and MADRs. Today produced 85 commits and 10 subject-line product landings, none of which had reached the site.
+
+The #643 generator is RED on two clauses: 13 encounters have no grade, 15 have no capture sha. A third clause is now green (the manifest exists with one entry per encounter), so its `it.fails` marking was stale and I converted it to `it(`. I recorded grades for the two images I opened today; 13 remain ungraded and I am not publishing ungraded captures. D12 carries the recorded failure where 26 KB Model Vetting error screenshots shipped as "WebXR Sample Scene Evidence" because `pages:validate` checks existence only.
+
+#621 looked broken on timing: the fix landed 08:10, the artifact reporting +0.272 m was generated 17:34. The artifact's `treeStamp` head is d3a817dc, which contains #621, and the contract passes 3/3. The threshold is `MAX_WRIST_ABOVE_DECK_METERS = 0.35`, which 0.272 m clears. Whether 27 cm of air counts as on the deck is the same threshold question filed on #181 and still open there.
+
+Published, `pages:validate` green: **32 of 32** actor records carry numeric phenotype (age 52, height_cm 178, bmi 26, brow_tension 0.55, anxious 0.65, flush 0.15), against #603's "38 of 42 shipped actors have no numeric phenotype". Those records sit one level deeper than I first looked: 15 cases, each keyed by actor.
+
+Four landings today that remain unpublished:
+
+| commit | landing |
+|---|---|
+| 5110525b | #126 garment weights transfer from body surface |
+| 0492ef10 | #621 closed-loop supine arm sweep |
+| ec5cbd42 | #181 distributed upper-spine/neck flex |
+| 0cfeb59f | #622 real model adapter wired ahead of mock |
+
+NEXT: grade the 13 outstanding captures and add capture shas so #643 turns green.

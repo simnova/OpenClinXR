@@ -1,0 +1,12 @@
+Codex delivered four optimizations, a four-item stop-list, and the commit ratio behind both. I spot-checked four of its claims against the tree and all four hold. Its orphan-actor claim is unverified; I would check that before letting any of this reorder the queue.
+
+**Optimizations**
+
+1. Recipe cache. Content-address a key over phenotype, garment set, body-profile version, rig version and materializer version, then bake each unique recipe once. Grepping `recipeKey|bodyRecipe|assetRecipe` across `tools/openclinxr`, `packages/openclinxr` and `apps/ui-xr/src` returns nothing. Today's model is one bake per actor per case, so 42 actors means 42 bakes.
+2. Pre-baked macro lattice. Strongest of the four, because the machinery exists and is unused: `body_param_stage.py` already requires `--body-classes-json`, a list of `{bodyClassId, weight, gender, age?, muscle?}`. `body-param-catalog.json` holds 2 entries, `adult_lean_female` and `adult_heavy_male`, whose `torsoGirthProxyMeters` differ by 0.07454 m. No lattice or grid implementation exists in the tree.
+3. Morph-target body shape. Unbaked MPFB macros already travel in the GLB as zero-weight morph targets, and three.js drives named viseme and emotion morphs at runtime. No phenotype-to-`morphTargetInfluences` path exists, and `neutralizeGeneratedHumanoidMorphTargets` (main.ts:7440, called at main.ts:6965) zeroes every imported target. Codex flags this as needing an experiment: fitted garments and hide masks may invalidate it.
+4. Seeded phenotypes. Of 42 actors, 4 carry an exported phenotype (matching my own count of 4), 25 have usable descriptors, 12 have nothing. Resolve stated descriptors first, then seed unspecified non-clinical variation from `scenarioId + actorId`, record the recipe, never reroll. That is D13's random-once rule; what is missing is code reading it.
+
+**Stop-list**, one of four partly acted on: stop planting REDs until a generated actor reaches final render; stop quoting `casesFullyDeterministic` as a decision metric; freeze PROTO_VERIFY_DELEGATION.md (4,456 lines, 46,540 words, 165 numbered headings); stop counting per-actor Blender fidelity as D9 throughput.
+
+Ratio, 24-hour window: 60 non-merge commits, 21 `test(plant)`, 41 touching evidence, 13 touching product paths, 29 touching evidence with no product change. Evidence holds 890 files and 230,130 lines against 26,049 in asset-pipeline and 980 in dark-factory. Codex's verdict: contracts locally useful, systemically ceremony-dominant. The #576 shoe-carve catch was a genuine save.

@@ -1,0 +1,23 @@
+## Emotion expression: already running, but with a blueprint-to-runtime break
+
+Good instinct — and unlike lip-sync, the ARKit argument holds here.
+
+**What exists today.** `main.ts:8856` maps emotion to face weights, eased over time (`lerp(…, eased * 0.34)`), driven by `emotionForDialogueText()` — a regex over the spoken line. Five states, three channels:
+
+```
+neutral    mouthOpen 0.04  browConcern 0.08  cheekTension 0.08
+anxious              0.18              0.62               0.48
+concerned            0.12              0.72               0.36
+reassured            0.08              0.18               0.18
+pain                 0.34              0.86               0.72
+```
+
+Actors already get anxious, concerned, reassured and pain with smooth transitions and trace cues (`emotion_aligned_expression_transition_cue`).
+
+**Gap 1 — vocabulary mismatch.** The bank declares 9 emotions: anxious (18), frustrated (7), worried (6), guarded (3), fearful (2), calm (2), withdrawn, tearful, neutral. The runtime has 5, and only `anxious` and `neutral` match by name. `frustrated`, `guarded`, `fearful`, `withdrawn`, `tearful` have no runtime expression — they fall through the regex to neutral. Conversely `pain`, `concerned` and `reassured` are runtime-only, absent from the bank. That's a Q1 break: the case definition is meant to drive the runtime, and here it can't.
+
+**Gap 2 — channel resolution.** Three channels can't separate nine states. They distinguish concern from calm, but not anxious from fearful (fear widens eyes), nor frustrated from worried (frustration furrows the brow *down*; concern raises it *inward*), and can't express tearful at all. The separating channels are precisely ARKit's: `browDownLeft/Right`, `browInnerUp`, `eyeWideLeft/Right`, `eyeSquint`, `mouthFrown`, `mouthPress`.
+
+**Cheap win first.** Rigging reports show `brow_furrow` is already baked onto the shipped humanoids and nothing drives it — the runtime exposes only `browConcern`. If `brow_furrow` and `brow_raise` are both present, frustrated and fearful may be reachable via a fourth and fifth channel with no new assets.
+
+Proposed sequence: measure the existing 85 morph names against the bank's 9 emotions → drive what's there → adopt ARKit only for what genuinely isn't reachable (which also buys external face assets and face-tracking input). Want me to run that measurement? It decides whether ARKit is required or merely convenient.

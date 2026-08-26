@@ -1,0 +1,19 @@
+**Short answer: it was three days stale when you asked — it isn't now.**
+
+When you asked, `docs/index.html` hadn't changed since `efdec1f6` on 08-21 12:17 ("publish the case-driven iris win"). Everything touching `docs/` today was licence-ledger and MADR work. Meanwhile today produced **85 commits and 10 subject-line product landings**, including:
+
+| | |
+|---|---|
+| `fcae9c58` **#650** | case-authored phenotype is the source of baked bodies |
+| `5110525b` **#126** | garment weights transfer from body surface, not position paint |
+| `0492ef10` **#621** | closed-loop supine arm sweep, ED wrists on deck |
+| `ec5cbd42` **#181** | distributed upper-spine/neck flex, head on pillow |
+| `0cfeb59f` **#622** | real model adapter wired ahead of the mock |
+
+That's a live gap against D12 ("count the wins… update progress on website").
+
+**What I did:** published the #650 win, after verifying it rather than trusting the commit message. The data nests one level deeper than I first assumed — 15 cases, keyed by actor. Measured correctly: **32 of 32 actor records now carry numeric phenotype** (`age 52, height_cm 178, bmi 26, brow_tension 0.55, anxious 0.65, flush 0.15`), against #603's "38 of 42 shipped actors have no numeric phenotype." Site is live, `pages:validate` green.
+
+**On #621:** the artifact showing +0.272 m was generated 17:34, nine hours *after* the 08:10 fix — looked like a stale-cache trap, so I checked the `treeStamp` head (`d3a817dc`) before saying so. It contains #621; contract passes 3/3. Not broken — but it passes because `MAX_WRIST_ABOVE_DECK_METERS = 0.35`, the same generous threshold I flagged on #181 this morning. Whether 27 cm of air is "on the deck" stays open, recorded there.
+
+**#643 generator:** correctly RED — 13 images ungraded, 15 missing capture sha. I recorded grades only for the two I actually opened. Manifest clause now passes; the grading clause still fails, honestly.

@@ -1,0 +1,21 @@
+Yes — worth trying, and the record is more encouraging than what I said last turn.
+
+**Correction first.** I said the champion "does not record the decimation path reaching a wearable budget." It does. The optimize stage has been run and worked: 288,466 → 80,000 triangles, `featureSurvival = ok`, pixel grade agreeing at 0.00018 relative error, across three subjects. Bake-then-optimize is proven end to end. My caution was the exact error MADR 0050 was written about, from your 2026-08-07 instruction not to reject a generator on triangle count — the disqualifying condition is feature survival, not size.
+
+**Babylon findings (#649).** The author's sequence was decimate to 20%, then atlas, merge, pack. TRELLIS lands at 80k from 288k — 28%. Two independent pipelines in the same band is mild corroboration that the current setting is sane rather than arbitrary. What #649 has that TRELLIS lacks is everything *after* decimation: atlasing, merging and UV packing cut draw calls, a budget nothing in this repo measures. If you adopt one half, adopt that one.
+
+**Shoes are a favorable subject.** MADR 0050 names the failure mode as thin, high-curvature features — casters, IV poles, monitor bezels, bed rails. A shoe has almost none of that.
+
+| target | triangles |
+|---|---|
+| current parametric shell | 80 |
+| MPFB library shoe | 1,338 |
+| TRELLIS `PROP_PREFERRED` | 80,000 |
+
+`PROP_PREFERRED = 80_000` is a named prop constant and `targetTris` is a threaded parameter — a budget choice, not a floor. Nobody has run the optimizer at a wearable target.
+
+The remaining gap is fitting, not mesh: a TRELLIS shoe is a static prop; a worn shoe needs fitting to each actor's measured foot AABB and weighting to the foot bone. #659 landed the fit derivation, so that half is healthier.
+
+**Order of work:** (1) push an on-disk champion to ~1,500 triangles, read `featureSurvival` and grade — minutes, no new bake, finds the floor. (2) If it holds, bake one shoe, optimize at the wearable target, grade, then wire through fitting.
+
+**NOT TESTED:** whether the bake environment currently runs. Newest TRELLIS evidence is 12 August; I broke and repaired that virtualenv without probing since. Start step one with a liveness check.

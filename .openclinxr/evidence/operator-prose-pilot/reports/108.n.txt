@@ -1,0 +1,23 @@
+## Facial expressions: where things landed
+
+Three separate threads, in three different states, and they are not connected to each other.
+
+**Baked on the assets.** Every MPFB humanoid carries 47 morph targets: 15 Oculus visemes (`viseme_aa` … `viseme_U`) and 32 MakeHuman face units — `eyebrows-left-inner-up`, `mouth-corner-puller`, `eye-left-closure`, `nose-compression`, `neck-platysma`. These are the `faceunits01` names from the pack you linked, present on eleven shipped assets.
+
+**Driven at runtime.**
+
+| channel | state | driver |
+|---|---|---|
+| visemes / lip-sync | driven | `viseme-runtime-wire.ts`, `viseme-timeline-drive.ts`, `dialogue-visemes.ts` |
+| blink | driven | `blink-runtime-wire.ts`, deterministic 4300 ms clock into `eye-*-closure` |
+| expression / emotion | **not driven** | nothing |
+
+Lip-sync closed through #578, #582, #608 (Rhubarb acquired, proven, consumed). Blink closed as #379.
+
+**The gap is the middle.** `scenario-runtime.ts` instantiates a per-actor `EmotionEngine` from `resolveCaseEmotionPolicy`, so case definitions already carry emotional state and transitions. The face already carries 32 units capable of expressing it. But `EmotionEngine` appears nowhere in `apps/ui-xr`, and the 32 unit names appear only in provenance files, a resolver, a census tool and tests. Both ends exist; nothing joins them. This is the same incomplete-loop shape the repo has hit six times — a mechanism built and never called.
+
+**Two caveats.** The Anny rail's 25 morphs are not equivalent: #316 (still open) records its 15 "face" morphs as whole-body deformations, not face targets — part of why #652 wants those seven retired. Separately, #651: the face is not driven by phenotype, so four humanoids spanning ages 29–58 share facial geometry.
+
+**Not tested:** whether the 32 face units visibly deform when driven. Nothing has ever set them, so amplitude is unmeasured; the census tool measures presence, not motion.
+
+Smallest real slice: an emotion-to-face-unit map plus a runtime wire, mirroring `blink-runtime-wire.ts` — the working precedent, and it is small.

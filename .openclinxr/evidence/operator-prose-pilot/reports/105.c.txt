@@ -1,0 +1,23 @@
+## Correction to what I told you earlier
+
+I cited "featureSurvival ok" as evidence the optimize stage preserves assets. Read against the tree, `featureSurvival = triangleCount > 500 && volumeRatioToRaw > 0.05`, a bounding-box non-collapse check that a 1,500-triangle capsule passes. It is the marker-check class this repo has been burned by five times, and it proves nothing about preservation.
+
+The consult corrected me in three places; I verified each against the tree. The CLI accepts only `--input`/`--out` with a fixed target ladder. The newest live hatch is 2026-08-14, not the 08-12 I reported. And my proposed first step was a category error, since a fetal monitor and a shoe fail decimation by different mechanisms.
+
+Blocker: ComfyUI is not running, so TRELLIS liveness is down rather than unknown. NOT TESTED: whether TRELLIS can generate footwear at all. All nine proven subjects are hard-surface equipment.
+
+## Evidence that the optimize stage works
+
+Contact sheet on disk since 14 August, ungraded until now, lit and structure passes, 80,000 triangles decimated from 288,466. MY GRADE on the structure pass: screen bezel, raised buttons and knurled control knob all survive with individual ridges readable. The knob is the thin high-curvature feature MADR 0050 warns decimation destroys.
+
+## Peer track record
+
+| card | action | outcome |
+|---|---|---|
+| #659 | planted RED, dispatched, landed, closed | I reproduced independently: 0.378 to 0.000 |
+| #656 | garment hem weld | on main |
+| #647 | closed without a fix | superseded by #650, salvage at `858f9215` |
+
+Across those three cards: six REDs planted, three fixes on main. Commit `a88fdb36` is an unprompted withdrawal of their own unverified claim. They also built Step 0 already, deriving `MIN_SOLE_AREA_FRACTION = 0.15` against a sphere ceiling of 0.017 and a worst-library-shoe value of 0.262.
+
+Tasked out as **#661**, deliberately un-operationalized. Two of their commits cite that number from before the issue existed; provenance is recorded at the top of the card. I am keeping no parallel copy.

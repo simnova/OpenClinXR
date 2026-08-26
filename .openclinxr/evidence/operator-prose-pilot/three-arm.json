@@ -1,0 +1,652 @@
+{
+ "S": {
+  "t": [
+   {
+    "bold": 1,
+    "em": 0,
+    "words": 322,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 0,
+    "hardViolations": 1,
+    "anyHard": true
+   },
+   {
+    "bold": 1,
+    "em": 0,
+    "words": 327,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 1,
+    "hardViolations": 1,
+    "anyHard": true
+   },
+   {
+    "bold": 1,
+    "em": 0,
+    "words": 364,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 0,
+    "hardViolations": 1,
+    "anyHard": true
+   },
+   {
+    "bold": 2,
+    "em": 0,
+    "words": 370,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 1,
+    "hardViolations": 1,
+    "anyHard": true
+   },
+   {
+    "bold": 0,
+    "em": 1,
+    "words": 362,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 0,
+    "hardViolations": 1,
+    "anyHard": true
+   },
+   {
+    "bold": 1,
+    "em": 0,
+    "words": 327,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 1,
+    "hardViolations": 1,
+    "anyHard": true
+   },
+   {
+    "bold": 1,
+    "em": 0,
+    "words": 341,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 0,
+    "hardViolations": 1,
+    "anyHard": true
+   },
+   {
+    "bold": 0,
+    "em": 0,
+    "words": 317,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 0,
+    "hardViolations": 1,
+    "anyHard": true
+   },
+   {
+    "bold": 0,
+    "em": 0,
+    "words": 430,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 0,
+    "hardViolations": 1,
+    "anyHard": true
+   },
+   {
+    "bold": 0,
+    "em": 0,
+    "words": 331,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 0,
+    "hardViolations": 1,
+    "anyHard": true
+   },
+   {
+    "bold": 2,
+    "em": 0,
+    "words": 297,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 2,
+    "hardViolations": 0,
+    "anyHard": false
+   },
+   {
+    "bold": 2,
+    "em": 0,
+    "words": 288,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 0,
+    "hardViolations": 0,
+    "anyHard": false
+   },
+   {
+    "bold": 0,
+    "em": 0,
+    "words": 337,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 0,
+    "hardViolations": 1,
+    "anyHard": true
+   },
+   {
+    "bold": 2,
+    "em": 0,
+    "words": 284,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 0,
+    "hardViolations": 0,
+    "anyHard": false
+   },
+   {
+    "bold": 1,
+    "em": 0,
+    "words": 354,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 0,
+    "hardViolations": 1,
+    "anyHard": true
+   },
+   {
+    "bold": 0,
+    "em": 0,
+    "words": 329,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 1,
+    "hardViolations": 1,
+    "anyHard": true
+   }
+  ],
+  "c": [
+   {
+    "bold": 1,
+    "em": 0,
+    "words": 333,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 0,
+    "hardViolations": 1,
+    "anyHard": true
+   },
+   {
+    "bold": 0,
+    "em": 0,
+    "words": 286,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 0,
+    "hardViolations": 0,
+    "anyHard": false
+   },
+   {
+    "bold": 1,
+    "em": 0,
+    "words": 332,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 0,
+    "hardViolations": 1,
+    "anyHard": true
+   },
+   {
+    "bold": 1,
+    "em": 0,
+    "words": 362,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 1,
+    "hardViolations": 1,
+    "anyHard": true
+   },
+   {
+    "bold": 1,
+    "em": 1,
+    "words": 325,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 0,
+    "hardViolations": 1,
+    "anyHard": true
+   },
+   {
+    "bold": 1,
+    "em": 0,
+    "words": 331,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 1,
+    "hardViolations": 1,
+    "anyHard": true
+   },
+   {
+    "bold": 0,
+    "em": 0,
+    "words": 361,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 0,
+    "hardViolations": 1,
+    "anyHard": true
+   },
+   {
+    "bold": 0,
+    "em": 0,
+    "words": 314,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 0,
+    "hardViolations": 1,
+    "anyHard": true
+   },
+   {
+    "bold": 1,
+    "em": 0,
+    "words": 398,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 0,
+    "hardViolations": 1,
+    "anyHard": true
+   },
+   {
+    "bold": 0,
+    "em": 0,
+    "words": 304,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 0,
+    "hardViolations": 1,
+    "anyHard": true
+   },
+   {
+    "bold": 4,
+    "em": 0,
+    "words": 353,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 1,
+    "hardViolations": 2,
+    "anyHard": true
+   },
+   {
+    "bold": 1,
+    "em": 0,
+    "words": 290,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 1,
+    "hardViolations": 0,
+    "anyHard": false
+   },
+   {
+    "bold": 1,
+    "em": 0,
+    "words": 308,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 0,
+    "hardViolations": 1,
+    "anyHard": true
+   },
+   {
+    "bold": 0,
+    "em": 0,
+    "words": 279,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 0,
+    "hardViolations": 0,
+    "anyHard": false
+   },
+   {
+    "bold": 1,
+    "em": 0,
+    "words": 331,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 1,
+    "hardViolations": 1,
+    "anyHard": true
+   },
+   {
+    "bold": 0,
+    "em": 0,
+    "words": 339,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 1,
+    "hardViolations": 1,
+    "anyHard": true
+   }
+  ],
+  "n": [
+   {
+    "bold": 6,
+    "em": 6,
+    "words": 309,
+    "notBut": 1,
+    "thatsPayoff": 0,
+    "anaphSurface": 0,
+    "hardViolations": 3,
+    "anyHard": true
+   },
+   {
+    "bold": 11,
+    "em": 5,
+    "words": 305,
+    "notBut": 1,
+    "thatsPayoff": 0,
+    "anaphSurface": 0,
+    "hardViolations": 3,
+    "anyHard": true
+   },
+   {
+    "bold": 7,
+    "em": 6,
+    "words": 353,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 0,
+    "hardViolations": 3,
+    "anyHard": true
+   },
+   {
+    "bold": 8,
+    "em": 6,
+    "words": 365,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 1,
+    "hardViolations": 3,
+    "anyHard": true
+   },
+   {
+    "bold": 9,
+    "em": 8,
+    "words": 355,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 0,
+    "hardViolations": 3,
+    "anyHard": true
+   },
+   {
+    "bold": 4,
+    "em": 5,
+    "words": 334,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 0,
+    "hardViolations": 3,
+    "anyHard": true
+   },
+   {
+    "bold": 7,
+    "em": 8,
+    "words": 348,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 0,
+    "hardViolations": 3,
+    "anyHard": true
+   },
+   {
+    "bold": 1,
+    "em": 4,
+    "words": 321,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 0,
+    "hardViolations": 2,
+    "anyHard": true
+   },
+   {
+    "bold": 8,
+    "em": 6,
+    "words": 311,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 0,
+    "hardViolations": 3,
+    "anyHard": true
+   },
+   {
+    "bold": 4,
+    "em": 6,
+    "words": 325,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 0,
+    "hardViolations": 3,
+    "anyHard": true
+   },
+   {
+    "bold": 6,
+    "em": 6,
+    "words": 286,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 1,
+    "hardViolations": 2,
+    "anyHard": true
+   },
+   {
+    "bold": 6,
+    "em": 4,
+    "words": 300,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 0,
+    "hardViolations": 2,
+    "anyHard": true
+   },
+   {
+    "bold": 8,
+    "em": 8,
+    "words": 318,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 0,
+    "hardViolations": 3,
+    "anyHard": true
+   },
+   {
+    "bold": 5,
+    "em": 5,
+    "words": 308,
+    "notBut": 1,
+    "thatsPayoff": 0,
+    "anaphSurface": 0,
+    "hardViolations": 3,
+    "anyHard": true
+   },
+   {
+    "bold": 3,
+    "em": 3,
+    "words": 327,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 1,
+    "hardViolations": 3,
+    "anyHard": true
+   },
+   {
+    "bold": 5,
+    "em": 6,
+    "words": 368,
+    "notBut": 0,
+    "thatsPayoff": 0,
+    "anaphSurface": 1,
+    "hardViolations": 3,
+    "anyHard": true
+   }
+  ]
+ },
+ "hist": [
+  {
+   "bold": 6,
+   "em": 11,
+   "words": 498,
+   "notBut": 1,
+   "thatsPayoff": 0,
+   "anaphSurface": 0,
+   "hardViolations": 3,
+   "anyHard": true
+  },
+  {
+   "bold": 21,
+   "em": 19,
+   "words": 724,
+   "notBut": 0,
+   "thatsPayoff": 0,
+   "anaphSurface": 0,
+   "hardViolations": 3,
+   "anyHard": true
+  },
+  {
+   "bold": 3,
+   "em": 6,
+   "words": 912,
+   "notBut": 1,
+   "thatsPayoff": 0,
+   "anaphSurface": 1,
+   "hardViolations": 3,
+   "anyHard": true
+  },
+  {
+   "bold": 5,
+   "em": 0,
+   "words": 464,
+   "notBut": 0,
+   "thatsPayoff": 0,
+   "anaphSurface": 1,
+   "hardViolations": 2,
+   "anyHard": true
+  },
+  {
+   "bold": 21,
+   "em": 17,
+   "words": 735,
+   "notBut": 1,
+   "thatsPayoff": 0,
+   "anaphSurface": 0,
+   "hardViolations": 3,
+   "anyHard": true
+  },
+  {
+   "bold": 2,
+   "em": 4,
+   "words": 395,
+   "notBut": 0,
+   "thatsPayoff": 0,
+   "anaphSurface": 1,
+   "hardViolations": 2,
+   "anyHard": true
+  },
+  {
+   "bold": 1,
+   "em": 0,
+   "words": 491,
+   "notBut": 0,
+   "thatsPayoff": 0,
+   "anaphSurface": 0,
+   "hardViolations": 1,
+   "anyHard": true
+  },
+  {
+   "bold": 2,
+   "em": 0,
+   "words": 348,
+   "notBut": 0,
+   "thatsPayoff": 0,
+   "anaphSurface": 0,
+   "hardViolations": 1,
+   "anyHard": true
+  },
+  {
+   "bold": 4,
+   "em": 9,
+   "words": 912,
+   "notBut": 0,
+   "thatsPayoff": 0,
+   "anaphSurface": 0,
+   "hardViolations": 3,
+   "anyHard": true
+  },
+  {
+   "bold": 15,
+   "em": 11,
+   "words": 527,
+   "notBut": 0,
+   "thatsPayoff": 0,
+   "anaphSurface": 0,
+   "hardViolations": 3,
+   "anyHard": true
+  },
+  {
+   "bold": 4,
+   "em": 1,
+   "words": 534,
+   "notBut": 0,
+   "thatsPayoff": 0,
+   "anaphSurface": 1,
+   "hardViolations": 2,
+   "anyHard": true
+  },
+  {
+   "bold": 5,
+   "em": 6,
+   "words": 479,
+   "notBut": 0,
+   "thatsPayoff": 0,
+   "anaphSurface": 0,
+   "hardViolations": 3,
+   "anyHard": true
+  },
+  {
+   "bold": 24,
+   "em": 16,
+   "words": 817,
+   "notBut": 0,
+   "thatsPayoff": 0,
+   "anaphSurface": 1,
+   "hardViolations": 3,
+   "anyHard": true
+  },
+  {
+   "bold": 1,
+   "em": 3,
+   "words": 480,
+   "notBut": 1,
+   "thatsPayoff": 0,
+   "anaphSurface": 1,
+   "hardViolations": 2,
+   "anyHard": true
+  },
+  {
+   "bold": 10,
+   "em": 12,
+   "words": 638,
+   "notBut": 0,
+   "thatsPayoff": 0,
+   "anaphSurface": 1,
+   "hardViolations": 3,
+   "anyHard": true
+  },
+  {
+   "bold": 2,
+   "em": 4,
+   "words": 742,
+   "notBut": 0,
+   "thatsPayoff": 0,
+   "anaphSurface": 1,
+   "hardViolations": 2,
+   "anyHard": true
+  }
+ ]
+}

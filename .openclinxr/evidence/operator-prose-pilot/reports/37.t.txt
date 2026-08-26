@@ -1,0 +1,21 @@
+Five defects tonight were in code I had already committed and reported as working. One was a dispatch gate that had been inert in worktrees, the only context dispatches run in, fixed by **9efe964a**. The breaker's effectiveness numbers before that commit are counterfactual replays rather than production evidence, and the reasoned override is still unlimited. Both limits are recorded in `breaker-findings.json` with the design for closing them.
+
+Clause D was removed one commit after shipping: historical replay fired it zero times and its threshold separated two cases from two.
+
+Nine commits hardened dispatch, each from a ledger measurement. The seven with recorded rationale:
+
+| commit | change and benefit |
+|---|---|
+| `1ea4ee98` | retry circuit breaker; two slices had burned 33 of 584 sessions, refusals now cost zero tokens |
+| `6ea43dfe` | refuses unpassable path rules at brief time; 24 of 62 ledger proof failures were `changed:`-only |
+| `3baa71af` | success resets the breaker, which had been refusing four sessions that passed |
+| `6ecbf29e` | reasoned override, escaping a circularity where the gate blocked its own recovery |
+| `f0839caf` | override fails closed; an unrecorded override was an unlogged bypass |
+| `9efe964a` | shared-path fix for worktrees |
+| `675cf403` | end-to-end enforcement test, red on the real defect, proven both directions |
+
+Contract-layer value is now quantified: **11.1%** of 440 dispatches with known verdicts are refused after storm adjustment. An outside reviewer called this unmeasurable because `proofsOk` sits on a row most readers skip; that trap is documented where readers hit it. A cancelled session fails proofs at 51.1% against 9.9% for a clean return, and 12 of 12 one-turn cancellations failed. Turn count predicts nothing.
+
+#570's verified fix is committed, unblocking a prior session that could not stage against a read-only `.git`. #576's plant was repaired after #598's shoe swap turned its RED green through a wardrobe hide-carve, then dispatched. The status file no longer reads #576 as the D9 frontier: grep shows the multi-case runner has zero MPFB materializer references and imports `CASE_ACTOR_PRESETS` directly.
+
+The new `model-routing` skill carries both ladders and exact invocations, all four rungs probed live, closing the stale DeepSeek 402 blocker.

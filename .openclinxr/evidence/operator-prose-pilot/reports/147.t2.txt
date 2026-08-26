@@ -1,0 +1,15 @@
+The high-poly to low-poly normal bake ran and the map carries real detail.
+
+NOT TESTED: whether the baked map survives glTF export and reads correctly in the three.js runtime. The render was done in Blender with the map attached; no new GLB was exported and loaded in ui-xr. That is the step that decides whether this is usable.
+
+The bake had not been started at the time of the last update. It is done now. Configuration: `selected_to_active` normal bake, 296,226-tri raw source onto the 79,999-tri champion, 2048², Cycles. Cage extrusion derived from geometry at 2% of the object's measured 1.334 m diagonal rather than a chosen constant. Existing normal-bake tooling at `automate_blender.py:1362` was reused; that path is a procedural-to-texture bake with `use_selected_to_active = False`, so this probe changed the configuration, not the API.
+
+Map content measured: 42.9% of texels deviate from flat, mean deviation 16.08, max 182, blue channel at 247 (correct for tangent space). A bake that reports success while writing a flat 128/128/255 map is the silent failure mode, so this check was the point of the run.
+
+A/B render used the matched camera and the sweep's two lamps, with the normal map as the only difference. On the baked side the panel seam reads as a crease, the clamshell lip has a defined edge instead of a soft roll, the lower body shows surface structure where the unbaked side is featureless, and the hinge detail at frame right returns. No score attached; the visual verdict is yours.
+
+Pipeline implication: the current optimize path is high-error direct targets plus weld plus quantize, with no bake stage. Adding one is a post-process on artifacts already on disk for all seven assets, at roughly 2 minutes of Cycles each. No TRELLIS re-bake required.
+
+Separately, the peer stopped on #510, verified it independently, and filed #671 rather than reopening. Both its lanes (#597, #181) are red-verified, and it self-declared a stale clause count in a derived brief.
+
+NEXT: export a GLB with the map and load it in ui-xr.

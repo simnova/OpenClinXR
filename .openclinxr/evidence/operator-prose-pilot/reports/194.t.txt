@@ -1,0 +1,30 @@
+MPFB has never been decimated or high→low baked, so the TRELLIS gain does not transfer as-is.
+
+The OpenAI consult stalled at 241 KB with no further growth and contributed nothing to this answer; everything below is my own measurement.
+
+NOT TESTED: appearance. Every number here is geometry and bytes, and no render was graded. The Quest triangle budget motivating the work is stated in the rules file, not confirmed on hardware.
+
+The blocking constraint is slot contention. MPFB's single normal-map slot is already occupied across all 11 assets, and that existing procedural-bump bake is working: mean luminance 142.1 against a flat-map value of 142.5, std dev 5.75 to 8.01, carrying fine skin micro-detail. A form bake wants the same slot, so the design question is replace skin detail with form, or combine both into one map.
+
+Setup differences:
+
+| item | TRELLIS | MPFB |
+|---|---|---|
+| decimation | meshopt via `iterate-optimize.ts` | none; grep for decimate/simplify/meshopt returns nothing |
+| high→low bake | present, with cage | absent; `use_selected_to_active = False` at automate_blender.py:1350 |
+| existing normal map | none prior | present, 11 of 11 assets |
+| TANGENT attribute | added via export_tangents=True | absent, 11 of 11 assets |
+
+TRELLIS baking recovered form destroyed by decimation. MPFB loses nothing today, so a bake here exists to enable decimation.
+
+Skinned simplification works on `mpfb-peds-patient-child`, verified without writing to the repo:
+
+| variant | triangles | bytes | vs shipped |
+|---|---:|---:|---:|
+| shipped | 61,068 | 10,969,488 | — |
+| ratio 0.5 | 31,740 | 7,926,584 | −27.7% |
+| ratio 0.25 | 23,597 | 7,051,644 | −35.7% |
+
+All 17 primitives in that asset keep JOINTS_0; UVs, normals and the normal-texture binding survive. The 11 shipped humanoids total 980,913 triangles and 135.1 MB; a station staging 3 to 4 actors carries 225,000 to 300,000 humanoid triangles.
+
+NEXT: one subject, control 61k shipped, treatments 40k/25k bare against 40k/25k baked, one camera and lamp rig, sweeping map resolution before judging economics (that sweep flipped TRELLIS from +27% to −12.6%). Refuted if a replacement bake reads worse at conversational distance than bare decimation.

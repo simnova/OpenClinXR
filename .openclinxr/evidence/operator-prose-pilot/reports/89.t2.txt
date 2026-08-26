@@ -1,0 +1,21 @@
+Emotion expression is already built and running, so the question is which emotions the runtime can reach.
+
+## Blueprint-to-runtime gap
+
+The case bank declares 9 emotions: anxious (18 occurrences), frustrated (7), worried (6), guarded (3), fearful (2), calm (2), withdrawn, tearful, neutral. The runtime supports 5: neutral, anxious, concerned, reassured, pain. Only `anxious` and `neutral` match by name across both sets.
+
+Five bank emotions have no runtime expression: frustrated, guarded, fearful, withdrawn, tearful. They fall through the `emotionForDialogueText()` regex to neutral. Three runtime emotions (pain, concerned, reassured) do not appear in the bank at all. This is a Q1 break: the case definition is meant to drive the runtime, and for these five it cannot.
+
+The channel count also bounds what is separable. The runtime drives three weights, so it cannot distinguish anxious from fearful (fear widens the eyes), frustrated from worried (frustration furrows the brow down, concern raises it inward), or render tearful at all.
+
+## What runs today
+
+`main.ts:8856` maps emotion to face weights with easing (`lerp(…, eased * 0.34)`) and emits `emotion_aligned_expression_transition_cue`. Weights per state (mouthOpen / browConcern / cheekTension): neutral 0.04 / 0.08 / 0.08, anxious 0.18 / 0.62 / 0.48, concerned 0.12 / 0.72 / 0.36, reassured 0.08 / 0.18 / 0.18, pain 0.34 / 0.86 / 0.72.
+
+## ARKit
+
+For emotion the ARKit argument holds, unlike lip-sync where Rhubarb already matches the viseme vocabulary. The separating channels are ARKit's: `browDownLeft/Right`, `browInnerUp`, `eyeWideLeft/Right`, `eyeSquint`, `mouthFrown`, `mouthPress`.
+
+Before regenerating 38 assets with 52 shapes: rigging reports show `brow_furrow` is baked onto the shipped humanoids and nothing drives it. NOT TESTED: whether the existing 85 morph names cover the bank's 9 emotions.
+
+NEXT: measure those 85 names against the 9 emotions, which decides whether ARKit is required or optional.

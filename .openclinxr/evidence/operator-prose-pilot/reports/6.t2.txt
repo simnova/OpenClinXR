@@ -1,0 +1,22 @@
+Two of the three routes used today sit in the weakest codification tier or in no tier at all.
+
+`ox-alpha` appears in zero executable files. Greps over `packages/openclinxr/agent-loop/src/` and `tools/openclinxr/openclaw/` returned nothing. The ladder lives in `PROJECT_STATUS.md`, a memory file, and issue 576's body, all prose. When it was passed to `dispatch()`, the #461 downgrade guard stayed silent because `ox-alpha` is absent from `MODEL_RANK`, so it passed by being unrecognized. `orchestrator-dispatch-loop` says never hand-pick a model; it was hand-picked.
+
+The codex route is half-codified. `role-harness-policy.ts:151` carries a `codex` column, so the harness is in code, but it pins `gpt-5.4-mini` / `gpt-5.4` / `gpt-5.5` while the installed CLI runs `gpt-5.6-sol`, one generation stale. The review invocation bypassed that table, and no skill or rule mentions `codex exec`, so that route existed only in conversation.
+
+Routing, verified against the tree:
+
+| activity | routes to | codified as |
+|---|---|---|
+| product code slice | grok worker in isolated worktree | code: `dispatch-worker.ts`, `role-harness-policy.ts` |
+| read-only scouting | `explore` subagent on flash | rule: `agents/rules/TIER_GROK.md` |
+| direction, priority, visual verdicts | superagent / ox thread | skills: `autonomy-boundaries`, `delegator-comms` |
+| "does this already exist" | grok deep-research scout | rule: `PROTO_CURIOUS_RESEARCHER.md` |
+| periodic honest review | outside model, today codex | nowhere |
+| pixel grading | me, never delegated | skill: `pixel-grading` |
+| plant a RED, write a contract | me | skills: `contract-design`, `orchestrator-dispatch-loop` |
+| integrate to main | me, serial at any concurrency | skill: `board-conduit` |
+
+Four tiers by binding strength. Code that fails closed binds without me: `role-harness-policy.ts:157-183` maps tier to model per harness, `resolveDispatchModel` throws on an unreasoned downgrade, `briefFromIssue` refuses an issue with no machine-checkable `done_when`, merge-kill refuses an unverified contract. Rules under `agents/rules/` load every session and bind by persuasion. Skills bind only if their trigger fires. Memory files are one-line pointers.
+
+NEXT: on your word, queue a card adding `ox-alpha` to `MODEL_RANK` with your ladder as fallback order, refreshing the codex column to `gpt-5.6-sol`, both pinned by a test.

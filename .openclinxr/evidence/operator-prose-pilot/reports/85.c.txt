@@ -1,0 +1,15 @@
+The ordering advice is correct and currently blocked. #641 measured every floor base-colour bake at 99.1% pure black across all 14 rooms. Baking earlier in the sequence while the bake emits black would burn black into more surfaces, earlier, and make the origin harder to trace. #641 is now linked to #649 and raised to P0. Its cause remains NOT DETERMINED; the AO-into-base-colour hypothesis is the first check to run rather than a finding.
+
+Adopt three of their steps:
+
+- **Bake before decimate**, as an ordered sequence on one asset. We already do both operations, as separate pipelines on different assets: room bakes (`openclinxr_room_bake_*`) and equipment decimation (meshopt via `trellis-monitor-decimation`). The sequencing is free to adopt.
+- Mesh merging. `external-tool-cagematch.ts:79` declares `drawCalls?: number` as a measured field with no merging implementation anywhere; `bpy.ops.object.join` and `mergeGeometries` return zero hits. We measure a cost we never reduce.
+- Texture atlasing, which appears only as prose ("can be re-lit, re-tinted, or atlased afterwards") and is never generated. Merging and atlasing are one change, since merged meshes with separate textures still cost draw calls.
+
+Skip three of their steps: their Blender-stage DECIMATE method (we decimate via meshopt `simplify` at the glTF level; theirs is a different lever, and #239 records our ladder flattening at 106,025 tris, so it warrants a cagematch); blend-shape optimisation (conditional on shipping blend shapes, which MPFB faces do and most equipment does not); and Unity staging (they assembled purchased assets; we generate procedurally).
+
+Their 20% figure covers purchased marketplace assets carrying redundant detail. Our procedural equipment is thin already (the wall sign is three boxes), so this pipeline applies to acquired assets only, matching the split #646 draws. Applying it to the 42 thin-parametric items would be wrong.
+
+NOT TESTED: whether our bake, once fixed, carries enough detail to survive aggressive decimation. Recorded on #649.
+
+NEXT: fix #641.

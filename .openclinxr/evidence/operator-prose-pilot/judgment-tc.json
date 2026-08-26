@@ -1,0 +1,462 @@
+[
+  {
+    "pair": 1,
+    "A": {
+      "adequacy_fails": 0,
+      "prose_fails": 4,
+      "count_rule_fails": 1,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "The bake ran and produced a normal map carrying real detail.",
+        "blue channel 247",
+        "I confirmed the gap and delivered the camera match, then spent the interval in the supervisor loop and the peer thread.",
+        "The report exceeds 300 words."
+      ]
+    },
+    "B": {
+      "adequacy_fails": 1,
+      "prose_fails": 5,
+      "count_rule_fails": 1,
+      "clarity": 3,
+      "effort": 3,
+      "spans": [
+        "I'll load the operator-prose skill before drafting, per project policy.",
+        "produced a working normal map",
+        "blue channel 247",
+        "The report exceeds 300 words."
+      ]
+    },
+    "preferred": "A",
+    "reason": "A avoids calling the map operationally working before the explicitly missing export and runtime test."
+  },
+  {
+    "pair": 2,
+    "A": {
+      "adequacy_fails": 0,
+      "prose_fails": 6,
+      "count_rule_fails": 1,
+      "clarity": 3,
+      "effort": 4,
+      "spans": [
+        "I'll load the governing skills before drafting.",
+        "No when you asked; it is now.",
+        "Open items:",
+        "Four of those five remain unpublished.",
+        "The report exceeds 300 words."
+      ]
+    },
+    "B": {
+      "adequacy_fails": 0,
+      "prose_fails": 1,
+      "count_rule_fails": 0,
+      "clarity": 5,
+      "effort": 2,
+      "spans": [
+        "The report exceeds 300 words."
+      ]
+    },
+    "preferred": "B",
+    "reason": "B leads with the site result, surfaces every consequential residual, and avoids A's fragmentary opening and backward count."
+  },
+  {
+    "pair": 3,
+    "A": {
+      "adequacy_fails": 1,
+      "prose_fails": 1,
+      "count_rule_fails": 0,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "They also built Step 0 already, deriving MIN_SOLE_AREA_FRACTION = 0.15",
+        "The report exceeds 300 words."
+      ]
+    },
+    "B": {
+      "adequacy_fails": 0,
+      "prose_fails": 3,
+      "count_rule_fails": 0,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "I'll load the governing skills before drafting.",
+        "The report exceeds 300 words."
+      ]
+    },
+    "preferred": "B",
+    "reason": "B preserves the important limitation that the remaining shoe-form thresholds are uncalibrated."
+  },
+  {
+    "pair": 4,
+    "A": {
+      "adequacy_fails": 1,
+      "prose_fails": 5,
+      "count_rule_fails": 2,
+      "clarity": 3,
+      "effort": 4,
+      "spans": [
+        "I'll load the governing skills before drafting.",
+        "its threshold separated two cases from two",
+        "Contract-layer value is now quantified: 11.1%",
+        "Turn count predicts nothing.",
+        "The report exceeds 300 words."
+      ]
+    },
+    "B": {
+      "adequacy_fails": 1,
+      "prose_fails": 3,
+      "count_rule_fails": 2,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "its threshold separated two cases from two",
+        "Turn count predicts nothing.",
+        "The report exceeds 300 words."
+      ]
+    },
+    "preferred": "B",
+    "reason": "B is more direct and does not reframe a refusal-rate measurement as quantified contract-layer value."
+  },
+  {
+    "pair": 5,
+    "A": {
+      "adequacy_fails": 0,
+      "prose_fails": 3,
+      "count_rule_fails": 0,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "I'll load the governing style skill before drafting.",
+        "The report exceeds 300 words."
+      ]
+    },
+    "B": {
+      "adequacy_fails": 0,
+      "prose_fails": 1,
+      "count_rule_fails": 0,
+      "clarity": 5,
+      "effort": 2,
+      "spans": [
+        "The report exceeds 300 words."
+      ]
+    },
+    "preferred": "B",
+    "reason": "B states the non-transfer result and normal-map slot constraint more compactly without losing the geometry evidence."
+  },
+  {
+    "pair": 6,
+    "A": {
+      "adequacy_fails": 0,
+      "prose_fails": 5,
+      "count_rule_fails": 1,
+      "clarity": 3,
+      "effort": 4,
+      "spans": [
+        "I'll load the governing skills before drafting.",
+        "Yes, done.",
+        "All four were one command from being right.",
+        "Each was found by attacking rather than trusting.",
+        "The report exceeds 300 words."
+      ]
+    },
+    "B": {
+      "adequacy_fails": 0,
+      "prose_fails": 4,
+      "count_rule_fails": 1,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "Done. The tree is clean of my work",
+        "177 commits are unpushed.",
+        "All four were one command from being right.",
+        "Each surfaced by attacking the code rather than trusting it.",
+        "The report exceeds 300 words."
+      ]
+    },
+    "preferred": "B",
+    "reason": "B is clearer overall, although it should place the unpushed-commit decision before the clean-tree success."
+  },
+  {
+    "pair": 7,
+    "A": {
+      "adequacy_fails": 0,
+      "prose_fails": 3,
+      "count_rule_fails": 0,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "I'll load the governing skills before drafting.",
+        "Routes in use today that nothing enforces",
+        "The report exceeds 300 words."
+      ]
+    },
+    "B": {
+      "adequacy_fails": 0,
+      "prose_fails": 1,
+      "count_rule_fails": 0,
+      "clarity": 5,
+      "effort": 2,
+      "spans": [
+        "The report exceeds 300 words."
+      ]
+    },
+    "preferred": "B",
+    "reason": "B quantifies the audit result immediately and cleanly distinguishes code enforcement from prose-only routing."
+  },
+  {
+    "pair": 8,
+    "A": {
+      "adequacy_fails": 1,
+      "prose_fails": 3,
+      "count_rule_fails": 0,
+      "clarity": 3,
+      "effort": 3,
+      "spans": [
+        "I'll load the operator-prose skill before drafting, as project policy requires.",
+        "two writers land in one tree and one loses work",
+        "The report exceeds 300 words."
+      ]
+    },
+    "B": {
+      "adequacy_fails": 1,
+      "prose_fails": 0,
+      "count_rule_fails": 0,
+      "clarity": 5,
+      "effort": 1,
+      "spans": [
+        "Two Claude sessions are set to write into the same file",
+        "one of them loses work"
+      ]
+    },
+    "preferred": "B",
+    "reason": "B is substantially easier to act on, despite overstating a collision that remains contingent because the second worker has not spawned."
+  },
+  {
+    "pair": 9,
+    "A": {
+      "adequacy_fails": 1,
+      "prose_fails": 1,
+      "count_rule_fails": 0,
+      "clarity": 4,
+      "effort": 4,
+      "spans": [
+        "nine live paths from a nineteen-GLB directory, leaving eleven public GLBs unreachable",
+        "The report exceeds 300 words."
+      ]
+    },
+    "B": {
+      "adequacy_fails": 0,
+      "prose_fails": 3,
+      "count_rule_fails": 0,
+      "clarity": 4,
+      "effort": 4,
+      "spans": [
+        "I'll load the governing skills before drafting.",
+        "The report exceeds 300 words."
+      ]
+    },
+    "preferred": "B",
+    "reason": "B explicitly preserves the unresolved 19-minus-9 arithmetic discrepancy instead of reporting the incompatible count as settled."
+  },
+  {
+    "pair": 10,
+    "A": {
+      "adequacy_fails": 1,
+      "prose_fails": 2,
+      "count_rule_fails": 1,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "Three channels also cannot separate nine states.",
+        "The report exceeds 300 words."
+      ]
+    },
+    "B": {
+      "adequacy_fails": 1,
+      "prose_fails": 4,
+      "count_rule_fails": 1,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "I'll load the required style contract before drafting.",
+        "Three channels separate concern from calm. They cannot separate anxious from fearful",
+        "The report exceeds 300 words."
+      ]
+    },
+    "preferred": "A",
+    "reason": "A is more compact and avoids process narration, though both overclaim that three continuous channels inherently cannot encode nine states."
+  },
+  {
+    "pair": 11,
+    "A": {
+      "adequacy_fails": 1,
+      "prose_fails": 6,
+      "count_rule_fails": 2,
+      "clarity": 3,
+      "effort": 4,
+      "spans": [
+        "I spot-checked four of its claims against the tree; all four hold.",
+        "Not yet verified:",
+        "The strongest of the four",
+        "Verdict: locally useful, systemically ceremony-dominant.",
+        "The report exceeds 300 words."
+      ]
+    },
+    "B": {
+      "adequacy_fails": 2,
+      "prose_fails": 4,
+      "count_rule_fails": 1,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "Codex brought four optimizations, four subtractions and one ratio.",
+        "I spot-checked four of its claims against the tree and all four hold.",
+        "Strongest of the four",
+        "Not verified:",
+        "The report exceeds 300 words."
+      ]
+    },
+    "preferred": "A",
+    "reason": "A at least supplies the promised ratio and its underlying measurements, while B announces the ratio and then omits it."
+  },
+  {
+    "pair": 12,
+    "A": {
+      "adequacy_fails": 0,
+      "prose_fails": 2,
+      "count_rule_fails": 0,
+      "clarity": 4,
+      "effort": 2,
+      "spans": [
+        "I'll load the operator-prose skill before drafting, per project policy."
+      ]
+    },
+    "B": {
+      "adequacy_fails": 1,
+      "prose_fails": 1,
+      "count_rule_fails": 1,
+      "clarity": 4,
+      "effort": 2,
+      "spans": [
+        "This is the same incomplete-loop shape the repo has hit six times"
+      ]
+    },
+    "preferred": "A",
+    "reason": "A avoids B's unsupported six-incident pattern claim while preserving the runtime gap and asset limitations."
+  },
+  {
+    "pair": 13,
+    "A": {
+      "adequacy_fails": 1,
+      "prose_fails": 2,
+      "count_rule_fails": 1,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "Applying it to the 42 thin-parametric items would be wrong.",
+        "The report exceeds 300 words."
+      ]
+    },
+    "B": {
+      "adequacy_fails": 1,
+      "prose_fails": 4,
+      "count_rule_fails": 1,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "I'll load the operator-prose skill before drafting, per project policy.",
+        "applying it to the 42 thin-parametric items would be wrong",
+        "The report exceeds 300 words."
+      ]
+    },
+    "preferred": "A",
+    "reason": "A leads directly with the blocked ordering decision, although both generalize an evaluative conclusion about 42 items from insufficient measurements."
+  },
+  {
+    "pair": 14,
+    "A": {
+      "adequacy_fails": 0,
+      "prose_fails": 3,
+      "count_rule_fails": 0,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "I'll load the governing skills before drafting.",
+        "The report exceeds 300 words."
+      ]
+    },
+    "B": {
+      "adequacy_fails": 1,
+      "prose_fails": 1,
+      "count_rule_fails": 0,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "Six of the eight Anny-derived humanoids are from_anny_reference",
+        "The report exceeds 300 words."
+      ]
+    },
+    "preferred": "A",
+    "reason": "A keeps the eight Anny assets and six separate Anny-reference-derived MPFB assets distinct instead of treating one group as a subset of the other."
+  },
+  {
+    "pair": 15,
+    "A": {
+      "adequacy_fails": 0,
+      "prose_fails": 3,
+      "count_rule_fails": 0,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "I'll load the governing style skill before drafting.",
+        "The report exceeds 300 words."
+      ]
+    },
+    "B": {
+      "adequacy_fails": 0,
+      "prose_fails": 1,
+      "count_rule_fails": 0,
+      "clarity": 5,
+      "effort": 2,
+      "spans": [
+        "The report exceeds 300 words."
+      ]
+    },
+    "preferred": "B",
+    "reason": "B cleanly foregrounds the non-shipping consumer and preserves the binding, quality, licensing, and verification limitations."
+  },
+  {
+    "pair": 16,
+    "A": {
+      "adequacy_fails": 1,
+      "prose_fails": 4,
+      "count_rule_fails": 1,
+      "clarity": 3,
+      "effort": 3,
+      "spans": [
+        "I'll load the two governing skills before drafting.",
+        "Yes, worth trying.",
+        "The bake-then-optimize loop is proven end to end.",
+        "Two pipelines in the same band is mild corroboration that the current setting is sane.",
+        "The report exceeds 300 words."
+      ]
+    },
+    "B": {
+      "adequacy_fails": 1,
+      "prose_fails": 4,
+      "count_rule_fails": 1,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "Yes, worth trying.",
+        "featureSurvival = ok",
+        "two pipelines sit in the same band, mild corroboration that the setting is sane rather than arbitrary",
+        "The report exceeds 300 words."
+      ]
+    },
+    "preferred": "B",
+    "reason": "B keeps the proposed probe tied to a visual grade as well as featureSurvival, although both treat an inadequate non-collapse metric as preservation evidence."
+  }
+]
+
+Both reports were poor in pairs 4, 10, 11, 13, and 16: both arms respectively used unsupported statistical certainty, overstated expression-channel limits, mishandled or omitted key review evidence, generalized across unmeasured assets, or treated `featureSurvival` as proof of preserved detail.

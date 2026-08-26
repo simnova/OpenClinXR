@@ -1,0 +1,17 @@
+## Anny fixture polish — accounting
+
+**Postmortem landed:** `docs/openclinxr/postmortem-anny-fixture-polish-2026-08-25.md` (`a1afb46a`).
+
+**The sharpest fact.** You gave this direction ten days before the work, `PROJECT_STATUS.md:83`, dated 2026-08-14: "MPFB2 IS THE LEARNER RAIL THROUGHOUT… do not polish its eyes/arm-weights/shoes… NOT assigned: #3 Anny blob shoes." Two of the four commits polished Anny shoes. Neither reviewer read it.
+
+**Origin.** Nobody chose the asset. `3dd48fa2` was a provenance slice; running the bake emitted a new Anny-derived GLB into learner-public storage as a side effect. Three evidence contracts hardcoded `["peds_fever_patient_child.glb", "peds_nurse_kevin.glb"]` as a subject list and labelled it the "GENERATED" rail — while the rail the runtime generates and loads is MPFB. Four commits in four hours followed.
+
+**How it escaped me.** I hand-verified #659, found my first geometry probe wrong, corrected it, got 0.000, declared the close correct, then cited it as evidence of the peer's competence. Correcting the probe raised confidence without changing what was measured. I never ran the grep showing the asset has no consumer.
+
+**How it escaped the reviewer.** Its words: "I did not independently verify #659 as product work. I independently verified one operand of its claim." The contract's `claimScope` disclosed the gap; the reviewer read that as permission to stop. My framing — asking whether a number was right — contributed.
+
+**Five gates.** Multiple, not independent. Each accepted a self-description of product relevance; none consulted the consumer graph.
+
+**Not isolated.** Two orphans, 22.2 MB: `mpfb-gown-inspect` (11 contracts, deliberate `-inspect` fixture) and `peds_fever_patient_child` (4 contracts, named like a cast member). Eleven of nineteen public GLBs unreachable. Four further contracts aim off the live cast, two measuring `mpfb-peds-parent-aisha.glb` while the runtime loads its `.motion-bind` derivative — latent false-green.
+
+**Fix.** Runtime reachability as one independent truth source inside existing gates. NOT TESTED — specified, not built. Separately, `pnpm docs:authority` refuses on this tree and cannot register a document; I added the record directly.

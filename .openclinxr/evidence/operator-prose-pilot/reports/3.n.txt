@@ -1,0 +1,19 @@
+## Codex is up, at maximum settings
+
+`codex exec -m gpt-5.6-sol -c model_reasoning_effort="xhigh"`, authenticated through your ChatGPT login rather than a metered API key — so this does not burn tokens the way the fable run did. Your `~/.codex/config.toml` had `model_reasoning_effort = "low"`; I overrode it per invocation and left the file alone. Sandbox is `read-only`: it can measure the tree, it cannot write to it.
+
+**I could not find what you asked fable to analyze.** I checked the four most recent session transcripts, the subagent logs, and the handoffs directory — no analysis brief turned up. Rather than stall, I pointed this run at the review that is standing procedure here and overdue under D7: an honest outside review of whether the factory is converging. The brief carries the throughput number (`casesFullyDeterministic` 1 of 15), my own five named errors including the dispatchable-certainty bias, and explicit demands for subtractions and alternatives rather than praise. Tell me what fable was actually working on and I'll point a second run straight at it.
+
+## Collision risk on #576 — needs your call
+
+Another Claude session (`4fb4e97e`, the 15-minute autonomous board loop) spawned a lane manager for #576 at 16:50, three minutes after I dispatched #576 myself. Its brief tells it to branch a worktree and dispatch a worker into `materialize_mpfb_humanoid_candidate.py` — which my worker already holds.
+
+| check | reading |
+|---|---|
+| live grok workers | 1, PID 32065, mine |
+| ledger rows for issue-576 | 1 |
+| lane manager progress | 39 lines, still surveying worktrees |
+
+No second worker has spawned yet, and that loop's own rules say to go harvest-only when a product worker is live, so it may stop on its own. If it doesn't, two writers land in one tree and one loses work.
+
+Two questions: what was fable analyzing, and do I kill that lane manager or leave it and watch the ledger?

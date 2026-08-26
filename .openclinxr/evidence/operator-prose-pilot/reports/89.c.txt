@@ -1,0 +1,27 @@
+Emotion expression is already built and running, and the blueprint declares emotions the runtime cannot express.
+
+## Blueprint-to-runtime break
+
+The dialogue bank uses 9 emotion labels: anxious (18 lines), frustrated (7), worried (6), guarded (3), fearful (2), calm (2), plus withdrawn, tearful and neutral. The runtime has 5 states. Only `anxious` and `neutral` match by name. `frustrated`, `guarded`, `fearful`, `withdrawn` and `tearful` have no runtime expression and fall through the regex to neutral. `pain`, `concerned` and `reassured` are runtime-only and absent from the bank.
+
+Three channels also cannot separate nine states. `mouthOpen` / `browConcern` / `cheekTension` distinguishes concern from calm. It cannot distinguish anxious from fearful (fear widens the eyes) or frustrated from worried (frustration furrows the brow down, concern raises it inward), and cannot express tearful at all.
+
+## What runs today
+
+`main.ts:8856` maps emotion to face weights eased over time (`lerp(…, eased * 0.34)`), driven by `emotionForDialogueText()`, a regex over the spoken line. Transitions emit `emotion_aligned_expression_transition_cue`.
+
+| state | mouthOpen | browConcern | cheekTension |
+|---|---|---|---|
+| neutral | 0.04 | 0.08 | 0.08 |
+| anxious | 0.18 | 0.62 | 0.48 |
+| concerned | 0.12 | 0.72 | 0.36 |
+| reassured | 0.08 | 0.18 | 0.18 |
+| pain | 0.34 | 0.86 | 0.72 |
+
+## ARKit
+
+For emotion the separating channels are ARKit's: `browDownLeft/Right`, `browInnerUp`, `eyeWideLeft/Right`, `eyeSquint`, `mouthFrown`, `mouthPress`. My earlier position on lip-sync stands unchanged: ARKit is not the first move there, because the viseme vocabulary already matches Rhubarb.
+
+Rigging reports show `brow_furrow` baked onto the shipped humanoids with nothing driving it; the runtime exposes `browConcern` only. Before regenerating 38 assets with 52 ARKit shapes, the existing 85 morph names may already reach frustrated and fearful.
+
+NEXT: measure the 85 morph names against the bank's 9 emotions. Say the word and I file it.

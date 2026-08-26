@@ -1,0 +1,19 @@
+Expression capability is baked on the assets and nothing drives it at runtime. That is the gap; visemes and blink are both driven and closed.
+
+**What is not connected.** `scenario-runtime.ts` instantiates a per-actor `EmotionEngine` from `resolveCaseEmotionPolicy`, so case definitions already carry emotional state and transitions. `EmotionEngine` appears nowhere in `apps/ui-xr`. The 32 MakeHuman face unit names appear only in provenance files, a resolver, a census tool and tests. Both ends exist with no join.
+
+NOT TESTED: whether those 32 face units deform visibly when driven. Nothing has ever set them, so their amplitude is unmeasured, and the census tool measures presence rather than motion.
+
+Two open defects sit alongside this. #316 records that the Anny rail's 15 "face" morphs (of its 25 total) are whole-body deformations rather than face targets, and it is still open, which is part of why #652 proposes retiring seven. #651 is separate: the face is not driven by phenotype, so four humanoids spanning ages 29 to 58 share facial geometry.
+
+**What is baked.** Every MPFB humanoid carries 47 morph targets: 15 Oculus visemes (`viseme_aa` through `viseme_U`) and 32 MakeHuman face units, including `eyebrows-left-inner-up`, `mouth-corner-puller`, `eye-left-closure`, `nose-compression`, `neck-platysma`. Those are the `faceunits01` names from the pack you linked, present on eleven shipped assets.
+
+| channel | state | driver |
+|---|---|---|
+| visemes / lip-sync | driven | `viseme-runtime-wire.ts`, `viseme-timeline-drive.ts`, `dialogue-visemes.ts` |
+| blink | driven | `blink-runtime-wire.ts`, deterministic 4300 ms clock into `eye-*-closure` |
+| expression / emotion | not driven | none |
+
+Lip-sync closed through #578, #582 and #608 (Rhubarb acquired, proven, consumed). Blink closed as #379.
+
+NEXT: an emotion-to-face-unit map plus a runtime wire, mirroring what `blink-runtime-wire.ts` does for one signal.

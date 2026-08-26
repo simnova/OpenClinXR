@@ -1,0 +1,98 @@
+[
+ {
+  "i": 147,
+  "file": "/tmp/pilot/run/prompts/p147.txt",
+  "treatmentFirst": false,
+  "treatmentLabel": "B"
+ },
+ {
+  "i": 93,
+  "file": "/tmp/pilot/run/prompts/p93.txt",
+  "treatmentFirst": true,
+  "treatmentLabel": "A"
+ },
+ {
+  "i": 105,
+  "file": "/tmp/pilot/run/prompts/p105.txt",
+  "treatmentFirst": false,
+  "treatmentLabel": "A"
+ },
+ {
+  "i": 37,
+  "file": "/tmp/pilot/run/prompts/p37.txt",
+  "treatmentFirst": true,
+  "treatmentLabel": "B"
+ },
+ {
+  "i": 194,
+  "file": "/tmp/pilot/run/prompts/p194.txt",
+  "treatmentFirst": true,
+  "treatmentLabel": "B"
+ },
+ {
+  "i": 50,
+  "file": "/tmp/pilot/run/prompts/p50.txt",
+  "treatmentFirst": true,
+  "treatmentLabel": "A"
+ },
+ {
+  "i": 6,
+  "file": "/tmp/pilot/run/prompts/p6.txt",
+  "treatmentFirst": true,
+  "treatmentLabel": "A"
+ },
+ {
+  "i": 3,
+  "file": "/tmp/pilot/run/prompts/p3.txt",
+  "treatmentFirst": true,
+  "treatmentLabel": "A"
+ },
+ {
+  "i": 111,
+  "file": "/tmp/pilot/run/prompts/p111.txt",
+  "treatmentFirst": false,
+  "treatmentLabel": "B"
+ },
+ {
+  "i": 89,
+  "file": "/tmp/pilot/run/prompts/p89.txt",
+  "treatmentFirst": false,
+  "treatmentLabel": "B"
+ },
+ {
+  "i": 12,
+  "file": "/tmp/pilot/run/prompts/p12.txt",
+  "treatmentFirst": false,
+  "treatmentLabel": "A"
+ },
+ {
+  "i": 108,
+  "file": "/tmp/pilot/run/prompts/p108.txt",
+  "treatmentFirst": true,
+  "treatmentLabel": "B"
+ },
+ {
+  "i": 85,
+  "file": "/tmp/pilot/run/prompts/p85.txt",
+  "treatmentFirst": false,
+  "treatmentLabel": "A"
+ },
+ {
+  "i": 109,
+  "file": "/tmp/pilot/run/prompts/p109.txt",
+  "treatmentFirst": false,
+  "treatmentLabel": "A"
+ },
+ {
+  "i": 120,
+  "file": "/tmp/pilot/run/prompts/p120.txt",
+  "treatmentFirst": false,
+  "treatmentLabel": "B"
+ },
+ {
+  "i": 104,
+  "file": "/tmp/pilot/run/prompts/p104.txt",
+  "treatmentFirst": true,
+  "treatmentLabel": "A"
+ }
+]

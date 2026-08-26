@@ -1,0 +1,27 @@
+## Routing by activity
+
+| activity | routes to | codified as |
+|---|---|---|
+| product code slice | grok worker, isolated worktree via `dispatch()` | code: `dispatch-worker.ts`, `role-harness-policy.ts` |
+| read-only scouting | `explore` subagent on flash | rule: `agents/rules/TIER_GROK.md` |
+| direction, priority, visual verdicts | superagent / ox standing thread | skills: `autonomy-boundaries`, `delegator-comms` |
+| "does this already exist" | grok deep-research scout | rule: `PROTO_CURIOUS_RESEARCHER.md` |
+| periodic honest review | outside model, today codex | **nowhere** |
+| pixel grading | me, never delegated | skill: `pixel-grading` |
+| plant a RED, write a contract | me | skills: `contract-design`, `orchestrator-dispatch-loop` |
+| integrate to main | me, serial at any concurrency | skill: `board-conduit` |
+
+## Four tiers of codification, strongest to weakest
+
+1. **Code that fails closed** — the only tier binding without me. `role-harness-policy.ts:157-183` maps tier→model per harness; `resolveDispatchModel` throws on unreasoned downgrade; `briefFromIssue` refuses issues lacking machine-checkable `done_when`; merge-kill refuses unverified contracts.
+2. **Repo rules** (`agents/rules/`) — load every session, bind by persuasion only.
+3. **Skills** (`.claude/skills/`, `.agents/skills/`) — load on trigger, bind only if the trigger fires.
+4. **Memory files** — one-line pointers, weakest.
+
+## Contradictions found today
+
+**`ox-alpha` appears in zero executable files.** Grepped `packages/openclinxr/agent-loop/src/` and `tools/openclinxr/openclaw/` — nothing. The ladder lives only in `PROJECT_STATUS.md`, a memory file, and issue 576's body, all prose. Passing it to `dispatch()` left the #461 downgrade guard silent because `ox-alpha` is absent from `MODEL_RANK` — it passed by being unrecognized, not approved. `orchestrator-dispatch-loop` says "never hand-pick a model"; I hand-picked it.
+
+**Codex route:** `role-harness-policy.ts:151` does carry a `codex` column, but pins `gpt-5.4-mini`/`gpt-5.4`/`gpt-5.5` while the installed CLI runs `gpt-5.6-sol` — a generation stale. My review invocation bypassed the table entirely; no skill or rule mentions `codex exec`.
+
+Net: the enforced layer describes a DeepSeek-and-grok world while actual routing is ox-alpha and OpenAI, held in prose. Fix is one slice — add `ox-alpha` to `MODEL_RANK` with your ladder as fallback order, refresh the codex column to `gpt-5.6-sol`, pin both with a test. Say the word and I'll queue it as a card.

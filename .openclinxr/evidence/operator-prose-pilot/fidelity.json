@@ -1,0 +1,258 @@
+[
+ {
+  "i": 147,
+  "arm": "t",
+  "hookDelivered": true,
+  "skillInvoked": true,
+  "words": 322,
+  "chars": 1953
+ },
+ {
+  "i": 147,
+  "arm": "c",
+  "hookDelivered": false,
+  "skillInvoked": true,
+  "words": 333,
+  "chars": 2002
+ },
+ {
+  "i": 93,
+  "arm": "t",
+  "hookDelivered": true,
+  "skillInvoked": true,
+  "words": 327,
+  "chars": 2010
+ },
+ {
+  "i": 93,
+  "arm": "c",
+  "hookDelivered": false,
+  "skillInvoked": true,
+  "words": 286,
+  "chars": 1815
+ },
+ {
+  "i": 105,
+  "arm": "t",
+  "hookDelivered": true,
+  "skillInvoked": true,
+  "words": 364,
+  "chars": 2323
+ },
+ {
+  "i": 105,
+  "arm": "c",
+  "hookDelivered": false,
+  "skillInvoked": true,
+  "words": 332,
+  "chars": 2071
+ },
+ {
+  "i": 37,
+  "arm": "t",
+  "hookDelivered": true,
+  "skillInvoked": true,
+  "words": 370,
+  "chars": 2376
+ },
+ {
+  "i": 37,
+  "arm": "c",
+  "hookDelivered": false,
+  "skillInvoked": true,
+  "words": 362,
+  "chars": 2288
+ },
+ {
+  "i": 194,
+  "arm": "t",
+  "hookDelivered": true,
+  "skillInvoked": true,
+  "words": 362,
+  "chars": 2269
+ },
+ {
+  "i": 194,
+  "arm": "c",
+  "hookDelivered": false,
+  "skillInvoked": true,
+  "words": 325,
+  "chars": 2024
+ },
+ {
+  "i": 50,
+  "arm": "t",
+  "hookDelivered": true,
+  "skillInvoked": true,
+  "words": 327,
+  "chars": 1976
+ },
+ {
+  "i": 50,
+  "arm": "c",
+  "hookDelivered": false,
+  "skillInvoked": true,
+  "words": 331,
+  "chars": 2002
+ },
+ {
+  "i": 6,
+  "arm": "t",
+  "hookDelivered": true,
+  "skillInvoked": true,
+  "words": 341,
+  "chars": 2427
+ },
+ {
+  "i": 6,
+  "arm": "c",
+  "hookDelivered": false,
+  "skillInvoked": true,
+  "words": 361,
+  "chars": 2490
+ },
+ {
+  "i": 3,
+  "arm": "t",
+  "hookDelivered": true,
+  "skillInvoked": true,
+  "words": 317,
+  "chars": 1932
+ },
+ {
+  "i": 3,
+  "arm": "c",
+  "hookDelivered": false,
+  "skillInvoked": true,
+  "words": 314,
+  "chars": 1853
+ },
+ {
+  "i": 111,
+  "arm": "t",
+  "hookDelivered": true,
+  "skillInvoked": true,
+  "words": 430,
+  "chars": 2980
+ },
+ {
+  "i": 111,
+  "arm": "c",
+  "hookDelivered": false,
+  "skillInvoked": true,
+  "words": 398,
+  "chars": 2807
+ },
+ {
+  "i": 89,
+  "arm": "t",
+  "hookDelivered": true,
+  "skillInvoked": true,
+  "words": 331,
+  "chars": 2187
+ },
+ {
+  "i": 89,
+  "arm": "c",
+  "hookDelivered": false,
+  "skillInvoked": true,
+  "words": 304,
+  "chars": 2025
+ },
+ {
+  "i": 12,
+  "arm": "t",
+  "hookDelivered": true,
+  "skillInvoked": true,
+  "words": 297,
+  "chars": 2202
+ },
+ {
+  "i": 12,
+  "arm": "c",
+  "hookDelivered": false,
+  "skillInvoked": true,
+  "words": 353,
+  "chars": 2593
+ },
+ {
+  "i": 108,
+  "arm": "t",
+  "hookDelivered": true,
+  "skillInvoked": true,
+  "words": 288,
+  "chars": 1997
+ },
+ {
+  "i": 108,
+  "arm": "c",
+  "hookDelivered": false,
+  "skillInvoked": true,
+  "words": 290,
+  "chars": 1966
+ },
+ {
+  "i": 85,
+  "arm": "t",
+  "hookDelivered": true,
+  "skillInvoked": true,
+  "words": 337,
+  "chars": 2296
+ },
+ {
+  "i": 85,
+  "arm": "c",
+  "hookDelivered": false,
+  "skillInvoked": true,
+  "words": 308,
+  "chars": 2068
+ },
+ {
+  "i": 109,
+  "arm": "t",
+  "hookDelivered": true,
+  "skillInvoked": true,
+  "words": 284,
+  "chars": 1943
+ },
+ {
+  "i": 109,
+  "arm": "c",
+  "hookDelivered": false,
+  "skillInvoked": true,
+  "words": 279,
+  "chars": 1853
+ },
+ {
+  "i": 120,
+  "arm": "t",
+  "hookDelivered": true,
+  "skillInvoked": true,
+  "words": 354,
+  "chars": 2394
+ },
+ {
+  "i": 120,
+  "arm": "c",
+  "hookDelivered": false,
+  "skillInvoked": true,
+  "words": 331,
+  "chars": 2220
+ },
+ {
+  "i": 104,
+  "arm": "t",
+  "hookDelivered": true,
+  "skillInvoked": true,
+  "words": 329,
+  "chars": 1989
+ },
+ {
+  "i": 104,
+  "arm": "c",
+  "hookDelivered": false,
+  "skillInvoked": true,
+  "words": 339,
+  "chars": 2022
+ }
+]

@@ -1,0 +1,21 @@
+Your architecture model is correct and the tree has not caught up. The Anny rail is still live for learners.
+
+Measured on main just now, sourceKind across shipped humanoids:
+
+| sourceKind | count |
+|---|---|
+| `real_anny_candidate_unverified` | 8 |
+| `mpfb2_makehuman_basemesh_from_anny_reference` | 6 |
+| `mpfb2_makehuman_basemesh` | 2 |
+
+Eight shipped humanoids are Anny-derived, and `humanoid-runtime-asset-url.ts` resolves those eight for learners: `ed_chest_pain_*`, `peds_*`, `adult_male_street_casual`. That set was seven at an earlier measurement, so it grew.
+
+The growth is today's. `peds_fever_patient_child` did not exist a few hours ago; it was created at 19:21 and has taken four commits since (the garment hem weld, then shoe fixes at 22:06 and 23:28). All four improvements landed on a new Anny-derived asset, on the rail intended for retirement. That is the source of the confusion, and it is a defect in the tree rather than a stale frame.
+
+On cleanup, deleting Anny references is the wrong move. Anny-as-reference is load-bearing for phenotype: six of the eight Anny-derived assets are `from_anny_reference`, which is MADR 0051's protocol, and D11 names Anny as first-class for that job. Anny supplies age, size and gender; MPFB supplies rig, face and wardrobe.
+
+The cleanup with value is the resolver rewire, tracked as #652. The contract header records it as cheap: six of the seven counterparts already exist, making it a pointer change rather than a regeneration. Switching the resolver also delivers FACS face units on every humanoid, since those arrive with the MPFB rail and no Anny asset carries any. `peds_fever_patient_child` is the one needing a fresh bake.
+
+NOT TESTED: whether those six existing MPFB counterparts match their Anny assets in phenotype. Nobody has compared them; a wrong match changes how those actors look.
+
+NEXT: raise #652's priority.

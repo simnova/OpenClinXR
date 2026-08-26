@@ -1,0 +1,21 @@
+Five defects found tonight were in code I had already committed and reported as working. One was a dispatch gate inert in worktrees, the only context dispatches run in; `9efe964a` fixes it. The breaker's effectiveness numbers from before that commit are counterfactual replays, not production evidence, and the reasoned override remains unlimited. Both limits are recorded in `breaker-findings.json` with the design for closing them.
+
+Clause D was removed one commit after shipping: historical replay fired it zero times and its threshold separated two cases from two. `PROTO_VERIFY_DELEGATION.md` is frozen at 4,456 lines and 165 rules, with new learning routed to mechanisms that fail closed.
+
+Nine commits hardened dispatch, each from a ledger measurement. Seven carry named measurements:
+
+| commit | change | benefit |
+|---|---|---|
+| `1ea4ee98` | retry circuit breaker | two slices burned 33 of 584 sessions; refusals now cost zero tokens |
+| `6ea43dfe` | refuse unpassable path rules at brief time | 24 of 62 failures were `changed:`-only |
+| `3baa71af` | success resets the breaker | stopped four passing sessions being refused |
+| `6ecbf29e` | reasoned override | breaks a circularity where the gate blocked its own recovery |
+| `f0839caf` | override fails closed | unrecorded overrides were unlogged bypasses |
+| `9efe964a` | shared-path fix | gate now active in worktrees |
+| `675cf403` | end-to-end enforcement test | reds on the real defect, proven both directions |
+
+The contract layer's refusal rate is now quantified: **11.1%** of dispatches refused after storm adjustment, across 440 known verdicts. An outside reviewer called this unmeasurable because `proofsOk` sits on a row most readers skip; that trap is documented where readers hit it. Cancelled sessions fail proofs at 51.1% against 9.9% for clean returns, and one-turn cancellations failed 12 of 12. Turn count predicts nothing.
+
+The new `model-routing` skill carries both ladders, exact invocations, and the vision rung gated on ox availability, all four rungs probed live; the stale DeepSeek 402 blocker is closed.
+
+`#570`'s verified fix is committed. `#576`'s plant was repaired after `#598`'s shoe swap hid its RED, then dispatched, and the status file no longer lists it as the D9 frontier, verified by grep.

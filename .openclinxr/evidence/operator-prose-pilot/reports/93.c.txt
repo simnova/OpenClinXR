@@ -1,0 +1,13 @@
+The site was three days stale when you asked. It now carries today's #650 win.
+
+Before the update, `docs/index.html` last changed 08-21 12:17 (efdec1f6, "publish the case-driven iris win"). Every docs/ commit today was licence ledger and MADR work. Today produced 85 commits and 10 subject-line product landings, none of which reached the site.
+
+#621 timing check: the fix landed 08:10 and the artifact reporting +0.272 m was generated 17:34, nine hours later. The artifact's `treeStamp` head d3a817dc contains #621 and the contract passes 3/3, so the fix holds by its contract's definition: MAX_WRIST_ABOVE_DECK_METERS = 0.35, and 0.272 m clears it. That is the same generous threshold flagged on #181 this morning. Whether 27 cm of air counts as "on the deck" is open and recorded on #181.
+
+#643 generator: still RED. Clause 1 (manifest, one entry per encounter) now passes, and its stale `it.fails` marking was flipped. Clause 2 fails: 13 encounters ungraded, 15 missing capture sha. Two captures I opened today are graded. I am not publishing ungraded images; D12 records 26 KB Model Vetting error screenshots shipped as "WebXR Sample Scene Evidence" because pages:validate checks existence only.
+
+Published: the #650 section (fcae9c58), verified from the tree rather than from the commit message. Records are nested one level deeper than assumed (15 cases, keyed by actor). Measured 32 of 32 actor records carrying numeric phenotype: age 52, height_cm 178, bmi 26, brow_tension 0.55, anxious 0.65, flush 0.15. #603 recorded "38 of 42 shipped actors have no numeric phenotype". pages:validate ran green via the docs/ hook.
+
+Landings still absent from the site: #126 (garment weights from body surface), #621, #181, #622 (real model adapter).
+
+NEXT: build #643 so the site stops depending on someone remembering.

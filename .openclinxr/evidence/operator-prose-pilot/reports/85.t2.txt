@@ -1,0 +1,17 @@
+The bake-before-decimate ordering is the main thing worth taking, and **#641** blocks it today.
+
+#641 measured every floor base-colour bake at 99.1% pure black across all 14 rooms. Moving baking earlier in the sequence while it emits black would burn black into more surfaces, earlier, and make the origin harder to trace. #641 is now linked to #649 and raised to P0. Its cause remains NOT DETERMINED; the AO-into-base-colour hypothesis is the first check, not a conclusion.
+
+Also recorded on #649 as untested: whether our bake, once fixed, carries enough detail to make aggressive decimation survivable. Nobody here has measured that, and the whole ordering rests on it.
+
+Adopt three items:
+
+- Ordering. Bake high-poly detail into a texture, then decimate, on one asset. We do both operations today as separate pipelines on different assets (rooms via `openclinxr_room_bake_*`, equipment via meshopt in `trellis-monitor-decimation`), never as an ordered sequence.
+- Mesh merging. **external-tool-cagematch.ts:79** declares `drawCalls?: number` as a measured field with no merging implementation anywhere; `bpy.ops.object.join` and `mergeGeometries` return zero hits.
+- Texture atlasing. Exists only as prose. Merging and atlasing are one change, since merged meshes with separate textures still cost draw calls.
+
+Skip three items: their decimation method (we already decimate via meshopt `simplify` at the glTF level; their Blender DECIMATE stage is a different lever and #239 records our ladder flattening at 106,025 tris, which makes it a cagematch candidate rather than an adoption), blend-shape optimisation (conditional on shipping blend shapes: MPFB faces do, most equipment does not), and Unity staging (they assembled purchased assets; we generate procedurally).
+
+Their 20% figure covers purchased marketplace assets carrying redundant detail. Our procedural equipment is thin (the wall sign is three boxes), so this pipeline applies to acquired assets only, matching the split #646 draws.
+
+NEXT: fix #641, then adopt bake-then-decimate, then merge plus atlas together.

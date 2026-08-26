@@ -1,0 +1,19 @@
+MakeClothes was already integrated and shipping before this session began, so most of the session's effort went into the wrong consumer.
+
+## What changes what you do next
+
+Two consumers exist. `fit_stage.py` (481 lines) is reached only by an opt-in comparator flag and fits one garment at a time onto an MPFB default body. **`materialize_mpfb_humanoid_candidate.py`** (5,344 lines) is what the live cast runs, fitting shirt, pants, shoes, hair, eyebrows, eyes and gown onto Anny-seeded macros with solved stature. I improved the first one. Lines 25-28 of the production materializer already recorded both facts I rediscovered slowly: the `culturalibre_male_boots` CC-0 licence and the sub-13,380 binding constraint. Those boots ship on two bodies at 30,768 triangles while #540's refusal of them stood unchallenged.
+
+**`--body-glb`** (clothing an already-materialized body) is impossible as scoped and was abandoned before implementation. A `.mhclo` binds to basemesh vertex indices; GLB export splits seams and takes 13,380 vertices to 16,048, destroying the ordering. Many indices remain numerically in range, so ClothesService would fit the wrong vertices silently rather than fail a bounds check. Helper-stripping is safe (this garment's highest index is 11,018); the export is the destructive step.
+
+Fit quality is ungraded. #659 measured 37.8% of one foot outside its own shoe while the same code fitted another actor correctly, and `toigo_flats` ships 57,600 triangles from a 28,800-face source.
+
+NOT TESTED: whether the production materializer carries the helper-shell or importer-rotation defects fixed in the comparator. Its live-cast output renders correctly, which is evidence against, but its code was not read for those shapes.
+
+## What landed
+
+Measured today from GLB mesh names and triangle counts: 14 garment families across 18 shipped bodies. My skill claimed 6; corrected in `2cfc8c51`. The undercount persisted because provenance JSON carries no `.mhclo` paths, so the obvious grep returns zero.
+
+Two licence refusals reversed, with precedence now written down: asset descriptor, then publisher pack page, then mesh header, and only when asset-specific. The `.obj` header's `# license AGPL3` is stale boilerplate pointing at a parked domain. `skins01/02` stay refused on an explicit per-file AGPLv3 statement.
+
+The fit station works and builds its body with MPFB (`c2273bca`), after fixing an unstripped helper-geometry "robe" and a displacement caused by Blender's OBJ importer keeping its Y-up to Z-up conversion as an object rotation. Four wrong diagnoses were A/B'd out first. A 400-line skill records this, opening with the two-consumer trap.

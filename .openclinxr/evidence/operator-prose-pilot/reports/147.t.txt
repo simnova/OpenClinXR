@@ -1,0 +1,21 @@
+The bake had not started when you asked. It has now run and produced a working normal map.
+
+**NOT TESTED**: whether the baked map survives glTF export and reads correctly in the three.js runtime. I rendered in Blender with the map attached; I did not export a new GLB or load it in ui-xr. That is the step that decides whether this is usable.
+
+## What ran
+
+A `selected_to_active` normal bake, 296,226-tri raw source to the 79,999-tri champion, 2048², Cycles. I reused the existing bake tooling at `automate_blender.py:1362`, which is configured for a procedural-to-texture bake (`use_selected_to_active = False`); high-poly to low-poly transfer is the same API with `selected_to_active` plus a cage. Cage extrusion was derived from geometry: 2% of the object's measured 1.334 m diagonal.
+
+The map carries detail. Of the 2048² texels, 42.9% deviate from flat, mean deviation 16.08, max 182, blue channel 247 (correct for tangent space). That measurement was the point of the check, since a bake that reports success while writing a flat 128/128/255 map is the silent failure here.
+
+## A/B
+
+Same camera, same two lamps, only the normal map differs. On the baked side the panel seam reads as a crease, the clamshell lip has a defined edge rather than a soft roll, the lower body shows surface structure where the other side is featureless, and the hinge detail returns. I am not scoring it past that description; the verdict is yours.
+
+## Pipeline consequence
+
+The optimize path today is high-error direct targets, weld, quantize, with no bake stage. Adding one is a post-process on artifacts already on disk, not a TRELLIS re-bake. Seven assets, roughly 2 minutes of Cycles each.
+
+The peer stopped on #510, verified it independently, and filed #671 fresh instead of reopening. Its two lanes, #597 and #181, are both red-verified.
+
+NEXT: export a GLB with the map and load it in ui-xr.

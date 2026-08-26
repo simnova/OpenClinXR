@@ -1,0 +1,21 @@
+Correction first: I reported an hour ago that `featureSurvival ok` showed the optimize stage preserved the assets. The verified definition is `featureSurvival = triangleCount > 500 && volumeRatioToRaw > 0.05`, a bounding-box non-collapse check that a 1,500-triangle capsule passes. I withdraw that claim.
+
+Blocker: ComfyUI is not running, so TRELLIS liveness is down rather than unknown. Steps 1 and 2 of the plan need none of it.
+
+NOT TESTED: whether TRELLIS can generate footwear at all. All nine proven subjects are hard-surface equipment; a shoe being softer is an argument under MADR 0050, not a measurement.
+
+What does prove optimize-stage preservation is a render pair on disk since 2026-08-14, ungraded until now. MY GRADE (measurement plane), 80,000 triangles decimated from 288,466: screen bezel, raised buttons and knurled control knob all survive with individual ridges readable. That knob is the thin high-curvature feature MADR 0050 warns decimation destroys.
+
+The consult corrected me three times and I verified each against the tree: the CLI takes only `--input`/`--out` with a fixed target ladder; the newest live hatch is 2026-08-14, not 08-12 as I told you; and the featureSurvival definition above. My proposed first step was a category error, since a fetal monitor and a shoe fail decimation differently.
+
+Peer track record over the last day:
+
+| card | action | outcome |
+|---|---|---|
+| #659 | planted RED, dispatched, landed, closed | reproduced independently, 0.378 to 0.000 |
+| #656 | garment hem weld | on main |
+| #647 | closed without a fix | superseded by #650, salvage at `858f9215` |
+
+Across those three cards: six REDs planted, three fixes on main. Commit a88fdb36, titled "the destructive probe I claimed was NOT confirmed", is an unprompted withdrawal of their own unverified claim.
+
+Tasked out as **#661**, deliberately un-operationalized. Provenance is recorded at the card top: two of their commits cite #661 from before the issue existed, so filing claimed that number, and their planted gate is step 1. Their Step 0 threshold `MIN_SOLE_AREA_FRACTION = 0.15` is derived against both controls (sphere ceiling 0.017, worst library shoe 0.262). Thresholds inside `shoe_form_and_wear_v1` remain uncalibrated. I am not keeping a parallel copy.

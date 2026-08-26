@@ -1,0 +1,21 @@
+Four commits polished an asset the runtime never loads, against your own written direction.
+
+**PROJECT_STATUS.md:83**, dated 2026-08-14, states MPFB2 is the learner rail throughout, says do not polish Anny's eyes/arm-weights/shoes, and lists Anny blob shoes as NOT assigned. Two of the four commits polished Anny shoes. Neither reviewer read that file.
+
+Origin: `3dd48fa2` was a provenance slice, and running the bake emitted a new Anny-derived GLB into `public/generated-humanoids` as a side effect. Three evidence contracts hardcode `["peds_fever_patient_child.glb", "peds_nurse_kevin.glb"]` as a literal subject list labelled the GENERATED rail, while the rail the runtime generates and loads is MPFB. Four commits followed in four hours.
+
+My failure: I verified #659 by hand, found my first geometry probe wrong, corrected it, got 0.000, and declared the close correct. Correcting the probe raised my confidence without touching the premise, and I never ran the grep showing the asset has no consumer.
+
+The peer's account, verified: "I did not independently verify #659 as product work. I independently verified one operand of its claim." The contract's `claimScope` disclosed that it excludes runtime appearance; the peer read that boundary as permission to stop. My question asked whether a number was right.
+
+Five gates passed because none is independent. Pre-commit, dispatch, product-lane, merge-kill and diff classification each accept a self-description of product relevance; the product-lane gate equates storage under a product directory with consumption by it.
+
+Scope beyond this incident: two assets have contracts and zero runtime references, 22.2 MB combined. `mpfb-gown-inspect` (11 contracts, 15,688,336 bytes) is named as a fixture; `peds_fever_patient_child` (4 contracts, 6,471,224 bytes) is not, which is why four commits treated it as cast. The cast resolver yields 9 live paths from a 19-GLB directory; the writeup records 11 unreachable public GLBs, which does not reconcile with those two figures and needs a recount. Four further contracts aim off the live cast, two of them measuring `mpfb-peds-parent-aisha.glb` while the runtime loads its `.motion-bind` derivative.
+
+This class was already caught: `the-waist-gate-covers-the-shipped-cast.test.ts` opens by recording that garments-meet-at-the-waist passes 4/4 on main and measures zero of the nine shipped actors. The doctrine, the prior test, the live-cast enumerator and your retirement direction all predate these commits. Enforcement and review failure, not a knowledge gap.
+
+Fix specified: one independent source of truth, runtime reachability, inserted into the existing gates. It would have failed the first commit at 19:21 and each of the three after.
+
+`pnpm docs:authority`, the command `docs:drift-check` prescribes, refuses on this tree and cannot register a new document. Same defect class. I added the record directly at `docs/openclinxr/postmortem-anny-fixture-polish-2026-08-25.md` (`a1afb46a`).
+
+NOT TESTED: the reachability invariant. It is specified in the writeup and does not exist yet.

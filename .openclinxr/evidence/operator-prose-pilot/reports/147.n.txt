@@ -1,0 +1,15 @@
+## Bake status: done, and it works
+
+It hadn't been started when you asked — I'd confirmed the gap and delivered the camera match, then got pulled into other threads. It's finished now.
+
+**What ran:** `selected_to_active` normal bake, 296,226-tri raw → 79,999-tri champion, 2048², Cycles. Reused the existing bake tooling at `automate_blender.py:1362` rather than hand-rolling; that one is a procedural→texture bake (`use_selected_to_active = False`), so high-poly→low-poly needed the same API with `selected_to_active` plus a cage. Cage extrusion is derived from geometry — 2% of the measured 1.334 m diagonal — not a number I picked.
+
+**The map carries real detail:** 42.9% of texels deviate, mean 16.08, max 182, blue channel at 247 (correct for tangent space). Worth checking explicitly — a bake that "succeeds" and writes a flat 128/128/255 map is the silent failure mode here.
+
+**A/B:** same camera, same two lamps, only the normal map differs. On the right the panel seam reads as an actual crease, the clamshell lip has a defined edge instead of a soft roll, there's surface structure on the lower body where the left is featureless, and the hinge detail returns. I'm not scoring it past that — verdict is yours.
+
+**NOT TESTED:** whether the baked map survives glTF export and reads correctly in the three.js runtime. I rendered in Blender with the map attached; I did not export a new GLB and load it in ui-xr. That's the step that makes this real rather than promising, and it's the obvious next one.
+
+**Pipeline implication:** optimize is currently `high-error direct targets + weld + quantize`, no bake stage. Adding one isn't a TRELLIS re-bake — it's a post-process on artifacts already on disk for all seven assets, ~2 min of Cycles each.
+
+Separately: the peer stopped on #510, verified independently, filed **#671** fresh rather than reopening. Both its lanes are red-verified (#597, #181).

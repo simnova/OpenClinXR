@@ -1,0 +1,23 @@
+Five defects tonight were in code I had previously committed and reported as working, including a gate that was inert in worktrees, which is the only context dispatches run in. The breaker's effectiveness numbers before commit `9efe964a` are counterfactual replays, not production evidence, and the reasoned override is still unlimited. Both limits and their closing designs are recorded in `breaker-findings.json`.
+
+Nine commits hardened dispatch, each driven by a ledger measurement.
+
+| commit | change | benefit |
+|---|---|---|
+| 1ea4ee98 | retry circuit breaker | two slices burned 33 of 584 sessions; refusals now cost zero tokens |
+| 6ea43dfe | refuse unpassable path rules at brief time | 24 of 62 failures were `changed:`-only, targets that could never match |
+| 3baa71af | success resets the breaker | stopped four passing sessions from being refused |
+| 6ecbf29e | reasoned override | breaks a circularity where the gate blocked its own recovery |
+| f0839caf | override fails closed | an unrecorded override was an unlogged bypass |
+| 9efe964a | shared-path fix | gate now active in worktrees |
+| 675cf403 | end-to-end enforcement test | reds on the real defect, proven both directions |
+
+Contract-layer value moved from undetermined to measured: 11.1% of dispatches are refused after storm adjustment, across 440 known verdicts. An outside reviewer called this unmeasurable because `proofsOk` sits on a row most readers skip; that trap is now documented where readers hit it.
+
+Failure prediction is grounded. Cancelled sessions fail proofs at 51.1% versus 9.9% for clean returns, and one-turn cancellations failed 12 of 12. Turn count predicts nothing.
+
+Two stuck items moved. #570's verified fix is committed, having been blocked earlier by a read-only `.git`. #576's plant was repaired after #598's shoe swap turned its RED green through a wardrobe hide-carve, then dispatched. The status file no longer lists #576 as the D9 frontier: grep shows the multi-case runner has zero MPFB materializer references and imports `CASE_ACTOR_PRESETS` directly.
+
+The new `model-routing` skill carries worker and superagent orders, exact invocations, and the vision rung gated on ox availability. All four rungs probed live; the stale DeepSeek 402 blocker is closed.
+
+Clause D was removed one commit after shipping: replay fired zero times and its threshold separated two cases from two.

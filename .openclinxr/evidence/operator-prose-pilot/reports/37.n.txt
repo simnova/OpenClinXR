@@ -1,0 +1,15 @@
+## Session Report — 16:39–21:55 EDT
+
+**Unblocked work.** Committed `#570`'s verified fix, which a prior session proved but couldn't stage against a read-only `.git`. Repaired `#576`'s plant after measuring that `#598`'s shoe swap turned its RED green via a wardrobe hide-carve, then dispatched it.
+
+**Model routing codified.** New `model-routing` skill captures worker and superagent orders, exact invocations, and the vision rung gated behind ox being unavailable. All four rungs probed live against ground truth. Routing no longer lives only in conversation, and the stale DeepSeek 402 blocker that had been misdirecting every session is closed.
+
+**Status file corrected.** `#576` no longer reads as the D9 frontier. Verified by grep: the multi-case runner has zero references to the MPFB materializer and imports `CASE_ACTOR_PRESETS` directly, so the metric measures the table two landed slices were meant to retire.
+
+**Nine dispatch-hardening commits**, each driven by a ledger measurement (seven detailed): `1ea4ee98` retry circuit breaker — two slices burned 33 of 584 sessions; refusals now cost zero tokens. `6ea43dfe` refuses unpassable path rules at brief time — a backticked target could never match; 24 of 62 failures were `changed:`-only. `3baa71af` success resets the breaker, stopping four wrongful refusals. `6ecbf29e` reasoned override escapes a circularity where the gate blocked its own recovery. `f0839caf` override fails closed. `9efe964a` shared-path fix — the gate had been inert in worktrees, where dispatches actually run. `675cf403` end-to-end enforcement test, proven both directions.
+
+**Quantified benefits.** Contract-layer value moved from undetermined to measured: **11.1%** of dispatches refused after storm adjustment across 440 known verdicts; an outside reviewer had called this unmeasurable because `proofsOk` sits on a commonly skipped row — now documented where readers hit it. Cancelled sessions fail proofs at 51.1% vs 9.9% clean; one-turn cancellations failed 12 of 12. Turn count predicts nothing.
+
+**Removed.** Clause D, one commit after shipping — historical replay fired zero times and its threshold separated two cases from two. `PROTO_VERIFY_DELEGATION.md` frozen at 4,456 lines, 165 rules.
+
+**Limits.** Five defects tonight were in code I had already reported as working, including a gate silent in the only context that matters. Pre-`9efe964a` breaker numbers are counterfactual replays, not production evidence; the override remains unlimited. Both recorded in `breaker-findings.json` with closing designs.

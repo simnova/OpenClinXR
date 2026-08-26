@@ -1,0 +1,21 @@
+Codex returned four optimizations, a four-item stop-list, and a commit-ratio measurement. I spot-checked four of its claims against the tree; all four hold.
+
+Not yet verified: the claim that the flagship metric certified an orphan actor. Check that before this reorders the queue.
+
+## The four optimizations
+
+**Cache by recipe, not by actor.** Content-address a key over phenotype, garment set, body-profile version, rig version and materializer version; bake each unique recipe once. Grepping `recipeKey|bodyRecipe|assetRecipe` across `tools/openclinxr`, `packages/openclinxr` and `apps/ui-xr/src` returns nothing. Current model bakes once per actor per case, so 42 actors means 42 bakes.
+
+**Pre-bake a macro lattice.** The strongest of the four, because the machinery exists and is unused. `body_param_stage.py` requires `--body-classes-json`, so batch generation over a grid is already the interface. `body-param-catalog.json` holds 2 entries, `adult_lean_female` and `adult_heavy_male`, with a measured `torsoGirthProxyMeters` spread of 0.07454 m. No lattice or grid implementation exists in the tree.
+
+**Drive shape through morph targets.** Unbaked MPFB macros ship in the GLB as zero-weight morph targets, and three.js already drives named viseme and emotion morphs. No phenotype-to-`morphTargetInfluences` path exists, and `neutralizeGeneratedHumanoidMorphTargets` (`main.ts:7440`, called at `main.ts:6965`) zeroes every imported target. Codex marks this as needing an experiment: fitted garments and hide masks may invalidate it.
+
+**Seed the missing phenotypes.** Of 42 actors, 4 carry an exported phenotype, matching my own count of 4. 25 of the 42 have usable descriptors; 12 have nothing. Resolve descriptors first, then seed unspecified variation on `scenarioId + actorId`, record the recipe, never reroll. That is D13's random-once rule; the missing piece is code that reads it.
+
+## Stop-list
+
+Stop planting REDs until a generated actor reaches final render. Stop quoting `casesFullyDeterministic`. Freeze `PROTO_VERIFY_DELEGATION.md` (4,456 lines, 46,540 words, 165 numbered headings). Stop counting per-actor Blender fidelity as D9 throughput. I have acted on part of one.
+
+## Ratio
+
+In a 24-hour window: 60 non-merge commits, 21 `test(plant)`, 41 touching `tools/openclinxr/evidence`, 13 touching product paths, 29 touching evidence with no product change. Stock: 890 tracked files and 230,130 lines in evidence, against 26,049 in `asset-pipeline` and 980 in `dark-factory`. Verdict: locally useful, systemically ceremony-dominant. The #576 shoe-carve catch was a genuine save.

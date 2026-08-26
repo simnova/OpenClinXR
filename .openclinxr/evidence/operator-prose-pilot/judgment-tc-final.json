@@ -1,0 +1,435 @@
+[
+  {
+    "pair": 1,
+    "A": {
+      "adequacy_fails": 0,
+      "prose_fails": 2,
+      "count_rule_fails": 0,
+      "clarity": 3,
+      "effort": 4,
+      "spans": [
+        "then spent the interval in the supervisor loop and the peer thread",
+        "It self-declared a stale clause-count in a derived brief."
+      ]
+    },
+    "B": {
+      "adequacy_fails": 0,
+      "prose_fails": 2,
+      "count_rule_fails": 0,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "produced a working normal map",
+        "NEXT: export a GLB with the map and load it in ui-xr."
+      ]
+    },
+    "preferred": "B",
+    "reason": "B is easier to scan and avoids A’s irrelevant account of how the interval was spent."
+  },
+  {
+    "pair": 2,
+    "A": {
+      "adequacy_fails": 0,
+      "prose_fails": 4,
+      "count_rule_fails": 1,
+      "clarity": 3,
+      "effort": 4,
+      "spans": [
+        "No when you asked; it is now.",
+        "No when you asked; it is now.",
+        "Four of those five remain unpublished.",
+        "NEXT: grade the 13 captures and stamp the 15 shas."
+      ]
+    },
+    "B": {
+      "adequacy_fails": 0,
+      "prose_fails": 0,
+      "count_rule_fails": 0,
+      "clarity": 5,
+      "effort": 2,
+      "spans": []
+    },
+    "preferred": "B",
+    "reason": "B gives the stale-site result cleanly, identifies the blockers early, and avoids A’s fragmentary opener and backward count."
+  },
+  {
+    "pair": 3,
+    "A": {
+      "adequacy_fails": 1,
+      "prose_fails": 3,
+      "count_rule_fails": 1,
+      "clarity": 3,
+      "effort": 4,
+      "spans": [
+        "They also built Step 0 already",
+        "Correction to what I told you earlier",
+        "burned by five times",
+        "I am keeping no parallel copy."
+      ]
+    },
+    "B": {
+      "adequacy_fails": 0,
+      "prose_fails": 1,
+      "count_rule_fails": 0,
+      "clarity": 4,
+      "effort": 4,
+      "spans": [
+        "I am not keeping a parallel copy."
+      ]
+    },
+    "preferred": "B",
+    "reason": "B preserves the uncalibrated-threshold residual and states the correction directly, although it remains too long."
+  },
+  {
+    "pair": 4,
+    "A": {
+      "adequacy_fails": 0,
+      "prose_fails": 3,
+      "count_rule_fails": 2,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "its threshold separated two cases from two",
+        "The seven with recorded rationale",
+        "The new model-routing skill carries both ladders and exact invocations"
+      ]
+    },
+    "B": {
+      "adequacy_fails": 0,
+      "prose_fails": 3,
+      "count_rule_fails": 2,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "its threshold separated two cases from two",
+        "Seven carry named measurements",
+        "verified by grep"
+      ]
+    },
+    "preferred": "A",
+    "reason": "A gives more decision-relevant detail about the repaired product cards, while both reports have ambiguous backward counts and exceed the word limit."
+  },
+  {
+    "pair": 5,
+    "A": {
+      "adequacy_fails": 0,
+      "prose_fails": 1,
+      "count_rule_fails": 0,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "Refuted if a replacement bake reads worse at conversational distance than bare decimation."
+      ]
+    },
+    "B": {
+      "adequacy_fails": 0,
+      "prose_fails": 2,
+      "count_rule_fails": 0,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "so the real question is whether to replace skin detail with form or combine both into one map",
+        "Refuted if a bake that replaces the skin map reads worse at conversational distance than bare decimation."
+      ]
+    },
+    "preferred": "A",
+    "reason": "A is more precise about the absent high-to-low bake and avoids B’s rhetorical reframe."
+  },
+  {
+    "pair": 6,
+    "A": {
+      "adequacy_fails": 1,
+      "prose_fails": 3,
+      "count_rule_fails": 1,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "a chokepoint refusing raw `gh issue close`",
+        "Yes, done.",
+        "Yes, done.",
+        "the 15 remaining dirty files"
+      ]
+    },
+    "B": {
+      "adequacy_fails": 0,
+      "prose_fails": 4,
+      "count_rule_fails": 1,
+      "clarity": 5,
+      "effort": 2,
+      "spans": [
+        "Done.",
+        "Done.",
+        "The tree is clean of my work",
+        "15 dirty files remaining"
+      ]
+    },
+    "preferred": "B",
+    "reason": "B preserves the rate-limit and drain-loop consequences and is substantially easier to scan despite placing the push decision too late."
+  },
+  {
+    "pair": 7,
+    "A": {
+      "adequacy_fails": 0,
+      "prose_fails": 2,
+      "count_rule_fails": 0,
+      "clarity": 4,
+      "effort": 4,
+      "spans": [
+        "Routes in use today that nothing enforces",
+        "NEXT: on your word, queue a card"
+      ]
+    },
+    "B": {
+      "adequacy_fails": 0,
+      "prose_fails": 1,
+      "count_rule_fails": 0,
+      "clarity": 5,
+      "effort": 3,
+      "spans": [
+        "NEXT: on your word, queue a card"
+      ]
+    },
+    "preferred": "B",
+    "reason": "B opens with the audit result and gives the same routing evidence with a clearer hierarchy."
+  },
+  {
+    "pair": 8,
+    "A": {
+      "adequacy_fails": 0,
+      "prose_fails": 0,
+      "count_rule_fails": 0,
+      "clarity": 4,
+      "effort": 2,
+      "spans": []
+    },
+    "B": {
+      "adequacy_fails": 0,
+      "prose_fails": 0,
+      "count_rule_fails": 0,
+      "clarity": 5,
+      "effort": 2,
+      "spans": []
+    },
+    "preferred": "B",
+    "reason": "B states the collision and required operator choice most directly while keeping the current no-second-worker limitation adjacent."
+  },
+  {
+    "pair": 9,
+    "A": {
+      "adequacy_fails": 1,
+      "prose_fails": 2,
+      "count_rule_fails": 1,
+      "clarity": 3,
+      "effort": 5,
+      "spans": [
+        "nine live paths from a nineteen-GLB directory, leaving eleven public GLBs unreachable",
+        "two of them measuring `mpfb-peds-parent-aisha.glb`",
+        "NOT TESTED: the reachability invariant."
+      ]
+    },
+    "B": {
+      "adequacy_fails": 0,
+      "prose_fails": 2,
+      "count_rule_fails": 1,
+      "clarity": 4,
+      "effort": 4,
+      "spans": [
+        "two of them measuring `mpfb-peds-parent-aisha.glb`",
+        "NOT TESTED: the reachability invariant."
+      ]
+    },
+    "preferred": "B",
+    "reason": "B explicitly exposes the non-closing reachability arithmetic instead of presenting the inconsistent count as settled."
+  },
+  {
+    "pair": 10,
+    "A": {
+      "adequacy_fails": 0,
+      "prose_fails": 1,
+      "count_rule_fails": 0,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "NEXT: measure the 85 morph names against the bank's 9 emotions."
+      ]
+    },
+    "B": {
+      "adequacy_fails": 1,
+      "prose_fails": 2,
+      "count_rule_fails": 0,
+      "clarity": 5,
+      "effort": 3,
+      "spans": [
+        "It decides whether ARKit is required or optional.",
+        "Emotion expression is already implemented and running.",
+        "It decides whether ARKit is required or optional."
+      ]
+    },
+    "preferred": "A",
+    "reason": "A avoids claiming that a morph-name inventory alone will decide whether ARKit is required."
+  },
+  {
+    "pair": 11,
+    "A": {
+      "adequacy_fails": 0,
+      "prose_fails": 3,
+      "count_rule_fails": 2,
+      "clarity": 4,
+      "effort": 5,
+      "spans": [
+        "I have acted on part of one.",
+        "Verdict: locally useful, systemically ceremony-dominant.",
+        "The #576 shoe-carve catch was a genuine save."
+      ]
+    },
+    "B": {
+      "adequacy_fails": 1,
+      "prose_fails": 0,
+      "count_rule_fails": 0,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "Codex brought four optimizations, four subtractions and one ratio."
+      ]
+    },
+    "preferred": "A",
+    "reason": "A is overlong and turns counts into an evaluative verdict, but B announces the requested ratio and then omits it entirely."
+  },
+  {
+    "pair": 12,
+    "A": {
+      "adequacy_fails": 0,
+      "prose_fails": 0,
+      "count_rule_fails": 0,
+      "clarity": 5,
+      "effort": 2,
+      "spans": []
+    },
+    "B": {
+      "adequacy_fails": 0,
+      "prose_fails": 1,
+      "count_rule_fails": 1,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "This is the same incomplete-loop shape the repo has hit six times"
+      ]
+    },
+    "preferred": "A",
+    "reason": "A reports the disconnected runtime loop without using an unenumerated incident count to strengthen the diagnosis."
+  },
+  {
+    "pair": 13,
+    "A": {
+      "adequacy_fails": 1,
+      "prose_fails": 3,
+      "count_rule_fails": 1,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "The ordering advice is correct",
+        "The ordering advice is correct",
+        "Their 20% figure",
+        "NEXT: fix #641."
+      ]
+    },
+    "B": {
+      "adequacy_fails": 0,
+      "prose_fails": 3,
+      "count_rule_fails": 1,
+      "clarity": 5,
+      "effort": 3,
+      "spans": [
+        "Their 20% figure",
+        "Adoption decision recorded on #649.",
+        "NEXT: fix #641, then adopt bake-then-decimate, then merge plus atlas together."
+      ]
+    },
+    "preferred": "B",
+    "reason": "B keeps the untested survival assumption beside the adoption decision and avoids declaring the ordering correct before that assumption is measured."
+  },
+  {
+    "pair": 14,
+    "A": {
+      "adequacy_fails": 0,
+      "prose_fails": 1,
+      "count_rule_fails": 0,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "NEXT: raise #652's priority"
+      ]
+    },
+    "B": {
+      "adequacy_fails": 1,
+      "prose_fails": 1,
+      "count_rule_fails": 0,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "Six of the eight Anny-derived humanoids are `from_anny_reference`",
+        "NEXT: raise #652's priority."
+      ]
+    },
+    "preferred": "A",
+    "reason": "A keeps the mutually exclusive sourceKind populations separate, whereas B incorrectly makes the six reference-derived assets a subset of the eight real-Anny assets."
+  },
+  {
+    "pair": 15,
+    "A": {
+      "adequacy_fails": 0,
+      "prose_fails": 2,
+      "count_rule_fails": 1,
+      "clarity": 4,
+      "effort": 4,
+      "spans": [
+        "Those boots ship on two bodies at 30,768 triangles",
+        "A 400-line skill opens with the two-consumer trap."
+      ]
+    },
+    "B": {
+      "adequacy_fails": 0,
+      "prose_fails": 3,
+      "count_rule_fails": 1,
+      "clarity": 4,
+      "effort": 4,
+      "spans": [
+        "MakeClothes was already integrated and shipping before this session started.",
+        "Those boots ship on two bodies at 30,768 triangles.",
+        "Four wrong diagnoses were A/B'd out first."
+      ]
+    },
+    "preferred": "A",
+    "reason": "A puts the non-shipping-consumer failure in its opening claim and labels both compared source-file counts as lines."
+  },
+  {
+    "pair": 16,
+    "A": {
+      "adequacy_fails": 0,
+      "prose_fails": 2,
+      "count_rule_fails": 1,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "Two pipelines in the same band is mild corroboration that the current setting is sane.",
+        "NEXT: probe the venv, then push an on-disk champion"
+      ]
+    },
+    "B": {
+      "adequacy_fails": 1,
+      "prose_fails": 2,
+      "count_rule_fails": 1,
+      "clarity": 5,
+      "effort": 3,
+      "spans": [
+        "Minutes, no new bake.",
+        "two pipelines sit in the same band, mild corroboration that the setting is sane rather than arbitrary",
+        "If that holds, bake one shoe and wire it through fitting."
+      ]
+    },
+    "preferred": "B",
+    "reason": "B includes a visual grade in the proposed probe and a conditional follow-on, though its duration estimate is unsupported."
+  }
+]
+
+Pairs 3, 4, and 16 were poor in both arms: pair 3 was overlong and opaque about calibration, pair 4 used ambiguous backward counts, and pair 16 treated two percentage bands as evidence that an unmeasured setting was sane.

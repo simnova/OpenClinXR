@@ -1,0 +1,492 @@
+[
+  {
+    "pair": 1,
+    "A": {
+      "adequacy_fails": 0,
+      "prose_fails": 2,
+      "count_rule_fails": 0,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "then spent the interval in the supervisor loop and the peer thread",
+        "It self-declared a stale clause-count in a derived brief."
+      ]
+    },
+    "B": {
+      "adequacy_fails": 1,
+      "prose_fails": 5,
+      "count_rule_fails": 0,
+      "clarity": 3,
+      "effort": 3,
+      "spans": [
+        "done, and it works",
+        "NOT TESTED",
+        "done, and it works",
+        "The map carries real detail",
+        "then got pulled into other threads",
+        "Both its lanes are red-verified (#597, #181)."
+      ]
+    },
+    "preferred": "A",
+    "reason": "A foregrounds the decisive runtime residual and avoids B's unsupported claim that the unexported bake works."
+  },
+  {
+    "pair": 2,
+    "A": {
+      "adequacy_fails": 0,
+      "prose_fails": 2,
+      "count_rule_fails": 0,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "the fix landed 08:10 and the artifact reporting +0.272 m was generated 17:34, nine hours later",
+        "NEXT: build #643 so the site stops depending on someone remembering."
+      ]
+    },
+    "B": {
+      "adequacy_fails": 2,
+      "prose_fails": 5,
+      "count_rule_fails": 0,
+      "clarity": 3,
+      "effort": 4,
+      "spans": [
+        "it isn't now",
+        "including:",
+        "#643 generator",
+        "Meanwhile today produced 85 commits and 10 subject-line product landings",
+        "honestly",
+        "What I did:",
+        "the grading clause still fails, honestly."
+      ]
+    },
+    "preferred": "A",
+    "reason": "A accurately limits the update to #650 and explicitly identifies the landings still absent from the site."
+  },
+  {
+    "pair": 3,
+    "A": {
+      "adequacy_fails": 0,
+      "prose_fails": 2,
+      "count_rule_fails": 0,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "Correction to what I told you earlier",
+        "I am keeping no parallel copy."
+      ]
+    },
+    "B": {
+      "adequacy_fails": 0,
+      "prose_fails": 4,
+      "count_rule_fails": 0,
+      "clarity": 4,
+      "effort": 4,
+      "spans": [
+        "Blocker: ComfyUI is not running",
+        "The strongest signal is commit `a88fdb36`",
+        "That's what makes me willing to hand them branching work.",
+        "All nine proven subjects are hard-surface equipment."
+      ]
+    },
+    "preferred": "A",
+    "reason": "A leads with the withdrawn evidence and blocker, while B leads with a favorable track-record argument."
+  },
+  {
+    "pair": 4,
+    "A": {
+      "adequacy_fails": 0,
+      "prose_fails": 6,
+      "count_rule_fails": 0,
+      "clarity": 3,
+      "effort": 4,
+      "spans": [
+        "Session Report — 16:39–21:55 EDT",
+        "Five defects tonight were in code I had already reported as working",
+        "Pre-`9efe964a` breaker numbers are counterfactual replays",
+        "Quantified benefits.",
+        "Unblocked work.",
+        "Both recorded in `breaker-findings.json` with closing designs."
+      ]
+    },
+    "B": {
+      "adequacy_fails": 0,
+      "prose_fails": 1,
+      "count_rule_fails": 0,
+      "clarity": 5,
+      "effort": 3,
+      "spans": [
+        "`#576`'s plant was repaired after `#598`'s shoe swap hid its RED, then dispatched"
+      ]
+    },
+    "preferred": "B",
+    "reason": "B leads with the five previously missed defects, keeps the measurement caveats local, and then presents the parallel changes."
+  },
+  {
+    "pair": 5,
+    "A": {
+      "adequacy_fails": 0,
+      "prose_fails": 1,
+      "count_rule_fails": 0,
+      "clarity": 5,
+      "effort": 3,
+      "spans": [
+        "Refuted if a bake that replaces the skin map reads worse at conversational distance than bare decimation."
+      ]
+    },
+    "B": {
+      "adequacy_fails": 1,
+      "prose_fails": 5,
+      "count_rule_fails": 1,
+      "clarity": 4,
+      "effort": 4,
+      "spans": [
+        "the existing procedural-bump bake is working",
+        "mean luminance 142.1 vs 142.5 for a flat map, std dev 5.75–8.01 — real skin micro-detail",
+        "Why it's worth doing — measured",
+        "The framing inverts",
+        "The OpenAI consult stalled at 241 KB with no growth",
+        "I'll fold its approach in if it lands."
+      ]
+    },
+    "preferred": "A",
+    "reason": "A distinguishes non-flat texture data from untested appearance and ends with a concrete refutation criterion."
+  },
+  {
+    "pair": 6,
+    "A": {
+      "adequacy_fails": 0,
+      "prose_fails": 5,
+      "count_rule_fails": 1,
+      "clarity": 4,
+      "effort": 4,
+      "spans": [
+        "177 commits are unpushed",
+        "verified rather than assumed",
+        "My first \"done\" was wrong",
+        "26 closed as verified dead",
+        "a transcript grep counting the tool's own echo"
+      ]
+    },
+    "B": {
+      "adequacy_fails": 0,
+      "prose_fails": 5,
+      "count_rule_fails": 1,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "Done.",
+        "attacking the code rather than trusting it",
+        "Done.",
+        "26 closed as verified dead",
+        "`integrate`'s comment check went from two round trips to one."
+      ]
+    },
+    "preferred": "B",
+    "reason": "B places the unpushed-commit decision and prior defects before the successful landings, despite its fragmentary opening."
+  },
+  {
+    "pair": 7,
+    "A": {
+      "adequacy_fails": 0,
+      "prose_fails": 1,
+      "count_rule_fails": 0,
+      "clarity": 5,
+      "effort": 3,
+      "spans": [
+        "NEXT: on your word, queue a card adding `ox-alpha` to `MODEL_RANK`"
+      ]
+    },
+    "B": {
+      "adequacy_fails": 0,
+      "prose_fails": 5,
+      "count_rule_fails": 0,
+      "clarity": 3,
+      "effort": 4,
+      "spans": [
+        "Routing by activity",
+        "Contradictions found today",
+        "Four tiers of codification, strongest to weakest",
+        "the only tier binding without me",
+        "Say the word and I'll queue it as a card."
+      ]
+    },
+    "preferred": "A",
+    "reason": "A opens with the unenforced-route finding instead of making the operator read the routing inventory before reaching it."
+  },
+  {
+    "pair": 8,
+    "A": {
+      "adequacy_fails": 0,
+      "prose_fails": 3,
+      "count_rule_fails": 0,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "Collision risk on #576 — needs your call",
+        "Codex is up, at maximum settings",
+        "Rather than stall, I pointed this run at the review"
+      ]
+    },
+    "B": {
+      "adequacy_fails": 0,
+      "prose_fails": 1,
+      "count_rule_fails": 0,
+      "clarity": 5,
+      "effort": 2,
+      "spans": [
+        "Rather than stall the run, I pointed it at the review"
+      ]
+    },
+    "preferred": "B",
+    "reason": "B immediately exposes the possible writer collision and the decision required, then supplies the current evidence and Codex status."
+  },
+  {
+    "pair": 9,
+    "A": {
+      "adequacy_fails": 0,
+      "prose_fails": 4,
+      "count_rule_fails": 1,
+      "clarity": 4,
+      "effort": 4,
+      "spans": [
+        "Postmortem landed",
+        "Five gates.",
+        "Five gates. Multiple, not independent.",
+        "NOT TESTED — specified, not built."
+      ]
+    },
+    "B": {
+      "adequacy_fails": 0,
+      "prose_fails": 2,
+      "count_rule_fails": 0,
+      "clarity": 5,
+      "effort": 4,
+      "spans": [
+        "It would have failed the first commit at 19:21 and the three after.",
+        "NOT TESTED: the reachability invariant."
+      ]
+    },
+    "preferred": "B",
+    "reason": "B opens with the wasted-work result and names all five gates, although its unbuilt fix is qualified too late."
+  },
+  {
+    "pair": 10,
+    "A": {
+      "adequacy_fails": 1,
+      "prose_fails": 4,
+      "count_rule_fails": 1,
+      "clarity": 4,
+      "effort": 4,
+      "spans": [
+        "Three channels can't separate nine states.",
+        "What exists today.",
+        "Three channels can't separate nine states.",
+        "Good instinct",
+        "Want me to run that measurement?"
+      ]
+    },
+    "B": {
+      "adequacy_fails": 1,
+      "prose_fails": 2,
+      "count_rule_fails": 1,
+      "clarity": 5,
+      "effort": 3,
+      "spans": [
+        "Three channels also cannot separate nine states.",
+        "Three channels also cannot separate nine states.",
+        "NEXT: measure the 85 morph names against the bank's 9 emotions."
+      ]
+    },
+    "preferred": "B",
+    "reason": "B puts the vocabulary break first and presents the existing runtime mapping in a compact parallel table."
+  },
+  {
+    "pair": 11,
+    "A": {
+      "adequacy_fails": 0,
+      "prose_fails": 6,
+      "count_rule_fails": 2,
+      "clarity": 3,
+      "effort": 5,
+      "spans": [
+        "I have acted on part of one.",
+        "systemically ceremony-dominant",
+        "honest outside review",
+        "I spot-checked four of its claims",
+        "The #576 shoe-carve catch was a genuine save.",
+        "The #576 shoe-carve catch was a genuine save."
+      ]
+    },
+    "B": {
+      "adequacy_fails": 1,
+      "prose_fails": 6,
+      "count_rule_fails": 1,
+      "clarity": 4,
+      "effort": 4,
+      "spans": [
+        "proving the mechanism yields visibly different bodies",
+        "Codex's other optimizations",
+        "Caveat:",
+        "proving the mechanism yields visibly different bodies",
+        "Strongest of the four",
+        "I spot-checked four of its claims",
+        "That is the one to check before this reorders the queue."
+      ]
+    },
+    "preferred": "A",
+    "reason": "A preserves the stop-list and ratio findings and avoids claiming that a proxy measurement proves visible difference."
+  },
+  {
+    "pair": 12,
+    "A": {
+      "adequacy_fails": 0,
+      "prose_fails": 3,
+      "count_rule_fails": 1,
+      "clarity": 4,
+      "effort": 4,
+      "spans": [
+        "Baked on the assets.",
+        "those seven",
+        "Smallest real slice"
+      ]
+    },
+    "B": {
+      "adequacy_fails": 0,
+      "prose_fails": 1,
+      "count_rule_fails": 1,
+      "clarity": 5,
+      "effort": 2,
+      "spans": [
+        "seven of those"
+      ]
+    },
+    "preferred": "B",
+    "reason": "B leads with the missing runtime wire, keeps the untested deformation caveat beside it, and then inventories existing capability."
+  },
+  {
+    "pair": 13,
+    "A": {
+      "adequacy_fails": 1,
+      "prose_fails": 5,
+      "count_rule_fails": 1,
+      "clarity": 3,
+      "effort": 4,
+      "spans": [
+        "decimating the 42 thin-parametric items would destroy signal",
+        "Adopt three",
+        "Do not adopt the ordering until #641 is fixed.",
+        "decimating the 42 thin-parametric items would destroy signal",
+        "This and merging are one change, not two",
+        "Skip three"
+      ]
+    },
+    "B": {
+      "adequacy_fails": 1,
+      "prose_fails": 3,
+      "count_rule_fails": 1,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "Applying it to the 42 thin-parametric items would be wrong.",
+        "Applying it to the 42 thin-parametric items would be wrong.",
+        "adopt one half",
+        "NEXT: fix #641."
+      ]
+    },
+    "preferred": "B",
+    "reason": "B starts with the P0 blocker and presents adoption choices afterward, though it still overstates the untested harm to parametric assets."
+  },
+  {
+    "pair": 14,
+    "A": {
+      "adequacy_fails": 1,
+      "prose_fails": 2,
+      "count_rule_fails": 1,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "then four commits of work: the garment hem weld and both shoe fixes",
+        "nobody has compared them",
+        "four commits of work: the garment hem weld and both shoe fixes"
+      ]
+    },
+    "B": {
+      "adequacy_fails": 1,
+      "prose_fails": 1,
+      "count_rule_fails": 1,
+      "clarity": 5,
+      "effort": 2,
+      "spans": [
+        "took four commits after that: the garment hem weld, plus both shoe fixes",
+        "four commits after that: the garment hem weld, plus both shoe fixes"
+      ]
+    },
+    "preferred": "B",
+    "reason": "B is more direct and keeps the phenotype-equivalence residual close to the proposed resolver change."
+  },
+  {
+    "pair": 15,
+    "A": {
+      "adequacy_fails": 0,
+      "prose_fails": 4,
+      "count_rule_fails": 2,
+      "clarity": 4,
+      "effort": 4,
+      "spans": [
+        "my skill's stale 6",
+        "stale 6",
+        "rediscovered the slow way",
+        "Four wrong diagnoses were A/B'd out first."
+      ]
+    },
+    "B": {
+      "adequacy_fails": 1,
+      "prose_fails": 5,
+      "count_rule_fails": 2,
+      "clarity": 3,
+      "effort": 5,
+      "spans": [
+        "14 garment families",
+        "My skill claimed 6",
+        "claimed 6",
+        "The correction that mattered",
+        "I rediscovered slowly",
+        "NOT TESTED: whether the production materializer shares the helper-shell or rotation defects."
+      ]
+    },
+    "preferred": "A",
+    "reason": "A avoids B's apparent mismatch between the claimed 14 garment families and the shorter enumerated list."
+  },
+  {
+    "pair": 16,
+    "A": {
+      "adequacy_fails": 0,
+      "prose_fails": 2,
+      "count_rule_fails": 1,
+      "clarity": 4,
+      "effort": 3,
+      "spans": [
+        "two pipelines sit in the same band, mild corroboration that the setting is sane",
+        "If that holds, bake one shoe and wire it through fitting."
+      ]
+    },
+    "B": {
+      "adequacy_fails": 0,
+      "prose_fails": 5,
+      "count_rule_fails": 1,
+      "clarity": 3,
+      "effort": 4,
+      "spans": [
+        "NOT TESTED: whether the bake environment currently runs.",
+        "Bake-then-optimize is proven end to end.",
+        "Two independent pipelines in the same band is mild corroboration",
+        "the remaining gap is fitting, not mesh",
+        "Start step one with a liveness check."
+      ]
+    },
+    "preferred": "A",
+    "reason": "A places the untested environment status near the opening and makes the first low-cost experiment explicit."
+  }
+]
+
+Both reports were poor in pairs 10, 11, 13, and 15: pair 10 turns channel counts into an unmeasured capability conclusion; pair 11 is overlong and contains either unsupported visibility language or diffuse evaluative prose; pair 13 overstates untested damage to parametric assets; and pair 15 is long, process-heavy, and uses ambiguous or internally inconsistent garment counts.

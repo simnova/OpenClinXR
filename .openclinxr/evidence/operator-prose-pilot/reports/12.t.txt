@@ -1,0 +1,13 @@
+Codex brought four optimizations, four subtractions and one ratio. I spot-checked four of its claims against the tree and all four hold.
+
+Not verified: its claim that the flagship metric certified an orphan actor. Check that before letting any of this reorder the queue.
+
+**Cache by recipe, not by actor.** Content-address a key over phenotype, garment set, body-profile version, rig version and materializer version, then bake each unique recipe once. No such cache exists: `recipeKey|bodyRecipe|assetRecipe` across `tools/openclinxr`, `packages/openclinxr` and `apps/ui-xr/src` returns nothing. Today's model is one bake per actor per case, so 42 actors means 42 bakes.
+
+**Pre-bake a macro lattice.** Strongest of the four, because the machinery exists unused. `body_param_stage.py` requires `--body-classes-json`, a list of `{bodyClassId, weight, gender, age?, muscle?}`, so batch generation over a grid is already the interface. `body-param-catalog.json` holds 2 entries, `adult_lean_female` and `adult_heavy_male`, whose `torsoGirthProxyMeters` differ by 0.07454 m. No lattice or grid implementation exists in the tree.
+
+Drive body shape through morph targets. Unbaked MPFB macros already travel in the GLB as zero-weight morph targets and three.js already drives named viseme and emotion morphs. No phenotype-to-`morphTargetInfluences` path exists, and `neutralizeGeneratedHumanoidMorphTargets` (`main.ts:7440`, called at `main.ts:6965`) zeroes every imported target. Codex marks this experiment-gated: fitted garments and hide masks may invalidate it.
+
+Seed the missing phenotypes. Of 42 actors, 4 carry an exported phenotype (my own count agrees), 25 have usable descriptors, 12 have nothing. Resolve stated descriptors, then seed unspecified non-clinical variation from `scenarioId + actorId`, record the recipe, never reroll. That is D13's random-once rule; the missing piece is code that reads it.
+
+Stop-list, one of four acted on in part: stop planting REDs until a generated actor reaches final render, stop quoting `casesFullyDeterministic`, freeze `PROTO_VERIFY_DELEGATION.md` (4,456 lines, 46,540 words, 165 numbered headings), stop counting per-actor Blender fidelity as D9 throughput.

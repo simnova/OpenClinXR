@@ -1,0 +1,19 @@
+Adoption decision recorded on #649. #641 blocks the first item and is now P0.
+
+#641 measured every floor base-colour bake at ~99% pure black across all 14 rooms. The bake-before-decimate ordering cannot be adopted until that is fixed: baking earlier while the bake emits black would burn black into more surfaces, earlier, and make the origin harder to trace. #641 is linked to #649 and raised to P0. Its cause remains NOT DETERMINED; the AO-into-base-colour hypothesis is the first check, not a conclusion.
+
+Recorded as untested on #649: whether our bake, once fixed, carries enough detail for aggressive decimation to survive. The ordering rests on that assumption and nobody here has measured it.
+
+Adopt, 3 items:
+- Bake-before-decimate ordering. We run both operations, but on separate assets: room bakes (`openclinxr_room_bake_*`) and equipment decimation (meshopt, via `trellis-monitor-decimation`). Never as an ordered sequence on one asset.
+- Mesh merging. `external-tool-cagematch.ts:79` declares `drawCalls?: number` as a measured field; searches for `bpy.ops.object.join` and `mergeGeometries` return zero hits. We measure a cost we never reduce.
+- Texture atlasing. Exists only as prose ("can be re-lit, re-tinted, or atlased afterwards"), never generated. Atlasing lands with merging, since merged meshes with separate textures still cost draw calls.
+
+Skip, 3 items:
+- Their decimation method. We decimate via meshopt `simplify` at glTF level. Their Blender DECIMATE modifier is a different lever, and #239 records our ladder flattening at 106,025 tris, so it warrants a cagematch rather than adoption.
+- Blend-shape optimisation. Conditional: MPFB faces ship blend shapes, most equipment does not.
+- Unity staging. They assembled purchased assets; we generate procedurally.
+
+Their 20% figure covers purchased marketplace assets carrying redundant detail. Our procedural equipment is thin (the wall sign is three boxes), so decimating it destroys signal. This applies to acquired assets only, the split #646 draws between the Kenney/Sketchfab lane and the parametric lane; applying it to the 42 thin-parametric items would be wrong.
+
+NEXT: fix #641, then adopt bake-then-decimate, then merge plus atlas together.

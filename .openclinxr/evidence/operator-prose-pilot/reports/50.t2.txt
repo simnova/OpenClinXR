@@ -1,0 +1,19 @@
+Done. The tree is clean of my work: nothing staged, no conflicts, the `wt/issue-263` stash intact, and 15 dirty files left that were already dirty and owned by other writers.
+
+One item needs your decision. **177 commits are unpushed**, most not mine. I have standing authority to push, but another agent is actively working, so a push of that size is your call.
+
+Final cleanup: my bad stash pop left two files staged that were not mine. Both matched the `wt/issue-263` stash exactly and would have ridden into whoever committed next. Removed.
+
+Five defects tonight were in code I had already committed and reported as working: a gate that refused four passing sessions, a vacuous counterweight, an override that could bypass silently, a clause that fired zero times in historical replay (that commit withdrawn after shipping), and a guard inert in worktrees. Each was found by attacking the code rather than trusting it.
+
+Four confident statements I made were false, from truncated or polluted queries: a 300-item read of a 603-item board, a `dist`-polluted grep, a field list stopping at 14 rows, and a transcript grep that counted the tool's own echoed output. Each was one command from correct.
+
+Twelve commits landed across two efforts.
+
+Delegation loop: a circuit breaker refusing re-dispatch of a slice into the same wall. Measured first: two slices consumed 33 of 584 sessions and held 16 of 62 proof failures. Attacked four times, repaired four times.
+
+Board: all 64 open issues tracked and prioritized, up from 46 of 85 open issues tracked with zero priorities. 26 issues closed as verified dead, five integration cards filed, nine cards marked `Planted` so the drain loop has dispatchable work; it had none.
+
+Rate limits: a shared identifier cache drops a warm Factory transition from four `gh` calls to two; a chokepoint refuses raw `gh issue close`, which had been silently skipping the Factory grade 111-to-21; `integrate`'s comment check went from two round trips to one.
+
+NEXT: your call on the push.

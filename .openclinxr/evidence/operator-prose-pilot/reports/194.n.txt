@@ -1,0 +1,38 @@
+## No — it hasn't been tried, and the setups differ in a way that matters
+
+| | TRELLIS | MPFB |
+|---|---|---|
+| decimation | yes (`iterate-optimize.ts`, meshopt) | **none** — `grep decimate\|simplify\|meshopt` returns nothing |
+| high→low bake | yes, with cage | none — `use_selected_to_active = False` at `automate_blender.py:1350` |
+| existing normal map | none before this work | **yes, all 11 assets** |
+| TANGENT attribute | added via `export_tangents=True` | absent, 11 of 11 |
+
+The TRELLIS win recovered form *destroyed by decimation*. MPFB never decimates, so there's no loss to recover. The framing inverts: bake to **enable** a decimation we don't currently do.
+
+## Why it's worth doing — measured
+
+11 MPFB humanoids: 980,913 triangles, 135.1 MB. A station staging 3–4 actors hits 225–300k triangles of humanoid alone.
+
+Simplification works on these skinned meshes, which wasn't obvious. `mpfb-peds-patient-child`:
+
+| | tris | bytes | vs shipped |
+|---|---:|---:|---:|
+| shipped | 61,068 | 10,969,488 | — |
+| ratio 0.5 | 31,740 | 7,926,584 | **−27.7%** |
+| ratio 0.25 | 23,597 | 7,051,644 | **−35.7%** |
+
+All 17 primitives keep `JOINTS_0`; UVs, normals and the normal-texture binding survive.
+
+## The constraint
+
+**MPFB's one normal-map slot is already occupied**, and the existing procedural-bump bake is working: mean luminance 142.1 vs 142.5 for a flat map, std dev 5.75–8.01 — real skin micro-detail. A form bake wants that slot. The design question is therefore *replace skin detail with form, or combine both into one map*.
+
+## Proposed experiment
+
+Subject `peds-patient-child`; control = shipped 61k; treatments = 40k/25k bare vs 40k/25k with high→low bake; one camera, one lamp rig. **Sweep map resolution before judging economics** — on TRELLIS that step flipped the verdict from +27% to −12.6%.
+
+**Refuted if** a replacement bake reads worse at conversational distance than bare decimation; then slot contention is fatal.
+
+**Not tested:** appearance — every figure above is geometry and bytes. The Quest triangle budget motivating this comes from the rules file and is unvalidated on hardware.
+
+The OpenAI consult stalled at 241 KB with no growth; I'll fold its approach in if it lands.

@@ -1,0 +1,19 @@
+Correction to what I told you last turn: I said the champion does not record the decimation path reaching a wearable budget. It does. The optimize stage ran and worked, taking 288,466 triangles to 80,000 with `featureSurvival = ok` and a pixel grade agreeing at 0.00018 relative error, across three subjects. That caution was the error MADR 0050 exists to prevent, from your 2026-08-07 instruction never to reject a generator on triangle count; the disqualifying condition is feature survival, not size.
+
+NOT TESTED: whether the bake environment currently runs. The newest TRELLIS evidence is dated 12 August, and I broke and repaired that virtualenv once without probing it since.
+
+So yes, worth trying. Your Babylon findings are recorded as #649: decimate to 20%, then atlas, merge, pack. TRELLIS lands at 28% (80,000 from 288,466), so two independent pipelines sit in the same band, which is mild corroboration that the current setting is sane. What #649 has that the TRELLIS path lacks is everything after decimation. Atlasing, merging and UV packing cut draw calls, a budget nothing in this repo measures. That half is the part to adopt.
+
+Shoes suit this. MADR 0050 names thin, high-curvature features as the failure mode (casters, IV poles, monitor bezels, bed rails). A shoe is a closed smooth volume with a sole.
+
+| target | triangles |
+|---|---|
+| current parametric shell | 80 |
+| MPFB library shoe | 1,338 |
+| TRELLIS `PROP_PREFERRED` | 80,000 |
+
+`PROP_PREFERRED = 80_000` is a prop constant and `targetTris` is already threaded, so 80k is a budget choice. Nobody has run the optimizer at a wearable target.
+
+The remaining gap is fitting, not mesh: a worn shoe needs the actor's measured foot AABB and foot-bone weighting. #659 landed the fit derivation an hour ago.
+
+NEXT: liveness-check the bake env, then push an on-disk champion to ~1,500 triangles and read `featureSurvival` plus the grade before paying for any shoe bake.

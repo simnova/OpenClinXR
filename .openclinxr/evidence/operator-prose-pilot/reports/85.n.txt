@@ -1,0 +1,23 @@
+## Adopt three
+
+**1. The bake-before-decimate *ordering*.** We already do both — room bakes (`openclinxr_room_bake_*`) and meshopt decimation (`trellis-monitor-decimation`) — but as separate pipelines on different assets, never as an ordered sequence on one. Capturing high-poly detail into a texture before discarding geometry is what makes aggressive decimation survivable.
+
+**2. Mesh merging.** The clearest gap: `external-tool-cagematch.ts:79` declares `drawCalls?: number` as a measured field and there is **no merging implementation anywhere** — `bpy.ops.object.join` and `mergeGeometries` both return zero hits. We measure a cost we never reduce.
+
+**3. Texture atlasing.** Exists only as prose ("can be re-lit, re-tinted, or atlased afterwards"), never generated. This and merging are one change, not two — merged meshes with separate textures still cost draw calls.
+
+## Skip three
+
+Their decimation *method* (we already decimate via meshopt; their Blender-stage DECIMATE is a genuinely different lever — #239 shows our ladder flattening at 106,025 tris — but that's a cagematch, not an adoption). Blend-shape optimisation, conditional: MPFB faces yes, equipment no. The Unity staging step: they were assembling purchased assets; we generate procedurally.
+
+## Blocking dependency
+
+**Do not adopt the ordering until #641 is fixed.** Every floor base-colour bake is ~99.1% pure black across all 14 rooms. Baking earlier while it emits black burns black into more surfaces, earlier, and obscures the origin. #641 is linked to #649 and raised to **P0**. Its cause remains **NOT DETERMINED** — the AO-into-base-colour hypothesis is the first thing to check, not a conclusion.
+
+Sequence: **fix #641 → bake-then-decimate → merge + atlas.**
+
+## Caveats
+
+Their 20% figure is for purchased marketplace assets carrying redundant detail. Our procedural equipment is already thin (the wall sign is three boxes); decimating the 42 thin-parametric items would destroy signal. This applies to **acquired** assets only — the same split #646 draws.
+
+Recorded as untested on #649: whether our bake, once fixed, carries enough detail to make aggressive decimation survivable. Nobody has measured it.

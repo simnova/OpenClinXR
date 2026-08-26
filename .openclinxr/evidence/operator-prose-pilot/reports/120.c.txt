@@ -1,0 +1,19 @@
+MakeClothes was already integrated and shipping before this session started.
+
+Most of the session's effort went to the consumer that does not ship. Two exist:
+
+| | fit_stage.py (481 lines) | materialize_mpfb_humanoid_candidate.py (5,344) |
+|---|---|---|
+| reached by | opt-in comparator flag | the live cast |
+| garments | one at a time | shirt, pants, shoes, hair, brows, eyes, gown |
+| body | MPFB default | Anny-seeded macros, solved stature |
+
+I improved fit_stage.py. Lines 25-28 of the production materializer already recorded the `culturalibre_male_boots` CC-0 licence and the <13,380 binding constraint, both rediscovered the slow way, while #540's refusal of those boots stood unchallenged. Those boots ship on two bodies at 30,768 triangles.
+
+`--body-glb` (clothing an already-materialized body) is impossible as scoped and was abandoned before implementation. A .mhclo binds to basemesh vertex indices, and GLB export splits at seams (13,380 to 16,048), destroying the ordering. Many indices stay numerically in range, so ClothesService would fit the wrong vertices rather than fail a bounds check. Helper-stripping is safe: this garment's highest index is 11,018.
+
+Fit quality is ungraded. #659 measured 37.8% of one foot outside its shoe while the same code fitted another actor correctly; toigo_flats ships 57,600 triangles from a 28,800-face authored source.
+
+NOT TESTED: whether the production materializer carries the helper-shell or importer-rotation defects fixed in the comparator. Its live-cast output renders correctly, which is evidence against, but I did not read its code.
+
+Landed: **14 garment families across 18 shipped bodies**, measured from GLB mesh names and triangle counts, correcting my skill's stale 6 (2cfc8c51); provenance JSON carries no .mhclo paths, so the obvious grep returns zero. Two licence refusals reversed under a written precedence rule (asset descriptor, publisher pack page, mesh header, asset-specific only); skins01/02 stay refused on an explicit per-file AGPLv3 statement. The fit station builds its body with MPFB (c2273bca) after fixes to an unstripped helper-geometry "robe" and an importer Y-up to Z-up object rotation. Four wrong diagnoses were A/B'd out first.

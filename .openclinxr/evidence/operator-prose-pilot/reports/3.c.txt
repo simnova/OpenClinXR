@@ -1,0 +1,17 @@
+Two Claude sessions are set to write into the same file, and you need to pick one.
+
+Session `4fb4e97e` (the 15-minute autonomous board loop) spawned a lane manager for #576 at 16:50, three minutes after I dispatched #576 myself. Its brief tells it to branch a worktree and dispatch a worker into `materialize_mpfb_humanoid_candidate.py`, which my worker already holds.
+
+| check | reading |
+|---|---|
+| live grok workers | 1, PID 32065, mine |
+| ledger rows for issue-576 | 1 |
+| lane manager progress | 39 lines, still surveying worktrees |
+
+No second worker has spawned. That loop's own rules say it goes harvest-only while a product worker is live, so it may stop unprompted. If it does not, two writers land in one tree and one of them loses work. I can kill the lane manager, or leave it and watch the ledger.
+
+I could not locate the analysis you gave fable. The four most recent session transcripts, the subagent logs, and the handoffs directory contain no brief for it. Rather than stall the run, I pointed it at the review that is standing procedure here and overdue under D7: an outside read on whether the factory is converging. It carries `casesFullyDeterministic` at 1 of 15, my five named errors including the dispatchable-certainty bias, and explicit demands for subtractions and alternatives rather than praise. Tell me what fable was actually working on and a second run goes straight at it.
+
+Codex is live at maximum: `codex exec -m gpt-5.6-sol -c model_reasoning_effort="xhigh"`, authenticated through your ChatGPT login rather than a metered API key, so it does not burn tokens the way the fable run did. Your `~/.codex/config.toml` had `model_reasoning_effort = "low"`; I overrode it per invocation and left the file alone. Sandbox is read-only, so it can measure the tree and cannot write to it.
+
+NEXT: your call on the lane manager.

@@ -1,0 +1,23 @@
+**No when you asked; it is now.** `docs/index.html` had last changed 08-21 12:17 (efdec1f6, "publish the case-driven iris win"), three days stale. Today's commits under `docs/` were licence ledger and MADR work. I have since published the #650 win.
+
+Open items:
+
+- #643's generator is RED for two reasons: 13 encounter captures ungraded, 15 missing a capture sha. It refuses to invent either. Clause (1) (manifest exists, one entry per encounter) is now satisfied, so its `it.fails` marking was stale; I converted that clause to `it(`. Clause (2) still fails.
+- No ungraded images were published. D12 carries the recorded failure where 26 KB Model Vetting error screenshots shipped as "WebXR Sample Scene Evidence" because `pages:validate` checks existence only.
+- #621's claim holds by its contract's definition. `MAX_WRIST_ABOVE_DECK_METERS = 0.35`, measured 0.272 m, contract 3/3. The artifact generated 17:34, nine hours after the 08:10 fix, carries treeStamp head d3a817dc, which contains #621. Whether 27 cm of air counts as on the deck is the same threshold question raised on #181 and recorded there.
+
+Published: 32 of 32 actor records now carry numeric phenotype (age 52, height_cm 178, bmi 26, brow_tension 0.55, anxious 0.65, flush 0.15), verified from the tree against #603's count of 38 of 42 shipped actors with none. Records sit one level deeper than I assumed: 15 cases, each keyed by actor. `pages:validate` green, run automatically by the hook on the `docs/` touch.
+
+Today produced 85 commits and 10 subject-line product landings. Five that D12 would count as wins:
+
+| commit | landing |
+|---|---|
+| fcae9c58 | #650 case-authored phenotype sources baked bodies |
+| 5110525b | #126 garment weights from body surface |
+| 0492ef10 | #621 supine arm sweep |
+| ec5cbd42 | #181 upper-spine flex to pillow |
+| 0cfeb59f | #622 real model adapter ahead of mock |
+
+Four of those five remain unpublished.
+
+NEXT: grade the 13 captures and stamp the 15 shas.

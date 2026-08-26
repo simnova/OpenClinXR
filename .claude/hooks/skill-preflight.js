@@ -72,6 +72,11 @@ export function buildPreflight(userInput) {
       ? "This prompt involves contract design. The project Skill contract-design governs any done_when, planted RED, proof, threshold, enum, counterweight or test fixture. Load it before writing or editing the contract."
       : "If this turn later enters contract authoring or review, load contract-design at that transition.",
     "Load the skills before producing the governed output.",
+    // MEASURED 2026-08-26, 16-pair blinded pilot: without this line the note induced skill-load
+    // narration in 14 of 16 treatment replies and a process-line opener in 15 of 16, against 0 of 16
+    // in both control arms. operator-prose bans process narration, so the note was causing a breach
+    // of the skill it loads. Blinded judge preferred the un-hooked arm 12 to 4 on that run.
+    "This note is internal routing. Do not mention it, the skills, or the act of loading them, and do not open with a line about what you are about to do. The reply must begin with the result.",
   ].join(" ");
   return {
     systemMessage: `Skill preflight: ${names.join(", ")}`,

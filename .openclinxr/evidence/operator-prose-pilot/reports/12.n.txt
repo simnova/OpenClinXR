@@ -1,0 +1,15 @@
+## Codex's other optimizations
+
+I spot-checked four of its claims against the tree; all four hold.
+
+**Section C — the four optimizations**
+
+1. **Cache by recipe, not by actor.** Content-address a key over phenotype, garment set, body-profile version, rig version, materializer version; bake each unique recipe once. No such cache exists — grepping `recipeKey|bodyRecipe|assetRecipe` across `tools/openclinxr`, `packages/openclinxr`, `apps/ui-xr/src` returns nothing. Today 42 actors means 42 bakes even where bodies repeat.
+
+2. **Pre-bake a macro lattice.** Strongest of the four, because the machinery exists and is unused. `body_param_stage.py` already requires `--body-classes-json` (a list of `{bodyClassId, weight, gender, age?, muscle?}`), so batch generation over a grid is the existing interface. `body-param-catalog.json` holds only 2 entries — `adult_lean_female`, `adult_heavy_male` — with a measured `torsoGirthProxyMeters` spread of 0.07454 m, proving the mechanism yields visibly different bodies. No lattice or nearest-class resolution exists yet.
+
+3. **Drive shape via morph targets, not rig rebuilds.** Unbaked MPFB macros already ship in the GLB as zero-weight morph targets, and three.js already drives named viseme/emotion morphs. There is no phenotype→`morphTargetInfluences` path, and `neutralizeGeneratedHumanoidMorphTargets` (`main.ts:7440`, called at `main.ts:6965`) zeroes every imported target. Codex flags this as needing an experiment — fitted garments and hide masks may invalidate it. If it survives, most Blender body bakes disappear.
+
+4. **Seed the missing phenotypes.** 4 of 42 actors carry an exported phenotype (matches my count exactly); 25 have usable descriptors, 12 have nothing. Resolve stated descriptors first, then seed unspecified non-clinical variation from `scenarioId + actorId`, record the recipe, never reroll — D13's random-once rule, already written but with no code reading it.
+
+**Caveat:** I have not re-verified the claim that the flagship metric certified an orphan actor. That is the one to check before this reorders the queue.

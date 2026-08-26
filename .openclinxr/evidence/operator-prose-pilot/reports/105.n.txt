@@ -1,0 +1,24 @@
+## Yes — tasked out as #661
+
+**The peer's track record (last day, measured):**
+
+| card | action | outcome |
+|---|---|---|
+| #659 | planted RED, dispatched, landed, closed | I reproduced independently: 0.378 → 0.000 |
+| #656 | garment hem weld | on main (as `fix(asset-pipeline): … (#656)`) |
+| #647 | closed without a fix | superseded by #650, salvage at `858f9215` |
+
+Six REDs planted, three fixes on main. The #647 closure documents the dead premise, the salvage location, and why the card shouldn't be reused. The strongest signal is commit `a88fdb36`, "the destructive probe I claimed was NOT confirmed" — an unprompted withdrawal of their own unverified claim. That's what makes me willing to hand them branching work.
+
+**#661 is filed for them, deliberately un-operationalized** — it carries experimental judgment and pixel grading that belong to an orchestrator. It names dependencies, corrected sequence, the full `shoe_form_and_wear_v1` predicate with uncalibrated thresholds marked, abort/continue rules, concurrency constraints, and the blocker. I am not keeping a parallel copy. Provenance is recorded at the top: their `test(#661): plant RED` and `fix(#661 probe)` predate the issue; my filing claimed that number. Their planted gate is step 1 of this plan, so it's coherent, not a collision.
+
+**The consult corrected me three times; I verified each against the tree:**
+1. My proposed first step was a category error — a fetal monitor and a shoe fail decimation differently.
+2. Newest live hatch is **2026-08-14**, not 08-12 as I told you.
+3. `featureSurvival = triangleCount > 500 && volumeRatioToRaw > 0.05` — a bounding-box non-collapse check a 1,500-triangle capsule passes. I cited it to you as evidence the optimize stage preserved assets. **Withdrawn.**
+
+What actually proves it: the 80,000-triangle render (from 288,466), on disk since 14 August, ungraded until now. Bezel, raised buttons, and knurled knob ridges all readable — the knob is exactly what MADR 0050 warns decimation destroys.
+
+**Blocker:** ComfyUI is not running, so TRELLIS liveness is down, not unknown. Steps 1–2 need none of it.
+
+**NOT TESTED:** whether TRELLIS can generate footwear at all. All nine proven subjects are hard-surface equipment.

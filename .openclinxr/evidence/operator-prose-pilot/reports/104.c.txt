@@ -1,0 +1,19 @@
+Yes, worth trying. First a correction: I said the champion does not record the decimation path reaching a wearable budget. The optimize stage has been run and it worked, 288,466 triangles down to 80,000 with `featureSurvival = ok` and a pixel grade agreeing at 0.00018 relative error, across three subjects. That caution was the error MADR 0050 documents, from your 2026-08-07 instruction not to reject a generator on triangle count.
+
+NOT TESTED: whether the bake environment currently runs. Newest TRELLIS evidence is dated 12 August, and I repaired that virtualenv without probing it since.
+
+Your Babylon findings are recorded as #649. That author decimated to 20%, then atlased, merged and packed. TRELLIS lands at 28% (80,000 from 288,466), so two pipelines sit in the same band, mild corroboration that the setting is sane rather than arbitrary. What #649 has that the TRELLIS path lacks is everything after decimation. Texture atlasing, mesh merging and UV packing cut draw calls, a budget nothing in this repo measures. That half is the part worth adopting, not the decimation.
+
+Shoes suit the method. MADR 0050 names the failure mode as thin, high-curvature features, its examples being casters, IV poles, monitor bezels and bed rails. A shoe is a closed smooth volume with a sole.
+
+| target | triangles |
+|---|---|
+| current parametric shell | 80 |
+| MPFB library shoe | 1,338 |
+| TRELLIS `PROP_PREFERRED` | 80,000 |
+
+`PROP_PREFERRED = 80_000` is a named constant for props and `targetTris` is a threaded parameter, so 80,000 is a budget choice, not a floor. Nobody has run the optimizer at a wearable target.
+
+The remaining gap is fitting. A TRELLIS shoe is a static prop; a worn shoe needs fitting to each actor's measured foot AABB and weighting to the foot bone. #659 landed the fit derivation an hour ago.
+
+NEXT: liveness check, then push an on-disk champion to roughly 1,500 triangles and read `featureSurvival` plus the grade. Minutes, no new bake. If that holds, bake one shoe and wire it through fitting.

@@ -1,0 +1,27 @@
+# MakeClothes — status
+
+**MakeClothes was already integrated and shipping before this session.** The main finding is that most of my effort went into the wrong consumer.
+
+## What the cast wears (measured from GLB mesh names/triangle counts)
+
+**14 garment families across 18 shipped bodies:** `eyes_low_poly` (11), `toigo_t_shirt` (8), `footwear_toigo_mj_cloth_shoes` (7), `cargo_pants` (7), `hair_toigo_blunt_bob_with_bangs` (5), `scrub_shirt`/`scrub_pants` (3 each), `hair_mhair02` (2), `footwear_toigo_flats` (2), `footwear_culturalibre_male_boots` (2), `lab_coat` (1).
+
+My skill claimed 6; corrected in `2cfc8c51`. The undercount survived because provenance JSON carries no `.mhclo` paths, so the obvious grep returns zero.
+
+## The correction that mattered
+
+Two consumers exist. `fit_stage.py` (481 lines) is reached only by an opt-in comparator flag; `materialize_mpfb_humanoid_candidate.py` (5,344 lines) is what the live cast uses. I improved the former. Lines 25–28 of the production materializer already recorded the `culturalibre_male_boots` CC-0 licence and the `< 13,380` binding constraint I rediscovered slowly — while #540's refusal of those boots stood unchallenged. They ship on two bodies at 30,768 triangles.
+
+## Landed
+
+- Two licence refusals reversed. The `.obj` `# license AGPL3` header is stale boilerplate pointing at a parked domain; `.mhclo` and pack page say CC-0. Precedence now documented: asset descriptor → publisher pack page → mesh header, asset-specific only. `skins01/02` remain refused (explicit per-file AGPLv3).
+- Fit station builds its body with MPFB (`c2273bca`); fixed unstripped helper "robe" geometry and an importer Y-up→Z-up object rotation. Four wrong diagnoses A/B'd out first.
+- 400-line skill, opening with the two-consumer trap.
+
+## Open
+
+`--body-glb` is impossible as scoped; abandoned pre-implementation. GLB export splits seams (13,380 → 16,048), destroying index ordering — and many indices stay in range, so ClothesService would silently fit wrong vertices. Helper-stripping is safe (max index 11,018).
+
+**Presence ≠ fit quality.** #659 measured 37.8% of one foot outside its shoe; `toigo_flats` ships 57,600 triangles from a 28,800-face source. Fit quality is ungraded.
+
+NOT TESTED: whether the production materializer shares the helper-shell or rotation defects. Its output renders correctly, but I did not read its code.
