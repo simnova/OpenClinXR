@@ -57,6 +57,13 @@ const DEFAULT_MAX_TURNS = 150;
 const REQUIRED_ENV = { OPENCLINXR_WORKER: "1", GROK_SUBAGENTS: "1" } as const;
 
 /**
+ * The same guard, exported for the raw-resume builder. Exported rather than duplicated: a
+ * second literal copy is how a value drifts silently (measured tonight on
+ * MIN_SHOULDER_TO_WRIST_DROP_METERS, which exists twice at the same line number in two files).
+ */
+export const RESUME_REQUIRED_ENV: Readonly<Record<string, string>> = REQUIRED_ENV;
+
+/**
  * SECURITY: `RUST_LOG=debug` and `--debug-file` cause grok to log the bearer API token in
  * plaintext. Never enable them. This is a hard refusal, not a warning.
  */
