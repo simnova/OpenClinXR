@@ -125,8 +125,13 @@ const UNCHANGED_MM = 4; // chest/hip must not move: this is what refuses whole-b
 const BASELINE: Record<string, { chest: number; abdomen: number; hip: number }> = {
   "mpfb-ob-patient-aisha.glb": { chest: 192.5, abdomen: 246.5, hip: 216.5 },
   "mpfb-street-adult-male.glb": { chest: 198, abdomen: 243.4, hip: 215.4 },
-  "mpfb-family-partner-adult.glb": { chest: 190, abdomen: 233.7, hip: 207 },
-  "mpfb-clinical-nurse-adult.glb": { chest: 198, abdomen: 243.4, hip: 215.4 },
+  // #568 re-recorded 2026-08-26: family partner rebaked through the current materializer
+  // (#670 pins gender 0.0 from the case; the pre-#670 bake used the neutral macro), which
+  // narrowed the chest; was 190/233.7/207.
+  "mpfb-family-partner-adult.glb": { chest: 175, abdomen: 237.4, hip: 214.4 },
+  // #568 re-recorded 2026-08-26: nurse rebaked through the current materializer (#670 pins
+  // gender 0.0 from the case; the pre-#670 bake used the neutral macro); was 198/243.4/215.4.
+  "mpfb-clinical-nurse-adult.glb": { chest: 182.5, abdomen: 246.5, hip: 223.9 },
 };
 /** Measured 2026-08-23 on the FINAL single-key bake (zero-and-restore bulk bake, round 4):
  *  the earlier row (193.9/307.2/210.3) came from the round-1 bake whose bulk bake_targets

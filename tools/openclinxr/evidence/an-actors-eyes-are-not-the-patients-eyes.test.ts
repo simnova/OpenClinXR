@@ -167,7 +167,7 @@ function mpfbAssets(): string[] {
 }
 
 describe("an actor's eyes are not the patient's eyes (#568)", () => {
-  it.fails(
+  it(
     "(1) a non-patient actor that authors NO eye colour takes its role fallback",
     async () => {
       // GUARD: re-derive the authoring set from the bank every run. If it drifts, the pinned
@@ -237,3 +237,34 @@ describe("an actor's eyes are not the patient's eyes (#568)", () => {
     600_000,
   );
 });
+
+/**
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ * ## FIXED (#568) — flipped it.fails -> it; the planted header above is immutable
+ *
+ * Clause (1) stopped failing on 2026-08-26. The fix, in the pipeline (no texture/GLB hand-edits):
+ *
+ * - `rebake_role_wardrobe_blender_only.py` `overlay_manifest` now strips the BASE actor's
+ *   `eye_color` from the derived phenotype (inherited is NOT authored — kevin's/tara's authored
+ *   brown was leaking into the ED nurse/spouse manifests), and refreshes `phenotype_summary` to
+ *   the derived phenotype (the stale base summary made the #670 sex guard refuse the nurse's
+ *   bake: female phenotype vs kevin's male summary).
+ * - The two non-authoring actors' overlays no longer declare `eye_color` at all
+ *   (`rebake_ed_nurse` / `rebake_ed_spouse`), so `iris_palette.py`'s role fallback decides:
+ *   nurse_maria_alvarez_v1 -> blue, spouse_anna_hayes_v1 -> green.
+ * - Both manifests regenerated and both GLBs re-materialized through
+ *   `materialize_mpfb_humanoid_candidate.py` (--reference ed_chest_pain_{nurse,spouse}_adult,
+ *   --actor-role nurse / family). Measured post-fix: 3 distinct iris sha across the 11 shipped
+ *   MPFB assets (was 1): nurse blue 572ddc93ab3e, family green b9864ac4f4fa, patients/authored
+ *   actors keep brown 4659691c7295.
+ *
+ * The override path is untouched: the five actors whose CASE authors eye_color (robert brown,
+ * maya hazel-discarded-#681, tara brown, kevin brown, senior-resident brown) still ship their
+ * authored colour; patients still ship brown; the ValueError on unbuildable names is unchanged;
+ * `_EYE_IRIS_BY_ROLE` is unchanged.
+ *
+ * NOT TESTED: whether any iris LOOKS right (orchestrator grades captures); the anny-rail
+ * procedural eyes (ed_chest_pain_nurse_adult.glb etc.) keep their brown default — the ruling
+ * covers the shipped MPFB assets; #667's payload-redundancy card (this fix's distinct-sha count
+ * is its input, not its scope).
+ */
