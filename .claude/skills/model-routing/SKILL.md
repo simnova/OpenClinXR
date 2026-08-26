@@ -9,6 +9,41 @@ when-to-use: "ox is down, ox not working, model is broken, dispatch died, 0 byte
 Two ladders, set by the operator on 2026-08-23. First available wins; step down only on a measured
 failure, never on preference.
 
+## CORRECTED 2026-08-26 — the 10x claim below is WITHDRAWN
+
+The table in the next section is real arithmetic over raw ledger counts, and the conclusion I drew
+from it is not supported. Read this first.
+
+The ledger already records a cause classification, `deathCountsAgainstModel`, and using it dissolves
+the gap:
+
+| ox-alpha's 21 deaths | classification |
+|---:|---|
+| 2 | `deathClass: auth` — a MISSING KEY, i.e. my own invocation error |
+| 5 | `against=False`, `class=unknown` — including #526's 145-turn death |
+| 14 | UNCLASSIFIED, all from 2026-08-23..24, before the field existed |
+
+**Zero ox deaths are attributed to the provider with evidence.** deepseek-v4-flash's only two
+classified deaths are likewise `against=False`. So the "10x" compared ox's large UNCLASSIFIED
+backlog against deepseek's exonerated pair — the difference measured how much of each model's
+history predates the classifier, not how often each fails.
+
+I wrote a "CEILING, not a clean rate" caveat and then published the headline anyway. A caveat under
+a table nobody reads to the end is not a correction; it is a hedge.
+
+**A real defect surfaced while checking this:** both `auth` deaths are marked
+`deathCountsAgainstModel: true`. An auth failure is a missing `direnv exec` — the caller's error,
+never the provider's — so the classifier's polarity is backwards on the one class it can identify
+with certainty. Filed rather than patched here.
+
+**What survives, and it is worth keeping:**
+- ox does carry the largest absolute death count and every one of the six most expensive deaths
+  (145, 84, 51, 23, 10, 2 turns), so a death on a LONG ox slice is expensive whatever its cause.
+- Repeated dispatch is death-driven, not brief failure: #608 5 spawns / 4 deaths / 1 completion,
+  #594 3/3/0, #526 2/2/0.
+- **Commit AND PUSH worker WIP early.** Checked after writing it: 15 branches carried commits on no
+  remote, including one at +460. Preservation that is not pushed is not preservation.
+
 ## THE MEASURED PRICE OF RUNG 1 — read this before defending ox
 
 Everything below about ox being fine is about INVOCATION errors, and it is still true. This
