@@ -119,7 +119,7 @@ async function main(): Promise<void> {
     const row = items.find((it) => it.content?.number === i.number);
     return {
       number: i.number,
-      dispatchable: Boolean(briefFromIssue(i as never).dispatchable),
+      dispatchable: Boolean(briefFromIssue(i as never, REPO).dispatchable),
       factoryStep: factoryStepOf(i.body),
       planted: row?.factory === "Planted",
       prioritized: typeof row?.priority === "string" && row.priority.length > 0,

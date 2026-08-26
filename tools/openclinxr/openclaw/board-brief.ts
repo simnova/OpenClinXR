@@ -217,7 +217,60 @@ export function malformedPathTargets(rules: readonly string[]): string[] {
   return bad;
 }
 
-export function briefFromIssue(issue: BoardIssue): BriefResult {
+import { existsSync, readFileSync } from "node:fs";
+import { join, isAbsolute } from "node:path";
+
+
+/**
+ * A `run:` naming an `it.fails` plant is a VACUOUS proof — measured 2026-08-26:
+ *
+ *   worker does nothing (it.fails + throwing) -> exit 0   <- satisfied before any work
+ *   fixed + flipped to it()                   -> exit 0
+ *   fixed, flip forgotten                     -> exit 1   <- the only state it refuses
+ *
+ * `done-when-rules.ts:386` diagnosed this against #569/#570 and landed the remedy: `live:<file>`
+ * asserts zero remaining `it.fails` in the named plant. The remedy is sound and under-adopted —
+ * 5 of 14 open cards with a `run:` rule carry an it.fails plant and neither `live:` nor
+ * `measured-before:`.
+ *
+ * Returns the plant paths that are unprotected. Empty when no tree root is available, because the
+ * check requires reading the file: the rule text alone cannot tell an it.fails plant from a plain
+ * one, which is why the gate could never catch this before.
+ */
+export function unprotectedItFailsPlants(
+  rules: readonly string[],
+  treeRoot: string | undefined,
+): string[] {
+  if (!treeRoot) return [];
+  const covered = new Set<string>();
+  for (const rule of rules) {
+    if (rule.startsWith("live:")) covered.add(rule.slice("live:".length).trim());
+    if (rule.startsWith("measured-before:")) {
+      covered.add(rule.slice("measured-before:".length).trim());
+    }
+  }
+  const bad: string[] = [];
+  for (const rule of rules) {
+    if (!rule.startsWith("run:")) continue;
+    for (const tok of rule.split(/\s+/u)) {
+      if (!/\.test\.ts$/u.test(tok)) continue;
+      if (tok.includes("*")) continue; // a glob is a different shape; do not guess
+      if (covered.has(tok)) continue;
+      const abs = isAbsolute(tok) ? tok : join(treeRoot, tok);
+      if (!existsSync(abs)) continue; // someone else's refusal, not this gate's business
+      let source: string;
+      try {
+        source = readFileSync(abs, "utf8");
+      } catch {
+        continue;
+      }
+      if (/\bit\.fails\s*\(/u.test(source) && !bad.includes(tok)) bad.push(tok);
+    }
+  }
+  return bad;
+}
+
+export function briefFromIssue(issue: BoardIssue, treeRoot?: string): BriefResult {
   const rules = extractDoneWhen(issue.body);
   const malformed = malformedPathTargets(rules);
   if (malformed.length > 0) {
@@ -228,6 +281,20 @@ export function briefFromIssue(issue: BoardIssue): BriefResult {
         + `markdown formatting, so the target is a literal string no file can match and the proof can `
         + `NEVER pass: ${malformed.join(" | ")}. Strip the backticks/quotes/brackets from the path. `
         + `Measured: 24 of 62 ledger proof failures were changed:-only, one of them exactly this shape.`,
+    };
+  }
+
+  const unprotected = unprotectedItFailsPlants(rules, treeRoot);
+  if (unprotected.length > 0) {
+    return {
+      dispatchable: false,
+      reason:
+        `Issue #${issue.number} has ${unprotected.length} run: proof(s) naming a plant that contains `
+        + `it.fails, with no live: or measured-before: rule covering it: ${unprotected.join(" | ")}. `
+        + `vitest counts an expected-fail as a PASS, so that run: exits 0 on an UNTOUCHED tree — the `
+        + `proof is satisfied before the work starts and cannot tell done from not-started. Add `
+        + `live:<plant path> for each, which asserts zero remaining it.fails once the slice flips `
+        + `them. Measured 2026-08-26: 5 of 14 open cards with a run: rule carried this shape.`,
     };
   }
   /**
