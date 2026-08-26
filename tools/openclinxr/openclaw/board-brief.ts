@@ -37,6 +37,37 @@ export type BriefResult =
  * refusing the first real issue written for this pipeline, whose done_when block was fine. A parser
  * that rejects correct input teaches people to write for the parser rather than for the reader.
  */
+/**
+ * Bullets that `extractDoneWhen` would DISCARD: any bullet appearing after the first interrupting
+ * line, still inside the `## done_when` section.
+ *
+ * The parser stops at the first non-bullet line, so a sentence of commentary between two rules
+ * silently truncates the contract. Measured before this existed: a card declaring three rules
+ * dispatched with one, green, against criteria its author never chose. That is the failure
+ * `PROTO_BOARD_LOOP` calls "worse than no contract because it looks like one".
+ *
+ * REFUSE rather than repair. A card whose rules are split by prose may have meant either shape,
+ * and silently skipping the prose would substitute this parser's judgement for the author's.
+ *
+ * Blank lines are NOT interruptions — `extractDoneWhen` already skips them and markdown authors
+ * space bullets routinely.
+ */
+export function droppedDoneWhenRules(body: string): string[] {
+  const start = /##\s*done_when\s*\n/i.exec(body);
+  if (!start) return [];
+  const section = body.slice(start.index + start[0].length).split(/\n##\s/)[0] ?? "";
+  const dropped: string[] = [];
+  let interrupted = false;
+  for (const line of section.split("\n")) {
+    const trimmed = line.trim();
+    if (trimmed === "") continue;
+    const bullet = /^[-*]\s+(.*)$/.exec(trimmed);
+    if (!bullet?.[1]) { interrupted = true; continue; }
+    if (interrupted) dropped.push(bullet[1].trim());
+  }
+  return dropped;
+}
+
 function extractDoneWhen(body: string): string[] {
   const start = /##\s*done_when\s*\n/i.exec(body);
   if (!start) return [];
@@ -159,7 +190,19 @@ export function clothingSliceLacksToolPath(step: string, body: string, title: st
  */
 const PATH_RULES = ["changed:", "exists:", "min-bytes:", "live:"] as const;
 /** Characters that cannot appear in a repo path here and indicate markdown leaked into the rule. */
-const FORMATTING = /[`"'*\[\]()]/u;
+/**
+ * Characters that make a path target unsatisfiable. `*` is deliberately NOT here.
+ *
+ * It was, and that refused rules the evaluator supports: `done-when-tree.ts`'s `globMatch` branches
+ * on `pattern.includes("*")` and builds a regex from the segments, so a wildcard is a first-class
+ * form. Worse than a false refusal, the remediation was destructive — stripping the `*` from
+ * `exists:evidence/*.json` yields `exists:evidence/.json`, converting a working contract into the
+ * broken one the message accused it of being.
+ *
+ * The rest stay: a backtick, quote, bracket or paren in a path is a markdown artifact
+ * (`exists:[evidence](path/x.json)`), and those genuinely cannot resolve.
+ */
+const FORMATTING = /[`"'\[\]()]/u;
 
 export function malformedPathTargets(rules: readonly string[]): string[] {
   const bad: string[] = [];
@@ -185,6 +228,23 @@ export function briefFromIssue(issue: BoardIssue): BriefResult {
         + `markdown formatting, so the target is a literal string no file can match and the proof can `
         + `NEVER pass: ${malformed.join(" | ")}. Strip the backticks/quotes/brackets from the path. `
         + `Measured: 24 of 62 ledger proof failures were changed:-only, one of them exactly this shape.`,
+    };
+  }
+  /**
+   * A contract that is SILENTLY partial is worse than one that is refused: the slice goes green
+   * against rules the author did not choose. Checked before the empty-rules branch so a card whose
+   * ONLY rules sit below an interruption gets this message rather than "no rules at all".
+   */
+  const dropped = droppedDoneWhenRules(issue.body);
+  if (dropped.length > 0) {
+    return {
+      dispatchable: false,
+      reason:
+        `Issue #${issue.number} would dispatch on a PARTIAL contract: ${dropped.length} done_when `
+        + `rule(s) sit below an interrupting line and the parser stops at the first non-bullet, so `
+        + `they would be silently dropped — the slice would go green against rules you did not `
+        + `choose. Lost: ${dropped.join(" | ")}. Move the commentary above the heading or below the `
+        + `list; blank lines between bullets are fine.`,
     };
   }
   if (rules.length === 0) {
