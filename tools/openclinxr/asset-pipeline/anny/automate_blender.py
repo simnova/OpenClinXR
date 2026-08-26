@@ -2541,6 +2541,114 @@ def _build_body_surface_derived_garment(
                 f"flare={flare:.2f} verts={len(bm.verts)} faces={len(bm.faces)}"
             )
 
+    # #686: the gown BODICE hangs off the torso as cloth, so the chest/abdomen stops reading
+    # through the fabric. The bodice was a conformal normal offset (10-22 mm, above), and a
+    # larger offset preserves the parallelism — the refused attempt moved the median gap 63%
+    # (27.7 -> 45.1 mm) and the normal-dot only 3% (0.991 -> 0.962), which is exactly why the
+    # old level-only clause passed and the pixels did not. The discriminating measure is the
+    # ANGLE between the garment surface normal and the nearest body surface normal: the skirt's
+    # lofted tube drapes at 0.782 while the bodice's offset shell reads 0.991. So the bodice
+    # gets its OWN drape instead of a bigger offset: subdivide the shell (the shipped torso ring
+    # cannot resolve gathers — faces crossing a fold cusp average the flanks to ~zero tilt), then
+    # gather the trunk in vertical fold-backs (triangle-wave cross-section, crest at the front
+    # centre) whose flank normals decorrelate from the body surface, and lift the trunk radially
+    # about the body centreline so the level clause (bodice >= half the skirt's standoff) clears.
+    # The sleeves are gathered about the arm axis and lifted with it — the level population
+    # includes the sleeves, and a loose gathered sleeve is the garment's own drape, not the
+    # refused attempt's cone (which flared about the CENTRELINE and tore the sleeve off the arm).
+    # Every treatment fades to zero at the hip ring (the skirt's loft and the shared ring stay
+    # untouched — no ledge), at the collar, and at the sleeve roots. Gown kind only (skirt_top_y
+    # is set only for the gown).
+    if skirt_top_y is not None:
+        _h686 = (neck_y - skirt_top_y) / 0.29          # body height from the two height fractions
+        _floor686 = neck_y - 0.84 * _h686
+        bm.verts.ensure_lookup_table()
+        bm.edges.ensure_lookup_table()
+        bm.faces.ensure_lookup_table()
+        for _sub686 in range(2):
+            bmesh.ops.subdivide_edges(bm, edges=list(bm.edges), cuts=1, use_grid_fill=False)
+            bm.verts.ensure_lookup_table()
+            bm.edges.ensure_lookup_table()
+            bm.faces.ensure_lookup_table()
+
+        def _tri_wave686(x: float) -> float:
+            # triangle wave: crest at +1, valley at -1, period 2*pi, crest at x = pi/2 + 2*pi*n
+            u = (x + math.pi / 2.0) % (2.0 * math.pi)
+            if u < math.pi:
+                return 1.0 - (2.0 * u) / math.pi
+            return -1.0 + (2.0 * (u - math.pi)) / math.pi
+
+        def _smooth686(e0: float, e1: float, x: float) -> float:
+            t = max(0.0, min(1.0, (x - e0) / max(e1 - e0, 1e-9)))
+            return t * t * (3.0 - 2.0 * t)
+
+        _trunk_lo686 = 0.15
+        _trunk_hi686 = 0.26
+        _lift686 = 0.24
+        _fold_amp686 = 0.034
+        _fold_k686 = 16
+        _sleeve_amp686 = 0.020
+        _sleeve_k686 = 5
+        _sleeve_lift686 = 0.08
+        _n_trunk686 = 0
+        _n_sleeve686 = 0
+        for v in bm.verts:
+            p = v.co
+            y = float(p.y)
+            f = (y - _floor686) / _h686
+            if f <= 0.55 or f >= 0.86:
+                continue
+            x = float(p.x)
+            z = float(p.z)
+            ax = abs(x)
+            wx = 1.0 - _smooth686(_trunk_lo686, _trunk_hi686, ax)
+            if wx > 0.001:
+                wy = min(_smooth686(0.55, 0.64, f), 1.0 - _smooth686(0.80, 0.85, f))
+                rx = x - cx
+                rz = z - cz
+                rr = math.hypot(rx, rz)
+                if rr < 1e-6:
+                    continue
+                s = 1.0 + _lift686 * wy * wx
+                wfold = wx * min(1.0, _smooth686(0.55, 0.62, f)) * (1.0 - _smooth686(0.80, 0.85, f))
+                d = _fold_amp686 * _tri_wave686(_fold_k686 * math.atan2(rz, rx) + math.pi / 2.0) * wfold
+                nx = rx / rr
+                nz = rz / rr
+                v.co.x = cx + rx * s + nx * d
+                v.co.z = cz + rz * s + nz * d
+                _n_trunk686 += 1
+            elif ax >= _trunk_hi686 and 0.60 <= f <= 0.84:
+                # gathers + lift about the nearer upper-arm axis (shoulder->elbow segment)
+                dL, _tL = _poly_dist(p, chain_L)
+                dR, _tR = _poly_dist(p, chain_R)
+                if dL <= dR:
+                    axis = eL - sL
+                    s_arm = sL
+                else:
+                    axis = eR - sR
+                    s_arm = sR
+                axis_len = axis.length
+                if axis_len < 1e-6:
+                    continue
+                axis.normalize()
+                t = (p - s_arm).dot(axis)
+                axis_pt = s_arm + axis * t
+                rad = p - axis_pt
+                rad_len = rad.length
+                if rad_len < 1e-6:
+                    continue
+                rad_n = rad / rad_len
+                phi = math.atan2(rad.y, rad.z)
+                d2 = _sleeve_amp686 * math.cos(_sleeve_k686 * phi)
+                v.co = axis_pt + rad * (1.0 + _sleeve_lift686) + rad_n * d2
+                _n_sleeve686 += 1
+        print(
+            f"[blender] #686 bodice drape: lift={_lift686} folds={_fold_k686}x{_fold_amp686 * 1000:.0f}mm "
+            f"sleeve={_sleeve_k686}x{_sleeve_amp686 * 1000:.0f}mm+{_sleeve_lift686} trunk_verts={_n_trunk686} "
+            f"sleeve_verts={_n_sleeve686} verts={len(bm.verts)}"
+        )
+        bm.normal_update()
+
     # No solidify: rim faces export as detached micro-islands after glTF split-by-normal.
     # Cloth offset alone keeps vertices inside the inspect offset band.
 

@@ -72,6 +72,24 @@ def _strip_lower_garments(body):
         bpy.data.objects.remove(o, do_unlink=True)
 
 
+def _strip_existing_gown():
+    """Remove a gown the INPUT already carries before the builder re-bakes one.
+
+    The regeneration path runs `--input-glb` on a previously gowned asset (the #684
+    shape: input == the shipped cast asset), and the builder emits a NEW gown mesh. The
+    input's gown object is not in the builder's `created` set, so without this strip it
+    survives to export and the GLB carries two overlapping hospital gowns — the old
+    conformal shell (3419 verts, normal-dot ~0.99) and the new draped one, which
+    confounds every normal-dot contract on the shipped asset (#686)."""
+    for o in list(bpy.context.scene.objects):
+        if o.type != "MESH":
+            continue
+        if "real_garment" not in o.name.lower():
+            continue
+        print(f"STRIP_EXISTING_GOWN {o.name!r} verts={len(o.data.vertices)}")
+        bpy.data.objects.remove(o, do_unlink=True)
+
+
 def _find_body():
     # The body is the *_body mesh (the eyes/gaze helper is *_body_mesh.low-poly). Name-based,
     # not vertex-count: the fitted toigo flats shoe imports at 115k verts, more than the body.
@@ -154,6 +172,7 @@ def main() -> None:
     print(f"BODY_LOCAL x={_local_bounds(body)}")
 
     _strip_lower_garments(body)
+    _strip_existing_gown()
     bpy.context.view_layer.update()
 
     before = {o.name for o in bpy.context.scene.objects}
