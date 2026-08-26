@@ -106,6 +106,22 @@ describe("an it.fails plant needs a second proof form", () => {
     expect(noRoot.dispatchable).toBe(true); // optional parameter omitted -> silent
   });
 
+  // (6) CORRECTED 2026-08-26 after a consult: `measured-before:` must NOT count as protection.
+  //     It asserts ORDERING ONLY — an artifact written before a product edit, by mtime
+  //     (done-when-rules.ts:310-319) — and says nothing about whether a plant was flipped. It was
+  //     in the covered set and was dead code besides: its payload is `<artifact>:<product>`, which
+  //     can never equal a `.test.ts` token. The dead comparison hid the wrong claim.
+  it("does not treat measured-before: as protection for an it.fails plant", () => {
+    root = makeTree(`import { it, expect } from "vitest";\nit.fails("red", () => expect(1).toBe(2));\n`);
+    const res = briefFromIssue(
+      card(`- run:pnpm exec vitest run ${plantRel}\n- measured-before:.openclinxr/evidence/pre-fix.json:${plantRel}`),
+      root,
+    );
+    expect(res.dispatchable, "measured-before: proves ordering, never that a plant was flipped")
+      .toBe(false);
+    rmSync(root, { recursive: true, force: true });
+  });
+
   // (5) The gate must read the FILE, not the rule text. A card naming a plant that does not exist
   //     on disk is someone else's refusal (or a glob) — this gate stays silent rather than guessing.
   it("stays silent when the named plant is not on disk", () => {

@@ -242,12 +242,20 @@ export function unprotectedItFailsPlants(
   treeRoot: string | undefined,
 ): string[] {
   if (!treeRoot) return [];
+  // ONLY `live:` protects. It asserts zero remaining `it.fails` in the named plant
+  // (done-when-rules.ts:413 `countPlantedItFails(...) === 0`), which is exactly the guarantee a
+  // bare `run:` cannot give.
+  //
+  // CORRECTED 2026-08-26, same day, after a consult caught it: `measured-before:` was in this set
+  // and was wrong on two counts. Its payload is `<artifact>:<product>` (done-when-rules.ts:321-324),
+  // so the string added here could never equal a `.test.ts` token and the branch was dead. And even
+  // matching, it would not protect: `measured-before:` asserts ORDERING ONLY — that an artifact was
+  // written before a product edit, by mtime (done-when-rules.ts:310-319). It says nothing about
+  // whether a plant was flipped. Advertising it as protection was the more serious half; the dead
+  // comparison merely hid it. Zero open cards used it, so removing it changes protection for none.
   const covered = new Set<string>();
   for (const rule of rules) {
     if (rule.startsWith("live:")) covered.add(rule.slice("live:".length).trim());
-    if (rule.startsWith("measured-before:")) {
-      covered.add(rule.slice("measured-before:".length).trim());
-    }
   }
   const bad: string[] = [];
   for (const rule of rules) {
@@ -290,7 +298,7 @@ export function briefFromIssue(issue: BoardIssue, treeRoot?: string): BriefResul
       dispatchable: false,
       reason:
         `Issue #${issue.number} has ${unprotected.length} run: proof(s) naming a plant that contains `
-        + `it.fails, with no live: or measured-before: rule covering it: ${unprotected.join(" | ")}. `
+        + `it.fails, with no live: rule covering it: ${unprotected.join(" | ")}. `
         + `vitest counts an expected-fail as a PASS, so that run: exits 0 on an UNTOUCHED tree — the `
         + `proof is satisfied before the work starts and cannot tell done from not-started. Add `
         + `live:<plant path> for each, which asserts zero remaining it.fails once the slice flips `

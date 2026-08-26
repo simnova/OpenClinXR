@@ -3,7 +3,10 @@
  *
  * MEASURED 2026-08-26. Three members of one class, all from the same cause:
  *
- *   raw resume skips the worker guard      -> unrequested doc-archive churn (#99)
+ *   raw resume skips the worker guard      -> gates other hook behaviour. NOT doc-archive churn:
+ *                                             superseded 2026-08-22 by 3bbe5d5c (hook now skips
+ *                                             on git toplevel `*.grok/worktrees*`), #99 closed.
+ *                                             150733e2's commit body states this WRONGLY.
  *   raw resume skips contract verification -> integrate refuses the branch (PROTO §11h)
  *   raw resume skips the vision denies     -> 26.4M-token hard 400 on #642
  *

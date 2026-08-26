@@ -5,7 +5,9 @@
  * guard env, worktree isolation denies, and — since 88037391 (#242) — image Read denies for
  * text-only models. A raw `grok -p --resume` reaches none of that, and the losses are silent:
  *
- *   worker guard missing      -> unrequested doc-archive churn in the worktree (#99)
+ *   worker guard missing      -> gates OTHER hook behaviour (NOT doc-archive churn — that was
+ *                               superseded 2026-08-22 by 3bbe5d5c, which made the hook skip on
+ *                               git toplevel `*.grok/worktrees*`; #99 is closed)
  *   contract report missing   -> integrate refuses the branch
  *   vision denies missing     -> a text-only model Reads a PNG, hard 400, dispatch dead
  *
