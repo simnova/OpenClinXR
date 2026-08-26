@@ -68,7 +68,7 @@ const manifest = (): { options?: Option[]; derivedFrom?: string; generatedBy?: s
   JSON.parse(readFileSync(MANIFEST, "utf8"));
 
 describe("the factory publishes body cells", () => {
-  it.fails("(1) a body-cell manifest exists and lists exactly what the stage can build", () => {
+  it("(1) a body-cell manifest exists and lists exactly what the stage can build", () => {
     expect(existsSync(MANIFEST), `${MANIFEST} must exist`).toBe(true);
     const ids = (manifest().options ?? []).map((o) => o.id).sort();
     expect(
@@ -77,7 +77,7 @@ describe("the factory publishes body cells", () => {
     ).toEqual(packFromStage());
   });
 
-  it.fails("(2) the manifest is DERIVED from the stage's pack, not a second literal", () => {
+  it("(2) the manifest is DERIVED from the stage's pack, not a second literal", () => {
     const m = manifest();
     expect(m.field, "the manifest names its field").toBe("body_cell");
     expect(m.derivedFrom ?? "", "derivedFrom names BODY_CELL_PACK in body_param_stage")
@@ -86,7 +86,7 @@ describe("the factory publishes body cells", () => {
       .toMatch(/generate_body_cell_capability_manifest\.py/u);
   });
 
-  it.fails("(3) every published cell carries the fields a caller needs to choose one", () => {
+  it("(3) every published cell carries the fields a caller needs to choose one", () => {
     const options = manifest().options ?? [];
     const incomplete = options
       .filter((o) => ["ageBand", "sex", "ageMacro", "genderMacro", "licence"].some((k) => (o as Record<string, unknown>)[k] === undefined))
@@ -109,4 +109,31 @@ describe("the factory publishes body cells", () => {
       expect(roleTagged, "a body_profile role tag is not a bakeable cell").toEqual([]);
     }
   });
+
+  /*
+   * ## FIXED (#670)
+   * Clauses (1)-(3) flipped from it.fails to it. The fix:
+   *   - `BODY_CELL_PACK` added to body_param_stage.py — ONE literal for capability:
+   *     5 age bands (the predicates _years_to_age_macro implements: <=1 / <=12 / <=18 /
+   *     <=65 / else, 90 ceiling = its own `(y-65)/25`) x 3 sex outcomes of
+   *     _gender_presentation_to_macro. ageMacro computed BY CALLING
+   *     _years_to_age_macro at the band midpoint, never typed.
+   *   - generate_body_cell_capability_manifest.py derives
+   *     body-cell-capability-manifest.json by importing that pack; the generator also
+   *     re-reads licence ledger lines 100-101 and aborts if they stop saying what the
+   *     licence string claims ("build-time tool" / "CC0 1.0" / "#343").
+   *   - `import bpy` at body_param_stage module level is now guarded (try/except
+   *     ImportError -> bpy = None) so the pack is importable under plain python3 by
+   *     this contract's probe. No module-level statement uses bpy/Vector; the Blender
+   *     path is unchanged (same pattern as orchestrate_character.py's guarded FastAPI).
+   * Part 2 (--reference sex): materialize_mpfb_humanoid_candidate.main() now sets
+   *   macro["gender"] via _case_gender_macro_for_reference() — reads
+   *   input_params.phenotype.gender_presentation through phenotype_numeric_block,
+   *   translates with body_param_stage._gender_presentation_to_macro (no second map),
+   *   refuses when the key is absent or when phenotype_summary maps to a DIFFERENT
+   *   macro than the phenotype block (measured live: ed_chest_pain_nurse_adult authors
+   *   adult_female_nurse vs adult_male_nurse -> refuses). Same-macro string variants
+   *   bake; a no-signal summary does not veto. measure_reference untouched; age stays
+   *   head-height-fraction; height stays solve_height_macro. Stature is NOT an axis.
+   */
 });

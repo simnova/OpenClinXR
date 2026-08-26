@@ -28,9 +28,18 @@ import time
 import traceback
 from pathlib import Path
 
-import bpy
+# #670 — guarded so the pure translators (`BODY_CELL_PACK`, `_years_to_age_macro`,
+# `_gender_presentation_to_macro`) are importable under plain python3 by
+# generate_body_cell_capability_manifest.py and its vitest probes. No module-level
+# statement uses bpy/Vector; every Blender call site sits inside functions that only
+# run in-process, so this guard changes nothing on the Blender path.
+try:
+    import bpy
+
+    from mathutils import Vector
+except ImportError:  # headless (no Blender python) — capability-manifest generation
+    bpy = None
 import numpy as np
-from mathutils import Vector
 
 # issue-272 — garment region coverage gate (clothing_consume). Same module the
 # evidence test drives; pure numpy, runs in Blender's bundled python.
@@ -1805,6 +1814,12 @@ def _clamp01(value: float) -> float:
     return min(max(float(value), 0.0), 1.0)
 
 
+# #670 — MPFB2 is a build-time tool (outputs ours, ledger row 100) and its bundled
+# data/targets are CC0 1.0 (ledger row 101, verified 2026-08-12 #343). The macro
+# values these cells publish are produced by this stage's own translators.
+BODY_CELL_LICENCE = "MPFB2 build-time tool (row 100); MPFB2 data/targets CC0 1.0 (row 101)"
+
+
 def _gender_presentation_to_macro(gender_presentation: object) -> float | None:
     """Parse a case-authored gender_presentation string into the MPFB gender macro
     (0.0 female .. 1.0 male). None when the presentation carries no sex signal."""
@@ -1838,6 +1853,40 @@ def _years_to_age_macro(years: object) -> float:
     if y <= 65.0:
         return 0.5 + (y - 18.0) / 47.0 * (0.85 - 0.5)  # young → middle-aged
     return _clamp01(0.85 + (y - 65.0) / 25.0 * 0.15)  # middle-aged → old
+
+
+# #670 — THE body cells this stage can bake: the cartesian product of the age bands
+# _years_to_age_macro actually implements (its five predicates + its own 90-year
+# ceiling) with the three sex outcomes of _gender_presentation_to_macro. This is the
+# single literal for the capability catalog — generate_body_cell_capability_manifest.py
+# derives packages/openclinxr/asset-registry/src/body-cell-capability-manifest.json from
+# THIS pack by calling these two translators (never a second table), so a change here IS
+# the published capability. Stature is deliberately NOT an axis: height stays the #328
+# solve-against-authored-height_cm path, which snapping to band ticks would fight.
+# Empty cells stay in the pack: the factory can bake them whether or not the scenario
+# bank currently occupies them (the bank occupies 4 of the 15).
+BODY_CELL_PACK = [
+    {
+        "id": f"{age_band}_{sex}",
+        "ageBand": age_band,
+        "sex": sex,
+        "yearsLo": years_lo,
+        "yearsHi": years_hi,
+        # Computed BY CALLING _years_to_age_macro at the band midpoint — the same
+        # §9h discipline as the iris manifest's probe. Never retype the number.
+        "ageMacro": round(_years_to_age_macro((years_lo + years_hi) / 2.0), 4),
+        "genderMacro": _gender_presentation_to_macro(sex),
+        "licence": BODY_CELL_LICENCE,
+    }
+    for age_band, years_lo, years_hi in (
+        ("infant", 0.0, 1.0),
+        ("child", 1.0, 12.0),
+        ("young", 12.0, 18.0),
+        ("adult", 18.0, 65.0),
+        ("older", 65.0, 90.0),
+    )
+    for sex in ("female", "male", "unspecified")
+]
 
 
 def _bmi_to_weight_macro(bmi: object) -> float:
