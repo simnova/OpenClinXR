@@ -1,0 +1,159 @@
+{
+  "schemaVersion": 1,
+  "field": "body_cell",
+  "derivedFrom": "tools/openclinxr/asset-pipeline/makeclothes/body_param_stage.py::BODY_CELL_PACK",
+  "generatedBy": "python3 tools/openclinxr/asset-pipeline/makeclothes/generate_body_cell_capability_manifest.py",
+  "licenceSource": "docs/openclinxr/third-party-asset-licence-ledger.md row 100 (MPFB2 build-time tool; outputs ours) + row 101 (MPFB2 data/targets CC0 1.0, verified 2026-08-12 #343)",
+  "options": [
+    {
+      "id": "infant_female",
+      "ageBand": "infant",
+      "sex": "female",
+      "yearsLo": 0.0,
+      "yearsHi": 1.0,
+      "ageMacro": 0.02,
+      "genderMacro": 0.0,
+      "licence": "MPFB2 build-time tool (row 100); MPFB2 data/targets CC0 1.0 (row 101)"
+    },
+    {
+      "id": "infant_male",
+      "ageBand": "infant",
+      "sex": "male",
+      "yearsLo": 0.0,
+      "yearsHi": 1.0,
+      "ageMacro": 0.02,
+      "genderMacro": 1.0,
+      "licence": "MPFB2 build-time tool (row 100); MPFB2 data/targets CC0 1.0 (row 101)"
+    },
+    {
+      "id": "infant_unspecified",
+      "ageBand": "infant",
+      "sex": "unspecified",
+      "yearsLo": 0.0,
+      "yearsHi": 1.0,
+      "ageMacro": 0.02,
+      "genderMacro": null,
+      "licence": "MPFB2 build-time tool (row 100); MPFB2 data/targets CC0 1.0 (row 101)"
+    },
+    {
+      "id": "child_female",
+      "ageBand": "child",
+      "sex": "female",
+      "yearsLo": 1.0,
+      "yearsHi": 12.0,
+      "ageMacro": 0.1188,
+      "genderMacro": 0.0,
+      "licence": "MPFB2 build-time tool (row 100); MPFB2 data/targets CC0 1.0 (row 101)"
+    },
+    {
+      "id": "child_male",
+      "ageBand": "child",
+      "sex": "male",
+      "yearsLo": 1.0,
+      "yearsHi": 12.0,
+      "ageMacro": 0.1188,
+      "genderMacro": 1.0,
+      "licence": "MPFB2 build-time tool (row 100); MPFB2 data/targets CC0 1.0 (row 101)"
+    },
+    {
+      "id": "child_unspecified",
+      "ageBand": "child",
+      "sex": "unspecified",
+      "yearsLo": 1.0,
+      "yearsHi": 12.0,
+      "ageMacro": 0.1188,
+      "genderMacro": null,
+      "licence": "MPFB2 build-time tool (row 100); MPFB2 data/targets CC0 1.0 (row 101)"
+    },
+    {
+      "id": "young_female",
+      "ageBand": "young",
+      "sex": "female",
+      "yearsLo": 12.0,
+      "yearsHi": 18.0,
+      "ageMacro": 0.3438,
+      "genderMacro": 0.0,
+      "licence": "MPFB2 build-time tool (row 100); MPFB2 data/targets CC0 1.0 (row 101)"
+    },
+    {
+      "id": "young_male",
+      "ageBand": "young",
+      "sex": "male",
+      "yearsLo": 12.0,
+      "yearsHi": 18.0,
+      "ageMacro": 0.3438,
+      "genderMacro": 1.0,
+      "licence": "MPFB2 build-time tool (row 100); MPFB2 data/targets CC0 1.0 (row 101)"
+    },
+    {
+      "id": "young_unspecified",
+      "ageBand": "young",
+      "sex": "unspecified",
+      "yearsLo": 12.0,
+      "yearsHi": 18.0,
+      "ageMacro": 0.3438,
+      "genderMacro": null,
+      "licence": "MPFB2 build-time tool (row 100); MPFB2 data/targets CC0 1.0 (row 101)"
+    },
+    {
+      "id": "adult_female",
+      "ageBand": "adult",
+      "sex": "female",
+      "yearsLo": 18.0,
+      "yearsHi": 65.0,
+      "ageMacro": 0.675,
+      "genderMacro": 0.0,
+      "licence": "MPFB2 build-time tool (row 100); MPFB2 data/targets CC0 1.0 (row 101)"
+    },
+    {
+      "id": "adult_male",
+      "ageBand": "adult",
+      "sex": "male",
+      "yearsLo": 18.0,
+      "yearsHi": 65.0,
+      "ageMacro": 0.675,
+      "genderMacro": 1.0,
+      "licence": "MPFB2 build-time tool (row 100); MPFB2 data/targets CC0 1.0 (row 101)"
+    },
+    {
+      "id": "adult_unspecified",
+      "ageBand": "adult",
+      "sex": "unspecified",
+      "yearsLo": 18.0,
+      "yearsHi": 65.0,
+      "ageMacro": 0.675,
+      "genderMacro": null,
+      "licence": "MPFB2 build-time tool (row 100); MPFB2 data/targets CC0 1.0 (row 101)"
+    },
+    {
+      "id": "older_female",
+      "ageBand": "older",
+      "sex": "female",
+      "yearsLo": 65.0,
+      "yearsHi": 90.0,
+      "ageMacro": 0.925,
+      "genderMacro": 0.0,
+      "licence": "MPFB2 build-time tool (row 100); MPFB2 data/targets CC0 1.0 (row 101)"
+    },
+    {
+      "id": "older_male",
+      "ageBand": "older",
+      "sex": "male",
+      "yearsLo": 65.0,
+      "yearsHi": 90.0,
+      "ageMacro": 0.925,
+      "genderMacro": 1.0,
+      "licence": "MPFB2 build-time tool (row 100); MPFB2 data/targets CC0 1.0 (row 101)"
+    },
+    {
+      "id": "older_unspecified",
+      "ageBand": "older",
+      "sex": "unspecified",
+      "yearsLo": 65.0,
+      "yearsHi": 90.0,
+      "ageMacro": 0.925,
+      "genderMacro": null,
+      "licence": "MPFB2 build-time tool (row 100); MPFB2 data/targets CC0 1.0 (row 101)"
+    }
+  ]
+}

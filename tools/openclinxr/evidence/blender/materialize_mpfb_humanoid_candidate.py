@@ -293,6 +293,53 @@ def phenotype_numeric_block(manifest_id):
         return {}
 
 
+def _case_gender_macro_for_reference(reference_id):
+    """#670 — read SEX from the CASE and translate it with body_param_stage's proven
+    map (D1 — wire, never hand-author a second translation). Returns the MPFB gender
+    macro (0.0 female / 1.0 male / 0.5 no-signal).
+
+    The mesh has no sex; pinning gender at the silent 0.5 here is what baked duplicate
+    bodies across differently-sexed presentations. Two loud refusals replace guessing:
+      - the phenotype block declares NO gender_presentation -> refuse (a silent 0.5
+        would be the duplicate-body path);
+      - phenotype_summary disagrees with the phenotype block on the MAPPED MACRO
+        -> refuse naming both strings and both macros (measured live:
+        ed_chest_pain_nurse_adult authors adult_female_nurse vs adult_male_nurse).
+        String variants mapping to the SAME macro ("adult_female" vs
+        "adult_female_parent") are not a disagreement and bake.
+    """
+    from body_param_stage import _gender_presentation_to_macro  # noqa: E402
+
+    numeric = phenotype_numeric_block(reference_id)
+    if "gender_presentation" not in numeric:
+        raise RuntimeError(
+            f"#670: {reference_id}.anny_manifest.json declares no gender_presentation "
+            "— refusing to bake a silent-neutral body"
+        )
+    gp = str(numeric["gender_presentation"])
+    gp_macro = _gender_presentation_to_macro(gp)
+    summary_gp = ""
+    manifest = _anny_manifest_for(reference_id)
+    if manifest is not None:
+        try:
+            summary_gp = str(
+                (json.loads(manifest.read_text(encoding="utf-8")).get("phenotype_summary") or {}).get(
+                    "gender_presentation", ""
+                )
+            )
+        except Exception:
+            summary_gp = ""  # unreadable summary cannot contradict the phenotype block
+    if summary_gp and summary_gp != gp:
+        summary_macro = _gender_presentation_to_macro(summary_gp)
+        if gp_macro is not None and summary_macro is not None and summary_macro != gp_macro:
+            raise RuntimeError(
+                f"#670: {reference_id} case disagrees with itself on sex: "
+                f"phenotype.gender_presentation={gp!r} -> {gp_macro} vs "
+                f"phenotype_summary.gender_presentation={summary_gp!r} -> {summary_macro}"
+            )
+    return 0.5 if gp_macro is None else gp_macro
+
+
 # #335/#332 — the anatomical neck band (MADR 0051 §4, anny-mpfb-landmark-compare.ts
 # BAND_WINDOWS.neck): the narrowest torso slice below the head, as a fraction of
 # the body's own stature. A fitted upper garment whose COLLAR (top vertex) sits
@@ -2756,6 +2803,7 @@ def main():
     if args.reference:
         reference = measure_reference(args.reference)
         macro = derive_macro_dict(reference)
+        macro["gender"] = _case_gender_macro_for_reference(args.reference)
         print(f"REFERENCE_MEASURED {json.dumps(reference)}")
         print(f"MACRO_BASE {json.dumps(macro)}")
         tmp_dir = pathlib.Path(args.output).parent / f".{pathlib.Path(args.output).name}.solve"
