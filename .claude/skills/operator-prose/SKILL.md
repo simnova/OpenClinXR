@@ -12,14 +12,6 @@ briefs, issue bodies, commits, and code comments follow their own conventions.
 When in doubt about audience: operator = human reads for substance fast;
 everyone else = mechanical parse.
 
-Research basis (2026-08 searches, r/ClaudeAI + anthropics/claude-code#77136 +
-style guides): the most-cited complaints about current Claude prose are em-dash
-density (measured 9-12+ per 1k words, several times human rates), the
-"It's not X, it's Y" contrastive reframe read as fake depth, bold/formatting
-over-emphasis flattening into noise, hype vocabulary ("load-bearing", "the
-unlock"), and setup-payoff reveal structure read as performing insight. This
-file bans each mechanically below.
-
 ## Hard limits (count before sending)
 
 | item | limit | notes |

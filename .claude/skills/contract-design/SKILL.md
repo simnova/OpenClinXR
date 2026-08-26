@@ -59,6 +59,18 @@ Four contracts went green while the pixels stayed wrong. Ask of every clause:
   where a legitimate minimal result already passes, or use `exists:` alone.
 - **Vacuous is as bad as broken.** Ask the worker to flag any proof that cannot pass as written, OR
   passes trivially against the ambient range, OR asserts the opposite direction from the defect.
+- **The proof TARGET is the other half, and it fails in two ways I committed on one card in one hour.**
+  - *A directory `changed:` target cannot detect its own fix.* It means "some descendant changed"
+    (`done-when-rules.ts:273`). A worker can edit an unrelated file in the tree and pass. Name the
+    fix-bearing file, or a glob narrow enough to justify in one sentence.
+  - *A proof value is SYNTAX ONLY.* No parentheses, commentary, quotes or markdown inside the rule -
+    a waiver written as `changed:path/x.glb (WAIVED if ...)` makes the target a literal string no file
+    matches, and the gate refuses it (`board-brief.ts:175`; measured, 24 of 62 ledger proof failures
+    were `changed:`-only). Waivers and conditions go in prose beside the block.
+  - **And a `changed:` rule silently forbids an honest stop.** A card that says both "land product
+    bytes" and "if the premise is false, report and stop" cannot carry an unconditional `changed:` -
+    the stop becomes unsatisfiable. Waive it in prose or the contract has banned the outcome it asked
+    for.
 - **A large margin is not automatically vacuous** - if a known failure mode sits on the far side, it
   is a regression net. Name that failure mode in the contract, or delete the clause.
 
