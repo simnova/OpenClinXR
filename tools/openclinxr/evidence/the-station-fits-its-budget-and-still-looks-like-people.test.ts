@@ -47,6 +47,24 @@ import { join } from "node:path";
  * conclusion on it the same day. A count under budget with a faceted silhouette is the same trap as
  * a green contract over bad pixels. Hands are where to look first.
  *
+ * ## CLAUSE (4) LIVES IN ITS OWN FILE — the gate taught me why
+ *
+ * I first wrote (4) as `it.fails` and omitted a `live:` proof, reasoning that `live:` would demand
+ * both `it.fails` clauses flip together when the budget can legitimately be met before the
+ * silhouette is graded. `briefFromIssue` refused the card and was right: **vitest counts an
+ * expected-fail as a PASS, so a `run:` rule over a file whose only failures are `it.fails` exits 0
+ * on an UNTOUCHED tree.** I had traded a trap for a vacuous proof — the exact class I spent the day
+ * catching, committed while avoiding a different one. It measured 5 of 14 open cards carrying the
+ * same shape.
+ *
+ * The fix is structural rather than a waiver. Clause (4) is a plain `it` that is RED today, so
+ * `run:` fails on an untouched tree and passes once the verdict artifact exists. Clause (1) stays
+ * `it.fails`. That gives three distinguishable states with no `live:` rule:
+ *
+ *     untouched            (1) expected-fail PASS, (4) FAIL   -> run: exits non-zero
+ *     graded and refused   (1) expected-fail PASS, (4) PASS   -> run: exits 0, honest stop recorded
+ *     decimated and landed (1) flipped to it() PASS, (4) PASS -> run: exits 0
+ *
  * ## THIS CARD CARRIES NO `live:` PROOF, DELIBERATELY
  *
  * #692's `live:` rule demanded every `it.fails` be flipped, which made its honest `reject_measured`
@@ -144,22 +162,4 @@ describe("the station fits its budget and still looks like people (#695)", () =>
     expect(lost, "decimation preserves UVs at the ratios measured; losing them is a shortcut").toEqual([]);
   }, 180_000);
 
-  it.fails("(4) a graded silhouette verdict exists for every actor whose triangles were reduced", () => {
-    // THE GATE, and it is deliberately a recorded verdict rather than a statistic. #692 gated a bake
-    // on largest-component share — a variable that predicts wrong in both directions — and a
-    // conclusion built on it was withdrawn the same day. A count under budget with a faceted
-    // silhouette is a green contract over bad pixels.
-    //
-    // Satisfied by a REFUSAL as readily as by an adoption: a verdict recording that a ratio wrecks
-    // the hands is a graded verdict and closes this clause. What it refuses is silence.
-    expect(
-      existsSync(VERDICTS),
-      "no silhouette verdict recorded at .openclinxr/evidence/issue-695/silhouette-verdicts.json. "
-        + "One entry per reduced actor: the ratio, the error bound, the before and after triangle "
-        + "counts, and a graded verdict naming what held and what degraded. Hands degrade first — "
-        + "measured on the gown patient at 2.81x, where the outline held and the fingers became "
-        + "angular wedges. Widening or deleting this clause is wrong: it is the only thing here "
-        + "standing between a budget-compliant station and one that stopped looking like people.",
-    ).toBe(true);
-  });
 });
