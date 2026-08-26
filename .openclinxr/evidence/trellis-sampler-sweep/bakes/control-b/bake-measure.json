@@ -1,0 +1,118 @@
+{
+  "subjectId": "lowpoly-shoe-escape",
+  "displayName": "lowpoly-shoe",
+  "verdict": "mesh_exported",
+  "verdictReason": "TRELLIS Metal image\u2192shape\u2192mesh\u2192GLB pipeline completed (fresh subprocess). Mesh: 294229 tris, 15876052 bytes. Shape gen: 400.8s, Export: 149.2s.",
+  "stages": {
+    "pipeline_load": "runs",
+    "pipeline_load_time_s": 4.3,
+    "shape_generation": "runs",
+    "shape_generation_time_s": 400.8,
+    "view_count": 1,
+    "simplify_before_to_glb": {
+      "cap": 16777216,
+      "facesBefore": 4550820,
+      "facesAfter": 4550820
+    },
+    "glb_export": "runs",
+    "glb_export_time_s": 149.2,
+    "remesh": "space_order_band1_project0"
+  },
+  "rawTriangleCount": 294229,
+  "exportPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-693/.openclinxr/evidence/trellis-sampler-sweep/bakes/control-b/lowpoly-shoe-escape.glb",
+  "exportBytes": 15876052,
+  "texturedPbr": "yes",
+  "inputImagePath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-693/.openclinxr/evidence/trellis-packs/lowpoly-shoe-escape/three_quarter_upper_alpha.png",
+  "inputImagePaths": [
+    "/Users/patrick/.grok/worktrees/src-openclinxr/issue-693/.openclinxr/evidence/trellis-packs/lowpoly-shoe-escape/three_quarter_upper_alpha.png"
+  ],
+  "viewCount": 1,
+  "seed": 42,
+  "samplerOverrides": {},
+  "effectiveSamplerParams": {
+    "sparse_structure_sampler_params": {
+      "steps": 12,
+      "guidance_strength": 7.5,
+      "guidance_rescale": 0.7,
+      "guidance_interval": [
+        0.6,
+        1.0
+      ],
+      "rescale_t": 5.0
+    },
+    "shape_slat_sampler_params": {
+      "steps": 12,
+      "guidance_strength": 7.5,
+      "guidance_rescale": 0.5,
+      "guidance_interval": [
+        0.6,
+        1.0
+      ],
+      "rescale_t": 3.0
+    },
+    "tex_slat_sampler_params": {
+      "steps": 12,
+      "guidance_strength": 1.0,
+      "guidance_rescale": 0.0,
+      "guidance_interval": [
+        0.6,
+        0.9
+      ],
+      "rescale_t": 3.0
+    }
+  },
+  "hfDemo": true,
+  "remeshRequested": true,
+  "remesh": "space_order_band1_project0",
+  "pipelineType": "1024_cascade",
+  "decimationTarget": 300000,
+  "textureSize": 2048,
+  "wallClockS": 555.6204619407654,
+  "processIsolation": "fresh_subprocess",
+  "claimScope": [
+    "TRELLIS Metal image\u2192shape\u2192mesh\u2192GLB pipeline on Apple Silicon",
+    "MIT model + MIT Metal packages + local DINOv3 (commercial-permitted)",
+    "single-subject isolated bake \u2014 fresh OS process per subject (#237)",
+    "per-subject raw triangle count recorded for MADR 0050 post-opt"
+  ],
+  "notEvidenceFor": [
+    "Quest 3 readiness",
+    "clinical accuracy or device equivalence",
+    "production adoption into learner runtime",
+    "mesh quality suitable for exam use",
+    "replacement of parametric equipment builders"
+  ],
+  "samplerParams": {
+    "sparse_structure_sampler_params": {
+      "steps": 12,
+      "guidance_strength": 7.5,
+      "guidance_rescale": 0.7,
+      "guidance_interval": [
+        0.6,
+        1.0
+      ],
+      "rescale_t": 5.0
+    },
+    "shape_slat_sampler_params": {
+      "steps": 12,
+      "guidance_strength": 7.5,
+      "guidance_rescale": 0.5,
+      "guidance_interval": [
+        0.6,
+        1.0
+      ],
+      "rescale_t": 3.0
+    },
+    "tex_slat_sampler_params": {
+      "steps": 12,
+      "guidance_strength": 1.0,
+      "guidance_rescale": 0.0,
+      "guidance_interval": [
+        0.6,
+        0.9
+      ],
+      "rescale_t": 3.0
+    }
+  },
+  "rawFaceCount": 4550820
+}

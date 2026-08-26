@@ -1,0 +1,42 @@
+{
+ "schemaVersion": "openclinxr.trellis-sampler-sweep.noise-floor.v1",
+ "subject": "lowpoly-shoe-escape",
+ "status": "PARTIAL \u2014 two duplicate-config control rows only; the sweep died before quality/fast/interval configs ran",
+ "whatThisMeasures": "the run-to-run noise floor at IDENTICAL sampler settings, which bounds what any config delta must exceed to be attributable",
+ "rows": [
+  {
+   "config": "control-a",
+   "rawTriangleCount": 293719,
+   "rawFaceCount": 4550820,
+   "exportBytes": 15804816,
+   "wallClockS": 558.3243639469147,
+   "seed": 42,
+   "glbSha256": "5c92bd4d72954746c6a8707305178c1abdd4145c935c527d8a8eb041fed68664",
+   "samplerIdenticalToControlA": true
+  },
+  {
+   "config": "control-b",
+   "rawTriangleCount": 294229,
+   "rawFaceCount": 4550820,
+   "exportBytes": 15876052,
+   "wallClockS": 555.6204619407654,
+   "seed": 42,
+   "glbSha256": "e48c2c0b686f91d4f5c9e02c3495eabbed803bb23f5c82ca4e830dbdceb036df",
+   "samplerIdenticalToControlA": true
+  }
+ ],
+ "noiseFloor": {
+  "rawTriangleCountDelta": 510,
+  "rawTriangleCountDeltaPct": 0.174,
+  "rawFaceCountDelta": 0,
+  "generationDeterministic": true
+ },
+ "claimScope": [
+  "run_to_run_variance_at_identical_sampler_settings_on_one_subject"
+ ],
+ "notEvidenceFor": [
+  "whether any sampler knob changes the welded component count \u2014 no varied config completed",
+  "welded component counts at all \u2014 bake-measure.json records no component field",
+  "any subject other than lowpoly-shoe-escape"
+ ]
+}
