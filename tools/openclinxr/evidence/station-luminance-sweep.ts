@@ -7,7 +7,13 @@
  * `lib/png-region-luminance.js` (same reader as the framing-rejection report). Stations are
  * enumerated dynamically from the shipped bundles (#101), never a frozen id list, so a new
  * scenario joins the sweep the day it ships.
+ *
+ * #635 — the report stamps `measuredAgainstCommit` (#635) with the newest commit touching the
+ * runtime paths the numbers depend on, computed IN THIS PROCESS at write time. The darkness
+ * gate (`the-darkness-gate-knows-which-tree-it-measured.test.ts`) refuses a stamp that does not
+ * match the runtime at HEAD, so a sweep that is not re-run when the runtime moves goes red.
  */
+import { execFileSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -26,7 +32,17 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const STATION_LUMINANCE_SWEEP_PATH = path.join(HERE, "station-luminance-sweep.json");
 
 export type StationLuminanceRow = { median: number };
-export type StationLuminanceSweep = { stations: Record<string, StationLuminanceRow> };
+export type StationLuminanceSweep = {
+  measuredAgainstCommit: string;
+  stations: Record<string, StationLuminanceRow>;
+};
+
+/** The sources whose movement invalidates a capture-derived luminance number (#635). */
+const RUNTIME_PATHS = ["apps/ui-xr/src/main.ts"] as const;
+
+/** Short sha of the newest commit touching any runtime path the sweep's numbers depend on. */
+const runtimeHead = (): string =>
+  execFileSync("git", ["log", "-1", "--format=%h", "--", ...RUNTIME_PATHS], { encoding: "utf8" }).trim();
 
 /** Viewport region the contract pins: y 70:820, x 0:1005 (HUD starts ~1020px). */
 const VIEWPORT = { width: 1440, height: 900 };
@@ -66,7 +82,7 @@ export async function writeStationLuminanceSweep(): Promise<StationLuminanceSwee
     await browser.close().catch(() => undefined);
     await stopPortlessDevServer(server.proc);
   }
-  const report: StationLuminanceSweep = { stations };
+  const report: StationLuminanceSweep = { measuredAgainstCommit: runtimeHead(), stations };
   writeFileSync(STATION_LUMINANCE_SWEEP_PATH, `${JSON.stringify(report, null, 2)}\n`, "utf8");
   process.stdout.write(`station-luminance-sweep: wrote ${STATION_LUMINANCE_SWEEP_PATH}\n`);
   return report;

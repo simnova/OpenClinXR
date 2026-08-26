@@ -43,6 +43,38 @@ import { describe, expect, it } from "vitest";
  *   the freshness check refuses a stamp that does not match the runtime paths at HEAD.
  * notEvidenceFor: whether any station is too dark; the correctness of the floors; the lighting model;
  *   whether re-running the sweep today would change any number.
+ *
+ * ## FIXED (#635) — 2026-08-24
+ *
+ * The sweep writer now stamps the tree it measured: `station-luminance-sweep.ts` computes
+ * `measuredAgainstCommit` via `git log -1 --format=%h -- apps/ui-xr/src/main.ts` IN THE SAME PROCESS
+ * that produced the numbers, at write time. The sweep was re-run so the committed artifact carries a
+ * fresh stamp and current medians; the recorded floors/ceilings were re-measured, not hand-stamped.
+ *
+ * DECISION, named: the staleness check is a SEPARATE contract from the floor gate. A stale artifact
+ * is an instrument failure — the correct repair is re-running the sweep, and it must go red the day
+ * the runtime moves so nobody reads an old tree as current. A dark room is a product failure — the
+ * correct repair is a lighting/framing fix. Sharing one red would make a product regression gate fail
+ * for an evidence reason (and vice versa), so the freshness check lives here and the floor gate
+ * (`no-shipped-station-captures-darker-than-it-did.test.ts`) is unchanged, still asserting only
+ * floors/ceilings. Clause (4) below keeps the two honest: freshness about an artifact that still
+ * holds the whole bank.
+ *
+ * STOP RULE FIRED (2026-08-24 re-run): three stations moved beyond the recorded noise (2) —
+ * ob_headache_preeclampsia_triage_v1 183→170, peds_asthma_parent_anxiety_v1 33→36,
+ * primary_care_dyslipidemia_joint_pain_v1 16→0. Per the issue's stop rule the moved medians are a
+ * #162 finding, not this slice's work, and NO floor was adjusted. The floor gate therefore goes red
+ * on primary_care (0 < 12) and ob_headache (170 < 181-2) — that red is the finding made mechanical,
+ * which is what this slice was built to unblock.
+ *
+ * ## AMENDED (#644) — 2026-08-26
+ *
+ * The line above ("the floor gate ... is unchanged") is superseded. #644 withdrew the per-station
+ * floors/ceilings as blind (median luminance does not separate graded-good from graded-bad frames:
+ * 23 GOOD, 83 BAD, 84 GOOD, 118 BAD) and rewrote
+ * `no-shipped-station-captures-darker-than-it-did.test.ts` as an inverted guard recording the
+ * withdrawal. The freshness claim of THIS contract is unaffected — the stamp is still written by
+ * the sweep process and still must match the runtime at HEAD.
  */
 
 const SWEEP = "tools/openclinxr/evidence/station-luminance-sweep.json";
@@ -59,7 +91,7 @@ const runtimeHead = (): string =>
   execFileSync("git", ["log", "-1", "--format=%h", "--", ...RUNTIME_PATHS], { encoding: "utf8" }).trim();
 
 describe("the darkness gate knows which tree it measured", () => {
-  it.fails("(1) the luminance sweep records the tree its numbers describe, and it is current", () => {
+  it("(1) the luminance sweep records the tree its numbers describe, and it is current", () => {
     const s = sweep();
     const stamp = (s["measuredAgainstCommit"] ?? s["measuredAtCommit"]) as string | undefined;
     expect(
