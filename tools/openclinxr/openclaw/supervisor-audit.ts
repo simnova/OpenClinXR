@@ -600,9 +600,26 @@ function shaOf(artifactPath: string): { artifactHeadSha?: string } {
 
 /** Duty 2: is the ready set deep enough, and is it real product work? */
 export function readyDepth(
-  cards: Array<{ number: number; dispatchable: boolean; factoryStep: string | null; planted: boolean; prioritized: boolean }>,
+  cards: Array<{
+    number: number; dispatchable: boolean; factoryStep: string | null; planted: boolean; prioritized: boolean;
+    /**
+     * Does at least one of this card's proofs currently FAIL?
+     *
+     * `false` means every proof is already satisfied, so a worker dispatched here has nothing to
+     * flip. #510 satisfied dispatchable+planted+prioritized while being a COMPLETED measurement —
+     * its proof runs `3 passed (3)` because `reject_measured` closed it successfully. A delegator
+     * probed it before dispatch and stopped; the gauge would have kept offering it forever.
+     *
+     * `planted` does not cover this: it is the board's `factory == "Planted"` LABEL, somebody's
+     * CLAIM that a RED exists, never a measurement of one.
+     *
+     * `undefined` means undetermined — a `run:` proof nobody executed. Undetermined COUNTS, because
+     * dropping it would make the queue read low for a reason no reader can see.
+     */
+    flippable?: boolean;
+  }>,
 ): ReadyDepth {
-  const ready = cards.filter((c) => c.dispatchable && c.planted && c.prioritized);
+  const ready = cards.filter((c) => c.dispatchable && c.planted && c.prioritized && c.flippable !== false);
   const product = ready.filter((c) => c.factoryStep !== null && c.factoryStep !== "instrument");
   return {
     target: READY_DEPTH_TARGET,

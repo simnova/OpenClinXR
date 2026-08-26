@@ -10,7 +10,7 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync, existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { briefFromIssue } from "./board-brief.js";
 import { getBoardSnapshot } from "./board-snapshot-cache.js";
@@ -71,6 +71,50 @@ async function main(): Promise<void> {
   const closedNumbers = new Set(closedIssues.map((i) => i.number));
   const openNumbers = new Set(issues.map((i) => i.number));
 
+  /**
+   * Does this card have anything a worker could FLIP?
+   *
+   * `planted` is a board LABEL — somebody's CLAIM that a RED exists. #510 carried that label while
+   * its named proof ran `3 passed (3)`, because it is a completed measurement whose
+   * `reject_measured` verdict closed it successfully. The gauge offered it as ready and would have
+   * gone on offering it forever.
+   *
+   * Cheap checks only, deliberately:
+   *   exists:<path>   target absent -> flippable
+   *   run:<x.test.ts> does the file still declare an `it.fails` clause?
+   *   anything else   UNDETERMINED (undefined), which COUNTS as ready
+   *
+   * The `run:` reading is a MARKER CHECK and is stated as one. It cannot tell whether THIS card owns
+   * the red — a done_when may name a shared proof file carrying another issue's standing `it.fails`,
+   * which is exactly how #664 read as unverified for weeks. So it proves a red EXISTS, never who owns
+   * it, and its error direction is safe: a borrowed red keeps a card in the queue rather than
+   * dropping one that belongs there.
+   */
+  function flippabilityOf(body: string): boolean | undefined {
+    const block = /##\s*done_when\s*\n/i.exec(body);
+    if (!block) return undefined;
+    const rules = body.slice(block.index + block[0].length).split("\n")
+      .map((l) => l.trim()).filter((l) => /^[-*]\s+/.test(l)).map((l) => l.replace(/^[-*]\s+/, ""));
+    let sawCheckable = false;
+    for (const r of rules) {
+      if (r.startsWith("exists:")) {
+        const t = r.slice(7).trim();
+        if (!t || t.includes("*")) continue;
+        sawCheckable = true;
+        if (!existsSync(join(REPO, t))) return true;
+      } else if (r.startsWith("run:")) {
+        const m = /([\w./-]+\.test\.ts)/.exec(r);
+        if (!m) continue;
+        const f = join(REPO, m[1]);
+        if (!existsSync(f)) continue;
+        sawCheckable = true;
+        if (/\bit\.fails\s*\(/.test(readFileSync(f, "utf8"))) return true;
+      }
+    }
+    return sawCheckable ? false : undefined;
+  }
+
+
   const cards = issues.map((i) => {
     const row = items.find((it) => it.content?.number === i.number);
     return {
@@ -79,6 +123,7 @@ async function main(): Promise<void> {
       factoryStep: factoryStepOf(i.body),
       planted: row?.factory === "Planted",
       prioritized: typeof row?.priority === "string" && row.priority.length > 0,
+      flippable: flippabilityOf(i.body),
     };
   });
 
