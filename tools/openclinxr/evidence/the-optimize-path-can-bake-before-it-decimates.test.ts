@@ -68,16 +68,73 @@ function rungs(): Rung[] {
   }
 }
 
-describe("the optimize path can bake before it decimates", () => {
-  it.fails("(1) the optimize path has a high-to-low bake stage", () => {
-    const src = readFileSync(OPTIMIZE, "utf8");
-    const bakes = /selected_to_active|use_selected_to_active|normalTexture|bake_/i.test(src);
+/** The sweep report, read whole. `rungs()` below returns just its rows for the older clauses. */
+function report(): { rungs?: Array<Record<string, any>>; verdict?: unknown } {
+  if (!existsSync(SWEEP)) return {};
+  try { return JSON.parse(readFileSync(SWEEP, "utf8")); } catch { return {}; }
+}
+
+describe("decimated rungs are baked, rendered and graded before a champion is named", () => {
+  /**
+   * CORRECTED 2026-08-26. The clause here was a REGEX OVER SOURCE TEXT:
+   *
+   *     const bakes = /selected_to_active|use_selected_to_active|normalTexture|bake_/i.test(src);
+   *
+   * PROBED, and it is worse than weak. Appending the single line
+   * `// TODO: someday add a bake_ stage here. This comment is not a bake.`
+   * to `iterate-optimize.ts` flipped the clause green. A worker handed this card could satisfy its
+   * headline requirement with a comment. That is the marker check this repo keeps re-committing —
+   * a name match standing in for substance — inside the contract meant to prevent it.
+   *
+   * It also asserted no ORDERING despite the file being named "bake before it decimates", and the
+   * real dependency graph runs the other way: a high-to-low transfer bake REQUIRES a low mesh, so it
+   * is decimate -> UV -> bake_onto_low -> attach -> render siblings -> grade.
+   *
+   * Now asserts against a REPORT. Per the rule this session earned, an it.fails under a file-wide
+   * `live:` must assert a MEASUREMENT EXISTS, never that the hoped-for result won: two rungs in the
+   * open band must be GRADED, and the verdict may be `reject_measured`.
+   */
+  it.fails("(1) at least two rungs in the open 25k-80k band completed the measured graph", () => {
+    const r = report();
+    const graded = (r.rungs ?? []).filter(
+      (x: Record<string, any>) => x.status === "graded" && Number(x.triangleCount) > 25_000 && Number(x.triangleCount) < 80_000,
+    );
     expect(
-      bakes,
-      "the stage is the durable deliverable; a bake that only exists in bake-probe/hl_bake.py "
-        + "depends on someone remembering to run it, which is the D1 hand-authored anti-pattern",
-    ).toBe(true);
+      graded.length,
+      "25k is too deep for this subject and 80k is what ships; the answer is in the band nobody has "
+        + "measured. NEITHER RUNG IS REQUIRED TO WIN",
+    ).toBeGreaterThanOrEqual(2);
+    expect(
+      ["adopt_rung", "reject_measured"],
+      "a measured refusal closes this card as readily as an adoption",
+    ).toContain(String(r.verdict));
   });
+
+  /**
+   * (1b) The ordering the old clause never asserted, proved by HASH LINKAGE rather than timestamps.
+   *
+   * A timestamp comparison would be self-attested by whoever writes the report — the same weakness
+   * that got `measured-before:` removed from the plant-protection set, where it asserted ordering by
+   * mtime and said nothing about what was actually done. Hash linkage is different: each stage's
+   * declared input must equal its predecessor's declared output, so a stage cannot claim to have
+   * consumed something that did not exist in that form.
+   */
+  it.fails("(1b) every graded rung links each stage's input to its predecessor's output by hash", () => {
+    const graded = (report().rungs ?? []).filter((x: Record<string, any>) => x.status === "graded");
+    expect(graded.length, "nothing graded, so there is no chain to check").toBeGreaterThanOrEqual(2);
+    for (const x of graded) {
+      expect(x.stageOrder, `rung ${x.id}: wrong graph`).toEqual([
+        "decimate", "uv", "bake_onto_low", "attach", "render_siblings", "grade",
+      ]);
+      expect(x.uv?.inputSha256, `rung ${x.id}: uv did not consume the decimate output`).toBe(x.decimate?.output?.sha256);
+      expect(x.attach?.lowInputSha256, `rung ${x.id}: attach did not consume the uv output`).toBe(x.uv?.output?.sha256);
+      expect(x.attach?.normalMapInputSha256, `rung ${x.id}: attach did not consume the baked map`).toBe(x.bake?.normalMap?.sha256);
+      expect(x.renders?.unmapped?.modelInputSha256, `rung ${x.id}: unmapped sibling is not the uv output`).toBe(x.uv?.output?.sha256);
+      expect(x.renders?.mapped?.modelInputSha256, `rung ${x.id}: mapped sibling is not the attached output`).toBe(x.attach?.output?.sha256);
+      expect(typeof x.grade?.outlineVerdict, `rung ${x.id}: no graded outline verdict`).toBe("string");
+    }
+  });
+
 
   it.fails("(2) the band between 25k and 80k has been swept on the shoe", () => {
     const between = rungs().filter(
@@ -102,8 +159,13 @@ describe("the optimize path can bake before it decimates", () => {
   });
 
   it("(4) COUNTERWEIGHT: every swept rung carries a graded outline verdict, not a statistic", () => {
-    const missing = rungs().filter(
-      (r) => typeof r.outlineVerdict !== "string" || r.outlineVerdict.length === 0,
+    // ONE SHAPE. Clause (1b) reads the verdict at `grade.outlineVerdict` inside the stage record;
+    // this clause read a flat `outlineVerdict`. A probe caught them disagreeing, which would have let
+    // a report satisfy one clause and fail the other on the same rung. Accept either position, and
+    // require it wherever the producer put it.
+    const verdictOf = (r: Record<string, any>): unknown => r.grade?.outlineVerdict ?? r.outlineVerdict;
+    const missing = (report().rungs ?? []).filter(
+      (r: Record<string, any>) => typeof verdictOf(r) !== "string" || String(verdictOf(r)).length === 0,
     );
     expect(
       missing,
