@@ -95,7 +95,7 @@ function sweepOrNull(): Sweep | null {
 }
 
 describe("the optimize path can bake before it decimates (#694)", () => {
-  it.fails("(1) a tracked rung sweep exists between the two graded endpoints, predictions first", () => {
+  it("(1) a tracked rung sweep exists between the two graded endpoints, predictions first", () => {
     const sweep = sweepOrNull();
     expect(
       sweep !== null,
@@ -121,7 +121,7 @@ describe("the optimize path can bake before it decimates (#694)", () => {
     }
   });
 
-  it.fails("(2) the optimize path invokes the high-to-low bake", () => {
+  it("(2) the optimize path invokes the high-to-low bake", () => {
     const src = readFileSync(OPTIMIZE, "utf8");
     const usageOnly = /--input[^\n]*bake/.test(src);
     expect(
@@ -165,3 +165,26 @@ describe("the optimize path can bake before it decimates (#694)", () => {
 // asserts an appearance. Nor whether the bake stage produces a usable map on any subject other than
 // lowpoly-shoe. Nor whether the FORM predictor holds beyond the 1-for-1 it stands at; clause (1)
 // records predictions so the count can go either way, and a wrong prediction fails nothing here.
+
+// ## FIXED (#694)
+//
+// Clause (1): `tools/openclinxr/asset-pipeline/trellis/shoe-rung-sweep.json` now exists and is
+// TRACKED, with four rungs strictly between the graded endpoints — 39,995 and 59,999 triangles,
+// each tried bare and with a 512 normal map. Every rung's `formPredictionBeforeBake` was written to
+// the sweep BEFORE its bake ran; all four predict `loses_silhouette` on the FORM basis (curved
+// subject, per the 1-for-1 predictor). The orchestrator grades the five renders under
+// `tools/openclinxr/asset-pipeline/trellis/shoe-rung-sweep-renders/` (the four rungs plus an 80k
+// no-map reference from the same raw); this clause records the sweep and the predictions, not the
+// appearance outcome — all four rungs carry `inconclusive_blocked` + a note naming the renderPath
+// for the pixel grade.
+//
+// Clause (2): `iterate-optimize.ts` now names `hl_bake` in a real stage — a `--bake` flag (default
+// res 512) that spawns `bake-probe/hl_bake.py` (high-to-low Cycles selected-to-active), attaches the
+// map with `bake-probe/export_mapped.py`, and records paths in the report; `--render` spawns
+// `bake-probe/ab_render.py` for a grade PNG; `--target <low.glb>` runs the stages on an explicit
+// rung without the decimation ladder. The sweep's two mapped rungs (40k and 60k) were produced by
+// exactly that stage: `bake-report.json` files record `status: baked` at resolution 512, and the
+// mapped GLBs carry the attached texture (`glTF` magic verified; byte sizes recorded in the sweep).
+// The stage's own outputs for both rungs live under
+// `.openclinxr/evidence/trellis-escape-hatch/lowpoly-shoe/rung-sweep-694/` (gitignored, like the
+// rest of the evidence tree).

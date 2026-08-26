@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "openclinxr.trellis-rung-sweep.v1",
+  "subject": "lowpoly-shoe",
+  "rawSource": ".openclinxr/evidence/trellis-sampler-sweep/bakes/control-a/lowpoly-shoe-escape.glb",
+  "rawTriangleCount": 293719,
+  "gradedEndpoints": { "lower": 25000, "upper": 80000 },
+  "rankedBy": "orchestrator_pixel_grade",
+  "champion": null,
+  "byteContext": {
+    "shipped80kNomapFromThisRaw": 9270920,
+    "note": "bytes are recorded, not ranked — the render is the only oracle. 40k-mapped is -5.5% vs the 80k cell from the same raw; 60k-mapped is +11.4%, which the orchestrator should weigh alongside the pixels."
+  },
+  "formPredictorBasis": "FORM at 1 for 1: glucometer (boxy) held its silhouette at 25k, predicted before its bake; boxy subjects go deep, curved subjects do not. The shoe toe reads as a continuous curve at 80k and faceted at 25k, so every between-rung is predicted to lose its silhouette. A wrong prediction here is a real miss for the record — it fails nothing in this sweep's contract.",
+  "bakeStage": "tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts --bake --bake-res 512 (hl_bake.py high-to-low, export_mapped.py attach)",
+  "rungs": [
+    {
+      "triangles": 39995,
+      "mapped": false,
+      "glbBytes": 7242324,
+      "formPredictionBeforeBake": "loses_silhouette",
+      "gradedVerdict": "inconclusive_blocked",
+      "verdictNote": "PREDICTION RECORDED BEFORE BAKE/RENDER: curved subject, deep rung (FORM 1-for-1 basis). Render produced at the tracked renderPath; text-only worker cannot grade pixels — orchestrator grades against the 80k reference render and ships.png.",
+      "renderPath": "tools/openclinxr/asset-pipeline/trellis/shoe-rung-sweep-renders/40k-nomap.png"
+    },
+    {
+      "triangles": 39995,
+      "mapped": true,
+      "glbBytes": 8755768,
+      "formPredictionBeforeBake": "loses_silhouette",
+      "gradedVerdict": "inconclusive_blocked",
+      "verdictNote": "PREDICTION RECORDED BEFORE BAKE: the map shades facets and cannot move an outline (established for this subject at 25k+512), and FORM says curved subjects do not go deep. Render produced at the tracked renderPath; text-only worker cannot grade pixels — orchestrator grades.",
+      "renderPath": "tools/openclinxr/asset-pipeline/trellis/shoe-rung-sweep-renders/40k-mapped.png"
+    },
+    {
+      "triangles": 59999,
+      "mapped": false,
+      "glbBytes": 8422752,
+      "formPredictionBeforeBake": "loses_silhouette",
+      "gradedVerdict": "inconclusive_blocked",
+      "verdictNote": "PREDICTION RECORDED BEFORE BAKE/RENDER: curved subject at 75% of the 80k budget; the toe curve is where the outline facets first (FORM 1-for-1 basis). Render produced at the tracked renderPath; text-only worker cannot grade pixels — orchestrator grades.",
+      "renderPath": "tools/openclinxr/asset-pipeline/trellis/shoe-rung-sweep-renders/60k-nomap.png"
+    },
+    {
+      "triangles": 59999,
+      "mapped": true,
+      "glbBytes": 10322168,
+      "formPredictionBeforeBake": "loses_silhouette",
+      "gradedVerdict": "inconclusive_blocked",
+      "verdictNote": "PREDICTION RECORDED BEFORE BAKE: the map shades facets and cannot move an outline (established for this subject at 25k+512); 60k is the highest between-rung so the margin is smallest. Render produced at the tracked renderPath; text-only worker cannot grade pixels — orchestrator grades.",
+      "renderPath": "tools/openclinxr/asset-pipeline/trellis/shoe-rung-sweep-renders/60k-mapped.png"
+    }
+  ],
+  "referenceRenders": {
+    "80k": "tools/openclinxr/asset-pipeline/trellis/shoe-rung-sweep-renders/80k-reference.png",
+    "note": "80k decimated from the SAME raw with the same renderer, no map, mirroring the shipped cell — the known-good column. Not a rung (it is the graded upper endpoint), so it is not in rungs[] and cannot be the champion."
+  },
+  "notEvidenceFor": [
+    "that any rung is adoptable — the orchestrator grades the renders and that verdict is not recorded here",
+    "that the bake stage produces a usable map on any subject other than lowpoly-shoe",
+    "that lowpoly-shoe is representative of organic subjects generally"
+  ]
+}
