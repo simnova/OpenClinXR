@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-08-26",
+  "head": "bda5b84c",
+  "subject": "mpfb-peds-patient-child.glb",
+  "question": "can a high-to-low cage bake run on a multi-mesh MPFB humanoid at all",
+  "decimation": {
+    "tool": "meshopt via @gltf-transform simplify",
+    "ratioRequested": 0.34,
+    "trisBefore": 61068,
+    "trisAfter": 19497,
+    "reduction": "3.13x",
+    "uvsSurvived": true,
+    "primsWithUV": "16 of 17 in BOTH high and low"
+  },
+  "bake": {
+    "script": "tools/openclinxr/asset-pipeline/trellis/bake-probe/hl_bake.py",
+    "engine": "CYCLES CPU, 8 samples",
+    "resolution": 512,
+    "objectDiagonalMeters": 1.51029,
+    "cageExtrusionMeters": 0.03021,
+    "maxRayDistanceMeters": 0.06041,
+    "status": "failed",
+    "error": "No active UV layer found in the object \"LOW\""
+  },
+  "finding": "NOT a contamination result. hl_bake.py joins every imported mesh into ONE object (hl_bake.py:12-18). A humanoid is 10 meshes; the join leaves no ACTIVE UV layer, so the bake refuses before casting a ray. The asset has UVs and the decimation preserves them.",
+  "whatThisSettles": [
+    "humanoids DO decimate: 61,068 -> 19,497 with UVs intact",
+    "the reference bake script cannot bake a multi-mesh subject as written"
+  ],
+  "whatThisDoesNotSettle": [
+    "whether a humanoid cage bake is contaminated - no ray was cast",
+    "whether per-mesh baking works, which is the obvious next move and was not tried"
+  ],
+  "claimScope": "one subject, one decimation ratio, one bake attempt at 512 on 2026-08-26.",
+  "notEvidenceFor": "any verdict on cage-bake contamination for humanoids; the run did not reach the point where contamination could occur."
+}
