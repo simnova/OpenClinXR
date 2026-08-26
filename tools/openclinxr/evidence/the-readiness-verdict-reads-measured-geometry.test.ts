@@ -76,11 +76,18 @@ describe("the readiness verdict reads measured geometry", () => {
     // for the other seven, producing one total that is part real and part fiction.
     const partial = evaluateScenarioAssetBudget(manifests, MEASURED_THREE);
     const declaredOnly = evaluateScenarioAssetBudget(manifests);
+    // TIGHTENED before dispatch, after a consult found the loophole: asserting only that the totals
+    // match lets a worker DISCARD the partial measurements, return the declared 108,000, leave
+    // readiness green, and flip this clause. The refusal has to be CONSEQUENTIAL, and it is —
+    // index.ts:2093 computes devReady from stationBudget.blockers.
     expect(
-      partial.totalTriangles,
-      "a partial set currently produces a blended total; readiness must refuse with a typed reason "
-        + `instead (declared ${declaredOnly.totalTriangles}, blended ${partial.totalTriangles})`,
-    ).toBe(declaredOnly.totalTriangles);
+      partial.blockers,
+      "a measurement set covering 3 of 10 assets must produce a typed blocker, not a blended total. "
+        + `Today: declared ${declaredOnly.totalTriangles}, blended ${partial.totalTriangles}, `
+        + `blockers ${JSON.stringify(partial.blockers)}. Silently discarding the partial input and `
+        + "returning the declared total would satisfy a totals-only assertion while preserving the "
+        + "exact defect this card exists to remove",
+    ).toContain("station_triangle_measurements_incomplete");
   });
 
   it("(3) COUNTERWEIGHT: the declared-vs-measured gap is real, so (1) is not hypothetical", () => {
