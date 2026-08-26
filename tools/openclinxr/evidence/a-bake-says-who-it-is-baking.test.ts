@@ -88,7 +88,7 @@ function bakedFromReference(asset: string): string | null {
 }
 
 describe("a bake says who it is baking (#687)", () => {
-  it.fails("(1) the materializer does not substitute an identity for an absent --reference", () => {
+  it("(1) the materializer does not substitute an identity for an absent --reference", () => {
     const sites = fallbackSites();
     expect(
       sites,
@@ -130,3 +130,35 @@ describe("a bake says who it is baking (#687)", () => {
     ).toBe(true);
   });
 });
+
+/*
+ * ## FIXED (#687)
+ *
+ * Clause (1) flipped from `it.fails` to `it` on 2026-08-26. The fix is D13-shaped
+ * and lives in the materializer (`tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py`):
+ * a bake must now DECLARE who it is baking. `main()` resolves a single `subject_id`
+ * from `--reference` (measured-reference path) or `--eye-colour-reference` (the
+ * manifest-id channel the default-macro path already used to carry the authored
+ * identity, #576/#519) and raises `ValueError` — "refusing to bake an unnamed
+ * subject" — when neither is given, exactly as `eye_iris_colour` raises on an
+ * unbuildable colour rather than picking one. All material/mesh names key off
+ * `subject_id`; there is no `args.reference or 'ob_patient_aisha'` anywhere.
+ *
+ * Sites substituted (measured before the edit — 15, not 8): the 13
+ * `args.reference or 'ob_patient_aisha'` f-string/tag sites (skin material,
+ * eye mesh, eye material, hair/brow/pre/feature ref tags, standard rig armature,
+ * upper garment, lower cover-shell label + mesh, lab coat, footwear) plus the two
+ * hardcoded body-mesh names on the no-reference path (`mpfb_ob_patient_aisha_body*`).
+ * Clause (2)'s five explicitly-referenced assets are untouched and still parse to
+ * their real ids. Clause (3) holds: `--reference` still exists.
+ *
+ * Callers that relied on the default must now declare the subject:
+ *   mpfb-ob-patient-aisha / gown / gown-inspect / viseme-inspect  -> --eye-colour-reference ob_patient_aisha
+ *   mpfb-peds-parent-aisha (already declared)                     -> --eye-colour-reference peds_anxious_parent
+ *   mpfb-clinical-physician-adult (already declared)              -> --eye-colour-reference ward_delirium_senior_resident_adult
+ * NO RE-BAKE WAS RUN: the six shipped assets carrying the default string are
+ * byte-unchanged; their material names reflect the identity the old bake never
+ * declared. A future re-bake that declares `--eye-colour-reference ob_patient_aisha`
+ * reproduces the same names, and the parent/physician re-bakes would name their
+ * own manifests' ids — which is what clause (2) of #688's contract checks.
+ */
