@@ -30,18 +30,23 @@ everyone else = mechanical parse.
    sentence naming what happened or changed, under 25 words. No fragment openers
    ("Worse — ...", "Baked in — ...", "Notable: ..."). A section header names its
    content ("Audit results"), never its attitude ("the uncomfortable one").
-2. **ORDER IS FIXED: failure/residual first, wins after, no closing summary.**
-   The report is single-pass: every failure, blocker, or NOT TESTED item is
-   stated before any success. Never append a caveat to a run of wins — that is
-   the wins-then-caveat shape, and moving the failure to a later paragraph is
-   the same defect with a different surface. The last line is a complete fact
+2. **ORDER IS FIXED: decision-changing failures first, wins after, no closing
+   summary.** The report is single-pass: every failure, blocker, or NOT TESTED
+   item that would change what the reader does is stated before any success. A
+   limitation that qualifies one specific result is the exception: put it beside
+   that result, not in the opening block, because moving it away from its
+   evidence costs the reader the link. Never append a caveat to a run of wins:
+   that is the wins-then-caveat shape, and moving a decision-changing failure to
+   a later paragraph is the same defect with a different surface. The last line is a complete fact
    or `NEXT: <action>`; there is no summary section at the end (the report just
    gave it).
 3. **Finding, then evidence; every count names its set.** Identifiers, dates,
    versions, issue numbers, line numbers and paths are not counts. For each
-   count, name the population, unit, threshold, result or object in the same
-   clause, and check it supports the claim beside it. Never make the reader
-   rebuild a subset through "of those", "the remaining one", "that last one",
+   count, name the population, unit, threshold, result or object when it is
+   introduced and whenever it changes; coordinated counts may share one explicit
+   referent in the same sentence or a named row. Check each count supports the
+   claim beside it. Never make the reader rebuild a subset through "of those",
+   "the remaining one", "that last one",
    "one of its two" or a bare "all three" - repeat the noun or identifier, or
    use named rows. A count does not establish an unmeasured judgement. Never
    setup-then-reveal: if the interesting part arrives in the second half of a
