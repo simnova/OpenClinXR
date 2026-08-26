@@ -94,6 +94,39 @@ function sweepOrNull(): Sweep | null {
   return JSON.parse(readFileSync(SWEEP, "utf8")) as Sweep;
 }
 
+/**
+ * ## DEFECT RECORD FOR THIS CARD, RESTORED 2026-08-26 — do not delete on the next re-plant
+ *
+ * This file was re-planted at `9e898e56` with a cleaner contract, and the re-plant erased two
+ * measured defect records that cost real probing to establish. Restoring them as history, not as
+ * assertions: the current clauses are sound and are not being reverted.
+ *
+ * The planted-header convention in this repo is that a measured diagnosis is IMMUTABLE — flip the
+ * assertion and append, never rewrite. A wholesale file replacement loses the diagnosis even when the
+ * replacement is better, and the next engineer re-derives it.
+ *
+ * **1. The original clause (1) was a regex over source text and a COMMENT satisfied it.**
+ * Probed at `252e3370`: appending
+ * `// TODO: someday add a bake_ stage here. This comment is not a bake.`
+ * to `iterate-optimize.ts` flipped the headline clause of a live P1 dispatchable card green.
+ *
+ * **2. My repair of it was itself unsound**, named by a consult after it landed. The hash-linkage
+ * clause compared hash STRINGS INSIDE ONE REPORT and never recomputed a hash from an artifact on
+ * disk, so a worker could author a self-consistent fictional chain and satisfy it. Nothing proved
+ * `iterate-optimize.ts` produced the report at all.
+ *
+ * The sound form recomputes SHA-256 from every referenced artifact path, asserts BOTH bake inputs
+ * (high source and UV-bearing low mesh), binds the grade plan by hash before execution, and proves
+ * the pipeline command produced the receipts. Timestamps stay diagnostic: an in-report
+ * `createdAt <= startedAt` is self-declared chronology, weaker than the filesystem
+ * `measured-before:` rule this repo already removed from the plant-protection set.
+ *
+ * **What the current clause (2) does better than either of mine**: it is still a source proxy
+ * (`src.includes("hl_bake")`) and it SAYS SO in its own failure message, including a `usageOnly`
+ * diagnostic for whether the mention is comment-only. A marker check that declares itself a marker
+ * check is honest; one that does not is the defect above.
+ */
+
 describe("the optimize path can bake before it decimates (#694)", () => {
   it("(1) a tracked rung sweep exists between the two graded endpoints, predictions first", () => {
     const sweep = sweepOrNull();
