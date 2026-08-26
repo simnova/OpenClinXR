@@ -61,7 +61,7 @@ const PUBLIC_ROOT = "apps/ui-xr/public";
 const HEIGHT_BAND_CM = 2.0;
 
 /** Body primitives are the large ones; garment and hair primitives are far smaller. */
-const BODY_MIN_VERTS = 5000;
+const BODY_MIN_VERTS = 4000; // was 5000; #695 decimation shrank the physician body to 4,807 verts — see FIXED below
 
 type Row = { actorId: string; declaredCm: number; bodyCm: number | null; asset: string };
 
@@ -193,4 +193,15 @@ describe("a described patient gets a body that height", () => {
  *     refuses unregistered new actors by design).
  *   - hair_licence_permits(): header-first licence read + the existing named uuid allowlist applied
  *     INSIDE the fit gate, so the mhair02 page-CC0/header-AGPL3 exception is enforced at one place.
+ */
+
+/*
+ * ## FIXED (#695) — 2026-08-26, appended not rewritten
+ *
+ * `BODY_MIN_VERTS` 5000 -> 4000. #695 meshopt DECIMATION of the four ED actors (ratio 0.4,
+ * error 0.001) shrank the physician body to 4,807 verts (was 11,065), below the 5,000 body
+ * primitive floor, so the measurement read `body null cm` and clause (1) reddened on an actor
+ * whose height did not change. The floor's job is to separate BODY primitives from garment/hair
+ * primitives (far smaller); 4,000 still does with margin both sides (garment/hair <= 2,216;
+ * smallest real body 4,807). The physician body still measures its height at the same stature.
  */

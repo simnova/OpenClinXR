@@ -607,7 +607,7 @@ def apply_mpfb2_eye_rig(output_glb: str) -> str:
     return report_path
 
 
-def generate(params: Dict[str, Any], case_id: str, actor_role: str, output_glb: str, use_comfy: bool = False, comfy_url: str = "http://127.0.0.1:8188", optimize_meshopt: bool = False, mpfb2_eye_rig: bool = False, garment_source_geometry_hint: bool = False, phenotype_source: Optional[str] = None) -> Dict[str, str]:  # garment_source_geometry_hint legacy (aborted); phenotype.garmentLayers drives real embed garment in apply_role_clothing_material_regions (automate:1050) for Q1 blueprint case->skinned-sleeve-geo; patient preset re-orchestrated v2 for expanded obvious sleeves (0.27/0.35r/7x12 + folds/ripple/vivid)
+def generate(params: Dict[str, Any], case_id: str, actor_role: str, output_glb: str, use_comfy: bool = False, comfy_url: str = "http://127.0.0.1:8188", optimize_meshopt: bool = False, simplify_ratio: Optional[float] = None, simplify_error: Optional[float] = None, mpfb2_eye_rig: bool = False, garment_source_geometry_hint: bool = False, phenotype_source: Optional[str] = None) -> Dict[str, str]:  # garment_source_geometry_hint legacy (aborted); phenotype.garmentLayers drives real embed garment in apply_role_clothing_material_regions (automate:1050) for Q1 blueprint case->skinned-sleeve-geo; patient preset re-orchestrated v2 for expanded obvious sleeves (0.27/0.35r/7x12 + folds/ripple/vivid); #695 simplify_ratio/simplify_error pin meshopt DECIMATION (both numbers, never one — a ratio without its error bound is not reproducible)
     if use_comfy:
         raise SystemExit("--use-comfy is approval-gated; keep StableGen/ComfyUI off until explicitly approved.")
     # issue-291/294 refuse gate: a case-driven generation with a missing OR
@@ -663,13 +663,20 @@ def generate(params: Dict[str, Any], case_id: str, actor_role: str, output_glb: 
     optimization_report_path: Optional[str] = None
     if optimize_meshopt:
         optimization_report_path = output_glb.replace(".glb", "_optimization_report.json") if output_glb.endswith(".glb") else output_glb + "_optimization_report.json"
-        run_cmd([
+        optimize_cmd = [
             "node", str(OPTIMIZE_GLB),
             "--input", str(output_glb),
             "--output", str(output_glb),
             "--report", str(optimization_report_path),
             "--rigging-report", str(report_path),
-        ], timeout=120)
+        ]
+        if simplify_ratio is not None and simplify_error is not None:
+            # #695: both numbers are pinned together — meshopt will not overshoot the
+            # error budget to reach a ratio, so a ratio without its bound is not reproducible.
+            optimize_cmd += ["--simplify-ratio", str(simplify_ratio), "--simplify-error", str(simplify_error)]
+        elif (simplify_ratio is None) != (simplify_error is None):
+            raise SystemExit("simplify_ratio and simplify_error must be provided together (or not at all)")
+        run_cmd(optimize_cmd, timeout=120)
 
     provenance_path = write_provenance(params, case_id, actor_role, output_glb, report_path, str(manifest), optimization_report_path, phenotype_source)
     bundle_path = write_bundle_sidecar(params, case_id, actor_role, output_glb, report_path, provenance_path, str(manifest), str(obj), use_comfy, optimization_report_path)
@@ -749,6 +756,8 @@ def main() -> None:
     ap.add_argument("--use-comfy", action="store_true")
     ap.add_argument("--comfy-url", default="http://127.0.0.1:8188")
     ap.add_argument("--optimize-meshopt", action="store_true", help="Apply post-Blender Meshopt compression only after browser evidence confirms skinned body visibility.")
+    ap.add_argument("--simplify-ratio", type=float, default=None, help="#695 meshopt DECIMATION ratio (0,1]. Must be paired with --simplify-error; meshopt will not overshoot the error budget to reach a ratio.")
+    ap.add_argument("--simplify-error", type=float, default=None, help="#695 meshopt DECIMATION error bound, paired with --simplify-ratio. A ratio without its error bound is not reproducible.")
     ap.add_argument("--mpfb2-eye-rig", action="store_true", help="Apply MPFB2-informed seated procedural eyes and exportable gaze-probe clips after Blender rigging (now drives canonical eye.L/eye.R bones under head for peds school-age blueprint eye-joint-integration; gaze via bone rotations + target compat; diagnostics/reports updated with notEvidenceFor all readiness gates).")
     ap.add_argument("--garment-source-geometry-hint", action="store_true", help="LEGACY (hint-v1 aborted 2026-06-07 per chief pivot + anti-toil + Q1 violation: 48-face rigid no-weight cylinder, ignored garmentLayers=short_sleeve_exam_tshirt from peds_asthma_parent_anxiety_v1). Real embed from phenotype now in apply_role_clothing_material_regions (sleeved weighted geo deforms on breathing; v2 expanded 0.27len/visible volume/ripples/folds/vivid blue per asset-pipeline-lead for peds patient preset re-orchestrate). Default OFF; flag for backward only.")
     argv = sys.argv[1:]
@@ -769,7 +778,17 @@ def main() -> None:
         return
 
     params, case_id, actor_role, output_glb, phenotype_source = resolve_generation_inputs(args)
-    out = generate(params, case_id, actor_role, output_glb, args.use_comfy, args.comfy_url, args.optimize_meshopt, args.mpfb2_eye_rig, getattr(args, "garment_source_geometry_hint", False), phenotype_source)
+    out = generate(
+        params, case_id, actor_role, output_glb,
+        use_comfy=args.use_comfy,
+        comfy_url=args.comfy_url,
+        optimize_meshopt=args.optimize_meshopt,
+        simplify_ratio=getattr(args, "simplify_ratio", None),
+        simplify_error=getattr(args, "simplify_error", None),
+        mpfb2_eye_rig=args.mpfb2_eye_rig,
+        garment_source_geometry_hint=getattr(args, "garment_source_geometry_hint", False),
+        phenotype_source=phenotype_source,
+    )
     print("ORCHESTRATE_SUCCESS")
     print(json.dumps(out))
 
@@ -794,6 +813,8 @@ try:
         garment_source_geometry_hint: bool = False  # legacy (hint aborted); real garment region now driven by phenotype.garmentLayers (short_sleeve_exam_tshirt etc) in apply_role_clothing_material_regions; patient preset re-orchestrated for v2 obvious sleeves (Q1)
         comfy_url: str = "http://127.0.0.1:8188"
         optimize_meshopt: bool = False
+        simplify_ratio: Optional[float] = None  # #695 decimation ratio — must pair with simplify_error
+        simplify_error: Optional[float] = None  # #695 decimation error bound — a ratio without it is not reproducible
 
     @app.post("/generate")
     def generate_endpoint(req: GenerateRequest):
@@ -808,7 +829,17 @@ try:
             garment_source_geometry_hint=getattr(req, "garment_source_geometry_hint", False),  # legacy only
         )
         params, case_id, actor_role, output_glb, phenotype_source = resolve_generation_inputs(namespace)
-        out = generate(params, case_id, actor_role, output_glb, req.use_comfy, req.comfy_url, req.optimize_meshopt, getattr(req, "mpfb2_eye_rig", False), getattr(req, "garment_source_geometry_hint", False), phenotype_source)  # phenotype.garmentLayers now primary for real sleeved garment in blender stage; re-orchestrated peds patient preset triggers expanded sleeve geometry on next orchestrate_character --case-actor-preset patient_maya_johnson_v1
+        out = generate(
+            params, case_id, actor_role, output_glb,
+            use_comfy=req.use_comfy,
+            comfy_url=req.comfy_url,
+            optimize_meshopt=req.optimize_meshopt,
+            simplify_ratio=getattr(req, "simplify_ratio", None),
+            simplify_error=getattr(req, "simplify_error", None),
+            mpfb2_eye_rig=getattr(req, "mpfb2_eye_rig", False),
+            garment_source_geometry_hint=getattr(req, "garment_source_geometry_hint", False),  # legacy only
+            phenotype_source=phenotype_source,
+        )
         return {"ok": True, "glb": out.get("glb"), "report": out.get("report"), "provenance": out.get("provenance"), "bundle": out.get("bundle")}
 
 except ImportError:
