@@ -137,9 +137,10 @@ const ACTORS = [
   // refused every clause before shoeTris could be re-pinned.
   "mpfb-street-adult-male",
   "mpfb-viseme-inspect",
-  // #568: enumeration catch-up — the gowned patient retains the base cargo_pants +
-  // footwear materials and was missing from ACTORS since its 08-25 re-bake.
-  "mpfb-gown-adult-patient",
+  // #684: REMOVED from the dressed set on 2026-08-26 — the gown re-bake replaced the base
+  // cargo_pants with the hospital gown, so this asset no longer ships a (cargo|scrub|trouser)_pants
+  // lower garment. The enumeration is checked against what ships (SS7j); a no-lower actor does not
+  // belong here. Pre-#651 this asset was likewise trouserless (gown x4, cargo_pants x0).
 ] as const;
 
 /** A bucket counts as "outside" only beyond this, so surface noise is not read as a layer flip. */
@@ -251,8 +252,6 @@ const BASELINE: Record<string, { cuffReachMm: number; shoeTris: number }> = {
   "mpfb-street-adult-male": { cuffReachMm: -279.2, shoeTris: 30768 },
   // Still on toigo_flats — inspect file, not rebaked this slice.
   "mpfb-viseme-inspect": { cuffReachMm: 28.0, shoeTris: 57600 },
-  // #568: newly enumerated — the gowned patient retains base cargo_pants + footwear.
-  "mpfb-gown-adult-patient": { cuffReachMm: 13.3, shoeTris: 1004 },
 };
 
 /** Shipped mpfb actors carrying BOTH a lower garment (any class) and footwear. */

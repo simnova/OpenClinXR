@@ -1,0 +1,271 @@
+{
+  "generated": "2026-08-26T14:53:39.345Z",
+  "note": "pre-fix measurement for issue-684; subject = mpfb-gown-adult-patient.glb, control = mpfb-gown-inspect.glb",
+  "subject": {
+    "file": "mpfb-gown-adult-patient.glb",
+    "bodyHeightMeters": 1.7756,
+    "bakeReferenceId": "ob_patient_aisha",
+    "garments": [
+      {
+        "material": "mat_makeclothes_library_cargo_pants.001",
+        "triangles": 2775,
+        "minFraction": 0.056,
+        "maxFraction": 0.607
+      },
+      {
+        "material": "mat_makeclothes_library_toigo_t_shirt",
+        "triangles": 2700,
+        "minFraction": 0.588,
+        "maxFraction": 0.86
+      }
+    ]
+  },
+  "control": {
+    "file": "mpfb-gown-inspect.glb",
+    "bodyHeightMeters": 1.6659,
+    "bakeReferenceId": "ob_patient_aisha",
+    "garments": [
+      {
+        "material": "openclinxr_real_garment_hospital_gown_phenotype_L0",
+        "triangles": 5829,
+        "minFraction": 0.32,
+        "maxFraction": 0.863
+      },
+      {
+        "material": "mat_makeclothes_library_toigo_t_shirt",
+        "triangles": 2700,
+        "minFraction": 0.573,
+        "maxFraction": 0.843
+      },
+      {
+        "material": "(unnamed)",
+        "triangles": 1,
+        "minFraction": 0.55,
+        "maxFraction": 0.55
+      }
+    ]
+  },
+  "allShipped": [
+    {
+      "file": "mpfb-clinical-nurse-adult.glb",
+      "bodyHeightMeters": 1.7599,
+      "bakeReferenceId": "ed_chest_pain_nurse_adult",
+      "garments": [
+        {
+          "material": "mat_makeclothes_library_scrub_shirt",
+          "triangles": 9384,
+          "minFraction": 0.554,
+          "maxFraction": 0.867
+        },
+        {
+          "material": "mat_makeclothes_library_scrub_pants",
+          "triangles": 2704,
+          "minFraction": 0.049,
+          "maxFraction": 0.588
+        }
+      ]
+    },
+    {
+      "file": "mpfb-clinical-physician-adult.glb",
+      "bodyHeightMeters": 1.7219,
+      "bakeReferenceId": "ob_patient_aisha",
+      "garments": [
+        {
+          "material": "mat_makeclothes_library_scrub_shirt",
+          "triangles": 9384,
+          "minFraction": 0.555,
+          "maxFraction": 0.864
+        },
+        {
+          "material": "mat_makeclothes_library_scrub_pants",
+          "triangles": 2704,
+          "minFraction": 0.044,
+          "maxFraction": 0.584
+        },
+        {
+          "material": "mat_makeclothes_library_lab_coat",
+          "triangles": 2632,
+          "minFraction": 0.295,
+          "maxFraction": 0.874
+        }
+      ]
+    },
+    {
+      "file": "mpfb-family-partner-adult.glb",
+      "bodyHeightMeters": 1.6599,
+      "bakeReferenceId": "ed_chest_pain_spouse_adult",
+      "garments": [
+        {
+          "material": "mat_makeclothes_library_cargo_pants.001",
+          "triangles": 2811,
+          "minFraction": 0.07,
+          "maxFraction": 0.596
+        },
+        {
+          "material": "mat_makeclothes_library_toigo_t_shirt",
+          "triangles": 2700,
+          "minFraction": 0.579,
+          "maxFraction": 0.857
+        }
+      ]
+    },
+    {
+      "file": "mpfb-gown-adult-patient.glb",
+      "bodyHeightMeters": 1.7756,
+      "bakeReferenceId": "ob_patient_aisha",
+      "garments": [
+        {
+          "material": "mat_makeclothes_library_cargo_pants.001",
+          "triangles": 2775,
+          "minFraction": 0.056,
+          "maxFraction": 0.607
+        },
+        {
+          "material": "mat_makeclothes_library_toigo_t_shirt",
+          "triangles": 2700,
+          "minFraction": 0.588,
+          "maxFraction": 0.86
+        }
+      ]
+    },
+    {
+      "file": "mpfb-gown-inspect.glb",
+      "bodyHeightMeters": 1.6659,
+      "bakeReferenceId": "ob_patient_aisha",
+      "garments": [
+        {
+          "material": "openclinxr_real_garment_hospital_gown_phenotype_L0",
+          "triangles": 5829,
+          "minFraction": 0.32,
+          "maxFraction": 0.863
+        },
+        {
+          "material": "mat_makeclothes_library_toigo_t_shirt",
+          "triangles": 2700,
+          "minFraction": 0.573,
+          "maxFraction": 0.843
+        },
+        {
+          "material": "(unnamed)",
+          "triangles": 1,
+          "minFraction": 0.55,
+          "maxFraction": 0.55
+        }
+      ]
+    },
+    {
+      "file": "mpfb-ob-patient-aisha.glb",
+      "bodyHeightMeters": 1.6659,
+      "bakeReferenceId": "ob_patient_aisha",
+      "garments": [
+        {
+          "material": "mat_makeclothes_library_toigo_t_shirt",
+          "triangles": 2700,
+          "minFraction": 0.555,
+          "maxFraction": 0.843
+        },
+        {
+          "material": "mat_makeclothes_library_cargo_pants.001",
+          "triangles": 2692,
+          "minFraction": 0.06,
+          "maxFraction": 0.574
+        }
+      ]
+    },
+    {
+      "file": "mpfb-peds-nurse-kevin.glb",
+      "bodyHeightMeters": 1.7601,
+      "bakeReferenceId": "peds_nurse_kevin",
+      "garments": [
+        {
+          "material": "mat_makeclothes_library_scrub_shirt",
+          "triangles": 9384,
+          "minFraction": 0.555,
+          "maxFraction": 0.866
+        },
+        {
+          "material": "mat_makeclothes_library_scrub_pants",
+          "triangles": 2704,
+          "minFraction": 0.05,
+          "maxFraction": 0.583
+        }
+      ]
+    },
+    {
+      "file": "mpfb-peds-parent-aisha.glb",
+      "bodyHeightMeters": 1.6599,
+      "bakeReferenceId": "ob_patient_aisha",
+      "garments": [
+        {
+          "material": "mat_makeclothes_library_cargo_pants.001",
+          "triangles": 2818,
+          "minFraction": 0.06,
+          "maxFraction": 0.597
+        },
+        {
+          "material": "mat_makeclothes_library_toigo_t_shirt",
+          "triangles": 2700,
+          "minFraction": 0.579,
+          "maxFraction": 0.857
+        }
+      ]
+    },
+    {
+      "file": "mpfb-peds-patient-child.glb",
+      "bodyHeightMeters": 1.241,
+      "bakeReferenceId": "peds_patient_child",
+      "garments": [
+        {
+          "material": "mat_makeclothes_library_toigo_t_shirt",
+          "triangles": 2700,
+          "minFraction": 0.56,
+          "maxFraction": 0.839
+        },
+        {
+          "material": "mat_makeclothes_library_cargo_pants.001",
+          "triangles": 2636,
+          "minFraction": 0.081,
+          "maxFraction": 0.578
+        }
+      ]
+    },
+    {
+      "file": "mpfb-street-adult-male.glb",
+      "bodyHeightMeters": 1.7601,
+      "bakeReferenceId": "adult_male_street_casual",
+      "garments": [
+        {
+          "material": "mat_makeclothes_library_cargo_pants.001",
+          "triangles": 2820,
+          "minFraction": 0.066,
+          "maxFraction": 0.601
+        },
+        {
+          "material": "mat_makeclothes_library_toigo_t_shirt",
+          "triangles": 2700,
+          "minFraction": 0.582,
+          "maxFraction": 0.859
+        }
+      ]
+    },
+    {
+      "file": "mpfb-viseme-inspect.glb",
+      "bodyHeightMeters": 1.6659,
+      "bakeReferenceId": "ob_patient_aisha",
+      "garments": [
+        {
+          "material": "mat_makeclothes_library_cargo_pants.001",
+          "triangles": 2782,
+          "minFraction": 0.06,
+          "maxFraction": 0.591
+        },
+        {
+          "material": "mat_makeclothes_library_toigo_t_shirt",
+          "triangles": 2700,
+          "minFraction": 0.573,
+          "maxFraction": 0.843
+        }
+      ]
+    }
+  ]
+}
