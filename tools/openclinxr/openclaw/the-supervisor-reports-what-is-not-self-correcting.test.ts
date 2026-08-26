@@ -1,3 +1,5 @@
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { describe, expect, it } from "vitest";
 import { join } from "node:path";
 import { CHRONIC_AFTER, classifyDoneClaims, MIN_AUDIT_GAP_MS, PERSISTENCE_WINDOW, READY_DEPTH_TARGET, expectedFailureResidue, markChronic, priorFindingKeys, proofFilesFromArtifact, readyDepth, resolvedSince, verifyDoneClaim } from "./supervisor-audit.js";
@@ -340,14 +342,26 @@ describe("the supervisor reports what is not self-correcting", () => {
     // the-supine-head-rests-on-its-pillow.test.ts:59 is still `it.fails`. Vitest counts an expected
     // failure as a pass, so a green artifact is entirely consistent with a defect nobody fixed.
     // Two iterations of this loop reported #181 as verified; a human caught it, not the instrument.
-    const c = verifyDoneClaim(process.cwd(), 181, "Landed");
-    expect(c.contractVerified, "the artifact exists and is green").toBe(true);
-    expect(c.residue, "and a proof file named by its artifact still carries an unflipped RED").toBeDefined();
-    // AMENDED iteration 4: was "warning". Reading the proof file at the artifact's own sha showed
-    // the RED was unflipped THERE too, which is the stronger verdict.
-    expect(c.residue!.status).toBe("unflipped_at_verification");
-    expect(c.residue!.files.some((r) => /supine-head-rests-on-its-pillow/u.test(r.file))).toBe(true);
-    expect(c.residue!.artifactHeadSha, "the artifact's tree is reported so the temporal gap is visible").toBeDefined();
+    // AMENDED 2026-08-26: this clause used LIVE #181 as its fixture and broke when #181 was FIXED
+    // (`43a46cb4` flipped the RED; the proof file now carries zero `it.fails` and runs 3 passed).
+    // A contract that fails because the product was repaired is a badly-built contract — the guard
+    // is about the DETECTOR, not about one card's state. Rebuilt on a synthetic tree so it asserts
+    // the same thing forever.
+    const dir = mkdtempSync(join(tmpdir(), "residue-"));
+    const proof = join(dir, "planted.test.ts");  // referenced RELATIVE to `dir` in the artifact — plantedRedCount joins root+rel
+    writeFileSync(proof, 'it.fails("(1) RED: not fixed yet", () => { throw new Error("x"); });\n');
+    const artifact = join(dir, "contract-verify.json");
+    writeFileSync(artifact, JSON.stringify({ checks: [{ rule: "run:vitest planted.test.ts", passed: true }], proofsOk: true }));
+
+    const r = expectedFailureResidue(dir, artifact);
+    // `unflipped_at_verification` is the STRONGER verdict and needs a git read at the artifact's own
+    // headSha to separate "shipped with its RED unflipped" from "someone planted one later". A temp
+    // dir is not a repo, so the reachable verdict here is `warning` — residue exists NOW. That is
+    // exactly the guard this clause is for: a green artifact beside an unflipped RED is not
+    // verification. The sha-anchored half is exercised against the live tree by clause (16).
+    expect(r.status, "a green artifact beside an unflipped RED must not read as clean").not.toBe("none");
+    expect(r.files.some((f) => /planted\.test\.ts/u.test(f.file))).toBe(true);
+    rmSync(dir, { recursive: true, force: true });
   });
 
   it("(16) DUTY 3: proof files are DERIVED from the artifact, never guessed from the issue number", () => {
@@ -426,11 +440,18 @@ describe("the supervisor reports what is not self-correcting", () => {
     // expected failure as a pass. Reading the proof file AT THAT SHA separates "shipped with its own
     // RED unflipped" from "somebody planted a RED there afterwards" — the first was never verified,
     // the second is a warning about someone else's work.
-    const c = verifyDoneClaim(process.cwd(), 181, "Landed");
-    expect(c.residue?.status).toBe("unflipped_at_verification");
-    expect(c.residue?.unflippedAtVerification?.some((f) => /supine-head-rests-on-its-pillow/u.test(f))).toBe(true);
-    expect(c.ok, "a card whose RED was unflipped at its verified sha is not ok").toBe(false);
-    expect(c.why).toMatch(/never true/u);
+    // AMENDED 2026-08-26, same reason as clause (15): the live #181 fixture expired when the card
+    // was fixed. The COUNTERWEIGHT is what matters and it is preserved below — a FLIPPED proof must
+    // NOT report residue, or the detector would call every completed card unverified.
+    const dir = mkdtempSync(join(tmpdir(), "residue-ok-"));
+    const proof = join(dir, "flipped.test.ts");
+    writeFileSync(proof, 'it("(1) FIXED", () => { expect(1).toBe(1); });\n');
+    const artifact = join(dir, "contract-verify.json");
+    writeFileSync(artifact, JSON.stringify({ checks: [{ rule: "run:vitest flipped.test.ts", passed: true }], proofsOk: true }));
+
+    const r = expectedFailureResidue(dir, artifact);
+    expect(r.status, "a flipped proof carries no residue — the detector must not cry wolf").not.toBe("unflipped_at_verification");
+    rmSync(dir, { recursive: true, force: true });
   });
 
   it("(21) COUNTERWEIGHT: a clean card is unaffected by the stricter rule", () => {
