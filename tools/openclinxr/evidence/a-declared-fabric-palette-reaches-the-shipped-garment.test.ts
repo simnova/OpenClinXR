@@ -88,11 +88,15 @@ const ACTOR_ASSETS: Readonly<Record<string, string>> = {
 
 /** The two that already resolve correctly — the known-good column, in the same station. */
 const KNOWN_GOOD: Readonly<Record<string, readonly [number, number, number]>> = {
-  parent_tara_johnson_v1: [0.42, 0.36, 0.4],
+  // #588: the parent's under-layer moved from muted rose (0.42,0.36,0.40) to the cardigan rose
+  // (0.62,0.28,0.38) — dE 36.2 from her own dark skin mean (92,81,74), the same perceptual
+  // distance as the nurse teal that reads clothed (dE 36.0). The pin proves palette-reach
+  // (shipped == what the pipeline assigns), not that the colour is immovable.
+  parent_tara_johnson_v1: [0.62, 0.28, 0.38],
   nurse_kevin_lee_v1: [0.05, 0.48, 0.52],
 };
 
-const GARMENT = /t_shirt|pants|sweater/iu;
+const GARMENT = /t_shirt|scrub_shirt|pants|sweater/iu;
 /** A rounding allowance on an exported float, not a tolerance on the colour choice. */
 const COLOUR_EPSILON = 0.005;
 
@@ -238,5 +242,39 @@ describe("a declared fabric palette reaches the shipped garment", () => {
  * The t-shirt keeps its authored T-shirt_basic.png texture; the cargo-pants cover shell
  * stays flat by authored state (cargo_pants.mhmat not staged — recorded skip, pre-existing).
  * (1) and (3) flipped to live `it(`; (2)/(4) hold unchanged.
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ */
+
+/**
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ * ## FIXED (#588) — appended; the planted header above is immutable
+ *
+ * #588 MEASURED FIRST (seated-parent-placement.json): the parent's garments are dE 11.6 from
+ * HER OWN skin — her skin-baked texture mean is (92, 81, 74), a dark tone, and the muted rose
+ * under-layer (0.42, 0.36, 0.40) sat ~33 RGB from it, so the whole visible outfit read as
+ * unclothed at station distance. The #506/#508 contracts did not catch her: #506's hardcoded
+ * light-skin constant [201,177,163] measures her garments ~136 RGB away, and #508's SKIN table
+ * has no row for her (she is skipped).
+ *
+ * FIX = two edits, same pattern as #506/#508:
+ *   (1) `automate_blender.py` `_FABRIC_PALETTE_KIND_COLORS["muted_rose_and_neutral"]
+ *       ["closed_casual"]`: (0.42, 0.36, 0.40) → (0.62, 0.28, 0.38) — the palette's own
+ *       cardigan rose. Measured: dE 36.2 from the parent's skin, numerically the same as the
+ *       nurse teal that reads clothed (dE 36.0), and 154 RGB from the light-skinned family
+ *       control (≥ the #506 control floor of 120).
+ *   (2) the shipped parent GLBs (`mpfb-peds-parent-aisha.glb` + the runtime
+ *       `mpfb-peds-parent-aisha.motion-bind.glb`) had both garment baseColorFactors patched to
+ *       (0.62, 0.28, 0.38) via `patch-glb-base-color-factors.ts` (JSON-chunk patch, geometry
+ *       and BIN verbatim — the #506/#508 mechanism, Node-side).
+ *
+ * The KNOWN_GOOD pin above moved WITH the deliberate colour change (shipped bytes and the
+ * palette row moved together); the assertion still proves palette-reach. Skin textures,
+ * garment vertex counts, geometry and the nurse's teal are unchanged.
+ *
+ * COMPANION FIX (pre-existing red, #542-era): the nurse GLB's garments were re-baked from
+ * `cargo_pants + fisherman_sweater` to `scrub_pants + scrub_shirt`; the GARMENT regex read
+ * the old names, so the nurse's upper returned null and requireMeasured red the whole file
+ * at HEAD. `scrub_shirt` added to the regex — the nurse's upper is the scrub shirt the
+ * #400 header pins as teal.
  * ════════════════════════════════════════════════════════════════════════════════════════════════
  */

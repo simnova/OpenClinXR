@@ -1741,7 +1741,12 @@ _FABRIC_PALETTE_KIND_COLORS: Dict[str, Dict[str, tuple]] = {
     },
     "muted_rose_and_neutral": {
         "open_front": (0.62, 0.28, 0.38, 1.0),
-        "closed_casual": (0.42, 0.36, 0.40, 1.0),
+        # #588: the under-layer was (0.42,0.36,0.40) — dE 11.6 from the peds parent's own
+        # (dark) skin mean (92,81,74), so the whole visible outfit read as unclothed. The
+        # cardigan rose (0.62,0.28,0.38) is dE 36.2 from that skin — the same perceptual
+        # distance as the nurse teal that reads clothed (dE 36.0) — and keeps the
+        # light-skinned family control ≥120 RGB from its skin.
+        "closed_casual": (0.62, 0.28, 0.38, 1.0),
     },
     # #400: the peds patient's declared palette (patient_maya_johnson_v1). Muted powder
     # blue — staging decision from the issue (clearly blue-dominant, distinct from the
