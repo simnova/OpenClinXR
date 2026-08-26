@@ -90,6 +90,28 @@ before passing `model:`.
 | `board slice-open` on a card that ALREADY exists | **mints a duplicate issue** (#26 -> minted #617) and points `board-<slice>.json` at the new number | `slice-open` is for NEW slices. For an existing card, write `.openclinxr/openclaw/board-<slice>.json` by hand with the real `issueNumber`, then `board close`. The dry-run tell is `issue=n/a` — it is about to CREATE, not attach |
 | `board close` arg names | `close requires --slice-id`, then `close requires --body` | it is `--slice-id <id> --body "<text>"` — **not** `--issue`, **not** `--body-file`. Use `--body "$(cat file)"` |
 
+## Bound the verification scope in the brief, or the worker runs the whole suite
+
+Measured 2026-08-26 on #681: a worker sat at 0% CPU for **1h45m** waiting on its own `pnpm exec
+vitest run`, one process 20 minutes old and still going. It committed correct work at ~40 minutes
+and then spent an hour verifying. Nothing in the brief said how much to verify, so it verified
+everything — and the orchestrator re-verifies at harvest anyway, so all of it was thrown away.
+
+Every brief carries:
+
+> Verify with `pnpm exec vitest run <the contract file>` plus any contract your change touches. Do
+> NOT run the full suite — the orchestrator re-verifies at harvest.
+
+**And 0% CPU on the grok binary is not a stall.** Liveness is the process PLUS a live process behind
+the tool call it is polling. Check that the command exists before concluding anything:
+
+```bash
+ps -ax -o pid,etime,command | grep "issue-<n>" | grep vitest    # is the thing it waits on alive?
+```
+
+An earlier tick reported this same worker as "possibly polling a dead command" from the CPU figure
+alone. The processes existed. Withdrawing that took one command that should have come first.
+
 ## The worker report — four literals, and three workers dropped the SAME one
 
 `integrate.ts:393` matches these unanchored, and merge-kill refuses with `worker-never-spoke` unless
