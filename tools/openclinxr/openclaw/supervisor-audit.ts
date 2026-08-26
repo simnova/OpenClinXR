@@ -685,10 +685,32 @@ export function readyDepth(
      * dropping it would make the queue read low for a reason no reader can see.
      */
     flippable?: boolean;
+    /**
+     * Can this card's contract land bytes on a PRODUCT path — i.e. reset the product clock?
+     *
+     * `factory_step != instrument` is NOT that question, and the gap ran for 38 consecutive audits.
+     * #577 is `room_generate` and its only `changed:` target is a docs file, so it was counted as
+     * product-forward while `assertProductLaneNotStarved` refused every non-product dispatch on a
+     * 17-commit clock. The gauge said the queue had product work; the gate said it did not; the
+     * gate was right.
+     *
+     * Derive it from the card's `changed:` targets through `isProductPath` — the SAME predicate the
+     * refusing gate uses (product-lane-gate.ts:63) — so the two definitions cannot drift.
+     *
+     * `undefined` preserves the old factory-step behaviour exactly, so callers that do not supply it
+     * are unchanged. A gauge fix that silently reclassifies unmeasured cards is worse than the
+     * defect it replaces.
+     */
+    landsProductBytes?: boolean;
   }>,
 ): ReadyDepth {
   const ready = cards.filter((c) => c.dispatchable && c.planted && c.prioritized && c.flippable !== false);
-  const product = ready.filter((c) => c.factoryStep !== null && c.factoryStep !== "instrument");
+  // CONJUNCTIVE, deliberately: a product STATION that can actually deliver. `instrument` stays
+  // excluded even when it touches a product path — FACTORY_STEPS names it the non-station and this
+  // is not the place to relitigate that. Strictly tighter than the old rule; it promotes nothing.
+  const product = ready.filter(
+    (c) => c.factoryStep !== null && c.factoryStep !== "instrument" && c.landsProductBytes !== false,
+  );
   return {
     target: READY_DEPTH_TARGET,
     productForward: product.length,

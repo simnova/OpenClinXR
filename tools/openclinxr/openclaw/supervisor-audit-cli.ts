@@ -13,6 +13,7 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync, existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { briefFromIssue } from "./board-brief.js";
+import { isProductPath } from "./product-lane-gate.js";
 import { getBoardSnapshot } from "./board-snapshot-cache.js";
 import {
   appendHistory, classifyDoneClaims, markChronic, PERSISTENCE_WINDOW, priorFindingKeys, readyDepth, resolvedSince, verifyDoneClaim, doneClaimRowsToVerify, readyDepthTrend, priorReadyWindows } from "./supervisor-audit.js";
@@ -26,6 +27,26 @@ const gh = (argv: string[]): string =>
 
 const factoryStepOf = (body: string): string | null =>
   /^##\s*factory_step:\s*([a-z_]+)\s*$/imu.exec(body ?? "")?.[1] ?? null;
+
+/**
+ * Does this card's contract name at least one `changed:` target on a PRODUCT path?
+ *
+ * `undefined` = undetermined (not dispatchable, or no `changed:` rule at all). readyDepth treats
+ * undetermined as the old factory-step behaviour rather than silently reclassifying a card nobody
+ * measured. `isProductPath` is the same predicate assertProductLaneNotStarved uses to refuse a
+ * dispatch — one definition, both ends, so the gauge and the gate cannot disagree again.
+ */
+function landsProductBytes(issue: { number: number; title: string; body: string }): boolean | undefined {
+  const brief = briefFromIssue(issue as never, REPO);
+  if (!brief.dispatchable) return undefined;
+  const rules = (brief as unknown as { proofs?: ReadonlyArray<string | { rule?: string }> }).proofs ?? [];
+  const changed = rules
+    .map((r) => (typeof r === "string" ? r : (r.rule ?? "")))
+    .filter((r) => r.startsWith("changed:"))
+    .map((r) => r.slice("changed:".length).trim());
+  if (changed.length === 0) return undefined;
+  return changed.some((t) => isProductPath(t));
+}
 
 async function main(): Promise<void> {
   const head = execFileSync("git", ["rev-parse", "HEAD"], { cwd: REPO, encoding: "utf8" }).trim();
@@ -120,6 +141,7 @@ async function main(): Promise<void> {
     return {
       number: i.number,
       dispatchable: Boolean(briefFromIssue(i as never, REPO).dispatchable),
+      landsProductBytes: landsProductBytes(i as never),
       factoryStep: factoryStepOf(i.body),
       planted: row?.factory === "Planted",
       prioritized: typeof row?.priority === "string" && row.priority.length > 0,
