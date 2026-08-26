@@ -149,6 +149,39 @@ NOT TESTED: whether the baked map survives glTF export and reads correctly in th
 It was rendered in Blender with the map attached. Until a GLB carries it and ui-xr loads it, this is
 a promising measurement rather than a pipeline capability.
 
+### THE DECIMATION FLOOR IS ~19.5k AND THE MAP DOES NOT REACH IT
+
+Drove the repo's own simplifier (`simplify` + `MeshoptSimplifier`, `FORCE_ERROR = 1.0`, the same
+constants `iterate-optimize.ts` uses) below the ladder's 25k stretch rung:
+
+    target 15,000 -> actual 19,562
+    target 10,000 -> actual 19,590
+    target  5,000 -> actual 19,552
+    target  2,500 -> actual 19,576
+
+**Meshopt plateaus at ~19,560 triangles for this asset whatever you ask for.** The ladder never
+asked below 25k so the floor was never visible. Anyone reading `stretch25k` as "the smallest rung"
+should know the mesh will not go meaningfully below it. Cause NOT DETERMINED — UV-seam pinning is
+the leading candidate (single material, tightly packed islands: this subject measured only 4.3%
+filler), but I did not isolate it.
+
+**And the map stops helping there.** Bytes look attractive — floor+512map is 8,344,484 B, 16.0%
+under the shipped 80k — but the render does not hold: the body carries hard facets and the lip
+deforms, mapped and unmapped alike.
+
+**That is the general limit of the technique, measured on our own asset: A NORMAL MAP FIXES SHADING,
+NOT SILHOUETTE.** Down to 25k the loss is surface form and the map recovers it. At 19.5k the loss
+has moved into the outline, and no amount of normal detail restores an edge that is no longer there.
+
+So the usable band is bounded on BOTH sides and neither bound is arbitrary:
+
+    80k   what ships, no map
+    25k   deepest rung where the map still carries it   <- the win, 12.6% smaller than shipped
+    19.5k simplifier floor; silhouette gone; map cannot help
+
+Take the ladder to 25k, not to the floor. When judging a decimated asset, look at the OUTLINE
+first — if the silhouette has gone faceted, stop decimating; a bake will not buy it back.
+
 ### THE MAP CROSSES THE glTF BOUNDARY AND three.js READS IT — measured 2026-08-26
 
 Exported the mapped low-poly and re-read it with the runtime's own loader:
