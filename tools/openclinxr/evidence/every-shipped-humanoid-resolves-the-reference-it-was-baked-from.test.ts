@@ -107,7 +107,7 @@ async function referenceTable(): Promise<Array<{ asset: string; reference: strin
 }
 
 describe("every shipped humanoid resolves the reference it was baked from (#688)", () => {
-  it.fails("(1) each shipped humanoid's baked-from reference has a manifest", async () => {
+  it("(1) each shipped humanoid's baked-from reference has a manifest", async () => {
     const rows = await referenceTable();
     expect(rows.length, "no shipped mpfb assets found — the enumeration is broken").toBeGreaterThan(0);
     const unresolved = rows
@@ -168,3 +168,45 @@ describe("every shipped humanoid resolves the reference it was baked from (#688)
     ).toEqual([]);
   }, 180_000);
 });
+
+/*
+ * ## FIXED (#688)
+ *
+ * Clause (1) flipped from `it.fails` to `it` on 2026-08-26. The fix is ONE
+ * missing manifest, not six asset edits:
+ * `apps/ui-xr/public/generated-humanoids/ob_patient_aisha.anny_manifest.json`
+ * now exists and carries `input_params.phenotype` with `skin_tone` and `eye_color`.
+ *
+ * Measured after the fix (same instrument — the test's own reference table, plus
+ * the materializer readers executed via ast+exec, bpy stubbed):
+ *
+ *     phenotype_skin_tone("ob_patient_aisha")   -> 'warm_light'   (was 'default')
+ *     phenotype_eye_colour("ob_patient_aisha")  -> 'brown'        (was '' -> role fallback)
+ *     phenotype_fabric_palette("ob_patient_aisha") -> ''          (unchanged: no-op)
+ *     phenotype_numeric_block("ob_patient_aisha")  -> {height_cm: 166, bmi: 24.0, age: 34}
+ *
+ * All six dependents now resolve: mpfb-clinical-physician-adult, mpfb-gown-adult-patient,
+ * mpfb-gown-inspect, mpfb-ob-patient-aisha, mpfb-peds-parent-aisha, mpfb-viseme-inspect.
+ * Clauses (2) and (3) were green before and after and are untouched.
+ *
+ * Value sourcing (full record in the commit message and the manifest's own notes):
+ *   - the reference id is the materializer's DEFAULT macro body id
+ *     (`args.reference or 'ob_patient_aisha'`), named after the first promoted MPFB
+ *     cast, ob_headache_preeclampsia_triage_v1:patient_aisha_khan_v1 (provenance);
+ *   - the ob-preeclampsia fixture authors NO skin_tone/eye_color for the actor
+ *     (deliberately: #276/#293/#664 keep identity fields out of derived rows), so
+ *     the premise's "the case's declared skin tone / eye colour" framing does not
+ *     hold for this case — the readers returned defaults because the case declared
+ *     nothing, not because a declared value was dropped;
+ *   - skin_tone 'warm_light' = the tree's established adult-female tone (identical
+ *     to ed_chest_pain_spouse_adult and peds_anxious_parent manifests);
+ *   - eye_color 'brown' = the iris all six shipped assets already embed
+ *     (brown_eye.png, sha256 4659691c..., measured pre-fix on every one of the six).
+ *
+ * NO RE-BAKE WAS RUN. The values reach the bytes only on a future bake that passes
+ * `--reference ob_patient_aisha` or `--eye-colour-reference ob_patient_aisha`; the
+ * six GLBs on this land are byte-unchanged, so no material class changes here.
+ * A future re-bake would change the skin atlas tone (warm_light vs the default
+ * RGB) and keep the iris brown (declared, no longer role-fallback — which also
+ * prevents the physician's stale-brown iris flipping to the clinician blue).
+ */
