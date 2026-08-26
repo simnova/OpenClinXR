@@ -111,6 +111,88 @@ Sole area — fraction of triangle area whose normal is within 15° of straight 
 figure is meaningless until the asset is oriented. Do not quote it on a raw champion.
 
 
+## SWEEP CLOSE-OUT, 7 assets, 2026-08-26 — AND EVERY "CLEAN" VERDICT IN IT WAS WRONG
+
+Read this before trusting anything below it. The per-asset findings that follow were produced by a
+sweep whose GRADING METHOD was too coarse, and the close-out overturned most of its own verdicts.
+
+### What the sweep concluded, and what re-grading found
+
+I judged each asset from a composed sheet of three **600 px cells**. On that evidence I recorded
+3 CLEAN, 2 CONTAMINATED, 1 rung-limited. Re-cropping the SAME renders at native resolution and
+magnifying 2x with NEAREST (which enlarges existing pixels and invents nothing):
+
+| asset | verdict from 600px cell | verdict at native | artifact |
+|---|---|---|---|
+| pulse-oximeter | CLEAN | **CONTAMINATED** | dark ragged rim at button base |
+| o2-port | CONTAMINATED | CONTAMINATED | speckled collars |
+| fetal-monitor | CONTAMINATED | CONTAMINATED | speckled knobs/buttons |
+| iv-pump | CLEAN | **CONTAMINATED** | dark broken rims between buttons |
+| glucometer | CLEAN | **CONTAMINATED** | dark rims at both button bases |
+| digital-thermometer | CLEAN | **CONTAMINATED** | broken rim at raised button |
+| lowpoly-shoe | clean map, rung too deep | unchanged | faceted outline, no rim artifact |
+
+**Six of six baked assets carry the SAME artifact: a dark, broken rim where a raised feature meets
+the housing.** It is systematic, not per-asset. Four of my six verdicts were wrong, all in the same
+direction, all because a 600 px cell cannot resolve a 2-3 px rim.
+
+`pulse-oximeter` is the one that matters most: it was the CONTROL. Every "this asset is clean, that
+one is contaminated" comparison in this file rested on it, and it was never clean.
+
+### The method failure, named
+
+This repo's own `pixel-grading` skill says a thumbnail supports COMPARATIVE and POSITIVE verdicts and
+cannot support "X is absent". I used a thumbnail to conclude "no speckle" six times. The rule was
+written down, loaded, and not applied.
+
+**So: grade a bake by cropping the FEATURE at 1:1 (or NEAREST-magnified), never from a composed
+contact sheet.** The sheet is for orientation and for showing someone the shape of the comparison.
+It is not the grading artifact.
+
+### What that does to every predictor in this file
+
+Nothing survives, and the sweep's real result is simpler than the one it was chasing. There is no
+CLEAN/CONTAMINATED split to predict, because every asset is contaminated. Share, deviation and
+proximity were all being fitted to LABELS THAT WERE WRONG.
+
+The FORM hypothesis is untouched, because it predicted SILHOUETTE survival, not map faithfulness,
+and silhouette was graded on outline — which a 600 px cell does show. It stands at 2 for 2 and stays
+a hypothesis.
+
+### The real finding, and it is a better one
+
+**A `selected_to_active` cage bake with a single object-global cage produces a rim artifact at every
+raised-feature junction on this generator's output.** The cage is `objectDiagonal * 0.02` extrusion
+and `* 0.04` max ray distance, uniform across the asset, and it does not account for local feature
+thickness or for competing surfaces along the projection direction. At a button's base, rays from
+the low mesh can reach both the button wall and the housing, and adjacent texels alternate between
+them.
+
+**INFERRED, not isolated.** The measurable property worth trying next is `ambiguousProjectionRate` —
+per receiving texel, cast the exact bake ray and record how many high-surface intersections fall
+inside the cage interval, the separation between the first and second plausible hits, and the
+discontinuity of source-hit position across adjacent texels. That is a property of the PROJECTION,
+which is where the artifact comes from, rather than of the component graph, which is where I kept
+looking. It has not been built or tested.
+
+### What the sweep never measured
+
+- **One camera** (az35/el35), one lighting rig, one grader. Normal errors are direction-dependent and
+  the artifact is localised at collars, knobs and buttons — a fixed view can hide the affected side.
+  A turntable with a grazing key is the missing instrument.
+- **Runtime screen size with mipmapping and motion.** Static close-ups can exaggerate harmless noise
+  and can also miss temporal shimmer.
+- **Any rung but 25k**, which repo policy already discourages: `trellis-vr-equipment-optimize`
+  SKILL.md:15 sets the good-enough band at 60-80k and forbids destroying silhouette to reach 25k.
+  The whole sweep baked at a rung the factory does not target.
+
+### Standing disposition
+
+The bake mechanism WORKS — it recovers form, it crosses the glTF boundary, three.js reads it, and it
+is byte-favourable at 512. It also introduces a junction artifact on every asset tried. **It is not
+ready to become a pipeline stage**, and the next step is the projection-ambiguity measurement, not
+another asset.
+
 ## THE PIPELINE HAS NO BAKE STAGE — measured 2026-08-26, and the detail is recoverable
 
 The optimize path is `3-iter high-error direct targets + weld + quantize`. That is meshopt
