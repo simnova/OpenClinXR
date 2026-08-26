@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "openclinxr.trellis-conditioning-rubric.v1",
+  "why": "Declared BEFORE any arm is generated so no metric can be chosen after seeing a result. A number picked after a grade is threshold-fitting.",
+  "visualMetrics": [
+    "missing_required_parts",
+    "duplicated_parts",
+    "detached_or_floating_parts",
+    "silhouette_fidelity",
+    "cross_view_identity",
+    "texture_contamination"
+  ],
+  "geometryMetrics": [
+    "boundary_edge_count",
+    "is_watertight",
+    "welded_component_count",
+    "largest_component_share",
+    "signed_volume",
+    "surface_area"
+  ],
+  "costMetrics": ["raw_triangle_count", "raw_bytes", "wall_clock_seconds"],
+  "decisionRules": [
+    "critical_visible_integrity_defects_dominate",
+    "no_scalar_quality_score",
+    "all_geometry_regressions_are_reported",
+    "boundary_edge_count_is_not_a_sole_selector",
+    "largest_component_share_is_not_a_quality_predictor",
+    "ties_retain_the_single_view_control"
+  ],
+  "decisionOrder": [
+    "critical visible corruption: missing, duplicated, detached or floating parts",
+    "silhouette and cross-view identity",
+    "texture contamination",
+    "geometry diagnostics including boundary edges and watertightness",
+    "runtime cost, recorded separately and never treated as visual quality"
+  ],
+  "priorEvidence": {
+    "issue255": "same-seed 1-vs-4 at seed 237255: rear-coverage measures improved AND boundaryEdgeCount worsened 470269 -> 547259; neither arm watertight",
+    "trainingCap": "MultiImageConditionedMixin max_image_cond_view = 4 (components.py:135); six views is outside the learned envelope",
+    "shippedFleet": "all 13 bake-measure.json records carry viewCount 1"
+  },
+  "claimScope": "the fixed metric set for one controlled conditioning comparison on one subject",
+  "notEvidenceFor": "that multiview improves output, that six views are usable, or that any metric here predicts contamination"
+}

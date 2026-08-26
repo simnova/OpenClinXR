@@ -1,0 +1,129 @@
+{
+  "schemaVersion": "openclinxr.trellis-fleet-census.v1",
+  "frozenAt": "2026-08-26",
+  "head": "de3927931d2fc6b87c9a150ba9a927a6bda96961",
+  "sourceRoot": ".openclinxr/evidence/trellis-escape-hatch",
+  "censusRule": "a fleet member is a canonical subject with a standard bake-measure.json under sourceRoot; subjectId has its -escape suffix stripped; duplicates collapse",
+  "whyFrozen": "the source tree is mutable and gitignored. Rescanning it at the end of the fleet run would let the target set drift under the contract. 11 is TODAY'S observed count, not the contract.",
+  "sources": [
+    {
+      "path": ".openclinxr/evidence/trellis-escape-hatch/bedside-monitor/bedside-monitor-escape/bake-measure.json",
+      "sha256": "40e4063cab2cc0d455f3835890d937098bac5c24f97a4f2e281c2654d6b8cf4d",
+      "reportedSubjectId": "bedside-monitor-escape",
+      "canonicalSubjectId": "bedside-monitor",
+      "viewCount": 1,
+      "wallClockS": 1856.4348888397217
+    },
+    {
+      "path": ".openclinxr/evidence/trellis-escape-hatch/glucometer/glucometer-escape/bake-measure.json",
+      "sha256": "37dfb63876eecbf1746dd56dabad81683f78f9b3529d7ecab285fac85caabfdd",
+      "reportedSubjectId": "glucometer-escape",
+      "canonicalSubjectId": "glucometer",
+      "viewCount": 1,
+      "wallClockS": 1221.613323688507
+    },
+    {
+      "path": ".openclinxr/evidence/trellis-escape-hatch/digital-thermometer/digital-thermometer-escape/bake-measure.json",
+      "sha256": "d2274c9d475eb1e4c6b2aa9b85a0a71b274a677fc2b8151c2fb7c9d2bde4a116",
+      "reportedSubjectId": "digital-thermometer-escape",
+      "canonicalSubjectId": "digital-thermometer",
+      "viewCount": 1,
+      "wallClockS": 442.8479721546173
+    },
+    {
+      "path": ".openclinxr/evidence/trellis-escape-hatch/pulse-oximeter/pulse-oximeter-escape/bake-measure.json",
+      "sha256": "a8fdbb14e2c9a69aaef8d33c41e6597e33654d6969ce4bf168a64f9751180283",
+      "reportedSubjectId": "pulse-oximeter-escape",
+      "canonicalSubjectId": "pulse-oximeter",
+      "viewCount": 1,
+      "wallClockS": 1947.8721640110016
+    },
+    {
+      "path": ".openclinxr/evidence/trellis-escape-hatch/lowpoly-shoe/lowpoly-shoe-escape/bake-measure.json",
+      "sha256": "955953ab18fee9807aeee526bc9c0d664f109548440edc83b7bd7fc3132e1b76",
+      "reportedSubjectId": "lowpoly-shoe-escape",
+      "canonicalSubjectId": "lowpoly-shoe",
+      "viewCount": 1,
+      "wallClockS": 571.9064381122589
+    },
+    {
+      "path": ".openclinxr/evidence/trellis-escape-hatch/wall-clock/wall-clock-escape/bake-measure.json",
+      "sha256": "03e7a828e38d211710464a345e3a6840d39d415defeee91c84b96c02ac9840a4",
+      "reportedSubjectId": "wall-clock-escape",
+      "canonicalSubjectId": "wall-clock",
+      "viewCount": 1,
+      "wallClockS": 1151.911926984787
+    },
+    {
+      "path": ".openclinxr/evidence/trellis-escape-hatch/o2-port/o2-port-remesh/bake-measure.json",
+      "sha256": "3fc88e474cccf02b26eb5a9dbafcc108523388f59c15c445334094d2d72bc96d",
+      "reportedSubjectId": "o2-port-escape",
+      "canonicalSubjectId": "o2-port",
+      "viewCount": 1,
+      "wallClockS": 1164.758010149002
+    },
+    {
+      "path": ".openclinxr/evidence/trellis-escape-hatch/o2-port/o2-port-escape/bake-measure.json",
+      "sha256": "3fc88e474cccf02b26eb5a9dbafcc108523388f59c15c445334094d2d72bc96d",
+      "reportedSubjectId": "o2-port-escape",
+      "canonicalSubjectId": "o2-port",
+      "viewCount": 1,
+      "wallClockS": 1164.758010149002
+    },
+    {
+      "path": ".openclinxr/evidence/trellis-escape-hatch/iv-pump/iv-pump-escape/bake-measure.json",
+      "sha256": "47dd17982e31d1efd3fe5863e0a2343769a5d04acbb1de32e2b7c39d6fe1fb98",
+      "reportedSubjectId": "iv-pump-escape",
+      "canonicalSubjectId": "iv-pump",
+      "viewCount": 1,
+      "wallClockS": 753.136834859848
+    },
+    {
+      "path": ".openclinxr/evidence/trellis-escape-hatch/fetal-monitor/fetal-monitor-escape/bake-measure.json",
+      "sha256": "64cd0cb9e2879a91f3924b8d30cea5f1f80cabe945d6266f144aaaec9ec9046c",
+      "reportedSubjectId": "fetal-monitor-escape",
+      "canonicalSubjectId": "fetal-monitor",
+      "viewCount": 1,
+      "wallClockS": 938.6249010562897
+    },
+    {
+      "path": ".openclinxr/evidence/trellis-escape-hatch/fetal-monitor/fetal-monitor-remesh/bake-measure.json",
+      "sha256": "81ea31a8e63c4f1344ccaa3d1a9e71813b9762314ae0ae14d2ce54751fd592a6",
+      "reportedSubjectId": "fetal-monitor-escape",
+      "canonicalSubjectId": "fetal-monitor",
+      "viewCount": 1,
+      "wallClockS": 1234.314394235611
+    },
+    {
+      "path": ".openclinxr/evidence/trellis-escape-hatch/iv-pole/iv-pole-escape/bake-measure.json",
+      "sha256": "f9d354038c4b2d775ae5b327dd4ec8c3faabdd7cf16d27ad2578fb56cf947f98",
+      "reportedSubjectId": "iv-pole-escape",
+      "canonicalSubjectId": "iv-pole",
+      "viewCount": 1,
+      "wallClockS": 243.09589982032776
+    },
+    {
+      "path": ".openclinxr/evidence/trellis-escape-hatch/medication-cart/medication-cart-escape/bake-measure.json",
+      "sha256": "3efae3bbbfe6a554f23990e0ac520679eb4d2a084d2f4b652af59fdbb7b911ae",
+      "reportedSubjectId": "medication-cart-escape",
+      "canonicalSubjectId": "medication-cart",
+      "viewCount": 1,
+      "wallClockS": 4556.583823919296
+    }
+  ],
+  "subjects": [
+    "bedside-monitor",
+    "digital-thermometer",
+    "fetal-monitor",
+    "glucometer",
+    "iv-pole",
+    "iv-pump",
+    "lowpoly-shoe",
+    "medication-cart",
+    "o2-port",
+    "pulse-oximeter",
+    "wall-clock"
+  ],
+  "claimScope": "the subject set derivable from bake-measure records on 2026-08-26",
+  "notEvidenceFor": "that these are the only TRELLIS assets, that each is promotable, or that the count is stable"
+}
