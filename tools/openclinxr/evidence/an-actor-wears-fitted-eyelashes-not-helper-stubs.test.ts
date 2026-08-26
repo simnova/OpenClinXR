@@ -117,4 +117,47 @@ describe("an actor wears fitted eyelashes, not helper stubs (#683)", () => {
       }
     }
   }, 1_800_000);
+
+  /**
+   * (5) COUNTERWEIGHT ADDED 2026-08-26, after #692 measured the station budget.
+   *
+   * The four clauses above bound lash MESH COUNT, body triangles, and brow/teeth/tongue retention.
+   * Not one of them bounds what the upgrade COSTS. That is the #686 shape exactly: a clause bounding
+   * the right property while every other property the cheapest satisfying mechanism would move runs
+   * free. #686 bounded normal-dot correctly and added 51,281 triangles nobody noticed until a census.
+   *
+   * MEASURED from the CC0 pack at
+   * `.openclinxr-local/provider-cache/facial/sources/makehuman-eyelashes01/extracted/eyelashes/`,
+   * counting OBJ quads as two triangles each:
+   *
+   *   shipped helper lash                368 tris
+   *   mindfront_eyelashes_01          16,632         +16,264 per actor
+   *   mindfront_eyelashes_02          25,488         +25,120
+   *   mindfront_eyelashes_05          29,700         +29,332
+   *
+   * Across the eleven shipped actors the SMALLEST variant is +178,904 triangles, which is one whole
+   * station budget (180,000, asset-generation-pipeline.md:87). The ED four-actor station goes from
+   * 360,524 to 425,580, from 2.00x over budget to 2.36x.
+   *
+   * THE BOUND IS DERIVED, NOT CHOSEN: the smallest variant the CC0 pack actually offers. It forbids
+   * silently reaching for eyelashes_05 at nearly double the cost, and it does not pretend to say
+   * what the cast can afford — that is #692's question and this clause does not answer it.
+   */
+  it("(5) COUNTERWEIGHT: a fitted lash costs no more than the smallest variant the pack offers", async () => {
+    const SMALLEST_VARIANT_TRIS = 16_632;
+    const over: string[] = [];
+    for (const glb of assets()) {
+      for (const m of await meshes(glb)) {
+        if (!/lash/i.test(m.name)) continue;
+        if (Math.round(m.tris) > SMALLEST_VARIANT_TRIS) {
+          over.push(`${glb}: ${m.name} = ${Math.round(m.tris)} > ${SMALLEST_VARIANT_TRIS}`);
+        }
+      }
+    }
+    expect(
+      over,
+      "eyelashes_01 is 16,632 tris and eyelashes_05 is 29,700; taking the larger costs +29,332 per "
+        + `actor against a station already 2.00x over budget:\n${over.join("\n")}`,
+    ).toHaveLength(0);
+  }, 1_800_000);
 });
