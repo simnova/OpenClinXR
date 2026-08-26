@@ -1,0 +1,1204 @@
+{
+  "schemaVersion": "openclinxr.silhouette-verdicts.v1",
+  "issue": "695",
+  "factoryStep": "body_param",
+  "generatedAt": "2026-08-26T19:35:57.386Z",
+  "measuredAgainstCommit": "9017d0ba2722e6bd2a095dff11fa6bfcbda41dec",
+  "treeStamp": {
+    "head": "9017d0ba2722e6bd2a095dff11fa6bfcbda41dec",
+    "fingerprint": "5abc04184c4ce34c10d61872a2dfa1e20cbe707a2c94e0bc7b11b971b68cf492",
+    "algorithm": "git-head+status+diff-sha256"
+  },
+  "method": {
+    "decimation": "@gltf-transform/functions simplify + meshoptimizer (MeshoptSimplifier), per-primitive, lockBorder=false",
+    "renderer": "apps/ui-xr isolated-subject lab — product three.js WebGLRenderer, subject-only front 3/4 legacy framing, 1280x960",
+    "silhouetteInstrument": "per-frame non-background mask (bg #18211d), whole-frame IoU + 8-strip IoU + lateral-extreme per-strip IoU + holes + fragments vs the original render",
+    "surfaceInstrument": "per-vertical-decile + lateral-arm-band nearest-surface deviation (mm) of the decimated world mesh from the original, stride 2",
+    "gownContractInstrument": "exact replication of the-gown-hangs-off-the-torso contract constants on the decimated gown GLB",
+    "visualGrade": "OWED TO THE ORCHESTRATOR — text-only worker records quantitative metrics and renders; no pixel claim made here"
+  },
+  "actors": {
+    "mpfb-gown-adult-patient": {
+      "beforeTris": 129885,
+      "rungs": {
+        "r0.5e0.001": {
+          "ratio": 0.5,
+          "error": 0.001,
+          "beforeTris": 129885,
+          "afterTris": 64802,
+          "reductionX": 2,
+          "uvPrimitivesBefore": 16,
+          "uvPrimitivesAfter": 16,
+          "silhouette": {
+            "totalIoU": 0.9996410256410256,
+            "stripIoUs": [
+              1,
+              1,
+              0.9994848016486347,
+              0.9996147919876733,
+              0.9990791896869244,
+              0.9995959595959596,
+              1,
+              1
+            ],
+            "lateralStripIoUs": [
+              null,
+              null,
+              null,
+              null,
+              1,
+              1,
+              1,
+              null
+            ],
+            "holesOriginal": 1,
+            "holesRung": 1,
+            "fragmentsOriginal": 0,
+            "fragmentsRung": 0
+          },
+          "surfaceDeviation": {
+            "body": {
+              "n": 20670,
+              "meanMm": 4.520305575496714,
+              "p90Mm": 12.223036074511631
+            },
+            "armLateral": {
+              "n": 820,
+              "meanMm": 2.9367039878449295,
+              "p90Mm": 9.342478339835179
+            },
+            "headDecile": {
+              "n": 6634,
+              "meanMm": 0.6011779424844093,
+              "p90Mm": 0.3677811880300301
+            },
+            "shinDeciles": {
+              "n": 80,
+              "meanMm": 4.687702338497496,
+              "p90Mm": 16.749156331759412
+            },
+            "worstDecile": {
+              "decile": 3,
+              "n": 250,
+              "meanMm": 16.05330358858151,
+              "p90Mm": 28.23264365598137
+            },
+            "noLocalNeighborCount": 2013
+          },
+          "gownContract": {
+            "bodice": {
+              "n": 3591,
+              "medianMm": 47.60191542985988,
+              "medianNormalDot": 0.8501301545605263
+            },
+            "skirt": {
+              "n": 163,
+              "medianMm": 69.46725567614475,
+              "medianNormalDot": 0.7426350639239641
+            },
+            "passes": true,
+            "failures": []
+          },
+          "renderPath": ".openclinxr/evidence/issue-695/front/mpfb-gown-adult-patient-r0.5e0.001.png"
+        },
+        "r0.4e0.001": {
+          "ratio": 0.4,
+          "error": 0.001,
+          "beforeTris": 129885,
+          "afterTris": 53150,
+          "reductionX": 2.44,
+          "uvPrimitivesBefore": 16,
+          "uvPrimitivesAfter": 16,
+          "silhouette": {
+            "totalIoU": 0.9991796554552912,
+            "stripIoUs": [
+              0.9990974729241877,
+              1,
+              0.9989701338825953,
+              1,
+              0.9984657870512427,
+              0.9987881236113917,
+              1,
+              0.9984813971146546
+            ],
+            "lateralStripIoUs": [
+              null,
+              null,
+              null,
+              null,
+              0.9951923076923077,
+              1,
+              1,
+              null
+            ],
+            "holesOriginal": 1,
+            "holesRung": 1,
+            "fragmentsOriginal": 0,
+            "fragmentsRung": 0
+          },
+          "surfaceDeviation": {
+            "body": {
+              "n": 17942,
+              "meanMm": 4.800605569966637,
+              "p90Mm": 12.465394661339632
+            },
+            "armLateral": {
+              "n": 650,
+              "meanMm": 3.2670985623541653,
+              "p90Mm": 9.766754564654287
+            },
+            "headDecile": {
+              "n": 5468,
+              "meanMm": 0.6846413227781103,
+              "p90Mm": 0.8141261046336657
+            },
+            "shinDeciles": {
+              "n": 71,
+              "meanMm": 3.782937112235165,
+              "p90Mm": 16.422965088746484
+            },
+            "worstDecile": {
+              "decile": 4,
+              "n": 176,
+              "meanMm": 18.188728969654427,
+              "p90Mm": 49.61168959006623
+            },
+            "noLocalNeighborCount": 1700
+          },
+          "gownContract": {
+            "bodice": {
+              "n": 2941,
+              "medianMm": 47.82759226975276,
+              "medianNormalDot": 0.8395522260742716
+            },
+            "skirt": {
+              "n": 71,
+              "medianMm": 73.45256448442515,
+              "medianNormalDot": 0.6873399490453296
+            },
+            "passes": true,
+            "failures": []
+          },
+          "renderPath": ".openclinxr/evidence/issue-695/front/mpfb-gown-adult-patient-r0.4e0.001.png"
+        },
+        "r0.34e0.001": {
+          "ratio": 0.34,
+          "error": 0.001,
+          "beforeTris": 129885,
+          "afterTris": 46184,
+          "reductionX": 2.81,
+          "uvPrimitivesBefore": 16,
+          "uvPrimitivesAfter": 16,
+          "silhouette": {
+            "totalIoU": 0.9976430803914536,
+            "stripIoUs": [
+              0.9981949458483754,
+              0.9951768488745981,
+              0.9974253347064882,
+              0.9988448209472468,
+              0.9947948560930803,
+              0.9983848172824551,
+              0.9990291262135922,
+              0.9984813971146546
+            ],
+            "lateralStripIoUs": [
+              null,
+              null,
+              null,
+              null,
+              0.9903846153846154,
+              1,
+              1,
+              null
+            ],
+            "holesOriginal": 1,
+            "holesRung": 1,
+            "fragmentsOriginal": 0,
+            "fragmentsRung": 0
+          },
+          "surfaceDeviation": {
+            "body": {
+              "n": 16241,
+              "meanMm": 4.816437164946219,
+              "p90Mm": 12.35214010620877
+            },
+            "armLateral": {
+              "n": 533,
+              "meanMm": 3.4434060814353202,
+              "p90Mm": 9.730912133507285
+            },
+            "headDecile": {
+              "n": 4756,
+              "meanMm": 0.7474757421268629,
+              "p90Mm": 1.2265188134430145
+            },
+            "shinDeciles": {
+              "n": 68,
+              "meanMm": 4.315767024560851,
+              "p90Mm": 16.749156331759412
+            },
+            "worstDecile": {
+              "decile": 3,
+              "n": 169,
+              "meanMm": 22.319919127892714,
+              "p90Mm": 85.01460645660383
+            },
+            "noLocalNeighborCount": 1526
+          },
+          "gownContract": {
+            "bodice": {
+              "n": 2526,
+              "medianMm": 48.170943679921,
+              "medianNormalDot": 0.8381133879560949
+            },
+            "skirt": {
+              "n": 40,
+              "medianMm": 95.44919579187672,
+              "medianNormalDot": 0.7249094722519606
+            },
+            "passes": true,
+            "failures": []
+          },
+          "renderPath": ".openclinxr/evidence/issue-695/front/mpfb-gown-adult-patient-r0.34e0.001.png"
+        },
+        "r0.34e0.01": {
+          "ratio": 0.34,
+          "error": 0.01,
+          "beforeTris": 129885,
+          "afterTris": 41411,
+          "reductionX": 3.14,
+          "uvPrimitivesBefore": 16,
+          "uvPrimitivesAfter": 16,
+          "silhouette": {
+            "totalIoU": 0.9976430803914536,
+            "stripIoUs": [
+              0.9981949458483754,
+              0.9951768488745981,
+              0.9974253347064882,
+              0.9988448209472468,
+              0.9947948560930803,
+              0.9983848172824551,
+              0.9993527508090615,
+              0.9977220956719818
+            ],
+            "lateralStripIoUs": [
+              null,
+              null,
+              null,
+              null,
+              0.9903846153846154,
+              1,
+              1,
+              null
+            ],
+            "holesOriginal": 1,
+            "holesRung": 1,
+            "fragmentsOriginal": 0,
+            "fragmentsRung": 0
+          },
+          "surfaceDeviation": {
+            "body": {
+              "n": 14783,
+              "meanMm": 4.851946838419589,
+              "p90Mm": 12.827520746476324
+            },
+            "armLateral": {
+              "n": 535,
+              "meanMm": 3.5134397562365485,
+              "p90Mm": 10.221209195512602
+            },
+            "headDecile": {
+              "n": 4363,
+              "meanMm": 0.5752179456089086,
+              "p90Mm": 0.13380546208106825
+            },
+            "shinDeciles": {
+              "n": 68,
+              "meanMm": 4.983667890712011,
+              "p90Mm": 18.517357498466104
+            },
+            "worstDecile": {
+              "decile": 4,
+              "n": 120,
+              "meanMm": 17.128920168235638,
+              "p90Mm": 49.61168959006623
+            },
+            "noLocalNeighborCount": 1481
+          },
+          "gownContract": {
+            "bodice": {
+              "n": 2526,
+              "medianMm": 58.47345888735753,
+              "medianNormalDot": 0.7881640807011199
+            },
+            "skirt": {
+              "n": 40,
+              "medianMm": 95.44919579187672,
+              "medianNormalDot": 0.7249094722519606
+            },
+            "passes": true,
+            "failures": []
+          },
+          "renderPath": ".openclinxr/evidence/issue-695/front/mpfb-gown-adult-patient-r0.34e0.01.png"
+        }
+      },
+      "adoptedRung": "r0.5e0.001",
+      "renderOriginalPath": ".openclinxr/evidence/issue-695/front/mpfb-gown-adult-patient-original.png"
+    },
+    "mpfb-clinical-nurse-adult": {
+      "beforeTris": 75854,
+      "rungs": {
+        "r0.5e0.001": {
+          "ratio": 0.5,
+          "error": 0.001,
+          "beforeTris": 75854,
+          "afterTris": 42396,
+          "reductionX": 1.79,
+          "uvPrimitivesBefore": 17,
+          "uvPrimitivesAfter": 17,
+          "silhouette": {
+            "totalIoU": 0.9994683678894205,
+            "stripIoUs": [
+              1,
+              1,
+              1,
+              1,
+              0.9986408426775399,
+              0.9993630573248408,
+              1,
+              0.9976671850699844
+            ],
+            "lateralStripIoUs": [
+              null,
+              null,
+              null,
+              null,
+              0.9946524064171123,
+              1,
+              1,
+              null
+            ],
+            "holesOriginal": 10,
+            "holesRung": 12,
+            "fragmentsOriginal": 1,
+            "fragmentsRung": 1
+          },
+          "surfaceDeviation": {
+            "body": {
+              "n": 22989,
+              "meanMm": 2.019366003898722,
+              "p90Mm": 8.595736112593709
+            },
+            "armLateral": {
+              "n": 741,
+              "meanMm": 2.272758056312239,
+              "p90Mm": 6.848326540924446
+            },
+            "headDecile": {
+              "n": 6750,
+              "meanMm": 0.5561633417748089,
+              "p90Mm": 0.5767209877216422
+            },
+            "shinDeciles": {
+              "n": 931,
+              "meanMm": 3.1596808085941985,
+              "p90Mm": 14.900746770919275
+            },
+            "worstDecile": {
+              "decile": 2,
+              "n": 579,
+              "meanMm": 3.6104532157805957,
+              "p90Mm": 15.000000894304147
+            },
+            "noLocalNeighborCount": 1296
+          },
+          "renderPath": ".openclinxr/evidence/issue-695/front/mpfb-clinical-nurse-adult-r0.5e0.001.png"
+        },
+        "r0.4e0.001": {
+          "ratio": 0.4,
+          "error": 0.001,
+          "beforeTris": 75854,
+          "afterTris": 38913,
+          "reductionX": 1.95,
+          "uvPrimitivesBefore": 17,
+          "uvPrimitivesAfter": 17,
+          "silhouette": {
+            "totalIoU": 0.9992321323095097,
+            "stripIoUs": [
+              1,
+              1,
+              1,
+              1,
+              0.9979612640163099,
+              0.9987265202164916,
+              1,
+              0.9976671850699844
+            ],
+            "lateralStripIoUs": [
+              null,
+              null,
+              null,
+              null,
+              0.9893048128342246,
+              1,
+              1,
+              null
+            ],
+            "holesOriginal": 10,
+            "holesRung": 12,
+            "fragmentsOriginal": 1,
+            "fragmentsRung": 1
+          },
+          "surfaceDeviation": {
+            "body": {
+              "n": 22108,
+              "meanMm": 2.0355292811731127,
+              "p90Mm": 8.73309948480229
+            },
+            "armLateral": {
+              "n": 572,
+              "meanMm": 2.379558576286483,
+              "p90Mm": 7.2114298662904135
+            },
+            "headDecile": {
+              "n": 6193,
+              "meanMm": 0.5651833173593271,
+              "p90Mm": 0.4773775127927594
+            },
+            "shinDeciles": {
+              "n": 911,
+              "meanMm": 2.877533302788541,
+              "p90Mm": 14.85376510450904
+            },
+            "worstDecile": {
+              "decile": 2,
+              "n": 571,
+              "meanMm": 3.319273065185623,
+              "p90Mm": 14.999996627380407
+            },
+            "noLocalNeighborCount": 1234
+          },
+          "renderPath": ".openclinxr/evidence/issue-695/front/mpfb-clinical-nurse-adult-r0.4e0.001.png"
+        },
+        "r0.34e0.001": {
+          "ratio": 0.34,
+          "error": 0.001,
+          "beforeTris": 75854,
+          "afterTris": 36656,
+          "reductionX": 2.07,
+          "uvPrimitivesBefore": 17,
+          "uvPrimitivesAfter": 17,
+          "silhouette": {
+            "totalIoU": 0.9990549320732428,
+            "stripIoUs": [
+              0.9987878787878788,
+              1,
+              1,
+              1,
+              0.9979605710401088,
+              0.9980897803247374,
+              1,
+              0.9976671850699844
+            ],
+            "lateralStripIoUs": [
+              null,
+              null,
+              null,
+              null,
+              0.9893048128342246,
+              1,
+              1,
+              null
+            ],
+            "holesOriginal": 10,
+            "holesRung": 12,
+            "fragmentsOriginal": 1,
+            "fragmentsRung": 1
+          },
+          "surfaceDeviation": {
+            "body": {
+              "n": 21485,
+              "meanMm": 2.0371038649679276,
+              "p90Mm": 8.72151476787337
+            },
+            "armLateral": {
+              "n": 473,
+              "meanMm": 2.447425495212456,
+              "p90Mm": 7.2114298662904135
+            },
+            "headDecile": {
+              "n": 5828,
+              "meanMm": 0.5455159458018368,
+              "p90Mm": 0.41793137284369947
+            },
+            "shinDeciles": {
+              "n": 897,
+              "meanMm": 2.8982505711897564,
+              "p90Mm": 14.798849274301581
+            },
+            "worstDecile": {
+              "decile": 2,
+              "n": 561,
+              "meanMm": 3.6037888258904447,
+              "p90Mm": 14.999998604154559
+            },
+            "noLocalNeighborCount": 1236
+          },
+          "renderPath": ".openclinxr/evidence/issue-695/front/mpfb-clinical-nurse-adult-r0.34e0.001.png"
+        },
+        "r0.34e0.01": {
+          "ratio": 0.34,
+          "error": 0.01,
+          "beforeTris": 75854,
+          "afterTris": 32241,
+          "reductionX": 2.35,
+          "uvPrimitivesBefore": 17,
+          "uvPrimitivesAfter": 17,
+          "silhouette": {
+            "totalIoU": 0.9987007618260202,
+            "stripIoUs": [
+              0.9987878787878788,
+              1,
+              1,
+              1,
+              0.9979605710401088,
+              0.9980897803247374,
+              0.9992091735863978,
+              0.9945694336695112
+            ],
+            "lateralStripIoUs": [
+              null,
+              null,
+              null,
+              null,
+              0.9893048128342246,
+              1,
+              1,
+              null
+            ],
+            "holesOriginal": 10,
+            "holesRung": 10,
+            "fragmentsOriginal": 1,
+            "fragmentsRung": 1
+          },
+          "surfaceDeviation": {
+            "body": {
+              "n": 20169,
+              "meanMm": 1.95733940594675,
+              "p90Mm": 8.596210847627232
+            },
+            "armLateral": {
+              "n": 473,
+              "meanMm": 2.447425495212456,
+              "p90Mm": 7.2114298662904135
+            },
+            "headDecile": {
+              "n": 5459,
+              "meanMm": 0.3959779151899565,
+              "p90Mm": 0.07499355459563564
+            },
+            "shinDeciles": {
+              "n": 885,
+              "meanMm": 2.813045714427122,
+              "p90Mm": 14.70810786716174
+            },
+            "worstDecile": {
+              "decile": 2,
+              "n": 549,
+              "meanMm": 3.4818583355834822,
+              "p90Mm": 14.99999727454943
+            },
+            "noLocalNeighborCount": 1192
+          },
+          "renderPath": ".openclinxr/evidence/issue-695/front/mpfb-clinical-nurse-adult-r0.34e0.01.png"
+        }
+      },
+      "adoptedRung": "r0.4e0.001",
+      "renderOriginalPath": ".openclinxr/evidence/issue-695/front/mpfb-clinical-nurse-adult-original.png"
+    },
+    "mpfb-family-partner-adult": {
+      "beforeTris": 72331,
+      "rungs": {
+        "r0.5e0.001": {
+          "ratio": 0.5,
+          "error": 0.001,
+          "beforeTris": 72331,
+          "afterTris": 38212,
+          "reductionX": 1.89,
+          "uvPrimitivesBefore": 16,
+          "uvPrimitivesAfter": 16,
+          "silhouette": {
+            "totalIoU": 0.999115670321896,
+            "stripIoUs": [
+              1,
+              1,
+              1,
+              1,
+              0.99867197875166,
+              0.9968876439464674,
+              1,
+              0.9991769547325103
+            ],
+            "lateralStripIoUs": [
+              null,
+              null,
+              null,
+              null,
+              0.9948717948717949,
+              1,
+              1,
+              null
+            ],
+            "holesOriginal": 25,
+            "holesRung": 25,
+            "fragmentsOriginal": 1,
+            "fragmentsRung": 1
+          },
+          "surfaceDeviation": {
+            "body": {
+              "n": 18763,
+              "meanMm": 1.659809955963782,
+              "p90Mm": 6.550669289067288
+            },
+            "armLateral": {
+              "n": 653,
+              "meanMm": 2.504517828995269,
+              "p90Mm": 7.334441417948837
+            },
+            "headDecile": {
+              "n": 7463,
+              "meanMm": 0.5515878186365942,
+              "p90Mm": 0.6732377877683756
+            },
+            "shinDeciles": {
+              "n": 1511,
+              "meanMm": 1.686024041367033,
+              "p90Mm": 8.452514317788808
+            },
+            "worstDecile": {
+              "decile": 6,
+              "n": 800,
+              "meanMm": 5.03758138772349,
+              "p90Mm": 14.823997260521763
+            },
+            "noLocalNeighborCount": 1099
+          },
+          "renderPath": ".openclinxr/evidence/issue-695/front/mpfb-family-partner-adult-r0.5e0.001.png"
+        },
+        "r0.4e0.001": {
+          "ratio": 0.4,
+          "error": 0.001,
+          "beforeTris": 72331,
+          "afterTris": 33623,
+          "reductionX": 2.15,
+          "uvPrimitivesBefore": 16,
+          "uvPrimitivesAfter": 16,
+          "silhouette": {
+            "totalIoU": 0.9989388669457053,
+            "stripIoUs": [
+              1,
+              1,
+              1,
+              1,
+              0.997675962815405,
+              0.9968886123210952,
+              1,
+              0.9991769547325103
+            ],
+            "lateralStripIoUs": [
+              null,
+              null,
+              null,
+              null,
+              0.9897435897435898,
+              1,
+              1,
+              null
+            ],
+            "holesOriginal": 25,
+            "holesRung": 25,
+            "fragmentsOriginal": 1,
+            "fragmentsRung": 1
+          },
+          "surfaceDeviation": {
+            "body": {
+              "n": 17548,
+              "meanMm": 1.7039081548536525,
+              "p90Mm": 6.736356479460545
+            },
+            "armLateral": {
+              "n": 506,
+              "meanMm": 2.547217633026423,
+              "p90Mm": 6.89359713627496
+            },
+            "headDecile": {
+              "n": 6626,
+              "meanMm": 0.5608813753739368,
+              "p90Mm": 0.6716395872482454
+            },
+            "shinDeciles": {
+              "n": 1484,
+              "meanMm": 1.8613004697831368,
+              "p90Mm": 10.292427802946996
+            },
+            "worstDecile": {
+              "decile": 6,
+              "n": 759,
+              "meanMm": 4.723078174779865,
+              "p90Mm": 14.609455321929202
+            },
+            "noLocalNeighborCount": 1087
+          },
+          "renderPath": ".openclinxr/evidence/issue-695/front/mpfb-family-partner-adult-r0.4e0.001.png"
+        },
+        "r0.34e0.001": {
+          "ratio": 0.34,
+          "error": 0.001,
+          "beforeTris": 72331,
+          "afterTris": 31032,
+          "reductionX": 2.33,
+          "uvPrimitivesBefore": 16,
+          "uvPrimitivesAfter": 16,
+          "silhouette": {
+            "totalIoU": 0.9987620114366562,
+            "stripIoUs": [
+              1,
+              1,
+              1,
+              1,
+              0.9966799468791501,
+              0.9968886123210952,
+              1,
+              0.9991769547325103
+            ],
+            "lateralStripIoUs": [
+              null,
+              null,
+              null,
+              null,
+              0.9846153846153847,
+              1,
+              1,
+              null
+            ],
+            "holesOriginal": 25,
+            "holesRung": 25,
+            "fragmentsOriginal": 1,
+            "fragmentsRung": 1
+          },
+          "surfaceDeviation": {
+            "body": {
+              "n": 16869,
+              "meanMm": 1.7058272476381722,
+              "p90Mm": 6.800655604357187
+            },
+            "armLateral": {
+              "n": 431,
+              "meanMm": 2.5334701568263203,
+              "p90Mm": 6.750509133364451
+            },
+            "headDecile": {
+              "n": 6174,
+              "meanMm": 0.5579707032254526,
+              "p90Mm": 0.6649515195173528
+            },
+            "shinDeciles": {
+              "n": 1483,
+              "meanMm": 1.702206362423173,
+              "p90Mm": 8.452514317788808
+            },
+            "worstDecile": {
+              "decile": 6,
+              "n": 713,
+              "meanMm": 4.687743830667905,
+              "p90Mm": 14.609455321929202
+            },
+            "noLocalNeighborCount": 1055
+          },
+          "renderPath": ".openclinxr/evidence/issue-695/front/mpfb-family-partner-adult-r0.34e0.001.png"
+        },
+        "r0.34e0.01": {
+          "ratio": 0.34,
+          "error": 0.01,
+          "beforeTris": 72331,
+          "afterTris": 26572,
+          "reductionX": 2.72,
+          "uvPrimitivesBefore": 16,
+          "uvPrimitivesAfter": 16,
+          "silhouette": {
+            "totalIoU": 0.9986441077639568,
+            "stripIoUs": [
+              0.99867197875166,
+              1,
+              1,
+              1,
+              0.9966799468791501,
+              0.9968886123210952,
+              1,
+              0.9983539094650206
+            ],
+            "lateralStripIoUs": [
+              null,
+              null,
+              null,
+              null,
+              0.9846153846153847,
+              1,
+              1,
+              null
+            ],
+            "holesOriginal": 25,
+            "holesRung": 25,
+            "fragmentsOriginal": 1,
+            "fragmentsRung": 1
+          },
+          "surfaceDeviation": {
+            "body": {
+              "n": 15633,
+              "meanMm": 1.5875001799020634,
+              "p90Mm": 5.975061447519277
+            },
+            "armLateral": {
+              "n": 431,
+              "meanMm": 2.5334701568263203,
+              "p90Mm": 6.750509133364451
+            },
+            "headDecile": {
+              "n": 5891,
+              "meanMm": 0.4533744237921763,
+              "p90Mm": 0.601179905229504
+            },
+            "shinDeciles": {
+              "n": 1470,
+              "meanMm": 1.6613385249394292,
+              "p90Mm": 7.855587082410591
+            },
+            "worstDecile": {
+              "decile": 6,
+              "n": 666,
+              "meanMm": 4.8328505947894485,
+              "p90Mm": 14.823997260521763
+            },
+            "noLocalNeighborCount": 950
+          },
+          "renderPath": ".openclinxr/evidence/issue-695/front/mpfb-family-partner-adult-r0.34e0.01.png"
+        }
+      },
+      "adoptedRung": "r0.4e0.001",
+      "renderOriginalPath": ".openclinxr/evidence/issue-695/front/mpfb-family-partner-adult-original.png"
+    },
+    "mpfb-clinical-physician-adult": {
+      "beforeTris": 82454,
+      "rungs": {
+        "r0.5e0.001": {
+          "ratio": 0.5,
+          "error": 0.001,
+          "beforeTris": 82454,
+          "afterTris": 47426,
+          "reductionX": 1.74,
+          "uvPrimitivesBefore": 18,
+          "uvPrimitivesAfter": 18,
+          "silhouette": {
+            "totalIoU": 0.999709386806161,
+            "stripIoUs": [
+              1,
+              1,
+              1,
+              1,
+              0.9985392930178206,
+              1,
+              0.9996699669966996,
+              1
+            ],
+            "lateralStripIoUs": [
+              null,
+              null,
+              null,
+              null,
+              1,
+              1,
+              1,
+              null
+            ],
+            "holesOriginal": 4,
+            "holesRung": 4,
+            "fragmentsOriginal": 0,
+            "fragmentsRung": 0
+          },
+          "surfaceDeviation": {
+            "body": {
+              "n": 25341,
+              "meanMm": 2.2925256377309724,
+              "p90Mm": 9.463142315269437
+            },
+            "armLateral": {
+              "n": 726,
+              "meanMm": 2.6165338236882776,
+              "p90Mm": 8.068232270431904
+            },
+            "headDecile": {
+              "n": 7045,
+              "meanMm": 0.6071465127671807,
+              "p90Mm": 2.02019114305203
+            },
+            "shinDeciles": {
+              "n": 635,
+              "meanMm": 3.6576302705003414,
+              "p90Mm": 14.999998338559577
+            },
+            "worstDecile": {
+              "decile": 1,
+              "n": 200,
+              "meanMm": 3.514123683051802,
+              "p90Mm": 14.999999730090192
+            },
+            "noLocalNeighborCount": 1800
+          },
+          "renderPath": ".openclinxr/evidence/issue-695/front/mpfb-clinical-physician-adult-r0.5e0.001.png"
+        },
+        "r0.4e0.001": {
+          "ratio": 0.4,
+          "error": 0.001,
+          "beforeTris": 82454,
+          "afterTris": 41631,
+          "reductionX": 1.98,
+          "uvPrimitivesBefore": 18,
+          "uvPrimitivesAfter": 18,
+          "silhouette": {
+            "totalIoU": 0.9996124969726325,
+            "stripIoUs": [
+              1,
+              1,
+              1,
+              1,
+              0.9985388661601403,
+              1,
+              0.9996699669966996,
+              0.9982440737489026
+            ],
+            "lateralStripIoUs": [
+              null,
+              null,
+              null,
+              null,
+              0.9953703703703703,
+              1,
+              1,
+              null
+            ],
+            "holesOriginal": 4,
+            "holesRung": 4,
+            "fragmentsOriginal": 0,
+            "fragmentsRung": 0
+          },
+          "surfaceDeviation": {
+            "body": {
+              "n": 23836,
+              "meanMm": 2.370020431021731,
+              "p90Mm": 9.720957930705989
+            },
+            "armLateral": {
+              "n": 568,
+              "meanMm": 2.4504220796603486,
+              "p90Mm": 7.852173804928369
+            },
+            "headDecile": {
+              "n": 5862,
+              "meanMm": 0.6848102193695041,
+              "p90Mm": 2.5652845561486495
+            },
+            "shinDeciles": {
+              "n": 638,
+              "meanMm": 3.5747244706884596,
+              "p90Mm": 14.999998303558405
+            },
+            "worstDecile": {
+              "decile": 1,
+              "n": 203,
+              "meanMm": 3.511966701123077,
+              "p90Mm": 14.999999018110497
+            },
+            "noLocalNeighborCount": 1761
+          },
+          "renderPath": ".openclinxr/evidence/issue-695/front/mpfb-clinical-physician-adult-r0.4e0.001.png"
+        },
+        "r0.34e0.001": {
+          "ratio": 0.34,
+          "error": 0.001,
+          "beforeTris": 82454,
+          "afterTris": 38434,
+          "reductionX": 2.15,
+          "uvPrimitivesBefore": 18,
+          "uvPrimitivesAfter": 18,
+          "silhouette": {
+            "totalIoU": 0.9995640802092415,
+            "stripIoUs": [
+              1,
+              1,
+              1,
+              1,
+              0.9982471516213848,
+              1,
+              0.9996699669966996,
+              0.9982440737489026
+            ],
+            "lateralStripIoUs": [
+              null,
+              null,
+              null,
+              null,
+              1,
+              1,
+              1,
+              null
+            ],
+            "holesOriginal": 4,
+            "holesRung": 4,
+            "fragmentsOriginal": 0,
+            "fragmentsRung": 0
+          },
+          "surfaceDeviation": {
+            "body": {
+              "n": 22961,
+              "meanMm": 2.431879697445261,
+              "p90Mm": 9.840234276875844
+            },
+            "armLateral": {
+              "n": 473,
+              "meanMm": 2.604534877961329,
+              "p90Mm": 8.398068296362354
+            },
+            "headDecile": {
+              "n": 5202,
+              "meanMm": 0.7236482282555959,
+              "p90Mm": 2.7627604885208514
+            },
+            "shinDeciles": {
+              "n": 629,
+              "meanMm": 3.94806779425926,
+              "p90Mm": 14.999999900311678
+            },
+            "worstDecile": {
+              "decile": 1,
+              "n": 201,
+              "meanMm": 3.790356318556482,
+              "p90Mm": 14.999999900311678
+            },
+            "noLocalNeighborCount": 1729
+          },
+          "renderPath": ".openclinxr/evidence/issue-695/front/mpfb-clinical-physician-adult-r0.34e0.001.png"
+        },
+        "r0.34e0.01": {
+          "ratio": 0.34,
+          "error": 0.01,
+          "beforeTris": 82454,
+          "afterTris": 33442,
+          "reductionX": 2.47,
+          "uvPrimitivesBefore": 18,
+          "uvPrimitivesAfter": 18,
+          "silhouette": {
+            "totalIoU": 0.9995640802092415,
+            "stripIoUs": [
+              1,
+              1,
+              1,
+              1,
+              0.9982471516213848,
+              1,
+              0.9996699669966996,
+              0.9982440737489026
+            ],
+            "lateralStripIoUs": [
+              null,
+              null,
+              null,
+              null,
+              1,
+              1,
+              1,
+              null
+            ],
+            "holesOriginal": 4,
+            "holesRung": 4,
+            "fragmentsOriginal": 0,
+            "fragmentsRung": 0
+          },
+          "surfaceDeviation": {
+            "body": {
+              "n": 21448,
+              "meanMm": 2.376197808891632,
+              "p90Mm": 9.900286387163241
+            },
+            "armLateral": {
+              "n": 478,
+              "meanMm": 2.638392448909975,
+              "p90Mm": 7.55785139509782
+            },
+            "headDecile": {
+              "n": 4643,
+              "meanMm": 0.5152896758880865,
+              "p90Mm": 1.3405541790714506
+            },
+            "shinDeciles": {
+              "n": 634,
+              "meanMm": 3.4145338523787223,
+              "p90Mm": 14.999998067663277
+            },
+            "worstDecile": {
+              "decile": 1,
+              "n": 201,
+              "meanMm": 3.241663323558887,
+              "p90Mm": 14.999999730090192
+            },
+            "noLocalNeighborCount": 1710
+          },
+          "renderPath": ".openclinxr/evidence/issue-695/front/mpfb-clinical-physician-adult-r0.34e0.01.png"
+        }
+      },
+      "adoptedRung": "r0.4e0.001",
+      "renderOriginalPath": ".openclinxr/evidence/issue-695/front/mpfb-clinical-physician-adult-original.png"
+    }
+  },
+  "station": {
+    "budgetTris": 180000,
+    "beforeTris": 360524,
+    "adoptedTotalTris": 178969,
+    "underBudget": true,
+    "adoptedSet": {
+      "mpfb-gown-adult-patient": "r0.5e0.001",
+      "mpfb-clinical-nurse-adult": "r0.4e0.001",
+      "mpfb-family-partner-adult": "r0.4e0.001",
+      "mpfb-clinical-physician-adult": "r0.4e0.001"
+    },
+    "adoptionPolicy": "quality-first: the gown patient (the exam subject whose hands a learner watches) stays at the gentlest error-0.001 rung the budget allows; nurse/family/physician step down before the patient does",
+    "uniformRungTotals": {
+      "r0.5e0.001": 192836,
+      "r0.4e0.001": 167317,
+      "r0.34e0.001": 152306,
+      "r0.34e0.01": 133666
+    }
+  },
+  "pedsStation": {
+    "beforeTris": 238796,
+    "note": "Peds three-actor station is outside this slice's write scope; its own rung must be decided separately (the out-of-scope slot)."
+  },
+  "refused": false,
+  "claimScope": [
+    "pinned (ratio, error) meshopt decimation rungs for the four ED actors",
+    "per-actor triangle counts with ratio AND error bound recorded together",
+    "quantitative silhouette + surface-deviation instruments and renders for the orchestrator's grade",
+    "no actor's triangles reduced without a recorded graded verdict entry"
+  ],
+  "notEvidenceFor": [
+    "visual realism grade (that is the orchestrator's pixel grade of the renders)",
+    "how decimation reads at room framing rather than isolated capture",
+    "runtime skinning of decimated meshes under animation",
+    "whether decimation interacts with #686 subdivision or #691 gathers beyond the gown-contract replication measured here",
+    "Quest 3 readiness"
+  ],
+  "shipped": {
+    "note": "The four shipped ED GLBs were decimated via optimize_glb_meshopt.mjs --simplify-ratio <r> --simplify-error 0.001 --simplify-only (the wired pipeline stage), and each shipped GLB is BYTE-IDENTICAL (sha256) to its graded sweep rung — the front/ renders are renders of the exact shipped bytes.",
+    "verified": "2026-08-26",
+    "shippedGlbShaEqualsSweepRung": true
+  }
+}

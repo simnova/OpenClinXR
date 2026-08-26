@@ -76,6 +76,31 @@ import { join } from "node:path";
  *   silhouette verdict exists for every actor whose triangles were reduced.
  * notEvidenceFor: whether any ratio is the right one (that is a sweep I grade); how decimation reads
  *   at room framing; runtime skinning of decimated meshes; the peds station's own rung.
+ *
+ * ## FIXED (#695)
+ *
+ * Meshopt DECIMATION is now a first-class pipeline stage (not TRELLIS-only): the four ED actors were
+ * decimated through `optimize_glb_meshopt.mjs --simplify-ratio <r> --simplify-error 0.001
+ * --simplify-only`, and `orchestrate_character.py --simplify-ratio/--simplify-error` wires the same
+ * stage into fresh bakes. A ratio without its error bound is not reproducible, so every rung is
+ * pinned as (ratio, error) together and both are recorded in the optimization handoff and in
+ * `.openclinxr/evidence/issue-695/silhouette-verdicts.json`.
+ *
+ * The adopted set keeps the gown patient (the exam subject, whose hands a learner watches) at the
+ * GENTLEST rung the budget allows and steps the supporting actors down first:
+ *
+ *     actor                        before     rung (ratio, error)   after
+ *     mpfb-gown-adult-patient      129,885    (0.5,   0.001)        64,802
+ *     mpfb-clinical-nurse-adult     75,854    (0.4,   0.001)        38,913
+ *     mpfb-family-partner-adult     72,331    (0.4,   0.001)        33,623
+ *     mpfb-clinical-physician-adult 82,454    (0.4,   0.001)        41,631
+ *     TOTAL                        360,524                          178,969  (margin 1,031)
+ *
+ * Measured on the shipped GLBs: silhouette IoU vs the original render is >= 0.9989 for every actor
+ * at its adopted rung (no new holes or detached fragments beyond the original's own), the gown
+ * contract still passes on the decimated gown (bodice normal-dot 0.850 <= 0.891, level ratio 0.685
+ * >= 0.5), and UV coverage and mesh counts are unchanged (clauses 2 and 3). The final visual grade
+ * of the shipped renders is the orchestrator's; the verdict file records the quantitative sweep.
  */
 
 const GENERATED = join(import.meta.dirname, "../../../apps/ui-xr/public/generated-humanoids");
@@ -124,7 +149,7 @@ async function readAsset(name: string): Promise<AssetShape> {
 }
 
 describe("the station fits its budget and still looks like people (#695)", () => {
-  it.fails("(1) the ED four-actor station fits the 180,000-triangle budget", async () => {
+  it("(1) the ED four-actor station fits the 180,000-triangle budget", async () => {
     const shapes = await Promise.all(ED_STATION.map((n) => readAsset(n)));
     const total = shapes.reduce((sum, s) => sum + s.triangles, 0);
     expect(

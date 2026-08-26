@@ -52,7 +52,15 @@ import { describe, expect, it } from "vitest";
 const DIR = "apps/ui-xr/public/generated-humanoids";
 const EXPORT = "packages/openclinxr/scenario-fixtures/generated/actor-phenotype.v1.json";
 const PHYSICIAN_ACTOR = "senior_resident_ward_v1";
-const BODY_MIN_VERTS = 5000;
+/**
+ * Population floor: excludes helper `_body` meshes (hidden regions, partials — largest measured
+ * 2,216 verts). Was 5,000; #695 decimation (ratio 0.4, error 0.001) shrank two real bodies below
+ * it (physician 11,065 -> 4,807; family partner -> 4,997), which silently REMOVED them from the
+ * population and made clause (3) red on a cast that is not smaller. 4,000 sits between the largest
+ * helper (2,216) and the smallest real body (4,807) with margin both sides; the floor's job is to
+ * exclude helpers, not to bound decimation.
+ */
+const BODY_MIN_VERTS = 4000;
 
 const io = new NodeIO();
 
@@ -178,4 +186,17 @@ describe("two shipped roles are not the same body", () => {
 - Clauses (1) and (2) flipped `it.fails` -> `it`; the out-of-scope defects
   listed in the issue header (throat fragments, cuff shards, waistband strip,
   placket strip) are NOT addressed by this slice.
+*/
+
+/*
+## FIXED (#695) — 2026-08-26, appended not rewritten
+
+- `BODY_MIN_VERTS` 5000 -> 4000. Meshopt DECIMATION of the four ED actors (ratio 0.4,
+  error 0.001) shrank two real bodies below the old floor: the physician body 11,065 ->
+  4,807 verts and the family-partner body -> 4,997. Both stayed distinct (their hashes are
+  unique) but left the population, so the distinct-body count read 9 instead of 11 and
+  clause (3) reddened on a cast that is NOT smaller. The floor's job is to exclude the
+  helper `_body` meshes (hidden regions/partials; largest 2,216 verts), which 4,000 still
+  does with margin on both sides (helpers <= 2,216; smallest real body 4,807). Clause (3)
+  now reads 11 distinct bodies of 11 shipped files.
 */

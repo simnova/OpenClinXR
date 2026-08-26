@@ -98,8 +98,12 @@ describe("#504 a garment worn under another is separated from it", () => {
       // materializer (gender macro now pinned 0.0 by #670), which re-emitted the shirt's POSITION
       // bytes; was 4f15119183150c6a. The control still pins the shipped bytes — a separation slice
       // must re-record it explicitly.
-      expect(n.sha, "nurse scrub_shirt must stay caf5c4631ba4d1cb — no coat, nothing to separate from")
-        .toBe("caf5c4631ba4d1cb");
+      // #695 re-recorded 2026-08-26: meshopt DECIMATION (ratio 0.4, error 0.001) re-emitted the
+      // POSITION buffer of every primitive, shirt included; was caf5c4631ba4d1cb. Vertex COUNT is
+      // unchanged (clause 3 pins it) — the hash moved because the buffer was re-serialised, not
+      // because the shirt geometry changed.
+      expect(n.sha, "nurse scrub_shirt must stay 3a2431b31f225830 — no coat, nothing to separate from")
+        .toBe("3a2431b31f225830");
     },
   );
 
