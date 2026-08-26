@@ -158,6 +158,40 @@ const sh = (argv: string[], cwd: string): string => {
  */
 export const MIN_AUDIT_GAP_MS = 20 * 60 * 1000;
 
+/**
+ * Collapse history rows that are closer together than `MIN_AUDIT_GAP_MS` to the newest, newest-first,
+ * bounded to `limit` distinct windows and to rows at or before `nowMs`.
+ *
+ * ONE window rule, TWO callers. This was inlined in `priorFindingKeys` while `priorReadyWindows`
+ * used a bare `.slice(-limit)`, so the chronic predicate and the trend answered the same duty-1
+ * question over different windows. MEASURED 2026-08-26: eight history rows at 13:34, 14:37, 14:39,
+ * 16:09, 16:21, 16:22, 16:25 and 16:32 — five audits inside 23 minutes of one supervisor iteration —
+ * made the trend compare 16:09 against 16:32 and report `CHURNING; entered 683` when nothing had
+ * been dequeued and a human had set one board Priority field between two re-runs.
+ *
+ * The error direction is the damaging one: CHURNING reads as "the shortfall is throughput", which is
+ * what tells duty 1 to stand down.
+ */
+export function spaceByAuditGap<T extends { at?: string }>(
+  rows: readonly T[],
+  limit: number,
+  nowMs: number,
+): T[] {
+  const spaced: T[] = [];
+  let lastMs = Number.POSITIVE_INFINITY;
+  for (const r of [...rows].reverse()) {
+    const t = Date.parse(String(r.at ?? ""));
+    // A row with no parseable timestamp cannot be placed in a window, and a future-dated row
+    // (clock skew) would manufacture one — both are dropped rather than guessed at.
+    if (!Number.isFinite(t) || t > nowMs) continue;
+    if (lastMs - t < MIN_AUDIT_GAP_MS) continue;
+    spaced.push(r);
+    lastMs = t;
+    if (spaced.length >= limit) break;
+  }
+  return spaced;
+}
+
 export function priorFindingKeys(root: string, limit = CHRONIC_AFTER, nowMs = Date.now()): string[][] {
   const p = join(root, HISTORY);
   if (!existsSync(p)) return [];
@@ -177,17 +211,7 @@ export function priorFindingKeys(root: string, limit = CHRONIC_AFTER, nowMs = Da
    * if it survived genuinely separate observations. Bounded by nowMs so a clock-skewed future row
    * cannot manufacture a window.
    */
-  const spaced: Array<{ at?: string; keys?: string[] }> = [];
-  let lastMs = Number.POSITIVE_INFINITY;
-  for (const r of [...rows].reverse()) {
-    const t = Date.parse(String(r.at ?? ""));
-    if (!Number.isFinite(t) || t > nowMs) continue;
-    if (lastMs - t < MIN_AUDIT_GAP_MS) continue;
-    spaced.push(r);
-    lastMs = t;
-    if (spaced.length >= limit) break;
-  }
-  return spaced.map((r) => r.keys ?? []);
+  return spaceByAuditGap(rows, limit, nowMs).map((r) => r.keys ?? []);
 }
 
 /**
@@ -349,13 +373,19 @@ export type ReadyDepthTrend = {
  * a fabricated signal burying the real one.
  */
 /** The last `limit` recorded windows, newest last, for readyDepthTrend. */
-export function priorReadyWindows(root: string, limit = 6): Array<{ at: string; cards?: number[] }> {
+export function priorReadyWindows(
+  root: string,
+  limit = 6,
+  nowMs = Date.now(),
+): Array<{ at: string; cards?: number[] }> {
   const p = join(root, HISTORY);
   if (!existsSync(p)) return [];
-  return readFileSync(p, "utf8").split("\n").filter(Boolean)
+  const rows = readFileSync(p, "utf8").split("\n").filter(Boolean)
     .map((l) => { try { return JSON.parse(l) as { at?: string; cards?: number[] }; } catch { return null; } })
-    .filter((r): r is { at: string; cards?: number[] } => r !== null && typeof r.at === "string")
-    .slice(-limit);
+    .filter((r): r is { at: string; cards?: number[] } => r !== null && typeof r.at === "string");
+  // SAME window rule as the chronic predicate. A bare slice here read the operator's re-run cadence
+  // as queue movement; see spaceByAuditGap for the measured instance.
+  return spaceByAuditGap(rows, limit, nowMs).reverse();
 }
 
 export function readyDepthTrend(

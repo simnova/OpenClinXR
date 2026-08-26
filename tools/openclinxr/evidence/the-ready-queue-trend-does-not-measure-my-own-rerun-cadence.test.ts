@@ -24,14 +24,16 @@ import {
  * would scream loudest exactly when someone is iterating on the audit itself." That is exactly the
  * defect `priorReadyWindows` still has.
  *
- * NOT HYPOTHETICAL. The live history's last six rows are 13:34, 14:37, 14:39, 16:09, 16:21, 16:22,
- * 16:25 and 16:32 — five audits inside 23 minutes, all from one supervisor iteration. The trend
- * compared 16:09 (cards `[]`) against 16:32 (cards `[683]`) and reported `CHURNING; entered 683`.
- * Nothing was dequeued. A human set one board Priority field between two re-runs, and the gauge
- * reported it as queue throughput.
+ * NOT HYPOTHETICAL. The live history at a3440ada carried rows at 13:34, 14:37, 14:39, 16:09, 16:21,
+ * 16:22, 16:25 and 16:32 — three of them inside the 20-minute gap, all from one supervisor
+ * iteration. With the rule applied, 8 raw rows collapse to 6 windows.
  *
- * The direction of the error is the damaging one: CHURNING means "the number is throughput, not a
- * defect", which is the reading that tells duty 1 to stand down.
+ * WHAT THIS DOES NOT DO, measured before claiming it. The live verdict is UNCHANGED: with spacing
+ * applied the trend still reports `CHURNING; entered 683, left 577`, because 16:09 and 16:32 are
+ * 23 minutes apart and both survive. An earlier version of this header claimed the fix would
+ * overturn that verdict. It does not, and the corrected claim is narrower: the two functions now
+ * answer duty 1 over ONE window rule instead of two, and a burst entirely inside the gap can no
+ * longer manufacture a movement verdict on its own.
  *
  * KNOWN-GOOD COLUMN: `priorFindingKeys` on the SAME rows, at the same timestamps, already collapses
  * them. Clause (2) pins that behaviour, so this is not a threshold invented here — the in-tree
@@ -77,7 +79,7 @@ const RERUN_BURST = [
 ];
 
 describe("the ready-queue trend does not measure my own re-run cadence", () => {
-  it.fails("(1) collapses history rows closer together than MIN_AUDIT_GAP_MS", () => {
+  it("(1) collapses history rows closer together than MIN_AUDIT_GAP_MS", () => {
     const root = historyRoot(RERUN_BURST);
     const windows = priorReadyWindows(root, 6);
     const stamps = windows.map((w) => Date.parse(w.at)).sort((a, b) => a - b);
@@ -98,14 +100,24 @@ describe("the ready-queue trend does not measure my own re-run cadence", () => {
     ).toBeLessThanOrEqual(3);
   });
 
-  it.fails("(3) the burst above must NOT read as churning", () => {
-    const root = historyRoot(RERUN_BURST);
-    const trend = readyDepthTrend(priorReadyWindows(root, 6));
+  it("(3) a burst entirely inside one gap collapses to a single window", () => {
+    // The property the fix actually has. CORRECTED after measuring: an earlier version of this
+    // clause asserted the live 16:09 -> 16:32 CHURNING verdict would change, and it does not —
+    // those two rows are 23 minutes apart and both survive the 20-minute rule. The spacing change
+    // removes re-run noise; it does not overturn a verdict computed across genuinely spaced rows.
+    const root = historyRoot([
+      { at: ago(14), cards: [] },
+      { at: ago(9), cards: [] },
+      { at: ago(4), cards: [9002] },
+      { at: ago(0), cards: [9002] },
+    ]);
+    const windows = priorReadyWindows(root, 6);
+    expect(windows.length, "four re-runs inside 14 minutes are ONE observation").toBe(1);
     expect(
-      trend.status,
-      "9002 appeared between two re-runs 1 minute apart; calling that churn tells duty 1 the "
-        + "shortfall is throughput and to stand down",
-    ).not.toBe("churning");
+      readyDepthTrend(windows).status,
+      "one window cannot support a movement verdict; reporting churn from a single burst is the "
+        + "gauge reading the operator's re-run cadence",
+    ).toBe("unknown");
   });
 
   it("(4) COUNTERWEIGHT: genuinely spaced windows are all kept", () => {
