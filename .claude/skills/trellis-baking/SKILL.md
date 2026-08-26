@@ -111,6 +111,44 @@ Sole area — fraction of triangle area whose normal is within 15° of straight 
 figure is meaningless until the asset is oriented. Do not quote it on a raw champion.
 
 
+## THE PIPELINE HAS NO BAKE STAGE — measured 2026-08-26, and the detail is recoverable
+
+The optimize path is `3-iter high-error direct targets + weld + quantize`. That is meshopt
+decimation and nothing else. **No normal map is ever baked**, on any asset:
+
+| file | tris | baseColor | normal map |
+|---|---:|---|---|
+| raw-copy.glb | 296,226 | yes | **NO** |
+| champion.glb | 79,999 | yes | **NO** |
+
+216,227 triangles of form were deleted and nothing captured them. The surface undulation visible on
+flat faces in every champion render is that loss — decimated curvature with no map carrying it.
+
+**A high→low bake recovers it, and the high-poly is already on disk for all seven assets.** Measured
+end to end on `pulse-oximeter`:
+
+    selected_to_active NORMAL bake, 296,226-tri raw -> 79,999-tri champion, 2048^2, Cycles CPU
+    cage extrusion  = objectDiagonal * 0.02   (1.334 m -> 0.0267 m)
+    max_ray_distance = objectDiagonal * 0.04
+    result: 42.9% of texels deviate from flat, mean |R-128|+|G-128| = 16.08, max 182,
+            blue mean 247.1 (correct tangent space)
+
+**ALWAYS measure the map before believing the bake.** `bpy.ops.object.bake` returns success while
+writing a perfectly flat 128/128/255 map — that is the silent failure here, and "BAKE_STATUS baked"
+does not distinguish it. The deviation statistic above is the check: a flat map scores ~0.
+
+**Derive the cage from geometry, never pick it.** Extrusion as a fraction of the object's measured
+diagonal transfers across subjects of different scale; a hardcoded millimetre value does not.
+
+**The existing bake code does a DIFFERENT job.** `automate_blender.py:1362` bakes NORMAL with
+`use_selected_to_active = False` — that is procedural bump → texture on ONE mesh. High→low transfer
+needs `use_selected_to_active = True` plus the cage. Same API, different configuration; reuse the
+call, not the settings.
+
+NOT TESTED: whether the baked map survives glTF export and reads correctly in the three.js runtime.
+It was rendered in Blender with the map attached. Until a GLB carries it and ui-xr loads it, this is
+a promising measurement rather than a pipeline capability.
+
 ## Post-bake cleanup — measured 2026-08-25, graded A/B
 
 **Multi-component output is the NORM for this generator, not a defect.** Every shipped TRELLIS asset is
