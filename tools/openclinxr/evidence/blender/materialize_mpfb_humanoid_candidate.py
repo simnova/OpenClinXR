@@ -1673,7 +1673,10 @@ def parse_args():
         default=None,
         help=(
             "Tracked Anny reference mesh id (e.g. peds_nurse_kevin) whose .anny_base.obj "
-            "drives the MPFB macro dict (#328). Omit for the default-macro body (Aisha path)."
+            "drives the MPFB macro dict (#328). #687: this is the naming identity for the "
+            "measured-reference path. Omit for the default-macro body — which then REQUIRES "
+            "--eye-colour-reference to declare the subject (a bake never substitutes "
+            "'ob_patient_aisha' silently)."
         ),
     )
     parser.add_argument(
@@ -1693,7 +1696,9 @@ def parse_args():
             "--reference (the Aisha default-macro path). Defaults to --reference. The peds "
             "parent shares Aisha's default-macro body, so its eye_color is not reachable "
             "through --reference; its case (peds_anxious_parent) authors brown, not the "
-            "family fallback green."
+            "family fallback green. #687: this is also the SUBJECT identity on the "
+            "default-macro path — a bake with neither --reference nor --eye-colour-reference "
+            "refuses loudly instead of naming itself 'ob_patient_aisha'."
         ),
     )
     parser.add_argument(
@@ -2793,6 +2798,21 @@ def tuck_trousers_into_boots(pants, shoe, margin_m=0.007, max_reach_m=0.15):
 
 def main():
     args = parse_args()
+    # #687 — D13: a bake must say who it is baking. The naming identity comes from
+    # --reference (measured-reference path) or --eye-colour-reference (the manifest-id
+    # channel the default-macro path already uses to carry the authored identity,
+    # #576/#519). A bake that declares neither REFUSES loudly instead of silently
+    # substituting the default body's id — the same rule that makes eye_iris_colour
+    # raise on an unbuildable colour rather than picking one. All material/mesh names
+    # below key off this one resolved value.
+    subject_id = args.reference or args.eye_colour_reference
+    if not subject_id:
+        raise ValueError(
+            "#687: refusing to bake an unnamed subject. Pass --reference <id> "
+            "(measured-reference path) or --eye-colour-reference <manifest-id> "
+            "(default-macro path) so the bake declares who it is baking; the "
+            "materializer no longer substitutes 'ob_patient_aisha' silently."
+        )
     GARMENT_FACTOR_PATCH.clear()  # #360: per-actor; a fresh Blender process bakes each actor anyway
     CONSUMED_GARMENT_TEXTURES.clear()  # #372: same per-actor discipline for the texture verify
     LUMINANCE_NORMALISED_IMAGES.clear()  # #386: same per-actor discipline for the luminance re-centre
@@ -2886,8 +2906,8 @@ def main():
 
             TargetService.bake_targets(human)
             bpy.context.view_layer.update()
-        human.name = "mpfb_ob_patient_aisha_body_mesh"
-        human.data.name = "mpfb_ob_patient_aisha_body"
+        human.name = f"mpfb_{subject_id}_body_mesh"
+        human.data.name = f"mpfb_{subject_id}_body"
 
     # #509/#581 — case-declared pregnancy reaches a vertex. The OB fixture declares
     # 34 weeks; before this wiring nothing in the pipeline consumed it (the planted
@@ -2928,7 +2948,7 @@ def main():
             f"GRAVID_MORPH {json.dumps({'derivation': _preg_report, 'applied': _preg_applied})}"
         )
     human.data.materials.clear()
-    skin_material_name = f"mpfb_skin_{args.reference or 'ob_patient_aisha'}"
+    skin_material_name = f"mpfb_skin_{subject_id}"
 
     # #343 — the SKIN material is the slice. Every MPFB material except the eyes was
     # a hand-authored flat colour: all three actors shared the literal (0.68, 0.53,
@@ -3126,7 +3146,7 @@ def main():
     # #337 resume: name the eye mesh data with the eye channel so the exported glTF mesh
     # name matches the evidence regex (`/eye|cornea|iris|sclera/`) — the OBJ import's
     # `low-poly` data name does not. Same convention as the footwear channel rename.
-    eyes_asset.data.name = f"makeclothes_library_eyes_low_poly_mpfb_{args.reference or 'ob_patient_aisha'}_mesh"
+    eyes_asset.data.name = f"makeclothes_library_eyes_low_poly_mpfb_{subject_id}_mesh"
     eye_tris = sum(max(len(p.vertices) - 2, 0) for p in eyes_asset.data.polygons)
     # Probe: dominant vertex groups on the eye mesh immediately after add_mhclo_asset
     # (before the k-NN transfer below) — tells us whether interpolate_weights gave the
@@ -3410,7 +3430,7 @@ def main():
         )
     eye_mat = make_material_from_mhmat(
         eye_mhmat,
-        f"mat_makeclothes_library_eyes_{args.reference or 'ob_patient_aisha'}",
+        f"mat_makeclothes_library_eyes_{subject_id}",
     )
     eyes_asset.data.materials.append(eye_mat)
     eye_tex = eye_mat.node_tree.nodes.get("Image Texture")
@@ -3482,7 +3502,7 @@ def main():
             weight_hair_to_head as _weight_hair_to_head,
         )
 
-        _hair_ref_tag = args.reference or "ob_patient_aisha"
+        _hair_ref_tag = subject_id
         _hair_mesh_name = f"makeclothes_library_hair_{_hair_style}_mpfb_{_hair_ref_tag}_mesh"
         # Same proven path as the library rail: import the hair OBJ (bake the importer's
         # axis rotation into mesh data, the #321/#330 handback), fit via the SAME
@@ -3549,7 +3569,7 @@ def main():
             weight_hair_to_head as _weight_brow_to_head,
         )
 
-        _brow_ref_tag = args.reference or "ob_patient_aisha"
+        _brow_ref_tag = subject_id
         _brow_mesh_name = (
             f"openclinxr_fitted_eyebrow_{_eyebrow_style}_mpfb_{_brow_ref_tag}_mesh"
         )
@@ -3645,7 +3665,7 @@ def main():
         pants_verts_before = len(pants.data.vertices)
         _ClothesPre.fit_clothes_to_human(pants, human, mhclo=mhclo_pants, set_parent=True)
         bpy.context.view_layer.update()
-        _pre_ref_tag = args.reference or "ob_patient_aisha"
+        _pre_ref_tag = subject_id
         pants.data.name = f"{_lower_lib_name}_mpfb_{_pre_ref_tag}_mesh"
         print(
             f"PANTS_FIT_PRESTRIP {pants.name} verts {pants_verts_before} -> {len(pants.data.vertices)} "
@@ -3658,7 +3678,7 @@ def main():
     # Extract them onto separate named meshes first; then remove_helpers=True still
     # strips cages so the body stays at 26,756 tris (clause 3). Do NOT flip
     # remove_helpers to False — that was probed and re-targets every garment fit.
-    _feature_ref_tag = args.reference or "ob_patient_aisha"
+    _feature_ref_tag = subject_id
     _feature_arm = next(
         (o for o in bpy.context.scene.objects if o.type == "ARMATURE"), None
     )
@@ -3718,7 +3738,7 @@ def main():
     armature = next((obj for obj in bpy.context.scene.objects if obj.type == "ARMATURE"), None)
     if armature is None:
         raise RuntimeError("MPFB standard rig was not created")
-    armature.name = f"mpfb_{args.reference or 'ob_patient_aisha'}_standard_rig"
+    armature.name = f"mpfb_{subject_id}_standard_rig"
 
     # #337 eye-bone skinning: NOTHING MORE TO DO — `add_mhclo_asset`'s own
     # set_up_rigging/interpolate_weights already weighted every one of the 96 eye verts to
@@ -3862,7 +3882,7 @@ def main():
     # the pack stem `t_shirt_basic_tucked`; the pants/shoes follow the
     # `makeclothes_library_*_mpfb_<ref>` convention) so the garment classifiers on
     # both rails see the upper channel as a real MakeClothes garment.
-    _ref_tag = args.reference or "ob_patient_aisha"
+    _ref_tag = subject_id
     garment.data.name = f"{_upper_lib_name}_mpfb_{_ref_tag}_mesh"
     # #332: anchor the fitted shirt's collar to the body's own neck when the fit
     # lands it below the neck band (the child's shirt fits at its hip). Must run
@@ -4101,12 +4121,12 @@ def main():
             ankle_z,
             hem_z,
             standoff=CLOTH_STANDOFF_M,
-            label=f"{_lower_lib_name}_fallback_mpfb_{args.reference or 'ob_patient_aisha'}",
+            label=f"{_lower_lib_name}_fallback_mpfb_{subject_id}",
             height_axis=2,
             exclude_faces=shell_limb_exclude,
         )
         shell_obj = mesh_from_numpy(
-            f"{_lower_lib_name}_mpfb_{args.reference or 'ob_patient_aisha'}",
+            f"{_lower_lib_name}_mpfb_{subject_id}",
             np.asarray(shell["position"]).reshape(-1, 3),
             np.asarray(shell["indices"]).reshape(-1, 3),
         )
@@ -4285,7 +4305,7 @@ def main():
         for _ci, _cv in enumerate(coat.data.vertices):
             _cv.co = tuple(float(_c) for _c in _coat_v_off[_ci])
         bpy.context.view_layer.update()
-        coat.data.name = f"makeclothes_library_lab_coat_mpfb_{args.reference or 'ob_patient_aisha'}_mesh"
+        coat.data.name = f"makeclothes_library_lab_coat_mpfb_{subject_id}_mesh"
         coat_weights = transfer_weights_body_to_garment(human, coat, armature)
         print(
             f"COAT_FIT {coat.name} verts {coat_verts_before} -> {len(coat.data.vertices)} "
@@ -4839,7 +4859,7 @@ def main():
     bpy.context.view_layer.update()
     # The glTF mesh name is the MESH DATA name (the OBJ importer keeps its own); rename
     # both so the exported mesh carries the footwear channel name.
-    _ref_tag = args.reference or "ob_patient_aisha"
+    _ref_tag = subject_id
     shoe.data.name = f"makeclothes_library_footwear_{shoe_kind}_mpfb_{_ref_tag}_mesh"
     shoe.name = f"makeclothes_library_footwear_{shoe_kind}_mpfb_{_ref_tag}"
 
