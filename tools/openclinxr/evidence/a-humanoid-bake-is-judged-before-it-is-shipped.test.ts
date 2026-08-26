@@ -98,11 +98,24 @@ describe("a humanoid bake is judged before it is shipped", () => {
     ).toBeLessThanOrEqual(STATION_TRIANGLE_BUDGET);
   });
 
-  it.fails("(2) a component census exists before any bake decides anything", () => {
+  /**
+   * CORRECTED 2026-08-26, in place rather than appended, because the next reader starts at the top.
+   *
+   * This clause originally justified itself with: "largest-component share is the discriminator
+   * between a safe cage bake and the o2-port cross-component contamination case." THAT IS FALSE, and
+   * the falsifier was already in this repo when I wrote it. `trellis-baking` SKILL.md:292-305
+   * records the predictor failing in BOTH directions across four assets — fetal-monitor at 93.9%
+   * came back CONTAMINATED, iv-pump at 87.4% and glucometer at 79.8% came back CLEAN — and concludes
+   * that a rule failing both ways is the wrong variable and the render is the only oracle.
+   *
+   * The census is still worth having: cheap, reproducible, and a real record of the asset
+   * population. It is a RECORD, not a gate. Clause (7) holds the gate.
+   */
+  it.fails("(2) a component census exists as a record of the asset population", () => {
     expect(
       existsSync(CENSUS),
-      "largest-component share is the discriminator between a safe cage bake and the o2-port "
-        + "cross-component contamination case, and it is knowable BEFORE baking",
+      "worth recording before any bake — but this number decides nothing on its own; share has "
+        + "predicted wrong on 2 of 4 in-range assets, so see clause (7)",
     ).toBe(true);
   });
 
@@ -146,6 +159,29 @@ describe("a humanoid bake is judged before it is shipped", () => {
       "eleven mpfb-*.glb shipped at the planting commit; clearing a budget by deleting assets is "
         + "not decimation",
     ).toBeGreaterThanOrEqual(11);
+  });
+
+  /**
+   * (7) ADDED 2026-08-26. The gate this card was missing.
+   *
+   * A `reject_measured` verdict on this card must rest on a RENDER, not on component statistics.
+   * Five assets have been baked and graded, and the share predictor was wrong on two of them in
+   * OPPOSITE directions. Extrapolating it to humanoids at 0.199-0.446 — far below 61.6%, the lowest
+   * value ever tested — is weaker than the four in-range predictions that already failed.
+   *
+   * One humanoid, one cage bake, one render is cheap and is the only instrument that has ever
+   * discriminated a clean map from a contaminated one on this generator's output.
+   *
+   * This clause is satisfied by the REFUSAL as readily as by the adoption: a render showing
+   * contamination is a graded verdict and closes the card successfully.
+   */
+  it.fails("(7) a bake verdict rests on a graded render, not on component statistics", () => {
+    const graded = join(process.cwd(), ".openclinxr/evidence/mpfb-bake-question/one-humanoid-bake-grade.json");
+    expect(
+      existsSync(graded),
+      "share predicted wrong on 2 of 4 in-range assets and this extrapolates below every tested "
+        + "value; bake ONE humanoid, render it, and let the pixels decide",
+    ).toBe(true);
   });
 });
 
