@@ -149,6 +149,35 @@ NOT TESTED: whether the baked map survives glTF export and reads correctly in th
 It was rendered in Blender with the map attached. Until a GLB carries it and ui-xr loads it, this is
 a promising measurement rather than a pipeline capability.
 
+### The bake buys a LOWER BUDGET, not just a better 80k
+
+Baked the same 296,226-tri raw onto three rungs and rendered all of them at one camera with one
+lamp rig, changing only the mesh and the map:
+
+| rung | map mean deviation | texels carrying detail |
+|---|---:|---:|
+| 80k | 16.08 | 42.9% |
+| 40k | 26.21 | 60.2% |
+| 25k | 35.60 | 70.8% |
+
+**The map absorbs exactly the work the mesh drops, and the statistic says so.** Deviation rising as
+triangles fall is the expected signature — if it stayed flat while triangles fell, the transfer
+would not be happening and the bake would be decorative.
+
+40k with NO map is visibly broken at this camera: the screen bezel collapses into the body and the
+display face distorts. The SAME 40k with the map holds its bezel and lip. So the interesting number
+is not "80k looks better with a map" — it is that **a budget which is unusable bare becomes usable
+mapped**, at 7.4x fewer triangles than raw and half the shipped champion.
+
+**Consequence for the ladder:** `iteration-report.json`'s rungs are currently chosen on geometry
+alone, so `preferred80k` is the quality floor. With a bake stage the floor moves and the rung names
+stop meaning what they meant. Re-derive the band before adopting a lower default; do not simply
+retarget 40k because this one asset held.
+
+NOT TESTED on this ladder: any asset but `pulse-oximeter`, and any camera but az35/el35. One subject
+at one angle is where a decimation claim goes wrong — `o2-port` has 51.5% of its mesh outside the
+largest component and may behave nothing like this.
+
 ## Post-bake cleanup — measured 2026-08-25, graded A/B
 
 **Multi-component output is the NORM for this generator, not a defect.** Every shipped TRELLIS asset is
