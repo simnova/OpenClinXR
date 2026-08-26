@@ -149,6 +149,47 @@ NOT TESTED: whether the baked map survives glTF export and reads correctly in th
 It was rendered in Blender with the map attached. Until a GLB carries it and ui-xr loads it, this is
 a promising measurement rather than a pipeline capability.
 
+### THE MAP CROSSES THE glTF BOUNDARY AND three.js READS IT — measured 2026-08-26
+
+Exported the mapped low-poly and re-read it with the runtime's own loader:
+
+| | tris | normalTexture | TANGENT attr | bytes |
+|---|---:|---|---|---:|
+| champion (ships) | 79,999 | no | **NO** | 9,928,748 |
+| champion-mapped | 79,998 | **yes**, 3.8 MB PNG | **yes** | 15,393,216 |
+
+The `TANGENT` attribute is not optional — a tangent-space map without it is undefined in three.js.
+Blender emits it only with `export_tangents=True`. The `glb-grade` three.js pass renders the seam,
+hinge and lip that the unmapped asset loses, so the runtime consumes it.
+
+One triangle is lost in the Blender round-trip (79,999 -> 79,998). Harmless here, worth knowing
+before any contract asserts an exact count across a bake.
+
+### MAP RESOLUTION IS THE WHOLE ECONOMIC ARGUMENT — 2048 is oversized
+
+At 2048 the bake COSTS MORE THAN THE TRIANGLES IT SAVES. 25k+map is +27% on bytes against the
+shipped 80k, despite 11.8x fewer triangles. Re-baking the same subject at lower resolution:
+
+| map res | map bytes | GLB bytes | vs shipped 80k | map mean deviation |
+|---:|---:|---:|---:|---:|
+| 2048 | 4,375,657 | 12,605,040 | **+27.0%** | 35.60 |
+| 1024 | 1,476,335 | 9,705,712 | **-2.2%** | 37.81 |
+| 512 | 453,044 | 8,682,420 | **-12.6%** | 37.82 |
+
+**Deviation does NOT fall as resolution falls** (35.60 -> 37.81 -> 37.82). The captured detail is
+low-frequency form, not fine texture, so it survives a quarter of the texels. That is the load-
+bearing measurement: without it, "use a smaller map" would be a guess about quality.
+
+**So the shippable configuration is 25k + a 512 map at 8.68 MB — 12.6% SMALLER than the 80k that
+ships today, with 55,000 fewer triangles.** Both budgets improve at once, which is why resolution
+had to be swept before the technique was judged.
+
+ALWAYS sweep map resolution before reporting the byte cost of a bake. The first number I produced
+said the technique was uneconomic, and it was measuring an arbitrary 2048 default.
+
+NOT TESTED: KTX2/Basis, which would cut the map again; whether 512 holds on an asset with genuine
+fine texture (this subject's detail is form); any asset but pulse-oximeter; any camera but az35/el35.
+
 ### The bake buys a LOWER BUDGET, not just a better 80k
 
 Baked the same 296,226-tri raw onto three rungs and rendered all of them at one camera with one
