@@ -149,6 +149,44 @@ NOT TESTED: whether the baked map survives glTF export and reads correctly in th
 It was rendered in Blender with the map attached. Until a GLB carries it and ui-xr loads it, this is
 a promising measurement rather than a pipeline capability.
 
+### THE SECOND ASSET BROKE MY QUALITY PROXY — deviation measures MAGNITUDE, not CORRECTNESS
+
+Ran the identical ladder on `o2-port`, the hard case: 289,314 raw tris, 75 components, only 51.5%
+in the largest. Same simplifier, same 25k rung, same 512 map.
+
+| asset | components | largest share | map mean deviation | texels carrying detail |
+|---|---:|---:|---:|---:|
+| pulse-oximeter | 16 | 99.7% | 35.60 | 70.8% |
+| **o2-port** | **75** | **51.5%** | **38.46** | **82.5%** |
+
+By the statistic I had been using, o2-port's bake is the BETTER one — higher deviation, more texels
+carrying detail. **It is not.** Its metal collars come back speckled with ring artifacts that appear
+in neither the shipped 80k nor the unmapped 25k. The map is carrying something that is not form.
+
+**The mechanism, INFERRED not isolated:** a `selected_to_active` bake shoots rays from the low mesh
+into the high one. On a 75-component asset with 51.5% in the largest, a ray leaving one component
+frequently strikes a NEIGHBOURING component rather than the surface it belongs to, and that
+cross-component hit is baked in as detail. High deviation is exactly what contamination looks like.
+
+**So retire deviation as a quality proxy.** It is a good FALSIFIER — a flat map (deviation ~0) proves
+the bake did nothing — and it is useless as a quality signal, because a contaminated map and a
+faithful one both score high. I used it as a quality signal for two iterations and it agreed with me
+until it met an asset where it was wrong.
+
+**The discriminator is component topology, and it is knowable BEFORE baking.** Check largest-
+component share first:
+
+    >= ~99%  one surface; a cage bake is safe            (pulse-oximeter, 99.7%)
+    ~50%     many co-located components; expect cross-hits (o2-port, 51.5%)
+
+For the second class the cage needs per-component isolation, or the bake needs to be done
+per-component, or the asset is simply not a bake candidate. NOT DETERMINED which; I did not test a
+remedy.
+
+Bytes on o2-port are still favourable (25k+512 map = 12,522,816 B, 9.1% under its shipped 80k), which
+is the trap: **the economics look identical for a good bake and a contaminated one.** Judge the
+pixels, not the byte count and not the deviation.
+
 ### THE DECIMATION FLOOR IS ~19.5k AND THE MAP DOES NOT REACH IT
 
 Drove the repo's own simplifier (`simplify` + `MeshoptSimplifier`, `FORCE_ERROR = 1.0`, the same
