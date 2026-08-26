@@ -5,10 +5,13 @@
   "rawTriangleCount": 293719,
   "gradedEndpoints": { "lower": 25000, "upper": 80000 },
   "rankedBy": "orchestrator_pixel_grade",
-  "champion": null,
+  "champion": "59999",
+  "championMapped": false,
+  "championNote": "60k unmapped: -8.8% bytes at indistinguishable silhouette. The map LOST at every rung tried on this subject — 25k (prior ladder), 40k and 60k, three for three — adding bytes at 40k and exceeding the shipped size at 60k, and introducing collar contamination at both.",
+  "formPredictionOutcome": "3 of 4 correct. All four rungs predicted loses_silhouette on the FORM basis (curved subject). Correct for 40k bare, 40k mapped and 60k mapped; WRONG for 60k unmapped, which held its silhouette and beat the shipped asset. FORM's record on this subject is therefore 3 of 4, not 4 of 4.",
   "byteContext": {
-    "shipped80kNomapFromThisRaw": 9270920,
-    "note": "bytes are recorded, not ranked — the render is the only oracle. 40k-mapped is -5.5% vs the 80k cell from the same raw; 60k-mapped is +11.4%, which the orchestrator should weigh alongside the pixels."
+    "shipped80kReferenceBytes": 9234576,
+    "note": "bytes are recorded, not ranked — the render is the only oracle. Percentages in the graded verdicts are vs the shipped 80k cell (9,234,576): 40k bare -21.6%, 40k mapped -5.2%, 60k bare -8.8%, 60k mapped +11.8%."
   },
   "formPredictorBasis": "FORM at 1 for 1: glucometer (boxy) held its silhouette at 25k, predicted before its bake; boxy subjects go deep, curved subjects do not. The shoe toe reads as a continuous curve at 80k and faceted at 25k, so every between-rung is predicted to lose its silhouette. A wrong prediction here is a real miss for the record — it fails nothing in this sweep's contract.",
   "bakeStage": "tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts --bake --bake-res 512 (hl_bake.py high-to-low, export_mapped.py attach)",
@@ -18,8 +21,8 @@
       "mapped": false,
       "glbBytes": 7242324,
       "formPredictionBeforeBake": "loses_silhouette",
-      "gradedVerdict": "inconclusive_blocked",
-      "verdictNote": "PREDICTION RECORDED BEFORE BAKE/RENDER: curved subject, deep rung (FORM 1-for-1 basis). Render produced at the tracked renderPath; text-only worker cannot grade pixels — orchestrator grades against the 80k reference render and ships.png.",
+      "gradedVerdict": "loses_to_shipped",
+      "verdictNote": "Hard plane across the toe cap; the toe outline breaks into straight segments. The welt/midsole tread lugs are largely gone, reading as a smooth wavy band where the reference has distinct steps. Graded at native 900x900 plus a 1:1 toe crop.",
       "renderPath": "tools/openclinxr/asset-pipeline/trellis/shoe-rung-sweep-renders/40k-nomap.png"
     },
     {
@@ -27,8 +30,8 @@
       "mapped": true,
       "glbBytes": 8755768,
       "formPredictionBeforeBake": "loses_silhouette",
-      "gradedVerdict": "inconclusive_blocked",
-      "verdictNote": "PREDICTION RECORDED BEFORE BAKE: the map shades facets and cannot move an outline (established for this subject at 25k+512), and FORM says curved subjects do not go deep. Render produced at the tracked renderPath; text-only worker cannot grade pixels — orchestrator grades.",
+      "gradedVerdict": "loses_to_shipped",
+      "verdictNote": "Tread lugs recover to near-reference, so the map does real work on shading. The toe outline stays faceted, confirming for a third rung on this subject that a normal map shades facets and cannot move a silhouette. NEW DEFECT: dark streaks on the heel collar that are absent from the 80k reference at the same 1:1 crop — bake contamination, not present in either unmapped rung.",
       "renderPath": "tools/openclinxr/asset-pipeline/trellis/shoe-rung-sweep-renders/40k-mapped.png"
     },
     {
@@ -36,8 +39,8 @@
       "mapped": false,
       "glbBytes": 8422752,
       "formPredictionBeforeBake": "loses_silhouette",
-      "gradedVerdict": "inconclusive_blocked",
-      "verdictNote": "PREDICTION RECORDED BEFORE BAKE/RENDER: curved subject at 75% of the 80k budget; the toe curve is where the outline facets first (FORM 1-for-1 basis). Render produced at the tracked renderPath; text-only worker cannot grade pixels — orchestrator grades.",
+      "gradedVerdict": "beats_shipped",
+      "verdictNote": "Toe curve continuous with only a slight facet on the upper-left; tread lugs crisp and matching the reference. 8.8% smaller than the shipped 80k at an appearance I cannot distinguish from it except at that one facet. This is the sweep's answer.",
       "renderPath": "tools/openclinxr/asset-pipeline/trellis/shoe-rung-sweep-renders/60k-nomap.png"
     },
     {
@@ -45,8 +48,8 @@
       "mapped": true,
       "glbBytes": 10322168,
       "formPredictionBeforeBake": "loses_silhouette",
-      "gradedVerdict": "inconclusive_blocked",
-      "verdictNote": "PREDICTION RECORDED BEFORE BAKE: the map shades facets and cannot move an outline (established for this subject at 25k+512); 60k is the highest between-rung so the margin is smallest. Render produced at the tracked renderPath; text-only worker cannot grade pixels — orchestrator grades.",
+      "gradedVerdict": "loses_to_shipped",
+      "verdictNote": "11.8% LARGER than the asset it would replace, which disqualifies it before appearance is considered. Also carries one dark collar mark absent from the reference, the same contamination class as the 40k mapped cell though milder.",
       "renderPath": "tools/openclinxr/asset-pipeline/trellis/shoe-rung-sweep-renders/60k-mapped.png"
     }
   ],
@@ -55,7 +58,7 @@
     "note": "80k decimated from the SAME raw with the same renderer, no map, mirroring the shipped cell — the known-good column. Not a rung (it is the graded upper endpoint), so it is not in rungs[] and cannot be the champion."
   },
   "notEvidenceFor": [
-    "that any rung is adoptable — the orchestrator grades the renders and that verdict is not recorded here",
+    "that any rung other than the graded champion (60k unmapped) is adoptable — each rung's verdict is the orchestrator's pixel grade and nothing here asserts a ready-to-ship claim",
     "that the bake stage produces a usable map on any subject other than lowpoly-shoe",
     "that lowpoly-shoe is representative of organic subjects generally"
   ]
