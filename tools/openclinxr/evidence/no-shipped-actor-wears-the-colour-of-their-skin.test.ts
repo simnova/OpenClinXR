@@ -39,6 +39,7 @@
  * notEvidenceFor: wardrobe policy, clinical appropriateness, or garment fit.
  */
 import { createHash } from "node:crypto";
+import { existsSync } from "node:fs";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 
@@ -55,6 +56,13 @@ const SKIN: Record<string, [number, number, number]> = {
   "mpfb-ob-patient-aisha.glb": [201, 177, 163],
   "mpfb-family-partner-adult.glb": [215, 191, 176],
   "mpfb-peds-patient-child.glb": [222, 203, 189],
+  // #588: measured 2026-08-26 from mpfb-peds-parent-aisha.skin-baked.png (texture mean
+  // (0.361, 0.318, 0.292), independent python decode agrees to 4dp). The parent was the
+  // population gap this contract exists to close: her muted-rose garments were dE 11.6
+  // from this skin (33.7 RGB — below MIN_CONTRAST 60) and she was skipped because SKIN
+  // had no row. The motion-bind GLB is the cast runtime path (candidates/, not
+  // generated-humanoids/).
+  "mpfb-peds-parent-aisha.motion-bind.glb": [92, 81, 74],
 };
 
 async function shippedAssets(): Promise<string[]> {
@@ -68,8 +76,12 @@ async function shippedAssets(): Promise<string[]> {
 
 type Row = { glb: string; garment: string; rgb: [number, number, number]; skinSha: string };
 
+/** Cast GLBs live in generated-humanoids/; the peds parent's runtime path is candidates/. */
+const CANDIDATES_DIR = "apps/ui-xr/public/xr-assets/humanoids/candidates/";
+
 async function rows(glb: string): Promise<Row[]> {
-  const d = await new NodeIO().read(DIR + glb);
+  const path = existsSync(DIR + glb) ? DIR + glb : CANDIDATES_DIR + glb;
+  const d = await new NodeIO().read(path);
   let skinSha = "";
   const out: Row[] = [];
   for (const m of d.getRoot().listMeshes()) {
@@ -154,4 +166,26 @@ describe("#508 no shipped actor wears the colour of their own skin", () => {
  * 144.1 RGB from this actor's skin (198,172,156), clearing MIN_CONTRAST 60. Skin texture sha
  * b6fed13037774c6a and garment vertex counts 8322/5400 unchanged. Family/child/aisha counterweight
  * (clause 4) holds — none were touched.
+ */
+
+/**
+ * ## FIXED (#588) — appended; the planted header above is immutable
+ *
+ * #588 closed the parent's population gap. `mpfb-peds-parent-aisha.motion-bind.glb` was already
+ * enumerated by this contract (she is a shipped cast asset) and SKIPPED — SKIN had no row for
+ * her, so clause (1) never measured her. Measured 2026-08-26 (seated-parent-placement.json +
+ * independent python decode of mpfb-peds-parent-aisha.skin-baked.png): her skin texture mean is
+ * (92, 81, 74) and her muted-rose garments (107, 92, 102) sat 33.7 RGB / dE 11.6 from it —
+ * the exact defect class this contract exists to catch, below MIN_CONTRAST 60. The #506
+ * hardcoded light-skin constant measured her garments ~136 RGB away (green), which is why she
+ * slipped both contracts.
+ *
+ * FIX: her garments moved to the muted-rose palette's cardigan rose (0.62, 0.28, 0.38) — 70.4
+ * RGB / dE 36.2 from her own skin, the same perceptual distance as the nurse teal that reads
+ * clothed (dE 36.0). Root cause in `automate_blender.py` `_FABRIC_PALETTE_KIND_COLORS`
+ * `muted_rose_and_neutral.closed_casual`; shipped bytes patched in BOTH parent GLBs (base +
+ * motion-bind runtime) via `patch-glb-base-color-factors.ts` (JSON-chunk patch, geometry/BIN
+ * verbatim). This contract now asserts her: SKIN["mpfb-peds-parent-aisha.motion-bind.glb"] =
+ * [92, 81, 74], and `rows()` resolves the candidates/ path for the runtime GLB. Skin textures
+ * and garment vertex counts unchanged; family/child/aisha counterweight (clause 4) holds.
  */

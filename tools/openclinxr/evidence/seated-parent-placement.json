@@ -1,0 +1,477 @@
+{
+  "schemaVersion": "openclinxr.seated-parent-placement.v1",
+  "kind": "seated_parent_placement",
+  "label": "post-fix-final",
+  "generatedAt": "2026-08-26T09:30:19.745Z",
+  "scenarioId": "peds_asthma_parent_anxiety_v1",
+  "environmentId": "pediatric_urgent_care_bay_v1",
+  "answers": {
+    "chairResolves": {
+      "yesNo": "yes",
+      "note": "chair family_chair world (-0.550, -0.750) seatTopY=0.450 seatH=0.450; parent slot (-0.549, -0.750)"
+    },
+    "pelvisContact": {
+      "yesNo": "yes",
+      "note": "pelvisY=0.465 seatTopY=0.450 gap=0.015 m (at or above seat top)"
+    },
+    "garmentSurfaceCoverage": {
+      "yesNo": "yes",
+      "note": "parent combined body-surface clothed fraction=96.7% vs nurse reference=93.9% (outward-raycast, tol 0.06 m)"
+    }
+  },
+  "liveScene": {
+    "chair": {
+      "present": true,
+      "slotId": "family_chair",
+      "worldX": -0.55,
+      "worldZ": -0.75,
+      "seatTopWorldY": 0.450000000372529,
+      "seatHeightMeters": 0.45
+    },
+    "parent": {
+      "actorId": "parent_tara_johnson_v1",
+      "declaredPosture": "seated",
+      "slotWorldX": -0.5491628546554809,
+      "slotWorldZ": -0.749777301304802,
+      "pelvisWorldY": 0.46516452431138716,
+      "pelvisBoneName": "pelvisl",
+      "lowestSupportBoneWorldY": 0.25464425901946514,
+      "footClearanceAboveFloor": 0.25464425901946514,
+      "lowestVertexY": 0.11699484026779755,
+      "framesAdvanced": 29,
+      "headBoneWorldY": 1.0217540316608738,
+      "hairMeshWorldAabb": {
+        "min": [
+          -0.6169395018800673,
+          0.9271093857399059,
+          -0.9109587950654692
+        ],
+        "max": [
+          -0.4460550256087322,
+          1.1701063335042456,
+          -0.6895055935669716
+        ]
+      }
+    },
+    "knownGoodActorId": "nurse_kevin_lee_v1",
+    "headIntersections": {
+      "hairAabb": [
+        {
+          "meshName": "kitchen_00wall",
+          "actorId": null,
+          "fixtureSlotId": null,
+          "triangles": 164,
+          "visible": true,
+          "worldAabb": {
+            "min": [
+              -2.6406771404400295,
+              -0.013353347778320312,
+              -3.2749998584687967
+            ],
+            "max": [
+              2.7500007579896453,
+              2.4447070360183716,
+              2.1156767460918395
+            ]
+          }
+        },
+        {
+          "meshName": "kitchen_00exterior",
+          "actorId": null,
+          "fixtureSlotId": null,
+          "triangles": 124,
+          "visible": true,
+          "worldAabb": {
+            "min": [
+              -2.7500001667970615,
+              -0.10932314395904541,
+              -3.275000881778521
+            ],
+            "max": [
+              2.750000825648052,
+              2.5406769514083862,
+              2.2250004155774814
+            ]
+          }
+        },
+        {
+          "meshName": "kitchen_00wall",
+          "actorId": null,
+          "fixtureSlotId": null,
+          "triangles": 164,
+          "visible": true,
+          "worldAabb": {
+            "min": [
+              -2.6406771499856387,
+              -0.013353347778320312,
+              -2.749999991824547
+            ],
+            "max": [
+              2.7500007484440356,
+              2.4447070360183716,
+              2.64067661273609
+            ]
+          }
+        },
+        {
+          "meshName": "kitchen_00exterior",
+          "actorId": null,
+          "fixtureSlotId": null,
+          "triangles": 124,
+          "visible": true,
+          "worldAabb": {
+            "min": [
+              -2.7500001763426707,
+              -0.10932314395904541,
+              -2.750001015134271
+            ],
+            "max": [
+              2.7500008161024425,
+              2.5406769514083862,
+              2.7500002822217318
+            ]
+          }
+        }
+      ],
+      "headBoneBox": [
+        {
+          "meshName": "kitchen_00wall",
+          "actorId": null,
+          "fixtureSlotId": null,
+          "triangles": 164,
+          "visible": true,
+          "worldAabb": {
+            "min": [
+              -2.6406771404400295,
+              -0.013353347778320312,
+              -3.2749998584687967
+            ],
+            "max": [
+              2.7500007579896453,
+              2.4447070360183716,
+              2.1156767460918395
+            ]
+          }
+        },
+        {
+          "meshName": "kitchen_00exterior",
+          "actorId": null,
+          "fixtureSlotId": null,
+          "triangles": 124,
+          "visible": true,
+          "worldAabb": {
+            "min": [
+              -2.7500001667970615,
+              -0.10932314395904541,
+              -3.275000881778521
+            ],
+            "max": [
+              2.750000825648052,
+              2.5406769514083862,
+              2.2250004155774814
+            ]
+          }
+        },
+        {
+          "meshName": "kitchen_00wall",
+          "actorId": null,
+          "fixtureSlotId": null,
+          "triangles": 164,
+          "visible": true,
+          "worldAabb": {
+            "min": [
+              -2.6406771499856387,
+              -0.013353347778320312,
+              -2.749999991824547
+            ],
+            "max": [
+              2.7500007484440356,
+              2.4447070360183716,
+              2.64067661273609
+            ]
+          }
+        },
+        {
+          "meshName": "kitchen_00exterior",
+          "actorId": null,
+          "fixtureSlotId": null,
+          "triangles": 124,
+          "visible": true,
+          "worldAabb": {
+            "min": [
+              -2.7500001763426707,
+              -0.10932314395904541,
+              -2.750001015134271
+            ],
+            "max": [
+              2.7500008161024425,
+              2.5406769514083862,
+              2.7500002822217318
+            ]
+          }
+        },
+        {
+          "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.conversation-turn-state-panel",
+          "actorId": null,
+          "fixtureSlotId": null,
+          "triangles": 2,
+          "visible": false,
+          "worldAabb": {
+            "min": [
+              -2.4322313927271395,
+              0.8050000059604645,
+              -1.472374441520617
+            ],
+            "max": [
+              -0.6677686072728605,
+              1.7549999940395355,
+              -0.7676255584793832
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "garmentCoverage": {
+    "instrument": "outward-raycast point-to-surface coverage (garment_coverage.py #272 predicate) over the shipped GLBs, per claimed body region; combined = coverage weighted by region face count",
+    "figures": [
+      {
+        "actorId": "parent_tara_johnson_v1",
+        "assetBasename": "mpfb-peds-parent-aisha.motion-bind.glb",
+        "upperGarmentMeshName": "makeclothes_library_toigo_t_shirt_mpfb_ob_patient_aisha_mesh",
+        "upperGarmentTriangleCount": 2700,
+        "lowerGarmentMeshName": "makeclothes_library_cargo_pants_mpfb_ob_patient_aisha_mesh.001",
+        "lowerGarmentTriangleCount": 2818,
+        "upper": {
+          "garmentLabel": "parent_tara_johnson-upper",
+          "regionBandY": [
+            0.9811426591873169,
+            1.4023852157592773
+          ],
+          "regionFaceCount": 3137,
+          "sampledFaceCount": 1569,
+          "outwardRaycastCoverage": 0.9694,
+          "garmentBoundaryEdges": 86,
+          "garmentAdherence": 1,
+          "rayToleranceMeters": 0.06,
+          "coverageThreshold": 0.9,
+          "verdict": "covers",
+          "reason": "outward_surface_present"
+        },
+        "lower": {
+          "garmentLabel": "parent_tara_johnson-lower",
+          "regionBandY": [
+            0.09999969198194095,
+            0.9611426591873169
+          ],
+          "regionFaceCount": 2663,
+          "sampledFaceCount": 1332,
+          "outwardRaycastCoverage": 0.9647,
+          "garmentBoundaryEdges": 124,
+          "garmentAdherence": 1,
+          "rayToleranceMeters": 0.06,
+          "coverageThreshold": 0.9,
+          "verdict": "covers",
+          "reason": "outward_surface_present"
+        },
+        "combinedBodyClothedFraction": 0.9672420517241379
+      },
+      {
+        "actorId": "nurse_kevin_lee_v1",
+        "assetBasename": "mpfb-peds-nurse-kevin.glb",
+        "upperGarmentMeshName": "makeclothes_library_scrub_pants_mpfb_peds_nurse_kevin_mesh",
+        "upperGarmentTriangleCount": 9384,
+        "lowerGarmentMeshName": "makeclothes_library_scrub_pants_mpfb_peds_nurse_kevin_mesh",
+        "lowerGarmentTriangleCount": 2704,
+        "upper": {
+          "garmentLabel": "nurse_kevin_lee-upper",
+          "regionBandY": [
+            0.9975317907333374,
+            1.5034109163284302
+          ],
+          "regionFaceCount": 3472,
+          "sampledFaceCount": 1736,
+          "outwardRaycastCoverage": 0.9447,
+          "garmentBoundaryEdges": 0,
+          "garmentAdherence": 1,
+          "rayToleranceMeters": 0.06,
+          "coverageThreshold": 0.9,
+          "verdict": "covers",
+          "reason": "closed_shell_adherent"
+        },
+        "lower": {
+          "garmentLabel": "nurse_kevin_lee-lower",
+          "regionBandY": [
+            0.09999997261329555,
+            0.9775317907333374
+          ],
+          "regionFaceCount": 2514,
+          "sampledFaceCount": 1257,
+          "outwardRaycastCoverage": 0.9308,
+          "garmentBoundaryEdges": 82,
+          "garmentAdherence": 1,
+          "rayToleranceMeters": 0.06,
+          "coverageThreshold": 0.9,
+          "verdict": "covers",
+          "reason": "outward_surface_present"
+        },
+        "combinedBodyClothedFraction": 0.9388622786501838
+      }
+    ]
+  },
+  "effectiveColour": {
+    "figures": [
+      {
+        "actorId": "parent_tara_johnson_v1",
+        "assetBasename": "mpfb-peds-parent-aisha.motion-bind.glb",
+        "skin": {
+          "effectiveRgb": [
+            0.36081749411190256,
+            0.31795488245346964,
+            0.29229561300838697
+          ],
+          "textureMeanRgb": [
+            0.36081749411190256,
+            0.31795488245346964,
+            0.29229561300838697
+          ],
+          "baseColorFactor": [
+            1,
+            1,
+            1
+          ],
+          "rgbDistanceVsOwnSkin": null,
+          "cieLabDEVsOwnSkin": null,
+          "skinTextureBytes": 819496
+        },
+        "garments": [
+          {
+            "meshName": "makeclothes_library_cargo_pants_mpfb_ob_patient_aisha_mesh.001",
+            "triangleCount": 2818,
+            "colour": {
+              "effectiveRgb": [
+                0.62,
+                0.28,
+                0.38
+              ],
+              "textureMeanRgb": null,
+              "baseColorFactor": [
+                0.62,
+                0.28,
+                0.38
+              ],
+              "rgbDistanceVsOwnSkin": 0.27623939610067383,
+              "cieLabDEVsOwnSkin": 36.221881022318755
+            }
+          },
+          {
+            "meshName": "makeclothes_library_toigo_t_shirt_mpfb_ob_patient_aisha_mesh",
+            "triangleCount": 2700,
+            "colour": {
+              "effectiveRgb": [
+                0.6077861426858341,
+                0.27448406443876383,
+                0.372514087452608
+              ],
+              "textureMeanRgb": [
+                0.9803002301384421,
+                0.9803002301384421,
+                0.9803002301384421
+              ],
+              "baseColorFactor": [
+                0.62,
+                0.28,
+                0.38
+              ],
+              "rgbDistanceVsOwnSkin": 0.263283552542615,
+              "cieLabDEVsOwnSkin": 35.468773583498695
+            }
+          }
+        ]
+      },
+      {
+        "actorId": "nurse_kevin_lee_v1",
+        "assetBasename": "mpfb-peds-nurse-kevin.glb",
+        "skin": {
+          "effectiveRgb": [
+            0.33163390814089305,
+            0.2900098763260187,
+            0.2659017974255132
+          ],
+          "textureMeanRgb": [
+            0.33163390814089305,
+            0.2900098763260187,
+            0.2659017974255132
+          ],
+          "baseColorFactor": [
+            1,
+            1,
+            1
+          ],
+          "rgbDistanceVsOwnSkin": null,
+          "cieLabDEVsOwnSkin": null,
+          "skinTextureBytes": 829357
+        },
+        "garments": [
+          {
+            "meshName": "makeclothes_library_scrub_pants_mpfb_peds_nurse_kevin_mesh",
+            "triangleCount": 2704,
+            "colour": {
+              "effectiveRgb": [
+                0.05000000074505806,
+                0.47999998927116394,
+                0.5199999809265137
+              ],
+              "textureMeanRgb": null,
+              "baseColorFactor": [
+                0.05000000074505806,
+                0.47999998927116394,
+                0.5199999809265137
+              ],
+              "rgbDistanceVsOwnSkin": 0.4242402475843881,
+              "cieLabDEVsOwnSkin": 36.00198106422961
+            }
+          },
+          {
+            "meshName": "makeclothes_library_scrub_shirt_mpfb_peds_nurse_kevin_mesh",
+            "triangleCount": 9384,
+            "colour": {
+              "effectiveRgb": [
+                0.05000000074505806,
+                0.47999998927116394,
+                0.5199999809265137
+              ],
+              "textureMeanRgb": null,
+              "baseColorFactor": [
+                0.05000000074505806,
+                0.47999998927116394,
+                0.5199999809265137
+              ],
+              "rgbDistanceVsOwnSkin": 0.4242402475843881,
+              "cieLabDEVsOwnSkin": 36.00198106422961
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "claimScope": [
+    "chair_presence_and_position_live",
+    "pelvis_to_seat_top_gap_live",
+    "garment_surface_coverage_parent_vs_nurse_same_run",
+    "garment_effective_colour_vs_own_skin_cie_lab_dE"
+  ],
+  "notEvidenceFor": [
+    "pose_naturalness",
+    "seat_height_appropriateness",
+    "garment_aesthetics",
+    "clinical_plausibility",
+    "other_stations",
+    "quest_readiness"
+  ],
+  "treeStamp": {
+    "head": "ea2b455a30feca2b7b58976735b8f4cdcafc4b53",
+    "fingerprint": "58791b730daf412db3598054a4d3e6e4f8b57976701216e8b284ed9efd85462d",
+    "algorithm": "git-head+status+diff-sha256"
+  }
+}
