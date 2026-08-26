@@ -1,0 +1,382 @@
+{
+  "schemaVersion": "openclinxr.issue-675.pre-fix.v1",
+  "kind": "arm_instrument_actor_membership_pre_fix",
+  "label": "pre-fix",
+  "generatedAt": "2026-08-26T08:19:48.538Z",
+  "treeStamp": {
+    "head": "6fa9cef3dfa095721a2f7d0d74df3480e181d0d8",
+    "fingerprint": "811b97ac7df44ab58501b5342f2c30dbebf608b3f7fab9e923b0fc44a6f6fe0c",
+    "algorithm": "git-head+status+diff-sha256"
+  },
+  "note": "Three consecutive forced runs of each arm instrument on the UNCHANGED tree at the planted RED commit. Each run boots its own portless dev server (force:true bypasses in-process and disk caches). Declared cast for the 5 walked scenarios = 14 actors = 28 arm rows (2 arms per actor).",
+  "declaredCast": {
+    "actorCount": 14,
+    "armRowCount": 28,
+    "scenarios": {
+      "oncology_bad_news_family_v1": [
+        "patient_david_miller_v1",
+        "sister_rachel_miller_v1"
+      ],
+      "peds_fever_v1": [
+        "patient_noah_chen_v1",
+        "nurse_aisha_brooks_v1",
+        "parent_mei_chen_v1"
+      ],
+      "psych_suicidal_ideation_safety_v1": [
+        "behavioral_health_nurse_owens_v1",
+        "partner_sam_reed_v1",
+        "patient_jordan_reed_v1"
+      ],
+      "telehealth_diabetes_health_literacy_v1": [
+        "daughter_elena_martinez_v1",
+        "patient_luis_martinez_v1"
+      ],
+      "ward_delirium_med_rec_v1": [
+        "daughter_lena_ellis_v1",
+        "patient_margaret_ellis_v1",
+        "senior_resident_ward_v1",
+        "ward_nurse_patel_v1"
+      ]
+    }
+  },
+  "runs": [
+    {
+      "instrument": "idle-arm-hang",
+      "run": 1,
+      "phase": "pre-fix",
+      "rowCount": 26,
+      "uniqueActorIds": [
+        "oncology_bad_news_family_v1/patient_david_miller_v1",
+        "oncology_bad_news_family_v1/sister_rachel_miller_v1",
+        "peds_fever_v1/nurse_aisha_brooks_v1",
+        "peds_fever_v1/parent_mei_chen_v1",
+        "psych_suicidal_ideation_safety_v1/behavioral_health_nurse_owens_v1",
+        "psych_suicidal_ideation_safety_v1/partner_sam_reed_v1",
+        "psych_suicidal_ideation_safety_v1/patient_jordan_reed_v1",
+        "telehealth_diabetes_health_literacy_v1/daughter_elena_martinez_v1",
+        "telehealth_diabetes_health_literacy_v1/patient_luis_martinez_v1",
+        "ward_delirium_med_rec_v1/daughter_lena_ellis_v1",
+        "ward_delirium_med_rec_v1/patient_margaret_ellis_v1",
+        "ward_delirium_med_rec_v1/senior_resident_ward_v1",
+        "ward_delirium_med_rec_v1/ward_nurse_patel_v1"
+      ],
+      "rowsByScenario": {
+        "psych_suicidal_ideation_safety_v1": 6,
+        "ward_delirium_med_rec_v1": 8,
+        "oncology_bad_news_family_v1": 4,
+        "peds_fever_v1": 4,
+        "telehealth_diabetes_health_literacy_v1": 4
+      },
+      "sides": [
+        "behavioral_health_nurse_owens_v1.L",
+        "behavioral_health_nurse_owens_v1.R",
+        "daughter_elena_martinez_v1.L",
+        "daughter_elena_martinez_v1.R",
+        "daughter_lena_ellis_v1.L",
+        "daughter_lena_ellis_v1.R",
+        "nurse_aisha_brooks_v1.L",
+        "nurse_aisha_brooks_v1.R",
+        "parent_mei_chen_v1.L",
+        "parent_mei_chen_v1.R",
+        "partner_sam_reed_v1.L",
+        "partner_sam_reed_v1.R",
+        "patient_david_miller_v1.L",
+        "patient_david_miller_v1.R",
+        "patient_jordan_reed_v1.L",
+        "patient_jordan_reed_v1.R",
+        "patient_luis_martinez_v1.L",
+        "patient_luis_martinez_v1.R",
+        "patient_margaret_ellis_v1.L",
+        "patient_margaret_ellis_v1.R",
+        "senior_resident_ward_v1.L",
+        "senior_resident_ward_v1.R",
+        "sister_rachel_miller_v1.L",
+        "sister_rachel_miller_v1.R",
+        "ward_nurse_patel_v1.L",
+        "ward_nurse_patel_v1.R"
+      ],
+      "postures": [
+        "seated",
+        "standing",
+        "supine"
+      ]
+    },
+    {
+      "instrument": "idle-arm-hang",
+      "run": 2,
+      "phase": "pre-fix",
+      "rowCount": 28,
+      "uniqueActorIds": [
+        "oncology_bad_news_family_v1/patient_david_miller_v1",
+        "oncology_bad_news_family_v1/sister_rachel_miller_v1",
+        "peds_fever_v1/nurse_aisha_brooks_v1",
+        "peds_fever_v1/parent_mei_chen_v1",
+        "peds_fever_v1/patient_noah_chen_v1",
+        "psych_suicidal_ideation_safety_v1/behavioral_health_nurse_owens_v1",
+        "psych_suicidal_ideation_safety_v1/partner_sam_reed_v1",
+        "psych_suicidal_ideation_safety_v1/patient_jordan_reed_v1",
+        "telehealth_diabetes_health_literacy_v1/daughter_elena_martinez_v1",
+        "telehealth_diabetes_health_literacy_v1/patient_luis_martinez_v1",
+        "ward_delirium_med_rec_v1/daughter_lena_ellis_v1",
+        "ward_delirium_med_rec_v1/patient_margaret_ellis_v1",
+        "ward_delirium_med_rec_v1/senior_resident_ward_v1",
+        "ward_delirium_med_rec_v1/ward_nurse_patel_v1"
+      ],
+      "rowsByScenario": {
+        "psych_suicidal_ideation_safety_v1": 6,
+        "ward_delirium_med_rec_v1": 8,
+        "oncology_bad_news_family_v1": 4,
+        "peds_fever_v1": 6,
+        "telehealth_diabetes_health_literacy_v1": 4
+      },
+      "sides": [
+        "behavioral_health_nurse_owens_v1.L",
+        "behavioral_health_nurse_owens_v1.R",
+        "daughter_elena_martinez_v1.L",
+        "daughter_elena_martinez_v1.R",
+        "daughter_lena_ellis_v1.L",
+        "daughter_lena_ellis_v1.R",
+        "nurse_aisha_brooks_v1.L",
+        "nurse_aisha_brooks_v1.R",
+        "parent_mei_chen_v1.L",
+        "parent_mei_chen_v1.R",
+        "partner_sam_reed_v1.L",
+        "partner_sam_reed_v1.R",
+        "patient_david_miller_v1.L",
+        "patient_david_miller_v1.R",
+        "patient_jordan_reed_v1.L",
+        "patient_jordan_reed_v1.R",
+        "patient_luis_martinez_v1.L",
+        "patient_luis_martinez_v1.R",
+        "patient_margaret_ellis_v1.L",
+        "patient_margaret_ellis_v1.R",
+        "patient_noah_chen_v1.L",
+        "patient_noah_chen_v1.R",
+        "senior_resident_ward_v1.L",
+        "senior_resident_ward_v1.R",
+        "sister_rachel_miller_v1.L",
+        "sister_rachel_miller_v1.R",
+        "ward_nurse_patel_v1.L",
+        "ward_nurse_patel_v1.R"
+      ],
+      "postures": [
+        "seated",
+        "standing",
+        "supine"
+      ]
+    },
+    {
+      "instrument": "idle-arm-hang",
+      "run": 3,
+      "phase": "pre-fix",
+      "rowCount": 20,
+      "uniqueActorIds": [
+        "oncology_bad_news_family_v1/patient_david_miller_v1",
+        "peds_fever_v1/nurse_aisha_brooks_v1",
+        "peds_fever_v1/parent_mei_chen_v1",
+        "peds_fever_v1/patient_noah_chen_v1",
+        "psych_suicidal_ideation_safety_v1/behavioral_health_nurse_owens_v1",
+        "psych_suicidal_ideation_safety_v1/patient_jordan_reed_v1",
+        "telehealth_diabetes_health_literacy_v1/daughter_elena_martinez_v1",
+        "telehealth_diabetes_health_literacy_v1/patient_luis_martinez_v1",
+        "ward_delirium_med_rec_v1/patient_margaret_ellis_v1",
+        "ward_delirium_med_rec_v1/ward_nurse_patel_v1"
+      ],
+      "rowsByScenario": {
+        "psych_suicidal_ideation_safety_v1": 4,
+        "ward_delirium_med_rec_v1": 4,
+        "oncology_bad_news_family_v1": 2,
+        "peds_fever_v1": 6,
+        "telehealth_diabetes_health_literacy_v1": 4
+      },
+      "sides": [
+        "behavioral_health_nurse_owens_v1.L",
+        "behavioral_health_nurse_owens_v1.R",
+        "daughter_elena_martinez_v1.L",
+        "daughter_elena_martinez_v1.R",
+        "nurse_aisha_brooks_v1.L",
+        "nurse_aisha_brooks_v1.R",
+        "parent_mei_chen_v1.L",
+        "parent_mei_chen_v1.R",
+        "patient_david_miller_v1.L",
+        "patient_david_miller_v1.R",
+        "patient_jordan_reed_v1.L",
+        "patient_jordan_reed_v1.R",
+        "patient_luis_martinez_v1.L",
+        "patient_luis_martinez_v1.R",
+        "patient_margaret_ellis_v1.L",
+        "patient_margaret_ellis_v1.R",
+        "patient_noah_chen_v1.L",
+        "patient_noah_chen_v1.R",
+        "ward_nurse_patel_v1.L",
+        "ward_nurse_patel_v1.R"
+      ],
+      "postures": [
+        "seated",
+        "standing",
+        "supine"
+      ]
+    },
+    {
+      "instrument": "arm-abduction-ceiling",
+      "run": 1,
+      "phase": "pre-fix",
+      "rowCount": 24,
+      "uniqueActorIds": [
+        "oncology_bad_news_family_v1/patient_david_miller_v1",
+        "oncology_bad_news_family_v1/sister_rachel_miller_v1",
+        "peds_fever_v1/nurse_aisha_brooks_v1",
+        "peds_fever_v1/parent_mei_chen_v1",
+        "peds_fever_v1/patient_noah_chen_v1",
+        "psych_suicidal_ideation_safety_v1/behavioral_health_nurse_owens_v1",
+        "psych_suicidal_ideation_safety_v1/patient_jordan_reed_v1",
+        "telehealth_diabetes_health_literacy_v1/daughter_elena_martinez_v1",
+        "telehealth_diabetes_health_literacy_v1/patient_luis_martinez_v1",
+        "ward_delirium_med_rec_v1/patient_margaret_ellis_v1",
+        "ward_delirium_med_rec_v1/senior_resident_ward_v1",
+        "ward_delirium_med_rec_v1/ward_nurse_patel_v1"
+      ],
+      "rowsByScenario": {
+        "psych_suicidal_ideation_safety_v1": 4,
+        "ward_delirium_med_rec_v1": 6,
+        "oncology_bad_news_family_v1": 4,
+        "peds_fever_v1": 6,
+        "telehealth_diabetes_health_literacy_v1": 4
+      },
+      "sides": [
+        "behavioral_health_nurse_owens_v1.L",
+        "behavioral_health_nurse_owens_v1.R",
+        "daughter_elena_martinez_v1.L",
+        "daughter_elena_martinez_v1.R",
+        "nurse_aisha_brooks_v1.L",
+        "nurse_aisha_brooks_v1.R",
+        "parent_mei_chen_v1.L",
+        "parent_mei_chen_v1.R",
+        "patient_david_miller_v1.L",
+        "patient_david_miller_v1.R",
+        "patient_jordan_reed_v1.L",
+        "patient_jordan_reed_v1.R",
+        "patient_luis_martinez_v1.L",
+        "patient_luis_martinez_v1.R",
+        "patient_margaret_ellis_v1.L",
+        "patient_margaret_ellis_v1.R",
+        "patient_noah_chen_v1.L",
+        "patient_noah_chen_v1.R",
+        "senior_resident_ward_v1.L",
+        "senior_resident_ward_v1.R",
+        "sister_rachel_miller_v1.L",
+        "sister_rachel_miller_v1.R",
+        "ward_nurse_patel_v1.L",
+        "ward_nurse_patel_v1.R"
+      ],
+      "postures": [
+        "seated",
+        "standing",
+        "supine"
+      ]
+    },
+    {
+      "instrument": "arm-abduction-ceiling",
+      "run": 2,
+      "phase": "pre-fix",
+      "rowCount": 16,
+      "uniqueActorIds": [
+        "oncology_bad_news_family_v1/sister_rachel_miller_v1",
+        "peds_fever_v1/nurse_aisha_brooks_v1",
+        "peds_fever_v1/patient_noah_chen_v1",
+        "psych_suicidal_ideation_safety_v1/partner_sam_reed_v1",
+        "psych_suicidal_ideation_safety_v1/patient_jordan_reed_v1",
+        "telehealth_diabetes_health_literacy_v1/daughter_elena_martinez_v1",
+        "telehealth_diabetes_health_literacy_v1/patient_luis_martinez_v1",
+        "ward_delirium_med_rec_v1/senior_resident_ward_v1"
+      ],
+      "rowsByScenario": {
+        "psych_suicidal_ideation_safety_v1": 4,
+        "ward_delirium_med_rec_v1": 2,
+        "oncology_bad_news_family_v1": 2,
+        "peds_fever_v1": 4,
+        "telehealth_diabetes_health_literacy_v1": 4
+      },
+      "sides": [
+        "daughter_elena_martinez_v1.L",
+        "daughter_elena_martinez_v1.R",
+        "nurse_aisha_brooks_v1.L",
+        "nurse_aisha_brooks_v1.R",
+        "partner_sam_reed_v1.L",
+        "partner_sam_reed_v1.R",
+        "patient_jordan_reed_v1.L",
+        "patient_jordan_reed_v1.R",
+        "patient_luis_martinez_v1.L",
+        "patient_luis_martinez_v1.R",
+        "patient_noah_chen_v1.L",
+        "patient_noah_chen_v1.R",
+        "senior_resident_ward_v1.L",
+        "senior_resident_ward_v1.R",
+        "sister_rachel_miller_v1.L",
+        "sister_rachel_miller_v1.R"
+      ],
+      "postures": [
+        "seated",
+        "standing"
+      ]
+    },
+    {
+      "instrument": "arm-abduction-ceiling",
+      "run": 3,
+      "phase": "pre-fix",
+      "rowCount": 24,
+      "uniqueActorIds": [
+        "oncology_bad_news_family_v1/patient_david_miller_v1",
+        "oncology_bad_news_family_v1/sister_rachel_miller_v1",
+        "peds_fever_v1/nurse_aisha_brooks_v1",
+        "peds_fever_v1/parent_mei_chen_v1",
+        "psych_suicidal_ideation_safety_v1/behavioral_health_nurse_owens_v1",
+        "psych_suicidal_ideation_safety_v1/partner_sam_reed_v1",
+        "psych_suicidal_ideation_safety_v1/patient_jordan_reed_v1",
+        "telehealth_diabetes_health_literacy_v1/daughter_elena_martinez_v1",
+        "telehealth_diabetes_health_literacy_v1/patient_luis_martinez_v1",
+        "ward_delirium_med_rec_v1/patient_margaret_ellis_v1",
+        "ward_delirium_med_rec_v1/senior_resident_ward_v1",
+        "ward_delirium_med_rec_v1/ward_nurse_patel_v1"
+      ],
+      "rowsByScenario": {
+        "psych_suicidal_ideation_safety_v1": 6,
+        "ward_delirium_med_rec_v1": 6,
+        "oncology_bad_news_family_v1": 4,
+        "peds_fever_v1": 4,
+        "telehealth_diabetes_health_literacy_v1": 4
+      },
+      "sides": [
+        "behavioral_health_nurse_owens_v1.L",
+        "behavioral_health_nurse_owens_v1.R",
+        "daughter_elena_martinez_v1.L",
+        "daughter_elena_martinez_v1.R",
+        "nurse_aisha_brooks_v1.L",
+        "nurse_aisha_brooks_v1.R",
+        "parent_mei_chen_v1.L",
+        "parent_mei_chen_v1.R",
+        "partner_sam_reed_v1.L",
+        "partner_sam_reed_v1.R",
+        "patient_david_miller_v1.L",
+        "patient_david_miller_v1.R",
+        "patient_jordan_reed_v1.L",
+        "patient_jordan_reed_v1.R",
+        "patient_luis_martinez_v1.L",
+        "patient_luis_martinez_v1.R",
+        "patient_margaret_ellis_v1.L",
+        "patient_margaret_ellis_v1.R",
+        "senior_resident_ward_v1.L",
+        "senior_resident_ward_v1.R",
+        "sister_rachel_miller_v1.L",
+        "sister_rachel_miller_v1.R",
+        "ward_nurse_patel_v1.L",
+        "ward_nurse_patel_v1.R"
+      ],
+      "postures": [
+        "seated",
+        "standing",
+        "supine"
+      ]
+    }
+  ]
+}
