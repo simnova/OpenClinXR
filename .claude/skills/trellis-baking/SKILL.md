@@ -215,6 +215,8 @@ from share were wrong in BOTH directions:**
 | o2-port | 61.6% | 22.1% | contaminated | CONTAMINATED |
 | fetal-monitor | 93.9% | 1.6% | clean | **CONTAMINATED** |
 | iv-pump | 87.4% | **10.15%** | contaminated | **CLEAN** |
+| glucometer | 79.8% | **17.46%** | contaminated | **CLEAN** |
+| lowpoly-shoe | 96.8% | 0.81% | clean | clean map, rung too deep |
 
 `iv-pump` has a 10.15% second component — the shape that made o2-port multi-part — and its bake came
 back clean, fixing the screen's white wash with no speckle introduced. `fetal-monitor` has nothing
@@ -318,6 +320,15 @@ facets and cannot move the outline.
 **So the rung must be chosen per asset by looking at the outline, not inherited from another
 subject.** Boxy subjects go deep; curved subjects do not. Anyone adopting 25k as a factory default on
 the strength of the pulse-oximeter measurement will ship faceted shoes.
+
+**FORM is the first predictor in this sweep that has held. One confirmation, stated as a hypothesis.**
+`glucometer` was predicted BEFORE baking to hold its silhouette at 25k on the grounds that it is a
+boxy handheld, and it did — bezel and buttons came back sharper than unmapped, outline intact. That
+is 1 for 1, against 0 for 2 for every statistic tried.
+
+Do NOT promote it to a rule yet. It is a judgement about shape made by looking at the asset, not a
+number, and it has one data point. What it is good for TODAY is ordering the work: bake the boxy
+subjects first, expect the curved ones to need a shallower rung.
 
 ALWAYS sweep map resolution before reporting the byte cost of a bake. The first number I produced
 said the technique was uneconomic, and it was measuring an arbitrary 2048 default.
