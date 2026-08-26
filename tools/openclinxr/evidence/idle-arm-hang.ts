@@ -24,6 +24,7 @@ import {
   buildRoomCaptureUrl,
   waitForStationShell,
 } from "./ui-xr-environment-room-capture.js";
+import { waitForSceneAssetsSettled } from "./declared-actors-rendered.js";
 
 export const IDLE_ARM_HANG_DIR = ".openclinxr/evidence/idle-arm-hang";
 export const PRE_FIX_NAME = "pre-fix.json";
@@ -226,6 +227,10 @@ async function measureLiveArmHang(input: {
           await page.goto(url, { waitUntil: "load", timeout: 180_000 });
           await waitForStationShell(page, 180_000);
           await waitForHumanoidsAndFrames(page, 8, 180_000);
+          // #675: waitForHumanoidsAndFrames returns as soon as ONE skinned mesh exists; sibling
+          // GLBs may still be loading, so their actor roots are absent at the sample instant.
+          // Wait for the settle signal before sampling; a failed asset counts as settled.
+          await waitForSceneAssetsSettled(page, 60_000);
           // Extra settle so mixer + clinical idle re-apply have run several times.
           await page.waitForTimeout(900);
           const live = await readLiveArmHangFromPage(page);

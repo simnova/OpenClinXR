@@ -119,7 +119,16 @@ function declaredArmCountForScenarios(scenarios: string[]): number {
  * artifact where a number that varies is data rather than a verdict.
  */
 describe("the arm instrument measures the same cast twice (#675)", () => {
-  it.fails(
+  /**
+   * ## FIXED (#675)
+   * Wired waitForSceneAssetsSettled (declared-actors-rendered.ts:393) into both arm
+   * instruments before the 900 ms settle. Pre-fix on this machine (unchanged tree,
+   * three forced runs each): idle-arm-hang 26/28/20 rows, arm-abduction-ceiling
+   * 24/16/24 — omissions stable per machine (ward_nurse_patel_v1, daughter_lena_ellis_v1
+   * among them). Post-fix: 28/28/28 rows for both instruments; the three runs are
+   * identical and equal to the 14-actor declared cast. Clause (1) flipped to `it`.
+   */
+  it(
     "(1) three forced measures of an unchanged tree observe the same ACTORS",
     async () => {
       const runs = await measureThrice();
@@ -138,7 +147,13 @@ describe("the arm instrument measures the same cast twice (#675)", () => {
     1_800_000,
   );
 
-  it.fails(
+  /**
+   * ## FIXED (#675)
+   * Same settle fix as clause (1). Post-fix every forced run measures all 28 declared
+   * arms (14 actors x 2) — the "28 is reachable" observation is now the stable result
+   * rather than a one-in-seven sample. Clause (2) flipped to `it`.
+   */
+  it(
     "(2) the instrument measures every arm the cast declares",
     async () => {
       // The floor is the INPUT, not a quantile of the output: two arms for every actor the bank
