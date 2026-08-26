@@ -1,0 +1,130 @@
+{
+  "slice": "issue-688",
+  "schema": "openclinxr.issue-688.pre-fix.v1",
+  "measuredAgainstCommit": "72eed35dfca2b9dca7cdd365656f5d52d06e0060",
+  "method": "ast+exec materialize_mpfb_humanoid_candidate.py (bpy stubbed, REPO_ROOT stubbed); GLB eye material regex mat_makeclothes_library_eyes_<ref>; readers phenotype_skin_tone/phenotype_eye_colour as shipped",
+  "brownEyeKnownSha256Prefix": "4659691c7295ad62",
+  "assets": [
+    {
+      "asset": "mpfb-clinical-nurse-adult.glb",
+      "bakedFromReference": "ed_chest_pain_nurse_adult",
+      "manifestResolves": true,
+      "manifestPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-688/apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.anny_manifest.json",
+      "phenotypeSkinTone": "medium_warm",
+      "phenotypeEyeColour": "",
+      "eyeTextureSha256": "572ddc93ab3e177100619ec7c00b2574540cfb382805afc2e450788117f6140c",
+      "eyeTextureBytes": 666029,
+      "eyeIsKnownBrownTexture": false
+    },
+    {
+      "asset": "mpfb-clinical-physician-adult.glb",
+      "bakedFromReference": "ob_patient_aisha",
+      "manifestResolves": false,
+      "manifestPath": null,
+      "phenotypeSkinTone": "default",
+      "phenotypeEyeColour": "",
+      "eyeTextureSha256": "4659691c7295ad6206c78b003e5fd0e5f91dcd53032fa914a229bb48cabe424b",
+      "eyeTextureBytes": 610817,
+      "eyeIsKnownBrownTexture": true
+    },
+    {
+      "asset": "mpfb-family-partner-adult.glb",
+      "bakedFromReference": "ed_chest_pain_spouse_adult",
+      "manifestResolves": true,
+      "manifestPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-688/apps/ui-xr/public/generated-humanoids/ed_chest_pain_spouse_adult.anny_manifest.json",
+      "phenotypeSkinTone": "warm_light",
+      "phenotypeEyeColour": "",
+      "eyeTextureSha256": "b9864ac4f4fa484b24e18f6aba030d70dbc8820cbbacfbe63a974c76772c2009",
+      "eyeTextureBytes": 662241,
+      "eyeIsKnownBrownTexture": false
+    },
+    {
+      "asset": "mpfb-gown-adult-patient.glb",
+      "bakedFromReference": "ob_patient_aisha",
+      "manifestResolves": false,
+      "manifestPath": null,
+      "phenotypeSkinTone": "default",
+      "phenotypeEyeColour": "",
+      "eyeTextureSha256": "4659691c7295ad6206c78b003e5fd0e5f91dcd53032fa914a229bb48cabe424b",
+      "eyeTextureBytes": 610817,
+      "eyeIsKnownBrownTexture": true
+    },
+    {
+      "asset": "mpfb-gown-inspect.glb",
+      "bakedFromReference": "ob_patient_aisha",
+      "manifestResolves": false,
+      "manifestPath": null,
+      "phenotypeSkinTone": "default",
+      "phenotypeEyeColour": "",
+      "eyeTextureSha256": "4659691c7295ad6206c78b003e5fd0e5f91dcd53032fa914a229bb48cabe424b",
+      "eyeTextureBytes": 610817,
+      "eyeIsKnownBrownTexture": true
+    },
+    {
+      "asset": "mpfb-ob-patient-aisha.glb",
+      "bakedFromReference": "ob_patient_aisha",
+      "manifestResolves": false,
+      "manifestPath": null,
+      "phenotypeSkinTone": "default",
+      "phenotypeEyeColour": "",
+      "eyeTextureSha256": "4659691c7295ad6206c78b003e5fd0e5f91dcd53032fa914a229bb48cabe424b",
+      "eyeTextureBytes": 610817,
+      "eyeIsKnownBrownTexture": true
+    },
+    {
+      "asset": "mpfb-peds-nurse-kevin.glb",
+      "bakedFromReference": "peds_nurse_kevin",
+      "manifestResolves": true,
+      "manifestPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-688/apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.anny_manifest.json",
+      "phenotypeSkinTone": "medium_warm",
+      "phenotypeEyeColour": "brown",
+      "eyeTextureSha256": "4659691c7295ad6206c78b003e5fd0e5f91dcd53032fa914a229bb48cabe424b",
+      "eyeTextureBytes": 610817,
+      "eyeIsKnownBrownTexture": true
+    },
+    {
+      "asset": "mpfb-peds-parent-aisha.glb",
+      "bakedFromReference": "ob_patient_aisha",
+      "manifestResolves": false,
+      "manifestPath": null,
+      "phenotypeSkinTone": "default",
+      "phenotypeEyeColour": "",
+      "eyeTextureSha256": "4659691c7295ad6206c78b003e5fd0e5f91dcd53032fa914a229bb48cabe424b",
+      "eyeTextureBytes": 610817,
+      "eyeIsKnownBrownTexture": true
+    },
+    {
+      "asset": "mpfb-peds-patient-child.glb",
+      "bakedFromReference": "peds_patient_child",
+      "manifestResolves": true,
+      "manifestPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-688/apps/ui-xr/public/generated-humanoids/peds_patient_child.anny_manifest.json",
+      "phenotypeSkinTone": "warm_light_child",
+      "phenotypeEyeColour": "hazel",
+      "eyeTextureSha256": "4659691c7295ad6206c78b003e5fd0e5f91dcd53032fa914a229bb48cabe424b",
+      "eyeTextureBytes": 610817,
+      "eyeIsKnownBrownTexture": true
+    },
+    {
+      "asset": "mpfb-street-adult-male.glb",
+      "bakedFromReference": "adult_male_street_casual",
+      "manifestResolves": true,
+      "manifestPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-688/apps/ui-xr/public/generated-humanoids/adult_male_street_casual.anny_manifest.json",
+      "phenotypeSkinTone": "warm_medium",
+      "phenotypeEyeColour": "brown",
+      "eyeTextureSha256": "4659691c7295ad6206c78b003e5fd0e5f91dcd53032fa914a229bb48cabe424b",
+      "eyeTextureBytes": 610817,
+      "eyeIsKnownBrownTexture": true
+    },
+    {
+      "asset": "mpfb-viseme-inspect.glb",
+      "bakedFromReference": "ob_patient_aisha",
+      "manifestResolves": false,
+      "manifestPath": null,
+      "phenotypeSkinTone": "default",
+      "phenotypeEyeColour": "",
+      "eyeTextureSha256": "4659691c7295ad6206c78b003e5fd0e5f91dcd53032fa914a229bb48cabe424b",
+      "eyeTextureBytes": 610817,
+      "eyeIsKnownBrownTexture": true
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "schema_version": "openclinxr.anny-source-manifest.v1",
+  "generator": "issue-688: hand-authored reference manifest for the default-macro MPFB body id ob_patient_aisha (no generate_mesh.py run produced this reference)",
+  "source_kind": "default_mpfb_macro_reference",
+  "generator_mode": "hand_authored_reference_manifest",
+  "uses_real_anny_forward_pass": false,
+  "real_anny_weights_used": false,
+  "fallback_active": false,
+  "input_params": {
+    "age": 34,
+    "body_profile": "adult_standard_parent",
+    "phenotype": {
+      "skin_tone": "warm_light",
+      "eye_color": "brown",
+      "height_cm": 166,
+      "bmi": 24.0
+    }
+  },
+  "phenotype_summary": {
+    "skin_tone": "warm_light",
+    "eye_color": "brown",
+    "height_cm": 166,
+    "bmi": 24.0
+  },
+  "not_evidence_for": [
+    "b_plus_visual_realism_gate",
+    "production_asset_readiness",
+    "quest_readiness"
+  ],
+  "notes": [
+    "Reference authorship: ob_patient_aisha is the materializer's DEFAULT reference id (materialize_mpfb_humanoid_candidate.py uses 'args.reference or ob_patient_aisha' for the eye material / skin material / mesh names), named after the first promoted MPFB cast: ob_headache_preeclampsia_triage_v1 actor patient_aisha_khan_v1 (provenance mpfb-ob-patient-aisha, #263). The peds parent (peds_anxious_parent) and the gown/physician/viseme inspection assets share this default-macro body (#335 age-compatible reuse).",
+    "Declared phenotype: the ob-preeclampsia fixture authors NO phenotype block for patient_aisha_khan_v1; the descriptor-derived block is {body_profile: adult_standard_parent, age: 34, height_cm: 166, bmi: 24, descriptor_derived: true}. skin_tone/eye_color are deliberately absent there by design (#276, #293, #664: the descriptor cannot supply identity fields).",
+    "skin_tone 'warm_light' sourcing: the tree's established adult-female skin tone, identical to the two shipped adult-female manifests (ed_chest_pain_spouse_adult, peds_anxious_parent). Buildable (SKIN_TONE_RGB). Not the 'default' token, so phenotype_skin_tone stops returning the fallback.",
+    "eye_color 'brown' sourcing: the exact iris the six shipped assets already embed — brown_eye.png (610,817 B, sha256 4659691c..., measured pre-fix on all six mpfb-*ob_patient_aisha assets). Also the patient-role staging documented in iris_palette.py. Buildable (_EYE_IRIS_PACK). Declaring it stops the role-fallback iris mechanism and keeps the shipped iris bytes on a future re-bake.",
+    "Deliberately absent: gender_presentation (the case states no sex; #664 keeps it out of derived rows; the --reference bake path's #670 refusal is the honest outcome for a case that does not state sex, and that path cannot run for this body anyway — there is no ob_patient_aisha.anny_base.obj), fabricPalette (case declares none; the #400 thread-through stays a no-op), hair_color, pose.",
+    "No base OBJ exists for this reference (the body is the materializer's default MPFB macro body), so the output/anny_forward_pass blocks of the generate_mesh.py manifests are omitted rather than fabricated."
+  ]
+}
