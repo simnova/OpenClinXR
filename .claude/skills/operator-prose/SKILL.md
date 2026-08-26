@@ -1,7 +1,7 @@
 ---
 name: "operator-prose"
-description: "Style contract for OPERATOR-FACING prose only - plain declarative reporting with hard numeric limits: max 2 bold spans per message (identifiers/numbers only), max 1 em-dash, no 'not X but Y' reframes, no setup-payoff reveals, no verdict-fragment openers, error reports as fact-action-correction without self-drama, tables only at 3 rows x 2 columns minimum. Load BEFORE writing any report, summary, or message addressed to the human operator. NOT for product-owner wire reports (delegator-comms governs those), worker briefs, issue bodies, or code - scope is stated in the body."
-when-to-use: "operator report, write to operator, status summary for human, message to patrick, prose report, clickbait feedback, style feedback, before sending a report"
+description: "Style contract for OPERATOR-FACING prose only - plain declarative reporting with hard numeric limits: max 2 bold spans per message (identifiers/numbers only), max 1 em-dash, no 'not X but Y' reframes, no setup-payoff reveals, no verdict-fragment openers, error reports as fact-action-correction without self-drama, tables only at 3 rows x 2 columns minimum, and every count must name its own set rather than chaining cardinals the reader has to repartition. Load BEFORE writing any report, summary, or message addressed to the human operator. NOT for product-owner wire reports (delegator-comms governs those), worker briefs, issue bodies, or code - scope is stated in the body."
+when-to-use: "operator report, cardinal chaining, numbers in prose, write to operator, status summary for human, message to patrick, prose report, clickbait feedback, style feedback, before sending a report"
 ---
 
 # Operator-facing prose
@@ -37,8 +37,15 @@ everyone else = mechanical parse.
    the same defect with a different surface. The last line is a complete fact
    or `NEXT: <action>`; there is no summary section at the end (the report just
    gave it).
-3. **Finding, then evidence.** Never setup-then-reveal. If the interesting part
-   arrives in the second half of a paragraph, invert it.
+3. **Finding, then evidence; every count names its set.** Identifiers, dates,
+   versions, issue numbers, line numbers and paths are not counts. For each
+   count, name the population, unit, threshold, result or object in the same
+   clause, and check it supports the claim beside it. Never make the reader
+   rebuild a subset through "of those", "the remaining one", "that last one",
+   "one of its two" or a bare "all three" - repeat the noun or identifier, or
+   use named rows. A count does not establish an unmeasured judgement. Never
+   setup-then-reveal: if the interesting part arrives in the second half of a
+   paragraph, invert it.
 4. **Errors as three parts:** what I did, what it produced, what changes. No
    drama about having been corrected, no applause tracks.
 5. **Tables** only for >= 3 rows x >= 2 columns of genuinely parallel facts.
@@ -69,6 +76,12 @@ AFTER: `Source map settled at 52 entries, under the 66 in the brief; the "number
 BEFORE: `That's the thesis of the slice confirmed by measurement, and it retroactively vindicates #546.`
 AFTER: `This confirms #546: those map entries were inert because the CMU source has no finger channels.`
 
+BEFORE: `Of the 4 I landed, 3 went well; of those 2 were great, and the remaining 1 had 5 issues. That last one was profound.`
+AFTER: `Four changes landed. A, B and C met the gate. D had five named issues. These counts do not measure D's importance.`
+
+BEFORE: `Two cards are ready and the one you asked about is the second.`
+AFTER: `#683 and #681 are ready. You asked about #683.`
+
 BEFORE: `**I raised one objection rather than silently complying** — it directed me to stop issuing visual verdicts...`
 AFTER: `One objection filed: workers are ox instances, so owner-grading could collapse the producer/grader split.`
 
@@ -76,5 +89,7 @@ AFTER: `One objection filed: workers are ox instances, so owner-grading could co
 
 Count bold spans (>2?), em-dashes (>1?), "not...but" reframes (any?), verdict
 openers (any?), payoff sentences starting "That's" (any?), wins-then-caveat
-orderings (any failure or caveat stated after a success?). Any hit: revise that
+orderings (any failure or caveat stated after a success?), count references
+(does every count name its set or unit in its own clause, support the claim
+beside it, and avoid a backward subset reference?). Any hit: revise that
 sentence, do not soften it — delete the flourish and keep the fact.
