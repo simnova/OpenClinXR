@@ -69,7 +69,7 @@ async function isWorkerReport(): Promise<(body: string) => boolean> {
 }
 
 describe("#733 a worker report written as headings is still a worker report", () => {
-  it.fails("(1) RED: the heading form is recognised as a report", async () => {
+  it("(1) the heading form is recognised as a report", async () => {
     const fn = await isWorkerReport();
     expect(fn(HEADING_REPORT)).toBe(true);
   });
@@ -99,3 +99,15 @@ describe("#733 a worker report written as headings is still a worker report", ()
     expect(src).toMatch(/comment\.author\.login !== orchestratorLogin/);
   });
 });
+
+/**
+ * ## FIXED (#733)
+ *
+ * WORKER_REPORT_SECTIONS now accepts a section written as `IN-SCOPE:` or as a markdown heading
+ * `## IN-SCOPE`, requiring the label at a line start with an optional heading prefix and a colon,
+ * newline or parenthesis after it. All four sections are still required, so the predicate stays
+ * strictly narrower than "any comment at all".
+ *
+ * Verified against #696's real body and against the colon form, a skeleton-free orchestrator
+ * comment, and a three-of-four partial.
+ */

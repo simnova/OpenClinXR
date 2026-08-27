@@ -398,7 +398,24 @@ const WORKER_REPORT_MARKERS = /(UNABLE:|cannot pass|Factory: Dispatched)/i;
  * carry a CLAIM:/NOT TESTED: pair (the #441-#446 state), so two sections alone are deliberately
  * insufficient.
  */
-const WORKER_REPORT_SECTIONS = [/IN-SCOPE:/i, /OUT-OF-SCOPE:/i, /CLAIM:/i, /NOT TESTED:/i];
+/**
+ * #733: a section counts whether it is written `IN-SCOPE:` or as a markdown heading `## IN-SCOPE`.
+ *
+ * The colon-only form refused #696's complete report — `## IN-SCOPE`, `## OUT-OF-SCOPE (seen, not
+ * fixing)`, `## CLAIM`, `## NOT TESTED` — and integrate fired `worker-never-spoke` on a worker that
+ * had spoken in detail. Briefs ask for "sections IN-SCOPE / OUT-OF-SCOPE / CLAIM / NOT TESTED" and
+ * say nothing about punctuation, so no worker could have known.
+ *
+ * A heading IS the skeleton this looks for; the colon was a formatting accident. All four are still
+ * required, so this stays strictly narrower than "any comment at all" and still refuses the
+ * orchestrator-only state the gate was built for.
+ */
+const WORKER_REPORT_SECTIONS = [
+  /(?:^|\n)\s*(?:#{1,6}\s*)?IN-SCOPE\b\s*[:\n(]/i,
+  /(?:^|\n)\s*(?:#{1,6}\s*)?OUT-OF-SCOPE\b\s*[:\n(]/i,
+  /(?:^|\n)\s*(?:#{1,6}\s*)?CLAIM\b\s*[:\n(]/i,
+  /(?:^|\n)\s*(?:#{1,6}\s*)?NOT TESTED\b\s*[:\n(]/i,
+];
 /** #733: exported so a contract can test the predicate itself rather than the source text. */
 export const isWorkerReport = (body: string): boolean => WORKER_REPORT_SECTIONS.every((r) => r.test(body));
 
