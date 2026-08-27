@@ -116,6 +116,27 @@ minutes later. A commit existing is not a commit landing.
 - **A configuration change** when the defect is in how agents are set up — a rule, a policy tier, a
   hook, a skill. Land it with a planted RED like any other change.
 
+**FILE THE CARD FIRST AND USE THE NUMBER IT RETURNS — never pick the next integer.** Measured
+2026-08-27, twice in one session. Fixing agentic configuration directly tempts you to write
+`fix(#N)` before any card exists, and the next integer after your last filing is already taken:
+
+| commits | cite | board card actually is |
+|---|---|---|
+| `39493d26`, `931d395d` | `#721` | Lip-sync: the morphs and the whole runtime chain ship |
+| `fe2c27fc`, `07d85aa3` | `#722` | Lip-sync produces a real viseme timeline (CLOSED) |
+
+Four commits are attributed by `fix(#N)` subject matching to two real lip-sync cards, and `#722`
+also carries another agent's genuine fix, so mine are mixed into its history. History is not
+rewritten; the collisions are annotated on both cards.
+
+Filing first worked every time it was done — #715, #716, #717, #718, #720, #724 all landed on the
+number `gh issue create` returned. The failures are exactly the cases where a number was chosen
+before a card existed.
+
+So: `gh api -X POST .../issues` first, read the number, then write the commit. If you must commit
+before filing, verify with `gh issue view N` that the number is free, and remember the board moves
+under you — another agent filed #721 through #723 during this session.
+
 **Never invent a `done_when` to make a card dispatchable.** `PROTO_BOARD_LOOP.md:42`: synthesising
 plausible proofs from a title makes the contract layer decorative — a worker judged against criteria
 nobody chose, which is worse than no contract because it looks like one.
