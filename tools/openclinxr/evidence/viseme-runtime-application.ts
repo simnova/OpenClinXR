@@ -47,6 +47,16 @@ export type VisemeRuntimeApplicationReport = {
   schemaVersion: "openclinxr.viseme-runtime-application.v1";
   scenarioId: string;
   utteranceText: string;
+  /**
+   * Declares the origin of every sample's `tMs` so a reader never has to infer which clock the
+   * timeline is on (#723 — the first fix's artifact left this inferable and the contract's
+   * last-change comparison was unverifiable). Baked cue times and `tMs` share this origin.
+   */
+  tTimebase: {
+    kind: "utterance_local_page_clock";
+    tMsFormula: string;
+    note: string;
+  };
   baked: {
     utteranceId: string;
     cueCount: number;
@@ -56,6 +66,8 @@ export type VisemeRuntimeApplicationReport = {
   } | null;
   samples: Array<{
     tMs: number;
+    /** Raw page clock (page performance.now()) at read time; the origin tMs is derived from. */
+    pageNowMs: number;
     readings: AppliedVisemeRow[];
     speech: LiveSpeechProbe;
     namedDrive: {
@@ -75,33 +87,6 @@ export type VisemeRuntimeApplicationReport = {
 /** The baked ed_stroke openingUtterance, spoken on patient load (prefix stripped by the join). */
 const STROKE_UTTERANCE =
   "Samuel Brooks: My right arm feels weak, and I cannot get the words out clearly.";
-
-async function waitForBakedVisemeJoin(page: Page, timeoutMs: number): Promise<void> {
-  // Poll on a TIMER, not rAF: headless rAF throttles to ~1 fps under WebGL load, so an rAF
-  // poll would see the join marker up to a second after it appears — a third of the speech
-  // window. The 50 ms interval sees it within a frame of the attach.
-  await page.waitForFunction(
-    `(() => {
-      const scene = window.__openClinXrDebugScene;
-      if (!scene || typeof scene.traverse !== "function") return false;
-      let hasVisemeMesh = false;
-      let hasBakedMarker = false;
-      scene.traverse(function (o) {
-        const dict = o.morphTargetDictionary;
-        if (dict) {
-          for (const k of Object.keys(dict)) {
-            if (k.toLowerCase().indexOf("viseme_") === 0) { hasVisemeMesh = true; break; }
-          }
-        }
-        const ud = o.userData;
-        if (ud && ud.openClinXrBakedVisemeTimeline) hasBakedMarker = true;
-      });
-      return hasVisemeMesh && hasBakedMarker;
-    })()`,
-    undefined,
-    { timeout: timeoutMs, polling: 50 },
-  );
-}
 
 /**
  * String IIFE (not a TS arrow) so tsx/esbuild cannot inject `__name` into the browser.
@@ -272,12 +257,6 @@ export async function measureVisemeRuntimeApplication(input?: {
         process.stdout.write(`viseme-runtime-application: goto ${scenarioId}\n`);
         await page.goto(url, { waitUntil: "load", timeout: 180_000 });
         await waitForStationShellTimed(page, 180_000);
-        // #722 join: the patient's auto-fired dialogue loads the served cue file at load time
-        // (the boot warm-up makes the attach a cache hit). The speech window is ~3.7 s and the
-        // join wait is TIMER-polled (rAF stalls to ~1 fps under WebGL load), so sampling starts
-        // within ~100 ms of the marker and covers most of the baked timeline.
-        await waitForBakedVisemeJoin(page, 60_000);
-        await page.waitForTimeout(60);
 
         let samples: VisemeRuntimeApplicationReport["samples"] = [];
         let applied: AppliedVisemeRow[] = [];
@@ -286,33 +265,28 @@ export async function measureVisemeRuntimeApplication(input?: {
           applied = [];
           const appliedByKey = new Map<string, AppliedVisemeRow>();
           const SAMPLE_STEP_MS = 120;
-          // #723: the marker's speechStartedAtMs is the page clock at speech start; each sample's
-          // pageNowMs is the same clock at read time. The run is sized from the BAKED duration so
-          // sampling continues past the utterance end (the plateau the defect lives on is the end,
-          // and clause (2) requires the series to span it). The nominal i*120 ms schedule is not
-          // the real cadence — a scene-graph evaluate under WebGL load costs ~200-400 ms each —
-          // so tMs must be the actual utterance-local page time, not the schedule index.
-          const join = await readLiveVisemeApplication(page);
-          const startedAtMs = typeof join.baked?.speechStartedAtMs === "number"
-            ? join.baked.speechStartedAtMs
-            : null;
-          const bakedDurationMs = typeof join.baked?.durationMs === "number"
-            ? join.baked.durationMs
-            : null;
-          const END_MARGIN_MS = 800;
-          const SAMPLE_COUNT = startedAtMs !== null && bakedDurationMs !== null
-            ? Math.ceil((bakedDurationMs + END_MARGIN_MS) / SAMPLE_STEP_MS) + 2
-            : 30;
-          for (let i = 0; i < SAMPLE_COUNT; i += 1) {
+          const END_MARGIN_MS = 1500;
+          const MAX_SAMPLES = 240;
+          // #723: sample from the shell onward instead of waiting for the join marker — the
+          // patient's auto-fired dialogue can start at any point after the shell appears, and the
+          // marker (baked.speechStartedAtMs) is only written at the attach. Every sample stores its
+          // raw page clock; once the marker is seen the WHOLE series is re-aligned onto the
+          // utterance-local timebase, so samples read before the attach get a negative tMs instead
+          // of a nominal fallback (a mixed timebase was the defect that made the plateau
+          // unverifiable). Sampling ends END_MARGIN past the baked duration so the series provably
+          // spans the utterance end.
+          let startedAtMs: number | null = null;
+          let bakedDurationMs: number | null = null;
+          let i = 0;
+          while (i < MAX_SAMPLES) {
             if (i > 0) await page.waitForTimeout(SAMPLE_STEP_MS);
             const live = await readLiveVisemeApplication(page);
-            // Utterance-local time on the page clock (the drive's clock). The nominal
-            // i*SAMPLE_STEP_MS schedule is not the cadence the page actually ran at; a
-            // scene-graph readback under WebGL load costs far more than 120 ms, so the
-            // index-based clock made the plateau look ~3x earlier than it really began.
-            const tMs = startedAtMs !== null && typeof live.speech.pageNowMs === "number"
-              ? Math.max(0, Math.round(live.speech.pageNowMs - startedAtMs))
-              : i * SAMPLE_STEP_MS;
+            if (startedAtMs === null && typeof live.baked?.speechStartedAtMs === "number") {
+              startedAtMs = live.baked.speechStartedAtMs;
+              bakedDurationMs = typeof live.baked.durationMs === "number" ? live.baked.durationMs : null;
+            }
+            const pageNowMs = live.speech.pageNowMs;
+            const tMs = startedAtMs !== null ? Math.round(pageNowMs - startedAtMs) : 0;
             for (const row of live.readings) {
               const key = `${row.viseme}|${row.morphTargetName}`;
               const prev = appliedByKey.get(key);
@@ -320,6 +294,7 @@ export async function measureVisemeRuntimeApplication(input?: {
             }
             samples.push({
               tMs,
+              pageNowMs,
               readings: live.readings,
               speech: live.speech,
               namedDrive: live.namedDrive
@@ -339,6 +314,19 @@ export async function measureVisemeRuntimeApplication(input?: {
                 + `avail=${(live.namedDrive?.availableTargets ?? []).length} `
                 + `speech=${live.speech.activeViseme ?? "-"}/${live.speech.activePhoneme ?? "-"}\n`,
             );
+            i += 1;
+            if (startedAtMs !== null && bakedDurationMs !== null
+              && Math.round(pageNowMs - startedAtMs) > bakedDurationMs + END_MARGIN_MS) break;
+            // No speech caught within the budget — re-boot rather than sampling silence forever.
+            if (startedAtMs === null && i >= 150) break;
+          }
+          // Re-align every sample onto the declared utterance-local timebase now that the marker's
+          // speechStartedAtMs is known. Samples read before the attach had no origin yet, so their
+          // tMs above was provisional; their stored pageNowMs puts the whole series in ONE clock.
+          if (startedAtMs !== null) {
+            for (const s of samples) {
+              s.tMs = Math.round(s.pageNowMs - startedAtMs);
+            }
           }
           applied = [...appliedByKey.values()].sort((a, b) => a.viseme.localeCompare(b.viseme));
           const distinctVisemes = new Set(applied.map((r) => r.viseme)).size;
@@ -351,8 +339,6 @@ export async function measureVisemeRuntimeApplication(input?: {
             );
             await page.goto(url, { waitUntil: "load", timeout: 180_000 });
             await waitForStationShellTimed(page, 180_000);
-            await waitForBakedVisemeJoin(page, 60_000);
-            await page.waitForTimeout(60);
           }
         }
 
@@ -362,6 +348,16 @@ export async function measureVisemeRuntimeApplication(input?: {
           schemaVersion: "openclinxr.viseme-runtime-application.v1",
           scenarioId,
           utteranceText: STROKE_UTTERANCE,
+          tTimebase: {
+            kind: "utterance_local_page_clock",
+            tMsFormula: "tMs = round(sample.pageNowMs - baked.speechStartedAtMs)",
+            note:
+              "both clocks are the page's performance.now(), so negative tMs samples were read "
+              + "before the speech started and tMs past baked.durationMs is post-utterance silence. "
+              + "The baked cue times in the served .mouth-cues.json share this origin. When "
+              + "baked.speechStartedAtMs was never seen (missed speech), tMs is the nominal i*120 ms "
+              + "schedule index and the attempt is retried.",
+          },
           baked: finalLive.baked,
           samples,
           applied,

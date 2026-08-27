@@ -70,15 +70,23 @@ import { describe, expect, it } from "vitest";
  *   - The run stopped at nominal 3480 ms — before the baked last change at 3670 ms.
  *
  * THE FIX:
- *   - viseme-runtime-application.ts: tMs is now the actual utterance-local page time
- *     (pageNowMs − baked.speechStartedAtMs), and the run is sized from the baked duration plus an
- *     800 ms margin so the series spans the utterance end.
+ *   - tMs BEFORE: the nominal schedule index (i * 120 ms) — a fiction, because a scene-graph
+ *     readback under WebGL load costs ~200-400 ms, so the real cadence was ~340 ms and the nominal
+ *     axis compressed the utterance ~2.8x. The "960 ms plateau" was that compressed clock.
+ *   - tMs AFTER: the actual utterance-local page time — `tMs = round(pageNowMs - baked
+ *     .speechStartedAtMs)` — declared in the artifact's `tTimebase` and carried per sample with the
+ *     raw page clock (`pageNowMs`) beside it, so the applied-vs-baked comparison shares one origin.
+ *     Sampling starts at the station shell (the dialogue can fire at any point after it) and stops
+ *     END_MARGIN past the baked duration; samples read before the marker appeared carry a negative
+ *     tMs rather than a fallback clock, keeping the whole series in one timebase.
  *   - viseme-runtime-wire.ts: NamedVisemeDriveResult now records `progress` and `nowMs` (the drive's
  *     own clock), so an evidence consumer can align a morph reading to the drive's position — the
  *     rAF-lag alignment ambiguity that made the plateau look ~3x earlier than it began.
  *
- * REGENERATED live after the fix: appliedLastChange 3965 ms against bakedLast 3670 ms (within one
- * 356 ms sample interval), last sample 13355 ms. The mouth keeps moving to the end of the utterance.
+ * REGENERATED live after the fix: 11 samples spanning tMs −1737 → 5376 ms (pre-speech through end +
+ * margin); applied transitions at −1737 (pre-speech), 2346 (E, frame 17 → 21 → 23 → 23), 4229 (E →
+ * sil); appliedLastChange 4229 ms against bakedLast 3670 ms (within one 144 ms sample interval).
+ * The mouth keeps moving to the end of the utterance.
  */
 
 const REPO = join(import.meta.dirname, "../../..");
@@ -91,8 +99,12 @@ const WIRE = join(REPO, "apps/ui-xr/src/viseme-runtime-wire.ts");
 const CUE_COUNT = 25;
 const DISTINCT_VALUES = 8;
 
-type Sample = { tMs: number; readings: { viseme: string }[] };
-type Applied = { samples?: Sample[] };
+type Sample = { tMs: number; pageNowMs?: number; readings: { viseme: string }[] };
+type Applied = {
+  tTimebase?: { kind?: string; tMsFormula?: string; note?: string };
+  baked?: { speechStartedAtMs?: number; durationMs?: number } | null;
+  samples?: Sample[];
+};
 type Cue = { start: number; end: number; value: string };
 
 function applied(): Applied {
@@ -182,6 +194,34 @@ describe("the mouth keeps moving to the end of the utterance (#723)", () => {
       "a direct morphTargetInfluences write is the #62 defect returning, and it would satisfy "
         + "clause (1) while bypassing everything #722 landed",
     ).toBe(true);
+  });
+
+  /**
+   * #723 clock check: the artifact must declare what tMs is measured from, and every sample must
+   * derive from that origin. Without it, clause (1)'s last-change comparison is meaningless — a
+   * green on a clock mismatch (e.g. page-relative tMs against utterance-local baked cue times)
+   * is worse than the red it replaced.
+   */
+  it("(5) the artifact declares its tMs origin and every sample derives from it", () => {
+    const report = applied();
+    expect(
+      report.tTimebase?.kind,
+      "tMs origin must be declared — a reader must not have to guess which clock the timeline is on",
+    ).toBe("utterance_local_page_clock");
+    const samples = report.samples ?? [];
+    expect(samples.length, "no samples recorded").toBeGreaterThan(0);
+    const startedAtMs = report.baked?.speechStartedAtMs;
+    for (const s of samples) {
+      expect(typeof s.pageNowMs, "every sample must carry the raw page clock").toBe("number");
+      if (typeof startedAtMs === "number" && typeof s.pageNowMs === "number") {
+        expect(
+          s.tMs,
+          "tMs must be derived from the declared origin (pageNowMs - speechStartedAtMs), not a "
+            + "nominal schedule index — a fallback clock makes the baked-vs-applied comparison "
+            + "vacuous",
+        ).toBe(Math.round(s.pageNowMs - startedAtMs));
+      }
+    }
   });
 });
 
