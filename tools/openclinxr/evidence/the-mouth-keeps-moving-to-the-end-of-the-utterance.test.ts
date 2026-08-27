@@ -50,6 +50,35 @@ import { describe, expect, it } from "vitest";
  * notEvidenceFor: that the mouth LOOKS right, which only a pixel grade can say and which no run here
  *   has examined; that cue timing matches the audio, which Rhubarb owns; that other utterances or
  *   actors behave the same, none of which is measured.
+ *
+ * ## FIXED (#723) — 2026-08-27
+ *
+ * MEASURED BEFORE THE FIX: none of overrun / clamp / stall. The playback loop follows the baked
+ * timeline correctly. In #722's artifact AND a fresh live run the drive's frameIndex advances
+ * monotonically through the bake (6→12→14→17→22→23; 15→17→23) and every morph reading matches the
+ * cue at the drive's clock position; sil begins only when pageNowMs passes
+ * speechStartedAtMs + durationMs (progress ≥ 1 clears activeSpeech). The headless page clock equals
+ * host wall clock (probe: page 202-206 ms per 200 ms host wait), so the utterance really spans its
+ * full 3710 ms and the mouth keeps moving through it.
+ *
+ * The plateau is a SAMPLER artifact, and the "960 ms" came from the sampler's clock, not the drive's:
+ *   - tMs was the nominal schedule index (i * 120 ms) while a scene-graph readback under WebGL load
+ *     costs ~200-400 ms, so the real cadence was ~340 ms and the nominal axis compressed the
+ *     utterance ~2.8x — the applied viseme had actually kept changing to the utterance end.
+ *   - Sampling started ~1.1-1.9 s into the utterance (join-wait overhead), so the opening cues were
+ *     never observed and the plateau looked earlier than it was.
+ *   - The run stopped at nominal 3480 ms — before the baked last change at 3670 ms.
+ *
+ * THE FIX:
+ *   - viseme-runtime-application.ts: tMs is now the actual utterance-local page time
+ *     (pageNowMs − baked.speechStartedAtMs), and the run is sized from the baked duration plus an
+ *     800 ms margin so the series spans the utterance end.
+ *   - viseme-runtime-wire.ts: NamedVisemeDriveResult now records `progress` and `nowMs` (the drive's
+ *     own clock), so an evidence consumer can align a morph reading to the drive's position — the
+ *     rAF-lag alignment ambiguity that made the plateau look ~3x earlier than it began.
+ *
+ * REGENERATED live after the fix: appliedLastChange 3965 ms against bakedLast 3670 ms (within one
+ * 356 ms sample interval), last sample 13355 ms. The mouth keeps moving to the end of the utterance.
  */
 
 const REPO = join(import.meta.dirname, "../../..");
@@ -103,7 +132,7 @@ function sampleIntervalMs(samples: Sample[]): number {
 }
 
 describe("the mouth keeps moving to the end of the utterance (#723)", () => {
-  it.fails("(1) applied visemes keep changing until the baked timeline stops changing", () => {
+  it("(1) applied visemes keep changing until the baked timeline stops changing", () => {
     const samples = applied().samples ?? [];
     expect(samples.length, "no samples recorded").toBeGreaterThan(0);
     const docs = cueDocs();
@@ -124,7 +153,7 @@ describe("the mouth keeps moving to the end of the utterance (#723)", () => {
    * where the defect would show. A fix must make the mouth keep moving AND sample far enough to prove
    * it; once green, this clause also stops a later run from truncating the window to fake clause (1).
    */
-  it.fails("(2) the sample series spans the utterance", () => {
+  it("(2) the sample series spans the utterance", () => {
     const samples = applied().samples ?? [];
     expect(samples.length, "no samples recorded").toBeGreaterThan(0);
     const docs = cueDocs();
@@ -156,7 +185,8 @@ describe("the mouth keeps moving to the end of the utterance (#723)", () => {
   });
 });
 
-// NOT TESTED: whether the plateau is an overrun, a clamp or a stall — all three produce it and the
-// playback loop is unread. Nor whether the mouth looks right at any point, which no pixel grade has
-// examined on this build. Nor whether other utterances or actors show the same plateau; one utterance
-// on one actor is the whole sample.
+// NOT TESTED: whether the mouth LOOKS right at any point, which no pixel grade has examined on this
+// build. Nor whether other utterances or actors show the same plateau — one utterance on one actor
+// is the whole sample. The plateau mechanism itself is measured and is a sampler clock artifact
+// (see the FIXED block): the drive follows the bake, and the applied viseme keeps changing to the
+// utterance end.

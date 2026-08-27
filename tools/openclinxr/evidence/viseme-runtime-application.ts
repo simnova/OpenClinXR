@@ -51,6 +51,8 @@ export type VisemeRuntimeApplicationReport = {
     utteranceId: string;
     cueCount: number;
     durationMs: number;
+    speechStartedAtMs?: number;
+    attachedAtMs?: number;
   } | null;
   samples: Array<{
     tMs: number;
@@ -61,6 +63,8 @@ export type VisemeRuntimeApplicationReport = {
       influence: number;
       frameIndex: number;
       frameCount: number;
+      progress: number;
+      nowMs: number | null;
     } | null;
   }>;
   applied: AppliedVisemeRow[];
@@ -113,6 +117,8 @@ export async function readLiveVisemeApplication(page: Page): Promise<{
     influence: number;
     frameIndex: number;
     frameCount: number;
+    progress: number;
+    nowMs: number | null;
     weights: Record<string, number>;
     jawOpenRadians: number;
     availableTargets: string[];
@@ -184,6 +190,8 @@ export async function readLiveVisemeApplication(page: Page): Promise<{
             influence: namedDrive.influence,
             frameIndex: namedDrive.frameIndex,
             frameCount: namedDrive.frameCount,
+            progress: typeof namedDrive.progress === "number" ? namedDrive.progress : 0,
+            nowMs: typeof namedDrive.nowMs === "number" ? namedDrive.nowMs : null,
             weights: namedDrive.weights,
             jawOpenRadians: namedDrive.jawOpenRadians,
             availableTargets: Array.isArray(namedDrive.availableTargets) ? namedDrive.availableTargets.slice(0, 40) : [],
@@ -206,6 +214,8 @@ export async function readLiveVisemeApplication(page: Page): Promise<{
       influence: number;
       frameIndex: number;
       frameCount: number;
+      progress: number;
+      nowMs: number | null;
       weights: Record<string, number>;
       jawOpenRadians: number;
       availableTargets: string[];
@@ -276,11 +286,33 @@ export async function measureVisemeRuntimeApplication(input?: {
           applied = [];
           const appliedByKey = new Map<string, AppliedVisemeRow>();
           const SAMPLE_STEP_MS = 120;
-          const SAMPLE_COUNT = 30;
+          // #723: the marker's speechStartedAtMs is the page clock at speech start; each sample's
+          // pageNowMs is the same clock at read time. The run is sized from the BAKED duration so
+          // sampling continues past the utterance end (the plateau the defect lives on is the end,
+          // and clause (2) requires the series to span it). The nominal i*120 ms schedule is not
+          // the real cadence — a scene-graph evaluate under WebGL load costs ~200-400 ms each —
+          // so tMs must be the actual utterance-local page time, not the schedule index.
+          const join = await readLiveVisemeApplication(page);
+          const startedAtMs = typeof join.baked?.speechStartedAtMs === "number"
+            ? join.baked.speechStartedAtMs
+            : null;
+          const bakedDurationMs = typeof join.baked?.durationMs === "number"
+            ? join.baked.durationMs
+            : null;
+          const END_MARGIN_MS = 800;
+          const SAMPLE_COUNT = startedAtMs !== null && bakedDurationMs !== null
+            ? Math.ceil((bakedDurationMs + END_MARGIN_MS) / SAMPLE_STEP_MS) + 2
+            : 30;
           for (let i = 0; i < SAMPLE_COUNT; i += 1) {
-            const tMs = i * SAMPLE_STEP_MS;
-            if (tMs > 0) await page.waitForTimeout(SAMPLE_STEP_MS);
+            if (i > 0) await page.waitForTimeout(SAMPLE_STEP_MS);
             const live = await readLiveVisemeApplication(page);
+            // Utterance-local time on the page clock (the drive's clock). The nominal
+            // i*SAMPLE_STEP_MS schedule is not the cadence the page actually ran at; a
+            // scene-graph readback under WebGL load costs far more than 120 ms, so the
+            // index-based clock made the plateau look ~3x earlier than it really began.
+            const tMs = startedAtMs !== null && typeof live.speech.pageNowMs === "number"
+              ? Math.max(0, Math.round(live.speech.pageNowMs - startedAtMs))
+              : i * SAMPLE_STEP_MS;
             for (const row of live.readings) {
               const key = `${row.viseme}|${row.morphTargetName}`;
               const prev = appliedByKey.get(key);
@@ -296,6 +328,8 @@ export async function measureVisemeRuntimeApplication(input?: {
                     influence: live.namedDrive.influence,
                     frameIndex: live.namedDrive.frameIndex,
                     frameCount: live.namedDrive.frameCount,
+                    progress: live.namedDrive.progress,
+                    nowMs: live.namedDrive.nowMs,
                   }
                 : null,
             });
