@@ -30,6 +30,27 @@ self-correcting under load, and reporting it as chronic buries the ones that nev
 
 Read the report. Do not re-measure what it already counted.
 
+### Do NOT read the board a second time — the audit already did
+
+Measured 2026-08-27: GraphQL fell from 5000 to 4050 across a few iterations, and the board read
+failed outright twice, serving snapshots 1,073 s and 3,345 s old. A full read of a 717-item board
+costs roughly seven paginated calls, and the loop was paying it twice per iteration — once inside
+`pnpm openclaw:supervisor`, once in my own `gh project item-list --limit 900` to check Factory and
+Priority fields.
+
+Lowering the limit does not help: 900 and 5000 both fetch the whole board.
+
+Read these instead:
+
+| need | source |
+|---|---|
+| duty measurements, ready membership | `.openclinxr/openclaw/supervisor-audit-latest.json` |
+| Factory / Priority fields the audit omits | `.openclinxr/openclaw/board-snapshot-cache.json`, carrying its `fetchedAtIso` |
+| a card you are about to DISPATCH | a fresh fail-closed read — never dispatch from a stale snapshot |
+
+The audit already forces one fresh attempt with `ttlMs: 0`, so a direct read in the same iteration is
+pure duplication. Board WRITES (`board-cli factory`, `gh project item-edit`) are cheap and stay.
+
 ### The audit needs GitHub budget
 
 It reads the full board (~3.3 MB, paginated) and all open issues. **Check `gh api rate_limit` first.**
