@@ -46,7 +46,9 @@ import { plantedRedCount } from "./openclaw-sweep.js";
 function dispatchProofVerdict(
   root: string,
   issue: number,
-): { proofsOk: boolean; failing: string[] } | undefined {
+): { proofsOk: boolean; failing: string[] } | { phase: string } | undefined {
+  let newestSession: string | undefined;
+  let newestPhase: string | undefined;
   let lines: string[];
   try {
     lines = readFileSync(join(root, ".openclinxr/openclaw/worker-sessions.jsonl"), "utf8")
@@ -58,28 +60,50 @@ function dispatchProofVerdict(
   for (let i = lines.length - 1; i >= 0; i -= 1) {
     const line = lines[i]!;
     if (!line.includes(`"slice":"issue-${issue}"`)) continue;
+    let row: {
+      proofsOk?: boolean;
+      phase?: string;
+      sessionId?: string;
+      proofs?: Array<{ rule?: string; passed?: boolean }>;
+    };
     try {
-      const row = JSON.parse(line) as {
-        proofsOk?: boolean;
-        proofs?: Array<{ rule?: string; passed?: boolean }>;
-      };
-      if (typeof row.proofsOk !== "boolean") continue;
-      const failing = (row.proofs ?? [])
-        .filter((entry) => entry.passed === false)
-        .map((entry) => String(entry.rule ?? "").split(":")[0] ?? "")
-        .filter(Boolean);
-      return { proofsOk: row.proofsOk, failing: [...new Set(failing)] };
+      row = JSON.parse(line) as typeof row;
     } catch {
       continue;
     }
+    /**
+     * #722: bind to the NEWEST SESSION, then answer only about that session.
+     *
+     * The first version skipped any row without a boolean proofsOk and walked on, so a `spawned`
+     * or `died` row hid the newest attempt and an OLDER session's verdict came back. Measured on
+     * issue-638: newest session spawned 20:05 and DIED 20:06, while a different session ninety
+     * minutes earlier carried proofsOk:true — and the audit reported "proofs passed".
+     */
+    if (newestSession === undefined) newestSession = row.sessionId ?? "";
+    if ((row.sessionId ?? "") !== newestSession) break;
+    if (typeof row.proofsOk !== "boolean") {
+      newestPhase = newestPhase ?? row.phase;
+      continue;
+    }
+    const failing = (row.proofs ?? [])
+      .filter((entry) => entry.passed === false)
+      .map((entry) => String(entry.rule ?? "").split(":")[0] ?? "")
+      .filter(Boolean);
+    return { proofsOk: row.proofsOk, failing: [...new Set(failing)] };
   }
-  return undefined;
+  return newestPhase === undefined ? undefined : { phase: newestPhase };
 }
 
 /** #721: the dispatch-record half of the `why` line — a read fact, never an assumption. */
 export function describeDispatchProofs(root: string, issue: number): string {
   const verdict = dispatchProofVerdict(root, issue);
   if (!verdict) return " and no dispatch record — verification state UNKNOWN";
+  // #722: the newest session exists but carries no verdict — say which state it is in rather than
+  // reaching past it for an older session's answer.
+  if (!("proofsOk" in verdict)) {
+    const phase = verdict.phase === "died" ? "DIED" : verdict.phase === "spawned" ? "IN FLIGHT" : verdict.phase;
+    return `, and the newest dispatch session is ${phase} — it carries no proof verdict`;
+  }
   if (!verdict.proofsOk) {
     const which = verdict.failing.length > 0 ? ` (${verdict.failing.join(", ")})` : "";
     return `, and the dispatch record says proofs FAILED${which}`;

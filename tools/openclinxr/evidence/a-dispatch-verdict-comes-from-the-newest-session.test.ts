@@ -51,7 +51,7 @@ function rowsFor(issue: number): Array<{ phase?: string; proofsOk?: boolean }> {
 }
 
 describe("#722 a dispatch verdict comes from the NEWEST session, not an older one", () => {
-  it.fails("(1) RED: a card whose newest session died is not reported as passing", () => {
+  it("(1) a card whose newest session died is not reported as passing", () => {
     const text = describeDispatchProofs(REPO, DIED_NEWEST);
     // The newest session died. Reporting a pass is the defect; any of died / in flight / unknown
     // would be honest.
@@ -79,3 +79,16 @@ describe("#722 a dispatch verdict comes from the NEWEST session, not an older on
     expect(describeDispatchProofs(REPO, 999_999)).toContain("UNKNOWN");
   });
 });
+
+/**
+ * ## FIXED (#722)
+ *
+ * dispatchProofVerdict now binds to the newest SESSION id on its first matching row and stops at
+ * the session boundary. If that session carries no verdict it returns its phase, and
+ * describeDispatchProofs renders DIED or IN FLIGHT rather than reaching past it.
+ *
+ * Measured after the fix:
+ *   #638  the newest dispatch session is DIED — it carries no proof verdict
+ *   #714  the dispatch record says proofs FAILED (live, changed)
+ *   #999999  no dispatch record — verification state UNKNOWN
+ */

@@ -215,8 +215,17 @@ describe("the supervisor reports what is not self-correcting", () => {
   });
 
   it("(7) DUTY 3: a card claiming done with NO commit citing it fails verification", () => {
-    // 999999 is not an issue in this repo, so nothing can cite it.
-    const c = verifyDoneClaim(process.cwd(), 999999, "Landed");
+    /**
+     * The sentinel must be a number NO COMMIT MESSAGE CONTAINS, in any form.
+     *
+     * 999999 stopped working on 2026-08-27: commit 931d395d quoted "#999999  and no dispatch
+     * record — verification state UNKNOWN" as sample output in its body, so `git log --grep`
+     * matched and this card suddenly had a commit citing it. The assertion is unchanged; only the
+     * fixture moved, because a fixture value that later appears in prose is not a fixture.
+     *
+     * Do not quote issue-number-shaped literals in commit messages.
+     */
+    const c = verifyDoneClaim(process.cwd(), 987_654_321, "Landed");
     expect(c.ok).toBe(false);
     expect(c.commitOnMain).toBe(false);
     expect(c.why).toContain("no commit cites");
