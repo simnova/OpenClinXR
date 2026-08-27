@@ -77,13 +77,11 @@ async function main(): Promise<void> {
     triangles,
   };
   writeFileSync(OUT, `${JSON.stringify(artifact, null, 2)}\n`);
-  // eslint-disable-next-line no-console
-  console.log(`wrote ${OUT}`);
-  // eslint-disable-next-line no-console
-  console.log(JSON.stringify(artifact, null, 2));
+  process.stdout.write(`wrote ${OUT}\n`);
+  process.stdout.write(`${JSON.stringify(artifact, null, 2)}\n`);
 }
 
 main().catch((error: unknown) => {
-  console.error(error);
+  process.stderr.write(`${error instanceof Error ? (error.stack ?? error.message) : String(error)}\n`);
   process.exitCode = 1;
 });
