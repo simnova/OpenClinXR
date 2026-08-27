@@ -55,6 +55,18 @@ import { describe, expect, it } from "vitest";
  * notEvidenceFor: that the counts are correct — clause (1) proves they describe the CURRENT files,
  *   not that the triangle arithmetic was right; that any consumer reacts correctly to a stale
  *   artifact, which no clause here reaches; that the generator runs in CI, a separate question.
+ *
+ * ## FIXED (#707)
+ *
+ * The artifact now carries a per-source `fingerprints` map (bytes + sha256), emitted by
+ * `tools/openclinxr/measure-station-geometry.ts` from the bytes it already reads. The gate is
+ * `findStaleMeasuredGeometry(doc, repoRoot)` in
+ * `packages/openclinxr/asset-registry/src/measured-station-geometry-freshness.ts`: it compares each
+ * recorded fingerprint against the file and returns the assetIds whose recorded content disagrees —
+ * fail-closed on a missing fingerprint, a missing file, or a size/hash mismatch. Clauses (1) and (2)
+ * flipped from `it.fails` to `it`. Consumers are unchanged and keep trusting the artifact; the gate
+ * is what makes that trust earned. Counterweight (4) still pins the three counts, so regenerating
+ * alone is not a pass.
  */
 
 const REPO = join(import.meta.dirname, "../../..");
@@ -84,7 +96,7 @@ function sha256Of(path: string): string {
 }
 
 describe("the measured geometry artifact knows when it is stale (#707)", () => {
-  it.fails("(1) every source carries a fingerprint that matches the bytes on disk now", () => {
+  it("(1) every source carries a fingerprint that matches the bytes on disk now", () => {
     const doc = artifact();
     const sources = doc.sources ?? {};
     expect(Object.keys(sources).length, "no sources recorded").toBeGreaterThan(0);
@@ -102,7 +114,7 @@ describe("the measured geometry artifact knows when it is stale (#707)", () => {
     }
   });
 
-  it.fails("(2) a corrupted fingerprint is DETECTED — the comparison fails closed", async () => {
+  it("(2) a corrupted fingerprint is DETECTED — the comparison fails closed", async () => {
     // The destructive probe lives in the contract rather than in a note beside it: a checker that
     // reports nothing would satisfy clause (1) forever, because clause (1) only reads a matching
     // artifact.

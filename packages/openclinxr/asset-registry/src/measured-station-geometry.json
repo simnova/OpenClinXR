@@ -1,6 +1,6 @@
 {
   "generatedBy": "tools/openclinxr/measure-station-geometry.ts",
-  "generatedAt": "2026-08-27T03:50:02.892Z",
+  "generatedAt": "2026-08-27T04:21:25.995Z",
   "sources": {
     "patient_robert_hayes_character": "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
     "nurse_maria_alvarez_character": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
@@ -10,5 +10,19 @@
     "patient_robert_hayes_character": 64802,
     "nurse_maria_alvarez_character": 38913,
     "spouse_anna_hayes_character": 33623
+  },
+  "fingerprints": {
+    "patient_robert_hayes_character": {
+      "bytes": 7116988,
+      "sha256": "7bd12d06aec497a939aa62301c73274cf23e6dd7b1da6d5c085db6c17f57fd4a"
+    },
+    "nurse_maria_alvarez_character": {
+      "bytes": 8377012,
+      "sha256": "b98c8b3411fe2bc7e0275cf2d1ab465b447f701319d9d446200f5b109511cf61"
+    },
+    "spouse_anna_hayes_character": {
+      "bytes": 8391984,
+      "sha256": "15befdc850c3df189e2c1e12fdae1192b12e3baa2d8d34790d7daf0b7c53ac8d"
+    }
   }
 }
