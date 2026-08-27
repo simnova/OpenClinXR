@@ -29,6 +29,38 @@ import { describe, expect, it } from "vitest";
  *   compares to an intact actor in the same frame.
  * notEvidenceFor: that any other station is affected, that the shipped GLB is corrupt, that the merged
  *   doorway figures (#527) share this mechanism, or that room lighting (#526) is implicated.
+ *
+ * ## FIXED (#712) — MEASURED 2026-08-27: the upper body is NOT shattered in the live scene graph.
+ *
+ * Live scene-graph sample at the capture camera (roomCam(derived) -3.00,1.71,2.10, #342 framing),
+ * frames advanced, assets settled, patient + nurse in the SAME frame (scene-sample.json,
+ * treeStamp head f4d433142d49):
+ *
+ *   patient_robert_hayes_v1 (40 meshes): max dev from bind 2.237 m (gown), AABB ratio <= 0.894
+ *   nurse_maria_alvarez_v1   (33 meshes): max dev from bind 1.052 m, AABB ratio <= 0.932
+ *
+ * The deviation gap (2.1x) is the reclined pose: the bind is a standing A/T-pose and the runtime
+ * poses the patient reclined on the deck, so vertices move up to the body diagonal. The shatter
+ * discriminator is AABB compactness: EVERY patient skinned mesh keeps its current world AABB
+ * within 1.25x of its own bind AABB (measured max 0.894 — the body is CONTRACTED, not blown out),
+ * zero non-finite vertices, healthy normals, opaque MeshStandardMaterial, identity bindMatrix,
+ * no flatShading/wireframe, and no morph influences on the gown.
+ *
+ * The cyan "shards" ARE the gown (openclinxr_real_garment_from_phenotype_hospital_gown, #73c2e0,
+ * 28967 tris). Projected through the real capture camera its bind AABB lands at screen
+ * [114,333]-[678,612] and the cyan pixels of BOTH the original capture and a fresh capture land at
+ * [144,338]-[659,479] (2929 vs 2893 pixels — byte-similar) — the pixels are exactly where the
+ * measured geometry is. The gown is NOT displaced.
+ *
+ * VERDICT: the shatter is NOT a skinning-weight / bone-transform / morph / vertex displacement.
+ * The appearance is the gown's SURFACE rendering — sparse triangle coverage of its projected
+ * extent (upper half only; the skirt is naturally occluded behind the torso from this camera),
+ * in the unlit room (#526). Per the card, no product edit is warranted on the geometry side; the
+ * residual visual (garment surface quality vs unlit-room lighting) is a pixel-grade question for
+ * the orchestrator and the lighting part belongs to #526.
+ *
+ * Instrument: tools/openclinxr/evidence/the-ed-patient-upper-body-is-not-shattered.ts (CLI writes
+ * .openclinxr/evidence/ed-patient-upper-body/scene-sample.json).
  */
 
 const ROOT = process.cwd();
@@ -57,7 +89,7 @@ function doc(): Doc {
 const actorOf = (id: string): Sample | undefined => (doc().actors ?? []).find((a) => a.actorId === id);
 
 describe("the ED patient upper body is not shattered", () => {
-  it.fails("(1) a live scene-graph sample of the patient exists, taken at the capture camera", () => {
+  it("(1) a live scene-graph sample of the patient exists, taken at the capture camera", () => {
     const a = actorOf(PATIENT);
     expect(
       a,
@@ -70,7 +102,7 @@ describe("the ED patient upper body is not shattered", () => {
       .toMatch(/^[0-9a-f]{7,40}$/);
   });
 
-  it.fails("(2) the nurse is sampled in the SAME frame as the known-good column", () => {
+  it("(2) the nurse is sampled in the SAME frame as the known-good column", () => {
     const nurse = actorOf(NURSE);
     expect(
       nurse,
@@ -81,7 +113,7 @@ describe("the ED patient upper body is not shattered", () => {
     expect((nurse?.meshes ?? []).length, `${NURSE}: no meshes sampled`).toBeGreaterThan(0);
   });
 
-  it.fails("(3) the patient's upper-body deviation is recorded against the nurse's, either way", () => {
+  it("(3) the patient's upper-body deviation is recorded against the nurse's, either way", () => {
     const p = actorOf(PATIENT);
     const n = actorOf(NURSE);
     for (const [id, a] of [[PATIENT, p], [NURSE, n]] as const) {
@@ -114,7 +146,9 @@ describe("the ED patient upper body is not shattered", () => {
     // Search the CLAUSE BODIES only. A first draft scanned from `describe(` and matched its own
     // regex literal — a self-referencing guard that fails on the file it is guarding. Same family as
     // establishing absence from a truncated grep: the instrument was inside its own search space.
-    const body = src.slice(src.indexOf("it.fails(\"(1)"), src.indexOf("it(\"(5)"));
+    // The start anchor is the post-flip form: the mandatory it.fails -> it flip destroys the
+    // original anchor, which would silently empty the scan range and make this guard vacuous.
+    const body = src.slice(src.indexOf("it(\"(1)"), src.indexOf("it(\"(5)"));
     // Tokens split so this literal cannot match itself.
     const NEIGHBOUR_TOKENS = ["ward_" + "delirium", "ao" + "Map", "light" + "map", "examHud" + "NodeCount"];
     expect(
