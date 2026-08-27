@@ -64,6 +64,19 @@ import { describe, expect, it } from "vitest";
  *   asserts an appearance; that the stage's 512 default suits these subjects, since the hand-run
  *   pulse-oximeter evidence swept 2048 downward; that the shoe's verdict generalises to curved
  *   subjects as a class, which one subject cannot establish.
+ *
+ * ## FIXED (#702)
+ *
+ * The landed `--bake` stage has now run on both boxy subjects (pulse-oximeter and glucometer), each
+ * at a 25k bare + 25k mapped pair, with `formPredictionBeforeBake` recorded in
+ * `boxy-subject-bake-sweep.json` BEFORE the bakes ran. Both mapped variants carry stage-written
+ * `bake-report.json` files (status "baked") under `boxy-subject-bake-reports/`, and the six renders
+ * (bare, mapped, 80k reference per subject) are tracked under `boxy-subject-bake-renders/`.
+ *
+ * Bytes recorded, not ranked: pulse-oximeter mapped 25k = 8,682,420 (vs shipped 9,928,748, ~12.6%
+ * under — matching the hand-run figure the stage was built against); glucometer mapped 25k =
+ * 9,713,844 (vs shipped 10,977,320). All four gradedVerdict values are `inconclusive_blocked`:
+ * this sweep was produced by a text-only worker and the render is the only oracle.
  */
 
 const REPO = join(import.meta.dirname, "../../..");
@@ -97,7 +110,7 @@ function sweepOrNull(): Sweep | null {
 }
 
 describe("the bake stage has run on a subject where the map wins (#702)", () => {
-  it.fails("(1) both subjects have a bare and a mapped variant at the same target, predictions first", () => {
+  it("(1) both subjects have a bare and a mapped variant at the same target, predictions first", () => {
     const sweep = sweepOrNull();
     expect(
       sweep !== null,
@@ -124,7 +137,7 @@ describe("the bake stage has run on a subject where the map wins (#702)", () => 
     }
   });
 
-  it.fails("(2) each mapped variant was produced by the stage, not by hand", () => {
+  it("(2) each mapped variant was produced by the stage, not by hand", () => {
     const sweep = sweepOrNull();
     expect(sweep !== null, `${SWEEP} must exist`).toBe(true);
     for (const r of sweep!.rungs.filter((x) => x.mapped)) {

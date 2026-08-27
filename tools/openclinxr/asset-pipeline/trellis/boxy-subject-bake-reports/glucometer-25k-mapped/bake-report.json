@@ -1,0 +1,10 @@
+{
+  "high": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-702/.openclinxr/evidence/trellis-escape-hatch/glucometer/optimize/raw-copy.glb",
+  "low": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-702/.openclinxr/evidence/trellis-bake-issue702/glucometer/optimize/iter1-stretch25k.glb",
+  "resolution": 512,
+  "objectDiagonalMeters": 1.21977,
+  "cageExtrusionMeters": 0.0244,
+  "maxRayDistanceMeters": 0.04879,
+  "status": "baked",
+  "normalMapPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-702/.openclinxr/evidence/trellis-bake-issue702/glucometer/bake-25k/bake/baked-normal.png"
+}
