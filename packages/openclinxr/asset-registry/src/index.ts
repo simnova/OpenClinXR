@@ -39,13 +39,10 @@ export {
   type ScenarioOptimizationEvidence,
 } from "./scenario-readiness-evidence.js";
 
+// #715: measured-station-geometry-freshness.js is node-only (node:crypto/fs/path) and must
+// not be value-reachable from the "." client entry — browsers cannot resolve node: builtins.
+// Node consumers import "@openclinxr/asset-registry/measured-station-geometry-freshness".
 import measuredStationGeometry from "./measured-station-geometry.json" with { type: "json" };
-
-export {
-  findStaleMeasuredGeometry,
-  freshMeasuredTriangleCounts,
-  type MeasuredGeometryFingerprint,
-} from "./measured-station-geometry-freshness.js";
 
 export type MeasuredStationGeometry = {
   generatedBy: string;
