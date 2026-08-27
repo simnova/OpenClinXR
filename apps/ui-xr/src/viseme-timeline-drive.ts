@@ -11,7 +11,14 @@
  * - Phoneme → viseme: exact `viseme_${PHONEME}` when present; `sil`/`silence` → `viseme_silence`;
  *   case-insensitive match against `availableTargets`; unmapped phonemes yield zero weights
  *   (no invented target names).
+ * - #722: the final resolution pass goes through `resolveMorphTarget` — the SAME identity /
+ *   case-variant / MPFB FACS alias map the applier uses (#308/#353). A body that carries some
+ *   `viseme_*` names plus FACS mouth units (the hybrid rail) would otherwise resolve only the
+ *   identity-matching tokens and drop AA/IH/OH/OU/FV/TH/L to all-zero frames while the applier
+ *   could have aliased them. Driver and applier cannot disagree when they share the resolver.
  */
+
+import { resolveMorphTarget } from "@openclinxr/asset-registry";
 
 export type PhonemeCue = {
   phoneme: string;
@@ -180,6 +187,22 @@ export function resolveVisemeTarget(
   for (const target of availableTargets) {
     if (target.toLowerCase() === `viseme_${alias}`.toLowerCase()) return target;
     if (target.toLowerCase() === alias.toLowerCase()) return target;
+  }
+
+  // #722 — the applier's own resolution pass: identity / case-variant / MPFB FACS alias map.
+  // A HYBRID body (some viseme_* names + FACS mouth units) reaches the non-identity baked
+  // tokens this way; the canonical name here is the one `applyVisemeWeights` will also resolve,
+  // so the frame's active target is exactly the target the applier writes. A body with NO
+  // viseme_* names keeps the #353 canonical-fallback path (driveTargets = canonical names),
+  // which the applier aliases — resolving to the FACS name here would change that frame's
+  // reported active name for no behavioural difference.
+  const hasVisemeTargets = availableTargets.some((target) =>
+    target.toLowerCase().startsWith("viseme_"),
+  );
+  const canonical = canonicalVisemeName(phoneme);
+  if (canonical !== null && hasVisemeTargets) {
+    const viaApplier = resolveMorphTarget(canonical, new Set(availableTargets));
+    if (viaApplier !== null) return viaApplier;
   }
 
   return null;

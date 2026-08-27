@@ -1,0 +1,30 @@
+{
+  "metadata": {
+    "soundFile": "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v2/stage-lip-sync/utterance-1baeedf3b2.wav",
+    "duration": 2.92
+  },
+  "mouthCues": [
+    { "start": 0.00, "end": 0.10, "value": "X" },
+    { "start": 0.10, "end": 0.18, "value": "B" },
+    { "start": 0.18, "end": 0.25, "value": "G" },
+    { "start": 0.25, "end": 0.53, "value": "B" },
+    { "start": 0.53, "end": 0.67, "value": "C" },
+    { "start": 0.67, "end": 0.74, "value": "G" },
+    { "start": 0.74, "end": 1.09, "value": "B" },
+    { "start": 1.09, "end": 1.15, "value": "H" },
+    { "start": 1.15, "end": 1.20, "value": "C" },
+    { "start": 1.20, "end": 1.41, "value": "B" },
+    { "start": 1.41, "end": 1.48, "value": "C" },
+    { "start": 1.48, "end": 1.56, "value": "A" },
+    { "start": 1.56, "end": 1.62, "value": "F" },
+    { "start": 1.62, "end": 2.02, "value": "B" },
+    { "start": 2.02, "end": 2.09, "value": "C" },
+    { "start": 2.09, "end": 2.16, "value": "D" },
+    { "start": 2.16, "end": 2.24, "value": "A" },
+    { "start": 2.24, "end": 2.28, "value": "C" },
+    { "start": 2.28, "end": 2.46, "value": "B" },
+    { "start": 2.46, "end": 2.60, "value": "C" },
+    { "start": 2.60, "end": 2.88, "value": "B" },
+    { "start": 2.88, "end": 2.92, "value": "X" }
+  ]
+}

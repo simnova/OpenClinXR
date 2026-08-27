@@ -1,0 +1,25 @@
+{
+  "metadata": {
+    "soundFile": "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-lip-sync/utterance-41a6922ade.wav",
+    "duration": 2.94
+  },
+  "mouthCues": [
+    { "start": 0.00, "end": 0.07, "value": "X" },
+    { "start": 0.07, "end": 0.15, "value": "A" },
+    { "start": 0.15, "end": 0.21, "value": "C" },
+    { "start": 0.21, "end": 0.40, "value": "B" },
+    { "start": 0.40, "end": 0.54, "value": "C" },
+    { "start": 0.54, "end": 0.68, "value": "B" },
+    { "start": 0.68, "end": 0.75, "value": "G" },
+    { "start": 0.75, "end": 1.03, "value": "B" },
+    { "start": 1.03, "end": 1.24, "value": "C" },
+    { "start": 1.24, "end": 1.62, "value": "B" },
+    { "start": 1.62, "end": 1.70, "value": "C" },
+    { "start": 1.70, "end": 2.05, "value": "B" },
+    { "start": 2.05, "end": 2.19, "value": "D" },
+    { "start": 2.19, "end": 2.33, "value": "F" },
+    { "start": 2.33, "end": 2.41, "value": "A" },
+    { "start": 2.41, "end": 2.93, "value": "B" },
+    { "start": 2.93, "end": 2.94, "value": "X" }
+  ]
+}

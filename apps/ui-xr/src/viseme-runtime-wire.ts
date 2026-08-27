@@ -23,7 +23,16 @@ import {
   applyVisemeWeights,
   type MorphTargetLike,
 } from "./viseme-morph-apply.js";
+export {
+  attachBakedCuesToSpeech,
+  bakedCuesDurationMs,
+  loadBakedMouthCuesForUtterance,
+  mouthCuesToPhonemeCues,
+  type BakedMouthCuesLoad,
+  type MouthCuesDocument,
+} from "./viseme-baked-cues.js";
 export { resolveMorphIndex } from "./viseme-morph-apply.js";
+export type { PhonemeCue } from "./viseme-timeline-drive.js";
 
 /** Dialogue / gen-drive tokens → ARKit-style phoneme labels resolveVisemeTarget understands. */
 const DIALOGUE_PHONEME_TO_ARKIT: Readonly<Record<string, string>> = {
@@ -270,18 +279,24 @@ function activeVisemeFromWeights(weights: Record<string, number>): { name: strin
 /**
  * Drive named viseme_* morphs on every mesh under root that has a morph dictionary.
  * Reads available target names from the live mesh graph; never invents names.
+ * When `bakedCues` is supplied, the timeline is the bake's real Rhubarb timing instead of
+ * the text-derived dwell model (#722); `phonemeSequence` then only supplies the no-cue fallback.
  */
 export function applyDialogueVisemeTimelineToRoot(
   root: MorphRootLike,
   input: {
     phonemeSequence: readonly string[];
     progress: number;
+    bakedCues?: readonly PhonemeCue[];
   },
 ): NamedVisemeDriveResult {
   const availableTargets = collectMorphTargetNames(root);
-  const cues = mapDialoguePhonemesToCues(
-    input.phonemeSequence.length > 0 ? input.phonemeSequence : ["sil"],
-  );
+  const cues =
+    input.bakedCues && input.bakedCues.length > 0
+      ? input.bakedCues
+      : mapDialoguePhonemesToCues(
+          input.phonemeSequence.length > 0 ? input.phonemeSequence : ["sil"],
+        );
   const { frames } = driveVisemeTimeline({ phonemes: cues, availableTargets });
   const { frame, index } = pickFrame(frames, input.progress);
   const weights = frame.weights;
@@ -369,13 +384,17 @@ export type SpeechSlotLike = {
         phonemeSequence: readonly string[];
         startedAtMs: number;
         durationMs: number;
+        /** Baked Rhubarb cue timeline loaded from the served cue files (#722), when one exists. */
+        bakedCues?: readonly PhonemeCue[];
       }
     | undefined;
 };
 
 /**
  * Thin speech-path entry: phoneme timeline from active dialogue → named morph weights.
- * When speech ends, callers should apply silence via applyDialogueVisemeTimelineToRoot({ sil }).
+ * When `activeSpeech.bakedCues` is present, the baked timeline drives instead of the
+ * text-derived dwell model (#722). When speech ends, callers should apply silence via
+ * applyDialogueVisemeTimelineToRoot({ sil }).
  */
 export function applyNamedSpeechVisemes(slot: SpeechSlotLike, nowMs: number = performance.now()): NamedVisemeDriveResult {
   const speech = slot.activeSpeech;
@@ -392,6 +411,7 @@ export function applyNamedSpeechVisemes(slot: SpeechSlotLike, nowMs: number = pe
   return applyDialogueVisemeTimelineToRoot(slot.root, {
     phonemeSequence: speech.phonemeSequence,
     progress,
+    ...(speech.bakedCues && speech.bakedCues.length > 0 ? { bakedCues: speech.bakedCues } : {}),
   });
 }
 

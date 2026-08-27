@@ -86,4 +86,38 @@ describe("a phoneme timeline actually moves the mouth (#45)", () => {
       expect(REAL_TARGETS, `drove a target the mesh does not have: ${target}`).toContain(target);
     }
   });
+
+  /** #722 — a hybrid body (some viseme_* names + MPFB FACS mouth units) drives the baked tokens. */
+  it("resolves non-identity tokens through the applier's FACS alias map on the hybrid rail", async () => {
+    const mod = await load();
+    const drive = mod["driveVisemeTimeline"] as Drive | undefined;
+    expect(drive).toBeTypeOf("function");
+    // Mirrors the shipped hybrid patient mesh: a few viseme_* names + MPFB FACS mouth units.
+    const hybrid = [
+      "viseme_sil", "viseme_E",
+      "mouth-compression", "mouth-open", "mouth-retraction", "mouth-part-later",
+      "mouth-eversion", "mouth-protusion", "mouth-elevation", "mouth-parling",
+    ];
+    const { frames } = drive!({
+      phonemes: [
+        { phoneme: "AA", atSecond: 0 },
+        { phoneme: "IH", atSecond: 0.2 },
+        { phoneme: "OH", atSecond: 0.4 },
+      ],
+      availableTargets: hybrid,
+    });
+    const active = frames.map((f) =>
+      Object.entries(f.weights).filter(([, w]) => w > 0.5).map(([t]) => t),
+    );
+    // AA -> mouth-open, IH -> mouth-part-later, OH -> mouth-eversion (the FACS alias map).
+    expect(active[0]).toContain("mouth-open");
+    expect(active[1]).toContain("mouth-part-later");
+    expect(active[2]).toContain("mouth-eversion");
+    // And every driven target is one the mesh really has — never invented.
+    for (const frame of frames) {
+      for (const target of Object.keys(frame.weights)) {
+        expect(hybrid, `drove a target the hybrid mesh does not have: ${target}`).toContain(target);
+      }
+    }
+  });
 });
