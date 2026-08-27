@@ -1,0 +1,724 @@
+{
+  "schemaVersion": "openclinxr.arm-metric-decomposition.v1",
+  "kind": "arm_metric_decomposition",
+  "label": "stability",
+  "generatedAt": "2026-08-27T02:33:32.866Z",
+  "measure": {
+    "scenarios": [
+      "psych_suicidal_ideation_safety_v1",
+      "ward_delirium_med_rec_v1",
+      "oncology_bad_news_family_v1",
+      "peds_fever_v1",
+      "telehealth_diabetes_health_literacy_v1"
+    ],
+    "runCount": 3,
+    "rowsFromRun": 3
+  },
+  "rows": [
+    {
+      "scenarioId": "psych_suicidal_ideation_safety_v1",
+      "actorId": "patient_jordan_reed_v1",
+      "side": "L",
+      "wristLateralOffsetMeters": 0.1300160265208975,
+      "wristForwardOffsetMeters": 0.11659204600457289,
+      "wristHorizontalRadiusMeters": 0.17463640039755504,
+      "halfShoulderSpanMeters": 0.16377662813562904,
+      "halfShoulderSpanLateralMeters": 0.16376631525889396,
+      "abductionRatio": 0.7939119001081419,
+      "ratioSpace": "lateral"
+    },
+    {
+      "scenarioId": "psych_suicidal_ideation_safety_v1",
+      "actorId": "patient_jordan_reed_v1",
+      "side": "R",
+      "wristLateralOffsetMeters": 0.1396979182664085,
+      "wristForwardOffsetMeters": 0.1165917983793892,
+      "wristHorizontalRadiusMeters": 0.18195921470842935,
+      "halfShoulderSpanMeters": 0.16377662813562904,
+      "halfShoulderSpanLateralMeters": 0.16376631525889396,
+      "abductionRatio": 0.8530320661215566,
+      "ratioSpace": "lateral"
+    },
+    {
+      "scenarioId": "psych_suicidal_ideation_safety_v1",
+      "actorId": "behavioral_health_nurse_owens_v1",
+      "side": "L",
+      "wristLateralOffsetMeters": 0.16365661760856473,
+      "wristForwardOffsetMeters": 0.08897788072815412,
+      "wristHorizontalRadiusMeters": 0.18628084105980838,
+      "halfShoulderSpanMeters": 0.14858997324408202,
+      "halfShoulderSpanLateralMeters": 0.14858799452251722,
+      "abductionRatio": 1.101412117004944,
+      "ratioSpace": "lateral"
+    },
+    {
+      "scenarioId": "psych_suicidal_ideation_safety_v1",
+      "actorId": "behavioral_health_nurse_owens_v1",
+      "side": "R",
+      "wristLateralOffsetMeters": 0.1682870544349255,
+      "wristForwardOffsetMeters": 0.08897788072815421,
+      "wristHorizontalRadiusMeters": 0.19036175022639715,
+      "halfShoulderSpanMeters": 0.14858997324408202,
+      "halfShoulderSpanLateralMeters": 0.14858799452251722,
+      "abductionRatio": 1.132575044004804,
+      "ratioSpace": "lateral"
+    },
+    {
+      "scenarioId": "psych_suicidal_ideation_safety_v1",
+      "actorId": "partner_sam_reed_v1",
+      "side": "L",
+      "wristLateralOffsetMeters": 0.1528283224850121,
+      "wristForwardOffsetMeters": 0.07594314287541026,
+      "wristHorizontalRadiusMeters": 0.17065713317461367,
+      "halfShoulderSpanMeters": 0.13714276118424298,
+      "halfShoulderSpanLateralMeters": 0.13713616656603145,
+      "abductionRatio": 1.1144275526429044,
+      "ratioSpace": "lateral"
+    },
+    {
+      "scenarioId": "psych_suicidal_ideation_safety_v1",
+      "actorId": "partner_sam_reed_v1",
+      "side": "R",
+      "wristLateralOffsetMeters": 0.16042885028945203,
+      "wristForwardOffsetMeters": 0.07594314287541029,
+      "wristHorizontalRadiusMeters": 0.177495850528936,
+      "halfShoulderSpanMeters": 0.13714276118424298,
+      "halfShoulderSpanLateralMeters": 0.13713616656603145,
+      "abductionRatio": 1.1698507717306295,
+      "ratioSpace": "lateral"
+    },
+    {
+      "scenarioId": "ward_delirium_med_rec_v1",
+      "actorId": "patient_margaret_ellis_v1",
+      "side": "L",
+      "wristLateralOffsetMeters": 0.4366658211933173,
+      "wristForwardOffsetMeters": -0.31319925820363265,
+      "wristHorizontalRadiusMeters": 0.5373739989409051,
+      "halfShoulderSpanMeters": 0.16377684348400487,
+      "halfShoulderSpanLateralMeters": 0.1637768434840038,
+      "abductionRatio": 2.6662244301708427,
+      "ratioSpace": "lateral"
+    },
+    {
+      "scenarioId": "ward_delirium_med_rec_v1",
+      "actorId": "patient_margaret_ellis_v1",
+      "side": "R",
+      "wristLateralOffsetMeters": 0.4366673878754012,
+      "wristForwardOffsetMeters": -0.31319826274431173,
+      "wristHorizontalRadiusMeters": 0.5373746918305523,
+      "halfShoulderSpanMeters": 0.16377684348400487,
+      "halfShoulderSpanLateralMeters": 0.1637768434840038,
+      "abductionRatio": 2.6662339961268753,
+      "ratioSpace": "lateral"
+    },
+    {
+      "scenarioId": "ward_delirium_med_rec_v1",
+      "actorId": "ward_nurse_patel_v1",
+      "side": "L",
+      "wristLateralOffsetMeters": 0.16317311396794765,
+      "wristForwardOffsetMeters": 0.08907774847994633,
+      "wristHorizontalRadiusMeters": 0.18590403544908168,
+      "halfShoulderSpanMeters": 0.14858997324408205,
+      "halfShoulderSpanLateralMeters": 0.14858709342813142,
+      "abductionRatio": 1.0981647880935983,
+      "ratioSpace": "lateral"
+    },
+    {
+      "scenarioId": "ward_delirium_med_rec_v1",
+      "actorId": "ward_nurse_patel_v1",
+      "side": "R",
+      "wristLateralOffsetMeters": 0.16876854504225386,
+      "wristForwardOffsetMeters": 0.08907774847994637,
+      "wristHorizontalRadiusMeters": 0.19083413497049176,
+      "halfShoulderSpanMeters": 0.14858997324408205,
+      "halfShoulderSpanLateralMeters": 0.14858709342813142,
+      "abductionRatio": 1.1358223729161496,
+      "ratioSpace": "lateral"
+    },
+    {
+      "scenarioId": "ward_delirium_med_rec_v1",
+      "actorId": "daughter_lena_ellis_v1",
+      "side": "L",
+      "wristLateralOffsetMeters": 0.1550231556654356,
+      "wristForwardOffsetMeters": 0.07502459241245181,
+      "wristHorizontalRadiusMeters": 0.17222330927933188,
+      "halfShoulderSpanMeters": 0.13714276118424276,
+      "halfShoulderSpanLateralMeters": 0.13714155248686907,
+      "abductionRatio": 1.1303879302392952,
+      "ratioSpace": "lateral"
+    },
+    {
+      "scenarioId": "ward_delirium_med_rec_v1",
+      "actorId": "daughter_lena_ellis_v1",
+      "side": "R",
+      "wristLateralOffsetMeters": 0.1582463200512547,
+      "wristForwardOffsetMeters": 0.07502459241245182,
+      "wristHorizontalRadiusMeters": 0.17513020092610712,
+      "halfShoulderSpanMeters": 0.13714276118424276,
+      "halfShoulderSpanLateralMeters": 0.13714155248686907,
+      "abductionRatio": 1.1538903941342384,
+      "ratioSpace": "lateral"
+    },
+    {
+      "scenarioId": "ward_delirium_med_rec_v1",
+      "actorId": "senior_resident_ward_v1",
+      "side": "L",
+      "wristLateralOffsetMeters": 0.16341793556384507,
+      "wristForwardOffsetMeters": 0.12005436466422872,
+      "wristHorizontalRadiusMeters": 0.20277690238012963,
+      "halfShoulderSpanMeters": 0.15829551565544842,
+      "halfShoulderSpanLateralMeters": 0.15828487835537947,
+      "abductionRatio": 1.0324292330499247,
+      "ratioSpace": "lateral"
+    },
+    {
+      "scenarioId": "ward_delirium_med_rec_v1",
+      "actorId": "senior_resident_ward_v1",
+      "side": "R",
+      "wristLateralOffsetMeters": 0.17306644236161278,
+      "wristForwardOffsetMeters": 0.12005436466422878,
+      "wristHorizontalRadiusMeters": 0.21063011168073062,
+      "halfShoulderSpanMeters": 0.15829551565544842,
+      "halfShoulderSpanLateralMeters": 0.15828487835537947,
+      "abductionRatio": 1.0933858253537392,
+      "ratioSpace": "lateral"
+    },
+    {
+      "scenarioId": "oncology_bad_news_family_v1",
+      "actorId": "patient_david_miller_v1",
+      "side": "L",
+      "wristLateralOffsetMeters": 0.15497913159991986,
+      "wristForwardOffsetMeters": 0.0882751948872309,
+      "wristHorizontalRadiusMeters": 0.1783565004810418,
+      "halfShoulderSpanMeters": 0.14930031292993307,
+      "halfShoulderSpanLateralMeters": 0.14928556283658798,
+      "abductionRatio": 1.0381387768190566,
+      "ratioSpace": "lateral"
+    },
+    {
+      "scenarioId": "oncology_bad_news_family_v1",
+      "actorId": "patient_david_miller_v1",
+      "side": "R",
+      "wristLateralOffsetMeters": 0.16653313573028228,
+      "wristForwardOffsetMeters": 0.0882751948872309,
+      "wristHorizontalRadiusMeters": 0.18848287807792835,
+      "halfShoulderSpanMeters": 0.14930031292993307,
+      "halfShoulderSpanLateralMeters": 0.14928556283658798,
+      "abductionRatio": 1.1155340983144764,
+      "ratioSpace": "lateral"
+    },
+    {
+      "scenarioId": "oncology_bad_news_family_v1",
+      "actorId": "sister_rachel_miller_v1",
+      "side": "L",
+      "wristLateralOffsetMeters": 0.15286257451271656,
+      "wristForwardOffsetMeters": 0.07826207450457776,
+      "wristHorizontalRadiusMeters": 0.17173211403932553,
+      "halfShoulderSpanMeters": 0.13714276118424298,
+      "halfShoulderSpanLateralMeters": 0.13713621390734024,
+      "abductionRatio": 1.1146769343946032,
+      "ratioSpace": "lateral"
+    },
+    {
+      "scenarioId": "oncology_bad_news_family_v1",
+      "actorId": "sister_rachel_miller_v1",
+      "side": "R",
+      "wristLateralOffsetMeters": 0.16039470640247272,
+      "wristForwardOffsetMeters": 0.07826207450457781,
+      "wristHorizontalRadiusMeters": 0.17846964489149275,
+      "halfShoulderSpanMeters": 0.13714276118424298,
+      "halfShoulderSpanLateralMeters": 0.13713621390734024,
+      "abductionRatio": 1.169601389978928,
+      "ratioSpace": "lateral"
+    },
+    {
+      "scenarioId": "peds_fever_v1",
+      "actorId": "patient_noah_chen_v1",
+      "side": "L",
+      "wristLateralOffsetMeters": 0.016435863338899036,
+      "wristForwardOffsetMeters": 0.0025964558549264106,
+      "wristHorizontalRadiusMeters": 0.016639687097465113,
+      "halfShoulderSpanMeters": 0.10717211669599887,
+      "halfShoulderSpanLateralMeters": 0.10716759949609055,
+      "abductionRatio": 0.15336597456863454,
+      "ratioSpace": "lateral"
+    },
+    {
+      "scenarioId": "peds_fever_v1",
+      "actorId": "patient_noah_chen_v1",
+      "side": "R",
+      "wristLateralOffsetMeters": 0.011083462629555516,
+      "wristForwardOffsetMeters": 0.002596455854926418,
+      "wristHorizontalRadiusMeters": 0.01138352875286637,
+      "halfShoulderSpanMeters": 0.10717211669599887,
+      "halfShoulderSpanLateralMeters": 0.10716759949609055,
+      "abductionRatio": 0.10342176816193255,
+      "ratioSpace": "lateral"
+    },
+    {
+      "scenarioId": "peds_fever_v1",
+      "actorId": "nurse_aisha_brooks_v1",
+      "side": "L",
+      "wristLateralOffsetMeters": 0.1609931805847022,
+      "wristForwardOffsetMeters": 0.09004880860668903,
+      "wristHorizontalRadiusMeters": 0.18446569362963575,
+      "halfShoulderSpanMeters": 0.14858997324408194,
+      "halfShoulderSpanLateralMeters": 0.1485809964920164,
+      "abductionRatio": 1.083538166964392,
+      "ratioSpace": "lateral"
+    },
+    {
+      "scenarioId": "peds_fever_v1",
+      "actorId": "nurse_aisha_brooks_v1",
+      "side": "R",
+      "wristLateralOffsetMeters": 0.1709348579484969,
+      "wristForwardOffsetMeters": 0.09004880860668905,
+      "wristHorizontalRadiusMeters": 0.1932032960209451,
+      "halfShoulderSpanMeters": 0.14858997324408194,
+      "halfShoulderSpanLateralMeters": 0.1485809964920164,
+      "abductionRatio": 1.1504489940453564,
+      "ratioSpace": "lateral"
+    },
+    {
+      "scenarioId": "peds_fever_v1",
+      "actorId": "parent_mei_chen_v1",
+      "side": "L",
+      "wristLateralOffsetMeters": 0.1538524460880932,
+      "wristForwardOffsetMeters": 0.07563195083427805,
+      "wristHorizontalRadiusMeters": 0.17143735635586627,
+      "halfShoulderSpanMeters": 0.13714276118424296,
+      "halfShoulderSpanLateralMeters": 0.13713920046420347,
+      "abductionRatio": 1.1218706654794321,
+      "ratioSpace": "lateral"
+    },
+    {
+      "scenarioId": "peds_fever_v1",
+      "actorId": "parent_mei_chen_v1",
+      "side": "R",
+      "wristLateralOffsetMeters": 0.15941165695420387,
+      "wristForwardOffsetMeters": 0.07563195083427801,
+      "wristHorizontalRadiusMeters": 0.17644338570738047,
+      "halfShoulderSpanMeters": 0.13714276118424296,
+      "halfShoulderSpanLateralMeters": 0.13713920046420347,
+      "abductionRatio": 1.1624076588941032,
+      "ratioSpace": "lateral"
+    },
+    {
+      "scenarioId": "telehealth_diabetes_health_literacy_v1",
+      "actorId": "patient_luis_martinez_v1",
+      "side": "L",
+      "wristLateralOffsetMeters": 0.16264058594422234,
+      "wristForwardOffsetMeters": 0.10601529881089841,
+      "wristHorizontalRadiusMeters": 0.19414222564461356,
+      "halfShoulderSpanMeters": 0.15552110900296967,
+      "halfShoulderSpanLateralMeters": 0.15551142596796644,
+      "abductionRatio": 1.0458433194338044,
+      "ratioSpace": "lateral"
+    },
+    {
+      "scenarioId": "telehealth_diabetes_health_literacy_v1",
+      "actorId": "patient_luis_martinez_v1",
+      "side": "R",
+      "wristLateralOffsetMeters": 0.172280085727391,
+      "wristForwardOffsetMeters": 0.10601529881089843,
+      "wristHorizontalRadiusMeters": 0.20228611301866786,
+      "halfShoulderSpanMeters": 0.15552110900296967,
+      "halfShoulderSpanLateralMeters": 0.15551142596796644,
+      "abductionRatio": 1.1078291170893046,
+      "ratioSpace": "lateral"
+    },
+    {
+      "scenarioId": "telehealth_diabetes_health_literacy_v1",
+      "actorId": "daughter_elena_martinez_v1",
+      "side": "L",
+      "wristLateralOffsetMeters": 0.15191423176103155,
+      "wristForwardOffsetMeters": 0.07669107324714768,
+      "wristHorizontalRadiusMeters": 0.17017477641337975,
+      "halfShoulderSpanMeters": 0.13714276118424293,
+      "halfShoulderSpanLateralMeters": 0.13713267095683943,
+      "abductionRatio": 1.1077902202374839,
+      "ratioSpace": "lateral"
+    },
+    {
+      "scenarioId": "telehealth_diabetes_health_literacy_v1",
+      "actorId": "daughter_elena_martinez_v1",
+      "side": "R",
+      "wristLateralOffsetMeters": 0.1613349560691247,
+      "wristForwardOffsetMeters": 0.07669107324714766,
+      "wristHorizontalRadiusMeters": 0.17863507148828806,
+      "halfShoulderSpanMeters": 0.13714276118424293,
+      "halfShoulderSpanLateralMeters": 0.13713267095683943,
+      "abductionRatio": 1.1764881041360495,
+      "ratioSpace": "lateral"
+    }
+  ],
+  "stabilityAcrossRuns": [
+    {
+      "run": 1,
+      "perActor": [
+        {
+          "scenarioId": "psych_suicidal_ideation_safety_v1",
+          "actorId": "patient_jordan_reed_v1",
+          "lateralL": 0.13509272054617422,
+          "lateralR": 0.1346381753063712,
+          "ratioL": 0.8248596905842495,
+          "ratioR": 0.8220842927364261
+        },
+        {
+          "scenarioId": "psych_suicidal_ideation_safety_v1",
+          "actorId": "behavioral_health_nurse_owens_v1",
+          "lateralL": 0.16119033303571356,
+          "lateralR": 0.17073899574777165,
+          "ratioL": 1.0848608521591594,
+          "ratioR": 1.1491263088505888
+        },
+        {
+          "scenarioId": "psych_suicidal_ideation_safety_v1",
+          "actorId": "partner_sam_reed_v1",
+          "lateralL": 0.15190246547096609,
+          "lateralR": 0.16134666592079058,
+          "ratioL": 1.1077046175757028,
+          "ratioR": 1.1765737067978304
+        },
+        {
+          "scenarioId": "ward_delirium_med_rec_v1",
+          "actorId": "patient_margaret_ellis_v1",
+          "lateralL": 0.436665820419603,
+          "lateralR": 0.4366673886491546,
+          "ratioL": 2.6662244254466976,
+          "ratioR": 2.666234000851366
+        },
+        {
+          "scenarioId": "ward_delirium_med_rec_v1",
+          "actorId": "ward_nurse_patel_v1",
+          "lateralL": 0.16165362111544332,
+          "lateralR": 0.17027933421539818,
+          "ratioL": 1.0879670376286994,
+          "ratioR": 1.1460201233810507
+        },
+        {
+          "scenarioId": "ward_delirium_med_rec_v1",
+          "actorId": "daughter_lena_ellis_v1",
+          "lateralL": 0.15350185856583748,
+          "lateralR": 0.15976010501512447,
+          "ratioL": 1.1193218744616984,
+          "ratioR": 1.1649564499118368
+        },
+        {
+          "scenarioId": "ward_delirium_med_rec_v1",
+          "actorId": "senior_resident_ward_v1",
+          "lateralL": 0.16337699044068976,
+          "lateralR": 0.17310699133471283,
+          "ratioL": 1.032171768305194,
+          "ratioR": 1.0936432900984714
+        },
+        {
+          "scenarioId": "oncology_bad_news_family_v1",
+          "actorId": "patient_david_miller_v1",
+          "lateralL": 0.15567397652887047,
+          "lateralR": 0.165845157943386,
+          "ratioL": 1.0427709727594232,
+          "ratioR": 1.1109019023741102
+        },
+        {
+          "scenarioId": "oncology_bad_news_family_v1",
+          "actorId": "sister_rachel_miller_v1",
+          "lateralL": 0.153804287160767,
+          "lateralR": 0.15945943879517088,
+          "ratioL": 1.1215208472827767,
+          "ratioR": 1.1627574770907596
+        },
+        {
+          "scenarioId": "peds_fever_v1",
+          "actorId": "patient_noah_chen_v1",
+          "lateralL": 0.01711760906492713,
+          "lateralR": 0.01040106135844147,
+          "ratioL": 0.15973127062832979,
+          "ratioR": 0.09705647210223577
+        },
+        {
+          "scenarioId": "peds_fever_v1",
+          "actorId": "nurse_aisha_brooks_v1",
+          "lateralL": 0.1617391082667336,
+          "lateralR": 0.17019443119955488,
+          "ratioL": 1.0885404707280113,
+          "ratioR": 1.1454466902817373
+        },
+        {
+          "scenarioId": "peds_fever_v1",
+          "actorId": "parent_mei_chen_v1",
+          "lateralL": 0.151932896119832,
+          "lateralR": 0.1613164567968115,
+          "ratioL": 1.107925740737862,
+          "ratioR": 1.1763525836356732
+        },
+        {
+          "scenarioId": "telehealth_diabetes_health_literacy_v1",
+          "actorId": "patient_luis_martinez_v1",
+          "lateralL": 0.16546487919047054,
+          "lateralR": 0.16947310278278468,
+          "ratioL": 1.063949652487002,
+          "ratioR": 1.0897227840361075
+        },
+        {
+          "scenarioId": "telehealth_diabetes_health_literacy_v1",
+          "actorId": "daughter_elena_martinez_v1",
+          "lateralL": 0.15326064600546915,
+          "lateralR": 0.15999956162215387,
+          "ratioL": 1.1175692383691935,
+          "ratioR": 1.1667090860043383
+        }
+      ]
+    },
+    {
+      "run": 2,
+      "perActor": [
+        {
+          "scenarioId": "psych_suicidal_ideation_safety_v1",
+          "actorId": "patient_jordan_reed_v1",
+          "lateralL": 0.12968479245022413,
+          "lateralR": 0.1400267291353721,
+          "ratioL": 0.7918964122842705,
+          "ratioR": 0.8550475528482897
+        },
+        {
+          "scenarioId": "psych_suicidal_ideation_safety_v1",
+          "actorId": "behavioral_health_nurse_owens_v1",
+          "lateralL": 0.1609082226109681,
+          "lateralR": 0.17101893371227805,
+          "ratioL": 1.0829692496257695,
+          "ratioR": 1.1510179113839798
+        },
+        {
+          "scenarioId": "psych_suicidal_ideation_safety_v1",
+          "actorId": "partner_sam_reed_v1",
+          "lateralL": 0.1520209567569099,
+          "lateralR": 0.1612293067060545,
+          "ratioL": 1.1085646745557873,
+          "ratioR": 1.1757136498177476
+        },
+        {
+          "scenarioId": "ward_delirium_med_rec_v1",
+          "actorId": "patient_margaret_ellis_v1",
+          "lateralL": 0.4366658200842469,
+          "lateralR": 0.43666738898451024,
+          "ratioL": 2.666224423399056,
+          "ratioR": 2.666234002899002
+        },
+        {
+          "scenarioId": "ward_delirium_med_rec_v1",
+          "actorId": "ward_nurse_patel_v1",
+          "lateralL": 0.16092232387972238,
+          "lateralR": 0.17100515092019059,
+          "ratioL": 1.083063116977162,
+          "ratioR": 1.1509240440325859
+        },
+        {
+          "scenarioId": "ward_delirium_med_rec_v1",
+          "actorId": "daughter_lena_ellis_v1",
+          "lateralL": 0.15371456806184658,
+          "lateralR": 0.15954872570095405,
+          "ratioL": 1.1208681736902935,
+          "ratioR": 1.1634101506832393
+        },
+        {
+          "scenarioId": "ward_delirium_med_rec_v1",
+          "actorId": "senior_resident_ward_v1",
+          "lateralL": 0.1642188844338885,
+          "lateralR": 0.17227229964019009,
+          "ratioL": 1.037468420946676,
+          "ratioR": 1.0883466374569903
+        },
+        {
+          "scenarioId": "oncology_bad_news_family_v1",
+          "actorId": "patient_david_miller_v1",
+          "lateralL": 0.15474490210429093,
+          "lateralR": 0.16676495501263364,
+          "ratioL": 1.036577544513679,
+          "ratioR": 1.1170953306198546
+        },
+        {
+          "scenarioId": "oncology_bad_news_family_v1",
+          "actorId": "sister_rachel_miller_v1",
+          "lateralL": 0.15234764507418722,
+          "lateralR": 0.16090543734163334,
+          "ratioL": 1.1109369482607918,
+          "ratioR": 1.1733413761127407
+        },
+        {
+          "scenarioId": "peds_fever_v1",
+          "actorId": "patient_noah_chen_v1",
+          "lateralL": 0.0127695983990097,
+          "lateralR": 0.014750725816986533,
+          "ratioL": 0.11915107986088343,
+          "ratioR": 0.1376366628696842
+        },
+        {
+          "scenarioId": "peds_fever_v1",
+          "actorId": "nurse_aisha_brooks_v1",
+          "lateralL": 0.16263316218784293,
+          "lateralR": 0.16930581475498035,
+          "ratioL": 1.0945397242235866,
+          "ratioR": 1.1394474367861622
+        },
+        {
+          "scenarioId": "peds_fever_v1",
+          "actorId": "parent_mei_chen_v1",
+          "lateralL": 0.1522902583392991,
+          "lateralR": 0.1609624539931219,
+          "ratioL": 1.1105197894297776,
+          "ratioR": 1.173758534943757
+        },
+        {
+          "scenarioId": "telehealth_diabetes_health_literacy_v1",
+          "actorId": "patient_luis_martinez_v1",
+          "lateralL": 0.16724177286823277,
+          "lateralR": 0.1676997070962964,
+          "ratioL": 1.0753639605931025,
+          "ratioR": 1.0783084759300072
+        },
+        {
+          "scenarioId": "telehealth_diabetes_health_literacy_v1",
+          "actorId": "daughter_elena_martinez_v1",
+          "lateralL": 0.15201081841131492,
+          "lateralR": 0.16123936031236788,
+          "ratioL": 1.1084910437466764,
+          "ratioR": 1.1757872806268581
+        }
+      ]
+    },
+    {
+      "run": 3,
+      "perActor": [
+        {
+          "scenarioId": "psych_suicidal_ideation_safety_v1",
+          "actorId": "patient_jordan_reed_v1",
+          "lateralL": 0.1300160265208975,
+          "lateralR": 0.1396979182664085,
+          "ratioL": 0.7939119001081419,
+          "ratioR": 0.8530320661215566
+        },
+        {
+          "scenarioId": "psych_suicidal_ideation_safety_v1",
+          "actorId": "behavioral_health_nurse_owens_v1",
+          "lateralL": 0.16365661760856473,
+          "lateralR": 0.1682870544349255,
+          "ratioL": 1.101412117004944,
+          "ratioR": 1.132575044004804
+        },
+        {
+          "scenarioId": "psych_suicidal_ideation_safety_v1",
+          "actorId": "partner_sam_reed_v1",
+          "lateralL": 0.1528283224850121,
+          "lateralR": 0.16042885028945203,
+          "ratioL": 1.1144275526429044,
+          "ratioR": 1.1698507717306295
+        },
+        {
+          "scenarioId": "ward_delirium_med_rec_v1",
+          "actorId": "patient_margaret_ellis_v1",
+          "lateralL": 0.4366658211933173,
+          "lateralR": 0.4366673878754012,
+          "ratioL": 2.6662244301708427,
+          "ratioR": 2.6662339961268753
+        },
+        {
+          "scenarioId": "ward_delirium_med_rec_v1",
+          "actorId": "ward_nurse_patel_v1",
+          "lateralL": 0.16317311396794765,
+          "lateralR": 0.16876854504225386,
+          "ratioL": 1.0981647880935983,
+          "ratioR": 1.1358223729161496
+        },
+        {
+          "scenarioId": "ward_delirium_med_rec_v1",
+          "actorId": "daughter_lena_ellis_v1",
+          "lateralL": 0.1550231556654356,
+          "lateralR": 0.1582463200512547,
+          "ratioL": 1.1303879302392952,
+          "ratioR": 1.1538903941342384
+        },
+        {
+          "scenarioId": "ward_delirium_med_rec_v1",
+          "actorId": "senior_resident_ward_v1",
+          "lateralL": 0.16341793556384507,
+          "lateralR": 0.17306644236161278,
+          "ratioL": 1.0324292330499247,
+          "ratioR": 1.0933858253537392
+        },
+        {
+          "scenarioId": "oncology_bad_news_family_v1",
+          "actorId": "patient_david_miller_v1",
+          "lateralL": 0.15497913159991986,
+          "lateralR": 0.16653313573028228,
+          "ratioL": 1.0381387768190566,
+          "ratioR": 1.1155340983144764
+        },
+        {
+          "scenarioId": "oncology_bad_news_family_v1",
+          "actorId": "sister_rachel_miller_v1",
+          "lateralL": 0.15286257451271656,
+          "lateralR": 0.16039470640247272,
+          "ratioL": 1.1146769343946032,
+          "ratioR": 1.169601389978928
+        },
+        {
+          "scenarioId": "peds_fever_v1",
+          "actorId": "patient_noah_chen_v1",
+          "lateralL": 0.016435863338899036,
+          "lateralR": 0.011083462629555516,
+          "ratioL": 0.15336597456863454,
+          "ratioR": 0.10342176816193255
+        },
+        {
+          "scenarioId": "peds_fever_v1",
+          "actorId": "nurse_aisha_brooks_v1",
+          "lateralL": 0.1609931805847022,
+          "lateralR": 0.1709348579484969,
+          "ratioL": 1.083538166964392,
+          "ratioR": 1.1504489940453564
+        },
+        {
+          "scenarioId": "peds_fever_v1",
+          "actorId": "parent_mei_chen_v1",
+          "lateralL": 0.1538524460880932,
+          "lateralR": 0.15941165695420387,
+          "ratioL": 1.1218706654794321,
+          "ratioR": 1.1624076588941032
+        },
+        {
+          "scenarioId": "telehealth_diabetes_health_literacy_v1",
+          "actorId": "patient_luis_martinez_v1",
+          "lateralL": 0.16264058594422234,
+          "lateralR": 0.172280085727391,
+          "ratioL": 1.0458433194338044,
+          "ratioR": 1.1078291170893046
+        },
+        {
+          "scenarioId": "telehealth_diabetes_health_literacy_v1",
+          "actorId": "daughter_elena_martinez_v1",
+          "lateralL": 0.15191423176103155,
+          "lateralR": 0.1613349560691247,
+          "ratioL": 1.1077902202374839,
+          "ratioR": 1.1764881041360495
+        }
+      ]
+    }
+  ],
+  "claimScope": [
+    "wrist_lateral_and_forward_components_about_the_shoulder_mid_line",
+    "lateral_component_squares_with_forward_to_the_horizontal_radius",
+    "abduction_ratio_lateral_over_lateral_half_span"
+  ],
+  "notEvidenceFor": [
+    "posture_correctness",
+    "that_thresholds_in_#91_#117_are_right_after_the_corrected_numerator",
+    "actor_coverage_completeness_#675",
+    "clinical_posture_appropriateness"
+  ],
+  "treeStamp": {
+    "head": "1a873f61d8bf8def285b415b088ddeaff2cc596a",
+    "fingerprint": "a8228e960ce1945b0bfd32051727cf6cc11fab9a6aa26804c68d0854c6819f6c",
+    "algorithm": "git-head+status+diff-sha256"
+  }
+}

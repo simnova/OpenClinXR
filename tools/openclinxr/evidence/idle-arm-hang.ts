@@ -45,8 +45,24 @@ export type ArmMeasurement = {
   wristBoneName: string;
   shoulderWorldY: number;
   wristWorldY: number;
-  /** Horizontal distance from the body mid-line (actor root XZ) to the wrist. */
+  /** Side-to-side distance of the wrist from the body's shoulder mid-line, along the actor's own
+   *  L→R shoulder axis in XZ (#678). This is the true lateral offset — the old value was an XZ
+   *  radius from the actor root, which folded front-back reach into the lateral reading. */
   wristLateralOffsetMeters: number;
+  /** Signed component of the wrist's XZ offset about the shoulder mid-line along the axis
+   *  perpendicular to the L→R shoulder axis. SIGN CONVENTION (#678, unlocked): positive = the
+   *  direction (-az, ax), i.e. 90° counter-clockwise from the L→R shoulder axis viewed from above
+   *  (+Y). This slice does not distinguish anterior from posterior; only magnitudes are asserted. */
+  wristForwardOffsetMeters: number;
+  /** Horizontal (XZ) distance from the shoulder mid-line to the wrist — the reach quantity, kept
+   *  under an honest name (#678 counterweight). lateral² + forward² == radius² by construction. */
+  wristHorizontalRadiusMeters: number;
+  /** Half the 3D shoulder span (0.5 × |shoulderL − shoulderR| world positions). Kept available;
+   *  the abduction ratio must not use it as the denominator (#678 — mixed spaces). */
+  halfShoulderSpanMeters: number;
+  /** Half the LATERAL shoulder span (0.5 × the XZ distance between the shoulders) — the same-space
+   *  denominator for the abduction ratio (#678). Level shoulders make it agree with the 3D span. */
+  halfShoulderSpanLateralMeters: number;
   framesAdvanced: number;
   /** Runtime bone names for the arm chain as the scene graph reports them. */
   armChainBoneNames: string[];
@@ -57,6 +73,20 @@ export type ArmMeasurement = {
 export type IdleArmHangReport = {
   scenarios: string[];
   arms: ArmMeasurement[];
+};
+
+/** One row of the tracked #678 decomposition artifact. */
+export type ArmMetricDecompositionRow = {
+  scenarioId: string;
+  actorId: string;
+  side: "L" | "R";
+  wristLateralOffsetMeters: number;
+  wristForwardOffsetMeters: number;
+  wristHorizontalRadiusMeters: number;
+  halfShoulderSpanMeters: number;
+  halfShoulderSpanLateralMeters: number;
+  abductionRatio: number;
+  ratioSpace: "lateral";
 };
 
 type ArtifactPayload = {
@@ -177,6 +207,106 @@ export async function writeArmHangDump(
 }
 
 /**
+ * #678 — write the TRACKED decomposition artifact (`tools/openclinxr/evidence/arm-metric-
+ * decomposition.json`, not `.openclinxr/evidence`, which is gitignored and has no land path, #64).
+ *
+ * MEASURE ONCE: one forced measure pass per run (one Vite boot); the planted contract asserts
+ * against this artifact and boots nothing. `stabilityRuns > 1` re-measures for the cross-run
+ * corrected-ratio table the issue requires; raw bone geometry is unchanged by this instrument-only
+ * slice, so each run measures the same tree.
+ */
+export async function writeArmMetricDecomposition(input: {
+  outputPath: string;
+  label?: string;
+  scenarioIds?: string[];
+  stabilityRuns?: number;
+}): Promise<string> {
+  const runCount = Math.max(1, input.stabilityRuns ?? 1);
+  const runs: IdleArmHangReport[] = [];
+  for (let r = 0; r < runCount; r += 1) {
+    process.stdout.write(`idle-arm-hang: decomposition run ${r + 1}/${runCount}\n`);
+    runs.push(
+      await inspectIdleArmHang({
+        force: true,
+        label: `${input.label ?? "arm-metric-decomposition"}-run-${r + 1}`,
+        scenarioIds: input.scenarioIds,
+      }),
+    );
+  }
+
+  const rowsSource = runs[runs.length - 1];
+  const rows: ArmMetricDecompositionRow[] = rowsSource.arms
+    .filter((a) => a.halfShoulderSpanLateralMeters > 0)
+    .map((a) => ({
+      scenarioId: a.scenarioId,
+      actorId: a.actorId,
+      side: a.side,
+      wristLateralOffsetMeters: a.wristLateralOffsetMeters,
+      wristForwardOffsetMeters: a.wristForwardOffsetMeters,
+      wristHorizontalRadiusMeters: a.wristHorizontalRadiusMeters,
+      halfShoulderSpanMeters: a.halfShoulderSpanMeters,
+      halfShoulderSpanLateralMeters: a.halfShoulderSpanLateralMeters,
+      abductionRatio: a.wristLateralOffsetMeters / a.halfShoulderSpanLateralMeters,
+      ratioSpace: "lateral",
+    }));
+
+  const stabilityAcrossRuns = runs.map((report, idx) => {
+    const perActor = new Map<string, { scenarioId: string; actorId: string; lateralL: number; lateralR: number; ratioL: number; ratioR: number }>();
+    for (const a of report.arms) {
+      if (a.halfShoulderSpanLateralMeters <= 0) continue;
+      const key = `${a.scenarioId}/${a.actorId}`;
+      const existing = perActor.get(key);
+      const ratio = a.wristLateralOffsetMeters / a.halfShoulderSpanLateralMeters;
+      if (existing) {
+        if (a.side === "L") { existing.lateralL = a.wristLateralOffsetMeters; existing.ratioL = ratio; }
+        else { existing.lateralR = a.wristLateralOffsetMeters; existing.ratioR = ratio; }
+      } else {
+        perActor.set(key, {
+          scenarioId: a.scenarioId,
+          actorId: a.actorId,
+          lateralL: a.side === "L" ? a.wristLateralOffsetMeters : 0,
+          lateralR: a.side === "R" ? a.wristLateralOffsetMeters : 0,
+          ratioL: a.side === "L" ? ratio : 0,
+          ratioR: a.side === "R" ? ratio : 0,
+        });
+      }
+    }
+    return { run: idx + 1, perActor: [...perActor.values()] };
+  });
+
+  const payload = withTreeStamp({
+    schemaVersion: "openclinxr.arm-metric-decomposition.v1" as const,
+    kind: "arm_metric_decomposition" as const,
+    label: input.label ?? "arm metric decomposition (#678)",
+    generatedAt: new Date().toISOString(),
+    measure: {
+      scenarios: rowsSource.scenarios,
+      runCount,
+      rowsFromRun: runCount,
+    },
+    rows,
+    stabilityAcrossRuns,
+    claimScope: [
+      "wrist_lateral_and_forward_components_about_the_shoulder_mid_line",
+      "lateral_component_squares_with_forward_to_the_horizontal_radius",
+      "abduction_ratio_lateral_over_lateral_half_span",
+    ],
+    notEvidenceFor: [
+      "posture_correctness",
+      "that_thresholds_in_#91_#117_are_right_after_the_corrected_numerator",
+      "actor_coverage_completeness_#675",
+      "clinical_posture_appropriateness",
+    ],
+  });
+  await mkdir(path.dirname(input.outputPath), { recursive: true });
+  await writeFile(input.outputPath, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
+  process.stdout.write(
+    `idle-arm-hang: wrote decomposition ${input.outputPath} (${rows.length} rows, ${runCount} run(s))\n`,
+  );
+  return input.outputPath;
+}
+
+/**
  * Core measure: same server/boot/wait pattern as measureLivePostureGeometry,
  * then a page.evaluate that dumps arm-chain bones (names, local rot/quat, world pos).
  */
@@ -243,6 +373,8 @@ async function measureLiveArmHang(input: {
               `  ${row.scenarioId}/${row.actorId} ${row.side} posture=${row.posture} `
               + `shoulder=${row.shoulderBoneName} wrist=${row.wristBoneName} `
               + `drop=${drop.toFixed(3)}m lateral=${row.wristLateralOffsetMeters.toFixed(3)}m `
+              + `forward=${row.wristForwardOffsetMeters.toFixed(3)}m `
+              + `radius=${row.wristHorizontalRadiusMeters.toFixed(3)}m `
               + `frames=${row.framesAdvanced} chain=[${row.armChainBoneNames.join(",")}]\n`,
             );
           }
@@ -422,6 +554,42 @@ export async function readLiveArmHangFromPage(page: Page): Promise<{
         }
       });
 
+      let upperL = null;
+      let upperR = null;
+      for (let b = 0; b < allBones.length; b++) {
+        const bone = allBones[b];
+        if (!upperL && matchArmBone(bone.name, "L", "upper")) upperL = bone;
+        if (!upperR && matchArmBone(bone.name, "R", "upper")) upperR = bone;
+      }
+
+      // #678: lateral is the wrist's XZ offset along the actor's OWN L→R shoulder axis, about the
+      // shoulder mid-line — not a radial XZ distance from the actor root (which folds front-back
+      // reach into the lateral reading). Forward is the perpendicular component; its sign is a
+      // convention (unlocked), magnitudes are what consumers assert.
+      let shoulderMid = { x: rootWp.x, z: rootWp.z };
+      let axisX = 1;
+      let axisZ = 0;
+      let halfShoulderSpanMeters = 0;
+      let halfShoulderSpanLateralMeters = 0;
+      if (upperL && upperR) {
+        const sl = worldPos(upperL);
+        const sr = worldPos(upperR);
+        const spanDx = sr.x - sl.x;
+        const spanDy = sr.y - sl.y;
+        const spanDz = sr.z - sl.z;
+        halfShoulderSpanMeters = 0.5 * Math.sqrt(spanDx * spanDx + spanDy * spanDy + spanDz * spanDz);
+        halfShoulderSpanLateralMeters = 0.5 * Math.sqrt(spanDx * spanDx + spanDz * spanDz);
+        shoulderMid = { x: 0.5 * (sl.x + sr.x), z: 0.5 * (sl.z + sr.z) };
+        const axisLen = Math.hypot(spanDx, spanDz);
+        if (axisLen > 1e-6) {
+          axisX = spanDx / axisLen;
+          axisZ = spanDz / axisLen;
+        }
+      }
+      // Perpendicular to the L→R shoulder axis in XZ (90° counter-clockwise viewed from +Y).
+      const perpX = -axisZ;
+      const perpZ = axisX;
+
       for (const side of ["L", "R"]) {
         let upper = null;
         let fore = null;
@@ -436,9 +604,11 @@ export async function readLiveArmHangFromPage(page: Page): Promise<{
         const wrist = hand || fore || upper;
         const shoulderWp = worldPos(upper);
         const wristWp = worldPos(wrist);
-        const dx = wristWp.x - rootWp.x;
-        const dz = wristWp.z - rootWp.z;
-        const lateral = Math.sqrt(dx * dx + dz * dz);
+        const wx = wristWp.x - shoulderMid.x;
+        const wz = wristWp.z - shoulderMid.z;
+        const lateral = Math.abs(wx * axisX + wz * axisZ);
+        const forward = wx * perpX + wz * perpZ;
+        const horizontalRadius = Math.sqrt(wx * wx + wz * wz);
 
         const chain = [];
         const armBones = [];
@@ -456,6 +626,10 @@ export async function readLiveArmHangFromPage(page: Page): Promise<{
           shoulderWorldY: shoulderWp.y,
           wristWorldY: wristWp.y,
           wristLateralOffsetMeters: lateral,
+          wristForwardOffsetMeters: forward,
+          wristHorizontalRadiusMeters: horizontalRadius,
+          halfShoulderSpanMeters: halfShoulderSpanMeters,
+          halfShoulderSpanLateralMeters: halfShoulderSpanLateralMeters,
           framesAdvanced: framesAdvanced,
           armChainBoneNames: chain,
           armBones: armBones,
@@ -470,14 +644,28 @@ async function main(): Promise<void> {
   const args = process.argv.slice(2);
   let label = "cli";
   let writePreFix = false;
+  let decompositionPath: string | undefined;
+  let stabilityRuns = 1;
   let scenarioFilter: string[] | undefined;
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i]!;
     if (arg === "--label" && args[i + 1]) label = args[++i]!;
     else if (arg === "--pre-fix") writePreFix = true;
-    else if (arg === "--scenario" && args[i + 1]) {
+    else if (arg === "--write-decomposition" && args[i + 1]) decompositionPath = args[++i];
+    else if (arg === "--stability-runs" && args[i + 1]) {
+      stabilityRuns = Math.max(1, Number.parseInt(args[++i], 10) || 1);
+    } else if (arg === "--scenario" && args[i + 1]) {
       scenarioFilter = (scenarioFilter ?? []).concat(args[++i]!);
     }
+  }
+  if (decompositionPath) {
+    await writeArmMetricDecomposition({
+      outputPath: decompositionPath,
+      label,
+      scenarioIds: scenarioFilter,
+      stabilityRuns,
+    });
+    return;
   }
   const report = await inspectIdleArmHang({
     force: true,

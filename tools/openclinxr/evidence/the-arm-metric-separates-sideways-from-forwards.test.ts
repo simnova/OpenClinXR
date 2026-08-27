@@ -80,7 +80,21 @@ function reportOrNull(): { rows: Row[] } | null {
 }
 
 describe("the arm metric separates sideways from forwards (#678)", () => {
-  it.fails("(1) lateral and forward are recorded separately and square to the horizontal radius", () => {
+  /**
+   * ## FIXED (#678)
+   * idle-arm-hang.ts + arm-abduction-ceiling.ts now decompose the wrist's XZ offset about the
+   * actor's OWN shoulder mid-line: lateral = component along the L→R shoulder axis, forward =
+   * component along the perpendicular, radius = the same vector's length (identity by
+   * construction, worst |hypot(lateral,forward) − radius| = 0.000 m on 28 rows). The abduction
+   * ratio divides the lateral component by the LATERAL half-span (same space); the 3D half-span
+   * stays recorded but is not the denominator. Measured on this tree across 3 runs (see
+   * arm-metric-decomposition.json rows + stabilityAcrossRuns): corrected standing ratios span
+   * 0.10–1.18 (was up to 1.46 conflated), so the 1.3 ceiling no longer fires on main — the old
+   * numerator inflated every ratio by its anterior-posterior component. Cross-run spread of the
+   * corrected ratio is ≤0.08 for every actor (the conflated metric showed 211% spread on
+   * noah_chen). NO threshold changed; #91/#117 clauses that move are left red for a follow-on card.
+   */
+  it("(1) lateral and forward are recorded separately and square to the horizontal radius", () => {
     const report = reportOrNull();
     expect(
       report !== null,
@@ -100,7 +114,7 @@ describe("the arm metric separates sideways from forwards (#678)", () => {
     }
   });
 
-  it.fails("(2) the abduction ratio divides same-space terms and says which space", () => {
+  it("(2) the abduction ratio divides same-space terms and says which space", () => {
     const report = reportOrNull();
     expect(report !== null, `${REPORT} must exist`).toBe(true);
     for (const r of report!.rows) {
