@@ -97,16 +97,33 @@ describe("the viseme timeline reaches a face (#722)", () => {
     ).toBe(true);
   });
 
+  /**
+   * CORRECTED 2026-08-27, and the correction is mine. The first form asserted the source cue file
+   * EXISTS. `.openclinxr/evidence/` is gitignored, so a worker's fresh worktree never has it, and the
+   * clause fired on absence rather than on the cheat — #722's first run was killed by this while its
+   * own diff never touched that path. That is the #64 rule arriving from the input side: a contract
+   * INPUT under a gitignored path is not present in a worktree.
+   *
+   * The guard itself is unchanged where it can see the file: on main, and against any promoted copy.
+   * Regenerating the timeline to suit the consumer still fails. Absence now skips instead of failing.
+   */
   it("(3) COUNTERWEIGHT: the baked cues are not regenerated to suit the consumer", () => {
-    expect(existsSync(CUES), `${CUES} must still exist`).toBe(true);
-    const doc = JSON.parse(readFileSync(CUES, "utf8")) as { mouthCues?: { value: string }[] };
-    const cues = doc.mouthCues ?? [];
-    expect(
-      cues.length,
-      "rewriting the timeline to fit the consumer measures the fix against its own output; these "
-        + "cues came from Rhubarb on baked audio and are the input, not a variable",
-    ).toBe(CUE_COUNT);
-    expect(new Set(cues.map((c) => c.value)).size, "distinct viseme values in the baked timeline").toBe(DISTINCT_VALUES);
+    const promoted = join(REPO, "apps/ui-xr/public/lip-sync-cues/utterance-6539634edf.mouth-cues.json");
+    // EVERY copy that exists is checked, not the first one found. Reading only the source would let a
+    // regenerated PROMOTED timeline — the one a runtime actually loads — pass unseen on any machine
+    // where the gitignored source is present. Probed: it did.
+    const paths = [CUES, promoted].filter((p) => existsSync(p));
+    if (paths.length === 0) return;
+    for (const path of paths) {
+      const doc = JSON.parse(readFileSync(path, "utf8")) as { mouthCues?: { value: string }[] };
+      const cues = doc.mouthCues ?? [];
+      expect(
+        cues.length,
+        `${path}: rewriting the timeline to fit the consumer measures the fix against its own output; `
+          + "these cues came from Rhubarb on baked audio and are the input, not a variable",
+      ).toBe(CUE_COUNT);
+      expect(new Set(cues.map((c) => c.value)).size, `${path}: distinct viseme values`).toBe(DISTINCT_VALUES);
+    }
   });
 });
 
