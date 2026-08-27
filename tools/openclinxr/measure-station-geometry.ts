@@ -14,9 +14,15 @@
  * not, so they stay declared and the readiness evaluator's fail-closed incomplete blocker covers
  * them.
  *
+ * #707: the artifact carries a per-source `fingerprints` map (bytes + sha256) so a gate
+ * (`findStaleMeasuredGeometry` in the asset-registry package) can tell when a rebake has changed
+ * the bytes the counts were read from. The generator reads the file once and emits the fingerprint
+ * from those bytes.
+ *
  * Run from the repo root: `pnpm exec tsx tools/openclinxr/measure-station-geometry.ts`
  */
-import { existsSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { type Document, NodeIO } from "@gltf-transform/core";
 import {
@@ -56,6 +62,7 @@ async function main(): Promise<void> {
   const cast = resolveScenarioActorCast(ED_CHEST_PAIN_SCENARIO_ID);
   const triangles: Record<string, number> = {};
   const sources: Record<string, string> = {};
+  const fingerprints: Record<string, { bytes: number; sha256: string }> = {};
   for (const row of ED_CHARACTER_JOIN) {
     const castRow = cast.find(
       (c) => c.role === row.role || (row.role === "family" && c.role === "family_member"),
@@ -67,14 +74,20 @@ async function main(): Promise<void> {
       throw new Error(`GLB missing for ${row.scenarioAssetId}: ${glbPath}`);
     }
     const doc = await new NodeIO().read(absGlb);
+    const bytes = readFileSync(absGlb);
     triangles[row.scenarioAssetId] = countTriangles(doc);
     sources[row.scenarioAssetId] = glbPath;
+    fingerprints[row.scenarioAssetId] = {
+      bytes: bytes.length,
+      sha256: createHash("sha256").update(bytes).digest("hex"),
+    };
   }
   const artifact = {
     generatedBy: "tools/openclinxr/measure-station-geometry.ts",
     generatedAt: new Date().toISOString(),
     sources,
     triangles,
+    fingerprints,
   };
   writeFileSync(OUT, `${JSON.stringify(artifact, null, 2)}\n`);
   process.stdout.write(`wrote ${OUT}\n`);
