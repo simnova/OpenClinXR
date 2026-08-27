@@ -60,7 +60,7 @@ function reportOrNull(): Report | null {
 }
 
 describe("the viseme timeline reaches a face (#722)", () => {
-  it.fails("(1) a live run applies distinct visemes to named morph targets", () => {
+  it("(1) a live run applies distinct visemes to named morph targets", () => {
     const report = reportOrNull();
     expect(
       report !== null,
@@ -132,3 +132,33 @@ describe("the viseme timeline reaches a face (#722)", () => {
 // owns. Nor whether the cue files are reachable at runtime from a gitignored evidence path, which may
 // need a promote step and is the slice's first real obstacle. Nor whether utterance identity can be
 // matched to a dialogue turn, which nothing has established.
+
+// ## FIXED (#722)
+//
+// The join now exists and runs. The baked cue files are promoted to a TRACKED served path
+// (`apps/ui-xr/public/lip-sync-cues/<scenarioId>/utterance-<sha1(bare text) 10>.mouth-cues.json`)
+// because the gitignored `.openclinxr/evidence/...` bake output has no land path (#64). The runtime
+// half: `viseme-baked-cues.ts` loads a cue file for the spoken line (content-hash of the line with
+// the actor-name prefix stripped — the bake hashed the bare utterance, the runtime speaks
+// "Samuel Brooks: My right arm feels…") and attaches the cues to the active speech;
+// `applyNamedSpeechVisemes` then drives the existing wire (`driveVisemeTimeline` →
+// `applyVisemeWeights`) from the bake's real Rhubarb timing instead of the text-derived dwell
+// model. `resolveVisemeTarget` gained the applier's own resolution pass (identity / case-variant /
+// MPFB FACS alias map) so hybrid bodies that carry some `viseme_*` names plus FACS mouth units
+// drive the non-identity baked tokens instead of dropping them to all-zero frames.
+//
+// Evidence (clause 1): `tools/openclinxr/evidence/viseme-runtime-application.json`, written by
+// `viseme-runtime-application.ts` from a RUNNING ui-xr scene (`ed_stroke_alert_handoff_v1`). The
+// patient's auto-fired dialogue loaded the served cue file (marker
+// `userData.openClinXrBakedVisemeTimeline`, 25 cues / 3710 ms) and the live mesh influences were
+// read back by morph-target name. Recorded applied rows — 4 distinct visemes on 4 distinct NAMED
+// morph targets, all at weight 1.0:
+//
+//   E                  -> viseme_E          (identity target)
+//   mouth-elevation    -> mouth-elevation   (FACS alias of viseme_FV)
+//   mouth-part-later   -> mouth-part-later  (FACS alias of viseme_IH/TH)
+//   sil                -> viseme_sil        (identity target)
+//
+// The counterweights still hold: the wire's `applyVisemeWeights` is the only morph writer in the
+// path (clause 2), and the promoted cue copies are verbatim from the bake — 25 cues, 8 distinct
+// Rhubarb values (clause 3, checked on every copy that exists).

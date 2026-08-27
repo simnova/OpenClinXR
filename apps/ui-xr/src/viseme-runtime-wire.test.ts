@@ -5,6 +5,7 @@ import {
   applyNamedSpeechVisemes,
   collectMorphTargetNames,
   mapDialoguePhonemeToArkit,
+  mouthCuesToPhonemeCues,
   sampleLiveVisemeInfluencesFromRoot,
 } from "./viseme-runtime-wire.js";
 
@@ -143,5 +144,70 @@ describe("viseme runtime wire (#63) — driver → applier → mesh", () => {
     expect(oh.activeTargetName).toBe("viseme_OH");
     expect(mesh.morphTargetInfluences[mesh.morphTargetDictionary["mouth-open"]!]).toBe(0);
     expect(mesh.morphTargetInfluences[mesh.morphTargetDictionary["mouth-eversion"]!]).toBe(1);
+  });
+
+  describe("#722 — baked Rhubarb cue timeline drives the same wire", () => {
+    /** Representative slice of the baked ed_stroke_alert_handoff_v1 timeline (25 cues, 3.71 s). */
+    const bakedDoc = {
+      metadata: { duration: 3.71 },
+      mouthCues: [
+        { start: 0.0, end: 0.04, value: "X" },
+        { start: 0.04, end: 0.12, value: "A" },
+        { start: 0.12, end: 0.18, value: "C" },
+        { start: 0.18, end: 0.31, value: "B" },
+        { start: 0.31, end: 0.38, value: "C" },
+        { start: 0.38, end: 0.45, value: "B" },
+      ],
+    };
+
+    it("mouthCuesToPhonemeCues preserves the bake's real timing and maps Rhubarb shapes", () => {
+      const cues = mouthCuesToPhonemeCues(bakedDoc);
+      expect(cues).toHaveLength(6);
+      expect(cues[0]).toMatchObject({ phoneme: "sil", atSecond: 0, durationSeconds: 0.04 });
+      expect(cues[1]).toMatchObject({ phoneme: "AA", atSecond: 0.04, durationSeconds: 0.08 });
+      expect(cues[2]).toMatchObject({ phoneme: "IH", atSecond: 0.12 });
+      expect(cues[3]).toMatchObject({ phoneme: "E", atSecond: 0.18, durationSeconds: 0.13 });
+    });
+
+    it("applyDialogueVisemeTimelineToRoot with bakedCues plays the baked frame count on named targets", () => {
+      const mesh = meshLike();
+      const root = rootWith(mesh);
+      const cues = mouthCuesToPhonemeCues(bakedDoc);
+      const early = applyDialogueVisemeTimelineToRoot(root, {
+        phonemeSequence: ["sil"],
+        progress: 0.5, // t = 0.5 * 0.45 s -> the B frame (viseme_E) is active
+        bakedCues: cues,
+      });
+      expect(early.frameCount).toBe(6);
+      expect(early.activeTargetName).toBe("viseme_E");
+      expect(mesh.morphTargetInfluences[mesh.morphTargetDictionary["viseme_E"]!]).toBe(1);
+      const later = applyDialogueVisemeTimelineToRoot(root, {
+        phonemeSequence: ["sil"],
+        progress: 0.99, // near the end -> B (E) again per the bake
+        bakedCues: cues,
+      });
+      expect(later.activeTargetName).toMatch(/^viseme_/);
+    });
+
+    it("applyNamedSpeechVisemes prefers bakedCues over the text-derived timeline", () => {
+      const mesh = meshLike();
+      const root = rootWith(mesh);
+      const cues = mouthCuesToPhonemeCues(bakedDoc);
+      const result = applyNamedSpeechVisemes(
+        {
+          root,
+          activeSpeech: {
+            phonemeSequence: ["a", "e", "o", "u"],
+            startedAtMs: 0,
+            durationMs: 1000,
+            bakedCues: cues,
+          },
+        },
+        500,
+      );
+      expect(result.frameCount).toBe(cues.length);
+      expect(result.activeTargetName).toMatch(/^viseme_/);
+      expect(mesh.morphTargetInfluences[0]).toBe(0); // never index 0
+    });
   });
 });

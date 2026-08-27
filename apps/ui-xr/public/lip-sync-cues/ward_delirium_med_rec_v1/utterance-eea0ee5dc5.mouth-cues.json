@@ -1,0 +1,32 @@
+{
+  "metadata": {
+    "soundFile": "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-288/cases/ward_delirium_med_rec_v1/stage-lip-sync/utterance-eea0ee5dc5.wav",
+    "duration": 4.30
+  },
+  "mouthCues": [
+    { "start": 0.00, "end": 0.03, "value": "X" },
+    { "start": 0.03, "end": 0.10, "value": "C" },
+    { "start": 0.10, "end": 0.31, "value": "B" },
+    { "start": 0.31, "end": 0.80, "value": "E" },
+    { "start": 0.80, "end": 0.87, "value": "F" },
+    { "start": 0.87, "end": 1.00, "value": "A" },
+    { "start": 1.00, "end": 1.52, "value": "X" },
+    { "start": 1.52, "end": 1.57, "value": "F" },
+    { "start": 1.57, "end": 1.68, "value": "C" },
+    { "start": 1.68, "end": 1.96, "value": "B" },
+    { "start": 1.96, "end": 2.04, "value": "A" },
+    { "start": 2.04, "end": 2.11, "value": "C" },
+    { "start": 2.11, "end": 2.17, "value": "B" },
+    { "start": 2.17, "end": 2.31, "value": "E" },
+    { "start": 2.31, "end": 2.38, "value": "B" },
+    { "start": 2.38, "end": 2.59, "value": "E" },
+    { "start": 2.59, "end": 3.08, "value": "X" },
+    { "start": 3.08, "end": 3.42, "value": "C" },
+    { "start": 3.42, "end": 3.49, "value": "D" },
+    { "start": 3.49, "end": 3.70, "value": "B" },
+    { "start": 3.70, "end": 3.98, "value": "F" },
+    { "start": 3.98, "end": 4.12, "value": "C" },
+    { "start": 4.12, "end": 4.26, "value": "H" },
+    { "start": 4.26, "end": 4.30, "value": "X" }
+  ]
+}

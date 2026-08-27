@@ -145,7 +145,7 @@ import {
   resolvePedsAdaptiveDialogueBranch,
   type PedsAdaptiveDialogueBranchResolution,
 } from "./peds-adaptive-dialogue-policy.js";
-import { applyGeneratedScalarVisemeToRoot, applyNamedSpeechVisemes, resolveMorphIndex } from "./viseme-runtime-wire.js";
+import { applyGeneratedScalarVisemeToRoot, applyNamedSpeechVisemes, attachBakedCuesToSpeech, loadBakedMouthCuesForUtterance, resolveMorphIndex, type PhonemeCue } from "./viseme-runtime-wire.js";
 import { applyBlinkClosureToRoot } from "./blink-runtime-wire.js";
 import { applyGazeToHumanoid } from "./gaze-drives-eyes.js";
 import {
@@ -1601,6 +1601,8 @@ type HumanoidSpeechPlayback = {
   actorRuntimeRealismRequirement?: HumanoidSpeechEvidence["activeActorRuntimeRealismRequirement"];
   phonemeSequence: string[];
   visemeSequence: string[];
+  /** Baked Rhubarb cue timeline for this line, when a served cue file exists (#722). */
+  bakedCues?: PhonemeCue[];
   startedAtMs: number;
   durationMs: number;
 };
@@ -1993,6 +1995,9 @@ function refreshStationContextFromRuntimeBundle(): void {
   window.__openClinXrActorPlayerRuntimeMetadataSummary =
     buildActorPlayerRuntimeMetadataSummary(encounterRuntimeAssetBundle.scenarioId);
   initialDialogueText = initialDialogueTextForSelectedScenario();
+  // #722: warm the served cue cache so the opening line's baked timeline attaches the instant its
+  // dialogue fires — the cue fetch must not queue behind the actor GLBs on a cold boot.
+  void loadBakedMouthCuesForUtterance(selectedScenarioId(), initialDialogueText);
   selectedStationContext = stationContextForSelectedScenario();
   document.querySelector<HTMLElement>(".stage")?.setAttribute("aria-label", selectedStationContext.stageAriaLabel);
   document.querySelector<HTMLElement>("#station-canvas")?.setAttribute("aria-label", selectedStationContext.canvasAriaLabel);
@@ -8433,6 +8438,9 @@ function triggerHumanoidDialogue(
     durationMs: humanoidDialogueDurationMs(phonemeSequence.length),
   };
   startHumanoidEmotionTransition(slot, emotion, performance.now());
+  // #722 baked lip-sync join: when this line has a served cue file (content-hash named, like the
+  // bake), drive the wire with the bake's real Rhubarb timing; absent cues keep the text-derived timeline.
+  attachBakedCuesToSpeech(slot, text, selectedScenarioId());
   slot.root.userData.openClinXrDialoguePhonemeMapping = {
     actorId,
     phonemeSequence,

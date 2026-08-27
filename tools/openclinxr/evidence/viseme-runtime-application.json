@@ -1,0 +1,1767 @@
+{
+  "schemaVersion": "openclinxr.viseme-runtime-application.v1",
+  "scenarioId": "ed_stroke_alert_handoff_v1",
+  "utteranceText": "Samuel Brooks: My right arm feels weak, and I cannot get the words out clearly.",
+  "baked": {
+    "scenarioId": "ed_stroke_alert_handoff_v1",
+    "utteranceId": "6539634edf",
+    "cueCount": 25,
+    "durationMs": 3710,
+    "speechStartedAtMs": 3952.2999999523163,
+    "attachedAtMs": 3952.5999999046326
+  },
+  "samples": [
+    {
+      "tMs": 0,
+      "readings": [
+        {
+          "viseme": "E",
+          "morphTargetName": "viseme_E",
+          "weight": 1
+        },
+        {
+          "viseme": "E",
+          "morphTargetName": "viseme_E",
+          "weight": 1
+        },
+        {
+          "viseme": "E",
+          "morphTargetName": "viseme_E",
+          "weight": 1
+        },
+        {
+          "viseme": "E",
+          "morphTargetName": "viseme_E",
+          "weight": 1
+        },
+        {
+          "viseme": "E",
+          "morphTargetName": "viseme_E",
+          "weight": 1
+        },
+        {
+          "viseme": "E",
+          "morphTargetName": "viseme_E",
+          "weight": 1
+        },
+        {
+          "viseme": "E",
+          "morphTargetName": "viseme_E",
+          "weight": 1
+        },
+        {
+          "viseme": "E",
+          "morphTargetName": "viseme_E",
+          "weight": 1
+        }
+      ],
+      "speech": {
+        "pageNowMs": 4980,
+        "activeViseme": "mid",
+        "activePhoneme": "M",
+        "activeMouthOpenness": 0.278
+      },
+      "namedDrive": {
+        "activeTargetName": "viseme_E",
+        "influence": 1,
+        "frameIndex": 10,
+        "frameCount": 25
+      }
+    },
+    {
+      "tMs": 120,
+      "readings": [
+        {
+          "viseme": "E",
+          "morphTargetName": "viseme_E",
+          "weight": 1
+        },
+        {
+          "viseme": "E",
+          "morphTargetName": "viseme_E",
+          "weight": 1
+        },
+        {
+          "viseme": "E",
+          "morphTargetName": "viseme_E",
+          "weight": 1
+        },
+        {
+          "viseme": "E",
+          "morphTargetName": "viseme_E",
+          "weight": 1
+        },
+        {
+          "viseme": "E",
+          "morphTargetName": "viseme_E",
+          "weight": 1
+        },
+        {
+          "viseme": "E",
+          "morphTargetName": "viseme_E",
+          "weight": 1
+        },
+        {
+          "viseme": "E",
+          "morphTargetName": "viseme_E",
+          "weight": 1
+        },
+        {
+          "viseme": "E",
+          "morphTargetName": "viseme_E",
+          "weight": 1
+        }
+      ],
+      "speech": {
+        "pageNowMs": 5366,
+        "activeViseme": "mid",
+        "activePhoneme": "M",
+        "activeMouthOpenness": 0.294
+      },
+      "namedDrive": {
+        "activeTargetName": "viseme_E",
+        "influence": 1,
+        "frameIndex": 12,
+        "frameCount": 25
+      }
+    },
+    {
+      "tMs": 240,
+      "readings": [
+        {
+          "viseme": "mouth-part-later",
+          "morphTargetName": "mouth-part-later",
+          "weight": 1
+        },
+        {
+          "viseme": "mouth-part-later",
+          "morphTargetName": "mouth-part-later",
+          "weight": 1
+        },
+        {
+          "viseme": "mouth-part-later",
+          "morphTargetName": "mouth-part-later",
+          "weight": 1
+        },
+        {
+          "viseme": "mouth-part-later",
+          "morphTargetName": "mouth-part-later",
+          "weight": 1
+        },
+        {
+          "viseme": "mouth-part-later",
+          "morphTargetName": "mouth-part-later",
+          "weight": 1
+        },
+        {
+          "viseme": "mouth-part-later",
+          "morphTargetName": "mouth-part-later",
+          "weight": 1
+        },
+        {
+          "viseme": "mouth-part-later",
+          "morphTargetName": "mouth-part-later",
+          "weight": 1
+        },
+        {
+          "viseme": "mouth-part-later",
+          "morphTargetName": "mouth-part-later",
+          "weight": 1
+        }
+      ],
+      "speech": {
+        "pageNowMs": 6018,
+        "activeViseme": "mid",
+        "activePhoneme": "M",
+        "activeMouthOpenness": 0.362
+      },
+      "namedDrive": {
+        "activeTargetName": null,
+        "influence": 0,
+        "frameIndex": 15,
+        "frameCount": 25
+      }
+    },
+    {
+      "tMs": 360,
+      "readings": [
+        {
+          "viseme": "mouth-part-later",
+          "morphTargetName": "mouth-part-later",
+          "weight": 1
+        },
+        {
+          "viseme": "mouth-part-later",
+          "morphTargetName": "mouth-part-later",
+          "weight": 1
+        },
+        {
+          "viseme": "mouth-part-later",
+          "morphTargetName": "mouth-part-later",
+          "weight": 1
+        },
+        {
+          "viseme": "mouth-part-later",
+          "morphTargetName": "mouth-part-later",
+          "weight": 1
+        },
+        {
+          "viseme": "mouth-part-later",
+          "morphTargetName": "mouth-part-later",
+          "weight": 1
+        },
+        {
+          "viseme": "mouth-part-later",
+          "morphTargetName": "mouth-part-later",
+          "weight": 1
+        },
+        {
+          "viseme": "mouth-part-later",
+          "morphTargetName": "mouth-part-later",
+          "weight": 1
+        },
+        {
+          "viseme": "mouth-part-later",
+          "morphTargetName": "mouth-part-later",
+          "weight": 1
+        }
+      ],
+      "speech": {
+        "pageNowMs": 6368,
+        "activeViseme": "mid",
+        "activePhoneme": "M",
+        "activeMouthOpenness": 0.375
+      },
+      "namedDrive": {
+        "activeTargetName": null,
+        "influence": 0,
+        "frameIndex": 15,
+        "frameCount": 25
+      }
+    },
+    {
+      "tMs": 480,
+      "readings": [
+        {
+          "viseme": "mouth-part-later",
+          "morphTargetName": "mouth-part-later",
+          "weight": 1
+        },
+        {
+          "viseme": "mouth-part-later",
+          "morphTargetName": "mouth-part-later",
+          "weight": 1
+        },
+        {
+          "viseme": "mouth-part-later",
+          "morphTargetName": "mouth-part-later",
+          "weight": 1
+        },
+        {
+          "viseme": "mouth-part-later",
+          "morphTargetName": "mouth-part-later",
+          "weight": 1
+        },
+        {
+          "viseme": "mouth-part-later",
+          "morphTargetName": "mouth-part-later",
+          "weight": 1
+        },
+        {
+          "viseme": "mouth-part-later",
+          "morphTargetName": "mouth-part-later",
+          "weight": 1
+        },
+        {
+          "viseme": "mouth-part-later",
+          "morphTargetName": "mouth-part-later",
+          "weight": 1
+        },
+        {
+          "viseme": "mouth-part-later",
+          "morphTargetName": "mouth-part-later",
+          "weight": 1
+        }
+      ],
+      "speech": {
+        "pageNowMs": 6562,
+        "activeViseme": "rounded",
+        "activePhoneme": "M",
+        "activeMouthOpenness": 0.211
+      },
+      "namedDrive": {
+        "activeTargetName": null,
+        "influence": 0,
+        "frameIndex": 18,
+        "frameCount": 25
+      }
+    },
+    {
+      "tMs": 600,
+      "readings": [
+        {
+          "viseme": "mouth-elevation",
+          "morphTargetName": "mouth-elevation",
+          "weight": 1
+        },
+        {
+          "viseme": "mouth-elevation",
+          "morphTargetName": "mouth-elevation",
+          "weight": 1
+        },
+        {
+          "viseme": "mouth-elevation",
+          "morphTargetName": "mouth-elevation",
+          "weight": 1
+        },
+        {
+          "viseme": "mouth-elevation",
+          "morphTargetName": "mouth-elevation",
+          "weight": 1
+        },
+        {
+          "viseme": "mouth-elevation",
+          "morphTargetName": "mouth-elevation",
+          "weight": 1
+        },
+        {
+          "viseme": "mouth-elevation",
+          "morphTargetName": "mouth-elevation",
+          "weight": 1
+        },
+        {
+          "viseme": "mouth-elevation",
+          "morphTargetName": "mouth-elevation",
+          "weight": 1
+        },
+        {
+          "viseme": "mouth-elevation",
+          "morphTargetName": "mouth-elevation",
+          "weight": 1
+        }
+      ],
+      "speech": {
+        "pageNowMs": 6943,
+        "activeViseme": "rounded",
+        "activePhoneme": "M",
+        "activeMouthOpenness": 0.206
+      },
+      "namedDrive": {
+        "activeTargetName": null,
+        "influence": 0,
+        "frameIndex": 19,
+        "frameCount": 25
+      }
+    },
+    {
+      "tMs": 720,
+      "readings": [
+        {
+          "viseme": "E",
+          "morphTargetName": "viseme_E",
+          "weight": 1
+        },
+        {
+          "viseme": "E",
+          "morphTargetName": "viseme_E",
+          "weight": 1
+        },
+        {
+          "viseme": "E",
+          "morphTargetName": "viseme_E",
+          "weight": 1
+        },
+        {
+          "viseme": "E",
+          "morphTargetName": "viseme_E",
+          "weight": 1
+        },
+        {
+          "viseme": "E",
+          "morphTargetName": "viseme_E",
+          "weight": 1
+        },
+        {
+          "viseme": "E",
+          "morphTargetName": "viseme_E",
+          "weight": 1
+        },
+        {
+          "viseme": "E",
+          "morphTargetName": "viseme_E",
+          "weight": 1
+        },
+        {
+          "viseme": "E",
+          "morphTargetName": "viseme_E",
+          "weight": 1
+        }
+      ],
+      "speech": {
+        "pageNowMs": 7165,
+        "activeViseme": "mid",
+        "activePhoneme": "M",
+        "activeMouthOpenness": 0.268
+      },
+      "namedDrive": {
+        "activeTargetName": "viseme_E",
+        "influence": 1,
+        "frameIndex": 23,
+        "frameCount": 25
+      }
+    },
+    {
+      "tMs": 840,
+      "readings": [
+        {
+          "viseme": "E",
+          "morphTargetName": "viseme_E",
+          "weight": 1
+        },
+        {
+          "viseme": "E",
+          "morphTargetName": "viseme_E",
+          "weight": 1
+        },
+        {
+          "viseme": "E",
+          "morphTargetName": "viseme_E",
+          "weight": 1
+        },
+        {
+          "viseme": "E",
+          "morphTargetName": "viseme_E",
+          "weight": 1
+        },
+        {
+          "viseme": "E",
+          "morphTargetName": "viseme_E",
+          "weight": 1
+        },
+        {
+          "viseme": "E",
+          "morphTargetName": "viseme_E",
+          "weight": 1
+        },
+        {
+          "viseme": "E",
+          "morphTargetName": "viseme_E",
+          "weight": 1
+        },
+        {
+          "viseme": "E",
+          "morphTargetName": "viseme_E",
+          "weight": 1
+        }
+      ],
+      "speech": {
+        "pageNowMs": 7567,
+        "activeViseme": "mid",
+        "activePhoneme": "M",
+        "activeMouthOpenness": 0.276
+      },
+      "namedDrive": {
+        "activeTargetName": "viseme_E",
+        "influence": 1,
+        "frameIndex": 23,
+        "frameCount": 25
+      }
+    },
+    {
+      "tMs": 960,
+      "readings": [
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        }
+      ],
+      "speech": {
+        "pageNowMs": 7780,
+        "activeViseme": "wide",
+        "activePhoneme": "M",
+        "activeMouthOpenness": 0.216
+      },
+      "namedDrive": {
+        "activeTargetName": "viseme_sil",
+        "influence": 1,
+        "frameIndex": 0,
+        "frameCount": 1
+      }
+    },
+    {
+      "tMs": 1080,
+      "readings": [
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        }
+      ],
+      "speech": {
+        "pageNowMs": 8184,
+        "activeViseme": "wide",
+        "activePhoneme": "M",
+        "activeMouthOpenness": 0.216
+      },
+      "namedDrive": {
+        "activeTargetName": "viseme_sil",
+        "influence": 1,
+        "frameIndex": 0,
+        "frameCount": 1
+      }
+    },
+    {
+      "tMs": 1200,
+      "readings": [
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        }
+      ],
+      "speech": {
+        "pageNowMs": 8374,
+        "activeViseme": "wide",
+        "activePhoneme": "M",
+        "activeMouthOpenness": 0.216
+      },
+      "namedDrive": {
+        "activeTargetName": "viseme_sil",
+        "influence": 1,
+        "frameIndex": 0,
+        "frameCount": 1
+      }
+    },
+    {
+      "tMs": 1320,
+      "readings": [
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        }
+      ],
+      "speech": {
+        "pageNowMs": 8748,
+        "activeViseme": "wide",
+        "activePhoneme": "M",
+        "activeMouthOpenness": 0.216
+      },
+      "namedDrive": {
+        "activeTargetName": "viseme_sil",
+        "influence": 1,
+        "frameIndex": 0,
+        "frameCount": 1
+      }
+    },
+    {
+      "tMs": 1440,
+      "readings": [
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        }
+      ],
+      "speech": {
+        "pageNowMs": 9112,
+        "activeViseme": "wide",
+        "activePhoneme": "M",
+        "activeMouthOpenness": 0.216
+      },
+      "namedDrive": {
+        "activeTargetName": "viseme_sil",
+        "influence": 1,
+        "frameIndex": 0,
+        "frameCount": 1
+      }
+    },
+    {
+      "tMs": 1560,
+      "readings": [
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        }
+      ],
+      "speech": {
+        "pageNowMs": 9318,
+        "activeViseme": "wide",
+        "activePhoneme": "M",
+        "activeMouthOpenness": 0.216
+      },
+      "namedDrive": {
+        "activeTargetName": "viseme_sil",
+        "influence": 1,
+        "frameIndex": 0,
+        "frameCount": 1
+      }
+    },
+    {
+      "tMs": 1680,
+      "readings": [
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        }
+      ],
+      "speech": {
+        "pageNowMs": 9672,
+        "activeViseme": "wide",
+        "activePhoneme": "M",
+        "activeMouthOpenness": 0.216
+      },
+      "namedDrive": {
+        "activeTargetName": "viseme_sil",
+        "influence": 1,
+        "frameIndex": 0,
+        "frameCount": 1
+      }
+    },
+    {
+      "tMs": 1800,
+      "readings": [
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        }
+      ],
+      "speech": {
+        "pageNowMs": 9868,
+        "activeViseme": "wide",
+        "activePhoneme": "M",
+        "activeMouthOpenness": 0.216
+      },
+      "namedDrive": {
+        "activeTargetName": "viseme_sil",
+        "influence": 1,
+        "frameIndex": 0,
+        "frameCount": 1
+      }
+    },
+    {
+      "tMs": 1920,
+      "readings": [
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        }
+      ],
+      "speech": {
+        "pageNowMs": 10222,
+        "activeViseme": "wide",
+        "activePhoneme": "M",
+        "activeMouthOpenness": 0.216
+      },
+      "namedDrive": {
+        "activeTargetName": "viseme_sil",
+        "influence": 1,
+        "frameIndex": 0,
+        "frameCount": 1
+      }
+    },
+    {
+      "tMs": 2040,
+      "readings": [
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        }
+      ],
+      "speech": {
+        "pageNowMs": 10436,
+        "activeViseme": "wide",
+        "activePhoneme": "M",
+        "activeMouthOpenness": 0.216
+      },
+      "namedDrive": {
+        "activeTargetName": "viseme_sil",
+        "influence": 1,
+        "frameIndex": 0,
+        "frameCount": 1
+      }
+    },
+    {
+      "tMs": 2160,
+      "readings": [
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        }
+      ],
+      "speech": {
+        "pageNowMs": 10785,
+        "activeViseme": "wide",
+        "activePhoneme": "M",
+        "activeMouthOpenness": 0.216
+      },
+      "namedDrive": {
+        "activeTargetName": "viseme_sil",
+        "influence": 1,
+        "frameIndex": 0,
+        "frameCount": 1
+      }
+    },
+    {
+      "tMs": 2280,
+      "readings": [
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        }
+      ],
+      "speech": {
+        "pageNowMs": 10981,
+        "activeViseme": "wide",
+        "activePhoneme": "M",
+        "activeMouthOpenness": 0.216
+      },
+      "namedDrive": {
+        "activeTargetName": "viseme_sil",
+        "influence": 1,
+        "frameIndex": 0,
+        "frameCount": 1
+      }
+    },
+    {
+      "tMs": 2400,
+      "readings": [
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        }
+      ],
+      "speech": {
+        "pageNowMs": 11333,
+        "activeViseme": "wide",
+        "activePhoneme": "M",
+        "activeMouthOpenness": 0.216
+      },
+      "namedDrive": {
+        "activeTargetName": "viseme_sil",
+        "influence": 1,
+        "frameIndex": 0,
+        "frameCount": 1
+      }
+    },
+    {
+      "tMs": 2520,
+      "readings": [
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        }
+      ],
+      "speech": {
+        "pageNowMs": 11522,
+        "activeViseme": "wide",
+        "activePhoneme": "M",
+        "activeMouthOpenness": 0.216
+      },
+      "namedDrive": {
+        "activeTargetName": "viseme_sil",
+        "influence": 1,
+        "frameIndex": 0,
+        "frameCount": 1
+      }
+    },
+    {
+      "tMs": 2640,
+      "readings": [
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        }
+      ],
+      "speech": {
+        "pageNowMs": 11885,
+        "activeViseme": "wide",
+        "activePhoneme": "M",
+        "activeMouthOpenness": 0.216
+      },
+      "namedDrive": {
+        "activeTargetName": "viseme_sil",
+        "influence": 1,
+        "frameIndex": 0,
+        "frameCount": 1
+      }
+    },
+    {
+      "tMs": 2760,
+      "readings": [
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        }
+      ],
+      "speech": {
+        "pageNowMs": 12078,
+        "activeViseme": "wide",
+        "activePhoneme": "M",
+        "activeMouthOpenness": 0.216
+      },
+      "namedDrive": {
+        "activeTargetName": "viseme_sil",
+        "influence": 1,
+        "frameIndex": 0,
+        "frameCount": 1
+      }
+    },
+    {
+      "tMs": 2880,
+      "readings": [
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        }
+      ],
+      "speech": {
+        "pageNowMs": 12450,
+        "activeViseme": "wide",
+        "activePhoneme": "M",
+        "activeMouthOpenness": 0.216
+      },
+      "namedDrive": {
+        "activeTargetName": "viseme_sil",
+        "influence": 1,
+        "frameIndex": 0,
+        "frameCount": 1
+      }
+    },
+    {
+      "tMs": 3000,
+      "readings": [
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        }
+      ],
+      "speech": {
+        "pageNowMs": 12660,
+        "activeViseme": "wide",
+        "activePhoneme": "M",
+        "activeMouthOpenness": 0.216
+      },
+      "namedDrive": {
+        "activeTargetName": "viseme_sil",
+        "influence": 1,
+        "frameIndex": 0,
+        "frameCount": 1
+      }
+    },
+    {
+      "tMs": 3120,
+      "readings": [
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        }
+      ],
+      "speech": {
+        "pageNowMs": 13067,
+        "activeViseme": "wide",
+        "activePhoneme": "M",
+        "activeMouthOpenness": 0.216
+      },
+      "namedDrive": {
+        "activeTargetName": "viseme_sil",
+        "influence": 1,
+        "frameIndex": 0,
+        "frameCount": 1
+      }
+    },
+    {
+      "tMs": 3240,
+      "readings": [
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        }
+      ],
+      "speech": {
+        "pageNowMs": 13441,
+        "activeViseme": "wide",
+        "activePhoneme": "M",
+        "activeMouthOpenness": 0.216
+      },
+      "namedDrive": {
+        "activeTargetName": "viseme_sil",
+        "influence": 1,
+        "frameIndex": 0,
+        "frameCount": 1
+      }
+    },
+    {
+      "tMs": 3360,
+      "readings": [
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        }
+      ],
+      "speech": {
+        "pageNowMs": 13674,
+        "activeViseme": "wide",
+        "activePhoneme": "M",
+        "activeMouthOpenness": 0.216
+      },
+      "namedDrive": {
+        "activeTargetName": "viseme_sil",
+        "influence": 1,
+        "frameIndex": 0,
+        "frameCount": 1
+      }
+    },
+    {
+      "tMs": 3480,
+      "readings": [
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        },
+        {
+          "viseme": "sil",
+          "morphTargetName": "viseme_sil",
+          "weight": 1
+        }
+      ],
+      "speech": {
+        "pageNowMs": 14043,
+        "activeViseme": "wide",
+        "activePhoneme": "M",
+        "activeMouthOpenness": 0.216
+      },
+      "namedDrive": {
+        "activeTargetName": "viseme_sil",
+        "influence": 1,
+        "frameIndex": 0,
+        "frameCount": 1
+      }
+    }
+  ],
+  "applied": [
+    {
+      "viseme": "E",
+      "morphTargetName": "viseme_E",
+      "weight": 1
+    },
+    {
+      "viseme": "mouth-elevation",
+      "morphTargetName": "mouth-elevation",
+      "weight": 1
+    },
+    {
+      "viseme": "mouth-part-later",
+      "morphTargetName": "mouth-part-later",
+      "weight": 1
+    },
+    {
+      "viseme": "sil",
+      "morphTargetName": "viseme_sil",
+      "weight": 1
+    }
+  ],
+  "distinctVisemes": 4,
+  "distinctMorphTargets": 4,
+  "claimScope": [
+    "named_viseme_morph_writes_in_a_running_ui_xr_scene",
+    "driven_from_a_served_baked_cue_file",
+    "live_scene_graph_morph_influence_readback"
+  ],
+  "notEvidenceFor": [
+    "mouth_appearance_which_only_a_pixel_grade_can_say",
+    "cue_timing_vs_audio_rhubarb_owns",
+    "utterance_to_dialogue_turn_identity_beyond_the_content_hash_join",
+    "anatomy_bind_pose",
+    "clinical_affect_scoring",
+    "quest_readiness"
+  ],
+  "treeStamp": {
+    "head": "04bd753455d77a1248bc532a0a8bc752b3e8ecbe",
+    "fingerprint": "5a706bbfd4bc4ed3675ad65f91087a73b6edf1e0ade2866e718bb10e1d53c552",
+    "algorithm": "git-head+status+diff-sha256"
+  }
+}
