@@ -5,7 +5,8 @@
   },
   "include": [
     "src/**/*.ts",
-    "src/**/*.tsx"
+    "src/**/*.tsx",
+    "src/measured-station-geometry.json"
   ],
   "exclude": [
     "dist"

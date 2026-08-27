@@ -1,39 +1,60 @@
 import { type Scenario, type ValidationResult, validateAssetManifest as validateSharedAssetManifest } from "@openclinxr/shared-schemas";
 
-export * from "./asset-writer.js";
-export type {
-  AssetObjectStore, AssetObjectStoreGetInput, AssetObjectStoreGetResult,
-  AssetObjectStorePutInput, AssetObjectStorePutResult, AzuriteAssetObjectStoreOptions,
-} from "./object-store.js";
-export * from "./runtime-asset-review.js";
-export * from "./runtime-bundles.js";
-export * from "./runtime-room-prop-color.js";
-export * from "./humanoid-asset-path.js";
-export * from "./pose-bone-resolver.js";
-export * from "./morph-target-resolver.js";
 export * from "./actor-posture.js";
+export * from "./asset-writer.js";
 export {
   ENVIRONMENT_SHELL_DESCRIPTORS,
-  FALLBACK_ENVIRONMENT_SHELL,
-  resolveEnvironmentShellDescriptor,
   type EnvironmentFixtureSlot,
   type EnvironmentShellDescriptor,
   type EnvironmentSpatialZoneId,
   type EnvironmentZoneTemplate,
+  FALLBACK_ENVIRONMENT_SHELL,
   type ResolvedEnvironmentShell,
+  resolveEnvironmentShellDescriptor,
 } from "./environment-descriptors.js";
+export * from "./humanoid-asset-path.js";
+export * from "./morph-target-resolver.js";
+export type {
+  AssetObjectStore, AssetObjectStoreGetInput, AssetObjectStoreGetResult,
+  AssetObjectStorePutInput, AssetObjectStorePutResult, AzuriteAssetObjectStoreOptions,
+} from "./object-store.js";
+export * from "./pose-bone-resolver.js";
+export * from "./runtime-asset-review.js";
+export * from "./runtime-bundles.js";
+export * from "./runtime-room-prop-color.js";
+
 import {
   buildSpatialZonesForEnvironment,
   type EnvironmentSpatialZone,
 } from "./environment-spatial-zones.js";
+
 export { buildSpatialZonesForEnvironment, type EnvironmentSpatialZone };
+
 import { isPlaceholderAsset } from "./scenario-readiness-evidence.js";
+
 export {
   evaluateScenarioGenerationEvidence,
   evaluateScenarioOptimizationEvidence,
   type ScenarioGenerationEvidence,
   type ScenarioOptimizationEvidence,
 } from "./scenario-readiness-evidence.js";
+
+import measuredStationGeometry from "./measured-station-geometry.json" with { type: "json" };
+
+export type MeasuredStationGeometry = {
+  generatedBy: string;
+  generatedAt: string;
+  sources: Record<string, string>;
+  triangles: Record<string, number>;
+};
+
+/**
+ * #705 — build-time measured triangle counts for shipped cast GLBs, produced by
+ * `tools/openclinxr/measure-station-geometry.ts` through the runtime-bundles production join.
+ * Neither readiness consumer can open a GLB, so the factory measures once and commits the
+ * numbers; every caller passes `triangles` to `evaluateScenarioReadiness`.
+ */
+export const MEASURED_STATION_GEOMETRY: Readonly<MeasuredStationGeometry> = measuredStationGeometry;
 
 export type AssetKind = "character" | "environment" | "equipment" | "prop" | "texture" | "audio";
 
