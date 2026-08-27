@@ -1,0 +1,163 @@
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { describe, expect, it } from "vitest";
+
+/**
+ * OBSERVABLE: the bodice fold wave swings further inward than the standoff it rides on, so its
+ * valleys land inside the body.
+ *
+ * MEASURED by #691 on the shipped asset, three independent instruments. IMMUTABLE — flip the
+ * assertion and append a `## FIXED (#714)` block below; do not rewrite these numbers.
+ *
+ *   instrument                      upper half   lower half
+ *   +X-ray even-odd (primary)          463           24
+ *   +Z-ray                             817          111
+ *   nearest-surface                    593            3
+ *
+ * Peak at decile 7, y 1.250..1.348 — the chest, which is where the pixels are worst. The material is
+ * `doubleSided: true`, so intrusions render as skin-coloured slivers rather than holes.
+ *
+ * ## THE MECHANISM, read at source
+ *
+ * `tools/openclinxr/asset-pipeline/anny/automate_blender.py:2613-2618`:
+ *
+ *     s     = 1.0 + _lift686 * wy * wx                       # radial lift — this MAKES the standoff
+ *     wfold = wx * min(1.0, _smooth686(...)) * (1.0 - ...)
+ *     d     = _fold_amp686 * _tri_wave686(...) * wfold       # radial fold — signed, swings BOTH ways
+ *     v.co.x = cx + rx * s + nx * d
+ *
+ * The lift pushes each vertex out by `rr * (s - 1.0)`. The fold then displaces it by `d`, whose
+ * trough is `-_fold_amp686 * wfold`. Nothing relates the two, so wherever the trough exceeds the
+ * lift the vertex ends up inside the body. `_fold_amp686 = 0.034` at `:2588` against a standoff that
+ * tapers to nothing at the band edges (`0.55 < f < 0.86`, `:2599`).
+ *
+ * ## THE FIX IS A CLAMP, AND IT INTRODUCES NO NEW MILLIMETRE
+ *
+ * Operator direction, `operator-steering-needed-questions.md:323`: the gown `kind` is already
+ * parameterized and the work is **"not new millimetres"**. A sweep of amplitudes is therefore the
+ * wrong shape and is not what this contract asks for.
+ *
+ * Every term needed to bound the inward excursion is already in that loop — `rr`, `s`, `_lift686`,
+ * `wy`, `wx`. A clamp derived from them makes penetration structurally impossible while leaving
+ * `_fold_amp686` the artistic control it was added to be. Counterweight (3) pins the amplitude and
+ * the wave count so a reduction cannot be passed off as a fix.
+ *
+ * Other candidates, unranked and possibly all wrong: make the offset track the amplitude instead;
+ * push the whole shell out; taper the wave where the standoff is thinnest.
+ *
+ * ## WHY ZERO IS A PROPERTY AND NOT A FITTED TARGET
+ *
+ * Clause (1) asks for zero gown vertices inside the body in the upper half. That is the physical
+ * property the clamp establishes, not a number chosen to be just out of reach — a clamp that works
+ * cannot leave one. The other two instruments are RECORDED and NOT asserted: #691 established that
+ * the +Z-ray and nearest-surface references are biased at free rims, so a residual there is not
+ * evidence of penetration.
+ *
+ * ## GARMENT BAKES ARE ALLOWED
+ *
+ * `an-exemption-is-not-universal.test.ts:71` calls `OPENCLINXR_RUN_GARMENT_BAKES=1` "a standing
+ * prohibition on this machine". That claim is RETRACTED at `operator-steering-needed-questions.md:323`
+ * and `garment-bake-matrix.ts:52` calls it "a COST gate, not a correctness gate". It is opt-in
+ * because a broad `vitest` run once drove an M1 Max to load 60 respawning Blender per variant, so set
+ * it deliberately and never let a broad evidence-directory run start a sweep by accident.
+ *
+ * claimScope: whether the fold wave can still place a gown vertex inside the body in the bodice.
+ * notEvidenceFor: that the gathers still read as gathers — only the orchestrator's grade of the
+ *   render in clause (2) can say that, and no clause here asserts an appearance; that the same fold
+ *   code is safe on other garments, none of which is measured here.
+ */
+
+const REPO = join(import.meta.dirname, "../../..");
+const BLENDER = join(REPO, "tools/openclinxr/asset-pipeline/anny/automate_blender.py");
+const REPORT = join(REPO, "tools/openclinxr/evidence/gown-fold-clamp-measurement.json");
+
+/** #691's pre-change baseline, primary instrument. */
+const BASELINE_UPPER = 463;
+const BASELINE_LOWER = 24;
+/** Gown vertices at the planting commit — counterweight (4) refuses deleting geometry. */
+const BASELINE_GOWN_VERTICES = 14_745;
+
+type Report = {
+  gownVertexCount?: number;
+  upperVsLower?: { gownVerticesInsideBody?: { upper?: number; lower?: number } };
+  renderPath?: string;
+  renderNote?: string;
+};
+
+function reportOrNull(): Report | null {
+  if (!existsSync(REPORT)) return null;
+  return JSON.parse(readFileSync(REPORT, "utf8")) as Report;
+}
+
+function blenderSource(): string {
+  return readFileSync(BLENDER, "utf8");
+}
+
+describe("the gown folds cannot reach inside the body (#714)", () => {
+  it.fails("(1) no gown vertex sits inside the body in the bodice half", () => {
+    const report = reportOrNull();
+    expect(
+      report !== null,
+      `${REPORT} must exist and be TRACKED — a deliverable under a gitignored path has no land path `
+        + "(#64). Re-measure with the existing instrument, gown-shard-mechanism-measure.ts.",
+    ).toBe(true);
+    const split = report!.upperVsLower?.gownVerticesInsideBody;
+    expect(typeof split?.upper, "upper-half count must be measured").toBe("number");
+    expect(
+      split!.upper,
+      `#691 measured ${BASELINE_UPPER} upper against ${BASELINE_LOWER} lower on the primary `
+        + "instrument. A clamp derived from the lift cannot leave a vertex inside, so zero is the "
+        + "property rather than a threshold anyone chose.",
+    ).toBe(0);
+  });
+
+  it.fails("(2) a fresh render exists for the orchestrator to grade", () => {
+    const report = reportOrNull();
+    expect(report !== null, `${REPORT} must exist`).toBe(true);
+    expect(
+      report!.renderPath,
+      "the gathers are why _fold_amp686 exists, and no count can say whether they survive — the "
+        + "orchestrator grades the pixels and needs a render of the rebaked asset to do it",
+    ).toBeTruthy();
+    expect(existsSync(join(REPO, String(report!.renderPath))), `${report!.renderPath} must exist`).toBe(true);
+    expect(report!.renderNote?.length ?? 0, "say what was captured and how").toBeGreaterThan(0);
+  });
+
+  it("(3) COUNTERWEIGHT: the amplitude and the wave count are not reduced", () => {
+    const src = blenderSource();
+    expect(
+      /_fold_amp686\s*=\s*0\.034\b/u.test(src),
+      "lowering _fold_amp686 until nothing penetrates is the cheap fix, and it flattens the gathers "
+        + "the parameter exists to create. The operator's direction is explicit: not new millimetres "
+        + "(operator-steering-needed-questions.md:323). The bound must be DERIVED from the lift.",
+    ).toBe(true);
+    expect(
+      /_fold_k686\s*=\s*16\b/u.test(src),
+      "reducing the wave count is the same cheap fix by another route — fewer troughs, fewer "
+        + "intrusions, fewer gathers",
+    ).toBe(true);
+  });
+
+  it("(4) COUNTERWEIGHT: the lower half does not get worse and no geometry is deleted", () => {
+    const report = reportOrNull();
+    if (report === null) return;
+    const split = report.upperVsLower?.gownVerticesInsideBody;
+    expect(
+      split?.lower ?? 0,
+      `the skirt already renders clean at ${BASELINE_LOWER} — a clamp that fixes the bodice by `
+        + "pushing the problem downward is not a fix",
+    ).toBeLessThanOrEqual(BASELINE_LOWER);
+    expect(
+      report.gownVertexCount ?? 0,
+      "deleting the offending vertices satisfies clause (1) and removes the garment's gathers with "
+        + "them",
+    ).toBeGreaterThanOrEqual(BASELINE_GOWN_VERTICES);
+  });
+});
+
+// NOT TESTED: whether the gathers still read as gathers — that is the orchestrator's grade of the
+// render from clause (2), and this file deliberately asserts no appearance. Nor whether the same fold
+// code is safe on any other garment; only this asset is measured. Nor whether the +Z-ray and
+// nearest-surface instruments also reach zero — #691 established both are biased at free rims, so
+// they are recorded and not asserted. Nor whether the clamp changes the silhouette at the band edges
+// where the standoff tapers to nothing, which is where a derived bound bites hardest.
