@@ -275,8 +275,21 @@ export type DispatchLedgerEntry = {
    * end event (arg-parse abort, crash, kill, provider auth/billing failure). It carries the
    * resumable session id (#439) but is NOT a completion: factory-pulse and campaign-track select
    * `phase === "completed"`, and a dead row there scored provider failures as throughput.
+   *
+   * ISSUE #696: "reaped" is the terminal line for a fresh dispatch whose child ended NORMALLY
+   * (an end event, so NOT a "died" row) but left a live background process running at exit —
+   * `backgroundJobsAliveAtExit > 0`. The dispatch's own exit will reap that job, so the worker
+   * is not finished even though it said end_turn. Same selection rule as "died": not a
+   * completion.
    */
-  phase?: "spawned" | "completed" | "died";
+  phase?: "spawned" | "completed" | "died" | "reaped";
+  /**
+   * ISSUE #696: how many of the worker's descendant processes were still alive when the worker's
+   * process exited — counted from the process table after `close`, never read from the worker's
+   * report. 0 means the worker finished and waited on its children; > 0 means it left a
+   * background job running that this dispatch's exit will reap. Present on every terminal row.
+   */
+  backgroundJobsAliveAtExit?: number;
   /** Death classification — present only on `died` rows. See death-reason.ts for why `phase` alone
    *  is not a measurable signal, and why a provider breaker must key on `deathCountsAgainstModel`. */
   deathClass?: string;
@@ -1355,6 +1368,54 @@ export async function evaluateDispatchTreeProofs(input: {
   return checks;
 }
 
+/**
+ * ISSUE #696: enumerate the worker process's descendants from the process table. A background job
+ * the worker launched via `sh -c "… &"` (or any spawn it does not wait on) is a descendant here.
+ * The table scan is fail-soft: if `ps` cannot be read the dispatch must still run — the ledger
+ * field is a record, never a gate.
+ */
+function snapshotDescendantPids(rootPid: number): number[] {
+  let table: string;
+  try {
+    table = execFileSync("ps", ["-axo", "pid=,ppid="], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    });
+  } catch {
+    return [];
+  }
+  const childrenOf = new Map<number, number[]>();
+  for (const line of table.split("\n")) {
+    const match = line.trim().match(/^(\d+)\s+(\d+)$/);
+    if (!match) continue;
+    const pid = Number(match[1]);
+    const ppid = Number(match[2]);
+    const siblings = childrenOf.get(ppid) ?? [];
+    siblings.push(pid);
+    childrenOf.set(ppid, siblings);
+  }
+  const descendants: number[] = [];
+  const stack = [rootPid];
+  while (stack.length > 0) {
+    const pid = stack.pop()!;
+    for (const child of childrenOf.get(pid) ?? []) {
+      descendants.push(child);
+      stack.push(child);
+    }
+  }
+  return descendants;
+}
+
+/** Existence probe — signal 0 succeeds for a live process and throws ESRCH for a dead one. */
+function pidAlive(pid: number): boolean {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function dispatch(repoRoot: string, options: DispatchOptions): Promise<DispatchLedgerEntry> {
   assertSafeEnvironment(process.env);
   if (options.proofs) assertProofShape(options.proofs);
@@ -1607,9 +1668,32 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
   child.stdout.on("data", (data: Buffer) => chunks.push(data.toString()));
   child.stderr.on("data", (data: Buffer) => stderr.push(data.toString()));
 
-  const code = await new Promise<number>((resolve) => child.on("close", (value: number | null) => resolve(value ?? 1)));
+  // ISSUE #696: sample the worker's descendant processes while it runs and once more as it exits,
+  // then after `close` count which sampled processes are still alive. A survivor is a background
+  // job the worker launched and did not wait on — one this dispatch's own exit will reap. The
+  // ledger records the count; detaching the job is deliberately NOT done here (it may break the
+  // worktree-scoped write deny that isolates a worker — the card's stated NOT TESTED).
+  const descendantPids = new Set<number>();
+  const sampleDescendants = (): void => {
+    if (child.pid === undefined) return;
+    for (const pid of snapshotDescendantPids(child.pid)) descendantPids.add(pid);
+  };
+  child.on("exit", sampleDescendants);
+  const sampler = setInterval(sampleDescendants, 1000);
+  sampler.unref();
+
+  const code = await new Promise<number>((resolve) => {
+    child.on("close", (value: number | null) => {
+      clearInterval(sampler);
+      resolve(value ?? 1);
+    });
+  });
   const output = chunks.join("");
   const parsed = parseResult(output);
+  // Survivors of the worker's own process tree, checked AFTER the worker's process exited:
+  // harness-observed, never read from the worker's report. 0 is the honest record of a worker
+  // that finished and waited on its children; > 0 reclassifies the row as phase "reaped" below.
+  const backgroundJobsAliveAtExit = [...descendantPids].filter(pidAlive).length;
 
   // ISSUE #439: a fresh dispatch's id was chosen before spawn; parseResult's scrape is now only
   // the RESUME source (and a consistency check for fresh ones). A child that dies before `end`
@@ -1667,7 +1751,16 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
       handoffDetail: handoffAssessment.detail,
     } : {}),
     at: new Date().toISOString(),
-    phase: parsed.sessionId ? "completed" : "died",
+    // ISSUE #696: always present on a terminal row so a reader can distinguish "observed no
+    // background job" from "field predates the observation". 0 is the known-good record.
+    backgroundJobsAliveAtExit,
+    /**
+     * ISSUE #696: "reaped" is the terminal line for a dispatch whose child ended normally (an end
+     * event, so it is NOT a "died" row) but left a live background process running at exit — a
+     * background job this dispatch's own exit will reap. factory-pulse and campaign-track select
+     * `phase === "completed"`, so a reaped row is not counted as a completion.
+     */
+    phase: !parsed.sessionId ? "died" : backgroundJobsAliveAtExit > 0 ? "reaped" : "completed",
     /**
      * WHY it died, classified from the child's own stderr and exit code.
      *
