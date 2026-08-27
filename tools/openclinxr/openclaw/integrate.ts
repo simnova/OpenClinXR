@@ -641,9 +641,14 @@ export function integrate(input: IntegrateInput): IntegrateResult {
     // the rebuild above, or this would measure a stale dist. Reports; never reverts (#448).
     let postMergeProofs: Array<{ rule: string; ok: boolean; detail: string }> = [];
     try {
+      // The TRUSTED brief is the authoritative rule set — the anti-weakening record the merge gate
+      // binds. MergeKillReport carries no contract field, so reading it here produced an empty
+      // array and this whole mechanism was inert on its first real land (#715). Measured, not
+      // inferred: the integration event recorded postMergeProofs: null.
+      const trusted = loadTrustedBrief(trustedSliceDir(input.repoRoot, input.slice));
       postMergeProofs = rerunTreeProofsAfterMerge(
         input.repoRoot,
-        killReport.contract?.proofs ?? [],
+        trusted?.done_when ?? [],
         input.slice,
       );
     } catch (error) {

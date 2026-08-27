@@ -62,6 +62,20 @@ describe("#717 a landed slice proves itself on the tree main actually received",
     expect(verdicts.find((v) => v.rule === RED)?.ok).toBe(false);
   });
 
+  it("(1b) the wiring reads a source that actually carries proofs", () => {
+    // MEASURED 2026-08-27: the first version read `killReport.contract?.proofs`. MergeKillReport
+    // has no `contract` field (merge-kill.ts declares it on the INPUT, not the report), so the
+    // call received [] and the mechanism was inert on its first real land — issue-715's
+    // integration event recorded `postMergeProofs: null`.
+    //
+    // This is the "what calls it?" clause the original contract lacked: clause (1) exercised the
+    // function in isolation and passed while nothing reachable fed it a rule.
+    const src = readFileSync(INTEGRATE, "utf8");
+    expect(src).not.toContain("killReport.contract?.proofs");
+    expect(src).toMatch(/rerunTreeProofsAfterMerge\(\s*input\.repoRoot,\s*trusted\?\.done_when/);
+    expect(src).toContain("loadTrustedBrief(trustedSliceDir(input.repoRoot, input.slice))");
+  });
+
   it("(2) the known-good column: the candidate-tree verification it must not replace", () => {
     // contract-verify-cli already re-runs proofs against the WORKTREE. This card adds a second
     // run against MAIN; it does not remove the first. If this clause ever fails, the fix
