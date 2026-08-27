@@ -18,6 +18,7 @@ import {
   createDefaultVoiceGateway,
   MockVoiceProviderAdapter,
   type TranscriptEvent,
+  type VoiceGateway,
 } from "../../../packages/openclinxr/voice-gateway/src/index.js";
 import { globFiles, readJson, writeJson } from "../../agent-factory/lib.js";
 
@@ -152,6 +153,8 @@ export type BlueprintVoiceSimulationSpikeReport = {
     synthesis: {
       audioChunkCount: number;
       firstAudiblePlaybackLatencyMs: number | null;
+      firstAudioEventLatencyMs: number | null;
+      audiblePlaybackObserved: false;
       providerId: string | null;
     };
     traceEvents: TraceEvent[];
@@ -466,6 +469,7 @@ export async function buildBlueprintVoiceSimulationSpikeReport(input: {
   learnerUtterance: string;
   atSecond: number;
   transportEvidenceSourceFile?: string;
+  voiceGateway?: VoiceGateway;
 }): Promise<BlueprintVoiceSimulationSpikeReport> {
   const generatedAt = input.generatedAt ?? new Date().toISOString();
   const scenario = requireScenario(input.scenarios, input.scenarioId);
@@ -477,10 +481,9 @@ export async function buildBlueprintVoiceSimulationSpikeReport(input: {
     scenario,
     plan,
   });
-  const primaryTraceTag = inferPrimaryTraceTag(input.learnerUtterance, plan.traceExpectations.requiredTraceTags);
-  const gateway = createDefaultVoiceGateway({
+  const gateway = input.voiceGateway ?? createDefaultVoiceGateway({
     routeId: "blueprint-voice-simulation-spike-v1",
-    adapters: [new MockVoiceProviderAdapter()],
+    adapters: [new MockVoiceProviderAdapter({ transcript: { finalText: input.learnerUtterance } })],
   });
   const policy = {
     requestPolicyId: "blueprint-voice-simulation-spike-v1",
@@ -493,10 +496,11 @@ export async function buildBlueprintVoiceSimulationSpikeReport(input: {
     audioFormat: "mock/pcm",
     policy,
   }));
-  const finalTranscript = transcriptEvents.find((event) => event.eventType === "final_transcript");
+  const finalTranscript = requireFinalTranscript(transcriptEvents);
+  const routedUtterance = finalTranscript.text;
+  const primaryTraceTag = inferPrimaryTraceTag(routedUtterance, plan.traceExpectations.requiredTraceTags);
   const runtimeRouting = await buildRuntimeRoutingEvidence({
     scenario,
-    learnerUtterance: input.learnerUtterance,
     atSecond: input.atSecond,
     traceTag: primaryTraceTag,
     transcriptEvents,
@@ -537,7 +541,7 @@ export async function buildBlueprintVoiceSimulationSpikeReport(input: {
       tag: primaryTraceTag,
       payload: {
         transcriptEventCount: transcriptEvents.length,
-        confidence: finalTranscript?.confidence ?? null,
+        confidence: finalTranscript.confidence,
         rawTranscriptRedacted: true,
       },
     },
@@ -576,7 +580,9 @@ export async function buildBlueprintVoiceSimulationSpikeReport(input: {
       },
       synthesis: {
         audioChunkCount: audioEvents.length,
-        firstAudiblePlaybackLatencyMs: firstAudio?.provenance.latencyMs ?? null,
+        firstAudiblePlaybackLatencyMs: null,
+        firstAudioEventLatencyMs: firstAudio?.provenance.latencyMs ?? null,
+        audiblePlaybackObserved: false,
         providerId: firstAudio?.provenance.providerId ?? null,
       },
       traceEvents,
@@ -586,7 +592,7 @@ export async function buildBlueprintVoiceSimulationSpikeReport(input: {
     transportEvidence,
     telemetry: {
       recorderSpanCount: telemetry.spans().length,
-      sensitiveFieldsDropped: sensitiveTelemetryFieldsDropped(input.learnerUtterance),
+      sensitiveFieldsDropped: sensitiveTelemetryFieldsDropped(routedUtterance),
       summary: summarizeTelemetrySpans(telemetry.spans()),
     },
     triggerEvidence,
@@ -616,7 +622,6 @@ export async function buildBlueprintVoiceSimulationSpikeReport(input: {
 
 async function buildRuntimeRoutingEvidence(input: {
   scenario: Scenario;
-  learnerUtterance: string;
   atSecond: number;
   traceTag: string;
   transcriptEvents: TranscriptEvent[];
@@ -630,17 +635,18 @@ async function buildRuntimeRoutingEvidence(input: {
 
   const streamId = "learner-mic-mock-001";
   const transcriptSegmentId = "mock-final-transcript-001";
-  const finalTranscript = input.transcriptEvents.find((event) => event.eventType === "final_transcript");
+  const finalTranscript = requireFinalTranscript(input.transcriptEvents);
+  const routedUtterance = finalTranscript.text;
   const routed = runtime.routeActorInteractionTurn(session.stationRunId, {
     atSecond: input.atSecond,
-    learnerUtterance: input.learnerUtterance,
+    learnerUtterance: routedUtterance,
     traceContextTags: [input.traceTag],
     source: {
       kind: "voice_transcript",
       streamId,
       transcriptSegmentId,
-      finalTranscriptText: input.learnerUtterance,
-      provider: finalTranscript?.provenance.providerId ?? "mock-voice",
+      finalTranscriptText: routedUtterance,
+      provider: finalTranscript.provenance.providerId,
       provenanceRefs: [`voice:${streamId}:${transcriptSegmentId}`],
       rawAudioStored: false,
     },
@@ -658,7 +664,7 @@ async function buildRuntimeRoutingEvidence(input: {
     traceProjection: {
       eventCount: projectedEvents.length,
       eventTypes: projectedEvents.map((event) => event.eventType),
-      sensitiveFieldsDropped: projectionDropsSensitiveFields(projectedEvents, input.learnerUtterance),
+      sensitiveFieldsDropped: projectionDropsSensitiveFields(projectedEvents, routedUtterance),
       rawRuntimeTraceStoredInReport: false,
       events: projectedEvents,
     },
@@ -1180,6 +1186,12 @@ function validateMockLoop(value: unknown, errors: string[]): void {
       "/mockLoop/synthesis/firstAudiblePlaybackLatencyMs",
       errors,
     );
+    requireNullableNumberValue(
+      synthesis.firstAudioEventLatencyMs,
+      "/mockLoop/synthesis/firstAudioEventLatencyMs",
+      errors,
+    );
+    requireFalseValue(synthesis.audiblePlaybackObserved, "/mockLoop/synthesis/audiblePlaybackObserved", errors);
     requireNullableStringValue(synthesis.providerId, "/mockLoop/synthesis/providerId", errors);
   }
   requireArrayValue(mockLoop.traceEvents, "/mockLoop/traceEvents", errors);
@@ -1670,6 +1682,14 @@ function requireScenario(scenarios: readonly Scenario[], scenarioId: string): Sc
     throw new Error(`Scenario not found for blueprint voice simulation: ${scenarioId}`);
   }
   return scenario;
+}
+
+function requireFinalTranscript(transcriptEvents: readonly TranscriptEvent[]): TranscriptEvent {
+  const finalTranscript = transcriptEvents.find((event) => event.eventType === "final_transcript");
+  if (!finalTranscript) {
+    throw new Error("Voice gateway produced no final transcript; refusing to route a CLI decoy utterance");
+  }
+  return finalTranscript;
 }
 
 function inferPrimaryTraceTag(utterance: string, requiredTraceTags: readonly string[]): string {

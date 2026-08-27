@@ -121,7 +121,9 @@ describe("blueprint-driven voice simulation spike", () => {
       },
       synthesis: {
         audioChunkCount: 1,
-        firstAudiblePlaybackLatencyMs: 0,
+        firstAudiblePlaybackLatencyMs: null,
+        firstAudioEventLatencyMs: 0,
+        audiblePlaybackObserved: false,
         providerId: "mock-voice",
       },
       traceEvents: [

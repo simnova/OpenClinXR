@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
+import { createStep2CsStyleSeedBlueprint } from "../../../packages/openclinxr/exam-assembly/src/index.js";
+import { scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src/index.js";
 import { decideActorRoute } from "../../../packages/openclinxr/session-state/src/internal.js";
+import { createDefaultVoiceGateway } from "../../../packages/openclinxr/voice-gateway/src/index.js";
 import { MockVoiceProviderAdapter } from "../../../packages/openclinxr/voice-gateway/src/adapters.js";
+import { buildBlueprintVoiceSimulationSpikeReport } from "./blueprint-voice-simulation-spike.js";
 
 /**
  * OBSERVABLE: the voice-loop harness calls `gateway.transcribe()`, finds the final transcript, and
@@ -38,6 +42,26 @@ import { MockVoiceProviderAdapter } from "../../../packages/openclinxr/voice-gat
  * notEvidenceFor: microphone capture, speech-recognition quality, audible playback, conversation-policy
  *   or model-generated actor dialogue, UI-XR or IWSDK behaviour, or Quest readiness. `reject_measured`
  *   is NOT an honest outcome here: either the routed utterance comes from the transcript or it does not.
+ *
+ * ## FIXED (#708)
+ *
+ * Clauses (1) and (2) flipped from `it.fails` to `it` on 2026-08-27, and clause (5) was appended.
+ * `MockVoiceProviderAdapter` gained an optional per-instance `transcript` fixture
+ * (`{ partialText?, finalText }`); the no-argument constructor still emits its original two events
+ * byte for byte (clauses (3)/(4) pin this, and the eleven construction sites including
+ * `default-runtime-factory.ts:50` are untouched). The report builder routes the GATEWAY's final
+ * transcript as the sole downstream utterance: `buildBlueprintVoiceSimulationSpikeReport` now takes
+ * `voiceGateway?` and, when absent, configures the deterministic mock with `input.learnerUtterance`
+ * as the fixture finalText, so the CLI `--learner-utterance` control stays live by configuring what
+ * the mock transcribes. The trace tag derives from the final transcript text, not the CLI string;
+ * `buildRuntimeRoutingEvidence` derives the routed utterance from the transcript internally and
+ * throws via `requireFinalTranscript` when no final transcript exists — no CLI fallback anywhere.
+ * Clause (5) asserts the observable invariant: same injected provider transcript, two different
+ * unused CLI decoys, same selected actor, same routing reason, same trace tag, same synthesized
+ * actor — which catches the :480 trace-tag leak as well as the :636 routing leak. The latency
+ * field is additive: `firstAudioEventLatencyMs` and `audiblePlaybackObserved: false` publish beside
+ * the legacy `firstAudiblePlaybackLatencyMs`, which is now `null` (provider provenance latency is
+ * not an audible-playback measurement).
  */
 
 const PROVIDER_FINAL = "When did the chest pressure start?";
@@ -85,7 +109,7 @@ describe("the blueprint voice loop routes the transcript it received", () => {
     ).toBe(3);
   });
 
-  it.fails("(1) the mock adapter accepts a transcript fixture so the harness's own control is not inert", async () => {
+  it("(1) the mock adapter accepts a transcript fixture so the harness's own control is not inert", async () => {
     const Ctor = MockVoiceProviderAdapter as unknown as new (o?: unknown) => {
       transcribe(i: unknown): AsyncIterable<{ eventType: string; text: string }>;
     };
@@ -99,7 +123,7 @@ describe("the blueprint voice loop routes the transcript it received", () => {
     ).toBe(MARIA_DECOY);
   });
 
-  it.fails("(2) a fixture transcript routes to ITS actor, not to the default", async () => {
+  it("(2) a fixture transcript routes to ITS actor, not to the default", async () => {
     const Ctor = MockVoiceProviderAdapter as unknown as new (o?: unknown) => {
       transcribe(i: unknown): AsyncIterable<{ eventType: string; text: string }>;
     };
@@ -135,8 +159,57 @@ describe("the blueprint voice loop routes the transcript it received", () => {
         + "default depend on construction order across the eleven sites",
     ).toEqual(b.map((e) => e.text));
   });
+
+  it("(5) the report builder routes the GATEWAY's final transcript, never the unused CLI decoy", async () => {
+    const gateway = createDefaultVoiceGateway({
+      routeId: "blueprint-voice-simulation-spike-v1",
+      adapters: [new MockVoiceProviderAdapter({ transcript: { partialText: "When did", finalText: PROVIDER_FINAL } })],
+    });
+    const reportFor = (decoy: string) => buildBlueprintVoiceSimulationSpikeReport({
+      generatedAt: "2026-08-27T00:00:00.000Z",
+      blueprint: createStep2CsStyleSeedBlueprint(scenarioBank),
+      scenarios: scenarioBank,
+      scenarioId: "ed_chest_pain_priority_v1",
+      learnerUtterance: decoy,
+      atSecond: 135,
+      voiceGateway: gateway,
+    });
+
+    const withMariaDecoy = await reportFor(MARIA_DECOY);
+    const withAnnaDecoy = await reportFor(ANNA_DECOY);
+
+    // The provider transcript selects the patient no matter which decoy the CLI would have routed.
+    expect(withMariaDecoy.mockLoop.selectedActorId).toBe("patient_robert_hayes_v1");
+    expect(withMariaDecoy.mockLoop.routingReason).toBe("single_patient_default");
+    expect(withAnnaDecoy.mockLoop.selectedActorId).toBe("patient_robert_hayes_v1");
+    expect(withAnnaDecoy.mockLoop.routingReason).toBe("single_patient_default");
+    expect(withMariaDecoy.runtimeRouting.selectedActorId).toBe("patient_robert_hayes_v1");
+    expect(withMariaDecoy.runtimeRouting.routingReason).toBe("single_patient_default");
+    expect(withAnnaDecoy.runtimeRouting.selectedActorId).toBe("patient_robert_hayes_v1");
+    expect(withAnnaDecoy.runtimeRouting.routingReason).toBe("single_patient_default");
+
+    // The trace tag derives from the transcript text ("When did the chest pressure start?" matches no
+    // prioritized term, so it falls back to the scenario's first required trace tag), not from the decoy.
+    const expectedTraceTag = "history_opqrst";
+    expect(withMariaDecoy.mockLoop.traceEvents.map((event) => event.tag)).toEqual([expectedTraceTag, expectedTraceTag]);
+    expect(withAnnaDecoy.mockLoop.traceEvents.map((event) => event.tag)).toEqual([expectedTraceTag, expectedTraceTag]);
+    const projectedTag = (report: Awaited<ReturnType<typeof buildBlueprintVoiceSimulationSpikeReport>>) =>
+      report.runtimeRouting.traceProjection.events.find((event) => event.eventType === "actor.interaction.routed")?.tag;
+    expect(projectedTag(withMariaDecoy)).toBe(expectedTraceTag);
+    expect(projectedTag(withAnnaDecoy)).toBe(expectedTraceTag);
+
+    // The decoys are unused: they must not appear anywhere in either report.
+    const serializedMaria = JSON.stringify(withMariaDecoy);
+    const serializedAnna = JSON.stringify(withAnnaDecoy);
+    expect(serializedMaria).not.toContain(MARIA_DECOY);
+    expect(serializedMaria).not.toContain(ANNA_DECOY);
+    expect(serializedAnna).not.toContain(MARIA_DECOY);
+    expect(serializedAnna).not.toContain(ANNA_DECOY);
+  });
 });
 
 // NOT TESTED: that the report builder routes the transcript. That needs the `voiceGateway?` seam this
 // card adds, and asserting it here would test a signature that does not exist yet. Clauses (1) and (2)
 // pin the adapter half, which is what makes the report-side repair possible at all.
+// SUPERSEDED (#708): clause (5) now exercises the report builder with an injected `voiceGateway?` and
+// asserts the observable invariant, so this residual is covered.
