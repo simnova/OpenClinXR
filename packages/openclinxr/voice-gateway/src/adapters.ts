@@ -32,9 +32,23 @@ export async function collectVoiceStream<TEvent>(events: AsyncIterable<TEvent>):
   return collected;
 }
 
+export type MockVoiceProviderOptions = {
+  /**
+   * Optional deterministic transcript fixture. When omitted the adapter emits its original two
+   * events byte for byte (partial "When did" @ 0.75/120ms, final "When did the chest pressure
+   * start?" @ 0.99/420ms), so the eleven no-argument construction sites keep their behaviour.
+   */
+  transcript?: {
+    partialText?: string;
+    finalText: string;
+  };
+};
+
 export class MockVoiceProviderAdapter implements VoiceProviderAdapter {
   readonly id = "mock-voice";
   readonly capabilities: VoiceCapability[] = ["transcription", "synthesis", "viseme_cues"];
+
+  constructor(private readonly options: MockVoiceProviderOptions = {}) {}
 
   async health(): Promise<ProviderHealth> {
     return { providerId: this.id, status: "ready" };
@@ -44,14 +58,14 @@ export class MockVoiceProviderAdapter implements VoiceProviderAdapter {
     const provenance = this.provenance(input);
     yield {
       eventType: "partial_transcript",
-      text: "When did",
+      text: this.options.transcript?.partialText ?? "When did",
       confidence: 0.75,
       atMs: 120,
       provenance,
     };
     yield {
       eventType: "final_transcript",
-      text: "When did the chest pressure start?",
+      text: this.options.transcript?.finalText ?? "When did the chest pressure start?",
       confidence: 0.99,
       atMs: 420,
       provenance,
