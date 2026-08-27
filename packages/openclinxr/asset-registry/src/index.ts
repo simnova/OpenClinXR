@@ -41,6 +41,12 @@ export {
 
 import measuredStationGeometry from "./measured-station-geometry.json" with { type: "json" };
 
+export {
+  findStaleMeasuredGeometry,
+  freshMeasuredTriangleCounts,
+  type MeasuredGeometryFingerprint,
+} from "./measured-station-geometry-freshness.js";
+
 export type MeasuredStationGeometry = {
   generatedBy: string;
   generatedAt: string;

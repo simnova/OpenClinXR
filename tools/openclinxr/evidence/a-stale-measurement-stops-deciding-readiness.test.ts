@@ -64,6 +64,20 @@ import { createSeedBankAssetReadiness } from "../../../apps/api/src/api-route-su
  *   both out of scope; that the check runs anywhere other than this consumer.
  */
 
+/**
+ * ## FIXED (#711)
+ *
+ * `freshMeasuredTriangleCounts(doc, repoRoot)` now composes `findStaleMeasuredGeometry` and filters
+ * `doc.triangles` down to fingerprint-matching counts; `createSeedBankAssetReadiness(doc?)`
+ * consumes it (apps/api/src/api-route-support.ts) with an optional artifact override, defaulting to
+ * the built `MEASURED_STATION_GEOMETRY` the verdict reads. A stale or missing source drops that
+ * count, so `evaluateScenarioAssetBudget` fires #700's typed
+ * `station_triangle_measurements_incomplete` instead of the stale number or a declaration fallback.
+ * Repo root resolves like `readRepoGeneratedJsonIfExists` (cwd, then the `../..` hop from
+ * `apps/api`), so the committed artifact still puts ED at 191,338 over budget — clause (3) now
+ * falsifiable via the built copy or the GLBs, no longer only via editing `src`.
+ */
+
 const REPO = join(import.meta.dirname, "../../..");
 const ARTIFACT = join(REPO, "packages/openclinxr/asset-registry/src/measured-station-geometry.json");
 const ED = "ed_chest_pain_priority_v1";
@@ -101,7 +115,7 @@ function edRow(rows: Row[]): Row {
 }
 
 describe("a stale measurement stops deciding readiness (#711)", () => {
-  it.fails("(1) only fresh counts are handed to the verdict", async () => {
+  it("(1) only fresh counts are handed to the verdict", async () => {
     const mod = (await import(
       "../../../packages/openclinxr/asset-registry/src/measured-station-geometry-freshness.js"
     )) as { freshMeasuredTriangleCounts?: (doc: unknown, repoRoot: string) => Record<string, number> };
@@ -124,7 +138,7 @@ describe("a stale measurement stops deciding readiness (#711)", () => {
     ).not.toContain(ED_PATIENT);
   });
 
-  it.fails("(2) a stale source changes the verdict, and to the typed incomplete blocker", () => {
+  it("(2) a stale source changes the verdict, and to the typed incomplete blocker", () => {
     // The seam: `createSeedBankAssetReadiness` accepts an artifact override so a stale document can
     // be exercised without mutating a tracked file. Default stays the committed artifact.
     const build = createSeedBankAssetReadiness as unknown as (doc?: unknown) => Row[];
