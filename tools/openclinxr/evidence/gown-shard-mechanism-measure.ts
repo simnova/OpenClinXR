@@ -45,7 +45,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { NodeIO } from "@gltf-transform/core";
+import { NodeIO, type Document } from "@gltf-transform/core";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(HERE, "../../..");
@@ -118,44 +118,25 @@ function closestOnTri(p: V3, a: V3, b: V3, c: V3): V3 {
   return [a[0]! + abx * v + acx * w, a[1]! + aby * v + acy * w, a[2]! + abz * v + acz * w];
 }
 
-async function main(): Promise<void> {
-  // COUNTERWEIGHT: pin the graded asset before measuring anything.
-  const rawBytes = readFileSync(GLB_PATH);
-  const bytes = new Uint8Array(rawBytes);
-  const hash = createHash("sha256").update(bytes).digest("hex");
-  if (hash !== GLB_SHA256 || bytes.byteLength !== GLB_BYTES) {
-    throw new Error(
-      `graded asset changed: sha256 ${hash.slice(0, 12)}... size ${bytes.byteLength} `
-        + `(expected ${GLB_SHA256.slice(0, 12)}... / ${GLB_BYTES}) — refusing to measure a different mesh`,
-    );
-  }
+/**
+ * #719 — shared geometry builders. #691's math, hoisted out of main() so the shell-clearance
+ * measurement runs the SAME instrument on the fold-suppressed control bake. Nothing about the
+ * arithmetic changes; only the plumbing moves.
+ */
 
-  const doc = await io.read(GLB_PATH);
-  let gownPos: Float32Array | null = null;
-  let gownIdx: Uint16Array | Uint32Array | null = null;
-  let bodyPos: Float32Array | null = null;
-  let bodyIdx: Uint16Array | Uint32Array | null = null;
-  for (const mesh of doc.getRoot().listMeshes()) {
-    for (const prim of mesh.listPrimitives()) {
-      const matName = prim.getMaterial()?.getName() ?? "";
-      if (mesh.getName() === GOWN_MESH) {
-        const p = prim.getAttribute("POSITION")?.getArray();
-        const i = prim.getIndices()?.getArray();
-        if (p) gownPos = p as Float32Array;
-        if (i) gownIdx = i as Uint16Array | Uint32Array;
-      }
-      if (matName === BODY_PRIM) {
-        const p = prim.getAttribute("POSITION")?.getArray();
-        const i = prim.getIndices()?.getArray();
-        if (p) bodyPos = p as Float32Array;
-        if (i) bodyIdx = i as Uint16Array | Uint32Array;
-      }
-    }
-  }
-  if (!gownPos || !gownIdx || !bodyPos || !bodyIdx) {
-    throw new Error(`missing primitives: gown=${!!gownPos} gownIdx=${!!gownIdx} body=${!!bodyPos} bodyIdx=${!!bodyIdx}`);
-  }
+type BodyGeo = {
+  bodyTris: Array<{ a: V3; b: V3; c: V3; n: V3 }>;
+  gridYZ: number[][];
+  gridXY: number[][];
+  gy: number;
+  gz: number;
+  gx: number;
+  bMin: V3;
+  axisX: number;
+  axisZ: number;
+};
 
+function buildBodyGeometry(bodyPos: Float32Array, bodyIdx: Uint16Array | Uint32Array): BodyGeo {
   const bodyVerts: V3[] = [];
   for (let i = 0; i < bodyPos.length / 3; i++) bodyVerts.push(vAt(bodyPos, i));
   const bodyTris: Array<{ a: V3; b: V3; c: V3; n: V3 }> = [];
@@ -208,84 +189,87 @@ async function main(): Promise<void> {
       for (let k = k0; k <= k1; k++) gridXY[k * gy + i]!.push(t);
     }
   }
+  return { bodyTris, gridYZ, gridXY, gy, gz, gx, bMin, axisX, axisZ };
+}
 
-  /**
-   * Möller–Trumbore, ray along +X or +Z. Validated form (probe 4): hit points keep the ray
-   * origin's cross-axis coordinates; body centroid and neck classify inside, far points outside.
-   *   p = D x e2; det = e1.p; u = (s.p)/det; q = s x e1; v = (D.q)/det; t = (e2.q)/det
-   */
-  function rayHits(p: V3, tIdx: number, axis: "x" | "z"): boolean {
-    const { a, b, c } = bodyTris[tIdx]!;
-    const e1x = b[0]! - a[0]!, e1y = b[1]! - a[1]!, e1z = b[2]! - a[2]!;
-    const e2x = c[0]! - a[0]!, e2y = c[1]! - a[1]!, e2z = c[2]! - a[2]!;
-    // D x e2: D=(1,0,0) -> (0,-e2z,e2y); D=(0,0,1) -> (-e2y,e2x,0)
-    const px = axis === "x" ? 0 : -e2y;
-    const py = axis === "x" ? -e2z : e2x;
-    const pz = axis === "x" ? e2y : 0;
-    const det = e1x * px + e1y * py + e1z * pz;
-    if (Math.abs(det) < 1e-14) return false;
-    const inv = 1 / det;
-    const sx = p[0]! - a[0]!, sy = p[1]! - a[1]!, sz = p[2]! - a[2]!;
-    const u = (sx * px + sy * py + sz * pz) * inv;
-    if (u < 0 || u > 1) return false;
-    // q = s x e1
-    const qx = sy * e1z - sz * e1y;
-    const qy = sz * e1x - sx * e1z;
-    const qz = sx * e1y - sy * e1x;
-    const v = (axis === "x" ? qx : qz) * inv;
-    if (v < 0 || u + v > 1) return false;
-    const t = (e2x * qx + e2y * qy + e2z * qz) * inv;
-    return t > 1e-9;
-  }
+/**
+ * Möller–Trumbore, ray along +X or +Z. Validated form (probe 4): hit points keep the ray
+ * origin's cross-axis coordinates; body centroid and neck classify inside, far points outside.
+ *   p = D x e2; det = e1.p; u = (s.p)/det; q = s x e1; v = (D.q)/det; t = (e2.q)/det
+ */
+function rayHits(p: V3, tIdx: number, axis: "x" | "z", geo: BodyGeo): boolean {
+  const { a, b, c } = geo.bodyTris[tIdx]!;
+  const e1x = b[0]! - a[0]!, e1y = b[1]! - a[1]!, e1z = b[2]! - a[2]!;
+  const e2x = c[0]! - a[0]!, e2y = c[1]! - a[1]!, e2z = c[2]! - a[2]!;
+  // D x e2: D=(1,0,0) -> (0,-e2z,e2y); D=(0,0,1) -> (-e2y,e2x,0)
+  const px = axis === "x" ? 0 : -e2y;
+  const py = axis === "x" ? -e2z : e2x;
+  const pz = axis === "x" ? e2y : 0;
+  const det = e1x * px + e1y * py + e1z * pz;
+  if (Math.abs(det) < 1e-14) return false;
+  const inv = 1 / det;
+  const sx = p[0]! - a[0]!, sy = p[1]! - a[1]!, sz = p[2]! - a[2]!;
+  const u = (sx * px + sy * py + sz * pz) * inv;
+  if (u < 0 || u > 1) return false;
+  // q = s x e1
+  const qx = sy * e1z - sz * e1y;
+  const qy = sz * e1x - sx * e1z;
+  const qz = sx * e1y - sy * e1x;
+  const v = (axis === "x" ? qx : qz) * inv;
+  if (v < 0 || u + v > 1) return false;
+  const t = (e2x * qx + e2y * qy + e2z * qz) * inv;
+  return t > 1e-9;
+}
 
-  function crossings(p: V3, axis: "x" | "z"): number {
-    if (axis === "x") {
-      const i = Math.max(0, Math.min(gy - 1, Math.floor((p[1]! - bMin[1]!) / CELL)));
-      const j = Math.max(0, Math.min(gz - 1, Math.floor((p[2]! - bMin[2]!) / CELL)));
-      let hits = 0;
-      for (const tIdx of gridYZ[i * gz + j]!) if (rayHits(p, tIdx, "x")) hits++;
-      return hits;
-    }
-    const k = Math.max(0, Math.min(gx - 1, Math.floor((p[0]! - bMin[0]!) / CELL)));
-    const i = Math.max(0, Math.min(gy - 1, Math.floor((p[1]! - bMin[1]!) / CELL)));
+function crossings(p: V3, axis: "x" | "z", geo: BodyGeo): number {
+  if (axis === "x") {
+    const i = Math.max(0, Math.min(geo.gy - 1, Math.floor((p[1]! - geo.bMin[1]!) / CELL)));
+    const j = Math.max(0, Math.min(geo.gz - 1, Math.floor((p[2]! - geo.bMin[2]!) / CELL)));
     let hits = 0;
-    for (const tIdx of gridXY[k * gy + i]!) if (rayHits(p, tIdx, "z")) hits++;
+    for (const tIdx of geo.gridYZ[i * geo.gz + j]!) if (rayHits(p, tIdx, "x", geo)) hits++;
     return hits;
   }
+  const k = Math.max(0, Math.min(geo.gx - 1, Math.floor((p[0]! - geo.bMin[0]!) / CELL)));
+  const i = Math.max(0, Math.min(geo.gy - 1, Math.floor((p[1]! - geo.bMin[1]!) / CELL)));
+  let hits = 0;
+  for (const tIdx of geo.gridXY[k * geo.gy + i]!) if (rayHits(p, tIdx, "z", geo)) hits++;
+  return hits;
+}
 
-  /** Nearest body triangle within the 3x3-cell neighbourhood: distance, signed value, normal. */
-  function nearestBodyInfo(p: V3): { dist: number; sign: number; n: V3 } {
-    const ci = Math.max(0, Math.min(gy - 1, Math.floor((p[1]! - bMin[1]!) / CELL)));
-    const cj = Math.max(0, Math.min(gz - 1, Math.floor((p[2]! - bMin[2]!) / CELL)));
-    const ck = Math.max(0, Math.min(gx - 1, Math.floor((p[0]! - bMin[0]!) / CELL)));
-    let best = Infinity;
-    let bestSign = 0;
-    let bestN: V3 = [1, 0, 0];
-    const seen = new Set<number>();
-    for (let di = -1; di <= 1; di++) {
-      for (let dj = -1; dj <= 1; dj++) {
-        for (let dk = -1; dk <= 1; dk++) {
-          const i = ci + di, j = cj + dj, k = ck + dk;
-          if (i < 0 || i >= gy || j < 0 || j >= gz || k < 0 || k >= gx) continue;
-          for (const tIdx of gridYZ[i * gz + j]!) {
-            if (seen.has(tIdx)) continue;
-            seen.add(tIdx);
-            const { a, b, c, n } = bodyTris[tIdx]!;
-            const q = closestOnTri(p, a, b, c);
-            const dx = p[0]! - q[0]!, dy = p[1]! - q[1]!, dz = p[2]! - q[2]!;
-            const d = Math.hypot(dx, dy, dz);
-            if (d < best) {
-              best = d;
-              bestSign = dx * n[0]! + dy * n[1]! + dz * n[2]!;
-              bestN = n;
-            }
+/** Nearest body triangle within the 3x3-cell neighbourhood: distance, signed value, normal. */
+function nearestBodyInfo(p: V3, geo: BodyGeo): { dist: number; sign: number; n: V3 } {
+  const ci = Math.max(0, Math.min(geo.gy - 1, Math.floor((p[1]! - geo.bMin[1]!) / CELL)));
+  const cj = Math.max(0, Math.min(geo.gz - 1, Math.floor((p[2]! - geo.bMin[2]!) / CELL)));
+  const ck = Math.max(0, Math.min(geo.gx - 1, Math.floor((p[0]! - geo.bMin[0]!) / CELL)));
+  let best = Infinity;
+  let bestSign = 0;
+  let bestN: V3 = [1, 0, 0];
+  const seen = new Set<number>();
+  for (let di = -1; di <= 1; di++) {
+    for (let dj = -1; dj <= 1; dj++) {
+      for (let dk = -1; dk <= 1; dk++) {
+        const i = ci + di, j = cj + dj, k = ck + dk;
+        if (i < 0 || i >= geo.gy || j < 0 || j >= geo.gz || k < 0 || k >= geo.gx) continue;
+        for (const tIdx of geo.gridYZ[i * geo.gz + j]!) {
+          if (seen.has(tIdx)) continue;
+          seen.add(tIdx);
+          const { a, b, c, n } = geo.bodyTris[tIdx]!;
+          const q = closestOnTri(p, a, b, c);
+          const dx = p[0]! - q[0]!, dy = p[1]! - q[1]!, dz = p[2]! - q[2]!;
+          const d = Math.hypot(dx, dy, dz);
+          if (d < best) {
+            best = d;
+            bestSign = dx * n[0]! + dy * n[1]! + dz * n[2]!;
+            bestN = n;
           }
         }
       }
     }
-    return { dist: best, sign: bestSign, n: bestN };
   }
+  return { dist: best, sign: bestSign, n: bestN };
+}
 
+function gownVerticesAndRange(gownPos: Float32Array): { gownVerts: V3[]; gMinY: number; gMaxY: number } {
   const gownVerts: V3[] = [];
   for (let i = 0; i < gownPos.length / 3; i++) gownVerts.push(vAt(gownPos, i));
   let gMinY = Infinity, gMaxY = -Infinity;
@@ -293,6 +277,289 @@ async function main(): Promise<void> {
     if (q[1]! < gMinY) gMinY = q[1]!;
     if (q[1]! > gMaxY) gMaxY = q[1]!;
   }
+  return { gownVerts, gMinY, gMaxY };
+}
+
+/** #691's mesh extraction, shared. The gown mesh matches by PREFIX: a re-bake on a gowned
+ *  input exports `..._v1_mesh.001` because the stripped input's orphaned mesh data keeps the
+ *  canonical name (Blender data-block collision — #714's fix was a purge; this slice is
+ *  measurement-only, so the match tolerates the suffix). */
+function loadGownAndBody(
+  doc: Document,
+): { gownPos: Float32Array; gownIdx: Uint16Array | Uint32Array; bodyPos: Float32Array; bodyIdx: Uint16Array | Uint32Array } {
+  let gownPos: Float32Array | null = null;
+  let gownIdx: Uint16Array | Uint32Array | null = null;
+  let bodyPos: Float32Array | null = null;
+  let bodyIdx: Uint16Array | Uint32Array | null = null;
+  for (const mesh of doc.getRoot().listMeshes()) {
+    for (const prim of mesh.listPrimitives()) {
+      const matName = prim.getMaterial()?.getName() ?? "";
+      if (mesh.getName().startsWith(GOWN_MESH)) {
+        const p = prim.getAttribute("POSITION")?.getArray();
+        const i = prim.getIndices()?.getArray();
+        if (p) gownPos = p as Float32Array;
+        if (i) gownIdx = i as Uint16Array | Uint32Array;
+      }
+      if (matName === BODY_PRIM) {
+        const p = prim.getAttribute("POSITION")?.getArray();
+        const i = prim.getIndices()?.getArray();
+        if (p) bodyPos = p as Float32Array;
+        if (i) bodyIdx = i as Uint16Array | Uint32Array;
+      }
+    }
+  }
+  if (!gownPos || !gownIdx || !bodyPos || !bodyIdx) {
+    throw new Error(`missing primitives: gown=${!!gownPos} gownIdx=${!!gownIdx} body=${!!bodyPos} bodyIdx=${!!bodyIdx}`);
+  }
+  return { gownPos, gownIdx, bodyPos, bodyIdx };
+}
+
+/** #719: set to the fold-suppressed control bake to write the shell-clearance report instead. */
+const CONTROL_GLB_ENV = "OPENCLINXR_GOWN_CONTROL_GLB";
+/** #719: optional same-topology fold-on bake (identical vertices, fold applied) — the direct
+ *  "same vertices with it on" comparison the card asks for. */
+const FOLD_ON_GLB_ENV = "OPENCLINXR_GOWN_FOLD_ON_GLB";
+const CLEARANCE_REPORT_PATH = join(HERE, "gown-shell-clearance-measurement.json");
+/** "At or inside the skin": signed clearance within +2 mm of the body surface — the same
+ *  tolerance the nearest-surface cross-check uses for strictly inside (SURFACE_EPS). */
+const AT_OR_INSIDE_M = 2e-3;
+/** Nearest-surface cross-check tolerance for strictly inside, unchanged from #691. */
+const SURFACE_EPS = 2e-3;
+const VERDICTS = ["fold_side_sufficient", "upstream_shell_required", "mixed", "inconclusive_blocked", "other"] as const;
+
+type ClearanceBand = {
+  index: number;
+  yLow: number;
+  yHigh: number;
+  /** Signed metres from the body surface with the fold SUPPRESSED. Negative means already inside. */
+  preFoldClearanceMedian: number;
+  preFoldVerticesAtOrInside: number;
+  foldOnVerticesInside: number;
+  sampled: number;
+};
+
+/**
+ * #719 — signed garment-to-body clearance, fold suppressed vs fold on.
+ *
+ * The subject is the shipped gown (pinned below). The CONTROL is a re-bake of the same input
+ * through bake_mpfb_gown_inspect.py with OPENCLINXR_SUPPRESS_GOWN_FOLD686=1 (the wave
+ * displacement d is zeroed at the amplitude's use site; the pinned constants are untouched).
+ * The control gown is full-res (the same-vertices fold-on control is measured when
+ * OPENCLINXR_GOWN_FOLD_ON_GLB is set) and its body is the shipped body — the bake only replaces
+ * the gown, so the clearance reference is identical to the shipped asset's.
+ *
+ * The banding repeats #691: ten equal bands over the gown's own y-range. `foldOnVerticesInside`
+ * is the +X parity count on the SHIPPED GLB — the same instrument and the same asset #691 and
+ * #714 measured, so the numbers stay comparable with 463/411. `preFoldClearanceMedian` and
+ * `preFoldVerticesAtOrInside` are new: they answer whether the shell sits at or inside the skin
+ * BEFORE the fold displacement runs — the assumption the #714 clamp never measured.
+ *
+ * Verdict rule (deterministic, cited in the note): pre-fold at-or-inside share >= 1% of the
+ * sampled shell -> upstream_shell_required (no bound on d can reach a vertex the fold never
+ * placed); 0 < share < 1% -> mixed; 0 -> fold_side_sufficient (or "other" if nothing is inside
+ * with the fold on either).
+ */
+async function measureShellClearance(controlPath: string): Promise<void> {
+  // COUNTERWEIGHT: pin the shipped asset before measuring anything (same as main()).
+  const rawBytes = readFileSync(GLB_PATH);
+  const bytes = new Uint8Array(rawBytes);
+  const hash = createHash("sha256").update(bytes).digest("hex");
+  if (hash !== GLB_SHA256 || bytes.byteLength !== GLB_BYTES) {
+    throw new Error(
+      `graded asset changed: sha256 ${hash.slice(0, 12)}... size ${bytes.byteLength} `
+        + `(expected ${GLB_SHA256.slice(0, 12)}... / ${GLB_BYTES}) — refusing to measure a different mesh`,
+    );
+  }
+
+  const shipped = await io.read(GLB_PATH);
+  const control = await io.read(controlPath);
+  const shippedMeshes = loadGownAndBody(shipped);
+  const controlMeshes = loadGownAndBody(control);
+  const shippedGeo = buildBodyGeometry(shippedMeshes.bodyPos, shippedMeshes.bodyIdx);
+  const controlGeo = buildBodyGeometry(controlMeshes.bodyPos, controlMeshes.bodyIdx);
+
+  const controlVerts = gownVerticesAndRange(controlMeshes.gownPos);
+  const shippedVerts = gownVerticesAndRange(shippedMeshes.gownPos);
+  const controlBand = (y: number): number =>
+    Math.min(DECILES - 1, Math.max(0, Math.floor(((y - controlVerts.gMinY) / (controlVerts.gMaxY - controlVerts.gMinY)) * DECILES)));
+
+  const bands: ClearanceBand[] = Array.from({ length: DECILES }, (_, index) => {
+    const yLow = controlVerts.gMinY + (index / DECILES) * (controlVerts.gMaxY - controlVerts.gMinY);
+    const yHigh = controlVerts.gMinY + ((index + 1) / DECILES) * (controlVerts.gMaxY - controlVerts.gMinY);
+    return { index, yLow, yHigh, preFoldClearanceMedian: 0, preFoldVerticesAtOrInside: 0, foldOnVerticesInside: 0, sampled: 0 };
+  });
+
+  // Control (fold suppressed): per-vertex signed clearance + parity, aggregated per band.
+  const clearances: number[][] = Array.from({ length: DECILES }, () => []);
+  const controlInsideParity = Array.from({ length: DECILES }, () => 0);
+  const controlInsideNearest = Array.from({ length: DECILES }, () => 0);
+  for (const q of controlVerts.gownVerts) {
+    const bandIdx = controlBand(q[1]!);
+    bands[bandIdx]!.sampled++;
+    const { sign } = nearestBodyInfo(q, controlGeo);
+    clearances[bandIdx]!.push(sign);
+    if (sign <= AT_OR_INSIDE_M) bands[bandIdx]!.preFoldVerticesAtOrInside++;
+    if (sign < -SURFACE_EPS) controlInsideNearest[bandIdx]!++;
+    if (crossings(q, "x", controlGeo) % 2 === 1) controlInsideParity[bandIdx]!++;
+  }
+  for (let b = 0; b < DECILES; b++) {
+    const c = clearances[b]!.sort((x, y) => x - y);
+    bands[b]!.preFoldClearanceMedian = c.length === 0 ? 0 : c.length % 2 === 1 ? c[(c.length - 1) / 2]! : (c[c.length / 2 - 1]! + c[c.length / 2]!) / 2;
+  }
+
+  // Shipped (fold on, decimated): +X parity per band over the SHIPPED gown's own range — the
+  // #691 instrument on the same asset, so the numbers stay comparable with 463/411.
+  const shippedBand = (y: number): number =>
+    Math.min(DECILES - 1, Math.max(0, Math.floor(((y - shippedVerts.gMinY) / (shippedVerts.gMaxY - shippedVerts.gMinY)) * DECILES)));
+  for (const q of shippedVerts.gownVerts) {
+    const bandIdx = shippedBand(q[1]!);
+    if (crossings(q, "x", shippedGeo) % 2 === 1) bands[bandIdx]!.foldOnVerticesInside++;
+  }
+
+  // Same-topology fold-on control (identical vertices, fold applied): the card's "same vertices
+  // with it on", measured when the bake was taken.
+  const foldOnPath = process.env[FOLD_ON_GLB_ENV];
+  const sameTopologyInside = Array.from({ length: DECILES }, () => 0);
+  let sameTopologySampled = 0;
+  if (foldOnPath) {
+    const foldOn = await io.read(foldOnPath);
+    const foldOnMeshes = loadGownAndBody(foldOn);
+    const foldOnGeo = buildBodyGeometry(foldOnMeshes.bodyPos, foldOnMeshes.bodyIdx);
+    const foldOnVerts = gownVerticesAndRange(foldOnMeshes.gownPos);
+    const foldOnBand = (y: number): number =>
+      Math.min(DECILES - 1, Math.max(0, Math.floor(((y - foldOnVerts.gMinY) / (foldOnVerts.gMaxY - foldOnVerts.gMinY)) * DECILES)));
+    for (const q of foldOnVerts.gownVerts) {
+      sameTopologySampled++;
+      if (crossings(q, "x", foldOnGeo) % 2 === 1) sameTopologyInside[foldOnBand(q[1]!)]!++;
+    }
+  }
+
+  const totalPrefoldAtOrInside = bands.reduce((s, b) => s + b.preFoldVerticesAtOrInside, 0);
+  const totalSampled = bands.reduce((s, b) => s + b.sampled, 0);
+  const totalFoldOnInside = bands.reduce((s, b) => s + b.foldOnVerticesInside, 0);
+  const prefoldShare = totalSampled === 0 ? 0 : totalPrefoldAtOrInside / totalSampled;
+
+  let foldReachability: string;
+  if (totalPrefoldAtOrInside === 0) {
+    foldReachability = totalFoldOnInside > 0 ? "fold_side_sufficient" : "other";
+  } else if (prefoldShare < 0.01) {
+    foldReachability = "mixed";
+  } else {
+    foldReachability = "upstream_shell_required";
+  }
+
+  const reachabilityNote =
+    `pre-fold (fold suppressed) at-or-inside vertices: ${totalPrefoldAtOrInside} of ${totalSampled} ` +
+    `sampled (${(prefoldShare * 100).toFixed(1)}%), across the gown's own y-range ` +
+    `${controlVerts.gMinY.toFixed(3)}..${controlVerts.gMaxY.toFixed(3)} m. The fold-on shipped ` +
+    `asset measures ${totalFoldOnInside} inside (+X parity) — #691's 463-upper/24-lower baseline ` +
+    (totalFoldOnInside === 487 ? "reproduced exactly" : `(was 487; this run ${totalFoldOnInside})`) +
+    `. Same-topology fold-on control (same bake path, only the fold differs; the exported ` +
+    `prim re-splits by normal so the count differs by 3 vertices): ` +
+    `${sameTopologyInside.reduce((s, n) => s + n, 0)} inside of ${sameTopologySampled} sampled. ` +
+    (foldReachability === "upstream_shell_required"
+      ? `The clamp bounds the trough by rr*(s-1), the lift the fold code itself applies — but the ` +
+        `shell already sits at or inside the skin before the fold displacement runs, so no bound on ` +
+        `d can reach those vertices; the fix is upstream of the fold (the shell fit), not fold arithmetic.`
+      : foldReachability === "mixed"
+        ? `A small pre-existing share (${totalPrefoldAtOrInside} vertices) sits at or inside the skin ` +
+          `pre-fold; the fold side can only address the rest.`
+        : foldReachability === "fold_side_sufficient"
+          ? `No vertex is at or inside the skin before the fold runs, and the fold-on state measures ` +
+            `${totalFoldOnInside} inside — the fold creates the penetration, so a bound on d can reach it.`
+          : `Nothing is inside the body with the fold either way — the measured penetration is a ` +
+            `different instrument's answer (or absent at this tolerance).`);
+
+  const report = {
+    slice: "issue-719",
+    title: "gown shell clearance — fold suppressed vs fold on, per decile (measurement only)",
+    measuredAt: new Date().toISOString(),
+    measuredAtCommit: headSha(),
+    counterweight: {
+      glbSha256: hash,
+      glbBytes: bytes.byteLength,
+      pinnedSha256: GLB_SHA256,
+      pinnedBytes: GLB_BYTES,
+    },
+    controlGlb: controlPath,
+    controlGlbSha256: createHash("sha256").update(readFileSync(controlPath)).digest("hex"),
+    controlFoldSuppressedBy: "OPENCLINXR_SUPPRESS_GOWN_FOLD686=1 read at the amplitude use site (automate_blender.py #686)",
+    controlGownVertexCount: controlVerts.gownVerts.length,
+    shippedGownVertexCount: shippedVerts.gownVerts.length,
+    bodyReference: {
+      shippedSkinPrimTris: shippedMeshes.bodyIdx.length / 3,
+      controlSkinPrimTris: controlMeshes.bodyIdx.length / 3,
+      controlBodyYRangeM: (() => {
+        let yMin = Infinity, yMax = -Infinity;
+        for (let i = 1; i < controlMeshes.bodyPos.length; i += 3) {
+          const y = controlMeshes.bodyPos[i]!;
+          if (y < yMin) yMin = y;
+          if (y > yMax) yMax = y;
+        }
+        return [yMin, yMax];
+      })(),
+    },
+    method: {
+      decilesOver: `fold-suppressed gown's own y-range ${controlVerts.gMinY.toFixed(3)}..${controlVerts.gMaxY.toFixed(3)} m, ten equal bands`,
+      preFoldClearance: "nearest body triangle signed distance (3x3-cell search, Ericson closest point); sign = dot(p - q, bodyOutwardNormal), negative = inside",
+      atOrInsideToleranceM: AT_OR_INSIDE_M,
+      foldOnVerticesInside: "even-odd point-in-mesh by +X raycast (Moller-Trumbore) on the SHIPPED GLB — the #691 instrument, same asset, comparable with 463/411",
+      sameTopologyFoldOn: foldOnPath ?? "not measured (OPENCLINXR_GOWN_FOLD_ON_GLB unset)",
+      gownMeshMatch: "prefix openclinxr_real_garment_peds_upper_v1_mesh (control bake exports .001 when the stripped input's orphaned mesh data holds the canonical name)",
+      controlIsFullRes: "the control gown was NOT run through the #695 meshopt rung: a whole-file ratio-0.5 simplify halves the body skin (9810 -> 4905 tris), contaminating the clearance reference; the full-res bake keeps the shipped body as the reference",
+    },
+    bands,
+    totals: {
+      preFoldVerticesAtOrInside: totalPrefoldAtOrInside,
+      preFoldSampled: totalSampled,
+      foldOnVerticesInside: totalFoldOnInside,
+      preFoldInsideNearestCrossCheck: controlInsideNearest.reduce((s, n) => s + n, 0),
+      preFoldInsideParityCrossCheck: controlInsideParity.reduce((s, n) => s + n, 0),
+      foldOnVerticesInsideSameTopology: sameTopologyInside.reduce((s, n) => s + n, 0),
+    },
+    bandsCrossChecks: bands.map((b, i) => ({
+      index: b.index,
+      preFoldInsideNearest: controlInsideNearest[i]!,
+      preFoldInsideParity: controlInsideParity[i]!,
+      foldOnVerticesInsideSameTopology: sameTopologyInside[i]!,
+    })),
+    foldReachability,
+    reachabilityNote,
+  };
+
+  mkdirSync(dirname(CLEARANCE_REPORT_PATH), { recursive: true });
+  writeFileSync(CLEARANCE_REPORT_PATH, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+  process.stdout.write(`wrote ${CLEARANCE_REPORT_PATH}\n`);
+  process.stdout.write(
+    `preFold atOrInside=${totalPrefoldAtOrInside}/${totalSampled} (${(prefoldShare * 100).toFixed(1)}%) | ` +
+      `foldOn shipped inside=${totalFoldOnInside} | sameTopology inside=${sameTopologyInside.reduce((s, n) => s + n, 0)} | ` +
+      `verdict=${foldReachability}\n`,
+  );
+}
+
+async function main(): Promise<void> {
+  const controlPath = process.env[CONTROL_GLB_ENV];
+  if (controlPath) {
+    await measureShellClearance(controlPath);
+    return;
+  }
+  // COUNTERWEIGHT: pin the graded asset before measuring anything.
+  const rawBytes = readFileSync(GLB_PATH);
+  const bytes = new Uint8Array(rawBytes);
+  const hash = createHash("sha256").update(bytes).digest("hex");
+  if (hash !== GLB_SHA256 || bytes.byteLength !== GLB_BYTES) {
+    throw new Error(
+      `graded asset changed: sha256 ${hash.slice(0, 12)}... size ${bytes.byteLength} `
+        + `(expected ${GLB_SHA256.slice(0, 12)}... / ${GLB_BYTES}) — refusing to measure a different mesh`,
+    );
+  }
+
+  const doc = await io.read(GLB_PATH);
+  const { gownPos, gownIdx, bodyPos, bodyIdx } = loadGownAndBody(doc);
+  const geo = buildBodyGeometry(bodyPos, bodyIdx);
+  const { bodyTris, axisX, axisZ } = geo;
+
+  const { gownVerts, gMinY, gMaxY } = gownVerticesAndRange(gownPos);
   const band = (y: number): number =>
     Math.min(DECILES - 1, Math.max(0, Math.floor(((y - gMinY) / (gMaxY - gMinY)) * DECILES)));
 
@@ -316,17 +583,16 @@ async function main(): Promise<void> {
     deciles[d]!.yHigh = gMinY + ((d + 1) / DECILES) * (gMaxY - gMinY);
   }
 
-  const SURFACE_EPS = 2e-3;
   for (const q of gownVerts) {
     const d = deciles[band(q[1]!)]!;
-    const cx = crossings(q, "x");
-    const cz = crossings(q, "z");
+    const cx = crossings(q, "x", geo);
+    const cz = crossings(q, "z", geo);
     const insideX = cx % 2 === 1;
     const insideZ = cz % 2 === 1;
     if (insideX) d.gownVerticesInsideBody++;
     if (insideZ) d.gownVerticesInsideBodyRayZ++;
     if (insideX !== insideZ) d.rayDisagreements++;
-    const { sign } = nearestBodyInfo(q);
+    const { sign } = nearestBodyInfo(q, geo);
     if (sign < -SURFACE_EPS) d.gownVerticesInsideBodyNearest++;
   }
 
@@ -350,7 +616,7 @@ async function main(): Promise<void> {
       if ((nx * (cx - axisX) + nz * (cz - axisZ)) / len < 0) d.inwardFacingTriangles++;
       // nearest-surface reference: geometric normal opposes the nearest body triangle's outward
       // normal — locally correct, biased at free rims (hem/collar/cuffs).
-      const { n: m } = nearestBodyInfo([cx, cy, cz]);
+      const { n: m } = nearestBodyInfo([cx, cy, cz], geo);
       if ((nx * m[0]! + ny * m[1]! + nz * m[2]!) / len < 0) {
         d.inwardFacingTrianglesNearestSurface++;
       }
@@ -441,7 +707,7 @@ async function main(): Promise<void> {
     },
     gownMesh: GOWN_MESH,
     gownVertexCount: gownVerts.length,
-    bodyVertexCount: bodyVerts.length,
+    bodyVertexCount: bodyPos.length / 3,
     gownMaterial: (() => {
       for (const mesh of doc.getRoot().listMeshes()) {
         for (const prim of mesh.listPrimitives()) {

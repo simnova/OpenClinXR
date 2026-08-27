@@ -2592,6 +2592,9 @@ def _build_body_surface_derived_garment(
         _sleeve_lift686 = 0.08
         _n_trunk686 = 0
         _n_sleeve686 = 0
+        # #719: runtime-only fold suppression for the pre-fold clearance control bake. Read at the
+        # amplitude's use site; the pinned constants above stay untouched (counterweight #714).
+        _suppress_fold686 = os.environ.get("OPENCLINXR_SUPPRESS_GOWN_FOLD686", "") == "1"
         for v in bm.verts:
             p = v.co
             y = float(p.y)
@@ -2611,7 +2614,7 @@ def _build_body_surface_derived_garment(
                     continue
                 s = 1.0 + _lift686 * wy * wx
                 wfold = wx * min(1.0, _smooth686(0.55, 0.62, f)) * (1.0 - _smooth686(0.80, 0.85, f))
-                d = _fold_amp686 * _tri_wave686(_fold_k686 * math.atan2(rz, rx) + math.pi / 2.0) * wfold
+                d = 0.0 if _suppress_fold686 else _fold_amp686 * _tri_wave686(_fold_k686 * math.atan2(rz, rx) + math.pi / 2.0) * wfold
                 nx = rx / rr
                 nz = rz / rr
                 v.co.x = cx + rx * s + nx * d
@@ -2639,9 +2642,11 @@ def _build_body_surface_derived_garment(
                     continue
                 rad_n = rad / rad_len
                 phi = math.atan2(rad.y, rad.z)
-                d2 = _sleeve_amp686 * math.cos(_sleeve_k686 * phi)
+                d2 = 0.0 if _suppress_fold686 else _sleeve_amp686 * math.cos(_sleeve_k686 * phi)
                 v.co = axis_pt + rad * (1.0 + _sleeve_lift686) + rad_n * d2
                 _n_sleeve686 += 1
+        if _suppress_fold686:
+            print("[blender] #686 fold displacement SUPPRESSED for control bake (OPENCLINXR_SUPPRESS_GOWN_FOLD686=1)")
         print(
             f"[blender] #686 bodice drape: lift={_lift686} folds={_fold_k686}x{_fold_amp686 * 1000:.0f}mm "
             f"sleeve={_sleeve_k686}x{_sleeve_amp686 * 1000:.0f}mm+{_sleeve_lift686} trunk_verts={_n_trunk686} "
