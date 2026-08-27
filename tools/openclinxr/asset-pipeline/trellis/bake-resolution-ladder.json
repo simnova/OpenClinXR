@@ -7,7 +7,11 @@
   "lowRung": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-702/.openclinxr/evidence/trellis-bake-issue702/pulse-oximeter/optimize/iter1-stretch25k.glb",
   "rawTriangleCount": 296226,
   "rankedBy": "orchestrator_pixel_grade",
+  "gradingContext": "Orchestrator pixel grade at native 900x900 plus a 1:1 crop of the parting seam at box (420,430,680,690), against the #702 80k reference (tools/openclinxr/asset-pipeline/trellis/boxy-subject-bake-renders/pulse-oximeter-80k-reference.png) at the same box. The reference shows a smooth continuous groove with a soft shadow and no jagged content.",
   "controlNote": "THE CONTROL IS THE POINT (#703): all three cells bake the SAME 25,000-triangle low rung from the SAME 296,226-triangle source; bake resolution is the ONLY variable. Clause (2) refuses a ladder that re-decimates per cell. The 512 mapped GLB reproduces the #702 hand-run figure to the byte (8,682,420), so this is the same rung the graded champion was baked from.",
+  "resolutionEffect": "CONFIRMED — bake resolution thins the streaks. 512 shows a broad ragged band, 1024 collapses it to a fine line, 2048 is marginally cleaner than 1024. The 512 default is wrong for a tight concavity. But the artifact never reaches absent at any resolution tried, so the map does not fully reproduce the reference seam even at 2048.",
+  "costCollapse": "Raising resolution fixes the artifact and simultaneously destroys the reason to bake. Against the shipped 80k champion at 9,928,748 bytes: 512 is -12.6%, 1024 is -2.2%, 2048 is +27.0%. #702 measured this subject's BARE 25k rung at -23.7%. So a map clean enough to ship is worth 2.2% at best, against 23.7% for no map at all. On this subject the map's byte advantage was contingent on the resolution that produces the artifact.",
+  "recommendation": "Do not raise the --bake-res default on this evidence. The honest reading is that a 512 map buys bytes and artifacts together, and a 1024 map buys neither. Whether texture compression (KTX2/basis) can hold 1024 quality at 512-like bytes is UNTESTED and is the lever that would change this verdict.",
   "bakeStage": "tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts --bake --bake-res <n> --target <25k low rung> (hl_bake.py high-to-low, export_mapped.py attach, ab_render.py grade PNG)",
   "cells": [
     {
@@ -15,8 +19,9 @@
       "triangles": 25000,
       "sourceGlb": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-702/.openclinxr/evidence/trellis-escape-hatch/pulse-oximeter/optimize/raw-copy.glb",
       "glbBytes": 8682420,
-      "gradedVerdict": "inconclusive_blocked",
-      "verdictNote": "TEXT-ONLY WORKER cannot grade pixels. Render written for the orchestrator to grade at native 900x900 with a 1:1 parting-seam crop against the 80k reference: renderPath=tools/openclinxr/asset-pipeline/trellis/bake-resolution-renders/pulse-oximeter-25k-res512.png",
+      "gradedBy": "orchestrator_pixel_grade",
+      "gradedVerdict": "streaks_unchanged",
+      "verdictNote": "Baseline cell, byte-identical to the #702 mapped rung. A broad ragged band of jagged light and dark runs the length of the parting seam where the reference has a smooth groove. Full-strength streaks; no reduction to measure against.",
       "renderPath": "tools/openclinxr/asset-pipeline/trellis/bake-resolution-renders/pulse-oximeter-25k-res512.png",
       "bakeReportPath": "tools/openclinxr/asset-pipeline/trellis/bake-resolution-reports/pulse-oximeter-25k-res512/bake-report.json"
     },
@@ -25,8 +30,9 @@
       "triangles": 25000,
       "sourceGlb": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-702/.openclinxr/evidence/trellis-escape-hatch/pulse-oximeter/optimize/raw-copy.glb",
       "glbBytes": 9705712,
-      "gradedVerdict": "inconclusive_blocked",
-      "verdictNote": "TEXT-ONLY WORKER cannot grade pixels. Render written for the orchestrator to grade at native 900x900 with a 1:1 parting-seam crop against the 80k reference: renderPath=tools/openclinxr/asset-pipeline/trellis/bake-resolution-renders/pulse-oximeter-25k-res1024.png",
+      "gradedBy": "orchestrator_pixel_grade",
+      "gradedVerdict": "streaks_reduced",
+      "verdictNote": "The ragged band collapses to a fine line. Most of the available improvement arrives here. Still not clean: a thin bright/dark line persists along the seam where the reference has none.",
       "renderPath": "tools/openclinxr/asset-pipeline/trellis/bake-resolution-renders/pulse-oximeter-25k-res1024.png",
       "bakeReportPath": "tools/openclinxr/asset-pipeline/trellis/bake-resolution-reports/pulse-oximeter-25k-res1024/bake-report.json"
     },
@@ -35,8 +41,9 @@
       "triangles": 25000,
       "sourceGlb": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-702/.openclinxr/evidence/trellis-escape-hatch/pulse-oximeter/optimize/raw-copy.glb",
       "glbBytes": 12605040,
-      "gradedVerdict": "inconclusive_blocked",
-      "verdictNote": "TEXT-ONLY WORKER cannot grade pixels. Render written for the orchestrator to grade at native 900x900 with a 1:1 parting-seam crop against the 80k reference: renderPath=tools/openclinxr/asset-pipeline/trellis/bake-resolution-renders/pulse-oximeter-25k-res2048.png",
+      "gradedBy": "orchestrator_pixel_grade",
+      "gradedVerdict": "streaks_reduced",
+      "verdictNote": "Marginally cleaner than 1024 and materially no better. The same thin seam line persists. Doubling resolution again bought almost nothing visually and cost 2.9 MB.",
       "renderPath": "tools/openclinxr/asset-pipeline/trellis/bake-resolution-renders/pulse-oximeter-25k-res2048.png",
       "bakeReportPath": "tools/openclinxr/asset-pipeline/trellis/bake-resolution-reports/pulse-oximeter-25k-res2048/bake-report.json"
     }
@@ -46,10 +53,10 @@
     "note": "The graded 80k shipped-champion reference render from #702, same renderer and framing — the known-good column for the parting-seam crop."
   },
   "notEvidenceFor": [
-    "that any resolution is adoptable — every verdict is inconclusive_blocked pending the orchestrator's pixel grade and no clause asserts an appearance",
+    "that any resolution is adoptable — the orchestrator's grade records what each resolution does to the streaks and what it costs in bytes, and nothing here asserts a ready-to-ship claim",
     "that the streaks are visible at learner viewing distance, which no capture has established",
     "that bake resolution interacts with the low rung's triangle count — the ladder holds triangles fixed at 25,000, so it cannot see that interaction",
     "that a resolution answer for pulse-oximeter transfers to the shoe"
   ],
-  "claimScope": "a bake-resolution ladder exists on one fixed 25k low rung with three stage-written bake reports and three renders recorded at 512 / 1024 / 2048; the renders are the oracle."
+  "claimScope": "a bake-resolution ladder exists on one fixed 25k low rung with three stage-written bake reports and three renders recorded at 512 / 1024 / 2048, graded by the orchestrator at a 1:1 parting-seam crop against the 80k reference; the renders are the oracle."
 }
