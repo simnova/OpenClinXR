@@ -1,5 +1,5 @@
 /**
- * #713 — the asset-registry CLIENT entry must not value-reach a node: builtin.
+ * #715 — the asset-registry CLIENT entry must not value-reach a node: builtin.
  *
  * THE DEFECT, MEASURED (treeStamp 11312ac012, 2026-08-27) — do not re-derive this.
  * These are measurements. The inference that follows them is labelled as an inference.
@@ -28,7 +28,7 @@
  * nine that already exist in package.json, NOT deletion: apps/api/src/api-route-support.ts
  * calls freshMeasuredTriangleCounts at :726 and must keep working.
  *
- * THIS HEADER IS IMMUTABLE. Flip the assertion and append a `## FIXED (#713)` block
+ * THIS HEADER IS IMMUTABLE. Flip the assertion and append a `## FIXED (#715)` block
  * below. Do not rewrite the paths or numbers above.
  */
 import { existsSync, readFileSync } from "node:fs";
@@ -82,7 +82,7 @@ function valueReachableFrom(entry: string): Reach {
   return { modules: [...seen], nodeImporters };
 }
 
-describe("#713 the asset-registry client entry does not value-reach a node: builtin", () => {
+describe("#715 the asset-registry client entry does not value-reach a node: builtin", () => {
   it.fails(
     "(1) RED: no module value-reachable from the '.' entry imports a node: builtin",
     () => {
