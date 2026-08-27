@@ -55,6 +55,17 @@ import { describe, expect, it } from "vitest";
  * notEvidenceFor: that any resolution is adoptable — the orchestrator grades the renders and no
  *   clause asserts an appearance; that the streaks matter at learner viewing distance, which no
  *   capture has established; that a resolution answer for `pulse-oximeter` transfers to the shoe.
+ *
+ * ## FIXED (#703)
+ *
+ * The ladder landed in tools/openclinxr/asset-pipeline/trellis/bake-resolution-ladder.json with
+ * three cells baked from the SAME pulse-oximeter 25k rung (25,000 tris) against the SAME
+ * 296,226-tris source at 512 / 1024 / 2048 — bake resolution is the only variable. The 512 mapped
+ * GLB reproduces the #702 hand-run figure to the byte (8,682,420), confirming the same rung and
+ * stage. Stage-written bake reports under bake-resolution-reports/ (status baked, resolution
+ * recorded per cell); renders under bake-resolution-renders/ via ab_render.py, framed as #702's
+ * pulse-oximeter-25k-mapped.png. Every gradedVerdict is inconclusive_blocked with the renderPath
+ * named — the text-only worker does not grade pixels and no gradedBy was written.
  */
 
 const REPO = join(import.meta.dirname, "../../..");
@@ -86,7 +97,7 @@ function ladderOrNull(): Ladder | null {
 }
 
 describe("the bake resolution has never been varied against the streaks (#703)", () => {
-  it.fails("(1) one low rung is baked at 512, 1024 and 2048, each rendered and reported", () => {
+  it("(1) one low rung is baked at 512, 1024 and 2048, each rendered and reported", () => {
     const ladder = ladderOrNull();
     expect(
       ladder !== null,
@@ -107,7 +118,7 @@ describe("the bake resolution has never been varied against the streaks (#703)",
     }
   });
 
-  it.fails("(2) the three cells differ ONLY in bake resolution", () => {
+  it("(2) the three cells differ ONLY in bake resolution", () => {
     const ladder = ladderOrNull();
     expect(ladder !== null, `${LADDER} must exist`).toBe(true);
     const cells = RESOLUTIONS.map((res) => ladder!.cells.find((c) => c.bakeResolution === res)).filter(Boolean) as Cell[];
