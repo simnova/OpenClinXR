@@ -57,6 +57,28 @@ import { describe, expect, it } from "vitest";
  *   the swept target was capped. Nor the child or nurse: only the parent was captured.
  */
 
+/**
+ * ## FIXED (#730)
+ *
+ * Chosen fix: apply the cap at the `main.ts` site. `applyHumanoidMorphTargetCue` now writes
+ * `Math.min(MOUTH_OPEN_CAP, Math.max(0, openness + expressionWeights.mouthOpen * 0.18))` instead
+ * of the 0.95 ceiling, importing the exported constant from viseme-morph-apply.ts — the same
+ * graded value `applyVisemeWeights` uses, so a re-sweep that lowers it binds both channels at
+ * once. Not routed through `applyVisemeWeights` (larger call-shape change for the same bound) and
+ * not sil-suppression (sil was not the only offender — the uncapped write fires for every viseme;
+ * the run's `open` peaks were the same uncapped write). The runtime now records the resolved
+ * dictionary names in the morph cue (`resolvedTargets`), and the capture ships every nonzero morph
+ * on the subject.
+ *
+ * MEASURED 2026-08-27 capture (subject `mpfb_ob_patient_aisha_body_1`, actor
+ * `parent_tara_johnson_v1`): 48 samples; 21 `mouth-open` readings; max 0.3 (the cap) while
+ * `activeMouthOpenness` peaked at 0.645 — so clause (3)'s floor is exercised, not vacuous. The 35
+ * `viseme_sil`-dominant samples carry `mouth-open` at 0.3, the graded ACCEPTABLE cell, where the
+ * pre-fix run recorded up to 0.647 (DEGRADING). `resolved` matches the header's measured table:
+ * `openclinxr_mouth_open -> mouth-open`, `openclinxr_brow_concern -> eyebrows-left-inner-up`,
+ * `openclinxr_cheek_tension -> null`. Frames are graded by the orchestrator.
+ */
+
 const REPORT = "tools/openclinxr/evidence/mouth-open-channel.json";
 const CAP_SOURCE = "apps/ui-xr/src/viseme-morph-apply.ts";
 
@@ -100,7 +122,7 @@ describe("the openness channel respects the graded mouth-open cap (#730)", () =>
    * blind to the target it bounds. The `mouth-open` reading count must be non-zero, so an artifact
    * that records nothing satisfies nothing.
    */
-  it.fails("(1) the capture records every nonzero morph, not only the viseme_ prefix", () => {
+  it("(1) the capture records every nonzero morph, not only the viseme_ prefix", () => {
     const r = report();
     expect(r, `${REPORT} must exist — a tracked artifact, not the gitignored inspection.json`).not.toBeNull();
     expect(r!.samples.length, "at least one sample").toBeGreaterThan(0);
@@ -116,7 +138,7 @@ describe("the openness channel respects the graded mouth-open cap (#730)", () =>
    * lands, this is the assertion that bites. The bound is READ from the source constant, so it
    * tracks a re-sweep rather than pinning my own number.
    */
-  it.fails("(2) no recorded mouth-open weight exceeds the graded cap", () => {
+  it("(2) no recorded mouth-open weight exceeds the graded cap", () => {
     const r = report();
     expect(r, `${REPORT} must exist`).not.toBeNull();
     const readings = mouthOpenReadings(r!);

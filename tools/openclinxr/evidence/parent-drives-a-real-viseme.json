@@ -4,7 +4,7 @@
   "actor": "parent_tara_johnson_v1",
   "samples": [
     {
-      "drivenTargetName": "viseme_I",
+      "drivenTargetName": "viseme_TH",
       "influence": 1
     },
     {
@@ -12,15 +12,19 @@
       "influence": 1
     },
     {
+      "drivenTargetName": "viseme_E",
+      "influence": 1
+    },
+    {
       "drivenTargetName": "viseme_aa",
       "influence": 1
     },
     {
-      "drivenTargetName": "viseme_TH",
+      "drivenTargetName": "viseme_U",
       "influence": 1
     },
     {
-      "drivenTargetName": "viseme_E",
+      "drivenTargetName": "viseme_I",
       "influence": 1
     }
   ]

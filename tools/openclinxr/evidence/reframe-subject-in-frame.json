@@ -3,22 +3,22 @@
   "reframe": {
     "status": "ok",
     "targetMeshName": "mpfb_ob_patient_aisha_body_1",
-    "reappliedCount": 88,
+    "reappliedCount": 48,
     "headNdc": {
       "x": 0,
-      "y": 1.233105900347715e-15
+      "y": 0
     },
     "subjectInFrame": true,
-    "headWorldY": 1.2518279489644208,
-    "aimWorldY": 1.1023575570244928,
+    "headWorldY": 1.284734345785037,
+    "aimWorldY": 1.1336836790910187,
     "firstHitMeshName": "mpfb_ob_patient_aisha_body_1",
-    "firstHitDistance": 0.6376,
+    "firstHitDistance": 0.6377,
     "subjectVisible": true,
     "occluderMeshName": null
   },
   "visemeInstants": [
     {
-      "targetName": "viseme_I",
+      "targetName": "viseme_TH",
       "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_00.png"
     },
     {
@@ -26,20 +26,24 @@
       "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_01.png"
     },
     {
-      "targetName": "viseme_aa",
-      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_05.png"
-    },
-    {
-      "targetName": "viseme_TH",
+      "targetName": "viseme_E",
       "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_00.png"
     },
     {
-      "targetName": "viseme_E",
+      "targetName": "viseme_aa",
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_06.png"
+    },
+    {
+      "targetName": "viseme_U",
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_00.png"
+    },
+    {
+      "targetName": "viseme_I",
       "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_00.png"
     }
   ],
   "frameLinkage": {
-    "viseme_I": {
+    "viseme_TH": {
       "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_00.png",
       "linkage": "nearest-timestamp"
     },
@@ -47,15 +51,19 @@
       "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_01.png",
       "linkage": "dominant-match"
     },
-    "viseme_aa": {
-      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_05.png",
-      "linkage": "dominant-match"
-    },
-    "viseme_TH": {
+    "viseme_E": {
       "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_00.png",
       "linkage": "nearest-timestamp"
     },
-    "viseme_E": {
+    "viseme_aa": {
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_06.png",
+      "linkage": "dominant-match"
+    },
+    "viseme_U": {
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_00.png",
+      "linkage": "nearest-timestamp"
+    },
+    "viseme_I": {
       "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_00.png",
       "linkage": "dominant-match"
     }
@@ -66,7 +74,7 @@
       "subjectInFrame": true,
       "headNdc": {
         "x": 0,
-        "y": -1.2331059003477149e-15
+        "y": -1.233105900347715e-15
       }
     },
     {
@@ -82,15 +90,15 @@
       "subjectInFrame": true,
       "headNdc": {
         "x": 0,
-        "y": 1.233105900347715e-15
+        "y": 0
       }
     },
     {
       "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_03.png",
       "subjectInFrame": true,
       "headNdc": {
-        "x": -9.176602049099272e-16,
-        "y": 1.2331059003477149e-15
+        "x": -4.588301024549637e-16,
+        "y": -1.233105900347715e-15
       }
     },
     {
@@ -105,8 +113,8 @@
       "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_05.png",
       "subjectInFrame": true,
       "headNdc": {
-        "x": 4.588301024549637e-16,
-        "y": 0
+        "x": -9.176602049099272e-16,
+        "y": -1.2331059003477149e-15
       }
     },
     {
@@ -114,15 +122,15 @@
       "subjectInFrame": true,
       "headNdc": {
         "x": 0,
-        "y": 0
+        "y": 1.2331059003477149e-15
       }
     },
     {
       "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_07.png",
       "subjectInFrame": true,
       "headNdc": {
-        "x": 0,
-        "y": 1.233105900347715e-15
+        "x": -4.588301024549637e-16,
+        "y": 0
       }
     }
   ],

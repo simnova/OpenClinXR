@@ -41,6 +41,22 @@ export function resolveMorphIndex(
 }
 
 /**
+ * #730: accumulate the first per-mesh resolution of each canonical name onto `acc` (null until a
+ * mesh under the root resolves it). The viseme-drive capture records the result in
+ * mouth-open-channel.json so the runtime's own alias resolution is attested, not re-derived.
+ */
+export function collectResolvedMorphTargets(
+  dict: Record<string, number>,
+  acc: Record<string, string | null>,
+): void {
+  for (const canonical of Object.keys(acc)) {
+    if (acc[canonical] !== null) continue;
+    const resolved = resolveMorphTarget(canonical, new Set(Object.keys(dict)));
+    if (resolved !== null) acc[canonical] = resolved;
+  }
+}
+
+/**
  * Write each named weight to the morph index its name maps to in `morphTargetDictionary`.
  * Index 0 is never privileged: only written when a requested name resolves to 0.
  */
@@ -53,7 +69,7 @@ export function resolveMorphIndex(
  * thresholds (#460 NOT TESTED). Applied on the RESOLVED name, so a direct `mouth-open` request
  * and the `viseme_AA` alias both land at the cap.
  */
-const MOUTH_OPEN_CAP = 0.3;
+export const MOUTH_OPEN_CAP = 0.3;
 const CAPPED_FACS_TARGET = "mouth-open";
 
 export function applyVisemeWeights(

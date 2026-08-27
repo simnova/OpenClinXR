@@ -20,7 +20,7 @@
   "firstHitMeshName": "mpfb_ob_patient_aisha_body_1",
   "visemeInfluences": [
     {
-      "drivenTargetName": "viseme_I",
+      "drivenTargetName": "viseme_TH",
       "influence": 1
     },
     {
@@ -28,15 +28,19 @@
       "influence": 1
     },
     {
+      "drivenTargetName": "viseme_E",
+      "influence": 1
+    },
+    {
       "drivenTargetName": "viseme_aa",
       "influence": 1
     },
     {
-      "drivenTargetName": "viseme_TH",
+      "drivenTargetName": "viseme_U",
       "influence": 1
     },
     {
-      "drivenTargetName": "viseme_E",
+      "drivenTargetName": "viseme_I",
       "influence": 1
     }
   ]

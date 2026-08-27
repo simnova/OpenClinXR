@@ -1,24 +1,24 @@
 {
   "capturedFrom": ".openclinxr/evidence/viseme-drive-2026-08-06/inspection.json (pnpm asset:ui-xr:viseme-drive-capture)",
   "aimJointName": "jaw",
-  "aimWorldY": 1.1023575570244928,
-  "crownApexWorldY": 1.2518279489644208,
+  "aimWorldY": 1.1336836790910187,
+  "crownApexWorldY": 1.284734345785037,
   "anchorWorldPosition": {
-    "x": -0.5459814943127721,
-    "y": 1.1023575570244928,
-    "z": -0.7623648060887604
+    "x": -0.5330371805639591,
+    "y": 1.1336836790910187,
+    "z": -0.7588359819938758
   },
   "cameraWorldPosition": {
-    "x": -0.5059814943127721,
-    "y": 1.1423575570244928,
-    "z": -0.042364806088760476
+    "x": -0.4930371805639591,
+    "y": 1.1736836790910188,
+    "z": -0.038835981993875834
   },
   "subjectVisible": true,
   "firstHitMeshName": "mpfb_ob_patient_aisha_body_1",
   "subjectInFrame": true,
   "headNdc": {
     "x": 0,
-    "y": 1.233105900347715e-15
+    "y": 0
   },
   "sources": {
     "producer": "tools/openclinxr/evidence/ui-xr-viseme-drive-capture.ts",
@@ -26,8 +26,8 @@
   },
   "fingerprints": {
     "producer": {
-      "bytes": 58357,
-      "sha256": "bd9bfad46f7f8d5cb7059186d38ab26bea35e1ef4680e2bce16976ed37420576"
+      "bytes": 60981,
+      "sha256": "478124a7809a0c2cc9f2019d09b5dec0482e500721b3bb0ac2ace2a68f420d48"
     },
     "subject_glb": {
       "bytes": 11807224,
