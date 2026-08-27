@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "openclinxr.room-ao-isolated-capture.v1",
+  "state": "pre",
+  "room": "infinigen-primary-care-clinic.glb",
+  "scenarioId": "primary_care_dyslipidemia_joint_pain_v1",
+  "lightingVariant": "room_environment_ibl",
+  "cameraNote": "default scene-overview camera; HUD hidden",
+  "wallBandRegion": {
+    "left": 0.08,
+    "top": 0.18,
+    "width": 0.42,
+    "height": 0.48
+  },
+  "glbSha256": "4239db019bebaf0e0d15d412abd950667adc694cdc8a3ae9d2a53a929203c115",
+  "images": [
+    "tools/openclinxr/evidence/issue-526/isolated-pre-ao1.png",
+    "tools/openclinxr/evidence/issue-526/isolated-pre-ao0.png"
+  ],
+  "claimScope": "pixel evidence that the bounded-AO rebake removes the black-noise field under IBL",
+  "notEvidenceFor": [
+    "product lighting default",
+    "quest_readiness",
+    "clinical_validity"
+  ],
+  "captureNote": "WORKTREE CAPTURE NOTE (2026-08-27): in the issue-526 worktree (gitignored runtime assets absent by design) the four screenshots were byte-identical 8.9KB uniform frames \u2014 the WebGL canvas did not render a delta before capture. Re-run this script on a complete checkout (cagematch present) and grade pre vs post; the GLB sha-256 above pins which state each capture ran against."
+}
