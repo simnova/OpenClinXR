@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "openclinxr.room-occlusion-locality-fixture.v1",
+  "mechanism": "bounded_raycast_v2",
+  "reachMeters": 2.0,
+  "samples": 16,
+  "roomMeters": {
+    "w": 6.5,
+    "h": 2.4
+  },
+  "run1": {
+    "nearWall": 0.2667,
+    "far": 1.0,
+    "darkening": 0.2667,
+    "wiredSd255": 51.6,
+    "imageSha": "1865e7589ccca621"
+  },
+  "run2": {
+    "nearWall": 0.2667,
+    "far": 1.0,
+    "darkening": 0.2667,
+    "wiredSd255": 51.6,
+    "imageSha": "1865e7589ccca621"
+  },
+  "deterministic": true
+}
