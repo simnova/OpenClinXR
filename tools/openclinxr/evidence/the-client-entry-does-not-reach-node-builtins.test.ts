@@ -30,6 +30,14 @@
  *
  * THIS HEADER IS IMMUTABLE. Flip the assertion and append a `## FIXED (#715)` block
  * below. Do not rewrite the paths or numbers above.
+ *
+ * ## FIXED (#715)
+ *
+ * The "." entry no longer re-exports measured-station-geometry-freshness.js; node consumers
+ * import the new "./measured-station-geometry-freshness" subpath instead (package.json). The
+ * post-fix graph is recorded in .openclinxr/evidence/issue-715/client-entry-graph.json:
+ * 17 modules value-reachable from the "." entry, node-importer list EMPTY (measured
+ * 2026-08-27). apps/api keeps freshMeasuredTriangleCounts as a value via the subpath.
  */
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -83,7 +91,7 @@ function valueReachableFrom(entry: string): Reach {
 }
 
 describe("#715 the asset-registry client entry does not value-reach a node: builtin", () => {
-  it.fails(
+  it(
     "(1) RED: no module value-reachable from the '.' entry imports a node: builtin",
     () => {
       const { nodeImporters } = valueReachableFrom(CLIENT_ENTRY);

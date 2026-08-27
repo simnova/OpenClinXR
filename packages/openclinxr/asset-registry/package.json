@@ -39,6 +39,10 @@
     "./fixture-wall-mounting": {
       "types": "./dist/fixture-wall-mounting.d.ts",
       "default": "./dist/fixture-wall-mounting.js"
+    },
+    "./measured-station-geometry-freshness": {
+      "types": "./dist/measured-station-geometry-freshness.d.ts",
+      "default": "./dist/measured-station-geometry-freshness.js"
     }
   },
   "scripts": {

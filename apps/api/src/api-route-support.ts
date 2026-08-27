@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
+import { freshMeasuredTriangleCounts } from "@openclinxr/asset-registry/measured-station-geometry-freshness";
 import {
   buildEncounterDynamicBehaviorCoverageSummary,
   buildEncounterFactorySummaryContracts,
@@ -12,7 +13,6 @@ import {
   createScenarioPlaceholderManifests,
   ENCOUNTER_HUMANOID_RUNTIME_REQUIRED_SIGNAL_IDS,
   evaluateEncounterRuntimeLearnerUseGate,
-  freshMeasuredTriangleCounts,
   InMemoryAssetRegistry,
   MEASURED_STATION_GEOMETRY,
   type RuntimeAssetReviewDecision,
