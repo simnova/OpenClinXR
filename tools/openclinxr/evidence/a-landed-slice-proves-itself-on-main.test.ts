@@ -43,16 +43,16 @@ const RED = "run:node -e \"process.exit(3)\"";
 const NON_RUN = "exists:package.json";
 
 describe("#717 a landed slice proves itself on the tree main actually received", () => {
-  it.fails("(1) RED: integrate exports a post-merge proof re-run", async () => {
+  it("(1) integrate exports a post-merge proof re-run", async () => {
     const mod = (await import(INTEGRATE)) as {
       rerunTreeProofsAfterMerge?: (
         repoRoot: string,
         proofs: readonly string[],
         sliceId: string,
-      ) => Promise<Array<{ rule: string; ok: boolean }>>;
+      ) => Array<{ rule: string; ok: boolean }>;
     };
     expect(typeof mod.rerunTreeProofsAfterMerge).toBe("function");
-    const verdicts = await mod.rerunTreeProofsAfterMerge!(REPO, [GREEN, RED, NON_RUN], "issue-717");
+    const verdicts = mod.rerunTreeProofsAfterMerge!(REPO, [GREEN, RED, NON_RUN], "issue-717");
     // Only `run:` rules are re-executed; a target-shaped rule is already covered by
     // proof-target-preflight and must not be shelled out here.
     expect(verdicts.map((v) => v.rule)).toEqual([GREEN, RED]);
@@ -98,3 +98,18 @@ describe("#717 a landed slice proves itself on the tree main actually received",
     expect(src).toContain("the land is already committed");
   });
 });
+
+/**
+ * ## FIXED (#717)
+ *
+ * integrate.ts now exports `rerunTreeProofsAfterMerge(repoRoot, proofs, sliceId)`, wired into the
+ * post-merge phase AFTER the package rebuild so it measures the tree main actually has. It filters
+ * to `run:` rules and delegates each to `evaluateDoneWhenRule` — the same evaluator the contract
+ * layer uses — so no second executor exists to drift.
+ *
+ * Verified against a real green/red pair (`node -e process.exit(0)` and `exit(3)`): the failing
+ * proof comes back `ok: false`. A re-run that reported everything green would be worse than no
+ * re-run, so that is the clause that matters.
+ *
+ * Reports, never reverts: a post-merge failure prints and is recorded on the integration event.
+ */

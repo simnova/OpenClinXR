@@ -15,6 +15,7 @@ import {
 } from "./board-cli.js";
 import { stagedTreeHash, writeGateReport } from "./integrate-gate.js";
 import { runMergeKill, type KillFinding, type MergeKillReport } from "./merge-kill.js";
+import { parseRunArgv } from "../../../packages/openclinxr/agent-loop/src/done-when-rules.js";
 
 /**
  * The land boundary — the only supported way work reaches main.
@@ -52,6 +53,12 @@ export type IntegrationEvent = {
   slice: string;
   /** Build-emitting packages rebuilt after the merge (#152 / #196). */
   rebuiltPackages?: string[];
+  /**
+   * #717: each `run:` proof re-executed against the MERGED tree, after the rebuild. Durable because
+   * a slice can pass on the worker's tree and fail on main (#712, a gitignored measurement
+   * artifact), and without this the ledger records only what the candidate tree showed.
+   */
+  postMergeProofs?: Array<{ rule: string; ok: boolean; detail: string }>;
   base: string;
   head: string;
   at: string;
@@ -629,12 +636,43 @@ export function integrate(input: IntegrateInput): IntegrateResult {
       }
     }
 
+    // #717: the candidate tree can hold files main will never receive (#712: a gitignored
+    // measurement artifact). Re-run the run: proofs against the MERGED, REBUILT checkout — after
+    // the rebuild above, or this would measure a stale dist. Reports; never reverts (#448).
+    let postMergeProofs: Array<{ rule: string; ok: boolean; detail: string }> = [];
+    try {
+      postMergeProofs = rerunTreeProofsAfterMerge(
+        input.repoRoot,
+        killReport.contract?.proofs ?? [],
+        input.slice,
+      );
+    } catch (error) {
+      console.warn(
+        `integrate: #717 post-merge proof re-run could not complete — ${String(error).slice(0, 200)}`,
+      );
+    }
+    const postMergeFailures = postMergeProofs.filter((v) => !v.ok);
+    if (postMergeFailures.length > 0) {
+      console.warn(
+        [
+          "",
+          `WARNING (#717): ${input.slice} LANDED but ${postMergeFailures.length} of its run: proof(s)`,
+          "FAIL against the merged tree. They passed against the worker's tree, so the slice depends",
+          "on something main did not receive — an untracked artifact is the measured cause (#712).",
+          ...postMergeFailures.map((v) => `  - ${v.rule}: ${v.detail.slice(0, 200)}`),
+          "The land is already committed; fix forward or revert deliberately.",
+          "",
+        ].join("\n"),
+      );
+    }
+
     const event: IntegrationEvent = {
       slice: input.slice,
       ...(rebuilt.length > 0 ? { rebuiltPackages: rebuilt } : {}),
       base: input.base,
       head: input.head,
       at: new Date().toISOString(),
+      ...(postMergeProofs.length > 0 ? { postMergeProofs } : {}),
     };
     recordEvent(input.repoRoot, event);
     // ISSUE #448: integrator (machine) marks the card Landed. Failure is a loud warning, not a
@@ -645,6 +683,64 @@ export function integrate(input: IntegrateInput): IntegrateResult {
     releaseIntegrationLock(input.repoRoot, lockOwner);
   }
 }
+
+/**
+ * #717: re-run a landed slice's `run:` proofs against the MERGED tree.
+ *
+ * WHY THIS EXISTS. contract-verify-cli re-runs proofs against the CANDIDATE tree — the worker's
+ * worktree — and that tree can contain files main will never receive. #712 landed contract-green
+ * and three clauses went red on main within a minute, because its measurement lived at a
+ * gitignored path and only the test and the CLI crossed the merge.
+ *
+ * WHY NOT A STATIC SCAN. proof-target-preflight already covers `exists:`/`min-bytes:` TARGETS, and
+ * deliberately does not read `run:` rules: #712's targets were tracked test files and the untracked
+ * dependency was inside the test body. Widening that scan to `run:` would false-positive on the 31
+ * evidence tests that name an absent artifact they regenerate themselves. Re-executing the proof
+ * asks the real question and cannot false-positive.
+ *
+ * SYNCHRONOUS ON PURPOSE. `integrate()` is sync and has a dozen call sites on the LAND PATH;
+ * making it async to reach the async `evaluateDoneWhenRule` is a wider change than this buys. It
+ * reuses `parseRunArgv` instead — the proven parser, including its RUN_ALLOWED_BINARIES allow-list
+ * and its no-shell rule — so the security-relevant half is shared rather than reimplemented.
+ * Non-`run:` rules are skipped: their targets are already covered by proof-target-preflight.
+ *
+ * REPORTS, NEVER REVERTS. Per #448 a post-commit failure is a loud warning — the land is already
+ * committed and the integration event is the durable record. Auto-reverting a merge is a human
+ * decision this function does not make.
+ */
+export function rerunTreeProofsAfterMerge(
+  repoRoot: string,
+  proofs: readonly string[],
+  sliceId: string,
+): Array<{ rule: string; ok: boolean; detail: string }> {
+  void sliceId;
+  const verdicts: Array<{ rule: string; ok: boolean; detail: string }> = [];
+  for (const rule of proofs) {
+    if (!rule.startsWith("run:")) continue;
+    const parsed = parseRunArgv(rule.slice("run:".length).trim());
+    if ("error" in parsed) {
+      verdicts.push({ rule, ok: false, detail: parsed.error });
+      continue;
+    }
+    const [bin, ...args] = parsed.argv;
+    if (!bin) {
+      verdicts.push({ rule, ok: false, detail: "empty run: command" });
+      continue;
+    }
+    try {
+      execFileSync(bin, args, { cwd: repoRoot, stdio: ["ignore", "pipe", "pipe"] });
+      verdicts.push({ rule, ok: true, detail: "exited zero against the merged tree" });
+    } catch (error) {
+      const stderr =
+        error instanceof Error && "stderr" in error
+          ? String((error as { stderr?: Buffer }).stderr ?? "")
+          : "";
+      verdicts.push({ rule, ok: false, detail: `non-zero against the merged tree: ${stderr.slice(0, 300)}` });
+    }
+  }
+  return verdicts;
+}
+
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const args = process.argv.slice(2);
