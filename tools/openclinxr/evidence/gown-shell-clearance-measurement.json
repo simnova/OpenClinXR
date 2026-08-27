@@ -1,0 +1,198 @@
+{
+  "slice": "issue-719",
+  "title": "gown shell clearance — fold suppressed vs fold on, per decile (measurement only)",
+  "measuredAt": "2026-08-27T18:27:28.228Z",
+  "measuredAtCommit": "cf81b8947969ec8e2ebd5b746d9cff3859babbe3",
+  "counterweight": {
+    "glbSha256": "7bd12d06aec497a939aa62301c73274cf23e6dd7b1da6d5c085db6c17f57fd4a",
+    "glbBytes": 7116988,
+    "pinnedSha256": "7bd12d06aec497a939aa62301c73274cf23e6dd7b1da6d5c085db6c17f57fd4a",
+    "pinnedBytes": 7116988
+  },
+  "controlGlb": ".openclinxr/evidence/issue-719/mpfb-gown-adult-patient.pre-fold.glb",
+  "controlGlbSha256": "4734c5d8f3d5577351c861d5b1129b1daa011e13160fd64a2f31bd04161611e3",
+  "controlFoldSuppressedBy": "OPENCLINXR_SUPPRESS_GOWN_FOLD686=1 read at the amplitude use site (automate_blender.py #686)",
+  "controlGownVertexCount": 24513,
+  "shippedGownVertexCount": 14745,
+  "bodyReference": {
+    "shippedSkinPrimTris": 9810,
+    "controlSkinPrimTris": 9810,
+    "controlBodyYRangeM": [
+      -0.00001831648660299834,
+      1.7755894660949707
+    ]
+  },
+  "method": {
+    "decilesOver": "fold-suppressed gown's own y-range 0.568..1.542 m, ten equal bands",
+    "preFoldClearance": "nearest body triangle signed distance (3x3-cell search, Ericson closest point); sign = dot(p - q, bodyOutwardNormal), negative = inside",
+    "atOrInsideToleranceM": 0.002,
+    "foldOnVerticesInside": "even-odd point-in-mesh by +X raycast (Moller-Trumbore) on the SHIPPED GLB — the #691 instrument, same asset, comparable with 463/411",
+    "sameTopologyFoldOn": ".openclinxr/evidence/issue-719/mpfb-gown-adult-patient.fold-on.glb",
+    "gownMeshMatch": "prefix openclinxr_real_garment_peds_upper_v1_mesh (control bake exports .001 when the stripped input's orphaned mesh data holds the canonical name)",
+    "controlIsFullRes": "the control gown was NOT run through the #695 meshopt rung: a whole-file ratio-0.5 simplify halves the body skin (9810 -> 4905 tris), contaminating the clearance reference; the full-res bake keeps the shipped body as the reference"
+  },
+  "bands": [
+    {
+      "index": 0,
+      "yLow": 0.5681761503219604,
+      "yHigh": 0.6655937075614929,
+      "preFoldClearanceMedian": 0.07772555456390665,
+      "preFoldVerticesAtOrInside": 7,
+      "foldOnVerticesInside": 5,
+      "sampled": 1879
+    },
+    {
+      "index": 1,
+      "yLow": 0.6655937075614929,
+      "yHigh": 0.7630112648010254,
+      "preFoldClearanceMedian": 0.059289455825251906,
+      "preFoldVerticesAtOrInside": 144,
+      "foldOnVerticesInside": 4,
+      "sampled": 1905
+    },
+    {
+      "index": 2,
+      "yLow": 0.7630112648010254,
+      "yHigh": 0.8604288220405578,
+      "preFoldClearanceMedian": 0.04874230841094577,
+      "preFoldVerticesAtOrInside": 153,
+      "foldOnVerticesInside": 14,
+      "sampled": 1999
+    },
+    {
+      "index": 3,
+      "yLow": 0.8604288220405578,
+      "yHigh": 0.9578463792800904,
+      "preFoldClearanceMedian": 0.023606069911388475,
+      "preFoldVerticesAtOrInside": 12,
+      "foldOnVerticesInside": 0,
+      "sampled": 1903
+    },
+    {
+      "index": 4,
+      "yLow": 0.9578463792800904,
+      "yHigh": 1.0552639365196228,
+      "preFoldClearanceMedian": 0.02440091584766864,
+      "preFoldVerticesAtOrInside": 16,
+      "foldOnVerticesInside": 1,
+      "sampled": 1442
+    },
+    {
+      "index": 5,
+      "yLow": 1.0552639365196228,
+      "yHigh": 1.1526814937591552,
+      "preFoldClearanceMedian": 0.0555212492975574,
+      "preFoldVerticesAtOrInside": 0,
+      "foldOnVerticesInside": 47,
+      "sampled": 2345
+    },
+    {
+      "index": 6,
+      "yLow": 1.1526814937591552,
+      "yHigh": 1.2500990509986876,
+      "preFoldClearanceMedian": 0.03172633717846989,
+      "preFoldVerticesAtOrInside": 0,
+      "foldOnVerticesInside": 46,
+      "sampled": 3251
+    },
+    {
+      "index": 7,
+      "yLow": 1.2500990509986876,
+      "yHigh": 1.3475166082382204,
+      "preFoldClearanceMedian": 0.02938422111926782,
+      "preFoldVerticesAtOrInside": 267,
+      "foldOnVerticesInside": 356,
+      "sampled": 4689
+    },
+    {
+      "index": 8,
+      "yLow": 1.3475166082382204,
+      "yHigh": 1.4449341654777528,
+      "preFoldClearanceMedian": 0.02527742200908806,
+      "preFoldVerticesAtOrInside": 241,
+      "foldOnVerticesInside": 14,
+      "sampled": 2894
+    },
+    {
+      "index": 9,
+      "yLow": 1.4449341654777528,
+      "yHigh": 1.5423517227172852,
+      "preFoldClearanceMedian": 0.020216351657139926,
+      "preFoldVerticesAtOrInside": 359,
+      "foldOnVerticesInside": 0,
+      "sampled": 2206
+    }
+  ],
+  "totals": {
+    "preFoldVerticesAtOrInside": 1199,
+    "preFoldSampled": 24513,
+    "foldOnVerticesInside": 487,
+    "preFoldInsideNearestCrossCheck": 679,
+    "preFoldInsideParityCrossCheck": 616,
+    "foldOnVerticesInsideSameTopology": 628
+  },
+  "bandsCrossChecks": [
+    {
+      "index": 0,
+      "preFoldInsideNearest": 0,
+      "preFoldInsideParity": 4,
+      "foldOnVerticesInsideSameTopology": 4
+    },
+    {
+      "index": 1,
+      "preFoldInsideNearest": 0,
+      "preFoldInsideParity": 38,
+      "foldOnVerticesInsideSameTopology": 38
+    },
+    {
+      "index": 2,
+      "preFoldInsideNearest": 0,
+      "preFoldInsideParity": 60,
+      "foldOnVerticesInsideSameTopology": 60
+    },
+    {
+      "index": 3,
+      "preFoldInsideNearest": 6,
+      "preFoldInsideParity": 10,
+      "foldOnVerticesInsideSameTopology": 10
+    },
+    {
+      "index": 4,
+      "preFoldInsideNearest": 4,
+      "preFoldInsideParity": 7,
+      "foldOnVerticesInsideSameTopology": 7
+    },
+    {
+      "index": 5,
+      "preFoldInsideNearest": 0,
+      "preFoldInsideParity": 17,
+      "foldOnVerticesInsideSameTopology": 39
+    },
+    {
+      "index": 6,
+      "preFoldInsideNearest": 0,
+      "preFoldInsideParity": 6,
+      "foldOnVerticesInsideSameTopology": 42
+    },
+    {
+      "index": 7,
+      "preFoldInsideNearest": 197,
+      "preFoldInsideParity": 457,
+      "foldOnVerticesInsideSameTopology": 415
+    },
+    {
+      "index": 8,
+      "preFoldInsideNearest": 169,
+      "preFoldInsideParity": 17,
+      "foldOnVerticesInsideSameTopology": 13
+    },
+    {
+      "index": 9,
+      "preFoldInsideNearest": 303,
+      "preFoldInsideParity": 0,
+      "foldOnVerticesInsideSameTopology": 0
+    }
+  ],
+  "foldReachability": "upstream_shell_required",
+  "reachabilityNote": "pre-fold (fold suppressed) at-or-inside vertices: 1199 of 24513 sampled (4.9%), across the gown's own y-range 0.568..1.542 m. The fold-on shipped asset measures 487 inside (+X parity) — #691's 463-upper/24-lower baseline reproduced exactly. Same-topology fold-on control (same bake path, only the fold differs; the exported prim re-splits by normal so the count differs by 3 vertices): 628 inside of 24516 sampled. The clamp bounds the trough by rr*(s-1), the lift the fold code itself applies — but the shell already sits at or inside the skin before the fold displacement runs, so no bound on d can reach those vertices; the fix is upstream of the fold (the shell fit), not fold arithmetic."
+}

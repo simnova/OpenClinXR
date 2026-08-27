@@ -82,7 +82,7 @@ function reportOrNull(): Report | null {
 }
 
 describe("the gown shell clearance is measured, not assumed (#719)", () => {
-  it.fails("(1) pre-fold clearance is measured per band, with the fold suppressed", () => {
+  it("(1) pre-fold clearance is measured per band, with the fold suppressed", () => {
     const report = reportOrNull();
     expect(
       report !== null,
@@ -106,7 +106,7 @@ describe("the gown shell clearance is measured, not assumed (#719)", () => {
     }
   });
 
-  it.fails("(2) the verdict names whether the fold side can reach it, and matches the data", () => {
+  it("(2) the verdict names whether the fold side can reach it, and matches the data", () => {
     const report = reportOrNull();
     expect(report !== null, `${REPORT} must exist`).toBe(true);
     expect(VERDICTS, "foldReachability").toContain(report!.foldReachability);
@@ -151,3 +151,38 @@ describe("the gown shell clearance is measured, not assumed (#719)", () => {
 // without editing the pinned constant, which is the slice's first real obstacle and may make
 // `inconclusive_blocked` the honest verdict. Nor whether #714's intermediate 243 is comparable; its
 // bake may have had a different body height and it is deliberately excluded above.
+
+/*
+ * ## FIXED (#719)
+ *
+ * Clauses (1) and (2) flipped from `it.fails` to `it` on 2026-08-27. The measurement is in
+ * `tools/openclinxr/evidence/gown-shard-mechanism-measure.ts` (extended, #691's math unchanged —
+ * verified by regenerating the #691 report and diffing it against the tracked JSON: identical
+ * except measuredAt/measuredAtCommit) and `gown-shell-clearance-measurement.json` (TRACKED). No
+ * asset bytes changed: the GLB is pinned at sha256 `7bd12d06…fd4a`, 7,116,988 bytes, and clause (4)
+ * verifies it on every run. The pinned constants `_fold_amp686 = 0.034` / `_fold_k686 = 16` are
+ * untouched; the fold was suppressed at RUNTIME by an env override read at the amplitude's use site
+ * in automate_blender.py (`OPENCLINXR_SUPPRESS_GOWN_FOLD686=1` zeroes the trunk wave `d` and the
+ * sleeve wave `d2`; the lift and the constants stay), and the control gown was baked to a gitignored
+ * scratch path by the sanctioned `bake_mpfb_gown_inspect.py` with input == the shipped GLB, so the
+ * body reference is the shipped body (skin prim 9,810 tris in both).
+ *
+ * VERDICT: `upstream_shell_required`. The fold-suppressed shell measures 1,199 of 24,513 vertices
+ * (4.9%) at or inside the skin (signed clearance <= +2 mm against the nearest body triangle),
+ * concentrated at the waist/hip (bands 1-2: 144 + 153) and the upper bodice/neck (bands 7-9:
+ * 267 + 241 + 359) — the shell overlaps the body before the fold displacement runs, so no bound on
+ * `d` (the #714 clamp's `rr*(s-1)` included) can reach those vertices. The fold itself adds almost
+ * nothing by +X parity at the same topology (616 -> 628 of ~24,515, +12 vertices), and the shipped
+ * decimated asset measures 487 inside — #691's 463-upper/24-lower baseline reproduced exactly. The
+ * shard-field residual is therefore the pre-existing shell overlap plus the accordion flank
+ * geometry, not fold-valley penetration; the fix belongs on the MakeClothes/mhclo shell fit, not in
+ * fold arithmetic.
+ *
+ * The control gown was NOT run through the #695 meshopt rung on purpose: a whole-file ratio-0.5
+ * simplify halves the body skin (9,810 -> 4,905 tris), contaminating the clearance reference. The
+ * full-res fold-suppressed bake (gitignored, `.openclinxr/evidence/issue-719/`) is the subject;
+ * its gown mesh exports as `openclinxr_real_garment_peds_upper_v1_mesh.001` because the stripped
+ * input's orphaned mesh data holds the canonical name — the instrument now matches the gown mesh by
+ * prefix, which is why the header's "same instrument" clause holds.
+ */
+
