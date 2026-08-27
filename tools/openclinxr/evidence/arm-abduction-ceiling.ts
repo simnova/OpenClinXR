@@ -5,10 +5,12 @@
  * buildRoomCaptureUrl + waitForStationShell + minFrames). Does not invent a new harness.
  *
  * Bound (planted contract): wristLateral ≤ 1.3 × halfShoulderSpan for standing figures.
- * halfShoulderSpan = 0.5 × |upper_armL.worldX − upper_armR.worldX| (live upper-arm joint
- * positions, not clavicles — clavicles are not a reliable biacromial proxy on these rigs).
+ * halfShoulderSpanLateral = 0.5 × |upper_armL.worldXZ − upper_armR.worldXZ| (live upper-arm joint
+ * positions, not clavicles — clavicles are not a reliable biacromial proxy on these rigs). The
+ * numerator is the wrist's LATERAL component about the shoulder mid-line (#678), so the ratio is
+ * same-space; the 3D span stays recorded but is not the denominator.
  *
- * claimScope: standing wrist lateral offset vs live half shoulder span after frames.
+ * claimScope: standing wrist lateral offset vs live lateral half shoulder span after frames.
  * notEvidenceFor: natural resting-arm appearance, hand pose, Quest readiness, clinical posture.
  */
 
@@ -37,9 +39,19 @@ export type ArmAbduction = {
   actorId: string;
   posture: string;
   side: "L" | "R";
-  /** Half the live shoulder span of THIS figure: 0.5 * |shoulderL.worldX - shoulderR.worldX|. */
+  /** Half the live 3D shoulder span of THIS figure: 0.5 * |shoulderL − shoulderR| world positions.
+   *  Kept recorded; NOT the ratio denominator (#678 — it is a 3D span over a 2D numerator). */
   halfShoulderSpanMeters: number;
+  /** Half the live LATERAL shoulder span: 0.5 * the XZ distance between the shoulders. Same space
+   *  as the corrected lateral numerator; level shoulders make it agree with the 3D span. */
+  halfShoulderSpanLateralMeters: number;
+  /** Side-to-side distance of the wrist from the shoulder mid-line along the actor's own L→R
+   *  shoulder axis (XZ) (#678) — the corrected lateral numerator. */
   wristLateralOffsetMeters: number;
+  /** Signed perpendicular component about the shoulder mid-line; sign convention unlocked (#678). */
+  wristForwardOffsetMeters: number;
+  /** XZ distance from the shoulder mid-line to the wrist (reach, kept under an honest name). */
+  wristHorizontalRadiusMeters: number;
   shoulderWorldY: number;
   wristWorldY: number;
   framesAdvanced: number;
@@ -222,13 +234,14 @@ async function measureLiveArmAbduction(input: {
             arms.push(row);
             const drop = row.shoulderWorldY - row.wristWorldY;
             const ratio =
-              row.halfShoulderSpanMeters > 0
-                ? row.wristLateralOffsetMeters / row.halfShoulderSpanMeters
+              row.halfShoulderSpanLateralMeters > 0
+                ? row.wristLateralOffsetMeters / row.halfShoulderSpanLateralMeters
                 : Number.NaN;
             process.stdout.write(
               `  ${row.scenarioId}/${row.actorId} ${row.side} posture=${row.posture} `
               + `drop=${drop.toFixed(3)}m lateral=${row.wristLateralOffsetMeters.toFixed(3)}m `
-              + `halfSpan=${row.halfShoulderSpanMeters.toFixed(3)}m ratio=${ratio.toFixed(2)} `
+              + `forward=${row.wristForwardOffsetMeters.toFixed(3)}m `
+              + `halfSpanLateral=${row.halfShoulderSpanLateralMeters.toFixed(3)}m ratio=${ratio.toFixed(2)} `
               + `frames=${row.framesAdvanced}\n`,
             );
           }
@@ -398,17 +411,33 @@ export async function readLiveArmAbductionFromPage(page: Page): Promise<{
         if (!upperL && matchArmBone(bone.name, "L", "upper")) upperL = bone;
         if (!upperR && matchArmBone(bone.name, "R", "upper")) upperR = bone;
       }
-      // Decision: half span from upper_arm L/R world X (not clavicles). Full 3D distance / 2
-      // is more stable than pure X when the figure is yawed relative to world axes.
+      // Decision: spans from upper_arm L/R world positions (not clavicles). The LATERAL (XZ) span
+      // is the same-space denominator for the corrected wrist lateral numerator (#678); the 3D span
+      // stays recorded for consumers that want it. Level shoulders make the two agree to ~2 mm.
       let halfShoulderSpanMeters = 0;
+      let halfShoulderSpanLateralMeters = 0;
+      let shoulderMid = { x: rootWp.x, z: rootWp.z };
+      let axisX = 1;
+      let axisZ = 0;
       if (upperL && upperR) {
         const sl = worldPos(upperL);
         const sr = worldPos(upperR);
-        const dx = sl.x - sr.x;
-        const dy = sl.y - sr.y;
-        const dz = sl.z - sr.z;
-        halfShoulderSpanMeters = 0.5 * Math.sqrt(dx * dx + dy * dy + dz * dz);
+        const spanDx = sl.x - sr.x;
+        const spanDy = sl.y - sr.y;
+        const spanDz = sl.z - sr.z;
+        halfShoulderSpanMeters = 0.5 * Math.sqrt(spanDx * spanDx + spanDy * spanDy + spanDz * spanDz);
+        halfShoulderSpanLateralMeters = 0.5 * Math.sqrt(spanDx * spanDx + spanDz * spanDz);
+        shoulderMid = { x: 0.5 * (sl.x + sr.x), z: 0.5 * (sl.z + sr.z) };
+        const axisLen = Math.hypot(sr.x - sl.x, sr.z - sl.z);
+        if (axisLen > 1e-6) {
+          axisX = (sr.x - sl.x) / axisLen;
+          axisZ = (sr.z - sl.z) / axisLen;
+        }
       }
+      // Perpendicular to the L→R shoulder axis in XZ (90° counter-clockwise viewed from +Y);
+      // sign convention unlocked (#678) — magnitudes are what the bound asserts.
+      const perpX = -axisZ;
+      const perpZ = axisX;
 
       for (const side of ["L", "R"]) {
         let upper = side === "L" ? upperL : upperR;
@@ -423,9 +452,11 @@ export async function readLiveArmAbductionFromPage(page: Page): Promise<{
         const wrist = hand || fore || upper;
         const shoulderWp = worldPos(upper);
         const wristWp = worldPos(wrist);
-        const dx = wristWp.x - rootWp.x;
-        const dz = wristWp.z - rootWp.z;
-        const lateral = Math.sqrt(dx * dx + dz * dz);
+        const wx = wristWp.x - shoulderMid.x;
+        const wz = wristWp.z - shoulderMid.z;
+        const lateral = Math.abs(wx * axisX + wz * axisZ);
+        const forward = wx * perpX + wz * perpZ;
+        const horizontalRadius = Math.sqrt(wx * wx + wz * wz);
 
         arms.push({
           scenarioId: scenarioId,
@@ -433,7 +464,10 @@ export async function readLiveArmAbductionFromPage(page: Page): Promise<{
           posture: String(posture),
           side: side,
           halfShoulderSpanMeters: halfShoulderSpanMeters,
+          halfShoulderSpanLateralMeters: halfShoulderSpanLateralMeters,
           wristLateralOffsetMeters: lateral,
+          wristForwardOffsetMeters: forward,
+          wristHorizontalRadiusMeters: horizontalRadius,
           shoulderWorldY: shoulderWp.y,
           wristWorldY: wristWp.y,
           framesAdvanced: framesAdvanced,
@@ -469,8 +503,8 @@ async function main(): Promise<void> {
   });
   const standing = report.arms.filter((a) => a.posture === "standing");
   const ratios = standing
-    .filter((a) => a.halfShoulderSpanMeters > 0)
-    .map((a) => a.wristLateralOffsetMeters / a.halfShoulderSpanMeters);
+    .filter((a) => a.halfShoulderSpanLateralMeters > 0)
+    .map((a) => a.wristLateralOffsetMeters / a.halfShoulderSpanLateralMeters);
   const minR = ratios.length ? Math.min(...ratios) : NaN;
   const maxR = ratios.length ? Math.max(...ratios) : NaN;
   process.stdout.write(
