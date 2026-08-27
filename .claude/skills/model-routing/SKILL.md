@@ -1,37 +1,77 @@
 ---
 name: model-routing
-description: "The operator's model ladders for worker agents and the superagent, with the fallback rule and the probe. Load BEFORE passing `model:` to dispatch(), before spawning any worker or subagent, before opening or resuming a superagent consult, and whenever a dispatch dies on a provider error. Carries what is enforced in code and what is NOT, so a wrong model is never assumed to be caught by a guard. ALSO load before writing that a model is broken, dead, stalled, unresponsive, or returning nothing: ox measured 85% delegation success and 7 of 8 \"ox is down\" claims in one session were the caller's own invocation error (nohup, missing key, buffered json, wrong signature, missing role)."
+description: "The operator's model ladders for worker agents and the superagent, with the fallback rule and the probe. Load BEFORE passing `model:` to dispatch(), before spawning any worker or subagent, before opening or resuming a superagent consult, and whenever a dispatch dies on a provider error. Carries what is enforced in code and what is NOT, so a wrong model is never assumed to be caught by a guard. ALSO load before writing that a model is broken, dead, stalled, unresponsive, or returning nothing: LADDER 2026-08-26: deepseek-v4-flash is PRIMARY, flash-vision-exp when an image is needed, ox-alpha only on measured failure and CURRENTLY 404-retired. Also carries why a write-role dispatch on flash needs modelDowngradeReason. ox measured 85% delegation success and 7 of 8 \"ox is down\" claims in one session were the caller's own invocation error (nohup, missing key, buffered json, wrong signature, missing role)."
 when-to-use: "ox is down, ox not working, model is broken, dispatch died, 0 bytes, empty response, no_visible_content, stalled, unresponsive, step down a rung, dispatch a worker, pass a model, which model, spawn subagent, resume superagent, ox-alpha, deepseek, grok-4.6, provider died, 402, model fell back, escalate model, worker model policy"
 ---
 
 # Model routing
 
-> ## ox-alpha IS RETIRED — measured 2026-08-26, both ladders' rung 1 is dead
+> # THE LADDER, as of 2026-08-26 — operator directive, and it INVERTS everything below
 >
-> Every `--model ox-alpha` call now returns **HTTP 404**:
+> > "Promote deepseek flash and flash multimodal (when image is needed) to primary and ox only when
+> > those fail"
+>
+> ## Worker agents AND the superagent
+>
+> | rung | model | when |
+> |---|---|---|
+> | **1** | `deepseek-v4-flash` | **default for everything** |
+> | **1v** | `deepseek-v4-flash-vision-exp` | **when the slice genuinely needs the worker to read an image** — not a step down, a sideways pick |
+> | 2 | `ox-alpha` | only after rung 1 fails on a measured error. **CURRENTLY 404, see below** |
+> | 3 | `grok-4.6` | last resort |
+>
+> Rung 1v is CONDITIONAL, not sequential. On an identical text-only probe the vision model spent 730
+> output tokens against 135 for plain flash, 5.4x, for the same answer. Pixel grading is the
+> orchestrator's job (`pixel-grading`), so a worker needing vision stays rare.
+>
+> ## ox-alpha IS RETIRED — measured 2026-08-26, so rung 2 is presently dead
+>
+> Every `--model ox-alpha` call returns **HTTP 404**:
 >
 > > Thank you for participating in the Stealth Ox Alpha testing period. This model was ZAI's
 > > GLM-5.3 Flash. Use it now: https://openrouter.ai/z-ai/glm-5.3-flash
 >
-> Probed directly through `direnv exec` with the key present, so this is not the missing-key 401 that
-> this file spends several sections warning about. `deepseek-v4-flash` answered cleanly in the same
-> shell seconds later.
->
-> **A dispatch naming ox-alpha dies before emitting an end event** and throws
-> `Dispatch died before emitting an end event (exit 1)`. Measured on the #700 dispatch.
->
-> **What to do instead, until an operator sets a new rung 1:** drop the `model` argument and let the
-> role policy choose. Naming a cheaper model instead is refused by `resolveDispatchModel`
-> (`dispatch-worker.ts:744`) as an unjustified downgrade, and that refusal is correct —
-> `xr-systems-architect` is `standard_execution`, so policy gives `deepseek-v4-pro`.
+> Probed through `direnv exec` with the key present, so this is NOT the missing-key 401 this file
+> spends several sections warning about; `deepseek-v4-flash` answered cleanly in the same shell
+> seconds later. A dispatch naming it dies before emitting an end event. Measured on #700.
 >
 > `z-ai/glm-5.3-flash` is what ox-alpha actually was. It is NOT configured in `~/.grok/config.toml`
-> and has not been probed here. Adding it is an operator decision, not mine.
+> and has not been probed here. Adding it is an operator decision.
 >
-> Everything below still describes ox-alpha as rung 1. **It is wrong on that point and correct on the
-> rest** — the 401-versus-outage discipline, `direnv exec`, the three-failures trigger, and the
-> never-pkill rule all still hold.
-
+> ## THE GATE WILL REFUSE RUNG 1 ON WRITE ROLES, AND YOU MUST NAME THE REASON
+>
+> `standard_execution` roles (`xr-systems-architect`, `asset-pipeline-lead`) have policy model
+> `deepseek-v4-pro` (rank 1). `deepseek-v4-flash` is rank 0, so `resolveDispatchModel`
+> (`dispatch-worker.ts:744`) throws `DOWNGRADE with no modelDowngradeReason`.
+>
+> That guard exists because five consecutive write slices silently ran flash when the default ignored
+> the role, and it is right to demand a reason. **You now have one, and it is a measurement plus a
+> directive rather than a preference.** Pass it:
+>
+> ```ts
+> await dispatch(REPO, {
+>   slice, role, prompt, proofs, worktree: true,
+>   model: "deepseek-v4-flash",
+>   modelDowngradeReason:
+>     "operator ladder 2026-08-26 promotes deepseek-v4-flash to primary; ox-alpha rung retired, "
+>     + "measured HTTP 404 through direnv exec with the key present",
+>   maxTurns: 200,
+> });
+> ```
+>
+> **Do NOT drop the `model` argument to dodge the gate.** That routes to `deepseek-v4-pro` by policy,
+> which is no longer rung 1. I did exactly that on #700 before this directive and it dispatched on pro.
+>
+> `role-harness-policy.ts:164` still maps `standard_execution` to `deepseek-v4-pro`. Changing that
+> table would move the rung for every consumer including the codex and openai columns, so it is not
+> changed here; the downgrade reason is the sanctioned path until an operator says otherwise.
+>
+> ## What the rest of this file is still right about
+>
+> Everything below describes ox as rung 1 and is WRONG on that. It remains correct on: the
+> 401-versus-outage discipline, `direnv exec` on every dispatch and probe, the three-failures
+> trigger, never `pkill -f`, commit AND PUSH worker WIP early, and consults asking for a verdict in
+> one call.
 
 Two ladders, set by the operator on 2026-08-23. First available wins; step down only on a measured
 failure, never on preference.
