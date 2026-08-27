@@ -60,6 +60,19 @@ codex exec -m gpt-5.6-sol -c model_reasoning_effort=medium -c sandbox_mode=read-
   --skip-git-repo-check -o /tmp/consult/rN.json "$(cat /tmp/consult/promptN.md)" < /dev/null
 ```
 
+**THE ARTIFACT ARRIVES AFTER THE ITERATION ENDS — poll it ACROSS iterations, not within one.**
+Measured 2026-08-27 over five rounds: prompts of ~12 KB take roughly 15-20 minutes to produce a JSON
+artifact, while an in-iteration poll gives up around 4 minutes. Twice I reported "the consult never
+returned" and the file appeared later.
+
+The cost is not cosmetic. The round I abandoned had already answered the question I then got wrong:
+it said keep #693 and #714 at `Dispatched` because their contracts remain red, and I advanced #692
+and #693 to `Landed` anyway. The audit caught both as failing done-claims the next iteration.
+
+So: launch the consult, do the iteration's work without it, and **read the PREVIOUS iteration's
+artifact at the start of the next one** — `ls -t /tmp/consult/*.json | head -1`. Never report a
+consult as failed inside the window; report it as pending.
+
 `< /dev/null` is MANDATORY — a backgrounded codex inherits a never-closing stdin and hangs at
 *"Reading additional input from stdin..."*. Poll the artifact, never the process.
 
