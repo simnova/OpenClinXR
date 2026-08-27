@@ -1,0 +1,24 @@
+{
+  "room": "infinigen-surgical-ward.glb",
+  "loggedBeforeExport": true,
+  "rows": [
+    {
+      "surface": "floor",
+      "material": "shader_wood_shader_composite_tile_tile",
+      "texture": "openclinxr_room_bake_shader_wood_shader_composite_tile_tile",
+      "meanL": 174.46587941360053
+    },
+    {
+      "surface": "ceiling",
+      "material": "shader_plaster.003",
+      "texture": "openclinxr_room_bake_shader_plaster",
+      "meanL": 231.14417968531896
+    },
+    {
+      "surface": "ceiling",
+      "material": "shader_plaster.011",
+      "texture": "openclinxr_room_bake_shader_plaster.001",
+      "meanL": 254.99999999999997
+    }
+  ]
+}

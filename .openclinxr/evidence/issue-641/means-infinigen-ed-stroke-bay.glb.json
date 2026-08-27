@@ -1,0 +1,24 @@
+{
+  "room": "infinigen-ed-stroke-bay.glb",
+  "loggedBeforeExport": true,
+  "rows": [
+    {
+      "surface": "floor",
+      "material": "shader_wood_shader_crossed_tile_tile",
+      "texture": "openclinxr_room_bake_shader_wood_shader_crossed_tile_tile",
+      "meanL": 207.60210628937992
+    },
+    {
+      "surface": "ceiling",
+      "material": "shader_plaster.001",
+      "texture": "openclinxr_room_bake_shader_plaster",
+      "meanL": 253.9381837321095
+    },
+    {
+      "surface": "ceiling",
+      "material": "shader_plaster.019",
+      "texture": "openclinxr_room_bake_shader_plaster.001",
+      "meanL": 254.99999999999997
+    }
+  ]
+}
