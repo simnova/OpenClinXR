@@ -107,7 +107,7 @@ function halfTotals(deciles: Decile[], field: keyof Decile): { upper: number; lo
 }
 
 describe("the gown shards are measured before anything is changed (#691)", () => {
-  it.fails("(1) all three candidate mechanisms are measured, per decile of the gown's height", () => {
+  it("(1) all three candidate mechanisms are measured, per decile of the gown's height", () => {
     const report = reportOrNull();
     expect(
       report !== null,
@@ -130,7 +130,7 @@ describe("the gown shards are measured before anything is changed (#691)", () =>
     }
   });
 
-  it.fails("(2) the named mechanism is concentrated where the shards are, or is an escape value", () => {
+  it("(2) the named mechanism is concentrated where the shards are, or is an escape value", () => {
     const report = reportOrNull();
     expect(report !== null, `${REPORT} must exist`).toBe(true);
     expect(MECHANISMS, "supportedMechanism").toContain(report!.supportedMechanism);
@@ -181,3 +181,45 @@ describe("the gown shards are measured before anything is changed (#691)", () =>
 // predates decimation, which the 2026-08-23 crops cannot settle because they depict a different mesh.
 // Nor whether the tan slivers are body skin, an underlayer, or the gown's own backface. Nor whether
 // any of this is visible at learner viewing distance, which no station capture has established.
+
+/*
+ * ## FIXED (#691)
+ *
+ * Clauses (1) and (2) flipped from `it.fails` to `it` on 2026-08-27. The measurement is in
+ * `tools/openclinxr/evidence/gown-shard-mechanism-measure.ts` + `gown-shard-mechanism-measurement.json`
+ * (TRACKED). No asset bytes changed: the GLB is pinned at sha256 `7bd12d06…fd4a`, 7,116,988 bytes,
+ * and clause (3) verifies it on every run.
+ *
+ * PER-DECILE, +X-ray even-odd (primary), over the gown's own y-range 0.568..1.542 m:
+ *
+ *   decile  y-range      verts  inside  degen(<1e-8)  inward(axis)
+ *   0       0.568..0.666   405      5        7           18
+ *   1       0.666..0.763   168      4        9            8
+ *   2       0.763..0.860   183     14        3            1
+ *   3       0.860..0.958   163      0        5            5
+ *   4       0.958..1.055   898      1        8           50
+ *   5       1.055..1.153  2051     47        2          410
+ *   6       1.153..1.250  2795     46        5         1843
+ *   7       1.250..1.348  4115    356       11         2212
+ *   8       1.348..1.445  2359     14       24          754
+ *   9       1.445..1.542  1608      0       79         1026
+ *
+ * SUPPORTED MECHANISM: interpenetration. `gownVerticesInsideBody` measures 463 (upper half) vs 24
+ * (lower half); the +Z-ray cross-check measures 817 vs 111 and the nearest-body-surface cross-check
+ * 593 vs 3 — all three instruments concentrate in the upper half, where the grade localises the
+ * shards. The code trace (automate_blender.py #686, `_fold_amp686 = 0.034` m triangle-wave on a
+ * 10-22 mm conformal normal offset) puts the wave valleys 12-24 mm inside the body surface across
+ * the gather band (body f 0.55..0.86, y 0.98..1.51), fading at both band edges — the band is where
+ * the shards are densest and where they fade. The accordion flanks are the angular "shard" geometry;
+ * the body skin visible in the V-gaps between crests is the "tan/gold slivers" the grade reports.
+ *
+ * The other two candidates were measured and not supported: degenerate triangles are negligible
+ * (153 below 1e-8 m^2 of 28,967; 10 below 1e-12) and sit near the collar, not the placket; the
+ * axis-reference inward-normal count (6,327) is upper-heavy but dominated by geometrically-correct
+ * inner-sleeve tube surfaces and accordion flank normals near dot~0 — the nearest-surface variant
+ * is biased at free rims, so neither is the discriminator.
+ *
+ * The gown material is `doubleSided: true`, OPAQUE — so the inward facets shade rather than cull,
+ * and the "slivers through the blue" read as the body/t-shirt visible in the accordion V-gaps where
+ * the valley fabric has retreated behind the body surface.
+ */

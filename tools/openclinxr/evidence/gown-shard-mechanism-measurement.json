@@ -1,0 +1,193 @@
+{
+  "slice": "issue-691",
+  "title": "gown shard mechanism measurement — per-decile, pre-change (diagnosis only)",
+  "measuredAt": "2026-08-27T06:52:31.798Z",
+  "measuredAtCommit": "e1e38553d110dd3df34e81741e63742a776113e0",
+  "counterweight": {
+    "glbSha256": "7bd12d06aec497a939aa62301c73274cf23e6dd7b1da6d5c085db6c17f57fd4a",
+    "glbBytes": 7116988,
+    "pinnedSha256": "7bd12d06aec497a939aa62301c73274cf23e6dd7b1da6d5c085db6c17f57fd4a",
+    "pinnedBytes": 7116988
+  },
+  "gownMesh": "openclinxr_real_garment_peds_upper_v1_mesh",
+  "gownVertexCount": 14745,
+  "bodyVertexCount": 5985,
+  "gownMaterial": {
+    "doubleSided": true,
+    "alphaMode": "OPAQUE"
+  },
+  "method": {
+    "decilesOver": "gown's own y-range 0.568..1.542 m, ten equal bands",
+    "interpenetration": {
+      "primary": "even-odd point-in-mesh by +X raycast (Moller-Trumbore, q=s x e1), grid-accelerated over the visible skin primitive mpfb_skin_ob_patient_aisha",
+      "crossCheckRayZ": "same test with +Z ray",
+      "crossCheckNearest": "nearest body triangle signed distance (3x3-cell search, Ericson closest point), inside = sign < -2mm",
+      "caveat": "the body mesh is not watertight (boundary edges within the gown's y-range); parity can flip near seams — hence the two-ray and nearest-surface cross-checks",
+      "validated": "centroid and neck test points classify inside, far points outside; hit points keep the ray origin's y/z (invariant checked)"
+    },
+    "degenerateTriangles": {
+      "epsilonM2": 1e-8,
+      "epsilonRationale": "area below 1e-8 m^2 = side lengths below ~0.14 mm — below render relevance at the graded 4096 capture; counts below 1e-12 (true zero-area) recorded separately"
+    },
+    "inwardFacingTriangles": {
+      "reference": "geometric normal points toward the body XZ axis: dot(n, triCenter - axis) < 0",
+      "caveat": "counts inner-sleeve tube surfaces (correct geometry, occluded in the render) and accordion flank normals near dot~0; the nearest-body-surface-normal variant is recorded alongside (biased at free rims: hem/collar/cuffs)"
+    }
+  },
+  "deciles": [
+    {
+      "index": 0,
+      "yLow": 0.5681787729263306,
+      "yHigh": 0.6655957221984863,
+      "gownVerticesInsideBody": 5,
+      "degenerateTriangles": 7,
+      "inwardFacingTriangles": 18,
+      "gownVerticesInsideBodyRayZ": 10,
+      "gownVerticesInsideBodyNearest": 2,
+      "rayDisagreements": 5,
+      "zeroAreaTriangles": 1,
+      "inwardFacingTrianglesNearestSurface": 50
+    },
+    {
+      "index": 1,
+      "yLow": 0.6655957221984863,
+      "yHigh": 0.7630126714706421,
+      "gownVerticesInsideBody": 4,
+      "degenerateTriangles": 9,
+      "inwardFacingTriangles": 8,
+      "gownVerticesInsideBodyRayZ": 4,
+      "gownVerticesInsideBodyNearest": 0,
+      "rayDisagreements": 0,
+      "zeroAreaTriangles": 0,
+      "inwardFacingTrianglesNearestSurface": 38
+    },
+    {
+      "index": 2,
+      "yLow": 0.7630126714706421,
+      "yHigh": 0.8604296207427978,
+      "gownVerticesInsideBody": 14,
+      "degenerateTriangles": 3,
+      "inwardFacingTriangles": 1,
+      "gownVerticesInsideBodyRayZ": 16,
+      "gownVerticesInsideBodyNearest": 0,
+      "rayDisagreements": 2,
+      "zeroAreaTriangles": 0,
+      "inwardFacingTrianglesNearestSurface": 42
+    },
+    {
+      "index": 3,
+      "yLow": 0.8604296207427978,
+      "yHigh": 0.9578465700149537,
+      "gownVerticesInsideBody": 0,
+      "degenerateTriangles": 5,
+      "inwardFacingTriangles": 5,
+      "gownVerticesInsideBodyRayZ": 21,
+      "gownVerticesInsideBodyNearest": 0,
+      "rayDisagreements": 21,
+      "zeroAreaTriangles": 0,
+      "inwardFacingTrianglesNearestSurface": 24
+    },
+    {
+      "index": 4,
+      "yLow": 0.9578465700149537,
+      "yHigh": 1.0552635192871094,
+      "gownVerticesInsideBody": 1,
+      "degenerateTriangles": 8,
+      "inwardFacingTriangles": 50,
+      "gownVerticesInsideBodyRayZ": 60,
+      "gownVerticesInsideBodyNearest": 1,
+      "rayDisagreements": 61,
+      "zeroAreaTriangles": 1,
+      "inwardFacingTrianglesNearestSurface": 71
+    },
+    {
+      "index": 5,
+      "yLow": 1.0552635192871094,
+      "yHigh": 1.152680468559265,
+      "gownVerticesInsideBody": 47,
+      "degenerateTriangles": 2,
+      "inwardFacingTriangles": 410,
+      "gownVerticesInsideBodyRayZ": 206,
+      "gownVerticesInsideBodyNearest": 31,
+      "rayDisagreements": 187,
+      "zeroAreaTriangles": 0,
+      "inwardFacingTrianglesNearestSurface": 518
+    },
+    {
+      "index": 6,
+      "yLow": 1.152680468559265,
+      "yHigh": 1.2500974178314208,
+      "gownVerticesInsideBody": 46,
+      "degenerateTriangles": 5,
+      "inwardFacingTriangles": 1843,
+      "gownVerticesInsideBodyRayZ": 154,
+      "gownVerticesInsideBodyNearest": 13,
+      "rayDisagreements": 116,
+      "zeroAreaTriangles": 0,
+      "inwardFacingTrianglesNearestSurface": 406
+    },
+    {
+      "index": 7,
+      "yLow": 1.2500974178314208,
+      "yHigh": 1.3475143671035767,
+      "gownVerticesInsideBody": 356,
+      "degenerateTriangles": 11,
+      "inwardFacingTriangles": 2212,
+      "gownVerticesInsideBodyRayZ": 62,
+      "gownVerticesInsideBodyNearest": 122,
+      "rayDisagreements": 408,
+      "zeroAreaTriangles": 0,
+      "inwardFacingTrianglesNearestSurface": 1986
+    },
+    {
+      "index": 8,
+      "yLow": 1.3475143671035767,
+      "yHigh": 1.4449313163757325,
+      "gownVerticesInsideBody": 14,
+      "degenerateTriangles": 24,
+      "inwardFacingTriangles": 754,
+      "gownVerticesInsideBodyRayZ": 197,
+      "gownVerticesInsideBodyNearest": 160,
+      "rayDisagreements": 211,
+      "zeroAreaTriangles": 2,
+      "inwardFacingTrianglesNearestSurface": 545
+    },
+    {
+      "index": 9,
+      "yLow": 1.4449313163757325,
+      "yHigh": 1.5423482656478882,
+      "gownVerticesInsideBody": 0,
+      "degenerateTriangles": 79,
+      "inwardFacingTriangles": 1026,
+      "gownVerticesInsideBodyRayZ": 198,
+      "gownVerticesInsideBodyNearest": 267,
+      "rayDisagreements": 198,
+      "zeroAreaTriangles": 6,
+      "inwardFacingTrianglesNearestSurface": 198
+    }
+  ],
+  "totals": {
+    "gownVerticesInsideBody": 487,
+    "gownVerticesInsideBodyRayZ": 928,
+    "gownVerticesInsideBodyNearest": 596,
+    "degenerateTriangles": 153,
+    "inwardFacingTriangles": 6327,
+    "inwardFacingTrianglesNearestSurface": 3878
+  },
+  "upperVsLower": {
+    "gownVerticesInsideBody": {
+      "upper": 463,
+      "lower": 24
+    },
+    "degenerateTriangles": {
+      "upper": 121,
+      "lower": 32
+    },
+    "inwardFacingTriangles": {
+      "upper": 6245,
+      "lower": 82
+    }
+  },
+  "supportedMechanism": "interpenetration",
+  "mechanismNote": "gown vertices inside the body skin are measured and bodice-concentrated: +X-ray even-odd 463 upper vs 24 lower, +Z-ray 817 vs 111, nearest-surface 593 vs 3. The gather band (automate_blender.py #686: _fold_amp686=0.034m triangle-wave on a 10-22mm conformal offset) puts the wave valleys 12-24mm inside the body surface across y 0.98..1.51 (body f 0.55..0.86), fading at both band edges — which is where the shards are densest and where they fade. Degenerate triangles are negligible (153 below 1e-8 m^2, 10 below 1e-12) and sit near the collar, not the placket. Inward-facing normals (axis reference) are upper-heavy but dominated by correct inner-sleeve tube surfaces and accordion flank normals near dot~0; the nearest-surface reference is biased at free rims. Neither is the discriminator the interpenetration is."
+}
