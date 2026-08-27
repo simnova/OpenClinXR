@@ -399,7 +399,8 @@ const WORKER_REPORT_MARKERS = /(UNABLE:|cannot pass|Factory: Dispatched)/i;
  * insufficient.
  */
 const WORKER_REPORT_SECTIONS = [/IN-SCOPE:/i, /OUT-OF-SCOPE:/i, /CLAIM:/i, /NOT TESTED:/i];
-const isWorkerReport = (body: string): boolean => WORKER_REPORT_SECTIONS.every((r) => r.test(body));
+/** #733: exported so a contract can test the predicate itself rather than the source text. */
+export const isWorkerReport = (body: string): boolean => WORKER_REPORT_SECTIONS.every((r) => r.test(body));
 
 /**
  * ISSUE #448 — a landing whose worker never spoke is refused.
