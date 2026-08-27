@@ -64,3 +64,21 @@ export function findStaleMeasuredGeometry(doc: unknown, repoRoot: string): strin
   }
   return stale;
 }
+
+/**
+ * Returns the measured triangle counts whose fingerprint still matches the file on disk — the
+ * counts the verdict may cite (#711). A stale, missing, or fingerprint-less assetId is dropped so
+ * `evaluateScenarioAssetBudget` fires #700's typed `station_triangle_measurements_incomplete`
+ * instead of blending the stale number with declared maxima.
+ */
+export function freshMeasuredTriangleCounts(doc: unknown, repoRoot: string): Record<string, number> {
+  const stale = new Set(findStaleMeasuredGeometry(doc, repoRoot));
+  const triangles = (doc as { triangles?: Record<string, number> } | undefined)?.triangles ?? {};
+  const fresh: Record<string, number> = {};
+  for (const [assetId, count] of Object.entries(triangles)) {
+    if (typeof count === "number" && Number.isFinite(count) && !stale.has(assetId)) {
+      fresh[assetId] = count;
+    }
+  }
+  return fresh;
+}

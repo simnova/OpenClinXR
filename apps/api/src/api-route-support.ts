@@ -12,6 +12,7 @@ import {
   createScenarioPlaceholderManifests,
   ENCOUNTER_HUMANOID_RUNTIME_REQUIRED_SIGNAL_IDS,
   evaluateEncounterRuntimeLearnerUseGate,
+  freshMeasuredTriangleCounts,
   InMemoryAssetRegistry,
   MEASURED_STATION_GEOMETRY,
   type RuntimeAssetReviewDecision,
@@ -689,7 +690,26 @@ export function findSeedBankAssetReadiness(scenarioId: string, version: number) 
   return readiness;
 }
 
-export function createSeedBankAssetReadiness() {
+/**
+ * Resolves the repo root for the measured-geometry check the same way `readRepoGeneratedJsonIfExists`
+ * does: the process cwd (the root when the API runs from the monorepo root, as tests do), then the
+ * `../..` hop that lands on the repo root from `apps/api`. The first candidate that actually holds
+ * the GLB the artifact names wins; when neither does (e.g. a deployed image without the assets) the
+ * caller degrades to the cwd and the freshness check reports everything stale — the fail-closed
+ * outcome, not a silent trust of the committed numbers.
+ */
+function measuredGeometryRepoRoot(doc: unknown): string {
+  const sources = (doc as { sources?: Record<string, string> } | undefined)?.sources ?? {};
+  const firstSource = Object.values(sources).find((rel): rel is string => typeof rel === "string" && rel.length > 0);
+  if (firstSource !== undefined) {
+    for (const candidate of [process.cwd(), path.resolve(process.cwd(), "../..")]) {
+      if (existsSync(path.resolve(candidate, firstSource))) return candidate;
+    }
+  }
+  return process.cwd();
+}
+
+export function createSeedBankAssetReadiness(doc?: unknown) {
   const registry = new InMemoryAssetRegistry();
   for (const scenario of scenarioBank) {
     for (const manifest of createScenarioPlaceholderManifests(scenario)) {
@@ -697,11 +717,19 @@ export function createSeedBankAssetReadiness() {
     }
   }
 
+  // #711: the verdict only trusts counts whose fingerprint still matches the GLB on disk. A stale
+  // artifact drops that count so #700's typed `station_triangle_measurements_incomplete` fires for
+  // the affected station instead of a silent fall back to declarations or the stale number. The
+  // default document is the same one the barrel resolves (the built copy the verdict reads), and
+  // the optional override lets a stale document be exercised without mutating a tracked file.
+  const artifact = doc ?? MEASURED_STATION_GEOMETRY;
+  const triangles = freshMeasuredTriangleCounts(artifact, measuredGeometryRepoRoot(artifact));
+
   return scenarioBank.map((scenario) => ({
     // #705: weigh shipped geometry, not declarations. The counts are the build-time artifact
     // MEASURED_STATION_GEOMETRY (measured-station-geometry.json); scenarios whose assets are not
     // in it fail closed with station_triangle_measurements_incomplete via #700's seam.
-    ...registry.evaluateScenarioReadiness(scenario, MEASURED_STATION_GEOMETRY.triangles),
+    ...registry.evaluateScenarioReadiness(scenario, triangles),
     productionReadinessLadder: registry.evaluateScenarioProductionReadinessLadder(scenario),
   }));
 }
