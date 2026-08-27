@@ -1,0 +1,24 @@
+{
+  "room": "infinigen-behavioral-health-private.glb",
+  "loggedBeforeExport": true,
+  "rows": [
+    {
+      "surface": "floor",
+      "material": "shader_ceramic_shader_rectangle_tile_tile.003",
+      "texture": "openclinxr_room_bake_shader_ceramic_shader_rectangle_tile_tile",
+      "meanL": 214.80778125298147
+    },
+    {
+      "surface": "ceiling",
+      "material": "shader_plaster.009",
+      "texture": "openclinxr_room_bake_shader_plaster",
+      "meanL": 177.73493100364732
+    },
+    {
+      "surface": "ceiling",
+      "material": "shader_plaster.021",
+      "texture": "openclinxr_room_bake_shader_plaster.001",
+      "meanL": 254.99999999999997
+    }
+  ]
+}

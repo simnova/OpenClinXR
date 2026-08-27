@@ -1,0 +1,373 @@
+{
+  "issue": 641,
+  "measuredAgainstCommit": "109b363c71b9e4b84d3ac9d1946e27c0e1b51967",
+  "instrument": "tools/openclinxr/evidence/lib/png-region-luminance.ts (regionLuminance, step 8, blackLuma 12) over baseColorTexture images of apps/ui-xr/public/xr-assets/environment",
+  "bankSurvey": {
+    "rooms": 14,
+    "floorTextures": 16,
+    "wallTextures": 26,
+    "floorsBelow50": 16,
+    "floorPctRange": [
+      0,
+      7.5
+    ],
+    "rows": [
+      {
+        "room": "infinigen-adult-ed-abdominal-bay.glb",
+        "material": "shader_plaster.002",
+        "shaderClass": "wall",
+        "nonBlackPct": 50,
+        "bytes": 705064,
+        "uvCoverage": 1
+      },
+      {
+        "room": "infinigen-adult-ed-abdominal-bay.glb",
+        "material": "shader_rug",
+        "shaderClass": "floor",
+        "nonBlackPct": 0.6,
+        "bytes": 19502,
+        "uvCoverage": 0.234
+      },
+      {
+        "room": "infinigen-adult-ed-abdominal-bay.glb",
+        "material": "shader_plaster.025",
+        "shaderClass": "wall",
+        "nonBlackPct": 100,
+        "bytes": 1279562,
+        "uvCoverage": 1
+      },
+      {
+        "room": "infinigen-behavioral-health-private.glb",
+        "material": "shader_plaster.009",
+        "shaderClass": "wall",
+        "nonBlackPct": 69.8,
+        "bytes": 126383,
+        "uvCoverage": 1
+      },
+      {
+        "room": "infinigen-behavioral-health-private.glb",
+        "material": "shader_ceramic_shader_rectangle_tile_tile.003",
+        "shaderClass": "floor",
+        "nonBlackPct": 0,
+        "bytes": 18578,
+        "uvCoverage": 0
+      },
+      {
+        "room": "infinigen-behavioral-health-private.glb",
+        "material": "shader_plaster.021",
+        "shaderClass": "wall",
+        "nonBlackPct": 100,
+        "bytes": 96419,
+        "uvCoverage": 1
+      },
+      {
+        "room": "infinigen-ed-exam-bay.glb",
+        "material": "shader_plaster.014",
+        "shaderClass": "wall",
+        "nonBlackPct": 100,
+        "bytes": 1148510,
+        "uvCoverage": 1
+      },
+      {
+        "room": "infinigen-ed-exam-bay.glb",
+        "material": "shader_ceramic_shader_square_tile_tile.002",
+        "shaderClass": "floor",
+        "nonBlackPct": 1,
+        "bytes": 33601,
+        "uvCoverage": 0.24
+      },
+      {
+        "room": "infinigen-ed-exam-bay.glb",
+        "material": "shader_plaster.021",
+        "shaderClass": "wall",
+        "nonBlackPct": 100,
+        "bytes": 976776,
+        "uvCoverage": 1
+      },
+      {
+        "room": "infinigen-ed-stroke-bay.glb",
+        "material": "shader_plaster.001",
+        "shaderClass": "wall",
+        "nonBlackPct": 100,
+        "bytes": 1298124,
+        "uvCoverage": 1
+      },
+      {
+        "room": "infinigen-ed-stroke-bay.glb",
+        "material": "shader_wood_shader_crossed_tile_tile",
+        "shaderClass": "floor",
+        "nonBlackPct": 1,
+        "bytes": 32360,
+        "uvCoverage": 0.24
+      },
+      {
+        "room": "infinigen-ed-stroke-bay.glb",
+        "material": "shader_plaster.019",
+        "shaderClass": "wall",
+        "nonBlackPct": 100,
+        "bytes": 1256971,
+        "uvCoverage": 1
+      },
+      {
+        "room": "infinigen-inpatient-ward.glb",
+        "material": "shader_plaster.007",
+        "shaderClass": "wall",
+        "nonBlackPct": 100,
+        "bytes": 1346154,
+        "uvCoverage": 1
+      },
+      {
+        "room": "infinigen-inpatient-ward.glb",
+        "material": "shader_dirt_shader_staggered_tile_tile",
+        "shaderClass": "floor",
+        "nonBlackPct": 1,
+        "bytes": 31790,
+        "uvCoverage": 0.24
+      },
+      {
+        "room": "infinigen-inpatient-ward.glb",
+        "material": "shader_plaster.020",
+        "shaderClass": "wall",
+        "nonBlackPct": 100,
+        "bytes": 1344883,
+        "uvCoverage": 1
+      },
+      {
+        "room": "infinigen-ob-triage.glb",
+        "material": "shader_plaster.002",
+        "shaderClass": "wall",
+        "nonBlackPct": 100,
+        "bytes": 145120,
+        "uvCoverage": 1
+      },
+      {
+        "room": "infinigen-ob-triage.glb",
+        "material": "shader_marble_shader_rectangle_tile_tile.003",
+        "shaderClass": "floor",
+        "nonBlackPct": 0.4,
+        "bytes": 25216,
+        "uvCoverage": 0.234
+      },
+      {
+        "room": "infinigen-ob-triage.glb",
+        "material": "shader_plaster.023",
+        "shaderClass": "wall",
+        "nonBlackPct": 100,
+        "bytes": 24834,
+        "uvCoverage": 1
+      },
+      {
+        "room": "infinigen-oncology-consult.glb",
+        "material": "shader_plaster.002",
+        "shaderClass": "wall",
+        "nonBlackPct": 100,
+        "bytes": 185329,
+        "uvCoverage": 1
+      },
+      {
+        "room": "infinigen-oncology-consult.glb",
+        "material": "shader_wood_shader_staggered_tile_tile",
+        "shaderClass": "floor",
+        "nonBlackPct": 0,
+        "bytes": 18578,
+        "uvCoverage": 0
+      },
+      {
+        "room": "infinigen-oncology-consult.glb",
+        "material": "shader_plaster.030",
+        "shaderClass": "wall",
+        "nonBlackPct": 100,
+        "bytes": 100795,
+        "uvCoverage": 1
+      },
+      {
+        "room": "infinigen-pediatric-fever-urgent-care.glb",
+        "material": "shader_plaster.019",
+        "shaderClass": "wall",
+        "nonBlackPct": 100,
+        "bytes": 1142173,
+        "uvCoverage": 1
+      },
+      {
+        "room": "infinigen-pediatric-fever-urgent-care.glb",
+        "material": "shader_marble_shader_square_tile_tile.002",
+        "shaderClass": "floor",
+        "nonBlackPct": 1,
+        "bytes": 32626,
+        "uvCoverage": 0.24
+      },
+      {
+        "room": "infinigen-pediatric-fever-urgent-care.glb",
+        "material": "shader_plaster.037",
+        "shaderClass": "wall",
+        "nonBlackPct": 100,
+        "bytes": 899608,
+        "uvCoverage": 1
+      },
+      {
+        "room": "infinigen-pediatric-urgent-care-bay.glb",
+        "material": "shader_plaster.005",
+        "shaderClass": "wall",
+        "nonBlackPct": 100,
+        "bytes": 55633,
+        "uvCoverage": 1
+      },
+      {
+        "room": "infinigen-pediatric-urgent-care-bay.glb",
+        "material": "shader_wood_shader_crossed_tile_tile.001",
+        "shaderClass": "floor",
+        "nonBlackPct": 0,
+        "bytes": 18578,
+        "uvCoverage": 0
+      },
+      {
+        "room": "infinigen-pediatric-urgent-care-bay.glb",
+        "material": "shader_plaster.020",
+        "shaderClass": "wall",
+        "nonBlackPct": 100,
+        "bytes": 22058,
+        "uvCoverage": 1
+      },
+      {
+        "room": "infinigen-primary-care-clinic.glb",
+        "material": "shader_marble_shader_hexagon_tile_tile",
+        "shaderClass": "floor",
+        "nonBlackPct": 7.5,
+        "bytes": 195932,
+        "uvCoverage": 0.602
+      },
+      {
+        "room": "infinigen-primary-care-clinic.glb",
+        "material": "shader_marble_shader_square_tile_tile",
+        "shaderClass": "floor",
+        "nonBlackPct": 1,
+        "bytes": 19173,
+        "uvCoverage": 0.24
+      },
+      {
+        "room": "infinigen-primary-care-clinic.glb",
+        "material": "shader_plaster.022",
+        "shaderClass": "wall",
+        "nonBlackPct": 100,
+        "bytes": 261431,
+        "uvCoverage": 1
+      },
+      {
+        "room": "infinigen-stepdown.glb",
+        "material": "shader_wood_shader_rectangle_tile_tile.003",
+        "shaderClass": "floor",
+        "nonBlackPct": 3,
+        "bytes": 56650,
+        "uvCoverage": 0.56
+      },
+      {
+        "room": "infinigen-stepdown.glb",
+        "material": "shader_bone_shader_rectangle_tile_tile",
+        "shaderClass": "floor",
+        "nonBlackPct": 1,
+        "bytes": 32050,
+        "uvCoverage": 0.24
+      },
+      {
+        "room": "infinigen-stepdown.glb",
+        "material": "shader_plaster.022",
+        "shaderClass": "wall",
+        "nonBlackPct": 100,
+        "bytes": 1200712,
+        "uvCoverage": 1
+      },
+      {
+        "room": "infinigen-surgical-ward.glb",
+        "material": "shader_plaster.003",
+        "shaderClass": "wall",
+        "nonBlackPct": 100,
+        "bytes": 1320035,
+        "uvCoverage": 1
+      },
+      {
+        "room": "infinigen-surgical-ward.glb",
+        "material": "shader_wood_shader_composite_tile_tile",
+        "shaderClass": "floor",
+        "nonBlackPct": 1,
+        "bytes": 31936,
+        "uvCoverage": 0.239
+      },
+      {
+        "room": "infinigen-surgical-ward.glb",
+        "material": "shader_plaster.011",
+        "shaderClass": "wall",
+        "nonBlackPct": 100,
+        "bytes": 1343109,
+        "uvCoverage": 1
+      },
+      {
+        "room": "infinigen-telehealth-home-visit.glb",
+        "material": "shader_plaster.008",
+        "shaderClass": "wall",
+        "nonBlackPct": 100,
+        "bytes": 1228753,
+        "uvCoverage": 1
+      },
+      {
+        "room": "infinigen-telehealth-home-visit.glb",
+        "material": "shader_ceramic_shader_hexagon_tile_tile.002",
+        "shaderClass": "floor",
+        "nonBlackPct": 1,
+        "bytes": 32631,
+        "uvCoverage": 0.24
+      },
+      {
+        "room": "infinigen-telehealth-home-visit.glb",
+        "material": "shader_plaster.028",
+        "shaderClass": "wall",
+        "nonBlackPct": 100,
+        "bytes": 951285,
+        "uvCoverage": 1
+      },
+      {
+        "room": "infinigen-urgent-care-clinic.glb",
+        "material": "shader_plaster.013",
+        "shaderClass": "wall",
+        "nonBlackPct": 0,
+        "bytes": 18578,
+        "uvCoverage": 1
+      },
+      {
+        "room": "infinigen-urgent-care-clinic.glb",
+        "material": "shader_wood_shader_crossed_tile_tile.003",
+        "shaderClass": "floor",
+        "nonBlackPct": 0.6,
+        "bytes": 26245,
+        "uvCoverage": 0.234
+      },
+      {
+        "room": "infinigen-urgent-care-clinic.glb",
+        "material": "shader_plaster.033",
+        "shaderClass": "wall",
+        "nonBlackPct": 100,
+        "bytes": 1195264,
+        "uvCoverage": 1
+      }
+    ]
+  },
+  "controlTreatment": {
+    "subject": "infinigen-pediatric-fever-urgent-care.glb",
+    "material": "shader_marble_shader_square_tile_tile.002",
+    "control": {
+      "description": "current code as shipped (restore-albedo on, distributed rig, 1024px)",
+      "blenderMeanL": 2.21,
+      "exportedGlb": "openclinxr-job-77993-641/issue-641-control.glb",
+      "nonBlackPct": 1,
+      "bytes": 21874
+    },
+    "treatment": {
+      "variableChanged": "active UV layer of floor meshes switched from the collapsed layer (32/56 verts at (0,1); 30/48 UV triangles degenerate) to the non-degenerate UVMap.001 (0/48 degenerate); no other change",
+      "blenderMeanL": 246.55,
+      "exportedGlb": "openclinxr-job-81086-641/issue-641-treatment.glb",
+      "nonBlackPct": 96.8,
+      "bytes": 29907
+    }
+  },
+  "mechanism": "The floor mesh active UV layer (exported as TEXCOORD_0, the layer the runtime samples and the bake writes to) is a collapsed layout: peds-fever floor has 32/56 vertices at (0,1) and 30/48 triangles with zero UV area. Cycles DIFFUSE bake writes nothing to degenerate UV triangles, so the bake covers only the small non-degenerate strip (u 0.125-0.375, v 0.361-0.389 -> the bright band at image row ~640), leaving ~99% of the image black. The mesh carries a non-degenerate full-square layer (TEXCOORD_1 -> UVMap.001) that the bake never used. Verified: trivial-material bake on the same geometry still produces 0.81 meanL (no lights in that isolation run), and swapping the active UV layer to the non-degenerate one flips the floor bake from meanL 2.21 to 246.55.",
+  "notEvidenceFor": "why the Infinigen source authored the collapsed TEXCOORD_0; whether AO maps are correct; the two wall exceptions (urgent-care-clinic, adult-ed-abdominal-bay); frame-level darkness."
+}

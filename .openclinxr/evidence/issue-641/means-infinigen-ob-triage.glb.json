@@ -1,0 +1,24 @@
+{
+  "room": "infinigen-ob-triage.glb",
+  "loggedBeforeExport": true,
+  "rows": [
+    {
+      "surface": "floor",
+      "material": "shader_marble_shader_rectangle_tile_tile.003",
+      "texture": "openclinxr_room_bake_shader_marble_shader_rectangle_tile_tile",
+      "meanL": 214.49353586640194
+    },
+    {
+      "surface": "ceiling",
+      "material": "shader_plaster.002",
+      "texture": "openclinxr_room_bake_shader_plaster",
+      "meanL": 254.99999999999997
+    },
+    {
+      "surface": "ceiling",
+      "material": "shader_plaster.023",
+      "texture": "openclinxr_room_bake_shader_plaster.001",
+      "meanL": 254.99999999999997
+    }
+  ]
+}

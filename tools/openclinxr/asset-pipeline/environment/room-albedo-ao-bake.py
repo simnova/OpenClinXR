@@ -23,6 +23,14 @@ Re-bake of an already-baked GLB must restore a bright Base Color before the
 COLOR pass — otherwise DIFFUSE multiplies the cave mud by the new lighting and
 stays dark. Prior openclinxr_room_bake_* links are disconnected for the bake.
 
+#641: floor meshes ship a collapsed ACTIVE UV layer (peds-fever: 30/48 zero-area
+triangles) so the bake writes almost nothing — black floors in all 14 rooms.
+`ensure_uv` now prefers an existing non-degenerate layer, removes degenerate
+layers (the exporter writes layer ORDER, not active-first), and floor surfaces
+bake at 4096 (the largest surface; 1024 compresses to ~30 KB and 2048 to ~81 KB,
+both below the shipped-bank detail floor). Walls/ceiling keep the caller's
+--resolution.
+
 Per-material meanL is measured on the baked image BEFORE glTF export and
 written to --means-log (#537 clause 1). Docstring 0.95/0.87 are a disputed
 historical probe, not a bake target.
@@ -116,9 +124,53 @@ def find_bsdf(mat: bpy.types.Material):
     return None
 
 
+def non_degenerate_uv_fraction(mesh: bpy.types.Mesh) -> float:
+    """Fraction of loop triangles with non-zero UV area on the ACTIVE layer.
+
+    Cycles DIFFUSE bake writes nothing to degenerate UV triangles, so a layer
+    whose triangles have zero UV area bakes black. #641 measured the shipped
+    floor layer at 30/48 degenerate (median UV area 0) while walls (0/48)
+    baked bright — the bake is only as good as the layer it writes into.
+    """
+    layer = mesh.uv_layers.active
+    if layer is None:
+        return 0.0
+    mesh.calc_loop_triangles()
+    total = 0
+    ok = 0
+    for tri in mesh.loop_triangles:
+        uvs = [layer.data[l].uv for l in tri.loops]
+        area = abs(
+            (uvs[1][0] - uvs[0][0]) * (uvs[2][1] - uvs[0][1])
+            - (uvs[1][1] - uvs[0][1]) * (uvs[2][0] - uvs[0][0])
+        )
+        total += 1
+        if area > 1e-6:
+            ok += 1
+    return ok / total if total else 0.0
+
+
 def ensure_uv(mesh_obj: bpy.types.Object) -> None:
+    """Bake-ready UVs: a non-degenerate ACTIVE layer, or smart-project.
+
+    #641: floor meshes shipped a collapsed active layer (peds-fever floor:
+    32/56 verts at one point, 30/48 triangles zero-area) so the bake wrote
+    almost nothing and the floor base-colour map came out black in all 14
+    rooms. The mesh carried a full, non-degenerate second layer that the bake
+    never used. Prefer an existing non-degenerate layer; REMOVE degenerate
+    layers (the glTF exporter writes layer ORDER, not active-first, so a
+    collapsed layer would still ship as TEXCOORD_0 and the runtime would keep
+    sampling the black corner); smart-project only when nothing survives.
+    """
     if mesh_obj.data.uv_layers and len(mesh_obj.data.uv_layers) > 0:
-        return
+        mesh = mesh_obj.data
+        for layer in list(mesh.uv_layers):
+            mesh.uv_layers.active = layer
+            if non_degenerate_uv_fraction(mesh) < 0.5:
+                mesh.uv_layers.remove(layer)
+        if mesh.uv_layers:
+            mesh.uv_layers.active = mesh.uv_layers[0]
+            return
     bpy.ops.object.select_all(action="DESELECT")
     mesh_obj.select_set(True)
     bpy.context.view_layer.objects.active = mesh_obj
@@ -333,8 +385,18 @@ def bake_materials(resolution: int, restore_albedo: bool) -> Dict[str, Dict[str,
         if img_name in bpy.data.images:
             old = bpy.data.images[img_name]
             bpy.data.images.remove(old)
+        # #641: floors are the largest surface and now occupy the full UV square
+        # (the collapsed layer is gone). At 1024 the bright floor bake compresses
+        # to ~30 KB — below the shipped-bank detail floor of 100 KB, and too
+        # little texel budget for the room's largest surface. Measured on the
+        # bank: floors at 2048 land at ~81 KB (sd 90-120), still under the
+        # detail floor; 4096 clears it on the smallest-content room measured
+        # (ed-exam-bay: 308,400 B, sd 120.9). Floor surfaces bake at 4096;
+        # walls/ceiling keep the caller's resolution. max() so a higher
+        # --resolution is honoured.
+        res = max(resolution, 4096) if surface == "floor" else resolution
         img = bpy.data.images.new(
-            img_name, width=resolution, height=resolution, alpha=True, float_buffer=False
+            img_name, width=res, height=res, alpha=True, float_buffer=False
         )
         img.colorspace_settings.name = "sRGB"
 
@@ -360,7 +422,7 @@ def bake_materials(resolution: int, restore_albedo: bool) -> Dict[str, Dict[str,
         mean_l = image_mean_l(img)
         results[mat_name] = {
             "image": img_name,
-            "resolution": resolution,
+            "resolution": res,
             "meshes": len(objs_),
             "surface": surface,
             "meanL": mean_l,
@@ -368,7 +430,7 @@ def bake_materials(resolution: int, restore_albedo: bool) -> Dict[str, Dict[str,
         }
         print(
             f"[room-bake] baked {mat_name} -> {img_name} "
-            f"({resolution}x{resolution}) on {len(objs_)} mesh(es) "
+            f"({res}x{res}) on {len(objs_)} mesh(es) "
             f"surface={surface} meanL={mean_l:.2f}"
         )
     return results

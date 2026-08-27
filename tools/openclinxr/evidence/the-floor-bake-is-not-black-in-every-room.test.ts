@@ -38,6 +38,30 @@
  * shipped and once with a single variable changed, and put both non-black percentages in the
  * pre-fix artifact. A control/treatment pair on one subject settles more than a survey.
  *
+ * ## FIXED (#641, 2026-08-27)
+ *
+ * CAUSE, MEASURED (not the same as the file's NOT DETERMINED above — that was the pre-trace state):
+ * the floor meshes' ACTIVE UV layer (exported as TEXCOORD_0, the layer Cycles bake writes into and
+ * the runtime samples) is a collapsed layout. `infinigen-pediatric-fever-urgent-care.glb` floor:
+ * 32/56 vertices at a single point (0,1), 30/48 triangles with zero UV area. Cycles DIFFUSE bake
+ * writes nothing to degenerate UV triangles, so the floor bake covered only the small
+ * non-degenerate strip (u 0.125-0.375, v 0.361-0.389 — the bright band at image row ~640 in the
+ * control bake) and shipped 99% black in every room. The mesh already carried a non-degenerate
+ * full-square layer (TEXCOORD_1 -> UVMap.001) that the bake never used.
+ *
+ * CONTROL/TREATMENT on `infinigen-pediatric-fever-urgent-care.glb`, same rig, same code path:
+ *   control (as shipped)          floor meanL 2.21   non-black 1.0%   21,874 B
+ *   treatment (active UV -> UVMap.001)   meanL 246.55  non-black 96.8%  29,907 B (1024)
+ *   fixed bake (UV repair + 2048)       meanL 245.70  non-black 96.2%  110,560 B (2048, sd 49.1)
+ *
+ * FIX in `tools/openclinxr/asset-pipeline/environment/room-albedo-ao-bake.py`: `ensure_uv` now
+ * prefers an existing non-degenerate UV layer, REMOVES degenerate layers (the glTF exporter writes
+ * layer ORDER, not active-first, so the collapsed layer would otherwise still ship as TEXCOORD_0
+ * and the runtime would keep sampling the black corner), and smart-projects only when nothing
+ * survives. Floor surfaces bake at 2048 (largest surface; the 1024 full-square bake compresses to
+ * ~30 KB, below the bank's detail floor — measured 2048: 110,560 B / sd 49.1). The `live:` and
+ * `run:` rules cover the whole bank; all 14 rooms were re-baked with the fixed script.
+ *
  * THIS HEADER IS IMMUTABLE. Flip the assertion and append a `## FIXED (#641)` block below.
  */
 import { NodeIO } from "@gltf-transform/core";
@@ -92,7 +116,7 @@ async function measureBakes(): Promise<{ floors: Bake[]; walls: Bake[] }> {
 }
 
 describe("#641 the floor base-colour bake is not black", () => {
-  it.fails("(1) RED: every floor bake in the bank clears the non-black floor", async () => {
+  it("(1) RED: every floor bake in the bank clears the non-black floor", async () => {
     const { floors } = await measureBakes();
     // Guards against a vacuous pass on an empty set: the card measured floors in all 14 rooms, so
     // finding none at all means the extraction is wrong, not that the bank is clean.

@@ -1,0 +1,24 @@
+{
+  "room": "infinigen-telehealth-home-visit.glb",
+  "loggedBeforeExport": true,
+  "rows": [
+    {
+      "surface": "floor",
+      "material": "shader_ceramic_shader_hexagon_tile_tile.002",
+      "texture": "openclinxr_room_bake_shader_ceramic_shader_hexagon_tile_tile",
+      "meanL": 172.4109201235838
+    },
+    {
+      "surface": "ceiling",
+      "material": "shader_plaster.008",
+      "texture": "openclinxr_room_bake_shader_plaster",
+      "meanL": 246.88184473809582
+    },
+    {
+      "surface": "ceiling",
+      "material": "shader_plaster.028",
+      "texture": "openclinxr_room_bake_shader_plaster.001",
+      "meanL": 254.99999999999997
+    }
+  ]
+}

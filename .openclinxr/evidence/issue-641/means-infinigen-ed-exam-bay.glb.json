@@ -1,0 +1,24 @@
+{
+  "room": "infinigen-ed-exam-bay.glb",
+  "loggedBeforeExport": true,
+  "rows": [
+    {
+      "surface": "floor",
+      "material": "shader_ceramic_shader_square_tile_tile.002",
+      "texture": "openclinxr_room_bake_shader_ceramic_shader_square_tile_tile",
+      "meanL": 167.44479647140804
+    },
+    {
+      "surface": "ceiling",
+      "material": "shader_plaster.014",
+      "texture": "openclinxr_room_bake_shader_plaster",
+      "meanL": 254.9895705683445
+    },
+    {
+      "surface": "ceiling",
+      "material": "shader_plaster.021",
+      "texture": "openclinxr_room_bake_shader_plaster.001",
+      "meanL": 254.99999999999997
+    }
+  ]
+}
