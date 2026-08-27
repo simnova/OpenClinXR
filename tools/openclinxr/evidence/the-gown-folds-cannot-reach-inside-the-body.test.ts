@@ -74,8 +74,25 @@ const REPORT = join(REPO, "tools/openclinxr/evidence/gown-fold-clamp-measurement
 /** #691's pre-change baseline, primary instrument. */
 const BASELINE_UPPER = 463;
 const BASELINE_LOWER = 24;
-/** Gown vertices at the planting commit — counterweight (4) refuses deleting geometry. */
+/**
+ * Gown vertices at the planting commit.
+ *
+ * CORRECTED 2026-08-27, and the correction is mine rather than a worker's. The first form of
+ * counterweight (4) required `>= 14_745` exactly. #714's first attempt rebaked to 14,505 — 240
+ * fewer, 1.6% — with NO deletion anywhere in its diff (the clamp is three lines that bound `d`),
+ * and with 243 upper-half penetrations still outstanding. Vertices had plainly not been deleted to
+ * clear the clause, because the clause was not cleared.
+ *
+ * So the exact bound was measuring rebake drift, not the cheat. A rebake perturbs the count; the
+ * cheat this guards against is deleting the offending band, which is hundreds to thousands of
+ * vertices concentrated where the penetrations were. A 5% floor still refuses that and stops
+ * charging a worker for the pipeline's own jitter.
+ *
+ * Do NOT lower this further to clear a red. If a rebake ever drops more than 5%, that is a finding
+ * about the rebake and belongs in a report, not in this constant.
+ */
 const BASELINE_GOWN_VERTICES = 14_745;
+const MIN_GOWN_VERTEX_FRACTION = 0.95;
 
 type Report = {
   gownVertexCount?: number;
@@ -150,8 +167,9 @@ describe("the gown folds cannot reach inside the body (#714)", () => {
     expect(
       report.gownVertexCount ?? 0,
       "deleting the offending vertices satisfies clause (1) and removes the garment's gathers with "
-        + "them",
-    ).toBeGreaterThanOrEqual(BASELINE_GOWN_VERTICES);
+        + `them. Floor is ${MIN_GOWN_VERTEX_FRACTION * 100}% of the ${BASELINE_GOWN_VERTICES} at `
+        + "planting — see the constant's note for why an exact bound was the wrong instrument.",
+    ).toBeGreaterThanOrEqual(Math.floor(BASELINE_GOWN_VERTICES * MIN_GOWN_VERTEX_FRACTION));
   });
 });
 

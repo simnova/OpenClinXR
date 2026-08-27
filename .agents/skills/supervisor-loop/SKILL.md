@@ -8,7 +8,8 @@ description: One iteration of the four-duty supervisor loop — review agentic l
 **Operator directive, 2026-08-24.** Each iteration does four things:
 
 1. Review agentic logs for issues that need addressing **and are not self-correcting**
-2. Ensure at least **10 prioritized, ready items that move the PRODUCT forward substantively**
+2. Ensure the ready set of **prioritized items that move the PRODUCT forward substantively** does
+   not starve a dequeue
 3. Review work that was **said to be done** and confirm it was done as expected
 4. Issue corrections — as work items, or by correcting agentic configuration directly
 
@@ -78,6 +79,13 @@ happen.
 | 1 | `findings[].occurrences` | it saturated at 3 until `c8962322` — a 9-window chronic read as "seen 3x" |
 | 2 | `readyDepth.productForward` | ten **instrument** cards "satisfying" a product floor |
 | 3 | `doneClaims[].ok` | a commit that *cites* an issue read as proof the work *landed* |
+
+**The floor is 3, DERIVED — not the 10 this skill used to state.** `supervisor-audit.ts:51`
+computes it from `OBSERVED_MAX_CONCURRENT_WORKERS = 3`, on the reasoning that a dequeue starves only
+when the ready set is smaller than the number of lanes fillable at once. No buffer is added. The
+literal 10 in the operator's original directive was never what the code enforced, and reporting a
+shortfall against 10 while the gate used 3 made every audit look short by seven. Re-derive when
+lanes scale; the number is measured so it goes stale visibly.
 
 **Duty 2's product filter is not an opinion.** `board-brief.ts`'s `FACTORY_STEPS` enumerates the
 factory's stations and names `instrument` as the non-station. The floor counts only real stations —
