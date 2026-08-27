@@ -1,0 +1,671 @@
+{
+  "schemaVersion": "openclinxr.rooms-bake.v1",
+  "issue": 526,
+  "generatedAt": "2026-08-27T06:10:24.411Z",
+  "measuredAgainstCommit": "dcdeaaed",
+  "command": "bake",
+  "rooms": [
+    {
+      "envId": "adult_ed_abdominal_bay_v1",
+      "glb": "xr-assets/environment/infinigen-adult-ed-abdominal-bay.glb",
+      "albedo": "skipped-already-textured",
+      "occlusion": {
+        "mechanism": "bounded_raycast_v2",
+        "reachMeters": 2,
+        "mapsWired": 3
+      },
+      "invariant": {
+        "ok": true,
+        "diffs": []
+      },
+      "aoStats": [
+        {
+          "material": "shader_plaster.002",
+          "stat": {
+            "mean": 189.2,
+            "sd": 66.4,
+            "black": 0.001,
+            "strength": 1,
+            "greyscale": true
+          }
+        },
+        {
+          "material": "shader_rug",
+          "stat": {
+            "mean": 204.2,
+            "sd": 50.9,
+            "black": 0.0002,
+            "strength": 1,
+            "greyscale": true
+          }
+        },
+        {
+          "material": "shader_plaster.025",
+          "stat": {
+            "mean": 210.1,
+            "sd": 48,
+            "black": 0.0002,
+            "strength": 1,
+            "greyscale": true
+          }
+        }
+      ],
+      "wallClockMs": 32830
+    },
+    {
+      "envId": "behavioral_health_private_room_v1",
+      "glb": "xr-assets/environment/infinigen-behavioral-health-private.glb",
+      "albedo": "skipped-already-textured",
+      "occlusion": {
+        "mechanism": "bounded_raycast_v2",
+        "reachMeters": 2,
+        "mapsWired": 3
+      },
+      "invariant": {
+        "ok": true,
+        "diffs": []
+      },
+      "aoStats": [
+        {
+          "material": "shader_plaster.009",
+          "stat": {
+            "mean": 191.8,
+            "sd": 55.2,
+            "black": 0.0002,
+            "strength": 1,
+            "greyscale": true
+          }
+        },
+        {
+          "material": "shader_ceramic_shader_rectangle_tile_tile.003",
+          "stat": {
+            "mean": 212.4,
+            "sd": 46.3,
+            "black": 0.0001,
+            "strength": 1,
+            "greyscale": true
+          }
+        },
+        {
+          "material": "shader_plaster.021",
+          "stat": {
+            "mean": 223.3,
+            "sd": 40.9,
+            "black": 0.0002,
+            "strength": 1,
+            "greyscale": true
+          }
+        }
+      ],
+      "wallClockMs": 39164
+    },
+    {
+      "envId": "ed_exam_bay_v1",
+      "glb": "xr-assets/environment/infinigen-ed-exam-bay.glb",
+      "albedo": "skipped-already-textured",
+      "occlusion": {
+        "mechanism": "bounded_raycast_v2",
+        "reachMeters": 2,
+        "mapsWired": 3
+      },
+      "invariant": {
+        "ok": true,
+        "diffs": []
+      },
+      "aoStats": [
+        {
+          "material": "shader_plaster.014",
+          "stat": {
+            "mean": 173.2,
+            "sd": 60.7,
+            "black": 0.0022,
+            "strength": 1,
+            "greyscale": true
+          }
+        },
+        {
+          "material": "shader_ceramic_shader_square_tile_tile.002",
+          "stat": {
+            "mean": 200.4,
+            "sd": 52.1,
+            "black": 0.0002,
+            "strength": 1,
+            "greyscale": true
+          }
+        },
+        {
+          "material": "shader_plaster.021",
+          "stat": {
+            "mean": 198.9,
+            "sd": 50.9,
+            "black": 0.0003,
+            "strength": 1,
+            "greyscale": true
+          }
+        }
+      ],
+      "wallClockMs": 32027
+    },
+    {
+      "envId": "ed_stroke_bay_v1",
+      "glb": "xr-assets/environment/infinigen-ed-stroke-bay.glb",
+      "albedo": "skipped-already-textured",
+      "occlusion": {
+        "mechanism": "bounded_raycast_v2",
+        "reachMeters": 2,
+        "mapsWired": 3
+      },
+      "invariant": {
+        "ok": true,
+        "diffs": []
+      },
+      "aoStats": [
+        {
+          "material": "shader_plaster.001",
+          "stat": {
+            "mean": 186,
+            "sd": 62,
+            "black": 0.003,
+            "strength": 1,
+            "greyscale": true
+          }
+        },
+        {
+          "material": "shader_wood_shader_crossed_tile_tile",
+          "stat": {
+            "mean": 204.8,
+            "sd": 49.4,
+            "black": 0.0003,
+            "strength": 1,
+            "greyscale": true
+          }
+        },
+        {
+          "material": "shader_plaster.019",
+          "stat": {
+            "mean": 204,
+            "sd": 49.1,
+            "black": 0.0003,
+            "strength": 1,
+            "greyscale": true
+          }
+        }
+      ],
+      "wallClockMs": 40480
+    },
+    {
+      "envId": "inpatient_ward_room_v1",
+      "glb": "xr-assets/environment/infinigen-inpatient-ward.glb",
+      "albedo": "skipped-already-textured",
+      "occlusion": {
+        "mechanism": "bounded_raycast_v2",
+        "reachMeters": 2,
+        "mapsWired": 3
+      },
+      "invariant": {
+        "ok": true,
+        "diffs": []
+      },
+      "aoStats": [
+        {
+          "material": "shader_plaster.007",
+          "stat": {
+            "mean": 200.5,
+            "sd": 57.7,
+            "black": 0.0046,
+            "strength": 1,
+            "greyscale": true
+          }
+        },
+        {
+          "material": "shader_dirt_shader_staggered_tile_tile",
+          "stat": {
+            "mean": 219.7,
+            "sd": 46.2,
+            "black": 0.0003,
+            "strength": 1,
+            "greyscale": true
+          }
+        },
+        {
+          "material": "shader_plaster.020",
+          "stat": {
+            "mean": 223.1,
+            "sd": 44,
+            "black": 0.0003,
+            "strength": 1,
+            "greyscale": true
+          }
+        }
+      ],
+      "wallClockMs": 27799
+    },
+    {
+      "envId": "ob_triage_room_v1",
+      "glb": "xr-assets/environment/infinigen-ob-triage.glb",
+      "albedo": "skipped-already-textured",
+      "occlusion": {
+        "mechanism": "bounded_raycast_v2",
+        "reachMeters": 2,
+        "mapsWired": 3
+      },
+      "invariant": {
+        "ok": true,
+        "diffs": []
+      },
+      "aoStats": [
+        {
+          "material": "shader_plaster.002",
+          "stat": {
+            "mean": 191.3,
+            "sd": 50.1,
+            "black": 0.0002,
+            "strength": 1,
+            "greyscale": true
+          }
+        },
+        {
+          "material": "shader_marble_shader_rectangle_tile_tile.003",
+          "stat": {
+            "mean": 211.5,
+            "sd": 44.9,
+            "black": 0.0001,
+            "strength": 1,
+            "greyscale": true
+          }
+        },
+        {
+          "material": "shader_plaster.023",
+          "stat": {
+            "mean": 219.5,
+            "sd": 40.7,
+            "black": 0.0001,
+            "strength": 1,
+            "greyscale": true
+          }
+        }
+      ],
+      "wallClockMs": 39140
+    },
+    {
+      "envId": "oncology_consult_room_v1",
+      "glb": "xr-assets/environment/infinigen-oncology-consult.glb",
+      "albedo": "skipped-already-textured",
+      "occlusion": {
+        "mechanism": "bounded_raycast_v2",
+        "reachMeters": 2,
+        "mapsWired": 3
+      },
+      "invariant": {
+        "ok": true,
+        "diffs": []
+      },
+      "aoStats": [
+        {
+          "material": "shader_plaster.002",
+          "stat": {
+            "mean": 219.4,
+            "sd": 54.7,
+            "black": 0.0007,
+            "strength": 1,
+            "greyscale": true
+          }
+        },
+        {
+          "material": "shader_wood_shader_staggered_tile_tile",
+          "stat": {
+            "mean": 209.1,
+            "sd": 44.4,
+            "black": 0.0001,
+            "strength": 1,
+            "greyscale": true
+          }
+        },
+        {
+          "material": "shader_plaster.030",
+          "stat": {
+            "mean": 215.4,
+            "sd": 40.1,
+            "black": 0.0002,
+            "strength": 1,
+            "greyscale": true
+          }
+        }
+      ],
+      "wallClockMs": 39370
+    },
+    {
+      "envId": "pediatric_fever_urgent_care_bay_v1",
+      "glb": "xr-assets/environment/infinigen-pediatric-fever-urgent-care.glb",
+      "albedo": "skipped-already-textured",
+      "occlusion": {
+        "mechanism": "bounded_raycast_v2",
+        "reachMeters": 2,
+        "mapsWired": 3
+      },
+      "invariant": {
+        "ok": true,
+        "diffs": []
+      },
+      "aoStats": [
+        {
+          "material": "shader_plaster.019",
+          "stat": {
+            "mean": 171,
+            "sd": 50.3,
+            "black": 0.0002,
+            "strength": 1,
+            "greyscale": true
+          }
+        },
+        {
+          "material": "shader_marble_shader_square_tile_tile.002",
+          "stat": {
+            "mean": 199,
+            "sd": 47.8,
+            "black": 0.0003,
+            "strength": 1,
+            "greyscale": true
+          }
+        },
+        {
+          "material": "shader_plaster.037",
+          "stat": {
+            "mean": 195.1,
+            "sd": 48.8,
+            "black": 0.0004,
+            "strength": 1,
+            "greyscale": true
+          }
+        }
+      ],
+      "wallClockMs": 45778
+    },
+    {
+      "envId": "pediatric_urgent_care_bay_v1",
+      "glb": "xr-assets/environment/infinigen-pediatric-urgent-care-bay.glb",
+      "albedo": "skipped-already-textured",
+      "occlusion": {
+        "mechanism": "bounded_raycast_v2",
+        "reachMeters": 2,
+        "mapsWired": 3
+      },
+      "invariant": {
+        "ok": true,
+        "diffs": []
+      },
+      "aoStats": [
+        {
+          "material": "shader_plaster.005",
+          "stat": {
+            "mean": 173.5,
+            "sd": 61.9,
+            "black": 0.001,
+            "strength": 1,
+            "greyscale": true
+          }
+        },
+        {
+          "material": "shader_wood_shader_crossed_tile_tile.001",
+          "stat": {
+            "mean": 199.4,
+            "sd": 52,
+            "black": 0.0003,
+            "strength": 1,
+            "greyscale": true
+          }
+        },
+        {
+          "material": "shader_plaster.020",
+          "stat": {
+            "mean": 207.4,
+            "sd": 50.8,
+            "black": 0.001,
+            "strength": 1,
+            "greyscale": true
+          }
+        }
+      ],
+      "wallClockMs": 37402
+    },
+    {
+      "envId": "primary_care_clinic_room_v1",
+      "glb": "xr-assets/environment/infinigen-primary-care-clinic.glb",
+      "albedo": "skipped-already-textured",
+      "occlusion": {
+        "mechanism": "bounded_raycast_v2",
+        "reachMeters": 2,
+        "mapsWired": 3
+      },
+      "invariant": {
+        "ok": true,
+        "diffs": []
+      },
+      "aoStats": [
+        {
+          "material": "shader_marble_shader_hexagon_tile_tile",
+          "stat": {
+            "mean": 195.6,
+            "sd": 60.5,
+            "black": 0.0012,
+            "strength": 1,
+            "greyscale": true
+          }
+        },
+        {
+          "material": "shader_marble_shader_square_tile_tile",
+          "stat": {
+            "mean": 200.1,
+            "sd": 46.9,
+            "black": 0.0004,
+            "strength": 1,
+            "greyscale": true
+          }
+        },
+        {
+          "material": "shader_plaster.022",
+          "stat": {
+            "mean": 232.9,
+            "sd": 38.6,
+            "black": 0.0011,
+            "strength": 1,
+            "greyscale": true
+          }
+        }
+      ],
+      "wallClockMs": 34222
+    },
+    {
+      "envId": "stepdown_room_v1",
+      "glb": "xr-assets/environment/infinigen-stepdown.glb",
+      "albedo": "skipped-already-textured",
+      "occlusion": {
+        "mechanism": "bounded_raycast_v2",
+        "reachMeters": 2,
+        "mapsWired": 3
+      },
+      "invariant": {
+        "ok": true,
+        "diffs": []
+      },
+      "aoStats": [
+        {
+          "material": "shader_wood_shader_rectangle_tile_tile.003",
+          "stat": {
+            "mean": 190.6,
+            "sd": 63.4,
+            "black": 0.0049,
+            "strength": 1,
+            "greyscale": true
+          }
+        },
+        {
+          "material": "shader_bone_shader_rectangle_tile_tile",
+          "stat": {
+            "mean": 209.8,
+            "sd": 50.1,
+            "black": 0.0009,
+            "strength": 1,
+            "greyscale": true
+          }
+        },
+        {
+          "material": "shader_plaster.022",
+          "stat": {
+            "mean": 208,
+            "sd": 51.4,
+            "black": 0.0029,
+            "strength": 1,
+            "greyscale": true
+          }
+        }
+      ],
+      "wallClockMs": 39768
+    },
+    {
+      "envId": "surgical_ward_room_v1",
+      "glb": "xr-assets/environment/infinigen-surgical-ward.glb",
+      "albedo": "skipped-already-textured",
+      "occlusion": {
+        "mechanism": "bounded_raycast_v2",
+        "reachMeters": 2,
+        "mapsWired": 3
+      },
+      "invariant": {
+        "ok": true,
+        "diffs": []
+      },
+      "aoStats": [
+        {
+          "material": "shader_plaster.003",
+          "stat": {
+            "mean": 197.7,
+            "sd": 57.9,
+            "black": 0.0043,
+            "strength": 1,
+            "greyscale": true
+          }
+        },
+        {
+          "material": "shader_wood_shader_composite_tile_tile",
+          "stat": {
+            "mean": 211.8,
+            "sd": 46.6,
+            "black": 0.0002,
+            "strength": 1,
+            "greyscale": true
+          }
+        },
+        {
+          "material": "shader_plaster.011",
+          "stat": {
+            "mean": 217.1,
+            "sd": 43.4,
+            "black": 0.0002,
+            "strength": 1,
+            "greyscale": true
+          }
+        }
+      ],
+      "wallClockMs": 29889
+    },
+    {
+      "envId": "telehealth_home_visit_v1",
+      "glb": "xr-assets/environment/infinigen-telehealth-home-visit.glb",
+      "albedo": "skipped-already-textured",
+      "occlusion": {
+        "mechanism": "bounded_raycast_v2",
+        "reachMeters": 2,
+        "mapsWired": 3
+      },
+      "invariant": {
+        "ok": true,
+        "diffs": []
+      },
+      "aoStats": [
+        {
+          "material": "shader_plaster.008",
+          "stat": {
+            "mean": 205.9,
+            "sd": 55.4,
+            "black": 0.0007,
+            "strength": 1,
+            "greyscale": true
+          }
+        },
+        {
+          "material": "shader_ceramic_shader_hexagon_tile_tile.002",
+          "stat": {
+            "mean": 219.9,
+            "sd": 46.5,
+            "black": 0.0018,
+            "strength": 1,
+            "greyscale": true
+          }
+        },
+        {
+          "material": "shader_plaster.028",
+          "stat": {
+            "mean": 222.2,
+            "sd": 45.4,
+            "black": 0.0019,
+            "strength": 1,
+            "greyscale": true
+          }
+        }
+      ],
+      "wallClockMs": 32103
+    },
+    {
+      "envId": "urgent_care_clinic_room_v1",
+      "glb": "xr-assets/environment/infinigen-urgent-care-clinic.glb",
+      "albedo": "skipped-already-textured",
+      "occlusion": {
+        "mechanism": "bounded_raycast_v2",
+        "reachMeters": 2,
+        "mapsWired": 3
+      },
+      "invariant": {
+        "ok": true,
+        "diffs": []
+      },
+      "aoStats": [
+        {
+          "material": "shader_plaster.013",
+          "stat": {
+            "mean": 216.7,
+            "sd": 54.9,
+            "black": 0.0056,
+            "strength": 1,
+            "greyscale": true
+          }
+        },
+        {
+          "material": "shader_wood_shader_crossed_tile_tile.003",
+          "stat": {
+            "mean": 219.9,
+            "sd": 47,
+            "black": 0.0017,
+            "strength": 1,
+            "greyscale": true
+          }
+        },
+        {
+          "material": "shader_plaster.033",
+          "stat": {
+            "mean": 222.3,
+            "sd": 45.7,
+            "black": 0.0026,
+            "strength": 1,
+            "greyscale": true
+          }
+        }
+      ],
+      "wallClockMs": 30584
+    }
+  ],
+  "verdict": {
+    "passed": true,
+    "blockers": []
+  }
+}

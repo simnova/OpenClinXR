@@ -387,7 +387,9 @@
     "factory:trellis:pack": "tsx tools/openclinxr/asset-pipeline/trellis/trellis-pack-cli.ts",
     "openclinxr:factory-pulse": "tsx tools/openclinxr/openclaw/factory-pulse.ts",
     "openclaw:supervisor": "tsx tools/openclinxr/openclaw/supervisor-audit-cli.ts",
-    "assets:reachability": "vitest run --root . tools/openclinxr/openclaw/every-published-humanoid-is-cast-or-declared.test.ts"
+    "assets:reachability": "vitest run --root . tools/openclinxr/openclaw/every-published-humanoid-is-cast-or-declared.test.ts",
+    "factory:rooms:bake": "tsx tools/openclinxr/asset-pipeline/environment/rooms-bake-cli.ts",
+    "factory:rooms:bake:inspect": "tsx tools/openclinxr/asset-pipeline/environment/rooms-bake-cli.ts --inspect"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",

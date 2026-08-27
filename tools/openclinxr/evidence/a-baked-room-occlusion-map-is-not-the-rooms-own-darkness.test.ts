@@ -178,7 +178,18 @@ function silenced(rows: readonly AoMap[]): string[] {
 }
 
 describe("a baked room occlusion map is not the room's own darkness", () => {
-  it.fails("(1) RED: every generated room's BRIGHTEST occlusion map is darker than the hand-built shell's MEDIAN one", async () => {
+  /**
+   * ## FIXED (#526) — bounded_raycast_v2, 2026-08-27
+   *
+   * The native Cycles AO bake was replaced by a distance-bounded deterministic raycast
+   * (room-occlusion-bake.py: AO_REACH_METERS 2.0, global-BVH, min-hit-distance). Measured
+   * after the 14-room rebake: every generated shell's brightest real-content mean now
+   * clears the hand-built median — primary-care-clinic 196.6 vs the 75.02 bound, and the
+   * weakest shell (stepdown) still exceeds it. See the locality fixture
+   * (a-room-occlusion-bake-is-local-and-deterministic.test.ts) for the mechanism-level
+   * discrimination (near=0.27/far=1.0 on the closed-room fixture, byte-identical repeats).
+   */
+  it("(1) RED: every generated room's BRIGHTEST occlusion map is darker than the hand-built shell's MEDIAN one", async () => {
     // BOUND SOURCE: the median of the 28 AO maps the SAME baker wrote for `ed-exam-bay-shell.glb`,
     // computed below from shipped bytes. Not a number I picked. Measured today: 117.91, against a
     // generated maximum of 54.96 — a 2.15x margin at the closest shell, so this is not fitted.
@@ -223,7 +234,15 @@ describe("a baked room occlusion map is not the room's own darkness", () => {
       .toEqual([]);
   });
 
-  it.fails("(2) RED: no generated occlusion map may be blacker than the blackest map a human-built room ships", async () => {
+  /**
+   * ## FIXED (#526) — bounded_raycast_v2, 2026-08-27
+   *
+   * Same replacement as clause (1). Measured after the 14-room rebake: the worst generated
+   * black fraction is 0.0056 (urgent-care-clinic plaster) against the hand-built ceiling
+   * of 0.9533 — no generated map is anywhere near as black as the hand-built shell's own
+   * most-occluded bevel. 42 generated maps, all at full strength.
+   */
+  it("(2) RED: no generated occlusion map may be blacker than the blackest map a human-built room ships", async () => {
     // BOUND SOURCE: `max(black)` over the hand-built shell's own 28 maps = 0.9533, on
     // `wall_chamfer_soft_blue` — a narrow bevel, which is exactly the kind of surface that IS
     // legitimately almost fully occluded. So the ceiling is "nothing may be blacker than the most
