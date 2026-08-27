@@ -20,6 +20,8 @@
  * production phoneme timing, legible-speech judgement, Quest.
  */
 
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { chromium, type Page } from "playwright";
@@ -34,6 +36,17 @@ const REFRAME_SUMMARY_PATH = path.join("tools", "openclinxr", "evidence", "refra
 const REVIEW_PANEL_SUMMARY_PATH = path.join("tools", "openclinxr", "evidence", "review-panel-leaves-exam-volume.json");
 /** #472: tracked summary proving the capture anchors on the mouth joint, not the crown apex. */
 const MOUTH_ANCHOR_SUMMARY_PATH = path.join("tools", "openclinxr", "evidence", "capture-aims-at-the-mouth.json");
+
+/**
+ * #726: the subject is pinned by actor id, never by "first mesh with viseme_ keys". The child now
+ * carries driven visemes (measured 2026-08-27: 5 distinct strong targets at influence 1.0 across
+ * 48 live samples), so traversal order no longer selects the parent — the one mesh in the cast
+ * whose dialogue this capture exists to verify (retriggerParentDialogue). Mirrors the scenario's
+ * parent actor id, stamped on the humanoid root as userData.openClinXrActorId (main.ts:6964).
+ */
+const EXPECTED_SUBJECT_ACTOR_ID = "parent_tara_johnson_v1";
+/** #726: the producer path the artifact records among its sources — the freshness gate's contract. */
+const PRODUCER_REPO_PATH = "tools/openclinxr/evidence/ui-xr-viseme-drive-capture.ts";
 
 /**
  * face-detail alone keeps natural dialogue duration (~phonemeCount*90ms) so progress spans
@@ -66,8 +79,20 @@ type SceneSample = {
 async function sampleParentVisemes(page: Page): Promise<SceneSample> {
   // String IIFE (not a TS arrow) so tsx/esbuild cannot inject `__name` into the browser.
   return page.evaluate(`(() => {
+    const EXPECTED_ACTOR = ${JSON.stringify(EXPECTED_SUBJECT_ACTOR_ID)};
     const win = window;
     const scene = win.__openClinXrDebugScene;
+    // #726: actor identity is stamped on the humanoid root (userData.openClinXrActorId) — walk
+    // up from any mesh to find it. Used to pin the subject instead of first-viseme-in-traversal.
+    const actorIdOf = function (object) {
+      let cursor = object;
+      while (cursor) {
+        const ud = cursor["userData"];
+        if (ud && typeof ud["openClinXrActorId"] === "string") return ud["openClinXrActorId"];
+        cursor = cursor["parent"];
+      }
+      return null;
+    };
     let parentMesh = null;
     if (scene && typeof scene.traverse === "function") {
       scene.traverse(function (object) {
@@ -78,7 +103,10 @@ async function sampleParentVisemes(page: Page): Promise<SceneSample> {
         const hasVisemeTargets = keys.some(function (k) {
           return k.toLowerCase().indexOf("viseme_") === 0;
         });
-        if (hasVisemeTargets) parentMesh = object;
+        if (!hasVisemeTargets) return;
+        // The child now carries driven visemes too — only the parent's mesh may be sampled.
+        if (actorIdOf(object) !== EXPECTED_ACTOR) return;
+        parentMesh = object;
       });
     }
 
@@ -118,7 +146,7 @@ async function sampleParentVisemes(page: Page): Promise<SceneSample> {
         ? null
         : (parentMesh
           ? "no_viseme_target_above_influence_0.01_at_this_instant"
-          : "no_viseme_carrying_mesh_in_scene"),
+          : "no_viseme_carrying_mesh_for_subject_actor_in_scene"),
       speech: speech
         ? {
             activeViseme: speech.activeViseme,
@@ -136,6 +164,8 @@ type ReframeOkOutcome = {
   targetWorldPosition: { x: number; y: number; z: number };
   /** Live actor identity stamped on the humanoid root (userData.openClinXrActorId), or null. */
   actorId: string | null;
+  /** #726: the loaded asset URL of the subject's humanoid root (userData.openClinXrAssetPath), or null. */
+  subjectAssetPath: string | null;
   headY: number;
   /** NEW #465: where the head projects in normalised device coords — measured, not asserted. */
   headNdc: { x: number; y: number };
@@ -202,6 +232,20 @@ async function reframeCameraOnParentFace(page: Page): Promise<ReframeOutcome> {
     const scene = window.__openClinXrDebugScene;
     if (!scene || typeof scene.traverse !== "function") return { status: "no-scene" };
 
+    // #726: actor identity is stamped on the humanoid root (userData.openClinXrActorId), and the
+    // loaded asset URL on the same root (openClinXrAssetPath). One walk collects both — the
+    // subject is pinned by id, never by first-viseme-in-traversal.
+    const EXPECTED_ACTOR = ${JSON.stringify(EXPECTED_SUBJECT_ACTOR_ID)};
+    const rootUserData = function (object) {
+      let cursor = object;
+      while (cursor && cursor["parent"]) {
+        const ud = cursor["userData"];
+        if (ud && typeof ud["openClinXrActorId"] === "string") return ud;
+        cursor = cursor["parent"];
+      }
+      return null;
+    };
+
     // Collector avoids let-null + closure assignment narrowing to never under some TS checkers.
     const found = {
       camera: null,
@@ -218,11 +262,13 @@ async function reframeCameraOnParentFace(page: Page): Promise<ReframeOutcome> {
       const hasVisemeTargets = keys.some(function (k) {
         return k.toLowerCase().indexOf("viseme_") === 0;
       });
-      if (hasVisemeTargets) {
-        // First match wins — the sampler (sampleParentVisemes) stops at the first
-        // viseme-carrying mesh, so the camera must frame the same object the sampler reads.
-        if (!found.parentMesh) found.parentMesh = object;
-      }
+      if (!hasVisemeTargets) return;
+      // The child now carries driven visemes too — only the parent's mesh may be framed.
+      const rootUd = rootUserData(object);
+      if (!rootUd || rootUd["openClinXrActorId"] !== EXPECTED_ACTOR) return;
+      // First match wins among the SUBJECT's own meshes — the camera must frame the same object
+      // the sampler (sampleParentVisemes) reads.
+      if (!found.parentMesh) found.parentMesh = object;
     });
 
     if (!hasPositionApi(found.camera)) return { status: "no-camera" };
@@ -230,17 +276,14 @@ async function reframeCameraOnParentFace(page: Page): Promise<ReframeOutcome> {
     const camera = found.camera;
     const parentMesh = found.parentMesh;
 
-    // Walk up to the humanoid root for the live actor identity — never a hardcoded label.
-    let actorId = null;
-    let cursor = parentMesh;
-    while (cursor && cursor["parent"]) {
-      const ud = cursor["userData"];
-      if (ud && typeof ud["openClinXrActorId"] === "string") {
-        actorId = ud["openClinXrActorId"];
-        break;
-      }
-      cursor = cursor["parent"];
-    }
+    // Live actor identity + loaded asset URL from the subject's own root — never a hardcoded label.
+    const subjectRootUserData = rootUserData(parentMesh);
+    const actorId = subjectRootUserData ? subjectRootUserData["openClinXrActorId"] : null;
+    const subjectAssetPath = subjectRootUserData
+      ? (typeof subjectRootUserData["openClinXrAssetPath"] === "string"
+        ? subjectRootUserData["openClinXrAssetPath"]
+        : null)
+      : null;
 
     const updateMeshWorld = parentMesh["updateWorldMatrix"];
     if (typeof updateMeshWorld === "function") {
@@ -609,6 +652,7 @@ async function reframeCameraOnParentFace(page: Page): Promise<ReframeOutcome> {
       targetMeshName: typeof parentMesh["name"] === "string" ? parentMesh["name"] : "",
       targetWorldPosition: { x: Number(px), y: Number(py), z: Number(pz) },
       actorId: actorId,
+      subjectAssetPath: subjectAssetPath,
       headY: Number(crownApexWorldY),
       headNdc,
       subjectInFrame,
@@ -716,17 +760,27 @@ export async function runVisemeCapture(): Promise<void> {
       // loaded machine fails before the humanoids finish loading.
       await page.waitForFunction(
         `(() => {
+          const EXPECTED_ACTOR = ${JSON.stringify(EXPECTED_SUBJECT_ACTOR_ID)};
           const scene = window.__openClinXrDebugScene;
           if (!scene || typeof scene.traverse !== "function") return false;
           let found = false;
           scene.traverse(function (o) {
+            if (found) return;
             const dict = o.morphTargetDictionary;
             if (!dict) return;
+            let has = false;
             for (const k of Object.keys(dict)) {
-              if (k.toLowerCase().indexOf("viseme_") === 0) {
-                found = true;
-                return;
+              if (k.toLowerCase().indexOf("viseme_") === 0) { has = true; break; }
+            }
+            if (!has) return;
+            let cursor = o;
+            while (cursor && cursor.parent) {
+              const ud = cursor.userData;
+              if (ud && typeof ud.openClinXrActorId === "string") {
+                if (ud.openClinXrActorId === EXPECTED_ACTOR) found = true;
+                break;
               }
+              cursor = cursor.parent;
             }
           });
           return found;
@@ -916,6 +970,7 @@ export async function runVisemeCapture(): Promise<void> {
         targetMeshName: firstReframe.status === "ok" ? firstReframe.targetMeshName : null,
         targetWorldPosition:
           firstReframe.status === "ok" ? firstReframe.targetWorldPosition : null,
+        subjectAssetPath: firstReframe.status === "ok" ? firstReframe.subjectAssetPath : null,
         framingDescription: reframeOutcomeSummary(firstReframe),
         reappliedCount: reframeOutcomes.length - 1,
         reappliedFailures,
@@ -1117,6 +1172,27 @@ export async function runVisemeCapture(): Promise<void> {
       // eye-midpoint / head fallback), not the crown apex. The drop (crown -> aim) and the
       // first-hit verdict are measured in-page; nothing here is typed. fail-closed statuses are
       // recorded as nulls so a broken reframe cannot masquerade as a framed mouth.
+      //
+      // #726: the artifact also records WHAT it measured — the producer path and the subject's
+      // loaded GLB, with per-source fingerprints (bytes + sha256) computed from the bytes this
+      // run read. findStaleMeasuredGeometry (#707) refuses the artifact the moment either source
+      // no longer matches the tree, so a snapshot can never again be green about a different tree.
+      const subjectGlbRepoPath =
+        firstReframe.status === "ok"
+        && firstReframe.subjectAssetPath
+        && firstReframe.subjectAssetPath.startsWith("/")
+          ? `apps/ui-xr/public${firstReframe.subjectAssetPath}`
+          : null;
+      if (subjectGlbRepoPath === null) {
+        throw new Error("reframe ok but the subject's loaded GLB path could not be read from the live scene");
+      }
+      if (!existsSync(subjectGlbRepoPath)) {
+        throw new Error(`subject GLB missing from this tree: ${subjectGlbRepoPath}`);
+      }
+      const fingerprintOf = (repoRelativePath: string): { bytes: number; sha256: string } => {
+        const bytes = readFileSync(repoRelativePath);
+        return { bytes: bytes.length, sha256: createHash("sha256").update(bytes).digest("hex") };
+      };
       const mouthAnchorSummary = {
         capturedFrom: `${INSPECTION_PATH} (pnpm asset:ui-xr:viseme-drive-capture)`,
         aimJointName: firstReframe.status === "ok" ? firstReframe.aimJointName : null,
@@ -1128,6 +1204,14 @@ export async function runVisemeCapture(): Promise<void> {
         firstHitMeshName: firstReframe.status === "ok" ? firstReframe.firstHitMeshName : null,
         subjectInFrame: firstReframe.status === "ok" ? firstReframe.subjectInFrame : false,
         headNdc: firstReframe.status === "ok" ? firstReframe.headNdc : null,
+        sources: {
+          producer: PRODUCER_REPO_PATH,
+          subject_glb: subjectGlbRepoPath,
+        },
+        fingerprints: {
+          producer: fingerprintOf(PRODUCER_REPO_PATH),
+          subject_glb: fingerprintOf(subjectGlbRepoPath),
+        },
       };
       await writeFile(MOUTH_ANCHOR_SUMMARY_PATH, `${JSON.stringify(mouthAnchorSummary, null, 2)}\n`, "utf8");
       process.stdout.write(
