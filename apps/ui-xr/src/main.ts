@@ -146,6 +146,7 @@ import {
   type PedsAdaptiveDialogueBranchResolution,
 } from "./peds-adaptive-dialogue-policy.js";
 import { applyGeneratedScalarVisemeToRoot, applyNamedSpeechVisemes, attachBakedCuesToSpeech, loadBakedMouthCuesForUtterance, resolveMorphIndex, type PhonemeCue } from "./viseme-runtime-wire.js";
+import { collectResolvedMorphTargets, MOUTH_OPEN_CAP } from "./viseme-morph-apply.js";
 import { applyBlinkClosureToRoot } from "./blink-runtime-wire.js";
 import { applyGazeToHumanoid } from "./gaze-drives-eyes.js";
 import {
@@ -8957,15 +8958,19 @@ function applyHumanoidMorphTargetCue(
   expressionWeights: HumanoidExpressionWeights,
 ): void {
   let applied = 0;
+  // #730: runtime's own alias resolution, recorded for the capture's mouth-open-channel.json.
+  const resolvedTargets: Record<string, string | null> = { openclinxr_mouth_open: null, openclinxr_brow_concern: null, openclinxr_cheek_tension: null };
   slot.root.traverse((object) => {
     if (!(object instanceof Mesh) || !object.morphTargetDictionary || !object.morphTargetInfluences) {
       return;
     }
+    collectResolvedMorphTargets(object.morphTargetDictionary, resolvedTargets);
     const mouthOpenIndex = resolveMorphIndex(object.morphTargetDictionary, "openclinxr_mouth_open");
     const browConcernIndex = resolveMorphIndex(object.morphTargetDictionary, "openclinxr_brow_concern");
     const cheekTensionIndex = resolveMorphIndex(object.morphTargetDictionary, "openclinxr_cheek_tension");
     if (typeof mouthOpenIndex === "number") {
-      object.morphTargetInfluences[mouthOpenIndex] = Math.min(0.95, Math.max(0, openness + expressionWeights.mouthOpen * 0.18));
+      // #730: bound the openness write by the viseme channel's graded cap (bypassed at 0.95).
+      object.morphTargetInfluences[mouthOpenIndex] = Math.min(MOUTH_OPEN_CAP, Math.max(0, openness + expressionWeights.mouthOpen * 0.18));
       applied++;
     }
     if (typeof browConcernIndex === "number") {
@@ -8985,6 +8990,9 @@ function applyHumanoidMorphTargetCue(
     mouthOpenness: Number(openness.toFixed(3)),
     expressionWeights: roundHumanoidExpressionWeights(expressionWeights),
     appliedTargetCount: applied,
+    // #730: the runtime's own resolution of the canonical names onto the live dictionaries —
+    // recorded for the viseme-drive capture's mouth-open-channel.json known-good.
+    resolvedTargets,
     targetNames: ["openclinxr_mouth_open", "openclinxr_brow_concern", "openclinxr_cheek_tension", ...(named.activeTargetName ? [named.activeTargetName] : [])],
     cueIds: ["dialogue_viseme_and_gaze_mapping", "visible_runtime_mouth_shape_cue", "emotion_aligned_expression_transition_cue", "named_viseme_morph_drive"],
     notEvidenceFor: "production phoneme timing, validated facial animation, or clinical affect scoring",

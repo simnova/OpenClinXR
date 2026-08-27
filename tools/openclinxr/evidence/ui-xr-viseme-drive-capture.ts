@@ -36,6 +36,9 @@ const REFRAME_SUMMARY_PATH = path.join("tools", "openclinxr", "evidence", "refra
 const REVIEW_PANEL_SUMMARY_PATH = path.join("tools", "openclinxr", "evidence", "review-panel-leaves-exam-volume.json");
 /** #472: tracked summary proving the capture anchors on the mouth joint, not the crown apex. */
 const MOUTH_ANCHOR_SUMMARY_PATH = path.join("tools", "openclinxr", "evidence", "capture-aims-at-the-mouth.json");
+/** #730: tracked artifact recording EVERY nonzero morph on the subject (not only viseme_*), so
+ * the openness channel's `mouth-open` write is visible to the cap contract. */
+const MOUTH_OPEN_CHANNEL_PATH = path.join("tools", "openclinxr", "evidence", "mouth-open-channel.json");
 
 /**
  * #726: the subject is pinned by actor id, never by "first mesh with viseme_ keys". The child now
@@ -70,6 +73,11 @@ type SceneSample = {
   /** NEW: the viseme-carrying mesh the sampler read — known even when no viseme is active. */
   meshName: string;
   readings: Reading[];
+  /** #730: every nonzero morph on the subject, whatever its prefix — the openness channel's
+   * `mouth-open` write is invisible to the viseme_* filter this capture used to ship. */
+  allNonZero: Reading[];
+  /** #730: the subject mesh's morphTargetDictionary keys, for the runtime resolution record. */
+  availableTargets: string[];
   peak: { targetName: string; influence: number; meshName: string } | null;
   /** NEW: why peak is null — "no viseme active" is a legitimate state, not an empty string. */
   noActiveVisemeReason?: string | null;
@@ -111,23 +119,28 @@ async function sampleParentVisemes(page: Page): Promise<SceneSample> {
     }
 
     const readings = [];
+    const allNonZero = [];
     const dict = parentMesh && parentMesh.morphTargetDictionary;
     const influences = parentMesh && parentMesh.morphTargetInfluences;
     if (dict && influences) {
       for (const targetName of Object.keys(dict)) {
-        // The parent also ships 32 MPFB FACS (mouth-*) targets driven by the expression
-        // path; record only the named viseme_* drive this capture exists to verify.
-        if (targetName.toLowerCase().indexOf("viseme_") !== 0) continue;
+        // #730: record EVERY nonzero morph on the subject, whatever its prefix. The openness
+        // channel writes "mouth-open" (a FACS name, not a viseme_*), and the cap contract needs
+        // to see it; the viseme_* filter below is kept for the peak/readings consumers.
         const index = dict[targetName];
         if (typeof index !== "number" || index < 0 || index >= influences.length) continue;
         const influence = influences[index] || 0;
         if (influence <= 0.01) continue;
-        readings.push({
+        const reading = {
           meshName: parentMesh.name || "",
           targetName,
           influence,
           index
-        });
+        };
+        allNonZero.push(reading);
+        if (targetName.toLowerCase().indexOf("viseme_") === 0) {
+          readings.push(reading);
+        }
       }
     }
     readings.sort(function (a, b) { return b.influence - a.influence; });
@@ -141,6 +154,8 @@ async function sampleParentVisemes(page: Page): Promise<SceneSample> {
       t: 0,
       meshName,
       readings,
+      allNonZero,
+      availableTargets: dict ? Object.keys(dict) : [],
       peak,
       noActiveVisemeReason: peak
         ? null
@@ -945,6 +960,40 @@ export async function runVisemeCapture(): Promise<void> {
           frameLinkage[targetName] = { framePath: nearest.framePath, linkage: "nearest-timestamp" };
         }
       }
+
+      // #730 land-path artifact: every nonzero morph recorded on the subject (not only the
+      // viseme_* prefix), so the openness channel's `mouth-open` write is visible to the cap
+      // contract. The resolved names come from the runtime's own morph cue (resolvedTargets),
+      // which resolveMorphTarget populated against the live dictionaries.
+      const resolvedTargets = await page.evaluate(`(() => {
+        const scene = window.__openClinXrDebugScene;
+        let resolved = null;
+        if (scene && typeof scene.traverse === "function") {
+          scene.traverse(function (o) {
+            if (resolved) return;
+            const cue = o.userData && o.userData.openClinXrMorphTargetRuntimeCue;
+            if (cue && cue.resolvedTargets) resolved = cue.resolvedTargets;
+          });
+        }
+        return resolved;
+      })()`);
+      const mouthOpenChannel = {
+        capturedFrom: `${INSPECTION_PATH} (pnpm asset:ui-xr:viseme-drive-capture)`,
+        meshName: rawTimeline[0]?.meshName ?? "",
+        resolved: resolvedTargets,
+        samples: rawTimeline.map((s) => ({
+          t: Number(s.t.toFixed(3)),
+          activeMouthOpenness: s.speech?.activeMouthOpenness ?? null,
+          nonZeroMorphs: (s.allNonZero ?? []).map((m) => ({
+            targetName: m.targetName,
+            influence: Number(m.influence.toFixed(4)),
+          })),
+        })),
+      };
+      await writeFile(MOUTH_OPEN_CHANNEL_PATH, `${JSON.stringify(mouthOpenChannel, null, 2)}\n`, "utf8");
+      process.stdout.write(
+        `mouthOpenChannel: ${MOUTH_OPEN_CHANNEL_PATH} mesh=${mouthOpenChannel.meshName} resolved=${JSON.stringify(mouthOpenChannel.resolved)} samples=${mouthOpenChannel.samples.length}\n`,
+      );
 
       // #368 remaining half: the artifact must record the reframe's OUTCOME — the mesh the
       // camera actually framed and its world position (or the failure code), never a

@@ -1,0 +1,1323 @@
+{
+  "capturedFrom": ".openclinxr/evidence/viseme-drive-2026-08-06/inspection.json (pnpm asset:ui-xr:viseme-drive-capture)",
+  "meshName": "mpfb_ob_patient_aisha_body_1",
+  "resolved": {
+    "openclinxr_mouth_open": "mouth-open",
+    "openclinxr_brow_concern": "eyebrows-left-inner-up",
+    "openclinxr_cheek_tension": null
+  },
+  "samples": [
+    {
+      "t": 0.116,
+      "activeMouthOpenness": 0.258,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.5058
+        },
+        {
+          "targetName": "mouth-open",
+          "influence": 0.2818
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_TH",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 0.522,
+      "activeMouthOpenness": 0.43,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.5788
+        },
+        {
+          "targetName": "mouth-open",
+          "influence": 0.0305
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 1.022,
+      "activeMouthOpenness": 0.288,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.3139
+        },
+        {
+          "targetName": "mouth-open",
+          "influence": 0.0181
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 1.611,
+      "activeMouthOpenness": 0.381,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.1509
+        },
+        {
+          "targetName": "mouth-open",
+          "influence": 0.0105
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 2.091,
+      "activeMouthOpenness": 0.055,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.1004
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 2.541,
+      "activeMouthOpenness": 0.149,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.0839
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 3.146,
+      "activeMouthOpenness": 0.311,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.0811
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 3.74,
+      "activeMouthOpenness": 0.245,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.0803
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 4.247,
+      "activeMouthOpenness": 0.245,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.0801
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 4.756,
+      "activeMouthOpenness": 0.245,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.08
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 5.218,
+      "activeMouthOpenness": 0.645,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.08
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 5.665,
+      "activeMouthOpenness": 0.368,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.08
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 6.107,
+      "activeMouthOpenness": 0.246,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.08
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 6.603,
+      "activeMouthOpenness": 0.271,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.08
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 7.064,
+      "activeMouthOpenness": 0.227,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.08
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 7.778,
+      "activeMouthOpenness": 0.398,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.08
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 8.245,
+      "activeMouthOpenness": null,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.08
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 8.796,
+      "activeMouthOpenness": 0.267,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.291
+        },
+        {
+          "targetName": "mouth-open",
+          "influence": 0.28
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_E",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 9.274,
+      "activeMouthOpenness": 0.261,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.5014
+        },
+        {
+          "targetName": "mouth-open",
+          "influence": 0.2845
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 9.873,
+      "activeMouthOpenness": 0.429,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.5099
+        },
+        {
+          "targetName": "mouth-open",
+          "influence": 0.3
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 10.495,
+      "activeMouthOpenness": 0.189,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.5115
+        },
+        {
+          "targetName": "mouth-open",
+          "influence": 0.2135
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_aa",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 11.1,
+      "activeMouthOpenness": 0.216,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.5118
+        },
+        {
+          "targetName": "mouth-open",
+          "influence": 0.2404
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_U",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 11.666,
+      "activeMouthOpenness": 0.266,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.6197
+        },
+        {
+          "targetName": "mouth-open",
+          "influence": 0.0324
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 12.127,
+      "activeMouthOpenness": 0.644,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.4229
+        },
+        {
+          "targetName": "mouth-open",
+          "influence": 0.0232
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 12.577,
+      "activeMouthOpenness": 0.391,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.1846
+        },
+        {
+          "targetName": "mouth-open",
+          "influence": 0.0121
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 13.017,
+      "activeMouthOpenness": 0.353,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.0999
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 13.478,
+      "activeMouthOpenness": 0.247,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.0857
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 13.93,
+      "activeMouthOpenness": 0.25,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.0811
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 14.56,
+      "activeMouthOpenness": 0.368,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.0802
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 15.196,
+      "activeMouthOpenness": 0.267,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.08
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 15.807,
+      "activeMouthOpenness": 0.114,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.08
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 16.43,
+      "activeMouthOpenness": 0.42,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.08
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 16.859,
+      "activeMouthOpenness": 0.42,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.08
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 17.403,
+      "activeMouthOpenness": 0.42,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.08
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 17.854,
+      "activeMouthOpenness": 0.401,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.13
+        },
+        {
+          "targetName": "mouth-open",
+          "influence": 0.3
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_aa",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 18.451,
+      "activeMouthOpenness": 0.318,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.1936
+        },
+        {
+          "targetName": "mouth-open",
+          "influence": 0.3
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 19.05,
+      "activeMouthOpenness": 0.281,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.4928
+        },
+        {
+          "targetName": "mouth-open",
+          "influence": 0.3
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 19.527,
+      "activeMouthOpenness": 0.31,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.5072
+        },
+        {
+          "targetName": "mouth-open",
+          "influence": 0.3
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 19.969,
+      "activeMouthOpenness": 0.271,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.4994
+        },
+        {
+          "targetName": "mouth-open",
+          "influence": 0.2948
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 20.458,
+      "activeMouthOpenness": 0.253,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.3219
+        },
+        {
+          "targetName": "mouth-open",
+          "influence": 0.2674
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_I",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 24.155,
+      "activeMouthOpenness": 0.221,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.4768
+        },
+        {
+          "targetName": "mouth-open",
+          "influence": 0.2437
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_I",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 26.1,
+      "activeMouthOpenness": 0.404,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.1213
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 27.939,
+      "activeMouthOpenness": 0.412,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.0803
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 29.857,
+      "activeMouthOpenness": 0.412,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.08
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 31.664,
+      "activeMouthOpenness": 0.252,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.08
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 33.769,
+      "activeMouthOpenness": 0.575,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.08
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 35.765,
+      "activeMouthOpenness": 0.393,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.5109
+        },
+        {
+          "targetName": "mouth-open",
+          "influence": 0.3
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_aa",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 37.652,
+      "activeMouthOpenness": 0.384,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.3911
+        },
+        {
+          "targetName": "mouth-open",
+          "influence": 0.0217
+        },
+        {
+          "targetName": "mouth-parling",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-part-later",
+          "influence": 1
+        },
+        {
+          "targetName": "mouth-protusion",
+          "influence": 1
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 1
+        }
+      ]
+    }
+  ]
+}
