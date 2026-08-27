@@ -16,6 +16,10 @@
  *   `viseme_*` names plus FACS mouth units (the hybrid rail) would otherwise resolve only the
  *   identity-matching tokens and drop AA/IH/OH/OU/FV/TH/L to all-zero frames while the applier
  *   could have aliased them. Driver and applier cannot disagree when they share the resolver.
+ * - #732: an aliased active target (viseme_IH -> mouth-part-later) is part of the drive set via
+ *   the canonical vocabulary's resolved forms, so every frame names it (0 or 1) and the applier
+ *   can lower it — a target raised at 1 and omitted later stays at 1, which is how the mouth
+ *   stayed open at silence after the #730 openness cap.
  */
 
 import { resolveMorphTarget } from "@openclinxr/asset-registry";
@@ -220,13 +224,28 @@ export function driveVisemeTimeline(
   input: DriveVisemeTimelineInput,
 ): DriveVisemeTimelineResult {
   const { phonemes, availableTargets } = input;
+  const available = new Set(availableTargets);
   const visemeTargets = availableTargets.filter((name) =>
     name.toLowerCase().startsWith("viseme_"),
   );
-  // If the mesh exposes no viseme_* names, drive the canonical ARKit names the applier
-  // resolves through the FACS alias map (see CANONICAL_FALLBACK_VISEME_NAMES).
-  const driveTargets =
-    visemeTargets.length > 0 ? visemeTargets : [...CANONICAL_FALLBACK_VISEME_NAMES];
+  // #732: a hybrid body resolves some phonemes onto FACS `mouth-*` names the `viseme_` prefix
+  // filter excludes (viseme_IH -> mouth-part-later etc. via the applier's alias map). Written at
+  // 1 by the active branch and omitted from later frames, such a target stays at 1 forever —
+  // applyVisemeWeights writes only requested names, so an omitted target is never lowered. Drive
+  // the resolved forms of the canonical vocabulary like any other target: every frame names
+  // them, 0 or 1. The drive set is then closed under resolveVisemeTarget, which can only produce
+  // a `viseme_*` name or a resolved canonical form. On the no-`viseme_*`-at-all rail the set is
+  // the canonical forms themselves, which the applier resolves (#353) — resolved forms are not
+  // added there because the frames already name them.
+  const driveTargets = new Set<string>(
+    visemeTargets.length > 0 ? visemeTargets : CANONICAL_FALLBACK_VISEME_NAMES,
+  );
+  if (visemeTargets.length > 0) {
+    for (const canonical of CANONICAL_FALLBACK_VISEME_NAMES) {
+      const resolved = resolveMorphTarget(canonical, available);
+      if (resolved !== null) driveTargets.add(resolved);
+    }
+  }
 
   const frames: VisemeFrame[] = phonemes.map((cue) => {
     const active =
@@ -236,8 +255,9 @@ export function driveVisemeTimeline(
     for (const target of driveTargets) {
       weights[target] = active !== null && target === active ? 1 : 0;
     }
-    // If the active target is in availableTargets but not in driveTargets (edge case),
-    // still set it so the frame is non-empty and names only real targets.
+    // #732: the canonical-vocabulary closure above covers every real phoneme stream; this branch
+    // now fires only for a token literally equal to a FACS name outside the resolved set. Keep it
+    // so such a frame stays non-empty and names only real targets.
     if (active !== null && !(active in weights) && availableTargets.includes(active)) {
       weights[active] = 1;
     }

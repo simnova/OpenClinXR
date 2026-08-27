@@ -56,6 +56,19 @@ import { driveVisemeTimeline, resolveVisemeTarget } from "../../../apps/ui-xr/sr
  *   `CANONICAL_FALLBACK_VISEME_NAMES` (the no-`viseme_*`-at-all branch) has the same hole.
  */
 
+/**
+ * ## FIXED (#732) — 2026-08-27.
+ *
+ * `driveVisemeTimeline` now builds the drive set from the resolved forms of the canonical
+ * vocabulary as well as the `viseme_*` names (`viseme-timeline-drive.ts`). On the shipped parent
+ * the aliased forms are mouth-part-later, mouth-protusion, mouth-parling, mouth-eversion and
+ * mouth-elevation; each is present in every frame's weight map — 1 while its phoneme is active,
+ * 0 otherwise — so `applyVisemeWeights` lowers it on the frames where it is not the active shape.
+ * `mouth-open` stays out of the drive set on the shipped parent (`viseme_AA` resolves to the
+ * case-variant `viseme_aa` before the FACS alias map), so the #730 openness channel is not
+ * fought. Clause (1) flipped from `it.fails` to `it` in the same change.
+ */
+
 /** Measured 2026-08-27 from `mpfb-peds-parent-aisha.motion-bind.glb`, mesh `mpfb_ob_patient_aisha_body`. */
 const SHIPPED_VISEME_TARGETS = [
   "viseme_aa", "viseme_CH", "viseme_DD", "viseme_E", "viseme_FF", "viseme_I", "viseme_kk",
@@ -108,7 +121,7 @@ describe("an aliased viseme target is cleared when it stops being active (#732)"
    * runtime leaves it at 1 forever. The assertion names no threshold: a target this drive raises is
    * a target this drive must be able to lower.
    */
-  it.fails("(1) every target the drive raises to 1 is present in every frame's weight map", () => {
+  it("(1) every target the drive raises to 1 is present in every frame's weight map", () => {
     const frames = framesFor(SEQUENCE);
     expect(
       neverCleared(frames),
