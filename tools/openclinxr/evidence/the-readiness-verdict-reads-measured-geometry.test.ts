@@ -58,7 +58,10 @@ function stationBudgetCallSite(): string {
 }
 
 describe("the readiness verdict reads measured geometry", () => {
-  it.fails("(1) the readiness call site passes measured geometry, not manifests alone", () => {
+  // ## FIXED (#700)
+  // `evaluateScenarioReadiness` now accepts an optional `measuredTriangleCounts` and forwards it to
+  // the station budget call, so the call site has two arguments and the gate reads measured geometry.
+  it("(1) the readiness call site passes measured geometry, not manifests alone", () => {
     const args = stationBudgetCallSite();
     const argCount = args.split(",").filter((a) => a.trim().length > 0).length;
     expect(
@@ -70,7 +73,11 @@ describe("the readiness verdict reads measured geometry", () => {
     ).toBeGreaterThanOrEqual(2);
   });
 
-  it.fails("(2) a PARTIAL measurement set fails closed rather than mixing real and declared", () => {
+  // ## FIXED (#700)
+  // `evaluateScenarioAssetBudget` adds `station_triangle_measurements_incomplete` when a measurement
+  // set is supplied but does not cover every manifest, so partial coverage fails closed rather than
+  // blending shipped bytes with declared maxima.
+  it("(2) a PARTIAL measurement set fails closed rather than mixing real and declared", () => {
     const manifests = createEdChestPainPlaceholderManifests();
     // Three of ten assets measured. The evaluator's per-asset fallback silently supplies declarations
     // for the other seven, producing one total that is part real and part fiction.

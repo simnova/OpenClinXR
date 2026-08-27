@@ -27,6 +27,13 @@ import {
   type EnvironmentSpatialZone,
 } from "./environment-spatial-zones.js";
 export { buildSpatialZonesForEnvironment, type EnvironmentSpatialZone };
+import { isPlaceholderAsset } from "./scenario-readiness-evidence.js";
+export {
+  evaluateScenarioGenerationEvidence,
+  evaluateScenarioOptimizationEvidence,
+  type ScenarioGenerationEvidence,
+  type ScenarioOptimizationEvidence,
+} from "./scenario-readiness-evidence.js";
 
 export type AssetKind = "character" | "environment" | "equipment" | "prop" | "texture" | "audio";
 
@@ -568,23 +575,6 @@ export type ScenarioAssetBudget = {
   totalTriangles: number;
   totalTextureMegabytes: number;
   totalDrawCalls: number;
-  blockers: string[];
-};
-
-export type ScenarioOptimizationEvidence = {
-  lodTiersObserved: boolean;
-  textureCompressionBudgetObserved: boolean;
-  colliderSimplificationObserved: boolean;
-  placeholderOnly: boolean;
-  blockers: string[];
-};
-
-export type ScenarioGenerationEvidence = {
-  generatedHumanRiggingObserved: boolean;
-  skinClothingProvenanceObserved: boolean;
-  medicalEquipmentLibraryObserved: boolean;
-  animationRetargetingObserved: boolean;
-  placeholderOnly: boolean;
   blockers: string[];
 };
 
@@ -2055,7 +2045,7 @@ export class InMemoryAssetRegistry {
       .map((manifest) => cloneAssetManifest(manifest));
   }
 
-  evaluateScenarioReadiness(scenario: Scenario): ScenarioAssetReadiness {
+  evaluateScenarioReadiness(scenario: Scenario, measuredTriangleCounts?: Readonly<Record<string, number>>): ScenarioAssetReadiness {
     const requiredAssetIds = [...new Set(scenario.assetNeeds?.map((assetNeed) => assetNeed.assetId) ?? [])];
     const missingRequiredAssetIds: string[] = [];
     const blockedAssets: Array<{ assetId: string; blockers: string[] }> = [];
@@ -2086,7 +2076,7 @@ export class InMemoryAssetRegistry {
         });
       }
     }
-    const stationBudget = evaluateScenarioAssetBudget(presentRequiredManifests);
+    const stationBudget = evaluateScenarioAssetBudget(presentRequiredManifests, measuredTriangleCounts);
 
     return {
       scenarioId: scenario.scenarioId,
@@ -2349,7 +2339,11 @@ export function evaluateScenarioAssetBudget(
     totalTextureMegabytes: sum.totalTextureMegabytes + manifest.geometryBudget.maxTextureMegabytes,
     totalDrawCalls: sum.totalDrawCalls + manifest.geometryBudget.maxDrawCalls,
   }), { totalTriangles: 0, totalTextureMegabytes: 0, totalDrawCalls: 0 });
+  // Fail closed on a partial measurement set instead of blending shipped bytes with declared maxima.
+  const measurementsIncomplete = measuredTriangleCounts !== undefined
+    && manifests.some((manifest) => measuredTriangleCounts[manifest.assetId] === undefined);
   const blockers = [
+    measurementsIncomplete ? "station_triangle_measurements_incomplete" : undefined,
     totals.totalTriangles > quest3StationBudget.maxVisibleTriangles ? "station_triangle_budget_exceeded" : undefined,
     totals.totalTextureMegabytes > quest3StationBudget.maxTextureMegabytes ? "station_texture_budget_exceeded" : undefined,
     totals.totalDrawCalls > quest3StationBudget.maxDrawCalls ? "station_draw_call_budget_exceeded" : undefined,
@@ -2358,67 +2352,6 @@ export function evaluateScenarioAssetBudget(
   return {
     ...quest3StationBudget,
     ...totals,
-    blockers,
-  };
-}
-
-export function evaluateScenarioOptimizationEvidence(manifests: readonly AssetManifest[]): ScenarioOptimizationEvidence {
-  const lodTiersObserved = manifests.length > 0
-    && manifests.every((manifest) => (manifest.optimizationEvidence?.lodTiers?.length ?? 0) >= 2);
-  const textureCompressionBudgetObserved = manifests.length > 0
-    && manifests.every((manifest) => Boolean(
-      manifest.optimizationEvidence?.textureCompressionFormat
-      && manifest.optimizationEvidence.textureBudgetReportId,
-    ));
-  const colliderSimplificationObserved = manifests.length > 0
-    && manifests.every((manifest) => Boolean(manifest.optimizationEvidence?.colliderSimplificationReportId));
-  const blockers = [
-    lodTiersObserved ? undefined : "lod_tiers_missing",
-    textureCompressionBudgetObserved ? undefined : "texture_compression_budget_missing",
-    colliderSimplificationObserved ? undefined : "collider_simplification_report_missing",
-  ].filter((blocker): blocker is string => typeof blocker === "string");
-
-  return {
-    lodTiersObserved,
-    textureCompressionBudgetObserved,
-    colliderSimplificationObserved,
-    placeholderOnly: manifests.length > 0 && manifests.every(isPlaceholderAsset),
-    blockers,
-  };
-}
-
-export function evaluateScenarioGenerationEvidence(manifests: readonly AssetManifest[]): ScenarioGenerationEvidence {
-  const characterManifests = manifests.filter((manifest) => manifest.kind === "character");
-  const equipmentOrEnvironmentManifests = manifests.filter((manifest) => manifest.kind === "equipment" || manifest.kind === "environment");
-  const placeholderOnly = manifests.length > 0 && manifests.every(isPlaceholderAsset);
-  const hasProductionSource = (manifest: AssetManifest) => !isPlaceholderAsset(manifest)
-    && manifest.provenance.licenseStatus === "approved"
-    && manifest.provenance.sourceRefs.some((sourceRef) => sourceRef.trim().length > 0);
-  const generatedHumanRiggingObserved = characterManifests.length > 0
-    && characterManifests.every((manifest) => hasProductionSource(manifest)
-      && Boolean(manifest.generationEvidence?.generatedHumanRiggingReportId));
-  const skinClothingProvenanceObserved = characterManifests.length > 0
-    && characterManifests.every((manifest) => hasProductionSource(manifest)
-      && Boolean(manifest.generationEvidence?.skinClothingProvenanceId));
-  const medicalEquipmentLibraryObserved = equipmentOrEnvironmentManifests.length > 0
-    && equipmentOrEnvironmentManifests.every((manifest) => hasProductionSource(manifest)
-      && Boolean(manifest.generationEvidence?.medicalEquipmentLibraryRecordId));
-  const animationRetargetingObserved = characterManifests.length > 0
-    && characterManifests.every((manifest) => hasProductionSource(manifest)
-      && Boolean(manifest.generationEvidence?.animationRetargetingReportId));
-  const blockers = [
-    generatedHumanRiggingObserved ? undefined : "generated_human_rigging_missing",
-    skinClothingProvenanceObserved ? undefined : "skin_clothing_provenance_missing",
-    medicalEquipmentLibraryObserved ? undefined : "medical_equipment_library_missing",
-    animationRetargetingObserved ? undefined : "animation_retargeting_missing",
-  ].filter((blocker): blocker is string => typeof blocker === "string");
-
-  return {
-    generatedHumanRiggingObserved,
-    skinClothingProvenanceObserved,
-    medicalEquipmentLibraryObserved,
-    animationRetargetingObserved,
-    placeholderOnly,
     blockers,
   };
 }
@@ -2826,11 +2759,6 @@ function stage(stageName: AssetPipelineStageName, notes: string): AssetPipelineS
   };
 }
 
-function isPlaceholderAsset(manifest: AssetManifest): boolean {
-  return manifest.provenance?.generationMethod === "procedural_placeholder"
-    || (manifest.provenance?.sourceRefs ?? []).some((sourceRef) => sourceRef.includes("placeholder"))
-    || (manifest.pipelineStages ?? []).some((stage) => stage.notes.toLowerCase().includes("not production clinical realism"));
-}
 function hasProductionLimitingQuestQaStatus(status: AssetQuestQaStatus | undefined): boolean {
   return status?.limitations.some((limitation) => {
     const normalized = limitation.toLowerCase();
