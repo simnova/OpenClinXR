@@ -1,23 +1,37 @@
 {
   "capturedFrom": ".openclinxr/evidence/viseme-drive-2026-08-06/inspection.json (pnpm asset:ui-xr:viseme-drive-capture)",
   "aimJointName": "jaw",
-  "aimWorldY": 1.5306400998083876,
-  "crownApexWorldY": 1.7283826296994897,
+  "aimWorldY": 1.1023575570244928,
+  "crownApexWorldY": 1.2518279489644208,
   "anchorWorldPosition": {
-    "x": -1.2550479181474847,
-    "y": 1.5306400998083876,
-    "z": 0.30644116909317354
+    "x": -0.5459814943127721,
+    "y": 1.1023575570244928,
+    "z": -0.7623648060887604
   },
   "cameraWorldPosition": {
-    "x": -1.2150479181474847,
-    "y": 1.5706400998083876,
-    "z": 1.0264411690931734
+    "x": -0.5059814943127721,
+    "y": 1.1423575570244928,
+    "z": -0.042364806088760476
   },
   "subjectVisible": true,
   "firstHitMeshName": "mpfb_ob_patient_aisha_body_1",
   "subjectInFrame": true,
   "headNdc": {
-    "x": -1.835320409819855e-15,
-    "y": -1.233105900347715e-15
+    "x": 0,
+    "y": 1.233105900347715e-15
+  },
+  "sources": {
+    "producer": "tools/openclinxr/evidence/ui-xr-viseme-drive-capture.ts",
+    "subject_glb": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb"
+  },
+  "fingerprints": {
+    "producer": {
+      "bytes": 58357,
+      "sha256": "bd9bfad46f7f8d5cb7059186d38ab26bea35e1ef4680e2bce16976ed37420576"
+    },
+    "subject_glb": {
+      "bytes": 11807224,
+      "sha256": "3da857ad78da6ad3f254d9635e8234fc2491c7073f1c7ba1f81cb5f44fb741b7"
+    }
   }
 }

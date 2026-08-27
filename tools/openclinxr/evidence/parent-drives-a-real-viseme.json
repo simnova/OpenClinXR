@@ -8,15 +8,15 @@
       "influence": 1
     },
     {
-      "drivenTargetName": "viseme_TH",
-      "influence": 1
-    },
-    {
       "drivenTargetName": "viseme_sil",
       "influence": 1
     },
     {
       "drivenTargetName": "viseme_aa",
+      "influence": 1
+    },
+    {
+      "drivenTargetName": "viseme_TH",
       "influence": 1
     },
     {
