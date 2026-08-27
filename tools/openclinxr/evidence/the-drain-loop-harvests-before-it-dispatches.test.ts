@@ -28,7 +28,7 @@
  *
  * THIS HEADER IS IMMUTABLE. Flip the assertion and append a `## FIXED (#727)` block below.
  */
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -45,14 +45,37 @@ function orderedSteps(): string[] {
 }
 
 describe("#727 the drain loop harvests a finished slice before it dispatches a new one", () => {
-  it.fails("(1) RED: harvesting is not gated on a worker being live", () => {
+  it("(0) the subject exists — this contract must not go green on a clone that lacks the prompt", () => {
+    /**
+     * MEASURED 2026-08-27: .openclinxr/ is gitignored (.gitignore:9), so this prompt is UNTRACKED
+     * and absent from HEAD. Every other clause reads it. Without this clause a fresh clone would
+     * see readFileSync throw, or a future refactor returning "" would make the ordering checks
+     * vacuous — green about a file nobody has.
+     *
+     * The fix itself therefore does NOT land: it lives in this machine's working copy only. That is
+     * the #64 shape — a deliverable under a gitignored path has no land path — and it is stated
+     * here rather than discovered later.
+     */
+    expect(existsSync(PROMPT), `${PROMPT} is absent — the drain prompt is gitignored and machine-local`).toBe(true);
+    expect(readFileSync(PROMPT, "utf8").length).toBeGreaterThan(500);
+    expect(orderedSteps().length, "the fire must enumerate numbered steps").toBeGreaterThanOrEqual(8);
+  });
+
+  it("(1) harvesting is not gated on a worker being live", () => {
     const steps = orderedSteps();
-    const harvestSteps = steps.filter((s) => /harvest/i.test(s));
-    expect(harvestSteps.length, "the fire must mention harvesting at all").toBeGreaterThan(0);
-    // The defect: EVERY harvest step is inside the workers-live branch, so a finished slice has no
-    // step that reaches it. At least one harvest step must stand outside that condition.
-    const unconditional = harvestSteps.filter((s) => !/worker.*live|live.*worker/i.test(s));
-    expect(unconditional.length, `harvest steps found: ${harvestSteps.join(" | ")}`).toBeGreaterThan(0);
+    const firstHarvest = steps.findIndex((s) => /harvest/i.test(s));
+    const workersLive = steps.findIndex((s) => /worker.*live|live.*worker/i.test(s) && /not.*dispatch/i.test(s));
+    expect(firstHarvest, "the fire must mention harvesting at all").toBeGreaterThanOrEqual(0);
+    expect(workersLive, "the workers-live mutex step must exist").toBeGreaterThanOrEqual(0);
+    /**
+     * ORDERING is the property, not wording. An earlier draft filtered harvest steps for the phrase
+     * "worker is live" and so excluded the very step that fixes this, whose text reads "whether or
+     * not a worker is live" — a self-defeating matcher, the same shape as a regex that matches its
+     * own literal. Harvest must come BEFORE the workers-live branch; then a finished worker's slice
+     * is reached whether or not anything is running.
+     */
+    expect(firstHarvest, `harvest at step ${firstHarvest + 1}, workers-live at step ${workersLive + 1}`)
+      .toBeLessThan(workersLive);
   });
 
   it("(2) the known-good column: the fire still refuses to dispatch past a live worker", () => {
@@ -80,3 +103,16 @@ describe("#727 the drain loop harvests a finished slice before it dispatches a n
     expect(body).toMatch(/It does not plant\./);
   });
 });
+
+/**
+ * ## FIXED (#727)
+ *
+ * A new step 2 harvests FIRST, whether or not a worker is live, and branches on the latest ledger
+ * row's handoff: ready_to_integrate acquires the lease and integrates only on green proofs;
+ * needs_resume resumes and explicitly does not integrate; a worktree already on main repairs the
+ * board only, after verifying against main. The old workers-live branch survives as step 3, so the
+ * mutex that stops two writers sharing a slice is unchanged.
+ *
+ * Still true and still stated in the header: this asserts on the document. Whether the fire behaves
+ * differently is a question about an LLM reading a prompt, and no assertion here answers it.
+ */

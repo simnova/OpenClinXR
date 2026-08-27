@@ -3,6 +3,13 @@ import { type Scenario, type ValidationResult, validateAssetManifest as validate
 export * from "./actor-posture.js";
 export * from "./asset-writer.js";
 export {
+  MPFB_OB_PATIENT_AISHA_GLB,
+  OB_HEADACHE_PREECLAMPSIA_SCENARIO_ID,
+  resolveScenarioActorCast,
+  resolveRuntimeCastAssetPath,
+  type ScenarioActorCast,
+} from "./actor-casting.js";
+export {
   ENVIRONMENT_SHELL_DESCRIPTORS,
   type EnvironmentFixtureSlot,
   type EnvironmentShellDescriptor,
