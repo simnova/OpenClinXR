@@ -58,7 +58,7 @@ function card(rules: string[]): { number: number; title: string; body: string } 
 }
 
 describe("#718 a run: proof whose binary cannot run is refused before dispatch", () => {
-  it.fails("(1) RED: the card that shipped on #715 is refused at brief time", () => {
+  it("(1) the card that shipped on #715 is refused at brief time", () => {
     const brief = briefFromIssue(card([UNRUNNABLE]) as never, REPO) as {
       dispatchable: boolean;
       reason?: string;
@@ -109,3 +109,15 @@ describe("#718 a run: proof whose binary cannot run is refused before dispatch",
     expect(brief.dispatchable).toBe(true);
   });
 });
+
+/**
+ * ## FIXED (#718)
+ *
+ * `briefFromIssue` now runs every `run:` rule through the shared `parseRunArgv` before it checks
+ * `## factory_step:`, and refuses on a parser error with the parser's own message plus the rule
+ * text. The allow-list is not restated in board-brief; the parser owns it.
+ *
+ * Measured against the live board after the change: the set of dispatchable open issues is
+ * unchanged, so the guard retired no live card. It refuses #715's original rule and accepts the
+ * corrected `pnpm exec vitest run ...` form.
+ */

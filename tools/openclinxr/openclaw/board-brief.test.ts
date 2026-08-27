@@ -83,23 +83,23 @@ describe("done_when extraction stops at the bullet list", () => {
   });
 
   it("still stops at a following heading", () => {
-    const body = "## factory_step: motion_retarget\n## done_when\n- run:true\n\n## notes\n- not a proof\n";
+    const body = "## factory_step: motion_retarget\n## done_when\n- run:pnpm architecture\n\n## notes\n- not a proof\n";
     const result = briefFromIssue({ number: 1, title: "x", body });
     expect(result.dispatchable).toBe(true);
-    if (result.dispatchable) expect(result.proofs).toEqual(["run:true"]);
+    if (result.dispatchable) expect(result.proofs).toEqual(["run:pnpm architecture"]);
   });
 });
 
 describe("factory_step gate (D9 dark factory)", () => {
   it("refuses an issue with a done_when block but no factory_step line", () => {
-    const result = briefFromIssue({ number: 1, title: "x", body: "## done_when\n- run:true\n" });
+    const result = briefFromIssue({ number: 1, title: "x", body: "## done_when\n- run:pnpm architecture\n" });
     expect(result.dispatchable).toBe(false);
     if (!result.dispatchable) expect(result.reason).toMatch(/factory_step/i);
   });
 
   it("refuses a factory_step value that is not a known station", () => {
     const result = briefFromIssue({
-      number: 1, title: "x", body: "## factory_step: magic\n## done_when\n- run:true\n",
+      number: 1, title: "x", body: "## factory_step: magic\n## done_when\n- run:pnpm architecture\n",
     });
     expect(result.dispatchable).toBe(false);
     if (!result.dispatchable) expect(result.reason).toMatch(/factory_step/i);
@@ -107,7 +107,7 @@ describe("factory_step gate (D9 dark factory)", () => {
 
   it("refuses factory_step: instrument with no unblocks line", () => {
     const result = briefFromIssue({
-      number: 1, title: "x", body: "## factory_step: instrument\n## done_when\n- run:true\n",
+      number: 1, title: "x", body: "## factory_step: instrument\n## done_when\n- run:pnpm architecture\n",
     });
     expect(result.dispatchable).toBe(false);
     if (!result.dispatchable) expect(result.reason).toMatch(/unblocks/i);
@@ -116,7 +116,7 @@ describe("factory_step gate (D9 dark factory)", () => {
   it("refuses factory_step: instrument that unblocks instrument", () => {
     const result = briefFromIssue({
       number: 1, title: "x",
-      body: "## factory_step: instrument\nunblocks: instrument\n## done_when\n- run:true\n",
+      body: "## factory_step: instrument\nunblocks: instrument\n## done_when\n- run:pnpm architecture\n",
     });
     expect(result.dispatchable).toBe(false);
     if (!result.dispatchable) expect(result.reason).toMatch(/unblocks/i);
@@ -124,18 +124,18 @@ describe("factory_step gate (D9 dark factory)", () => {
 
   it("dispatches a valid factory_step with tree proofs", () => {
     const result = briefFromIssue({
-      number: 1, title: "x", body: "## factory_step: room_generate\n## done_when\n- run:true\n",
+      number: 1, title: "x", body: "## factory_step: room_generate\n## done_when\n- run:pnpm architecture\n",
     });
     expect(result.dispatchable).toBe(true);
-    if (result.dispatchable) expect(result.proofs).toEqual(["run:true"]);
+    if (result.dispatchable) expect(result.proofs).toEqual(["run:pnpm architecture"]);
   });
 
   it("dispatches factory_step: instrument with a valid non-instrument unblocks", () => {
     const result = briefFromIssue({
       number: 1, title: "x",
-      body: "## factory_step: instrument\nunblocks: room_generate\n## done_when\n- run:true\n",
+      body: "## factory_step: instrument\nunblocks: room_generate\n## done_when\n- run:pnpm architecture\n",
     });
     expect(result.dispatchable).toBe(true);
-    if (result.dispatchable) expect(result.proofs).toEqual(["run:true"]);
+    if (result.dispatchable) expect(result.proofs).toEqual(["run:pnpm architecture"]);
   });
 });

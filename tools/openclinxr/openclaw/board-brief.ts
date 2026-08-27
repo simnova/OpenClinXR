@@ -1,4 +1,4 @@
-import { partitionDoneWhen } from "../../../packages/openclinxr/agent-loop/src/done-when-rules.js";
+import { parseRunArgv, partitionDoneWhen } from "../../../packages/openclinxr/agent-loop/src/done-when-rules.js";
 
 /**
  * Board → brief: the missing direction.
@@ -379,6 +379,31 @@ export function briefFromIssue(issue: BoardIssue, treeRoot?: string): BriefResul
         + `mhclo, hm08, mpfb). Hand-authored garment geometry is the anti-pattern directive D1 names. `
         + `Cite the tool, or say explicitly why it cannot be used.`,
     };
+  }
+
+  // #718: a `run:` rule whose first token is not an allow-listed binary can never pass — the same
+  // parser gates dispatch, merge-time verify and the post-merge re-run. #715 shipped
+  // `run:tools/.../x.test.ts` (a PATH where a binary belongs), briefFromIssue accepted it because
+  // it validated rule SHAPE only, and a 60-turn worker ran against an unsatisfiable first proof.
+  //
+  // Refusing here changes WHEN a card is refused, never WHETHER, so there is no false-positive
+  // cost. It proves syntactic executability only: an allow-listed binary can still be absent from
+  // PATH or name a target that does not exist, and those stay runtime failures.
+  //
+  // The allow-list is NOT restated here. parseRunArgv owns it; two copies would drift.
+  for (const rule of rules) {
+    if (!rule.startsWith("run:")) continue;
+    const parsed = parseRunArgv(rule.slice("run:".length).trim());
+    if ("error" in parsed) {
+      return {
+        dispatchable: false,
+        reason:
+          `Issue #${issue.number} has a "run:" rule that cannot execute: ${parsed.error} `
+          + `Rule: "${rule}". A proof that no implementation could satisfy is worse than no proof, `
+          + `because it looks like a contract. Name a command, not a path — e.g. `
+          + `"run:pnpm exec vitest run <file>".`,
+      };
+    }
   }
 
   const { treeProofs, narrative, unknown } = partitionDoneWhen(rules);
