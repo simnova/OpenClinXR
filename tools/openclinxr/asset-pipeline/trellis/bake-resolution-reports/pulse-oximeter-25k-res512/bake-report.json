@@ -1,0 +1,10 @@
+{
+  "high": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-702/.openclinxr/evidence/trellis-escape-hatch/pulse-oximeter/optimize/raw-copy.glb",
+  "low": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-702/.openclinxr/evidence/trellis-bake-issue702/pulse-oximeter/optimize/iter1-stretch25k.glb",
+  "resolution": 512,
+  "objectDiagonalMeters": 1.33334,
+  "cageExtrusionMeters": 0.02667,
+  "maxRayDistanceMeters": 0.05333,
+  "status": "baked",
+  "normalMapPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-703/.openclinxr/evidence/trellis-bake-issue703/pulse-oximeter/res512/bake/baked-normal.png"
+}

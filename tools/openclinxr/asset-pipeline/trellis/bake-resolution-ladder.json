@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "openclinxr.trellis-bake-resolution-ladder.v1",
+  "subject": "pulse-oximeter",
+  "triangles": 25000,
+  "mapped": true,
+  "highResSource": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-702/.openclinxr/evidence/trellis-escape-hatch/pulse-oximeter/optimize/raw-copy.glb",
+  "lowRung": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-702/.openclinxr/evidence/trellis-bake-issue702/pulse-oximeter/optimize/iter1-stretch25k.glb",
+  "rawTriangleCount": 296226,
+  "rankedBy": "orchestrator_pixel_grade",
+  "controlNote": "THE CONTROL IS THE POINT (#703): all three cells bake the SAME 25,000-triangle low rung from the SAME 296,226-triangle source; bake resolution is the ONLY variable. Clause (2) refuses a ladder that re-decimates per cell. The 512 mapped GLB reproduces the #702 hand-run figure to the byte (8,682,420), so this is the same rung the graded champion was baked from.",
+  "bakeStage": "tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts --bake --bake-res <n> --target <25k low rung> (hl_bake.py high-to-low, export_mapped.py attach, ab_render.py grade PNG)",
+  "cells": [
+    {
+      "bakeResolution": 512,
+      "triangles": 25000,
+      "sourceGlb": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-702/.openclinxr/evidence/trellis-escape-hatch/pulse-oximeter/optimize/raw-copy.glb",
+      "glbBytes": 8682420,
+      "gradedVerdict": "inconclusive_blocked",
+      "verdictNote": "TEXT-ONLY WORKER cannot grade pixels. Render written for the orchestrator to grade at native 900x900 with a 1:1 parting-seam crop against the 80k reference: renderPath=tools/openclinxr/asset-pipeline/trellis/bake-resolution-renders/pulse-oximeter-25k-res512.png",
+      "renderPath": "tools/openclinxr/asset-pipeline/trellis/bake-resolution-renders/pulse-oximeter-25k-res512.png",
+      "bakeReportPath": "tools/openclinxr/asset-pipeline/trellis/bake-resolution-reports/pulse-oximeter-25k-res512/bake-report.json"
+    },
+    {
+      "bakeResolution": 1024,
+      "triangles": 25000,
+      "sourceGlb": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-702/.openclinxr/evidence/trellis-escape-hatch/pulse-oximeter/optimize/raw-copy.glb",
+      "glbBytes": 9705712,
+      "gradedVerdict": "inconclusive_blocked",
+      "verdictNote": "TEXT-ONLY WORKER cannot grade pixels. Render written for the orchestrator to grade at native 900x900 with a 1:1 parting-seam crop against the 80k reference: renderPath=tools/openclinxr/asset-pipeline/trellis/bake-resolution-renders/pulse-oximeter-25k-res1024.png",
+      "renderPath": "tools/openclinxr/asset-pipeline/trellis/bake-resolution-renders/pulse-oximeter-25k-res1024.png",
+      "bakeReportPath": "tools/openclinxr/asset-pipeline/trellis/bake-resolution-reports/pulse-oximeter-25k-res1024/bake-report.json"
+    },
+    {
+      "bakeResolution": 2048,
+      "triangles": 25000,
+      "sourceGlb": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-702/.openclinxr/evidence/trellis-escape-hatch/pulse-oximeter/optimize/raw-copy.glb",
+      "glbBytes": 12605040,
+      "gradedVerdict": "inconclusive_blocked",
+      "verdictNote": "TEXT-ONLY WORKER cannot grade pixels. Render written for the orchestrator to grade at native 900x900 with a 1:1 parting-seam crop against the 80k reference: renderPath=tools/openclinxr/asset-pipeline/trellis/bake-resolution-renders/pulse-oximeter-25k-res2048.png",
+      "renderPath": "tools/openclinxr/asset-pipeline/trellis/bake-resolution-renders/pulse-oximeter-25k-res2048.png",
+      "bakeReportPath": "tools/openclinxr/asset-pipeline/trellis/bake-resolution-reports/pulse-oximeter-25k-res2048/bake-report.json"
+    }
+  ],
+  "referenceRenders": {
+    "pulse-oximeter-80k": "tools/openclinxr/asset-pipeline/trellis/boxy-subject-bake-renders/pulse-oximeter-80k-reference.png",
+    "note": "The graded 80k shipped-champion reference render from #702, same renderer and framing — the known-good column for the parting-seam crop."
+  },
+  "notEvidenceFor": [
+    "that any resolution is adoptable — every verdict is inconclusive_blocked pending the orchestrator's pixel grade and no clause asserts an appearance",
+    "that the streaks are visible at learner viewing distance, which no capture has established",
+    "that bake resolution interacts with the low rung's triangle count — the ladder holds triangles fixed at 25,000, so it cannot see that interaction",
+    "that a resolution answer for pulse-oximeter transfers to the shoe"
+  ],
+  "claimScope": "a bake-resolution ladder exists on one fixed 25k low rung with three stage-written bake reports and three renders recorded at 512 / 1024 / 2048; the renders are the oracle."
+}
