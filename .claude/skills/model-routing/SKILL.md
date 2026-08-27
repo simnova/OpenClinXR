@@ -52,12 +52,16 @@ when-to-use: "ox is down, ox not working, model is broken, dispatch died, 0 byte
 > await dispatch(REPO, {
 >   slice, role, prompt, proofs, worktree: true,
 >   model: "deepseek-v4-flash",
->   modelDowngradeReason:
->     "operator ladder 2026-08-26 promotes deepseek-v4-flash to primary; ox-alpha rung retired, "
->     + "measured HTTP 404 through direnv exec with the key present",
+>   modelDowngradeReason: "budget constraints",
 >   maxTurns: 200,
 > });
 > ```
+>
+> **The reason is `"budget constraints"`, stated by the operator on 2026-08-26.** Use those words.
+> Do not substitute a longer justification of your own: the guard asks who decided and why, and the
+> answer is the operator and cost. The measured 404 retired ox as a RUNG; it is not the reason flash
+> outranks pro on a write role, and conflating the two would leave the field wrong the moment ox
+> returns.
 >
 > **Do NOT drop the `model` argument to dodge the gate.** That routes to `deepseek-v4-pro` by policy,
 > which is no longer rung 1. I did exactly that on #700 before this directive and it dispatched on pro.
