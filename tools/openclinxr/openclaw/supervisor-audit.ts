@@ -35,6 +35,60 @@ import { dirname, join } from "node:path";
 import { plantedRedCount } from "./openclaw-sweep.js";
 
 /**
+ * #721: what the DISPATCH record says about this slice's proofs, or undefined when no row exists.
+ *
+ * The `why` line used to assert a dispatch verification it never read, for any Landed card without
+ * a merge artifact. It was false for the two cards that produced it — issue-692
+ * and issue-693 both carry proofsOk:false — and an orchestrator acting on that wording advanced both
+ * to Landed on git ancestry alone. `ok` was right the whole time; only the sentence a human reads
+ * was wrong, which is the half that changes what someone does.
+ */
+function dispatchProofVerdict(
+  root: string,
+  issue: number,
+): { proofsOk: boolean; failing: string[] } | undefined {
+  let lines: string[];
+  try {
+    lines = readFileSync(join(root, ".openclinxr/openclaw/worker-sessions.jsonl"), "utf8")
+      .split("\n")
+      .filter(Boolean);
+  } catch {
+    return undefined;
+  }
+  for (let i = lines.length - 1; i >= 0; i -= 1) {
+    const line = lines[i]!;
+    if (!line.includes(`"slice":"issue-${issue}"`)) continue;
+    try {
+      const row = JSON.parse(line) as {
+        proofsOk?: boolean;
+        proofs?: Array<{ rule?: string; passed?: boolean }>;
+      };
+      if (typeof row.proofsOk !== "boolean") continue;
+      const failing = (row.proofs ?? [])
+        .filter((entry) => entry.passed === false)
+        .map((entry) => String(entry.rule ?? "").split(":")[0] ?? "")
+        .filter(Boolean);
+      return { proofsOk: row.proofsOk, failing: [...new Set(failing)] };
+    } catch {
+      continue;
+    }
+  }
+  return undefined;
+}
+
+/** #721: the dispatch-record half of the `why` line — a read fact, never an assumption. */
+export function describeDispatchProofs(root: string, issue: number): string {
+  const verdict = dispatchProofVerdict(root, issue);
+  if (!verdict) return " and no dispatch record — verification state UNKNOWN";
+  if (!verdict.proofsOk) {
+    const which = verdict.failing.length > 0 ? ` (${verdict.failing.join(", ")})` : "";
+    return `, and the dispatch record says proofs FAILED${which}`;
+  }
+  return ", and the dispatch record says proofs passed — but against a tree that may no longer be main";
+}
+
+
+/**
  * Maximum concurrent workers this pipeline has ever reached.
  *
  * MEASURED 2026-08-26 from `.openclinxr/openclaw/worker-sessions.jsonl` — 183 paired spawn/terminal
@@ -518,7 +572,9 @@ export function verifyDoneClaim(root: string, issue: number, stage: string): Don
     ? `no commit cites #${issue} — the card says ${stage} and nothing in git claims it`
     : onMain
       ? `${bySubject ? "subject-line fix commit" : "MENTION ONLY — no conventional fix(#N) subject"} on main`
-        + (verified ? ", contract-verify artifact present" : "; NO contract-verify artifact — verified at dispatch only")
+        + (verified
+          ? ", contract-verify artifact present"
+          : `; NO contract-verify artifact${describeDispatchProofs(root, issue)}`)
       : `${shas.length} commit(s) cite #${issue} but NONE is an ancestor of main — work exists on a branch, not in the product`;
   /**
    * Files this card's OWN commits modified. Residue in a shared proof file the card never opened

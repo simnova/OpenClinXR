@@ -52,10 +52,29 @@ function lastDispatchRow(issue: number): { proofsOk?: boolean } | null {
 }
 
 describe("#721 the audit does not assert a dispatch verification it never read", () => {
-  it.fails("(1) RED: the message does not claim dispatch verification unconditionally", () => {
+  it("(1) the message does not claim dispatch verification unconditionally", () => {
     const src = readFileSync(AUDIT, "utf8");
     // The literal clause is the defect. It is emitted with no read of proofsOk anywhere in scope.
     expect(src).not.toContain("verified at dispatch only");
+  });
+
+  it("(1b) the message BEHAVES — it names the real dispatch failure, not a template", async () => {
+    // Source-text clauses prove a literal is gone. They cannot prove the replacement fires, and no
+    // card on the board currently reaches this branch (every Landed card has an artifact), so the
+    // wording would otherwise ship untested. Exercise it against the two cards that produced the
+    // false message.
+    const mod = (await import("../openclaw/supervisor-audit.js")) as {
+      describeDispatchProofs?: (root: string, issue: number) => string;
+    };
+    expect(typeof mod.describeDispatchProofs).toBe("function");
+    for (const issue of FALSE_CASES) {
+      const text = mod.describeDispatchProofs!(REPO, issue);
+      expect(text, `issue-${issue}`).toContain("dispatch record says proofs FAILED");
+      // The failing rule kinds must be named, or the operator learns nothing actionable.
+      expect(text, `issue-${issue}`).toContain("live");
+    }
+    // And the UNKNOWN branch must be reachable rather than decorative.
+    expect(mod.describeDispatchProofs!(REPO, 999_999)).toContain("UNKNOWN");
   });
 
   it("(2) the known-good column: the ledger records the truth the message contradicts", () => {
@@ -89,3 +108,15 @@ describe("#721 the audit does not assert a dispatch verification it never read",
     expect(src).toContain("contractVerifiedFromArtifact(artifact)");
   });
 });
+
+/**
+ * ## FIXED (#721)
+ *
+ * `describeDispatchProofs` now reads the last terminal row in `worker-sessions.jsonl` and the `why`
+ * line states what it found: proofs FAILED with the failing rule kinds named, proofs passed against
+ * a tree that may no longer be main, or no dispatch record and the state UNKNOWN. Nothing is assumed.
+ *
+ * A note on clause (1) itself: it forbids a literal string, so the doc comment above deliberately
+ * paraphrases the old wording instead of quoting it. Quoting it made the clause fail against its own
+ * documentation, which is the self-matching shape and would have been the wrong reason to weaken it.
+ */
