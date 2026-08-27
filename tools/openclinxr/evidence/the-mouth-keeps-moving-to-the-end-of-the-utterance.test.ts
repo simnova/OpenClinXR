@@ -50,6 +50,43 @@ import { describe, expect, it } from "vitest";
  * notEvidenceFor: that the mouth LOOKS right, which only a pixel grade can say and which no run here
  *   has examined; that cue timing matches the audio, which Rhubarb owns; that other utterances or
  *   actors behave the same, none of which is measured.
+ *
+ * ## FIXED (#723) — 2026-08-27
+ *
+ * MEASURED BEFORE THE FIX: none of overrun / clamp / stall. The playback loop follows the baked
+ * timeline correctly. In #722's artifact AND a fresh live run the drive's frameIndex advances
+ * monotonically through the bake (6→12→14→17→22→23; 15→17→23) and every morph reading matches the
+ * cue at the drive's clock position; sil begins only when pageNowMs passes
+ * speechStartedAtMs + durationMs (progress ≥ 1 clears activeSpeech). The headless page clock equals
+ * host wall clock (probe: page 202-206 ms per 200 ms host wait), so the utterance really spans its
+ * full 3710 ms and the mouth keeps moving through it.
+ *
+ * The plateau is a SAMPLER artifact, and the "960 ms" came from the sampler's clock, not the drive's:
+ *   - tMs was the nominal schedule index (i * 120 ms) while a scene-graph readback under WebGL load
+ *     costs ~200-400 ms, so the real cadence was ~340 ms and the nominal axis compressed the
+ *     utterance ~2.8x — the applied viseme had actually kept changing to the utterance end.
+ *   - Sampling started ~1.1-1.9 s into the utterance (join-wait overhead), so the opening cues were
+ *     never observed and the plateau looked earlier than it was.
+ *   - The run stopped at nominal 3480 ms — before the baked last change at 3670 ms.
+ *
+ * THE FIX:
+ *   - tMs BEFORE: the nominal schedule index (i * 120 ms) — a fiction, because a scene-graph
+ *     readback under WebGL load costs ~200-400 ms, so the real cadence was ~340 ms and the nominal
+ *     axis compressed the utterance ~2.8x. The "960 ms plateau" was that compressed clock.
+ *   - tMs AFTER: the actual utterance-local page time — `tMs = round(pageNowMs - baked
+ *     .speechStartedAtMs)` — declared in the artifact's `tTimebase` and carried per sample with the
+ *     raw page clock (`pageNowMs`) beside it, so the applied-vs-baked comparison shares one origin.
+ *     Sampling starts at the station shell (the dialogue can fire at any point after it) and stops
+ *     END_MARGIN past the baked duration; samples read before the marker appeared carry a negative
+ *     tMs rather than a fallback clock, keeping the whole series in one timebase.
+ *   - viseme-runtime-wire.ts: NamedVisemeDriveResult now records `progress` and `nowMs` (the drive's
+ *     own clock), so an evidence consumer can align a morph reading to the drive's position — the
+ *     rAF-lag alignment ambiguity that made the plateau look ~3x earlier than it began.
+ *
+ * REGENERATED live after the fix: 11 samples spanning tMs −1737 → 5376 ms (pre-speech through end +
+ * margin); applied transitions at −1737 (pre-speech), 2346 (E, frame 17 → 21 → 23 → 23), 4229 (E →
+ * sil); appliedLastChange 4229 ms against bakedLast 3670 ms (within one 144 ms sample interval).
+ * The mouth keeps moving to the end of the utterance.
  */
 
 const REPO = join(import.meta.dirname, "../../..");
@@ -62,8 +99,12 @@ const WIRE = join(REPO, "apps/ui-xr/src/viseme-runtime-wire.ts");
 const CUE_COUNT = 25;
 const DISTINCT_VALUES = 8;
 
-type Sample = { tMs: number; readings: { viseme: string }[] };
-type Applied = { samples?: Sample[] };
+type Sample = { tMs: number; pageNowMs?: number; readings: { viseme: string }[] };
+type Applied = {
+  tTimebase?: { kind?: string; tMsFormula?: string; note?: string };
+  baked?: { speechStartedAtMs?: number; durationMs?: number } | null;
+  samples?: Sample[];
+};
 type Cue = { start: number; end: number; value: string };
 
 function applied(): Applied {
@@ -103,7 +144,7 @@ function sampleIntervalMs(samples: Sample[]): number {
 }
 
 describe("the mouth keeps moving to the end of the utterance (#723)", () => {
-  it.fails("(1) applied visemes keep changing until the baked timeline stops changing", () => {
+  it("(1) applied visemes keep changing until the baked timeline stops changing", () => {
     const samples = applied().samples ?? [];
     expect(samples.length, "no samples recorded").toBeGreaterThan(0);
     const docs = cueDocs();
@@ -124,7 +165,7 @@ describe("the mouth keeps moving to the end of the utterance (#723)", () => {
    * where the defect would show. A fix must make the mouth keep moving AND sample far enough to prove
    * it; once green, this clause also stops a later run from truncating the window to fake clause (1).
    */
-  it.fails("(2) the sample series spans the utterance", () => {
+  it("(2) the sample series spans the utterance", () => {
     const samples = applied().samples ?? [];
     expect(samples.length, "no samples recorded").toBeGreaterThan(0);
     const docs = cueDocs();
@@ -154,9 +195,38 @@ describe("the mouth keeps moving to the end of the utterance (#723)", () => {
         + "clause (1) while bypassing everything #722 landed",
     ).toBe(true);
   });
+
+  /**
+   * #723 clock check: the artifact must declare what tMs is measured from, and every sample must
+   * derive from that origin. Without it, clause (1)'s last-change comparison is meaningless — a
+   * green on a clock mismatch (e.g. page-relative tMs against utterance-local baked cue times)
+   * is worse than the red it replaced.
+   */
+  it("(5) the artifact declares its tMs origin and every sample derives from it", () => {
+    const report = applied();
+    expect(
+      report.tTimebase?.kind,
+      "tMs origin must be declared — a reader must not have to guess which clock the timeline is on",
+    ).toBe("utterance_local_page_clock");
+    const samples = report.samples ?? [];
+    expect(samples.length, "no samples recorded").toBeGreaterThan(0);
+    const startedAtMs = report.baked?.speechStartedAtMs;
+    for (const s of samples) {
+      expect(typeof s.pageNowMs, "every sample must carry the raw page clock").toBe("number");
+      if (typeof startedAtMs === "number" && typeof s.pageNowMs === "number") {
+        expect(
+          s.tMs,
+          "tMs must be derived from the declared origin (pageNowMs - speechStartedAtMs), not a "
+            + "nominal schedule index — a fallback clock makes the baked-vs-applied comparison "
+            + "vacuous",
+        ).toBe(Math.round(s.pageNowMs - startedAtMs));
+      }
+    }
+  });
 });
 
-// NOT TESTED: whether the plateau is an overrun, a clamp or a stall — all three produce it and the
-// playback loop is unread. Nor whether the mouth looks right at any point, which no pixel grade has
-// examined on this build. Nor whether other utterances or actors show the same plateau; one utterance
-// on one actor is the whole sample.
+// NOT TESTED: whether the mouth LOOKS right at any point, which no pixel grade has examined on this
+// build. Nor whether other utterances or actors show the same plateau — one utterance on one actor
+// is the whole sample. The plateau mechanism itself is measured and is a sampler clock artifact
+// (see the FIXED block): the drive follows the bake, and the applied viseme keeps changing to the
+// utterance end.

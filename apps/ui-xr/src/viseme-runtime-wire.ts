@@ -106,6 +106,15 @@ export type NamedVisemeDriveResult = {
   jawBonesTouched: number;
   frameIndex: number;
   frameCount: number;
+  /**
+   * Progress [0, 1] the frame was picked at — the value pickFrame actually saw. Evidence
+   * consumers can align a morph reading to the drive's own position in the timeline (#723):
+   * under headless WebGL load the rAF timestamp lags the sampler's readback clock by up to
+   * ~500 ms, which made the plateau look ~3x earlier than it really began.
+   */
+  progress: number;
+  /** Drive's clock (page performance.now(), ms) when the frame was picked; absent when the caller had no clock. */
+  nowMs?: number;
 };
 
 type JawBoneLike = {
@@ -288,6 +297,8 @@ export function applyDialogueVisemeTimelineToRoot(
     phonemeSequence: readonly string[];
     progress: number;
     bakedCues?: readonly PhonemeCue[];
+    /** Clock time (ms) of this drive call, recorded for evidence alignment (#723). */
+    nowMs?: number;
   },
 ): NamedVisemeDriveResult {
   const availableTargets = collectMorphTargetNames(root);
@@ -298,7 +309,8 @@ export function applyDialogueVisemeTimelineToRoot(
           input.phonemeSequence.length > 0 ? input.phonemeSequence : ["sil"],
         );
   const { frames } = driveVisemeTimeline({ phonemes: cues, availableTargets });
-  const { frame, index } = pickFrame(frames, input.progress);
+  const clampedProgress = Math.min(1, Math.max(0, input.progress));
+  const { frame, index } = pickFrame(frames, clampedProgress);
   const weights = frame.weights;
   const jawOpenRadians = frame.jawOpenRadians ?? 0;
 
@@ -324,6 +336,8 @@ export function applyDialogueVisemeTimelineToRoot(
     jawBonesTouched,
     frameIndex: index,
     frameCount: frames.length,
+    progress: clampedProgress,
+    ...(typeof input.nowMs === "number" ? { nowMs: input.nowMs } : {}),
   };
 
   if (root.userData) {
@@ -402,6 +416,7 @@ export function applyNamedSpeechVisemes(slot: SpeechSlotLike, nowMs: number = pe
     return applyDialogueVisemeTimelineToRoot(slot.root, {
       phonemeSequence: ["sil"],
       progress: 0,
+      nowMs,
     });
   }
   const progress = Math.min(
@@ -411,6 +426,7 @@ export function applyNamedSpeechVisemes(slot: SpeechSlotLike, nowMs: number = pe
   return applyDialogueVisemeTimelineToRoot(slot.root, {
     phonemeSequence: speech.phonemeSequence,
     progress,
+    nowMs,
     ...(speech.bakedCues && speech.bakedCues.length > 0 ? { bakedCues: speech.bakedCues } : {}),
   });
 }
