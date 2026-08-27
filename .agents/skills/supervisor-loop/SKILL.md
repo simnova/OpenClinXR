@@ -1,6 +1,6 @@
 ---
 name: supervisor-loop
-description: One iteration of the four-duty supervisor loop — review agentic logs for non-self-correcting issues, keep >=10 prioritized product-forward ready cards, re-verify work reported done, and issue corrections. Load at the start of every supervisor iteration, before reading any log by hand.
+description: One iteration of the four-duty supervisor loop — review agentic logs for non-self-correcting issues, keep the prioritized product-forward ready set from starving a dequeue, re-verify work reported done, and issue corrections. Load at the start of every supervisor iteration, before reading any log by hand.
 ---
 
 # Supervisor loop — one iteration
