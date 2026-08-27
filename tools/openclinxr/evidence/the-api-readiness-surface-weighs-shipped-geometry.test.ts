@@ -58,6 +58,22 @@ import { scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src
  *   `scenario-runtime.ts:507` was fixed, which this contract does not reach.
  */
 
+/**
+ * ## FIXED (#705)
+ *
+ * `api-route-support.ts:700` now passes `MEASURED_STATION_GEOMETRY.triangles` to
+ * `evaluateScenarioReadiness` — the build-time artifact produced by
+ * `tools/openclinxr/measure-station-geometry.ts` through the runtime-bundles production join
+ * (the three ED character manifests each name the tracked GLB they were read from).
+ *
+ * Measured on the shipped GLBs: patient_robert_hayes_character 64,802, nurse_maria_alvarez_character
+ * 38,913, spouse_anna_hayes_character 33,623 — 137,338 with a 54,000 declared remainder = 191,338
+ * against the authored 180,000, so the ED station now reports `station_triangle_budget_exceeded`.
+ * The environment and equipment manifests have no demonstrated join to shipped GLBs, so they stay
+ * declared and #700's fail-closed `station_triangle_measurements_incomplete` blocker covers them —
+ * for ED and for every other bank scenario, whose assets are not in the artifact at all.
+ */
+
 const REPO = join(import.meta.dirname, "../../..");
 const MEASURED = join(REPO, "packages/openclinxr/asset-registry/src/measured-station-geometry.json");
 const ED = "ed_chest_pain_priority_v1";
@@ -83,7 +99,7 @@ function edRow(): Row {
 }
 
 describe("the API readiness surface weighs shipped geometry (#705)", () => {
-  it.fails("(1) the ED station is not devReady, and names the budget as the reason", () => {
+  it("(1) the ED station is not devReady, and names the budget as the reason", () => {
     const row = edRow();
     expect(
       row.stationBudget.blockers,
@@ -93,7 +109,7 @@ describe("the API readiness surface weighs shipped geometry (#705)", () => {
     expect(row.devReady, "devReady is gated on stationBudget.blockers being empty").toBe(false);
   });
 
-  it.fails("(2) a measured-geometry artifact exists with provenance and agrees with the bytes", () => {
+  it("(2) a measured-geometry artifact exists with provenance and agrees with the bytes", () => {
     expect(
       existsSync(MEASURED),
       `${MEASURED} must exist and be TRACKED. Neither consumer can open a GLB — apps/api has no gltf `

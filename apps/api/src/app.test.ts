@@ -3714,7 +3714,10 @@ describe("OpenClinXR API shell", () => {
     ]);
     expect(body.data?.assetReadiness).toMatchObject({
       scenarioId: "ed_chest_pain_priority_v1",
-      devReady: true,
+      // #705: the readiness surface weighs measured shipped geometry. ED's three characters
+      // measure 137,338 and the station 191,338 against the authored 180,000, so devReady is
+      // false with a typed budget blocker (was true on declared totals alone).
+      devReady: false,
       productionReady: false,
       missingRequiredAssetIds: [],
     });
@@ -4121,12 +4124,15 @@ describe("OpenClinXR API shell", () => {
     expect(response.status).toBe(200);
     expect(body).toHaveLength(14);
     expect(body.map((readiness) => readiness.scenarioId)).toContain("clinic_abdominal_pain_interpreter_v1");
-    expect(body.every((readiness) => readiness.devReady)).toBe(true);
+    // #705: the readiness surface weighs measured shipped geometry. The artifact covers only the
+    // three ED characters, so every station fails closed with the typed incomplete blocker — the
+    // honest verdict while most stations have no demonstrated join to shipped GLBs.
+    expect(body.every((readiness) => !readiness.devReady)).toBe(true);
     expect(body.every((readiness) => !readiness.productionReady)).toBe(true);
     expect(body.every((readiness) => readiness.missingRequiredAssetIds.length === 0)).toBe(true);
     expect(body.every((readiness) => readiness.blockedAssets.length === 0)).toBe(true);
     expect(body.every((readiness) => readiness.productionBlockedAssets.length > 0)).toBe(true);
-    expect(body.every((readiness) => readiness.stationBudget.blockers.length === 0)).toBe(true);
+    expect(body.every((readiness) => readiness.stationBudget.blockers.length > 0)).toBe(true);
     expect(body.every((readiness) => readiness.productionReadinessLadder.assetCount > 0)).toBe(true);
     expect(body.every((readiness) => readiness.productionReadinessLadder.blockedAssetIds.length > 0)).toBe(true);
     expect(body.every((readiness) => readiness.productionReadinessLadder.blockers.length > 0)).toBe(true);

@@ -13,6 +13,7 @@ import {
   ENCOUNTER_HUMANOID_RUNTIME_REQUIRED_SIGNAL_IDS,
   evaluateEncounterRuntimeLearnerUseGate,
   InMemoryAssetRegistry,
+  MEASURED_STATION_GEOMETRY,
   type RuntimeAssetReviewDecision,
 } from "@openclinxr/asset-registry";
 import {
@@ -697,7 +698,10 @@ export function createSeedBankAssetReadiness() {
   }
 
   return scenarioBank.map((scenario) => ({
-    ...registry.evaluateScenarioReadiness(scenario),
+    // #705: weigh shipped geometry, not declarations. The counts are the build-time artifact
+    // MEASURED_STATION_GEOMETRY (measured-station-geometry.json); scenarios whose assets are not
+    // in it fail closed with station_triangle_measurements_incomplete via #700's seam.
+    ...registry.evaluateScenarioReadiness(scenario, MEASURED_STATION_GEOMETRY.triangles),
     productionReadinessLadder: registry.evaluateScenarioProductionReadinessLadder(scenario),
   }));
 }
