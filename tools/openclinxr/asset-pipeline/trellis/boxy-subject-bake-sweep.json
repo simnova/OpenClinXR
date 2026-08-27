@@ -13,11 +13,10 @@
     "lower": 25000,
     "upper": 80000
   },
-  "rankedBy": "none \u2014 all verdicts inconclusive_blocked pending orchestrator pixel grade; this sweep was produced by a text-only worker",
+  "rankedBy": "orchestrator_pixel_grade",
   "champion": null,
-  "championMapped": null,
-  "championNote": "Nothing is graded here. The stage produces both variants and records them; a human grades. The renders are the deliverable.",
-  "formPredictionOutcome": "PREDICTIONS RECORDED BEFORE BAKES. All four rungs predicted holds_silhouette on the FORM basis: boxy subjects go deep, curved subjects do not. pulse-oximeter is the case the stage was built for (296,226 raw to 25,000 plus a 512 map held at 12.6% under its shipped 80k champion in the hand-run); glucometer is the boxy handheld that held at 25k on FORM grounds. The map shades facets and cannot move a silhouette, so the mapped variant carries the same prediction as the bare one. FORM stands at 3 of 4 after #694; a wrong prediction here is a real miss for the record and fails nothing in this sweep's contract.",
+  "championNote": "The map earns its bytes when the bare rung has visibly LOST SURFACE, and not when the bare rung already reads correct. pulse-oximeter bare is melted and the map recovers it for 1.1 MB; glucometer bare already reads near-reference and the map buys almost nothing for 985 KB. This also explains #694: the shoe's 60k bare already read correct so the map was waste, and the shoe's 40k bare was melted but the map cannot repair an OUTLINE, only shading. Surface loss is repairable by a map; silhouette loss is not.",
+  "formPredictionOutcome": "PREDICTIONS RECORDED BEFORE BAKES. All four rungs predicted holds_silhouette on the FORM basis: boxy subjects go deep, curved subjects do not. pulse-oximeter is the case the stage was built for (296,226 raw to 25,000 plus a 512 map held at 12.6% under its shipped 80k champion in the hand-run); glucometer is the boxy handheld that held at 25k on FORM grounds. The map shades facets and cannot move a silhouette, so the mapped variant carries the same prediction as the bare one. FORM stands at 3 of 4 after #694; a wrong prediction here is a real miss for the record and fails nothing in this sweep's contract. OUTCOME: 4 of 4 correct on this sweep \u2014 all four rungs predicted holds_silhouette and all four held. FORM moves to 7 of 8 overall, its one miss still being lowpoly-shoe 60k bare.",
   "byteContext": {
     "shipped80kReferenceBytes": {
       "pulse-oximeter": 9928748,
@@ -34,9 +33,10 @@
       "mapped": false,
       "glbBytes": 7573732,
       "formPredictionBeforeBake": "holds_silhouette",
-      "gradedVerdict": "inconclusive_blocked",
-      "verdictNote": "Bare 25k rung of pulse-oximeter, produced by iterate-optimize.ts direct_high_error_stretch25k from the 296,226-tri raw. Render written to tools/openclinxr/asset-pipeline/trellis/boxy-subject-bake-renders/pulse-oximeter-25k-bare.png. Text-only worker cannot grade appearance; orchestrator pixel grade required.",
-      "renderPath": "tools/openclinxr/asset-pipeline/trellis/boxy-subject-bake-renders/pulse-oximeter-25k-bare.png"
+      "gradedVerdict": "loses_to_shipped",
+      "verdictNote": "Silhouette holds \u2014 the boxy FORM prediction is correct here. But the surface reads melted against the reference: the screen bezel is simplified, the button collapses to a rounded blob, the finger-slot pad loses its texture, and the parting-line groove softens to a shallow wave with its shadow line gone. Distinguishable from the 80k reference at native without cropping.",
+      "renderPath": "tools/openclinxr/asset-pipeline/trellis/boxy-subject-bake-renders/pulse-oximeter-25k-bare.png",
+      "gradedBy": "orchestrator_pixel_grade"
     },
     {
       "subject": "pulse-oximeter",
@@ -44,10 +44,11 @@
       "mapped": true,
       "glbBytes": 8682420,
       "formPredictionBeforeBake": "holds_silhouette",
-      "gradedVerdict": "inconclusive_blocked",
-      "verdictNote": "Mapped 25k rung of pulse-oximeter, produced by the bake stage (--bake --bake-res 512) from the SAME 25k low rung and the 296,226-tri raw \u2014 the case the stage was built for. Bake report at tools/openclinxr/asset-pipeline/trellis/boxy-subject-bake-reports/pulse-oximeter-25k-mapped/bake-report.json. Render written to tools/openclinxr/asset-pipeline/trellis/boxy-subject-bake-renders/pulse-oximeter-25k-mapped.png. Text-only worker cannot grade appearance; orchestrator pixel grade required.",
+      "gradedVerdict": "beats_shipped",
+      "verdictNote": "The map restores what the bare rung lost \u2014 bezel crisp, button a defined block, finger-pad texture back, body edges sharp \u2014 at 12.6% under the shipped champion. This reproduces the hand-run figure to the byte (8,682,420), so the stage does what the hand script did. RESIDUAL DEFECT, recorded rather than waived: the parting seam carries jagged dark and light streaks absent from the reference at the same 1:1 crop, the same contamination class as the shoe heel collar. It is a narrow band and I judged the surface recovery worth it at this saving; a re-bake above 512 should be tried before this is adopted anywhere.",
       "renderPath": "tools/openclinxr/asset-pipeline/trellis/boxy-subject-bake-renders/pulse-oximeter-25k-mapped.png",
-      "bakeReportPath": "tools/openclinxr/asset-pipeline/trellis/boxy-subject-bake-reports/pulse-oximeter-25k-mapped/bake-report.json"
+      "bakeReportPath": "tools/openclinxr/asset-pipeline/trellis/boxy-subject-bake-reports/pulse-oximeter-25k-mapped/bake-report.json",
+      "gradedBy": "orchestrator_pixel_grade"
     },
     {
       "subject": "glucometer",
@@ -55,9 +56,10 @@
       "mapped": false,
       "glbBytes": 8728532,
       "formPredictionBeforeBake": "holds_silhouette",
-      "gradedVerdict": "inconclusive_blocked",
-      "verdictNote": "Bare 25k rung of glucometer, produced by iterate-optimize.ts direct_high_error_stretch25k from the 286,915-tri raw. Render written to tools/openclinxr/asset-pipeline/trellis/boxy-subject-bake-renders/glucometer-25k-bare.png. Text-only worker cannot grade appearance; orchestrator pixel grade required.",
-      "renderPath": "tools/openclinxr/asset-pipeline/trellis/boxy-subject-bake-renders/glucometer-25k-bare.png"
+      "gradedVerdict": "beats_shipped",
+      "verdictNote": "Reads close to the 80k reference \u2014 panel lines, button edges, bezel and strip slot all present, with only a marginally softer bezel and slightly rounder body corners. 20.5% under the shipped champion with no artifact. Nothing here needed a map.",
+      "renderPath": "tools/openclinxr/asset-pipeline/trellis/boxy-subject-bake-renders/glucometer-25k-bare.png",
+      "gradedBy": "orchestrator_pixel_grade"
     },
     {
       "subject": "glucometer",
@@ -65,10 +67,11 @@
       "mapped": true,
       "glbBytes": 9713844,
       "formPredictionBeforeBake": "holds_silhouette",
-      "gradedVerdict": "inconclusive_blocked",
-      "verdictNote": "Mapped 25k rung of glucometer, produced by the bake stage (--bake --bake-res 512) from the SAME 25k low rung and the 286,915-tri raw. Bake report at tools/openclinxr/asset-pipeline/trellis/boxy-subject-bake-reports/glucometer-25k-mapped/bake-report.json. Render written to tools/openclinxr/asset-pipeline/trellis/boxy-subject-bake-renders/glucometer-25k-mapped.png. Text-only worker cannot grade appearance; orchestrator pixel grade required.",
+      "gradedVerdict": "loses_to_shipped",
+      "verdictNote": "Marginally crisper bezel and panel edges than the bare rung, and no visible contamination. But it costs 985,312 bytes more than the bare rung \u2014 11.3% \u2014 for a gain the bare rung already delivers. Against the bare 25k it loses on cost at near-equal appearance, so the map does not earn its bytes on this subject.",
       "renderPath": "tools/openclinxr/asset-pipeline/trellis/boxy-subject-bake-renders/glucometer-25k-mapped.png",
-      "bakeReportPath": "tools/openclinxr/asset-pipeline/trellis/boxy-subject-bake-reports/glucometer-25k-mapped/bake-report.json"
+      "bakeReportPath": "tools/openclinxr/asset-pipeline/trellis/boxy-subject-bake-reports/glucometer-25k-mapped/bake-report.json",
+      "gradedBy": "orchestrator_pixel_grade"
     }
   ],
   "referenceRenders": {
@@ -81,5 +84,16 @@
     "that the bake stage's 512 default resolution suits boxy subjects \u2014 the hand-run pulse-oximeter evidence swept 2048 downward and this sweep fixes nothing about it",
     "that a map winning or losing on these two subjects generalises to boxy subjects as a class \u2014 two subjects cannot establish that",
     "that the heel-collar contamination seen on both mapped shoe rungs is absent here \u2014 whether it appears on a boxy subject is exactly what the renders are for"
-  ]
+  ],
+  "championPerSubject": {
+    "pulse-oximeter": {
+      "triangles": 25000,
+      "mapped": true
+    },
+    "glucometer": {
+      "triangles": 25000,
+      "mapped": false
+    }
+  },
+  "contaminationObserved": "Jagged streaks at a concave seam on pulse-oximeter 25k mapped, absent from its 80k reference at the same 1:1 crop. Same class as the lowpoly-shoe heel collar on both mapped rungs. NOT observed on glucometer 25k mapped. Three mapped variants across two subjects now show it, one does not; it is unmeasured whether concavity is the common factor."
 }
