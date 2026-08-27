@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "openclinxr.client-entry-graph.v1",
+  "issue": "715",
+  "treeStamp": "post-fix",
+  "measuredAt": "2026-08-27",
+  "entry": "packages/openclinxr/asset-registry/src/index.ts",
+  "moduleCount": 17,
+  "modules": [
+    "actor-casting.ts",
+    "actor-placement.ts",
+    "actor-posture.ts",
+    "asset-writer.ts",
+    "cast-asset-constants.ts",
+    "environment-descriptors.ts",
+    "environment-spatial-zones.ts",
+    "environment-zone-templates.ts",
+    "humanoid-asset-path.ts",
+    "index.ts",
+    "measured-station-geometry.json",
+    "morph-target-resolver.ts",
+    "pose-bone-resolver.ts",
+    "runtime-asset-review.ts",
+    "runtime-bundles.ts",
+    "runtime-room-prop-color.ts",
+    "scenario-readiness-evidence.ts"
+  ],
+  "nodeImporterList": [],
+  "nodeImporterCount": 0,
+  "preFixBaseline": {
+    "moduleCount": 18,
+    "nodeImporterCount": 1,
+    "nodeImporter": "measured-station-geometry-freshness.ts -> node:crypto, node:fs, node:path",
+    "treeStamp": "11312ac012"
+  },
+  "claimScope": "static value-import/export graph from the package \".\" entry; type-only clauses are erased and excluded; external (non-relative) specifiers are not walked.",
+  "notEvidenceFor": [
+    "runtime boot behavior of apps/ui-xr",
+    "bundler-specific tree-shaking outcomes",
+    "WebXR availability"
+  ]
+}
