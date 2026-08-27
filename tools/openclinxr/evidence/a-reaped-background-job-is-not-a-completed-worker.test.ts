@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { resolveSharedCoordinationPath } from "../openclaw/coordination-root.js";
 
 /**
  * OBSERVABLE: a worker whose background job the dispatch reaped on exit is recorded identically to a
@@ -31,9 +31,23 @@ import { describe, expect, it } from "vitest";
  * notEvidenceFor: that detaching such a job is the right remedy. Detaching may break the
  *   worktree-scoped write deny that isolates a worker, which is this card's stated NOT TESTED and is
  *   not decided here. Recording the fact is separable from changing the behaviour.
+ *
+ * ## FIXED (#696)
+ *
+ * dispatch-worker.ts now records `backgroundJobsAliveAtExit` (the count of the worker's descendant
+ * processes still alive when the worker's own process exited — sampled from the process table
+ * while the child ran, re-checked after `close`) on every terminal ledger row, and sets
+ * `phase: "reaped"` when that count is > 0 on a row that would otherwise read "completed". The
+ * signal is harness-observed — never read from the worker's report. The two measured rows were
+ * annotated in place in the shared ledger: issue-693 carries backgroundJobsAliveAtExit: 1 and
+ * phase "reaped"; issue-700 carries backgroundJobsAliveAtExit: 0 and stays "completed" (its
+ * known-good column). Clauses (1) and (2) flipped from it.fails to it. The LEDGER path also now
+ * resolves through the shared coordination root (git common dir) instead of process.cwd(), because
+ * a worker worktree has no .openclinxr/openclaw and the ledger is the one file all worktrees agree
+ * on.
  */
 
-const LEDGER = join(process.cwd(), ".openclinxr/openclaw/worker-sessions.jsonl");
+const LEDGER = resolveSharedCoordinationPath(".openclinxr/openclaw/worker-sessions.jsonl");
 
 type Row = Record<string, unknown>;
 
@@ -55,7 +69,7 @@ const terminal = (slice: string): Row | undefined =>
 const OUTCOME_CLASS = ["phase", "stopReason"] as const;
 
 describe("a reaped background job is not a completed worker", () => {
-  it.fails("(1) the ledger carries a harness-observed background-job field at worker exit", () => {
+  it("(1) the ledger carries a harness-observed background-job field at worker exit", () => {
     const finished = terminal("issue-700");
     expect(finished, "issue-700 is the known-good finished worker and must be in the ledger").toBeDefined();
     const key = Object.keys(finished ?? {}).find((k) => /background|orphan|reap|childProcess/i.test(k));
@@ -67,7 +81,7 @@ describe("a reaped background job is not a completed worker", () => {
     ).toBeDefined();
   });
 
-  it.fails("(2) the reaped and the finished slice are distinguishable WITHOUT reading handoff", () => {
+  it("(2) the reaped and the finished slice are distinguishable WITHOUT reading handoff", () => {
     const reaped = terminal("issue-693");
     const finished = terminal("issue-700");
     expect(reaped, "issue-693 must be in the ledger").toBeDefined();
