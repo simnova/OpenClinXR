@@ -1,0 +1,85 @@
+{
+  "schemaVersion": "openclinxr.trellis-rung-sweep.v1",
+  "subject": "pulse-oximeter + glucometer",
+  "rawSources": {
+    "pulse-oximeter": ".openclinxr/evidence/trellis-escape-hatch/pulse-oximeter/optimize/raw-copy.glb",
+    "glucometer": ".openclinxr/evidence/trellis-escape-hatch/glucometer/optimize/raw-copy.glb"
+  },
+  "rawTriangleCount": {
+    "pulse-oximeter": 296226,
+    "glucometer": 286915
+  },
+  "gradedEndpoints": {
+    "lower": 25000,
+    "upper": 80000
+  },
+  "rankedBy": "none \u2014 all verdicts inconclusive_blocked pending orchestrator pixel grade; this sweep was produced by a text-only worker",
+  "champion": null,
+  "championMapped": null,
+  "championNote": "Nothing is graded here. The stage produces both variants and records them; a human grades. The renders are the deliverable.",
+  "formPredictionOutcome": "PREDICTIONS RECORDED BEFORE BAKES. All four rungs predicted holds_silhouette on the FORM basis: boxy subjects go deep, curved subjects do not. pulse-oximeter is the case the stage was built for (296,226 raw to 25,000 plus a 512 map held at 12.6% under its shipped 80k champion in the hand-run); glucometer is the boxy handheld that held at 25k on FORM grounds. The map shades facets and cannot move a silhouette, so the mapped variant carries the same prediction as the bare one. FORM stands at 3 of 4 after #694; a wrong prediction here is a real miss for the record and fails nothing in this sweep's contract.",
+  "byteContext": {
+    "shipped80kReferenceBytes": {
+      "pulse-oximeter": 9928748,
+      "glucometer": 10977320
+    },
+    "note": "bytes are recorded, not ranked \u2014 the render is the only oracle. shipped80kReferenceBytes = the shipped 80k champion GLB per subject (champion.glb in each subject's optimize dir). Percentages in any future graded verdict are vs these cells."
+  },
+  "formPredictorBasis": "FORM at 3 of 4 after #694: correct for 40k bare, 40k mapped and 60k mapped on lowpoly-shoe; WRONG for 60k bare, which held its silhouette and beat the shipped asset. Every FORM failure so far is on the curved side. Both subjects here are boxy handhelds, which is the class that has held at 25k before \u2014 glucometer 1 for 1, pulse-oximeter by hand at 37.82 map deviation as resolution fell from 2048.",
+  "bakeStage": "tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts --bake --bake-res 512 --target <25k low rung> (hl_bake.py high-to-low, export_mapped.py attach, ab_render.py grade PNG)",
+  "rungs": [
+    {
+      "subject": "pulse-oximeter",
+      "triangles": 25000,
+      "mapped": false,
+      "glbBytes": 7573732,
+      "formPredictionBeforeBake": "holds_silhouette",
+      "gradedVerdict": "inconclusive_blocked",
+      "verdictNote": "Bare 25k rung of pulse-oximeter, produced by iterate-optimize.ts direct_high_error_stretch25k from the 296,226-tri raw. Render written to tools/openclinxr/asset-pipeline/trellis/boxy-subject-bake-renders/pulse-oximeter-25k-bare.png. Text-only worker cannot grade appearance; orchestrator pixel grade required.",
+      "renderPath": "tools/openclinxr/asset-pipeline/trellis/boxy-subject-bake-renders/pulse-oximeter-25k-bare.png"
+    },
+    {
+      "subject": "pulse-oximeter",
+      "triangles": 25000,
+      "mapped": true,
+      "glbBytes": 8682420,
+      "formPredictionBeforeBake": "holds_silhouette",
+      "gradedVerdict": "inconclusive_blocked",
+      "verdictNote": "Mapped 25k rung of pulse-oximeter, produced by the bake stage (--bake --bake-res 512) from the SAME 25k low rung and the 296,226-tri raw \u2014 the case the stage was built for. Bake report at tools/openclinxr/asset-pipeline/trellis/boxy-subject-bake-reports/pulse-oximeter-25k-mapped/bake-report.json. Render written to tools/openclinxr/asset-pipeline/trellis/boxy-subject-bake-renders/pulse-oximeter-25k-mapped.png. Text-only worker cannot grade appearance; orchestrator pixel grade required.",
+      "renderPath": "tools/openclinxr/asset-pipeline/trellis/boxy-subject-bake-renders/pulse-oximeter-25k-mapped.png",
+      "bakeReportPath": "tools/openclinxr/asset-pipeline/trellis/boxy-subject-bake-reports/pulse-oximeter-25k-mapped/bake-report.json"
+    },
+    {
+      "subject": "glucometer",
+      "triangles": 25000,
+      "mapped": false,
+      "glbBytes": 8728532,
+      "formPredictionBeforeBake": "holds_silhouette",
+      "gradedVerdict": "inconclusive_blocked",
+      "verdictNote": "Bare 25k rung of glucometer, produced by iterate-optimize.ts direct_high_error_stretch25k from the 286,915-tri raw. Render written to tools/openclinxr/asset-pipeline/trellis/boxy-subject-bake-renders/glucometer-25k-bare.png. Text-only worker cannot grade appearance; orchestrator pixel grade required.",
+      "renderPath": "tools/openclinxr/asset-pipeline/trellis/boxy-subject-bake-renders/glucometer-25k-bare.png"
+    },
+    {
+      "subject": "glucometer",
+      "triangles": 25000,
+      "mapped": true,
+      "glbBytes": 9713844,
+      "formPredictionBeforeBake": "holds_silhouette",
+      "gradedVerdict": "inconclusive_blocked",
+      "verdictNote": "Mapped 25k rung of glucometer, produced by the bake stage (--bake --bake-res 512) from the SAME 25k low rung and the 286,915-tri raw. Bake report at tools/openclinxr/asset-pipeline/trellis/boxy-subject-bake-reports/glucometer-25k-mapped/bake-report.json. Render written to tools/openclinxr/asset-pipeline/trellis/boxy-subject-bake-renders/glucometer-25k-mapped.png. Text-only worker cannot grade appearance; orchestrator pixel grade required.",
+      "renderPath": "tools/openclinxr/asset-pipeline/trellis/boxy-subject-bake-renders/glucometer-25k-mapped.png",
+      "bakeReportPath": "tools/openclinxr/asset-pipeline/trellis/boxy-subject-bake-reports/glucometer-25k-mapped/bake-report.json"
+    }
+  ],
+  "referenceRenders": {
+    "pulse-oximeter": "tools/openclinxr/asset-pipeline/trellis/boxy-subject-bake-renders/pulse-oximeter-80k-reference.png",
+    "glucometer": "tools/openclinxr/asset-pipeline/trellis/boxy-subject-bake-renders/glucometer-80k-reference.png",
+    "note": "80k shipped champion per subject rendered with the same renderer, no map \u2014 the known-good column. Not a rung (it is the graded upper endpoint), so it is not in rungs[] and cannot be the champion."
+  },
+  "notEvidenceFor": [
+    "that any variant is adoptable \u2014 every verdict is inconclusive_blocked pending the orchestrator's pixel grade and nothing here asserts a ready-to-ship claim",
+    "that the bake stage's 512 default resolution suits boxy subjects \u2014 the hand-run pulse-oximeter evidence swept 2048 downward and this sweep fixes nothing about it",
+    "that a map winning or losing on these two subjects generalises to boxy subjects as a class \u2014 two subjects cannot establish that",
+    "that the heel-collar contamination seen on both mapped shoe rungs is absent here \u2014 whether it appears on a boxy subject is exactly what the renders are for"
+  ]
+}
