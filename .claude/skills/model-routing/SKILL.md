@@ -6,6 +6,33 @@ when-to-use: "ox is down, ox not working, model is broken, dispatch died, 0 byte
 
 # Model routing
 
+> ## ox-alpha IS RETIRED — measured 2026-08-26, both ladders' rung 1 is dead
+>
+> Every `--model ox-alpha` call now returns **HTTP 404**:
+>
+> > Thank you for participating in the Stealth Ox Alpha testing period. This model was ZAI's
+> > GLM-5.3 Flash. Use it now: https://openrouter.ai/z-ai/glm-5.3-flash
+>
+> Probed directly through `direnv exec` with the key present, so this is not the missing-key 401 that
+> this file spends several sections warning about. `deepseek-v4-flash` answered cleanly in the same
+> shell seconds later.
+>
+> **A dispatch naming ox-alpha dies before emitting an end event** and throws
+> `Dispatch died before emitting an end event (exit 1)`. Measured on the #700 dispatch.
+>
+> **What to do instead, until an operator sets a new rung 1:** drop the `model` argument and let the
+> role policy choose. Naming a cheaper model instead is refused by `resolveDispatchModel`
+> (`dispatch-worker.ts:744`) as an unjustified downgrade, and that refusal is correct —
+> `xr-systems-architect` is `standard_execution`, so policy gives `deepseek-v4-pro`.
+>
+> `z-ai/glm-5.3-flash` is what ox-alpha actually was. It is NOT configured in `~/.grok/config.toml`
+> and has not been probed here. Adding it is an operator decision, not mine.
+>
+> Everything below still describes ox-alpha as rung 1. **It is wrong on that point and correct on the
+> rest** — the 401-versus-outage discipline, `direnv exec`, the three-failures trigger, and the
+> never-pkill rule all still hold.
+
+
 Two ladders, set by the operator on 2026-08-23. First available wins; step down only on a measured
 failure, never on preference.
 
