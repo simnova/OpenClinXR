@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "openclinxr.generated-humanoid-lash-lod.v1",
+  "optimizationApplied": true,
+  "simplificationApplied": true,
+  "simplificationStage": "post_blender_glb_lash_only",
+  "simplificationRatio": 0.12,
+  "simplificationError": 0.005,
+  "lashPrimitives": [
+    {
+      "mesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ed_chest_pain_spouse_adult_mesh",
+      "prims": 1,
+      "tris": 3239
+    }
+  ],
+  "beforeTotalTriangles": 36582,
+  "afterTotalTriangles": 33730,
+  "beforeLashTriangles": 3239,
+  "afterLashTriangles": 387,
+  "lashReductionX": 8.37,
+  "beforeBytes": 8616488,
+  "afterBytes": 8411072,
+  "claimScope": "ed_station_budget_recovery_via_lash_only_lod_not_legibility_grade",
+  "notEvidenceFor": [
+    "lash_legibility_pixel_grade",
+    "b_plus_visual_realism_gate",
+    "quest_readiness",
+    "clinical_validity"
+  ],
+  "inputPath": "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
+  "outputPath": "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
+  "generatedAt": "2026-08-28T13:50:08.600Z"
+}

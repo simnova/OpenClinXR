@@ -1,0 +1,10 @@
+{
+  "failures": [
+    {
+      "role": "ED clinical physician",
+      "glb": "generated-humanoids/mpfb-clinical-physician-adult.glb",
+      "error": "isolated subject lab refused the subject: Isolated subject lab error: focus=head unresolvable: no head-like region derivable from the body bounds (body too small or no neck constriction) — refusing rather than falling back (#358)"
+    }
+  ],
+  "note": "focus=head lab refusal is a measured derivation outcome, not a renderer failure"
+}
