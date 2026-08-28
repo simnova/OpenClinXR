@@ -41,6 +41,18 @@ import { describe, expect, it } from "vitest";
  *   which #723 still owns.
  */
 
+/**
+ * ## FIXED (#719)
+ *
+ * The frame pass now reads the influences a second time AFTER the screenshot — without a reframe,
+ * since the camera is the one the shot used and #473 clause (3) requires one reframe row per
+ * frame. Each row of frame-pass-timing.json records both sides of the shot (`targetName` before,
+ * `targetNameAfterShot` after), the elapsed gap between the two reads (`labelToPixelGapMs`, start
+ * of the pre-shot read to end of the post-shot read, so it always straddles the screenshot) and
+ * whether they agree (`labelStableAcrossShot`). Recording is the requirement; agreement is not
+ * asserted — it is a number for the orchestrator to grade.
+ */
+
 const REPORT = "tools/openclinxr/evidence/frame-pass-timing.json";
 const HARNESS = "tools/openclinxr/evidence/ui-xr-viseme-drive-capture.ts";
 
@@ -78,7 +90,7 @@ describe("a frame label is read at its own screenshot (#723 residual)", () => {
    * consumer can tell whether the label describes the pixels. Requiring both sides plus the gap is
    * the smallest change that makes the question answerable.
    */
-  it.fails("(1) every frame records the state on both sides of its screenshot", () => {
+  it("(1) every frame records the state on both sides of its screenshot", () => {
     const r = report();
     expect(r, `${REPORT} must exist`).not.toBeNull();
     expect(r!.frames.length, "one row per captured frame").toBeGreaterThan(0);

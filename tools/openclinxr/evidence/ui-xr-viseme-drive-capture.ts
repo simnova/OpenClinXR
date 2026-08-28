@@ -938,7 +938,17 @@ export async function runVisemeCapture(): Promise<void> {
       // With the reframe cheap under the Metal GPU, the 250 ms step actually paces now, so the
       // eight frames land inside the retriggered utterance instead of spanning ~14 s after it.
       const t0FramePass = Date.now();
-      const framePass: Array<{ t: number; tMs: number; framePath: string; targetName: string; bytes: number }> = [];
+      const framePass: Array<{
+        t: number;
+        tMs: number;
+        framePath: string;
+        targetName: string;
+        bytes: number;
+        targetNameAfterShot: string;
+        influenceAfterShot: number;
+        labelToPixelGapMs: number;
+        labelStableAcrossShot: boolean;
+      }> = [];
       for (let i = 0; i < FRAME_COUNT; i += 1) {
         const target = i * FRAME_STEP_MS;
         const elapsed = Date.now() - t0FramePass;
@@ -947,10 +957,27 @@ export async function runVisemeCapture(): Promise<void> {
         }
         const frameName = `viseme_frame_${String(i).padStart(2, "0")}.png`;
         const framePath = path.join(OUTPUT_DIR, frameName);
+        // #742: a label must describe the pixels it is attached to, so read the influences again
+        // AFTER the screenshot — without a reframe (the camera is the one the shot used, and #473
+        // clause (3) requires one reframe row per frame). Record the elapsed gap between the two
+        // reads and whether they agree; agreement is graded, not asserted.
+        const t0FrameRead = Date.now();
         const { t, dominant } = await sampleStates(framePath);
         const tMs = Date.now() - t0FramePass;
         await page.screenshot({ path: framePath, fullPage: false });
-        framePass.push({ t, tMs, framePath, targetName: dominant, bytes: statSync(framePath).size });
+        const afterShot = await sampleParentVisemes(page);
+        const targetNameAfterShot = afterShot.peak?.targetName ?? "none";
+        framePass.push({
+          t,
+          tMs,
+          framePath,
+          targetName: dominant,
+          targetNameAfterShot,
+          influenceAfterShot: afterShot.peak?.influence ?? 0,
+          labelToPixelGapMs: Date.now() - t0FrameRead,
+          labelStableAcrossShot: dominant === targetNameAfterShot,
+          bytes: statSync(framePath).size,
+        });
       }
 
       // #729: TRACKED timing record — the gitignored inspection.json cannot be a contract input.
@@ -990,7 +1017,16 @@ export async function runVisemeCapture(): Promise<void> {
         utteranceDurationMs,
         frameStepMs: FRAME_STEP_MS,
         frameCount: FRAME_COUNT,
-        frames: framePass.map((f) => ({ framePath: f.framePath, tMs: f.tMs, bytes: f.bytes })),
+        frames: framePass.map((f) => ({
+          framePath: f.framePath,
+          tMs: f.tMs,
+          bytes: f.bytes,
+          targetName: f.targetName,
+          targetNameAfterShot: f.targetNameAfterShot,
+          influenceAfterShot: f.influenceAfterShot,
+          labelToPixelGapMs: f.labelToPixelGapMs,
+          labelStableAcrossShot: f.labelStableAcrossShot,
+        })),
       };
       await writeFile(FRAME_PASS_TIMING_PATH, `${JSON.stringify(frameTimingReport, null, 2)}\n`, "utf8");
       process.stdout.write(
