@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 import { stat } from "node:fs/promises";
 import {
   buildEncounterAssetNeedsReadinessManifest,
@@ -1193,10 +1195,24 @@ function validateContractRoleBoolean(
   }
 }
 
+/**
+ * sha256 hex of the artifact bytes at `sourcePath`, or null when the file does
+ * not exist (or is unreadable). Never a placeholder literal: a content hash
+ * must name the artifact bytes it was computed from.
+ */
+export function sha256ContentHashOfArtifactAt(sourcePath: string): string | null {
+  try {
+    return createHash("sha256").update(readFileSync(sourcePath)).digest("hex");
+  } catch {
+    return null;
+  }
+}
+
 export function buildEncounterAssetGenerationRequestForScenario(
   scenarioId: string,
   scenario?: Scenario,
   encounterFactoryInputSummary?: EncounterExecutableAssetGenerationRequest["encounterFactoryInputSummary"],
+  options?: { encounterDefinitionSourcePath?: string },
 ): EncounterExecutableAssetGenerationRequest {
   const normalizedScenarioId = requireSafeIdentifier(scenarioId, "scenarioId");
   const preset = scenarioPresetById[normalizedScenarioId] ?? {
@@ -1205,6 +1221,9 @@ export function buildEncounterAssetGenerationRequestForScenario(
     expectedMinimumHours: 2,
     expectedMaximumHours: 96,
   };
+  const encounterDefinitionContentHash = options?.encounterDefinitionSourcePath
+    ? sha256ContentHashOfArtifactAt(options.encounterDefinitionSourcePath)
+    : null;
 
   return {
     requestId: normalizedScenarioId === "ed_chest_pain_priority_v1"
@@ -1220,7 +1239,7 @@ export function buildEncounterAssetGenerationRequestForScenario(
       storeKind: "mongoose",
       collectionName: "scenario_definitions",
       documentId: `scenario_${normalizedScenarioId}`,
-      contentHash: "local-deterministic-encounter-definition-contract",
+      ...(encounterDefinitionContentHash ? { contentHash: encounterDefinitionContentHash } : {}),
     },
     targetAssetStore: {
       storeKind: "azurite_blob",

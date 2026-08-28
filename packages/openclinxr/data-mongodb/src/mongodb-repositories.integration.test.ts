@@ -22,6 +22,7 @@ import {
   MongoDurableClinicalEventRepository,
   MongoDurableConversationTurnRepository,
   MongoDurableEmotionalStateTimelineRepository,
+  MongoEncounterMaterializationEvidenceRepository,
   MongoExamFormRepository,
   MongoFacultyScoreDraftRepository,
   MongoReviewPacketRepository,
@@ -30,6 +31,7 @@ import {
   MongoScenarioReviewDecisionRepository,
   MongoStationRunQueueRepository,
   MongoTraceRepository,
+  type EncounterMaterializationEvidenceRecord,
   type ScenarioReviewDecisionRecord,
   saveLearnerRuntimeAssetBundleFromGeneratedReport,
 } from "./index.js";
@@ -1671,6 +1673,47 @@ describe("MongoDB memory repositories", () => {
     expect(reviewProjectionJson).not.toContain("Recent cocaine use");
     expect(reviewProjectionJson).not.toContain("hiddenFactRefs");
     await expect(store.listConversationTurns("station_run_durable_clinical_event_store_001")).resolves.toEqual([]);
+  });
+
+  it("stores encounter materialization evidence uniquely per {scenarioId, caseDefVersion, compileVersion}", async () => {
+    const repository = new MongoEncounterMaterializationEvidenceRepository(context.db);
+    await repository.ensureIndexes();
+
+    const record: EncounterMaterializationEvidenceRecord = {
+      scenarioId: "ed_chest_pain_priority_v1",
+      caseDefVersion: 2,
+      compileVersion: 1,
+      source: "generated_station_runtime_bundle_materialization_contracts",
+      generatedAt: "2026-08-27T00:00:00.000Z",
+      compileNodes: [
+        {
+          nodeId: "actor:patient_robert_hayes_v1",
+          family: "ActorVariant",
+          sourceBlobName: ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+          contentHash: null,
+        },
+      ],
+    };
+    await repository.upsert(record);
+
+    await expect(repository.findByScenarioAndVersions("ed_chest_pain_priority_v1", 2, 1)).resolves.toEqual(record);
+    await expect(context.db.collection("encounter_materialization_evidence").indexes()).resolves.toContainEqual(
+      expect.objectContaining({
+        key: { scenarioId: 1, caseDefVersion: 1, compileVersion: 1 },
+        unique: true,
+      }),
+    );
+    await expect(repository.listByScenario("ed_chest_pain_priority_v1")).resolves.toHaveLength(1);
+
+    await repository.upsert({ ...record, generatedAt: "2026-08-27T01:00:00.000Z" });
+    await expect(repository.listByScenario("ed_chest_pain_priority_v1")).resolves.toHaveLength(1);
+    await expect(repository.upsert({ ...record, caseDefVersion: 3 })).resolves.toBeUndefined();
+    await expect(repository.listByScenario("ed_chest_pain_priority_v1")).resolves.toHaveLength(2);
+
+    await expect(
+      context.db.collection("encounter_materialization_evidence").insertOne({ ...record, generatedAt: "duplicate-triple" }),
+    ).rejects.toThrow(/E11000|duplicate key/i);
+    await expect(repository.listByScenario("ed_chest_pain_priority_v1")).resolves.toHaveLength(2);
   });
 });
 

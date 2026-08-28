@@ -113,6 +113,7 @@ import type {
   AdminReviewPacket,
   AdminStationRunQueueSnapshot,
 } from "./api-client-types.js";
+import type { FacultyCompileLockClient } from "./faculty-compile-lock-types.js";
 export * from "./api-client-types.js";
 
 export const defaultAdminApiBaseUrl = import.meta.env['VITE_OPENCLINXR_API_BASE_URL'] ?? "";
@@ -130,7 +131,7 @@ export function buildAdminGraphqlEndpoint(baseUrl: string = defaultAdminApiBaseU
   return `${normalizeBaseUrl(baseUrl)}${routeById("admin-graphql-execute").path}`;
 }
 
-export function createAdminControlPlaneClient(options: AdminControlPlaneClientOptions = {}): AdminControlPlaneClient {
+export function createAdminControlPlaneClient(options: AdminControlPlaneClientOptions = {}): AdminControlPlaneClient & FacultyCompileLockClient {
   const baseUrl = normalizeBaseUrl(options.baseUrl ?? defaultAdminApiBaseUrl);
   const fetcher = options.fetch ?? fetch;
   const apolloClient = options.apolloClient;
@@ -365,6 +366,19 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
         await authHeaders(),
       );
     },
+    persistFacultyCompileLock: async (input) =>
+      post(
+        fetcher,
+        baseUrl,
+        routeById("save-faculty-compile-lock").path,
+        {
+          scenarioId: input.scenarioId,
+          nodeId: input.nodeId,
+          locked: input.locked,
+          ...(input.overridePath === undefined ? {} : { overridePath: input.overridePath }),
+        },
+        await authHeaders(),
+      ),
     listStep2CsSeedStationRunQueueSnapshots: async () => {
       if (apolloClient) {
         const { data } = await apolloClient.query<StationRunQueueSnapshotsQuery, StationRunQueueSnapshotsQueryVariables>({

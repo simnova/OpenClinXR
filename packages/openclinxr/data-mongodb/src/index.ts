@@ -1,6 +1,7 @@
 export * from "./records.js";
 export * from "./conversation-repositories.js";
 export * from "./scenario-repositories.js";
+export * from "./encounter-materialization-evidence-repositories.js";
 export * from "./faculty-repositories.js";
 export * from "./exam-repositories.js";
 export * from "./persistence-sink.js";

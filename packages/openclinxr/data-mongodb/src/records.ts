@@ -51,6 +51,26 @@ export type ScenarioReviewDecisionRecord = {
   reviewedAt: string;
 };
 
+/**
+ * One record per {scenarioId, caseDefVersion, compileVersion} — the unique
+ * materialization-evidence key. contentHash is the sha256 of the artifact bytes
+ * at the matching compile-node sourceBlobName, or null when the artifact is not
+ * yet on disk. Never a placeholder literal.
+ */
+export type EncounterMaterializationEvidenceRecord = {
+  scenarioId: string;
+  caseDefVersion: number;
+  compileVersion: number;
+  source: "generated_station_runtime_bundle_materialization_contracts";
+  generatedAt: string;
+  compileNodes: Array<{
+    nodeId: string;
+    family: "ActorVariant" | "EquipVariant";
+    sourceBlobName: string;
+    contentHash: string | null;
+  }>;
+};
+
 export const durableActorTurnPersistenceScope = {
   approvedProposal: "proposals/approved/proposal-durable-actor-turn-persistence-promotion.md",
   actorTurnScope: "conversation_turns_and_emotional_state_timeline_only",

@@ -28,6 +28,7 @@ describe("ui-admin Vite local API proxy", () => {
       groups: [
         { name: "react-vendor", priority: 30 },
         { name: "antd-vendor", priority: 25 },
+        { name: "xyflow-vendor", priority: 22 },
         { name: "graphql-vendor", priority: 20 },
         { name: "vendor", priority: 10 },
       ],

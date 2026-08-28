@@ -2,8 +2,11 @@ import "@testing-library/jest-dom/vitest";
 import type { EnvironmentGenerationQueue, ScenarioSceneGenerationPipelineWorkOrderQueue } from "@openclinxr/asset-registry";
 import { findUnsafeClaimLanguage } from "@openclinxr/domain/claim-language";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
-import { EnvironmentGenerationQueuePanel } from "./EnvironmentGenerationQueuePanel.js";
+import { useState } from "react";
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { buildCompileEdges, buildFacultyCompileLockRows, mergeFacultyCompileLockRows } from "./faculty-compile-lock.js";
+import { buildCompileGraphModel, CompileGraphCanvas } from "./CompileGraphCanvas.js";
+import { EnvironmentGenerationQueuePanel, FACULTY_COMPILE_OVERRIDE_PATHS, type FacultyCompileLockRow } from "./EnvironmentGenerationQueuePanel.js";
 import {
   sceneGenerationRequestProjectionArtifactStatusColor,
   sceneGenerationRequestProjectionArtifactStatusLabel,
@@ -11,6 +14,67 @@ import {
 } from "./status-view-model.js";
 
 describe("EnvironmentGenerationQueuePanel", () => {
+  beforeAll(() => {
+    // antd Table's responsive observer requires window.matchMedia, which jsdom does not implement.
+    Object.defineProperty(window, "matchMedia", {
+      writable: true,
+      value: (query: string) => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addListener: () => undefined,
+        removeListener: () => undefined,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+        dispatchEvent: () => false,
+      }),
+    });
+    // @xyflow/react measures its container and nodes with ResizeObserver and
+    // reads DOMMatrixReadOnly/offsetWidth/getBBox, none of which jsdom implements.
+    Object.defineProperty(window, "DOMMatrixReadOnly", {
+      writable: true,
+      value: class DOMMatrixReadOnlyMock {
+        a = 1; b = 0; c = 0; d = 1; e = 0; f = 0;
+        m11 = 1; m12 = 0; m13 = 0; m14 = 0;
+        m21 = 0; m22 = 1; m23 = 0; m24 = 0;
+        m31 = 0; m32 = 0; m33 = 1; m34 = 0;
+        m41 = 0; m42 = 0; m43 = 0; m44 = 1;
+      },
+    });
+    Object.defineProperty(window, "ResizeObserver", {
+      writable: true,
+      value: class {
+        private readonly callback: ResizeObserverCallback;
+        private readonly targets = new Set<Element>();
+        constructor(callback: ResizeObserverCallback) {
+          this.callback = callback;
+        }
+        observe(target: Element): void {
+          this.targets.add(target);
+          // Fire once (async) so React Flow measures nodes and renders edges.
+          queueMicrotask(() => {
+            if (!this.targets.has(target)) {
+              return;
+            }
+            this.callback(
+              [{ target, contentRect: target.getBoundingClientRect() } as unknown as ResizeObserverEntry],
+              this as unknown as ResizeObserver,
+            );
+          });
+        }
+        unobserve(target: Element): void {
+          this.targets.delete(target);
+        }
+        disconnect(): void {
+          this.targets.clear();
+        }
+      },
+    });
+    Object.defineProperty(HTMLElement.prototype, "offsetWidth", { configurable: true, get: () => 100 });
+    Object.defineProperty(HTMLElement.prototype, "offsetHeight", { configurable: true, get: () => 100 });
+    Object.defineProperty(SVGElement.prototype, "getBBox", { configurable: true, value: () => ({ x: 0, y: 0, width: 0, height: 0 }) });
+  });
+
   afterEach(() => {
     cleanup();
   });
@@ -840,6 +904,285 @@ describe("EnvironmentGenerationQueuePanel", () => {
     );
     expect(panel).not.toHaveTextContent("Publication gate: ready to run generated bundle publisher");
     expect(findUnsafeClaimLanguage(panel.textContent ?? "")).toEqual([]);
+  });
+
+  it("renders the faculty compile/materialization lock table with Lock switches and Override selects", () => {
+    render(
+      <EnvironmentGenerationQueuePanel
+        environmentGenerationQueue={environmentGenerationQueueFixture()}
+        sceneGenerationPipelineQueue={sceneGenerationPipelineQueueFixture()}
+        facultyCompileLockRows={[
+          { rowId: "lock:actor:patient_maya_johnson_v1", kind: "actor", compileSubject: "patient_maya_johnson_v1", locked: true },
+          { rowId: "lock:equipment:nebulizer_mask_equipment", kind: "equipment", compileSubject: "nebulizer_mask_equipment", locked: false },
+        ]}
+      />,
+    );
+
+    const panel = screen.getByLabelText("3D environment generation queue");
+    const lockTable = within(panel).getByLabelText("Faculty compile/materialization lock table");
+    expect(lockTable).toBeInTheDocument();
+    expect(lockTable).toHaveTextContent("Faculty compile lock");
+    expect(lockTable).toHaveTextContent("2 compile/materialization subjects");
+    expect(within(lockTable).getByRole("columnheader", { name: "Kind" })).toBeInTheDocument();
+    expect(within(lockTable).getByRole("columnheader", { name: "Compile/materialization subject" })).toBeInTheDocument();
+    expect(within(lockTable).getByRole("columnheader", { name: "Lock" })).toBeInTheDocument();
+    expect(within(lockTable).getByRole("columnheader", { name: "Override" })).toBeInTheDocument();
+    expect(lockTable).toHaveTextContent("patient_maya_johnson_v1");
+    expect(lockTable).toHaveTextContent("nebulizer_mask_equipment");
+    expect(within(lockTable).getAllByRole("switch")).toHaveLength(2);
+    expect(within(lockTable).getByRole("switch", { name: "Lock patient_maya_johnson_v1" })).toBeChecked();
+    expect(within(lockTable).getByRole("switch", { name: "Lock nebulizer_mask_equipment" })).not.toBeChecked();
+    expect(lockTable).toHaveTextContent("Lock and override changes are faculty review metadata persisted to the local compile-lock store; they do not promote or publish a compile/materialization packet.");
+    expect(findUnsafeClaimLanguage(panel.textContent ?? "")).toEqual([]);
+  });
+
+  it("renders the faculty compile/materialization lock table with an empty state when no rows are attached", () => {
+    render(
+      <EnvironmentGenerationQueuePanel
+        environmentGenerationQueue={environmentGenerationQueueFixture()}
+        sceneGenerationPipelineQueue={sceneGenerationPipelineQueueFixture()}
+      />,
+    );
+
+    const lockTable = screen.getByLabelText("Faculty compile/materialization lock table");
+    expect(lockTable).toBeInTheDocument();
+    expect(lockTable).toHaveTextContent("No compile/materialization lock rows attached yet.");
+    expect(lockTable).toHaveTextContent("0 compile/materialization subjects");
+  });
+
+  it("derives faculty compile lock rows from scene pipeline actor and equipment ids for App wiring", () => {
+    const rows = buildFacultyCompileLockRows(sceneGenerationPipelineQueueFixture());
+
+    expect(rows.length).toBeGreaterThan(0);
+    expect(new Set(rows.map((row) => row.rowId)).size).toBe(rows.length);
+    expect(rows.every((row) => row.locked === false)).toBe(true);
+    expect(rows).toContainEqual({ rowId: "lock:actor:patient_actor_v1", kind: "actor", compileSubject: "patient_actor_v1", locked: false });
+    expect(rows).toContainEqual({ rowId: "lock:equipment:12-lead ECG machine", kind: "equipment", compileSubject: "12-lead ECG machine", locked: false });
+    expect(rows).toContainEqual({ rowId: "lock:equipment:nebulizer", kind: "equipment", compileSubject: "nebulizer", locked: false });
+
+    render(
+      <EnvironmentGenerationQueuePanel
+        environmentGenerationQueue={environmentGenerationQueueFixture()}
+        sceneGenerationPipelineQueue={sceneGenerationPipelineQueueFixture()}
+        facultyCompileLockRows={rows}
+      />,
+    );
+
+    const panel = screen.getByLabelText("3D environment generation queue");
+    const lockTable = screen.getByLabelText("Faculty compile/materialization lock table");
+    expect(lockTable).toHaveTextContent(`${rows.length} compile/materialization subjects`);
+    const lockSwitches = within(lockTable).getAllByRole("switch");
+    expect(lockSwitches).toHaveLength(rows.length);
+    expect(lockSwitches.every((node) => node.getAttribute("aria-checked") === "false")).toBe(true);
+    expect(lockTable).toHaveTextContent("Lock and override changes are faculty review metadata persisted to the local compile-lock store; they do not promote or publish a compile/materialization packet.");
+    expect(findUnsafeClaimLanguage(panel.textContent ?? "")).toEqual([]);
+  });
+
+  it("keeps a locked row locked across a re-render when the parent owns lock state", () => {
+    const initialRows: FacultyCompileLockRow[] = [
+      { rowId: "lock:actor:patient_maya_johnson_v1", kind: "actor", compileSubject: "patient_maya_johnson_v1", locked: false },
+    ];
+    function LockRowHarness() {
+      const [rows, setRows] = useState(initialRows);
+      return (
+        <EnvironmentGenerationQueuePanel
+          environmentGenerationQueue={environmentGenerationQueueFixture()}
+          sceneGenerationPipelineQueue={sceneGenerationPipelineQueueFixture()}
+          facultyCompileLockRows={rows}
+          onFacultyCompileLockChange={(rowId, locked) =>
+            setRows((currentRows) => currentRows.map((row) => (row.rowId === rowId ? { ...row, locked } : row)))
+          }
+          onFacultyCompileOverrideChange={(rowId, overridePath) =>
+            setRows((currentRows) => currentRows.map((row) => (row.rowId === rowId ? { ...row, ...(overridePath === undefined ? {} : { overridePath }) } : row)))
+          }
+        />
+      );
+    }
+
+    const { rerender } = render(<LockRowHarness />);
+    const lockSwitch = () => within(screen.getByLabelText("Faculty compile/materialization lock table"))
+      .getByRole("switch", { name: "Lock patient_maya_johnson_v1" });
+    expect(lockSwitch()).not.toBeChecked();
+
+    fireEvent.click(lockSwitch());
+    expect(lockSwitch()).toBeChecked();
+
+    // A plain re-render with the same parent state must not reset the lock.
+    rerender(<LockRowHarness />);
+    expect(lockSwitch()).toBeChecked();
+    expect(findUnsafeClaimLanguage(screen.getByLabelText("3D environment generation queue").textContent ?? "")).toEqual([]);
+  });
+
+  it("offers only the four ActorPhenotypeSchema override paths and refuses free text", async () => {
+    const onFacultyCompileOverrideChange = vi.fn();
+    render(
+      <EnvironmentGenerationQueuePanel
+        environmentGenerationQueue={environmentGenerationQueueFixture()}
+        sceneGenerationPipelineQueue={sceneGenerationPipelineQueueFixture()}
+        facultyCompileLockRows={[
+          { rowId: "lock:actor:patient_maya_johnson_v1", kind: "actor", compileSubject: "patient_maya_johnson_v1", locked: true, overridePath: "/garmentLayers" },
+        ]}
+        onFacultyCompileOverrideChange={onFacultyCompileOverrideChange}
+      />,
+    );
+
+    const lockTable = screen.getByLabelText("Faculty compile/materialization lock table");
+    const overrideInput = within(lockTable).getByLabelText("Override path for patient_maya_johnson_v1") as HTMLInputElement;
+    // Single non-tags Select refuses free text: the inner input is read-only, not an editable text box.
+    expect(overrideInput.readOnly).toBe(true);
+    expect(lockTable).toHaveTextContent("/garmentLayers");
+
+    fireEvent.mouseDown(overrideInput);
+    const options = await screen.findAllByRole("option");
+    expect(options.map((option) => option.textContent)).toEqual([...FACULTY_COMPILE_OVERRIDE_PATHS]);
+
+    const wardrobeOption = options[2];
+    if (!wardrobeOption) {
+      throw new Error("Expected a /wardrobeRole option in the override dropdown.");
+    }
+    fireEvent.click(wardrobeOption);
+    expect(onFacultyCompileOverrideChange).toHaveBeenCalledWith("lock:actor:patient_maya_johnson_v1", "/wardrobeRole");
+    expect(findUnsafeClaimLanguage(screen.getByLabelText("3D environment generation queue").textContent ?? "")).toEqual([]);
+  });
+
+  it("merges locked flags and override paths onto fresh queue rows by row identity", () => {
+    const previousRows: FacultyCompileLockRow[] = [
+      { rowId: "lock:actor:patient_maya_johnson_v1", kind: "actor", compileSubject: "patient_maya_johnson_v1", locked: true, overridePath: "/garmentLayers" },
+      { rowId: "lock:equipment:nebulizer", kind: "equipment", compileSubject: "nebulizer", locked: false },
+    ];
+    const nextRows: FacultyCompileLockRow[] = [
+      { rowId: "lock:actor:patient_maya_johnson_v1", kind: "actor", compileSubject: "patient_maya_johnson_v1", locked: false },
+      { rowId: "lock:equipment:nebulizer", kind: "equipment", compileSubject: "nebulizer", locked: false },
+      { rowId: "lock:equipment:12-lead ECG machine", kind: "equipment", compileSubject: "12-lead ECG machine", locked: false },
+    ];
+
+    const merged = mergeFacultyCompileLockRows(nextRows, previousRows);
+
+    expect(merged).toContainEqual({ rowId: "lock:actor:patient_maya_johnson_v1", kind: "actor", compileSubject: "patient_maya_johnson_v1", locked: true, overridePath: "/garmentLayers" });
+    expect(merged).toContainEqual({ rowId: "lock:equipment:nebulizer", kind: "equipment", compileSubject: "nebulizer", locked: false });
+    // Rows absent from the previous snapshot keep their derived defaults.
+    expect(merged).toContainEqual({ rowId: "lock:equipment:12-lead ECG machine", kind: "equipment", compileSubject: "12-lead ECG machine", locked: false });
+  });
+
+  it("derives body->wardrobe->equipment compile dependency edges for App wiring", () => {
+    const rows = buildFacultyCompileLockRows(sceneGenerationPipelineQueueFixture());
+    const edges = buildCompileEdges(sceneGenerationPipelineQueueFixture());
+
+    // Canvas is non-empty whenever the lock table is non-empty.
+    expect(rows.length).toBeGreaterThan(0);
+    expect(edges.length).toBeGreaterThan(0);
+    expect(new Set(edges.map((edge) => `${edge.from}\u0000${edge.to}`)).size).toBe(edges.length);
+    expect(edges.every((edge) => edge.kind === "body_to_clothing" || edge.kind === "wardrobe_to_equipment")).toBe(true);
+    // Every actor contributes a body -> wardrobe bake edge.
+    expect(edges).toContainEqual({ from: "actor:patient_actor_v1:body", to: "actor:patient_actor_v1:wardrobe", kind: "body_to_clothing" });
+    // Each wardrobe bake feeds every equipment asset on the actor's work order.
+    expect(edges).toContainEqual({ from: "actor:patient_actor_v1:wardrobe", to: "equip:12-lead ECG machine", kind: "wardrobe_to_equipment" });
+    expect(edges).toContainEqual({ from: "actor:patient_actor_v1:wardrobe", to: "equip:nebulizer", kind: "wardrobe_to_equipment" });
+    // Graph node ids mirror the compile-graph node ids the lock table locks.
+    for (const row of rows) {
+      const lockedNodeId = row.kind === "actor" ? `actor:${row.compileSubject}:wardrobe` : `equip:${row.compileSubject}`;
+      expect(edges.some((edge) => edge.from === lockedNodeId || edge.to === lockedNodeId)).toBe(true);
+    }
+
+    render(
+      <EnvironmentGenerationQueuePanel
+        environmentGenerationQueue={environmentGenerationQueueFixture()}
+        sceneGenerationPipelineQueue={sceneGenerationPipelineQueueFixture()}
+        facultyCompileLockRows={rows}
+        compileEdges={edges}
+      />,
+    );
+
+    const panel = screen.getByLabelText("3D environment generation queue");
+    const graph = within(panel).getByLabelText("Compile/materialization dependency graph");
+    expect(graph).toHaveTextContent(`${edges.length} compile dependency edges`);
+    expect(findUnsafeClaimLanguage(panel.textContent ?? "")).toEqual([]);
+  });
+
+  it("renders an empty compile graph state when no compile edges are attached", async () => {
+    render(
+      <EnvironmentGenerationQueuePanel
+        environmentGenerationQueue={environmentGenerationQueueFixture()}
+        sceneGenerationPipelineQueue={sceneGenerationPipelineQueueFixture()}
+      />,
+    );
+
+    const graph = screen.getByLabelText("Compile/materialization dependency graph");
+    expect(graph).toHaveTextContent("0 compile dependency edges");
+    expect(graph).toHaveTextContent("read-only view; writes stay on the faculty compile lock table.");
+    expect(graph).toHaveTextContent("no write path, Mongo persistence, or lock-API enforcement is implied");
+    expect(findUnsafeClaimLanguage(graph.textContent ?? "")).toEqual([]);
+  });
+
+  it("renders a single compile edge as a read-only graph view", async () => {
+    render(
+      <EnvironmentGenerationQueuePanel
+        environmentGenerationQueue={environmentGenerationQueueFixture()}
+        sceneGenerationPipelineQueue={sceneGenerationPipelineQueueFixture()}
+        compileEdges={[{ from: "actor:patient_maya_johnson_v1:body", to: "actor:patient_maya_johnson_v1:wardrobe", kind: "body_to_clothing" }]}
+      />,
+    );
+
+    const graph = screen.getByLabelText("Compile/materialization dependency graph");
+    expect(graph).toHaveTextContent("1 compile dependency edge");
+    expect(await screen.findByText(/^Body\s/)).toBeInTheDocument();
+    expect(await screen.findByText(/^Wardrobe\s/)).toBeInTheDocument();
+    expect((await screen.findAllByText(/patient_maya/)).length).toBe(2);
+    expect(await screen.findByText("body_to_clothing")).toBeInTheDocument();
+    expect(findUnsafeClaimLanguage(graph.textContent ?? "")).toEqual([]);
+  });
+
+  it("renders compile graph nodes as read-only (not connectable or draggable)", async () => {
+    render(
+      <CompileGraphCanvas
+        compileEdges={[
+          { from: "actor:patient_maya_johnson_v1:body", to: "actor:patient_maya_johnson_v1:wardrobe", kind: "body_to_clothing" },
+        ]}
+      />,
+    );
+
+    const bodyNode = (await screen.findByText(/^Body\s/)).closest(".react-flow__node");
+    expect(bodyNode).not.toBeNull();
+    expect(bodyNode).not.toHaveClass("draggable");
+    const handles = bodyNode?.querySelectorAll(".react-flow__handle") ?? [];
+    expect(handles.length).toBeGreaterThan(0);
+    for (const handle of handles) {
+      expect(handle).not.toHaveClass("connectable");
+    }
+  });
+
+  it("builds a deterministic three-column body/wardrobe/equipment DAG model from compile edges", () => {
+    expect(buildCompileGraphModel([])).toEqual({ nodes: [], edges: [] });
+
+    const model = buildCompileGraphModel([
+      { from: "actor:patient_maya_johnson_v1:body", to: "actor:patient_maya_johnson_v1:wardrobe", kind: "body_to_clothing" },
+      { from: "actor:patient_maya_johnson_v1:wardrobe", to: "equip:nebulizer_mask_equipment", kind: "wardrobe_to_equipment" },
+      { from: "actor:patient_maya_johnson_v1:wardrobe", to: "equip:12-lead ECG machine", kind: "wardrobe_to_equipment" },
+    ]);
+
+    expect(model.nodes.map((node) => node.id).sort()).toEqual([
+      "actor:patient_maya_johnson_v1:body",
+      "actor:patient_maya_johnson_v1:wardrobe",
+      "equip:12-lead ECG machine",
+      "equip:nebulizer_mask_equipment",
+    ]);
+    // Body, wardrobe, and equipment bakes sit in three distinct columns.
+    const bodyNode = model.nodes.find((node) => node.id === "actor:patient_maya_johnson_v1:body");
+    const wardrobeNode = model.nodes.find((node) => node.id === "actor:patient_maya_johnson_v1:wardrobe");
+    const equipmentNode = model.nodes.find((node) => node.id === "equip:nebulizer_mask_equipment");
+    expect(bodyNode?.position.x).toBe(24);
+    expect(wardrobeNode?.position.x).toBe(460);
+    expect(equipmentNode?.position.x).toBe(896);
+    expect(bodyNode?.position.x).toBeLessThan(wardrobeNode?.position.x ?? Number.POSITIVE_INFINITY);
+    expect(wardrobeNode?.position.x).toBeLessThan(equipmentNode?.position.x ?? Number.POSITIVE_INFINITY);
+    // Labels carry the baker family title plus a shortened subject.
+    expect(bodyNode?.data["label"]).toBe("Body\npatient_maya…");
+    expect(equipmentNode?.data["label"]).toBe("Equipment\nnebulizer_ma…");
+    expect(model.edges).toEqual([
+      expect.objectContaining({ source: "actor:patient_maya_johnson_v1:body", target: "actor:patient_maya_johnson_v1:wardrobe", label: "body_to_clothing" }),
+      expect.objectContaining({ source: "actor:patient_maya_johnson_v1:wardrobe", target: "equip:nebulizer_mask_equipment", label: "wardrobe_to_equipment" }),
+      expect.objectContaining({ source: "actor:patient_maya_johnson_v1:wardrobe", target: "equip:12-lead ECG machine", label: "wardrobe_to_equipment" }),
+    ]);
   });
 });
 

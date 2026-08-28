@@ -4,6 +4,7 @@ import { cleanup, fireEvent, render, screen, within } from "@testing-library/rea
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { AdminApp } from "./App.js";
 import type { AdminControlPlaneClient } from "./api-client.js";
+import type { FacultyCompileLockClient } from "./faculty-compile-lock-types.js";
 
 describe("AdminApp", () => {
   beforeAll(() => {
@@ -831,7 +832,7 @@ function fakeRealtimeVoicePosture() {
   };
 }
 
-function fakeControlPlaneClient(): AdminControlPlaneClient {
+function fakeControlPlaneClient(): AdminControlPlaneClient & FacultyCompileLockClient {
   return {
     getStep2CsSeedBlueprint: async () => ({
       blueprintId: "blueprint_openclinxr_step2cs_style_seed_v1",
@@ -1938,6 +1939,19 @@ function fakeControlPlaneClient(): AdminControlPlaneClient {
       scoringValidityClaimed: false as const,
       notEvidenceFor: ["clinical_validity", "exam_equivalence", "scoring", "learner_readiness", "production_asset_readiness", "quest_readiness"],
       claimScope: "faculty_local_review_decision_gated_not_score_use",
+    }),
+    persistFacultyCompileLock: async (input) => ({
+      scenarioId: input.scenarioId,
+      updatedAt: "2026-08-28T00:00:00.000Z",
+      claimBoundary: "faculty_compile_lock_review_metadata_only" as const,
+      notEvidenceFor: ["review_packet_promotion", "production_asset_readiness", "quest_readiness"],
+      locks: [
+        {
+          nodeId: input.nodeId,
+          locked: input.locked,
+          ...(input.overridePath === undefined ? {} : { overridePath: input.overridePath }),
+        },
+      ],
     }),
     getEdChestPainPublicationReadiness: async () => ({
       scenarioId: "ed_chest_pain_priority_v1",

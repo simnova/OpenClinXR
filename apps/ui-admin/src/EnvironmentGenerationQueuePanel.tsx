@@ -6,9 +6,20 @@ import {
   type EnvironmentGenerationWorkOrderQueue,
   type ScenarioSceneGenerationPipelineWorkOrderQueue,
 } from "@openclinxr/asset-registry";
-import { Button, Tag, Typography } from "antd";
-import type { ReactElement } from "react";
+import { Button, Table, Tag, Typography } from "antd";
+import { lazy, type ReactElement, Suspense } from "react";
 import type { CreateScenarioSceneGenerationRequestResult, ScenarioSceneGenerationRequestPublicationReadiness, ScenarioSceneGenerationRequestQueue } from "./api-client.js";
+import type { CompileEdge } from "./CompileGraphCanvas.js";
+import {
+  buildFacultyCompileLockColumns,
+  type FacultyCompileLockRow,
+  type FacultyCompileOverridePath,
+} from "./faculty-compile-lock.js";
+
+const CompileGraphCanvas = lazy(() =>
+  import("./CompileGraphCanvas.js").then((module) => ({ default: module.CompileGraphCanvas })),
+);
+
 import {
   sceneGenerationRequestProjectionArtifactStatusColor,
   sceneGenerationRequestProjectionArtifactStatusLabel,
@@ -24,7 +35,18 @@ export type EnvironmentGenerationQueuePanelProps = {
   onInitiateSceneGeneration?: (scenarioId: string) => void;
   onAttachSceneGenerationReview?: (request: CreateScenarioSceneGenerationRequestResult) => void;
   onCheckSceneGenerationPublicationReadiness?: (request: CreateScenarioSceneGenerationRequestResult) => void;
+  /** Faculty lock review rows for compile/materialization actor+equipment subjects. Metadata only; not wired to Mongo or a real lock API yet. */
+  facultyCompileLockRows?: FacultyCompileLockRow[];
+  /** Parent-owned lock toggle: a locked row survives re-render only when the parent persists the change. */
+  onFacultyCompileLockChange?: (rowId: string, locked: boolean) => void;
+  /** Parent-owned override path change for a faculty lock row (ActorPhenotypeSchema pointers only). */
+  onFacultyCompileOverrideChange?: (rowId: string, overridePath: FacultyCompileOverridePath | undefined) => void;
+  /** Compile/materialization dependency edges for a read-only graph view. Optional; writes stay on the lock Table API. */
+  compileEdges?: CompileEdge[];
 };
+
+export { FACULTY_COMPILE_OVERRIDE_PATHS } from "./faculty-compile-lock.js";
+export type { FacultyCompileLockRow, FacultyCompileOverridePath } from "./faculty-compile-lock.js";
 
 export function EnvironmentGenerationQueuePanel({
   environmentGenerationQueue,
@@ -35,6 +57,10 @@ export function EnvironmentGenerationQueuePanel({
   onInitiateSceneGeneration,
   onAttachSceneGenerationReview,
   onCheckSceneGenerationPublicationReadiness,
+  facultyCompileLockRows = [],
+  onFacultyCompileLockChange,
+  onFacultyCompileOverrideChange,
+  compileEdges = [],
 }: EnvironmentGenerationQueuePanelProps): ReactElement {
   const nextGateSummary = summarizeEnvironmentNextGateCounts(environmentGenerationQueue);
   const workOrderQueue = environmentGenerationWorkOrderQueue ?? buildEnvironmentGenerationWorkOrderQueue(environmentGenerationQueue);
@@ -178,6 +204,35 @@ export function EnvironmentGenerationQueuePanel({
       ) : (
         <Typography.Text type="secondary">No environment packets are attached yet.</Typography.Text>
       )}
+      <fieldset className="station-queue-row" aria-label="Faculty compile/materialization lock table">
+        <Typography.Text strong>Faculty compile lock</Typography.Text>
+        <Typography.Text type="secondary">
+          {`${facultyCompileLockRows.length} compile/materialization subject${facultyCompileLockRows.length === 1 ? "" : "s"}`}
+        </Typography.Text>
+        <Table<FacultyCompileLockRow>
+          size="small"
+          pagination={false}
+          rowKey="rowId"
+          dataSource={facultyCompileLockRows}
+          columns={buildFacultyCompileLockColumns({ onFacultyCompileLockChange, onFacultyCompileOverrideChange })}
+          locale={{ emptyText: "No compile/materialization lock rows attached yet." }}
+        />
+        <Typography.Paragraph type="secondary">
+          Lock and override changes are faculty review metadata persisted to the local compile-lock store; they do not promote or publish a compile/materialization packet.
+        </Typography.Paragraph>
+      </fieldset>
+      <fieldset className="station-queue-row" aria-label="Compile/materialization dependency graph">
+        <Typography.Text strong>Compile graph</Typography.Text>
+        <Typography.Text type="secondary">
+          {`${compileEdges.length} compile dependency edge${compileEdges.length === 1 ? "" : "s"}; read-only view; writes stay on the faculty compile lock table.`}
+        </Typography.Text>
+        <Suspense fallback={<Typography.Text type="secondary">Loading compile graph…</Typography.Text>}>
+          <CompileGraphCanvas compileEdges={compileEdges} />
+        </Suspense>
+        <Typography.Paragraph type="secondary">
+          Read-only @xyflow/react rendering of compile/materialization dependencies; no write path, Mongo persistence, or lock-API enforcement is implied.
+        </Typography.Paragraph>
+      </fieldset>
     </section>
   );
 }

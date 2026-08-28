@@ -61,6 +61,7 @@ describe("OpenClinXR REST route contract", () => {
       "trace-events",
       "save-faculty-score-draft",
       "save-faculty-review-decision",
+      "save-faculty-compile-lock",
     ]);
     expect(routeById("actor-response")).toMatchObject({
       method: "POST",
@@ -311,6 +312,9 @@ describe("OpenClinXR REST route contract", () => {
     expect(matchOpenClinXrRestRoute("GET", "/runtime/selection-review-packet")?.route.id).toBe(
       "runtime-selection-review-packet",
     );
+    expect(matchOpenClinXrRestRoute("POST", "/internal/faculty-compile-locks")).toMatchObject({
+      route: { id: "save-faculty-compile-lock" },
+    });
     expect(matchOpenClinXrRestRoute("GET", "/sessions/run_001/actor-response")).toBeUndefined();
     expect(matchOpenClinXrRestRoute("GET", "/unknown")).toBeUndefined();
   });

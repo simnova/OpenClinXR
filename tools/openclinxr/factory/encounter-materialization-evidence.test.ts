@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
 import {
   buildEncounterMaterializationEvidenceReport,
+  COMPILE_NODE_FAMILIES,
+  emitCompileNodes,
+  planWardrobeBake,
+  splitCharacterBakers,
   validateEncounterMaterializationEvidenceReport,
+  type CompileGraphNode,
 } from "./encounter-materialization-evidence.js";
 import type { GeneratedEdStationRuntimeBundleReport } from "./generated-ed-station-runtime-bundle.js";
 
@@ -52,7 +58,250 @@ describe("encounter materialization evidence", () => {
     });
     expect(validateEncounterMaterializationEvidenceReport(report)).toEqual({ ok: true, errors: [] });
   });
+
+  /**
+   * WCG Phase 0 — emit unsplit actor/equipment nodes only.
+   * Diagnosis (immutable): evidence.v1 has no compile node list; a graph over requestedStages
+   * is one node per actor. Do not invent room/garment/physics families here.
+   */
+  it("Phase 0: two actors + one equipment emit three unsplit nodes and no room family", () => {
+    const report = buildEncounterMaterializationEvidenceReport({
+      generatedAt: "2026-05-28T00:00:00.000Z",
+      bundleReport: twoActorBundleFixture(),
+    });
+    const nodes = emitCompileNodes(report);
+    expect(report.actorEvidence).toHaveLength(2);
+    expect(report.equipmentEvidence).toHaveLength(1);
+    expect(nodes).toHaveLength(3);
+    expect(nodes.map((n) => n.family).sort()).toEqual(["ActorVariant", "ActorVariant", "EquipVariant"]);
+    expect(nodes.every((n) => (COMPILE_NODE_FAMILIES as readonly string[]).includes(n.family))).toBe(true);
+    expect(nodes.some((n) => /room/i.test(n.family) || /room/i.test(n.nodeId))).toBe(false);
+    expect(nodes.filter((n) => n.family === "ActorVariant").every((n) => n.bakerId === "unsplit_character")).toBe(true);
+    expect(nodes.filter((n) => n.family === "EquipVariant").every((n) => n.bakerId === "unsplit_equipment")).toBe(true);
+    expect(nodes.every((n) => n.status === "planned_unsplit" && n.cacheKey === null && n.parents.length === 0)).toBe(true);
+  });
+
+  it("Phase 0: dated 2026-05-28 evidence JSON still validates (no required compile fields)", () => {
+    const raw = JSON.parse(
+      readFileSync(
+        "docs/openclinxr/encounter-materialization-evidence-peds-asthma-parent-anxiety-2026-05-28.json",
+        "utf8",
+      ),
+    ) as unknown;
+    expect(validateEncounterMaterializationEvidenceReport(raw)).toEqual({ ok: true, errors: [] });
+    const dated = raw as Parameters<typeof emitCompileNodes>[0];
+    const nodes = emitCompileNodes(dated);
+    expect(nodes.length).toBe(dated.actorEvidence.length + dated.equipmentEvidence.length);
+    expect(nodes.every((n) => n.family === "ActorVariant" || n.family === "EquipVariant")).toBe(true);
+  });
+
+  it("Phase 0: copies prior lock and contentHash by nodeId; does not invent a third family", () => {
+    const report = buildEncounterMaterializationEvidenceReport({
+      generatedAt: "2026-05-28T00:00:00.000Z",
+      bundleReport: twoActorBundleFixture(),
+    });
+    const prior: CompileGraphNode[] = [
+      {
+        nodeId: "actor:patient_maya_johnson_v1",
+        family: "ActorVariant",
+        bakerId: "unsplit_character",
+        spec: {
+          scenarioId: "peds_asthma_parent_anxiety_v1",
+          actorId: "patient_maya_johnson_v1",
+          variantSemanticKey: "x",
+          sourceBlobName: "y",
+        },
+        parents: [],
+        cacheKey: null,
+        contentHash: "sha256:prior",
+        lock: { locked: true, lockKind: "faculty_keep_artifact" },
+        status: "planned_unsplit",
+      },
+    ];
+    const nodes = emitCompileNodes(report, prior);
+    const maya = nodes.find((n) => n.nodeId === "actor:patient_maya_johnson_v1");
+    expect(maya?.lock).toEqual({ locked: true, lockKind: "faculty_keep_artifact" });
+    expect(maya?.contentHash).toBe("sha256:prior");
+    const tara = nodes.find((n) => n.nodeId === "actor:parent_tara_johnson_v1");
+    expect(tara?.lock).toEqual({ locked: false });
+    expect(tara?.contentHash).toBeNull();
+  });
+
+  it("Phase 1: dated JSON still validates; lock.locked string is refused; phenotype path ok", () => {
+    const raw = JSON.parse(
+      readFileSync(
+        "docs/openclinxr/encounter-materialization-evidence-peds-asthma-parent-anxiety-2026-05-28.json",
+        "utf8",
+      ),
+    ) as Record<string, unknown>;
+    expect(validateEncounterMaterializationEvidenceReport(raw)).toEqual({ ok: true, errors: [] });
+    const withBadLock = {
+      ...raw,
+      compileVersion: 1,
+      compileNodes: [
+        {
+          nodeId: "actor:patient_maya_johnson_v1",
+          lock: { locked: "yes" },
+        },
+      ],
+    };
+    const bad = validateEncounterMaterializationEvidenceReport(withBadLock);
+    expect(bad.ok).toBe(false);
+    expect(bad.errors.some((e) => e.includes("locked must be boolean"))).toBe(true);
+    const withBadPath = {
+      ...raw,
+      actorEvidence: [
+        {
+          ...(raw.actorEvidence as object[])[0],
+          overridePatch: { op: "replace", path: "/makeHerNicer", value: "yes" },
+        },
+      ],
+    };
+    const pathBad = validateEncounterMaterializationEvidenceReport(withBadPath);
+    expect(pathBad.ok).toBe(false);
+    expect(pathBad.errors.some((e) => e.includes("ActorPhenotypeSchema"))).toBe(true);
+    const withGood = {
+      ...raw,
+      caseDefVersion: 1,
+      compileVersion: 3,
+      actorEvidence: [
+        {
+          ...(raw.actorEvidence as object[])[0],
+          lock: { locked: true },
+          overridePatch: { op: "replace", path: "/garmentLayers", value: ["makeclothes_library_scrub_shirt"] },
+        },
+        ...(raw.actorEvidence as object[]).slice(1),
+      ],
+    };
+    expect(validateEncounterMaterializationEvidenceReport(withGood)).toEqual({ ok: true, errors: [] });
+  });
+
+  /**
+   * WCG-4 (Phase 4) — baker split so a lock can skip a baker.
+   * emitCompileNodes stays unsplit (Phase 0); splitCharacterBakers gives the two
+   * stages distinct bakerIds so unsplit_character is NOT the only node after the
+   * split, and a wardrobe lock skips the wardrobe baker while the body rebakes.
+   */
+  it("WCG-4: splitCharacterBakers emits distinct body_character + wardrobe_character bakerIds", () => {
+    const report = buildEncounterMaterializationEvidenceReport({
+      generatedAt: "2026-05-28T00:00:00.000Z",
+      bundleReport: twoActorBundleFixture(),
+    });
+    const nodes = emitCompileNodes(report);
+    // Phase 0 still emits unsplit nodes only.
+    expect(nodes.every((n) => n.bakerId === "unsplit_character" || n.bakerId === "unsplit_equipment")).toBe(true);
+    const unsplit = nodes.find((n) => n.nodeId === "actor:patient_maya_johnson_v1")!;
+    const [body, wardrobe] = splitCharacterBakers(unsplit);
+    expect(body.bakerId).toBe("body_character");
+    expect(wardrobe.bakerId).toBe("wardrobe_character");
+    expect(body.bakerId).not.toBe(wardrobe.bakerId);
+    // After the split, unsplit_character is NOT the only baker id — the point of WCG-4.
+    const splitIds = [body.bakerId, wardrobe.bakerId];
+    expect(splitIds).not.toContain("unsplit_character");
+    expect(new Set(splitIds).size).toBe(2);
+    expect(body.nodeId).toBe("actor:patient_maya_johnson_v1:body");
+    expect(wardrobe.nodeId).toBe("actor:patient_maya_johnson_v1:wardrobe");
+    expect(body.parents).toEqual([]);
+    expect(wardrobe.parents).toEqual([body.nodeId]); // body_to_clothing edge
+    expect(wardrobe.lock).toEqual(unsplit.lock); // copy-prior rule, not a silent wipe
+  });
+
+  it("WCG-4: split refuses an equipment or already-split node (no vacuous one-node DAG)", () => {
+    const report = buildEncounterMaterializationEvidenceReport({
+      generatedAt: "2026-05-28T00:00:00.000Z",
+      bundleReport: twoActorBundleFixture(),
+    });
+    const nodes = emitCompileNodes(report);
+    const equip = nodes.find((n) => n.family === "EquipVariant")!;
+    expect(() => splitCharacterBakers(equip)).toThrow(/unsplit ActorVariant/);
+    const [body] = splitCharacterBakers(nodes.find((n) => n.nodeId === "actor:patient_maya_johnson_v1")!);
+    expect(() => splitCharacterBakers(body)).toThrow(/unsplit ActorVariant/);
+  });
+
+  it("WCG-4 control/treatment: lock wardrobe, body topology hash unchanged -> wardrobe baker skipped", () => {
+    const report = buildEncounterMaterializationEvidenceReport({
+      generatedAt: "2026-05-28T00:00:00.000Z",
+      bundleReport: twoActorBundleFixture(),
+    });
+    const unsplit = emitCompileNodes(report).find((n) => n.nodeId === "actor:patient_maya_johnson_v1")!;
+    const [, wardrobe] = splitCharacterBakers(unsplit);
+    const locked = {
+      ...wardrobe,
+      contentHash: "sha256:wardrobe-baked",
+      lock: { locked: true, lockKind: "faculty_keep_artifact" },
+    };
+    const decision = planWardrobeBake(locked, "sha256:body-A", "sha256:body-A");
+    expect(decision.bake).toBe(false);
+    expect(decision.reason).toBe("locked_skip");
+    expect(decision.stale).toBe(false);
+  });
+
+  it("WCG-4 control/treatment: lock wardrobe, body macros change -> wardrobe skipped but stale (lock honored)", () => {
+    const report = buildEncounterMaterializationEvidenceReport({
+      generatedAt: "2026-05-28T00:00:00.000Z",
+      bundleReport: twoActorBundleFixture(),
+    });
+    const unsplit = emitCompileNodes(report).find((n) => n.nodeId === "actor:patient_maya_johnson_v1")!;
+    const [, wardrobe] = splitCharacterBakers(unsplit);
+    const locked = {
+      ...wardrobe,
+      contentHash: "sha256:wardrobe-baked",
+      lock: { locked: true, lockKind: "faculty_keep_artifact" },
+    };
+    const decision = planWardrobeBake(locked, "sha256:body-A", "sha256:body-B");
+    expect(decision.bake).toBe(false); // NEVER rebake a locked node
+    expect(decision.reason).toBe("locked_stale");
+    expect(decision.stale).toBe(true); // faculty must relock
+  });
+
+  it("WCG-4 control/treatment: unlock wardrobe, body macros change -> wardrobe rebakes", () => {
+    const report = buildEncounterMaterializationEvidenceReport({
+      generatedAt: "2026-05-28T00:00:00.000Z",
+      bundleReport: twoActorBundleFixture(),
+    });
+    const unsplit = emitCompileNodes(report).find((n) => n.nodeId === "actor:patient_maya_johnson_v1")!;
+    const [, wardrobe] = splitCharacterBakers(unsplit);
+    const baked = { ...wardrobe, contentHash: "sha256:wardrobe-baked" };
+    const decision = planWardrobeBake(baked, "sha256:body-A", "sha256:body-B");
+    expect(decision.bake).toBe(true);
+    expect(decision.reason).toBe("body_changed");
+    expect(decision.stale).toBe(false);
+  });
+
+  it("WCG-4 control/treatment: unlocked wardrobe, body unchanged -> cache hit (no rebake)", () => {
+    const report = buildEncounterMaterializationEvidenceReport({
+      generatedAt: "2026-05-28T00:00:00.000Z",
+      bundleReport: twoActorBundleFixture(),
+    });
+    const unsplit = emitCompileNodes(report).find((n) => n.nodeId === "actor:patient_maya_johnson_v1")!;
+    const [, wardrobe] = splitCharacterBakers(unsplit);
+    const baked = { ...wardrobe, contentHash: "sha256:wardrobe-baked" };
+    const decision = planWardrobeBake(baked, "sha256:body-A", "sha256:body-A");
+    expect(decision.bake).toBe(false);
+    expect(decision.reason).toBe("cache_hit");
+  });
 });
+
+function twoActorBundleFixture(): GeneratedEdStationRuntimeBundleReport {
+  const base = bundleReportFixture();
+  const patient = base.actorHumanoidMaterializationContract!.actorVariants[0]!;
+  return {
+    ...base,
+    actorHumanoidMaterializationContract: {
+      ...base.actorHumanoidMaterializationContract!,
+      sharedNeutralMeshReuseActorIds: ["patient_maya_johnson_v1", "parent_tara_johnson_v1"],
+      actorVariants: [
+        patient,
+        {
+          ...patient,
+          actorId: "parent_tara_johnson_v1",
+          actorRole: "family",
+          variantSemanticKey: "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:family:anny_humanoid_variant",
+        },
+      ],
+    },
+  };
+}
 
 function bundleReportFixture(): GeneratedEdStationRuntimeBundleReport {
   return {

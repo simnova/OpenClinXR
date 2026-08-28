@@ -101,6 +101,8 @@ export const openClinXrRestRoutes = Object.freeze([
   route("save-faculty-score-draft", "POST", "/sessions/:stationRunId/faculty-score-draft", "control-plane", true),
   /** Faculty Q4 review-decision persistence (local promote/hold only; notEvidenceFor preserved). */
   route("save-faculty-review-decision", "POST", "/sessions/:stationRunId/review-decision", "control-plane", true),
+  /** Faculty compile-lock persistence (local review metadata only; no packet promote). */
+  route("save-faculty-compile-lock", "POST", "/internal/faculty-compile-locks", "control-plane"),
 ] as const);
 
 export type OpenClinXrRestRouteId = (typeof openClinXrRestRoutes)[number]["id"];

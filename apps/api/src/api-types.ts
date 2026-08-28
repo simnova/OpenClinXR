@@ -99,6 +99,22 @@ export type ApiFacultyReviewDecisionRecord = {
   claimScope: "faculty_local_review_decision_gated_not_score_use";
 };
 
+/**
+ * Local faculty compile-lock record (persisted under .openclinxr/compile-locks/).
+ * Review metadata only: a lock never promotes or publishes a packet.
+ */
+export type ApiFacultyCompileLockRecord = {
+  scenarioId: string;
+  updatedAt: string;
+  claimBoundary: "faculty_compile_lock_review_metadata_only";
+  notEvidenceFor: readonly string[];
+  locks: Array<{
+    nodeId: string;
+    locked: boolean;
+    overridePath?: string;
+  }>;
+};
+
 
 export type ApiPersistenceSink = {
   saveExamForm?: (form: ExamForm) => Promise<void> | void;

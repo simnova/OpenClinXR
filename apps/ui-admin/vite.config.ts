@@ -32,6 +32,12 @@ export const openClinXrAdminBuildOutput = Object.freeze({
         priority: 25,
       },
       {
+        // Loaded lazily with the CompileGraphCanvas chunk; never eager.
+        name: "xyflow-vendor",
+        test: /node_modules[\\/](?:\.pnpm[\\/])?(?:@xyflow|classcat|d3-color|d3-dispatch|d3-drag|d3-ease|d3-interpolate|d3-selection|d3-timer|d3-transition|d3-zoom|zustand)/,
+        priority: 22,
+      },
+      {
         name: "graphql-vendor",
         test: /node_modules[\\/](?:\.pnpm[\\/])?(?:@apollo|graphql|rxjs|@graphql-typed-document-node)/,
         priority: 20,

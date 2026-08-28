@@ -187,6 +187,16 @@ a {
   grid-template-columns: minmax(0, 1fr) auto;
 }
 
+.compile-graph-canvas {
+  background: #111;
+  border: 1px solid #444;
+  border-radius: 6px;
+  grid-column: 1 / -1;
+  height: 420px;
+  min-height: 420px;
+  overflow: hidden;
+}
+
 .empty-panel-note {
   margin: 14px 0 0;
 }

@@ -203,6 +203,7 @@ import { buildAssetReleaseLadderReplayProjection, createSeedBankAssetReadiness, 
 import { registerRuntimeEvidenceRoutes } from "./routes/runtime-evidence-routes.js";
 import { registerAdminGraphqlRoutes } from "./routes/admin-graphql-routes.js";
 import { registerScenarioSceneGenerationRoutes } from "./routes/scenario-scene-generation-routes.js";
+import { registerFacultyCompileLockRoutes } from "./routes/faculty-compile-lock-routes.js";
 
 
 
@@ -257,6 +258,7 @@ function registerAllRoutes(app: ApiApp, ctx: ApiAppContext): void {
   registerCapabilityJobRoutes(app, ctx);
   registerEncounterSessionRoutes(app, ctx);
   registerReviewRoutes(app, ctx);
+  registerFacultyCompileLockRoutes(app, ctx);
 }
 
 

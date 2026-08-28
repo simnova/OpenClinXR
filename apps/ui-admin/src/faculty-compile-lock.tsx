@@ -1,0 +1,261 @@
+import { Select, Switch, type TableColumnsType, Tag } from "antd";
+import { useEffect, useState } from "react";
+import type { AdminControlPlaneClient, ScenarioSceneGenerationPipelineWorkOrderQueue } from "./api-client.js";
+import type { FacultyCompileLockClient } from "./faculty-compile-lock-types.js";
+import type { CompileEdge } from "./CompileGraphCanvas.js";
+
+/** ActorPhenotypeSchema pointer paths a faculty compile lock may override. Review metadata only. */
+export const FACULTY_COMPILE_OVERRIDE_PATHS = [
+  "/garmentLayers",
+  "/clothing_style",
+  "/wardrobeRole",
+  "/fabricPalette",
+] as const;
+
+export type FacultyCompileOverridePath = (typeof FACULTY_COMPILE_OVERRIDE_PATHS)[number];
+
+export type FacultyCompileLockRow = {
+  rowId: string;
+  kind: "actor" | "equipment";
+  compileSubject: string;
+  locked: boolean;
+  /** Optional ActorPhenotypeSchema pointer the lock applies to; only the four constant paths are allowed. */
+  overridePath?: FacultyCompileOverridePath;
+};
+
+/**
+ * Faculty compile/materialization lock rows derived from scene pipeline actor and equipment ids.
+ * Review metadata only: locked stays false until the faculty compile-lock store is written.
+ */
+export function buildFacultyCompileLockRows(
+  sceneGenerationPipelineQueue: ScenarioSceneGenerationPipelineWorkOrderQueue,
+): FacultyCompileLockRow[] {
+  const rows: FacultyCompileLockRow[] = [];
+  const seenRowIds = new Set<string>();
+  const appendRow = (row: FacultyCompileLockRow): void => {
+    if (seenRowIds.has(row.rowId)) {
+      return;
+    }
+    seenRowIds.add(row.rowId);
+    rows.push(row);
+  };
+  for (const workOrder of sceneGenerationPipelineQueue.workOrders) {
+    const actorSubjects = workOrder.actorWorkOrders.length > 0
+      ? workOrder.actorWorkOrders.map((actorWorkOrder) => actorWorkOrder.actorId)
+      : workOrder.characterAssetIds;
+    for (const actorSubject of actorSubjects) {
+      appendRow({ rowId: `lock:actor:${actorSubject}`, kind: "actor", compileSubject: actorSubject, locked: false });
+    }
+    for (const equipmentAssetId of workOrder.equipmentAssetIds) {
+      appendRow({ rowId: `lock:equipment:${equipmentAssetId}`, kind: "equipment", compileSubject: equipmentAssetId, locked: false });
+    }
+  }
+  return rows;
+}
+
+/**
+ * Merges faculty compile lock rows by queue identity (rowId): locked flags and
+ * override paths from `previousRows` survive onto the freshly derived rows.
+ * Review metadata only; locked stays false until the faculty compile-lock store is written.
+ */
+export function mergeFacultyCompileLockRows(
+  nextRows: FacultyCompileLockRow[],
+  previousRows: FacultyCompileLockRow[],
+): FacultyCompileLockRow[] {
+  const previousById = new Map(previousRows.map((row) => [row.rowId, row]));
+  return nextRows.map((row) => {
+    const previous = previousById.get(row.rowId);
+    return previous
+      ? { ...row, locked: previous.locked, ...(previous.overridePath === undefined ? {} : { overridePath: previous.overridePath }) }
+      : row;
+  });
+}
+
+/**
+ * Resolve a faculty compile lock row to the compile-graph nodeId and its owning
+ * scenario (the workOrder that derived the row). Actor rows lock the split
+ * wardrobe baker (`actor:<subject>:wardrobe`) so the World Compile Graph runner
+ * skips the bake at baker granularity. Returns undefined when the queue is not
+ * loaded yet or the subject is not on any workOrder.
+ */
+export function findFacultyCompileLockContext(
+  sceneGenerationPipelineQueue: ScenarioSceneGenerationPipelineWorkOrderQueue | undefined,
+  compileSubject: string,
+  kind: FacultyCompileLockRow["kind"],
+): { scenarioId: string; nodeId: string } | undefined {
+  if (!sceneGenerationPipelineQueue) {
+    return undefined;
+  }
+  const nodeId = kind === "actor" ? `actor:${compileSubject}:wardrobe` : `equip:${compileSubject}`;
+  for (const workOrder of sceneGenerationPipelineQueue.workOrders) {
+    if (kind === "actor") {
+      const actorIds = workOrder.actorWorkOrders.length > 0
+        ? workOrder.actorWorkOrders.map((actorWorkOrder) => actorWorkOrder.actorId)
+        : workOrder.characterAssetIds;
+      if (actorIds.includes(compileSubject)) {
+        return { scenarioId: workOrder.scenarioId, nodeId };
+      }
+    } else if (workOrder.equipmentAssetIds.includes(compileSubject)) {
+      return { scenarioId: workOrder.scenarioId, nodeId };
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Compile/materialization dependency edges derived from the same scene pipeline
+ * actor-equipment pairs as the faculty compile lock rows: each actor subject
+ * contributes a body -> wardrobe bake edge plus one wardrobe -> equipment edge
+ * per equipment asset on the actor's work order. Node ids mirror the
+ * compile-graph node ids the lock table locks (`actor:<subject>:wardrobe`,
+ * `equip:<id>`). Keeps the read-only graph canvas non-empty whenever the lock
+ * table is non-empty; metadata only, no lock state is implied.
+ */
+export function buildCompileEdges(
+  sceneGenerationPipelineQueue: ScenarioSceneGenerationPipelineWorkOrderQueue,
+): CompileEdge[] {
+  const edges: CompileEdge[] = [];
+  const seenEdgeKeys = new Set<string>();
+  for (const workOrder of sceneGenerationPipelineQueue.workOrders) {
+    const actorSubjects = workOrder.actorWorkOrders.length > 0
+      ? workOrder.actorWorkOrders.map((actorWorkOrder) => actorWorkOrder.actorId)
+      : workOrder.characterAssetIds;
+    for (const actorSubject of actorSubjects) {
+      const wardrobeNodeId = `actor:${actorSubject}:wardrobe`;
+      const bodyEdgeKey = `actor:${actorSubject}:body\u0000${wardrobeNodeId}`;
+      if (!seenEdgeKeys.has(bodyEdgeKey)) {
+        seenEdgeKeys.add(bodyEdgeKey);
+        edges.push({ from: `actor:${actorSubject}:body`, to: wardrobeNodeId, kind: "body_to_clothing" });
+      }
+      for (const equipmentAssetId of workOrder.equipmentAssetIds) {
+        const equipmentNodeId = `equip:${equipmentAssetId}`;
+        const edgeKey = `${wardrobeNodeId}\u0000${equipmentNodeId}`;
+        if (seenEdgeKeys.has(edgeKey)) {
+          continue;
+        }
+        seenEdgeKeys.add(edgeKey);
+        edges.push({ from: wardrobeNodeId, to: equipmentNodeId, kind: "wardrobe_to_equipment" });
+      }
+    }
+  }
+  return edges;
+}
+
+/**
+ * Parent-owned faculty compile lock rows: seeded from the scene pipeline queue and
+ * merged on queue identity so toggled locks survive re-renders, persisted to the
+ * compile-lock store on each toggle (the World Compile Graph compile runner reads
+ * .openclinxr/compile-locks/<scenarioId>.json). Review metadata only.
+ */
+export function useFacultyCompileLocks(
+  sceneGenerationPipelineQueue: ScenarioSceneGenerationPipelineWorkOrderQueue | undefined,
+  controlPlaneClient: AdminControlPlaneClient,
+): {
+  facultyCompileLockRows: FacultyCompileLockRow[];
+  handleFacultyCompileLockChange: (rowId: string, locked: boolean) => void;
+  handleFacultyCompileOverrideChange: (rowId: string, overridePath: FacultyCompileOverridePath | undefined) => void;
+  compileEdges: CompileEdge[];
+} {
+  const [facultyCompileLockRows, setFacultyCompileLockRows] = useState<FacultyCompileLockRow[]>([]);
+  useEffect(() => {
+    if (!sceneGenerationPipelineQueue) {
+      return;
+    }
+    setFacultyCompileLockRows((currentRows) =>
+      mergeFacultyCompileLockRows(buildFacultyCompileLockRows(sceneGenerationPipelineQueue), currentRows),
+    );
+  }, [sceneGenerationPipelineQueue]);
+
+  // Persist each faculty lock/override toggle to the compile-lock store (the World
+  // Compile Graph compile runner reads .openclinxr/compile-locks/<scenarioId>.json).
+  const persistCompileLock = (row: FacultyCompileLockRow, patch: { locked: boolean; overridePath: FacultyCompileOverridePath | undefined }): void => {
+    const context = findFacultyCompileLockContext(sceneGenerationPipelineQueue, row.compileSubject, row.kind);
+    if (!context) {
+      return;
+    }
+    // The concrete client returned by createAdminControlPlaneClient always carries
+    // the compile-lock methods; the base AdminControlPlaneClient type does not
+    // (api-client-types.ts is frozen at its ceiling, so the slice lives in
+    // faculty-compile-lock-types.ts as FacultyCompileLockClient).
+    void (controlPlaneClient as AdminControlPlaneClient & FacultyCompileLockClient)
+      .persistFacultyCompileLock({
+        scenarioId: context.scenarioId,
+        nodeId: context.nodeId,
+        locked: patch.locked,
+        ...(patch.overridePath === undefined ? {} : { overridePath: patch.overridePath }),
+      })
+      .catch(() => undefined);
+  };
+  const handleFacultyCompileLockChange = (rowId: string, locked: boolean): void => {
+    const row = facultyCompileLockRows.find((candidate) => candidate.rowId === rowId);
+    setFacultyCompileLockRows((currentRows) =>
+      currentRows.map((candidate) => (candidate.rowId === rowId ? { ...candidate, locked } : candidate)),
+    );
+    if (row) {
+      persistCompileLock(row, { locked, overridePath: row.overridePath });
+    }
+  };
+  const handleFacultyCompileOverrideChange = (rowId: string, overridePath: FacultyCompileOverridePath | undefined): void => {
+    const row = facultyCompileLockRows.find((candidate) => candidate.rowId === rowId);
+    setFacultyCompileLockRows((currentRows) =>
+      currentRows.map((candidate) =>
+        candidate.rowId === rowId ? { ...candidate, ...(overridePath === undefined ? {} : { overridePath }) } : candidate,
+      ),
+    );
+    if (row) {
+      persistCompileLock(row, { locked: row.locked, overridePath });
+    }
+  };
+  const compileEdges = sceneGenerationPipelineQueue ? buildCompileEdges(sceneGenerationPipelineQueue) : [];
+  return { facultyCompileLockRows, handleFacultyCompileLockChange, handleFacultyCompileOverrideChange, compileEdges };
+}
+
+/** antd Table columns for the faculty compile/materialization lock table. */
+export function buildFacultyCompileLockColumns({
+  onFacultyCompileLockChange,
+  onFacultyCompileOverrideChange,
+}: {
+  onFacultyCompileLockChange?: ((rowId: string, locked: boolean) => void) | undefined;
+  onFacultyCompileOverrideChange?: ((rowId: string, overridePath: FacultyCompileOverridePath | undefined) => void) | undefined;
+}): TableColumnsType<FacultyCompileLockRow> {
+  return [
+    {
+      title: "Kind",
+      dataIndex: "kind",
+      key: "kind",
+      render: (kind: FacultyCompileLockRow["kind"]) => <Tag color={kind === "actor" ? "cyan" : "purple"}>{kind}</Tag>,
+    },
+    { title: "Compile/materialization subject", dataIndex: "compileSubject", key: "compileSubject" },
+    {
+      title: "Lock",
+      dataIndex: "locked",
+      key: "locked",
+      render: (locked: boolean, row: FacultyCompileLockRow) => (
+        <Switch
+          checked={locked}
+          disabled={!onFacultyCompileLockChange}
+          aria-label={`Lock ${row.compileSubject}`}
+          onChange={(checked) => onFacultyCompileLockChange?.(row.rowId, checked)}
+        />
+      ),
+    },
+    {
+      title: "Override",
+      dataIndex: "overridePath",
+      key: "overridePath",
+      render: (overridePath: FacultyCompileOverridePath | undefined, row: FacultyCompileLockRow) => (
+        <Select<FacultyCompileOverridePath>
+          aria-label={`Override path for ${row.compileSubject}`}
+          placeholder="No override"
+          allowClear
+          showSearch={false}
+          virtual={false}
+          disabled={!onFacultyCompileOverrideChange}
+          options={FACULTY_COMPILE_OVERRIDE_PATHS.map((path) => ({ value: path, label: path }))}
+          value={overridePath ?? null}
+          onChange={(value) => onFacultyCompileOverrideChange?.(row.rowId, value)}
+        />
+      ),
+    },
+  ];
+}

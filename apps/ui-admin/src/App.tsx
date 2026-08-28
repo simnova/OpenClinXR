@@ -38,9 +38,10 @@ import {
 } from "./api-client.js";
 import { CaseAuthoringWorkbench } from "./CaseAuthoringWorkbench.js";
 import { EmissionReplayBindPanel } from "./EmissionReplayBindPanel.js";
-import { QueueReviewSnapshotHistory } from "./QueueReviewSnapshotHistory.js";
 import { EnvironmentGenerationQueuePanel } from "./EnvironmentGenerationQueuePanel.js";
 import { FacultyReviewDecisionPanel } from "./FacultyReviewDecisionPanel.js";
+import { useFacultyCompileLocks } from "./faculty-compile-lock.js";
+import { QueueReviewSnapshotHistory } from "./QueueReviewSnapshotHistory.js";
 import { ReviewReplayReadinessSummaryPanel } from "./ReviewReplayReadinessSummaryPanel.js";
 import { ReviewReplaySafetyPanel } from "./ReviewReplaySafetyPanel.js";
 import { RuntimeSelectionReviewPacketPanel } from "./RuntimeSelectionReviewPacketPanel.js";
@@ -1105,6 +1106,9 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
     | { status: "submitted"; message: string }
     | { status: "error"; message: string }
   >({ status: "idle" });
+  const sceneGenerationPipelineQueue = state.status === "ready" ? state.sceneGenerationPipelineQueue : undefined;
+  const { facultyCompileLockRows, handleFacultyCompileLockChange, handleFacultyCompileOverrideChange, compileEdges } =
+    useFacultyCompileLocks(sceneGenerationPipelineQueue, controlPlaneClient);
 
   useEffect(() => {
     let active = true;
@@ -1368,6 +1372,10 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
           sceneGenerationPipelineQueue={state.sceneGenerationPipelineQueue}
           sceneGenerationRequestQueue={state.sceneGenerationRequestQueue}
           {...(sceneGenerationPublicationReadiness ? { sceneGenerationPublicationReadiness } : {})}
+          facultyCompileLockRows={facultyCompileLockRows}
+          onFacultyCompileLockChange={handleFacultyCompileLockChange}
+          onFacultyCompileOverrideChange={handleFacultyCompileOverrideChange}
+          compileEdges={compileEdges}
           onInitiateSceneGeneration={(scenarioId) => void initiateSceneGeneration(scenarioId)}
           onAttachSceneGenerationReview={(request) => void attachSceneGenerationReview(request)}
           onCheckSceneGenerationPublicationReadiness={(request) => void checkSceneGenerationPublicationReadiness(request)}

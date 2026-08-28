@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -7,6 +8,7 @@ import {
   buildEncounterAssetGenerationQueueReport,
   buildEncounterAssetGenerationRequestForScenario,
   runEncounterAssetGenerationQueueCli,
+  sha256ContentHashOfArtifactAt,
   validateEncounterAssetGenerationQueueReport,
 } from "./encounter-asset-generation-queue.js";
 
@@ -25,10 +27,10 @@ describe("encounter asset generation queue report", () => {
     };
 
     expect(rootPackage.scripts["asset:encounter-queue:plan"]).toBe(
-      "tsx tools/openclinxr/encounter-asset-generation-queue.ts",
+      "tsx tools/openclinxr/factory/encounter-asset-generation-queue.ts",
     );
     expect(rootPackage.scripts["asset:encounter-queue:validate"]).toBe(
-      "tsx tools/openclinxr/encounter-asset-generation-queue.ts --validate-latest",
+      "tsx tools/openclinxr/factory/encounter-asset-generation-queue.ts --validate-latest",
     );
   });
 
@@ -783,6 +785,34 @@ describe("encounter asset generation queue report", () => {
       expect(process.exitCode).toBe(1);
     } finally {
       process.exitCode = previousExitCode;
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("hashes encounter definition artifact bytes at a source path; never emits the legacy contentHash literal", async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-contenthash-"));
+    try {
+      const artifactPath = path.join(tempDir, "encounter-definition.json");
+      const artifactBytes = Buffer.from(JSON.stringify({ scenarioId: "ed_chest_pain_priority_v1", version: 1, title: "ED Chest Pain" }));
+      await writeFile(artifactPath, artifactBytes);
+      const expectedHash = createHash("sha256").update(artifactBytes).digest("hex");
+
+      expect(sha256ContentHashOfArtifactAt(artifactPath)).toBe(expectedHash);
+      expect(sha256ContentHashOfArtifactAt(path.join(tempDir, "missing.json"))).toBeNull();
+
+      const withSource = buildEncounterAssetGenerationRequestForScenario(
+        "ed_chest_pain_priority_v1",
+        undefined,
+        undefined,
+        { encounterDefinitionSourcePath: artifactPath },
+      );
+      expect(withSource.encounterDefinitionRef.contentHash).toBe(expectedHash);
+      expect(JSON.stringify(withSource)).not.toContain("local-deterministic-encounter-definition-contract");
+
+      const withoutSource = buildEncounterAssetGenerationRequestForScenario("ed_chest_pain_priority_v1");
+      expect(withoutSource.encounterDefinitionRef.contentHash).toBeUndefined();
+      expect(JSON.stringify(withoutSource)).not.toContain("local-deterministic-encounter-definition-contract");
+    } finally {
       await rm(tempDir, { recursive: true, force: true });
     }
   });
