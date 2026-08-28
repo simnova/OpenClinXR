@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 """Measure the full #697 conditioning-rubric geometry metric set for one GLB.
 
-Metrics (single consistent definition; matches conditioning-v1.json geometryMetrics):
-  boundary_edge_count    edges referenced by exactly one face (open-shell tears)
-  is_watertight          boundary_edge_count == 0
-  welded_component_count connected components after position-welding vertices at 5dp
-  largest_component_share share of welded vertices in the largest component (recorded,
-                          NOT a quality predictor — the rubric bars it as a selector)
-  signed_volume          divergence-theorem volume (negative sign = inverted/degenerate winding)
-  surface_area           summed triangle area
-  raw_triangle_count     total triangles across all scene geometry
-  raw_bytes              GLB file size on disk
-  wall_clock_seconds     caller-supplied bake wall clock (echoed, recorded separately from visual quality)
+Metrics (single consistent definition; camelCased from conditioning-v1.json
+geometryMetrics — the report contract and trellis-conditioning-run.ts policy
+both read camelCase keys):
+  boundaryEdgeCount      edges referenced by exactly one face (open-shell tears)
+  isWatertight           boundaryEdgeCount == 0
+  weldedComponentCount   connected components after position-welding vertices at 5dp
+  largestComponentShare  share of welded vertices in the largest component (recorded,
+                         NOT a quality predictor — the rubric bars it as a selector)
+  signedVolume           divergence-theorem volume (negative sign = inverted/degenerate winding)
+  surfaceArea            summed triangle area
+  rawTriangleCount       total triangles across all scene geometry
+  rawBytes               GLB file size on disk
+  wallClockSeconds       caller-supplied bake wall clock (echoed, recorded separately from visual quality)
 
 Usage:
   python3 measure_conditioning_geometry.py --glb path/to/model.glb --wall-clock-s 1234.5 [--out out.json]
@@ -46,13 +48,13 @@ def measure(glb_path: str, wall_clock_s: float | None) -> dict:
 
     if not verts_list:
         return {
-            "boundary_edge_count": 0,
-            "is_watertight": False,
-            "welded_component_count": 0,
-            "largest_component_share": 0.0,
-            "signed_volume": 0.0,
-            "surface_area": 0.0,
-            "raw_triangle_count": 0,
+            "boundaryEdgeCount": 0,
+            "isWatertight": False,
+            "weldedComponentCount": 0,
+            "largestComponentShare": 0.0,
+            "signedVolume": 0.0,
+            "surfaceArea": 0.0,
+            "rawTriangleCount": 0,
         }
 
     verts = np.concatenate(verts_list, axis=0)
@@ -117,13 +119,13 @@ def measure(glb_path: str, wall_clock_s: float | None) -> dict:
     )
 
     return {
-        "boundary_edge_count": boundary_edges,
-        "is_watertight": boundary_edges == 0,
-        "welded_component_count": len(components),
-        "largest_component_share": round(largest_component_share, 6),
-        "signed_volume": round(signed_volume, 6),
-        "surface_area": round(surface_area, 6),
-        "raw_triangle_count": total_tris,
+        "boundaryEdgeCount": boundary_edges,
+        "isWatertight": boundary_edges == 0,
+        "weldedComponentCount": len(components),
+        "largestComponentShare": round(largest_component_share, 6),
+        "signedVolume": round(signed_volume, 6),
+        "surfaceArea": round(surface_area, 6),
+        "rawTriangleCount": total_tris,
     }
 
 
@@ -139,8 +141,8 @@ def main():
         "glbPath": args.glb,
         "method": "trimesh scene merge; position-weld at 5dp; edge census (boundary=1 ref); "
                   "divergence-theorem signed volume; largest component share by welded vertices",
-        "raw_bytes": args.raw_bytes,
-        "wall_clock_seconds": args.wall_clock_s,
+        "rawBytes": args.raw_bytes,
+        "wallClockSeconds": args.wall_clock_s,
         **measure(args.glb, args.wall_clock_s),
     }
     text = json.dumps(result, indent=2)
