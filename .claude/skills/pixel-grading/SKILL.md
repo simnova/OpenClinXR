@@ -58,6 +58,34 @@ hairline", a "toothed wedge" - all of them the interpolator, none of them the me
 - The tell: you are describing texture - *ragged, toothed, blocky, stair-stepped* - from an image you
   enlarged.
 
+## MEASURE THE FEATURE IN PIXELS BEFORE GRADING IT
+
+Measured 2026-08-27, and it cost a withdrawn verdict that was about to justify reverting a landed
+slice. I graded eyelashes from a full-body 4096x4096 capture and reported they "read as a speckled
+stipple rather than continuous strands", with the control "more defined". Then I measured the frame:
+**the iris spans 15 pixels**, so the lash band occupies three to five. Individual strands are
+sub-pixel.
+
+"Speckle rather than strands" is what ANY lash geometry looks like at that scale, a correct one
+included. The observation was real and carried no information.
+
+**So before writing a quality word about a feature, measure the feature's extent in pixels.** One
+numpy pass over the capture is enough. If the feature is under roughly ten pixels in its smallest
+dimension, no quality verdict is available and the honest report is that the instrument is wrong,
+not that the asset is.
+
+This is the native-resolution rule from the other direction. That rule stops you inventing detail by
+enlarging; this one stops you condemning a feature the frame never resolved. Both come from the same
+place: the pixels you are describing have to exist.
+
+**The remedy is framing, not enlargement.** Re-capture with the feature filling the frame. Enlarging
+the crop you have is the banned move.
+
+**What survives a resolution-limited capture:** presence, absence, gross placement, and STRUCTURE
+passes at their own scale. In the same session the structure pass legitimately showed dense lash
+geometry present in the treatment and absent in the control — a structural claim at adequate scale —
+while the lit-pass quality claim had to be withdrawn.
+
 ## A thumbnail cannot support a fine verdict
 
 A small preview supports COMPARATIVE and POSITIVE verdicts (this cell differs from that; this cell
