@@ -41,6 +41,16 @@ describe("the sweep line includes bothy ready", () => {
     expect(label).toBe("empty");
   });
 
+  it("(3a) empty Bothy queue does not BREACH the worker floor", () => {
+    const line = formatSweepLine(baseInventory({ liveWorkers: 0, workerFloor: 3, bothyReady: "empty" }));
+    expect(line).not.toMatch(/BREACH/);
+  });
+
+  it("(3b) a ready Bothy task with zero workers is BREACH", () => {
+    const line = formatSweepLine(baseInventory({ liveWorkers: 0, workerFloor: 3, bothyReady: "tsk_aabb" }));
+    expect(line).toMatch(/BREACH/);
+  });
+
   it("(3) probeBothyReady returns the Planted task id", async () => {
     const label = await probeBothyReady({
       pat: "bb_pat_test",

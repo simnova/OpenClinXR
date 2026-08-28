@@ -199,7 +199,7 @@ export function countUncardedRecentFiles(root: string, now = Date.now()): { coun
    * A deleted file cannot be read; treat an unreadable path as uncarded rather than silently carded,
    * so the failure direction stays conservative.
    */
-  const CARD = /#\d+/u;
+  const CARD = /#\d+|bothy-tsk_|tsk_[0-9a-f]+/iu;
   const files = [...added]
     .filter((rel) => {
       if (CARD.test(rel)) return false;
@@ -481,7 +481,14 @@ export function formatSweepLine(inventory: SweepInventory): string {
     inventory.liveWorkers < 0
       ? `workers=NOT DETERMINED/${inventory.workerFloor}`
       : `workers=${inventory.liveWorkers}/${inventory.workerFloor}`;
-  const breach = inventory.liveWorkers >= 0 && inventory.liveWorkers < inventory.workerFloor ? " BREACH" : "";
+  const queueHasReady =
+    inventory.bothyReady !== "empty" && inventory.bothyReady !== "NOT DETERMINED";
+  const breach =
+    inventory.liveWorkers >= 0 &&
+    inventory.liveWorkers < inventory.workerFloor &&
+    queueHasReady
+      ? " BREACH"
+      : "";
   return (
     `SWEEP: reds=${inventory.reds}${oldest} undisp=${undisp} `
       + `uncarded=${uncarded} rel=${rel} quiet=${inventory.quietThreads} ${workers} `
