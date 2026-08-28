@@ -12,6 +12,14 @@ import { describe, expect, it } from "vitest";
  * Diagnosis header IMMUTABLE. Flip it.fails; append ## FIXED.
  */
 
+/* ## FIXED (#0)
+
+withFacultyLock now writes `{ op: "replace", path: lock.overridePath, value: lock.overrideValue }`
+(faculty-locks.ts:191), FacultyCompileLock carries `overrideValue?: unknown`, and
+readFacultyCompileLocksFile parses `overrideValue` from the persisted JSON so the value
+survives the file → compile round trip. Compile recipe keys (specAfterOverride) now change
+when faculty sets a phenotype value. */
+
 const SRC = readFileSync(
   join(
     dirname(fileURLToPath(import.meta.url)),
@@ -21,12 +29,12 @@ const SRC = readFileSync(
 );
 
 describe("the faculty lock persist copies overrideValue into compile nodes", () => {
-  it.fails("(1) FacultyCompileLock includes overrideValue", () => {
+  it("(1) FacultyCompileLock includes overrideValue", () => {
     const t = SRC.slice(SRC.indexOf("export type FacultyCompileLock"));
     expect(t).toMatch(/overrideValue\??:\s*unknown/);
   });
 
-  it.fails("(2) withFacultyLock copies lock.overrideValue onto overridePatch.value", () => {
+  it("(2) withFacultyLock copies lock.overrideValue onto overridePatch.value", () => {
     expect(SRC).toMatch(/overridePatch\s*=\s*\{\s*op:\s*"replace",\s*path:\s*lock\.overridePath,\s*value:\s*lock\.overrideValue/);
   });
 });

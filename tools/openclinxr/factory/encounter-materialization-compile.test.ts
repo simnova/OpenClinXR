@@ -15,7 +15,7 @@ import {
   type EncounterMaterializationEvidenceReport,
   validateEncounterMaterializationEvidenceReport,
 } from "./encounter-materialization-evidence.js";
-import { persistFacultyCompileLocks } from "./encounter-materialization-faculty-locks.js";
+import { persistFacultyCompileLocks, readFacultyCompileLocksFile } from "./encounter-materialization-faculty-locks.js";
 import type { GeneratedEdStationRuntimeBundleReport } from "./generated-ed-station-runtime-bundle.js";
 
 const MAY_BODY = "actor:patient_maya_johnson_v1:body";
@@ -378,6 +378,56 @@ describe("compileEncounterMaterialization", () => {
 
     expect(nodeOf(withBodyB.report, MAY_WARDROBE)?.cacheKey).not.toBe(keyWithBodyA);
     expect(nodeOf(withBodyB.report, MAY_WARDROBE)?.spec).toEqual(nodeOf(withBodyA.report, MAY_WARDROBE)?.spec);
+  });
+
+  it("faculty overrideValue copies onto overridePatch.value and changes the wardrobe recipe key", async () => {
+    const first = await compileEncounterMaterialization({ bundleReport: twoActorBundleFixture() });
+    const persistedA = await persistFacultyCompileLocks({
+      prior: first.report,
+      locks: [{ nodeId: MAY_WARDROBE, locked: true, overridePath: "/garmentLayers", overrideValue: ["makeclothes_library_scrub_shirt"] }],
+    });
+    expect(nodeOf(persistedA, MAY_WARDROBE)?.overridePatch).toEqual({
+      op: "replace",
+      path: "/garmentLayers",
+      value: ["makeclothes_library_scrub_shirt"],
+    });
+
+    const compileA = await compileEncounterMaterialization({ prior: persistedA, bodyHashNowByNodeId: { [MAY_BODY]: BODY_A } });
+    const keyA = nodeOf(compileA.report, MAY_WARDROBE)?.cacheKey;
+    expect(keyA).toBeTypeOf("string");
+
+    // Faculty changes the phenotype value: the spec slice the baker reads
+    // (specAfterOverride) differs, so the recipe key must differ.
+    const persistedB = await persistFacultyCompileLocks({
+      prior: compileA.report,
+      locks: [{ nodeId: MAY_WARDROBE, locked: true, overridePath: "/garmentLayers", overrideValue: ["makeclothes_library_scrub_pants"] }],
+    });
+    const compileB = await compileEncounterMaterialization({ prior: persistedB, bodyHashNowByNodeId: { [MAY_BODY]: BODY_A } });
+    expect(nodeOf(compileB.report, MAY_WARDROBE)?.cacheKey).not.toBe(keyA);
+    expect(validateEncounterMaterializationEvidenceReport(compileB.report)).toEqual({ ok: true, errors: [] });
+  });
+
+  it("readFacultyCompileLocksFile parses overrideValue from the persisted lock JSON", async () => {
+    const dir = await mkdtemp(path.join(os.tmpdir(), "wcg-lock-read-"));
+    try {
+      const filePath = path.join(dir, "peds_asthma_parent_anxiety_v1.json");
+      await writeFile(
+        filePath,
+        JSON.stringify({
+          scenarioId: "peds_asthma_parent_anxiety_v1",
+          locks: [
+            { nodeId: MAY_WARDROBE, locked: true, overridePath: "/garmentLayers", overrideValue: "scrub_shirt" },
+          ],
+        }),
+        "utf8",
+      );
+      const locks = await readFacultyCompileLocksFile(filePath, "peds_asthma_parent_anxiety_v1");
+      expect(locks).toEqual([
+        { nodeId: MAY_WARDROBE, locked: true, overridePath: "/garmentLayers", overrideValue: "scrub_shirt" },
+      ]);
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
   });
 
   it("bake=false wardrobe still stamps its cacheKey while wouldInvoke stays null", async () => {
