@@ -5,16 +5,17 @@
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
     "agent-methodology": 81,
-    "current-reference": 214,
+    "current-reference": 219,
     "archive-candidate": 11,
     "evidence": 52,
     "protected-policy": 11,
     "agent-memory": 39,
     "historical-synthesis": 11,
-    "decision-record": 44,
-    "total": 465,
+    "decision-record": 45,
+    "total": 471,
     "generated-evidence": 1,
-    "reference": 1
+    "reference": 1,
+    "entries": 474
   },
   "entries": [
     {
@@ -2568,6 +2569,13 @@
       "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
     },
     {
+      "path": "docs/madr/0058-world-compile-graph-extends-evidence-v1.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "World Compile Graph is additive encounter-materialization-evidence.v1, not a fourth ledger. Subordinate to protected guardrails and #167 freeze."
+    },
+    {
       "path": "docs/madr/README.md",
       "authority": "decision-record",
       "agentInstructionWeight": "medium",
@@ -2622,6 +2630,34 @@
       "agentInstructionWeight": "highest",
       "action": "protect",
       "rationale": "Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it."
+    },
+    {
+      "path": "docs/openclinxr/bothyboard-0.5.0-contract-2026-08-27.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "high",
+      "action": "use-as-current",
+      "rationale": "BothyBoard 0.5.0 / 54c918c live contract: tasks.next machineName+cacheToken+spawnCommand. Not Quest/clinical. Selector swap only after 0.5.0 probes."
+    },
+    {
+      "path": "docs/openclinxr/bothyboard-agent-customer-2026-08-27.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "high",
+      "action": "use-as-current",
+      "rationale": "OpenClinXR as BothyBoard customer: live parse gate green; remaining C1-C8 before selectNextFromBoard swap. Not a cutover order."
+    },
+    {
+      "path": "docs/openclinxr/bothyboard-agent-next-2026-08-27.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "high",
+      "action": "use-as-current",
+      "rationale": "Remaining BothyBoard work after live G1e/G1f miss: slugKey, requiredWhen, dump factory_step underscore. Not an OpenClinXR cutover."
+    },
+    {
+      "path": "docs/openclinxr/bothyboard-overtake-gh-projects-agent-brief-2026-08-27.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "high",
+      "action": "use-as-current",
+      "rationale": "Agent-only spec for BothyBoard to overtake GitHub project 7 as HOT dequeue SSOT. Subordinate to AGENTS.md and protected guardrails. Not Quest/clinical evidence. Not an OpenClinXR cutover order."
     },
     {
       "path": "docs/openclinxr/cagematch-spec-local-stt-and-quest-transport-2026-08-05.md",
@@ -3121,6 +3157,13 @@
       "rationale": "Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it."
     },
     {
+      "path": "docs/openclinxr/world-compile-graph-brief-2026-08-27.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "World Compile Graph execution brief: extend encounter-materialization-evidence.v1 with lock/stale/hash/edges; not a fourth ledger, not a MADR, not Quest/scoring evidence. Subordinate to protected guardrails, AGENTS.md, and the #167 exam-start freeze."
+    },
+    {
       "path": "iterations/README.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "low",
@@ -3289,6 +3332,13 @@
       "rationale": "Unclassified Markdown; review before using as instruction.",
       "title": "TRELLIS multi-view Grok packs operator spec",
       "summary": "Operator spec for multi-view Grok Imagine packs and factory:trellis:bake multi-image wiring."
+    },
+    {
+      "path": "docs/openclinxr/cagematch/findings/iwsdk-scene-composer.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "#577 cagematch finding of record: IWSDK scene composer reject_measured for room_generate \u2014 verify gate exits 2 (TS2688, no node_modules) and @iwsdk/scene-composition@0.5.3 rejects the OpenClinXR case manifest with zero schema overlap; station requires agent hand-mapping. Measured 2026-08-28."
     }
   ]
 }
