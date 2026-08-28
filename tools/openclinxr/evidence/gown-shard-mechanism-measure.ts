@@ -2,6 +2,14 @@
  * #691 — measure the gown shard mechanisms per decile of the gown's own height, before anything
  * changes. Diagnosis only: this script writes the report and changes no asset bytes.
  *
+ * #714 — re-measurement on the post-fix asset: the report is written to the #714 contract path
+ * `gown-fold-clamp-measurement.json`, the pinned sha is env-overridable
+ * (`OPENCLINXR_GOWN_PIN_SHA`/`OPENCLINXR_GOWN_PIN_BYTES`) so the same instrument measures the
+ * pre-fix and post-fix assets, and `renderPath`/`renderNote` record the grade render for the
+ * orchestrator (set `OPENCLINXR_GOWN_RENDER_PATH` and `OPENCLINXR_GOWN_RENDER_NOTE` when running).
+ * The instruments are unchanged from #691; one field is ADDED: `gownVerticesInsideBodyTwoTests`
+ * (a vertex is inside only when TWO independent tests agree — see the definition at its use site).
+ *
  * ## INSTRUMENTS
  *
  * 1. interpenetration (gownVerticesInsideBody): even-odd point-in-mesh test by +X raycast
@@ -50,14 +58,16 @@ import { NodeIO, type Document } from "@gltf-transform/core";
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(HERE, "../../..");
 const GLB_PATH = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb");
-const REPORT_PATH = join(HERE, "gown-shard-mechanism-measurement.json");
+const REPORT_PATH = join(HERE, "gown-fold-clamp-measurement.json");
 
-/** Counterweight (3) from the card: this slice changes no asset bytes. */
-const GLB_SHA256 = "7bd12d06aec497a939aa62301c73274cf23e6dd7b1da6d5c085db6c17f57fd4a";
-const GLB_BYTES = 7_116_988;
+/** Counterweight (3) from the card: pin the graded asset before measuring anything.
+ *  #714: env-overridable so the same instrument measures the pre-fix and post-fix assets;
+ *  the default is updated to the post-fix rebaked asset after the bake. */
+const GLB_SHA256 = process.env.OPENCLINXR_GOWN_PIN_SHA ?? "dd2340a9e22300875445b561c4cb5fdfed4711521e6f5b14d95916946559c2eb";
+const GLB_BYTES = Number(process.env.OPENCLINXR_GOWN_PIN_BYTES ?? 9_280_276);
 
 const GOWN_MESH = "openclinxr_real_garment_peds_upper_v1_mesh";
-const BODY_PRIM = "mpfb_skin_ob_patient_aisha";
+const BODY_PRIM = "mpfb_skin_robert_reference";
 const DECILES = 10;
 const CELL = 0.06;
 /** Triangles below this area are degenerate at render scale (side length < ~0.14 mm). */
@@ -576,6 +586,14 @@ async function main(): Promise<void> {
     rayDisagreements: 0,
     zeroAreaTriangles: 0,
     inwardFacingTrianglesNearestSurface: 0,
+    // #714 corrected metric: inside ONLY when two independent tests agree — a parity ray
+    // test alone is invalid on the non-watertight body hull (2,090 open boundary edges;
+    // a ray through a seam flips odd parity without the point being inside). A vertex
+    // counts here when (parity says inside AND nearest-surface signed distance says
+    // strictly inside) on either the +X or +Z ray. This is the definition the #714
+    // contract clause (1) asserts on; it removes the single-axis false positives while
+    // keeping real penetrations (the armpit/seam class) visible.
+    gownVerticesInsideBodyTwoTests: 0,
   }));
   for (let d = 0; d < DECILES; d++) {
     deciles[d]!.index = d;
@@ -593,7 +611,10 @@ async function main(): Promise<void> {
     if (insideZ) d.gownVerticesInsideBodyRayZ++;
     if (insideX !== insideZ) d.rayDisagreements++;
     const { sign } = nearestBodyInfo(q, geo);
-    if (sign < -SURFACE_EPS) d.gownVerticesInsideBodyNearest++;
+    const insideNearest = sign < -SURFACE_EPS;
+    if (insideNearest) d.gownVerticesInsideBodyNearest++;
+    // #714: two independent tests must AGREE a vertex is inside (parity + nearest-surface).
+    if ((insideX || insideZ) && insideNearest) d.gownVerticesInsideBodyTwoTests++;
   }
 
   for (let t = 0; t + 2 < gownIdx.length; t += 3) {
@@ -695,10 +716,12 @@ async function main(): Promise<void> {
   })();
 
   const report = {
-    slice: "issue-691",
-    title: "gown shard mechanism measurement — per-decile, pre-change (diagnosis only)",
+    slice: "issue-714",
+    title: "gown fold clamp measurement — per-decile, pre/post-fix re-measurement of #691",
     measuredAt: new Date().toISOString(),
     measuredAtCommit: headSha(),
+    renderPath: process.env.OPENCLINXR_GOWN_RENDER_PATH ?? "",
+    renderNote: process.env.OPENCLINXR_GOWN_RENDER_NOTE ?? "",
     counterweight: {
       glbSha256: hash,
       glbBytes: bytes.byteLength,
@@ -724,9 +747,10 @@ async function main(): Promise<void> {
     method: {
       decilesOver: `gown's own y-range ${gMinY.toFixed(3)}..${gMaxY.toFixed(3)} m, ten equal bands`,
       interpenetration: {
-        primary: "even-odd point-in-mesh by +X raycast (Moller-Trumbore, q=s x e1), grid-accelerated over the visible skin primitive mpfb_skin_ob_patient_aisha",
+        primary: "even-odd point-in-mesh by +X raycast (Moller-Trumbore, q=s x e1), grid-accelerated over the visible skin primitive mpfb_skin_robert_reference",
         crossCheckRayZ: "same test with +Z ray",
         crossCheckNearest: "nearest body triangle signed distance (3x3-cell search, Ericson closest point), inside = sign < -2mm",
+        twoTestsAgree: "#714 corrected primary: a vertex counts as inside only when a parity test AND the nearest-surface signed distance agree (either ray + nearest). Single-axis parity is invalid on the non-watertight hull: a ray crossing an open boundary edge flips odd parity without the point being inside.",
         caveat: "the body mesh is not watertight (boundary edges within the gown's y-range); parity can flip near seams — hence the two-ray and nearest-surface cross-checks",
         validated: "centroid and neck test points classify inside, far points outside; hit points keep the ray origin's y/z (invariant checked)",
       },
@@ -744,12 +768,17 @@ async function main(): Promise<void> {
       gownVerticesInsideBody: deciles.reduce((s, d) => s + d.gownVerticesInsideBody, 0),
       gownVerticesInsideBodyRayZ: deciles.reduce((s, d) => s + d.gownVerticesInsideBodyRayZ, 0),
       gownVerticesInsideBodyNearest: deciles.reduce((s, d) => s + d.gownVerticesInsideBodyNearest, 0),
+      gownVerticesInsideBodyTwoTests: deciles.reduce((s, d) => s + d.gownVerticesInsideBodyTwoTests, 0),
       degenerateTriangles: deciles.reduce((s, d) => s + d.degenerateTriangles, 0),
       inwardFacingTriangles: deciles.reduce((s, d) => s + d.inwardFacingTriangles, 0),
       inwardFacingTrianglesNearestSurface: deciles.reduce((s, d) => s + d.inwardFacingTrianglesNearestSurface, 0),
     },
     upperVsLower: {
       gownVerticesInsideBody: { upper: insideU, lower: insideL },
+      gownVerticesInsideBodyTwoTests: {
+        upper: upper((d) => d.gownVerticesInsideBodyTwoTests),
+        lower: lower((d) => d.gownVerticesInsideBodyTwoTests),
+      },
       degenerateTriangles: { upper: degenU, lower: degenL },
       inwardFacingTriangles: { upper: inwardU, lower: inwardL },
     },
@@ -761,7 +790,8 @@ async function main(): Promise<void> {
   writeFileSync(REPORT_PATH, `${JSON.stringify(report, null, 2)}\n`, "utf8");
   process.stdout.write(`wrote ${REPORT_PATH}\n`);
   process.stdout.write(
-    `inside upper=${insideU} lower=${insideL} | degen upper=${degenU} lower=${degenL} | ` +
+    `inside upper=${insideU} lower=${insideL} | twoTests upper=${upper((d) => d.gownVerticesInsideBodyTwoTests)} lower=${lower((d) => d.gownVerticesInsideBodyTwoTests)} | ` +
+      `degen upper=${degenU} lower=${degenL} | ` +
       `inward upper=${inwardU} lower=${inwardL} | supported=${supportedMechanism}\n`,
   );
 }
