@@ -41,6 +41,8 @@ export type EnvironmentGenerationQueuePanelProps = {
   onFacultyCompileLockChange?: (rowId: string, locked: boolean) => void;
   /** Parent-owned override path change for a faculty lock row (ActorPhenotypeSchema pointers only). */
   onFacultyCompileOverrideChange?: (rowId: string, overridePath: FacultyCompileOverridePath | undefined) => void;
+  /** Parent-owned override VALUE change for a faculty lock row (the value half of the overridePatch). */
+  onFacultyCompileOverrideValueChange?: (rowId: string, overrideValue: unknown) => void;
   /** Compile/materialization dependency edges for a read-only graph view. Optional; writes stay on the lock Table API. */
   compileEdges?: CompileEdge[];
 };
@@ -60,6 +62,7 @@ export function EnvironmentGenerationQueuePanel({
   facultyCompileLockRows = [],
   onFacultyCompileLockChange,
   onFacultyCompileOverrideChange,
+  onFacultyCompileOverrideValueChange,
   compileEdges = [],
 }: EnvironmentGenerationQueuePanelProps): ReactElement {
   const nextGateSummary = summarizeEnvironmentNextGateCounts(environmentGenerationQueue);
@@ -214,7 +217,7 @@ export function EnvironmentGenerationQueuePanel({
           pagination={false}
           rowKey="rowId"
           dataSource={facultyCompileLockRows}
-          columns={buildFacultyCompileLockColumns({ onFacultyCompileLockChange, onFacultyCompileOverrideChange })}
+          columns={buildFacultyCompileLockColumns({ onFacultyCompileLockChange, onFacultyCompileOverrideChange, onFacultyCompileOverrideValueChange })}
           locale={{ emptyText: "No compile/materialization lock rows attached yet." }}
         />
         <Typography.Paragraph type="secondary">

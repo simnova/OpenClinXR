@@ -376,6 +376,7 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
           nodeId: input.nodeId,
           locked: input.locked,
           ...(input.overridePath === undefined ? {} : { overridePath: input.overridePath }),
+          ...(input.overrideValue === undefined ? {} : { overrideValue: input.overrideValue }),
         },
         await authHeaders(),
       ),
@@ -391,7 +392,6 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
         }
         return data.stationRunQueueSnapshots;
       }
-
       const data = await graphql<StationRunQueueSnapshotsQuery>(
         fetcher,
         baseUrl,
