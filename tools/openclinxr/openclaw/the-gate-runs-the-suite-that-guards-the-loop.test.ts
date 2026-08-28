@@ -35,6 +35,12 @@ import { stepsForProfile } from "./agentic-hook-runner.js";
  *   and that staging elsewhere does not.
  * notEvidenceFor: whether any OTHER suite has the same blind spot (not surveyed), what CI runs, the
  *   right friction budget for a pre-commit hook, or whether the suite currently passes.
+ *
+ * ## FIXED (#0)
+ * `agentic-hook-runner.ts` `buildPathAwareSteps` now adds a path-scoped "OpenClaw suite (openclaw
+ * code staged)" step (`pnpm exec vitest run tools/openclinxr/openclaw/`) when, and only when, a
+ * staged file matches /^tools\/openclinxr\/openclaw\//u — the same shape as the architecture
+ * path-scoped rule. Clause (1) flipped it.fails -> it; clauses (2)-(4) unchanged and still green.
  */
 
 const OPENCLAW_FILE = "tools/openclinxr/openclaw/dispatch-worker.ts";
@@ -46,7 +52,7 @@ const hasOpenclawStep = (staged: string[]): boolean =>
     /openclaw/iu.test(s.label) && /suite|vitest|contract/iu.test(`${s.label} ${s.cmd ?? ""}`));
 
 describe("the gate runs the suite that guards the loop", () => {
-  it.fails("(1) a staged openclaw file adds a step that runs the openclaw suite", () => {
+  it("(1) a staged openclaw file adds a step that runs the openclaw suite", () => {
     expect(
       hasOpenclawStep([OPENCLAW_FILE]),
       "dispatch-worker.ts is staged and nothing runs the contracts guarding it. Three files sat red "
