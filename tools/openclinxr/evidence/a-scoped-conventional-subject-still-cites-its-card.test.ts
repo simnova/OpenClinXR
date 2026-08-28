@@ -58,7 +58,7 @@ function shippedSubjectPattern(issue: number): string {
 }
 
 describe("#743 a conventional subject with a scope suffix still cites its card", () => {
-  it.fails("(1) RED: fix(#723 residual) counts as a claim on #723", () => {
+  it("(1) fix(#723 residual) counts as a claim on #723", () => {
     const n = subjectMatches(shippedSubjectPattern(723));
     // 3 today; the two `residual` commits bring it to 5.
     expect(n, "subject-form claims on #723").toBeGreaterThanOrEqual(5);
@@ -91,3 +91,15 @@ describe("#743 a conventional subject with a scope suffix still cites its card",
     expect(src).toContain("--grep=^(fix|feat|test|refactor|perf|chore)");
   });
 });
+
+/**
+ * ## FIXED (#743)
+ *
+ * The subject pattern is now
+ *   ^(fix|feat|test|refactor|perf|chore)\(#N([^0-9)][^)]*)?\)
+ * so a scope suffix no longer demotes a conventional claim. Strict matches for #723 went 3 to 5,
+ * picking up both `residual` commits, and the #72 false-positive check still returns 0.
+ *
+ * The loose fallback and the subject anchor are untouched, so MENTION ONLY remains a distinct and
+ * weaker signal.
+ */

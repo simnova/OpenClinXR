@@ -560,8 +560,17 @@ export function verifyDoneClaim(root: string, issue: number, stage: string): Don
    * convention is reported as UNCONVENTIONAL rather than silently failed — refusing real work is a
    * worse failure than admitting a weaker signal.
    */
+  /**
+   * #743: the scope may carry a suffix. `fix(#723 residual): ...` is a deliberate claim and the
+   * paren-immediately-after form missed it, demoting two real commits to the MENTION ONLY fallback.
+   * Strict matches for #723 went 3 -> 5 with this.
+   *
+   * `[^0-9)]` on the first suffix character is load-bearing: without it, #72 matches `(#723 ...)`.
+   * And do NOT reach for `\b` — `git log -E` is POSIX ERE, where it is not a word boundary and the
+   * pattern silently matches NOTHING, which reads as "no commit cites this card".
+   */
   const subjectShas = sh(["git", "log", "--all", "--format=%H",
-    `--grep=^(fix|feat|test|refactor|perf|chore)\\(#${issue}\\)`, "-E"], root).split("\n").filter(Boolean);
+    `--grep=^(fix|feat|test|refactor|perf|chore)\\(#${issue}([^0-9)][^)]*)?\\)`, "-E"], root).split("\n").filter(Boolean);
   const anyShas = sh(["git", "log", "--all", "--format=%H",
     `--grep=(^|[^0-9])#${issue}([^0-9]|$)`, "-E"], root).split("\n").filter(Boolean);
   const shas = subjectShas.length > 0 ? subjectShas : anyShas;
