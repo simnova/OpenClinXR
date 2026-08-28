@@ -26,6 +26,9 @@
  *   gitignored-proof-target  — exists:/min-bytes: proof reads a gitignored target the branch
  *                              does not land (#217; clean clones cannot fail it for the right
  *                              reason, and force-add or the brief opt-out is the remediation)
+ *   frozen-file-grown        — committed content put a SIZE_FREEZE file past its ceiling with
+ *                              the freeze map untouched (#574/#587; the map defence cannot see
+ *                              growth that never touched file-size-budgets.ts)
  */
 
 import { execFileSync } from "node:child_process";
@@ -433,6 +436,59 @@ function checkRaisedCeiling(repoRoot: string, base: string, head: string): KillF
   ];
 }
 
+/**
+ * frozen-file-grown — a SIZE_FREEZE file whose COMMITTED content at head exceeds its ceiling.
+ *
+ * #574/#587: `checkRaisedCeiling` defends the MAP (maxLines values), never the FILES it
+ * governs. An orchestrator salvage-commit grew asset-registry/src/index.ts 2842 → 2850 against
+ * a ceiling of 2843 with the freeze map untouched, and nothing refused it at integrate — the
+ * next worker discovered it as a blocked commit. This criterion measures the files the map
+ * governs, so the refusal lands on the actor who caused the growth, by name.
+ *
+ * Deliberate properties, pinned by the planted contract on #587:
+ *   - The ceiling is read from the HEAD map (the tree being merged). Growing the file AND
+ *     widening its entry in the same branch stays refused — by `raised-ceiling`, which
+ *     compares base vs head maps. A raise must be its own dated, operator-authorised commit
+ *     touching only file-size-budgets.ts; this criterion never fires on a map raise by itself.
+ *   - The length is read from COMMITTED content via `git show <head>:<path>`, never the
+ *     working tree (#361: a shared checkout's dirt must not fabricate reds or greens).
+ *   - Thresholds are untouched: this measures compliance with ceilings, it does not move one.
+ */
+function checkFrozenFileGrown(repoRoot: string, head: string): KillFinding[] {
+  const evidence: KillFinding["evidence"] = [];
+
+  const sizeHead = loadFileAt(repoRoot, head, SIZE_FREEZE_PATH);
+  if (sizeHead === null) return []; // no map at head — nothing to measure (mirrors raised-ceiling)
+  const ceilings = parseSizeFreezeCeilings(sizeHead);
+
+  for (const [path, maxLines] of ceilings) {
+    const content = loadFileAt(repoRoot, head, path);
+    if (content === null) continue; // deleted at head — deletion is not growth
+    const measured = content.split("\n").length - 1;
+    if (measured > maxLines) {
+      evidence.push({
+        file: path,
+        excerpt: `${path} is ${measured} lines against its SIZE_FREEZE ceiling of ${maxLines}`,
+      });
+    }
+  }
+
+  if (evidence.length === 0) return [];
+  return [
+    {
+      id: "frozen-file-grown",
+      severity: "kill",
+      title: "A SIZE_FREEZE file exceeds its ceiling at head",
+      evidence,
+      reason:
+        "Incident class #574/#587: committed content grew a frozen file past its ceiling while "
+        + "the freeze map was untouched, so raised-ceiling could not see it. The map defence "
+        + "stays; this criterion is additive. Growing the file is never legal — a raise must be "
+        + "its own dated, operator-authorised commit touching only file-size-budgets.ts.",
+    },
+  ];
+}
+
 function checkEmptyDiffWithPassingProofs(
   changedFiles: number,
   contract: MergeKillInput["contract"],
@@ -809,6 +865,7 @@ export function runMergeKill(input: MergeKillInput): MergeKillReport {
   findings.push(...checkAddedSuppression(addedLines));
   findings.push(...checkDeletedTest(entries));
   findings.push(...checkRaisedCeiling(repoRoot, base, head));
+  findings.push(...checkFrozenFileGrown(repoRoot, head));
   findings.push(...checkEmptyDiffWithPassingProofs(changedFiles, contract));
   findings.push(...checkContractNotVerified(contract));
   findings.push(...checkHookBypassInHistory(repoRoot, base, head));
@@ -902,6 +959,7 @@ export function formatMergeKillReport(r: MergeKillReport): string {
     "added-suppression",
     "deleted-test",
     "raised-ceiling",
+    "frozen-file-grown",
     "empty-diff-with-passing-proofs",
     "contract-not-verified",
     "hook-bypass-in-history",
