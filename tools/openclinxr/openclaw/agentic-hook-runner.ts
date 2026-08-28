@@ -287,6 +287,12 @@ function buildPathAwareSteps(profile: HookProfile, changedFiles: string[]): Hook
     /^turbo\.json$/u,
   ]);
 
+  // Mirrors the architecture path-scoped rule: the suite that guards the delegation loop runs
+  // when, and only when, a staged file lives in the directory it guards. Without this, a commit
+  // touching the dispatcher/board/sweep/hook-runner itself never pays for the contracts that
+  // guard them (measured 2026-08-24: three files red for 18, 5 and 2 days behind exactly this gap).
+  const openclawCodeChanged = matchesAnyPath(changedFiles, [/^tools\/openclinxr\/openclaw\//u]);
+
   const steps: HookStep[] = [];
 
   if (publicAssetChanged || process.env.OPENCLINXR_HOOK_PUBLIC_ASSETS === "1") {
@@ -294,6 +300,15 @@ function buildPathAwareSteps(profile: HookProfile, changedFiles: string[]): Hook
       label: "Public site validation",
       command: pnpm("pages:validate"),
       reason: "public README/site links, source posture, and snapshot markers remain valid",
+    });
+  }
+
+  if (profile === "pre-commit" && openclawCodeChanged) {
+    steps.push({
+      label: "OpenClaw suite (openclaw code staged)",
+      command: ["pnpm", "exec", "vitest", "run", "tools/openclinxr/openclaw/"],
+      reason:
+        "a staged file under tools/openclinxr/openclaw/ can break the delegation loop — the contracts guarding it must run",
     });
   }
 
