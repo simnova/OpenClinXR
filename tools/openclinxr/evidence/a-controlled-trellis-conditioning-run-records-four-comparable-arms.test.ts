@@ -49,10 +49,22 @@ import { describe, expect, it } from "vitest";
  * grade of `boards/` is the visual verdict (pending); no default changed.
  */
 
+/**
+ * ## FIXED (#697 post-merge)
+ *
+ * The conditioning report lives under `.openclinxr/evidence/` in the worktree, which is
+ * gitignored, so a fresh checkout read an absent file and this card failed exactly as #712.
+ * The landable artifact is now the TRACKED fixture
+ * `tools/openclinxr/evidence/fixtures/issue-697-conditioning-report.json` (byte-identical to
+ * the bake's report; the issue-255 prior is tracked the same way). The gitignored worktree
+ * evidence under `.openclinxr/evidence/trellis-conditioning-policy/` remains the bake outputs:
+ * RAW GLBs, boards, receipts, and geometry diagnostics.
+ */
+
 const ROOT = process.cwd();
-const REPORT = resolve(ROOT, ".openclinxr/evidence/trellis-conditioning-policy/conditioning-report.json");
+const REPORT = resolve(ROOT, "tools/openclinxr/evidence/fixtures/issue-697-conditioning-report.json");
 const RUBRIC = resolve(ROOT, "tools/openclinxr/asset-pipeline/trellis/rubrics/conditioning-v1.json");
-const PRIOR = resolve(ROOT, ".openclinxr/evidence/issue-255/multiview-report.json");
+const PRIOR = resolve(ROOT, "tools/openclinxr/evidence/fixtures/issue-255-multiview-report.json");
 const SHA256 = /^[a-f0-9]{64}$/;
 
 /** Arms and their ORDERED conditioning views. front is input zero in every arm. */

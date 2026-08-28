@@ -1,0 +1,230 @@
+{
+  "schemaVersion": "openclinxr.trellis-conditioning-report.v1",
+  "issue": "697",
+  "subject": "ecg-cart-midband",
+  "subjectDisplayName": "12-lead ECG cart midband kit (Stab E)",
+  "generatedAt": "2026-08-28T18:29:21.135Z",
+  "seed": 20260828,
+  "samplerParameterSha256": "f83efd3400bd839802d01a63a4e4b27f642c044aaf6bef21c5d6087a8d1c1470",
+  "samplerSpec": {
+    "overrides": {},
+    "note": "pipeline_defaults_no_overrides"
+  },
+  "sourceSet": {
+    "dir": ".openclinxr/evidence/trellis-conditioning-policy/source-set",
+    "viewCount": 8,
+    "sixCardinalsRecorded": true,
+    "manifestPath": ".openclinxr/evidence/trellis-conditioning-policy/source-set/pack-manifest.json",
+    "manifestSha256": "ce5952c070851dadfd0389c92420ff738e0477e0bae8f80fa5285702c3f304a4"
+  },
+  "rubric": {
+    "path": "tools/openclinxr/asset-pipeline/trellis/rubrics/conditioning-v1.json",
+    "sha256": "ac7cf3fc7783592315d6292e5e23d3c5d09d219e6f1dc232b46bf418dadabc08"
+  },
+  "arms": [
+    {
+      "armId": "single_shared_front",
+      "status": "mesh_exported",
+      "seed": 20260828,
+      "samplerParameterSha256": "f83efd3400bd839802d01a63a4e4b27f642c044aaf6bef21c5d6087a8d1c1470",
+      "inputImages": [
+        {
+          "path": ".openclinxr/evidence/trellis-conditioning-policy/source-set/front.png",
+          "sha256": "7c3905ce657818b57908e62f6c3edc3f980fd773087aebb82f8c9aefa103b533",
+          "viewId": "front"
+        }
+      ],
+      "geometry": {
+        "glbPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-697/.openclinxr/evidence/trellis-conditioning-policy/arms/single_shared_front/single_shared_front.glb",
+        "method": "trimesh scene merge; position-weld at 5dp; edge census (boundary=1 ref); divergence-theorem signed volume; largest component share by welded vertices",
+        "rawBytes": 16303904,
+        "wallClockSeconds": 1531.1738362312317,
+        "boundaryEdgeCount": 23140,
+        "isWatertight": false,
+        "weldedComponentCount": 122,
+        "largestComponentShare": 0.664195,
+        "signedVolume": 0.283247,
+        "surfaceArea": 7.835346,
+        "rawTriangleCount": 291771
+      },
+      "reviewReceipt": {
+        "path": ".openclinxr/evidence/trellis-conditioning-policy/receipts/single_shared_front.json",
+        "sha256": "5e214d3190665ed81ecfabbd0b5f33b4445a21c1c58930ddc188231d417d4d96"
+      }
+    },
+    {
+      "armId": "current_four",
+      "status": "mesh_exported",
+      "seed": 20260828,
+      "samplerParameterSha256": "f83efd3400bd839802d01a63a4e4b27f642c044aaf6bef21c5d6087a8d1c1470",
+      "inputImages": [
+        {
+          "path": ".openclinxr/evidence/trellis-conditioning-policy/source-set/front.png",
+          "sha256": "7c3905ce657818b57908e62f6c3edc3f980fd773087aebb82f8c9aefa103b533",
+          "viewId": "front"
+        },
+        {
+          "path": ".openclinxr/evidence/trellis-conditioning-policy/source-set/right.png",
+          "sha256": "d98b7d99f49be00b1d12bf9934bd54a3249fee615c0ced07844a334849cfd8eb",
+          "viewId": "right"
+        },
+        {
+          "path": ".openclinxr/evidence/trellis-conditioning-policy/source-set/three_quarter_left.png",
+          "sha256": "d18ae3bbc5a50f937ade8be79bc376b18682be06e6f7ce7c11eb18a22472b5b2",
+          "viewId": "three_quarter_left"
+        },
+        {
+          "path": ".openclinxr/evidence/trellis-conditioning-policy/source-set/three_quarter_right.png",
+          "sha256": "78cdef858eb2bbe995f4a499f33223347197c907b842530835e2495da510012d",
+          "viewId": "three_quarter_right"
+        }
+      ],
+      "geometry": {
+        "glbPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-697/.openclinxr/evidence/trellis-conditioning-policy/arms/current_four/current_four.glb",
+        "method": "trimesh scene merge; position-weld at 5dp; edge census (boundary=1 ref); divergence-theorem signed volume; largest component share by welded vertices",
+        "rawBytes": 16808920,
+        "wallClockSeconds": 1364.4063317775726,
+        "boundaryEdgeCount": 23019,
+        "isWatertight": false,
+        "weldedComponentCount": 173,
+        "largestComponentShare": 0.599837,
+        "signedVolume": 0.166289,
+        "surfaceArea": 5.410236,
+        "rawTriangleCount": 290004
+      },
+      "reviewReceipt": {
+        "path": ".openclinxr/evidence/trellis-conditioning-policy/receipts/current_four.json",
+        "sha256": "7976552b27b5b4ecda64348e967b8d25f749c5e0e1a89afa6694a6e06e372524"
+      }
+    },
+    {
+      "armId": "cardinal_four",
+      "status": "mesh_exported",
+      "seed": 20260828,
+      "samplerParameterSha256": "f83efd3400bd839802d01a63a4e4b27f642c044aaf6bef21c5d6087a8d1c1470",
+      "inputImages": [
+        {
+          "path": ".openclinxr/evidence/trellis-conditioning-policy/source-set/front.png",
+          "sha256": "7c3905ce657818b57908e62f6c3edc3f980fd773087aebb82f8c9aefa103b533",
+          "viewId": "front"
+        },
+        {
+          "path": ".openclinxr/evidence/trellis-conditioning-policy/source-set/back.png",
+          "sha256": "684b070eee4eeb04c608541d5354ef8fd80d8e4468b60c442d904118cdb36060",
+          "viewId": "back"
+        },
+        {
+          "path": ".openclinxr/evidence/trellis-conditioning-policy/source-set/left.png",
+          "sha256": "519b88e4ff0db73ccad14f1c60189eff657971418c523ca6f4b2cdf40dac1e7f",
+          "viewId": "left"
+        },
+        {
+          "path": ".openclinxr/evidence/trellis-conditioning-policy/source-set/right.png",
+          "sha256": "d98b7d99f49be00b1d12bf9934bd54a3249fee615c0ced07844a334849cfd8eb",
+          "viewId": "right"
+        }
+      ],
+      "geometry": {
+        "glbPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-697/.openclinxr/evidence/trellis-conditioning-policy/arms/cardinal_four/cardinal_four.glb",
+        "method": "trimesh scene merge; position-weld at 5dp; edge census (boundary=1 ref); divergence-theorem signed volume; largest component share by welded vertices",
+        "rawBytes": 18341700,
+        "wallClockSeconds": 1657.3990378379822,
+        "boundaryEdgeCount": 30596,
+        "isWatertight": false,
+        "weldedComponentCount": 283,
+        "largestComponentShare": 0.716889,
+        "signedVolume": 0.136079,
+        "surfaceArea": 6.344424,
+        "rawTriangleCount": 289860
+      },
+      "reviewReceipt": {
+        "path": ".openclinxr/evidence/trellis-conditioning-policy/receipts/cardinal_four.json",
+        "sha256": "f9ec822fd85542351fc250ed61d4c781714d31f99f57f11c51e759be373447c7"
+      }
+    },
+    {
+      "armId": "cardinal_six",
+      "status": "mesh_exported",
+      "seed": 20260828,
+      "samplerParameterSha256": "f83efd3400bd839802d01a63a4e4b27f642c044aaf6bef21c5d6087a8d1c1470",
+      "inputImages": [
+        {
+          "path": ".openclinxr/evidence/trellis-conditioning-policy/source-set/front.png",
+          "sha256": "7c3905ce657818b57908e62f6c3edc3f980fd773087aebb82f8c9aefa103b533",
+          "viewId": "front"
+        },
+        {
+          "path": ".openclinxr/evidence/trellis-conditioning-policy/source-set/back.png",
+          "sha256": "684b070eee4eeb04c608541d5354ef8fd80d8e4468b60c442d904118cdb36060",
+          "viewId": "back"
+        },
+        {
+          "path": ".openclinxr/evidence/trellis-conditioning-policy/source-set/left.png",
+          "sha256": "519b88e4ff0db73ccad14f1c60189eff657971418c523ca6f4b2cdf40dac1e7f",
+          "viewId": "left"
+        },
+        {
+          "path": ".openclinxr/evidence/trellis-conditioning-policy/source-set/right.png",
+          "sha256": "d98b7d99f49be00b1d12bf9934bd54a3249fee615c0ced07844a334849cfd8eb",
+          "viewId": "right"
+        },
+        {
+          "path": ".openclinxr/evidence/trellis-conditioning-policy/source-set/top.png",
+          "sha256": "251bc0fdab77df9edb308dbc9b790aa2c6cfa4ddf69a08f5e4ab07b4cdd83c83",
+          "viewId": "top"
+        },
+        {
+          "path": ".openclinxr/evidence/trellis-conditioning-policy/source-set/bottom.png",
+          "sha256": "2dc867fd7c19abfbed2f67e2ec0f7f058bf40ee52ff3d6532c1a5c894141d58d",
+          "viewId": "bottom"
+        }
+      ],
+      "experimentalOutOfTrainingEnvelope": true,
+      "geometry": {
+        "glbPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-697/.openclinxr/evidence/trellis-conditioning-policy/arms/cardinal_six/cardinal_six.glb",
+        "method": "trimesh scene merge; position-weld at 5dp; edge census (boundary=1 ref); divergence-theorem signed volume; largest component share by welded vertices",
+        "rawBytes": 18527324,
+        "wallClockSeconds": 2439.1284980773926,
+        "boundaryEdgeCount": 24935,
+        "isWatertight": false,
+        "weldedComponentCount": 281,
+        "largestComponentShare": 0.72794,
+        "signedVolume": 0.019103,
+        "surfaceArea": 8.033362,
+        "rawTriangleCount": 290474
+      },
+      "reviewReceipt": {
+        "path": ".openclinxr/evidence/trellis-conditioning-policy/receipts/cardinal_six.json",
+        "sha256": "52f9e39e00affbc7a8a2ec204169486504bb177c4428be8457e191201b65ec68"
+      }
+    }
+  ],
+  "boards": {
+    "dir": ".openclinxr/evidence/trellis-conditioning-policy/boards",
+    "boardKeyPath": ".openclinxr/evidence/trellis-conditioning-policy/boards/board-key.json",
+    "boardKeySha256": "3a7c3072d3d6927e04a5db06633cb0a421cf70f519c9241a48cd5caacdae23a1",
+    "boardImageSha256": {
+      "critical_visible_integrity": "776632ef757dbf540e16a03badb99e0a5f5e6e06b9fea71972b31bce3bcb2465",
+      "silhouette_and_cross_view_identity": "b9b6a83cb2384d9ca943804d59e516d72583cfdd5752d781a0ae53344258dab3",
+      "texture_contamination": "76048c236a858f7f10afc740f741baec278493ea09f7c66a567e23accb5f183b"
+    },
+    "visualGradeStatus": "pending_orchestrator_grade",
+    "claimScope": "blinded boards produced by the worker; the orchestrator grades the pixels"
+  },
+  "policy": {
+    "conclusion": "retain_single_view",
+    "reason": "multiview arms regressed the single-view control on measured geometry: cardinal_four boundaryEdgeCount 23140 -> 30596; cardinal_four component count >2x control (fragmentation); cardinal_six boundaryEdgeCount 23140 -> 24935; cardinal_six component count >2x control (fragmentation). Per conditioning-v1.json the ties/regressions retain the single-view control; the orchestrator's visual grade of the boards is pending and may overturn this.",
+    "decisionStage": "geometry_diagnostics"
+  },
+  "claimScope": [
+    "four comparable arms generated from one eight-image source set, one seed, one sampler configuration, RAW outputs only",
+    "graded against conditioning-v1.json fixed before the run",
+    "retain_single_view and reject_all_measured are real outcomes"
+  ],
+  "notEvidenceFor": [
+    "that multiview improves output",
+    "that six views are usable",
+    "that any arm wins",
+    "Quest readiness or clinical accuracy"
+  ]
+}
