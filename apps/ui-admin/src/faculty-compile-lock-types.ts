@@ -28,6 +28,12 @@ export type AdminFacultyCompileLockRecord = {
     nodeId: string;
     locked: boolean;
     overridePath?: string;
+    /**
+     * ActorPhenotypeSchema value the override applies (the value half of the
+     * `{ op, path, value }` overridePatch), returned so faculty can re-read
+     * the phenotype value they saved. Opaque review metadata.
+     */
+    overrideValue?: unknown;
   }>;
 };
 

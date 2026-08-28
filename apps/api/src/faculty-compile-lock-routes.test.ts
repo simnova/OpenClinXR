@@ -57,6 +57,41 @@ describe("faculty compile-lock REST route", () => {
     }
   });
 
+  it("persists and returns the overrideValue half of the overridePatch so faculty can re-read the value they saved", async () => {
+    const app = createApiApp();
+    const scenarioId = `compile_lock_override_value_test_${Date.now()}`;
+    try {
+      const response = await app.request("/internal/faculty-compile-locks", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          scenarioId,
+          nodeId: "actor:patient_maya_johnson_v1",
+          locked: true,
+          overridePath: "/garmentLayers",
+          overrideValue: ["short_sleeve_exam_tshirt"],
+        }),
+      });
+
+      expect(response.status).toBe(200);
+      const record = (await json(response)) as {
+        locks: Array<{ nodeId: string; locked: boolean; overridePath?: string; overrideValue?: unknown }>;
+      };
+      expect(record.locks).toEqual([
+        { nodeId: "actor:patient_maya_johnson_v1", locked: true, overridePath: "/garmentLayers", overrideValue: ["short_sleeve_exam_tshirt"] },
+      ]);
+
+      // Persist file round-trip: the compile runner reads the same file, and the
+      // value half survives the next read for a later re-read by faculty.
+      const onDisk = await readFacultyCompileLocksRecord(scenarioId);
+      expect(onDisk.locks).toEqual([
+        { nodeId: "actor:patient_maya_johnson_v1", locked: true, overridePath: "/garmentLayers", overrideValue: ["short_sleeve_exam_tshirt"] },
+      ]);
+    } finally {
+      await rm(join(repoRoot(), FACULTY_COMPILE_LOCKS_DIR, `${scenarioId}.json`), { force: true });
+    }
+  });
+
   it("upserts by nodeId: a second POST replaces the prior lock for the same subject", async () => {
     const app = createApiApp();
     try {

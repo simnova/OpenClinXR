@@ -34,6 +34,8 @@ export type FacultyCompileLockFileLock = {
   locked: boolean;
   /** Optional ActorPhenotypeSchema pointer; only the four constant paths are allowed. */
   overridePath?: string;
+  /** ActorPhenotypeSchema value the override applies (the value half of the overridePatch). Opaque review metadata. */
+  overrideValue?: unknown;
 };
 
 export type FacultyCompileLockFile = {
@@ -96,7 +98,12 @@ export async function readFacultyCompileLocksRecord(scenarioId: string): Promise
     updatedAt: typeof parsed.updatedAt === "string" ? parsed.updatedAt : "",
     claimBoundary: FACULTY_COMPILE_LOCK_CLAIM_BOUNDARY,
     notEvidenceFor: FACULTY_COMPILE_LOCK_NOT_EVIDENCE_FOR,
-    locks: locks as FacultyCompileLockFileLock[],
+    locks: (locks as ParsedCompileLockEntry[]).map((entry) => ({
+      nodeId: entry.nodeId as string,
+      locked: entry.locked as boolean,
+      ...(typeof entry.overridePath === "string" ? { overridePath: entry.overridePath } : {}),
+      ...(entry.overrideValue === undefined ? {} : { overrideValue: entry.overrideValue }),
+    })),
   };
 }
 
@@ -115,7 +122,15 @@ export async function writeFacultyCompileLock(
     updatedAt: new Date().toISOString(),
     claimBoundary: FACULTY_COMPILE_LOCK_CLAIM_BOUNDARY,
     notEvidenceFor: FACULTY_COMPILE_LOCK_NOT_EVIDENCE_FOR,
-    locks: [...withoutNode, { nodeId: lock.nodeId, locked: lock.locked, ...(lock.overridePath === undefined ? {} : { overridePath: lock.overridePath }) }],
+    locks: [
+      ...withoutNode,
+      {
+        nodeId: lock.nodeId,
+        locked: lock.locked,
+        ...(lock.overridePath === undefined ? {} : { overridePath: lock.overridePath }),
+        ...(lock.overrideValue === undefined ? {} : { overrideValue: lock.overrideValue }),
+      },
+    ],
   };
   const filePath = compileLocksPathFor(scenarioId);
   await mkdir(dirname(filePath), { recursive: true });
@@ -143,6 +158,7 @@ type ParsedCompileLockEntry = {
   nodeId?: unknown;
   locked?: unknown;
   overridePath?: unknown;
+  overrideValue?: unknown;
 };
 
 function isObject(value: unknown): value is ParsedCompileLockFile & ParsedCompileLockEntry {

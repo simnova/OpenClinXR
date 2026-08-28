@@ -112,6 +112,8 @@ export type ApiFacultyCompileLockRecord = {
     nodeId: string;
     locked: boolean;
     overridePath?: string;
+    /** ActorPhenotypeSchema value the override applies (the value half of the overridePatch). Opaque review metadata. */
+    overrideValue?: unknown;
   }>;
 };
 

@@ -10,6 +10,13 @@ import { describe, expect, it } from "vitest";
  *
  * MEASURED apps/ui-admin/src/faculty-compile-lock-types.ts:22-31.
  * Diagnosis header IMMUTABLE. Flip it.fails; append ## FIXED.
+ *
+ * ## FIXED (#0)
+ * AdminFacultyCompileLockRecord.locks[] now declares overrideValue?: unknown
+ * (apps/ui-admin/src/faculty-compile-lock-types.ts:30-36), and the API
+ * round-trip persists it (apps/api/src/faculty-compile-lock-store.ts +
+ * faculty-compile-lock-routes.ts) so the record returns the value faculty
+ * saved. Assertion flipped it.fails -> it.
  */
 
 const SRC = readFileSync(
@@ -18,7 +25,7 @@ const SRC = readFileSync(
 );
 
 describe("the persisted lock record includes overrideValue", () => {
-  it.fails("(1) AdminFacultyCompileLockRecord locks include overrideValue", () => {
+  it("(1) AdminFacultyCompileLockRecord locks include overrideValue", () => {
     const locks = SRC.slice(SRC.indexOf("locks: Array"));
     expect(locks).toMatch(/overrideValue\??:\s*unknown/);
   });
