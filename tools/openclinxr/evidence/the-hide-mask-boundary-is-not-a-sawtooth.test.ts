@@ -277,4 +277,34 @@ describe("the hide-mask boundary is not a sawtooth", () => {
       );
     expect(shrunk, "mask shrunk to shorten its boundary").toEqual([]);
   });
+
+  /**
+   * (4) COUNTERWEIGHT ADDED 2026-08-28 (#744). Clauses (2) and (3) are RED on main for
+   * `mpfb-peds-nurse-kevin` — 40 verts against a floor of 42, and a 538 mm mask extent against
+   * 571 mm. The cheapest way to green them is to lower the floors to what kevin measures today.
+   *
+   * That is refused here. Both numbers were MEASURED on the shipped bytes on 2026-08-14 with the
+   * #389 contour-following band, AFTER #199's sweater swap — see the two docblocks above. Lowering
+   * them makes the gate describe the regression instead of the requirement.
+   *
+   * ATTRIBUTION, measured 2026-08-28 rather than assumed: kevin's `hidden_upper` primitive reads
+   * 1719 verts / 538 mm at `f82e1cc2` (before #739), at `de57fc4d` (#739) and on main after #740.
+   * Identical at all three, so neither recent asset landing moved it and the change predates them.
+   *
+   * If you conclude the floors are genuinely stale rather than the asset regressed, SAY SO AND STOP
+   * — that is a successful finding under this brief and it does not fail the slice. Do not lower
+   * them silently.
+   */
+  it("(4) COUNTERWEIGHT: the measured floors are not lowered to match the regression", () => {
+    expect(
+      MIN_MASK_RING_VERTS["mpfb-peds-nurse-kevin"],
+      "42 rim verts, measured 2026-08-14 on the shipped bytes after #199's sweater swap",
+    ).toBeGreaterThanOrEqual(42);
+    expect(
+      MIN_MASK_Y_EXTENT["mpfb-peds-nurse-kevin"],
+      "0.5706 m — the sweater hem extends the mask; measured on the same bytes",
+    ).toBeGreaterThanOrEqual(0.5706);
+    expect(MIN_MASK_RING_VERTS["mpfb-ob-patient-aisha"], "aisha's floor, unchanged").toBeGreaterThanOrEqual(44);
+    expect(MIN_MASK_RING_VERTS["mpfb-peds-patient-child"], "the child's floor, unchanged").toBeGreaterThanOrEqual(44);
+  });
 });
