@@ -508,15 +508,26 @@ def parse_mhmat(path):
     Returns the raw multi-value lists; each consumer decides which keys it uses
     (diffuseTexture, diffuseColor, ...) — no invented interpretation of keys
     this repo does not consume.
+
+    #740: `diffuseTexture` is a FILE PATH and MakeHuman authors paths with
+    spaces (`Scrubs_Main_BaseColor_Utility - sRGB - Texture.png` — the
+    WojackOWL Medical Scrubs Kit). Token-splitting truncates the path to its
+    first word, so the value for this key is the WHOLE remainder of the line
+    (stripped), exactly as MakeHuman's own loader reads it. All other keys
+    keep the token-split lists their consumers index.
     """
     props = {}
     for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
         t = line.strip()
         if not t or t.startswith("#"):
             continue
-        parts = t.split()
-        if len(parts) >= 2:
-            props[parts[0]] = parts[1:]
+        parts = re.split(r"\s+", t, maxsplit=1)
+        if len(parts) < 2:
+            continue
+        if parts[0] == "diffuseTexture":
+            props[parts[0]] = [parts[1].strip()]
+        else:
+            props[parts[0]] = parts[1].split()
     return props
 
 
