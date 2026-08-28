@@ -60,6 +60,15 @@ hairline", a "toothed wedge" - all of them the interpolator, none of them the me
 
 ## MEASURE THE FEATURE IN PIXELS BEFORE GRADING IT
 
+**This was already established here and I rediscovered it the expensive way.** `#350` proved that
+10-20 px slivers hide in a whole-subject frame; `#354` built an eye-focus station in response;
+`#358` measured it. `head-focus-inspection.ts`'s own header says so in as many words. I graded from
+a whole-body capture anyway, published a verdict, and withdrew it a day later.
+
+The rule below is therefore a re-statement, and the operative lesson is the one above it: **search
+for an existing framing station before capturing.** `HEAD_FOCUS_SUBJECTS` already named the actor I
+was grading.
+
 Measured 2026-08-27, and it cost a withdrawn verdict that was about to justify reverting a landed
 slice. I graded eyelashes from a full-body 4096x4096 capture and reported they "read as a speckled
 stipple rather than continuous strands", with the control "more defined". Then I measured the frame:
