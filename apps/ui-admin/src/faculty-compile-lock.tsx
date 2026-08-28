@@ -114,17 +114,34 @@ export function findFacultyCompileLockContext(
 }
 
 /**
- * Compile/materialization dependency edges derived from the same scene pipeline
- * actor-equipment pairs as the faculty compile lock rows: each actor subject
- * contributes a body -> wardrobe bake edge plus one wardrobe -> equipment edge
- * per equipment asset on the actor's work order. Node ids mirror the
- * compile-graph node ids the lock table locks (`actor:<subject>:wardrobe`,
- * `equip:<id>`). Keeps the read-only graph canvas non-empty whenever the lock
- * table is non-empty; metadata only, no lock state is implied.
+ * Stored World Compile Graph edges from evidence.v1 — the `compileEdges` field
+ * a compile run stamps on `openclinxr.encounter-materialization-evidence.v1`
+ * reports. Same {from,to,kind} shape as CompileEdge; node ids are the same
+ * compile-graph node ids the lock table locks (`actor:<subject>:body|:wardrobe`,
+ * `equip:<id>`).
+ */
+export type EvidenceCompileEdges = ReadonlyArray<{ from: string; to: string; kind: string }>;
+
+/**
+ * Compile/materialization dependency edges for the read-only graph canvas.
+ * Prefers the STORED evidence.v1 compileEdges when a compiled evidence report
+ * is supplied (`compileEdgesFromEvidence !== undefined` — a compile that ran
+ * is authoritative, even when it recorded no edges). Falls back to deriving
+ * edges from the same scene pipeline actor-equipment pairs as the faculty
+ * compile lock rows: each actor subject contributes a body -> wardrobe bake
+ * edge plus one wardrobe -> equipment edge per equipment asset on the actor's
+ * work order. Node ids mirror the compile-graph node ids the lock table locks
+ * (`actor:<subject>:wardrobe`, `equip:<id>`). Keeps the read-only graph canvas
+ * non-empty whenever the lock table is non-empty; metadata only, no lock state
+ * is implied.
  */
 export function buildCompileEdges(
   sceneGenerationPipelineQueue: ScenarioSceneGenerationPipelineWorkOrderQueue,
+  compileEdgesFromEvidence?: EvidenceCompileEdges,
 ): CompileEdge[] {
+  if (compileEdgesFromEvidence !== undefined) {
+    return compileEdgesFromEvidence.map((edge) => ({ from: edge.from, to: edge.to, kind: edge.kind }));
+  }
   const edges: CompileEdge[] = [];
   const seenEdgeKeys = new Set<string>();
   for (const workOrder of sceneGenerationPipelineQueue.workOrders) {
@@ -161,6 +178,7 @@ export function buildCompileEdges(
 export function useFacultyCompileLocks(
   sceneGenerationPipelineQueue: ScenarioSceneGenerationPipelineWorkOrderQueue | undefined,
   controlPlaneClient: AdminControlPlaneClient,
+  compileEdgesFromEvidence?: EvidenceCompileEdges,
 ): {
   facultyCompileLockRows: FacultyCompileLockRow[];
   handleFacultyCompileLockChange: (rowId: string, locked: boolean) => void;
@@ -248,7 +266,9 @@ export function useFacultyCompileLocks(
       persistCompileLock(row, { locked: row.locked, overridePath: row.overridePath, overrideValue });
     }
   };
-  const compileEdges = sceneGenerationPipelineQueue ? buildCompileEdges(sceneGenerationPipelineQueue) : [];
+  const compileEdges = sceneGenerationPipelineQueue
+    ? buildCompileEdges(sceneGenerationPipelineQueue, compileEdgesFromEvidence)
+    : [];
   return { facultyCompileLockRows, handleFacultyCompileLockChange, handleFacultyCompileOverrideChange, handleFacultyCompileOverrideValueChange, compileEdges };
 }
 
