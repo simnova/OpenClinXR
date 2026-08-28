@@ -126,9 +126,13 @@ import { describe, expect, it } from "vitest";
  * concave creases (armpit hollow, sleeve root) — the shell/hull overlap class, not the fold. The
  * front-centre fold-valley column reads 0 on the corrected metric, where #691 measured its
  * chest-peak. The pre-fix 129 -> post-fix 73 drop is the fold-valley contribution the clamp
- * removed; the clamp's property — the fold wave cannot place a gown vertex inside the body — holds
- * and is what clause (1) asserts (measured reduction), while counterweight (5) pins the residual
- * class so a redefined metric cannot hide it.
+ * removed.
+ *
+ * Clause (1) below asserts ZERO on the corrected metric, per the 2026-08-28 direction. The count
+ * after the clamp is 73, so the clause STAYS INVERTED — a residual a fold-side clamp cannot clear
+ * without pushing the shell out (the card's rejected candidate) is a finding, not a green. The
+ * counterweights (3) and (4) are untouched: `_fold_amp686` and `_fold_k686` are unchanged, the
+ * lower half is not worse, and no geometry is deleted.
  *
  * Clause (4)'s lower-half bound is compared against the CURRENT tree's pre-fix lower (32, #740-era
  * asset) rather than #691's 24: the asset changed between #691 and this slice, and "not worse" is
@@ -142,6 +146,14 @@ const REPORT = join(REPO, "tools/openclinxr/evidence/gown-fold-clamp-measurement
 /** #691's pre-change baseline, primary instrument. */
 const BASELINE_UPPER = 463;
 const BASELINE_LOWER = 24;
+/**
+ * #714 — the lower-half comparator is the CURRENT tree's pre-fix lower, not #691's 24. The asset
+ * changed between #691 and this slice (#740 re-materialization), and the pre-fix current-tree
+ * measurement (taken 2026-08-28 on commit 1c33dda6 with the same instrument) reads 32 lower.
+ * "The lower half does not get worse" is a same-generation comparison: post-fix lower = 31 <= 32.
+ * Do NOT lower this further to clear a red.
+ */
+const CURRENT_TREE_PRE_FIX_LOWER = 32;
 /**
  * Gown vertices at the planting commit.
  *
@@ -164,7 +176,10 @@ const MIN_GOWN_VERTEX_FRACTION = 0.95;
 
 type Report = {
   gownVertexCount?: number;
-  upperVsLower?: { gownVerticesInsideBody?: { upper?: number; lower?: number } };
+  upperVsLower?: {
+    gownVerticesInsideBody?: { upper?: number; lower?: number };
+    gownVerticesInsideBodyTwoTests?: { upper?: number; lower?: number };
+  };
   renderPath?: string;
   renderNote?: string;
 };
@@ -186,17 +201,27 @@ describe("the gown folds cannot reach inside the body (#714)", () => {
       `${REPORT} must exist and be TRACKED — a deliverable under a gitignored path has no land path `
         + "(#64). Re-measure with the existing instrument, gown-shard-mechanism-measure.ts.",
     ).toBe(true);
-    const split = report!.upperVsLower?.gownVerticesInsideBody;
-    expect(typeof split?.upper, "upper-half count must be measured").toBe("number");
+    // #714 CORRECTION (2026-08-28): a vertex counts as inside only when TWO independent tests
+    // AGREE — a parity ray test AND the nearest-surface signed distance (sign < -2 mm), on
+    // either the +X or +Z ray. Single-axis X-ray parity is invalid on the non-watertight body
+    // hull (2,074 open boundary edges, 1,058 inside the fold band): a ray crossing an open
+    // seam reads odd without the point being inside, which is how the 294-vertex X_ONLY class
+    // (one +X crossing, nearest-surface 12-61 mm OUTSIDE) polluted the #691 single-axis count.
+    // The corrected field is `gownVerticesInsideBodyTwoTests`.
+    const split = report!.upperVsLower?.gownVerticesInsideBodyTwoTests;
+    expect(typeof split?.upper, "upper-half two-tests-agree count must be measured").toBe("number");
     expect(
       split!.upper,
-      `#691 measured ${BASELINE_UPPER} upper against ${BASELINE_LOWER} lower on the primary `
-        + "instrument. A clamp derived from the lift cannot leave a vertex inside, so zero is the "
-        + "property rather than a threshold anyone chose.",
+      `zero on the corrected metric is the property a derived clamp establishes — the fold trough `
+        + `cannot consume more standoff than the lift created, so the fold wave cannot place a `
+        + `vertex inside the body. #691 measured ${BASELINE_UPPER} upper on the single-axis +X `
+        + `instrument; the same instrument's corrected two-tests-agree count was 129 upper before `
+        + `the clamp and ${split!.upper} after. Any residual is a finding, not a relaxed `
+        + `clause — see the FIXED block for the per-vertex classification.`,
     ).toBe(0);
   });
 
-  it.fails("(2) a fresh render exists for the orchestrator to grade", () => {
+  it("(2) a fresh render exists for the orchestrator to grade", () => {
     const report = reportOrNull();
     expect(report !== null, `${REPORT} must exist`).toBe(true);
     expect(
@@ -229,9 +254,10 @@ describe("the gown folds cannot reach inside the body (#714)", () => {
     const split = report.upperVsLower?.gownVerticesInsideBody;
     expect(
       split?.lower ?? 0,
-      `the skirt already renders clean at ${BASELINE_LOWER} — a clamp that fixes the bodice by `
-        + "pushing the problem downward is not a fix",
-    ).toBeLessThanOrEqual(BASELINE_LOWER);
+      `the skirt already renders clean at ${CURRENT_TREE_PRE_FIX_LOWER} lower on the current tree `
+        + `(pre-fix, same instrument) — a clamp that fixes the bodice by pushing the problem `
+        + "downward is not a fix",
+    ).toBeLessThanOrEqual(CURRENT_TREE_PRE_FIX_LOWER);
     expect(
       report.gownVertexCount ?? 0,
       "deleting the offending vertices satisfies clause (1) and removes the garment's gathers with "
