@@ -185,6 +185,7 @@
     "local:voice:live-dialog:validate": "tsx tools/openclinxr/evidence/local-voice-live-dialog-benchmark.ts --validate-latest",
     "local:voice:blueprint-simulation": "tsx tools/openclinxr/evidence/blueprint-voice-simulation-spike.ts",
     "local:voice:blueprint-simulation:validate": "tsx tools/openclinxr/evidence/blueprint-voice-simulation-spike.ts --validate-latest",
+    "local:voice:ui-xr-speak-fixture": "tsx tools/openclinxr/evidence/ui-xr-viseme-drive-capture.ts --speak-fixture",
     "local:voice:realtime-spike": "tsx tools/openclinxr/evidence/realtime-voice-transport-spike.ts",
     "local:voice:realtime-spike:validate": "tsx tools/openclinxr/evidence/realtime-voice-transport-spike.ts --validate-latest",
     "local:voice:bun-websocket-smoke": "tsx tools/openclinxr/evidence/api-bun-websocket-runtime-smoke.ts",

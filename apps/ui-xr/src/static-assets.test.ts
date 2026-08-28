@@ -3,6 +3,12 @@ import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { resolveScenarioActorCast } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
 import { resolveHumanoidVariantOrCastPath } from "./humanoid-runtime-asset-url.js";
+/**
+ * #710: the speech-affect / actor-realism HUD formatting moved out of main.ts (shrink-only
+ * freeze) into speech-hud-formatting.ts; the strings below still render through the imported
+ * functions, so their source guards now read the module that owns them.
+ */
+const speechHudFormattingSource = readFileSync(new URL("./speech-hud-formatting.ts", import.meta.url), "utf8");
 
 const genericHandAssetHashes = {
   "left.glb": "bc67783144944ea1cda54d9247885825ea5fb9d4651469fe7d00be517a5c2b87",
@@ -237,7 +243,7 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("iwsdkStationSceneObjects.inputPanel");
     expect(mainSource).toContain("Actor Realism Requirements");
     expect(mainSource).toContain("formatActiveActorRealismRequirementLines");
-    expect(mainSource).toContain("until actor-specific humanoid gate evidence attaches");
+    expect(speechHudFormattingSource).toContain("until actor-specific humanoid gate evidence attaches");
     expect(mainSource).toContain("active_dialogue_actor_realism_requirements_visible_for_adversarial_review");
     expect(mainSource).toContain("renderer.xr.getController");
     expect(mainSource).toContain("XRControllerModelFactory");
@@ -910,7 +916,7 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("__openClinXrHumanoidSpeechEvidence");
     expect(mainSource).toContain("#evidence-speech-affect");
     expect(mainSource).toContain("formatHumanoidSpeechAffectEvidence");
-    expect(mainSource).toContain("emotion transition cue present");
+    expect(speechHudFormattingSource).toContain("emotion transition cue present");
     expect(mainSource).toContain("local_dialogue_phoneme_viseme_mapping");
     expect(mainSource).toContain("scenario_dialogue_viseme_gaze_runtime");
     expect(mainSource).toContain("openClinXrFaceRigRuntimeCue");
@@ -941,8 +947,8 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("activeActorRealismLaunchBadge");
     expect(mainSource).toContain("buildRuntimeActorRealismLaunchBadge");
     expect(mainSource).toContain("caseDefinitionRuntimeSignals");
-    expect(mainSource).toContain("actor realism requirement pending");
-    expect(mainSource).toContain("actorRequirement.requiredCueIds.length");
+    expect(speechHudFormattingSource).toContain("actor realism requirement pending");
+    expect(speechHudFormattingSource).toContain("actorRequirement.requiredCueIds.length");
     expect(mainSource).toContain("production_lip_sync");
     expect(mainSource).toContain("production_eye_tracking");
     expect(mainSource).toContain("urgent_escalation: runtimeFamilyActorId()");

@@ -18,6 +18,17 @@
  *
  * claimScope: mouth (named viseme drive on the parent). notEvidenceFor: anatomy bind-pose,
  * production phoneme timing, legible-speech judgement, Quest.
+ *
+ * #710 — learner-transcript speak fixture (`--speak-fixture`): the same instrument drives a
+ * deterministic learner transcript to a VISIBLY speaking actor. The fixture runs the #709
+ * runner (scenario-runtime generateRoutedActorResponse with an explicit mock-only gateway) in
+ * Node, hands the runner's in-memory turn result to the page through the dev-only
+ * speak-fixture bridge (apps/ui-xr/src/speak-fixture-bridge.ts, openclinxrSpeakFixture=1), and
+ * measures the speaking actor's live viseme drive with the SAME sampler — transcript, response
+ * and mouth measurement are separate observations joined in the tracked artifact
+ * (ui-xr-speak-fixture-live.json). claimScope: deterministic offline fixture turn reaching
+ * UI-XR transcript, response, and live mouth measurement. notEvidenceFor: microphone, STT/TTS,
+ * audible playback, full-duplex, Quest, clinical validity.
  */
 
 import { createHash } from "node:crypto";
@@ -26,6 +37,13 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { chromium, type Page } from "playwright";
 import { type PortlessDevServer, spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
+import {
+  createDefaultModelGateway,
+  MockModelProviderAdapter,
+} from "../../../packages/openclinxr/model-gateway/src/index.js";
+import { createDefaultScenarioRuntime, type ScenarioRuntime } from "../../../packages/openclinxr/scenario-runtime/src/index.js";
+import { scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src/index.js";
+import type { Scenario } from "../../../packages/openclinxr/shared-schemas/src/index.js";
 
 const OUTPUT_DIR = ".openclinxr/evidence/viseme-drive-2026-08-06";
 const INSPECTION_PATH = path.join(OUTPUT_DIR, "inspection.json");
@@ -54,6 +72,32 @@ const FRAME_PASS_TIMING_PATH = path.join("tools", "openclinxr", "evidence", "fra
 const EXPECTED_SUBJECT_ACTOR_ID = "parent_tara_johnson_v1";
 /** #726: the producer path the artifact records among its sources — the freshness gate's contract. */
 const PRODUCER_REPO_PATH = "tools/openclinxr/evidence/ui-xr-viseme-drive-capture.ts";
+
+/**
+ * #710 learner-transcript speak fixture: the deterministic transcript the fixture drives, the
+ * trace action it maps to (the runtime's learner-utterance path), the expected speaking actor,
+ * and the synthetic fixture/scenario the #709 runner resolves.
+ */
+const SPEAK_FIXTURE_SCENARIO_ID = "ed_chest_pain_priority_v1";
+const SPEAK_FIXTURE_TRANSCRIPT = "When did the chest pressure start?";
+const SPEAK_FIXTURE_TRACE_TAG = "history_opqrst";
+const SPEAK_FIXTURE_EXPECTED_ACTOR_ID = "patient_robert_hayes_v1";
+const SPEAK_FIXTURE_AT_SECOND = 30;
+const SPEAK_FIXTURE_OUTPUT_DIR = ".openclinxr/evidence/speak-fixture-2026-08-28";
+const SPEAK_FIXTURE_SUMMARY_PATH = path.join("tools", "openclinxr", "evidence", "ui-xr-speak-fixture-live.json");
+const SPEAK_FIXTURE_FRAME_DIR = path.join("tools", "openclinxr", "evidence", "speak-fixture-stills");
+/** #710: the capture URL param that arms the dev-only bridge in apps/ui-xr/src/speak-fixture-bridge.ts. */
+const SPEAK_FIXTURE_QUERY_PARAM = "openclinxrSpeakFixture=1";
+/** #710: the #709 runner's deterministic model gateway route id (mirrors the spike). */
+const SPEAK_FIXTURE_ROUTE_ID = "ui-xr-speak-fixture-v1";
+/** #710: the speak fixture boots the same scene/camera/sampler as the viseme capture, on the
+ * ED chest-pain station (expected speaking actor patient_robert_hayes_v1), with the dev-only
+ * bridge armed. */
+const SPEAK_FIXTURE_CAPTURE_QUERY =
+  `openclinxrScenarioId=${SPEAK_FIXTURE_SCENARIO_ID}` +
+  "&openclinxrCaptureMode=face-detail" +
+  "&openclinxrAcceleratedExam=1" +
+  `&${SPEAK_FIXTURE_QUERY_PARAM}`;
 
 /**
  * face-detail alone keeps natural dialogue duration (~phonemeCount*90ms) so progress spans
@@ -88,10 +132,10 @@ type SceneSample = {
   speech?: { activeViseme?: string; activePhoneme?: string; activeMouthOpenness?: number } | null;
 };
 
-async function sampleParentVisemes(page: Page): Promise<SceneSample> {
+async function sampleParentVisemes(page: Page, expectedActorId: string = EXPECTED_SUBJECT_ACTOR_ID): Promise<SceneSample> {
   // String IIFE (not a TS arrow) so tsx/esbuild cannot inject `__name` into the browser.
   return page.evaluate(`(() => {
-    const EXPECTED_ACTOR = ${JSON.stringify(EXPECTED_SUBJECT_ACTOR_ID)};
+    const EXPECTED_ACTOR = ${JSON.stringify(expectedActorId)};
     const win = window;
     const scene = win.__openClinXrDebugScene;
     // #726: actor identity is stamped on the humanoid root (userData.openClinXrActorId) — walk
@@ -234,7 +278,7 @@ function reframeOutcomeSummary(outcome: ReframeOutcome): string {
   );
 }
 
-async function reframeCameraOnParentFace(page: Page): Promise<ReframeOutcome> {
+async function reframeCameraOnParentFace(page: Page, expectedActorId: string = EXPECTED_SUBJECT_ACTOR_ID): Promise<ReframeOutcome> {
   // String IIFE (not a TS arrow) so tsx/esbuild cannot inject `__name` into the browser.
   return page.evaluate(`(() => {
     const isRecord = function (value) {
@@ -254,7 +298,7 @@ async function reframeCameraOnParentFace(page: Page): Promise<ReframeOutcome> {
     // #726: actor identity is stamped on the humanoid root (userData.openClinXrActorId), and the
     // loaded asset URL on the same root (openClinXrAssetPath). One walk collects both — the
     // subject is pinned by id, never by first-viseme-in-traversal.
-    const EXPECTED_ACTOR = ${JSON.stringify(EXPECTED_SUBJECT_ACTOR_ID)};
+    const EXPECTED_ACTOR = ${JSON.stringify(expectedActorId)};
     const rootUserData = function (object) {
       let cursor = object;
       while (cursor && cursor["parent"]) {
@@ -695,6 +739,46 @@ async function reframeCameraOnParentFace(page: Page): Promise<ReframeOutcome> {
   })()`);
 }
 
+/**
+ * Wait for a viseme-carrying mesh owned by the subject actor (default: the peds parent — the
+ * only rebaked actor for the viseme-drive capture; the speak fixture passes the ED patient).
+ * NOTE: waitForFunction(pageFunction, arg, options) — the timeout must be the THIRD argument.
+ * Passing it second (as `arg`) silently keeps the 30s default, which under a loaded machine
+ * fails before the humanoids finish loading.
+ */
+async function waitForParentVisemeMesh(page: Page, expectedActorId: string = EXPECTED_SUBJECT_ACTOR_ID): Promise<void> {
+  await page.waitForFunction(
+    `(() => {
+      const EXPECTED_ACTOR = ${JSON.stringify(expectedActorId)};
+      const scene = window.__openClinXrDebugScene;
+      if (!scene || typeof scene.traverse !== "function") return false;
+      let found = false;
+      scene.traverse(function (o) {
+        if (found) return;
+        const dict = o.morphTargetDictionary;
+        if (!dict) return;
+        let has = false;
+        for (const k of Object.keys(dict)) {
+          if (k.toLowerCase().indexOf("viseme_") === 0) { has = true; break; }
+        }
+        if (!has) return;
+        let cursor = o;
+        while (cursor && cursor.parent) {
+          const ud = cursor.userData;
+          if (ud && typeof ud.openClinXrActorId === "string") {
+            if (ud.openClinXrActorId === EXPECTED_ACTOR) found = true;
+            break;
+          }
+          cursor = cursor.parent;
+        }
+      });
+      return found;
+    })()`,
+    undefined,
+    { timeout: 180_000 },
+  );
+}
+
 async function retriggerParentDialogue(page: Page): Promise<void> {
   // Click the parent-communication trace to make the PARENT speak (its turn is authored on
   // `parent_communication`, actor `parent_tara_johnson_v1`), so the sampling window covers a
@@ -781,39 +865,7 @@ export async function runVisemeCapture(): Promise<void> {
       await page.goto(url, { waitUntil: "networkidle", timeout: 180_000 });
 
       // Wait for the viseme-carrying parent mesh (the only rebaked actor).
-      // NOTE: waitForFunction(pageFunction, arg, options) — the timeout must be the THIRD
-      // argument. Passing it second (as `arg`) silently keeps the 30s default, which under a
-      // loaded machine fails before the humanoids finish loading.
-      await page.waitForFunction(
-        `(() => {
-          const EXPECTED_ACTOR = ${JSON.stringify(EXPECTED_SUBJECT_ACTOR_ID)};
-          const scene = window.__openClinXrDebugScene;
-          if (!scene || typeof scene.traverse !== "function") return false;
-          let found = false;
-          scene.traverse(function (o) {
-            if (found) return;
-            const dict = o.morphTargetDictionary;
-            if (!dict) return;
-            let has = false;
-            for (const k of Object.keys(dict)) {
-              if (k.toLowerCase().indexOf("viseme_") === 0) { has = true; break; }
-            }
-            if (!has) return;
-            let cursor = o;
-            while (cursor && cursor.parent) {
-              const ud = cursor.userData;
-              if (ud && typeof ud.openClinXrActorId === "string") {
-                if (ud.openClinXrActorId === EXPECTED_ACTOR) found = true;
-                break;
-              }
-              cursor = cursor.parent;
-            }
-          });
-          return found;
-        })()`,
-        undefined,
-        { timeout: 180_000 },
-      );
+      await waitForParentVisemeMesh(page);
 
       // #468: cross the portal by locomotion — not by a query parameter — so the review panel is
       // hidden inside the exam volume, and observe it is still present and visible outside it.
@@ -1377,8 +1429,415 @@ export async function runVisemeCapture(): Promise<void> {
   }
 }
 
+/**
+ * #710 — the deterministic mock-only runner (mirrors blueprint-voice-simulation-spike.ts
+ * `createScenarioRuntime`): the actor response the fixture speaks comes from #709's runner
+ * path (scenario-runtime `generateRoutedActorResponse`), never from a UI literal. An explicit
+ * mock-only model gateway keeps the run deterministic offline.
+ */
+function createSpeakFixtureRuntime(scenario: Scenario): ScenarioRuntime {
+  type FactoryOptions = NonNullable<Parameters<typeof createDefaultScenarioRuntime>[0]>;
+  return createDefaultScenarioRuntime({
+    scenario,
+    modelGateway: createDefaultModelGateway({
+      routeId: SPEAK_FIXTURE_ROUTE_ID,
+      adapters: [new MockModelProviderAdapter()],
+    }) as unknown as FactoryOptions["modelGateway"],
+  });
+}
+
+type SpeakFixtureRunnerTurn = {
+  transcript: string;
+  traceTag: string;
+  routedActorId: string;
+  routingReason: string;
+  conversationTurn: number;
+  responseText: string;
+  traceEventTypes: string[];
+};
+
+async function runSpeakFixtureRunner(): Promise<SpeakFixtureRunnerTurn> {
+  const scenario = scenarioBank.find((candidate) => candidate.scenarioId === SPEAK_FIXTURE_SCENARIO_ID);
+  if (!scenario) {
+    throw new Error(`speak fixture: scenario not found in bank: ${SPEAK_FIXTURE_SCENARIO_ID}`);
+  }
+  const runtime = createSpeakFixtureRuntime(scenario);
+  const session = await runtime.startSession({
+    learnerId: "speak_fixture_mock_learner",
+    consentAccepted: true,
+  });
+  runtime.startEncounter(session.stationRunId, { atSecond: SPEAK_FIXTURE_AT_SECOND });
+  const generated = await runtime.generateRoutedActorResponse(session.stationRunId, {
+    atSecond: SPEAK_FIXTURE_AT_SECOND,
+    learnerUtterance: SPEAK_FIXTURE_TRANSCRIPT,
+    traceContextTags: [SPEAK_FIXTURE_TRACE_TAG],
+    source: {
+      kind: "voice_transcript",
+      streamId: "speak-fixture-mic-001",
+      transcriptSegmentId: "speak-fixture-final-transcript-001",
+      finalTranscriptText: SPEAK_FIXTURE_TRANSCRIPT,
+      provider: "deterministic-fixture",
+      provenanceRefs: ["voice:speak-fixture-mic-001:speak-fixture-final-transcript-001"],
+      rawAudioStored: false,
+    },
+  });
+  return {
+    transcript: SPEAK_FIXTURE_TRANSCRIPT,
+    traceTag: SPEAK_FIXTURE_TRACE_TAG,
+    routedActorId: generated.routedActorId,
+    routingReason: generated.routingReason,
+    conversationTurn: generated.conversationTurn,
+    responseText: generated.response.text,
+    traceEventTypes: runtime.traceEvents(session.stationRunId).map((event) => event.eventType),
+  };
+}
+
+type SpeakFixtureRuntimeContext = {
+  evidence: {
+    source: string;
+    learnerTranscript: string;
+    responseText: string;
+    actorId: string;
+    firedAtMs: number | null;
+  } | null;
+  turn: {
+    currentTurn: number;
+    nextActorId: string | null;
+    lastActorId: string | null;
+  } | null;
+  speech: {
+    activeActorId: string | null;
+    activeViseme: string | null;
+    activePhoneme: string | null;
+    activeMouthOpenness: number | null;
+  } | null;
+  subjectAssetPath: string | null;
+};
+
+async function readSpeakFixtureRuntimeContext(page: Page): Promise<SpeakFixtureRuntimeContext> {
+  return page.evaluate(`(() => {
+    const evidence = window.__openClinXrDeterministicLearnerTurnEvidence || null;
+    const turn = window.__openClinXrConversationTurnStateEvidence || null;
+    const speech = window.__openClinXrHumanoidSpeechEvidence || null;
+    const scene = window.__openClinXrDebugScene;
+    const EXPECTED_ACTOR = ${JSON.stringify(SPEAK_FIXTURE_EXPECTED_ACTOR_ID)};
+    let subjectAssetPath = null;
+    if (scene && typeof scene.traverse === "function") {
+      scene.traverse(function (o) {
+        if (subjectAssetPath) return;
+        const ud = o.userData;
+        if (!ud || typeof ud.openClinXrActorId !== "string") return;
+        if (ud.openClinXrActorId !== EXPECTED_ACTOR) return;
+        if (typeof ud.openClinXrAssetPath === "string") subjectAssetPath = ud.openClinXrAssetPath;
+      });
+    }
+    return {
+      evidence: evidence ? {
+        source: evidence.source,
+        learnerTranscript: evidence.learnerTranscript,
+        responseText: evidence.responseText,
+        actorId: evidence.actorId,
+        firedAtMs: typeof evidence.firedAtMs === "number" ? evidence.firedAtMs : null
+      } : null,
+      turn: turn ? {
+        currentTurn: turn.currentTurn,
+        nextActorId: turn.nextActorId,
+        lastActorId: turn.lastActorId
+      } : null,
+      speech: speech ? {
+        activeActorId: typeof speech.activeActorId === "string" ? speech.activeActorId : null,
+        activeViseme: typeof speech.activeViseme === "string" ? speech.activeViseme : null,
+        activePhoneme: typeof speech.activePhoneme === "string" ? speech.activePhoneme : null,
+        activeMouthOpenness: typeof speech.activeMouthOpenness === "number" ? speech.activeMouthOpenness : null
+      } : null,
+      subjectAssetPath: subjectAssetPath
+    };
+  })()`);
+}
+
+/**
+ * #710 — learner-transcript speak fixture: transcript → #709 runner response → dev bridge →
+ * triggerHumanoidDialogue → live mouth measurement on the speaking actor. One browser
+ * execution: rest phase (mouth at rest, before fire), prepare + fire, speaking phase.
+ * Lands a tracked JSON (ui-xr-speak-fixture-live.json) plus rest/speaking stills under
+ * tools/openclinxr/evidence/.
+ */
+export async function runSpeakFixture(): Promise<void> {
+  await mkdir(SPEAK_FIXTURE_OUTPUT_DIR, { recursive: true });
+  await mkdir(SPEAK_FIXTURE_FRAME_DIR, { recursive: true });
+
+  const runnerTurn = await runSpeakFixtureRunner();
+  process.stdout.write(
+    `runner: actor=${runnerTurn.routedActorId} reason=${runnerTurn.routingReason} turn=${runnerTurn.conversationTurn}\n`,
+  );
+  process.stdout.write(`runnerResponse: ${runnerTurn.responseText}\n`);
+
+  let server: PortlessDevServer | undefined;
+  try {
+    server = await spawnPortlessDevServer({
+      filter: "@openclinxr/ui-xr",
+      readyTimeoutMs: 180_000,
+    });
+    const browser = await chromium.launch({
+      headless: true,
+      args: process.platform === "darwin" ? ["--use-angle=metal"] : [],
+    });
+    try {
+      const page = await browser.newPage({ viewport: { width: 1280, height: 1280 } });
+      const url = `${server.url}?${SPEAK_FIXTURE_CAPTURE_QUERY}`;
+      await page.goto(url, { waitUntil: "networkidle", timeout: 180_000 });
+      await waitForParentVisemeMesh(page, SPEAK_FIXTURE_EXPECTED_ACTOR_ID);
+      const reframeOutcome = await reframeCameraOnParentFace(page, SPEAK_FIXTURE_EXPECTED_ACTOR_ID);
+      process.stdout.write(`camera: ${reframeOutcomeSummary(reframeOutcome)}\n`);
+
+      // The dev-only bridge is armed by the query param (openclinxrSpeakFixture=1).
+      await page.waitForFunction(
+        `(() => typeof window.__openClinXrSpeakFixtureBridge === "object" && window.__openClinXrSpeakFixtureBridge !== null)()`,
+        undefined,
+        { timeout: 30_000 },
+      );
+
+      // Rest phase: the runtime auto-plays the patient's authored opening line at boot, so the
+      // rest still must wait for the mouth to go quiet (peak below 0.5) BEFORE the fixture
+      // fires — otherwise "rest" captures the opening utterance, not a closed mouth.
+      let restSample = await sampleParentVisemes(page, SPEAK_FIXTURE_EXPECTED_ACTOR_ID);
+      const QUIET_WAIT_MS = 10_000;
+      const quietStart = Date.now();
+      while ((restSample.peak?.influence ?? 0) >= 0.5 && Date.now() - quietStart < QUIET_WAIT_MS) {
+        await page.waitForTimeout(200);
+        restSample = await sampleParentVisemes(page, SPEAK_FIXTURE_EXPECTED_ACTOR_ID);
+      }
+      if ((restSample.peak?.influence ?? 0) >= 0.5) {
+        throw new Error(`speak fixture: mouth never reached rest before fire (peak ${restSample.peak?.targetName ?? "none"} at ${restSample.peak?.influence ?? 0})`);
+      }
+      const restFramePath = path.join(SPEAK_FIXTURE_FRAME_DIR, "speak-fixture-rest.png");
+      await page.screenshot({ path: restFramePath, fullPage: false });
+      process.stdout.write(`rest: peak=${restSample.peak?.targetName ?? "none"} influence=${restSample.peak?.influence ?? 0}\n`);
+
+      // Prepare + fire through the bridge: the response text the actor speaks is the #709
+      // runner's in-memory turn result (never a UI literal).
+      await page.evaluate(`((input) => {
+        window.__openClinXrSpeakFixtureBridge.prepare(input);
+      })(${JSON.stringify({
+        scenarioId: SPEAK_FIXTURE_SCENARIO_ID,
+        traceTag: SPEAK_FIXTURE_TRACE_TAG,
+        transcript: runnerTurn.transcript,
+        responseText: runnerTurn.responseText,
+        actorId: runnerTurn.routedActorId,
+        runnerRoutedActorId: runnerTurn.routedActorId,
+        routingReason: runnerTurn.routingReason,
+        runnerConversationTurn: runnerTurn.conversationTurn,
+      })})`);
+      const uiValues = await page.evaluate(`(() => ({
+        transcript: document.querySelector("[data-openclinxr-speak-transcript]")?.getAttribute("data-openclinxr-speak-transcript") ?? null,
+        response: document.querySelector("[data-openclinxr-speak-response]")?.getAttribute("data-openclinxr-speak-response") ?? null,
+        actorId: document.querySelector("[data-openclinxr-speak-actor]")?.getAttribute("data-openclinxr-speak-actor") ?? null,
+        state: document.querySelector("#openclinxr-speak-fixture-overlay")?.getAttribute("data-openclinxr-speak-state") ?? null
+      }))()`);
+      process.stdout.write(`uiValues: transcript=${uiValues.transcript !== null} response=${uiValues.response !== null} state=${uiValues.state}\n`);
+      await page.evaluate(`(() => { window.__openClinXrSpeakFixtureBridge.fire(); })()`);
+
+      // Speaking phase: dense mouth samples across the response window.
+      const strongByName = new Map<string, number>();
+      const samples: Array<{ t: number; peak: { targetName: string; influence: number } | null; meshName: string }> = [];
+      const t0 = Date.now();
+      async function sampleOnce(): Promise<void> {
+        const sceneSample = await sampleParentVisemes(page, SPEAK_FIXTURE_EXPECTED_ACTOR_ID);
+        samples.push({
+          t: (Date.now() - t0) / 1000,
+          peak: sceneSample.peak,
+          meshName: sceneSample.meshName,
+        });
+        for (const reading of sceneSample.readings) {
+          if (reading.influence < 0.5) continue;
+          const prev = strongByName.get(reading.targetName);
+          if (prev === undefined || reading.influence > prev) {
+            strongByName.set(reading.targetName, reading.influence);
+          }
+        }
+      }
+      const SAMPLE_STEP_MS = 110;
+      const SAMPLE_SPAN_MS = 4_400;
+      async function denseSpeakingPass(): Promise<void> {
+        const passStart = Date.now();
+        for (let target = SAMPLE_STEP_MS; target <= SAMPLE_SPAN_MS; target += SAMPLE_STEP_MS) {
+          const elapsed = Date.now() - passStart;
+          if (target > elapsed) {
+            await page.waitForTimeout(target - elapsed);
+          }
+          await sampleOnce();
+        }
+      }
+      await denseSpeakingPass();
+      if (strongByName.size < 2) {
+        // The utterance may have ended before the pass started; replay it.
+        await page.evaluate(`(() => { window.__openClinXrSpeakFixtureBridge.fire(); })()`);
+        await page.waitForTimeout(120);
+        await denseSpeakingPass();
+      }
+
+      // Speaking stills for the orchestrator's pixel grade.
+      const speakingFrames = [
+        path.join(SPEAK_FIXTURE_FRAME_DIR, "speak-fixture-speaking-1.png"),
+        path.join(SPEAK_FIXTURE_FRAME_DIR, "speak-fixture-speaking-2.png"),
+      ];
+      for (const framePath of speakingFrames) {
+        await page.screenshot({ path: framePath, fullPage: false });
+        await page.waitForTimeout(250);
+      }
+
+      const finalCtx = await readSpeakFixtureRuntimeContext(page);
+      const subjectGlbRepoPath =
+        finalCtx.subjectAssetPath && finalCtx.subjectAssetPath.startsWith("/generated-humanoids/")
+          ? `apps/ui-xr/public${finalCtx.subjectAssetPath}`
+          : null;
+      if (subjectGlbRepoPath === null || !existsSync(subjectGlbRepoPath)) {
+        throw new Error(`speak fixture: subject GLB could not be read from the live scene: ${finalCtx.subjectAssetPath ?? "no asset path"}`);
+      }
+      const fingerprintOf = (repoRelativePath: string): { bytes: number; sha256: string } => {
+        const bytes = readFileSync(repoRelativePath);
+        return { bytes: bytes.length, sha256: createHash("sha256").update(bytes).digest("hex") };
+      };
+
+      const joinVerdict = {
+        transcript: uiValues.transcript === runnerTurn.transcript,
+        response: uiValues.response === runnerTurn.responseText,
+        actor: uiValues.actorId === runnerTurn.routedActorId,
+        evidenceFired: finalCtx.evidence?.firedAtMs != null,
+      };
+      const strongDistinct = strongByName.size;
+      const maxInfluence = Math.max(...samples.map((sample) => sample.peak?.influence ?? 0), 0);
+
+      if (!joinVerdict.evidenceFired) {
+        throw new Error("speak fixture: deterministic learner turn evidence was never fired");
+      }
+      if (samples.length < 3) {
+        throw new Error(`speak fixture: need ≥3 live mouth samples; got ${samples.length}`);
+      }
+      if (strongDistinct < 2) {
+        throw new Error(
+          `speak fixture: need ≥2 distinct viseme_* at influence ≥0.5 on the speaking actor; got ${strongDistinct}: ${[...strongByName.keys()].join(",") || "none"}`,
+        );
+      }
+
+      const inspection = {
+        schemaVersion: "openclinxr.ui-xr-speak-fixture.v1",
+        generatedAt: new Date().toISOString(),
+        fixture: {
+          scenarioId: SPEAK_FIXTURE_SCENARIO_ID,
+          traceTag: SPEAK_FIXTURE_TRACE_TAG,
+          transcript: SPEAK_FIXTURE_TRANSCRIPT,
+          expectedActorId: SPEAK_FIXTURE_EXPECTED_ACTOR_ID,
+          atSecond: SPEAK_FIXTURE_AT_SECOND,
+        },
+        runnerTurn,
+        uiValues,
+        joinVerdict,
+        evidence: finalCtx.evidence,
+        conversationTurn: finalCtx.turn,
+        rest: {
+          atRest: (restSample.peak?.influence ?? 0) < 0.5,
+          peak: restSample.peak,
+          strongDistinct: restSample.readings.filter((reading) => reading.influence >= 0.5).length,
+          framePath: restFramePath,
+        },
+        speaking: {
+          distinctStrongVisemeCount: strongDistinct,
+          maxInfluence: Number(maxInfluence.toFixed(4)),
+          strongVisemes: [...strongByName.entries()].map(([targetName, influence]) => ({
+            targetName,
+            influence: Number(influence.toFixed(4)),
+          })),
+          samples: samples.map((sample) => ({
+            t: Number(sample.t.toFixed(3)),
+            peak: sample.peak,
+            meshName: sample.meshName,
+          })),
+          frames: speakingFrames,
+        },
+        reframe: {
+          status: reframeOutcome.status,
+          targetMeshName: reframeOutcome.status === "ok" ? reframeOutcome.targetMeshName : null,
+          subjectInFrame: reframeOutcome.status === "ok" ? reframeOutcome.subjectInFrame : false,
+          subjectVisible: reframeOutcome.status === "ok" ? reframeOutcome.subjectVisible : false,
+        },
+        speechEvidence: finalCtx.speech,
+        sources: {
+          producer: PRODUCER_REPO_PATH,
+          subject_glb: subjectGlbRepoPath,
+        },
+        fingerprints: {
+          producer: fingerprintOf(PRODUCER_REPO_PATH),
+          subject_glb: fingerprintOf(subjectGlbRepoPath),
+        },
+        claimScope: "deterministic_offline_fixture_turn_reaching_ui_xr_transcript_response_and_live_mouth_measurement",
+        notEvidenceFor: [
+          "microphone",
+          "stt",
+          "tts",
+          "audible_playback",
+          "full_duplex",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring",
+          "acoustic_learner_input",
+        ],
+      };
+
+      const inspectionPath = path.join(SPEAK_FIXTURE_OUTPUT_DIR, "inspection.json");
+      await writeFile(inspectionPath, `${JSON.stringify(inspection, null, 2)}\n`, "utf8");
+
+      const summary = {
+        schemaVersion: "openclinxr.ui-xr-speak-fixture-live.v1",
+        capturedFrom: `${inspectionPath} (pnpm local:voice:ui-xr-speak-fixture)`,
+        generatedAt: inspection.generatedAt,
+        fixture: inspection.fixture,
+        runnerTurn: {
+          transcript: runnerTurn.transcript,
+          traceTag: runnerTurn.traceTag,
+          routedActorId: runnerTurn.routedActorId,
+          routingReason: runnerTurn.routingReason,
+          conversationTurn: runnerTurn.conversationTurn,
+          responseText: runnerTurn.responseText,
+        },
+        uiValues,
+        joinVerdict,
+        evidence: finalCtx.evidence,
+        rest: inspection.rest,
+        speaking: {
+          distinctStrongVisemeCount: strongDistinct,
+          maxInfluence: inspection.speaking.maxInfluence,
+          strongVisemes: inspection.speaking.strongVisemes,
+          sampleCount: samples.length,
+        },
+        frames: { rest: restFramePath, speaking: speakingFrames },
+        sources: inspection.sources,
+        fingerprints: inspection.fingerprints,
+        claimScope: inspection.claimScope,
+        notEvidenceFor: inspection.notEvidenceFor,
+      };
+      await writeFile(SPEAK_FIXTURE_SUMMARY_PATH, `${JSON.stringify(summary, null, 2)}\n`, "utf8");
+      process.stdout.write(`${inspectionPath}\n`);
+      process.stdout.write(
+        `speakFixture: actor=${runnerTurn.routedActorId} strongVisemes=${strongDistinct} maxInfluence=${maxInfluence.toFixed(3)} join=${JSON.stringify(joinVerdict)} summary=${SPEAK_FIXTURE_SUMMARY_PATH}\n`,
+      );
+    } finally {
+      await browser.close();
+    }
+  } finally {
+    if (server) {
+      try {
+        await stopPortlessDevServer(server.proc);
+      } catch {
+        // ignore
+      }
+    }
+  }
+}
+
 if (import.meta.url === `file://${process.argv[1]}`) {
-  void runVisemeCapture().catch((error: unknown) => {
+  const speakFixture = process.argv.includes("--speak-fixture");
+  void (speakFixture ? runSpeakFixture() : runVisemeCapture()).catch((error: unknown) => {
     process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
     process.exitCode = 1;
   });
