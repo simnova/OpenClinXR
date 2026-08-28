@@ -49,6 +49,36 @@ import { describe, expect, it } from "vitest";
  *   iteration; the dense states pass, which #723 already measured at ~380 ms and is a separate card.
  */
 
+/**
+ * ## FIXED (#729)
+ *
+ * The filed mechanism was wrong, measured 2026-08-27 in this worktree with per-component timing:
+ *
+ * | component | baseline (SwiftShader) | after `--use-angle=metal` |
+ * |---|---|---|
+ * | reframeCameraOnParentFace | 144-407 ms | ~10-30 ms |
+ * | sampleParentVisemes evaluate | 154-453 ms | ~10 ms |
+ * | page.screenshot | 1370-1693 ms | ~85-100 ms |
+ *
+ * The 10x frame cost is the SCREENSHOT, not the reframe. Headless Chromium falls back to SwiftShader
+ * (software WebGL) by default — `UNMASKED_RENDERER_WEBGL` reads "ANGLE (Google, Vulkan 1.3.0
+ * (SwiftShader Device ...))" — so the scene renders at ~6 fps, every evaluate contends with the
+ * render loop, and each screenshot costs ~1.8 s. `chromium.launch({ args: ["--use-angle=metal"] })`
+ * switches ANGLE to the Metal GPU ("ANGLE Metal Renderer: Apple M1 Max"): screenshots ~90 ms,
+ * evaluates ~10 ms. The per-frame reframe and the #473 per-frame verdict are untouched.
+ *
+ * The frame pass also paced its 250 ms steps against the sampling-wide t0, which precedes the dense
+ * pass, so every target was already in the past and the eight frames fired back-to-back (measured
+ * span 13.7 s here, 16.9 s in the filed table). The pass now paces against its own start
+ * (t0FramePass), so the labels land at 0/250/.../1750 ms of the retriggered utterance and the span
+ * is ~1.8-1.9 s against the ~2.94 s baked-cue duration. FRAME_COUNT, FRAME_STEP_MS and the PNG
+ * screenshots are all preserved; the dense states pass is untouched (still #723's subject).
+ *
+ * frame-pass-timing.json (tracked) records one row per frame — the label-instant tMs and the PNG
+ * byte count read at capture time — plus the utterance duration read live from the subject's baked
+ * viseme timeline (openClinXrBakedVisemeTimeline.durationMs).
+ */
+
 const REPORT = "tools/openclinxr/evidence/frame-pass-timing.json";
 const HARNESS = "tools/openclinxr/evidence/ui-xr-viseme-drive-capture.ts";
 
@@ -82,7 +112,7 @@ describe("the frame pass lands inside the utterance (#729)", () => {
    * but is gitignored, so no contract can read it. This requires a TRACKED artifact carrying one
    * row per frame and the utterance duration those frames claim to sample.
    */
-  it.fails("(1) the capture records its frame timings and the utterance they sample", () => {
+  it("(1) the capture records its frame timings and the utterance they sample", () => {
     const r = report();
     expect(r, `${REPORT} must exist — tracked, not the gitignored inspection.json`).not.toBeNull();
     expect(
@@ -98,7 +128,7 @@ describe("the frame pass lands inside the utterance (#729)", () => {
   /**
    * RED, and the bound is the run's own utterance duration. Measured 16.9 s against ~3.7 s today.
    */
-  it.fails("(2) the frames span no more than the utterance they sample", () => {
+  it("(2) the frames span no more than the utterance they sample", () => {
     const r = report();
     expect(r, `${REPORT} must exist`).not.toBeNull();
     expect(

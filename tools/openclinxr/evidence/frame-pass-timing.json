@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "openclinxr.ui-xr-viseme-drive-capture.frame-pass-timing.v1",
+  "capturedFrom": ".openclinxr/evidence/viseme-drive-2026-08-06/inspection.json (pnpm asset:ui-xr:viseme-drive-capture)",
+  "generatedAt": "2026-08-28T00:29:52.888Z",
+  "utteranceDurationMs": 2940,
+  "frameStepMs": 250,
+  "frameCount": 8,
+  "frames": [
+    {
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_00.png",
+      "tMs": 23,
+      "bytes": 653101
+    },
+    {
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_01.png",
+      "tMs": 290,
+      "bytes": 655593
+    },
+    {
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_02.png",
+      "tMs": 523,
+      "bytes": 646000
+    },
+    {
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_03.png",
+      "tMs": 768,
+      "bytes": 656812
+    },
+    {
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_04.png",
+      "tMs": 1022,
+      "bytes": 647049
+    },
+    {
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_05.png",
+      "tMs": 1279,
+      "bytes": 668285
+    },
+    {
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_06.png",
+      "tMs": 1526,
+      "bytes": 662108
+    },
+    {
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_07.png",
+      "tMs": 1767,
+      "bytes": 659184
+    }
+  ]
+}

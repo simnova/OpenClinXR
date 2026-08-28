@@ -21,7 +21,7 @@
  */
 
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { chromium, type Page } from "playwright";
@@ -39,6 +39,10 @@ const MOUTH_ANCHOR_SUMMARY_PATH = path.join("tools", "openclinxr", "evidence", "
 /** #730: tracked artifact recording EVERY nonzero morph on the subject (not only viseme_*), so
  * the openness channel's `mouth-open` write is visible to the cap contract. */
 const MOUTH_OPEN_CHANNEL_PATH = path.join("tools", "openclinxr", "evidence", "mouth-open-channel.json");
+/** #729: TRACKED record of the frame pass's own timing — one row per frame (label instant + PNG
+ * bytes) and the utterance duration those frames claim to sample, read live from the speech
+ * state. The gitignored inspection.json cannot be a contract input. */
+const FRAME_PASS_TIMING_PATH = path.join("tools", "openclinxr", "evidence", "frame-pass-timing.json");
 
 /**
  * #726: the subject is pinned by actor id, never by "first mesh with viseme_ keys". The child now
@@ -763,7 +767,14 @@ export async function runVisemeCapture(): Promise<void> {
       readyTimeoutMs: 180_000,
     });
 
-    const browser = await chromium.launch({ headless: true });
+    // #729: force the ANGLE Metal backend on macOS. Headless Chromium otherwise falls back to
+    // SwiftShader (software WebGL), which renders this scene at ~6 fps — measured 2026-08-27:
+    // ~1.8 s per screenshot and ~300 ms per page.evaluate, so the frame pass spans ~14 s of a
+    // ~2.9 s utterance. With the Metal GPU the same screenshot is ~90 ms and evaluates ~10 ms.
+    const browser = await chromium.launch({
+      headless: true,
+      args: process.platform === "darwin" ? ["--use-angle=metal"] : [],
+    });
     try {
       const page = await browser.newPage({ viewport: { width: 1280, height: 1280 } });
       const url = `${server.url}?${CAPTURE_QUERY}`;
@@ -922,19 +933,69 @@ export async function runVisemeCapture(): Promise<void> {
       await page.waitForTimeout(120);
       const FRAME_STEP_MS = 250;
       const FRAME_COUNT = 8;
-      const framePass: Array<{ t: number; framePath: string; targetName: string }> = [];
+      // #729: the pass paces against its OWN start, not the sampling-wide t0 (which precedes the
+      // dense pass, so every target was already in the past and the frames fired back-to-back).
+      // With the reframe cheap under the Metal GPU, the 250 ms step actually paces now, so the
+      // eight frames land inside the retriggered utterance instead of spanning ~14 s after it.
+      const t0FramePass = Date.now();
+      const framePass: Array<{ t: number; tMs: number; framePath: string; targetName: string; bytes: number }> = [];
       for (let i = 0; i < FRAME_COUNT; i += 1) {
         const target = i * FRAME_STEP_MS;
-        const elapsed = Date.now() - t0;
+        const elapsed = Date.now() - t0FramePass;
         if (target > elapsed) {
           await page.waitForTimeout(target - elapsed);
         }
         const frameName = `viseme_frame_${String(i).padStart(2, "0")}.png`;
         const framePath = path.join(OUTPUT_DIR, frameName);
         const { t, dominant } = await sampleStates(framePath);
-        framePass.push({ t, framePath, targetName: dominant });
+        const tMs = Date.now() - t0FramePass;
         await page.screenshot({ path: framePath, fullPage: false });
+        framePass.push({ t, tMs, framePath, targetName: dominant, bytes: statSync(framePath).size });
       }
+
+      // #729: TRACKED timing record — the gitignored inspection.json cannot be a contract input.
+      // The utterance duration is read live from the subject's baked viseme timeline (the
+      // runtime's own speech state), falling back to the runtime's deterministic text-derived
+      // formula (phonemeCount * 90, clamped 900-4800) when no baked cue file was served.
+      const utteranceDurationMs = await page.evaluate(`(() => {
+        const EXPECTED_ACTOR = ${JSON.stringify(EXPECTED_SUBJECT_ACTOR_ID)};
+        const scene = window.__openClinXrDebugScene;
+        if (!scene || typeof scene.traverse !== "function") return null;
+        let duration = null;
+        let phonemeCount = null;
+        scene.traverse(function (o) {
+          const ud = o.userData;
+          if (!ud) return;
+          const actorId = typeof ud.openClinXrActorId === "string" ? ud.openClinXrActorId : null;
+          const timeline = ud.openClinXrBakedVisemeTimeline;
+          if (timeline && typeof timeline.durationMs === "number") {
+            if (actorId === EXPECTED_ACTOR || duration === null) duration = timeline.durationMs;
+          }
+          const mapping = ud.openClinXrDialoguePhonemeMapping;
+          if (mapping && Array.isArray(mapping.phonemeSequence)) {
+            if (actorId === EXPECTED_ACTOR || phonemeCount === null) phonemeCount = mapping.phonemeSequence.length;
+          }
+        });
+        if (duration !== null) return duration;
+        if (phonemeCount !== null) return Math.max(900, Math.min(4800, phonemeCount * 90));
+        return null;
+      })()`);
+      if (typeof utteranceDurationMs !== "number" || utteranceDurationMs <= 0) {
+        throw new Error("frame pass: no utterance duration found in the live speech state");
+      }
+      const frameTimingReport = {
+        schemaVersion: "openclinxr.ui-xr-viseme-drive-capture.frame-pass-timing.v1",
+        capturedFrom: `${INSPECTION_PATH} (pnpm asset:ui-xr:viseme-drive-capture)`,
+        generatedAt: new Date().toISOString(),
+        utteranceDurationMs,
+        frameStepMs: FRAME_STEP_MS,
+        frameCount: FRAME_COUNT,
+        frames: framePass.map((f) => ({ framePath: f.framePath, tMs: f.tMs, bytes: f.bytes })),
+      };
+      await writeFile(FRAME_PASS_TIMING_PATH, `${JSON.stringify(frameTimingReport, null, 2)}\n`, "utf8");
+      process.stdout.write(
+        `frameTiming: ${FRAME_PASS_TIMING_PATH} utterance=${utteranceDurationMs}ms span=${frameTimingReport.frames.length > 0 ? Math.max(...frameTimingReport.frames.map((f) => f.tMs)) - Math.min(...frameTimingReport.frames.map((f) => f.tMs)) : 0}ms\n`,
+      );
 
       // #465 second defect: attribute every strong viseme instant to a frame. A frame whose
       // dominant viseme matches the instant is the honest link; otherwise the nearest-timestamp
