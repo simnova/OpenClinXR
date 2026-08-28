@@ -1,4 +1,4 @@
-import { Select, Switch, type TableColumnsType, Tag } from "antd";
+import { Input, Select, Space, Switch, type TableColumnsType, Tag, Typography } from "antd";
 import { useEffect, useState } from "react";
 import type { AdminControlPlaneClient, ScenarioSceneGenerationPipelineWorkOrderQueue } from "./api-client.js";
 import type { FacultyCompileLockClient } from "./faculty-compile-lock-types.js";
@@ -21,6 +21,12 @@ export type FacultyCompileLockRow = {
   locked: boolean;
   /** Optional ActorPhenotypeSchema pointer the lock applies to; only the four constant paths are allowed. */
   overridePath?: FacultyCompileOverridePath;
+  /**
+   * Optional ActorPhenotypeSchema VALUE the override applies (the value half of the
+   * `{ op, path, value }` overridePatch). Persisted with overridePath so the faculty
+   * override writes a value, not only a JSON-pointer path.
+   */
+  overrideValue?: unknown;
 };
 
 /**
@@ -55,7 +61,7 @@ export function buildFacultyCompileLockRows(
 
 /**
  * Merges faculty compile lock rows by queue identity (rowId): locked flags and
- * override paths from `previousRows` survive onto the freshly derived rows.
+ * override paths/values from `previousRows` survive onto the freshly derived rows.
  * Review metadata only; locked stays false until the faculty compile-lock store is written.
  */
 export function mergeFacultyCompileLockRows(
@@ -66,7 +72,12 @@ export function mergeFacultyCompileLockRows(
   return nextRows.map((row) => {
     const previous = previousById.get(row.rowId);
     return previous
-      ? { ...row, locked: previous.locked, ...(previous.overridePath === undefined ? {} : { overridePath: previous.overridePath }) }
+      ? {
+          ...row,
+          locked: previous.locked,
+          ...(previous.overridePath === undefined ? {} : { overridePath: previous.overridePath }),
+          ...(previous.overrideValue === undefined ? {} : { overrideValue: previous.overrideValue }),
+        }
       : row;
   });
 }
@@ -154,6 +165,7 @@ export function useFacultyCompileLocks(
   facultyCompileLockRows: FacultyCompileLockRow[];
   handleFacultyCompileLockChange: (rowId: string, locked: boolean) => void;
   handleFacultyCompileOverrideChange: (rowId: string, overridePath: FacultyCompileOverridePath | undefined) => void;
+  handleFacultyCompileOverrideValueChange: (rowId: string, overrideValue: unknown) => void;
   compileEdges: CompileEdge[];
 } {
   const [facultyCompileLockRows, setFacultyCompileLockRows] = useState<FacultyCompileLockRow[]>([]);
@@ -168,7 +180,7 @@ export function useFacultyCompileLocks(
 
   // Persist each faculty lock/override toggle to the compile-lock store (the World
   // Compile Graph compile runner reads .openclinxr/compile-locks/<scenarioId>.json).
-  const persistCompileLock = (row: FacultyCompileLockRow, patch: { locked: boolean; overridePath: FacultyCompileOverridePath | undefined }): void => {
+  const persistCompileLock = (row: FacultyCompileLockRow, patch: { locked: boolean; overridePath: FacultyCompileOverridePath | undefined; overrideValue: unknown }): void => {
     const context = findFacultyCompileLockContext(sceneGenerationPipelineQueue, row.compileSubject, row.kind);
     if (!context) {
       return;
@@ -183,6 +195,7 @@ export function useFacultyCompileLocks(
         nodeId: context.nodeId,
         locked: patch.locked,
         ...(patch.overridePath === undefined ? {} : { overridePath: patch.overridePath }),
+        ...(patch.overrideValue === undefined ? {} : { overrideValue: patch.overrideValue }),
       })
       .catch(() => undefined);
   };
@@ -192,31 +205,62 @@ export function useFacultyCompileLocks(
       currentRows.map((candidate) => (candidate.rowId === rowId ? { ...candidate, locked } : candidate)),
     );
     if (row) {
-      persistCompileLock(row, { locked, overridePath: row.overridePath });
+      persistCompileLock(row, { locked, overridePath: row.overridePath, overrideValue: row.overrideValue });
     }
   };
   const handleFacultyCompileOverrideChange = (rowId: string, overridePath: FacultyCompileOverridePath | undefined): void => {
     const row = facultyCompileLockRows.find((candidate) => candidate.rowId === rowId);
     setFacultyCompileLockRows((currentRows) =>
-      currentRows.map((candidate) =>
-        candidate.rowId === rowId ? { ...candidate, ...(overridePath === undefined ? {} : { overridePath }) } : candidate,
-      ),
+      currentRows.map((candidate) => {
+        if (candidate.rowId !== rowId) {
+          return candidate;
+        }
+        if (overridePath === undefined) {
+          const { overridePath: _clearedPath, overrideValue: _clearedValue, ...rest } = candidate;
+          return rest;
+        }
+        return { ...candidate, overridePath };
+      }),
     );
     if (row) {
-      persistCompileLock(row, { locked: row.locked, overridePath });
+      persistCompileLock(row, {
+        locked: row.locked,
+        overridePath,
+        overrideValue: overridePath === undefined ? undefined : row.overrideValue,
+      });
+    }
+  };
+  const handleFacultyCompileOverrideValueChange = (rowId: string, overrideValue: unknown): void => {
+    const row = facultyCompileLockRows.find((candidate) => candidate.rowId === rowId);
+    setFacultyCompileLockRows((currentRows) =>
+      currentRows.map((candidate) => {
+        if (candidate.rowId !== rowId) {
+          return candidate;
+        }
+        if (overrideValue === undefined) {
+          const { overrideValue: _clearedValue, ...rest } = candidate;
+          return rest;
+        }
+        return { ...candidate, overrideValue };
+      }),
+    );
+    if (row) {
+      persistCompileLock(row, { locked: row.locked, overridePath: row.overridePath, overrideValue });
     }
   };
   const compileEdges = sceneGenerationPipelineQueue ? buildCompileEdges(sceneGenerationPipelineQueue) : [];
-  return { facultyCompileLockRows, handleFacultyCompileLockChange, handleFacultyCompileOverrideChange, compileEdges };
+  return { facultyCompileLockRows, handleFacultyCompileLockChange, handleFacultyCompileOverrideChange, handleFacultyCompileOverrideValueChange, compileEdges };
 }
 
 /** antd Table columns for the faculty compile/materialization lock table. */
 export function buildFacultyCompileLockColumns({
   onFacultyCompileLockChange,
   onFacultyCompileOverrideChange,
+  onFacultyCompileOverrideValueChange,
 }: {
   onFacultyCompileLockChange?: ((rowId: string, locked: boolean) => void) | undefined;
   onFacultyCompileOverrideChange?: ((rowId: string, overridePath: FacultyCompileOverridePath | undefined) => void) | undefined;
+  onFacultyCompileOverrideValueChange?: ((rowId: string, overrideValue: unknown) => void) | undefined;
 }): TableColumnsType<FacultyCompileLockRow> {
   return [
     {
@@ -244,17 +288,34 @@ export function buildFacultyCompileLockColumns({
       dataIndex: "overridePath",
       key: "overridePath",
       render: (overridePath: FacultyCompileOverridePath | undefined, row: FacultyCompileLockRow) => (
-        <Select<FacultyCompileOverridePath>
-          aria-label={`Override path for ${row.compileSubject}`}
-          placeholder="No override"
-          allowClear
-          showSearch={false}
-          virtual={false}
-          disabled={!onFacultyCompileOverrideChange}
-          options={FACULTY_COMPILE_OVERRIDE_PATHS.map((path) => ({ value: path, label: path }))}
-          value={overridePath ?? null}
-          onChange={(value) => onFacultyCompileOverrideChange?.(row.rowId, value)}
-        />
+        <Space orientation="vertical" size={4} style={{ width: "100%" }}>
+          <Select<FacultyCompileOverridePath>
+            aria-label={`Override path for ${row.compileSubject}`}
+            placeholder="No override"
+            allowClear
+            showSearch={false}
+            virtual={false}
+            disabled={!onFacultyCompileOverrideChange}
+            options={FACULTY_COMPILE_OVERRIDE_PATHS.map((path) => ({ value: path, label: path }))}
+            value={overridePath ?? null}
+            onChange={(value) => onFacultyCompileOverrideChange?.(row.rowId, value)}
+          />
+          {overridePath !== undefined ? (
+            onFacultyCompileOverrideValueChange ? (
+              <Input
+                aria-label={`Override value for ${row.compileSubject}`}
+                placeholder="Phenotype value"
+                allowClear
+                value={row.overrideValue === undefined ? "" : String(row.overrideValue)}
+                onChange={(event) =>
+                  onFacultyCompileOverrideValueChange(row.rowId, event.target.value === "" ? undefined : event.target.value)
+                }
+              />
+            ) : row.overrideValue === undefined ? null : (
+              <Typography.Text type="secondary">{String(row.overrideValue)}</Typography.Text>
+            )
+          ) : null}
+        </Space>
       ),
     },
   ];

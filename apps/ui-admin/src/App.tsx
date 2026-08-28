@@ -1107,7 +1107,7 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
     | { status: "error"; message: string }
   >({ status: "idle" });
   const sceneGenerationPipelineQueue = state.status === "ready" ? state.sceneGenerationPipelineQueue : undefined;
-  const { facultyCompileLockRows, handleFacultyCompileLockChange, handleFacultyCompileOverrideChange, compileEdges } =
+  const { facultyCompileLockRows, handleFacultyCompileLockChange, handleFacultyCompileOverrideChange, handleFacultyCompileOverrideValueChange, compileEdges } =
     useFacultyCompileLocks(sceneGenerationPipelineQueue, controlPlaneClient);
 
   useEffect(() => {
@@ -1375,6 +1375,7 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
           facultyCompileLockRows={facultyCompileLockRows}
           onFacultyCompileLockChange={handleFacultyCompileLockChange}
           onFacultyCompileOverrideChange={handleFacultyCompileOverrideChange}
+          onFacultyCompileOverrideValueChange={handleFacultyCompileOverrideValueChange}
           compileEdges={compileEdges}
           onInitiateSceneGeneration={(scenarioId) => void initiateSceneGeneration(scenarioId)}
           onAttachSceneGenerationReview={(request) => void attachSceneGenerationReview(request)}

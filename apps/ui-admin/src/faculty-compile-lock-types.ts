@@ -11,6 +11,12 @@ export type PersistFacultyCompileLockInput = {
   locked: boolean;
   /** ActorPhenotypeSchema pointer; only the four constant paths are accepted (400 otherwise). */
   overridePath?: string;
+  /**
+   * ActorPhenotypeSchema value the override applies (the value half of the
+   * `{ op, path, value }` overridePatch the World Compile Graph applies).
+   * Opaque review metadata: the store/baker honor of the value is not asserted here.
+   */
+  overrideValue?: unknown;
 };
 
 export type AdminFacultyCompileLockRecord = {

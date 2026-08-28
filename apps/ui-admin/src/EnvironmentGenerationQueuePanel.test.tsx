@@ -1045,9 +1045,50 @@ describe("EnvironmentGenerationQueuePanel", () => {
     expect(findUnsafeClaimLanguage(screen.getByLabelText("3D environment generation queue").textContent ?? "")).toEqual([]);
   });
 
-  it("merges locked flags and override paths onto fresh queue rows by row identity", () => {
+  it("persists the override VALUE with the chosen override path when the value input changes", () => {
+    const onFacultyCompileOverrideChange = vi.fn();
+    const onFacultyCompileOverrideValueChange = vi.fn();
+    render(
+      <EnvironmentGenerationQueuePanel
+        environmentGenerationQueue={environmentGenerationQueueFixture()}
+        sceneGenerationPipelineQueue={sceneGenerationPipelineQueueFixture()}
+        facultyCompileLockRows={[
+          { rowId: "lock:actor:patient_maya_johnson_v1", kind: "actor", compileSubject: "patient_maya_johnson_v1", locked: true, overridePath: "/garmentLayers", overrideValue: "scrub_shirt" },
+        ]}
+        onFacultyCompileOverrideChange={onFacultyCompileOverrideChange}
+        onFacultyCompileOverrideValueChange={onFacultyCompileOverrideValueChange}
+      />,
+    );
+
+    const lockTable = screen.getByLabelText("Faculty compile/materialization lock table");
+    const valueInput = within(lockTable).getByLabelText("Override value for patient_maya_johnson_v1") as HTMLInputElement;
+    expect(valueInput.value).toBe("scrub_shirt");
+
+    fireEvent.change(valueInput, { target: { value: "hospital_gown" } });
+    expect(onFacultyCompileOverrideValueChange).toHaveBeenCalledWith("lock:actor:patient_maya_johnson_v1", "hospital_gown");
+    expect(findUnsafeClaimLanguage(screen.getByLabelText("3D environment generation queue").textContent ?? "")).toEqual([]);
+  });
+
+  it("shows the override value as read-only metadata when no value change handler is wired", () => {
+    render(
+      <EnvironmentGenerationQueuePanel
+        environmentGenerationQueue={environmentGenerationQueueFixture()}
+        sceneGenerationPipelineQueue={sceneGenerationPipelineQueueFixture()}
+        facultyCompileLockRows={[
+          { rowId: "lock:actor:patient_maya_johnson_v1", kind: "actor", compileSubject: "patient_maya_johnson_v1", locked: true, overridePath: "/garmentLayers", overrideValue: "scrub_shirt" },
+        ]}
+      />,
+    );
+
+    const lockTable = screen.getByLabelText("Faculty compile/materialization lock table");
+    expect(lockTable).toHaveTextContent("scrub_shirt");
+    expect(within(lockTable).queryByLabelText("Override value for patient_maya_johnson_v1")).toBeNull();
+    expect(findUnsafeClaimLanguage(screen.getByLabelText("3D environment generation queue").textContent ?? "")).toEqual([]);
+  });
+
+  it("merges locked flags, override paths, and override values onto fresh queue rows by row identity", () => {
     const previousRows: FacultyCompileLockRow[] = [
-      { rowId: "lock:actor:patient_maya_johnson_v1", kind: "actor", compileSubject: "patient_maya_johnson_v1", locked: true, overridePath: "/garmentLayers" },
+      { rowId: "lock:actor:patient_maya_johnson_v1", kind: "actor", compileSubject: "patient_maya_johnson_v1", locked: true, overridePath: "/garmentLayers", overrideValue: "scrub_shirt" },
       { rowId: "lock:equipment:nebulizer", kind: "equipment", compileSubject: "nebulizer", locked: false },
     ];
     const nextRows: FacultyCompileLockRow[] = [
@@ -1058,7 +1099,7 @@ describe("EnvironmentGenerationQueuePanel", () => {
 
     const merged = mergeFacultyCompileLockRows(nextRows, previousRows);
 
-    expect(merged).toContainEqual({ rowId: "lock:actor:patient_maya_johnson_v1", kind: "actor", compileSubject: "patient_maya_johnson_v1", locked: true, overridePath: "/garmentLayers" });
+    expect(merged).toContainEqual({ rowId: "lock:actor:patient_maya_johnson_v1", kind: "actor", compileSubject: "patient_maya_johnson_v1", locked: true, overridePath: "/garmentLayers", overrideValue: "scrub_shirt" });
     expect(merged).toContainEqual({ rowId: "lock:equipment:nebulizer", kind: "equipment", compileSubject: "nebulizer", locked: false });
     // Rows absent from the previous snapshot keep their derived defaults.
     expect(merged).toContainEqual({ rowId: "lock:equipment:12-lead ECG machine", kind: "equipment", compileSubject: "12-lead ECG machine", locked: false });
