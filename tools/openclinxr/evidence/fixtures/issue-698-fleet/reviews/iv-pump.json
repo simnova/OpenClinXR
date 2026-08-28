@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "openclinxr.trellis-fleet-review-receipt.v1",
+  "subjectId": "iv-pump",
+  "stage": "grade",
+  "artifactProducerSessionId": "80abd5d9-279c-4e6b-9a49-8dd579bd4361",
+  "reviewerSessionId": null,
+  "rubricSha256": "1227f505ae24777b53e2768d71decea20643afcd32cbd8ff93d763fa547a8791",
+  "renderImageSha256": {
+    "render_unmapped": "5f2cda704daa7257b9008cc6fe296a106e84953be35313a257d5cc3e60db14ce",
+    "render_mapped": "5b5708e90791a5747527c1cc482af462ae8e6a9ff8a43597252a1c574ee678e9"
+  },
+  "parsedVerdict": {
+    "status": "pending_orchestrator_grade",
+    "note": "The worker PRODUCES the renders and measurements; the orchestrator GRADES the pixels. Fill rawVisibleResponse, parsedVerdict and reviewerSessionId (must differ from artifactProducerSessionId) after grading the mapped/unmapped renders."
+  },
+  "claimScope": [
+    "renders and measurements produced by the worker; the visual verdict is the orchestrator's pixel grade"
+  ],
+  "notEvidenceFor": [
+    "that any subject improved",
+    "that the derived rung is adoptable",
+    "artifact elimination"
+  ]
+}

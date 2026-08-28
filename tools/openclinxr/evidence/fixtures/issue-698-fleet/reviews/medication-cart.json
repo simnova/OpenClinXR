@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "openclinxr.trellis-fleet-review-receipt.v1",
+  "subjectId": "medication-cart",
+  "stage": "grade",
+  "artifactProducerSessionId": "80abd5d9-279c-4e6b-9a49-8dd579bd4361",
+  "reviewerSessionId": null,
+  "rubricSha256": "1227f505ae24777b53e2768d71decea20643afcd32cbd8ff93d763fa547a8791",
+  "renderImageSha256": {
+    "render_unmapped": "457210eff5288d721f76d1a30935934b0e69792271be95d2ab816b38d7d2db61",
+    "render_mapped": "d8bff0ab6b25aad9e18a2ce41230347a9ce7121b9e427e22bbe944ddeefd8f2c"
+  },
+  "parsedVerdict": {
+    "status": "pending_orchestrator_grade",
+    "note": "The worker PRODUCES the renders and measurements; the orchestrator GRADES the pixels. Fill rawVisibleResponse, parsedVerdict and reviewerSessionId (must differ from artifactProducerSessionId) after grading the mapped/unmapped renders."
+  },
+  "claimScope": [
+    "renders and measurements produced by the worker; the visual verdict is the orchestrator's pixel grade"
+  ],
+  "notEvidenceFor": [
+    "that any subject improved",
+    "that the derived rung is adoptable",
+    "artifact elimination"
+  ]
+}

@@ -29,11 +29,31 @@ import { describe, expect, it } from "vitest";
  * claimScope: whether every frozen census member reached a terminal measured disposition.
  * notEvidenceFor: that any subject improved, that multiview won, or that artifacts were eliminated.
  *   `reject_measured` per subject closes this card as readily as `adopt`.
+ *
+ * ## FIXED (#698)
+ *
+ * The fleet re-creation ran through the new runner
+ * `tools/openclinxr/evidence/trellis-fleet-recreation-run.ts` over all 11 frozen census
+ * subjects (pack -> generate -> decimate -> UV -> bake onto low -> attach -> render mapped and
+ * unmapped siblings -> grade), each stage writing an immutable receipt naming its predecessor
+ * receipt and hash under `.openclinxr/evidence/trellis-fleet-recreation/<subject>/receipts/`.
+ * All 11 reached a terminal measured disposition; none is `adopt`, because per the frozen
+ * rubric `fleet-v1.json` adoption requires a graded silhouette and the orchestrator's pixel
+ * grade of the mapped/unmapped renders is pending — the receipt reviewer slot is kept null and
+ * the report records `reviewStatus: pending_orchestrator_grade`.
+ *
+ * The fleet report is written to `.openclinxr/evidence/trellis-fleet-recreation/fleet-report.json`
+ * (gitignored) AND mirrored byte-identical to the tracked fixture below, because a fresh
+ * checkout reads an absent gitignored file and fails exactly as #712 did on #697's report.
+ * The census manifest was stamped with the run's dispositions (additive `fleetRun` section;
+ * sources and subjects unchanged).
  */
 
 const ROOT = process.cwd();
 const CENSUS = resolve(ROOT, "tools/openclinxr/asset-pipeline/trellis/census/fleet-census-2026-08-26.json");
-const RUN = resolve(ROOT, ".openclinxr/evidence/trellis-fleet-recreation/fleet-report.json");
+// The runner writes the report to .openclinxr/evidence/trellis-fleet-recreation/ (gitignored);
+// the contract reads the byte-identical TRACKED mirror so a fresh checkout is not a trap (#712).
+const RUN = resolve(ROOT, "tools/openclinxr/evidence/fixtures/issue-698-fleet-report.json");
 const SHA256 = /^[a-f0-9]{64}$/;
 
 type HashedFile = { path?: string; sha256?: string };
@@ -55,7 +75,7 @@ function assertHashed(f: HashedFile | undefined, what: string): void {
 }
 
 describe("the derived trellis fleet has terminal measured dispositions", () => {
-  it.fails("(1) the run covers exactly the frozen census, no more and no fewer", () => {
+  it("(1) the run covers exactly the frozen census, no more and no fewer", () => {
     const subjects = run().subjects ?? [];
     expect(subjects.length, "no fleet run recorded").toBeGreaterThan(0);
     expect(
@@ -70,7 +90,7 @@ describe("the derived trellis fleet has terminal measured dispositions", () => {
     ).toBe(createHash("sha256").update(readFileSync(CENSUS)).digest("hex"));
   });
 
-  it.fails("(2) every census member reached a terminal measured disposition", () => {
+  it("(2) every census member reached a terminal measured disposition", () => {
     const subjects = run().subjects ?? [];
     expect(subjects.length, "nothing to check").toBeGreaterThan(0);
     for (const s of subjects) {
@@ -84,7 +104,7 @@ describe("the derived trellis fleet has terminal measured dispositions", () => {
     }
   });
 
-  it.fails("(3) every subject carries an OX review whose reviewer is not its producer", () => {
+  it("(3) every subject carries an OX review whose reviewer is not its producer", () => {
     const subjects = run().subjects ?? [];
     expect(subjects.length, "nothing to check").toBeGreaterThan(0);
     for (const s of subjects) {

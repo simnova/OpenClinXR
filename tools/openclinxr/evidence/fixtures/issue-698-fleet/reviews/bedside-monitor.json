@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "openclinxr.trellis-fleet-review-receipt.v1",
+  "subjectId": "bedside-monitor",
+  "stage": "grade",
+  "artifactProducerSessionId": "80abd5d9-279c-4e6b-9a49-8dd579bd4361",
+  "reviewerSessionId": null,
+  "rubricSha256": "1227f505ae24777b53e2768d71decea20643afcd32cbd8ff93d763fa547a8791",
+  "renderImageSha256": {
+    "render_unmapped": "b996a3ef517047f59c02bf103e47178fdcee6a2a6947f20e454094b1133bc800",
+    "render_mapped": "2878d66dac831d6a8d0005c571ace7aaa9a42fd3941d67b2f290721f3901111e"
+  },
+  "parsedVerdict": {
+    "status": "pending_orchestrator_grade",
+    "note": "The worker PRODUCES the renders and measurements; the orchestrator GRADES the pixels. Fill rawVisibleResponse, parsedVerdict and reviewerSessionId (must differ from artifactProducerSessionId) after grading the mapped/unmapped renders."
+  },
+  "claimScope": [
+    "renders and measurements produced by the worker; the visual verdict is the orchestrator's pixel grade"
+  ],
+  "notEvidenceFor": [
+    "that any subject improved",
+    "that the derived rung is adoptable",
+    "artifact elimination"
+  ]
+}
