@@ -1,8 +1,8 @@
 import { Input, Select, Space, Switch, type TableColumnsType, Tag, Typography } from "antd";
 import { useEffect, useState } from "react";
 import type { AdminControlPlaneClient, ScenarioSceneGenerationPipelineWorkOrderQueue } from "./api-client.js";
-import type { FacultyCompileLockClient } from "./faculty-compile-lock-types.js";
 import type { CompileEdge } from "./CompileGraphCanvas.js";
+import type { FacultyCompileLockClient } from "./faculty-compile-lock-types.js";
 
 /** ActorPhenotypeSchema pointer paths a faculty compile lock may override. Review metadata only. */
 export const FACULTY_COMPILE_OVERRIDE_PATHS = [
@@ -27,14 +27,78 @@ export type FacultyCompileLockRow = {
    * override writes a value, not only a JSON-pointer path.
    */
   overrideValue?: unknown;
+  /**
+   * Evidence.v1 compile-node contentHash for the row's compile-graph node
+   * (`actor:<subject>:wardrobe` / `equip:<subject>`), so a lock is reviewable
+   * without reading the evidence JSON. sha256 of the artifact bytes, never a
+   * placeholder literal; undefined when the evidence report carries no node
+   * for the subject or the node records no artifact hash.
+   */
+  contentHash?: string;
+  /**
+   * Evidence.v1 staleness of the row's compile node (WCG dirty rule "unknown
+   * edge = dirty"): true when the evidence node for this row is locked
+   * (`lock.locked`) but records no current artifact hash — contentHash null
+   * (artifact not on disk / never baked) or a lock whose lockedContentHash
+   * differs from the node's current contentHash (artifact re-baked after the
+   * lock). False when the node is unlocked, absent, or records a matching
+   * current hash. Review metadata only.
+   */
+  stale: boolean;
 };
+
+/**
+ * Structural slice of an evidence.v1 compile node the lock table reads
+ * (`openclinxr.encounter-materialization-evidence.v1` compileNodes). The
+ * ui-admin client has no full evidence DTO yet, so only the fields the lock
+ * review surface consumes are declared.
+ */
+export type EvidenceCompileNode = {
+  nodeId: string;
+  contentHash: string | null;
+  lock?: {
+    locked?: boolean;
+    lockedContentHash?: string | null;
+  };
+};
+
+/**
+ * Resolve the evidence.v1 compile node for a lock row and stamp its review
+ * metadata: contentHash (the compiled artifact hash the lock applies to) and
+ * stale (WCG dirty rule — a lock whose node records no current artifact hash
+ * is stale). Actor rows read the split wardrobe node the lock applies to
+ * (`actor:<subject>:wardrobe`), falling back to the unsplit Phase 0 node;
+ * equipment rows read `equip:<subject>`.
+ */
+export function resolveFacultyCompileLockEvidence(
+  row: FacultyCompileLockRow,
+  evidenceCompileNodes: readonly EvidenceCompileNode[] | undefined,
+): { contentHash?: string; stale: boolean } {
+  if (!evidenceCompileNodes) {
+    return { stale: false };
+  }
+  const nodeIdCandidates =
+    row.kind === "actor"
+      ? [`actor:${row.compileSubject}:wardrobe`, `actor:${row.compileSubject}`]
+      : [`equip:${row.compileSubject}`];
+  const node = evidenceCompileNodes.find((candidate) => nodeIdCandidates.includes(candidate.nodeId));
+  const contentHash = node?.contentHash ?? undefined;
+  const locked = node?.lock?.locked === true;
+  const lockHashMoved =
+    node?.lock?.lockedContentHash != null && node.lock.lockedContentHash !== node.contentHash;
+  const stale = locked && (contentHash === undefined || lockHashMoved);
+  return { ...(contentHash === undefined ? {} : { contentHash }), stale };
+}
 
 /**
  * Faculty compile/materialization lock rows derived from scene pipeline actor and equipment ids.
  * Review metadata only: locked stays false until the faculty compile-lock store is written.
+ * When evidence.v1 compile nodes are supplied, each row also carries the compiled
+ * artifact contentHash and staleness for its compile-graph node.
  */
 export function buildFacultyCompileLockRows(
   sceneGenerationPipelineQueue: ScenarioSceneGenerationPipelineWorkOrderQueue,
+  evidenceCompileNodes?: readonly EvidenceCompileNode[],
 ): FacultyCompileLockRow[] {
   const rows: FacultyCompileLockRow[] = [];
   const seenRowIds = new Set<string>();
@@ -50,10 +114,12 @@ export function buildFacultyCompileLockRows(
       ? workOrder.actorWorkOrders.map((actorWorkOrder) => actorWorkOrder.actorId)
       : workOrder.characterAssetIds;
     for (const actorSubject of actorSubjects) {
-      appendRow({ rowId: `lock:actor:${actorSubject}`, kind: "actor", compileSubject: actorSubject, locked: false });
+      const baseRow: FacultyCompileLockRow = { rowId: `lock:actor:${actorSubject}`, kind: "actor", compileSubject: actorSubject, locked: false, stale: false };
+      appendRow({ ...baseRow, ...resolveFacultyCompileLockEvidence(baseRow, evidenceCompileNodes) });
     }
     for (const equipmentAssetId of workOrder.equipmentAssetIds) {
-      appendRow({ rowId: `lock:equipment:${equipmentAssetId}`, kind: "equipment", compileSubject: equipmentAssetId, locked: false });
+      const baseRow: FacultyCompileLockRow = { rowId: `lock:equipment:${equipmentAssetId}`, kind: "equipment", compileSubject: equipmentAssetId, locked: false, stale: false };
+      appendRow({ ...baseRow, ...resolveFacultyCompileLockEvidence(baseRow, evidenceCompileNodes) });
     }
   }
   return rows;
@@ -173,12 +239,14 @@ export function buildCompileEdges(
  * Parent-owned faculty compile lock rows: seeded from the scene pipeline queue and
  * merged on queue identity so toggled locks survive re-renders, persisted to the
  * compile-lock store on each toggle (the World Compile Graph compile runner reads
- * .openclinxr/compile-locks/<scenarioId>.json). Review metadata only.
+ * .openclinxr/compile-locks/<scenarioId>.json). Evidence.v1 compile nodes stamp
+ * contentHash/staleness onto each row when supplied. Review metadata only.
  */
 export function useFacultyCompileLocks(
   sceneGenerationPipelineQueue: ScenarioSceneGenerationPipelineWorkOrderQueue | undefined,
   controlPlaneClient: AdminControlPlaneClient,
   compileEdgesFromEvidence?: EvidenceCompileEdges,
+  evidenceCompileNodes?: readonly EvidenceCompileNode[],
 ): {
   facultyCompileLockRows: FacultyCompileLockRow[];
   handleFacultyCompileLockChange: (rowId: string, locked: boolean) => void;
@@ -192,9 +260,9 @@ export function useFacultyCompileLocks(
       return;
     }
     setFacultyCompileLockRows((currentRows) =>
-      mergeFacultyCompileLockRows(buildFacultyCompileLockRows(sceneGenerationPipelineQueue), currentRows),
+      mergeFacultyCompileLockRows(buildFacultyCompileLockRows(sceneGenerationPipelineQueue, evidenceCompileNodes), currentRows),
     );
-  }, [sceneGenerationPipelineQueue]);
+  }, [sceneGenerationPipelineQueue, evidenceCompileNodes]);
 
   // Persist each faculty lock/override toggle to the compile-lock store (the World
   // Compile Graph compile runner reads .openclinxr/compile-locks/<scenarioId>.json).
@@ -290,6 +358,24 @@ export function buildFacultyCompileLockColumns({
       render: (kind: FacultyCompileLockRow["kind"]) => <Tag color={kind === "actor" ? "cyan" : "purple"}>{kind}</Tag>,
     },
     { title: "Compile/materialization subject", dataIndex: "compileSubject", key: "compileSubject" },
+    {
+      title: "Stale",
+      dataIndex: "stale",
+      key: "stale",
+      render: (stale: boolean) =>
+        stale ? <Tag color="red">stale</Tag> : <Typography.Text type="secondary">current</Typography.Text>,
+    },
+    {
+      title: "Content hash",
+      dataIndex: "contentHash",
+      key: "contentHash",
+      render: (contentHash: string | undefined) =>
+        contentHash === undefined ? (
+          <Typography.Text type="secondary">—</Typography.Text>
+        ) : (
+          <Typography.Text code>{contentHash}</Typography.Text>
+        ),
+    },
     {
       title: "Lock",
       dataIndex: "locked",
