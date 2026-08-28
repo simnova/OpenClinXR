@@ -46,6 +46,30 @@ import { describe, expect, it } from "vitest";
  * notEvidenceFor: how the mouth looks — that is a pixel grade. Whether the child and nurse share the
  *   zero-morph teeth; only the parent was read. Per-vertex clearance; this is an AABB face against a
  *   windowed vertex set.
+ *
+ * ## FIXED (#738)
+ *
+ * Rest clearance, chosen over teeth morph targets: the teeth slab carries 136 verts with no
+ * correspondence to the skin topology, so copying the body's `mouth-open` morph onto it is
+ * hand-authored geometry (D1) rather than a deterministic transform — and the runtime
+ * (`viseme-morph-apply.ts:63-105`) only writes weights to meshes that expose a
+ * `morphTargetDictionary`, which the teeth do not. Instead the teeth mesh was translated back by
+ * 0.003 m on z in the shipped GLBs (`mpfb-peds-parent-aisha.glb` + `mpfb-peds-parent-aisha.motion-bind.glb`)
+ * via `tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts`. Measured after the
+ * edit, teeth max z 0.142223 -> 0.139223:
+ *
+ *   weight   skin p50   margin (p50 - teethMax)   verts in band
+ *   0        0.1432     +0.003985                  731
+ *   0.30     0.1407     **+0.001486**              686
+ *   1.00     0.1423     +0.003038                  496
+ *
+ * The runtime weight (0.30 = `MOUTH_OPEN_CAP`, unchanged) now clears by 1.5 mm — the same
+ * magnitude as the measured defect, flipped. Clause (2) KNOWN-GOOD margin grew 1.0 mm -> 4.0 mm.
+ * Counterweights hold: tongue max z 0.1347, teeth now 0.1392 -> 4.5 mm in front of the tongue;
+ * teeth still ship skinned at 192 tris with JOINTS_0/WEIGHTS_0 (clause 4). The jaw channel was not
+ * touched. Whether the 0.003 m retreat reads as a gap on the slab is the orchestrator's pixel grade.
+ *
+ * Clause (1) flipped `it.fails` -> `it`.
  */
 
 const GLB = "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb";
@@ -112,7 +136,7 @@ describe("the teeth stay behind the face when the mouth opens (#738)", () => {
    * band at the same weight, so no threshold of mine appears — the comparison is the asset against
    * itself.
    */
-  it.fails("(1) at the runtime's morph weight the teeth stay behind the skin median", () => {
+  it("(1) at the runtime's morph weight the teeth stay behind the skin median", () => {
     const w = runtimeCap();
     const { p50, n } = skinMedianZ(w);
     expect(n, "the band must still contain skin vertices at this weight").toBeGreaterThan(0);
