@@ -8,23 +8,19 @@
       "influence": 1
     },
     {
-      "drivenTargetName": "viseme_sil",
-      "influence": 1
-    },
-    {
       "drivenTargetName": "viseme_E",
       "influence": 1
     },
     {
-      "drivenTargetName": "viseme_aa",
-      "influence": 1
-    },
-    {
-      "drivenTargetName": "viseme_U",
-      "influence": 1
-    },
-    {
       "drivenTargetName": "viseme_I",
+      "influence": 1
+    },
+    {
+      "drivenTargetName": "viseme_sil",
+      "influence": 1
+    },
+    {
+      "drivenTargetName": "viseme_aa",
       "influence": 1
     }
   ]
