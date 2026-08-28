@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "openclinxr.generated-humanoid-lash-lod.v1",
+  "optimizationApplied": true,
+  "simplificationApplied": true,
+  "simplificationStage": "post_blender_glb_lash_only",
+  "simplificationRatio": 0.12,
+  "simplificationError": 0.005,
+  "lashPrimitives": [
+    {
+      "mesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ed_chest_pain_nurse_adult_mesh",
+      "prims": 1,
+      "tris": 3237
+    }
+  ],
+  "beforeTotalTriangles": 41866,
+  "afterTotalTriangles": 39017,
+  "beforeLashTriangles": 3237,
+  "afterLashTriangles": 388,
+  "lashReductionX": 8.34,
+  "beforeBytes": 11318360,
+  "afterBytes": 11112080,
+  "claimScope": "ed_station_budget_recovery_via_lash_only_lod_not_legibility_grade",
+  "notEvidenceFor": [
+    "lash_legibility_pixel_grade",
+    "b_plus_visual_realism_gate",
+    "quest_readiness",
+    "clinical_validity"
+  ],
+  "inputPath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
+  "outputPath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
+  "generatedAt": "2026-08-28T13:50:08.319Z"
+}

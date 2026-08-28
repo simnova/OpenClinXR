@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "openclinxr.gown-uv-restore.v1",
+  "inputPath": "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
+  "referencePath": "/tmp/gown-a55067d1.glb",
+  "outputPath": "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
+  "restoredPrimitives": [
+    "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_robert_reference_mesh[0] Float32Array x2085",
+    "mpfb_robert_reference_body[1] Float32Array x1156",
+    "mpfb_robert_reference_body[2] Float32Array x423",
+    "mpfb_robert_reference_body[3] Float32Array x1485",
+    "mpfb_robert_reference_body[4] Float32Array x142",
+    "mpfb_robert_reference_body[5] Float32Array x104",
+    "mpfb_robert_reference_body[6] Float32Array x390",
+    "mpfb_robert_reference_body[7] Float32Array x114",
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_robert_reference_mesh[0] Float32Array x10712",
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_robert_reference_mesh[0] Float32Array x5158",
+    "openclinxr_hm08_teeth_mpfb_robert_reference_mesh[0] Float32Array x135",
+    "openclinxr_hm08_tongue_mpfb_robert_reference_mesh[0] Float32Array x240"
+  ],
+  "skipped": [
+    "openclinxr_declared_upper_layers__hospital_gown_mesh[0]: reference has no UV either",
+    "openclinxr_real_garment_peds_upper_v1_mesh[0]: reference has no UV either"
+  ],
+  "uvPrimitivesAfter": 16,
+  "totalTrianglesAfter": 69547,
+  "claimScope": "restores the TEXCOORD_0 attributes the #714 re-bake dropped, from byte-identical topology",
+  "notEvidenceFor": [
+    "garment quality",
+    "lash legibility",
+    "readiness"
+  ]
+}

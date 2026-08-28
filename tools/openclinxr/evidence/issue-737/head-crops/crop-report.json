@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "openclinxr.head-focus.crop-run.v1",
+  "issue": "358",
+  "factoryStep": "instrument",
+  "measuredAt": "2026-08-28T14:09:41.862Z",
+  "generator": {
+    "tool": "renderHeadFocusCrops",
+    "file": "tools/openclinxr/evidence/isolated-subject-harness.ts",
+    "deterministic": true,
+    "llmInvolved": false,
+    "viewportPx": 1024,
+    "note": "matched head-framed crops via isolated-subject-lab focus=head (head box derived from the body bounds — topmost band cut at the neck; never the eye mesh, never literal coordinates); subject-only; one dev-server boot for the whole run"
+  },
+  "summary": {
+    "requested": 1,
+    "produced": 1,
+    "devServerBoots": 1,
+    "browserLaunches": 1,
+    "wallClockMs": 2515
+  },
+  "crops": [
+    {
+      "rail": "mpfb",
+      "role": "ED family partner",
+      "view": "front",
+      "imagePath": "tools/openclinxr/evidence/issue-737/head-crops/ed-family-partner-head-front.png",
+      "bytes": 389021,
+      "pngDimensions": {
+        "width": 1024,
+        "height": 1024
+      },
+      "frameCoverage": 0.3890829086303711,
+      "frameSpanFraction": 0.8000454355599275,
+      "focusRegion": {
+        "kind": "head_box",
+        "derivation": "topmost band of the body bounds cut at the neck (silhouette width profile); never the eye mesh, never literal coordinates (D1)",
+        "neckPositionMeters": 1.4632,
+        "dominantAxis": "y",
+        "matchedVertexCount": 14918,
+        "boundsMeters": {
+          "min": {
+            "x": -0.089,
+            "y": 1.4201,
+            "z": -0.0593
+          },
+          "max": {
+            "x": 0.0887,
+            "y": 1.6723,
+            "z": 0.1632
+          }
+        }
+      },
+      "subjectOnly": true
+    }
+  ],
+  "claimScope": [
+    "matched_head_framed_crops_of_one_asset_per_rail_mpfb_and_anny",
+    "camera_framed_on_the_geometry_derived_head_box_on_both_rails",
+    "framing_actually_used_recorded_per_crop_focusRegion",
+    "one_dev_server_boot_for_the_whole_run"
+  ],
+  "notEvidenceFor": [
+    "which_hair_mechanism_is_correct_orchestrator_pixel_grade_of_these_crops_required",
+    "clinical_eye_realism",
+    "clinical_realism",
+    "gaze_correctness",
+    "quest_readiness"
+  ]
+}
