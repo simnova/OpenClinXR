@@ -4,9 +4,9 @@ import { findUnsafeClaimLanguage } from "@openclinxr/domain/claim-language";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { useState } from "react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import { buildCompileEdges, buildFacultyCompileLockRows, mergeFacultyCompileLockRows } from "./faculty-compile-lock.js";
 import { buildCompileGraphModel, CompileGraphCanvas } from "./CompileGraphCanvas.js";
 import { EnvironmentGenerationQueuePanel, FACULTY_COMPILE_OVERRIDE_PATHS, type FacultyCompileLockRow } from "./EnvironmentGenerationQueuePanel.js";
+import { buildCompileEdges, buildFacultyCompileLockRows, type EvidenceCompileNode, mergeFacultyCompileLockRows } from "./faculty-compile-lock.js";
 import {
   sceneGenerationRequestProjectionArtifactStatusColor,
   sceneGenerationRequestProjectionArtifactStatusLabel,
@@ -912,8 +912,8 @@ describe("EnvironmentGenerationQueuePanel", () => {
         environmentGenerationQueue={environmentGenerationQueueFixture()}
         sceneGenerationPipelineQueue={sceneGenerationPipelineQueueFixture()}
         facultyCompileLockRows={[
-          { rowId: "lock:actor:patient_maya_johnson_v1", kind: "actor", compileSubject: "patient_maya_johnson_v1", locked: true },
-          { rowId: "lock:equipment:nebulizer_mask_equipment", kind: "equipment", compileSubject: "nebulizer_mask_equipment", locked: false },
+          { rowId: "lock:actor:patient_maya_johnson_v1", kind: "actor", compileSubject: "patient_maya_johnson_v1", locked: true, stale: true, contentHash: "a1b2c3d4" },
+          { rowId: "lock:equipment:nebulizer_mask_equipment", kind: "equipment", compileSubject: "nebulizer_mask_equipment", locked: false, stale: false },
         ]}
       />,
     );
@@ -925,10 +925,14 @@ describe("EnvironmentGenerationQueuePanel", () => {
     expect(lockTable).toHaveTextContent("2 compile/materialization subjects");
     expect(within(lockTable).getByRole("columnheader", { name: "Kind" })).toBeInTheDocument();
     expect(within(lockTable).getByRole("columnheader", { name: "Compile/materialization subject" })).toBeInTheDocument();
+    expect(within(lockTable).getByRole("columnheader", { name: "Stale" })).toBeInTheDocument();
+    expect(within(lockTable).getByRole("columnheader", { name: "Content hash" })).toBeInTheDocument();
     expect(within(lockTable).getByRole("columnheader", { name: "Lock" })).toBeInTheDocument();
     expect(within(lockTable).getByRole("columnheader", { name: "Override" })).toBeInTheDocument();
     expect(lockTable).toHaveTextContent("patient_maya_johnson_v1");
     expect(lockTable).toHaveTextContent("nebulizer_mask_equipment");
+    expect(lockTable).toHaveTextContent("a1b2c3d4");
+    expect(lockTable).toHaveTextContent("stale");
     expect(within(lockTable).getAllByRole("switch")).toHaveLength(2);
     expect(within(lockTable).getByRole("switch", { name: "Lock patient_maya_johnson_v1" })).toBeChecked();
     expect(within(lockTable).getByRole("switch", { name: "Lock nebulizer_mask_equipment" })).not.toBeChecked();
@@ -956,9 +960,9 @@ describe("EnvironmentGenerationQueuePanel", () => {
     expect(rows.length).toBeGreaterThan(0);
     expect(new Set(rows.map((row) => row.rowId)).size).toBe(rows.length);
     expect(rows.every((row) => row.locked === false)).toBe(true);
-    expect(rows).toContainEqual({ rowId: "lock:actor:patient_actor_v1", kind: "actor", compileSubject: "patient_actor_v1", locked: false });
-    expect(rows).toContainEqual({ rowId: "lock:equipment:12-lead ECG machine", kind: "equipment", compileSubject: "12-lead ECG machine", locked: false });
-    expect(rows).toContainEqual({ rowId: "lock:equipment:nebulizer", kind: "equipment", compileSubject: "nebulizer", locked: false });
+    expect(rows).toContainEqual({ rowId: "lock:actor:patient_actor_v1", kind: "actor", compileSubject: "patient_actor_v1", locked: false, stale: false });
+    expect(rows).toContainEqual({ rowId: "lock:equipment:12-lead ECG machine", kind: "equipment", compileSubject: "12-lead ECG machine", locked: false, stale: false });
+    expect(rows).toContainEqual({ rowId: "lock:equipment:nebulizer", kind: "equipment", compileSubject: "nebulizer", locked: false, stale: false });
 
     render(
       <EnvironmentGenerationQueuePanel
@@ -980,7 +984,7 @@ describe("EnvironmentGenerationQueuePanel", () => {
 
   it("keeps a locked row locked across a re-render when the parent owns lock state", () => {
     const initialRows: FacultyCompileLockRow[] = [
-      { rowId: "lock:actor:patient_maya_johnson_v1", kind: "actor", compileSubject: "patient_maya_johnson_v1", locked: false },
+      { rowId: "lock:actor:patient_maya_johnson_v1", kind: "actor", compileSubject: "patient_maya_johnson_v1", locked: false, stale: false },
     ];
     function LockRowHarness() {
       const [rows, setRows] = useState(initialRows);
@@ -1020,7 +1024,7 @@ describe("EnvironmentGenerationQueuePanel", () => {
         environmentGenerationQueue={environmentGenerationQueueFixture()}
         sceneGenerationPipelineQueue={sceneGenerationPipelineQueueFixture()}
         facultyCompileLockRows={[
-          { rowId: "lock:actor:patient_maya_johnson_v1", kind: "actor", compileSubject: "patient_maya_johnson_v1", locked: true, overridePath: "/garmentLayers" },
+          { rowId: "lock:actor:patient_maya_johnson_v1", kind: "actor", compileSubject: "patient_maya_johnson_v1", locked: true, stale: false, overridePath: "/garmentLayers" },
         ]}
         onFacultyCompileOverrideChange={onFacultyCompileOverrideChange}
       />,
@@ -1053,7 +1057,7 @@ describe("EnvironmentGenerationQueuePanel", () => {
         environmentGenerationQueue={environmentGenerationQueueFixture()}
         sceneGenerationPipelineQueue={sceneGenerationPipelineQueueFixture()}
         facultyCompileLockRows={[
-          { rowId: "lock:actor:patient_maya_johnson_v1", kind: "actor", compileSubject: "patient_maya_johnson_v1", locked: true, overridePath: "/garmentLayers", overrideValue: "scrub_shirt" },
+          { rowId: "lock:actor:patient_maya_johnson_v1", kind: "actor", compileSubject: "patient_maya_johnson_v1", locked: true, stale: false, overridePath: "/garmentLayers", overrideValue: "scrub_shirt" },
         ]}
         onFacultyCompileOverrideChange={onFacultyCompileOverrideChange}
         onFacultyCompileOverrideValueChange={onFacultyCompileOverrideValueChange}
@@ -1075,7 +1079,7 @@ describe("EnvironmentGenerationQueuePanel", () => {
         environmentGenerationQueue={environmentGenerationQueueFixture()}
         sceneGenerationPipelineQueue={sceneGenerationPipelineQueueFixture()}
         facultyCompileLockRows={[
-          { rowId: "lock:actor:patient_maya_johnson_v1", kind: "actor", compileSubject: "patient_maya_johnson_v1", locked: true, overridePath: "/garmentLayers", overrideValue: "scrub_shirt" },
+          { rowId: "lock:actor:patient_maya_johnson_v1", kind: "actor", compileSubject: "patient_maya_johnson_v1", locked: true, stale: false, overridePath: "/garmentLayers", overrideValue: "scrub_shirt" },
         ]}
       />,
     );
@@ -1088,21 +1092,54 @@ describe("EnvironmentGenerationQueuePanel", () => {
 
   it("merges locked flags, override paths, and override values onto fresh queue rows by row identity", () => {
     const previousRows: FacultyCompileLockRow[] = [
-      { rowId: "lock:actor:patient_maya_johnson_v1", kind: "actor", compileSubject: "patient_maya_johnson_v1", locked: true, overridePath: "/garmentLayers", overrideValue: "scrub_shirt" },
-      { rowId: "lock:equipment:nebulizer", kind: "equipment", compileSubject: "nebulizer", locked: false },
+      { rowId: "lock:actor:patient_maya_johnson_v1", kind: "actor", compileSubject: "patient_maya_johnson_v1", locked: true, stale: false, overridePath: "/garmentLayers", overrideValue: "scrub_shirt" },
+      { rowId: "lock:equipment:nebulizer", kind: "equipment", compileSubject: "nebulizer", locked: false, stale: false },
     ];
     const nextRows: FacultyCompileLockRow[] = [
-      { rowId: "lock:actor:patient_maya_johnson_v1", kind: "actor", compileSubject: "patient_maya_johnson_v1", locked: false },
-      { rowId: "lock:equipment:nebulizer", kind: "equipment", compileSubject: "nebulizer", locked: false },
-      { rowId: "lock:equipment:12-lead ECG machine", kind: "equipment", compileSubject: "12-lead ECG machine", locked: false },
+      { rowId: "lock:actor:patient_maya_johnson_v1", kind: "actor", compileSubject: "patient_maya_johnson_v1", locked: false, stale: false },
+      { rowId: "lock:equipment:nebulizer", kind: "equipment", compileSubject: "nebulizer", locked: false, stale: false },
+      { rowId: "lock:equipment:12-lead ECG machine", kind: "equipment", compileSubject: "12-lead ECG machine", locked: false, stale: false },
     ];
 
     const merged = mergeFacultyCompileLockRows(nextRows, previousRows);
 
-    expect(merged).toContainEqual({ rowId: "lock:actor:patient_maya_johnson_v1", kind: "actor", compileSubject: "patient_maya_johnson_v1", locked: true, overridePath: "/garmentLayers", overrideValue: "scrub_shirt" });
-    expect(merged).toContainEqual({ rowId: "lock:equipment:nebulizer", kind: "equipment", compileSubject: "nebulizer", locked: false });
+    expect(merged).toContainEqual({ rowId: "lock:actor:patient_maya_johnson_v1", kind: "actor", compileSubject: "patient_maya_johnson_v1", locked: true, stale: false, overridePath: "/garmentLayers", overrideValue: "scrub_shirt" });
+    expect(merged).toContainEqual({ rowId: "lock:equipment:nebulizer", kind: "equipment", compileSubject: "nebulizer", locked: false, stale: false });
     // Rows absent from the previous snapshot keep their derived defaults.
-    expect(merged).toContainEqual({ rowId: "lock:equipment:12-lead ECG machine", kind: "equipment", compileSubject: "12-lead ECG machine", locked: false });
+    expect(merged).toContainEqual({ rowId: "lock:equipment:12-lead ECG machine", kind: "equipment", compileSubject: "12-lead ECG machine", locked: false, stale: false });
+  });
+
+  it("stamps evidence.v1 contentHash and stale onto faculty compile lock rows by compile-graph node id", () => {
+    const evidenceCompileNodes: EvidenceCompileNode[] = [
+      { nodeId: "actor:patient_actor_v1:wardrobe", contentHash: "a1b2c3d4e5f60718293a4b5c6d7e8f90", lock: { locked: true } },
+      { nodeId: "actor:patient_actor_v1:body", contentHash: "bodyhash0001", lock: { locked: false } },
+      { nodeId: "equip:12-lead ECG machine", contentHash: "equiphash0001", lock: { locked: false } },
+      { nodeId: "equip:nebulizer", contentHash: null, lock: { locked: true } },
+    ];
+    const rows = buildFacultyCompileLockRows(sceneGenerationPipelineQueueFixture(), evidenceCompileNodes);
+
+    // Actor rows resolve the split wardrobe node id the lock applies to.
+    expect(rows).toContainEqual({ rowId: "lock:actor:patient_actor_v1", kind: "actor", compileSubject: "patient_actor_v1", locked: false, contentHash: "a1b2c3d4e5f60718293a4b5c6d7e8f90", stale: false });
+    // Equipment with a real artifact hash and no evidence lock is current.
+    expect(rows).toContainEqual({ rowId: "lock:equipment:12-lead ECG machine", kind: "equipment", compileSubject: "12-lead ECG machine", locked: false, contentHash: "equiphash0001", stale: false });
+    // Equipment locked in evidence with a null artifact hash is stale (WCG dirty rule: unknown edge = dirty).
+    expect(rows).toContainEqual({ rowId: "lock:equipment:nebulizer", kind: "equipment", compileSubject: "nebulizer", locked: false, stale: true });
+  });
+
+  it("marks a locked evidence node stale when its artifact hash moved after the lock", () => {
+    const rows = buildFacultyCompileLockRows(sceneGenerationPipelineQueueFixture(), [
+      { nodeId: "actor:patient_actor_v1:wardrobe", contentHash: "current-hash", lock: { locked: true, lockedContentHash: "lock-time-hash" } },
+    ]);
+
+    expect(rows).toContainEqual({ rowId: "lock:actor:patient_actor_v1", kind: "actor", compileSubject: "patient_actor_v1", locked: false, contentHash: "current-hash", stale: true });
+  });
+
+  it("keeps a locked evidence node current when its current artifact hash matches the lock-time hash", () => {
+    const rows = buildFacultyCompileLockRows(sceneGenerationPipelineQueueFixture(), [
+      { nodeId: "actor:patient_actor_v1:wardrobe", contentHash: "same-hash", lock: { locked: true, lockedContentHash: "same-hash" } },
+    ]);
+
+    expect(rows).toContainEqual({ rowId: "lock:actor:patient_actor_v1", kind: "actor", compileSubject: "patient_actor_v1", locked: false, contentHash: "same-hash", stale: false });
   });
 
   it("derives body->wardrobe->equipment compile dependency edges for App wiring", () => {
