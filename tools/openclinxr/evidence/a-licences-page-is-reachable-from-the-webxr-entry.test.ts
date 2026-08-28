@@ -13,6 +13,14 @@ import { describe, expect, it } from "vitest";
  *
  * Diagnosis and measured tables in this header are IMMUTABLE. Flip it.fails → it and append
  * ## FIXED. Do not rewrite the original paths or numbers.
+ *
+ * ## FIXED (#0)
+ *
+ * apps/ui-xr/public/licences.html now exists and apps/ui-xr/index.html links to it via
+ * `href="/licences.html"` (a fixed footer anchor, sibling of #app — main.ts only writes
+ * inside #app, so the link survives at runtime). The page lists the runtime's third-party
+ * surface sourced from docs/openclinxr/third-party-asset-licence-ledger.md; exact string
+ * parity with the ledger is NOT TESTED here (see NOT TESTED below).
  */
 
 const REPO = process.cwd();
@@ -20,11 +28,11 @@ const ENTRY = join(REPO, "apps/ui-xr/index.html");
 const PUBLIC_LICENCES = join(REPO, "apps/ui-xr/public/licences.html");
 
 describe("a licences page is reachable from the WebXR entry", () => {
-  it.fails("(1) a licences.html exists under the ui-xr public tree", () => {
+  it("(1) a licences.html exists under the ui-xr public tree", () => {
     expect(existsSync(PUBLIC_LICENCES), "GitHub #645: CC-BY approval depends on this page").toBe(true);
   });
 
-  it.fails("(2) the WebXR entry HTML links to that page", () => {
+  it("(2) the WebXR entry HTML links to that page", () => {
     expect(existsSync(ENTRY)).toBe(true);
     const html = readFileSync(ENTRY, "utf8");
     expect(
