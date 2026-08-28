@@ -1140,6 +1140,26 @@ describe("EnvironmentGenerationQueuePanel", () => {
     expect(findUnsafeClaimLanguage(panel.textContent ?? "")).toEqual([]);
   });
 
+  it("prefers stored evidence.v1 compileEdges over scene-pipeline queue pairs when present", () => {
+    const evidenceCompileEdges = [
+      { from: "actor:patient_maya_johnson_v1:body", to: "actor:patient_maya_johnson_v1:wardrobe", kind: "body_to_clothing" },
+      { from: "actor:patient_maya_johnson_v1:wardrobe", to: "equip:nebulizer", kind: "wardrobe_to_equipment" },
+    ];
+    const edges = buildCompileEdges(sceneGenerationPipelineQueueFixture(), evidenceCompileEdges);
+
+    // The stored evidence edges win verbatim (same from/to/kind rows), not the
+    // queue-derived body->wardrobe->equipment pairs.
+    expect(edges).toEqual(evidenceCompileEdges);
+  });
+
+  it("falls back to scene-pipeline queue pairs when no evidence compileEdges are attached", () => {
+    const edges = buildCompileEdges(sceneGenerationPipelineQueueFixture());
+
+    expect(edges.length).toBeGreaterThan(0);
+    expect(edges.every((edge) => edge.kind === "body_to_clothing" || edge.kind === "wardrobe_to_equipment")).toBe(true);
+    expect(edges).toContainEqual({ from: "actor:patient_actor_v1:body", to: "actor:patient_actor_v1:wardrobe", kind: "body_to_clothing" });
+  });
+
   it("renders an empty compile graph state when no compile edges are attached", async () => {
     render(
       <EnvironmentGenerationQueuePanel
