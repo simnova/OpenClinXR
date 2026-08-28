@@ -45,6 +45,33 @@ import { pngLuminanceSd } from "./mpfb-eyes-inspection.js";
  * was never textured and nothing changed for him; the contract therefore keys on the AUTHORED
  * state (a flat garment whose .mhmat is not staged passes), never on factor distinctness.
  *
+ * ## CORRECTION 2026-08-28 (#740) — two "flat" rows recorded a CACHE state, not an authored one
+ *
+ * The table above reads `scrub shirt | no (Scrub_Shirt.mhmat not staged) | — | no — flat`. That
+ * describes what was in the provider cache when it was written, and the row concluded the garment
+ * is authored flat. It is not.
+ *
+ * #740 staged `Scrub_Shirt.mhmat` and found it DOES declare a diffuse texture —
+ * `Scrubs_Main_BaseColor_Utility - sRGB - Texture.png`, WojackOWL Medical Scrubs Kit, CC-BY, already
+ * in the licence ledger. The shirt was never authored flat; its material was simply absent from the
+ * cache, and this contract read that absence as an authored decision.
+ *
+ * Two consequences, both measured:
+ *
+ *   - The reasoning below — "his shirt was never textured and nothing changed for him" — rests on
+ *     the same cache state. Kevin's non-regression is real; the explanation for it is not.
+ *   - This contract's export verify only checks slots CONSUMED in the current bake, so a skipped
+ *     slot never failed it. #683 shipped with every declared .mhmat unstaged and this contract
+ *     stayed green while 22 of 22 garment materials lost their textures fleet-wide.
+ *
+ * #740 made the skip fail closed (`require_texture=True` on the footwear/shirt call sites) and
+ * fixed `parse_mhmat`, which truncated `diffuseTexture` at the first space — MakeHuman authors paths
+ * with spaces, so a staged texture never resolved even when present. Fleet measured after: 22 of 22
+ * garment materials carry a baseColorTexture, from 0 of 22 before.
+ *
+ * The AUTHORED-state principle stated below is right and is not weakened. What was wrong is reading
+ * an unstaged cache as evidence of authorship.
+ *
  * ## THE CHEAP FIXES THIS REFUSES
  *
  *   treatment                                           | (1) texture | (2a) substance | (2b) role factor | result
