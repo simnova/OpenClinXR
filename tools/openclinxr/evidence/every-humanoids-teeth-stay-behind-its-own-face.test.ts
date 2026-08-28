@@ -45,6 +45,40 @@ import { describe, expect, it } from "vitest";
  * notEvidenceFor: how any of them looks — that is a pixel grade, and eleven assets is eleven grades.
  *   Whether the identical rows are the same bytes. Per-vertex clearance; this is an AABB face
  *   against a windowed vertex set, per #738's caveat.
+ *
+ * ## FIXED (#739)
+ *
+ * Per-asset retreat, derived from each asset's own measured cap margin: delta = |marginAtCap| +
+ * 0.0005 m (0.5 mm safety), applied ONLY where marginAtCap < 0, through the existing
+ * `teeth-rest-clearance.ts` step (`--delta` input; the step takes the value as input rather than
+ * computing it, so the median-band measurement lives in exactly one instrument — this file — and
+ * the translation station stays a deterministic GLB + delta -> GLB transform). Ten assets were
+ * retreated; the parent (#738's fix) was left untouched as clause (5)'s known-good. Measured after,
+ * same instrument:
+ *
+ *   asset                            rest      at 0.30   teeth-to-tongue   delta
+ *   mpfb-peds-parent-aisha           +0.0040   +0.0015   0.0045            (untouched)
+ *   mpfb-peds-patient-child          +0.0027   +0.0005   0.0040            0.0016
+ *   mpfb-peds-nurse-kevin            +0.0029   +0.0005   0.0055            0.0020
+ *   mpfb-street-adult-male           +0.0029   +0.0005   0.0055            0.0020
+ *   mpfb-gown-adult-patient          +0.0030   +0.0005   0.0037            0.0037
+ *   mpfb-clinical-physician-adult    +0.0051   +0.0005   0.0010            0.0063
+ *   mpfb-family-partner-adult        +0.0034   +0.0005   0.0020            0.0055
+ *   mpfb-clinical-nurse-adult        +0.0042   +0.0005   0.0011            0.0069
+ *   mpfb-gown-inspect                +0.0026   +0.0005   0.0014            0.0103
+ *   mpfb-ob-patient-aisha            +0.0026   +0.0005   0.0014            0.0103
+ *   mpfb-viseme-inspect              +0.0026   +0.0005   0.0014            0.0103
+ *
+ * Every cap margin is now positive; the retreat is exact in this instrument because the z-translate
+ * does not move the skin median or the y/x band. The 0.5 mm safety is a uniform cap-margin target
+ * for every retreated asset, bounded above by the population's tongue headroom: the physician's
+ * teeth-to-tongue gap is 1.5 mm before retreat (0.0073 - 0.0058), so any safety >= 1.5 mm would
+ * zero or invert a tongue gap, and at 0.5 mm the tightest post-retreat gap is the physician's
+ * 1.0 mm. Byte
+ * identity: all eleven GLBs are distinct files; gown-inspect / ob-patient-aisha / viseme-inspect
+ * share the ob_patient_aisha body+teeth geometry and read identically, and peds-nurse-kevin /
+ * street-adult-male share teeth geometry (identical beforeMaxZ) with the same measured margins.
+ * Clauses (1) and (2) flipped `it.fails` -> `it`.
  */
 
 const DIR = "apps/ui-xr/public/generated-humanoids";
@@ -126,7 +160,7 @@ describe("every humanoid's teeth stay behind its own face (#739)", () => {
    * its own skin median in its own teeth band — so no threshold of mine appears, and the weight is
    * read from `MOUTH_OPEN_CAP`.
    */
-  it.fails("(1) no shipped humanoid's teeth cross its own skin median at the runtime weight", () => {
+  it("(1) no shipped humanoid's teeth cross its own skin median at the runtime weight", () => {
     const through = rows.filter((r) => r.marginAtCap < 0).map((r) => `${r.asset} ${r.marginAtCap.toFixed(4)}`);
     expect(
       through,
@@ -139,7 +173,7 @@ describe("every humanoid's teeth stay behind its own face (#739)", () => {
    * RED, and the sharper one: five are through the face with the mouth CLOSED, which no morph can
    * be blamed for.
    */
-  it.fails("(2) no shipped humanoid's teeth cross its own skin median at rest", () => {
+  it("(2) no shipped humanoid's teeth cross its own skin median at rest", () => {
     const through = rows.filter((r) => r.marginAtRest < 0).map((r) => `${r.asset} ${r.marginAtRest.toFixed(4)}`);
     expect(through, "at rest the mouth is closed and the morph is not involved").toEqual([]);
   });
