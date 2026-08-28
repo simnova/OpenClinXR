@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { buildCodexLifecycleHookDecision, isCodexLifecycleHookMode } from "./codex-lifecycle-hook.js";
+import {
+  autonomyStatusIsPaused,
+  buildCodexLifecycleHookDecision,
+  buildStopHookStdout,
+  isCodexLifecycleHookMode,
+  parseStopHookPayload,
+} from "./codex-lifecycle-hook.js";
 
 describe("codex lifecycle hook", () => {
   it("keeps session-start advisory and tied to run-next", () => {
@@ -90,6 +96,34 @@ describe("codex lifecycle hook", () => {
     expect(decision.message).toContain("do not ask whether to continue");
     expect(decision.message).toContain("pnpm openclaw:run-next");
     expect(decision.message).toContain("continue the next real slice");
+  });
+
+  it("Stop stdout is a Grok block so the next round starts without an interval wait", () => {
+    const out = buildStopHookStdout(JSON.stringify({ reason: "end_turn" }), "/tmp");
+    expect(out).toBeTruthy();
+    const parsed = JSON.parse(out ?? "{}") as { decision?: string; reason?: string };
+    expect(parsed.decision).toBe("block");
+    expect(parsed.reason).toContain("pnpm openclaw:run-next");
+    expect(parsed.reason).toContain("No interval scheduler");
+  });
+
+  it("allows Stop when PROJECT_STATUS is PAUSED", () => {
+    expect(autonomyStatusIsPaused("**Status: PAUSED** — human halt\n")).toBe(true);
+    expect(autonomyStatusIsPaused("**Status: RUNNING** — agents execute\n")).toBe(false);
+  });
+
+  it("allows Stop on session teardown and explicit terminal last message", () => {
+    expect(buildStopHookStdout(JSON.stringify({ reason: "shutdown" }))).toBeNull();
+    expect(
+      buildStopHookStdout(
+        JSON.stringify({ reason: "end_turn", lastAssistantMessage: "all lanes blocked; recorded in operator files." }),
+      ),
+    ).toBeNull();
+  });
+
+  it("parses Stop stdin JSON", () => {
+    expect(parseStopHookPayload("{")).toEqual({});
+    expect(parseStopHookPayload(JSON.stringify({ reason: "end_turn", cwd: "/x" })).cwd).toBe("/x");
   });
 
   it("treats pre-compact as rehydration not completion", () => {

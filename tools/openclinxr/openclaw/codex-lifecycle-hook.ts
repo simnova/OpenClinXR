@@ -1,5 +1,6 @@
 import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 
 import {
@@ -138,6 +139,65 @@ function readStdin(): string {
   }
 }
 
+export type StopHookPayload = {
+  reason?: string;
+  lastAssistantMessage?: string;
+  cwd?: string;
+  workspaceRoot?: string;
+};
+
+const TERMINAL_ASSISTANT =
+  /status:\s*paused|explicit pause|all lanes blocked|board empty and green|terminal halt/i;
+
+const SESSION_END_REASONS = new Set(["channel_closed", "shutdown"]);
+
+export function parseStopHookPayload(payloadText: string): StopHookPayload {
+  const trimmed = payloadText.trim();
+  if (!trimmed.startsWith("{")) {
+    return {};
+  }
+  try {
+    return JSON.parse(trimmed) as StopHookPayload;
+  } catch {
+    return {};
+  }
+}
+
+export function autonomyStatusIsPaused(statusMarkdown: string): boolean {
+  const header = statusMarkdown.split(/\n/).slice(0, 80).join("\n");
+  return /\*\*Status:\s*PAUSED\*\*|Status:\s*PAUSED/i.test(header);
+}
+
+function readAutonomyStatus(repoRoot: string): string {
+  const path = join(repoRoot, "PROJECT_STATUS.md");
+  if (!existsSync(path)) {
+    return "";
+  }
+  return readFileSync(path, "utf8");
+}
+
+/**
+ * Grok Stop stdout. `decision: block` starts another round in the same turn
+ * (no scheduler wait). Harness caps at 8 blocks/turn. Non-JSON stdout allows stop.
+ */
+export function buildStopHookStdout(payloadText: string, repoRoot = process.cwd()): string | null {
+  const payload = parseStopHookPayload(payloadText);
+  if (payload.reason && SESSION_END_REASONS.has(payload.reason)) {
+    return null;
+  }
+  const root = payload.workspaceRoot || payload.cwd || repoRoot;
+  if (autonomyStatusIsPaused(readAutonomyStatus(root))) {
+    return null;
+  }
+  if (payload.lastAssistantMessage && TERMINAL_ASSISTANT.test(payload.lastAssistantMessage)) {
+    return null;
+  }
+  return JSON.stringify({
+    decision: "block",
+    reason: `${STOP_GUARD_MESSAGE} No interval scheduler — continue this turn: dequeue or operationalize.`,
+  });
+}
+
 function runGuardCommand(command: string): number {
   const result = spawnSync(command, { shell: true, stdio: "inherit" });
   return result.status ?? 1;
@@ -151,7 +211,17 @@ async function main(): Promise<void> {
     return;
   }
 
-  const decision = buildCodexLifecycleHookDecision(modeInput, readStdin());
+  const payloadText = readStdin();
+  if (modeInput === "stop") {
+    const block = buildStopHookStdout(payloadText);
+    if (block) {
+      process.stdout.write(`${block}\n`);
+    }
+    process.exitCode = 0;
+    return;
+  }
+
+  const decision = buildCodexLifecycleHookDecision(modeInput, payloadText);
   console.log(decision.message);
   if (decision.guardCommand) {
     process.exitCode = runGuardCommand(decision.guardCommand);

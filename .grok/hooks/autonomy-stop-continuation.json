@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if [ \"${OPENCLINXR_WORKER:-0}\" = \"1\" ] || [ \"${OPENCLINXR_WORKER:-}\" = \"true\" ] || [ -n \"${GROK_SUBAGENT:-}\" ]; then echo 'Stop autonomy: skipped (worker/subagent; parent owns continuation)'; exit 0; fi; pnpm grok:hook -- stop 2>/dev/null || pnpm codex:hook -- stop; pnpm grok:tier:post-slice 2>/dev/null | tail -5 || true",
+            "command": "if [ \"${OPENCLINXR_WORKER:-0}\" = \"1\" ] || [ \"${OPENCLINXR_WORKER:-}\" = \"true\" ] || [ -n \"${GROK_SUBAGENT:-}\" ]; then echo 'Stop autonomy: skipped (worker/subagent; parent owns continuation)' >&2; exit 0; fi; pnpm grok:hook -- stop; pnpm grok:tier:post-slice 2>/dev/null | tail -5 >&2 || true",
             "timeout": 60
           }
         ]
