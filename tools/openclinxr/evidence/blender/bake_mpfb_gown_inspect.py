@@ -80,7 +80,12 @@ def _strip_existing_gown():
     input's gown object is not in the builder's `created` set, so without this strip it
     survives to export and the GLB carries two overlapping hospital gowns — the old
     conformal shell (3419 verts, normal-dot ~0.99) and the new draped one, which
-    confounds every normal-dot contract on the shipped asset (#686)."""
+    confounds every normal-dot contract on the shipped asset (#686).
+
+    The OBJECTS are removed here; the orphaned MESH DATA blocks must be purged too,
+    or Blender auto-renames the rebuilt gown to `..._mesh.001` and the canonical
+    mesh name (openclinxr_real_garment_peds_upper_v1_mesh) that the shipped-asset
+    instruments read disappears (#714)."""
     for o in list(bpy.context.scene.objects):
         if o.type != "MESH":
             continue
@@ -88,6 +93,11 @@ def _strip_existing_gown():
             continue
         print(f"STRIP_EXISTING_GOWN {o.name!r} verts={len(o.data.vertices)}")
         bpy.data.objects.remove(o, do_unlink=True)
+    for m in list(bpy.data.meshes):
+        if "real_garment" not in m.name.lower():
+            continue
+        print(f"PURGE_GOWN_MESH_DATA {m.name!r} verts={len(m.vertices)}")
+        bpy.data.meshes.remove(m, do_unlink=True)
 
 
 def _find_body():

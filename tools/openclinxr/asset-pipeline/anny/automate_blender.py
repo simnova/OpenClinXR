@@ -2592,6 +2592,7 @@ def _build_body_surface_derived_garment(
         _sleeve_lift686 = 0.08
         _n_trunk686 = 0
         _n_sleeve686 = 0
+        _n_clamped686 = 0
         # #719: runtime-only fold suppression for the pre-fold clearance control bake. Read at the
         # amplitude's use site; the pinned constants above stay untouched (counterweight #714).
         _suppress_fold686 = os.environ.get("OPENCLINXR_SUPPRESS_GOWN_FOLD686", "") == "1"
@@ -2614,7 +2615,17 @@ def _build_body_surface_derived_garment(
                     continue
                 s = 1.0 + _lift686 * wy * wx
                 wfold = wx * min(1.0, _smooth686(0.55, 0.62, f)) * (1.0 - _smooth686(0.80, 0.85, f))
+                # #714: the fold trough must never consume more standoff than the lift created.
+                # The lift pushes the vertex out by rr*(s-1); the trough is -amp*wfold. Clamping
+                # the trough to the lift keeps every vertex at or beyond its pre-#686 shell
+                # radius (the 10-22mm conformal offset), so a valley cannot land inside the body
+                # — the chest is shallow, and a 34mm wave on that offset put the valleys 12-24mm
+                # inside the skin. Derived from the loop's own terms; _fold_amp686 and _fold_k686
+                # are untouched (counterweight (3)).
                 d = 0.0 if _suppress_fold686 else _fold_amp686 * _tri_wave686(_fold_k686 * math.atan2(rz, rx) + math.pi / 2.0) * wfold
+                if d < -rr * (s - 1.0):
+                    d = -rr * (s - 1.0)
+                    _n_clamped686 += 1
                 nx = rx / rr
                 nz = rz / rr
                 v.co.x = cx + rx * s + nx * d
@@ -2643,6 +2654,12 @@ def _build_body_surface_derived_garment(
                 rad_n = rad / rad_len
                 phi = math.atan2(rad.y, rad.z)
                 d2 = 0.0 if _suppress_fold686 else _sleeve_amp686 * math.cos(_sleeve_k686 * phi)
+                # #714: same derived bound as the trunk fold — the sleeve trough must not consume
+                # more standoff than the sleeve's own lift created (rad_len * _sleeve_lift686),
+                # or the valley lands inside the arm. _sleeve_amp686 / _sleeve_k686 untouched.
+                if d2 < -rad_len * _sleeve_lift686:
+                    d2 = -rad_len * _sleeve_lift686
+                    _n_clamped686 += 1
                 v.co = axis_pt + rad * (1.0 + _sleeve_lift686) + rad_n * d2
                 _n_sleeve686 += 1
         if _suppress_fold686:
@@ -2650,7 +2667,7 @@ def _build_body_surface_derived_garment(
         print(
             f"[blender] #686 bodice drape: lift={_lift686} folds={_fold_k686}x{_fold_amp686 * 1000:.0f}mm "
             f"sleeve={_sleeve_k686}x{_sleeve_amp686 * 1000:.0f}mm+{_sleeve_lift686} trunk_verts={_n_trunk686} "
-            f"sleeve_verts={_n_sleeve686} verts={len(bm.verts)}"
+            f"clamped={_n_clamped686} sleeve_verts={_n_sleeve686} verts={len(bm.verts)}"
         )
         bm.normal_update()
 

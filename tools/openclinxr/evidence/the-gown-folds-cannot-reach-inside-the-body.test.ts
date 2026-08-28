@@ -65,6 +65,74 @@ import { describe, expect, it } from "vitest";
  * notEvidenceFor: that the gathers still read as gathers — only the orchestrator's grade of the
  *   render in clause (2) can say that, and no clause here asserts an appearance; that the same fold
  *   code is safe on other garments, none of which is measured here.
+ *
+ * ## FIXED (#714)
+ *
+ * The clamp landed in `_build_body_surface_derived_garment` (automate_blender.py:2624-2632 and
+ * 2666-2672): the fold trough is bounded by the standoff the lift created, in BOTH fold loops —
+ *
+ *     d  = _fold_amp686  * _tri_wave686(...) * wfold        # trunk (bodice)
+ *     if d  < -rr      * (s - 1.0):                 d  = -rr      * (s - 1.0)
+ *     d2 = _sleeve_amp686 * math.cos(_sleeve_k686 * phi)    # sleeve (arm axis)
+ *     if d2 < -rad_len * _sleeve_lift686:          d2 = -rad_len * _sleeve_lift686
+ *
+ * `_fold_amp686` (0.034), `_fold_k686` (16) and the sleeve amplitudes are untouched; the bounds are
+ * derived from each loop's own terms (`rr`, `s`, `_lift686`, `wy`, `wx` for the trunk;
+ * `rad_len`, `_sleeve_lift686` for the sleeve) and introduce no new millimetre. The bake log on the
+ * rebaked asset records `clamped=1582` of 12,764 trunk verts — the trough bound bit on 12.4% of
+ * the fold band.
+ *
+ * THE REBAKE, from current main (2026-08-28): the shipped `mpfb-gown-adult-patient.glb` (robert
+ * body, 4 materials with base-colour textures per #740) was used as the bake input through
+ * `bake_mpfb_gown_inspect.py` — which now purges the input's orphaned gown mesh data so the
+ * rebuilt shell keeps the canonical mesh name (`openclinxr_real_garment_peds_upper_v1_mesh`).
+ * Only the GOWN mesh was replaced in the shipped file (the full-res bake's gown, decimated
+ * per-mesh at meshopt ratio 0.61 / error 0.001, with JOINTS_0 remapped into the shipped skin's
+ * joint order); every other mesh — body, hair, eyebrows, lashes, t-shirt, shoes, eyes — is
+ * byte-identical to the shipped asset. Body height 1.776 m preserved; body skin 9,810 tris
+ * unchanged; gown 14,746 -> 14,899 verts / 28,976 -> 29,185 tris (the 0.5 ratio of the #695 rung
+ * would have undershot the shipped vertex count on this body, so 0.61 lands the gown at the
+ * shipped resolution — the #695 error bound is kept).
+ *
+ * MEASURED with the #691 instrument (`gown-shard-mechanism-measure.ts`, BODY_PRIM updated to the
+ * robert skin, report path + pin moved to this card), pre-fix on the current-tree asset at commit
+ * 1c33dda6 vs post-fix on the rebake:
+ *
+ *     instrument                       pre-fix      post-fix
+ *     +X-ray even-odd (primary)         471 / 32     395 / 31
+ *     two-tests-agree (corrected)       129 /  0      73 /  0
+ *
+ * The corrected metric (`gownVerticesInsideBodyTwoTests`) counts a vertex inside only when a
+ * parity test AND the nearest-surface signed distance AGREE (either ray + nearest < -2 mm).
+ * Single-axis parity is invalid on the non-watertight body hull — it carries 2,074 open boundary
+ * edges (1,058 inside the fold band), and a ray crossing an open seam reads odd without the point
+ * being inside. That is why clause (1) below was corrected per the 2026-08-28 direction: the
+ * 294-vertex X_ONLY class (one +X crossing, nearest-surface 12-61 mm OUTSIDE) is removed from the
+ * count, while the real-penetration class stays visible.
+ *
+ * The residual 73 upper (post-fix) are NOT fold valleys — each was traced per vertex
+ * (`gown-fold-residual-diagnose.ts`, three instruments + the body's boundary-edge map):
+ *
+ * | class | n | +X | +Z | nearest | where |
+ * |---|---|---|---|---|---|
+ * | X_ONLY | 292 | in | out | OUTSIDE | torso-side / armpit seam |
+ * | X_N_AGREE | 68 | in | out | 3-4 mm inside by sign | |x| 0.22-0.24, y 1.29-1.33 — armpit seam |
+ * | XZ_ONLY | 30 | in | in | within 2 mm | sleeve |
+ * | ALL_IN | 5 | in | in | 4-6 mm inside | |x| ~0.35, y ~1.19 — sleeve root |
+ *
+ * Every one of the 68 X_N_AGREE and 5 ALL_IN has `radiallyInside: false` in the per-vertex trace:
+ * its radius from the body axis is OUTSIDE the body's radius along that ray. The +X parity reads
+ * odd through a single open-seam crossing (nX=1 for all 68) and the nearest-surface sign flips at
+ * concave creases (armpit hollow, sleeve root) — the shell/hull overlap class, not the fold. The
+ * front-centre fold-valley column reads 0 on the corrected metric, where #691 measured its
+ * chest-peak. The pre-fix 129 -> post-fix 73 drop is the fold-valley contribution the clamp
+ * removed; the clamp's property — the fold wave cannot place a gown vertex inside the body — holds
+ * and is what clause (1) asserts (measured reduction), while counterweight (5) pins the residual
+ * class so a redefined metric cannot hide it.
+ *
+ * Clause (4)'s lower-half bound is compared against the CURRENT tree's pre-fix lower (32, #740-era
+ * asset) rather than #691's 24: the asset changed between #691 and this slice, and "not worse" is
+ * a same-generation comparison. Post-fix lower = 31 <= 32.
  */
 
 const REPO = join(import.meta.dirname, "../../..");
