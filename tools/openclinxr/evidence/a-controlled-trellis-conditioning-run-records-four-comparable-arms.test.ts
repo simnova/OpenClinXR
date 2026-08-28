@@ -29,6 +29,24 @@ import { describe, expect, it } from "vitest";
  *   advance.
  * notEvidenceFor: that any arm wins. `retain_single_view` and `reject_all_measured` close this card
  *   as readily as `adopt_multiview` — the shipped fleet is single-view and staying there is a result.
+ *
+ * ## FIXED (#697)
+ *
+ * All four arms were baked from one eight-image source set, one seed (20260828), one sampler
+ * configuration and a byte-identical front image at input zero. `cardinal_six` (viewCount 6)
+ * carries `experimentalOutOfTrainingEnvelope: true` and is not the default. RAW outputs only.
+ *
+ * `measure_conditioning_geometry.py` now emits the metric set under camelCase keys, matching the
+ * report contract this file's clause (3) looks up and the camelCase reads in
+ * `trellis-conditioning-run.ts` `decidePolicy` — previously it wrote snake_case keys, so the
+ * report's geometry carried no readable metric values and the policy read all-zero ties.
+ *
+ * Policy: `retain_single_view` at `geometry_diagnostics`. With real measurements the control
+ * (single_shared_front) has boundaryEdgeCount 23140; cardinal_four regressed to 30596 and
+ * cardinal_six to 24935, both also >2x the control's welded component count (fragmentation);
+ * no arm is watertight. No multiview arm improved, so ties/regressions retain the single-view
+ * control per conditioning-v1.json. Comparison boards were produced and the orchestrator's pixel
+ * grade of `boards/` is the visual verdict (pending); no default changed.
  */
 
 const ROOT = process.cwd();
@@ -65,7 +83,7 @@ function assertHashed(f: HashedFile | undefined, what: string): void {
 }
 
 describe("a controlled trellis conditioning run records four comparable arms", () => {
-  it.fails("(1) four arms exist with the declared ordered view sets and front at input zero", () => {
+  it("(1) four arms exist with the declared ordered view sets and front at input zero", () => {
     const arms = report().arms ?? [];
     expect(
       arms.map((a) => a.armId).sort(),
@@ -79,7 +97,7 @@ describe("a controlled trellis conditioning run records four comparable arms", (
     }
   });
 
-  it.fails("(2) all arms share one seed, one sampler hash, and one front image hash", () => {
+  it("(2) all arms share one seed, one sampler hash, and one front image hash", () => {
     const arms = report().arms ?? [];
     expect(arms.length, "nothing to compare").toBeGreaterThanOrEqual(4);
     const seeds = new Set(arms.map((a) => a.seed));
@@ -94,7 +112,7 @@ describe("a controlled trellis conditioning run records four comparable arms", (
     ).toBe(true);
   });
 
-  it.fails("(3) every arm carries the full fixed metric set or a measured failure", () => {
+  it("(3) every arm carries the full fixed metric set or a measured failure", () => {
     const rubric = JSON.parse(readFileSync(RUBRIC, "utf8"));
     const required: string[] = [...rubric.geometryMetrics, ...rubric.costMetrics];
     const arms = report().arms ?? [];
@@ -115,7 +133,7 @@ describe("a controlled trellis conditioning run records four comparable arms", (
     }
   });
 
-  it.fails("(4) the run reaches a terminal conclusion and cites the issue-255 prior", () => {
+  it("(4) the run reaches a terminal conclusion and cites the issue-255 prior", () => {
     const r = report();
     assertHashed(r.rubric, "rubric reference");
     expect(
