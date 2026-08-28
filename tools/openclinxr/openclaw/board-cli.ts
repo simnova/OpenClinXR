@@ -35,6 +35,18 @@ export const FACTORY_FIELD_NAME = "Factory";
 export const FACTORY_STAGES = ["Idle", "Planted", "Dispatched", "Landed", "Graded"] as const;
 export type FactoryStage = (typeof FACTORY_STAGES)[number];
 
+/**
+ * Issue #690 — the dequeue's second filter is Priority: `board-next-selector.ts:99` skips any
+ * card whose Priority is empty, so a Planted card with no Priority is invisible to
+ * `openclaw:run-next` and the supervisor gauge. Option ids are resolved at runtime by NAME from
+ * `gh project field-list` (like Factory); the field id is pinned like FACTORY_FIELD_ID.
+ * (Measured on the live board 2026-08-26: Priority field = `PVTSSF_lADOAAIjts4BW0-vzhSGJTo`.)
+ */
+export const PRIORITY_FIELD_ID = "PVTSSF_lADOAAIjts4BW0-vzhSGJTo";
+export const PRIORITY_FIELD_NAME = "Priority";
+export const PRIORITY_OPTIONS = ["P0", "P1", "P2"] as const;
+export type BoardPriority = (typeof PRIORITY_OPTIONS)[number];
+
 /** Injected gh command runner — the test seam for every board write. */
 export type GhCommandRunner = (argv: string[]) => string;
 
@@ -82,6 +94,7 @@ export type BoardCliFlags = {
   verdict?: string;
   method?: string;
   stage?: string;
+  priority?: string;
   dryRun: boolean;
   noGrade?: boolean;
   json: boolean;
@@ -146,6 +159,8 @@ export function parseBoardArgs(argv: string[]): BoardCliFlags {
       flags.method = argv[++i];
     } else if (arg === "--stage" && argv[i + 1]) {
       flags.stage = argv[++i];
+    } else if (arg === "--priority" && argv[i + 1]) {
+      flags.priority = argv[++i];
     } else if (arg.startsWith("--")) {
       if (argv[i + 1] && !argv[i + 1]!.startsWith("--")) i += 1;
     } else {
@@ -670,6 +685,254 @@ export function setFactoryField(
   return { ok: true, issueNumber, itemId, stage, plans };
 }
 
+/** gh project item-edit argv — the single Priority write (issue #690). */
+export function planPriorityWrite(input: {
+  projectId: string;
+  itemId: string;
+  fieldId: string;
+  optionId: string;
+  priority: BoardPriority;
+}): GhCommandPlan {
+  const argv = [
+    "gh",
+    "project",
+    "item-edit",
+    "--project-id",
+    input.projectId,
+    "--id",
+    input.itemId,
+    "--field-id",
+    input.fieldId,
+    "--single-select-option-id",
+    input.optionId,
+  ];
+  return {
+    argv,
+    display: `gh project item-edit --project-id <project> --id ${input.itemId} --field-id ${input.fieldId} --single-select-option-id ${input.optionId}  # Priority=${input.priority}`,
+  };
+}
+
+/** Resolve the single-select option id for a priority from `gh project field-list` JSON. */
+export function resolvePriorityOptionId(fieldListJson: string, fieldId: string, priority: BoardPriority): string {
+  const parsed = JSON.parse(stripAnsi(fieldListJson)) as {
+    fields?: Array<{ id?: string; name?: string; options?: Array<{ id?: string; name?: string }> }>;
+  };
+  const field = (parsed.fields ?? []).find((f) => f.id === fieldId || f.name === PRIORITY_FIELD_NAME);
+  if (!field) {
+    throw new Error(
+      `Priority field not found on project ${FACTORY_PROJECT_NUMBER} (id ${fieldId} or name ${PRIORITY_FIELD_NAME}) — planting cannot write the dequeue's second filter`,
+    );
+  }
+  const option = (field.options ?? []).find((o) => o.name === priority);
+  if (!option?.id) {
+    throw new Error(
+      `Priority "${priority}" has no option on project ${FACTORY_PROJECT_NUMBER} — expected one of ${PRIORITY_OPTIONS.join(", ")}`,
+    );
+  }
+  return option.id;
+}
+
+export type PriorityFieldWriteResult =
+  | { ok: true; issueNumber: number; itemId: string; priority: BoardPriority; plans: GhCommandPlan[] }
+  | { ok: false; skipped: true; reason: "no-issue"; plans: [] };
+
+/**
+ * The Priority-field verb (issue #690) — called by the planter BEFORE the Factory=Planted write.
+ * A card planted with no Priority is invisible to both consumers (supervisor-audit.ts:707 and
+ * board-next-selector.ts:99), so the WRITE ORDER is load-bearing: Priority first, Factory second.
+ *
+ * REFUSES (throws) when `priority` is omitted, empty, or not one of P0|P1|P2 — there is NO
+ * implicit default. Priority is an orchestrator decision; inventing one would replace a missing
+ * decision with a fabricated one.
+ *
+ * THROWS on any gh failure — the caller decides whether that means refuse or a loud warning.
+ * Returns `skipped` when the slice has no board card. Mirror of setFactoryField: same
+ * membership hop (item-add when the card is not on the board), same by-NAME option resolution.
+ */
+export function setPriorityField(
+  repoRoot: string,
+  sliceId: string,
+  priority: string | undefined,
+  options?: {
+    repo?: string;
+    projectNumber?: number;
+    owner?: string;
+    issueNumber?: number;
+    dryRun?: boolean;
+    runner?: GhCommandRunner;
+    fieldId?: string;
+    metadataResolver?: (
+      repoRoot: string, owner: string, projectNumber: number, field: string, option: string,
+    ) => { projectId: string; fieldId: string; optionId: string } | null;
+  },
+): PriorityFieldWriteResult {
+  const trimmed = priority?.trim() ?? "";
+  if (!trimmed) {
+    throw new Error(
+      "setPriorityField REFUSED: a card cannot be planted without a Priority — a Planted card with empty Priority is skipped by the dequeue (issue #690); there is no implicit default",
+    );
+  }
+  if (!(PRIORITY_OPTIONS as readonly string[]).includes(trimmed)) {
+    throw new Error(
+      `setPriorityField REFUSED: Priority must be one of ${PRIORITY_OPTIONS.join(", ")} — got "${priority}"`,
+    );
+  }
+  const value = trimmed as BoardPriority;
+
+  const repo = options?.repo ?? DEFAULT_BOARD_REPO;
+  const projectNumber = options?.projectNumber ?? FACTORY_PROJECT_NUMBER;
+  const owner = options?.owner ?? FACTORY_OWNER;
+  const fieldId = options?.fieldId ?? PRIORITY_FIELD_ID;
+  const runner = options?.runner ?? defaultGhRunner;
+  const issueNumber = options?.issueNumber ?? resolveIssueNumberForSlice(repoRoot, sliceId);
+  if (issueNumber === null) {
+    return { ok: false, skipped: true, reason: "no-issue", plans: [] };
+  }
+
+  const plans: GhCommandPlan[] = [];
+  const issueUrl = `https://github.com/${repo}/issues/${issueNumber}`;
+  const planProjectView: GhCommandPlan = {
+    argv: ["gh", "project", "view", String(projectNumber), "--owner", owner, "--format", "json", "-q", ".id"],
+    display: `gh project view ${projectNumber} --owner ${owner} --format json -q .id`,
+  };
+  const planItemResolve: GhCommandPlan = {
+    argv: [
+      "gh", "api", "graphql",
+      "-f", `query=query($owner:String!,$repo:String!,$num:Int!){repository(owner:$owner,name:$repo){issue(number:$num){projectItems(first:20){nodes{id project{number}}}}}}`,
+      "-f", `owner=${repo.split("/")[0]}`,
+      "-f", `repo=${repo.split("/")[1]}`,
+      "-F", `num=${issueNumber}`,
+    ],
+    display: `gh api graphql  # issue #${issueNumber} -> projectItems.nodes.id (155 B; never lists the board)`,
+  };
+  const planItemAdd: GhCommandPlan = {
+    argv: ["gh", "project", "item-add", String(projectNumber), "--owner", owner, "--url", issueUrl, "--format", "json"],
+    display: `gh project item-add ${projectNumber} --owner ${owner} --url ${issueUrl} --format json`,
+  };
+  const planFieldList: GhCommandPlan = {
+    argv: ["gh", "project", "field-list", String(projectNumber), "--owner", owner, "--format", "json"],
+    display: `gh project field-list ${projectNumber} --owner ${owner} --format json  # resolve ${PRIORITY_FIELD_NAME} option for ${value}`,
+  };
+
+  if (options?.dryRun) {
+    return {
+      ok: true,
+      issueNumber,
+      itemId: "<item-id>",
+      priority: value,
+      plans: [planProjectView, planItemResolve, planItemAdd, planFieldList, planPriorityWrite({
+        projectId: "<project-id>",
+        itemId: "<item-id>",
+        fieldId,
+        optionId: "<option-id>",
+        priority: value,
+      })],
+    };
+  }
+
+  const usingInjectedRunner = options?.runner !== undefined;
+  const resolveIds = options?.metadataResolver
+    ?? (usingInjectedRunner
+      ? () => null
+      : (root, o, num, field, option) => {
+        try {
+          return resolveSingleSelect(root, o, num, field, option);
+        } catch {
+          return null; // any cache trouble falls back to the legacy calls below
+        }
+      });
+  const cached = resolveIds(repoRoot, owner, projectNumber, PRIORITY_FIELD_NAME, value);
+
+  let projectId: string;
+  if (cached) {
+    projectId = cached.projectId;
+  } else {
+    plans.push(planProjectView);
+    projectId = stripAnsi(runner(planProjectView.argv)).trim();
+  }
+
+  plans.push(planItemResolve);
+  let itemId = parseProjectItemId(runner(planItemResolve.argv), projectNumber);
+
+  if (!itemId) {
+    // Card not on the board — ensure membership (same hop the Factory writer uses, #448).
+    plans.push(planItemAdd);
+    itemId = parseItemAddId(runner(planItemAdd.argv));
+  }
+
+  let optionId: string;
+  let writeFieldId = fieldId;
+  if (cached) {
+    optionId = cached.optionId;
+    writeFieldId = cached.fieldId;
+  } else {
+    plans.push(planFieldList);
+    optionId = resolvePriorityOptionId(runner(planFieldList.argv), fieldId, value);
+  }
+
+  const writePlan = planPriorityWrite({ projectId, itemId, fieldId: writeFieldId, optionId, priority: value });
+  plans.push(writePlan);
+  runner(writePlan.argv);
+
+  return { ok: true, issueNumber, itemId, priority: value, plans };
+}
+
+export type CmdFactoryResult =
+  | { ok: true; stage: FactoryStage; priority?: BoardPriority; issueNumber: number; itemId: string; plans: GhCommandPlan[] }
+  | { ok: false; stage: FactoryStage; skipped: true; reason: "no-issue"; plans: GhCommandPlan[] };
+
+/**
+ * factory command (issue #690) — the orchestrator's plant/land/grade verb.
+ *
+ * Planting (--stage Planted) REQUIRES --priority and writes Priority BEFORE Factory=Planted, so
+ * a crash between the writes cannot leave a planted card unprioritized (invisible to the
+ * dequeue). A Plant with no --priority is REFUSED before any write — there is no implicit P2.
+ * Advancing a stage (--stage Dispatched|Landed|Graded) never writes Priority: the priority set
+ * at plant time is an orchestrator decision and must not be rewritten by a stage advance.
+ */
+export function cmdFactory(repoRoot: string, flags: BoardCliFlags): CmdFactoryResult {
+  if (!flags.sliceId) throw new Error("factory requires --slice-id");
+  if (!flags.stage) throw new Error("factory requires --stage Planted|Dispatched|Landed|Graded");
+  const stage = flags.stage as FactoryStage;
+  if (!(FACTORY_STAGES as readonly string[]).includes(stage)) {
+    throw new Error(`factory --stage must be one of ${FACTORY_STAGES.join(", ")}`);
+  }
+
+  let priorityPlans: GhCommandPlan[] = [];
+  if (stage === "Planted") {
+    if (!flags.priority) {
+      throw new Error(
+        "factory --stage Planted requires --priority P0|P1|P2 — a planted card without Priority is skipped by the dequeue (issue #690); there is no implicit default",
+      );
+    }
+    const priorityResult = setPriorityField(repoRoot, flags.sliceId, flags.priority, {
+      repo: flags.repo,
+      dryRun: flags.dryRun,
+    });
+    if (priorityResult.ok) priorityPlans = priorityResult.plans;
+  } else if (flags.priority) {
+    throw new Error(
+      `factory --stage ${stage} does not take --priority — Priority is decided at plant time and advancing a stage must not rewrite it (issue #690)`,
+    );
+  }
+
+  const result = setFactoryField(repoRoot, flags.sliceId, stage, {
+    repo: flags.repo,
+    dryRun: flags.dryRun,
+  });
+  if (!result.ok) {
+    return { ok: false, stage, skipped: true, reason: result.reason, plans: priorityPlans };
+  }
+  return {
+    ok: true,
+    stage,
+    priority: stage === "Planted" ? (flags.priority as BoardPriority) : undefined,
+    issueNumber: result.issueNumber,
+    itemId: result.itemId,
+    plans: [...priorityPlans, ...result.plans],
+  };
+}
+
 /**
  * #449 — pick this project's item id out of the issue-scoped GraphQL response.
  *
@@ -869,12 +1132,15 @@ Usage:
   pnpm openclaw:board -- close --slice-id <id> --body <resolution> [--no-grade] [--dry-run]
       advances Factory to Graded unless --no-grade (use --no-grade to close rot,
       a superseded card, or a dead premise — those are closes, not grades)
-  pnpm openclaw:board -- factory --slice-id <id> --stage Planted|Dispatched|Landed|Graded [--dry-run]
+  pnpm openclaw:board -- factory --slice-id <id> --stage Planted --priority P0|P1|P2 [--dry-run]
+  pnpm openclaw:board -- factory --slice-id <id> --stage Dispatched|Landed|Graded [--dry-run]
 
 All commands support --dry-run (print gh command, do not execute).
 Artifact: .openclinxr/openclaw/board-<sliceId>.json (ignored runtime; per-slice write-scope only).
 factory: write the board's Factory field (the dequeue queue). Workers NEVER call this — the
 orchestrator plants/lands/grades; dispatch() and integrate() write Dispatched/Landed mechanically.
+Planting (--stage Planted) REQUIRES --priority and writes Priority BEFORE Factory=Planted (issue
+#690) — a planted card without Priority is skipped by the dequeue, and there is no implicit P2.
 
 ${NO_PRODUCT_DATA_BANNER}
 `);
@@ -1101,16 +1367,7 @@ async function main(): Promise<void> {
     }
 
     if (flags.command === "factory") {
-      if (!flags.sliceId) throw new Error("factory requires --slice-id");
-      if (!flags.stage) throw new Error("factory requires --stage Planted|Dispatched|Landed|Graded");
-      const stage = flags.stage as FactoryStage;
-      if (!(FACTORY_STAGES as readonly string[]).includes(stage)) {
-        throw new Error(`factory --stage must be one of ${FACTORY_STAGES.join(", ")}`);
-      }
-      const result = setFactoryField(repoRoot, flags.sliceId, stage, {
-        repo: flags.repo,
-        dryRun: flags.dryRun,
-      });
+      const result = cmdFactory(repoRoot, flags);
       if (!result.ok) {
         console.log(`factory ${flags.dryRun ? "DRY-RUN " : ""}slice=${flags.sliceId}: no board card — skipped`);
         return;
@@ -1120,7 +1377,7 @@ async function main(): Promise<void> {
         return;
       }
       if (flags.json) {
-        console.log(JSON.stringify({ ok: true, issueNumber: result.issueNumber, itemId: result.itemId, stage: result.stage }, null, 2));
+        console.log(JSON.stringify({ ok: true, issueNumber: result.issueNumber, itemId: result.itemId, stage: result.stage, priority: result.priority }, null, 2));
       } else {
         console.log(`factory slice=${flags.sliceId} issue=#${result.issueNumber} → Factory=${result.stage}`);
       }
