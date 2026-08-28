@@ -108,6 +108,30 @@ passes at their own scale. In the same session the structure pass legitimately s
 geometry present in the treatment and absent in the control — a structural claim at adequate scale —
 while the lit-pass quality claim had to be withdrawn.
 
+## A SILHOUETTE BOUNDARY LOOKS EXACTLY LIKE A TEXTURE SEAM
+
+Measured 2026-08-28, after I wrote the same wrong finding into two separate grades. I described a
+*"rectangular texture patch with hard vertical edges beside each cheek and a straight cut at the
+hairline"* and called it a skin-texture discontinuity.
+
+Scanning interior luminance steps settled it in one pass:
+
+    gown patient  rows 545/600/700  steps >25 at x = 354/665, 354/661, 364/650
+    aisha         rows 600/660/700  steps >25 at x = 345/671, 350/664, 358/658
+
+The left and right steps sit at the same x on every row of both actors and run dark-to-light. That
+is **hair meeting skin**. The "rectangle" was the gap between a bob haircut; the "straight cut at the
+hairline" was its fringe.
+
+**Anything that occludes the face edge-on — hair, a collar, a mask, a cap — produces a hard,
+straight, high-contrast boundary that reads as a seam.** Before calling a boundary a texture or UV
+defect, scan for the step across several rows: an occluder's edge holds the same x down the face and
+separates two different MATERIALS, while a genuine texture seam wanders with the UV layout and
+separates two shades of the SAME material.
+
+The cost here was two grades carrying a fabricated defect. It never reached a card, and only because
+the measurement was run before filing one — which is the whole argument for running it first.
+
 ## A thumbnail cannot support a fine verdict
 
 A small preview supports COMPARATIVE and POSITIVE verdicts (this cell differs from that; this cell
