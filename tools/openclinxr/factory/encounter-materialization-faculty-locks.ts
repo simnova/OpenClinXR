@@ -35,6 +35,8 @@ export type FacultyCompileLock = {
   locked: boolean;
   /** Optional ActorPhenotypeSchema pointer; refused when outside FACULTY_LOCK_OVERRIDE_PATHS. */
   overridePath?: string;
+  /** Faculty-set phenotype value, copied onto overridePatch.value so compile recipe keys change. */
+  overrideValue?: unknown;
 };
 
 export type PersistFacultyCompileLocksOptions = {
@@ -94,6 +96,9 @@ export async function readFacultyCompileLocksFile(
         );
       }
       lock.overridePath = entry["overridePath"];
+    }
+    if (entry["overrideValue"] !== undefined) {
+      lock.overrideValue = entry["overrideValue"];
     }
     compiled.push(lock);
   }
@@ -184,7 +189,7 @@ function withFacultyLock(node: CompileGraphNode, lock: FacultyCompileLock): Comp
         `persistFacultyCompileLocks: invalid overridePath ${lock.overridePath} for ${lock.nodeId} — must be one of ${FACULTY_LOCK_OVERRIDE_PATHS.join(", ")}`,
       );
     }
-    overridePatch = { op: "replace", path: lock.overridePath };
+    overridePatch = { op: "replace", path: lock.overridePath, value: lock.overrideValue };
   }
   if (!lock.locked) {
     // An unlock releases the phenotype override too — a compile no longer carries it.
