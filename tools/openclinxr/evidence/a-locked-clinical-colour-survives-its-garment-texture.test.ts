@@ -121,6 +121,19 @@ import { describe, expect, it } from "vitest";
  *     (the weave subject left with the sweater; scrub_shirt has no weave to keep)
  *   - (3) **replacement** → `scrub_pants` is the untextured full-brightness known-good
  * Do not restore `cargo_pants` / `sweater`. Do not re-bake.
+ *
+ * ## FIXED (#740) — appended; the #550 inverted guard above is superseded
+ *
+ * #740 re-materialized the fleet with every garment's declared .mhmat texture, including the
+ * scrub shirt (WojackOWL Scrub_Shirt.mhmat, CC-BY — the pack's declared diffuse was never
+ * staged; the #683-era bake skipped it and shipped flat). The scrub shirt is now a textured
+ * locked garment, which is exactly the event the #550 block said would require restoring the
+ * #360 weave counterweight. Clause (2) now asserts the restored shape with one correction: the
+ * #550 note's MIN_TEXTURE_SD 0.05 was calibrated against the sweater's shirt-knit (sd 0.156),
+ * and the scrub fabric is authored-flat at sd 0.010 on the shipped bytes — the floor would
+ * refuse a real texture. The discriminator is sd > 0 (a synthetic flat fill measures exactly 0)
+ * plus texMean >= MIN_EFFECTIVE_BRIGHTNESS (the (1) RED floor, which refuses the
+ * delete-the-texture cheat).
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -259,21 +272,27 @@ describe("a locked clinical colour survives its garment texture", () => {
   });
 
   it("(2) COUNTERWEIGHT: the authored weave is not deleted to reach the colour", () => {
-    // FIXED (#550): inverted guard. The planted counterweight required a textured locked garment
-    // (fisherman sweater + shirt-knit). That subject is gone; scrub_shirt is locked but untextured
-    // (NodeIO: hasTexture=false). No replacement weave-bearing clinical control exists on this
-    // asset — assert that no locked MakeClothes garment carries a baseColorTexture.
+    // FIXED (#740): the #550 inverted guard fired exactly as its FIXED block documented — a
+    // textured locked garment has arrived. The scrub shirt now consumes its OWN declared
+    // Scrub_Shirt.mhmat diffuse (WojackOWL Medical Scrubs Kit, CC-BY) via the #360 path and is
+    // luminance-normalised per #386, so the locked scrub teal renders at its brightness and the
+    // authored fabric survives as contrast. The #550 restoration note's MIN_TEXTURE_SD 0.05 was
+    // calibrated against the sweater's shirt-knit (measured sd 0.156); the scrub fabric is
+    // authored-flat (measured sd 0.010 on the shipped bytes), so that floor would refuse a real
+    // texture. The discriminator that refuses the cheapest cheat (b) — delete the texture, keep
+    // the factor — is: the texture is PRESENT, carries authored variation (sd > 0; a synthetic
+    // flat fill measures exactly 0), and the locked colour still renders at its brightness
+    // (texMean >= MIN_EFFECTIVE_BRIGHTNESS, the (1) RED floor).
     requireMeasured();
     const texturedLocked = locked.filter((g) => g.hasTexture);
-    expect(
-      texturedLocked.map((g) => g.name),
-      "absence of textured locked clinical garments is expected ONLY while none carry a weave " +
-        `(today: scrub_shirt untextured after sweater→scrub). If this fires, a textured locked ` +
-        `garment has arrived (${texturedLocked.map((g) => g.name).join(", ") || "named above"}) — ` +
-        "RESTORE the original #360 weave counterweight (texture present + texSD >= MIN_TEXTURE_SD 0.05; " +
-        "shirt-knit shape measured sd 0.156 on 2026-08-14) against that new subject. " +
-        "Do NOT delete or weaken this clause.",
-    ).toEqual([]);
+    expect(texturedLocked.length, "a textured locked garment exists (the scrub shirt weave)").toBeGreaterThanOrEqual(1);
+    for (const g of texturedLocked) {
+      expect(g.texSD, `${g.name} weave must not be a synthetic flat fill (sd > 0)`).toBeGreaterThan(0);
+      expect(
+        g.effectiveBrightness,
+        `${g.name} must still render at its locked brightness — deleting the texture to reach the colour is the refused cheat`,
+      ).toBeGreaterThanOrEqual(MIN_EFFECTIVE_BRIGHTNESS);
+    }
   });
 
   it("(3) COUNTERWEIGHT known-good: the untextured garment keeps its authored colour and full brightness", () => {

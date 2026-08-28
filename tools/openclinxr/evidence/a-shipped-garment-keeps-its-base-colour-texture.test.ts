@@ -24,6 +24,28 @@
  *   OUT-OF-SCOPE section named three test reds and not this — and surfaced only because a
  *   control/treatment material hash was run for a different question.
  *
+ * ## FIXED (#740)
+ *
+ * Clause (1) flipped from `it.fails` to `it` on 2026-08-28. The locus was the FIT stage, not
+ * export: the #683 bake ran with the declared garment .mhmat files unstaged in the provider
+ * cache, `garment_material_from_declared` recorded each skip, and every footwear/shirt slot
+ * shipped a flat role colour — the #371 failure class, second occurrence. The #372 export
+ * verify only checks slots consumed in THIS bake, so a skipped slot never failed.
+ *
+ * Two materializer changes:
+ *   - `garment_material_from_declared` gained `require_texture=True` on the footwear/shirt
+ *     call sites: every skip reason (unstaged .mhmat, no diffuseTexture, missing texture
+ *     file, UV-less mesh) is now a hard RuntimeError instead of a recorded skip.
+ *   - `parse_mhmat` reads `diffuseTexture` as the whole remainder of the line: MakeHuman
+ *     authors paths with spaces (`Scrubs_Main_BaseColor_Utility - sRGB - Texture.png` in the
+ *     WojackOWL Medical Scrubs Kit) and the token-split parser truncated them to the first
+ *     word, so a staged texture never resolved.
+ *
+ * Staging: the toigo t-shirt / mj cloth shoes / male boots .mhmat + textures (main cache) and
+ * the Scrub_Shirt.mhmat + its declared diffuse (CC-BY, WojackOWL) were staged, and all eleven
+ * mpfb GLBs plus the two gown bakes were re-materialized. Every garment material ships its
+ * baseColorTexture again; factors match the pre-f82e1cc2 bytes.
+ *
  * THIS HEADER IS IMMUTABLE. Flip the assertion and append a `## FIXED (#740)` block below.
  */
 import { NodeIO } from "@gltf-transform/core";
@@ -60,7 +82,7 @@ async function surveyMaterials(): Promise<Row[]> {
 }
 
 describe("#740 a shipped garment keeps its base-colour texture", () => {
-  it.fails("(1) RED: every garment material carries a baseColorTexture", async () => {
+  it("(1) every garment material carries a baseColorTexture", async () => {
     const rows = await surveyMaterials();
     // Guards against a vacuous pass on an empty survey: 22 garment materials shipped when this was
     // measured, so finding none means the extraction is wrong, not that the fleet is clean.

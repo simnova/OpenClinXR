@@ -60,6 +60,16 @@
  * the justification.
  *
  * Clause (1) flipped `it.fails` -> `it`.
+ *
+ * ## FIXED (#740) — appended; clause (4) re-pinned
+ *
+ * #740 re-materialized the fleet with every footwear slot consuming its declared .mhmat texture.
+ * The #502-era clause (4) pin ("the gown patient stays untextured") is dead: its subject was the
+ * leopard toigo_flats with the texture stripped, and #598 removed the toigo_flats mapping (no
+ * shipped actor wears them; the materializer branch is dead code). The gown patient's shoe is now
+ * the plain toigo_mj_cloth_shoes with its authored MJ-shoes3.png — the same plain-shoe shape
+ * clause (2) pins for kevin's boots. Clause (4) now asserts that precedent: mj_cloth_shoes with
+ * its authored texture, sd inside the acceptable band, not flattened to a featureless fill.
  */
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
@@ -122,17 +132,20 @@ describe("#502 clinicians do not wear patterned party shoes", () => {
   });
 
   it(
-    "(4) COUNTERWEIGHT: the in-tree precedent is preserved — the gown patient stays untextured",
+    "(4) COUNTERWEIGHT: the plain-shoe precedent is preserved — the gown patient keeps her authored mj cloth shoe",
     async () => {
-      // The cheap fix is to desaturate/flatten the shared library texture, which greens clause (1)
-      // for clinicians AND silently degrades it for the eight patient roles that legitimately wear
-      // it. The fix must be a per-role SWAP, not an edit to a shared asset.
-      // The gown patient already wears this mesh with NO texture and a dark factor — the in-tree
-      // precedent. footwearPattern() returns null when there is no texture, which is the pass
-      // condition here: she must stay plain, and the shared "Shoe" texture must not be edited to
-      // green clinicians (that would degrade the ob patient, who legitimately wears the print).
-      const plain = await footwearPattern("mpfb-gown-adult-patient.glb");
-      expect(plain, "the gown patient must stay untextured — she is the precedent, not a target").toBeNull();
+      // FIXED (#740): the #502-era pin ("the gown patient stays untextured") is dead. Its subject
+      // was the leopard toigo_flats with the texture STRIPPED — the in-tree precedent for fixing
+      // clinicians. #598 removed the toigo_flats mapping (no shipped actor wears them; the
+      // materializer branch is dead code) and #740 re-materialized the fleet with each shoe's
+      // declared .mhmat texture, so the gown patient's shoe is the PLAIN toigo_mj_cloth_shoes with
+      // its authored MJ-shoes3.png. The precedent to preserve is now the plain shoe with its
+      // authored texture — the same shape clause (2) pins for kevin's boots: sd inside the
+      // acceptable band, and NOT flattened to a featureless fill to pass.
+      const s = await footwearPattern("mpfb-gown-adult-patient.glb");
+      expect(s?.mesh, "the gown patient's shoe must be the plain mj cloth shoe, not the leopard flats").toContain("mj_cloth_shoes");
+      expect(s!.sd, "the gown patient's authored shoe texture must stay (not flattened to a factor)").toBeGreaterThan(12);
+      expect(s!.sd, "the gown patient's shoe must stay within the acceptable pattern band").toBeLessThanOrEqual(MAX_CLINICIAN_PATTERN_SD);
     },
   );
 });
