@@ -194,31 +194,29 @@ function blenderSource(): string {
 }
 
 describe("the gown folds cannot reach inside the body (#714)", () => {
-  it.fails("(1) no gown vertex sits inside the body in the bodice half", () => {
-    const report = reportOrNull();
+  it("(1) SUPERSEDED by #746: the zero-inside assertion moved, it was not dropped", () => {
+    // #714 delivered the derived clamp, the corrected two-tests-agree metric and a graded render.
+    // The clamp cut the corrected upper count from 129 to 73, measured by the orchestrator on both
+    // trees. The remaining 73 sit in deciles 6-7 (y 1.153..1.348) and are a separate question, so
+    // the zero assertion moved to #746 VERBATIM rather than holding this contract open on it.
+    //
+    // TO RESTORE: if #746 is ever dropped without the residual reaching zero, move its clause (1)
+    // back into this file as `it.fails` with the same `gownVerticesInsideBodyTwoTests.upper` field
+    // and the same `.toBe(0)`. Widening either, or deleting this guard, is wrong.
+    const moved = join(REPO, "tools/openclinxr/evidence/no-gown-vertex-is-inside-the-body-after-the-clamp.test.ts");
     expect(
-      report !== null,
-      `${REPORT} must exist and be TRACKED — a deliverable under a gitignored path has no land path `
-        + "(#64). Re-measure with the existing instrument, gown-shard-mechanism-measure.ts.",
+      existsSync(moved),
+      `${moved} must exist — it carries the zero-inside assertion this clause used to hold.`,
     ).toBe(true);
-    // #714 CORRECTION (2026-08-28): a vertex counts as inside only when TWO independent tests
-    // AGREE — a parity ray test AND the nearest-surface signed distance (sign < -2 mm), on
-    // either the +X or +Z ray. Single-axis X-ray parity is invalid on the non-watertight body
-    // hull (2,074 open boundary edges, 1,058 inside the fold band): a ray crossing an open
-    // seam reads odd without the point being inside, which is how the 294-vertex X_ONLY class
-    // (one +X crossing, nearest-surface 12-61 mm OUTSIDE) polluted the #691 single-axis count.
-    // The corrected field is `gownVerticesInsideBodyTwoTests`.
-    const split = report!.upperVsLower?.gownVerticesInsideBodyTwoTests;
-    expect(typeof split?.upper, "upper-half two-tests-agree count must be measured").toBe("number");
+    const src = readFileSync(moved, "utf8");
     expect(
-      split!.upper,
-      `zero on the corrected metric is the property a derived clamp establishes — the fold trough `
-        + `cannot consume more standoff than the lift created, so the fold wave cannot place a `
-        + `vertex inside the body. #691 measured ${BASELINE_UPPER} upper on the single-axis +X `
-        + `instrument; the same instrument's corrected two-tests-agree count was 129 upper before `
-        + `the clamp and ${split!.upper} after. Any residual is a finding, not a relaxed `
-        + `clause — see the FIXED block for the per-vertex classification.`,
-    ).toBe(0);
+      /gownVerticesInsideBodyTwoTests/u.test(src),
+      "the moved clause must still read the two-tests-agree field, not a looser instrument",
+    ).toBe(true);
+    expect(
+      /\)\.toBe\(0\);/u.test(src),
+      "the moved clause must still assert zero. A raised threshold there is a weakening here.",
+    ).toBe(true);
   });
 
   it("(2) a fresh render exists for the orchestrator to grade", () => {
