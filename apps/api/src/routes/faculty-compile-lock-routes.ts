@@ -26,6 +26,7 @@ export function registerFacultyCompileLockRoutes(app: Hono<{ Variables: ApiAppVa
       nodeId?: unknown;
       locked?: unknown;
       overridePath?: unknown;
+      overrideValue?: unknown;
     };
 
     const scenarioId = typeof body.scenarioId === "string" && body.scenarioId.trim().length > 0 ? body.scenarioId : undefined;
@@ -52,6 +53,7 @@ export function registerFacultyCompileLockRoutes(app: Hono<{ Variables: ApiAppVa
         nodeId,
         locked: body.locked,
         ...(overridePath === undefined ? {} : { overridePath }),
+        ...(body.overrideValue === undefined ? {} : { overrideValue: body.overrideValue }),
       });
       return context.json(record satisfies ApiFacultyCompileLockRecord);
     } catch (error) {
