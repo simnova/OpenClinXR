@@ -1,0 +1,105 @@
+{
+  "schemaVersion": "openclinxr.ui-xr-speak-fixture-live.v1",
+  "capturedFrom": ".openclinxr/evidence/speak-fixture-2026-08-28/inspection.json (pnpm local:voice:ui-xr-speak-fixture)",
+  "generatedAt": "2026-08-28T23:31:34.760Z",
+  "fixture": {
+    "scenarioId": "ed_chest_pain_priority_v1",
+    "traceTag": "history_opqrst",
+    "transcript": "When did the chest pressure start?",
+    "expectedActorId": "patient_robert_hayes_v1",
+    "atSecond": 30
+  },
+  "runnerTurn": {
+    "transcript": "When did the chest pressure start?",
+    "traceTag": "history_opqrst",
+    "routedActorId": "patient_robert_hayes_v1",
+    "routingReason": "single_patient_default",
+    "conversationTurn": 1,
+    "responseText": "Robert Hayes: Demeanor: anxious, diaphoretic, protective of chest"
+  },
+  "uiValues": {
+    "transcript": "When did the chest pressure start?",
+    "response": "Robert Hayes: Demeanor: anxious, diaphoretic, protective of chest",
+    "actorId": "patient_robert_hayes_v1",
+    "state": "prepared"
+  },
+  "joinVerdict": {
+    "transcript": true,
+    "response": true,
+    "actor": true,
+    "evidenceFired": true
+  },
+  "evidence": {
+    "source": "window.__openClinXrDeterministicLearnerTurnEvidence",
+    "learnerTranscript": "When did the chest pressure start?",
+    "responseText": "Robert Hayes: Demeanor: anxious, diaphoretic, protective of chest",
+    "actorId": "patient_robert_hayes_v1",
+    "firedAtMs": 1787959889580
+  },
+  "rest": {
+    "atRest": true,
+    "peak": null,
+    "strongDistinct": 0,
+    "framePath": "tools/openclinxr/evidence/speak-fixture-stills/speak-fixture-rest.png"
+  },
+  "speaking": {
+    "distinctStrongVisemeCount": 5,
+    "maxInfluence": 1,
+    "strongVisemes": [
+      {
+        "targetName": "viseme_E",
+        "influence": 1
+      },
+      {
+        "targetName": "viseme_sil",
+        "influence": 1
+      },
+      {
+        "targetName": "viseme_aa",
+        "influence": 1
+      },
+      {
+        "targetName": "viseme_CH",
+        "influence": 1
+      },
+      {
+        "targetName": "viseme_TH",
+        "influence": 1
+      }
+    ],
+    "sampleCount": 40
+  },
+  "frames": {
+    "rest": "tools/openclinxr/evidence/speak-fixture-stills/speak-fixture-rest.png",
+    "speaking": [
+      "tools/openclinxr/evidence/speak-fixture-stills/speak-fixture-speaking-1.png",
+      "tools/openclinxr/evidence/speak-fixture-stills/speak-fixture-speaking-2.png"
+    ]
+  },
+  "sources": {
+    "producer": "tools/openclinxr/evidence/ui-xr-viseme-drive-capture.ts",
+    "subject_glb": "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb"
+  },
+  "fingerprints": {
+    "producer": {
+      "bytes": 87389,
+      "sha256": "d022dc1af1e7d28b1136966a059ece099cc4b1360295980dd0d7886cb2a06f7b"
+    },
+    "subject_glb": {
+      "bytes": 9193752,
+      "sha256": "f6ce3f8804cfd3f31d2ea06cc4546c6a44e4b9713654b560e8be6fda399f63ff"
+    }
+  },
+  "claimScope": "deterministic_offline_fixture_turn_reaching_ui_xr_transcript_response_and_live_mouth_measurement",
+  "notEvidenceFor": [
+    "microphone",
+    "stt",
+    "tts",
+    "audible_playback",
+    "full_duplex",
+    "quest_readiness",
+    "clinical_validity",
+    "scoring",
+    "acoustic_learner_input"
+  ]
+}
