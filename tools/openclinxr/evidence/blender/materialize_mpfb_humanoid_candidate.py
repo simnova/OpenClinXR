@@ -930,7 +930,9 @@ def normalise_garment_texture_luminance(mat, label):
     return mean
 
 
-def garment_material_from_declared(mhclo_path, role_colour, name, mesh=None, patch_factor=True):
+def garment_material_from_declared(
+    mhclo_path, role_colour, name, mesh=None, patch_factor=True, require_texture=False
+):
     """#360: consume a garment's OWN declared .mhmat diffuse texture when staged + resolvable.
 
     The same generic path the #340/#356 eyes use (`make_material_from_mhmat` — the .mhclo's
@@ -941,6 +943,13 @@ def garment_material_from_declared(mhclo_path, role_colour, name, mesh=None, pat
     .mhmat staged, no diffuseTexture declared, declared texture missing on disk, or (the
     issue's "say so and stop" guard) a mesh with no UV layer, where a texture would render as
     garbage. The flat role colour is kept for the skipped slot.
+
+    #740: when `require_texture=True` (the footwear/shirt slots the shipped-garment evidence
+    contract asserts on), every skip reason is a HARD FAILURE instead of a recorded skip. The
+    #371/#683 failure class shipped flat role colours twice because a bake that ran without
+    the declared .mhmat staged skipped silently — the export verify (#372) only checks slots
+    consumed in THIS bake. A slot the contract requires textured either consumes its declared
+    material or fails the bake; it never ships a flat colour.
 
     When the texture IS consumed and patch_factor, the role colour is registered in
     GARMENT_FACTOR_PATCH so the exported GLB carries baseColorFactor (the #180 contract's
@@ -967,7 +976,14 @@ def garment_material_from_declared(mhclo_path, role_colour, name, mesh=None, pat
     try:
         mhmat_path = mhmat_for_mhclo(mhclo_path)
     except RuntimeError as e:
-        record["reason"] = f"declared .mhmat not staged: {e}"
+        reason = f"declared .mhmat not staged: {e}"
+        if require_texture:
+            raise RuntimeError(
+                f"#740: garment slot {name!r} {reason} — the shipped-garment contract requires "
+                f"this material to carry its baseColorTexture. Stage the declared .mhmat beside "
+                f"the .mhclo (third-party-asset-licence-ledger.md) and re-bake."
+            ) from e
+        record["reason"] = reason
         print(f"GARMENT_MATERIAL_SKIP {json.dumps(record)}")
         return make_material(name, role_colour), record
     record["mhmatStaged"] = True
@@ -976,21 +992,39 @@ def garment_material_from_declared(mhclo_path, role_colour, name, mesh=None, pat
     diffuse = props.get("diffuseTexture")
     if not diffuse:
         record["reason"] = f"{mhmat_path.name} declares no diffuseTexture"
+        if require_texture:
+            raise RuntimeError(
+                f"#740: garment slot {name!r} declares no diffuseTexture in "
+                f"{mhmat_path.name} — the shipped-garment contract requires a baseColorTexture "
+                f"on this material; resolve the authored state before baking."
+            )
         print(f"GARMENT_MATERIAL_SKIP {json.dumps(record)}")
         return make_material(name, role_colour), record
     tex_rel = pathlib.Path(diffuse[0])
     tex_path = (mhmat_path.parent / tex_rel).resolve()
     record["declaredDiffuseTexture"] = tex_rel.name
     if not tex_path.is_file():
-        record["reason"] = (
-            f"declared diffuseTexture {tex_rel} missing on disk at {tex_path}"
-        )
+        reason = f"declared diffuseTexture {tex_rel} missing on disk at {tex_path}"
+        if require_texture:
+            raise RuntimeError(
+                f"#740: garment slot {name!r} {reason} — the shipped-garment contract requires "
+                f"this material to carry its baseColorTexture. Stage the declared texture beside "
+                f"the .mhmat and re-bake."
+            )
+        record["reason"] = reason
         print(f"GARMENT_MATERIAL_SKIP {json.dumps(record)}")
         return make_material(name, role_colour), record
     record["textureResolves"] = True
     record["textureBytes"] = tex_path.stat().st_size
     if mesh is not None and not mesh.data.uv_layers:
-        record["reason"] = "mesh has no UV layer — a texture would render as garbage"
+        reason = "mesh has no UV layer — a texture would render as garbage"
+        if require_texture:
+            raise RuntimeError(
+                f"#740: garment slot {name!r} {reason} — the shipped-garment contract requires "
+                f"this material to carry its baseColorTexture; a UV-less garment mesh is a "
+                f"pipeline defect, not an authored state."
+            )
+        record["reason"] = reason
         print(f"GARMENT_MATERIAL_SKIP {json.dumps(record)}")
         return make_material(name, role_colour), record
     mat = make_material_from_mhmat(mhmat_path, name)
@@ -3953,6 +3987,9 @@ def main():
         _upper_role_colour,
         f"mat_{_upper_lib_name}",
         mesh=garment,
+        # #740: the shipped-garment evidence contract asserts every shirt material carries its
+        # baseColorTexture; a skipped slot would ship a flat role colour (the #683 regression).
+        require_texture=True,
     )
     garment.data.materials.append(_upper_mat)
     mhclo = Mhclo()
@@ -4936,6 +4973,10 @@ def main():
             f"mat_makeclothes_library_footwear_{shoe_kind}",
             mesh=shoe,
             patch_factor=False,
+            # #740: the shipped-garment evidence contract asserts every footwear material carries
+            # its baseColorTexture; a skipped slot would ship the flat dark blob (the #683
+            # regression — the shoe rendered as two flat dark shapes).
+            require_texture=True,
         )
     shoe.data.materials.append(_shoe_mat)
     mhclo_shoe = Mhclo()
