@@ -1,7 +1,9 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+
+import { measureDeciles } from "./garment-decile-sharpness.js";
 
 /**
  * OBSERVABLE: the hospital gown's surface renders as triangular shards on two stations — the live
@@ -171,24 +173,57 @@ async function measure(): Promise<Row[]> {
 }
 
 const rowsPromise = measure();
+const decilesPromise = measureDeciles();
 const pct = (f: number) => `${(f * 100).toFixed(2)}%`;
 
 describe("the hospital gown surface is as smooth as a garment that renders (#747)", () => {
-  it.fails("(1) no gown is rougher than the roughest garment that renders acceptably", async () => {
-    const rows = await rowsPromise;
-    const clean = rows.filter((r) => !r.gown);
-    const gowns = rows.filter((r) => r.gown);
-    expect(clean.length, "the comparator population must be measured").toBeGreaterThan(0);
-    expect(gowns.length, "both hospital-gown primitives must be measured").toBe(2);
-    const ceiling = Math.max(...clean.map((r) => r.sharpFraction));
-    const worstGown = gowns.reduce((a, b) => (a.sharpFraction >= b.sharpFraction ? a : b));
+  it("(1) SUPERSEDED by #750: the ambient-ceiling assertion moved, it was not dropped", () => {
+    // #747's sweep moved the whole-garment sharp fraction 20.80% -> 15.46% across k 16 -> 4 with the
+    // gather depth unchanged at 0.4575 in every cell, then saturated. The residue is a shell-wide
+    // floor: the gown's SKIRT (deciles 1-3), where no fold runs, reads 9.8-11.1% against 0.0-7.4%
+    // for two clean garments in the same bands. A clause demanding the WHOLE garment reach the
+    // ambient ceiling therefore cannot be satisfied by fold work, so it moved to #750 VERBATIM.
+    //
+    // TO RESTORE: if #750 is ever dropped while the gown is still above the ambient ceiling, move
+    // its clause (1) back here as `it.fails` with the same relative ceiling over the same non-gown
+    // population. Widening it, or deleting this guard, is wrong.
+    const moved = join(REPO, "tools/openclinxr/evidence/the-gown-shell-is-not-sharp-where-no-fold-runs.test.ts");
+    expect(existsSync(moved), `${moved} must exist — it carries the ambient-ceiling clause`).toBe(true);
+    const src = readFileSync(moved, "utf8");
+    const title = "no gown is rougher than the roughest garment that renders acceptably";
+    const start = src.indexOf(title);
+    expect(start, "the moved clause must keep its title and therefore its subject").toBeGreaterThan(-1);
+    // Scope the check to the moved clause's OWN body. A file-wide regex is a marker check: the first
+    // probe of this guard passed while the clause was weakened, because a SIBLING clause in the same
+    // file used the identical `toBeLessThanOrEqual(ceiling)` text.
+    const nextClause = src.slice(start + title.length).search(/\n {2}it(\.fails)?\(/u);
+    const clauseBody = src.slice(start, nextClause === -1 ? undefined : start + title.length + nextClause);
     expect(
-      worstGown.sharpFraction,
-      `${worstGown.label} has ${pct(worstGown.sharpFraction)} of its interior edges folding past `
-        + `${SHARP_DEGREES} degrees, against a ceiling of ${pct(ceiling)} set by the roughest garment `
-        + `on this tree that renders acceptably. The ceiling is measured here, not chosen, so it `
-        + `tracks the fleet. Rows: ${rows.map((r) => `${r.label} ${pct(r.sharpFraction)}`).join("; ")}`,
-    ).toBeLessThanOrEqual(ceiling);
+      /\)\.toBeLessThanOrEqual\(ceiling\);/u.test(clauseBody),
+      "the moved clause must still bound the gown by the measured non-gown ceiling, not by a widened "
+        + "expression or a constant. Its own body must end in .toBeLessThanOrEqual(ceiling);",
+    ).toBe(true);
+  });
+
+  it.fails("(1b) the fold band is no sharper than this gown's own skirt", async () => {
+    const rows = await decilesPromise;
+    const gowns = rows.filter((r) => r.gown);
+    expect(gowns.length, "both hospital-gown primitives must be measured").toBe(2);
+    // The shell floor is #750's. This clause asks only that the fold ADDS nothing, by comparing each
+    // gown against ITSELF: its fold band (d4-d8) against its own skirt (d1-d3), where no fold runs.
+    // Self-referential on purpose — it cannot be greened by the shell floor moving in either
+    // direction, and it dies the moment the fold stops contributing.
+    for (const g of gowns) {
+      const skirt = Math.max(...[1, 2, 3].map((d) => g.deciles[d] ?? 0));
+      const fold = Math.max(...[4, 5, 6, 7, 8].map((d) => g.deciles[d] ?? 0));
+      expect(
+        fold,
+        `${g.label}: fold band d4-d8 peaks at ${pct(fold)} against its OWN skirt d1-d3 at `
+          + `${pct(skirt)}. Measured 2026-08-28 the adult gown read 29.6% against 10.4%. The fold `
+          + `should add no sharpness the shell does not already carry; the shell's own floor is #750. `
+          + `Deciles: ${g.deciles.map((v, i) => `d${i}=${v === null ? "--" : pct(v)}`).join(" ")}`,
+      ).toBeLessThanOrEqual(skirt);
+    }
   });
 
   it("(2) COUNTERWEIGHT: the gathers are not flattened away", () => {
