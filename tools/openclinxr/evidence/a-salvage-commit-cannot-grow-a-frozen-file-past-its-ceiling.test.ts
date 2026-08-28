@@ -61,6 +61,16 @@ import { runMergeKill, type MergeKillReport } from "../openclaw/merge-kill.js";
  * notEvidenceFor: whether any ceiling is the right ceiling; whether B-class drift deserves an escape
  *   clause (one instance is not a class); whether `pnpm architecture` or the pre-commit budget check
  *   behave correctly — this is the integrate path only.
+ *
+ * ## FIXED (#587)
+ *
+ * `merge-kill.ts` now carries a second freeze criterion, `checkFrozenFileGrown`, wired after
+ * `checkRaisedCeiling` in `runMergeKill`. It reads the SIZE_FREEZE map at HEAD, measures each
+ * governed file's COMMITTED content via `git show <head>:<path>`, and kills when a file exceeds its
+ * ceiling — naming the path, the measured count, and the ceiling. It is purely additive: growing a
+ * frozen file while widening its entry in the same branch is still refused by `raised-ceiling`, and
+ * the gate never reads the working tree (#361). Clauses (1) and (2) flipped from `it.fails` to `it`
+ * on 2026-08-28; the five green clauses were already passing before and after the criterion landed.
  */
 
 const SIZE_FREEZE_PATH = "packages/openclinxr/architecture-rules/src/checks/file-size-budgets.ts";
@@ -141,7 +151,7 @@ function killIds(report: MergeKillReport): string[] {
 }
 
 describe("a salvage commit cannot grow a frozen file past its ceiling", () => {
-  it.fails("(1) RED: a branch putting a frozen file above its ceiling is refused", () => {
+  it("(1) RED: a branch putting a frozen file above its ceiling is refused", () => {
     // 18 lines against a ceiling of 10, freeze map untouched on both sides. Today every criterion
     // passes and the branch lands: the ratchet's only merge-time defence guards the MAP, not the
     // FILES the map governs.
@@ -149,7 +159,7 @@ describe("a salvage commit cannot grow a frozen file past its ceiling", () => {
     expect(report.killed, "a committed frozen file 8 lines over its ceiling must not reach main").toBe(true);
   });
 
-  it.fails("(2) RED: the refusal names the file, its measured count, and its ceiling", () => {
+  it("(2) RED: the refusal names the file, its measured count, and its ceiling", () => {
     // #574's session time went on working out WHY a commit was blocked. A bare kill id reproduces
     // exactly that. The evidence line must carry all three facts so the actor can act on it without
     // reading checkFileSizeBudgets.
