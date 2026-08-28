@@ -3,6 +3,7 @@ import { existsSync, readdirSync, readFileSync, type Stats, statSync } from "nod
 import { join } from "node:path";
 import { countPlantedItFails } from "../../../packages/openclinxr/agent-loop/src/done-when-live.js";
 import { stripAnsi } from "./board-cli.js";
+import { selectNextBothyCard, type BothyFetch } from "./board-bothy-dequeue.js";
 
 /**
  * The loop's ENUMERATION step (#584): build the unfinished-work inventory from the world
@@ -71,6 +72,11 @@ export type SweepInventory = {
   liveWorkers: number;
   /** Parallelism floor from the routine-2 ruling; below it the sweep prints BREACH and exits 2. */
   workerFloor: number;
+  /**
+   * S6 — BothyBoard `tasks.next` identity for this tick, independent of BOTHY_BOARD_DEQUEUE.
+   * `empty` = ready set vacant (success). `tsk_…` = next Planted card. `NOT DETERMINED` = PAT/HTTP.
+   */
+  bothyReady: string;
 };
 
 const SCAN_ROOTS = ["apps", "packages", "tools"] as const;
@@ -419,10 +425,11 @@ export async function summariseUnfinishedInventory(root: string): Promise<SweepI
     }
   }
 
-  const [undispatchableResult, uncardedResult, releaseResult] = await Promise.all([
+  const [undispatchableResult, uncardedResult, releaseResult, bothyReady] = await Promise.all([
     countUndispatchableCards().catch(() => ({ count: -1, ids: [] as number[] })),
     Promise.resolve(countUncardedRecentFiles(root)),
     checkReleaseDrift(root),
+    probeBothyReady().catch(() => "NOT DETERMINED"),
   ]);
 
   return {
@@ -437,12 +444,29 @@ export async function summariseUnfinishedInventory(root: string): Promise<SweepI
     quietThreads: countQuietThreads(),
     liveWorkers: countLiveWorkers(),
     workerFloor: WORKER_FLOOR,
+    bothyReady,
   };
+}
+
+/** S6 — BothyBoard ready identity. Always queried when PAT exists; never ranks GitHub. */
+export async function probeBothyReady(opts?: {
+  pat?: string;
+  env?: Record<string, string | undefined>;
+  fetch?: BothyFetch;
+}): Promise<string> {
+  const v = await selectNextBothyCard({
+    pat: opts?.pat,
+    env: opts?.env ?? process.env,
+    fetch: opts?.fetch,
+  });
+  if (v.ok) return v.taskId.length > 0 ? v.taskId : "ready";
+  if (v.reason === "no-candidate") return "empty";
+  return "NOT DETERMINED";
 }
 
 /**
  * One machine-greppable line:
- * `SWEEP: reds=N(oldest #id) undisp=N uncarded=N rel=<tag> quiet=N workers=n/floor[ BREACH]`.
+ * `SWEEP: reds=N(oldest #id) undisp=N uncarded=N rel=<tag> quiet=N workers=n/floor bothy=<empty|tsk_|NOT DETERMINED>[ BREACH]`.
  * `NOT DETERMINED` marks a section error; a worker-floor breach appends BREACH so the line is
  * self-reporting without parsing numbers.
  */
@@ -460,7 +484,8 @@ export function formatSweepLine(inventory: SweepInventory): string {
   const breach = inventory.liveWorkers >= 0 && inventory.liveWorkers < inventory.workerFloor ? " BREACH" : "";
   return (
     `SWEEP: reds=${inventory.reds}${oldest} undisp=${undisp} `
-      + `uncarded=${uncarded} rel=${rel} quiet=${inventory.quietThreads} ${workers}${breach}`
+      + `uncarded=${uncarded} rel=${rel} quiet=${inventory.quietThreads} ${workers} `
+      + `bothy=${inventory.bothyReady}${breach}`
   );
 }
 

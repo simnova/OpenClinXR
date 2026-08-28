@@ -84,7 +84,7 @@ because activity metrics see flow and not stock.
 **Every tick prints this line, next to the pulse row:**
 
 ```
-SWEEP: reds=N(oldest #id) undisp=N uncarded=N rel=<tag> quiet=N
+SWEEP: reds=N(oldest #id) undisp=N uncarded=N rel=<tag> quiet=N workers=n/floor bothy=<empty|tsk_|NOT DETERMINED>
 ```
 
 A tick report without it is an invalid tick — the same enforcement class as post-slice failing on a
@@ -99,6 +99,7 @@ The five queries behind it, ~15 s total:
 | S3 | `git log --since=24h --diff-filter=A` over test/evidence paths, diffed against closed cards | a contract landed with no card tracking its flip | open the flip card the same tick |
 | S4 | upstream release tag vs the version pinned in the tree | a dependency moved while nobody looked | pin-bump card, or record the non-use reason |
 | S5 | newest session `updates.jsonl` line counts across wakes | a consult thread went silent mid-thought | resume or close it explicitly |
+| S6 | BothyBoard `tasks.next` (always; PAT required; never ranks GitHub) | ready set empty, or a `tsk_*` Planted card | print `bothy=` on the SWEEP line; operationalize if empty while WCG cards should exist |
 
 **All four of the operator's catches map to these**: lip-sync was S3, eyebrows S1, Rhubarb S2 verbatim,
 IWSDK S4 verbatim. Four for four — none needed judgement, only enumeration.
