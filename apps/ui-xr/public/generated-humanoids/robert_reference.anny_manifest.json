@@ -1,0 +1,39 @@
+{
+  "schema_version": "openclinxr.anny-source-manifest.v1",
+  "generator": "issue-651: staged reference manifest for the ED patient body id robert_reference (case-authored evidence reference; no generate_mesh.py run produced this reference)",
+  "source_kind": "staged_case_authored_reference",
+  "generator_mode": "hand_authored_reference_manifest",
+  "uses_real_anny_forward_pass": false,
+  "real_anny_weights_used": false,
+  "fallback_active": false,
+  "input_params": {
+    "age": 52,
+    "body_profile": "adult_standard",
+    "phenotype": {
+      "skin_tone": "warm_medium",
+      "hair_color": "brown",
+      "eye_color": "brown",
+      "gender_presentation": "adult_male",
+      "height_cm": 178,
+      "build": "average_adult",
+      "bmi": 26.0
+    }
+  },
+  "phenotype_summary": {
+    "skin_tone": "warm_medium",
+    "eye_color": "brown",
+    "height_cm": 178,
+    "bmi": 26.0,
+    "gender_presentation": "adult_male"
+  },
+  "not_evidence_for": [
+    "b_plus_visual_realism_gate",
+    "production_asset_readiness",
+    "quest_readiness"
+  ],
+  "notes": [
+    "Reference authorship: robert_reference is the staged reference id the #651 height rebake of mpfb-gown-adult-patient.glb was driven by (materialize_mpfb_humanoid_candidate.py --eye-colour-reference robert_reference -> phenotype_numeric_block -> derive_macro_dict_from_authored_phenotype -> solve_height_macro against height_cm). The #651 FIXED record documents the resulting macros: gender 1.0, age 0.7532, muscle 0.5, weight 0.5929, height solved to 1.7800 target (shipped body 1.7756 m).",
+    "Value sourcing: the case-authored phenotype of ed_chest_pain_priority_v1 patient_robert_hayes_v1 (ed-chest-pain.ts:126-141): age 52, height_cm 178, bmi 26.0, build average_adult, gender_presentation adult_male, skin_tone warm_medium, hair_color brown, eye_color brown.",
+    "Re-staged 2026-08-27 (#683 lash re-bake): the original #651 staged manifest was cleaned up with its evidence directory; this reconstruction is sourced from the #651 FIXED record + the case file (ed-chest-pain.ts) so the re-bake reproduces the shipped 1.7756 m male body."
+  ]
+}

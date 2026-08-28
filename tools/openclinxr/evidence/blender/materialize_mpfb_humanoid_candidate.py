@@ -116,17 +116,26 @@ EYEBROW_STYLE_SEARCH_ROOTS = (
     ),
 )
 
+# #683 — fitted eyelashes mirror the eyebrow rail (D1). Pack is CC0 on every .mhclo header
+# (Mindfront); named dirs only — never glob. The default is the SMALLEST variant the pack
+# offers (8,316 quads = 16,632 tris): clause (5) bounds a fitted lash at this cost and any
+# larger variant needs a rendered comparison against it before it may be chosen. The hm08
+# helper lashes are NOT also retained ("do not do both").
+EYELASH_STYLE_BY_REFERENCE = {
+    None: "mindfront_eyelashes_01",
+}
+EYELASH_STYLE_SEARCH_ROOTS = (
+    pathlib.Path(
+        ".openclinxr-local/provider-cache/facial/sources/makehuman-eyelashes01/extracted/eyelashes"
+    ),
+)
+
 # #542 — hm08 feature helpers that must survive as SEPARATE meshes. Fitting cages
 # (helper-tights / skirt / hair / genital) stay stripped by remove_helpers=True.
 # Do NOT set remove_helpers=False wholesale — that re-targets every garment fit.
-# Eyelashes: retain these helper groups (not a second fit of eyelashes01).
+# #683 — eyelashes are NO LONGER helper-retained: they are fitted from the CC0
+# eyelashes01 pack before the strip ("do not do both"). Teeth/tongue stay helper-held.
 HM08_FEATURE_HELPER_GROUPS = {
-    "eyelash": (
-        "helper-l-eyelashes-1",
-        "helper-l-eyelashes-2",
-        "helper-r-eyelashes-1",
-        "helper-r-eyelashes-2",
-    ),
     "teeth": ("helper-upper-teeth", "helper-lower-teeth"),
     "tongue": ("helper-tongue",),
 }
@@ -596,6 +605,21 @@ def resolve_eyebrow_style_dir(style):
     )
 
 
+def resolve_eyelash_style_dir(style):
+    """Find `<style>/<style>.mhclo` under EYELASH_STYLE_SEARCH_ROOTS. Never globs."""
+    missing = []
+    for rel_root in EYELASH_STYLE_SEARCH_ROOTS:
+        cand = REPO_ROOT / rel_root / style
+        mhclo = cand / f"{style}.mhclo"
+        if mhclo.is_file():
+            return cand
+        missing.append(str(cand))
+    raise RuntimeError(
+        f"#683: eyelash style {style!r} not found as a named dir under the "
+        f"eyelash search roots (never globbed): {missing}"
+    )
+
+
 def _vertex_indices_in_groups(basemesh, group_names):
     """Return sorted unique vertex indices that belong to any named vertex group."""
     name_to_idx = {g.name: g.index for g in basemesh.vertex_groups}
@@ -612,14 +636,14 @@ def _vertex_indices_in_groups(basemesh, group_names):
 
 
 def extract_hm08_feature_helpers(basemesh, armature, ref_tag):
-    """#542 — copy teeth/tongue/eyelash helper verts to SEPARATE meshes, then leave
+    """#542 — copy teeth/tongue helper verts to SEPARATE meshes, then leave
     the basemesh alone for remove_helpers=True (cages still strip; body stays 26,756 tris).
 
     MakeHuman stores feature geometry inside HelperGeometry alongside fitting cages.
     Wholesale remove_helpers=False would retain cages and re-target every garment fit
     (contract clause 3). Extracting feature verts onto their own objects is the
-    selective retention the brief requires. Eyelashes come from these helpers — the
-    eyelashes01 pack is staged but not also fitted.
+    selective retention the brief requires. #683 — eyelashes are NOT retained here:
+    they are fitted from the CC0 eyelashes01 pack before the strip ("do not do both").
     """
     import bmesh
 
@@ -659,13 +683,11 @@ def extract_hm08_feature_helpers(basemesh, armature, ref_tag):
         new_mesh.update()
 
         # Simple opaque material so the part is a distinct mesh (pixel grade is
-        # the orchestrator's). Teeth/tongue read pale; lashes dark.
+        # the orchestrator's). Teeth/tongue read pale.
         mat = bpy.data.materials.new(name=f"mat_{mesh_name}")
         mat.use_nodes = True
         bsdf = mat.node_tree.nodes.get("Principled BSDF")
-        if feature == "eyelash":
-            color = (0.02, 0.02, 0.02, 1.0)
-        elif feature == "teeth":
+        if feature == "teeth":
             color = (0.92, 0.90, 0.86, 1.0)
         else:
             color = (0.85, 0.45, 0.45, 1.0)
@@ -3601,6 +3623,74 @@ def main():
             "fitWallClockS": round(_brow_fit_s, 4),
         }
         print(f"EYEBROW_FIT {json.dumps(_eyebrow_fitted)}")
+
+    # #683 — fitted eyelashes BEFORE the helper strip, the same load-bearing order
+    # as hair/eyes/brows (the eyelashes01 .mhclo refs basemesh verts and must see the
+    # full topology; the fitted mesh is a SEPARATE object, so the strip does not touch
+    # it). Pack is CC0 on every .mhclo header (Mindfront). The hm08 helper lashes are
+    # NOT also retained — "do not do both": fitting eyelashes01 while keeping the
+    # helper lashes gives an actor two sets, which the contract's clause (2) refuses.
+    _eyelash_style = EYELASH_STYLE_BY_REFERENCE.get(
+        args.reference, EYELASH_STYLE_BY_REFERENCE[None]
+    )
+    _eyelash_fitted = None
+    if _eyelash_style:
+        _lash_dir = resolve_eyelash_style_dir(_eyelash_style)
+        _lash_mhclo = _lash_dir / f"{_eyelash_style}.mhclo"
+        _lash_obj = _lash_dir / declared_hair_obj_file(_lash_mhclo)
+        if not _lash_mhclo.is_file() or not _lash_obj.is_file():
+            raise RuntimeError(f"#683: eyelash sources missing: {_lash_dir}")
+        _lash_lic_ok, _lash_lic_raw = read_hair_mhclo_licence(_lash_mhclo)
+        if not _lash_lic_ok:
+            raise RuntimeError(
+                f"#683: eyelash {_eyelash_style} licence NOT permitted per its own "
+                f".mhclo header: {_lash_lic_raw!r} — hard refusal"
+            )
+        print(f"EYELASH_LICENCE {_eyelash_style} {_lash_lic_raw!r}")
+
+        import sys as _sys_lash
+
+        _mc_dir_lash = REPO_ROOT / "tools/openclinxr/asset-pipeline/makeclothes"
+        if str(_mc_dir_lash) not in _sys_lash.path:
+            _sys_lash.path.insert(0, str(_mc_dir_lash))
+        from embed_library_hair import (  # noqa: E402
+            create_material as _lash_create_material,
+            fit_hair as _fit_lash,
+            weight_hair_to_head as _weight_lash_to_head,
+        )
+
+        _lash_ref_tag = subject_id
+        _lash_mesh_name = (
+            f"openclinxr_fitted_eyelash_{_eyelash_style}_mpfb_{_lash_ref_tag}_mesh"
+        )
+        _lash, _lash_fit_s = _fit_lash(
+            str(_lash_mhclo), str(_lash_obj), human, _lash_mesh_name
+        )
+        # Near-black lash colour — same presence rationale as the brow's near-black;
+        # the pixel grade is the orchestrator's.
+        _lash_mat = _lash_create_material(
+            f"openclinxr_fitted_eyelash_{_eyelash_style}_mpfb_{_lash_ref_tag}_mat",
+            (0.02, 0.02, 0.02, 1.0),
+        )
+        _lash.data.materials.append(_lash_mat)
+        _lash_arm = next(
+            (o for o in bpy.context.scene.objects if o.type == "ARMATURE"), None
+        )
+        if _lash_arm is None:
+            raise RuntimeError("#683: no armature for eyelash weighting")
+        _lash_bone = _weight_lash_to_head(_lash, _lash_arm)
+        for _poly in _lash.data.polygons:
+            _poly.use_smooth = True
+        _lash_tris = sum(max(len(p.vertices) - 2, 0) for p in _lash.data.polygons)
+        _eyelash_fitted = {
+            "style": _eyelash_style,
+            "mesh": _lash_mesh_name,
+            "tris": _lash_tris,
+            "weightedBone": _lash_bone,
+            "licence": _lash_lic_raw,
+            "fitWallClockS": round(_lash_fit_s, 4),
+        }
+        print(f"EYELASH_FIT {json.dumps(_eyelash_fitted)}")
 
     # Clinician scrub pants MUST fit BEFORE the helper strip. Their .mhclo x_scale
     # refs 13868/14308 are helper verts; ClothesService refuses "not inside" on the

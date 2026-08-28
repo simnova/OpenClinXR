@@ -7,20 +7,15 @@
   "real_anny_weights_used": false,
   "fallback_active": false,
   "input_params": {
-    "age": 34,
     "body_profile": "adult_standard_parent",
     "phenotype": {
       "skin_tone": "warm_light",
-      "eye_color": "brown",
-      "height_cm": 166,
-      "bmi": 24.0
+      "eye_color": "brown"
     }
   },
   "phenotype_summary": {
     "skin_tone": "warm_light",
-    "eye_color": "brown",
-    "height_cm": 166,
-    "bmi": 24.0
+    "eye_color": "brown"
   },
   "not_evidence_for": [
     "b_plus_visual_realism_gate",
@@ -30,6 +25,7 @@
   "notes": [
     "Reference authorship: ob_patient_aisha is the materializer's DEFAULT reference id (materialize_mpfb_humanoid_candidate.py uses 'args.reference or ob_patient_aisha' for the eye material / skin material / mesh names), named after the first promoted MPFB cast: ob_headache_preeclampsia_triage_v1 actor patient_aisha_khan_v1 (provenance mpfb-ob-patient-aisha, #263). The peds parent (peds_anxious_parent) and the gown/physician/viseme inspection assets share this default-macro body (#335 age-compatible reuse).",
     "Declared phenotype: the ob-preeclampsia fixture authors NO phenotype block for patient_aisha_khan_v1; the descriptor-derived block is {body_profile: adult_standard_parent, age: 34, height_cm: 166, bmi: 24, descriptor_derived: true}. skin_tone/eye_color are deliberately absent there by design (#276, #293, #664: the descriptor cannot supply identity fields).",
+    "CORRECTED 2026-08-27 (#683 re-bake): the descriptor-derived numeric block (age 34, height_cm 166, bmi 24) is REMOVED from this manifest. The first bake to exercise it (materialize_mpfb_humanoid_candidate.py --eye-colour-reference ob_patient_aisha) refused: the height-macro solve cannot converge to 1.66 m because MPFB's height macro has a dead band (macrotargets height parts lowest 0.49..0.51, plus the 0.01 target-weight cutoff) — the reachable statures for the derived macro dict jump from 1.6542 m (plateau) to 1.6763 m, so 1.66 m is unbuildable and the solver's 5 mm internal tolerance refuses (residual 5.8 mm after 4 steps). The SHIPPED ob-patient body (1.6659 m) was baked pre-#688 with DEFAULT macros + pregnancy, and reproducing it requires the default-macro path (no numeric block). The case declares no height; the block recorded an unbuildable adapter guess and the factory's refusal is the honest outcome. skin_tone/eye_color (the #688 channels) are unchanged.",
     "skin_tone 'warm_light' sourcing: the tree's established adult-female skin tone, identical to the two shipped adult-female manifests (ed_chest_pain_spouse_adult, peds_anxious_parent). Buildable (SKIN_TONE_RGB). Not the 'default' token, so phenotype_skin_tone stops returning the fallback.",
     "eye_color 'brown' sourcing: the exact iris the six shipped assets already embed — brown_eye.png (610,817 B, sha256 4659691c..., measured pre-fix on all six mpfb-*ob_patient_aisha assets). Also the patient-role staging documented in iris_palette.py. Buildable (_EYE_IRIS_PACK). Declaring it stops the role-fallback iris mechanism and keeps the shipped iris bytes on a future re-bake.",
     "Deliberately absent: gender_presentation (the case states no sex; #664 keeps it out of derived rows; the --reference bake path's #670 refusal is the honest outcome for a case that does not state sex, and that path cannot run for this body anyway — there is no ob_patient_aisha.anny_base.obj), fabricPalette (case declares none; the #400 thread-through stays a no-op), hair_color, pose.",

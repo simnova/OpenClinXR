@@ -61,7 +61,7 @@ async function meshes(glb: string): Promise<Mesh[]> {
 }
 
 describe("an actor wears fitted eyelashes, not helper stubs (#683)", () => {
-  it.fails(
+  it(
     "(1) every shipped actor's lash mesh is fitted from eyelashes01, not hm08 helper geometry",
     async () => {
       const stubs: string[] = [];
@@ -93,15 +93,42 @@ describe("an actor wears fitted eyelashes, not helper stubs (#683)", () => {
 
   // (3) COUNTERWEIGHT: #542's invariant. Helper extraction exists so the basemesh stays 26,756 tris.
   //     A refit that re-targets the basemesh has broken the thing it was built around.
-  it("(3) COUNTERWEIGHT: the body stays 26,756 tris", async () => {
+  //
+  //     CORRECTED 2026-08-27 (#683 worker, reported at discovery): this clause was written as
+  //     "every mpfb body == 26,756" and is IMPOSSIBLE on the current tree — #695 decimated the four
+  //     ED cast actors on 2026-08-26 (after this card was planted): their bodies ship at 12,884,
+  //     12,890, 12,892 and 14,942 triangles, never 26,756. The counterweight's intent is
+  //     unchanged — THIS slice's lash refit must not re-target the basemesh — so the clause now
+  //     pins the helper-stripped actors to exactly 26,756 and the #695-decimated actors to their
+  //     recorded pre-slice counts (within 1%; the re-bake's gown body measured 14,928 vs the
+  //     recorded 14,942, a 0.09% re-serialisation delta). Measured pre-change 2026-08-27:
+  //
+  //       mpfb-gown-adult-patient.glb        14,942   (decimated 0.5,   error 0.001, #695)
+  //       mpfb-clinical-nurse-adult.glb      12,892   (decimated 0.4,   error 0.001, #695)
+  //       mpfb-family-partner-adult.glb      12,884   (decimated 0.4,   error 0.001, #695)
+  //       mpfb-clinical-physician-adult.glb  12,890   (decimated 0.4,   error 0.001, #695)
+  it("(3) COUNTERWEIGHT: the body stays 26,756 tris (helper-stripped actors) or at its recorded decimated count (ED cast)", async () => {
     const bodies: string[] = [];
+    const DECIMATED: Record<string, number> = {
+      "mpfb-gown-adult-patient.glb": 14_942,
+      "mpfb-clinical-nurse-adult.glb": 12_892,
+      "mpfb-family-partner-adult.glb": 12_884,
+      "mpfb-clinical-physician-adult.glb": 12_890,
+    };
     for (const glb of assets()) {
       for (const m of await meshes(glb)) {
         if (!/_body$/.test(m.name)) continue;
-        if (Math.round(m.tris) !== 26756) bodies.push(`${glb}: ${m.name} = ${Math.round(m.tris)}`);
+        const recorded = DECIMATED[glb];
+        if (recorded !== undefined) {
+          if (Math.abs(Math.round(m.tris) - recorded) / recorded > 0.01) {
+            bodies.push(`${glb}: ${m.name} = ${Math.round(m.tris)} (decimated ${recorded})`);
+          }
+        } else if (Math.round(m.tris) !== 26756) {
+          bodies.push(`${glb}: ${m.name} = ${Math.round(m.tris)}`);
+        }
       }
     }
-    expect(bodies, `body triangle count moved from #542's 26,756:\n${bodies.join("\n")}`).toHaveLength(0);
+    expect(bodies, `body triangle count moved from its recorded pre-slice state:\n${bodies.join("\n")}`).toHaveLength(0);
   }, 1_800_000);
 
   // (4) COUNTERWEIGHT: this slice touches lashes. A brow count that moves means the fit order or the
@@ -161,3 +188,50 @@ describe("an actor wears fitted eyelashes, not helper stubs (#683)", () => {
     ).toHaveLength(0);
   }, 1_800_000);
 });
+
+/*
+ * ## FIXED (#683)
+ *
+ * Clause (1) flipped from `it.fails` to `it` on 2026-08-27. The fix is a fitted
+ * eyelash from the CC0 eyelashes01 pack, mirroring the eyebrow rail (D1), in
+ * `tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py`:
+ *
+ *   - `EYELASH_STYLE_BY_REFERENCE` maps every actor to `mindfront_eyelashes_01`
+ *     (the smallest variant the pack offers — 8,316 quads = 16,632 tris), with
+ *     `EYELASH_STYLE_SEARCH_ROOTS` + `resolve_eyelash_style_dir` mirroring the
+ *     eyebrow pattern (named dirs only, never a glob).
+ *   - The fit runs BEFORE the #318 helper strip (same load-bearing order as
+ *     hair/eyes/brows): `fit_hair` -> `ClothesService.fit_clothes_to_human`
+ *     against the full basemesh, licence-gated by `read_hair_mhclo_licence`
+ *     (every eyelashes01 .mhclo header is CC0), weighted 1.0 to the head bone.
+ *   - `HM08_FEATURE_HELPER_GROUPS` no longer retains the hm08 helper lashes
+ *     ("do not do both"): teeth/tongue stay helper-held at 192 / 448 tris.
+ *
+ * All 11 shipped mpfb-*.glb were re-baked through the materializer (the two gown
+ * assets through `bake_mpfb_gown_inspect.py` stage-2 on the re-baked bases) and
+ * the four ED cast actors re-decimated at their #695-pinned rungs (gown 0.5,
+ * nurse/family/physician 0.4, error 0.001). Measured post-bake on every actor:
+ * exactly one lash mesh, fitted (no hm08), at the smallest variant's cost; body
+ * stays 26,756 tris; brows stay fitted (mindfront_eyebrows_*); teeth/tongue stay
+ * hm08 helper-retained.
+ *
+ * KNOWN PREDICTED CONSEQUENCE, owned elsewhere: the four ED actors gain
+ * decimated lashes (~8,316 tris on the gown at ratio 0.5, ~6,653 each on the
+ * other three at 0.4), taking the ED station total from 178,969 to ~207,244 —
+ * over the 180,000 authored budget. The issue's own cost analysis computes this
+ * (+16,264 per actor full-fidelity) and #692/#699 own whether a real budget
+ * exists to answer against. The contract test's clause (5) bounds the lash cost;
+ * it deliberately does not answer the station-budget question.
+ *
+ * DATA CORRECTION, RECORDED (see the manifest's notes): the ob_patient_aisha
+ * manifest's descriptor-derived numeric block (age 34 / height_cm 166 / bmi 24)
+ * was removed because the first bake to exercise it refused — MPFB's height
+ * macro has a dead band (macrotargets height parts 0.49..0.51 + the 0.01
+ * target-weight cutoff) making 1.66 m unbuildable for that macro dict (reachable
+ * statures jump 1.6542 -> 1.6763; solver residual 5.8 mm > its 5 mm internal
+ * tolerance). The shipped body was baked pre-#688 with DEFAULT macros + the #581
+ * pregnancy morph; the manifest now reproduces that path. skin_tone/eye_color
+ * (the #688 channels) are unchanged. A `robert_reference` manifest was added
+ * (staged + shipped) so the gown-adult-patient's #651 height rebake (178 cm
+ * adult-male numeric identity) reproduces and its baked-from reference resolves.
+ */
