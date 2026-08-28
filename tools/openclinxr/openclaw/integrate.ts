@@ -739,6 +739,18 @@ export function rerunTreeProofsAfterMerge(
   void sliceId;
   const verdicts: Array<{ rule: string; ok: boolean; detail: string }> = [];
   for (const rule of proofs) {
+    /**
+     * #748: `run:` ONLY, and that is narrower than it should be.
+     *
+     * A `run:` green over an unflipped `it.fails` plant means nothing was fixed — the suite is
+     * consistent with the defect standing. The `live:` rule is what separates those, and it is not
+     * re-executed here, so a slice whose plant never flipped would pass this check.
+     *
+     * Not widened yet because `live:` is evaluated by the contract layer rather than a shell
+     * command, so reaching it needs the async evaluator this function deliberately avoids (see the
+     * synchronous-on-purpose note above). Recorded at the site so the gap is visible to whoever
+     * closes it, rather than read as a deliberate scope.
+     */
     if (!rule.startsWith("run:")) continue;
     const parsed = parseRunArgv(rule.slice("run:".length).trim());
     if ("error" in parsed) {
