@@ -69,6 +69,19 @@ The rule below is therefore a re-statement, and the operative lesson is the one 
 for an existing framing station before capturing.** `HEAD_FOCUS_SUBJECTS` already named the actor I
 was grading.
 
+**There are at least three close-capture paths and they are not interchangeable.** Measured
+2026-08-28 after one of them timed out and I wrote a card claiming grading was broken:
+
+| path | state |
+|---|---|
+| `isolated-subject-harness.ts --head-crops` / `--eye-crops` | **works** — 1024 head at 0.80 frame span, 3.9 s |
+| `_isolated-humanoid-lab` `framing=face\|head\|closeup` via `__isoSetFraming`, driven by `humanoid-vision-score.ts` | untried |
+| `head-focus-inspection.ts` | times out waiting for its lab evidence global |
+
+Try `--head-crops` first; it is the cheapest and it derives the head box from the silhouette width
+profile rather than literal coordinates. **One failing harness is evidence about that harness**, and
+writing it up as evidence about the capability cost a card that had to be corrected.
+
 Measured 2026-08-27, and it cost a withdrawn verdict that was about to justify reverting a landed
 slice. I graded eyelashes from a full-body 4096x4096 capture and reported they "read as a speckled
 stipple rather than continuous strands", with the control "more defined". Then I measured the frame:
