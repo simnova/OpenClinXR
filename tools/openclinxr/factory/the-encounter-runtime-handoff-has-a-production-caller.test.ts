@@ -17,6 +17,14 @@ import { describe, expect, it } from "vitest";
  *
  * Diagnosis and measured tables in this header are IMMUTABLE. Flip it.fails → it and append
  * ## FIXED. Do not rewrite the original paths or numbers.
+ *
+ * ## FIXED (#0)
+ * 2026-08-28. `tools/openclinxr/factory/encounter-runtime-handoff-consumer.ts` is a non-test
+ * production caller: it imports `buildEncounterRuntimeHandoffAdapterReport` and runs the durable
+ * local launch-selection report through the adapter, writing the evidence-gated handoff report
+ * under `.openclinxr/encounter-publication/`. `apps/api` surfaces that report on the
+ * `runtime-selection-review-packet` route (`encounterRuntimeHandoff` field). The adapter's unit
+ * tests remain the only other occurrence.
  */
 
 const REPO = process.cwd();
@@ -49,7 +57,7 @@ function productionCallers(): string[] {
 }
 
 describe("the encounter runtime handoff has a production caller", () => {
-  it.fails("(1) a non-test production file imports or calls the handoff adapter", () => {
+  it("(1) a non-test production file imports or calls the handoff adapter", () => {
     expect(
       productionCallers().length,
       "definition-only is the #612 class: the launch chain ends in a function nobody calls",

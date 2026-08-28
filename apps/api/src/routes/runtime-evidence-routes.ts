@@ -28,6 +28,13 @@ export function registerRuntimeEvidenceRoutes(app: Hono<{ Variables: ApiAppVaria
       "docs/openclinxr/encounter-runtime-selection-review-packet-peds-asthma-parent-anxiety-2026-05-28.json",
     );
     if (durablePacket && (!inMemoryReviewScenarioId || inMemoryReviewScenarioId === "peds_asthma_parent_anxiety_v1")) {
+      const durableRuntimeHandoff = readRepoGeneratedJsonIfExists(
+        ".openclinxr/encounter-publication/encounter-runtime-handoff-peds-asthma-parent-anxiety-2026-08-28.json",
+      );
+      const encounterRuntimeHandoff = isRecord(durableRuntimeHandoff)
+        && durableRuntimeHandoff["schemaVersion"] === "openclinxr.evidence-gated-runtime-handoff-adapter.v1"
+        ? durableRuntimeHandoff
+        : undefined;
       const packetWithSummary = attachMaterializationEvidenceAttachmentSummary(
         attachMaterializationAttachmentPlanSummary(
           attachMaterializationInputManifestSummary(attachRuntimeRealismEvidenceInputDraft(attachPedsHumanoidMaterializationHandoff(durablePacket))),
@@ -45,7 +52,8 @@ export function registerRuntimeEvidenceRoutes(app: Hono<{ Variables: ApiAppVaria
         ),
         latestMaterializationInputReviewDecisionRecordForPacket(packetWithSummary),
       );
-      return context.json(attachRuntimeEvidenceCaptureScaffold(packetWithRuntimeEvidenceScaffold));
+      const packet = attachRuntimeEvidenceCaptureScaffold(packetWithRuntimeEvidenceScaffold) as Record<string, unknown>;
+      return context.json(encounterRuntimeHandoff ? { ...packet, encounterRuntimeHandoff } : packet);
     }
 
     const bundle = createEdChestPainLocalLearnerRuntimeAssetBundle();
