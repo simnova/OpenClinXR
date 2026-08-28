@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "openclinxr.trellis-fleet-rubric.v1",
+  "why": "Declared BEFORE any census member is re-created so no metric or disposition rule can be chosen after seeing a result. The fleet re-creation (#698) runs every frozen census subject through the derive chain (decimate -> UV -> bake onto low -> attach -> render mapped and unmapped siblings) and records a terminal measured disposition per subject.",
+  "costMetrics": [
+    "raw_triangle_count",
+    "raw_bytes",
+    "rung_triangle_count",
+    "rung_bytes",
+    "unmapped_rung_bytes",
+    "mapped_rung_bytes",
+    "normal_map_bytes",
+    "bake_resolution",
+    "stage_wall_clock_seconds"
+  ],
+  "geometryMetrics": [
+    "decimation_ratio",
+    "rung_has_uv_attribute",
+    "map_attached_material_count"
+  ],
+  "visualMetrics": [
+    "silhouette_fidelity_vs_shipped",
+    "texture_contamination",
+    "part_integrity"
+  ],
+  "decisionRules": [
+    "no_scalar_quality_score",
+    "adoption_requires_a_graded_silhouette",
+    "shipped_asset_is_the_comparison_column",
+    "mapped_rung_bytes_are_recorded_separately_from_unmapped",
+    "visual_grade_is_the_orchestrator_s_pixel_grade",
+    "reject_measured_closes_a_subject"
+  ],
+  "decisionOrder": [
+    "critical visible corruption: missing, duplicated, detached or floating parts",
+    "silhouette fidelity against the shipped asset",
+    "texture contamination",
+    "measured cost, recorded per artifact and never treated as visual quality",
+    "terminal disposition: adopt only after a graded silhouette; otherwise reject_measured with the measurements recorded"
+  ],
+  "priorEvidence": {
+    "issue694": "shoe rung sweep: the map LOST at every rung on lowpoly-shoe (25k/40k/60k), adding bytes at 40k and exceeding the shipped size at 60k; 60k bare beat the shipped 80k cell by 8.8% bytes at an indistinguishable silhouette. FORM predictor 3 of 4.",
+    "issue702": "pulse-oximeter 25k mapped hand-run: 296,226 raw -> 25k plus a 512 map held at 12.6% under the shipped 80k champion; adoption followed the orchestrator's pixel grade.",
+    "issue703": "bake resolution ladder: all three cells bake the SAME 25k rung from the SAME raw; bake resolution is the only variable; the 512 mapped GLB reproduced the #702 figure to the byte.",
+    "fleetSingleView": "all 13 census source reports carry viewCount 1; the conditioning measurement (#697) retained the single-view control."
+  },
+  "claimScope": "the fixed metric set and disposition rules for one fleet re-creation over the frozen 2026-08-26 census",
+  "notEvidenceFor": "that any subject improved, that multiview wins, that artifacts were eliminated, Quest readiness, or clinical accuracy"
+}

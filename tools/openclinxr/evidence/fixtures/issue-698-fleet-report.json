@@ -1,0 +1,1299 @@
+{
+  "schemaVersion": "openclinxr.trellis-fleet-report.v1",
+  "issue": "698",
+  "generatedAt": "2026-08-28T20:58:14.865Z",
+  "censusSha256": "f273fcd9b0168173e5fb71b8ac86485c41de46f241277a6f9c9e69f0b238a7f8",
+  "censusPath": "tools/openclinxr/asset-pipeline/trellis/census/fleet-census-2026-08-26.json",
+  "rubric": {
+    "path": "tools/openclinxr/asset-pipeline/trellis/rubrics/fleet-v1.json",
+    "sha256": "1227f505ae24777b53e2768d71decea20643afcd32cbd8ff93d763fa547a8791"
+  },
+  "subjectCount": 11,
+  "subjects": [
+    {
+      "subjectId": "bedside-monitor",
+      "disposition": "reject_measured",
+      "reason": "derive chain complete and measured (raw 281340 tris/18001472 bytes -> rung 24995 tris/9823284 bytes -> mapped 15120812 bytes at 512px map, mapped/unmapped renders produced 833497/834977 bytes); per fleet-v1.json adoption requires a graded silhouette and the orchestrator's pixel grade of the renders is pending — not adoptable on measurement alone; shipped promoted_runtime 8375032 bytes stays",
+      "artifactMeasurements": [
+        {
+          "name": "shippedAssetKind",
+          "value": "promoted_runtime"
+        },
+        {
+          "name": "shippedAssetBytes",
+          "value": 8375032
+        },
+        {
+          "name": "pack.viewCount",
+          "value": 1
+        },
+        {
+          "name": "pack.imageBytes",
+          "value": 444620
+        },
+        {
+          "name": "generate.censusSourceSha256Verified",
+          "value": true
+        },
+        {
+          "name": "generate.viewCount",
+          "value": 1
+        },
+        {
+          "name": "generate.wallClockS",
+          "value": 1856.4348888397217
+        },
+        {
+          "name": "generate.bakeVerdict",
+          "value": "mesh_exported"
+        },
+        {
+          "name": "generate.rawTriangleCount",
+          "value": 281340
+        },
+        {
+          "name": "generate.rawExportBytes",
+          "value": 18001472
+        },
+        {
+          "name": "generate.rawGlbBytes",
+          "value": 18001472
+        },
+        {
+          "name": "decimate.rawTriangleCount",
+          "value": 281340
+        },
+        {
+          "name": "decimate.rungTriangleCount",
+          "value": 24995
+        },
+        {
+          "name": "decimate.targetTriangleCount",
+          "value": 25000
+        },
+        {
+          "name": "decimate.decimationRatio",
+          "value": 0.08884
+        },
+        {
+          "name": "decimate.rungBytes",
+          "value": 9823284
+        },
+        {
+          "name": "uv.rungHasUvAttribute",
+          "value": true
+        },
+        {
+          "name": "uv.uvSource",
+          "value": "carried_from_raw"
+        },
+        {
+          "name": "bake.bakeResolution",
+          "value": 512
+        },
+        {
+          "name": "bake.bakeWallClockS",
+          "value": 2.5
+        },
+        {
+          "name": "bake.normalMapBytes",
+          "value": 4784421
+        },
+        {
+          "name": "attach.mappedRungBytes",
+          "value": 15120812
+        },
+        {
+          "name": "attach.mapAttachedMaterialCount",
+          "value": 1
+        },
+        {
+          "name": "render.unmappedRenderBytes",
+          "value": 834977
+        },
+        {
+          "name": "render.mappedRenderBytes",
+          "value": 833497
+        }
+      ],
+      "reviews": [
+        {
+          "stage": "grade",
+          "receipt": {
+            "path": "tools/openclinxr/evidence/fixtures/issue-698-fleet/reviews/bedside-monitor.json",
+            "sha256": "cb566afddd5cbd8b8d1680f2d0158029009024de41ef9db8539677f142807f8b"
+          }
+        }
+      ]
+    },
+    {
+      "subjectId": "digital-thermometer",
+      "disposition": "reject_measured",
+      "reason": "derive chain complete and measured (raw 281631 tris/15903012 bytes -> rung 25000 tris/7657484 bytes -> mapped 11281136 bytes at 512px map, mapped/unmapped renders produced 708125/710329 bytes); per fleet-v1.json adoption requires a graded silhouette and the orchestrator's pixel grade of the renders is pending — not adoptable on measurement alone; shipped optimize_champion 9963484 bytes stays",
+      "artifactMeasurements": [
+        {
+          "name": "shippedAssetKind",
+          "value": "optimize_champion"
+        },
+        {
+          "name": "shippedAssetBytes",
+          "value": 9963484
+        },
+        {
+          "name": "pack.viewCount",
+          "value": 1
+        },
+        {
+          "name": "pack.imageBytes",
+          "value": 311857
+        },
+        {
+          "name": "generate.censusSourceSha256Verified",
+          "value": true
+        },
+        {
+          "name": "generate.viewCount",
+          "value": 1
+        },
+        {
+          "name": "generate.wallClockS",
+          "value": 442.8479721546173
+        },
+        {
+          "name": "generate.bakeVerdict",
+          "value": "mesh_exported"
+        },
+        {
+          "name": "generate.rawTriangleCount",
+          "value": 281631
+        },
+        {
+          "name": "generate.rawExportBytes",
+          "value": 15903012
+        },
+        {
+          "name": "generate.rawGlbBytes",
+          "value": 15903012
+        },
+        {
+          "name": "decimate.rawTriangleCount",
+          "value": 281631
+        },
+        {
+          "name": "decimate.rungTriangleCount",
+          "value": 25000
+        },
+        {
+          "name": "decimate.targetTriangleCount",
+          "value": 25000
+        },
+        {
+          "name": "decimate.decimationRatio",
+          "value": 0.08877
+        },
+        {
+          "name": "decimate.rungBytes",
+          "value": 7657484
+        },
+        {
+          "name": "uv.rungHasUvAttribute",
+          "value": true
+        },
+        {
+          "name": "uv.uvSource",
+          "value": "carried_from_raw"
+        },
+        {
+          "name": "bake.bakeResolution",
+          "value": 512
+        },
+        {
+          "name": "bake.bakeWallClockS",
+          "value": 2.4
+        },
+        {
+          "name": "bake.normalMapBytes",
+          "value": 2613719
+        },
+        {
+          "name": "attach.mappedRungBytes",
+          "value": 11281136
+        },
+        {
+          "name": "attach.mapAttachedMaterialCount",
+          "value": 1
+        },
+        {
+          "name": "render.unmappedRenderBytes",
+          "value": 710329
+        },
+        {
+          "name": "render.mappedRenderBytes",
+          "value": 708125
+        }
+      ],
+      "reviews": [
+        {
+          "stage": "grade",
+          "receipt": {
+            "path": "tools/openclinxr/evidence/fixtures/issue-698-fleet/reviews/digital-thermometer.json",
+            "sha256": "476a45202410ab0cc4f21c2424437bbe47ff71f72ae00685dd0de675c2224857"
+          }
+        }
+      ]
+    },
+    {
+      "subjectId": "fetal-monitor",
+      "disposition": "reject_measured",
+      "reason": "derive chain complete and measured (raw 286893 tris/15650624 bytes -> rung 25000 tris/6870792 bytes -> mapped 10737704 bytes at 512px map, mapped/unmapped renders produced 788011/798697 bytes); per fleet-v1.json adoption requires a graded silhouette and the orchestrator's pixel grade of the renders is pending — not adoptable on measurement alone; shipped optimize_champion 8898892 bytes stays",
+      "artifactMeasurements": [
+        {
+          "name": "shippedAssetKind",
+          "value": "optimize_champion"
+        },
+        {
+          "name": "shippedAssetBytes",
+          "value": 8898892
+        },
+        {
+          "name": "pack.viewCount",
+          "value": 1
+        },
+        {
+          "name": "pack.imageBytes",
+          "value": 321572
+        },
+        {
+          "name": "generate.censusSourceSha256Verified",
+          "value": true
+        },
+        {
+          "name": "generate.viewCount",
+          "value": 1
+        },
+        {
+          "name": "generate.wallClockS",
+          "value": 938.6249010562897
+        },
+        {
+          "name": "generate.bakeVerdict",
+          "value": "mesh_exported"
+        },
+        {
+          "name": "generate.rawTriangleCount",
+          "value": 286893
+        },
+        {
+          "name": "generate.rawExportBytes",
+          "value": 15650624
+        },
+        {
+          "name": "generate.rawGlbBytes",
+          "value": 15650624
+        },
+        {
+          "name": "decimate.rawTriangleCount",
+          "value": 286893
+        },
+        {
+          "name": "decimate.rungTriangleCount",
+          "value": 25000
+        },
+        {
+          "name": "decimate.targetTriangleCount",
+          "value": 25000
+        },
+        {
+          "name": "decimate.decimationRatio",
+          "value": 0.08714
+        },
+        {
+          "name": "decimate.rungBytes",
+          "value": 6870792
+        },
+        {
+          "name": "uv.rungHasUvAttribute",
+          "value": true
+        },
+        {
+          "name": "uv.uvSource",
+          "value": "carried_from_raw"
+        },
+        {
+          "name": "bake.bakeResolution",
+          "value": 512
+        },
+        {
+          "name": "bake.bakeWallClockS",
+          "value": 2.4
+        },
+        {
+          "name": "bake.normalMapBytes",
+          "value": 3240546
+        },
+        {
+          "name": "attach.mappedRungBytes",
+          "value": 10737704
+        },
+        {
+          "name": "attach.mapAttachedMaterialCount",
+          "value": 1
+        },
+        {
+          "name": "render.unmappedRenderBytes",
+          "value": 798697
+        },
+        {
+          "name": "render.mappedRenderBytes",
+          "value": 788011
+        }
+      ],
+      "reviews": [
+        {
+          "stage": "grade",
+          "receipt": {
+            "path": "tools/openclinxr/evidence/fixtures/issue-698-fleet/reviews/fetal-monitor.json",
+            "sha256": "c1c6e02fe39305d4a9d0fa63f01634f72323fadbcc3af65537aef5f49cca93b2"
+          }
+        }
+      ]
+    },
+    {
+      "subjectId": "glucometer",
+      "disposition": "reject_measured",
+      "reason": "derive chain complete and measured (raw 286915 tris/16944796 bytes -> rung 25000 tris/8728532 bytes -> mapped 12788076 bytes at 512px map, mapped/unmapped renders produced 759084/762488 bytes); per fleet-v1.json adoption requires a graded silhouette and the orchestrator's pixel grade of the renders is pending — not adoptable on measurement alone; shipped optimize_champion 10977320 bytes stays",
+      "artifactMeasurements": [
+        {
+          "name": "shippedAssetKind",
+          "value": "optimize_champion"
+        },
+        {
+          "name": "shippedAssetBytes",
+          "value": 10977320
+        },
+        {
+          "name": "pack.viewCount",
+          "value": 1
+        },
+        {
+          "name": "pack.imageBytes",
+          "value": 370862
+        },
+        {
+          "name": "generate.censusSourceSha256Verified",
+          "value": true
+        },
+        {
+          "name": "generate.viewCount",
+          "value": 1
+        },
+        {
+          "name": "generate.wallClockS",
+          "value": 1221.613323688507
+        },
+        {
+          "name": "generate.bakeVerdict",
+          "value": "mesh_exported"
+        },
+        {
+          "name": "generate.rawTriangleCount",
+          "value": 286915
+        },
+        {
+          "name": "generate.rawExportBytes",
+          "value": 16944796
+        },
+        {
+          "name": "generate.rawGlbBytes",
+          "value": 16944796
+        },
+        {
+          "name": "decimate.rawTriangleCount",
+          "value": 286915
+        },
+        {
+          "name": "decimate.rungTriangleCount",
+          "value": 25000
+        },
+        {
+          "name": "decimate.targetTriangleCount",
+          "value": 25000
+        },
+        {
+          "name": "decimate.decimationRatio",
+          "value": 0.08713
+        },
+        {
+          "name": "decimate.rungBytes",
+          "value": 8728532
+        },
+        {
+          "name": "uv.rungHasUvAttribute",
+          "value": true
+        },
+        {
+          "name": "uv.uvSource",
+          "value": "carried_from_raw"
+        },
+        {
+          "name": "bake.bakeResolution",
+          "value": 512
+        },
+        {
+          "name": "bake.bakeWallClockS",
+          "value": 2.6
+        },
+        {
+          "name": "bake.normalMapBytes",
+          "value": 3434053
+        },
+        {
+          "name": "attach.mappedRungBytes",
+          "value": 12788076
+        },
+        {
+          "name": "attach.mapAttachedMaterialCount",
+          "value": 1
+        },
+        {
+          "name": "render.unmappedRenderBytes",
+          "value": 762488
+        },
+        {
+          "name": "render.mappedRenderBytes",
+          "value": 759084
+        }
+      ],
+      "reviews": [
+        {
+          "stage": "grade",
+          "receipt": {
+            "path": "tools/openclinxr/evidence/fixtures/issue-698-fleet/reviews/glucometer.json",
+            "sha256": "c617af5cc12adb4829642fbd4efb130089b0a065facc2a27f3c256e45ce181da"
+          }
+        }
+      ]
+    },
+    {
+      "subjectId": "iv-pole",
+      "disposition": "reject_measured",
+      "reason": "derive chain complete and measured (raw 286739 tris/19929664 bytes -> rung 31191 tris/11379892 bytes -> mapped 18139640 bytes at 512px map, mapped/unmapped renders produced 764790/764915 bytes); per fleet-v1.json adoption requires a graded silhouette and the orchestrator's pixel grade of the renders is pending — not adoptable on measurement alone; shipped promoted_runtime 15664 bytes stays",
+      "artifactMeasurements": [
+        {
+          "name": "shippedAssetKind",
+          "value": "promoted_runtime"
+        },
+        {
+          "name": "shippedAssetBytes",
+          "value": 15664
+        },
+        {
+          "name": "pack.viewCount",
+          "value": 1
+        },
+        {
+          "name": "pack.imageBytes",
+          "value": 383175
+        },
+        {
+          "name": "generate.censusSourceSha256Verified",
+          "value": true
+        },
+        {
+          "name": "generate.viewCount",
+          "value": 1
+        },
+        {
+          "name": "generate.wallClockS",
+          "value": 243.09589982032776
+        },
+        {
+          "name": "generate.bakeVerdict",
+          "value": "mesh_exported"
+        },
+        {
+          "name": "generate.rawTriangleCount",
+          "value": 286739
+        },
+        {
+          "name": "generate.rawExportBytes",
+          "value": 19929664
+        },
+        {
+          "name": "generate.rawGlbBytes",
+          "value": 19929664
+        },
+        {
+          "name": "decimate.rawTriangleCount",
+          "value": 286739
+        },
+        {
+          "name": "decimate.rungTriangleCount",
+          "value": 31191
+        },
+        {
+          "name": "decimate.targetTriangleCount",
+          "value": 25000
+        },
+        {
+          "name": "decimate.decimationRatio",
+          "value": 0.10878
+        },
+        {
+          "name": "decimate.rungBytes",
+          "value": 11379892
+        },
+        {
+          "name": "uv.rungHasUvAttribute",
+          "value": true
+        },
+        {
+          "name": "uv.uvSource",
+          "value": "carried_from_raw"
+        },
+        {
+          "name": "bake.bakeResolution",
+          "value": 512
+        },
+        {
+          "name": "bake.bakeWallClockS",
+          "value": 2.6
+        },
+        {
+          "name": "bake.normalMapBytes",
+          "value": 5987721
+        },
+        {
+          "name": "attach.mappedRungBytes",
+          "value": 18139640
+        },
+        {
+          "name": "attach.mapAttachedMaterialCount",
+          "value": 1
+        },
+        {
+          "name": "render.unmappedRenderBytes",
+          "value": 764915
+        },
+        {
+          "name": "render.mappedRenderBytes",
+          "value": 764790
+        }
+      ],
+      "reviews": [
+        {
+          "stage": "grade",
+          "receipt": {
+            "path": "tools/openclinxr/evidence/fixtures/issue-698-fleet/reviews/iv-pole.json",
+            "sha256": "7786fe242bbd2cf79d28365efc5cb1f17613f354145d151097aed7ec763c552a"
+          }
+        }
+      ]
+    },
+    {
+      "subjectId": "iv-pump",
+      "disposition": "reject_measured",
+      "reason": "derive chain complete and measured (raw 279626 tris/17316832 bytes -> rung 25000 tris/8968780 bytes -> mapped 14424704 bytes at 512px map, mapped/unmapped renders produced 753970/758237 bytes); per fleet-v1.json adoption requires a graded silhouette and the orchestrator's pixel grade of the renders is pending — not adoptable on measurement alone; shipped optimize_champion 11311364 bytes stays",
+      "artifactMeasurements": [
+        {
+          "name": "shippedAssetKind",
+          "value": "optimize_champion"
+        },
+        {
+          "name": "shippedAssetBytes",
+          "value": 11311364
+        },
+        {
+          "name": "pack.viewCount",
+          "value": 1
+        },
+        {
+          "name": "pack.imageBytes",
+          "value": 387258
+        },
+        {
+          "name": "generate.censusSourceSha256Verified",
+          "value": true
+        },
+        {
+          "name": "generate.viewCount",
+          "value": 1
+        },
+        {
+          "name": "generate.wallClockS",
+          "value": 753.136834859848
+        },
+        {
+          "name": "generate.bakeVerdict",
+          "value": "mesh_exported"
+        },
+        {
+          "name": "generate.rawTriangleCount",
+          "value": 279626
+        },
+        {
+          "name": "generate.rawExportBytes",
+          "value": 17316832
+        },
+        {
+          "name": "generate.rawGlbBytes",
+          "value": 17316832
+        },
+        {
+          "name": "decimate.rawTriangleCount",
+          "value": 279626
+        },
+        {
+          "name": "decimate.rungTriangleCount",
+          "value": 25000
+        },
+        {
+          "name": "decimate.targetTriangleCount",
+          "value": 25000
+        },
+        {
+          "name": "decimate.decimationRatio",
+          "value": 0.08941
+        },
+        {
+          "name": "decimate.rungBytes",
+          "value": 8968780
+        },
+        {
+          "name": "uv.rungHasUvAttribute",
+          "value": true
+        },
+        {
+          "name": "uv.uvSource",
+          "value": "carried_from_raw"
+        },
+        {
+          "name": "bake.bakeResolution",
+          "value": 512
+        },
+        {
+          "name": "bake.bakeWallClockS",
+          "value": 2.6
+        },
+        {
+          "name": "bake.normalMapBytes",
+          "value": 4884666
+        },
+        {
+          "name": "attach.mappedRungBytes",
+          "value": 14424704
+        },
+        {
+          "name": "attach.mapAttachedMaterialCount",
+          "value": 1
+        },
+        {
+          "name": "render.unmappedRenderBytes",
+          "value": 758237
+        },
+        {
+          "name": "render.mappedRenderBytes",
+          "value": 753970
+        }
+      ],
+      "reviews": [
+        {
+          "stage": "grade",
+          "receipt": {
+            "path": "tools/openclinxr/evidence/fixtures/issue-698-fleet/reviews/iv-pump.json",
+            "sha256": "860cf3fa5bf93c251d51d54160085a16565892b1b03b669f171f574263e785ab"
+          }
+        }
+      ]
+    },
+    {
+      "subjectId": "lowpoly-shoe",
+      "disposition": "reject_measured",
+      "reason": "derive chain complete and measured (raw 293808 tris/15821492 bytes -> rung 34819 tris/7001276 bytes -> mapped 13086668 bytes at 512px map, mapped/unmapped renders produced 724280/729153 bytes); per fleet-v1.json adoption requires a graded silhouette and the orchestrator's pixel grade of the renders is pending — not adoptable on measurement alone; shipped optimize_champion 9234576 bytes stays",
+      "artifactMeasurements": [
+        {
+          "name": "shippedAssetKind",
+          "value": "optimize_champion"
+        },
+        {
+          "name": "shippedAssetBytes",
+          "value": 9234576
+        },
+        {
+          "name": "pack.viewCount",
+          "value": 1
+        },
+        {
+          "name": "pack.imageBytes",
+          "value": 323099
+        },
+        {
+          "name": "generate.censusSourceSha256Verified",
+          "value": true
+        },
+        {
+          "name": "generate.viewCount",
+          "value": 1
+        },
+        {
+          "name": "generate.wallClockS",
+          "value": 571.9064381122589
+        },
+        {
+          "name": "generate.bakeVerdict",
+          "value": "mesh_exported"
+        },
+        {
+          "name": "generate.rawTriangleCount",
+          "value": 293808
+        },
+        {
+          "name": "generate.rawExportBytes",
+          "value": 15821492
+        },
+        {
+          "name": "generate.rawGlbBytes",
+          "value": 15821492
+        },
+        {
+          "name": "decimate.rawTriangleCount",
+          "value": 293808
+        },
+        {
+          "name": "decimate.rungTriangleCount",
+          "value": 34819
+        },
+        {
+          "name": "decimate.targetTriangleCount",
+          "value": 25000
+        },
+        {
+          "name": "decimate.decimationRatio",
+          "value": 0.11851
+        },
+        {
+          "name": "decimate.rungBytes",
+          "value": 7001276
+        },
+        {
+          "name": "uv.rungHasUvAttribute",
+          "value": true
+        },
+        {
+          "name": "uv.uvSource",
+          "value": "carried_from_raw"
+        },
+        {
+          "name": "bake.bakeResolution",
+          "value": 512
+        },
+        {
+          "name": "bake.bakeWallClockS",
+          "value": 2.6
+        },
+        {
+          "name": "bake.normalMapBytes",
+          "value": 5189417
+        },
+        {
+          "name": "attach.mappedRungBytes",
+          "value": 13086668
+        },
+        {
+          "name": "attach.mapAttachedMaterialCount",
+          "value": 1
+        },
+        {
+          "name": "render.unmappedRenderBytes",
+          "value": 729153
+        },
+        {
+          "name": "render.mappedRenderBytes",
+          "value": 724280
+        }
+      ],
+      "reviews": [
+        {
+          "stage": "grade",
+          "receipt": {
+            "path": "tools/openclinxr/evidence/fixtures/issue-698-fleet/reviews/lowpoly-shoe.json",
+            "sha256": "7aaad01297ff16eef43a5528a75d49693ffe1209570248c20b5c103baeab5ef3"
+          }
+        }
+      ]
+    },
+    {
+      "subjectId": "medication-cart",
+      "disposition": "reject_measured",
+      "reason": "derive chain complete and measured (raw 296635 tris/27117268 bytes -> rung 179774 tris/22322476 bytes -> mapped 34217400 bytes at 512px map, mapped/unmapped renders produced 929180/882319 bytes); per fleet-v1.json adoption requires a graded silhouette and the orchestrator's pixel grade of the renders is pending — not adoptable on measurement alone; shipped none (none) stays",
+      "artifactMeasurements": [
+        {
+          "name": "shippedAssetKind",
+          "value": "none"
+        },
+        {
+          "name": "pack.viewCount",
+          "value": 1
+        },
+        {
+          "name": "pack.imageBytes",
+          "value": 469911
+        },
+        {
+          "name": "generate.censusSourceSha256Verified",
+          "value": true
+        },
+        {
+          "name": "generate.viewCount",
+          "value": 1
+        },
+        {
+          "name": "generate.wallClockS",
+          "value": 4556.583823919296
+        },
+        {
+          "name": "generate.bakeVerdict",
+          "value": "mesh_exported"
+        },
+        {
+          "name": "generate.rawTriangleCount",
+          "value": 296635
+        },
+        {
+          "name": "generate.rawExportBytes",
+          "value": 27117268
+        },
+        {
+          "name": "generate.rawGlbBytes",
+          "value": 27117268
+        },
+        {
+          "name": "decimate.rawTriangleCount",
+          "value": 296635
+        },
+        {
+          "name": "decimate.rungTriangleCount",
+          "value": 179774
+        },
+        {
+          "name": "decimate.targetTriangleCount",
+          "value": 25000
+        },
+        {
+          "name": "decimate.decimationRatio",
+          "value": 0.60604
+        },
+        {
+          "name": "decimate.rungBytes",
+          "value": 22322476
+        },
+        {
+          "name": "uv.rungHasUvAttribute",
+          "value": true
+        },
+        {
+          "name": "uv.uvSource",
+          "value": "carried_from_raw"
+        },
+        {
+          "name": "bake.bakeResolution",
+          "value": 512
+        },
+        {
+          "name": "bake.bakeWallClockS",
+          "value": 4
+        },
+        {
+          "name": "bake.normalMapBytes",
+          "value": 6683267
+        },
+        {
+          "name": "attach.mappedRungBytes",
+          "value": 34217400
+        },
+        {
+          "name": "attach.mapAttachedMaterialCount",
+          "value": 1
+        },
+        {
+          "name": "render.unmappedRenderBytes",
+          "value": 882319
+        },
+        {
+          "name": "render.mappedRenderBytes",
+          "value": 929180
+        }
+      ],
+      "reviews": [
+        {
+          "stage": "grade",
+          "receipt": {
+            "path": "tools/openclinxr/evidence/fixtures/issue-698-fleet/reviews/medication-cart.json",
+            "sha256": "5b3de5dee23ab68593444c5b0a63911c0518d66b6ef8cfe0af315e1deeebb519"
+          }
+        }
+      ]
+    },
+    {
+      "subjectId": "o2-port",
+      "disposition": "reject_measured",
+      "reason": "derive chain complete and measured (raw 289314 tris/20044268 bytes -> rung 24998 tris/11453348 bytes -> mapped 16724104 bytes at 512px map, mapped/unmapped renders produced 791105/795426 bytes); per fleet-v1.json adoption requires a graded silhouette and the orchestrator's pixel grade of the renders is pending — not adoptable on measurement alone; shipped optimize_champion 13783668 bytes stays",
+      "artifactMeasurements": [
+        {
+          "name": "shippedAssetKind",
+          "value": "optimize_champion"
+        },
+        {
+          "name": "shippedAssetBytes",
+          "value": 13783668
+        },
+        {
+          "name": "pack.viewCount",
+          "value": 1
+        },
+        {
+          "name": "pack.imageBytes",
+          "value": 506937
+        },
+        {
+          "name": "generate.censusSourceSha256Verified",
+          "value": true
+        },
+        {
+          "name": "generate.viewCount",
+          "value": 1
+        },
+        {
+          "name": "generate.wallClockS",
+          "value": 1164.758010149002
+        },
+        {
+          "name": "generate.bakeVerdict",
+          "value": "mesh_exported"
+        },
+        {
+          "name": "generate.rawTriangleCount",
+          "value": 289314
+        },
+        {
+          "name": "generate.rawExportBytes",
+          "value": 20044268
+        },
+        {
+          "name": "generate.rawGlbBytes",
+          "value": 20044268
+        },
+        {
+          "name": "decimate.rawTriangleCount",
+          "value": 289314
+        },
+        {
+          "name": "decimate.rungTriangleCount",
+          "value": 24998
+        },
+        {
+          "name": "decimate.targetTriangleCount",
+          "value": 25000
+        },
+        {
+          "name": "decimate.decimationRatio",
+          "value": 0.0864
+        },
+        {
+          "name": "decimate.rungBytes",
+          "value": 11453348
+        },
+        {
+          "name": "uv.rungHasUvAttribute",
+          "value": true
+        },
+        {
+          "name": "uv.uvSource",
+          "value": "carried_from_raw"
+        },
+        {
+          "name": "bake.bakeResolution",
+          "value": 512
+        },
+        {
+          "name": "bake.bakeWallClockS",
+          "value": 2.6
+        },
+        {
+          "name": "bake.normalMapBytes",
+          "value": 4632009
+        },
+        {
+          "name": "attach.mappedRungBytes",
+          "value": 16724104
+        },
+        {
+          "name": "attach.mapAttachedMaterialCount",
+          "value": 1
+        },
+        {
+          "name": "render.unmappedRenderBytes",
+          "value": 795426
+        },
+        {
+          "name": "render.mappedRenderBytes",
+          "value": 791105
+        }
+      ],
+      "reviews": [
+        {
+          "stage": "grade",
+          "receipt": {
+            "path": "tools/openclinxr/evidence/fixtures/issue-698-fleet/reviews/o2-port.json",
+            "sha256": "0e4257650e20bc318e42dc83ce6977c74947b5596e2dfdbdf8561e8c22fba146"
+          }
+        }
+      ]
+    },
+    {
+      "subjectId": "pulse-oximeter",
+      "disposition": "reject_measured",
+      "reason": "derive chain complete and measured (raw 296226 tris/16395292 bytes -> rung 25000 tris/7573732 bytes -> mapped 12605040 bytes at 512px map, mapped/unmapped renders produced 767710/770000 bytes); per fleet-v1.json adoption requires a graded silhouette and the orchestrator's pixel grade of the renders is pending — not adoptable on measurement alone; shipped optimize_champion 9928748 bytes stays",
+      "artifactMeasurements": [
+        {
+          "name": "shippedAssetKind",
+          "value": "optimize_champion"
+        },
+        {
+          "name": "shippedAssetBytes",
+          "value": 9928748
+        },
+        {
+          "name": "pack.viewCount",
+          "value": 1
+        },
+        {
+          "name": "pack.imageBytes",
+          "value": 323862
+        },
+        {
+          "name": "generate.censusSourceSha256Verified",
+          "value": true
+        },
+        {
+          "name": "generate.viewCount",
+          "value": 1
+        },
+        {
+          "name": "generate.wallClockS",
+          "value": 1947.8721640110016
+        },
+        {
+          "name": "generate.bakeVerdict",
+          "value": "mesh_exported"
+        },
+        {
+          "name": "generate.rawTriangleCount",
+          "value": 296226
+        },
+        {
+          "name": "generate.rawExportBytes",
+          "value": 16395292
+        },
+        {
+          "name": "generate.rawGlbBytes",
+          "value": 16395292
+        },
+        {
+          "name": "decimate.rawTriangleCount",
+          "value": 296226
+        },
+        {
+          "name": "decimate.rungTriangleCount",
+          "value": 25000
+        },
+        {
+          "name": "decimate.targetTriangleCount",
+          "value": 25000
+        },
+        {
+          "name": "decimate.decimationRatio",
+          "value": 0.0844
+        },
+        {
+          "name": "decimate.rungBytes",
+          "value": 7573732
+        },
+        {
+          "name": "uv.rungHasUvAttribute",
+          "value": true
+        },
+        {
+          "name": "uv.uvSource",
+          "value": "carried_from_raw"
+        },
+        {
+          "name": "bake.bakeResolution",
+          "value": 512
+        },
+        {
+          "name": "bake.bakeWallClockS",
+          "value": 2.5
+        },
+        {
+          "name": "bake.normalMapBytes",
+          "value": 4375660
+        },
+        {
+          "name": "attach.mappedRungBytes",
+          "value": 12605040
+        },
+        {
+          "name": "attach.mapAttachedMaterialCount",
+          "value": 1
+        },
+        {
+          "name": "render.unmappedRenderBytes",
+          "value": 770000
+        },
+        {
+          "name": "render.mappedRenderBytes",
+          "value": 767710
+        }
+      ],
+      "reviews": [
+        {
+          "stage": "grade",
+          "receipt": {
+            "path": "tools/openclinxr/evidence/fixtures/issue-698-fleet/reviews/pulse-oximeter.json",
+            "sha256": "516c597bf30397b668915d273870f9d91b29bb616578d6727612d4a820a8462b"
+          }
+        }
+      ]
+    },
+    {
+      "subjectId": "wall-clock",
+      "disposition": "reject_measured",
+      "reason": "derive chain complete and measured (raw 283997 tris/16526208 bytes -> rung 24999 tris/8542528 bytes -> mapped 12032624 bytes at 512px map, mapped/unmapped renders produced 783692/787565 bytes); per fleet-v1.json adoption requires a graded silhouette and the orchestrator's pixel grade of the renders is pending — not adoptable on measurement alone; shipped promoted_runtime 4805284 bytes stays",
+      "artifactMeasurements": [
+        {
+          "name": "shippedAssetKind",
+          "value": "promoted_runtime"
+        },
+        {
+          "name": "shippedAssetBytes",
+          "value": 4805284
+        },
+        {
+          "name": "pack.viewCount",
+          "value": 1
+        },
+        {
+          "name": "pack.imageBytes",
+          "value": 387801
+        },
+        {
+          "name": "generate.censusSourceSha256Verified",
+          "value": true
+        },
+        {
+          "name": "generate.viewCount",
+          "value": 1
+        },
+        {
+          "name": "generate.wallClockS",
+          "value": 1151.911926984787
+        },
+        {
+          "name": "generate.bakeVerdict",
+          "value": "mesh_exported"
+        },
+        {
+          "name": "generate.rawTriangleCount",
+          "value": 283997
+        },
+        {
+          "name": "generate.rawExportBytes",
+          "value": 16526208
+        },
+        {
+          "name": "generate.rawGlbBytes",
+          "value": 16526208
+        },
+        {
+          "name": "decimate.rawTriangleCount",
+          "value": 283997
+        },
+        {
+          "name": "decimate.rungTriangleCount",
+          "value": 24999
+        },
+        {
+          "name": "decimate.targetTriangleCount",
+          "value": 25000
+        },
+        {
+          "name": "decimate.decimationRatio",
+          "value": 0.08803
+        },
+        {
+          "name": "decimate.rungBytes",
+          "value": 8542528
+        },
+        {
+          "name": "uv.rungHasUvAttribute",
+          "value": true
+        },
+        {
+          "name": "uv.uvSource",
+          "value": "carried_from_raw"
+        },
+        {
+          "name": "bake.bakeResolution",
+          "value": 512
+        },
+        {
+          "name": "bake.bakeWallClockS",
+          "value": 2.5
+        },
+        {
+          "name": "bake.normalMapBytes",
+          "value": 2811230
+        },
+        {
+          "name": "attach.mappedRungBytes",
+          "value": 12032624
+        },
+        {
+          "name": "attach.mapAttachedMaterialCount",
+          "value": 1
+        },
+        {
+          "name": "render.unmappedRenderBytes",
+          "value": 787565
+        },
+        {
+          "name": "render.mappedRenderBytes",
+          "value": 783692
+        }
+      ],
+      "reviews": [
+        {
+          "stage": "grade",
+          "receipt": {
+            "path": "tools/openclinxr/evidence/fixtures/issue-698-fleet/reviews/wall-clock.json",
+            "sha256": "ec25eadf7b0502f01490b82abaa2a4156d3b5507ae8202c2215cb6e825159215"
+          }
+        }
+      ]
+    }
+  ],
+  "producerSessionId": "80abd5d9-279c-4e6b-9a49-8dd579bd4361",
+  "reviewStatus": "pending_orchestrator_grade",
+  "claimScope": [
+    "every frozen census member reached a terminal measured disposition (adopt | reject_measured)",
+    "measurements come from the derive chain receipts written by this runner",
+    "the visual grade is the orchestrator's pixel grade of the renders and may overturn dispositions"
+  ],
+  "notEvidenceFor": [
+    "that any subject improved",
+    "that multiview won",
+    "that artifacts were eliminated",
+    "Quest readiness or clinical accuracy"
+  ]
+}

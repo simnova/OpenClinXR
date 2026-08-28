@@ -125,5 +125,27 @@
     "wall-clock"
   ],
   "claimScope": "the subject set derivable from bake-measure records on 2026-08-26",
-  "notEvidenceFor": "that these are the only TRELLIS assets, that each is promotable, or that the count is stable"
+  "notEvidenceFor": "that these are the only TRELLIS assets, that each is promotable, or that the count is stable",
+  "fleetRun": {
+    "schemaVersion": "openclinxr.trellis-fleet-run.v1",
+    "runAt": "2026-08-28T20:58:14.864Z",
+    "status": "complete",
+    "reportPath": "tools/openclinxr/evidence/fixtures/issue-698-fleet-report.json",
+    "adoptCount": 0,
+    "rejectMeasuredCount": 11,
+    "dispositions": {
+      "bedside-monitor": "reject_measured",
+      "digital-thermometer": "reject_measured",
+      "fetal-monitor": "reject_measured",
+      "glucometer": "reject_measured",
+      "iv-pole": "reject_measured",
+      "iv-pump": "reject_measured",
+      "lowpoly-shoe": "reject_measured",
+      "medication-cart": "reject_measured",
+      "o2-port": "reject_measured",
+      "pulse-oximeter": "reject_measured",
+      "wall-clock": "reject_measured"
+    },
+    "note": "stamped by the fleet runner (#698); sources and subjects are UNCHANGED from the frozen census — this section is additive"
+  }
 }
