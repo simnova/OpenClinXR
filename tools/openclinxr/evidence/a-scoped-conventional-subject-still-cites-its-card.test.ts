@@ -1,105 +1,82 @@
 /**
- * #743 — a conventional subject with a scope suffix is downgraded to MENTION ONLY.
+ * #743 — CORRECTED. Widening the subject matcher was wrong; machine attribution is the remedy.
  *
- * THE DEFECT, MEASURED 2026-08-28 — do not re-derive this.
+ * WHAT I FIRST CLAIMED, AND WHY IT WAS WRONG. This contract originally asserted that
+ * `fix(#723 residual): ...` should count as a conventional claim on #723, and I widened the audit's
+ * pattern to accept a scope suffix. Measured afterwards, on the peer's objection:
  *
- *   supervisor-audit.ts matches a deliberate claim with
- *     ^(fix|feat|test|refactor|perf|chore)\(#N\)
- *   which requires the close paren IMMEDIATELY after the number. Two real commits on #723 carry a
- *   word inside the scope and are therefore not counted as claims:
+ *   dd4c5829  fix(#723 residual): ...   touches a-frame-label-is-read-at-its-own-screenshot.test.ts
+ *   b2b6e94f  test(#723 residual): ...  touches the same file
+ *   issue-742's ledger names that exact test
+ *   contract-verify-issue-742-merge.json: sliceId=issue-742, headSha=dd4c58298e, proofsOk=true
  *
- *     dd4c5829  fix(#723 residual): record the dominant read on both sides of each frame's screenshot
- *     b2b6e94f  test(#723 residual): plant RED — a frame's label is read before its own screenshot
+ * BOTH COMMITS BELONG TO #742 AND CITE #723. The widening therefore promoted a misattribution from
+ * a weak MENTION to a deliberate claim on the wrong card — strictly worse than the defect. Reverted.
  *
- *   Counted with `git log --all --grep -E`: strict 3, loose fallback 7, so those two fall through to
- *   the fallback the audit treats as the weaker MENTION ONLY signal. One trailing word demotes a
- *   conventional commit to a mention.
+ * A subject is the AUTHOR'S CLAIM. This author claimed the wrong card, and no pattern should repair
+ * that by making the wrong claim stronger.
  *
- * THE OBVIOUS FIX IS WRONG AND WAS MEASURED BEFORE PROPOSING. `\(#N\b[^)]*\)` returns ZERO matches:
- * `git log -E` is POSIX ERE, where `\b` is not a word boundary. A pattern that silently matches
- * nothing is worse than the defect it replaces, and this is the one place that would not have shown
- * up as a test failure — it would have looked like "no commits cite this card".
+ * THE REMEDY, which this contract now asserts: a merge-verification artifact naming this issue's
+ * sliceId, with passing proofs and a headSha on main, is explicit MACHINE attribution. It reaches
+ * exactly the case subject parsing cannot, without weakening what a claim means.
  *
- * WHAT THIS DOES NOT FIX: #742, which is how it surfaced. Its work landed in dd4c5829, whose subject
- * cites #723. No matcher attributes a commit to a card the commit does not name. That stays
- * correctly flagged and is recorded on #742 as a provenance error.
+ * TWO REGEX FACTS, kept because they were measured and will otherwise be rediscovered: `\b` is not
+ * a word boundary in `git log -E` (POSIX ERE) and a pattern using it silently matches NOTHING; and
+ * `[^0-9)]` on a first suffix character is required or #72 matches `(#723 ...)`.
  *
  * THIS HEADER IS IMMUTABLE. Flip the assertion and append a `## FIXED (#743)` block below.
  */
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const REPO = resolve(import.meta.dirname, "../../..");
 const AUDIT = resolve(REPO, "tools/openclinxr/openclaw/supervisor-audit.ts");
 
-/** Count commits whose SUBJECT matches an ERE, through the same engine the audit uses. */
 function subjectMatches(pattern: string): number {
   try {
     return execFileSync("git", ["log", "--all", "--format=%H", `--grep=${pattern}`, "-E"], {
-      cwd: REPO,
-      encoding: "utf8",
-      maxBuffer: 32 * 1024 * 1024,
-    })
-      .split("\n")
-      .filter(Boolean).length;
+      cwd: REPO, encoding: "utf8", maxBuffer: 32 * 1024 * 1024,
+    }).split("\n").filter(Boolean).length;
   } catch {
     return -1;
   }
 }
 
-/** The pattern the audit currently ships, read from source so this cannot drift from it. */
-function shippedSubjectPattern(issue: number): string {
-  const src = readFileSync(AUDIT, "utf8");
-  const m = src.match(/--grep=\^\(fix\|feat\|test\|refactor\|perf\|chore\)([^"`]*)/u);
-  if (!m) throw new Error("could not read the subject pattern from supervisor-audit.ts");
-  return `^(fix|feat|test|refactor|perf|chore)${m[1]!.replace(/\\\\/gu, "\\").replace(/\$\{issue\}/u, String(issue))}`;
-}
-
-describe("#743 a conventional subject with a scope suffix still cites its card", () => {
-  it("(1) fix(#723 residual) counts as a claim on #723", () => {
-    const n = subjectMatches(shippedSubjectPattern(723));
-    // 3 today; the two `residual` commits bring it to 5.
-    expect(n, "subject-form claims on #723").toBeGreaterThanOrEqual(5);
+describe("#743 machine attribution reaches what a subject cannot, without weakening a claim", () => {
+  it("(1) the audit attributes a land from a passing merge artifact", () => {
+    const src = readFileSync(AUDIT, "utf8");
+    // The artifact must be consulted, and it must be gated on ALL THREE of sliceId, proofsOk and
+    // ancestry — any two of them would let a stale or foreign artifact claim a land.
+    expect(src).toContain("landedByArtifact");
+    expect(src).toMatch(/sliceId !== `issue-\$\{issue\}`/u);
+    expect(src).toMatch(/parsed\.proofsOk !== true/u);
+    expect(src).toMatch(/isAncestor\(artifactSha\)/u);
   });
 
-  it("(2) the known-good column: the plain form has always counted", () => {
-    // If this fails the pattern stopped matching ordinary subjects and clause (1) is measuring a
-    // broken matcher rather than a narrow one.
-    expect(subjectMatches("^fix\\(#723\\)")).toBeGreaterThanOrEqual(2);
+  it("(2) the subject matcher stays STRICT — the widening is not reinstated", () => {
+    // This is the counterweight that matters. #742's commits cite #723; a widened pattern counts
+    // them as #723 claims. Three is the correct number for #723 and five was the wrong one.
+    const src = readFileSync(AUDIT, "utf8");
+    // The widened form is the thing that must NOT come back. Asserting its ABSENCE is exact and
+    // does not depend on how the strict pattern is escaped in source.
+    expect(src).not.toContain("([^0-9)][^)]*)?");
+    expect(subjectMatches("^(fix|feat|test|refactor|perf|chore)\\(#723\\)")).toBe(3);
   });
 
-  it("(3) COUNTERWEIGHT: a shorter number does not swallow a longer one", () => {
-    // The cheapest wrong fix is `\\(#N[^)]*\\)`, which lets #72 match `(#723 ...)`. The leading
-    // [^0-9)] in the accepted form is what prevents that, and this clause is why it is there.
-    const asIf72 = "^(fix|feat|test|refactor|perf|chore)\\(#72([^0-9)][^)]*)?\\)";
-    expect(subjectMatches(asIf72), "#72 must not match #723's commits").toBe(0);
-  });
-
-  it("(4) COUNTERWEIGHT: the loose fallback survives", () => {
-    // MENTION ONLY is a real signal the audit reports differently. Widening the strict pattern must
-    // not delete the fallback that catches a body-only reference.
+  it("(3) COUNTERWEIGHT: the loose MENTION fallback survives", () => {
     const src = readFileSync(AUDIT, "utf8");
     expect(src).toMatch(/\(\^\|\[\^0-9\]\)#\$\{issue\}\(\[\^0-9\]\|\$\)/u);
   });
 
-  it("(5) COUNTERWEIGHT: the pattern is still anchored to the subject start", () => {
-    // Dropping the ^ would match a #N mentioned anywhere in a body and erase the distinction
-    // between a deliberate claim and a mention entirely.
-    const src = readFileSync(AUDIT, "utf8");
-    expect(src).toContain("--grep=^(fix|feat|test|refactor|perf|chore)");
+  it("(4) the known-good column: #742's artifact is the real fixture and is well formed", () => {
+    // If this fails the fixture moved and clause (1) is asserting about nothing.
+    const p = resolve(REPO, ".openclinxr/openclaw/contract-verify-issue-742-merge.json");
+    expect(existsSync(p), "issue-742 merge artifact").toBe(true);
+    const j = JSON.parse(readFileSync(p, "utf8")) as Record<string, unknown>;
+    expect(j.sliceId).toBe("issue-742");
+    expect(j.proofsOk).toBe(true);
+    expect(String(j.headSha ?? "")).toMatch(/^dd4c5829/u);
   });
 });
-
-/**
- * ## FIXED (#743)
- *
- * The subject pattern is now
- *   ^(fix|feat|test|refactor|perf|chore)\(#N([^0-9)][^)]*)?\)
- * so a scope suffix no longer demotes a conventional claim. Strict matches for #723 went 3 to 5,
- * picking up both `residual` commits, and the #72 false-positive check still returns 0.
- *
- * The loose fallback and the subject anchor are untouched, so MENTION ONLY remains a distinct and
- * weaker signal.
- */

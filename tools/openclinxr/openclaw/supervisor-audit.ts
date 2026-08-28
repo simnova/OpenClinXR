@@ -561,16 +561,25 @@ export function verifyDoneClaim(root: string, issue: number, stage: string): Don
    * worse failure than admitting a weaker signal.
    */
   /**
-   * #743: the scope may carry a suffix. `fix(#723 residual): ...` is a deliberate claim and the
-   * paren-immediately-after form missed it, demoting two real commits to the MENTION ONLY fallback.
-   * Strict matches for #723 went 3 -> 5 with this.
+   * #743 WITHDRAWN 2026-08-28 — widening this pattern was WRONG and is reverted.
    *
-   * `[^0-9)]` on the first suffix character is load-bearing: without it, #72 matches `(#723 ...)`.
-   * And do NOT reach for `\b` — `git log -E` is POSIX ERE, where it is not a word boundary and the
-   * pattern silently matches NOTHING, which reads as "no commit cites this card".
+   * I widened it to accept a scope suffix so `fix(#723 residual): ...` would count as a claim on
+   * #723. Measured afterwards: BOTH `residual` commits touch
+   * a-frame-label-is-read-at-its-own-screenshot.test.ts, which issue-742's ledger names, and
+   * contract-verify-issue-742-merge.json records sliceId=issue-742, headSha=dd4c58298e,
+   * proofsOk=true. They belong to #742 and cite #723 in their subject.
+   *
+   * So the widening PROMOTED a misattribution from a weak MENTION to a deliberate claim. Strict is
+   * correct here: a subject is the author's claim, and this author claimed the wrong card.
+   *
+   * If a suffix form is ever wanted, note that `\b` is not a word boundary in `git log -E` (POSIX
+   * ERE) and silently matches NOTHING, and that `[^0-9)]` on the first suffix character is required
+   * or #72 matches `(#723 ...)`. Both were measured.
+   *
+   * The real remedy is machine attribution, not subject parsing — see attributionFromMergeArtifact.
    */
   const subjectShas = sh(["git", "log", "--all", "--format=%H",
-    `--grep=^(fix|feat|test|refactor|perf|chore)\\(#${issue}([^0-9)][^)]*)?\\)`, "-E"], root).split("\n").filter(Boolean);
+    `--grep=^(fix|feat|test|refactor|perf|chore)\\(#${issue}\\)`, "-E"], root).split("\n").filter(Boolean);
   const anyShas = sh(["git", "log", "--all", "--format=%H",
     `--grep=(^|[^0-9])#${issue}([^0-9]|$)`, "-E"], root).split("\n").filter(Boolean);
   const shas = subjectShas.length > 0 ? subjectShas : anyShas;
@@ -583,7 +592,35 @@ export function verifyDoneClaim(root: string, issue: number, stage: string): Don
       return true;
     } catch { return false; }
   };
-  const onMain = shas.some(isAncestor);
+  /**
+   * #743 (corrected): MACHINE attribution, used when the git subject does not name the card.
+   *
+   * A merge-verification artifact is written by contract-verify against a specific slice and a
+   * specific head. When it records this issue's sliceId, passing proofs, and a headSha that is an
+   * ancestor of main, the work demonstrably landed for THIS card regardless of what any commit
+   * subject says.
+   *
+   * Measured cause: #742's work landed in dd4c5829, subjected `fix(#723 residual)`. Its ledger and
+   * its artifact both name issue-742. Subject parsing cannot attribute that and should not try —
+   * widening the matcher to reach it promoted the misattribution to #723 instead, which is why that
+   * approach was reverted above. The artifact is explicit where the subject is wrong.
+   */
+  const artifactSha = ((): string | null => {
+    const path = join(root, `.openclinxr/openclaw/contract-verify-issue-${issue}-merge.json`);
+    if (!existsSync(path)) return null;
+    try {
+      const parsed = JSON.parse(readFileSync(path, "utf8")) as {
+        sliceId?: unknown; headSha?: unknown; proofsOk?: unknown;
+      };
+      if (parsed.sliceId !== `issue-${issue}`) return null;
+      if (parsed.proofsOk !== true) return null;
+      return typeof parsed.headSha === "string" && parsed.headSha.length >= 7 ? parsed.headSha : null;
+    } catch {
+      return null;
+    }
+  })();
+  const landedByArtifact = artifactSha !== null && isAncestor(artifactSha);
+  const onMain = shas.some(isAncestor) || landedByArtifact;
   const artifact = join(root, `.openclinxr/openclaw/contract-verify-issue-${issue}-merge.json`);
   const verified = contractVerifiedFromArtifact(artifact);
   /**
