@@ -4,7 +4,14 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { sliceBriefPath } from "../../../packages/openclinxr/agent-loop/src/slice-team.js";
-import { selectNextBoardCard } from "./board-next-selector.js";
+import { selectNextBoardCardAsync } from "./board-next-selector.js";
+import type { BoardIssue, BriefResult } from "./board-brief.js";
+import {
+  bothyBriefFromSlice,
+  bothyTaskIdFromSliceId,
+  type BothyFetch,
+  type BothyTokenStore,
+} from "./board-bothy-dequeue.js";
 
 export const DEFAULT_OPENCLAW_RUN_NEXT_REPORT_PATH = ".openclinxr/openclaw/run-next-report.json";
 const DEFAULT_WATCHDOG_IDLE_MINUTES = 60;
@@ -91,7 +98,13 @@ export function extractSliceIdFromText(text: string): string | null {
 
 /** A card handed in from the live queue. `agents/rules/EXEC_REHYDRATE.md:38` puts the dequeue
  * queue on the GitHub project board, so a supplied card outranks every markdown tier below. */
-export type BoardCardSelection = { sliceId: string; priority?: string };
+export type BoardCardSelection = {
+  sliceId: string;
+  priority?: string;
+  /** Carried through from the BothyBoard selection for the dispatch hop (`tasks.next` body). */
+  title?: string;
+  body?: string;
+};
 
 export function selectNextSlice(
   stateFiles: StateFiles,
@@ -399,29 +412,91 @@ async function writeLocalReport(
  * defect was only visible in an end-to-end run.
  */
 export function boardCardFromSelection(
-  picked: { ok?: boolean; number?: unknown; priority?: unknown },
+  picked: { ok?: boolean; number?: unknown; priority?: unknown; taskId?: unknown; source?: unknown; title?: unknown; body?: unknown },
 ): BoardCardSelection | null {
-  if (!picked?.ok || typeof picked.number !== "number") return null;
+  if (!picked?.ok) return null;
+  if (typeof picked.taskId === "string" && picked.taskId.startsWith("tsk_")) {
+    return {
+      sliceId: `bothy-${picked.taskId}`,
+      priority: typeof picked.priority === "string" ? picked.priority : undefined,
+      ...(typeof picked.title === "string" && picked.title.length > 0 ? { title: picked.title } : {}),
+      ...(typeof picked.body === "string" && picked.body.length > 0 ? { body: picked.body } : {}),
+    };
+  }
+  if (typeof picked.number !== "number" || picked.number <= 0) return null;
   return {
     sliceId: `issue-${picked.number}`,
     priority: typeof picked.priority === "string" ? picked.priority : undefined,
   };
 }
 
-function boardCardOrNull(skip: boolean): BoardCardSelection | null {
+/** Default gh runner for the GitHub branch of {@link boardIssueForDispatch}. */
+const defaultGhRunner = (argv: string[]): string =>
+  execFileSync(argv[0] as string, argv.slice(1), {
+    encoding: "utf8", maxBuffer: 64 * 1024 * 1024, stdio: ["ignore", "pipe", "pipe"],
+  });
+
+/**
+ * The dispatch hop for a dequeued card: the `BoardIssue` a `briefFromIssue` call consumes.
+ *
+ * - `bothy-tsk_*` — the Planted body comes from BothyBoard: the body the selection already
+ *   carried (`tasks.next` / its unchanged replay), or `bothy-board.tasks.get` when none.
+ *   NEVER shells gh.
+ * - `issue-N` — the GitHub path is unchanged: `gh issue view <n> --json number,title,body`.
+ */
+export async function boardIssueForDispatch(
+  card: BoardCardSelection,
+  opts: {
+    gh?: (argv: string[]) => string;
+    bothy?: { pat?: string; fetch?: BothyFetch; store?: BothyTokenStore; repoRoot?: string };
+  } = {},
+): Promise<BoardIssue> {
+  if (bothyTaskIdFromSliceId(card.sliceId)) {
+    const brief = await bothyBriefFromSlice({
+      sliceId: card.sliceId,
+      selectionTitle: card.title,
+      selectionBody: card.body,
+      pat: opts.bothy?.pat,
+      fetch: opts.bothy?.fetch,
+      store: opts.bothy?.store,
+      repoRoot: opts.bothy?.repoRoot,
+    });
+    return { number: brief.number, title: brief.title, body: brief.body };
+  }
+
+  const numberMatch = /^issue-(\d+)$/.exec(card.sliceId);
+  if (!numberMatch) {
+    throw new Error(
+      `boardIssueForDispatch: expected an issue-N or bothy-tsk_* slice, got '${card.sliceId}'`,
+    );
+  }
+  const issue = JSON.parse(
+    (opts.gh ?? defaultGhRunner)(["gh", "issue", "view", numberMatch[1], "--json", "number,title,body"]),
+  ) as BoardIssue;
+  return { number: issue.number, title: issue.title, body: issue.body };
+}
+
+/**
+ * `briefFromIssue` names its slice `issue-<number>`; a BothyBoard card passes number 0 and would
+ * become the fabricated `issue-0`. Bind the card's own sliceId so a `bothy-tsk_*` dispatch keys
+ * on the BothyBoard id (ledger, worktree, contract re-run). `issue-N` is untouched.
+ */
+export function dispatchBriefForCard(brief: BriefResult, card: BoardCardSelection): BriefResult {
+  if (!brief.dispatchable || !card.sliceId.startsWith("bothy-")) return brief;
+  return { ...brief, slice: card.sliceId };
+}
+
+async function boardCardOrNull(skip: boolean): Promise<BoardCardSelection | null> {
   if (skip) return null;
   try {
-    const picked = selectNextBoardCard((argv) =>
+    const picked = await selectNextBoardCardAsync((argv) =>
       // maxBuffer is NOT optional here. The live board serialises to 3.29 MB against execFileSync's
       // 1 MB default; omitting it truncates the read, and `selectNextBoardCard` then correctly
       // refuses with `incomplete-read` rather than picking from a partial board. Measured 2026-08-24.
+      // BothyBoard is the dequeue SSOT (BOTHY_BOARD_DEQUEUE=0 ranks GitHub project 7). Dual-dequeue refused.
       execFileSync(argv[0] as string, argv.slice(1), {
         encoding: "utf8", maxBuffer: 64 * 1024 * 1024, stdio: ["ignore", "pipe", "pipe"],
       }));
-    // `selectNextBoardCard` returns a FLAT shape — { ok, number, priority, title, fetched,
-    // totalCount } — not the nested `item.content.number` of the raw board JSON. The first version
-    // read the nested path, so `ok:true` silently yielded null and the board tier never fired. Only
-    // the end-to-end run caught it; both unit clauses pass either way because they inject the card.
     return boardCardFromSelection(picked);
   } catch {
     return null;
@@ -433,7 +508,7 @@ async function main(): Promise<void> {
   const watchdog = args.includes("--watchdog");
   const dryRun = args.includes("--dry-run");
   const stateFiles = await loadStateFiles();
-  const boardCard = boardCardOrNull(args.includes("--no-board"));
+  const boardCard = await boardCardOrNull(args.includes("--no-board"));
   const plan = buildOpenClawRunNextPlan({ stateFiles, gitStatusShort: gitStatusShort(), boardCard });
 
   if (!watchdog) {
