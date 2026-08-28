@@ -122,7 +122,7 @@ const WORKTREE_DIR = "%2Ftmp%2Fwt%2Fissue-593";
 const MAIN_CHECKOUT_DIR = "%2FVolumes%2Ffiles%2Fsrc%2Fopenclinxr";
 
 describe("the worker counter resolves the newest session, not the first", () => {
-  it.fails("(1) RED: a retried worker is live under its NEWEST uuid, and must be counted", () => {
+  it("(1) RED→LIVE (#593): a retried worker is live under its NEWEST uuid, and must be counted", () => {
     // The shape observation cannot produce on demand: one worktree, three sessions, the two
     // abandoned attempts stale and the running one newest. resolveSessionUpdatesPath takes the
     // stalest, countLiveWorkers' mtime gate then `continue`s, and a running worker reads as 0.
@@ -138,7 +138,7 @@ describe("the worker counter resolves the newest session, not the first", () => 
       .toBe(1);
   });
 
-  it.fails("(2) RED: a quiet thread behind a long-dead first uuid is still a quiet thread", () => {
+  it("(2) RED→LIVE (#593): a quiet thread behind a long-dead first uuid is still a quiet thread", () => {
     // This is the live 19-vs-20 delta reproduced hermetically. The first uuid is outside the 24h
     // ACTIVE window so statSessionUpdates' caller skips the whole directory; the newest uuid is
     // inside the window with a stamp older than 30 min and is genuinely quiet.
@@ -241,3 +241,13 @@ describe("the worker counter resolves the newest session, not the first", () => 
       .toMatch(/Merge/u);
   });
 });
+
+/**
+ * ## FIXED (#593)
+ *
+ * `resolveSessionUpdatesPath` (tools/openclinxr/openclaw/openclaw-sweep.ts) now resolves the uuid
+ * whose updates.jsonl has the newest mtime, instead of the first carrier in readdirSync order
+ * (uuidv7-ascending, i.e. systematically the STALEST session). Clauses (1) and (2) flipped in the
+ * same change: a retried worker whose abandoned session sorts first is still counted live, and a
+ * quiet thread behind a long-dead first uuid still scores quiet. Clauses (3)-(7) stayed green.
+ */

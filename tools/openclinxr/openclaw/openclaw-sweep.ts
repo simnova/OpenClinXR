@@ -263,14 +263,25 @@ type UpdatesRead =
 function resolveSessionUpdatesPath(base: string, encodedDir: string): string | undefined {
   try {
     const uuids = readdirSync(join(base, encodedDir)).filter((name) => !name.startsWith("."));
+    // (#593) A retried worker writes its retry under a NEW uuid beside the abandoned one, and
+    // readdirSync order here is uuidv7-ascending — i.e. OLDEST-first — so returning the first
+    // carrier systematically reads the STALEST session. Resolve the uuid whose updates.jsonl has
+    // the newest mtime: the session actually being written. stat-only, never a content read, so a
+    // multi-uuid walk stays cheap (the ~14s timeout measured for #586 was reading file bodies).
+    let newest: { path: string; mtimeMs: number } | undefined;
     for (const uuid of uuids) {
       const candidate = join(base, encodedDir, uuid, "updates.jsonl");
-      if (existsSync(candidate)) return candidate;
+      try {
+        const mtimeMs = statSync(candidate).mtimeMs;
+        if (newest === undefined || mtimeMs > newest.mtimeMs) newest = { path: candidate, mtimeMs };
+      } catch {
+        // no updates.jsonl under this uuid — not a session carrier
+      }
     }
+    return newest?.path;
   } catch {
     return undefined;
   }
-  return undefined;
 }
 
 /**
