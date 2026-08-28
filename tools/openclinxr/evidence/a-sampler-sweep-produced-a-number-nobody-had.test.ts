@@ -31,6 +31,28 @@ import { describe, expect, it } from "vitest";
  *   for this generator — `o2-port` ships at 51.5% largest share and is a correctly multi-part
  *   object — so the meaningful quantity is the DELTA across configurations on ONE subject, never an
  *   absolute threshold. Nor that any winning configuration looks right, which is a pixel grade.
+ *
+ * ## FIXED (#693)
+ *
+ * Sweep artifact exists at `.openclinxr/evidence/trellis-sampler-sweep/sweep.json`: six bakes on
+ * ONE subject (`lowpoly-shoe-escape`, seed 42, `--hf-demo`, `--remesh`, decimation 300000, texture
+ * 2048 — identical to the #661 control bake except for the knob under test), five DISTINCT sampler
+ * configurations, zero failures. Position-weld at 5dp + union-find per GLB:
+ *
+ * | config | ss steps/cfg | shape steps/cfg | raw tris | welded comps | largest share | wall s |
+ * |---|---|---|---|---|---|---|
+ * | control-a | 12 / 7.5 | 12 / 7.5 | 293719 | 78 | 96.76% | 558.3 |
+ * | control-b | 12 / 7.5 | 12 / 7.5 | 294229 | 79 | 96.77% | 555.6 |
+ * | quality | 20 / 9.0 | 20 / 4.5 | 276879 | 81 | 97.36% | 739.5 |
+ * | fast | 6 / 7.5 | 6 / 3.0 | 277885 | **24** | **99.37%** | 387.0 |
+ * | interval-0.8-1.0 | 12 / 7.5, ss interval [0.8, 1.0] | 12 / 7.5 | 293345 | 74 | 97.05% | 470.8 |
+ * | interval-0.3-1.0 | 12 / 7.5, ss interval [0.3, 1.0] | 12 / 7.5 | 287358 | 78 | 96.51% | 527.7 |
+ *
+ * Noise floor at IDENTICAL settings (control-a vs control-b): raw tris delta 510 (0.17%), welded
+ * count delta 1. The fast-tier delta (78→24 components, +2.61pp largest share) exceeds that floor
+ * by ~50x, so it is attributable to the knob under test, not run-to-run variance. RECORD, not a
+ * verdict: lower component count is not asserted to be better output, and no cell has been
+ * pixel-graded (text-only worker; the orchestrator grades captures).
  */
 
 const SWEEP = join(process.cwd(), ".openclinxr/evidence/trellis-sampler-sweep/sweep.json");
@@ -67,7 +89,7 @@ function rows(): Row[] {
 }
 
 describe("a sampler sweep produced a number nobody had", () => {
-  it.fails("(1) a sweep artifact records at least two DISTINCT sampler configurations", () => {
+  it("(1) a sweep artifact records at least two DISTINCT sampler configurations", () => {
     const configs = rows().map((r) => JSON.stringify(r.sampler ?? null));
     expect(
       new Set(configs.filter((c) => c !== "null")).size,
@@ -76,7 +98,7 @@ describe("a sampler sweep produced a number nobody had", () => {
     ).toBeGreaterThanOrEqual(2);
   });
 
-  it.fails("(2) every row carries a POSITION-WELDED component count", () => {
+  it("(2) every row carries a POSITION-WELDED component count", () => {
     const measured = rows().filter(
       (r) => typeof r.weldedComponentCount === "number" && typeof r.largestComponentShare === "number",
     );
