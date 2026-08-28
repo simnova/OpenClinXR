@@ -37,6 +37,7 @@ import {
   validateScenarioDraft,
 } from "./case-authoring-model.js";
 import { EncounterEnvironmentPanel } from "./EncounterEnvironmentPanel.js";
+import { ActorPhenotypeFields } from "./ActorPhenotypeFields.js";
 const { TextArea } = Input;
 
 /** Minimal server client surface for authored-scenario persistence (via app-local api-client only). */
@@ -91,7 +92,6 @@ export function CaseAuthoringWorkbench({ initialScenario, apiClient }: CaseAutho
   const [serverList, setServerList] = useState<Array<{ scenarioId: string; version: number; label: string }>>([]);
   const [selectedServerKey, setSelectedServerKey] = useState<string | undefined>(undefined);
   const [serverBusy, setServerBusy] = useState(false);
-
   const client = useMemo(
     () => apiClient ?? createAdminControlPlaneClient(),
     [apiClient],
@@ -158,7 +158,6 @@ export function CaseAuthoringWorkbench({ initialScenario, apiClient }: CaseAutho
     anchor.click();
     URL.revokeObjectURL(url);
   }, [baseDraft, form]);
-
   const handleSaveToServer = useCallback(async () => {
     const values = form.getFieldsValue(true) as ScenarioFormValues;
     const merged = mergeFormValuesIntoScenario(baseDraft, values);
@@ -582,6 +581,7 @@ function ActorFields({ fieldName, onRemove }: { fieldName: number; onRemove: () 
           </div>
         )}
       </Form.List>
+      <ActorPhenotypeFields fieldName={fieldName} />
 
       <Divider style={{ margin: "12px 0" }} />
       <Button danger onClick={onRemove}>

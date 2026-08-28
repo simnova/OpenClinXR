@@ -47,6 +47,9 @@ describe("case authoring model", () => {
     expect(mergedPatient?.bodyMechanics?.touchResponses).toEqual(basePatient?.bodyMechanics?.touchResponses);
     expect(mergedPatient?.bodyMechanics?.habitus).toBe("average");
 
+    // Authored phenotype (factory bake inputs) survives the editor round-trip.
+    expect(mergedPatient?.phenotype).toEqual(basePatient?.phenotype);
+
     // Preserved (non-form) fields survive the round-trip.
     expect(mergedPatient?.communicationProfile).toEqual(basePatient?.communicationProfile);
     expect(merged.governance).toEqual(edChestPainScenario.governance);
@@ -65,6 +68,26 @@ describe("case authoring model", () => {
     if (reparsed.ok) {
       expect(reparsed.scenario).toEqual(merged);
     }
+  });
+
+  it("merges authored phenotype edits (garmentLayers, eye_color, clothing_style) back onto the scenario", () => {
+    const formValues = scenarioToFormValues(edChestPainScenario);
+    const patient = formValues.actors.find((actor) => actor.actorId === "patient_robert_hayes_v1");
+    expect(patient?.phenotype?.garmentLayers).toEqual(["hospital_gown"]);
+    if (patient?.phenotype) {
+      patient.phenotype.eye_color = "green";
+      patient.phenotype.clothing_style = "teal_clinical_scrubs_with_name_badge";
+      patient.phenotype.garmentLayers = ["hospital_gown", "scrub_shirt"];
+    }
+
+    const merged = mergeFormValuesIntoScenario(edChestPainScenario, formValues);
+    const mergedPatient = merged.actors.find((actor) => actor.actorId === "patient_robert_hayes_v1");
+    expect(mergedPatient?.phenotype?.eye_color).toBe("green");
+    expect(mergedPatient?.phenotype?.clothing_style).toBe("teal_clinical_scrubs_with_name_badge");
+    expect(mergedPatient?.phenotype?.garmentLayers).toEqual(["hospital_gown", "scrub_shirt"]);
+    // Phenotype keys the form does not expose survive the round-trip.
+    expect(mergedPatient?.phenotype?.height_cm).toBe(178);
+    expect(validateScenario(merged)).toEqual({ ok: true });
   });
 
   it("supports an author editing meta and adding a new touch-response region", () => {

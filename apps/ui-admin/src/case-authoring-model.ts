@@ -1,5 +1,6 @@
 import type {
   ActorCard,
+  ActorPhenotype,
   BodyMechanics,
   ComplianceRegion,
   InteractionEmotion,
@@ -160,6 +161,7 @@ export type ScenarioActorFormValue = {
   hiddenFacts?: string[];
   habitus?: BodyMechanics["habitus"];
   touchResponses?: TouchResponse[];
+  phenotype?: ActorPhenotype;
 };
 
 /** Project a Scenario into the flat, form-friendly shape for antd Form initialValues. */
@@ -180,12 +182,40 @@ export function scenarioToFormValues(scenario: Scenario): ScenarioFormValues {
       hiddenFacts: actor.hiddenFacts ? [...actor.hiddenFacts] : [],
       habitus: actor.bodyMechanics?.habitus,
       touchResponses: actor.bodyMechanics?.touchResponses?.map((response) => ({ ...response })) ?? [],
+      ...(actor.phenotype ? { phenotype: { ...actor.phenotype } } : {}),
     })),
   };
 }
 
 function cleanStrings(values: readonly string[] | undefined): string[] {
   return (values ?? []).map((value) => value.trim()).filter((value) => value.length > 0);
+}
+
+/**
+ * Drop form-produced empty phenotype values (cleared Selects -> undefined,
+ * cleared Inputs -> ""). Empty arrays are preserved so authored lists
+ * (accessoryMarkers, garmentLayers) round-trip losslessly. An all-cleared
+ * phenotype is omitted entirely, matching ActorPhenotypeSchema absence
+ * semantics: the factory refuses rather than silently defaulting.
+ */
+function cleanPhenotype(phenotype: ActorPhenotype | undefined): ActorPhenotype | undefined {
+  if (phenotype === undefined) {
+    return undefined;
+  }
+  const cleaned: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(phenotype)) {
+    if (value === undefined || value === null) {
+      continue;
+    }
+    if (typeof value === "string") {
+      if (value.trim().length > 0) {
+        cleaned[key] = value.trim();
+      }
+    } else {
+      cleaned[key] = value;
+    }
+  }
+  return Object.keys(cleaned).length > 0 ? (cleaned as ActorPhenotype) : undefined;
 }
 
 function actorFromFormValue(base: Scenario, formActor: ScenarioActorFormValue): ActorCard {
@@ -220,6 +250,10 @@ function actorFromFormValue(base: Scenario, formActor: ScenarioActorFormValue): 
   }
   // When no touch responses or habitus are authored, bodyMechanics is left absent
   // (optional in ActorCardSchema), so cases without touch interactions stay valid.
+  const phenotype = cleanPhenotype(formActor.phenotype);
+  if (phenotype) {
+    actor.phenotype = phenotype;
+  }
   return actor;
 }
 

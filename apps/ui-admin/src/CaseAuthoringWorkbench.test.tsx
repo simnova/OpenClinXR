@@ -151,4 +151,47 @@ describe("CaseAuthoringWorkbench", () => {
     expect(within(homePanel).getByText(new RegExp(String(homeShell!.roomWidthMeters)))).toBeInTheDocument();
   });
 
+  it("captures phenotype fields (garmentLayers, eye_color, clothing_style) into the exported JSON", async () => {
+    render(<CaseAuthoringWorkbench initialScenario={edChestPainScenario} />);
+
+    // Expand the patient actor panel (first collapse header = actors[0]) to reach the phenotype section.
+    const patientHeader = screen.getAllByRole("button", { expanded: false })[0];
+    expect(patientHeader).toBeDefined();
+    fireEvent.click(patientHeader as HTMLElement);
+    await screen.findByLabelText("Phenotype garment layers");
+
+    // Change eye color to another known authored value.
+    fireEvent.mouseDown(screen.getByLabelText("Phenotype eye color"));
+    const greenOption = (await screen.findAllByRole("option")).find((option) => option.textContent === "green");
+    expect(greenOption).toBeDefined();
+    fireEvent.click(greenOption as HTMLElement);
+
+    // Change clothing style.
+    fireEvent.mouseDown(screen.getByLabelText("Phenotype clothing style"));
+    const scrubsOption = (await screen.findAllByRole("option")).find(
+      (option) => option.textContent === "teal_clinical_scrubs_with_name_badge",
+    );
+    expect(scrubsOption).toBeDefined();
+    fireEvent.click(scrubsOption as HTMLElement);
+
+    // Add a garment layer tag from the known vocabulary.
+    fireEvent.mouseDown(screen.getByLabelText("Phenotype garment layers"));
+    const scrubShirtOption = (await screen.findAllByRole("option")).find((option) => option.textContent === "scrub_shirt");
+    expect(scrubShirtOption).toBeDefined();
+    fireEvent.click(scrubShirtOption as HTMLElement);
+
+    // The exported JSON carries the phenotype edits through the form.
+    const exportField = screen.getByLabelText<HTMLTextAreaElement>("Exported scenario JSON");
+    const parsed = parseScenarioJson(exportField.value);
+    expect(parsed.ok).toBe(true);
+    if (parsed.ok) {
+      const patient = parsed.scenario.actors.find((actor) => actor.actorId === "patient_robert_hayes_v1");
+      expect(patient?.phenotype?.eye_color).toBe("green");
+      expect(patient?.phenotype?.clothing_style).toBe("teal_clinical_scrubs_with_name_badge");
+      expect(patient?.phenotype?.garmentLayers).toContain("hospital_gown");
+      expect(patient?.phenotype?.garmentLayers).toContain("scrub_shirt");
+      expect(validateScenario(parsed.scenario)).toEqual({ ok: true });
+    }
+  });
+
 });
