@@ -185,7 +185,8 @@ export async function selectNextBothyCard(opts: {
   let nextRaw: unknown;
   try {
     const args: Record<string, unknown> = { machineName };
-    if (prior?.cacheToken) args.cacheToken = prior.cacheToken;
+    // An empty cached next plus cacheToken would freeze {task:null} forever (unchanged:true).
+    if (prior?.cacheToken && asTask(prior)?.id) args.cacheToken = prior.cacheToken;
     const next = await fetchFn({ tool: "bothy-board.tasks.next", arguments: args });
     if (next.httpStatus !== 200) {
       return {

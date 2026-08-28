@@ -67,6 +67,23 @@ describe("BothyBoard dequeue hop", () => {
     expect(boardCardFromSelection(v)?.sliceId).toBe("bothy-tsk_aabb");
   });
 
+  it("does not send cacheToken when the last next was empty", async () => {
+    let sent: Record<string, unknown> | undefined;
+    await selectNextBothyCard({
+      pat: "bb_pat_test",
+      machineName: "box",
+      store: {
+        read: () => ({ task: null, cacheToken: "bb-empty" }),
+        write: () => undefined,
+      },
+      fetch: async ({ arguments: args }) => {
+        sent = args;
+        return { structuredContent: { task: null }, httpStatus: 200 };
+      },
+    });
+    expect(sent?.cacheToken).toBeUndefined();
+  });
+
   it("unchanged:true replays last snapshot and is success", async () => {
     const mem: { snap: import("./board-bothy-dequeue.js").BothyNextSnapshot | null } = {
       snap: {
