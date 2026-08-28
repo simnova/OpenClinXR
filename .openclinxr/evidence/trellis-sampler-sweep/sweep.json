@@ -1,0 +1,260 @@
+{
+  "subjectId": "lowpoly-shoe-escape",
+  "seed": 42,
+  "inputImage": "/Users/patrick/.grok/worktrees/src-openclinxr/bothy-tsk_b929a0ecb6c3e3cf/.openclinxr/evidence/trellis-packs/lowpoly-shoe-escape/three_quarter_upper_alpha.png",
+  "generatedAt": "2026-08-28T22:18:39Z",
+  "controlRecorded": {
+    "rawTriangleCount": 293808,
+    "weldedComponentCount": 76,
+    "source": "hatch-report.json (#661 bake)"
+  },
+  "failures": [],
+  "rows": [
+    {
+      "label": "control-a",
+      "sampler": {
+        "sparse_structure_sampler_params": {
+          "steps": 12,
+          "guidance_strength": 7.5,
+          "guidance_rescale": 0.7,
+          "guidance_interval": [
+            0.6,
+            1.0
+          ],
+          "rescale_t": 5.0
+        },
+        "shape_slat_sampler_params": {
+          "steps": 12,
+          "guidance_strength": 7.5,
+          "guidance_rescale": 0.5,
+          "guidance_interval": [
+            0.6,
+            1.0
+          ],
+          "rescale_t": 3.0
+        },
+        "tex_slat_sampler_params": {
+          "steps": 12,
+          "guidance_strength": 1.0,
+          "guidance_rescale": 0.0,
+          "guidance_interval": [
+            0.6,
+            0.9
+          ],
+          "rescale_t": 3.0
+        }
+      },
+      "rawTriangleCount": 293719,
+      "weldedComponentCount": 78,
+      "largestComponentShare": 0.9676,
+      "wallClockSeconds": 558.3243639469147,
+      "bakeVerdict": "mesh_exported",
+      "bakeExitCode": null
+    },
+    {
+      "label": "control-b",
+      "sampler": {
+        "sparse_structure_sampler_params": {
+          "steps": 12,
+          "guidance_strength": 7.5,
+          "guidance_rescale": 0.7,
+          "guidance_interval": [
+            0.6,
+            1.0
+          ],
+          "rescale_t": 5.0
+        },
+        "shape_slat_sampler_params": {
+          "steps": 12,
+          "guidance_strength": 7.5,
+          "guidance_rescale": 0.5,
+          "guidance_interval": [
+            0.6,
+            1.0
+          ],
+          "rescale_t": 3.0
+        },
+        "tex_slat_sampler_params": {
+          "steps": 12,
+          "guidance_strength": 1.0,
+          "guidance_rescale": 0.0,
+          "guidance_interval": [
+            0.6,
+            0.9
+          ],
+          "rescale_t": 3.0
+        }
+      },
+      "rawTriangleCount": 294229,
+      "weldedComponentCount": 79,
+      "largestComponentShare": 0.9677,
+      "wallClockSeconds": 555.6204619407654,
+      "bakeVerdict": "mesh_exported",
+      "bakeExitCode": null
+    },
+    {
+      "label": "quality",
+      "sampler": {
+        "sparse_structure_sampler_params": {
+          "steps": 20,
+          "guidance_strength": 9.0,
+          "guidance_rescale": 0.7,
+          "guidance_interval": [
+            0.6,
+            1.0
+          ],
+          "rescale_t": 5.0
+        },
+        "shape_slat_sampler_params": {
+          "steps": 20,
+          "guidance_strength": 4.5,
+          "guidance_rescale": 0.5,
+          "guidance_interval": [
+            0.6,
+            1.0
+          ],
+          "rescale_t": 3.0
+        },
+        "tex_slat_sampler_params": {
+          "steps": 12,
+          "guidance_strength": 1.0,
+          "guidance_rescale": 0.0,
+          "guidance_interval": [
+            0.6,
+            0.9
+          ],
+          "rescale_t": 3.0
+        }
+      },
+      "rawTriangleCount": 276879,
+      "weldedComponentCount": 81,
+      "largestComponentShare": 0.9736,
+      "wallClockSeconds": 739.5283529758453,
+      "bakeVerdict": "mesh_exported",
+      "bakeExitCode": null
+    },
+    {
+      "label": "fast",
+      "sampler": {
+        "sparse_structure_sampler_params": {
+          "steps": 6,
+          "guidance_strength": 7.5,
+          "guidance_rescale": 0.7,
+          "guidance_interval": [
+            0.6,
+            1.0
+          ],
+          "rescale_t": 5.0
+        },
+        "shape_slat_sampler_params": {
+          "steps": 6,
+          "guidance_strength": 3.0,
+          "guidance_rescale": 0.5,
+          "guidance_interval": [
+            0.6,
+            1.0
+          ],
+          "rescale_t": 3.0
+        },
+        "tex_slat_sampler_params": {
+          "steps": 12,
+          "guidance_strength": 1.0,
+          "guidance_rescale": 0.0,
+          "guidance_interval": [
+            0.6,
+            0.9
+          ],
+          "rescale_t": 3.0
+        }
+      },
+      "rawTriangleCount": 277885,
+      "weldedComponentCount": 24,
+      "largestComponentShare": 0.9937,
+      "wallClockSeconds": 387.0145757198334,
+      "bakeVerdict": "mesh_exported",
+      "bakeExitCode": null
+    },
+    {
+      "label": "interval-0.8-1.0",
+      "sampler": {
+        "sparse_structure_sampler_params": {
+          "steps": 12,
+          "guidance_strength": 7.5,
+          "guidance_rescale": 0.7,
+          "guidance_interval": [
+            0.8,
+            1.0
+          ],
+          "rescale_t": 5.0
+        },
+        "shape_slat_sampler_params": {
+          "steps": 12,
+          "guidance_strength": 7.5,
+          "guidance_rescale": 0.5,
+          "guidance_interval": [
+            0.6,
+            1.0
+          ],
+          "rescale_t": 3.0
+        },
+        "tex_slat_sampler_params": {
+          "steps": 12,
+          "guidance_strength": 1.0,
+          "guidance_rescale": 0.0,
+          "guidance_interval": [
+            0.6,
+            0.9
+          ],
+          "rescale_t": 3.0
+        }
+      },
+      "rawTriangleCount": 293345,
+      "weldedComponentCount": 74,
+      "largestComponentShare": 0.9705,
+      "wallClockSeconds": 470.81611704826355,
+      "bakeVerdict": "mesh_exported",
+      "bakeExitCode": null
+    },
+    {
+      "label": "interval-0.3-1.0",
+      "sampler": {
+        "sparse_structure_sampler_params": {
+          "steps": 12,
+          "guidance_strength": 7.5,
+          "guidance_rescale": 0.7,
+          "guidance_interval": [
+            0.3,
+            1.0
+          ],
+          "rescale_t": 5.0
+        },
+        "shape_slat_sampler_params": {
+          "steps": 12,
+          "guidance_strength": 7.5,
+          "guidance_rescale": 0.5,
+          "guidance_interval": [
+            0.6,
+            1.0
+          ],
+          "rescale_t": 3.0
+        },
+        "tex_slat_sampler_params": {
+          "steps": 12,
+          "guidance_strength": 1.0,
+          "guidance_rescale": 0.0,
+          "guidance_interval": [
+            0.6,
+            0.9
+          ],
+          "rescale_t": 3.0
+        }
+      },
+      "rawTriangleCount": 287358,
+      "weldedComponentCount": 78,
+      "largestComponentShare": 0.9651,
+      "wallClockSeconds": 527.7106659412384,
+      "bakeVerdict": "mesh_exported",
+      "bakeExitCode": null
+    }
+  ]
+}
