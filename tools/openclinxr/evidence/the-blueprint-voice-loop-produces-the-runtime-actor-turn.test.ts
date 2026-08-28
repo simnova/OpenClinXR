@@ -19,7 +19,7 @@ import { describe, expect, it } from "vitest";
 
 const REPO = process.cwd();
 const SPIKE = join(REPO, "tools/openclinxr/evidence/blueprint-voice-simulation-spike.ts");
-const CANNED = "Robert Hayes: I hear you. I will respond within the scenario role.";
+const CANNED_TEMPLATE = "I hear you. I will respond within the scenario role.";
 
 describe("the blueprint voice loop produces the runtime actor turn", () => {
   it.fails("(1) the spike calls generateRoutedActorResponse", () => {
@@ -29,9 +29,10 @@ describe("the blueprint voice loop produces the runtime actor turn", () => {
     );
   });
 
-  it.fails("(2) synthesis is not the canned mockActorSpeech sentence", () => {
+  it.fails("(2) synthesize() is not fed mockActorSpeech", () => {
     const src = readFileSync(SPIKE, "utf8");
-    expect(src.includes(CANNED) && src.includes("mockActorSpeech(selectedActor")).toBe(false);
+    expect(src).not.toContain("text: mockActorSpeech(selectedActor, primaryTraceTag)");
+    expect(src).not.toContain(CANNED_TEMPLATE);
   });
 
   it("(3) COUNTERWEIGHT: the spike still constructs an explicit mock-only model gateway", () => {
