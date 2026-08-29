@@ -3,7 +3,15 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { loadMailboxWatchTaskIds, pollWatchedMailboxes } from "./mailbox-watch.js";
+import type { BothyFetch } from "./board-bothy-dequeue.js";
+import {
+  isSelfComment,
+  loadMailboxWatchTaskIds,
+  pollForeignMailbox,
+  pollWatchedMailboxes,
+} from "./mailbox-watch.js";
+
+const SELF_MARKER = "[codex-agent:agt_d85152e0024f10cd]";
 
 describe("mailbox-watch", () => {
   it("loads tsk_ ids from the watch file and ignores junk", () => {
@@ -25,5 +33,69 @@ describe("mailbox-watch", () => {
     );
     const digest = await pollWatchedMailboxes(root, "");
     expect(digest).toContain("BOTHY_BOARD_PAT unset");
+  });
+
+  it("isSelfComment recognizes author-name and body-marker self posts", () => {
+    expect(isSelfComment({ authorName: "grok-orchestrator", body: "x" })).toBe(true);
+    expect(
+      isSelfComment(
+        { authorName: "member", body: `mine ${SELF_MARKER} done` },
+        [SELF_MARKER],
+      ),
+    ).toBe(true);
+    expect(isSelfComment({ authorName: "member", body: "foreign" }, [SELF_MARKER])).toBe(false);
+  });
+
+  it("pollForeignMailbox filters self comments by body marker", async () => {
+    const root = join(tmpdir(), `ocxr-mailbox-watch-self-${Date.now()}`);
+    mkdirSync(join(root, "tools/openclinxr/openclaw"), { recursive: true });
+    writeFileSync(
+      join(root, "tools/openclinxr/openclaw/mailbox-watch.json"),
+      JSON.stringify({ taskIds: ["tsk_abc"] }),
+    );
+    const fetch: BothyFetch = async () => ({
+      structuredContent: {
+        comments: [
+          { id: "cmt_self", authorName: "member", body: `mine ${SELF_MARKER}` },
+          { id: "cmt_other", authorName: "member", body: "look at this" },
+          { id: "cmt_author", authorName: "grok-orchestrator", body: "system" },
+        ],
+      },
+      httpStatus: 200,
+    });
+    const result = await pollForeignMailbox({
+      repoRoot: root,
+      pat: "bb_pat_test",
+      selfMarkers: [SELF_MARKER],
+      fetch,
+    });
+    expect(result.comments.map((c) => c.id)).toEqual(["cmt_other"]);
+    expect(result.comments[0]?.taskId).toBe("tsk_abc");
+    expect(result.pollErrors).toEqual([]);
+  });
+
+  it("digest includes only foreign comments when selfMarkers are given", async () => {
+    const root = join(tmpdir(), `ocxr-mailbox-watch-digest-${Date.now()}`);
+    mkdirSync(join(root, "tools/openclinxr/openclaw"), { recursive: true });
+    writeFileSync(
+      join(root, "tools/openclinxr/openclaw/mailbox-watch.json"),
+      JSON.stringify({ taskIds: ["tsk_abc"] }),
+    );
+    const fetch: BothyFetch = async () => ({
+      structuredContent: {
+        comments: [
+          { id: "cmt_self", authorName: "member", body: `mine ${SELF_MARKER}` },
+          { id: "cmt_other", authorName: "member", body: "look at this" },
+        ],
+      },
+      httpStatus: 200,
+    });
+    const digest = await pollForeignMailbox({
+      repoRoot: root,
+      pat: "bb_pat_test",
+      selfMarkers: [SELF_MARKER],
+      fetch,
+    }).then((r) => r.comments.map((c) => c.id));
+    expect(digest).toEqual(["cmt_other"]);
   });
 });
