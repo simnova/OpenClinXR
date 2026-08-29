@@ -62,9 +62,9 @@ const REPORT_PATH = join(HERE, "gown-fold-clamp-measurement.json");
 
 /** Counterweight (3) from the card: pin the graded asset before measuring anything.
  *  #714: env-overridable so the same instrument measures the pre-fix and post-fix assets;
- *  the default is updated to the post-fix rebaked asset after the bake. */
-const GLB_SHA256 = process.env.OPENCLINXR_GOWN_PIN_SHA ?? "dd2340a9e22300875445b561c4cb5fdfed4711521e6f5b14d95916946559c2eb";
-const GLB_BYTES = Number(process.env.OPENCLINXR_GOWN_PIN_BYTES ?? 9_280_276);
+ *  #746: default updated to the post-fix rebaked asset (skin-region push-out spliced in). */
+const GLB_SHA256 = process.env.OPENCLINXR_GOWN_PIN_SHA ?? "029dbb504c6f655c7a2fc141948ff92dbd86190a306ee75ade8c50c39f8ab43f";
+const GLB_BYTES = Number(process.env.OPENCLINXR_GOWN_PIN_BYTES ?? 18_840_716);
 
 const GOWN_MESH = "openclinxr_real_garment_peds_upper_v1_mesh";
 const BODY_PRIM = "mpfb_skin_robert_reference";

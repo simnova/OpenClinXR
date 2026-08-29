@@ -50,6 +50,7 @@ from typing import Any, Dict, List, Optional
 # --- bpy is only available when running inside Blender ---
 try:
     import bpy
+    import mathutils
     from mathutils import Vector, Matrix
 except ImportError:
     print("ERROR: This script must be run with Blender's embedded Python:")
@@ -2407,6 +2408,35 @@ def _build_body_surface_derived_garment(
         bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
     bm.normal_update()
 
+    # #746: build the clearance reference (the ORIGINAL body surface, pre-offset) BEFORE any
+    # coordinate mutation — the offset and the #686 fold displace the shell in place, and the
+    # post-fold push-out below must measure against the body, not the displaced shell.
+    # The reference is the VISIBLE SKIN region of the body copy (`mesh_obj.data`): the gown
+    # inside-body measurement reads the skin prim (mpfb_skin_*), and the garment-covered
+    # hidden regions add armpit/shoulder-crease walls (~30 mm medial of the deltoid) that
+    # defeat a nearest-surface push-out — a crease vertex reads "outside" its wall while
+    # still inside the deltoid the skin defines. The gmesh copy used for the shell clears
+    # its material slots (faces reset to slot 0), so the filter reads the intact slots of
+    # mesh_obj.data and builds a separate reference bmesh from them. Gown kind only
+    # (skirt_top_y set only for the gown).
+    if skirt_top_y is not None:
+        _skin_mat_idx746 = [
+            i for i, m in enumerate(mesh_obj.data.materials)
+            if m is not None and "skin" in m.name.lower()
+        ]
+        _ref_bm746 = bmesh.new()
+        _ref_bm746.from_mesh(mesh_obj.data)
+        if _skin_mat_idx746:
+            bmesh.ops.delete(
+                _ref_bm746,
+                geom=[f for f in _ref_bm746.faces if f.material_index not in _skin_mat_idx746],
+                context="FACES",
+            )
+        _ref_bm746.verts.ensure_lookup_table()
+        _ref_bm746.faces.ensure_lookup_table()
+        _ref_bm746.normal_update()
+        _clearance_tree746 = mathutils.bvhtree.BVHTree.FromBMesh(_ref_bm746)
+
     # Offset along outward normals — cloth is not equidistant: chest eases out, underarm eases in.
     for v in bm.verts:
         n = v.normal
@@ -2670,6 +2700,43 @@ def _build_body_surface_derived_garment(
             f"clamped={_n_clamped686} sleeve_verts={_n_sleeve686} verts={len(bm.verts)}"
         )
         bm.normal_update()
+
+    # #746: the gown shell ends up inside the body at the armpit/sleeve-root even after the
+    # normal offset and the #714 fold clamp. The offset follows the body's own normals, and
+    # in the concave armpit/under-deltoid crease those normals point INTO the body; the fold
+    # lift then carries those crease verts into the deltoid bulge (measured: 73
+    # two-tests-agree gown vertices at y 1.15..1.35 after #714, all lateral |x| 0.22..0.36 —
+    # the fold clamp bounds the trough by the lift, but the shell was already inside before
+    # the fold ran, so no bound on d can reach it; #719 verdict: upstream_shell_required).
+    # Push every gown vertex to at least `_clearance_floor746` OUTSIDE the nearest
+    # ORIGINAL-body surface point (the tree was built pre-offset), so the shell bridges the
+    # deltoid instead of the crease. Runs AFTER the fold so the nearest surface is the
+    # deltoid itself, not the crease wall (a pre-fold pass pushed crease verts deeper).
+    # Deterministic; no geometry authored (D1). Gown kind only (skirt_top_y set only for
+    # the gown).
+    if skirt_top_y is not None:
+        # Below the design minimum (cloth_offset * 0.55) but well above the 2 mm strict-inside
+        # measurement threshold; keeps the deliberate underarm ease-in while clearing the body.
+        _clearance_floor746 = max(cloth_offset * 0.36, 0.008)
+        _n_pushed746 = 0
+        for _v746 in bm.verts:
+            # The lofted skirt and the hip ring are NOT pushed: the residual is bodice-only
+            # (armpit/sleeve-root, y 1.15..1.35), and the skirt's own standoff is the #686
+            # level anchor — inflating it at the ring would drop the bodice/skirt ratio the
+            # hang-off contract asserts (measured: ratio fell to 0.485 when the ring moved).
+            if float(_v746.co.y) <= float(skirt_top_y):
+                continue
+            _loc746, _normal746, _idx746, _dist746 = _clearance_tree746.find_nearest(_v746.co)
+            if _loc746 is None:
+                continue
+            _s746 = (_v746.co - _loc746).dot(_normal746)
+            if _s746 < _clearance_floor746:
+                _v746.co = _loc746 + _normal746 * _clearance_floor746
+                _n_pushed746 += 1
+        print(
+            f"[blender] #746 clearance push-out (post-fold): floor={_clearance_floor746 * 1000:.1f}mm "
+            f"pushed={_n_pushed746} of {len(bm.verts)}"
+        )
 
     # No solidify: rim faces export as detached micro-islands after glTF split-by-normal.
     # Cloth offset alone keeps vertices inside the inspect offset band.
