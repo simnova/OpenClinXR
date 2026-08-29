@@ -13,12 +13,17 @@ import { describe, expect, it } from "vitest";
  * (:304-306). CaseAuthoringWorkbench ActorFields has no communicationProfile Input.
  *
  * Diagnosis header IMMUTABLE. Flip it.fails → it and append ## FIXED.
+ *
+ * ## FIXED (W8)
+ * 2026-08-29. ScenarioActorFormValue includes communicationProfile.
+ * ActorFields bind communicationProfile.style. Merge prefers form style
+ * over preserved; schema fillers for a new profile are not clinical copy.
  */
 
 const SRC = dirname(fileURLToPath(import.meta.url));
 
 describe("the worldview authors communicationProfile", () => {
-  it.fails("(1) ScenarioActorFormValue includes communicationProfile", () => {
+  it("(1) ScenarioActorFormValue includes communicationProfile", () => {
     const model = readFileSync(join(SRC, "case-authoring-model.ts"), "utf8");
     const slice = model.slice(
       model.indexOf("export type ScenarioActorFormValue"),
@@ -27,7 +32,7 @@ describe("the worldview authors communicationProfile", () => {
     expect(slice).toMatch(/communicationProfile/);
   });
 
-  it.fails("(2) ActorFields bind a communicationProfile control", () => {
+  it("(2) ActorFields bind a communicationProfile control", () => {
     const bench = readFileSync(join(SRC, "CaseAuthoringWorkbench.tsx"), "utf8");
     expect(bench).toMatch(/communicationProfile/);
   });

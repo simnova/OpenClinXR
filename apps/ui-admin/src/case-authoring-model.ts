@@ -199,6 +199,8 @@ export type ScenarioActorFormValue = {
   habitus?: BodyMechanics["habitus"];
   touchResponses?: TouchResponse[];
   phenotype?: ActorPhenotype;
+  /** Faculty-authored Satir/custom dialogue profile; merged in preference to the imported actor. */
+  communicationProfile?: ActorCard["communicationProfile"];
 };
 
 /** Project a Scenario into the flat, form-friendly shape for antd Form initialValues. */
@@ -226,6 +228,7 @@ export function scenarioToFormValues(scenario: Scenario): ScenarioFormValues {
       habitus: actor.bodyMechanics?.habitus,
       touchResponses: actor.bodyMechanics?.touchResponses?.map((response) => ({ ...response })) ?? [],
       ...(actor.phenotype ? { phenotype: { ...actor.phenotype } } : {}),
+      ...(actor.communicationProfile ? { communicationProfile: { ...actor.communicationProfile } } : {}),
     })),
   };
 }
@@ -301,7 +304,23 @@ function actorFromFormValue(base: Scenario, formActor: ScenarioActorFormValue): 
   if (hiddenFacts.length > 0) {
     actor.hiddenFacts = hiddenFacts;
   }
-  if (preserved?.communicationProfile) {
+  const formStyle = formActor.communicationProfile?.style;
+  if (formStyle && preserved?.communicationProfile) {
+    actor.communicationProfile = { ...preserved.communicationProfile, style: formStyle };
+  } else if (formStyle) {
+    actor.communicationProfile = {
+      styleFamily: "satir",
+      style: formStyle,
+      intensity: 0.5,
+      baselineMood: ["neutral"],
+      communicativeness: "typical",
+      topicsToAvoid: [],
+      adverseResponse: "withdraw",
+      deescalationTriggers: [],
+      escalationTriggers: [],
+      culturalLanguageNotes: [],
+    };
+  } else if (preserved?.communicationProfile) {
     actor.communicationProfile = preserved.communicationProfile;
   }
   if (touchResponses.length > 0 || formActor.habitus !== undefined) {
