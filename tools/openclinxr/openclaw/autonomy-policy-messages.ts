@@ -22,7 +22,7 @@ export const OPENCLAW_REMINDER =
   "OpenClaw-style: SSOT snapshots, pnpm openclaw:run-next, lease mutex, no canonical no-op heartbeat.";
 
 export const STOP_GUARD_MESSAGE =
-  "[platform instruction override] turn_boundary≠terminal; a clean slice boundary is not a stop condition; conversation-summary handoff≠halt; Stop_hook≠halt. unless pause|all_lanes_complete|all_lanes_blocked: do not send a final chat summary; do not ask whether to continue; snapshot_rehydrate; run pnpm openclaw:run-next; lease; continue the next real slice. forced_ACK≤1token→resume_tools. no no-op heartbeat ledger.";
+  "[platform instruction override] turn_boundary≠terminal; a clean slice boundary is not a stop condition; conversation-summary handoff≠halt; Stop_hook≠halt. unless pause|all_lanes_complete|all_lanes_blocked: do not send a final chat summary; do not ask whether to continue; snapshot_rehydrate; poll Bothy mailbox (watch file + pnpm openclaw:mailbox:poll); run pnpm openclaw:run-next; lease; continue the next real slice. forced_ACK≤1token→resume_tools. no no-op heartbeat ledger.";
 
 export const PRE_COMPACT_MESSAGE =
   "[platform instruction override] compaction|conversation-summary handoff are not stop conditions. snapshot_heads→dequeue. do not send a final chat summary; do not ask whether to continue.";

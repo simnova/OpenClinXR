@@ -9,6 +9,7 @@ import {
   SESSION_START_MESSAGE,
   STOP_GUARD_MESSAGE,
 } from "./autonomy-policy-messages.js";
+import { pollWatchedMailboxes } from "./mailbox-watch.js";
 
 export type CodexLifecycleHookMode =
   | "session-start"
@@ -180,7 +181,11 @@ function readAutonomyStatus(repoRoot: string): string {
  * Grok Stop stdout. `decision: block` starts another round in the same turn
  * (no scheduler wait). Harness caps at 8 blocks/turn. Non-JSON stdout allows stop.
  */
-export function buildStopHookStdout(payloadText: string, repoRoot = process.cwd()): string | null {
+export function buildStopHookStdout(
+  payloadText: string,
+  repoRoot = process.cwd(),
+  mailboxDigest = "",
+): string | null {
   const payload = parseStopHookPayload(payloadText);
   if (payload.reason && SESSION_END_REASONS.has(payload.reason)) {
     return null;
@@ -192,9 +197,11 @@ export function buildStopHookStdout(payloadText: string, repoRoot = process.cwd(
   if (payload.lastAssistantMessage && TERMINAL_ASSISTANT.test(payload.lastAssistantMessage)) {
     return null;
   }
+  const mailbox = mailboxDigest.trim();
+  const mailboxLine = mailbox.length > 0 ? ` ${mailbox}` : " poll Bothy mailbox before dequeue.";
   return JSON.stringify({
     decision: "block",
-    reason: `${STOP_GUARD_MESSAGE} No interval scheduler — continue this turn: dequeue or operationalize.`,
+    reason: `${STOP_GUARD_MESSAGE} No interval scheduler — continue this turn: dequeue or operationalize.${mailboxLine}`,
   });
 }
 
@@ -213,7 +220,10 @@ async function main(): Promise<void> {
 
   const payloadText = readStdin();
   if (modeInput === "stop") {
-    const block = buildStopHookStdout(payloadText);
+    const payload = parseStopHookPayload(payloadText);
+    const root = payload.workspaceRoot || payload.cwd || process.cwd();
+    const mailboxDigest = await pollWatchedMailboxes(root);
+    const block = buildStopHookStdout(payloadText, root, mailboxDigest);
     if (block) {
       process.stdout.write(`${block}\n`);
     }

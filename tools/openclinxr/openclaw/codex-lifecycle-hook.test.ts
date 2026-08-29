@@ -105,6 +105,18 @@ describe("codex lifecycle hook", () => {
     expect(parsed.decision).toBe("block");
     expect(parsed.reason).toContain("pnpm openclaw:run-next");
     expect(parsed.reason).toContain("No interval scheduler");
+    expect(parsed.reason).toContain("poll Bothy mailbox");
+  });
+
+  it("Stop stdout embeds a mailbox digest when one is supplied", () => {
+    const out = buildStopHookStdout(
+      JSON.stringify({ reason: "end_turn" }),
+      "/tmp",
+      "MAILBOX:\ntsk_abc member: grade PASS",
+    );
+    const parsed = JSON.parse(out ?? "{}") as { reason?: string };
+    expect(parsed.reason).toContain("tsk_abc member: grade PASS");
+    expect(parsed.reason).toContain("poll Bothy mailbox");
   });
 
   it("allows Stop when PROJECT_STATUS is PAUSED", () => {
