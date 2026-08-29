@@ -1178,6 +1178,7 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
   const productionReadyScenes = state.assetReadiness.filter((readiness) => readiness.productionReady).length;
   const devReadyScenes = state.assetReadiness.filter((readiness) => readiness.devReady).length;
   const firstBlockedScenario = state.readiness.blockedScenarioIds[0];
+  const featuredScenarioId = state.sceneGenerationPipelineQueue?.featuredFactoryPlanningScenarioId ?? "";
   const createSnapshot = async () => {
     setSnapshotState({ status: "saving" });
     try {
@@ -1396,9 +1397,7 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
           onFacultyCompileOverrideChange={handleFacultyCompileOverrideChange}
           onFacultyCompileOverrideValueChange={handleFacultyCompileOverrideValueChange}
           compileEdges={compileEdges}
-          {...(state.sceneGenerationPipelineQueue?.featuredFactoryPlanningScenarioId
-            ? { featuredScenarioId: state.sceneGenerationPipelineQueue.featuredFactoryPlanningScenarioId }
-            : {})}
+          featuredScenarioId={featuredScenarioId}
           onCompileEncounter={(scenarioId) => void compileEncounter(scenarioId)}
           onInitiateSceneGeneration={(scenarioId) => void initiateSceneGeneration(scenarioId)}
           onAttachSceneGenerationReview={(request) => void attachSceneGenerationReview(request)}
