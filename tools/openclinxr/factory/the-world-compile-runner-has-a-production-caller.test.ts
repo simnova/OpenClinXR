@@ -20,6 +20,16 @@ import { describe, expect, it } from "vitest";
  *
  * Diagnosis and measured tables in this header are IMMUTABLE. Flip it.fails → it and append
  * ## FIXED. Do not rewrite the original paths or numbers.
+ *
+ * ## FIXED (#0)
+ * 2026-08-29. `tools/openclinxr/dark-factory/multi-case-runner.ts` is now a non-test
+ * production caller: the dark-factory chain (issue-288) gains a terminal `world_compile`
+ * station that runs `compileEncounterMaterialization` for a case — newest dated evidence
+ * JSON for the case as the prior report, the chain's own stage-body OBJ / stage-rig GLB
+ * artifacts as the current-artifact view (`artifactPathsByNodeId`), compiled evidence
+ * JSON + station table written under `.openclinxr/evidence/issue-288/cases/<id>/stage-world-compile/`.
+ * The compile never spawns Blender: wouldInvoke/skippedBakers are the plan. The compile
+ * module's own unit tests remain the only other occurrence.
  */
 
 const ROOT = join(import.meta.dirname, "../../..");
@@ -44,7 +54,7 @@ function productionCallers(): string[] {
 }
 
 describe("the world compile runner has a production caller", () => {
-  it.fails("(1) some production file besides the definition calls compileEncounterMaterialization", () => {
+  it("(1) some production file besides the definition calls compileEncounterMaterialization", () => {
     const callers = productionCallers();
     expect(callers, `callers=${JSON.stringify(callers)}`).not.toHaveLength(0);
   });
