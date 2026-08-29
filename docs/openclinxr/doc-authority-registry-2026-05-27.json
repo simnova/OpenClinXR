@@ -40,6 +40,13 @@
       "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
+      "path": ".agents/skills/bothy-board/OPENCLINXR-PROJECT-BINDING.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
+    },
+    {
       "path": ".agents/skills/bothy-board/PROVENANCE.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",

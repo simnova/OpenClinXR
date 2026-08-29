@@ -20,5 +20,12 @@ diff /tmp/bothy-SKILL.md .agents/skills/bothy-board/SKILL.md
 ```
 
 `.claude/skills/bothy-board/SKILL.md` is a symlink to this copy, matching the
-`gh-body-file` precedent. `.grok` resolves it through `[skills] paths` in
+`gh-body-file` precedent.
+
+## Repo-local addendum
+
+`OPENCLINXR-PROJECT-BINDING.md` sits beside this file and carries what is specific to this
+repo — chiefly that `bothy-board.sync` with no `projectId` silently returns Harbor, not
+OpenClinXR. It is NOT vendored and may be edited freely. Keep repo-specific guidance there so
+`SKILL.md` stays diffable against upstream. `.grok` resolves it through `[skills] paths` in
 `.grok/config.toml`, which is set to `.agents/skills`.
