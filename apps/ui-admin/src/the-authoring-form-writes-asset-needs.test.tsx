@@ -23,6 +23,17 @@ import {
  *
  * Diagnosis and measured tables in this header are IMMUTABLE. Flip it.fails → it and append
  * ## FIXED. Do not rewrite the original paths or numbers.
+ *
+ * ## FIXED (#0)
+ * - `ScenarioFormValues` gains `assetNeeds`; `scenarioToFormValues` projects
+ *   `scenario.assetNeeds` (case-authoring-model.ts).
+ * - `mergeFormValuesIntoScenario` writes the form assetNeeds onto
+ *   `scenario.assetNeeds`, trimmed with incomplete rows dropped (every
+ *   AssetNeedSchema field requires a minLength-1 string); unchanged round-trips
+ *   stay lossless (case-authoring-model.ts).
+ * - `CaseAuthoringWorkbench` renders an "Asset needs" card with a row-based
+ *   editor (assetId / assetType enum Select / description / licenseStatus) bound
+ *   to the form `assetNeeds` field (AssetNeedsPanel.tsx).
  */
 
 describe("the authoring form writes assetNeeds", () => {
@@ -51,7 +62,7 @@ describe("the authoring form writes assetNeeds", () => {
     cleanup();
   });
 
-  it.fails("(1) scenarioToFormValues carries assetNeeds", () => {
+  it("(1) scenarioToFormValues carries assetNeeds", () => {
     const values = scenarioToFormValues(edChestPainScenario) as {
       assetNeeds?: typeof edChestPainScenario.assetNeeds;
     };
@@ -59,7 +70,7 @@ describe("the authoring form writes assetNeeds", () => {
     expect(values.assetNeeds).toEqual(edChestPainScenario.assetNeeds);
   });
 
-  it.fails("(2) mergeFormValuesIntoScenario writes the form assetNeeds onto the scenario", () => {
+  it("(2) mergeFormValuesIntoScenario writes the form assetNeeds onto the scenario", () => {
     const one = (edChestPainScenario.assetNeeds ?? []).slice(0, 1);
     const values = {
       ...scenarioToFormValues(edChestPainScenario),
@@ -72,7 +83,7 @@ describe("the authoring form writes assetNeeds", () => {
     expect(merged.assetNeeds).toEqual(one);
   });
 
-  it.fails("(3) the workbench has an asset-needs control labelled Asset needs", () => {
+  it("(3) the workbench has an asset-needs control labelled Asset needs", () => {
     render(<CaseAuthoringWorkbench initialScenario={edChestPainScenario} />);
     expect(screen.getByLabelText(/asset needs/i)).toBeInTheDocument();
   });
