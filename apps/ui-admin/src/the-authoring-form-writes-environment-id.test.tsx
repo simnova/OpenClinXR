@@ -26,6 +26,19 @@ import {
  *
  * Diagnosis and measured tables in this header are IMMUTABLE. Flip it.fails → it and append
  * ## FIXED. Do not rewrite the original paths or numbers.
+ *
+ * ## FIXED (#0)
+ * - `ScenarioFormValues` gains `environmentId`; `scenarioToFormValues` projects
+ *   `scenario.environment.environmentId` (case-authoring-model.ts).
+ * - `mergeFormValuesIntoScenario` writes the form environmentId onto
+ *   `scenario.environment` when set and different from the imported id, deriving
+ *   name/description from the registered shell descriptor (same table the runtime
+ *   and factory resolve); the same id or an empty form value preserves the
+ *   imported base environment, so unchanged round-trips stay lossless and a
+ *   cleared Select cannot invalidate a case (case-authoring-model.ts).
+ * - `EncounterEnvironmentPanel` renders a form-bound Select of the 14 registered
+ *   shell ids (option source = ENVIRONMENT_SHELL_DESCRIPTORS); facts follow the
+ *   live selection (EncounterEnvironmentPanel.tsx).
  */
 
 describe("the authoring form writes environmentId", () => {
@@ -54,13 +67,13 @@ describe("the authoring form writes environmentId", () => {
     cleanup();
   });
 
-  it.fails("(1) scenarioToFormValues carries environmentId", () => {
+  it("(1) scenarioToFormValues carries environmentId", () => {
     const values = scenarioToFormValues(edChestPainScenario) as { environmentId?: string };
     expect(edChestPainScenario.environment?.environmentId).toBeTruthy();
     expect(values.environmentId).toBe(edChestPainScenario.environment?.environmentId);
   });
 
-  it.fails("(2) mergeFormValuesIntoScenario writes the form environmentId onto the scenario", () => {
+  it("(2) mergeFormValuesIntoScenario writes the form environmentId onto the scenario", () => {
     const values = {
       ...scenarioToFormValues(edChestPainScenario),
       environmentId: "telehealth_home_visit_v1",
@@ -72,7 +85,7 @@ describe("the authoring form writes environmentId", () => {
     expect(merged.environment?.environmentId).toBe("telehealth_home_visit_v1");
   });
 
-  it.fails("(3) the Encounter environment panel has an environmentId combobox", () => {
+  it("(3) the Encounter environment panel has an environmentId combobox", () => {
     render(<CaseAuthoringWorkbench initialScenario={edChestPainScenario} />);
     const panel = screen.getByLabelText("Encounter environment");
     expect(within(panel).getByRole("combobox", { name: /environment/i })).toBeInTheDocument();

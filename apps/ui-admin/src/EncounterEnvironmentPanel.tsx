@@ -1,36 +1,59 @@
 /**
- * Shell facts for the selected encounter environmentId (#69).
- * Not a 3D preview — displayName, dimensions, and floor colour from the shared descriptor table.
+ * Shell facts for the selected encounter environmentId (#69) + the faculty-picked
+ * registered shell id (the authoring form writes environmentId). The Select is the
+ * form's only environment control; facts follow the live selection so the author
+ * sees the room change before export. Not a 3D preview — displayName, dimensions,
+ * and floor colour from the shared descriptor table.
  */
 
 import { ENVIRONMENT_SHELL_DESCRIPTORS } from "@openclinxr/asset-registry";
-import { Alert, Card, Space, Typography } from "antd";
+import { Alert, Card, Form, Select, Space, Typography } from "antd";
 import { type ReactElement, useMemo } from "react";
+import type { ScenarioFormValues } from "./case-authoring-model.js";
+
+/** Option source stays the shared registry — never a hardcoded list. */
+const environmentOptions = Object.values(ENVIRONMENT_SHELL_DESCRIPTORS).map((descriptor) => ({
+  value: descriptor.environmentId,
+  label: descriptor.displayName,
+}));
 
 export type EncounterEnvironmentPanelProps = {
-  environmentId: string | undefined;
+  /** Imported base environmentId; facts fall back to it until the form store carries a selection. */
+  environmentId?: string | undefined;
 };
 
-export function EncounterEnvironmentPanel({ environmentId }: EncounterEnvironmentPanelProps): ReactElement {
+export function EncounterEnvironmentPanel({ environmentId: importedEnvironmentId }: EncounterEnvironmentPanelProps): ReactElement {
+  const form = Form.useFormInstance<ScenarioFormValues>();
+  const selectedId = (Form.useWatch("environmentId", form) ?? importedEnvironmentId) as string | undefined;
   const shell = useMemo(() => {
-    if (!environmentId) {
+    if (!selectedId) {
       return null;
     }
-    const descriptor = ENVIRONMENT_SHELL_DESCRIPTORS[environmentId];
+    const descriptor = ENVIRONMENT_SHELL_DESCRIPTORS[selectedId];
     return {
-      environmentId,
-      displayName: descriptor?.displayName ?? environmentId,
+      environmentId: selectedId,
+      displayName: descriptor?.displayName ?? selectedId,
       roomWidthMeters: descriptor?.roomWidthMeters,
       roomDepthMeters: descriptor?.roomDepthMeters,
       roomHeightMeters: descriptor?.roomHeightMeters,
       floorColor: descriptor?.floorColor,
       known: Boolean(descriptor),
     };
-  }, [environmentId]);
+  }, [selectedId]);
 
   return (
     <section aria-label="Encounter environment" style={{ marginBottom: 16 }}>
       <Card title="Encounter environment" size="small">
+        <Form.Item label="Environment" name="environmentId" style={{ marginBottom: 12 }}>
+          <Select
+            aria-label="Environment shell"
+            placeholder="Select a registered environment shell"
+            allowClear
+            showSearch
+            optionFilterProp="label"
+            options={environmentOptions}
+          />
+        </Form.Item>
         {shell ? (
           <div>
             <Typography.Paragraph style={{ marginBottom: 8 }}>
