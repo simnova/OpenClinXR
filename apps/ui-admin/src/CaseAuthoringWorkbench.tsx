@@ -22,22 +22,20 @@ import {
   actorRoleOptions,
   caseAuthoringClaimBoundary,
   collectTouchResponseTraceTags,
-  complianceRegionOptions,
   createActorDraft,
   createEmptyScenarioDraft,
-  createTouchResponseDraft,
   exportScenarioJson,
   habitusOptions,
-  interactionEmotionOptions,
+  supportSurfaceOptions,
   mergeFormValuesIntoScenario,
   type ScenarioFormValues,
   scenarioStatusOptions,
   scenarioToFormValues,
-  touchResponseKindOptions,
   validateScenarioDraft,
 } from "./case-authoring-model.js";
 import { EncounterEnvironmentPanel } from "./EncounterEnvironmentPanel.js";
 import { ActorPhenotypeFields } from "./ActorPhenotypeFields.js";
+import { ActorTouchResponseFields } from "./ActorTouchResponseFields.js";
 import { AssetNeedsPanel } from "./AssetNeedsPanel.js";
 import { EmotionPolicyPanel } from "./EmotionPolicyPanel.js";
 import { EquipmentPanel } from "./EquipmentPanel.js";
@@ -56,10 +54,8 @@ function toOptions(values: readonly string[]): { label: string; value: string }[
 }
 const roleSelectOptions = toOptions(actorRoleOptions);
 const statusSelectOptions = toOptions(scenarioStatusOptions);
-const regionSelectOptions = toOptions(complianceRegionOptions);
-const emotionSelectOptions = toOptions(interactionEmotionOptions);
-const responseKindSelectOptions = toOptions(touchResponseKindOptions);
 const habitusSelectOptions = toOptions(habitusOptions);
+const supportSurfaceSelectOptions = toOptions(supportSurfaceOptions);
 
 type ValidationView = { ok: true } | { ok: false; errors: string[] };
 
@@ -543,6 +539,21 @@ function ActorFields({ fieldName, onRemove }: { fieldName: number; onRemove: () 
         itemLabel="Hidden fact"
       />
 
+      <Divider style={{ margin: "8px 0" }}>Staging (optional)</Divider>
+      <Form.Item
+        name={[fieldName, "placement", "supportSurface"]}
+        label="Support surface"
+        tooltip="Where this actor is staged. Leave unset to author no staging — the compile graph then emits no Placement node for them. 'none' is an explicit standing decision, not the same as unset."
+      >
+        <Select
+          allowClear
+          options={supportSurfaceSelectOptions}
+          style={{ minWidth: 160 }}
+          aria-label="Actor support surface"
+          placeholder="unset"
+        />
+      </Form.Item>
+
       <Divider style={{ margin: "8px 0" }}>Body mechanics (optional)</Divider>
       <Form.Item name={[fieldName, "habitus"]} label="Habitus">
         <Select
@@ -554,58 +565,7 @@ function ActorFields({ fieldName, onRemove }: { fieldName: number; onRemove: () 
         />
       </Form.Item>
 
-      <Form.List name={[fieldName, "touchResponses"]}>
-        {(fields, { add, remove }) => (
-          <div aria-label="Touch responses">
-            {fields.map((field) => (
-              <Card
-                key={field.key}
-                size="small"
-                type="inner"
-                style={{ marginBottom: 10 }}
-                title={`Touch response ${field.name + 1}`}
-                extra={
-                  <Button danger size="small" onClick={() => remove(field.name)}>
-                    Remove
-                  </Button>
-                }
-              >
-                <Space wrap size="large">
-                  <Form.Item name={[field.name, "region"]} label="Region">
-                    <Select options={regionSelectOptions} style={{ minWidth: 180 }} aria-label="Touch region" />
-                  </Form.Item>
-                  <Form.Item name={[field.name, "responseKind"]} label="Response kind">
-                    <Select options={responseKindSelectOptions} style={{ minWidth: 160 }} aria-label="Touch response kind" />
-                  </Form.Item>
-                  <Form.Item name={[field.name, "forceThreshold"]} label="Force threshold">
-                    <InputNumber min={0} max={1} step={0.01} aria-label="Touch force threshold" />
-                  </Form.Item>
-                  <Form.Item name={[field.name, "emotion"]} label="Emotion">
-                    <Select options={emotionSelectOptions} style={{ minWidth: 150 }} aria-label="Touch emotion" />
-                  </Form.Item>
-                </Space>
-                <Space wrap size="large">
-                  <Form.Item name={[field.name, "emotionEventId"]} label="Emotion event ID">
-                    <Input aria-label="Touch emotion event ID" />
-                  </Form.Item>
-                  <Form.Item name={[field.name, "responseClip"]} label="Response clip">
-                    <Input aria-label="Touch response clip" />
-                  </Form.Item>
-                  <Form.Item name={[field.name, "traceTag"]} label="Trace tag">
-                    <Input aria-label="Touch trace tag" />
-                  </Form.Item>
-                </Space>
-                <Form.Item name={[field.name, "dialogueLine"]} label="Dialogue line">
-                  <Input aria-label="Touch dialogue line" />
-                </Form.Item>
-              </Card>
-            ))}
-            <Button type="dashed" onClick={() => add(createTouchResponseDraft())}>
-              Add touch response
-            </Button>
-          </div>
-        )}
-      </Form.List>
+      <ActorTouchResponseFields fieldName={fieldName} />
       <ActorPhenotypeFields fieldName={fieldName} />
 
       <Divider style={{ margin: "12px 0" }} />

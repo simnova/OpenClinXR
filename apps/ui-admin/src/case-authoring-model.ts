@@ -91,6 +91,12 @@ export const touchResponseKindOptions = Object.freeze([
 
 export const habitusOptions = Object.freeze(["average", "obese", "frail"] as const);
 
+/**
+ * ActorPlacementSchema.supportSurface (W11s). "none" is an authored STANDING decision and is
+ * distinct from the member being absent: unset emits no Placement node, "none" emits one.
+ */
+export const supportSurfaceOptions = Object.freeze(["stretcher", "chair", "none"] as const);
+
 /** Deterministic template for a new touch-response row (mirrors TouchResponseSchema). */
 export function createTouchResponseDraft(region: ComplianceRegion = "abdomen_rlq"): TouchResponse {
   return {
@@ -347,8 +353,16 @@ function actorFromFormValue(base: Scenario, formActor: ScenarioActorFormValue): 
   // Placement round-trip (W11). Prefer the form value; fall back to the imported actor so a
   // form that never surfaced the control cannot silently strip authored staging. Absent stays
   // absent — empty is legal and an actor without placement emits no Placement node.
+  // Placement round-trip (W11). Prefer the form value; fall back to the imported actor so a
+  // form that never surfaced the control cannot silently strip authored staging.
+  //
+  // The supportSurface guard is load-bearing, not defensive. antd allowClear leaves the
+  // object present with an undefined member ({ supportSurface: undefined }), which is truthy
+  // — so a bare `if (placement)` writes `placement: {}` onto the actor. That fails
+  // ActorPlacementSchema (supportSurface is required) and is the half-authored state "empty
+  // is legal" exists to prevent. Measured by probing the CLEAR path, not the happy one.
   const placement = formActor.placement ?? preserved?.placement;
-  if (placement) {
+  if (placement?.supportSurface) {
     actor.placement = { ...placement };
   }
   return actor;
