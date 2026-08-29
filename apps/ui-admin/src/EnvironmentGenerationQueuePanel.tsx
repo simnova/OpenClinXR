@@ -49,6 +49,10 @@ export type EnvironmentGenerationQueuePanelProps = {
   featuredScenarioId?: string;
   /** Faculty "Compile this encounter": runs the world compile for featuredScenarioId. */
   onCompileEncounter?: (scenarioId: string) => void;
+  /** Authored Scenario.version for the featured case (worldview header). */
+  caseDefVersion?: number;
+  /** Last world-compile compileVersion for the featured case (worldview header). */
+  compileVersion?: number;
 };
 
 export { FACULTY_COMPILE_OVERRIDE_PATHS } from "./faculty-compile-lock.js";
@@ -70,6 +74,8 @@ export function EnvironmentGenerationQueuePanel({
   compileEdges = [],
   featuredScenarioId,
   onCompileEncounter,
+  caseDefVersion,
+  compileVersion,
 }: EnvironmentGenerationQueuePanelProps): ReactElement {
   const nextGateSummary = summarizeEnvironmentNextGateCounts(environmentGenerationQueue);
   const workOrderQueue = environmentGenerationWorkOrderQueue ?? buildEnvironmentGenerationWorkOrderQueue(environmentGenerationQueue);
@@ -215,6 +221,9 @@ export function EnvironmentGenerationQueuePanel({
       )}
       <fieldset className="station-queue-row" aria-label="Faculty compile this encounter">
         <Typography.Text strong>Faculty compile this encounter</Typography.Text>
+        <Typography.Text type="secondary">
+          {`caseDefVersion ${caseDefVersion ?? "—"} · compileVersion ${compileVersion ?? "—"}`}
+        </Typography.Text>
         <Typography.Text type="secondary">
           {`Runs the world compile for ${featuredScenarioId ?? "the featured scenario"}; world-compile request only, not a baker invoke or packet promote.`}
         </Typography.Text>

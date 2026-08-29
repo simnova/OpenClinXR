@@ -12,17 +12,21 @@ import { describe, expect, it } from "vitest";
  * or caseDefVersion. App.tsx wires the compile button (13826a43) without versions.
  *
  * Diagnosis header IMMUTABLE. Flip it.fails → it and append ## FIXED.
+ *
+ * ## FIXED (W1)
+ * 2026-08-29. EnvironmentGenerationQueuePanel shows caseDefVersion and compileVersion
+ * in the faculty compile fieldset. App wiring of live values is NOT TESTED.
  */
 
 const SRC = dirname(fileURLToPath(import.meta.url));
 const PANEL = readFileSync(join(SRC, "EnvironmentGenerationQueuePanel.tsx"), "utf8");
 
 describe("the worldview header shows case and compile versions", () => {
-  it.fails("(1) EnvironmentGenerationQueuePanel mentions compileVersion", () => {
+  it("(1) EnvironmentGenerationQueuePanel mentions compileVersion", () => {
     expect(PANEL).toMatch(/compileVersion/);
   });
 
-  it.fails("(2) EnvironmentGenerationQueuePanel mentions caseDefVersion or Scenario.version", () => {
+  it("(2) EnvironmentGenerationQueuePanel mentions caseDefVersion or Scenario.version", () => {
     expect(PANEL).toMatch(/caseDefVersion/);
   });
 
