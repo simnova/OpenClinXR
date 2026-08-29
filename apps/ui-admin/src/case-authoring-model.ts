@@ -1,3 +1,4 @@
+import { ENVIRONMENT_SHELL_DESCRIPTORS } from "@openclinxr/asset-registry";
 import type {
   ActorCard,
   ActorPhenotype,
@@ -7,7 +8,7 @@ import type {
   Scenario,
   TouchResponse,
 } from "@openclinxr/shared-schemas";
-import { validateScenario, type ValidationResult } from "@openclinxr/shared-schemas";
+import { type ValidationResult, validateScenario } from "@openclinxr/shared-schemas";
 
 /**
  * Faculty case-authoring surface model layer (pure, React-free).
@@ -149,6 +150,8 @@ export type ScenarioFormValues = {
   status: Scenario["status"];
   clinicalObjectives: string[];
   requiredTraceTags: string[];
+  /** Registered environment shell id picked by faculty; empty keeps the imported environment. */
+  environmentId?: string | undefined;
   actors: ScenarioActorFormValue[];
   eventSchedule: Scenario["eventSchedule"];
 };
@@ -171,6 +174,7 @@ export function scenarioToFormValues(scenario: Scenario): ScenarioFormValues {
     version: scenario.version,
     title: scenario.title,
     status: scenario.status,
+    environmentId: scenario.environment?.environmentId,
     clinicalObjectives: [...scenario.clinicalObjectives],
     requiredTraceTags: [...scenario.requiredTraceTags],
     eventSchedule: scenario.eventSchedule.map((entry) => ({ ...entry })),
@@ -258,11 +262,32 @@ function actorFromFormValue(base: Scenario, formActor: ScenarioActorFormValue): 
 }
 
 /**
+ * Compose scenario.environment from a faculty-picked registered shell id. The
+ * EnvironmentSchema requires name + description; both derive from the shared
+ * descriptor table (the same table the runtime and factory resolve) so the
+ * authored case stays self-consistent when the room changes. An id outside the
+ * registry falls back to the id itself rather than inheriting the previous
+ * room's prose.
+ */
+function authoredEnvironment(
+  environmentId: string,
+): NonNullable<Scenario["environment"]> {
+  const displayName = ENVIRONMENT_SHELL_DESCRIPTORS[environmentId]?.displayName ?? environmentId;
+  return { environmentId, name: displayName, description: displayName };
+}
+
+/**
  * Merge the edited form subset back onto the full base Scenario, preserving every
- * field the form does not expose (review gates, governance, rubric, environment,
- * equipment, asset needs). Guarantees a lossless round-trip of imported cases.
+ * field the form does not expose (review gates, governance, rubric, equipment,
+ * asset needs). An authored environmentId that DIFFERS from the imported one
+ * round-trips onto scenario.environment (name/description derived from the
+ * registered shell, so the case stays self-consistent when the room changes);
+ * the same id or an empty form value keeps the imported base environment, so a
+ * cleared Select cannot silently invalidate a case and unchanged round-trips
+ * stay lossless. Guarantees a lossless round-trip of imported cases.
  */
 export function mergeFormValuesIntoScenario(base: Scenario, values: ScenarioFormValues): Scenario {
+  const environmentId = values.environmentId?.trim() ?? "";
   const merged: Scenario = {
     ...base,
     scenarioId: values.scenarioId.trim(),
@@ -274,6 +299,9 @@ export function mergeFormValuesIntoScenario(base: Scenario, values: ScenarioForm
     eventSchedule: (values.eventSchedule ?? []).map((entry) => ({ ...entry })),
     actors: (values.actors ?? []).map((formActor) => actorFromFormValue(base, formActor)),
   };
+  if (environmentId.length > 0 && environmentId !== base.environment?.environmentId) {
+    merged.environment = authoredEnvironment(environmentId);
+  }
   return merged;
 }
 
