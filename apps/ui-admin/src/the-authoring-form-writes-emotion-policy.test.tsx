@@ -26,13 +26,27 @@ import {
  *
  * Diagnosis and measured tables in this header are IMMUTABLE. Flip it.fails → it and append
  * ## FIXED. Do not rewrite the original paths or numbers.
+ *
+ * ## FIXED (#0)
+ * - `ScenarioFormValues` gains `emotionPolicy`; `scenarioToFormValues` projects
+ *   `scenario.emotionPolicy` (transitions cloned) (case-authoring-model.ts).
+ * - `mergeFormValuesIntoScenario` writes the form emotionPolicy onto
+ *   `scenario.emotionPolicy` when all three bounds are present; transitions come
+ *   from the form value or fall back to the imported base's rules (then `[]`,
+ *   which CaseEmotionPolicySchema requires). An omitted or incomplete policy is
+ *   dropped, preserving the imported base — no invented default
+ *   (case-authoring-model.ts).
+ * - `CaseAuthoringWorkbench` renders an "Emotion policy" card with baseline /
+ *   upper-bound / lower-bound Selects bound to `emotionPolicy.*`, options from
+ *   `interactionEmotionOptions` (closed InteractionEmotionSchema set)
+ *   (EmotionPolicyPanel.tsx).
  */
 
 const AUTHORED = {
   baseline: "pain" as const,
   upperBound: "anxious" as const,
   lowerBound: "neutral" as const,
-  transitions: [] as const,
+  transitions: [],
 };
 
 describe("the authoring form writes emotionPolicy", () => {
@@ -61,13 +75,13 @@ describe("the authoring form writes emotionPolicy", () => {
     cleanup();
   });
 
-  it.fails("(1) scenarioToFormValues carries emotionPolicy", () => {
+  it("(1) scenarioToFormValues carries emotionPolicy", () => {
     expect(edChestPainScenario.emotionPolicy).toBeUndefined();
     const values = scenarioToFormValues(edChestPainScenario) as { emotionPolicy?: unknown };
     expect(values).toHaveProperty("emotionPolicy");
   });
 
-  it.fails("(2) mergeFormValuesIntoScenario writes the form emotionPolicy onto the scenario", () => {
+  it("(2) mergeFormValuesIntoScenario writes the form emotionPolicy onto the scenario", () => {
     const values = {
       ...scenarioToFormValues(edChestPainScenario),
       emotionPolicy: AUTHORED,
@@ -79,7 +93,7 @@ describe("the authoring form writes emotionPolicy", () => {
     expect(merged.emotionPolicy).toEqual(AUTHORED);
   });
 
-  it.fails("(3) the workbench has an emotion-policy control", () => {
+  it("(3) the workbench has an emotion-policy control", () => {
     render(<CaseAuthoringWorkbench initialScenario={edChestPainScenario} />);
     expect(screen.getByLabelText(/emotion policy/i)).toBeInTheDocument();
   });
