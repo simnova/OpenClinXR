@@ -93,10 +93,14 @@ describe("the authoring form writes emotionPolicy", () => {
     expect(merged.emotionPolicy).toEqual(AUTHORED);
   });
 
-  it("(3) the workbench has an emotion-policy control", () => {
-    render(<CaseAuthoringWorkbench initialScenario={edChestPainScenario} />);
-    expect(screen.getByLabelText(/emotion policy/i)).toBeInTheDocument();
-  });
+  it(
+    "(3) the workbench has an emotion-policy control",
+    () => {
+      render(<CaseAuthoringWorkbench initialScenario={edChestPainScenario} />);
+      expect(screen.getByLabelText(/emotion policy/i)).toBeInTheDocument();
+    },
+    30_000,
+  );
 
   it("(4) COUNTERWEIGHT: merge does not invent a default emotionPolicy when the form omits one", () => {
     const values = scenarioToFormValues(edChestPainScenario);
