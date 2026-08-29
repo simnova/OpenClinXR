@@ -271,3 +271,47 @@ describe("grok repo agent spawn", () => {
     });
   });
 });
+
+describe("multimodal spawn routing (operator 2026-08-29: deepseek vision, grok-4.6 escalate-only)", () => {
+  it("routes multimodal tasks to deepseek-v4-flash-vision-exp and bakes model into spawnSubagentCall", () => {
+    const spec = buildGrokRepoAgentSpawnSpec({
+      roleId: "chief-coordinator",
+      roleDir: "agents/coordinator/chief-coordinator",
+      group: "coordinator",
+      task: "Grade cagematch front.png evidence",
+    });
+    expect(spec.multimodal).toBe(true);
+    expect(spec.model).toBe("deepseek-v4-flash-vision-exp");
+    expect(spec.spawnSubagentCall?.model).toBe("deepseek-v4-flash-vision-exp");
+    expect(spec.spawnSubagentCall?.subagent_type).toBe("explore");
+    expect(spec.spawnPrompt).toContain("model: deepseek-v4-flash-vision-exp (multimodal)");
+  });
+
+  it("keeps non-multimodal fast_bounded on explore + deepseek-v4-flash", () => {
+    const spec = buildGrokRepoAgentSpawnSpec({
+      roleId: "chief-coordinator",
+      roleDir: "agents/coordinator/chief-coordinator",
+      group: "coordinator",
+      task: "Scout next slice",
+    });
+    expect(spec.multimodal).toBe(false);
+    expect(spec.model).toBe("deepseek-v4-flash");
+    expect(spec.spawnSubagentCall?.model).toBe("deepseek-v4-flash");
+  });
+
+  it("registry aligns multimodal roles on deepseek-v4-flash-vision-exp (multimodal_uses_deepseek_vision)", () => {
+    const roles = ["imagine-trellis", "chief-coordinator"].map((roleId) => ({
+      roleId,
+      roleDir: `agents/group/${roleId}`,
+      group: "group",
+    }));
+    const registry = buildGrokRepoAgentSpawnRegistry({ roles });
+    const multimodalAgents = registry.agents.filter((a) => a.multimodal);
+    expect(multimodalAgents.length).toBeGreaterThan(0);
+    for (const a of multimodalAgents) {
+      expect(a.model).toBe("deepseek-v4-flash-vision-exp");
+    }
+    const check = registry.checks.find((c) => c.checkId === "multimodal_uses_deepseek_vision");
+    expect(check?.passed).toBe(true);
+  });
+});

@@ -55,6 +55,8 @@ export type GrokRepoAgentSpawnSpec = {
   spawnSubagentCall: {
     subagent_type: GrokSubagentType;
     capability_mode: "read-only" | "read-write";
+    /** Explicit model — the parent must not inherit grok-4.6 by omitting model. */
+    model: string;
     description: string;
     prompt: string;
     /** Worktree isolation: "worktree" for workspace-write writers, "none" otherwise. */
@@ -66,7 +68,7 @@ export type GrokRepoAgentSpawnSpec = {
     index: string;
   };
   safeguards: string[];
-  /** True when task/role requires vision/multimodal (images, cagematch/UI-XR evidence screenshots, visual reports). Such efforts are reserved for grok-4-fast (first) then grok-4-pro. */
+  /** True when task/role requires vision/multimodal (images, cagematch/UI-XR evidence screenshots, visual reports). Such efforts route to deepseek-v4-flash-vision-exp (grok-4.6 is rung-2 escalate only). */
   multimodal?: boolean;
 };
 
@@ -196,8 +198,8 @@ export function buildRepoAgentSpawnPrompt(input: {
   const harness = input.harness ?? "grok";
   const modelSpec = resolveHarnessModelSpec(input.policy.policyTier, harness);
   const isMultimodal = !!input.multimodal;
-  // Multimodal (vision / Imagine / trellis / glb-grade) is grok-4.6 only — matches buildGrokRepoAgentSpawnSpec hardening.
-  const effectiveModel = isMultimodal ? "grok-4.6" : modelSpec.model;
+  // Multimodal (vision / Imagine / trellis / glb-grade) routes to deepseek-v4-flash-vision-exp — matches buildGrokRepoAgentSpawnSpec hardening. grok-4.6 is rung-2 escalate only.
+  const effectiveModel = isMultimodal ? "deepseek-v4-flash-vision-exp" : modelSpec.model;
   const isWriter = input.policy.sandboxMode === "workspace-write";
   const largeTask = looksLikeLargeParallelTask(input.task);
 
@@ -212,10 +214,10 @@ export function buildRepoAgentSpawnPrompt(input: {
     .filter(Boolean)
     .join(" ");
   const multimodalNote = isMultimodal
-    ? " MULTIMODAL: images/cagematch/UI-XR/png/webm/Imagine/trellis → grok-4.6; never deepseek text-only for vision."
+    ? " MULTIMODAL: images/cagematch/UI-XR/png/webm/Imagine/trellis → deepseek-v4-flash-vision-exp; grok-4.6 is rung-2 escalate only (quota near exhausted)."
     : "";
   const escalateLadder = isMultimodal
-    ? "(grok-4.6 → grok-build, no deepseek for vision)"
+    ? "(deepseek-v4-flash-vision-exp → grok-4.6 rung-2 escalate → grok-build)"
     : "(flash → pro → grok-build, cheap-first)";
   const compositionPointer =
     isWriter
@@ -306,9 +308,9 @@ export function buildGrokRepoAgentSpawnSpec(input: {
 
   let modelSpec = resolveHarnessModelSpec(policy.policyTier, "grok");
   if (isMultimodal) {
-    // Harden: vision / Imagine / glb-grade is Grok 4.6 only.
-    // Never route these to deepseek-v4-flash/pro (text-only; 400 image_url).
-    modelSpec = { model: "grok-4.6", reasoningEffort: "high" };
+    // Vision / Imagine / glb-grade → deepseek-v4-flash-vision-exp (cheap, vision-capable).
+    // Never default vision work to grok-4.6 (quota near exhausted); grok-4.6 is rung-2 escalate only.
+    modelSpec = { model: "deepseek-v4-flash-vision-exp", reasoningEffort: "high" };
   }
 
   const surface = resolveGrokSpawnSurfaceForPolicy(policy);
@@ -340,6 +342,7 @@ export function buildGrokRepoAgentSpawnSpec(input: {
       ? {
           subagent_type: surface.grokSubagentType,
           capability_mode: surface.capabilityMode,
+          model: modelSpec.model,
           description: `${input.roleId} (${policy.policyTier}${isMultimodal ? ", multimodal" : ""})`,
           prompt: spawnPrompt,
           isolation,
@@ -415,19 +418,19 @@ export function buildGrokRepoAgentSpawnRegistry(input: {
         .filter((a) => a.policyTier === "fast_bounded")
         .every((a) => {
           if (a.multimodal) {
-            // Multimodal/vision efforts reserved for grok-4-fast (try first) then grok-4-pro
-            return a.grokSubagentType === "explore" && (a.model === "grok-4-fast" || a.model === "grok-4-pro");
+            // Multimodal/vision scouts use explore + deepseek-v4-flash-vision-exp (cheap, vision-capable)
+            return a.grokSubagentType === "explore" && a.model === "deepseek-v4-flash-vision-exp";
           }
           return a.grokSubagentType === "explore" && a.model === "deepseek-v4-flash";
         }),
-      note: "fast_bounded non-multimodal must use explore + deepseek-v4-flash; multimodal efforts must use explore + grok-4-fast (preferred) or grok-4-pro",
+      note: "fast_bounded non-multimodal must use explore + deepseek-v4-flash; multimodal scouts must use explore + deepseek-v4-flash-vision-exp",
     },
     {
-      checkId: "multimodal_reserved_for_grok4",
+      checkId: "multimodal_uses_deepseek_vision",
       passed: agents
         .filter((a) => a.multimodal)
-        .every((a) => a.model.startsWith("grok-4")),
-      note: "Any multimodal-reasoning (vision, Imagine/trellis, cagematch/UI-XR image evidence, screenshots) must resolve to the grok-4 family (grok-4.6 / grok-4-fast / grok-4-pro) — never deepseek text-only.",
+        .every((a) => a.model === "deepseek-v4-flash-vision-exp"),
+      note: "Any multimodal-reasoning (vision, Imagine/trellis, cagematch/UI-XR image evidence, screenshots) must resolve to deepseek-v4-flash-vision-exp — never grok-4.6 by default (quota near exhausted); grok-4.6 is rung-2 escalate only.",
     },
   ];
 

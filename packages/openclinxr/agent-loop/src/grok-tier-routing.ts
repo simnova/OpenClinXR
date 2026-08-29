@@ -106,9 +106,9 @@ export const GROK_TIER_LADDER: GrokTierSpec[] = [
     role: "scout",
   },
   // NOTE: Multimodal/vision/reasoning efforts (images, cagematch/UI-XR evidence, visual reports, screenshots)
-  // are HARDENED in spawn builder: reserved for grok-4-fast (try first) then grok-4-pro.
+  // are HARDENED in spawn builder: routed to deepseek-v4-flash-vision-exp (cheap, vision-capable).
   // See grok-repo-agent-spawn.ts: requiresMultimodalReasoning + buildGrokRepoAgentSpawnSpec override.
-  // Never send image_url / multimodal content to deepseek-v4-flash or -pro.
+  // grok-4.6 is rung-2 escalate only (quota near exhausted); never default vision work to grok-4.6.
   {
     tierId: "tier2_deepseek_pro_analysis",
     label: "DeepSeek V4 Pro analysis / plan",
