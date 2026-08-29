@@ -69,6 +69,19 @@ export const interactionEmotionOptions = Object.freeze([
   "neutral",
 ] as const);
 
+/** Closed asset-kind enum for asset-need rows (mirrors AssetKindSchema). */
+export const assetTypeOptions = Object.freeze([
+  "character",
+  "environment",
+  "equipment",
+  "prop",
+  "texture",
+  "audio",
+] as const);
+
+/** A single asset-need row (mirrors AssetNeedSchema; not exported as a named type upstream). */
+export type ScenarioAssetNeed = NonNullable<Scenario["assetNeeds"]>[number];
+
 export const touchResponseKindOptions = Object.freeze([
   "guarding",
   "palpation",
@@ -89,6 +102,21 @@ export function createTouchResponseDraft(region: ComplianceRegion = "abdomen_rlq
     responseClip: `openclinxr_role_touch_${region}`,
     dialogueLine: "That area is a little tender.",
     traceTag: `clinical_touch_${region}`,
+  };
+}
+
+/**
+ * Deterministic template for a new asset-need row (mirrors AssetNeedSchema).
+ * Incomplete rows (any required field empty after trim) are dropped on merge, so
+ * a fresh row only reaches the exported scenario once assetId/description/
+ * licenseStatus are filled.
+ */
+export function createAssetNeedDraft(): ScenarioAssetNeed {
+  return {
+    assetId: "new_asset_need_v1",
+    assetType: "equipment",
+    description: "",
+    licenseStatus: "",
   };
 }
 
@@ -154,6 +182,8 @@ export type ScenarioFormValues = {
   environmentId?: string | undefined;
   /** Free-text equipment names authored as a string list (ScenarioSchema minLength-1 strings). */
   equipment: string[];
+  /** Authored asset-need rows (assetId, assetType, description, licenseStatus). */
+  assetNeeds: ScenarioAssetNeed[];
   actors: ScenarioActorFormValue[];
   eventSchedule: Scenario["eventSchedule"];
 };
@@ -178,6 +208,7 @@ export function scenarioToFormValues(scenario: Scenario): ScenarioFormValues {
     status: scenario.status,
     environmentId: scenario.environment?.environmentId,
     equipment: [...(scenario.equipment ?? [])],
+    assetNeeds: (scenario.assetNeeds ?? []).map((need) => ({ ...need })),
     clinicalObjectives: [...scenario.clinicalObjectives],
     requiredTraceTags: [...scenario.requiredTraceTags],
     eventSchedule: scenario.eventSchedule.map((entry) => ({ ...entry })),
@@ -196,6 +227,26 @@ export function scenarioToFormValues(scenario: Scenario): ScenarioFormValues {
 
 function cleanStrings(values: readonly string[] | undefined): string[] {
   return (values ?? []).map((value) => value.trim()).filter((value) => value.length > 0);
+}
+
+/**
+ * Drop incomplete asset-need rows so the merged scenario stays ScenarioSchema-valid
+ * (every AssetNeedSchema field requires a minLength-1 string): strings are trimmed
+ * and any row left with an empty assetId, description, or licenseStatus is removed.
+ * Fully populated rows pass through unchanged, so imported cases round-trip losslessly.
+ */
+function cleanAssetNeeds(values: readonly ScenarioAssetNeed[] | undefined): ScenarioAssetNeed[] {
+  return (values ?? [])
+    .map((need) => ({
+      assetId: need.assetId.trim(),
+      assetType: need.assetType,
+      description: need.description.trim(),
+      licenseStatus: need.licenseStatus.trim(),
+    }))
+    .filter(
+      (need) =>
+        need.assetId.length > 0 && need.description.length > 0 && need.licenseStatus.length > 0,
+    );
 }
 
 /**
@@ -281,7 +332,7 @@ function authoredEnvironment(
 
 /**
  * Merge the edited form subset back onto the full base Scenario, preserving every
- * field the form does not expose (review gates, governance, rubric, asset needs).
+ * field the form does not expose (review gates, governance, rubric, emotion policy).
  * An authored environmentId that DIFFERS from the imported one
  * round-trips onto scenario.environment (name/description derived from the
  * registered shell, so the case stays self-consistent when the room changes);
@@ -289,7 +340,9 @@ function authoredEnvironment(
  * cleared Select cannot silently invalidate a case and unchanged round-trips
  * stay lossless. Authored equipment (a free-text string list) round-trips onto
  * scenario.equipment, trimmed with empty rows dropped (ScenarioSchema requires
- * minLength-1 strings). Guarantees a lossless round-trip of imported cases.
+ * minLength-1 strings). Authored asset needs (a row list) round-trip onto
+ * scenario.assetNeeds, trimmed with incomplete rows dropped. Guarantees a
+ * lossless round-trip of imported cases.
  */
 export function mergeFormValuesIntoScenario(base: Scenario, values: ScenarioFormValues): Scenario {
   const environmentId = values.environmentId?.trim() ?? "";
@@ -302,6 +355,7 @@ export function mergeFormValuesIntoScenario(base: Scenario, values: ScenarioForm
     clinicalObjectives: cleanStrings(values.clinicalObjectives),
     requiredTraceTags: cleanStrings(values.requiredTraceTags),
     equipment: cleanStrings(values.equipment),
+    assetNeeds: cleanAssetNeeds(values.assetNeeds),
     eventSchedule: (values.eventSchedule ?? []).map((entry) => ({ ...entry })),
     actors: (values.actors ?? []).map((formActor) => actorFromFormValue(base, formActor)),
   };
