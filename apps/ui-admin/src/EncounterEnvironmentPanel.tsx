@@ -3,7 +3,8 @@
  * registered shell id (the authoring form writes environmentId). The Select is the
  * form's only environment control; facts follow the live selection so the author
  * sees the room change before export. Not a 3D preview — displayName, dimensions,
- * floor/wall colour, and fixture slotIds from the shared descriptor table.
+ * floor/wall colour, shell lighting (sky/ground ambient + key intensity), and
+ * fixture slotIds from the shared descriptor table.
  */
 
 import { ENVIRONMENT_SHELL_DESCRIPTORS } from "@openclinxr/asset-registry";
@@ -38,6 +39,9 @@ export function EncounterEnvironmentPanel({ environmentId: importedEnvironmentId
       roomHeightMeters: descriptor?.roomHeightMeters,
       floorColor: descriptor?.floorColor,
       wallColor: descriptor?.wallColor,
+      ambientHemisphereSky: descriptor?.ambientHemisphereSky,
+      ambientHemisphereGround: descriptor?.ambientHemisphereGround,
+      keyLightIntensity: descriptor?.keyLightIntensity,
       fixtureSlots: descriptor?.fixtureSlots,
       known: Boolean(descriptor),
     };
@@ -100,6 +104,29 @@ export function EncounterEnvironmentPanel({ environmentId: importedEnvironmentId
                     </li>
                   ))}
                 </ul>
+              </div>
+            ) : null}
+            {shell.known &&
+            (typeof shell.ambientHemisphereSky === "number" ||
+              typeof shell.ambientHemisphereGround === "number" ||
+              typeof shell.keyLightIntensity === "number") ? (
+              <div aria-label="Shell lighting" style={{ marginTop: 12 }}>
+                <Typography.Text strong>Shell lighting: </Typography.Text>
+                <Space wrap size="large">
+                  {typeof shell.ambientHemisphereSky === "number" ? (
+                    <Typography.Text>
+                      sky #{shell.ambientHemisphereSky.toString(16).padStart(6, "0")}
+                    </Typography.Text>
+                  ) : null}
+                  {typeof shell.ambientHemisphereGround === "number" ? (
+                    <Typography.Text>
+                      ground #{shell.ambientHemisphereGround.toString(16).padStart(6, "0")}
+                    </Typography.Text>
+                  ) : null}
+                  {typeof shell.keyLightIntensity === "number" ? (
+                    <Typography.Text>key {shell.keyLightIntensity}</Typography.Text>
+                  ) : null}
+                </Space>
               </div>
             ) : null}
             <Typography.Paragraph type="secondary" style={{ marginTop: 12, marginBottom: 0 }}>
