@@ -71,6 +71,21 @@ import { describe, expect, it } from "vitest";
  * notEvidenceFor: whether the teeth are actually VISIBLE in a render (that is a pixel grade, and it
  *   depends on lighting the interior); runtime lip-sync from audio; intelligibility; clinical or
  *   linguistic adequacy of the viseme set; any other actor's bake.
+ *
+ * ## FIXED (#0)
+ *
+ * 2026-08-28: `bake-aa-jaw-open-into-viseme-inspect.py` re-baked `viseme_aa` on the inspect GLB.
+ * The station SOLVES a jaw-open rotation about the rig's TRS-composed jaw hinge
+ * (0.000000, 1.520849, 0.056505 — local X == mesh X) so the exact band metric — the same
+ * selector as this file — clears `1.15 * thresholdMeters`. Measured live by this file after
+ * the bake (NodeIO, weight 1.0):
+ *
+ *     viseme_aa  lipGap 0.023834 m (1.15x threshold)  maxDisp 0.045400 m  gap_before 0
+ *     viseme_sil gap 0.000270 m (unchanged)           theta 0.245161 rad (14.05 deg)
+ *
+ * The 47-target set (32 FACS + 15 viseme), the 2232-entry sparse layout, teeth/tongue, and
+ * viseme_sil are untouched. Pixel visibility and runtime audio remain out of scope
+ * (notEvidenceFor). The #551 guard is restored to the positive assertion in the same slice.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -224,12 +239,11 @@ async function measure(): Promise<Measurement> {
 }
 
 describe("the aa viseme parts the lips far enough to show teeth", () => {
-  it.fails(
-    "(1) RED: viseme_aa opens the anterior lip rim by at least half the dental-arcade height",
-    async () => {
-      // Fails today because the anterior rim still OVERLAPS by 0.23 mm at weight 1.0, so the
-      // aperture is 0 against a teeth-derived threshold of 20.725 mm. The threshold is an input
-      // to the causal chain (the arcade's own height), never a fraction of the observed gap.
+  it("(1) viseme_aa opens the anterior lip rim by at least half the dental-arcade height", async () => {
+      // FIXED (#0): the bake adds a jaw-open rotation about the TRS-composed jaw hinge to the
+      // lower lip band, so the aperture clears the arcade-derived threshold at weight 1.0
+      // (pre-bake the rim overlapped by 0.23 mm, aperture 0). The threshold is an input to the
+      // causal chain (the arcade's own height), never a fraction of the observed gap.
       const m = await measure();
       expect(m.threshold, "the teeth-derived threshold must not move").toBeCloseTo(MEASURED_THRESHOLD, 9);
       expect(

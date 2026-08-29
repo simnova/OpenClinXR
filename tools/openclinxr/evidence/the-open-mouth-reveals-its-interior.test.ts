@@ -53,14 +53,21 @@ import { describe, expect, it } from "vitest";
  * response is to restore the original positive assertion
  * (`lipGapMeters >= thresholdMeters` and `interiorRevealed === true` against
  * `tools/openclinxr/evidence/open-mouth-interior.json`), never to delete or widen this clause.
+ *
+ * ### 2026-08-28 (#0) — bake landed; clause (1) restored to the positive assertion
+ *
+ * `bake-aa-jaw-open-into-viseme-inspect.py` opened the anterior rim: `viseme_aa` lip gap is
+ * now 0.023834 m (1.15x threshold) about the TRS-composed jaw hinge (theta 0.245161 rad).
+ * Clause (1) is restored to the positive form prescribed above and pins the open-mouth
+ * numbers; `open-mouth-interior.json` is regenerated on the baked GLB.
  */
 
 const ARTIFACT = "tools/openclinxr/evidence/open-mouth-interior.json";
 
-/** #551 measured on the inspect GLB — pinned so a silent remeasure rewrite cannot hide an open mouth. */
-const MEASURED_AA_GAP = 0;
-const MEASURED_AA_OVERLAP = 0.0002300739288330078;
-const MEASURED_AA_MAX_DISP = 0.018155692904924237;
+/** #0 measured on the baked inspect GLB — pinned so a silent remeasure rewrite cannot relabel the open mouth as sealed. */
+const MEASURED_AA_GAP = 0.023833762854337692;
+const MEASURED_AA_OVERLAP = 0;
+const MEASURED_AA_MAX_DISP = 0.04540028597033416;
 const MEASURED_TEETH_THRESHOLD = 0.020725011825561523;
 
 type VisemeRow = {
@@ -90,11 +97,11 @@ function requireMeasured(): Probe {
 }
 
 describe("the open mouth reveals its interior", () => {
-  it("(1) INVERTED GUARD: viseme_aa still does not clear the teeth-derived aperture threshold (#551)", () => {
-    // Records Stage A's cannot-reveal-on-this-bake finding. A future bake that opens the mouth
-    // FAILS here on purpose — restore the original positive assertion against ${ARTIFACT}
-    // (lipGapMeters >= thresholdMeters && interiorRevealed === true). Do NOT delete or widen
-    // this clause (merge-kill: deleted-test).
+  it("(1) viseme_aa clears the teeth-derived aperture threshold — restored positive assertion (#0)", () => {
+    // #0 restored the original positive assertion (2026-08-28): the bake
+    // (bake-aa-jaw-open-into-viseme-inspect.py) opened the anterior rim past the teeth-derived
+    // threshold, so the #551 sealed-lip INVERTED GUARD is flipped back to the positive form its
+    // header prescribes. Do NOT invert, delete, or widen this clause (merge-kill: deleted-test).
     const p = requireMeasured();
     expect(typeof p.thresholdDerivation === "string" && p.thresholdDerivation.length >= 30,
       "state where the threshold came from — it must reference the TEETH geometry, not the lip gap").toBe(true);
@@ -105,23 +112,19 @@ describe("the open mouth reveals its interior", () => {
     expect(aa?.lipGapMeters, "viseme_aa lip gap not measured").toBeTypeOf("number");
     expect(
       aa!.interiorRevealed,
-      `TRIPWIRE: viseme_aa opened the interior (gap=${aa!.lipGapMeters}, overlap=${aa!.lipOverlapMeters}, `
-        + `maxDisp=${aa!.maxDisplacementMeters}, threshold=${p.thresholdMeters}). `
-        + `A future bake cleared the #551 sealed-lip state. Restore the ORIGINAL positive assertion — `
-        + `expect(aa.lipGapMeters).toBeGreaterThanOrEqual(p.thresholdMeters) and `
-        + `expect(aa.interiorRevealed).toBe(true) against ${ARTIFACT} — do not delete or widen this inverted guard.`,
-    ).toBe(false);
-    expect(
-      aa!.lipGapMeters! < p.thresholdMeters!,
-      `TRIPWIRE: aa lipGapMeters=${aa!.lipGapMeters} cleared teeth threshold ${p.thresholdMeters} `
-        + `(Stage A: gap=${MEASURED_AA_GAP}, overlap=${MEASURED_AA_OVERLAP}, `
-        + `maxDisp=${MEASURED_AA_MAX_DISP}, threshold=${MEASURED_TEETH_THRESHOLD}). `
-        + `Restore the original positive assertion against ${ARTIFACT}; do not delete or widen this guard.`,
+      `the #0 bake must reveal the interior (gap=${aa!.lipGapMeters}, threshold=${p.thresholdMeters}, `
+        + `overlap=${aa!.lipOverlapMeters}, maxDisp=${aa!.maxDisplacementMeters})`,
     ).toBe(true);
-    // Pin the sealed-lip numbers so a rewritten artifact cannot silently claim "still sealed".
-    expect(aa!.lipGapMeters, "Stage A sealed aperture (gap 0)").toBe(MEASURED_AA_GAP);
-    expect(aa!.lipOverlapMeters ?? 0, "Stage A anterior-rim overlap ~0.23 mm").toBeCloseTo(MEASURED_AA_OVERLAP, 8);
-    expect(aa!.maxDisplacementMeters ?? 0, "Stage A aa max lip displacement ~18.2 mm").toBeCloseTo(MEASURED_AA_MAX_DISP, 8);
+    expect(
+      aa!.lipGapMeters!,
+      `aa lipGapMeters=${aa!.lipGapMeters} must clear the teeth-derived threshold ${p.thresholdMeters} `
+        + `(Stage A: gap=${MEASURED_AA_GAP}, overlap=${MEASURED_AA_OVERLAP}, `
+        + `maxDisp=${MEASURED_AA_MAX_DISP}, threshold=${MEASURED_TEETH_THRESHOLD})`,
+    ).toBeGreaterThanOrEqual(p.thresholdMeters!);
+    // Pin the open-mouth numbers so a rewritten artifact cannot silently claim "still sealed".
+    expect(aa!.lipGapMeters, "post-#0 aperture ~23.83 mm (1.15x threshold)").toBeCloseTo(MEASURED_AA_GAP, 6);
+    expect(aa!.lipOverlapMeters ?? 0, "post-#0 anterior-rim overlap is zero").toBe(MEASURED_AA_OVERLAP);
+    expect(aa!.maxDisplacementMeters ?? 0, "post-#0 aa max lip displacement ~45.4 mm").toBeCloseTo(MEASURED_AA_MAX_DISP, 6);
   });
 
   it("(2) KNOWN-GOOD COLUMN: sil stays closed — a fix that opens everything fails here", () => {
