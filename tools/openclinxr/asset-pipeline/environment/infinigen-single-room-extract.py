@@ -27,6 +27,14 @@ room whose outer wall (real hull) sits on one side can be oriented to the face a
 consumer needs (e.g. the +Z face the interior-camera derivation uses). Geometry is
 untouched — this is a deterministic orientation transform only (D1).
 
+`--aspect-lo` / `--aspect-hi` enforce the room's declared aspect_ratio_range at extract
+time (D9): the selected room's floor aspect (longest/shortest horizontal extent of its
+.floor parts) must fall inside the range or the extract REFUSES (exit 2). Infinigen's
+`aspect_ratio_range` constrains the FLOORPLAN footprint only (graph.py suggest_dimensions),
+so the declaration reaches the extracted room only when the bake supplies a floorplan whose
+target room honours it — this gate is what stops a future bake silently shipping a room
+whose floor ignores the declared range.
+
 `--drop-interior-hull-faces` is ON BY DEFAULT (2026-08-18): the extract removes
 exterior-mesh faces whose world centroid lies strictly inside the wall/floor/ceiling
 interior volume (2 cm float guard) — the black-frame fix for rooms whose Infinigen
@@ -103,6 +111,24 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--predicate-output",
         help="Optional file to write the room predicate JSON to (the full derived thresholds)",
+    )
+    p.add_argument(
+        "--aspect-lo",
+        type=float,
+        default=None,
+        help=(
+            "Declared aspect_ratio_range low bound (>= 1). The selected room's floor "
+            "aspect (longest/shortest horizontal extent of its .floor parts) must fall "
+            "inside [--aspect-lo, --aspect-hi] or the extract REFUSES (exit 2) — the "
+            "declared aspect reaches the extracted room, not only the floorplan (D9). "
+            "Omit for stations whose room has no declared aspect range."
+        ),
+    )
+    p.add_argument(
+        "--aspect-hi",
+        type=float,
+        default=None,
+        help="Declared aspect_ratio_range high bound; see --aspect-lo (requires --aspect-lo).",
     )
     p.add_argument(
         "--allow-predicate-refuse",
@@ -203,14 +229,47 @@ def main() -> int:
 
     # Floor top = world max-Z across meshes whose name ends in ".floor".
     floor_top = None
+    floor_mins = [float("inf")] * 2
+    floor_maxs = [float("-inf")] * 2
     for o in objs:
         if not re.search(r"\.floor$", o.name):
             continue
         for corner in o.bound_box:
             w = o.matrix_world @ Vector(corner)
             floor_top = max(floor_top or w[2], w[2])
+            floor_mins[0] = min(floor_mins[0], w[0])
+            floor_mins[1] = min(floor_mins[1], w[1])
+            floor_maxs[0] = max(floor_maxs[0], w[0])
+            floor_maxs[1] = max(floor_maxs[1], w[1])
     if floor_top is None:
         raise SystemExit(f"no mesh ending in '.floor' under {prefix!r} — cannot ground the room")
+
+    # Declared-aspect gate (D9): `aspect_ratio_range` constrains the FLOORPLAN in Infinigen
+    # (graph.py suggest_dimensions), not the individual room, so the declaration only reaches
+    # the extracted room when this step enforces it. The floor's horizontal extents (X/Y in the
+    # blend Z-up frame) give the usable footprint; the aspect must fall inside the declared
+    # range or the extract REFUSES — a future bake cannot ship a room whose floor ignores the
+    # declared aspect. Translation/rotation invariant, so measured before centering.
+    floor_aspect = None
+    if args.aspect_lo is not None or args.aspect_hi is not None:
+        if args.aspect_lo is None or args.aspect_hi is None:
+            raise SystemExit("--aspect-lo and --aspect-hi must be given together")
+        fx = floor_maxs[0] - floor_mins[0]
+        fy = floor_maxs[1] - floor_mins[1]
+        if min(fx, fy) <= 0:
+            raise SystemExit(
+                f"declared-aspect gate: floor under {prefix!r} has degenerate horizontal "
+                f"extent {fx:.3f} x {fy:.3f} — cannot measure aspect"
+            )
+        floor_aspect = max(fx, fy) / min(fx, fy)
+        if not (args.aspect_lo <= floor_aspect <= args.aspect_hi):
+            raise SystemExit(
+                f"declared-aspect gate REFUSED this bake: floor aspect {floor_aspect:.3f} "
+                f"({fx:.3f} x {fy:.3f} m) outside declared aspect_ratio_range "
+                f"({args.aspect_lo}, {args.aspect_hi}) — the declaration must reach the "
+                f"extracted room, not only the floorplan (re-run with a floorplan whose "
+                f"target room honours the declared range)"
+            )
 
     cx = (mins[0] + maxs[0]) / 2.0
     cy = (mins[1] + maxs[1]) / 2.0
@@ -296,6 +355,8 @@ def main() -> int:
                 "materialCount": len(mats),
                 "extentMeters": [round(maxs[0] - mins[0], 3), round(maxs[1] - mins[1], 3), round(maxs[2] - mins[2], 3)],
                 "floorTopY": round(floor_top, 3),
+                "declaredAspect": [args.aspect_lo, args.aspect_hi],
+                "floorAspect": round(floor_aspect, 3) if floor_aspect is not None else None,
                 "exportPath": args.output,
                 "predicate": predicate,
                 "droppedInteriorHullFaces": dropped,

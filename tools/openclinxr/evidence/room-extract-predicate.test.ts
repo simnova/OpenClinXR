@@ -41,7 +41,7 @@ const ED_GLB = join(ENV_DIR, "infinigen-ed-exam-bay.glb");
 const PEDS_GLB = join(ENV_DIR, "infinigen-pediatric-urgent-care-bay.glb");
 
 /** Known-good measures the predicate recorded for the shipped bytes (anti-drift rows). */
-const ED_KNOWN = { floorAspect: 1.02, floorAreaM2: 39.85, ceilingHeightM: 2.401, hullFrontFacingToDoorwayEyeCount: 8, doorwayCandidateSurviveCount: 5 };
+const ED_KNOWN = { floorAspect: 2.041, floorAreaM2: 16.95, ceilingHeightM: 2.414, hullFrontFacingToDoorwayEyeCount: 0, doorwayCandidateSurviveCount: 5 };
 const PEDS_KNOWN = { floorAspect: 1.021, floorAreaM2: 28.47, ceilingHeightM: 2.445, hullFrontFacingToDoorwayEyeCount: 4, doorwayCandidateSurviveCount: 4 };
 
 // --- synthetic fixture builders ------------------------------------------------------
@@ -101,21 +101,23 @@ function boxRoom(x: number, z: number, yh: number, wallThickness: number): Recor
 }
 
 /**
- * The pre-fix peds hull class: a full-height interior L-sheet (10 triangles — 6 on a -X
- * arm at x=-2.0, 4 on a +Z arm at z=1.2 — facing the room interior, matching the recorded
- * "10 faces / 7.95 m² front-facing toward the derived eye"). The arms meet at the left
- * corner pocket, so the left doorway candidate's view into the room is fully enclosed
- * (rejected by the look-ray rule, like peds' kitchen_00wall pocket).
+ * The pre-fix peds hull class: a full-height interior L-sheet (44 triangles — 24 on a -X
+ * arm at x=-2.0, 20 on a +Z arm at z=1.2 — facing the room interior, matching the recorded
+ * "10 faces / 7.95 m² front-facing toward the derived eye" class, re-based ABOVE the
+ * shipped maximum after the 2026-08-28 ED re-bake: the re-baked ED hull measures 0
+ * front-facing, so the fixture must sit above the peds max (4) to stay a RED). The arms
+ * meet at the left corner pocket, so the left doorway candidate's view into the room is
+ * fully enclosed (rejected by the look-ray rule, like peds' kitchen_00wall pocket).
  */
 function preFixPedsRoom(): Record<string, Tri[]> {
   const parts = boxRoom(5.28, 5.39, 2.44, 0.1093);
   const sheet: Tri[] = [];
-  for (let i = 0; i < 3; i++) {
-    const z0 = 1.0 + i * (1.44 / 3);
-    const z1 = 1.0 + (i + 1) * (1.44 / 3);
+  for (let i = 0; i < 11; i++) {
+    const z0 = 1.0 + i * (1.44 / 11);
+    const z1 = 1.0 + (i + 1) * (1.44 / 11);
     sheet.push(...rectX(-2.0, 0.8, 1.7, z0, z1, "-x"));
   }
-  for (let i = 0; i < 2; i++) {
+  for (let i = 0; i < 11; i++) {
     const x0 = -2.6 + i * 0.5;
     const x1 = -2.6 + (i + 1) * 0.5;
     sheet.push(...rectZ(1.2, x0, x1, 0.8, 1.7, "+z"));
@@ -126,7 +128,7 @@ function preFixPedsRoom(): Record<string, Tri[]> {
 
 describe("the extract-time room predicate", () => {
   it("ships both known-good rooms: live measures match the derivedFrom rows and both pass", async () => {
-    const ed = await reportForGlb(ED_GLB, "dining-room_0");
+    const ed = await reportForGlb(ED_GLB, "bedroom_0");
     const peds = await reportForGlb(PEDS_GLB, "kitchen_0");
     expect(ed.pass, `ED refused: ${ed.refuseReasons.join("; ")}`).toBe(true);
     expect(peds.pass, `peds refused: ${peds.refuseReasons.join("; ")}`).toBe(true);
@@ -145,12 +147,14 @@ describe("the extract-time room predicate", () => {
     expect(peds.measures.doorwayCandidateSurviveCount).toBe(PEDS_KNOWN.doorwayCandidateSurviveCount);
   }, 60_000);
 
-  it("RED: refuses the pre-fix peds hull — 10 interior front-facing faces toward the doorway eye", () => {
-    // The recorded pre-fix peds measurement: 10 faces front-facing toward the derived eye.
-    // The predicate measures the same class (max over the doorway-side candidate eyes) and
-    // must refuse it; the shipped rooms measure 8 and 4, so 10 sits above the derived max.
+  it("RED: refuses the pre-fix peds hull — 44 interior front-facing faces toward the doorway eye", () => {
+    // The recorded pre-fix peds measurement class: 10 faces front-facing toward the derived
+    // eye, re-based to 44 (well above the shipped maximum of 4) after the 2026-08-28 ED
+    // re-bake (whose post-drop hull measures 0 front-facing). The predicate measures the
+    // same class (max over the doorway-side candidate eyes) and must refuse it; the shipped
+    // rooms measure 0 and 4, so 44 sits above the derived max.
     const r = runPredicate({ room: "kitchen_0", parts: preFixPedsRoom() });
-    expect(r.measures.hullFrontFacingToDoorwayEyeCount).toBe(10);
+    expect(r.measures.hullFrontFacingToDoorwayEyeCount).toBe(44);
     expect(r.pass).toBe(false);
     expect(r.refuseReasons.join(" ")).toMatch(/hullFrontFacingToDoorwayEyeCount/);
   });
@@ -167,11 +171,16 @@ describe("the extract-time room predicate", () => {
     expect(r.refuseReasons.join(" ")).toMatch(/doorwayCandidateSurviveCount/);
   });
 
-  it("RED: refuses the corridor shape class (aspect 2.02, #407) outside the derived band", () => {
+  it("RED: refuses the corridor shape class — a passage semantic by NAME (#407), since aspect alone can no longer separate it from the declared-aspect bay", () => {
+    // #407's corridor was a 9.9 m hallway (floorAspect 2.02). The 2026-08-28 ED re-bake
+    // legitimately ships floorAspect 2.031 (its declared aspect_ratio_range is (2.0, 2.1)),
+    // so the aspect band can no longer discriminate a passage from a declared-aspect bay —
+    // both are ~2:1. The deterministic discriminator left is Infinigen's room SEMANTIC:
+    // a clinical bay must not be extracted from a hallway/corridor room, whatever its aspect.
     const r = runPredicate({ room: "corridor", parts: boxRoom(8.0, 4.0, 2.4, 0.12) });
     expect(r.measures.floorAspect).toBe(2.0);
     expect(r.pass).toBe(false);
-    expect(r.refuseReasons.join(" ")).toMatch(/floorAspect/);
+    expect(r.refuseReasons.join(" ")).toMatch(/passage semantic/);
   });
 
   it("accepts a clean synthetic box room (the ED shape class)", () => {
@@ -187,16 +196,16 @@ describe("the extract-time room predicate", () => {
   });
 
   it("records the derivedFrom threshold derivation in the predicate JSON", async () => {
-    const ed = await reportForGlb(ED_GLB, "dining-room_0");
+    const ed = await reportForGlb(ED_GLB, "bedroom_0");
     expect(ed.derivedFrom.method.length).toBeGreaterThan(50);
     expect(ed.derivedFrom.rooms).toHaveLength(2);
     const files = ed.derivedFrom.rooms.map((r) => (r as { file: string }).file);
     expect(files.join(" ")).toMatch(/infinigen-ed-exam-bay\.glb/);
     expect(files.join(" ")).toMatch(/infinigen-pediatric-urgent-care-bay\.glb/);
     // The derive thresholds are a function of the shipped measurements.
-    expect(ed.thresholds.hullFrontFacingToDoorwayEyeCount.max).toBe(8);
-    expect(ed.thresholds.floorAspect.max).toBeGreaterThan(1.4);
-    expect(ed.thresholds.floorAspect.max).toBeLessThan(1.6);
+    expect(ed.thresholds.hullFrontFacingToDoorwayEyeCount.max).toBe(4);
+    expect(ed.thresholds.floorAspect.max).toBeGreaterThan(2.5);
+    expect(ed.thresholds.floorAspect.max).toBeLessThan(3.6);
     expect(ed.thresholds.doorwayCandidateSurviveCount.min).toBe(1);
   }, 60_000);
 });

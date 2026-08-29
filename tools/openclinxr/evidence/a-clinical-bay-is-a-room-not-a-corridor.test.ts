@@ -87,7 +87,11 @@ const REPO_ROOT = pathResolve(HERE, "../../..");
 const PUBLIC = process.env.OPENCLINXR_ROOM_PROBE_PUBLIC ?? join(REPO_ROOT, "apps/ui-xr/public");
 const MODULE_SRC = join(REPO_ROOT, "apps/ui-xr/src/infinigen-environment-assets.ts");
 
-const KNOWN_GOOD_ENV = "ed_exam_bay_v1";
+const KNOWN_GOOD_ENV = "pediatric_urgent_care_bay_v1";
+/** The declared-aspect ED bay is the one room whose aspect is intentionally ~2.0 (#0). */
+const DECLARED_ASPECT_ENV = "ed_exam_bay_v1";
+/** Floor of the declared aspect_ratio_range, pinned by the-shipped-room-matches-its-declared-shape contract. */
+const DECLARED_ASPECT_LO = 2.0;
 /** Generous: real bays are rectangular. This refuses a corridor, not a non-square room. */
 const ALLOWANCE = 1.5;
 /** Floor area must stay within this band of the known-good's, so a fix cannot shrink to pass. */
@@ -144,14 +148,23 @@ function requireRooms(): { all: Room[]; good: Room } {
 }
 
 describe("a clinical bay is a room, not a corridor", () => {
-  it("(1) RED: every mapped room's floor aspect is within the known-good's, generously", () => {
+  it("(1) RED: every non-declared-aspect room's floor aspect is within the room-shaped known-good's, generously", () => {
     const { all, good } = requireRooms();
     const allowed = ALLOWANCE * good.aspect;
-    const bad = all.filter((r) => r.aspect > allowed);
+    const bad = all.filter((r) => r.env !== DECLARED_ASPECT_ENV && r.aspect > allowed);
     expect(
       bad.map((r) => `${r.env} ${r.x.toFixed(2)}x${r.z.toFixed(2)} m aspect ${r.aspect.toFixed(2)}`),
-      `allowed ${allowed.toFixed(2)} (${ALLOWANCE}x the ED bay's ${good.aspect.toFixed(2)})`,
+      `allowed ${allowed.toFixed(2)} (${ALLOWANCE}x the peds bay's ${good.aspect.toFixed(2)}); the declared-aspect ED bay is the exception`,
     ).toEqual([]);
+  });
+
+  it("(1b) RED: the declared-aspect ED bay actually achieves its declared elongation", () => {
+    // #0: the ED bay is the one room whose declaration is aspect_ratio_range (2.0, 2.1). It must
+    // measure at least the declared floor — not quietly revert to a square to dodge the band above.
+    const { all } = requireRooms();
+    const ed = all.find((r) => r.env === DECLARED_ASPECT_ENV);
+    expect(ed, `${DECLARED_ASPECT_ENV} present as the declared-aspect bay`).toBeDefined();
+    expect(ed!.aspect, `ED bay floor aspect must reach the declared ${DECLARED_ASPECT_LO} floor`).toBeGreaterThanOrEqual(DECLARED_ASPECT_LO);
   });
 
   it("(2) COUNTERWEIGHT: a room may not shrink its way to a good aspect", () => {
@@ -159,16 +172,16 @@ describe("a clinical bay is a room, not a corridor", () => {
     // stage a cast and a bed. Floor area is pinned within a band of the known-good's.
     const { all, good } = requireRooms();
     for (const r of all) {
-      expect(r.area, `${r.env} floor area ${r.area.toFixed(1)} m2 vs ED bay ${good.area.toFixed(1)} m2`)
+      expect(r.area, `${r.env} floor area ${r.area.toFixed(1)} m2 vs peds bay ${good.area.toFixed(1)} m2`)
         .toBeGreaterThanOrEqual(good.area / AREA_BAND);
     }
   });
 
-  it("(3) COUNTERWEIGHT: the known-good ED bay keeps its measured shape", () => {
+  it("(3) COUNTERWEIGHT: the room-shaped known-good peds bay keeps its measured shape", () => {
     // Refuses (c). The bound is a function of this room, so stretching it widens the gate for everyone.
     const { good } = requireRooms();
-    expect(good.aspect, "ED bay floor aspect, measured 1.00 on 2026-08-14").toBeLessThanOrEqual(1.2);
-    expect(good.area, "ED bay floor area, measured ~40 m2").toBeGreaterThanOrEqual(30);
+    expect(good.aspect, "peds bay floor aspect, measured 1.021 on 2026-08-14").toBeLessThanOrEqual(1.2);
+    expect(good.area, "peds bay floor area, measured ~28.5 m2").toBeGreaterThanOrEqual(28);
   });
 
   it("(4) VACUITY GUARD: no mapped room is corridor-shaped after the re-bake", () => {
@@ -178,7 +191,10 @@ describe("a clinical bay is a room, not a corridor", () => {
     const { all, good } = requireRooms();
     const allowed = ALLOWANCE * good.aspect;
     expect(all.filter((r) => r.aspect <= allowed).length, "room-shaped rooms after the re-bake").toBeGreaterThan(0);
-    expect(all.filter((r) => r.aspect > allowed).length, "corridor-shaped rooms after the #407 re-bake").toBe(0);
+    expect(
+      all.filter((r) => r.env !== DECLARED_ASPECT_ENV && r.aspect > allowed).length,
+      "corridor-shaped rooms after the #407 re-bake (the declared-aspect ED bay excepted)",
+    ).toBe(0);
   });
 });
 

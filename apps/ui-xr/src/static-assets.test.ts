@@ -37,7 +37,7 @@ const generatedSceneAssetHashes = {
   "medical-equipment/exam-table-sketchfab-ccby.glb": "b620e4949d2fef3669fe83327d66937d2fcac4bfbc0f0960e98e25e0edb51f0b",
   "medical-equipment/privacy-curtain-monitor-sketchfab-ccby.glb": "89ccdab93ce4f6ca1cdd0c8f94afe834db431ed667ddac4580bbd9cc3c22a8bf",
   "environment/pediatric_urgent_care_bay_environment.glb": "9c431d8e158cbb7486de557ffaed02e79a0bac9681704b80449ace7dc4af8c62",
-  "environment/infinigen-ed-exam-bay.glb": "a3b5e68699e3e709a1863b999576ca7c92960daf2059f2313dc51067cfadc5f4",
+  "environment/infinigen-ed-exam-bay.glb": "bc5db832c45fe6a2e1f06fbd482cf40966f0325e891b59d33637f5a3f7fefc02",
 } as const;
 
 describe("static browser assets", () => {
