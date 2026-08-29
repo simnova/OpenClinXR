@@ -28,14 +28,14 @@ const RUNNER = readFileSync(
 );
 
 describe("the D9 runner resolves actors through the case seam", () => {
-  it.fails("(1) dumpCasePresets calls resolve_case_actor_params_with_source", () => {
+  it("(1) dumpCasePresets calls resolve_case_actor_params_with_source", () => {
     expect(
       RUNNER.includes("resolve_case_actor_params_with_source"),
       "the runner still inlines CASE_ACTOR_PRESETS.get instead of the named seam",
     ).toBe(true);
   });
 
-  it.fails("(2) the snippet does not treat CASE_ACTOR_PRESETS.get as the first hop", () => {
+  it("(2) the snippet does not treat CASE_ACTOR_PRESETS.get as the first hop", () => {
     const dump = RUNNER.slice(RUNNER.indexOf("async function dumpCasePresets"), RUNNER.indexOf("async function listPresets"));
     expect(dump.includes("CASE_ACTOR_PRESETS.get"), "preset-first invert of the generator seam").toBe(false);
   });
@@ -44,3 +44,23 @@ describe("the D9 runner resolves actors through the case seam", () => {
     expect(RUNNER.includes("CASE_ACTOR_PRESETS"), "do not delete the table; stop reading it first").toBe(true);
   });
 });
+
+/*
+## FIXED (#0)
+
+- `dumpCasePresets` now calls `resolve_case_actor_params_with_source`
+  (orchestrate_character.py:381) as the first hop — the same fixture-first
+  seam the generator uses: case-definition phenotype export when the case
+  authors the actor (issue-650), else the legacy CASE_ACTOR_PRESETS row,
+  KeyError (#276) when neither. The runner no longer inverts the seam with a
+  preset-first `CASE_ACTOR_PRESETS.get`.
+- `listPresets` resolves the same way for parity (caseIdsWithPresets keeps
+  returning the full resolver union; issue #607). `CASE_ACTOR_PRESETS`
+  remains in the file as the named fallback (counterweight clause 3), never
+  the first hop.
+- One recorded behavioral delta: `peds_asthma_parent_anxiety_v1:
+  parent_tara_johnson_v1` now reports the fixture-authored role `family`
+  (pediatric-asthma.ts:154) instead of the legacy preset's `parent`;
+  `output_name` is identical so artifact paths are unchanged.
+*/
+
