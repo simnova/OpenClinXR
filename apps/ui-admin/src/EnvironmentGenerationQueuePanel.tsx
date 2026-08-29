@@ -45,6 +45,10 @@ export type EnvironmentGenerationQueuePanelProps = {
   onFacultyCompileOverrideValueChange?: (rowId: string, overrideValue: unknown) => void;
   /** Compile/materialization dependency edges for a read-only graph view. Optional; writes stay on the lock Table API. */
   compileEdges?: CompileEdge[];
+  /** Featured scenario id for the faculty world-compile request; parent-owned. */
+  featuredScenarioId?: string;
+  /** Faculty "Compile this encounter": runs the world compile for featuredScenarioId. */
+  onCompileEncounter?: (scenarioId: string) => void;
 };
 
 export { FACULTY_COMPILE_OVERRIDE_PATHS } from "./faculty-compile-lock.js";
@@ -64,6 +68,8 @@ export function EnvironmentGenerationQueuePanel({
   onFacultyCompileOverrideChange,
   onFacultyCompileOverrideValueChange,
   compileEdges = [],
+  featuredScenarioId,
+  onCompileEncounter,
 }: EnvironmentGenerationQueuePanelProps): ReactElement {
   const nextGateSummary = summarizeEnvironmentNextGateCounts(environmentGenerationQueue);
   const workOrderQueue = environmentGenerationWorkOrderQueue ?? buildEnvironmentGenerationWorkOrderQueue(environmentGenerationQueue);
@@ -80,16 +86,16 @@ export function EnvironmentGenerationQueuePanel({
     <section className="workbench-panel" aria-label="3D environment generation queue">
       <div className="station-queue-row">
         <Typography.Title level={4}>3D Environment Generation Queue</Typography.Title>
-        <Tag color={environmentGenerationQueue.readyForGenerationReviewScenarioIds.length > 0 ? "blue" : "gold"}>
-          {`${environmentGenerationQueue.blockedScenarioIds.length} blocked before generation review`}
+        <Tag color={(environmentGenerationQueue.readyForGenerationReviewScenarioIds ?? []).length > 0 ? "blue" : "gold"}>
+          {`${(environmentGenerationQueue.blockedScenarioIds ?? []).length} blocked before generation review`}
         </Tag>
       </div>
       <Typography.Paragraph type="secondary">
         Admin-initiated scene generation starts after scenario configuration and covers humanoids, hair, clothing, rigging, animation, equipment, environment assets, blob publication, runtime bundle binding, and review evidence. Planning/review packet only; no generated asset, runtime dependency, or Quest evidence is implied.
       </Typography.Paragraph>
       <div className="readiness-strip">
-        <EnvironmentQueueMetric label={`${environmentGenerationQueue.packetCount} environment packets`} detail={`${environmentGenerationQueue.scenarioCount} seed-bank scenarios`} />
-        <EnvironmentQueueMetric label={`${environmentGenerationQueue.readyForGenerationReviewScenarioIds.length} ready for generation review`} detail={`${environmentGenerationQueue.blockedScenarioIds.length} blocked before generation review`} />
+        <EnvironmentQueueMetric label={`${environmentGenerationQueue.packetCount} environment packets`} detail={`${environmentGenerationQueue.scenarioCount ?? 0} seed-bank scenarios`} />
+        <EnvironmentQueueMetric label={`${(environmentGenerationQueue.readyForGenerationReviewScenarioIds ?? []).length} ready for generation review`} detail={`${(environmentGenerationQueue.blockedScenarioIds ?? []).length} blocked before generation review`} />
         <EnvironmentQueueMetric label="Next blocked gate" detail={nextGateSummary} />
         <EnvironmentQueueMetric label="Prohibited generation actions" detail={prohibitedActionSummary} />
         <EnvironmentQueueMetric label="Missing evidence types" detail={missingEvidenceCountSummary} />
@@ -207,6 +213,25 @@ export function EnvironmentGenerationQueuePanel({
       ) : (
         <Typography.Text type="secondary">No environment packets are attached yet.</Typography.Text>
       )}
+      <fieldset className="station-queue-row" aria-label="Faculty compile this encounter">
+        <Typography.Text strong>Faculty compile this encounter</Typography.Text>
+        <Typography.Text type="secondary">
+          {`Runs the world compile for ${featuredScenarioId ?? "the featured scenario"}; world-compile request only, not a baker invoke or packet promote.`}
+        </Typography.Text>
+        {onCompileEncounter ? (
+          <Button
+            size="small"
+            disabled={!featuredScenarioId}
+            onClick={() => {
+              if (featuredScenarioId) {
+                onCompileEncounter(featuredScenarioId);
+              }
+            }}
+          >
+            Compile this encounter
+          </Button>
+        ) : null}
+      </fieldset>
       <fieldset className="station-queue-row" aria-label="Faculty compile/materialization lock table">
         <Typography.Text strong>Faculty compile lock</Typography.Text>
         <Typography.Text type="secondary">
@@ -294,7 +319,7 @@ function summarizeEnvironmentPacketGateBlockers(packet: EnvironmentGenerationPac
 }
 
 function summarizeEnvironmentNextGateCounts(environmentGenerationQueue: EnvironmentGenerationQueue): string {
-  const entries = Object.entries(environmentGenerationQueue.nextReviewGateCounts)
+  const entries = Object.entries(environmentGenerationQueue.nextReviewGateCounts ?? {})
     .filter((entry): entry is [string, number] => typeof entry[1] === "number")
     .sort(([leftKey, leftCount], [rightKey, rightCount]) => rightCount - leftCount || leftKey.localeCompare(rightKey))
     .map(([gate, count]) => `${gate}: ${count}`);

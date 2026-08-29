@@ -24,6 +24,14 @@ import { EnvironmentGenerationQueuePanel } from "./EnvironmentGenerationQueuePan
  *
  * Diagnosis and measured tables in this header are IMMUTABLE. Flip it.fails → it and append
  * ## FIXED. Do not rewrite the original paths or numbers.
+ *
+ * ## FIXED (#0)
+ * 2026-08-29. EnvironmentGenerationQueuePanel gains `featuredScenarioId` and
+ * `onCompileEncounter` props plus a "Compile this encounter" button that calls
+ * onCompileEncounter(featuredScenarioId). api-client gains a module-level
+ * compileEncounterWorld that POSTs /internal/world-compile with the scenarioId.
+ * No API route or baker invoke in this slice: ui-admin + api-client only
+ * (collision: tsk_f2a2 holds factory + dark-factory).
  */
 
 const emptyQueue = {
@@ -61,7 +69,7 @@ describe("the faculty Compile this encounter runs the world compile", () => {
     cleanup();
   });
 
-  it.fails("(1) the environment queue panel has Compile this encounter and calls onCompileEncounter", () => {
+  it("(1) the environment queue panel has Compile this encounter and calls onCompileEncounter", () => {
     const onCompileEncounter = vi.fn();
     render(
       <EnvironmentGenerationQueuePanel
@@ -76,7 +84,7 @@ describe("the faculty Compile this encounter runs the world compile", () => {
     expect(onCompileEncounter).toHaveBeenCalledWith("ed_chest_pain_priority_v1");
   });
 
-  it.fails("(2) api-client exposes compileEncounterWorld posting to /internal/world-compile", async () => {
+  it("(2) api-client exposes compileEncounterWorld posting to /internal/world-compile", async () => {
     const client = (await import("./api-client.js")) as Record<string, unknown>;
     expect(typeof client["compileEncounterWorld"]).toBe("function");
   });
