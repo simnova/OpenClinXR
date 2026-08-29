@@ -14,12 +14,29 @@ parseable_sections: 6
 <!-- WAKE-BLUF:BEGIN -->
 ## WAKE BLUF - replace this block every wake, never append
 
-**2026-08-23 17:55 | main `6e806bc5` | Claude Opus 5 session, loop stood down, operator-directed**
+**2026-08-28 | main `d1935b43` | Grok orchestrator | BothyBoard dequeue SSOT (GitHub opt-in `BOTHY_BOARD_DEQUEUE=0`)**
 
-**OPERATOR MODEL LADDERS (2026-08-23) — CODIFIED in the `model-routing` skill, first available wins**
-- Worker agents: `ox-alpha` (free) -> `deepseek-v4-flash` -> `deepseek-v4-flash-vision-exp` (vision)
-  -> `grok-4.6` (last resort).
-- Superagent: `ox-alpha` -> `grok-4.6`. No DeepSeek rung; its work is judgment, not bounded execution.
+**IN FLIGHT**
+- `tsk_81a4eba479d4c8d1` P0 staging: environment panel lists fixtureSlots + wallColor. Plant `d1935b43`. Worker `1b3e362d` xr-systems-architect flash. Worktree `bothy-tsk_81a4eba479d4c8d1`.
+
+**LANDED this session**
+- World-config writes: environmentId `a7df145e`, equipment `45a65c28`, assetNeeds `0a130d07`.
+
+**BLOCKED**
+- `tsk_27ba` PIXEL GRADE speaking stills torso. Status blocked. Do not land. Do not dispatch.
+- `#643` owner `gradeVerdict`. `#600` run red on #474. Phase 4 HELD.
+
+**NEXT this wake:** harvest `tsk_81a4` when worker returns. ScenarioSchema world fields are complete; this is descriptor spatial facts on the form.
+
+SWEEP: reds=34(oldest (#37)) undisp=0 uncarded=0 rel=current quiet=24 workers=1/3 bothy=tsk_81a4eba479d4c8d1
+
+NOT TESTED: 3D preview; writing wallColor onto Scenario; 27ba recapture.
+<!-- WAKE-BLUF:END -->
+<!-- WAKE-BLUF:END -->
+
+**OPERATOR MODEL LADDERS (2026-08-27) — CODIFIED in the `model-routing` skill**
+- Subagents / workers / wakes: `deepseek-v4-flash` (cheapest) → `deepseek-v4-flash-vision-exp` (image) → `grok-4.6` (strong/smart).
+- `ox-alpha` is **retired** (404). Do not spawn it. User `~/.grok/config.toml` `[subagents.models]` is flash as of this wake.
 - Supersedes "grok-4.5 only on a 402". The Grok tier is LAST, not second.
 - ALL FOUR RUNGS VERIFIED 2026-08-23 17:50, identical tool-using probe, ground truth 43:
   `ox-alpha` 34 s / `deepseek-v4-flash` 13 s / `deepseek-v4-flash-vision-exp` 18 s / `grok-4.6` 24 s,
