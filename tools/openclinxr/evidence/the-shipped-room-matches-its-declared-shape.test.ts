@@ -150,7 +150,7 @@ function requireMeasured(): void {
 }
 
 describe("the shipped room matches its declared shape", () => {
-  it.fails("(1) RED: the floor aspect falls inside the declared aspect_ratio_range", () => {
+  it("(1) RED: the floor aspect falls inside the declared aspect_ratio_range", () => {
     requireMeasured();
     expect(
       shipped.floorAspect,
@@ -179,3 +179,44 @@ describe("the shipped room matches its declared shape", () => {
     ).toEqual([2.0, 2.1]);
   });
 });
+
+/**
+ * ## FIXED (#0) — re-baked so the declared aspect reaches the extracted room (D9)
+ *
+ * The shipped `infinigen-ed-exam-bay.glb` was re-baked 2026-08-28 from a floorplan whose
+ * selected room honours the declared aspect_ratio_range, and the EXTRACT now enforces the
+ * declaration itself:
+ *
+ * - `infinigen-single-room-extract.py` gained `--aspect-lo` / `--aspect-hi` — the selected
+ *   room's floor aspect must fall inside the declared range or the extract REFUSES (exit 2).
+ *   The declaration therefore reaches the extracted room, not only the floorplan.
+ * - Bake: `clinical_bay.gin` seed 22 (constraint surface #339 with CLINICAL_ASPECT_LOW=2.0 /
+ *   HIGH=2.1), room `bedroom_0` segment 2 (segment-pruned copy keeping `bedroom_0/2.*`),
+ *   `--yaw-deg 90` so the +Z hull faces the interior-camera doorway side, then the same
+ *   albedo+AO + occlusion chain as every shipped room.
+ * - Measured with this file's own instrument on the shipped bytes:
+ *
+ *   | field | declared | shipped | verdict |
+ *   |-------|----------|---------|---------|
+ *   | wall_height | 2.65 | shell height 2.650 m | BINDS |
+ *   | aspect_ratio_range | (2.0, 2.1) | floor aspect 2.041 (5.882 × 2.882 m) | BINDS |
+ *
+ * Clause (3) still pins the declaration — PROVENANCE.md's `wall_height=2.65` and
+ * `aspect_ratio_range=(2.0,2.1)` are unchanged (the re-bake records the new source row
+ * without rewriting the declared values).
+ *
+ * Related contracts re-measured after the re-bake: the extract-time predicate passes on
+ * the shipped bytes (floorAspect 2.041, front-facing 0, survivors 5), the interior-camera
+ * stand-off holds (+Z hull 0.1179 m), the second-station known-good signature is
+ * `4 meshes / 4 materials / 6 textures / 6.0x2.65x3.0`, and the corridor band is re-anchored
+ * to the room-shaped peds bay with the declared-aspect ED bay as the exception.
+ *
+ * NOT TESTED (unchanged from the planted header):
+ *   - Whether 16.95 m² is clinically right (the header's 24.15 m² target is the config's
+ *     own statement, not asserted here).
+ *   - **Area.** Recorded (16.95 m² floor) and deliberately not asserted.
+ *   - Whether the aspect range is per-room or per-floorplan — MEASURED now: it constrains
+ *     the floorplan footprint; the extract's declared-aspect gate is what makes it reach
+ *     the room.
+ *   - The other 13 stations.
+ */

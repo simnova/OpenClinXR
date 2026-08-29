@@ -62,6 +62,12 @@ from mathutils import Vector
 
 _BLENDER_DUP_SUFFIX = re.compile(r"\.\d+$")
 
+# Track bake-image names allocated in THIS run so two materials sharing a base name
+# (e.g. `shader_plaster.010` walls + `shader_plaster.030` ceiling) do not collide on
+# the stripped name — the second bake would overwrite the first and the first material
+# would export without a baseColorTexture (measured 2026-08-28 on the ED re-bake).
+_BAKE_IMAGE_NAMES_USED: set = set()
+
 
 def bake_image_name_for_material(mat: bpy.types.Material) -> str:
     """Stable bake texture name matching shipped GLB bytes.
@@ -69,7 +75,9 @@ def bake_image_name_for_material(mat: bpy.types.Material) -> str:
     glTF import often renames materials (`shader_plaster` -> `shader_plaster.022`)
     while the packed image stays `openclinxr_room_bake_shader_plaster`. Prefer any
     existing openclinxr_room_bake_* already on the material; else strip Blender's
-    .NNN duplicate suffix from the material name.
+    .NNN duplicate suffix from the material name — unless that name is already
+    allocated to another material in this bake, in which case keep the full
+    (unique) material name so every material gets its own albedo texture.
     """
     if mat.use_nodes and mat.node_tree is not None:
         for node in mat.node_tree.nodes:
@@ -78,7 +86,11 @@ def bake_image_name_for_material(mat: bpy.types.Material) -> str:
                 if name.startswith("openclinxr_room_bake_"):
                     return name
     base = _BLENDER_DUP_SUFFIX.sub("", mat.name)
-    return f"openclinxr_room_bake_{base}"
+    candidate = f"openclinxr_room_bake_{base}"
+    if candidate in _BAKE_IMAGE_NAMES_USED:
+        candidate = f"openclinxr_room_bake_{mat.name}"
+    _BAKE_IMAGE_NAMES_USED.add(candidate)
+    return candidate
 
 
 def _argv_after_double_dash() -> List[str]:

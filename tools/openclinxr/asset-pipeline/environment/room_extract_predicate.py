@@ -54,30 +54,30 @@ import sys
 from typing import Any, Dict, List, Sequence, Tuple
 
 # --- shipped-room constants ---------------------------------------------------------
-# Measured on the two shipped rooms in the predicate dry-run (2026-08-18); the test
+# Measured on the two shipped rooms in the predicate dry-run; the test
 # `room-extract-predicate.test.ts` re-measures the shipped GLBs and asserts these rows
 # still match, so a re-bake that changes a room's measures fails the test (anti-drift).
 # `hullFrontFacingToDoorwayEyeCount` and `doorwayCandidateSurviveCount` are the values
 # the SAME predicate code computes on the shipped bytes, so the "derived from" rows are
 # the predicate's own honest measurements, not hand-typed numbers.
 #
-# NOTE: the ED bay's shipped bytes are PRE-drop — its exterior mesh still carries two
-# interior wall fragments (8 triangles front-facing some doorway-side eyes at x=-0.25).
-# A future ED re-extraction with the default `--drop-interior-hull-faces` removes them
-# (their centroids sit inside the interior volume) and its front-facing count drops to 0.
-# The 2026-08-18 slice deliberately does NOT rebake ED; the derived threshold therefore
-# sits at the shipped maximum (8). Peds is already post-drop (0 intruders, 4 triangles at
-# the +Z doorway trim that front-face the right-corner eye — legitimate structure).
+# NOTE: the ED bay was re-baked 2026-08-28 (issue #0) from seed-22 `bedroom_0` segment 2
+# whose floor honours the declared aspect_ratio_range (2.0, 2.1) — floorAspect 2.041 —
+# enforced by the extract's declared-aspect gate. Its post-drop hull measures 0
+# doorway-side front-facing fragments, so the derived max sits at the peds value (4) and
+# the pre-fix peds L-sheet RED fixture (44) stays above it. Peds is the 719cadf8 post-drop
+# bake (0 intruders, 4 triangles at the +Z doorway trim that front-face the right-corner
+# eye — legitimate structure).
 KNOWN_GOOD_ROOMS: List[Dict[str, Any]] = [
     {
         "file": "apps/ui-xr/public/xr-assets/environment/infinigen-ed-exam-bay.glb",
-        "sha256": "a3b5e68699e3e709a1863b999576ca7c92960daf2059f2313dc51067cfadc5f4",
-        "room": "dining-room_0",
+        "sha256": "bc5db832c45fe6a2e1f06fbd482cf40966f0325e891b59d33637f5a3f7fefc02",
+        "room": "bedroom_0",
         "measures": {
-            "floorAspect": 1.02,
-            "floorAreaM2": 39.85,
-            "ceilingHeightM": 2.401,
-            "hullFrontFacingToDoorwayEyeCount": 8,
+            "floorAspect": 2.041,
+            "floorAreaM2": 16.95,
+            "ceilingHeightM": 2.414,
+            "hullFrontFacingToDoorwayEyeCount": 0,
             "doorwayCandidateSurviveCount": 5,
         },
     },
@@ -438,12 +438,11 @@ def evaluate(payload: Dict[str, Any]) -> Dict[str, Any]:
         "derivedFrom": {
             "method": (
                 "Threshold bands are multiples of the two shipped rooms' own measured "
-                "values (ED known-good `infinigen-ed-exam-bay.glb`; peds post-719cadf8 "
-                "known-good `infinigen-pediatric-urgent-care-bay.glb`, already extracted "
-                "with --drop-interior-hull-faces). front-facing count refuses above the "
-                "shipped maximum (8 — ED's shipped bytes are PRE-drop and still carry "
-                "interior hull fragments; the default drop removes them, so a default-dropped "
-                "re-extract measures 0); survive count refuses below 1 (both shipped rooms "
+                "values (ED re-baked 2026-08-28 `infinigen-ed-exam-bay.glb` — declared "
+                "aspect 2.0-2.1 now binds on the floor (2.041), post-drop hull front-facing "
+                "0; peds post-719cadf8 known-good `infinigen-pediatric-urgent-care-bay.glb`, "
+                "extracted with --drop-interior-hull-faces). front-facing count refuses above "
+                "the shipped maximum (4); survive count refuses below 1 (both shipped rooms "
                 "survive the look-ray rule)."
             ),
             "rooms": KNOWN_GOOD_ROOMS,
