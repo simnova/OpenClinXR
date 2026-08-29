@@ -20,7 +20,7 @@ import { execFileSync, spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { appendFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync, type Dirent } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { homedir } from "node:os";
+import { homedir, hostname } from "node:os";
 import { fileURLToPath } from "node:url";
 import { buildRepoAgentSpawnPrompt } from "../../../packages/openclinxr/agent-loop/src/grok-repo-agent-spawn.js";
 import { getRepoRoleHarnessPolicy, resolveHarnessModelSpec } from "../../../packages/openclinxr/agent-loop/src/role-harness-policy.js";
@@ -42,7 +42,8 @@ import { assertProductLaneNotStarved, assertPulseMeasurementAlive } from "./prod
 import { setFactoryField } from "./board-cli.js";
 import { evaluateProofTargetsBeforeDispatch } from "./proof-target-preflight.js";
 import { provisionWorktreeAssetsSync } from "./worktree-asset-provisioning.js";
-import { ensureWorktreeBaseFresh } from "./worktree-base-freshness.js";
+import { ensureWorktreeBaseFresh, gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
+import { bothyMcpCall } from "./board-bothy-dequeue.js";
 
 /**
  * INCIDENT: a worker was capped at 50 turns and died at exactly turn 50; another survived by one
@@ -911,6 +912,7 @@ export function resolveWorkerWorktree(
     execFileSync("git", ["worktree", "add", "-b", managedBranch, target], {
       cwd: mainRoot,
       stdio: ["ignore", "pipe", "pipe"],
+      env: gitEnvWithoutInheritedRepoVars(),
     });
   } else {
     // #148: reuse without reset inherited previous-run commits + dirt (incl. work reverted on
@@ -1416,6 +1418,42 @@ function pidAlive(pid: number): boolean {
   }
 }
 
+/**
+ * Best-effort Bothy visibility for a live dispatch. Missing PAT or a board
+ * error must not throw — the worker is already spawned.
+ */
+async function announceBothyDispatchPresence(input: {
+  path: string;
+  branch: string;
+  taskId: string;
+  grokSessionId?: string;
+}): Promise<void> {
+  const pat = process.env.BOTHY_BOARD_PAT ?? "";
+  if (!pat) return;
+  const machineName = hostname();
+  try {
+    await bothyMcpCall(pat, "bothy-board.worktrees.register", {
+      path: input.path,
+      branch: input.branch,
+      machineName,
+      taskId: input.taskId,
+    });
+  } catch {
+    // board visibility is not a dispatch contract
+  }
+  try {
+    await bothyMcpCall(pat, "bothy-board.agents.heartbeat", {
+      name: "dispatch-worker",
+      machineName,
+      currentTaskId: input.taskId,
+      status: "working",
+      ...(input.grokSessionId ? { grokSessionId: input.grokSessionId } : {}),
+    });
+  } catch {
+    // board visibility is not a dispatch contract
+  }
+}
+
 export async function dispatch(repoRoot: string, options: DispatchOptions): Promise<DispatchLedgerEntry> {
   assertSafeEnvironment(process.env);
   if (options.proofs) assertProofShape(options.proofs);
@@ -1664,6 +1702,15 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
   const child = spawn(binary, argv, {
     cwd: effective.cwd ?? repoRoot,
     env: { ...process.env, ...REQUIRED_ENV },
+  });
+  // Claim-gap (tsk_ba0bf4ba7fa9af29): a live dispatch used to be invisible on Bothy
+  // (assigneeAgentId None while the process ran). Register + heartbeat are best-effort —
+  // missing PAT or a board error must not kill the worker.
+  void announceBothyDispatchPresence({
+    path: worktreePath ?? repoRoot,
+    branch: options.branch ?? "main",
+    taskId: options.slice ?? "unscoped",
+    grokSessionId: chosenSessionId,
   });
   child.stdout.on("data", (data: Buffer) => chunks.push(data.toString()));
   child.stderr.on("data", (data: Buffer) => stderr.push(data.toString()));

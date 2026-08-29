@@ -4,7 +4,9 @@ import path from "node:path";
 import { readFileSync } from "node:fs";
 
 describe("env-doctor", () => {
-  it("produces a v1 report for the repo root", () => {
+  // Hook-env pre-commit (2026-08-29): this probe is ~5s alone and exceeds vitest's
+  // 5s default when the rest of tools/openclinxr/openclaw/ is also running.
+  it("produces a v1 report for the repo root", { timeout: 15_000 }, () => {
     const repoRoot = path.resolve(import.meta.dirname, "../../..");
     const report = runEnvDoctor(repoRoot);
     expect(report.schemaVersion).toBe(ENV_DOCTOR_SCHEMA_VERSION);

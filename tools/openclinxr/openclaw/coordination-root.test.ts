@@ -18,11 +18,23 @@ describe("coordination root", () => {
     const base = mkdtempSync(join(tmpdir(), "coord-root-"));
     const main = join(base, "main");
     const linked = join(base, "linked");
+    // MEASURED 2026-08-29: git exports GIT_INDEX_FILE (and often GIT_DIR / GIT_WORK_TREE) to HOOKS,
+    // pointing at the in-progress commit's temp index. A child `git` inheriting them dies with
+    // `fatal: .git/index: index file open failed: Not a directory`, so this file passed standalone
+    // and failed only inside pre-commit. Strip them; every call below passes an explicit cwd, so
+    // repo resolution never depended on the inherited values.
+    const cleanEnv = (): NodeJS.ProcessEnv => {
+      const env = { ...process.env };
+      for (const key of ["GIT_INDEX_FILE", "GIT_DIR", "GIT_WORK_TREE", "GIT_OBJECT_DIRECTORY", "GIT_COMMON_DIR"]) {
+        delete env[key];
+      }
+      return env;
+    };
     const git = (args: string[], cwd: string) =>
-      execFileSync("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
+      execFileSync("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], env: cleanEnv() });
 
     try {
-      execFileSync("git", ["init", "-q", "-b", "main", main], { stdio: "ignore" });
+      execFileSync("git", ["init", "-q", "-b", "main", main], { stdio: "ignore", env: cleanEnv() });
       git(["config", "user.email", "t@example.com"], main);
       git(["config", "user.name", "t"], main);
       git(["commit", "-q", "--allow-empty", "-m", "init"], main);

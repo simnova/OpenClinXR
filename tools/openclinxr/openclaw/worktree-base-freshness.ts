@@ -28,6 +28,32 @@ import { join } from "node:path";
 import { homedir } from "node:os";
 import { resolveCoordinationRoot } from "./coordination-root.js";
 
+/**
+ * The ambient environment with git's per-invocation repo variables STRIPPED.
+ *
+ * MEASURED 2026-08-29. `git worktree add` dies as
+ * `fatal: .git/index: index file open failed: Not a directory` when it inherits GIT_INDEX_FILE from
+ * a git HOOK: git exports that (and often GIT_DIR / GIT_WORK_TREE) pointing at the in-progress
+ * commit's temp index, and a child git tries to use it as its own. It reproduces ONLY inside a
+ * commit, so this suite passed standalone at 71 files / 645 tests and reddened in pre-commit. That
+ * asymmetry cost several cycles misdiagnosed first as flake, then as peer worktree contention —
+ * the worktree count was unchanged at 551, so that second hypothesis was measurably wrong.
+ *
+ * NOT test-only: a dispatch launched from any hook context hits it identically.
+ *
+ * Stripping is safe because every git call here passes an explicit `cwd`, so repo resolution never
+ * depended on the inherited values. Exported so dispatch-worker uses this one copy — the repo's own
+ * rule for the run: allow-list applies here too: two copies would drift.
+ */
+export function gitEnvWithoutInheritedRepoVars(): NodeJS.ProcessEnv {
+  const env = { ...process.env };
+  for (const key of ["GIT_INDEX_FILE", "GIT_DIR", "GIT_WORK_TREE", "GIT_OBJECT_DIRECTORY", "GIT_COMMON_DIR"]) {
+    delete env[key];
+  }
+  return env;
+}
+
+
 /** Same default root as dispatch-worker WORKTREE_ROOT — kept local to avoid import cycles. */
 export const MANAGED_WORKTREE_ROOT = join(homedir(), ".grok", "worktrees", "src-openclinxr");
 
@@ -66,6 +92,7 @@ function git(cwd: string, args: readonly string[]): string {
     cwd,
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],
+    env: gitEnvWithoutInheritedRepoVars(),
   }).trim();
 }
 
@@ -74,6 +101,7 @@ function dirtyCount(cwd: string): number {
     cwd,
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],
+    env: gitEnvWithoutInheritedRepoVars(),
   });
   return out.split("\n").filter(Boolean).length;
 }
@@ -184,7 +212,8 @@ export async function inspectWorktreeBaseFreshness(): Promise<{
   const cleanup = (path: string, branch: string) => {
     try {
       execFileSync("git", ["worktree", "remove", "--force", path], {
-        cwd: mainRoot,
+        env: gitEnvWithoutInheritedRepoVars(),
+      cwd: mainRoot,
         stdio: ["ignore", "pipe", "pipe"],
       });
     } catch {
@@ -192,7 +221,8 @@ export async function inspectWorktreeBaseFreshness(): Promise<{
     }
     try {
       execFileSync("git", ["branch", "-D", branch], {
-        cwd: mainRoot,
+        env: gitEnvWithoutInheritedRepoVars(),
+      cwd: mainRoot,
         stdio: ["ignore", "pipe", "pipe"],
       });
     } catch {
@@ -208,6 +238,7 @@ export async function inspectWorktreeBaseFreshness(): Promise<{
 
     // --- REUSE path: create, commit stale work, dirt, fake node_modules, then ensure ---
     execFileSync("git", ["worktree", "add", "-b", reuseBranch, reusePath], {
+      env: gitEnvWithoutInheritedRepoVars(),
       cwd: mainRoot,
       stdio: ["ignore", "pipe", "pipe"],
     });
@@ -230,7 +261,7 @@ export async function inspectWorktreeBaseFreshness(): Promise<{
         encoding: "utf8",
         stdio: ["ignore", "pipe", "pipe"],
         env: {
-          ...process.env,
+          ...gitEnvWithoutInheritedRepoVars(),
           GIT_AUTHOR_NAME: "issue-148-inspect",
           GIT_AUTHOR_EMAIL: "issue-148-inspect@local",
           GIT_COMMITTER_NAME: "issue-148-inspect",
@@ -274,6 +305,7 @@ export async function inspectWorktreeBaseFreshness(): Promise<{
 
     // --- FRESH CREATE path: git worktree add only (first dispatch), then marker provision ---
     execFileSync("git", ["worktree", "add", "-b", freshBranch, freshPath], {
+      env: gitEnvWithoutInheritedRepoVars(),
       cwd: mainRoot,
       stdio: ["ignore", "pipe", "pipe"],
     });
