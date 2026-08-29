@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "openclinxr.glb-grade-capture.v1",
+  "generatedAt": "2026-08-29T04:28:14.318Z",
+  "measuredAgainstCommit": "288991c03b4c8dbd5859fbf799a3f9a221beda4c",
+  "treeStamp": {
+    "head": "288991c03b4c8dbd5859fbf799a3f9a221beda4c",
+    "fingerprint": "202bbe85d4ed5bea1c049f34a24bff6c3084593ed14bab29496c4fb55fc1678e",
+    "algorithm": "git-head+status+diff-sha256"
+  },
+  "claimScope": "browser_threejs_render_with_independent_geometry_self_check_not_visual_realism_or_readiness",
+  "purpose": "Render every shipped humanoid through the real model-vetting three.js path, fail-closed when in-page geometry disagrees with the NodeIO probe, and emit lit+structure passes for human grading. Does not assert any asset looks right.",
+  "defaultRelativeTolerance": 0.15,
+  "coverage": {
+    "generatedHumanoidsGlbCount": 1,
+    "cagematchCurrentGlbCount": 0,
+    "total": 1,
+    "missingOnDisk": []
+  },
+  "assets": [
+    {
+      "sourceGlbPath": "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
+      "assetId": "mpfb-gown-adult-patient",
+      "exists": true,
+      "selfCheck": {
+        "agrees": true,
+        "writeImages": true,
+        "relativeError": 0.00017969330187259832,
+        "tolerance": 0.15,
+        "probe": {
+          "height": 1.8040318662749542,
+          "horizontalExtent": 1.122798204421997
+        },
+        "inPage": {
+          "height": 1.804,
+          "horizontalExtent": 1.123
+        }
+      },
+      "images": {
+        "front_lit": "tools/openclinxr/evidence/issue-746/2026-08-29T04-28-03Z/assets/mpfb-gown-adult-patient/front_lit.png",
+        "front_structure": "tools/openclinxr/evidence/issue-746/2026-08-29T04-28-03Z/assets/mpfb-gown-adult-patient/front_structure.png",
+        "three_quarter_lit": "tools/openclinxr/evidence/issue-746/2026-08-29T04-28-03Z/assets/mpfb-gown-adult-patient/three_quarter_lit.png",
+        "three_quarter_structure": "tools/openclinxr/evidence/issue-746/2026-08-29T04-28-03Z/assets/mpfb-gown-adult-patient/three_quarter_structure.png"
+      },
+      "refusedReason": null,
+      "notes": [
+        "probe height=1.8040 horiz=1.1228",
+        "inPage height=1.8040 horiz=1.1230",
+        "relativeError=0.0002 tol=0.15",
+        "lit_sha256=ad4430f533a2",
+        "structure_sha256=201e2997cbfd"
+      ]
+    }
+  ],
+  "notEvidenceFor": [
+    "production_asset_readiness",
+    "quest_readiness",
+    "learner_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "b_plus_visual_realism_gate",
+    "visual_grade_verdict"
+  ]
+}

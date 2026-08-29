@@ -50,6 +50,42 @@ import { describe, expect, it } from "vitest";
  * Counterweight (4) pins the measured population: the assertion reads the UPPER HALF over the gown's
  * full y-range. Narrowing it to the fold band alone would drop the armpit deciles and green this file
  * while the vertices stay where they are.
+ *
+ * ## FIXED (#746) 2026-08-29
+ *
+ * The 73 were the shell fit, not the fold: the normal-offset shell follows the body's own
+ * surface normals, and in the concave armpit/under-deltoid crease those normals point INTO
+ * the body, so the shell landed inside the skin at the armpit/sleeve-root; the #714 clamp
+ * bounds the fold trough by the lift, but a shell already inside before the fold runs cannot
+ * be reached by any bound on d (#719 verdict: upstream_shell_required). The per-vertex
+ * diagnostic showed all 73 lateral (|x| 0.22..0.36, y 1.15..1.35), nearest body surface the
+ * deltoid bulge (radial 0.27..0.36) — confirming the #714 worker's armpit/sleeve-root report.
+ *
+ * Fix (automate_blender.py #746, clothing_consume): after the #686 fold displacement, push
+ * every gown vertex to at least 8.1 mm OUTSIDE the nearest point on the VISIBLE SKIN region
+ * of the body copy (mesh_obj.data material slots, mpfb_skin_*), so the shell bridges the
+ * deltoid instead of the crease. The reference excludes the garment-covered hidden regions
+ * (armpit-crease walls ~30 mm medial of the deltoid) whose inward normals defeated both the
+ * offset and a full-body push-out; material slots are read before the shell's gmesh clears
+ * them. Deterministic, no geometry authored (D1); the rebuilds and the #714 clamp are
+ * untouched; _fold_amp686=0.034 and _fold_k686=16 literal.
+ *
+ * Re-baked from the shipped asset via bake_mpfb_gown_inspect.py (Blender-only regeneration
+ * path, SS6r), gown-only mesh replaced in the shipped GLB by tools/openclinxr/evidence/
+ * gown-746-splice.ts (JOINTS_0 remapped to the shipped skin by joint name; the other 9
+ * meshes byte-identical), then meshopt-decimated back to the shipped gown's triangle scale
+ * (target 84,000 indices, 1 mm error budget — the #695 rung, kept in the regeneration path
+ * so the asset size and the origin counterweight's lower-half parity count stay comparable;
+ * the 1 mm budget preserves the 8.1 mm push-out clearance). Measured on the shipped asset
+ * sha 029dbb50… (18,840,716 B) with gown-shard-mechanism-measure.ts:
+ *
+ *   two-tests-agree upper = 0, lower = 0      (was 73 upper after #714's clamp)
+ *   +X-parity lower = 32 (≤ the 32 pre-fix bound the origin counterweight pins)
+ *   gown vertices = 14,455 (≥ the 14,007 no-deletion floor)
+ *   push-out moved 1359 of 25175 shell verts at the bake (floor 8.1 mm, skin-region
+ *   reference), decimated to 14,455 shipped vertices
+ *
+ * Clause (1) is now a live assertion; the counterweights (2)-(4) still hold.
  */
 
 const REPO = join(import.meta.dirname, "../../..");
@@ -79,7 +115,7 @@ function reportOrNull(): Report | null {
 }
 
 describe("no gown vertex is inside the body after the clamp (#746)", () => {
-  it.fails("(1) no gown vertex sits inside the body in the bodice half", () => {
+  it("(1) no gown vertex sits inside the body in the bodice half", () => {
     const report = reportOrNull();
     expect(
       report !== null,
