@@ -39,6 +39,7 @@ import {
 import { EncounterEnvironmentPanel } from "./EncounterEnvironmentPanel.js";
 import { ActorPhenotypeFields } from "./ActorPhenotypeFields.js";
 import { AssetNeedsPanel } from "./AssetNeedsPanel.js";
+import { EmotionPolicyPanel } from "./EmotionPolicyPanel.js";
 import { EquipmentPanel } from "./EquipmentPanel.js";
 import { StringListField } from "./StringListField.js";
 const { TextArea } = Input;
@@ -370,6 +371,7 @@ export function CaseAuthoringWorkbench({ initialScenario, apiClient }: CaseAutho
         </Card>
         <EncounterEnvironmentPanel environmentId={baseDraft.environment?.environmentId} />
         <EquipmentPanel />
+        <EmotionPolicyPanel />
         <AssetNeedsPanel />
         <Card title="Actors & interactions" size="small" style={{ marginBottom: 16 }}>
           <Form.List name="actors">

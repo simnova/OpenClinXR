@@ -184,6 +184,8 @@ export type ScenarioFormValues = {
   equipment: string[];
   /** Authored asset-need rows (assetId, assetType, description, licenseStatus). */
   assetNeeds: ScenarioAssetNeed[];
+  /** Authored actor-affect policy (baseline/upper/lower bounds; transitions are preserved, not edited). */
+  emotionPolicy?: Scenario["emotionPolicy"];
   actors: ScenarioActorFormValue[];
   eventSchedule: Scenario["eventSchedule"];
 };
@@ -209,6 +211,9 @@ export function scenarioToFormValues(scenario: Scenario): ScenarioFormValues {
     environmentId: scenario.environment?.environmentId,
     equipment: [...(scenario.equipment ?? [])],
     assetNeeds: (scenario.assetNeeds ?? []).map((need) => ({ ...need })),
+    emotionPolicy: scenario.emotionPolicy
+      ? { ...scenario.emotionPolicy, transitions: [...scenario.emotionPolicy.transitions] }
+      : undefined,
     clinicalObjectives: [...scenario.clinicalObjectives],
     requiredTraceTags: [...scenario.requiredTraceTags],
     eventSchedule: scenario.eventSchedule.map((entry) => ({ ...entry })),
@@ -332,7 +337,7 @@ function authoredEnvironment(
 
 /**
  * Merge the edited form subset back onto the full base Scenario, preserving every
- * field the form does not expose (review gates, governance, rubric, emotion policy).
+ * field the form does not expose (review gates, governance, rubric).
  * An authored environmentId that DIFFERS from the imported one
  * round-trips onto scenario.environment (name/description derived from the
  * registered shell, so the case stays self-consistent when the room changes);
@@ -341,8 +346,14 @@ function authoredEnvironment(
  * stay lossless. Authored equipment (a free-text string list) round-trips onto
  * scenario.equipment, trimmed with empty rows dropped (ScenarioSchema requires
  * minLength-1 strings). Authored asset needs (a row list) round-trip onto
- * scenario.assetNeeds, trimmed with incomplete rows dropped. Guarantees a
- * lossless round-trip of imported cases.
+ * scenario.assetNeeds, trimmed with incomplete rows dropped. Authored emotion
+ * policy bounds round-trip onto scenario.emotionPolicy: the form exposes no
+ * transition-rule editor, so the imported base's transitions are preserved and
+ * a fresh policy starts with an empty rule list (CaseEmotionPolicySchema
+ * requires the array); an incomplete policy (any bound missing) is dropped,
+ * preserving the imported base like incomplete asset-need rows, so the runtime
+ * falls back to DEFAULT_EMOTION_POLICY rather than receiving a broken policy.
+ * Guarantees a lossless round-trip of imported cases.
  */
 export function mergeFormValuesIntoScenario(base: Scenario, values: ScenarioFormValues): Scenario {
   const environmentId = values.environmentId?.trim() ?? "";
@@ -361,6 +372,15 @@ export function mergeFormValuesIntoScenario(base: Scenario, values: ScenarioForm
   };
   if (environmentId.length > 0 && environmentId !== base.environment?.environmentId) {
     merged.environment = authoredEnvironment(environmentId);
+  }
+  const authoredPolicy = values.emotionPolicy;
+  if (authoredPolicy && authoredPolicy.baseline && authoredPolicy.upperBound && authoredPolicy.lowerBound) {
+    merged.emotionPolicy = {
+      baseline: authoredPolicy.baseline,
+      upperBound: authoredPolicy.upperBound,
+      lowerBound: authoredPolicy.lowerBound,
+      transitions: authoredPolicy.transitions ?? base.emotionPolicy?.transitions ?? [],
+    };
   }
   return merged;
 }
