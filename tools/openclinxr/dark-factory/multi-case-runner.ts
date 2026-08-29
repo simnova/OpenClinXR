@@ -26,8 +26,11 @@
  *                            rhubarb --exportFormat json; viseme timing baked at build time, no network, no model)
  *  10. world_compile         — tools/openclinxr/factory/encounter-materialization-compile.ts compileEncounterMaterialization
  *                            (WCG compile driven by the chain: newest dated evidence JSON + chain stage-body/stage-rig
- *                            artifact hashes -> compileNodes with wouldInvoke/skippedBakers; no Blender is spawned —
- *                            the plan, not the invocation)
+ *                            artifact hashes -> compileNodes with wouldInvoke/skippedBakers), then the planned-baker
+ *                            invoker (tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts) hands every
+ *                            wouldInvoke === "blender" node to the chain's real baker runner (runChainWorldCompileBaker
+ *                            -> orchestrate_character.py). Locked wardrobes stay skipped (lock skip survives
+ *                            invocation).
  *
  * COUNTERWEIGHT (per issue-288): a station may be classified `deterministic` ONLY
  * with an on-disk artifact proving it ran; `not_run`, `absent` and `error` are
@@ -65,6 +68,7 @@ import {
   compileEncounterMaterialization,
   type CompilePlanNode,
 } from "../factory/encounter-materialization-compile.js";
+import * as plannedBakers from "../factory/invoke-planned-world-compile-bakers.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -190,7 +194,7 @@ const IMPLEMENTATIONS: Record<DarkFactoryStationId, string> = {
   lip_sync:
     "multi-case-runner.ts runLipSyncStation (offline macOS say -> afconvert -> rhubarb 1.14.0 --exportFormat json; viseme timing baked at build time, no network, no model)",
   world_compile:
-    "tools/openclinxr/factory/encounter-materialization-compile.ts:168 compileEncounterMaterialization (WCG compile runner: compileNodes + wouldInvoke/skippedBakers; no Blender is spawned by this runner — wouldInvoke is a plan, not an invocation)",
+    "tools/openclinxr/factory/encounter-materialization-compile.ts:168 compileEncounterMaterialization (WCG compile runner: compileNodes + wouldInvoke/skippedBakers) + tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts planned-baker invocation (hands wouldInvoke === \"blender\" nodes to runChainWorldCompileBaker -> orchestrate_character.py; locked wardrobes stay skipped)",
 };
 
 const STATION_NAMES: Record<DarkFactoryStationId, string> = {
@@ -1043,13 +1047,87 @@ export async function resolveChainArtifactPaths(
 }
 
 /**
- * Station 10: run the WCG compile for a case. The worldview editor drives a
- * compile by running the dark-factory chain: compileEncounterMaterialization
- * reads the newest dated evidence JSON for the case (docs/openclinxr), hashes
- * the chain's own stage-body/stage-rig artifacts as the current-artifact view,
- * and writes the compiled evidence JSON (compileNodes + wouldInvoke/
- * skippedBakers) under stage-world-compile/. No Blender is spawned — wouldInvoke
- * is the plan, and a bake is a separate factory step.
+ * Real baker runner for the world_compile station's planned bakes (issue #0).
+ *
+ * wardrobe_character nodes are re-baked through the chain's own headless-Blender
+ * entrypoint (orchestrate_character.py --case-actor-preset <case>:<actor> — the
+ * same command the rigging station uses), with the output written under the
+ * world_compile station's own bake dir, NEVER clobbering stage-rig. No other
+ * bakerId records wouldInvoke === "blender" in the current compile, so those
+ * are skipped with a recorded reason.
+ *
+ * Fail-closed guards: a node whose spec lacks scenarioId/actorId, or whose
+ * current artifact the chain did not produce, is skipped rather than baked
+ * blind — without the `anny` package a full orchestrate silently emits ~0.8 MB
+ * stub GLBs, so never invoke a baker whose inputs this chain did not produce.
+ * Every outcome is recorded next to the bake; a failed bake is recorded and
+ * re-thrown so the invocation report carries it too.
+ */
+export async function runChainWorldCompileBaker(
+  input: plannedBakers.WorldCompileBakerRunnerInput & {
+    bakeOutDir: string;
+    invocationOutDir: string;
+  },
+): Promise<void> {
+  const { node, artifactPath } = input;
+  await mkdir(input.invocationOutDir, { recursive: true });
+  await mkdir(input.bakeOutDir, { recursive: true });
+  const record: Record<string, unknown> = {
+    schemaVersion: "openclinxr.world-compile.baker-invocation-node.v1",
+    nodeId: node.nodeId,
+    bakerId: node.bakerId,
+    status: "invoked",
+  };
+  const recordPath = path.join(input.invocationOutDir, `${node.nodeId.replace(/[^A-Za-z0-9_.-]/g, "_")}.json`);
+  try {
+    if (node.bakerId !== "wardrobe_character") {
+      record.status = "skipped";
+      record.reason = `no chain bake entrypoint for bakerId ${node.bakerId}`;
+    } else if (!node.spec.scenarioId || !node.spec.actorId) {
+      record.status = "skipped";
+      record.reason = "node spec lacks scenarioId/actorId; no preset to bake";
+    } else if (!artifactPath) {
+      record.status = "skipped";
+      record.reason =
+        "missing_artifact: the chain produced no wardrobe GLB for this node; refusing to bake blind (worktree stub trap)";
+    } else {
+      const presetId = `${node.spec.scenarioId}:${node.spec.actorId}`;
+      const base = path.basename(artifactPath).replace(/\.glb$/i, "");
+      const glbOut = path.join(input.bakeOutDir, `${base}.glb`);
+      await execFileAsync("python3", [ORCHESTRATE, "--case-actor-preset", presetId, "--output-glb", glbOut], {
+        cwd: REPO_ROOT,
+        maxBuffer: 64 * 1024 * 1024,
+      });
+      // orchestrate_character.py exits 0 even when the Blender stage fails to
+      // write the GLB (measured in the rigging station); the file is the evidence.
+      if (!(await existsPath(glbOut))) {
+        throw new Error(`orchestrate_character.py exited 0 but produced no GLB at ${glbOut}`);
+      }
+      record.status = "invoked";
+      record.presetId = presetId;
+      record.outputGlb = relStage(input.bakeOutDir, `${base}.glb`);
+    }
+  } catch (err) {
+    record.status = "failed";
+    record.error = errMessage(err);
+  }
+  await writeFile(recordPath, `${JSON.stringify(record, null, 2)}\n`, "utf8");
+  if (record.status === "failed") {
+    throw new Error(`${node.nodeId}: ${String(record.error)}`);
+  }
+}
+
+/**
+ * Station 10: run the WCG compile for a case, then execute the plan. The
+ * worldview editor drives a compile by running the dark-factory chain:
+ * compileEncounterMaterialization reads the newest dated evidence JSON for the
+ * case (docs/openclinxr), hashes the chain's own stage-body/stage-rig
+ * artifacts as the current-artifact view, and writes the compiled evidence JSON
+ * (compileNodes + wouldInvoke/skippedBakers) under stage-world-compile/.
+ * The planned-baker invoker then runs a baker runner for every node the plan
+ * marked wouldInvoke === "blender" (locked wardrobes stay skipped); the chain's
+ * real runner re-bakes the wardrobe through orchestrate_character.py into
+ * stage-world-compile/bakes/ — never clobbering stage-rig.
  */
 async function runWorldCompileStage(
   caseId: string,
@@ -1074,6 +1152,34 @@ async function runWorldCompileStage(
       artifactPathsByNodeId,
     });
     const plannerNodes = (result.report.compileNodes ?? []) as CompilePlanNode[];
+    // Execute the plan: hand every wouldInvoke === "blender" node to the
+    // chain's real baker runner; locked/cached wardrobes stay skipped.
+    const bakeOutDir = path.join(stageDir, "bakes");
+    const invocationOutDir = path.join(stageDir, "baker-invocations");
+    const invocationReport = await plannedBakers.invokePlannedWorldCompileBakers(
+      plannerNodes,
+      (input) =>
+        runChainWorldCompileBaker({
+          ...input,
+          bakeOutDir,
+          invocationOutDir,
+        }),
+      {
+        artifactPathsByNodeId,
+        runnerName:
+          "multi-case-runner.ts runChainWorldCompileBaker (wardrobe_character -> orchestrate_character.py --case-actor-preset <case>:<actor>; bake output under stage-world-compile/bakes, never clobbering stage-rig)",
+      },
+    );
+    const invocationReportPath = path.join(stageDir, "planned-baker-invocations.json");
+    await writeFile(invocationReportPath, `${JSON.stringify(invocationReport, null, 2)}\n`, "utf8");
+    const invocationArtifacts: string[] = [relStage(stageDir, "planned-baker-invocations.json")];
+    for (const dir of [invocationOutDir, bakeOutDir]) {
+      try {
+        for (const entry of await readdir(dir)) invocationArtifacts.push(relStage(dir, entry));
+      } catch {
+        // No per-node records / no bake outputs for this compile; fine.
+      }
+    }
     const stationArtifactPath = path.join(stageDir, "world-compile-station.json");
     await writeFile(
       stationArtifactPath,
@@ -1087,6 +1193,12 @@ async function runWorldCompileStage(
         skippedBakers: result.skippedBakers,
         nodeCount: plannerNodes.length,
         wouldInvokeBlenderCount: plannerNodes.filter((n) => n.wouldInvoke === "blender").length,
+        plannedBakerInvocations: {
+          plannedCount: invocationReport.plannedCount,
+          invokedCount: invocationReport.invokedCount,
+          skippedCount: invocationReport.skippedCount,
+          failedCount: invocationReport.failedCount,
+        },
         artifactPathsByNodeId,
       }, null, 2)}\n`,
       "utf8",
@@ -1095,8 +1207,9 @@ async function runWorldCompileStage(
       row: makeRow("world_compile", "deterministic", [
         relStage(stageDir, "compiled-evidence.json"),
         relStage(stageDir, "world-compile-station.json"),
+        ...invocationArtifacts,
       ], [
-        `RAN compileEncounterMaterialization for ${caseId} (prior ${path.basename(priorPath)}): compileVersion ${result.compileVersion}, ${plannerNodes.length} compile node(s), ${result.skippedBakers.length} wardrobe baker(s) skipped, ${plannerNodes.filter((n) => n.wouldInvoke === "blender").length} node(s) plan blender. No Blender spawned — wouldInvoke is a plan, not an invocation.`,
+        `RAN compileEncounterMaterialization for ${caseId} (prior ${path.basename(priorPath)}): compileVersion ${result.compileVersion}, ${plannerNodes.length} compile node(s), ${result.skippedBakers.length} wardrobe baker(s) skipped, ${plannerNodes.filter((n) => n.wouldInvoke === "blender").length} node(s) plan blender. invokePlannedWorldCompileBakers executed the plan: ${invocationReport.invokedCount} planned bake(s) invoked, ${invocationReport.skippedCount} skipped (lock/cache/stale), ${invocationReport.failedCount} failed — see planned-baker-invocations.json.`,
       ]),
     };
   } catch (err) {
@@ -1133,7 +1246,7 @@ function executionCommandsFor(): Record<string, string> {
     staging_placement: "in-process packages/openclinxr/asset-registry/src/actor-placement.ts generatedActorPlacement(cast, index)",
     render: "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)",
     lip_sync: "in-process multi-case-runner.ts runLipSyncStation (offline macOS `say` -> `afconvert` -> rhubarb --exportFormat json; binary resolved explicitly from ~/.openclinxr-tools/rhubarb/rhubarb, NOT on PATH)",
-    world_compile: "in-process tools/openclinxr/factory/encounter-materialization-compile.ts compileEncounterMaterialization (newest dated evidence JSON + chain stage-body/stage-rig artifact hashes -> compiled-evidence.json; no Blender spawned)",
+    world_compile: "in-process tools/openclinxr/factory/encounter-materialization-compile.ts compileEncounterMaterialization (newest dated evidence JSON + chain stage-body/stage-rig artifact hashes -> compiled-evidence.json), then tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts invokePlannedWorldCompileBakers with the chain's real baker runner (wardrobe_character -> python3 orchestrate_character.py --case-actor-preset <case>:<actor> --output-glb <stage-world-compile>/bakes/<name>.glb; locked wardrobes stay skipped)",
   };
 }
 
