@@ -15,6 +15,15 @@ import { describe, expect, it } from "vitest";
  *
  * claimScope: the HTTP handler faculty uses to compile.
  * notEvidenceFor: live Blender; baker lock-skip; Quest; clinical validity.
+ *
+ * ## FIXED (#0)
+ * 2026-08-29. apps/api/src/world-compile-routes.ts registers
+ * POST /internal/world-compile (faculty-guarded) and invokes
+ * compileEncounterMaterialization (tools/openclinxr/factory WCG compile runner,
+ * loaded through a non-static specifier like the Mongo boot) against the newest
+ * dated encounter-materialization-evidence JSON for the scenarioId under
+ * docs/openclinxr/, writing the compiled report under the gitignored
+ * .openclinxr/evidence/world-compile/. No baker spawn, no packet promote.
  */
 
 const API_SRC = dirname(fileURLToPath(import.meta.url));
@@ -26,11 +35,11 @@ function apiTsSources(): string[] {
 }
 
 describe("the world-compile route invokes compileEncounterMaterialization", () => {
-  it.fails("(1) some non-test apps/api source mentions /internal/world-compile", () => {
+  it("(1) some non-test apps/api source mentions /internal/world-compile", () => {
     expect(apiTsSources().some((src) => src.includes("/internal/world-compile"))).toBe(true);
   });
 
-  it.fails("(2) some non-test apps/api source mentions compileEncounterMaterialization", () => {
+  it("(2) some non-test apps/api source mentions compileEncounterMaterialization", () => {
     expect(apiTsSources().some((src) => src.includes("compileEncounterMaterialization"))).toBe(true);
   });
 
