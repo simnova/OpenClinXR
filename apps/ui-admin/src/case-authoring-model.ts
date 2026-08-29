@@ -198,6 +198,13 @@ export type ScenarioActorFormValue = {
   hiddenFacts?: string[];
   habitus?: BodyMechanics["habitus"];
   touchResponses?: TouchResponse[];
+  /**
+   * ActorCard.placement (W11s). Carried on the form so faculty staging survives a
+   * round-trip: actorFromFormValue re-attaches members BY NAME, so an optional member with
+   * no branch here is silently dropped on export — the docstring below promising "any future
+   * optional fields" survive describes the intent, not the mechanism.
+   */
+  placement?: ActorCard["placement"];
   phenotype?: ActorPhenotype;
   /** Faculty-authored Satir/custom dialogue profile; merged in preference to the imported actor. */
   communicationProfile?: ActorCard["communicationProfile"];
@@ -229,6 +236,7 @@ export function scenarioToFormValues(scenario: Scenario): ScenarioFormValues {
       touchResponses: actor.bodyMechanics?.touchResponses?.map((response) => ({ ...response })) ?? [],
       ...(actor.phenotype ? { phenotype: { ...actor.phenotype } } : {}),
       ...(actor.communicationProfile ? { communicationProfile: { ...actor.communicationProfile } } : {}),
+      ...(actor.placement ? { placement: { ...actor.placement } } : {}),
     })),
   };
 }
@@ -335,6 +343,13 @@ function actorFromFormValue(base: Scenario, formActor: ScenarioActorFormValue): 
   const phenotype = cleanPhenotype(formActor.phenotype);
   if (phenotype) {
     actor.phenotype = phenotype;
+  }
+  // Placement round-trip (W11). Prefer the form value; fall back to the imported actor so a
+  // form that never surfaced the control cannot silently strip authored staging. Absent stays
+  // absent — empty is legal and an actor without placement emits no Placement node.
+  const placement = formActor.placement ?? preserved?.placement;
+  if (placement) {
+    actor.placement = { ...placement };
   }
   return actor;
 }
