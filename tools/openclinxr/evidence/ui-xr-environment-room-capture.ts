@@ -657,8 +657,9 @@ async function readLiveShellFromPage(page: Page): Promise<LiveShellFromPage> {
  *   eyeX  = one of five doorway-side candidate Xs (interior corners + edge midpoints, each inset
  *           by 2×wall thickness) whose eye→look ray is NOT blocked by a room surface or door leaf,
  *           chosen to MAXIMISE the distance to the NEAREST actor box in the XZ plane; candidates
- *           scoring within one 0.05 m tie band (2× the measured near-tie gap, #638) resolve to
- *           the first in candidate order so the choice never depends on actor settle
+ *           scoring within one 0.44 m tie band (2× the widest measured inter-candidate
+ *           difference, #0) resolve to the first in candidate order so the choice never
+ *           depends on actor settle
  * i.e. stand inside the room, backed against the doorway-side interior wall — the furthest
  * in-room viewpoint the geometry allows — and look at the encounter.
  *
@@ -922,10 +923,19 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
     // the derived eye flipped side 1-in-5 then 1-in-6). Treat scores within one tie band as
     // equal and keep the FIRST candidate in pool order — the pool order is deterministic (the
     // interior-corner list), so the eye is a pure function of the room geometry again.
-    // The band is 2x the widest measured inter-candidate gap (#638: 3.1295..3.1368 vs
-    // 3.1523..3.1546), large enough to absorb actor settle and far below any standoff
-    // difference that would change the frame.
-    const scoreTieBandMeters = 0.05;
+    // The band is 2x the WIDEST MEASURED inter-candidate difference, not 2x the first
+    // station's gap: 0.05 m held only while primary_care's corners stayed within ~0.015 m,
+    // and #0 re-measured the bank finding the same near-tie at ed_stroke (corners differ up
+    // to 0.22 m — 2.47..2.57 vs 2.35..2.37 across 16 boots in two sessions) and primary_care
+    // (up to 0.17 m), so the 0.05 band flipped both stations' eyes between +X and -X again
+    // (camera-lands test: primary_care moved 6.02 m in 3 repeats). 0.44 = 2x the widest
+    // measured 0.22, and the full-bank probe (15 stations, 3 boots each) shows no other
+    // station changes winner under it: every other room's corner gap is either already won by
+    // the first-in-pool candidate or, for ob_headache_preeclampsia_triage_v1, a genuine
+    // 0.87 m gap that stays decisive at 2x the band. A band this wide cannot hide a real
+    // framing difference between two candidates; it can only break a coin flip between
+    // near-symmetric corners.
+    const scoreTieBandMeters = 0.44;
     let eyeXZ = pool[0], bestScore = -1;
     for (let i = 0; i < pool.length; i++) {
       const s = nearestActorDistance(pool[i][0], pool[i][1]);
