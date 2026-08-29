@@ -26,9 +26,7 @@ export type HumanoidRuntimeAssetLike = {
   blob: { blobName: string; url?: string };
 };
 
-/** Mirrors actor-casting ED patient cast path — keep in sync when renaming the GLB. */
-export const ED_ADULT_CAST_RUNTIME_PATH = "/generated-humanoids/ed_chest_pain_adult_cast.glb";
-
+/** #491 L6 — ED cast fallback resolves to the gowned MPFB patient body (defined below). */
 const ED_SCENARIO_IDS = new Set([
   "ed_chest_pain_priority_v1",
   "ed_chest_pain_priority_v2",
@@ -46,14 +44,15 @@ const ADULT_MALE_STREET_CASUAL_GLB = "adult_male_street_casual.glb";
 /** #444 — the street_casual patients' MPFB body. Mirrors actor-casting MPFB_STREET_ADULT_MALE_GLB. */
 const MPFB_STREET_ADULT_MALE_GLB = "mpfb-street-adult-male.glb";
 /**
- * #218 — body-param library GLB (tracked under candidates/).
- * Staged on ED spouse only; patient stays Anny gown (#160).
- * Mirrors actor-casting LIBRARY_ADULT_LEAN_FEMALE_GLB.
+ * #218 — hm08 MakeHuman basemesh library GLBs (tracked under candidates/).
+ * No cast row stages them since #403/#479 (ED spouse -> MPFB family-partner,
+ * peds nurse -> MPFB peds-nurse-kevin); the emulator keeps them resolvable for
+ * bundles that still name them. Mirrors actor-casting LIBRARY_ADULT_*_GLB.
  */
 export const LIBRARY_ADULT_LEAN_FEMALE_RUNTIME_PATH =
   "/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb";
 /**
- * #278 — the second hm08 library body class, staged on the peds nurse (male).
+ * #278 — the second hm08 library body class.
  * Mirrors actor-casting LIBRARY_ADULT_HEAVY_MALE_GLB.
  */
 export const LIBRARY_ADULT_HEAVY_MALE_RUNTIME_PATH =
@@ -96,6 +95,13 @@ export const MPFB_FAMILY_PARTNER_ADULT_RUNTIME_PATH =
  */
 export const MPFB_GOWN_ADULT_PATIENT_RUNTIME_PATH =
   "/generated-humanoids/mpfb-gown-adult-patient.glb";
+/**
+ * #491 L6 + #652 — the last Anny literal in the cast path is retired. Any ED actor not
+ * in ED_RUNTIME_CAST_BY_ACTOR (extra staff, unknown casts) resolves to the same gowned
+ * MPFB body as the ED patient cast row; the Anny ed_chest_pain_adult_cast.glb still
+ * ships as a comparator only. Mirrors actor-casting's ED rows.
+ */
+export const ED_ADULT_CAST_RUNTIME_PATH = MPFB_GOWN_ADULT_PATIENT_RUNTIME_PATH;
 /** Bare filenames for pool assignment — mirrors actor-casting #403/#476 constants. */
 const MPFB_CLINICAL_NURSE_ADULT_GLB = "mpfb-clinical-nurse-adult.glb";
 const MPFB_CLINICAL_PHYSICIAN_ADULT_GLB = "mpfb-clinical-physician-adult.glb";
@@ -103,6 +109,22 @@ const MPFB_FAMILY_PARTNER_ADULT_GLB = "mpfb-family-partner-adult.glb";
 const MPFB_PEDS_NURSE_KEVIN_GLB = "mpfb-peds-nurse-kevin.glb";
 const MPFB_PEDS_PATIENT_CHILD_GLB = "mpfb-peds-patient-child.glb";
 const MPFB_GOWN_ADULT_PATIENT_GLB = "mpfb-gown-adult-patient.glb";
+
+/**
+ * #652 — Anny rail retired from casting. Anny-era blob names that the emulator or a
+ * shipped bundle can still hand the runtime resolve to their MPFB2 counterpart, never
+ * to the Anny GLB. Mirrors actor-casting cast rows (#403 nurse, #444 street male,
+ * #479 family partner, #491 gowned patient, #335 peds cast, #557 parent motion-bind).
+ */
+const ANNY_TO_MPFB_RUNTIME_PATH: Readonly<Record<string, string>> = {
+  [PEDS_CHILD_GLB]: MPFB_PEDS_PATIENT_CHILD_RUNTIME_PATH,
+  [PEDS_PARENT_GLB]: MPFB_PEDS_PARENT_AISHA_RUNTIME_PATH,
+  [PEDS_NURSE_GLB]: MPFB_PEDS_NURSE_KEVIN_RUNTIME_PATH,
+  [ADULT_MALE_STREET_CASUAL_GLB]: runtimePath(MPFB_STREET_ADULT_MALE_GLB),
+  "ed_chest_pain_nurse_adult.glb": MPFB_CLINICAL_NURSE_ADULT_RUNTIME_PATH,
+  "ed_chest_pain_spouse_adult.glb": MPFB_FAMILY_PARTNER_ADULT_RUNTIME_PATH,
+  "ed_chest_pain_adult_cast.glb": MPFB_GOWN_ADULT_PATIENT_RUNTIME_PATH,
+};
 
 const ADULT_POOL_GLBS = [
   MPFB_CLINICAL_NURSE_ADULT_GLB,
@@ -361,6 +383,9 @@ export function resolveLocalHumanoidRuntimeAssetUrl(
     || fileName === ADULT_MALE_STREET_CASUAL_GLB
     || fileName === MPFB_STREET_ADULT_MALE_GLB
   ) {
+    // #652 — Anny blob names remap to their MPFB2 counterpart; mpfb-* names fall through.
+    const remapped = ANNY_TO_MPFB_RUNTIME_PATH[fileName];
+    if (remapped) return remapped;
     return `/generated-humanoids/${fileName}`;
   }
 

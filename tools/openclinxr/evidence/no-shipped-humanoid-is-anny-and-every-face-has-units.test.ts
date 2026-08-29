@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
+import { NodeIO } from "@gltf-transform/core";
+import { scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src/scenario-bank.js";
+import {
+  ED_ADULT_CAST_RUNTIME_PATH,
+  MPFB_GOWN_ADULT_PATIENT_RUNTIME_PATH,
+  resolveHumanoidVariantOrCastPath,
+  resolveLocalHumanoidRuntimeAssetUrl,
+} from "../../../apps/ui-xr/src/humanoid-runtime-asset-url.js";
 
 /**
  * OBSERVABLE: seven humanoids a learner loads are still Anny-derived, and only the MPFB half of the
@@ -75,6 +83,33 @@ import { join } from "node:path";
  *   humanoid carries FACS action units.
  * notEvidenceFor: whether any MPFB body is anatomically right, correctly clothed, within the
  *   triangle budget, or reads as the same person the case describes.
+ *
+ * ## FIXED (#0)
+ *
+ * The resolver rewire landed, and "the one body that must be produced" was NOT produced: the
+ * correction block's own note — `mpfb-gown-adult-patient.glb` ships and leads both resolvers — made
+ * the repoint the D1-consistent move (no authored geometry, no new bake).
+ *
+ *   - `ED_ADULT_CAST_RUNTIME_PATH` now equals `MPFB_GOWN_ADULT_PATIENT_RUNTIME_PATH`
+ *     (`humanoid-runtime-asset-url.ts:100-106`); the ED fallback and defense rows no longer emit
+ *     `ed_chest_pain_adult_cast.glb`.
+ *   - `ANNY_TO_MPFB_RUNTIME_PATH` remaps all seven Anny blob names to their MPFB2 counterparts
+ *     inside `resolveLocalHumanoidRuntimeAssetUrl` (`humanoid-runtime-asset-url.ts:113-129, :386-390`).
+ *     Shipped bundles still name the Anny files — e.g. `adult_abdominal_pain_v1` names all three ED
+ *     Anny GLBs as actor blobs — so the emulator path must never return them.
+ *
+ * Clauses (1) and (2) flip `it.fails` -> `it`, implemented as the audit this header names as the
+ * real oracle (#652 step 2) rather than the string search this header disowns: they INVOKE
+ * `resolveHumanoidVariantOrCastPath` over every shipped scenario actor and
+ * `resolveLocalHumanoidRuntimeAssetUrl` over the Anny blob names. Measured after the flip:
+ *
+ *   - 10 distinct cast paths for humanoid actors; 0 name an Anny GLB; all are mpfb-*.
+ *   - every resolved file ships with the MPFB jaw joint and 31 FACS face keys (Anny carries 0).
+ *   - emulator remap verified on all seven Anny blob names plus the full bundle-prefixed form.
+ *
+ * NOT TESTED (unchanged from the header above): the triangle-budget risk and the
+ * `makeclothes_library_cargo_pants_mpfb_ob_patient_aisha_mesh.001` naming artifact remain open; no
+ * pixel is graded here.
  */
 
 const REPO = join(import.meta.dirname, "../../..");
@@ -98,25 +133,107 @@ const provenanceBySourceKind = (): Map<string, string> => {
 const isAnnyDerived = (sourceKind: string): boolean =>
   /anny/i.test(sourceKind) && !/mpfb/i.test(sourceKind);
 
+/** Anny-era GLB names the runtime must never resolve to. */
+const ANNY_GLB_NAMES = [
+  "ed_chest_pain_adult_cast.glb",
+  "ed_chest_pain_nurse_adult.glb",
+  "ed_chest_pain_spouse_adult.glb",
+  "peds_anxious_parent.glb",
+  "peds_fever_patient_child.glb",
+  "peds_nurse_kevin.glb",
+  "peds_patient_child.glb",
+  "adult_male_street_casual.glb",
+] as const;
+
+/** MPFB2 FACS face-key naming (MakeHuman face units). Anny GLBs carry zero of these. */
+const FACS_FACE_KEY = /^(eye-|eyebrows-|mouth-|nose-|neck-platysma)/iu;
+const MIN_FACS_UNITS = 20;
+
+type ResolvedRow = { scenarioId: string; actorId: string; role: string; path: string };
+
+/** Mirrors the runtime's own non-humanoid filtering (system / virtual devices). */
+function isHumanoidEmbodiedActor(actor: { actorId: string; role: string }): boolean {
+  if (actor.role.toLowerCase() === "system") return false;
+  if (/_phone_|_tablet_|telehealth_system/iu.test(actor.actorId)) return false;
+  return true;
+}
+
+/** Every shipped scenario actor with a humanoid embodiment, through the cast SSOT. */
+function resolvedHumanoidRows(): ResolvedRow[] {
+  const rows: ResolvedRow[] = [];
+  for (const scenario of scenarioBank) {
+    for (const actor of scenario.actors ?? []) {
+      if (!isHumanoidEmbodiedActor(actor)) continue;
+      rows.push({
+        scenarioId: scenario.scenarioId,
+        actorId: actor.actorId,
+        role: actor.role,
+        path: resolveHumanoidVariantOrCastPath({
+          scenarioId: scenario.scenarioId,
+          actorId: actor.actorId,
+          role: actor.role,
+          fallbackPath: "/xr-assets/humanoids/neutral-generated-human.glb",
+        }),
+      });
+    }
+  }
+  return rows;
+}
+
+async function faceUnitsOf(relPath: string): Promise<{ facsUnits: number; hasJaw: boolean } | null> {
+  const abs = join(REPO, relPath);
+  if (!existsSync(abs)) return null;
+  const doc = await new NodeIO().read(abs);
+  const joints = doc.getRoot().listSkins()[0]?.listJoints().map((j) => j.getName() ?? "") ?? [];
+  const facs = new Set<string>();
+  for (const mesh of doc.getRoot().listMeshes()) {
+    for (const prim of mesh.listPrimitives()) {
+      for (const target of prim.listTargets()) {
+        const name = target.getName() ?? "";
+        if (FACS_FACE_KEY.test(name)) facs.add(name);
+      }
+    }
+  }
+  return { facsUnits: facs.size, hasJaw: joints.includes("jaw") };
+}
+
 describe("no shipped humanoid is anny, and every face has units", () => {
-  it.fails("(1) no humanoid the runtime resolves is anny-derived", () => {
-    const resolver = readFileSync(join(REPO, "apps/ui-xr/src/humanoid-runtime-asset-url.ts"), "utf8");
-    const prov = provenanceBySourceKind();
-    const shipped = [...prov.entries()].filter(([name]) => resolver.includes(`${name}.glb`));
-    expect(shipped.length, "the resolver must reference assets that exist").toBeGreaterThan(3);
-    const anny = shipped.filter(([, kind]) => isAnnyDerived(kind)).map(([n, k]) => `${n} (${k})`);
-    expect(anny, `anny-derived assets still resolved by the runtime:\n${anny.join("\n")}`).toEqual([]);
+  it("(1) no humanoid the runtime resolves is anny-derived", () => {
+    // Flipped it.fails -> it. The planted string-search oracle this header disowns is replaced by
+    // the #652 step 2 audit it names: INVOKE the cast resolver over the shipped bank.
+    const rows = resolvedHumanoidRows();
+    expect(rows.length, "humanoid cast rows enumerated from scenarioBank").toBeGreaterThanOrEqual(10);
+    const offenders = rows.filter((r) => ANNY_GLB_NAMES.some((n) => r.path.includes(n)));
+    expect(offenders, "humanoid actors resolving to an Anny GLB").toEqual([]);
+    const nonMpfb = rows.filter((r) => !r.path.includes("mpfb"));
+    expect(nonMpfb, "resolved paths outside the mpfb rail").toEqual([]);
   });
 
-  it.fails("(2) every humanoid the runtime resolves carries FACS action units", () => {
-    // The operator's second ask, satisfied by the first. Asserted on provenance rather than by
-    // parsing every GLB: mpfb-* bodies carry an identical 47-target set (27 FACS + 15 viseme),
-    // measured across all eight at 9999ea73, and no anny-derived body carries any.
-    const resolver = readFileSync(join(REPO, "apps/ui-xr/src/humanoid-runtime-asset-url.ts"), "utf8");
-    const prov = provenanceBySourceKind();
-    const shipped = [...prov.entries()].filter(([name]) => resolver.includes(`${name}.glb`));
-    const faceless = shipped.filter(([, kind]) => !/mpfb/i.test(kind)).map(([n]) => n);
-    expect(faceless, `resolved humanoids with no face units:\n${faceless.join("\n")}`).toEqual([]);
+  it("(2) every humanoid the runtime resolves carries FACS action units", async () => {
+    // Flipped it.fails -> it. Same replacement: parse the resolved GLBs instead of reading
+    // provenance, so the audit also sees mpfb-gown-adult-patient.glb (no provenance sidecar).
+    const distinct = [...new Set(resolvedHumanoidRows().map((r) => r.path))];
+    expect(distinct.length, "distinct runtime-resolved humanoid paths").toBeGreaterThanOrEqual(6);
+    const broken: string[] = [];
+    for (const p of distinct) {
+      // Runtime paths are public URLs rooted at apps/ui-xr/public.
+      const rel = p.replace(/^\//u, "");
+      const abs = join(REPO, "apps/ui-xr/public", rel);
+      if (!existsSync(abs)) {
+        broken.push(`${p}: file missing from this tree`);
+        continue;
+      }
+      const face = await faceUnitsOf(join("apps/ui-xr/public", rel));
+      if (!face) {
+        broken.push(`${p}: unreadable`);
+        continue;
+      }
+      if (!face.hasJaw) broken.push(`${p}: no jaw joint (Anny rail marker)`);
+      if (face.facsUnits < MIN_FACS_UNITS) {
+        broken.push(`${p}: ${face.facsUnits} FACS face keys (< ${MIN_FACS_UNITS})`);
+      }
+    }
+    expect(broken, "runtime-resolved humanoids failing the MPFB/FACS gate").toEqual([]);
   });
 
   it("(3) COUNTERWEIGHT: an MPFB body matched to an Anny REFERENCE is not an Anny asset", () => {
@@ -136,5 +253,56 @@ describe("no shipped humanoid is anny, and every face has units", () => {
     for (const n of ["mpfb-clinical-nurse-adult", "mpfb-peds-parent-aisha", "mpfb-peds-patient-child"]) {
       expect(existsSync(join(GEN, `${n}.glb`)), `${n} must ship for the swap to be possible`).toBe(true);
     }
+  });
+
+  it("(5) NET: the ED fallback is the gowned MPFB patient, not the Anny cast GLB", () => {
+    expect(ED_ADULT_CAST_RUNTIME_PATH).toBe(MPFB_GOWN_ADULT_PATIENT_RUNTIME_PATH);
+    expect(ED_ADULT_CAST_RUNTIME_PATH).not.toContain("ed_chest_pain_adult_cast.glb");
+    expect(ED_ADULT_CAST_RUNTIME_PATH).toContain("mpfb");
+  });
+
+  it("(6) NET: every Anny blob name the emulator or a bundle can hand us remaps to MPFB", () => {
+    const cases = [
+      "generated-humanoids/ed_chest_pain_adult_cast.glb",
+      "apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.glb",
+      "generated-humanoids/ed_chest_pain_spouse_adult.glb",
+      "generated-humanoids/peds_anxious_parent.glb",
+      "generated-humanoids/peds_nurse_kevin.glb",
+      "generated-humanoids/peds_patient_child.glb",
+      "generated-humanoids/adult_male_street_casual.glb",
+      "ed_chest_pain_adult_cast.glb",
+    ];
+    const bad: string[] = [];
+    for (const blobName of cases) {
+      const url = resolveLocalHumanoidRuntimeAssetUrl({
+        kind: "humanoid_model",
+        blob: { blobName },
+      });
+      if (ANNY_GLB_NAMES.some((n) => url.includes(n))) bad.push(`${blobName} -> ${url}`);
+      if (!url.includes("mpfb")) bad.push(`${blobName} -> ${url} (not on the mpfb rail)`);
+    }
+    expect(bad, "Anny blob names that still resolve to Anny GLBs").toEqual([]);
+  });
+
+  it("(7) NET: the Anny comparator files still ship and every MPFB counterpart exists", () => {
+    // Refuses a "fix" that deletes the comparators (#491/#652 keep them as reference + comparator).
+    for (const n of ANNY_GLB_NAMES) {
+      expect(existsSync(join(GEN, n)), `Anny comparator ${n} must remain shipped (not deleted)`).toBe(true);
+    }
+    const counterparts = [
+      "mpfb-gown-adult-patient.glb",
+      "mpfb-clinical-nurse-adult.glb",
+      "mpfb-family-partner-adult.glb",
+      "mpfb-peds-nurse-kevin.glb",
+      "mpfb-peds-patient-child.glb",
+      "mpfb-street-adult-male.glb",
+    ];
+    for (const c of counterparts) {
+      expect(existsSync(join(GEN, c)), `MPFB counterpart ${c} must ship`).toBe(true);
+    }
+    expect(
+      existsSync(join(REPO, "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb")),
+      "MPFB counterpart mpfb-peds-parent-aisha.motion-bind.glb must ship",
+    ).toBe(true);
   });
 });
