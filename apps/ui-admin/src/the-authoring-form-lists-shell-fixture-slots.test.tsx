@@ -29,6 +29,12 @@ import {
  *
  * Diagnosis and measured tables in this header are IMMUTABLE. Flip it.fails → it and append
  * ## FIXED. Do not rewrite the original paths or numbers.
+ *
+ * ## FIXED (#0)
+ * EncounterEnvironmentPanel now lists the selected shell's fixtureSlots (each slotId as its
+ * own list item under aria-label="Fixture slots") and the wallColor hex (wall #f1f5f9 for
+ * ed_exam_bay_v1) beside the existing floor hex. Read-only listing — wallColor/fixtureSlots
+ * are still not written onto Scenario.environment (counterweights (3)/(4) stay green).
  */
 
 describe("the authoring form lists shell fixtureSlots and wallColor", () => {
@@ -57,8 +63,11 @@ describe("the authoring form lists shell fixtureSlots and wallColor", () => {
     cleanup();
   });
 
-  it.fails("(1) Encounter environment panel lists every ed_exam_bay_v1 fixture slotId", () => {
-    const slots = ENVIRONMENT_SHELL_DESCRIPTORS.ed_exam_bay_v1.fixtureSlots;
+  it("(1) Encounter environment panel lists every ed_exam_bay_v1 fixture slotId", () => {
+    const shell = ENVIRONMENT_SHELL_DESCRIPTORS["ed_exam_bay_v1"];
+    expect(shell).toBeDefined();
+    if (shell == null) throw new Error("ed_exam_bay_v1 descriptor missing");
+    const slots = shell.fixtureSlots;
     expect(slots.map((s) => s.slotId)).toEqual([
       "stretcher",
       "monitor",
@@ -75,8 +84,11 @@ describe("the authoring form lists shell fixtureSlots and wallColor", () => {
     }
   });
 
-  it.fails("(2) Encounter environment panel shows the selected shell wallColor hex", () => {
-    const wallColor = ENVIRONMENT_SHELL_DESCRIPTORS.ed_exam_bay_v1.wallColor;
+  it("(2) Encounter environment panel shows the selected shell wallColor hex", () => {
+    const shell = ENVIRONMENT_SHELL_DESCRIPTORS["ed_exam_bay_v1"];
+    expect(shell).toBeDefined();
+    if (shell == null) throw new Error("ed_exam_bay_v1 descriptor missing");
+    const wallColor = shell.wallColor;
     expect(wallColor).toBe(0xf1f5f9);
     const hex = `#${wallColor.toString(16).padStart(6, "0")}`;
     render(<CaseAuthoringWorkbench initialScenario={edChestPainScenario} />);

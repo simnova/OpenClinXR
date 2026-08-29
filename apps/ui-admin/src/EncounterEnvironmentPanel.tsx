@@ -3,7 +3,7 @@
  * registered shell id (the authoring form writes environmentId). The Select is the
  * form's only environment control; facts follow the live selection so the author
  * sees the room change before export. Not a 3D preview — displayName, dimensions,
- * and floor colour from the shared descriptor table.
+ * floor/wall colour, and fixture slotIds from the shared descriptor table.
  */
 
 import { ENVIRONMENT_SHELL_DESCRIPTORS } from "@openclinxr/asset-registry";
@@ -37,6 +37,8 @@ export function EncounterEnvironmentPanel({ environmentId: importedEnvironmentId
       roomDepthMeters: descriptor?.roomDepthMeters,
       roomHeightMeters: descriptor?.roomHeightMeters,
       floorColor: descriptor?.floorColor,
+      wallColor: descriptor?.wallColor,
+      fixtureSlots: descriptor?.fixtureSlots,
       known: Boolean(descriptor),
     };
   }, [selectedId]);
@@ -74,6 +76,11 @@ export function EncounterEnvironmentPanel({ environmentId: importedEnvironmentId
                     floor #{shell.floorColor.toString(16).padStart(6, "0")}
                   </Typography.Text>
                 ) : null}
+                {typeof shell.wallColor === "number" ? (
+                  <Typography.Text>
+                    wall #{shell.wallColor.toString(16).padStart(6, "0")}
+                  </Typography.Text>
+                ) : null}
               </Space>
             ) : (
               <Alert
@@ -83,6 +90,18 @@ export function EncounterEnvironmentPanel({ environmentId: importedEnvironmentId
                 description="The runtime will fall back to the generic shell until a descriptor is registered."
               />
             )}
+            {shell.known && shell.fixtureSlots != null && shell.fixtureSlots.length > 0 ? (
+              <div style={{ marginTop: 12 }}>
+                <Typography.Text strong>Fixture slots: </Typography.Text>
+                <ul aria-label="Fixture slots" style={{ margin: "4px 0 0", paddingLeft: 18 }}>
+                  {shell.fixtureSlots.map((slot) => (
+                    <li key={slot.slotId} style={{ marginBottom: 2 }}>
+                      {slot.slotId}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
             <Typography.Paragraph type="secondary" style={{ marginTop: 12, marginBottom: 0 }}>
               Shell facts from the shared environment descriptor (runtime + factory use the same table).
               Not a 3D preview; notEvidenceFor clinical room realism.
