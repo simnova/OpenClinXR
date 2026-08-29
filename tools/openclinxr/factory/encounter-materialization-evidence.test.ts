@@ -70,12 +70,17 @@ describe("encounter materialization evidence", () => {
       bundleReport: twoActorBundleFixture(),
     });
     const nodes = emitCompileNodes(report);
+    const evidenceNodes = nodes.filter((n) => n.family === "ActorVariant" || n.family === "EquipVariant");
     expect(report.actorEvidence).toHaveLength(2);
     expect(report.equipmentEvidence).toHaveLength(1);
-    expect(nodes).toHaveLength(3);
-    expect(nodes.map((n) => n.family).sort()).toEqual(["ActorVariant", "ActorVariant", "EquipVariant"]);
+    expect(evidenceNodes).toHaveLength(3);
+    expect(evidenceNodes.map((n) => n.family).sort()).toEqual(["ActorVariant", "ActorVariant", "EquipVariant"]);
     expect(nodes.every((n) => (COMPILE_NODE_FAMILIES as readonly string[]).includes(n.family))).toBe(true);
-    expect(nodes.some((n) => /room/i.test(n.family) || /room/i.test(n.nodeId))).toBe(false);
+    // INVERTED GUARD (was: no room family, tsk_a1b8d328db95d038). This asserted Phase 0's
+    // actor+equipment-only emission. W3 makes Room emittable from the case, so the guard is
+    // flipped rather than deleted: the fixture's peds_asthma_parent_anxiety_v1 resolves, so a
+    // Room node MUST now appear. The evidence-derived count above is unchanged at 3.
+    expect(nodes.some((n) => n.family === "Room")).toBe(true);
     expect(nodes.filter((n) => n.family === "ActorVariant").every((n) => n.bakerId === "unsplit_character")).toBe(true);
     expect(nodes.filter((n) => n.family === "EquipVariant").every((n) => n.bakerId === "unsplit_equipment")).toBe(true);
     expect(nodes.every((n) => n.status === "planned_unsplit" && n.cacheKey === null && n.parents.length === 0)).toBe(true);
@@ -91,8 +96,13 @@ describe("encounter materialization evidence", () => {
     expect(validateEncounterMaterializationEvidenceReport(raw)).toEqual({ ok: true, errors: [] });
     const dated = raw as Parameters<typeof emitCompileNodes>[0];
     const nodes = emitCompileNodes(dated);
-    expect(nodes.length).toBe(dated.actorEvidence.length + dated.equipmentEvidence.length);
-    expect(nodes.every((n) => n.family === "ActorVariant" || n.family === "EquipVariant")).toBe(true);
+    // Scoped to the evidence-derived families (tsk_a1b8d328db95d038). This asserted that
+    // emission is one node per evidence row and nothing else; W3 adds case-derived Room and
+    // DialoguePolicy nodes alongside. The one-node-per-row invariant is what this test is
+    // about and it is unchanged.
+    const evidenceNodes = nodes.filter((n) => n.family === "ActorVariant" || n.family === "EquipVariant");
+    expect(evidenceNodes.length).toBe(dated.actorEvidence.length + dated.equipmentEvidence.length);
+    expect(evidenceNodes.every((n) => n.family === "ActorVariant" || n.family === "EquipVariant")).toBe(true);
   });
 
   it("Phase 0: copies prior lock and contentHash by nodeId; does not invent a third family", () => {
@@ -188,8 +198,11 @@ describe("encounter materialization evidence", () => {
       bundleReport: twoActorBundleFixture(),
     });
     const nodes = emitCompileNodes(report);
-    // Phase 0 still emits unsplit nodes only.
-    expect(nodes.every((n) => n.bakerId === "unsplit_character" || n.bakerId === "unsplit_equipment")).toBe(true);
+    // Phase 0 still emits unsplit nodes only — for the CHARACTER/EQUIPMENT families this test
+    // is about (scoped tsk_a1b8d328db95d038; W3 adds Room and DialoguePolicy nodes carrying
+    // their own baker ids, which are not part of the split claim under test here).
+    const bakeable = nodes.filter((n) => n.family === "ActorVariant" || n.family === "EquipVariant");
+    expect(bakeable.every((n) => n.bakerId === "unsplit_character" || n.bakerId === "unsplit_equipment")).toBe(true);
     const unsplit = nodes.find((n) => n.nodeId === "actor:patient_maya_johnson_v1")!;
     const [body, wardrobe] = splitCharacterBakers(unsplit);
     expect(body.bakerId).toBe("body_character");

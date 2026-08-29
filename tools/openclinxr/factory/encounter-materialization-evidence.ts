@@ -1,9 +1,35 @@
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { findScenarioFixtureById } from "../../../packages/openclinxr/scenario-fixtures/src/index.js";
 import type { GeneratedEdStationRuntimeBundleReport } from "./generated-ed-station-runtime-bundle.js";
 
-/** Phase 0 World Compile Graph nodes. Actor+equipment only — no room/garment/physics families. */
-export const COMPILE_NODE_FAMILIES = ["ActorVariant", "EquipVariant"] as const;
+/**
+ * World Compile Graph node families. A family must EXIST before faculty can lock one, so
+ * this list is broader than what `emitCompileNodes` can currently emit.
+ *
+ * MEASURED 2026-08-29 over the live bank (14 scenarios, all resolvable through
+ * `findScenarioFixtureById`), by reading the scenario OBJECTS rather than grepping fixture
+ * source — a text grep got two of these four rows wrong:
+ *
+ *   Room           environment.environmentId            14/14  emitted
+ *   DialoguePolicy actors[].communicationProfile        14/14  emitted
+ *   Lighting       environment.lighting                  0/14  NOT emitted, no source
+ *   Placement      placement/staging/supportSurface       0/14  NOT emitted, no source
+ *
+ * `environment` carries exactly three keys — environmentId, name, description — so neither
+ * Lighting nor Placement has anything authored to derive from. They are declared here and
+ * deliberately emit NOTHING: a lockable node standing for data the case never authored is
+ * worse than no node, and inventing one is the hand-authoring the factory exists to avoid.
+ * Authoring has to land upstream first (see the W-program's placement/staging card).
+ */
+export const COMPILE_NODE_FAMILIES = [
+  "ActorVariant",
+  "EquipVariant",
+  "Room",
+  "Placement",
+  "Lighting",
+  "DialoguePolicy",
+] as const;
 export type CompileNodeFamily = (typeof COMPILE_NODE_FAMILIES)[number];
 
 /**
@@ -12,7 +38,15 @@ export type CompileNodeFamily = (typeof COMPILE_NODE_FAMILIES)[number];
  * want lock-granularity per stage map each ActorVariant node through
  * `splitCharacterBakers()` to get `body_character` + `wardrobe_character`.
  */
-export const CHARACTER_BAKER_IDS = ["unsplit_character", "unsplit_equipment", "body_character", "wardrobe_character"] as const;
+export const CHARACTER_BAKER_IDS = [
+  "unsplit_character",
+  "unsplit_equipment",
+  "body_character",
+  "wardrobe_character",
+  /** Room and DialoguePolicy are planned-only today; no baker runs them yet. */
+  "room_environment",
+  "dialogue_policy",
+] as const;
 export type CharacterBakerId = (typeof CHARACTER_BAKER_IDS)[number];
 
 export type CompileGraphLock = {
@@ -31,6 +65,8 @@ export type CompileGraphNode = {
     scenarioId: string | null;
     actorId?: string;
     equipmentId?: string;
+    /** Room nodes: the case's authored environment. */
+    environmentId?: string;
     variantSemanticKey: string;
     sourceBlobName: string;
   };
@@ -77,13 +113,30 @@ export type EncounterMaterializationEvidenceReport = {
 
 const NOT_EVIDENCE_FOR = ["runtime_readiness", "quest_readiness", "production_asset_readiness", "clinical_validity", "scoring_validity", "learner_launch_readiness"] as const;
 
+/** The slice of a scenario fixture this emitter reads. Structural so tests can inject one. */
+export type CompileCaseDescriptor = {
+  environment?: { environmentId?: string; name?: string } | null;
+  actors?: Array<{ actorId: string; communicationProfile?: unknown }> | null;
+};
+
 /**
  * Emit unsplit compile nodes from current evidence.v1 rows.
- * Copies prior lock/contentHash by nodeId. Invents no room/garment/physics nodes.
+ * Copies prior lock/contentHash by nodeId.
+ *
+ * Room and DialoguePolicy come from the CASE, which evidence.v1 does not carry — it holds
+ * actorEvidence and equipmentEvidence only. Rather than widen that report (a second ledger
+ * for the same facts), the case is resolved through `findScenarioFixtureById`, the lookup
+ * four other factory modules already use. `caseDescriptor` overrides that lookup so this
+ * stays a pure function under test.
+ *
+ * Emits NOTHING for Lighting or Placement. Neither is authored on any of the 14 bank
+ * scenarios, so a node for either would be invented rather than derived. See the
+ * COMPILE_NODE_FAMILIES header for the measurement.
  */
 export function emitCompileNodes(
   report: EncounterMaterializationEvidenceReport,
   prior: CompileGraphNode[] = [],
+  caseDescriptor?: CompileCaseDescriptor | null,
 ): CompileGraphNode[] {
   const priorById = new Map(prior.map((n) => [n.nodeId, n]));
   const scenarioId = report.scenarioId;
@@ -127,7 +180,71 @@ export function emitCompileNodes(
       status: "planned_unsplit",
     };
   });
-  return [...actorNodes, ...equipNodes];
+  const caseDef = caseDescriptor ?? resolveCaseDescriptor(scenarioId);
+
+  // Room: one node per case, from the authored environmentId. 14/14 on the live bank.
+  const environmentId = caseDef?.environment?.environmentId;
+  const roomNodes: CompileGraphNode[] = environmentId
+    ? [
+        {
+          nodeId: `room:${environmentId}`,
+          family: "Room",
+          bakerId: "room_environment",
+          spec: {
+            scenarioId,
+            environmentId,
+            variantSemanticKey: environmentId,
+            sourceBlobName: caseDef?.environment?.name ?? environmentId,
+          },
+          parents: [],
+          cacheKey: null,
+          contentHash: priorById.get(`room:${environmentId}`)?.contentHash ?? null,
+          lock: priorById.get(`room:${environmentId}`)?.lock ?? { locked: false },
+          status: "planned_unsplit",
+        },
+      ]
+    : [];
+
+  // DialoguePolicy: one node per actor that authors a communicationProfile. 14/14 on the bank.
+  const dialogueNodes: CompileGraphNode[] = (caseDef?.actors ?? [])
+    .filter((actor) => Boolean(actor?.communicationProfile))
+    .map((actor) => {
+      const nodeId = `dialogue:${actor.actorId}`;
+      const prev = priorById.get(nodeId);
+      return {
+        nodeId,
+        family: "DialoguePolicy",
+        bakerId: "dialogue_policy",
+        spec: {
+          scenarioId,
+          actorId: actor.actorId,
+          variantSemanticKey: `communication_profile:${actor.actorId}`,
+          sourceBlobName: `case:${scenarioId ?? "scenario"}`,
+        },
+        parents: [],
+        cacheKey: null,
+        contentHash: prev?.contentHash ?? null,
+        lock: prev?.lock ?? { locked: false },
+        status: "planned_unsplit",
+      } satisfies CompileGraphNode;
+    });
+
+  // No Lighting, no Placement: 0/14 authored. Declaring a family is not licence to invent a node.
+  return [...actorNodes, ...equipNodes, ...roomNodes, ...dialogueNodes];
+}
+
+/**
+ * Resolve the case behind a scenarioId through the fixture bank. Returns null rather than
+ * throwing: an unknown or absent scenarioId simply emits no Room or DialoguePolicy node,
+ * which keeps this emitter total for reports the bank does not cover.
+ */
+function resolveCaseDescriptor(scenarioId: string | null): CompileCaseDescriptor | null {
+  if (!scenarioId) return null;
+  try {
+    return (findScenarioFixtureById(scenarioId) as CompileCaseDescriptor | undefined) ?? null;
+  } catch {
+    return null;
+  }
 }
 
 /**
