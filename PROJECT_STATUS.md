@@ -14,23 +14,23 @@ parseable_sections: 6
 <!-- WAKE-BLUF:BEGIN -->
 ## WAKE BLUF - replace this block every wake, never append
 
-**2026-08-28 | main `c70e019d` | Grok orchestrator | BothyBoard dequeue SSOT (GitHub opt-in `BOTHY_BOARD_DEQUEUE=0`)**
+**2026-08-29 | main `5d3566b5` | Grok orchestrator | BothyBoard dequeue SSOT (GitHub opt-in `BOTHY_BOARD_DEQUEUE=0`)**
 
 **IN FLIGHT**
 - none. Bothy `tasks.next` `{task:null}`.
 
 **LANDED this session**
-- World-config form + shell facts. emotionPolicy. viseme_aa. ED aspect 2.041. MPFB idle elbow bind-relative `c70e019d` (`32a8e5e3`).
+- World-config form + shell facts. emotionPolicy. viseme_aa. ED aspect 2.041. MPFB idle elbow. Gown armpit two-tests-agree 73→0 `5d3566b5` (`aa64d2ea`).
 
 **BLOCKED**
 - `tsk_27ba` PIXEL GRADE speaking stills torso. Do not land. Do not dispatch.
 - `#643` owner `gradeVerdict`. `#600` run red on #474. Phase 4 HELD.
 
-**NEXT this wake:** operationalize next S1 RED. Skip 27ba. Skip Tara speaking-excursion.
+**NEXT this wake:** operationalize next S1 RED. Skip 27ba. Skip Tara speaking-excursion. Gown LOOKS ungraded (owner).
 
 SWEEP: reds=? undisp=0 uncarded=? rel=current quiet=? workers=0/3 bothy=null
 
-NOT TESTED: elbow pixel-natural; area; 27ba recapture.
+NOT TESTED: gown pixel-natural folds; 27ba recapture.
 <!-- WAKE-BLUF:END -->
 <!-- WAKE-BLUF:END -->
 
