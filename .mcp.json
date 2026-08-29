@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "bothy-board": {
+      "type": "http",
+      "url": "https://bothyboard.com/api/mcp",
+      "headers": {
+        "Authorization": "Bearer ${BOTHY_BOARD_PAT}"
+      }
+    }
+  }
+}

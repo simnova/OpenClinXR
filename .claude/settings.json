@@ -12,5 +12,6 @@
         ]
       }
     ]
-  }
+  },
+  "enabledMcpjsonServers": ["bothy-board"]
 }
