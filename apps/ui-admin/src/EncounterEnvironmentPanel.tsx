@@ -8,7 +8,7 @@
  */
 
 import { ENVIRONMENT_SHELL_DESCRIPTORS } from "@openclinxr/asset-registry";
-import { Alert, Card, Form, Select, Space, Typography } from "antd";
+import { Alert, Card, Form, InputNumber, Select, Space, Typography } from "antd";
 import { type ReactElement, useMemo } from "react";
 import type { ScenarioFormValues } from "./case-authoring-model.js";
 
@@ -129,6 +129,40 @@ export function EncounterEnvironmentPanel({ environmentId: importedEnvironmentId
                 </Space>
               </div>
             ) : null}
+            <div aria-label="Lighting compile overrides" style={{ marginTop: 16 }}>
+              <Typography.Text strong>Override for the next compile: </Typography.Text>
+              <Typography.Paragraph type="secondary" style={{ marginTop: 4, marginBottom: 8 }}>
+                Leave blank to bake the descriptor fact above. A value here is written as the Lighting
+                node&apos;s overridePatch and changes the recipe cache key, so the room re-bakes.
+              </Typography.Paragraph>
+              <Space wrap size="large" align="start">
+                <Form.Item
+                  label="wallColor"
+                  name="wallColor"
+                  style={{ marginBottom: 0 }}
+                  tooltip="Integer colour, e.g. 0x112233 as 1122867. Blank keeps the descriptor value."
+                >
+                  <InputNumber aria-label="wallColor override" min={0} max={0xffffff} step={1} />
+                </Form.Item>
+                <Form.Item
+                  label="ambientHemisphereSky"
+                  name="ambientHemisphereSky"
+                  style={{ marginBottom: 0 }}
+                >
+                  <InputNumber aria-label="ambientHemisphereSky override" min={0} max={0xffffff} step={1} />
+                </Form.Item>
+                <Form.Item
+                  label="ambientHemisphereGround"
+                  name="ambientHemisphereGround"
+                  style={{ marginBottom: 0 }}
+                >
+                  <InputNumber aria-label="ambientHemisphereGround override" min={0} max={0xffffff} step={1} />
+                </Form.Item>
+                <Form.Item label="keyLightIntensity" name="keyLightIntensity" style={{ marginBottom: 0 }}>
+                  <InputNumber aria-label="keyLightIntensity override" min={0} step={0.1} />
+                </Form.Item>
+              </Space>
+            </div>
             <Typography.Paragraph type="secondary" style={{ marginTop: 12, marginBottom: 0 }}>
               Shell facts from the shared environment descriptor (runtime + factory use the same table).
               Not a 3D preview; notEvidenceFor clinical room realism.

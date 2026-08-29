@@ -436,12 +436,38 @@ export function validateEncounterMaterializationEvidenceReport(value: unknown): 
   return { ok: errors.length === 0, errors };
 }
 
+/** ActorVariant overrides. Faculty phenotype pointers; unchanged by W12. */
 const ACTOR_PHENOTYPE_OVERRIDE_PATHS = new Set([
   "/garmentLayers",
   "/clothing_style",
   "/wardrobeRole",
   "/fabricPalette",
 ]);
+
+/**
+ * Lighting overrides (W12, tsk_de6cae5304badfa6). Environment descriptors carry these as
+ * READ-ONLY facts; a Lighting node's overridePatch is how faculty write them onto the
+ * compile instead. Names match EnvironmentDescriptor in
+ * packages/openclinxr/asset-registry/src/environment-descriptors.ts:93-97.
+ */
+const LIGHTING_OVERRIDE_PATHS = new Set([
+  "/wallColor",
+  "/ambientHemisphereSky",
+  "/ambientHemisphereGround",
+  "/keyLightIntensity",
+]);
+
+/**
+ * Every pointer an overridePatch may target, across families. This is deliberately a union
+ * and not a widening of the actor set: an actor node must not gain a lighting pointer.
+ *
+ * Widening this is a real behaviour change, not bookkeeping. encounter-materialization-compile.ts
+ * :93-99 applies the patch to node.spec and :77-89 folds the patched spec into the recipe
+ * cacheKey, so an admitted pointer changes what bakes and what is cache-skipped.
+ *
+ * Must stay aligned with FACULTY_LOCK_OVERRIDE_PATHS in encounter-materialization-faculty-locks.ts.
+ */
+const COMPILE_OVERRIDE_PATHS = new Set([...ACTOR_PHENOTYPE_OVERRIDE_PATHS, ...LIGHTING_OVERRIDE_PATHS]);
 
 function pushLockErrors(errors: string[], lock: unknown, prefix: string): void {
   if (lock === undefined) return;
@@ -459,8 +485,8 @@ function pushOverridePatchErrors(errors: string[], patch: unknown, prefix: strin
     return;
   }
   if (patch.op !== "replace" && patch.op !== "remove") errors.push(`${prefix}/op must be replace|remove`);
-  if (typeof patch.path !== "string" || !ACTOR_PHENOTYPE_OVERRIDE_PATHS.has(patch.path)) {
-    errors.push(`${prefix}/path must be an ActorPhenotypeSchema pointer`);
+  if (typeof patch.path !== "string" || !COMPILE_OVERRIDE_PATHS.has(patch.path)) {
+    errors.push(`${prefix}/path must be an allowed compile override pointer`);
   }
 }
 

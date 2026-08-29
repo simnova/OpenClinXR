@@ -27,8 +27,22 @@ import {
  * evidence validator allows; any other path is refused.
  */
 
-/** Faculty lock override paths — must stay aligned with ACTOR_PHENOTYPE_OVERRIDE_PATHS in encounter-materialization-evidence.ts. */
-export const FACULTY_LOCK_OVERRIDE_PATHS = ["/garmentLayers", "/clothing_style", "/wardrobeRole", "/fabricPalette"] as const;
+/**
+ * Faculty lock override paths — must stay aligned with COMPILE_OVERRIDE_PATHS in
+ * encounter-materialization-evidence.ts. The first four are ActorVariant phenotype
+ * pointers; the last four are Lighting pointers added by W12 (tsk_de6cae5304badfa6) so
+ * faculty can write descriptor lighting onto the compile rather than only read it.
+ */
+export const FACULTY_LOCK_OVERRIDE_PATHS = [
+  "/garmentLayers",
+  "/clothing_style",
+  "/wardrobeRole",
+  "/fabricPalette",
+  "/wallColor",
+  "/ambientHemisphereSky",
+  "/ambientHemisphereGround",
+  "/keyLightIntensity",
+] as const;
 
 export type FacultyCompileLock = {
   nodeId: string;

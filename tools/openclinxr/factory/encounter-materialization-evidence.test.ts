@@ -169,7 +169,13 @@ describe("encounter materialization evidence", () => {
     };
     const pathBad = validateEncounterMaterializationEvidenceReport(withBadPath);
     expect(pathBad.ok).toBe(false);
-    expect(pathBad.errors.some((e) => e.includes("ActorPhenotypeSchema"))).toBe(true);
+    // Message text updated (W12, tsk_de6cae5304badfa6). This matched "ActorPhenotypeSchema",
+    // which stopped being true when the allowlist gained the four Lighting pointers — keeping
+    // the old noun would have made the error lie about a valid /wallColor patch. The SUBJECT of
+    // this assertion is unchanged and untouched: a bogus path is still refused (pathBad.ok is
+    // false above, and that line did not need editing). Asserting on the offending path rather
+    // than on a noun in the sentence, so the next rename does not break it.
+    expect(pathBad.errors.some((e) => e.includes("overridePatch/path"))).toBe(true);
     const withGood = {
       ...raw,
       caseDefVersion: 1,

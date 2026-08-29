@@ -18,7 +18,7 @@ const SRC = dirname(fileURLToPath(import.meta.url));
 const ENV = readFileSync(join(SRC, "EncounterEnvironmentPanel.tsx"), "utf8");
 
 describe("the worldview lighting node writes compile overrides", () => {
-  it.fails("(1) environment panel has a Form.Item for wallColor or keyLightIntensity", () => {
+  it("(1) environment panel has a Form.Item for wallColor or keyLightIntensity", () => {
     expect(ENV).toMatch(/name=.*wallColor|name=.*keyLightIntensity/);
   });
 
