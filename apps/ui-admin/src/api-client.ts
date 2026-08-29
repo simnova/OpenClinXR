@@ -114,6 +114,7 @@ import type {
   AdminStationRunQueueSnapshot,
 } from "./api-client-types.js";
 import type { FacultyCompileLockClient } from "./faculty-compile-lock-types.js";
+export { compileEncounterWorld } from "./compile-encounter-world.js";
 export * from "./api-client-types.js";
 
 export const defaultAdminApiBaseUrl = import.meta.env['VITE_OPENCLINXR_API_BASE_URL'] ?? "";
@@ -493,27 +494,6 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
   };
 }
 
-/**
- * Faculty world-compile request: POSTs the featured scenario to
- * /internal/world-compile. Request-only surface; the API route's
- * compileEncounterMaterialization invoke and baker split are later lanes.
- */
-export async function compileEncounterWorld(
-  input: { scenarioId: string },
-  options: Pick<AdminControlPlaneClientOptions, "baseUrl" | "fetch" | "accessToken" | "getAccessToken"> = {},
-): Promise<Record<string, unknown>> {
-  const baseUrl = normalizeBaseUrl(options.baseUrl ?? defaultAdminApiBaseUrl);
-  const fetcher = options.fetch ?? fetch;
-  const authHeaders = await resolveAuthorizationHeaders(options);
-  return post(
-    fetcher,
-    baseUrl,
-    "/internal/world-compile",
-    { scenarioId: input.scenarioId },
-    authHeaders,
-  );
-}
-
 async function get<TResponse>(
   fetcher: typeof fetch,
   baseUrl: string,
@@ -617,4 +597,3 @@ function requireStringField(value: unknown, fieldName: string, context: string):
 
   throw new Error(`OpenClinXR admin API request failed: ${context} missing ${fieldName}`);
 }
-
