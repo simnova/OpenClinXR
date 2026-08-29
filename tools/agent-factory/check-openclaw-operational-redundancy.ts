@@ -1,10 +1,20 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 
 export type OperationalRedundancyInput = {
   packageJson: { scripts?: Record<string, string> };
   files: Record<string, string>;
   enforceSliceTokenLedger?: boolean;
+  /**
+   * Whether tools/openclinxr/openclaw/codex-bothy-event-monitor.ts exists.
+   *
+   * Injected at the CLI boundary rather than read here, because `files` is built by mapping
+   * readFileSync over requiredFiles - an absent entry THROWS rather than reporting, so an optional
+   * file cannot live in that map. Defaults to false, which keeps the strict pre-monitor behaviour
+   * for any caller that omits it: the Stop registration stays required unless a monitor is proven
+   * present. Fail-closed on omission is deliberate.
+   */
+  codexEventMonitorPresent?: boolean;
 };
 
 export type OperationalRedundancyFailure = {
@@ -200,10 +210,29 @@ export function buildOperationalRedundancyReport(input: OperationalRedundancyInp
   }
 
   const codexHooks = input.files[".codex/hooks.json"] ?? "";
-  for (const marker of ["SubagentStart", "SubagentStop", "Stop", "pnpm codex:hook -- subagent-start", "pnpm codex:hook -- subagent-stop", "pnpm codex:hook -- stop"]) {
+  for (const marker of ["SubagentStart", "SubagentStop", "pnpm codex:hook -- subagent-start", "pnpm codex:hook -- subagent-stop"]) {
     if (!codexHooks.includes(marker)) {
       failures.push({ file: ".codex/hooks.json", message: `missing Codex lifecycle hook marker: ${marker}` });
     }
+  }
+
+  // Codex continuation moved from the Stop hook to the event-driven Bothy monitor (981f316b,
+  // tsk_c2822f728a7dde77): Stop-hook resume against an open Desktop task produced concurrent
+  // thread-history ordinal errors, so that delivery mode was blocked.
+  //
+  // What this guard protects is "Codex HAS a continuation mechanism", not "Codex has a Stop hook".
+  // Deleting the assertion outright would let a Codex with NEITHER mechanism pass, which is the
+  // failure worth keeping, so it becomes a disjunction instead.
+  //
+  // NOTE on the bare "Stop" marker that used to sit in the array above: it was VACUOUS. "SubagentStop"
+  // contains "Stop" as a substring, so `codexHooks.includes("Stop")` was satisfied by the SubagentStop
+  // registration and could never fail while that existed. The load-bearing assertion is, and always
+  // was, the command string below. Verified against the live failure, which named only the command.
+  if (!codexHooks.includes("pnpm codex:hook -- stop") && input.codexEventMonitorPresent !== true) {
+    failures.push({
+      file: ".codex/hooks.json",
+      message: "missing Codex lifecycle hook marker: pnpm codex:hook -- stop",
+    });
   }
 
   const autonomyPolicy = input.files["tools/openclinxr/openclaw/autonomy-policy-messages.ts"] ?? "";
@@ -298,11 +327,14 @@ export function buildOperationalRedundancyReport(input: OperationalRedundancyInp
   return { ok: failures.length === 0, failures, automationPrompt };
 }
 
+const CODEX_BOTHY_EVENT_MONITOR_PATH = "tools/openclinxr/openclaw/codex-bothy-event-monitor.ts";
+
 function loadInput(): OperationalRedundancyInput {
   const files = Object.fromEntries(requiredFiles.map((file) => [file, readFileSync(file, "utf8")]));
   return {
     files,
     packageJson: JSON.parse(readFileSync("package.json", "utf8")) as { scripts?: Record<string, string> },
+    codexEventMonitorPresent: existsSync(CODEX_BOTHY_EVENT_MONITOR_PATH),
   };
 }
 

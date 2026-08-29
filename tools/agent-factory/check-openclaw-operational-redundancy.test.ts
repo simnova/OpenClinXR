@@ -163,13 +163,45 @@ describe("OpenClaw-style operational redundancy checker", () => {
     });
   });
 
-  it("fails if the Codex Stop hook is not wired", () => {
+  it("fails if Codex has NEITHER a Stop hook registration NOR the Bothy event monitor", () => {
     const input = alignedInput();
     input.files[".codex/hooks.json"] = input.files[".codex/hooks.json"].replace("pnpm codex:hook -- stop", "");
+    input.codexEventMonitorPresent = false;
 
     const report = buildOperationalRedundancyReport(input);
 
     expect(report.ok).toBe(false);
+    expect(report.failures).toContainEqual({
+      file: ".codex/hooks.json",
+      message: "missing Codex lifecycle hook marker: pnpm codex:hook -- stop",
+    });
+  });
+
+  // Counterweight. Without this the clause above is satisfied by a checker that ALWAYS reports the
+  // failure, which is the shape the disjunction exists to avoid. This asserts the other arm really
+  // is reachable: continuation via the event monitor is accepted with no Stop registration at all.
+  it("accepts a Codex with no Stop registration when the Bothy event monitor is present", () => {
+    const input = alignedInput();
+    input.files[".codex/hooks.json"] = input.files[".codex/hooks.json"].replace("pnpm codex:hook -- stop", "");
+    input.codexEventMonitorPresent = true;
+
+    const report = buildOperationalRedundancyReport(input);
+
+    expect(
+      report.failures.filter((failure) => failure.message.includes("pnpm codex:hook -- stop")),
+      "the event monitor is a continuation mechanism, so the Stop registration is not also required",
+    ).toEqual([]);
+  });
+
+  // Omission must not silently unlock the gate. A caller that never heard of the monitor gets the
+  // strict pre-monitor behaviour, so this cannot be bypassed by simply not passing the field.
+  it("still requires the Stop registration when the monitor flag is omitted entirely", () => {
+    const input = alignedInput();
+    input.files[".codex/hooks.json"] = input.files[".codex/hooks.json"].replace("pnpm codex:hook -- stop", "");
+    delete input.codexEventMonitorPresent;
+
+    const report = buildOperationalRedundancyReport(input);
+
     expect(report.failures).toContainEqual({
       file: ".codex/hooks.json",
       message: "missing Codex lifecycle hook marker: pnpm codex:hook -- stop",
