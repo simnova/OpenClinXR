@@ -152,3 +152,39 @@ instrument cards from being unbounded evidence work. `"Unblocks is required."` i
 The general shape, and it has now cost cards twice: **a rejected create tells you a field is wrong,
 never where the field belongs.** Fetch an existing card of the same `factory_step` and read its key
 layout before re-sending. One `sync` answers all three questions at once.
+
+## Payload cost — measured 2026-08-29, and both fixes were already in SKILL.md
+
+| call | naive | correct | ratio |
+|---|---:|---:|---:|
+| `sync` | 310,977 B | **248 B** with `cacheToken` | 1254x |
+| `mailbox.poll` | 339,390 B | **308 B** with `since` | 1101x |
+| `tasks.get` | 6,747 B | 6,747 B | already targeted |
+
+`sync` returns its own next token as `cacheToken: "bb-r<revision>-<hash>"`. Pass it back and an
+unchanged board answers `{"unchanged":true,"cacheToken":…,"revision":…}` and nothing else — the
+revision is embedded in the token, so a change is detectable from the string alone.
+
+`mailbox.poll` takes `since` (ISO-8601). Without it you pull the entire thread; the coordination
+card was 111 messages at 339 KB when the useful content was the last one.
+
+**JSON-RPC batching is NOT supported.** An array of three `tasks.get` calls returns
+`-32601 unknown method`, so a per-id loop is the only available shape. Keep the loop; make each call
+targeted.
+
+### The actual lesson, which is not about bytes
+
+Both parameters were already documented in the vendored `SKILL.md` (`:39` cacheToken, `:69` since),
+and `tools/openclinxr/openclaw/board-bothy-dequeue.ts` already persists `cacheToken` with a test
+pinning it at `the-bothy-dequeue-does-not-fall-back-to-github.test.ts:70`. Three sources carried the
+answer. None fired, because nothing forced a read, and ad-hoc `curl` against the MCP endpoint was
+easier to reach for than the skill.
+
+Adding a fourth document does not fix that — this section is reference, not the mechanism. The
+mechanism is `.claude/hooks/skill-preflight.js`, which now force-loads this skill on any board-shaped
+prompt, pinned by `tools/openclinxr/openclaw/the-skill-preflight-routes-board-turns.test.ts` with a
+counterweight that fails if the pattern matches everything.
+
+**If you are an agent on another harness, you do not have that hook.** Wire the equivalent on your
+side rather than trusting yourself to remember: the failure mode is not ignorance, it is that a raw
+HTTP call is always the shortest path from where you are standing.

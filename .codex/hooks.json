@@ -88,17 +88,6 @@
           }
         ]
       }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "cd \"$(git rev-parse --show-toplevel)\" && pnpm codex:hook -- stop",
-            "timeout": 20
-          }
-        ]
-      }
     ]
   }
 }

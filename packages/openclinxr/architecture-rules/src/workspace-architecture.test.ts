@@ -174,6 +174,7 @@ describe("workspace architecture rules", () => {
     const bridgeSkill = readFileSync(join(workspaceRoot, ".agents/skills/openclinxr-openclaw/SKILL.md"), "utf8");
     const codexConfig = readFileSync(join(workspaceRoot, ".codex/config.toml"), "utf8");
     const codexHooks = readFileSync(join(workspaceRoot, ".codex/hooks.json"), "utf8");
+    const codexBothyEventMonitorPath = join(workspaceRoot, "tools/openclinxr/openclaw/codex-bothy-event-monitor.ts");
     const codexAgent = readFileSync(join(workspaceRoot, ".codex/agents/chief-coordinator.toml"), "utf8");
     const codexRules = readFileSync(join(workspaceRoot, ".codex/rules/openclaw.rules"), "utf8");
     const codexPluginManifest = readFileSync(join(workspaceRoot, "plugins/openclinxr-openclaw-style/.codex-plugin/plugin.json"), "utf8");
@@ -190,8 +191,9 @@ describe("workspace architecture rules", () => {
     expect(codexHooks).toContain('"PreCompact"');
     expect(codexHooks).toContain('"SubagentStart"');
     expect(codexHooks).toContain('"SubagentStop"');
-    expect(codexHooks).toContain('"Stop"');
     expect(codexHooks).toContain("pnpm codex:hook");
+    // Stop-hook resume collided with the active Desktop thread history; the event monitor is the safe continuation path.
+    expect(codexHooks?.includes('"Stop"') || existsSync(codexBothyEventMonitorPath)).toBe(true);
     expect(codexConfig).toContain("project_doc_max_bytes = 65536");
     expect(codexConfig).toContain("multi_agent = true");
     expect(codexAgent).toContain('name = "chief-coordinator"');

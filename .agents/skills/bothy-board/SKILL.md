@@ -38,6 +38,9 @@ Index: `<origin>/llms.txt`.
 
 Always pass `cacheToken` from the last `bothy-board.sync`. `{unchanged:true}` → skip reload.
 
+Codex Desktop / external-monitor addendum (read only when that harness is active):
+[CODEX-HARNESS.md](../../../.agents/skills/bothy-board/CODEX-HARNESS.md).
+
 ## Roles
 
 | Who | May | Must not |

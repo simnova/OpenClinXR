@@ -74,6 +74,55 @@ describe("mailbox-watch", () => {
     expect(result.pollErrors).toEqual([]);
   });
 
+  it("passes the persisted since cursor and returns the newest addressed timestamp", async () => {
+    const root = join(tmpdir(), `ocxr-mailbox-watch-since-${Date.now()}`);
+    mkdirSync(join(root, "tools/openclinxr/openclaw"), { recursive: true });
+    writeFileSync(
+      join(root, "tools/openclinxr/openclaw/mailbox-watch.json"),
+      JSON.stringify({ taskIds: ["tsk_abc"] }),
+    );
+    const calls: Record<string, unknown>[] = [];
+    const result = await pollForeignMailbox({
+      repoRoot: root,
+      pat: "bb_pat_test",
+      sinceByTaskId: { tsk_abc: "2026-08-29T20:00:00.000Z" },
+      fetch: async ({ arguments: args }) => {
+        calls.push(args);
+        return {
+          structuredContent: {
+            comments: [
+              { id: "c1", createdAt: "2026-08-29T20:01:00.000Z" },
+              { id: "c2", createdAt: "2026-08-29T20:02:00.000Z" },
+            ],
+          },
+          httpStatus: 200,
+        };
+      },
+    });
+    expect(calls).toEqual([
+      { taskId: "tsk_abc", since: "2026-08-29T20:00:00.000Z" },
+    ]);
+    expect(result.latestCreatedAtByTaskId).toEqual({
+      tsk_abc: "2026-08-29T20:02:00.000Z",
+    });
+  });
+
+  it("classifies authentication failures as permanent", async () => {
+    const root = join(tmpdir(), `ocxr-mailbox-watch-auth-${Date.now()}`);
+    mkdirSync(join(root, "tools/openclinxr/openclaw"), { recursive: true });
+    writeFileSync(
+      join(root, "tools/openclinxr/openclaw/mailbox-watch.json"),
+      JSON.stringify({ taskIds: ["tsk_abc"] }),
+    );
+    const result = await pollForeignMailbox({
+      repoRoot: root,
+      pat: "bb_pat_test",
+      fetch: async () => ({ structuredContent: {}, httpStatus: 401 }),
+    });
+    expect(result.pollErrors).toEqual(["tsk_abc poll_error:http_401"]);
+    expect(result.permanentPollErrors).toEqual(["tsk_abc poll_error:http_401"]);
+  });
+
   it("digest includes only foreign comments when selfMarkers are given", async () => {
     const root = join(tmpdir(), `ocxr-mailbox-watch-digest-${Date.now()}`);
     mkdirSync(join(root, "tools/openclinxr/openclaw"), { recursive: true });

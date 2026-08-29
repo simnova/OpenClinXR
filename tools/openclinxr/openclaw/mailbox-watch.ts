@@ -50,6 +50,8 @@ function formatComment(taskId: string, comment: PollComment): string {
 export type ForeignMailboxResult = {
   comments: PollComment[];
   pollErrors: string[];
+  permanentPollErrors: string[];
+  latestCreatedAtByTaskId: Record<string, string>;
   polledTaskCount: number;
 };
 
@@ -60,6 +62,7 @@ export type MailboxPollOptions = {
   fetch?: BothyFetch;
   pollTimeoutMs?: number;
   maxTasks?: number;
+  sinceByTaskId?: Record<string, string>;
 };
 
 /**
@@ -72,11 +75,23 @@ export async function pollForeignMailbox(
 ): Promise<ForeignMailboxResult> {
   const taskIds = loadMailboxWatchTaskIds(opts.repoRoot);
   if (taskIds.length === 0) {
-    return { comments: [], pollErrors: [], polledTaskCount: 0 };
+    return {
+      comments: [],
+      pollErrors: [],
+      permanentPollErrors: [],
+      latestCreatedAtByTaskId: {},
+      polledTaskCount: 0,
+    };
   }
   const pat = opts.pat ?? process.env.BOTHY_BOARD_PAT ?? "";
   if (!pat) {
-    return { comments: [], pollErrors: ["BOTHY_BOARD_PAT unset — skipped poll."], polledTaskCount: 0 };
+    return {
+      comments: [],
+      pollErrors: ["BOTHY_BOARD_PAT unset — skipped poll."],
+      permanentPollErrors: ["BOTHY_BOARD_PAT unset — skipped poll."],
+      latestCreatedAtByTaskId: {},
+      polledTaskCount: 0,
+    };
   }
   const markers = opts.selfMarkers ?? [];
   const fetchFn = opts.fetch ?? ((args) => bothyMcpCall(pat, args.tool, args.arguments));
@@ -84,17 +99,42 @@ export async function pollForeignMailbox(
   const maxTasks = opts.maxTasks ?? 8;
   const comments: PollComment[] = [];
   const pollErrors: string[] = [];
+  const permanentPollErrors: string[] = [];
+  const latestCreatedAtByTaskId: Record<string, string> = {};
   for (const taskId of taskIds.slice(0, maxTasks)) {
     try {
-      const { structuredContent } = await Promise.race([
-        fetchFn({ tool: "bothy-board.mailbox.poll", arguments: { taskId } }),
+      const args: Record<string, unknown> = { taskId };
+      const since = opts.sinceByTaskId?.[taskId];
+      if (since) args.since = since;
+      const { structuredContent, httpStatus } = await Promise.race([
+        fetchFn({ tool: "bothy-board.mailbox.poll", arguments: args }),
         new Promise<never>((_, reject) => {
           setTimeout(() => reject(new Error("timeout")), timeoutMs);
         }),
       ]);
+      if (httpStatus === 401 || httpStatus === 403) {
+        const reason = `${taskId} poll_error:http_${httpStatus}`;
+        pollErrors.push(reason);
+        permanentPollErrors.push(reason);
+        continue;
+      }
+      if (httpStatus < 200 || httpStatus >= 300) {
+        pollErrors.push(`${taskId} poll_error:http_${httpStatus}`);
+        continue;
+      }
       const sc = (structuredContent ?? {}) as { comments?: PollComment[]; unread?: number };
-      const foreign = (sc.comments ?? [])
-        .map((comment) => (typeof comment.taskId === "string" ? comment : { ...comment, taskId }))
+      const addressed = (sc.comments ?? []).map((comment) =>
+        typeof comment.taskId === "string" ? comment : { ...comment, taskId },
+      );
+      for (const comment of addressed) {
+        if (
+          typeof comment.createdAt === "string" &&
+          comment.createdAt > (latestCreatedAtByTaskId[taskId] ?? "")
+        ) {
+          latestCreatedAtByTaskId[taskId] = comment.createdAt;
+        }
+      }
+      const foreign = addressed
         .filter((comment) => !isSelfComment(comment, markers));
       comments.push(...foreign);
     } catch (error) {
@@ -102,7 +142,13 @@ export async function pollForeignMailbox(
       pollErrors.push(`${taskId} poll_error:${reason}`);
     }
   }
-  return { comments, pollErrors, polledTaskCount: Math.min(taskIds.length, maxTasks) };
+  return {
+    comments,
+    pollErrors,
+    permanentPollErrors,
+    latestCreatedAtByTaskId,
+    polledTaskCount: Math.min(taskIds.length, maxTasks),
+  };
 }
 
 /**

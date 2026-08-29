@@ -43,6 +43,8 @@ Use live subagents only when available and materially useful. Otherwise perform 
 
 - **Grok:** prefer direct DeepSeek (`deepseek-v4-flash` for scouts, `deepseek-v4-pro` for implementation/review) and `grok-build` for frontier synthesis. Do not use Moonbridge as the primary Grok subagent route when direct DeepSeek is available.
 - **Codex Desktop:** cannot select DeepSeek in the native model picker. Use tier-appropriate models from generated `.codex/agents/*.toml`. Moonbridge (`pnpm local:moonbridge:probe`) is **Codex-only optional assist** for bounded first-pass review on scout/expert roles—not for implementation or readiness judgment.
+- **Codex Luna:** an efficient Codex-side coordinator/triage alternative when available, not a claim of superiority over DeepSeek. DeepSeek dispatch remains through BothyBoard/Grok tooling; do not invent a direct Desktop dispatch path.
+- **Codex harness details:** when an external monitor, fresh `codex exec` wake, or parallel Codex worker is involved, read the conditional [BothyBoard Codex harness addendum](../bothy-board/CODEX-HARNESS.md). It covers `sync`-based observation, no Desktop-task resume, disjoint worktrees, and board mutation authority without duplicating the core protocol.
 - **Production pipeline:** asset generation and scene optimization may require agentic evaluation behind a swappable `ModelAssistProvider` (Moonbridge today; approved online models later). Procedural-only pipelines are the goal, but online AI is permitted behind explicit gates.
 
 See `docs/agent-factory/model-assignment-policy.md` and `packages/openclinxr/agent-loop/src/role-harness-policy.ts`.
