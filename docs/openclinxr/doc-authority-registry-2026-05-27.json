@@ -4,7 +4,7 @@
   "protectedRule": "Protected-policy files are off-limits to routine agents: do not delete, weaken, bypass, rename, or reinterpret them during autonomous work.",
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
-    "agent-methodology": 81,
+    "agent-methodology": 84,
     "current-reference": 219,
     "archive-candidate": 11,
     "evidence": 52,
@@ -12,10 +12,10 @@
     "agent-memory": 39,
     "historical-synthesis": 11,
     "decision-record": 45,
-    "total": 471,
+    "total": 474,
     "generated-evidence": 1,
     "reference": 1,
-    "entries": 474
+    "entries": 476
   },
   "entries": [
     {
@@ -34,6 +34,20 @@
     },
     {
       "path": ".agents/skills/antd/SKILL.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
+    },
+    {
+      "path": ".agents/skills/bothy-board/PROVENANCE.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
+    },
+    {
+      "path": ".agents/skills/bothy-board/SKILL.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
@@ -2667,6 +2681,13 @@
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
+      "path": "docs/openclinxr/cagematch/findings/iwsdk-scene-composer.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "#577 cagematch finding of record: IWSDK scene composer reject_measured for room_generate \u2014 verify gate exits 2 (TS2688, no node_modules) and @iwsdk/scene-composition@0.5.3 rejects the OpenClinXR case manifest with zero schema overlap; station requires agent hand-mapping. Measured 2026-08-28."
+    },
+    {
       "path": "docs/openclinxr/cagematch/findings/local-tts-to-viseme-chain.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
@@ -3332,13 +3353,6 @@
       "rationale": "Unclassified Markdown; review before using as instruction.",
       "title": "TRELLIS multi-view Grok packs operator spec",
       "summary": "Operator spec for multi-view Grok Imagine packs and factory:trellis:bake multi-image wiring."
-    },
-    {
-      "path": "docs/openclinxr/cagematch/findings/iwsdk-scene-composer.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "#577 cagematch finding of record: IWSDK scene composer reject_measured for room_generate \u2014 verify gate exits 2 (TS2688, no node_modules) and @iwsdk/scene-composition@0.5.3 rejects the OpenClinXR case manifest with zero schema overlap; station requires agent hand-mapping. Measured 2026-08-28."
     }
   ]
 }
