@@ -14,23 +14,23 @@ parseable_sections: 6
 <!-- WAKE-BLUF:BEGIN -->
 ## WAKE BLUF - replace this block every wake, never append
 
-**2026-08-28 | main `39b8b47d` | Grok orchestrator | BothyBoard dequeue SSOT (GitHub opt-in `BOTHY_BOARD_DEQUEUE=0`)**
+**2026-08-28 | main `01355ef1` | Grok orchestrator | BothyBoard dequeue SSOT (GitHub opt-in `BOTHY_BOARD_DEQUEUE=0`)**
 
 **IN FLIGHT**
-- `tsk_c5451ca0fb446348` P1 room_generate: ED floor aspect vs declared (2.0, 2.1). S1 abandoned RED `the-shipped-room-matches-its-declared-shape.test.ts`.
+- `tsk_c5451ca0fb446348` room_generate: ED floor aspect. Dirty `infinigen-single-room-extract.py` + `room_extract_predicate.py`. Session `a6c1c0b9`.
 
 **LANDED this session**
-- World-config writes + descriptor display (environmentId, equipment, assetNeeds, fixtureSlots, wallColor, lighting).
+- World-config form + shell facts. emotionPolicy form `01355ef1` (`5a8ec0f3`). Bothy `tsk_de93` cancelled after git land.
 
 **BLOCKED**
 - `tsk_27ba` PIXEL GRADE speaking stills torso. Do not land. Do not dispatch.
 - `#643` owner `gradeVerdict`. `#600` run red on #474. Phase 4 HELD.
 
-**NEXT this wake:** dispatch `tsk_c545` then harvest. Skip 27ba.
+**NEXT this wake:** harvest `tsk_c545` when extract returns. Skip 27ba.
 
-SWEEP: reds=34(oldest (#37)) undisp=0 uncarded=4 rel=current quiet=31 workers=0/3 bothy=tsk_c5451ca0fb446348
+SWEEP: reds=34(oldest (#37)) undisp=0 uncarded=4 rel=current quiet=31 workers=1/3 bothy=tsk_c5451ca0fb446348
 
-NOT TESTED: area; other stations; 27ba recapture.
+NOT TESTED: area; other stations; 27ba recapture; emotionPolicy transition editor.
 <!-- WAKE-BLUF:END -->
 <!-- WAKE-BLUF:END -->
 
