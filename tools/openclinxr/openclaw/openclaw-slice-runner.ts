@@ -4,7 +4,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { sliceBriefPath } from "../../../packages/openclinxr/agent-loop/src/slice-team.js";
-import { selectNextBoardCardAsync } from "./board-next-selector.js";
+import { selectNextBoardCard } from "./board-next-selector.js";
 import type { BoardIssue, BriefResult } from "./board-brief.js";
 import {
   bothyBriefFromSlice,
@@ -489,7 +489,7 @@ export function dispatchBriefForCard(brief: BriefResult, card: BoardCardSelectio
 async function boardCardOrNull(skip: boolean): Promise<BoardCardSelection | null> {
   if (skip) return null;
   try {
-    const picked = await selectNextBoardCardAsync((argv) =>
+    const picked = selectNextBoardCard((argv) =>
       // maxBuffer is NOT optional here. The live board serialises to 3.29 MB against execFileSync's
       // 1 MB default; omitting it truncates the read, and `selectNextBoardCard` then correctly
       // refuses with `incomplete-read` rather than picking from a partial board. Measured 2026-08-24.
