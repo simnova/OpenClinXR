@@ -6,6 +6,31 @@ when-to-use: "ox is down, ox not working, model is broken, dispatch died, 0 byte
 
 # Model routing
 
+> # CAPABILITY FACTS — operator, 2026-08-29. Read before the ladder.
+>
+> Verbatim: *"deepseek-v4-flash-vision-exp has vision capabilities, grok 4.5 has been
+> depreciated and 4.6 is its successor"*
+>
+> | model | status |
+> |---|---|
+> | `deepseek-v4-flash-vision-exp` | **HAS VISION.** It is the vision rung. |
+> | `grok-4.5` | **DEPRECATED.** Do not route to it. |
+> | `grok-4.6` | its successor, and the rung-2 escalation |
+> | `ox-alpha` | retired, HTTP 404 since 2026-08-26 |
+>
+> **This corrects a claim still live in other surfaces of this repo.** Measured 2026-08-29,
+> `.agents/skills/grok-worker-monitoring/SKILL.md:86-92` carries a capability table whose
+> vision column reads "NO - text only" for deepseek and "VERIFIED" for ox-alpha, and
+> `.grok/config.toml:115` states "Deepseek text models are never used for vision content"
+> while forcing image tasks to `grok-4-fast`. That blanket claim is TRUE of
+> `deepseek-v4-flash` and `-pro` and FALSE of `-vision-exp`; as written it routes every image
+> task away from the correct rung. `agents/rules/LEX_AGENTIC.md:77` repeats the same stale
+> routing. Those files are grok's; reported to it rather than edited by me.
+>
+> **The trap this creates:** if `grok-repo-agent-spawn.ts` still forces `grok-4-fast` on
+> `requiresMultimodalReasoning`, it may override a correct `model:` argument. NOT VERIFIED —
+> I have not read that file. Check before assuming a passed model survives.
+
 > # THE LADDER, as of 2026-08-26 — operator directive, and it INVERTS everything below
 >
 > > "Promote deepseek flash and flash multimodal (when image is needed) to primary and ox only when
@@ -15,10 +40,10 @@ when-to-use: "ox is down, ox not working, model is broken, dispatch died, 0 byte
 >
 > | rung | model | when |
 > |---|---|---|
-> | **1** | `deepseek-v4-flash` | **default for everything** |
-> | **1v** | `deepseek-v4-flash-vision-exp` | **when the slice genuinely needs the worker to read an image** — not a step down, a sideways pick |
-> | 2 | `ox-alpha` | only after rung 1 fails on a measured error. **CURRENTLY 404, see below** |
-> | 3 | `grok-4.6` | last resort |
+> | **1** | `deepseek-v4-flash` | **cheapest default for workers, scouts, scheduled wakes, superagent** |
+> | **1v** | `deepseek-v4-flash-vision-exp` | **when the slice genuinely needs the worker to read an image** — sideways, not a step down. This model HAS VISION (operator, 2026-08-29), contradicting the older tables named above. |
+> | **2** | `grok-4.6` | **strong/smart** — escalate when flash is not enough (hard slice, UNABLE, measured flash failure). Successor to the DEPRECATED grok-4.5; never route to 4.5. |
+> | ~~ox-alpha~~ | retired | HTTP 404 as of 2026-08-26. Do not pass `model: ox-alpha`. |
 >
 > Rung 1v is CONDITIONAL, not sequential. On an identical text-only probe the vision model spent 730
 > output tokens against 135 for plain flash, 5.4x, for the same answer. Pixel grading is the
@@ -126,7 +151,7 @@ ledger (1,277 rows), counting only rows carrying a terminal phase:
 | **ox-alpha** | 97 | **21.6%** | 6,630 | **3.17** |
 | deepseek-v4-flash | 87 | 2.3% | 6,273 | 0.32 |
 | deepseek-v4-pro | 84 | 2.4% | 3,964 | 0.50 |
-| grok-4.5 | 47 | 0.0% | 1,229 | 0.00 |
+| grok-4.5 *(DEPRECATED 2026-08-29 — historical row, do not route here; 4.6 is the successor)* | 47 | 0.0% | 1,229 | 0.00 |
 
 **Normalised by TURNS on purpose.** Ox runs the longest sessions (median 65, max 250), so more
 exposure could have explained more deaths. It does not: ox still dies ~10x more per unit of work,
