@@ -1,15 +1,15 @@
 {
   "slice": "issue-714",
   "title": "gown fold clamp measurement — per-decile, pre/post-fix re-measurement of #691",
-  "measuredAt": "2026-08-28T09:49:56.471Z",
-  "measuredAtCommit": "c66c012cc4939963d7aded6f763e69b273f36deb",
-  "renderPath": "tools/openclinxr/evidence/issue-714/front_lit.png",
-  "renderNote": "Native 4096 front lit render of the rebaked mpfb-gown-adult-patient.glb through the model-vetting three.js path (glb-grade capture 2026-08-28T09-39-07Z; in-page geometry self-check agrees, relativeError 0.00018). The 1:1 bodice-band crop is tools/openclinxr/evidence/issue-714/bodice-band-1to1.png (fold band y 0.95..1.55 m, torso width, cropped at native resolution from front_lit.png); front_structure.png / three_quarter_lit.png / three_quarter_structure.png are the companion lit+structure passes.",
+  "measuredAt": "2026-08-29T03:51:44.146Z",
+  "measuredAtCommit": "fa2fa67f33ef4a19e3ba39e0b4116ce8405de9d9",
+  "renderPath": "",
+  "renderNote": "",
   "counterweight": {
-    "glbSha256": "dd2340a9e22300875445b561c4cb5fdfed4711521e6f5b14d95916946559c2eb",
-    "glbBytes": 9280276,
-    "pinnedSha256": "dd2340a9e22300875445b561c4cb5fdfed4711521e6f5b14d95916946559c2eb",
-    "pinnedBytes": 9280276
+    "glbSha256": "f6ce3f8804cfd3f31d2ea06cc4546c6a44e4b9713654b560e8be6fda399f63ff",
+    "glbBytes": 9193752,
+    "pinnedSha256": "f6ce3f8804cfd3f31d2ea06cc4546c6a44e4b9713654b560e8be6fda399f63ff",
+    "pinnedBytes": 9193752
   },
   "gownMesh": "openclinxr_real_garment_peds_upper_v1_mesh",
   "gownVertexCount": 14899,

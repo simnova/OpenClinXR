@@ -50,6 +50,7 @@ from typing import Any, Dict, List, Optional
 # --- bpy is only available when running inside Blender ---
 try:
     import bpy
+    import mathutils
     from mathutils import Vector, Matrix
 except ImportError:
     print("ERROR: This script must be run with Blender's embedded Python:")
@@ -2428,6 +2429,35 @@ def _build_body_surface_derived_garment(
         print(
             f"[blender] #124 after normal offset: verts={len(bm.verts)} "
             f"y=[{min(_ys_off):.4f},{max(_ys_off):.4f}]"
+        )
+
+    # #746: the normal offset follows the body's own surface normals, and in the concave
+    # armpit/under-deltoid crease those normals point INTO the body, so the shell lands
+    # inside the skin there. Measured: 73 two-tests-agree gown vertices at the
+    # armpit/sleeve-root (y 1.15..1.35) after #714's fold clamp — the clamp bounds the fold
+    # trough by the lift, but a shell already inside before the fold runs cannot be reached
+    # by any bound on d (#719 verdict: upstream_shell_required). Push every gown vertex to
+    # at least `_clearance_floor746` OUTSIDE the nearest original-body surface point, so the
+    # shell bridges the crease instead of following the inward normals. Deterministic; no
+    # geometry authored (D1); the fold displacement below then runs over a shell that is
+    # outside everywhere, and its clamp keeps the troughs at or beyond the pre-fold radius.
+    if skirt_top_y is not None:
+        _clearance_tree746 = mathutils.bvhtree.BVHTree.FromBMesh(bm)
+        # Below the design minimum (cloth_offset * 0.55) but well above the 2 mm strict-inside
+        # measurement threshold; keeps the deliberate underarm ease-in while clearing the body.
+        _clearance_floor746 = max(cloth_offset * 0.36, 0.008)
+        _n_pushed746 = 0
+        for _v746 in bm.verts:
+            _loc746, _normal746, _idx746, _dist746 = _clearance_tree746.find_nearest(_v746.co)
+            if _loc746 is None:
+                continue
+            _s746 = (_v746.co - _loc746).dot(_normal746)
+            if _s746 < _clearance_floor746:
+                _v746.co = _loc746 + _normal746 * _clearance_floor746
+                _n_pushed746 += 1
+        print(
+            f"[blender] #746 clearance push-out: floor={_clearance_floor746 * 1000:.1f}mm "
+            f"pushed={_n_pushed746} of {len(bm.verts)}"
         )
 
     # #481: a gown drapes as ONE skirt below the hip. The body has two legs below the
