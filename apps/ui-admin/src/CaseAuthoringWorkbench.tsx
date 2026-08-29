@@ -38,6 +38,8 @@ import {
 } from "./case-authoring-model.js";
 import { EncounterEnvironmentPanel } from "./EncounterEnvironmentPanel.js";
 import { ActorPhenotypeFields } from "./ActorPhenotypeFields.js";
+import { EquipmentPanel } from "./EquipmentPanel.js";
+import { StringListField } from "./StringListField.js";
 const { TextArea } = Input;
 
 /** Minimal server client surface for authored-scenario persistence (via app-local api-client only). */
@@ -366,6 +368,7 @@ export function CaseAuthoringWorkbench({ initialScenario, apiClient }: CaseAutho
           />
         </Card>
         <EncounterEnvironmentPanel environmentId={baseDraft.environment?.environmentId} />
+        <EquipmentPanel />
         <Card title="Actors & interactions" size="small" style={{ marginBottom: 16 }}>
           <Form.List name="actors">
             {(fields, { add, remove }) => (
@@ -588,39 +591,6 @@ function ActorFields({ fieldName, onRemove }: { fieldName: number; onRemove: () 
         Remove actor
       </Button>
     </div>
-  );
-}
-
-type StringListFieldProps = {
-  name: string | (string | number)[];
-  label: string;
-  addLabel: string;
-  itemLabel: string;
-};
-
-function StringListField({ name, label, addLabel, itemLabel }: StringListFieldProps): ReactElement {
-  return (
-    <Form.Item label={label} style={{ marginBottom: 8 }}>
-      <Form.List name={name}>
-        {(fields, { add, remove }) => (
-          <div>
-            {fields.map((field) => (
-              <Space key={field.key} align="baseline" style={{ display: "flex", marginBottom: 6 }}>
-                <Form.Item name={field.name} noStyle>
-                  <Input aria-label={itemLabel} style={{ minWidth: 320 }} />
-                </Form.Item>
-                <Button size="small" danger onClick={() => remove(field.name)}>
-                  Remove
-                </Button>
-              </Space>
-            ))}
-            <Button type="dashed" size="small" onClick={() => add("")}>
-              {addLabel}
-            </Button>
-          </div>
-        )}
-      </Form.List>
-    </Form.Item>
   );
 }
 

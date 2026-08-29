@@ -23,6 +23,16 @@ import {
  *
  * Diagnosis and measured tables in this header are IMMUTABLE. Flip it.fails → it and append
  * ## FIXED. Do not rewrite the original paths or numbers.
+ *
+ * ## FIXED (#0)
+ * - `ScenarioFormValues` gains `equipment`; `scenarioToFormValues` projects
+ *   `scenario.equipment` (case-authoring-model.ts).
+ * - `mergeFormValuesIntoScenario` writes the form equipment onto `scenario.equipment`,
+ *   trimmed with empty rows dropped so the authored list stays ScenarioSchema-valid
+ *   (minLength-1 strings); unchanged round-trips stay lossless (case-authoring-model.ts).
+ * - `CaseAuthoringWorkbench` renders an "Equipment" card with a tags-mode Select
+ *   (free-text names, Enter/comma to add) bound to the form `equipment` field
+ *   (CaseAuthoringWorkbench.tsx).
  */
 
 describe("the authoring form writes equipment", () => {
@@ -51,7 +61,7 @@ describe("the authoring form writes equipment", () => {
     cleanup();
   });
 
-  it.fails("(1) scenarioToFormValues carries equipment", () => {
+  it("(1) scenarioToFormValues carries equipment", () => {
     const values = scenarioToFormValues(edChestPainScenario) as { equipment?: string[] };
     expect(edChestPainScenario.equipment).toEqual([
       "12-lead ECG machine",
@@ -64,7 +74,7 @@ describe("the authoring form writes equipment", () => {
     expect(values.equipment).toEqual(edChestPainScenario.equipment);
   });
 
-  it.fails("(2) mergeFormValuesIntoScenario writes the form equipment onto the scenario", () => {
+  it("(2) mergeFormValuesIntoScenario writes the form equipment onto the scenario", () => {
     const values = {
       ...scenarioToFormValues(edChestPainScenario),
       equipment: ["stretcher"],
@@ -76,7 +86,7 @@ describe("the authoring form writes equipment", () => {
     expect(merged.equipment).toEqual(["stretcher"]);
   });
 
-  it.fails("(3) the workbench has an equipment list labelled Equipment", () => {
+  it("(3) the workbench has an equipment list labelled Equipment", () => {
     render(<CaseAuthoringWorkbench initialScenario={edChestPainScenario} />);
     expect(screen.getByLabelText(/equipment/i)).toBeInTheDocument();
   });
