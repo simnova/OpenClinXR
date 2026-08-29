@@ -12,6 +12,10 @@ import { describe, expect, it } from "vitest";
  * compile-encounter-world.ts:26 body JSON.stringify({ scenarioId }).
  *
  * Diagnosis header IMMUTABLE. Flip it.fails → it and append ## FIXED.
+ *
+ * ## FIXED (tsk_53c787f4aae50d5b)
+ * POST body type now includes compileNodes and infinigenPrompt next to
+ * scenarioId. scenarioId_required and empty-body 400/403 stay.
  */
 
 const API_SRC = dirname(fileURLToPath(import.meta.url));
@@ -19,11 +23,11 @@ const ROUTE = readFileSync(join(API_SRC, "world-compile-routes.ts"), "utf8");
 const CLIENT = readFileSync(join(API_SRC, "../../ui-admin/src/compile-encounter-world.ts"), "utf8");
 
 describe("the world-compile POST accepts compileNodes and infinigenPrompt", () => {
-  it.fails("(1) request body type includes compileNodes next to scenarioId", () => {
+  it("(1) request body type includes compileNodes next to scenarioId", () => {
     expect(ROUTE).toMatch(/as \{ scenarioId\?: unknown; compileNodes/);
   });
 
-  it.fails("(2) world-compile-routes reads infinigenPrompt from the request body", () => {
+  it("(2) world-compile-routes reads infinigenPrompt from the request body", () => {
     expect(ROUTE).toMatch(/body\.infinigenPrompt|infinigenPrompt\?:/);
   });
 

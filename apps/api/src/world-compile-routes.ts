@@ -29,12 +29,17 @@ export function registerWorldCompileRoutes(app: Hono<{ Variables: ApiAppVariable
       return context.json({ error: "forbidden", reason: "faculty_role_required" }, 403);
     }
 
-    const body = (await context.req.json().catch(() => ({}))) as { scenarioId?: unknown };
+    const body = (await context.req.json().catch(() => ({}))) as { scenarioId?: unknown; compileNodes?: unknown; infinigenPrompt?: unknown };
     const scenarioId =
       typeof body.scenarioId === "string" && body.scenarioId.trim().length > 0 ? body.scenarioId.trim() : undefined;
     if (!scenarioId || !SCENARIO_ID_PATTERN.test(scenarioId)) {
       return context.json({ error: "invalid_body", reason: "scenarioId_required" }, 400);
     }
+    const compileNodes = Array.isArray(body.compileNodes) ? body.compileNodes : undefined;
+    const infinigenPrompt =
+      typeof body.infinigenPrompt === "string" && body.infinigenPrompt.trim().length > 0
+        ? body.infinigenPrompt.trim()
+        : undefined;
 
     const priorPath = await resolvePriorEvidencePathForScenario(scenarioId);
     if (!priorPath) {
@@ -56,11 +61,18 @@ export function registerWorldCompileRoutes(app: Hono<{ Variables: ApiAppVariable
     await mkdir(dirname(outPath), { recursive: true });
 
     try {
-      const result = await compileModule.compileEncounterMaterialization({ priorPath, outPath });
+      const result = await compileModule.compileEncounterMaterialization({
+        priorPath,
+        outPath,
+        ...(compileNodes ? { compileNodes } : {}),
+        ...(infinigenPrompt ? { infinigenPrompt } : {}),
+      });
       const nodes = (result.report.compileNodes ?? []) as Array<{ wouldInvoke?: string | null }>;
       return context.json({
         schemaVersion: "openclinxr.world-compile.api.v1",
         scenarioId,
+        acceptedCompileNodes: compileNodes?.length ?? 0,
+        acceptedInfinigenPrompt: Boolean(infinigenPrompt),
         claimBoundary: "faculty_world_compile_plan_only",
         notEvidenceFor: ["live_blender_bake", "review_packet_promotion", "quest_readiness"],
         compileVersion: result.compileVersion,
@@ -130,6 +142,8 @@ type WorldCompileModule = {
   compileEncounterMaterialization: (opts: {
     priorPath: string;
     outPath?: string;
+    compileNodes?: unknown[];
+    infinigenPrompt?: string;
   }) => Promise<{
     compileVersion: number;
     skippedBakers: string[];
