@@ -14,23 +14,24 @@ parseable_sections: 6
 <!-- WAKE-BLUF:BEGIN -->
 ## WAKE BLUF - replace this block every wake, never append
 
-**2026-08-29 | main `3b15fd47` | Grok orchestrator | Stop-hook continuation**
+**2026-08-29 | main `57e21fe8` | Grok orchestrator | BothyBoard dequeue SSOT**
 
 **IN FLIGHT**
-- none (N=0). Bothy `tasks.next` empty.
+- `tsk_f2a2d82ae178c8d1` world compile plan invokes planned bakers (ac086a70).
+- Lane A luminance `tsk_9977` / `tsk_2c72` — do not land a floor flip. Stroke black frame residual.
 
 **LANDED this wake**
-- `tsk_445f` D9 runner seam `3b15fd47` (`c8a30d1f`, 47 turns, proofsOk). Fixture-first `resolve_case_actor_params_with_source`.
-- `tsk_c0f2` `3ae82e92` (`62ee1020`): toigo_flats has zero shipped wearers; clause (1) green on drop.
+- World compile production caller `dc06c18a` (`b9dedaf4`): dark-factory `world_compile` station.
+- World-config form + shell facts, emotionPolicy, viseme_aa, ED aspect, MPFB elbow, gown 73→0, Anny→MPFB remap, toigo_flats drop, D9 fixture-first seam.
 
 **BLOCKED**
 - `tsk_27ba` PIXEL GRADE speaking stills. `#643` owner grades. Skip Tara. Skip phenotype authoring.
 
-**NEXT this wake:** operationalize next S1 RED. Skip 27ba.
+**NEXT this wake:** queue sizable WCG verticals (faculty Compile-this-case, lock-skip baker). Push main to origin. Skip 27ba.
 
-SWEEP: reds=25 oldest (#37) workers=0/3 bothy=null
+SWEEP: reds=25 oldest (#37) workers=1-2/3 bothy=tsk_f2a2
 
-NOT TESTED: 2x triangle budget; gown looks; 27ba recapture; native grade of 15 showcase PNGs.
+NOT TESTED: live Blender from wouldInvoke; 27ba recapture.
 <!-- WAKE-BLUF:END -->
 
 **OPERATOR MODEL LADDERS (2026-08-27) — CODIFIED in the `model-routing` skill**
