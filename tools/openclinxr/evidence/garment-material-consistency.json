@@ -1,116 +1,32 @@
 {
   "schemaVersion": "openclinxr.garment-material-consistency.v1",
-  "method": "NodeIO over apps/ui-xr/public/generated-humanoids/mpfb-*.glb; cast flags from listShippedCastScenarioIds + resolveScenarioActorCast (exact basename match; motion-bind rows do not mark the unsuffixed GLB as cast)",
-  "measuredAt": "2026-08-22T01:22:22.283Z",
-  "mechanism": "Primary CAST split was intentional #502 clinician footwear path in materialize_mpfb_humanoid_candidate.py (now #553: ALL toigo_flats wearers take the plain branch). Nurse/physician/gown already plain; aisha was the outlier consuming Shoe.png (leopard atlas). GROUP B applied the #502 GLB JSON-chunk strip to mpfb-ob-patient-aisha (+ peds-parent non-cast) — not a rebake — and widened the generator plain branch from clinicians-only to every toigo_flats wearer. Nothing in any case definition authors leopard shoes.",
+  "method": "NodeIO over every GLB in apps/ui-xr/public/generated-humanoids/ (+ the two cast candidate dirs), matching material name mat_makeclothes_library_* AND mesh name; cast flags from listShippedCastScenarioIds + resolveScenarioActorCast (exact basename match; motion-bind rows do not mark the unsuffixed GLB as cast)",
+  "measuredAt": "2026-08-29T05:10:00.000Z",
+  "mechanism": "Re-measurement for issue #0 (toigo_flats same material treatment on every CAST wearer). Measured: ZERO shipped GLB carries toigo_flats geometry or the mat_makeclothes_library_footwear_toigo_flats material (43 GLBs scanned by material + mesh name). #598 removed the last SHOE_BY_REFERENCE rows mapping to toigo_flats (materialize_mpfb_humanoid_candidate.py:29-45: None / ed_chest_pain_nurse_adult / ed_chest_pain_spouse_adult -> toigo_mj_cloth_shoes) and #740 re-materialized the fleet with each garment's declared .mhmat texture, so every footwear slot now ships toigo_mj_cloth_shoes (MJ-shoes3, 1,418,657 B) or culturalibre_male_boots (boot, 461,286 B), each byte-consistent across its wearers. The toigo_t_shirt cast split that kept the planted clause (1) expected-failing is also gone: all 8 wearers carry T-shirt_basic.png at 656,736 B, gown included (#740 restored it). Nothing in any case definition authors toigo_flats or leopard footwear.",
   "direction": "drop",
-  "rationale": "Drop confirmed: Shoe.png is a leopard-print atlas (orchestrator whole-pattern pixel grade). #502 forbade it on clinicians; the same clinical-plausibility argument applies to a cast OB patient — nothing case-authors leopard flats. Plain bcf (0.10,0.09,0.08) is already the majority cast treatment (gown precedent). Attach would reintroduce the print and spend ~7.77 MB per wearer of the 64 MB station texture budget.",
-  "stationTextureMegabytesAfter": 9.823,
+  "rationale": "toigo_flats is already off the cast (#598/#740): zero shipped wearers. Re-attaching its leopard 'Shoe' diffuse (7,769,810 B = 7.41 MiB per wearer, 11.6% of the 64 MiB station budget each) would spend ~29.6 MiB across four cast wearers for a pattern nothing in any case definition authors. Measured ob station cast-texture total is 12.101 MiB; drop keeps it there, attach would push it to ~41.7 MiB.",
+  "stationTextureMegabytesAfter": 12.101,
   "stationTextureBudgetMegabytes": 64,
   "stationCosting": {
     "motivatingStation": {
       "scenario": "ob_headache_preeclampsia_triage_v1",
-      "currentMB": 17.233,
-      "afterDropMB": 9.823,
-      "afterAttachMB": 32.052
+      "currentMB": 12.101,
+      "afterDropMB": 12.101,
+      "afterAttachMB": 41.741
     },
     "controlStationNoTexturedFlats": {
       "scenario": "ed_chest_pain_priority_v1",
-      "currentMB": 9.197,
-      "afterDropMB": 9.197,
-      "afterAttachMB": 24.016
+      "currentMB": 12.131,
+      "afterDropMB": 12.131,
+      "afterAttachMB": 41.771
     },
-    "note": "afterDropMB excludes unreferenced orphan Shoe images left in BIN by the JSON-chunk strip (material no longer binds them). currentMB still counts orphans until a rebake reclaim."
+    "note": "Method: sum of baseColorTexture image bytes across the station's cast GLBs (ob: aisha + clinical-nurse + family-partner; ed: gown + clinical-nurse + family-partner), MiB = bytes / 1048576. afterAttachMB = current + 7.410 MiB x 4 cast wearers (aisha, nurse, physician, gown) of the leopard Shoe.png diffuse. Room/environment textures are not included (same cast-GLB method the #538-era artifact used)."
   },
   "garments": [
     {
       "garment": "toigo_flats",
-      "wearers": [
-        {
-          "actor": "mpfb-clinical-nurse-adult",
-          "cast": true,
-          "textureBytes": 0,
-          "baseColorFactor": [
-            0.1,
-            0.09,
-            0.08
-          ],
-          "material": "mat_makeclothes_library_footwear_toigo_flats",
-          "textureName": null
-        },
-        {
-          "actor": "mpfb-clinical-physician-adult",
-          "cast": true,
-          "textureBytes": 0,
-          "baseColorFactor": [
-            0.1,
-            0.09,
-            0.08
-          ],
-          "material": "mat_makeclothes_library_footwear_toigo_flats",
-          "textureName": null
-        },
-        {
-          "actor": "mpfb-gown-adult-patient",
-          "cast": true,
-          "textureBytes": 0,
-          "baseColorFactor": [
-            0.1,
-            0.09,
-            0.08
-          ],
-          "material": "mat_makeclothes_library_footwear_toigo_flats",
-          "textureName": null
-        },
-        {
-          "actor": "mpfb-gown-inspect",
-          "cast": false,
-          "textureBytes": 0,
-          "baseColorFactor": [
-            0.1,
-            0.09,
-            0.08
-          ],
-          "material": "mat_makeclothes_library_footwear_toigo_flats",
-          "textureName": null
-        },
-        {
-          "actor": "mpfb-ob-patient-aisha",
-          "cast": true,
-          "textureBytes": 0,
-          "baseColorFactor": [
-            0.1,
-            0.09,
-            0.08
-          ],
-          "material": "mat_makeclothes_library_footwear_toigo_flats",
-          "textureName": null
-        },
-        {
-          "actor": "mpfb-peds-parent-aisha",
-          "cast": false,
-          "textureBytes": 0,
-          "baseColorFactor": [
-            0.1,
-            0.09,
-            0.08
-          ],
-          "material": "mat_makeclothes_library_footwear_toigo_flats",
-          "textureName": null
-        },
-        {
-          "actor": "mpfb-viseme-inspect",
-          "cast": false,
-          "textureBytes": 0,
-          "baseColorFactor": [
-            0.1,
-            0.09,
-            0.08
-          ],
-          "material": "mat_makeclothes_library_footwear_toigo_flats",
-          "textureName": null
-        }
-      ]
+      "wearers": [],
+      "note": "ZERO shipped wearers, measured 2026-08-29: no GLB in generated-humanoids/ or the cast candidate dirs carries mat_makeclothes_library_footwear_toigo_flats or a toigo_flats mesh. The only in-tree references are historical provenance notes and the dead #502/#553 strip branch in materialize_mpfb_humanoid_candidate.py:4970 (unreachable — no SHOE_BY_REFERENCE row maps here)."
     },
     {
       "garment": "toigo_t_shirt",
@@ -120,9 +36,9 @@
           "cast": true,
           "textureBytes": 656736,
           "baseColorFactor": [
-            0.42,
-            0.36,
-            0.4
+            0.62,
+            0.28,
+            0.38
           ],
           "material": "mat_makeclothes_library_toigo_t_shirt",
           "textureName": "T-shirt_basic.png"
@@ -130,26 +46,26 @@
         {
           "actor": "mpfb-gown-adult-patient",
           "cast": true,
-          "textureBytes": 0,
+          "textureBytes": 656736,
           "baseColorFactor": [
             0.34,
             0.44,
             0.34
           ],
           "material": "mat_makeclothes_library_toigo_t_shirt",
-          "textureName": null
+          "textureName": "T-shirt_basic"
         },
         {
           "actor": "mpfb-gown-inspect",
           "cast": false,
-          "textureBytes": 0,
+          "textureBytes": 656736,
           "baseColorFactor": [
             0.34,
             0.44,
             0.34
           ],
           "material": "mat_makeclothes_library_toigo_t_shirt",
-          "textureName": null
+          "textureName": "T-shirt_basic"
         },
         {
           "actor": "mpfb-ob-patient-aisha",
@@ -168,9 +84,9 @@
           "cast": false,
           "textureBytes": 656736,
           "baseColorFactor": [
-            0.42,
-            0.36,
-            0.4
+            0.62,
+            0.28,
+            0.38
           ],
           "material": "mat_makeclothes_library_toigo_t_shirt",
           "textureName": "T-shirt_basic.png"
@@ -202,34 +118,250 @@
         {
           "actor": "mpfb-viseme-inspect",
           "cast": false,
-          "textureBytes": 0,
+          "textureBytes": 656736,
           "baseColorFactor": [
             0.34,
             0.44,
             0.34
           ],
           "material": "mat_makeclothes_library_toigo_t_shirt",
+          "textureName": "T-shirt_basic.png"
+        }
+      ]
+    },
+    {
+      "garment": "toigo_mj_cloth_shoes",
+      "wearers": [
+        {
+          "actor": "mpfb-clinical-nurse-adult",
+          "cast": true,
+          "textureBytes": 1418657,
+          "baseColorFactor": [
+            1,
+            1,
+            1
+          ],
+          "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+          "textureName": "MJ-shoes3"
+        },
+        {
+          "actor": "mpfb-clinical-physician-adult",
+          "cast": true,
+          "textureBytes": 1418657,
+          "baseColorFactor": [
+            1,
+            1,
+            1
+          ],
+          "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+          "textureName": "MJ-shoes3"
+        },
+        {
+          "actor": "mpfb-family-partner-adult",
+          "cast": true,
+          "textureBytes": 1418657,
+          "baseColorFactor": [
+            1,
+            1,
+            1
+          ],
+          "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+          "textureName": "MJ-shoes3"
+        },
+        {
+          "actor": "mpfb-gown-adult-patient",
+          "cast": true,
+          "textureBytes": 1418657,
+          "baseColorFactor": [
+            1,
+            1,
+            1
+          ],
+          "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+          "textureName": "MJ-shoes3"
+        },
+        {
+          "actor": "mpfb-gown-inspect",
+          "cast": false,
+          "textureBytes": 1418657,
+          "baseColorFactor": [
+            1,
+            1,
+            1
+          ],
+          "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+          "textureName": "MJ-shoes3"
+        },
+        {
+          "actor": "mpfb-ob-patient-aisha",
+          "cast": true,
+          "textureBytes": 1418657,
+          "baseColorFactor": [
+            1,
+            1,
+            1
+          ],
+          "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+          "textureName": "MJ-shoes3"
+        },
+        {
+          "actor": "mpfb-peds-parent-aisha",
+          "cast": false,
+          "textureBytes": 1418657,
+          "baseColorFactor": [
+            1,
+            1,
+            1
+          ],
+          "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+          "textureName": "MJ-shoes3"
+        },
+        {
+          "actor": "mpfb-peds-patient-child",
+          "cast": true,
+          "textureBytes": 1418657,
+          "baseColorFactor": [
+            1,
+            1,
+            1
+          ],
+          "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+          "textureName": "MJ-shoes3"
+        },
+        {
+          "actor": "mpfb-viseme-inspect",
+          "cast": false,
+          "textureBytes": 1418657,
+          "baseColorFactor": [
+            1,
+            1,
+            1
+          ],
+          "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+          "textureName": "MJ-shoes3"
+        }
+      ]
+    },
+    {
+      "garment": "culturalibre_male_boots",
+      "wearers": [
+        {
+          "actor": "mpfb-peds-nurse-kevin",
+          "cast": true,
+          "textureBytes": 461286,
+          "baseColorFactor": [
+            1,
+            1,
+            1
+          ],
+          "material": "mat_makeclothes_library_footwear_culturalibre_male_boots",
+          "textureName": "boot"
+        },
+        {
+          "actor": "mpfb-street-adult-male",
+          "cast": true,
+          "textureBytes": 461286,
+          "baseColorFactor": [
+            1,
+            1,
+            1
+          ],
+          "material": "mat_makeclothes_library_footwear_culturalibre_male_boots",
+          "textureName": "boot"
+        }
+      ]
+    },
+    {
+      "garment": "scrub_shirt",
+      "wearers": [
+        {
+          "actor": "mpfb-clinical-nurse-adult",
+          "cast": true,
+          "textureBytes": 2716138,
+          "baseColorFactor": [
+            0.05,
+            0.48,
+            0.52
+          ],
+          "material": "mat_makeclothes_library_scrub_shirt",
+          "textureName": "Scrubs_Main_BaseColor_Utility - sRGB - Texture.png"
+        },
+        {
+          "actor": "mpfb-clinical-physician-adult",
+          "cast": true,
+          "textureBytes": 2716138,
+          "baseColorFactor": [
+            0.05,
+            0.48,
+            0.52
+          ],
+          "material": "mat_makeclothes_library_scrub_shirt",
+          "textureName": "Scrubs_Main_BaseColor_Utility - sRGB - Texture.png"
+        },
+        {
+          "actor": "mpfb-peds-nurse-kevin",
+          "cast": true,
+          "textureBytes": 2716138,
+          "baseColorFactor": [
+            0.05,
+            0.48,
+            0.52
+          ],
+          "material": "mat_makeclothes_library_scrub_shirt",
+          "textureName": "Scrubs_Main_BaseColor_Utility - sRGB - Texture.png"
+        }
+      ]
+    },
+    {
+      "garment": "scrub_pants",
+      "wearers": [
+        {
+          "actor": "mpfb-clinical-nurse-adult",
+          "cast": true,
+          "textureBytes": 0,
+          "baseColorFactor": [
+            0.05,
+            0.48,
+            0.52
+          ],
+          "material": "mat_makeclothes_library_scrub_pants",
+          "textureName": null
+        },
+        {
+          "actor": "mpfb-clinical-physician-adult",
+          "cast": true,
+          "textureBytes": 0,
+          "baseColorFactor": [
+            0.05,
+            0.48,
+            0.52
+          ],
+          "material": "mat_makeclothes_library_scrub_pants",
+          "textureName": null
+        },
+        {
+          "actor": "mpfb-peds-nurse-kevin",
+          "cast": true,
+          "textureBytes": 0,
+          "baseColorFactor": [
+            0.05,
+            0.48,
+            0.52
+          ],
+          "material": "mat_makeclothes_library_scrub_pants",
           "textureName": null
         }
       ]
     }
   ],
-  "groupB": {
-    "stripApplied": [
-      "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
-      "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb"
-    ],
-    "generator": "materialize_mpfb_humanoid_candidate.py toigo_flats -> plain for all roles (#553)",
-    "rebake": false
-  },
-  "claimScope": "material-treatment consistency of one authored garment across the shipped cast; mechanism + recommended direction with station texture cost",
+  "claimScope": "material-treatment consistency of one authored garment across the shipped cast, measured from shipped GLB bytes + actor-casting resolution; the chosen direction is declared and costed against the 64 MiB station texture budget",
   "notEvidenceFor": [
+    "which treatment looks better (orchestrator pixel grade)",
+    "how the plain mj_cloth_shoes LOOK on a learner screen",
+    "any garment other than those enumerated",
     "Quest readiness",
-    "how plain flats LOOK (orchestrator grades)",
-    "orphan Shoe buffer reclaim",
-    "toigo_t_shirt gown attach (separate if still split)",
-    "toigo_t_shirt gown texture attach",
-    "orphan Shoe BIN reclaim"
+    "orphan Shoe.png BIN reclaim in future re-bakes",
+    "toigo_t_shirt baseColorFactor variance (the #180 authored role palette; texture bytes are identical)"
   ],
-  "clause1Residual": "toigo_t_shirt cast split remains: mpfb-gown-adult-patient textureBytes=0 vs four textured cast wearers (656736). Flips of it.fails blocked until T-shirt_basic.png is attached to gown — requires bake (OPENCLINXR_RUN_GARMENT_BAKES) or GLB texture inject. Cast toigo_flats is consistent plain after #553 strip."
+  "clause1Residual": "none — every enumerated garment is material-consistent across its cast wearers, and toigo_flats has zero shipped wearers; the dead #502/#553 strip branch in materialize_mpfb_humanoid_candidate.py:4970 remains on disk (unreachable, no SHOE_BY_REFERENCE row maps to toigo_flats) and is a candidate cleanup for a later slice."
 }

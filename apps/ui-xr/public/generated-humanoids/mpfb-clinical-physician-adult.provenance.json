@@ -59,7 +59,8 @@
   "Exact MADR 0051 §5 landmark match (shoulder, girths, limb lengths) is anny-mpfb-landmark-compare's follow-on; NOT claimed here.",
   "Baked 2026-08-14 from this worktree with all provider-cache assets staged locally (garments, hair, iris, labcoat).",
   "2026-08-21 #504: coat separated from the under-shirt by 15 mm via cloth_outward_offset (separate_layered_garment.py); only the lab-coat POSITION accessor changed.",
-  "2026-08-21 #502: toigo_flats leopard 'Shoe' baseColorTexture stripped from the footwear material (per-actor swap, gown-patient precedent) and baseColorFactor set to (0.10,0.09,0.08,1.0) — a clinician in leopard party flats is not clinically plausible. Only the footwear material changed; skin, rig and morph targets untouched."
+  "2026-08-21 #502: toigo_flats leopard 'Shoe' baseColorTexture stripped from the footwear material (per-actor swap, gown-patient precedent) and baseColorFactor set to (0.10,0.09,0.08,1.0) — a clinician in leopard party flats is not clinically plausible. Only the footwear material changed; skin, rig and morph targets untouched.",
+  "2026-08-29 #0 (re-materialization record): this file's derivationNote predates the #598/#740 re-materialization — the shipped bytes now carry mat_makeclothes_library_footwear_toigo_mj_cloth_shoes with MJ-shoes3 (1,418,657 B), and SHOE_BY_REFERENCE maps no cast role to toigo_flats (measured in the one-garment-one-material re-measurement; the #502 strip entry above described the previous toigo_flats footwear)."
  ],
  "claimScope": "physician_adult_staff_kit_via_clothesservice_scrub_shirt_scrub_pants_plus_cc0_lab_coat_over_scrubs",
  "promotionGates": false,

@@ -61,7 +61,10 @@ export const CAST = [
 
 /** SHOE_BY_REFERENCE in materialize_mpfb_humanoid_candidate.py:26-31. */
 const SHOE_BY_REFERENCE: Record<string, string> = {
-  None: "toigo_flats",
+  // #598 moved the default + clinician rows off the leopard toigo_flats; the materializer's
+  // None row now maps to toigo_mj_cloth_shoes (#0 re-measurement 2026-08-29: zero shipped GLBs
+  // carry toigo_flats geometry or material).
+  None: "toigo_mj_cloth_shoes",
   peds_nurse_kevin: "culturalibre_male_boots",
   peds_patient_child: "toigo_mj_cloth_shoes",
 };

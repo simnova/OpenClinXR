@@ -50,6 +50,26 @@ import { describe, expect, it } from "vitest";
  * Clause (1) still expected-fails because cast `toigo_t_shirt` remains split:
  * gown-adult-patient textureBytes=0 vs four textured cast wearers at 656,736 B. Attaching
  * T-shirt_basic.png to the gown GLB requires a bake (or texture inject) — separate card.
+ *
+ * ## FIXED (#0) — 2026-08-29 re-measurement; the premise is settled, not merely green
+ *
+ * Re-measured against the current tree (NodeIO over every GLB in generated-humanoids/ plus the
+ * cast candidate dirs): **no shipped GLB carries toigo_flats geometry or its material** —
+ * `SHOE_BY_REFERENCE` has no row mapping to it since #598 (materialize_mpfb_humanoid_candidate.py:
+ * 29-45) and #740 re-materialized the fleet with each garment's declared .mhmat texture. Every
+ * footwear slot ships `toigo_mj_cloth_shoes` (MJ-shoes3, 1,418,657 B) or `culturalibre_male_boots`
+ * (boot, 461,286 B), each byte-consistent across its wearers. The `toigo_t_shirt` split that kept
+ * clause (1) expected-failing is gone too: all eight wearers carry T-shirt_basic.png at 656,736 B,
+ * gown included (#740 restored it).
+ *
+ * `garment-material-consistency.json` regenerated from the current bytes (2026-08-29): garments =
+ * toigo_flats (0 wearers), toigo_t_shirt (8), toigo_mj_cloth_shoes (9), culturalibre_male_boots (2),
+ * scrub_shirt (3), scrub_pants (3). Clause (1)'s split list is now empty. Direction declared `drop`
+ * (the garment is already off the cast) and defended against the 64 MiB budget: the ob station
+ * cast-texture total is 12.101 MiB; attaching the leopard Shoe.png diffuse at 7.41 MiB x 4 cast
+ * wearers would cost ~29.6 MiB for a pattern nothing in any case definition authors.
+ *
+ * Clause (1) flipped `it.fails` -> `it`.
  */
 
 const ARTIFACT = "tools/openclinxr/evidence/garment-material-consistency.json";
@@ -68,7 +88,7 @@ const probe = (): Probe => (existsSync(ARTIFACT) ? JSON.parse(readFileSync(ARTIF
 const g = (n: string) => (probe().garments ?? []).find((x) => x.garment === n);
 
 describe("one garment, one material across the cast", () => {
-  it.fails("(1) RED: every CAST wearer of a garment resolves to the same material treatment", () => {
+  it("(1) RED: every CAST wearer of a garment resolves to the same material treatment", () => {
     const p = probe();
     expect(p.garments, `${ARTIFACT} missing — Stage A measures before any product edit`).toBeTypeOf("object");
     const split: string[] = [];
