@@ -14,6 +14,10 @@ import { describe, expect, it } from "vitest";
  *
  * Diagnosis header IMMUTABLE. Flip it.fails → it and append ## FIXED.
  *
+ * ## FIXED (#0)
+ * 2026-08-29. the-world-compile-route-rejects-empty-body.test.ts POSTs
+ * /internal/world-compile via app.request. Empty body is 400 or 403, never 404.
+ *
  * claimScope: an API test hits the route.
  * notEvidenceFor: live Blender; Quest; that compileVersion is clinically meaningful.
  */
@@ -27,7 +31,7 @@ function apiTestSources(): { name: string; src: string }[] {
 }
 
 describe("the world-compile route is hit in a test", () => {
-  it.fails("(1) some apps/api test both mentions /internal/world-compile and calls request(", () => {
+  it("(1) some apps/api test both mentions /internal/world-compile and calls request(", () => {
     const hits = apiTestSources().filter(
       (file) =>
         file.name !== "the-world-compile-route-is-hit-in-a-test.test.ts" &&
