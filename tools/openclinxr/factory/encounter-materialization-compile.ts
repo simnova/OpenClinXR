@@ -151,6 +151,14 @@ export type CompileEncounterMaterializationOptions = {
    * per-scenario path; absent file is a no-op.
    */
   compileLocksPath?: string;
+  /**
+   * Faculty compile graph from POST /internal/world-compile (W14a). When
+   * present and non-empty, these nodes are the copy-prior source instead of
+   * only the dated evidence JSON.
+   */
+  compileNodes?: CompileGraphNode[];
+  /** Faculty Infinigen prompt stamped onto Room node specs (W6 / W14a). */
+  infinigenPrompt?: string;
 };
 
 /** A compile node annotated with the bake plan this compile produced. */
@@ -189,7 +197,7 @@ export async function compileEncounterMaterialization(
   }
 
   // WCG-0 copy-prior rule: emitCompileNodes copies prior lock/contentHash by nodeId.
-  const unsplitNodes = emitCompileNodes(report, priorNodes);
+  const unsplitNodes = stampRoomInfinigenPrompt(emitCompileNodes(report, priorNodes), opts.infinigenPrompt);
 
   const plannedNodes: CompilePlanNode[] = [];
   const skippedBakers: string[] = [];
@@ -287,10 +295,23 @@ async function resolveBaseReport(opts: CompileEncounterMaterializationOptions): 
   }
   return {
     report,
-    priorNodes: report.compileNodes ?? [],
+    priorNodes:
+      opts.compileNodes && opts.compileNodes.length > 0 ? opts.compileNodes : (report.compileNodes ?? []),
     priorCompileVersion: report.compileVersion ?? 0,
     priorPath,
   };
+}
+
+function stampRoomInfinigenPrompt(nodes: CompileGraphNode[], infinigenPrompt: string | undefined): CompileGraphNode[] {
+  const prompt = infinigenPrompt?.trim();
+  if (!prompt) return nodes;
+  return nodes.map((node) => {
+    if (node.family !== "Room") return node;
+    return {
+      ...node,
+      spec: { ...node.spec, infinigenPrompt: prompt },
+    };
+  });
 }
 
 /** Admin-persisted compile-locks file + explicit facultyLocks, explicit wins on collision. */

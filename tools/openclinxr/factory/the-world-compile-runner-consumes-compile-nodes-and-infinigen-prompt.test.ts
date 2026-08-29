@@ -14,13 +14,17 @@ import { describe, expect, it } from "vitest";
  * No compileNodes, no infinigenPrompt.
  *
  * Diagnosis header IMMUTABLE. Flip it.fails → it and append ## FIXED.
+ *
+ * ## FIXED (tsk_b38cb7080e566c46)
+ * Options include compileNodes and infinigenPrompt. Non-empty compileNodes
+ * become the copy-prior source; infinigenPrompt stamps Room spec.
  */
 
 const FACTORY = dirname(fileURLToPath(import.meta.url));
 const COMPILE = readFileSync(join(FACTORY, "encounter-materialization-compile.ts"), "utf8");
 
 describe("the world-compile runner consumes compileNodes and infinigenPrompt", () => {
-  it.fails("(1) CompileEncounterMaterializationOptions includes compileNodes", () => {
+  it("(1) CompileEncounterMaterializationOptions includes compileNodes", () => {
     const slice = COMPILE.slice(
       COMPILE.indexOf("export type CompileEncounterMaterializationOptions"),
       COMPILE.indexOf("export type CompilePlanNode"),
@@ -28,7 +32,7 @@ describe("the world-compile runner consumes compileNodes and infinigenPrompt", (
     expect(slice).toMatch(/compileNodes\?:/);
   });
 
-  it.fails("(2) CompileEncounterMaterializationOptions includes infinigenPrompt", () => {
+  it("(2) CompileEncounterMaterializationOptions includes infinigenPrompt", () => {
     const slice = COMPILE.slice(
       COMPILE.indexOf("export type CompileEncounterMaterializationOptions"),
       COMPILE.indexOf("export type CompilePlanNode"),
