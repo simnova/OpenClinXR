@@ -38,8 +38,11 @@ Index: `<origin>/llms.txt`.
 
 Always pass `cacheToken` from the last `bothy-board.sync`. `{unchanged:true}` → skip reload.
 
+Grok Build / Grok CLI wake-and-routing addendum (native `monitor`, not Stop-hook):
+[GROK-HARNESS.md](GROK-HARNESS.md).
+
 Codex Desktop / external-monitor addendum (read only when that harness is active):
-[CODEX-HARNESS.md](../../../.agents/skills/bothy-board/CODEX-HARNESS.md).
+[CODEX-HARNESS.md](CODEX-HARNESS.md).
 
 ## Roles
 

@@ -4,7 +4,7 @@
   "protectedRule": "Protected-policy files are off-limits to routine agents: do not delete, weaken, bypass, rename, or reinterpret them during autonomous work.",
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
-    "agent-methodology": 84,
+    "agent-methodology": 85,
     "current-reference": 219,
     "archive-candidate": 11,
     "evidence": 52,
@@ -12,10 +12,10 @@
     "agent-memory": 39,
     "historical-synthesis": 11,
     "decision-record": 45,
-    "total": 474,
+    "total": 475,
     "generated-evidence": 1,
     "reference": 1,
-    "entries": 476
+    "entries": 477
   },
   "entries": [
     {
@@ -55,6 +55,27 @@
     },
     {
       "path": ".agents/skills/bothy-board/SKILL.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
+    },
+    {
+      "path": ".agents/skills/bothy-board/CODEX-HARNESS.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
+    },
+    {
+      "path": ".agents/skills/bothy-board/GROK-HARNESS.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
+    },
+    {
+      "path": ".agents/skills/bothy-board/GROK-HARNESS.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
