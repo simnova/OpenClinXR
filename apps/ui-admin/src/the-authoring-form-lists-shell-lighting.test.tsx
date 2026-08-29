@@ -25,6 +25,13 @@ import {
  *
  * Diagnosis and measured tables in this header are IMMUTABLE. Flip it.fails → it and append
  * ## FIXED. Do not rewrite the original paths or numbers.
+ *
+ * ## FIXED (#0)
+ * EncounterEnvironmentPanel now lists the selected shell's lighting facts — ambientHemisphereSky,
+ * ambientHemisphereGround, keyLightIntensity — as sky/ground hex + key intensity under
+ * aria-label="Shell lighting" for ed_exam_bay_v1 (sky #f4f0dc, ground #223042, key 2.5).
+ * Read-only listing — lighting is still not written onto Scenario.environment (counterweight (2)
+ * stays green).
  */
 
 describe("the authoring form lists shell lighting", () => {
@@ -53,7 +60,7 @@ describe("the authoring form lists shell lighting", () => {
     cleanup();
   });
 
-  it.fails("(1) Encounter environment panel shows ed_exam_bay_v1 lighting facts", () => {
+  it("(1) Encounter environment panel shows ed_exam_bay_v1 lighting facts", () => {
     const shell = ENVIRONMENT_SHELL_DESCRIPTORS["ed_exam_bay_v1"];
     expect(shell).toBeDefined();
     if (shell == null) throw new Error("ed_exam_bay_v1 descriptor missing");
