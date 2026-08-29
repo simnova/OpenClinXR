@@ -75,6 +75,23 @@ describe("CaseAuthoringWorkbench", () => {
     expect(within(tagRegion).getByText("clinical_touch_guard_rlq")).toBeInTheDocument();
   });
 
+  it("adds an equipment name to the string list and reflects it in the exported JSON", async () => {
+    render(<CaseAuthoringWorkbench initialScenario={edChestPainScenario} />);
+
+    // The tags-mode Select is the equipment list; type a name and press Enter to add.
+    const equipmentInput = screen.getByRole("combobox", { name: /equipment/i }) as HTMLInputElement;
+    fireEvent.change(equipmentInput, { target: { value: "cardiac monitor" } });
+    fireEvent.keyDown(equipmentInput, { key: "Enter", code: "Enter", keyCode: 13 });
+
+    const exportField = screen.getByLabelText<HTMLTextAreaElement>("Exported scenario JSON");
+    const parsed = parseScenarioJson(exportField.value);
+    expect(parsed.ok).toBe(true);
+    if (parsed.ok) {
+      expect(parsed.scenario.equipment).toContain("cardiac monitor");
+      expect(validateScenario(parsed.scenario)).toEqual({ ok: true });
+    }
+  });
+
   /**
    * PLANTED CONTRACT (#69) — a case author picks a room and is never shown one.
    *

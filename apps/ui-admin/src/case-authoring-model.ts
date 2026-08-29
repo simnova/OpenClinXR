@@ -152,6 +152,8 @@ export type ScenarioFormValues = {
   requiredTraceTags: string[];
   /** Registered environment shell id picked by faculty; empty keeps the imported environment. */
   environmentId?: string | undefined;
+  /** Free-text equipment names authored as a string list (ScenarioSchema minLength-1 strings). */
+  equipment: string[];
   actors: ScenarioActorFormValue[];
   eventSchedule: Scenario["eventSchedule"];
 };
@@ -175,6 +177,7 @@ export function scenarioToFormValues(scenario: Scenario): ScenarioFormValues {
     title: scenario.title,
     status: scenario.status,
     environmentId: scenario.environment?.environmentId,
+    equipment: [...(scenario.equipment ?? [])],
     clinicalObjectives: [...scenario.clinicalObjectives],
     requiredTraceTags: [...scenario.requiredTraceTags],
     eventSchedule: scenario.eventSchedule.map((entry) => ({ ...entry })),
@@ -278,13 +281,15 @@ function authoredEnvironment(
 
 /**
  * Merge the edited form subset back onto the full base Scenario, preserving every
- * field the form does not expose (review gates, governance, rubric, equipment,
- * asset needs). An authored environmentId that DIFFERS from the imported one
+ * field the form does not expose (review gates, governance, rubric, asset needs).
+ * An authored environmentId that DIFFERS from the imported one
  * round-trips onto scenario.environment (name/description derived from the
  * registered shell, so the case stays self-consistent when the room changes);
  * the same id or an empty form value keeps the imported base environment, so a
  * cleared Select cannot silently invalidate a case and unchanged round-trips
- * stay lossless. Guarantees a lossless round-trip of imported cases.
+ * stay lossless. Authored equipment (a free-text string list) round-trips onto
+ * scenario.equipment, trimmed with empty rows dropped (ScenarioSchema requires
+ * minLength-1 strings). Guarantees a lossless round-trip of imported cases.
  */
 export function mergeFormValuesIntoScenario(base: Scenario, values: ScenarioFormValues): Scenario {
   const environmentId = values.environmentId?.trim() ?? "";
@@ -296,6 +301,7 @@ export function mergeFormValuesIntoScenario(base: Scenario, values: ScenarioForm
     status: values.status,
     clinicalObjectives: cleanStrings(values.clinicalObjectives),
     requiredTraceTags: cleanStrings(values.requiredTraceTags),
+    equipment: cleanStrings(values.equipment),
     eventSchedule: (values.eventSchedule ?? []).map((entry) => ({ ...entry })),
     actors: (values.actors ?? []).map((formActor) => actorFromFormValue(base, formActor)),
   };
