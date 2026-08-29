@@ -2,7 +2,19 @@ import { describe, expect, it } from "vitest";
 import { NodeIO } from "@gltf-transform/core";
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
-import { CLINICAL_IDLE_ARM_HANG } from "../../../apps/ui-xr/src/clinical-idle-posture.js";
+import { mpfbForearmIdleEuler } from "../../../apps/ui-xr/src/clinical-idle-posture.js";
+
+/*
+ * ## FIXED (#0): the runtime now applies bind-relative forearm flexion on the MPFB2 rail.
+ * The idle bend is `MPFB_IDLE_FORELARM_BEND_FRACTION` (0.6) of the bone's own bind bend
+ * about local X, so `appliedForearm` below now derives from each bind row via the exported
+ * `mpfbForearmIdleEuler` instead of the Anny absolute map (which the fix retired for MPFB).
+ * `clinical-idle-posture.ts` adds `MPFB_CLINICAL_IDLE_ARM_HANG` (upper arm / hand / head from
+ * the Anny set, NO forearm entries) and `applyGeneratedHumanoidClinicalIdlePosture` applies
+ * `mpfbForearmIdleEuler` per bone from the pristine bind captured at the load-time call.
+ * Clauses (1) and (2) flipped from `it.fails`; (3)-(5) counterweights unchanged.
+ */
+
 
 /**
  * OBSERVABLE: the operator, looking at the oncology capture on 2026-08-25, said the figure's arms
@@ -85,20 +97,19 @@ async function mpfbForearmBinds(): Promise<BindRow[]> {
   return rows;
 }
 
-/** What the runtime applies to a forearm today: the Anny map entry, as an absolute replacement. */
-const appliedForearm = (bone: string): Q => {
-  const e = CLINICAL_IDLE_ARM_HANG.get(bone === "lowerarm01L" ? "forearmL" : "forearmR");
-  if (!e) throw new Error(`no map entry for ${bone}`);
+/** What the runtime applies to an MPFB2 forearm: the bind-relative idle euler (#0). */
+const appliedForearm = (r: BindRow): Q => {
+  const e = mpfbForearmIdleEuler(r.bind);
   return fromEulerXYZ(e.x ?? 0, e.y ?? 0, e.z ?? 0);
 };
 
 describe("the elbow bends the way the rig was built to bend", () => {
-  it.fails("(1) every shipped MPFB forearm is posed in the SAME direction its bind pose bends", async () => {
+  it("(1) every shipped MPFB forearm is posed in the SAME direction its bind pose bends", async () => {
     const rows = await mpfbForearmBinds();
     expect(rows.length, "no MPFB forearm bones were found — the fixture proves nothing").toBeGreaterThan(0);
 
     const reversed = rows
-      .map((r) => ({ r, bindBend: signedBendAboutX(r.bind), liveBend: signedBendAboutX(appliedForearm(r.bone)) }))
+      .map((r) => ({ r, bindBend: signedBendAboutX(r.bind), liveBend: signedBendAboutX(appliedForearm(r)) }))
       .filter((m) => Math.sign(m.bindBend) !== Math.sign(m.liveBend))
       .map((m) => `${m.r.asset}/${m.r.bone}: bind ${(m.bindBend * 180 / Math.PI).toFixed(1)}deg `
         + `-> posed ${(m.liveBend * 180 / Math.PI).toFixed(1)}deg`);
@@ -106,7 +117,7 @@ describe("the elbow bends the way the rig was built to bend", () => {
     expect(reversed, `elbows posed against their own bind bend:\n${reversed.join("\n")}`).toEqual([]);
   });
 
-  it.fails("(2) the posed elbow keeps a real bend, not a straight stick", async () => {
+  it("(2) the posed elbow keeps a real bend, not a straight stick", async () => {
     // DEAD ZONE. Stops the sign clause being bought by flattening the arm to ~0, which has no sign
     // to be wrong. The floor is the smallest bend in the shipped BIND population, halved — sourced
     // from the rigs themselves, never from the post-fix numbers.
@@ -116,7 +127,7 @@ describe("the elbow bends the way the rig was built to bend", () => {
     expect(floor, "the bind population must supply a real floor").toBeGreaterThan(0.05);
 
     const straight = rows
-      .filter((r) => Math.abs(signedBendAboutX(appliedForearm(r.bone))) < floor)
+      .filter((r) => Math.abs(signedBendAboutX(appliedForearm(r))) < floor)
       .map((r) => `${r.asset}/${r.bone}`);
     expect(straight, `elbows posed flatter than half the smallest shipped bind bend:\n${straight.join("\n")}`)
       .toEqual([]);
