@@ -14,23 +14,24 @@ parseable_sections: 6
 <!-- WAKE-BLUF:BEGIN -->
 ## WAKE BLUF - replace this block every wake, never append
 
-**2026-08-28 | main `d1935b43` | Grok orchestrator | BothyBoard dequeue SSOT (GitHub opt-in `BOTHY_BOARD_DEQUEUE=0`)**
+**2026-08-28 | main `a5070cd7` | Grok orchestrator | BothyBoard dequeue SSOT (GitHub opt-in `BOTHY_BOARD_DEQUEUE=0`)**
 
 **IN FLIGHT**
-- `tsk_81a4eba479d4c8d1` P0 staging: environment panel lists fixtureSlots + wallColor. Plant `d1935b43`. Worker `1b3e362d` xr-systems-architect flash. Worktree `bothy-tsk_81a4eba479d4c8d1`.
+- none. Bothy `tasks.next` is `{task:null}` (ready set empty).
 
 **LANDED this session**
 - World-config writes: environmentId `a7df145e`, equipment `45a65c28`, assetNeeds `0a130d07`.
+- World-config descriptor display: fixtureSlots+wallColor `87afa0fa`; lighting sky/ground/key `a5070cd7` (`c0ac65b4`). Bothy `tsk_81a4` and `tsk_0bcd` cancelled after git land (`proofs.set` lane_busy).
 
 **BLOCKED**
 - `tsk_27ba` PIXEL GRADE speaking stills torso. Status blocked. Do not land. Do not dispatch.
 - `#643` owner `gradeVerdict`. `#600` run red on #474. Phase 4 HELD.
 
-**NEXT this wake:** harvest `tsk_81a4` when worker returns. ScenarioSchema world fields are complete; this is descriptor spatial facts on the form.
+**NEXT this wake:** world-config staging complete for Scenario writes + shell facts on the form. Skip 27ba. Do not invent Scenario lighting fields.
 
-SWEEP: reds=34(oldest (#37)) undisp=0 uncarded=0 rel=current quiet=24 workers=1/3 bothy=tsk_81a4eba479d4c8d1
+SWEEP: reds=34(oldest (#37)) undisp=0 uncarded=0 rel=current quiet=24 workers=0/3 bothy=null
 
-NOT TESTED: 3D preview; writing wallColor onto Scenario; 27ba recapture.
+NOT TESTED: 3D preview; writing lighting onto Scenario; interior lighting variant pick; fixture placement edits; 27ba recapture.
 <!-- WAKE-BLUF:END -->
 <!-- WAKE-BLUF:END -->
 
