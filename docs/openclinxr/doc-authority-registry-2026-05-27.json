@@ -4,18 +4,15 @@
   "protectedRule": "Protected-policy files are off-limits to routine agents: do not delete, weaken, bypass, rename, or reinterpret them during autonomous work.",
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
-    "agent-methodology": 85,
-    "current-reference": 219,
-    "archive-candidate": 11,
-    "evidence": 52,
-    "protected-policy": 11,
-    "agent-memory": 39,
+    "agent-methodology": 86,
+    "current-reference": 216,
+    "archive-candidate": 58,
+    "temporary": 55,
+    "evidence": 59,
+    "protected-policy": 10,
+    "agent-memory": 34,
     "historical-synthesis": 11,
-    "decision-record": 45,
-    "total": 475,
-    "generated-evidence": 1,
-    "reference": 1,
-    "entries": 477
+    "decision-record": 44
   },
   "entries": [
     {
@@ -40,6 +37,20 @@
       "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
+      "path": ".agents/skills/bothy-board/CODEX-HARNESS.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
+    },
+    {
+      "path": ".agents/skills/bothy-board/GROK-HARNESS.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
+    },
+    {
       "path": ".agents/skills/bothy-board/OPENCLINXR-PROJECT-BINDING.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
@@ -55,27 +66,6 @@
     },
     {
       "path": ".agents/skills/bothy-board/SKILL.md",
-      "authority": "agent-methodology",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
-    },
-    {
-      "path": ".agents/skills/bothy-board/CODEX-HARNESS.md",
-      "authority": "agent-methodology",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
-    },
-    {
-      "path": ".agents/skills/bothy-board/GROK-HARNESS.md",
-      "authority": "agent-methodology",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
-    },
-    {
-      "path": ".agents/skills/bothy-board/GROK-HARNESS.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
@@ -114,7 +104,7 @@
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
-      "rationale": "MakeClothes garment station: installed toolchain, the hm08-vs-MPFB targeting trap, the measured library-vs-worn gap, and the licence precedence that reversed two wrong AGPL refusals."
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
       "path": ".agents/skills/model-routing/SKILL.md",
@@ -217,9 +207,9 @@
     {
       "path": ".agents/skills/trellis-vr-equipment-optimize/SKILL.md",
       "authority": "agent-methodology",
-      "agentInstructionWeight": "high",
-      "action": "follow-when-relevant",
-      "rationale": "Skill: TRELLIS multi-view bake + proven 3-iter VR post-opt (measured 2026-08-11)."
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
       "path": ".agents/skills/turborepo/SKILL.md",
@@ -586,6 +576,13 @@
       "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
     },
     {
+      "path": ".claude/rules/PROTO_CURIOUS_RESEARCHER.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
+    },
+    {
       "path": ".claude/rules/PROTO_SUBAGENT.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
@@ -682,6 +679,118 @@
       "agentInstructionWeight": "low",
       "action": "use-as-current",
       "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
+    },
+    {
+      "path": ".claude/skills/autonomy-boundaries/SKILL.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".claude/skills/board-conduit/SKILL.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".claude/skills/bothy-board/SKILL.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".claude/skills/consult-session-hygiene/SKILL.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".claude/skills/contract-design/SKILL.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".claude/skills/delegator-comms/SKILL.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".claude/skills/gh-body-file/SKILL.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".claude/skills/loop-continuation/SKILL.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".claude/skills/makeclothes-garments/SKILL.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".claude/skills/measure-before-claiming/SKILL.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".claude/skills/model-routing/SKILL.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".claude/skills/operator-prose/SKILL.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".claude/skills/pixel-grading/SKILL.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".claude/skills/pre-dispatch-alignment/SKILL.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".claude/skills/supervisor-loop/SKILL.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".claude/skills/trellis-baking/SKILL.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": ".codex/agents/README.md",
@@ -986,10 +1095,10 @@
     },
     {
       "path": ".cursor/rules/PROTO_CURIOUS_RESEARCHER.md",
-      "authority": "agent-methodology",
-      "agentInstructionWeight": "medium",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
       "action": "use-as-current",
-      "rationale": "Modular agentic methodology / harness rules (extracted from AGENTS.md for LOW_TOKEN targeted reads + multi-harness standardization); canonical source. Discovered by Grok etc via .grok/rules/ symlinks (see grok-harness-usage.md and source-of-truth order)."
+      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
     },
     {
       "path": ".cursor/rules/PROTO_SUBAGENT.md",
@@ -1300,28 +1409,567 @@
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
-      "path": ".openclinxr/evidence/body-rigging/appendage-motion-cagematch/2026-06-07-two-test-models/body-rig-appendage-motion-cagematch.md",
+      "path": ".openclinxr/evidence/agentic-export/README.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
-      "path": ".openclinxr/evidence/physics-clinical-touch/2026-08-02-quest-attempt/quest-rerun.md",
+      "path": ".openclinxr/evidence/agentic-export/board-triage-2026-08-23.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
-      "path": ".openclinxr/evidence/physics-clinical-touch/2026-08-02-quest-skip/quest-rerun.md",
+      "path": ".openclinxr/evidence/equipment-kit-approach-b/vr-hard-surface-baseline/README.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": ".openclinxr/evidence/humanoid-grade-sweep/SUMMARY.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": ".openclinxr/evidence/issue-598/report.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": ".openclinxr/evidence/trellis-escape-hatch/bedside-monitor/pack/description.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": ".openclinxr/evidence/trellis-escape-hatch/digital-thermometer/pack/description.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": ".openclinxr/evidence/trellis-escape-hatch/fetal-monitor/pack/description.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": ".openclinxr/evidence/trellis-escape-hatch/glucometer/pack/description.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": ".openclinxr/evidence/trellis-escape-hatch/iv-pole/pack/description.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": ".openclinxr/evidence/trellis-escape-hatch/iv-pump/pack/description.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": ".openclinxr/evidence/trellis-escape-hatch/lowpoly-shoe/pack/description.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": ".openclinxr/evidence/trellis-escape-hatch/medication-cart/pack/description.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": ".openclinxr/evidence/trellis-escape-hatch/o2-port/pack/description.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": ".openclinxr/evidence/trellis-escape-hatch/pulse-oximeter/pack/description.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": ".openclinxr/evidence/trellis-escape-hatch/wall-clock/pack/description.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": ".openclinxr/evidence/trellis-midband-human-grade/README-human-grade.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": ".openclinxr/factory/equipment-catalog-report.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".openclinxr/handoffs/adult-abdominal-interior-grade-2026-08-18.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/aisha-parent-identity-2026-08-18.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/asset-index-and-store-plan-2026-08-17.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/asset-plans-c-and-d-2026-08-17.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/behavioral-health-interior-grade-2026-08-18.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/campaign-close-dark-factory-2026-08-14.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/decision-388-colour-collision-2026-08-14.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/decision-388-v2-second-glb-2026-08-14.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/delegator-to-product-owner-2026-08-26.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/direction-mpfb2-throughout-2026-08-14.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/door-leaf-scorer-grade-2026-08-18.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/ed-stroke-interior-grade-2026-08-18.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/equipment-lane-ack-381-2026-08-14.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/family-partner-scalp-grade-2026-08-14.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/heads-up-patient-gown-is-their-lane-2026-08-18.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/heads-up-poke-guard-touches-staff-rebakes-2026-08-18.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/inpatient-ward-interior-grade-2026-08-18.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/kevin-hair-not-procurement-2026-08-14.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/kevin-mhair02-landed-2026-08-14.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/kevin-scrubs-pixel-grade-2026-08-14.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/medical-clothing-options-2026-08-14.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/mpfb-human-realism-peer-from-equipment-lane-2026-08-14.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/nurse-adult-scrubs-grade-2026-08-14.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/ob-triage-interior-grade-2026-08-18.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/oncology-interior-grade-2026-08-18.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/parent-midriff-parked-2026-08-18.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/pediatric-fever-interior-grade-2026-08-18.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/peds-black-frame-grade-2026-08-17.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/peds-interior-frame-grade-2026-08-17.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/physician-adult-coat-grade-2026-08-14.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/primary-care-interior-grade-2026-08-18.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/question-388-colour-collision-for-superagent-2026-08-14.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/refresh-for-human-realism-peer-2026-08-14-0915.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/reply-2-to-equipment-lane-peer-2026-08-14.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/reply-decision-388-collision-moves-2026-08-14.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/reply-to-equipment-lane-peer-2026-08-14.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/reply-to-four-questions-2026-08-14.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/review-dark-factory-multi-case-2026-08-14.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/rooms-campaign-closed-for-other-agent-2026-08-18.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/stand-down-dark-factory-2026-08-14.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/state-for-superagent-planning-2026-08-18.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/stepdown-interior-grade-2026-08-18.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/stills-provenance-381-2026-08-14.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/successor-hem-sawtooth-2026-08-18.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/superagent-dark-factory-multi-case-2026-08-14.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/superagent-medical-wardrobe-2026-08-14.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/superagent-plan-2026-08-18.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/superagent-portfolio-2026-08-18.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/superagent-rooms-2026-08-14.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/superagent-rooms-DOOR-LEAF-2026-08-17.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/surgical-ward-interior-grade-2026-08-18.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/telehealth-interior-grade-2026-08-18.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/the-plan-rooms-and-asset-reuse-2026-08-17.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/handoffs/urgent-care-interior-grade-2026-08-18.md",
+      "authority": "temporary",
+      "agentInstructionWeight": "none",
+      "action": "archive-or-inline-summary",
+      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+    },
+    {
+      "path": ".openclinxr/openclaw/superagent-loop-prompt.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".openclinxr/openclaw/task-cost-latest.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".openclinxr/plans/equipment-three-lane-factory.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".openclinxr/slice-archive/worker-backlog-pre-optimization-2026-06-07.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".openclinxr/slices/dark-factory-multi-case/STATE.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": ".openclinxr/slices/dispatch-chokepoint/EVIDENCE.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".openclinxr/slices/trellis-escape-hatch/LOOP.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".openclinxr/slices/trellis-escape-hatch/log.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".openclinxr/slices/trellis-imagine-black/PLAN.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
@@ -1427,10 +2075,10 @@
     },
     {
       "path": "LICENSE-CLASHES.md",
-      "authority": "protected-policy",
-      "agentInstructionWeight": "highest",
-      "action": "protect",
-      "rationale": "Operator-owned licence override surface; agents read section 2 before treating a cached asset as blocked and must not rewrite it."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "PROJECT_COORDINATION_INDEX.md",
@@ -1888,6 +2536,20 @@
       "rationale": "Package/app-local README or provenance reference; local to its module."
     },
     {
+      "path": "apps/arena/model-vetting-studio/dist/assets/PROJECT_STATUS-CciPX650.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Package/app-local README or provenance reference; local to its module."
+    },
+    {
+      "path": "apps/arena/model-vetting-studio/dist/assets/README--cBUUOLz.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Package/app-local README or provenance reference; local to its module."
+    },
+    {
       "path": "apps/arena/model-vetting-studio/dist/assets/operator-open-questions-DvqAC8BK.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
@@ -2025,63 +2687,63 @@
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/coordination/2026-08/AUTONOMOUS_WORK_PLAN.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/coordination/2026-08/PROJECT_COORDINATION_INDEX.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/iterations/0009/07-final-synthesis.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/wiki/index.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/wiki/topics/agent-factory-iterations.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/wiki/topics/agent-ops-revisions.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/wiki/topics/coordination-ledgers.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/wiki/topics/openclinxr-product-docs.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/agent-factory/README.md",
@@ -2585,16 +3247,14 @@
       "authority": "decision-record",
       "agentInstructionWeight": "medium",
       "action": "treat-as-evidence",
-      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue.",
-      "title": "0054 \u2014 Equipment three-lane factory (bank / thin parametric / modular kit)"
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
     },
     {
       "path": "docs/madr/0055-equipment-asset-catalog-ssot.md",
       "authority": "decision-record",
       "agentInstructionWeight": "medium",
       "action": "treat-as-evidence",
-      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue.",
-      "title": "0055 \u2014 Equipment asset catalogue file-first SSOT (+ optional Mongo)"
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
     },
     {
       "path": "docs/madr/0056-room-realism-is-material-not-geometry.md",
@@ -2615,7 +3275,7 @@
       "authority": "decision-record",
       "agentInstructionWeight": "medium",
       "action": "treat-as-evidence",
-      "rationale": "World Compile Graph is additive encounter-materialization-evidence.v1, not a fourth ledger. Subordinate to protected guardrails and #167 freeze."
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
     },
     {
       "path": "docs/madr/README.md",
@@ -2675,31 +3335,31 @@
     },
     {
       "path": "docs/openclinxr/bothyboard-0.5.0-contract-2026-08-27.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "high",
-      "action": "use-as-current",
-      "rationale": "BothyBoard 0.5.0 / 54c918c live contract: tasks.next machineName+cacheToken+spawnCommand. Not Quest/clinical. Selector swap only after 0.5.0 probes."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/bothyboard-agent-customer-2026-08-27.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "high",
-      "action": "use-as-current",
-      "rationale": "OpenClinXR as BothyBoard customer: live parse gate green; remaining C1-C8 before selectNextFromBoard swap. Not a cutover order."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/bothyboard-agent-next-2026-08-27.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "high",
-      "action": "use-as-current",
-      "rationale": "Remaining BothyBoard work after live G1e/G1f miss: slugKey, requiredWhen, dump factory_step underscore. Not an OpenClinXR cutover."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/bothyboard-overtake-gh-projects-agent-brief-2026-08-27.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "high",
-      "action": "use-as-current",
-      "rationale": "Agent-only spec for BothyBoard to overtake GitHub project 7 as HOT dequeue SSOT. Subordinate to AGENTS.md and protected guardrails. Not Quest/clinical evidence. Not an OpenClinXR cutover order."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/cagematch-spec-local-stt-and-quest-transport-2026-08-05.md",
@@ -2713,21 +3373,21 @@
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
-      "rationale": "#577 cagematch finding of record: IWSDK scene composer reject_measured for room_generate \u2014 verify gate exits 2 (TS2688, no node_modules) and @iwsdk/scene-composition@0.5.3 rejects the OpenClinXR case manifest with zero schema overlap; station requires agent hand-mapping. Measured 2026-08-28."
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
       "path": "docs/openclinxr/cagematch/findings/local-tts-to-viseme-chain.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "#582 cagematch finding of record: offline say->Rhubarb->viseme chain adopted; 17/17 cues resolve through driveVisemeTimeline against targets enumerated from shipped GLBs. Measured 2026-08-22."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/cagematch/findings/rhubarb-lip-sync-driver.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "#578 cagematch finding of record: Rhubarb requires audio; -d dialog text is an aid to recognition, not a standalone text-to-viseme path. Measured 2026-08-22."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/cellix-package-adoption-brief.md",
@@ -2780,52 +3440,38 @@
     },
     {
       "path": "docs/openclinxr/equipment-catalog-report.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "medium",
-      "action": "treat-as-evidence",
-      "rationale": "Equipment three-lane catalogue SSOT / report (MADR 0055)."
-    },
-    {
-      "path": "docs/openclinxr/equipment-catalog.v1.json",
-      "authority": "generated-evidence",
-      "agentInstructionWeight": "medium",
-      "action": "treat-as-evidence",
-      "rationale": "Equipment three-lane catalogue SSOT / report (MADR 0055)."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/equipment-factory-15m-loop.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "medium",
-      "action": "treat-as-evidence",
-      "rationale": "Loop contract for 15m equipment factory autonomy"
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/equipment-factory-architect-notes.md",
       "authority": "evidence",
-      "agentInstructionWeight": "medium",
+      "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
-      "rationale": "Architect cadence notes for equipment factory"
+      "rationale": "Append-only architect cadence log; explicitly not SSOT (catalogue + MADRs win on conflict). Read for findings, never as instruction."
     },
     {
       "path": "docs/openclinxr/equipment-factory-loop-log.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "medium",
-      "action": "treat-as-evidence",
-      "rationale": "Tick log for equipment factory loop"
-    },
-    {
-      "path": "docs/openclinxr/equipment-factory-loop-state.json",
-      "authority": "evidence",
-      "agentInstructionWeight": "medium",
-      "action": "treat-as-evidence",
-      "rationale": "Loop counter state"
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/equipment-oss-candidates.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Staging list for equipment OSS candidates; subordinate to licence ledger and MADR 0054/0055."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/evidence-index-2026-05-27.md",
@@ -2927,17 +3573,17 @@
     },
     {
       "path": "docs/openclinxr/iwsdk-station-cagematch-2026-08-24.md",
-      "authority": "decision-record",
-      "agentInstructionWeight": "medium",
-      "action": "treat-as-evidence",
-      "rationale": "Lane-C cagematch decision record for IWSDK 0.5.3 factory-station candidates; negative verdict closes issue #616; subordinate to AGENTS.md, protected guardrails, and active queue."
-    },
-    {
-      "path": "docs/openclinxr/kimodo-cpp-cagematch-2026-08-23.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "docs/openclinxr/kimodo-cpp-cagematch-2026-08-23.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/knowledge-graph-and-indexing.md",
@@ -2997,38 +3643,38 @@
     },
     {
       "path": "docs/openclinxr/owner-memory/PROTOCOL.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Product-owner durable memory: decisions with reasons, measurements with verdicts, calibration strikes, and the bootstrap protocol a fresh owner thread reads instead of a delegator-written summary. Authored by the product owner, never by the delegator."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/owner-memory/PULSE-PROTOCOL.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Product-owner pulse protocol: read order, computed metrics, and the mechanical verdict rule separating progress from activity. Process law for the owner loop and the factory-pulse script; advisory elsewhere. Authored by the product owner."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/owner-memory/calibration.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Product-owner durable memory: decisions with reasons, measurements with verdicts, calibration strikes, and the bootstrap protocol a fresh owner thread reads instead of a delegator-written summary. Authored by the product owner, never by the delegator."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/owner-memory/decisions.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Product-owner durable memory: decisions with reasons, measurements with verdicts, calibration strikes, and the bootstrap protocol a fresh owner thread reads instead of a delegator-written summary. Authored by the product owner, never by the delegator."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/owner-memory/measurements.md",
-      "authority": "agent-memory",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Product-owner durable memory: decisions with reasons, measurements with verdicts, calibration strikes, and the bootstrap protocol a fresh owner thread reads instead of a delegator-written summary. Authored by the product owner, never by the delegator."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/physics-realbind-pre-production-readiness-checklist-2026-08-02.md",
@@ -3039,10 +3685,10 @@
     },
     {
       "path": "docs/openclinxr/postmortem-anny-fixture-polish-2026-08-25.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Post-mortem: four commits improved a learner-unreachable asset while five gates passed and two reviewers confirmed it. Records the enforcement gap and the reachability invariant that closes it."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/psychometric-and-review-governance.md",
@@ -3144,10 +3790,10 @@
     },
     {
       "path": "docs/openclinxr/superagent-goal-mpfb-human-realism-2026-08-14.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Handover goal statement for a parallel agent; measured context, not an instruction surface."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/technology-approach-brief.md",
@@ -3158,10 +3804,10 @@
     },
     {
       "path": "docs/openclinxr/third-party-asset-licence-ledger.md",
-      "authority": "decision-record",
-      "agentInstructionWeight": "medium",
-      "action": "treat-as-evidence",
-      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/turbo-remote-cache-setup.md",
@@ -3179,10 +3825,10 @@
     },
     {
       "path": "docs/openclinxr/vibevoice-cpp-cagematch-2026-08-23.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/virtual-patient-agent-model.md",
@@ -3207,10 +3853,10 @@
     },
     {
       "path": "docs/openclinxr/world-compile-graph-brief-2026-08-27.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "World Compile Graph execution brief: extend encounter-materialization-evidence.v1 with lock/stale/hash/edges; not a fourth ledger, not a MADR, not Quest/scoring evidence. Subordinate to protected guardrails, AGENTS.md, and the #167 exam-start freeze."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "iterations/README.md",
@@ -3375,12 +4021,10 @@
     },
     {
       "path": "tools/openclinxr/asset-pipeline/trellis/MULTIVIEW-GROK-PACKS.md",
-      "authority": "reference",
+      "authority": "archive-candidate",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction.",
-      "title": "TRELLIS multi-view Grok packs operator spec",
-      "summary": "Operator spec for multi-view Grok Imagine packs and factory:trellis:bake multi-image wiring."
+      "rationale": "Unclassified Markdown; review before using as instruction."
     }
   ]
 }

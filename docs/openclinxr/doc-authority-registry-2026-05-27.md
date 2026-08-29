@@ -11,13 +11,14 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 ## Counts
 
 - agent-memory: 34
-- agent-methodology: 72
-- archive-candidate: 13
-- current-reference: 213
-- decision-record: 36
-- evidence: 41
+- agent-methodology: 86
+- archive-candidate: 58
+- current-reference: 216
+- decision-record: 44
+- evidence: 59
 - historical-synthesis: 11
 - protected-policy: 10
+- temporary: 55
 
 ## Highest-Value Current Navigation
 
@@ -46,6 +47,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `.claude/rules/LEX_AGENTIC.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.claude/rules/MANDATE_VISIBILITY.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.claude/rules/PROTO_BOARD_LOOP.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.claude/rules/PROTO_CURIOUS_RESEARCHER.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.claude/rules/PROTO_SUBAGENT.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.claude/rules/PROTO_VERIFY_DELEGATION.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.claude/rules/README.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
@@ -103,6 +105,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `.cursor/rules/LEX_AGENTIC.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.cursor/rules/MANDATE_VISIBILITY.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.cursor/rules/PROTO_BOARD_LOOP.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.cursor/rules/PROTO_CURIOUS_RESEARCHER.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.cursor/rules/PROTO_SUBAGENT.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.cursor/rules/PROTO_VERIFY_DELEGATION.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.cursor/rules/README.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
@@ -146,7 +149,6 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `.grok/rules/MANDATE_VISIBILITY.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.grok/rules/PROTO_SUBAGENT.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `AGENTS.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
-- `LICENSE-CLASHES.md` - protected-policy; Operator-owned licence override surface; agents read section 2 before treating a cached asset as blocked and must not rewrite it.
 - `PROJECT_STATUS.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `README.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `apps/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
@@ -155,6 +157,8 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `apps/arena/mock-realtime-voice-server/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/arena/model-vetting-studio/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/arena/model-vetting-studio/dist/assets/AGENTS-BYKezdFc.md` - current-reference; Package/app-local README or provenance reference; local to its module.
+- `apps/arena/model-vetting-studio/dist/assets/PROJECT_STATUS-CciPX650.md` - current-reference; Package/app-local README or provenance reference; local to its module.
+- `apps/arena/model-vetting-studio/dist/assets/README--cBUUOLz.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/arena/physics-clinical-touch/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/ui-xr/dist/xr-assets/environment/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/ui-xr/dist/xr-assets/humanoids/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
@@ -244,27 +248,121 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `templates/decision-record.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `templates/risk-record.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `templates/source-record.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
-- `docs/openclinxr/iwsdk-station-cagematch-2026-08-24.md` - decision-record; Lane-C cagematch decision record for IWSDK 0.5.3 factory-station candidates (issue #616); negative verdict closes the item. Subordinate to protected guardrails and active queue.
 
 ## Cleanup Candidates
 
 These files should be summarized, archived, or explicitly marked historical before agents use them as instructions.
 
+- `.claude/skills/autonomy-boundaries/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/skills/board-conduit/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/skills/bothy-board/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/skills/consult-session-hygiene/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/skills/contract-design/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/skills/delegator-comms/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/skills/gh-body-file/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/skills/loop-continuation/SKILL.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.claude/skills/makeclothes-garments/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/skills/measure-before-claiming/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/skills/model-routing/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/skills/operator-prose/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/skills/pixel-grading/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/skills/pre-dispatch-alignment/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/skills/supervisor-loop/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/skills/trellis-baking/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/factory/equipment-catalog-report.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/handoffs/adult-abdominal-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/aisha-parent-identity-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/asset-index-and-store-plan-2026-08-17.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/asset-plans-c-and-d-2026-08-17.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/behavioral-health-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/campaign-close-dark-factory-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/decision-388-colour-collision-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/decision-388-v2-second-glb-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/delegator-to-product-owner-2026-08-26.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/direction-mpfb2-throughout-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/door-leaf-scorer-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/ed-stroke-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/equipment-lane-ack-381-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/family-partner-scalp-grade-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/heads-up-patient-gown-is-their-lane-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/heads-up-poke-guard-touches-staff-rebakes-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/inpatient-ward-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/kevin-hair-not-procurement-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/kevin-mhair02-landed-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/kevin-scrubs-pixel-grade-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/medical-clothing-options-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/mpfb-human-realism-peer-from-equipment-lane-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/nurse-adult-scrubs-grade-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/ob-triage-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/oncology-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/parent-midriff-parked-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/pediatric-fever-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/peds-black-frame-grade-2026-08-17.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/peds-interior-frame-grade-2026-08-17.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/physician-adult-coat-grade-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/primary-care-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/question-388-colour-collision-for-superagent-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/refresh-for-human-realism-peer-2026-08-14-0915.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/reply-2-to-equipment-lane-peer-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/reply-decision-388-collision-moves-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/reply-to-equipment-lane-peer-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/reply-to-four-questions-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/review-dark-factory-multi-case-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/rooms-campaign-closed-for-other-agent-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/stand-down-dark-factory-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/state-for-superagent-planning-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/stepdown-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/stills-provenance-381-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/successor-hem-sawtooth-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/superagent-dark-factory-multi-case-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/superagent-medical-wardrobe-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/superagent-plan-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/superagent-portfolio-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/superagent-rooms-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/superagent-rooms-DOOR-LEAF-2026-08-17.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/surgical-ward-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/telehealth-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/the-plan-rooms-and-asset-reuse-2026-08-17.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/handoffs/urgent-care-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.openclinxr/openclaw/superagent-loop-prompt.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/openclaw/task-cost-latest.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/plans/equipment-three-lane-factory.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/slice-archive/worker-backlog-pre-optimization-2026-06-07.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/slices/dark-factory-multi-case/STATE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/slices/dispatch-chokepoint/EVIDENCE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/slices/trellis-escape-hatch/LOOP.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/slices/trellis-escape-hatch/log.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/slices/trellis-imagine-black/PLAN.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `AUTONOMOUS_WORK_PLAN.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `LICENSE-CLASHES.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `PROJECT_COORDINATION_INDEX.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/arena-physics-clinical-touch-cagematch-2026-08-01.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/bothyboard-0.5.0-contract-2026-08-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/bothyboard-agent-customer-2026-08-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/bothyboard-agent-next-2026-08-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/bothyboard-overtake-gh-projects-agent-brief-2026-08-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/cagematch/findings/local-tts-to-viseme-chain.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/cagematch/findings/rhubarb-lip-sync-driver.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/equipment-catalog-report.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/equipment-factory-15m-loop.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/equipment-factory-loop-log.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/equipment-oss-candidates.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/kimodo-cpp-cagematch-2026-08-23.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/owner-memory/PROTOCOL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/owner-memory/PULSE-PROTOCOL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/owner-memory/calibration.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/owner-memory/decisions.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/owner-memory/measurements.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/postmortem-anny-fixture-polish-2026-08-25.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/research/2026-08-06-step2cs-and-digital-native-primitives.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/superagent-goal-mpfb-human-realism-2026-08-14.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/third-party-asset-licence-ledger.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/turbo-remote-cache-setup.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/vibevoice-cpp-cagematch-2026-08-23.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/world-compile-graph-brief-2026-08-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `plugins/openclinxr-openclaw-style/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `plugins/openclinxr-openclaw-style/skills/openclinxr-openclaw-style/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `tools/openclinxr/asset-pipeline/anny/BVH-RETARGET-GUIDE-2026-08-03.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `tools/openclinxr/asset-pipeline/anny/README-rest-skeleton.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-
-| `tools/openclinxr/asset-pipeline/trellis/MULTIVIEW-GROK-PACKS.md` | reference | multi-view Grok packs + factory bake CLI wiring (2026-08-10) |
-
-| `.agents/skills/gh-body-file/SKILL.md` | agent-methodology | gh body-file publishing skill (backticks in --body are command substitution) |
-| `.agents/skills/agent-session-continuity/SKILL.md` | agent-methodology | continuing a conversation with an agent (session ids, resumes, wedge detection) |
-| `.agents/skills/orchestrator-dispatch-loop/SKILL.md` | agent-methodology | CEO-side board loop: plant, probe, dispatch, verify, integrate, close |
-| `.agents/skills/trellis-vr-equipment-optimize/SKILL.md` | agent-methodology | TRELLIS VR equipment optimize skill |
+- `tools/openclinxr/asset-pipeline/trellis/MULTIVIEW-GROK-PACKS.md` - archive-candidate; Unclassified Markdown; review before using as instruction.

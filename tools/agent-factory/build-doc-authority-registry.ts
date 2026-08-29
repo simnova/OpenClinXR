@@ -37,6 +37,41 @@ const outputMd = "docs/openclinxr/doc-authority-registry-2026-05-27.md";
 const REGISTRY_LABEL = "doc-authority-registry";
 
 const excluded = new Set(["node_modules", ".git", ".openclinxr-local", "tmp"]);
+
+/**
+ * Path prefixes excluded from the MARKDOWN AUTHORITY scan. Matched on the repo-relative path, not on
+ * a bare directory name — `excluded` above is a name set, and a name like "slices" would exclude any
+ * directory so called anywhere in the tree.
+ *
+ * MEASURED 2026-08-29. `.openclinxr/slices/**` holds per-slice worker prompts written by
+ * `writePromptFile` (dispatch-worker.ts:796) and passed to the child as `--prompt-file` (:770). They
+ * are spawn LEFTOVERS: grepped tools/, packages/ and apps/ for a reader and every match is
+ * write-side; resume goes through `grok --resume <sessionId>`, never a re-read of the file.
+ * Independently confirmed by the grok orchestrator, which owns that generator, on
+ * tsk_d1bec24e1959e9d8: "GENERATED ARTIFACTS, not documents. AGREE exclude."
+ *
+ * Why this matters rather than being tidiness: the scan found 262 of them, the fallback classified
+ * each `archive-candidate` (:452 below), and check-openclaw-drift.ts:133-137 FAILS any basename
+ * matching /prompt|status|notes?|.../ whose authority is `archive-candidate`. So registering them
+ * moves 262 files from failing "not registered" to failing "one-off Markdown", and puts 2,851 lines
+ * of ephemera in a PROTECTED registry. They are the same class as equipment-catalog.v1.json — a
+ * generated artifact belongs in the generated-artifact registry or nowhere, never in the Markdown
+ * AUTHORITY registry.
+ */
+const GENERATED_SLICE_PROMPT = /^\.openclinxr\/slices\/[^/]+\/prompt-[^/]+\.mdx?$/u;
+
+/**
+ * CORRECTED 2026-08-29, before landing, because a blanket `.openclinxr/slices/` prefix was too broad
+ * and the shrink guard caught it: `.openclinxr/slices/dispatch-chokepoint/EVIDENCE.md` is a genuine
+ * registered evidence document living in that tree, and a directory-wide exclusion would have
+ * silently dropped it. Exclude the GENERATED FILENAME PATTERN, not the directory.
+ *
+ * `writePromptFile` (dispatch-worker.ts:796) names them `prompt-<slice>.md` one level under a slice
+ * directory, so the shape is stable and anything else in that tree keeps its registration.
+ */
+export function isExcludedPath(rel: string): boolean {
+  return GENERATED_SLICE_PROMPT.test(rel);
+}
 const protectedPaths = new Set([
   "AGENTS.md",
   "PROJECT_STATUS.md",
@@ -146,6 +181,7 @@ function walk(dir: string, root: string, out: string[] = []): string[] {
     if (excluded.has(name)) continue;
     const full = path.join(dir, name);
     const rel = path.relative(root, full).replaceAll(path.sep, "/");
+    if (isExcludedPath(rel)) continue;
     const stats = statSync(full);
     if (stats.isDirectory()) walk(full, root, out);
     else if (/\.mdx?$/u.test(name)) out.push(rel);
@@ -190,6 +226,25 @@ export function classify(file: string): DocAuthorityEntry {
       action: "protect",
       rationale:
         "Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.",
+    };
+  }
+
+  // Append-only architect cadence logs. The basename ends `-notes.md`, which
+  // check-openclaw-drift.ts:92 flags as one-off status prose, and the unclassified fallback below
+  // would stamp `archive-candidate` — which that same rule then refuses (:133-137). Both halves are
+  // wrong for this genre: the content is a durable engineering log carrying file:line findings, and
+  // it is linked from equipment-factory-15m-loop.md.
+  //
+  // It classifies as EVIDENCE, not policy, on the file's own terms — its header states "Not SSOT;
+  // catalogue + MADRs win on conflict." Weight stays low so no agent reads a cadence log as law.
+  if (/-architect-notes\.md$/u.test(file)) {
+    return {
+      path: file,
+      authority: "evidence",
+      agentInstructionWeight: "low",
+      action: "treat-as-evidence",
+      rationale:
+        "Append-only architect cadence log; explicitly not SSOT (catalogue + MADRs win on conflict). Read for findings, never as instruction.",
     };
   }
 
