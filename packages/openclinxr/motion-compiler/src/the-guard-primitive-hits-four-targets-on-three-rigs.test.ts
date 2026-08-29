@@ -1,0 +1,506 @@
+import { readdirSync, statSync, readFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { describe, expect, it } from "vitest";
+
+/**
+ * **OBSERVABLE: one hand-authored RLQ euler table is replayed for every guarding region on every
+ * rig.** The card (tsk_87ee56f876ff1204, M2) asks for `guard_body_region(target)` — 4 body targets
+ * x 3 rig families = 12 clips, with NO per-target euler tables.
+ *
+ * ## MEASURED ON HEAD — do not re-derive. This block is IMMUTABLE.
+ *
+ * Flip an `it.fails` to `it` and append a `## FIXED` block below; do not rewrite the paths or the
+ * numbers above it.
+ *
+ * **(a) THE PRODUCER IS ONE HARDCODED RLQ POSE.**
+ * `tools/openclinxr/evidence/materialize-guard-withdraw-clip.ts`
+ *   - `:20`  `ANIMATION_NAME = "openclinxr_role_patient_guard_withdraw_rlq"` — the region is in the
+ *            clip's own identity, so a second region cannot be produced without a second constant.
+ *   - `:28`  the backup path `patient-pre-guard-withdraw-rlq.glb` carries `rlq` too.
+ *   - `:74`  `// Right upper arm draws hand toward lower abdomen / RLQ`
+ *   - `:83`  `// Strong flex so hand reaches RLQ/abdomen`
+ *   - `:92`  `// Protective palm orientation toward abdomen/RLQ`
+ *   - `guardWithdrawRlq` (`:56-95`) is a 9-track x 3-keyframe pose table of ~10 non-zero float
+ *     literals, hand-authored. The smallest non-zero authored euler in it is **0.04 rad**
+ *     (`hand.L`, `:86`) — that is the authoring resolution of the artifact being replaced, and it
+ *     is where the rotation epsilon below comes from. This is D1: a hand-authored geometry table
+ *     where a solver belongs.
+ *
+ * **(b) THE CONSUMERS ARE SIX REGIONS SHARING ONE CLIP.** Measured over
+ * `packages/openclinxr/scenario-fixtures/src/index.ts` `scenarioBank` (14 scenarios) on 2026-08-29:
+ *
+ *       touchResponses naming openclinxr_role_patient_guard_withdraw_rlq : 24
+ *       scenarios carrying them                                          : 4
+ *         ed_chest_pain_priority_v1, peds_asthma_parent_anxiety_v1,
+ *         adult_abdominal_pain_v1, peds_fever_v1
+ *       distinct regions on that one clip                                : 6
+ *         abdomen_rlq, abdomen_ruq, abdomen_luq, abdomen_llq, chest_R, chest_L  (4 each)
+ *       distinct responseClip values in the WHOLE bank                   : 1
+ *
+ * A learner palpating the left chest is played a right-lower-quadrant flinch. The four
+ * `abdomen_rlq` rows all carry `emotion: "pain"`, `traceTag: "clinical_touch_guard_rlq"` and a
+ * non-empty `dialogueLine` (`adult-abdominal-pain.ts:56-65` and siblings) — clause (3) is what
+ * stops the generalisation deleting that.
+ *
+ * **(c) RIG RESOLUTION IS ALREADY SOLVED AND IS NOT BEING USED.**
+ * `packages/openclinxr/asset-registry/src/pose-bone-resolver.ts` does IDENTITY-then-ALIAS landmark
+ * resolution across three shipped families: the 23-bone canonical rig (identity), MPFB2's
+ * 137-joint rig (`MPFB2_RIG_BONE_NAMES`, `:36-53`) and the 64-bone `mixamorig_unity` rig
+ * (`MIXAMORIG_RIG_BONE_NAMES`, `:68-88`), via `resolvePoseBone` (`:95-108`). The materializer
+ * instead carries its own two-name fallback lists (`["upper_arm.R", "upper_armR"]`, `:72`) and so
+ * silently addresses NOTHING on the MPFB2 and mixamorig bodies a learner actually loads.
+ *
+ * ## WHAT THESE CLAUSES CANNOT SEE
+ *
+ * - **Whether the pose looks like guarding.** Every clause here is geometric: bone names resolve,
+ *   an end effector lands within a tolerance, rotations vary with the target. None of it says the
+ *   figure reads as a person protecting their abdomen. That is a pixel grade on a rendered clip and
+ *   it is deliberately not in this file.
+ * - **Clinical validity.** notEvidenceFor: clinical_validity, biomechanical_validity,
+ *   production_animation_quality, exam_equivalence, scoring, learner_readiness.
+ * - **The real bind frames.** The three `SkeletonProfile` fixtures below are CONSTRUCTED, not read
+ *   from a shipped GLB. Their bone NAMES are real (cited above); their joint POSITIONS are
+ *   illustrative and are chosen only so the three rigs have different limb lengths, which is what
+ *   makes clause (1)'s "a shared euler table would emit identical numbers" counterweight bite. The
+ *   implementation must read bind positions from the asset, not from these numbers.
+ * - **Whether the clip plays.** Nothing here loads a GLB or steps an AnimationMixer.
+ * - **Clause (4) is VACUOUS TODAY and says so.** `src/` currently holds only this test, so the scan
+ *   has nothing to reject. Its far side is named: the moment `guard-body-region.ts` imports the
+ *   solver directly it reds. The positive/negative detector probe inside the clause is what keeps
+ *   the zero-file case honest rather than green-about-nothing.
+ *
+ * ## UNLOCKED — implementer decides and records in the commit message
+ *
+ * The exported names and the shape of `BodyRegionTarget.bodyPoint` (metres in the bind frame is
+ * assumed below); which chain the solver drives (right arm only, or arm + torso recoil); whether
+ * the 4th declared target is a chest region or a limb.
+ */
+
+const HERE = dirname(fileURLToPath(import.meta.url));
+
+/** Shipped clip name — `materialize-guard-withdraw-clip.ts:20`. */
+const SHIPPED_RLQ_CLIP = "openclinxr_role_patient_guard_withdraw_rlq";
+
+/**
+ * Rotation epsilon, INPUT-referenced: one quarter of 0.04 rad, the smallest non-zero euler the
+ * shipped hand-authored table contains (`materialize-guard-withdraw-clip.ts:86`). Two poses that
+ * differ by less than a quarter of the authoring resolution of the artifact being replaced are the
+ * same pose. This is NOT a fraction of any measured output.
+ */
+const ROTATION_EPSILON_RAD = 0.01;
+
+/**
+ * Reach tolerance is expressed per rig as a fraction of THAT rig's own bind-frame forearm length,
+ * so it scales with the subject instead of being a number fitted to an observation.
+ */
+const REACH_TOLERANCE_AS_FOREARM_FRACTION = 0.25;
+
+/**
+ * Perturbation distance for clause (2), sourced from the shipped case data: the bank partitions an
+ * adult abdomen into 4 quadrants (`abdomen_rlq|ruq|luq|llq`), so ~0.10 m is one quadrant across.
+ */
+const ONE_QUADRANT_METERS = 0.1;
+
+type Vec3 = { x: number; y: number; z: number };
+
+type SkeletonProfile = {
+  rigFingerprint: string;
+  jointNames: readonly string[];
+  /** Bind-frame joint position per sanitised bone name, metres. */
+  bindFrame: Readonly<Record<string, Vec3>>;
+};
+
+type BodyRegionTarget = {
+  /** Shipped region id where one exists; an ad-hoc id in clause (2). */
+  id: string;
+  /** Where on the body the guarding hand must arrive, metres in the bind frame. */
+  bodyPoint: Vec3;
+};
+
+type GuardTrack = { boneName: string; eulerFrames: readonly Vec3[] };
+
+type GuardClip = {
+  name: string;
+  targetId: string;
+  rigFingerprint: string;
+  tracks: readonly GuardTrack[];
+  /** Where the driven end effector actually ended up at the guard peak, bind frame, metres. */
+  reachedPoint: Vec3;
+};
+
+type GuardModule = {
+  compileGuardClip?: (input: {
+    profile: SkeletonProfile;
+    target: BodyRegionTarget;
+    clipName?: string;
+  }) => GuardClip;
+  GUARD_BODY_TARGETS?: readonly BodyRegionTarget[];
+};
+
+/**
+ * Computed so TypeScript cannot resolve a not-yet-written module at compile time, and so the
+ * failure below is MODULE ABSENT rather than a transform error (repo idiom:
+ * `a-gitignored-proof-target-is-caught-before-the-worker-runs.test.ts:112`).
+ */
+const GUARD_SPECIFIER = ["./guard", "body", "region.js"].join("-");
+
+async function loadGuard(): Promise<GuardModule | undefined> {
+  return (await import(GUARD_SPECIFIER).catch(() => undefined)) as GuardModule | undefined;
+}
+
+/** The bank, loaded by path so this file needs no cross-package manifest dependency. */
+async function loadScenarioBank(): Promise<Record<string, unknown>[]> {
+  const mod = (await import("../../scenario-fixtures/src/index.js").catch(() => undefined)) as
+    | { scenarioBank?: Record<string, unknown>[] }
+    | undefined;
+  expect(Array.isArray(mod?.scenarioBank), "scenario-fixtures scenarioBank must load").toBe(true);
+  return mod!.scenarioBank!;
+}
+
+// --- rig fixtures: real bone names (pose-bone-resolver.ts), illustrative positions -------------
+
+function armProfile(
+  rigFingerprint: string,
+  names: { shoulder: string; elbow: string; wrist: string; spine: string; chest: string; head: string },
+  upperArmLen: number,
+  forearmLen: number,
+): SkeletonProfile {
+  const shoulder: Vec3 = { x: 0.18, y: 1.38, z: 0.0 };
+  const elbow: Vec3 = { x: shoulder.x, y: shoulder.y - upperArmLen, z: 0.0 };
+  const wrist: Vec3 = { x: elbow.x, y: elbow.y - forearmLen, z: 0.0 };
+  return {
+    rigFingerprint,
+    jointNames: [names.shoulder, names.elbow, names.wrist, names.spine, names.chest, names.head],
+    bindFrame: {
+      [names.shoulder]: shoulder,
+      [names.elbow]: elbow,
+      [names.wrist]: wrist,
+      [names.spine]: { x: 0.0, y: 1.05, z: 0.0 },
+      [names.chest]: { x: 0.0, y: 1.28, z: 0.0 },
+      [names.head]: { x: 0.0, y: 1.6, z: 0.0 },
+    },
+  };
+}
+
+/** 23-bone canonical rig — IDENTITY branch of resolvePoseBone (pose-bone-resolver.ts:104). */
+const ANNY_23_BONE = armProfile(
+  "anny_23_bone",
+  { shoulder: "upper_armR", elbow: "forearmR", wrist: "handR", spine: "spine", chest: "chest", head: "head" },
+  0.28,
+  0.26,
+);
+
+/** MPFB2 137-joint rig — ALIAS branch, names from MPFB2_RIG_BONE_NAMES (:36-53). */
+const MPFB2_137_JOINT = armProfile(
+  "mpfb2_137_joint",
+  { shoulder: "upperarm01R", elbow: "lowerarm01R", wrist: "wristR", spine: "spine03", chest: "spine01", head: "head" },
+  0.3,
+  0.27,
+);
+
+/** mixamorig_unity 64-bone rig — names from MIXAMORIG_RIG_BONE_NAMES (:68-88), colons preserved. */
+const MIXAMORIG_64_BONE = armProfile(
+  "mixamorig_unity_64_bone",
+  {
+    shoulder: "mixamorig:RightArm",
+    elbow: "mixamorig:RightForeArm",
+    wrist: "mixamorig:RightHand",
+    spine: "mixamorig:Spine1",
+    chest: "mixamorig:Spine2",
+    head: "mixamorig:Head",
+  },
+  0.26,
+  0.24,
+);
+
+const RIG_FAMILIES = [ANNY_23_BONE, MPFB2_137_JOINT, MIXAMORIG_64_BONE] as const;
+
+/** Four targets, ids taken from the SHIPPED region vocabulary measured in (b) — not invented. */
+const FOUR_TARGETS: readonly BodyRegionTarget[] = [
+  { id: "abdomen_rlq", bodyPoint: { x: 0.08, y: 1.0, z: 0.12 } },
+  { id: "abdomen_luq", bodyPoint: { x: -0.08, y: 1.12, z: 0.12 } },
+  { id: "chest_R", bodyPoint: { x: 0.09, y: 1.3, z: 0.11 } },
+  { id: "chest_L", bodyPoint: { x: -0.09, y: 1.3, z: 0.11 } },
+];
+
+function distance(a: Vec3, b: Vec3): number {
+  return Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
+}
+
+function forearmLengthOf(profile: SkeletonProfile): number {
+  const [, elbow, wrist] = profile.jointNames;
+  return distance(profile.bindFrame[elbow]!, profile.bindFrame[wrist]!);
+}
+
+function peakEulers(clip: GuardClip): Map<string, Vec3> {
+  const peak = new Map<string, Vec3>();
+  for (const track of clip.tracks) {
+    // Frame 1 of the 3-keyframe neutral -> peak -> settle shape (KEYFRAME_TIMES, :33).
+    const frame = track.eulerFrames[1] ?? track.eulerFrames[track.eulerFrames.length - 1];
+    if (frame) peak.set(track.boneName, frame);
+  }
+  return peak;
+}
+
+function maxEulerDelta(a: Map<string, Vec3>, b: Map<string, Vec3>): number {
+  let worst = 0;
+  for (const [bone, ea] of a) {
+    const eb = b.get(bone);
+    if (!eb) continue;
+    worst = Math.max(worst, Math.abs(ea.x - eb.x), Math.abs(ea.y - eb.y), Math.abs(ea.z - eb.z));
+  }
+  return worst;
+}
+
+/** Detector for clause (4). Kept pure so the clause can prove it discriminates. */
+function namesTheSolverDirectly(source: string): boolean {
+  return /CCDIKSolver/.test(source);
+}
+
+function listPackageSources(root: string, selfPath: string): string[] {
+  const out: string[] = [];
+  const walk = (dir: string): void => {
+    for (const entry of readdirSync(dir)) {
+      const full = join(dir, entry);
+      if (statSync(full).isDirectory()) {
+        walk(full);
+        continue;
+      }
+      if (!full.endsWith(".ts")) continue;
+      // Tests are excluded: this file names the symbol in its own detector, and a sibling contract
+      // may legitimately quote it. The rule is about the PRODUCTION primitive layer.
+      if (full.endsWith(".test.ts")) continue;
+      if (full === selfPath) continue;
+      out.push(full);
+    }
+  };
+  walk(root);
+  return out;
+}
+
+describe("the guard primitive hits four targets on three rigs", () => {
+  it.fails(
+    "(1) guard_body_region resolves one target on THREE rig families through the bind frame, not a per-rig euler table",
+    async () => {
+      const mod = await loadGuard();
+      expect(
+        typeof mod?.compileGuardClip,
+        "guard-body-region must export compileGuardClip — it does not exist yet",
+      ).toBe("function");
+      const compile = mod!.compileGuardClip!;
+
+      const rlq = FOUR_TARGETS[0]!;
+      const perRig = RIG_FAMILIES.map((profile) => ({
+        profile,
+        clip: compile({ profile, target: rlq }),
+      }));
+
+      for (const { profile, clip } of perRig) {
+        expect(clip.rigFingerprint, "the clip must declare which rig it was solved for").toBe(
+          profile.rigFingerprint,
+        );
+        expect(clip.tracks.length, `${profile.rigFingerprint} produced no tracks`).toBeGreaterThan(0);
+
+        // Every driven bone must EXIST on this rig. The shipped materializer's two-name fallback
+        // (`["upper_arm.R", "upper_armR"]`, :72) resolves on none of the alias rigs.
+        const present = new Set(profile.jointNames);
+        for (const track of clip.tracks) {
+          expect(
+            present.has(track.boneName),
+            `${profile.rigFingerprint}: track addresses ${track.boneName}, which is not on this rig`,
+          ).toBe(true);
+        }
+
+        // The hand arrives at the region, within a tolerance scaled to THIS rig's own forearm.
+        const tolerance = forearmLengthOf(profile) * REACH_TOLERANCE_AS_FOREARM_FRACTION;
+        expect(
+          distance(clip.reachedPoint, rlq.bodyPoint),
+          `${profile.rigFingerprint}: hand missed ${rlq.id} by more than ${tolerance.toFixed(3)} m`,
+        ).toBeLessThanOrEqual(tolerance);
+      }
+
+      // The three rigs share no bone names, so no single hardcoded name set could have driven them.
+      const nameSets = perRig.map(({ clip }) => new Set(clip.tracks.map((t) => t.boneName)));
+      for (let i = 0; i < nameSets.length; i += 1) {
+        for (let j = i + 1; j < nameSets.length; j += 1) {
+          const shared = [...nameSets[i]!].filter((n) => nameSets[j]!.has(n));
+          expect(shared, `rigs ${i} and ${j} were driven through shared bone names`).toEqual([]);
+        }
+      }
+
+      // COUNTERWEIGHT against a shared euler table: the three rigs have different limb lengths, so
+      // a solved pose MUST differ between them. A table replayed onto aliased bones would not.
+      const anny = peakEulers(perRig[0]!.clip);
+      const mpfb = peakEulers(perRig[1]!.clip);
+      const byIndex = (clip: GuardClip): Vec3[] => clip.tracks.map((t) => t.eulerFrames[1] ?? t.eulerFrames[0]!);
+      const positional = byIndex(perRig[0]!.clip).map((a, index) => {
+        const b = byIndex(perRig[1]!.clip)[index];
+        return b ? Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y), Math.abs(a.z - b.z)) : 0;
+      });
+      expect(
+        Math.max(0, ...positional, maxEulerDelta(anny, mpfb)),
+        "the 23-bone and MPFB2 rigs have different limb lengths but got identical rotations — that is a replayed table, not a solve",
+      ).toBeGreaterThan(ROTATION_EPSILON_RAD);
+
+      // The full grid the card asks for: 4 targets x 3 rigs = 12 distinct clips.
+      const grid = RIG_FAMILIES.flatMap((profile) =>
+        FOUR_TARGETS.map((target) => compile({ profile, target })),
+      );
+      expect(grid.length).toBe(12);
+      expect(
+        new Set(grid.map((c) => `${c.rigFingerprint}::${c.targetId}`)).size,
+        "the 12 clips must be 12 distinct (rig, target) pairs",
+      ).toBe(12);
+      expect(
+        (mod!.GUARD_BODY_TARGETS ?? []).length,
+        "at least four body targets must be declared",
+      ).toBeGreaterThanOrEqual(4);
+    },
+  );
+
+  it.fails(
+    "(2) a body target the module has never declared still compiles — there is no per-target pose table",
+    async () => {
+      const mod = await loadGuard();
+      expect(typeof mod?.compileGuardClip, "guard-body-region must export compileGuardClip").toBe(
+        "function",
+      );
+      const compile = mod!.compileGuardClip!;
+      const profile = ANNY_23_BONE;
+      const tolerance = forearmLengthOf(profile) * REACH_TOLERANCE_AS_FOREARM_FRACTION;
+
+      // (a) An id no table could hold an entry for. This is the whole clause: a lookup keyed on the
+      // region id cannot answer, so adding a fifth body target must cost zero new rotation constants.
+      const adHoc: BodyRegionTarget = {
+        id: "flank_R_ad_hoc_probe",
+        bodyPoint: { x: 0.14, y: 1.06, z: 0.02 },
+      };
+      const adHocClip = compile({ profile, target: adHoc });
+      expect(adHocClip.targetId).toBe(adHoc.id);
+      expect(adHocClip.tracks.length).toBeGreaterThan(0);
+      expect(
+        distance(adHocClip.reachedPoint, adHoc.bodyPoint),
+        "an undeclared target must still be reached — a per-target table cannot do this",
+      ).toBeLessThanOrEqual(tolerance);
+
+      // (b) The id is not the key: two different ids at the SAME point must give the SAME pose.
+      const sameA = compile({ profile, target: { id: "abdomen_rlq", bodyPoint: adHoc.bodyPoint } });
+      const sameB = compile({ profile, target: { id: "chest_L", bodyPoint: adHoc.bodyPoint } });
+      expect(
+        maxEulerDelta(peakEulers(sameA), peakEulers(sameB)),
+        "two ids at one point produced different poses — the id is being looked up, not the geometry",
+      ).toBeLessThanOrEqual(ROTATION_EPSILON_RAD);
+
+      // (c) The geometry IS the key: moving the point one abdominal quadrant must move the pose.
+      const moved = compile({
+        profile,
+        target: { id: adHoc.id, bodyPoint: { ...adHoc.bodyPoint, x: adHoc.bodyPoint.x - ONE_QUADRANT_METERS } },
+      });
+      expect(
+        maxEulerDelta(peakEulers(adHocClip), peakEulers(moved)),
+        `moving the target ${ONE_QUADRANT_METERS} m left changed no rotation — the output does not depend on the target`,
+      ).toBeGreaterThan(ROTATION_EPSILON_RAD);
+    },
+  );
+
+  it("(3) the shipped RLQ behaviour survives — clip name, emotion, dialogue and trace still ship", async () => {
+    // LIVE COUNTERWEIGHT. Passes on arrival and fails independently of (1) and (2). It exists
+    // because §6p's failure is deletion-without-replacement: generalising the producer must not
+    // quietly drop the one clip 24 shipped touch responses already name.
+    const bank = await loadScenarioBank();
+    expect(bank.length, "the shipped bank measured 14 scenarios").toBeGreaterThanOrEqual(14);
+
+    type TouchResponse = {
+      region?: string;
+      emotion?: string;
+      responseClip?: string;
+      dialogueLine?: string;
+      traceTag?: string;
+    };
+    const responses: { scenarioId: string; response: TouchResponse }[] = [];
+    for (const scenario of bank) {
+      const scenarioId = String((scenario as { scenarioId?: unknown }).scenarioId ?? "");
+      for (const actor of ((scenario as { actors?: unknown[] }).actors ?? []) as {
+        bodyMechanics?: { touchResponses?: TouchResponse[] };
+      }[]) {
+        for (const response of actor.bodyMechanics?.touchResponses ?? []) {
+          responses.push({ scenarioId, response });
+        }
+      }
+    }
+
+    const onShippedClip = responses.filter((r) => r.response.responseClip === SHIPPED_RLQ_CLIP);
+    expect(
+      onShippedClip.length,
+      `${SHIPPED_RLQ_CLIP} must still be producible — 24 shipped touch responses name it`,
+    ).toBeGreaterThanOrEqual(24);
+    expect(
+      new Set(onShippedClip.map((r) => r.scenarioId)).size,
+      "the four scenarios carrying guarding responses must keep them",
+    ).toBeGreaterThanOrEqual(4);
+
+    // Every shipped touch response must still carry its full conversation payload. This is the half
+    // that a "generalise the geometry" slice can silently drop.
+    for (const { scenarioId, response } of onShippedClip) {
+      expect(response.responseClip, `${scenarioId} ${response.region}: clip`).toBeTruthy();
+      expect(response.emotion, `${scenarioId} ${response.region}: emotion`).toBeTruthy();
+      expect((response.dialogueLine ?? "").length, `${scenarioId} ${response.region}: dialogueLine`)
+        .toBeGreaterThan(0);
+      expect(response.traceTag, `${scenarioId} ${response.region}: traceTag`).toBeTruthy();
+    }
+
+    // The RLQ rows specifically keep the emotion and trace tag the runtime ledger writes.
+    const rlqRows = onShippedClip.filter((r) => r.response.region === "abdomen_rlq");
+    expect(rlqRows.length, "four abdomen_rlq rows ship today").toBeGreaterThanOrEqual(4);
+    for (const { scenarioId, response } of rlqRows) {
+      expect(response.emotion, `${scenarioId} abdomen_rlq emotion`).toBe("pain");
+      expect(response.traceTag, `${scenarioId} abdomen_rlq traceTag`).toBe("clinical_touch_guard_rlq");
+    }
+
+    // The producer must still exist and still name the shipped clip. Renaming it without keeping a
+    // path to this name reds here, independently of whether the primitive was ever written.
+    const producer = resolve(HERE, "../../../../tools/openclinxr/evidence/materialize-guard-withdraw-clip.ts");
+    const producerSource = readFileSync(producer, "utf8");
+    expect(
+      producerSource.includes(SHIPPED_RLQ_CLIP),
+      "the shipped clip name disappeared from its producer",
+    ).toBe(true);
+  });
+
+  it("(4) the primitive layer does not import three.js CCDIKSolver — solve-chain.ts owns that seam", () => {
+    // COUNTERWEIGHT on architecture. The brief forbids depending on that exact API anywhere except
+    // one seam file, so the cheap green — wire CCDIKSolver straight into guard-body-region.ts —
+    // is refused before it is written.
+    //
+    // VACUOUS TODAY BY CONSTRUCTION, and the far side is named (§11o): `src/` holds only this test,
+    // so nothing is scanned. The probe below proves the detector discriminates, so the zero-file
+    // case is honest rather than green-about-nothing, and the clause bites the moment any
+    // non-seam source appears.
+    expect(
+      namesTheSolverDirectly('import { CCDIKSolver } from "three/examples/jsm/animation/CCDIKSolver.js";'),
+      "detector must catch a direct solver import",
+    ).toBe(true);
+    expect(
+      namesTheSolverDirectly('import { solveChain } from "./solve-chain.js";'),
+      "detector must not fire on the sanctioned seam import",
+    ).toBe(false);
+
+    const selfPath = fileURLToPath(import.meta.url);
+    const sources = listPackageSources(HERE, selfPath);
+    const offenders = sources
+      .filter((path) => !path.endsWith("solve-chain.ts"))
+      .filter((path) => namesTheSolverDirectly(readFileSync(path, "utf8")));
+    expect(
+      offenders.map((p) => p.slice(HERE.length + 1)),
+      "only solve-chain.ts may name CCDIKSolver; the primitive layer must go through that seam",
+    ).toEqual([]);
+  });
+});
+
+// NOT TESTED: that the compiled clip LOOKS like guarding (pixel grade on a rendered clip, not here);
+// that it plays through an AnimationMixer or survives glTF export; the real bind-frame positions of
+// any shipped GLB (the three profiles above are constructed, bone names real, positions illustrative);
+// whether solve-chain.ts itself converges, is stable, or is licence-clean; clinical or biomechanical
+// validity of any pose; that the 24 shipped touch responses stop sharing one clip — clause (3) only
+// forbids losing it, and pointing six regions at six clips is the NEXT card, not this one.

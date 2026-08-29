@@ -3,6 +3,34 @@
 Repo-local addendum to `SKILL.md`. That file is vendored VERBATIM from upstream and must not
 be hand-edited (see `PROVENANCE.md`); anything specific to this repo lives here.
 
+## CORRECTED 2026-08-29 — `sync` IGNORES `projectId`. Passing it does nothing.
+
+The rule below said an unscoped `sync` silently returns Harbor, and told you to always pass
+`projectId`. The first half is right and **the remedy does not work**. Measured with three requests
+differing only in that argument:
+
+```
+sync {projectId: prj_9b390b99b443a964}  (OpenClinXR)  -> sha256 4700a0bc1abb964e
+sync {projectId: prj_00cce0fc9b89992e}  (Harbor)      -> sha256 4700a0bc1abb964e
+sync {projectId: prj_54713dade1ecd1fc}  (BothyBoard)  -> sha256 4700a0bc1abb964e
+```
+
+Byte-identical, and all three report `"project":{"id":"prj_00cce0fc9b89992e"}` — Harbor. The
+argument is accepted and discarded.
+
+**So `sync` cannot be scoped at all, and no amount of caller discipline fixes it.** Anything derived
+from a `sync` payload is a Harbor answer wearing whatever label you asked for.
+
+**Cost, same day:** I enumerated agents from a `sync` I believed was OpenClinXR-scoped, reported
+"31 agents, none registered as openai or codex", and concluded the Codex orchestrator was not
+heartbeating. It was; `agt_d85152e0024f10cd` is registered and posting. I had read Harbor's roster
+and drawn a conclusion about ours. The operator supplied the id I could not find.
+
+**Until this is fixed board-side, do not derive any roster, count, or absence claim from `sync`.**
+Use `tasks.get` on a known id, or `mailbox.poll` on a known task, both of which are addressed by id
+and therefore genuinely scoped. **An ABSENCE claim from `sync` is worthless** — you cannot tell a
+thing that is missing from a thing that is in another project's payload.
+
 ## The one rule
 
 **Every BothyBoard call that accepts `projectId` MUST pass it, and the value is:**
@@ -92,3 +120,35 @@ no constant to edit.
 **A caller writing a new `sync` has nothing to copy from.** That is the gap that makes the
 Harbor default dangerous, and it is why this section exists rather than a pointer to a
 constant.
+
+## Card schema — the three things that are NOT guessable
+
+Measured 2026-08-29 after four rejected `tasks.create` calls in one sitting. None of this is in the
+tool's `inputSchema`; it is enforced server-side and discoverable only by reading a card that
+already exists.
+
+**1. `factory_step` is a closed enum and it is not in the schema.** The nine values in use:
+
+```
+body_param  clothing_consume  dialogue_runtime  equipment_generate
+instrument  lip_sync  motion_retarget  room_generate  staging
+```
+
+`review_gate` was rejected as "Factory step is not a valid option." Derive the live set rather than
+trusting this list — it is a snapshot, not a constant:
+
+```sh
+# sync scoped to the project, then collect distinct fields.factory_step values
+```
+
+**2. `factory_step: instrument` REQUIRES `unblocks`, and `unblocks` is itself a factory_step value.**
+Not prose. An instrument card must name which production step it unblocks, which is what stops
+instrument cards from being unbounded evidence work. `"Unblocks is required."` is the refusal.
+
+**3. `unblocks`, `lane` and `factory_step` live inside `fields`, not at the top level.** Passing
+`unblocks` as a sibling of `title` is silently ignored and the card is refused as if it were absent.
+`writeRoots`, `doneWhen`, `knownGood`, `outOfScope`, `notTested` and `depIds` ARE top-level.
+
+The general shape, and it has now cost cards twice: **a rejected create tells you a field is wrong,
+never where the field belongs.** Fetch an existing card of the same `factory_step` and read its key
+layout before re-sending. One `sync` answers all three questions at once.
