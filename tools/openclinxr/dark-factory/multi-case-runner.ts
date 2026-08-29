@@ -24,6 +24,10 @@
  *   8. render                — tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms
  *   9. lip_sync              — multi-case-runner.ts runLipSyncStation (offline macOS say -> afconvert ->
  *                            rhubarb --exportFormat json; viseme timing baked at build time, no network, no model)
+ *  10. world_compile         — tools/openclinxr/factory/encounter-materialization-compile.ts compileEncounterMaterialization
+ *                            (WCG compile driven by the chain: newest dated evidence JSON + chain stage-body/stage-rig
+ *                            artifact hashes -> compileNodes with wouldInvoke/skippedBakers; no Blender is spawned —
+ *                            the plan, not the invocation)
  *
  * COUNTERWEIGHT (per issue-288): a station may be classified `deterministic` ONLY
  * with an on-disk artifact proving it ran; `not_run`, `absent` and `error` are
@@ -57,6 +61,10 @@ import {
 } from "../asset-pipeline/makeclothes/garment-selection-by-role.js";
 import { captureStationEnvironmentRooms } from "../evidence/ui-xr-environment-room-capture.js";
 import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "../evidence/lib/portless-server.js";
+import {
+  compileEncounterMaterialization,
+  type CompilePlanNode,
+} from "../factory/encounter-materialization-compile.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -82,6 +90,7 @@ export const DARK_FACTORY_CHAIN_STATIONS = [
   "staging_placement",
   "render",
   "lip_sync",
+  "world_compile",
 ] as const;
 
 export type DarkFactoryStationId = (typeof DARK_FACTORY_CHAIN_STATIONS)[number];
@@ -180,6 +189,8 @@ const IMPLEMENTATIONS: Record<DarkFactoryStationId, string> = {
     "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
   lip_sync:
     "multi-case-runner.ts runLipSyncStation (offline macOS say -> afconvert -> rhubarb 1.14.0 --exportFormat json; viseme timing baked at build time, no network, no model)",
+  world_compile:
+    "tools/openclinxr/factory/encounter-materialization-compile.ts:168 compileEncounterMaterialization (WCG compile runner: compileNodes + wouldInvoke/skippedBakers; no Blender is spawned by this runner — wouldInvoke is a plan, not an invocation)",
 };
 
 const STATION_NAMES: Record<DarkFactoryStationId, string> = {
@@ -192,6 +203,7 @@ const STATION_NAMES: Record<DarkFactoryStationId, string> = {
   staging_placement: "staging / placement",
   render: "render",
   lip_sync: "lip sync",
+  world_compile: "world compile",
 };
 
 /* ------------------------------------------------------------------ */
@@ -957,6 +969,146 @@ async function runLipSyncStage(caseId: string, stageDir: string): Promise<Statio
 }
 
 /* ------------------------------------------------------------------ */
+/* Station 10: world compile (compileEncounterMaterialization)          */
+/* ------------------------------------------------------------------ */
+
+/** Directory that ships dated encounter-materialization evidence JSONs. */
+export const DEFAULT_PRIOR_EVIDENCE_DIR = path.join(REPO_ROOT, "docs", "openclinxr");
+
+/**
+ * Resolve the newest dated encounter-materialization evidence JSON for a case
+ * (e.g. peds_asthma_parent_anxiety_v1 ->
+ * encounter-materialization-evidence-peds-asthma-parent-anxiety-2026-05-28.json).
+ * The dated file name drops the `_vN` suffix and hyphenates; the compile's own
+ * datedSiblingPath keeps the raw scenarioId, so both spellings are accepted.
+ * Returns null when no dated JSON validates for the case — compile requires a
+ * prior report or a bundle report, so the station is not_run for those cases.
+ */
+export async function resolvePriorEvidencePathForScenario(
+  scenarioId: string,
+  priorEvidenceDir: string = DEFAULT_PRIOR_EVIDENCE_DIR,
+): Promise<string | null> {
+  const accepted = new Set([scenarioId, scenarioId.replace(/_(?:v\d+|\d+)$/, "")]);
+  let entries: string[] = [];
+  try {
+    entries = await readdir(priorEvidenceDir);
+  } catch {
+    return null;
+  }
+  let best: { path: string; date: string } | null = null;
+  for (const entry of entries) {
+    const match = /^encounter-materialization-evidence-(.+)-(\d{4}-\d{2}-\d{2})\.json$/.exec(entry);
+    if (!match) continue;
+    if (!accepted.has(match[1]!.replace(/-/g, "_"))) continue;
+    if (!best || match[2]! > best.date) {
+      best = { path: path.join(priorEvidenceDir, entry), date: match[2]! };
+    }
+  }
+  if (!best) return null;
+  // The file must actually be evidence.v1 for THIS case before a compile runs against it.
+  try {
+    const raw = JSON.parse(await readFile(best.path, "utf8")) as { schemaVersion?: unknown; scenarioId?: unknown };
+    if (raw.schemaVersion !== "openclinxr.encounter-materialization-evidence.v1" || raw.scenarioId !== scenarioId) {
+      return null;
+    }
+  } catch {
+    return null;
+  }
+  return best.path;
+}
+
+/**
+ * Map the compile graph's node ids to the chain's own baked artifacts for a case:
+ * `actor:<actorId>:body` -> stage-body OBJ (generate_mesh.py build_source_body output),
+ * `actor:<actorId>:wardrobe` -> stage-rig GLB (orchestrate_character.py output). Only
+ * paths that exist on disk are returned; the WCG dirty rule treats a missing path as
+ * unknown (= dirty), so nothing is fabricated here.
+ */
+export async function resolveChainArtifactPaths(
+  caseId: string,
+  caseDir: string,
+): Promise<Record<string, string>> {
+  const out: Record<string, string> = {};
+  const bodyDir = path.join(caseDir, "stage-body");
+  const rigDir = path.join(caseDir, "stage-rig");
+  const presets = await dumpCasePresets(caseId, REPO_ROOT);
+  for (const preset of Object.values(presets)) {
+    const base = preset.output_name.replace(/\.glb$/u, "");
+    const bodyObj = path.join(bodyDir, `${base}.obj`);
+    if (await existsPath(bodyObj)) out[`actor:${preset.actor_id}:body`] = bodyObj;
+    const glbPath = path.join(rigDir, preset.output_name);
+    if (await existsPath(glbPath)) out[`actor:${preset.actor_id}:wardrobe`] = glbPath;
+  }
+  return out;
+}
+
+/**
+ * Station 10: run the WCG compile for a case. The worldview editor drives a
+ * compile by running the dark-factory chain: compileEncounterMaterialization
+ * reads the newest dated evidence JSON for the case (docs/openclinxr), hashes
+ * the chain's own stage-body/stage-rig artifacts as the current-artifact view,
+ * and writes the compiled evidence JSON (compileNodes + wouldInvoke/
+ * skippedBakers) under stage-world-compile/. No Blender is spawned — wouldInvoke
+ * is the plan, and a bake is a separate factory step.
+ */
+async function runWorldCompileStage(
+  caseId: string,
+  stageDir: string,
+  caseDir: string,
+): Promise<StationRun> {
+  const priorPath = await resolvePriorEvidencePathForScenario(caseId);
+  if (!priorPath) {
+    return {
+      row: makeRow("world_compile", "not_run", [], [
+        `No dated encounter-materialization-evidence JSON for ${caseId} under docs/openclinxr/; compileEncounterMaterialization requires a prior report or a bundle report. Only the #286-covered case (${COVERED_BY_286.join(", ")}) ships one.`,
+      ]),
+    };
+  }
+  await mkdir(stageDir, { recursive: true });
+  const artifactPathsByNodeId = await resolveChainArtifactPaths(caseId, caseDir);
+  const outPath = path.join(stageDir, "compiled-evidence.json");
+  try {
+    const result = await compileEncounterMaterialization({
+      priorPath,
+      outPath,
+      artifactPathsByNodeId,
+    });
+    const plannerNodes = (result.report.compileNodes ?? []) as CompilePlanNode[];
+    const stationArtifactPath = path.join(stageDir, "world-compile-station.json");
+    await writeFile(
+      stationArtifactPath,
+      `${JSON.stringify({
+        schemaVersion: "openclinxr.dark-factory.station-world-compile.v1",
+        station: "world_compile",
+        implementation: IMPLEMENTATIONS.world_compile,
+        caseId,
+        priorPath: relStage(path.dirname(priorPath), path.basename(priorPath)),
+        compileVersion: result.compileVersion,
+        skippedBakers: result.skippedBakers,
+        nodeCount: plannerNodes.length,
+        wouldInvokeBlenderCount: plannerNodes.filter((n) => n.wouldInvoke === "blender").length,
+        artifactPathsByNodeId,
+      }, null, 2)}\n`,
+      "utf8",
+    );
+    return {
+      row: makeRow("world_compile", "deterministic", [
+        relStage(stageDir, "compiled-evidence.json"),
+        relStage(stageDir, "world-compile-station.json"),
+      ], [
+        `RAN compileEncounterMaterialization for ${caseId} (prior ${path.basename(priorPath)}): compileVersion ${result.compileVersion}, ${plannerNodes.length} compile node(s), ${result.skippedBakers.length} wardrobe baker(s) skipped, ${plannerNodes.filter((n) => n.wouldInvoke === "blender").length} node(s) plan blender. No Blender spawned — wouldInvoke is a plan, not an invocation.`,
+      ]),
+    };
+  } catch (err) {
+    return {
+      row: makeRow("world_compile", "error", [], [
+        `compileEncounterMaterialization failed for ${caseId}: ${errMessage(err)}`,
+      ]),
+    };
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /* Chain assembly                                                      */
 /* ------------------------------------------------------------------ */
 
@@ -981,6 +1133,7 @@ function executionCommandsFor(): Record<string, string> {
     staging_placement: "in-process packages/openclinxr/asset-registry/src/actor-placement.ts generatedActorPlacement(cast, index)",
     render: "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)",
     lip_sync: "in-process multi-case-runner.ts runLipSyncStation (offline macOS `say` -> `afconvert` -> rhubarb --exportFormat json; binary resolved explicitly from ~/.openclinxr-tools/rhubarb/rhubarb, NOT on PATH)",
+    world_compile: "in-process tools/openclinxr/factory/encounter-materialization-compile.ts compileEncounterMaterialization (newest dated evidence JSON + chain stage-body/stage-rig artifact hashes -> compiled-evidence.json; no Blender spawned)",
   };
 }
 
@@ -1007,6 +1160,7 @@ export async function runCaseChain(
   stations.push((await runPlacementStage(scenarioId, path.join(caseDir, "stage-placement"))).row);
   stations.push((await runRenderStage(scenarioId, path.join(caseDir, "stage-render"), { serverUrl: options.renderServerUrl })).row);
   stations.push((await runLipSyncStage(scenarioId, path.join(caseDir, "stage-lip-sync"))).row);
+  stations.push((await runWorldCompileStage(scenarioId, path.join(caseDir, "stage-world-compile"), caseDir)).row);
 
   const table: PipelineStationTable = {
     schemaVersion: "openclinxr.dark-factory-station-table.v1",
