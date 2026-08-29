@@ -2,7 +2,7 @@
   "schemaVersion": "openclinxr.open-mouth-interior.v1",
   "issue": "551",
   "factoryStep": "instrument",
-  "generatedAt": "2026-08-22T00:38:43.412Z",
+  "generatedAt": "2026-08-29T03:03:56.319Z",
   "method": "NodeIO on mpfb-viseme-inspect.glb. Lip verts = dominant JOINTS_0 on oris*/levator* (#425). Anterior rim = lip verts with rest Z >= 60th percentile. lipGapMeters = max(0, min(upper-anterior Y) - max(lower-anterior Y)) after morph POSITION delta @ weight 1.0. thresholdMeters = 0.5 * teeth mesh AABB height (teeth input only).",
   "subject": "apps/ui-xr/public/generated-humanoids/mpfb-viseme-inspect.glb",
   "bodyMeshName": "mpfb_ob_patient_aisha_body",
@@ -10,19 +10,19 @@
   "anteriorLipVertexCount": 333,
   "anteriorZCutMeters": 0.15093998610973358,
   "lipRestMidYMeters": 1.4875749981546977,
-  "mechanism": "lip_aperture_below_teeth_derived_threshold: anterior oris/levator rim after viseme_aa has lipGapMeters=0 (overlap=0.0002300739288330078, span=0.07095003128051758) which does not clear thresholdMeters=0.020725011825561523 (0.5*teethH). Teeth mesh present+alpha-visible, sit posterior to lip surface (teethMaxZ=0.15107998251914978 < lipMaxZ=0.16613999009132385), Y-overlapping the lip band — occluded at this weight. File-level cull/zero-opacity ruled out; draw-time lighting not NodeIO-visible.",
+  "mechanism": "lip_gap_clears_teeth_threshold_and_teeth_visible",
   "thresholdMeters": 0.020725011825561523,
   "thresholdDerivation": "thresholdMeters = 0.5 * aabbHeight(openclinxr_hm08_teeth POSITION) = 0.5 * 0.04145002365112305 = 0.020725011825561523 m. Measured with NodeIO on mesh \"openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh\" (min=[-0.031080005690455437,1.459662914276123,0.09414997696876526], max=[0.031080005690455437,1.501112937927246,0.15107998251914978]). Half the dental-arcade height is the minimum lip aperture that can expose teeth; derived from the teeth mesh (input), never from observed lipGap (effect).",
   "visemes": [
     {
       "name": "viseme_aa",
-      "lipGapMeters": 0,
-      "lipSpanMeters": 0.07095003128051758,
-      "lipOverlapMeters": 0.0002300739288330078,
+      "lipGapMeters": 0.023833762854337692,
+      "lipSpanMeters": 0.09339140355587006,
+      "lipOverlapMeters": 0,
       "upperLipMinY": 1.4857428073883057,
-      "lowerLipMaxY": 1.4859728813171387,
-      "maxDisplacementMeters": 0.018155692904924237,
-      "interiorRevealed": false
+      "lowerLipMaxY": 1.461909044533968,
+      "maxDisplacementMeters": 0.04540028597033416,
+      "interiorRevealed": true
     },
     {
       "name": "viseme_sil",
@@ -113,9 +113,9 @@
       "alphaMode": "OPAQUE"
     },
     {
-      "name": "makeclothes_library_footwear_toigo_flats_mpfb_ob_patient_aisha_mesh",
-      "verts": 115196,
-      "mat": "mat_makeclothes_library_footwear_toigo_flats",
+      "name": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ob_patient_aisha_mesh",
+      "verts": 2008,
+      "mat": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
       "alpha": 1,
       "alphaMode": "OPAQUE"
     },
@@ -135,7 +135,7 @@
     },
     {
       "name": "mpfb_ob_patient_aisha_body",
-      "verts": 10871,
+      "verts": 11207,
       "mat": "mpfb_skin_ob_patient_aisha",
       "alpha": 1,
       "alphaMode": "OPAQUE"
@@ -156,7 +156,7 @@
     },
     {
       "name": "mpfb_ob_patient_aisha_body",
-      "verts": 2164,
+      "verts": 1908,
       "mat": "openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh",
       "alpha": 0,
       "alphaMode": "MASK"
@@ -177,14 +177,14 @@
     },
     {
       "name": "mpfb_ob_patient_aisha_body",
-      "verts": 304,
+      "verts": 572,
       "mat": "openclinxr_hidden_foot_mpfb_ob_patient_aisha_body_mesh.001",
       "alpha": 0,
       "alphaMode": "MASK"
     },
     {
       "name": "mpfb_ob_patient_aisha_body",
-      "verts": 112,
+      "verts": 116,
       "mat": "openclinxr_hidden_orphan_mpfb_ob_patient_aisha_body_mesh",
       "alpha": 0,
       "alphaMode": "MASK"
@@ -204,9 +204,9 @@
       "alphaMode": "OPAQUE"
     },
     {
-      "name": "openclinxr_hm08_eyelash_mpfb_ob_patient_aisha_mesh",
-      "verts": 250,
-      "mat": "mat_openclinxr_hm08_eyelash_mpfb_ob_patient_aisha_mesh",
+      "name": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh",
+      "verts": 11088,
+      "mat": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mat",
       "alpha": 1,
       "alphaMode": "OPAQUE"
     },
@@ -225,7 +225,7 @@
       "alphaMode": "OPAQUE"
     }
   ],
-  "verdict": "mechanism_located",
+  "verdict": "revealed",
   "ruledOut": [
     "teeth_or_tongue_absent_from_glb — both meshes enumerated",
     "teeth_zero_opacity_in_file — baseColorFactor alpha > 0.01"
