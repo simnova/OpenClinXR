@@ -6,7 +6,7 @@ routing** contract so a later session cannot fall back to chat lore.
 
 ## Wake: native `monitor`, not Stop-hook
 
-Grok's `monitor` tool is first-class (`~/.grok/docs/user-guide/20-background-tasks.md`).
+Grok's `monitor` tool is first-class (Grok user-guide page 20, background tasks).
 Each stdout line is a session notification. Silence costs zero tokens. Exit
 ends the watch. `persistent: true` lasts the session.
 
