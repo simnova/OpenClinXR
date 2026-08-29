@@ -114,6 +114,7 @@ import type {
   AdminStationRunQueueSnapshot,
 } from "./api-client-types.js";
 import type { FacultyCompileLockClient } from "./faculty-compile-lock-types.js";
+export { compileEncounterWorld } from "./compile-encounter-world.js";
 export * from "./api-client-types.js";
 
 export const defaultAdminApiBaseUrl = import.meta.env['VITE_OPENCLINXR_API_BASE_URL'] ?? "";
@@ -596,4 +597,3 @@ function requireStringField(value: unknown, fieldName: string, context: string):
 
   throw new Error(`OpenClinXR admin API request failed: ${context} missing ${fieldName}`);
 }
-
