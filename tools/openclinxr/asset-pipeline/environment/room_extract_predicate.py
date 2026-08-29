@@ -35,6 +35,9 @@ known-good after `--drop-interior-hull-faces`): see `KNOWN_GOOD_ROOMS` and
   - exterior hull front-facing count above the shipped rooms' maximum -> refuse
     (the pre-fix peds L-sheet measured 10 toward the derived eye and must refuse)
   - zero surviving doorway candidates                              -> refuse (pocket-only room)
+  - a room extracted from a passage semantic (`hallway`/`corridor`, by NAME) -> refuse
+    (the #407 corridor class; aspect alone cannot separate it from the declared-aspect
+    2.0 ED bay since 2026-08-28)
   - aspect / area / ceiling height outside the derived band        -> refuse (corridor class)
 
 CLI:  python3 room-extract-predicate.py --geometry <payload.json> [--output <out.json>]
@@ -111,6 +114,12 @@ RE_INTERIOR = re.compile(r"\.(wall|floor|ceiling)$")
 RE_FLOOR = re.compile(r"\.floor$")
 RE_CEILING = re.compile(r"\.ceiling$")
 RE_HULL = re.compile(r"\.exterior$")
+# The #407 corridor class (a 9.9 m hallway shipped as the peds bay). Since the ED bay's
+# declared aspect_ratio_range (2.0, 2.1) legitimately reaches ~2.0 (2026-08-28 re-bake),
+# floor ASPECT alone can no longer separate a declared-aspect bay from a passage — both are
+# ~2:1. The deterministic discriminator left is Infinigen's own room SEMANTIC: a clinical
+# bay must not be extracted from a hallway/corridor room, whatever its aspect measures.
+RE_PASSAGE = re.compile(r"^(hallway|corridor)", re.IGNORECASE)
 
 Vec = Tuple[float, float, float]
 Tri = Tuple[Vec, Vec, Vec]
@@ -405,6 +414,11 @@ def evaluate(payload: Dict[str, Any]) -> Dict[str, Any]:
     thresholds = derive_thresholds()
 
     refuse_reasons: List[str] = []
+    if RE_PASSAGE.match(room):
+        refuse_reasons.append(
+            f"room is a passage semantic ({room!r}), not a clinical bay — the #407 corridor "
+            f"class; a bay must not be extracted from a hallway"
+        )
     for name, t in thresholds.items():
         value = measures[name]
         if t.get("max") is not None and value > t["max"]:
