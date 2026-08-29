@@ -22,6 +22,7 @@
 
 import type { Object3D } from "three";
 import { collectJointNames, resolveRotationMap, sanitiseBoneName } from "./pose-bone-runtime.js";
+import { isMpfb2Rig } from "./seated-pose-mpfb2.js";
 
 export type EulerPartial = { x?: number; y?: number; z?: number; absolute?: boolean };
 
@@ -105,6 +106,53 @@ export const MIXAMO_CLINICAL_IDLE_ARM_HANG = new Map<string, EulerPartial>([
   ["head", { x: -0.04, absolute: true }],
 ]);
 
+/**
+ * issue-#0 — MPFB2 idle elbow flexion is BIND-RELATIVE, not absolute.
+ *
+ * MPFB2 ships an A-pose bind with the elbow already flexed about local X (the bind is
+ * X-dominant: +36..+48.7 deg on all 22 shipped MPFB forearm bones). The Anny map above
+ * REPLACES that bend with `forearmL.x = -0.18` — roughly 55 deg OPPOSITE to the rig's own
+ * bend direction (the planted contract measured it). A fourth absolute euler table would
+ * erase the per-actor bind differences (six distinct `lowerarm01.L` binds among the
+ * shipped GLBs); instead the idle bend is a FRACTION of the rig's own bind bend, so the
+ * SIGN always matches the bind (clause (1)) and the magnitude scales with the actor
+ * (clause (2): 0.6 x smallest shipped bind 36.0 deg = 21.7 deg, above the clause floor
+ * of half the smallest bind).
+ *
+ * The fraction is derived, not fitted: 0.6 is the largest k that keeps the idle bend a
+ * visibly relaxed relaxation of the A-pose bind (21.7-29.2 deg across the population)
+ * while every shipped bind clears the half-smallest-bind floor with ~3.6 deg margin.
+ */
+export const MPFB_IDLE_FORELARM_BEND_FRACTION = 0.6;
+
+/** MPFB2 idle forearm euler for a given bind — absolute X bend in the bind's own direction. */
+export function mpfbForearmIdleEuler(
+  bind: { x: number; y: number; z: number; w: number },
+): EulerPartial {
+  const bindBend = 2 * Math.atan2(bind.x, bind.w);
+  return { x: MPFB_IDLE_FORELARM_BEND_FRACTION * bindBend, absolute: true };
+}
+
+/**
+ * issue-#0 — MPFB2 rail. Upper arm / hand / head reuse the Anny eulers (they are what
+ * ships today and clear the hang contracts); the forearm entries are DELIBERATELY
+ * absent — MPFB2 forearms are bind-relative (`mpfbForearmIdleEuler`), applied from the
+ * bone's pristine bind rotation captured at the load-time call.
+ */
+export const MPFB_CLINICAL_IDLE_ARM_HANG = new Map<string, EulerPartial>([
+  ["upper_armL", { x: -0.22, y: 0.06, z: -1.12, absolute: true }],
+  ["handL", { x: 0.04, y: 0.06, z: -0.06, absolute: true }],
+  ["upper_armR", { x: -0.22, y: -0.06, z: 1.12, absolute: true }],
+  ["handR", { x: 0.04, y: -0.06, z: 0.06, absolute: true }],
+  ["head", { x: -0.04, absolute: true }],
+  ["upper_arm.L", { x: -0.22, y: 0.06, z: -1.12, absolute: true }],
+  ["hand.L", { x: 0.04, y: 0.06, z: -0.06, absolute: true }],
+  ["upper_arm.R", { x: -0.22, y: -0.06, z: 1.12, absolute: true }],
+  ["hand.R", { x: 0.04, y: -0.06, z: 0.06, absolute: true }],
+]);
+
+type BindQuaternion = { x: number; y: number; z: number; w: number };
+
 /** Alias tokens for bones that may arrive under Mixamo / alternate naming. */
 const ARM_JOINT_ALIASES = new Map<string, string[]>([
   ["upper_armL", ["upper_arml", "upperarm_l", "leftarm", "left_arm", "leftupperarm", "left_upper_arm", "mixamorigleftarm"]],
@@ -165,6 +213,36 @@ function resolveIdleRotation(
 }
 
 /**
+ * Apply bind-relative idle flexion to an MPFB2 forearm bone (issue-#0).
+ *
+ * The bind rotation is captured the FIRST time the bone is touched — the load-time call,
+ * before any absolute euler has been written (standing posture apply is a no-op and the
+ * mixer has not run). Every later call reads the stored bind, so the applied bend keeps
+ * the bind's own direction on every frame and per-actor bind differences are preserved.
+ */
+function applyMpfbForearmIdle(
+  object: Object3D,
+  bindStore: Map<string, BindQuaternion>,
+  bonesTouched: string[],
+): void {
+  const sanitised = sanitiseBoneName(object.name);
+  let bind = bindStore.get(sanitised);
+  if (!bind && !object.userData.openClinXrClinicalIdlePosture) {
+    bind = {
+      x: object.quaternion.x,
+      y: object.quaternion.y,
+      z: object.quaternion.z,
+      w: object.quaternion.w,
+    };
+    bindStore.set(sanitised, bind);
+  }
+  if (!bind) return;
+  applyBoneEuler(object, mpfbForearmIdleEuler(bind));
+  object.userData.openClinXrClinicalIdlePosture = "relaxed_arms_scenario_conversation_pose";
+  if (!bonesTouched.includes(object.name)) bonesTouched.push(object.name);
+}
+
+/**
  * Apply relaxed standing arm hang + head attention to a loaded humanoid root.
  * Called on load and every frame after mixer.update (main.ts animation loop).
  *
@@ -177,15 +255,34 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
   // issue-307: the library rail now carries the mixamo_unity rig — the mixamo arm bones
   // swing on local X (calibrated eulers), not local Z like the AABB 23-bone armature.
   const isMixamoRig = [...jointNames].some((n) => n.startsWith("mixamorig:"));
-  const hangMap = isLibraryHumanoidRail(humanoid)
-    ? (isMixamoRig ? MIXAMO_CLINICAL_IDLE_ARM_HANG : LIBRARY_CLINICAL_IDLE_ARM_HANG)
-    : CLINICAL_IDLE_ARM_HANG;
+  // issue-#0: MPFB2 rigs (upperarm01.L / lowerarm01.L / wrist.L) matched NEITHER library
+  // nor mixamo and silently took the Anny absolute map — which bends the elbow opposite
+  // to the rig's own bind pose. The MPFB rail applies bind-relative forearm flexion.
+  const isMpfbRig = isMpfb2Rig(jointNames) && !isMixamoRig;
+  const hangMap = isMpfbRig
+    ? MPFB_CLINICAL_IDLE_ARM_HANG
+    : isLibraryHumanoidRail(humanoid)
+      ? (isMixamoRig ? MIXAMO_CLINICAL_IDLE_ARM_HANG : LIBRARY_CLINICAL_IDLE_ARM_HANG)
+      : CLINICAL_IDLE_ARM_HANG;
 
   // #306: resolve canonical landmarks against the bones actually on this rig (MPFB2 names
   // upperarm01.L / wrist.L etc.); falls back to legacy alias matching for exotic rigs.
   const resolvedHangMap = resolveRotationMap(hangMap, jointNames);
 
+  // issue-#0: pristine bind rotations captured ONCE at the load-time call (the bone is
+  // untouched then — standing posture apply is a no-op, and the mixer has not run).
+  const mpfbForearmBinds: Map<string, BindQuaternion> =
+    humanoid.userData.openClinXrMpfbForearmBinds as Map<string, BindQuaternion> | undefined
+    ?? (humanoid.userData.openClinXrMpfbForearmBinds = new Map<string, BindQuaternion>());
+
   const tryApply = (object: Object3D) => {
+    if (isMpfbRig) {
+      const sanitised = sanitiseBoneName(object.name);
+      if (sanitised.startsWith("lowerarm01")) {
+        applyMpfbForearmIdle(object, mpfbForearmBinds, bonesTouched);
+        return;
+      }
+    }
     const rotation = resolvedHangMap.get(sanitiseBoneName(object.name))
       ?? resolveIdleRotation(object.name, hangMap);
     if (!rotation) return;
@@ -216,6 +313,9 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
     "bent_forearm_conversation_pose_cue",
     "head_attention_posture_cue",
     "arms_lowered_from_generator_bind_pose_cue",
+    ...(hangMap === MPFB_CLINICAL_IDLE_ARM_HANG
+      ? ["mpfb_forearm_bind_relative_flexion_cue"]
+      : []),
     ...(hangMap === LIBRARY_CLINICAL_IDLE_ARM_HANG
       ? ["library_hm08_upper_arm_z_sense_flip_cue"]
       : []),
@@ -224,6 +324,9 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
       : []),
   ];
   humanoid.userData.openClinXrClinicalIdleBonesTouched = bonesTouched;
+  if (hangMap === MPFB_CLINICAL_IDLE_ARM_HANG) {
+    humanoid.userData.openClinXrClinicalIdleHangMap = "mpfb_forearm_bind_relative";
+  }
   if (hangMap === LIBRARY_CLINICAL_IDLE_ARM_HANG) {
     humanoid.userData.openClinXrClinicalIdleHangMap = "library_hm08_z_flip";
   }
