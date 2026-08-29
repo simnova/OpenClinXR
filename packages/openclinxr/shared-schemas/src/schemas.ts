@@ -139,6 +139,40 @@ export const BodyMechanicsSchema = Type.Object({
 });
 
 /**
+ * Where the faculty says this actor stands or sits. Authored on the case, never inferred.
+ *
+ * WHY THIS EXISTS. Placement was unauthored on all 14 bank scenarios — no supportSurface,
+ * plantXyz, placement, staging, standsAt, sitsOn or position on any actor. The compile graph
+ * therefore declared a Placement node family and deliberately emitted nothing, because a
+ * lockable node standing for data the case never authored is worse than no node. Meanwhile
+ * tools/openclinxr/evidence/inpatient-supine-staging.ts MEASURES staging after the fact,
+ * reporting supportKind and supportSource for whatever the pipeline happened to do. This
+ * member inverts that: the case states the intent and the evidence tool checks it, rather
+ * than the evidence tool being the only record of an implementer's guess.
+ *
+ * EMPTY IS LEGAL and the bank is deliberately not backfilled. An actor without placement is
+ * valid; the Placement node simply does not emit for it. Backfilling the 14 scenarios from
+ * the staging report would launder measured guesses into authored intent, which is the thing
+ * this member exists to stop.
+ */
+export const ActorPlacementSchema = Type.Object({
+  /** What the actor is on. "none" is an authored decision (standing), not an absent value. */
+  supportSurface: Type.Union([
+    Type.Literal("stretcher"),
+    Type.Literal("chair"),
+    Type.Literal("none"),
+  ]),
+  /** Optional faculty-typed offsets in metres from the support's own origin. */
+  plantOffsetMeters: Type.Optional(
+    Type.Object({
+      x: Type.Number(),
+      y: Type.Number(),
+      z: Type.Number(),
+    }),
+  ),
+});
+
+/**
  * Optional per-actor authored phenotype that drives the asset factory's body
  * generation (Anny rail: orchestrate_character.py / generate_mesh.py). This is
  * the case-definition home for clinical (age, build, height_cm, bmi) and
@@ -198,6 +232,7 @@ export const ActorCardSchema = Type.Object({
   communicationProfile: Type.Optional(CommunicationProfileSchema),
   bodyMechanics: Type.Optional(BodyMechanicsSchema),
   phenotype: Type.Optional(ActorPhenotypeSchema),
+  placement: Type.Optional(ActorPlacementSchema),
 });
 
 export const EventScheduleEntrySchema = Type.Object({

@@ -22,7 +22,7 @@ const SLICE = SCHEMA.slice(
 );
 
 describe("the actor card schema authors placement", () => {
-  it.fails("(1) ActorCardSchema includes a placement or supportSurface member", () => {
+  it("(1) ActorCardSchema includes a placement or supportSurface member", () => {
     expect(SLICE).toMatch(/placement|supportSurface/);
   });
 
