@@ -17,21 +17,28 @@ import { describe, expect, it } from "vitest";
  *
  * claimScope: AdminApp workbench actually renders and fires the compile button.
  * notEvidenceFor: live Blender; #167; Quest.
+ *
+ * ## FIXED (#0)
+ * 2026-08-29. App.tsx imports compileEncounterWorld from ./api-client.js and
+ * passes featuredScenarioId (from sceneGenerationPipelineQueue.
+ * featuredFactoryPlanningScenarioId) plus onCompileEncounter into
+ * EnvironmentGenerationQueuePanel, so the faculty button renders and POSTs
+ * /internal/world-compile for the featured scenario. Live POST not exercised.
  */
 
 const SRC = dirname(fileURLToPath(import.meta.url));
 const APP = readFileSync(join(SRC, "App.tsx"), "utf8");
 
 describe("the admin app wires Compile this encounter", () => {
-  it.fails("(1) App.tsx passes featuredScenarioId into EnvironmentGenerationQueuePanel", () => {
+  it("(1) App.tsx passes featuredScenarioId into EnvironmentGenerationQueuePanel", () => {
     expect(APP).toMatch(/featuredScenarioId=/);
   });
 
-  it.fails("(2) App.tsx passes onCompileEncounter into EnvironmentGenerationQueuePanel", () => {
+  it("(2) App.tsx passes onCompileEncounter into EnvironmentGenerationQueuePanel", () => {
     expect(APP).toMatch(/onCompileEncounter=/);
   });
 
-  it.fails("(3) App.tsx imports compileEncounterWorld", () => {
+  it("(3) App.tsx imports compileEncounterWorld", () => {
     expect(APP).toMatch(/compileEncounterWorld/);
   });
 
