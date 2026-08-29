@@ -14,23 +14,23 @@ parseable_sections: 6
 <!-- WAKE-BLUF:BEGIN -->
 ## WAKE BLUF - replace this block every wake, never append
 
-**2026-08-28 | main `01355ef1` | Grok orchestrator | BothyBoard dequeue SSOT (GitHub opt-in `BOTHY_BOARD_DEQUEUE=0`)**
+**2026-08-28 | main `d3e58d11` | Grok orchestrator | BothyBoard dequeue SSOT (GitHub opt-in `BOTHY_BOARD_DEQUEUE=0`)**
 
 **IN FLIGHT**
-- `tsk_c5451ca0fb446348` room_generate: ED floor aspect. Dirty `infinigen-single-room-extract.py` + `room_extract_predicate.py`. Session `a6c1c0b9`.
+- none. Bothy `tasks.next` `{task:null}`.
 
 **LANDED this session**
-- World-config form + shell facts. emotionPolicy form `01355ef1` (`5a8ec0f3`). Bothy `tsk_de93` cancelled after git land.
+- World-config form + shell facts. emotionPolicy `01355ef1`. viseme_aa gap `58bc29aa`. ED floor aspect 2.041 `d3e58d11` (`b27f423b`).
 
 **BLOCKED**
 - `tsk_27ba` PIXEL GRADE speaking stills torso. Do not land. Do not dispatch.
 - `#643` owner `gradeVerdict`. `#600` run red on #474. Phase 4 HELD.
 
-**NEXT this wake:** harvest `tsk_c545` when extract returns. Skip 27ba.
+**NEXT this wake:** operationalize next S1 RED. Skip 27ba.
 
-SWEEP: reds=34(oldest (#37)) undisp=0 uncarded=4 rel=current quiet=31 workers=1/3 bothy=tsk_c5451ca0fb446348
+SWEEP: reds=? undisp=0 uncarded=? rel=current quiet=? workers=0/3 bothy=null
 
-NOT TESTED: area; other stations; 27ba recapture; emotionPolicy transition editor.
+NOT TESTED: area; other 13 stations; 27ba recapture; viseme pixel visibility.
 <!-- WAKE-BLUF:END -->
 <!-- WAKE-BLUF:END -->
 
