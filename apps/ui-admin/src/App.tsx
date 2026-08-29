@@ -23,6 +23,7 @@ import {
   type AdminStationRunQueueSnapshot,
   type BlueprintScenarioReadiness,
   buildAdminGraphqlEndpoint,
+  compileEncounterWorld,
   type CreateScenarioSceneGenerationRequestResult,
   createAdminControlPlaneClient,
   type EnvironmentGenerationQueue,
@@ -1099,6 +1100,12 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
     | { status: "requested"; requestId: string }
     | { status: "error"; message: string }
   >({ status: "idle" });
+  const [compileEncounterState, setCompileEncounterState] = useState<
+    | { status: "idle" }
+    | { status: "compiling" }
+    | { status: "compiled"; scenarioId: string }
+    | { status: "error"; message: string }
+  >({ status: "idle" });
   const [sceneGenerationPublicationReadiness, setSceneGenerationPublicationReadiness] = useState<ScenarioSceneGenerationRequestPublicationReadiness | undefined>();
   const [runtimeVisualEvidenceAttachmentSubmitState, setRuntimeVisualEvidenceAttachmentSubmitState] = useState<
     | { status: "idle" }
@@ -1171,6 +1178,7 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
   const productionReadyScenes = state.assetReadiness.filter((readiness) => readiness.productionReady).length;
   const devReadyScenes = state.assetReadiness.filter((readiness) => readiness.devReady).length;
   const firstBlockedScenario = state.readiness.blockedScenarioIds[0];
+  const featuredScenarioId = state.sceneGenerationPipelineQueue?.featuredFactoryPlanningScenarioId ?? "";
   const createSnapshot = async () => {
     setSnapshotState({ status: "saving" });
     try {
@@ -1202,6 +1210,16 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
       setSceneGenerationRequestState({ status: "requested", requestId: result.requestId });
     } catch (error) {
       setSceneGenerationRequestState({ status: "error", message: error instanceof Error ? error.message : "Unknown scene generation request error" });
+    }
+  };
+
+  const compileEncounter = async (scenarioId: string) => {
+    setCompileEncounterState({ status: "compiling" });
+    try {
+      await compileEncounterWorld({ scenarioId });
+      setCompileEncounterState({ status: "compiled", scenarioId });
+    } catch (error) {
+      setCompileEncounterState({ status: "error", message: error instanceof Error ? error.message : "Unknown world compile error" });
     }
   };
 
@@ -1316,6 +1334,8 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
       {snapshotState.status === "error" ? <Alert type="error" title="Review snapshot failed" description={snapshotState.message} showIcon /> : null}
       {sceneGenerationRequestState.status === "requested" ? <Alert type="success" title="Scene generation request created" description={sceneGenerationRequestState.requestId} showIcon /> : null}
       {sceneGenerationRequestState.status === "error" ? <Alert type="error" title="Scene generation request failed" description={sceneGenerationRequestState.message} showIcon /> : null}
+      {compileEncounterState.status === "compiled" ? <Alert type="success" title="World compile request accepted" description={`${compileEncounterState.scenarioId} posted to /internal/world-compile`} showIcon /> : null}
+      {compileEncounterState.status === "error" ? <Alert type="error" title="World compile request failed" description={compileEncounterState.message} showIcon /> : null}
 
       <div className="workbench-panels">
         <SeedExamReadinessBoundaryPanel
@@ -1377,6 +1397,8 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
           onFacultyCompileOverrideChange={handleFacultyCompileOverrideChange}
           onFacultyCompileOverrideValueChange={handleFacultyCompileOverrideValueChange}
           compileEdges={compileEdges}
+          featuredScenarioId={featuredScenarioId}
+          onCompileEncounter={(scenarioId) => void compileEncounter(scenarioId)}
           onInitiateSceneGeneration={(scenarioId) => void initiateSceneGeneration(scenarioId)}
           onAttachSceneGenerationReview={(request) => void attachSceneGenerationReview(request)}
           onCheckSceneGenerationPublicationReadiness={(request) => void checkSceneGenerationPublicationReadiness(request)}
