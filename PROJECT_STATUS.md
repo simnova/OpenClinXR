@@ -14,24 +14,23 @@ parseable_sections: 6
 <!-- WAKE-BLUF:BEGIN -->
 ## WAKE BLUF - replace this block every wake, never append
 
-**2026-08-29 | main `40b0c73b` | Grok orchestrator | BothyBoard dequeue SSOT (GitHub opt-in `BOTHY_BOARD_DEQUEUE=0`)**
+**2026-08-29 | main `3b15fd47` | Grok orchestrator | Stop-hook continuation**
 
 **IN FLIGHT**
-- none. Bothy `tasks.next` `{task:null}`.
+- none (N=0). Bothy `tasks.next` empty.
 
-**LANDED this session**
-- World-config form + shell facts. emotionPolicy. viseme_aa. ED aspect. MPFB idle elbow. Gown 73→0. Anny literals remapped to MPFB counterparts `40b0c73b` (`170145b2`).
+**LANDED this wake**
+- `tsk_445f` D9 runner seam `3b15fd47` (`c8a30d1f`, 47 turns, proofsOk). Fixture-first `resolve_case_actor_params_with_source`.
+- `tsk_c0f2` `3ae82e92` (`62ee1020`): toigo_flats has zero shipped wearers; clause (1) green on drop.
 
 **BLOCKED**
-- `tsk_27ba` PIXEL GRADE speaking stills torso. Do not land. Do not dispatch.
-- `#643` owner `gradeVerdict`. `#600` run red on #474. Phase 4 HELD.
+- `tsk_27ba` PIXEL GRADE speaking stills. `#643` owner grades. Skip Tara. Skip phenotype authoring.
 
-**NEXT this wake:** operationalize next S1 RED. Skip 27ba. Skip Tara. Skip phenotype authoring.
+**NEXT this wake:** operationalize next S1 RED. Skip 27ba.
 
-SWEEP: reds=26(oldest (#37)) undisp=0 uncarded=? rel=current quiet=? workers=0/3 bothy=null
+SWEEP: reds=25 oldest (#37) workers=0/3 bothy=null
 
-NOT TESTED: 2x triangle budget on MPFB swaps; gown looks; 27ba recapture.
-<!-- WAKE-BLUF:END -->
+NOT TESTED: 2x triangle budget; gown looks; 27ba recapture; native grade of 15 showcase PNGs.
 <!-- WAKE-BLUF:END -->
 
 **OPERATOR MODEL LADDERS (2026-08-27) — CODIFIED in the `model-routing` skill**
