@@ -42,6 +42,8 @@ export const FACULTY_LOCK_OVERRIDE_PATHS = [
   "/ambientHemisphereSky",
   "/ambientHemisphereGround",
   "/keyLightIntensity",
+  "/supportSurface",
+  "/plantOffsetMeters",
 ] as const;
 
 export type FacultyCompileLock = {

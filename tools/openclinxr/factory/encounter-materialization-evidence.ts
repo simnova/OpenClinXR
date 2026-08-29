@@ -13,14 +13,22 @@ import type { GeneratedEdStationRuntimeBundleReport } from "./generated-ed-stati
  *
  *   Room           environment.environmentId            14/14  emitted
  *   DialoguePolicy actors[].communicationProfile        14/14  emitted
- *   Lighting       environment.lighting                  0/14  NOT emitted, no source
- *   Placement      placement/staging/supportSurface       0/14  NOT emitted, no source
+ *   Lighting       environment.lighting                  0/14  NOT emitted
+ *   Placement      (nothing authored it)                  0/14  NOT emitted
  *
- * `environment` carries exactly three keys — environmentId, name, description — so neither
- * Lighting nor Placement has anything authored to derive from. They are declared here and
- * deliberately emit NOTHING: a lockable node standing for data the case never authored is
- * worse than no node, and inventing one is the hand-authoring the factory exists to avoid.
- * Authoring has to land upstream first (see the W-program's placement/staging card).
+ * UPDATED 2026-08-29 (W11, tsk_250729c006996e58). Placement now HAS a source:
+ * ActorCard.placement landed in W11s (b5ef5225) with supportSurface stretcher|chair|none,
+ * and this emitter reads it through CompileCaseDescriptor. It still emits nothing for an
+ * actor without placement, and the 14 bank scenarios are deliberately NOT backfilled — so
+ * the row above stays 0/14 until a human authors staging. Empty is legal.
+ *
+ * Lighting remains unemitted and that is now permanent rather than pending: W12
+ * (f0510aa4) moved lighting authoring to the compile OVERRIDE path (/wallColor,
+ * /keyLightIntensity and friends in COMPILE_OVERRIDE_PATHS), not onto the case. There is
+ * nothing on a scenario for a Lighting node to derive from, by design.
+ *
+ * The principle both rows share: a lockable node standing for data the case never authored
+ * is worse than no node, and inventing one is the hand-authoring the factory exists to avoid.
  */
 export const COMPILE_NODE_FAMILIES = [
   "ActorVariant",
@@ -46,6 +54,7 @@ export const CHARACTER_BAKER_IDS = [
   /** Room and DialoguePolicy are planned-only today; no baker runs them yet. */
   "room_environment",
   "dialogue_policy",
+  "actor_placement",
 ] as const;
 export type CharacterBakerId = (typeof CHARACTER_BAKER_IDS)[number];
 
@@ -67,6 +76,8 @@ export type CompileGraphNode = {
     equipmentId?: string;
     /** Room nodes: the case's authored environment. */
     environmentId?: string;
+    /** Placement nodes: what the case says this actor is on. */
+    supportSurface?: string;
     variantSemanticKey: string;
     sourceBlobName: string;
   };
@@ -116,7 +127,16 @@ const NOT_EVIDENCE_FOR = ["runtime_readiness", "quest_readiness", "production_as
 /** The slice of a scenario fixture this emitter reads. Structural so tests can inject one. */
 export type CompileCaseDescriptor = {
   environment?: { environmentId?: string; name?: string } | null;
-  actors?: Array<{ actorId: string; communicationProfile?: unknown }> | null;
+  actors?: Array<{
+    actorId: string;
+    communicationProfile?: unknown;
+    /**
+     * ActorCard.placement (W11s, b5ef5225). Structural, not imported, so this module stays
+     * free of the schema package. supportSurface is stretcher|chair|none, where "none" is an
+     * authored standing decision rather than an absent value.
+     */
+    placement?: { supportSurface?: string } | null;
+  }> | null;
 };
 
 /**
@@ -230,7 +250,39 @@ export function emitCompileNodes(
     });
 
   // No Lighting, no Placement: 0/14 authored. Declaring a family is not licence to invent a node.
-  return [...actorNodes, ...equipNodes, ...roomNodes, ...dialogueNodes];
+  // Placement: one node per actor the CASE places. W3 declared this family and emitted
+  // nothing because placement was unauthored on all 14 bank scenarios; W11s added
+  // ActorCard.placement so there is now something to read. Still emits nothing for an actor
+  // without it — empty is legal and the bank is deliberately not backfilled, so a station
+  // with no authored staging produces no lockable node rather than an invented one.
+  const placementNodes: CompileGraphNode[] = (caseDef?.actors ?? [])
+    .filter((actor) => Boolean(actor?.placement?.supportSurface))
+    .map((actor) => {
+      const nodeId = `placement:${actor.actorId}`;
+      const prev = priorById.get(nodeId);
+      const supportSurface = actor.placement?.supportSurface ?? "none";
+      return {
+        nodeId,
+        family: "Placement",
+        bakerId: "actor_placement",
+        spec: {
+          scenarioId,
+          actorId: actor.actorId,
+          supportSurface,
+          variantSemanticKey: `placement:${supportSurface}`,
+          sourceBlobName: `case:${scenarioId ?? "scenario"}`,
+        },
+        parents: [],
+        cacheKey: null,
+        contentHash: prev?.contentHash ?? null,
+        lock: prev?.lock ?? { locked: false },
+        status: "planned_unsplit",
+      } satisfies CompileGraphNode;
+    });
+
+  // Still no Lighting: 0/14 authored, and W12 moved that authoring to the compile override
+  // rather than the case, so there is nothing here to emit from.
+  return [...actorNodes, ...equipNodes, ...roomNodes, ...dialogueNodes, ...placementNodes];
 }
 
 /**
@@ -467,7 +519,17 @@ const LIGHTING_OVERRIDE_PATHS = new Set([
  *
  * Must stay aligned with FACULTY_LOCK_OVERRIDE_PATHS in encounter-materialization-faculty-locks.ts.
  */
-const COMPILE_OVERRIDE_PATHS = new Set([...ACTOR_PHENOTYPE_OVERRIDE_PATHS, ...LIGHTING_OVERRIDE_PATHS]);
+/**
+ * Placement overrides (W11, tsk_250729c006996e58). ActorCard.placement is the authored
+ * intent; these pointers are how faculty override it on one compile without editing the case.
+ */
+const PLACEMENT_OVERRIDE_PATHS = new Set(["/supportSurface", "/plantOffsetMeters"]);
+
+const COMPILE_OVERRIDE_PATHS = new Set([
+  ...ACTOR_PHENOTYPE_OVERRIDE_PATHS,
+  ...LIGHTING_OVERRIDE_PATHS,
+  ...PLACEMENT_OVERRIDE_PATHS,
+]);
 
 function pushLockErrors(errors: string[], lock: unknown, prefix: string): void {
   if (lock === undefined) return;
