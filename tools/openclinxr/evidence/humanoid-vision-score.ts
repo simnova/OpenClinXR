@@ -64,7 +64,11 @@ type Framing = (typeof FRAMINGS)[number];
 
 /** Optional preferred PORT; omit/unset → spawnPortlessDevServer pre-scans a free port. */
 const PREFERRED_PORT = process.env.PORT || process.env.HUMANOID_VISION_PORT || "";
-const MODEL = process.env.GROK_VISION_MODEL || "grok-4.5";
+// grok-4.5 is DEPRECATED and superseded by grok-4.6 (model-routing skill). This was a live default,
+// not a test fixture, so every unconfigured vision score ran on a retired model.
+// NOT CHANGED HERE: the ladder's vision rung is deepseek-v4-flash-vision-exp, which would be a
+// provider switch rather than a version bump. That is a routing decision, not a deprecation fix.
+const MODEL = process.env.GROK_VISION_MODEL || "grok-4.6";
 const SERVER_READY_TIMEOUT_MS = 120_000;
 const ISO_READY_TIMEOUT_MS = 45_000;
 const SETTLE_MS = 1_500;

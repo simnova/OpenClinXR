@@ -11,14 +11,15 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 ## Counts
 
 - agent-memory: 34
-- agent-methodology: 86
-- archive-candidate: 57
-- current-reference: 216
+- agent-methodology: 103
+- archive-candidate: 41
+- current-reference: 208
 - decision-record: 44
-- evidence: 59
+- evidence: 57
+- generated-evidence: 10
 - historical-synthesis: 13
 - protected-policy: 10
-- temporary: 55
+- temporary: 54
 
 ## Highest-Value Current Navigation
 
@@ -156,15 +157,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `apps/arena/api-python-backend/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/arena/mock-realtime-voice-server/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/arena/model-vetting-studio/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
-- `apps/arena/model-vetting-studio/dist/assets/AGENTS-BYKezdFc.md` - current-reference; Package/app-local README or provenance reference; local to its module.
-- `apps/arena/model-vetting-studio/dist/assets/PROJECT_STATUS-CciPX650.md` - current-reference; Package/app-local README or provenance reference; local to its module.
-- `apps/arena/model-vetting-studio/dist/assets/README--cBUUOLz.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/arena/physics-clinical-touch/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
-- `apps/ui-xr/dist/xr-assets/environment/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
-- `apps/ui-xr/dist/xr-assets/humanoids/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
-- `apps/ui-xr/dist/xr-assets/medical-equipment/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
-- `apps/ui-xr/dist/xr-hands/generic-hand/LICENSE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
-- `apps/ui-xr/dist/xr-hands/generic-hand/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/ui-xr/public/xr-assets/environment/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/ui-xr/public/xr-assets/humanoids/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/ui-xr/public/xr-assets/medical-equipment/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
@@ -253,23 +246,6 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 These files should be summarized, archived, or explicitly marked historical before agents use them as instructions.
 
-- `.claude/skills/autonomy-boundaries/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.claude/skills/board-conduit/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.claude/skills/bothy-board/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.claude/skills/consult-session-hygiene/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.claude/skills/contract-design/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.claude/skills/delegator-comms/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.claude/skills/gh-body-file/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.claude/skills/grok-tier-routing/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.claude/skills/loop-continuation/SKILL.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
-- `.claude/skills/makeclothes-garments/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.claude/skills/measure-before-claiming/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.claude/skills/model-routing/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.claude/skills/operator-prose/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.claude/skills/pixel-grading/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.claude/skills/pre-dispatch-alignment/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.claude/skills/supervisor-loop/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.claude/skills/trellis-baking/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/factory/equipment-catalog-report.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/handoffs/adult-abdominal-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.

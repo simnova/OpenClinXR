@@ -356,7 +356,28 @@ export function classify(file: string): DocAuthorityEntry {
         "Modular agentic methodology / harness rules (extracted from AGENTS.md for LOW_TOKEN targeted reads + multi-harness standardization); canonical source. Discovered by Grok etc via .grok/rules/ symlinks (see grok-harness-usage.md and source-of-truth order).",
     };
   }
-  if (file.startsWith(".agents/skills/")) {
+  // Build OUTPUT under any dist/ or build/ tree is a copy of a source doc with a content hash in its
+  // name. It is not an authority document and must never read as one. This runs BEFORE the apps/ and
+  // packages/ rules below, which would otherwise stamp every one of them `current-reference` — that
+  // is how apps/arena/model-vetting-studio/dist/assets/PROJECT_STATUS-CciPX650.md came to be
+  // classified as a current authority reference (found by external review, 2026-08-29).
+  if (/(^|\/)(dist|build)\//u.test(file)) {
+    return {
+      path: file,
+      authority: "generated-evidence",
+      agentInstructionWeight: "none",
+      action: "treat-as-evidence",
+      rationale:
+        "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact.",
+    };
+  }
+
+  // BOTH skill roots. `.claude/skills/` was missing, so every skill there fell through to the
+  // unclassified fallback and was stamped `archive-candidate` / `none` / `summarize-before-use` —
+  // "review before using as instruction" — while PROTO_VERIFY_DELEGATION's operative index routes
+  // agents to those same files as live controls. The registry contradicted the protocol. Found by
+  // external review, 2026-08-29.
+  if (file.startsWith(".agents/skills/") || file.startsWith(".claude/skills/")) {
     return {
       path: file,
       authority: "agent-methodology",

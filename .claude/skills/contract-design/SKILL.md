@@ -104,3 +104,28 @@ that red deletes it.
 **Mechanics live in `orchestrator-dispatch-loop`** - signatures, the commit-the-plant-first rule, the
 `factory_step:` colon, gitignored `exists:` targets. Two copies of a mechanical fact WILL drift; that
 skill is the single source.
+
+
+## A breadth requirement defeats an instrument-artifact stop
+
+If a brief offers "if this red is an instrument artifact rather than a product defect, say so and
+stop", read every `done_when` rule and ask whether a report of "no defect found" satisfies it.
+
+Two rule shapes silently revoke the permission:
+
+- **`changed:<source file>`** cannot be satisfied by a report. It compels an edit, so the contract
+  requires a product change at the same moment the prose permits stopping without one — and the
+  contract wins. Either drop the rule or mark it `(WAIVED if you report the red as an instrument
+  artifact)`.
+- **A breadth clause** — "enumerate dynamically", `stations.length > 1` — compels a full sweep before
+  the worker may report. The stop stays legal but becomes expensive, and a worker that knows at
+  station 6 of 14 will finish all 14 first.
+
+**Name the MINIMAL FALSIFIER and say satisfying it is enough to stop:** measure the motivating
+instance and ONE known-good control, write that as the pre-fix artifact, and if the instance measures
+clean, stop and report. The breadth clause then applies only on the branch where a defect is found.
+
+`exists:` on a measurement artifact is the compatible shape — it is satisfied by reporting.
+
+Incidents: `§11j` and `§11n` in
+`docs/_archive/agent-rules/2026-08/PROTO_VERIFY_DELEGATION-incident-archive.md`.

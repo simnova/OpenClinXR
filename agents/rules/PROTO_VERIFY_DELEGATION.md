@@ -226,7 +226,7 @@ do a 180 and go back to what feels comfortable."* That is accurate. The mechanis
 Not by my saying it is working. By these, which are checkable without me:
 
 - A dispatched slice whose brief cites no directive above.
-- More than one new numbered rule in a day.
+- ANY new numbered rule. The file is frozen; the old "more than one per day" allowance is withdrawn.
 - A primary issue filed from an unlocated pixel grade instead of a measurement.
 - A worker asked to hand-author geometry where a tool exists (D1).
 
@@ -481,10 +481,10 @@ applies, which is strictly better than prose nobody re-reads.
 | Hand a worker the measured failure and say the cause is UNKNOWN; a confident wrong diagnosis costs more than none | skill `measure-before-claiming`, incident at `§6d` |
 | Snapshot the calibration BEFORE changing a probe or a threshold | skill `contract-design`, incident at `§6f` |
 | Give a brief an explicit slot for out-of-scope wrongness, or a worker sees it and stays silent | `§6h` |
-| Pre-dispatch corrections go in the issue BODY — the dispatcher never reads comments | skill `board-conduit`, incident at `§11b` |
+| Pre-dispatch corrections go in the issue BODY — the dispatcher never reads comments | skill `board-conduit` (owns it as of 2026-08-29), incident at `§11b` |
 | A branch finished by `--resume` carries no contract report; run `contract-verify-cli` before integrate | `§11h` |
 | Never pair an instrument-artifact stop with a `changed:<file>` proof — the proof compels an edit | skill `contract-design`, incident at `§11j` |
-| Name the minimal falsifier, or a breadth requirement defeats the stop condition | `§11n` |
+| Name the minimal falsifier, or a breadth requirement defeats the stop condition | skill `contract-design` (owns it as of 2026-08-29), incident at `§11n` |
 | Grade at NATIVE resolution; an upscale manufactures defects that are not there | skill `pixel-grading`, incident at `§12a` |
 
 Anchors resolve with:

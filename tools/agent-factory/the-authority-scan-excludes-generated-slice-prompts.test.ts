@@ -67,3 +67,42 @@ describe("architect cadence log classification", () => {
     expect(classify("docs/openclinxr/some-unclassified-file.md").authority).toBe("archive-candidate");
   });
 });
+
+describe("classifier coverage for semantic families", () => {
+  /**
+   * Both clauses were external-review findings, 2026-08-29. The generator ran green and idempotent
+   * while producing two wrong families, because "the registry regenerates cleanly" and "the registry
+   * says true things" are different claims and only the first was being checked.
+   */
+  it("an installed skill is operative, never an archive candidate", () => {
+    // PROTO_VERIFY_DELEGATION's index routes agents to .claude/skills/* as LIVE controls. Classifying
+    // them `archive-candidate` / `summarize-before-use` made the registry contradict the protocol.
+    for (const skill of [
+      ".claude/skills/contract-design/SKILL.md",
+      ".claude/skills/measure-before-claiming/SKILL.md",
+      ".agents/skills/bothy-board/SKILL.md",
+    ]) {
+      const entry = classify(skill);
+      expect(entry.authority, `${skill} must not read as archived`).toBe("agent-methodology");
+      expect(entry.action).toBe("use-as-current");
+    }
+  });
+
+  it("build output is evidence, never a current reference", () => {
+    // Every apps/** and packages/** markdown was stamped current-reference, including content-hashed
+    // copies under dist/ — so a build artifact named PROJECT_STATUS-<hash>.md read as authority.
+    for (const artifact of [
+      "apps/arena/model-vetting-studio/dist/assets/PROJECT_STATUS-CciPX650.md",
+      "packages/anything/build/README-abc123.md",
+    ]) {
+      const entry = classify(artifact);
+      expect(entry.authority, `${artifact} must not read as authority`).toBe("generated-evidence");
+      expect(entry.agentInstructionWeight).toBe("none");
+    }
+  });
+
+  it("COUNTERWEIGHT: a real source doc under apps/ is still a current reference", () => {
+    // Without this, a dist rule broad enough to swallow apps/**/*.md passes both clauses above.
+    expect(classify("apps/ui-xr/README.md").authority).toBe("current-reference");
+  });
+});

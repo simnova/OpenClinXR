@@ -4,13 +4,14 @@
   "protectedRule": "Protected-policy files are off-limits to routine agents: do not delete, weaken, bypass, rename, or reinterpret them during autonomous work.",
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
-    "agent-methodology": 86,
-    "current-reference": 216,
-    "archive-candidate": 57,
-    "temporary": 55,
-    "evidence": 59,
+    "agent-methodology": 103,
+    "current-reference": 208,
+    "archive-candidate": 41,
+    "evidence": 57,
+    "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
+    "generated-evidence": 10,
     "historical-synthesis": 13,
     "decision-record": 44
   },
@@ -682,122 +683,122 @@
     },
     {
       "path": ".claude/skills/autonomy-boundaries/SKILL.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
       "path": ".claude/skills/board-conduit/SKILL.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
       "path": ".claude/skills/bothy-board/SKILL.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
       "path": ".claude/skills/consult-session-hygiene/SKILL.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
       "path": ".claude/skills/contract-design/SKILL.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
       "path": ".claude/skills/delegator-comms/SKILL.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
       "path": ".claude/skills/gh-body-file/SKILL.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
       "path": ".claude/skills/grok-tier-routing/SKILL.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
       "path": ".claude/skills/loop-continuation/SKILL.md",
-      "authority": "temporary",
-      "agentInstructionWeight": "none",
-      "action": "archive-or-inline-summary",
-      "rationale": "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue."
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
       "path": ".claude/skills/makeclothes-garments/SKILL.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
       "path": ".claude/skills/measure-before-claiming/SKILL.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
       "path": ".claude/skills/model-routing/SKILL.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
       "path": ".claude/skills/operator-prose/SKILL.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
       "path": ".claude/skills/pixel-grading/SKILL.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
       "path": ".claude/skills/pre-dispatch-alignment/SKILL.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
       "path": ".claude/skills/supervisor-loop/SKILL.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
       "path": ".claude/skills/trellis-baking/SKILL.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
       "path": ".codex/agents/README.md",
@@ -2530,38 +2531,38 @@
     },
     {
       "path": "apps/arena/model-vetting-studio/dist/assets/AGENTS-BYKezdFc.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Package/app-local README or provenance reference; local to its module."
+      "authority": "generated-evidence",
+      "agentInstructionWeight": "none",
+      "action": "treat-as-evidence",
+      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
       "path": "apps/arena/model-vetting-studio/dist/assets/PROJECT_STATUS-CciPX650.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Package/app-local README or provenance reference; local to its module."
+      "authority": "generated-evidence",
+      "agentInstructionWeight": "none",
+      "action": "treat-as-evidence",
+      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
       "path": "apps/arena/model-vetting-studio/dist/assets/README--cBUUOLz.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Package/app-local README or provenance reference; local to its module."
+      "authority": "generated-evidence",
+      "agentInstructionWeight": "none",
+      "action": "treat-as-evidence",
+      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
       "path": "apps/arena/model-vetting-studio/dist/assets/operator-open-questions-DvqAC8BK.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
+      "authority": "generated-evidence",
+      "agentInstructionWeight": "none",
       "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
       "path": "apps/arena/model-vetting-studio/dist/assets/operator-steering-needed-questions-BaY_qOd0.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
+      "authority": "generated-evidence",
+      "agentInstructionWeight": "none",
       "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
       "path": "apps/arena/physics-clinical-touch/README.md",
@@ -2586,38 +2587,38 @@
     },
     {
       "path": "apps/ui-xr/dist/xr-assets/environment/PROVENANCE.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Package/app-local README or provenance reference; local to its module."
+      "authority": "generated-evidence",
+      "agentInstructionWeight": "none",
+      "action": "treat-as-evidence",
+      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
       "path": "apps/ui-xr/dist/xr-assets/humanoids/PROVENANCE.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Package/app-local README or provenance reference; local to its module."
+      "authority": "generated-evidence",
+      "agentInstructionWeight": "none",
+      "action": "treat-as-evidence",
+      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
       "path": "apps/ui-xr/dist/xr-assets/medical-equipment/PROVENANCE.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Package/app-local README or provenance reference; local to its module."
+      "authority": "generated-evidence",
+      "agentInstructionWeight": "none",
+      "action": "treat-as-evidence",
+      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
       "path": "apps/ui-xr/dist/xr-hands/generic-hand/LICENSE.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Package/app-local README or provenance reference; local to its module."
+      "authority": "generated-evidence",
+      "agentInstructionWeight": "none",
+      "action": "treat-as-evidence",
+      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
       "path": "apps/ui-xr/dist/xr-hands/generic-hand/PROVENANCE.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Package/app-local README or provenance reference; local to its module."
+      "authority": "generated-evidence",
+      "agentInstructionWeight": "none",
+      "action": "treat-as-evidence",
+      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/environment/PROVENANCE.md",

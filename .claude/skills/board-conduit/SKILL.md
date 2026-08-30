@@ -28,6 +28,24 @@ This removes paraphrase surface to zero for instructions.
 A card enters Factory=Planted only when its RED + contract are committed to main.
 Dispatch order follows the parent card's child list, adjusted for lane disjointness.
 
+## Mid-run steering: the dispatcher reads the BODY, never the comments
+
+`briefFromIssue` builds its prompt from `gh issue view <n> --json number,title,body`. **Body only.**
+Comments are not read, so a pre-dispatch correction posted as a comment reaches nobody and nothing
+warns you — the brief still validates, because the body's `## done_when` is intact.
+
+Measured: a careful delta naming a freeze ceiling, a gate-is-suspect line, a named renderer and a
+known-good column was posted with `gh issue comment` and was invisible to the dispatcher.
+
+**Put pre-dispatch corrections in the BODY** via `gh issue edit --body-file`, then re-read it and grep
+for a distinctive phrase from the delta. Comments are for post-close records — retros, verdicts,
+corrections to a landed claim — where no worker will read them.
+
+Mid-run steer of a RUNNING worker is `mailbox.post` / `mailbox.poll` only. `tasks.comment` is an audit
+log and does not reach a running child.
+
+Incident: `§11b` in `docs/_archive/agent-rules/2026-08/PROTO_VERIFY_DELEGATION-incident-archive.md`.
+
 ## Decomposition
 
 One parent card holds objective + prioritized child-card list. Each child carries
@@ -52,7 +70,7 @@ serial integrate, captures, WAKE re-arm, TICK reports.
 
 ## Failure posture
 
-Free-tier termination risk: test grok-4.5 fallback routing once before running
+Free-tier termination risk: test grok-4.6 fallback routing once before running
 hot. Two consecutive integrate refusals => land nothing further, page owner
 thread. Weekly worktree prune (~1.3 GB each). Owner-thread decay: consults kept
 small; proactive re-open before ox-alpha context ceiling.
