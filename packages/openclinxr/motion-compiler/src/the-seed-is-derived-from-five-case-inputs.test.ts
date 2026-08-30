@@ -4,8 +4,6 @@ import {
   MOTION_REGION_GUARD_RLQ,
 } from "./plant-motion-regions.js";
 
-import { planted } from "./planted.js";
-
 /**
  * ============================ DIAGNOSIS (IMMUTABLE) ============================
  *
@@ -69,6 +67,30 @@ import { planted } from "./planted.js";
  * Diagnosis header IMMUTABLE. Flip `planted` to `it` and append a `## FIXED (tsk_89fca85c7700ae13)`
  * block BELOW this; do not rewrite the paths or the numbers above it.
  * ==============================================================================
+ */
+
+/**
+ * ## FIXED (tsk_89fca85c7700ae13) — clauses (1) through (4) are now live `it` tests.
+ *
+ * The canonical seed derivation landed:
+ *
+ *   - src/trajectory/deterministic-variation.ts     `deriveDeterministicVariationSeed`: sha256 over
+ *     the scheme and the five inputs in the card's order, refusing wall-clock/random shapes (a
+ *     hash slot that is not a 64-hex digest, a version slot that is not a version token, an index
+ *     that is not a non-negative integer).
+ *   - src/program/compile-scenario-motion.ts        `canonicalMotionProgramHash` (canonical
+ *     key-sorted JSON, seed excluded so the derivation is not self-referential),
+ *     `deterministicCompileIdentity` (the keystone's compileIdentity block, field for field),
+ *     and `compileScenarioMotion` now derives `deterministicSeed` through the canonical helper —
+ *     with the documented plan-time convention: no rig bound yet, the skeleton slot is the
+ *     program's own hash; the moment a real `skeletonProfileHash` is supplied the seed changes.
+ *     The old `deriveDeterministicSeed` export (scenario-row material) was removed; nothing in
+ *     the tree imported it (measured 2026-08-30).
+ *
+ * Clause (4) proves the forwarding seam: the program's seed, the compile identity's seed and the
+ * seed handed to each of the four seed-consuming M4 primitives are ONE derived string, and a
+ * one-input change to the derivation MOVES the primitives. The compile entry module itself
+ * (`compile-motion-program.js`) remains a sibling RED; this card pins the block it consumes.
  */
 
 /** Resolve to an ABSOLUTE url before the deferred import — see the sibling plants. */
@@ -168,7 +190,7 @@ const FIVE: DeterministicSeedInput = {
 const HEX64 = /^[0-9a-f]{64}$/;
 
 describe("the seed is derived from five case inputs", () => {
-  planted("(1) RED: the same five inputs yield the same seed — a pure function, not a call to a clock", async () => {
+  it("(1) RED: the same five inputs yield the same seed — a pure function, not a call to a clock", async () => {
     // A seed minted from Date.now() or Math.random() fails here on the SECOND call even if the
     // first call works, which is the entire point of the clause.
     const { deriveDeterministicVariationSeed } = await loadVariation();
@@ -182,7 +204,7 @@ describe("the seed is derived from five case inputs", () => {
     expect(second, "the same five inputs produced a different seed — the derivation is reading something besides its input").toBe(first);
   });
 
-  planted("(2) RED: independently changing EACH input changes the seed — including only skeletonProfileHash", async () => {
+  it("(2) RED: independently changing EACH input changes the seed — including only skeletonProfileHash", async () => {
     // Five independent mutations. The middle row is the one the card exists for: the M1b deriver
     // landed `rigFingerprint`, and the compile identity distinguishes `skeletonProfileHash` from it
     // — a derivation that ignores the profile hash would make every rig compile one motion.
@@ -207,7 +229,7 @@ describe("the seed is derived from five case inputs", () => {
     }
   });
 
-  planted("(3) RED: wall-clock and random values are REFUSED, never coerced", async () => {
+  it("(3) RED: wall-clock and random values are REFUSED, never coerced", async () => {
     // The counterweight to (1): a derivation that is "deterministic" by ignoring bad inputs would
     // pass (1) and (2) while letting a caller smuggle Date.now() in through a slot nobody checks.
     // Every refusal here is a concrete wall-clock or random shape the factory must not accept.
@@ -252,7 +274,7 @@ describe("the seed is derived from five case inputs", () => {
     }
   });
 
-  planted("(4) RED: the SAME derived string reaches the program, every primitive and the compiled clip", async () => {
+  it("(4) RED: the SAME derived string reaches the program, every primitive and the compiled clip", async () => {
     // The forwarding half. The compile entry (`compile-motion-program.js`) is a sibling RED, so the
     // recorded identity is pinned through `deterministicCompileIdentity` — the block the keystone
     // clip carries — and the primitives' motion is driven by the very string that block records.

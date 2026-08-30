@@ -190,30 +190,12 @@ export const PLANTED_REDS: readonly PlantedRed[] = [
     expected: /compile-motion-program\.js must export compileMotionProgram/,
     stage: "assertion",
   },
-  {
-    file: "the-seed-is-derived-from-five-case-inputs.test.ts",
-    select: "(1) RED: the same five inputs yield the same seed — a pure function, not a call to a clock",
-    expected: /Cannot find module .*trajectory\/deterministic-variation\.js/,
-    stage: "module_absent",
-  },
-  {
-    file: "the-seed-is-derived-from-five-case-inputs.test.ts",
-    select: "(2) RED: independently changing EACH input changes the seed — including only skeletonProfileHash",
-    expected: /Cannot find module .*trajectory\/deterministic-variation\.js/,
-    stage: "module_absent",
-  },
-  {
-    file: "the-seed-is-derived-from-five-case-inputs.test.ts",
-    select: "(3) RED: wall-clock and random values are REFUSED, never coerced",
-    expected: /Cannot find module .*trajectory\/deterministic-variation\.js/,
-    stage: "module_absent",
-  },
-  {
-    file: "the-seed-is-derived-from-five-case-inputs.test.ts",
-    select: "(4) RED: the SAME derived string reaches the program, every primitive and the compiled clip",
-    expected: /Cannot find module .*trajectory\/deterministic-variation\.js/,
-    stage: "module_absent",
-  },
+  // ALL FOUR SEED ENTRIES REMOVED 2026-08-30 (tsk_89fca85c7700ae13). The canonical derivation
+  // landed at src/trajectory/deterministic-variation.ts and program/compile-scenario-motion.ts
+  // routes the plan seed and the compile identity through it; the four clauses were flipped from
+  // `planted` to `it` with a `## FIXED (tsk_89fca85c7700ae13)` block appended in
+  // the-seed-is-derived-from-five-case-inputs.test.ts. A satisfied contract is a transition to
+  // record, not a planted RED to keep.
 ];
 
 /**
