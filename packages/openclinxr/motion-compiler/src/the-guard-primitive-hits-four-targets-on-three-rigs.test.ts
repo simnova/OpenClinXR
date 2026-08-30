@@ -4,6 +4,8 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
   violationsInTracks,
+  type CompiledMotionFragment,
+  type PrimitiveRequest,
   type CompiledMotionTrack,
   type QuatTuple,
 } from "./canonical-motion-contract.js";
@@ -323,6 +325,24 @@ async function loadGuard(): Promise<GuardModule | undefined> {
   return (await import(GUARD_SPECIFIER).catch(() => undefined)) as GuardModule | undefined;
 }
 
+type RegistryModule = {
+  resolvePrimitive?: (id: string) => { compile: (r: PrimitiveRequest) => CompiledMotionFragment } | undefined;
+};
+
+/**
+ * The canonical entry's own registry, so clause (2b) can prove the guard is reachable from it.
+ *
+ * The specifier is assembled the same way `GUARD_SPECIFIER` is: a literal would make tsc resolve a
+ * module that does not exist yet and fail the plants typecheck, and the URL keeps the native
+ * resolver from reporting a mangled path if the import throws.
+ */
+const REGISTRY_SPECIFIER = ["./primitive", "registry.js"].join("-");
+
+async function loadRegistry(): Promise<RegistryModule | undefined> {
+  const href = new URL(REGISTRY_SPECIFIER, import.meta.url).href;
+  return (await import(/* @vite-ignore */ href).catch(() => undefined)) as RegistryModule | undefined;
+}
+
 /** The bank, loaded by path so this file needs no cross-package manifest dependency. */
 async function loadScenarioBank(): Promise<Record<string, unknown>[]> {
   const mod = (await import("../../scenario-fixtures/src/index.js").catch(() => undefined)) as
@@ -636,6 +656,70 @@ describe("the guard primitive hits four targets on three rigs", () => {
         maxRotationDelta(peakRotations(adHocClip), peakRotations(moved)),
         `moving the target ${ONE_QUADRANT_METERS} m left changed no rotation — the output does not depend on the target`,
       ).toBeGreaterThan(ROTATION_EPSILON_RAD);
+    },
+  );
+
+  it.fails(
+    "(2b) RED: the REGISTERED guard primitive reaches the same target as the internal solver",
+    async () => {
+      // THE OTHER SEAM, and it was open until 2026-08-30. Clauses (1) and (2) exercise
+      // `compileGuardClip`, an internal solver entry. Nothing anywhere demonstrated that the real
+      // guard implementation is REGISTERED and invoked through `compileMotionProgram`: the seam plant
+      // injects a fake primitive, and the contacts plant expects the real registry without binding
+      // this implementation into it. So M2 could land complete and correct and still be unreachable
+      // from the canonical entry — a solver nothing calls.
+      //
+      // An internal helper is fine. What is not fine is two paths that can disagree, so this clause
+      // requires the registered primitive to reach the SAME target within the SAME tolerance, and
+      // measures it with the same independent FK oracle rather than trusting either path's report.
+      const registry = await loadRegistry();
+      expect(
+        typeof registry?.resolvePrimitive,
+        "primitive-registry must export resolvePrimitive — the guard has to be reachable from the canonical entry",
+      ).toBe("function");
+
+      const primitive = registry!.resolvePrimitive!("guard_body_region");
+      expect(primitive, "the registry does not resolve guard_body_region").toBeDefined();
+
+      const profile = ANNY_23_BONE;
+      const target = FOUR_TARGETS[0]!;
+      const request: PrimitiveRequest = {
+        action: {
+          actionId: "guard_registered_probe",
+          primitiveId: "guard_body_region",
+          trigger: { kind: "clinical_touch", ref: "guard_rlq_v1" },
+          timing: { durationMs: 900 },
+          intensity: 0.6,
+          target: { kind: "body_point", position: target.bodyPoint },
+          effector: profile.effectorBone,
+          constraints: [],
+        },
+        skeletonProfile: structuredClone(profile),
+        seed: "seed-registered-guard",
+      };
+
+      const fragment: CompiledMotionFragment = primitive!.compile(request);
+
+      // (a) It must return a fragment the canonical entry can consume, not a private dialect.
+      expect(
+        violationsInTracks(fragment.tracks),
+        "the registered guard returned tracks the canonical clip contract refuses",
+      ).toEqual([]);
+      expect(
+        fragment.actionId,
+        "the fragment is not attributed to the action that asked for it",
+      ).toBe("guard_registered_probe");
+
+      // (b) It must actually reach, measured by the SAME oracle clauses (1) and (2) use. A registered
+      // primitive that returns legal tracks going nowhere is wired and useless.
+      const tolerance = forearmLengthOf(profile) * REACH_TOLERANCE_AS_FOREARM_FRACTION;
+      expect(
+        distance(
+          derivedEffectorPoint({ name: "registered", targetId: target.id, rigFingerprint: profile.rigFingerprint, tracks: fragment.tracks as GuardTrack[] }, profile, profile.effectorBone),
+          target.bodyPoint,
+        ),
+        "the registered guard primitive does not reach the target the internal solver reaches",
+      ).toBeLessThanOrEqual(tolerance);
     },
   );
 

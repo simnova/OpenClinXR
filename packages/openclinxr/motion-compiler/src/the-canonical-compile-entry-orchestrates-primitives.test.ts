@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   trackOrderKeys,
   violationsInTracks,
+  type CompiledMotionFragment,
   type CompiledMotionTrack,
   type PrimitiveRequest,
   type QuatTuple as Quat,
@@ -95,7 +96,7 @@ async function loadEntry(): Promise<{
   compileMotionProgram: (input: {
     program: unknown;
     skeletonProfile: unknown;
-    primitives?: Record<string, (r: PrimitiveRequest) => { actionId: string; tracks: CompiledMotionTrack[] }>;
+    primitives?: Record<string, (r: PrimitiveRequest) => CompiledMotionFragment>;
   }) => CompiledMotionClipV1;
 }> {
   const mod = (await import(/* @vite-ignore */ plantModule(MODULE))) as Record<string, unknown>;

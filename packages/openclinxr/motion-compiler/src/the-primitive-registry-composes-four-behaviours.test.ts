@@ -3,7 +3,11 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
-import type { PrimitiveRequest } from "./canonical-motion-contract.js";
+import {
+  violationsInTracks,
+  type CompiledMotionFragment,
+  type PrimitiveRequest,
+} from "./canonical-motion-contract.js";
 
 /**
  * ============================ DIAGNOSIS (IMMUTABLE) ============================
@@ -88,17 +92,20 @@ const PRIMITIVE_IDS = [
 
 type PrimitiveId = (typeof PRIMITIVE_IDS)[number];
 
-interface MotionChannel {
-  jointPath: string;
-  times: number[];
-  values: number[];
-}
-
-interface MotionClip {
-  primitiveId: PrimitiveId;
-  durationMs: number;
-  channels: MotionChannel[];
-}
+/**
+ * WHAT A PRIMITIVE RETURNS — IMPORTED, not redeclared. Amended 2026-08-30, the OUTPUT half of the
+ * seam that was closed on the input half one round earlier.
+ *
+ * This file declared `{ primitiveId, durationMs, channels: [{ jointPath, times, values: number[] }] }`
+ * while the canonical entry expected `{ actionId, tracks }`. Incompatible on four counts at once —
+ * channels against tracks, scalar values against canonical tuples, a duration on the fragment against
+ * one derived at composition, and primitive attribution against action attribution. A worker here
+ * would have produced something `compileMotionProgram` cannot consume without an adapter, which is
+ * the original three-signature defect surviving on the return side.
+ *
+ * Centralising the request and leaving the response is a half-closed seam, and it read as closed.
+ */
+type MotionClip = CompiledMotionFragment;
 
 /**
  * THE PRIMITIVE REQUEST IS IMPORTED, not redeclared. Amended 2026-08-30 after two reviewers found
@@ -198,21 +205,24 @@ const loadTrajectory = async (): Promise<TrajectoryModule> =>
  * single parameterised implementation which varies nothing but the label
  * cannot satisfy the distinctness clause.
  */
-const channelSignature = (clip: MotionClip): string =>
+/**
+ * Track content only. `actionId` is DELIBERATELY EXCLUDED so a single parameterised implementation
+ * that varies nothing but the label cannot satisfy the distinctness clause — the same reason
+ * `primitiveId` was excluded from its predecessor.
+ */
+const channelSignature = (fragment: MotionClip): string =>
   JSON.stringify(
-    [...clip.channels]
-      .sort((a, b) => a.jointPath.localeCompare(b.jointPath))
-      .map((channel) => [channel.jointPath, channel.times, channel.values]),
+    [...fragment.tracks]
+      .sort((a, b) => `${a.boneName}::${a.property}`.localeCompare(`${b.boneName}::${b.property}`))
+      .map((track) => [track.boneName, track.property, track.times, track.values]),
   );
 
 /** Full canonical form, used only where byte-identity is the assertion. */
-const canonical = (clip: MotionClip): string =>
-  JSON.stringify([clip.primitiveId, clip.durationMs, channelSignature(clip)]);
+const canonical = (fragment: MotionClip): string =>
+  JSON.stringify([fragment.actionId, channelSignature(fragment)]);
 
-const jointSetKey = (clip: MotionClip): string =>
-  [...new Set(clip.channels.map((channel) => channel.jointPath))]
-    .sort()
-    .join("|");
+const jointSetKey = (fragment: MotionClip): string =>
+  [...new Set(fragment.tracks.map((track) => track.boneName))].sort().join("|");
 
 const SEED_A = 20260829;
 const SEED_B = 20260830;
@@ -230,9 +240,22 @@ describe("the primitive registry composes four behaviours", () => {
         expect(primitive, `registry did not resolve "${id}"`).toBeDefined();
         const clip = (primitive as MotionPrimitive).compile(canonicalRequest(id, String(SEED_A)));
         expect(
-          clip.channels.length,
-          `"${id}" compiled a clip with no channels`,
+          clip.tracks.length,
+          `"${id}" compiled a fragment with no tracks`,
         ).toBeGreaterThan(0);
+        // THE SEAM, checked rather than assumed: a fragment the canonical entry cannot consume is
+        // not a result, however distinct its content. Same validator the entry applies to its own
+        // output.
+        expect(
+          violationsInTracks(clip.tracks),
+          `"${id}" returned tracks the canonical clip contract refuses`,
+        ).toEqual([]);
+        // Attribution is by ACTION, because one program may carry several actions naming the same
+        // primitive and the entry composes fragments back onto the actions that asked for them.
+        expect(
+          clip.actionId,
+          `"${id}" did not attribute its fragment to the action it was given`,
+        ).toBe((canonicalRequest(id, String(SEED_A)).action as { actionId: string }).actionId);
         clips.set(id, clip);
       }
 

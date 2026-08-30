@@ -5,7 +5,12 @@ import { describe, expect, it } from "vitest";
 // the compiler must not.
 import { scenarioBank } from "../../scenario-fixtures/src/scenario-bank.js";
 
-import type { CompiledMotionTrack, PrimitiveRequest, QuatTuple } from "./canonical-motion-contract.js";
+import type {
+  CompiledMotionFragment,
+  CompiledMotionTrack,
+  PrimitiveRequest,
+  QuatTuple,
+} from "./canonical-motion-contract.js";
 
 /**
  * **OBSERVABLE: nothing connects the clip a case ASKS FOR to the clip the factory can PRODUCE.**
@@ -101,7 +106,7 @@ async function loadEntry(): Promise<
   | ((input: {
       program: unknown;
       skeletonProfile: unknown;
-      primitives?: Record<string, (r: PrimitiveRequest) => { actionId: string; tracks: CompiledMotionTrack[] }>;
+      primitives?: Record<string, (r: PrimitiveRequest) => CompiledMotionFragment>;
     }) => CompiledClip)
   | undefined
 > {
