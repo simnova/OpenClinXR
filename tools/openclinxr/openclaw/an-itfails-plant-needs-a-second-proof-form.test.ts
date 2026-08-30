@@ -93,17 +93,36 @@ describe("an it.fails plant needs a second proof form", () => {
   //     refusing. Uses a plant that REALLY EXISTS in this repo and really contains it.fails, so the
   //     two branches genuinely differ.
   //
-  //     The first version of this clause used the temp-dir path and was VACUOUS: that path does not
-  //     exist relative to cwd, so existsSync short-circuited and the clause passed even with the
-  //     treeRoot guard deleted. Caught by the destructive probe, not by reading it.
-  const realPlant = "tools/openclinxr/evidence/the-elbow-bends-the-way-the-rig-was-built-to-bend.test.ts";
+  //     The first version of this clause used a RELATIVE temp-dir path and was VACUOUS: that path
+  //     does not exist relative to cwd, so existsSync short-circuited and the clause passed even
+  //     with the treeRoot guard deleted. Caught by the destructive probe, not by reading it.
+  //
+  //     The second version fixed the vacuity by naming a REAL repo plant, which was correct and
+  //     then AGED OUT: 32a8e5e3 legitimately flipped that plant, leaving only the words `it.fails`
+  //     inside a comment. The guard's regex requires `it.fails(` and correctly ignores prose, so the
+  //     card became genuinely dispatchable and this clause failed while nothing was broken. A
+  //     fixture that depends on another slice never flipping its RED is a fixture with an expiry
+  //     date, and it cost a red main plus a wrong "the gate is failing open" diagnosis.
+  //
+  //     THIRD VERSION, and it needs neither. The guard resolves a token as
+  //     `isAbsolute(tok) ? tok : join(treeRoot, tok)` (board-brief.ts:266), so an ABSOLUTE temp-dir
+  //     token stays resolvable with NO treeRoot. That is what preserves non-vacuity: delete the
+  //     `if (!treeRoot) return []` guard and the no-root arm still finds the plant, still sees a
+  //     live `it.fails(`, and still refuses — so the clause reds. Verified by destructive probe.
+  //     It depends on nothing outside its own tmpdir.
 
   it("does not fire when no tree root is supplied", () => {
-    const withRoot = briefFromIssue(card(`- run:pnpm exec vitest run ${realPlant}`), process.cwd());
-    expect(withRoot.dispatchable).toBe(false); // same card, tree root supplied -> refused
+    root = makeTree(`import { it, expect } from "vitest";\nit.fails("red", () => expect(1).toBe(2));\n`);
+    const absolutePlant = join(root, plantRel);
 
-    const noRoot = briefFromIssue(card(`- run:pnpm exec vitest run ${realPlant}`));
-    expect(noRoot.dispatchable).toBe(true); // optional parameter omitted -> silent
+    const withRoot = briefFromIssue(card(`- run:pnpm exec vitest run ${absolutePlant}`), root);
+    expect(withRoot.dispatchable).toBe(false); // tree root supplied -> plant found -> refused
+
+    const noRoot = briefFromIssue(card(`- run:pnpm exec vitest run ${absolutePlant}`));
+    expect(
+      noRoot.dispatchable,
+      "the guard must return early when no treeRoot is supplied, even though this ABSOLUTE token would otherwise resolve",
+    ).toBe(true);
   });
 
   // (6) CORRECTED 2026-08-26 after a consult: `measured-before:` must NOT count as protection.

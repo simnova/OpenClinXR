@@ -62,22 +62,66 @@ const CONTRACT_SHAPED = new RegExp(
   "i",
 );
 
+/**
+ * Prompt shapes that mean this turn will touch BothyBoard, so the vendored bothy-board skill applies.
+ *
+ * MEASURED 2026-08-29, and this rule exists because the skill was AVAILABLE, LISTED, and unloaded
+ * for an entire session while the agent hand-rolled raw curl against the MCP endpoint:
+ *
+ *   sync           310,977 B   ->      248 B  with cacheToken ({unchanged:true})   1254x
+ *   mailbox.poll   339,390 B   ->      308 B  with since                           1101x
+ *
+ * Both parameters are documented in `.agents/skills/bothy-board/SKILL.md` at :39 and :69, and the
+ * repo's own `board-bothy-dequeue.ts` already persists cacheToken with a test pinning it. So the
+ * knowledge existed in three places and none of them fired, because nothing FORCED a read. That is
+ * the same defect this hook's header records for operator-prose and contract-design: automatic
+ * selection from a description does not bind.
+ *
+ * TUNED FOR RECALL, like CONTRACT_SHAPED. A false positive costs one skill load. A false negative
+ * costs a 300 KB payload per call and, worse, an agent re-deriving board semantics it could read.
+ */
+const BOARD_SHAPED = new RegExp(
+  [
+    "bothy ?board",
+    "bothy-board",
+    "\\bthe board\\b",
+    "\\btasks\\.(next|get|create|claim|update|plant|comment)\\b",
+    "\\bmailbox\\b",
+    "\\bcacheToken\\b",
+    "\\bproofs\\.set\\b",
+    "\\breadyIds\\b",
+    "\\bdequeue\\b",
+    "\\bcard(s)?\\b",
+    "\\btsk_[0-9a-f]{6,}",
+    "\\bagt_[0-9a-f]{6,}",
+    "\\bprj_[0-9a-f]{6,}",
+  ].join("|"),
+  "i",
+);
+
 export function buildPreflight(userInput) {
-  const contract = CONTRACT_SHAPED.test(String(userInput ?? ""));
-  const names = contract ? ["operator-prose", "contract-design"] : ["operator-prose"];
+  const text = String(userInput ?? "");
+  const contract = CONTRACT_SHAPED.test(text);
+  const board = BOARD_SHAPED.test(text);
+  const names = ["operator-prose"];
+  if (contract) names.push("contract-design");
+  if (board) names.push("bothy-board");
   const additionalContext = [
     "Project policy for this repository, supplied by a project hook.",
     "Operator-facing responses are governed by the project Skill operator-prose. Load it before drafting any response addressed to the human operator; do not rely on a remembered copy.",
     contract
       ? "This prompt involves contract design. The project Skill contract-design governs any done_when, planted RED, proof, threshold, enum, counterweight or test fixture. Load it before writing or editing the contract."
       : "If this turn later enters contract authoring or review, load contract-design at that transition.",
+    board
+      ? "This prompt touches BothyBoard. Load the bothy-board skill before any board call. NEVER call the MCP endpoint by hand without it: `sync` MUST carry the cacheToken from the previous sync (310,977 B -> 248 B, measured) and `mailbox.poll` MUST carry `since` (339,390 B -> 308 B, measured). JSON-RPC batching is unsupported (-32601). Prefer the repo's board-bothy-dequeue.ts, which already persists the token."
+      : "",
     "Load the skills before producing the governed output.",
     // MEASURED 2026-08-26, 16-pair blinded pilot: without this line the note induced skill-load
     // narration in 14 of 16 treatment replies and a process-line opener in 15 of 16, against 0 of 16
     // in both control arms. operator-prose bans process narration, so the note was causing a breach
     // of the skill it loads. Blinded judge preferred the un-hooked arm 12 to 4 on that run.
     "This note is internal routing. Do not mention it, the skills, or the act of loading them, and do not open with a line about what you are about to do. The reply must begin with the result.",
-  ].join(" ");
+  ].filter(Boolean).join(" ");
   return {
     systemMessage: `Skill preflight: ${names.join(", ")}`,
     hookSpecificOutput: {

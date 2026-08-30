@@ -121,7 +121,7 @@ Do **not** copy ATL `ICD_*` / go2rtc env into `turbo.json`.
 **Turbo version:** pinned `2.9.14` (2026-08). Bump to 2.10.x deferred until a measured OCX benefit (boundaries/`--affected` smoke), not parity with ATL alone.
 
 **Shared local turbo cache (worktrees):** root `package.json` turbo scripts set
-`TURBO_CACHE_DIR="${TURBO_CACHE_DIR:-$HOME/.cache/openclinxr/turbo}"` so all agent worktrees share one filesystem cache **outside** any worktree. Verified on 2.9.14: absolute `cacheDir` in `turbo.json` is rejected; use `TURBO_CACHE_DIR` or `--cache-dir`. Concurrent writers to one local cache dir are safe (see `docs/openclinxr/turbo-remote-cache-setup.md`). Remote cache (`remoteCache.enabled` + `TURBO_TOKEN`/`TURBO_TEAM`) remains optional for multi-machine/CI.
+`TURBO_CACHE_DIR="${TURBO_CACHE_DIR:-$HOME/.cache/openclinxr/turbo}"` so all agent worktrees share one filesystem cache **outside** any worktree. Verified on 2.9.14: absolute `cacheDir` in `turbo.json` is rejected; use `TURBO_CACHE_DIR` or `--cache-dir`. Concurrent writers to one local cache dir are safe (see `docs/_archive/openclinxr/2026-06/turbo-remote-cache-setup.md`). Remote cache (`remoteCache.enabled` + `TURBO_TOKEN`/`TURBO_TEAM`) remains optional for multi-machine/CI.
 
 **Turbo env:** `globalEnv` keeps `CI` + `NODE_ENV` only. Do not import ATL ICD/portless pass-through lists. Revisit task-level `env` only if wrong cache hits involve `OPENCLINXR_BUILD_*` / `VITE_*` in package builds. `TURBO_CACHE_DIR` is a path override (not a hash input) and is set by scripts, not `globalEnv`.
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { lstatSync, readFileSync } from "node:fs";
 
 /**
  * A citation into archived reasoning must name something SEARCHABLE, never a line number.
@@ -24,12 +24,31 @@ import { readFileSync } from "node:fs";
  * it names and moves with it under review.
  */
 
-const CITE_BY_LINE = /PROTO_VERIFY_DELEGATION[A-Za-z0-9._-]*\.md:\d+/;
+/**
+ * Forms a citation can take. The first version matched only `<file>.md:<n>` and MISSED `#L3424`,
+ * `:L3424` and "line 3424" — found by an external reviewer, not by my own probe.
+ */
+const CITE_BY_LINE = /PROTO_VERIFY_DELEGATION[A-Za-z0-9._-]*\.md(?::L?\d+|#L\d+)|PROTO_VERIFY_DELEGATION[A-Za-z0-9._-]*\.md,? line \d+/;
+
+/**
+ * Files that must contain the forbidden literal in order to DOCUMENT it: this detector's own
+ * examples and counterweights, and the live protocol's WRONG/RIGHT pair.
+ *
+ * MEASURED 2026-08-29, and this is the defect that mattered. The first version excluded neither, and
+ * PASSED anyway — because `git ls-files` could not see this file while it was still untracked. The
+ * probe ran against a detector that was structurally blind to itself, went green, and turned red the
+ * instant it was committed. A destructive probe that cannot see the fixture proves nothing.
+ */
+const SELF_DOCUMENTING = [
+  "tools/agent-factory/archived-reasoning-is-cited-by-anchor-not-line.test.ts",
+  "agents/rules/PROTO_VERIFY_DELEGATION.md",
+];
 
 function trackedFiles(): string[] {
   return execFileSync("git", ["ls-files"], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 })
     .split("\n")
-    .filter((p) => /\.(ts|tsx|js|mjs|md|py|json)$/u.test(p));
+    // Widened after review: the first version missed shell, YAML and TOML entirely.
+    .filter((p) => /\.(ts|tsx|js|mjs|cjs|md|py|json|sh|ya?ml|toml)$/u.test(p));
 }
 
 function citationsByLine(): string[] {
@@ -37,6 +56,15 @@ function citationsByLine(): string[] {
   for (const file of trackedFiles()) {
     // The archive itself quotes historical prose verbatim; it is the record, not a live citation.
     if (file.includes("/_archive/")) continue;
+    if (SELF_DOCUMENTING.includes(file)) continue;
+    // Harness mirrors (.claude/rules, .cursor/rules, .grok/rules) are SYMLINKS to agents/rules.
+    // A symlink is not a separate citation — counting it reports the same line twice under two paths
+    // and makes the excluded source look unexcluded.
+    try {
+      if (lstatSync(file).isSymbolicLink()) continue;
+    } catch {
+      continue;
+    }
     // WORKING TREE, not HEAD. A pre-commit gate must judge what is about to be committed; reading
     // HEAD would pass a commit that introduces a line citation and fail one that removes it.
     let text: string;
@@ -84,6 +112,23 @@ describe("archived reasoning is cited by anchor, not by line", () => {
       "docs/_archive/agent-rules/2026-08/PROTO_VERIFY_DELEGATION-incident-archive.md",
     ]) {
       expect(CITE_BY_LINE.test(ok), `must not flag: ${ok}`).toBe(false);
+    }
+  });
+
+  it("COUNTERWEIGHT: the exclusion list does not swallow ordinary files", () => {
+    // Without this, growing SELF_DOCUMENTING until the suite passes is the cheapest way to green it.
+    expect(SELF_DOCUMENTING.length).toBeLessThanOrEqual(2);
+    for (const f of SELF_DOCUMENTING) expect(trackedFiles()).toContain(f);
+  });
+
+  it("catches the citation forms the first version missed", () => {
+    for (const form of [
+      "PROTO_VERIFY_DELEGATION.md:3424",
+      "PROTO_VERIFY_DELEGATION.md#L3424",
+      "PROTO_VERIFY_DELEGATION.md:L3424",
+      "PROTO_VERIFY_DELEGATION.md line 3424",
+    ]) {
+      expect(CITE_BY_LINE.test(form), `must catch: ${form}`).toBe(true);
     }
   });
 
