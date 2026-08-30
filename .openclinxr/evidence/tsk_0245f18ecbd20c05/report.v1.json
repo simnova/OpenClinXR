@@ -1,0 +1,19 @@
+{
+  "cardId": "tsk_0245f18ecbd20c05",
+  "kind": "independent-manager-verification",
+  "commit": "9cb30f39d720a7f84e0d972a9f954784ed2537dc",
+  "branch": "wt/b1-integrate-abort-red",
+  "worktree": "/Users/patrick/.grok/worktrees/src-openclinxr/b1-integrate-abort-red",
+  "independentTests": {
+    "card-test-2.log": "4 passed",
+    "card-test-3.log": "4 passed",
+    "command": "pnpm exec vitest run --root . tools/openclinxr/openclaw/integrate-aborts-a-failed-merge-commit.test.ts"
+  },
+  "workerReport": "cmt_537fbce4fa55e301",
+  "mechanism": "git commit catch in integrate.ts now git merge --abort before rethrow; abort failure concatenated with original commit failure.",
+  "notTested": [
+    "Abort failure combined with a second concurrent integrator",
+    "Conflicts before commit; post-commit rebuild failure; cross-process signal termination"
+  ],
+  "notDone": ["proofs.set at write time"]
+}
