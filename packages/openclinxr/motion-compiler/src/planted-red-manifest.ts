@@ -32,6 +32,36 @@ export type PlantedRed = {
 
 export const PLANTED_REDS: readonly PlantedRed[] = [
   {
+    file: "the-region-anchors-come-from-a-real-asset.test.ts",
+    select: "(1) RED: anchors are DERIVED FROM THE ASSET \u2014 two sizes give two answers",
+    expected: /region-anchors\.js must export deriveRegionAnchors|must export deriveRegionAnchors/,
+    stage: "assertion",
+  },
+  {
+    file: "the-region-anchors-come-from-a-real-asset.test.ts",
+    select: "(2) RED: every derived anchor is REACHABLE on its own asset",
+    expected: /region-anchors\.js must export deriveRegionAnchors|must export deriveRegionAnchors/,
+    stage: "assertion",
+  },
+  {
+    file: "the-region-anchors-come-from-a-real-asset.test.ts",
+    select: "(3) RED: the declared space is HONOURED, checked against the asset's own bind frame",
+    expected: /region-anchors\.js must export deriveRegionAnchors|must export deriveRegionAnchors/,
+    stage: "assertion",
+  },
+  {
+    file: "the-region-anchors-come-from-a-real-asset.test.ts",
+    select: "(4) RED: a region with no derivable anchor is REFUSED, never defaulted",
+    expected: /region-anchors\.js must export deriveRegionAnchors|must export deriveRegionAnchors/,
+    stage: "assertion",
+  },
+  {
+    file: "the-region-anchors-come-from-a-real-asset.test.ts",
+    select: "(5) RED: two regions sharing a nearest joint still get DIFFERENT anchors",
+    expected: /region-anchors\.js must export deriveRegionAnchors|must export deriveRegionAnchors/,
+    stage: "assertion",
+  },
+  {
     file: "the-primitive-registry-is-one-seam-with-no-behaviour.test.ts",
     select: "(1) RED: the vocabulary carries the guard AND the four behaviours, in one place",
     expected: /primitive-registry\.js must export PRIMITIVE_IDS/,
@@ -113,6 +143,12 @@ export const PLANTED_REDS: readonly PlantedRed[] = [
     file: "the-contact-constraint-holds-across-its-window.test.ts",
     select: "(3) RED: preserveWhileActive is OBEYED — a releasable contact yields to a competing one",
     expected: /compile-motion-program\.js must export compileMotionProgram/,
+    stage: "assertion",
+  },
+  {
+    file: "the-guard-primitive-hits-four-targets-on-three-rigs.test.ts",
+    select: "(0b) RED: the guard REFUSES a profile whose anchors are in a space it does not implement",
+    expected: /primitive-registry must export resolvePrimitive/,
     stage: "assertion",
   },
   {

@@ -88,8 +88,12 @@ export const COMPLIANCE_REGION_CHEST_L = "chest_L";
  * that, and the contacts plant already deferred penetration and orientation on the grounds that a
  * point is not a surface. These anchors make that proxy load-bearing on the skeleton, and M1b
  * deriving bind transforms from a shipped GLB will NOT produce them: they need a mesh closest-point
- * or a landmark offset, and that work is unowned today. Recorded on the contact-surfaces card
- * (tsk_67cafb96802a06bc) rather than left in a comment.
+ * or a landmark offset.
+ *
+ * OWNER: tsk_e5b1a3efad002aef, upstream of M2 — because M2 CONSUMES anchors, so the producer sits
+ * between M1b and M2 rather than in a later successor. This comment first named the contact-surfaces
+ * card (tsk_67cafb96802a06bc), which was wrong: that card owns what a SURFACE adds — normals,
+ * closest-point, penetration, orientation — not how an anchor is derived at all.
  */
 export const REGION_ANCHOR_SPACE = "bind_world_metres";
 

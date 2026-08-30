@@ -650,24 +650,63 @@ describe("the guard primitive hits four targets on three rigs", () => {
     return primitive!.compile;
   };
 
+  it("(0) LIVE: every rig fixture declares the anchor space this file measures in", () => {
+    // MOVED OUT OF `planted` 2026-08-30 on review, and the reason is the one this file keeps
+    // relearning. Inside an expected-fail clause this check passed on arrival and the recorded fail
+    // reason stayed module-absence; a foreign-space fixture would still have been an expected fail,
+    // for a different reason nobody would see. That is the path-bug shape I moved it out of the
+    // registry's shadow to avoid, one level in.
+    //
+    // Fixture integrity is a property of THIS FILE's rigs, so it is live, fails on arrival if broken,
+    // and is independent of every module under test.
+    for (const profile of RIG_FAMILIES) {
+      expect(
+        profile.regionAnchorSpace,
+        `${profile.rigFingerprint}: this file measures in ${REGION_ANCHOR_SPACE}; anchors in another space would read as a missed reach`,
+      ).toBe(REGION_ANCHOR_SPACE);
+    }
+  });
+
+  planted(
+    "(0b) RED: the guard REFUSES a profile whose anchors are in a space it does not implement",
+    async () => {
+      // The fixture check above proves THIS FILE is consistent. It says nothing about the primitive,
+      // which can ignore `regionAnchorSpace` entirely and pass every other clause by reading the
+      // Vec3s — and `RegionAnchorSpace` is a one-value type, so nothing in the type system makes a
+      // consumer look at it.
+      //
+      // A silently-misinterpreted space is the worst failure available here: the numbers are
+      // plausible, the solve succeeds, and the hand arrives somewhere else on the body. Refusal must
+      // be behaviour.
+      const compile = await registeredGuard();
+      const foreign = {
+        ...ANNY_23_BONE,
+        regionAnchorSpace: "chest_local_metres" as unknown as RegionAnchorSpace,
+      };
+      expect(
+        () =>
+          compile({
+            action: {
+              actionId: "guard_foreign_space_probe",
+              primitiveId: "guard_body_region",
+              trigger: { kind: "clinical_touch", ref: "guard_rlq_v1" },
+              timing: { durationMs: 900 },
+              intensity: 0.6,
+              target: { kind: "body_region", id: FOUR_TARGETS[0]! },
+              effector: foreign.effectorBone,
+              constraints: [],
+            },
+            skeletonProfile: structuredClone(foreign),
+            seed: "seed-foreign-space",
+          }),
+        "the guard compiled anchors in a space it does not implement — a misread frame solves cleanly and puts the hand somewhere else on the body",
+      ).toThrow();
+    },
+  );
+
   planted(
     "(1) guard_body_region resolves one target on THREE rig families through the bind frame, not a per-rig euler table",
     async () => {
-      // FIXTURE INTEGRITY FIRST, before the module under test is even loaded. This is a property of
-      // the rigs this clause measures against, not of the guard, so gating it behind module absence
-      // would leave it unprobed for as long as the RED is red — which is exactly how M1's clauses
-      // spent a day failing on a path bug nobody could see.
-      //
-      // The oracle walks the bind chain to WORLD, so anchors in a chest-relative frame would compare
-      // as a miss and the failure would read "the guard did not reach" rather than "these numbers are
-      // in another space".
-      for (const profile of RIG_FAMILIES) {
-        expect(
-          profile.regionAnchorSpace,
-          `${profile.rigFingerprint}: this clause measures in ${REGION_ANCHOR_SPACE}; it cannot interpret anchors in another space`,
-        ).toBe(REGION_ANCHOR_SPACE);
-      }
-
       const compile = await registeredGuard();
 
       const rlq = FOUR_TARGETS[0]!;
