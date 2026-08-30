@@ -109,6 +109,12 @@ type SkeletonProfile = {
   jointNames: readonly string[];
   /** Bind-frame joint position per sanitised bone name, metres. */
   bindFrame: Readonly<Record<string, Vec3>>;
+  /**
+   * The FK chain. Added 2026-08-30 with the reachedPoint removal: bind WORLD positions alone are
+   * insufficient for general forward kinematics, so the oracle needs parent links plus local
+   * transforms. Reviewer's words: "bind positions alone are insufficient for general FK."
+   */
+  joints: readonly FkJoint[];
 };
 
 type BodyRegionTarget = {
@@ -125,9 +131,139 @@ type GuardClip = {
   targetId: string;
   rigFingerprint: string;
   tracks: readonly GuardTrack[];
-  /** Where the driven end effector actually ended up at the guard peak, bind frame, metres. */
-  reachedPoint: Vec3;
+  /**
+   * REMOVED 2026-08-30 after two independent reviews: `reachedPoint: Vec3`.
+   *
+   * It was SELF-REPORTED. The compiler could set `reachedPoint = bodyPoint` and emit any eulers at
+   * all, and clause (1) would pass — a marker field standing in for the measurement the clause
+   * claims to make. The euler-difference counterweight only proved three constructed rigs produced
+   * different numbers, not that any of them reached anything.
+   *
+   * The endpoint is now DERIVED by the test from emitted tracks x bind frame (see `forwardKinematic`
+   * below). The oracle lives here, not in the compiler, so the compiler cannot answer its own
+   * question. A clip that still exposes reachedPoint is not read.
+   *
+   * Asked directly whether this had to stay marker-shaped until FK exists, the Codex reviewer
+   * refused the exit: "Plant the FK derivation now; implement it after M1b." Writing the RED does not
+   * require the production solver.
+   */
 };
+
+
+/**
+ * The FK oracle. Independently recovers the effector's world position from the EMITTED tracks and
+ * the bind frame, so the compiler cannot self-report reach.
+ *
+ * Deliberately NOT calling any compiler helper: an oracle sharing code with the thing it checks is
+ * two instruments with one blindness. Chain is accumulated parent-first as
+ * bindLocalQuaternion x emittedLocalRotation.
+ *
+ * The chest carries a NON-IDENTITY bind rotation on purpose. An all-identity chain lets an incorrect
+ * local/world multiplication order pass, which would make this oracle agree with a wrong compiler.
+ */
+type Quat4 = { x: number; y: number; z: number; w: number };
+
+function qMul(a: Quat4, b: Quat4): Quat4 {
+  return {
+    x: a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y,
+    y: a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x,
+    z: a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w,
+    w: a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z,
+  };
+}
+
+function qRotate(q: Quat4, v: Vec3): Vec3 {
+  const tx = 2 * (q.y * v.z - q.z * v.y);
+  const ty = 2 * (q.z * v.x - q.x * v.z);
+  const tz = 2 * (q.x * v.y - q.y * v.x);
+  return {
+    x: v.x + q.w * tx + (q.y * tz - q.z * ty),
+    y: v.y + q.w * ty + (q.z * tx - q.x * tz),
+    z: v.z + q.w * tz + (q.x * ty - q.y * tx),
+  };
+}
+
+function qConj(q: Quat4): Quat4 {
+  return { x: -q.x, y: -q.y, z: -q.z, w: q.w };
+}
+
+/** q and -q are the same rotation; normalise sign before any comparison. */
+function qNorm(q: Quat4): Quat4 {
+  return q.w < 0 ? { x: -q.x, y: -q.y, z: -q.z, w: -q.w } : q;
+}
+
+const IDENTITY_Q: Quat4 = { x: 0, y: 0, z: 0, w: 1 };
+
+type FkJoint = {
+  boneName: string;
+  parentBoneName?: string;
+  bindLocalPosition: Vec3;
+  bindLocalQuaternion: Quat4;
+};
+
+function forwardKinematic(
+  joints: readonly FkJoint[],
+  emittedLocalRotation: ReadonlyMap<string, Quat4>,
+  effectorBone: string,
+): Vec3 {
+  const byName = new Map(joints.map((j) => [j.boneName, j]));
+  const chain: FkJoint[] = [];
+  let cur = byName.get(effectorBone);
+  while (cur) {
+    chain.unshift(cur);
+    cur = cur.parentBoneName ? byName.get(cur.parentBoneName) : undefined;
+  }
+  let worldQ: Quat4 = IDENTITY_Q;
+  let worldP: Vec3 = { x: 0, y: 0, z: 0 };
+  for (const joint of chain) {
+    const offset = qRotate(worldQ, joint.bindLocalPosition);
+    worldP = { x: worldP.x + offset.x, y: worldP.y + offset.y, z: worldP.z + offset.z };
+    const local = qMul(joint.bindLocalQuaternion, emittedLocalRotation.get(joint.boneName) ?? IDENTITY_Q);
+    worldQ = qNorm(qMul(worldQ, local));
+  }
+  return worldP;
+}
+
+
+/**
+ * Recovers the effector endpoint from EMITTED euler tracks, at the frame of peak rotation.
+ *
+ * Tracks are euler triples per bone; convert to quaternions, feed the oracle. The compiler never
+ * sees this function and never supplies its answer — that is the whole point of removing
+ * reachedPoint.
+ */
+function eulerToQuat(e: Vec3): Quat4 {
+  const cx = Math.cos(e.x / 2), sx = Math.sin(e.x / 2);
+  const cy = Math.cos(e.y / 2), sy = Math.sin(e.y / 2);
+  const cz = Math.cos(e.z / 2), sz = Math.sin(e.z / 2);
+  return qNorm({
+    x: sx * cy * cz - cx * sy * sz,
+    y: cx * sy * cz + sx * cy * sz,
+    z: cx * cy * sz - sx * sy * cz,
+    w: cx * cy * cz + sx * sy * sz,
+  });
+}
+
+function derivedEffectorPoint(clip: GuardClip, profile: SkeletonProfile, effectorBone: string): Vec3 {
+  const frameCount = Math.max(0, ...clip.tracks.map((t) => t.eulerFrames.length));
+  let best: Vec3 = { x: 0, y: 0, z: 0 };
+  let bestMagnitude = -1;
+  for (let f = 0; f < frameCount; f += 1) {
+    const rot = new Map<string, Quat4>();
+    let magnitude = 0;
+    for (const track of clip.tracks) {
+      const e = track.eulerFrames[Math.min(f, track.eulerFrames.length - 1)];
+      if (!e) continue;
+      rot.set(track.boneName, eulerToQuat(e));
+      magnitude += Math.abs(e.x) + Math.abs(e.y) + Math.abs(e.z);
+    }
+    if (magnitude > bestMagnitude) {
+      bestMagnitude = magnitude;
+      best = forwardKinematic(profile.joints, rot, effectorBone);
+    }
+  }
+  return best;
+}
 
 type GuardModule = {
   compileGuardClip?: (input: {
@@ -169,9 +305,26 @@ function armProfile(
   const shoulder: Vec3 = { x: 0.18, y: 1.38, z: 0.0 };
   const elbow: Vec3 = { x: shoulder.x, y: shoulder.y - upperArmLen, z: 0.0 };
   const wrist: Vec3 = { x: elbow.x, y: elbow.y - forearmLen, z: 0.0 };
+  // NON-IDENTITY chest bind rotation: ~12 degrees about X. Codex required at least one, because an
+  // all-identity chain lets an incorrect local/world multiplication order pass and the oracle would
+  // then agree with a wrong compiler. Local positions below are expressed in the PARENT's rotated
+  // frame so the resulting world positions still equal bindFrame above.
+  const chestQ: Quat4 = { x: Math.sin(0.105), y: 0, z: 0, w: Math.cos(0.105) };
+  const sub = (a: Vec3, b: Vec3): Vec3 => ({ x: a.x - b.x, y: a.y - b.y, z: a.z - b.z });
+  const spineW: Vec3 = { x: 0.0, y: 1.05, z: 0.0 };
+  const chestW: Vec3 = { x: 0.0, y: 1.28, z: 0.0 };
+  const inChest = (w: Vec3): Vec3 => qRotate(qConj(chestQ), sub(w, chestW));
+  const joints: FkJoint[] = [
+    { boneName: names.spine, bindLocalPosition: spineW, bindLocalQuaternion: IDENTITY_Q },
+    { boneName: names.chest, parentBoneName: names.spine, bindLocalPosition: sub(chestW, spineW), bindLocalQuaternion: chestQ },
+    { boneName: names.shoulder, parentBoneName: names.chest, bindLocalPosition: inChest(shoulder), bindLocalQuaternion: IDENTITY_Q },
+    { boneName: names.elbow, parentBoneName: names.shoulder, bindLocalPosition: sub(elbow, shoulder), bindLocalQuaternion: IDENTITY_Q },
+    { boneName: names.wrist, parentBoneName: names.elbow, bindLocalPosition: sub(wrist, elbow), bindLocalQuaternion: IDENTITY_Q },
+  ];
   return {
     rigFingerprint,
     jointNames: [names.shoulder, names.elbow, names.wrist, names.spine, names.chest, names.head],
+    joints,
     bindFrame: {
       [names.shoulder]: shoulder,
       [names.elbow]: elbow,
@@ -315,7 +468,8 @@ describe("the guard primitive hits four targets on three rigs", () => {
         // The hand arrives at the region, within a tolerance scaled to THIS rig's own forearm.
         const tolerance = forearmLengthOf(profile) * REACH_TOLERANCE_AS_FOREARM_FRACTION;
         expect(
-          distance(clip.reachedPoint, rlq.bodyPoint),
+          // DERIVED from emitted tracks x bind frame, never read off the clip.
+          distance(derivedEffectorPoint(clip, profile, names.wrist), rlq.bodyPoint),
           `${profile.rigFingerprint}: hand missed ${rlq.id} by more than ${tolerance.toFixed(3)} m`,
         ).toBeLessThanOrEqual(tolerance);
       }
@@ -380,7 +534,7 @@ describe("the guard primitive hits four targets on three rigs", () => {
       expect(adHocClip.targetId).toBe(adHoc.id);
       expect(adHocClip.tracks.length).toBeGreaterThan(0);
       expect(
-        distance(adHocClip.reachedPoint, adHoc.bodyPoint),
+        distance(derivedEffectorPoint(adHocClip, ANNY_23_BONE, "handR"), adHoc.bodyPoint),
         "an undeclared target must still be reached — a per-target table cannot do this",
       ).toBeLessThanOrEqual(tolerance);
 

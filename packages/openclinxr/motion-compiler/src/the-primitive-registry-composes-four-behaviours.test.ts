@@ -98,14 +98,55 @@ interface MotionClip {
   channels: MotionChannel[];
 }
 
+/**
+ * AMENDED 2026-08-30 after two independent reviews. This was `{ seed: number; durationMs: number }`
+ * — no target, no rig, no contact window. Four fixed procedural generators satisfied the whole card.
+ *
+ * A primitive that cannot see a target cannot be the thing the canonical entry calls, so the bake
+ * card would have needed a fourth adapter or this interface would have become dead code. The
+ * keystone (the-canonical-compile-entry-orchestrates-primitives.test.ts) asserts that a primitive
+ * receives the canonical MotionAction, the SkeletonProfile and a DERIVED seed; this is the same
+ * shape, so the registry is now implementable behind that entry rather than beside it.
+ *
+ * `durationMs` is gone from the request because it lives on `action.timing.durationMs`. Two sources
+ * for one number is how they diverge.
+ */
 interface CompileRequest {
-  seed: number;
-  durationMs: number;
+  action: {
+    actionId: string;
+    primitiveId: PrimitiveId;
+    timing: { durationMs: number };
+    target: { kind: string; id?: string };
+    effector: string;
+  };
+  skeletonProfile: { rigFingerprint: string };
+  /** DERIVED, per brief section 13 — not a caller-chosen integer. String so a hash can carry it. */
+  seed: string;
 }
 
 interface MotionPrimitive {
   id: PrimitiveId;
   compile: (request: CompileRequest) => MotionClip;
+}
+
+
+/**
+ * Builds a canonical CompileRequest. Added 2026-08-30 with the interface amendment so every call
+ * site routes through one shape — the thing whose absence let three plants contract three different
+ * compile signatures.
+ */
+function canonicalRequest(id: PrimitiveId, seed: string): CompileRequest {
+  return {
+    action: {
+      actionId: `action_${id}`,
+      primitiveId: id,
+      timing: { durationMs: DURATION_MS },
+      target: { kind: "body_region", id: "guard_abdomen_rlq" },
+      effector: "handR",
+    },
+    skeletonProfile: { rigFingerprint: "rig-fp-registry-fixture" },
+    seed,
+  };
 }
 
 interface PrimitiveRegistryModule {
@@ -158,10 +199,7 @@ describe("the primitive registry composes four behaviours", () => {
       for (const id of PRIMITIVE_IDS) {
         const primitive = resolvePrimitive(id);
         expect(primitive, `registry did not resolve "${id}"`).toBeDefined();
-        const clip = (primitive as MotionPrimitive).compile({
-          seed: SEED_A,
-          durationMs: DURATION_MS,
-        });
+        const clip = (primitive as MotionPrimitive).compile(canonicalRequest(id, String(SEED_A)));
         expect(
           clip.channels.length,
           `"${id}" compiled a clip with no channels`,
@@ -208,10 +246,7 @@ describe("the primitive registry composes four behaviours", () => {
         const primitive = resolvePrimitive(id);
         expect(primitive, `registry did not resolve "${id}"`).toBeDefined();
         const compile = (seed: number) =>
-          (primitive as MotionPrimitive).compile({
-            seed,
-            durationMs: DURATION_MS,
-          });
+          (primitive as MotionPrimitive).compile(canonicalRequest(id, String(seed)));
 
         // HALF ONE — reproducibility. Satisfied trivially by a constant
         // function; necessary but never sufficient.
