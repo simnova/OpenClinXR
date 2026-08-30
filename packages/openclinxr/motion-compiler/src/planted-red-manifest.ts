@@ -190,6 +190,30 @@ export const PLANTED_REDS: readonly PlantedRed[] = [
     expected: /compile-motion-program\.js must export compileMotionProgram/,
     stage: "assertion",
   },
+  {
+    file: "the-seed-is-derived-from-five-case-inputs.test.ts",
+    select: "(1) RED: the same five inputs yield the same seed — a pure function, not a call to a clock",
+    expected: /Cannot find module .*trajectory\/deterministic-variation\.js/,
+    stage: "module_absent",
+  },
+  {
+    file: "the-seed-is-derived-from-five-case-inputs.test.ts",
+    select: "(2) RED: independently changing EACH input changes the seed — including only skeletonProfileHash",
+    expected: /Cannot find module .*trajectory\/deterministic-variation\.js/,
+    stage: "module_absent",
+  },
+  {
+    file: "the-seed-is-derived-from-five-case-inputs.test.ts",
+    select: "(3) RED: wall-clock and random values are REFUSED, never coerced",
+    expected: /Cannot find module .*trajectory\/deterministic-variation\.js/,
+    stage: "module_absent",
+  },
+  {
+    file: "the-seed-is-derived-from-five-case-inputs.test.ts",
+    select: "(4) RED: the SAME derived string reaches the program, every primitive and the compiled clip",
+    expected: /Cannot find module .*trajectory\/deterministic-variation\.js/,
+    stage: "module_absent",
+  },
 ];
 
 /**
