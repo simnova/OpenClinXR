@@ -143,7 +143,39 @@ type MotionAction = {
   intensity: number;
   target: MotionActionTarget;
   effector: (typeof EFFECTORS)[number];
-  constraints: unknown[];
+  /**
+   * TYPED, not `unknown[]` — amended 2026-08-30 after two independent reviews.
+   *
+   * As `unknown[]` this field let the M1 worker INVENT constraint kinds on day one, and the contacts
+   * card is sequenced after M1 on purpose. That is the right order for the SOLVER and the wrong order
+   * for the IR: whatever shape appears here first becomes the architecture every later card codes
+   * against, and ContactConstraint would then be a retrofit across MotionAction, the compile request,
+   * trajectory phases, solver output and evidence input.
+   *
+   * ContactConstraint belongs in the IR NOW even though contact SOLVING lands later. Declaring the
+   * type costs nothing and closes the invention window.
+   */
+  constraints: MotionConstraint[];
+};
+
+/**
+ * The closed constraint union. Brief section 14 gives ContactConstraint in full; it is the only
+ * member the first milestone needs, and a closed union is what stops a worker adding a sixth kind
+ * silently. Extending it is a deliberate edit, which is the point.
+ */
+type MotionConstraint = ContactConstraint;
+
+/** Brief section 14, verbatim shape. Contacts DEFINE guard/clutch/reach; they are not a later validator. */
+type ContactConstraint = {
+  kind: "contact";
+  effector: (typeof EFFECTORS)[number];
+  target: MotionActionTarget;
+  positionToleranceMeters: number;
+  orientationToleranceRadians?: number;
+  startFraction: number;
+  endFraction: number;
+  penetrationToleranceMeters?: number;
+  preserveWhileActive: boolean;
 };
 
 type MotionProgram = {

@@ -100,6 +100,21 @@ import { edChestPainScenario } from "../../scenario-fixtures/src/ed-chest-pain.j
  *   clinically valid; that the critic's findings are correct; the runtime that consumes a validated
  *   program; or how a genuine human review is captured.
  *   claimBoundary: motion_plan_not_animation_or_clinical_validity_evidence
+ * ## ONE IR, ONE DIALECT — amended 2026-08-30 after two independent reviews
+ *
+ * This plant originally used schemaVersion "motion-program.v1" and primitiveId "guard_withdraw",
+ * while the sibling planner plant (the-planner-emits-a-validated-motion-program.test.ts:268,290)
+ * requires "openclinxr.motion-program.v1" and "guard_body_region".
+ *
+ * ONE `validateMotionProgram` COULD HAVE SATISFIED BOTH BY ACCEPTING TWO DIALECTS. That is a cheap
+ * pass spanning two plants: neither test can see the other's vocabulary, so neither counterweight
+ * catches it, and the implementation that clears both is the wrong one. Found by a Grok orchestrator
+ * reading the committed REDs, independently confirmed by a Codex reviewer against the tree; I had
+ * reviewed the card graph three times and never compared the plants to each other.
+ *
+ * A worker implements the RED, not the card prose. Cards that agree while their plants disagree
+ * describe an architecture nobody is building.
+ *
  */
 
 const CLAIM_BOUNDARY = "motion_plan_not_animation_or_clinical_validity_evidence";
@@ -175,7 +190,7 @@ async function loadRegionVocabulary(): Promise<{
  */
 function plannerProgram(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
-    schemaVersion: "motion-program.v1",
+    schemaVersion: "openclinxr.motion-program.v1",
     scenarioId: edChestPainScenario.scenarioId,
     actorId: "patient_robert_hayes_v1",
     provenance: { sourceKind: "llm_proposal", sourceRefs: [edChestPainScenario.scenarioId] },
@@ -183,7 +198,7 @@ function plannerProgram(overrides: Record<string, unknown> = {}): Record<string,
     actions: [
       {
         actionId: "guard_chest_v1",
-        primitiveId: "guard_withdraw",
+        primitiveId: "guard_body_region",
         trigger: { kind: "clinical_touch", ref: "clinical_touch_guard_chest_l" },
         timing: { durationMs: 900 },
         intensity: 0.6,
@@ -217,7 +232,7 @@ describe("the llm planner cannot emit bone tracks", () => {
         actions: [
           {
             actionId: "guard_chest_v1",
-            primitiveId: "guard_withdraw",
+            primitiveId: "guard_body_region",
             trigger: { kind: "clinical_touch", ref: "clinical_touch_guard_chest_l" },
             timing: { durationMs: 900 },
             intensity: 0.6,
@@ -268,7 +283,7 @@ describe("the llm planner cannot emit bone tracks", () => {
         actions: [
           {
             actionId: "withdraw_ankle_v1",
-            primitiveId: "guard_withdraw",
+            primitiveId: "guard_body_region",
             trigger: { kind: "clinical_touch", ref: "clinical_touch_guard_chest_l" },
             timing: { durationMs: 900 },
             intensity: 0.6,
@@ -310,7 +325,7 @@ describe("the llm planner cannot emit bone tracks", () => {
 
     const validAction = {
       actionId: "guard_chest_v1",
-      primitiveId: "guard_withdraw",
+      primitiveId: "guard_body_region",
       trigger: { kind: "clinical_touch", ref: "clinical_touch_guard_chest_l" },
       timing: { durationMs: 900 },
       intensity: 0.6,
