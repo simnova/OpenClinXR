@@ -199,6 +199,29 @@ function isSignCanonical(q: readonly number[]): boolean {
 }
 
 /**
+ * WHAT A PRIMITIVE IS HANDED. One declaration, imported everywhere.
+ *
+ * There were THREE of these, and they disagreed. The keystone and the seam plant said
+ * `skeletonProfile: unknown`; M4 said `{ rigFingerprint: string }`. A worker implementing M4 writes
+ * a primitive that can see a fingerprint and not the joints, bind transforms or effectorBone that
+ * IK actually needs — which recreates the adapter seam one layer below the canonical entry. The
+ * keystone's own comment records that this same field was narrowed twice before anyone noticed.
+ *
+ * `action` and `skeletonProfile` are `unknown` DELIBERATELY. Naming their fields here would make
+ * this a second definition of the IR competing with the one the program carries, and a compiler that
+ * forwards only the named projection would satisfy every consumer's type while losing contacts,
+ * timing and geometry. The keystone asserts DEEP EQUALITY against the program's own action and the
+ * supplied profile, so the IR stays the single definition and the projection is caught by value
+ * rather than by type.
+ */
+export type PrimitiveRequest = {
+  action: unknown;
+  skeletonProfile: unknown;
+  /** DERIVED, per brief section 13 — never a caller-chosen integer. A string so a hash can carry it. */
+  seed: string;
+};
+
+/**
  * Deterministic serialisation order: two identical compiles must produce byte-identical output.
  */
 export function trackOrderKeys(tracks: readonly CompiledMotionTrack[]): string[] {

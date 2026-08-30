@@ -3,6 +3,8 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
+import type { PrimitiveRequest } from "./canonical-motion-contract.js";
+
 /**
  * ============================ DIAGNOSIS (IMMUTABLE) ============================
  *
@@ -99,33 +101,17 @@ interface MotionClip {
 }
 
 /**
- * AMENDED 2026-08-30 after two independent reviews. This was `{ seed: number; durationMs: number }`
- * — no target, no rig, no contact window. Four fixed procedural generators satisfied the whole card.
- *
- * A primitive that cannot see a target cannot be the thing the canonical entry calls, so the bake
- * card would have needed a fourth adapter or this interface would have become dead code. The
- * keystone (the-canonical-compile-entry-orchestrates-primitives.test.ts) asserts that a primitive
- * receives the canonical MotionAction, the SkeletonProfile and a DERIVED seed; this is the same
- * shape, so the registry is now implementable behind that entry rather than beside it.
+ * THE PRIMITIVE REQUEST IS IMPORTED, not redeclared. Amended 2026-08-30 after two reviewers found
+ * the same generator: this file declared `CompileRequest` with `skeletonProfile: { rigFingerprint }`
+ * while the keystone declared `PrimitiveRequest` with `skeletonProfile: unknown`. Property names
+ * agreed and the shapes did not, so a worker here would have built a primitive blind to the joints
+ * and bind transforms M2's IK needs — the adapter defect the canonical entry exists to prevent, one
+ * layer down, exactly where the last two instances were found.
  *
  * `durationMs` is gone from the request because it lives on `action.timing.durationMs`. Two sources
  * for one number is how they diverge.
  */
-interface CompileRequest {
-  /**
-   * The COMPLETE canonical MotionAction, not a redeclaration of it.
-   *
-   * AMENDED again 2026-08-30: the first amendment named the fields, which was still a narrowed
-   * shape — trigger, intensity and constraints were absent, so a registry could discard contacts and
-   * timing and satisfy the clause. Restating a type in a second place is how the two drift; the
-   * keystone asserts deep equality against the program's own action, so the IR stays the single
-   * definition and this stays `unknown`.
-   */
-  action: unknown;
-  skeletonProfile: { rigFingerprint: string };
-  /** DERIVED, per brief section 13 — not a caller-chosen integer. String so a hash can carry it. */
-  seed: string;
-}
+type CompileRequest = PrimitiveRequest;
 
 interface MotionPrimitive {
   id: PrimitiveId;
@@ -164,7 +150,19 @@ function canonicalRequest(id: PrimitiveId, seed: string): CompileRequest {
         },
       ],
     },
-    skeletonProfile: { rigFingerprint: "rig-fp-registry-fixture" },
+    // A COMPLETE profile, for the same reason as the action above. When this fixture was
+    // `{ rigFingerprint }` alone it taught the registry that a fingerprint is a profile, which is
+    // precisely the projection the narrowed `CompileRequest` used to permit at the type level.
+    // A primitive that needs joints and bind transforms must find them here.
+    skeletonProfile: {
+      rigFingerprint: "rig-fp-registry-fixture",
+      effectorBone: "handR",
+      joints: [
+        { boneName: "upper_armR", bindLocalPosition: { x: 0.18, y: 1.38, z: 0 }, bindLocalQuaternion: { x: 0, y: 0, z: 0, w: 1 } },
+        { boneName: "forearmR", parentBoneName: "upper_armR", bindLocalPosition: { x: 0, y: -0.28, z: 0 }, bindLocalQuaternion: { x: 0, y: 0, z: 0, w: 1 } },
+        { boneName: "handR", parentBoneName: "forearmR", bindLocalPosition: { x: 0, y: -0.26, z: 0 }, bindLocalQuaternion: { x: 0, y: 0, z: 0, w: 1 } },
+      ],
+    },
     seed,
   };
 }

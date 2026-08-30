@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 // the compiler must not.
 import { scenarioBank } from "../../scenario-fixtures/src/scenario-bank.js";
 
-import type { CompiledMotionTrack, QuatTuple } from "./canonical-motion-contract.js";
+import type { CompiledMotionTrack, PrimitiveRequest, QuatTuple } from "./canonical-motion-contract.js";
 
 /**
  * **OBSERVABLE: nothing connects the clip a case ASKS FOR to the clip the factory can PRODUCE.**
@@ -43,6 +43,7 @@ import type { CompiledMotionTrack, QuatTuple } from "./canonical-motion-contract
 
 const PROGRAM_SCHEMA = "openclinxr.motion-program.v1";
 const ENTRY_MODULE = "./compile-motion-program.js";
+const REGION_MODULE = "./motion-body-region.js";
 /**
  * The resolver is read through the package INDEX, as a plain literal import.
  *
@@ -57,12 +58,29 @@ const ENTRY_MODULE = "./compile-motion-program.js";
  */
 const RESOLVER_MODULE = "../../scenario-fixtures/src/index.js";
 
-/** The region the one clip that has actually been produced was authored for. */
+/**
+ * TWO VOCABULARIES, HELD APART ON PURPOSE — corrected 2026-08-30 after this file was found erasing
+ * the boundary M1 clause 2 exists to establish.
+ *
+ * As first written, this plant built `target: { kind: "body_region", id: "abdomen_rlq" }` — a raw
+ * ComplianceRegion as a MotionAction target. M1 clause 2 forbids exactly that: ComplianceRegion is
+ * where the learner PRESSED, MotionBodyRegion is what the actor's body DOES, and the day they merge
+ * every new touch site silently becomes a motion target. A correct M1 implementation would have
+ * REJECTED this plant's program, and the contradiction landed after an external review had passed
+ * the file. Both reviewers had predicted this collision class in the abstract.
+ *
+ * So the seam now carries both identities and never conflates them:
+ *
+ *     compliance region  ->  selects the bank row, and the requested clip id
+ *     motionBodyRegionForComplianceRegion(compliance)  ->  the MotionAction target
+ *     compiled clipId    ->  must still equal the bank/resolver clip identity
+ *
+ * The mapper is the hop, and requiring it here means the seam cannot be satisfied by a compiler that
+ * quietly accepts touch-site strings as motion targets.
+ */
 const SHIPPED_REGION = "abdomen_rlq";
 /** A second authored region, so agreement cannot be met by a constant. */
 const CONTRAST_REGION = "chest_L";
-
-type PrimitiveRequest = { action: unknown; skeletonProfile: unknown; seed: string };
 
 type CompiledClip = { clipId: string; tracks: CompiledMotionTrack[] };
 
@@ -77,6 +95,15 @@ async function loadEntry(): Promise<
   try {
     const mod = (await import(/* @vite-ignore */ ENTRY_MODULE)) as Record<string, unknown>;
     return mod["compileMotionProgram"] as never;
+  } catch {
+    return undefined;
+  }
+}
+
+async function loadRegionMapper(): Promise<((region: string) => string) | undefined> {
+  try {
+    const mod = (await import(/* @vite-ignore */ REGION_MODULE)) as Record<string, unknown>;
+    return mod["motionBodyRegionForComplianceRegion"] as ((region: string) => string) | undefined;
   } catch {
     return undefined;
   }
@@ -111,20 +138,21 @@ const PROFILE = {
   ],
 };
 
-function guardAction(region: string) {
+function guardAction(motionRegion: string) {
   return {
-    actionId: `guard_${region}`,
+    actionId: `guard_${motionRegion}`,
     primitiveId: "guard_body_region",
-    trigger: { kind: "clinical_touch", ref: `clinical_touch_${region}` },
+    trigger: { kind: "clinical_touch", ref: `clinical_touch_${motionRegion}` },
     timing: { durationMs: 900 },
     intensity: 0.6,
-    target: { kind: "body_region", id: region },
+    // A MOTION region, never a ComplianceRegion. The caller applies the mapper.
+    target: { kind: "body_region", id: motionRegion },
     effector: "handR",
     constraints: [
       {
         kind: "contact",
         effector: "handR",
-        target: { kind: "body_region", id: region },
+        target: { kind: "body_region", id: motionRegion },
         positionToleranceMeters: 0.03,
         startFraction: 0.4,
         endFraction: 0.72,
@@ -135,14 +163,16 @@ function guardAction(region: string) {
   };
 }
 
-function programFor(region: string) {
+function programFor(motionRegion: string, complianceRegion: string) {
   return {
     schemaVersion: PROGRAM_SCHEMA,
     scenarioId: "ed_chest_pain_priority_v1",
     actorId: "patient_robert_hayes_v1",
     baseline: { posture: "seated" },
-    actions: [guardAction(region)],
-    provenance: { sourceKind: "deterministic_plan", sourceRefs: [`touch:${region}`] },
+    actions: [guardAction(motionRegion)],
+    // Provenance carries the COMPLIANCE region, because that is what the case authored and what a
+    // reviewer traces back to. The action carries the MOTION region. Both, separately, on purpose.
+    provenance: { sourceKind: "deterministic_plan", sourceRefs: [`touch:${complianceRegion}`] },
   };
 }
 
@@ -173,8 +203,14 @@ describe("the resolved clip id is what the compiler produces", () => {
     const compileMotionProgram = await loadEntry();
     expect(typeof compileMotionProgram, `${ENTRY_MODULE} must export compileMotionProgram`).toBe("function");
 
+    const toMotionRegion = await loadRegionMapper();
+    expect(
+      typeof toMotionRegion,
+      `${REGION_MODULE} must export motionBodyRegionForComplianceRegion (M1 clause 2) — it does not exist yet`,
+    ).toBe("function");
+
     const seen: PrimitiveRequest[] = [];
-    const input = programFor(SHIPPED_REGION);
+    const input = programFor(toMotionRegion!(SHIPPED_REGION), SHIPPED_REGION);
     const expectedAction = structuredClone(input.actions[0]);
     const clip = compileMotionProgram!({
       program: input,
@@ -200,12 +236,27 @@ describe("the resolved clip id is what the compiler produces", () => {
       `${RESOLVER_MODULE} must export responseClipForBodyRegion (card tsk_ae6a9530ba63a68b) — it does not exist yet`,
     ).toBe("function");
 
-    const compiled = (region: string): string =>
+    const toMotionRegion = await loadRegionMapper();
+    expect(
+      typeof toMotionRegion,
+      `${REGION_MODULE} must export motionBodyRegionForComplianceRegion (M1 clause 2) — it does not exist yet`,
+    ).toBe("function");
+
+    // THE HOP IS EXPLICIT. `compiled` takes a COMPLIANCE region, maps it, and compiles the motion
+    // target — so a compiler that accepts touch-site strings directly never gets exercised here.
+    const compiled = (complianceRegion: string): string =>
       compileMotionProgram!({
-        program: programFor(region),
+        program: programFor(toMotionRegion!(complianceRegion), complianceRegion),
         skeletonProfile: structuredClone(PROFILE),
         primitives: recordingPrimitives([]),
       }).clipId;
+
+    // The mapper must not be an identity function dressed as a boundary: a 1:1 passthrough leaves
+    // the two vocabularies merged, which is the rename M1 clause 2 already refuses.
+    expect(
+      toMotionRegion!(SHIPPED_REGION),
+      `motionBodyRegionForComplianceRegion returned the ComplianceRegion unchanged — that is a shared vocabulary wearing two names`,
+    ).not.toBe(SHIPPED_REGION);
 
     for (const region of [SHIPPED_REGION, CONTRAST_REGION]) {
       // (a) The bank must still author exactly one clip for the region — the routing card's own

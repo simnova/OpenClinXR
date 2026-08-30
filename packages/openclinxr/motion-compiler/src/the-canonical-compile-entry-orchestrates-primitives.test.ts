@@ -3,6 +3,7 @@ import {
   trackOrderKeys,
   violationsInTracks,
   type CompiledMotionTrack,
+  type PrimitiveRequest,
   type QuatTuple as Quat,
   type Vec3Tuple as Vec3,
 } from "./canonical-motion-contract.js";
@@ -74,27 +75,6 @@ type CompiledMotionClipV1 = {
   notEvidenceFor: readonly string[];
 };
 
-/**
- * What a primitive receives. NOT {seed, durationMs}, and NOT a narrowed projection either.
- *
- * AMENDED 2026-08-30: `action` was `{actionId, primitiveId, target, effector}` — a redeclaration
- * that silently dropped trigger, timing, intensity and constraints. A compiler could discard
- * contacts and timing and still satisfy the clause, which is the same narrowing defect one level in.
- * The reviewer's phrase: "full-action preservation belongs in the keystone."
- *
- * `action: unknown` on purpose. Naming the fields here would re-narrow it; the clause asserts DEEP
- * EQUALITY against the program's own action instead, so the IR is the single definition.
- */
-type PrimitiveRequest = {
-  action: unknown;
-  /**
-   * `unknown` for the SAME reason as `action`, and I narrowed this one twice before noticing.
-   * `{ rigFingerprint }` let a compiler forward only that projection while the primitive needs
-   * joints, bind transforms and effectorBone. Deep equality against the supplied profile below.
-   */
-  skeletonProfile: unknown;
-  seed: string;
-};
 
 const MODULE = "./compile-motion-program.js";
 
