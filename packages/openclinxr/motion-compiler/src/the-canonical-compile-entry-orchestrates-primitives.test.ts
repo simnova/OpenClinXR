@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  MOTION_REGION_GUARD_CHEST_L,
-  MOTION_REGION_GUARD_RLQ,
+MOTION_REGION_GUARD_CHEST_L,  MOTION_REGION_GUARD_RLQ,  REGION_ANCHOR_SPACE,
 } from "./plant-motion-regions.js";
 
 import { planted } from "./planted.js";
@@ -164,9 +163,18 @@ const PROFILE = {
    * the plants that need it. That is the half-closed seam this file exists to prevent — present on
    * one side, invisible on the other.
    *
-   * With it here, the immutability and deep-equality assertions cover it, so the field is required by
-   * construction rather than by convention.
+   * WHAT THIS DOES AND DOES NOT BUY, stated precisely because the first wording overclaimed. It
+   * proves `regionAnchors` is NON-DROPPABLE across the canonical compile seam WHEN SUPPLIED: the
+   * complete profile reaches the primitive unchanged, a projection fails, a mutation is detected. It
+   * does NOT prove the field is structurally required, that a real profile producer supplies it, or
+   * that the primitive READS it.
+   *
+   * That division is deliberate. This file proves FORWARDING; M2 proves CONSUMPTION by moving an
+   * anchor on the rig and requiring the motion to follow. Structural production and real-asset
+   * derivation are owned upstream of M2. Making this file redeclare a tight `SkeletonProfile` to
+   * strengthen the wording would recreate the parallel-definition defect it already fixed twice.
    */
+  regionAnchorSpace: REGION_ANCHOR_SPACE,
   regionAnchors: {
     [MOTION_REGION_GUARD_RLQ]: { x: 0.10, y: 0.94, z: 0.14 },
     [MOTION_REGION_GUARD_CHEST_L]: { x: 0.24, y: 1.10, z: 0.10 },

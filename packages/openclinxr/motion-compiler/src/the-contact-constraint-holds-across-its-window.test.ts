@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  MOTION_REGION_GUARD_CHEST_L,
-  MOTION_REGION_GUARD_RLQ,
+MOTION_REGION_GUARD_CHEST_L,  MOTION_REGION_GUARD_RLQ,  REGION_ANCHOR_SPACE,
 } from "./plant-motion-regions.js";
 
 import { planted } from "./planted.js";
@@ -159,6 +158,7 @@ const PROFILE = {
   rigFingerprint: "rig-fp-contact-fixture",
   effectorBone: "handR",
   joints: JOINTS,
+  regionAnchorSpace: REGION_ANCHOR_SPACE,
   regionAnchors: {
     [MOTION_REGION_GUARD_RLQ]: CONTACT_POINT,
     [MOTION_REGION_GUARD_CHEST_L]: RELEASE_POINT,

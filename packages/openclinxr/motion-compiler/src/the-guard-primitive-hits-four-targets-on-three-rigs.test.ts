@@ -10,6 +10,8 @@ import {
   MOTION_REGION_GUARD_FLANK_R,
   MOTION_REGION_GUARD_LUQ,
   MOTION_REGION_GUARD_RLQ,
+  REGION_ANCHOR_SPACE,
+  type RegionAnchorSpace,
 } from "./plant-motion-regions.js";
 
 import { planted } from "./planted.js";
@@ -171,6 +173,16 @@ type SkeletonProfile = {
    * The oracle reads this from the UNTOUCHED original fixture while the primitive receives a clone.
    */
   regionAnchors: Readonly<Record<string, Vec3>>;
+  /**
+   * WHICH SPACE those anchors are in, carried WITH them.
+   *
+   * Added 2026-08-30 on review. The space was named in a constant beside the fixtures and referenced
+   * only in prose, which is a marker check: a worker could read the numbers as chest-relative, leave
+   * the constant unused, and satisfy every shape. `rotationAbsoluteNodeLocal` puts the meaning in the
+   * field name; this does the same for positions, and clause (1) REFUSES a space it does not
+   * implement before it measures anything.
+   */
+  regionAnchorSpace: RegionAnchorSpace;
 };
 
 
@@ -429,6 +441,7 @@ function armProfile(
     jointNames: [names.shoulder, names.elbow, names.wrist, names.spine, names.chest, names.head],
     joints,
     effectorBone: names.wrist,
+    regionAnchorSpace: REGION_ANCHOR_SPACE,
     regionAnchors: {
       [MOTION_REGION_GUARD_RLQ]: anchor(-0.18, -0.70, 0.22),
       [MOTION_REGION_GUARD_LUQ]: anchor(-0.48, -0.48, 0.22),
@@ -640,6 +653,21 @@ describe("the guard primitive hits four targets on three rigs", () => {
   planted(
     "(1) guard_body_region resolves one target on THREE rig families through the bind frame, not a per-rig euler table",
     async () => {
+      // FIXTURE INTEGRITY FIRST, before the module under test is even loaded. This is a property of
+      // the rigs this clause measures against, not of the guard, so gating it behind module absence
+      // would leave it unprobed for as long as the RED is red — which is exactly how M1's clauses
+      // spent a day failing on a path bug nobody could see.
+      //
+      // The oracle walks the bind chain to WORLD, so anchors in a chest-relative frame would compare
+      // as a miss and the failure would read "the guard did not reach" rather than "these numbers are
+      // in another space".
+      for (const profile of RIG_FAMILIES) {
+        expect(
+          profile.regionAnchorSpace,
+          `${profile.rigFingerprint}: this clause measures in ${REGION_ANCHOR_SPACE}; it cannot interpret anchors in another space`,
+        ).toBe(REGION_ANCHOR_SPACE);
+      }
+
       const compile = await registeredGuard();
 
       const rlq = FOUR_TARGETS[0]!;
