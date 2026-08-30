@@ -198,6 +198,19 @@ type MotionCompiler = {
 };
 
 /**
+ * Resolve a plant's module specifier to an ABSOLUTE url before the deferred import.
+ *
+ * Added 2026-08-30. A bare `./x.js` in a path VARIABLE under `@vite-ignore` is resolved natively, and
+ * when the module is absent the native resolver reports the MANGLED path — `/src/motion-program.js`,
+ * `/scenario-fixtures/src/...` — which reads as a broken test rather than as the missing module the
+ * RED is demanding. One instance of this had M1's clauses (1) and (2) failing on a fixture path bug
+ * instead of on the absent planner, since d1ad5063, invisibly, because `it.fails` hides the reason.
+ */
+function plantModule(specifier: string): string {
+  return new URL(specifier, import.meta.url).href;
+}
+
+/**
  * Load the module under test. The specifiers are held in variables so this file COLLECTS cleanly
  * while the module is absent — a static import would crash the whole file and take clause (3),
  * which must pass on arrival, down with it. The failure raised here is a module-resolution failure,
@@ -208,9 +221,9 @@ async function loadMotionCompiler(): Promise<MotionCompiler> {
   const regionSpecifier = "./motion-body-region.js";
   const plannerSpecifier = "./deterministic-scenario-motion-planner.js";
   const [program, region, planner] = await Promise.all([
-    import(/* @vite-ignore */ programSpecifier),
-    import(/* @vite-ignore */ regionSpecifier),
-    import(/* @vite-ignore */ plannerSpecifier),
+    import(/* @vite-ignore */ plantModule(programSpecifier)),
+    import(/* @vite-ignore */ plantModule(regionSpecifier)),
+    import(/* @vite-ignore */ plantModule(plannerSpecifier)),
   ]);
   return {
     planMotionProgram: (program as Record<string, unknown>)["planMotionProgram"] as MotionCompiler["planMotionProgram"] ??
@@ -243,9 +256,22 @@ type TouchResponseRow = {
  * `import type`, so vitest transpiles it with no external resolution and this is a real read of the
  * case object the factory consumes — not a restatement of it in this file.
  */
+/**
+ * FIXED 2026-08-30. This read `../../scenario-fixtures/src/adult-abdominal-pain.ts` through a path
+ * VARIABLE with `@vite-ignore`, which is resolved natively — and a native resolve of `../../` from
+ * this file mangles to `/scenario-fixtures/...` and throws `Cannot find module`.
+ *
+ * The cost was not cosmetic. This helper runs on the FIRST line of clauses (1) and (2), before the
+ * module under test is loaded, so both clauses have been failing on a broken fixture path rather
+ * than on the absent planner they exist to demand. They were red for the wrong reason since d1ad5063,
+ * and `it.fails` hides the reason, so nothing said so.
+ *
+ * The same bug bit the seam plant a day earlier and was fixed there. This is its sibling, found only
+ * because a new clause in this file surfaced the message. A plain literal import is transformed by
+ * vitest and resolves correctly.
+ */
 async function shippedGuardingRow(): Promise<{ scenarioId: string; actorId: string; row: TouchResponseRow }> {
-  const fixtureSpecifier = "../../scenario-fixtures/src/adult-abdominal-pain.ts";
-  const mod = (await import(/* @vite-ignore */ fixtureSpecifier)) as Record<string, unknown>;
+  const mod = (await import("../../scenario-fixtures/src/adult-abdominal-pain.js")) as Record<string, unknown>;
   const scenario = mod["adultAbdominalPainScenario"] as {
     scenarioId: string;
     actors: { actorId: string; bodyMechanics?: { touchResponses?: TouchResponseRow[] } }[];
@@ -401,6 +427,50 @@ describe("the planner emits a validated motion program", () => {
    * make it red. It goes red if a later change collapses the two vocabularies back together by
    * pushing motion or skeleton terms into the clinical touch vocabulary.
    */
+  it.fails(
+    "(2b) RED: the support surface DERIVES the baseline posture — chair seats, stretcher lies down",
+    async () => {
+      // Added 2026-08-30. Clause (1) asserted only that `baseline.posture` is one of
+      // standing|seated|supine, which a planner returning the constant "seated" satisfies forever.
+      // Brief section 4 makes the derivation the deterministic planner's actual job, and the card
+      // claims it; nothing asserted it. Found by external review, confirmed by a second reviewer as
+      // a blocker for M1 as scoped.
+      //
+      // MEASURED FIRST, and it shapes the clause: `supportSurface` exists on the schema
+      // (shared-schemas/src/schemas.ts:160, stretcher|chair|none) and is authored on NONE of the 14
+      // bank scenarios — the schema's own header says so. So this cannot read the bank; it feeds the
+      // planner a placement directly, which is the right shape anyway because the planner is a pure
+      // function of its input.
+      //
+      // THE PLANNER INPUT GAINS `placement`. That is an API consequence of the clause and it is
+      // deliberate: without it the derivation has nowhere to come from, and a planner that ignores
+      // an input it was handed fails the moved-input counterweight below.
+      const { scenarioId, actorId, row } = await shippedGuardingRow();
+      const { planMotionProgram } = await loadMotionCompiler();
+
+      const plan = (supportSurface: string): MotionProgram =>
+        planMotionProgram({ scenarioId, actorId, touchResponses: [row], placement: { supportSurface } });
+
+      // The two derivations brief section 4 names. Not a menu — these are the mappings.
+      expect(plan("chair").baseline.posture, "a chair seats the actor").toBe("seated");
+      expect(plan("stretcher").baseline.posture, "a stretcher lies the actor down").toBe("supine");
+
+      // MOVED-INPUT COUNTERWEIGHT. A constant satisfies either line above on its own; it cannot
+      // satisfy both, and this states the mechanism rather than the coincidence.
+      expect(
+        plan("chair").baseline.posture,
+        "chair and stretcher produced the same posture — the planner is not reading supportSurface",
+      ).not.toBe(plan("stretcher").baseline.posture);
+
+      // `none` must still produce a valid posture rather than throwing or emitting undefined: the
+      // 14 shipped scenarios author no placement at all, so this is the path they take today.
+      expect(
+        ["standing", "seated", "supine"],
+        "an unsupported actor must still get a posture — every shipped case takes this path",
+      ).toContain(plan("none").baseline.posture);
+    },
+  );
+
   it("the clinical touch vocabulary stays ten clinical sites and admits no effector or bone-track name", () => {
     const schemas = join(REPO_ROOT, "packages/openclinxr/shared-schemas/src/schemas.ts");
     const declared = declaredUnionMembers(schemas, "ComplianceRegionSchema");

@@ -84,6 +84,19 @@ const CONTRAST_REGION = "chest_L";
 
 type CompiledClip = { clipId: string; tracks: CompiledMotionTrack[] };
 
+/**
+ * Resolve a plant's module specifier to an ABSOLUTE url before the deferred import.
+ *
+ * Added 2026-08-30. A bare `./x.js` in a path VARIABLE under `@vite-ignore` is resolved natively, and
+ * when the module is absent the native resolver reports the MANGLED path — `/src/motion-program.js`,
+ * `/scenario-fixtures/src/...` — which reads as a broken test rather than as the missing module the
+ * RED is demanding. One instance of this had M1's clauses (1) and (2) failing on a fixture path bug
+ * instead of on the absent planner, since d1ad5063, invisibly, because `it.fails` hides the reason.
+ */
+function plantModule(specifier: string): string {
+  return new URL(specifier, import.meta.url).href;
+}
+
 async function loadEntry(): Promise<
   | ((input: {
       program: unknown;
@@ -93,7 +106,7 @@ async function loadEntry(): Promise<
   | undefined
 > {
   try {
-    const mod = (await import(/* @vite-ignore */ ENTRY_MODULE)) as Record<string, unknown>;
+    const mod = (await import(/* @vite-ignore */ plantModule(ENTRY_MODULE))) as Record<string, unknown>;
     return mod["compileMotionProgram"] as never;
   } catch {
     return undefined;
@@ -102,7 +115,7 @@ async function loadEntry(): Promise<
 
 async function loadRegionMapper(): Promise<((region: string) => string) | undefined> {
   try {
-    const mod = (await import(/* @vite-ignore */ REGION_MODULE)) as Record<string, unknown>;
+    const mod = (await import(/* @vite-ignore */ plantModule(REGION_MODULE))) as Record<string, unknown>;
     return mod["motionBodyRegionForComplianceRegion"] as ((region: string) => string) | undefined;
   } catch {
     return undefined;

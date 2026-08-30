@@ -78,6 +78,19 @@ type CompiledMotionClipV1 = {
 
 const MODULE = "./compile-motion-program.js";
 
+/**
+ * Resolve a plant's module specifier to an ABSOLUTE url before the deferred import.
+ *
+ * Added 2026-08-30. A bare `./x.js` in a path VARIABLE under `@vite-ignore` is resolved natively, and
+ * when the module is absent the native resolver reports the MANGLED path — `/src/motion-program.js`,
+ * `/scenario-fixtures/src/...` — which reads as a broken test rather than as the missing module the
+ * RED is demanding. One instance of this had M1's clauses (1) and (2) failing on a fixture path bug
+ * instead of on the absent planner, since d1ad5063, invisibly, because `it.fails` hides the reason.
+ */
+function plantModule(specifier: string): string {
+  return new URL(specifier, import.meta.url).href;
+}
+
 async function loadEntry(): Promise<{
   compileMotionProgram: (input: {
     program: unknown;
@@ -85,7 +98,7 @@ async function loadEntry(): Promise<{
     primitives?: Record<string, (r: PrimitiveRequest) => { actionId: string; tracks: CompiledMotionTrack[] }>;
   }) => CompiledMotionClipV1;
 }> {
-  const mod = (await import(/* @vite-ignore */ MODULE)) as Record<string, unknown>;
+  const mod = (await import(/* @vite-ignore */ plantModule(MODULE))) as Record<string, unknown>;
   return { compileMotionProgram: mod["compileMotionProgram"] as never };
 }
 

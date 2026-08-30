@@ -120,6 +120,17 @@ interface MotionPrimitive {
 
 
 /**
+ * Resolve to an ABSOLUTE url before the deferred import. A bare `./x.js` held in a variable is
+ * resolved natively, and when the module is absent the native resolver reports a MANGLED path —
+ * `/src/primitive-registry.js` — which reads as a broken test rather than the missing module this
+ * RED is demanding. See the same note in the sibling plants; one instance of this had M1 red for the
+ * wrong reason since d1ad5063.
+ */
+function plantModule(specifier: string): string {
+  return new URL(specifier, import.meta.url).href;
+}
+
+/**
  * Builds a canonical CompileRequest. Added 2026-08-30 with the interface amendment so every call
  * site routes through one shape — the thing whose absence let three plants contract three different
  * compile signatures.
@@ -177,10 +188,10 @@ interface TrajectoryModule {
 }
 
 const loadRegistry = async (): Promise<PrimitiveRegistryModule> =>
-  (await import(REGISTRY_SPEC)) as PrimitiveRegistryModule;
+  (await import(/* @vite-ignore */ plantModule(REGISTRY_SPEC))) as PrimitiveRegistryModule;
 
 const loadTrajectory = async (): Promise<TrajectoryModule> =>
-  (await import(TRAJECTORY_SPEC)) as TrajectoryModule;
+  (await import(/* @vite-ignore */ plantModule(TRAJECTORY_SPEC))) as TrajectoryModule;
 
 /**
  * Channel-only signature. `primitiveId` is DELIBERATELY EXCLUDED so that a
@@ -353,7 +364,76 @@ describe("the primitive registry composes four behaviours", () => {
     },
   );
 
-  it("(4) COUNTERWEIGHT: no source file collapses the primitives into one dispatching blob or bypasses the trajectory layer", () => {
+  it.fails(
+    "(4b) RED: each primitive is its OWN implementation — behaviour does not follow the id in the request",
+    async () => {
+      // THE STRUCTURAL FORM of what clause (4) can only guess at, and it reads no source.
+      //
+      // A collapsed blob dispatches on the primitive id it finds in the REQUEST. Four separate
+      // implementations do not, because each one already IS its primitive. So: resolve one
+      // primitive, hand it a request whose action carries a DIFFERENT primitiveId, and the output
+      // must be the resolved primitive's, not the request's.
+      //
+      // This is syntax-free. A blob evades every regex ever written and still fails here.
+      const { resolvePrimitive } = await loadRegistry();
+      expect(typeof resolvePrimitive, "primitive-registry must export resolvePrimitive").toBe("function");
+
+      // Resolve every primitive up front, so an unresolvable id fails here by name rather than
+      // producing a bare "possibly undefined" somewhere in the cross product below.
+      const resolved = new Map<PrimitiveId, MotionPrimitive>();
+      for (const id of PRIMITIVE_IDS) {
+        const primitive = resolvePrimitive(id);
+        expect(primitive, `the registry does not resolve "${id}"`).toBeDefined();
+        resolved.set(id, primitive as MotionPrimitive);
+      }
+
+      const own = new Map<PrimitiveId, string>();
+      for (const id of PRIMITIVE_IDS) {
+        own.set(id, channelSignature(resolved.get(id)!.compile(canonicalRequest(id, String(SEED_A)))));
+      }
+
+      // (a) DISTINCT IDENTITIES. Four ids resolving to one function object is the blob, wearing a
+      // registry. Object identity, not a name — a name is source again.
+      const identities = new Set(PRIMITIVE_IDS.map((id) => resolved.get(id)!.compile));
+      expect(
+        identities.size,
+        `${PRIMITIVE_IDS.length} primitives resolved to ${identities.size} distinct compile functions`,
+      ).toBe(PRIMITIVE_IDS.length);
+
+      // (b) THE DISCRIMINATOR. Cross the id in the request against the primitive resolved.
+      for (const holder of PRIMITIVE_IDS) {
+        for (const requested of PRIMITIVE_IDS) {
+          if (holder === requested) continue;
+          const crossed = channelSignature(
+            resolved.get(holder)!.compile(canonicalRequest(requested, String(SEED_A))),
+          );
+          expect(
+            crossed,
+            `resolvePrimitive("${holder}") produced "${requested}" output when the request said so — behaviour is following the id in the request, which is one dispatching implementation`,
+          ).toBe(own.get(holder));
+        }
+      }
+
+      // COUNTERWEIGHT: (b) is satisfiable by four primitives that all return the SAME thing, which
+      // would make every comparison trivially equal. Clause (1) asserts distinctness too; stating it
+      // here keeps this clause honest standing alone.
+      expect(
+        new Set(own.values()).size,
+        "the four primitives produced identical channel data, so the cross-request check compared nothing",
+      ).toBe(PRIMITIVE_IDS.length);
+    },
+  );
+
+  it("(4) HEURISTIC, NOT PROOF: no source file collapses the primitives into a switch-dispatching blob", () => {
+    // CLAIM NARROWED 2026-08-30 after external review. This clause reads SOURCE, and source scanning
+    // cannot establish architectural separation: `if (id === ...)`, a lookup table, a ternary and any
+    // computed dispatch all evade it, and widening the regex only starts an endless syntax blacklist.
+    //
+    // What it still buys, honestly stated: it catches the most common collapsed form, it costs
+    // nothing, and its synthetic controls prove it discriminates. That is a lint, not a guarantee.
+    //
+    // NOT EVIDENCE FOR: that the primitives are separately implemented. Clause (4b) below carries
+    // that claim, structurally and without reading a character of source.
     const SRC = dirname(fileURLToPath(import.meta.url));
 
     /**

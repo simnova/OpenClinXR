@@ -168,8 +168,21 @@ function pickUnauthoredRegion(declared: readonly string[], authored: ReadonlySet
 
 type MotionValidation = { ok: boolean; errors: string[] };
 
+/**
+ * Resolve a plant's module specifier to an ABSOLUTE url before the deferred import.
+ *
+ * Added 2026-08-30. A bare `./x.js` in a path VARIABLE under `@vite-ignore` is resolved natively, and
+ * when the module is absent the native resolver reports the MANGLED path — `/src/motion-program.js`,
+ * `/scenario-fixtures/src/...` — which reads as a broken test rather than as the missing module the
+ * RED is demanding. One instance of this had M1's clauses (1) and (2) failing on a fixture path bug
+ * instead of on the absent planner, since d1ad5063, invisibly, because `it.fails` hides the reason.
+ */
+function plantModule(specifier: string): string {
+  return new URL(specifier, import.meta.url).href;
+}
+
 async function loadValidator(): Promise<(program: unknown) => MotionValidation> {
-  const mod = (await import(/* @vite-ignore */ MODULE_UNDER_TEST)) as Record<string, unknown>;
+  const mod = (await import(/* @vite-ignore */ plantModule(MODULE_UNDER_TEST))) as Record<string, unknown>;
   return mod['validateMotionProgram'] as (program: unknown) => MotionValidation;
 }
 
@@ -177,7 +190,7 @@ async function loadRegionVocabulary(): Promise<{
   MOTION_BODY_REGIONS: readonly string[];
   motionBodyRegionForComplianceRegion: (region: string) => string;
 }> {
-  const mod = (await import(/* @vite-ignore */ REGION_MODULE)) as Record<string, unknown>;
+  const mod = (await import(/* @vite-ignore */ plantModule(REGION_MODULE))) as Record<string, unknown>;
   return {
     MOTION_BODY_REGIONS: mod['MOTION_BODY_REGIONS'] as readonly string[],
     motionBodyRegionForComplianceRegion: mod['motionBodyRegionForComplianceRegion'] as (r: string) => string,

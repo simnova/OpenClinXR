@@ -214,11 +214,50 @@ type GatesModule = {
   combineMotionVerdict?: (deterministic: MotionEvidenceReport, visual: { verdict: "accept" | "refuse" }) => MotionEvidenceReport;
 };
 
+/**
+ * Resolve to an ABSOLUTE url before the deferred import. A bare `./x.js` held in a variable is
+ * resolved natively, and when the module is absent the native resolver reports a MANGLED path —
+ * `/src/primitive-registry.js` — which reads as a broken test rather than the missing module this
+ * RED is demanding. See the same note in the sibling plants; one instance of this had M1 red for the
+ * wrong reason since d1ad5063.
+ */
+function plantModule(specifier: string): string {
+  return new URL(specifier, import.meta.url).href;
+}
+
 /** Dynamic so an absent module throws INSIDE the clause - the planted RED's own reason - and not
  *  at collection time, where it would red the whole file for a resolution error instead. */
 async function loadGates(): Promise<GatesModule> {
-  return (await import(MODULE_UNDER_TEST)) as GatesModule;
+  return (await import(/* @vite-ignore */ plantModule(MODULE_UNDER_TEST))) as GatesModule;
 }
+
+/**
+ * The two deterministic reports clause (3b) ranks against an advisory visual verdict.
+ *
+ * Built here rather than obtained from `runMotionEvidenceGates`, deliberately: the precedence rule
+ * is a property of the COMBINER, and deriving its inputs from the thing under test would let one
+ * broken implementation supply both sides of the comparison.
+ */
+function reportWith(verdict: "accept" | "refuse"): MotionEvidenceReport {
+  return {
+    schemaVersion: "openclinxr.motion-evidence-report.v1",
+    verdict,
+    gates: [
+      {
+        id: "effector_target_error",
+        verdict: verdict === "refuse" ? "fail" : "pass",
+        measured: verdict === "refuse" ? 0.42 : 0.004,
+        threshold: 0.02,
+        unit: "m",
+        cannotSee: "a mirrored, rotated or wrong-up-axis clip passes this gate unchanged; it measures distance, never orientation or plausibility",
+      },
+    ],
+    visualFindingsAdvisoryOnly: true,
+  };
+}
+
+const refusingReport = (): MotionEvidenceReport => reportWith("refuse");
+const acceptingReport = (): MotionEvidenceReport => reportWith("accept");
 
 function assertGateShape(g: GateResult, where: string): void {
   expect(typeof g.measured, `${where}: gate ${g.id} must report a measured NUMBER, not a bare verdict`).toBe("number");
@@ -303,16 +342,61 @@ describe("the motion evidence gates refuse a bad clip", () => {
       }
     }
 
-    // Module half - runs only once the module exists, and REQUIRES the precedence to be expressed
-    // as code rather than as a comment: a deterministic REFUSE combined with a visual ACCEPT is
-    // still a refuse, and the visual finding may not flip a single gate verdict.
-    const built = join(root, PKG_DIR, "src", "motion-evidence-gates.ts");
-    if (existsSync(built)) {
-      const src = readFileSync(built, "utf8");
-      expect(src.includes("combineMotionVerdict"), "once the module exists it must expose combineMotionVerdict so precedence is enforced in code, not in prose").toBe(true);
-      expect(src.includes("visualFindingsAdvisoryOnly"), "the report must record that visual findings are advisory only").toBe(true);
-    }
   });
+
+  it.fails(
+    "(3b) RED: deterministic REFUSE beats visual ACCEPT, proved by CALLING it — not by reading a filename",
+    async () => {
+      // REPLACES a filename-conditional source check, removed 2026-08-30 after external review.
+      //
+      // It read `if (existsSync(.../motion-evidence-gates.ts))` and then asserted the source
+      // CONTAINED the strings "combineMotionVerdict" and "visualFindingsAdvisoryOnly". Two ways to
+      // pass without doing the work: implement the aggregator under any other filename and the whole
+      // block is skipped; or implement it under that name and satisfy both assertions with a comment,
+      // because a substring is not a call.
+      //
+      // Precedence is BEHAVIOUR, so it is asserted behaviourally, through the module's public entry.
+      const gates = await loadGates();
+      expect(
+        typeof gates.combineMotionVerdict,
+        `${MODULE_UNDER_TEST} must export combineMotionVerdict — precedence has to live in code that runs`,
+      ).toBe("function");
+      const combine = gates.combineMotionVerdict!;
+
+      const deterministicRefusal = refusingReport();
+      const combined = combine(deterministicRefusal, { verdict: "accept" });
+
+      // (a) A visual ACCEPT may not lift a deterministic REFUSE.
+      expect(
+        combined.verdict,
+        "a visual accept flipped a deterministic refusal — the advisory channel is deciding",
+      ).toBe("refuse");
+
+      // (b) Nor may it flip a single gate. A verdict that stays "refuse" while the gates underneath
+      // it were rewritten is a summary that no longer describes its own evidence.
+      expect(
+        combined.gates,
+        "the visual finding rewrote the deterministic gate results underneath an unchanged verdict",
+      ).toEqual(deterministicRefusal.gates);
+
+      // (c) The advisory status must be RECORDED on the report, so a reader of the artifact alone
+      // can tell the visual channel did not decide. Asserted on the returned object, never on source.
+      expect(
+        combined.visualFindingsAdvisoryOnly,
+        "the report does not record that visual findings are advisory only",
+      ).toBe(true);
+
+      // COUNTERWEIGHT: a combiner that ignores its second argument entirely passes (a), (b) and (c)
+      // while proving no precedence at all. A visual REFUSE against a deterministic ACCEPT must
+      // still refuse — the advisory channel may not decide ACCEPT, and it may not be discarded.
+      const accepting = acceptingReport();
+      const opposed = combine(accepting, { verdict: "refuse" });
+      expect(
+        opposed.verdict,
+        "a visual refusal was discarded — the combiner is ignoring its advisory input rather than ranking it",
+      ).toBe("refuse");
+    },
+  );
 });
 
 // NOT TESTED: that these are the RIGHT seven validators; the shared world-frame blindness named in
