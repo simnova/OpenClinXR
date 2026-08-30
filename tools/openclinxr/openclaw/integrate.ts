@@ -633,7 +633,26 @@ export function integrate(input: IntegrateInput): IntegrateResult {
       });
     } catch (error) {
       const detail = error instanceof Error && "stderr" in error ? String((error as { stderr?: Buffer }).stderr) : "";
-      throw new Error(`integrate: merge commit failed — ${detail.slice(0, 300)}`);
+      // A failed pre-commit hook leaves the merge in progress: MERGE_HEAD plus the staged
+      // candidate stay in the SHARED checkout. Unwind before rethrowing, or the next integrator
+      // merges onto a main that is still mid-merge.
+      let abortDetail = "";
+      try {
+        execFileSync("git", ["merge", "--abort"], {
+          cwd: input.repoRoot,
+          stdio: ["ignore", "pipe", "pipe"],
+        });
+      } catch (abortError) {
+        abortDetail =
+          abortError instanceof Error && "stderr" in abortError
+            ? String((abortError as { stderr?: Buffer }).stderr ?? "")
+            : String(abortError);
+        process.stderr.write(`integrate: git merge --abort also failed — ${abortDetail.slice(0, 300)}\n`);
+      }
+      throw new Error(
+        `integrate: merge commit failed — ${detail.slice(0, 300)}`
+        + (abortDetail ? `; git merge --abort also failed — ${abortDetail.slice(0, 300)}` : ""),
+      );
     }
 
     // Rebuild AFTER the commit: the sources are now on the branch, and a failure here is a stale

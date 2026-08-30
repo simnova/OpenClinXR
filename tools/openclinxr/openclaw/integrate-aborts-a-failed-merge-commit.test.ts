@@ -63,14 +63,14 @@ function failedLand(root: string, base: string, head: string): Error {
 }
 
 describe("integrate unwinds a merge whose commit fails", () => {
-  it.fails("(1) COMMIT-HOOK FAILURE ABORTS BEFORE RETHROW", () => {
+  it("(1) COMMIT-HOOK FAILURE ABORTS BEFORE RETHROW", () => {
     const { root, base, head } = repoWithBenignHead();
     const error = failedLand(root, base, head);
     expect(error.message).toContain("planted-commit-hook-failure");
     expect(existsSync(join(root, ".git", "MERGE_HEAD")), "failed integrate left MERGE_HEAD behind").toBe(false);
   });
 
-  it.fails("(2) FAILED LAND RESTORES THE PRE-LAND CHECKOUT", () => {
+  it("(2) FAILED LAND RESTORES THE PRE-LAND CHECKOUT", () => {
     const { root, base, head } = repoWithBenignHead();
     const before = readFileSync(join(root, "readme.md"), "utf8");
     failedLand(root, base, head);
@@ -79,7 +79,7 @@ describe("integrate unwinds a merge whose commit fails", () => {
     expect(readFileSync(join(root, "readme.md"), "utf8")).toBe(before);
   });
 
-  it.fails("(3) ABORT FAILURE IS NOT HIDDEN", () => {
+  it("(3) ABORT FAILURE IS NOT HIDDEN", () => {
     const { root, base, head } = repoWithBenignHead();
     const realGit = execFileSync("which", ["git"], { encoding: "utf8" }).trim();
     const shimDir = join(root, "git-shim");
@@ -112,3 +112,11 @@ describe("integrate unwinds a merge whose commit fails", () => {
 });
 
 // NOT TESTED: conflicts before commit; post-commit rebuild failure; cross-process signal termination.
+
+// ## FIXED (tsk_0245f18ecbd20c05)
+// The commit catch in integrate() now runs `git merge --abort` before rethrowing, so a failed
+// pre-commit hook no longer leaves MERGE_HEAD plus the staged candidate in the shared checkout
+// (clause 1: MERGE_HEAD removed; clause 2: HEAD, index and working tree restored). When the
+// abort itself fails, the thrown error names BOTH the original commit failure and the abort
+// failure (clause 3), so the abort never masks what actually rejected the land. The successful
+// land path is untouched (clause 4).
