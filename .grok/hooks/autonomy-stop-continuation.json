@@ -5,7 +5,16 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if [ \"${OPENCLINXR_WORKER:-0}\" = \"1\" ] || [ \"${OPENCLINXR_WORKER:-}\" = \"true\" ] || [ -n \"${GROK_SUBAGENT:-}\" ]; then echo 'Stop autonomy: skipped (worker/subagent; parent owns continuation)' >&2; exit 0; fi; pnpm grok:hook -- stop; pnpm grok:tier:post-slice 2>/dev/null | tail -5 >&2 || true",
+            "command": "if [ \"${OPENCLINXR_WORKER:-0}\" = \"1\" ] || [ \"${OPENCLINXR_WORKER:-}\" = \"true\" ] || [ -n \"${GROK_SUBAGENT:-}\" ]; then exit 0; fi; node .grok/hooks/blocked-work-must-escalate.mjs",
+            "timeout": 15
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'Stop autonomy: PAUSED by operator 2026-08-29 (end-turn auto-restart off; use monitor for Bothy mailbox; was pnpm grok:hook -- stop)' >&2; exit 0",
             "timeout": 60
           }
         ]
