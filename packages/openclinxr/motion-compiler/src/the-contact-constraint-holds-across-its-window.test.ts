@@ -111,6 +111,14 @@ const PROFILE = { rigFingerprint: "rig-fp-contact-fixture", effectorBone: "handR
 /** Where the hand must arrive and stay. Reachable: 0.54 m of arm, target 0.46 m from the shoulder. */
 const CONTACT_POINT: Vec3 = { x: 0.10, y: 0.94, z: 0.14 };
 
+/**
+ * A SECOND contact point for clause (3), far enough from the first that no pose satisfies both:
+ * 0.21 m apart against a 0.03 m tolerance, and 0.30 m from the shoulder so the 0.54 m arm reaches it.
+ */
+const RELEASE_POINT: Vec3 = { x: 0.24, y: 1.10, z: 0.10 };
+const SECOND_START_FRACTION = 0.55;
+const SECOND_END_FRACTION = 0.9;
+
 const START_FRACTION = 0.4;
 const END_FRACTION = 0.72;
 const POSITION_TOLERANCE_M = 0.03;
@@ -157,17 +165,76 @@ function qRotate(q: Quat, v: Vec3): Vec3 {
 
 const IDENTITY: Quat = { x: 0, y: 0, z: 0, w: 1 };
 
-/** Nearest-sample lookup, then chain accumulation. Calls no compiler helper. */
+/**
+ * Shortest-path normalised quaternion interpolation, matching what a glTF `"LINEAR"` rotation
+ * channel means at playback.
+ *
+ * ADDED 2026-08-30, and the clause was wrong without it. The first version did NEAREST-SAMPLE
+ * lookup, so twenty-four sample times inspected three or four KEY poses over and over while the
+ * interpolated motion between them was never evaluated at all. The exact cheap pass an external
+ * reviewer named: emit sparse keys that reach the target, let the interpolation between them swing
+ * the effector outside tolerance, and the oracle keeps reading the nearest endpoint and passes.
+ *
+ * That is the defect this whole plant exists to prevent — an assertion whose instrument cannot see
+ * the thing it claims to measure — written into the instrument itself.
+ */
+function slerp(a: Quat, b: Quat, t: number): Quat {
+  let dot = a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
+  let end = b;
+  if (dot < 0) {
+    // Shortest path. q and -q are the same rotation; without this the interpolation takes the long
+    // way round and invents motion nobody emitted.
+    end = { x: -b.x, y: -b.y, z: -b.z, w: -b.w };
+    dot = -dot;
+  }
+  if (dot > 0.9995) {
+    const lerped = {
+      x: a.x + (end.x - a.x) * t,
+      y: a.y + (end.y - a.y) * t,
+      z: a.z + (end.z - a.z) * t,
+      w: a.w + (end.w - a.w) * t,
+    };
+    const n = Math.hypot(lerped.x, lerped.y, lerped.z, lerped.w) || 1;
+    return { x: lerped.x / n, y: lerped.y / n, z: lerped.z / n, w: lerped.w / n };
+  }
+  const theta = Math.acos(Math.min(1, dot));
+  const sin = Math.sin(theta);
+  const wa = Math.sin((1 - t) * theta) / sin;
+  const wb = Math.sin(t * theta) / sin;
+  return {
+    x: a.x * wa + end.x * wb,
+    y: a.y * wa + end.y * wb,
+    z: a.z * wa + end.z * wb,
+    w: a.w * wa + end.w * wb,
+  };
+}
+
+const asQuat = (q: QuatTuple): Quat => ({ x: q[0], y: q[1], z: q[2], w: q[3] });
+
+/** The pose a player would show at this instant: bracket the keys, interpolate, then run FK. */
 function effectorAt(clip: CompiledClip, timeSeconds: number): Vec3 {
   const rotations = new Map<string, Quat>();
   for (const track of clip.tracks) {
     if (track.property !== "rotationAbsoluteNodeLocal") continue;
-    let best = 0;
-    for (let i = 1; i < track.times.length; i += 1) {
-      if (Math.abs(track.times[i]! - timeSeconds) < Math.abs(track.times[best]! - timeSeconds)) best = i;
+    const times = track.times;
+    const values = track.values as readonly QuatTuple[];
+    if (times.length === 0) continue;
+
+    // Clamp outside the track's own range, as a glTF sampler does.
+    if (timeSeconds <= times[0]!) {
+      rotations.set(track.boneName, asQuat(values[0]!));
+      continue;
     }
-    const q = track.values[best] as QuatTuple | undefined;
-    if (q) rotations.set(track.boneName, { x: q[0], y: q[1], z: q[2], w: q[3] });
+    const last = times.length - 1;
+    if (timeSeconds >= times[last]!) {
+      rotations.set(track.boneName, asQuat(values[last]!));
+      continue;
+    }
+    let i = 0;
+    while (i < last && times[i + 1]! < timeSeconds) i += 1;
+    const span = times[i + 1]! - times[i]!;
+    const t = span > 0 ? (timeSeconds - times[i]!) / span : 0;
+    rotations.set(track.boneName, slerp(asQuat(values[i]!), asQuat(values[i + 1]!), t));
   }
 
   let worldQ: Quat = IDENTITY;
@@ -218,6 +285,36 @@ function contactProgram(preserveWhileActive: boolean) {
   };
 }
 
+/**
+ * The clause (3) fixture: TWO contacts on ONE effector, at points 0.21 m apart, with OVERLAPPING
+ * windows. No pose satisfies both, so one must yield — which is what makes the flag observable.
+ */
+function competingContactProgram(firstPreserve: boolean, secondPreserve: boolean) {
+  const base = contactProgram(firstPreserve);
+  const action = base.actions[0]!;
+  return {
+    ...base,
+    actions: [
+      {
+        ...action,
+        constraints: [
+          ...action.constraints,
+          {
+            kind: "contact",
+            effector: PROFILE.effectorBone,
+            target: { kind: "body_point", position: RELEASE_POINT },
+            positionToleranceMeters: POSITION_TOLERANCE_M,
+            startFraction: SECOND_START_FRACTION,
+            endFraction: SECOND_END_FRACTION,
+            penetrationToleranceMeters: 0.01,
+            preserveWhileActive: secondPreserve,
+          },
+        ],
+      },
+    ],
+  };
+}
+
 /** Sample times that deliberately fall BETWEEN plausible keyframes as well as on them. */
 function sampleTimes(duration: number, count: number): number[] {
   const out: number[] = [];
@@ -263,36 +360,83 @@ describe("the contact constraint holds across its window", () => {
     const times = sampleTimes(clip.durationSeconds, 24);
     const outside = times.filter((t) => t < clip.durationSeconds * START_FRACTION || t > clip.durationSeconds * END_FRACTION);
 
+    const inside = times.filter((t) => t >= clip.durationSeconds * START_FRACTION && t <= clip.durationSeconds * END_FRACTION);
     expect(outside.length, "no samples fall outside the window, so this clause compares nothing").toBeGreaterThanOrEqual(4);
+    expect(inside.length, "no samples fall inside the window, so there is nothing to travel from").toBeGreaterThanOrEqual(4);
 
-    // The margin is a property of the FIXTURE — the reach the rig and contact point demand — not a
-    // fraction of whatever motion the compiler happened to emit.
-    const furthest = Math.max(...outside.map((t) => distance(effectorAt(clip, t), CONTACT_POINT)));
+    // A TRAVEL assertion, not a distance one — corrected 2026-08-30 while probing clause (3).
+    //
+    // This first measured only the maximum distance from the contact point outside the window, which
+    // a solver that parks the hand 0.21 m away for the entire clip satisfies without ever moving. It
+    // failed clause (1), so the PAIR was sound, but the clause was narrower than its own sentence and
+    // that is the defect family both reviewers keep finding.
+    //
+    // The relationship instead: the hand must be measurably FURTHER from the contact point outside
+    // the window than its closest approach inside it. A parked hand gives a difference of zero
+    // wherever it is parked; a pinned hand likewise.
+    const maxOutside = Math.max(...outside.map((t) => distance(effectorAt(clip, t), CONTACT_POINT)));
+    const minInside = Math.min(...inside.map((t) => distance(effectorAt(clip, t), CONTACT_POINT)));
     expect(
-      furthest,
-      `the effector never left the contact point by more than ${MOVEMENT_FLOOR_M.toFixed(3)} m (10% of the ${REACH_DISTANCE_M.toFixed(3)} m reach this fixture requires) — it is pinned, not reaching`,
+      maxOutside - minInside,
+      `the effector travelled ${(maxOutside - minInside).toFixed(3)} m between its closest approach inside the window and its furthest point outside, against a floor of ${MOVEMENT_FLOOR_M.toFixed(3)} m (10% of the ${REACH_DISTANCE_M.toFixed(3)} m reach this fixture requires) — it is parked, not reaching`,
     ).toBeGreaterThan(MOVEMENT_FLOOR_M);
   });
 
-  it.fails("(3) RED: preserveWhileActive is READ — false produces a different clip", async () => {
-    // Clauses (1) and (2) are both satisfiable by a solver that always holds contact and never looks
-    // at the flag. This is the discriminator, and it needs no geometry.
-    const compileMotionProgram = await loadEntry();
-    expect(typeof compileMotionProgram, `${ENTRY_MODULE} must export compileMotionProgram`).toBe("function");
+  it.fails(
+    "(3) RED: preserveWhileActive is OBEYED — a releasable contact yields to a competing one",
+    async () => {
+      // REWRITTEN 2026-08-30 after external review. The first version compared serialised tracks
+      // between a `true` and a `false` compile and asserted they differed. A solver reading the flag
+      // and perturbing an unrelated head track satisfies that: the bytes differ, the contact
+      // behaviour does not. The clause claimed the flag was OBEYED and proved only that it was
+      // noticed.
+      //
+      // The reviewer's other point is the one that shaped this: `false` PERMITS release, it does not
+      // command it, so a fixture with one contact cannot make release observable — a solver that
+      // holds anyway is not wrong. The fixture must supply a COMPETING objective.
+      //
+      // So: two contacts on one effector, 0.21 m apart against a 0.03 m tolerance, with overlapping
+      // windows. Inside the overlap they are mutually unsatisfiable. With the first releasable, the
+      // second must win; with both preserved, the program is unbuildable and must be REFUSED.
+      const compileMotionProgram = await loadEntry();
+      expect(typeof compileMotionProgram, `${ENTRY_MODULE} must export compileMotionProgram`).toBe("function");
 
-    const held = compileMotionProgram!({ program: contactProgram(true), skeletonProfile: structuredClone(PROFILE) });
-    const free = compileMotionProgram!({ program: contactProgram(false), skeletonProfile: structuredClone(PROFILE) });
+      // FIXTURE CHECK, before either assertion: if the points were close enough to satisfy together,
+      // everything below would pass on a solver that ignores the flag entirely.
+      expect(
+        distance(CONTACT_POINT, RELEASE_POINT),
+        "the two contact points are close enough that one pose satisfies both — this clause would prove nothing",
+      ).toBeGreaterThan(POSITION_TOLERANCE_M * 3);
 
-    const trackValues = (clip: CompiledClip): string =>
-      JSON.stringify(clip.tracks.map((t) => [t.boneName, t.property, t.times, t.values]));
+      const clip = compileMotionProgram!({
+        program: competingContactProgram(false, true),
+        skeletonProfile: structuredClone(PROFILE),
+      });
+      expect(violationsInTracks(clip.tracks), "the compiled tracks violate the canonical clip contract").toEqual([]);
 
-    expect(
-      trackValues(held),
-      "preserveWhileActive true and false compiled to identical tracks — the flag is being carried, not read",
-    ).not.toBe(trackValues(free));
+      const overlapStart = clip.durationSeconds * SECOND_START_FRACTION;
+      const overlapEnd = clip.durationSeconds * END_FRACTION;
+      const overlap = sampleTimes(clip.durationSeconds, 24).filter((t) => t >= overlapStart && t <= overlapEnd);
+      expect(overlap.length, "no samples fall in the overlap, so this clause compares nothing").toBeGreaterThanOrEqual(3);
 
-    // COUNTERWEIGHT: "different" must not be reachable by emitting nothing when the flag is false.
-    expect(violationsInTracks(free.tracks), "the unconstrained clip is not a legal clip").toEqual([]);
-    expect(free.tracks.length, "dropping the tracks is not a way to differ").toBeGreaterThan(0);
-  });
+      for (const t of overlap) {
+        // The PRESERVED contact is the one that must be satisfied.
+        expect(
+          distance(effectorAt(clip, t), RELEASE_POINT),
+          `t=${t.toFixed(3)}s: the preserved contact was not honoured, so the releasable one was never released`,
+        ).toBeLessThanOrEqual(POSITION_TOLERANCE_M);
+      }
+
+      // COUNTERWEIGHT: with BOTH preserved the program is unsatisfiable, and a compiler that silently
+      // picks one has invented a precedence nobody authored. It must refuse.
+      expect(
+        () =>
+          compileMotionProgram!({
+            program: competingContactProgram(true, true),
+            skeletonProfile: structuredClone(PROFILE),
+          }),
+        "two preserved contacts 0.21 m apart compiled without complaint — the compiler chose one silently",
+      ).toThrow();
+    },
+  );
 });

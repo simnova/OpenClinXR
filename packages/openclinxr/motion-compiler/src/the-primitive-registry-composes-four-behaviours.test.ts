@@ -365,16 +365,26 @@ describe("the primitive registry composes four behaviours", () => {
   );
 
   it.fails(
-    "(4b) RED: each primitive is its OWN implementation — behaviour does not follow the id in the request",
+    "(4b) RED: registry resolution binds behaviour, not the primitiveId the request claims",
     async () => {
-      // THE STRUCTURAL FORM of what clause (4) can only guess at, and it reads no source.
+      // CLAIM NARROWED 2026-08-30, on review, and the narrowing matters.
       //
-      // A collapsed blob dispatches on the primitive id it finds in the REQUEST. Four separate
-      // implementations do not, because each one already IS its primitive. So: resolve one
-      // primitive, hand it a request whose action carries a DIFFERENT primitiveId, and the output
-      // must be the resolved primitive's, not the request's.
+      // This was titled "each primitive is its OWN implementation". It cannot prove that, and the
+      // evasion is four lines long:
       //
-      // This is syntax-free. A blob evades every regex ever written and still fails here.
+      //     const compileFor = (holderId) => (request) => sharedBlob(holderId, request);
+      //
+      // Four distinct function identities, output determined by the holder rather than the request,
+      // four distinct outputs — every assertion below passes over one shared implementation.
+      //
+      // The reviewer's point, and I agree with it: separate implementation is not a useful
+      // architectural invariant anyway. Shared solver and trajectory machinery is DESIRABLE, and
+      // contacts plus trajectory integration constrain that machinery behaviourally. What this
+      // clause actually buys is worth having on its own — resolution binds behaviour, so a caller
+      // cannot make one primitive act as another by relabelling its request.
+      //
+      // NOT EVIDENCE FOR: source-level implementation separation. Clause (4) is a lint for the
+      // common collapsed form and nothing here upgrades it.
       const { resolvePrimitive } = await loadRegistry();
       expect(typeof resolvePrimitive, "primitive-registry must export resolvePrimitive").toBe("function");
 

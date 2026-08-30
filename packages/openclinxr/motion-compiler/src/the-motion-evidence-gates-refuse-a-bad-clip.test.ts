@@ -207,6 +207,13 @@ type MotionEvidenceReport = {
   verdict: "accept" | "refuse";
   gates: GateResult[];
   visualFindingsAdvisoryOnly: boolean;
+  /**
+   * The advisory channel's own verdict, PRESERVED rather than applied. Added 2026-08-30: without
+   * somewhere to record it, "the visual finding did not decide" and "the visual finding was thrown
+   * away" are indistinguishable on the artifact, and clause (3b)'s counterweight had no honest way
+   * to tell them apart.
+   */
+  advisoryVisualVerdict?: "accept" | "refuse" | null;
 };
 type GatesModule = {
   runMotionEvidenceGates: (clip: MotionClipFixture, spec: typeof SPEC) => Promise<MotionEvidenceReport> | MotionEvidenceReport;
@@ -386,14 +393,31 @@ describe("the motion evidence gates refuse a bad clip", () => {
         "the report does not record that visual findings are advisory only",
       ).toBe(true);
 
-      // COUNTERWEIGHT: a combiner that ignores its second argument entirely passes (a), (b) and (c)
-      // while proving no precedence at all. A visual REFUSE against a deterministic ACCEPT must
-      // still refuse — the advisory channel may not decide ACCEPT, and it may not be discarded.
+      // COUNTERWEIGHT, and it was WRONG in the first version of this clause — corrected 2026-08-30.
+      //
+      // It asserted that a visual REFUSE against a deterministic ACCEPT must yield "refuse". That
+      // makes the visual channel decide the result, which is the exact inversion this clause exists
+      // to prevent, and it was a stronger inversion than the substring check it replaced. External
+      // review caught it; the mistake was mine, made while removing a weaker rule.
+      //
+      // Advisory means NEITHER DIRECTION. A visual accept may not lift a deterministic refusal, and
+      // a visual refusal may not overturn a deterministic acceptance. What must be true instead is
+      // that the advisory argument was not DISCARDED — so it is asserted as preserved on the report,
+      // where a downstream human-review gate can act on it without the combiner having rewritten
+      // the deterministic result.
       const accepting = acceptingReport();
       const opposed = combine(accepting, { verdict: "refuse" });
       expect(
         opposed.verdict,
-        "a visual refusal was discarded — the combiner is ignoring its advisory input rather than ranking it",
+        "a visual refusal overturned a deterministic acceptance — the advisory channel is deciding, in the other direction",
+      ).toBe("accept");
+      expect(
+        opposed.gates,
+        "the visual refusal rewrote the deterministic gate results",
+      ).toEqual(accepting.gates);
+      expect(
+        opposed.advisoryVisualVerdict,
+        "the visual refusal was discarded — a channel that cannot decide must still be recorded, or a reviewer never sees it",
       ).toBe("refuse");
     },
   );
