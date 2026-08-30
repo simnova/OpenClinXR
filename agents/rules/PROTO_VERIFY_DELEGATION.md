@@ -214,8 +214,9 @@ do a 180 and go back to what feels comfortable."* That is accurate. The mechanis
 
 ## Hard limits on this file, effective now
 
-- **At most ONE new numbered rule per day**, or one that replaces three. 161 rules and 17 commits in
-  one day is accretion, not learning.
+- **NO new numbered rules.** The frozen header at the top closes this file to additions; the earlier
+  "at most one per day" allowance is superseded and is kept here only so a reader who remembers it
+  knows it was withdrawn. 161 rules and 17 commits in one day is what produced the freeze.
 - **New operator directives go in the table ABOVE, verbatim, not as a numbered section below.**
 - **A rule that is not grepped by a worker brief or enforced by a test is dead weight.** Prefer
   changing `dispatch()`, the brief template, or a `done_when` over writing another section.
@@ -348,8 +349,15 @@ You cannot see a delegate's reasoning live, and you do not need to. Capture `ses
 dispatch (the shared ledger at `.openclinxr/openclaw/worker-sessions.jsonl` does this) and run a
 retro once work lands:
 
+**A WRONG SESSION ID DOES NOT ERROR — IT CONFABULATES.** It loads project memory and answers
+confidently about someone else's slice, and those answers feed rule changes. So: take the id
+programmatically from the ledger, never by hand; confirm `Session <id> found locally` appears on
+stdout before trusting the body; and discard any reply that does not name the slice you asked about.
+A retro whose answer does not match the slice is discarded, not interpreted. Full incident:
+`§6c` in the archive.
+
 ```bash
-~/.grok/bin/grok -p "<retro question>" --resume <sessionId> --model grok-4.5 --output-format json
+~/.grok/bin/grok -p "<retro question>" --resume <sessionId> --model grok-4.6 --output-format json
 ```
 
 Ask what it was thinking, not just what it did — with the outcome known, that is a better question
@@ -381,10 +389,11 @@ Bidirectional or it does not improve. Ask specifically: what helped, what wasted
 you have to guess, what was missing. State plainly that disagreeing is not a failure mode —
 otherwise you get agreement, not signal.
 
-## 8. Nothing is failure if the decision is recorded
+## 8. A recorded decision is recoverable; an unrecorded one repeats
 
-A wrong turn written down as decision + improvement is learning. The same wrong turn unrecorded is
-the thing that repeats. Per-slice records, MADRs and `agents/**/memory.md` are the mechanism, not
+Recording a failure does not make it a non-failure — it makes it recoverable, and stops it repeating.
+A wrong turn written down as decision plus improvement is learning. The same wrong turn unrecorded is
+the thing that comes back. Per-slice records, MADRs and `agents/**/memory.md` are the mechanism, not
 ceremony. If an approach is not written down, it does not exist.
 
 ## Dispatch facts that cost real time
@@ -454,6 +463,39 @@ order, and every cross-reference in this file (§6d, §7p, §10c, §11p …) sti
 This carries out the frozen header's own instruction. It said the file had become an incident archive
 rather than an execution protocol, and that a rule nobody greps and no test enforces is dead weight.
 Cold storage keeps it greppable at zero resident cost.
+
+## Operative controls that live in the archive — route here, do not re-derive
+
+Cold storage is not enough on its own. Retrieval needs a phrase you already know, and `§7p` means
+nothing to a reader who has never seen it — so a bare "150 sections are in the archive" note sends
+nobody anywhere. This is the index. Each row is a control that is still live; the anchor is stable
+across edits and re-splits in a way a line number is not.
+
+Where a skill already owns the behaviour, GO TO THE SKILL — it loads on a trigger, at the moment it
+applies, which is strictly better than prose nobody re-reads.
+
+| control | where |
+|---|---|
+| A wrong session id CONFABULATES rather than erroring; verify identity before trusting a retro | inline in §6 above, incident at `§6c` |
+| Correct-but-inert components: require observable wiring, not the smallest testable unit | `§6d` |
+| Hand a worker the measured failure and say the cause is UNKNOWN; a confident wrong diagnosis costs more than none | skill `measure-before-claiming`, incident at `§6d` |
+| Snapshot the calibration BEFORE changing a probe or a threshold | skill `contract-design`, incident at `§6f` |
+| Give a brief an explicit slot for out-of-scope wrongness, or a worker sees it and stays silent | `§6h` |
+| Pre-dispatch corrections go in the issue BODY — the dispatcher never reads comments | skill `board-conduit`, incident at `§11b` |
+| A branch finished by `--resume` carries no contract report; run `contract-verify-cli` before integrate | `§11h` |
+| Never pair an instrument-artifact stop with a `changed:<file>` proof — the proof compels an edit | skill `contract-design`, incident at `§11j` |
+| Name the minimal falsifier, or a breadth requirement defeats the stop condition | `§11n` |
+| Grade at NATIVE resolution; an upscale manufactures defects that are not there | skill `pixel-grading`, incident at `§12a` |
+
+Anchors resolve with:
+
+```sh
+grep -n '^## 6c\.' docs/_archive/agent-rules/2026-08/PROTO_VERIFY_DELEGATION-incident-archive.md
+```
+
+This index was built after an external review found the split had kept a dangerous action — resume a
+worker and retro it — while archiving its safety condition. That was backwards, and "it is greppable"
+was doing work it cannot do.
 
 **CITE IT BY ANCHOR, NEVER BY LINE NUMBER.** The split broke exactly one of the eight references to
 this file from `tools/` — `PROTO_VERIFY_DELEGATION.md:3424`. Every other citation names a section or
