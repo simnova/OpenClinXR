@@ -242,8 +242,15 @@ type DispatchOptions = {
    * overwrite would let an accidentally-weak proof set silently replace a strict contract.
    */
   refreshTrustedBrief?: boolean;
+  /**
+   * PRODUCT-LANE GATE (2026-08-22): declare this dispatch targets a RELEASE lane (apps/,
+   * packages/, asset-pipeline, factory). Product dispatches are never refused by
+   * assertProductLaneNotStarved; non-product dispatches are refused once the product clock has
+   * expired. Declaring product on a dispatch that lands no product bytes is visible at land —
+   * the clock simply keeps running.
+   */
+  product?: boolean;
 };
-
 export type DispatchLedgerEntry = {
   sessionId: string;
   slice?: string;
