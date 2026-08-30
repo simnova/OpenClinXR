@@ -1,20 +1,83 @@
-import type { CompiledMotionFragment, PrimitiveRequest } from "./canonical-motion-contract.js";
+import type { CompiledMotionFragment, CompiledMotionTrack, PrimitiveRequest } from "./canonical-motion-contract.js";
+
+import { approachHoldRelease, axisAngleQuaternion, seededScale } from "./trajectory.js";
 
 /**
- * PLACEHOLDER for `reach_target`, owned by M4 (tsk_eed004e50d19be54).
+ * `reach_target` — the arm chain EXTENDS toward a target and holds the reach.
  *
- * This module is the OWNERSHIP SLOT this card (tsk_51ffcc3e1a8fdea8) established: the registry
- * resolves `reach_target` to this module's `compile` and M4 replaces THIS BODY only — never
- * `primitive-registry.ts`. The placeholder returns a legal EMPTY-tracks fragment so the seam is
- * canonical end to end while the reach solver lives with its owner.
+ * Owned by M4 (tsk_ccc9fb8c7f0def8b); the registry seam (tsk_51ffcc3e1a8fdea8) resolved this id to
+ * this module's `compile`, and this body replaces the seam's empty-tracks placeholder.
  *
- * Deliberately no motion: returning content here would steal M4's behaviour clause.
+ * BEHAVIOUR: a reach is a JOINT-SPACE extension, so this primitive drives the shoulder, elbow and
+ * wrist as rotation tracks — shoulder flexion (upper_armR about X), elbow flexion (forearmR about
+ * X) and a small wrist roll (handR about Z) — on a minimum-jerk reach-and-hold envelope whose hold
+ * window sits later than the clutch's (the hand stays extended while the reach is presented).
+ *
+ * This is the deliberate contrast with `clutch_body_region`: that primitive is a positional clamp
+ * (a translation track on the effector), this one is an articulated extension (three rotation
+ * tracks on the chain). Both animate the same arm bones — the plant's joint-set clause explicitly
+ * tolerates that one coincidence — but the channel content, the axes and the hold windows differ,
+ * which is what the pairwise-distinctness clause measures. Amplitude per track is scaled by the
+ * request seed through separate variation streams (seededScale with a distinct salt per bone).
  */
 
-export function compile(request: PrimitiveRequest): CompiledMotionFragment {
-  const action = request.action as { actionId?: unknown };
-  if (typeof action?.actionId !== "string") {
+const SAMPLES = 64;
+const DEFAULT_DURATION_MS = 900;
+const HOLD = { holdStart: 0.45, holdEnd: 0.8 };
+const JITTER = 0.12;
+
+/** Base flex amplitudes in radians, before seed scaling: shoulder < elbow, wrist small. */
+const CHAIN = [
+  { boneName: "upper_armR", axis: [1, 0, 0] as const, base: 0.55, salt: 1 },
+  { boneName: "forearmR", axis: [1, 0, 0] as const, base: 0.7, salt: 2 },
+  { boneName: "handR", axis: [0, 0, 1] as const, base: 0.15, salt: 3 },
+] as const;
+
+function readActionId(request: PrimitiveRequest): string {
+  const actionId = (request.action as { actionId?: unknown }).actionId;
+  if (typeof actionId !== "string") {
     throw new Error("reach_target requires a request whose action carries a string actionId");
   }
-  return { actionId: action.actionId, tracks: [] };
+  return actionId;
+}
+
+function readDurationMs(request: PrimitiveRequest): number {
+  const durationMs = (request.action as { timing?: { durationMs?: unknown } }).timing?.durationMs;
+  return typeof durationMs === "number" && Number.isFinite(durationMs) && durationMs > 0
+    ? durationMs
+    : DEFAULT_DURATION_MS;
+}
+
+export function compile(request: PrimitiveRequest): CompiledMotionFragment {
+  const actionId = readActionId(request);
+  const durationMs = readDurationMs(request);
+  const seed = request.seed;
+
+  const times = new Array<number>(SAMPLES);
+  const trackValues = CHAIN.map(() => new Array<[number, number, number, number]>(SAMPLES));
+  for (let i = 0; i < SAMPLES; i += 1) {
+    times[i] = (i * durationMs) / (SAMPLES - 1);
+    const u = i / (SAMPLES - 1);
+    const curve = approachHoldRelease(u, HOLD);
+    for (let c = 0; c < CHAIN.length; c += 1) {
+      const link = CHAIN[c]!;
+      const angle = link.base * seededScale(seed, link.salt, JITTER) * curve;
+      trackValues[c]![i] = axisAngleQuaternion(link.axis, angle);
+    }
+  }
+
+  const target = (request.action as { target?: { kind?: unknown; id?: unknown } }).target;
+  const landmark =
+    target?.kind === "body_region" && typeof target.id === "string" ? target.id : "reach_target_target";
+
+  const tracks: CompiledMotionTrack[] = CHAIN.map((entry, c) => ({
+    property: "rotationAbsoluteNodeLocal",
+    boneName: entry.boneName,
+    canonicalLandmark: landmark,
+    interpolation: "LINEAR",
+    times,
+    values: trackValues[c]!,
+  }));
+
+  return { actionId, tracks };
 }

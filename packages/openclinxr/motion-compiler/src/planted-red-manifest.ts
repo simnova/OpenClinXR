@@ -240,38 +240,12 @@ export const PLANTED_REDS: readonly PlantedRed[] = [
   // `planted` to `it` with a `## FIXED (tsk_bca4085904e3b071)` block appended
   // in the-planner-emits-a-validated-motion-program.test.ts. A satisfied
   // contract is a transition to record, not a planted RED to keep.
-  {
-    file: "the-primitive-registry-composes-four-behaviours.test.ts",
-    // STAGE MOVED 2026-08-30 (tsk_51ffcc3e1a8fdea8): the registry seam landed and resolves the four
-    // ids, so this clause no longer fails on module absence. It now fails because the PLACEHOLDER
-    // compiles a fragment with no tracks — M4's first behavioural assertion, red for its own reason.
-    select: "(1) the registry resolves all four primitives and each produces a motion distinct from the other three",
-    expected: /compiled a fragment with no tracks/,
-    stage: "assertion",
-  },
-  {
-    file: "the-primitive-registry-composes-four-behaviours.test.ts",
-    // STAGE MOVED 2026-08-30 (tsk_51ffcc3e1a8fdea8): reproducibility passes trivially on the
-    // placeholder; the load-bearing seed-sensitivity half fails — the placeholder ignores its seed.
-    select: "(2) DETERMINISM: one seed reproduces byte-identically AND a different seed produces different motion",
-    expected: /ignores its seed/,
-    stage: "assertion",
-  },
-  {
-    file: "the-primitive-registry-composes-four-behaviours.test.ts",
-    select: "(3) the minimum-jerk profile has zero endpoint velocity and a 1.875x mid-motion peak",
-    expected: /Cannot find module .*src\/(primitive-registry|trajectory)\.js/,
-    stage: "module_absent",
-  },
-  {
-    file: "the-primitive-registry-composes-four-behaviours.test.ts",
-    // STAGE MOVED 2026-08-30 (tsk_51ffcc3e1a8fdea8): registry resolution and the cross-request
-    // discriminator both pass trivially on empty tracks; the counterweight — the four primitives
-    // must not produce identical channel data — fails, which is M4's distinctness bar.
-    select: "(4b) RED: registry resolution binds behaviour, not the primitiveId the request claims",
-    expected: /the four primitives produced identical channel data/,
-    stage: "assertion",
-  },
+  // ALL FOUR M4 ENTRIES REMOVED 2026-08-30 (tsk_ccc9fb8c7f0def8b). The behaviour layer landed —
+  // src/trajectory.ts plus the four primitive bodies (clutch-body-region.ts, reach-target.ts,
+  // look-at.ts, cough-recoil.ts) — and all four clauses were flipped from `planted` to `it` with a
+  // `## FIXED (tsk_ccc9fb8c7f0def8b)` block appended in
+  // the-primitive-registry-composes-four-behaviours.test.ts. A satisfied contract is a transition
+  // to record, not a planted RED to keep.
   {
     file: "the-resolved-clip-id-is-what-the-compiler-produces.test.ts",
     select: "(1) RED: the canonical action reaches the primitive unchanged, through the canonical entry",
