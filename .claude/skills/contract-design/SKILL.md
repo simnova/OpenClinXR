@@ -129,3 +129,41 @@ clean, stop and report. The breadth clause then applies only on the branch where
 
 Incidents: `§11j` and `§11n` in
 `docs/_archive/agent-rules/2026-08/PROTO_VERIFY_DELEGATION-incident-archive.md`.
+
+
+## Pre-fix ordering is a RULE KIND, not prose — use `measured-before:`
+
+`measured-before:<artifact>:<product>` reads a trusted spawn-state baseline
+(`SLICE_BASELINE_SCHEMA = "openclinxr.slice-baseline.v1"`, `done-when-tree.js`, #177). Use it when a
+brief needs a measurement taken BEFORE any product edit.
+
+It proves ORDERING ONLY. It says nothing about whether a plant was flipped — only `live:` does that —
+and nothing about whether a cached measurement is still valid (next section).
+
+`exists:` on a pre-fix artifact is the weaker shape that six workers complained about: it proves the
+file is present, never that it was written before the edit, which is how "reconstructed after the
+fact" calibration records passed as before-columns.
+
+## A cached measurement must name the tree it measured
+
+A measure-once-to-disk contract is green about NOTHING on every later run, and RED about nothing just
+as easily — a stale artifact fabricates a regression that consumes a worker.
+
+Any contract whose measurement caches to disk records the tree state it measured — a commit sha, or
+the hashes of its inputs — and REFUSES the cache when that has moved. Until it does, treat a
+suspiciously fast pass as unverified: compare the run duration against the honest cost of the
+measurement, and clear the artifact before trusting a re-run in either direction.
+
+Distinct from `measured-before:`. That proves artifact ordering; this proves cache validity.
+
+## A regression handback carries the same obligations as a brief
+
+"Fix the red" is a `done_when` with one rule in it, and it buys exactly one rule's worth of evidence.
+
+Name the proofs. If the change can alter APPEARANCE, name the renderer and the framing for a FRESH
+capture and require the decomposed checklist — an existing image from before the fix is not evidence
+about the fix, however recent. Measured: a hem-geometry repair landed with the only image in the
+slice framed on the lower legs, byte-identical to the pre-fix capture.
+
+Incidents `§7s`, `§11i` in
+`docs/_archive/agent-rules/2026-08/PROTO_VERIFY_DELEGATION-incident-archive.md`.

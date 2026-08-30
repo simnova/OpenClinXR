@@ -464,6 +464,22 @@ This carries out the frozen header's own instruction. It said the file had becom
 rather than an execution protocol, and that a rule nobody greps and no test enforces is dead weight.
 Cold storage keeps it greppable at zero resident cost.
 
+## Deliberately NOT compressed — recorded so it does not disappear
+
+An external review recommended archiving the `#151` epsilon narrative below (the self-calibrated
+threshold section) and keeping only its operative rule, on the grounds that the incident
+reconstruction is history and the rule is the control.
+
+DEFERRED, INTENTIONALLY, 2026-08-29. The rule alone — "a self-calibrated threshold must reference
+something INDEPENDENT of the effect being measured" — reads as a slogan. What makes it recognisable
+is the worked arithmetic: `eps = max(spread * 0.35, 0.01)` yields a 2.9x margin because 1/0.35 = 2.9,
+so the margin is a property of the FORMULA and the assertion passes by construction. The tell —
+"if you can cancel a term and get a constant ratio, you have written a tautology with units" — is
+only legible next to that example.
+
+Revisit if the section is ever restated somewhere that keeps the example. Not urgent; recorded here
+so it is a decision rather than an omission.
+
 ## Operative controls that live in the archive — route here, do not re-derive
 
 Cold storage is not enough on its own. Retrieval needs a phrase you already know, and `§7p` means
