@@ -87,6 +87,14 @@ const SHIPPED_RLQ_CLIP = "openclinxr_role_patient_guard_withdraw_rlq";
  * shipped hand-authored table contains (`materialize-guard-withdraw-clip.ts:86`). Two poses that
  * differ by less than a quarter of the authoring resolution of the artifact being replaced are the
  * same pose. This is NOT a fraction of any measured output.
+ *
+ * UNITS NOTE, 2026-08-30: the comparison moved from componentwise euler difference to angular
+ * distance `2*acos(|dot|)` when tracks became quaternions. Both are radians, so the threshold
+ * transfers directly — but angular distance is up to ~sqrt(3) LARGER than the worst euler component
+ * for the same rotation, which makes this epsilon slightly more permissive on the
+ * "poses are the same" side and slightly stricter on the "output depends on input" side. Recorded
+ * rather than silently re-derived: the input reference (0.04 rad authoring resolution) is unchanged
+ * and remains the justification.
  */
 const ROTATION_EPSILON_RAD = 0.01;
 
@@ -138,7 +146,26 @@ type BodyRegionTarget = {
   bodyPoint: Vec3;
 };
 
-type GuardTrack = { boneName: string; eulerFrames: readonly Vec3[] };
+/**
+ * THE CANONICAL ROTATION TRACK — amended 2026-08-30, the last dialect below the canonical entry.
+ *
+ * This was `{ boneName, eulerFrames: Vec3[] }`, a private euler shape. The keystone
+ * (the-canonical-compile-entry-orchestrates-primitives.test.ts) freezes rotation tracks as unit
+ * quaternions with explicit interpolation, monotonic times and sign continuity. Two clip dialects
+ * below one canonical entry is the defect the keystone exists to prevent, one layer down — and it
+ * was mine, left in place while I built the entry above it.
+ *
+ * The FK oracle now reads these directly. It no longer converts eulers, which also removes a
+ * conversion the compiler and the oracle could have disagreed about.
+ */
+type GuardTrack = {
+  property: "rotation";
+  boneName: string;
+  canonicalLandmark: string;
+  interpolation: "LINEAR";
+  times: readonly number[];
+  values: readonly Quat4[];
+};
 
 type GuardClip = {
   name: string;
@@ -259,17 +286,18 @@ function eulerToQuat(e: Vec3): Quat4 {
 }
 
 function derivedEffectorPoint(clip: GuardClip, profile: SkeletonProfile, effectorBone: string): Vec3 {
-  const frameCount = Math.max(0, ...clip.tracks.map((t) => t.eulerFrames.length));
+  const frameCount = Math.max(0, ...clip.tracks.map((t) => t.values.length));
   let best: Vec3 = { x: 0, y: 0, z: 0 };
   let bestMagnitude = -1;
   for (let f = 0; f < frameCount; f += 1) {
     const rot = new Map<string, Quat4>();
     let magnitude = 0;
     for (const track of clip.tracks) {
-      const e = track.eulerFrames[Math.min(f, track.eulerFrames.length - 1)];
-      if (!e) continue;
-      rot.set(track.boneName, eulerToQuat(e));
-      magnitude += Math.abs(e.x) + Math.abs(e.y) + Math.abs(e.z);
+      const q = track.values[Math.min(f, track.values.length - 1)];
+      if (!q) continue;
+      rot.set(track.boneName, qNorm(q));
+      // Distance from identity, as a rotation angle proxy — no euler conversion anywhere.
+      magnitude += 1 - Math.abs(q.w);
     }
     if (magnitude > bestMagnitude) {
       bestMagnitude = magnitude;
@@ -401,22 +429,31 @@ function forearmLengthOf(profile: SkeletonProfile): number {
   return distance(profile.bindFrame[elbow]!, profile.bindFrame[wrist]!);
 }
 
-function peakEulers(clip: GuardClip): Map<string, Vec3> {
-  const peak = new Map<string, Vec3>();
+function peakRotations(clip: GuardClip): Map<string, Quat4> {
+  const peak = new Map<string, Quat4>();
   for (const track of clip.tracks) {
     // Frame 1 of the 3-keyframe neutral -> peak -> settle shape (KEYFRAME_TIMES, :33).
-    const frame = track.eulerFrames[1] ?? track.eulerFrames[track.eulerFrames.length - 1];
+    const frame = track.values[1] ?? track.values[track.values.length - 1];
     if (frame) peak.set(track.boneName, frame);
   }
   return peak;
 }
 
-function maxEulerDelta(a: Map<string, Vec3>, b: Map<string, Vec3>): number {
+/**
+ * Angular distance in radians, `2 * acos(|dot|)`.
+ *
+ * The euler version compared x, y and z componentwise. Carried over to quaternions that is doubly
+ * wrong: it ignores w entirely, and it treats q and -q — the SAME rotation — as maximally different.
+ * The absolute dot product makes it sign-invariant, which is the property the keystone's sign
+ * continuity rule also depends on.
+ */
+function maxRotationDelta(a: Map<string, Quat4>, b: Map<string, Quat4>): number {
   let worst = 0;
-  for (const [bone, ea] of a) {
-    const eb = b.get(bone);
-    if (!eb) continue;
-    worst = Math.max(worst, Math.abs(ea.x - eb.x), Math.abs(ea.y - eb.y), Math.abs(ea.z - eb.z));
+  for (const [bone, qa] of a) {
+    const qb = b.get(bone);
+    if (!qb) continue;
+    const dot = Math.abs(qa.x * qb.x + qa.y * qb.y + qa.z * qb.z + qa.w * qb.w);
+    worst = Math.max(worst, 2 * Math.acos(Math.min(1, dot)));
   }
   return worst;
 }
@@ -500,15 +537,15 @@ describe("the guard primitive hits four targets on three rigs", () => {
 
       // COUNTERWEIGHT against a shared euler table: the three rigs have different limb lengths, so
       // a solved pose MUST differ between them. A table replayed onto aliased bones would not.
-      const anny = peakEulers(perRig[0]!.clip);
-      const mpfb = peakEulers(perRig[1]!.clip);
-      const byIndex = (clip: GuardClip): Vec3[] => clip.tracks.map((t) => t.eulerFrames[1] ?? t.eulerFrames[0]!);
+      const anny = peakRotations(perRig[0]!.clip);
+      const mpfb = peakRotations(perRig[1]!.clip);
+      const byIndex = (clip: GuardClip): Quat4[] => clip.tracks.map((t) => t.values[1] ?? t.values[0]!);
       const positional = byIndex(perRig[0]!.clip).map((a, index) => {
         const b = byIndex(perRig[1]!.clip)[index];
         return b ? Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y), Math.abs(a.z - b.z)) : 0;
       });
       expect(
-        Math.max(0, ...positional, maxEulerDelta(anny, mpfb)),
+        Math.max(0, ...positional, maxRotationDelta(anny, mpfb)),
         "the 23-bone and MPFB2 rigs have different limb lengths but got identical rotations — that is a replayed table, not a solve",
       ).toBeGreaterThan(ROTATION_EPSILON_RAD);
 
@@ -557,7 +594,7 @@ describe("the guard primitive hits four targets on three rigs", () => {
       const sameA = compile({ profile, target: { id: "abdomen_rlq", bodyPoint: adHoc.bodyPoint } });
       const sameB = compile({ profile, target: { id: "chest_L", bodyPoint: adHoc.bodyPoint } });
       expect(
-        maxEulerDelta(peakEulers(sameA), peakEulers(sameB)),
+        maxRotationDelta(peakRotations(sameA), peakRotations(sameB)),
         "two ids at one point produced different poses — the id is being looked up, not the geometry",
       ).toBeLessThanOrEqual(ROTATION_EPSILON_RAD);
 
@@ -567,7 +604,7 @@ describe("the guard primitive hits four targets on three rigs", () => {
         target: { id: adHoc.id, bodyPoint: { ...adHoc.bodyPoint, x: adHoc.bodyPoint.x - ONE_QUADRANT_METERS } },
       });
       expect(
-        maxEulerDelta(peakEulers(adHocClip), peakEulers(moved)),
+        maxRotationDelta(peakRotations(adHocClip), peakRotations(moved)),
         `moving the target ${ONE_QUADRANT_METERS} m left changed no rotation — the output does not depend on the target`,
       ).toBeGreaterThan(ROTATION_EPSILON_RAD);
     },
