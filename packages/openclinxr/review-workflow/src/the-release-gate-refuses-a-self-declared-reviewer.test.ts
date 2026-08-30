@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { edChestPainScenario } from "../../scenario-fixtures/src/ed-chest-pain.js";
+import { planted } from "./planted.js";
+
+// Through the PACKAGE, not a relative path into its src. `@openclinxr/scenario-fixtures` is already a
+// workspace dependency here; the relative form reached a file this package's tsconfig does not list
+// and failed `pnpm typecheck` with TS6307 while `npx tsc --noEmit` reported clean. I ran the check I
+// chose instead of the one the package defines.
+import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import { evaluateScenarioPublicationReadiness } from "./scenario-publication.js";
 import type { EvaluateScenarioPublicationReadinessInput, ReviewerEvidence } from "./scenario-publication.js";
 
@@ -148,7 +154,7 @@ function reviewerGate(readiness: ReturnType<typeof evaluateScenarioPublicationRe
 }
 
 describe("the release gate trusts a verifier, not a self-declared role", () => {
-  it.fails("(1) RED: a self-declared approval with NO verifier still blocks", () => {
+  planted("(1) RED: a self-declared approval with NO verifier still blocks", () => {
     // THE EXPLOIT, stated as the contract. This row passes every shape check on HEAD today.
     const readiness = evaluate(inputWith(fullyApproved()));
     expect(
@@ -175,7 +181,7 @@ describe("the release gate trusts a verifier, not a self-declared role", () => {
     expect(readiness.canPublishForLearnerUse, "a fully verified local_formative release is still blocked").toBe(true);
   });
 
-  it.fails("(3) RED: roles come from the VERIFIER, never from the evidence row", () => {
+  planted("(3) RED: roles come from the VERIFIER, never from the evidence row", () => {
     // The row asserts the required role; the verifier says this principal does not hold it. If the
     // gate reads `evidence.reviewerRole` anywhere, this passes and the port is decoration.
     const wrongRole: ReviewerAttestationVerifier = (request) => ({
@@ -190,7 +196,7 @@ describe("the release gate trusts a verifier, not a self-declared role", () => {
     ).toBe("block");
   });
 
-  it.fails("(4) RED: an approval is BOUND to its scenario and version — it cannot be replayed", () => {
+  planted("(4) RED: an approval is BOUND to its scenario and version — it cannot be replayed", () => {
     // A verifier that answers without binding lets one genuine approval authorise every scenario in
     // the bank, and every later version of this one. Both halves are asserted through the SAME
     // verifier, so a gate that never passes the subject through fails both.
@@ -217,7 +223,7 @@ describe("the release gate trusts a verifier, not a self-declared role", () => {
     expect(reviewerGate(readiness)?.status, "a correctly bound approval was rejected").not.toBe("block");
   });
 
-  it.fails("(5) RED: a reject-all verifier BLOCKS — proving the port is consulted, not decorative", () => {
+  planted("(5) RED: a reject-all verifier BLOCKS — proving the port is consulted, not decorative", () => {
     // The counterweight for the whole file. Clauses (2) and (4) pass on a gate that ignores the
     // verifier and trusts the row; this one cannot.
     const rejectAll: ReviewerAttestationVerifier = () => ({ verified: false, reason: "no attestation on file" });

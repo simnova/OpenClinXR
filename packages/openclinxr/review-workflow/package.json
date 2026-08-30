@@ -14,7 +14,8 @@
     "typecheck": "tsgo --noEmit -p tsconfig.vitest.json",
     "test": "vitest run --root .",
     "build": "tsgo --build",
-    "clean": "rm -rf dist *.tsbuildinfo"
+    "clean": "rm -rf dist *.tsbuildinfo",
+    "probe:reds": "tsx probe-planted-reds.mts"
   },
   "dependencies": {
     "@openclinxr/domain": "workspace:*",
