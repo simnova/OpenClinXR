@@ -50,6 +50,10 @@ const DEFERRAL_PATTERNS = [
   /\bI will not retry\b/i,
   /\bStill waiting\b/i,
   /\bNo Grok action\b/i,
+  /\bOwner must plant\b/i,
+  /\bstays Claude\b/i,
+  /\buntil a card is planted\b/i,
+  /\bImplementation stays blocked\b/i,
 ];
 
 const last =
@@ -61,6 +65,20 @@ const last =
 
 const deferrals = DEFERRAL_PATTERNS.map((re) => last.match(re)?.[0]).filter(Boolean);
 
+const namedParties = [
+  /\bCodex\b/i.test(last),
+  /\bClaude\b/i.test(last),
+  /\bowner\b/i.test(last),
+].filter(Boolean).length;
+const directedAsk =
+  /@(?:Codex|claude)/i.test(last) ||
+  /\bASK Codex\b/i.test(last) ||
+  /\bQUESTION\{/i.test(last) ||
+  /\bmailbox\.post\b/i.test(last);
+if (namedParties >= 2 && !directedAsk) {
+  deferrals.push("named 2+ teammates without a directed ASK/QUESTION/@");
+}
+
 if (deferrals.length > 0) {
   const quoted = [...new Set(deferrals)].map((d) => `"${d}"`).join(", ");
   process.stdout.write(
@@ -68,6 +86,7 @@ if (deferrals.length > 0) {
       decision: "block",
       reason: [
         `Closing message defers instead of deciding: ${quoted}.`,
+        "If you named two people and two actions, mailbox.post each of them: WHO, WHAT, by when, RECOMMENDATION.",
         "There is no third option:",
         "  DO IT — if Codex/operator already authorized it, execute (or retry with evidence).",
         "  ASK  — mailbox.post the ONE decision, WHO owns it, what you ruled out, and a RECOMMENDATION.",
