@@ -2,6 +2,8 @@ import { readdirSync, statSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+
+import { planted } from "./planted.js";
 import {
   violationsInTracks,
   type CompiledMotionFragment,
@@ -512,7 +514,7 @@ describe("the guard primitive hits four targets on three rigs", () => {
   ): GuardClip =>
     compile({ ...input, profile: structuredClone(input.profile), target: structuredClone(input.target) });
 
-  it.fails(
+  planted(
     "(1) guard_body_region resolves one target on THREE rig families through the bind frame, not a per-rig euler table",
     async () => {
       const mod = await loadGuard();
@@ -614,7 +616,7 @@ describe("the guard primitive hits four targets on three rigs", () => {
     },
   );
 
-  it.fails(
+  planted(
     "(2) a body target the module has never declared still compiles — there is no per-target pose table",
     async () => {
       const mod = await loadGuard();
@@ -659,7 +661,7 @@ describe("the guard primitive hits four targets on three rigs", () => {
     },
   );
 
-  it.fails(
+  planted(
     "(2b) RED: the REGISTERED guard primitive reaches the same target as the internal solver",
     async () => {
       // THE OTHER SEAM, and it was open until 2026-08-30. Clauses (1) and (2) exercise

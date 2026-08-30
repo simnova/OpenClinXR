@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { planted } from "./planted.js";
+
 // Relative, matching `the-llm-planner-cannot-emit-bone-tracks.test.ts`. This package does not depend
 // on scenario-fixtures and should not start doing so for a test: the plants read the shipped bank,
 // the compiler must not.
@@ -217,7 +219,7 @@ function recordingPrimitives(seen: PrimitiveRequest[]) {
 }
 
 describe("the resolved clip id is what the compiler produces", () => {
-  it.fails("(1) RED: the canonical action reaches the primitive unchanged, through the canonical entry", async () => {
+  planted("(1) RED: the canonical action reaches the primitive unchanged, through the canonical entry", async () => {
     const compileMotionProgram = await loadEntry();
     expect(typeof compileMotionProgram, `${ENTRY_MODULE} must export compileMotionProgram`).toBe("function");
 
@@ -243,7 +245,7 @@ describe("the resolved clip id is what the compiler produces", () => {
     expect(clip.tracks.length, "the primitive's tracks did not reach the clip").toBeGreaterThan(0);
   });
 
-  it.fails("(2) RED: the compiled clipId IS the clip the case asks for — bank, resolver and compiler agree", async () => {
+  planted("(2) RED: the compiled clipId IS the clip the case asks for — bank, resolver and compiler agree", async () => {
     // THE SEAM. Without this, a resolver may return ten invented strings that name nothing the
     // factory can produce, and every clause of the routing plant still passes.
     const compileMotionProgram = await loadEntry();

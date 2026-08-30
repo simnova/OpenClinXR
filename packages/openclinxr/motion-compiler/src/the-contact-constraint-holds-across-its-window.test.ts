@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { planted } from "./planted.js";
+
 import {
   violationsInTracks,
   type CompiledMotionTrack,
@@ -323,7 +325,7 @@ function sampleTimes(duration: number, count: number): number[] {
 }
 
 describe("the contact constraint holds across its window", () => {
-  it.fails("(1) RED: inside the window the effector holds contact on every sampled frame, not only at the keys", async () => {
+  planted("(1) RED: inside the window the effector holds contact on every sampled frame, not only at the keys", async () => {
     const compileMotionProgram = await loadEntry();
     expect(typeof compileMotionProgram, `${ENTRY_MODULE} must export compileMotionProgram`).toBe("function");
 
@@ -352,7 +354,7 @@ describe("the contact constraint holds across its window", () => {
     }
   });
 
-  it.fails("(2) RED: outside the window the effector MOVES — a hand parked on the target is not a guard", async () => {
+  planted("(2) RED: outside the window the effector MOVES — a hand parked on the target is not a guard", async () => {
     const compileMotionProgram = await loadEntry();
     expect(typeof compileMotionProgram, `${ENTRY_MODULE} must export compileMotionProgram`).toBe("function");
 
@@ -382,7 +384,7 @@ describe("the contact constraint holds across its window", () => {
     ).toBeGreaterThan(MOVEMENT_FLOOR_M);
   });
 
-  it.fails(
+  planted(
     "(3) RED: preserveWhileActive is OBEYED — a releasable contact yields to a competing one",
     async () => {
       // REWRITTEN 2026-08-30 after external review. The first version compared serialised tracks

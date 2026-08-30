@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+
+import { planted } from "./planted.js";
 import { evaluateScenarioPublicationReadiness } from "../../review-workflow/src/scenario-publication.js";
 import { edChestPainScenario } from "../../scenario-fixtures/src/ed-chest-pain.js";
 
@@ -233,7 +235,7 @@ describe("the llm planner cannot emit bone tracks", () => {
   //     as the animator. Everything else here is valid — honest `llm_proposal` provenance, a
   //     case-authored region resolved through the mapper — so the raw track is the only thing left
   //     to refuse.
-  it.fails("(1) RED: refuses a planner output carrying raw per-bone quaternion tracks", async () => {
+  planted("(1) RED: refuses a planner output carrying raw per-bone quaternion tracks", async () => {
     const [validateMotionProgram, { motionBodyRegionForComplianceRegion }] = await Promise.all([
       loadValidator(),
       loadRegionVocabulary(),
@@ -277,7 +279,7 @@ describe("the llm planner cannot emit bone tracks", () => {
   // (2) RED. LLM planning is bounded by authored facts: it may not invent a region, an actor, or a
   //     behaviour the encounter definition does not carry. This program carries NO bone tracks, so
   //     clause (1)'s mechanism cannot be what refuses it.
-  it.fails("(2) RED: refuses a target naming a body region the case never authored", async () => {
+  planted("(2) RED: refuses a target naming a body region the case never authored", async () => {
     const [validateMotionProgram, { MOTION_BODY_REGIONS, motionBodyRegionForComplianceRegion }] =
       await Promise.all([loadValidator(), loadRegionVocabulary()]);
 
@@ -329,7 +331,7 @@ describe("the llm planner cannot emit bone tracks", () => {
   //     This clause also carries the ANTI-BLANKET-REFUSAL counterweight. Without the accept path
   //     below, `() => ({ ok: false, errors: ["no"] })` greens (1), (2) and (3) together. The accept
   //     path is here as that counterweight, NOT as a happy-path demonstration.
-  it.fails("(3) RED: a planner-produced program cannot self-declare reviewed_llm_proposal", async () => {
+  planted("(3) RED: a planner-produced program cannot self-declare reviewed_llm_proposal", async () => {
     const [validateMotionProgram, { motionBodyRegionForComplianceRegion }] = await Promise.all([
       loadValidator(),
       loadRegionVocabulary(),

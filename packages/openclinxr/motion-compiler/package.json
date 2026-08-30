@@ -10,7 +10,8 @@
   },
   "scripts": {
     "test": "vitest run --root .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "probe:reds": "tsx probe-planted-reds.mts"
   },
   "devDependencies": {
     "vitest": "catalog:"

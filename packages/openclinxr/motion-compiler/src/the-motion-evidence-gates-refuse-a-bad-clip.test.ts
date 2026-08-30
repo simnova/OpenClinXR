@@ -3,6 +3,8 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
+import { planted } from "./planted.js";
+
 /**
  * PLANTED RED - BothyBoard tsk_156b04a905f21c4f (M3).
  *
@@ -274,7 +276,7 @@ function assertGateShape(g: GateResult, where: string): void {
 }
 
 describe("the motion evidence gates refuse a bad clip", () => {
-  it.fails("(1) REFUSES a clip whose elbow exceeds its limit and whose effector misses its target", async () => {
+  planted("(1) REFUSES a clip whose elbow exceeds its limit and whose effector misses its target", async () => {
     const { runMotionEvidenceGates } = await loadGates();
     const report = await runMotionEvidenceGates(BAD_CLIP, SPEC);
 
@@ -292,7 +294,7 @@ describe("the motion evidence gates refuse a bad clip", () => {
     expect(report.visualFindingsAdvisoryOnly, "a refusal must be recorded as non-overridable by any visual finding").toBe(true);
   });
 
-  it.fails("(2) ACCEPTS a known-good clip, with all seven gates run and none skipped", async () => {
+  planted("(2) ACCEPTS a known-good clip, with all seven gates run and none skipped", async () => {
     const { runMotionEvidenceGates, MOTION_GATE_IDS } = await loadGates();
     const report = await runMotionEvidenceGates(GOOD_CLIP, SPEC);
 
@@ -351,7 +353,7 @@ describe("the motion evidence gates refuse a bad clip", () => {
 
   });
 
-  it.fails(
+  planted(
     "(3b) RED: deterministic REFUSE beats visual ACCEPT, proved by CALLING it — not by reading a filename",
     async () => {
       // REPLACES a filename-conditional source check, removed 2026-08-30 after external review.

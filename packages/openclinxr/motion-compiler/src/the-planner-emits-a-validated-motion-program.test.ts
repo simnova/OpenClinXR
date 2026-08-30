@@ -3,6 +3,8 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
+import { planted } from "./planted.js";
+
 /**
  * PLANTED RED — BothyBoard card tsk_03375de020895d8f (M1). IMMUTABLE HEADER.
  *
@@ -313,7 +315,7 @@ function declaredUnionMembers(sourcePath: string, bindingName: string): string[]
 }
 
 describe("the planner emits a validated motion program", () => {
-  it.fails(
+  planted(
     "the deterministic planner turns the shipped abdomen_rlq guarding row into a MotionProgram v1 that its own validator accepts",
     async () => {
       const { scenarioId, actorId, row } = await shippedGuardingRow();
@@ -362,7 +364,7 @@ describe("the planner emits a validated motion program", () => {
     },
   );
 
-  it.fails(
+  planted(
     "MotionBodyRegion is a separate vocabulary: no raw ComplianceRegion value may be a MotionAction target, and the motion set holds a region the touch set has no counterpart for",
     async () => {
       const { scenarioId, actorId, row } = await shippedGuardingRow();
@@ -427,7 +429,7 @@ describe("the planner emits a validated motion program", () => {
    * make it red. It goes red if a later change collapses the two vocabularies back together by
    * pushing motion or skeleton terms into the clinical touch vocabulary.
    */
-  it.fails(
+  planted(
     "(2b) RED: the support surface DERIVES the baseline posture — chair seats, stretcher lies down",
     async () => {
       // Added 2026-08-30. Clause (1) asserted only that `baseline.posture` is one of

@@ -3,6 +3,8 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
+import { planted } from "./planted.js";
+
 import {
   violationsInTracks,
   type CompiledMotionFragment,
@@ -229,7 +231,7 @@ const SEED_B = 20260830;
 const DURATION_MS = 900;
 
 describe("the primitive registry composes four behaviours", () => {
-  it.fails(
+  planted(
     "(1) the registry resolves all four primitives and each produces a motion distinct from the other three",
     async () => {
       const { resolvePrimitive } = await loadRegistry();
@@ -289,7 +291,7 @@ describe("the primitive registry composes four behaviours", () => {
     },
   );
 
-  it.fails(
+  planted(
     "(2) DETERMINISM: one seed reproduces byte-identically AND a different seed produces different motion",
     async () => {
       const { resolvePrimitive } = await loadRegistry();
@@ -318,7 +320,7 @@ describe("the primitive registry composes four behaviours", () => {
     },
   );
 
-  it.fails(
+  planted(
     "(3) the minimum-jerk profile has zero endpoint velocity and a 1.875x mid-motion peak",
     async () => {
       const { minimumJerkProfile } = await loadTrajectory();
@@ -387,7 +389,7 @@ describe("the primitive registry composes four behaviours", () => {
     },
   );
 
-  it.fails(
+  planted(
     "(4b) RED: registry resolution binds behaviour, not the primitiveId the request claims",
     async () => {
       // CLAIM NARROWED 2026-08-30, on review, and the narrowing matters.
