@@ -31,4 +31,4 @@ import { it } from "vitest";
  * instrument. A clause that starts PASSING is a contract transition and must be recorded
  * deliberately, not discovered later.
  */
-export const planted = process.env["OPENCLINXR_PROBE_REDS"] === "1" ? it : it.fails;
+export const planted: typeof it.fails = process.env["OPENCLINXR_PROBE_REDS"] === "1" ? (it as typeof it.fails) : it.fails;
