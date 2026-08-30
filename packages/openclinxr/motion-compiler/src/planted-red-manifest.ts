@@ -109,36 +109,11 @@ export const PLANTED_REDS: readonly PlantedRed[] = [
     expected: /must export deriveSkeletonProfileFromRigAsset/,
     stage: "assertion",
   },
-  {
-    file: "the-primitive-registry-is-one-seam-with-no-behaviour.test.ts",
-    select: "(1) RED: the vocabulary carries the guard AND the four behaviours, in one place",
-    expected: /primitive-registry\.js must export PRIMITIVE_IDS/,
-    stage: "assertion",
-  },
-  {
-    file: "the-primitive-registry-is-one-seam-with-no-behaviour.test.ts",
-    select: "(2) RED: every declared id resolves to something returning a CANONICAL fragment",
-    expected: /primitive-registry\.js must export resolvePrimitive/,
-    stage: "assertion",
-  },
-  {
-    file: "the-primitive-registry-is-one-seam-with-no-behaviour.test.ts",
-    select: "(3) RED: an unknown id is REFUSED, not silently undefined",
-    expected: /primitive-registry\.js must export resolvePrimitive/,
-    stage: "assertion",
-  },
-  {
-    file: "the-primitive-registry-is-one-seam-with-no-behaviour.test.ts",
-    select: "(4) RED: resolution returns a DISTINCT entry per id \u2014 an aliasing guard, nothing more",
-    expected: /primitive-registry\.js must export resolvePrimitive/,
-    stage: "assertion",
-  },
-  {
-    file: "the-primitive-registry-is-one-seam-with-no-behaviour.test.ts",
-    select: "(5) RED: a duplicate id is REFUSED at construction, deterministically",
-    expected: /primitive-registry\.js must export createPrimitiveRegistry/,
-    stage: "assertion",
-  },
+  // ALL FIVE SEAM ENTRIES REMOVED 2026-08-30 (tsk_51ffcc3e1a8fdea8). The registry seam landed —
+  // primitive-registry.ts exports PRIMITIVE_IDS, resolvePrimitive and createPrimitiveRegistry, and
+  // the five clauses were flipped from `planted` to `it` with a `## FIXED (tsk_51ffcc3e1a8fdea8)`
+  // block appended in the-primitive-registry-is-one-seam-with-no-behaviour.test.ts. A satisfied
+  // contract is a transition to record, not a planted RED to keep.
   {
     file: "the-canonical-compile-entry-orchestrates-primitives.test.ts",
     select: "(1) RED: one entry compiles a whole program through injected primitives",
@@ -195,8 +170,12 @@ export const PLANTED_REDS: readonly PlantedRed[] = [
   },
   {
     file: "the-guard-primitive-hits-four-targets-on-three-rigs.test.ts",
+    // STAGE MOVED 2026-08-30 (tsk_51ffcc3e1a8fdea8): the registry seam landed and resolves
+    // guard_body_region, so this clause no longer stops at module absence. It now fails because the
+    // PLACEHOLDER guard compiles a foreign-space profile instead of refusing it — M2's behaviour
+    // clause, red for its own reason. The probe caught the move and demanded this edit.
     select: "(0b) RED: the guard REFUSES a profile whose anchors are in a space it does not implement",
-    expected: /primitive-registry must export resolvePrimitive/,
+    expected: /the guard compiled anchors in a space it does not implement/,
     stage: "assertion",
   },
   {
@@ -205,20 +184,29 @@ export const PLANTED_REDS: readonly PlantedRed[] = [
     // no longer required by any clause — the second public compile entry was removed — so these two
     // clauses now stop at the registry, which is the single path. The probe caught the move and
     // demanded this edit, which is what it is for.
+    //
+    // STAGE MOVED AGAIN 2026-08-30 (tsk_51ffcc3e1a8fdea8): the registry now resolves
+    // guard_body_region to the placeholder, which emits no tracks. The clause fails on its first
+    // track-content assertion, which is M2's behavioural bar — red for its own reason.
     select: "(1) guard_body_region resolves one target on THREE rig families through the bind frame, not a per-rig euler table",
-    expected: /primitive-registry must export resolvePrimitive/,
+    expected: /produced no tracks/,
     stage: "assertion",
   },
   {
     file: "the-guard-primitive-hits-four-targets-on-three-rigs.test.ts",
+    // STAGE MOVED 2026-08-30 (tsk_51ffcc3e1a8fdea8): the registry seam landed; the undeclared-target
+    // clause now fails because the placeholder emits an empty track list where a reach must be shown.
     select: "(2) a body target the module has never declared still compiles — there is no per-target pose table",
-    expected: /primitive-registry must export resolvePrimitive/,
+    expected: /expected 0 to be greater than 0/,
     stage: "assertion",
   },
   {
     file: "the-guard-primitive-hits-four-targets-on-three-rigs.test.ts",
+    // STAGE MOVED 2026-08-30 (tsk_51ffcc3e1a8fdea8): the registry seam landed and the placeholder
+    // satisfies the wire-format half of this clause (canonical fragment, attributed to its action).
+    // The reach half fails — legal tracks that go nowhere — which is the M2 behavioural bar.
     select: "(2b) RED: the registered guard returns a CANONICAL fragment, attributed to its action",
-    expected: /primitive-registry must export resolvePrimitive/,
+    expected: /the registered guard returns legal tracks that go nowhere near the region's anchor/,
     stage: "assertion",
   },
   // ALL THREE M5 ENTRIES REMOVED 2026-08-30 (tsk_bca4085904e3b071). The M1
@@ -254,15 +242,20 @@ export const PLANTED_REDS: readonly PlantedRed[] = [
   // contract is a transition to record, not a planted RED to keep.
   {
     file: "the-primitive-registry-composes-four-behaviours.test.ts",
+    // STAGE MOVED 2026-08-30 (tsk_51ffcc3e1a8fdea8): the registry seam landed and resolves the four
+    // ids, so this clause no longer fails on module absence. It now fails because the PLACEHOLDER
+    // compiles a fragment with no tracks — M4's first behavioural assertion, red for its own reason.
     select: "(1) the registry resolves all four primitives and each produces a motion distinct from the other three",
-    expected: /Cannot find module .*src\/(primitive-registry|trajectory)\.js/,
-    stage: "module_absent",
+    expected: /compiled a fragment with no tracks/,
+    stage: "assertion",
   },
   {
     file: "the-primitive-registry-composes-four-behaviours.test.ts",
+    // STAGE MOVED 2026-08-30 (tsk_51ffcc3e1a8fdea8): reproducibility passes trivially on the
+    // placeholder; the load-bearing seed-sensitivity half fails — the placeholder ignores its seed.
     select: "(2) DETERMINISM: one seed reproduces byte-identically AND a different seed produces different motion",
-    expected: /Cannot find module .*src\/(primitive-registry|trajectory)\.js/,
-    stage: "module_absent",
+    expected: /ignores its seed/,
+    stage: "assertion",
   },
   {
     file: "the-primitive-registry-composes-four-behaviours.test.ts",
@@ -272,9 +265,12 @@ export const PLANTED_REDS: readonly PlantedRed[] = [
   },
   {
     file: "the-primitive-registry-composes-four-behaviours.test.ts",
+    // STAGE MOVED 2026-08-30 (tsk_51ffcc3e1a8fdea8): registry resolution and the cross-request
+    // discriminator both pass trivially on empty tracks; the counterweight — the four primitives
+    // must not produce identical channel data — fails, which is M4's distinctness bar.
     select: "(4b) RED: registry resolution binds behaviour, not the primitiveId the request claims",
-    expected: /Cannot find module .*src\/(primitive-registry|trajectory)\.js/,
-    stage: "module_absent",
+    expected: /the four primitives produced identical channel data/,
+    stage: "assertion",
   },
   {
     file: "the-resolved-clip-id-is-what-the-compiler-produces.test.ts",
