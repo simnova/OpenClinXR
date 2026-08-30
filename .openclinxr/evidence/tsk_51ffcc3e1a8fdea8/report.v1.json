@@ -1,0 +1,10 @@
+{
+  "cardId": "tsk_51ffcc3e1a8fdea8",
+  "kind": "independent-manager-verification",
+  "commit": "ff5af67891ff137a2d0d549f1a7a2f8a076d9b19",
+  "independentTests": {
+    "seam": "5/5 x2",
+    "probeReds": "35/35 planted REDs fail for own recorded reason"
+  },
+  "notDone": ["integrate at write time"]
+}

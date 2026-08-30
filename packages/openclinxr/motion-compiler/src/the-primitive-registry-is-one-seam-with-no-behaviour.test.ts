@@ -1,4 +1,4 @@
-import { describe, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import {
   MOTION_REGION_GUARD_RLQ,
@@ -51,6 +51,27 @@ import {
  * the five entries is well factored — clause (4)'s distinctness is an ALIASING guard and is NOT
  * evidence of separate underlying algorithms; shared solver and trajectory code below it is
  * desirable, and M4 clause (4b) carries the same boundary.
+ */
+
+/**
+ * ## FIXED (tsk_51ffcc3e1a8fdea8)
+ *
+ * The five planted clauses below are now live `it` tests. The registry seam landed:
+ *
+ *   - src/primitive-registry.ts              PRIMITIVE_IDS + resolvePrimitive + createPrimitiveRegistry
+ *   - src/guard-body-region.ts               placeholder module, body owned by M2 (tsk_87ee56f876ff1204)
+ *   - src/clutch-body-region.ts              placeholder module, body owned by M4 (tsk_eed004e50d19be54)
+ *   - src/reach-target.ts                    placeholder module, body owned by M4 (tsk_eed004e50d19be54)
+ *   - src/look-at.ts                         placeholder module, body owned by M4 (tsk_eed004e50d19be54)
+ *   - src/cough-recoil.ts                    placeholder module, body owned by M4 (tsk_eed004e50d19be54)
+ *
+ * `resolvePrimitive` resolves every declared id to a per-id placeholder whose `compile` returns a
+ * legal EMPTY-tracks fragment attributed to the action it was given; unknown ids are refused, not
+ * silently undefined; a pure `createPrimitiveRegistry` refuses duplicate ids deterministically and
+ * builds distinct entries. M2 and M4 replace the BODIES of their own placeholder modules and never
+ * edit the central module — clause (5) makes that mechanically true.
+ *
+ * Measured 2026-08-30 on this tree: all five clauses pass (5 passed).
  */
 
 const REGISTRY_MODULE = "./primitive-registry.js";
@@ -119,7 +140,7 @@ function requestFor(primitiveId: string): PrimitiveRequest {
 }
 
 describe("the primitive registry is one seam with no behaviour", () => {
-  planted("(1) RED: the vocabulary carries the guard AND the four behaviours, in one place", async () => {
+  it("(1) RED: the vocabulary carries the guard AND the four behaviours, in one place", async () => {
     const registry = await loadRegistry();
     expect(
       Array.isArray(registry?.PRIMITIVE_IDS),
@@ -132,7 +153,7 @@ describe("the primitive registry is one seam with no behaviour", () => {
     }
   });
 
-  planted("(2) RED: every declared id resolves to something returning a CANONICAL fragment", async () => {
+  it("(2) RED: every declared id resolves to something returning a CANONICAL fragment", async () => {
     const registry = await loadRegistry();
     expect(typeof registry?.resolvePrimitive, `${REGISTRY_MODULE} must export resolvePrimitive`).toBe("function");
 
@@ -155,7 +176,7 @@ describe("the primitive registry is one seam with no behaviour", () => {
     }
   });
 
-  planted("(3) RED: an unknown id is REFUSED, not silently undefined", async () => {
+  it("(3) RED: an unknown id is REFUSED, not silently undefined", async () => {
     // `undefined` from a lookup is indistinguishable from "not registered yet" at every call site,
     // and the canonical entry's own clause (3) requires an unknown primitive to be refused rather
     // than skipped. A registry that returns undefined pushes that decision onto every caller.
@@ -167,7 +188,7 @@ describe("the primitive registry is one seam with no behaviour", () => {
     ).toThrow();
   });
 
-  planted("(4) RED: resolution returns a DISTINCT entry per id — an aliasing guard, nothing more", async () => {
+  it("(4) RED: resolution returns a DISTINCT entry per id — an aliasing guard, nothing more", async () => {
     // COUNTERWEIGHT to clauses (1)-(3), all of which a registry of five references to ONE stub
     // satisfies. Object identity, so it needs no behaviour and no source reading.
     //
@@ -188,7 +209,7 @@ describe("the primitive registry is one seam with no behaviour", () => {
     ).toBe(REQUIRED_PRIMITIVE_IDS.length);
   });
 
-  planted("(5) RED: a duplicate id is REFUSED at construction, deterministically", async () => {
+  it("(5) RED: a duplicate id is REFUSED at construction, deterministically", async () => {
     // THE OWNERSHIP RULE, made mechanical — and REWRITTEN 2026-08-30 because the first version was
     // self-contradictory. It required a mutable `registerPrimitive("look_at", stub)` to SUCCEED as a
     // first registration, while clause (2) requires `look_at` to already resolve. In one module
