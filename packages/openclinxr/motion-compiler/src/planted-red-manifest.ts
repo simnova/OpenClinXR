@@ -221,24 +221,14 @@ export const PLANTED_REDS: readonly PlantedRed[] = [
     expected: /primitive-registry must export resolvePrimitive/,
     stage: "assertion",
   },
-  {
-    file: "the-llm-planner-cannot-emit-bone-tracks.test.ts",
-    select: "(1) RED: refuses a planner output carrying raw per-bone quaternion tracks",
-    expected: /Cannot find module .*src\/(motion-program|motion-body-region)\.js/,
-    stage: "module_absent",
-  },
-  {
-    file: "the-llm-planner-cannot-emit-bone-tracks.test.ts",
-    select: "(2) RED: refuses a target naming a body region the case never authored",
-    expected: /Cannot find module .*src\/(motion-program|motion-body-region)\.js/,
-    stage: "module_absent",
-  },
-  {
-    file: "the-llm-planner-cannot-emit-bone-tracks.test.ts",
-    select: "(3) RED: a planner-produced program cannot self-declare reviewed_llm_proposal",
-    expected: /Cannot find module .*src\/(motion-program|motion-body-region)\.js/,
-    stage: "module_absent",
-  },
+  // ALL THREE M5 ENTRIES REMOVED 2026-08-30 (tsk_bca4085904e3b071). The M1
+  // closed-IR validator satisfies clauses (1)-(3), so they were flipped from
+  // `planted` to `it` with a `## FIXED (tsk_bca4085904e3b071)` block appended
+  // in the-llm-planner-cannot-emit-bone-tracks.test.ts. Clause (2)'s actor half
+  // passes only CONFINED (the plant's own PLACEHOLDER target is an undeclared
+  // region, so the foreign-actor program is refused for the placeholder, not
+  // the actorId) — recorded in that file; closing it needs case context, the
+  // M5 card's residual.
   {
     file: "the-motion-evidence-gates-refuse-a-bad-clip.test.ts",
     select: "(1) REFUSES a clip whose elbow exceeds its limit and whose effector misses its target",
@@ -257,30 +247,11 @@ export const PLANTED_REDS: readonly PlantedRed[] = [
     expected: /Cannot find module .*src\/motion-evidence-gates\.js/,
     stage: "module_absent",
   },
-  {
-    file: "the-planner-emits-a-validated-motion-program.test.ts",
-    select: "the deterministic planner turns the shipped abdomen_rlq guarding row into a MotionProgram v1 that its own validator accepts",
-    expected: /Cannot find module .*src\/(motion-program|motion-body-region|deterministic-scenario-motion-planner)\.js/,
-    stage: "module_absent",
-  },
-  {
-    file: "the-planner-emits-a-validated-motion-program.test.ts",
-    select: "MotionBodyRegion is a separate vocabulary: no raw ComplianceRegion value may be a MotionAction target, and the motion set holds a region the touch set has no counterpart for",
-    expected: /Cannot find module .*src\/(motion-program|motion-body-region|deterministic-scenario-motion-planner)\.js/,
-    stage: "module_absent",
-  },
-  {
-    file: "the-planner-emits-a-validated-motion-program.test.ts",
-    select: "(2c) RED: the plant fixtures' motion regions are MEMBERS of the production vocabulary",
-    expected: /Cannot find module .*src\/(motion-program|motion-body-region|deterministic-scenario-motion-planner)\.js/,
-    stage: "module_absent",
-  },
-  {
-    file: "the-planner-emits-a-validated-motion-program.test.ts",
-    select: "(2b) RED: the support surface DERIVES the baseline posture — chair seats, stretcher lies down",
-    expected: /Cannot find module .*src\/(motion-program|motion-body-region|deterministic-scenario-motion-planner)\.js/,
-    stage: "module_absent",
-  },
+  // FOUR M1 ENTRIES REMOVED 2026-08-30 (tsk_bca4085904e3b071). The M1 modules
+  // landed, all four clauses pass, and they were deliberately flipped from
+  // `planted` to `it` with a `## FIXED (tsk_bca4085904e3b071)` block appended
+  // in the-planner-emits-a-validated-motion-program.test.ts. A satisfied
+  // contract is a transition to record, not a planted RED to keep.
   {
     file: "the-primitive-registry-composes-four-behaviours.test.ts",
     select: "(1) the registry resolves all four primitives and each produces a motion distinct from the other three",
