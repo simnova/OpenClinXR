@@ -6,12 +6,12 @@
   "counts": {
     "agent-methodology": 86,
     "current-reference": 216,
-    "archive-candidate": 58,
+    "archive-candidate": 57,
     "temporary": 55,
     "evidence": 59,
     "protected-policy": 10,
     "agent-memory": 34,
-    "historical-synthesis": 11,
+    "historical-synthesis": 13,
     "decision-record": 44
   },
   "entries": [
@@ -724,6 +724,13 @@
     },
     {
       "path": ".claude/skills/gh-body-file/SKILL.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".claude/skills/grok-tier-routing/SKILL.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
@@ -2067,13 +2074,6 @@
       "rationale": "Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it."
     },
     {
-      "path": "AUTONOMOUS_WORK_PLAN.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
       "path": "LICENSE-CLASHES.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
@@ -2690,6 +2690,13 @@
       "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
+      "path": "docs/_archive/agent-rules/2026-08/PROTO_VERIFY_DELEGATION-incident-archive.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
       "path": "docs/_archive/coordination/2026-08/AUTONOMOUS_WORK_PLAN.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
@@ -2705,6 +2712,13 @@
     },
     {
       "path": "docs/_archive/iterations/0009/07-final-synthesis.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/openclinxr/2026-06/turbo-remote-cache-setup.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
@@ -3804,13 +3818,6 @@
     },
     {
       "path": "docs/openclinxr/third-party-asset-licence-ledger.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
-      "path": "docs/openclinxr/turbo-remote-cache-setup.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",

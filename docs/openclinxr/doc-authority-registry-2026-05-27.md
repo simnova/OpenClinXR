@@ -12,11 +12,11 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 - agent-memory: 34
 - agent-methodology: 86
-- archive-candidate: 58
+- archive-candidate: 57
 - current-reference: 216
 - decision-record: 44
 - evidence: 59
-- historical-synthesis: 11
+- historical-synthesis: 13
 - protected-policy: 10
 - temporary: 55
 
@@ -260,6 +260,7 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `.claude/skills/contract-design/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.claude/skills/delegator-comms/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.claude/skills/gh-body-file/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/skills/grok-tier-routing/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.claude/skills/loop-continuation/SKILL.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
 - `.claude/skills/makeclothes-garments/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.claude/skills/measure-before-claiming/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
@@ -334,7 +335,6 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `.openclinxr/slices/trellis-escape-hatch/LOOP.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/slices/trellis-escape-hatch/log.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/slices/trellis-imagine-black/PLAN.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `AUTONOMOUS_WORK_PLAN.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `LICENSE-CLASHES.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `PROJECT_COORDINATION_INDEX.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/arena-physics-clinical-touch-cagematch-2026-08-01.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
@@ -358,7 +358,6 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/research/2026-08-06-step2cs-and-digital-native-primitives.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/superagent-goal-mpfb-human-realism-2026-08-14.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/third-party-asset-licence-ledger.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `docs/openclinxr/turbo-remote-cache-setup.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/vibevoice-cpp-cagematch-2026-08-23.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/world-compile-graph-brief-2026-08-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `plugins/openclinxr-openclaw-style/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
