@@ -234,14 +234,7 @@ type DispatchOptions = {
    */
   botbyAgentId?: string;
   /**
-   * B2 claim renewal (tsk_36ec8d02ad31c685): the BothyBoard agent identity holding this task's
-   * claim (the assignee). The board reaps a claim whose holder stops heartbeating (~10 min TTL);
-   * `agents.heartbeat` accepts `agentId` and renews that exact claimant. Carried into every
-   * presence call while the child lives; optional so presence degrades to a session stamp.
-   */
-  botbyAgentId?: string;
-  /**
-   * ISSUE #246: explicit orchestrator acknowledgment
+   * ISSUE #246: explicit orchestrator acknowledgment that the dispatch proofs are the INTENDED
    * replacement for the stored brief's done_when. Without it, a dispatch whose proofs differ from
    * the trusted brief is REFUSED (TrustedBriefDivergenceError). With it, the trusted brief's
    * done_when is rewritten to the dispatch proofs so the merge-time contract-verify gate binds the
@@ -249,14 +242,6 @@ type DispatchOptions = {
    * overwrite would let an accidentally-weak proof set silently replace a strict contract.
    */
   refreshTrustedBrief?: boolean;
-  /**
-   * PRODUCT-LANE GATE (2026-08-22): declare this dispatch targets a RELEASE lane (apps/,
-   * packages/, asset-pipeline, factory). Product dispatches are never refused by
-   * assertProductLaneNotStarved; non-product dispatches are refused once the product clock has
-   * expired. Declaring product on a dispatch that lands no product bytes is visible at land —
-   * the clock simply keeps running.
-   */
-  product?: boolean;
 };
 
 export type DispatchLedgerEntry = {
