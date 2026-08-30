@@ -11,6 +11,37 @@ export type ReviewerEvidence = {
   reviewedAt: string;
 };
 
+/**
+ * What a verifier is handed for one candidate approval. Enough to BIND the approval to its subject:
+ * an approval that verifies for one scenario must not verify for another, or for a later version of
+ * the same one. `assertedRole` is what the evidence row CLAIMS — it is input to the verifier, never
+ * an output trusted on its own.
+ */
+export type ReviewerAttestationRequest = {
+  scenarioId: string;
+  scenarioVersion: Scenario["version"];
+  reviewerId: string;
+  assertedRole: string;
+  decision: ReviewerEvidence["decision"];
+  evidenceId: string;
+};
+
+/**
+ * What a verifier returns. Roles come from HERE — the trusted principal — never from the evidence
+ * row's own `reviewerRole` field, which is a string its author typed.
+ */
+export type ReviewerVerifiedPrincipal =
+  | { verified: true; principalId: string; roles: readonly string[] }
+  | { verified: false; reason: string };
+
+/**
+ * A trusted attestation port. Production identity providers, signature formats, and token lifetimes
+ * are NOT this package's concern — this is the seam a real verifier plugs into. When no verifier is
+ * supplied, no approval can be trusted, so no required role is ever satisfied: the gate fails closed
+ * rather than falling back to the row's own self-declared `reviewerRole`.
+ */
+export type ReviewerAttestationVerifier = (request: ReviewerAttestationRequest) => ReviewerVerifiedPrincipal;
+
 export type PublicationAssetReadiness = {
   scenarioId: string;
   devReady: boolean;
@@ -57,12 +88,24 @@ export type EvaluateScenarioPublicationReadinessInput = {
   targetUse: PublicationTargetUse;
   reviewerEvidence: readonly ReviewerEvidence[];
   assetReadiness: PublicationAssetReadiness;
+  /**
+   * Trusted verifier the gate consults to bind an evidence row's claimed `reviewerRole` to a
+   * verified principal. Optional at the type level because a real caller wires a real identity
+   * provider here — but its ABSENCE is not a bypass: see `missingApprovedReviewerRoles`, which
+   * credits no role at all when no verifier is supplied.
+   */
+  attestationVerifier?: ReviewerAttestationVerifier;
 };
 
 export function evaluateScenarioPublicationReadiness(input: EvaluateScenarioPublicationReadinessInput): ScenarioPublicationReadiness {
   const gateResults: PublicationGateResult[] = [];
   const requiredReviewerRoles = [...new Set(input.scenario.governance.requiredReviewerRoles)];
-  const missingReviewerRoles = missingApprovedReviewerRoles(requiredReviewerRoles, input.reviewerEvidence);
+  const missingReviewerRoles = missingApprovedReviewerRoles(
+    requiredReviewerRoles,
+    input.reviewerEvidence,
+    input.scenario,
+    input.attestationVerifier,
+  );
 
   gateResults.push(scenarioStatusGate(input.scenario));
   gateResults.push(reviewStateGate(input.scenario));
@@ -207,16 +250,48 @@ function assetReadinessGate(
   return pass("asset_readiness", "Required scenario assets are production ready.");
 }
 
-function missingApprovedReviewerRoles(requiredReviewerRoles: readonly string[], reviewerEvidence: readonly ReviewerEvidence[]): string[] {
-  const approvedRoles = new Set(
-    reviewerEvidence
-      .filter((evidence) => evidence.decision === "approved")
-      .filter((evidence) => evidence.reviewerId.trim().length > 0)
-      .filter((evidence) => evidence.comments.trim().length > 0)
-      .filter((evidence) => evidence.evidenceRefs.length > 0 && evidence.evidenceRefs.every((ref) => ref.trim().length > 0))
-      .filter((evidence) => !Number.isNaN(Date.parse(evidence.reviewedAt)))
-      .map((evidence) => evidence.reviewerRole),
-  );
+/**
+ * A required role is satisfied only by a shape-valid, VERIFIED approval whose verified principal
+ * actually holds the role the row claims. `evidence.reviewerRole` alone never credits anything —
+ * it is what the row's own author typed, and it is only ever used as the `assertedRole` handed TO
+ * the verifier, never trusted as the role itself.
+ *
+ * No `attestationVerifier` means no approval can be verified, so `approvedRoles` stays empty and
+ * every required role is reported missing. This is the fail-closed default clause (1) requires.
+ */
+function missingApprovedReviewerRoles(
+  requiredReviewerRoles: readonly string[],
+  reviewerEvidence: readonly ReviewerEvidence[],
+  scenario: Scenario,
+  attestationVerifier: ReviewerAttestationVerifier | undefined,
+): string[] {
+  const shapeValidApprovals = reviewerEvidence
+    .filter((evidence) => evidence.decision === "approved")
+    .filter((evidence) => evidence.reviewerId.trim().length > 0)
+    .filter((evidence) => evidence.comments.trim().length > 0)
+    .filter((evidence) => evidence.evidenceRefs.length > 0 && evidence.evidenceRefs.every((ref) => ref.trim().length > 0))
+    .filter((evidence) => !Number.isNaN(Date.parse(evidence.reviewedAt)));
+
+  const approvedRoles = new Set<string>();
+
+  if (attestationVerifier) {
+    for (const evidence of shapeValidApprovals) {
+      const request: ReviewerAttestationRequest = {
+        scenarioId: scenario.scenarioId,
+        scenarioVersion: scenario.version,
+        reviewerId: evidence.reviewerId,
+        assertedRole: evidence.reviewerRole,
+        decision: evidence.decision,
+        evidenceId: evidence.evidenceRefs.join("|"),
+      };
+      const principal = attestationVerifier(request);
+      // The role is credited only when the VERIFIED principal's own role list contains the role
+      // being claimed — never merely because the verifier said `verified: true` to something.
+      if (principal.verified && principal.roles.includes(evidence.reviewerRole)) {
+        approvedRoles.add(evidence.reviewerRole);
+      }
+    }
+  }
 
   return requiredReviewerRoles.filter((role) => !approvedRoles.has(role));
 }

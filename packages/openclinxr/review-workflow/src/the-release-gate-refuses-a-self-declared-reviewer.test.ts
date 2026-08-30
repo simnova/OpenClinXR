@@ -1,7 +1,5 @@
 import { describe, expect, it } from "vitest";
 
-import { planted } from "./planted.js";
-
 // Through the PACKAGE, not a relative path into its src. `@openclinxr/scenario-fixtures` is already a
 // workspace dependency here; the relative form reached a file this package's tsconfig does not list
 // and failed `pnpm typecheck` with TS6307 while `npx tsc --noEmit` reported clean. I ran the check I
@@ -154,7 +152,7 @@ function reviewerGate(readiness: ReturnType<typeof evaluateScenarioPublicationRe
 }
 
 describe("the release gate trusts a verifier, not a self-declared role", () => {
-  planted("(1) RED: a self-declared approval with NO verifier still blocks", () => {
+  it("(1) RED: a self-declared approval with NO verifier still blocks", () => {
     // THE EXPLOIT, stated as the contract. This row passes every shape check on HEAD today.
     const readiness = evaluate(inputWith(fullyApproved()));
     expect(
@@ -181,7 +179,7 @@ describe("the release gate trusts a verifier, not a self-declared role", () => {
     expect(readiness.canPublishForLearnerUse, "a fully verified local_formative release is still blocked").toBe(true);
   });
 
-  planted("(3) RED: roles come from the VERIFIER, never from the evidence row", () => {
+  it("(3) RED: roles come from the VERIFIER, never from the evidence row", () => {
     // The row asserts the required role; the verifier says this principal does not hold it. If the
     // gate reads `evidence.reviewerRole` anywhere, this passes and the port is decoration.
     const wrongRole: ReviewerAttestationVerifier = (request) => ({
@@ -196,7 +194,7 @@ describe("the release gate trusts a verifier, not a self-declared role", () => {
     ).toBe("block");
   });
 
-  planted("(4) RED: an approval is BOUND to its scenario and version — it cannot be replayed", () => {
+  it("(4) RED: an approval is BOUND to its scenario and version — it cannot be replayed", () => {
     // A verifier that answers without binding lets one genuine approval authorise every scenario in
     // the bank, and every later version of this one. Both halves are asserted through the SAME
     // verifier, so a gate that never passes the subject through fails both.
@@ -223,7 +221,7 @@ describe("the release gate trusts a verifier, not a self-declared role", () => {
     expect(reviewerGate(readiness)?.status, "a correctly bound approval was rejected").not.toBe("block");
   });
 
-  planted("(5) RED: a reject-all verifier BLOCKS — proving the port is consulted, not decorative", () => {
+  it("(5) RED: a reject-all verifier BLOCKS — proving the port is consulted, not decorative", () => {
     // The counterweight for the whole file. Clauses (2) and (4) pass on a gate that ignores the
     // verifier and trusts the row; this one cannot.
     const rejectAll: ReviewerAttestationVerifier = () => ({ verified: false, reason: "no attestation on file" });
@@ -235,14 +233,21 @@ describe("the release gate trusts a verifier, not a self-declared role", () => {
     expect(readiness.canPublishForLearnerUse, "publication is permitted while no approval verifies").toBe(false);
   });
 
-  it("(6) LIVE: the exploit is real on HEAD — this is the measurement, not a hypothesis", () => {
-    // Passes on arrival and fails independently of the REDs. If a later change makes fabricated
-    // approvals blocking for some unrelated reason, this clause turns red and the card's premise
-    // needs re-reading rather than the fix being assumed.
+  it("(6) REGRESSION GUARD: the closed exploit stays closed — an unverified approval never clears the gate", () => {
+    // INVERTED from the original LIVE premise sentinel. That version asserted the exploit was real —
+    // `.not.toBe("block")` — and passed on arrival, which was the measurement this card's diagnosis
+    // rests on (see the MEASURED block above). Now that the verifier port is wired, the identical
+    // input (fully "approved" rows, no attestationVerifier supplied) must BLOCK. If this clause ever
+    // turns red, an unverified or self-declared reviewer is clearing the human release gate again —
+    // re-read this card's premise before trusting anything else in this file.
     const readiness = evaluateScenarioPublicationReadiness(inputWith(fullyApproved()));
     expect(
       reviewerGate(readiness)?.status,
-      "the self-declared approval no longer satisfies the role gate — re-read this card's premise",
-    ).not.toBe("block");
+      "a self-declared approval with no verifier satisfied the role gate — the exploit is open again",
+    ).toBe("block");
+    expect(
+      readiness.canPublishForLearnerUse,
+      "publication was permitted on an unverified approval — the exploit is open again",
+    ).toBe(false);
   });
 });

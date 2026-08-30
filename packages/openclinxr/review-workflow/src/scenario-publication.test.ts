@@ -1,6 +1,6 @@
 import { edChestPainScenario, pediatricAsthmaScenario } from "@openclinxr/scenario-fixtures";
 import { describe, expect, it } from "vitest";
-import { evaluateScenarioPublicationReadiness, type ReviewerEvidence } from "./index.js";
+import { evaluateScenarioPublicationReadiness, type ReviewerAttestationVerifier, type ReviewerEvidence } from "./index.js";
 
 const completeReviewerEvidence: ReviewerEvidence[] = [
   reviewer("clinician", "clinical-cmo-001"),
@@ -8,6 +8,19 @@ const completeReviewerEvidence: ReviewerEvidence[] = [
   reviewer("legal", "legal-001"),
   reviewer("simulation_qa", "simulation-qa-001"),
 ];
+
+/**
+ * Test double for the trusted-verifier port (card tsk_a5045834c138eceb). Every test below is about
+ * SOME OTHER gate — governance stage, asset readiness, score-use — not about attestation itself, so
+ * it trusts whatever role the evidence row asserts. The self-declaration exploit this stands in for
+ * is covered by its own contract:
+ * `the-release-gate-refuses-a-self-declared-reviewer.test.ts`.
+ */
+const trustAllReviewers: ReviewerAttestationVerifier = (request) => ({
+  verified: true,
+  principalId: request.reviewerId,
+  roles: [request.assertedRole],
+});
 
 const devReadyAssets = {
   scenarioId: edChestPainScenario.scenarioId,
@@ -25,6 +38,7 @@ describe("scenario publication readiness", () => {
       targetUse: "local_formative",
       reviewerEvidence: completeReviewerEvidence,
       assetReadiness: devReadyAssets,
+      attestationVerifier: trustAllReviewers,
     });
 
     expect(readiness.canPublishForLearnerUse).toBe(true);
@@ -51,6 +65,7 @@ describe("scenario publication readiness", () => {
       targetUse: "local_formative",
       reviewerEvidence: completeReviewerEvidence.filter((evidence) => evidence.reviewerRole !== "legal"),
       assetReadiness: devReadyAssets,
+      attestationVerifier: trustAllReviewers,
     });
 
     expect(readiness.canPublishForLearnerUse).toBe(false);
@@ -80,6 +95,7 @@ describe("scenario publication readiness", () => {
       targetUse: "local_formative",
       reviewerEvidence: completeReviewerEvidence.filter((evidence) => evidence.reviewerRole !== "legal"),
       assetReadiness: devReadyAssets,
+      attestationVerifier: trustAllReviewers,
     });
 
     expect(readiness.missingReviewerRoles).toEqual(["legal"]);
@@ -98,6 +114,7 @@ describe("scenario publication readiness", () => {
         evidence.reviewerRole === "legal" ? { ...evidence, evidenceRefs: ["   "] } : evidence
       ),
       assetReadiness: devReadyAssets,
+      attestationVerifier: trustAllReviewers,
     });
 
     expect(readiness.canPublishForLearnerUse).toBe(false);
@@ -118,6 +135,7 @@ describe("scenario publication readiness", () => {
           : evidence
       ),
       assetReadiness: devReadyAssets,
+      attestationVerifier: trustAllReviewers,
     });
 
     expect(readiness.canPublishForLearnerUse).toBe(false);
@@ -139,6 +157,7 @@ describe("scenario publication readiness", () => {
       targetUse: "local_formative",
       reviewerEvidence: completeReviewerEvidence,
       assetReadiness: { ...devReadyAssets, scenarioId: "different_scenario_v1" },
+      attestationVerifier: trustAllReviewers,
     });
 
     expect(readiness.canPublishForLearnerUse).toBe(false);
@@ -164,6 +183,7 @@ describe("scenario publication readiness", () => {
         reviewer("simulation_qa", "simulation-qa-001"),
       ],
       assetReadiness: { ...devReadyAssets, scenarioId: pediatricAsthmaScenario.scenarioId },
+      attestationVerifier: trustAllReviewers,
     });
 
     expect(readiness.canPublishForLearnerUse).toBe(false);
