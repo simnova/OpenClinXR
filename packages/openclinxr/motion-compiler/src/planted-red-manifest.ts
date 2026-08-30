@@ -57,8 +57,8 @@ export const PLANTED_REDS: readonly PlantedRed[] = [
   },
   {
     file: "the-primitive-registry-is-one-seam-with-no-behaviour.test.ts",
-    select: "(5) RED: a second registration for an existing id is REFUSED, never silently winning",
-    expected: /primitive-registry\.js must export registerPrimitive/,
+    select: "(5) RED: a duplicate id is REFUSED at construction, deterministically",
+    expected: /primitive-registry\.js must export createPrimitiveRegistry/,
     stage: "assertion",
   },
   {

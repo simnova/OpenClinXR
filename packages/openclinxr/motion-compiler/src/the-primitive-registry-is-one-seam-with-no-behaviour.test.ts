@@ -62,10 +62,16 @@ const REQUIRED_PRIMITIVE_IDS = [
 
 type RegisteredPrimitive = { compile: (request: PrimitiveRequest) => CompiledMotionFragment };
 
+type RegistryEntry = { id: string; primitive: RegisteredPrimitive };
+
 type RegistryModule = {
   PRIMITIVE_IDS?: readonly string[];
   resolvePrimitive?: (id: string) => RegisteredPrimitive | undefined;
-  registerPrimitive?: (id: string, primitive: RegisteredPrimitive) => void;
+  /**
+   * A PURE CONSTRUCTOR, not an import-time mutation. See clause (5) for why the mutable
+   * `registerPrimitive` this contract first asked for was withdrawn.
+   */
+  createPrimitiveRegistry?: (entries: readonly RegistryEntry[]) => { resolvePrimitive: (id: string) => RegisteredPrimitive };
 };
 
 /** Resolve to an ABSOLUTE url so an absent module reports its real path, not a mangled one. */
@@ -178,36 +184,53 @@ describe("the primitive registry is one seam with no behaviour", () => {
     ).toBe(REQUIRED_PRIMITIVE_IDS.length);
   });
 
-  planted("(5) RED: a second registration for an existing id is REFUSED, never silently winning", async () => {
-    // THE OWNERSHIP RULE, made mechanical. M2 and M4 attach implementations through slots this card
-    // establishes; if a later registration could silently replace an earlier one, "who owns this id"
-    // becomes a function of module evaluation order — which is exactly why the card asks for a static
-    // table rather than import-time mutation, and why nobody could reason about a duplicate from the
-    // source.
+  planted("(5) RED: a duplicate id is REFUSED at construction, deterministically", async () => {
+    // THE OWNERSHIP RULE, made mechanical — and REWRITTEN 2026-08-30 because the first version was
+    // self-contradictory. It required a mutable `registerPrimitive("look_at", stub)` to SUCCEED as a
+    // first registration, while clause (2) requires `look_at` to already resolve. In one module
+    // instance both cannot hold, and a worker would have had to weaken a clause, add test-only state,
+    // or invent lifecycle semantics to satisfy them. Caught by external review before dispatch.
     //
-    // A registry with no registration surface at all satisfies this vacuously, so the export is
-    // required first: whatever mechanism M2 and M4 use to attach must be addressable here.
+    // The repair is the architecture the card already preferred. The production registry is STATIC
+    // and fully populated from stable module paths; there is no runtime registration surface at all,
+    // so import order cannot decide who owns an id. M2 and M4 replace the BODIES of their own
+    // placeholder implementation modules and never touch this one.
+    //
+    // Collision handling is then a property of a PURE CONSTRUCTOR over a deterministic input, which
+    // is testable without any lifecycle: hand it two entries naming one id and it must refuse.
     const registry = await loadRegistry();
     expect(
-      typeof registry?.registerPrimitive,
-      `${REGISTRY_MODULE} must export registerPrimitive — the slot M2 and M4 attach through, so neither has to edit this module`,
+      typeof registry?.createPrimitiveRegistry,
+      `${REGISTRY_MODULE} must export createPrimitiveRegistry — collision handling has to be a property of a deterministic input, not of module evaluation order`,
     ).toBe("function");
 
-    const stub: RegisteredPrimitive = {
-      compile: (request) => ({ actionId: (request.action as { actionId: string }).actionId, tracks: [] }),
-    };
+    const stub = (marker: string): RegisteredPrimitive => ({
+      compile: (request) => ({ actionId: `${(request.action as { actionId: string }).actionId}${marker}`, tracks: [] }),
+    });
 
     expect(
-      () => registry!.registerPrimitive!("guard_body_region", stub),
-      "a second registration for an already-registered id was accepted — ownership of an id would depend on evaluation order",
+      () =>
+        registry!.createPrimitiveRegistry!([
+          { id: "guard_body_region", primitive: stub("") },
+          { id: "look_at", primitive: stub("") },
+          { id: "guard_body_region", primitive: stub("-second") },
+        ]),
+      "two entries claimed one id and construction succeeded — ownership of an id would depend on input order",
     ).toThrow();
 
-    // COUNTERWEIGHT: refusing EVERY registration also satisfies the line above, and would make the
-    // slot useless. An id in the vocabulary with nothing attached must still accept its first
-    // registration.
+    // COUNTERWEIGHT: refusing EVERY construction satisfies the line above and makes the constructor
+    // useless. Distinct ids must build, and the result must resolve them.
+    const built = registry!.createPrimitiveRegistry!([
+      { id: "guard_body_region", primitive: stub("-a") },
+      { id: "look_at", primitive: stub("-b") },
+    ]);
     expect(
-      () => registry!.registerPrimitive!("look_at", stub),
-      "the registry refuses all registrations, so no implementation can ever attach",
-    ).not.toThrow();
+      typeof built.resolvePrimitive,
+      "the constructed registry does not resolve — the constructor refuses everything, or returns the wrong shape",
+    ).toBe("function");
+    expect(
+      built.resolvePrimitive("look_at").compile(requestFor("look_at")).actionId,
+      "the constructed registry resolved an id to the wrong entry",
+    ).toBe("action_look_at-b");
   });
 });
