@@ -455,6 +455,21 @@ This carries out the frozen header's own instruction. It said the file had becom
 rather than an execution protocol, and that a rule nobody greps and no test enforces is dead weight.
 Cold storage keeps it greppable at zero resident cost.
 
+**CITE IT BY ANCHOR, NEVER BY LINE NUMBER.** The split broke exactly one of the eight references to
+this file from `tools/` — `PROTO_VERIFY_DELEGATION.md:3424`. Every other citation names a section or
+the document and still resolves by grep; only the line number could not survive a move. It was always
+fragile — any edit above line 3424 would have broken it — and the split merely exposed that. An anchor
+survives edits, moves, and re-splits; a line number survives none of them.
+
+    WRONG   (`PROTO_VERIFY_DELEGATION.md:3424` records that plainly)
+    RIGHT   grep "never been validated on hardware" in
+            docs/_archive/agent-rules/2026-08/PROTO_VERIFY_DELEGATION-incident-archive.md
+
+This is enforced, not requested: `tools/agent-factory/archived-reasoning-is-cited-by-anchor-not-line.test.ts`
+fails the pre-commit gate on any tracked file that cites either half by line number. Per this file's
+own frozen header, new learning goes to something that FAILS CLOSED rather than to a new numbered
+section — so it went there, and this paragraph only points at it.
+
 **Consult it by grep, not by reading:**
 
 ```sh

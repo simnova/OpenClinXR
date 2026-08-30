@@ -25,7 +25,8 @@ import { describe, expect, it } from "vitest";
  * Over by 180,524 before a wall, a bed, or a monitor. The peds three-actor station is 238,804.
  *
  * The budget is AUTHORED DATA, not a number chosen here. It is also NOT VALIDATED ON HARDWARE
- * (`PROTO_VERIFY_DELEGATION.md:3424` records that plainly), so clause (1) proves a declared budget
+ * (grep "never been validated on hardware" in
+ * docs/_archive/agent-rules/2026-08/PROTO_VERIFY_DELEGATION-incident-archive.md records that plainly), so clause (1) proves a declared budget
  * is breached and says nothing about what a Quest actually renders.
  *
  * Nothing decimates these: `grep -il decimat tools/openclinxr/asset-pipeline/` matches only
@@ -212,7 +213,7 @@ describe("a humanoid bake is judged before it is shipped", () => {
 });
 
 // NOT TESTED: whether 180,000 is the right budget. It has never been validated on Quest hardware
-// (PROTO_VERIFY_DELEGATION.md:3424), so clause (1) proves a DECLARED budget is breached and nothing
+// (grep "never been validated on hardware" in the PROTO_VERIFY_DELEGATION incident archive), so clause (1) proves a DECLARED budget is breached and nothing
 // about real frame cost. Nor whether decimation is the right remedy: fewer actors, a shared body
 // mesh, and GPU instancing are alternatives these clauses do not evaluate.
 
