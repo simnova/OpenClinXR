@@ -1,0 +1,291 @@
+{
+  "measuredAt": "2026-08-30T03:42:40.567Z",
+  "measuredAgainstCommit": "501a517a897b56f8091b2ff58c301c3fa47d9562",
+  "what": "Every touchResponse row in the live scenarioBank, before any routing fix.",
+  "rowCount": 24,
+  "distinctScenarios": 4,
+  "distinctRegions": [
+    "abdomen_rlq",
+    "abdomen_ruq",
+    "abdomen_luq",
+    "abdomen_llq",
+    "chest_R",
+    "chest_L"
+  ],
+  "distinctValuesPerField": {
+    "responseClip": 1,
+    "responseKind": 1,
+    "forceThreshold": 8,
+    "traceTag": 6,
+    "emotionEventId": 6,
+    "dialogueLineChars": 14
+  },
+  "mechanism": "responseClip is the ONLY field in the row that does not vary with region; forceThreshold, traceTag, emotionEventId, emotion and dialogueLine all do. So the case data already discriminates the region and the clip binding alone ignores it.",
+  "pinnedBy": "packages/openclinxr/scenario-fixtures/src/ed-chest-pain.test.ts:62 asserts the single clip for all six regions.",
+  "rows": [
+    {
+      "scenarioId": "ed_chest_pain_priority_v1",
+      "actorId": "patient_robert_hayes_v1",
+      "region": "abdomen_rlq",
+      "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
+      "responseKind": "guarding",
+      "forceThreshold": 0.32,
+      "traceTag": "clinical_touch_guard_rlq",
+      "emotionEventId": "guard_rlq_v1",
+      "dialogueLineChars": 46
+    },
+    {
+      "scenarioId": "ed_chest_pain_priority_v1",
+      "actorId": "patient_robert_hayes_v1",
+      "region": "abdomen_ruq",
+      "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
+      "responseKind": "guarding",
+      "forceThreshold": 0.55,
+      "traceTag": "clinical_touch_guard_ruq",
+      "emotionEventId": "guard_ruq_v1",
+      "dialogueLineChars": 52
+    },
+    {
+      "scenarioId": "ed_chest_pain_priority_v1",
+      "actorId": "patient_robert_hayes_v1",
+      "region": "abdomen_luq",
+      "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
+      "responseKind": "guarding",
+      "forceThreshold": 0.55,
+      "traceTag": "clinical_touch_guard_luq",
+      "emotionEventId": "guard_luq_v1",
+      "dialogueLineChars": 44
+    },
+    {
+      "scenarioId": "ed_chest_pain_priority_v1",
+      "actorId": "patient_robert_hayes_v1",
+      "region": "abdomen_llq",
+      "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
+      "responseKind": "guarding",
+      "forceThreshold": 0.5,
+      "traceTag": "clinical_touch_guard_llq",
+      "emotionEventId": "guard_llq_v1",
+      "dialogueLineChars": 50
+    },
+    {
+      "scenarioId": "ed_chest_pain_priority_v1",
+      "actorId": "patient_robert_hayes_v1",
+      "region": "chest_R",
+      "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
+      "responseKind": "guarding",
+      "forceThreshold": 0.42,
+      "traceTag": "clinical_touch_guard_chest_r",
+      "emotionEventId": "guard_chest_r_v1",
+      "dialogueLineChars": 51
+    },
+    {
+      "scenarioId": "ed_chest_pain_priority_v1",
+      "actorId": "patient_robert_hayes_v1",
+      "region": "chest_L",
+      "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
+      "responseKind": "guarding",
+      "forceThreshold": 0.5,
+      "traceTag": "clinical_touch_guard_chest_l",
+      "emotionEventId": "guard_chest_l_v1",
+      "dialogueLineChars": 54
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "patient_maya_johnson_v1",
+      "region": "abdomen_rlq",
+      "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
+      "responseKind": "guarding",
+      "forceThreshold": 0.32,
+      "traceTag": "clinical_touch_guard_rlq",
+      "emotionEventId": "guard_rlq_v1",
+      "dialogueLineChars": 46
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "patient_maya_johnson_v1",
+      "region": "abdomen_ruq",
+      "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
+      "responseKind": "guarding",
+      "forceThreshold": 0.55,
+      "traceTag": "clinical_touch_guard_ruq",
+      "emotionEventId": "guard_ruq_v1",
+      "dialogueLineChars": 25
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "patient_maya_johnson_v1",
+      "region": "abdomen_luq",
+      "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
+      "responseKind": "guarding",
+      "forceThreshold": 0.55,
+      "traceTag": "clinical_touch_guard_luq",
+      "emotionEventId": "guard_luq_v1",
+      "dialogueLineChars": 29
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "patient_maya_johnson_v1",
+      "region": "abdomen_llq",
+      "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
+      "responseKind": "guarding",
+      "forceThreshold": 0.5,
+      "traceTag": "clinical_touch_guard_llq",
+      "emotionEventId": "guard_llq_v1",
+      "dialogueLineChars": 43
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "patient_maya_johnson_v1",
+      "region": "chest_R",
+      "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
+      "responseKind": "guarding",
+      "forceThreshold": 0.45,
+      "traceTag": "clinical_touch_guard_chest_r",
+      "emotionEventId": "guard_chest_r_v1",
+      "dialogueLineChars": 48
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "patient_maya_johnson_v1",
+      "region": "chest_L",
+      "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
+      "responseKind": "guarding",
+      "forceThreshold": 0.5,
+      "traceTag": "clinical_touch_guard_chest_l",
+      "emotionEventId": "guard_chest_l_v1",
+      "dialogueLineChars": 38
+    },
+    {
+      "scenarioId": "adult_abdominal_pain_v1",
+      "actorId": "patient_elena_vasquez_v1",
+      "region": "abdomen_rlq",
+      "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
+      "responseKind": "guarding",
+      "forceThreshold": 0.28,
+      "traceTag": "clinical_touch_guard_rlq",
+      "emotionEventId": "guard_rlq_v1",
+      "dialogueLineChars": 46
+    },
+    {
+      "scenarioId": "adult_abdominal_pain_v1",
+      "actorId": "patient_elena_vasquez_v1",
+      "region": "abdomen_ruq",
+      "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
+      "responseKind": "guarding",
+      "forceThreshold": 0.55,
+      "traceTag": "clinical_touch_guard_ruq",
+      "emotionEventId": "guard_ruq_v1",
+      "dialogueLineChars": 52
+    },
+    {
+      "scenarioId": "adult_abdominal_pain_v1",
+      "actorId": "patient_elena_vasquez_v1",
+      "region": "abdomen_luq",
+      "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
+      "responseKind": "guarding",
+      "forceThreshold": 0.55,
+      "traceTag": "clinical_touch_guard_luq",
+      "emotionEventId": "guard_luq_v1",
+      "dialogueLineChars": 44
+    },
+    {
+      "scenarioId": "adult_abdominal_pain_v1",
+      "actorId": "patient_elena_vasquez_v1",
+      "region": "abdomen_llq",
+      "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
+      "responseKind": "guarding",
+      "forceThreshold": 0.5,
+      "traceTag": "clinical_touch_guard_llq",
+      "emotionEventId": "guard_llq_v1",
+      "dialogueLineChars": 50
+    },
+    {
+      "scenarioId": "adult_abdominal_pain_v1",
+      "actorId": "patient_elena_vasquez_v1",
+      "region": "chest_R",
+      "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
+      "responseKind": "guarding",
+      "forceThreshold": 0.55,
+      "traceTag": "clinical_touch_guard_chest_r",
+      "emotionEventId": "guard_chest_r_v1",
+      "dialogueLineChars": 46
+    },
+    {
+      "scenarioId": "adult_abdominal_pain_v1",
+      "actorId": "patient_elena_vasquez_v1",
+      "region": "chest_L",
+      "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
+      "responseKind": "guarding",
+      "forceThreshold": 0.55,
+      "traceTag": "clinical_touch_guard_chest_l",
+      "emotionEventId": "guard_chest_l_v1",
+      "dialogueLineChars": 47
+    },
+    {
+      "scenarioId": "peds_fever_v1",
+      "actorId": "patient_noah_chen_v1",
+      "region": "abdomen_rlq",
+      "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
+      "responseKind": "guarding",
+      "forceThreshold": 0.34,
+      "traceTag": "clinical_touch_guard_rlq",
+      "emotionEventId": "guard_rlq_v1",
+      "dialogueLineChars": 42
+    },
+    {
+      "scenarioId": "peds_fever_v1",
+      "actorId": "patient_noah_chen_v1",
+      "region": "abdomen_ruq",
+      "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
+      "responseKind": "guarding",
+      "forceThreshold": 0.55,
+      "traceTag": "clinical_touch_guard_ruq",
+      "emotionEventId": "guard_ruq_v1",
+      "dialogueLineChars": 25
+    },
+    {
+      "scenarioId": "peds_fever_v1",
+      "actorId": "patient_noah_chen_v1",
+      "region": "abdomen_luq",
+      "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
+      "responseKind": "guarding",
+      "forceThreshold": 0.55,
+      "traceTag": "clinical_touch_guard_luq",
+      "emotionEventId": "guard_luq_v1",
+      "dialogueLineChars": 29
+    },
+    {
+      "scenarioId": "peds_fever_v1",
+      "actorId": "patient_noah_chen_v1",
+      "region": "abdomen_llq",
+      "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
+      "responseKind": "guarding",
+      "forceThreshold": 0.5,
+      "traceTag": "clinical_touch_guard_llq",
+      "emotionEventId": "guard_llq_v1",
+      "dialogueLineChars": 43
+    },
+    {
+      "scenarioId": "peds_fever_v1",
+      "actorId": "patient_noah_chen_v1",
+      "region": "chest_R",
+      "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
+      "responseKind": "guarding",
+      "forceThreshold": 0.48,
+      "traceTag": "clinical_touch_guard_chest_r",
+      "emotionEventId": "guard_chest_r_v1",
+      "dialogueLineChars": 45
+    },
+    {
+      "scenarioId": "peds_fever_v1",
+      "actorId": "patient_noah_chen_v1",
+      "region": "chest_L",
+      "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
+      "responseKind": "guarding",
+      "forceThreshold": 0.5,
+      "traceTag": "clinical_touch_guard_chest_l",
+      "emotionEventId": "guard_chest_l_v1",
+      "dialogueLineChars": 38
+    }
+  ]
+}

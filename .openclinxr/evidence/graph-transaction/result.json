@@ -1,0 +1,92 @@
+{
+ "ranAt": "2026-08-30T06:13:57.829121+00:00",
+ "what": "Motion-subtree dependency graph transaction. depIds is create-only on this board, so correcting four edges required rebuilding every transitive dependent.",
+ "recordsReplaced": 14,
+ "mapping": {
+  "tsk_795a5ba6510de2b9": "tsk_d142728708e36432",
+  "tsk_1c562c5c4ee99449": "tsk_2ae83574bc05eed0",
+  "tsk_3eb3671b7883d271": "tsk_543f0a18209e28e9",
+  "tsk_c27437401629cb74": "tsk_f736a7dc1180eac9",
+  "tsk_ae6a9530ba63a68b": "tsk_e2f3dfd17da72dc4",
+  "tsk_ec8cdf80aaaafb94": "tsk_a91e706187741b41",
+  "tsk_67cafb96802a06bc": "tsk_6b495e7fbd6d1e4a",
+  "tsk_91740ee035e7e03e": "tsk_dea68eeaeb66c258",
+  "tsk_9faa82d3f77d8a6a": "tsk_bb51103f35335a84",
+  "tsk_b2c4602f9ad9d68b": "tsk_ac81e3104a6bd74b",
+  "tsk_58592bac78a59148": "tsk_d1061ed09e5494ac",
+  "tsk_21b621d1b482a35a": "tsk_5a0bf660836c1f2b",
+  "tsk_127017bdecbe3ac0": "tsk_788ebc0b9ed9da75",
+  "tsk_291d28a8b441c165": "tsk_95c2eec01ff59b3e"
+ },
+ "correctedEdges": {
+  "M2": {
+   "was": [
+    "contacts"
+   ],
+   "now": [
+    "M1b",
+    "registry-foundation",
+    "region-anchors"
+   ],
+   "why": "the contacts RED measures the REGISTERED guard, which is M2's deliverable; completing M1b would have made contacts claimable and handed its worker M2's work"
+  },
+  "contacts": {
+   "was": [
+    "M1b"
+   ],
+   "now": [
+    "M2"
+   ],
+   "why": "reverse of the above"
+  },
+  "M4": {
+   "was": [
+    "contacts"
+   ],
+   "now": [
+    "registry-foundation"
+   ],
+   "why": "M4's narrowed scope does not prove contact solving; serialising it behind contacts held unrelated registry and minimum-jerk work"
+  },
+  "trajectory": {
+   "was": [
+    "M4"
+   ],
+   "now": [
+    "M4",
+    "contacts"
+   ],
+   "why": "it owns contact-BEARING primitive expansion"
+  },
+  "D9": {
+   "was": [
+    "bake"
+   ],
+   "now": [
+    "bake",
+    "section-19-runtime-intents"
+   ],
+   "why": "the build path can prove itself dark while the learner session still asks an LLM for behaviorIntents that drive IK"
+  },
+  "contact-surfaces": {
+   "was": [
+    "contacts",
+    "M1b"
+   ],
+   "now": [
+    "contacts",
+    "region-anchors"
+   ],
+   "why": "it needs anchor POINTS to exist before asking what a surface adds; M1b does not produce anchors"
+  }
+ },
+ "verification": {
+  "liveRecords": 22,
+  "plantedRecords": 10,
+  "danglingDeps": 0,
+  "supersededIdsStillLive": 0,
+  "dependencyCycles": 0,
+  "plantedCardsWithAbsentRed": 0
+ },
+ "notTested": "Whether this board treats a cancelled dependency as satisfied or as permanently blocking. The transaction was run in one pass with parents created before children and cancellations last, so no live record ever pointed at a cancelled one and the question did not arise."
+}

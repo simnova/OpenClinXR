@@ -1,0 +1,405 @@
+{
+ "tsk_795a5ba6510de2b9": {
+  "title": "M2 guard_body_region across three rigs (corrected envelope, RED already committed)",
+  "kind": "feature",
+  "lane": "A",
+  "priority": 1,
+  "objective": "World-space arm IK for guard_body_region proven across three rig families. Dispatch envelope corrected so it waits for the real SkeletonProfile and the contact contract instead of starting on fixture profiles.",
+  "writeRoots": [
+   "packages/openclinxr/motion-compiler"
+  ],
+  "knownGood": "The RED is committed and currently expected-fail. materialize-guard-withdraw-clip.ts produces the one clip that exists today; pose-bone-resolver.ts resolves landmarks across 3 rig families.",
+  "outOfScope": null,
+  "notTested": null,
+  "doneWhen": [
+   "live:packages/openclinxr/motion-compiler/src/the-guard-primitive-hits-four-targets-on-three-rigs.test.ts",
+   "run:pnpm --filter @openclinxr/motion-compiler exec vitest run src/the-guard-primitive-hits-four-targets-on-three-rigs.test.ts",
+   "changed:packages/openclinxr/motion-compiler/src"
+  ],
+  "fields": {
+   "lane": "A",
+   "factory_step": "motion_retarget"
+  },
+  "body": null,
+  "depIds": [
+   "tsk_1c562c5c4ee99449"
+  ],
+  "factory": "Idle",
+  "status": "backlog"
+ },
+ "tsk_1c562c5c4ee99449": {
+  "title": "Contacts are first-class: ContactConstraint in the MotionProgram IR (corrected envelope)",
+  "kind": "feature",
+  "lane": "A",
+  "priority": 1,
+  "objective": "Brief section 14 gives a full ContactConstraint schema and no planted contract asserts any part of it. Contacts define how guard, clutch and reach ARE - they must land BEFORE the primitives that depend on them, not after.",
+  "writeRoots": [
+   "packages/openclinxr/motion-compiler"
+  ],
+  "knownGood": "The existing seated/supine support logic is the brief-named precursor. the-motion-evidence-gates plant already measures effector-to-target distance.",
+  "outOfScope": null,
+  "notTested": null,
+  "doneWhen": [
+   "live:packages/openclinxr/motion-compiler/src/the-contact-constraint-holds-across-its-window.test.ts",
+   "run:pnpm --filter @openclinxr/motion-compiler exec vitest run src/the-contact-constraint-holds-across-its-window.test.ts",
+   "changed:packages/openclinxr/motion-compiler/src"
+  ],
+  "fields": {
+   "lane": "A",
+   "factory_step": "motion_retarget"
+  },
+  "body": null,
+  "depIds": [
+   "tsk_9f1009a2642f18bf"
+  ],
+  "factory": "Planted",
+  "status": "blocked"
+ },
+ "tsk_3eb3671b7883d271": {
+  "title": "M4 primitive registry distinctness + minimum-jerk + seed sensitivity (corrected envelope)",
+  "kind": "feature",
+  "lane": "A",
+  "priority": 2,
+  "objective": "Registry composes distinct behaviours with an isolated minimum-jerk profile and real seed sensitivity. Envelope corrected: the original claimed to build on M2 and depended on nothing.",
+  "writeRoots": [
+   "packages/openclinxr/motion-compiler"
+  ],
+  "knownGood": "The RED is committed. Its 1.875 ratio is 15/8, the analytic peak-to-mean of a minimum-jerk profile - derived, not fitted.",
+  "outOfScope": null,
+  "notTested": null,
+  "doneWhen": [
+   "live:packages/openclinxr/motion-compiler/src/the-primitive-registry-composes-four-behaviours.test.ts",
+   "run:pnpm --filter @openclinxr/motion-compiler exec vitest run src/the-primitive-registry-composes-four-behaviours.test.ts",
+   "changed:packages/openclinxr/motion-compiler/src"
+  ],
+  "fields": {
+   "lane": "A",
+   "factory_step": "motion_retarget"
+  },
+  "body": null,
+  "depIds": [
+   "tsk_1c562c5c4ee99449"
+  ],
+  "factory": "Idle",
+  "status": "backlog"
+ },
+ "tsk_c27437401629cb74": {
+  "title": "M3 evidence aggregation and deterministic precedence (corrected envelope)",
+  "kind": "feature",
+  "lane": "A",
+  "priority": 2,
+  "objective": "Seven-slot evidence report with genuine positive and negative classification, and the contract that a visual or VLM finding can never override a deterministic gate. Envelope corrected: the original depended on a now-cancelled M2 record.",
+  "writeRoots": [
+   "packages/openclinxr/motion-compiler"
+  ],
+  "knownGood": "RED committed. Its clause (3) counterweight - a VLM finding cannot satisfy or override a deterministic gate - is sound and must keep passing.",
+  "outOfScope": null,
+  "notTested": null,
+  "doneWhen": [
+   "live:packages/openclinxr/motion-compiler/src/the-motion-evidence-gates-refuse-a-bad-clip.test.ts",
+   "run:pnpm --filter @openclinxr/motion-compiler exec vitest run src/the-motion-evidence-gates-refuse-a-bad-clip.test.ts",
+   "changed:packages/openclinxr/motion-compiler/src"
+  ],
+  "fields": {
+   "lane": "A",
+   "factory_step": "motion_retarget"
+  },
+  "body": null,
+  "depIds": [
+   "tsk_795a5ba6510de2b9"
+  ],
+  "factory": "Idle",
+  "status": "backlog"
+ },
+ "tsk_ae6a9530ba63a68b": {
+  "title": "Every touch response in the bank plays the SAME rlq flinch clip (corrected envelope)",
+  "kind": "bug",
+  "lane": "A",
+  "priority": 1,
+  "objective": "24 touchResponse rows across 6 distinct body regions and 4 scenarios all name responseClip openclinxr_role_patient_guard_withdraw_rlq. A learner palpating the left chest is played a right-lower-quadrant flinch. Bind the clip to the region.",
+  "writeRoots": [
+   "packages/openclinxr/scenario-fixtures",
+   "apps/ui-xr"
+  ],
+  "knownGood": "materialize-guard-withdraw-clip.ts produces the one clip that exists today; pose-bone-resolver.ts resolves landmarks across 3 rig families.",
+  "outOfScope": null,
+  "notTested": null,
+  "doneWhen": [
+   "live:packages/openclinxr/scenario-fixtures/src/the-touch-response-clip-follows-the-region.test.ts",
+   "run:pnpm --filter @openclinxr/scenario-fixtures exec vitest run src/the-touch-response-clip-follows-the-region.test.ts",
+   "changed:packages/openclinxr/scenario-fixtures/src"
+  ],
+  "fields": {
+   "lane": "A",
+   "factory_step": "motion_retarget"
+  },
+  "body": null,
+  "depIds": [
+   "tsk_795a5ba6510de2b9"
+  ],
+  "factory": "Planted",
+  "status": "ready"
+ },
+ "tsk_ec8cdf80aaaafb94": {
+  "title": "The resolved clip id is the clipId the compiler produces",
+  "kind": "feature",
+  "lane": "B",
+  "priority": 1,
+  "objective": "Nothing connects the clip a case ASKS FOR to the clip the factory can PRODUCE. Close the hop: a compiled CompiledMotionClipV1.clipId must be the identity the bank row and the region resolver already name, for two regions, with a counterweight refusing a constant.",
+  "writeRoots": [
+   "packages/openclinxr/motion-compiler",
+   "packages/openclinxr/scenario-fixtures"
+  ],
+  "knownGood": "the-canonical-compile-entry-orchestrates-primitives.test.ts already proves an injected fake primitive reaches compileMotionProgram and returns one canonical clip, with no solver. This card reuses that pattern and adds only the identity assertion.",
+  "outOfScope": null,
+  "notTested": null,
+  "doneWhen": [
+   "live:packages/openclinxr/motion-compiler/src/the-resolved-clip-id-is-what-the-compiler-produces.test.ts",
+   "run:pnpm --filter @openclinxr/motion-compiler exec vitest run src/the-resolved-clip-id-is-what-the-compiler-produces.test.ts",
+   "changed:packages/openclinxr/motion-compiler/src/compile-motion-program.ts"
+  ],
+  "fields": {
+   "lane": "B",
+   "factory_step": "motion_retarget"
+  },
+  "body": null,
+  "depIds": [
+   "tsk_ae6a9530ba63a68b",
+   "tsk_03375de020895d8f"
+  ],
+  "factory": "Planted",
+  "status": "ready"
+ },
+ "tsk_67cafb96802a06bc": {
+  "title": "Contact surfaces: penetration depth and orientation tolerance need geometry, not points",
+  "kind": "feature",
+  "lane": "A",
+  "priority": 2,
+  "objective": "ContactConstraint declares penetrationToleranceMeters and orientationToleranceRadians. Neither can be asserted against a body POINT: penetration is depth past a surface and orientation needs a normal. Give contact targets geometry, then assert both.",
+  "writeRoots": [
+   "packages/openclinxr/motion-compiler",
+   "packages/openclinxr/shared-schemas"
+  ],
+  "knownGood": "the-contact-constraint-holds-across-its-window.test.ts (planted 865f2c7b) already carries an interpolating FK oracle, a two-contact competing-objective fixture, and an input-referenced travel floor. Extend that instrument rather than building a second one.",
+  "outOfScope": null,
+  "notTested": null,
+  "doneWhen": [
+   "live:packages/openclinxr/motion-compiler/src/the-contact-surface-bounds-penetration-and-orientation.test.ts",
+   "run:pnpm --filter @openclinxr/motion-compiler exec vitest run src/the-contact-surface-bounds-penetration-and-orientation.test.ts",
+   "changed:packages/openclinxr/motion-compiler/src"
+  ],
+  "fields": {
+   "lane": "A",
+   "factory_step": "motion_retarget"
+  },
+  "body": null,
+  "depIds": [
+   "tsk_1c562c5c4ee99449",
+   "tsk_9f1009a2642f18bf"
+  ],
+  "factory": "Idle",
+  "status": "backlog"
+ },
+ "tsk_91740ee035e7e03e": {
+  "title": "The motion seed must be DERIVED from stable case inputs (corrected envelope)",
+  "kind": "bug",
+  "lane": "A",
+  "priority": 1,
+  "objective": "M4 proves a seed produces reproducible motion but nothing pins where the seed comes from. Derive it per brief section 13 so a bake cannot seed from wall-clock time and still pass every contract.",
+  "writeRoots": [
+   "packages/openclinxr/motion-compiler"
+  ],
+  "knownGood": "M4 clause (2) already proves seed-to-output determinism with an anti-hardcode counterweight and must keep passing.",
+  "outOfScope": null,
+  "notTested": null,
+  "doneWhen": [
+   "live:packages/openclinxr/motion-compiler/src/the-seed-is-derived-from-five-case-inputs.test.ts",
+   "run:pnpm --filter @openclinxr/motion-compiler exec vitest run src/the-seed-is-derived-from-five-case-inputs.test.ts",
+   "changed:packages/openclinxr/motion-compiler/src"
+  ],
+  "fields": {
+   "lane": "A",
+   "factory_step": "motion_retarget"
+  },
+  "body": null,
+  "depIds": [
+   "tsk_3eb3671b7883d271"
+  ],
+  "factory": "Idle",
+  "status": "backlog"
+ },
+ "tsk_9faa82d3f77d8a6a": {
+  "title": "The bake vertical: MotionProgram to a GLB the runtime loads, THROUGH the capability gateway",
+  "kind": "feature",
+  "lane": "A",
+  "priority": 1,
+  "objective": "No card owns MotionProgram through compiler, tracks, GLB, the animation-generation work order, manifest and runtime consumption. Previous envelope stopped at motion-compiler internals, so a second animation queue would have satisfied it.",
+  "writeRoots": [
+   "packages/openclinxr/motion-compiler",
+   "packages/openclinxr/capability-gateway",
+   "tools/openclinxr/asset-pipeline"
+  ],
+  "knownGood": "animation-generation exists with a capability id and a deterministic adapter under capability-gateway. apply_bvh_to_anny_full is the working precedent for direct track write without Blender.",
+  "outOfScope": null,
+  "notTested": null,
+  "doneWhen": [
+   "live:packages/openclinxr/motion-compiler/src/the-bake-produces-a-glb-the-runtime-loads.test.ts",
+   "run:pnpm --filter @openclinxr/motion-compiler exec vitest run src/the-bake-produces-a-glb-the-runtime-loads.test.ts",
+   "changed:packages/openclinxr/capability-gateway"
+  ],
+  "fields": {
+   "lane": "A",
+   "factory_step": "motion_retarget"
+  },
+  "body": null,
+  "depIds": [
+   "tsk_795a5ba6510de2b9",
+   "tsk_91740ee035e7e03e"
+  ],
+  "factory": "Idle",
+  "status": "backlog"
+ },
+ "tsk_b2c4602f9ad9d68b": {
+  "title": "Trajectory integration and primitive expansion: emitted motion actually uses the profile",
+  "kind": "feature",
+  "lane": "A",
+  "priority": 2,
+  "objective": "M4 proves an ISOLATED minimum-jerk profile. Nothing proves emitted motion uses it. And look_at and cough_recoil are declared out of scope everywhere with no card that owns them.",
+  "writeRoots": [
+   "packages/openclinxr/motion-compiler"
+  ],
+  "knownGood": "M4 clause (3) proves the isolated profile has zero endpoint velocity and a 1.875x mid-motion peak - 15/8, derived not fitted. That function is the reference this card integrates.",
+  "outOfScope": null,
+  "notTested": null,
+  "doneWhen": [
+   "live:packages/openclinxr/motion-compiler/src/an-emitted-clip-uses-the-minimum-jerk-profile.test.ts",
+   "run:pnpm --filter @openclinxr/motion-compiler exec vitest run src/an-emitted-clip-uses-the-minimum-jerk-profile.test.ts",
+   "changed:packages/openclinxr/motion-compiler/src"
+  ],
+  "fields": {
+   "lane": "A",
+   "factory_step": "motion_retarget"
+  },
+  "body": null,
+  "depIds": [
+   "tsk_3eb3671b7883d271"
+  ],
+  "factory": "Idle",
+  "status": "backlog"
+ },
+ "tsk_58592bac78a59148": {
+  "title": "Joint limits must carry a claimScope that refuses the clinical reading (corrected envelope)",
+  "kind": "bug",
+  "lane": "A",
+  "priority": 2,
+  "objective": "Brief section 11 is a MUST NOT: joint limits are engineering plausibility constraints and must not be described as clinically validated normal ranges. Today they exist only as bare numbers in a fixture.",
+  "writeRoots": [
+   "packages/openclinxr/motion-compiler"
+  ],
+  "knownGood": "M3 clause (1) already refuses an over-limit elbow. claimScope and notEvidenceFor are established patterns in this repo.",
+  "outOfScope": null,
+  "notTested": null,
+  "doneWhen": [
+   "live:packages/openclinxr/motion-compiler/src/the-joint-limits-refuse-a-clinical-claim.test.ts",
+   "run:pnpm --filter @openclinxr/motion-compiler exec vitest run src/the-joint-limits-refuse-a-clinical-claim.test.ts",
+   "changed:packages/openclinxr/motion-compiler/src"
+  ],
+  "fields": {
+   "lane": "A",
+   "factory_step": "motion_retarget"
+  },
+  "body": null,
+  "depIds": [
+   "tsk_c27437401629cb74"
+  ],
+  "factory": "Idle",
+  "status": "backlog"
+ },
+ "tsk_21b621d1b482a35a": {
+  "title": "Metric validators DERIVE their measurements, and each has a negative probe",
+  "kind": "feature",
+  "lane": "A",
+  "priority": 2,
+  "objective": "M3 proves a seven-slot report aggregator with real classification for two slots. All seven consume caller-supplied summaries rather than measuring the artifact, and five have no negative probe. Derive every measurement from tracks, frames or geometry, and give each gate an isolated mutation.",
+  "writeRoots": [
+   "packages/openclinxr/motion-compiler"
+  ],
+  "knownGood": "M3 clause (1) genuinely classifies joint_limit and effector_target_error on a bad clip; clause (3) proves deterministic precedence over a VLM finding. Both must keep passing.",
+  "outOfScope": null,
+  "notTested": null,
+  "doneWhen": [
+   "live:packages/openclinxr/motion-compiler/src/each-evidence-gate-derives-and-refuses.test.ts",
+   "run:pnpm --filter @openclinxr/motion-compiler exec vitest run src/each-evidence-gate-derives-and-refuses.test.ts",
+   "changed:packages/openclinxr/motion-compiler/src"
+  ],
+  "fields": {
+   "lane": "A",
+   "unblocks": "motion_retarget",
+   "factory_step": "instrument"
+  },
+  "body": null,
+  "depIds": [
+   "tsk_9faa82d3f77d8a6a"
+  ],
+  "factory": "Idle",
+  "status": "backlog"
+ },
+ "tsk_127017bdecbe3ac0": {
+  "title": "Runtime behaviorIntents map to APPROVED clips \u2014 the LLM never touches a transform",
+  "kind": "feature",
+  "lane": "A",
+  "priority": 1,
+  "objective": "Brief section 19 lets a patient LLM choose semantic behaviorIntents during an encounter, and states the LLM MUST NOT directly control skeleton transforms. Nothing owns the map from an intent onto an approved baked clip, approved micro-controller or approved blend tree. The factory can prove itself dark while the learner session still asks an LLM for intents that then drive IK.",
+  "writeRoots": [
+   "packages/openclinxr/scenario-runtime",
+   "apps/ui-xr"
+  ],
+  "knownGood": "The conversation/dialogue policy surface already exists in scenario-runtime. The bake vertical produces the approved clip ids this must resolve against.",
+  "outOfScope": null,
+  "notTested": null,
+  "doneWhen": [
+   "live:packages/openclinxr/scenario-runtime/src/a-behavior-intent-resolves-to-an-approved-clip.test.ts",
+   "run:pnpm --filter @openclinxr/scenario-runtime exec vitest run src/a-behavior-intent-resolves-to-an-approved-clip.test.ts",
+   "changed:packages/openclinxr/scenario-runtime/src"
+  ],
+  "fields": {
+   "lane": "A",
+   "factory_step": "dialogue_runtime"
+  },
+  "body": null,
+  "depIds": [
+   "tsk_9faa82d3f77d8a6a"
+  ],
+  "factory": "Idle",
+  "status": "backlog"
+ },
+ "tsk_291d28a8b441c165": {
+  "title": "D9: an approved encounter compiles, bakes and runs with egress DENIED (corrected deps)",
+  "kind": "feature",
+  "lane": "A",
+  "priority": 1,
+  "objective": "Nothing proves the dark factory is dark. D9 requires an examination to run with no further LLM involvement; today a provider call anywhere in compile or bake would go unnoticed.",
+  "writeRoots": [
+   "packages/openclinxr/motion-compiler"
+  ],
+  "knownGood": "The scenario bank ships approved encounters. evaluateScenarioPublicationReadiness is the existing approval boundary.",
+  "outOfScope": null,
+  "notTested": null,
+  "doneWhen": [
+   "live:packages/openclinxr/motion-compiler/src/the-examination-runs-with-egress-denied.test.ts",
+   "run:pnpm --filter @openclinxr/motion-compiler exec vitest run src/the-examination-runs-with-egress-denied.test.ts",
+   "changed:packages/openclinxr/motion-compiler/src"
+  ],
+  "fields": {
+   "lane": "A",
+   "unblocks": "motion_retarget",
+   "factory_step": "instrument"
+  },
+  "body": null,
+  "depIds": [
+   "tsk_9faa82d3f77d8a6a"
+  ],
+  "factory": "Idle",
+  "status": "backlog"
+ }
+}
