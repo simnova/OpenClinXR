@@ -115,6 +115,20 @@ type SkeletonProfile = {
    * transforms. Reviewer's words: "bind positions alone are insufficient for general FK."
    */
   joints: readonly FkJoint[];
+  /**
+   * The driven end effector on THIS rig, by its own bone name.
+   *
+   * Added after an external reviewer found the clause called the oracle with `names.wrist`, an
+   * identifier scoped to `armProfile` and NOT in scope at the assertion. That was a BOOBY TRAP, not
+   * a visible break: the clause dies earlier on the module-absence assertion, so the ReferenceError
+   * would not have fired until a worker actually implemented compileGuardClip — at which point they
+   * debug my test instead of their code. `it.fails` accepts ANY failure, which is exactly how a
+   * broken RED hides inside a green suite.
+   *
+   * Named explicitly rather than taken positionally from jointNames: an index is the next silent
+   * break when the array order changes.
+   */
+  effectorBone: string;
 };
 
 type BodyRegionTarget = {
@@ -325,6 +339,7 @@ function armProfile(
     rigFingerprint,
     jointNames: [names.shoulder, names.elbow, names.wrist, names.spine, names.chest, names.head],
     joints,
+    effectorBone: names.wrist,
     bindFrame: {
       [names.shoulder]: shoulder,
       [names.elbow]: elbow,
@@ -469,7 +484,7 @@ describe("the guard primitive hits four targets on three rigs", () => {
         const tolerance = forearmLengthOf(profile) * REACH_TOLERANCE_AS_FOREARM_FRACTION;
         expect(
           // DERIVED from emitted tracks x bind frame, never read off the clip.
-          distance(derivedEffectorPoint(clip, profile, names.wrist), rlq.bodyPoint),
+          distance(derivedEffectorPoint(clip, profile, profile.effectorBone), rlq.bodyPoint),
           `${profile.rigFingerprint}: hand missed ${rlq.id} by more than ${tolerance.toFixed(3)} m`,
         ).toBeLessThanOrEqual(tolerance);
       }
@@ -534,7 +549,7 @@ describe("the guard primitive hits four targets on three rigs", () => {
       expect(adHocClip.targetId).toBe(adHoc.id);
       expect(adHocClip.tracks.length).toBeGreaterThan(0);
       expect(
-        distance(derivedEffectorPoint(adHocClip, ANNY_23_BONE, "handR"), adHoc.bodyPoint),
+        distance(derivedEffectorPoint(adHocClip, ANNY_23_BONE, ANNY_23_BONE.effectorBone), adHoc.bodyPoint),
         "an undeclared target must still be reached — a per-target table cannot do this",
       ).toBeLessThanOrEqual(tolerance);
 

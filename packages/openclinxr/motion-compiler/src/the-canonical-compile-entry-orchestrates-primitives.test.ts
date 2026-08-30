@@ -197,21 +197,44 @@ describe("the canonical compile entry orchestrates primitives", () => {
     ).toThrow(/some_other_action|actionId/);
   });
 
-  it("(4) COUNTERWEIGHT: the clip carries no self-attested verdict", () => {
-    // Live and passing on arrival. It fails if a later worker adds reachedPoint, a target error, a
-    // quality score or a runtime clip name to the clip — the self-attestation this contract excludes
-    // by design. Keys are checked against the TYPE's own field list, so this cannot drift silently.
-    const frozen = [
-      "schemaVersion", "clipId", "source", "targetRig", "compileIdentity",
-      "durationSeconds", "tracks", "claimBoundary", "notEvidenceFor",
-    ];
+  it.fails("(4) RED: the clip carries NO self-attested verdict — checked on the RETURNED object", async () => {
+    // REWRITTEN 2026-08-30 after an external reviewer showed the first version was CIRCULAR: it
+    // asserted a hardcoded `frozen` array contained none of a hardcoded `forbidden` list. That tests
+    // my own literal, not the compiler. A stub returning
+    //   { ...validClip, reachedPoint: [0,0,0], collisionVerdict: "pass" }
+    // satisfied every other clause and clause 4 never saw it.
+    //
+    // Now it inspects the RETURNED clip, recursively, so a self-attested field cannot enter under a
+    // nested key either. That moves it from live-and-passing to a RED, which is honest: the property
+    // cannot be checked until something returns a clip.
+    const { compileMotionProgram } = await loadEntry();
+    const clip = compileMotionProgram({
+      program: program(),
+      skeletonProfile: PROFILE,
+      primitives: recordingPrimitives([]),
+    });
+
     const forbidden = [
       "reachedPoint", "targetError", "contactError", "collisionVerdict", "jointLimitVerdict",
       "qualityScore", "runtimeLoadedClipName", "glbPath", "glbBytes", "visualFinding", "provider",
     ];
-    for (const f of forbidden) {
-      expect(frozen, `${f} is derived evidence, not the interchange representation`).not.toContain(f);
-    }
-    expect(frozen).toContain("claimBoundary");
+    const seen: string[] = [];
+    const walk = (node: unknown, path: string): void => {
+      if (!node || typeof node !== "object") return;
+      if (Array.isArray(node)) return node.forEach((v, i) => walk(v, `${path}[${i}]`));
+      for (const [k, v] of Object.entries(node as Record<string, unknown>)) {
+        if (forbidden.includes(k)) seen.push(`${path}.${k}`);
+        walk(v, `${path}.${k}`);
+      }
+    };
+    walk(clip, "clip");
+    expect(
+      seen,
+      "a clip carrying its own verdict is self-attestation — those are derived evidence, bake manifests or runtime observations",
+    ).toEqual([]);
+
+    // COUNTERWEIGHT to this clause: it must not pass by finding nothing because the clip is empty.
+    expect(Object.keys(clip).length, "an empty clip trivially carries no verdict").toBeGreaterThan(5);
+    expect(clip.claimBoundary, "the claim boundary is the positive half of this contract").toBeTruthy();
   });
 });
