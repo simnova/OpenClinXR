@@ -4,7 +4,6 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
-import { planted } from "./planted.js";
 import { REGION_ANCHOR_SPACE } from "./plant-motion-regions.js";
 
 /**
@@ -141,6 +140,34 @@ import { REGION_ANCHOR_SPACE } from "./plant-motion-regions.js";
  * copy at a different path and differs between families); whether `joints` carries every joint or a
  * reachable subset (clause (3) requires the landmark chains to be present and FK-consistent); how
  * `jointLimits` are sourced, beyond clause (6)'s requirement that the bind pose lies inside them.
+ */
+
+/**
+ * ## FIXED (tsk_3778b159cf72414d) — clauses (1) through (6) are now live `it` tests.
+ *
+ * The M1b deriver landed at `src/derive-skeleton-profile.ts` and exports
+ * `deriveSkeletonProfileFromRigAsset(glbPath, landmarks)`:
+ *
+ *   - DECODE ROUTE: the node hierarchy — a joint's bind world matrix is its node's TRS accumulated
+ *     from the root, the route independent of this contract's oracle (inverse bind matrices).
+ *     Header (d)'s measured agreement between the two routes (7.037e-7 m / 2.627e-3 rad) is what
+ *     the contract's tolerances bound, and the deriver stays inside them.
+ *   - LANDMARK RESOLUTION: identity-then-alias through `resolvePoseBone` in asset-registry's
+ *     pose-bone-resolver.ts — the single declared map, imported relatively because the package
+ *     builds no dist in a worktree (the same cross-package src import the plants use; it breaks
+ *     the composite `rootDir` typecheck, recorded as a known tradeoff in tsconfig.plants.json).
+ *   - AXES: hinge and twist computed from the rig's own segment directions — the middle landmark
+ *     of a chain gets bend = cross(proximal, distal), perpendicular to both segments, and
+ *     twist = distal direction; no constant (0,0,1) anywhere.
+ *   - FINGERPRINT: FNV-1a over sorted joint names + quantised bind positions — stable under a
+ *     byte-identical copy at a different path, different across the three families.
+ *   - REFUSALS: a skinless file, an absent file, and an unresolvable landmark all throw.
+ *   - `jointLimits` are conservative symmetric placeholders (±1.0 rad about the bind pose, so the
+ *     rest angle 0 lies inside). notEvidenceFor: anatomical range, clinical/biomechanical validity.
+ *
+ * Clause (7)'s premise FLIPPED: the package now HAS a deriver. The clause was updated to assert
+ * the deriver is exported and that no product source hardcodes the shipped rig directory (paths
+ * come from callers); the scan half is unchanged. Clause (8) is untouched.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -518,7 +545,7 @@ function oracleChain(
 }
 
 describe("the skeleton profile comes from a real rig", () => {
-  planted("(1) RED: the profile is DERIVED FROM THE ASSET — three shipped rigs give three answers", async () => {
+  it("(1) RED: the profile is DERIVED FROM THE ASSET — three shipped rigs give three answers", async () => {
     // A profile assembled from a constant table satisfies every presence check ever written, and the
     // three fixtures in the guard plant say in their own header that they are constructed.
     const derive = await requireDeriver();
@@ -557,7 +584,7 @@ describe("the skeleton profile comes from a real rig", () => {
     }
   });
 
-  planted("(2) RED: the bind frame is THE ASSET'S OWN, checked against the file by an independent decode", async () => {
+  it("(2) RED: the bind frame is THE ASSET'S OWN, checked against the file by an independent decode", async () => {
     // The point of the card. This test reads the bind transform by inverting the file's
     // inverseBindMatrices; a deriver accumulating node TRS is a different route to the same number,
     // and header (d) measures the two agreeing to 4.10e-7 m. Nothing here is taken from the deriver.
@@ -609,7 +636,7 @@ describe("the skeleton profile comes from a real rig", () => {
     }
   });
 
-  planted("(3) RED: ancestry is REAL — parents are joints, chains terminate, and the wrist reaches the root", async () => {
+  it("(3) RED: ancestry is REAL — parents are joints, chains terminate, and the wrist reaches the root", async () => {
     // A profile whose parent links are decorative solves cleanly and moves the wrong chain. The
     // effector must be reachable from the root THROUGH DECLARED PARENTS, which is the property an FK
     // walk depends on and the one a flat list of positions silently lacks.
@@ -683,7 +710,7 @@ describe("the skeleton profile comes from a real rig", () => {
     }
   });
 
-  planted("(4) RED: a file that is not a rig is REFUSED, never defaulted", async () => {
+  it("(4) RED: a file that is not a rig is REFUSED, never defaulted", async () => {
     // A silent default is a WRONG skeleton that solves cleanly and puts the hand somewhere else. The
     // chair is tracked, 10 KB, and carries `skins: 0` — measured 2026-08-30.
     const derive = await requireDeriver();
@@ -704,7 +731,7 @@ describe("the skeleton profile comes from a real rig", () => {
     ).toThrow();
   });
 
-  planted("(5) RED: only the real file can supply this — counterweight to a plausible fixture", async () => {
+  it("(5) RED: only the real file can supply this — counterweight to a plausible fixture", async () => {
     // COUNTERWEIGHT. A deriver returning a copy of some fixture profile satisfies (1) through (4) if
     // the fixture is plausible: it can carry three fingerprints, three sets of positions, and a valid
     // parent chain. Three things a fixture cannot do, all read from the files:
@@ -751,7 +778,7 @@ describe("the skeleton profile comes from a real rig", () => {
     ).toBe(derive(source, [...ARM_LANDMARKS]).rigFingerprint);
   });
 
-  planted("(6) RED: the elbow's axes are THE ASSET'S, not a constant", async () => {
+  it("(6) RED: the elbow's axes are THE ASSET'S, not a constant", async () => {
     // The cheapest wrong answer here is a constant (0,0,1). It is CORRECT for the canonical rig,
     // whose arm is planar in XY, and 0.6842 / 0.7178 off perpendicular on mpfb2 and mixamorig
     // (header, measured). So the clause must run on all three or the constant survives.
@@ -815,14 +842,15 @@ describe("the skeleton profile comes from a real rig", () => {
     }
   });
 
-  it("(7) LIVE PREMISE: nothing in this package derives a profile from a rig today", async () => {
-    // Passes on arrival and fails independently of the REDs. It is EXPECTED to flip when this card
-    // lands, and that is the point: the transition is recorded deliberately rather than assumed. Two
-    // halves, because a deriver could arrive under either shape.
+  it("(7) LIVE PREMISE: the deriver is exported, and no other product source hardcodes the rig directory", async () => {
+    // Flipped 2026-08-30 by tsk_3778b159cf72414d: the premise that nothing derives a profile from a
+    // rig no longer holds — `derive-skeleton-profile.ts` IS that deriver. What stays live is that
+    // it is the ONLY one: no product source here hardcodes the shipped rig directory; paths come
+    // from callers. The scan half below is unchanged.
     expect(
-      (await loadProducer())?.deriveSkeletonProfileFromRigAsset,
-      "something now exports deriveSkeletonProfileFromRigAsset — re-read this card's premise before implementing it",
-    ).toBeUndefined();
+      typeof (await loadProducer())?.deriveSkeletonProfileFromRigAsset,
+      "derive-skeleton-profile.js no longer exports deriveSkeletonProfileFromRigAsset — the M1b deriver has been removed",
+    ).toBe("function");
 
     // No PRODUCT source here reaches the shipped rig directory — which is exactly why every
     // SkeletonProfile in the package is constructed.
