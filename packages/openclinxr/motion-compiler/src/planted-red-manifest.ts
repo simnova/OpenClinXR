@@ -31,52 +31,11 @@ export type PlantedRed = {
 };
 
 export const PLANTED_REDS: readonly PlantedRed[] = [
-  {
-    file: "the-region-anchors-come-from-a-real-asset.test.ts",
-    select: "(1) RED: anchors are DERIVED FROM THE ASSET \u2014 two sizes give two answers",
-    expected: /must export deriveSkeletonProfile/,
-    stage: "assertion",
-  },
-  {
-    file: "the-region-anchors-come-from-a-real-asset.test.ts",
-    select: "(2) RED: every derived anchor is REACHABLE on its own asset",
-    expected: /must export deriveSkeletonProfile/,
-    stage: "assertion",
-  },
-  {
-    file: "the-region-anchors-come-from-a-real-asset.test.ts",
-    select: "(3) RED: the declared space is HONOURED, checked against the asset's own bind frame",
-    expected: /must export deriveSkeletonProfile/,
-    stage: "assertion",
-  },
-  {
-    file: "the-region-anchors-come-from-a-real-asset.test.ts",
-    select: "(4) RED: a region with no derivable anchor is REFUSED, never defaulted",
-    expected: /must export deriveSkeletonProfile/,
-    stage: "assertion",
-  },
-  {
-    file: "the-region-anchors-come-from-a-real-asset.test.ts",
-    select: "(5) RED: two regions sharing a nearest joint still get DIFFERENT anchors",
-    expected: /must export deriveSkeletonProfile/,
-    stage: "assertion",
-  },
-  {
-    file: "the-region-anchors-come-from-a-real-asset.test.ts",
-    // STAGE MOVED 2026-08-30 (tsk_3778b159cf72414d): the M1b rig deriver landed, so this clause's
-    // rig-producer check (deriveSkeletonProfileFromRigAsset) now PASSES and the clause proceeds to
-    // its next absent module — region-anchors.js, the tsk_e5b1a3efad002aef producer. It is red for
-    // its own reason. The probe caught the move and demanded this edit, which is what it is for.
-    select: "(7) RED: the anchors are placed on a profile derived from a REAL RIG, not an asset-shaped object",
-    expected: /must export deriveSkeletonProfile/,
-    stage: "assertion",
-  },
-  {
-    file: "the-region-anchors-come-from-a-real-asset.test.ts",
-    select: "(6) RED: the producer emits the PROFILE the compile path consumes, carrying the asset's own rig",
-    expected: /must export deriveSkeletonProfile/,
-    stage: "assertion",
-  },
+  // ALL SEVEN REGION-ANCHOR ENTRIES REMOVED 2026-08-30 (tsk_1e0cd3cc7084db02). The anchor producer
+  // landed — src/regions/region-anchors.ts exports deriveSkeletonProfile, and the seven clauses
+  // were flipped from `planted` to `it` with a `## FIXED (tsk_1e0cd3cc7084db02)` block appended in
+  // the-region-anchors-come-from-a-real-asset.test.ts. A satisfied contract is a transition to
+  // record, not a planted RED to keep.
   // ALL SIX M1B ENTRIES REMOVED 2026-08-30 (tsk_3778b159cf72414d). The deriver landed —
   // src/derive-skeleton-profile.ts exports deriveSkeletonProfileFromRigAsset, and the six clauses
   // were flipped from `planted` to `it` with a `## FIXED (tsk_3778b159cf72414d)` block appended in

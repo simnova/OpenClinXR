@@ -2,7 +2,6 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
-import { planted } from "./planted.js";
 import {
   GUARD_MOTION_REGIONS,
   MOTION_REGION_GUARD_CHEST_L,
@@ -54,7 +53,46 @@ import {
  * four times — for the track, the primitive request, the primitive fragment, and the region ids.
  */
 
-const PRODUCER_MODULE = "./region-anchors.js";
+/**
+ * ## FIXED (tsk_1e0cd3cc7084db02) — clauses (1) through (7) are now live `it` tests.
+ *
+ * The anchor producer landed at `src/regions/region-anchors.ts` and exports
+ * `deriveSkeletonProfile(asset, regions)` — the ANCHOR half added to the RIG half M1b produces,
+ * with no third profile dialect (the produced record forwards the asset's own
+ * rigFingerprint/effectorBone/joints/bindFrame and adds `regionAnchorSpace` + `regionAnchors`).
+ *
+ * HOW AN ANCHOR IS DERIVED:
+ *
+ *   - Landmarks resolve identity-then-alias through `resolvePoseBone` (asset-registry's
+ *     pose-bone-resolver.ts, the single declared map), then read from the asset's own bind frame.
+ *     A rig that cannot carry a region's reference landmark is REFUSED for that region, never
+ *     defaulted.
+ *   - Scale is measured ON THE ASSET: torso height (chest.y − pelvis.y, spine.y where a rig has no
+ *     pelvis), shoulder half-width (|upper_armR.x|), and `bodyExtent.halfDepth` for depth offsets.
+ *     The per-region part is only a DIRECTION (chest_R is +x of the chest; rlq is +x and down), so
+ *     the same direction lands at different bind-world points on a 1.00 and a 0.72 body and on the
+ *     three shipped rig families.
+ *   - All seventeen declared MotionBodyRegions are covered (`Record<MotionBodyRegion, …>`, so the
+ *     map is exhaustive by construction); any other id, and any region whose reference landmark the
+ *     rig lacks, throws.
+ *
+ * Clause (7)'s reachability oracle was FIXED against the real rig: M1b's `bindFrame` is keyed by
+ * each rig's OWN sanitised bone names (`upperarm01R` on mpfb2), so reading
+ * `bindFrame["upper_armR"]` is undefined there. The oracle now reads shoulder/elbow/wrist from
+ * M1b's `landmarks` records — the same resolution map the producer uses — instead of assuming
+ * canonical bone names are the bindFrame keys. The bodyExtent derivation is unchanged.
+ *
+ * The (7) LIVE clause FLIPPED: its premise ("nothing in the tree produces anchors") is now false by
+ * design, and the clause asserts the sanctioned producer still exports `deriveSkeletonProfile` from
+ * PRODUCER_MODULE, so a rename or removal reds loudly. The `planted` import was removed with the
+ * last planted clause.
+ *
+ * notEvidenceFor: clinical_validity, biomechanical_validity, surface geometry (normals,
+ * closest-point, penetration, orientation — tsk_67cafb96802a06bc), production_animation_quality,
+ * exam_equivalence, scoring, learner_readiness.
+ */
+
+const PRODUCER_MODULE = "./regions/region-anchors.js";
 
 /**
  * M1b's producer, which this card CONSUMES. Clause (7) is the join.
@@ -190,7 +228,7 @@ function armReach(asset: RigAsset): number {
 }
 
 describe("the region anchors come from a real asset", () => {
-  planted("(1) RED: anchors are DERIVED FROM THE ASSET — two sizes give two answers", async () => {
+  it("(1) RED: anchors are DERIVED FROM THE ASSET — two sizes give two answers", async () => {
     // The whole point. A hardcoded table keyed by region id is the per-region pose table this factory
     // exists to remove, and it satisfies every presence check ever written.
     const producer = await loadProducer();
@@ -221,7 +259,7 @@ describe("the region anchors come from a real asset", () => {
     }
   });
 
-  planted("(2) RED: every derived anchor is REACHABLE on its own asset", async () => {
+  it("(2) RED: every derived anchor is REACHABLE on its own asset", async () => {
     // An anchor the arm cannot reach makes the guard fail and the SOLVER get blamed. This is the
     // cheapest way for a derivation to be wrong in a way that looks like someone else's bug.
     //
@@ -244,7 +282,7 @@ describe("the region anchors come from a real asset", () => {
     }
   });
 
-  planted("(3) RED: the declared space is HONOURED, checked against the asset's own bind frame", async () => {
+  it("(3) RED: the declared space is HONOURED, checked against the asset's own bind frame", async () => {
     // `regionAnchorSpace` is a string until something proves the numbers are in that frame. The
     // discriminator: bind-world anchors sit inside the asset's own body extent, which is expressed in
     // the same frame as `bindFrame`. Chest-relative or node-local values would not.
@@ -275,7 +313,7 @@ describe("the region anchors come from a real asset", () => {
     }
   });
 
-  planted("(4) RED: a region with no derivable anchor is REFUSED, never defaulted", async () => {
+  it("(4) RED: a region with no derivable anchor is REFUSED, never defaulted", async () => {
     // A silent default is a WRONG anchor nobody can see: the guard solves cleanly and the hand
     // arrives somewhere else on the body. Refusal is the only outcome a reader can act on.
     const producer = await loadProducer();
@@ -286,7 +324,7 @@ describe("the region anchors come from a real asset", () => {
     ).toThrow();
   });
 
-  planted("(5) RED: two regions sharing a nearest joint still get DIFFERENT anchors", async () => {
+  it("(5) RED: two regions sharing a nearest joint still get DIFFERENT anchors", async () => {
     // COUNTERWEIGHT to (1), (2) and (3), all of which are satisfied by returning the bind position of
     // some nearby JOINT: that scales with the asset, is trivially reachable, and sits inside the body
     // extent — while encoding nothing about the region.
@@ -309,7 +347,7 @@ describe("the region anchors come from a real asset", () => {
     ).toBeGreaterThan(ADULT.bodyExtent.halfWidth * 0.5);
   });
 
-  planted("(6) RED: the producer emits the PROFILE the compile path consumes, carrying the asset's own rig", async () => {
+  it("(6) RED: the producer emits the PROFILE the compile path consumes, carrying the asset's own rig", async () => {
     // THE JOIN. Without this, both cards land green and the compile path still receives a fixture:
     // a producer that returns a bare anchor MAP leaves someone to merge it onto a profile by hand,
     // and "someone" is `armProfile()` in the plants today.
@@ -330,7 +368,7 @@ describe("the region anchors come from a real asset", () => {
     }
   });
 
-  planted(
+  it(
     "(7) RED: the anchors are placed on a profile derived from a REAL RIG, not an asset-shaped object",
     async () => {
       // THE CROSS-SEAM CLAUSE, and without it this card overclaims its own title. Every other clause
@@ -355,7 +393,12 @@ describe("the region anchors come from a real asset", () => {
       const rig = rigProducer!.deriveSkeletonProfileFromRigAsset!(
         resolve(REPO_ROOT, REAL_RIG),
         REAL_RIG_LANDMARKS,
-      ) as unknown as { rigFingerprint: string; bindFrame: Readonly<Record<string, Vec3>>; joints: readonly FkJoint[] };
+      ) as unknown as {
+        rigFingerprint: string;
+        bindFrame: Readonly<Record<string, Vec3>>;
+        joints: readonly FkJoint[];
+        landmarks: Readonly<Record<string, { boneName: string; bindWorldPosition: Vec3 }>>;
+      };
 
       // EVERY FIELD THE ANCHOR PRODUCER NEEDS MUST COME FROM THE RIG OR BE DERIVABLE FROM IT.
       // `bodyExtent` is the one M1b does not carry, and inventing it here would be the invented-data
@@ -393,10 +436,12 @@ describe("the region anchors come from a real asset", () => {
 
       // (b) Reachable on the REAL arm, measured from the shoulder as clause (2) does. A real rig is
       // where a fixture-tuned fraction stops working, which is the point of running this at all.
-      const shoulder = rig.bindFrame[REAL_RIG_LANDMARKS[0]]!;
-      const reach =
-        distance(shoulder, rig.bindFrame[REAL_RIG_LANDMARKS[1]]!) +
-        distance(rig.bindFrame[REAL_RIG_LANDMARKS[1]]!, rig.bindFrame[REAL_RIG_LANDMARKS[2]]!);
+      // M1b's `bindFrame` is keyed by each rig's OWN bone names, so the canonical landmark keys
+      // resolve through the `landmarks` records — the same map the producer uses (FIXED block).
+      const shoulder = rig.landmarks[REAL_RIG_LANDMARKS[0]]!.bindWorldPosition;
+      const elbow = rig.landmarks[REAL_RIG_LANDMARKS[1]]!.bindWorldPosition;
+      const wrist = rig.landmarks[REAL_RIG_LANDMARKS[2]]!.bindWorldPosition;
+      const reach = distance(shoulder, elbow) + distance(elbow, wrist);
       for (const region of GUARD_MOTION_REGIONS) {
         const a = placed.regionAnchors[region]!;
         expect(a, `no anchor placed for ${region} on the real rig`).toBeDefined();
@@ -417,12 +462,13 @@ describe("the region anchors come from a real asset", () => {
     },
   );
 
-  it("(7) LIVE: nothing in the tree produces anchors today — this is the measurement, not a hypothesis", async () => {
-    // Passes on arrival, fails independently of the REDs. If a producer appears under another name,
-    // this clause turns red and the card's premise needs re-reading rather than the fix being assumed.
+  it("(7) LIVE: the sanctioned producer still exports deriveSkeletonProfile — this is the measurement, not a hypothesis", async () => {
+    // Flipped with this card (tsk_1e0cd3cc7084db02): the premise "nothing produces anchors" is now
+    // false BY DESIGN, because this card is the producer. The clause stays live so a producer that
+    // appears under another name, or the sanctioned one moving, reds loudly instead of being assumed.
     expect(
-      (await loadProducer())?.deriveSkeletonProfile,
-      "something now exports deriveSkeletonProfile — re-read this card's premise before implementing it",
-    ).toBeUndefined();
+      typeof (await loadProducer())?.deriveSkeletonProfile,
+      "deriveSkeletonProfile is no longer exported from PRODUCER_MODULE — the producer this card shipped has moved or been removed",
+    ).toBe("function");
   });
 });
