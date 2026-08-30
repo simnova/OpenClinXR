@@ -68,6 +68,42 @@ export const PLANTED_REDS: readonly PlantedRed[] = [
     stage: "assertion",
   },
   {
+    file: "the-skeleton-profile-comes-from-a-real-rig.test.ts",
+    select: "(1) RED: the profile is DERIVED FROM THE ASSET — three shipped rigs give three answers",
+    expected: /must export deriveSkeletonProfileFromRigAsset/,
+    stage: "assertion",
+  },
+  {
+    file: "the-skeleton-profile-comes-from-a-real-rig.test.ts",
+    select: "(2) RED: the bind frame is THE ASSET'S OWN, checked against the file by an independent decode",
+    expected: /must export deriveSkeletonProfileFromRigAsset/,
+    stage: "assertion",
+  },
+  {
+    file: "the-skeleton-profile-comes-from-a-real-rig.test.ts",
+    select: "(3) RED: ancestry is REAL — parents are joints, chains terminate, and the wrist reaches the root",
+    expected: /must export deriveSkeletonProfileFromRigAsset/,
+    stage: "assertion",
+  },
+  {
+    file: "the-skeleton-profile-comes-from-a-real-rig.test.ts",
+    select: "(4) RED: a file that is not a rig is REFUSED, never defaulted",
+    expected: /must export deriveSkeletonProfileFromRigAsset/,
+    stage: "assertion",
+  },
+  {
+    file: "the-skeleton-profile-comes-from-a-real-rig.test.ts",
+    select: "(5) RED: only the real file can supply this — counterweight to a plausible fixture",
+    expected: /must export deriveSkeletonProfileFromRigAsset/,
+    stage: "assertion",
+  },
+  {
+    file: "the-skeleton-profile-comes-from-a-real-rig.test.ts",
+    select: "(6) RED: the elbow's axes are THE ASSET'S, not a constant",
+    expected: /must export deriveSkeletonProfileFromRigAsset/,
+    stage: "assertion",
+  },
+  {
     file: "the-primitive-registry-is-one-seam-with-no-behaviour.test.ts",
     select: "(1) RED: the vocabulary carries the guard AND the four behaviours, in one place",
     expected: /primitive-registry\.js must export PRIMITIVE_IDS/,
