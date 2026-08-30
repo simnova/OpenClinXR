@@ -386,6 +386,7 @@ describe("the canonical compile entry orchestrates primitives", () => {
       ["no canonical landmark", [ok({ canonicalLandmark: "" })], /missing canonicalLandmark/],
       ["times and values disagree", [ok({ times: [0] })], /1 times against 2 values/],
       ["duplicate bone and property", [ok(), ok()], /two tracks address the same bone/],
+      ["a self-attested verdict smuggled onto a track", [ok({ reachedPoint: [0.1, 1.0, 0.02] })], /unknown field "reachedPoint"/],
       ["translation of arity 4", [ok({ property: "translationAbsoluteNodeLocal", values: [[0, 0, 0, 1], [0, 1, 0, 0]] })], /exactly 3 components/],
     ];
     for (const [label, tracks, pattern] of rows) {

@@ -279,24 +279,6 @@ function forwardKinematic(
 }
 
 
-/**
- * Recovers the effector endpoint from EMITTED euler tracks, at the frame of peak rotation.
- *
- * Tracks are euler triples per bone; convert to quaternions, feed the oracle. The compiler never
- * sees this function and never supplies its answer — that is the whole point of removing
- * reachedPoint.
- */
-function eulerToQuat(e: Vec3): Quat4 {
-  const cx = Math.cos(e.x / 2), sx = Math.sin(e.x / 2);
-  const cy = Math.cos(e.y / 2), sy = Math.sin(e.y / 2);
-  const cz = Math.cos(e.z / 2), sz = Math.sin(e.z / 2);
-  return qNorm({
-    x: sx * cy * cz - cx * sy * sz,
-    y: cx * sy * cz + sx * cy * sz,
-    z: cx * cy * sz - sx * sy * cz,
-    w: cx * cy * cz + sx * sy * sz,
-  });
-}
 
 function derivedEffectorPoint(clip: GuardClip, profile: SkeletonProfile, effectorBone: string): Vec3 {
   const frameCount = Math.max(0, ...clip.tracks.map((t) => t.values.length));

@@ -70,6 +70,16 @@ export type CompiledMotionTrack =
 
 const UNIT_TOLERANCE = 1e-6;
 
+/**
+ * A track carries these keys and nothing else.
+ *
+ * An ALLOWLIST, because the keystone's clause 4 refuses self-attested verdicts on the CLIP and a
+ * track is where one would go next: `reachedPoint`, a target error, a quality score. Anything the
+ * compiler wants to assert about its own output is derived evidence, and it does not travel on the
+ * interchange representation.
+ */
+const TRACK_KEYS = ["property", "boneName", "canonicalLandmark", "interpolation", "times", "values"] as const;
+
 /** The shape a not-yet-written compiler might actually return. Every field is suspect. */
 type LooseTrack = {
   property?: unknown;
@@ -113,6 +123,11 @@ export function violationsInTracks(tracks: readonly unknown[]): string[] {
     }
     if (t.interpolation !== "LINEAR") {
       out.push(`${key}: interpolation must be explicit "LINEAR"; the writer must not guess`);
+    }
+    for (const extra of Object.keys(t)) {
+      if (!(TRACK_KEYS as readonly string[]).includes(extra)) {
+        out.push(`${key}: unknown field "${extra}" — a track carries geometry, never a verdict about itself`);
+      }
     }
     if (seenKeys.has(key)) out.push(`${key}: two tracks address the same bone and property — ambiguous at bake`);
     seenKeys.add(key);
