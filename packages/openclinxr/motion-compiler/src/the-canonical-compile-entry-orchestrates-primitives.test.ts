@@ -77,7 +77,12 @@ type CompiledMotionClipV1 = {
  */
 type PrimitiveRequest = {
   action: unknown;
-  skeletonProfile: { rigFingerprint: string };
+  /**
+   * `unknown` for the SAME reason as `action`, and I narrowed this one twice before noticing.
+   * `{ rigFingerprint }` let a compiler forward only that projection while the primitive needs
+   * joints, bind transforms and effectorBone. Deep equality against the supplied profile below.
+   */
+  skeletonProfile: unknown;
   seed: string;
 };
 
@@ -103,7 +108,20 @@ function action(actionId: string, region: string) {
     intensity: 0.6,
     target: { kind: "body_region", id: region },
     effector: "handR",
-    constraints: [],
+    // A REAL ContactConstraint. With `constraints: []` everywhere, a compiler that REPLACES
+    // constraints with [] preserved the action by accident and the contacts guarantee proved nothing.
+    constraints: [
+      {
+        kind: "contact",
+        effector: "handR",
+        target: { kind: "body_region", id: region },
+        positionToleranceMeters: 0.03,
+        startFraction: 0.4,
+        endFraction: 0.72,
+        penetrationToleranceMeters: 0.01,
+        preserveWhileActive: true,
+      },
+    ],
   };
 }
 
@@ -118,7 +136,19 @@ function program(actions: unknown[] = [action("a1", "guard_abdomen_rlq"), action
   };
 }
 
-const PROFILE = { rigFingerprint: "rig-fp-test-a", joints: [] };
+/**
+ * Carries what a primitive genuinely needs. An almost-empty profile would make the deep-equality
+ * assertion above true and meaningless — the projection it exists to catch would be the whole object.
+ */
+const PROFILE = {
+  rigFingerprint: "rig-fp-test-a",
+  effectorBone: "handR",
+  joints: [
+    { boneName: "upper_armR", bindLocalPosition: { x: 0.18, y: 1.38, z: 0 }, bindLocalQuaternion: { x: 0, y: 0, z: 0, w: 1 } },
+    { boneName: "forearmR", parentBoneName: "upper_armR", bindLocalPosition: { x: 0, y: -0.28, z: 0 }, bindLocalQuaternion: { x: 0, y: 0, z: 0, w: 1 } },
+    { boneName: "handR", parentBoneName: "forearmR", bindLocalPosition: { x: 0, y: -0.26, z: 0 }, bindLocalQuaternion: { x: 0, y: 0, z: 0, w: 1 } },
+  ],
+};
 
 /** A primitive that records what it was handed. Supplies tracks so no solver is needed. */
 function recordingPrimitives(seen: PrimitiveRequest[]) {
@@ -148,8 +178,12 @@ describe("the canonical compile entry orchestrates primitives", () => {
     const seen: PrimitiveRequest[] = [];
     // Frozen snapshot taken BEFORE the call: the immutability assertion below compares against it.
     const input = program();
+    const profileInput = structuredClone(PROFILE);
+    // BOTH inputs snapshotted. A compiler that mutates either makes every determinism claim after it
+    // unreliable, and an oracle deriving from a mutated profile agrees with an arbitrary compiler.
     const before = JSON.stringify(input);
-    const clip = compileMotionProgram({ program: input, skeletonProfile: PROFILE, primitives: recordingPrimitives(seen) });
+    const profileBefore = JSON.stringify(profileInput);
+    const clip = compileMotionProgram({ program: input, skeletonProfile: profileInput, primitives: recordingPrimitives(seen) });
 
     // A {} stub dies here. A compiler that ignores one action dies on the composition count.
     expect(clip.schemaVersion, "one clip dialect, or we are back to two").toBe(CLIP_SCHEMA);
@@ -169,13 +203,17 @@ describe("the canonical compile entry orchestrates primitives", () => {
         r.action,
         "the primitive received a PROJECTION of the action — constraints, timing or intensity were dropped",
       ).toEqual(match);
-      expect(r.skeletonProfile.rigFingerprint, "a primitive must receive the rig it targets").toBe("rig-fp-test-a");
+      expect(
+        r.skeletonProfile,
+        "the primitive received a PROJECTION of the profile — joints, bind transforms or effectorBone were dropped",
+      ).toEqual(profileInput);
       expect(typeof r.seed, "a primitive must receive a derived seed, not a duration").toBe("string");
     }
 
     // INPUT IMMUTABILITY. A compiler that mutates the program it was handed makes every later
     // determinism claim unreliable, because the second call sees different input than the first.
     expect(JSON.stringify(input), "compileMotionProgram mutated the program it was given").toBe(before);
+    expect(JSON.stringify(profileInput), "compileMotionProgram mutated the skeletonProfile it was given").toBe(profileBefore);
 
     expect(clip.source.actionIds.sort(), "semantic attribution survives compilation").toEqual(["a1", "a2"]);
     expect(clip.tracks.length, "both fragments' tracks must be present").toBe(2);
@@ -241,9 +279,26 @@ describe("the canonical compile entry orchestrates primitives", () => {
       primitives: recordingPrimitives([]),
     });
 
+    // ALLOWLIST, not a blacklist. The first version listed forbidden names, which a field called
+    // `achievedPoint`, `verdict` or `confidence` evades — a blacklist only refuses what someone
+    // already thought of. This closes the top-level shape instead: anything not in the frozen set is
+    // refused, whatever it is called.
+    const ALLOWED_TOP_LEVEL = new Set([
+      "schemaVersion", "clipId", "source", "targetRig", "compileIdentity",
+      "durationSeconds", "tracks", "claimBoundary", "notEvidenceFor",
+    ]);
+    const unexpected = Object.keys(clip).filter((k) => !ALLOWED_TOP_LEVEL.has(k));
+    expect(
+      unexpected,
+      "the clip carries a field outside the frozen interchange shape — derived evidence, bake manifests and runtime observations do not belong on the clip",
+    ).toEqual([]);
+
+    // The blacklist survives as a NESTED check, because the allowlist above only closes the top
+    // level and a verdict smuggled under source or compileIdentity would still be self-attestation.
     const forbidden = [
-      "reachedPoint", "targetError", "contactError", "collisionVerdict", "jointLimitVerdict",
-      "qualityScore", "runtimeLoadedClipName", "glbPath", "glbBytes", "visualFinding", "provider",
+      "reachedPoint", "achievedPoint", "targetError", "contactError", "collisionVerdict",
+      "jointLimitVerdict", "qualityScore", "confidence", "verdict", "runtimeLoadedClipName",
+      "glbPath", "glbBytes", "visualFinding", "provider",
     ];
     const seen: string[] = [];
     const walk = (node: unknown, path: string): void => {

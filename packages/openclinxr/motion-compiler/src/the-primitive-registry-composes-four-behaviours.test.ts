@@ -150,7 +150,19 @@ function canonicalRequest(id: PrimitiveId, seed: string): CompileRequest {
       intensity: 0.6,
       target: { kind: "body_region", id: "guard_abdomen_rlq" },
       effector: "handR",
-      constraints: [],
+      // A REAL constraint, for the same reason as the keystone: with [] everywhere, a compiler that
+      // replaces constraints with [] preserves the action by accident.
+      constraints: [
+        {
+          kind: "contact",
+          effector: "handR",
+          target: { kind: "body_region", id: "guard_abdomen_rlq" },
+          positionToleranceMeters: 0.03,
+          startFraction: 0.4,
+          endFraction: 0.72,
+          preserveWhileActive: true,
+        },
+      ],
     },
     skeletonProfile: { rigFingerprint: "rig-fp-registry-fixture" },
     seed,
