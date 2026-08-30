@@ -64,9 +64,19 @@ type CompiledMotionClipV1 = {
   notEvidenceFor: readonly string[];
 };
 
-/** What a primitive receives. The point of the keystone: NOT {seed, durationMs}. */
+/**
+ * What a primitive receives. NOT {seed, durationMs}, and NOT a narrowed projection either.
+ *
+ * AMENDED 2026-08-30: `action` was `{actionId, primitiveId, target, effector}` — a redeclaration
+ * that silently dropped trigger, timing, intensity and constraints. A compiler could discard
+ * contacts and timing and still satisfy the clause, which is the same narrowing defect one level in.
+ * The reviewer's phrase: "full-action preservation belongs in the keystone."
+ *
+ * `action: unknown` on purpose. Naming the fields here would re-narrow it; the clause asserts DEEP
+ * EQUALITY against the program's own action instead, so the IR is the single definition.
+ */
 type PrimitiveRequest = {
-  action: { actionId: string; primitiveId: string; target: unknown; effector: string };
+  action: unknown;
   skeletonProfile: { rigFingerprint: string };
   seed: string;
 };
@@ -81,7 +91,7 @@ async function loadEntry(): Promise<{
   }) => CompiledMotionClipV1;
 }> {
   const mod = (await import(/* @vite-ignore */ MODULE)) as Record<string, unknown>;
-  return { compileMotionProgram: mod.compileMotionProgram as never };
+  return { compileMotionProgram: mod["compileMotionProgram"] as never };
 }
 
 function action(actionId: string, region: string) {
@@ -115,12 +125,13 @@ function recordingPrimitives(seen: PrimitiveRequest[]) {
   return {
     guard_body_region: (r: PrimitiveRequest) => {
       seen.push(r);
+      const a = r.action as { actionId: string; target: unknown };
       return {
-        actionId: r.action.actionId,
+        actionId: a.actionId,
         tracks: [
           {
             property: "rotation" as const,
-            boneName: `upper_arm.R@${JSON.stringify(r.action.target)}`,
+            boneName: `upper_arm.R@${JSON.stringify(a.target)}`,
             canonicalLandmark: "upper_arm_r",
             times: [0, 0.45, 0.9],
             values: [[0, 0, 0, 1], [0.1, 0, 0, 0.995], [0, 0, 0, 1]] as Quat[],
@@ -135,7 +146,10 @@ describe("the canonical compile entry orchestrates primitives", () => {
   it.fails("(1) RED: one entry compiles a whole program through injected primitives", async () => {
     const { compileMotionProgram } = await loadEntry();
     const seen: PrimitiveRequest[] = [];
-    const clip = compileMotionProgram({ program: program(), skeletonProfile: PROFILE, primitives: recordingPrimitives(seen) });
+    // Frozen snapshot taken BEFORE the call: the immutability assertion below compares against it.
+    const input = program();
+    const before = JSON.stringify(input);
+    const clip = compileMotionProgram({ program: input, skeletonProfile: PROFILE, primitives: recordingPrimitives(seen) });
 
     // A {} stub dies here. A compiler that ignores one action dies on the composition count.
     expect(clip.schemaVersion, "one clip dialect, or we are back to two").toBe(CLIP_SCHEMA);
@@ -144,11 +158,24 @@ describe("the canonical compile entry orchestrates primitives", () => {
     // THE KEYSTONE ASSERTION: the primitive receives the canonical MotionAction and the profile —
     // not {seed, durationMs}, which is what M4's plant currently contracts and what would force a
     // fourth adapter at bake time.
+    // FULL-ACTION PRESERVATION. Deep equality against the program's own action, so a compiler that
+    // forwards a projection — dropping constraints, timing, intensity or provenance refs — fails
+    // here. Asserting only "target is defined" was the narrowing this clause exists to prevent.
+    const submitted = (input.actions as unknown[]);
     for (const r of seen) {
-      expect(r.action.target, "a primitive must receive the canonical target").toBeDefined();
+      const match = submitted.find((a) => (a as { actionId: string }).actionId === (r.action as { actionId: string }).actionId);
+      expect(match, "a primitive received an action the program never contained").toBeDefined();
+      expect(
+        r.action,
+        "the primitive received a PROJECTION of the action — constraints, timing or intensity were dropped",
+      ).toEqual(match);
       expect(r.skeletonProfile.rigFingerprint, "a primitive must receive the rig it targets").toBe("rig-fp-test-a");
       expect(typeof r.seed, "a primitive must receive a derived seed, not a duration").toBe("string");
     }
+
+    // INPUT IMMUTABILITY. A compiler that mutates the program it was handed makes every later
+    // determinism claim unreliable, because the second call sees different input than the first.
+    expect(JSON.stringify(input), "compileMotionProgram mutated the program it was given").toBe(before);
 
     expect(clip.source.actionIds.sort(), "semantic attribution survives compilation").toEqual(["a1", "a2"]);
     expect(clip.tracks.length, "both fragments' tracks must be present").toBe(2);

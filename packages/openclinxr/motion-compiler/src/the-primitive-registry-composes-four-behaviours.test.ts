@@ -112,13 +112,16 @@ interface MotionClip {
  * for one number is how they diverge.
  */
 interface CompileRequest {
-  action: {
-    actionId: string;
-    primitiveId: PrimitiveId;
-    timing: { durationMs: number };
-    target: { kind: string; id?: string };
-    effector: string;
-  };
+  /**
+   * The COMPLETE canonical MotionAction, not a redeclaration of it.
+   *
+   * AMENDED again 2026-08-30: the first amendment named the fields, which was still a narrowed
+   * shape — trigger, intensity and constraints were absent, so a registry could discard contacts and
+   * timing and satisfy the clause. Restating a type in a second place is how the two drift; the
+   * keystone asserts deep equality against the program's own action, so the IR stays the single
+   * definition and this stays `unknown`.
+   */
+  action: unknown;
   skeletonProfile: { rigFingerprint: string };
   /** DERIVED, per brief section 13 — not a caller-chosen integer. String so a hash can carry it. */
   seed: string;
@@ -137,12 +140,17 @@ interface MotionPrimitive {
  */
 function canonicalRequest(id: PrimitiveId, seed: string): CompileRequest {
   return {
+    // A COMPLETE action, matching the M1 IR field for field. Anything less here teaches the
+    // registry that a projection is acceptable input.
     action: {
       actionId: `action_${id}`,
       primitiveId: id,
+      trigger: { kind: "clinical_touch", ref: "clinical_touch_guard_abdomen_rlq" },
       timing: { durationMs: DURATION_MS },
+      intensity: 0.6,
       target: { kind: "body_region", id: "guard_abdomen_rlq" },
       effector: "handR",
+      constraints: [],
     },
     skeletonProfile: { rigFingerprint: "rig-fp-registry-fixture" },
     seed,
