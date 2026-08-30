@@ -1,0 +1,9 @@
+{
+  "cardId": "tsk_36ec8d02ad31c685",
+  "kind": "independent-manager-verification",
+  "commit": "6f0b63b6c97435f5349abb13ffde83498aef16e3",
+  "independentTests": {
+    "run5": "5 passed",
+    "run6": "pending"
+  }
+}
