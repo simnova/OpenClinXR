@@ -154,6 +154,23 @@ function program(actions: unknown[] = [action("a1", MOTION_REGION_GUARD_RLQ), ac
 const PROFILE = {
   rigFingerprint: "rig-fp-test-a",
   effectorBone: "handR",
+  /**
+   * WHERE EACH MOTION REGION SITS ON THIS RIG. Added 2026-08-30 on review.
+   *
+   * The guard and contact plants put this on their profiles so a primitive can resolve a
+   * `body_region` target against the rig it was handed. This file did not, and `skeletonProfile` is
+   * `unknown`, so the deep-equality assertion below equalled whatever it was given: a compiler that
+   * DROPPED `regionAnchors` on the way to the primitive stayed green here and only failed later, in
+   * the plants that need it. That is the half-closed seam this file exists to prevent — present on
+   * one side, invisible on the other.
+   *
+   * With it here, the immutability and deep-equality assertions cover it, so the field is required by
+   * construction rather than by convention.
+   */
+  regionAnchors: {
+    [MOTION_REGION_GUARD_RLQ]: { x: 0.10, y: 0.94, z: 0.14 },
+    [MOTION_REGION_GUARD_CHEST_L]: { x: 0.24, y: 1.10, z: 0.10 },
+  },
   joints: [
     { boneName: "upper_armR", bindLocalPosition: { x: 0.18, y: 1.38, z: 0 }, bindLocalQuaternion: { x: 0, y: 0, z: 0, w: 1 } },
     { boneName: "forearmR", parentBoneName: "upper_armR", bindLocalPosition: { x: 0, y: -0.28, z: 0 }, bindLocalQuaternion: { x: 0, y: 0, z: 0, w: 1 } },

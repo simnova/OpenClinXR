@@ -5,12 +5,9 @@ import { describe, expect, it } from "vitest";
 
 import { planted } from "./planted.js";
 import {
-  COMPLIANCE_REGION_CHEST_L,
-  COMPLIANCE_REGION_RLQ,
+  COMPLIANCE_TO_MOTION_REGION,
   GUARD_MOTION_REGIONS,
-  MOTION_REGION_GUARD_CHEST_L,
   MOTION_REGION_GUARD_FLANK_R,
-  MOTION_REGION_GUARD_RLQ,
 } from "./plant-motion-regions.js";
 
 /**
@@ -505,16 +502,16 @@ describe("the planner emits a validated motion program", () => {
         ).toBe(true);
       }
 
-      // And the MAPPER must produce the fixture id for the compliance region it pairs with, so the
-      // seam plant's compliance -> motion hop lands on the same string the guard plants drive.
-      expect(
-        motionBodyRegionForComplianceRegion(COMPLIANCE_REGION_RLQ),
-        `the mapper does not send ${COMPLIANCE_REGION_RLQ} to the motion region the guard plants use`,
-      ).toBe(MOTION_REGION_GUARD_RLQ);
-      expect(
-        motionBodyRegionForComplianceRegion(COMPLIANCE_REGION_CHEST_L),
-        `the mapper does not send ${COMPLIANCE_REGION_CHEST_L} to the motion region the guard plants use`,
-      ).toBe(MOTION_REGION_GUARD_CHEST_L);
+      // EVERY arrow, not the two that were convenient. With a partial binding, two of the four
+      // fixture regions could sit in the vocabulary while the mapper emitted different strings for
+      // their touch sites — and the guard plant never calls the mapper, so that split would surface
+      // in the planner, far from either contract that should have caught it.
+      for (const { compliance, motion } of COMPLIANCE_TO_MOTION_REGION) {
+        expect(
+          motionBodyRegionForComplianceRegion(compliance),
+          `the mapper does not send ${compliance} to "${motion}", the region the guard plants drive`,
+        ).toBe(motion);
+      }
     },
   );
 

@@ -52,6 +52,43 @@ export const GUARD_MOTION_REGIONS = [
  */
 export const MOTION_REGION_GUARD_FLANK_R = "motion_guard_flank_r";
 
-/** The compliance regions those correspond to, kept beside them so the pairing is readable. */
+/**
+ * EVERY compliance/motion pair the plants rely on, so the mapper is bound on all four arrows rather
+ * than the two that happened to be convenient.
+ *
+ * A partial binding is a real hole: with only `abdomen_rlq` and `chest_L` asserted,
+ * `motion_guard_abdomen_luq` and `motion_guard_chest_r` could sit in the vocabulary while the mapper
+ * emitted different strings for those touch sites — and since the guard plant never calls the mapper,
+ * the split would surface in the planner instead, far from either contract that would have caught it.
+ */
+export const COMPLIANCE_TO_MOTION_REGION = [
+  { compliance: "abdomen_rlq", motion: MOTION_REGION_GUARD_RLQ },
+  { compliance: "abdomen_luq", motion: MOTION_REGION_GUARD_LUQ },
+  { compliance: "chest_R", motion: MOTION_REGION_GUARD_CHEST_R },
+  { compliance: "chest_L", motion: MOTION_REGION_GUARD_CHEST_L },
+] as const;
+
+/** Kept as named constants because several clauses read one pair rather than the list. */
 export const COMPLIANCE_REGION_RLQ = "abdomen_rlq";
 export const COMPLIANCE_REGION_CHEST_L = "chest_L";
+
+/**
+ * THE SPACE A REGION ANCHOR IS EXPRESSED IN, named here because the last unnamed space cost a round.
+ *
+ * `SkeletonProfile.regionAnchors` values are metres in the rig's BIND WORLD frame — the same space
+ * as `SkeletonProfile.bindFrame`, and the space the FK oracle accumulates into. NOT node-local to any
+ * bone, and not a chest-relative offset: either of those would compare as a miss against an oracle
+ * that walks the chain to world, and nobody reading a failing distance would see why.
+ *
+ * The track contract earned `rotationAbsoluteNodeLocal` for exactly this reason. This is the same
+ * discipline applied to positions.
+ *
+ * WHAT THIS IS NOT, and it is a real limitation rather than a caveat. Brief section 8 resolves
+ * `bodySurface(left_precordium)` — a point on a MESH. A bind-pose skeleton anchor is a proxy for
+ * that, and the contacts plant already deferred penetration and orientation on the grounds that a
+ * point is not a surface. These anchors make that proxy load-bearing on the skeleton, and M1b
+ * deriving bind transforms from a shipped GLB will NOT produce them: they need a mesh closest-point
+ * or a landmark offset, and that work is unowned today. Recorded on the contact-surfaces card
+ * (tsk_67cafb96802a06bc) rather than left in a comment.
+ */
+export const REGION_ANCHOR_SPACE = "bind_world_metres";

@@ -592,7 +592,22 @@ describe("the guard primitive hits four targets on three rigs", () => {
         // IR declares.
         target: { kind: "body_region", id: input.motionRegion },
         effector: input.profile.effectorBone,
-        constraints: [],
+        // A REAL ContactConstraint on the SOLVER path. It was `[]`, and the keystone and contacts
+        // plants carry real literals — so a compiler that strips constraints failed there while the
+        // path that actually implements the guard taught its worker that contacts are optional
+        // input. Empty on the one path where a solver has to honour them is the wrong default.
+        constraints: [
+          {
+            kind: "contact",
+            effector: input.profile.effectorBone,
+            target: { kind: "body_region", id: input.motionRegion },
+            positionToleranceMeters: 0.03,
+            startFraction: 0.4,
+            endFraction: 0.72,
+            penetrationToleranceMeters: 0.01,
+            preserveWhileActive: true,
+          },
+        ],
       },
       skeletonProfile: structuredClone(input.profile),
       seed: `seed-guard-${input.motionRegion}`,
@@ -650,9 +665,18 @@ describe("the guard primitive hits four targets on three rigs", () => {
       }
 
       for (const { profile, clip } of perRig) {
-        expect(clip.rigFingerprint, "the clip must declare which rig it was solved for").toBe(
-          profile.rigFingerprint,
-        );
+        // WITHDRAWN 2026-08-30: `expect(clip.rigFingerprint).toBe(profile.rigFingerprint)`.
+        //
+        // `compileGuarded` copies that field off the REQUEST when it builds the local view, so the
+        // assertion compared a value to itself and could not fail. It read as "the clip declares
+        // which rig it was solved for" and asserted nothing. Mine, introduced when the local view
+        // replaced a compiler-returned clip.
+        //
+        // Rig attribution on a COMPILED CLIP is a real requirement and belongs where the clip is
+        // actually produced — the canonical entry, whose `targetRig.rigFingerprint` the keystone
+        // asserts on the object it received. Nothing is lost here; a duplicate of it would be a
+        // second place to drift.
+        void profile;
         expect(clip.tracks.length, `${profile.rigFingerprint} produced no tracks`).toBeGreaterThan(0);
 
         // Every driven bone must EXIST on this rig. The shipped materializer's two-name fallback
@@ -808,7 +832,18 @@ describe("the guard primitive hits four targets on three rigs", () => {
           intensity: 0.6,
           target: { kind: "body_region", id: motionRegion },
           effector: profile.effectorBone,
-          constraints: [],
+          constraints: [
+            {
+              kind: "contact",
+              effector: profile.effectorBone,
+              target: { kind: "body_region", id: motionRegion },
+              positionToleranceMeters: 0.03,
+              startFraction: 0.4,
+              endFraction: 0.72,
+              penetrationToleranceMeters: 0.01,
+              preserveWhileActive: true,
+            },
+          ],
         },
         skeletonProfile: structuredClone(profile),
         seed: "seed-registered-guard",
