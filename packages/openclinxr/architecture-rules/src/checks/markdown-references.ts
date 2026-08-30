@@ -49,6 +49,17 @@ const SKIPPED_DIRECTORIES = new Set([
   "coverage",
   ".openclinxr",
   ".openclinxr-local",
+  // AGENT WORKTREES — `.claude/worktrees/`, `.grok/worktrees/`. The paragraph above already gives
+  // the reason and this is the same case: they are gitignored (.gitignore:50), they exist on one
+  // machine and not another, and their contents are a SNAPSHOT of the repo taken whenever an agent
+  // branched. Scanning them makes the gate report every reference that was unresolved at branch
+  // time, forever, for as long as that worktree sits on disk.
+  //
+  // Measured 2026-08-30: nine failures, EIGHT of them prefixed `.claude/worktrees/agent-…`, which
+  // buried the one real finding in main (`.claude/skills/bothy-board/SKILL.md`). A gate that
+  // reports another tree's history at 8:1 against its own is worse than no gate — the signal is
+  // there and nobody can see it.
+  "worktrees",
 ]);
 
 /**
@@ -74,14 +85,27 @@ export const BROKEN_REFERENCE_FREEZE: Record<string, number> = {
   ".claude/rules/EXEC_REHYDRATE.md": 1,
   ".claude/rules/GUARD_DRIFT.md": 3,
   ".claude/rules/LEX_AGENTIC.md": 5,
-  ".claude/rules/TIER_GROK.md": 4,
+  // RELOCATED, NOT RAISED — 2026-08-29 moved TIER_GROK.md's body verbatim into a lazy skill
+  // (that file now says so in as many words: "Nothing was changed or deleted — the content is
+  // verbatim in the skill"). Its four dangling references travelled with the text. The three
+  // TIER_GROK.md stubs therefore measure 0 now, and the skill measures 4.
+  //
+  // Net repo total is UNCHANGED at 4, which is why this is a relocation rather than a ceiling
+  // raise — the shrink-only rule forbids letting rot GROW, and none grew. The ratchet caught the
+  // move correctly: it demanded the emptied stubs drop to 0 rather than sit on stale headroom.
+  //
+  // The four targets (docs/findings/*.md, agentic-eval/docs/CONFIDENCE.md) do not exist in this
+  // repo. Repointing them needs someone who knows where that content went; until then the ceiling
+  // holds the line at 4 and cannot silently widen.
+  ".claude/rules/TIER_GROK.md": 0,
+  ".claude/skills/grok-tier-routing/SKILL.md": 4,
   ".claude/rules/agent-consult.md": 1,
   ".claude/rules/grok-harness-usage.md": 1,
   ".claude/rules/source-of-truth.md": 1,
   ".cursor/rules/EXEC_REHYDRATE.md": 1,
   ".cursor/rules/GUARD_DRIFT.md": 3,
   ".cursor/rules/LEX_AGENTIC.md": 5,
-  ".cursor/rules/TIER_GROK.md": 4,
+  ".cursor/rules/TIER_GROK.md": 0,
   ".cursor/rules/agent-consult.md": 1,
   ".cursor/rules/grok-harness-usage.md": 1,
   ".cursor/rules/source-of-truth.md": 1,
@@ -93,7 +117,7 @@ export const BROKEN_REFERENCE_FREEZE: Record<string, number> = {
   "agents/rules/EXEC_REHYDRATE.md": 1,
   "agents/rules/GUARD_DRIFT.md": 3,
   "agents/rules/LEX_AGENTIC.md": 5,
-  "agents/rules/TIER_GROK.md": 4,
+  "agents/rules/TIER_GROK.md": 0,
   "agents/rules/agent-consult.md": 1,
   "agents/rules/grok-harness-usage.md": 1,
   "agents/rules/source-of-truth.md": 1,
@@ -116,6 +140,25 @@ function markdownFiles(dir: string, acc: string[] = []): string[] {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     if (entry.isDirectory()) {
       if (!SKIPPED_DIRECTORIES.has(entry.name)) markdownFiles(join(dir, entry.name), acc);
+    } else if (entry.isSymbolicLink() && entry.name.endsWith(".md")) {
+      /**
+       * A SYMLINKED .md IS NOT A SECOND DOCUMENT, and scanning it as one produces a reference
+       * failure that no edit to the document can fix.
+       *
+       * Measured 2026-08-30: `.claude/skills/bothy-board/SKILL.md` is a symlink to
+       * `.agents/skills/bothy-board/SKILL.md`. Its line 50 says
+       * `[OPENCLINXR-PROJECT-BINDING.md](OPENCLINXR-PROJECT-BINDING.md)`, and that sibling exists
+       * beside the TARGET. Resolution happens from the LINK's directory, where no such sibling
+       * exists, so a correct relative reference in a correct document was reported as unresolved.
+       * The only "fixes" available are to break the link or to hard-code a path that is wrong at
+       * the target — i.e. damage the document to satisfy the checker.
+       *
+       * The canonical file is walked at its real location (`.agents/…` is scanned), so skipping the
+       * link loses no coverage. `scripts/sync-harness-agent-files.sh` creates these deliberately so
+       * Claude, Grok and Cursor share one source of truth; the multi-harness layout is the reason
+       * they exist, and it should not cost a false failure.
+       */
+      continue;
     } else if (entry.name.endsWith(".md")) {
       acc.push(join(dir, entry.name));
     }
