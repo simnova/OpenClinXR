@@ -425,20 +425,34 @@ describe("the contact constraint holds across its window", () => {
         seed: seed as string,
       });
 
-      const trackKeys = (tracks: readonly CompiledMotionTrack[]): string[] =>
-        tracks.map((t) => `${t.boneName}::${t.property}`).sort();
+      /**
+       * NORMALISED, then compared whole. Corrected 2026-08-30 on review: this sorted track KEYS for
+       * one assertion and then compared `values` POSITIONALLY for the counterweight.
+       *
+       * Two ways that was wrong at once. An honest entry may sort fragment tracks before composing
+       * the clip while the primitive returns them in another order — sorted keys agree, the content
+       * is identical, and the positional comparison reports a second implementation that does not
+       * exist. And `values` alone omits times, interpolation and canonicalLandmark, so a clip with
+       * the right numbers on the wrong schedule passed.
+       *
+       * Ordering is a legitimate degree of freedom; content is not.
+       */
+      const canonicalTracks = (tracks: readonly CompiledMotionTrack[]) =>
+        [...tracks]
+          .sort((a, b) => `${a.boneName}::${a.property}`.localeCompare(`${b.boneName}::${b.property}`))
+          .map((track) => ({
+            property: track.property,
+            boneName: track.boneName,
+            canonicalLandmark: track.canonicalLandmark,
+            interpolation: track.interpolation,
+            times: track.times,
+            values: track.values,
+          }));
 
       expect(
-        trackKeys(clip.tracks),
-        "the entry produced a clip whose tracks are not the registered guard's — it is not consulting the registry",
-      ).toEqual(trackKeys(registered.tracks));
-
-      // COUNTERWEIGHT: matching track KEYS is satisfiable by any implementation driving the same
-      // bones. The emitted values must be the registered primitive's too.
-      expect(
-        JSON.stringify(clip.tracks.map((t) => t.values)),
-        "the entry drove the same bones with different values — a second implementation, not the registered one",
-      ).toBe(JSON.stringify([...registered.tracks].map((t) => t.values)));
+        canonicalTracks(clip.tracks),
+        "the entry produced a clip whose tracks are not the registered guard's — it is not consulting the registry, or a second implementation ran",
+      ).toEqual(canonicalTracks(registered.tracks));
     },
   );
 

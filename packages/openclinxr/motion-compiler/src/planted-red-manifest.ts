@@ -32,6 +32,36 @@ export type PlantedRed = {
 
 export const PLANTED_REDS: readonly PlantedRed[] = [
   {
+    file: "the-primitive-registry-is-one-seam-with-no-behaviour.test.ts",
+    select: "(1) RED: the vocabulary carries the guard AND the four behaviours, in one place",
+    expected: /primitive-registry\.js must export PRIMITIVE_IDS/,
+    stage: "assertion",
+  },
+  {
+    file: "the-primitive-registry-is-one-seam-with-no-behaviour.test.ts",
+    select: "(2) RED: every declared id resolves to something returning a CANONICAL fragment",
+    expected: /primitive-registry\.js must export resolvePrimitive/,
+    stage: "assertion",
+  },
+  {
+    file: "the-primitive-registry-is-one-seam-with-no-behaviour.test.ts",
+    select: "(3) RED: an unknown id is REFUSED, not silently undefined",
+    expected: /primitive-registry\.js must export resolvePrimitive/,
+    stage: "assertion",
+  },
+  {
+    file: "the-primitive-registry-is-one-seam-with-no-behaviour.test.ts",
+    select: "(4) RED: resolution returns a DISTINCT entry per id \u2014 an aliasing guard, nothing more",
+    expected: /primitive-registry\.js must export resolvePrimitive/,
+    stage: "assertion",
+  },
+  {
+    file: "the-primitive-registry-is-one-seam-with-no-behaviour.test.ts",
+    select: "(5) RED: a second registration for an existing id is REFUSED, never silently winning",
+    expected: /primitive-registry\.js must export registerPrimitive/,
+    stage: "assertion",
+  },
+  {
     file: "the-canonical-compile-entry-orchestrates-primitives.test.ts",
     select: "(1) RED: one entry compiles a whole program through injected primitives",
     expected: /Cannot find module .*src\/compile-motion-program\.js/,
