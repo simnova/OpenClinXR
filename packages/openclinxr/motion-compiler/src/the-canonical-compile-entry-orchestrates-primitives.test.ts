@@ -1,4 +1,11 @@
 import { describe, expect, it } from "vitest";
+import {
+  trackOrderKeys,
+  violationsInTracks,
+  type CompiledMotionTrack,
+  type QuatTuple as Quat,
+  type Vec3Tuple as Vec3,
+} from "./canonical-motion-contract.js";
 
 /**
  * THE KEYSTONE. One canonical compile entry, one clip representation, proven WITHOUT a solver.
@@ -40,30 +47,16 @@ import { describe, expect, it } from "vitest";
 const CLIP_SCHEMA = "openclinxr.compiled-motion-clip.v1";
 const PROGRAM_SCHEMA = "openclinxr.motion-program.v1";
 
-type Vec3 = readonly [number, number, number];
-type Quat = readonly [number, number, number, number];
-
 /**
- * The canonical track.
+ * THE TRACK TYPE AND ITS VALIDATOR ARE IMPORTED, not declared here. See
+ * `canonical-motion-contract.ts` for why: five review rounds each found me closing a shape in one
+ * file while a sibling plant independently restated the same concept with its own structure. The
+ * last instance had this file freezing quaternion tuples `[x, y, z, w]` while M2 froze objects
+ * `{x, y, z, w}` — the adapter defect this keystone exists to prevent, reintroduced one layer down
+ * by the amendment that closed it.
  *
- * ROTATION SEMANTICS ARE FROZEN AS ABSOLUTE NODE-LOCAL — the value a glTF rotation channel carries
- * directly, requiring no conversion at bake. Decided 2026-08-30 after an external reviewer found the
- * meaning genuinely ambiguous: the type said only "rotation", while M2's oracle computed
- * `bindLocalQuaternion x emitted`, which defines emitted values as bind-RELATIVE deltas. A bake
- * worker could reasonably have read them as absolute, and the two interpretations differ by the bind
- * pose — silently, on every bone with a non-identity bind rotation.
- *
- * Absolute wins because the conversion then happens in the compiler, once, rather than in whichever
- * consumer guesses. The property is named `rotationAbsoluteNodeLocal` so the meaning travels with the
- * data and cannot be re-guessed from a bare "rotation".
- *
- * Interpolation is EXPLICIT because the sampled values encode minimum jerk and a writer that assumes
- * CUBICSPLINE produces motion nobody authored.
+ * A plant that redeclares `CompiledMotionTrack` structurally is reintroducing that defect.
  */
-type CompiledMotionTrack =
-  | { property: "rotationAbsoluteNodeLocal"; boneName: string; canonicalLandmark: string; interpolation: "LINEAR"; times: number[]; values: Quat[] }
-  | { property: "translationAbsoluteNodeLocal"; boneName: string; canonicalLandmark: string; interpolation: "LINEAR"; times: number[]; values: Vec3[] };
-
 type CompiledMotionClipV1 = {
   schemaVersion: typeof CLIP_SCHEMA;
   clipId: string;
@@ -182,7 +175,7 @@ function recordingPrimitives(seen: PrimitiveRequest[]) {
             canonicalLandmark: "upper_arm_r",
             interpolation: "LINEAR" as const,
             times: [0, 0.45, 0.9],
-            values: [[0, 0, 0, 1], [0.1, 0, 0, 0.995], [0, 0, 0, 1]] as Quat[],
+            values: [[0, 0, 0, 1], [Math.sin(0.1), 0, 0, Math.cos(0.1)], [0, 0, 0, 1]] as Quat[],
           },
         ],
       };
@@ -340,74 +333,64 @@ describe("the canonical compile entry orchestrates primitives", () => {
 
   it.fails("(5) RED: tracks have one closed value space — semantics, sign continuity, ordering", async () => {
     // THE LARGEST REMAINING ARCHITECTURAL ITEM per external review, and plantable now: it depends on
-    // neither the solver nor the bake. Left open, M2's private GuardTrack dialect and whatever the
-    // bake worker invents become two clip dialects BELOW the supposedly canonical entry — which is
-    // the exact defect this keystone exists to prevent, one layer down.
+    // neither the solver nor the bake. Left open, M2's dialect and whatever the bake worker invents
+    // become two clip dialects BELOW the supposedly canonical entry.
     const { compileMotionProgram } = await loadEntry();
     const clip = compileMotionProgram({ program: program(), skeletonProfile: structuredClone(PROFILE), primitives: recordingPrimitives([]) });
 
-    const seenKeys = new Set<string>();
-    const PROPS = ["rotationAbsoluteNodeLocal", "translationAbsoluteNodeLocal"];
-    let maxFinal = 0;
-    for (const track of clip.tracks) {
-      // CLOSED property set. An unknown property previously fell into the translation branch and was
-      // validated as one — a silent misclassification, not a refusal.
-      expect(PROPS, `unknown track property "${track.property}"`).toContain(track.property);
-
-      const key = `${track.boneName}::${track.property}`;
-      expect(seenKeys.has(key), `two tracks address ${key} — ambiguous at bake`).toBe(false);
-      seenKeys.add(key);
-
-      expect(track.interpolation, "interpolation must be explicit; the writer must not guess").toBe("LINEAR");
-      expect(track.times.length, "a track with no samples is not a track").toBeGreaterThan(0);
-      expect(track.times.length).toBe(track.values.length);
-
-      for (let i = 0; i < track.times.length; i += 1) {
-        const t = track.times[i]!;
-        expect(Number.isFinite(t), `${key}: non-finite time`).toBe(true);
-        // NON-NEGATIVE. A negative-only secondary track previously passed whenever another track
-        // supplied the positive maximum duration.
-        expect(t >= 0, `${key}: negative timestamp ${t}`).toBe(true);
-        if (i > 0) expect(t > track.times[i - 1]!, `${key}: times not strictly increasing`).toBe(true);
-      }
-      maxFinal = Math.max(maxFinal, track.times[track.times.length - 1]!);
-
-      if (track.property === "rotationAbsoluteNodeLocal") {
-        let prev: Quat | undefined;
-        for (const [i, q] of track.values.entries()) {
-          // TUPLE SHAPE CLOSED. A five-component "quaternion" passed every other check.
-          expect(q.length, `${key}: quaternion must have exactly 4 components`).toBe(4);
-          expect(q.every((c) => Number.isFinite(c)), `${key}: non-finite quaternion`).toBe(true);
-          const norm = Math.hypot(...q);
-          expect(Math.abs(norm - 1) < 1e-6, `${key}: quaternion not unit (|q|=${norm})`).toBe(true);
-
-          // FIRST-SAMPLE CANONICAL SIGN. Sign continuity alone did not close this: negating EVERY
-          // quaternion in a track leaves all adjacent dot products positive and the whole track
-          // passed, so two runs emitting q and -q throughout were both "valid" and not byte-equal.
-          if (i === 0) {
-            const canonical = q[3] > 0 || (q[3] === 0 && (q[0] > 0 || (q[0] === 0 && (q[1] > 0 || (q[1] === 0 && q[2] >= 0)))));
-            expect(canonical, `${key}: first sample is not sign-canonical (w<0, or w=0 with a negative leading component)`).toBe(true);
-          }
-          if (prev) {
-            const dot = q[0] * prev[0] + q[1] * prev[1] + q[2] * prev[2] + q[3] * prev[3];
-            expect(dot >= 0, `${key}: quaternion sign flips between samples — breaks byte determinism`).toBe(true);
-          }
-          prev = q;
-        }
-      } else {
-        for (const v of track.values) {
-          expect(v.length, `${key}: translation must have exactly 3 components`).toBe(3);
-          expect(v.every((c) => Number.isFinite(c)), `${key}: non-finite translation`).toBe(true);
-        }
-      }
-    }
+    expect(violationsInTracks(clip.tracks), "the compiled tracks violate the canonical clip contract").toEqual([]);
 
     // Deterministic ordering, so two identical compiles serialise identically.
-    const order = clip.tracks.map((t) => `${t.boneName}::${t.property}`);
+    const order = trackOrderKeys(clip.tracks);
     expect(order, "tracks must be ordered by boneName then property").toEqual([...order].sort());
 
     // durationSeconds is not an independent number that can drift from the tracks it describes.
+    const maxFinal = Math.max(0, ...clip.tracks.map((t) => t.times[t.times.length - 1] ?? 0));
     expect(Number.isFinite(clip.durationSeconds) && clip.durationSeconds > 0).toBe(true);
     expect(clip.durationSeconds, "durationSeconds must equal the maximum final track time").toBeCloseTo(maxFinal, 6);
+  });
+
+  it("(5b) LIVE: the shared validator REJECTS each known-bad track — a weakened rule turns this red", () => {
+    // THE DESTRUCTIVE PROBE, MADE PERMANENT. Every rule in `violationsInTracks` was previously
+    // verified by hand — stub in a violation, watch the message, delete the stub. That verifies the
+    // rule on the day and protects nothing afterwards: the validator now lives in a source file a
+    // worker may edit, and a rule quietly relaxed there would turn clause (5) green rather than red.
+    //
+    // This clause is LIVE on purpose. It passes on arrival, fails independently of the RED clauses,
+    // and each row asserts a DIFFERENT message, so deleting one rule cannot be masked by another
+    // still firing.
+    // Unit to double precision. `[0.1, 0, 0, 0.995]` reads as a small rotation and is 1.25e-5 off
+    // unit, which the validator correctly refuses — a fixture that fails the rule it is the control
+    // for makes every row below it unreadable.
+    const rot = (radians: number): number[] => [Math.sin(radians / 2), 0, 0, Math.cos(radians / 2)];
+    const ok = (over: Partial<Record<string, unknown>> = {}) => ({
+      property: "rotationAbsoluteNodeLocal",
+      boneName: "upper_armR",
+      canonicalLandmark: "shoulder_R",
+      interpolation: "LINEAR",
+      times: [0, 0.5],
+      values: [[0, 0, 0, 1], rot(0.2)],
+      ...over,
+    });
+    const rows: [string, unknown[], RegExp][] = [
+      ["a clean track is accepted", [ok()], /^$/],
+      ["unknown property", [ok({ property: "scale" })], /unknown track property "scale"/],
+      ["negative time", [ok({ times: [-0.5, 0.5] })], /negative timestamp -0\.5/],
+      ["times not increasing", [ok({ times: [0.5, 0.5] })], /times not strictly increasing/],
+      ["five-component quaternion", [ok({ values: [[0, 0, 0, 1, 0], rot(0.2)] })], /exactly 4 components/],
+      ["non-unit quaternion", [ok({ values: [[0, 0, 0, 2], rot(0.2)] })], /not unit/],
+      ["whole track negated", [ok({ values: [[0, 0, 0, -1], rot(0.2).map((c) => -c)] })], /not sign-canonical/],
+      ["sign flip mid-track", [ok({ values: [[0, 0, 0, 1], rot(0.2).map((c) => -c)] })], /sign flips between samples/],
+      ["object quaternion, not a tuple", [ok({ values: [{ x: 0, y: 0, z: 0, w: 1 }, rot(0.2)] })], /not a tuple/],
+      ["implicit interpolation", [ok({ interpolation: undefined })], /interpolation must be explicit/],
+      ["no canonical landmark", [ok({ canonicalLandmark: "" })], /missing canonicalLandmark/],
+      ["times and values disagree", [ok({ times: [0] })], /1 times against 2 values/],
+      ["duplicate bone and property", [ok(), ok()], /two tracks address the same bone/],
+      ["translation of arity 4", [ok({ property: "translationAbsoluteNodeLocal", values: [[0, 0, 0, 1], [0, 1, 0, 0]] })], /exactly 3 components/],
+    ];
+    for (const [label, tracks, pattern] of rows) {
+      const violations = violationsInTracks(tracks);
+      expect(violations.join(" | "), label).toMatch(pattern);
+    }
   });
 });

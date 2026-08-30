@@ -2,6 +2,11 @@ import { readdirSync, statSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import {
+  violationsInTracks,
+  type CompiledMotionTrack,
+  type QuatTuple,
+} from "./canonical-motion-contract.js";
 
 /**
  * **OBSERVABLE: one hand-authored RLQ euler table is replayed for every guarding region on every
@@ -147,25 +152,22 @@ type BodyRegionTarget = {
 };
 
 /**
- * THE CANONICAL ROTATION TRACK — amended 2026-08-30, the last dialect below the canonical entry.
+ * THE CANONICAL ROTATION TRACK — IMPORTED, not redeclared. Amended twice on 2026-08-30.
  *
- * This was `{ boneName, eulerFrames: Vec3[] }`, a private euler shape. The keystone
- * (the-canonical-compile-entry-orchestrates-primitives.test.ts) freezes rotation tracks as unit
- * quaternions with explicit interpolation, monotonic times and sign continuity. Two clip dialects
- * below one canonical entry is the defect the keystone exists to prevent, one layer down — and it
- * was mine, left in place while I built the entry above it.
+ * First amendment: this was `{ boneName, eulerFrames: Vec3[] }`, a private euler dialect below the
+ * canonical entry, which is the defect the keystone exists to prevent one layer down.
  *
- * The FK oracle now reads these directly. It no longer converts eulers, which also removes a
- * conversion the compiler and the oracle could have disagreed about.
+ * Second amendment, after the first was found insufficient: replacing it with a LOCAL quaternion
+ * declaration left the property name and semantics agreeing while the DATA REPRESENTATION did not —
+ * the keystone froze tuples `[x, y, z, w]`, this file froze objects `{x, y, z, w}`. A worker
+ * implementing this plant literally returns object quaternions and `compileMotionProgram` expects
+ * tuples, which is the original adapter defect reintroduced by the amendment that closed it. The
+ * type now comes from `canonical-motion-contract.ts` and no structural redeclaration remains.
+ *
+ * The FK oracle converts each tuple into its own internal object form at its boundary. That
+ * conversion belongs in the oracle, never on the wire.
  */
-type GuardTrack = {
-  property: "rotationAbsoluteNodeLocal";
-  boneName: string;
-  canonicalLandmark: string;
-  interpolation: "LINEAR";
-  times: readonly number[];
-  values: readonly Quat4[];
-};
+type GuardTrack = Extract<CompiledMotionTrack, { property: "rotationAbsoluteNodeLocal" }>;
 
 type GuardClip = {
   name: string;
@@ -202,7 +204,13 @@ type GuardClip = {
  * The chest carries a NON-IDENTITY bind rotation on purpose. An all-identity chain lets an incorrect
  * local/world multiplication order pass, which would make this oracle agree with a wrong compiler.
  */
+/** The ORACLE's internal quaternion. Never crosses the seam — see `toQ` at its boundary. */
 type Quat4 = { x: number; y: number; z: number; w: number };
+
+/** Wire tuple -> oracle object. The only place the two representations meet. */
+function toQ(t: QuatTuple): Quat4 {
+  return { x: t[0], y: t[1], z: t[2], w: t[3] };
+}
 
 function qMul(a: Quat4, b: Quat4): Quat4 {
   return {
@@ -298,8 +306,9 @@ function derivedEffectorPoint(clip: GuardClip, profile: SkeletonProfile, effecto
     const rot = new Map<string, Quat4>();
     let magnitude = 0;
     for (const track of clip.tracks) {
-      const q = track.values[Math.min(f, track.values.length - 1)];
-      if (!q) continue;
+      const sample = track.values[Math.min(f, track.values.length - 1)];
+      if (!sample) continue;
+      const q = toQ(sample);
       rot.set(track.boneName, qNorm(q));
       // Distance from identity, as a rotation angle proxy — no euler conversion anywhere.
       magnitude += 1 - Math.abs(q.w);
@@ -431,7 +440,7 @@ function distance(a: Vec3, b: Vec3): number {
 
 function forearmLengthOf(profile: SkeletonProfile): number {
   const [, elbow, wrist] = profile.jointNames;
-  return distance(profile.bindFrame[elbow]!, profile.bindFrame[wrist]!);
+  return distance(profile.bindFrame[elbow!]!, profile.bindFrame[wrist!]!);
 }
 
 function peakRotations(clip: GuardClip): Map<string, Quat4> {
@@ -439,7 +448,7 @@ function peakRotations(clip: GuardClip): Map<string, Quat4> {
   for (const track of clip.tracks) {
     // Frame 1 of the 3-keyframe neutral -> peak -> settle shape (KEYFRAME_TIMES, :33).
     const frame = track.values[1] ?? track.values[track.values.length - 1];
-    if (frame) peak.set(track.boneName, frame);
+    if (frame) peak.set(track.boneName, toQ(frame));
   }
   return peak;
 }
@@ -525,6 +534,14 @@ describe("the guard primitive hits four targets on three rigs", () => {
         clip: compileGuarded(compile, { profile, target: rlq }),
       }));
 
+      for (const { clip } of perRig) {
+        // THE SEAM, checked rather than assumed: these tracks must satisfy the SAME validator the
+        // canonical entry applies to its own output. A shared type catches representation drift at
+        // typecheck; this catches value drift — non-unit quaternions, unordered times, a sign that
+        // flips — in the fragment a worker will hand upward.
+        expect(violationsInTracks(clip.tracks), "guard tracks violate the canonical clip contract").toEqual([]);
+      }
+
       for (const { profile, clip } of perRig) {
         expect(clip.rigFingerprint, "the clip must declare which rig it was solved for").toBe(
           profile.rigFingerprint,
@@ -561,15 +578,21 @@ describe("the guard primitive hits four targets on three rigs", () => {
 
       // COUNTERWEIGHT against a shared euler table: the three rigs have different limb lengths, so
       // a solved pose MUST differ between them. A table replayed onto aliased bones would not.
-      const anny = peakRotations(perRig[0]!.clip);
-      const mpfb = peakRotations(perRig[1]!.clip);
-      const byIndex = (clip: GuardClip): Quat4[] => clip.tracks.map((t) => t.values[1] ?? t.values[0]!);
+      // COMPARED BY TRACK INDEX, not by bone name, and that is forced: the assertion directly above
+      // proves the three rigs share NO bone names, so a name-keyed comparison intersects on nothing
+      // and returns 0 whatever the compiler emits. `maxRotationDelta(anny, mpfb)` was in this
+      // expression and was structurally zero — an operand that reads as evidence and cannot fail.
+      // Removed rather than kept as reassurance.
+      const byIndex = (clip: GuardClip): QuatTuple[] => clip.tracks.map((t) => t.values[1] ?? t.values[0]!);
+      const rhs = byIndex(perRig[1]!.clip);
       const positional = byIndex(perRig[0]!.clip).map((a, index) => {
-        const b = byIndex(perRig[1]!.clip)[index];
-        return b ? Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y), Math.abs(a.z - b.z)) : 0;
+        const b = rhs[index];
+        // Angular distance, sign-invariant. A componentwise x/y/z comparison ignores w entirely and
+        // calls q and -q — the same rotation — maximally different.
+        return b ? 2 * Math.acos(Math.min(1, Math.abs(a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3]))) : 0;
       });
       expect(
-        Math.max(0, ...positional, maxRotationDelta(anny, mpfb)),
+        Math.max(0, ...positional),
         "the 23-bone and MPFB2 rigs have different limb lengths but got identical rotations — that is a replayed table, not a solve",
       ).toBeGreaterThan(ROTATION_EPSILON_RAD);
 
@@ -623,7 +646,7 @@ describe("the guard primitive hits four targets on three rigs", () => {
       ).toBeLessThanOrEqual(ROTATION_EPSILON_RAD);
 
       // (c) The geometry IS the key: moving the point one abdominal quadrant must move the pose.
-      const moved = compile({
+      const moved = compileGuarded(compile, {
         profile,
         target: { id: adHoc.id, bodyPoint: { ...adHoc.bodyPoint, x: adHoc.bodyPoint.x - ONE_QUADRANT_METERS } },
       });

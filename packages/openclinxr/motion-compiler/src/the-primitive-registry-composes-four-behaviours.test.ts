@@ -235,9 +235,9 @@ describe("the primitive registry composes four behaviours", () => {
           const left = PRIMITIVE_IDS[i];
           const right = PRIMITIVE_IDS[j];
           expect(
-            channelSignature(clips.get(left) as MotionClip),
+            channelSignature(clips.get(left!) as MotionClip),
             `"${left}" and "${right}" produced identical channel data; only the primitiveId differs`,
-          ).not.toBe(channelSignature(clips.get(right) as MotionClip));
+          ).not.toBe(channelSignature(clips.get(right!) as MotionClip));
         }
       }
 
@@ -303,7 +303,7 @@ describe("the primitive registry composes four behaviours", () => {
       // rather than trusting a separately-exported velocity function.
       const velocity: number[] = [];
       for (let i = 0; i < position.length - 1; i += 1) {
-        velocity.push(position[i + 1] - position[i]);
+        velocity.push(position[i + 1]! - position[i]!);
       }
 
       const peak = Math.max(...velocity);
@@ -314,11 +314,11 @@ describe("the primitive registry composes four behaviours", () => {
       // Endpoints: velocity vanishes at both ends. Expressed relative to the
       // peak so the assertion is scale-free.
       expect(
-        velocity[0] / peak,
+        velocity[0]! / peak,
         "velocity does not start at rest",
       ).toBeLessThan(0.02);
       expect(
-        velocity[velocity.length - 1] / peak,
+        velocity[velocity.length - 1]! / peak,
         "velocity does not come to rest",
       ).toBeLessThan(0.02);
 
@@ -336,13 +336,13 @@ describe("the primitive registry composes four behaviours", () => {
         expect(
           velocity[i],
           `velocity is not monotonically rising before the peak (index ${i})`,
-        ).toBeGreaterThanOrEqual(velocity[i - 1]);
+        ).toBeGreaterThanOrEqual(velocity[i - 1]!);
       }
       for (let i = peakIndex + 1; i < velocity.length; i += 1) {
         expect(
           velocity[i],
           `velocity is not monotonically falling after the peak (index ${i})`,
-        ).toBeLessThanOrEqual(velocity[i - 1]);
+        ).toBeLessThanOrEqual(velocity[i - 1]!);
       }
 
       // SHAPE, not endpoints. 1.875 = 15/8, analytic for the minimum-jerk

@@ -170,7 +170,7 @@ type MotionValidation = { ok: boolean; errors: string[] };
 
 async function loadValidator(): Promise<(program: unknown) => MotionValidation> {
   const mod = (await import(/* @vite-ignore */ MODULE_UNDER_TEST)) as Record<string, unknown>;
-  return mod.validateMotionProgram as (program: unknown) => MotionValidation;
+  return mod['validateMotionProgram'] as (program: unknown) => MotionValidation;
 }
 
 async function loadRegionVocabulary(): Promise<{
@@ -179,8 +179,8 @@ async function loadRegionVocabulary(): Promise<{
 }> {
   const mod = (await import(/* @vite-ignore */ REGION_MODULE)) as Record<string, unknown>;
   return {
-    MOTION_BODY_REGIONS: mod.MOTION_BODY_REGIONS as readonly string[],
-    motionBodyRegionForComplianceRegion: mod.motionBodyRegionForComplianceRegion as (r: string) => string,
+    MOTION_BODY_REGIONS: mod['MOTION_BODY_REGIONS'] as readonly string[],
+    motionBodyRegionForComplianceRegion: mod['motionBodyRegionForComplianceRegion'] as (r: string) => string,
   };
 }
 
@@ -225,7 +225,7 @@ describe("the llm planner cannot emit bone tracks", () => {
       loadValidator(),
       loadRegionVocabulary(),
     ]);
-    const authoredMotionRegion = motionBodyRegionForComplianceRegion(AUTHORED_COMPLIANCE_REGIONS[0]);
+    const authoredMotionRegion = motionBodyRegionForComplianceRegion(AUTHORED_COMPLIANCE_REGIONS[0]!);
 
     const result = validateMotionProgram(
       plannerProgram({
@@ -321,7 +321,7 @@ describe("the llm planner cannot emit bone tracks", () => {
       loadValidator(),
       loadRegionVocabulary(),
     ]);
-    const authoredMotionRegion = motionBodyRegionForComplianceRegion(AUTHORED_COMPLIANCE_REGIONS[0]);
+    const authoredMotionRegion = motionBodyRegionForComplianceRegion(AUTHORED_COMPLIANCE_REGIONS[0]!);
 
     const validAction = {
       actionId: "guard_chest_v1",

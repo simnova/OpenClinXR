@@ -1,0 +1,6 @@
+{
+  "//": "Typechecks the PLANTS. The package tsconfig excludes tests, matching every sibling package, so without this the contracts a worker must implement are checked by nothing but vitest at runtime. Not wired into the build: cross-package fixture imports break composite rootDir. Run: npx tsc -p tsconfig.plants.json",
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": { "noEmit": true, "composite": false, "types": ["node", "vitest"] },
+  "include": ["src/**/*.ts"]
+}
