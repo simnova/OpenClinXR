@@ -187,6 +187,12 @@ export const PLANTED_REDS: readonly PlantedRed[] = [
   },
   {
     file: "the-planner-emits-a-validated-motion-program.test.ts",
+    select: "(2c) RED: the plant fixtures' motion regions are MEMBERS of the production vocabulary",
+    expected: /Cannot find module .*src\/(motion-program|motion-body-region|deterministic-scenario-motion-planner)\.js/,
+    stage: "module_absent",
+  },
+  {
+    file: "the-planner-emits-a-validated-motion-program.test.ts",
     select: "(2b) RED: the support surface DERIVES the baseline posture — chair seats, stretcher lies down",
     expected: /Cannot find module .*src\/(motion-program|motion-body-region|deterministic-scenario-motion-planner)\.js/,
     stage: "module_absent",

@@ -28,6 +28,30 @@ export const MOTION_REGION_GUARD_RLQ = "motion_guard_abdomen_rlq";
 /** A second motion region, for clauses that must show two targets differ. */
 export const MOTION_REGION_GUARD_CHEST_L = "motion_guard_chest_l";
 
-/** The compliance region those correspond to, kept beside them so the pairing is readable. */
+export const MOTION_REGION_GUARD_LUQ = "motion_guard_abdomen_luq";
+export const MOTION_REGION_GUARD_CHEST_R = "motion_guard_chest_r";
+
+/**
+ * The four the guard plant drives across three rigs. One list, so "four targets" cannot drift from
+ * whatever a clause happens to enumerate.
+ */
+export const GUARD_MOTION_REGIONS = [
+  MOTION_REGION_GUARD_RLQ,
+  MOTION_REGION_GUARD_LUQ,
+  MOTION_REGION_GUARD_CHEST_R,
+  MOTION_REGION_GUARD_CHEST_L,
+] as const;
+
+/**
+ * A FIFTH, deliberately outside the four above.
+ *
+ * The guard plant's clause (2) proves there is no per-target pose table by compiling a target the
+ * module never declared. It used an invented id; a closed motion vocabulary and an arbitrary
+ * undeclared region cannot both be canonical, so the undeclared case is now a DECLARED motion region
+ * that simply has no entry in any pose table — which is the property the clause is actually about.
+ */
+export const MOTION_REGION_GUARD_FLANK_R = "motion_guard_flank_r";
+
+/** The compliance regions those correspond to, kept beside them so the pairing is readable. */
 export const COMPLIANCE_REGION_RLQ = "abdomen_rlq";
 export const COMPLIANCE_REGION_CHEST_L = "chest_L";

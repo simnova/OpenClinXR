@@ -3,6 +3,15 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
+import {
+  GUARD_MOTION_REGIONS,
+  MOTION_REGION_GUARD_CHEST_L,
+  MOTION_REGION_GUARD_CHEST_R,
+  MOTION_REGION_GUARD_FLANK_R,
+  MOTION_REGION_GUARD_LUQ,
+  MOTION_REGION_GUARD_RLQ,
+} from "./plant-motion-regions.js";
+
 import { planted } from "./planted.js";
 import {
   violationsInTracks,
@@ -138,7 +147,7 @@ type SkeletonProfile = {
    * Added after an external reviewer found the clause called the oracle with `names.wrist`, an
    * identifier scoped to `armProfile` and NOT in scope at the assertion. That was a BOOBY TRAP, not
    * a visible break: the clause dies earlier on the module-absence assertion, so the ReferenceError
-   * would not have fired until a worker actually implemented compileGuardClip — at which point they
+   * would not have fired until a worker actually implemented compileObservedGuardResult — at which point they
    * debug my test instead of their code. `it.fails` accepts ANY failure, which is exactly how a
    * broken RED hides inside a green suite.
    *
@@ -146,14 +155,25 @@ type SkeletonProfile = {
    * break when the array order changes.
    */
   effectorBone: string;
+  /**
+   * WHERE EACH MOTION REGION SITS ON THIS RIG, metres in the bind frame.
+   *
+   * Added 2026-08-30 after an external reviewer refused the previous shape. The action used to carry
+   * a `body_point` with an explicit coordinate — a target kind M1's IR does not declare
+   * (`body_region | actor | clinical_object | world_position`), and one that let the test hand the
+   * primitive the answer. A worker implementing M1 correctly would have REJECTED that request.
+   *
+   * The action now carries a motion REGION id and the primitive resolves it against this map, which
+   * is the seam the brief describes: resolve a body target on the rig, then solve IK to it. The
+   * three rigs give different anchors for the same region, which is also what makes the "no shared
+   * euler table" counterweight bite — a replayed table cannot land on three different points.
+   *
+   * The oracle reads this from the UNTOUCHED original fixture while the primitive receives a clone.
+   */
+  regionAnchors: Readonly<Record<string, Vec3>>;
 };
 
-type BodyRegionTarget = {
-  /** Shipped region id where one exists; an ad-hoc id in clause (2). */
-  id: string;
-  /** Where on the body the guarding hand must arrive, metres in the bind frame. */
-  bodyPoint: Vec3;
-};
+
 
 /**
  * THE CANONICAL ROTATION TRACK — IMPORTED, not redeclared. Amended twice on 2026-08-30.
@@ -173,9 +193,16 @@ type BodyRegionTarget = {
  */
 type GuardTrack = Extract<CompiledMotionTrack, { property: "rotationAbsoluteNodeLocal" }>;
 
-type GuardClip = {
+/**
+ * A TEST-LOCAL VIEW of one compiled fragment. Renamed from `ObservedGuardResult` 2026-08-30 so it cannot read
+ * as another production clip contract: nothing requires production code to return this shape, it is
+ * constructed entirely inside the test from a fragment that has already passed the canonical
+ * validator, and `name`/`motionRegion`/`rigFingerprint` are bookkeeping sourced from the REQUEST
+ * rather than claims the compiler made.
+ */
+type ObservedGuardResult = {
   name: string;
-  targetId: string;
+  motionRegion: string;
   rigFingerprint: string;
   tracks: readonly GuardTrack[];
   /**
@@ -284,7 +311,7 @@ function forwardKinematic(
 
 
 
-function derivedEffectorPoint(clip: GuardClip, profile: SkeletonProfile, effectorBone: string): Vec3 {
+function derivedEffectorPoint(clip: ObservedGuardResult, profile: SkeletonProfile, effectorBone: string): Vec3 {
   const frameCount = Math.max(0, ...clip.tracks.map((t) => t.values.length));
   let best: Vec3 = { x: 0, y: 0, z: 0 };
   let bestMagnitude = -1;
@@ -308,13 +335,17 @@ function derivedEffectorPoint(clip: GuardClip, profile: SkeletonProfile, effecto
 }
 
 /**
- * What the guard module must export. `compileGuardClip` is DELIBERATELY ABSENT — see `compileGuarded`
- * below. The guard's compile path is the registry; this module owns only the declared target
- * vocabulary, which nothing else can supply.
+ * NOTHING IS REQUIRED FROM A GUARD MODULE ANY MORE, and that is the point.
+ *
+ * This required `compileObservedGuardResult` (a second public compile entry) and `GUARD_BODY_TARGETS` (a
+ * guard-specific region/point vocabulary a worker would have had to SHIP, alongside M1's
+ * `MOTION_BODY_REGIONS` and these fixtures — three vocabularies for one concept). Both were found by
+ * external review on 2026-08-30 and both are withdrawn.
+ *
+ * Production owns ONE motion-region vocabulary plus the rig-specific data that resolves a region to
+ * a point on a given skeleton. The four measurement cases are fixtures and stay here. The guard is
+ * reached through the registry like every other primitive.
  */
-type GuardModule = {
-  GUARD_BODY_TARGETS?: readonly BodyRegionTarget[];
-};
 
 /**
  * Computed so TypeScript cannot resolve a not-yet-written module at compile time, and so the
@@ -323,8 +354,12 @@ type GuardModule = {
  */
 const GUARD_SPECIFIER = ["./guard", "body", "region.js"].join("-");
 
-async function loadGuard(): Promise<GuardModule | undefined> {
-  return (await import(GUARD_SPECIFIER).catch(() => undefined)) as GuardModule | undefined;
+/**
+ * Kept only for clause (4)'s source scan, which reads the guard module's TEXT to check it does not
+ * name `CCDIKSolver` directly. Nothing in this file requires an EXPORT from it any more.
+ */
+async function loadGuard(): Promise<Record<string, unknown> | undefined> {
+  return (await import(GUARD_SPECIFIER).catch(() => undefined)) as Record<string, unknown> | undefined;
 }
 
 type RegistryModule = {
@@ -381,11 +416,26 @@ function armProfile(
     { boneName: names.elbow, parentBoneName: names.shoulder, bindLocalPosition: sub(elbow, shoulder), bindLocalQuaternion: IDENTITY_Q },
     { boneName: names.wrist, parentBoneName: names.elbow, bindLocalPosition: sub(wrist, elbow), bindLocalQuaternion: IDENTITY_Q },
   ];
+  // Anchors scale with the rig's own arm, so the three families genuinely differ. Reachable from the
+  // shoulder in every family: the shortest arm here is 0.50 m and the furthest anchor 0.46 m away.
+  const reach = upperArmLen + forearmLen;
+  const anchor = (dx: number, dy: number, dz: number): Vec3 => ({
+    x: shoulder.x + dx * reach,
+    y: shoulder.y + dy * reach,
+    z: shoulder.z + dz * reach,
+  });
   return {
     rigFingerprint,
     jointNames: [names.shoulder, names.elbow, names.wrist, names.spine, names.chest, names.head],
     joints,
     effectorBone: names.wrist,
+    regionAnchors: {
+      [MOTION_REGION_GUARD_RLQ]: anchor(-0.18, -0.70, 0.22),
+      [MOTION_REGION_GUARD_LUQ]: anchor(-0.48, -0.48, 0.22),
+      [MOTION_REGION_GUARD_CHEST_R]: anchor(-0.16, -0.14, 0.20),
+      [MOTION_REGION_GUARD_CHEST_L]: anchor(-0.50, -0.14, 0.20),
+      [MOTION_REGION_GUARD_FLANK_R]: anchor(-0.10, -0.52, 0.04),
+    },
     bindFrame: {
       [names.shoulder]: shoulder,
       [names.elbow]: elbow,
@@ -430,13 +480,14 @@ const MIXAMORIG_64_BONE = armProfile(
 
 const RIG_FAMILIES = [ANNY_23_BONE, MPFB2_137_JOINT, MIXAMORIG_64_BONE] as const;
 
-/** Four targets, ids taken from the SHIPPED region vocabulary measured in (b) — not invented. */
-const FOUR_TARGETS: readonly BodyRegionTarget[] = [
-  { id: "abdomen_rlq", bodyPoint: { x: 0.08, y: 1.0, z: 0.12 } },
-  { id: "abdomen_luq", bodyPoint: { x: -0.08, y: 1.12, z: 0.12 } },
-  { id: "chest_R", bodyPoint: { x: 0.09, y: 1.3, z: 0.11 } },
-  { id: "chest_L", bodyPoint: { x: -0.09, y: 1.3, z: 0.11 } },
-];
+/**
+ * The four MOTION regions the guard drives, from the shared fixture list.
+ *
+ * These were ComplianceRegion ids (`abdomen_rlq`, `chest_L`) with hardcoded coordinates. Two defects
+ * in one line: the ids were the touch vocabulary M1 clause (2) forbids as a MotionAction target, and
+ * the coordinates were the answer, handed to the primitive rather than resolved from the rig.
+ */
+const FOUR_TARGETS: readonly string[] = GUARD_MOTION_REGIONS;
 
 function distance(a: Vec3, b: Vec3): number {
   return Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
@@ -447,7 +498,7 @@ function forearmLengthOf(profile: SkeletonProfile): number {
   return distance(profile.bindFrame[elbow!]!, profile.bindFrame[wrist!]!);
 }
 
-function peakRotations(clip: GuardClip): Map<string, Quat4> {
+function peakRotations(clip: ObservedGuardResult): Map<string, Quat4> {
   const peak = new Map<string, Quat4>();
   for (const track of clip.tracks) {
     // Frame 1 of the 3-keyframe neutral -> peak -> settle shape (KEYFRAME_TIMES, :33).
@@ -512,12 +563,12 @@ describe("the guard primitive hits four targets on three rigs", () => {
    * THE ONE ENTRYPOINT. Every compile in this file goes through the REGISTERED primitive.
    *
    * Amended 2026-08-30 after an independent reviewer refused my claim that the set had one compile
-   * entry. It did not: clauses (1) and (2) required a public `compileGuardClip({profile, target})`
-   * returning a private `GuardClip`, which is a second compile API — the three-signature defect one
+   * entry. It did not: clauses (1) and (2) required a public `compileObservedGuardResult({profile, target})`
+   * returning a private `ObservedGuardResult`, which is a second compile API — the three-signature defect one
    * layer down, in the file that had been repaired for it twice. A worker implements the RED, and the
    * RED demanded the second export.
    *
-   * `compileGuardClip` is now required by NO clause here. An internal solver helper by that name is
+   * `compileObservedGuardResult` is now required by NO clause here. An internal solver helper by that name is
    * still fine; it is simply not a contract, so it cannot become a parallel public path.
    *
    * The compiler receives DEEP CLONES; the oracle reads the originals. The keystone's immutability
@@ -527,28 +578,33 @@ describe("the guard primitive hits four targets on three rigs", () => {
    */
   const compileGuarded = (
     compile: (request: PrimitiveRequest) => CompiledMotionFragment,
-    input: { profile: SkeletonProfile; target: BodyRegionTarget; clipName?: string },
-  ): GuardClip => {
+    input: { profile: SkeletonProfile; motionRegion: string; clipName?: string },
+  ): ObservedGuardResult => {
     const fragment = compile({
       action: {
-        actionId: `guard_${input.target.id}`,
+        actionId: `guard_${input.motionRegion}`,
         primitiveId: "guard_body_region",
         trigger: { kind: "clinical_touch", ref: "guard_rlq_v1" },
         timing: { durationMs: 900 },
         intensity: 0.6,
-        // A body POINT, deliberately: this file's four targets carry explicit coordinates and the FK
-        // oracle measures reach against them. Region-id targets need a rig-derived region->point
-        // resolution that M1b owns; using one here would test that instead of the guard.
-        target: { kind: "body_point", position: structuredClone(input.target.bodyPoint) },
+        // A MOTION REGION, resolved by the primitive against `profile.regionAnchors`. Not a
+        // coordinate: handing over the answer would test nothing, and `body_point` is not a kind M1's
+        // IR declares.
+        target: { kind: "body_region", id: input.motionRegion },
         effector: input.profile.effectorBone,
         constraints: [],
       },
       skeletonProfile: structuredClone(input.profile),
-      seed: `seed-guard-${input.target.id}`,
+      seed: `seed-guard-${input.motionRegion}`,
     });
+    // Canonical FIRST, then the local view — a malformed fragment must not be read as geometry.
+    expect(
+      violationsInTracks(fragment.tracks),
+      `guard fragment for ${input.motionRegion} violates the canonical clip contract`,
+    ).toEqual([]);
     return {
       name: input.clipName ?? fragment.actionId,
-      targetId: input.target.id,
+      motionRegion: input.motionRegion,
       rigFingerprint: input.profile.rigFingerprint,
       tracks: fragment.tracks as GuardTrack[],
     };
@@ -570,7 +626,6 @@ describe("the guard primitive hits four targets on three rigs", () => {
     "(1) guard_body_region resolves one target on THREE rig families through the bind frame, not a per-rig euler table",
     async () => {
       const compile = await registeredGuard();
-      const mod = await loadGuard();
 
       const rlq = FOUR_TARGETS[0]!;
       const perRig = RIG_FAMILIES.map((profile) => ({
@@ -578,12 +633,12 @@ describe("the guard primitive hits four targets on three rigs", () => {
         // DEEP CLONES handed to the compiler; the oracle below reads the ORIGINALS.
         //
         // The keystone's immutability assertion protects compileMotionProgram's inputs and cannot
-        // reach this separate API. Without this, compileGuardClip could mutate target.bodyPoint to
+        // reach this separate API. Without this, a primitive could mutate the target anchor to
         // the endpoint of arbitrary tracks — or mutate profile.joints so those tracks reach the
         // original target — and the oracle would agree, because it reads the corrupted fixture.
         // An oracle that derives its expectation from an object the subject can edit is not
         // independent. Found by external review, 2026-08-30.
-        clip: compileGuarded(compile, { profile, target: rlq }),
+        clip: compileGuarded(compile, { profile, motionRegion: rlq }),
       }));
 
       for (const { clip } of perRig) {
@@ -614,8 +669,9 @@ describe("the guard primitive hits four targets on three rigs", () => {
         const tolerance = forearmLengthOf(profile) * REACH_TOLERANCE_AS_FOREARM_FRACTION;
         expect(
           // DERIVED from emitted tracks x bind frame, never read off the clip.
-          distance(derivedEffectorPoint(clip, profile, profile.effectorBone), rlq.bodyPoint),
-          `${profile.rigFingerprint}: hand missed ${rlq.id} by more than ${tolerance.toFixed(3)} m`,
+          // The anchor comes from the UNTOUCHED original fixture; the primitive saw a clone.
+          distance(derivedEffectorPoint(clip, profile, profile.effectorBone), profile.regionAnchors[rlq]!),
+          `${profile.rigFingerprint}: hand missed ${rlq} by more than ${tolerance.toFixed(3)} m`,
         ).toBeLessThanOrEqual(tolerance);
       }
 
@@ -635,7 +691,7 @@ describe("the guard primitive hits four targets on three rigs", () => {
       // and returns 0 whatever the compiler emits. `maxRotationDelta(anny, mpfb)` was in this
       // expression and was structurally zero — an operand that reads as evidence and cannot fail.
       // Removed rather than kept as reassurance.
-      const byIndex = (clip: GuardClip): QuatTuple[] => clip.tracks.map((t) => t.values[1] ?? t.values[0]!);
+      const byIndex = (clip: ObservedGuardResult): QuatTuple[] => clip.tracks.map((t) => t.values[1] ?? t.values[0]!);
       const rhs = byIndex(perRig[1]!.clip);
       const positional = byIndex(perRig[0]!.clip).map((a, index) => {
         const b = rhs[index];
@@ -650,17 +706,18 @@ describe("the guard primitive hits four targets on three rigs", () => {
 
       // The full grid the card asks for: 4 targets x 3 rigs = 12 distinct clips.
       const grid = RIG_FAMILIES.flatMap((profile) =>
-        FOUR_TARGETS.map((target) => compileGuarded(compile, { profile, target })),
+        FOUR_TARGETS.map((motionRegion) => compileGuarded(compile, { profile, motionRegion })),
       );
       expect(grid.length).toBe(12);
       expect(
-        new Set(grid.map((c) => `${c.rigFingerprint}::${c.targetId}`)).size,
+        new Set(grid.map((c) => `${c.rigFingerprint}::${c.motionRegion}`)).size,
         "the 12 clips must be 12 distinct (rig, target) pairs",
       ).toBe(12);
-      expect(
-        (mod!.GUARD_BODY_TARGETS ?? []).length,
-        "at least four body targets must be declared",
-      ).toBeGreaterThanOrEqual(4);
+      // The vocabulary assertion that used to live here demanded a production `GUARD_BODY_TARGETS`
+      // export — a guard-specific region table alongside M1's `MOTION_BODY_REGIONS`. Withdrawn: the
+      // motion vocabulary is M1's, membership is M1's clause to assert, and a second production list
+      // is the collision this set keeps finding. What remains here is a fixture count.
+      expect(FOUR_TARGETS.length, "this clause is named for four targets").toBe(4);
     },
   );
 
@@ -671,33 +728,47 @@ describe("the guard primitive hits four targets on three rigs", () => {
       const profile = ANNY_23_BONE;
       const tolerance = forearmLengthOf(profile) * REACH_TOLERANCE_AS_FOREARM_FRACTION;
 
-      // (a) An id no table could hold an entry for. This is the whole clause: a lookup keyed on the
-      // region id cannot answer, so adding a fifth body target must cost zero new rotation constants.
-      const adHoc: BodyRegionTarget = {
-        id: "flank_R_ad_hoc_probe",
-        bodyPoint: { x: 0.14, y: 1.06, z: 0.02 },
-      };
-      const adHocClip = compileGuarded(compile, { profile, target: adHoc });
-      expect(adHocClip.targetId).toBe(adHoc.id);
+      // (a) A region OUTSIDE the four this clause's sibling drives, so no per-target pose table
+      // built for those four can hold an entry for it. Adding a fifth guard region must cost zero new
+      // rotation constants.
+      //
+      // AMENDED 2026-08-30: this used an INVENTED id (`flank_R_ad_hoc_probe`) with a hardcoded point.
+      // A closed motion vocabulary and an arbitrary undeclared region cannot both be canonical, and
+      // the property the clause is actually about is "declared, but absent from any pose table".
+      const adHoc = MOTION_REGION_GUARD_FLANK_R;
+      const adHocAnchor = profile.regionAnchors[adHoc]!;
+      const adHocClip = compileGuarded(compile, { profile, motionRegion: adHoc });
+      expect(adHocClip.motionRegion).toBe(adHoc);
       expect(adHocClip.tracks.length).toBeGreaterThan(0);
       expect(
-        distance(derivedEffectorPoint(adHocClip, ANNY_23_BONE, ANNY_23_BONE.effectorBone), adHoc.bodyPoint),
-        "an undeclared target must still be reached — a per-target table cannot do this",
+        distance(derivedEffectorPoint(adHocClip, ANNY_23_BONE, ANNY_23_BONE.effectorBone), adHocAnchor),
+        "a region outside the four must still be reached — a per-target table cannot do this",
       ).toBeLessThanOrEqual(tolerance);
 
-      // (b) The id is not the key: two different ids at the SAME point must give the SAME pose.
-      const sameA = compileGuarded(compile, { profile, target: { id: "abdomen_rlq", bodyPoint: adHoc.bodyPoint } });
-      const sameB = compileGuarded(compile, { profile, target: { id: "chest_L", bodyPoint: adHoc.bodyPoint } });
+      // (b) The ID is not the key, the GEOMETRY is. Two different region ids whose anchors coincide
+      // on this rig must give the same pose. Built by cloning the profile with one anchor moved onto
+      // another, so the two ids genuinely name one point.
+      const coincident = {
+        ...profile,
+        regionAnchors: { ...profile.regionAnchors, [MOTION_REGION_GUARD_CHEST_L]: adHocAnchor },
+      };
+      const sameA = compileGuarded(compile, { profile: coincident, motionRegion: adHoc });
+      const sameB = compileGuarded(compile, { profile: coincident, motionRegion: MOTION_REGION_GUARD_CHEST_L });
       expect(
         maxRotationDelta(peakRotations(sameA), peakRotations(sameB)),
         "two ids at one point produced different poses — the id is being looked up, not the geometry",
       ).toBeLessThanOrEqual(ROTATION_EPSILON_RAD);
 
-      // (c) The geometry IS the key: moving the point one abdominal quadrant must move the pose.
-      const moved = compileGuarded(compile, {
-        profile,
-        target: { id: adHoc.id, bodyPoint: { ...adHoc.bodyPoint, x: adHoc.bodyPoint.x - ONE_QUADRANT_METERS } },
-      });
+      // (c) The geometry IS the key: moving the region's anchor one abdominal quadrant on the RIG,
+      // with the region id unchanged, must move the pose.
+      const shifted = {
+        ...profile,
+        regionAnchors: {
+          ...profile.regionAnchors,
+          [adHoc]: { ...adHocAnchor, x: adHocAnchor.x - ONE_QUADRANT_METERS },
+        },
+      };
+      const moved = compileGuarded(compile, { profile: shifted, motionRegion: adHoc });
       expect(
         maxRotationDelta(peakRotations(adHocClip), peakRotations(moved)),
         `moving the target ${ONE_QUADRANT_METERS} m left changed no rotation — the output does not depend on the target`,
@@ -709,7 +780,7 @@ describe("the guard primitive hits four targets on three rigs", () => {
     "(2b) RED: the registered guard returns a CANONICAL fragment, attributed to its action",
     async () => {
       // AMENDED 2026-08-30. This clause was written when clauses (1) and (2) still went through a
-      // separate public `compileGuardClip`, and it existed to prove the registered path reached the
+      // separate public `compileObservedGuardResult`, and it existed to prove the registered path reached the
       // same target as that internal one. There is no longer a second path — every compile in this
       // file goes through the registry — so the comparison it was named for is gone.
       //
@@ -727,7 +798,7 @@ describe("the guard primitive hits four targets on three rigs", () => {
       expect(primitive, "the registry does not resolve guard_body_region").toBeDefined();
 
       const profile = ANNY_23_BONE;
-      const target = FOUR_TARGETS[0]!;
+      const motionRegion = FOUR_TARGETS[0]!;
       const request: PrimitiveRequest = {
         action: {
           actionId: "guard_registered_probe",
@@ -735,7 +806,7 @@ describe("the guard primitive hits four targets on three rigs", () => {
           trigger: { kind: "clinical_touch", ref: "guard_rlq_v1" },
           timing: { durationMs: 900 },
           intensity: 0.6,
-          target: { kind: "body_point", position: target.bodyPoint },
+          target: { kind: "body_region", id: motionRegion },
           effector: profile.effectorBone,
           constraints: [],
         },
@@ -760,10 +831,14 @@ describe("the guard primitive hits four targets on three rigs", () => {
       const tolerance = forearmLengthOf(profile) * REACH_TOLERANCE_AS_FOREARM_FRACTION;
       expect(
         distance(
-          derivedEffectorPoint({ name: "registered", targetId: target.id, rigFingerprint: profile.rigFingerprint, tracks: fragment.tracks as GuardTrack[] }, profile, profile.effectorBone),
-          target.bodyPoint,
+          derivedEffectorPoint(
+            { name: "registered", motionRegion, rigFingerprint: profile.rigFingerprint, tracks: fragment.tracks as GuardTrack[] },
+            profile,
+            profile.effectorBone,
+          ),
+          profile.regionAnchors[motionRegion]!,
         ),
-        "the registered guard primitive does not reach the target the internal solver reaches",
+        "the registered guard returns legal tracks that go nowhere near the region's anchor",
       ).toBeLessThanOrEqual(tolerance);
     },
   );

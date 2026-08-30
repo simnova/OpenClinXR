@@ -4,6 +4,14 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 import { planted } from "./planted.js";
+import {
+  COMPLIANCE_REGION_CHEST_L,
+  COMPLIANCE_REGION_RLQ,
+  GUARD_MOTION_REGIONS,
+  MOTION_REGION_GUARD_CHEST_L,
+  MOTION_REGION_GUARD_FLANK_R,
+  MOTION_REGION_GUARD_RLQ,
+} from "./plant-motion-regions.js";
 
 /**
  * PLANTED RED — BothyBoard card tsk_03375de020895d8f (M1). IMMUTABLE HEADER.
@@ -470,6 +478,43 @@ describe("the planner emits a validated motion program", () => {
         ["standing", "seated", "supine"],
         "an unsupported actor must still get a posture — every shipped case takes this path",
       ).toContain(plan("none").baseline.posture);
+    },
+  );
+
+  planted(
+    "(2c) RED: the plant fixtures' motion regions are MEMBERS of the production vocabulary",
+    async () => {
+      // THE FIXTURE/PRODUCTION BINDING. Added 2026-08-30 after an external reviewer pointed out that
+      // `plant-motion-regions.ts` — created that same evening to stop four plants using three
+      // spellings of one region — is a PARALLEL VOCABULARY unless something ties it to the real one.
+      //
+      // Fixing "the plants disagree with each other" by giving them a shared list they agree on, with
+      // no link to `MOTION_BODY_REGIONS`, would move the disagreement rather than close it: the set
+      // becomes self-consistent and consistently wrong the moment M1 declares different ids.
+      //
+      // This clause lives in M1 because the vocabulary is M1's deliverable and membership is M1's to
+      // assert. The fixture module carries no assertion of its own; it is data.
+      const { MOTION_BODY_REGIONS, motionBodyRegionForComplianceRegion } = await loadMotionCompiler();
+      expect(Array.isArray(MOTION_BODY_REGIONS), "motion-body-region must export MOTION_BODY_REGIONS").toBe(true);
+
+      const declared = new Set(MOTION_BODY_REGIONS);
+      for (const region of [...GUARD_MOTION_REGIONS, MOTION_REGION_GUARD_FLANK_R]) {
+        expect(
+          declared.has(region),
+          `the guard plants drive "${region}", which the production vocabulary does not declare`,
+        ).toBe(true);
+      }
+
+      // And the MAPPER must produce the fixture id for the compliance region it pairs with, so the
+      // seam plant's compliance -> motion hop lands on the same string the guard plants drive.
+      expect(
+        motionBodyRegionForComplianceRegion(COMPLIANCE_REGION_RLQ),
+        `the mapper does not send ${COMPLIANCE_REGION_RLQ} to the motion region the guard plants use`,
+      ).toBe(MOTION_REGION_GUARD_RLQ);
+      expect(
+        motionBodyRegionForComplianceRegion(COMPLIANCE_REGION_CHEST_L),
+        `the mapper does not send ${COMPLIANCE_REGION_CHEST_L} to the motion region the guard plants use`,
+      ).toBe(MOTION_REGION_GUARD_CHEST_L);
     },
   );
 
