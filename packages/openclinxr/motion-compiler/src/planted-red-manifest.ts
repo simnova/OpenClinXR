@@ -190,6 +190,12 @@ export const PLANTED_REDS: readonly PlantedRed[] = [
     expected: /compile-motion-program\.js must export compileMotionProgram/,
     stage: "assertion",
   },
+  // ALL FOUR SEED ENTRIES REMOVED 2026-08-30 (tsk_89fca85c7700ae13). The canonical derivation
+  // landed at src/trajectory/deterministic-variation.ts and program/compile-scenario-motion.ts
+  // routes the plan seed and the compile identity through it; the four clauses were flipped from
+  // `planted` to `it` with a `## FIXED (tsk_89fca85c7700ae13)` block appended in
+  // the-seed-is-derived-from-five-case-inputs.test.ts. A satisfied contract is a transition to
+  // record, not a planted RED to keep.
 ];
 
 /**

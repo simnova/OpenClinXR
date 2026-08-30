@@ -28,8 +28,76 @@
 
 import { createHash } from "node:crypto";
 
+import { deriveDeterministicVariationSeed } from "../trajectory/deterministic-variation.js";
 import { motionBodyRegionForComplianceRegion } from "../motion-body-region.js";
 import { MOTION_PROGRAM_SCHEMA_VERSION, MOTION_PLAN_CLAIM_BOUNDARY, type MotionAction, type MotionEffector, type MotionProgram, type MotionTargetKind } from "../motion-program.js";
+
+/**
+ * The compiler identity versions. Part of the five-input seed material (card tsk_89fca85c7700ae13):
+ * bumping either is a deliberate seed-changing edit, so the seed a clip was compiled under names
+ * the exact compiler and primitive library that produced it.
+ */
+export const MOTION_COMPILER_VERSION = "openclinxr.motion-compiler.v1";
+export const PRIMITIVE_LIBRARY_VERSION = "openclinxr.primitive-library.v1";
+
+/** The exact `compileIdentity` block the canonical clip carries (keystone shape, field for field). */
+export type DeterministicCompileIdentity = {
+  compilerVersion: string;
+  primitiveLibraryVersion: string;
+  variationIndex: number;
+  deterministicSeed: string;
+};
+
+/**
+ * Canonical JSON: recursive key-sorted serialisation, so the same object hashes identically
+ * regardless of the order its keys were created in.
+ */
+function canonicalJson(value: unknown): string {
+  if (value === undefined) return "null";
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
+  if (value !== null && typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    const keys = Object.keys(record).sort();
+    return `{${keys.map((key) => `${JSON.stringify(key)}:${canonicalJson(record[key])}`).join(",")}}`;
+  }
+  return JSON.stringify(value);
+}
+
+/**
+ * The canonical hash of a MotionProgram's stable content. The deterministicSeed is EXCLUDED: the
+ * seed is derived FROM this hash (self-reference would be circular), and it is itself a pure
+ * function of the stable content, so two valid programs cannot differ only in seed.
+ */
+export function canonicalMotionProgramHash(program: MotionProgram): string {
+  const { deterministicSeed: _seed, ...stable } = program;
+  return createHash("sha256").update(canonicalJson(stable)).digest("hex");
+}
+
+/**
+ * The compile identity for a program compiled against a rig: the exact `compileIdentity` block the
+ * clip carries, seeded by the canonical five-input derivation. The compile entry consumes this so
+ * the string recorded on the clip is the SAME string each primitive receives via
+ * `PrimitiveRequest.seed`.
+ */
+export function deterministicCompileIdentity(args: {
+  program: MotionProgram;
+  skeletonProfileHash: string;
+  variationIndex?: number;
+}): DeterministicCompileIdentity {
+  const variationIndex = args.variationIndex ?? 0;
+  return {
+    compilerVersion: MOTION_COMPILER_VERSION,
+    primitiveLibraryVersion: PRIMITIVE_LIBRARY_VERSION,
+    variationIndex,
+    deterministicSeed: deriveDeterministicVariationSeed({
+      motionProgramHash: canonicalMotionProgramHash(args.program),
+      skeletonProfileHash: args.skeletonProfileHash,
+      compilerVersion: MOTION_COMPILER_VERSION,
+      primitiveLibraryVersion: PRIMITIVE_LIBRARY_VERSION,
+      variationIndex,
+    }),
+  };
+}
 
 /**
  * The authored row shape this compiler consumes. Mirrors the SHIPPED
@@ -53,6 +121,10 @@ export type ScenarioMotionCompileInput = {
   actorId: string;
   touchResponses: readonly AuthoredTouchResponse[];
   placement?: { supportSurface?: string };
+  /** The rig's canonical profile hash when the plan is compiled with a rig in view. Absent = no rig bound yet (see the seed contract). */
+  skeletonProfileHash?: string;
+  /** Reproducible variation stream index; 0 is the default compile. */
+  variationIndex?: number;
 };
 
 /** Closed responseKind -> primitive mapping. */
@@ -97,19 +169,21 @@ export function postureForSupportSurface(supportSurface: string | undefined): st
 }
 
 /** Brief §13: the seed is DERIVED from stable inputs, never a caller-chosen integer. */
-export function deriveDeterministicSeed(input: ScenarioMotionCompileInput, posture: string): string {
-  const rows = input.touchResponses
-    .map((row) => `${row.region}|${row.responseKind}|${row.emotionEventId}|${row.forceThreshold}`)
-    .join(",");
-  const material = [
-    MOTION_PROGRAM_SCHEMA_VERSION,
-    input.scenarioId,
-    input.actorId,
-    posture,
-    input.placement?.supportSurface ?? "none",
-    rows,
-  ].join("::");
-  return createHash("sha256").update(material).digest("hex");
+function derivePlanDeterministicSeed(
+  programHash: string,
+  skeletonProfileHash: string | undefined,
+  variationIndex: number | undefined,
+): string {
+  // The five-input canonical derivation (card tsk_89fca85c7700ae13). With no rig bound, the
+  // skeleton slot is filled by the program's own hash — the only canonical digest the plan
+  // possesses (see the seed contract's plan-time convention).
+  return deriveDeterministicVariationSeed({
+    motionProgramHash: programHash,
+    skeletonProfileHash: skeletonProfileHash ?? programHash,
+    compilerVersion: MOTION_COMPILER_VERSION,
+    primitiveLibraryVersion: PRIMITIVE_LIBRARY_VERSION,
+    variationIndex: variationIndex ?? 0,
+  });
 }
 
 function actionForTouchResponse(row: AuthoredTouchResponse, index: number): MotionAction {
@@ -150,7 +224,9 @@ export function compileScenarioMotion(input: ScenarioMotionCompileInput): Motion
   const posture = postureForSupportSurface(input.placement?.supportSurface);
   const actions = input.touchResponses.map(actionForTouchResponse);
 
-  return {
+  // The program's stable content is hashed BEFORE the seed is attached — the seed is derived FROM
+  // this hash (card tsk_89fca85c7700ae13), so including it would be self-reference.
+  const stable: Omit<MotionProgram, "deterministicSeed"> = {
     schemaVersion: MOTION_PROGRAM_SCHEMA_VERSION,
     scenarioId: input.scenarioId,
     actorId: input.actorId,
@@ -163,7 +239,6 @@ export function compileScenarioMotion(input: ScenarioMotionCompileInput): Motion
       ...(input.placement?.supportSurface !== undefined ? { supportSurface: input.placement.supportSurface } : {}),
     },
     actions,
-    deterministicSeed: deriveDeterministicSeed(input, posture),
     claimBoundary: MOTION_PLAN_CLAIM_BOUNDARY,
     notEvidenceFor: [
       "clinical_validity",
@@ -171,5 +246,16 @@ export function compileScenarioMotion(input: ScenarioMotionCompileInput): Motion
       "production_asset_readiness",
       "quest_readiness",
     ],
+  };
+
+  const motionProgramHash = canonicalMotionProgramHash(stable as MotionProgram);
+
+  return {
+    ...stable,
+    deterministicSeed: derivePlanDeterministicSeed(
+      motionProgramHash,
+      input.skeletonProfileHash,
+      input.variationIndex,
+    ),
   };
 }
