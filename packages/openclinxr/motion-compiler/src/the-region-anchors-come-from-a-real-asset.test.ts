@@ -71,11 +71,29 @@ type RigAsset = {
   bodyExtent: { minY: number; maxY: number; halfWidth: number; halfDepth: number };
 };
 
+/**
+ * PROFILE OUT, NOT MAP OUT — and that is the whole join.
+ *
+ * The first draft returned `{ regionAnchorSpace, regionAnchors }`. Both plants would then have
+ * landed green with NOTHING requiring the compile path to call this: M2 compiles a
+ * `SkeletonProfile` that already has anchors, so two workers could finish both cards and leave the
+ * fixture helper as the only source of the numbers the guard actually sees. Same class as a second
+ * compile entry, one step later. Found on the fourth review pass, before either card was dispatched.
+ *
+ * So the producer emits the PROFILE the compile path consumes. There is no separate assembly step
+ * where a fixture can slip back in, and clause (6) checks the rig half is the asset's own.
+ */
+type ProducedProfile = {
+  rigFingerprint: string;
+  effectorBone: string;
+  joints: readonly FkJoint[];
+  bindFrame: Readonly<Record<string, Vec3>>;
+  regionAnchorSpace: string;
+  regionAnchors: Readonly<Record<string, Vec3>>;
+};
+
 type ProducerModule = {
-  deriveRegionAnchors?: (asset: RigAsset, regions: readonly string[]) => {
-    regionAnchorSpace: string;
-    regionAnchors: Readonly<Record<string, Vec3>>;
-  };
+  deriveSkeletonProfile?: (asset: RigAsset, regions: readonly string[]) => ProducedProfile;
 };
 
 async function loadProducer(): Promise<ProducerModule | undefined> {
@@ -152,10 +170,10 @@ describe("the region anchors come from a real asset", () => {
     // exists to remove, and it satisfies every presence check ever written.
     const producer = await loadProducer();
     expect(
-      typeof producer?.deriveRegionAnchors,
-      `${PRODUCER_MODULE} must export deriveRegionAnchors — nothing produces regionAnchors today`,
+      typeof producer?.deriveSkeletonProfile,
+      `${PRODUCER_MODULE} must export deriveSkeletonProfile — nothing produces regionAnchors today`,
     ).toBe("function");
-    const derive = producer!.deriveRegionAnchors!;
+    const derive = producer!.deriveSkeletonProfile!;
 
     const adult = derive(ADULT, GUARD_MOTION_REGIONS);
     const child = derive(CHILD, GUARD_MOTION_REGIONS);
@@ -185,10 +203,10 @@ describe("the region anchors come from a real asset", () => {
     // Measured from the SHOULDER, not the bind hand: the arm swings about the shoulder, and a
     // hand-relative bound rejects every cross-body target. See `shoulderOf`.
     const producer = await loadProducer();
-    expect(typeof producer?.deriveRegionAnchors, `${PRODUCER_MODULE} must export deriveRegionAnchors`).toBe("function");
+    expect(typeof producer?.deriveSkeletonProfile, `${PRODUCER_MODULE} must export deriveSkeletonProfile`).toBe("function");
 
     for (const asset of [ADULT, CHILD]) {
-      const { regionAnchors } = producer!.deriveRegionAnchors!(asset, GUARD_MOTION_REGIONS);
+      const { regionAnchors } = producer!.deriveSkeletonProfile!(asset, GUARD_MOTION_REGIONS);
       const reach = armReach(asset);
       const from = shoulderOf(asset);
       for (const region of GUARD_MOTION_REGIONS) {
@@ -206,10 +224,10 @@ describe("the region anchors come from a real asset", () => {
     // discriminator: bind-world anchors sit inside the asset's own body extent, which is expressed in
     // the same frame as `bindFrame`. Chest-relative or node-local values would not.
     const producer = await loadProducer();
-    expect(typeof producer?.deriveRegionAnchors, `${PRODUCER_MODULE} must export deriveRegionAnchors`).toBe("function");
+    expect(typeof producer?.deriveSkeletonProfile, `${PRODUCER_MODULE} must export deriveSkeletonProfile`).toBe("function");
 
     for (const asset of [ADULT, CHILD]) {
-      const { regionAnchors } = producer!.deriveRegionAnchors!(asset, GUARD_MOTION_REGIONS);
+      const { regionAnchors } = producer!.deriveSkeletonProfile!(asset, GUARD_MOTION_REGIONS);
       const e = asset.bodyExtent;
       for (const region of GUARD_MOTION_REGIONS) {
         const a = regionAnchors[region]!;
@@ -221,6 +239,13 @@ describe("the region anchors come from a real asset", () => {
           Math.abs(a.x) <= e.halfWidth * 1.5 && Math.abs(a.z) <= e.halfDepth * 2,
           `${asset.rigFingerprint}: ${region} at x=${a.x.toFixed(3)} z=${a.z.toFixed(3)} is off the torso — these are not ${REGION_ANCHOR_SPACE}`,
         ).toBe(true);
+        // TIGHTENED after a reviewer noted the AABB alone is weak: a SMALL chest-relative offset
+        // sits inside minY..maxY and passes. A standing body's torso anchors are ~0.6-0.8 of its
+        // height above the floor in bind world; a chest-relative one is a few centimetres from zero.
+        expect(
+          a.y,
+          `${asset.rigFingerprint}: ${region} at y=${a.y.toFixed(3)} is near the origin on a ${e.maxY.toFixed(2)} m body — that is an offset from some bone, not ${REGION_ANCHOR_SPACE}`,
+        ).toBeGreaterThan(e.maxY * 0.25);
       }
     }
   });
@@ -229,9 +254,9 @@ describe("the region anchors come from a real asset", () => {
     // A silent default is a WRONG anchor nobody can see: the guard solves cleanly and the hand
     // arrives somewhere else on the body. Refusal is the only outcome a reader can act on.
     const producer = await loadProducer();
-    expect(typeof producer?.deriveRegionAnchors, `${PRODUCER_MODULE} must export deriveRegionAnchors`).toBe("function");
+    expect(typeof producer?.deriveSkeletonProfile, `${PRODUCER_MODULE} must export deriveSkeletonProfile`).toBe("function");
     expect(
-      () => producer!.deriveRegionAnchors!(ADULT, ["motion_region_that_no_asset_can_place"]),
+      () => producer!.deriveSkeletonProfile!(ADULT, ["motion_region_that_no_asset_can_place"]),
       "an underivable region returned quietly — a defaulted anchor solves cleanly and puts the hand in the wrong place",
     ).toThrow();
   });
@@ -244,9 +269,9 @@ describe("the region anchors come from a real asset", () => {
     // Left and right chest share `chest` as their nearest joint. If they anchor to the same point,
     // the derivation is reading the skeleton and ignoring the region.
     const producer = await loadProducer();
-    expect(typeof producer?.deriveRegionAnchors, `${PRODUCER_MODULE} must export deriveRegionAnchors`).toBe("function");
+    expect(typeof producer?.deriveSkeletonProfile, `${PRODUCER_MODULE} must export deriveSkeletonProfile`).toBe("function");
 
-    const { regionAnchors } = producer!.deriveRegionAnchors!(ADULT, [
+    const { regionAnchors } = producer!.deriveSkeletonProfile!(ADULT, [
       MOTION_REGION_GUARD_CHEST_L,
       MOTION_REGION_GUARD_CHEST_R,
       MOTION_REGION_GUARD_RLQ,
@@ -259,12 +284,33 @@ describe("the region anchors come from a real asset", () => {
     ).toBeGreaterThan(ADULT.bodyExtent.halfWidth * 0.5);
   });
 
-  it("(6) LIVE: nothing in the tree produces anchors today — this is the measurement, not a hypothesis", async () => {
+  planted("(6) RED: the producer emits the PROFILE the compile path consumes, carrying the asset's own rig", async () => {
+    // THE JOIN. Without this, both cards land green and the compile path still receives a fixture:
+    // a producer that returns a bare anchor MAP leaves someone to merge it onto a profile by hand,
+    // and "someone" is `armProfile()` in the plants today.
+    //
+    // The rig half must be the ASSET'S OWN, unchanged, so the producer cannot quietly substitute a
+    // skeleton of its own while the anchors look right.
+    const producer = await loadProducer();
+    expect(typeof producer?.deriveSkeletonProfile, `${PRODUCER_MODULE} must export deriveSkeletonProfile`).toBe("function");
+
+    const profile = producer!.deriveSkeletonProfile!(ADULT, GUARD_MOTION_REGIONS);
+    expect(profile.rigFingerprint, "the produced profile is not for the asset it was given").toBe(ADULT.rigFingerprint);
+    expect(profile.effectorBone, "the produced profile names a different effector").toBe(ADULT.effectorBone);
+    expect(profile.joints, "the produced profile does not carry the asset's own joint chain").toEqual(ADULT.joints);
+    expect(profile.bindFrame, "the produced profile does not carry the asset's own bind frame").toEqual(ADULT.bindFrame);
+    expect(profile.regionAnchorSpace, "the produced profile does not declare its anchor space").toBe(REGION_ANCHOR_SPACE);
+    for (const region of GUARD_MOTION_REGIONS) {
+      expect(profile.regionAnchors[region], `the produced profile has no anchor for ${region}`).toBeDefined();
+    }
+  });
+
+  it("(7) LIVE: nothing in the tree produces anchors today — this is the measurement, not a hypothesis", async () => {
     // Passes on arrival, fails independently of the REDs. If a producer appears under another name,
     // this clause turns red and the card's premise needs re-reading rather than the fix being assumed.
     expect(
-      (await loadProducer())?.deriveRegionAnchors,
-      "something now exports deriveRegionAnchors — re-read this card's premise before implementing it",
+      (await loadProducer())?.deriveSkeletonProfile,
+      "something now exports deriveSkeletonProfile — re-read this card's premise before implementing it",
     ).toBeUndefined();
   });
 });

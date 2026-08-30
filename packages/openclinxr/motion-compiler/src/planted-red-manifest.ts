@@ -34,31 +34,37 @@ export const PLANTED_REDS: readonly PlantedRed[] = [
   {
     file: "the-region-anchors-come-from-a-real-asset.test.ts",
     select: "(1) RED: anchors are DERIVED FROM THE ASSET \u2014 two sizes give two answers",
-    expected: /region-anchors\.js must export deriveRegionAnchors|must export deriveRegionAnchors/,
+    expected: /must export deriveSkeletonProfile/,
     stage: "assertion",
   },
   {
     file: "the-region-anchors-come-from-a-real-asset.test.ts",
     select: "(2) RED: every derived anchor is REACHABLE on its own asset",
-    expected: /region-anchors\.js must export deriveRegionAnchors|must export deriveRegionAnchors/,
+    expected: /must export deriveSkeletonProfile/,
     stage: "assertion",
   },
   {
     file: "the-region-anchors-come-from-a-real-asset.test.ts",
     select: "(3) RED: the declared space is HONOURED, checked against the asset's own bind frame",
-    expected: /region-anchors\.js must export deriveRegionAnchors|must export deriveRegionAnchors/,
+    expected: /must export deriveSkeletonProfile/,
     stage: "assertion",
   },
   {
     file: "the-region-anchors-come-from-a-real-asset.test.ts",
     select: "(4) RED: a region with no derivable anchor is REFUSED, never defaulted",
-    expected: /region-anchors\.js must export deriveRegionAnchors|must export deriveRegionAnchors/,
+    expected: /must export deriveSkeletonProfile/,
     stage: "assertion",
   },
   {
     file: "the-region-anchors-come-from-a-real-asset.test.ts",
     select: "(5) RED: two regions sharing a nearest joint still get DIFFERENT anchors",
-    expected: /region-anchors\.js must export deriveRegionAnchors|must export deriveRegionAnchors/,
+    expected: /must export deriveSkeletonProfile/,
+    stage: "assertion",
+  },
+  {
+    file: "the-region-anchors-come-from-a-real-asset.test.ts",
+    select: "(6) RED: the producer emits the PROFILE the compile path consumes, carrying the asset's own rig",
+    expected: /must export deriveSkeletonProfile/,
     stage: "assertion",
   },
   {
