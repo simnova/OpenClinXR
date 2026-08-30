@@ -3,7 +3,6 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
-import { planted } from "./planted.js";
 import {
   COMPLIANCE_TO_MOTION_REGION,
   GUARD_MOTION_REGIONS,
@@ -84,6 +83,29 @@ import {
  *   vocabularies are separated by an explicit mapping.
  * notEvidenceFor: clinical_validity, scoring_validity, production_asset_readiness, quest_readiness,
  *   animation quality, retargeting correctness, or that any actor visibly moves.
+ */
+
+/**
+ * ## FIXED (tsk_bca4085904e3b071)
+ *
+ * The four planted clauses below are now live `it` tests. The M1 implementation
+ * landed:
+ *
+ *   - src/motion-program.ts                          IR types + validateMotionProgram (closed validator)
+ *   - src/motion-body-region.ts                      MOTION_BODY_REGIONS + motionBodyRegionForComplianceRegion
+ *   - src/deterministic-scenario-motion-planner.ts   planMotionProgram (zero-provider baseline)
+ *   - src/program/compile-scenario-motion.ts         deterministic row -> action compile
+ *
+ * `planMotionProgram` compiles the shipped fixture row (read at runtime by
+ * `shippedGuardingRow`) into a program its own validator accepts, deriving the
+ * baseline posture from `placement.supportSurface`, the seed from stable inputs
+ * (brief §13), and the guard action's target through the explicit
+ * compliance->motion mapping. The validator refuses raw ComplianceRegion values
+ * and undeclared regions as body_region targets, unknown fields (raw bone
+ * tracks), and self-declared `reviewed_llm_proposal` provenance.
+ *
+ * Measured 2026-08-30 on this tree: all five clauses pass in probe mode
+ * (`OPENCLINXR_PROBE_REDS=1`), 5 passed (5).
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -320,7 +342,7 @@ function declaredUnionMembers(sourcePath: string, bindingName: string): string[]
 }
 
 describe("the planner emits a validated motion program", () => {
-  planted(
+  it(
     "the deterministic planner turns the shipped abdomen_rlq guarding row into a MotionProgram v1 that its own validator accepts",
     async () => {
       const { scenarioId, actorId, row } = await shippedGuardingRow();
@@ -369,7 +391,7 @@ describe("the planner emits a validated motion program", () => {
     },
   );
 
-  planted(
+  it(
     "MotionBodyRegion is a separate vocabulary: no raw ComplianceRegion value may be a MotionAction target, and the motion set holds a region the touch set has no counterpart for",
     async () => {
       const { scenarioId, actorId, row } = await shippedGuardingRow();
@@ -434,7 +456,7 @@ describe("the planner emits a validated motion program", () => {
    * make it red. It goes red if a later change collapses the two vocabularies back together by
    * pushing motion or skeleton terms into the clinical touch vocabulary.
    */
-  planted(
+  it(
     "(2b) RED: the support surface DERIVES the baseline posture — chair seats, stretcher lies down",
     async () => {
       // Added 2026-08-30. Clause (1) asserted only that `baseline.posture` is one of
@@ -478,7 +500,7 @@ describe("the planner emits a validated motion program", () => {
     },
   );
 
-  planted(
+  it(
     "(2c) RED: the plant fixtures' motion regions are MEMBERS of the production vocabulary",
     async () => {
       // THE FIXTURE/PRODUCTION BINDING. Added 2026-08-30 after an external reviewer pointed out that

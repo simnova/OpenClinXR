@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 
-import { planted } from "./planted.js";
 import { evaluateScenarioPublicationReadiness } from "../../review-workflow/src/scenario-publication.js";
 import { edChestPainScenario } from "../../scenario-fixtures/src/ed-chest-pain.js";
 
@@ -119,6 +118,33 @@ import { edChestPainScenario } from "../../scenario-fixtures/src/ed-chest-pain.j
  *
  */
 
+/**
+ * ## FIXED (tsk_bca4085904e3b071) — clauses (1), (2) and (3) are now live `it` tests.
+ *
+ * The M1 closed-IR validator in src/motion-program.ts landed the boundary these
+ * clauses exist to enforce, so they are no longer RED:
+ *
+ *   (1) `validateMotionProgram` refuses unknown action fields, and a program
+ *       carrying raw per-bone `boneTracks` is refused with the field named. The
+ *       closed IR does not carry raw skeleton output, so the planner-as-animator
+ *       smuggling shape is closed by construction.
+ *   (2) `validateMotionProgram` refuses any `body_region` target whose id is
+ *       not a DECLARED MotionBodyRegion, naming the invented region. The
+ *       UNAUTHORED_REGION half passes for its recorded reason. The ACTOR half
+ *       passes CONFINED, and this is recorded rather than hidden: the default
+ *       `plannerProgram()` carries `target.id = "PLACEHOLDER"` (an undeclared
+ *       region), so the foreign-actor program is refused for the placeholder
+ *       target, not for its actorId — the validator has no case context to
+ *       refuse a never-cast actor. Closing the actor half needs the validator
+ *       to know the case's cast, which is the M5 card's own residual.
+ *   (3) `provenance.sourceKind = "reviewed_llm_proposal"` is refused (no
+ *       sanctioned review step exists to mint it) while an honestly-labelled
+ *       `llm_proposal` with the same actions is ACCEPTED — the anti-blanket-
+ *       refusal counterweight holds.
+ *
+ * Measured 2026-08-30 on this tree: all three clauses pass as live tests.
+ */
+
 const CLAIM_BOUNDARY = "motion_plan_not_animation_or_clinical_validity_evidence";
 
 const MODULE_UNDER_TEST = "./motion-program.js";
@@ -235,7 +261,7 @@ describe("the llm planner cannot emit bone tracks", () => {
   //     as the animator. Everything else here is valid — honest `llm_proposal` provenance, a
   //     case-authored region resolved through the mapper — so the raw track is the only thing left
   //     to refuse.
-  planted("(1) RED: refuses a planner output carrying raw per-bone quaternion tracks", async () => {
+  it("(1) RED: refuses a planner output carrying raw per-bone quaternion tracks", async () => {
     const [validateMotionProgram, { motionBodyRegionForComplianceRegion }] = await Promise.all([
       loadValidator(),
       loadRegionVocabulary(),
@@ -279,7 +305,7 @@ describe("the llm planner cannot emit bone tracks", () => {
   // (2) RED. LLM planning is bounded by authored facts: it may not invent a region, an actor, or a
   //     behaviour the encounter definition does not carry. This program carries NO bone tracks, so
   //     clause (1)'s mechanism cannot be what refuses it.
-  planted("(2) RED: refuses a target naming a body region the case never authored", async () => {
+  it("(2) RED: refuses a target naming a body region the case never authored", async () => {
     const [validateMotionProgram, { MOTION_BODY_REGIONS, motionBodyRegionForComplianceRegion }] =
       await Promise.all([loadValidator(), loadRegionVocabulary()]);
 
@@ -331,7 +357,7 @@ describe("the llm planner cannot emit bone tracks", () => {
   //     This clause also carries the ANTI-BLANKET-REFUSAL counterweight. Without the accept path
   //     below, `() => ({ ok: false, errors: ["no"] })` greens (1), (2) and (3) together. The accept
   //     path is here as that counterweight, NOT as a happy-path demonstration.
-  planted("(3) RED: a planner-produced program cannot self-declare reviewed_llm_proposal", async () => {
+  it("(3) RED: a planner-produced program cannot self-declare reviewed_llm_proposal", async () => {
     const [validateMotionProgram, { motionBodyRegionForComplianceRegion }] = await Promise.all([
       loadValidator(),
       loadRegionVocabulary(),
