@@ -44,13 +44,25 @@ type Vec3 = readonly [number, number, number];
 type Quat = readonly [number, number, number, number];
 
 /**
- * The canonical track. Interpolation is EXPLICIT because the sampled values encode minimum jerk and
- * the GLB writer must not guess a mode — a writer that assumes CUBICSPLINE over min-jerk samples
- * produces motion nobody authored.
+ * The canonical track.
+ *
+ * ROTATION SEMANTICS ARE FROZEN AS ABSOLUTE NODE-LOCAL — the value a glTF rotation channel carries
+ * directly, requiring no conversion at bake. Decided 2026-08-30 after an external reviewer found the
+ * meaning genuinely ambiguous: the type said only "rotation", while M2's oracle computed
+ * `bindLocalQuaternion x emitted`, which defines emitted values as bind-RELATIVE deltas. A bake
+ * worker could reasonably have read them as absolute, and the two interpretations differ by the bind
+ * pose — silently, on every bone with a non-identity bind rotation.
+ *
+ * Absolute wins because the conversion then happens in the compiler, once, rather than in whichever
+ * consumer guesses. The property is named `rotationAbsoluteNodeLocal` so the meaning travels with the
+ * data and cannot be re-guessed from a bare "rotation".
+ *
+ * Interpolation is EXPLICIT because the sampled values encode minimum jerk and a writer that assumes
+ * CUBICSPLINE produces motion nobody authored.
  */
 type CompiledMotionTrack =
-  | { property: "rotation"; boneName: string; canonicalLandmark: string; interpolation: "LINEAR"; times: number[]; values: Quat[] }
-  | { property: "translation"; boneName: string; canonicalLandmark: string; interpolation: "LINEAR"; times: number[]; values: Vec3[] };
+  | { property: "rotationAbsoluteNodeLocal"; boneName: string; canonicalLandmark: string; interpolation: "LINEAR"; times: number[]; values: Quat[] }
+  | { property: "translationAbsoluteNodeLocal"; boneName: string; canonicalLandmark: string; interpolation: "LINEAR"; times: number[]; values: Vec3[] };
 
 type CompiledMotionClipV1 = {
   schemaVersion: typeof CLIP_SCHEMA;
@@ -165,7 +177,7 @@ function recordingPrimitives(seen: PrimitiveRequest[]) {
         actionId: a.actionId,
         tracks: [
           {
-            property: "rotation" as const,
+            property: "rotationAbsoluteNodeLocal" as const,
             boneName: `upper_arm.R@${JSON.stringify(a.target)}`,
             canonicalLandmark: "upper_arm_r",
             interpolation: "LINEAR" as const,
@@ -335,10 +347,13 @@ describe("the canonical compile entry orchestrates primitives", () => {
     const clip = compileMotionProgram({ program: program(), skeletonProfile: structuredClone(PROFILE), primitives: recordingPrimitives([]) });
 
     const seenKeys = new Set<string>();
+    const PROPS = ["rotationAbsoluteNodeLocal", "translationAbsoluteNodeLocal"];
     let maxFinal = 0;
     for (const track of clip.tracks) {
-      // ONE track per (boneName, property). Two tracks on one channel is ambiguous at bake time and
-      // the writer would silently pick one.
+      // CLOSED property set. An unknown property previously fell into the translation branch and was
+      // validated as one — a silent misclassification, not a refusal.
+      expect(PROPS, `unknown track property "${track.property}"`).toContain(track.property);
+
       const key = `${track.boneName}::${track.property}`;
       expect(seenKeys.has(key), `two tracks address ${key} — ambiguous at bake`).toBe(false);
       seenKeys.add(key);
@@ -347,21 +362,32 @@ describe("the canonical compile entry orchestrates primitives", () => {
       expect(track.times.length, "a track with no samples is not a track").toBeGreaterThan(0);
       expect(track.times.length).toBe(track.values.length);
 
-      // Times strictly increasing and finite. A non-monotonic channel is undefined in glTF.
       for (let i = 0; i < track.times.length; i += 1) {
-        expect(Number.isFinite(track.times[i]), `${key}: non-finite time`).toBe(true);
-        if (i > 0) expect(track.times[i]! > track.times[i - 1]!, `${key}: times not strictly increasing`).toBe(true);
+        const t = track.times[i]!;
+        expect(Number.isFinite(t), `${key}: non-finite time`).toBe(true);
+        // NON-NEGATIVE. A negative-only secondary track previously passed whenever another track
+        // supplied the positive maximum duration.
+        expect(t >= 0, `${key}: negative timestamp ${t}`).toBe(true);
+        if (i > 0) expect(t > track.times[i - 1]!, `${key}: times not strictly increasing`).toBe(true);
       }
       maxFinal = Math.max(maxFinal, track.times[track.times.length - 1]!);
 
-      if (track.property === "rotation") {
+      if (track.property === "rotationAbsoluteNodeLocal") {
         let prev: Quat | undefined;
-        for (const q of track.values) {
+        for (const [i, q] of track.values.entries()) {
+          // TUPLE SHAPE CLOSED. A five-component "quaternion" passed every other check.
+          expect(q.length, `${key}: quaternion must have exactly 4 components`).toBe(4);
           expect(q.every((c) => Number.isFinite(c)), `${key}: non-finite quaternion`).toBe(true);
           const norm = Math.hypot(...q);
           expect(Math.abs(norm - 1) < 1e-6, `${key}: quaternion not unit (|q|=${norm})`).toBe(true);
-          // SIGN CONTINUITY. q and -q are the same rotation, so an implementation free to emit either
-          // defeats byte-determinism between two runs that are otherwise identical.
+
+          // FIRST-SAMPLE CANONICAL SIGN. Sign continuity alone did not close this: negating EVERY
+          // quaternion in a track leaves all adjacent dot products positive and the whole track
+          // passed, so two runs emitting q and -q throughout were both "valid" and not byte-equal.
+          if (i === 0) {
+            const canonical = q[3] > 0 || (q[3] === 0 && (q[0] > 0 || (q[0] === 0 && (q[1] > 0 || (q[1] === 0 && q[2] >= 0)))));
+            expect(canonical, `${key}: first sample is not sign-canonical (w<0, or w=0 with a negative leading component)`).toBe(true);
+          }
           if (prev) {
             const dot = q[0] * prev[0] + q[1] * prev[1] + q[2] * prev[2] + q[3] * prev[3];
             expect(dot >= 0, `${key}: quaternion sign flips between samples — breaks byte determinism`).toBe(true);
@@ -370,6 +396,7 @@ describe("the canonical compile entry orchestrates primitives", () => {
         }
       } else {
         for (const v of track.values) {
+          expect(v.length, `${key}: translation must have exactly 3 components`).toBe(3);
           expect(v.every((c) => Number.isFinite(c)), `${key}: non-finite translation`).toBe(true);
         }
       }

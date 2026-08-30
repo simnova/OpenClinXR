@@ -159,7 +159,7 @@ type BodyRegionTarget = {
  * conversion the compiler and the oracle could have disagreed about.
  */
 type GuardTrack = {
-  property: "rotation";
+  property: "rotationAbsoluteNodeLocal";
   boneName: string;
   canonicalLandmark: string;
   interpolation: "LINEAR";
@@ -259,7 +259,12 @@ function forwardKinematic(
   for (const joint of chain) {
     const offset = qRotate(worldQ, joint.bindLocalPosition);
     worldP = { x: worldP.x + offset.x, y: worldP.y + offset.y, z: worldP.z + offset.z };
-    const local = qMul(joint.bindLocalQuaternion, emittedLocalRotation.get(joint.boneName) ?? IDENTITY_Q);
+    // ABSOLUTE node-local, frozen by the keystone 2026-08-30. The emitted value REPLACES the bind
+    // rotation rather than composing with it; the bind rotation applies only where no track exists.
+    // The previous `bindLocalQuaternion x emitted` made these bind-RELATIVE deltas, and a bake worker
+    // reading them as absolute would have differed by the bind pose on every non-identity bone.
+    const emitted = emittedLocalRotation.get(joint.boneName);
+    const local = emitted ?? joint.bindLocalQuaternion;
     worldQ = qNorm(qMul(worldQ, local));
   }
   return worldP;
@@ -485,6 +490,17 @@ function listPackageSources(root: string, selfPath: string): string[] {
 }
 
 describe("the guard primitive hits four targets on three rigs", () => {
+  /**
+   * Every compile call goes through here. The compiler receives DEEP CLONES; the oracle reads the
+   * originals. A per-call-site clone is one forgotten call away from a corrupted oracle, so the
+   * guard lives in one place rather than being remembered five times.
+   */
+  const compileGuarded = (
+    compile: (i: { profile: SkeletonProfile; target: BodyRegionTarget; clipName?: string }) => GuardClip,
+    input: { profile: SkeletonProfile; target: BodyRegionTarget; clipName?: string },
+  ): GuardClip =>
+    compile({ ...input, profile: structuredClone(input.profile), target: structuredClone(input.target) });
+
   it.fails(
     "(1) guard_body_region resolves one target on THREE rig families through the bind frame, not a per-rig euler table",
     async () => {
@@ -498,7 +514,15 @@ describe("the guard primitive hits four targets on three rigs", () => {
       const rlq = FOUR_TARGETS[0]!;
       const perRig = RIG_FAMILIES.map((profile) => ({
         profile,
-        clip: compile({ profile, target: rlq }),
+        // DEEP CLONES handed to the compiler; the oracle below reads the ORIGINALS.
+        //
+        // The keystone's immutability assertion protects compileMotionProgram's inputs and cannot
+        // reach this separate API. Without this, compileGuardClip could mutate target.bodyPoint to
+        // the endpoint of arbitrary tracks — or mutate profile.joints so those tracks reach the
+        // original target — and the oracle would agree, because it reads the corrupted fixture.
+        // An oracle that derives its expectation from an object the subject can edit is not
+        // independent. Found by external review, 2026-08-30.
+        clip: compileGuarded(compile, { profile, target: rlq }),
       }));
 
       for (const { profile, clip } of perRig) {
@@ -551,7 +575,7 @@ describe("the guard primitive hits four targets on three rigs", () => {
 
       // The full grid the card asks for: 4 targets x 3 rigs = 12 distinct clips.
       const grid = RIG_FAMILIES.flatMap((profile) =>
-        FOUR_TARGETS.map((target) => compile({ profile, target })),
+        FOUR_TARGETS.map((target) => compileGuarded(compile, { profile, target })),
       );
       expect(grid.length).toBe(12);
       expect(
@@ -582,7 +606,7 @@ describe("the guard primitive hits four targets on three rigs", () => {
         id: "flank_R_ad_hoc_probe",
         bodyPoint: { x: 0.14, y: 1.06, z: 0.02 },
       };
-      const adHocClip = compile({ profile, target: adHoc });
+      const adHocClip = compileGuarded(compile, { profile, target: adHoc });
       expect(adHocClip.targetId).toBe(adHoc.id);
       expect(adHocClip.tracks.length).toBeGreaterThan(0);
       expect(
@@ -591,8 +615,8 @@ describe("the guard primitive hits four targets on three rigs", () => {
       ).toBeLessThanOrEqual(tolerance);
 
       // (b) The id is not the key: two different ids at the SAME point must give the SAME pose.
-      const sameA = compile({ profile, target: { id: "abdomen_rlq", bodyPoint: adHoc.bodyPoint } });
-      const sameB = compile({ profile, target: { id: "chest_L", bodyPoint: adHoc.bodyPoint } });
+      const sameA = compileGuarded(compile, { profile, target: { id: "abdomen_rlq", bodyPoint: adHoc.bodyPoint } });
+      const sameB = compileGuarded(compile, { profile, target: { id: "chest_L", bodyPoint: adHoc.bodyPoint } });
       expect(
         maxRotationDelta(peakRotations(sameA), peakRotations(sameB)),
         "two ids at one point produced different poses — the id is being looked up, not the geometry",
@@ -660,13 +684,21 @@ describe("the guard primitive hits four targets on three rigs", () => {
       new Set(guardingRows.map((r) => r.scenarioId)).size,
       "the four scenarios carrying guarding responses must keep them",
     ).toBeGreaterThanOrEqual(4);
-    // The clip itself must remain PRODUCIBLE — that is the §6p guarantee — but no row is required to
-    // keep naming it, so per-region binding is free to land.
-    expect(
-      responses.some((r) => r.response.responseClip === SHIPPED_RLQ_CLIP)
-        || guardingRows.length >= 24,
-      `${SHIPPED_RLQ_CLIP} must stay producible, though rows may rebind to per-region clips`,
-    ).toBe(true);
+    // WITHDRAWN 2026-08-30: this clause previously read
+    //     responses.some(rowUsesLegacyClip) || guardingRows.length >= 24
+    // and the second operand had just been asserted three lines above, so the disjunction was ALWAYS
+    // TRUE. A tautology wearing a producibility title — it proved nothing while reading as the §6p
+    // guarantee. Found by external review; it is mine, written while fixing a different defect in
+    // this same clause.
+    //
+    // Producibility cannot be proven here. The honest split, per the reviewer: BEHAVIOURAL ROUTING
+    // can be proven now, through the canonical entry with an injected fake primitive — assert the
+    // legacy action dispatches through guard_body_region and the envelope carries the stable legacy
+    // clip id. ARTIFACT producibility — that the clip id exists in the exported GLB and is the
+    // animation the runtime loads — legitimately waits for the bake vertical.
+    //
+    // Neither belongs in this clause, which is about the shipped BANK. Both are recorded on the bake
+    // card rather than asserted vacuously here.
 
     // Every shipped touch response must still carry its full conversation payload. This is the half
     // that a "generalise the geometry" slice can silently drop.
