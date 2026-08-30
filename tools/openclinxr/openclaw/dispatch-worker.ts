@@ -232,7 +232,7 @@ type DispatchOptions = {
    * `agents.heartbeat` accepts `agentId` and renews that exact claimant. Carried into every
    * presence call while the child lives; optional so presence degrades to a session stamp.
    */
-  botbyAgentId?: string;
+  bothyAgentId?: string;
   /**
    * ISSUE #246: explicit orchestrator acknowledgment that the dispatch proofs are the INTENDED
    * replacement for the stored brief's done_when. Without it, a dispatch whose proofs differ from
@@ -1433,6 +1433,7 @@ async function announceBothyDispatchPresence(input: {
   branch: string;
   taskId: string;
   grokSessionId?: string;
+  agentId?: string;
 }): Promise<void> {
   const pat = process.env.BOTHY_BOARD_PAT ?? "";
   if (!pat) return;
@@ -1454,10 +1455,33 @@ async function announceBothyDispatchPresence(input: {
       currentTaskId: input.taskId,
       status: "working",
       ...(input.grokSessionId ? { grokSessionId: input.grokSessionId } : {}),
+      ...(input.agentId ? { agentId: input.agentId } : {}),
     });
   } catch {
     // board visibility is not a dispatch contract
   }
+}
+
+/**
+ * B2 claim renewal (tsk_36ec8d02ad31c685): how often dispatch renews the Bothy claim while the
+ * child lives. Measured 2026-08-30: tsk_bca4085904e3b071 was claimed at 15:12:47Z and returned
+ * to ready at 15:22:52Z with PID 79565 still alive and writing. Two minutes is comfortably below
+ * the ~10-minute reaper while staying quiet for the board.
+ */
+const BOTHY_CLAIM_INTERVAL_MS = 2 * 60_000;
+
+/**
+ * Renew the exact Bothy claim while the child lives. Returns a stop function the child-close
+ * handler calls so renewal ends precisely when the worker does — a stale renewer would keep a
+ * dead worker's claim warm. Best-effort like announceBothyDispatchPresence: a transient board
+ * failure must neither end renewal nor the worker; the interval keeps running and retries.
+ */
+function startBothyClaimRenewal(input: Parameters<typeof announceBothyDispatchPresence>[0]): () => void {
+  const timer = setInterval(() => {
+    void announceBothyDispatchPresence(input);
+  }, BOTHY_CLAIM_INTERVAL_MS);
+  timer.unref();
+  return () => clearInterval(timer);
 }
 
 export async function dispatch(repoRoot: string, options: DispatchOptions): Promise<DispatchLedgerEntry> {
