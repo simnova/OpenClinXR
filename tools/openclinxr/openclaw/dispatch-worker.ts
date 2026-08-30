@@ -1741,6 +1741,17 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
     branch: options.branch ?? "main",
     taskId: options.slice ?? "unscoped",
     grokSessionId: chosenSessionId,
+    agentId: options.bothyAgentId,
+  });
+  // B2 claim renewal (tsk_36ec8d02ad31c685): the one-shot above is presence at spawn, but the
+  // reaper's ~10-minute assignee TTL outlives most workers. Renew the exact claimant on an
+  // interval until the child closes (stopBothyRenewal in the close handler below).
+  const stopBothyRenewal = startBothyClaimRenewal({
+    path: worktreePath ?? repoRoot,
+    branch: options.branch ?? "main",
+    taskId: options.slice ?? "unscoped",
+    grokSessionId: chosenSessionId,
+    agentId: options.bothyAgentId,
   });
   child.stdout.on("data", (data: Buffer) => chunks.push(data.toString()));
   child.stderr.on("data", (data: Buffer) => stderr.push(data.toString()));
@@ -1762,6 +1773,7 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
   const code = await new Promise<number>((resolve) => {
     child.on("close", (value: number | null) => {
       clearInterval(sampler);
+      stopBothyRenewal();
       resolve(value ?? 1);
     });
   });
