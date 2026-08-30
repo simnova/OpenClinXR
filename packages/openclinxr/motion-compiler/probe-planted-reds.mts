@@ -46,9 +46,20 @@ const ROOT = dirname(fileURLToPath(import.meta.url));
 const SRC = join(ROOT, "src");
 
 /** Discovered `planted("<title>", ...)` calls, by AST. Never by regex over source. */
+function testFilesUnder(dir: string, prefix = ""): string[] {
+  // RECURSIVE. A top-level-only scan would silently exclude any clause placed in a subdirectory
+  // while the runner kept reporting package-wide coverage — the same shape as the 14-of-26 defect.
+  const out: string[] = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+    if (entry.isDirectory()) out.push(...testFilesUnder(join(dir, entry.name), `${prefix}${entry.name}/`));
+    else if (entry.name.endsWith(".test.ts")) out.push(`${prefix}${entry.name}`);
+  }
+  return out;
+}
+
 function discoverPlantedClauses(): { file: string; title: string }[] {
   const found: { file: string; title: string }[] = [];
-  for (const file of readdirSync(SRC).filter((f) => f.endsWith(".test.ts")).sort()) {
+  for (const file of testFilesUnder(SRC)) {
     const source = ts.createSourceFile(file, readFileSync(join(SRC, file), "utf8"), ts.ScriptTarget.ESNext, true);
     const walk = (node: ts.Node): void => {
       if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === "planted") {
@@ -88,6 +99,14 @@ function probe(entry: (typeof PLANTED_REDS)[number]): Outcome {
 
   const failedMatch = /Tests\s+(\d+) failed/.exec(out);
   const failedCount = failedMatch ? Number(failedMatch[1]) : 0;
+  const passedMatch = /Tests\s+(?:\d+ failed \| )?(\d+) passed/.exec(out);
+  const passedCount = passedMatch ? Number(passedMatch[1]) : 0;
+  // ANY selected test that PASSED is disqualifying. Requiring exactly one FAILURE is not the same
+  // requirement: two clauses sharing an exact title, one passing and one failing, satisfies it while
+  // the fingerprint gets attributed to whichever one nobody looked at.
+  if (passedCount > 0) {
+    return { ok: false, label, why: `${passedCount} selected test(s) PASSED — either this clause is satisfied, or the title selects a clause that is` };
+  }
   if (failedCount === 0) {
     return {
       ok: false,

@@ -77,7 +77,13 @@ function plantModule(specifier: string): string {
 type Vec3 = { x: number; y: number; z: number };
 type Quat = { x: number; y: number; z: number; w: number };
 
-type CompiledClip = { clipId: string; durationSeconds: number; tracks: CompiledMotionTrack[] };
+type CompiledClip = {
+  clipId: string;
+  durationSeconds: number;
+  tracks: CompiledMotionTrack[];
+  /** Clause (1b) reads `deterministicSeed` from here; the keystone freezes this block. */
+  compileIdentity?: { deterministicSeed?: string };
+};
 
 type CompileEntry = (input: { program: unknown; skeletonProfile: unknown }) => CompiledClip;
 
@@ -392,15 +398,32 @@ describe("the contact constraint holds across its window", () => {
       const program = contactProgram(true);
       const action = program.actions[0]!;
 
-      // What the REGISTERED primitive produces, called directly.
+      // THE ENTRY FIRST, so its own seed can be read back and reused. Corrected 2026-08-30: the first
+      // version passed a test literal (`"seed-registry-join"`) to the direct call while the entry
+      // derived its own, then required byte-equal values. An honest seed-SENSITIVE primitive would
+      // fail that even when the entry invoked exactly it, and passing would pressure the primitive to
+      // ignore its seed or the compiler to adopt a test constant. Two calls that look equivalent and
+      // do not share a load-bearing input — the family this plant set keeps finding.
+      const clip = compileMotionProgram!({ program, skeletonProfile: structuredClone(PROFILE) });
+
+      const seed = clip.compileIdentity?.deterministicSeed;
+      expect(
+        typeof seed === "string" && seed.length > 0,
+        "the clip does not record the seed it compiled under, so no direct call can be made under the same input",
+      ).toBe(true);
+
+      // SINGLE-ACTION PROGRAM, stated explicitly: this fixture carries one action, so the clip-level
+      // deterministic seed IS the seed that action's primitive saw. A multi-action program will need
+      // per-action seed derivation before this comparison generalises, and that belongs to the
+      // stable-identity card, not here.
+      expect(program.actions.length, "this comparison assumes one action, so one seed").toBe(1);
+
+      // What the REGISTERED primitive produces under THAT SAME seed.
       const registered = registry!.resolvePrimitive!(action.primitiveId)!.compile({
         action,
         skeletonProfile: structuredClone(PROFILE),
-        seed: "seed-registry-join",
+        seed: seed as string,
       });
-
-      // What the ENTRY produces with nothing injected.
-      const clip = compileMotionProgram!({ program, skeletonProfile: structuredClone(PROFILE) });
 
       const trackKeys = (tracks: readonly CompiledMotionTrack[]): string[] =>
         tracks.map((t) => `${t.boneName}::${t.property}`).sort();
