@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
 
+import {
+  MOTION_REGION_GUARD_CHEST_L,
+  MOTION_REGION_GUARD_RLQ,
+} from "./plant-motion-regions.js";
+
 import { planted } from "./planted.js";
 import {
   trackOrderKeys,
@@ -131,7 +136,7 @@ function action(actionId: string, region: string) {
   };
 }
 
-function program(actions: unknown[] = [action("a1", "guard_abdomen_rlq"), action("a2", "guard_chest_l")]) {
+function program(actions: unknown[] = [action("a1", MOTION_REGION_GUARD_RLQ), action("a2", MOTION_REGION_GUARD_CHEST_L)]) {
   return {
     schemaVersion: PROGRAM_SCHEMA,
     scenarioId: "ed_chest_pain_priority_v1",
@@ -238,7 +243,7 @@ describe("the canonical compile entry orchestrates primitives", () => {
 
     // COUNTERWEIGHT to (1): a hardcoded known clip passes composition and dies here.
     const moved = compileMotionProgram({
-      program: program([action("a1", "guard_left_thigh"), action("a2", "guard_chest_l")]),
+      program: program([action("a1", "guard_left_thigh"), action("a2", MOTION_REGION_GUARD_CHEST_L)]),
       skeletonProfile: PROFILE,
       primitives: prims(),
     });
@@ -250,7 +255,7 @@ describe("the canonical compile entry orchestrates primitives", () => {
     // Silent skipping is the failure that produces a green compile over missing motion.
     expect(() =>
       compileMotionProgram({
-        program: program([action("a1", "guard_abdomen_rlq"), { ...action("a2", "guard_chest_l"), primitiveId: "not_a_primitive" }]),
+        program: program([action("a1", MOTION_REGION_GUARD_RLQ), { ...action("a2", MOTION_REGION_GUARD_CHEST_L), primitiveId: "not_a_primitive" }]),
         skeletonProfile: PROFILE,
         primitives: recordingPrimitives([]),
       }),

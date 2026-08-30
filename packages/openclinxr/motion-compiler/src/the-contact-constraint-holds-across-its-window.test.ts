@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
 
+import {
+  MOTION_REGION_GUARD_RLQ,
+} from "./plant-motion-regions.js";
+
 import { planted } from "./planted.js";
 
 import {
@@ -288,7 +292,7 @@ function contactProgram(preserveWhileActive: boolean) {
         trigger: { kind: "clinical_touch", ref: "guard_rlq_v1" },
         timing: { durationMs: 1200 },
         intensity: 0.6,
-        target: { kind: "body_region", id: "motion_guard_abdomen_rlq" },
+        target: { kind: "body_region", id: MOTION_REGION_GUARD_RLQ },
         effector: PROFILE.effectorBone,
         constraints: [
           {

@@ -307,12 +307,12 @@ function derivedEffectorPoint(clip: GuardClip, profile: SkeletonProfile, effecto
   return best;
 }
 
+/**
+ * What the guard module must export. `compileGuardClip` is DELIBERATELY ABSENT — see `compileGuarded`
+ * below. The guard's compile path is the registry; this module owns only the declared target
+ * vocabulary, which nothing else can supply.
+ */
 type GuardModule = {
-  compileGuardClip?: (input: {
-    profile: SkeletonProfile;
-    target: BodyRegionTarget;
-    clipName?: string;
-  }) => GuardClip;
   GUARD_BODY_TARGETS?: readonly BodyRegionTarget[];
 };
 
@@ -508,21 +508,69 @@ describe("the guard primitive hits four targets on three rigs", () => {
    * originals. A per-call-site clone is one forgotten call away from a corrupted oracle, so the
    * guard lives in one place rather than being remembered five times.
    */
+  /**
+   * THE ONE ENTRYPOINT. Every compile in this file goes through the REGISTERED primitive.
+   *
+   * Amended 2026-08-30 after an independent reviewer refused my claim that the set had one compile
+   * entry. It did not: clauses (1) and (2) required a public `compileGuardClip({profile, target})`
+   * returning a private `GuardClip`, which is a second compile API — the three-signature defect one
+   * layer down, in the file that had been repaired for it twice. A worker implements the RED, and the
+   * RED demanded the second export.
+   *
+   * `compileGuardClip` is now required by NO clause here. An internal solver helper by that name is
+   * still fine; it is simply not a contract, so it cannot become a parallel public path.
+   *
+   * The compiler receives DEEP CLONES; the oracle reads the originals. The keystone's immutability
+   * assertion cannot reach this call, and without the clone a primitive could mutate `target` to the
+   * endpoint of arbitrary tracks — or mutate `profile.joints` so those tracks reach the original
+   * target — and the oracle would agree, because it reads the corrupted fixture.
+   */
   const compileGuarded = (
-    compile: (i: { profile: SkeletonProfile; target: BodyRegionTarget; clipName?: string }) => GuardClip,
+    compile: (request: PrimitiveRequest) => CompiledMotionFragment,
     input: { profile: SkeletonProfile; target: BodyRegionTarget; clipName?: string },
-  ): GuardClip =>
-    compile({ ...input, profile: structuredClone(input.profile), target: structuredClone(input.target) });
+  ): GuardClip => {
+    const fragment = compile({
+      action: {
+        actionId: `guard_${input.target.id}`,
+        primitiveId: "guard_body_region",
+        trigger: { kind: "clinical_touch", ref: "guard_rlq_v1" },
+        timing: { durationMs: 900 },
+        intensity: 0.6,
+        // A body POINT, deliberately: this file's four targets carry explicit coordinates and the FK
+        // oracle measures reach against them. Region-id targets need a rig-derived region->point
+        // resolution that M1b owns; using one here would test that instead of the guard.
+        target: { kind: "body_point", position: structuredClone(input.target.bodyPoint) },
+        effector: input.profile.effectorBone,
+        constraints: [],
+      },
+      skeletonProfile: structuredClone(input.profile),
+      seed: `seed-guard-${input.target.id}`,
+    });
+    return {
+      name: input.clipName ?? fragment.actionId,
+      targetId: input.target.id,
+      rigFingerprint: input.profile.rigFingerprint,
+      tracks: fragment.tracks as GuardTrack[],
+    };
+  };
+
+  /** Resolve the registered guard, or fail with the reason the registry is the only path. */
+  const registeredGuard = async (): Promise<(request: PrimitiveRequest) => CompiledMotionFragment> => {
+    const registry = await loadRegistry();
+    expect(
+      typeof registry?.resolvePrimitive,
+      "primitive-registry must export resolvePrimitive — the guard is reachable ONLY through the registry, by design",
+    ).toBe("function");
+    const primitive = registry!.resolvePrimitive!("guard_body_region");
+    expect(primitive, "the registry does not resolve guard_body_region").toBeDefined();
+    return primitive!.compile;
+  };
 
   planted(
     "(1) guard_body_region resolves one target on THREE rig families through the bind frame, not a per-rig euler table",
     async () => {
+      const compile = await registeredGuard();
       const mod = await loadGuard();
-      expect(
-        typeof mod?.compileGuardClip,
-        "guard-body-region must export compileGuardClip — it does not exist yet",
-      ).toBe("function");
-      const compile = mod!.compileGuardClip!;
 
       const rlq = FOUR_TARGETS[0]!;
       const perRig = RIG_FAMILIES.map((profile) => ({
@@ -619,11 +667,7 @@ describe("the guard primitive hits four targets on three rigs", () => {
   planted(
     "(2) a body target the module has never declared still compiles — there is no per-target pose table",
     async () => {
-      const mod = await loadGuard();
-      expect(typeof mod?.compileGuardClip, "guard-body-region must export compileGuardClip").toBe(
-        "function",
-      );
-      const compile = mod!.compileGuardClip!;
+      const compile = await registeredGuard();
       const profile = ANNY_23_BONE;
       const tolerance = forearmLengthOf(profile) * REACH_TOLERANCE_AS_FOREARM_FRACTION;
 
@@ -662,18 +706,17 @@ describe("the guard primitive hits four targets on three rigs", () => {
   );
 
   planted(
-    "(2b) RED: the REGISTERED guard primitive reaches the same target as the internal solver",
+    "(2b) RED: the registered guard returns a CANONICAL fragment, attributed to its action",
     async () => {
-      // THE OTHER SEAM, and it was open until 2026-08-30. Clauses (1) and (2) exercise
-      // `compileGuardClip`, an internal solver entry. Nothing anywhere demonstrated that the real
-      // guard implementation is REGISTERED and invoked through `compileMotionProgram`: the seam plant
-      // injects a fake primitive, and the contacts plant expects the real registry without binding
-      // this implementation into it. So M2 could land complete and correct and still be unreachable
-      // from the canonical entry — a solver nothing calls.
+      // AMENDED 2026-08-30. This clause was written when clauses (1) and (2) still went through a
+      // separate public `compileGuardClip`, and it existed to prove the registered path reached the
+      // same target as that internal one. There is no longer a second path — every compile in this
+      // file goes through the registry — so the comparison it was named for is gone.
       //
-      // An internal helper is fine. What is not fine is two paths that can disagree, so this clause
-      // requires the registered primitive to reach the SAME target within the SAME tolerance, and
-      // measures it with the same independent FK oracle rather than trusting either path's report.
+      // What it still buys, and clauses (1) and (2) do not assert: the fragment the registry returns
+      // must satisfy the CANONICAL clip contract and must be attributed to the action that asked for
+      // it. Those are wire-format properties, not reach properties, and a guard that reaches
+      // perfectly while returning an unattributed or malformed fragment is unusable at composition.
       const registry = await loadRegistry();
       expect(
         typeof registry?.resolvePrimitive,

@@ -117,19 +117,23 @@ export const PLANTED_REDS: readonly PlantedRed[] = [
   },
   {
     file: "the-guard-primitive-hits-four-targets-on-three-rigs.test.ts",
+    // STAGE MOVED 2026-08-30: was "guard-body-region must export compileGuardClip". That export is
+    // no longer required by any clause — the second public compile entry was removed — so these two
+    // clauses now stop at the registry, which is the single path. The probe caught the move and
+    // demanded this edit, which is what it is for.
     select: "(1) guard_body_region resolves one target on THREE rig families through the bind frame, not a per-rig euler table",
-    expected: /guard-body-region must export compileGuardClip/,
+    expected: /primitive-registry must export resolvePrimitive/,
     stage: "assertion",
   },
   {
     file: "the-guard-primitive-hits-four-targets-on-three-rigs.test.ts",
     select: "(2) a body target the module has never declared still compiles — there is no per-target pose table",
-    expected: /guard-body-region must export compileGuardClip/,
+    expected: /primitive-registry must export resolvePrimitive/,
     stage: "assertion",
   },
   {
     file: "the-guard-primitive-hits-four-targets-on-three-rigs.test.ts",
-    select: "(2b) RED: the REGISTERED guard primitive reaches the same target as the internal solver",
+    select: "(2b) RED: the registered guard returns a CANONICAL fragment, attributed to its action",
     expected: /primitive-registry must export resolvePrimitive/,
     stage: "assertion",
   },

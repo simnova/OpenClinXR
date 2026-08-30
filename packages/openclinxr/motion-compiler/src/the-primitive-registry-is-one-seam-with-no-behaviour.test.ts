@@ -1,5 +1,9 @@
 import { describe, expect } from "vitest";
 
+import {
+  MOTION_REGION_GUARD_RLQ,
+} from "./plant-motion-regions.js";
+
 import { planted } from "./planted.js";
 import {
   violationsInTracks,
@@ -105,7 +109,7 @@ function requestFor(primitiveId: string): PrimitiveRequest {
       trigger: { kind: "clinical_touch", ref: "guard_rlq_v1" },
       timing: { durationMs: 900 },
       intensity: 0.6,
-      target: { kind: "body_region", id: "motion_guard_abdomen_rlq" },
+      target: { kind: "body_region", id: MOTION_REGION_GUARD_RLQ },
       effector: PROFILE.effectorBone,
       constraints: [],
     },

@@ -3,6 +3,10 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
+import {
+  MOTION_REGION_GUARD_RLQ,
+} from "./plant-motion-regions.js";
+
 import { planted } from "./planted.js";
 
 import {
@@ -154,7 +158,7 @@ function canonicalRequest(id: PrimitiveId, seed: string): CompileRequest {
       trigger: { kind: "clinical_touch", ref: "clinical_touch_guard_abdomen_rlq" },
       timing: { durationMs: DURATION_MS },
       intensity: 0.6,
-      target: { kind: "body_region", id: "guard_abdomen_rlq" },
+      target: { kind: "body_region", id: MOTION_REGION_GUARD_RLQ },
       effector: "handR",
       // A REAL constraint, for the same reason as the keystone: with [] everywhere, a compiler that
       // replaces constraints with [] preserves the action by accident.
@@ -162,7 +166,7 @@ function canonicalRequest(id: PrimitiveId, seed: string): CompileRequest {
         {
           kind: "contact",
           effector: "handR",
-          target: { kind: "body_region", id: "guard_abdomen_rlq" },
+          target: { kind: "body_region", id: MOTION_REGION_GUARD_RLQ },
           positionToleranceMeters: 0.03,
           startFraction: 0.4,
           endFraction: 0.72,
