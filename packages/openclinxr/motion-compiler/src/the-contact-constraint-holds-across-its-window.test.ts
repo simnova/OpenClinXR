@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  MOTION_REGION_GUARD_CHEST_L,
   MOTION_REGION_GUARD_RLQ,
 } from "./plant-motion-regions.js";
 
@@ -133,7 +134,6 @@ const JOINTS = [
   { boneName: "handR", parentBoneName: "forearmR", bindLocalPosition: { x: 0, y: -FOREARM_LEN, z: 0 }, bindLocalQuaternion: { x: 0, y: 0, z: 0, w: 1 } },
 ] as const;
 
-const PROFILE = { rigFingerprint: "rig-fp-contact-fixture", effectorBone: "handR", joints: JOINTS };
 
 /** Where the hand must arrive and stay. Reachable: 0.54 m of arm, target 0.46 m from the shoulder. */
 const CONTACT_POINT: Vec3 = { x: 0.10, y: 0.94, z: 0.14 };
@@ -145,6 +145,25 @@ const CONTACT_POINT: Vec3 = { x: 0.10, y: 0.94, z: 0.14 };
 const RELEASE_POINT: Vec3 = { x: 0.24, y: 1.10, z: 0.10 };
 const SECOND_START_FRACTION = 0.55;
 const SECOND_END_FRACTION = 0.9;
+
+/**
+ * `regionAnchors` matches the guard plant's fixture shape: a MotionAction or ContactConstraint target
+ * names a REGION and the primitive resolves it against the rig.
+ *
+ * Amended 2026-08-30. These two targets used `kind: "body_point"` with a literal coordinate — a kind
+ * M1's IR does not declare (`body_region | actor | clinical_object | world_position`), and
+ * `ContactConstraint.target` is a `MotionActionTarget`, so the violation applied here too. A worker
+ * implementing M1 correctly would have rejected these programs.
+ */
+const PROFILE = {
+  rigFingerprint: "rig-fp-contact-fixture",
+  effectorBone: "handR",
+  joints: JOINTS,
+  regionAnchors: {
+    [MOTION_REGION_GUARD_RLQ]: CONTACT_POINT,
+    [MOTION_REGION_GUARD_CHEST_L]: RELEASE_POINT,
+  },
+};
 
 const START_FRACTION = 0.4;
 const END_FRACTION = 0.72;
@@ -298,7 +317,7 @@ function contactProgram(preserveWhileActive: boolean) {
           {
             kind: "contact",
             effector: PROFILE.effectorBone,
-            target: { kind: "body_point", position: CONTACT_POINT },
+            target: { kind: "body_region", id: MOTION_REGION_GUARD_RLQ },
             positionToleranceMeters: POSITION_TOLERANCE_M,
             startFraction: START_FRACTION,
             endFraction: END_FRACTION,
@@ -329,7 +348,7 @@ function competingContactProgram(firstPreserve: boolean, secondPreserve: boolean
           {
             kind: "contact",
             effector: PROFILE.effectorBone,
-            target: { kind: "body_point", position: RELEASE_POINT },
+            target: { kind: "body_region", id: MOTION_REGION_GUARD_CHEST_L },
             positionToleranceMeters: POSITION_TOLERANCE_M,
             startFraction: SECOND_START_FRACTION,
             endFraction: SECOND_END_FRACTION,
