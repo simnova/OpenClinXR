@@ -1,0 +1,30 @@
+{
+  "cardId": "tsk_6fc9f805f9f4eea5",
+  "kind": "independent-manager-verification",
+  "commit": "8c8e318ecb818a2ca73412c6c63a1e4d5bb9817f",
+  "parent": "e405a3a1fecf647eb00f0b9a7e2155aeccaacade",
+  "tree": "62686220ac005abb4f0c4c1b32a2e89b39795729",
+  "branch": "wt/tsk_6fc9f805f9f4eea5",
+  "worktree": "/Users/patrick/.grok/worktrees/src-openclinxr/tsk_6fc9f805f9f4eea5",
+  "files": {
+    "tools/openclinxr/openclaw/integration-lock.ts": "245f5a2a3408a0459a41d07e8637ff8fad016bfd",
+    "tools/openclinxr/openclaw/only-one-integrator-mutates-main-at-a-time.test.ts": "5ec44bf322d4e3caa4909b95828a6edbb9313e6d"
+  },
+  "independentTests": {
+    "fullFile": "11/11",
+    "consecutiveFullFile": "10/10",
+    "filterTrap": "-t CONCURRENT is 2 passed / 9 skipped; not used as the bar",
+    "sleepRetryGrep": "none in integration-lock.ts"
+  },
+  "clauses": ["1", "2", "3", "4", "5", "6", "7", "8-init-grace", "9-stale-concurrent-single-winner", "10-predecessor-safe-release", "11-renewal-liveness"],
+  "landMethod": "commit-tree+update-ref on isolated branch after git commit hooks failed (GIT_INDEX_FILE leak + unrelated OpenClaw suite reds). Not --no-verify on main.",
+  "notDone": ["proofs.set", "integrate", "land on main"],
+  "safeSerialIntegrationPlan": [
+    "Do not proofs.set or integrate until Codex ACKs this plan.",
+    "Preflight: no other integrate() in flight; .openclinxr/openclaw/integration.lock absent on MAIN.",
+    "Serial one-process land: merge-kill then merge wt/tsk_6fc9f805f9f4eea5 into main. Do not start Claude tsk_a504 integrate in parallel.",
+    "Chicken-egg: main still has the OLD lock during the merge. Safety is process exclusion (one integrator), not the new lock. After the merge, main has the O_CREAT|O_EXCL lock.",
+    "Then Claude may land 438f6e74 serially using the new lock.",
+    "Do not redispatch either dirty/isolated worktree."
+  ]
+}

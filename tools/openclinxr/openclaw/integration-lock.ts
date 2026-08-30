@@ -15,33 +15,68 @@
  * and its acquisition is a read-modify-write ending in a plain `writeFile`, which has exactly the
  * window this is written to close.
  *
- * ## THE PRIMITIVE, AND WHY IT IS mkdir
+ * ## THE PRIMITIVE, AND WHY IT IS mkdir / rename
  *
- * `mkdir` is atomic on POSIX: it either creates the directory or fails `EEXIST`, with no
- * read-then-write gap. `existsSync` followed by a create is NOT atomic and passes every sequential
- * test while still letting two processes through — which is why clause (5) of the contract spawns
- * real processes rather than trusting an in-process check.
+ * `mkdir` and `rename` are atomic on POSIX: a create either succeeds or fails `EEXIST`, a move
+ * either succeeds or fails `ENOENT`/`ENOTEMPTY`, with no read-then-write gap. `existsSync` followed
+ * by a create is NOT atomic and passes every sequential test while still letting two processes
+ * through — which is why clause (5) of the contract spawns real processes rather than trusting an
+ * in-process check.
  *
- * ## TAKEOVER IS REQUIRED, NOT A CONVENIENCE
+ * ## OPERATION MARKER: EVERY MUTATION IS SERIALIZED
  *
- * Background dispatches are reaped in this environment; four kill events in one session are on
- * record. A lock with no takeover path turns one reap into a permanently wedged land path, which is
- * a worse failure than the race it prevents. A lock older than the TTL is stolen, and the theft is
- * RECORDED in the result so it appears in the caller's output instead of happening silently.
+ * The pre-fix defect was a multi-step transition (`mkdirSync(dir)` then `claim()`) with no atomic
+ * gate: a racer seeing the directory before the holder write read "abandoned" and claimed it, so
+ * init and takeover were both multi-winner. Every mutating transition here — acquire, stale
+ * takeover, release, renewal — first claims a single well-known op marker
+ * (`integration.lock.op`, created with `O_CREAT|O_EXCL`), which is the atomic serialization point.
+ * Exactly one process can hold the marker; every other process sees `EEXIST` and answers the
+ * lock question from the settled state without waiting. A crashed op leaves a marker that is
+ * cleared once, after `INTEGRATION_LOCK_OP_TTL_MS`, so a reap cannot wedge the land path.
+ *
+ * ## THE LOCK DIR APPEARS FULLY INITIALIZED OR NOT AT ALL
+ *
+ * The lock directory itself is installed by writing a unique staging directory and `rename`-ing it
+ * into place, so the holder record is never observable half-written. Takeover and release capture
+ * the existing lock with an atomic `rename` to a unique tombstone, verify the captured holder, and
+ * either keep the capture (takeover/release) or `rename` it back (a refreshed holder, or a
+ * successor's lock — which the predecessor must never be able to release).
+ *
+ * ## LIVENESS, NOT FIXED-TTL THEFT
+ *
+ * Staleness follows the holder's last heartbeat (`lastSeen`), not the original acquisition time, so
+ * a long-running integration that renews is never stolen, while a crashed integrator that stops
+ * renewing becomes stealable after `INTEGRATION_LOCK_TTL_MS`.
  *
  * claimScope: mutual exclusion between integrators on ONE filesystem.
  * notEvidenceFor: protection against a process started before this landed (it holds no lock and will
  *   not see one), cross-machine coordination, or anything about git's own index.lock.
  */
 
-import { mkdirSync, writeFileSync, readFileSync, rmSync, existsSync } from "node:fs";
-import { join, dirname } from "node:path";
+import {
+  mkdirSync, writeFileSync, readFileSync, rmSync, renameSync, statSync, readdirSync,
+} from "node:fs";
+import { join } from "node:path";
 
-/** How long a held lock is honoured before a later integrator may take it over. */
+/** How long a held lock is honoured after its last heartbeat before a later integrator may take it over. */
 export const INTEGRATION_LOCK_TTL_MS = 30 * 60 * 1000;
 
-const lockDir = (repoRoot: string): string => join(repoRoot, ".openclinxr/openclaw/integration.lock");
+/** How long a half-initialized lock (directory with no readable holder record) is held before it may be taken over as abandoned. */
+export const INTEGRATION_LOCK_INIT_GRACE_MS = 5_000;
+
+/** How long an interrupted acquire/release/renew operation may hold the op marker before a successor clears it. */
+export const INTEGRATION_LOCK_OP_TTL_MS = 15_000;
+
+/** heldBy reported while a lock's holder metadata is missing inside the init grace. */
+export const INTEGRATION_LOCK_INITIALIZING_HELD_BY = "(initializing; holder metadata missing)";
+
+const ABANDONED_STEAL_FROM = "(abandoned lock with no holder record)";
+const OP_IN_PROGRESS_HELD_BY = "(lock operation in progress)";
+
+const openclawDir = (repoRoot: string): string => join(repoRoot, ".openclinxr/openclaw");
+const lockDir = (repoRoot: string): string => join(openclawDir(repoRoot), "integration.lock");
 const holderPath = (repoRoot: string): string => join(lockDir(repoRoot), "holder.json");
+const opMarkerPath = (repoRoot: string): string => join(openclawDir(repoRoot), "integration.lock.op");
 
 export type LockResult = {
   acquired: boolean;
@@ -51,59 +86,255 @@ export type LockResult = {
   stoleFrom?: string;
 };
 
-type Holder = { owner: string; acquiredAt: string };
+type Holder = { owner: string; acquiredAt: string; lastSeen?: string };
 
-function readHolder(repoRoot: string): Holder | null {
+function holderJson(holder: Holder): string {
+  return `${JSON.stringify(holder, null, 2)}\n`;
+}
+
+function readHolderAt(holderFile: string): Holder | null {
   try {
-    const raw = JSON.parse(readFileSync(holderPath(repoRoot), "utf8")) as Partial<Holder>;
+    const raw = JSON.parse(readFileSync(holderFile, "utf8")) as Partial<Holder>;
     if (typeof raw.owner !== "string" || typeof raw.acquiredAt !== "string") return null;
-    return { owner: raw.owner, acquiredAt: raw.acquiredAt };
+    const holder: Holder = { owner: raw.owner, acquiredAt: raw.acquiredAt };
+    if (typeof raw.lastSeen === "string") holder.lastSeen = raw.lastSeen;
+    return holder;
   } catch {
     return null;
   }
 }
 
-function claim(repoRoot: string, owner: string): void {
-  writeFileSync(holderPath(repoRoot), `${JSON.stringify({ owner, acquiredAt: new Date().toISOString() }, null, 2)}\n`);
+function readHolder(repoRoot: string): Holder | null {
+  return readHolderAt(holderPath(repoRoot));
+}
+
+/** Staleness follows the last heartbeat; a holder with no heartbeat falls back to its acquisition time. */
+function isStale(holder: Holder, now: number): boolean {
+  const ref = holder.lastSeen ?? holder.acquiredAt;
+  const t = Date.parse(ref);
+  return !Number.isFinite(t) || now - t > INTEGRATION_LOCK_TTL_MS;
+}
+
+type LockState =
+  | { present: false }
+  | { present: true; holder: Holder | null; dirMtimeMs: number };
+
+function readLockState(repoRoot: string): LockState {
+  const dir = lockDir(repoRoot);
+  let st;
+  try {
+    st = statSync(dir);
+  } catch {
+    return { present: false };
+  }
+  return { present: true, holder: readHolder(repoRoot), dirMtimeMs: st.mtimeMs };
+}
+
+const uniqueSuffix = (): string =>
+  `${process.pid}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+
+/**
+ * Claim the exclusive operation marker. Exactly one process wins the atomic create; a stale marker
+ * (crashed op, older than `INTEGRATION_LOCK_OP_TTL_MS`) is cleared exactly once and reclaimed. A
+ * fresh marker means another op is in flight and the caller must not mutate.
+ */
+function claimOpMarker(repoRoot: string, op: string, owner: string): boolean {
+  const path = opMarkerPath(repoRoot);
+  const write = (): void => {
+    writeFileSync(path, `${JSON.stringify({ op, owner, startedAt: new Date().toISOString() })}\n`, { flag: "wx" });
+  };
+  try {
+    write();
+    return true;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
+  }
+  let startedAtMs = Number.NaN;
+  try {
+    const raw = JSON.parse(readFileSync(path, "utf8")) as { startedAt?: unknown };
+    if (typeof raw.startedAt === "string") startedAtMs = Date.parse(raw.startedAt);
+  } catch {
+    // Unreadable marker is treated as live: it may be mid-write by a running op.
+    return false;
+  }
+  if (!Number.isFinite(startedAtMs) || Date.now() - startedAtMs <= INTEGRATION_LOCK_OP_TTL_MS) return false;
+  try {
+    rmSync(path, { force: true });
+  } catch {
+    return false;
+  }
+  try {
+    write();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function clearOpMarker(repoRoot: string): void {
+  rmSync(opMarkerPath(repoRoot), { force: true });
+}
+
+/** Remove staging and tombstone remnants left by crashed ops. Only safe while holding the op marker. */
+function sweepOrphans(repoRoot: string): void {
+  let names: string[];
+  try {
+    names = readdirSync(openclawDir(repoRoot));
+  } catch {
+    return;
+  }
+  for (const name of names) {
+    if (name.startsWith("integration.lock.tomb.") || name.startsWith("integration.lock.staging.")) {
+      rmSync(join(openclawDir(repoRoot), name), { recursive: true, force: true });
+    }
+  }
+}
+
+/** Install a fully-initialized lock dir via unique staging + atomic rename. */
+function installLock(repoRoot: string, owner: string): boolean {
+  const staging = join(openclawDir(repoRoot), `integration.lock.staging.${uniqueSuffix()}`);
+  mkdirSync(staging);
+  const now = new Date().toISOString();
+  writeFileSync(join(staging, "holder.json"), holderJson({ owner, acquiredAt: now, lastSeen: now }));
+  try {
+    renameSync(staging, lockDir(repoRoot));
+    return true;
+  } catch {
+    rmSync(staging, { recursive: true, force: true });
+    return false;
+  }
+}
+
+/** Atomically capture the lock dir to a unique tombstone; returns the tombstone path and its holder. */
+function captureLockDir(repoRoot: string): { tomb: string | null; holder: Holder | null } {
+  const tomb = join(openclawDir(repoRoot), `integration.lock.tomb.${uniqueSuffix()}`);
+  try {
+    renameSync(lockDir(repoRoot), tomb);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return { tomb: null, holder: null };
+    throw error;
+  }
+  return { tomb, holder: readHolderAt(join(tomb, "holder.json")) };
+}
+
+/** Whether a present lock is refused as held: fresh holder, or missing metadata inside the init grace. */
+function isHeld(state: LockState, now: number): boolean {
+  if (!state.present) return false;
+  if (state.holder === null) return now - state.dirMtimeMs <= INTEGRATION_LOCK_INIT_GRACE_MS;
+  return !isStale(state.holder, now);
+}
+
+function heldByOf(state: LockState): string {
+  if (state.present && state.holder !== null) return state.holder.owner;
+  return INTEGRATION_LOCK_INITIALIZING_HELD_BY;
 }
 
 /**
  * Take the integration lock, or report who has it.
  *
- * A directory that exists with no readable holder file is treated as ABANDONED rather than held —
- * otherwise a crash between mkdir and the holder write wedges the repo with a lock nobody can name,
- * and the refusal message would be useless to whoever has to clear it.
+ * A directory that exists with no readable holder file is treated as HELD for a bounded init grace
+ * (it may be mid-initialization) and as ABANDONED afterwards — so a crash between a lock's creation
+ * and its holder write never wedges the repo, and a live initialization is never stolen.
  */
 export function acquireIntegrationLock(repoRoot: string, owner: string): LockResult {
-  const dir = lockDir(repoRoot);
-  mkdirSync(dirname(dir), { recursive: true });
+  mkdirSync(openclawDir(repoRoot), { recursive: true });
+
+  const pre = readLockState(repoRoot);
+  if (isHeld(pre, Date.now())) {
+    return { acquired: false, heldBy: heldByOf(pre) };
+  }
+
+  // Absent, stale, or abandoned: every mutation goes through the exclusive op marker.
+  if (!claimOpMarker(repoRoot, "acquire", owner)) {
+    const cur = readLockState(repoRoot);
+    if (isHeld(cur, Date.now())) return { acquired: false, heldBy: heldByOf(cur) };
+    return { acquired: false, heldBy: OP_IN_PROGRESS_HELD_BY };
+  }
   try {
-    mkdirSync(dir);            // atomic: creates, or throws EEXIST
-    claim(repoRoot, owner);
+    sweepOrphans(repoRoot);
+    const settled = readLockState(repoRoot);
+    if (isHeld(settled, Date.now())) {
+      return { acquired: false, heldBy: heldByOf(settled) };
+    }
+    if (settled.present) {
+      const { tomb, holder: captured } = captureLockDir(repoRoot);
+      if (tomb !== null) {
+        if (captured !== null && !isStale(captured, Date.now())) {
+          // Refreshed between the pre-read and the capture — not stealable.
+          renameSync(tomb, lockDir(repoRoot));
+          return { acquired: false, heldBy: captured.owner };
+        }
+        rmSync(tomb, { recursive: true, force: true });
+        if (!installLock(repoRoot, owner)) {
+          const cur = readLockState(repoRoot);
+          return { acquired: false, heldBy: isHeld(cur, Date.now()) ? heldByOf(cur) : OP_IN_PROGRESS_HELD_BY };
+        }
+        return { acquired: true, stoleFrom: captured ? captured.owner : ABANDONED_STEAL_FROM };
+      }
+      // The dir vanished between the read and the capture (external removal) — fall through to a fresh install.
+    }
+    if (!installLock(repoRoot, owner)) {
+      const cur = readLockState(repoRoot);
+      return { acquired: false, heldBy: isHeld(cur, Date.now()) ? heldByOf(cur) : OP_IN_PROGRESS_HELD_BY };
+    }
     return { acquired: true };
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
+  } finally {
+    clearOpMarker(repoRoot);
   }
-
-  const held = readHolder(repoRoot);
-  if (held === null) {
-    claim(repoRoot, owner);
-    return { acquired: true, stoleFrom: "(abandoned lock with no holder record)" };
-  }
-
-  const ageMs = Date.now() - Date.parse(held.acquiredAt);
-  if (Number.isFinite(ageMs) && ageMs > INTEGRATION_LOCK_TTL_MS) {
-    claim(repoRoot, owner);
-    return { acquired: true, stoleFrom: held.owner };
-  }
-  return { acquired: false, heldBy: held.owner };
 }
 
-/** Release the lock. Refuses to drop someone else's — a stolen lock is not yours to release. */
+/**
+ * Release the lock. Refuses to drop someone else's — a stolen lock is not yours to release. The
+ * capture is verified and, if it turned out to be a successor's lock, put back.
+ */
 export function releaseIntegrationLock(repoRoot: string, owner: string): boolean {
-  const held = readHolder(repoRoot);
-  if (held !== null && held.owner !== owner) return false;
-  if (!existsSync(lockDir(repoRoot))) return false;
-  rmSync(lockDir(repoRoot), { recursive: true, force: true });
-  return true;
+  mkdirSync(openclawDir(repoRoot), { recursive: true });
+
+  const pre = readLockState(repoRoot);
+  if (!pre.present) return false;
+  if (pre.holder === null || pre.holder.owner !== owner) return false;
+
+  if (!claimOpMarker(repoRoot, "release", owner)) return false;
+  try {
+    sweepOrphans(repoRoot);
+    const settled = readLockState(repoRoot);
+    if (!settled.present || settled.holder === null || settled.holder.owner !== owner) return false;
+
+    const { tomb, holder: captured } = captureLockDir(repoRoot);
+    if (tomb === null) return false;
+    if (captured !== null && captured.owner === owner) {
+      rmSync(tomb, { recursive: true, force: true });
+      return true;
+    }
+    // Captured a successor's lock: put it back untouched.
+    renameSync(tomb, lockDir(repoRoot));
+    return false;
+  } finally {
+    clearOpMarker(repoRoot);
+  }
+}
+
+/**
+ * Refresh the holder's heartbeat so a long-running integration is never stolen at a fixed TTL.
+ * Refuses to renew a lock that is no longer the caller's.
+ */
+export function renewIntegrationLock(repoRoot: string, owner: string): boolean {
+  mkdirSync(openclawDir(repoRoot), { recursive: true });
+
+  if (!claimOpMarker(repoRoot, "renew", owner)) {
+    // Another op is in flight; a live lock cannot be stolen in the meantime, so ownership is the answer.
+    const cur = readLockState(repoRoot);
+    return cur.present && cur.holder !== null && cur.holder.owner === owner;
+  }
+  try {
+    const settled = readLockState(repoRoot);
+    if (!settled.present || settled.holder === null || settled.holder.owner !== owner) return false;
+    // Atomic in-place replace: a reader sees either the old or the new holder, never a torn write.
+    const tmp = join(lockDir(repoRoot), `holder.json.tmp.${uniqueSuffix()}`);
+    writeFileSync(tmp, holderJson({ ...settled.holder, lastSeen: new Date().toISOString() }));
+    renameSync(tmp, holderPath(repoRoot));
+    return true;
+  } finally {
+    clearOpMarker(repoRoot);
+  }
 }
