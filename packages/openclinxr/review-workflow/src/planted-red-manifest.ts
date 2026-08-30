@@ -12,13 +12,15 @@
  * edit. A clause that passes while still listed is reported as a failure, which is the point: nobody
  * discovers a satisfied contract by accident.
  *
- * ## The clause that is NOT here, deliberately
+ * ## 2026-08-30: the trusted-verifier port landed (card tsk_a5045834c138eceb)
  *
- * Clause (2) is a LIVE counterweight, not a RED: it asserts a verified approval is accepted, which
- * stops clause (1) being satisfied by refusing everything forever. It is green today FOR THE WRONG
- * REASON — HEAD ignores the verifier field and accepts the fabricated rows outright. Written as
- * `it.fails` it passed immediately, which is how the mislabelling was caught. Clause (6) is the live
- * premise sentinel and is expected to turn red when the fix lands.
+ * Clauses (1), (3), (4), and (5) in
+ * `the-release-gate-refuses-a-self-declared-reviewer.test.ts` were flipped from `planted(...)` to
+ * `it(...)` — they now pass because the implementation is correct, not because they are expected to
+ * fail. No `planted(...)` call remains in that file, so this manifest is intentionally EMPTY: an
+ * empty `PLANTED_REDS` with zero discovered clauses is coverage, not a gap. Clause (2) stays the LIVE
+ * counterweight it always was, and clause (6) was inverted into a closed-exploit regression guard
+ * (still a plain `it`, never a `planted`) — see that file's own comments.
  */
 export type PlantedRed = {
   file: string;
@@ -29,32 +31,7 @@ export type PlantedRed = {
   stage: "assertion";
 };
 
-export const PLANTED_REDS: readonly PlantedRed[] = [
-  {
-    file: "the-release-gate-refuses-a-self-declared-reviewer.test.ts",
-    select: "(1) RED: a self-declared approval with NO verifier still blocks",
-    expected: /a fabricated approval satisfied a required reviewer role/,
-    stage: "assertion",
-  },
-  {
-    file: "the-release-gate-refuses-a-self-declared-reviewer.test.ts",
-    select: "(3) RED: roles come from the VERIFIER, never from the evidence row",
-    expected: /the claimed role was accepted while the verifier reported a principal who does not hold it/,
-    stage: "assertion",
-  },
-  {
-    file: "the-release-gate-refuses-a-self-declared-reviewer.test.ts",
-    select: "(4) RED: an approval is BOUND to its scenario and version — it cannot be replayed",
-    expected: /the verifier was never called with the approval to check/,
-    stage: "assertion",
-  },
-  {
-    file: "the-release-gate-refuses-a-self-declared-reviewer.test.ts",
-    select: "(5) RED: a reject-all verifier BLOCKS — proving the port is consulted, not decorative",
-    expected: /every attestation was refused and the gate still passed/,
-    stage: "assertion",
-  },
-];
+export const PLANTED_REDS: readonly PlantedRed[] = [];
 
 /**
  * Failure shapes that mean the INSTRUMENT is broken, whatever else matched. A clause dying on any of
