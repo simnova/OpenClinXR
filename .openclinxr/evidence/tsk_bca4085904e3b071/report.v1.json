@@ -1,0 +1,24 @@
+{
+  "cardId": "tsk_bca4085904e3b071",
+  "kind": "independent-manager-verification",
+  "commit": "cb90699862c98ec4f9fe52cdf177c5648868c133",
+  "merge": "cba63294",
+  "tree": "535d6e5cfc1b52b7e3735dbad486b29e65244ed0",
+  "branch": "wt/tsk_bca4085904e3b071",
+  "mainShaAtLand": "cba63294",
+  "gates": {
+    "namedContract": "5/5",
+    "probeReds": "40/40 planted REDs fail for their own recorded reason; manifest covers all 40 discovered clauses"
+  },
+  "mechanism": "Closed MotionProgram v1 IR + validator; MotionBodyRegion vocabulary distinct from ComplianceRegion; deterministic scenario planner maps BodyMechanics.touchResponses to validated semantic actions without raw bone tracks. SkeletonProfile remains M1b.",
+  "notTested": [
+    "genuine LLM-freedom beyond in-process determinism",
+    "retargeting onto a SkeletonProfile producing visible motion",
+    "clinical sense of the quadrant mapping",
+    "ComplianceRegionSchema members added at a second declaration site",
+    "contact constraints (validator accepts the closed union; no plant exercises it)",
+    "M5 actor-half CONFINED with real case context"
+  ],
+  "preExistingOutOfScope": "M5 clause (4) live counterweight fails at HEAD because the review gate fail-closes without attestationVerifier; not this slice",
+  "notDone": ["proofs.set"]
+}
