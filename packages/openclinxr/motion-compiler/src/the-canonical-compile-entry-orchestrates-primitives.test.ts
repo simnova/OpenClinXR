@@ -43,9 +43,14 @@ const PROGRAM_SCHEMA = "openclinxr.motion-program.v1";
 type Vec3 = readonly [number, number, number];
 type Quat = readonly [number, number, number, number];
 
+/**
+ * The canonical track. Interpolation is EXPLICIT because the sampled values encode minimum jerk and
+ * the GLB writer must not guess a mode — a writer that assumes CUBICSPLINE over min-jerk samples
+ * produces motion nobody authored.
+ */
 type CompiledMotionTrack =
-  | { property: "rotation"; boneName: string; canonicalLandmark: string; times: number[]; values: Quat[] }
-  | { property: "translation"; boneName: string; canonicalLandmark: string; times: number[]; values: Vec3[] };
+  | { property: "rotation"; boneName: string; canonicalLandmark: string; interpolation: "LINEAR"; times: number[]; values: Quat[] }
+  | { property: "translation"; boneName: string; canonicalLandmark: string; interpolation: "LINEAR"; times: number[]; values: Vec3[] };
 
 type CompiledMotionClipV1 = {
   schemaVersion: typeof CLIP_SCHEMA;
@@ -163,6 +168,7 @@ function recordingPrimitives(seen: PrimitiveRequest[]) {
             property: "rotation" as const,
             boneName: `upper_arm.R@${JSON.stringify(a.target)}`,
             canonicalLandmark: "upper_arm_r",
+            interpolation: "LINEAR" as const,
             times: [0, 0.45, 0.9],
             values: [[0, 0, 0, 1], [0.1, 0, 0, 0.995], [0, 0, 0, 1]] as Quat[],
           },
@@ -318,5 +324,63 @@ describe("the canonical compile entry orchestrates primitives", () => {
     // COUNTERWEIGHT to this clause: it must not pass by finding nothing because the clip is empty.
     expect(Object.keys(clip).length, "an empty clip trivially carries no verdict").toBeGreaterThan(5);
     expect(clip.claimBoundary, "the claim boundary is the positive half of this contract").toBeTruthy();
+  });
+
+  it.fails("(5) RED: tracks have one closed value space — semantics, sign continuity, ordering", async () => {
+    // THE LARGEST REMAINING ARCHITECTURAL ITEM per external review, and plantable now: it depends on
+    // neither the solver nor the bake. Left open, M2's private GuardTrack dialect and whatever the
+    // bake worker invents become two clip dialects BELOW the supposedly canonical entry — which is
+    // the exact defect this keystone exists to prevent, one layer down.
+    const { compileMotionProgram } = await loadEntry();
+    const clip = compileMotionProgram({ program: program(), skeletonProfile: structuredClone(PROFILE), primitives: recordingPrimitives([]) });
+
+    const seenKeys = new Set<string>();
+    let maxFinal = 0;
+    for (const track of clip.tracks) {
+      // ONE track per (boneName, property). Two tracks on one channel is ambiguous at bake time and
+      // the writer would silently pick one.
+      const key = `${track.boneName}::${track.property}`;
+      expect(seenKeys.has(key), `two tracks address ${key} — ambiguous at bake`).toBe(false);
+      seenKeys.add(key);
+
+      expect(track.interpolation, "interpolation must be explicit; the writer must not guess").toBe("LINEAR");
+      expect(track.times.length, "a track with no samples is not a track").toBeGreaterThan(0);
+      expect(track.times.length).toBe(track.values.length);
+
+      // Times strictly increasing and finite. A non-monotonic channel is undefined in glTF.
+      for (let i = 0; i < track.times.length; i += 1) {
+        expect(Number.isFinite(track.times[i]), `${key}: non-finite time`).toBe(true);
+        if (i > 0) expect(track.times[i]! > track.times[i - 1]!, `${key}: times not strictly increasing`).toBe(true);
+      }
+      maxFinal = Math.max(maxFinal, track.times[track.times.length - 1]!);
+
+      if (track.property === "rotation") {
+        let prev: Quat | undefined;
+        for (const q of track.values) {
+          expect(q.every((c) => Number.isFinite(c)), `${key}: non-finite quaternion`).toBe(true);
+          const norm = Math.hypot(...q);
+          expect(Math.abs(norm - 1) < 1e-6, `${key}: quaternion not unit (|q|=${norm})`).toBe(true);
+          // SIGN CONTINUITY. q and -q are the same rotation, so an implementation free to emit either
+          // defeats byte-determinism between two runs that are otherwise identical.
+          if (prev) {
+            const dot = q[0] * prev[0] + q[1] * prev[1] + q[2] * prev[2] + q[3] * prev[3];
+            expect(dot >= 0, `${key}: quaternion sign flips between samples — breaks byte determinism`).toBe(true);
+          }
+          prev = q;
+        }
+      } else {
+        for (const v of track.values) {
+          expect(v.every((c) => Number.isFinite(c)), `${key}: non-finite translation`).toBe(true);
+        }
+      }
+    }
+
+    // Deterministic ordering, so two identical compiles serialise identically.
+    const order = clip.tracks.map((t) => `${t.boneName}::${t.property}`);
+    expect(order, "tracks must be ordered by boneName then property").toEqual([...order].sort());
+
+    // durationSeconds is not an independent number that can drift from the tracks it describes.
+    expect(Number.isFinite(clip.durationSeconds) && clip.durationSeconds > 0).toBe(true);
+    expect(clip.durationSeconds, "durationSeconds must equal the maximum final track time").toBeCloseTo(maxFinal, 6);
   });
 });
