@@ -824,8 +824,16 @@ describe("the skeleton profile comes from a real rig", () => {
       "something now exports deriveSkeletonProfileFromRigAsset — re-read this card's premise before implementing it",
     ).toBeUndefined();
 
-    // No source here reaches the shipped rig directory — which is exactly why every SkeletonProfile
-    // in the package is constructed. Excludes this file, which names the assets by necessity.
+    // No PRODUCT source here reaches the shipped rig directory — which is exactly why every
+    // SkeletonProfile in the package is constructed.
+    //
+    // NARROWED 2026-08-30 to product sources only. It excluded this file alone, so the first sibling
+    // PLANT to name a rig path tripped it — the anchors contract, whose new cross-seam clause reads a
+    // real rig through this card's producer, exactly as intended. A premise about what the PRODUCT
+    // does must not fire on a test that names the asset in order to demand it.
+    //
+    // The same exclusion the M3 provider ban already uses, for the same reason: test files
+    // legitimately name what product code may not.
     //
     // NOT a scan for `.glb`: that matched a filename inside a prose comment on the guard plant, which
     // is a marker check rather than a measurement. See header (a).
@@ -835,7 +843,7 @@ describe("the skeleton profile comes from a real rig", () => {
       for (const entry of readdirSync(dir)) {
         const full = join(dir, entry);
         if (statSync(full).isDirectory()) walk(full);
-        else if (entry.endsWith(".ts") && full !== selfPath) sources.push(full);
+        else if (entry.endsWith(".ts") && !/\.(test|spec)\.ts$/.test(entry) && full !== selfPath) sources.push(full);
       }
     };
     walk(HERE);

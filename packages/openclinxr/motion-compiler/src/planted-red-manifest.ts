@@ -63,6 +63,12 @@ export const PLANTED_REDS: readonly PlantedRed[] = [
   },
   {
     file: "the-region-anchors-come-from-a-real-asset.test.ts",
+    select: "(7) RED: the anchors are placed on a profile derived from a REAL RIG, not an asset-shaped object",
+    expected: /must export deriveSkeletonProfileFromRigAsset/,
+    stage: "assertion",
+  },
+  {
+    file: "the-region-anchors-come-from-a-real-asset.test.ts",
     select: "(6) RED: the producer emits the PROFILE the compile path consumes, carrying the asset's own rig",
     expected: /must export deriveSkeletonProfile/,
     stage: "assertion",

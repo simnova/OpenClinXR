@@ -1,3 +1,5 @@
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 import { planted } from "./planted.js";
@@ -53,6 +55,22 @@ import {
  */
 
 const PRODUCER_MODULE = "./region-anchors.js";
+
+/**
+ * M1b's producer, which this card CONSUMES. Clause (7) is the join.
+ *
+ * The module names differ on purpose: `derive-skeleton-profile.js` reads a GLB and returns the RIG
+ * half; `region-anchors.js` adds the anchor half. Two modules, one profile shape, no fourth dialect.
+ */
+const RIG_PRODUCER_MODULE = "./derive-skeleton-profile.js";
+const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
+
+/**
+ * A TRACKED rig, measured by the M1b plant: 137 joints, mpfb2 family. Named here rather than
+ * discovered so this clause fails loudly if the asset moves, instead of quietly testing nothing.
+ */
+const REAL_RIG = "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-ob-patient-aisha-rigged-candidate.glb";
+const REAL_RIG_LANDMARKS = ["upper_armR", "forearmR", "handR"] as const;
 
 /** Resolve to an ABSOLUTE url so an absent module reports its real path, not a mangled one. */
 function plantModule(specifier: string): string {
@@ -311,6 +329,93 @@ describe("the region anchors come from a real asset", () => {
       expect(profile.regionAnchors[region], `the produced profile has no anchor for ${region}`).toBeDefined();
     }
   });
+
+  planted(
+    "(7) RED: the anchors are placed on a profile derived from a REAL RIG, not an asset-shaped object",
+    async () => {
+      // THE CROSS-SEAM CLAUSE, and without it this card overclaims its own title. Every other clause
+      // here hands `deriveSkeletonProfile` a CONSTRUCTED `RigAsset` — a plausible object with the
+      // right fields. A worker satisfies all six while never touching a rig file, and "region anchors
+      // from real assets" is then true of the card and false of the code. Found by external review
+      // 2026-08-30, after the M1b plant landed and made the join buildable.
+      //
+      // The join runs in the real direction: M1b reads a tracked GLB and returns the RIG half of the
+      // profile; this card's producer adds the ANCHOR half to THAT record.
+      const rigProducer = (await import(/* @vite-ignore */ plantModule(RIG_PRODUCER_MODULE)).catch(
+        () => undefined,
+      )) as { deriveSkeletonProfileFromRigAsset?: (glb: string, landmarks: readonly string[]) => Record<string, unknown> } | undefined;
+      expect(
+        typeof rigProducer?.deriveSkeletonProfileFromRigAsset,
+        `${RIG_PRODUCER_MODULE} must export deriveSkeletonProfileFromRigAsset (M1b) — this card cannot place anchors on a rig nothing reads`,
+      ).toBe("function");
+
+      const producer = await loadProducer();
+      expect(typeof producer?.deriveSkeletonProfile, `${PRODUCER_MODULE} must export deriveSkeletonProfile`).toBe("function");
+
+      const rig = rigProducer!.deriveSkeletonProfileFromRigAsset!(
+        resolve(REPO_ROOT, REAL_RIG),
+        REAL_RIG_LANDMARKS,
+      ) as unknown as { rigFingerprint: string; bindFrame: Readonly<Record<string, Vec3>>; joints: readonly FkJoint[] };
+
+      // EVERY FIELD THE ANCHOR PRODUCER NEEDS MUST COME FROM THE RIG OR BE DERIVABLE FROM IT.
+      // `bodyExtent` is the one M1b does not carry, and inventing it here would be the invented-data
+      // failure this card exists to remove — so it is DERIVED from the rig's own bind frame, and that
+      // derivation is asserted rather than assumed.
+      const positions = Object.values(rig.bindFrame);
+      expect(positions.length, "the derived rig carries no bind frame to place anchors against").toBeGreaterThan(0);
+      const ys = positions.map((p) => p.y);
+      const bodyExtent = {
+        minY: Math.min(...ys),
+        maxY: Math.max(...ys),
+        halfWidth: Math.max(...positions.map((p) => Math.abs(p.x))),
+        halfDepth: Math.max(...positions.map((p) => Math.abs(p.z))),
+      };
+      expect(
+        bodyExtent.maxY - bodyExtent.minY,
+        "the derived rig spans no height, so an anchor placed against its extent means nothing",
+      ).toBeGreaterThan(0.5);
+
+      const asset: RigAsset = {
+        rigFingerprint: rig.rigFingerprint,
+        effectorBone: REAL_RIG_LANDMARKS[2],
+        joints: rig.joints,
+        bindFrame: rig.bindFrame,
+        bodyExtent,
+      };
+      const placed = producer!.deriveSkeletonProfile!(asset, GUARD_MOTION_REGIONS);
+
+      // (a) The anchors belong to THIS rig, not to a fixture the producer kept.
+      expect(
+        placed.rigFingerprint,
+        "the placed profile is not for the rig M1b read — the producer substituted its own",
+      ).toBe(rig.rigFingerprint);
+      expect(placed.regionAnchorSpace).toBe(REGION_ANCHOR_SPACE);
+
+      // (b) Reachable on the REAL arm, measured from the shoulder as clause (2) does. A real rig is
+      // where a fixture-tuned fraction stops working, which is the point of running this at all.
+      const shoulder = rig.bindFrame[REAL_RIG_LANDMARKS[0]]!;
+      const reach =
+        distance(shoulder, rig.bindFrame[REAL_RIG_LANDMARKS[1]]!) +
+        distance(rig.bindFrame[REAL_RIG_LANDMARKS[1]]!, rig.bindFrame[REAL_RIG_LANDMARKS[2]]!);
+      for (const region of GUARD_MOTION_REGIONS) {
+        const a = placed.regionAnchors[region]!;
+        expect(a, `no anchor placed for ${region} on the real rig`).toBeDefined();
+        expect(
+          distance(shoulder, a),
+          `${region} sits ${distance(shoulder, a).toFixed(3)} m from the real rig's shoulder, beyond its ${reach.toFixed(3)} m of arm`,
+        ).toBeLessThanOrEqual(reach);
+      }
+
+      // COUNTERWEIGHT: a producer ignoring the rig and returning constants satisfies (a) and (b) if
+      // the constants happen to fall inside one body. The anchors must differ from those the SAME
+      // producer places on the synthetic adult, whose extent differs from this rig's.
+      const synthetic = producer!.deriveSkeletonProfile!(ADULT, GUARD_MOTION_REGIONS);
+      expect(
+        distance(placed.regionAnchors[MOTION_REGION_GUARD_RLQ]!, synthetic.regionAnchors[MOTION_REGION_GUARD_RLQ]!),
+        "the real rig and the synthetic adult got the same anchor — the producer is not reading the asset it was handed",
+      ).toBeGreaterThan(0);
+    },
+  );
 
   it("(7) LIVE: nothing in the tree produces anchors today — this is the measurement, not a hypothesis", async () => {
     // Passes on arrival, fails independently of the REDs. If a producer appears under another name,
