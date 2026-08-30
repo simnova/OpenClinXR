@@ -261,7 +261,9 @@ export function unprotectedItFailsPlants(
   for (const rule of rules) {
     if (!rule.startsWith("run:")) continue;
     for (const tok of rule.split(/\s+/u)) {
-      if (!/\.test\.ts$/u.test(tok)) continue;
+      // .tsx and .mts plants are real vitest targets — every ui-admin worldview plant is .tsx —
+      // so a .ts-only filter silently skipped them and their run: proofs stayed unprotected.
+      if (!/\.test\.(?:ts|tsx|mts)$/u.test(tok)) continue;
       if (tok.includes("*")) continue; // a glob is a different shape; do not guess
       if (covered.has(tok)) continue;
       const abs = isAbsolute(tok) ? tok : join(treeRoot, tok);

@@ -182,6 +182,15 @@ describe("an it.fails plant needs a second proof form", () => {
    * Diagnosis header IMMUTABLE. Flip `it.fails` to `it` and append `## FIXED` below.
    */
 
+  /**
+   * ## FIXED (tsk_f16e8559e4423bae) — 2026-08-30
+   *
+   * Widened the extension filter at board-brief.ts:263 from /\.test\.ts$/ to
+   * /\.test\.(?:ts|tsx|mts)$/, so .tsx and .mts plants reach the live: coverage check. Clauses (7)
+   * and (8) are flipped to `it`. Counterweights (9) and (10) still pass on the widened filter: a
+   * .tsx plant WITH live: stays ACCEPTED, and a plain it() .tsx plant needs no second proof form.
+   */
+
   const tsxPlantRel = "apps/ui-admin/src/probe-plant.test.tsx";
   const mtsPlantRel = "tools/openclinxr/evidence/probe-plant.test.mts";
 
@@ -196,7 +205,7 @@ describe("an it.fails plant needs a second proof form", () => {
   const LIVE_PLANT = `import { it, expect } from "vitest";\nit("green", () => expect(1).toBe(1));\n`;
 
   // (7) RED: a .tsx plant is exactly as unprotected as a .ts one, and must be refused the same way.
-  it.fails("(7) RED: refuses a run: whose .tsx plant is it.fails and carries no live:", () => {
+  it("(7) RED: refuses a run: whose .tsx plant is it.fails and carries no live:", () => {
     root = makeTreeAt(tsxPlantRel, RED_PLANT);
     const res = briefFromIssue(card(`- run:pnpm exec vitest run ${tsxPlantRel}`), root);
     expect(
@@ -208,7 +217,7 @@ describe("an it.fails plant needs a second proof form", () => {
 
   // (8) RED: .mts is the same class of miss. Asserted separately so a fix for one does not imply
   //     the other — a regex widened to `tsx?` alone would leave this red.
-  it.fails("(8) RED: refuses a run: whose .mts plant is it.fails and carries no live:", () => {
+  it("(8) RED: refuses a run: whose .mts plant is it.fails and carries no live:", () => {
     root = makeTreeAt(mtsPlantRel, RED_PLANT);
     const res = briefFromIssue(card(`- run:pnpm exec vitest run ${mtsPlantRel}`), root);
     expect(res.dispatchable, ".mts is skipped by the same filter").toBe(false);
