@@ -4,7 +4,9 @@ import { planted } from "./planted.js";
 
 import {
   violationsInTracks,
+  type CompiledMotionFragment,
   type CompiledMotionTrack,
+  type PrimitiveRequest,
   type QuatTuple,
 } from "./canonical-motion-contract.js";
 
@@ -61,6 +63,7 @@ import {
 
 const PROGRAM_SCHEMA = "openclinxr.motion-program.v1";
 const ENTRY_MODULE = "./compile-motion-program.js";
+const REGISTRY_MODULE = "./primitive-registry.js";
 
 /**
  * Resolve to an ABSOLUTE url before the deferred import. A bare `./x.js` in a variable is resolved
@@ -77,6 +80,18 @@ type Quat = { x: number; y: number; z: number; w: number };
 type CompiledClip = { clipId: string; durationSeconds: number; tracks: CompiledMotionTrack[] };
 
 type CompileEntry = (input: { program: unknown; skeletonProfile: unknown }) => CompiledClip;
+
+type RegistryModule = {
+  resolvePrimitive?: (id: string) => { compile: (r: PrimitiveRequest) => CompiledMotionFragment } | undefined;
+};
+
+async function loadRegistry(): Promise<RegistryModule | undefined> {
+  try {
+    return (await import(/* @vite-ignore */ plantModule(REGISTRY_MODULE))) as RegistryModule;
+  } catch {
+    return undefined;
+  }
+}
 
 async function loadEntry(): Promise<CompileEntry | undefined> {
   try {
@@ -353,6 +368,56 @@ describe("the contact constraint holds across its window", () => {
       ).toBeLessThanOrEqual(POSITION_TOLERANCE_M);
     }
   });
+
+  planted(
+    "(1b) RED: the canonical entry uses the REAL registry — the registered guard is what runs",
+    async () => {
+      // THE LAST HOP, and it was only ever implied. M2 clause (2b) proves the registry resolves a
+      // guard that returns a canonical fragment and reaches its target; the clauses in this file
+      // compile through `compileMotionProgram` with no injected primitives. Between them the path is
+      // covered — but only by COMBINING two tests, and neither one states it. External review called
+      // that a near-miss rather than a closure, and it is: nothing fails if the entry quietly carries
+      // its own fallback primitive and never consults the registry at all.
+      //
+      // So this asserts the join directly: compile with NO primitives override, and require the clip
+      // to carry the fragment the REGISTERED guard produces for the same action.
+      const compileMotionProgram = await loadEntry();
+      const registry = await loadRegistry();
+      expect(typeof compileMotionProgram, `${ENTRY_MODULE} must export compileMotionProgram`).toBe("function");
+      expect(
+        typeof registry?.resolvePrimitive,
+        `${REGISTRY_MODULE} must export resolvePrimitive — the entry has to have a registry to consult`,
+      ).toBe("function");
+
+      const program = contactProgram(true);
+      const action = program.actions[0]!;
+
+      // What the REGISTERED primitive produces, called directly.
+      const registered = registry!.resolvePrimitive!(action.primitiveId)!.compile({
+        action,
+        skeletonProfile: structuredClone(PROFILE),
+        seed: "seed-registry-join",
+      });
+
+      // What the ENTRY produces with nothing injected.
+      const clip = compileMotionProgram!({ program, skeletonProfile: structuredClone(PROFILE) });
+
+      const trackKeys = (tracks: readonly CompiledMotionTrack[]): string[] =>
+        tracks.map((t) => `${t.boneName}::${t.property}`).sort();
+
+      expect(
+        trackKeys(clip.tracks),
+        "the entry produced a clip whose tracks are not the registered guard's — it is not consulting the registry",
+      ).toEqual(trackKeys(registered.tracks));
+
+      // COUNTERWEIGHT: matching track KEYS is satisfiable by any implementation driving the same
+      // bones. The emitted values must be the registered primitive's too.
+      expect(
+        JSON.stringify(clip.tracks.map((t) => t.values)),
+        "the entry drove the same bones with different values — a second implementation, not the registered one",
+      ).toBe(JSON.stringify([...registered.tracks].map((t) => t.values)));
+    },
+  );
 
   planted("(2) RED: outside the window the effector MOVES — a hand parked on the target is not a guard", async () => {
     const compileMotionProgram = await loadEntry();
