@@ -7,8 +7,6 @@ import {
   MOTION_REGION_GUARD_RLQ,
 } from "./plant-motion-regions.js";
 
-import { planted } from "./planted.js";
-
 import {
   violationsInTracks,
   type CompiledMotionFragment,
@@ -84,6 +82,36 @@ import {
  * `it.fails` to `it` and append a `## FIXED (tsk_eed004e50d19be54)` block below
  * this header.
  * ==============================================================================
+ */
+
+/**
+ * ## FIXED (tsk_ccc9fb8c7f0def8b) — clauses (1), (2), (3) and (4b) are now live `it` tests.
+ *
+ * The M4 behaviour layer landed in src/:
+ *
+ *   - src/trajectory.ts             minimumJerkProfile (the analytic quintic, sampled),
+ *                                   seededScale/hashSeed/mulberry32 for seed-driven variation,
+ *                                   approachHoldRelease envelope, axisAngleQuaternion
+ *   - src/clutch-body-region.ts     effector TRANSLATION, minimum-jerk approach/hold/release on
+ *                                   the contact window the action declares (0.4–0.72)
+ *   - src/reach-target.ts           upper_armR/forearmR/handR ROTATION, minimum-jerk
+ *                                   reach-and-hold (shoulder < elbow flex, wrist roll)
+ *   - src/look-at.ts                neck yaw + head pitch ROTATION, minimum-jerk gaze with a
+ *                                   long hold (0.35–0.9)
+ *   - src/cough-recoil.ts           spine/chest flexion ROTATION through a three-segment
+ *                                   minimum-jerk convulsion: flex, overshoot past neutral, settle
+ *
+ * Clause (1): four pairwise-distinct channel signatures — one translation profile against three
+ * rotation profiles, on four joint sets ({handR} / {upper_armR,forearmR,handR} / {neck,head} /
+ * {spine,chest}) — and every track passes `violationsInTracks` (unit quaternions, canonical sign,
+ * strictly increasing times). Clause (2): every amplitude is derived from a seeded PRNG stream
+ * keyed by the request seed, so one seed reproduces byte-identically and a different seed changes
+ * every value. Clause (3): `minimumJerkProfile` samples the quintic x(t)=10t³−15t⁴+6t⁵ at 201
+ * points; measured peak-to-mean velocity ratio 1.874875 against the analytic 1.875. Clause (4b):
+ * each module owns one compile function and none reads `request.action.primitiveId`, so the
+ * cross-request discriminator holds and the four outputs are distinct.
+ *
+ * The `planted` import was removed with the last planted clause.
  */
 
 const REGISTRY_SPEC = "./primitive-registry.js";
@@ -235,7 +263,7 @@ const SEED_B = 20260830;
 const DURATION_MS = 900;
 
 describe("the primitive registry composes four behaviours", () => {
-  planted(
+  it(
     "(1) the registry resolves all four primitives and each produces a motion distinct from the other three",
     async () => {
       const { resolvePrimitive } = await loadRegistry();
@@ -295,7 +323,7 @@ describe("the primitive registry composes four behaviours", () => {
     },
   );
 
-  planted(
+  it(
     "(2) DETERMINISM: one seed reproduces byte-identically AND a different seed produces different motion",
     async () => {
       const { resolvePrimitive } = await loadRegistry();
@@ -324,7 +352,7 @@ describe("the primitive registry composes four behaviours", () => {
     },
   );
 
-  planted(
+  it(
     "(3) the minimum-jerk profile has zero endpoint velocity and a 1.875x mid-motion peak",
     async () => {
       const { minimumJerkProfile } = await loadTrajectory();
@@ -393,7 +421,7 @@ describe("the primitive registry composes four behaviours", () => {
     },
   );
 
-  planted(
+  it(
     "(4b) RED: registry resolution binds behaviour, not the primitiveId the request claims",
     async () => {
       // CLAIM NARROWED 2026-08-30, on review, and the narrowing matters.
