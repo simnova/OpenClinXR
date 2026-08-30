@@ -43,6 +43,13 @@ import {
  * baking. And the open question this card must answer rather than assume: whether a production
  * `SkeletonProfile` read from a shipped GLB can carry anchors at all, or whether they belong on a
  * separate mesh-derived record that references the profile.
+ *
+ * ## ONE SHAPE DIFFERENCE, and how to resolve it — do NOT plant a third profile dialect
+ *
+ * `ProducedProfile` has no `jointNames`; M2's local `SkeletonProfile` does. Derive it at the CONSUMER
+ * from `joints`, which already carries every bone name. Adding a field here to make two structures
+ * match would be a third declaration of one concept, which is the defect this package has now fixed
+ * four times — for the track, the primitive request, the primitive fragment, and the region ids.
  */
 
 const PRODUCER_MODULE = "./region-anchors.js";
