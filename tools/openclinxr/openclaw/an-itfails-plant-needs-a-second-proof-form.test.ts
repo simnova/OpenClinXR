@@ -152,4 +152,89 @@ describe("an it.fails plant needs a second proof form", () => {
     expect(res.dispatchable).toBe(true);
     rmSync(root, { recursive: true, force: true });
   });
+  /**
+   * ## THE EXTENSION GAP (tsk_f16e8559e4423bae) — planted 2026-08-30
+   *
+   * Everything above is CORRECT and has never once applied to the lane that needs it most.
+   *
+   *     board-brief.ts:263    if (!/\.test\.ts$/u.test(tok)) continue;
+   *
+   * MEASURED, three tokens against that regex:
+   *
+   *     "a.test.ts"    true
+   *     "a.test.tsx"   FALSE
+   *     "b.test.mts"   FALSE
+   *
+   * MEASURED on the tree at b023e76c:
+   *
+   *     apps/ui-admin/src/the-worldview-*.test.tsx    16
+   *     apps/ui-admin/src/the-worldview-*.test.ts      0
+   *
+   * So the gate returns before it reaches the `live:` coverage check, and all sixteen worldview
+   * cards are dispatchable whether or not a `live:` rule protects them. A React app's tests are
+   * `.tsx`; this filter was written against a `.ts` package and the assumption travelled silently.
+   *
+   * HOW IT SURFACED: W11 tsk_250729c006996e58 sat in review, objective unstarted, clause (1) still
+   * `it.fails`. Its contract DOES carry the right `live:` rule. I first diagnosed this as the
+   * contract being unable to distinguish done from not-started — WRONG, and corrected on that card.
+   * The contract can. The filter skipped it.
+   *
+   * Diagnosis header IMMUTABLE. Flip `it.fails` to `it` and append `## FIXED` below.
+   */
+
+  const tsxPlantRel = "apps/ui-admin/src/probe-plant.test.tsx";
+  const mtsPlantRel = "tools/openclinxr/evidence/probe-plant.test.mts";
+
+  function makeTreeAt(rel: string, plantSource: string): string {
+    const dir = mkdtempSync(join(tmpdir(), "brief-ext-"));
+    mkdirSync(join(dir, rel.slice(0, rel.lastIndexOf("/"))), { recursive: true });
+    writeFileSync(join(dir, rel), plantSource, "utf8");
+    return dir;
+  }
+
+  const RED_PLANT = `import { it, expect } from "vitest";\nit.fails("red", () => expect(1).toBe(2));\n`;
+  const LIVE_PLANT = `import { it, expect } from "vitest";\nit("green", () => expect(1).toBe(1));\n`;
+
+  // (7) RED: a .tsx plant is exactly as unprotected as a .ts one, and must be refused the same way.
+  it.fails("(7) RED: refuses a run: whose .tsx plant is it.fails and carries no live:", () => {
+    root = makeTreeAt(tsxPlantRel, RED_PLANT);
+    const res = briefFromIssue(card(`- run:pnpm exec vitest run ${tsxPlantRel}`), root);
+    expect(
+      res.dispatchable,
+      "the extension filter skips .tsx, so all 16 ui-admin worldview plants bypass this gate",
+    ).toBe(false);
+    rmSync(root, { recursive: true, force: true });
+  });
+
+  // (8) RED: .mts is the same class of miss. Asserted separately so a fix for one does not imply
+  //     the other — a regex widened to `tsx?` alone would leave this red.
+  it.fails("(8) RED: refuses a run: whose .mts plant is it.fails and carries no live:", () => {
+    root = makeTreeAt(mtsPlantRel, RED_PLANT);
+    const res = briefFromIssue(card(`- run:pnpm exec vitest run ${mtsPlantRel}`), root);
+    expect(res.dispatchable, ".mts is skipped by the same filter").toBe(false);
+    rmSync(root, { recursive: true, force: true });
+  });
+
+  // (9) COUNTERWEIGHT, live in BOTH states: a .tsx plant WITH a live: rule stays ACCEPTED.
+  //     Without this, "refuse every .tsx card" satisfies (7) and breaks all of lane B. This clause
+  //     passes today (the gate skips) and must still pass after the fix (the gate looks, and live:
+  //     covers it) — the two reasons differ, which is the point.
+  it("(9) COUNTERWEIGHT: accepts a .tsx it.fails plant when a live: rule covers it", () => {
+    root = makeTreeAt(tsxPlantRel, RED_PLANT);
+    const res = briefFromIssue(
+      card(`- run:pnpm exec vitest run ${tsxPlantRel}\n- live:${tsxPlantRel}`),
+      root,
+    );
+    expect(res.dispatchable, "a correctly-protected .tsx card must remain dispatchable").toBe(true);
+    rmSync(root, { recursive: true, force: true });
+  });
+
+  // (10) COUNTERWEIGHT, live in BOTH states: a plain it() .tsx plant needs no second proof form,
+  //      exactly as a .ts one does not. Stops the fix from punishing the good shape.
+  it("(10) COUNTERWEIGHT: accepts a plain it() .tsx plant with no live: rule", () => {
+    root = makeTreeAt(tsxPlantRel, LIVE_PLANT);
+    const res = briefFromIssue(card(`- run:pnpm exec vitest run ${tsxPlantRel}`), root);
+    expect(res.dispatchable).toBe(true);
+    rmSync(root, { recursive: true, force: true });
+  });
 });
