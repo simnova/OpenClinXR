@@ -23,6 +23,7 @@
         <div class="nav-links">
           <a href="#platform">Platform</a>
           <a href="#now">Now</a>
+          <a href="#worldview">Worldview</a>
           <a href="#dark-factory">Factory</a>
           <a href="#trellis-hatch">Hatch</a>
           <a href="#supine">Patient</a>
@@ -135,6 +136,7 @@
               <li><strong>ED real garment path:</strong> hospital gown from case phenotype into Model Vetting + UI-XR sample evidence (committed screenshots below).</li>
               <li><strong>Peds real-garment work:</strong> patient/parent/nurse clothing layers expanded from phenotype; adaptive dialogue and sleeve-deform evidence tracks exist in-repo.</li>
               <li><strong>Authoring / review spine:</strong> scenario bank, review packets, admin faculty review UI with promotion-status surfaces (gates remain off).</li>
+              <li><strong>Worldview (W1–W19 landed):</strong> faculty case authoring plus a compile graph (Body → Wardrobe → Equipment) with Add/Remove node on the exam-forms workbench. Screenshots <a href="#worldview">below</a>. Not a baker or Quest claim.</li>
               <li><strong>Runtime durability hook:</strong> optional <code>durableStore</code> on scenario runtime + local authoring roundtrip CLI that emits replay-safe JSON (actor turns + timeline).</li>
             </ul>
           </div>
@@ -177,6 +179,60 @@
         <p class="progress-note">
           Source of truth for status is the repo ledger (<code>PROJECT_STATUS.md</code>), not this page.
           Public copy here is a snapshot for humans—updated when the product story actually moves.
+        </p>
+      </section>
+
+      <section id="worldview" class="band band--evidence" aria-labelledby="worldview-title">
+        <div class="section-heading">
+          <p class="eyebrow">Evidence you can look at · 2026-08-31</p>
+          <h2 id="worldview-title">The case is a compile graph faculty can edit.</h2>
+        </div>
+        <p class="status-copy">
+          BothyBoard children W1–W19 (plus W14a/W14b/W11s) are Landed on
+          <code>origin/main</code> <code>05120405</code>.
+          Faculty author the encounter as a Scenario, then review a World Compile Graph
+          of baker families. Add node / Remove node mutate the graph; the lock table stays
+          the lock write path. Chromium Playwright of the running admin app
+          (<code>ui-admin</code> + local API), not a schematic.
+        </p>
+
+        <figure style="margin: 20px 0 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
+          <img
+            src="assets/worldview-case-authoring-2026-08-31.png"
+            width="1600"
+            height="1200"
+            alt="OpenClinXR Admin Encounter Case Authoring: load ED Chest Pain example, scenario id ed_chest_pain_priority_v1, title ED Chest Pain With Nurse Interruption And Family Pressure, claim boundary notEvidenceFor clinical validity"
+            style="width: 100%; display: block;"
+            loading="lazy"
+          >
+          <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+            Renderer: Chromium Playwright, <code>http://127.0.0.1:5174/authoring</code>, 1600×1200 native.
+            Subject: CaseAuthoringWorkbench with the bank case loaded.
+          </figcaption>
+        </figure>
+
+        <figure style="margin: 20px 0 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #111;">
+          <img
+            src="assets/worldview-compile-graph-2026-08-31.png"
+            width="1101"
+            height="641"
+            alt="World compile graph canvas: Add node and Remove node buttons, three columns Body, Wardrobe, and Equipment baker nodes with body_to_clothing and wardrobe_to_equipment edges"
+            style="width: 100%; display: block;"
+            loading="lazy"
+          >
+          <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+            Renderer: Chromium Playwright of live <code>/exam-forms</code> CompileGraphCanvas,
+            1101×641 native (canvas forced to the three-column layout width for this still).
+            Subject: Body → Wardrobe → Equipment baker DAG with Add node / Remove node.
+          </figcaption>
+        </figure>
+
+        <p class="status-copy" style="margin-top: 16px;">
+          <strong>claimScope:</strong> local admin UI of authored Scenario + compile DAG on
+          <code>05120405</code>.
+          <strong>notEvidenceFor:</strong> Quest readiness, clinical validity, live Blender bake,
+          LLM draft quality, or that the parent BothyBoard program card is closed (it is still Idle).
+          Node labels truncate in this crop; that is the canvas, not missing data.
         </p>
       </section>
 
