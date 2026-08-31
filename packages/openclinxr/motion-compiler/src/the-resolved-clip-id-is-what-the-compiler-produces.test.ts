@@ -48,6 +48,16 @@ import type {
  * disagrees, whichever way the dependency ends up pointing.
  */
 
+/**
+ * ## FIXED (tsk_fd3856d1d8e23ec1) — clause (1) is now a live `it` test.
+ *
+ * The canonical compile entry landed (`src/compile-motion-program.ts`), so this clause can now
+ * compile through `compileMotionProgram` and forward the full action to an injected primitive.
+ * It passes as a consequence of the keystone landing. Clause (2) stays planted: the scenario
+ * fixtures resolver (`responseClipForBodyRegion`) does not exist yet, so clipId agreement with
+ * the case data is the sibling card's residual — deliberately not wired here.
+ */
+
 const PROGRAM_SCHEMA = "openclinxr.motion-program.v1";
 const ENTRY_MODULE = "./compile-motion-program.js";
 const REGION_MODULE = "./motion-body-region.js";
@@ -219,7 +229,7 @@ function recordingPrimitives(seen: PrimitiveRequest[]) {
 }
 
 describe("the resolved clip id is what the compiler produces", () => {
-  planted("(1) RED: the canonical action reaches the primitive unchanged, through the canonical entry", async () => {
+  it("(1) RED: the canonical action reaches the primitive unchanged, through the canonical entry", async () => {
     const compileMotionProgram = await loadEntry();
     expect(typeof compileMotionProgram, `${ENTRY_MODULE} must export compileMotionProgram`).toBe("function");
 

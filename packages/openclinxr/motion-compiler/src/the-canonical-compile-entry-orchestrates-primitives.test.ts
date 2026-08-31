@@ -4,7 +4,6 @@ import {
 MOTION_REGION_GUARD_CHEST_L,  MOTION_REGION_GUARD_RLQ,  REGION_ANCHOR_SPACE,
 } from "./plant-motion-regions.js";
 
-import { planted } from "./planted.js";
 import {
   trackOrderKeys,
   violationsInTracks,
@@ -50,6 +49,15 @@ import {
  * reachedPoint, target/contact error, collision and joint-limit verdicts, quality scores, runtime
  * loaded-clip name, GLB path or bytes, visual findings, provider information. Those are derived
  * evidence, bake manifests or runtime observations — not the interchange representation.
+ */
+
+/**
+ * ## FIXED (tsk_fd3856d1d8e23ec1)
+ *
+ * The five planted clauses below are now live `it` tests. The canonical compile entry landed:
+ *   - src/compile-motion-program.ts   compileMotionProgram
+ * Orchestrates actions through injected primitives OR resolvePrimitive. Unknown ids refused.
+ * Measured: clauses (1)-(5) pass.
  */
 
 const CLIP_SCHEMA = "openclinxr.compiled-motion-clip.v1";
@@ -210,7 +218,7 @@ function recordingPrimitives(seen: PrimitiveRequest[]) {
 }
 
 describe("the canonical compile entry orchestrates primitives", () => {
-  planted("(1) RED: one entry compiles a whole program through injected primitives", async () => {
+  it("(1) RED: one entry compiles a whole program through injected primitives", async () => {
     const { compileMotionProgram } = await loadEntry();
     const seen: PrimitiveRequest[] = [];
     // Frozen snapshot taken BEFORE the call: the immutability assertion below compares against it.
@@ -259,7 +267,7 @@ describe("the canonical compile entry orchestrates primitives", () => {
     expect(clip.compileIdentity.deterministicSeed, "reproducibility identity is not optional").toBeTruthy();
   });
 
-  planted("(2) RED: the same input compiles to the same clip, and a moved target changes it", async () => {
+  it("(2) RED: the same input compiles to the same clip, and a moved target changes it", async () => {
     const { compileMotionProgram } = await loadEntry();
     const prims = () => recordingPrimitives([]);
     const a = compileMotionProgram({ program: program(), skeletonProfile: PROFILE, primitives: prims() });
@@ -275,7 +283,7 @@ describe("the canonical compile entry orchestrates primitives", () => {
     expect(JSON.stringify(moved), "moving a target changed nothing — output does not depend on input").not.toBe(JSON.stringify(a));
   });
 
-  planted("(3) RED: an unknown primitive is REFUSED, never silently skipped", async () => {
+  it("(3) RED: an unknown primitive is REFUSED, never silently skipped", async () => {
     const { compileMotionProgram } = await loadEntry();
     // Silent skipping is the failure that produces a green compile over missing motion.
     expect(() =>
@@ -299,7 +307,7 @@ describe("the canonical compile entry orchestrates primitives", () => {
     ).toThrow(/some_other_action|actionId/);
   });
 
-  planted("(4) RED: the clip carries NO self-attested verdict — checked on the RETURNED object", async () => {
+  it("(4) RED: the clip carries NO self-attested verdict — checked on the RETURNED object", async () => {
     // REWRITTEN 2026-08-30 after an external reviewer showed the first version was CIRCULAR: it
     // asserted a hardcoded `frozen` array contained none of a hardcoded `forbidden` list. That tests
     // my own literal, not the compiler. A stub returning
@@ -357,7 +365,7 @@ describe("the canonical compile entry orchestrates primitives", () => {
     expect(clip.claimBoundary, "the claim boundary is the positive half of this contract").toBeTruthy();
   });
 
-  planted("(5) RED: tracks have one closed value space — semantics, sign continuity, ordering", async () => {
+  it("(5) RED: tracks have one closed value space — semantics, sign continuity, ordering", async () => {
     // THE LARGEST REMAINING ARCHITECTURAL ITEM per external review, and plantable now: it depends on
     // neither the solver nor the bake. Left open, M2's dialect and whatever the bake worker invents
     // become two clip dialects BELOW the supposedly canonical entry.

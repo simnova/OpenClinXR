@@ -65,6 +65,22 @@ import {
  * clinically right.
  */
 
+/**
+ * ## FIXED (tsk_fd3856d1d8e23ec1) — clauses (1b) and (2) are now live `it` tests.
+ *
+ * The canonical compile entry landed (`src/compile-motion-program.ts`), so both clauses can now
+ * compile through the entry. They pass as a consequence of the keystone landing:
+ *   - (1b) compiles with NO injected primitives and requires the registered guard's fragment —
+ *     the entry consults `resolvePrimitive`, forwards action/profile/seed unchanged, and the
+ *     guard's tracks reach the clip byte-for-byte.
+ *   - (2) requires the effector to travel beyond the movement floor between inside and outside
+ *     the window — the registered guard's reach-and-settle clip moves far enough.
+ *
+ * Clauses (1) and (3) stay planted: the guard's 3-keyframe reach-and-settle does not HOLD the
+ * contact across the window (the peak is a single key), which is the contact-solver card's
+ * residual — not implemented here.
+ */
+
 const PROGRAM_SCHEMA = "openclinxr.motion-program.v1";
 const ENTRY_MODULE = "./compile-motion-program.js";
 const REGISTRY_MODULE = "./primitive-registry.js";
@@ -398,7 +414,7 @@ describe("the contact constraint holds across its window", () => {
     }
   });
 
-  planted(
+  it(
     "(1b) RED: the canonical entry uses the REAL registry — the registered guard is what runs",
     async () => {
       // THE LAST HOP, and it was only ever implied. M2 clause (2b) proves the registry resolves a
@@ -479,7 +495,7 @@ describe("the contact constraint holds across its window", () => {
     },
   );
 
-  planted("(2) RED: outside the window the effector MOVES — a hand parked on the target is not a guard", async () => {
+  it("(2) RED: outside the window the effector MOVES — a hand parked on the target is not a guard", async () => {
     const compileMotionProgram = await loadEntry();
     expect(typeof compileMotionProgram, `${ENTRY_MODULE} must export compileMotionProgram`).toBe("function");
 
