@@ -46,58 +46,27 @@ export const PLANTED_REDS: readonly PlantedRed[] = [
   // the five clauses were flipped from `planted` to `it` with a `## FIXED (tsk_51ffcc3e1a8fdea8)`
   // block appended in the-primitive-registry-is-one-seam-with-no-behaviour.test.ts. A satisfied
   // contract is a transition to record, not a planted RED to keep.
-  {
-    file: "the-canonical-compile-entry-orchestrates-primitives.test.ts",
-    select: "(1) RED: one entry compiles a whole program through injected primitives",
-    expected: /Cannot find module .*src\/compile-motion-program\.js/,
-    stage: "module_absent",
-  },
-  {
-    file: "the-canonical-compile-entry-orchestrates-primitives.test.ts",
-    select: "(2) RED: the same input compiles to the same clip, and a moved target changes it",
-    expected: /Cannot find module .*src\/compile-motion-program\.js/,
-    stage: "module_absent",
-  },
-  {
-    file: "the-canonical-compile-entry-orchestrates-primitives.test.ts",
-    select: "(3) RED: an unknown primitive is REFUSED, never silently skipped",
-    expected: /Cannot find module .*src\/compile-motion-program\.js/,
-    stage: "module_absent",
-  },
-  {
-    file: "the-canonical-compile-entry-orchestrates-primitives.test.ts",
-    select: "(4) RED: the clip carries NO self-attested verdict — checked on the RETURNED object",
-    expected: /Cannot find module .*src\/compile-motion-program\.js/,
-    stage: "module_absent",
-  },
-  {
-    file: "the-canonical-compile-entry-orchestrates-primitives.test.ts",
-    select: "(5) RED: tracks have one closed value space — semantics, sign continuity, ordering",
-    expected: /Cannot find module .*src\/compile-motion-program\.js/,
-    stage: "module_absent",
-  },
+  // ALL FIVE KEYSTONE ENTRIES REMOVED 2026-08-30 (tsk_fd3856d1d8e23ec1). The canonical compile
+  // entry landed — src/compile-motion-program.ts exports compileMotionProgram, and the five clauses
+  // were flipped from `planted` to `it` with a `## FIXED (tsk_fd3856d1d8e23ec1)` block appended in
+  // the-canonical-compile-entry-orchestrates-primitives.test.ts. A satisfied contract is a
+  // transition to record, not a planted RED to keep.
+  // TWO CONTACT ENTRIES REMOVED 2026-08-30 (tsk_fd3856d1d8e23ec1). The keystone compile entry
+  // landing made clauses (1b) and (2) exercisable, and both now PASS as a consequence — they were
+  // flipped from `planted` to `it` with a `## FIXED (tsk_fd3856d1d8e23ec1)` block appended in
+  // the-contact-constraint-holds-across-its-window.test.ts. Clauses (1) and (3) stay planted:
+  // their failure MOVED to real contact assertions — the registered guard reaches and settles
+  // but does not HOLD the contact across the window (the contact-solver card's residual).
   {
     file: "the-contact-constraint-holds-across-its-window.test.ts",
     select: "(1) RED: inside the window the effector holds contact on every sampled frame, not only at the keys",
-    expected: /compile-motion-program\.js must export compileMotionProgram/,
-    stage: "assertion",
-  },
-  {
-    file: "the-contact-constraint-holds-across-its-window.test.ts",
-    select: "(1b) RED: the canonical entry uses the REAL registry \u2014 the registered guard is what runs",
-    expected: /compile-motion-program\.js must export compileMotionProgram/,
-    stage: "assertion",
-  },
-  {
-    file: "the-contact-constraint-holds-across-its-window.test.ts",
-    select: "(2) RED: outside the window the effector MOVES — a hand parked on the target is not a guard",
-    expected: /compile-motion-program\.js must export compileMotionProgram/,
+    expected: /inside the contact window and the effector is off the target/,
     stage: "assertion",
   },
   {
     file: "the-contact-constraint-holds-across-its-window.test.ts",
     select: "(3) RED: preserveWhileActive is OBEYED — a releasable contact yields to a competing one",
-    expected: /compile-motion-program\.js must export compileMotionProgram/,
+    expected: /the preserved contact was not honoured, so the releasable one was never released/,
     stage: "assertion",
   },
   // ALL FOUR GUARD ENTRIES REMOVED 2026-08-30 (tsk_744eea9a35614caf). The guard primitive landed —
@@ -147,16 +116,17 @@ export const PLANTED_REDS: readonly PlantedRed[] = [
   // `## FIXED (tsk_ccc9fb8c7f0def8b)` block appended in
   // the-primitive-registry-composes-four-behaviours.test.ts. A satisfied contract is a transition
   // to record, not a planted RED to keep.
-  {
-    file: "the-resolved-clip-id-is-what-the-compiler-produces.test.ts",
-    select: "(1) RED: the canonical action reaches the primitive unchanged, through the canonical entry",
-    expected: /compile-motion-program\.js must export compileMotionProgram/,
-    stage: "assertion",
-  },
+  // ONE RESOLVED-CLIP-ID ENTRY REMOVED 2026-08-30 (tsk_fd3856d1d8e23ec1). Clause (1) now PASSES
+  // as a consequence of the keystone entry landing and was flipped from `planted` to `it` with a
+  // `## FIXED (tsk_fd3856d1d8e23ec1)` block appended in
+  // the-resolved-clip-id-is-what-the-compiler-produces.test.ts. Clause (2) stays planted: its
+  // failure MOVED to the scenario-fixtures resolver — `responseClipForBodyRegion` (card
+  // tsk_ae6a9530ba63a68b) does not exist yet; clipId agreement with the case data is the sibling
+  // card's residual.
   {
     file: "the-resolved-clip-id-is-what-the-compiler-produces.test.ts",
     select: "(2) RED: the compiled clipId IS the clip the case asks for — bank, resolver and compiler agree",
-    expected: /compile-motion-program\.js must export compileMotionProgram/,
+    expected: /must export responseClipForBodyRegion \(card tsk_ae6a9530ba63a68b\)/,
     stage: "assertion",
   },
   // ALL FOUR SEED ENTRIES REMOVED 2026-08-30 (tsk_89fca85c7700ae13). The canonical derivation
