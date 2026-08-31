@@ -1,5 +1,6 @@
 import { Background, type Edge, type Node, ReactFlow } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import { Button } from "antd";
 import { type CSSProperties, type ReactElement, useCallback } from "react";
 
 export type CompileEdge = {
@@ -13,6 +14,12 @@ export type CompileEdge = {
 
 export type CompileGraphCanvasProps = {
   compileEdges: CompileEdge[];
+  /**
+   * Canvas mutation API (W18). The lock Table remains the lock write path;
+   * onNodesChange stays a no-op so xyflow itself is not a write surface.
+   */
+  onAddNode?: (nodeId: string) => void;
+  onRemoveNode?: (nodeId: string) => void;
 };
 
 export type CompileGraphModel = {
@@ -124,13 +131,42 @@ function shortSubject(nodeId: string): string {
  * so @xyflow/react lands in its own lazily-loaded vendor chunk (see
  * xyflow-vendor in apps/ui-admin/vite.config.ts).
  */
-export function CompileGraphCanvas({ compileEdges }: CompileGraphCanvasProps): ReactElement {
+export function CompileGraphCanvas({
+  compileEdges,
+  onAddNode,
+  onRemoveNode,
+}: CompileGraphCanvasProps): ReactElement {
   const { nodes, edges } = buildCompileGraphModel(compileEdges);
   const onNodesChange = useCallback(() => undefined, []);
   const onEdgesChange = useCallback(() => undefined, []);
+  const selectedNodeId = nodes[0]?.id;
 
   return (
     <div className="compile-graph-canvas">
+      <div className="compile-graph-canvas-actions">
+        <Button
+          size="small"
+          aria-label="Add compile graph node"
+          onClick={() => {
+            const nodeId = `actor:worldview_${crypto.randomUUID().replaceAll("-", "").slice(0, 12)}:body`;
+            onAddNode?.(nodeId);
+          }}
+        >
+          Add node
+        </Button>
+        <Button
+          size="small"
+          aria-label="Remove compile graph node"
+          disabled={selectedNodeId === undefined}
+          onClick={() => {
+            if (selectedNodeId !== undefined) {
+              onRemoveNode?.(selectedNodeId);
+            }
+          }}
+        >
+          Remove node
+        </Button>
+      </div>
       <ReactFlow
         nodes={nodes}
         edges={edges}

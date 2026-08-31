@@ -12,13 +12,17 @@ import { describe, expect, it } from "vitest";
  * Table. W4/W5 own case+compile events; this card is the canvas mutation.
  *
  * Diagnosis header IMMUTABLE. Flip it.fails → it and append ## FIXED.
+ *
+ * ## FIXED (W18 tsk_ba937af8ca3f6040)
+ * CompileGraphCanvas accepts onAddNode and onRemoveNode. ReactFlow view and
+ * buildCompileGraphModel remain; xyflow onNodesChange stays a no-op.
  */
 
 const SRC = dirname(fileURLToPath(import.meta.url));
 const CANVAS = readFileSync(join(SRC, "CompileGraphCanvas.tsx"), "utf8");
 
 describe("the worldview canvas adds and removes nodes", () => {
-  it.fails("(1) CompileGraphCanvas accepts an onAddNode or onRemoveNode callback", () => {
+  it("(1) CompileGraphCanvas accepts an onAddNode or onRemoveNode callback", () => {
     expect(CANVAS).toMatch(/onAddNode|onRemoveNode/);
   });
 
