@@ -5,7 +5,7 @@
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
     "agent-methodology": 103,
-    "current-reference": 211,
+    "current-reference": 212,
     "archive-candidate": 41,
     "evidence": 57,
     "temporary": 54,
@@ -3525,6 +3525,13 @@
     },
     {
       "path": "docs/openclinxr/external-ai-asset-pipeline-integration-plan.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/openclinxr/hybrid-board-and-unlock-plan-notes-2026-08-31.md",
       "authority": "current-reference",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",

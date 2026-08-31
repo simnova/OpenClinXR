@@ -13,7 +13,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - agent-memory: 34
 - agent-methodology: 103
 - archive-candidate: 41
-- current-reference: 211
+- current-reference: 212
 - decision-record: 44
 - evidence: 57
 - generated-evidence: 10
@@ -207,6 +207,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `docs/openclinxr/exam-scenario-architecture.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/external-ai-asset-pipeline-integration-plan.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/garment-license-compatible-source-options-2026-05-27.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
+- `docs/openclinxr/hybrid-board-and-unlock-plan-notes-2026-08-31.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/garment-pipeline-slices-2026-05-27.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/generated-artifact-registry-2026-05-27.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `docs/openclinxr/humanoid-clothing-tooling-research-2026-05-27.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
