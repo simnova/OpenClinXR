@@ -12,12 +12,23 @@ import { describe, expect, it } from "vitest";
  * is read-only (onNodesChange no-op).
  *
  * Diagnosis header IMMUTABLE. Flip it.fails → it and append ## FIXED.
+ *
+ * ## FIXED (tsk_250729c006996e58)
+ * 2026-08-30. EnvironmentGenerationQueuePanel gains a "Faculty staging authoring"
+ * fieldset: a Form.List over actor staging rows with a real Select writing
+ * placement.supportSurface (stretcher|chair|none, from case-authoring-model
+ * supportSurfaceOptions) plus a plantOffsetMeters InputNumber — the same
+ * ActorCard.placement fields the factory Placement compile nodes and
+ * PLACEMENT_OVERRIDE_PATHS (/supportSurface, /plantOffsetMeters) consume.
+ * Authored placement values flow to the parent via onPlacementAuthorChange
+ * (parent-owned, survives panel re-render). CompileGraphCanvas remains the
+ * read-only graph; no runtime placement is implied.
  */
 
 const SRC = dirname(fileURLToPath(import.meta.url));
 
 describe("the worldview placement nodes author plant and support", () => {
-  it.fails("(1) EnvironmentGenerationQueuePanel authors plant or supportSurface", () => {
+  it("(1) EnvironmentGenerationQueuePanel authors plant or supportSurface", () => {
     const panel = readFileSync(join(SRC, "EnvironmentGenerationQueuePanel.tsx"), "utf8");
     expect(panel).toMatch(/supportSurface|plantXyz|plantOffset/);
   });
