@@ -1221,7 +1221,11 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
   const compileEncounter = async (scenarioId: string) => {
     setCompileEncounterState({ status: "compiling" });
     try {
-      await compileEncounterWorld({ scenarioId });
+      await compileEncounterWorld({
+        scenarioId,
+        compileNodes: compileEdges,
+        facultyLocks: facultyCompileLockRows,
+      });
       setCompileEncounterState({ status: "compiled", scenarioId });
     } catch (error) {
       setCompileEncounterState({ status: "error", message: error instanceof Error ? error.message : "Unknown world compile error" });

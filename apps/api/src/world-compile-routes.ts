@@ -29,13 +29,17 @@ export function registerWorldCompileRoutes(app: Hono<{ Variables: ApiAppVariable
       return context.json({ error: "forbidden", reason: "faculty_role_required" }, 403);
     }
 
-    const body = (await context.req.json().catch(() => ({}))) as { scenarioId?: unknown; compileNodes?: unknown; infinigenPrompt?: unknown };
+    const body = (await context.req.json().catch(() => ({}))) as { scenarioId?: unknown; compileNodes?: unknown; infinigenPrompt?: unknown; facultyLocks?: unknown; removedNodeIds?: unknown };
     const scenarioId =
       typeof body.scenarioId === "string" && body.scenarioId.trim().length > 0 ? body.scenarioId.trim() : undefined;
     if (!scenarioId || !SCENARIO_ID_PATTERN.test(scenarioId)) {
       return context.json({ error: "invalid_body", reason: "scenarioId_required" }, 400);
     }
     const compileNodes = Array.isArray(body.compileNodes) ? body.compileNodes : undefined;
+    const facultyLocks = Array.isArray(body.facultyLocks) ? body.facultyLocks : undefined;
+    const removedNodeIds = Array.isArray(body.removedNodeIds)
+      ? body.removedNodeIds.filter((id): id is string => typeof id === "string")
+      : undefined;
     const infinigenPrompt =
       typeof body.infinigenPrompt === "string" && body.infinigenPrompt.trim().length > 0
         ? body.infinigenPrompt.trim()
@@ -65,6 +69,8 @@ export function registerWorldCompileRoutes(app: Hono<{ Variables: ApiAppVariable
         priorPath,
         outPath,
         ...(compileNodes ? { compileNodes } : {}),
+        ...(facultyLocks ? { facultyLocks } : {}),
+        ...(removedNodeIds && removedNodeIds.length > 0 ? { removedNodeIds } : {}),
         ...(infinigenPrompt ? { infinigenPrompt } : {}),
       });
       const nodes = (result.report.compileNodes ?? []) as Array<{ wouldInvoke?: string | null }>;
@@ -143,6 +149,8 @@ type WorldCompileModule = {
     priorPath: string;
     outPath?: string;
     compileNodes?: unknown[];
+    facultyLocks?: unknown[];
+    removedNodeIds?: string[];
     infinigenPrompt?: string;
   }) => Promise<{
     compileVersion: number;

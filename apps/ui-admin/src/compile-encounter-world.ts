@@ -9,7 +9,13 @@ import type { AdminControlPlaneClientOptions } from "./api-client-types.js";
  * within its 600-line zone budget.
  */
 export async function compileEncounterWorld(
-  input: { scenarioId: string },
+  input: {
+    scenarioId: string;
+    compileNodes?: unknown[];
+    facultyLocks?: unknown[];
+    infinigenPrompt?: string;
+    removedNodeIds?: string[];
+  },
   options: Pick<AdminControlPlaneClientOptions, "baseUrl" | "fetch" | "accessToken" | "getAccessToken"> = {},
 ): Promise<Record<string, unknown>> {
   const baseUrl = (options.baseUrl ?? import.meta.env["VITE_OPENCLINXR_API_BASE_URL"] ?? "").replace(/\/$/, "");
@@ -23,7 +29,13 @@ export async function compileEncounterWorld(
   const response = await fetcher(url, {
     method: "POST",
     headers: { "content-type": "application/json", ...authHeaders },
-    body: JSON.stringify({ scenarioId: input.scenarioId }),
+    body: JSON.stringify({
+      scenarioId: input.scenarioId,
+      ...(input.compileNodes ? { compileNodes: input.compileNodes } : {}),
+      ...(input.facultyLocks ? { facultyLocks: input.facultyLocks } : {}),
+      ...(input.infinigenPrompt ? { infinigenPrompt: input.infinigenPrompt } : {}),
+      ...(input.removedNodeIds ? { removedNodeIds: input.removedNodeIds } : {}),
+    }),
   });
 
   if (!response.ok) {

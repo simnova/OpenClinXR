@@ -16,6 +16,11 @@ import { describe, expect, it } from "vitest";
  * ## FIXED (tsk_53c787f4aae50d5b)
  * POST body type now includes compileNodes and infinigenPrompt next to
  * scenarioId. scenarioId_required and empty-body 400/403 stay.
+ *
+ * ## FIXED (W14 tsk_c343bebf8236e1a1)
+ * Route forwards compileNodes, facultyLocks, removedNodeIds, and infinigenPrompt
+ * into compileEncounterMaterialization. Faculty client JSON.stringify includes
+ * those fields, not only scenarioId.
  */
 
 const API_SRC = dirname(fileURLToPath(import.meta.url));
@@ -37,6 +42,11 @@ describe("the world-compile POST accepts compileNodes and infinigenPrompt", () =
 
   it("(4) COUNTERWEIGHT: faculty client still POSTs /internal/world-compile", () => {
     expect(CLIENT).toContain("/internal/world-compile");
+  });
+
+  it("(5) faculty client JSON body can include compileNodes and facultyLocks", () => {
+    expect(CLIENT).toMatch(/compileNodes:/);
+    expect(CLIENT).toMatch(/facultyLocks:/);
   });
 });
 
