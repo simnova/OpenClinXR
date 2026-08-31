@@ -55,6 +55,12 @@ import { describe, expect, it } from "vitest";
  *   the renderer's own near plane, and whether every attempted candidate was recorded.
  * notEvidenceFor: that the resulting frame is a good portrait; learner-runtime camera placement
  *   outside this dev fixture; headset appearance; gown topology, sharpness, rigging or issue 750.
+ *
+ * ## FIXED (tsk_b4089f2d0cb08e58)
+ * Capture records every STILL_CAMERA_OFFSETS attempt. Acceptance requires visible triangle
+ * head-cue beyond live camera.near. Live run: outcome no_candidate_clears_near_plane — first
+ * hits are mpfb_robert_reference_body_1 (not a head cue); z=0.72 rest is inside near (0.0813).
+ * Report-and-stop is the legal escape; clauses (2) and (4) still hold.
  */
 
 const REPO = join(import.meta.dirname, "../../..");
@@ -105,7 +111,7 @@ const report = (): Report => {
 };
 
 describe("the speak-fixture camera clears the near plane and hits the head", () => {
-  it.fails("(1) every still's selected candidate is a visible triangle head hit outside the near plane", () => {
+  it("(1) every still's selected candidate is a visible triangle head hit outside the near plane", () => {
     const r = report();
     expect(OUTCOMES).toContain(r.outcome);
     if (r.outcome !== "resolved") {
@@ -133,7 +139,7 @@ describe("the speak-fixture camera clears the near plane and hits the head", () 
     }
   });
 
-  it.fails("(2) COUNTERWEIGHT: every attempted candidate is recorded, not only the winner", () => {
+  it("(2) COUNTERWEIGHT: every attempted candidate is recorded, not only the winner", () => {
     const r = report();
     // The present capture records the selected offset alone, which is why nobody could say why the
     // z=0.72 candidates were rejected before z=0.45 accepted. A report of winners cannot be audited.
@@ -173,7 +179,7 @@ describe("the speak-fixture camera clears the near plane and hits the head", () 
       .toMatch(/new PerspectiveCamera\([^)]*,\s*1,\s*0\.1,\s*100\)/u);
   });
 
-  it.fails("(4) VACUITY GUARD: the assertions above read a real report, not an empty object", () => {
+  it("(4) VACUITY GUARD: the assertions above read a real report, not an empty object", () => {
     // exists: and min-bytes: on the report would both pass a `{}`. Clause (1) returns early on an
     // escape outcome and clause (2) iterates zero frames, so without this the pair goes green about
     // nothing. Once flipped this must hold on every future tree, INCLUDING a report-and-stop run:

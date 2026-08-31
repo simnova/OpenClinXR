@@ -31,6 +31,7 @@
  * audible playback, full-duplex, Quest, clinical validity.
  */
 
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
@@ -250,6 +251,9 @@ type ReframeOkOutcome = {
   firstHitMeshName: string | null;
   /** NEW #465: distance along the ray to the first hit, in metres. */
   firstHitDistance: number | null;
+  firstHitKind: "triangle" | "anchor" | null;
+  firstHitVisible: boolean | null;
+  cameraNear: number;
   /** NEW #465: first hit belongs to the target actor (head/body), not an occluder. */
   subjectVisible: boolean;
   /** NEW #465: the occluder's mesh name when subjectVisible is false. */
@@ -278,7 +282,11 @@ function reframeOutcomeSummary(outcome: ReframeOutcome): string {
   );
 }
 
-async function reframeCameraOnParentFace(page: Page, expectedActorId: string = EXPECTED_SUBJECT_ACTOR_ID): Promise<ReframeOutcome> {
+async function reframeCameraOnParentFace(
+  page: Page,
+  expectedActorId: string = EXPECTED_SUBJECT_ACTOR_ID,
+  offsetZ: number = 0.72,
+): Promise<ReframeOutcome> {
   // String IIFE (not a TS arrow) so tsx/esbuild cannot inject `__name` into the browser.
   return page.evaluate(`(() => {
     const isRecord = function (value) {
@@ -446,10 +454,11 @@ async function reframeCameraOnParentFace(page: Page, expectedActorId: string = E
     }
     const aimWorldY = anchorWorld.y;
     // Camera is parented under locomotionRig — convert world aim to parent-local.
+    const OFFSET_Z = ${JSON.stringify(offsetZ)};
     const worldCam = {
       x: anchorWorld.x + 0.04,
       y: anchorWorld.y + 0.04,
-      z: anchorWorld.z + 0.72
+      z: anchorWorld.z + OFFSET_Z
     };
     const worldToLocal = parent && typeof parent["worldToLocal"] === "function"
       ? parent["worldToLocal"]
@@ -727,6 +736,17 @@ async function reframeCameraOnParentFace(page: Page, expectedActorId: string = E
       cameraWorldPosition: { x: Number(rox), y: Number(roy), z: Number(roz) },
       firstHitMeshName,
       firstHitDistance: firstHitMeshName !== null ? Number(firstHitDistance.toFixed(4)) : null,
+      firstHitKind: firstHitMeshName !== null ? "triangle" : null,
+      firstHitVisible: (function () {
+        if (!firstHitObject) return null;
+        let vis = firstHitObject;
+        while (vis) {
+          if (vis["visible"] === false) return false;
+          vis = vis["parent"];
+        }
+        return true;
+      })(),
+      cameraNear: typeof camera["near"] === "number" ? camera["near"] : 0.1,
       subjectVisible,
       occluderMeshName: subjectVisible ? null : firstHitMeshName,
       fov: 28,
@@ -737,6 +757,73 @@ async function reframeCameraOnParentFace(page: Page, expectedActorId: string = E
       }
     };
   })()`);
+}
+
+const STILL_CAMERA_OFFSETS: Array<{ x: number; y: number; z: number }> = [
+  { x: 0.04, y: 0.04, z: 0.72 },
+  { x: 0.04, y: 0.04, z: 0.45 },
+  { x: 0.04, y: 0.04, z: 0.9 },
+];
+const HEAD_CUE = /(?:phoneme-mouth-cue|runtime-jaw-viseme-target)/u;
+
+type StillCameraAttempt = {
+  offset: { x: number; y: number; z: number };
+  status: string;
+  accepted: boolean;
+  rejectionReason: string | null;
+  firstHitMeshName: string | null;
+  firstHitActorId: string | null;
+  firstHitDistance: number | null;
+  firstHitKind: string | null;
+  firstHitVisible: boolean | null;
+  subjectInFrame: boolean | null;
+};
+
+async function sweepStillCameraCandidates(
+  page: Page,
+  expectedActorId: string,
+): Promise<{ cameraNear: number; selectedCandidate: StillCameraAttempt | null; attempts: StillCameraAttempt[] }> {
+  const attempts: StillCameraAttempt[] = [];
+  let selected: StillCameraAttempt | null = null;
+  let cameraNear = 0.1;
+  for (const offset of STILL_CAMERA_OFFSETS) {
+    const outcome = await reframeCameraOnParentFace(page, expectedActorId, offset.z);
+    const attempt: StillCameraAttempt = {
+      offset,
+      status: outcome.status,
+      accepted: false,
+      rejectionReason: null,
+      firstHitMeshName: outcome.status === "ok" ? outcome.firstHitMeshName : null,
+      firstHitActorId: outcome.status === "ok" ? outcome.actorId : null,
+      firstHitDistance: outcome.status === "ok" ? outcome.firstHitDistance : null,
+      firstHitKind: outcome.status === "ok" ? outcome.firstHitKind : null,
+      firstHitVisible: outcome.status === "ok" ? outcome.firstHitVisible : null,
+      subjectInFrame: outcome.status === "ok" ? outcome.subjectInFrame : null,
+    };
+    if (outcome.status !== "ok") {
+      attempt.rejectionReason = outcome.status;
+    } else {
+      cameraNear = outcome.cameraNear;
+      const reasons: string[] = [];
+      if (!(outcome.firstHitDistance !== null && outcome.firstHitDistance > outcome.cameraNear)) {
+        reasons.push("inside_near_plane");
+      }
+      if (outcome.firstHitKind !== "triangle") reasons.push("not_triangle");
+      if (outcome.firstHitVisible !== true) reasons.push("not_visible");
+      if (!HEAD_CUE.test(outcome.firstHitMeshName ?? "")) reasons.push("not_head_cue");
+      if (outcome.subjectInFrame !== true) reasons.push("not_in_frame");
+      attempt.accepted = reasons.length === 0;
+      attempt.rejectionReason = reasons.length > 0 ? reasons.join(",") : null;
+    }
+    attempts.push(attempt);
+    if (attempt.accepted && selected === null) {
+      selected = attempt;
+    }
+  }
+  if (selected !== null) {
+    await reframeCameraOnParentFace(page, expectedActorId, selected.offset.z);
+  }
+  return { cameraNear, selectedCandidate: selected, attempts };
 }
 
 /**
@@ -1610,6 +1697,7 @@ export async function runSpeakFixture(): Promise<void> {
       if ((restSample.peak?.influence ?? 0) >= 0.5) {
         throw new Error(`speak fixture: mouth never reached rest before fire (peak ${restSample.peak?.targetName ?? "none"} at ${restSample.peak?.influence ?? 0})`);
       }
+      const restSweep = await sweepStillCameraCandidates(page, SPEAK_FIXTURE_EXPECTED_ACTOR_ID);
       const restFramePath = path.join(SPEAK_FIXTURE_FRAME_DIR, "speak-fixture-rest.png");
       await page.screenshot({ path: restFramePath, fullPage: false });
       process.stdout.write(`rest: peak=${restSample.peak?.targetName ?? "none"} influence=${restSample.peak?.influence ?? 0}\n`);
@@ -1681,7 +1769,9 @@ export async function runSpeakFixture(): Promise<void> {
         path.join(SPEAK_FIXTURE_FRAME_DIR, "speak-fixture-speaking-1.png"),
         path.join(SPEAK_FIXTURE_FRAME_DIR, "speak-fixture-speaking-2.png"),
       ];
+      const speakingSweeps: Array<Awaited<ReturnType<typeof sweepStillCameraCandidates>>> = [];
       for (const framePath of speakingFrames) {
+        speakingSweeps.push(await sweepStillCameraCandidates(page, SPEAK_FIXTURE_EXPECTED_ACTOR_ID));
         await page.screenshot({ path: framePath, fullPage: false });
         await page.waitForTimeout(250);
       }
@@ -1817,6 +1907,31 @@ export async function runSpeakFixture(): Promise<void> {
         notEvidenceFor: inspection.notEvidenceFor,
       };
       await writeFile(SPEAK_FIXTURE_SUMMARY_PATH, `${JSON.stringify(summary, null, 2)}\n`, "utf8");
+      const frameRows = [
+        { framePath: restFramePath, sweep: restSweep },
+        { framePath: speakingFrames[0] ?? "", sweep: speakingSweeps[0] },
+        { framePath: speakingFrames[1] ?? "", sweep: speakingSweeps[1] },
+      ];
+      const resolved = frameRows.every((row) => row.sweep?.selectedCandidate?.accepted === true);
+      const candidateReport = {
+        schemaVersion: "openclinxr.speak-fixture-camera-candidate.v1",
+        measuredAgainstCommit: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
+        outcome: resolved ? "resolved" : "no_candidate_clears_near_plane",
+        outcomeDetail: resolved
+          ? "every still selected a visible triangle head-cue hit beyond the live camera near plane"
+          : "at least one still had no candidate whose first hit was a visible triangle head cue beyond the live camera near plane; recorded every attempt",
+        frames: frameRows.map((row) => ({
+          framePath: row.framePath,
+          cameraNear: row.sweep?.cameraNear ?? 0.1,
+          selectedCandidate: row.sweep?.selectedCandidate ?? null,
+          attempts: row.sweep?.attempts ?? [],
+        })),
+      };
+      await writeFile(
+        path.join("tools", "openclinxr", "evidence", "speak-fixture-camera-candidate-report.json"),
+        `${JSON.stringify(candidateReport, null, 2)}\n`,
+        "utf8",
+      );
       process.stdout.write(`${inspectionPath}\n`);
       process.stdout.write(
         `speakFixture: actor=${runnerTurn.routedActorId} strongVisemes=${strongDistinct} maxInfluence=${maxInfluence.toFixed(3)} join=${JSON.stringify(joinVerdict)} summary=${SPEAK_FIXTURE_SUMMARY_PATH}\n`,

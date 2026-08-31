@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.ui-xr-speak-fixture-live.v1",
   "capturedFrom": ".openclinxr/evidence/speak-fixture-2026-08-28/inspection.json (pnpm local:voice:ui-xr-speak-fixture)",
-  "generatedAt": "2026-08-28T23:31:34.760Z",
+  "generatedAt": "2026-08-31T19:48:09.133Z",
   "fixture": {
     "scenarioId": "ed_chest_pain_priority_v1",
     "traceTag": "history_opqrst",
@@ -34,7 +34,7 @@
     "learnerTranscript": "When did the chest pressure start?",
     "responseText": "Robert Hayes: Demeanor: anxious, diaphoretic, protective of chest",
     "actorId": "patient_robert_hayes_v1",
-    "firedAtMs": 1787959889580
+    "firedAtMs": 1788205683962
   },
   "rest": {
     "atRest": true,
@@ -82,12 +82,12 @@
   },
   "fingerprints": {
     "producer": {
-      "bytes": 87389,
-      "sha256": "d022dc1af1e7d28b1136966a059ece099cc4b1360295980dd0d7886cb2a06f7b"
+      "bytes": 92438,
+      "sha256": "0986daece9ddbff91baf7e39f41ec9f0d675e01b505b9e6ab5d717bcdf295cf7"
     },
     "subject_glb": {
-      "bytes": 9193752,
-      "sha256": "f6ce3f8804cfd3f31d2ea06cc4546c6a44e4b9713654b560e8be6fda399f63ff"
+      "bytes": 18840716,
+      "sha256": "029dbb504c6f655c7a2fc141948ff92dbd86190a306ee75ade8c50c39f8ab43f"
     }
   },
   "claimScope": "deterministic_offline_fixture_turn_reaching_ui_xr_transcript_response_and_live_mouth_measurement",

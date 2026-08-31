@@ -1,0 +1,173 @@
+{
+  "schemaVersion": "openclinxr.speak-fixture-camera-candidate.v1",
+  "measuredAgainstCommit": "0d3aa7340de4adb26836bf5c9f7dd610a7b2be9d",
+  "outcome": "no_candidate_clears_near_plane",
+  "outcomeDetail": "at least one still had no candidate whose first hit was a visible triangle head cue beyond the live camera near plane; recorded every attempt",
+  "frames": [
+    {
+      "framePath": "tools/openclinxr/evidence/speak-fixture-stills/speak-fixture-rest.png",
+      "cameraNear": 0.1,
+      "selectedCandidate": null,
+      "attempts": [
+        {
+          "offset": {
+            "x": 0.04,
+            "y": 0.04,
+            "z": 0.72
+          },
+          "status": "ok",
+          "accepted": false,
+          "rejectionReason": "inside_near_plane,not_head_cue",
+          "firstHitMeshName": "mpfb_robert_reference_body_1",
+          "firstHitActorId": "patient_robert_hayes_v1",
+          "firstHitDistance": 0.0813,
+          "firstHitKind": "triangle",
+          "firstHitVisible": true,
+          "subjectInFrame": true
+        },
+        {
+          "offset": {
+            "x": 0.04,
+            "y": 0.04,
+            "z": 0.45
+          },
+          "status": "ok",
+          "accepted": false,
+          "rejectionReason": "inside_near_plane,not_head_cue",
+          "firstHitMeshName": "mpfb_robert_reference_body_1",
+          "firstHitActorId": "patient_robert_hayes_v1",
+          "firstHitDistance": 0.0082,
+          "firstHitKind": "triangle",
+          "firstHitVisible": true,
+          "subjectInFrame": true
+        },
+        {
+          "offset": {
+            "x": 0.04,
+            "y": 0.04,
+            "z": 0.9
+          },
+          "status": "ok",
+          "accepted": false,
+          "rejectionReason": "inside_near_plane,not_head_cue",
+          "firstHitMeshName": "mpfb_robert_reference_body_1",
+          "firstHitActorId": "patient_robert_hayes_v1",
+          "firstHitDistance": 0.0384,
+          "firstHitKind": "triangle",
+          "firstHitVisible": true,
+          "subjectInFrame": true
+        }
+      ]
+    },
+    {
+      "framePath": "tools/openclinxr/evidence/speak-fixture-stills/speak-fixture-speaking-1.png",
+      "cameraNear": 0.1,
+      "selectedCandidate": null,
+      "attempts": [
+        {
+          "offset": {
+            "x": 0.04,
+            "y": 0.04,
+            "z": 0.72
+          },
+          "status": "ok",
+          "accepted": false,
+          "rejectionReason": "not_head_cue",
+          "firstHitMeshName": "mpfb_robert_reference_body_1",
+          "firstHitActorId": "patient_robert_hayes_v1",
+          "firstHitDistance": 0.1264,
+          "firstHitKind": "triangle",
+          "firstHitVisible": true,
+          "subjectInFrame": true
+        },
+        {
+          "offset": {
+            "x": 0.04,
+            "y": 0.04,
+            "z": 0.45
+          },
+          "status": "ok",
+          "accepted": false,
+          "rejectionReason": "inside_near_plane,not_head_cue",
+          "firstHitMeshName": "openclinxr.station-environment.fixture-slot.stretcher.rail.back.right",
+          "firstHitActorId": "patient_robert_hayes_v1",
+          "firstHitDistance": 0.0002,
+          "firstHitKind": "triangle",
+          "firstHitVisible": true,
+          "subjectInFrame": true
+        },
+        {
+          "offset": {
+            "x": 0.04,
+            "y": 0.04,
+            "z": 0.9
+          },
+          "status": "ok",
+          "accepted": false,
+          "rejectionReason": "inside_near_plane,not_head_cue",
+          "firstHitMeshName": "mpfb_robert_reference_body_1",
+          "firstHitActorId": "patient_robert_hayes_v1",
+          "firstHitDistance": 0.0063,
+          "firstHitKind": "triangle",
+          "firstHitVisible": true,
+          "subjectInFrame": true
+        }
+      ]
+    },
+    {
+      "framePath": "tools/openclinxr/evidence/speak-fixture-stills/speak-fixture-speaking-2.png",
+      "cameraNear": 0.1,
+      "selectedCandidate": null,
+      "attempts": [
+        {
+          "offset": {
+            "x": 0.04,
+            "y": 0.04,
+            "z": 0.72
+          },
+          "status": "ok",
+          "accepted": false,
+          "rejectionReason": "not_head_cue",
+          "firstHitMeshName": "mpfb_robert_reference_body_1",
+          "firstHitActorId": "patient_robert_hayes_v1",
+          "firstHitDistance": 0.1084,
+          "firstHitKind": "triangle",
+          "firstHitVisible": true,
+          "subjectInFrame": true
+        },
+        {
+          "offset": {
+            "x": 0.04,
+            "y": 0.04,
+            "z": 0.45
+          },
+          "status": "ok",
+          "accepted": false,
+          "rejectionReason": "inside_near_plane,not_head_cue",
+          "firstHitMeshName": "openclinxr.station-environment.fixture-slot.stretcher.rail.back.right",
+          "firstHitActorId": "patient_robert_hayes_v1",
+          "firstHitDistance": 0.0002,
+          "firstHitKind": "triangle",
+          "firstHitVisible": true,
+          "subjectInFrame": true
+        },
+        {
+          "offset": {
+            "x": 0.04,
+            "y": 0.04,
+            "z": 0.9
+          },
+          "status": "ok",
+          "accepted": false,
+          "rejectionReason": "inside_near_plane,not_head_cue",
+          "firstHitMeshName": "mpfb_robert_reference_body_1",
+          "firstHitActorId": "patient_robert_hayes_v1",
+          "firstHitDistance": 0.0029,
+          "firstHitKind": "triangle",
+          "firstHitVisible": true,
+          "subjectInFrame": true
+        }
+      ]
+    }
+  ]
+}
