@@ -64,6 +64,39 @@ const genderPresentationOptions = toOptions([
   "adult_male_physician",
   "child",
 ]);
+const bodyProfileOptions = toOptions([
+  "adult_clinical_physician",
+  "adult_clinical_team",
+  "adult_standard",
+  "adult_standard_parent",
+  "pediatric_school_age",
+]);
+const poseOptions = toOptions([
+  "standing_anxious_guardian",
+  "standing_clinical_ready",
+  "standing_neutral_chest_pain_priority",
+  "standing_neutral_work_of_breathing",
+]);
+const clothingColorOptions = toOptions(["soft_blue", "teal", "white"]);
+const roleVisualCueOptions = toOptions([
+  "ed_chest_pain_patient",
+  "pediatric_patient",
+  "anxious_parent",
+  "clinical_team",
+]);
+const materialFinishOptions = toOptions([
+  "cotton_knit_matte",
+  "cotton_matte",
+  "cotton_slight_sheen",
+  "poly_cotton_slight_sheen",
+]);
+const accessoryMarkerOptions = toOptions(["badge", "name_badge", "stethoscope"]);
+const fitProfileOptions = toOptions([
+  "adult_clinical_average_fit",
+  "adult_parent_average_fit",
+  "adult_standard_fit",
+  "pediatric_slim_fit",
+]);
 
 export type ActorPhenotypeFieldsProps = {
   /** Form.List index of the actor row (names are `[fieldName, "phenotype", "<key>"]`). */
@@ -170,6 +203,91 @@ export function ActorPhenotypeFields({ fieldName }: ActorPhenotypeFieldsProps): 
           />
         </Form.Item>
       </Space>
+      <Space wrap size="large">
+        <Form.Item name={[fieldName, "phenotype", "body_profile"]} label="Body profile">
+          <Select
+            allowClear
+            virtual={false}
+            showSearch
+            options={bodyProfileOptions}
+            style={{ minWidth: 220 }}
+            aria-label="Phenotype body profile"
+            placeholder="none"
+          />
+        </Form.Item>
+        <Form.Item name={[fieldName, "phenotype", "pose"]} label="Pose">
+          <Select
+            allowClear
+            virtual={false}
+            showSearch
+            options={poseOptions}
+            style={{ minWidth: 260 }}
+            aria-label="Phenotype pose"
+            placeholder="none"
+          />
+        </Form.Item>
+        <Form.Item name={[fieldName, "phenotype", "clothing_color"]} label="Clothing color">
+          <Select
+            allowClear
+            virtual={false}
+            showSearch
+            options={clothingColorOptions}
+            style={{ minWidth: 160 }}
+            aria-label="Phenotype clothing color"
+            placeholder="none"
+          />
+        </Form.Item>
+        <Form.Item name={[fieldName, "phenotype", "role_visual_cue"]} label="Role visual cue">
+          <Select
+            allowClear
+            virtual={false}
+            showSearch
+            options={roleVisualCueOptions}
+            style={{ minWidth: 200 }}
+            aria-label="Phenotype role visual cue"
+            placeholder="none"
+          />
+        </Form.Item>
+      </Space>
+      <Space wrap size="large">
+        <Form.Item name={[fieldName, "phenotype", "materialFinish"]} label="Material finish">
+          <Select
+            allowClear
+            virtual={false}
+            showSearch
+            options={materialFinishOptions}
+            style={{ minWidth: 200 }}
+            aria-label="Phenotype material finish"
+            placeholder="none"
+          />
+        </Form.Item>
+        <Form.Item name={[fieldName, "phenotype", "fitProfile"]} label="Fit profile">
+          <Select
+            allowClear
+            virtual={false}
+            showSearch
+            options={fitProfileOptions}
+            style={{ minWidth: 220 }}
+            aria-label="Phenotype fit profile"
+            placeholder="none"
+          />
+        </Form.Item>
+      </Space>
+      <Form.Item
+        name={[fieldName, "phenotype", "accessoryMarkers"]}
+        label="Accessory markers"
+        style={{ marginBottom: 8 }}
+      >
+        <Select
+          mode="tags"
+          allowClear
+          virtual={false}
+          options={accessoryMarkerOptions}
+          style={{ minWidth: 360 }}
+          aria-label="Phenotype accessory markers"
+          placeholder="e.g. stethoscope"
+        />
+      </Form.Item>
     </div>
   );
 }
