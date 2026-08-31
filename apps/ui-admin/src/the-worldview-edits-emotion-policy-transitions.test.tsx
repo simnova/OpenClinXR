@@ -12,12 +12,16 @@ import { describe, expect, it } from "vitest";
  * transitions from form or base (case-authoring-model.ts:382).
  *
  * Diagnosis header IMMUTABLE. Flip it.fails → it and append ## FIXED.
+ *
+ * ## FIXED (W10 tsk_8bcfa9ab1e97b0a9)
+ * EmotionPolicyPanel Form.List name={["emotionPolicy", "transitions"]} binds
+ * from / triggeredBy / to. baseline/upper/lower remain.
  */
 
 const SRC = dirname(fileURLToPath(import.meta.url));
 
 describe("the worldview edits emotion policy transitions", () => {
-  it.fails("(1) EmotionPolicyPanel binds a transitions Form.List", () => {
+  it("(1) EmotionPolicyPanel binds a transitions Form.List", () => {
     const panel = readFileSync(join(SRC, "EmotionPolicyPanel.tsx"), "utf8");
     expect(panel).toMatch(/name=\{\["emotionPolicy", "transitions"\]\}|Form\.List name=\{\["emotionPolicy", "transitions"\]\}/);
   });

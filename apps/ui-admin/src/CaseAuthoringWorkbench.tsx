@@ -385,7 +385,7 @@ export function CaseAuthoringWorkbench({ initialScenario, apiClient }: CaseAutho
         </Card>
         <EncounterEnvironmentPanel environmentId={baseDraft.environment?.environmentId} />
         <EquipmentPanel />
-        <EmotionPolicyPanel />
+        <EmotionPolicyPanel /* W10: transitions Form.List lives in this panel */ />
         <AssetNeedsPanel />
         <Card title="Governance & review rubric" size="small" style={{ marginBottom: 16 }}>
           <Alert
