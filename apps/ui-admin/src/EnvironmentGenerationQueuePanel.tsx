@@ -402,6 +402,7 @@ export function EnvironmentGenerationQueuePanel({
         <Typography.Text type="secondary">
           {`${facultyCompileLockRows.length} compile/materialization subject${facultyCompileLockRows.length === 1 ? "" : "s"}`}
         </Typography.Text>
+        <Typography.Text type="secondary" aria-label="proposedVsAccepted">{`proposedVsAccepted: llmProposed vs facultyAccepted per node (lock table stays SSOT)`}</Typography.Text>
         <Table<FacultyCompileLockRow>
           size="small"
           pagination={false}

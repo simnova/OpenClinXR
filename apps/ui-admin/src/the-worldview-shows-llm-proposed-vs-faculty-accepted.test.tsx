@@ -11,12 +11,15 @@ import { describe, expect, it } from "vitest";
  * button, no proposed/accepted diff columns.
  *
  * Diagnosis header IMMUTABLE. Flip it.fails → it and append ## FIXED.
+ *
+ * ## FIXED (W13 tsk_fb63e92813a8944a)
+ * EnvironmentGenerationQueuePanel surfaces proposedVsAccepted (llmProposed vs facultyAccepted).
  */
 
 const SRC = dirname(fileURLToPath(import.meta.url));
 
 describe("the worldview shows LLM proposed vs faculty accepted", () => {
-  it.fails("(1) EnvironmentGenerationQueuePanel mentions proposed vs accepted", () => {
+  it("(1) EnvironmentGenerationQueuePanel mentions proposed vs accepted", () => {
     const panel = readFileSync(join(SRC, "EnvironmentGenerationQueuePanel.tsx"), "utf8");
     expect(panel).toMatch(/llmProposed|facultyAccepted|proposedVsAccepted/);
   });
