@@ -13,7 +13,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - agent-memory: 34
 - agent-methodology: 103
 - archive-candidate: 41
-- current-reference: 208
+- current-reference: 211
 - decision-record: 44
 - evidence: 57
 - generated-evidence: 10
@@ -192,6 +192,8 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `docs/openclinxr/arena-physics-clinical-touch-realbind-2026-08-02.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/asset-generation-pipeline.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/asset-pipeline-vetting-and-cagematch-plan-2026-06-05.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
+- `docs/openclinxr/blocked-card-unlock-plan-2026-08-31.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
+- `docs/openclinxr/blocked-card-unlock-plan-review-2026-08-31.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/blueprint-factory-drift-guardrails-2026-05-27.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `docs/openclinxr/cellix-package-adoption-brief.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/claims-consent-privacy-governance.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
@@ -201,6 +203,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `docs/openclinxr/doc-authority-registry-2026-05-27.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `docs/openclinxr/dynamic-session-asset-strategy.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/evidence-index-2026-05-27.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
+- `docs/openclinxr/ecg-cart-4view-optimize-cagematch-plan-2026-08-31.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/exam-scenario-architecture.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/external-ai-asset-pipeline-integration-plan.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/garment-license-compatible-source-options-2026-05-27.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.

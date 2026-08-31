@@ -5,7 +5,7 @@
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
     "agent-methodology": 103,
-    "current-reference": 208,
+    "current-reference": 211,
     "archive-candidate": 41,
     "evidence": 57,
     "temporary": 54,
@@ -3342,6 +3342,20 @@
       "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
+      "path": "docs/openclinxr/blocked-card-unlock-plan-2026-08-31.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/openclinxr/blocked-card-unlock-plan-review-2026-08-31.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
+    },
+    {
       "path": "docs/openclinxr/blueprint-factory-drift-guardrails-2026-05-27.md",
       "authority": "protected-policy",
       "agentInstructionWeight": "highest",
@@ -3494,6 +3508,13 @@
       "agentInstructionWeight": "highest",
       "action": "protect",
       "rationale": "Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it."
+    },
+    {
+      "path": "docs/openclinxr/ecg-cart-4view-optimize-cagematch-plan-2026-08-31.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
       "path": "docs/openclinxr/exam-scenario-architecture.md",
