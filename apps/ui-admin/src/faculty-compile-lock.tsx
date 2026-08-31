@@ -1,5 +1,5 @@
 import { Input, Select, Space, Switch, type TableColumnsType, Tag, Typography } from "antd";
-import { useEffect, useState } from "react";
+import { type ReactElement, useEffect, useState } from "react";
 import type { AdminControlPlaneClient, ScenarioSceneGenerationPipelineWorkOrderQueue } from "./api-client.js";
 import type { CompileEdge } from "./CompileGraphCanvas.js";
 import type { FacultyCompileLockClient } from "./faculty-compile-lock-types.js";
@@ -45,6 +45,10 @@ export type FacultyCompileLockRow = {
    * current hash. Review metadata only.
    */
   stale: boolean;
+  /** LLM/case transfer proposal for this node (W13). Lock table stays SSOT for lock/override. */
+  llmProposed?: string;
+  /** Faculty-accepted value for this node (locked override, bind, or "proposed"). */
+  facultyAccepted?: string;
 };
 
 /**
@@ -340,6 +344,18 @@ export function useFacultyCompileLocks(
   return { facultyCompileLockRows, handleFacultyCompileLockChange, handleFacultyCompileOverrideChange, handleFacultyCompileOverrideValueChange, compileEdges };
 }
 
+export function ProposedVsAcceptedList({ rows }: { rows: readonly FacultyCompileLockRow[] }): ReactElement {
+  return (
+    <ul aria-label="proposedVsAccepted">
+      {rows.map((row) => (
+        <li key={row.rowId}>
+          {`${row.compileSubject}: llmProposed ${row.llmProposed ?? row.compileSubject} vs facultyAccepted ${row.facultyAccepted ?? (row.locked ? "accepted" : "proposed")}`}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 /** antd Table columns for the faculty compile/materialization lock table. */
 export function buildFacultyCompileLockColumns({
   onFacultyCompileLockChange,
@@ -358,6 +374,22 @@ export function buildFacultyCompileLockColumns({
       render: (kind: FacultyCompileLockRow["kind"]) => <Tag color={kind === "actor" ? "cyan" : "purple"}>{kind}</Tag>,
     },
     { title: "Compile/materialization subject", dataIndex: "compileSubject", key: "compileSubject" },
+    {
+      title: "llmProposed",
+      dataIndex: "llmProposed",
+      key: "llmProposed",
+      render: (llmProposed: string | undefined, row: FacultyCompileLockRow) => (
+        <Typography.Text>{llmProposed ?? row.compileSubject}</Typography.Text>
+      ),
+    },
+    {
+      title: "facultyAccepted",
+      dataIndex: "facultyAccepted",
+      key: "facultyAccepted",
+      render: (facultyAccepted: string | undefined, row: FacultyCompileLockRow) => (
+        <Typography.Text>{facultyAccepted ?? (row.locked ? "accepted" : "proposed")}</Typography.Text>
+      ),
+    },
     {
       title: "Stale",
       dataIndex: "stale",

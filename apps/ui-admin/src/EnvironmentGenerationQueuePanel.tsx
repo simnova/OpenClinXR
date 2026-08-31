@@ -15,6 +15,7 @@ import {
   buildFacultyCompileLockColumns,
   type FacultyCompileLockRow,
   type FacultyCompileOverridePath,
+  ProposedVsAcceptedList,
 } from "./faculty-compile-lock.js";
 
 const CompileGraphCanvas = lazy(() =>
@@ -83,6 +84,8 @@ export type EnvironmentGenerationQueuePanelProps = {
    */
   onAddActor?: (payload: { actorId: string; compileNodeKind: "ActorVariant" }) => void;
   onBindEquipmentFixtureSlot?: (payload: { equipmentId: string; fixtureSlot: string }) => void;
+  onAddNode?: (nodeId: string) => void;
+  onRemoveNode?: (nodeId: string) => void;
   /** Authored Scenario.version for the featured case (worldview header). */
   caseDefVersion?: number;
   /** Last world-compile compileVersion for the featured case (worldview header). */
@@ -144,6 +147,8 @@ export function EnvironmentGenerationQueuePanel({
   onInfinigenPromptChange,
   onAddActor,
   onBindEquipmentFixtureSlot,
+  onAddNode,
+  onRemoveNode,
   caseDefVersion,
   compileVersion,
   placementAuthorRows,
@@ -395,14 +400,14 @@ export function EnvironmentGenerationQueuePanel({
         >
           Add actor compile node
         </Button>
-        <Select allowClear aria-label="Equipment fixtureSlot" placeholder="Bind equipment to fixtureSlot" style={{ minWidth: 220 }} options={[{ value: "stretcher", label: "stretcher" }, { value: "monitor", label: "monitor" }, { value: "ecg_cart", label: "ecg_cart" }]} onChange={(fixtureSlot) => { if (typeof fixtureSlot === "string") onBindEquipmentFixtureSlot?.({ equipmentId: `equip_worldview_${crypto.randomUUID().replaceAll("-", "").slice(0, 12)}`, fixtureSlot }); }} />
+        <Select allowClear showSearch={false} virtual={false} aria-label="Equipment fixtureSlot" placeholder="Bind equipment to fixtureSlot" style={{ minWidth: 220 }} options={[{ value: "stretcher", label: "stretcher" }, { value: "monitor", label: "monitor" }, { value: "ecg_cart", label: "ecg_cart" }]} onChange={(fixtureSlot) => { if (typeof fixtureSlot === "string") onBindEquipmentFixtureSlot?.({ equipmentId: `equip_worldview_${crypto.randomUUID().replaceAll("-", "").slice(0, 12)}`, fixtureSlot }); }} />
       </fieldset>
       <fieldset className="station-queue-row" aria-label="Faculty compile/materialization lock table">
         <Typography.Text strong>Faculty compile lock</Typography.Text>
         <Typography.Text type="secondary">
           {`${facultyCompileLockRows.length} compile/materialization subject${facultyCompileLockRows.length === 1 ? "" : "s"}`}
         </Typography.Text>
-        <Typography.Text type="secondary" aria-label="proposedVsAccepted">{`proposedVsAccepted: llmProposed vs facultyAccepted per node (lock table stays SSOT)`}</Typography.Text>
+        <ProposedVsAcceptedList rows={facultyCompileLockRows} />
         <Table<FacultyCompileLockRow>
           size="small"
           pagination={false}
@@ -481,7 +486,7 @@ export function EnvironmentGenerationQueuePanel({
           {`${compileEdges.length} compile dependency edge${compileEdges.length === 1 ? "" : "s"}; read-only view; writes stay on the faculty compile lock table.`}
         </Typography.Text>
         <Suspense fallback={<Typography.Text type="secondary">Loading compile graph…</Typography.Text>}>
-          <CompileGraphCanvas compileEdges={compileEdges} />
+          <CompileGraphCanvas compileEdges={compileEdges} onAddNode={onAddNode} onRemoveNode={onRemoveNode} />
         </Suspense>
         <Typography.Paragraph type="secondary">
           Read-only @xyflow/react rendering of compile/materialization dependencies; no write path, Mongo persistence, or lock-API enforcement is implied.

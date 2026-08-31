@@ -1,7 +1,13 @@
+import "@testing-library/jest-dom/vitest";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { describe, expect, it } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it } from "vitest";
+import { SeedWorldviewQueue } from "./seed-worldview-queue.js";
+import { installWorldviewQueueTestDom } from "./worldview-queue-test-dom.js";
+
+installWorldviewQueueTestDom();
 
 /**
  * OBSERVABLE: CompileGraphCanvas is a read-only @xyflow view. onNodesChange and
@@ -16,13 +22,35 @@ import { describe, expect, it } from "vitest";
  * ## FIXED (W18 tsk_ba937af8ca3f6040)
  * CompileGraphCanvas accepts onAddNode and onRemoveNode. ReactFlow view and
  * buildCompileGraphModel remain; xyflow onNodesChange stays a no-op.
+ *
+ * ## FIXED (skeptic: SeedWorldviewQueue merge mutates compileEdges)
  */
 
 const SRC = dirname(fileURLToPath(import.meta.url));
 const CANVAS = readFileSync(join(SRC, "CompileGraphCanvas.tsx"), "utf8");
 
 describe("the worldview canvas adds and removes nodes", () => {
-  it("(1) CompileGraphCanvas accepts an onAddNode or onRemoveNode callback", () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  it("(1) SeedWorldviewQueue add/remove node changes compile edge count", async () => {
+    render(
+      <SeedWorldviewQueue
+        environmentGenerationQueue={{
+          packetCount: 0,
+          packets: [],
+          blockedScenarioIds: [],
+          readyForGenerationReviewScenarioIds: [],
+          nextReviewGateCounts: {},
+        } as never}
+      />,
+    );
+    expect(screen.getByText(/0 compile dependency edges/)).toBeInTheDocument();
+    fireEvent.click(await screen.findByRole("button", { name: /add compile graph node/i }));
+    expect(screen.getByText(/1 compile dependency edge/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /remove compile graph node/i }));
+    expect(screen.getByText(/0 compile dependency edges/)).toBeInTheDocument();
     expect(CANVAS).toMatch(/onAddNode|onRemoveNode/);
   });
 

@@ -39,10 +39,8 @@ import {
 } from "./api-client.js";
 import { CaseAuthoringWorkbench } from "./CaseAuthoringWorkbench.js";
 import { EmissionReplayBindPanel } from "./EmissionReplayBindPanel.js";
-import {
-  EnvironmentGenerationQueuePanel,
-  type PlacementAuthorValue,
-} from "./EnvironmentGenerationQueuePanel.js";
+import { type PlacementAuthorValue } from "./EnvironmentGenerationQueuePanel.js";
+import { SeedWorldviewQueue, type SeedWorldviewCompileGraph } from "./seed-worldview-queue.js";
 import { FacultyReviewDecisionPanel } from "./FacultyReviewDecisionPanel.js";
 import { useFacultyCompileLocks } from "./faculty-compile-lock.js";
 import { QueueReviewSnapshotHistory } from "./QueueReviewSnapshotHistory.js";
@@ -1219,13 +1217,13 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
     }
   };
 
-  const compileEncounter = async (scenarioId: string) => {
+  const compileEncounter = async (scenarioId: string, graph?: SeedWorldviewCompileGraph) => {
     setCompileEncounterState({ status: "compiling" });
     try {
       await compileEncounterWorld({
         scenarioId,
-        compileNodes: compileEdges,
-        facultyLocks: facultyCompileLockRows,
+        compileNodes: graph?.compileNodes ?? compileEdges,
+        facultyLocks: graph?.facultyLocks ?? facultyCompileLockRows,
         ...(infinigenPrompt.trim() ? { infinigenPrompt: infinigenPrompt.trim() } : {}),
       });
       setCompileEncounterState({ status: "compiled", scenarioId });
@@ -1397,7 +1395,7 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
           </ul>
         </section>
 
-        <EnvironmentGenerationQueuePanel
+        <SeedWorldviewQueue
           environmentGenerationQueue={state.environmentGenerationQueue}
           environmentGenerationWorkOrderQueue={state.environmentGenerationWorkOrderQueue}
           sceneGenerationPipelineQueue={state.sceneGenerationPipelineQueue}
@@ -1409,7 +1407,7 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
           onFacultyCompileOverrideValueChange={handleFacultyCompileOverrideValueChange}
           compileEdges={compileEdges}
           featuredScenarioId={featuredScenarioId}
-          onCompileEncounter={(scenarioId) => void compileEncounter(scenarioId)}
+          onCompileEncounter={(scenarioId, graph) => void compileEncounter(scenarioId, graph)}
           infinigenPrompt={infinigenPrompt}
           onInfinigenPromptChange={setInfinigenPrompt}
           onInitiateSceneGeneration={(scenarioId) => void initiateSceneGeneration(scenarioId)}
