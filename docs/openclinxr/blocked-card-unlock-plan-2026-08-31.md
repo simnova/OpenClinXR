@@ -4,11 +4,34 @@ Measured 2026-08-31 against board revision 1774 (`bb-r1774-cef5f513`). Tree fact
 `74d02b72`; the first draft measured `05120405` and the delta is GitHub Pages copy, not D9
 stations.
 
-Revised twice on 2026-08-31: after a four-round adversarial review on gpt-5.6-sol (codex thread
+Revised three times on 2026-08-31: after a four-round adversarial review on gpt-5.6-sol (codex thread
 `01a05836-f239-75e3-8420-d7ab012a82db`), then after a peer review by Grok (session
 `01a0519a-b8c6-7081-afc0-9d5f00736b24`) recorded in
 `docs/openclinxr/blocked-card-unlock-plan-review-2026-08-31.md`. Claims withdrawn in each pass
-are recorded rather than deleted, because each would otherwise be re-derived.
+are recorded rather than deleted, because each would otherwise be re-derived. A third pass followed
+a further four rounds on the same codex thread, and a fourth applied Grok's hybrid-shape notes in
+`docs/openclinxr/hybrid-board-and-unlock-plan-notes-2026-08-31.md`.
+
+## Landed while this plan was being written
+
+| what | where |
+|---|---|
+| worker output preserved before any close | `a7d9a1f2` on `wt/bothy-tsk_27baa1ed86266d7b`, six files |
+| successor RED planted on main | `08d9ce84`, 3 unflipped `it.fails` plus one inverted guard that passes |
+| Idle pointer parent | `tsk_ac774b8b0116550d`, `kind=parent`, empty `doneWhen`, not plantable |
+| Planted child carrying the slice | `tsk_b4089f2d0cb08e58`, lane A, `factory_step=instrument`, `unblocks=dialogue_runtime` |
+
+`briefFromIssue` accepts all five of the child's proofs. Destructive probes were run before the
+plant and their substitutions were confirmed matched: lowering the near plane to 0.001 fails the
+inverted guard and reverting restores it; an honest resolved report gives 4 passed; a 0.0948 m
+distance, a `firstHitKind` of `"anchor"`, a `firstHitVisible` of false, and a gown mesh at a safe
+distance each fail their own clause.
+
+Correction to this plan's own D9 column: the board schema has no `render` step
+(`factory_step` options are body_param, clothing_consume, clothing_generate, motion_retarget,
+lip_sync, room_generate, equipment_generate, staging, dialogue_runtime, instrument). The honest
+classification for the camera lane is `instrument` unblocking `dialogue_runtime`, because the defect
+is in the evidence capture harness and what it unblocks is seeing the speaking runtime.
 
 ## Headline
 
