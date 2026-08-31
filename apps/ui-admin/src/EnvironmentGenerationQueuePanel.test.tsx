@@ -79,6 +79,28 @@ describe("EnvironmentGenerationQueuePanel", () => {
     cleanup();
   });
 
+  it("worldview add actor compile node emits unique ActorVariant payloads", () => {
+    const onAddActor = vi.fn();
+    render(
+      <EnvironmentGenerationQueuePanel
+        environmentGenerationQueue={{
+          packetCount: 0,
+          packets: [],
+          blockedScenarioIds: [],
+          readyForGenerationReviewScenarioIds: [],
+          nextReviewGateCounts: {},
+        } as never}
+        onAddActor={onAddActor}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: /add actor compile node/i }));
+    fireEvent.click(screen.getByRole("button", { name: /add actor compile node/i }));
+    expect(onAddActor).toHaveBeenCalledTimes(2);
+    const ids = onAddActor.mock.calls.map((call) => (call[0] as { actorId: string }).actorId);
+    expect(new Set(ids).size).toBe(2);
+    expect(onAddActor.mock.calls.every((call) => (call[0] as { compileNodeKind: string }).compileNodeKind === "ActorVariant")).toBe(true);
+  });
+
   it("surfaces blocked 3D environment packet details without production or Quest readiness claims", () => {
     const onInitiateSceneGeneration = vi.fn();
     const onAttachSceneGenerationReview = vi.fn();

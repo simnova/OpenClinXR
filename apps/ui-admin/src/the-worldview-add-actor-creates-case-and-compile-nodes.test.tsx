@@ -13,12 +13,16 @@ import { describe, expect, it } from "vitest";
  * createActorDraft (case-authoring-model.ts:124-130) is identity-only.
  *
  * Diagnosis header IMMUTABLE. Flip it.fails → it and append ## FIXED.
+ *
+ * ## FIXED (W4 tsk_768fefd39524bf2e)
+ * EnvironmentGenerationQueuePanel Add actor compile node emits unique actorId
+ * plus compileNodeKind ActorVariant via onAddActor.
  */
 
 const SRC = dirname(fileURLToPath(import.meta.url));
 
 describe("the worldview add actor creates case and compile nodes", () => {
-  it.fails("(1) EnvironmentGenerationQueuePanel can add an actor compile node", () => {
+  it("(1) EnvironmentGenerationQueuePanel can add an actor compile node", () => {
     const panel = readFileSync(join(SRC, "EnvironmentGenerationQueuePanel.tsx"), "utf8");
     expect(panel).toMatch(/addActor|onAddActor|ActorVariant/);
   });
