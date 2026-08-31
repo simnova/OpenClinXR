@@ -24,6 +24,10 @@ import { describe, expect, it } from "vitest";
  *
  * claimScope: whether C1 vs C0 was rendered and recorded on the tree.
  * notEvidenceFor: Quest, that C1 wins, 4-view TRELLIS, Blender high-to-low, lightmaps.
+ *
+ * ## FIXED (tsk_ddac264a23ad361f)
+ * Frozen-camera EEVEE 1280 stills of champion 34443 vs r0_005 59187. Native grade: C1 restores
+ * circular jack bores vs C0 lumpy stretch. Report beats_control. SHA freeze unchanged.
  */
 
 const REPO = join(import.meta.dirname, "../../..");
@@ -49,7 +53,7 @@ function sha256File(path: string): string {
 }
 
 describe("the ECG cart C1 density falsifier has been graded", () => {
-  it.fails("(1) tracked C1 vs C0 report and 1280 EEVEE stills exist with frozen SHAs", () => {
+  it("(1) tracked C1 vs C0 report and 1280 EEVEE stills exist with frozen SHAs", () => {
     const freeze = JSON.parse(readFileSync(CONTROL, "utf8")) as Freeze;
     const staging = join(REPO, freeze.stagingDir);
     for (const row of [freeze.raw, freeze.c0, freeze.c1]) {
