@@ -87,7 +87,38 @@ export type CompileGraphNode = {
   lock: CompileGraphLock;
   status: "planned_unsplit" | "planned_split";
   overridePatch?: { op: "replace" | "remove"; path: string; value?: unknown };
+  /**
+   * W5 (tsk_4100343a0be0b471): a faculty-removed node is NOT spliced out of
+   * the graph — it is marked. The node stays in compileNodes with a tombstone
+   * so the delete is a compile event the next compile sees via the copy-prior
+   * rule. Locked nodes are never tombstoned (a lock is not a delete; lock
+   * wins).
+   */
+  tombstone?: CompileNodeTombstone;
 };
+
+/**
+ * W5 (tsk_4100343a0be0b471): tombstone marker for a faculty-removed compile
+ * node. `removedNodeId` is the id the authoring form removed; an unsplit id
+ * (actor:X) also tombstones its split children (actor:X:body, actor:X:wardrobe).
+ */
+export type CompileNodeTombstone = {
+  /** When the faculty removed the node from the authoring form. */
+  deletedAt: string;
+  removedBy: "faculty_remove";
+  removedNodeId: string;
+};
+
+/**
+ * W5 (tsk_4100343a0be0b471): per-compile delete/stale ledger. A delete is a
+ * compile event, not a silent array splice: node_tombstoned records the node
+ * the compile tombstoned; descendant_staled records a node whose parent was
+ * tombstoned. Locked nodes refuse a delete — no node_tombstoned event is
+ * emitted for a lock.
+ */
+export type CompileEvent =
+  | { kind: "node_tombstoned"; nodeId: string; deletedAt: string; removedBy: "faculty_remove" }
+  | { kind: "descendant_staled"; nodeId: string; ancestorNodeId: string; deletedAt: string };
 
 export type EncounterMaterializationEvidenceReport = {
   schemaVersion: "openclinxr.encounter-materialization-evidence.v1";
@@ -120,6 +151,8 @@ export type EncounterMaterializationEvidenceReport = {
   compileVersion?: number;
   compileEdges?: Array<{ from: string; to: string; kind: string }>;
   compileNodes?: CompileGraphNode[];
+  /** W5 — per-compile delete/stale ledger; absent on pre-W5 JSON. */
+  compileEvents?: CompileEvent[];
 };
 
 const NOT_EVIDENCE_FOR = ["runtime_readiness", "quest_readiness", "production_asset_readiness", "clinical_validity", "scoring_validity", "learner_launch_readiness"] as const;
@@ -177,6 +210,7 @@ export function emitCompileNodes(
       cacheKey: null,
       contentHash: prev?.contentHash ?? null,
       lock: prev?.lock ?? { locked: false },
+      tombstone: prev?.tombstone,
       status: "planned_unsplit",
     };
   });
@@ -197,6 +231,7 @@ export function emitCompileNodes(
       cacheKey: null,
       contentHash: prev?.contentHash ?? null,
       lock: prev?.lock ?? { locked: false },
+      tombstone: prev?.tombstone,
       status: "planned_unsplit",
     };
   });
@@ -220,6 +255,7 @@ export function emitCompileNodes(
           cacheKey: null,
           contentHash: priorById.get(`room:${environmentId}`)?.contentHash ?? null,
           lock: priorById.get(`room:${environmentId}`)?.lock ?? { locked: false },
+          tombstone: priorById.get(`room:${environmentId}`)?.tombstone,
           status: "planned_unsplit",
         },
       ]
@@ -245,6 +281,7 @@ export function emitCompileNodes(
         cacheKey: null,
         contentHash: prev?.contentHash ?? null,
         lock: prev?.lock ?? { locked: false },
+        tombstone: prev?.tombstone,
         status: "planned_unsplit",
       } satisfies CompileGraphNode;
     });
@@ -276,6 +313,7 @@ export function emitCompileNodes(
         cacheKey: null,
         contentHash: prev?.contentHash ?? null,
         lock: prev?.lock ?? { locked: false },
+        tombstone: prev?.tombstone,
         status: "planned_unsplit",
       } satisfies CompileGraphNode;
     });
@@ -342,7 +380,14 @@ export function splitCharacterBakers(node: CompileGraphNode): [CompileGraphNode,
 export type WardrobeBakeDecision = {
   bake: boolean;
   stale: boolean;
-  reason: "first_bake" | "cache_hit" | "body_changed" | "locked_skip" | "locked_stale";
+  reason:
+    | "first_bake"
+    | "cache_hit"
+    | "body_changed"
+    | "locked_skip"
+    | "locked_stale"
+    | "tombstoned"
+    | "parent_tombstoned";
 };
 
 /**
@@ -354,20 +399,40 @@ export type WardrobeBakeDecision = {
  *   unlocked + baked + body changed -> body_changed (rebake)
  *   unlocked + baked + body same    -> cache_hit
  *   not baked at all                -> first_bake
+ *   node tombstoned                 -> tombstoned (W5: a removed node refuses bake)
+ *   parent tombstoned               -> parent_tombstoned (W5: descendant goes stale)
  *
  * `bodyHashAtWardrobeBake` is the body output hash (artifact hash from the body
  * node's contentHash) the wardrobe was last baked against; `bodyHashNow` is the
  * current body output hash. null/unknown body hash counts as changed (WCG brief
  * dirty rule: "unknown edge = dirty").
+ *
+ * A lock is not a delete: the compile refuses to tombstone a locked node, so a
+ * node that somehow carries BOTH keeps the lock's skip semantics — locked_stale
+ * — never a delete.
  */
 export function planWardrobeBake(
   wardrobe: CompileGraphNode,
   bodyHashAtWardrobeBake: string | null,
-  bodyHashNow: string,
+  bodyHashNow: string | null,
+  parentTombstoned = false,
 ): WardrobeBakeDecision {
+  if (wardrobe.tombstone) {
+    if (wardrobe.lock.locked) return { bake: false, reason: "locked_stale", stale: true };
+    return { bake: false, reason: "tombstoned", stale: true };
+  }
+  if (parentTombstoned) {
+    return { bake: false, reason: "parent_tombstoned", stale: true };
+  }
   const baked = wardrobe.contentHash !== null;
   if (!baked) {
     return { bake: true, reason: "first_bake", stale: false };
+  }
+  if (bodyHashNow === null) {
+    // WCG dirty rule: unknown edge = dirty. A body hash we cannot resolve is
+    // treated as changed, so a baked unlocked wardrobe rebakes.
+    if (wardrobe.lock.locked) return { bake: false, reason: "locked_stale", stale: true };
+    return { bake: true, reason: "body_changed", stale: false };
   }
   const bodyChanged = bodyHashAtWardrobeBake !== bodyHashNow;
   if (wardrobe.lock.locked) {
@@ -468,8 +533,31 @@ export function validateEncounterMaterializationEvidenceReport(value: unknown): 
         }
         pushLockErrors(errors, node.lock, `/compileNodes/${i}/lock`);
         pushOverridePatchErrors(errors, node.overridePatch, `/compileNodes/${i}/overridePatch`);
+        pushTombstoneErrors(errors, node.tombstone, `/compileNodes/${i}/tombstone`);
         if (node.cacheKey !== undefined && node.cacheKey !== null && typeof node.cacheKey !== "string") {
           errors.push(`/compileNodes/${i}/cacheKey must be string or null when present`);
+        }
+      }
+    }
+  }
+  if (value.compileEvents !== undefined) {
+    if (!Array.isArray(value.compileEvents)) errors.push("/compileEvents must be an array when present");
+    else {
+      for (const [i, event] of value.compileEvents.entries()) {
+        if (!isRecord(event)) {
+          errors.push(`/compileEvents/${i} must be an object`);
+          continue;
+        }
+        if (event.kind === "node_tombstoned") {
+          if (typeof event.nodeId !== "string") errors.push(`/compileEvents/${i}/nodeId must be string`);
+          if (typeof event.deletedAt !== "string") errors.push(`/compileEvents/${i}/deletedAt must be string`);
+          if (event.removedBy !== "faculty_remove") errors.push(`/compileEvents/${i}/removedBy must be faculty_remove`);
+        } else if (event.kind === "descendant_staled") {
+          if (typeof event.nodeId !== "string") errors.push(`/compileEvents/${i}/nodeId must be string`);
+          if (typeof event.ancestorNodeId !== "string") errors.push(`/compileEvents/${i}/ancestorNodeId must be string`);
+          if (typeof event.deletedAt !== "string") errors.push(`/compileEvents/${i}/deletedAt must be string`);
+        } else {
+          errors.push(`/compileEvents/${i}/kind must be node_tombstoned|descendant_staled`);
         }
       }
     }
@@ -538,6 +626,17 @@ function pushLockErrors(errors: string[], lock: unknown, prefix: string): void {
     return;
   }
   if (typeof lock.locked !== "boolean") errors.push(`${prefix}/locked must be boolean`);
+}
+
+function pushTombstoneErrors(errors: string[], tombstone: unknown, prefix: string): void {
+  if (tombstone === undefined) return;
+  if (!isRecord(tombstone)) {
+    errors.push(`${prefix} must be an object when present`);
+    return;
+  }
+  if (typeof tombstone.deletedAt !== "string") errors.push(`${prefix}/deletedAt must be string`);
+  if (tombstone.removedBy !== "faculty_remove") errors.push(`${prefix}/removedBy must be faculty_remove`);
+  if (typeof tombstone.removedNodeId !== "string") errors.push(`${prefix}/removedNodeId must be string`);
 }
 
 function pushOverridePatchErrors(errors: string[], patch: unknown, prefix: string): void {

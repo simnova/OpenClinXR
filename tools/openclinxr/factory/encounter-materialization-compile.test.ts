@@ -468,6 +468,106 @@ describe("compileEncounterMaterialization", () => {
     expect(key2).toBe(key1); // canonical: object key order is irrelevant
     expect(key3).not.toBe(key1); // parent hash ORDER is part of the recipe
   });
+
+  it("W5: removedNodeIds tombstone the node instead of splicing it; node_tombstoned events recorded", async () => {
+    const first = await compileEncounterMaterialization({ bundleReport: twoActorBundleFixture() });
+    const baked = withNodeState(first.report, {
+      [MAY_BODY]: { contentHash: BODY_A },
+      [MAY_WARDROBE]: { contentHash: WARDROBE_BAKED },
+    });
+    const result = await compileEncounterMaterialization({
+      prior: baked,
+      bodyHashNowByNodeId: { [MAY_BODY]: BODY_A },
+      removedNodeIds: ["actor:patient_maya_johnson_v1"],
+    });
+
+    // The actor's split children are tombstoned, NOT spliced out of the graph.
+    const body = nodeOf(result.report, MAY_BODY);
+    const wardrobe = nodeOf(result.report, MAY_WARDROBE);
+    expect(body?.tombstone).toMatchObject({ removedBy: "faculty_remove", removedNodeId: "actor:patient_maya_johnson_v1" });
+    expect(wardrobe?.tombstone).toMatchObject({ removedBy: "faculty_remove", removedNodeId: "actor:patient_maya_johnson_v1" });
+    // A tombstoned wardrobe refuses to bake: no blender, tombstoned decision.
+    expect(wardrobe?.wouldInvoke).toBeNull();
+    expect(wardrobe?.bakeDecision).toMatchObject({ bake: false, reason: "tombstoned", stale: true });
+    // Delete is a compile event, not an array splice.
+    expect(result.report.compileEvents).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ kind: "node_tombstoned", nodeId: MAY_BODY, removedBy: "faculty_remove" }),
+        expect.objectContaining({ kind: "node_tombstoned", nodeId: MAY_WARDROBE, removedBy: "faculty_remove" }),
+      ]),
+    );
+    expect(validateEncounterMaterializationEvidenceReport(result.report)).toEqual({ ok: true, errors: [] });
+  });
+
+  it("W5: a locked removed node REFUSES the delete — no tombstone, no event", async () => {
+    const first = await compileEncounterMaterialization({ bundleReport: twoActorBundleFixture() });
+    const baked = withNodeState(first.report, {
+      [MAY_BODY]: { contentHash: BODY_A, lock: { locked: true, lockKind: "faculty_keep_artifact" } },
+      [MAY_WARDROBE]: { contentHash: WARDROBE_BAKED, lock: { locked: true, lockKind: "faculty_keep_artifact" } },
+    });
+    const result = await compileEncounterMaterialization({
+      prior: baked,
+      bodyHashNowByNodeId: { [MAY_BODY]: BODY_A },
+      removedNodeIds: ["actor:patient_maya_johnson_v1"],
+    });
+
+    // The lock won on every node of the actor: nothing was tombstoned, no
+    // node_tombstoned event was emitted, and the locked wardrobe still skips.
+    expect(nodeOf(result.report, MAY_BODY)?.tombstone).toBeUndefined();
+    expect(nodeOf(result.report, MAY_WARDROBE)?.tombstone).toBeUndefined();
+    expect(nodeOf(result.report, MAY_WARDROBE)?.bakeDecision).toMatchObject({ bake: false, reason: "locked_skip", stale: false });
+    expect(result.report.compileEvents ?? []).toEqual([]);
+  });
+
+  it("W5: split-level body removal stales the wardrobe descendant (parent_tombstoned + descendant_staled)", async () => {
+    const first = await compileEncounterMaterialization({ bundleReport: twoActorBundleFixture() });
+    const baked = withNodeState(first.report, {
+      [MAY_BODY]: { contentHash: BODY_A },
+      [MAY_WARDROBE]: { contentHash: WARDROBE_BAKED },
+    });
+    const result = await compileEncounterMaterialization({
+      prior: baked,
+      bodyHashNowByNodeId: { [MAY_BODY]: BODY_A },
+      removedNodeIds: [MAY_BODY],
+    });
+
+    const body = nodeOf(result.report, MAY_BODY);
+    const wardrobe = nodeOf(result.report, MAY_WARDROBE);
+    expect(body?.tombstone).toBeDefined();
+    expect(wardrobe?.tombstone).toBeUndefined(); // the wardrobe itself is not removed
+    expect(wardrobe?.bakeDecision).toMatchObject({ bake: false, reason: "parent_tombstoned", stale: true });
+    expect(result.report.compileEvents).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ kind: "node_tombstoned", nodeId: MAY_BODY }),
+        expect.objectContaining({ kind: "descendant_staled", nodeId: MAY_WARDROBE, ancestorNodeId: MAY_BODY }),
+      ]),
+    );
+    expect(validateEncounterMaterializationEvidenceReport(result.report)).toEqual({ ok: true, errors: [] });
+  });
+
+  it("W5: a tombstone survives the copy-prior rule — the next compile still sees the delete", async () => {
+    const first = await compileEncounterMaterialization({ bundleReport: twoActorBundleFixture() });
+    const baked = withNodeState(first.report, {
+      [MAY_BODY]: { contentHash: BODY_A },
+      [MAY_WARDROBE]: { contentHash: WARDROBE_BAKED },
+    });
+    const removed = await compileEncounterMaterialization({
+      prior: baked,
+      bodyHashNowByNodeId: { [MAY_BODY]: BODY_A },
+      removedNodeIds: ["actor:patient_maya_johnson_v1"],
+    });
+    // A second compile with NO removal does not resurrect the deleted node:
+    // the tombstone is copied forward by nodeId.
+    const again = await compileEncounterMaterialization({
+      prior: removed.report,
+      bodyHashNowByNodeId: { [MAY_BODY]: BODY_A },
+    });
+    expect(nodeOf(again.report, MAY_WARDROBE)?.tombstone).toMatchObject({ removedBy: "faculty_remove" });
+    expect(nodeOf(again.report, MAY_WARDROBE)?.bakeDecision).toMatchObject({ bake: false, reason: "tombstoned", stale: true });
+    // The event ledger is cumulative across compiles.
+    expect(again.report.compileEvents?.filter((e) => e.kind === "node_tombstoned")).toHaveLength(2);
+    expect(validateEncounterMaterializationEvidenceReport(again.report)).toEqual({ ok: true, errors: [] });
+  });
 });
 
 function nodeOf(report: EncounterMaterializationEvidenceReport, nodeId: string): CompilePlanNode | undefined {
