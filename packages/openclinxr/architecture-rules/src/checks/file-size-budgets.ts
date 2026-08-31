@@ -237,7 +237,19 @@ export function checkFreezeListHonesty(config?: FileSizeBudgetConfig): string[] 
       continue;
     }
     let lines: number;
-    const committed = readCommittedLines(root, rel);
+    // MEASURE THE COMMIT, THEN HEAD (2026-08-31). This check read HEAD only, which cannot see the
+    // repair it demands: once a frozen file grows, HEAD holds the violation, so the extraction that
+    // brings it back under its ceiling is REJECTED by the same gate that requires it. Measured on
+    // CaseAuthoringWorkbench.tsx — staged at 672 against a 679 ceiling, reported as 718 from HEAD —
+    // and the only escape was a second hook bypass, i.e. the gate forced the mechanism it exists to
+    // prevent.
+    //
+    // The index is preferred because it IS the commit, which is the same reasoning readIndexLines
+    // already carries for checkFileSizeBudgets (:211). HEAD remains the fallback, so #361 still
+    // holds: an UNSTAGED working-tree edit in a shared checkout is invisible here and cannot
+    // fabricate an "impossible ceiling" or a premature "paid down". Growth still fails — a staged
+    // file that grows past its ceiling is measured at the index and reported.
+    const committed = readIndexLines(root, rel) ?? readCommittedLines(root, rel);
     if (committed !== undefined) {
       lines = committed;
     } else {
