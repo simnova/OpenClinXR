@@ -39,7 +39,10 @@ import {
 } from "./api-client.js";
 import { CaseAuthoringWorkbench } from "./CaseAuthoringWorkbench.js";
 import { EmissionReplayBindPanel } from "./EmissionReplayBindPanel.js";
-import { EnvironmentGenerationQueuePanel } from "./EnvironmentGenerationQueuePanel.js";
+import {
+  EnvironmentGenerationQueuePanel,
+  type PlacementAuthorValue,
+} from "./EnvironmentGenerationQueuePanel.js";
 import { FacultyReviewDecisionPanel } from "./FacultyReviewDecisionPanel.js";
 import { useFacultyCompileLocks } from "./faculty-compile-lock.js";
 import { QueueReviewSnapshotHistory } from "./QueueReviewSnapshotHistory.js";
@@ -1113,6 +1116,8 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
     | { status: "submitted"; message: string }
     | { status: "error"; message: string }
   >({ status: "idle" });
+  // Parent-owned faculty staging authoring: authored ActorCard.placement values keyed by actorId.
+  const [placementAuthorValues, setPlacementAuthorValues] = useState<Record<string, PlacementAuthorValue>>({});
   const sceneGenerationPipelineQueue = state.status === "ready" ? state.sceneGenerationPipelineQueue : undefined;
   const { facultyCompileLockRows, handleFacultyCompileLockChange, handleFacultyCompileOverrideChange, handleFacultyCompileOverrideValueChange, compileEdges } =
     useFacultyCompileLocks(sceneGenerationPipelineQueue, controlPlaneClient);
@@ -1402,6 +1407,10 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
           onInitiateSceneGeneration={(scenarioId) => void initiateSceneGeneration(scenarioId)}
           onAttachSceneGenerationReview={(request) => void attachSceneGenerationReview(request)}
           onCheckSceneGenerationPublicationReadiness={(request) => void checkSceneGenerationPublicationReadiness(request)}
+          initialPlacementAuthorValues={placementAuthorValues}
+          onPlacementAuthorChange={(actorId, placement) =>
+            setPlacementAuthorValues((current) => ({ ...current, [actorId]: placement }))
+          }
         />
 
         <section className="workbench-panel station-queue-panel" aria-labelledby="station-queue-title">

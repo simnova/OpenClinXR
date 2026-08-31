@@ -6,9 +6,10 @@ import {
   type EnvironmentGenerationWorkOrderQueue,
   type ScenarioSceneGenerationPipelineWorkOrderQueue,
 } from "@openclinxr/asset-registry";
-import { Button, Table, Tag, Typography } from "antd";
-import { lazy, type ReactElement, Suspense } from "react";
+import { Button, Form, InputNumber, Select, Space, Table, Tag, Typography } from "antd";
+import { lazy, type ReactElement, Suspense, useEffect, useMemo } from "react";
 import type { CreateScenarioSceneGenerationRequestResult, ScenarioSceneGenerationRequestPublicationReadiness, ScenarioSceneGenerationRequestQueue } from "./api-client.js";
+import { supportSurfaceOptions } from "./case-authoring-model.js";
 import type { CompileEdge } from "./CompileGraphCanvas.js";
 import {
   buildFacultyCompileLockColumns,
@@ -53,10 +54,42 @@ export type EnvironmentGenerationQueuePanelProps = {
   caseDefVersion?: number;
   /** Last world-compile compileVersion for the featured case (worldview header). */
   compileVersion?: number;
+  /**
+   * Actor staging authoring rows (optional). When omitted, rows derive from the
+   * faculty compile lock actor subjects, so the staging surface stays populated
+   * wherever the lock table is. Parent-owned identity only; authored placement
+   * values flow back through `onPlacementAuthorChange`.
+   */
+  placementAuthorRows?: readonly PlacementAuthorRow[];
+  /** Parent-owned seeded placement values, keyed by actorId (survives panel re-render). */
+  initialPlacementAuthorValues?: Readonly<Record<string, PlacementAuthorValue>>;
+  /** Parent-owned placement change: the actor's authored staging (ActorCard.placement fields). */
+  onPlacementAuthorChange?: (actorId: string, placement: PlacementAuthorValue) => void;
 };
 
 export { FACULTY_COMPILE_OVERRIDE_PATHS } from "./faculty-compile-lock.js";
 export type { FacultyCompileLockRow, FacultyCompileOverridePath } from "./faculty-compile-lock.js";
+
+/** One faculty-authored staging row (actor identity for the staging authoring list). */
+export type PlacementAuthorRow = {
+  actorId: string;
+  displayName?: string;
+};
+
+/**
+ * Authored staging placement for an actor — the same ActorCard.placement fields
+ * the factory Placement compile nodes and PLACEMENT_OVERRIDE_PATHS
+ * (/supportSurface, /plantOffsetMeters) consume. Metadata only.
+ */
+export type PlacementAuthorValue = {
+  supportSurface?: string;
+  plantOffsetMeters?: number;
+};
+
+function toPlacementSelectOptions(values: readonly string[]): { label: string; value: string }[] {
+  return values.map((value) => ({ label: value, value }));
+}
+const supportSurfaceSelectOptions = toPlacementSelectOptions(supportSurfaceOptions);
 
 export function EnvironmentGenerationQueuePanel({
   environmentGenerationQueue,
@@ -76,6 +109,9 @@ export function EnvironmentGenerationQueuePanel({
   onCompileEncounter,
   caseDefVersion,
   compileVersion,
+  placementAuthorRows,
+  initialPlacementAuthorValues,
+  onPlacementAuthorChange,
 }: EnvironmentGenerationQueuePanelProps): ReactElement {
   const nextGateSummary = summarizeEnvironmentNextGateCounts(environmentGenerationQueue);
   const workOrderQueue = environmentGenerationWorkOrderQueue ?? buildEnvironmentGenerationWorkOrderQueue(environmentGenerationQueue);
@@ -87,6 +123,71 @@ export function EnvironmentGenerationQueuePanel({
     workOrder.workOrderId === sceneGenerationPipelineQueue.featuredFactoryPlanningWorkOrderId
   ) ?? sceneGenerationPipelineQueue?.workOrders[0];
   const latestSceneGenerationRequest = sceneGenerationRequestQueue?.requests[0];
+
+  const placementRows = useMemo(() => {
+    const source = placementAuthorRows ?? facultyCompileLockRows
+      .filter((row) => row.kind === "actor")
+      .map((row): PlacementAuthorRow => ({ actorId: row.compileSubject }));
+    const seenActorIds = new Set<string>();
+    return source.filter((row) => {
+      if (seenActorIds.has(row.actorId)) {
+        return false;
+      }
+      seenActorIds.add(row.actorId);
+      return true;
+    });
+  }, [placementAuthorRows, facultyCompileLockRows]);
+  const placementRowKey = placementRows.map((row) => row.actorId).join("\u0000");
+  const [placementForm] = Form.useForm();
+
+  useEffect(() => {
+    const currentActors = (placementForm.getFieldValue("actors") as Array<Record<string, unknown>> | undefined) ?? [];
+    const currentByActorId = new Map(currentActors.map((entry) => [String(entry["actorId"]), entry]));
+    const nextActors = placementRows.map((row) => {
+      const existing = currentByActorId.get(row.actorId);
+      if (existing !== undefined) {
+        return existing;
+      }
+      const seeded = initialPlacementAuthorValues?.[row.actorId];
+      return {
+        actorId: row.actorId,
+        ...(seeded !== undefined && Object.keys(seeded).length > 0 ? { placement: { ...seeded } } : {}),
+      };
+    });
+    const needsSync =
+      currentActors.length !== nextActors.length ||
+      currentActors.some((entry, index) => String(entry["actorId"]) !== String(nextActors[index]?.["actorId"]));
+    if (needsSync) {
+      placementForm.setFieldsValue({ actors: nextActors });
+    }
+  }, [placementRowKey, initialPlacementAuthorValues, placementForm]);
+
+  const handlePlacementValuesChange = (): void => {
+    const values = placementForm.getFieldsValue() as {
+      actors?: Array<{ actorId?: string; placement?: PlacementAuthorValue }>;
+    };
+    const actors = values.actors ?? [];
+    actors.forEach((entry, index) => {
+      const row = placementRows[index];
+      if (!row) {
+        return;
+      }
+      const placement = entry?.placement;
+      if (!placement) {
+        return;
+      }
+      const authored: PlacementAuthorValue = {};
+      if (placement.supportSurface !== undefined) {
+        authored.supportSurface = placement.supportSurface;
+      }
+      if (placement.plantOffsetMeters !== undefined) {
+        authored.plantOffsetMeters = placement.plantOffsetMeters;
+      }
+      if (Object.keys(authored).length > 0) {
+        onPlacementAuthorChange?.(row.actorId, authored);
+      }
+    });
+  };
 
   return (
     <section className="workbench-panel" aria-label="3D environment generation queue">
@@ -256,6 +357,66 @@ export function EnvironmentGenerationQueuePanel({
         />
         <Typography.Paragraph type="secondary">
           Lock and override changes are faculty review metadata persisted to the local compile-lock store; they do not promote or publish a compile/materialization packet.
+        </Typography.Paragraph>
+      </fieldset>
+      <fieldset className="station-queue-row" aria-label="Faculty staging authoring">
+        <Typography.Text strong>Faculty staging authoring</Typography.Text>
+        <Typography.Text type="secondary">
+          {`${placementRows.length} actor staging subject${placementRows.length === 1 ? "" : "s"}; staging metadata only, no generated asset or runtime placement is implied.`}
+        </Typography.Text>
+        {placementRows.length === 0 ? (
+          <Typography.Text type="secondary">
+            No actor staging rows yet. Actors appear here once the scene pipeline work orders (or faculty compile lock rows) attach.
+          </Typography.Text>
+        ) : (
+          <Form form={placementForm} layout="vertical" onValuesChange={handlePlacementValuesChange}>
+            <Form.List name="actors">
+              {(fields) => (
+                <Space direction="vertical" size={8} style={{ width: "100%" }}>
+                  {fields.map((field) => {
+                    const row = placementRows[field.name];
+                    const subject = row?.displayName ? `${row.displayName} (${row.actorId})` : row?.actorId ?? `actor ${field.name}`;
+                    return (
+                      <Space key={field.key} wrap align="end" size={8}>
+                        <Typography.Text strong style={{ minWidth: 240 }}>
+                          {subject}
+                        </Typography.Text>
+                        <Form.Item
+                          name={[field.name, "placement", "supportSurface"]}
+                          label="Support surface"
+                          tooltip="Where this actor is staged (stretcher|chair|none); 'none' is an explicit standing decision. Writes ActorCard.placement.supportSurface — the field the factory Placement compile node and PLACEMENT_OVERRIDE_PATHS consume."
+                        >
+                          <Select
+                            allowClear
+                            options={supportSurfaceSelectOptions}
+                            style={{ minWidth: 160 }}
+                            aria-label={`Support surface for ${subject}`}
+                            placeholder="unset"
+                          />
+                        </Form.Item>
+                        <Form.Item
+                          name={[field.name, "placement", "plantOffsetMeters"]}
+                          label="Plant offset (m)"
+                          tooltip="Floor offset in meters applied to the actor placement (PLACEMENT_OVERRIDE_PATHS /plantOffsetMeters)."
+                        >
+                          <InputNumber
+                            min={0}
+                            step={0.1}
+                            style={{ minWidth: 140 }}
+                            aria-label={`Plant offset for ${subject}`}
+                            placeholder="default"
+                          />
+                        </Form.Item>
+                      </Space>
+                    );
+                  })}
+                </Space>
+              )}
+            </Form.List>
+          </Form>
+        )}
+        <Typography.Paragraph type="secondary">
+          Faculty-authored staging writes the same ActorCard.placement fields (supportSurface, plantOffsetMeters) the factory Placement compile nodes read; staging metadata only, no asset bake, room layout, or runtime staging is implied.
         </Typography.Paragraph>
       </fieldset>
       <fieldset className="station-queue-row" aria-label="Compile/materialization dependency graph">
