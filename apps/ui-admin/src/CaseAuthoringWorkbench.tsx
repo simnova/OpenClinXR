@@ -57,6 +57,17 @@ const statusSelectOptions = toOptions(scenarioStatusOptions);
 const habitusSelectOptions = toOptions(habitusOptions);
 const supportSurfaceSelectOptions = toOptions(supportSurfaceOptions);
 
+// Deliberately bounded: validated_summative is never offered (needs stage_3 evidence the
+// authoring surface cannot produce) and stage_3_validated is never offered (would invite
+// an unearned escalation). stage_0 is never auto-approved — the Select merely reflects
+// whatever the compiled world carries and only changes when faculty change it.
+const scoreUseLabelSelectOptions = toOptions(["formative_local_only", "pilot_research_only"]);
+const validationStageSelectOptions = toOptions([
+  "stage_0_synthetic_draft",
+  "stage_1_expert_reviewed",
+  "stage_2_pilot_ready",
+]);
+
 type ValidationView = { ok: true } | { ok: false; errors: string[] };
 
 export type CaseAuthoringWorkbenchProps = {
@@ -369,6 +380,83 @@ export function CaseAuthoringWorkbench({ initialScenario, apiClient }: CaseAutho
         <EquipmentPanel />
         <EmotionPolicyPanel />
         <AssetNeedsPanel />
+        <Card title="Governance & review rubric" size="small" style={{ marginBottom: 16 }}>
+          <Alert
+            type="info"
+            showIcon
+            style={{ marginBottom: 12 }}
+            message="Faculty-visible governance"
+            description={
+              <span aria-label="Governance claim boundary">
+                scoreUseLabel, validationStage, and rubric items come from the compiled world and round-trip
+                unchanged unless faculty edit them — the LLM cannot escalate claim labels silently.{" "}
+                <Typography.Text strong>validated_summative</Typography.Text> is never offered and stage_0 is
+                never auto-approved.
+              </span>
+            }
+          />
+          <Space wrap size="large">
+            <Form.Item name={["governance", "scoreUseLabel"]} label="Score use label" style={{ marginBottom: 12 }}>
+              <Select options={scoreUseLabelSelectOptions} style={{ minWidth: 220 }} aria-label="Governance score use label" />
+            </Form.Item>
+            <Form.Item name={["governance", "validationStage"]} label="Validation stage" style={{ marginBottom: 12 }}>
+              <Select options={validationStageSelectOptions} style={{ minWidth: 260 }} aria-label="Governance validation stage" />
+            </Form.Item>
+          </Space>
+          <Form.Item name={["governance", "syntheticCaseDisclosure"]} label="Synthetic-case disclosure" style={{ marginBottom: 12 }}>
+            <TextArea aria-label="Governance synthetic case disclosure" rows={2} />
+          </Form.Item>
+          <StringListField
+            name={["governance", "validationLimitations"]}
+            label="Validation limitations"
+            addLabel="Add limitation"
+            itemLabel="Validation limitation"
+          />
+          <Divider style={{ margin: "8px 0" }}>Review rubric items</Divider>
+          <Form.List name="reviewRubric">
+            {(fields, { add, remove }) => (
+              <div>
+                {fields.map((field) => (
+                  <Card
+                    key={field.key}
+                    size="small"
+                    type="inner"
+                    style={{ marginBottom: 10 }}
+                    title={`Rubric item ${field.name + 1}`}
+                    extra={
+                      <Button danger size="small" onClick={() => remove(field.name)}>
+                        Remove
+                      </Button>
+                    }
+                  >
+                    <Space wrap size="large">
+                      <Form.Item name={[field.name, "rubricId"]} label="Rubric ID" style={{ marginBottom: 12 }}>
+                        <Input aria-label="Rubric ID" placeholder="e.g. urgent_recognition" />
+                      </Form.Item>
+                      <Form.Item name={[field.name, "label"]} label="Label" style={{ marginBottom: 12 }}>
+                        <Input aria-label="Rubric label" placeholder="e.g. Urgent recognition" />
+                      </Form.Item>
+                    </Space>
+                    <StringListField
+                      name={[field.name, "requiredTraceTags"]}
+                      label="Required trace tags"
+                      addLabel="Add trace tag"
+                      itemLabel="Rubric trace tag"
+                    />
+                  </Card>
+                ))}
+                <Button
+                  type="dashed"
+                  block
+                  style={{ marginTop: 12 }}
+                  onClick={() => add({ rubricId: `rubric_${fields.length + 1}`, label: "", requiredTraceTags: [] })}
+                >
+                  Add rubric item
+                </Button>
+              </div>
+            )}
+          </Form.List>
+        </Card>
         <Card title="Actors & interactions" size="small" style={{ marginBottom: 16 }}>
           <Form.List name="actors">
             {(fields, { add, remove }) => (

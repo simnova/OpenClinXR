@@ -194,6 +194,10 @@ export type ScenarioFormValues = {
   emotionPolicy?: Scenario["emotionPolicy"];
   actors: ScenarioActorFormValue[];
   eventSchedule: Scenario["eventSchedule"];
+  /** Faculty-visible governance (scoreUseLabel, validationStage, limitations). Q4. */
+  governance: Scenario["governance"];
+  /** Faculty-visible review rubric rows. Q4. */
+  reviewRubric: Scenario["reviewRubric"];
 };
 
 export type ScenarioActorFormValue = {
@@ -216,6 +220,43 @@ export type ScenarioActorFormValue = {
   communicationProfile?: ActorCard["communicationProfile"];
 };
 
+/** Deep-copy governance so the form never aliases the base Scenario's object graph. */
+function copyGovernance(governance: Scenario["governance"]): Scenario["governance"] {
+  return {
+    ...governance,
+    validationLimitations: [...governance.validationLimitations],
+    requiredReviewerRoles: [...governance.requiredReviewerRoles],
+    sourceIds: [...governance.sourceIds],
+    safetyCriticalTraceTags: [...governance.safetyCriticalTraceTags],
+    hiddenFactPolicy: { ...governance.hiddenFactPolicy },
+  };
+}
+
+/**
+ * Round-trip form-authored governance onto the base while preserving the members
+ * the form does not surface (requiredReviewerRoles, sourceIds, safetyCriticalTraceTags,
+ * hiddenFactPolicy). antd returns the full initial-value tree, but a form that never
+ * registered a nested member can hand back a partial object, so each hidden member
+ * falls back to the base when absent.
+ */
+function mergeGovernance(
+  base: Scenario["governance"],
+  values: Scenario["governance"] | undefined,
+): Scenario["governance"] {
+  if (!values) {
+    return base;
+  }
+  return {
+    ...base,
+    ...values,
+    validationLimitations: values.validationLimitations ?? base.validationLimitations,
+    requiredReviewerRoles: values.requiredReviewerRoles ?? base.requiredReviewerRoles,
+    sourceIds: values.sourceIds ?? base.sourceIds,
+    safetyCriticalTraceTags: values.safetyCriticalTraceTags ?? base.safetyCriticalTraceTags,
+    hiddenFactPolicy: values.hiddenFactPolicy ?? base.hiddenFactPolicy,
+  };
+}
+
 /** Project a Scenario into the flat, form-friendly shape for antd Form initialValues. */
 export function scenarioToFormValues(scenario: Scenario): ScenarioFormValues {
   return {
@@ -232,6 +273,11 @@ export function scenarioToFormValues(scenario: Scenario): ScenarioFormValues {
     clinicalObjectives: [...scenario.clinicalObjectives],
     requiredTraceTags: [...scenario.requiredTraceTags],
     eventSchedule: scenario.eventSchedule.map((entry) => ({ ...entry })),
+    governance: copyGovernance(scenario.governance),
+    reviewRubric: (scenario.reviewRubric ?? []).map((item) => ({
+      ...item,
+      requiredTraceTags: [...item.requiredTraceTags],
+    })),
     actors: scenario.actors.map((actor) => ({
       actorId: actor.actorId,
       role: actor.role,
@@ -385,7 +431,12 @@ function authoredEnvironment(
 
 /**
  * Merge the edited form subset back onto the full base Scenario, preserving every
- * field the form does not expose (review gates, governance, rubric).
+ * field the form does not expose (review gates). Authored governance (scoreUseLabel,
+ * validationStage, syntheticCaseDisclosure, validationLimitations) and review rubric
+ * items round-trip from the form so faculty can confirm claim labels stayed put;
+ * governance members the form does not surface (requiredReviewerRoles, sourceIds,
+ * safetyCriticalTraceTags, hiddenFactPolicy) are preserved from the base when the
+ * form returns a partial governance object.
  * An authored environmentId that DIFFERS from the imported one
  * round-trips onto scenario.environment (name/description derived from the
  * registered shell, so the case stays self-consistent when the room changes);
@@ -417,6 +468,11 @@ export function mergeFormValuesIntoScenario(base: Scenario, values: ScenarioForm
     assetNeeds: cleanAssetNeeds(values.assetNeeds),
     eventSchedule: (values.eventSchedule ?? []).map((entry) => ({ ...entry })),
     actors: (values.actors ?? []).map((formActor) => actorFromFormValue(base, formActor)),
+    governance: mergeGovernance(base.governance, values.governance),
+    reviewRubric: (values.reviewRubric ?? base.reviewRubric).map((item) => ({
+      ...item,
+      requiredTraceTags: [...item.requiredTraceTags],
+    })),
   };
   if (environmentId.length > 0 && environmentId !== base.environment?.environmentId) {
     merged.environment = authoredEnvironment(environmentId);
