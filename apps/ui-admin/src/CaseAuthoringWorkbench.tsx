@@ -40,6 +40,13 @@ import { AssetNeedsPanel } from "./AssetNeedsPanel.js";
 import { EmotionPolicyPanel } from "./EmotionPolicyPanel.js";
 import { EquipmentPanel } from "./EquipmentPanel.js";
 import { StringListField } from "./StringListField.js";
+import {
+  actorFormFromDraft,
+  extractScenario,
+  extractScenarioList,
+  structuredCloneScenario,
+} from "./case-authoring-io.js";
+
 const { TextArea } = Input;
 
 /** Minimal server client surface for authored-scenario persistence (via app-local api-client only). */
@@ -662,56 +669,4 @@ function ActorFields({ fieldName, onRemove }: { fieldName: number; onRemove: () 
       </Button>
     </div>
   );
-}
-
-function actorFormFromDraft(actor: ReturnType<typeof createActorDraft>) {
-  return {
-    actorId: actor.actorId,
-    role: actor.role,
-    displayName: actor.displayName,
-    demeanor: actor.demeanor ?? "",
-    hiddenFacts: [],
-    touchResponses: [],
-  };
-}
-
-function structuredCloneScenario(scenario: Scenario): Scenario {
-  return JSON.parse(JSON.stringify(scenario)) as Scenario;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function extractScenarioList(raw: unknown): Array<{ scenarioId: string; version: number }> {
-  if (!isRecord(raw)) {
-    return [];
-  }
-  const scenarios = raw["scenarios"];
-  if (!Array.isArray(scenarios)) {
-    return [];
-  }
-  return scenarios
-    .filter(isRecord)
-    .map((entry) => {
-      const scenarioId = typeof entry["scenarioId"] === "string" ? entry["scenarioId"] : "";
-      const version = typeof entry["version"] === "number" ? entry["version"] : 0;
-      return { scenarioId, version };
-    })
-    .filter((entry) => entry.scenarioId.length > 0);
-}
-
-function extractScenario(raw: unknown): Scenario | null {
-  if (!isRecord(raw)) {
-    return null;
-  }
-  const scenario = raw["scenario"];
-  if (!isRecord(scenario) || typeof scenario["scenarioId"] !== "string") {
-    // Allow bare Scenario body if server ever returns it unwrapped.
-    if (typeof raw["scenarioId"] === "string") {
-      return raw as Scenario;
-    }
-    return null;
-  }
-  return scenario as Scenario;
 }
