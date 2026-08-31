@@ -51,15 +51,17 @@ describe("agentic-hook-runner path-scoped architecture", () => {
       "exec",
       "vitest",
       "run",
+      "--config",
+      "vitest.arch.config.ts",
       "--root",
       ".",
       ...ARCHITECTURE_GLOBAL_SUITE_FILES,
     ]);
     // Global suites must still be present — never a weaker subset that drops freeze/workspace scanners.
-    expect(step?.command).toContain("src/file-size-budgets.test.ts");
-    expect(step?.command).toContain("src/workspace-architecture.test.ts");
-    expect(step?.command).toContain("src/decision-invariants.test.ts");
-    expect(step?.command).toContain("src/tsconfig-conventions.test.ts");
+    expect(step?.command).toContain("src/archunit-tests/file-size-budgets.test.ts");
+    expect(step?.command).toContain("src/archunit-tests/workspace-architecture.test.ts");
+    expect(step?.command).toContain("src/archunit-tests/decision-invariants.test.ts");
+    expect(step?.command).toContain("src/archunit-tests/tsconfig-conventions.test.ts");
     // Must NOT use turbo pnpm architecture (avoids ^typecheck cascade on ordinary product commits).
     expect(step?.command).not.toEqual(["pnpm", "architecture"]);
   });
@@ -102,6 +104,6 @@ describe("agentic-hook-runner path-scoped architecture", () => {
     const steps = stepsForProfile("pre-commit", ["apps/api/src/server.ts"]);
     const architecture = steps.find((step) => step.label.includes("Architecture"));
     expect(architecture?.label).toBe("Architecture fitness rules (path-scoped pre-commit)");
-    expect(architecture?.command.join(" ")).toContain("vitest run --root .");
+    expect(architecture?.command.join(" ")).toContain("vitest run --config vitest.arch.config.ts --root .");
   });
 });

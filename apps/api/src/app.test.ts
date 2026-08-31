@@ -4183,6 +4183,7 @@ describe("OpenClinXR API shell", () => {
     });
     const ready = await json(readyResponse) as {
       canPublishForLearnerUse: boolean;
+      missingReviewerRoles: string[];
       gateResults: Array<{ gate: string; status: string; details: string[] }>;
       blockerVisibility: {
         claimBoundary: string;
@@ -4193,12 +4194,15 @@ describe("OpenClinXR API shell", () => {
     };
 
     expect(readyResponse.status).toBe(200);
-    expect(ready.canPublishForLearnerUse).toBe(true);
+    // W17: reviewerRole on the evidence row is self-declared. The API route does not
+    // pass attestationVerifier, so fabricated approvals do not credit required roles.
+    expect(ready.canPublishForLearnerUse).toBe(false);
+    expect(ready.missingReviewerRoles).toEqual(["clinician", "psychometrician", "legal", "simulation_qa"]);
     expect(ready.blockerVisibility).toMatchObject({
       claimBoundary: "publication_blocker_visibility_not_readiness_claim",
-      blockerIds: [],
+      blockerIds: ["publication_gate_blocked:reviewer_evidence"],
       warningIds: ["publication_gate_warning:asset_readiness"],
-      recommendedNextAction: "review_asset_warnings_before_local_formative_use",
+      recommendedNextAction: "collect_required_reviewer_evidence",
     });
     expect(ready.gateResults).toContainEqual({
       gate: "asset_readiness",

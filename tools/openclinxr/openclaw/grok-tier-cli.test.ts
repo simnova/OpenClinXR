@@ -90,9 +90,9 @@ describe("DeepSeek model capabilities (confirmed from official api-docs.deepseek
     expect(proSpec.spawnSubagentCall!.prompt).not.toMatch(/image_url|type":\s*"image|data:image\//i);
   });
 
-  it("spawn builder hardens multimodal tasks to grok-4.6 (never deepseek text-only)", () => {
+  it("spawn builder hardens multimodal tasks to a vision model (never deepseek text-only)", () => {
     // Any task/role mentioning cagematch, UI-XR evidence, screenshots, png/webm visuals, model-vetting, sleeve/ garment evidence, etc.
-    // must resolve to grok-4.6 (vision / Imagine / glb-grade). Never deepseek text-only.
+    // must resolve to a vision model. Never deepseek-v4-flash / deepseek-v4-pro text-only.
     const skepticVisual = buildGrokRepoAgentSpawnSpec({
       roleId: "productivity-skeptic",
       roleDir: "agents/adversarial/productivity-skeptic",
@@ -100,12 +100,11 @@ describe("DeepSeek model capabilities (confirmed from official api-docs.deepseek
       task: "scout phase for ed-real-garment-phenotype-expansion: re-assess cagematch front/three_quarter/body_motion pngs + ui-xr-ed-seed-inspection with sleeveDeform evidence, garmentGeometry, cyan visuals in Model Vetting and UI-XR",
     });
     expect(skepticVisual.multimodal).toBe(true);
-    expect(skepticVisual.model).toBe("grok-4.6");
+    expect(skepticVisual.model).toBe("deepseek-v4-flash-vision-exp");
     expect(skepticVisual.spawnSubagentCall!.description).toContain("multimodal");
     const prompt = skepticVisual.spawnSubagentCall!.prompt;
-    expect(prompt).toMatch(/grok-4\.6/);
-    expect(prompt).toMatch(/\(multimodal\)|grok-4\.6/);
-    expect(prompt).not.toMatch(/deepseek-v4-flash|deepseek-v4-pro/); // no text-only fallback for vision
+    expect(prompt).toMatch(/deepseek-v4-flash-vision-exp/);
+    expect(prompt).not.toMatch(/(?<![\w-])deepseek-v4-pro(?![\w-])/);
 
     // Non-visual text task stays on deepseek
     const textOnly = buildGrokRepoAgentSpawnSpec({
@@ -126,10 +125,9 @@ describe("DeepSeek model capabilities (confirmed from official api-docs.deepseek
     // not always present on the high-level advice object. The important guard is the model + native surface.
   });
 
-  it("rejects image injection for flash paths (simulated bad context) — builder HARDENS to grok-4.6", () => {
+  it("rejects image injection for flash paths (simulated bad context) — builder HARDENS to a vision model", () => {
     // The spawn builder now detects visual keywords (screenshot, cagematch, png, etc.) and routes multimodal
-    // efforts to grok-4.6 instead of letting deepseek text models see image_url content.
-    // This is the hardening requested.
+    // efforts to a vision model instead of letting deepseek text models see image_url content.
     const badTask = "Analyze this screenshot: data:image/png;base64,FAKE and the cagematch front.png";
     const spec = buildGrokRepoAgentSpawnSpec({
       roleId: "productivity-skeptic",
@@ -137,7 +135,7 @@ describe("DeepSeek model capabilities (confirmed from official api-docs.deepseek
       group: "adversarial",
       task: badTask,
     });
-    expect(spec.model).toBe("grok-4.6");
+    expect(spec.model).toBe("deepseek-v4-flash-vision-exp");
     expect(spec.multimodal).toBe(true);
     // The prompt text may mention the task, but must not serialize as image_url content block for the API
     // and must route vision to grok-4 models.

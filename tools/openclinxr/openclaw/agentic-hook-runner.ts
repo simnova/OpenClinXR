@@ -25,10 +25,10 @@ const hookProfiles = new Set<HookProfile>(["pre-commit", "pre-push", "strict", "
  * missing violations that only appear in the full graph.
  */
 export const ARCHITECTURE_GLOBAL_SUITE_FILES = [
-  "src/file-size-budgets.test.ts",
-  "src/workspace-architecture.test.ts",
-  "src/decision-invariants.test.ts",
-  "src/tsconfig-conventions.test.ts",
+  "src/archunit-tests/file-size-budgets.test.ts",
+  "src/archunit-tests/workspace-architecture.test.ts",
+  "src/archunit-tests/decision-invariants.test.ts",
+  "src/archunit-tests/tsconfig-conventions.test.ts",
 ] as const;
 
 /**
@@ -203,6 +203,8 @@ export function buildArchitectureStep(profile: HookProfile, changedFiles: string
       "exec",
       "vitest",
       "run",
+      "--config",
+      "vitest.arch.config.ts",
       "--root",
       ".",
       ...ARCHITECTURE_GLOBAL_SUITE_FILES,
