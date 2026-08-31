@@ -4,7 +4,9 @@ import path from "node:path";
 import { sha256ContentHashOfArtifactAt } from "./encounter-asset-generation-queue.js";
 import {
   buildEncounterMaterializationEvidenceReport,
+  type CompileEvent,
   type CompileGraphNode,
+  type CompileNodeTombstone,
   type EncounterMaterializationEvidenceReport,
   emitCompileNodes,
   planWardrobeBake,
@@ -159,6 +161,17 @@ export type CompileEncounterMaterializationOptions = {
   compileNodes?: CompileGraphNode[];
   /** Faculty Infinigen prompt stamped onto Room node specs (W6 / W14a). */
   infinigenPrompt?: string;
+  /**
+   * W5 (tsk_4100343a0be0b471): nodeIds the faculty removed from the authoring
+   * form this compile. Delete is a compile event, not a silent array splice:
+   * each removed node that exists in the graph is tombstoned (locked nodes
+   * REFUSE — a lock is not a delete) and a node_tombstoned event is appended
+   * to report.compileEvents. Nodes depending on a tombstoned node go stale
+   * (descendant_staled; wardrobe decisions become parent_tombstoned). An
+   * unsplit id (actor:X) covers its split children (actor:X:body,
+   * actor:X:wardrobe).
+   */
+  removedNodeIds?: string[];
 };
 
 /** A compile node annotated with the bake plan this compile produced. */
@@ -199,6 +212,18 @@ export async function compileEncounterMaterialization(
   // WCG-0 copy-prior rule: emitCompileNodes copies prior lock/contentHash by nodeId.
   const unsplitNodes = stampRoomInfinigenPrompt(emitCompileNodes(report, priorNodes), opts.infinigenPrompt);
 
+  // W5 (tsk_4100343a0be0b471): delete is a compile event. Faculty-removed
+  // nodeIds are tombstoned onto the planned nodes (never spliced away), each
+  // tombstone is recorded as a node_tombstoned event, and descendants of a
+  // tombstoned node go stale (parent_tombstoned decision + descendant_staled
+  // event). Locked nodes REFUSE a delete: no tombstone, no event.
+  const deletion: RemovalTombstoneCtx = {
+    removed: new Set(opts.removedNodeIds ?? []),
+    deletedAt: new Date().toISOString(),
+    events: [],
+    tombstonedThisRun: new Set<string>(),
+  };
+
   const plannedNodes: CompilePlanNode[] = [];
   const skippedBakers: string[] = [];
   const sidecarWrites: Array<{ glbPath: string; bodyHashAtWardrobeBake: string | null; bodyHashNow: string | null }> = [];
@@ -207,46 +232,73 @@ export async function compileEncounterMaterialization(
       const [body, wardrobe] = splitCharacterBakers(node);
       // Split priors store locks on the split children (this runner's own
       // output), so re-apply the copy-prior rule at split granularity too.
-      const plannedBody = copyPriorByNodeId(body, priorNodes);
-      const plannedWardrobe = copyPriorByNodeId(wardrobe, priorNodes);
-      const bodyHashNow = resolveBodyHashNow(opts, plannedBody);
-      const bodyHashAtWardrobeBake = resolveBodyHashAtWardrobeBake(priorNodes, node, plannedWardrobe);
+      const finalBody = tombstoneIfRemoved(copyPriorByNodeId(body, priorNodes), deletion);
+      const finalWardrobe = tombstoneIfRemoved(copyPriorByNodeId(wardrobe, priorNodes), deletion);
+      const bodyHashNow = resolveBodyHashNow(opts, finalBody);
+      const bodyHashAtWardrobeBake = resolveBodyHashAtWardrobeBake(priorNodes, node, finalWardrobe);
       // Resolve the wardrobe's artifact hash BEFORE the bake plan: a GLB that
       // exists on disk is baked, so first_bake/cache_hit/locked_skip must be
       // decided against the artifact, not only the copied prior value.
-      const wardrobeHashNow = resolveContentHash(plannedWardrobe, opts);
-      const decision = decideWardrobeBake({ ...plannedWardrobe, contentHash: wardrobeHashNow }, bodyHashAtWardrobeBake, bodyHashNow);
+      const wardrobeHashNow = resolveContentHash(finalWardrobe, opts);
+      // A tombstoned body refuses its descendants: the wardrobe cannot bake
+      // against a deleted parent (parent_tombstoned), never a silent rebake.
+      const bodyTombstoned = finalBody.tombstone !== undefined;
+      const decision = planWardrobeBake(
+        { ...finalWardrobe, contentHash: wardrobeHashNow },
+        bodyHashAtWardrobeBake,
+        bodyHashNow,
+        bodyTombstoned,
+      );
       // Skip-capable bakers stamp a recipe cacheKey from their inputs (spec
       // after overridePatch + parent OUTPUT hashes + seed), never from a prior
       // cacheKey or a lock. Stamped whether or not this compile invokes the baker.
-      const bodyOutputHash = resolveContentHash(plannedBody, opts);
+      const bodyOutputHash = resolveContentHash(finalBody, opts);
       plannedNodes.push({
-        ...plannedBody,
+        ...finalBody,
         contentHash: bodyOutputHash,
-        cacheKey: recipeKeyFor(plannedBody, []),
+        cacheKey: recipeKeyFor(finalBody, []),
         wouldInvoke: null,
       });
       plannedNodes.push({
-        ...plannedWardrobe,
+        ...finalWardrobe,
         contentHash: wardrobeHashNow,
-        cacheKey: recipeKeyFor(plannedWardrobe, bodyOutputHash ? [bodyOutputHash] : []),
+        cacheKey: recipeKeyFor(finalWardrobe, bodyOutputHash ? [bodyOutputHash] : []),
         wouldInvoke: decision.bake ? "blender" : null,
         bakeDecision: decision,
       });
       if (!decision.bake) {
-        skippedBakers.push(plannedWardrobe.nodeId);
-        const glbPath = opts.artifactPathsByNodeId?.[plannedWardrobe.nodeId];
+        skippedBakers.push(finalWardrobe.nodeId);
+        const glbPath = opts.artifactPathsByNodeId?.[finalWardrobe.nodeId];
         if (glbPath && /\.glb$/i.test(glbPath)) {
           sidecarWrites.push({ glbPath, bodyHashAtWardrobeBake, bodyHashNow });
         }
       }
       continue;
     }
+    const finalOther = tombstoneIfRemoved(copyPriorByNodeId(node, priorNodes), deletion);
     plannedNodes.push({
-      ...copyPriorByNodeId(node, priorNodes),
-      contentHash: resolveContentHash(node, opts),
+      ...finalOther,
+      contentHash: resolveContentHash(finalOther, opts),
       wouldInvoke: null,
     });
+  }
+
+  // Descendants go stale: any node that depends (parents) on a node tombstoned
+  // THIS compile and is not itself tombstoned is recorded as descendant_staled.
+  // The ActorVariant body->wardrobe edge is the only parented family today; its
+  // wardrobe decision already carries parent_tombstoned via bodyTombstoned.
+  for (const node of plannedNodes) {
+    if (node.tombstone) continue;
+    for (const parentId of node.parents) {
+      if (deletion.tombstonedThisRun.has(parentId)) {
+        deletion.events.push({
+          kind: "descendant_staled",
+          nodeId: node.nodeId,
+          ancestorNodeId: parentId,
+          deletedAt: deletion.deletedAt,
+        });
+      }
+    }
   }
 
   // A skipped wardrobe baker tells the Python generate() not to invoke
@@ -261,6 +313,9 @@ export async function compileEncounterMaterialization(
     compileVersion,
     compileEdges: mergeCompileEdges(plannedNodes, report.compileEdges ?? []),
     compileNodes: plannedNodes,
+    ...(deletion.events.length > 0 || report.compileEvents
+      ? { compileEvents: [...(report.compileEvents ?? []), ...deletion.events] }
+      : {}),
   };
 
   const targetPath = opts.outPath ?? (base.priorPath ? datedSiblingPath(base.priorPath, report.scenarioId) : null);
@@ -328,11 +383,51 @@ async function resolveFacultyCompileLocks(
   return [...fileLocks, ...explicit];
 }
 
-/** WCG-0 copy-prior rule at node granularity: lock/contentHash/overridePatch by nodeId. */
+/** WCG-0 copy-prior rule at node granularity: lock/contentHash/overridePatch/tombstone by nodeId. */
 function copyPriorByNodeId(node: CompileGraphNode, priorNodes: CompileGraphNode[]): CompileGraphNode {
   const prior = priorNodes.find((p) => p.nodeId === node.nodeId);
   if (!prior) return node;
-  return { ...node, contentHash: prior.contentHash, lock: prior.lock, overridePatch: prior.overridePatch };
+  return { ...node, contentHash: prior.contentHash, lock: prior.lock, overridePatch: prior.overridePatch, tombstone: prior.tombstone };
+}
+
+/**
+ * W5 (tsk_4100343a0be0b471): removal tombstone bookkeeping shared by the
+ * compile loop. `removed` holds the faculty-removed nodeIds; `tombstonedThisRun`
+ * tracks which planned nodes this compile actually tombstoned (the descendant
+ * pass and event ledger key off it, so a prior compile's tombstone is not
+ * re-recorded as a fresh delete).
+ */
+type RemovalTombstoneCtx = {
+  removed: Set<string>;
+  deletedAt: string;
+  events: CompileEvent[];
+  tombstonedThisRun: Set<string>;
+};
+
+/**
+ * W5 (tsk_4100343a0be0b471): tombstone one planned node when the faculty
+ * removed it. An unsplit id (actor:X) covers its split children via the
+ * `nodeId.startsWith(id + ":")` prefix; a split id covers that child only.
+ * Locked nodes REFUSE a delete — a lock is not a delete — so a locked node is
+ * returned unchanged with no event. A node already tombstoned (prior compile)
+ * stays tombstoned without a duplicate event.
+ */
+function tombstoneIfRemoved(node: CompileGraphNode, ctx: RemovalTombstoneCtx): CompileGraphNode {
+  const removedId = [...ctx.removed].find((id) => node.nodeId === id || node.nodeId.startsWith(`${id}:`));
+  if (!removedId || node.tombstone || node.lock.locked) return node;
+  ctx.tombstonedThisRun.add(node.nodeId);
+  ctx.events.push({
+    kind: "node_tombstoned",
+    nodeId: node.nodeId,
+    deletedAt: ctx.deletedAt,
+    removedBy: "faculty_remove",
+  });
+  const tombstone: CompileNodeTombstone = {
+    deletedAt: ctx.deletedAt,
+    removedBy: "faculty_remove",
+    removedNodeId: removedId,
+  };
+  return { ...node, tombstone };
 }
 
 /** Current body output hash: explicit value, else sha256 of the artifact bytes, else null. */
@@ -361,20 +456,6 @@ function resolveBodyHashAtWardrobeBake(
   if (wardrobe.lock.lockedContentHash) return wardrobe.lock.lockedContentHash;
   if (unsplitNode.contentHash) return unsplitNode.contentHash;
   return null;
-}
-
-/** planWardrobeBake plus the WCG dirty rule for an unresolvable body hash (unknown edge = dirty). */
-function decideWardrobeBake(
-  wardrobe: CompileGraphNode,
-  bodyHashAtWardrobeBake: string | null,
-  bodyHashNow: string | null,
-): WardrobeBakeDecision {
-  if (bodyHashNow === null) {
-    if (wardrobe.contentHash === null) return { bake: true, reason: "first_bake", stale: false };
-    if (wardrobe.lock.locked) return { bake: false, reason: "locked_stale", stale: true };
-    return { bake: true, reason: "body_changed", stale: false };
-  }
-  return planWardrobeBake(wardrobe, bodyHashAtWardrobeBake, bodyHashNow);
 }
 
 /**
