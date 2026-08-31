@@ -12,12 +12,15 @@ import { describe, expect, it } from "vitest";
  * placement." EncounterEnvironmentPanel lists fixtureSlots read-only.
  *
  * Diagnosis header IMMUTABLE. Flip it.fails → it and append ## FIXED.
+ *
+ * ## FIXED (W7 tsk_d15db5b7a4b765cc)
+ * EnvironmentGenerationQueuePanel binds equipmentId to fixtureSlot.
  */
 
 const SRC = dirname(fileURLToPath(import.meta.url));
 
 describe("the worldview equipment nodes bind fixture slots", () => {
-  it.fails("(1) EnvironmentGenerationQueuePanel binds equipment to fixtureSlots", () => {
+  it("(1) EnvironmentGenerationQueuePanel binds equipment to fixtureSlots", () => {
     const panel = readFileSync(join(SRC, "EnvironmentGenerationQueuePanel.tsx"), "utf8");
     expect(panel).toMatch(/fixtureSlot/);
   });

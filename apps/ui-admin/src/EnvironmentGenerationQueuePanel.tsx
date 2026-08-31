@@ -82,6 +82,7 @@ export type EnvironmentGenerationQueuePanelProps = {
    * CaseAuthoringWorkbench Form.List Add actor remains the case-card splice.
    */
   onAddActor?: (payload: { actorId: string; compileNodeKind: "ActorVariant" }) => void;
+  onBindEquipmentFixtureSlot?: (payload: { equipmentId: string; fixtureSlot: string }) => void;
   /** Authored Scenario.version for the featured case (worldview header). */
   caseDefVersion?: number;
   /** Last world-compile compileVersion for the featured case (worldview header). */
@@ -142,6 +143,7 @@ export function EnvironmentGenerationQueuePanel({
   infinigenPrompt,
   onInfinigenPromptChange,
   onAddActor,
+  onBindEquipmentFixtureSlot,
   caseDefVersion,
   compileVersion,
   placementAuthorRows,
@@ -393,6 +395,7 @@ export function EnvironmentGenerationQueuePanel({
         >
           Add actor compile node
         </Button>
+        <Select allowClear aria-label="Equipment fixtureSlot" placeholder="Bind equipment to fixtureSlot" style={{ minWidth: 220 }} options={[{ value: "stretcher", label: "stretcher" }, { value: "monitor", label: "monitor" }, { value: "ecg_cart", label: "ecg_cart" }]} onChange={(fixtureSlot) => { if (typeof fixtureSlot === "string") onBindEquipmentFixtureSlot?.({ equipmentId: `equip_worldview_${crypto.randomUUID().replaceAll("-", "").slice(0, 12)}`, fixtureSlot }); }} />
       </fieldset>
       <fieldset className="station-queue-row" aria-label="Faculty compile/materialization lock table">
         <Typography.Text strong>Faculty compile lock</Typography.Text>
