@@ -8,7 +8,7 @@
  */
 
 import { ENVIRONMENT_SHELL_DESCRIPTORS } from "@openclinxr/asset-registry";
-import { Alert, Card, Form, InputNumber, Select, Space, Typography } from "antd";
+import { Alert, Card, Form, Input, InputNumber, Select, Space, Typography } from "antd";
 import { type ReactElement, useMemo } from "react";
 import type { ScenarioFormValues } from "./case-authoring-model.js";
 
@@ -59,6 +59,15 @@ export function EncounterEnvironmentPanel({ environmentId: importedEnvironmentId
             optionFilterProp="label"
             options={environmentOptions}
           />
+        </Form.Item>
+        <Form.Item label="Room name" name="environmentName" style={{ marginBottom: 12 }}>
+          <Input aria-label="Environment name" placeholder="Room name on the case" />
+        </Form.Item>
+        <Form.Item label="Room description" name="environmentDescription" style={{ marginBottom: 12 }}>
+          <Input.TextArea aria-label="Environment description" rows={2} placeholder="Room description on the case" />
+        </Form.Item>
+        <Form.Item label="Infinigen seed" name="infinigenSeed" style={{ marginBottom: 12 }}>
+          <Input aria-label="Infinigen seed" placeholder="Bake seed recorded on the case" />
         </Form.Item>
         {shell ? (
           <div>

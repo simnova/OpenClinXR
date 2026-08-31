@@ -14,6 +14,11 @@ import { describe, expect, it } from "vitest";
  * "Seed/predicate facts live in PROVENANCE.md, not here."
  *
  * Diagnosis header IMMUTABLE. Flip it.fails → it and append ## FIXED.
+ *
+ * ## FIXED (W19 tsk_4f28fcd8d4afdca9)
+ * ScenarioFormValues carries environmentName, environmentDescription, infinigenSeed.
+ * EncounterEnvironmentPanel authors those fields; merge writes name/description/seed
+ * onto scenario.environment instead of copying displayName twice.
  */
 
 const SRC = dirname(fileURLToPath(import.meta.url));
@@ -21,7 +26,7 @@ const MODEL = readFileSync(join(SRC, "case-authoring-model.ts"), "utf8");
 const ENV = readFileSync(join(SRC, "EncounterEnvironmentPanel.tsx"), "utf8");
 
 describe("the worldview authors environment name, description, and seed", () => {
-  it.fails("(1) ScenarioFormValues includes environment name or infinigenSeed", () => {
+  it("(1) ScenarioFormValues includes environment name or infinigenSeed", () => {
     const slice = MODEL.slice(
       MODEL.indexOf("export type ScenarioFormValues"),
       MODEL.indexOf("export type ScenarioActorFormValue"),

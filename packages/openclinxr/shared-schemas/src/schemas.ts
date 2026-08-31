@@ -305,6 +305,7 @@ export const EnvironmentSchema = Type.Object({
   environmentId: Type.String({ minLength: 1 }),
   name: Type.String({ minLength: 1 }),
   description: Type.String({ minLength: 1 }),
+  infinigenSeed: Type.Optional(Type.String({ minLength: 1 })),
 });
 
 export const AssetKindSchema = Type.Union([

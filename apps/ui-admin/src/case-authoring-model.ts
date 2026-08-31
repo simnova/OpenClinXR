@@ -186,6 +186,12 @@ export type ScenarioFormValues = {
   requiredTraceTags: string[];
   /** Registered environment shell id picked by faculty; empty keeps the imported environment. */
   environmentId?: string | undefined;
+  /** Faculty-authored room name (W19); defaults from the shell displayName. */
+  environmentName?: string | undefined;
+  /** Faculty-authored room description (W19); defaults from the shell displayName. */
+  environmentDescription?: string | undefined;
+  /** Faculty-recorded Infinigen bake seed on the case (W19). */
+  infinigenSeed?: string | undefined;
   /** Free-text equipment names authored as a string list (ScenarioSchema minLength-1 strings). */
   equipment: string[];
   /** Authored asset-need rows (assetId, assetType, description, licenseStatus). */
@@ -265,6 +271,9 @@ export function scenarioToFormValues(scenario: Scenario): ScenarioFormValues {
     title: scenario.title,
     status: scenario.status,
     environmentId: scenario.environment?.environmentId,
+    environmentName: scenario.environment?.name,
+    environmentDescription: scenario.environment?.description,
+    infinigenSeed: scenario.environment?.infinigenSeed,
     equipment: [...(scenario.equipment ?? [])],
     assetNeeds: (scenario.assetNeeds ?? []).map((need) => ({ ...need })),
     emotionPolicy: scenario.emotionPolicy
@@ -424,9 +433,18 @@ function actorFromFormValue(base: Scenario, formActor: ScenarioActorFormValue): 
  */
 function authoredEnvironment(
   environmentId: string,
+  values?: Pick<ScenarioFormValues, "environmentName" | "environmentDescription" | "infinigenSeed">,
 ): NonNullable<Scenario["environment"]> {
   const displayName = ENVIRONMENT_SHELL_DESCRIPTORS[environmentId]?.displayName ?? environmentId;
-  return { environmentId, name: displayName, description: displayName };
+  const name = values?.environmentName?.trim() || displayName;
+  const description = values?.environmentDescription?.trim() || displayName;
+  const infinigenSeed = values?.infinigenSeed?.trim();
+  return {
+    environmentId,
+    name,
+    description,
+    ...(infinigenSeed ? { infinigenSeed } : {}),
+  };
 }
 
 /**
@@ -474,8 +492,19 @@ export function mergeFormValuesIntoScenario(base: Scenario, values: ScenarioForm
       requiredTraceTags: [...item.requiredTraceTags],
     })),
   };
-  if (environmentId.length > 0 && environmentId !== base.environment?.environmentId) {
-    merged.environment = authoredEnvironment(environmentId);
+  const authoredName = values.environmentName?.trim() ?? "";
+  const authoredDescription = values.environmentDescription?.trim() ?? "";
+  const authoredSeed = values.infinigenSeed?.trim() ?? "";
+  const environmentTouched =
+    (environmentId.length > 0 && environmentId !== base.environment?.environmentId)
+    || authoredName.length > 0
+    || authoredDescription.length > 0
+    || authoredSeed.length > 0;
+  if (environmentTouched) {
+    const id = environmentId.length > 0 ? environmentId : (base.environment?.environmentId ?? "");
+    if (id.length > 0) {
+      merged.environment = authoredEnvironment(id, values);
+    }
   }
   const authoredPolicy = values.emotionPolicy;
   if (authoredPolicy && authoredPolicy.baseline && authoredPolicy.upperBound && authoredPolicy.lowerBound) {

@@ -58,6 +58,21 @@ describe("case authoring model", () => {
     expect(merged.environment).toEqual(edChestPainScenario.environment);
   });
 
+  it("writes faculty environment name, description, and infinigenSeed onto the case", () => {
+    const formValues = scenarioToFormValues(edChestPainScenario);
+    formValues.environmentName = "Faculty ED bay";
+    formValues.environmentDescription = "Renamed for this station";
+    formValues.infinigenSeed = "seed-42";
+    const merged = mergeFormValuesIntoScenario(edChestPainScenario, formValues);
+    expect(validateScenario(merged)).toEqual({ ok: true });
+    expect(merged.environment).toMatchObject({
+      environmentId: edChestPainScenario.environment?.environmentId,
+      name: "Faculty ED bay",
+      description: "Renamed for this station",
+      infinigenSeed: "seed-42",
+    });
+  });
+
   it("exports scenario-bank-shaped JSON that re-imports and re-validates", () => {
     const formValues = scenarioToFormValues(edChestPainScenario);
     const merged = mergeFormValuesIntoScenario(edChestPainScenario, formValues);
