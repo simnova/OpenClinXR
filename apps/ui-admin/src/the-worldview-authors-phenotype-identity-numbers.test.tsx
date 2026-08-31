@@ -14,21 +14,24 @@ import { describe, expect, it } from "vitest";
  * packages/openclinxr/shared-schemas/src/schemas.ts:155-181.
  *
  * Diagnosis header IMMUTABLE. Flip it.fails → it and append ## FIXED.
+ *
+ * ## FIXED (W15 tsk_de200f793df072b6)
+ * ActorPhenotypeFields binds age, height_cm, bmi (plus anxious). garmentLayers stays.
  */
 
 const SRC = dirname(fileURLToPath(import.meta.url));
 const FIELDS = readFileSync(join(SRC, "ActorPhenotypeFields.tsx"), "utf8");
 
 describe("the worldview authors phenotype identity numbers", () => {
-  it.fails("(1) ActorPhenotypeFields binds age", () => {
+  it("(1) ActorPhenotypeFields binds age", () => {
     expect(FIELDS).toMatch(/"age"/);
   });
 
-  it.fails("(2) ActorPhenotypeFields binds height_cm", () => {
+  it("(2) ActorPhenotypeFields binds height_cm", () => {
     expect(FIELDS).toMatch(/height_cm/);
   });
 
-  it.fails("(3) ActorPhenotypeFields binds bmi", () => {
+  it("(3) ActorPhenotypeFields binds bmi", () => {
     expect(FIELDS).toMatch(/"bmi"/);
   });
 

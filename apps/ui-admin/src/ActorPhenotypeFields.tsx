@@ -14,7 +14,7 @@
  * validity, exam equivalence, scoring, or learner readiness.
  */
 
-import { Divider, Form, Select, Space } from "antd";
+import { Divider, Form, InputNumber, Select, Space } from "antd";
 import type { ReactElement } from "react";
 
 function toOptions(values: readonly string[]): { label: string; value: string }[] {
@@ -201,6 +201,20 @@ export function ActorPhenotypeFields({ fieldName }: ActorPhenotypeFieldsProps): 
             aria-label="Phenotype gender presentation"
             placeholder="none"
           />
+        </Form.Item>
+      </Space>
+      <Space wrap size="large">
+        <Form.Item name={[fieldName, "phenotype", "age"]} label="Age">
+          <InputNumber min={0} aria-label="Phenotype age" />
+        </Form.Item>
+        <Form.Item name={[fieldName, "phenotype", "height_cm"]} label="Height cm">
+          <InputNumber min={0} aria-label="Phenotype height_cm" />
+        </Form.Item>
+        <Form.Item name={[fieldName, "phenotype", "bmi"]} label="BMI">
+          <InputNumber min={0} aria-label="Phenotype bmi" />
+        </Form.Item>
+        <Form.Item name={[fieldName, "phenotype", "anxious"]} label="Anxious">
+          <InputNumber min={0} max={1} step={0.01} aria-label="Phenotype anxious" />
         </Form.Item>
       </Space>
       <Space wrap size="large">
