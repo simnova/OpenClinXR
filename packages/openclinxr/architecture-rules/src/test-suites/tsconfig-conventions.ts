@@ -11,7 +11,7 @@ export function describeTsconfigConventionTests(
   config?: TsconfigConventionConfig,
 ): void {
   describe("tsconfig conventions (enforce compiler-option layering)", () => {
-    it("ensures no workspace tsconfig.json violates convention rules (baseUrl, ignoreDeprecations, empty types, outDir, rootDir)", () => {
+    it("ensures no workspace tsconfig.json violates convention rules (baseUrl, ignoreDeprecations, empty types, outDir, rootDir, extends @cellix/config-typescript/*)", () => {
       const violations = checkTsconfigConventions(config);
       expect(
         violations,

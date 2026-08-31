@@ -1,5 +1,12 @@
 # @cellix/config-vitest Changelog
 
+## 1.0.0-openclinxr.1 - 2026-08-31
+
+- Ported CellixJS `archConfig` and the per-package `mergeConfig(nodeConfig, …)` consumer pattern.
+- Shared `worktreeExcludePatterns` (`src/worktree-excludes.ts`) is consumed by both `nodeConfig` and `archConfig`.
+- `nodeConfig` excludes those worktrees and `src/archunit-tests/**`. Vitest does not read `.gitignore`.
+- Typecheck-during-test stays opt-in (`typecheck.enabled: false`); packages still typecheck with `tsgo -p tsconfig.vitest.json`.
+
 ## 1.0.0-openclinxr.0 - 2026-05-03
 
 - Copied the CellixJS `@cellix/config-vitest` package intent into `packages/cellix/config-vitest`.

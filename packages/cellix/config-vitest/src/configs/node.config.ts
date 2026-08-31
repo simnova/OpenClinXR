@@ -1,12 +1,22 @@
-import { defineConfig, mergeConfig } from "vitest/config";
-import { baseConfig, createDefaultTypecheckConfig, defaultTestIncludePatterns } from "./base.config.js";
+import { defaultExclude, defineConfig, mergeConfig } from "vitest/config";
+import { worktreeExcludePatterns } from "../worktree-excludes.ts";
+import { baseConfig, createDefaultTypecheckConfig, defaultTestIncludePatterns } from "./base.config.ts";
+
+export { worktreeExcludePatterns };
 
 export const nodeConfig = mergeConfig(
   baseConfig,
   defineConfig({
     test: {
-      typecheck: createDefaultTypecheckConfig(),
+      // CellixJS enables this. This workspace typechecks via `tsgo -p tsconfig.vitest.json`
+      // (package typecheck scripts). Opt in per package with typecheck.enabled = true.
+      typecheck: { ...createDefaultTypecheckConfig(), enabled: false },
       include: [...defaultTestIncludePatterns],
+      exclude: [
+        ...defaultExclude,
+        "src/archunit-tests/**",
+        ...worktreeExcludePatterns,
+      ],
       environment: "node",
       testTimeout: 5000,
       coverage: {

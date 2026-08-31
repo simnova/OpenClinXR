@@ -26,7 +26,7 @@
  */
 import { readFileSync } from "node:fs";
 
-import { resolvePoseBone } from "../../asset-registry/src/pose-bone-resolver.js";
+import { resolvePoseBone } from "@openclinxr/asset-registry";
 import { REGION_ANCHOR_SPACE } from "./plant-motion-regions.js";
 
 export type Vec3 = { x: number; y: number; z: number };
@@ -106,7 +106,11 @@ const IDENTITY4: readonly number[] = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 
 function nodeLocalMatrix(node: GltfNode): number[] {
   if (node.matrix) return [...node.matrix];
   const t = node.translation ?? [0, 0, 0];
-  const [x, y, z, w] = node.rotation ?? [0, 0, 0, 1];
+  const rotation = node.rotation ?? [0, 0, 0, 1];
+  const x = rotation[0] ?? 0;
+  const y = rotation[1] ?? 0;
+  const z = rotation[2] ?? 0;
+  const w = rotation[3] ?? 1;
   const s = node.scale ?? [1, 1, 1];
   // glTF quaternions are [x, y, z, w]; the matrix below is the standard quaternion rotation,
   // stored column-major with the translation in the last column.
@@ -117,9 +121,10 @@ function nodeLocalMatrix(node: GltfNode): number[] {
     t[0] ?? 0, t[1] ?? 0, t[2] ?? 0, 1,
   ];
   for (let c = 0; c < 3; c += 1) {
-    m[c * 4] *= s[c] ?? 1;
-    m[c * 4 + 1] *= s[c] ?? 1;
-    m[c * 4 + 2] *= s[c] ?? 1;
+    const scale = s[c] ?? 1;
+    m[c * 4] = (m[c * 4] ?? 0) * scale;
+    m[c * 4 + 1] = (m[c * 4 + 1] ?? 0) * scale;
+    m[c * 4 + 2] = (m[c * 4 + 2] ?? 0) * scale;
   }
   return m;
 }

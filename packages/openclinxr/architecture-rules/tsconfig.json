@@ -1,5 +1,5 @@
 {
-  "extends": "../../../tsconfig.json",
+  "extends": "@cellix/config-typescript/node",
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
@@ -7,9 +7,19 @@
       "node",
       "vitest"
     ],
-    "composite": true
+    "composite": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true
   },
   "include": [
     "src/**/*.ts"
+  ],
+  "references": [
+    {
+      "path": "../capability-gateway"
+    },
+    {
+      "path": "../domain"
+    }
   ]
 }

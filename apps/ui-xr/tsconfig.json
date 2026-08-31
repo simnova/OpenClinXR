@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "@cellix/config-typescript/base",
   "compilerOptions": {
     "rootDir": "src",
     "lib": [
@@ -17,6 +17,18 @@
   "references": [
     {
       "path": "../../packages/openclinxr/asset-registry"
+    },
+    {
+      "path": "../../packages/openclinxr/conversation-policy"
+    },
+    {
+      "path": "../../packages/openclinxr/exam-assembly"
+    },
+    {
+      "path": "../../packages/openclinxr/scenario-fixtures"
+    },
+    {
+      "path": "../../packages/openclinxr/shared-schemas"
     }
   ]
 }

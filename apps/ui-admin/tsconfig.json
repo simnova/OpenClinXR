@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "@cellix/config-typescript/base",
   "compilerOptions": {
     "jsx": "react-jsx",
     "types": [
@@ -13,5 +13,37 @@
     "src",
     "vite.config.ts",
     "vite.config.test.ts"
+  ],
+  "references": [
+    {
+      "path": "../../packages/openclinxr/asset-registry"
+    },
+    {
+      "path": "../../packages/openclinxr/domain"
+    },
+    {
+      "path": "../../packages/openclinxr/exam-assembly"
+    },
+    {
+      "path": "../../packages/openclinxr/graphql"
+    },
+    {
+      "path": "../../packages/openclinxr/rest"
+    },
+    {
+      "path": "../../packages/openclinxr/review-workflow"
+    },
+    {
+      "path": "../../packages/openclinxr/scenario-fixtures"
+    },
+    {
+      "path": "../../packages/openclinxr/shared-schemas"
+    },
+    {
+      "path": "../../packages/openclinxr/ui-route-admin"
+    },
+    {
+      "path": "../../packages/openclinxr/ui-shared"
+    }
   ]
 }

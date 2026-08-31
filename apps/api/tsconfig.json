@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "@cellix/config-typescript/node",
   "compilerOptions": {
     "rootDir": ".",
     "types": [
@@ -12,5 +12,43 @@
     "rolldown.config.ts",
     "tsdown.config.ts",
     "scripts/**/*.ts"
+  ],
+  "references": [
+    {
+      "path": "../../packages/openclinxr/asset-registry"
+    },
+    {
+      "path": "../../packages/openclinxr/auth"
+    },
+    {
+      "path": "../../packages/openclinxr/capability-gateway"
+    },
+    {
+      "path": "../../packages/openclinxr/exam-assembly"
+    },
+    {
+      "path": "../../packages/openclinxr/graphql"
+    },
+    {
+      "path": "../../packages/openclinxr/rest"
+    },
+    {
+      "path": "../../packages/openclinxr/review-workflow"
+    },
+    {
+      "path": "../../packages/openclinxr/scenario-fixtures"
+    },
+    {
+      "path": "../../packages/openclinxr/scenario-runtime"
+    },
+    {
+      "path": "../../packages/openclinxr/shared-schemas"
+    },
+    {
+      "path": "../../packages/openclinxr/telemetry"
+    },
+    {
+      "path": "../../packages/openclinxr/voice-gateway"
+    }
   ]
 }

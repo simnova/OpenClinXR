@@ -16,6 +16,8 @@
   "devDependencies": {
     "typescript": "catalog:",
     "tsx": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "@cellix/config-vitest": "workspace:*",
+    "@cellix/config-typescript": "workspace:*"
   }
 }

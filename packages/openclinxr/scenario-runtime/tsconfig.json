@@ -1,5 +1,5 @@
 {
-  "extends": "../../../tsconfig.base.json",
+  "extends": "@cellix/config-typescript/node",
   "compilerOptions": {
     "rootDir": "src",
     "composite": true,
@@ -16,5 +16,40 @@
     "**/*.test.tsx",
     "**/*.spec.ts",
     "dist"
+  ],
+  "references": [
+    {
+      "path": "../../cellix/trace-ledger"
+    },
+    {
+      "path": "../asset-registry"
+    },
+    {
+      "path": "../conversation-policy"
+    },
+    {
+      "path": "../domain"
+    },
+    {
+      "path": "../exam-assembly"
+    },
+    {
+      "path": "../model-gateway"
+    },
+    {
+      "path": "../review-workflow"
+    },
+    {
+      "path": "../scenario-fixtures"
+    },
+    {
+      "path": "../session-state"
+    },
+    {
+      "path": "../shared-schemas"
+    },
+    {
+      "path": "../voice-gateway"
+    }
   ]
 }

@@ -7,15 +7,23 @@
     "outDir": "dist",
     "rootDir": ".",
     "esModuleInterop": true,
-    "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "declaration": true,
     "allowImportingTsExtensions": true,
     "noEmit": true,
     "paths": {
-      "@openclinxr/physics-touch-contract": ["../../packages/openclinxr/arena/physics-touch-contract/src/index.ts"]
-    }
+      "@openclinxr/physics-touch-contract": [
+        "../../packages/openclinxr/arena/physics-touch-contract/src/index.ts"
+      ]
+    },
+    "composite": true
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
+  "extends": "@cellix/config-typescript/base"
 }

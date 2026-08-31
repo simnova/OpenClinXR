@@ -16,6 +16,8 @@
     ".": "./src/index.ts",
     "./base": "./src/configs/base.config.ts",
     "./node": "./src/configs/node.config.ts",
+    "./arch": "./src/configs/arch.config.ts",
+    "./worktree-excludes": "./src/worktree-excludes.ts",
     "./storybook": "./src/configs/storybook.config.ts",
     "./dirname": "./src/utils/dirname.ts"
   },
@@ -23,6 +25,9 @@
     "lint": "biome check --no-errors-on-unmatched .",
     "typecheck": "tsgo --noEmit -p tsconfig.json",
     "test": "vitest run --root ."
+  },
+  "dependencies": {
+    "@cellix/config-typescript": "workspace:*"
   },
   "devDependencies": {
     "@typescript/native-preview": "7.0.0-dev.20260503.1",

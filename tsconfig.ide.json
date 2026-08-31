@@ -11,6 +11,9 @@
       "path": "./apps/arena/model-vetting-studio"
     },
     {
+      "path": "./apps/arena/physics-clinical-touch"
+    },
+    {
       "path": "./apps/arena/ui-xr-iwsdk-spike"
     },
     {
@@ -21,6 +24,15 @@
     },
     {
       "path": "./packages/cellix/config-vitest"
+    },
+    {
+      "path": "./packages/cellix/provider-contracts"
+    },
+    {
+      "path": "./packages/cellix/server-mongodb-memory-mock"
+    },
+    {
+      "path": "./packages/cellix/trace-ledger"
     },
     {
       "path": "./packages/openclinxr/agent-loop"
@@ -38,13 +50,22 @@
       "path": "./packages/openclinxr/arena/multi-actor-state-spike"
     },
     {
+      "path": "./packages/openclinxr/arena/physics-touch-contract"
+    },
+    {
       "path": "./packages/openclinxr/asset-registry"
+    },
+    {
+      "path": "./packages/openclinxr/auth"
     },
     {
       "path": "./packages/openclinxr/capability-gateway"
     },
     {
       "path": "./packages/openclinxr/config-rolldown"
+    },
+    {
+      "path": "./packages/openclinxr/conversation-policy"
     },
     {
       "path": "./packages/openclinxr/data-mongodb"
@@ -63,6 +84,12 @@
     },
     {
       "path": "./packages/openclinxr/model-gateway"
+    },
+    {
+      "path": "./packages/openclinxr/motion-compiler"
+    },
+    {
+      "path": "./packages/openclinxr/physics-touch-artifacts"
     },
     {
       "path": "./packages/openclinxr/rest"
@@ -87,9 +114,6 @@
     },
     {
       "path": "./packages/openclinxr/test-harness"
-    },
-    {
-      "path": "./packages/openclinxr/trace-ledger"
     },
     {
       "path": "./packages/openclinxr/ui-route-admin"

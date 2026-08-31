@@ -1,5 +1,5 @@
 {
-  "extends": "../../../tsconfig.base.json",
+  "extends": "@cellix/config-typescript/node",
   "compilerOptions": {
     "rootDir": "src",
     "composite": true,
@@ -16,5 +16,13 @@
     "**/*.test.tsx",
     "**/*.spec.ts",
     "dist"
+  ],
+  "references": [
+    {
+      "path": "../scenario-fixtures"
+    },
+    {
+      "path": "../shared-schemas"
+    }
   ]
 }

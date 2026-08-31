@@ -59,6 +59,9 @@ importers:
       '@biomejs/biome':
         specifier: ^2.4.16
         version: 2.4.16
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:packages/cellix/config-vitest
       '@dimforge/rapier3d-compat':
         specifier: ^0.19.3
         version: 0.19.3
@@ -183,6 +186,12 @@ importers:
         specifier: 'catalog:'
         version: 4.21.0
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../packages/cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../packages/cellix/config-vitest
       '@openclinxr/config-rolldown':
         specifier: workspace:*
         version: link:../../packages/openclinxr/config-rolldown
@@ -216,6 +225,12 @@ importers:
         specifier: 8.21.1
         version: 8.21.1
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../../packages/cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../../packages/cellix/config-vitest
       '@types/ws':
         specifier: 8.18.1
         version: 8.18.1
@@ -244,6 +259,12 @@ importers:
         specifier: 0.184.0
         version: 0.184.0
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../../packages/cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../../packages/cellix/config-vitest
       '@testing-library/dom':
         specifier: 10.4.1
         version: 10.4.1
@@ -287,6 +308,12 @@ importers:
         specifier: workspace:*
         version: link:../../../packages/openclinxr/arena/physics-touch-contract
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../../packages/cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../../packages/cellix/config-vitest
       tsx:
         specifier: 'catalog:'
         version: 4.21.0
@@ -318,6 +345,12 @@ importers:
         specifier: 0.184.0
         version: 0.184.0
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../../packages/cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../../packages/cellix/config-vitest
       '@iwsdk/vite-plugin-dev':
         specifier: 0.5.1
         version: 0.5.1(@opentelemetry/core@2.10.0(@opentelemetry/api@1.9.1))(@types/react@19.2.14)(react@19.2.8)(supports-color@7.2.0)(use-sync-external-store@1.6.0(react@19.2.8))(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
@@ -403,6 +436,12 @@ importers:
         specifier: 7.8.2
         version: 7.8.2
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../packages/cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../packages/cellix/config-vitest
       '@testing-library/dom':
         specifier: 10.4.1
         version: 10.4.1
@@ -455,6 +494,12 @@ importers:
         specifier: 0.184.0
         version: 0.184.0
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../packages/cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../packages/cellix/config-vitest
       '@types/three':
         specifier: 'catalog:'
         version: 0.184.0
@@ -471,6 +516,10 @@ importers:
   packages/cellix/config-typescript: {}
 
   packages/cellix/config-vitest:
+    dependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../config-typescript
     devDependencies:
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260503.1
@@ -497,6 +546,9 @@ importers:
         specifier: 3.0.1
         version: 3.0.1(ajv@8.20.0)
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../config-typescript
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -513,6 +565,12 @@ importers:
         specifier: 'catalog:'
         version: 11.1.0(supports-color@7.2.0)
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../config-vitest
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -526,6 +584,12 @@ importers:
         specifier: workspace:*
         version: link:../provider-contracts
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../config-vitest
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -535,6 +599,12 @@ importers:
 
   packages/openclinxr/agent-loop:
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -554,6 +624,12 @@ importers:
         specifier: 2.3.0
         version: 2.3.0
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -563,6 +639,12 @@ importers:
 
   packages/openclinxr/arena/iwsdk-spike:
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../../cellix/config-vitest
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -572,6 +654,12 @@ importers:
 
   packages/openclinxr/arena/model-vetting:
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../../cellix/config-vitest
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -588,6 +676,12 @@ importers:
         specifier: workspace:*
         version: link:../../shared-schemas
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../../cellix/config-vitest
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -601,6 +695,12 @@ importers:
         specifier: ^0.19.3
         version: 0.19.3
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../../cellix/config-vitest
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -617,6 +717,12 @@ importers:
         specifier: workspace:*
         version: link:../shared-schemas
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -626,6 +732,12 @@ importers:
 
   packages/openclinxr/auth:
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -645,6 +757,12 @@ importers:
         specifier: workspace:*
         version: link:../shared-schemas
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -654,6 +772,12 @@ importers:
 
   packages/openclinxr/config-rolldown:
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
       rolldown:
         specifier: 1.0.0-rc.18
         version: 1.0.0-rc.18
@@ -670,6 +794,12 @@ importers:
         specifier: workspace:*
         version: link:../shared-schemas
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
       '@openclinxr/scenario-fixtures':
         specifier: workspace:*
         version: link:../scenario-fixtures
@@ -701,6 +831,12 @@ importers:
         specifier: 'catalog:'
         version: 7.2.0
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
       '@cellix/server-mongodb-memory-mock':
         specifier: workspace:*
         version: link:../../cellix/server-mongodb-memory-mock
@@ -726,6 +862,12 @@ importers:
         specifier: 9.6.1
         version: 9.6.1
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
       mongodb-memory-server:
         specifier: 'catalog:'
         version: 11.1.0(supports-color@7.2.0)
@@ -742,6 +884,12 @@ importers:
         specifier: workspace:*
         version: link:../shared-schemas
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -758,6 +906,12 @@ importers:
         specifier: workspace:*
         version: link:../shared-schemas
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -774,6 +928,12 @@ importers:
         specifier: 16.12.0
         version: 16.12.0
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
       '@graphql-codegen/cli':
         specifier: 7.0.0
         version: 7.0.0(@types/node@25.6.0)(graphql@16.12.0)(supports-color@7.2.0)(typescript@6.0.3)
@@ -805,6 +965,12 @@ importers:
         specifier: workspace:*
         version: link:../shared-schemas
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
       '@openclinxr/scenario-fixtures':
         specifier: workspace:*
         version: link:../scenario-fixtures
@@ -816,13 +982,29 @@ importers:
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openclinxr/motion-compiler:
+    dependencies:
+      '@openclinxr/asset-registry':
+        specifier: workspace:*
+        version: link:../asset-registry
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
       vitest:
         specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openclinxr/physics-touch-artifacts:
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -832,6 +1014,12 @@ importers:
 
   packages/openclinxr/rest:
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -848,6 +1036,12 @@ importers:
         specifier: workspace:*
         version: link:../shared-schemas
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
       '@openclinxr/scenario-fixtures':
         specifier: workspace:*
         version: link:../scenario-fixtures
@@ -864,6 +1058,12 @@ importers:
         specifier: workspace:*
         version: link:../shared-schemas
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -907,6 +1107,12 @@ importers:
         specifier: workspace:*
         version: link:../voice-gateway
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -920,6 +1126,12 @@ importers:
         specifier: workspace:*
         version: link:../shared-schemas
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
       '@openclinxr/scenario-fixtures':
         specifier: workspace:*
         version: link:../scenario-fixtures
@@ -945,6 +1157,12 @@ importers:
         specifier: 3.0.1
         version: 3.0.1(ajv@8.20.0)
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -954,6 +1172,12 @@ importers:
 
   packages/openclinxr/telemetry:
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -985,6 +1209,12 @@ importers:
         specifier: 'catalog:'
         version: 4.21.0
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -998,6 +1228,12 @@ importers:
         specifier: workspace:*
         version: link:../ui-route-shared
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -1007,6 +1243,12 @@ importers:
 
   packages/openclinxr/ui-route-shared:
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -1016,6 +1258,12 @@ importers:
 
   packages/openclinxr/ui-shared:
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -1032,6 +1280,12 @@ importers:
         specifier: workspace:*
         version: link:../shared-schemas
     devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
       typescript:
         specifier: 'catalog:'
         version: 6.0.3

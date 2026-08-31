@@ -1,5 +1,5 @@
 {
-  "extends": "../../../tsconfig.json",
+  "extends": "@cellix/config-typescript/base",
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
@@ -20,5 +20,10 @@
     "**/*.test.tsx",
     "**/*.spec.ts",
     "dist"
+  ],
+  "references": [
+    {
+      "path": "../ui-route-shared"
+    }
   ]
 }

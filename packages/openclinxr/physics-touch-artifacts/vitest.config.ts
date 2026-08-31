@@ -1,8 +1,11 @@
-import { defineConfig } from "vitest/config";
+import { nodeConfig } from "@cellix/config-vitest/node";
+import { defineConfig, mergeConfig } from "vitest/config";
 
-export default defineConfig({
-  test: {
-    environment: "node",
-    globals: true,
-  },
-});
+export default mergeConfig(
+  nodeConfig,
+  defineConfig({
+    test: {
+      globals: true,
+    },
+  }),
+);

@@ -10,10 +10,16 @@
   },
   "scripts": {
     "test": "vitest run --root .",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsgo --noEmit -p tsconfig.json",
     "probe:reds": "tsx probe-planted-reds.mts"
   },
   "devDependencies": {
-    "vitest": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "@cellix/config-vitest": "workspace:*",
+    "@cellix/config-typescript": "workspace:*"
+  },
+  "dependencies": {
+    "@openclinxr/asset-registry": "workspace:*"
   }
 }

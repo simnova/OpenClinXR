@@ -1,5 +1,6 @@
+export { archConfig } from "./configs/arch.config.js";
 export { baseConfig, createDefaultTypecheckConfig, defaultTestIncludePatterns } from "./configs/base.config.js";
-export { nodeConfig } from "./configs/node.config.js";
+export { nodeConfig, worktreeExcludePatterns } from "./configs/node.config.js";
 export {
   createStorybookVitestConfig,
   getStorybookBrowserApiPort,

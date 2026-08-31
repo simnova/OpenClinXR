@@ -43,4 +43,7 @@ const ideConfig = {
 };
 
 writeFileSync("tsconfig.ide.json", `${JSON.stringify(ideConfig, null, 2)}\n`, "utf8");
-console.log(`Synced ${packageTsconfigs.length} package tsconfig composite flags and tsconfig.ide.json references.`);
+// CellixJS has no root compile unit. This repo keeps a solution tsconfig.json
+// (files: [] + project references) so VS Code / `tsc -b` compose apps from packages.
+writeFileSync("tsconfig.json", `${JSON.stringify(ideConfig, null, 2)}\n`, "utf8");
+console.log(`Synced ${packageTsconfigs.length} package tsconfig composite flags and solution references (tsconfig.json + tsconfig.ide.json).`);

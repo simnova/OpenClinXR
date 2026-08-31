@@ -44,6 +44,8 @@
     "rolldown": "1.0.0-rc.18",
     "tsdown": "0.21.10",
     "typescript": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "@cellix/config-vitest": "workspace:*",
+    "@cellix/config-typescript": "workspace:*"
   }
 }

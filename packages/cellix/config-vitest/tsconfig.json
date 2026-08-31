@@ -1,5 +1,5 @@
 {
-  "extends": "../config-typescript/tsconfig.node.json",
+  "extends": "@cellix/config-typescript/node",
   "compilerOptions": {
     "lib": [
       "ES2023",
@@ -10,7 +10,9 @@
       "node",
       "vitest"
     ],
-    "composite": true
+    "composite": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true
   },
   "include": [
     "src/**/*.ts",

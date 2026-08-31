@@ -31,7 +31,9 @@
   },
   "devDependencies": {
     "typescript": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "@cellix/config-vitest": "workspace:*",
+    "@cellix/config-typescript": "workspace:*"
   },
   "files": [
     "dist"

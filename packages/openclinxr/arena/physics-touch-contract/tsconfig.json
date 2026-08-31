@@ -1,5 +1,5 @@
 {
-  "extends": "../../../../tsconfig.base.json",
+  "extends": "@cellix/config-typescript/node",
   "compilerOptions": {
     "rootDir": "./src",
     "composite": true

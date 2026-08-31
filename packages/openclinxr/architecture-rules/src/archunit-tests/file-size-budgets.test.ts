@@ -1,4 +1,4 @@
-import { describeFileSizeBudgetTests } from "./test-suites/file-size-budgets.js";
+import { describeFileSizeBudgetTests } from "../test-suites/file-size-budgets.js";
 
 // The pre-commit hook runner propagates the real staged set via
 // OPENCLINXR_HOOK_STAGED_FILES (tools/openclinxr/openclaw/agentic-hook-runner.ts,

@@ -23,7 +23,9 @@
   "devDependencies": {
     "typescript": "catalog:",
     "vitest": "catalog:",
-    "@openclinxr/scenario-fixtures": "workspace:*"
+    "@openclinxr/scenario-fixtures": "workspace:*",
+    "@cellix/config-vitest": "workspace:*",
+    "@cellix/config-typescript": "workspace:*"
   },
   "files": [
     "dist"

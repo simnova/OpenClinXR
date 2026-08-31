@@ -29,6 +29,8 @@
     "typescript": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:",
-    "three-viewport-gizmo": "2.2.0"
+    "three-viewport-gizmo": "2.2.0",
+    "@cellix/config-vitest": "workspace:*",
+    "@cellix/config-typescript": "workspace:*"
   }
 }

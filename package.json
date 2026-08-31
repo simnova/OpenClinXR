@@ -69,7 +69,7 @@
     "turbo:remote:status": "TURBO_CACHE_DIR=\"${TURBO_CACHE_DIR:-$HOME/.cache/openclinxr/turbo}\" turbo info",
     "ide:tsconfig:sync": "tsx tools/agent-factory/sync-ide-tsconfig-references.ts",
     "typecheck": "pnpm typecheck:strict && pnpm typecheck:relaxed && pnpm typecheck:guardrails && pnpm packages:typecheck",
-    "typecheck:strict": "tsgo --noEmit",
+    "typecheck:strict": "tsgo --noEmit -p tsconfig.root-tools.json",
     "typecheck:relaxed": "tsgo --noEmit -p tsconfig.tools-relaxed.json",
     "typecheck:guardrails": "tsx tools/agent-factory/check-typescript-guardrails.ts",
     "test": "pnpm //#test:tools && pnpm packages:test",
@@ -396,6 +396,7 @@
     "factory:rooms:bake:inspect": "tsx tools/openclinxr/asset-pipeline/environment/rooms-bake-cli.ts --inspect"
   },
   "devDependencies": {
+    "@cellix/config-vitest": "workspace:*",
     "@biomejs/biome": "^2.4.16",
     "@dimforge/rapier3d-compat": "^0.19.3",
     "@e18e/cli": "0.5.0",

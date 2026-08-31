@@ -34,7 +34,7 @@ export const TSCONFIG_EXEMPTIONS: Record<
   "packages/cellix/config-vitest/tsconfig.json": {
     rules: ["rootDir"],
     reason:
-      "vitest.config.ts lives at package root outside src/; rootDir '.' is correct for mixed-root includes",
+      "vitest.config.ts lives at package root outside src/; rootDir '.' is correct for mixed-root includes. Source-first config package uses allowImportingTsExtensions + noEmit so Node/Vitest can load @cellix/config-vitest/node as TypeScript.",
   },
   "apps/arena/physics-clinical-touch/tsconfig.json": {
     rules: ["rootDir"],
@@ -115,6 +115,8 @@ function listTsconfigs(root: string): string[] {
  *     array disables ALL ambient types, which is almost never intended)
  *  4. if `compilerOptions.outDir` is set it must be "dist" or "./dist"
  *  5. if `compilerOptions.rootDir` is set it must be "src" or "./src"
+ *  6. `extends` must be `@cellix/config-typescript/node` | `base` | `vitest`
+ *     (CellixJS apps/packages compose this way; never extend the repo-root stub tsconfig.json)
  *
  * Returns an array of violation strings. Each names the offending file AND the option,
  * so a dev can fix it without re-reading this rule.
@@ -139,11 +141,25 @@ export function checkTsconfigConventions(
     const co = (json as Record<string, unknown>)["compilerOptions"] as
       | Record<string, unknown>
       | undefined;
-    if (!co || typeof co !== "object") continue;
-
     const fileExemptions = exemptions[rel];
     const skip = (rule: string): boolean =>
       fileExemptions?.rules.includes(rule) ?? false;
+
+    const allowedExtends = new Set([
+      "@cellix/config-typescript/node",
+      "@cellix/config-typescript/base",
+      "@cellix/config-typescript/vitest",
+    ]);
+    const extendsField = (json as Record<string, unknown>)["extends"];
+    if (!skip("extends")) {
+      if (typeof extendsField !== "string" || !allowedExtends.has(extendsField)) {
+        violations.push(
+          `${rel}: extends is ${JSON.stringify(extendsField)} -- CellixJS apps/packages extend @cellix/config-typescript/node|base|vitest (never the repo-root tsconfig stub)`,
+        );
+      }
+    }
+
+    if (!co || typeof co !== "object") continue;
 
     // Rule 1: baseUrl must not be set
     if (!skip("baseUrl") && "baseUrl" in co) {

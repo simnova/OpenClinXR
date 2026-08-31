@@ -6,7 +6,7 @@ import { findUnsafeClaimLanguage } from "@openclinxr/domain";
 import { projectFiles } from "archunit";
 import ts from "typescript";
 import { describe, expect, it } from "vitest";
-import { collectPaidProviderPolicyFiles } from "./checks/paid-provider-scan.js";
+import { collectPaidProviderPolicyFiles } from "../checks/paid-provider-scan.js";
 
 const archTsconfig = "../../../tsconfig.archunit.json";
 const workspaceRoot = findWorkspaceRoot();

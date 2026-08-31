@@ -56,7 +56,7 @@ type TouchRow = {
   actorId: string;
   region: string;
   responseClip: string;
-  traceTag?: string;
+  traceTag?: string | undefined;
 };
 
 /**

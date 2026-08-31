@@ -4,10 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "architecture": "vitest run --root .",
+    "architecture": "vitest run --config vitest.arch.config.ts --root .",
     "lint": "biome check --no-errors-on-unmatched .",
     "typecheck": "tsgo --noEmit -p tsconfig.json",
-    "test": "vitest run --root ."
+    "test": "vitest run --root . --passWithNoTests"
   },
   "dependencies": {
     "@openclinxr/capability-gateway": "workspace:*",
@@ -16,6 +16,8 @@
   },
   "devDependencies": {
     "typescript": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "@cellix/config-vitest": "workspace:*",
+    "@cellix/config-typescript": "workspace:*"
   }
 }
