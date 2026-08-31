@@ -24,11 +24,11 @@ const SLICE = MODEL.slice(
 );
 
 describe("the worldview authors governance and review rubric", () => {
-  it.fails("(1) ScenarioFormValues includes governance", () => {
+  it("(1) ScenarioFormValues includes governance", () => {
     expect(SLICE).toMatch(/governance/);
   });
 
-  it.fails("(2) ScenarioFormValues includes reviewRubric", () => {
+  it("(2) ScenarioFormValues includes reviewRubric", () => {
     expect(SLICE).toMatch(/reviewRubric/);
   });
 
@@ -38,3 +38,13 @@ describe("the worldview authors governance and review rubric", () => {
 });
 
 // NOT TESTED: #167 never; validated_summative; clinical review quality.
+
+// ## FIXED (tsk_3007002d210229a8)
+// ScenarioFormValues now carries governance (Scenario["governance"]) and
+// reviewRubric (Scenario["reviewRubric"]); scenarioToFormValues projects them
+// and mergeFormValuesIntoScenario round-trips them (form-authored governance wins,
+// hidden members fall back to the base). CaseAuthoringWorkbench surfaces bounded
+// faculty controls: scoreUseLabel/validationStage Selects exclude validated_summative
+// and stage_3_validated, stage_0 is never auto-approved, and rubric items are
+// editable rows. createEmptyScenarioDraft still ships
+// scoreUseLabel: "formative_local_only" / stage_0_synthetic_draft (clause 3).
