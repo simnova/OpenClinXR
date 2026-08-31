@@ -299,6 +299,64 @@ describe("encounter materialization evidence", () => {
     expect(decision.bake).toBe(false);
     expect(decision.reason).toBe("cache_hit");
   });
+
+  /**
+   * W5 (tsk_4100343a0be0b471): delete is a compile event, not a silent array
+   * splice. A tombstoned wardrobe refuses to bake and is stale; a wardrobe
+   * whose parent body is tombstoned goes stale (parent_tombstoned). A lock is
+   * not a delete: a locked node is never tombstoned, and a node carrying both
+   * keeps the lock's skip semantics.
+   */
+  it("W5: tombstoned wardrobe refuses to bake and is stale", () => {
+    const report = buildEncounterMaterializationEvidenceReport({
+      generatedAt: "2026-05-28T00:00:00.000Z",
+      bundleReport: twoActorBundleFixture(),
+    });
+    const unsplit = emitCompileNodes(report).find((n) => n.nodeId === "actor:patient_maya_johnson_v1")!;
+    const [, wardrobe] = splitCharacterBakers(unsplit);
+    const tombstoned = {
+      ...wardrobe,
+      contentHash: "sha256:wardrobe-baked",
+      tombstone: { deletedAt: "2026-08-30T00:00:00.000Z", removedBy: "faculty_remove" as const, removedNodeId: "actor:patient_maya_johnson_v1" },
+    };
+    const decision = planWardrobeBake(tombstoned, "sha256:body-A", "sha256:body-A");
+    expect(decision.bake).toBe(false);
+    expect(decision.reason).toBe("tombstoned");
+    expect(decision.stale).toBe(true);
+  });
+
+  it("W5: tombstoned parent -> descendant wardrobe goes stale (parent_tombstoned)", () => {
+    const report = buildEncounterMaterializationEvidenceReport({
+      generatedAt: "2026-05-28T00:00:00.000Z",
+      bundleReport: twoActorBundleFixture(),
+    });
+    const unsplit = emitCompileNodes(report).find((n) => n.nodeId === "actor:patient_maya_johnson_v1")!;
+    const [, wardrobe] = splitCharacterBakers(unsplit);
+    const baked = { ...wardrobe, contentHash: "sha256:wardrobe-baked" };
+    const decision = planWardrobeBake(baked, "sha256:body-A", "sha256:body-A", true);
+    expect(decision.bake).toBe(false);
+    expect(decision.reason).toBe("parent_tombstoned");
+    expect(decision.stale).toBe(true);
+  });
+
+  it("W5: locked + tombstoned keeps the lock's skip semantics, not a delete", () => {
+    const report = buildEncounterMaterializationEvidenceReport({
+      generatedAt: "2026-05-28T00:00:00.000Z",
+      bundleReport: twoActorBundleFixture(),
+    });
+    const unsplit = emitCompileNodes(report).find((n) => n.nodeId === "actor:patient_maya_johnson_v1")!;
+    const [, wardrobe] = splitCharacterBakers(unsplit);
+    const lockedTombstoned = {
+      ...wardrobe,
+      contentHash: "sha256:wardrobe-baked",
+      lock: { locked: true, lockKind: "faculty_keep_artifact" },
+      tombstone: { deletedAt: "2026-08-30T00:00:00.000Z", removedBy: "faculty_remove" as const, removedNodeId: "actor:patient_maya_johnson_v1" },
+    };
+    const decision = planWardrobeBake(lockedTombstoned, "sha256:body-A", "sha256:body-A");
+    expect(decision.bake).toBe(false);
+    expect(decision.reason).toBe("locked_stale");
+    expect(decision.stale).toBe(true);
+  });
 });
 
 function twoActorBundleFixture(): GeneratedEdStationRuntimeBundleReport {
