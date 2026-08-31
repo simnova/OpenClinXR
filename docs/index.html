@@ -719,16 +719,18 @@
           <h2 id="dark-factory-title">Prompt in. Budget mesh out. Deterministic stations in between.</h2>
         </div>
         <p class="status-copy">
-          The factory goal is lights-out generation: case or prop intent becomes a learner-visible asset
-          without a hand-model pass. Narrow generative input (Grok Imagine multi-view packs) feeds
-          TRELLIS Metal reconstruction, then a measured meshopt ladder — <strong>not</strong> artist hand-tuning.
-          <strong>One ECG cart run, measured 2026-08-11:</strong>
-          <strong>973,639 → 34,443 triangles (−96.5%)</strong>.
-          Meta’s Quest&nbsp;3 class scene guidance is roughly <strong>1.3–1.8M triangles for a whole scene</strong>
-          (native); our default prop stop is <strong>≤80k preferred</strong>, with ≤40k only when many props
-          share a station. WebXR is more often fill-rate and draw-call bound than “one cart too dense.”
-          Not worn-headset readiness. Not clinical realism. Proof the pipeline is real and iterable —
-          without hyperoptimizing the number past readability.
+          Lights-out generation: a hard-surface prompt becomes a budget mesh through
+          <em>named, measured stations</em> — not a person pushing sliders on one GLB.
+          Grok Imagine packs condition TRELLIS Metal in an isolated process; then
+          <code>factory:trellis:optimize</code> runs high-error meshopt targets from the
+          <em>raw</em> mesh, a weld pass, and optional <code>factory:trellis:pack</code> (gltfpack).
+          One ECG cart, VR hard-surface pack, measured 2026-08-11:
+          <strong>973,639 raw → 60,000 preferred</strong> (clears ≤80k);
+          the same ladder can stretch to <strong>34,443</strong> (−96.5%) when a station
+          needs the share band. Photoreal packs on the same ladder stalled at ~186k.
+          Meta Quest&nbsp;3 class scene guidance is ~1.3–1.8M tris for a <em>whole scene</em>;
+          ≤40k is a multi-prop share, not the device limit. Not worn-headset readiness.
+          Not clinical realism.
         </p>
 
         <ol class="pipeline-strip" aria-label="Dark factory pipeline stages">
@@ -850,49 +852,99 @@ Maximize large flat planes for 3D reconstruction.</pre>
             </figure>
             <dl class="complexity-card complexity-card--post">
               <div>
-                <dt>Triangles</dt>
+                <dt>Preferred rung</dt>
+                <dd class="complexity-card__ok">60,000</dd>
+              </div>
+              <div>
+                <dt>Stretch rung</dt>
                 <dd>34,443</dd>
               </div>
               <div>
-                <dt>Savings</dt>
-                <dd class="complexity-card__savings">−96.5%</dd>
-              </div>
-              <div>
-                <dt>Bands cleared</dt>
-                <dd class="complexity-card__ok">≤80k preferred · ≤40k share · ≤180k skeleton</dd>
+                <dt>From raw</dt>
+                <dd class="complexity-card__savings">−93.8% / −96.5%</dd>
               </div>
             </dl>
             <p class="pipeline-step__note">
-              Technique: direct high-error targets from raw (chain ratios plateau ~59k on hard-surface —
-              also under preferred). Delivery: optional <code>factory:trellis:pack</code> (gltfpack).
-              Policy: stop at the first graded rung under preferred; do not chase 25k for the number.
-              Still a harness prop — not a worn-headset claim.
+              Direct high-error targets from raw. Chain ratios plateau ~59k on this pack.
+              Stop at the first graded rung under ≤80k; 34k is share-band stretch, not “Quest wants 40k.”
+              Delivery: optional <code>factory:trellis:pack</code>. Harness prop — not a worn-headset claim.
             </p>
           </li>
         </ol>
 
         <div class="pipeline-savings-banner" role="status">
-          <strong>Measured delta:</strong>
-          973,639 → 34,443 triangles
-          <span class="pipeline-savings-banner__pct">−96.5% triangle count</span>
-          · preferred + share bands · same subject (ECG cart, VR hard-surface pack)
+          <strong>Measured optimize path (ECG cart, hard-surface pack):</strong>
+          973,639 raw → 60,000 preferred
+          <span class="pipeline-savings-banner__pct">−93.8%</span>
+          · stretch 34,443 when share-band pressure · same subject, 2026-08-11
+        </div>
+
+        <div class="measure-table-wrap">
+          <table class="measure-table">
+            <caption>Deterministic stations between the prompt and the budget mesh. ECG cart unless noted.</caption>
+            <thead>
+              <tr>
+                <th scope="col">Station</th>
+                <th scope="col">What it does</th>
+                <th scope="col">Measured</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Hard-surface pack</th>
+                <td>Grok Imagine prompt for boxy planes, not a photoreal product shot</td>
+                <td>Photoreal pack post-opt floor ~186k. Hard-surface chain ~59k; high-error stretch 34k</td>
+              </tr>
+              <tr>
+                <th scope="row">Isolated Metal bake</th>
+                <td>One OS process per subject (<code>factory:trellis:bake</code>)</td>
+                <td>Same-process multi-subject TRELLIS OOMs the MPS heap and cascades</td>
+              </tr>
+              <tr>
+                <th scope="row">Multi-view condition</th>
+                <td>front / side / ±¾ PNGs concatenated into TRELLIS embeddings</td>
+                <td>ECG far-side fill 0.35 → 0.44, surface area +47%, 3.7% fewer triangles</td>
+              </tr>
+              <tr>
+                <th scope="row">High-error from raw</th>
+                <td><code>factory:trellis:optimize</code> direct targets (180k / 120k / 80k / 60k / 40k)</td>
+                <td>973,639 → 179,999 / 60,000 / 39,999. Chain ratios plateau; further 0.05 cuts barely move</td>
+              </tr>
+              <tr>
+                <th scope="row">Weld, then same targets</th>
+                <td>Position merge so split verts stop inflating the count</td>
+                <td>40k rung stays 39,999 after weld; 25k stretch floors ~34.5k</td>
+              </tr>
+              <tr>
+                <th scope="row">Pack</th>
+                <td><code>factory:trellis:pack</code> gltfpack quantize + meshopt compress</td>
+                <td>Delivery size. Do not use <code>-sa -se 1</code> (can zero the mesh)</td>
+              </tr>
+              <tr>
+                <th scope="row">Champion policy</th>
+                <td>First graded rung under preferred ≤80k; denser sibling if ≤40k looks worse</td>
+                <td>60k is a legitimate champion. 34,443 is a measured stretch, not a Quest-3 prop limit</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
         <p class="evidence-note" style="margin-top: 16px;">
-          <strong>Budget policy (factory skill):</strong> prop preferred ≤80k (default stop) ·
-          share ≤40k only when multi-prop station pressure · acceptable ≤120k · skeleton hard ≤180k
-          (partial station, not full multi-actor) · Quest&nbsp;3 device-class ceiling ~1.3–1.8M scene tris
-          (Meta native guidance). Draw calls, materials, and fill-rate usually matter more than shaving
-          another 15k off one cart. Optimize order: batching → materials → KTX2 → multiview → tris.
-          Pipeline CLIs: <code>pnpm factory:trellis:hatch</code> (text + Imagine PNG → remesh → optimize → pack)
-          or <code>pnpm factory:trellis:bake</code> →
+          <strong>Budget policy:</strong> prop preferred ≤80k (default stop) ·
+          share ≤40k only under multi-prop pressure · acceptable ≤120k · skeleton hard ≤180k
+          (partial station, not a full multi-actor exam) · Quest&nbsp;3 device-class ceiling ~1.3–1.8M
+          <em>scene</em> tris (Meta native). Draw calls, materials, and fill-rate usually beat
+          another −15k on one cart. Order: batching → materials → KTX2 → multiview → tris.
+          CLIs: <code>pnpm factory:trellis:bake</code> →
           <code>pnpm factory:trellis:optimize</code> →
-          <code>pnpm factory:trellis:pack</code>.
+          <code>pnpm factory:trellis:pack</code>
+          (hatch: <code>pnpm factory:trellis:hatch</code>).
           Skill: <code>.agents/skills/trellis-vr-equipment-optimize/</code>.
           Evidence: <code>.openclinxr/evidence/trellis-bake-vr-hard/</code>,
           <code>trellis-vr-optimize-iterations/ecg-cart-vr-hard/</code>.
-          claimScope: factory automation path for equipment props.
-          notEvidenceFor: Quest readiness, clinical accuracy, exam equivalence.
+          claimScope: factory automation path for equipment props, measured on the ECG cart hard-surface pack.
+          notEvidenceFor: Quest readiness, clinical accuracy, exam equivalence, sampler-knob sweeps
+          (those fifteen knobs are still vendor balanced-tier defaults).
         </p>
       </section>
 

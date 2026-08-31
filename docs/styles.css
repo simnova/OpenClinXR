@@ -525,6 +525,53 @@ h3 {
   font-variant-numeric: tabular-nums;
 }
 
+.measure-table-wrap {
+  margin-top: 24px;
+  max-width: 960px;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+.measure-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.measure-table caption {
+  text-align: left;
+  padding: 10px 12px 8px;
+  font-size: 0.78rem;
+  color: var(--muted);
+  caption-side: top;
+}
+
+.measure-table th,
+.measure-table td {
+  padding: 8px 12px;
+  border-top: 1px solid var(--line);
+  vertical-align: top;
+  text-align: left;
+}
+
+.measure-table thead th {
+  background: rgba(31, 111, 86, 0.08);
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--green-dark);
+  border-top: none;
+}
+
+.measure-table tbody th {
+  font-weight: 700;
+  white-space: nowrap;
+  color: var(--ink);
+}
+
 @media (max-width: 860px) {
   .pipeline-step:has(.pipeline-arrow) {
     display: none;
@@ -533,6 +580,10 @@ h3 {
   .pipeline-step {
     max-width: none;
     flex: 1 1 100%;
+  }
+
+  .measure-table tbody th {
+    white-space: normal;
   }
 }
 
