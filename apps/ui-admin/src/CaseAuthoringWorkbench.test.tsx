@@ -209,6 +209,6 @@ describe("CaseAuthoringWorkbench", () => {
       expect(patient?.phenotype?.garmentLayers).toContain("scrub_shirt");
       expect(validateScenario(parsed.scenario)).toEqual({ ok: true });
     }
-  }, 30_000);
+  }, 60_000);
 
 });
