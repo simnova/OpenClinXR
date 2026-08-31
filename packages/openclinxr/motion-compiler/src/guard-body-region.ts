@@ -1,20 +1,9 @@
-import type { CompiledMotionFragment, PrimitiveRequest } from "./canonical-motion-contract.js";
-
 /**
- * PLACEHOLDER for `guard_body_region`, owned by M2 (tsk_87ee56f876ff1204).
+ * OWNERSHIP SLOT for `guard_body_region`, established by the registry seam (tsk_51ffcc3e1a8fdea8).
  *
- * This module is the OWNERSHIP SLOT this card (tsk_51ffcc3e1a8fdea8) established: the registry
- * resolves `guard_body_region` to this module's `compile` and M2 replaces THIS BODY only — never
- * `primitive-registry.ts`. The placeholder returns a legal EMPTY-tracks fragment so the seam is
- * canonical end to end while the guard's solver lives with its owner.
- *
- * Deliberately no motion: returning content here would steal M2's behaviour clause.
+ * The registry resolves `guard_body_region` to this module's `compile`; M2 (tsk_744eea9a35614caf)
+ * replaces THIS BODY only — never `primitive-registry.ts`. The implementation lives in
+ * `src/primitives/guard-body-region.ts`; this file is the single redirect the registry's stable
+ * module path points at, so the seam stays frozen while the solver belongs to its owner.
  */
-
-export function compile(request: PrimitiveRequest): CompiledMotionFragment {
-  const action = request.action as { actionId?: unknown };
-  if (typeof action?.actionId !== "string") {
-    throw new Error("guard_body_region requires a request whose action carries a string actionId");
-  }
-  return { actionId: action.actionId, tracks: [] };
-}
+export { compile } from "./primitives/guard-body-region.js";

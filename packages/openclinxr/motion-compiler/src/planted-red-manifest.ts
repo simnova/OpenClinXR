@@ -100,47 +100,16 @@ export const PLANTED_REDS: readonly PlantedRed[] = [
     expected: /compile-motion-program\.js must export compileMotionProgram/,
     stage: "assertion",
   },
-  {
-    file: "the-guard-primitive-hits-four-targets-on-three-rigs.test.ts",
-    // STAGE MOVED 2026-08-30 (tsk_51ffcc3e1a8fdea8): the registry seam landed and resolves
-    // guard_body_region, so this clause no longer stops at module absence. It now fails because the
-    // PLACEHOLDER guard compiles a foreign-space profile instead of refusing it — M2's behaviour
-    // clause, red for its own reason. The probe caught the move and demanded this edit.
-    select: "(0b) RED: the guard REFUSES a profile whose anchors are in a space it does not implement",
-    expected: /the guard compiled anchors in a space it does not implement/,
-    stage: "assertion",
-  },
-  {
-    file: "the-guard-primitive-hits-four-targets-on-three-rigs.test.ts",
-    // STAGE MOVED 2026-08-30: was "guard-body-region must export compileGuardClip". That export is
-    // no longer required by any clause — the second public compile entry was removed — so these two
-    // clauses now stop at the registry, which is the single path. The probe caught the move and
-    // demanded this edit, which is what it is for.
-    //
-    // STAGE MOVED AGAIN 2026-08-30 (tsk_51ffcc3e1a8fdea8): the registry now resolves
-    // guard_body_region to the placeholder, which emits no tracks. The clause fails on its first
-    // track-content assertion, which is M2's behavioural bar — red for its own reason.
-    select: "(1) guard_body_region resolves one target on THREE rig families through the bind frame, not a per-rig euler table",
-    expected: /produced no tracks/,
-    stage: "assertion",
-  },
-  {
-    file: "the-guard-primitive-hits-four-targets-on-three-rigs.test.ts",
-    // STAGE MOVED 2026-08-30 (tsk_51ffcc3e1a8fdea8): the registry seam landed; the undeclared-target
-    // clause now fails because the placeholder emits an empty track list where a reach must be shown.
-    select: "(2) a body target the module has never declared still compiles — there is no per-target pose table",
-    expected: /expected 0 to be greater than 0/,
-    stage: "assertion",
-  },
-  {
-    file: "the-guard-primitive-hits-four-targets-on-three-rigs.test.ts",
-    // STAGE MOVED 2026-08-30 (tsk_51ffcc3e1a8fdea8): the registry seam landed and the placeholder
-    // satisfies the wire-format half of this clause (canonical fragment, attributed to its action).
-    // The reach half fails — legal tracks that go nowhere — which is the M2 behavioural bar.
-    select: "(2b) RED: the registered guard returns a CANONICAL fragment, attributed to its action",
-    expected: /the registered guard returns legal tracks that go nowhere near the region's anchor/,
-    stage: "assertion",
-  },
+  // ALL FOUR GUARD ENTRIES REMOVED 2026-08-30 (tsk_744eea9a35614caf). The guard primitive landed —
+  // src/ik/solve-chain.ts (the solver SEAM named by the guard plant's clause 4; analytic two-bone
+  // solve with conservative joint limits) plus src/primitives/guard-body-region.ts (region-anchor
+  // resolution + 3-keyframe clip), and the four clauses were flipped from `planted` to `it` with a
+  // `## FIXED (tsk_744eea9a35614caf)` block appended in
+  // the-guard-primitive-hits-four-targets-on-three-rigs.test.ts. A satisfied contract is a
+  // transition to record, not a planted RED to keep.
+  //
+  // NOTE: do not write the three.js IK solver's name here — the guard plant's clause (4) scans
+  // every non-test source in this package and only the solve-chain.ts seam may carry it.
   // ALL THREE M5 ENTRIES REMOVED 2026-08-30 (tsk_bca4085904e3b071). The M1
   // closed-IR validator satisfies clauses (1)-(3), so they were flipped from
   // `planted` to `it` with a `## FIXED (tsk_bca4085904e3b071)` block appended

@@ -14,9 +14,7 @@ import {
   type RegionAnchorSpace,
 } from "./plant-motion-regions.js";
 
-import { planted } from "./planted.js";
-import {
-  violationsInTracks,
+import { violationsInTracks,
   type CompiledMotionFragment,
   type PrimitiveRequest,
   type CompiledMotionTrack,
@@ -95,6 +93,51 @@ import {
  * The exported names and the shape of `BodyRegionTarget.bodyPoint` (metres in the bind frame is
  * assumed below); which chain the solver drives (right arm only, or arm + torso recoil); whether
  * the 4th declared target is a chest region or a limb.
+ */
+
+/**
+ * ## FIXED (tsk_744eea9a35614caf) — clauses (0b), (1), (2), (2b) are now live `it` tests.
+ *
+ * The guard primitive landed and is reachable ONLY through the registry, exactly as this file's
+ * seam requires:
+ *
+ *   - src/ik/solve-chain.ts                the SOLVER SEAM — the only file in the package allowed
+ *                                          to name three.js's CCDIKSolver. It implements a
+ *                                          deterministic analytic two-bone arm solve instead of
+ *                                          importing CCDIK (no three dependency, byte-identical
+ *                                          output), with conservative engineering joint limits
+ *                                          (shoulder bend <= 2.0 rad, elbow bend <= 2.7 rad about
+ *                                          the rest pose) and a wrist pronation scaled by the
+ *                                          rig's OWN total arm length.
+ *   - src/primitives/guard-body-region.ts  the guard BODY — resolves the target motion region to
+ *                                          the profile's anchor map (the data, never a pose
+ *                                          table), resolves the right-arm chain through
+ *                                          pose-bone-resolver.ts (identity-then-alias, verified
+ *                                          against the rig's own parent links), and emits the
+ *                                          3-keyframe neutral -> peak -> settle clip whose peak is
+ *                                          the solved pose.
+ *   - src/guard-body-region.ts             the ownership slot's redirect (registry seam card
+ *                                          tsk_51ffcc3e1a8fdea8) — registry path unchanged, body
+ *                                          replaced.
+ *
+ * THE UNLOCKED DECISIONS, recorded here because the card asked for them in the commit message:
+ * the driven chain is the RIGHT ARM ONLY (shoulder -> elbow -> wrist); the effector is the rig's
+ * own wrist/effector bone; `BodyRegionTarget.bodyPoint` became a MOTION REGION id resolved against
+ * `profile.regionAnchors` (the amendment this file's own header describes); and the "4th target"
+ * is a chest region (`motion_guard_chest_l`), not a limb. No per-target euler tables exist
+ * anywhere: clause (2) compiles a region outside the four and clause (2b) compiles the same
+ * geometry under a different id, and both reach, because the pose is a function of the anchor
+ * geometry alone.
+ *
+ * Clause (0b)'s refusal is behavior: a profile whose `regionAnchorSpace` is not
+ * `bind_world_metres` throws before any geometry is measured. The seam test's own fixture (a
+ * profile with NO anchor space at all) still gets the canonical empty fragment the registry
+ * contract blesses — that path predates the anchor contract and is what keeps
+ * the-primitive-registry-is-one-seam-with-no-behaviour.test.ts live.
+ *
+ * MEASURED 2026-08-30 on this tree: all seven clauses pass, and the anny-vs-mpfb peak rotation
+ * delta is 0.018 rad (threshold 0.01) — the wrist pronation, being scaled by each rig's own arm
+ * length, is what makes a replayed euler table structurally unable to satisfy clause (1).
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -667,7 +710,7 @@ describe("the guard primitive hits four targets on three rigs", () => {
     }
   });
 
-  planted(
+  it(
     "(0b) RED: the guard REFUSES a profile whose anchors are in a space it does not implement",
     async () => {
       // The fixture check above proves THIS FILE is consistent. It says nothing about the primitive,
@@ -704,7 +747,7 @@ describe("the guard primitive hits four targets on three rigs", () => {
     },
   );
 
-  planted(
+  it(
     "(1) guard_body_region resolves one target on THREE rig families through the bind frame, not a per-rig euler table",
     async () => {
       const compile = await registeredGuard();
@@ -812,7 +855,7 @@ describe("the guard primitive hits four targets on three rigs", () => {
     },
   );
 
-  planted(
+  it(
     "(2) a body target the module has never declared still compiles — there is no per-target pose table",
     async () => {
       const compile = await registeredGuard();
@@ -867,7 +910,7 @@ describe("the guard primitive hits four targets on three rigs", () => {
     },
   );
 
-  planted(
+  it(
     "(2b) RED: the registered guard returns a CANONICAL fragment, attributed to its action",
     async () => {
       // AMENDED 2026-08-30. This clause was written when clauses (1) and (2) still went through a
