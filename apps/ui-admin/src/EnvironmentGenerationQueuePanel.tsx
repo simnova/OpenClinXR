@@ -6,7 +6,7 @@ import {
   type EnvironmentGenerationWorkOrderQueue,
   type ScenarioSceneGenerationPipelineWorkOrderQueue,
 } from "@openclinxr/asset-registry";
-import { Button, Form, InputNumber, Select, Space, Table, Tag, Typography } from "antd";
+import { Button, Form, Input, InputNumber, Select, Space, Table, Tag, Typography } from "antd";
 import { lazy, type ReactElement, Suspense, useEffect, useMemo } from "react";
 import type { CreateScenarioSceneGenerationRequestResult, ScenarioSceneGenerationRequestPublicationReadiness, ScenarioSceneGenerationRequestQueue } from "./api-client.js";
 import { supportSurfaceOptions } from "./case-authoring-model.js";
@@ -28,17 +28,27 @@ import {
 } from "./status-view-model.js";
 import {
   summarizeAssetReleaseLadderReplayProjection,
+  summarizeDynamicBehaviorCoverage,
+  summarizeEncounterFactoryDryRun,
+  summarizeEncounterFactoryInputPlanning,
   summarizeEvidenceGateRefs,
+  summarizeHumanoidMetadataBlockers,
+  summarizeHumanoidRealismProfiles,
+  summarizeHumanReviewActions,
   summarizeMaterializationEvidenceAttachments,
   summarizeMaterializationInputManifest,
   summarizeMaterializationInputReviewActions,
   summarizeMaterializationInputReviewDecisionRecord,
   summarizePedsGeneratedPlayerAndEmotion,
+  summarizePublicationMetadata,
+  summarizeRuntimeBundleAssemblyAudit,
+  summarizeRuntimeBundleGateRefs,
   summarizeRuntimeEvidenceCaptureScaffold,
   summarizeRuntimeRealismEvidenceInputReviewDecisionRecord,
   summarizeRuntimeVisualEvidenceAttachmentActions,
   summarizeRuntimeVisualEvidenceAttachmentRecord,
   summarizeRuntimeVisualEvidenceAttachmentSummary,
+  summarizeScenarioReviewGate,
 } from "./environment-queue-readiness-summaries.js";
 
 
@@ -65,6 +75,8 @@ export type EnvironmentGenerationQueuePanelProps = {
   featuredScenarioId?: string;
   /** Faculty "Compile this encounter": runs the world compile for featuredScenarioId. */
   onCompileEncounter?: (scenarioId: string) => void;
+  infinigenPrompt?: string;
+  onInfinigenPromptChange?: (prompt: string) => void;
   /**
    * Worldview add-actor: unique actorId plus an ActorVariant compile node.
    * CaseAuthoringWorkbench Form.List Add actor remains the case-card splice.
@@ -127,6 +139,8 @@ export function EnvironmentGenerationQueuePanel({
   compileEdges = [],
   featuredScenarioId,
   onCompileEncounter,
+  infinigenPrompt,
+  onInfinigenPromptChange,
   onAddActor,
   caseDefVersion,
   compileVersion,
@@ -349,6 +363,13 @@ export function EnvironmentGenerationQueuePanel({
         <Typography.Text type="secondary">
           {`Runs the world compile for ${featuredScenarioId ?? "the featured scenario"}; world-compile request only, not a baker invoke or packet promote.`}
         </Typography.Text>
+        <Input.TextArea
+          aria-label="Room Infinigen prompt"
+          value={infinigenPrompt}
+          onChange={(event) => onInfinigenPromptChange?.(event.target.value)}
+          placeholder="Infinigen prompt for the Room compile node"
+          autoSize={{ minRows: 2, maxRows: 6 }}
+        />
         {onCompileEncounter ? (
           <Button
             size="small"
@@ -566,89 +587,3 @@ function summarizeHumanoidRuntimeReadinessHandoff(
     : "No humanoid actor runtime handoff metadata attached";
 }
 
-function summarizePublicationMetadata(readiness: ScenarioSceneGenerationRequestPublicationReadiness): string {
-  const metadata = readiness.publicationMetadata;
-  if (!metadata) {
-    return "Publication metadata: not attached";
-  }
-  return `Publication metadata: ${metadata.generatedAssetCount} generated asset refs; ${metadata.humanoidActorCount} humanoids; ${metadata.equipmentCount} equipment refs; publication review refs ${metadata.publicationReviewEvidenceRefs?.join(", ") || "none"}; ${metadata.claimBoundary}`;
-}
-
-function summarizeRuntimeBundleAssemblyAudit(readiness: ScenarioSceneGenerationRequestPublicationReadiness): string {
-  const audit = readiness.publicationMetadata?.assemblyAuditMetadata;
-  if (!audit) {
-    return "Runtime bundle assembly audit: not attached";
-  }
-  return `Runtime bundle assembly audit: sources ${audit.sourceDefinitionRefs.join(", ") || "none"}; humanoid refs ${audit.humanoidMetadataRefs.map((ref) => `${ref.actorRole}:${ref.actorId}`).join(", ") || "none"}; learner-use blocked until gates attach=${String(audit.fallbackPosture.learnerUseBlockedUntilEvidenceGatesAttach)}; ${audit.claimBoundary}`;
-}
-
-function summarizeHumanoidRealismProfiles(readiness: ScenarioSceneGenerationRequestPublicationReadiness): string {
-  const summary = readiness.publicationMetadata?.humanoidRealismProfileSummary;
-  if (!summary) {
-    return "Humanoid realism profiles: not attached";
-  }
-  const actorRoleSummary = summary.actorRoles.length > 0 ? summary.actorRoles.join(", ") : "roles not attached";
-  return `Humanoid realism profiles: ${summary.profileCount}; actor roles: ${actorRoleSummary}; required signals: ${summary.requiredSignalIds.join(", ")}; ${summary.claimScope}`;
-}
-
-function summarizeHumanoidMetadataBlockers(readiness: ScenarioSceneGenerationRequestPublicationReadiness): string {
-  const blockers = readiness.humanoidMetadataBlockerIds ?? [];
-  return `Humanoid metadata blockers: ${blockers.length > 0 ? blockers.join(", ") : "none"}`;
-}
-
-function summarizeScenarioReviewGate(readiness: ScenarioSceneGenerationRequestPublicationReadiness): string {
-  const gate = readiness.scenarioReviewGate;
-  if (!gate) {
-    return "Scenario status boundary: not attached";
-  }
-  return `Scenario status boundary: ${gate.scenarioStatus}; ${gate.approvalBoundary}; learner-use blocked=${String(gate.learnerUseBlocked)}; blockers ${gate.blockerIds.join(", ") || "none"}; ${gate.claimBoundary}`;
-}
-
-function summarizeRuntimeBundleGateRefs(readiness: ScenarioSceneGenerationRequestPublicationReadiness): string {
-  const refs = readiness.runtimeBundleGateRefs ?? [];
-  if (refs.length === 0) {
-    return "Runtime bundle gate refs: not attached";
-  }
-  return `Runtime bundle gate refs: ${refs.map((ref) => `${ref.gateId} ${ref.status}${ref.blockerIds.length > 0 ? ` (${ref.blockerIds.join(", ")})` : ""}`).join(", ")}`;
-}
-
-function summarizeHumanReviewActions(readiness: ScenarioSceneGenerationRequestPublicationReadiness): string {
-  const actions = readiness.humanReviewActions ?? [];
-  if (actions.length === 0) {
-    return "Human review actions: not attached";
-  }
-  return `Human review actions: ${actions.map((action) => `${action.actionId} ${action.status}${action.blockerIds.length > 0 ? ` (${action.blockerIds.join(", ")})` : ""}`).join(", ")}; human_review_action_not_automated_approval`;
-}
-
-function summarizeDynamicBehaviorCoverage(readiness: ScenarioSceneGenerationRequestPublicationReadiness): string {
-  const coverage = readiness.dynamicBehaviorCoverage;
-  if (!coverage) {
-    return "Dynamic behavior coverage: not attached";
-  }
-  const missing = [
-    ...coverage.missingDialogueActorRoles.map((actorRole) => `dialogue:${actorRole}`),
-    ...coverage.missingGazeActorRoles.map((actorRole) => `gaze:${actorRole}`),
-    ...coverage.missingPlacementActorRoles.map((actorRole) => `placement:${actorRole}`),
-    ...(coverage.missingAffectActorRoles ?? []).map((actorRole) => `affect:${actorRole}`),
-  ];
-  return `Dynamic behavior coverage: dialogue ${coverage.dialogueActorRoles.join(", ") || "none"}; gaze ${coverage.gazeActorRoles.join(", ") || "none"}; placement ${coverage.placementActorRoles.join(", ") || "none"}; affect ${(coverage.affectActorRoles ?? []).join(", ") || "none"} (${coverage.affectTimelineCount ?? 0} timelines; ${coverage.affectClaimBoundary ?? "metadata_only_not_runtime_facial_animation_evidence"}); missing ${missing.join(", ") || "none"}; blockers ${coverage.blockerIds.join(", ") || "none"}; ${coverage.claimBoundary}`;
-}
-
-function summarizeEncounterFactoryDryRun(readiness: ScenarioSceneGenerationRequestPublicationReadiness): string {
-  const summary = readiness.encounterFactoryDryRunSummary;
-  if (!summary) {
-    return "Encounter factory dry-run: not attached";
-  }
-  return `Encounter factory dry-run: status ${summary.status}; ${summary.stageIds.length} stages; actors ${summary.actorRoles.join(", ") || "none"}; review gates ${summary.reviewGateIds.join(", ") || "none"}; next ${summary.recommendedNextAction}; blockers ${summary.blockerIds.join(", ") || "none"}; warnings ${summary.warningIds.join(", ") || "none"}; boundaries metadataOnly=${String(summary.evidenceBoundaries.metadataOnlyPlan)} generatedAssets=${String(summary.evidenceBoundaries.generatedAssetsMaterialized)} learnerRuntime=${String(summary.evidenceBoundaries.learnerRuntimeEnabled)} questClaim=${String(summary.evidenceBoundaries.questReadinessClaimed)}; ${summary.claimBoundary}`;
-}
-
-function summarizeEncounterFactoryInputPlanning(readiness: ScenarioSceneGenerationRequestPublicationReadiness): string {
-  const summary = readiness.inputPlanningSummary;
-  if (!summary) {
-    return "Encounter factory input planning: not attached";
-  }
-  const selection = summary.factorySelectionMetadata
-    ? `; factory selection ${summary.factorySelectionMetadata.factorySelectionRole} order ${summary.factorySelectionMetadata.scenarioBankOrder ?? "unspecified"} via ${summary.factorySelectionMetadata.factorySelectionMode} (${summary.factorySelectionMetadata.factorySelectionClaimBoundary})`
-    : "";
-  return `Encounter factory input planning: ${summary.assetWorkOrderIntent.total} work-order intents (actors ${summary.assetWorkOrderIntent.actor}, environment ${summary.assetWorkOrderIntent.environment}, equipment ${summary.assetWorkOrderIntent.equipment}); shared asset lookup keys ${summary.sharedAssetLibraryReuse.lookupKeyCount}; dynamic behavior tags ${summary.dynamicBehaviorTraceTags.join(", ") || "none"}${selection}; blockers ${summary.blockerIds.join(", ") || "none"}; ${summary.claimBoundary}`;
-}

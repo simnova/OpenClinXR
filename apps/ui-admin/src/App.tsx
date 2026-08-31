@@ -1118,6 +1118,7 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
   >({ status: "idle" });
   // Parent-owned faculty staging authoring: authored ActorCard.placement values keyed by actorId.
   const [placementAuthorValues, setPlacementAuthorValues] = useState<Record<string, PlacementAuthorValue>>({});
+  const [infinigenPrompt, setInfinigenPrompt] = useState("");
   const sceneGenerationPipelineQueue = state.status === "ready" ? state.sceneGenerationPipelineQueue : undefined;
   const { facultyCompileLockRows, handleFacultyCompileLockChange, handleFacultyCompileOverrideChange, handleFacultyCompileOverrideValueChange, compileEdges } =
     useFacultyCompileLocks(sceneGenerationPipelineQueue, controlPlaneClient);
@@ -1225,6 +1226,7 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
         scenarioId,
         compileNodes: compileEdges,
         facultyLocks: facultyCompileLockRows,
+        ...(infinigenPrompt.trim() ? { infinigenPrompt: infinigenPrompt.trim() } : {}),
       });
       setCompileEncounterState({ status: "compiled", scenarioId });
     } catch (error) {
@@ -1408,6 +1410,8 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
           compileEdges={compileEdges}
           featuredScenarioId={featuredScenarioId}
           onCompileEncounter={(scenarioId) => void compileEncounter(scenarioId)}
+          infinigenPrompt={infinigenPrompt}
+          onInfinigenPromptChange={setInfinigenPrompt}
           onInitiateSceneGeneration={(scenarioId) => void initiateSceneGeneration(scenarioId)}
           onAttachSceneGenerationReview={(request) => void attachSceneGenerationReview(request)}
           onCheckSceneGenerationPublicationReadiness={(request) => void checkSceneGenerationPublicationReadiness(request)}

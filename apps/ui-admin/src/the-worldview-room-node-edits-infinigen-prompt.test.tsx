@@ -12,12 +12,15 @@ import { describe, expect, it } from "vitest";
  * EnvironmentGenerationQueuePanel have no infinigenPrompt textarea.
  *
  * Diagnosis header IMMUTABLE. Flip it.fails → it and append ## FIXED.
+ *
+ * ## FIXED (W6 tsk_cd9d45ca384a368a)
+ * EnvironmentGenerationQueuePanel authors infinigenPrompt via a Room textarea.
  */
 
 const SRC = dirname(fileURLToPath(import.meta.url));
 
 describe("the worldview room node edits the Infinigen prompt", () => {
-  it.fails("(1) EnvironmentGenerationQueuePanel authors infinigenPrompt", () => {
+  it("(1) EnvironmentGenerationQueuePanel authors infinigenPrompt", () => {
     const panel = readFileSync(join(SRC, "EnvironmentGenerationQueuePanel.tsx"), "utf8");
     expect(panel).toMatch(/infinigenPrompt/);
   });

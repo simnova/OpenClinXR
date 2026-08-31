@@ -55,7 +55,6 @@ export const SIZE_FREEZE: Record<string, { maxLines: number; reason: string }> =
   "packages/openclinxr/scenario-runtime/src/scenario-runtime.ts": { maxLines: 806, reason: "ScenarioRuntime orchestration class — extracted from the former 1162-line index.ts; decompose the class methods next" },
   "apps/api/src/api-bootstrap.ts": { maxLines: 908, reason: "bootstrap wiring — split by subsystem registration" },
   "apps/arena/model-vetting-studio/src/candidate-capture.ts": { maxLines: 770, reason: "capture pipeline — split views/geometry/url; residual render path" },
-  "apps/ui-admin/src/EnvironmentGenerationQueuePanel.tsx": { maxLines: 655, reason: "large admin panel — readiness summaries extracted to environment-queue-readiness-summaries.ts" },
   "packages/openclinxr/arena/model-vetting/src/logic.ts": { maxLines: 534, reason: "residual: model-vetting report build + validators (interleaved exported/internal) — split validators next; types extracted" },
   "apps/ui-admin/src/RuntimeSelectionReviewPacketPanel.tsx": { maxLines: 682, reason: "large panel — extract sub-sections/containers" },
   "apps/ui-admin/src/CaseAuthoringWorkbench.tsx": { maxLines: 673, reason: "large authoring panel — extract form sections (pure data helpers moved to case-authoring-io.ts)" },
