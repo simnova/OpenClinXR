@@ -55,7 +55,7 @@ export function registerWorldCompileRoutes(app: Hono<{ Variables: ApiAppVariable
     // Load the compile runner through a non-static specifier so the default
     // build graph stays tools-free and the typecheck never resolves it.
     const compileSpecifier = "../../../tools/openclinxr/factory/encounter-materialization-compile.js";
-    const compileModule = (await import(compileSpecifier)) as WorldCompileModule;
+    const compileModule = (await import(/* @vite-ignore */ compileSpecifier)) as WorldCompileModule;
 
     const outPath = join(COMPILE_OUT_DIR, `${scenarioId}-${new Date().toISOString().slice(0, 10)}.json`);
     await mkdir(dirname(outPath), { recursive: true });

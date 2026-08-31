@@ -30,7 +30,7 @@ async function resolveBunStartup(): Promise<StartedOpenClinXrApi> {
   // Composition root: load Mongo boot from tools/ via a non-static specifier so apps/api
   // stays persistence-agnostic (architecture rule) and the default build graph is Mongo-free.
   const bootSpecifier = "../../../tools/openclinxr/api-mongo-boot.js";
-  const bootModule = (await import(bootSpecifier)) as {
+  const bootModule = (await import(/* @vite-ignore */ bootSpecifier)) as {
     createBootedOpenClinXrApiStartup: (
       env?: NodeJS.ProcessEnv,
       extraOptions?: { realtimeVoiceGatewayPosture?: unknown },
