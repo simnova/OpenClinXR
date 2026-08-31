@@ -16,6 +16,35 @@
   box-sizing: border-box;
 }
 
+/*
+ * Intrinsic-ratio image helpers (Tailwind-shaped names, no Tailwind build).
+ * width/height HTML attributes keep CLS; height:auto keeps the bitmap's ratio.
+ */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.h-auto {
+  height: auto;
+}
+
+.object-contain {
+  object-fit: contain;
+}
+
+.object-cover {
+  object-fit: cover;
+}
+
+.block {
+  display: block;
+}
+
 body {
   margin: 0;
   background: var(--paper);
@@ -182,9 +211,8 @@ h3 {
 .hero__image img {
   display: block;
   width: 100%;
-  aspect-ratio: 16 / 10;
-  object-fit: cover;
-  object-position: top center;
+  height: auto;
+  object-fit: contain;
 }
 
 .hero__panel > div,
@@ -416,14 +444,13 @@ h3 {
 
 .pipeline-step__figure img {
   width: 100%;
+  height: auto;
   display: block;
-  aspect-ratio: 1;
-  object-fit: cover;
+  object-fit: contain;
   background: #1a1f1c;
 }
 
 .pipeline-step__figure--pack img {
-  aspect-ratio: 4 / 1;
   object-fit: contain;
   background: #f0f2ef;
 }
