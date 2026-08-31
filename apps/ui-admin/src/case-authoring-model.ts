@@ -211,6 +211,7 @@ export type ScenarioActorFormValue = {
   role: ActorCard["role"];
   displayName: string;
   demeanor?: string;
+  openingUtterance?: string;
   hiddenFacts?: string[];
   habitus?: BodyMechanics["habitus"];
   touchResponses?: TouchResponse[];
@@ -292,6 +293,7 @@ export function scenarioToFormValues(scenario: Scenario): ScenarioFormValues {
       role: actor.role,
       displayName: actor.displayName,
       demeanor: actor.demeanor ?? "",
+      openingUtterance: actor.openingUtterance ?? "",
       hiddenFacts: actor.hiddenFacts ? [...actor.hiddenFacts] : [],
       habitus: actor.bodyMechanics?.habitus,
       touchResponses: actor.bodyMechanics?.touchResponses?.map((response) => ({ ...response })) ?? [],
@@ -361,6 +363,7 @@ function actorFromFormValue(base: Scenario, formActor: ScenarioActorFormValue): 
   const hiddenFacts = cleanStrings(formActor.hiddenFacts);
   const touchResponses = (formActor.touchResponses ?? []).map((response) => ({ ...response }));
   const demeanor = formActor.demeanor?.trim() ?? "";
+  const openingUtterance = formActor.openingUtterance?.trim() ?? "";
 
   const actor: ActorCard = {
     actorId: formActor.actorId,
@@ -369,6 +372,9 @@ function actorFromFormValue(base: Scenario, formActor: ScenarioActorFormValue): 
   };
   if (demeanor.length > 0) {
     actor.demeanor = demeanor;
+  }
+  if (openingUtterance.length > 0) {
+    actor.openingUtterance = openingUtterance;
   }
   if (hiddenFacts.length > 0) {
     actor.hiddenFacts = hiddenFacts;

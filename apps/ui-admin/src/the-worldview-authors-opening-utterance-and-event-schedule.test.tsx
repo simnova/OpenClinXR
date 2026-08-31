@@ -18,6 +18,9 @@ import { describe, expect, it } from "vitest";
  * card objective at create. Follow this measurement.
  *
  * Diagnosis header IMMUTABLE. Flip it.fails → it and append ## FIXED.
+ *
+ * ## FIXED (W9 tsk_f656ab227bdd5d1f)
+ * ScenarioActorFormValue and ActorFields bind openingUtterance. eventSchedule Form.List remains.
  */
 
 const SRC = dirname(fileURLToPath(import.meta.url));
@@ -25,7 +28,7 @@ const MODEL = readFileSync(join(SRC, "case-authoring-model.ts"), "utf8");
 const BENCH = readFileSync(join(SRC, "CaseAuthoringWorkbench.tsx"), "utf8");
 
 describe("the worldview authors openingUtterance (schedule editor already exists)", () => {
-  it.fails("(1) ScenarioActorFormValue includes openingUtterance", () => {
+  it("(1) ScenarioActorFormValue includes openingUtterance", () => {
     const slice = MODEL.slice(
       MODEL.indexOf("export type ScenarioActorFormValue"),
       MODEL.indexOf("export function scenarioToFormValues"),
@@ -33,7 +36,7 @@ describe("the worldview authors openingUtterance (schedule editor already exists
     expect(slice).toMatch(/openingUtterance/);
   });
 
-  it.fails("(2) ActorFields bind an openingUtterance control", () => {
+  it("(2) ActorFields bind an openingUtterance control", () => {
     expect(BENCH).toMatch(/openingUtterance/);
   });
 

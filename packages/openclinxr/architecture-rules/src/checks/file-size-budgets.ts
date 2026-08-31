@@ -57,7 +57,7 @@ export const SIZE_FREEZE: Record<string, { maxLines: number; reason: string }> =
   "apps/arena/model-vetting-studio/src/candidate-capture.ts": { maxLines: 770, reason: "capture pipeline — split views/geometry/url; residual render path" },
   "packages/openclinxr/arena/model-vetting/src/logic.ts": { maxLines: 534, reason: "residual: model-vetting report build + validators (interleaved exported/internal) — split validators next; types extracted" },
   "apps/ui-admin/src/RuntimeSelectionReviewPacketPanel.tsx": { maxLines: 682, reason: "large panel — extract sub-sections/containers" },
-  "apps/ui-admin/src/CaseAuthoringWorkbench.tsx": { maxLines: 673, reason: "large authoring panel — extract form sections (pure data helpers moved to case-authoring-io.ts)" },
+  "apps/ui-admin/src/CaseAuthoringWorkbench.tsx": { maxLines: 667, reason: "large authoring panel — extract form sections (pure data helpers moved to case-authoring-io.ts)" },
   "packages/openclinxr/agent-loop/src/grok-tier-routing.ts": { maxLines: 607, reason: "tier routing — split table/logic" },
   "packages/openclinxr/arena/model-vetting/src/pipeline-candidate.ts": { maxLines: 581, reason: "pipeline — split stages" },
   "packages/openclinxr/arena/physics-touch-contract/src/adapters/jolt.ts": { maxLines: 502, reason: "adapter — near budget; trim on next touch" },

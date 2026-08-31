@@ -608,22 +608,16 @@ function ActorFields({ fieldName, onRemove }: { fieldName: number; onRemove: () 
       <Form.Item name={[fieldName, "demeanor"]} label="Demeanor">
         <Input aria-label="Actor demeanor" placeholder="e.g. anxious, guarded, protective of chest" />
       </Form.Item>
+      <Form.Item name={[fieldName, "openingUtterance"]} label="Opening utterance">
+        <Input.TextArea aria-label="Actor openingUtterance" autoSize={{ minRows: 2, maxRows: 4 }} />
+      </Form.Item>
       <Form.Item name={[fieldName, "communicationProfile", "style"]} label="Communication style">
         <Select
           allowClear
           aria-label="Actor communicationProfile style"
           style={{ minWidth: 220 }}
           placeholder="preserve imported profile"
-          options={[
-            { value: "congruent", label: "congruent" },
-            { value: "accuser", label: "accuser" },
-            { value: "rationalizer", label: "rationalizer" },
-            { value: "appeaser", label: "appeaser" },
-            { value: "distractor", label: "distractor" },
-            { value: "withdrawn_guarded", label: "withdrawn_guarded" },
-            { value: "angry_family_member", label: "angry_family_member" },
-            { value: "custom", label: "custom" },
-          ]}
+          options={["congruent", "accuser", "rationalizer", "appeaser", "distractor", "withdrawn_guarded", "angry_family_member", "custom"].map((value) => ({ value, label: value }))}
         />
       </Form.Item>
 
