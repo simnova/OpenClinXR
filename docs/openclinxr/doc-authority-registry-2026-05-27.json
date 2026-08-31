@@ -3853,6 +3853,13 @@
       "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
+      "path": "docs/openclinxr/unlock-plan-hybrid-peer-review-2026-08-31.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
+    },
+    {
       "path": "docs/openclinxr/ux-flows.md",
       "authority": "current-reference",
       "agentInstructionWeight": "medium",
