@@ -275,6 +275,7 @@ export const VISION_INFER_ROLE_IDS: ReadonlySet<string> = new Set([
   "visual-realism-adversary",
   "productivity-skeptic",
   "imagine-trellis",
+  "implementation-plan-gap-attacker",
 ]);
 
 export const DEEPSEEK_FLASH_VISION_MODEL = "deepseek-v4-flash-vision-exp";

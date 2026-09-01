@@ -12,11 +12,11 @@ OpenClaw-style file-backed workflow (not an external OpenClaw runtime). Target: 
 
 ## Grok spawn spec (from role-harness-policy)
 
-- productivity-skeptic: spawn_subagent explore (read-only) model=deepseek-v4-flash — fast_bounded
+- productivity-skeptic: spawn_subagent explore (read-only) model=deepseek-v4-flash-vision-exp — fast_bounded
 - CLI: `pnpm grok:agent:spawn-spec -- --role productivity-skeptic`
 - subagent_type: `explore`
 - capability_mode: `read-only`
-- model: `deepseek-v4-flash` (fast_bounded)
+- model: `deepseek-v4-flash-vision-exp` (fast_bounded)
 
 Build full spawn prompts at runtime via spawn-spec — do not embed fat seeds here.
 

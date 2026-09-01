@@ -3,7 +3,7 @@ name: implementation-plan-gap-attacker
 description: >
   OpenClinXR role implementation-plan-gap-attacker (adversarial). Read-only adversarial review unless explicitly assigned a non-overlapping doc fix. CLI-first tools; see docs/TOOLING.md.
 prompt_mode: full
-model: deepseek-v4-flash
+model: deepseek-v4-flash-vision-exp
 permission_mode: plan
 agents_md: false
 tools:
