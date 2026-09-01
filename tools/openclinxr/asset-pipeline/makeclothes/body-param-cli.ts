@@ -53,6 +53,7 @@ import {
   listShippedCastScenarioIds,
   resolveScenarioActorCast,
 } from "../../../../packages/openclinxr/asset-registry/src/actor-casting.js";
+import { planBodyParam } from "@openclinxr/factory-stations";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "../../../..");
@@ -348,10 +349,11 @@ function sha256File(filePath: string): string {
   return h.digest("hex");
 }
 
-function parseArgs(argv: string[]): { once: boolean; help: boolean } {
+function parseArgs(argv: string[]): { once: boolean; help: boolean; dryRun: boolean } {
   return {
     once: argv.includes("--once"),
     help: argv.includes("--help") || argv.includes("-h"),
+    dryRun: argv.includes("--dry-run"),
   };
 }
 
@@ -1476,15 +1478,27 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
 }
 
 async function main(): Promise<void> {
-  const { once, help } = parseArgs(process.argv.slice(2));
+  const { once, help, dryRun } = parseArgs(process.argv.slice(2));
+  if (dryRun) {
+    const planned = planBodyParam({
+      actorId: "actor_a",
+      ageYears: 8,
+      sex: "female",
+      heightCm: 120,
+      garmentLayers: "tshirt",
+    });
+    process.stdout.write(`${JSON.stringify(planned, null, 2)}\n`);
+    process.exit("issues" in planned ? 2 : 0);
+  }
   if (help || !once) {
-    console.log(`Usage: pnpm asset:body-param:fit -- --once
+    console.log(`Usage: pnpm asset:body-param:fit -- --once | --dry-run
 
 Factory body_param station: two MPFB macro body classes + per-class ClothesService fit,
 then unconditional footwear embed + catalog stamp (#226 finished figure).
 Writes library GLBs + body-param-catalog.json under apps/ui-xr/public/xr-assets/humanoids/candidates/.
 
---once   run a single two-class bake (required)
+--once     run a single two-class bake (required)
+--dry-run  print body_param plan JSON; never starts Blender
 `);
     process.exit(help ? 0 : 2);
   }

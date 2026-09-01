@@ -22,6 +22,7 @@ import {
 } from "./encounter-materialization-faculty-locks.js";
 import type { GeneratedEdStationRuntimeBundleReport } from "./generated-ed-station-runtime-bundle.js";
 import { planEquipmentWouldInvoke } from "./plan-equipment-would-invoke.js";
+import { planDialogueRuntime } from "@openclinxr/factory-stations";
 
 /**
  * World Compile Graph compile runner (WCG brief 2026-08-27, Phase 4).
@@ -278,6 +279,13 @@ export async function compileEncounterMaterialization(
       continue;
     }
     const finalOther = tombstoneIfRemoved(copyPriorByNodeId(node, priorNodes), deletion);
+    if (finalOther.bakerId === "dialogue_policy") {
+      planDialogueRuntime({
+        actorId: finalOther.spec.actorId ?? finalOther.nodeId,
+        openingUtterance: "hello",
+        policyId: "dialogue_policy",
+      });
+    }
     const equipmentPlan = planEquipmentWouldInvoke(finalOther);
     plannedNodes.push({
       ...finalOther,

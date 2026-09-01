@@ -5,6 +5,16 @@ import {
   type ProductionStationId,
 } from "./catalog.js";
 import { planEquipmentGenerate } from "./equipment_generate/run.js";
+import { planClothingConsume } from "./clothing_consume/run.js";
+import { planBodyParam } from "./body_param/run.js";
+import { planRoomGenerate } from "./room_generate/run.js";
+import { planMotionRetarget } from "./motion_retarget/run.js";
+import { planStaging } from "./staging/run.js";
+import { planLipSync } from "./lip_sync/run.js";
+import { planClothingGenerate } from "./clothing_generate/run.js";
+import { planDialogueRuntime } from "./dialogue_runtime/run.js";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 /**
  * OBSERVABLE: factory stations have no Standard Schema V1 interface, so admin
@@ -17,6 +27,9 @@ import { planEquipmentGenerate } from "./equipment_generate/run.js";
  *
  * ## FIXED (equipment_generate plan)
  * Catalog payload for ecg-cart-imagine-box plans viewCount 4 from the tracked pack.
+ *
+ * ## FIXED (remaining station plan() verticals)
+ * clothing_consume through dialogue_runtime dry-run StationRunners over proven bakers.
  */
 
 const VALID: Record<ProductionStationId, Record<string, unknown>> = {
@@ -91,9 +104,7 @@ describe("the factory station schemas validate", () => {
     expect("issues" in result).toBe(true);
   });
 
-  it("(5) factory:trellis:bake CLI imports @openclinxr/factory-stations", async () => {
-    const { readFileSync } = await import("node:fs");
-    const { join } = await import("node:path");
+  it("(5) factory:trellis:bake CLI imports @openclinxr/factory-stations", () => {
     const cli = readFileSync(
       join(import.meta.dirname, "../../../../tools/openclinxr/asset-pipeline/trellis/trellis-bake-cli.ts"),
       "utf8",
@@ -103,6 +114,53 @@ describe("the factory station schemas validate", () => {
       scripts: Record<string, string>;
     };
     expect(pkg.scripts["factory:trellis:bake"]).toContain("trellis-bake-cli.ts");
+  });
+
+  it("(6) remaining stations plan() dry-run VALID catalog payloads and reject invalid", () => {
+    const planners = [
+      { id: "clothing_consume" as const, plan: planClothingConsume, baker: "fit_stage" },
+      { id: "body_param" as const, plan: planBodyParam, baker: "body_param_stage" },
+      { id: "room_generate" as const, plan: planRoomGenerate, baker: "room-albedo-ao-bake.py" },
+      { id: "motion_retarget" as const, plan: planMotionRetarget, baker: "motion_bind_stage" },
+      { id: "staging" as const, plan: planStaging, baker: "generatedActorPlacement" },
+      { id: "lip_sync" as const, plan: planLipSync, baker: "rhubarb" },
+      { id: "clothing_generate" as const, plan: planClothingGenerate, baker: "garment_selection_by_role" },
+      { id: "dialogue_runtime" as const, plan: planDialogueRuntime, baker: "dialogue_policy" },
+    ];
+    for (const row of planners) {
+      const ok = row.plan(VALID[row.id]);
+      expect("issues" in ok, row.id).toBe(false);
+      if ("issues" in ok) continue;
+      expect(ok.plan.mode, row.id).toBe("dry-run");
+      expect(ok.plan.stationId, row.id).toBe(row.id);
+      expect(JSON.stringify(ok.plan), row.id).toContain(row.baker);
+      const bad = row.plan({ actorId: 12 });
+      expect("issues" in bad, `${row.id} invalid`).toBe(true);
+      if ("issues" in bad) {
+        expect(bad.issues[0]?.message.length, row.id).toBeGreaterThan(0);
+      }
+    }
+    const consumeSrc = readFileSync(join(import.meta.dirname, "clothing_consume/run.ts"), "utf8");
+    expect(consumeSrc).not.toMatch(/execFile|spawn\(/);
+  });
+
+  it("(7) each station has a real composer/CLI importing plan*()", () => {
+    const root = join(import.meta.dirname, "../../../..");
+    const consumers: Array<[string, string]> = [
+      ["planClothingConsume", "tools/openclinxr/asset-pipeline/makeclothes/fit-cli.ts"],
+      ["planBodyParam", "tools/openclinxr/asset-pipeline/makeclothes/body-param-cli.ts"],
+      ["planRoomGenerate", "tools/openclinxr/asset-pipeline/environment/rooms-bake-cli.ts"],
+      ["planMotionRetarget", "tools/openclinxr/asset-pipeline/makeclothes/motion-bind-cli.ts"],
+      ["planStaging", "tools/openclinxr/dark-factory/multi-case-runner.ts"],
+      ["planLipSync", "tools/openclinxr/dark-factory/multi-case-runner.ts"],
+      ["planClothingGenerate", "tools/openclinxr/asset-pipeline/makeclothes/garment-selection-by-role.ts"],
+      ["planDialogueRuntime", "tools/openclinxr/factory/encounter-materialization-compile.ts"],
+    ];
+    for (const [symbol, rel] of consumers) {
+      const src = readFileSync(join(root, rel), "utf8");
+      expect(src, rel).toContain('from "@openclinxr/factory-stations"');
+      expect(src, rel).toContain(symbol);
+    }
   });
 });
 

@@ -1,4 +1,4 @@
-import type { ProductionStationId, StandardIssue, StandardResult } from "./catalog.js";
+import { factoryStationSchemas, type ProductionStationId, type StandardIssue, type StandardResult } from "./catalog.js";
 
 /** Dry-run record. No GPU, no Blender. */
 export type StationPlan = Record<string, unknown> & { mode: "dry-run"; stationId: ProductionStationId };
@@ -17,3 +17,17 @@ export type StationRunner = {
   plan: (value: unknown) => StationPlanResult;
   run: (value: unknown) => Promise<Record<string, unknown>> | Record<string, unknown>;
 };
+
+/** Catalog validate then attach dry-run plan fields. Never execs. */
+export function planFromCatalog(
+  stationId: ProductionStationId,
+  input: unknown,
+  fields: (value: Record<string, unknown>) => Record<string, unknown>,
+): StationPlanResult {
+  const checked = factoryStationSchemas[stationId]["~standard"].validate(input);
+  if ("issues" in checked) return checked;
+  return {
+    value: checked.value,
+    plan: { mode: "dry-run", stationId, ...fields(checked.value) },
+  };
+}

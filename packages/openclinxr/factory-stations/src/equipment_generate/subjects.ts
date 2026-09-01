@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { repoRoot } from "../repo-root.js";
 
 const STANDARD_VIEW_NAMES = [
   "front.png",
@@ -15,18 +15,7 @@ export type EquipmentSubjectEntry = {
   viewRels: string[];
 };
 
-function findRepoRoot(): string {
-  let dir = path.dirname(fileURLToPath(import.meta.url));
-  for (let i = 0; i < 12; i += 1) {
-    if (existsSync(path.join(dir, "pnpm-workspace.yaml"))) return dir;
-    dir = path.dirname(dir);
-  }
-  throw new Error("workspace root (pnpm-workspace.yaml) not found");
-}
-
-export function repoRoot(): string {
-  return findRepoRoot();
-}
+export { repoRoot };
 
 function packViewRels(folder: string): string[] {
   return STANDARD_VIEW_NAMES.map((name) => `${folder}/${name}`);

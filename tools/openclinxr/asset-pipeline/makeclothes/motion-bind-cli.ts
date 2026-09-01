@@ -16,6 +16,7 @@ import { existsSync, mkdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
+import { planMotionRetarget } from "@openclinxr/factory-stations";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "../../../..");
@@ -121,6 +122,7 @@ export async function inspectMotionBindOutput(glbPath: string): Promise<MotionBi
 type CliOpts = {
   once: boolean;
   help: boolean;
+  dryRun: boolean;
   actor: string;
   clip: string;
   output: string;
@@ -132,6 +134,7 @@ function parseArgs(argv: string[]): CliOpts {
   const opts: CliOpts = {
     once: args.includes("--once") || args.length === 0,
     help: args.includes("--help") || args.includes("-h"),
+    dryRun: args.includes("--dry-run"),
     actor: DEFAULT_ACTOR,
     clip: DEFAULT_CLIP,
     output: DEFAULT_OUTPUT,
@@ -195,6 +198,11 @@ export async function runMotionBindOnce(opts?: Partial<CliOpts>): Promise<{
 
 async function main(): Promise<void> {
   const opts = parseArgs(process.argv.slice(2));
+  if (opts.dryRun) {
+    const planned = planMotionRetarget({ actorId: "actor_a", clipId: "idle_v1" });
+    process.stdout.write(`${JSON.stringify(planned, null, 2)}\n`);
+    process.exit("issues" in planned ? 2 : 0);
+  }
   if (opts.help) {
     console.log(
       "usage: pnpm asset:motion-bind -- --once | --actor <glb> --clip <bvh> --output <glb>",

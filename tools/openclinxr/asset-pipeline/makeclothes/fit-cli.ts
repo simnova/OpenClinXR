@@ -30,6 +30,7 @@ import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
 // #275 — single source of truth for the factory's FALLBACK upper garment identity.
 import { HM08_UPPER_GARMENT_FALLBACK_MESH_PREFIX } from "./garment-selection-by-role.js";
+import { planClothingConsume } from "@openclinxr/factory-stations";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "../../../..");
@@ -413,10 +414,11 @@ function sha256File(filePath: string): string {
   return h.digest("hex");
 }
 
-function parseArgs(argv: string[]): { once: boolean; help: boolean } {
+function parseArgs(argv: string[]): { once: boolean; help: boolean; dryRun: boolean } {
   return {
     once: argv.includes("--once"),
     help: argv.includes("--help") || argv.includes("-h"),
+    dryRun: argv.includes("--dry-run"),
   };
 }
 
@@ -622,14 +624,23 @@ export async function runMakeclothesFitOnce(): Promise<LibraryCatalog> {
 }
 
 async function main(): Promise<void> {
-  const { once, help } = parseArgs(process.argv.slice(2));
+  const { once, help, dryRun } = parseArgs(process.argv.slice(2));
+  if (dryRun) {
+    const planned = planClothingConsume({
+      actorId: "library_hm08",
+      mhcloPath: "library/scrub.mhclo",
+    });
+    process.stdout.write(`${JSON.stringify(planned, null, 2)}\n`);
+    process.exit("issues" in planned ? 2 : 0);
+  }
   if (help || !once) {
-    console.log(`Usage: pnpm asset:makeclothes:fit -- --once
+    console.log(`Usage: pnpm asset:makeclothes:fit -- --once | --dry-run
 
 Factory clothing station: fit one CC-BY .mhclo onto hm08 via ClothesService and
 write a library GLB + catalog under apps/ui-xr/public/xr-assets/humanoids/candidates/.
 
---once   run a single fit (required; no batch mode yet)
+--once     run a single fit (required; no batch mode yet)
+--dry-run  print clothing_consume plan JSON; never starts Blender
 `);
     process.exit(help ? 0 : 2);
   }

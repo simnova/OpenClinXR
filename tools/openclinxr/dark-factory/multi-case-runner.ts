@@ -70,7 +70,7 @@ import {
 } from "../factory/encounter-materialization-compile.js";
 import * as plannedBakers from "../factory/invoke-planned-world-compile-bakers.js";
 import { equipmentGeneratePayloadFromSpec } from "../factory/plan-equipment-would-invoke.js";
-import { planEquipmentGenerate } from "@openclinxr/factory-stations";
+import { planEquipmentGenerate, planLipSync, planStaging } from "@openclinxr/factory-stations";
 
 const execFileAsync = promisify(execFile);
 
@@ -742,6 +742,11 @@ async function runPlacementStage(caseId: string, stageDir: string): Promise<Stat
   const rows = cast.map((entry, index) => {
     const actor = minimalRuntimeActor(entry.actorId, entry.role, entry.runtimeAssetPath);
     const placement = generatedActorPlacement(actor, index, { scenarioId: caseId });
+    planStaging({
+      actorId: entry.actorId,
+      supportSurface: placement.posture ?? "stretcher",
+      plantOffsetMeters: 0,
+    });
     return {
       actorId: entry.actorId,
       role: entry.role,
@@ -959,6 +964,7 @@ async function runLipSyncStage(caseId: string, stageDir: string): Promise<Statio
   }
   await mkdir(stageDir, { recursive: true });
   try {
+    planLipSync({ actorId: caseId, visemeBank: "mpfb_phonemes" });
     const result = await runLipSyncStation({ utterance, outDir: stageDir });
     return {
       row: makeRow("lip_sync", "deterministic", [relStage(stageDir, path.basename(result.cueArtifactPath))], [

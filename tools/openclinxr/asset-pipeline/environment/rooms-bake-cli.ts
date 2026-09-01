@@ -35,6 +35,7 @@ import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 import { NodeIO } from "@gltf-transform/core";
 import { decodePng } from "../../evidence/decode-png.js";
+import { planRoomGenerate } from "@openclinxr/factory-stations";
 
 const execFileAsync = promisify(execFile);
 
@@ -230,6 +231,17 @@ async function bakeRoom(room: RoomRow, blenderPath: string): Promise<RoomResult>
 }
 
 export async function runRoomsBakeCli(args = process.argv.slice(2)): Promise<void> {
+  if (args.includes("--dry-run")) {
+    const planned = planRoomGenerate({
+      environmentId: "ed_bay_v1",
+      infinigenPrompt: "exam bay",
+      seed: 1,
+      layoutVariant: "default",
+    });
+    process.stdout.write(`${JSON.stringify(planned, null, 2)}\n`);
+    if ("issues" in planned) process.exit(2);
+    return;
+  }
   const inspect = args.includes("--inspect");
   const blenderPath = process.env["BLENDER"] ?? "blender";
   const rooms = enumerateEnvironments();
