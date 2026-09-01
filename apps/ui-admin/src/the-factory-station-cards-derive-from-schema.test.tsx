@@ -50,8 +50,8 @@ describe("the factory station cards derive from schema", () => {
     fireEvent.change(screen.getByLabelText("equipment_generate.decimationTarget"), { target: { value: 1000000 } });
     fireEvent.click(screen.getByRole("button", { name: "Apply equipment_generate" }));
     expect(accepted.length).toBe(1);
-    expect(accepted[0]?.subjectId).toBe("ecg-cart-imagine-box");
-    expect(accepted[0]?.viewCount).toBe(4);
+    expect(accepted[0]?.["subjectId"]).toBe("ecg-cart-imagine-box");
+    expect(accepted[0]?.["viewCount"]).toBe(4);
   });
 });
 

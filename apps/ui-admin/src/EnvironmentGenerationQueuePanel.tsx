@@ -395,7 +395,7 @@ export function EnvironmentGenerationQueuePanel({
         </Button>
         <Select allowClear showSearch={false} virtual={false} aria-label="Equipment fixtureSlot" placeholder="Bind equipment to fixtureSlot" style={{ minWidth: 220 }} options={[{ value: "stretcher", label: "stretcher" }, { value: "monitor", label: "monitor" }, { value: "ecg_cart", label: "ecg_cart" }]} onChange={(fixtureSlot) => { if (typeof fixtureSlot === "string") onBindEquipmentFixtureSlot?.({ equipmentId: `equip_worldview_${crypto.randomUUID().replaceAll("-", "").slice(0, 12)}`, fixtureSlot }); }} />
       </fieldset>
-      <FactoryStationCards onAddTrellisModel={onAddTrellisModel} />
+      <FactoryStationCards {...(onAddTrellisModel ? { onAddTrellisModel } : {})} />
       <fieldset className="station-queue-row" aria-label="Faculty compile/materialization lock table">
         <Typography.Text strong>Faculty compile lock</Typography.Text>
         <Typography.Text type="secondary">
@@ -480,7 +480,7 @@ export function EnvironmentGenerationQueuePanel({
           {`${compileEdges.length} compile dependency edge${compileEdges.length === 1 ? "" : "s"}; read-only view; writes stay on the faculty compile lock table.`}
         </Typography.Text>
         <Suspense fallback={<Typography.Text type="secondary">Loading compile graph…</Typography.Text>}>
-          <CompileGraphCanvas compileEdges={compileEdges} onAddNode={onAddNode} onRemoveNode={onRemoveNode} />
+          <CompileGraphCanvas compileEdges={compileEdges} {...(onAddNode ? { onAddNode } : {})} {...(onRemoveNode ? { onRemoveNode } : {})} />
         </Suspense>
         <Typography.Paragraph type="secondary">
           Read-only @xyflow/react rendering of compile/materialization dependencies; no write path, Mongo persistence, or lock-API enforcement is implied.
