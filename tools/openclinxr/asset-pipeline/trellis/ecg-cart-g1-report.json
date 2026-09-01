@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "openclinxr.ecg-cart-g1-4view.v1",
+  "measuredAgainstCommit": "222474df",
+  "technique": "PACK_A 4-view factory:trellis:bake seed 237802 remesh off; export 1M after 16M OOM; iterate-optimize iter1 preferred80k (plateau)",
+  "viewCount": 4,
+  "seed": 237802,
+  "remesh": false,
+  "decimationTargetAttempted": 16777216,
+  "decimationTargetExported": 1000000,
+  "exportOom": {
+    "decimationTarget": 16777216,
+    "rawFaces": 11419508,
+    "exit": 137,
+    "note": "to_glb UV parameterization killed during 11.4M-face export"
+  },
+  "rawTriangles": 979299,
+  "triangleCount": 153439,
+  "budgetPreferred80k": false,
+  "plateauNote": "meshopt high-error from 979299 plateaus ~153k on every target ≤120k; champion policy picked 179996 (hard180k). Graded the preferred80k attempt 153439.",
+  "glbStaging": {
+    "raw": "apps/arena/model-vetting-studio/public/glb-grade-staging/2026-08-11T01-57-18Z/ecg-cart-g1-raw.glb",
+    "preferred80k": "apps/arena/model-vetting-studio/public/glb-grade-staging/2026-08-11T01-57-18Z/ecg-cart-g1-preferred80k.glb"
+  },
+  "controlSha256": {
+    "raw": "6be8dfda2428742d252971a59b679b0466aa44d99b9f1f20a343e0d16e45c65a",
+    "c0": "c2b8c81fc661581a2ffa9173588b79c4937d09f2d5463f6224261e3cdf4359b9",
+    "g1Raw": "5ac243890ad07ec15b76c0380900ba4d83f12bb5ab599d56b14dad2c80c76534",
+    "g1": "88c784f95bf1df25f52aab240211d39a4560d895797cb46c32effd6f92b326c3"
+  },
+  "packSha256": {
+    "front.png": "447cf984ef498c502ab0dcab202054f0df9982842ae34fd50d3845289711afe3",
+    "side.png": "d82774363ec40397de60d941b157e1a766de19eaaa0a50901e1c025b040a86da",
+    "three_quarter_left.png": "cce078dcc89ba8d1d8f9ade71dae0902f660b9d1cccf6fead950854ed4b7a2e0",
+    "three_quarter_right.png": "f635bf175effb22fcd7cb50be000f807bcba62526b173e964b9c17f12e9f67d7"
+  },
+  "cameraFreeze": {
+    "center": [-0.00834202766418457, -1.1920928955078125e-07, 0.015874087810516357],
+    "radius": 1.7912647724151611,
+    "elevDeg": 14,
+    "azimDeg": 40,
+    "renderer": "blender-eevee-studio"
+  },
+  "stills": {
+    "c0": "tools/openclinxr/asset-pipeline/trellis/ecg-cart-c1-c0-renders/c0-champion.png",
+    "g1": "tools/openclinxr/asset-pipeline/trellis/ecg-cart-g1-renders/g1-direct80k.png"
+  },
+  "gradedVerdict": "loses_to_control",
+  "beatsControl": false,
+  "verdictNote": "MY GRADE: Native 1280 EEVEE. G1 PACK_A (#232 4-view) reconstructs a cluttered photoreal cart (cables, drawers, probe, CRT-like monitor) not the Imagine hard-surface box. C0 34443 remains the boxy cart with lumpy jacks. Object class mismatch. meshopt plateaus ~153k so preferred 80k is unmet. Factory stills stay C1. notEvidenceFor Quest. Do not re-score M1.",
+  "nextTreatmentIfNeeded": "Do not replace Factory stills. Do not re-run this PACK_A as G1. Hatch --remesh stays 1-view. Named next is not G2 on the same pack. Do not re-score M1.",
+  "claimScope": "PACK_A 4-view TRELLIS bake + meshopt preferred80k still vs frozen C0 camera",
+  "notEvidenceFor": ["quest_readiness", "clinical_accuracy", "hatch remesh", "M1 pixel grade", "that PACK_A is the Factory hard-surface pack"]
+}
