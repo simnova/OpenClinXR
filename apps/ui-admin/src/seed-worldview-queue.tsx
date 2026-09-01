@@ -16,7 +16,7 @@ export type SeedWorldviewCompileGraph = {
 
 export type SeedWorldviewQueueProps = Omit<
   EnvironmentGenerationQueuePanelProps,
-  "onAddActor" | "onBindEquipmentFixtureSlot" | "onCompileEncounter"
+  "onAddActor" | "onBindEquipmentFixtureSlot" | "onAddTrellisModel" | "onCompileEncounter"
 > & {
   onCompileEncounter?: (scenarioId: string, graph: SeedWorldviewCompileGraph) => void;
 };
@@ -42,6 +42,7 @@ export function SeedWorldviewQueue({
       facultyCompileLockRows={mergedLocks}
       onAddActor={worldview.onAddActor}
       onBindEquipmentFixtureSlot={worldview.onBindEquipmentFixtureSlot}
+      onAddTrellisModel={worldview.onAddTrellisModel}
       onAddNode={worldview.onAddNode}
       onRemoveNode={worldview.onRemoveNode}
       {...(onCompileEncounter

@@ -7,6 +7,7 @@ import {
   type ScenarioSceneGenerationPipelineWorkOrderQueue,
 } from "@openclinxr/asset-registry";
 import { Button, Form, Input, InputNumber, Select, Space, Table, Tag, Typography } from "antd";
+import { FactoryStationCards } from "./FactoryStationCards.js";
 import { lazy, type ReactElement, Suspense, useEffect, useMemo } from "react";
 import type { CreateScenarioSceneGenerationRequestResult, ScenarioSceneGenerationRequestPublicationReadiness, ScenarioSceneGenerationRequestQueue } from "./api-client.js";
 import { supportSurfaceOptions } from "./case-authoring-model.js";
@@ -21,7 +22,6 @@ import {
 const CompileGraphCanvas = lazy(() =>
   import("./CompileGraphCanvas.js").then((module) => ({ default: module.CompileGraphCanvas })),
 );
-
 import {
   sceneGenerationRequestProjectionArtifactStatusColor,
   sceneGenerationRequestProjectionArtifactStatusLabel,
@@ -51,7 +51,6 @@ import {
   summarizeRuntimeVisualEvidenceAttachmentSummary,
   summarizeScenarioReviewGate,
 } from "./environment-queue-readiness-summaries.js";
-
 
 export type EnvironmentGenerationQueuePanelProps = {
   environmentGenerationQueue: EnvironmentGenerationQueue;
@@ -84,6 +83,7 @@ export type EnvironmentGenerationQueuePanelProps = {
    */
   onAddActor?: (payload: { actorId: string; compileNodeKind: "ActorVariant" }) => void;
   onBindEquipmentFixtureSlot?: (payload: { equipmentId: string; fixtureSlot: string }) => void;
+  onAddTrellisModel?: (payload: { modelId: string; subjectId: string; packId: string }) => void;
   onAddNode?: (nodeId: string) => void;
   onRemoveNode?: (nodeId: string) => void;
   /** Authored Scenario.version for the featured case (worldview header). */
@@ -147,6 +147,7 @@ export function EnvironmentGenerationQueuePanel({
   onInfinigenPromptChange,
   onAddActor,
   onBindEquipmentFixtureSlot,
+  onAddTrellisModel,
   onAddNode,
   onRemoveNode,
   caseDefVersion,
@@ -378,15 +379,7 @@ export function EnvironmentGenerationQueuePanel({
           autoSize={{ minRows: 2, maxRows: 6 }}
         />
         {onCompileEncounter ? (
-          <Button
-            size="small"
-            disabled={!featuredScenarioId}
-            onClick={() => {
-              if (featuredScenarioId) {
-                onCompileEncounter(featuredScenarioId);
-              }
-            }}
-          >
+          <Button size="small" disabled={!featuredScenarioId} onClick={() => { if (featuredScenarioId) onCompileEncounter(featuredScenarioId); }}>
             Compile this encounter
           </Button>
         ) : null}
@@ -402,6 +395,7 @@ export function EnvironmentGenerationQueuePanel({
         </Button>
         <Select allowClear showSearch={false} virtual={false} aria-label="Equipment fixtureSlot" placeholder="Bind equipment to fixtureSlot" style={{ minWidth: 220 }} options={[{ value: "stretcher", label: "stretcher" }, { value: "monitor", label: "monitor" }, { value: "ecg_cart", label: "ecg_cart" }]} onChange={(fixtureSlot) => { if (typeof fixtureSlot === "string") onBindEquipmentFixtureSlot?.({ equipmentId: `equip_worldview_${crypto.randomUUID().replaceAll("-", "").slice(0, 12)}`, fixtureSlot }); }} />
       </fieldset>
+      <FactoryStationCards onAddTrellisModel={onAddTrellisModel} />
       <fieldset className="station-queue-row" aria-label="Faculty compile/materialization lock table">
         <Typography.Text strong>Faculty compile lock</Typography.Text>
         <Typography.Text type="secondary">

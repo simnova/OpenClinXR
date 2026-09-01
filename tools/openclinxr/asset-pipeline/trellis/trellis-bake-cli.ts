@@ -24,6 +24,7 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 // ---------------------------------------------------------------------------
 // Configuration
@@ -92,6 +93,9 @@ function resolvePackPath(rel: string): string {
   const env = process.env.OPENCLINXR_TRELLIS_PACKS;
   if (env) return path.join(env, rel);
 
+  const tracked = path.join(REPO_ROOT, "tools/openclinxr/asset-pipeline/trellis/packs", rel);
+  if (existsSync(tracked)) return tracked;
+
   const local = path.join(EVIDENCE_ROOT, "issue-232", rel);
   if (existsSync(local)) return local;
 
@@ -133,6 +137,11 @@ const KNOWN_SUBJECTS: SubjectEntry[] = [
     subjectId: "ecg-cart",
     displayName: "12-lead ECG cart",
     viewRels: packViewRels("ecg-cart"),
+  },
+  {
+    subjectId: "ecg-cart-imagine-box",
+    displayName: "12-lead ECG cart Imagine-box hard-surface 4-view (not PACK_A #232)",
+    viewRels: packViewRels("ecg-cart-imagine-box"),
   },
   {
     // Stab E midband kit (parametric) → clean Blender 4-view pack → TRELLIS multi-view.
@@ -219,6 +228,14 @@ const KNOWN_SUBJECTS: SubjectEntry[] = [
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
+
+interface SamplerKnobs {
+  steps?: number;
+  guidance_strength?: number;
+  guidance_rescale?: number;
+  rescale_t?: number;
+  guidance_interval?: [number, number];
+}
 
 interface SamplerOverrides {
   ss: Partial<SamplerKnobs>;
@@ -326,7 +343,7 @@ The bake records the effective merged sampler table in bake-measure.json under
 --hf-demo keeps writing "samplerParams" exactly as before.
 
 SUBJECTS
-  wall-clock, bedside-monitor, ecg-cart, ecg-cart-midband, ecg-cart-midband-6view,
+  wall-clock, bedside-monitor, ecg-cart, ecg-cart-imagine-box, ecg-cart-midband, ecg-cart-midband-6view,
   ecg-cart-midband-2tq, ecg-cart-midband-2oblique, iv-pole, o2-port,
   iv-pole-escape, bedside-monitor-escape, wall-clock-escape, o2-port-escape,
   iv-pump-escape, fetal-monitor-escape
@@ -753,4 +770,8 @@ function main(): void {
   liveBake(args.subject, args);
 }
 
-main();
+const invokedAsCli =
+  process.argv[1] !== undefined && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url));
+if (invokedAsCli) {
+  main();
+}

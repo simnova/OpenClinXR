@@ -12,15 +12,22 @@ export type WorldviewEquipmentBind = {
   fixtureSlot: string;
 };
 
+export type WorldviewTrellisModel = {
+  modelId: string;
+  subjectId: string;
+  packId: string;
+};
+
 export type WorldviewCompileGraphState = {
   actors: WorldviewActorDraft[];
   equipmentBinds: WorldviewEquipmentBind[];
+  trellisModels: WorldviewTrellisModel[];
   extraNodeIds: string[];
   removedNodeIds: string[];
 };
 
 export function emptyWorldviewCompileGraph(): WorldviewCompileGraphState {
-  return { actors: [], equipmentBinds: [], extraNodeIds: [], removedNodeIds: [] };
+  return { actors: [], equipmentBinds: [], trellisModels: [], extraNodeIds: [], removedNodeIds: [] };
 }
 
 export function reduceWorldviewAddActor(
@@ -39,6 +46,16 @@ export function reduceWorldviewBindEquipment(
 ): WorldviewCompileGraphState {
   const without = state.equipmentBinds.filter((bind) => bind.equipmentId !== payload.equipmentId);
   return { ...state, equipmentBinds: [...without, payload] };
+}
+
+export function reduceWorldviewAddTrellisModel(
+  state: WorldviewCompileGraphState,
+  payload: WorldviewTrellisModel,
+): WorldviewCompileGraphState {
+  if (state.trellisModels.some((model) => model.modelId === payload.modelId)) {
+    return state;
+  }
+  return { ...state, trellisModels: [...state.trellisModels, payload] };
 }
 
 export function reduceWorldviewAddNode(
@@ -61,10 +78,13 @@ export function reduceWorldviewRemoveNode(
 ): WorldviewCompileGraphState {
   const actorId = actorIdFromCompileNode(nodeId);
   const equipmentId = nodeId.startsWith("equip:") ? nodeId.slice("equip:".length) : undefined;
+  const trellisId = nodeId.startsWith("trellis:") ? nodeId.slice("trellis:".length) : undefined;
   return {
     actors: actorId === undefined ? state.actors : state.actors.filter((actor) => actor.actorId !== actorId),
     equipmentBinds:
       equipmentId === undefined ? state.equipmentBinds : state.equipmentBinds.filter((bind) => bind.equipmentId !== equipmentId),
+    trellisModels:
+      trellisId === undefined ? state.trellisModels : state.trellisModels.filter((model) => model.modelId !== trellisId),
     extraNodeIds: state.extraNodeIds.filter((id) => id !== nodeId),
     removedNodeIds: state.removedNodeIds.includes(nodeId) ? state.removedNodeIds : [...state.removedNodeIds, nodeId],
   };
@@ -87,6 +107,13 @@ export function mergeWorldviewCompileEdges(
       from: `equip:${bind.equipmentId}`,
       to: `fixture:${bind.fixtureSlot}`,
       kind: "fixtureSlot",
+    });
+  }
+  for (const model of state.trellisModels) {
+    extra.push({
+      from: `trellis:${model.modelId}`,
+      to: `room:equipment`,
+      kind: "trellisBake",
     });
   }
   for (const nodeId of state.extraNodeIds) {
@@ -125,6 +152,18 @@ export function mergeWorldviewLockRows(
       facultyAccepted: bind.fixtureSlot,
     });
   }
+  for (const model of state.trellisModels) {
+    extra.push({
+      rowId: `lock:trellis:${model.modelId}`,
+      kind: "equipment",
+      compileSubject: model.modelId,
+      locked: false,
+      stale: false,
+      overrideValue: model.packId,
+      llmProposed: "trellisBake",
+      facultyAccepted: model.subjectId,
+    });
+  }
   const seen = new Set(extra.map((row) => row.rowId));
   const kept = base.filter((row) => !seen.has(row.rowId) && !isRemovedLockRow(row, state));
   return [...kept, ...extra].map(annotateProposedVsAccepted);
@@ -140,6 +179,7 @@ export function useWorldviewCompileGraph(): {
   state: WorldviewCompileGraphState;
   onAddActor: (payload: WorldviewActorDraft) => void;
   onBindEquipmentFixtureSlot: (payload: WorldviewEquipmentBind) => void;
+  onAddTrellisModel: (payload: WorldviewTrellisModel) => void;
   onAddNode: (nodeId: string) => void;
   onRemoveNode: (nodeId: string) => void;
 } {
@@ -150,13 +190,16 @@ export function useWorldviewCompileGraph(): {
   const onBindEquipmentFixtureSlot = useCallback((payload: WorldviewEquipmentBind) => {
     setState((current) => reduceWorldviewBindEquipment(current, payload));
   }, []);
+  const onAddTrellisModel = useCallback((payload: WorldviewTrellisModel) => {
+    setState((current) => reduceWorldviewAddTrellisModel(current, payload));
+  }, []);
   const onAddNode = useCallback((nodeId: string) => {
     setState((current) => reduceWorldviewAddNode(current, nodeId));
   }, []);
   const onRemoveNode = useCallback((nodeId: string) => {
     setState((current) => reduceWorldviewRemoveNode(current, nodeId));
   }, []);
-  return { state, onAddActor, onBindEquipmentFixtureSlot, onAddNode, onRemoveNode };
+  return { state, onAddActor, onBindEquipmentFixtureSlot, onAddTrellisModel, onAddNode, onRemoveNode };
 }
 
 function actorIdFromCompileNode(nodeId: string): string | undefined {
@@ -179,5 +222,8 @@ function isRemovedLockRow(row: FacultyCompileLockRow, state: WorldviewCompileGra
       state.removedNodeIds.includes(`actor:${row.compileSubject}:wardrobe`)
     );
   }
-  return state.removedNodeIds.includes(`equip:${row.compileSubject}`);
+  return (
+    state.removedNodeIds.includes(`equip:${row.compileSubject}`) ||
+    state.removedNodeIds.includes(`trellis:${row.compileSubject}`)
+  );
 }
