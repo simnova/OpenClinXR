@@ -22,6 +22,11 @@ import { describe, expect, it } from "vitest";
  *
  * claimScope: whether M1 vs C0 was rendered and recorded on the tree.
  * notEvidenceFor: Quest, 4-view TRELLIS, hatch remesh, Blender high-to-low, that M1 must win.
+ *
+ * ## FIXED (tsk_26d81dc7d667c574)
+ * Direct high-error 79999 tris from frozen raw. Frozen-camera EEVEE 1280. Native grade:
+ * M1 circular jack bores vs C0 lumpy stretch (beats_control). SHA freeze echoed. Factory
+ * stills not replaced (M1 not a clear win over C1 59187).
  */
 
 const REPO = join(import.meta.dirname, "../../..");
@@ -47,7 +52,7 @@ function sha256File(path: string): string {
 }
 
 describe("the ECG cart M1 direct 80k has been graded", () => {
-  it.fails("(1) tracked M1 vs C0 report and 1280 EEVEE stills exist with frozen SHAs", () => {
+  it("(1) tracked M1 vs C0 report and 1280 EEVEE stills exist with frozen SHAs", () => {
     const freeze = JSON.parse(readFileSync(CONTROL, "utf8")) as Freeze;
     const staging = join(REPO, freeze.stagingDir);
     for (const row of [freeze.raw, freeze.c0]) {

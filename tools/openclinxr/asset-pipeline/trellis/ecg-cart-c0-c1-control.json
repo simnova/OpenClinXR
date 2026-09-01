@@ -20,6 +20,12 @@
     "sha256": "c6f8e748a9d9783b16f814aae1d1e509a521f0145bb620a32110741ae8f71436",
     "role": "same-source density falsifier (Codex consult)"
   },
+  "m1": {
+    "file": "ecg-cart-m1-direct80k.glb",
+    "triangles": 79999,
+    "sha256": "8f004f610a8b42a76baf3edc7a17be1086266e6c82d8bb4b31b2e184877500c9",
+    "role": "Codex M1 / plan T1 direct high-error 80k from frozen raw"
+  },
   "renderer": {
     "engine": "BLENDER_EEVEE",
     "script": "tools/openclinxr/factory/equipment-lane/render-glb-multiview-pack.py",

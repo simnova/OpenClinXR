@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "openclinxr.ecg-cart-m1-80k.v1",
+  "measuredAgainstCommit": "85507e20",
+  "technique": "iterate-optimize iter1 direct_high_error preferred80k from frozen raw (no weld; T1/Codex M1)",
+  "triangleCount": 79999,
+  "glbStaging": "apps/arena/model-vetting-studio/public/glb-grade-staging/2026-08-11T01-57-18Z/ecg-cart-m1-direct80k.glb",
+  "controlSha256": {
+    "raw": "6be8dfda2428742d252971a59b679b0466aa44d99b9f1f20a343e0d16e45c65a",
+    "c0": "c2b8c81fc661581a2ffa9173588b79c4937d09f2d5463f6224261e3cdf4359b9",
+    "m1": "8f004f610a8b42a76baf3edc7a17be1086266e6c82d8bb4b31b2e184877500c9"
+  },
+  "cameraFreeze": {
+    "center": [-0.00834202766418457, -1.1920928955078125e-07, 0.015874087810516357],
+    "radius": 1.7912647724151611,
+    "elevDeg": 14,
+    "azimDeg": 40,
+    "renderer": "blender-eevee-studio"
+  },
+  "stills": {
+    "c0": "tools/openclinxr/asset-pipeline/trellis/ecg-cart-c1-c0-renders/c0-champion.png",
+    "m1": "tools/openclinxr/asset-pipeline/trellis/ecg-cart-m1-renders/m1-direct80k.png"
+  },
+  "gradedVerdict": "beats_control",
+  "beatsControl": true,
+  "verdictNote": "Native 1280 EEVEE: M1 79999 restores circular jack bores vs C0 34443 lumpy/flatter discs; same cart silhouette and studio lighting. vs C1 59187: both circular; M1 not a clear likeness win over C1 so Factory stills stay C1. notEvidenceFor Quest or Imagine-pack identity.",
+  "nextTreatmentIfNeeded": "M1 beats C0 so 34k stretch is not required. Do not replace Factory stills unless a later child also beats C1. Next named child: read bake-measure viewCount on frozen raw before G1 4-view; hatch --remesh is 1-view CLI not PACK_A; --bake onto 80k or 59k only if jack/pad shading vs Imagine remains.",
+  "claimScope": "same-source meshopt density stills of the 2026-08-11 ECG cart pair",
+  "notEvidenceFor": ["quest_readiness", "clinical_accuracy", "4-view TRELLIS", "hatch remesh"]
+}
