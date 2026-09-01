@@ -70,7 +70,12 @@ import {
 } from "../factory/encounter-materialization-compile.js";
 import * as plannedBakers from "../factory/invoke-planned-world-compile-bakers.js";
 import { equipmentGeneratePayloadFromSpec } from "../factory/plan-equipment-would-invoke.js";
-import { planEquipmentGenerate, planLipSync, planStaging, runEquipmentGenerate } from "@openclinxr/factory-stations";
+import {
+  planEquipmentGenerate,
+  runEquipmentGenerate,
+  runLipSync,
+  runStaging,
+} from "@openclinxr/factory-stations";
 
 const execFileAsync = promisify(execFile);
 
@@ -742,11 +747,14 @@ async function runPlacementStage(caseId: string, stageDir: string): Promise<Stat
   const rows = cast.map((entry, index) => {
     const actor = minimalRuntimeActor(entry.actorId, entry.role, entry.runtimeAssetPath);
     const placement = generatedActorPlacement(actor, index, { scenarioId: caseId });
-    planStaging({
-      actorId: entry.actorId,
-      supportSurface: placement.posture ?? "stretcher",
-      plantOffsetMeters: 0,
-    });
+    runStaging(
+      {
+        actorId: entry.actorId,
+        supportSurface: placement.posture ?? "stretcher",
+        plantOffsetMeters: 0,
+      },
+      { placement },
+    );
     return {
       actorId: entry.actorId,
       role: entry.role,
@@ -903,47 +911,16 @@ function firstAuthoredUtterance(scenario: Scenario | undefined): string | undefi
  * bakes the same files on every run (D9 determinism).
  */
 export async function runLipSyncStation(options: RunLipSyncStationOptions): Promise<LipSyncStationResult> {
-  const { utterance, outDir } = options;
-  const binary = resolveRhubarbBinary();
-  await mkdir(outDir, { recursive: true });
-
-  const base = `utterance-${createHash("sha1").update(utterance).digest("hex").slice(0, 10)}`;
-  const aiffPath = path.join(outDir, `${base}.aiff`);
-  const wavPath = path.join(outDir, `${base}.wav`);
-  const cueArtifactPath = path.join(outDir, `${base}.mouth-cues.json`);
-  const manifestArtifactPath = path.join(outDir, "lip-sync-manifest.json");
-
-  await execFileAsync("say", ["-o", aiffPath, utterance]);
-  await execFileAsync("afconvert", ["-f", "WAVE", "-d", "LEI16@22050", "-c", "1", aiffPath, wavPath]);
-  await execFileAsync(binary, ["--exportFormat", "json", "-o", cueArtifactPath, wavPath]);
-
-  const raw = JSON.parse(await readFile(cueArtifactPath, "utf8")) as {
-    metadata?: { duration?: number };
-    mouthCues?: LipSyncCue[];
+  const raw = await runLipSync({ actorId: "lip_sync", visemeBank: "mpfb_phonemes" }, options);
+  const cues = (raw["cues"] as LipSyncCue[] | undefined) ?? [];
+  return {
+    cues,
+    tool: "rhubarb",
+    binary: String(raw["binary"] ?? ""),
+    audioDurationSeconds: Number(raw["audioDurationSeconds"] ?? 0),
+    cueArtifactPath: String(raw["cueArtifactPath"] ?? ""),
+    manifestArtifactPath: path.join(options.outDir, "lip-sync-manifest.json"),
   };
-  const cues = raw.mouthCues ?? [];
-  const audioDurationSeconds = raw.metadata?.duration ?? 0;
-
-  await writeFile(
-    manifestArtifactPath,
-    `${JSON.stringify({
-      schemaVersion: "openclinxr.dark-factory.station-lip-sync.v1",
-      station: "lip_sync",
-      tool: "rhubarb",
-      binary,
-      utterance,
-      audioDurationSeconds,
-      cueCount: cues.length,
-      distinctShapes: [...new Set(cues.map((c) => c.value))].sort(),
-      notes: [
-        "Offline build-time bake: macOS `say` -> `afconvert` (16-bit mono WAV) -> rhubarb --exportFormat json. No network call, no model.",
-        "notEvidenceFor: timing ACCURACY for the audio, mouth appearance (no pixel grade exists), voice quality, runtime playback, and the `say` TTS used as a probe convenience, not a production voice decision.",
-      ],
-    }, null, 2)}\n`,
-    "utf8",
-  );
-
-  return { cues, tool: "rhubarb", binary, audioDurationSeconds, cueArtifactPath, manifestArtifactPath };
 }
 
 /**
@@ -964,8 +941,7 @@ async function runLipSyncStage(caseId: string, stageDir: string): Promise<Statio
   }
   await mkdir(stageDir, { recursive: true });
   try {
-    planLipSync({ actorId: caseId, visemeBank: "mpfb_phonemes" });
-    const result = await runLipSyncStation({ utterance, outDir: stageDir });
+    const result = await runLipSync({ actorId: caseId, visemeBank: "mpfb_phonemes" }, { utterance, outDir: stageDir });
     return {
       row: makeRow("lip_sync", "deterministic", [relStage(stageDir, path.basename(result.cueArtifactPath))], [
         `RAN offline: ${result.cues.length} cues, ${new Set(result.cues.map((c) => c.value)).size} distinct shapes via ${result.tool} (${result.binary}) for "${utterance}".`,

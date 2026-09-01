@@ -35,7 +35,12 @@ import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 import { NodeIO } from "@gltf-transform/core";
 import { decodePng } from "../../evidence/decode-png.js";
-import { planRoomGenerate } from "@openclinxr/factory-stations";
+import {
+  ROOM_ALBEDO_REL,
+  ROOM_OCCLUSION_REL,
+  planRoomGenerate,
+  runRoomGenerate,
+} from "@openclinxr/factory-stations";
 
 const execFileAsync = promisify(execFile);
 
@@ -44,8 +49,8 @@ export const ROOMS_BAKE_REPORT_DIR = ".openclinxr/evidence/issue-526";
 export const ROOMS_BAKE_REPORT = `${ROOMS_BAKE_REPORT_DIR}/rooms-bake-report.json`;
 export const ENV_DIR = "apps/ui-xr/public";
 export const ENV_ASSETS_MODULE = "apps/ui-xr/src/infinigen-environment-assets.ts";
-export const ALBEDO_SCRIPT = "tools/openclinxr/asset-pipeline/environment/room-albedo-ao-bake.py";
-export const OCCLUSION_SCRIPT = "tools/openclinxr/asset-pipeline/environment/room-occlusion-bake.py";
+export const ALBEDO_SCRIPT = ROOM_ALBEDO_REL;
+export const OCCLUSION_SCRIPT = ROOM_OCCLUSION_REL;
 export const BLENDER_TIMEOUT_MS = 600_000;
 
 const io = new NodeIO();
@@ -195,17 +200,22 @@ async function bakeRoom(room: RoomRow, blenderPath: string): Promise<RoomResult>
   const anyTextured = doc.getRoot().listMaterials().some((m) => m.getBaseColorTexture() !== null);
   let albedo: RoomResult["albedo"] = "skipped-already-textured";
   if (!anyTextured) {
-    await execFileAsync(blenderPath, ["--background", "--python", ALBEDO_SCRIPT, "--", "--input", work, "--output", work, "--resolution", "1024"], {
-      timeout: BLENDER_TIMEOUT_MS,
-      maxBuffer: 20 * 1024 * 1024,
-    });
     albedo = "baked";
   }
-
-  await execFileAsync(blenderPath, ["--background", "--python", OCCLUSION_SCRIPT, "--", "--input", work, "--output", work, "--resolution", "512"], {
-    timeout: BLENDER_TIMEOUT_MS,
-    maxBuffer: 20 * 1024 * 1024,
-  });
+  await runRoomGenerate(
+    {
+      environmentId: room.envId,
+      infinigenPrompt: "exam bay",
+      seed: 1,
+      layoutVariant: "default",
+    },
+    {
+      blender: blenderPath,
+      workGlb: work,
+      bakeAlbedo: !anyTextured,
+      timeoutMs: BLENDER_TIMEOUT_MS,
+    },
+  );
 
   const post = await fingerprintFull(work);
   const diffs = fingerprintDiff(pre, post);

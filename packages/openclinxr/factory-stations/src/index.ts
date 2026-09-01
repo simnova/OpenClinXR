@@ -30,10 +30,37 @@ export {
   runClothingConsume,
   type ClothingConsumeRunOptions,
 } from "./clothing_consume/run.js";
-export { bodyParamRunner, planBodyParam } from "./body_param/run.js";
-export { roomGenerateRunner, planRoomGenerate } from "./room_generate/run.js";
-export { motionRetargetRunner, planMotionRetarget } from "./motion_retarget/run.js";
-export { stagingRunner, planStaging } from "./staging/run.js";
-export { lipSyncRunner, planLipSync } from "./lip_sync/run.js";
-export { clothingGenerateRunner, planClothingGenerate } from "./clothing_generate/run.js";
-export { dialogueRuntimeRunner, planDialogueRuntime } from "./dialogue_runtime/run.js";
+export { applyStationPayloadToCompileSpec } from "./apply-station-payload.js";
+export {
+  BODY_PARAM_STAGE_REL,
+  bodyParamRunner,
+  planBodyParam,
+  runBodyParam,
+  type BodyParamRunOptions,
+} from "./body_param/run.js";
+export {
+  ROOM_ALBEDO_REL,
+  ROOM_OCCLUSION_REL,
+  roomGenerateRunner,
+  planRoomGenerate,
+  runRoomGenerate,
+  type RoomGenerateRunOptions,
+} from "./room_generate/run.js";
+export {
+  MOTION_RETARGET_STAGE_REL,
+  motionRetargetRunner,
+  planMotionRetarget,
+  runMotionRetarget,
+  type MotionRetargetRunOptions,
+} from "./motion_retarget/run.js";
+export { stagingRunner, planStaging, runStaging } from "./staging/run.js";
+export {
+  lipSyncRunner,
+  planLipSync,
+  runLipSync,
+  type LipSyncCue,
+  type LipSyncRunOptions,
+  type LipSyncRunResult,
+} from "./lip_sync/run.js";
+export { clothingGenerateRunner, planClothingGenerate, runClothingGenerate } from "./clothing_generate/run.js";
+export { dialogueRuntimeRunner, planDialogueRuntime, runDialogueRuntime } from "./dialogue_runtime/run.js";

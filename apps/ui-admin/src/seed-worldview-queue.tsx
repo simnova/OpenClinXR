@@ -43,6 +43,7 @@ export function SeedWorldviewQueue({
       onAddActor={worldview.onAddActor}
       onBindEquipmentFixtureSlot={worldview.onBindEquipmentFixtureSlot}
       onAddTrellisModel={worldview.onAddTrellisModel}
+      onStationApply={worldview.onApplyStation}
       onAddNode={worldview.onAddNode}
       onRemoveNode={worldview.onRemoveNode}
       {...(onCompileEncounter

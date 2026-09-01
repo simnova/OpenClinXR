@@ -12,11 +12,24 @@ export function planStaging(input: unknown): StationPlanResult {
   }));
 }
 
+export function runStaging(
+  input: unknown,
+  options: { placement?: unknown } = {},
+): Record<string, unknown> {
+  const planned = planStaging(input);
+  if ("issues" in planned) {
+    throw new Error(planned.issues.map((issue) => issue.message).join("; "));
+  }
+  return {
+    ...planned.plan,
+    status: "adapted",
+    placement: options.placement ?? null,
+  };
+}
+
 export const stagingRunner: StationRunner = {
   stationId: "staging",
   validate: (value) => factoryStationSchemas.staging["~standard"].validate(value),
   plan: planStaging,
-  run: () => {
-    throw new Error("staging.run: in-process generatedActorPlacement; tests must call plan()");
-  },
+  run: (value) => runStaging(value),
 };

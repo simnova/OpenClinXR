@@ -4,6 +4,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
+import { ROOM_ALBEDO_REL, ROOM_OCCLUSION_REL, runRoomGenerate } from "@openclinxr/factory-stations";
 import {
   type EncounterRuntimeAsset,
   type RuntimeAssetStoreConfig,
@@ -23,9 +24,9 @@ export const ED_EXAM_BAY_GLB_NAME = "ed-exam-bay-shell.glb";
 export const BLENDER_ENVIRONMENT_COMMAND_TIMEOUT_MS = 120_000;
 /** Room albedo+AO bake (issue-345): the bake takes ~45-90 s per room. */
 export const ROOM_BAKE_TIMEOUT_MS = 600_000;
-export const ROOM_BAKE_SCRIPT = "tools/openclinxr/asset-pipeline/environment/room-albedo-ao-bake.py";
+export const ROOM_BAKE_SCRIPT = ROOM_ALBEDO_REL;
 /** Room occlusion bake (issue-349): native Cycles AO -> separate glTF occlusionTexture. */
-export const ROOM_OCCLUSION_BAKE_SCRIPT = "tools/openclinxr/asset-pipeline/environment/room-occlusion-bake.py";
+export const ROOM_OCCLUSION_BAKE_SCRIPT = ROOM_OCCLUSION_REL;
 
 export type EnvironmentArtifactsReport = {
   schemaVersion: typeof ENVIRONMENT_ARTIFACTS_SCHEMA_VERSION;
@@ -388,21 +389,25 @@ async function runRoomAlbedoAoBake(options: {
   blenderPath: string;
   edExamBayShellGlbPath: string;
 }): Promise<void> {
-  await execFileAsync(
-    options.blenderPath,
-    [
-      "--background",
-      "--python",
-      ROOM_BAKE_SCRIPT,
-      "--",
-      "--input",
-      options.edExamBayShellGlbPath,
-      "--output",
-      options.edExamBayShellGlbPath,
-    ],
+  await runRoomGenerate(
     {
-      timeout: ROOM_BAKE_TIMEOUT_MS,
-      maxBuffer: 20 * 1024 * 1024,
+      environmentId: "ed_bay_v1",
+      infinigenPrompt: "exam bay",
+      seed: 1,
+      layoutVariant: "default",
+    },
+    {
+      blender: options.blenderPath,
+      workGlb: options.edExamBayShellGlbPath,
+      bakeAlbedo: true,
+      bakeOcclusion: false,
+      timeoutMs: ROOM_BAKE_TIMEOUT_MS,
+      albedoExtraArgs: [
+        "--input",
+        options.edExamBayShellGlbPath,
+        "--output",
+        options.edExamBayShellGlbPath,
+      ],
     },
   );
 }
@@ -411,23 +416,27 @@ async function runRoomOcclusionBake(options: {
   blenderPath: string;
   edExamBayShellGlbPath: string;
 }): Promise<void> {
-  await execFileAsync(
-    options.blenderPath,
-    [
-      "--background",
-      "--python",
-      ROOM_OCCLUSION_BAKE_SCRIPT,
-      "--",
-      "--input",
-      options.edExamBayShellGlbPath,
-      "--output",
-      options.edExamBayShellGlbPath,
-      "--resolution",
-      "512",
-    ],
+  await runRoomGenerate(
     {
-      timeout: ROOM_BAKE_TIMEOUT_MS,
-      maxBuffer: 20 * 1024 * 1024,
+      environmentId: "ed_bay_v1",
+      infinigenPrompt: "exam bay",
+      seed: 1,
+      layoutVariant: "default",
+    },
+    {
+      blender: options.blenderPath,
+      workGlb: options.edExamBayShellGlbPath,
+      bakeAlbedo: false,
+      bakeOcclusion: true,
+      timeoutMs: ROOM_BAKE_TIMEOUT_MS,
+      occlusionExtraArgs: [
+        "--input",
+        options.edExamBayShellGlbPath,
+        "--output",
+        options.edExamBayShellGlbPath,
+        "--resolution",
+        "512",
+      ],
     },
   );
 }

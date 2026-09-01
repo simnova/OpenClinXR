@@ -25,9 +25,10 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[3]
 OUT = REPO / "packages/openclinxr/asset-registry/src/body-cell-capability-manifest.json"
 LEDGER = REPO / "docs/openclinxr/third-party-asset-licence-ledger.md"
+STAGE_DIR = REPO / "packages/openclinxr/factory-stations/src/body_param"
 
 # Import the stage's pack — the only source of option ids/macros.
-sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(STAGE_DIR))
 from body_param_stage import BODY_CELL_PACK  # noqa: E402
 
 LICENCE = BODY_CELL_PACK[0]["licence"]
@@ -69,7 +70,7 @@ def main() -> None:
     manifest = {
         "schemaVersion": 1,
         "field": "body_cell",
-        "derivedFrom": "tools/openclinxr/asset-pipeline/makeclothes/body_param_stage.py::BODY_CELL_PACK",
+        "derivedFrom": "packages/openclinxr/factory-stations/src/body_param/body_param_stage.py::BODY_CELL_PACK",
         "generatedBy": (
             "python3 tools/openclinxr/asset-pipeline/makeclothes/"
             "generate_body_cell_capability_manifest.py"

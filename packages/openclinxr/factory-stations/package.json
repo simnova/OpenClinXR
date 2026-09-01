@@ -24,6 +24,7 @@
     "@cellix/config-typescript": "workspace:*"
   },
   "files": [
-    "dist"
+    "dist",
+    "src/**/*.py"
   ]
 }

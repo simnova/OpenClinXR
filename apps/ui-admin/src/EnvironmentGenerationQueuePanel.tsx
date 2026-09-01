@@ -84,6 +84,7 @@ export type EnvironmentGenerationQueuePanelProps = {
   onAddActor?: (payload: { actorId: string; compileNodeKind: "ActorVariant" }) => void;
   onBindEquipmentFixtureSlot?: (payload: { equipmentId: string; fixtureSlot: string }) => void;
   onAddTrellisModel?: (payload: { modelId: string; subjectId: string; packId: string }) => void;
+  onStationApply?: (stationId: import("@openclinxr/shared-schemas").ProductionStationId, value: Record<string, unknown>) => void;
   onAddNode?: (nodeId: string) => void;
   onRemoveNode?: (nodeId: string) => void;
   /** Authored Scenario.version for the featured case (worldview header). */
@@ -148,6 +149,7 @@ export function EnvironmentGenerationQueuePanel({
   onAddActor,
   onBindEquipmentFixtureSlot,
   onAddTrellisModel,
+  onStationApply,
   onAddNode,
   onRemoveNode,
   caseDefVersion,
@@ -395,7 +397,7 @@ export function EnvironmentGenerationQueuePanel({
         </Button>
         <Select allowClear showSearch={false} virtual={false} aria-label="Equipment fixtureSlot" placeholder="Bind equipment to fixtureSlot" style={{ minWidth: 220 }} options={[{ value: "stretcher", label: "stretcher" }, { value: "monitor", label: "monitor" }, { value: "ecg_cart", label: "ecg_cart" }]} onChange={(fixtureSlot) => { if (typeof fixtureSlot === "string") onBindEquipmentFixtureSlot?.({ equipmentId: `equip_worldview_${crypto.randomUUID().replaceAll("-", "").slice(0, 12)}`, fixtureSlot }); }} />
       </fieldset>
-      <FactoryStationCards {...(onAddTrellisModel ? { onAddTrellisModel } : {})} />
+      <FactoryStationCards {...(onAddTrellisModel ? { onAddTrellisModel } : {})} {...(onStationApply ? { onChange: onStationApply } : {})} />
       <fieldset className="station-queue-row" aria-label="Faculty compile/materialization lock table">
         <Typography.Text strong>Faculty compile lock</Typography.Text>
         <Typography.Text type="secondary">

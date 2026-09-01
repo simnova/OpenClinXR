@@ -53,7 +53,7 @@ import {
   listShippedCastScenarioIds,
   resolveScenarioActorCast,
 } from "../../../../packages/openclinxr/asset-registry/src/actor-casting.js";
-import { planBodyParam } from "@openclinxr/factory-stations";
+import { planBodyParam, runBodyParam } from "@openclinxr/factory-stations";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "../../../..");
@@ -101,7 +101,7 @@ export const FINISHED_FIGURE_GRADE_PNG = path.join(
   ".openclinxr/evidence/issue-226/finished-figure-grade.png",
 );
 
-const STAGE_SCRIPT = path.join(HERE, "body_param_stage.py");
+
 const FOOTWEAR_SCRIPT = path.join(HERE, "embed_library_footwear.py");
 const HAIR_SCRIPT = path.join(HERE, "embed_library_hair.py");
 const FINISH_GRADE_SCRIPT = path.join(HERE, "finished_figure_grade.py");
@@ -686,10 +686,6 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
   ensureDir(WORK_DIR);
   ensureDir(CANDIDATES_DIR);
 
-  if (!existsSync(STAGE_SCRIPT)) {
-    throw new Error(`body_param stage script missing: ${STAGE_SCRIPT}`);
-  }
-
   const mhcloPath = path.join(STAGING_DIR, "Scrub_Shirt.mhclo");
   const objPath = path.join(STAGING_DIR, "Scrub_Shirt.obj");
   // #310 — the tracked provider cache is the rebuildable source of record. A clean clone must be
@@ -901,10 +897,6 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
   const stageGrade = path.join(WORK_DIR, "body-classes-grade.png");
   const stagePosedGrade = path.join(WORK_DIR, "posed-deformation-grade.png");
   const blenderArgs = [
-    "--background",
-    "--python",
-    STAGE_SCRIPT,
-    "--",
     "--mhclo",
     mhcloPath,
     "--garment-obj",
@@ -937,21 +929,27 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
   }
 
   console.log(`[body-param] stage=${STAGE_ID} blender=${blender} classes=${BODY_CLASSES.length}`);
-  const result = await runCmd(blender, blenderArgs, {
-    cwd: REPO_ROOT,
-    timeoutMs: 900_000,
-  });
+  const result = await runBodyParam(
+    {
+      actorId: "library_hm08",
+      ageYears: 0,
+      sex: "female",
+      heightCm: 0,
+      garmentLayers: "tshirt",
+    },
+    { blender, extraArgs: blenderArgs, cwd: REPO_ROOT, timeoutMs: 900_000 },
+  );
 
   if (!existsSync(STAGE_REPORT_PATH)) {
     throw new Error(
-      `stage report missing after blender (exit ${result.code}): ${result.stderr.slice(-800)}`,
+      `stage report missing after blender (exit ${String(result["blenderExit"])}): ${String(result["stderr"]).slice(-800)}`,
     );
   }
   const stage = JSON.parse(readFileSync(STAGE_REPORT_PATH, "utf8")) as Record<string, unknown>;
   if (stage["status"] !== "completed") {
     throw new Error(
       `body_param stage status=${String(stage["status"])} errors=${JSON.stringify(stage["errors"] ?? [])} ` +
-        `stderr=${result.stderr.slice(-800)} stdout=${result.stdout.slice(-400)}`,
+        `stderr=${String(result["stderr"]).slice(-800)} stdout=${String(result["stdout"]).slice(-400)}`,
     );
   }
   if (stage["producedByStage"] !== STAGE_ID) {

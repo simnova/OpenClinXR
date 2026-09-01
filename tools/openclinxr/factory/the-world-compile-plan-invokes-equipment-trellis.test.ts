@@ -52,6 +52,25 @@ describe("the world compile plan invokes equipment TRELLIS", () => {
     expect(report.skippedNodeIds).toEqual(["equip:locked_cart"]);
   });
 
+  it("(2b) Apply payload on compile spec yields wouldInvoke trellis for generic equipment id", async () => {
+    const first = await compileEncounterMaterialization({
+      bundleReport: imagineBoxBundle(),
+      stationPayloads: {
+        equipment_generate: {
+          subjectId: IMAGINE,
+          packId: IMAGINE,
+          seed: 7,
+          remesh: false,
+          viewCount: 4,
+          decimationTarget: 1_000_000,
+        },
+      },
+    });
+    const equip = (first.report.compileNodes ?? []).find((n) => n.nodeId === `equip:${IMAGINE}`) as CompilePlanNode | undefined;
+    expect(equip?.spec.equipmentGenerate?.["subjectId"]).toBe(IMAGINE);
+    expect(equip?.wouldInvoke).toBe("trellis");
+  });
+
   it("(2) compile of imagine-box equipment records wouldInvoke trellis; lock skip stays", async () => {
     const first = await compileEncounterMaterialization({ bundleReport: imagineBoxBundle() });
     const equip = (first.report.compileNodes ?? []).find((n) => n.nodeId === `equip:${IMAGINE}`) as CompilePlanNode | undefined;

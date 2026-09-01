@@ -13,11 +13,17 @@ export function planDialogueRuntime(input: unknown): StationPlanResult {
   }));
 }
 
+export function runDialogueRuntime(input: unknown): Record<string, unknown> {
+  const planned = planDialogueRuntime(input);
+  if ("issues" in planned) {
+    throw new Error(planned.issues.map((issue) => issue.message).join("; "));
+  }
+  return { ...planned.plan, status: "adapted", bakePathLlm: false };
+}
+
 export const dialogueRuntimeRunner: StationRunner = {
   stationId: "dialogue_runtime",
   validate: (value) => factoryStationSchemas.dialogue_runtime["~standard"].validate(value),
   plan: planDialogueRuntime,
-  run: () => {
-    throw new Error("dialogue_runtime.run: conversation-policy adapter; no bake-path LLM");
-  },
+  run: runDialogueRuntime,
 };

@@ -14,21 +14,17 @@
  * `--inspect` only measures a GLB and prints the JSON (no Blender run) — used to
  * produce the pre-fix artifact before any bake.
  */
-import { execFile, execFileSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { promisify } from "node:util";
 import { NodeIO } from "@gltf-transform/core";
-
-const execFileAsync = promisify(execFile);
+import { ROOM_ALBEDO_REL, runRoomGenerate } from "@openclinxr/factory-stations";
 
 export const ROOM_BAKE_SCHEMA_VERSION = "openclinxr.room-bake.v1";
 export const ROOM_BAKE_EVIDENCE_DIR = ".openclinxr/evidence/room-bake";
-export const ROOM_BAKE_SCRIPT = path.join(
-  "tools/openclinxr/asset-pipeline/environment/room-albedo-ao-bake.py",
-);
+export const ROOM_BAKE_SCRIPT = ROOM_ALBEDO_REL;
 export const BLENDER_BAKE_TIMEOUT_MS = 600_000;
 
 type GlbMeasure = {
@@ -123,27 +119,35 @@ export async function runRoomBake(options: {
   const started = Date.now();
 
   const meansLog = options.meansLog ?? "tools/openclinxr/evidence/room-bake-means.json";
-  await execFileAsync("blender", [
-    "--background",
-    "--python",
-    ROOM_BAKE_SCRIPT,
-    "--",
-    "--input",
-    input,
-    "--output",
-    output,
-    "--resolution",
-    String(resolution),
-    "--means-log",
-    meansLog,
-    "--room-name",
-    path.basename(output),
-    "--light-rig",
-    options.lightRig ?? "distributed",
-  ], {
-    timeout: BLENDER_BAKE_TIMEOUT_MS,
-    maxBuffer: 20 * 1024 * 1024,
-  });
+  await runRoomGenerate(
+    {
+      environmentId: "ed_bay_v1",
+      infinigenPrompt: "exam bay",
+      seed: 1,
+      layoutVariant: "default",
+    },
+    {
+      blender: "blender",
+      workGlb: output,
+      bakeAlbedo: true,
+      bakeOcclusion: false,
+      timeoutMs: BLENDER_BAKE_TIMEOUT_MS,
+      albedoExtraArgs: [
+        "--input",
+        input,
+        "--output",
+        output,
+        "--resolution",
+        String(resolution),
+        "--means-log",
+        meansLog,
+        "--room-name",
+        path.basename(output),
+        "--light-rig",
+        options.lightRig ?? "distributed",
+      ],
+    },
+  );
 
   const wallClockMs = Date.now() - started;
   const outputMeasure = await measureGlb(output);

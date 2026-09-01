@@ -47,7 +47,7 @@ import { describe, expect, it } from "vitest";
  *   as NOT TESTED and which this slice does not build.
  */
 
-const MAKECLOTHES = "tools/openclinxr/asset-pipeline/makeclothes";
+const MAKECLOTHES = "packages/openclinxr/factory-stations/src/body_param";
 const MANIFEST = "packages/openclinxr/asset-registry/src/body-cell-capability-manifest.json";
 const IRIS_MANIFEST = "packages/openclinxr/asset-registry/src/iris-capability-manifest.json";
 

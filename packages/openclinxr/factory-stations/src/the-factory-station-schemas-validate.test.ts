@@ -13,6 +13,8 @@ import { planStaging } from "./staging/run.js";
 import { planLipSync } from "./lip_sync/run.js";
 import { planClothingGenerate } from "./clothing_generate/run.js";
 import { planDialogueRuntime } from "./dialogue_runtime/run.js";
+import { applyStationPayloadToCompileSpec } from "./apply-station-payload.js";
+import { runDialogueRuntime } from "./dialogue_runtime/run.js";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -30,6 +32,10 @@ import { join } from "node:path";
  *
  * ## FIXED (remaining station plan() verticals)
  * clothing_consume through dialogue_runtime dry-run StationRunners over proven bakers.
+ *
+ * ## FIXED (C-F run uniqueness + baker colocation)
+ * Live baker spawn is shipped run(); stage scripts live under
+ * packages/openclinxr/factory-stations/src/<station>/. Old tools/ paths are fail-closed stubs.
  */
 
 const VALID: Record<ProductionStationId, Record<string, unknown>> = {
@@ -141,14 +147,89 @@ describe("the factory station schemas validate", () => {
       }
     }
     const consumeSrc = readFileSync(join(import.meta.dirname, "clothing_consume/run.ts"), "utf8");
-    expect(consumeSrc).toContain("fit_stage.py");
-    expect(consumeSrc).toMatch(/spawn\(/);
+    expect(consumeSrc).toContain("packages/openclinxr/factory-stations/src/clothing_consume/fit_stage.py");
+    expect(consumeSrc).toContain("spawnBlenderProcess");
+    expect(consumeSrc).not.toContain("tools/openclinxr/asset-pipeline/makeclothes/fit_stage.py");
     const fitCli = readFileSync(
       join(import.meta.dirname, "../../../../tools/openclinxr/asset-pipeline/makeclothes/fit-cli.ts"),
       "utf8",
     );
     expect(fitCli).toContain("runClothingConsume");
     expect(fitCli).not.toMatch(/--python[\s\S]{0,80}fit_stage\.py/);
+  });
+
+  it("(8) collapsed CLIs call station run* and do not --python the stage script", () => {
+    const root = join(import.meta.dirname, "../../../..");
+    const rows: Array<[string, string, string]> = [
+      ["runBodyParam", "tools/openclinxr/asset-pipeline/makeclothes/body-param-cli.ts", "body_param_stage.py"],
+      ["runMotionRetarget", "tools/openclinxr/asset-pipeline/makeclothes/motion-bind-cli.ts", "motion_bind_stage.py"],
+      ["runRoomGenerate", "tools/openclinxr/asset-pipeline/environment/rooms-bake-cli.ts", "room-occlusion-bake.py"],
+    ];
+    for (const [symbol, rel, script] of rows) {
+      const src = readFileSync(join(root, rel), "utf8");
+      expect(src, rel).toContain(symbol);
+      expect(src, rel).not.toMatch(new RegExp(`--python[\\s\\S]{0,80}${script.replace(".", "\\.")}`));
+    }
+    const composer = readFileSync(join(root, "tools/openclinxr/dark-factory/multi-case-runner.ts"), "utf8");
+    expect(composer).toContain("runStaging");
+    expect(composer).toContain("runLipSync");
+    const dialogue = readFileSync(join(root, "tools/openclinxr/factory/encounter-materialization-compile.ts"), "utf8");
+    expect(dialogue).toContain("runDialogueRuntime");
+    const clothing = readFileSync(join(root, "tools/openclinxr/asset-pipeline/makeclothes/garment-selection-by-role.ts"), "utf8");
+    expect(clothing).toContain("runClothingGenerate");
+    const dialogueRun = readFileSync(join(import.meta.dirname, "dialogue_runtime/run.ts"), "utf8");
+    expect(dialogueRun).toContain("bakePathLlm: false");
+    const roomCli = readFileSync(join(root, "tools/openclinxr/asset-pipeline/environment/room-bake-cli.ts"), "utf8");
+    expect(roomCli).toContain("runRoomGenerate");
+    expect(roomCli).not.toMatch(/--python[\s\S]{0,80}room-albedo-ao-bake\.py/);
+    const envArtifacts = readFileSync(join(root, "tools/openclinxr/evidence/environment-artifacts.ts"), "utf8");
+    expect(envArtifacts).toContain("runRoomGenerate");
+    expect(envArtifacts).not.toMatch(/--python[\s\S]{0,80}room-(albedo-ao|occlusion)-bake\.py/);
+  });
+
+  it("(9) unique baker scripts live in the station package; tools copies are fail-closed stubs", () => {
+    const root = join(import.meta.dirname, "../../../..");
+    const moved: Array<[string, string, string]> = [
+      [
+        "body_param/run.ts",
+        "packages/openclinxr/factory-stations/src/body_param/body_param_stage.py",
+        "tools/openclinxr/asset-pipeline/makeclothes/body_param_stage.py",
+      ],
+      [
+        "motion_retarget/run.ts",
+        "packages/openclinxr/factory-stations/src/motion_retarget/motion_bind_stage.py",
+        "tools/openclinxr/asset-pipeline/makeclothes/motion_bind_stage.py",
+      ],
+      [
+        "room_generate/run.ts",
+        "packages/openclinxr/factory-stations/src/room_generate/room-occlusion-bake.py",
+        "tools/openclinxr/asset-pipeline/environment/room-occlusion-bake.py",
+      ],
+      [
+        "clothing_consume/run.ts",
+        "packages/openclinxr/factory-stations/src/clothing_consume/fit_stage.py",
+        "tools/openclinxr/asset-pipeline/makeclothes/fit_stage.py",
+      ],
+    ];
+    for (const [runRel, packageRel, toolsRel] of moved) {
+      const runSrc = readFileSync(join(import.meta.dirname, runRel), "utf8");
+      expect(runSrc, runRel).toContain(packageRel);
+      expect(runSrc, runRel).not.toContain(toolsRel);
+      const stub = readFileSync(join(root, toolsRel), "utf8");
+      expect(stub, toolsRel).toMatch(/moved:|unique spawn/);
+      expect(stub, toolsRel).toContain("__main__");
+    }
+    const applied = applyStationPayloadToCompileSpec(
+      { family: "EquipVariant" },
+      "equipment_generate",
+      { subjectId: "ecg-cart-imagine-box", packId: "ecg-cart-imagine-box", seed: 1, remesh: false, viewCount: 4, decimationTarget: 1_000_000 },
+    );
+    expect(applied["equipmentGenerate"]).toEqual(
+      expect.objectContaining({ subjectId: "ecg-cart-imagine-box" }),
+    );
+    const dialogue = runDialogueRuntime(VALID.dialogue_runtime);
+    expect(dialogue["bakePathLlm"]).toBe(false);
+    expect(dialogue["status"]).toBe("adapted");
   });
 
   it("(7) each station has a real composer/CLI importing plan*()", () => {
@@ -158,10 +239,10 @@ describe("the factory station schemas validate", () => {
       ["planBodyParam", "tools/openclinxr/asset-pipeline/makeclothes/body-param-cli.ts"],
       ["planRoomGenerate", "tools/openclinxr/asset-pipeline/environment/rooms-bake-cli.ts"],
       ["planMotionRetarget", "tools/openclinxr/asset-pipeline/makeclothes/motion-bind-cli.ts"],
-      ["planStaging", "tools/openclinxr/dark-factory/multi-case-runner.ts"],
-      ["planLipSync", "tools/openclinxr/dark-factory/multi-case-runner.ts"],
-      ["planClothingGenerate", "tools/openclinxr/asset-pipeline/makeclothes/garment-selection-by-role.ts"],
-      ["planDialogueRuntime", "tools/openclinxr/factory/encounter-materialization-compile.ts"],
+      ["runStaging", "tools/openclinxr/dark-factory/multi-case-runner.ts"],
+      ["runLipSync", "tools/openclinxr/dark-factory/multi-case-runner.ts"],
+      ["runClothingGenerate", "tools/openclinxr/asset-pipeline/makeclothes/garment-selection-by-role.ts"],
+      ["runDialogueRuntime", "tools/openclinxr/factory/encounter-materialization-compile.ts"],
     ];
     for (const [symbol, rel] of consumers) {
       const src = readFileSync(join(root, rel), "utf8");

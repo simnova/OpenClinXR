@@ -23,7 +23,7 @@ import sys
 import bpy
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[4]
-_STAGE_DIR = REPO_ROOT / "tools/openclinxr/asset-pipeline/makeclothes"
+_STAGE_DIR = REPO_ROOT / "packages/openclinxr/factory-stations/src/body_param"
 if str(_STAGE_DIR) not in sys.path:
     sys.path.insert(0, str(_STAGE_DIR))
 

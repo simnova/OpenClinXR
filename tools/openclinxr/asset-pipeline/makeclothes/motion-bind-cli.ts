@@ -16,7 +16,7 @@ import { existsSync, mkdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
-import { planMotionRetarget } from "@openclinxr/factory-stations";
+import { planMotionRetarget, runMotionRetarget } from "@openclinxr/factory-stations";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "../../../..");
@@ -162,38 +162,24 @@ export async function runMotionBindOnce(opts?: Partial<CliOpts>): Promise<{
   const report = opts?.report ?? DEFAULT_REPORT;
   mkdirSync(path.dirname(output), { recursive: true });
   mkdirSync(path.dirname(report), { recursive: true });
-  if (!existsSync(STAGE_SCRIPT)) {
-    throw new Error(`motion bind stage script missing: ${STAGE_SCRIPT}`);
-  }
   const blender = resolveBlender();
-  const result = await runCmd(
-    blender,
-    [
-      "--background",
-      "--python",
-      STAGE_SCRIPT,
-      "--",
-      "--actor",
-      actor,
-      "--clip",
-      clip,
-      "--map",
-      TARGET_MAP,
-      "--output",
-      output,
-      "--report",
-      report,
-    ],
-    { cwd: REPO_ROOT, timeoutMs: 300_000 },
+  const result = await runMotionRetarget(
+    { actorId: path.basename(actor, ".glb"), clipId: path.basename(clip, ".bvh") },
+    {
+      blender,
+      extraArgs: ["--actor", actor, "--clip", clip, "--map", TARGET_MAP, "--output", output, "--report", report],
+      cwd: REPO_ROOT,
+      timeoutMs: 300_000,
+    },
   );
-  if (result.code !== 0) {
+  if (Number(result["blenderExit"]) !== 0) {
     const reportText = existsSync(report) ? readFileSync(report, "utf8") : "";
     throw new Error(
-      `motion_bind_stage exit ${result.code}\n${result.stderr.slice(-2500)}\n${reportText.slice(0, 1500)}`,
+      `motion_bind_stage exit ${String(result["blenderExit"])}\n${String(result["stderr"]).slice(-2500)}\n${reportText.slice(0, 1500)}`,
     );
   }
   const inspect = await inspectMotionBindOutput(output);
-  return { code: result.code, reportPath: report, outputPath: output, inspect };
+  return { code: Number(result["blenderExit"]), reportPath: report, outputPath: output, inspect };
 }
 
 async function main(): Promise<void> {

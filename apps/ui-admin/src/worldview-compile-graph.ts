@@ -24,10 +24,11 @@ export type WorldviewCompileGraphState = {
   trellisModels: WorldviewTrellisModel[];
   extraNodeIds: string[];
   removedNodeIds: string[];
+  stationPayloads: Partial<Record<string, Record<string, unknown>>>;
 };
 
 export function emptyWorldviewCompileGraph(): WorldviewCompileGraphState {
-  return { actors: [], equipmentBinds: [], trellisModels: [], extraNodeIds: [], removedNodeIds: [] };
+  return { actors: [], equipmentBinds: [], trellisModels: [], extraNodeIds: [], removedNodeIds: [], stationPayloads: {} };
 }
 
 export function reduceWorldviewAddActor(
@@ -46,6 +47,14 @@ export function reduceWorldviewBindEquipment(
 ): WorldviewCompileGraphState {
   const without = state.equipmentBinds.filter((bind) => bind.equipmentId !== payload.equipmentId);
   return { ...state, equipmentBinds: [...without, payload] };
+}
+
+export function reduceWorldviewApplyStation(
+  state: WorldviewCompileGraphState,
+  stationId: string,
+  value: Record<string, unknown>,
+): WorldviewCompileGraphState {
+  return { ...state, stationPayloads: { ...state.stationPayloads, [stationId]: value } };
 }
 
 export function reduceWorldviewAddTrellisModel(
@@ -87,6 +96,7 @@ export function reduceWorldviewRemoveNode(
       trellisId === undefined ? state.trellisModels : state.trellisModels.filter((model) => model.modelId !== trellisId),
     extraNodeIds: state.extraNodeIds.filter((id) => id !== nodeId),
     removedNodeIds: state.removedNodeIds.includes(nodeId) ? state.removedNodeIds : [...state.removedNodeIds, nodeId],
+    stationPayloads: state.stationPayloads,
   };
 }
 
@@ -180,6 +190,7 @@ export function useWorldviewCompileGraph(): {
   onAddActor: (payload: WorldviewActorDraft) => void;
   onBindEquipmentFixtureSlot: (payload: WorldviewEquipmentBind) => void;
   onAddTrellisModel: (payload: WorldviewTrellisModel) => void;
+  onApplyStation: (stationId: string, value: Record<string, unknown>) => void;
   onAddNode: (nodeId: string) => void;
   onRemoveNode: (nodeId: string) => void;
 } {
@@ -193,13 +204,16 @@ export function useWorldviewCompileGraph(): {
   const onAddTrellisModel = useCallback((payload: WorldviewTrellisModel) => {
     setState((current) => reduceWorldviewAddTrellisModel(current, payload));
   }, []);
+  const onApplyStation = useCallback((stationId: string, value: Record<string, unknown>) => {
+    setState((current) => reduceWorldviewApplyStation(current, stationId, value));
+  }, []);
   const onAddNode = useCallback((nodeId: string) => {
     setState((current) => reduceWorldviewAddNode(current, nodeId));
   }, []);
   const onRemoveNode = useCallback((nodeId: string) => {
     setState((current) => reduceWorldviewRemoveNode(current, nodeId));
   }, []);
-  return { state, onAddActor, onBindEquipmentFixtureSlot, onAddTrellisModel, onAddNode, onRemoveNode };
+  return { state, onAddActor, onBindEquipmentFixtureSlot, onAddTrellisModel, onApplyStation, onAddNode, onRemoveNode };
 }
 
 function actorIdFromCompileNode(nodeId: string): string | undefined {

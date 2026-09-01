@@ -39,7 +39,7 @@
  * is ever left without an upper garment (#73's topless-parent regression).
  */
 
-import { planClothingGenerate } from "@openclinxr/factory-stations";
+import { runClothingGenerate } from "@openclinxr/factory-stations";
 
 export type Hm08GarmentKind = "library" | "cover_shell";
 
@@ -169,12 +169,12 @@ export function garmentIdForLayers(garmentLayers: readonly string[]): string {
  * open_cardigan) and the deterministic body-derived shell is used.
  */
 export function resolveHm08UpperGarment(role: string): Hm08UpperGarmentSpec {
-  planClothingGenerate({
-    actorId: role,
-    garmentToken: resolveAnnyGarmentLayers(role)[0] ?? "short_sleeve_exam_tshirt",
-  });
   const garmentLayers = resolveAnnyGarmentLayers(role);
   const garmentId = garmentIdForLayers(garmentLayers);
+  runClothingGenerate(
+    { actorId: role, garmentToken: garmentLayers[0] ?? "short_sleeve_exam_tshirt" },
+    { garmentId, garmentLayers: [...garmentLayers] },
+  );
   const library = HM08_LIBRARY_GARMENTS[garmentId];
   return {
     garmentId,

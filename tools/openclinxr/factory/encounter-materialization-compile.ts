@@ -22,7 +22,7 @@ import {
 } from "./encounter-materialization-faculty-locks.js";
 import type { GeneratedEdStationRuntimeBundleReport } from "./generated-ed-station-runtime-bundle.js";
 import { planEquipmentWouldInvoke } from "./plan-equipment-would-invoke.js";
-import { planDialogueRuntime } from "@openclinxr/factory-stations";
+import { applyStationPayloadToCompileSpec, runDialogueRuntime } from "@openclinxr/factory-stations";
 
 /**
  * World Compile Graph compile runner (WCG brief 2026-08-27, Phase 4).
@@ -164,6 +164,8 @@ export type CompileEncounterMaterializationOptions = {
   compileNodes?: CompileGraphNode[];
   /** Faculty Infinigen prompt stamped onto Room node specs (W6 / W14a). */
   infinigenPrompt?: string;
+  /** Faculty Apply payloads keyed by production station id. */
+  stationPayloads?: Partial<Record<string, Record<string, unknown>>>;
   /**
    * W5 (tsk_4100343a0be0b471): nodeIds the faculty removed from the authoring
    * form this compile. Delete is a compile event, not a silent array splice:
@@ -213,7 +215,10 @@ export async function compileEncounterMaterialization(
   }
 
   // WCG-0 copy-prior rule: emitCompileNodes copies prior lock/contentHash by nodeId.
-  const unsplitNodes = stampRoomInfinigenPrompt(emitCompileNodes(report, priorNodes), opts.infinigenPrompt);
+  const unsplitNodes = stampStationPayloads(
+    stampRoomInfinigenPrompt(emitCompileNodes(report, priorNodes), opts.infinigenPrompt),
+    opts.stationPayloads,
+  );
 
   // W5 (tsk_4100343a0be0b471): delete is a compile event. Faculty-removed
   // nodeIds are tombstoned onto the planned nodes (never spliced away), each
@@ -280,7 +285,7 @@ export async function compileEncounterMaterialization(
     }
     const finalOther = tombstoneIfRemoved(copyPriorByNodeId(node, priorNodes), deletion);
     if (finalOther.bakerId === "dialogue_policy") {
-      planDialogueRuntime({
+      runDialogueRuntime({
         actorId: finalOther.spec.actorId ?? finalOther.nodeId,
         openingUtterance: "hello",
         policyId: "dialogue_policy",
@@ -369,6 +374,21 @@ async function resolveBaseReport(opts: CompileEncounterMaterializationOptions): 
     priorCompileVersion: report.compileVersion ?? 0,
     priorPath,
   };
+}
+
+function stampStationPayloads(
+  nodes: CompileGraphNode[],
+  payloads: Partial<Record<string, Record<string, unknown>>> | undefined,
+): CompileGraphNode[] {
+  const equipment = payloads?.["equipment_generate"];
+  if (!equipment) return nodes;
+  return nodes.map((node) => {
+    if (node.family !== "EquipVariant") return node;
+    return {
+      ...node,
+      spec: applyStationPayloadToCompileSpec(node.spec as Record<string, unknown>, "equipment_generate", equipment) as CompileGraphNode["spec"],
+    };
+  });
 }
 
 function stampRoomInfinigenPrompt(nodes: CompileGraphNode[], infinigenPrompt: string | undefined): CompileGraphNode[] {
