@@ -52,3 +52,7 @@ docs/openclinxr/stablegen-blender-background-trial-*.json
 
 # Local screenshots/scratch (not repo artifacts)
 *-screencap.png
+# Imagine-box TRELLIS pack stills stay on disk; TREE exists:/min-bytes: and the
+# tracked resolver test inspect disk. Do not git-track these PNGs: CHANGED_FILES
+# Read of them 400-crashes text-only deepseek-v4-flash skeptics.
+tools/openclinxr/asset-pipeline/trellis/packs/ecg-cart-imagine-box/*.png
