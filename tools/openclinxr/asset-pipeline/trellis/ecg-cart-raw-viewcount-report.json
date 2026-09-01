@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "openclinxr.ecg-cart-raw-viewcount.v1",
+  "measuredAgainstCommit": "5660a045",
+  "rawSha256": "6be8dfda2428742d252971a59b679b0466aa44d99b9f1f20a343e0d16e45c65a",
+  "rawTriangles": 973639,
+  "stagingPath": "apps/arena/model-vetting-studio/public/glb-grade-staging/2026-08-11T01-57-18Z/ecg-cart.glb",
+  "adjacentBakeMeasure": false,
+  "missingBakeMeasure": true,
+  "viewCount": null,
+  "bakeMeasurePath": null,
+  "searched": [
+    "adjacent bake-measure.json (absent)",
+    ".openclinxr/evidence/**/bake-measure.json for freeze SHA or export SHA match (none)"
+  ],
+  "notSubstituted": "midband 974864 / viewCount 4 bake-measure is a different bake (SHA mismatch)",
+  "namedNext": "G1 4-view factory:trellis:bake is eligible because viewCount is unknown (missingBakeMeasure). Do not skip G1. Hatch --remesh is 1-view CLI not PACK_A. Do not re-score M1.",
+  "claimScope": "whether the frozen 973639 raw has a measured viewCount",
+  "notEvidenceFor": ["quest_readiness", "that a 4-view bake ran", "M1 pixel grade"]
+}

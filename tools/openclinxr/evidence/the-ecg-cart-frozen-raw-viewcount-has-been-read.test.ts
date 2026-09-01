@@ -18,6 +18,10 @@ import { describe, expect, it } from "vitest";
  *
  * claimScope: whether viewCount of the frozen raw was read or recorded missing.
  * notEvidenceFor: Quest, that a 4-view bake ran, hatch remesh, M1 pixel grade.
+ *
+ * ## FIXED (tsk_e65b885da7940425)
+ * GPU-free scan: freeze SHA matches; no adjacent bake-measure; no evidence bake-measure
+ * export SHA-matches the freeze. viewCount null, missingBakeMeasure true. G1 remains eligible.
  */
 
 const REPO = join(import.meta.dirname, "../../..");
@@ -34,7 +38,7 @@ function sha256File(path: string): string {
 }
 
 describe("the ECG cart frozen raw viewCount has been read", () => {
-  it.fails("(1) tracked report echoes freeze SHA and records viewCount or missing", () => {
+  it("(1) tracked report echoes freeze SHA and records viewCount or missing", () => {
     const freeze = JSON.parse(readFileSync(CONTROL, "utf8")) as Freeze;
     const glb = join(REPO, freeze.stagingDir, freeze.raw.file);
     expect(existsSync(glb), `control GLB missing (gitignored staging): ${glb}`).toBe(true);
