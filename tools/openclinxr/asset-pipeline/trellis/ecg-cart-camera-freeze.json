@@ -1,0 +1,9 @@
+{
+  "note": "Frozen C0 camera from C1 vs C0 land. Do not AABB-refit.",
+  "center": [-0.00834202766418457, -1.1920928955078125e-07, 0.015874087810516357],
+  "radius": 1.7912647724151611,
+  "elevDeg": 14,
+  "azimDeg": 40,
+  "renderer": "blender-eevee-studio",
+  "source": "tools/openclinxr/asset-pipeline/trellis/ecg-cart-c1-c0-report.json"
+}
