@@ -1,5 +1,5 @@
 {
-  "name": "@openclinxr/shared-schemas",
+  "name": "@openclinxr/factory-stations",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -16,14 +16,8 @@
     "build": "tsgo --build",
     "clean": "rm -rf dist *.tsbuildinfo"
   },
-  "dependencies": {
-    "@sinclair/typebox": "catalog:",
-    "ajv": "catalog:",
-    "ajv-formats": "3.0.1",
-    "@cellix/provider-contracts": "workspace:*",
-    "@openclinxr/factory-stations": "workspace:*"
-  },
   "devDependencies": {
+    "@types/node": "25.6.0",
     "typescript": "catalog:",
     "vitest": "catalog:",
     "@cellix/config-vitest": "workspace:*",

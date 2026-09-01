@@ -21,10 +21,10 @@
  * Header IMMUTABLE — append ## FIXED (#238). Multi-view append 2026-08-10.
  */
 
-import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { planEquipmentGenerate, runEquipmentGenerate } from "@openclinxr/factory-stations";
 
 // ---------------------------------------------------------------------------
 // Configuration
@@ -54,11 +54,6 @@ const WEIGHTS_PATH = path.resolve(
 const DINOV3_PATH = path.resolve(
   process.env.HOME ?? "/Users/patrick",
   "ComfyUI/models/dinov3",
-);
-
-const RUN_BAKE_SCRIPT = path.join(
-  REPO_ROOT,
-  "tools/openclinxr/evidence/blender/run_bake_isolated.py",
 );
 
 // ---------------------------------------------------------------------------
@@ -517,49 +512,45 @@ function pushBakeFlags(argv: string[], args: ParsedArgs): void {
 // ---------------------------------------------------------------------------
 
 function dryRunPlan(subjectId: string, args: ParsedArgs): string {
-  const entry = KNOWN_SUBJECTS.find((s) => s.subjectId === subjectId);
-  if (!entry) {
-    process.stderr.write(`Unknown subject: ${subjectId}. Known: ${KNOWN_SUBJECTS.map((s) => s.subjectId).join(", ")}\n`);
-    process.exit(2);
-  }
-
-  const inputImagePaths = resolveExistingViewPaths(entry);
-  const viewCount = inputImagePaths.length;
-  const outputDir = path.join(trellisOutRoot(), subjectId);
-  const remesh = args.remesh && !args.noRemesh;
-
-  // #662: the dry-run plan shows the exact extra argv a live bake would push.
   const plannedArgv: string[] = [];
   pushBakeFlags(plannedArgv, args);
-
+  const result = planEquipmentGenerate({
+    subjectId,
+    packId: subjectId,
+    seed: args.seed ?? 0,
+    remesh: args.remesh && !args.noRemesh,
+    viewCount: 0,
+    decimationTarget: args.decimationTarget ?? 1_000_000,
+  });
+  if ("issues" in result) {
+    process.stderr.write(`${result.issues.map((issue) => issue.message).join("; ")}. Known: ${KNOWN_SUBJECTS.map((s) => s.subjectId).join(", ")}\n`);
+    process.exit(2);
+  }
   const plan: DryRunPlan = {
-    subjectId: entry.subjectId,
-    displayName: entry.displayName,
+    subjectId: result.plan.subjectId,
+    displayName: KNOWN_SUBJECTS.find((s) => s.subjectId === result.plan.subjectId)?.displayName ?? result.plan.subjectId,
     processIsolation: "fresh_subprocess",
-    inputImagePath: inputImagePaths[0] ?? null,
-    inputImagePaths,
-    viewCount,
-    conditioning:
-      viewCount === 0 ? "no-images" : viewCount === 1 ? "single-view" : "multi-view",
-    outputDir,
+    inputImagePath: (result.plan["inputImagePath"] as string | null) ?? null,
+    inputImagePaths: (result.plan["inputImagePaths"] as string[]) ?? [],
+    viewCount: Number(result.plan["viewCount"]),
+    conditioning: (result.plan["conditioning"] as DryRunPlan["conditioning"]) ?? "no-images",
+    outputDir: String(result.plan["outputDir"]),
     venvPython: VENV_PYTHON,
     trellisRoot: TRELLIS_ROOT,
     weightsPath: WEIGHTS_PATH,
     dinov3Path: DINOV3_PATH,
     seed: args.seed,
     hfDemo: args.hfDemo,
-    remesh,
+    remesh: Boolean(result.plan["remesh"]),
     noRemesh: args.noRemesh,
     decimationTarget: args.decimationTarget,
     textureSize: args.textureSize,
     samplerOverrides: args.samplerOverrides,
     mode: "dry-run",
   };
-
   if (plannedArgv.length > 0) {
     (plan as DryRunPlan & { extraArgv: string[] }).extraArgv = plannedArgv;
   }
-
   return JSON.stringify(plan, null, 2);
 }
 
@@ -568,86 +559,36 @@ function dryRunPlan(subjectId: string, args: ParsedArgs): string {
 // ---------------------------------------------------------------------------
 
 function liveBake(subjectId: string, args: ParsedArgs): void {
-  const entry = KNOWN_SUBJECTS.find((s) => s.subjectId === subjectId);
-  if (!entry) {
-    process.stderr.write(`Unknown subject: ${subjectId}. Known: ${KNOWN_SUBJECTS.map((s) => s.subjectId).join(", ")}\n`);
-    process.exit(2);
-  }
-
-  const inputImagePaths = resolveExistingViewPaths(entry);
-  if (inputImagePaths.length === 0) {
-    process.stderr.write(
-      `No input images found for subject ${subjectId}. Expected pack under OPENCLINXR_TRELLIS_PACKS or .openclinxr/evidence/issue-232/${subjectId}/ with front.png (+ optional side / three_quarter_*).\n`,
-    );
-    process.exit(2);
-  }
-
-  if (inputImagePaths.length === 1) {
-    process.stdout.write(
-      `[factory:trellis:bake] ${subjectId}: only 1 view found — single-view bake\n`,
-    );
-  } else {
-    process.stdout.write(
-      `[factory:trellis:bake] ${subjectId}: ${inputImagePaths.length} views → multi-view conditioning\n`,
-    );
-  }
-
-  const outputDir = path.join(trellisOutRoot(), subjectId);
-  mkdirSync(outputDir, { recursive: true });
-
-  process.stdout.write(
-    `[factory:trellis:bake] Starting ${subjectId} (fresh subprocess, isolation mode)...\n`,
-  );
-
-  const argv: string[] = [
-    RUN_BAKE_SCRIPT,
-    "--subject-id",
-    subjectId,
-    "--display-name",
-    entry.displayName,
-    "--output-dir",
-    outputDir,
-    "--weights-path",
-    WEIGHTS_PATH,
-    "--dinov3-path",
-    DINOV3_PATH,
-    "--trellis-root",
-    TRELLIS_ROOT,
-  ];
-  if (args.seed != null) argv.push("--seed", String(args.seed));
-  if (args.hfDemo) argv.push("--hf-demo");
-  if (args.remesh) argv.push("--remesh");
-  if (args.noRemesh) argv.push("--no-remesh");
-  pushBakeFlags(argv, args);
-  for (const img of inputImagePaths) {
-    argv.push("--input-image", img);
-  }
-
+  const extraArgv: string[] = [];
+  pushBakeFlags(extraArgv, args);
+  process.stdout.write(`[factory:trellis:bake] Starting ${subjectId} (fresh subprocess, isolation mode)...\n`);
   const t0 = Date.now();
-  const result = execFileSync(VENV_PYTHON, argv, {
-    encoding: "utf8",
-    cwd: REPO_ROOT,
-    // #255 measured a 1-view bake at 1371.9s wall clock (shape gen 1231.6s +
-    // export 137.2s). Multi-view may run longer; 3.6Ms (1h) still fails fast on wedged GPU.
-    timeout: 3_600_000,
-    env: {
-      ...process.env,
-      PYTHONUNBUFFERED: "1",
-      PYTORCH_ENABLE_MPS_FALLBACK: "1",
-    },
-    maxBuffer: 10 * 1024 * 1024,
-  });
-  const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
-
-  process.stdout.write(result);
-  process.stdout.write(`\n[factory:trellis:bake] ${subjectId} completed in ${elapsed}s\n`);
-
-  const reportPath = path.join(outputDir, "bake-measure.json");
-  if (existsSync(reportPath)) {
-    const raw = JSON.parse(readFileSync(reportPath, "utf8")) as BakeMeasure;
-    process.stdout.write(`  verdict: ${raw.verdict}\n`);
-    if (raw.rawTriangleCount != null) process.stdout.write(`  triangles: ${raw.rawTriangleCount}\n`);
-    if (raw.exportBytes != null) process.stdout.write(`  export bytes: ${raw.exportBytes}\n`);
+  try {
+    const raw = runEquipmentGenerate(
+      {
+        subjectId,
+        packId: subjectId,
+        seed: args.seed ?? 0,
+        remesh: args.remesh && !args.noRemesh,
+        viewCount: 0,
+        decimationTarget: args.decimationTarget ?? 1_000_000,
+      },
+      {
+        extraArgv,
+        hfDemo: args.hfDemo,
+        noRemesh: args.noRemesh,
+        textureSize: args.textureSize,
+      },
+    );
+    const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
+    process.stdout.write(`\n[factory:trellis:bake] ${subjectId} completed in ${elapsed}s\n`);
+    const measure = raw as BakeMeasure;
+    if (measure.verdict) process.stdout.write(`  verdict: ${measure.verdict}\n`);
+    if (measure.rawTriangleCount != null) process.stdout.write(`  triangles: ${measure.rawTriangleCount}\n`);
+    if (measure.exportBytes != null) process.stdout.write(`  export bytes: ${measure.exportBytes}\n`);
+  } catch (err) {
+    process.stderr.write(`${err instanceof Error ? err.message : String(err)}\n`);
+    process.exit(2);
   }
 }
 

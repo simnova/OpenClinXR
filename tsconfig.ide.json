@@ -80,6 +80,9 @@
       "path": "./packages/openclinxr/exam-assembly"
     },
     {
+      "path": "./packages/openclinxr/factory-stations"
+    },
+    {
       "path": "./packages/openclinxr/graphql"
     },
     {

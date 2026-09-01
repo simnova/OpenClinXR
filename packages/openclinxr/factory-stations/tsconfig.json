@@ -16,13 +16,5 @@
     "**/*.test.tsx",
     "**/*.spec.ts",
     "dist"
-  ],
-  "references": [
-    {
-      "path": "../../cellix/provider-contracts"
-    },
-    {
-      "path": "../factory-stations"
-    }
   ]
 }
