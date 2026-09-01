@@ -141,7 +141,14 @@ describe("the factory station schemas validate", () => {
       }
     }
     const consumeSrc = readFileSync(join(import.meta.dirname, "clothing_consume/run.ts"), "utf8");
-    expect(consumeSrc).not.toMatch(/execFile|spawn\(/);
+    expect(consumeSrc).toContain("fit_stage.py");
+    expect(consumeSrc).toMatch(/spawn\(/);
+    const fitCli = readFileSync(
+      join(import.meta.dirname, "../../../../tools/openclinxr/asset-pipeline/makeclothes/fit-cli.ts"),
+      "utf8",
+    );
+    expect(fitCli).toContain("runClothingConsume");
+    expect(fitCli).not.toMatch(/--python[\s\S]{0,80}fit_stage\.py/);
   });
 
   it("(7) each station has a real composer/CLI importing plan*()", () => {

@@ -30,7 +30,7 @@ import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
 // #275 — single source of truth for the factory's FALLBACK upper garment identity.
 import { HM08_UPPER_GARMENT_FALLBACK_MESH_PREFIX } from "./garment-selection-by-role.js";
-import { planClothingConsume } from "@openclinxr/factory-stations";
+import { planClothingConsume, runClothingConsume } from "@openclinxr/factory-stations";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "../../../..");
@@ -75,7 +75,7 @@ const ANNY_REFERENCE_OBJ = path.join(
   "apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.anny_base.obj",
 );
 
-const STAGE_SCRIPT = path.join(HERE, "fit_stage.py");
+
 
 export type LibraryCatalogEntry = {
   garmentId: string;
@@ -427,10 +427,6 @@ export async function runMakeclothesFitOnce(): Promise<LibraryCatalog> {
   ensureDir(STAGING_DIR);
   ensureDir(path.dirname(LIBRARY_GLB_DISK));
 
-  if (!existsSync(STAGE_SCRIPT)) {
-    throw new Error(`fit stage script missing: ${STAGE_SCRIPT}`);
-  }
-
   const mhcloPath = path.join(STAGING_DIR, "Scrub_Shirt.mhclo");
   const objPath = path.join(STAGING_DIR, "Scrub_Shirt.obj");
   const priorMhclo = "/tmp/ocxr90_garments/scrubs_shirt/Scrub_Shirt.mhclo";
@@ -472,48 +468,35 @@ export async function runMakeclothesFitOnce(): Promise<LibraryCatalog> {
   const extraStageFlags: string[] = [];
   if (process.env.OPENCLINXR_FIT_LEGACY_BASE_OBJ) extraStageFlags.push("--legacy-base-obj");
 
-  const blenderArgs = [
-    "--background",
-    "--python",
-    STAGE_SCRIPT,
-    "--",
-    "--mhclo",
-    mhcloPath,
-    "--garment-obj",
-    objPath,
-    "--mh-base-obj",
-    mhBaseObj,
-    "--out-glb",
-    tmpGlb,
-    "--out-grade-png",
-    tmpGrade,
-    "--report",
-    STAGE_REPORT_PATH,
-    // #275 — authoritative mesh name from the shared selection module; the Python
-    // argparse default is only a raw-invocation fallback.
-    ...extraStageFlags,
-    "--garment-mesh-name",
-    HM08_UPPER_GARMENT_FALLBACK_MESH_PREFIX,
-  ];
-  if (existsSync(ANNY_REFERENCE_OBJ)) {
-    if (!process.env.OPENCLINXR_FIT_NO_ANNY) blenderArgs.push("--anny-obj", ANNY_REFERENCE_OBJ);
-  }
-
-  const result = await runCmd(blender, blenderArgs, {
-    cwd: REPO_ROOT,
-    timeoutMs: 600_000,
-  });
+  const result = await runClothingConsume(
+    { actorId: "library_hm08", mhcloPath },
+    {
+      blender,
+      garmentObj: objPath,
+      mhBaseObj,
+      outGlb: tmpGlb,
+      outGradePng: tmpGrade,
+      report: STAGE_REPORT_PATH,
+      garmentMeshName: HM08_UPPER_GARMENT_FALLBACK_MESH_PREFIX,
+      extraStageFlags,
+      cwd: REPO_ROOT,
+      timeoutMs: 600_000,
+      ...(existsSync(ANNY_REFERENCE_OBJ) && !process.env.OPENCLINXR_FIT_NO_ANNY
+        ? { annyObj: ANNY_REFERENCE_OBJ }
+        : {}),
+    },
+  );
 
   if (!existsSync(STAGE_REPORT_PATH)) {
     throw new Error(
-      `stage report missing after blender (exit ${result.code}): ${result.stderr.slice(-600)}`,
+      `stage report missing after blender (exit ${String(result["blenderExit"])}): ${String(result["stderr"]).slice(-600)}`,
     );
   }
   const stage = JSON.parse(readFileSync(STAGE_REPORT_PATH, "utf8")) as Record<string, unknown>;
   if (stage["status"] !== "completed") {
     throw new Error(
       `fit stage status=${String(stage["status"])} errors=${JSON.stringify(stage["errors"] ?? [])} ` +
-        `stderr=${result.stderr.slice(-600)}`,
+        `stderr=${String(result["stderr"]).slice(-600)}`,
     );
   }
   const steps = (stage["steps"] as Record<string, unknown> | undefined) ?? {};

@@ -23,7 +23,13 @@ export {
   resolveExistingViewPaths,
   type EquipmentSubjectEntry,
 } from "./equipment_generate/subjects.js";
-export { clothingConsumeRunner, planClothingConsume } from "./clothing_consume/run.js";
+export {
+  CLOTHING_CONSUME_STAGE_REL,
+  clothingConsumeRunner,
+  planClothingConsume,
+  runClothingConsume,
+  type ClothingConsumeRunOptions,
+} from "./clothing_consume/run.js";
 export { bodyParamRunner, planBodyParam } from "./body_param/run.js";
 export { roomGenerateRunner, planRoomGenerate } from "./room_generate/run.js";
 export { motionRetargetRunner, planMotionRetarget } from "./motion_retarget/run.js";
