@@ -70,7 +70,7 @@ import {
 } from "../factory/encounter-materialization-compile.js";
 import * as plannedBakers from "../factory/invoke-planned-world-compile-bakers.js";
 import { equipmentGeneratePayloadFromSpec } from "../factory/plan-equipment-would-invoke.js";
-import { planEquipmentGenerate, planLipSync, planStaging } from "@openclinxr/factory-stations";
+import { planEquipmentGenerate, planLipSync, planStaging, runEquipmentGenerate } from "@openclinxr/factory-stations";
 
 const execFileAsync = promisify(execFile);
 
@@ -1075,6 +1075,7 @@ export async function runChainWorldCompileBaker(
   input: plannedBakers.WorldCompileBakerRunnerInput & {
     bakeOutDir: string;
     invocationOutDir: string;
+    equipmentGenerateRun?: (payload: Record<string, unknown>) => Record<string, unknown> | Promise<Record<string, unknown>>;
   },
 ): Promise<void> {
   const { node, artifactPath } = input;
@@ -1098,9 +1099,15 @@ export async function runChainWorldCompileBaker(
         if ("issues" in planned) {
           throw new Error(planned.issues.map((issue) => issue.message).join("; "));
         }
-        record.status = "planned";
         record.stationId = "equipment_generate";
         record.equipmentGeneratePlan = planned.plan;
+        const live = input.equipmentGenerateRun ?? (process.env["OPENCLINXR_TRELLIS_LIVE"] === "1" ? runEquipmentGenerate : undefined);
+        if (live) {
+          record.status = "invoked";
+          record.equipmentGenerateRun = await live(payload);
+        } else {
+          record.status = "planned";
+        }
       }
     } else if (node.bakerId !== "wardrobe_character") {
       record.status = "skipped";

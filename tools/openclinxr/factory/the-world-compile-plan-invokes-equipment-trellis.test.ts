@@ -94,6 +94,33 @@ describe("the world compile plan invokes equipment TRELLIS", () => {
       await rm(dir, { recursive: true, force: true });
     }
   });
+
+  it("(4) injected equipmentGenerateRun is invoked instead of stopping at plan()", async () => {
+    const dir = await mkdtemp(path.join(os.tmpdir(), "wcg-trellis-live-"));
+    try {
+      let ran: Record<string, unknown> | null = null;
+      await runChainWorldCompileBaker({
+        node: equipmentNode(`equip:${IMAGINE}`, "trellis", { locked: false }) as CompilePlanNode & {
+          wouldInvoke: "trellis";
+        },
+        artifactPath: null,
+        bakeOutDir: path.join(dir, "bakes"),
+        invocationOutDir: path.join(dir, "invocations"),
+        equipmentGenerateRun: (payload) => {
+          ran = payload;
+          return { status: "fake-run", subjectId: payload["subjectId"] };
+        },
+      });
+      expect(ran?.["subjectId"]).toBe(IMAGINE);
+      const record = JSON.parse(
+        await readFile(path.join(dir, "invocations", `equip_${IMAGINE}.json`), "utf8"),
+      ) as { status: string; equipmentGenerateRun?: { status?: string } };
+      expect(record.status).toBe("invoked");
+      expect(record.equipmentGenerateRun?.status).toBe("fake-run");
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
 });
 
 function wardrobeNode(nodeId: string, wouldInvoke: "blender"): CompilePlanNode {
