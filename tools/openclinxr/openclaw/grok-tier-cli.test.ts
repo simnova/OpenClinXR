@@ -43,19 +43,19 @@ describe("DeepSeek model capabilities (confirmed from official api-docs.deepseek
     // - Examples and curl use plain string content only.
     // Vision/multimodal (image_url) lives on separate Janus / limited V4-Vision post-trains, not the standard flash/pro used by the harness.
     const flashPolicy: RepoRoleHarnessPolicy = {
-      roleId: "productivity-skeptic",
+      roleId: "chief-coordinator",
       policyTier: "fast_bounded",
       taskType: "bounded_scout",
       sandboxMode: "read-only",
       recommendedSkills: ["openclinxr-openclaw"],
       moonbridgeAssistOnCodex: true,
       writeScopeNote: "test",
-      pathScope: getRolePathScope("productivity-skeptic"),
+      pathScope: getRolePathScope("chief-coordinator"),
     };
     const flashSpec = buildGrokRepoAgentSpawnSpec({
-      roleId: "productivity-skeptic",
-      roleDir: "agents/adversarial/productivity-skeptic",
-      group: "adversarial",
+      roleId: "chief-coordinator",
+      roleDir: "agents/coordinator/chief-coordinator",
+      group: "coordinator",
       policy: flashPolicy,
       task: "scout task for test - text only",
     });
@@ -106,15 +106,23 @@ describe("DeepSeek model capabilities (confirmed from official api-docs.deepseek
     expect(prompt).toMatch(/deepseek-v4-flash-vision-exp/);
     expect(prompt).not.toMatch(/(?<![\w-])deepseek-v4-pro(?![\w-])/);
 
-    // Non-visual text task stays on deepseek
+    // Non-visual text task on a non-infer role stays on flash
     const textOnly = buildGrokRepoAgentSpawnSpec({
+      roleId: "chief-coordinator",
+      roleDir: "agents/coordinator/chief-coordinator",
+      group: "coordinator",
+      task: "text-only policy review of coordination MDs and worker-backlog matrix",
+    });
+    expect(textOnly.multimodal).toBe(false);
+    expect(textOnly.model).toBe("deepseek-v4-flash");
+    const skepticDefault = buildGrokRepoAgentSpawnSpec({
       roleId: "productivity-skeptic",
       roleDir: "agents/adversarial/productivity-skeptic",
       group: "adversarial",
       task: "text-only policy review of coordination MDs and worker-backlog matrix",
     });
-    expect(textOnly.multimodal).toBe(false);
-    expect(textOnly.model).toBe("deepseek-v4-flash");
+    expect(skepticDefault.multimodal).toBe(true);
+    expect(skepticDefault.model).toBe("deepseek-v4-flash-vision-exp");
   });
 
   it("flash scout roles must use explore + text prompt (cost-conscious tier)", () => {

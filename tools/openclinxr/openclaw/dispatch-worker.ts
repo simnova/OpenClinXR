@@ -71,27 +71,20 @@ export const RESUME_REQUIRED_ENV: Readonly<Record<string, string>> = REQUIRED_EN
 const FORBIDDEN_ENV = ["RUST_LOG", "GROK_DEBUG_FILE"] as const;
 
 /**
- * ISSUE #242 (2026-08-09, measured not inferred): deepseek-* models are TEXT-ONLY. Every model id
- * the grok CLI exposes that starts with `deepseek` (flash, pro, pro-anthropic, deepseek,
- * pro-chat — all five probed against api.deepseek.com, plus via-moon which is a deepseek-backed
- * bridge) rejects any `messages[].content` array containing an `image_url` block with a hard
- * serde 400: "unknown variant `image_url`, expected `text`". The `Read` tool SUCCEEDS in loading
- * a PNG into the transcript as an image_url block, and the NEXT API call — the turn after the
- * read — is rejected wholesale: exit 1, no sessionId, no work, tokens already paid. Measured:
- * 113,449 input tokens burned for zero turns of work.
+ * ISSUE #242 (2026-08-09, measured not inferred): most deepseek-* ids are TEXT-ONLY. flash, pro,
+ * pro-anthropic, deepseek, pro-chat, and via-moon reject `image_url` with HTTP 400
+ * "This model does not support image" / unknown variant `image_url`. The Read tool still
+ * embeds the PNG; the NEXT API call dies. Measured 2026-09-01 on goal-verification
+ * skeptics: deepseek-v4-flash × parent PNG context → 400, goal auto-paused.
  *
- * The fence (chosen option, recorded): DENY the Read tool on image/video extensions for
- * text-only models, mechanically, in the dispatch path. Rejected alternatives:
- *  - refuse at brief time when proofs mention images — over-broad: a text-only worker CAN produce
- *    a PNG (captures are scripts); the producer/grader split ("the WORKER produces the artifact,
- *    the ORCHESTRATOR grades it") is exactly what cheap-tier capture work should be. A proof scan
- *    also misses the natural "look at what I just produced" read, which is the case that crashed.
- *  - auto-route such briefs to a vision model — silently changes tiering/cost, and routing
- *    judgment already lives in the spawn-spec path (requiresMultimodalReasoning -> grok-4-fast).
- * The deny fires for EVERY text-only dispatch regardless of prompt/proof content, converting the
- * fatal crash into a survivable "denied by a permission policy" read the worker can report past.
+ * EXCEPTION: `deepseek-v4-flash-vision-exp` HAS VISION (operator 2026-08-29). Do not fence it.
+ * Vision work routes there via requiresMultimodalReasoning (spawn-spec) and harness
+ * `[subagents.models]` for explore/skeptic children that inherit parent images.
+ *
+ * The fence: DENY Read of image/video extensions for text-only models in dispatch().
  */
 const TEXT_ONLY_MODEL_PREFIXES = ["deepseek"] as const;
+const VISION_MODEL_MARKERS = ["vision", "grok-4", "grok-build", "x-grok", "x-reasoning"] as const;
 
 /** Raster + video containers the Read tool can embed into the transcript as image_url. */
 const VISION_DENY_EXTENSIONS = [
@@ -102,6 +95,9 @@ const VISION_DENY_EXTENSIONS = [
 /** True when a model id can be assumed text-only (vision would hard-crash the API call). */
 export function isTextOnlyModel(model: string): boolean {
   const normalized = model.trim().toLowerCase();
+  if (VISION_MODEL_MARKERS.some((marker) => normalized.includes(marker))) {
+    return false;
+  }
   return TEXT_ONLY_MODEL_PREFIXES.some((prefix) => normalized.startsWith(prefix));
 }
 

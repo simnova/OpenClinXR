@@ -54,9 +54,9 @@ plan = true      # implementation-planning-lead sequencing
 general-purpose = true  # execution specialists (asset/xr/impl) after scoping
 
 [subagents.models]
-explore = "deepseek-v4-flash"   # cheap read-only coordinator/drift consults (scout tier per grok-tier-routing + subagent-protocol)
+explore = "deepseek-v4-flash"   # cheap text scouts. USER ~/.grok/config.toml binds live children; set explore to deepseek-v4-flash-vision-exp when sessions inherit PNGs (goal-verification skeptics).
 plan = "deepseek-v4-pro"        # bounded planning slices
-general-purpose = "deepseek-v4-pro"  # 2026-08-13: v4-pro (updated reasoning). USER ~/.grok/config.toml [subagents.models] is what binds — keep that on deepseek-v4-pro-anthropic. Never DeepSeek for Imagine/pixel grade.
+general-purpose = "deepseek-v4-pro"  # 2026-08-13: v4-pro. USER config binds. Pixel grade / inherited images → deepseek-v4-flash-vision-exp, never text flash.
 # grok-build only for frontier/protected (escalation or high-stakes per LEX_AGENTIC + harness-usage)
 # grok-tier-routing: tier 1 scout / tier 2 plan ladder — see agents/rules/grok-tier-routing.md
 # CLI: pnpm grok:tier:introspect | grok:tier:work-order | grok:tier:check
@@ -109,10 +109,10 @@ general-purpose = "deepseek-v4-pro"  # 2026-08-13: v4-pro (updated reasoning). U
 #   /model deepseek-v4-pro   (or deepseek-v4-flash, deepseek, deepseek-v4-pro-anthropic, etc.)
 #   grok -m deepseek-v4-pro -p "..."
 #
-# MULTIMODAL HARDENING (spawn builder): tasks involving images/screenshots/cagematch/UI-XR evidence visuals
-# (detected via requiresMultimodalReasoning on task + role keywords) are forced to grok-4-fast (try first)
-# then grok-4-pro in the generated spawn spec + prompt + ESCALATION GUARD.
-# Deepseek text models are never used for vision content. See grok-repo-agent-spawn.ts.
+# MULTIMODAL HARDENING (spawn builder): images/screenshots/cagematch/UI-XR/trellis →
+# deepseek-v4-flash-vision-exp (HAS VISION, operator 2026-08-29). grok-4.6 is rung-2
+# escalate only. Text-only deepseek-v4-flash / -pro 400 on image_url (goal skeptics 2026-09-01).
+# See grok-repo-agent-spawn.ts requiresMultimodalReasoning + VISION_INFER_ROLE_IDS.
 #   (Moonbridge via-moon is still available as explicit backup.)
 #
 # Subagent routing example (current in user config):

@@ -106,7 +106,10 @@ export {
   WORKER_TONE_DIRECTIVE,
   looksLikeLargeParallelTask,
   recommendRepoAgentsForConsult,
+  requiresMultimodalReasoning,
   resolveGrokSpawnSurfaceForPolicy,
+  VISION_INFER_ROLE_IDS,
+  DEEPSEEK_FLASH_VISION_MODEL,
 } from "./grok-repo-agent-spawn.js";
 export type {
   GrokRepoAgentSpawnRegistryReport,

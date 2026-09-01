@@ -502,7 +502,7 @@ export function validateGrokHarnessTierConfig(configToml: string): {
   const explore = readTomlQuotedValue(configToml, "subagents.models", "explore");
   const plan = readTomlQuotedValue(configToml, "subagents.models", "plan");
   const defaultModel = readTomlQuotedValue(configToml, "subagents", "default_model");
-  if (explore !== "deepseek-v4-flash") errors.push(`subagents.models.explore must be deepseek-v4-flash (got ${explore ?? "missing"})`);
+  if (explore !== "deepseek-v4-flash" && explore !== "deepseek-v4-flash-vision-exp") errors.push(`subagents.models.explore must be deepseek-v4-flash or deepseek-v4-flash-vision-exp (got ${explore ?? "missing"})`);
   if (plan !== "deepseek-v4-pro") errors.push(`subagents.models.plan must be deepseek-v4-pro (got ${plan ?? "missing"})`);
   if (defaultModel) errors.push(`subagents.default_model must be unset (got ${defaultModel})`);
   if (!configToml.includes("tier routing") && !configToml.includes("grok-tier-routing")) {

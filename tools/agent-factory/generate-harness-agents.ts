@@ -182,12 +182,12 @@ Read charter ## Persona first. Follow \`agents/rules/agent-consult.md\` + LEX_AG
  */
 function grokNativeAgentMarkdown(role: RoleEntry): string {
   const policy = defaultPolicy(role.role);
-  const modelSpec = resolveHarnessModelSpec(policy.policyTier, "grok");
   const spawn = buildGrokRepoAgentSpawnSpec({
     roleId: role.role,
     roleDir: role.roleDir,
     group: role.group,
   });
+  const modelSpec = { model: spawn.model };
   const readOnly = policy.sandboxMode === "read-only";
   const permissionMode = readOnly ? "plan" : "default";
   // Wave B1: per-role tool surface (image tools for non-visual; workflow/spawn bans)

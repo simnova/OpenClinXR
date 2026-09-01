@@ -42,6 +42,12 @@ describe("grok tier routing", () => {
     expect(good.ok).toBe(true);
     const bad = validateGrokHarnessTierConfig(`[subagents.models]\nexplore = "grok-build"\n`);
     expect(bad.ok).toBe(false);
+    const visionExplore = validateGrokHarnessTierConfig(`[subagents.models]
+explore = "deepseek-v4-flash-vision-exp"
+plan = "deepseek-v4-pro"
+# grok-tier-routing
+`);
+    expect(visionExplore.ok).toBe(true);
   });
 
   it("builds introspection report posture", () => {

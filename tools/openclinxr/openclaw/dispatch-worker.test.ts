@@ -963,7 +963,15 @@ describe("issue #242 — text-only models cannot Read images (the 400 fence)", (
     "deepseek-pro-chat",
     "deepseek-via-moon",
   ];
-  const visionIds = ["grok-4.5", "grok-4-multi-agent", "x-grok-3", "x-grok-4", "x-reasoning"];
+  const visionIds = [
+    "deepseek-v4-flash-vision-exp",
+    "grok-4.5",
+    "grok-4.6",
+    "grok-4-multi-agent",
+    "x-grok-3",
+    "x-grok-4",
+    "x-reasoning",
+  ];
 
   it("classifies every deepseek model id the CLI exposes as text-only", () => {
     for (const model of textOnlyIds) {
@@ -1026,6 +1034,24 @@ describe("issue #242 — text-only models cannot Read images (the 400 fence)", (
     });
     const argv = spawnMock.mock.calls.at(-1)![1] as string[];
     expect(argv.filter((a) => a.startsWith("Read("))).toEqual([]);
+  });
+
+  it("does not deny Read for deepseek-v4-flash-vision-exp", async () => {
+    const root = mkdtempSync(join(tmpdir(), "dispatch-vision-exp-open-"));
+    seedRoleForDispatch(root);
+    spawnMock.mockReturnValue(
+      fakeChildWithOutput(JSON.stringify({ text: "done", sessionId: "019f-vision-exp-open", num_turns: 1, stopReason: "end_turn" })),
+    );
+    await dispatch(root, {
+      prompt: "grade this capture",
+      role: TEST_ROLE,
+      model: "deepseek-v4-flash-vision-exp",
+      slice: "issue-242-vision-exp",
+      contract: "none",
+      contractReason: "vision-exp must Read PNGs; text flash 400s",
+    });
+    const argv = spawnMock.mock.calls.at(-1)![1] as string[];
+    expect(argv).not.toContain("Read(**/*.png)");
   });
 
   it("warns the text-only worker in the prompt why image Reads are denied", async () => {

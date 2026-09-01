@@ -265,10 +265,25 @@ export function buildRepoAgentSpawnPrompt(input: {
     .join(" ");
 }
 
-function requiresMultimodalReasoning(roleId: string, task?: string): boolean {
-  const text = `${roleId} ${task || ""}`.toLowerCase();
-  // Visual/multimodal indicators (must be present in task or combined with evidence review).
-  // Pure role name like "productivity-skeptic" alone does not trigger — only when the actual work involves images/screenshots/cagematch visuals etc.
+/**
+ * Roles whose default job is looking at pixels (goal-verification skeptics inherit
+ * parent CHANGED_FILES PNGs). Always route to deepseek-v4-flash-vision-exp even
+ * with an empty task string — measured 2026-09-01: harness skeptics on
+ * deepseek-v4-flash 400 "This model does not support image".
+ */
+export const VISION_INFER_ROLE_IDS: ReadonlySet<string> = new Set([
+  "visual-realism-adversary",
+  "productivity-skeptic",
+  "imagine-trellis",
+]);
+
+export const DEEPSEEK_FLASH_VISION_MODEL = "deepseek-v4-flash-vision-exp";
+
+export function requiresMultimodalReasoning(roleId: string, task?: string, files?: readonly string[]): boolean {
+  if (VISION_INFER_ROLE_IDS.has(roleId)) {
+    return true;
+  }
+  const text = `${roleId} ${task || ""} ${(files ?? []).join(" ")}`.toLowerCase();
   const visualIndicators = [
     "image", "png", "jpg", "jpeg", "screenshot", "capture", "visual evidence", "vision", "multimodal",
     "cagematch", "model-vetting", "front.png", "three_quarter", "body_motion",
@@ -277,10 +292,7 @@ function requiresMultimodalReasoning(roleId: string, task?: string): boolean {
     "model vetting.*(png|image|visual)", "screenshots", "webm", "visuals in",
     "imagine", "trellis", "glb-grade", "escape-hatch",
   ];
-  const hasVisual = visualIndicators.some((ind) => new RegExp(ind).test(text));
-  // For known visual-adversary roles, still require at least one visual keyword in the task/brief to trigger reservation
-  // (so text-only policy reviews on skeptic stay on cheap flash).
-  return hasVisual;
+  return visualIndicators.some((ind) => new RegExp(ind).test(text));
 }
 
 export function buildGrokRepoAgentSpawnSpec(input: {
@@ -310,7 +322,7 @@ export function buildGrokRepoAgentSpawnSpec(input: {
   if (isMultimodal) {
     // Vision / Imagine / glb-grade → deepseek-v4-flash-vision-exp (cheap, vision-capable).
     // Never default vision work to grok-4.6 (quota near exhausted); grok-4.6 is rung-2 escalate only.
-    modelSpec = { model: "deepseek-v4-flash-vision-exp", reasoningEffort: "high" };
+    modelSpec = { model: DEEPSEEK_FLASH_VISION_MODEL, reasoningEffort: "high" };
   }
 
   const surface = resolveGrokSpawnSurfaceForPolicy(policy);

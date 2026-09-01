@@ -10,6 +10,7 @@ import {
   looksLikeLargeParallelTask,
   OPENCLINXR_WORKER_ENV,
   recommendRepoAgentsForConsult,
+  requiresMultimodalReasoning,
   resolveGrokSpawnSurfaceForPolicy,
 } from "./grok-repo-agent-spawn.js";
 import { getRepoRoleHarnessPolicy } from "./role-harness-policy.js";
@@ -285,6 +286,26 @@ describe("multimodal spawn routing (operator 2026-08-29: deepseek vision, grok-4
     expect(spec.spawnSubagentCall?.model).toBe("deepseek-v4-flash-vision-exp");
     expect(spec.spawnSubagentCall?.subagent_type).toBe("explore");
     expect(spec.spawnPrompt).toContain("model: deepseek-v4-flash-vision-exp (multimodal)");
+  });
+
+  it("routes productivity-skeptic with no task to deepseek-v4-flash-vision-exp (goal panel inherits PNGs)", () => {
+    const spec = buildGrokRepoAgentSpawnSpec({
+      roleId: "productivity-skeptic",
+      roleDir: "agents/adversarial/productivity-skeptic",
+      group: "adversarial",
+    });
+    expect(spec.multimodal).toBe(true);
+    expect(spec.model).toBe("deepseek-v4-flash-vision-exp");
+    expect(spec.spawnSubagentCall?.model).toBe("deepseek-v4-flash-vision-exp");
+  });
+
+  it("routes a png in files[] to vision-exp even on a text scout role", () => {
+    expect(requiresMultimodalReasoning("chief-coordinator", "Scout next slice")).toBe(false);
+    expect(
+      requiresMultimodalReasoning("chief-coordinator", undefined, [
+        "tools/openclinxr/asset-pipeline/trellis/packs/ecg-cart-imagine-box/front.png",
+      ]),
+    ).toBe(true);
   });
 
   it("keeps non-multimodal fast_bounded on explore + deepseek-v4-flash", () => {
