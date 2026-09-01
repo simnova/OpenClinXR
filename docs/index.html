@@ -24,6 +24,7 @@
           <a href="#platform">Platform</a>
           <a href="#now">Now</a>
           <a href="#worldview">Worldview</a>
+          <a href="#factory-stations">Stations</a>
           <a href="#dark-factory">Factory</a>
           <a href="#trellis-hatch">Hatch</a>
           <a href="#supine">Patient</a>
@@ -138,6 +139,7 @@
               <li><strong>Peds real-garment work:</strong> patient/parent/nurse clothing layers expanded from phenotype; adaptive dialogue and sleeve-deform evidence tracks exist in-repo.</li>
               <li><strong>Authoring / review spine:</strong> scenario bank, review packets, admin faculty review UI with promotion-status surfaces (gates remain off).</li>
               <li><strong>Worldview (W1–W19 landed):</strong> faculty case authoring plus a compile graph (Body → Wardrobe → Equipment) with Add/Remove node on the exam-forms workbench. Screenshots <a href="#worldview">below</a>. Not a baker or Quest claim.</li>
+              <li><strong>Factory station cards:</strong> nine production stations as Standard Schema V1 admin cards (jsonSchema.input controls, Apply validates). <code>instrument</code> is a gate, not a card. Screenshots <a href="#factory-stations">below</a>.</li>
               <li><strong>Runtime durability hook:</strong> optional <code>durableStore</code> on scenario runtime + local authoring roundtrip CLI that emits replay-safe JSON (actor turns + timeline).</li>
             </ul>
           </div>
@@ -234,6 +236,61 @@
           <strong>notEvidenceFor:</strong> Quest readiness, clinical validity, live Blender bake,
           LLM draft quality, or that the parent BothyBoard program card is closed (it is still Idle).
           Node labels truncate in this crop; that is the canvas, not missing data.
+        </p>
+      </section>
+
+      <section id="factory-stations" class="band band--evidence" aria-labelledby="factory-stations-title">
+        <div class="section-heading">
+          <p class="eyebrow">Evidence you can look at · 2026-09-01</p>
+          <h2 id="factory-stations-title">Faculty configure the nine production stations as cards, not a hand list.</h2>
+        </div>
+        <p class="status-copy">
+          Each production factory station is a Standard Schema V1 interface
+          (<code>~standard.validate</code> plus <code>jsonSchema.input</code>).
+          Admin cards are derived from that schema: one card per id, one control per
+          property, Apply refuses invalid payloads.
+          <code>instrument</code> is a gate and is not a card.
+          The TRELLIS control adds a worldview bake model (subject/pack
+          <code>ecg-cart-imagine-box</code>), distinct from a fixtureSlot bind.
+        </p>
+
+        <figure style="margin: 20px 0 0; border: 1px solid var(--line); border-radius: 6px; overflow: auto; max-height: 720px; background: #f5f5f5;">
+          <img
+            class="w-full h-auto object-contain"
+            src="assets/factory-station-cards-2026-09-01.png"
+            width="688"
+            height="2597"
+            alt="Factory station cards: nine production stations as Ant Design cards with schema-derived fields, Add TRELLIS bake model, body_param filled for patient_maya_johnson_v1, equipment_generate filled for ecg-cart-imagine-box viewCount 4"
+            loading="lazy"
+          >
+          <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line); position: sticky; bottom: 0; background: #fff;">
+            Renderer: Chromium Playwright of isolated <code>FactoryStationCards</code>
+            (Vite 127.0.0.1:5174/factory-station-cards-shot.html), 688×2597 native.
+            Subject: all nine production station cards. Scroll the figure for the full stack.
+          </figcaption>
+        </figure>
+
+        <figure style="margin: 20px 0 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff; max-width: 720px;">
+          <img
+            class="w-full h-auto object-contain"
+            src="assets/factory-station-equipment-generate-2026-09-01.png"
+            width="688"
+            height="363"
+            alt="equipment_generate station card: subjectId and packId ecg-cart-imagine-box, seed 7, remesh on, viewCount 4, decimationTarget 80000, Apply"
+            loading="lazy"
+          >
+          <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+            Native close-up of the <code>equipment_generate</code> card from the same render.
+            Knobs include schema-only <code>decimationTarget</code>.
+          </figcaption>
+        </figure>
+
+        <p class="status-copy" style="margin-top: 16px;">
+          <strong>claimScope:</strong> local admin React cards derived from
+          <code>factoryStationSchemas</code> on <code>origin/main</code>.
+          <strong>notEvidenceFor:</strong> live TRELLIS GPU bake, Quest readiness,
+          clinical validity, or that Apply invokes a baker (it validates and emits
+          the payload).
         </p>
       </section>
 

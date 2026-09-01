@@ -56,6 +56,29 @@ async function main(): Promise<void> {
   process.exitCode = 1;
 }
 
+const factoryStationCardsPattern = /src="(assets\/factory-station-cards-[^"]+\.png)"/;
+const factoryStationEquipmentPattern = /src="(assets\/factory-station-equipment-generate-[^"]+\.png)"/;
+const MIN_FACTORY_STATION_CARDS_BYTES = 40_000;
+
+async function factoryStationStillBlocker(indexHtml: string): Promise<string | undefined> {
+  const cards = factoryStationCardsPattern.exec(indexHtml);
+  const equipment = factoryStationEquipmentPattern.exec(indexHtml);
+  if (!cards?.[1]) return "pages_index_factory_station_cards_image_missing";
+  if (!equipment?.[1]) return "pages_index_factory_station_equipment_image_missing";
+  for (const src of [cards[1], equipment[1]]) {
+    const onDisk = path.join("docs", src);
+    try {
+      const { size } = await stat(onDisk);
+      if (src.includes("factory-station-cards-") && size < MIN_FACTORY_STATION_CARDS_BYTES) {
+        return `pages_index_factory_station_cards_stub:${src}:${size}b`;
+      }
+    } catch {
+      return `pages_index_factory_station_image_absent:${onDisk}`;
+    }
+  }
+  return undefined;
+}
+
 async function heroImageBlocker(indexHtml: string): Promise<string | undefined> {
   const match = heroImagePattern.exec(indexHtml);
   if (!match) return "pages_index_hero_image_missing";
@@ -103,6 +126,8 @@ export async function validateGitHubPagesSite(): Promise<ValidationResult> {
     await heroImageBlocker(indexHtml),
     indexHtml.includes("https://github.com/simnova/OpenClinXR") ? undefined : "pages_index_repo_link_missing",
     indexHtml.includes("Evidence Docs") ? undefined : "pages_index_evidence_docs_link_missing",
+    indexHtml.includes('id="factory-stations"') ? undefined : "pages_index_factory_stations_section_missing",
+    await factoryStationStillBlocker(indexHtml),
     styles.includes("@media (max-width: 860px)") ? undefined : "pages_styles_mobile_breakpoint_missing",
     readme.match(/https?:\/\/developers\.simnova\.com\/OpenClinXR\//) ? undefined : "readme_pages_url_missing",
     readme.includes("main") && readme.includes("/docs") ? undefined : "readme_pages_source_missing",
