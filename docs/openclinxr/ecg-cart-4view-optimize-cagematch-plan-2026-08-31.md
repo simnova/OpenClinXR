@@ -225,7 +225,7 @@ BothyBoard (2026-08-31):
 
 ## 12. OpenAI consult (2026-08-31) — cuts this matrix
 
-No `OPENAI_API_KEY` on this machine (Conversations REST API unavailable). Consult used the repo’s OpenAI path: **Codex `gpt-5.6-sol`**, ChatGPT login, `codex exec` session **`01a05910-dc92-73a1-aa68-ef5a168c9f8d`**, two turns (`high` reasoning, read-only). Transcripts: `.openclinxr/openclaw/openai-ecg-plan-review-turn{1,2}.md` (gitignored).
+No `OPENAI_API_KEY` on this machine (Conversations REST API unavailable). Consult used the repo’s OpenAI path: **Codex `gpt-5.6-sol`**, ChatGPT login, `codex exec` session **`01a05910-dc92-73a1-aa68-ef5a168c9f8d`**, two turns (`high` reasoning, read-only). Transcripts: gitignored Codex exec notes for that session (not in-tree).
 
 **Verdict: rewrite the treatment matrix; keep the exact control and cheap-first order.**
 
