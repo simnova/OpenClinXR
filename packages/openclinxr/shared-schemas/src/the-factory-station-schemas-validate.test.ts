@@ -51,6 +51,9 @@ describe("the factory station schemas validate", () => {
       for (const key of Object.keys(VALID[id])) {
         expect(json.properties, id).toHaveProperty(key);
       }
+      const output = schema.jsonSchema.output({ target: "draft-2020-12" });
+      expect(output.type, id).toBe("object");
+      expect(Object.keys(output.properties).length, id).toBeGreaterThan(0);
     }
   });
 

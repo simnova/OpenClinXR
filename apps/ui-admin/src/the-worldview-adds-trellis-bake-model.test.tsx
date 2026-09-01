@@ -43,6 +43,13 @@ describe("the worldview adds a TRELLIS bake model to the room", () => {
     fireEvent.click(await screen.findByRole("option", { name: "stretcher" }));
     expect(within(screen.getByLabelText("proposedVsAccepted")).getByText(/facultyAccepted stretcher/)).toBeInTheDocument();
   });
+
+  it("(3) room Infinigen prompt remains authorable on SeedWorldviewQueue", () => {
+    render(<SeedWorldviewQueue environmentGenerationQueue={EMPTY_QUEUE} />);
+    const area = screen.getByLabelText("Room Infinigen prompt");
+    fireEvent.change(area, { target: { value: "exam bay hard-surface cart" } });
+    expect((area as HTMLTextAreaElement).value).toBe("exam bay hard-surface cart");
+  });
 });
 
 // NOT TESTED: live bake; Quest triangle budget.
