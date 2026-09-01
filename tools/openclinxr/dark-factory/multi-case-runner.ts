@@ -69,6 +69,8 @@ import {
   type CompilePlanNode,
 } from "../factory/encounter-materialization-compile.js";
 import * as plannedBakers from "../factory/invoke-planned-world-compile-bakers.js";
+import { equipmentGeneratePayloadFromSpec } from "../factory/plan-equipment-would-invoke.js";
+import { planEquipmentGenerate } from "@openclinxr/factory-stations";
 
 const execFileAsync = promisify(execFile);
 
@@ -1080,7 +1082,21 @@ export async function runChainWorldCompileBaker(
   };
   const recordPath = path.join(input.invocationOutDir, `${node.nodeId.replace(/[^A-Za-z0-9_.-]/g, "_")}.json`);
   try {
-    if (node.bakerId !== "wardrobe_character") {
+    if (node.wouldInvoke === "trellis") {
+      const payload = equipmentGeneratePayloadFromSpec(node.spec);
+      if (!payload) {
+        record.status = "skipped";
+        record.reason = "trellis node spec has no equipment_generate payload";
+      } else {
+        const planned = planEquipmentGenerate(payload);
+        if ("issues" in planned) {
+          throw new Error(planned.issues.map((issue) => issue.message).join("; "));
+        }
+        record.status = "planned";
+        record.stationId = "equipment_generate";
+        record.equipmentGeneratePlan = planned.plan;
+      }
+    } else if (node.bakerId !== "wardrobe_character") {
       record.status = "skipped";
       record.reason = `no chain bake entrypoint for bakerId ${node.bakerId}`;
     } else if (!node.spec.scenarioId || !node.spec.actorId) {
@@ -1193,6 +1209,7 @@ async function runWorldCompileStage(
         skippedBakers: result.skippedBakers,
         nodeCount: plannerNodes.length,
         wouldInvokeBlenderCount: plannerNodes.filter((n) => n.wouldInvoke === "blender").length,
+        wouldInvokeTrellisCount: plannerNodes.filter((n) => n.wouldInvoke === "trellis").length,
         plannedBakerInvocations: {
           plannedCount: invocationReport.plannedCount,
           invokedCount: invocationReport.invokedCount,

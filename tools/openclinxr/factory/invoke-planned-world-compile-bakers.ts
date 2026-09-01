@@ -5,26 +5,26 @@ import type { WardrobeBakeDecision } from "./encounter-materialization-evidence.
  * WCG brief — planned bakers get invoked (issue #0).
  *
  * compileEncounterMaterialization is the PLAN half: a wardrobe node's
- * `wouldInvoke` is "blender" exactly when the compile's bake decision says bake
- * (first_bake / body_changed). Locked wardrobes (locked_skip / locked_stale)
- * and cache hits keep wouldInvoke === null and are recorded in skippedBakers —
- * lock skip survives invocation: a node the plan did not mark wouldInvoke is
- * NEVER handed to a baker runner.
+ * `wouldInvoke` is "blender" when the compile's bake decision says bake
+ * (first_bake / body_changed); an EquipVariant with a valid equipment_generate
+ * payload is "trellis". Locked nodes and cache hits keep wouldInvoke === null
+ * and are recorded in skippedBakers — lock skip survives invocation: a node
+ * the plan did not mark wouldInvoke is NEVER handed to a baker runner.
  *
  * This module is the INVOCATION half: iterate the planned nodes and run a
- * baker runner for each wouldInvoke === "blender" node. The runner is injected
- * so a unit test can pass a fake runner (no live Blender) while the
+ * baker runner for each node with a non-null wouldInvoke. The runner is injected
+ * so a unit test can pass a fake runner (no live Blender / GPU) while the
  * dark-factory world_compile station passes the chain's real baker runner
  * (multi-case-runner.ts runChainWorldCompileBaker). D9: bake duration is not a
  * constraint for a real baker.
  *
- * claimScope: a production caller iterates wouldInvoke === "blender" and
- * invokes a baker runner for those nodes. notEvidenceFor: a real Blender
- * process in a unit test; Quest; #167; baker split.
+ * claimScope: a production caller iterates planned wouldInvoke nodes and
+ * invokes a baker runner for those nodes. notEvidenceFor: a real Blender or
+ * TRELLIS GPU process in a unit test; Quest; #167; baker split.
  */
 
-/** A compile node the plan marked for invocation (wouldInvoke === "blender"). */
-export type PlannedWorldCompileBakerNode = CompilePlanNode & { wouldInvoke: "blender" };
+/** A compile node the plan marked for invocation. */
+export type PlannedWorldCompileBakerNode = CompilePlanNode & { wouldInvoke: "blender" | "trellis" };
 
 export type WorldCompileBakerRunnerInput = {
   node: PlannedWorldCompileBakerNode;
@@ -53,7 +53,7 @@ export type PlannedBakerInvocationFailure = {
 export type PlannedBakerInvocationReport = {
   schemaVersion: "openclinxr.world-compile.planned-baker-invocation.v1";
   runner: string;
-  /** Nodes the plan marked wouldInvoke === "blender" and the runner was called for. */
+  /** Nodes the plan marked for invocation and the runner was called for. */
   plannedCount: number;
   /** Runner calls that completed without throwing. */
   invokedCount: number;
@@ -75,9 +75,9 @@ export type InvokePlannedWorldCompileBakersOptions = {
 
 /**
  * Iterate the compile plan and invoke a baker runner for every node the plan
- * marked wouldInvoke === "blender". Nodes the plan skipped (wouldInvoke ===
- * null: locked_skip / cache_hit / locked_stale / non-blender bakers) are
- * counted in skippedNodeIds and never reach the runner.
+ * marked wouldInvoke (blender or trellis). Nodes the plan skipped
+ * (wouldInvoke === null: locked_skip / cache_hit / locked_stale / no baker)
+ * are counted in skippedNodeIds and never reach the runner.
  *
  * A throwing runner is recorded in `failures` and does not stop the remaining
  * planned nodes — the invocation report is the deliverable, and a failing bake
@@ -88,8 +88,8 @@ export async function invokePlannedWorldCompileBakers(
   runner: WorldCompileBakerRunner,
   options: InvokePlannedWorldCompileBakersOptions = {},
 ): Promise<PlannedBakerInvocationReport> {
-  const planned = nodes.filter((n): n is PlannedWorldCompileBakerNode => n.wouldInvoke === "blender");
-  const skippedNodeIds = nodes.filter((n) => n.wouldInvoke !== "blender").map((n) => n.nodeId);
+  const planned = nodes.filter((n): n is PlannedWorldCompileBakerNode => n.wouldInvoke === "blender" || n.wouldInvoke === "trellis");
+  const skippedNodeIds = nodes.filter((n) => n.wouldInvoke !== "blender" && n.wouldInvoke !== "trellis").map((n) => n.nodeId);
   const invocations: PlannedBakerInvocationRecord[] = [];
   const failures: PlannedBakerInvocationFailure[] = [];
   for (const node of planned) {

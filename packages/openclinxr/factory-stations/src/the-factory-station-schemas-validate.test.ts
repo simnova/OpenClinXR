@@ -106,4 +106,4 @@ describe("the factory station schemas validate", () => {
   });
 });
 
-// NOT TESTED: live TRELLIS GPU; world-compile wouldInvoke trellis; Quest; clinical validity.
+// NOT TESTED: live TRELLIS GPU; Quest; clinical validity.

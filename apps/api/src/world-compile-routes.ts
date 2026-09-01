@@ -84,6 +84,7 @@ export function registerWorldCompileRoutes(app: Hono<{ Variables: ApiAppVariable
         compileVersion: result.compileVersion,
         nodeCount: nodes.length,
         wouldInvokeBlenderCount: nodes.filter((node) => node.wouldInvoke === "blender").length,
+        wouldInvokeTrellisCount: nodes.filter((node) => node.wouldInvoke === "trellis").length,
         skippedBakers: result.skippedBakers,
         priorPath: pathRelativeToRepo(priorPath),
         outPath: pathRelativeToRepo(outPath),

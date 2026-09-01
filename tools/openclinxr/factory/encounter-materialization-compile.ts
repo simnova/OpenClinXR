@@ -21,6 +21,7 @@ import {
   readFacultyCompileLocksFile,
 } from "./encounter-materialization-faculty-locks.js";
 import type { GeneratedEdStationRuntimeBundleReport } from "./generated-ed-station-runtime-bundle.js";
+import { planEquipmentWouldInvoke } from "./plan-equipment-would-invoke.js";
 
 /**
  * World Compile Graph compile runner (WCG brief 2026-08-27, Phase 4).
@@ -32,8 +33,9 @@ import type { GeneratedEdStationRuntimeBundleReport } from "./generated-ed-stati
  *
  * A compile never claims a baker ran. ActorVariant nodes are split into
  * body + wardrobe bakers; each wardrobe gets a `planWardrobeBake` decision.
- * Bake => the node records `wouldInvoke: "blender"`; skip => the baker is
- * recorded in `skippedBakers` and wouldInvoke stays null.
+ * Bake => wardrobe records `wouldInvoke: "blender"`; EquipVariant with a valid
+ * equipment_generate payload records `wouldInvoke: "trellis"`. Skip (lock /
+ * cache / no bake) => skippedBakers and wouldInvoke stays null.
  *
  * Skip-capable bakers (body + wardrobe) also stamp a recipe `cacheKey` (WCG
  * brief Q3): sha256 over bakerId, bakerVersion, the spec the baker reads (after
@@ -176,8 +178,8 @@ export type CompileEncounterMaterializationOptions = {
 
 /** A compile node annotated with the bake plan this compile produced. */
 export type CompilePlanNode = CompileGraphNode & {
-  /** "blender" only when this node's baker is invoked by this compile; null means the baker is skipped or has no bake step. */
-  wouldInvoke: "blender" | null;
+  /** Baker this compile will invoke; null means skip (lock / cache / no bake step). */
+  wouldInvoke: "blender" | "trellis" | null;
   /** The wardrobe bake decision (ActorVariant wardrobe nodes only). */
   bakeDecision?: WardrobeBakeDecision;
 };
@@ -276,11 +278,15 @@ export async function compileEncounterMaterialization(
       continue;
     }
     const finalOther = tombstoneIfRemoved(copyPriorByNodeId(node, priorNodes), deletion);
+    const equipmentPlan = planEquipmentWouldInvoke(finalOther);
     plannedNodes.push({
       ...finalOther,
       contentHash: resolveContentHash(finalOther, opts),
-      wouldInvoke: null,
+      wouldInvoke: equipmentPlan.wouldInvoke,
     });
+    if (equipmentPlan.skipped) {
+      skippedBakers.push(finalOther.nodeId);
+    }
   }
 
   // Descendants go stale: any node that depends (parents) on a node tombstoned

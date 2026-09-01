@@ -80,6 +80,8 @@ export type CompileGraphNode = {
     supportSurface?: string;
     variantSemanticKey: string;
     sourceBlobName: string;
+    /** Faculty equipment_generate payload (TRELLIS). Distinct from fixtureSlot. */
+    equipmentGenerate?: Record<string, unknown>;
   };
   parents: string[];
   cacheKey: string | null;
