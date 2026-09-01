@@ -7,7 +7,7 @@
     "agent-methodology": 103,
     "current-reference": 212,
     "archive-candidate": 41,
-    "evidence": 57,
+    "evidence": 58,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -3515,6 +3515,13 @@
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
       "rationale": "Current product reference, subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/openclinxr/ecg-cart-cagematch-treatments-table-2026-08-31.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Lane C ECG cart treatment scoreboard and still index; not an instruction surface."
     },
     {
       "path": "docs/openclinxr/exam-scenario-architecture.md",

@@ -15,7 +15,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - archive-candidate: 41
 - current-reference: 212
 - decision-record: 44
-- evidence: 57
+- evidence: 58
 - generated-evidence: 10
 - historical-synthesis: 13
 - protected-policy: 10
@@ -204,6 +204,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `docs/openclinxr/dynamic-session-asset-strategy.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/evidence-index-2026-05-27.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `docs/openclinxr/ecg-cart-4view-optimize-cagematch-plan-2026-08-31.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
+- `docs/openclinxr/ecg-cart-cagematch-treatments-table-2026-08-31.md` - evidence; Lane C ECG cart treatment scoreboard and still index; not an instruction surface.
 - `docs/openclinxr/exam-scenario-architecture.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/external-ai-asset-pipeline-integration-plan.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/garment-license-compatible-source-options-2026-05-27.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
