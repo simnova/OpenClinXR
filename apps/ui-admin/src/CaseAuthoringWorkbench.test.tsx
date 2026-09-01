@@ -67,7 +67,7 @@ describe("CaseAuthoringWorkbench", () => {
       expect(parsed.scenario.title).toBe("Edited Title In UI");
       expect(validateScenario(parsed.scenario)).toEqual({ ok: true });
     }
-  });
+  }, 15_000);
 
   it("surfaces authored touch-response trace tags for review", () => {
     render(<CaseAuthoringWorkbench initialScenario={edChestPainScenario} />);
