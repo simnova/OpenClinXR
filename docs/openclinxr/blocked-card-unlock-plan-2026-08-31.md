@@ -196,9 +196,14 @@ frames.
 
 ```text
 live:tools/openclinxr/evidence/the-speak-fixture-camera-clears-the-near-plane-and-hits-the-head.test.ts
-run:pnpm exec vitest run tools/openclinxr/evidence/the-speak-fixture-camera-clears-the-near-plane-and-hits-the-head.test.ts --reporter=dot
+run:pnpm exec vitest run --root . tools/openclinxr/evidence/the-speak-fixture-camera-clears-the-near-plane-and-hits-the-head.test.ts --reporter=dot
+exists:tools/openclinxr/evidence/speak-fixture-camera-candidate-report.json
 min-bytes:tools/openclinxr/evidence/speak-fixture-camera-candidate-report.json:512
+changed:tools/openclinxr/evidence/the-speak-fixture-camera-clears-the-near-plane-and-hits-the-head.test.ts
 ```
+
+That is the block as PLANTED, five rules. An earlier draft of this section listed three and was
+corrected after audit.
 
 The browser capture stays out of the proof rules. `pnpm local:voice:ui-xr-speak-fixture` launches
 Vite and Chromium behind two 180-second waits and a 30-second bridge wait, samples for several
@@ -215,8 +220,13 @@ camera near, status, first-hit mesh, actor, distance, kind, and rejection reason
 
 There is deliberately no unconditional `changed:`. A `changed:` on the capture producer would
 forbid the honest report-and-stop branch the objective permits. On a successful landing the diff
-carries the producer and the flipped RED; on a no-candidate result the worker writes the report,
-leaves the RED unflipped, and reports blocked.
+carries the producer and the flipped RED.
+
+**This paragraph originally said a no-candidate worker leaves the RED unflipped and reports blocked.
+That was wrong and it contradicted the card body, which said the opposite.** Clause (1) returns early
+on an escape outcome, so all three REDs flip on the stop branch and the card lands green. That is
+what happened. The consequence is recorded in the audit section below: an escape outcome reaches the
+board as `Landed`/`done`, which reads as success for an objective that was not met.
 
 The threshold is the renderer's own `camera.near`, read live per frame rather than copied as a
 constant, which makes it independent of the observed 0.0948 failure. Rest at 0.7252 m against a
@@ -330,12 +340,12 @@ commit that has to land next.
 | # | action | target | D9 station |
 |---|---|---|---|
 | 1 | audit | every worktree named for resume or reap; preserve material changes first | NONE |
-| 2 | author + probe | the successor RED in a clean plant worktree, then **commit it to main** | render |
-| 3 | create, plant, dispatch | the successor card, Idle first so nothing is frozen | render |
+| 2 | author + probe | the successor RED in a clean plant worktree, then **commit it to main** | instrument |
+| 3 | create, plant, dispatch | the successor card, Idle first so nothing is frozen | instrument |
 | 4 | close | `tsk_2c7219bfbba6691e` (defect landed under #638) while the worker runs | NONE |
 | 5 | cancel | `tsk_a7d424f578774db9` (0 executable ui-admin REDs to probe) | NONE |
 | 6 | close | `tsk_7ca4dfcdfb49a622` after item 5 | NONE |
-| 7 | harvest, grade, integrate | the successor; native pixel grade before land | render |
+| 7 | harvest, grade, integrate | the successor; native pixel grade before land | instrument |
 | 8 | close | `tsk_27baa1ed86266d7b` only after item 7 lands; never rewrite its frozen TREE | NONE |
 | 9 | close | `tsk_475bac1eecc4f387` after a final dirty-state audit; reap its worktree | NONE |
 | 10 | rebase then continue | issue 750 from its 275-commit-old base; harvest and integrate, or record report-and-stop | rigging |
@@ -399,3 +409,60 @@ real triangle intersection or a synthesized label, which is exactly what the suc
 which is bounded here from its scripted waits rather than observed; and whether near-plane
 clipping CAUSED the shard pixels in main's still, which needs a controlled same-state capture
 beyond the near plane and is the reason that claim is stated as contamination rather than cause.
+
+
+---
+
+## Audit of the implementation, 2026-08-31 at `ac9c6e34`
+
+An independent OpenAI audit re-ran every claim against the tree and replayed all six destructive
+probes. All six reproduced exactly. Commits `a7d9a1f2`, `08d9ce84` and `0d3aa734` are as described,
+the plant carried 3 executable `it.fails` at `08d9ce84` by the repo's own scanner, and the two
+zero-count facts behind the cancellations hold: 0 executable `it.fails` across all 80 tracked
+`apps/ui-admin` files, 0 in `the-room-camera-lands-in-the-same-place-twice.test.ts`.
+
+Three findings against the implementation, all accepted.
+
+### The contract had a green-without-fix path, and it was taken
+
+Clause (1) returns early on any non-`resolved` outcome, clause (2) accepts zero winners because it
+only bounds `accepted.length <= 1`, clause (3) pins the near plane, and clause (4) checks report
+shape. A worker can therefore reject every candidate, write the escape outcome, flip all three REDs
+and land all five board rules with the camera unfixed. `tsk_b4089f2d0cb08e58` is `Landed`/`done` at
+`151366d0` on exactly that path, `selectedCandidate: null` on all three frames.
+
+The stop branch was deliberate and it should stay. What is wrong is that it reaches the board as
+success. A future escape-carrying contract needs the board state to differ, not only the report.
+
+### The landing is still worth having, and it overturns the known-good column
+
+Every attempt at every offset now hits `mpfb_robert_reference_body_1`, the body mesh, at 0.0002 to
+0.1264 m:
+
+| still | z=0.72 | z=0.45 | z=0.90 |
+|---|---|---|---|
+| rest | 0.0813 | 0.0082 | 0.0384 |
+| speaking-1 | 0.1264 | 0.0002 | 0.0063 |
+| speaking-2 | 0.1084 | 0.0002 | 0.0029 |
+
+This card's `knownGood` named rest at z=0.72 / 0.7252 m against a mouth-cue as the clearing column.
+Under the new `firstHitKind: "triangle"` requirement the same offset measures 0.0813 m against the
+body. **The 0.7252 m mouth-cue reading was the synthesized anchor label, not an intersection**, which
+is what `ui-xr-viseme-drive-capture.ts:752` was predicted to do. The offset list was never the
+defect; the anchor resolution places the camera inside the body at every standoff.
+
+MY GRADE of the regenerated `speak-fixture-speaking-1.png` at native 1280x1280: a flat dark-red
+diagonal plane, the stretcher, fills most of the viewport, with a grey wedge below and a cyan shard
+mass at top centre. No body, no head, no gown. Worse framed than the preserved attempt at
+`a7d9a1f2`. CONSULTED (grok-orchestrator, `cmt_9ad0c944fbcd3bf3`) agrees, and that agent produced
+the artifact it graded, which is why this independent grade exists.
+
+### Items claimed and not done
+
+Items 10, 11, 14 and 15 of the ordered list are outstanding. `wt/issue-750` is still at `26742047`,
+now 286 commits behind. `station-luminance-sweep.json` still stamps `ec5cbd42`. No stamped `--all`
+census exists at the post-batch HEAD, so item 15 has no frontier to select from.
+
+Also outstanding as a judgement call rather than a task: cancelling `tsk_a7d424f578774db9` on a
+zero current-RED count does not settle its historical question, and `tsk_7ca4dfcdfb49a622` reads as
+`cancelled` for a programme that completed.
