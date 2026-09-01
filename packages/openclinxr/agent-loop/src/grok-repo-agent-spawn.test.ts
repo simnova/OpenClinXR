@@ -310,6 +310,17 @@ describe("multimodal spawn routing (operator 2026-08-29: deepseek vision, grok-4
     expect(spec.spawnSubagentCall?.model).toBe("deepseek-v4-flash-vision-exp");
   });
 
+  it("routes visual-realism-adversary with no task to vision-exp (goal panel inherits PNGs)", () => {
+    const spec = buildGrokRepoAgentSpawnSpec({
+      roleId: "visual-realism-adversary",
+      roleDir: "agents/adversarial/visual-realism-adversary",
+      group: "adversarial",
+    });
+    expect(spec.multimodal).toBe(true);
+    expect(spec.model).toBe("deepseek-v4-flash-vision-exp");
+    expect(spec.spawnSubagentCall?.model).toBe("deepseek-v4-flash-vision-exp");
+  });
+
   it("routes a png in files[] to vision-exp even on a text scout role", () => {
     expect(requiresMultimodalReasoning("chief-coordinator", "Scout next slice")).toBe(false);
     expect(
