@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "openclinxr.ecg-cart-g1-pack-a.v1",
+  "subjectId": "ecg-cart",
+  "displayName": "12-lead ECG cart",
+  "seed": 237802,
+  "seedDerivation": "237000 + crc32(\"ecg-cart\") % 1000",
+  "remesh": false,
+  "decimationTarget": 16777216,
+  "decimationTargetNote": "Python argparse default is 300000; G1 must not use that (T8 class). 16777216 is the TRELLIS simplify cap so export is not a 300k cut.",
+  "viewCount": 4,
+  "conditioning": "multi-view",
+  "packRoot": ".openclinxr/evidence/ecg-cart-4view-cagematch/pack-a",
+  "packSource": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-235/.openclinxr/evidence/issue-232/ecg-cart",
+  "views": {
+    "front.png": "447cf984ef498c502ab0dcab202054f0df9982842ae34fd50d3845289711afe3",
+    "side.png": "d82774363ec40397de60d941b157e1a766de19eaaa0a50901e1c025b040a86da",
+    "three_quarter_left.png": "cce078dcc89ba8d1d8f9ade71dae0902f660b9d1cccf6fead950854ed4b7a2e0",
+    "three_quarter_right.png": "f635bf175effb22fcd7cb50be000f807bcba62526b173e964b9c17f12e9f67d7"
+  },
+  "controlRawSha256": "6be8dfda2428742d252971a59b679b0466aa44d99b9f1f20a343e0d16e45c65a",
+  "controlRawTriangles": 973639,
+  "notSubstituted": "midband 974864 / viewCount 4 bake is a different bake (SHA mismatch). Do not use ecg-cart-midband* subjects.",
+  "outputDir": ".openclinxr/evidence/trellis-bake-ecg-cart-g1/ecg-cart",
+  "claimScope": "PACK_A identity and G1 bake knobs for the ECG cart 4-view treatment",
+  "notEvidenceFor": ["quest_readiness", "that the bake already ran", "M1 pixel grade", "hatch remesh"]
+}
