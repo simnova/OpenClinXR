@@ -201,6 +201,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `docs/openclinxr/codex-openclaw-operating-bridge-2026-05-27.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `docs/openclinxr/communication-style-and-emotion-qa.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/emotional-prosody-policy-review-2026-09-02.md` - current-reference; Draft emotional_prosody review named by the voice-gateway gate; subordinate to protected guardrails. Does not by itself enable live TTS.
+- `docs/openclinxr/humanoid-motion-ENTRYPOINT.md` - current-reference; Cold-start entrypoint for the humanoid motion design; read before any motion slice.
 - `docs/openclinxr/humanoid-motion-architecture-brief-2026-09-02.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/humanoid-motion-full-design-2026-09-02.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/motion-dsl-consumer-path-2026-09-02.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
