@@ -386,38 +386,49 @@ export type WardrobeBakeDecision = {
     | "first_bake"
     | "cache_hit"
     | "body_changed"
+    | "recipe_changed"
     | "locked_skip"
     | "locked_stale"
     | "tombstoned"
     | "parent_tombstoned";
 };
 
+/** Planned vs last-stamped wardrobe recipe keys (WCG Q3). Lock/body still win. */
+export type WardrobeBakeCacheKeys = {
+  plannedCacheKey: string;
+  priorCacheKey: string | null;
+};
+
 /**
  * WCG-4 Phase 4 control/treatment: does the wardrobe (BlenderDress) baker have to
  * run for one actor? Mirrors the WCG brief Q3 compile rule restricted to the
  * wardrobe stage:
- *   locked + baked + body unchanged -> locked_skip (NEVER rebake a locked node)
- *   locked + baked + body changed   -> locked_stale (skip bake; faculty relocks)
- *   unlocked + baked + body changed -> body_changed (rebake)
- *   unlocked + baked + body same    -> cache_hit
- *   not baked at all                -> first_bake
- *   node tombstoned                 -> tombstoned (W5: a removed node refuses bake)
- *   parent tombstoned               -> parent_tombstoned (W5: descendant goes stale)
+ *   locked + baked + key same + body unchanged -> locked_skip (NEVER rebake a locked node)
+ *   locked + baked + key or body changed       -> locked_stale (skip bake; faculty relocks)
+ *   unlocked + baked + body changed            -> body_changed (rebake)
+ *   unlocked + baked + key differs + body same -> recipe_changed (rebake; spec/override)
+ *   unlocked + baked + key same + artifact     -> cache_hit
+ *   not baked at all                           -> first_bake
+ *   node tombstoned                            -> tombstoned (W5: a removed node refuses bake)
+ *   parent tombstoned                          -> parent_tombstoned (W5: descendant goes stale)
  *
  * `bodyHashAtWardrobeBake` is the body output hash (artifact hash from the body
  * node's contentHash) the wardrobe was last baked against; `bodyHashNow` is the
  * current body output hash. null/unknown body hash counts as changed (WCG brief
  * dirty rule: "unknown edge = dirty").
  *
- * A lock is not a delete: the compile refuses to tombstone a locked node, so a
- * node that somehow carries BOTH keeps the lock's skip semantics — locked_stale
- * — never a delete.
+ * `cacheKeys` is the compile runner's planned recipe vs the prior node's stamped
+ * `cacheKey`. Omit it (unit tests) to keep the body-hash-only table. A lock is
+ * not a delete: the compile refuses to tombstone a locked node, so a node that
+ * somehow carries BOTH keeps the lock's skip semantics — locked_stale — never a
+ * delete.
  */
 export function planWardrobeBake(
   wardrobe: CompileGraphNode,
   bodyHashAtWardrobeBake: string | null,
   bodyHashNow: string | null,
   parentTombstoned = false,
+  cacheKeys?: WardrobeBakeCacheKeys,
 ): WardrobeBakeDecision {
   if (wardrobe.tombstone) {
     if (wardrobe.lock.locked) return { bake: false, reason: "locked_stale", stale: true };
@@ -430,6 +441,10 @@ export function planWardrobeBake(
   if (!baked) {
     return { bake: true, reason: "first_bake", stale: false };
   }
+  const recipeChanged =
+    cacheKeys !== undefined &&
+    cacheKeys.priorCacheKey !== null &&
+    cacheKeys.priorCacheKey !== cacheKeys.plannedCacheKey;
   if (bodyHashNow === null) {
     // WCG dirty rule: unknown edge = dirty. A body hash we cannot resolve is
     // treated as changed, so a baked unlocked wardrobe rebakes.
@@ -438,10 +453,11 @@ export function planWardrobeBake(
   }
   const bodyChanged = bodyHashAtWardrobeBake !== bodyHashNow;
   if (wardrobe.lock.locked) {
-    if (bodyChanged) return { bake: false, reason: "locked_stale", stale: true };
+    if (bodyChanged || recipeChanged) return { bake: false, reason: "locked_stale", stale: true };
     return { bake: false, reason: "locked_skip", stale: false };
   }
   if (bodyChanged) return { bake: true, reason: "body_changed", stale: false };
+  if (recipeChanged) return { bake: true, reason: "recipe_changed", stale: false };
   return { bake: false, reason: "cache_hit", stale: false };
 }
 

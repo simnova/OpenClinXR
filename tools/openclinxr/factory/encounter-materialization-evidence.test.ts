@@ -300,6 +300,44 @@ describe("encounter materialization evidence", () => {
     expect(decision.reason).toBe("cache_hit");
   });
 
+  it("unlocked + baked + same body + recipe cacheKey change -> recipe_changed", () => {
+    const report = buildEncounterMaterializationEvidenceReport({
+      generatedAt: "2026-05-28T00:00:00.000Z",
+      bundleReport: twoActorBundleFixture(),
+    });
+    const unsplit = emitCompileNodes(report).find((n) => n.nodeId === "actor:patient_maya_johnson_v1")!;
+    const [, wardrobe] = splitCharacterBakers(unsplit);
+    const baked = { ...wardrobe, contentHash: "sha256:wardrobe-baked" };
+    const decision = planWardrobeBake(baked, "sha256:body-A", "sha256:body-A", false, {
+      plannedCacheKey: "key-after-garment-override",
+      priorCacheKey: "key-before-garment-override",
+    });
+    expect(decision.bake).toBe(true);
+    expect(decision.reason).toBe("recipe_changed");
+    expect(decision.stale).toBe(false);
+  });
+
+  it("locked + baked + same body + recipe cacheKey change -> locked_stale, never bake", () => {
+    const report = buildEncounterMaterializationEvidenceReport({
+      generatedAt: "2026-05-28T00:00:00.000Z",
+      bundleReport: twoActorBundleFixture(),
+    });
+    const unsplit = emitCompileNodes(report).find((n) => n.nodeId === "actor:patient_maya_johnson_v1")!;
+    const [, wardrobe] = splitCharacterBakers(unsplit);
+    const locked = {
+      ...wardrobe,
+      contentHash: "sha256:wardrobe-baked",
+      lock: { locked: true, lockKind: "faculty_keep_artifact" as const },
+    };
+    const decision = planWardrobeBake(locked, "sha256:body-A", "sha256:body-A", false, {
+      plannedCacheKey: "key-after-garment-override",
+      priorCacheKey: "key-before-garment-override",
+    });
+    expect(decision.bake).toBe(false);
+    expect(decision.reason).toBe("locked_stale");
+    expect(decision.stale).toBe(true);
+  });
+
   /**
    * W5 (tsk_4100343a0be0b471): delete is a compile event, not a silent array
    * splice. A tombstoned wardrobe refuses to bake and is stale; a wardrobe

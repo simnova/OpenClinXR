@@ -97,6 +97,71 @@ describe("compileEncounterMaterialization", () => {
     expect(wardrobe?.bakeDecision).toMatchObject({ bake: true, reason: "body_changed", stale: false });
   });
 
+  /**
+   * OBSERVABLE (immutable diagnosis): unlocked wardrobe with a baked
+   * contentHash, unchanged body hash, and a faculty `/garmentLayers` override
+   * currently records `cache_hit` / `wouldInvoke: null`. `compileCacheKey`
+   * already hashes spec-after-override; `wouldInvoke` is set from
+   * `planWardrobeBake` which only compares faculty lock + body contentHash.
+   * Measured on main 2e691d4b.
+   *
+   * ## FIXED: compile passes planned vs prior cacheKey into planWardrobeBake;
+   * unlocked spec/override change with the same body hash is recipe_changed
+   * (wouldInvoke blender). Lock skip and same-recipe cache_hit still win.
+   */
+  it("unlocked faculty garment override rebakes when body hash is unchanged", async () => {
+    const first = await compileEncounterMaterialization({ bundleReport: twoActorBundleFixture() });
+    expect(nodeOf(first.report, MAY_WARDROBE)?.wouldInvoke).toBe("blender");
+    expect(nodeOf(first.report, MAY_WARDROBE)?.bakeDecision).toMatchObject({ bake: true, reason: "first_bake" });
+
+    // Faculty override lands on overridePatch while the wardrobe stays unlocked
+    // and baked. Persist/facultyLocks re-emit unsplit nodes (wipe split
+    // contentHash + cacheKey → first_bake); copy the patch onto the prior
+    // split node so the skip table is what is under test.
+    const bakedUnlocked = withNodeState(first.report, {
+      [MAY_BODY]: { contentHash: BODY_A },
+      [MAY_WARDROBE]: {
+        contentHash: WARDROBE_BAKED,
+        overridePatch: {
+          op: "replace",
+          path: "/garmentLayers",
+          value: ["makeclothes_library_scrub_shirt"],
+        },
+      },
+    });
+    const second = await compileEncounterMaterialization({
+      prior: bakedUnlocked,
+      bodyHashNowByNodeId: { [MAY_BODY]: BODY_A },
+    });
+
+    const wardrobe = nodeOf(second.report, MAY_WARDROBE);
+    expect(wardrobe?.lock.locked).toBe(false);
+    expect(wardrobe?.overridePatch).toEqual({
+      op: "replace",
+      path: "/garmentLayers",
+      value: ["makeclothes_library_scrub_shirt"],
+    });
+    expect(wardrobe?.wouldInvoke).toBe("blender");
+    expect(wardrobe?.bakeDecision?.bake).toBe(true);
+    expect(wardrobe?.bakeDecision?.reason).not.toBe("cache_hit");
+    expect(wardrobe?.bakeDecision?.reason).toBe("recipe_changed");
+  });
+
+  it("unlocked wardrobe + baked + unchanged body hash + same recipe -> cache_hit", async () => {
+    const first = await compileEncounterMaterialization({ bundleReport: twoActorBundleFixture() });
+    const bakedUnlocked = withNodeState(first.report, {
+      [MAY_BODY]: { contentHash: BODY_A },
+      [MAY_WARDROBE]: { contentHash: WARDROBE_BAKED },
+    });
+    const second = await compileEncounterMaterialization({
+      prior: bakedUnlocked,
+      bodyHashNowByNodeId: { [MAY_BODY]: BODY_A },
+    });
+    const wardrobe = nodeOf(second.report, MAY_WARDROBE);
+    expect(wardrobe?.wouldInvoke).toBeNull();
+    expect(wardrobe?.bakeDecision).toMatchObject({ bake: false, reason: "cache_hit", stale: false });
+  });
+
   it("dated 2026-05-28 evidence JSON still validates after compile attaches optional fields", async () => {
     const dir = await mkdtemp(path.join(os.tmpdir(), "wcg-compile-"));
     try {
@@ -405,6 +470,30 @@ describe("compileEncounterMaterialization", () => {
     const compileB = await compileEncounterMaterialization({ prior: persistedB, bodyHashNowByNodeId: { [MAY_BODY]: BODY_A } });
     expect(nodeOf(compileB.report, MAY_WARDROBE)?.cacheKey).not.toBe(keyA);
     expect(validateEncounterMaterializationEvidenceReport(compileB.report)).toEqual({ ok: true, errors: [] });
+  });
+
+  it("locked wardrobe + recipe key change does not invoke blender", async () => {
+    const first = await compileEncounterMaterialization({ bundleReport: twoActorBundleFixture() });
+    const lockedOverride = withNodeState(first.report, {
+      [MAY_BODY]: { contentHash: BODY_A },
+      [MAY_WARDROBE]: {
+        contentHash: WARDROBE_BAKED,
+        lock: { locked: true, lockKind: "faculty_keep_artifact" },
+        overridePatch: {
+          op: "replace",
+          path: "/garmentLayers",
+          value: ["makeclothes_library_scrub_shirt"],
+        },
+      },
+    });
+    const result = await compileEncounterMaterialization({
+      prior: lockedOverride,
+      bodyHashNowByNodeId: { [MAY_BODY]: BODY_A },
+    });
+    const wardrobe = nodeOf(result.report, MAY_WARDROBE);
+    expect(wardrobe?.wouldInvoke).toBeNull();
+    expect(wardrobe?.bakeDecision?.bake).toBe(false);
+    expect(wardrobe?.bakeDecision?.reason).toBe("locked_stale");
   });
 
   it("readFacultyCompileLocksFile parses overrideValue from the persisted lock JSON", async () => {

@@ -33,8 +33,9 @@ import { applyStationPayloadToCompileSpec, runDialogueRuntime } from "@openclinx
  * keeps validating and no fourth factory ledger is minted.
  *
  * A compile never claims a baker ran. ActorVariant nodes are split into
- * body + wardrobe bakers; each wardrobe gets a `planWardrobeBake` decision.
- * Bake => wardrobe records `wouldInvoke: "blender"`; EquipVariant with a valid
+ * body + wardrobe bakers; each wardrobe gets a `planWardrobeBake` decision
+ * from planned vs prior `cacheKey` plus lock/tombstone/body hash. Bake =>
+ * wardrobe records `wouldInvoke: "blender"`; EquipVariant with a valid
  * equipment_generate payload records `wouldInvoke: "trellis"`. Skip (lock /
  * cache / no bake) => skippedBakers and wouldInvoke stays null.
  *
@@ -87,6 +88,27 @@ function recipeKeyFor(node: CompileGraphNode, parentOutputHashes: string[]): str
     parentOutputHashes,
     seed: node.spec.scenarioId ?? node.spec.actorId ?? "",
   });
+}
+
+/**
+ * Planned vs prior cacheKey for skip: same spec/override must not look like a
+ * recipe change just because a later compile injects a known body contentHash
+ * into parentOutputHashes (first bake stamped empty parents). Body identity
+ * stays the bodyHash comparison; this only asks whether spec-after-override
+ * (or baker/seed) changed.
+ */
+function skipComparableCacheKey(
+  node: CompileGraphNode,
+  parentOutputHashes: string[],
+  priorCacheKey: string | null,
+): string {
+  const planned = recipeKeyFor(node, parentOutputHashes);
+  if (priorCacheKey == null) return planned;
+  if (planned === priorCacheKey) return planned;
+  if (parentOutputHashes.length > 0 && recipeKeyFor(node, []) === priorCacheKey) {
+    return priorCacheKey;
+  }
+  return planned;
 }
 
 /**
@@ -251,16 +273,24 @@ export async function compileEncounterMaterialization(
       // A tombstoned body refuses its descendants: the wardrobe cannot bake
       // against a deleted parent (parent_tombstoned), never a silent rebake.
       const bodyTombstoned = finalBody.tombstone !== undefined;
+      // Skip-capable bakers stamp a recipe cacheKey from their inputs (spec
+      // after overridePatch + parent OUTPUT hashes + seed), never from a prior
+      // cacheKey or a lock. Stamped whether or not this compile invokes the baker.
+      const bodyOutputHash = resolveContentHash(finalBody, opts);
+      const parentHashes = bodyOutputHash ? [bodyOutputHash] : [];
+      const plannedCacheKey = recipeKeyFor(finalWardrobe, parentHashes);
+      const priorWardrobe = priorNodes.find((p) => p.nodeId === finalWardrobe.nodeId);
+      const priorCacheKey = priorWardrobe?.cacheKey ?? null;
       const decision = planWardrobeBake(
         { ...finalWardrobe, contentHash: wardrobeHashNow },
         bodyHashAtWardrobeBake,
         bodyHashNow,
         bodyTombstoned,
+        {
+          plannedCacheKey: skipComparableCacheKey(finalWardrobe, parentHashes, priorCacheKey),
+          priorCacheKey,
+        },
       );
-      // Skip-capable bakers stamp a recipe cacheKey from their inputs (spec
-      // after overridePatch + parent OUTPUT hashes + seed), never from a prior
-      // cacheKey or a lock. Stamped whether or not this compile invokes the baker.
-      const bodyOutputHash = resolveContentHash(finalBody, opts);
       plannedNodes.push({
         ...finalBody,
         contentHash: bodyOutputHash,
@@ -270,7 +300,7 @@ export async function compileEncounterMaterialization(
       plannedNodes.push({
         ...finalWardrobe,
         contentHash: wardrobeHashNow,
-        cacheKey: recipeKeyFor(finalWardrobe, bodyOutputHash ? [bodyOutputHash] : []),
+        cacheKey: plannedCacheKey,
         wouldInvoke: decision.bake ? "blender" : null,
         bakeDecision: decision,
       });
