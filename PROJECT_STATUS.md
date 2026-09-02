@@ -14,24 +14,17 @@ parseable_sections: 6
 <!-- WAKE-BLUF:BEGIN -->
 ## WAKE BLUF - replace this block every wake, never append
 
-**2026-08-29 | main `57e21fe8` | Grok orchestrator | BothyBoard dequeue SSOT**
-
-**IN FLIGHT**
-- `tsk_f2a2d82ae178c8d1` world compile plan invokes planned bakers (ac086a70).
-- Lane A luminance `tsk_9977` / `tsk_2c72` — do not land a floor flip. Stroke black frame residual.
-
-**LANDED this wake**
-- World compile production caller `dc06c18a` (`b9dedaf4`): dark-factory `world_compile` station.
-- World-config form + shell facts, emotionPolicy, viseme_aa, ED aspect, MPFB elbow, gown 73→0, Anny→MPFB remap, toigo_flats drop, D9 fixture-first seam.
+**2026-09-02 | main `3e360aad` | Grok orchestrator | Muse Spark cheapest LLM rung**
 
 **BLOCKED**
-- `tsk_27ba` PIXEL GRADE speaking stills. `#643` owner grades. Skip Tara. Skip phenotype authoring.
+- Live Muse completions HTTP 403 until operator confirms 18+ at https://openrouter.ai/settings/preferences. Actor-dialogue failovers to DeepSeek Flash direct. Workers stay on flash until a probe returns 200.
 
-**NEXT this wake:** queue sizable WCG verticals (faculty Compile-this-case, lock-skip baker). Push main to origin. Skip 27ba.
+**LANDED this wake**
+- `3e360aad` `meta/muse-spark-1.3-contributor` first actor-dialogue rung when `OPENROUTER_API_KEY` is set. Verified cheaper than Flash **direct** official off-peak ($0.10/$0.20 vs $0.22/$0.66). Alias in `~/.grok/config.toml`. `[subagents.models]` unchanged.
 
-SWEEP: reds=25 oldest (#37) workers=1-2/3 bothy=tsk_f2a2
+**NEXT this wake:** operator 18+ attestation, then re-probe Muse. Do not default workers until 200.
 
-NOT TESTED: live Blender from wouldInvoke; 27ba recapture.
+NOT TESTED: live Muse completion (403).
 <!-- WAKE-BLUF:END -->
 
 **OPERATOR MODEL LADDERS (2026-08-27) — CODIFIED in the `model-routing` skill**
