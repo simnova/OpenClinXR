@@ -60,6 +60,21 @@ describe("the world compile plan invokes planned bakers", () => {
     expect(src).not.toContain("FacultyReviewDecisionPanel");
   });
 
+  it("(3b) runWorldCompileStage stamps generation plan recipeCacheKeys from compileResult", () => {
+    const src = readFileSync(RUNNER, "utf8");
+    const stageStart = src.indexOf("async function runWorldCompileStage");
+    const stageEnd = src.indexOf("/* Chain assembly");
+    expect(stageStart).toBeGreaterThan(0);
+    expect(stageEnd).toBeGreaterThan(stageStart);
+    const stage = src.slice(stageStart, stageEnd);
+    const compileAt = stage.indexOf("compileEncounterMaterialization({");
+    const queueAt = stage.indexOf("buildEncounterAssetGenerationQueueReport");
+    const stampAt = stage.indexOf("compileResult: result");
+    expect(compileAt).toBeGreaterThan(0);
+    expect(queueAt).toBeGreaterThan(compileAt);
+    expect(stampAt).toBeGreaterThan(queueAt);
+  });
+
   it("(4) invokes the fake baker runner for wouldInvoke === 'blender' nodes only (lock skip stays)", async () => {
     const calls: WorldCompileBakerRunnerInput[] = [];
     const fakeRunner: WorldCompileBakerRunner = (input) => {

@@ -25,6 +25,8 @@ import {
   validateDynamicEncounterFactoryProjectionArtifact,
 } from "../../../packages/openclinxr/shared-schemas/src/index.js";
 import { globFiles, readJson, writeJson } from "../../agent-factory/lib.js";
+import type { CompileGraphNode } from "./encounter-materialization-evidence.js";
+import { recipeCacheKeysFromCompileNodes } from "./recipe-cache-keys-from-compile.js";
 
 type CliOptions = {
   outputPath?: string;
@@ -244,6 +246,8 @@ export function buildEncounterAssetGenerationQueueReport(input: {
   generatedAt?: string;
   request?: EncounterExecutableAssetGenerationRequest;
   projectionArtifact?: DynamicEncounterFactoryProjectionArtifact;
+  /** When set, production path stamps compile node cacheKeys onto recipeCacheKeys. */
+  compileResult?: { report: { compileNodes?: CompileGraphNode[] } };
 } = {}): EncounterAssetGenerationQueueReport {
   const generatedAt = input.generatedAt ?? new Date().toISOString();
   const projectionArtifact = input.projectionArtifact;
@@ -261,13 +265,16 @@ export function buildEncounterAssetGenerationQueueReport(input: {
   const encounterFactoryInputSummary = factorySelectionSummary && caseDefinedHumanoidPerformanceContract
     ? { ...factorySelectionSummary, humanoidPerformanceContract: caseDefinedHumanoidPerformanceContract }
     : factorySelectionSummary;
-  const request = input.request
+  const baseRequest = input.request
     ? input.request
     : buildEncounterAssetGenerationRequestForScenario(
         projectionArtifact?.nextFactoryPlanningScenarioId ?? projectionArtifact?.anchorScenarioId ?? "ed_chest_pain_priority_v1",
         scenarioFromArtifact,
         encounterFactoryInputSummary,
       );
+  const request = input.compileResult
+    ? stampRecipeCacheKeysOnRequest(baseRequest, input.compileResult.report.compileNodes ?? [])
+    : baseRequest;
   const scenarioFixture = findScenarioFixtureById(request.scenarioId, scenarioFromArtifact ? [scenarioFromArtifact] : undefined);
   const encounterAssetNeedsReadinessManifest = scenarioFixture
     ? buildEncounterAssetNeedsReadinessManifest(scenarioFixture)
@@ -1206,6 +1213,41 @@ export function sha256ContentHashOfArtifactAt(sourcePath: string): string | null
   } catch {
     return null;
   }
+}
+
+/**
+ * Production compile → generation request: stamps recipeCacheKeys from compiled
+ * node cacheKeys. Tests must call this (or queue report with compileResult),
+ * never assemble the map by hand. Omit compile nodes → semantic lookupKey.
+ */
+export function buildEncounterAssetGenerationRequestFromCompile(
+  scenarioId: string,
+  compileResult: { report: { compileNodes?: CompileGraphNode[] } },
+  scenario?: Scenario,
+  encounterFactoryInputSummary?: EncounterExecutableAssetGenerationRequest["encounterFactoryInputSummary"],
+  options?: { encounterDefinitionSourcePath?: string },
+): EncounterExecutableAssetGenerationRequest {
+  return stampRecipeCacheKeysOnRequest(
+    buildEncounterAssetGenerationRequestForScenario(
+      scenarioId,
+      scenario,
+      encounterFactoryInputSummary,
+      options,
+    ),
+    compileResult.report.compileNodes ?? [],
+  );
+}
+
+export function stampRecipeCacheKeysOnRequest(
+  request: EncounterExecutableAssetGenerationRequest,
+  nodes: readonly CompileGraphNode[],
+): EncounterExecutableAssetGenerationRequest {
+  const recipeCacheKeys = recipeCacheKeysFromCompileNodes(nodes);
+  if (Object.keys(recipeCacheKeys).length === 0) return request;
+  return {
+    ...request,
+    recipeCacheKeys: { ...request.recipeCacheKeys, ...recipeCacheKeys },
+  };
 }
 
 export function buildEncounterAssetGenerationRequestForScenario(

@@ -68,6 +68,10 @@ import {
   compileEncounterMaterialization,
   type CompilePlanNode,
 } from "../factory/encounter-materialization-compile.js";
+import {
+  buildEncounterAssetGenerationQueueReport,
+  buildEncounterAssetGenerationRequestForScenario,
+} from "../factory/encounter-asset-generation-queue.js";
 import * as plannedBakers from "../factory/invoke-planned-world-compile-bakers.js";
 import { equipmentGeneratePayloadFromSpec } from "../factory/plan-equipment-would-invoke.js";
 import {
@@ -1177,6 +1181,15 @@ async function runWorldCompileStage(
     );
     const invocationReportPath = path.join(stageDir, "planned-baker-invocations.json");
     await writeFile(invocationReportPath, `${JSON.stringify(invocationReport, null, 2)}\n`, "utf8");
+    const assetGenerationQueueReport = buildEncounterAssetGenerationQueueReport({
+      request: buildEncounterAssetGenerationRequestForScenario(caseId),
+      compileResult: result,
+    });
+    await writeFile(
+      path.join(stageDir, "asset-generation-queue.json"),
+      `${JSON.stringify(assetGenerationQueueReport, null, 2)}\n`,
+      "utf8",
+    );
     const invocationArtifacts: string[] = [relStage(stageDir, "planned-baker-invocations.json")];
     for (const dir of [invocationOutDir, bakeOutDir]) {
       try {
@@ -1213,6 +1226,7 @@ async function runWorldCompileStage(
       row: makeRow("world_compile", "deterministic", [
         relStage(stageDir, "compiled-evidence.json"),
         relStage(stageDir, "world-compile-station.json"),
+        relStage(stageDir, "asset-generation-queue.json"),
         ...invocationArtifacts,
       ], [
         `RAN compileEncounterMaterialization for ${caseId} (prior ${path.basename(priorPath)}): compileVersion ${result.compileVersion}, ${plannerNodes.length} compile node(s), ${result.skippedBakers.length} wardrobe baker(s) skipped, ${plannerNodes.filter((n) => n.wouldInvoke === "blender").length} node(s) plan blender. invokePlannedWorldCompileBakers executed the plan: ${invocationReport.invokedCount} planned bake(s) invoked, ${invocationReport.skippedCount} skipped (lock/cache/stale), ${invocationReport.failedCount} failed — see planned-baker-invocations.json.`,

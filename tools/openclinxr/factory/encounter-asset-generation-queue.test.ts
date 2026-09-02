@@ -12,6 +12,7 @@ import { compileEncounterMaterialization } from "./encounter-materialization-com
 import {
   buildEncounterAssetGenerationQueueReport,
   buildEncounterAssetGenerationRequestForScenario,
+  buildEncounterAssetGenerationRequestFromCompile,
   runEncounterAssetGenerationQueueCli,
   sha256ContentHashOfArtifactAt,
   validateEncounterAssetGenerationQueueReport,
@@ -864,6 +865,65 @@ describe("encounter asset generation queue report", () => {
     expect(equipment?.sharedAssetLibraryReuse.sharedLibraryRefs.blobPrefix).toContain(
       `shared-encounter-assets/${cacheKey}/`,
     );
+  });
+
+  /**
+   * OBSERVABLE (immutable diagnosis): the production request builder
+   * (`buildEncounterAssetGenerationRequestFromCompile` / queue report
+   * `compileResult`) still emits the semantic join lookupKey. Tests that
+   * spread `{ ...request, recipeCacheKeys }` assemble the map by hand.
+   * Measured after 58231d80.
+   *
+   * Diagnosis header IMMUTABLE. Flip it.fails → it and append ## FIXED.
+   *
+   * ## FIXED: buildEncounterAssetGenerationRequestFromCompile and queue report
+   * compileResult stamp recipeCacheKeys from compile nodes (EquipVariant →
+   * medical_equipment_glb). Omit compileResult keeps the semantic join.
+   */
+  it("production compile-then-plan stamps recipeCacheKeys without a hand-built map", async () => {
+    const compiled = await compileEncounterMaterialization({
+      bundleReport: imagineBoxBundleForSharedLibrary(),
+      stationPayloads: {
+        equipment_generate: {
+          subjectId: "ecg-cart-imagine-box",
+          packId: "ecg-cart-imagine-box",
+          seed: 7,
+          remesh: false,
+          viewCount: 4,
+          decimationTarget: 1_000_000,
+        },
+      },
+    });
+    const equip = (compiled.report.compileNodes ?? []).find((node) => node.family === "EquipVariant");
+    expect(equip?.cacheKey).toMatch(/^[a-f0-9]{64}$/);
+    const cacheKey = equip?.cacheKey as string;
+
+    const request = buildEncounterAssetGenerationRequestFromCompile(
+      "peds_asthma_parent_anxiety_v1",
+      compiled,
+    );
+    expect(request.recipeCacheKeys?.medical_equipment_glb).toBe(cacheKey);
+
+    const report = buildEncounterAssetGenerationQueueReport({
+      request: buildEncounterAssetGenerationRequestForScenario("peds_asthma_parent_anxiety_v1"),
+      compileResult: compiled,
+    });
+    const equipment = report.plan.generationWorkOrders.find(
+      (workOrder) => workOrder.targetKind === "medical_equipment_glb",
+    );
+    expect(equipment?.sharedAssetLibraryReuse.lookupKey).toBe(cacheKey);
+    expect(equipment?.sharedAssetLibraryReuse.sharedLibraryRefs.blobPrefix).toContain(
+      `shared-encounter-assets/${cacheKey}/`,
+    );
+
+    const omitted = buildEncounterAssetGenerationQueueReport({
+      request: buildEncounterAssetGenerationRequestForScenario("peds_asthma_parent_anxiety_v1"),
+    });
+    const omittedEquip = omitted.plan.generationWorkOrders.find(
+      (workOrder) => workOrder.targetKind === "medical_equipment_glb",
+    );
+    expect(omittedEquip?.sharedAssetLibraryReuse.lookupKey).not.toMatch(/^[a-f0-9]{64}$/);
+    expect(omittedEquip?.sharedAssetLibraryReuse.lookupKey).toContain("medical_equipment_glb");
   });
 });
 
