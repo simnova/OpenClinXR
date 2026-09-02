@@ -37,6 +37,7 @@ export const nodeConfig = mergeConfig(
           "**/dist/**",
           "**/deploy/**",
           "node_modules/**",
+          "src/archunit-tests/**",
         ],
       },
     },

@@ -1,5 +1,10 @@
 # @cellix/config-vitest Changelog
 
+## 1.0.0-openclinxr.2 - 2026-09-02
+
+- Refreshed from CellixJS `adf3bc9deb`: ArchUnit paths excluded from default typecheck-during-test and coverage, matching upstream `node.config.ts` / `base.config.ts`.
+- Still local: worktree exclude list (Vitest ignores `.gitignore`); `typecheck.enabled: false` (packages typecheck via `tsgo`); coverage provider `v8` (this workspace does not install istanbul); Storybook stays an optional factory.
+
 ## 1.0.0-openclinxr.1 - 2026-08-31
 
 - Ported CellixJS `archConfig` and the per-package `mergeConfig(nodeConfig, …)` consumer pattern.

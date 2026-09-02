@@ -1,5 +1,11 @@
 # @cellix/config-typescript Changelog
 
+## 1.0.3-openclinxr.3 - 2026-09-02
+
+- Refreshed from CellixJS `adf3bc9deb` (2026-08-27, `CellixJs/cellixjs` main): `${configDir}` test excludes, `lib: ES2023`, NodeNext `nodenext` resolution, standalone vitest tsconfig.
+- Still omitted from upstream: `ts-scope-trimmer-plugin` (not installed here); `allowImportingTsExtensions` / `rewriteRelativeImportExtensions` / `verbatimModuleSyntax` / `erasableSyntaxOnly` (this workspace emits `.js` specifiers); `noUnusedLocals` / `noUnusedParameters` / `skipLibCheck: false` (would fail the current tree).
+- `tsconfig.node.json` still sets `noEmit: false` for composite emit (`TS6310`).
+
 ## 1.0.3-openclinxr.2 - 2026-08-31
 
 - `tsconfig.node.json` sets `noEmit: false` so composite project references can emit (`TS6310`). Typecheck scripts still pass `--noEmit`. Source-first packages keep `noEmit: true` locally.

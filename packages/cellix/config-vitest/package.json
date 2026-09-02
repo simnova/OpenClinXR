@@ -1,6 +1,6 @@
 {
   "name": "@cellix/config-vitest",
-  "version": "1.0.0-openclinxr.0",
+  "version": "1.0.0-openclinxr.2",
   "private": true,
   "type": "module",
   "main": "./src/index.ts",

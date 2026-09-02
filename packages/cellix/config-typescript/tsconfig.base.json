@@ -1,8 +1,15 @@
 {
+  "exclude": [
+    "${configDir}/**/*.test.ts",
+    "${configDir}/**/*.spec.ts",
+    "${configDir}/**/*.test.tsx",
+    "${configDir}/**/*.spec.tsx"
+  ],
   "compilerOptions": {
     "target": "ES2022",
+    "lib": ["ES2023"],
     "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "moduleResolution": "nodenext",
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,

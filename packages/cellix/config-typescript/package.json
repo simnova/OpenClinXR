@@ -1,6 +1,6 @@
 {
   "name": "@cellix/config-typescript",
-  "version": "1.0.3-openclinxr.0",
+  "version": "1.0.3-openclinxr.3",
   "private": true,
   "main": "./tsconfig.base.json",
   "files": [
