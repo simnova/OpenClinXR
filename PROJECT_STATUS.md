@@ -766,6 +766,7 @@ Blueprint-driven encounter factory. Sizable collaborative vertical slices only (
 1. **Arena physics realbind epic (COMPLETED 2026-08-02)** — MADR 0030 PROVEN local; dual evidence; `runtimePromotionAllowed` human-only. Spec closed: realbind brief.
 2. Peds/ED real-garment factory + UI-XR evidence (Q1/Q5) — **parked**; no further garment thrash without BOD.
 3. Encounter authoring + review packet / durableStore / admin replay (Q1/Q4) — **batch closed enough**.
+3b. **Runtime dialogue + affect + voice (Q1/Q4/Q5) — ACTIVE.** Sequence owner: `docs/openclinxr/runtime-dialogue-voice-affect-direction-2026-09-02.md`. Bothy Idle parent `tsk_97c2be2ae2b473b9` (do not plant). Wave 1 children `tsk_680905aad2650f26` `tsk_c9ea045ef5887d06` `tsk_0bc6a60304a99349` `tsk_233dce8c01df15c5` are Idle until REDs land on main; those four write roots are disjoint.
 
 **Procedural-factory north star (operator, 2026-08-07):** *"The challenge we're trying to solve is how
 far we can procedurally develop the factory before needing LLMs to step in and get involved. Goal is to
@@ -1898,3 +1899,48 @@ changes exported mesh dimensions; that is what `#576` is dispatched to find out.
 **Next queued slice.** `#576` return -> `contract-verify-cli --slice issue-576` -> integrate -> pixel
 grade the rebaked parent. Then `#603` (38 of 42 shipped actors carry no numeric phenotype, so `#601`'s
 landed resolver has nothing to read).
+
+## 2026-09-02 checkpoint — runtime dialogue/voice/affect direction
+
+Operator asked for a multi-turn Codex + Grok 4.6 analysis and at least one driving markdown. Runtime LLM language (DeepSeek) and Grok voice APIs are in scope; D9 factory stays deterministic.
+
+**OUTCOME.** Two current-reference docs:
+
+- `docs/openclinxr/runtime-dialogue-voice-affect-direction-2026-09-02.md` — stack, wired vs decorative, 7-slice sequence, cost, HIPAA/BAA residual.
+- `docs/openclinxr/emotional-prosody-policy-review-2026-09-02.md` — the named review the `emotional_prosody` gate has been missing. Draft only; gate stays fail-closed until a later slice binds hash/expiry/voice ids.
+
+**Stack.** learner event → hidden-fact guard → EmotionEngine → DeepSeek `{spokenText}` → `ActorTurnPlan` → deterministic tag mapper → Grok `wss://api.x.ai/v1/tts` (actor) + `wss://api.x.ai/v1/stt` (learner). Grok S2S is not the SP brain. LLM does not emit `[cry]` / `<whisper>`.
+
+**Consults.** Codex `gpt-5.6-sol` session `01a0630b-7275-7582-86fd-a37417ed837b`. Grok 4.6 research `01a0630b-7128-7200-a636-e44c55c3939e`.
+
+**Product path advanced.** Q1/Q4 sequencing for conversation tooling; Q5 later (audible/visible same plan). Not a live TTS landing.
+
+**Risk that remains.** Five independent affect choosers still exist in code. Docs do not enable Grok credentials or flip the always-blocked gate.
+
+**Next queued slice.** ActorTurnPlan contract (slice 1 in the direction doc).
+
+## 2026-09-02 checkpoint — merge accepted dialogue/voice amendments
+
+Operator asked to update as recommended after review of `/Users/patrick/Downloads/runtime-dialogue-voice-direction-response-2026-09-02.md`.
+
+**OUTCOME.** Sequence owner updated. Three corrections applied: DeepSeek peak stays Mon–Fri; `$15/1M` TTS kept (`$4.20` was not in the landed file); slice 1 `done_when` is types + plan/execution split only.
+
+- `docs/openclinxr/runtime-dialogue-voice-affect-direction-2026-09-02.md` — merged architecture (classifier, dual affect, plan after mapper, `ActorTurnExecution`, live vs Rhubarb, thinking payload, authored fallback).
+- `docs/openclinxr/runtime-dialogue-voice-direction-response-2026-09-02.md` — rationale only; does not win over the direction.
+- `docs/openclinxr/emotional-prosody-policy-review-2026-09-02.md` — dual affect, no nested `<slow><soft>`, barge-in on execution.
+
+**Product path advanced.** Q1/Q4 sequencing tightened. Gate still fail-closed. Not a live TTS landing.
+
+**Risk that remains.** Code still has five independent affect choosers. `learner_unclassified` is not in `EmotionEventKindSchema` yet.
+
+**Next queued slice.** Direction slice 1: `ActorTurnPlan` + `ActorTurnExecution` + `DialogueEmotion` / `SomaticEmotion` types.
+
+## 2026-09-02 checkpoint — DVA Bothy hybrid cards
+
+Incorporated the dialogue/voice/affect direction into BothyBoard as Idle parent plus nine children. Architecture stays in the markdown. Cards carry TREE only. `parentId` attached (verified `tasks.get`).
+
+Wave 1 (four disjoint packages, plant after RED on main): DVA-1 types, DVA-2 DeepSeek, DVA-3 voice blockers, DVA-4 lip_sync wav.
+
+Do not plant the parent. Do not plant children until each `live:` test is on main.
+
+**Next queued slice.** Commit DVA-1..4 REDs on main, then `tasks.plant` those four.

@@ -23,7 +23,8 @@
     "typescript": "catalog:",
     "vitest": "catalog:",
     "@cellix/config-vitest": "workspace:*",
-    "@cellix/config-typescript": "workspace:*"
+    "@cellix/config-typescript": "workspace:*",
+    "@openclinxr/capability-gateway": "workspace:*"
   },
   "files": [
     "dist"
