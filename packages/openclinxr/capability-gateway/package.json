@@ -18,7 +18,6 @@
   },
   "dependencies": {
     "@azure/storage-queue": "^12.29.0",
-    "@openclinxr/shared-schemas": "workspace:*",
     "@cellix/provider-contracts": "workspace:*"
   },
   "devDependencies": {

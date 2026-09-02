@@ -2,19 +2,15 @@
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "entry": [
     "package.json",
-    "tools/openclinxr/evidence/derive-garment-fit-transform.mjs",
-    "tools/openclinxr/evidence/garment-archetype-evidence.mjs",
-    "tools/openclinxr/evidence/garment-cache-index.mjs",
-    "tools/openclinxr/evidence/garment-hundred-slice-runner.mjs",
-    "tools/openclinxr/evidence/garment-ingest-and-fit.mjs",
-    "tools/openclinxr/evidence/garment-promotion-gate.mjs",
-    "tools/openclinxr/evidence/garment-provider-gate.mjs",
-    "tools/openclinxr/evidence/garment-work-order.mjs",
-    "tools/openclinxr/evidence/humanoid-source-closeup-comparator.mjs",
-    "tools/openclinxr/evidence/materialize-ob-humanoid-source-variants.ts",
-    "tools/openclinxr/evidence/strip-humanoid-primitive-proxies.ts",
-    "tools/openclinxr/evidence/anny-skin-texture-cagematch-manifest.ts",
-    "tools/openclinxr/asset-pipeline/anny/optimize_glb_meshopt.mjs"
+    "tools/**/*.{ts,tsx,js,jsx,mjs,cjs,mts,cts}",
+    "apps/**/src/{main,index}.{ts,tsx}",
+    "apps/**/src/*-shot-main.tsx",
+    "apps/**/src/*-measure.ts",
+    "apps/**/src/isolated-*.ts",
+    "apps/**/scripts/**/*.{ts,mjs,cjs}",
+    "packages/**/src/cli/**/*.{ts,mts,mjs}",
+    "**/vitest.config.ts",
+    "**/vitest.arch.config.ts"
   ],
   "project": [
     "vitest.config.ts",
@@ -22,16 +18,33 @@
     "packages/**/*.{ts,tsx,js,jsx,mjs,cjs}",
     "tools/**/*.{ts,tsx,js,jsx,mjs,cjs}"
   ],
+  "ignore": [
+    ".claude/**",
+    "**/generated/**",
+    "**/dist/**",
+    "apps/api/scripts/**",
+    "apps/ui-admin/src/*-shot-main.tsx",
+    "apps/ui-xr/src/articulating-hob-measure.ts",
+    "apps/ui-xr/src/isolated-*.ts",
+    "packages/openclinxr/arena/physics-touch-contract/src/cli/**",
+    "packages/openclinxr/asset-registry/src/resolved-phenotype-field.ts",
+    "packages/openclinxr/motion-compiler/src/derive-skeleton-profile.ts",
+    "packages/openclinxr/motion-compiler/src/regions/region-anchors.ts",
+    "packages/openclinxr/review-workflow/src/planted.ts"
+  ],
   "ignoreDependencies": [
     "@gltf-transform/cli",
     "@gltf-transform/extensions",
     "@gltf-transform/functions",
+    "@iwsdk/scene-composition",
     "@knip/language-server",
     "@pmndrs/uikit",
+    "@vitest/coverage-v8",
     "archunit",
     "gltf-pipeline",
     "gltfpack",
     "pyright",
+    "sharp",
     "typescript-language-server"
   ],
   "ignoreBinaries": [
@@ -40,6 +53,21 @@
     "gh",
     "python3"
   ],
+  "rules": {
+    "files": "error",
+    "dependencies": "error",
+    "unlisted": "error",
+    "unresolved": "error",
+    "binaries": "error",
+    "duplicates": "error",
+    "catalog": "off",
+    "exports": "off",
+    "nsExports": "off",
+    "types": "off",
+    "nsTypes": "off",
+    "enumMembers": "off",
+    "namespaceMembers": "off"
+  },
   "ignoreIssues": {
     "apps/ui-admin/src/EnvironmentGenerationQueuePanel.tsx": ["types"],
     "apps/ui-admin/src/FacultyReviewDecisionPanel.tsx": ["types"],
@@ -53,6 +81,8 @@
     "apps/arena/ui-xr-iwsdk-spike/src/uikitml-spatial-text.ts": ["types"],
     "apps/ui-xr/src/api-client.ts": ["types"],
     "packages/openclinxr/shared-schemas/src/schemas.ts": ["duplicates", "exports", "types"],
+    "packages/cellix/provider-contracts/src/index.ts": ["duplicates"],
+    "packages/openclinxr/motion-compiler/package.json": ["dependencies"],
     "packages/openclinxr/test-harness/src/benchmark-report.ts": ["types"],
     "tools/agent-factory/agent-loop-plan.ts": ["types"],
     "tools/agent-factory/agent-roster.ts": ["types"],

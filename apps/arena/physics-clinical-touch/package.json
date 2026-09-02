@@ -10,7 +10,6 @@
     "test": "vitest run --root . --passWithNoTests"
   },
   "dependencies": {
-    "@dimforge/rapier3d-compat": "^0.19.3",
     "@openclinxr/physics-touch-contract": "workspace:*"
   },
   "devDependencies": {

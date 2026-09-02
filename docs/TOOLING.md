@@ -87,7 +87,7 @@ Pins: `typescript-language-server`, `pyright` in root `devDependencies` (require
 
 ```bash
 pnpm hygiene:lsp          # structural + extension-collision + live tsls hover smoke
-pnpm hygiene:knip         # CLI knip gate (CI-style report; not Grok LSP)
+pnpm hygiene:knip         # fail-closed unused files/deps (pre-commit); unused exports: pnpm hygiene:knip:exports
 pnpm env:doctor           # includes LSP bin checks
 ```
 

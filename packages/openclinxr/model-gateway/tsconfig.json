@@ -23,9 +23,6 @@
     },
     {
       "path": "../scenario-fixtures"
-    },
-    {
-      "path": "../shared-schemas"
     }
   ]
 }

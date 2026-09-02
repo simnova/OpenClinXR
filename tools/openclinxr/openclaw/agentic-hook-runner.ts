@@ -141,6 +141,36 @@ export function biomeStagedFiles(changedFiles: string[]): string[] {
   return changedFiles.filter((file) => BIOME_STAGED_FILE.test(file) && !BIOME_STAGED_SKIP.test(file));
 }
 
+const KNIP_RELEVANT_PATH = /^(?:apps|packages|tools)\//u;
+const KNIP_MANIFEST_PATH =
+  /^(?:knip\.json|package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|apps\/.+\/package\.json|packages\/.+\/package\.json)$/u;
+const E18E_MANIFEST_PATH =
+  /^(?:package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|apps\/.+\/package\.json|packages\/.+\/package\.json)$/u;
+
+/** Knip is whole-repo; skip coordination-only commits the way biome skips non-source paths. */
+export function buildKnipStep(changedFiles: string[]): HookStep | null {
+  if (!changedFiles.some((file) => KNIP_RELEVANT_PATH.test(file) || KNIP_MANIFEST_PATH.test(file))) {
+    return null;
+  }
+  return {
+    label: "Knip check",
+    command: pnpm("hygiene:knip"),
+    reason: "unused files, unlisted imports, and unused dependencies fail closed (unused exports stay advisory)",
+  };
+}
+
+/** e18e packs the install graph; only run when a manifest/lockfile is in the staged set. */
+export function buildE18eStep(changedFiles: string[]): HookStep | null {
+  if (!changedFiles.some((file) => E18E_MANIFEST_PATH.test(file))) {
+    return null;
+  }
+  return {
+    label: "E18e analyze",
+    command: pnpm("hygiene:e18e:analyze"),
+    reason: "dependency-hygiene errors fail closed when package manifests or the lockfile change",
+  };
+}
+
 export function buildBiomeStep(changedFiles: string[]): HookStep | null {
   const files = biomeStagedFiles(changedFiles);
   if (files.length === 0) return null;
@@ -332,6 +362,18 @@ function buildPathAwareSteps(profile: HookProfile, changedFiles: string[]): Hook
     steps.push(biomeStep);
   }
 
+  const knipStep = buildKnipStep(changedFiles);
+  if (knipStep) {
+    steps.push(knipStep);
+  }
+
+  if (profile === "pre-push") {
+    const e18eStep = buildE18eStep(changedFiles);
+    if (e18eStep) {
+      steps.push(e18eStep);
+    }
+  }
+
   if (publicAssetChanged || process.env.OPENCLINXR_HOOK_PUBLIC_ASSETS === "1") {
     steps.push({
       label: "Public site validation",
@@ -402,7 +444,7 @@ export function stepsForProfile(profile: HookProfile, changedFiles?: string[]): 
         reason: "audit results stay inside the repo policy boundary",
       },
       { label: "License policy", command: pnpm("security:licenses"), reason: "dependency licenses stay inside approved boundaries" },
-      { label: "Knip hygiene", command: pnpm("hygiene:knip"), reason: "unused exports/dependencies stay visible without blocking fast commits" },
+      { label: "Knip hygiene", command: pnpm("hygiene:knip"), reason: "unused files/dependencies fail closed; unused exports remain advisory via hygiene:knip:exports" },
       { label: "Biome hygiene", command: pnpm("hygiene:biome"), reason: "format/lint hygiene for release-level review" },
       { label: "E18e hygiene", command: pnpm("hygiene:e18e:analyze"), reason: "dependency hygiene analyzer for broad merge review" },
     ];

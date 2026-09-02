@@ -17,7 +17,6 @@
     "clean": "rm -rf dist *.tsbuildinfo"
   },
   "dependencies": {
-    "@openclinxr/shared-schemas": "workspace:*",
     "@cellix/provider-contracts": "workspace:*"
   },
   "devDependencies": {

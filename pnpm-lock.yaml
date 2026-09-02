@@ -122,6 +122,9 @@ importers:
       pyright:
         specifier: ^1.1.411
         version: 1.1.411
+      three:
+        specifier: 0.184.0
+        version: 0.184.0
       tinyglobby:
         specifier: ^0.2.16
         version: 0.2.16
@@ -304,9 +307,6 @@ importers:
 
   apps/arena/physics-clinical-touch:
     dependencies:
-      '@dimforge/rapier3d-compat':
-        specifier: ^0.19.3
-        version: 0.19.3
       '@openclinxr/physics-touch-contract':
         specifier: workspace:*
         version: link:../../../packages/openclinxr/arena/physics-touch-contract
@@ -369,9 +369,6 @@ importers:
       '@types/three':
         specifier: 'catalog:'
         version: 0.184.0
-      three-viewport-gizmo:
-        specifier: 2.2.0
-        version: 2.2.0(three@0.184.0)
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -756,9 +753,6 @@ importers:
       '@cellix/provider-contracts':
         specifier: workspace:*
         version: link:../../cellix/provider-contracts
-      '@openclinxr/shared-schemas':
-        specifier: workspace:*
-        version: link:../shared-schemas
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -982,9 +976,6 @@ importers:
       '@cellix/provider-contracts':
         specifier: workspace:*
         version: link:../../cellix/provider-contracts
-      '@openclinxr/shared-schemas':
-        specifier: workspace:*
-        version: link:../shared-schemas
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -1303,9 +1294,6 @@ importers:
       '@cellix/provider-contracts':
         specifier: workspace:*
         version: link:../../cellix/provider-contracts
-      '@openclinxr/shared-schemas':
-        specifier: workspace:*
-        version: link:../shared-schemas
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*

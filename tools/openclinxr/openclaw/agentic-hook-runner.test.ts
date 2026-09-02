@@ -5,6 +5,8 @@ import {
   biomeStagedFiles,
   buildArchitectureStep,
   buildBiomeStep,
+  buildE18eStep,
+  buildKnipStep,
   classifyArchitectureInvocation,
   matchesAnyPath,
   stepsForProfile,
@@ -138,5 +140,23 @@ describe("agentic-hook-runner path-scoped architecture", () => {
     const step = buildBiomeStep(files);
     expect(step?.label).toBe("Biome check (affected packages)");
     expect(step?.command.join(" ")).toContain("packages:lint:affected");
+  });
+
+  it("adds knip on pre-commit when apps/packages/tools or knip.json are staged", () => {
+    expect(buildKnipStep(["apps/api/src/server.ts"])?.label).toBe("Knip check");
+    expect(buildKnipStep(["knip.json"])?.command.join(" ")).toContain("hygiene:knip");
+    expect(buildKnipStep(["PROJECT_STATUS.md"])).toBeNull();
+    expect(stepsForProfile("pre-commit", ["apps/api/src/server.ts"]).some((s) => s.label === "Knip check")).toBe(
+      true,
+    );
+  });
+
+  it("adds e18e on pre-push when a package manifest or lockfile is staged, not on ordinary source pre-commit", () => {
+    expect(buildE18eStep(["package.json"])?.label).toBe("E18e analyze");
+    expect(buildE18eStep(["apps/api/src/server.ts"])).toBeNull();
+    expect(stepsForProfile("pre-commit", ["apps/api/src/server.ts"]).some((s) => s.label.toLowerCase().includes("e18e"))).toBe(
+      false,
+    );
+    expect(stepsForProfile("pre-push", ["package.json"]).some((s) => s.label === "E18e analyze")).toBe(true);
   });
 });

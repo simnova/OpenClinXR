@@ -20,9 +20,6 @@
   "references": [
     {
       "path": "../../cellix/provider-contracts"
-    },
-    {
-      "path": "../shared-schemas"
     }
   ]
 }
