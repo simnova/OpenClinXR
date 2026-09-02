@@ -115,7 +115,7 @@ Consulted 2026-09-02: Codex CLI `gpt-5.6-sol` session `01a0630b-7275-7582-86fd-a
 - Mock TTS `visemeCue` is hardcoded `"neutral-pain"` — `packages/openclinxr/voice-gateway/src/adapters.ts`.
 - `emotional_prosody` is always `providerPath: "blocked"` with `emotional_prosody_policy_review_missing` — `voice-gateway/src/gateway.ts`. Capability-gateway uses different strings: `emotional_prosody_clinical_review_missing`, `prosody_safety_evidence_missing` — `capability-gateway/src/internal.ts`. Unify before slice 5 rewrites tests.
 - Factory lip-sync uses macOS `say` then Rhubarb; that cannot align a Grok TTS waveform.
-- `createActorDialogueModelGateway` wires OpenRouter `ox-alpha` and optional local llama, not DeepSeek — `model-gateway/src/index.ts`.
+- `createActorDialogueModelGateway` composition as wired 2026-09-02: Muse Spark contributor first when an OpenRouter key is present, then DeepSeek Flash direct, then ox (retired fallback), local llama, mock — `model-gateway/src/index.ts`.
 
 ## Two records, two jobs
 

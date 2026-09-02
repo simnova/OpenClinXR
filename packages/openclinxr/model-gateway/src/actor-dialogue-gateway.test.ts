@@ -60,7 +60,7 @@ const OFFLINE_TURN = {
 };
 
 describe("createActorDialogueModelGateway", () => {
-  it("composes DeepSeek first when DEEPSEEK_API_KEY is set", async () => {
+  it("composes Muse contributor first, then DeepSeek, when both keys are set", async () => {
     await withGatewayEnv(
       {
         DEEPSEEK_API_KEY: "ds-key",
@@ -70,6 +70,7 @@ describe("createActorDialogueModelGateway", () => {
       async () => {
         const gw = createActorDialogueModelGateway();
         expect(await providerIds(gw)).toEqual([
+          "muse-spark-contributor",
           "deepseek-actor-dialogue",
           "ox-alpha",
           "local-llama",
@@ -80,7 +81,7 @@ describe("createActorDialogueModelGateway", () => {
     );
   });
 
-  it("composes ox then local llama-server from env, with the mock last", async () => {
+  it("composes Muse contributor then ox then local llama-server from env, with the mock last", async () => {
     await withGatewayEnv(
       {
         OPENROUTER_API_KEY: "env-key",
@@ -88,7 +89,13 @@ describe("createActorDialogueModelGateway", () => {
       },
       async () => {
         const gw = createActorDialogueModelGateway();
-        expect(await providerIds(gw)).toEqual(["ox-alpha", "local-llama", "mock-model", "local-model"]);
+        expect(await providerIds(gw)).toEqual([
+          "muse-spark-contributor",
+          "ox-alpha",
+          "local-llama",
+          "mock-model",
+          "local-model",
+        ]);
       },
     );
   });

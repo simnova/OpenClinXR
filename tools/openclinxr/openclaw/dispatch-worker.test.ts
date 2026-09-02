@@ -136,6 +136,22 @@ describe("dispatch-worker argv", () => {
     expect(buildArgv({ prompt: "x" })).toContain("deepseek-v4-flash");
     expect(buildArgv({ prompt: "x", model: "grok-4.5" })).toContain("grok-4.5");
   });
+
+  it("ranks muse-spark-1.3-contributor with flash (rank 0): a write role naming it needs the same downgrade reason", () => {
+    // MODEL_RANK carries the optional cheaper alias at rank 0 (dispatch-worker.ts). Unrecognised
+    // models skip the guard; ranking it makes write-role + muse demand a modelDowngradeReason
+    // exactly like flash instead of slipping through unnamed.
+    expect(() =>
+      buildArgv({ prompt: "x", role: TEST_ROLE, model: "muse-spark-1.3-contributor" }),
+    ).toThrow(/DOWNGRADE with no modelDowngradeReason/);
+    const argv = buildArgv({
+      prompt: "x",
+      role: TEST_ROLE,
+      model: "muse-spark-1.3-contributor",
+      modelDowngradeReason: "muse rank pin: optional cheaper rung below flash direct",
+    });
+    expect(argv[argv.indexOf("--model") + 1]).toBe("muse-spark-1.3-contributor");
+  });
 });
 
 describe("credential-leak guard", () => {

@@ -369,6 +369,8 @@ export function createOllamaModelProviderAdapter(options: LocalModelProviderStub
 
 const DEFAULT_OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";
 const DEFAULT_OPENROUTER_MODEL = "stealth/ox-alpha";
+/** Cheapest live actor rung (OpenRouter contributor terms: prompts/outputs may train Meta models — synthetic SP only). */
+const DEFAULT_MUSE_MODEL = "meta/muse-spark-1.3-contributor";
 const DEFAULT_LOCAL_LLAMA_MODEL = "qwen3-8b";
 const DEFAULT_DEEPSEEK_BASE_URL = "https://api.deepseek.com";
 const DEFAULT_DEEPSEEK_MODEL = "deepseek-v4-flash";
@@ -380,24 +382,29 @@ export type CreateActorDialogueModelGatewayOptions = {
   deepseekApiKey?: string;
   deepseekBaseUrl?: string;
   deepseekModel?: string;
-  /** OpenRouter key for the ox rung. Defaults to `OPENROUTER_API_KEY`; when absent the rung is omitted. */
+  /** OpenRouter key for the Muse contributor + ox rungs. Defaults to `OPENROUTER_API_KEY`; when absent both are omitted. */
   openRouterApiKey?: string;
   openRouterBaseUrl?: string;
   openRouterModel?: string;
+  /** Muse Spark contributor model id (OpenRouter). Defaults to `meta/muse-spark-1.3-contributor`; the rung is present whenever an OpenRouter key is. */
+  museSparkModel?: string;
   /** Base URL of a local OpenAI-compatible server (llama-server). Defaults to `OPENCLINXR_LOCAL_LLAMA_BASE_URL`; when absent the rung is omitted. */
   localBaseUrl?: string;
   localModel?: string;
 };
 
 /**
- * Compose the actor-dialogue gateway the runtime uses by default: DeepSeek Flash
- * first (thinking disabled), ox (OpenRouter) second, local llama-server third, mock last.
+ * Compose the actor-dialogue gateway the runtime uses by default: Muse Spark contributor
+ * (OpenRouter) first when an OpenRouter key is configured — the cheapest rung, $0.10/$0.20
+ * per 1M verified 2026-09-02 against the live OpenRouter /models — then DeepSeek Flash
+ * (thinking disabled), ox (OpenRouter, retired but kept), local llama-server, mock last.
  * Priority is list order — the gateway walks the ready adapters in order and fails
  * over to the next when one throws, so a rate-limited primary falls through to the mock
- * instead of reaching the learner.
+ * instead of reaching the learner. Muse's live HTTP 403 (18+ attestation pending) THROWS
+ * and falls through to DeepSeek rather than crashing the learner.
  *
  * Reachability is decided from CONFIG ONLY — no network call at import or health
- * time: the ox rung is present when an API key is configured, the local rung when
+ * time: the OpenRouter rungs are present when an API key is configured, the local rung when
  * a base URL is configured. With neither configured the offline pair (mock + a
  * `not_configured` local stub) answers from the mock, so a dev boot with no model
  * configured returns an utterance and never throws.
@@ -406,6 +413,29 @@ export function createActorDialogueModelGateway(
   options: CreateActorDialogueModelGatewayOptions = {},
 ): ModelGateway {
   const adapters: ModelProviderAdapter[] = [];
+
+  // Muse Spark contributor (OpenRouter) is the cheapest actor-dialogue rung — verified
+  // 2026-09-02 via live GET https://openrouter.ai/api/v1/models: $0.10 / $0.20 per 1M tokens
+  // (cache read $0.002/M, 1,048,576 ctx) vs DeepSeek V4 Flash DIRECT official off-peak
+  // $0.22 / $0.66 (api-docs.deepseek.com/quick_start/pricing 2026-08-28; the marketing
+  // $0.14/$0.28 is stale). OpenRouter's OWN deepseek flash is $0.079/$0.159 — cheaper still,
+  // but the operator asked Muse vs Flash DIRECT; do not route actor dialogue through OpenRouter
+  // DeepSeek. Contributor terms: prompts/outputs may train Meta models — synthetic SP lines
+  // only; hidden facts never leave the host regardless. LIVE 2026-09-02: contributor AND
+  // standard Muse both HTTP 403 until the operator confirms 18+ at
+  // https://openrouter.ai/settings/preferences — the 403 THROWS, so the gateway fails over
+  // to DeepSeek below instead of crashing the learner.
+  const openRouterApiKey = options.openRouterApiKey ?? process.env["OPENROUTER_API_KEY"];
+  if (openRouterApiKey && openRouterApiKey.trim().length > 0) {
+    adapters.push(
+      new OpenAiCompatibleModelProviderAdapter({
+        providerId: "muse-spark-contributor",
+        baseUrl: options.openRouterBaseUrl ?? DEFAULT_OPENROUTER_BASE_URL,
+        model: options.museSparkModel ?? DEFAULT_MUSE_MODEL,
+        apiKey: openRouterApiKey,
+      }),
+    );
+  }
 
   const deepseekApiKey = options.deepseekApiKey ?? process.env["DEEPSEEK_API_KEY"];
   if (deepseekApiKey && deepseekApiKey.trim().length > 0) {
@@ -419,7 +449,6 @@ export function createActorDialogueModelGateway(
     );
   }
 
-  const openRouterApiKey = options.openRouterApiKey ?? process.env["OPENROUTER_API_KEY"];
   if (openRouterApiKey && openRouterApiKey.trim().length > 0) {
     adapters.push(
       new OpenAiCompatibleModelProviderAdapter({

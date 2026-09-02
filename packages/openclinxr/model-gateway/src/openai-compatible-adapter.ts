@@ -101,6 +101,16 @@ export class OpenAiCompatibleModelProviderAdapter implements ModelProviderAdapte
     return this.id === "deepseek-actor-dialogue" || this.baseUrl.includes("api.deepseek.com");
   }
 
+  /**
+   * Muse Spark contributor (OpenRouter, cheapest actor rung) takes NEITHER DeepSeek's
+   * thinking field NOR OpenRouter's reasoning block — either 400/403s the request — so
+   * its extra body is empty. Live 2026-09-02: 403 until the operator confirms 18+ at
+   * https://openrouter.ai/settings/preferences (throw-failover to DeepSeek, not a crash).
+   */
+  private get isMuseSparkRung(): boolean {
+    return this.id === "muse-spark-contributor" || this.model.toLowerCase().includes("muse-spark");
+  }
+
   constructor(options: OpenAiCompatibleProviderOptions) {
     this.id = options.providerId;
     this.baseUrl = options.baseUrl;
@@ -147,14 +157,17 @@ export class OpenAiCompatibleModelProviderAdapter implements ModelProviderAdapte
         model: this.model,
         messages,
         // Thinking control is rung-specific (measured 2026-08-24 / 2026-09-02):
+        // Muse Spark (OpenRouter contributor) takes NO thinking/reasoning/chat_template_kwargs.
         // DeepSeek V4 requires explicit thinking.type disabled (default is on).
         // llama-server uses chat_template_kwargs.enable_thinking.
         // ox/OpenRouter honours reasoning:{effort:"low"}.
-        ...(this.isDeepSeekActorRung
-          ? { thinking: { type: "disabled" } }
-          : this.isLlamaServerRung
-            ? { chat_template_kwargs: { enable_thinking: false } }
-            : { reasoning: { effort: "low" } }),
+        ...(this.isMuseSparkRung
+          ? {}
+          : this.isDeepSeekActorRung
+            ? { thinking: { type: "disabled" } }
+            : this.isLlamaServerRung
+              ? { chat_template_kwargs: { enable_thinking: false } }
+              : { reasoning: { effort: "low" } }),
         max_tokens: 256,
       }),
       signal: AbortSignal.timeout(30_000),

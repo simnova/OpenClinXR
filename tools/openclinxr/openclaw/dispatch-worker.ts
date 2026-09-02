@@ -734,6 +734,11 @@ const DEFAULT_PROMPT_FILE_DIR = join(homedir(), ".grok", "dispatch-prompts");
  * five slices ignored. The roleless path stays flash-first (dispatch-worker.test.ts:132 pins it).
  */
 const MODEL_RANK = new Map<string, number>([
+  // muse-spark-1.3-contributor is the optional cheaper worker alias (OpenRouter contributor,
+  // $0.10/$0.20 per 1M vs Flash DIRECT off-peak $0.22/$0.66 — verified 2026-09-02). Rank 0
+  // like flash, so a write role naming it demands the same modelDowngradeReason; unrecognised
+  // models skip the guard, and ranking it closes that hole for the alias.
+  ["muse-spark-1.3-contributor", 0],
   ["deepseek-v4-flash", 0],
   ["deepseek-v4-pro", 1],
   ["grok-build", 2],

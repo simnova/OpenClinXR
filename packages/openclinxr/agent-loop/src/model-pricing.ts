@@ -44,6 +44,18 @@ export type ModelPriceRow = {
 
 /** Rate card — fetched 2026-08-03 from public pricing pages; re-verify weekly. */
 export const MODEL_PRICE_ROWS: readonly ModelPriceRow[] = [
+  // --- OpenRouter Muse Spark contributor (cheapest actor-dialogue rung; optional worker alias) ---
+  {
+    id: "muse-spark-1.3-contributor",
+    match: ["muse-spark-1.3-contributor", "muse-spark-contributor", "meta/muse-spark-1.3-contributor"],
+    inputPer1M: 0.1,
+    outputPer1M: 0.2,
+    blendedPer1M: 0.13,
+    cacheHitInputPer1M: 0.002,
+    asOf: "2026-09-02",
+    source: "https://openrouter.ai/api/v1/models",
+    note: "Cheapest actor-dialogue / optional worker alias vs DeepSeek Flash DIRECT official off-peak $0.22/$0.66 (api-docs.deepseek.com, 2026-08-28). Contributor data-use: prompts/outputs may train Meta models — synthetic SP only. OpenRouter Flash is cheaper ($0.079/$0.159) — not this rung. 18+ attestation required for live completions.",
+  },
   // --- DeepSeek 4 (cheapest; chat/reasoner aliases deprecated 2026-07-24) ---
   {
     id: "deepseek-v4-flash",

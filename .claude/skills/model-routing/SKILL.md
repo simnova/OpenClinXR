@@ -40,10 +40,22 @@ when-to-use: "ox is down, ox not working, model is broken, dispatch died, 0 byte
 >
 > | rung | model | when |
 > |---|---|---|
+> | **0** | `muse-spark-1.3-contributor` | **OPTIONAL cheapest worker/actor alias** — see the rung-0 note below. 403 until 18+ confirmed. NOT the default. |
 > | **1** | `deepseek-v4-flash` | **cheapest default for workers, scouts, scheduled wakes, superagent** |
 > | **1v** | `deepseek-v4-flash-vision-exp` | **when the slice genuinely needs the worker to read an image** — sideways, not a step down. This model HAS VISION (operator, 2026-08-29), contradicting the older tables named above. |
 > | **2** | `grok-4.6` | **strong/smart** — escalate when flash is not enough (hard slice, UNABLE, measured flash failure). Successor to the DEPRECATED grok-4.5; never route to 4.5. |
 > | ~~ox-alpha~~ | retired | HTTP 404 as of 2026-08-26. Do not pass `model: ox-alpha`. |
+>
+> **Rung 0 (2026-09-02, optional):** alias `muse-spark-1.3-contributor` → wire
+> `meta/muse-spark-1.3-contributor`, OpenRouter chat_completions, `OPENROUTER_API_KEY`,
+> 1,048,576 ctx. $0.10/$0.20 per 1M vs DeepSeek Flash **DIRECT** official off-peak
+> $0.22/$0.66 (api-docs.deepseek.com, 2026-08-28) — cheaper than Flash direct. OpenRouter's
+> own deepseek flash ($0.079/$0.159) is cheaper still, but Muse-vs-Flash was compared against
+> Flash DIRECT; actor dialogue stays off OpenRouter DeepSeek. Contributor data-use: prompts/
+> outputs may train Meta models — synthetic SP only. LIVE 2026-09-02: HTTP 403 until the
+> operator confirms 18+ at openrouter.ai/settings/preferences. **Do NOT pass as the default
+> worker model until a probe returns 200.** Ranked 0 in `MODEL_RANK` like flash, so a write
+> role naming it still needs `modelDowngradeReason`. Flash remains the current default worker.
 >
 > Rung 1v is CONDITIONAL, not sequential. On an identical text-only probe the vision model spent 730
 > output tokens against 135 for plain flash, 5.4x, for the same answer. Pixel grading is the
