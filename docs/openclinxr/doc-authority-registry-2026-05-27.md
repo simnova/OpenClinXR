@@ -13,7 +13,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - agent-memory: 34
 - agent-methodology: 103
 - archive-candidate: 41
-- current-reference: 212
+- current-reference: 215
 - decision-record: 44
 - evidence: 58
 - generated-evidence: 10
@@ -200,6 +200,10 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `docs/openclinxr/code-implementation-plan.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/codex-openclaw-operating-bridge-2026-05-27.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `docs/openclinxr/communication-style-and-emotion-qa.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
+- `docs/openclinxr/emotional-prosody-policy-review-2026-09-02.md` - current-reference; Draft emotional_prosody review named by the voice-gateway gate; subordinate to protected guardrails. Does not by itself enable live TTS.
+- `docs/openclinxr/motion-dsl-consumer-path-2026-09-02.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
+- `docs/openclinxr/runtime-dialogue-voice-affect-direction-2026-09-02.md` - current-reference; Driving sequence for runtime language + EmotionEngine + Grok TTS/STT; subordinate to AGENTS.md and D9. Not clinical or Quest evidence.
+- `docs/openclinxr/runtime-dialogue-voice-direction-response-2026-09-02.md` - current-reference; Accepted-amendment rationale for the 2026-09-02 direction merge. Sequence owner is runtime-dialogue-voice-affect-direction-2026-09-02.md. Not clinical or Quest evidence.
 - `docs/openclinxr/doc-authority-registry-2026-05-27.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `docs/openclinxr/dynamic-session-asset-strategy.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/evidence-index-2026-05-27.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.

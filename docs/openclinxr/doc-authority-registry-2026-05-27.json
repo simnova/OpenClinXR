@@ -5,7 +5,7 @@
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
     "agent-methodology": 103,
-    "current-reference": 212,
+    "current-reference": 216,
     "archive-candidate": 41,
     "evidence": 58,
     "temporary": 54,
@@ -3468,6 +3468,27 @@
       "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
+      "path": "docs/openclinxr/ecg-cart-4view-optimize-cagematch-plan-2026-08-31.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/openclinxr/ecg-cart-cagematch-treatments-table-2026-08-31.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Lane C ECG cart treatment scoreboard and still index; not an instruction surface."
+    },
+    {
+      "path": "docs/openclinxr/emotional-prosody-policy-review-2026-09-02.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Draft emotional_prosody review named by the voice-gateway gate; subordinate to protected guardrails. Does not by itself enable live TTS."
+    },
+    {
       "path": "docs/openclinxr/equipment-catalog-report.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
@@ -3510,20 +3531,6 @@
       "rationale": "Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it."
     },
     {
-      "path": "docs/openclinxr/ecg-cart-4view-optimize-cagematch-plan-2026-08-31.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
-    },
-    {
-      "path": "docs/openclinxr/ecg-cart-cagematch-treatments-table-2026-08-31.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Lane C ECG cart treatment scoreboard and still index; not an instruction surface."
-    },
-    {
       "path": "docs/openclinxr/exam-scenario-architecture.md",
       "authority": "current-reference",
       "agentInstructionWeight": "medium",
@@ -3532,13 +3539,6 @@
     },
     {
       "path": "docs/openclinxr/external-ai-asset-pipeline-integration-plan.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
-    },
-    {
-      "path": "docs/openclinxr/hybrid-board-and-unlock-plan-notes-2026-08-31.md",
       "authority": "current-reference",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
@@ -3615,6 +3615,13 @@
       "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
+      "path": "docs/openclinxr/hybrid-board-and-unlock-plan-notes-2026-08-31.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
+    },
+    {
       "path": "docs/openclinxr/iwsdk-codex-mcp-runbook.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
@@ -3672,6 +3679,13 @@
     },
     {
       "path": "docs/openclinxr/mongodb-memory-server-test-strategy.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/openclinxr/motion-dsl-consumer-path-2026-09-02.md",
       "authority": "current-reference",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
@@ -3788,6 +3802,20 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "docs/openclinxr/runtime-dialogue-voice-affect-direction-2026-09-02.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "high",
+      "action": "use-as-current",
+      "rationale": "Driving sequence for runtime language + EmotionEngine + Grok TTS/STT; subordinate to AGENTS.md and D9. Not clinical or Quest evidence."
+    },
+    {
+      "path": "docs/openclinxr/runtime-dialogue-voice-direction-response-2026-09-02.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Accepted-amendment rationale for the 2026-09-02 direction merge. Sequence owner is runtime-dialogue-voice-affect-direction-2026-09-02.md. Not clinical or Quest evidence."
     },
     {
       "path": "docs/openclinxr/sample-case-bank-v1.md",
