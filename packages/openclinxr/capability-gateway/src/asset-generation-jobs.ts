@@ -9,6 +9,11 @@ import {
   createDeterministicAssetGenerationAdapter,
   resolveRepositoryArtifactPath,
 } from "./deterministic-asset-adapter.js";
+import {
+  buildSharedAssetLibraryLookupKey,
+  buildSharedAssetLibraryReusePolicy,
+  resolveSharedAssetLibraryLookupKey,
+} from "./shared-asset-library-lookup.js";
 
 export { createDeterministicAssetGenerationAdapter } from "./deterministic-asset-adapter.js";
 
@@ -129,6 +134,8 @@ export type EncounterExecutableAssetGenerationRequest = {
     allowProductionDeployment: false;
     productionReadinessClaimed: false;
   };
+  /** Compile recipe cacheKeys (sha256 hex); omitted keys keep the semantic join. */
+  recipeCacheKeys?: Partial<Record<string, string>>;
 };
 
 export type EncounterFactoryInputSummary = {
@@ -1242,8 +1249,7 @@ export function buildEncounterGenerationWorkOrders(
       requirement.actorRole,
       humanoidPerformanceContract,
     );
-    const humanoidCacheKey = buildSharedAssetLibraryLookupKey({
-      scenarioId: request.scenarioId,
+    const humanoidCacheKey = resolveSharedAssetLibraryLookupKey(request, {
       targetKind: "role_specific_humanoid_glb",
       actorRole: requirement.actorRole,
       semanticInputs: [
@@ -1304,8 +1310,7 @@ export function buildEncounterGenerationWorkOrders(
     });
 
     if (request.requestedStages.includes("animation-generation")) {
-      const animationCacheKey = buildSharedAssetLibraryLookupKey({
-        scenarioId: request.scenarioId,
+      const animationCacheKey = resolveSharedAssetLibraryLookupKey(request, {
         targetKind: "role_idle_animation_glb",
         actorRole: requirement.actorRole,
         semanticInputs: [
@@ -1360,8 +1365,7 @@ export function buildEncounterGenerationWorkOrders(
   }
 
   if (request.requestedStages.includes("medical-equipment-generation")) {
-    const equipmentCacheKey = buildSharedAssetLibraryLookupKey({
-      scenarioId: request.scenarioId,
+    const equipmentCacheKey = resolveSharedAssetLibraryLookupKey(request, {
       targetKind: "medical_equipment_glb",
       semanticInputs: [
         request.stationId,
@@ -1433,8 +1437,7 @@ export function buildEncounterGenerationWorkOrders(
     modelProviderPolicy,
     sharedAssetLibraryReuse: buildSharedAssetLibraryReusePolicy(
       request,
-      buildSharedAssetLibraryLookupKey({
-        scenarioId: request.scenarioId,
+      resolveSharedAssetLibraryLookupKey(request, {
         targetKind: "visual_feedback_closure",
         semanticInputs: [
           "adversarial_visual_feedback",
@@ -1832,41 +1835,6 @@ function sharedAssetLibraryCacheNotEvidenceFor(): EncounterSharedAssetLibraryCac
     "clinical_validity",
     "scoring_validity",
   ];
-}
-
-function buildSharedAssetLibraryReusePolicy(
-  request: Pick<EncounterExecutableAssetGenerationRequest, "targetAssetStore">,
-  lookupKey: string,
-): EncounterSharedAssetLibraryReusePolicy {
-  return {
-    lookupKey,
-    lookupKeySource: "encounter_definition_semantic_requirements",
-    sharedLibraryRefs: {
-      blobPrefix: `blob://${request.targetAssetStore.containerName}/shared-encounter-assets/${lookupKey}/`,
-      mongooseCollectionName: "shared_encounter_asset_library",
-    },
-    lruCache: {
-      enabled: true,
-      maxEntries: 500,
-      evictionPolicy: "least_recently_used",
-      reuseRequiresEvidenceGateCompatibility: true,
-      updateRecencyOnHit: true,
-    },
-    cacheDisposition: "lookup_before_generate",
-  };
-}
-
-function buildSharedAssetLibraryLookupKey(input: {
-  scenarioId: string;
-  targetKind: EncounterGenerationWorkOrderTargetKind;
-  actorRole?: string;
-  semanticInputs: string[];
-}): string {
-  return safeWorkOrderSegment([
-    input.targetKind,
-    input.actorRole ?? "scenario",
-    ...input.semanticInputs,
-  ].join("__"));
 }
 
 function providerRouteForVisualQaRemediation(

@@ -15,6 +15,8 @@ import {
   createEncounterAssetGenerationQueueMessage,
   decodeAzureStorageQueueMessage,
   type EncounterAssetGenerationQueueClient,
+  type EncounterExecutableAssetGenerationRequest,
+  type EncounterHumanoidRealismRequirements,
   encodeAzureStorageQueueMessage,
   processEncounterAssetGenerationQueueMessage,
   processNextEncounterAssetGenerationQueueMessage,
@@ -1405,6 +1407,68 @@ describe("asset-generation job facade", () => {
       },
     })).rejects.toThrow("Asset generation runtime swaps cannot use paid cloud providers");
   });
+
+  /**
+   * OBSERVABLE (immutable diagnosis): `buildSharedAssetLibraryLookupKey` joins
+   * targetKind/actorRole/semanticInputs into lookupKey; compile recipe cacheKey
+   * (64-char sha256 hex) never names `shared-encounter-assets/<cacheKey>/`.
+   *
+   * Diagnosis header IMMUTABLE. Flip it.fails → it and append ## FIXED.
+   *
+   * ## FIXED: optional recipeCacheKeys on the request names lookupKey and
+   * shared-encounter-assets/<cacheKey>/; omitted keys keep the semantic join.
+   */
+  it("names shared-library lookupKey from supplied compile recipeCacheKeys", () => {
+    const cacheKey = "c".repeat(64);
+    const humanoidKey = "d".repeat(64);
+    const message = createEncounterAssetGenerationQueueMessage({
+      ...minimalEncounterAssetRequest(),
+      requestedStages: [
+        "character-generation",
+        "medical-equipment-generation",
+        "scene-manifest-freeze",
+        "runtime-bundle-publication",
+        "review-evidence-gate",
+      ],
+      humanoidRealismRequirements: onePatientHumanoidRequirements(),
+      recipeCacheKeys: {
+        medical_equipment_glb: cacheKey,
+        "role_specific_humanoid_glb::patient": humanoidKey,
+      },
+    });
+    const plan = buildEncounterAssetGenerationPlan(message);
+    const equipment = plan.generationWorkOrders.find((workOrder) => workOrder.targetKind === "medical_equipment_glb");
+    const humanoid = plan.generationWorkOrders.find((workOrder) => workOrder.targetKind === "role_specific_humanoid_glb");
+    expect(equipment?.sharedAssetLibraryReuse.lookupKey).toBe(cacheKey);
+    expect(equipment?.sharedAssetLibraryReuse.sharedLibraryRefs.blobPrefix).toBe(
+      `blob://openclinxr-assets/shared-encounter-assets/${cacheKey}/`,
+    );
+    expect(humanoid?.sharedAssetLibraryReuse.lookupKey).toBe(humanoidKey);
+    expect(humanoid?.sharedAssetLibraryReuse.sharedLibraryRefs.blobPrefix).toContain(
+      `shared-encounter-assets/${humanoidKey}/`,
+    );
+  });
+
+  it("keeps semantic lookupKey when recipeCacheKeys is omitted", () => {
+    const message = createEncounterAssetGenerationQueueMessage({
+      ...minimalEncounterAssetRequest(),
+      requestedStages: [
+        "character-generation",
+        "medical-equipment-generation",
+        "scene-manifest-freeze",
+        "runtime-bundle-publication",
+        "review-evidence-gate",
+      ],
+      humanoidRealismRequirements: onePatientHumanoidRequirements(),
+    });
+    const plan = buildEncounterAssetGenerationPlan(message);
+    const equipment = plan.generationWorkOrders.find((workOrder) => workOrder.targetKind === "medical_equipment_glb");
+    const humanoid = plan.generationWorkOrders.find((workOrder) => workOrder.targetKind === "role_specific_humanoid_glb");
+    expect(equipment?.sharedAssetLibraryReuse.lookupKey).toMatch(/medical_equipment_glb/);
+    expect(equipment?.sharedAssetLibraryReuse.lookupKey).not.toMatch(/^[a-f0-9]{64}$/);
+    expect(humanoid?.sharedAssetLibraryReuse.lookupKey).toContain("role_specific_humanoid_glb__patient");
+    expect(humanoid?.sharedAssetLibraryReuse.lookupKey).not.toMatch(/^[a-f0-9]{64}$/);
+  });
 });
 
 function fixedClock(values: string[]): () => string {
@@ -1419,5 +1483,65 @@ function fixedClock(values: string[]): () => string {
       return fallback;
     }
     throw new Error("fixedClock requires at least one value");
+  };
+}
+
+function minimalEncounterAssetRequest(): EncounterExecutableAssetGenerationRequest {
+  return {
+    requestId: "encounter_assets_recipe_cache_keys",
+    tenantId: "tenant_alpha",
+    examRunId: "exam_run_1",
+    encounterId: "encounter_1",
+    scenarioId: "ed_chest_pain_priority_v1",
+    stationId: "ed_chest_pain_station_v1",
+    encounterDefinitionRef: { storeKind: "mongoose", documentId: "scenario_ed_chest_pain_v1" },
+    targetAssetStore: { storeKind: "azurite_blob", containerName: "openclinxr-assets", blobPrefix: "scenario-assets/ed/" },
+    persistenceTarget: { storeKind: "mongoose", collectionName: "encounter_asset_generation_jobs" },
+    requestedStages: ["scene-manifest-freeze", "runtime-bundle-publication", "review-evidence-gate"],
+    optimizationWindow: { expectedMinimumHours: 2, expectedMaximumHours: 72, mayRunForDays: true, checkpointIntervalMinutes: 30 },
+    evidenceGates: {
+      requireGeneratedSceneManifest: true,
+      requireRuntimeBundlePublication: true,
+      requireHumanReviewBeforeLearnerUse: true,
+      requireQuestEvidenceBeforeQuestReadinessClaim: true,
+    },
+    policy: { allowPaidCloudApis: false, allowProductionDeployment: false, productionReadinessClaimed: false },
+  };
+}
+
+function onePatientHumanoidRequirements(): EncounterHumanoidRealismRequirements {
+  return {
+    schemaVersion: "openclinxr.encounter-humanoid-realism-requirements.v1",
+    source: "scenario_actor_definitions",
+    requirements: [
+      {
+        actorRole: "patient",
+        requiredAssetKinds: ["generated_humanoid_mesh", "clinical_idle_animation", "viseme_phoneme_map", "gaze_blink_control"],
+        requiredSignalIds: [
+          "animated_humanoid_runtime_playback",
+          "authored_clinical_idle_pose_runtime_cue",
+          "visible_mouth_eye_expression_cues",
+          "dialogue_viseme_and_gaze_mapping",
+          "dialogue_eye_micro_saccade_blink_cue",
+          "generated_eyelid_blink_control_cue",
+          "emotion_aligned_expression_transition_cue",
+        ],
+        realismProfile: {
+          ageBand: "adult",
+          bodyPostureNotes: ["clinical_idle_pose_must_match_encounter_context"],
+          clothingClinicalContextCues: ["patient_role_appropriate_clothing"],
+          expressionAffectCues: ["subtle_blink_and_micro_saccade_motion"],
+          mobilityPositioningConstraints: ["movement_must_preserve_clinical_spatial_blocking"],
+          requiredRealismEvidenceIds: [
+            "dialogue_viseme_and_gaze_mapping",
+            "dialogue_eye_micro_saccade_blink_cue",
+            "generated_eyelid_blink_control_cue",
+            "emotion_aligned_expression_transition_cue",
+          ],
+          claimScope: "metadata_only_not_visual_quality_evidence",
+        },
+      },
+    ],
+    notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
   };
 }

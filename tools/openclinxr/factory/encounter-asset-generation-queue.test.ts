@@ -5,12 +5,18 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { buildDynamicEncounterFactoryProjectionArtifact, edChestPainScenario, edChestPainScenarioV2, edChestPainScenarioV3, variantScenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src/index.js";
 import {
+  buildEncounterAssetGenerationPlan,
+  createEncounterAssetGenerationQueueMessage,
+} from "../../../packages/openclinxr/capability-gateway/src/index.js";
+import { compileEncounterMaterialization } from "./encounter-materialization-compile.js";
+import {
   buildEncounterAssetGenerationQueueReport,
   buildEncounterAssetGenerationRequestForScenario,
   runEncounterAssetGenerationQueueCli,
   sha256ContentHashOfArtifactAt,
   validateEncounterAssetGenerationQueueReport,
 } from "./encounter-asset-generation-queue.js";
+import type { GeneratedEdStationRuntimeBundleReport } from "./generated-ed-station-runtime-bundle.js";
 
 const requireFixtureValue = <T>(value: T | null | undefined, label: string): T => {
   expect(value, label).toBeDefined();
@@ -816,4 +822,110 @@ describe("encounter asset generation queue report", () => {
       await rm(tempDir, { recursive: true, force: true });
     }
   });
+
+  /**
+   * OBSERVABLE (immutable diagnosis): compile EquipVariant stamps a 64-char
+   * sha256 `cacheKey` via recipeKeyFor/compileCacheKey, but Azurite shared-library
+   * lookupKey is still `buildSharedAssetLibraryLookupKey`'s semantic join
+   * (`medical_equipment_glb__scenario__…`). Skip SSOT stays on compile nodes;
+   * blob prefixes never contain `shared-encounter-assets/<cacheKey>/`.
+   *
+   * Diagnosis header IMMUTABLE. Flip it.fails → it and append ## FIXED.
+   *
+   * ## FIXED: compile EquipVariant cacheKey passed as recipeCacheKeys.medical_equipment_glb
+   * becomes sharedAssetLibraryReuse.lookupKey and blobPrefix
+   * shared-encounter-assets/<cacheKey>/. Queue report path unchanged; no new ledger.
+   */
+  it("names shared Azurite blob prefixes by compile EquipVariant cacheKey", async () => {
+    const compiled = await compileEncounterMaterialization({
+      bundleReport: imagineBoxBundleForSharedLibrary(),
+      stationPayloads: {
+        equipment_generate: {
+          subjectId: "ecg-cart-imagine-box",
+          packId: "ecg-cart-imagine-box",
+          seed: 7,
+          remesh: false,
+          viewCount: 4,
+          decimationTarget: 1_000_000,
+        },
+      },
+    });
+    const equip = (compiled.report.compileNodes ?? []).find((node) => node.family === "EquipVariant");
+    expect(equip?.cacheKey).toMatch(/^[a-f0-9]{64}$/);
+    const cacheKey = equip?.cacheKey as string;
+
+    const request = {
+      ...buildEncounterAssetGenerationRequestForScenario("peds_asthma_parent_anxiety_v1"),
+      recipeCacheKeys: { medical_equipment_glb: cacheKey },
+    };
+    const plan = buildEncounterAssetGenerationPlan(createEncounterAssetGenerationQueueMessage(request));
+    const equipment = plan.generationWorkOrders.find((workOrder) => workOrder.targetKind === "medical_equipment_glb");
+    expect(equipment?.sharedAssetLibraryReuse.lookupKey).toBe(cacheKey);
+    expect(equipment?.sharedAssetLibraryReuse.sharedLibraryRefs.blobPrefix).toContain(
+      `shared-encounter-assets/${cacheKey}/`,
+    );
+  });
 });
+
+function imagineBoxBundleForSharedLibrary(): GeneratedEdStationRuntimeBundleReport {
+  return {
+    schemaVersion: "openclinxr.generated-ed-station-runtime-bundle.v1",
+    generatedAt: "2026-05-28T00:00:00.000Z",
+    status: "bundle_ready",
+    bundle: null,
+    learnerBundle: null,
+    actorHumanoidMaterializationContract: {
+      schemaVersion: "openclinxr.actor-humanoid-materialization-contract.v1",
+      scenarioId: "peds_asthma_parent_anxiety_v1",
+      source: "generated_station_runtime_bundle",
+      actorSpecificVariantKeysRequired: true,
+      sharedNeutralMeshReuseDetected: false,
+      sharedNeutralMeshReuseActorIds: [],
+      actorVariants: [],
+      materializationBlockers: [],
+      caveats: [],
+      recommendedNextAction: "none",
+      notEvidenceFor: [
+        "production_asset_readiness",
+        "quest_readiness",
+        "clinical_validity",
+        "scoring_validity",
+        "animation_quality",
+      ],
+    },
+    equipmentMaterializationContract: {
+      schemaVersion: "openclinxr.equipment-materialization-contract.v1",
+      scenarioId: "peds_asthma_parent_anxiety_v1",
+      source: "generated_station_runtime_bundle",
+      equipmentSpecificVariantKeysRequired: true,
+      genericEquipmentReuseDetected: false,
+      genericEquipmentReuseEquipmentIds: [],
+      equipmentVariants: [
+        {
+          equipmentId: "ecg-cart-imagine-box",
+          modelAssetId: "openclinxr.trellis.ecg-cart-imagine-box",
+          variantSemanticKey: "peds_asthma_parent_anxiety_v1:ecg-cart-imagine-box:equipment_materialization_variant",
+          sourceBlobName: "tools/openclinxr/asset-pipeline/trellis/packs/ecg-cart-imagine-box/front.png",
+          equipmentVariantProfile: {
+            equipmentFamily: "ecg_cart",
+            pediatricUseRequired: false,
+            scenarioPlacementRequired: true,
+            scaleValidationRequired: true,
+            interactionAffordanceRequired: false,
+          },
+          requiredMaterializationCueIds: ["equipment_specific_mesh_required"],
+          requiredEvidenceRefs: ["scenario_specific_equipment_variant_evidence"],
+        },
+      ],
+      materializationBlockers: [],
+      caveats: [],
+      recommendedNextAction: "none",
+      notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
+    },
+    bundleBlobName: null,
+    runtimeAssetReviewDecisions: [],
+    blockers: [],
+    productionCloudCall: false,
+    notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
+  };
+}
