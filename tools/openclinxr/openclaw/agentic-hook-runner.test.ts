@@ -132,4 +132,11 @@ describe("agentic-hook-runner path-scoped architecture", () => {
       stepsForProfile("pre-commit", ["PROJECT_STATUS.md"]).some((s) => s.label.toLowerCase().includes("biome")),
     ).toBe(false);
   });
+
+  it("falls back to turbo lint on affected packages when the staged biome set exceeds 200 files", () => {
+    const files = Array.from({ length: 201 }, (_, i) => `apps/api/src/f${i}.ts`);
+    const step = buildBiomeStep(files);
+    expect(step?.label).toBe("Biome check (affected packages)");
+    expect(step?.command.join(" ")).toContain("packages:lint:affected");
+  });
 });
