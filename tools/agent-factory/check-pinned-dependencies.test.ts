@@ -5,14 +5,31 @@ import { describe, expect, it } from "vitest";
 import { checkPinnedDependencySpecifiers, isPinnedDependencySpecifier } from "./check-pinned-dependencies.js";
 
 describe("pinned dependency checker", () => {
-  it("accepts exact, workspace, file, link, portal, and npm alias exact specifiers", () => {
+  it("accepts exact, workspace, catalog, file, link, portal, and npm alias exact specifiers", () => {
     expect(isPinnedDependencySpecifier("1.2.3")).toBe(true);
     expect(isPinnedDependencySpecifier("1.2.3-beta.1")).toBe(true);
     expect(isPinnedDependencySpecifier("workspace:*")).toBe(true);
+    expect(isPinnedDependencySpecifier("catalog:")).toBe(true);
+    expect(isPinnedDependencySpecifier("catalog:default")).toBe(true);
     expect(isPinnedDependencySpecifier("file:../local-package.tgz")).toBe(true);
     expect(isPinnedDependencySpecifier("link:../local-package")).toBe(true);
     expect(isPinnedDependencySpecifier("portal:../local-package")).toBe(true);
     expect(isPinnedDependencySpecifier("npm:@scope/real-package@1.2.3")).toBe(true);
+  });
+
+  it("does not report catalog: specifiers for antd, graphql, @types/node, or @typescript/native-preview in the real manifests", async () => {
+    const files = [
+      "package.json",
+      "apps/ui-admin/package.json",
+      "apps/arena/model-vetting-studio/package.json",
+      "packages/openclinxr/graphql/package.json",
+      "packages/openclinxr/factory-stations/package.json",
+      "packages/cellix/config-vitest/package.json",
+    ];
+    const result = await checkPinnedDependencySpecifiers({ files });
+    const cataloged = new Set(["antd", "graphql", "@types/node", "@typescript/native-preview"]);
+    expect(result.findings.filter((finding) => cataloged.has(finding.dependency))).toEqual([]);
+    expect(isPinnedDependencySpecifier("catalog:")).toBe(true);
   });
 
   it("reports unpinned dependency specifiers with file, field, dependency, and specifier", async () => {

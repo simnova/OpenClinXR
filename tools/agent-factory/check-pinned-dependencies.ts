@@ -60,7 +60,14 @@ export async function checkPinnedDependencySpecifiers(input: PinnedDependencyChe
 }
 
 export function isPinnedDependencySpecifier(specifier: string): boolean {
-  if (specifier.startsWith("workspace:") || specifier.startsWith("file:") || specifier.startsWith("link:") || specifier.startsWith("portal:")) {
+  if (
+    specifier.startsWith("workspace:") ||
+    specifier.startsWith("file:") ||
+    specifier.startsWith("link:") ||
+    specifier.startsWith("portal:") ||
+    specifier === "catalog:" ||
+    specifier.startsWith("catalog:")
+  ) {
     return true;
   }
   if (specifier.startsWith("npm:")) {
