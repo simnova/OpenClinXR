@@ -1,14 +1,14 @@
-import { buildScenarioSceneGenerationPipelineWorkOrderQueue, createEdChestPainLocalLearnerRuntimeAssetBundle, type RuntimeAssetReviewDecision } from "@openclinxr/asset-registry";
+import type { buildScenarioSceneGenerationPipelineWorkOrderQueue, createEdChestPainLocalLearnerRuntimeAssetBundle, RuntimeAssetReviewDecision } from "@openclinxr/asset-registry";
 import { type AuthIdentity, DEFAULT_DEV_AUTH_IDENTITY, DEFAULT_DEV_AUTH_SECRET } from "@openclinxr/auth";
-import { AssetGenerationCapabilityFacade } from "@openclinxr/capability-gateway";
-import { type ExamForm, type ExamStationRunQueue } from "@openclinxr/exam-assembly";
-import { FACULTY_SCORE_DRAFT_CLAIM_SCOPE, type FacultyScoreDraft, type ReviewDecisionDraft } from "@openclinxr/review-workflow";
-import { scenarioBank } from "@openclinxr/scenario-fixtures";
-import { type ScenarioRuntime, type ScenarioRuntimeActorTurn } from "@openclinxr/scenario-runtime";
-import { type Scenario } from "@openclinxr/shared-schemas";
-import { type TelemetryRecorder } from "@openclinxr/telemetry";
-import { type RealtimeVoiceGatewayPostureInput } from "@openclinxr/voice-gateway";
-import { type OpenClinXrApiProtocolPosture } from "./protocol-support.js";
+import type { AssetGenerationCapabilityFacade } from "@openclinxr/capability-gateway";
+import type { ExamForm, ExamStationRunQueue } from "@openclinxr/exam-assembly";
+import type { FACULTY_SCORE_DRAFT_CLAIM_SCOPE, FacultyScoreDraft, ReviewDecisionDraft } from "@openclinxr/review-workflow";
+import type { scenarioBank } from "@openclinxr/scenario-fixtures";
+import type { ScenarioRuntime, ScenarioRuntimeActorTurn } from "@openclinxr/scenario-runtime";
+import type { Scenario } from "@openclinxr/shared-schemas";
+import type { TelemetryRecorder } from "@openclinxr/telemetry";
+import type { RealtimeVoiceGatewayPostureInput } from "@openclinxr/voice-gateway";
+import type { OpenClinXrApiProtocolPosture } from "./protocol-support.js";
 
 
 

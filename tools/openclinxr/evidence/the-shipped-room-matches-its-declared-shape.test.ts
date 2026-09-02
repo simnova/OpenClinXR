@@ -106,8 +106,8 @@ async function readShipped(): Promise<Shipped> {
   let shellHeight: number | null = null;
   let widestFloor = 0;
   for (const mesh of doc.getRoot().listMeshes()) {
-    let lo = [Infinity, Infinity, Infinity];
-    let hi = [-Infinity, -Infinity, -Infinity];
+    const lo = [Infinity, Infinity, Infinity];
+    const hi = [-Infinity, -Infinity, -Infinity];
     for (const prim of mesh.listPrimitives()) {
       const a = prim.getAttribute("POSITION")?.getArray();
       if (!a) continue;

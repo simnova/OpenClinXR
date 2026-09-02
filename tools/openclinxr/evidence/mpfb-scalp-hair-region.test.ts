@@ -135,7 +135,7 @@
  * longer has a region-carrying subject; the region-present clauses move to the
  * hm08 library columns (unchanged). Kevin is asserted ABSENT like aisha.
  */
-import { Accessor, NodeIO } from "@gltf-transform/core";
+import { type Accessor, NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 
 const ANNY_KNOWN_GOOD = "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb";
@@ -258,8 +258,8 @@ async function readSubject(path: string): Promise<Subject> {
 
   const primitives = body.listPrimitives();
 
-  let bodyMin = [Infinity, Infinity, Infinity];
-  let bodyMax = [-Infinity, -Infinity, -Infinity];
+  const bodyMin = [Infinity, Infinity, Infinity];
+  const bodyMax = [-Infinity, -Infinity, -Infinity];
   for (const prim of primitives) {
     const position = prim.getAttribute("POSITION");
     if (!position) continue;
@@ -403,8 +403,8 @@ describe("#222 scalp hair is a material region on the body, never a separate aut
     if (!body) throw new Error(`${ANNY_KNOWN_GOOD}: no meshes`);
 
     const primitives = body.listPrimitives();
-    let bodyMin = [Infinity, Infinity, Infinity];
-    let bodyMax = [-Infinity, -Infinity, -Infinity];
+    const bodyMin = [Infinity, Infinity, Infinity];
+    const bodyMax = [-Infinity, -Infinity, -Infinity];
     for (const prim of primitives) {
       const position = prim.getAttribute("POSITION");
       if (!position) continue;

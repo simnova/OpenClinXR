@@ -152,7 +152,7 @@ describe("the ui-xr typecheck gate is green", () => {
   }, 300_000);
 
   it("(2) COUNTERWEIGHT: the fix is not a suppression", () => {
-    // Refuses (b). merge-kill already kills a NEW eslint-disable / @ts-ignore in source, but it
+    // Refuses (b). merge-kill already kills a NEW eslint-disable / @ts-expect-error in source, but it
     // compares against main's tip — so a suppression added in the same slice that removes the error
     // is exactly the shape a tip-relative check is weakest against. Asserted here on the function.
     const body = functionBody();

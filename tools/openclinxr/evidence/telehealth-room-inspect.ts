@@ -130,8 +130,8 @@ export type TelehealthRoomInspect = {
 function unionBounds(
   rows: ReadonlyArray<{ worldMin: [number, number, number] | null; worldMax: [number, number, number] | null }>,
 ): { min: [number, number, number]; max: [number, number, number] } | null {
-  let min: [number, number, number] = [Infinity, Infinity, Infinity];
-  let max: [number, number, number] = [-Infinity, -Infinity, -Infinity];
+  const min: [number, number, number] = [Infinity, Infinity, Infinity];
+  const max: [number, number, number] = [-Infinity, -Infinity, -Infinity];
   let any = false;
   for (const row of rows) {
     if (!row.worldMin || !row.worldMax) continue;

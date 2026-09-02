@@ -43,7 +43,7 @@ import BASELINE from "./cited-evidence-baseline.json" with { type: "json" };
 const REPO = new URL("../..", import.meta.url).pathname.replace(/\/$/, "");
 
 /** Paths under the ignored evidence root, cited from anywhere in the tracked tree. */
-const CITATION = /\.openclinxr\/evidence\/[A-Za-z0-9._\/-]+\.[A-Za-z0-9]+/g;
+const CITATION = /\.openclinxr\/evidence\/[A-Za-z0-9._/-]+\.[A-Za-z0-9]+/g;
 
 function git(...args: string[]): string {
   return execFileSync("git", args, { cwd: REPO, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });

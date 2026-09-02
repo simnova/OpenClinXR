@@ -137,8 +137,8 @@ async function countTris(glbPath: string): Promise<number> {
 async function aabbVolume(glbPath: string): Promise<number> {
   const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
   const doc = await io.read(glbPath);
-  let min = [Infinity, Infinity, Infinity];
-  let max = [-Infinity, -Infinity, -Infinity];
+  const min = [Infinity, Infinity, Infinity];
+  const max = [-Infinity, -Infinity, -Infinity];
   for (const mesh of doc.getRoot().listMeshes()) {
     for (const prim of mesh.listPrimitives()) {
       const pos = prim.getAttribute("POSITION");

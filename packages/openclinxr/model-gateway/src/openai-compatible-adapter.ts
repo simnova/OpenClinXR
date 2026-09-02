@@ -1,11 +1,11 @@
-import { type ProviderHealth } from "@cellix/provider-contracts";
-import {
-  type ActorCommunicationProfileContext,
-  type ActorResponseRequest,
-  type ActorResponseResult,
-  type GuardrailResult,
-  type ModelCapability,
-  type ModelProviderAdapter,
+import type { ProviderHealth } from "@cellix/provider-contracts";
+import type {
+  ActorCommunicationProfileContext,
+  ActorResponseRequest,
+  ActorResponseResult,
+  GuardrailResult,
+  ModelCapability,
+  ModelProviderAdapter,
 } from "./index.js";
 import { isHiddenTruthExtractionAttempt } from "./hidden-truth-guardrail.js";
 

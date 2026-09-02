@@ -21,7 +21,7 @@ import {
   Mesh,
   MeshBasicMaterial,
   MeshNormalMaterial,
-  Object3D,
+  type Object3D,
   PerspectiveCamera,
   Quaternion,
   Scene,

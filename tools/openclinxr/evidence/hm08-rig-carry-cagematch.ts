@@ -70,7 +70,7 @@ export const CANONICAL_JOINTS_AS_THREE_JS = [
 ] as const;
 
 export function jointNameAsThreeJsSeesIt(fileSideName: string): string {
-  return fileSideName.replace(/\./g, "").replace(/[\[\]]/g, "_");
+  return fileSideName.replace(/\./g, "").replace(/[[\]]/g, "_");
 }
 
 export type BakeComparison = {

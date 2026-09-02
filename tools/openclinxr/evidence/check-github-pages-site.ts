@@ -237,10 +237,7 @@ function pageLiveSnapshotPattern(): RegExp {
 
 function pagesSnapshotFilePattern(key: string): RegExp {
   // Looser for current 05-28 evidence naming (post-trim/reorg for relevance); requires a date + ext in filename
-  return new RegExp(
-    `([0-9]{4}-[0-9]{2}-[0-9]{2})(\\.[a-z0-9]+)$`,
-    "i",
-  );
+  return /([0-9]{4}-[0-9]{2}-[0-9]{2})(\.[a-z0-9]+)$/i;
 }
 
 async function latestSnapshotDate(key: string, extension: string): Promise<string | undefined> {

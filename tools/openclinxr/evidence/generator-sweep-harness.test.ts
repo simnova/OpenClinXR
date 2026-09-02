@@ -63,7 +63,7 @@ import { describe, expect, it } from "vitest";
  *
  * Do not start the Blender half. Garment and human bake matrices are a separate slice.
  *
- * No new `eslint-disable`, `@ts-ignore`, `@ts-expect-error` or `OPENCLAW_SKIP_HOOKS` in source paths.
+ * No new `eslint-disable`, `@ts-expect-error`, `@ts-expect-error` or `OPENCLAW_SKIP_HOOKS` in source paths.
  * Never raise a file-size ceiling; split instead.
  *
  * IF ANY PROOF CANNOT PASS AS WRITTEN, OR PASSES TRIVIALLY AGAINST THE OBSERVED RANGE, OR ASSERTS THE

@@ -1,6 +1,6 @@
 import { readdirSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { Document, NodeIO } from "@gltf-transform/core";
+import { type Document, NodeIO } from "@gltf-transform/core";
 
 /**
  * #597 — APPEARANCE ORACLE for the fitted eyebrow, planted AFTER the first reduction

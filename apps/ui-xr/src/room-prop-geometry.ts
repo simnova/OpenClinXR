@@ -18,7 +18,7 @@ import {
   Group,
   Mesh,
   MeshStandardMaterial,
-  Object3D,
+  type Object3D,
   Vector3,
 } from "three";
 import {

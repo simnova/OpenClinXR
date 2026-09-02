@@ -7,7 +7,7 @@ import type {
   DurableEmotionalStateTimelineRecord,
 } from "@openclinxr/session-state";
 import type { LearnerRuntimeAssetBundle } from "@openclinxr/asset-registry/runtime-bundles";
-import { type ReviewPacket, type Scenario, type TraceEvent } from "@openclinxr/shared-schemas";
+import type { ReviewPacket, Scenario, TraceEvent } from "@openclinxr/shared-schemas";
 import { MongoExamFormRepository, MongoRuntimeAssetBundleRepository, MongoStationRunQueueRepository } from "./exam-repositories.js";
 import { MongoFacultyReviewDecisionRepository, MongoFacultyScoreDraftRepository } from "./faculty-repositories.js";
 import { MongoDurableMultiActorSessionStore } from "./conversation-repositories.js";

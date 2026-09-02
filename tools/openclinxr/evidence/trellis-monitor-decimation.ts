@@ -368,7 +368,7 @@ function rasterizeView(
   let rx = dy * uz - dz * uy, ry = dz * ux - dx * uz, rz = dx * uy - dy * ux;
   const rl = Math.hypot(rx, ry, rz);
   rx /= rl; ry /= rl; rz /= rl;
-  let px = ry * dz - rz * dy, py = rz * dx - rx * dz, pz = rx * dy - ry * dx;
+  const px = ry * dz - rz * dy, py = rz * dx - rx * dz, pz = rx * dy - ry * dx;
 
   const zbuf = new Float32Array(res * res).fill(Infinity);
   const winner = new Int32Array(res * res).fill(-1);
@@ -609,7 +609,7 @@ function simplifyPerPart(mesh: RawMesh, parts: ComponentPart[], targetTris: numb
   }
   const reducible = mesh.triCount - preserved;
   const reducibleBudget = Math.max(targetTris - preserved, 0);
-  let ratio = reducible > 0 ? reducibleBudget / reducible : 1;
+  const ratio = reducible > 0 ? reducibleBudget / reducible : 1;
 
   const out: number[] = [];
   for (const p of parts) {

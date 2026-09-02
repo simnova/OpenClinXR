@@ -28,7 +28,7 @@
 
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { Accessor, NodeIO } from "@gltf-transform/core";
+import { type Accessor, NodeIO } from "@gltf-transform/core";
 
 export const MPFB_SCALP_EVIDENCE_ROOT = ".openclinxr/evidence/mpfb-scalp";
 
@@ -152,8 +152,8 @@ async function measureActor(actorId: string, rail: "anny_known_good" | "mpfb", g
 
   const primitives = body.listPrimitives();
 
-  let bodyMin = [Infinity, Infinity, Infinity];
-  let bodyMax = [-Infinity, -Infinity, -Infinity];
+  const bodyMin = [Infinity, Infinity, Infinity];
+  const bodyMax = [-Infinity, -Infinity, -Infinity];
   for (const prim of primitives) {
     const position = prim.getAttribute("POSITION");
     if (!position) continue;

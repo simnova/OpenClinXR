@@ -1,7 +1,7 @@
 import { openClinXrSpanNames, summarizeTelemetrySpans, telemetryRouteAttributes, type RealTelemetryRecorder, type TelemetryRecorder, type TelemetryRunCounters, type TelemetrySnapshot, type TelemetrySpanRecord } from "@openclinxr/telemetry";
 import type { RealtimeVoiceGatewayPostureInput } from "@openclinxr/voice-gateway";
 import { existsSync, readFileSync } from "node:fs";
-import { type RealtimeVoiceProtocolLaneId } from "@openclinxr/voice-gateway";
+import type { RealtimeVoiceProtocolLaneId } from "@openclinxr/voice-gateway";
 import type { ApiMaterializationInputReviewDecision, ApiMaterializationInputReviewDecisionRecord, ApiRuntimeRealismEvidenceInputReviewDecision, ApiRuntimeRealismEvidenceInputReviewDecisionRecord, ApiRuntimeVisualEvidenceAttachment, ApiRuntimeVisualEvidenceAttachmentRecord, ApiRuntimeRealismEvidenceAttachmentSummary, ApiRuntimeVisualEvidenceAttachmentActionPacket } from "./api-types.js";
 import path from "node:path";
 import { matchOpenClinXrRestRoute } from "@openclinxr/rest";

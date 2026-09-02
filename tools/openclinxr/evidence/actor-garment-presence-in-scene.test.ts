@@ -59,7 +59,7 @@ import { describe, expect, it } from "vitest";
  * the same area, and **no actor may be made to look dressed by hiding body geometry.** Contract 3
  * asserts both.
  *
- * No new `eslint-disable`, `@ts-ignore`, `@ts-expect-error` or `OPENCLAW_SKIP_HOOKS` in source
+ * No new `eslint-disable`, `@ts-expect-error`, `@ts-expect-error` or `OPENCLAW_SKIP_HOOKS` in source
  * paths — merge-kill fails the land regardless of the comment justifying it. Never raise a
  * file-size ceiling; split instead. Do not run full `orchestrate_character` — without the `anny`
  * package it silently writes ~0.8 MB stub GLBs that pass file checks.

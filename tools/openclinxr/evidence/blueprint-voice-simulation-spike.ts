@@ -7,7 +7,7 @@ import { scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src
 import {
   createDefaultScenarioRuntime,
   type GenerateRoutedActorResponseResult,
-  ScenarioRuntime,
+  type ScenarioRuntime,
 } from "../../../packages/openclinxr/scenario-runtime/src/index.js";
 import type { InteractionRoutingReason } from "../../../packages/openclinxr/session-state/src/index.js";
 import type { Scenario, TraceEvent } from "../../../packages/openclinxr/shared-schemas/src/index.js";

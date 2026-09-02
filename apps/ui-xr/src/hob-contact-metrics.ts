@@ -6,7 +6,7 @@
  * notEvidenceFor: clinical positioning, multi-joint bed fidelity.
  */
 
-import { Box3, Object3D, Vector3 } from "three";
+import { Box3, type Object3D, Vector3 } from "three";
 import { STRETCHER_DECK_TOP_METERS } from "./station-stretcher.js";
 
 /**

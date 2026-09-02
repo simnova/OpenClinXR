@@ -2,7 +2,7 @@
  * #525 — product-path interior lighting variants exist; default stays control.
  */
 import { describe, expect, it } from "vitest";
-import { Scene, WebGLRenderer } from "three";
+import { Scene, type WebGLRenderer } from "three";
 import {
   applyStationInteriorLighting,
   resolveStationInteriorLightingVariantId,

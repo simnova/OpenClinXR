@@ -1,5 +1,5 @@
 import type { Hono } from "hono";
-import { type AssetGenerationJobPolicyInput } from "@openclinxr/capability-gateway";
+import type { AssetGenerationJobPolicyInput } from "@openclinxr/capability-gateway";
 import { routeById } from "@openclinxr/rest";
 import type { ApiAppContext } from "../api-app-context.js";
 import type { ApiAppVariables } from "../api-types.js";

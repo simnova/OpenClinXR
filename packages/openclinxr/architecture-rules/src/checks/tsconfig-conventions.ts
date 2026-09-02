@@ -57,7 +57,7 @@ export type TsconfigConventionConfig = {
 
 // -- Private helpers ---------------------------------------------------------
 
-const SKIP_DIR = /node_modules$|[\/\\](dist|generated|public|scratch)[\/\\]/;
+const SKIP_DIR = /node_modules$|[/\\](dist|generated|public|scratch)[/\\]/;
 
 function findWorkspaceRoot(): string {
   let dir = dirname(fileURLToPath(import.meta.url));

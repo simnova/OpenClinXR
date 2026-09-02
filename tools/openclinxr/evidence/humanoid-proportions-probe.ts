@@ -312,8 +312,8 @@ export function extractJointsFromDocument(document: Document): {
   }
 
   let meshAabb: AssetMeasurement["meshAabb"] = null;
-  let min: [number, number, number] = [Infinity, Infinity, Infinity];
-  let max: [number, number, number] = [-Infinity, -Infinity, -Infinity];
+  const min: [number, number, number] = [Infinity, Infinity, Infinity];
+  const max: [number, number, number] = [-Infinity, -Infinity, -Infinity];
   let hasPos = false;
   for (const mesh of root.listMeshes()) {
     for (const prim of mesh.listPrimitives()) {

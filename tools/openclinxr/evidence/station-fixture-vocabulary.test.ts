@@ -70,7 +70,7 @@ import { describe, expect, it } from "vitest";
  *  - Adding a fixture kind that only `behavioral_health_private_room_v1` uses. That is the psych-only
  *    slice this issue was rewritten to reject, wearing a shell filename. Reject it yourself.
  *  - Raising any file-size ceiling. `station-environment.ts` is 262 lines and will grow — split it.
- *  - New `eslint-disable`, `@ts-ignore`, `@ts-expect-error` or `OPENCLAW_SKIP_HOOKS` in source paths.
+ *  - New `eslint-disable`, `@ts-expect-error`, `@ts-expect-error` or `OPENCLAW_SKIP_HOOKS` in source paths.
  *    merge-kill fails the land regardless of the comment justifying it.
  *  - Running full `orchestrate_character`. Without the `anny` package it silently writes ~0.8 MB stub
  *    GLBs that pass file checks.

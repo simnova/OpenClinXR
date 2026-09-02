@@ -8,13 +8,13 @@ import {
   type PhysicsConfigV1,
 } from "../../../packages/openclinxr/arena/physics-touch-contract/src/factory/physics-config-v1.js";
 
-import {
-  type Habitus,
-  type ComplianceRegion,
-  type GuardingTriggerEntry,
-  type HabitusBodyRegion,
-  type HabitusJoint,
-  type JointLimit,
+import type {
+  Habitus,
+  ComplianceRegion,
+  GuardingTriggerEntry,
+  HabitusBodyRegion,
+  HabitusJoint,
+  JointLimit,
 } from "../../../packages/openclinxr/arena/physics-touch-contract/src/factory/habitus-tables.js";
 
 // ---------------------------------------------------------------------------

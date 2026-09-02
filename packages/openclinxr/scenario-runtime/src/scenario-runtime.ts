@@ -1,4 +1,4 @@
-import { type ScenarioAssetReadiness } from "@openclinxr/asset-registry";
+import type { ScenarioAssetReadiness } from "@openclinxr/asset-registry";
 import {
   type ActorTurnInProgress,
   type ArbitrateTurnTakingInput,
@@ -14,9 +14,9 @@ import {
   type TurnTakingDecision,
 } from "@openclinxr/conversation-policy";
 import { createStationRun, type StationRun, transitionStation } from "@openclinxr/domain";
-import {
-  type ActorResponseResult,
-  type ModelGateway,
+import type {
+  ActorResponseResult,
+  ModelGateway,
 } from "@openclinxr/model-gateway";
 import {
   buildReviewPacket,
@@ -31,7 +31,7 @@ import {
   recordClinicalAction as recordSessionClinicalAction,
   routeActorInteraction,
 } from "@openclinxr/session-state";
-import { type InteractionEmotion, type ReviewPacket, type Scenario, type TraceEvent } from "@openclinxr/shared-schemas";
+import type { InteractionEmotion, ReviewPacket, Scenario, TraceEvent } from "@openclinxr/shared-schemas";
 import {
   type AudioEvent,
   collectVoiceStream,

@@ -28,7 +28,7 @@
 
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { Document, NodeIO, type Mesh as GltfMesh, type Node as GltfNode, type Primitive as GltfPrimitive } from "@gltf-transform/core";
+import { type Document, NodeIO, type Mesh as GltfMesh, type Node as GltfNode, type Primitive as GltfPrimitive } from "@gltf-transform/core";
 
 const GARMENT_MESH_RE = /openclinxr_real_garment/i;
 /** Exported declaration markers (1-triangle SSOT meshes) — neither body nor garment. */

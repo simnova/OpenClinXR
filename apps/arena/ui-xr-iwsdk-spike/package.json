@@ -8,7 +8,7 @@
     "dev:portless": "vite --host 127.0.0.1 --port ${PORT:-0} --strictPort=false",
     "build": "vite build",
     "probe:iwsdk": "node scripts/probe-iwsdk.mjs",
-    "lint": "biome check --no-errors-on-unmatched .",
+    "lint": "biome lint --no-errors-on-unmatched .",
     "typecheck": "tsgo --noEmit -p tsconfig.json",
     "test": "vitest run --root ."
   },

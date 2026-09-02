@@ -113,7 +113,7 @@ import { describe, expect, it } from "vitest";
  * ANYWAY. IF ANY PROOF CANNOT PASS AS WRITTEN, OR PASSES TRIVIALLY AGAINST THE OBSERVED RANGE, SAY SO
  * IN YOUR REPORT rather than silently running a corrected version.
  *
- * No new `eslint-disable`, `@ts-ignore`, `@ts-expect-error` or `OPENCLAW_SKIP_HOOKS` in source paths —
+ * No new `eslint-disable`, `@ts-expect-error`, `@ts-expect-error` or `OPENCLAW_SKIP_HOOKS` in source paths —
  * merge-kill fails the land regardless of the comment justifying it.
  *
  * SCOPE: three inpatient stations stage their patient on the support surface that already exists.

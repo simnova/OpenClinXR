@@ -22,7 +22,7 @@
  * Usage: pnpm -s exec tsx tools/openclinxr/evidence/eyebrow-budget/reduce-shipped-eyebrows.ts
  */
 import { readdirSync, statSync, writeFileSync } from "node:fs";
-import { Document, NodeIO, Primitive } from "@gltf-transform/core";
+import { Document, NodeIO, type Primitive } from "@gltf-transform/core";
 import { compactPrimitive } from "@gltf-transform/functions";
 
 const DIR = "apps/ui-xr/public/generated-humanoids";

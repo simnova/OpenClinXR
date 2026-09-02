@@ -128,7 +128,7 @@ import {
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
-  Object3D,
+  type Object3D,
   PerspectiveCamera,
   PlaneGeometry,
   Raycaster,
@@ -8514,8 +8514,8 @@ function updateHumanoidSpeechCue(slot: GeneratedHumanoidAnimationSlot, nowMs: nu
   // Peds adaptive: timed emotion ramp + viseme/emotion weights into effWeights (timeline or pre-bake).
   let viseme = "rest";
   let openness = 0.35;
-  let activeDialogueTurnRef: any = undefined;
-  let liveSource: "live_blueprint_dialogue_emotion_source" | undefined = undefined;
+  let activeDialogueTurnRef: any ;
+  let liveSource: "live_blueprint_dialogue_emotion_source" | undefined ;
   if (encounterRuntimeAssetBundle?.scenarioId === "peds_asthma_parent_anxiety_v1" && speech.actorId) {
     const bundleTurns = pedsActorPlayerBundleDialogueTurns();
     const matchingTurn = bundleTurns.find((t: any) => t.actorId === speech.actorId);

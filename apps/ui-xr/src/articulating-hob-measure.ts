@@ -6,7 +6,7 @@
  * notEvidenceFor: clinical positioning correctness, multi-joint bed fidelity.
  */
 
-import { Box3, Mesh, Object3D, Vector3 } from "three";
+import { Box3, Mesh, type Object3D, Vector3 } from "three";
 import {
   STRETCHER_DECK_TOP_METERS,
   findProceduralStretcher,

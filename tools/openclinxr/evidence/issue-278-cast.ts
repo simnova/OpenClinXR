@@ -244,8 +244,8 @@ export async function scalpRegionOfGlb(doc: Awaited<ReturnType<NodeIO["read"]>>)
     : [...meshes].sort((a, b) => triangleCount(b) - triangleCount(a))[0];
   if (!body) return { present: false, minHeightFraction: null, maxAnteriorFraction: null };
 
-  let bodyMin = [Infinity, Infinity, Infinity];
-  let bodyMax = [-Infinity, -Infinity, -Infinity];
+  const bodyMin = [Infinity, Infinity, Infinity];
+  const bodyMax = [-Infinity, -Infinity, -Infinity];
   for (const prim of body.listPrimitives()) {
     const position = prim.getAttribute("POSITION");
     if (!position) continue;

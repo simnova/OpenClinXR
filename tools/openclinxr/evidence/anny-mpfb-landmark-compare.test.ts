@@ -209,7 +209,7 @@ describe("MADR 0051 §4 landmark instrument (#297)", () => {
       readFileSync(COMPARISON_ARTIFACT_PATH, "utf8"),
     ) as ComparisonReport;
 
-    const bandKeys = new Set(artifact.madr0051Bands.map((b) => b.landmark.split("|")).flat());
+    const bandKeys = new Set(artifact.madr0051Bands.flatMap((b) => b.landmark.split("|")));
     expect(bandKeys.has("stature")).toBe(true);
     expect(artifact.madr0051Bands.length).toBeGreaterThanOrEqual(3);
     for (const b of artifact.madr0051Bands) {

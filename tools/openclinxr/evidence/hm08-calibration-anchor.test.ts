@@ -90,7 +90,7 @@ import { describe, expect, it } from "vitest";
  * `hm08-upright-export.test.ts` are all forbidden and the counterweight below is written to catch
  * them. The guard caught a real class; it is calibrated against a control that no longer exists.
  *
- * No new `eslint-disable`, `@ts-ignore`, `@ts-expect-error` or `OPENCLAW_SKIP_HOOKS` in source paths —
+ * No new `eslint-disable`, `@ts-expect-error`, `@ts-expect-error` or `OPENCLAW_SKIP_HOOKS` in source paths —
  * merge-kill fails the land regardless of the comment justifying it.
  *
  * SIGNATURE IS YOURS. These read `inspectHm08CalibrationAnchor()`. What must not change: the anchor

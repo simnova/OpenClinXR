@@ -1,3 +1,4 @@
+import { writeFileSync } from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
@@ -337,7 +338,7 @@ export function buildUiXrRuntimeEvidenceConsumerPreflightReport(input: {
       const producedPath = manifest ? `/tmp/openclinxr-produced-env-gltf-${roomType}.json` : null;
       if (manifest && producedPath) {
         // Actual asset file production: write the manifest json (from case envGltfManifest + authoringVet in factory) so the launched player world can reference the produced asset.
-        require('fs').writeFileSync(producedPath, JSON.stringify(manifest, null, 2));
+        writeFileSync(producedPath, JSON.stringify(manifest, null, 2));
       }
       return {
         roomType,

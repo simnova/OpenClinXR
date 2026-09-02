@@ -1,4 +1,4 @@
-import { Box3, Mesh, Object3D, PerspectiveCamera, Vector3 } from "three";
+import { Box3, Mesh, type Object3D, type PerspectiveCamera, Vector3 } from "three";
 import type { CandidateCaptureView } from "./candidate-capture-views.js";
 
 export function cameraPosition(view: CandidateCaptureView): Vector3 {

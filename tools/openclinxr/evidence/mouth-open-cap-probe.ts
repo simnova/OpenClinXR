@@ -436,8 +436,8 @@ export async function runMouthOpenCapProbe(): Promise<void> {
     const retryBrowser = await chromium.launch({ headless: true });
     let fullRetries = 0;
     try {
-      let restHash = sha256Hex(await readFile(join(REPO_ROOT, STILLS["rest"]!)));
-      let atCapHash = sha256Hex(await readFile(join(REPO_ROOT, STILLS["at-cap"]!)));
+      const restHash = sha256Hex(await readFile(join(REPO_ROOT, STILLS["rest"]!)));
+      const atCapHash = sha256Hex(await readFile(join(REPO_ROOT, STILLS["at-cap"]!)));
       let fullHash = sha256Hex(await readFile(join(REPO_ROOT, STILLS["full-request"]!)));
       process.stdout.write(
         `stills: rest=${restHash.slice(0, 16)}… atCap=${atCapHash.slice(0, 16)}… fullRequest=${fullHash.slice(0, 16)}…\n`,

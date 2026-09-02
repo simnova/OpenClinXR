@@ -1,8 +1,8 @@
 import type { ExamStationRunQueue } from "@openclinxr/exam-assembly";
-import {
+import type {
   FACULTY_SCORE_DRAFT_CLAIM_SCOPE,
-  type FacultyScoreDraft,
-  type ReviewDecisionDraft,
+  FacultyScoreDraft,
+  ReviewDecisionDraft,
 } from "@openclinxr/review-workflow";
 
 /** Mirrors apps/api ApiFacultyScoreDraftRecord without importing apps/api. */

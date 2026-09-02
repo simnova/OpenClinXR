@@ -141,8 +141,8 @@ describe("JoltCandidateAdapter", () => {
     const adapter = new JoltCandidateAdapter(42);
 
     // Check initial subStep
-    let bytes = adapter.takeSnapshotBytes();
-    let state = JSON.parse(new TextDecoder().decode(bytes));
+    const bytes = adapter.takeSnapshotBytes();
+    const state = JSON.parse(new TextDecoder().decode(bytes));
     expect(state.subStep).toBe(0);
   });
 });

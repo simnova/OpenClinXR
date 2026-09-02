@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.4.15/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.4.16/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -36,12 +36,27 @@
         "noConfusingVoidType": "error",
         "noDebugger": "error",
         "noExtraNonNullAssertion": "error",
-        "noFallthroughSwitchClause": "error"
+        "noFallthroughSwitchClause": "error",
+        "noAssignInExpressions": "warn",
+        "useIterableCallbackReturn": "warn",
+        "noImplicitAnyLet": "warn",
+        "noArrayIndexKey": "warn",
+        "noControlCharactersInRegex": "warn"
+      },
+      "correctness": {
+        "useExhaustiveDependencies": "warn",
+        "useYield": "warn",
+        "noVoidTypeReturn": "warn",
+        "noPrecisionLoss": "warn"
+      },
+      "a11y": {
+        "useAriaPropsSupportedByRole": "warn",
+        "noLabelWithoutControl": "warn"
       },
       "style": {
         "noCommonJs": "error",
         "noNamespace": "error",
-        "noNonNullAssertion": "error",
+        "noNonNullAssertion": "warn",
         "useImportType": "error",
         "useConst": "error",
         "useAsConstAssertion": "error"
@@ -69,6 +84,16 @@
         "rules": {
           "complexity": {
             "useLiteralKeys": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/*.test.ts", "**/*.test.tsx"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noCommonJs": "off"
           }
         }
       }

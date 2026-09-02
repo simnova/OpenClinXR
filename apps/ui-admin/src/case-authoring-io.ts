@@ -11,7 +11,7 @@
  * verified before the move — so this is a pure relocation, not an API change.
  */
 import type { Scenario } from "@openclinxr/shared-schemas";
-import { createActorDraft } from "./case-authoring-model.js";
+import type { createActorDraft } from "./case-authoring-model.js";
 
 export function actorFormFromDraft(actor: ReturnType<typeof createActorDraft>) {
   return {

@@ -56,8 +56,8 @@ export async function inspectHumanoidMeshHygiene(
 
   for (const mesh of root.listMeshes()) {
     let vertexCount = 0;
-    let min: [number, number, number] = [Infinity, Infinity, Infinity];
-    let max: [number, number, number] = [-Infinity, -Infinity, -Infinity];
+    const min: [number, number, number] = [Infinity, Infinity, Infinity];
+    const max: [number, number, number] = [-Infinity, -Infinity, -Infinity];
     let hasPos = false;
 
     for (const prim of mesh.listPrimitives()) {

@@ -141,24 +141,6 @@ function markdownFiles(dir: string, acc: string[] = []): string[] {
     if (entry.isDirectory()) {
       if (!SKIPPED_DIRECTORIES.has(entry.name)) markdownFiles(join(dir, entry.name), acc);
     } else if (entry.isSymbolicLink() && entry.name.endsWith(".md")) {
-      /**
-       * A SYMLINKED .md IS NOT A SECOND DOCUMENT, and scanning it as one produces a reference
-       * failure that no edit to the document can fix.
-       *
-       * Measured 2026-08-30: `.claude/skills/bothy-board/SKILL.md` is a symlink to
-       * `.agents/skills/bothy-board/SKILL.md`. Its line 50 says
-       * `[OPENCLINXR-PROJECT-BINDING.md](OPENCLINXR-PROJECT-BINDING.md)`, and that sibling exists
-       * beside the TARGET. Resolution happens from the LINK's directory, where no such sibling
-       * exists, so a correct relative reference in a correct document was reported as unresolved.
-       * The only "fixes" available are to break the link or to hard-code a path that is wrong at
-       * the target — i.e. damage the document to satisfy the checker.
-       *
-       * The canonical file is walked at its real location (`.agents/…` is scanned), so skipping the
-       * link loses no coverage. `scripts/sync-harness-agent-files.sh` creates these deliberately so
-       * Claude, Grok and Cursor share one source of truth; the multi-harness layout is the reason
-       * they exist, and it should not cost a false failure.
-       */
-      continue;
     } else if (entry.name.endsWith(".md")) {
       acc.push(join(dir, entry.name));
     }

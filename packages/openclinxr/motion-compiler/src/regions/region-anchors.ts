@@ -29,7 +29,7 @@
  * body; what a SURFACE adds on top of a point is deliberately out of scope here.
  */
 import { resolvePoseBone } from "../../../asset-registry/src/pose-bone-resolver.js";
-import { type MotionBodyRegion } from "../motion-body-region.js";
+import type { MotionBodyRegion } from "../motion-body-region.js";
 import { REGION_ANCHOR_SPACE } from "../plant-motion-regions.js";
 
 export type Vec3 = { x: number; y: number; z: number };

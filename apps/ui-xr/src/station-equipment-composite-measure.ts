@@ -12,7 +12,7 @@
  * notEvidenceFor: clinical realism, Quest readiness, pixel grading.
  */
 
-import { Box3, Group, Mesh } from "three";
+import { Box3, type Group, Mesh } from "three";
 import { buildDeclaredEquipmentGeometry } from "./station-equipment-builders.js";
 
 export type Vec3 = { x: number; y: number; z: number };

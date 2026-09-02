@@ -105,7 +105,7 @@ const NOT_EVIDENCE_FOR = [
 ];
 
 function jointNameAsThreeJsSeesIt(fileSideName: string): string {
-  return fileSideName.replace(/\./g, "").replace(/[\[\]]/g, "_");
+  return fileSideName.replace(/\./g, "").replace(/[[\]]/g, "_");
 }
 
 function transformPoint(x: number, y: number, z: number, m: number[]): [number, number, number] {

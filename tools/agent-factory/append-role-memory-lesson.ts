@@ -75,7 +75,6 @@ async function findRoleMemoryPath(roleId: string): Promise<string> {
       await readFile(memoryPath, "utf8");
       return memoryPath;
     } catch {
-      continue;
     }
   }
   throw new Error(`Could not find memory.md for role '${roleId}'.`);

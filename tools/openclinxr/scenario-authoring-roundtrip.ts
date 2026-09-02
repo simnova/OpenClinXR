@@ -15,7 +15,7 @@ import path from "node:path";
 import { edChestPainScenario } from "../../packages/openclinxr/scenario-fixtures/src/index.js";
 import {
   createDefaultScenarioRuntime,
-  ScenarioRuntime,
+  type ScenarioRuntime,
   type ScenarioRuntimeActorTurn,
   type ScenarioRuntimeDurableStore,
 } from "../../packages/openclinxr/scenario-runtime/src/index.js";

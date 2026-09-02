@@ -853,7 +853,7 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
     scene.traverse(function (o) {
       if (!(o.isMesh || o.isSkinnedMesh)) return;
       if (o.visible === false) return;
-      if (!/door_leaf|fixture-slot\.door/i.test(o.name || "")) return;
+      if (!/door_leaf|fixture-slot.door/i.test(o.name || "")) return;
       const box = worldBoxOf(o);
       if (box) doorBoxes.push(box);
     });

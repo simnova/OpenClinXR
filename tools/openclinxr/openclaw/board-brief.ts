@@ -202,7 +202,7 @@ const PATH_RULES = ["changed:", "exists:", "min-bytes:", "live:"] as const;
  * The rest stay: a backtick, quote, bracket or paren in a path is a markdown artifact
  * (`exists:[evidence](path/x.json)`), and those genuinely cannot resolve.
  */
-const FORMATTING = /[`"'\[\]()]/u;
+const FORMATTING = /[`"'[\]()]/u;
 
 export function malformedPathTargets(rules: readonly string[]): string[] {
   const bad: string[] = [];

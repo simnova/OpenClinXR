@@ -12,7 +12,7 @@
 import {
   Color,
   Mesh,
-  MeshStandardMaterial,
+  type MeshStandardMaterial,
   type Group,
   type Object3D,
   type Vector3,

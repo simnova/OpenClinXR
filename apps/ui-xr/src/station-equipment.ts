@@ -12,7 +12,7 @@
 
 import {
   Box3,
-  Group,
+  type Group,
   Mesh,
   type Object3D,
 } from "three";

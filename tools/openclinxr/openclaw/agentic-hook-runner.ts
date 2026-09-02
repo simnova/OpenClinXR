@@ -128,6 +128,36 @@ export function matchesAnyPath(files: string[], patterns: RegExp[]): boolean {
   return files.some((file) => patterns.some((pattern) => pattern.test(file)));
 }
 
+/** Staged files Biome's root config includes (apps/packages/tools + root json). */
+const BIOME_STAGED_FILE = /^(?:apps|packages|tools)\/.+\.(?:ts|tsx|js|jsx|mts|cts|json|jsonc)$|^[^/]+\.jsonc?$|^biome\.json$/u;
+const BIOME_STAGED_SKIP = /(?:^|\/)(?:dist|node_modules|generated)\//u;
+const BIOME_STAGED_FILE_CAP = 200;
+
+/**
+ * Cellix gates `biome lint` on package prebuild. Pre-commit here lints the staged
+ * files that biome.json already includes — not the full-tree `hygiene:biome` sweep.
+ */
+export function biomeStagedFiles(changedFiles: string[]): string[] {
+  return changedFiles.filter((file) => BIOME_STAGED_FILE.test(file) && !BIOME_STAGED_SKIP.test(file));
+}
+
+export function buildBiomeStep(changedFiles: string[]): HookStep | null {
+  const files = biomeStagedFiles(changedFiles);
+  if (files.length === 0) return null;
+  if (files.length > BIOME_STAGED_FILE_CAP) {
+    return {
+      label: "Biome check (affected packages)",
+      command: pnpm("packages:lint:affected"),
+      reason: `staged set has ${files.length} Biome files (>${BIOME_STAGED_FILE_CAP}); Turbo lint on affected packages`,
+    };
+  }
+  return {
+    label: "Biome check (staged)",
+    command: ["pnpm", "exec", "biome", "lint", "--no-errors-on-unmatched", "--", ...files],
+    reason: "Cellix-style lint gate: staged TS/JS/JSON under apps/packages/tools must pass biome lint",
+  };
+}
+
 /**
  * Classify how pre-commit should invoke architecture for a staged file set.
  *
@@ -296,6 +326,11 @@ function buildPathAwareSteps(profile: HookProfile, changedFiles: string[]): Hook
   const openclawCodeChanged = matchesAnyPath(changedFiles, [/^tools\/openclinxr\/openclaw\//u]);
 
   const steps: HookStep[] = [];
+
+  const biomeStep = buildBiomeStep(changedFiles);
+  if (biomeStep) {
+    steps.push(biomeStep);
+  }
 
   if (publicAssetChanged || process.env.OPENCLINXR_HOOK_PUBLIC_ASSETS === "1") {
     steps.push({

@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import {
   ARCHITECTURE_GLOBAL_SUITE_FILES,
+  biomeStagedFiles,
   buildArchitectureStep,
+  buildBiomeStep,
   classifyArchitectureInvocation,
   matchesAnyPath,
   stepsForProfile,
@@ -105,5 +107,29 @@ describe("agentic-hook-runner path-scoped architecture", () => {
     const architecture = steps.find((step) => step.label.includes("Architecture"));
     expect(architecture?.label).toBe("Architecture fitness rules (path-scoped pre-commit)");
     expect(architecture?.command.join(" ")).toContain("vitest run --config vitest.arch.config.ts --root .");
+  });
+
+  it("adds biome check on staged TS/JSON under apps/packages/tools", () => {
+    expect(biomeStagedFiles(["apps/api/src/server.ts", "PROJECT_STATUS.md"])).toEqual(["apps/api/src/server.ts"]);
+    const step = buildBiomeStep(["apps/api/src/server.ts"]);
+    expect(step?.label).toBe("Biome check (staged)");
+    expect(step?.command).toEqual([
+      "pnpm",
+      "exec",
+      "biome",
+      "lint",
+      "--no-errors-on-unmatched",
+      "--",
+      "apps/api/src/server.ts",
+    ]);
+    const steps = stepsForProfile("pre-commit", ["apps/api/src/server.ts"]);
+    expect(steps.some((s) => s.label === "Biome check (staged)")).toBe(true);
+  });
+
+  it("omits biome when staged files are not in biome.json includes", () => {
+    expect(buildBiomeStep(["PROJECT_STATUS.md", "docs/openclinxr/foo.md"])).toBeNull();
+    expect(
+      stepsForProfile("pre-commit", ["PROJECT_STATUS.md"]).some((s) => s.label.toLowerCase().includes("biome")),
+    ).toBe(false);
   });
 });

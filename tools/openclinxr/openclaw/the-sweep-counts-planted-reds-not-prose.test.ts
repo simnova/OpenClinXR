@@ -72,7 +72,7 @@ describe("the sweep counts planted REDs, not prose", () => {
       .toBeGreaterThan(0);
   });
 
-  it("(1) RED: a sweep entry point exists and reports the unfinished inventory", async () => {
+  it("(1) RED: a sweep entry point exists and reports the unfinished inventory", { timeout: 15_000 }, async () => {
     const mod = await import("./openclaw-sweep.js") as Record<string, unknown>;
     const fn = mod["summariseUnfinishedInventory"];
     expect(

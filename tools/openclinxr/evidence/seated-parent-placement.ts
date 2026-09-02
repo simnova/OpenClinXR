@@ -419,7 +419,7 @@ function meanRgbOfPng(bytes: Uint8Array): { rgb: [number, number, number]; sampl
 }
 
 function srgbToLinear(c: number): number {
-  return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
 }
 
 function rgbToLab(rgb: [number, number, number]): { L: number; a: number; b: number } {

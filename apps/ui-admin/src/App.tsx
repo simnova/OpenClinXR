@@ -39,7 +39,7 @@ import {
 } from "./api-client.js";
 import { CaseAuthoringWorkbench } from "./CaseAuthoringWorkbench.js";
 import { EmissionReplayBindPanel } from "./EmissionReplayBindPanel.js";
-import { type PlacementAuthorValue } from "./EnvironmentGenerationQueuePanel.js";
+import type { PlacementAuthorValue } from "./EnvironmentGenerationQueuePanel.js";
 import { SeedWorldviewQueue, type SeedWorldviewCompileGraph } from "./seed-worldview-queue.js";
 import { FacultyReviewDecisionPanel } from "./FacultyReviewDecisionPanel.js";
 import { useFacultyCompileLocks } from "./faculty-compile-lock.js";

@@ -125,8 +125,8 @@ export async function measureGltfAssetLocalBounds(): Promise<
     if (!existsSync(filePath)) continue;
     const doc = await io.read(filePath);
     const root = doc.getRoot();
-    let min = [Infinity, Infinity, Infinity];
-    let max = [-Infinity, -Infinity, -Infinity];
+    const min = [Infinity, Infinity, Infinity];
+    const max = [-Infinity, -Infinity, -Infinity];
     let found = false;
     for (const mesh of root.listMeshes()) {
       for (const prim of mesh.listPrimitives()) {

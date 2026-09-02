@@ -605,7 +605,7 @@ async function runProbe(): Promise<ProbeReport> {
   let annyStature: number | null = null;
   let mhStature: number | null = null;
   let garmentTris: number | null = null;
-  let transferGlbExists = existsSync(transferredScene) || existsSync(garmentOnlyXfer);
+  const transferGlbExists = existsSync(transferredScene) || existsSync(garmentOnlyXfer);
 
   if (existsSync(alignedAnny) && existsSync(alignedMh)) {
     const annyM = await measureGlb(alignedAnny);

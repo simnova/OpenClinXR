@@ -80,7 +80,7 @@ import { garmentBakesEnabled, GARMENT_BAKES_ENV } from "./garment-bake-matrix.ts
  * **Do not change any shipping coefficient.** This slice measures the space. Changing 0.31 destroys
  * the before-column and pre-empts a decision that is mine to make from the sheet. Contract 3 catches it.
  *
- * No new `eslint-disable`, `@ts-ignore`, `@ts-expect-error` or `OPENCLAW_SKIP_HOOKS` in source paths.
+ * No new `eslint-disable`, `@ts-expect-error`, `@ts-expect-error` or `OPENCLAW_SKIP_HOOKS` in source paths.
  * Never raise a file-size ceiling; split instead.
  *
  * IF ANY PROOF CANNOT PASS AS WRITTEN, OR PASSES TRIVIALLY AGAINST THE OBSERVED RANGE, OR ASSERTS THE

@@ -191,7 +191,7 @@ import {
   telemetrySnapshotFromRecorder,
   asRealTelemetryRecorder,
 } from "./api-support.js";
-import { type ApiAppContext } from "./api-app-context.js";
+import type { ApiAppContext } from "./api-app-context.js";
 import { ApiApplication, type ApiApp } from "./api-application.js";
 import { registerReviewRoutes } from "./routes/review-routes.js";
 import { registerEncounterSessionRoutes } from "./routes/encounter-session-routes.js";

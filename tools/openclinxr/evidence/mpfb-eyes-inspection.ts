@@ -331,8 +331,8 @@ export function pngLuminanceSd(bytes: Uint8Array): { width: number; height: numb
 
 /** All meshes in bind pose — a world AABB of every skinned mesh (mesh nodes are identity on this rail). */
 function wholeBodyAabb(doc: Document): { min: Vec3; max: Vec3; heightMeters: number } {
-  let min = { x: Infinity, y: Infinity, z: Infinity };
-  let max = { x: -Infinity, y: -Infinity, z: -Infinity };
+  const min = { x: Infinity, y: Infinity, z: Infinity };
+  const max = { x: -Infinity, y: -Infinity, z: -Infinity };
   for (const mesh of doc.getRoot().listMeshes()) {
     const box = aabbOf(meshPositions(mesh));
     if (box.min.x < min.x) min.x = box.min.x;

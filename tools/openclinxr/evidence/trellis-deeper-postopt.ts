@@ -137,8 +137,8 @@ async function computeAABB(glbPath: string): Promise<AABB> {
   const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
   const doc = await io.read(glbPath);
 
-  let min: [number, number, number] = [Infinity, Infinity, Infinity];
-  let max: [number, number, number] = [-Infinity, -Infinity, -Infinity];
+  const min: [number, number, number] = [Infinity, Infinity, Infinity];
+  const max: [number, number, number] = [-Infinity, -Infinity, -Infinity];
 
   for (const mesh of doc.getRoot().listMeshes()) {
     for (const prim of mesh.listPrimitives()) {

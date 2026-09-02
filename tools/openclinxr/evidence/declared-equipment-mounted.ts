@@ -340,8 +340,8 @@ async function measureAssetLocalBounds(): Promise<Record<string, { min: number[]
   for (const [equipmentId, fileName] of Object.entries(REAL_EQUIPMENT_GLTF_BY_ID)) {
     try {
       const doc = await io.read(path.join(equipmentDir, fileName));
-      let min = [Infinity, Infinity, Infinity];
-      let max = [-Infinity, -Infinity, -Infinity];
+      const min = [Infinity, Infinity, Infinity];
+      const max = [-Infinity, -Infinity, -Infinity];
       let found = false;
       for (const mesh of doc.getRoot().listMeshes()) {
         for (const prim of mesh.listPrimitives()) {
@@ -464,7 +464,7 @@ async function measureLiveEquipmentMounting(input: {
           await waitForEquipmentOrFrames(page, 120_000);
           // Allow GLTF loaders a beat (ED bay real assets).
           await page.waitForTimeout(1500);
-          let live = await readLiveEquipmentFromPage(page);
+          const live = await readLiveEquipmentFromPage(page);
           decorateGltfLoadTiming(live);
           // #245 — if any gltf-sourced equipment was still pending at the sample
           // instant, wait for all scene assets to resolve, then re-sample. If the

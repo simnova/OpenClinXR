@@ -13,7 +13,7 @@
  * Usage: pnpm -s exec tsx tools/openclinxr/evidence/eyebrow-budget/ladder-rebake.ts <budget> <outGlb>
  */
 import { readFileSync, writeFileSync } from "node:fs";
-import { Document, NodeIO, Primitive } from "@gltf-transform/core";
+import { Document, NodeIO, type Primitive } from "@gltf-transform/core";
 import { compactPrimitive } from "@gltf-transform/functions";
 
 const PRE = ".openclinxr/evidence/eyebrow-budget/compare/main-mpfb-ob-patient-aisha.glb";

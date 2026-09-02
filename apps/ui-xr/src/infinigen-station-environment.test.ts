@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Box3, Group, Mesh, BoxGeometry, MeshStandardMaterial, Vector3 } from "three";
+import { Box3, Group, Mesh, BoxGeometry, MeshStandardMaterial, type Vector3 } from "three";
 
 /**
  * PLANTED CONTRACTS (#336). Infinigen-generated station environment, selected by environmentId.

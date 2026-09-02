@@ -415,7 +415,7 @@ export function applyAndPlantSupineOnDeck(
     ?? DEFAULT_STRETCHER_POSITION.z;
   const pillowLocalX = -STRETCHER_LENGTH_METERS * 0.38;
   const livePillow = input.stretcher ? readStretcherPillowWorld(input.stretcher) : null;
-  let headAlignDeltaX = alignSupineHeadToPillow(humanoidRoot, {
+  const headAlignDeltaX = alignSupineHeadToPillow(humanoidRoot, {
     x: input.pillowWorldX ?? livePillow?.x ?? stretcherX + pillowLocalX,
     z: livePillow?.z ?? stretcherZ,
   }).deltaX;
