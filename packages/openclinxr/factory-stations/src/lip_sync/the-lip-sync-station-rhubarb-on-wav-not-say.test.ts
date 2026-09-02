@@ -14,6 +14,9 @@ import { planLipSync, runLipSync } from "./run.js";
  *
  * Diagnosis header IMMUTABLE. Flip it.fails → it and append ## FIXED.
  *
+ * ## FIXED (DVA-4)
+ * runLipSync takes wavPath and runs Rhubarb only. macOS TTS is writeLipSyncFixtureWav.
+ *
  * Do not invoke runLipSync here — that would shell say on this machine.
  */
 
@@ -27,11 +30,11 @@ describe("the lip_sync station rhubarb on wav not say", () => {
     expect(runLipSync.toString().length).toBeGreaterThan(40);
   });
 
-  it.fails("(1) production runLipSync does not shell say", () => {
+  it("(1) production runLipSync does not shell say", () => {
     expect(runLipSync.toString()).not.toMatch(/["']say["']/);
   });
 
-  it.fails("(2) LipSyncRunOptions accepts a wav path for the baker input", () => {
+  it("(2) LipSyncRunOptions accepts a wav path for the baker input", () => {
     const src = readFileSync(join(SRC, "run.ts"), "utf8");
     const start = src.indexOf("export type LipSyncRunOptions");
     const end = src.indexOf("export type LipSyncCue", start);

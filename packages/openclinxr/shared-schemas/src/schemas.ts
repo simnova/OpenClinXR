@@ -69,16 +69,24 @@ export const ComplianceRegionSchema = Type.Union([
 ]);
 
 /**
- * Emotions the runtime expression system can transition to
- * (`expressionWeightsForEmotion` in apps/ui-xr/src/main.ts).
+ * Dialogue ranks for EmotionEngine / CaseEmotionPolicy. "pain" is somatic
+ * (touch), not a dialogue `to` — see ActorTurnPlanSchema.
  */
-export const InteractionEmotionSchema = Type.Union([
-  Type.Literal("pain"),
+export const DialogueEmotionSchema = Type.Union([
   Type.Literal("anxious"),
   Type.Literal("concerned"),
   Type.Literal("reassured"),
   Type.Literal("neutral"),
 ]);
+
+/** Touch / body-mechanics affect. Not a CaseEmotionPolicy dialogue value. */
+export const SomaticEmotionSchema = Type.Literal("pain");
+
+/**
+ * Emotions the runtime expression system can transition to
+ * (`expressionWeightsForEmotion` in apps/ui-xr/src/main.ts).
+ */
+export const InteractionEmotionSchema = Type.Union([SomaticEmotionSchema, DialogueEmotionSchema]);
 
 export const EmotionEventKindSchema = Type.Union([
   Type.Literal("learner_empathetic"),
@@ -88,19 +96,80 @@ export const EmotionEventKindSchema = Type.Union([
   Type.Literal("learner_acknowledgement"),
   Type.Literal("learner_clinical_question"),
   Type.Literal("learner_personal_question"),
+  Type.Literal("learner_unclassified"),
 ]);
 
 export const EmotionTransitionRuleSchema = Type.Object({
-  from: InteractionEmotionSchema,
+  from: DialogueEmotionSchema,
   triggeredBy: EmotionEventKindSchema,
-  to: InteractionEmotionSchema,
+  to: DialogueEmotionSchema,
 });
 
 export const CaseEmotionPolicySchema = Type.Object({
-  baseline: InteractionEmotionSchema,
-  upperBound: InteractionEmotionSchema,
-  lowerBound: InteractionEmotionSchema,
+  baseline: DialogueEmotionSchema,
+  upperBound: DialogueEmotionSchema,
+  lowerBound: DialogueEmotionSchema,
   transitions: Type.Array(EmotionTransitionRuleSchema),
+});
+
+export const ActorTurnPlanSchema = Type.Object({
+  planId: Type.String({ minLength: 1 }),
+  planVersion: Type.Integer({ minimum: 1 }),
+  turnId: Type.String({ minLength: 1 }),
+  stationRunId: Type.String({ minLength: 1 }),
+  actorId: Type.String({ minLength: 1 }),
+  respondingActorId: Type.String({ minLength: 1 }),
+  turnIndex: Type.Integer({ minimum: 0 }),
+  spokenText: Type.String(),
+  spokenTextForTts: Type.String(),
+  dialogueEmotionFrom: DialogueEmotionSchema,
+  dialogueEmotionTo: DialogueEmotionSchema,
+  somaticEmotion: Type.Union([SomaticEmotionSchema, Type.Null()]),
+  eventKind: EmotionEventKindSchema,
+  eventKindSource: Type.Union([
+    Type.Literal("classifier"),
+    Type.Literal("touch"),
+    Type.Literal("timeout"),
+    Type.Literal("barge_in"),
+  ]),
+  intensityBucket: Type.Union([Type.Literal("low"), Type.Literal("mid"), Type.Literal("high")]),
+  ageBand: Type.Union([
+    Type.Literal("child"),
+    Type.Literal("adolescent"),
+    Type.Literal("adult"),
+    Type.Literal("adult-parent"),
+  ]),
+  performancePlanId: Type.String({ minLength: 1 }),
+  facePresetId: Type.String({ minLength: 1 }),
+  posePresetId: Type.String({ minLength: 1 }),
+  gestureClipIds: Type.Array(Type.String({ minLength: 1 })),
+  prosody: Type.Object({
+    wrapTags: Type.Array(Type.String()),
+    inlineTags: Type.Array(Type.String()),
+    speed: Type.Number({ minimum: 0.7, maximum: 1.5 }),
+    droppedTags: Type.Array(Type.String()),
+  }),
+  voiceId: Type.String({ minLength: 1 }),
+  languageProvenance: Type.Object({
+    fallbackUsed: Type.Boolean(),
+    providerId: Type.Optional(Type.String()),
+  }),
+  claimScope: Type.Literal("simulated_actor_behavior"),
+  notEvidenceFor: Type.Array(Type.String({ minLength: 1 })),
+});
+
+export const ActorTurnExecutionSchema = Type.Object({
+  planId: Type.String({ minLength: 1 }),
+  turnId: Type.String({ minLength: 1 }),
+  interruption: Type.Object({
+    kind: Type.Union([Type.Literal("none"), Type.Literal("truncated"), Type.Literal("replaced")]),
+  }),
+  renderedProsodyTags: Type.Array(Type.String()),
+  droppedProsodyTags: Type.Array(Type.String()),
+  fallback: Type.Object({
+    language: Type.Boolean(),
+    tts: Type.Boolean(),
+  }),
 });
 
 /**

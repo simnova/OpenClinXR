@@ -12,6 +12,10 @@ import { validateCaseEmotionPolicy } from "./index.js";
  * MEASURED 2026-09-02. validateCaseEmotionPolicy({ to: "pain" }).ok === true.
  *
  * Diagnosis header IMMUTABLE. Flip it.fails → it and append ## FIXED.
+ *
+ * ## FIXED (DVA-1)
+ * DialogueEmotionSchema excludes pain. CaseEmotionPolicy transitions use
+ * DialogueEmotion. ActorTurnPlanSchema is exported.
  */
 
 const DIALOGUE_PAIN_POLICY = {
@@ -35,12 +39,12 @@ describe("actor turn plan forbids dialogue pain", () => {
     ).toBe(true);
   });
 
-  it.fails("(1) CaseEmotionPolicy rejects a dialogue transition whose to is pain", () => {
+  it("(1) CaseEmotionPolicy rejects a dialogue transition whose to is pain", () => {
     const result = validateCaseEmotionPolicy(DIALOGUE_PAIN_POLICY);
     expect(result.ok, "dialogue to=pain must be unrepresentable").toBe(false);
   });
 
-  it.fails("(2) ActorTurnPlanSchema is exported from shared-schemas", () => {
+  it("(2) ActorTurnPlanSchema is exported from shared-schemas", () => {
     expect(
       (sharedSchemas as Record<string, unknown>)["ActorTurnPlanSchema"],
       "ActorTurnPlanSchema missing — dialogue and somatic still share InteractionEmotion",

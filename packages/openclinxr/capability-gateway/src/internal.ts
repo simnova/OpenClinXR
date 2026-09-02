@@ -119,7 +119,7 @@ export function buildProviderGateMetadata(
       path: "blocked",
       capabilityIds: ["voice-synthesis"],
       state: "blocked",
-      blockers: ["emotional_prosody_clinical_review_missing", "prosody_safety_evidence_missing"],
+      blockers: ["emotional_prosody_policy_review_missing", "affect_safety_review_missing"],
       recommendedNextAction: "review_emotional_prosody_policy_before_enabling",
     }),
     providerGate({

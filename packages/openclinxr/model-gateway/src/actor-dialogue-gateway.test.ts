@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createActorDialogueModelGateway, type ModelGateway } from "./index.js";
 
-const ENV_KEYS = ["OPENROUTER_API_KEY", "OPENCLINXR_LOCAL_LLAMA_BASE_URL"] as const;
+const ENV_KEYS = ["OPENROUTER_API_KEY", "OPENCLINXR_LOCAL_LLAMA_BASE_URL", "DEEPSEEK_API_KEY"] as const;
 
 /** Run `run` with a controlled env for the gateway's config keys, then restore. */
 async function withGatewayEnv(
@@ -60,6 +60,26 @@ const OFFLINE_TURN = {
 };
 
 describe("createActorDialogueModelGateway", () => {
+  it("composes DeepSeek first when DEEPSEEK_API_KEY is set", async () => {
+    await withGatewayEnv(
+      {
+        DEEPSEEK_API_KEY: "ds-key",
+        OPENROUTER_API_KEY: "env-key",
+        OPENCLINXR_LOCAL_LLAMA_BASE_URL: "http://127.0.0.1:8080/v1",
+      },
+      async () => {
+        const gw = createActorDialogueModelGateway();
+        expect(await providerIds(gw)).toEqual([
+          "deepseek-actor-dialogue",
+          "ox-alpha",
+          "local-llama",
+          "mock-model",
+          "local-model",
+        ]);
+      },
+    );
+  });
+
   it("composes ox then local llama-server from env, with the mock last", async () => {
     await withGatewayEnv(
       {

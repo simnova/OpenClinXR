@@ -62,5 +62,6 @@ export {
   type LipSyncRunOptions,
   type LipSyncRunResult,
 } from "./lip_sync/run.js";
+export { writeLipSyncFixtureWav } from "./lip_sync/fixture-wav.js";
 export { clothingGenerateRunner, planClothingGenerate, runClothingGenerate } from "./clothing_generate/run.js";
 export { dialogueRuntimeRunner, planDialogueRuntime, runDialogueRuntime } from "./dialogue_runtime/run.js";

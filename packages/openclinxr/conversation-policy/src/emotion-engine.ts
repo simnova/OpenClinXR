@@ -1,4 +1,4 @@
-import type { InteractionEmotion } from "@openclinxr/shared-schemas";
+import type { DialogueEmotion, InteractionEmotion } from "@openclinxr/shared-schemas";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -16,7 +16,8 @@ export type EmotionEventKind =
   | "actor_silence_timeout"
   | "learner_acknowledgement"
   | "learner_clinical_question"
-  | "learner_personal_question";
+  | "learner_personal_question"
+  | "learner_unclassified";
 
 /** A single conversation event driving a potential emotion change. */
 export type EmotionEvent = {
@@ -28,9 +29,9 @@ export type EmotionEvent = {
  * The engine matches (from, triggeredBy) pairs; first rule in policy order wins.
  */
 export type EmotionTransitionRule = {
-  from: InteractionEmotion;
+  from: DialogueEmotion;
   triggeredBy: EmotionEventKind;
-  to: InteractionEmotion;
+  to: DialogueEmotion;
 };
 
 /**
@@ -42,9 +43,9 @@ export type EmotionTransitionRule = {
  * transitions – ordered rule list; first (from, triggeredBy) match wins.
  */
 export type CaseEmotionPolicy = {
-  baseline: InteractionEmotion;
-  upperBound: InteractionEmotion;
-  lowerBound: InteractionEmotion;
+  baseline: DialogueEmotion;
+  upperBound: DialogueEmotion;
+  lowerBound: DialogueEmotion;
   /** Ordered – first match wins (policy author controls priority). */
   transitions: readonly EmotionTransitionRule[];
 };

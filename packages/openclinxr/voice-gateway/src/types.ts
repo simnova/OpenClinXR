@@ -141,6 +141,7 @@ export type SpeechSynthesisRequest = {
   actorId: string;
   voiceId: string;
   text: string;
+  performancePlanId: string;
   policy: VoiceRequestPolicy;
 };
 

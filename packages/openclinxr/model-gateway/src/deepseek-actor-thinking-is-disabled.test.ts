@@ -14,6 +14,10 @@ import {
  * reasoning:{effort:"low"} (or llama chat_template_kwargs), never thinking.
  *
  * Diagnosis header IMMUTABLE. Flip it.fails → it and append ## FIXED.
+ *
+ * ## FIXED (DVA-2)
+ * deepseek-actor-dialogue POSTs thinking: { type: "disabled" } and does not send
+ * reasoning_effort on that rung.
  */
 
 const TURN: ActorResponseRequest = {
@@ -59,7 +63,7 @@ describe("deepseek actor thinking is disabled", () => {
     expect(res.responseKind).not.toBe("blocked_fallback");
   });
 
-  it.fails("(1) DeepSeek actor chat completions send thinking.type disabled", async () => {
+  it("(1) DeepSeek actor chat completions send thinking.type disabled", async () => {
     const fetchImpl = vi.fn(async () =>
       new Response(
         JSON.stringify({

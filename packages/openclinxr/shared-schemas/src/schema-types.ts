@@ -6,6 +6,10 @@ import {
   type CommunicationProfileSchema,
   type ComplianceRegionSchema,
   type InteractionEmotionSchema,
+  type DialogueEmotionSchema,
+  type SomaticEmotionSchema,
+  type ActorTurnPlanSchema,
+  type ActorTurnExecutionSchema,
   type EmotionEventKindSchema,
   type EmotionTransitionRuleSchema,
   type CaseEmotionPolicySchema,
@@ -55,6 +59,10 @@ export type ActorPhenotype = Static<typeof ActorPhenotypeSchema>;
 export type CommunicationProfile = Static<typeof CommunicationProfileSchema>;
 export type ComplianceRegion = Static<typeof ComplianceRegionSchema>;
 export type InteractionEmotion = Static<typeof InteractionEmotionSchema>;
+export type DialogueEmotion = Static<typeof DialogueEmotionSchema>;
+export type SomaticEmotion = Static<typeof SomaticEmotionSchema>;
+export type ActorTurnPlan = Static<typeof ActorTurnPlanSchema>;
+export type ActorTurnExecution = Static<typeof ActorTurnExecutionSchema>;
 export type EmotionEventKind = Static<typeof EmotionEventKindSchema>;
 export type EmotionTransitionRule = Static<typeof EmotionTransitionRuleSchema>;
 export type CaseEmotionPolicy = Static<typeof CaseEmotionPolicySchema>;

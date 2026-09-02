@@ -410,6 +410,7 @@ describe("voice gateway", () => {
         actorId: "patient_robert_hayes_v1",
         voiceId: "mock-robert-hayes",
         text: "It started while I was walking upstairs.",
+        performancePlanId: "neutral-v1",
         policy: {
           requestPolicyId: "voice-offline-v1",
           safetyPolicyVersion: "clinical-simulation-safety-v1",
@@ -465,6 +466,7 @@ describe("voice gateway", () => {
         actorId: "patient_robert_hayes_v1",
         voiceId: "mock-robert-hayes",
         text: "It started while I was walking upstairs.",
+        performancePlanId: "neutral-v1",
         policy: {
           requestPolicyId: "voice-offline-v1",
           safetyPolicyVersion: "clinical-simulation-safety-v1",
@@ -488,6 +490,7 @@ describe("voice gateway", () => {
         actorId: "patient_robert_hayes_v1",
         voiceId: "mock-robert-hayes",
         text: "It started while I was walking upstairs.",
+        performancePlanId: "neutral-v1",
         policy: {
           requestPolicyId: "voice-offline-v1",
           safetyPolicyVersion: "clinical-simulation-safety-v1",
@@ -518,6 +521,7 @@ describe("voice gateway", () => {
           actorId: "patient_robert_hayes_v1",
           voiceId: "local-robert-hayes",
           text: "Hello.",
+          performancePlanId: "neutral-v1",
           policy: {
             requestPolicyId: "voice-local-v1",
             safetyPolicyVersion: "clinical-simulation-safety-v1",

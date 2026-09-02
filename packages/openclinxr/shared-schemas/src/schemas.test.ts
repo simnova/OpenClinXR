@@ -1150,7 +1150,7 @@ describe("OpenClinXR shared schemas", () => {
     expect(
       validateCaseEmotionPolicy({
         baseline: "neutral",
-        upperBound: "pain",
+        upperBound: "anxious",
         lowerBound: "reassured",
         transitions: [
           { from: "neutral", triggeredBy: "learner_dismissive", to: "anxious" },
@@ -1164,7 +1164,7 @@ describe("OpenClinXR shared schemas", () => {
     expect(
       validateCaseEmotionPolicy({
         baseline: "neutral",
-        upperBound: "pain",
+        upperBound: "anxious",
         lowerBound: "reassured",
         transitions: [
           { from: "furious", triggeredBy: "learner_dismissive", to: "anxious" },
@@ -1177,7 +1177,7 @@ describe("OpenClinXR shared schemas", () => {
     expect(
       validateCaseEmotionPolicy({
         baseline: "neutral",
-        upperBound: "pain",
+        upperBound: "anxious",
         lowerBound: "reassured",
         transitions: [
           { from: "neutral", triggeredBy: "learner_yelling", to: "anxious" },
@@ -1219,7 +1219,7 @@ describe("OpenClinXR shared schemas", () => {
         },
         emotionPolicy: {
           baseline: "neutral",
-          upperBound: "pain",
+          upperBound: "anxious",
           lowerBound: "reassured",
           transitions: [
             { from: "neutral", triggeredBy: "learner_dismissive", to: "anxious" },

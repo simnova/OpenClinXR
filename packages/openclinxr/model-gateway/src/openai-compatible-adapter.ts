@@ -92,6 +92,15 @@ export class OpenAiCompatibleModelProviderAdapter implements ModelProviderAdapte
     return this.id === "local-llama";
   }
 
+  /**
+   * DeepSeek V4 thinking is ON by default. Official OpenAI-format JSON body
+   * uses `thinking: { type: "disabled" }` and must not also send reasoning_effort.
+   * https://api-docs.deepseek.com/guides/thinking_mode/
+   */
+  private get isDeepSeekActorRung(): boolean {
+    return this.id === "deepseek-actor-dialogue" || this.baseUrl.includes("api.deepseek.com");
+  }
+
   constructor(options: OpenAiCompatibleProviderOptions) {
     this.id = options.providerId;
     this.baseUrl = options.baseUrl;
@@ -137,14 +146,15 @@ export class OpenAiCompatibleModelProviderAdapter implements ModelProviderAdapte
       body: JSON.stringify({
         model: this.model,
         messages,
-        // Thinking control is rung-specific (measured 2026-08-24): ox honours
-        // `reasoning:{effort:"low"}` (OpenRouter); llama-server ignores it and is controlled
-        // by `chat_template_kwargs.enable_thinking` (measured 6/6 clean at the same 256
-        // budget, ~8x faster). The llama control goes only to the local rung — sending it to
-        // OpenRouter could 400 the rung #623 made work.
-        ...(this.isLlamaServerRung
-          ? { chat_template_kwargs: { enable_thinking: false } }
-          : { reasoning: { effort: "low" } }),
+        // Thinking control is rung-specific (measured 2026-08-24 / 2026-09-02):
+        // DeepSeek V4 requires explicit thinking.type disabled (default is on).
+        // llama-server uses chat_template_kwargs.enable_thinking.
+        // ox/OpenRouter honours reasoning:{effort:"low"}.
+        ...(this.isDeepSeekActorRung
+          ? { thinking: { type: "disabled" } }
+          : this.isLlamaServerRung
+            ? { chat_template_kwargs: { enable_thinking: false } }
+            : { reasoning: { effort: "low" } }),
         max_tokens: 256,
       }),
       signal: AbortSignal.timeout(30_000),

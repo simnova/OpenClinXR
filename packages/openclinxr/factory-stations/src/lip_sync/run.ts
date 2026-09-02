@@ -23,6 +23,7 @@ export function planLipSync(input: unknown): StationPlanResult {
 export type LipSyncRunOptions = {
   utterance: string;
   outDir: string;
+  wavPath: string;
 };
 
 export type LipSyncCue = { start: number; end: number; value: string };
@@ -45,15 +46,14 @@ export async function runLipSync(input: unknown, options: LipSyncRunOptions): Pr
   if ("issues" in planned) {
     throw new Error(planned.issues.map((issue) => issue.message).join("; "));
   }
-  const { utterance, outDir } = options;
+  const { utterance, outDir, wavPath } = options;
+  if (!wavPath || wavPath.trim().length === 0) {
+    throw new Error("wavPath is required; fixture TTS lives in writeLipSyncFixtureWav");
+  }
   const binary = resolveRhubarbBinary();
   await mkdir(outDir, { recursive: true });
   const base = `utterance-${createHash("sha1").update(utterance).digest("hex").slice(0, 10)}`;
-  const aiffPath = path.join(outDir, `${base}.aiff`);
-  const wavPath = path.join(outDir, `${base}.wav`);
   const cueArtifactPath = path.join(outDir, `${base}.mouth-cues.json`);
-  await execFileAsync("say", ["-o", aiffPath, utterance]);
-  await execFileAsync("afconvert", ["-f", "WAVE", "-d", "LEI16@22050", "-c", "1", aiffPath, wavPath]);
   await execFileAsync(binary, ["--exportFormat", "json", "-o", cueArtifactPath, wavPath]);
   const raw = JSON.parse(await readFile(cueArtifactPath, "utf8")) as {
     metadata?: { duration?: number };
@@ -61,7 +61,7 @@ export async function runLipSync(input: unknown, options: LipSyncRunOptions): Pr
   };
   await writeFile(
     path.join(outDir, "lip-sync-manifest.json"),
-    `${JSON.stringify({ stationId: "lip_sync", tool: "rhubarb", binary, utterance, cueCount: (raw.mouthCues ?? []).length }, null, 2)}\n`,
+    `${JSON.stringify({ stationId: "lip_sync", tool: "rhubarb", binary, utterance, wavPath, cueCount: (raw.mouthCues ?? []).length }, null, 2)}\n`,
   );
   return {
     ...planned.plan,
@@ -78,5 +78,7 @@ export const lipSyncRunner: StationRunner = {
   stationId: "lip_sync",
   validate: (value) => factoryStationSchemas.lip_sync["~standard"].validate(value),
   plan: planLipSync,
-  run: (value) => runLipSync(value, { utterance: "", outDir: "." }),
+  run: (_value) => {
+    throw new Error("lip_sync run requires wavPath via runLipSync(); station dry-run is plan()");
+  },
 };

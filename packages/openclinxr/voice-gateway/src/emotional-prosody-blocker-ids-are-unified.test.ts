@@ -20,6 +20,10 @@ import { createRealtimeVoiceGatewayPosture } from "./index.js";
  * voice-gateway gateway.ts already uses the unified ids — do not regress those.
  *
  * Diagnosis header IMMUTABLE. Flip it.fails → it and append ## FIXED.
+ *
+ * ## FIXED (DVA-3)
+ * capability-gateway uses emotional_prosody_policy_review_missing +
+ * affect_safety_review_missing. SpeechSynthesisRequest requires performancePlanId.
  */
 
 const SRC = dirname(fileURLToPath(import.meta.url));
@@ -39,7 +43,7 @@ describe("emotional prosody blocker ids are unified", () => {
     ]);
   });
 
-  it.fails("(1) capability-gateway emotional-prosody blockers match the unified ids", () => {
+  it("(1) capability-gateway emotional-prosody blockers match the unified ids", () => {
     const matrix = buildOpenClinXrCapabilityRoutingMatrix();
     const surface = evaluateRuntimeProviderReadinessSurface(matrix, "production");
     const gate = surface.providerGates.find((item) => item.gateId.includes("emotional-prosody"));
@@ -52,7 +56,7 @@ describe("emotional prosody blocker ids are unified", () => {
     expect(gate?.blockers).not.toContain("prosody_safety_evidence_missing");
   });
 
-  it.fails("(2) SpeechSynthesisRequest declares performancePlanId", () => {
+  it("(2) SpeechSynthesisRequest declares performancePlanId", () => {
     const types = readFileSync(join(SRC, "types.ts"), "utf8");
     const start = types.indexOf("export type SpeechSynthesisRequest");
     const end = types.indexOf("export type TranscriptEvent", start);

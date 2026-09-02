@@ -573,6 +573,7 @@ async function runMockStreamProbe(): Promise<LocalVoiceLiveDialogBenchmarkReport
     actorId: "patient_robert_hayes_v1",
     voiceId: "mock-robert-hayes",
     text: "The chest pressure is getting worse.",
+    performancePlanId: "neutral-v1",
     policy,
   }));
   const blockers = [

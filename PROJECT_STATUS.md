@@ -766,7 +766,7 @@ Blueprint-driven encounter factory. Sizable collaborative vertical slices only (
 1. **Arena physics realbind epic (COMPLETED 2026-08-02)** — MADR 0030 PROVEN local; dual evidence; `runtimePromotionAllowed` human-only. Spec closed: realbind brief.
 2. Peds/ED real-garment factory + UI-XR evidence (Q1/Q5) — **parked**; no further garment thrash without BOD.
 3. Encounter authoring + review packet / durableStore / admin replay (Q1/Q4) — **batch closed enough**.
-3b. **Runtime dialogue + affect + voice (Q1/Q4/Q5) — ACTIVE.** Sequence owner: `docs/openclinxr/runtime-dialogue-voice-affect-direction-2026-09-02.md`. Bothy Idle parent `tsk_97c2be2ae2b473b9` (do not plant). Wave 1 children `tsk_680905aad2650f26` `tsk_c9ea045ef5887d06` `tsk_0bc6a60304a99349` `tsk_233dce8c01df15c5` are Idle until REDs land on main; those four write roots are disjoint.
+3b. **Runtime dialogue + affect + voice (Q1/Q4/Q5) — ACTIVE.** Sequence owner: `docs/openclinxr/runtime-dialogue-voice-affect-direction-2026-09-02.md`. Parent `tsk_97c2be2ae2b473b9` Idle. Wave 1 greens on main: DialogueEmotion/ActorTurnPlan, DeepSeek thinking disabled, unified emotional_prosody blockers + performancePlanId, lip_sync wavPath (say is fixture-only).
 
 **Procedural-factory north star (operator, 2026-08-07):** *"The challenge we're trying to solve is how
 far we can procedurally develop the factory before needing LLMs to step in and get involved. Goal is to

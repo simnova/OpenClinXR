@@ -370,10 +370,16 @@ export function createOllamaModelProviderAdapter(options: LocalModelProviderStub
 const DEFAULT_OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";
 const DEFAULT_OPENROUTER_MODEL = "stealth/ox-alpha";
 const DEFAULT_LOCAL_LLAMA_MODEL = "qwen3-8b";
+const DEFAULT_DEEPSEEK_BASE_URL = "https://api.deepseek.com";
+const DEFAULT_DEEPSEEK_MODEL = "deepseek-v4-flash";
 
 export type CreateActorDialogueModelGatewayOptions = {
   /** Route label for the composed gateway (health/error surface). */
   routeId?: string;
+  /** DeepSeek key for actor dialogue. Defaults to `DEEPSEEK_API_KEY`; when absent the rung is omitted. */
+  deepseekApiKey?: string;
+  deepseekBaseUrl?: string;
+  deepseekModel?: string;
   /** OpenRouter key for the ox rung. Defaults to `OPENROUTER_API_KEY`; when absent the rung is omitted. */
   openRouterApiKey?: string;
   openRouterBaseUrl?: string;
@@ -384,10 +390,11 @@ export type CreateActorDialogueModelGatewayOptions = {
 };
 
 /**
- * Compose the actor-dialogue gateway the runtime uses by default: ox (OpenRouter)
- * first, local llama-server second, mock last. Priority is list order — the gateway
- * walks the ready adapters in order and fails over to the next when one throws, so a
- * rate-limited ox (429) falls through to the mock instead of reaching the learner.
+ * Compose the actor-dialogue gateway the runtime uses by default: DeepSeek Flash
+ * first (thinking disabled), ox (OpenRouter) second, local llama-server third, mock last.
+ * Priority is list order — the gateway walks the ready adapters in order and fails
+ * over to the next when one throws, so a rate-limited primary falls through to the mock
+ * instead of reaching the learner.
  *
  * Reachability is decided from CONFIG ONLY — no network call at import or health
  * time: the ox rung is present when an API key is configured, the local rung when
@@ -399,6 +406,18 @@ export function createActorDialogueModelGateway(
   options: CreateActorDialogueModelGatewayOptions = {},
 ): ModelGateway {
   const adapters: ModelProviderAdapter[] = [];
+
+  const deepseekApiKey = options.deepseekApiKey ?? process.env["DEEPSEEK_API_KEY"];
+  if (deepseekApiKey && deepseekApiKey.trim().length > 0) {
+    adapters.push(
+      new OpenAiCompatibleModelProviderAdapter({
+        providerId: "deepseek-actor-dialogue",
+        baseUrl: options.deepseekBaseUrl ?? DEFAULT_DEEPSEEK_BASE_URL,
+        model: options.deepseekModel ?? DEFAULT_DEEPSEEK_MODEL,
+        apiKey: deepseekApiKey,
+      }),
+    );
+  }
 
   const openRouterApiKey = options.openRouterApiKey ?? process.env["OPENROUTER_API_KEY"];
   if (openRouterApiKey && openRouterApiKey.trim().length > 0) {

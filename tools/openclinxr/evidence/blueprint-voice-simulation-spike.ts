@@ -515,6 +515,7 @@ export async function buildBlueprintVoiceSimulationSpikeReport(input: {
     actorId: selectedActor.actorId,
     voiceId: selectedActor.voiceId,
     text: generatedResponse.response.text,
+    performancePlanId: "neutral-v1",
     policy,
   }));
   const firstAudio = audioEvents[0];

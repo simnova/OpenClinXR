@@ -381,6 +381,7 @@ export class ScenarioRuntime {
         actorId: input.actorId,
         voiceId: input.voiceId,
         text: input.text,
+        performancePlanId: "neutral-v1",
         policy: voiceSynthesisPolicy,
       }),
     );

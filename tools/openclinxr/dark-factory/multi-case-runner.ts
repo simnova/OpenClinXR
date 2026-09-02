@@ -22,8 +22,7 @@
  *   6. equipment             — apps/ui-xr/src/station-equipment-builders.ts buildDeclaredEquipmentGeometry
  *   7. staging_placement     — packages/openclinxr/asset-registry/src/actor-placement.ts generatedActorPlacement
  *   8. render                — tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms
- *   9. lip_sync              — multi-case-runner.ts runLipSyncStation (offline macOS say -> afconvert ->
- *                            rhubarb --exportFormat json; viseme timing baked at build time, no network, no model)
+ *   9. lip_sync              — writeLipSyncFixtureWav then runLipSync (Rhubarb on wav bytes)
  *  10. world_compile         — tools/openclinxr/factory/encounter-materialization-compile.ts compileEncounterMaterialization
  *                            (WCG compile driven by the chain: newest dated evidence JSON + chain stage-body/stage-rig
  *                            artifact hashes -> compileNodes with wouldInvoke/skippedBakers), then the planned-baker
@@ -79,6 +78,7 @@ import {
   runEquipmentGenerate,
   runLipSync,
   runStaging,
+  writeLipSyncFixtureWav,
 } from "@openclinxr/factory-stations";
 
 const execFileAsync = promisify(execFile);
@@ -860,6 +860,7 @@ export type RunLipSyncStationOptions = {
   utterance: string;
   /** Directory the synthesized audio + cue artifacts are written into. */
   outDir: string;
+  wavPath?: string;
 };
 
 export type LipSyncStationResult = {
@@ -904,18 +905,15 @@ function firstAuthoredUtterance(scenario: Scenario | undefined): string | undefi
 }
 
 /**
- * The offline lip-sync seam (issue #608): synthesize the utterance with the
- * macOS `say` TTS, convert to a 16-bit mono WAV with `afconvert`, and run the
- * rhubarb binary (resolved explicitly) with `--exportFormat json` to get timed
- * mouth cues. NO network call, NO model: `say` is the local macOS speech
- * synthesizer and rhubarb is a local binary — the same pipeline measured end to
- * end on the authored line before this slice.
+ * The offline lip-sync seam: fixture wav (local TTS helper, not the baker) then
+ * rhubarb `--exportFormat json`. Production baker never shells system TTS.
  *
  * Artifact names derive from a content hash of the utterance, so the same line
  * bakes the same files on every run (D9 determinism).
  */
 export async function runLipSyncStation(options: RunLipSyncStationOptions): Promise<LipSyncStationResult> {
-  const raw = await runLipSync({ actorId: "lip_sync", visemeBank: "mpfb_phonemes" }, options);
+  const wavPath = options.wavPath ?? (await writeLipSyncFixtureWav(options.utterance, options.outDir));
+  const raw = await runLipSync({ actorId: "lip_sync", visemeBank: "mpfb_phonemes" }, { ...options, wavPath });
   const cues = (raw["cues"] as LipSyncCue[] | undefined) ?? [];
   return {
     cues,
@@ -945,7 +943,8 @@ async function runLipSyncStage(caseId: string, stageDir: string): Promise<Statio
   }
   await mkdir(stageDir, { recursive: true });
   try {
-    const result = await runLipSync({ actorId: caseId, visemeBank: "mpfb_phonemes" }, { utterance, outDir: stageDir });
+    const wavPath = await writeLipSyncFixtureWav(utterance, stageDir);
+    const result = await runLipSync({ actorId: caseId, visemeBank: "mpfb_phonemes" }, { utterance, outDir: stageDir, wavPath });
     return {
       row: makeRow("lip_sync", "deterministic", [relStage(stageDir, path.basename(result.cueArtifactPath))], [
         `RAN offline: ${result.cues.length} cues, ${new Set(result.cues.map((c) => c.value)).size} distinct shapes via ${result.tool} (${result.binary}) for "${utterance}".`,
