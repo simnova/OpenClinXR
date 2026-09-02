@@ -82,6 +82,8 @@ export type CompileGraphNode = {
     sourceBlobName: string;
     /** Faculty equipment_generate payload (TRELLIS). Distinct from fixtureSlot. */
     equipmentGenerate?: Record<string, unknown>;
+    /** Faculty Infinigen prompt stamped onto Room specs (W6 / W14a). */
+    infinigenPrompt?: string;
   };
   parents: string[];
   cacheKey: string | null;

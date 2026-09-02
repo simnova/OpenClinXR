@@ -71,6 +71,77 @@ describe("the world compile plan invokes equipment TRELLIS", () => {
     expect(equip?.wouldInvoke).toBe("trellis");
   });
 
+  /**
+   * OBSERVABLE (immutable diagnosis): imagine-box EquipVariant records
+   * wouldInvoke trellis on every unlocked compile; cacheKey stays null so a
+   * prior contentHash cannot skip TRELLIS on recipe match. Measured on main
+   * f79663b5.
+   *
+   * ## FIXED: EquipVariant stamps recipe cacheKey; matching prior cacheKey +
+   * contentHash skips TRELLIS; seed change rebakes; lock still never rebakes.
+   */
+  it("(2c) equipment TRELLIS skips on matching cacheKey + artifact; seed change rebakes", async () => {
+    const payload = (seed: number) => ({
+      equipment_generate: {
+        subjectId: IMAGINE,
+        packId: IMAGINE,
+        seed,
+        remesh: false,
+        viewCount: 4,
+        decimationTarget: 1_000_000,
+      },
+    });
+    const first = await compileEncounterMaterialization({
+      bundleReport: imagineBoxBundle(),
+      stationPayloads: payload(0),
+    });
+    const equip = (first.report.compileNodes ?? []).find((n) => n.nodeId === `equip:${IMAGINE}`) as CompilePlanNode | undefined;
+    expect(equip?.cacheKey).toBeTypeOf("string");
+    expect(equip?.wouldInvoke).toBe("trellis");
+
+    const bakedPrior = {
+      ...first.report,
+      compileNodes: (first.report.compileNodes ?? []).map((node) =>
+        node.nodeId === `equip:${IMAGINE}` ? { ...node, contentHash: "sha256:equip-baked" } : node,
+      ),
+    };
+    const second = await compileEncounterMaterialization({
+      prior: bakedPrior,
+      stationPayloads: payload(0),
+    });
+    const cached = (second.report.compileNodes ?? []).find((n) => n.nodeId === `equip:${IMAGINE}`) as CompilePlanNode | undefined;
+    expect(cached?.wouldInvoke).toBeNull();
+    expect(second.skippedBakers).toContain(`equip:${IMAGINE}`);
+
+    const third = await compileEncounterMaterialization({
+      prior: bakedPrior,
+      stationPayloads: payload(1),
+    });
+    const changed = (third.report.compileNodes ?? []).find((n) => n.nodeId === `equip:${IMAGINE}`) as CompilePlanNode | undefined;
+    expect(changed?.wouldInvoke).toBe("trellis");
+    expect(changed?.cacheKey).not.toBe(equip?.cacheKey);
+
+    const lockedPrior = {
+      ...first.report,
+      compileNodes: (first.report.compileNodes ?? []).map((node) =>
+        node.nodeId === `equip:${IMAGINE}`
+          ? {
+              ...node,
+              contentHash: "sha256:equip-baked",
+              lock: { locked: true, lockKind: "faculty_keep_artifact" },
+            }
+          : node,
+      ),
+    };
+    const locked = await compileEncounterMaterialization({
+      prior: lockedPrior,
+      stationPayloads: payload(1),
+    });
+    const lockedNode = (locked.report.compileNodes ?? []).find((n) => n.nodeId === `equip:${IMAGINE}`) as CompilePlanNode | undefined;
+    expect(lockedNode?.wouldInvoke).toBeNull();
+    expect(locked.skippedBakers).toContain(`equip:${IMAGINE}`);
+  });
+
   it("(2) compile of imagine-box equipment records wouldInvoke trellis; lock skip stays", async () => {
     const first = await compileEncounterMaterialization({ bundleReport: imagineBoxBundle() });
     const equip = (first.report.compileNodes ?? []).find((n) => n.nodeId === `equip:${IMAGINE}`) as CompilePlanNode | undefined;

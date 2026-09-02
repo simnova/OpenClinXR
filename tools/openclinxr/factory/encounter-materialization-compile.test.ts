@@ -20,9 +20,14 @@ import type { GeneratedEdStationRuntimeBundleReport } from "./generated-ed-stati
 
 const MAY_BODY = "actor:patient_maya_johnson_v1:body";
 const MAY_WARDROBE = "actor:patient_maya_johnson_v1:wardrobe";
+const EQUIP_NEB = "equip:nebulizer_mask_equipment";
+const ROOM_PEDS = "room:pediatric_urgent_care_bay_v1";
+const IMAGINE = "ecg-cart-imagine-box";
 const BODY_A = "sha256:body-A";
 const BODY_B = "sha256:body-B";
 const WARDROBE_BAKED = "sha256:wardrobe-baked";
+const EQUIP_BAKED = "sha256:equip-baked";
+const ROOM_BAKED = "sha256:room-baked";
 
 const DATED_EVIDENCE_PATH = "docs/openclinxr/encounter-materialization-evidence-peds-asthma-parent-anxiety-2026-05-28.json";
 
@@ -397,7 +402,19 @@ describe("compileEncounterMaterialization", () => {
     }
   });
 
-  it("stamps deterministic cacheKeys for body + wardrobe bakers; equipment nodes stay null", async () => {
+  /**
+   * OBSERVABLE (immutable diagnosis): compile stamps cacheKey only on split
+   * body/wardrobe. EquipVariant / Room get wouldInvoke from
+   * planEquipmentWouldInvoke (lock or valid TRELLIS payload) with no cacheKey
+   * on the planned node (falls through as prior null). Room nodes never get
+   * wouldInvoke: "blender" even on first bake. Measured on main f79663b5
+   * (`stamps deterministic cacheKeys for body + wardrobe bakers; equipment
+   * nodes stay null`).
+   *
+   * ## FIXED: EquipVariant and Room stamp recipeKeyFor cacheKey; wouldInvoke
+   * is trellis/blender on first bake / recipe change, null on cache hit and lock.
+   */
+  it("stamps deterministic cacheKeys for body + wardrobe bakers; equipment and room stamp too", async () => {
     const first = await compileEncounterMaterialization({ bundleReport: twoActorBundleFixture() });
     const second = await compileEncounterMaterialization({ prior: first.report });
 
@@ -405,7 +422,7 @@ describe("compileEncounterMaterialization", () => {
     const bodySecond = nodeOf(second.report, MAY_BODY);
     const wardrobeFirst = nodeOf(first.report, MAY_WARDROBE);
     const wardrobeSecond = nodeOf(second.report, MAY_WARDROBE);
-    const equip = nodeOf(first.report, "equip:nebulizer_mask_equipment");
+    const equip = nodeOf(first.report, EQUIP_NEB);
 
     expect(bodyFirst?.cacheKey).toBeTypeOf("string");
     expect(wardrobeFirst?.cacheKey).toBeTypeOf("string");
@@ -415,9 +432,139 @@ describe("compileEncounterMaterialization", () => {
     expect(wardrobeSecond?.cacheKey).toBe(wardrobeFirst?.cacheKey);
     // bakerId + parentOutputHashes keep body and wardrobe recipes distinct.
     expect(wardrobeFirst?.cacheKey).not.toBe(bodyFirst?.cacheKey);
-    // Only skip-capable bakers get a recipe key; equipment nodes stay null.
-    expect(equip?.cacheKey).toBeNull();
+    // Skip-capable bakers (body, wardrobe, equipment, room) stamp a recipe key.
+    expect(equip?.cacheKey).toBeTypeOf("string");
+    expect(nodeOf(first.report, ROOM_PEDS)?.cacheKey).toBeTypeOf("string");
     expect(validateEncounterMaterializationEvidenceReport(second.report)).toEqual({ ok: true, errors: [] });
+  });
+
+  /**
+   * OBSERVABLE (immutable diagnosis): EquipVariant planned nodes leave
+   * cacheKey null; wouldInvoke is trellis whenever the payload is valid, even
+   * when a prior compile already stamped a matching recipe and a non-null
+   * contentHash (artifact exists). Measured on main f79663b5.
+   */
+  it("equipment stamps cacheKey and skips TRELLIS on recipe match", async () => {
+    const payload = (seed: number) => ({
+      equipment_generate: {
+        subjectId: IMAGINE,
+        packId: IMAGINE,
+        seed,
+        remesh: false,
+        viewCount: 4,
+        decimationTarget: 1_000_000,
+      },
+    });
+    const first = await compileEncounterMaterialization({
+      bundleReport: twoActorBundleFixture(),
+      stationPayloads: payload(7),
+    });
+    const equip = nodeOf(first.report, EQUIP_NEB);
+    expect(equip?.cacheKey).toBeTypeOf("string");
+    expect(equip?.wouldInvoke).toBe("trellis");
+    expect(first.skippedBakers).not.toContain(EQUIP_NEB);
+
+    const bakedPrior = withNodeState(first.report, {
+      [EQUIP_NEB]: { contentHash: EQUIP_BAKED },
+    });
+    const second = await compileEncounterMaterialization({
+      prior: bakedPrior,
+      stationPayloads: payload(7),
+    });
+    const cached = nodeOf(second.report, EQUIP_NEB);
+    expect(cached?.cacheKey).toBe(equip?.cacheKey);
+    expect(cached?.wouldInvoke).toBeNull();
+    expect(second.skippedBakers).toContain(EQUIP_NEB);
+
+    const third = await compileEncounterMaterialization({
+      prior: bakedPrior,
+      stationPayloads: payload(8),
+    });
+    const changed = nodeOf(third.report, EQUIP_NEB);
+    expect(changed?.cacheKey).not.toBe(equip?.cacheKey);
+    expect(changed?.wouldInvoke).toBe("trellis");
+    expect(third.skippedBakers).not.toContain(EQUIP_NEB);
+
+    const lockedPrior = withNodeState(first.report, {
+      [EQUIP_NEB]: {
+        contentHash: EQUIP_BAKED,
+        lock: { locked: true, lockKind: "faculty_keep_artifact" },
+      },
+    });
+    const locked = await compileEncounterMaterialization({
+      prior: lockedPrior,
+      stationPayloads: payload(8),
+    });
+    expect(nodeOf(locked.report, EQUIP_NEB)?.wouldInvoke).toBeNull();
+    expect(locked.skippedBakers).toContain(EQUIP_NEB);
+  });
+
+  /**
+   * OBSERVABLE (immutable diagnosis): invalid equipment payload still must
+   * not invent trellis; cacheKey was never stamped so skip cannot key off it.
+   * Measured on main f79663b5.
+   */
+  it("invalid equipment payload does not invent trellis; still stamps cacheKey", async () => {
+    const first = await compileEncounterMaterialization({ bundleReport: twoActorBundleFixture() });
+    const equip = nodeOf(first.report, EQUIP_NEB);
+    expect(equip?.family).toBe("EquipVariant");
+    expect(equip?.cacheKey).toBeTypeOf("string");
+    expect(equip?.wouldInvoke).toBeNull();
+    expect(first.skippedBakers).not.toContain(EQUIP_NEB);
+  });
+
+  /**
+   * OBSERVABLE (immutable diagnosis): Room nodes (`emitCompileNodes`, family
+   * "Room", bakerId `room_environment`) never get wouldInvoke: "blender" even
+   * on first bake, and cacheKey stays null. Measured on main f79663b5.
+   */
+  it("room stamps cacheKey and skips blender on recipe match", async () => {
+    const first = await compileEncounterMaterialization({
+      bundleReport: twoActorBundleFixture(),
+      infinigenPrompt: "exam bay, pediatric",
+    });
+    const room = nodeOf(first.report, ROOM_PEDS);
+    expect(room?.family).toBe("Room");
+    expect(room?.bakerId).toBe("room_environment");
+    expect(room?.cacheKey).toBeTypeOf("string");
+    expect(room?.wouldInvoke).toBe("blender");
+    expect(first.skippedBakers).not.toContain(ROOM_PEDS);
+    const dialogue = first.report.compileNodes?.find((n) => n.family === "DialoguePolicy") as CompilePlanNode | undefined;
+    expect(dialogue?.wouldInvoke ?? null).toBeNull();
+
+    const bakedPrior = withNodeState(first.report, {
+      [ROOM_PEDS]: { contentHash: ROOM_BAKED },
+    });
+    const second = await compileEncounterMaterialization({
+      prior: bakedPrior,
+      infinigenPrompt: "exam bay, pediatric",
+    });
+    const cached = nodeOf(second.report, ROOM_PEDS);
+    expect(cached?.cacheKey).toBe(room?.cacheKey);
+    expect(cached?.wouldInvoke).toBeNull();
+    expect(second.skippedBakers).toContain(ROOM_PEDS);
+
+    const third = await compileEncounterMaterialization({
+      prior: bakedPrior,
+      infinigenPrompt: "exam bay, pediatric, window on left",
+    });
+    const changed = nodeOf(third.report, ROOM_PEDS);
+    expect(changed?.cacheKey).not.toBe(room?.cacheKey);
+    expect(changed?.wouldInvoke).toBe("blender");
+    expect(third.skippedBakers).not.toContain(ROOM_PEDS);
+
+    const lockedPrior = withNodeState(first.report, {
+      [ROOM_PEDS]: {
+        contentHash: ROOM_BAKED,
+        lock: { locked: true, lockKind: "faculty_keep_artifact" },
+      },
+    });
+    const locked = await compileEncounterMaterialization({
+      prior: lockedPrior,
+      infinigenPrompt: "exam bay, pediatric, window on left",
+    });
+    expect(nodeOf(locked.report, ROOM_PEDS)?.wouldInvoke).toBeNull();
+    expect(locked.skippedBakers).toContain(ROOM_PEDS);
   });
 
   it("body contentHash change changes the wardrobe cacheKey via parentOutputHashes", async () => {

@@ -35,15 +35,20 @@ import { applyStationPayloadToCompileSpec, runDialogueRuntime } from "@openclinx
  * A compile never claims a baker ran. ActorVariant nodes are split into
  * body + wardrobe bakers; each wardrobe gets a `planWardrobeBake` decision
  * from planned vs prior `cacheKey` plus lock/tombstone/body hash. Bake =>
- * wardrobe records `wouldInvoke: "blender"`; EquipVariant with a valid
- * equipment_generate payload records `wouldInvoke: "trellis"`. Skip (lock /
- * cache / no bake) => skippedBakers and wouldInvoke stays null.
+ * wardrobe records `wouldInvoke: "blender"`. EquipVariant with a valid
+ * equipment_generate payload records `wouldInvoke: "trellis"` unless a prior
+ * matching `cacheKey` plus artifact (contentHash) skips. Room records
+ * `wouldInvoke: "blender"` on first bake / recipe change (infinigenPrompt on
+ * spec). Skip (lock / cache / no bake / invalid equipment payload) =>
+ * skippedBakers (except invalid payload, which is not skipped) and
+ * wouldInvoke stays null.
  *
- * Skip-capable bakers (body + wardrobe) also stamp a recipe `cacheKey` (WCG
- * brief Q3): sha256 over bakerId, bakerVersion, the spec the baker reads (after
- * overridePatch), parent OUTPUT hashes, and the seed. Recipe identity is
- * stamped whether or not this compile invokes the baker; contentHash stays the
- * observed artifact hash and lock stays metadata, never recipe input.
+ * Skip-capable bakers (body + wardrobe + EquipVariant + Room) also stamp a
+ * recipe `cacheKey` (WCG brief Q3): sha256 over bakerId, bakerVersion, the spec
+ * the baker reads (after overridePatch), parent OUTPUT hashes, and the seed.
+ * Recipe identity is stamped whether or not this compile invokes the baker;
+ * contentHash stays the observed artifact hash and lock stays metadata, never
+ * recipe input.
  *
  * contentHash is never a placeholder literal: a node's hash is the sha256 of
  * the artifact bytes at an explicitly provided path, or the copied prior
@@ -109,6 +114,49 @@ function skipComparableCacheKey(
     return priorCacheKey;
   }
   return planned;
+}
+
+function recipeMatchesPrior(node: CompileGraphNode, priorCacheKey: string | null): boolean {
+  if (priorCacheKey == null) return false;
+  return skipComparableCacheKey(node, [], priorCacheKey) === priorCacheKey;
+}
+
+/**
+ * EquipVariant / Room skip table: stamp recipe cacheKey, then wouldInvoke from
+ * lock/tombstone, payload validity (equipment), and planned vs prior cacheKey
+ * plus artifact existence (contentHash). Invalid equipment payload does not
+ * invent trellis and is not skipped. Dialogue/placement stay wouldInvoke null.
+ */
+function planEquipOrRoomWouldInvoke(
+  node: CompileGraphNode,
+  priorNodes: CompileGraphNode[],
+  contentHash: string | null,
+): { wouldInvoke: "blender" | "trellis" | null; skipped: boolean; cacheKey: string | null } {
+  const skipCapable = node.family === "EquipVariant" || node.family === "Room";
+  const cacheKey = skipCapable ? recipeKeyFor(node, []) : node.cacheKey;
+  const priorCacheKey = priorNodes.find((p) => p.nodeId === node.nodeId)?.cacheKey ?? null;
+  const cacheHit = contentHash != null && recipeMatchesPrior(node, priorCacheKey);
+
+  if (node.family === "EquipVariant") {
+    const equipmentPlan = planEquipmentWouldInvoke(node);
+    if (equipmentPlan.wouldInvoke === "trellis" && cacheHit) {
+      return { wouldInvoke: null, skipped: true, cacheKey };
+    }
+    return { ...equipmentPlan, cacheKey };
+  }
+
+  if (node.family === "Room") {
+    if (node.tombstone || node.lock.locked) {
+      return { wouldInvoke: null, skipped: true, cacheKey };
+    }
+    if (cacheHit) {
+      return { wouldInvoke: null, skipped: true, cacheKey };
+    }
+    return { wouldInvoke: "blender", skipped: false, cacheKey };
+  }
+
+  const equipmentPlan = planEquipmentWouldInvoke(node);
+  return { ...equipmentPlan, cacheKey };
 }
 
 /**
@@ -321,13 +369,15 @@ export async function compileEncounterMaterialization(
         policyId: "dialogue_policy",
       });
     }
-    const equipmentPlan = planEquipmentWouldInvoke(finalOther);
+    const otherHash = resolveContentHash(finalOther, opts);
+    const otherPlan = planEquipOrRoomWouldInvoke(finalOther, priorNodes, otherHash);
     plannedNodes.push({
       ...finalOther,
-      contentHash: resolveContentHash(finalOther, opts),
-      wouldInvoke: equipmentPlan.wouldInvoke,
+      contentHash: otherHash,
+      cacheKey: otherPlan.cacheKey,
+      wouldInvoke: otherPlan.wouldInvoke,
     });
-    if (equipmentPlan.skipped) {
+    if (otherPlan.skipped) {
       skippedBakers.push(finalOther.nodeId);
     }
   }
