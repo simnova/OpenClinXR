@@ -44,6 +44,12 @@
  *
  * Diagnosis header IMMUTABLE. Flip `it.fails` to `it` and append `## FIXED` below.
  *
+ * ## FIXED (#f7514)
+ * `runStep` snapshots HEAD + `core.bare` + porcelain around the "OpenClaw suite" step
+ * (`snapshotGitState` / `assertRepoUnchanged`) and returns status 1 on a delta.
+ * The suite still runs; git-driving tests are untouched. Not a reproduction of the
+ * race — a guard that makes the next mutation a refused commit.
+ *
  * claimScope: this repo's own working copy during a pre-commit suite run.
  * notEvidenceFor: worktree safety, integrate correctness, or any claim about which file is at fault.
  */
@@ -55,7 +61,7 @@ const REPO = new URL("../../../", import.meta.url).pathname;
 const RUNNER = "tools/openclinxr/openclaw/agentic-hook-runner.ts";
 
 describe("the openclaw suite does not mutate its host repo", () => {
-  it.fails("(1) RED: the hook runner guards the suite step against host-repo git mutation", () => {
+  it("(1) RED: the hook runner guards the suite step against host-repo git mutation", () => {
     const src = readFileSync(join(REPO, RUNNER), "utf8");
     expect(
       /core\.bare|gitStateBefore|snapshotGitState|assertRepoUnchanged/.test(src),

@@ -458,6 +458,36 @@ function formatCommand(command: string[]): string {
   return command.join(" ");
 }
 
+/**
+ * Host-repo git fingerprint used around the OpenClaw suite step.
+ * Captures HEAD, core.bare, and porcelain so a suite that stages deletions
+ * or flips the checkout to bare refuses the commit instead of capturing it.
+ */
+export function snapshotGitState(cwd: string = process.cwd()): string {
+  try {
+    const head = execFileSync("git", ["rev-parse", "HEAD"], { cwd, encoding: "utf8" }).trim();
+    let bare = "unset";
+    try {
+      bare = execFileSync("git", ["config", "--get", "core.bare"], { cwd, encoding: "utf8" }).trim();
+    } catch {
+      bare = "unset";
+    }
+    const porcelain = execFileSync("git", ["status", "--porcelain"], { cwd, encoding: "utf8" });
+    return `HEAD=${head}\nbare=${bare}\n${porcelain}`;
+  } catch (error) {
+    return `UNREADABLE:${error instanceof Error ? error.message : String(error)}`;
+  }
+}
+
+export function assertRepoUnchanged(before: string, after: string): void {
+  if (before === after) {
+    return;
+  }
+  throw new Error(
+    `OpenClaw suite mutated the host repo git state.\nbefore:\n${before}\nafter:\n${after}`,
+  );
+}
+
 function runStep(step: HookStep, index: number, total: number, profile: HookProfile): HookRunResult {
   const startedAt = performance.now();
   console.log(`\n[${index}/${total}] ${step.label}`);
@@ -468,6 +498,9 @@ function runStep(step: HookStep, index: number, total: number, profile: HookProf
   if (!command) {
     throw new Error(`Hook step '${step.label}' has no command.`);
   }
+
+  const guardHostRepo = /^OpenClaw suite/u.test(step.label);
+  const gitStateBefore = guardHostRepo ? snapshotGitState() : null;
 
   // Propagate the pre-commit staged set so the size gate (file-size-budgets) scopes
   // to what THIS commit changes instead of the whole working tree. Pre-push and
@@ -483,6 +516,14 @@ function runStep(step: HookStep, index: number, total: number, profile: HookProf
 
   const result = spawnSync(command, args, { stdio: "inherit", env });
   const elapsedMs = performance.now() - startedAt;
+  if (gitStateBefore !== null) {
+    try {
+      assertRepoUnchanged(gitStateBefore, snapshotGitState());
+    } catch (error) {
+      console.error(error instanceof Error ? error.message : String(error));
+      return { step, status: 1, elapsedMs };
+    }
+  }
   return { step, status: result.status, elapsedMs };
 }
 
