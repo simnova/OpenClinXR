@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>motion-backend-bakeoff isolated harness</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: #111;
+      }
+      canvas {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "/node_modules/three/build/three.module.js",
+          "three/addons/": "/node_modules/three/examples/jsm/"
+        }
+      }
+    </script>
+    <script type="module">
+      import * as THREE from "three";
+      import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+
+      const ACTOR = "/apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb";
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+      renderer.setSize(1280, 1280);
+      renderer.setPixelRatio(1);
+      document.body.appendChild(renderer.domElement);
+
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x1a1a1a);
+      scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1.2));
+      const key = new THREE.DirectionalLight(0xffffff, 1.4);
+      key.position.set(1.2, 2.2, 1.6);
+      scene.add(key);
+
+      const camera = new THREE.PerspectiveCamera(32, 1, 0.05, 40);
+      camera.position.set(0.15, 1.05, 2.6);
+      camera.lookAt(0, 0.85, 0);
+
+      let root = null;
+      const restQuats = new Map();
+
+      function bones() {
+        const out = [];
+        root.traverse((o) => {
+          if (o.isBone) out.push(o);
+        });
+        return out;
+      }
+
+      function findBone(re) {
+        return bones().find((b) => re.test(b.name));
+      }
+
+      function snapshotRest() {
+        restQuats.clear();
+        for (const b of bones()) restQuats.set(b.uuid, b.quaternion.clone());
+      }
+
+      function restoreRest() {
+        for (const b of bones()) {
+          const q = restQuats.get(b.uuid);
+          if (q) b.quaternion.copy(q);
+        }
+      }
+
+      function applySeated() {
+        const thighL = findBone(/upperleg01L|thighL/i);
+        const thighR = findBone(/upperleg01R|thighR/i);
+        const shinL = findBone(/lowerleg01L|shinL/i);
+        const shinR = findBone(/lowerleg01R|shinR/i);
+        const d2r = (d) => (d * Math.PI) / 180;
+        if (thighL) thighL.rotateX(d2r(-86));
+        if (thighR) thighR.rotateX(d2r(-86));
+        if (shinL) shinL.rotateX(d2r(48));
+        if (shinR) shinR.rotateX(d2r(48));
+      }
+
+      function twoBoneToward(upper, lower, effector, target, iters) {
+        for (let i = 0; i < iters; i += 1) {
+          for (const bone of [lower, upper]) {
+            const e = new THREE.Vector3();
+            const t = target.clone();
+            effector.getWorldPosition(e);
+            const origin = new THREE.Vector3();
+            bone.getWorldPosition(origin);
+            const toE = e.clone().sub(origin).normalize();
+            const toT = t.sub(origin).normalize();
+            const q = new THREE.Quaternion().setFromUnitVectors(toE, toT);
+            bone.quaternion.multiply(q);
+            bone.updateMatrixWorld(true);
+          }
+        }
+      }
+
+      function bakedRockClutch() {
+        const pelvis = findBone(/^pelvis$|pelvisL/i) ?? findBone(/spine01/i);
+        const upper = findBone(/upperarm01R|upper_armR/i);
+        const lower = findBone(/lowerarm01R|forearmR/i);
+        if (pelvis) pelvis.rotateZ(0.28);
+        if (upper) upper.rotateZ(-0.55);
+        if (lower) lower.rotateY(-0.7);
+      }
+
+      function runtimeRockClutch() {
+        const pelvis = findBone(/^pelvis$|pelvisL/i) ?? findBone(/spine01/i);
+        if (pelvis) pelvis.rotateZ(Math.sin(1.2) * 0.22);
+        const upper = findBone(/upperarm01R|upper_armR/i);
+        const lower = findBone(/lowerarm01R|forearmR/i);
+        const hand = findBone(/handR|wrist02R/i);
+        const chest = findBone(/spine02|chest/i);
+        if (upper && lower && hand && chest) {
+          const target = new THREE.Vector3();
+          chest.getWorldPosition(target);
+          target.x += 0.08;
+          target.y -= 0.12;
+          twoBoneToward(upper, lower, hand, target, 10);
+        }
+      }
+
+      function bakedPulse() {
+        const upper = findBone(/upperarm01L|upper_armL/i);
+        const lower = findBone(/lowerarm01L|forearmL/i);
+        if (upper) {
+          upper.rotateX(-0.4);
+          upper.rotateZ(0.85);
+        }
+        if (lower) lower.rotateY(0.35);
+      }
+
+      function runtimePulse() {
+        const upper = findBone(/upperarm01L|upper_armL/i);
+        const lower = findBone(/lowerarm01L|forearmL/i);
+        const hand = findBone(/handL|wrist02L/i);
+        const chest = findBone(/spine02|chest/i);
+        if (upper && lower && hand && chest) {
+          const target = new THREE.Vector3();
+          chest.getWorldPosition(target);
+          target.x -= 0.35;
+          target.y += 0.05;
+          target.z += 0.28;
+          twoBoneToward(upper, lower, hand, target, 10);
+        }
+      }
+
+      window.renderPose = async ({ arm, behaviour }) => {
+        if (!root) throw new Error("glb not loaded");
+        restoreRest();
+        applySeated();
+        root.updateMatrixWorld(true);
+        if (arm === "baked_tracks" && behaviour === "rock_plus_clutch") bakedRockClutch();
+        if (arm === "runtime_goals" && behaviour === "rock_plus_clutch") runtimeRockClutch();
+        if (arm === "baked_tracks" && behaviour === "pulse_presentation") bakedPulse();
+        if (arm === "runtime_goals" && behaviour === "pulse_presentation") runtimePulse();
+        root.updateMatrixWorld(true);
+        renderer.render(scene, camera);
+        return { bones: bones().length, arm, behaviour };
+      };
+
+      const gltf = await new GLTFLoader().loadAsync(ACTOR);
+      root = gltf.scene;
+      scene.add(root);
+      snapshotRest();
+      window.__bakeoffReady = true;
+    </script>
+  </body>
+</html>

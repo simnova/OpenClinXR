@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "openclinxr.motion-backend-bakeoff.v1",
+  "measuredAgainstCommit": "e14d7a42c3fb16037fffcf70ea47c9ac2204c539",
+  "actorAssetSha256": "2e111a0da68f18f151a623a98e544154e610cdcd916ac106f6d9213d9d8c7089",
+  "actorId": "mpfb-clinical-nurse-adult",
+  "arms": [
+    {
+      "arm": "baked_tracks",
+      "behaviour": "rock_plus_clutch",
+      "stills": [
+        {
+          "path": "tools/openclinxr/evidence/motion-backend-bakeoff/baked_tracks__rock_plus_clutch.png",
+          "widthPx": 1280,
+          "heightPx": 1280,
+          "sha256": "a32a9572fcbbbdc6a43a667ec02757553c22b2e3ab0cfbd3c2a9340f477e3a0d"
+        }
+      ],
+      "notes": "isolated three.js harness; seated MPFB nurse; 137 bones; arm=baked_tracks behaviour=rock_plus_clutch"
+    },
+    {
+      "arm": "baked_tracks",
+      "behaviour": "pulse_presentation",
+      "stills": [
+        {
+          "path": "tools/openclinxr/evidence/motion-backend-bakeoff/baked_tracks__pulse_presentation.png",
+          "widthPx": 1280,
+          "heightPx": 1280,
+          "sha256": "bac8b7602ba2f4203de91617ec921ded9b594f3101aa338fbf9aa0a6c9207ffd"
+        }
+      ],
+      "notes": "isolated three.js harness; seated MPFB nurse; 137 bones; arm=baked_tracks behaviour=pulse_presentation"
+    },
+    {
+      "arm": "runtime_goals",
+      "behaviour": "rock_plus_clutch",
+      "stills": [
+        {
+          "path": "tools/openclinxr/evidence/motion-backend-bakeoff/runtime_goals__rock_plus_clutch.png",
+          "widthPx": 1280,
+          "heightPx": 1280,
+          "sha256": "25face790e6fca49b921c052591a3e7f663f2e6657e31504fe3336db70f1534e"
+        }
+      ],
+      "notes": "isolated three.js harness; seated MPFB nurse; 137 bones; arm=runtime_goals behaviour=rock_plus_clutch"
+    },
+    {
+      "arm": "runtime_goals",
+      "behaviour": "pulse_presentation",
+      "stills": [
+        {
+          "path": "tools/openclinxr/evidence/motion-backend-bakeoff/runtime_goals__pulse_presentation.png",
+          "widthPx": 1280,
+          "heightPx": 1280,
+          "sha256": "fb41a56cc141fe57c4bb0ee0db08e576cd28a7dd14b0e251f5d4a94dc83aa1a8"
+        }
+      ],
+      "notes": "isolated three.js harness; seated MPFB nurse; 137 bones; arm=runtime_goals behaviour=pulse_presentation"
+    }
+  ],
+  "verdict": "inconclusive_blocked",
+  "verdictDetail": "MY GRADE (native 1280×1280 Playwright stills of isolated three.js harness.html, subject mpfb-clinical-nurse-adult.glb, lighting on, head cropped at chin, no chair): clutch is absent on all four frames (no hand on torso). Rock cannot be graded from a still. Pulse reach is present only on baked_tracks/pulse_presentation (figure's left arm abducted toward the camera-right). runtime_goals/rock_plus_clutch and runtime_goals/pulse_presentation are near-identical seated T-poses. baked_tracks/rock_plus_clutch has the figure's right upper arm twisted with the elbow hyperextended. Feet float; soles face the camera. The harness used homemade twoBoneToward plus baked eulers, not CCDIKSolver after mixer and not applyMpfb2SeatedFold, so the designed backends did not execute. Distinct sha256 on all four stills. notEvidenceFor: production pose, clinical validity, Quest. CONSULTED: none."
+}

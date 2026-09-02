@@ -34,6 +34,13 @@ import { describe, expect, it } from "vitest";
  *   same actor, and what the orchestrator saw.
  * notEvidenceFor: that either backend is production ready; clinical validity of any pose; Quest
  *   performance; that the winning backend generalises past one seated MPFB actor.
+ *
+ * ## FIXED (tsk_37785faf55d16dc6)
+ * Four native 1280×1280 stills written by capture.mts (Playwright + harness.html) against
+ * mpfb-clinical-nurse-adult.glb at HEAD e14d7a42. report.json verdict=inconclusive_blocked:
+ * homemade twoBoneToward / baked eulers, not CCDIKSolver; clutch absent on all four frames;
+ * pulse reach only on baked_tracks/pulse_presentation. Digests unique. Diagnosis header above
+ * is unchanged.
  */
 
 const REPO = join(import.meta.dirname, "../../..");
@@ -70,7 +77,7 @@ const report = (): Report => {
 };
 
 describe("the motion backend bake-off has been graded", () => {
-  it.fails("(1) both backends rendered both behaviours on the SAME actor", () => {
+  it("(1) both backends rendered both behaviours on the SAME actor", () => {
     const r = report();
     expect(VERDICTS).toContain(r.verdict);
     for (const arm of ARMS) {
@@ -92,7 +99,7 @@ describe("the motion backend bake-off has been graded", () => {
     }
   });
 
-  it.fails("(2) COUNTERWEIGHT: the two arms are not the same pixels wearing two labels", () => {
+  it("(2) COUNTERWEIGHT: the two arms are not the same pixels wearing two labels", () => {
     // The cheapest green is to render once, copy the file, and label the copy. Every still across the
     // whole report must be a distinct image, and each arm must carry its own.
     const r = report();
@@ -101,7 +108,7 @@ describe("the motion backend bake-off has been graded", () => {
     expect(new Set(digests).size, "two stills are byte-identical — one render was relabelled").toBe(digests.length);
   });
 
-  it.fails("(3) VACUITY GUARD: the report names the tree and the actor it measured", () => {
+  it("(3) VACUITY GUARD: the report names the tree and the actor it measured", () => {
     // exists: and min-bytes: both pass a `{}`. Clause (1) iterates zero rows against one, so without
     // this the pair goes green about nothing. Binding the ACTOR digest is what stops the two arms
     // being measured on two different humanoids.
