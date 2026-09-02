@@ -5,7 +5,7 @@
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
     "agent-methodology": 103,
-    "current-reference": 217,
+    "current-reference": 218,
     "archive-candidate": 41,
     "evidence": 58,
     "temporary": 54,
@@ -3588,6 +3588,13 @@
     },
     {
       "path": "docs/openclinxr/humanoid-motion-architecture-brief-2026-09-02.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-motion-full-design-2026-09-02.md",
       "authority": "current-reference",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",

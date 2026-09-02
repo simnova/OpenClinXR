@@ -202,6 +202,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `docs/openclinxr/communication-style-and-emotion-qa.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/emotional-prosody-policy-review-2026-09-02.md` - current-reference; Draft emotional_prosody review named by the voice-gateway gate; subordinate to protected guardrails. Does not by itself enable live TTS.
 - `docs/openclinxr/humanoid-motion-architecture-brief-2026-09-02.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
+- `docs/openclinxr/humanoid-motion-full-design-2026-09-02.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/motion-dsl-consumer-path-2026-09-02.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/runtime-dialogue-voice-affect-direction-2026-09-02.md` - current-reference; Driving sequence for runtime language + EmotionEngine + Grok TTS/STT; subordinate to AGENTS.md and D9. Not clinical or Quest evidence.
 - `docs/openclinxr/runtime-dialogue-voice-direction-response-2026-09-02.md` - current-reference; Accepted-amendment rationale for the 2026-09-02 direction merge. Sequence owner is runtime-dialogue-voice-affect-direction-2026-09-02.md. Not clinical or Quest evidence.
