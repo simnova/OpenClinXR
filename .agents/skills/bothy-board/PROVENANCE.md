@@ -16,6 +16,29 @@ differs so the repo symlinked Claude view and the personal Codex view both resol
 | local amendment | conditional links to `GROK-HARNESS.md` and `CODEX-HARNESS.md` |
 | tool naming | underscore form `bothy-board_tasks_next` since 2026-09-03; dotted aliases still dispatch |
 | new upstream tools | `tasks_delete`, `tasks_restore`, `trash_list` (29 tools total) |
+| scope gating | the unauth `GET /api/mcp` lists all 29; an authenticated client sees only its PAT's scopes |
+
+## PAT scopes and the tools each covers
+
+From the Connect page, 2026-09-03. Reconciled against the live catalogue: 29 names on both
+sides, none missing in either direction. A tool absent from your client is a SCOPE result, not a
+stale inventory — `tasks_delete` and friends never appear for a token without `tasks:delete`.
+
+| scope | tools | default worker |
+|---|---|---|
+| `board:read` | `sync` `tasks_next` `tasks_get` `team_members` `projects_list` `projects_fields_list` | yes |
+| `tasks:write` | `tasks_create` `tasks_update` `tasks_claim` `tasks_release` `tasks_treatments_fail` `tasks_decompose` `tasks_comment` | yes |
+| `sessions` | `sessions_mint` `sessions_bind` `sessions_resume` | yes |
+| `mailbox` | `mailbox_poll` `mailbox_post` | yes |
+| `worktrees` | `worktrees_register` | yes |
+| `agents` | `agents_heartbeat` | yes |
+| `factory:plant` | `tasks_plant` `tasks_import` `projects_create` `projects_fields_set` `projects_fields_applyTemplate` | no |
+| `factory:land` | `tasks_proofs_set` | no |
+| `tasks:delete` | `tasks_delete` `tasks_restore` `trash_list` | no |
+
+All names carry the `bothy-board_` prefix. 20 of 29 are default-worker reachable; the 9 that are
+not are the plant, land and delete groups. An orchestrator PAT that can plant and land is NOT a
+default worker token.
 | tool index | https://bothyboard.com/llms.txt |
 | unauth tool list | GET https://bothyboard.com/api/mcp |
 
