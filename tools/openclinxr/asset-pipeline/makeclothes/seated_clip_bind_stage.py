@@ -96,9 +96,20 @@ def _inject_maps(scn, target_map_path, source_map_path):
     BD.ensureInited(scn)
     tinfo = CTargetInfo(scn, TARGET_NAME)
     tinfo.readFile(target_map_path)
+    # #585 sentinel (mirror of the canonical motion_bind_stage.py in
+    # factory-stations): nameOrNone turns the target map's "None" values into
+    # Python None, and this addon's addManualBones then assigns None into the
+    # Bone StringProperty — Blender 5.1 RNA refuses that before the consumer's
+    # own skip ever runs. The empty string is the RNA-default no-counterpart
+    # value; sanitize here so the map keeps its loader-documented spelling.
+    tinfo.bones = [(bname, "" if mhx is None else mhx) for (bname, mhx) in tinfo.bones]
+    tinfo.boneNames = dict(tinfo.bones)
     BD.targetInfos[TARGET_NAME] = tinfo
     sinfo = CSourceInfo(scn, SOURCE_MAP_NAME)
     sinfo.readFile(source_map_path)
+    sinfo.boneNames = {
+        name: ("" if mhx is None else mhx) for (name, mhx) in sinfo.boneNames.items()
+    }
     BD.sourceInfos[SOURCE_MAP_NAME] = sinfo
     BD.activeSrcInfo = sinfo
     if not any(item[0] == TARGET_NAME for item in BD.targetEnums):

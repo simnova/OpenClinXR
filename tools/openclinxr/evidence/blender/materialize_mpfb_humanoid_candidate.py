@@ -2863,6 +2863,103 @@ def tuck_trousers_into_boots(pants, shoe, margin_m=0.007, max_reach_m=0.15):
     return {"movedVerts": total_moved}
 
 
+# #0 — seated-rest replay. The RUNTIME asset for these output stems is the actor GLB
+# plus one CC0 clip (Mesh2Motion human-base-animations.glb#Sitting_Talking, licence-ledger
+# row; single-clip extraction committed beside seated_clip_bind_stage.py) retargeted by
+# seated_clip_bind_stage.py. A plain rebake re-derives the candidate with the CMU walk
+# bind instead (motion-bind-cli DEFAULT_CLIP), which silently drops the CC0 seated rest
+# and restores the CONDITIONAL-licensed walk into the shipped bytes (the #0 incident:
+# f2e7552f had the seated clip, 8d7b3f19's rebake lost it, nothing noticed for eleven
+# days). A materialization whose output stem is listed here therefore re-runs the seated
+# bind as its LAST step, so every future rebake of this actor replays the clip. Only the
+# peds parent owns a seated rest today; other stems skip.
+SEATED_REST_OUTPUT_STEMS = {
+    "mpfb-peds-parent-aisha",
+}
+SEATED_REST_CLIP_REL = "tools/openclinxr/asset-pipeline/makeclothes/mesh2motion-sitting-talking-single-clip.bvh"
+SEATED_REST_STAGE_REL = "tools/openclinxr/asset-pipeline/makeclothes/seated_clip_bind_stage.py"
+SEATED_REST_TARGET_MAP_REL = (
+    "tools/openclinxr/asset-pipeline/makeclothes/known-rigs/mpfb2-default-no-toes.json"
+)
+SEATED_REST_SOURCE_MAP_REL = (
+    "tools/openclinxr/asset-pipeline/makeclothes/known-rigs/mesh2motion-human-66.json"
+)
+MOTION_BIND_OUT_DIR_REL = "apps/ui-xr/public/xr-assets/humanoids/candidates"
+
+
+def _resolve_blender_binary():
+    """Mirror motion-bind-cli.ts resolveBlender — env, brew, then PATH."""
+    import os
+
+    env_blender = os.environ.get("OPENCLINXR_BLENDER")
+    if env_blender and pathlib.Path(env_blender).is_file():
+        return env_blender
+    for cand in ("/opt/homebrew/bin/blender", "/usr/local/bin/blender"):
+        if pathlib.Path(cand).is_file():
+            return cand
+    return "blender"
+
+
+def replay_seated_rest_bind(actor_glb):
+    """#0 — re-derive the seated actor's shipped candidate GLB from the bake just written.
+
+    The seated bind is a POST-step on the freshly exported actor GLB: seated_clip_bind_stage.py
+    imports it, retargets the committed CC0 single-clip extraction onto the 137-joint rig,
+    and exports the candidate to <candidates>/<stem>.motion-bind.glb with its provenance
+    defaulted to the asset-adjacent <stem>.motion-bind-report.json (#572). Wiring it into the
+    materializer (rather than leaving it to an ad-hoc CLI nobody replays) is what makes the
+    clip survive unrelated rebakes. The stage ran successfully at f2e7552f; this is the replay
+    path, not a new retarget.
+
+    Any missing input or non-zero stage exit FAILS the bake: the actor's only consumer is this
+    candidate, and shipping an actor whose runtime candidate cannot be re-derived is the silent
+    drop this card exists to refuse (#372 posture).
+    """
+    if actor_glb.stem not in SEATED_REST_OUTPUT_STEMS:
+        return
+    import subprocess
+
+    required = (
+        ("actor GLB", actor_glb),
+        ("seated clip", REPO_ROOT / SEATED_REST_CLIP_REL),
+        ("bind stage", REPO_ROOT / SEATED_REST_STAGE_REL),
+        ("target map", REPO_ROOT / SEATED_REST_TARGET_MAP_REL),
+        ("source map", REPO_ROOT / SEATED_REST_SOURCE_MAP_REL),
+    )
+    for label, path in required:
+        if not path.is_file():
+            raise RuntimeError(
+                f"#0 seated-rest replay: missing {label} at {path} — refusing to finish a "
+                "bake whose runtime candidate cannot be re-derived"
+            )
+    output_glb = REPO_ROOT / MOTION_BIND_OUT_DIR_REL / f"{actor_glb.stem}.motion-bind.glb"
+    cmd = [
+        _resolve_blender_binary(),
+        "--background",
+        "--python",
+        str(REPO_ROOT / SEATED_REST_STAGE_REL),
+        "--",
+        "--actor",
+        str(actor_glb),
+        "--clip",
+        str(REPO_ROOT / SEATED_REST_CLIP_REL),
+        "--map",
+        str(REPO_ROOT / SEATED_REST_TARGET_MAP_REL),
+        "--source-map",
+        str(REPO_ROOT / SEATED_REST_SOURCE_MAP_REL),
+        "--output",
+        str(output_glb),
+    ]
+    proc = subprocess.run(cmd, cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=900)
+    log_tail = ((proc.stdout or "") + (proc.stderr or ""))[-3000:]
+    if proc.returncode != 0:
+        raise RuntimeError(
+            f"#0 seated-rest replay failed (exit {proc.returncode}); the actor bake is not "
+            f"complete without its runtime candidate.\n{log_tail}"
+        )
+    print(f"SEATED_REST_BIND_OK output={output_glb}")
+
+
 def main():
     args = parse_args()
     # #687 — D13: a bake must say who it is baking. The naming identity comes from
@@ -5562,6 +5659,11 @@ def main():
     }
     print(f"BODY_CENSUS {json.dumps(census)}")
 
+    # #0 — the seated actor's shipped runtime candidate is the actor GLB + the CC0 seated
+    # clip. Run the bind LAST so every rebake of this actor replays the clip into the
+    # candidate and its asset-adjacent report; without this, an unrelated rebake re-derives
+    # the candidate from the CMU walk and silently drops the seated rest again.
+    replay_seated_rest_bind(pathlib.Path(args.output))
 
 if __name__ == "__main__":
     main()
