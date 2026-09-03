@@ -4,6 +4,10 @@ import { resolvePoseBone } from "../../../asset-registry/src/pose-bone-resolver.
 import { requestedEffector } from "../requested-effector.js";
 import { solveArmChain, type ChainJoint, type Quat } from "../ik/solve-chain.js";
 import {
+  orientWristToSurfaceNormal,
+  resolveSurfaceContactTargets,
+} from "../contact.js";
+import {
   planContactWindowKeys,
   type ContactKey,
   type ContactPoint,
@@ -70,6 +74,7 @@ type ProfileView = {
   joints?: unknown;
   regionAnchorSpace?: unknown;
   regionAnchors?: unknown;
+  regionSurfaces?: unknown;
 };
 
 function isVec3(v: unknown): v is Vec3 {
@@ -201,6 +206,7 @@ function keyframes(bindLocalQuaternion: Quat, solved: Quat, retention: number): 
  * a bind-frame anchor on THIS rig, and a legal window.
  */
 type ResolvedContact = {
+  regionId: string;
   positionToleranceMeters: number;
   startFraction: number;
   endFraction: number;
@@ -269,6 +275,7 @@ function resolveContacts(
       throw new Error(`guard_body_region: contact ${index} preserveWhileActive must be a boolean`);
     }
     out.push({
+      regionId: target.id,
       positionToleranceMeters: tolerance,
       startFraction: start,
       endFraction: end,
@@ -365,23 +372,36 @@ export function compile(request: PrimitiveRequest): CompiledMotionFragment {
   // satisfy. The window schedule lives in src/contact; this file supplies the geometry per point.
   const contacts = resolveContacts(request.action, anchors, chain.wristName, jointSet);
   if (contacts.length > 0) {
-    const windows: ContactWindowInput[] = contacts.map((c) => ({
+    // CONTACT SURFACES (tsk_ba168fa10b064fa3): when the profile carries a surface record for a
+    // contacted region, the guard must hold the SURFACE point (bounded penetration, achieved
+    // contact) and orient the effector's own axis to the outward normal — never clamp to the
+    // buried anchor. resolveSurfaceContactTargets refuses a wrong-facing or malformed record.
+    const surfaceTargets = resolveSurfaceContactTargets({
+      regionSurfaces: profile.regionSurfaces as Readonly<Record<string, unknown>> | undefined,
+      contacts: contacts.map((c) => ({ regionId: c.regionId, anchor: c.point })),
+    });
+    const windows: ContactWindowInput[] = contacts.map((c, i) => ({
       startFraction: c.startFraction,
       endFraction: c.endFraction,
       positionToleranceMeters: c.positionToleranceMeters,
       preserveWhileActive: c.preserveWhileActive,
-      point: c.point,
+      point: surfaceTargets[i]!.point,
       order: c.order,
     }));
     const keys = planContactWindowKeys(windows);
 
     // Solve each scheduled point's arm pose once; the schedule references windows by declaration
-    // index, and a window is the smallest unit a key names.
+    // index, and a window is the smallest unit a key names. A surface-bearing window then gets the
+    // free single-joint wrist rotation that maps the effector's own axis onto the outward normal.
     const poseByWindow = new Map<number, ReturnType<typeof solveArmChain>>();
     const poseForWindow = (window: number): ReturnType<typeof solveArmChain> => {
       let pose = poseByWindow.get(window);
       if (pose === undefined) {
         pose = solveArmChain({ joints, effectorBone: chain.wristName, target: windows[window]!.point });
+        const outwardNormal = surfaceTargets[window]!.outwardNormal;
+        if (outwardNormal !== undefined) {
+          pose = orientWristToSurfaceNormal(pose, joints, outwardNormal);
+        }
         poseByWindow.set(window, pose);
       }
       return pose;

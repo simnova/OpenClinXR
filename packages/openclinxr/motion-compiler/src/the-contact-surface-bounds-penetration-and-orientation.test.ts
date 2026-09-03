@@ -103,6 +103,31 @@ import {
  * a flip achieved by editing the fixture is not a fix.
  */
 
+/**
+ * ## FIXED (tsk_ba168fa10b064fa3) — a contact surface now bounds penetration AND orients the limb.
+ *
+ * The surface-aware contact geometry landed — `src/contact.ts` owns the surface half of the
+ * contact solver (per-region `regionSurfaces` records: refusal of a wrong-facing or malformed
+ * surface, the contact target at the SURFACE point, and the free single-joint wrist rotation that
+ * maps the effector's own axis onto the outward normal), and the registered guard
+ * (`src/primitives/guard-body-region.ts`) now consults `profile.regionSurfaces` through it when a
+ * contact's region carries a surface record. All four clauses are flipped and pass:
+ *   - (1) the guard solves to the SURFACE point, so the wrist rests ON the surface plane, not the
+ *     buried anchor 0.05 m inside it — measured 0.0000 m penetration past the plane against the
+ *     0.01 m tolerance on every sampled frame of the window;
+ *   - (2) contact is ACHIEVED at the surface point — measured 0.0000 m from `S` against the
+ *     0.03 m tolerance (the anchor clamp measured 0.05 m, past both tolerances);
+ *   - (3) the wrist rotation is chosen so the wrist-local +Z maps onto the outward normal —
+ *     measured 0.0000 rad off the normal against the 0.35 rad tolerance;
+ *   - (4) a wrong-facing surface (normal flipped) is REFUSED at compile — the surface record is
+ *     consulted, so the wrong-facing fixture throws instead of compiling to a 3-track clip.
+ *
+ * The counterweights still bind: a profile with NO `regionSurfaces` (every pre-surface profile in
+ * the package) is passed through untouched, so the anchor clamp remains for regions without a
+ * surface record and the guard plant's own contracts stay green. Clause (4) passes only because a
+ * surface whose outward normal does not point from the anchor toward the surface point throws.
+ */
+
 const PROGRAM_SCHEMA = "openclinxr.motion-program.v1";
 const ENTRY_MODULE = "./compile-motion-program.js";
 
@@ -359,7 +384,7 @@ function inWindowSamples(clip: CompiledClip): number[] {
 }
 
 describe("the contact surface bounds penetration and orientation", () => {
-  it.fails("(1) RED: the effector does not pass more than penetrationToleranceMeters past the surface on any sampled frame", async () => {
+  it("(1) RED: the effector does not pass more than penetrationToleranceMeters past the surface on any sampled frame", async () => {
     // FIXTURE VACUITY, first: if the tolerance covered the anchor's depth, a wrist parked on the
     // buried anchor would pass this clause and clause (2) would be doing all the work.
     expect(
@@ -386,7 +411,7 @@ describe("the contact surface bounds penetration and orientation", () => {
     }
   });
 
-  it.fails("(2) RED: contact is ACHIEVED — the wrist rests on the surface point, not a safe distance off it and not through it", async () => {
+  it("(2) RED: contact is ACHIEVED — the wrist rests on the surface point, not a safe distance off it and not through it", async () => {
     // COUNTERWEIGHT to (1): bounding penetration is trivial for a solver that keeps the hand well
     // OFF the surface, so the clause pair must also demand that contact happens. Position is
     // measured to the SURFACE POINT; the buried region anchor is a bind-frame proxy, and a wrist
@@ -416,7 +441,7 @@ describe("the contact surface bounds penetration and orientation", () => {
     }
   });
 
-  it.fails("(3) RED: the effector's own axis stays within orientationToleranceRadians of the surface normal across the window", async () => {
+  it("(3) RED: the effector's own axis stays within orientationToleranceRadians of the surface normal across the window", async () => {
     // COUNTERWEIGHT to vacuity: an orientation bound with a tolerance near pi is satisfied by any
     // pose. The fixture fixes 0.35 rad — well under a right angle — so a wrong-facing axis (up to
     // pi rad off) cannot pass by tolerance alone.
@@ -445,7 +470,7 @@ describe("the contact surface bounds penetration and orientation", () => {
     }
   });
 
-  it.fails("(4) RED: a deliberately WRONG-FACING surface is refused, never compiled to a clip that touches it from the wrong side", async () => {
+  it("(4) RED: a deliberately WRONG-FACING surface is refused, never compiled to a clip that touches it from the wrong side", async () => {
     // The wrong-facing fixture differs from the positive one in EXACTLY the normal's sign. The
     // positive surface's outward normal points from the region anchor toward the surface point (out
     // of the body); the flipped one points the other way, so the effector would have to cross the
