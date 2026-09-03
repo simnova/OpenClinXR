@@ -84,7 +84,7 @@ type Rig = { file: string; chest: number; clavicle: number | null; animOnMidline
 async function rigs(): Promise<Rig[]> {
   const listing = execFileSync(
     "bash",
-    ["-lc", "find apps packages tools -name '*.glb' -not -path '*/node_modules/*' 2>/dev/null | sort"],
+    ["-lc", "find apps packages tools -name '*.glb' -not -path '*/node_modules/*' -not -path '*/dist/*' 2>/dev/null | sort"],
     { cwd: ROOT, encoding: "utf8", maxBuffer: 8 * 1024 * 1024 },
   );
   const io = new NodeIO();
