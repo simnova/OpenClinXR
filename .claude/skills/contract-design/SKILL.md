@@ -60,9 +60,16 @@ Four contracts went green while the pixels stayed wrong. Ask of every clause:
 - **Vacuous is as bad as broken.** Ask the worker to flag any proof that cannot pass as written, OR
   passes trivially against the ambient range, OR asserts the opposite direction from the defect.
 - **The proof TARGET is the other half, and it fails in two ways I committed on one card in one hour.**
-  - *A directory `changed:` target cannot detect its own fix.* It means "some descendant changed"
-    (`done-when-rules.ts:273`). A worker can edit an unrelated file in the tree and pass. Name the
-    fix-bearing file, or a glob narrow enough to justify in one sentence.
+  - *A directory `changed:` target cannot detect its own fix.* It means "some descendant changed",
+    so a worker can edit an unrelated file in the tree and pass. Name the fix-bearing file, or a glob
+    narrow enough to justify in one sentence.
+    **This is a weakness, NOT a malformed rule — check before you call one broken.** Directory targets
+    are deliberately supported here, with at-least-one semantics, and the decision is recorded in
+    `packages/openclinxr/agent-loop/src/done-when-rules-directory-target.test.ts` (3 passed, landed):
+    *"'Some file under `apps/ui-xr/src` changed' is a legitimate assertion and is what was meant both
+    times."* File and wildcard targets keep all-must-change semantics. Before that fix a directory
+    target crashed the dispatch with `EISDIR`; it no longer does. So a card built on directory targets
+    is weakly gated, and saying it is invalid is wrong.
   - *A proof value is SYNTAX ONLY.* No parentheses, commentary, quotes or markdown inside the rule -
     a waiver written as `changed:path/x.glb (WAIVED if ...)` makes the target a literal string no file
     matches, and the gate refuses it (`board-brief.ts:175`; measured, 24 of 62 ledger proof failures
