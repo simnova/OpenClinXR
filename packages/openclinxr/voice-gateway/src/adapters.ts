@@ -267,3 +267,147 @@ function unique(values: Array<string | undefined>): string[] {
   return [...new Set(values.filter((value): value is string => typeof value === "string"))];
 }
 
+// ── Frozen-plan speech render + barge-in execution record (DVA-8) ───────────
+//
+// The streaming TTS/STT render path is driven by a FROZEN ActorTurnPlan (the
+// runtime freezes nested containers first, then the root — freezeActorTurnPlan
+// order). This package has no shared-schemas dependency, so the plan/execution
+// shapes below are local structural seams: the freeze gate covers the exact
+// freezeActorTurnPlan container set and the gate wording matches
+// scenario-runtime.ts:379. A barge-in mid-render appends a NEW frozen
+// ActorTurnExecution (interruption.kind "truncated") and never mutates the
+// plan: no field write, no aliasing of plan arrays, no hidden freeze.
+
+export type ActorTurnPlanSpeech = {
+  planId: string;
+  turnId: string;
+  spokenTextForTts: string;
+  prosody: {
+    wrapTags: readonly string[];
+    inlineTags: readonly string[];
+    speed: number;
+    droppedTags: readonly string[];
+  };
+  gestureClipIds: readonly string[];
+  languageProvenance: {
+    fallbackUsed: boolean;
+    providerId?: string;
+  };
+  notEvidenceFor: readonly string[];
+};
+
+export type ActorTurnExecutionRecord = {
+  planId: string;
+  turnId: string;
+  interruption: {
+    kind: "none" | "truncated";
+  };
+  renderedProsodyTags: string[];
+  droppedProsodyTags: string[];
+  fallback: {
+    language: boolean;
+    tts: false;
+  };
+};
+
+const FROZEN_PLAN_RENDER_GATE_MESSAGE = "ActorTurnPlan must be frozen before speech render";
+
+/**
+ * Barge-in on a frozen plan: deterministic chunked speech render from
+ * plan.spokenTextForTts (one audio chunk per whitespace token), appending a
+ * frozen ActorTurnExecution as a NEW record. The plan is never mutated.
+ *
+ * @param options.plan deep-frozen ActorTurnPlan (frozen in freezeActorTurnPlan
+ *   order: nested containers first, root last). An unfrozen or shallow-frozen
+ *   plan rejects with the shared gate wording and the caller's plan is left
+ *   exactly as it was — no freeze, no write.
+ * @param options.bargeInAtChunkIndex first chunk NOT delivered. Omitted means
+ *   a full render (interruption.kind "none"). A value below the chunk count
+ *   truncates delivery to chunks 0..k-1 and records "truncated"; a value at or
+ *   beyond the chunk count delivers the full render (nothing withheld) and
+ *   records "none".
+ */
+export async function synthesizeActorSpeechFromFrozenPlan(options: {
+  plan: ActorTurnPlanSpeech;
+  bargeInAtChunkIndex?: number;
+}): Promise<{
+  audioEvents: AudioEvent[];
+  actorTurnExecution: ActorTurnExecutionRecord;
+}> {
+  const { plan } = options;
+  assertPlanFrozenForSpeechRender(plan);
+
+  const tokens = plan.spokenTextForTts.trim().split(/\s+/).filter((token) => token.length > 0);
+  const bargeInRequested = options.bargeInAtChunkIndex !== undefined;
+  const bargeInAtChunkIndex = bargeInRequested ? Math.max(0, options.bargeInAtChunkIndex as number) : tokens.length;
+  const truncated = bargeInRequested && bargeInAtChunkIndex < tokens.length;
+  const deliveredTokens = tokens.slice(0, truncated ? bargeInAtChunkIndex : tokens.length);
+
+  const audioEvents = deliveredTokens.map((token, index) => ({
+    eventType: "audio_chunk" as const,
+    audioFormat: "audio/mock",
+    chunkIndex: index,
+    durationMs: deterministicChunkDurationMs(token, plan.prosody.speed),
+    visemeCue: "neutral",
+    provenance: planRenderProvenance(plan),
+  }));
+
+  const actorTurnExecution = freezeActorTurnExecution({
+    planId: plan.planId,
+    turnId: plan.turnId,
+    interruption: { kind: truncated ? "truncated" : "none" },
+    renderedProsodyTags: [...plan.prosody.wrapTags, ...plan.prosody.inlineTags],
+    droppedProsodyTags: [...plan.prosody.droppedTags],
+    fallback: {
+      language: plan.languageProvenance.fallbackUsed,
+      tts: false,
+    },
+  });
+
+  return { audioEvents, actorTurnExecution };
+}
+
+function assertPlanFrozenForSpeechRender(plan: ActorTurnPlanSpeech): void {
+  const nestedFrozen =
+    Object.isFrozen(plan.gestureClipIds)
+    && Object.isFrozen(plan.prosody.wrapTags)
+    && Object.isFrozen(plan.prosody.inlineTags)
+    && Object.isFrozen(plan.prosody.droppedTags)
+    && Object.isFrozen(plan.prosody)
+    && Object.isFrozen(plan.languageProvenance)
+    && Object.isFrozen(plan.notEvidenceFor);
+  if (!nestedFrozen || !Object.isFrozen(plan)) {
+    throw new Error(FROZEN_PLAN_RENDER_GATE_MESSAGE);
+  }
+}
+
+function freezeActorTurnExecution(execution: ActorTurnExecutionRecord): ActorTurnExecutionRecord {
+  Object.freeze(execution.interruption);
+  Object.freeze(execution.renderedProsodyTags);
+  Object.freeze(execution.droppedProsodyTags);
+  Object.freeze(execution.fallback);
+  return Object.freeze(execution);
+}
+
+/** Pure function of (token, prosody.speed) so identical plans render identical chunks. */
+function deterministicChunkDurationMs(token: string, prosodySpeed: number): number {
+  const base = token.length * 80;
+  const speedScale = Number.isFinite(prosodySpeed) && prosodySpeed > 0 ? prosodySpeed : 1;
+  return Math.max(60, Math.round(base / speedScale));
+}
+
+function planRenderProvenance(plan: ActorTurnPlanSpeech): VoiceProvenance {
+  return {
+    requestId: `${plan.planId}:${plan.turnId}:synthesis`,
+    providerId: "voice-gateway-plan-render",
+    modelId: "deterministic-whitespace-chunk-render",
+    modelVersion: "1.0.0",
+    modelRuntimeName: "deterministic-plan-render-runtime",
+    requestPolicyId: "voice-offline-v1",
+    safetyPolicyVersion: "clinical-simulation-safety-v1",
+    latencyMs: 0,
+    costEstimateUsd: 0,
+    safetyStatus: "not_exercised",
+  };
+}
+

@@ -74,6 +74,21 @@ import { collectVoiceStream, createDefaultVoiceGateway, MockVoiceProviderAdapter
  * the exact audioFormat/provenance bytes of the chunked render.
  */
 
+/**
+ * ## FIXED (DVA-8)
+ *
+ * adapters.ts now exports synthesizeActorSpeechFromFrozenPlan. The freeze gate
+ * checks the exact freezeActorTurnPlan container set (gestureClipIds, prosody
+ * wrap/inline/dropped tags, prosody, languageProvenance, notEvidenceFor, then
+ * the root) and rejects with the shared wording "ActorTurnPlan must be frozen
+ * before speech render" without freezing or writing the caller's plan. A frozen
+ * plan renders deterministically, one audio chunk per whitespace token of
+ * spokenTextForTts; bargeInAtChunkIndex k truncates delivery to chunks 0..k-1
+ * and the appended ActorTurnExecution (a NEW frozen record with fresh prosody
+ * arrays) records interruption.kind "truncated"; no barge-in records "none".
+ * The plan object is never mutated and never aliased by the execution.
+ */
+
 const SRC = dirname(fileURLToPath(import.meta.url));
 
 const FULL_RENDER_CHUNK_COUNT = 6;
@@ -224,7 +239,7 @@ describe("barge-in appends an execution, never a plan mutation", () => {
     expect(audio[0]?.provenance.providerId).toBe("mock-voice");
   });
 
-  it.fails("(1) renders the whole frozen plan as a chunked stream and appends a separate frozen execution", async () => {
+  it("(1) renders the whole frozen plan as a chunked stream and appends a separate frozen execution", async () => {
     const render = contractedRender();
     expect(typeof render, "adapters.ts must export synthesizeActorSpeechFromFrozenPlan").toBe("function");
 
@@ -258,7 +273,7 @@ describe("barge-in appends an execution, never a plan mutation", () => {
     expect(Object.isFrozen(plan.prosody)).toBe(true);
   });
 
-  it.fails("(2) refuses an unfrozen or shallow-frozen plan and leaves the caller's plan untouched", async () => {
+  it("(2) refuses an unfrozen or shallow-frozen plan and leaves the caller's plan untouched", async () => {
     const render = contractedRender();
     expect(typeof render, "adapters.ts must export synthesizeActorSpeechFromFrozenPlan").toBe("function");
 
@@ -272,7 +287,7 @@ describe("barge-in appends an execution, never a plan mutation", () => {
     }
   });
 
-  it.fails("(3) a barge-in mid-stream appends a truncated execution and never mutates the plan", async () => {
+  it("(3) a barge-in mid-stream appends a truncated execution and never mutates the plan", async () => {
     const render = contractedRender();
     expect(typeof render, "adapters.ts must export synthesizeActorSpeechFromFrozenPlan").toBe("function");
 
