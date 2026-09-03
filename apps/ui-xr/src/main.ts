@@ -97,6 +97,14 @@ import {
   formatActiveActorRealismRequirementLines,
   formatHumanoidSpeechAffectEvidence,
 } from "./speech-hud-formatting.js";
+import {
+  consumeLiveActorTurn,
+  expressionWeightsForEmotion,
+  liveActorTurnFromPayload,
+  registerLiveActorTurn,
+  resolveLiveActorTurnForTrace,
+  type LiveActorTurnConsumption,
+} from "./actor-turn-plan-consumption.js";
 import { stationContextForScenario } from "./station-context.js";
 import {
   resolveActorPosture,
@@ -535,6 +543,7 @@ declare global {
     };
     __openClinXrEnvironmentStateEvidence?: EnvironmentStateEvidence;
     __openClinXrHumanoidSpeechEvidence?: HumanoidSpeechEvidence;
+    __openClinXrLiveActorTurnConsumption?: LiveActorTurnConsumption;
     __openClinXrCaseDefinedHumanoidPerformanceContractEvidence?: CaseDefinedHumanoidPerformanceContractEvidence;
     __openClinXrActorPlayerRuntimeMetadataSummary: ActorPlayerRuntimeMetadataSummary | undefined;
     __openClinXrPedsActorPlayerRuntimePlaybackEvidence?: PedsActorPlayerRuntimePlaybackEvidence;
@@ -1615,7 +1624,7 @@ type HumanoidSpeechPlayback = {
 };
 type HumanoidDialogueEmotionContext = {
   emotion: HumanoidExpressionEmotion;
-  source: "runtime_affect_timeline" | "scenario_actor_communication_profile" | "dialogue_text_heuristic";
+  source: "runtime_affect_timeline" | "plan.dialogueEmotionTo" | "plan_missing";
   baselineMood: string[];
   cueIds: string[];
 };
@@ -2501,6 +2510,11 @@ function completeTraceActionFromInput(
   const traceSelectStartedAtMs = performance.now();
   const priorCompletedTraceTags = state.completedTraceTags;
   state = completeTraceAction(state, tag);
+  const liveTurn = rememberLiveActorTurnFromPayload(tag, payload);
+  if (liveTurn && liveTurn.bargeInKind !== "none") {
+    conversationLastBargeInOutcome = liveTurn.bargeInKind;
+    conversationActiveBargeIn = true;
+  }
   publishConversationTurnStateEvidence({
     traceTags: [tag],
     learnerUtterance: dialogueFor(tag),
@@ -2512,7 +2526,7 @@ function completeTraceActionFromInput(
   );
   // Clinical-touch already fires case-driven dialogue in handleClinicalTouch; skip generic dialogue overwrite.
   const skipGenericDialogue = Boolean(payload?.clinicalTouch);
-  const dialogueText = dialogueFor(tag);
+  const dialogueText = liveTurn?.caption ?? dialogueFor(tag);
   if (!skipGenericDialogue) {
     dialogueLine.textContent = dialogueText;
   }
@@ -2820,8 +2834,17 @@ async function recordRemoteTraceAction(
     });
     const text = actorResponseTextFromApiResult(actorResponse);
     if (text) {
-      dialogueLine.textContent = text;
-      triggerHumanoidDialogue(actorTurn.actorId, text, localDialogueGazeTargetForTraceTag(tag));
+      const liveTurn = resolveLiveActorTurnForTrace(tag);
+      const caption = liveTurn?.caption ?? text;
+      dialogueLine.textContent = caption;
+      triggerHumanoidDialogue(
+        actorTurn.actorId,
+        caption,
+        localDialogueGazeTargetForTraceTag(tag),
+        liveTurn?.faceEmotion,
+        undefined,
+        liveTurn ? "plan.dialogueEmotionTo" : undefined,
+      );
       await stationApi.synthesizeActorSpeech(remoteStationRunId, {
         actorId: actorTurn.actorId,
         voiceId: actorTurn.voiceId,
@@ -7869,9 +7892,8 @@ function pedsActorPlayerBundleDialogueTurns(): PedsActorPlayerRuntimeTurn[] {
     turnId: `bundle_${runtimeTurn.traceTag}`,
     cue: runtimeTurn.traceTag,
     text: runtimeTurn.text,
-    emotion: runtimeTurn.affectTimeline?.emotion
-      ? normalizePedsActorPlayerEmotion(runtimeTurn.affectTimeline.emotion)
-      : emotionForDialogueText(runtimeTurn.text),
+    // affectTimeline remains bundle provenance only; live FACE is plan.dialogueEmotionTo.
+    emotion: resolveLiveActorTurnForTrace(runtimeTurn.traceTag)?.faceEmotion ?? "neutral",
     gazeTargetKind: runtimeTurn.gazeTargetKind,
     gazeTargetActorId: runtimeTurn.gazeTargetActorId,
     roleAnimationClipName: roleAnimationClipNamesForActor(runtimeTurn.actorId)[0] ?? "",
@@ -7921,10 +7943,11 @@ function playPedsActorPlayerRuntimeTurn(
   }
   const nowMs = performance.now();
   const listenerCue = applyPedsActorPlayerSequenceListenerCues(turn, input.latestSequence, nowMs);
-  triggerHumanoidDialogue(turn.actorId, turn.text, {
+  const liveTurn = resolveLiveActorTurnForTrace(turn.cue);
+  triggerHumanoidDialogue(turn.actorId, liveTurn?.caption ?? turn.text, {
     kind: turn.gazeTargetKind,
     actorId: turn.gazeTargetActorId,
-  }, turn.emotion);
+  }, liveTurn?.faceEmotion ?? turn.emotion, undefined, liveTurn ? "plan.dialogueEmotionTo" : undefined);
   recordPedsActorPlayerRuntimePlaybackEvidence({
     scheduled: pedsActorPlayerRuntimePlaybackScheduled,
     turns: input.turns,
@@ -8361,21 +8384,28 @@ function triggerHumanoidDialogueForTrace(tag: string, text: string): void {
   const actorId = localDialogueActorIdForTraceTag(tag);
   const gazeTarget = localDialogueGazeTargetForTraceTag(tag);
   const runtimeTurn = runtimeDialogueTurnForTraceTag(tag);
-  const emotion = runtimeTurn?.affectTimeline?.emotion ?? emotionForDialogueText(text);
+  const liveTurn = resolveLiveActorTurnForTrace(tag);
+  const emotion = liveTurn?.faceEmotion;
+  const caption = liveTurn?.caption ?? text;
   const actorRuntimeRealismRequirement = runtimeTurn?.caseDefinitionRuntimeSignals?.actorRuntimeRealismRequirement;
   if (!actorId) {
     window.__openClinXrHumanoidSpeechEvidence ??= buildHumanoidSpeechEvidence(null, null, null, [], [], null);
     return;
   }
+  const emotionSource = liveTurn ? "plan.dialogueEmotionTo" as const : undefined;
+  if (liveTurn) {
+    window.__openClinXrLiveActorTurnConsumption = liveTurn;
+  }
   if (runtimeActorEmbodiment(encounterRuntimeAssetBundle, actorId) === "virtual_device") {
+    const emotionContext = scenarioDialogueEmotionContext(actorId, caption, emotion, emotionSource);
     window.__openClinXrHumanoidSpeechEvidence = buildHumanoidSpeechEvidence(
       actorId,
       `virtual_device:${actorId}`,
-      text,
-      phonemesForText(text),
+      caption,
+      phonemesForText(caption),
       [],
       gazeTarget,
-      undefined,
+      emotionContext,
       actorRuntimeRealismRequirement,
     );
     recordBootPhase("virtual_device_dialogue_routed");
@@ -8384,18 +8414,18 @@ function triggerHumanoidDialogueForTrace(tag: string, text: string): void {
       assetId: `virtual_device:${actorId}`,
       gazeTargetKind: gazeTarget.kind,
       gazeTargetActorId: gazeTarget.actorId,
-      text,
-      emotion,
-      emotionContext: scenarioDialogueEmotionContext(actorId, text, emotion),
+      text: caption,
+      emotion: emotionContext.emotion,
+      emotionContext,
       actorRuntimeRealismRequirement,
-      phonemeSequence: phonemesForText(text),
+      phonemeSequence: phonemesForText(caption),
       visemeSequence: [],
       startedAtMs: performance.now(),
-      durationMs: humanoidDialogueDurationMs(phonemesForText(text).length),
+      durationMs: humanoidDialogueDurationMs(phonemesForText(caption).length),
     });
     return;
   }
-  triggerHumanoidDialogue(actorId, text, gazeTarget, emotion, actorRuntimeRealismRequirement);
+  triggerHumanoidDialogue(actorId, caption, gazeTarget, emotion, actorRuntimeRealismRequirement, emotionSource);
 }
 
 type HumanoidDialogueGazeTarget = {
@@ -8409,11 +8439,12 @@ function triggerHumanoidDialogue(
   gazeTarget: HumanoidDialogueGazeTarget,
   explicitEmotion?: HumanoidExpressionEmotion,
   actorRuntimeRealismRequirement?: HumanoidSpeechEvidence["activeActorRuntimeRealismRequirement"],
+  emotionSource?: HumanoidDialogueEmotionContext["source"],
 ): void {
   const slot = generatedHumanoidAnimationSlotsByActorId.get(actorId);
   const phonemeSequence = phonemesForText(text);
   const visemeSequence = visemesForText(text);
-  const emotionContext = scenarioDialogueEmotionContext(actorId, text, explicitEmotion);
+  const emotionContext = scenarioDialogueEmotionContext(actorId, text, explicitEmotion, emotionSource);
   const emotion = emotionContext.emotion;
   if (!slot) {
     window.__openClinXrHumanoidSpeechEvidence = buildHumanoidSpeechEvidence(
@@ -8531,7 +8562,11 @@ function updateHumanoidSpeechCue(slot: GeneratedHumanoidAnimationSlot, nowMs: nu
         viseme = vseq[lidx] ?? "rest";
         openness = visemeOpenness(viseme) * (0.65 + Math.sin(nowMs / 58) * 0.18);
         const timeline = (rtTurn as any).affectTimeline ?? (matchingTurn as any).affectTimeline;
-        const turnEmotion = timeline?.emotion ? normalizePedsActorPlayerEmotion(String(timeline.emotion)) : ((rtTurn as any).affectTimeline?.emotion || (matchingTurn as any).emotion || speech.emotion);
+        const liveTurn = resolveLiveActorTurnForTrace(matchingTurn.cue);
+        const turnEmotion = liveTurn?.faceEmotion ?? speech.emotion;
+        const bundleAffectEmotion = timeline?.emotion
+          ? normalizePedsActorPlayerEmotion(String(timeline.emotion))
+          : speech.emotion;
         const elapsedMs = nowMs - speech.startedAtMs;
         const rampIntensity = computeAffectRampIntensity(elapsedMs, speech.durationMs, timeline);
         (slot as any)._liveAffectRamp = timeline ? {
@@ -8546,7 +8581,7 @@ function updateHumanoidSpeechCue(slot: GeneratedHumanoidAnimationSlot, nowMs: nu
           traceTag: matchingTurn.cue,
           turnId: (matchingTurn as any).turnId,
           source: "bundle_dialogue_turn",
-          affectTimelineEmotion: turnEmotion,
+          affectTimelineEmotion: bundleAffectEmotion,
           affectTimeline: timeline ? {
             emotion: timeline.emotion,
             intensity: timeline.intensity,
@@ -8866,66 +8901,52 @@ function updateHumanoidEmotionExpression(slot: GeneratedHumanoidAnimationSlot, n
   return state;
 }
 
-function expressionWeightsForEmotion(emotion: HumanoidExpressionEmotion): HumanoidExpressionWeights {
-  const weights: Record<HumanoidExpressionEmotion, HumanoidExpressionWeights> = {
-    neutral: { mouthOpen: 0.04, browConcern: 0.08, cheekTension: 0.08 },
-    anxious: { mouthOpen: 0.18, browConcern: 0.62, cheekTension: 0.48 },
-    concerned: { mouthOpen: 0.12, browConcern: 0.72, cheekTension: 0.36 },
-    reassured: { mouthOpen: 0.08, browConcern: 0.18, cheekTension: 0.18 },
-    pain: { mouthOpen: 0.34, browConcern: 0.86, cheekTension: 0.72 },
-  };
-  return weights[emotion];
-}
-
-function emotionForDialogueText(text: string): HumanoidExpressionEmotion {
-  const spoken = text.toLowerCase();
-  if (/pain|crushing|tight|pressure|hurts|can't breathe|short of breath/u.test(spoken)) return "pain";
-  if (/worried|scared|urgent|anxious|need to know|what does this mean|could be his heart/u.test(spoken)) return "anxious";
-  if (/concern|include us|please|help|support/u.test(spoken)) return "concerned";
-  if (/thank|better|reassur|understand|okay/u.test(spoken)) return "reassured";
-  return "neutral";
+function rememberLiveActorTurnFromPayload(
+  tag: string,
+  payload?: Record<string, unknown>,
+): LiveActorTurnConsumption | undefined {
+  const parsed = liveActorTurnFromPayload(payload);
+  if (!parsed) {
+    return resolveLiveActorTurnForTrace(tag);
+  }
+  const consumed = consumeLiveActorTurn(parsed.plan, parsed.execution);
+  registerLiveActorTurn(consumed.plan, consumed.execution, tag);
+  window.__openClinXrLiveActorTurnConsumption = consumed;
+  return consumed;
 }
 
 function scenarioDialogueEmotionContext(
   actorId: string,
-  text: string,
+  _text: string,
   explicitEmotion?: HumanoidExpressionEmotion,
+  emotionSource?: HumanoidDialogueEmotionContext["source"],
 ): HumanoidDialogueEmotionContext {
   const scenario = scenarioBank.find((candidate) => candidate.scenarioId === encounterRuntimeAssetBundle.scenarioId)
     ?? scenarioBank.find((candidate) => candidate.scenarioId === selectedScenarioId())
     ?? edChestPainScenario;
   const actor = scenario.actors.find((candidate) => candidate.actorId === actorId);
   const baselineMood = actor?.communicationProfile?.baselineMood ?? [];
-  const actorProfileText = [
-    ...baselineMood,
-    ...(actor?.communicationProfile?.escalationTriggers ?? []),
-    ...(actor?.communicationProfile?.deescalationTriggers ?? []),
-    actor?.demeanor ?? "",
-  ].join(" ");
-  const profileEmotion = emotionForScenarioActorProfile(actorProfileText);
+  if (explicitEmotion) {
+    return {
+      emotion: explicitEmotion,
+      source: emotionSource ?? "runtime_affect_timeline",
+      baselineMood,
+      cueIds: [
+        "plan_dialogue_emotion_to_expression_weights",
+        "scenario_dialogue_emotion_transition_cue",
+        "case_definition_driven_expression_selection",
+      ],
+    };
+  }
   return {
-    emotion: explicitEmotion ?? profileEmotion ?? emotionForDialogueText(text),
-    source: explicitEmotion
-      ? "runtime_affect_timeline"
-      : profileEmotion
-        ? "scenario_actor_communication_profile"
-        : "dialogue_text_heuristic",
+    emotion: "neutral",
+    source: "plan_missing",
     baselineMood,
     cueIds: [
-      "scenario_actor_baseline_mood_emotion_mapping",
+      "live_face_requires_actor_turn_plan_dialogue_emotion_to",
       "scenario_dialogue_emotion_transition_cue",
-      "case_definition_driven_expression_selection",
     ],
   };
-}
-
-function emotionForScenarioActorProfile(profileText: string): HumanoidExpressionEmotion | undefined {
-  const profile = profileText.toLowerCase();
-  if (/pain|uncomfortable|breathless|wheeze|distress/u.test(profile)) return "pain";
-  if (/frightened|anxious|worried|fearful|protective|urgent|scared|frustrated/u.test(profile)) return "anxious";
-  if (/concerned|focused|watchful|safety|ready to act/u.test(profile)) return "concerned";
-  if (/reassur|calm|polite|helpful/u.test(profile)) return "reassured";
-  return undefined;
 }
 
 function lerp(from: number, to: number, alpha: number): number {

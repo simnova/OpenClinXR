@@ -310,8 +310,8 @@ describe("static browser assets", () => {
     expect(mainSource).toContain(`Speech affect: \${formatHumanoidSpeechAffectEvidence`);
     expect(mainSource).toContain("emotion-transition-cue-present");
     expect(mainSource).toContain("scenarioDialogueEmotionContext");
-    expect(mainSource).toContain("emotionForScenarioActorProfile");
-    expect(mainSource).toContain("scenario_actor_baseline_mood_emotion_mapping");
+    expect(mainSource).toContain("consumeLiveActorTurn");
+    expect(mainSource).toContain("plan.dialogueEmotionTo");
     expect(mainSource).toContain("case_definition_driven_expression_selection");
     expect(mainSource).toContain("openclinxrCaptureMode");
     expect(mainSource).toContain("suppressed_mismatched_placeholder_environment_for_case_defined_scene_manifest");
@@ -872,7 +872,10 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("room_boundary_reference");
     expect(mainSource).toContain("dialogue_target");
     expect(mainSource).toContain("triggerHumanoidDialogueForTrace");
-    expect(mainSource).toContain("triggerHumanoidDialogue(actorTurn.actorId, text, localDialogueGazeTargetForTraceTag(tag))");
+    expect(mainSource).toContain("triggerHumanoidDialogue(");
+    expect(mainSource).toContain("actorTurn.actorId");
+    expect(mainSource).toContain("localDialogueGazeTargetForTraceTag(tag)");
+    expect(mainSource).toContain("liveTurn?.caption ?? text");
     expect(mainSource).toContain("triggerHumanoidDialogue(input.actorId, dialogueText");
     expect(mainSource).toContain("__openClinXrHumanoidSpeechEvidence ??=");
     expect(mainSource).not.toContain("window.__openClinXrHumanoidSpeechEvidence = buildHumanoidSpeechEvidence(null, null, null, [], [], null);");
