@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "openclinxr.generated-humanoid-chest-anchor-separation.v1",
+  "separationApplied": true,
+  "stage": "post_blender_glb_chest_anchor_lateral",
+  "halfSpanM": 0.085,
+  "joints": {
+    "breast.L": {
+      "beforeX": -9.313237958608056e-10,
+      "afterX": 0.085
+    },
+    "breast.R": {
+      "beforeX": 9.313213533701514e-10,
+      "afterX": -0.085
+    }
+  },
+  "chestSpanM": {
+    "before": 1.862645149230957e-9,
+    "after": 0.17
+  },
+  "clavicleSpanM": 0.04686664044857025,
+  "maxChestSeparationM": 0.25,
+  "animationChannelsAdjusted": [
+    {
+      "animation": "ClinicalIdleConversation",
+      "joint": "breast.L",
+      "keyframes": 2
+    },
+    {
+      "animation": "ClinicalIdleConversation",
+      "joint": "breast.R",
+      "keyframes": 2
+    },
+    {
+      "animation": "openclinxr_retarget_seated_talking_cc0",
+      "joint": "breast.L",
+      "keyframes": 2
+    },
+    {
+      "animation": "openclinxr_retarget_seated_talking_cc0",
+      "joint": "breast.R",
+      "keyframes": 2
+    }
+  ],
+  "claimScope": "mpfb_shipped_rig_chest_anchor_lateral_separation_mirrored_about_midline",
+  "notEvidenceFor": [
+    "what_any_still_shows",
+    "b_plus_visual_realism_gate",
+    "quest_readiness",
+    "clinical_validity",
+    "chest_anchor_height",
+    "other_rigs"
+  ],
+  "inputPath": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb",
+  "outputPath": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb",
+  "generatedAt": "2026-09-03T16:34:54.856Z"
+}
