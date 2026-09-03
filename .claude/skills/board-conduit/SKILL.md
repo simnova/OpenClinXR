@@ -169,3 +169,36 @@ Related: `tasks.next` returning `{task: null, unchanged: true}` while `tasks.get
 `ready` is **not** an inconsistency either — it is the in-flight cap reached, reported without a
 reason. Check occupancy before concluding the dequeue is broken. Two separate agents reconstructed
 this the slow way before it was written down.
+
+## A reaped claim offers a LIVE branch to the next dequeuer
+
+Measured 2026-09-03. A card claimed at 03:29:07 was reaped at 03:52:04 — about 23 minutes — while
+its worker was demonstrably alive: pid running, 32 min elapsed, transcript written five seconds
+earlier, token count climbing, tool calls firing.
+
+**The reap clears `assigneeAgentId` and nothing else.** `grokSessionId`, `branch` and `worktreePath`
+all stay on the card, so it goes back to `ready` still carrying the identity of the process that is
+writing to that branch right now. The next `tasks.next` will hand it out. With a 15-second monitor
+poll, the window between the reap and a second worker landing on the same worktree is about fifteen
+seconds.
+
+The TTL is roughly ten minutes and **only the dispatch spawn path renews it**. Any worker started
+outside that path — a hand-run `grok -p`, a resumed session — never renews, so a run longer than the
+TTL is guaranteed to be reaped mid-flight. Nothing warns anybody: the worker does not learn it lost
+its claim and keeps going.
+
+**When you see a `ready` card whose `worktreePath` and `grokSessionId` are still populated, check for
+a live process before letting it be dequeued.** Liveness is the process and the transcript, never a
+`find` sweep over `~/.grok/sessions` — the URL-encoded session directories make those sweeps return
+false negatives, which is how a live worker reads as dead.
+
+    pgrep -f "<sessionId>"
+    ls -la ~/.grok/sessions/*<slice>*/<sessionId>*/updates.jsonl
+
+If it is alive: restore `status: "claimed"`, re-stamp `grokSessionId` / `branch` / `worktreePath`,
+and put the reason in `blockedReason` so the intervention is auditable rather than quiet. **Do not
+set an assignee you are not** — forging that is worse than the reap. It costs a lane, and that is the
+right trade: a queued card only waits, while two workers on one branch corrupt each other.
+
+Read the worker's own transcript before deciding it is stuck; a long run with a clean worktree is
+often a model reading before it writes, and killing it discards real context.
