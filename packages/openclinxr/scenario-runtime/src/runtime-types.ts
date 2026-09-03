@@ -19,7 +19,15 @@ import type {
   RecordClinicalActionInput,
   RouteActorInteractionInput,
 } from "@openclinxr/session-state";
-import type { InteractionEmotion, ProviderHealth, ReviewPacket, Scenario, TraceEvent } from "@openclinxr/shared-schemas";
+import type {
+  ActorTurnExecution,
+  ActorTurnPlan,
+  InteractionEmotion,
+  ProviderHealth,
+  ReviewPacket,
+  Scenario,
+  TraceEvent,
+} from "@openclinxr/shared-schemas";
 import type { InMemoryTraceLedger } from "@cellix/trace-ledger";
 import type { AudioEvent, VoiceGateway } from "@openclinxr/voice-gateway";
 
@@ -88,6 +96,7 @@ export type SynthesizeActorSpeechInput = {
 export type SynthesizeActorSpeechResult = {
   audioEvents: AudioEvent[];
   traceEvents: TraceEvent[];
+  actorTurnExecution?: ActorTurnExecution;
 };
 
 export type StartEncounterInput = {
@@ -122,6 +131,9 @@ export type GenerateActorResponseResult = {
   actorResponseEvent: TraceEvent;
   /** Additive: history-taking domain coverage after this learner turn (traced, not scored). */
   historyTakingCoverage?: HistoryTakingCoverageState;
+  /** Frozen post-mapper plan. eventKind is classifier-owned; spokenText is model-owned. */
+  actorTurnPlan: ActorTurnPlan;
+  plannedEvent: TraceEvent;
 };
 
 export type GenerateRoutedActorResponseResult = GenerateActorResponseResult & {
@@ -165,6 +177,8 @@ export type SessionRecord = {
   lastSpeakerActorId: string | null;
   emotionEngines: Map<string, EmotionEngine>;
   emotionPolicy: CaseEmotionPolicy;
+  /** Last frozen ActorTurnPlan per actor. Render modalities consume this, never a draft. */
+  frozenActorTurnPlans: Map<string, ActorTurnPlan>;
 };
 
 export type GenerateActorResponseFromContextInput = {
@@ -197,6 +211,7 @@ export type ScenarioRuntimeActorTurn = {
   spokenText?: string;
   caption?: string;
   affect?: InteractionEmotion;
+  actorTurnPlan?: ActorTurnPlan;
 };
 
 export type ScenarioRuntimeDurableStore = {

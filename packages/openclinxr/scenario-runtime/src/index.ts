@@ -33,6 +33,12 @@ export {
   type ScenarioCatalogSource,
   resolveScenarioById,
 } from "./scenario-catalog.js";
+export {
+  ACTOR_TURN_EXECUTED_EVENT_TYPE,
+  ACTOR_TURN_PLANNED_EVENT_TYPE,
+  buildActorTurnPlan,
+  freezeActorTurnPlan,
+} from "./actor-turn-plan.js";
 export { ScenarioRuntime } from "./scenario-runtime.js";
 export type {
   CreateDefaultScenarioRuntimeOptions,
