@@ -37,6 +37,22 @@ export {
   type EmotionTransitionInput,
   type EmotionTransitionRule,
 } from "./emotion-engine.js";
+export {
+  classifyEmotionEvent,
+  classifyEmotionEventDetailed,
+  EMOTION_EVENT_RULES,
+  type EmotionEventClassifierInput,
+  type EmotionEventClassifierVerdict,
+  type EmotionEventRule,
+} from "./emotion-event-classifier.js";
+export {
+  mapEmotionPerformance,
+  stripProviderMarkup,
+  type EmotionPerformanceMapperInput,
+  type EmotionPerformancePlan,
+  type PerformanceIntensityBucket,
+  type ProviderMarkupStripped,
+} from "./emotion-performance-mapper.js";
 
 import {
   arbitrateTurnTaking,

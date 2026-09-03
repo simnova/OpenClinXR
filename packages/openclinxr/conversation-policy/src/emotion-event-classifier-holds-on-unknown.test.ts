@@ -13,16 +13,29 @@
  * claimScope: deterministic classifier default + mapper returns one plan.
  * notEvidenceFor: clinical validity, empathy scoring, Quest, live STT.
  */
+
+/**
+ * ## FIXED (DVA-5)
+ *
+ * - `classifyEmotionEvent` now defaults unknown learner input to
+ *   `learner_unclassified` (emotion-event-classifier.ts); `learner_clinical_question`
+ *   fires only from an authored allowlist rule match, never as the default.
+ * - `mapEmotionPerformance` now returns one deterministic performance plan keyed
+ *   on dialogue + somatic + style + ageBand (emotion-performance-mapper.ts),
+ *   echoing the dialogue key and emitting allowlist-clean prosody.
+ * - Both flips below are the planted assertions; the diagnosis header above is
+ *   unchanged.
+ */
 import { describe, expect, it } from "vitest";
 import { classifyEmotionEvent } from "./emotion-event-classifier.js";
 import { mapEmotionPerformance } from "./emotion-performance-mapper.js";
 
 describe("emotion event classifier holds on unknown", () => {
-  it.fails("(1) RED: unknown learner input classifies as learner_unclassified", () => {
+  it("(1) RED: unknown learner input classifies as learner_unclassified", () => {
     expect(classifyEmotionEvent({ text: "qqq-not-an-allowlisted-cue" })).toBe("learner_unclassified");
   });
 
-  it.fails("(2) RED: mapper emits one performance plan from dialogue+somatic+style+ageBand", () => {
+  it("(2) RED: mapper emits one performance plan from dialogue+somatic+style+ageBand", () => {
     const plan = mapEmotionPerformance({
       dialogueEmotion: "calm",
       somaticEmotion: "neutral",
