@@ -104,3 +104,36 @@ then `tasks.update` the stray to `status: cancelled` with a `blockedReason` nami
 Cancel is the right verb — there is no delete, and an uncancelled duplicate is dispatchable-looking.
 Leave a comment on the superseded card saying which id replaced it and why, or the next reader finds
 two cards with identical titles and no way to tell which is live.
+
+## Read the audit's findings as leads, not verdicts
+
+`pnpm exec tsx tools/openclinxr/openclaw/audit-board-graph.ts` is the fastest way to find work that
+is stuck rather than hard. Two of its finding kinds need a measurement before you act on them, and
+both were measured on 2026-09-03.
+
+**`committed_red_idle` does not distinguish a LIVE red from a flipped one.** It reports that a card
+is Idle while a test file it names exists in the tree. Four cards carried that finding; two of their
+REDs had zero unflipped clauses, so planting them would have produced cards that were green before
+any work happened — the by-construction pass this loop exists to prevent. **Count the call sites
+first:**
+
+```bash
+grep -c "it\.fails(\|planted(" <the test file>     # 0 means the card is already satisfied
+```
+
+Then run the file and read the split — `N passed | M expected fail` — because a package that wraps
+its plants in `planted()` will not show up under a bare `it.fails` grep in every repo layout.
+
+**`dangling_dep` on a CANCELLED card usually means a duplicate, and the work is often already on
+main.** Two cancelled cards were holding eight dependency edges across seven children; both had a
+Landed twin with the same title, and every deliverable was on main — measured by running the twin's
+test (0 unflipped, all passing) and confirming the write roots exist as files. Seven cards were
+waiting on nothing.
+
+Do not assume the reverse either: a cancelled dependency can also be genuinely abandoned work. The
+discriminator is cheap — look for a Landed card with the same title, then verify its deliverable in
+the tree rather than in the card text.
+
+**You cannot repair the edge.** `tasks.update` does not accept `depIds`, so the audit keeps reporting
+a satisfied dependency forever. Record the measurement in a comment on the parent so the next reader
+can treat the finding as noise with evidence behind it, and name both ids.
