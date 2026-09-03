@@ -8,12 +8,14 @@ differs so the repo symlinked Claude view and the personal Codex view both resol
 | field | value |
 |---|---|
 | source | https://bothyboard.com/skills/bothy-board/SKILL.md |
-| fetched | 2026-08-29 |
-| upstream bytes | 4087 |
-| upstream sha256 | 0110fce77056ce4f4748931e4fc3cd3de4a7296e7917d0c13a97e354fed876a3 |
-| local bytes | 4209 |
-| local sha256 | 01af8ba7bb786b9d7e1afc33794b9a5e43abec37ec2e5062cfbc9ebd3f08cde3 |
-| local amendment | conditional link to `CODEX-HARNESS.md` |
+| fetched | 2026-09-03 |
+| upstream bytes | 4196 |
+| upstream sha256 | 2541a9925c05708c541d11ab7fe85e4276cf538e0ad443ac577bc777f3918f53 |
+| local bytes | 4511 |
+| local sha256 | 4c957c9d623e053b0aaaca45952c12d5cafcb6f73e206393ea5938efccabc822 |
+| local amendment | conditional links to `GROK-HARNESS.md` and `CODEX-HARNESS.md` |
+| tool naming | underscore form `bothy-board_tasks_next` since 2026-09-03; dotted aliases still dispatch |
+| new upstream tools | `tasks_delete`, `tasks_restore`, `trash_list` (29 tools total) |
 | tool index | https://bothyboard.com/llms.txt |
 | unauth tool list | GET https://bothyboard.com/api/mcp |
 

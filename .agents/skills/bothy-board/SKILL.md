@@ -4,7 +4,7 @@ description: >
   Coordinate coding agents on BothyBoard — fail-closed dequeue over MCP.
   Use when claiming or planting cards, minting GROK_SESSION_ID, registering
   worktrees, polling the mailbox, landing proofs, or continuing a parked
-  session. Triggers: BothyBoard, bothy-board.*, tasks.next, Planted, CAS claim,
+  session. Triggers: BothyBoard, bothy-board_tasks_next, Planted, CAS claim,
   cacheToken, resume_from, worktree registry, proofs.set, treatments.fail.
 ---
 
@@ -36,13 +36,16 @@ Plant, Land, or delete.
 `GET <origin>/api/mcp` (no auth) lists tools. Skill: `<origin>/skills/bothy-board/SKILL.md`.
 Index: `<origin>/llms.txt`.
 
-Always pass `cacheToken` from the last `bothy-board.sync`. `{unchanged:true}` → skip reload.
+Always pass `cacheToken` from the last `bothy-board_sync`. `{unchanged:true}` → skip reload.
+
+Tool names are Grok-safe (`bothy-board_tasks_next`). Dotted aliases (`bothy-board.tasks.next`) still dispatch.
 
 Grok Build / Grok CLI wake-and-routing addendum (native `monitor`, not Stop-hook):
 [GROK-HARNESS.md](../../../.agents/skills/bothy-board/GROK-HARNESS.md).
 
 Codex Desktop / external-monitor addendum (read only when that harness is active):
 [CODEX-HARNESS.md](../../../.agents/skills/bothy-board/CODEX-HARNESS.md).
+
 
 ## Roles
 
@@ -57,8 +60,8 @@ Codex Desktop / external-monitor addendum (read only when that harness is active
 `tasks.next` is Planted+ready+deps-done+not-a-parent+non-overlapping roots.
 `{task:null}` and `{unchanged:true}` are success. Run the returned `spawnCommand`.
 
-1. `bothy-board.projects.fields.list` if the project has a schema; pass `fields` on create.
-2. `bothy-board.tasks.next` `{ machineName, cacheToken }` — persist cacheToken.
+1. `bothy-board_projects_fields_list` if the project has a schema; pass `fields` on create.
+2. `bothy-board_tasks_next` `{ machineName, cacheToken }` — persist cacheToken.
 3. Spawn with `spawnCommand` (already `grok -s <id> -w`). Do not invent a fresh `grok -p`.
 4. After `spawn_subagent`, `sessions.bind` `{ grokSessionId, grokSubagentId, taskId, machineName }`.
 5. `worktrees.register` `{ path, branch, machineName, taskId }` — must match claim machine.
