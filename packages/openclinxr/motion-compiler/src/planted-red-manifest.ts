@@ -31,6 +31,23 @@ export type PlantedRed = {
 };
 
 export const PLANTED_REDS: readonly PlantedRed[] = [
+  // TWO ENTRIES ADDED 2026-09-03 (four-behaviours card). The compiler-repair card resolved
+  // passive_rom and positioning by repointing them at existing primitives, which satisfied a clause
+  // of mine that bounded resolvability when the concern was behaviour. Clause (3) of that file is an
+  // inverted guard and is deliberately `it`, not `planted` — it passes today and must keep passing.
+  {
+    file: "the-four-response-kinds-are-four-behaviours.test.ts",
+    select: "(1) four authored kinds resolve to four DISTINCT primitives",
+    expected: /four kinds collapsed onto \d+ primitives|is not a registered primitive/u,
+    stage: "assertion",
+  },
+  {
+    file: "the-four-response-kinds-are-four-behaviours.test.ts",
+    select: "(2) an examiner-imposed passive ROM does not compile to the patient's own guard",
+    expected: /compiles to the same tracks as (guarding|palpation)/u,
+    stage: "assertion",
+  },
+
   // ALL FIVE COMPILER-SURFACE ENTRIES REMOVED 2026-09-02 (compiler-repair card, issue #0). The
   // package root now exports the registry + both profile derivers; clutch_body_region compiles
   // each site to its own travel and reads action.effector; guard_body_region reads action.effector
