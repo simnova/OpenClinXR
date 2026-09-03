@@ -1091,6 +1091,8 @@ export type HumanoidSpeechEvidence = {
     | "runtime_affect_timeline"
     | "scenario_actor_communication_profile"
     | "dialogue_text_heuristic"
+    | "plan.dialogueEmotionTo"
+    | "plan_missing"
     | undefined;
   scenarioBaselineMood?: string[] | undefined;
   scenarioEmotionCueIds?: string[] | undefined;
