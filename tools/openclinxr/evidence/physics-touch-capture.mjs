@@ -19,9 +19,12 @@ import { createServer } from "node:net";
 import { mkdirSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import playwright from "playwright";
+import { PHYSICS_TOUCH_CAPTURE_OUTPUT_DIR } from "./physics-touch-capture-output.mjs";
 
 // ── Config ──────────────────────────────────────────────────────────
-const OUTPUT_DIR = ".openclinxr/evidence/physics-clinical-touch/2026-08-02-prod-refine";
+// Declared once in ./physics-touch-capture-output.mjs; the contract tests and
+// the arena consumer import the same constant instead of redeclaring it.
+const OUTPUT_DIR = PHYSICS_TOUCH_CAPTURE_OUTPUT_DIR;
 const SETTLE_MS = 25_000;
 const SECOND_SHOT_MS = 5_000;
 const SCREENSHOT_MIN_BYTES = 100_000;
