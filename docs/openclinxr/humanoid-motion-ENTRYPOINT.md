@@ -140,6 +140,47 @@ whether these limits ever bind, which is a testability gap rather than a known d
 
 Not carded. The limits may well be fine; nothing here shows otherwise.
 
+## The dark-factory frontier is RENDER, and it is one timeout — measured 2026-09-03
+
+The multi-case rollup was re-run on today's tree and landed (`6f5d05d4`). Read this before choosing a
+slice; the previous figures in that artifact were three weeks old and named a bottleneck that had
+already cleared.
+
+    frontierCounts   { render: 15 }        was { case_to_actor_params: 13, rigging: 1 }
+
+    per station, deterministic of 15
+      case_to_actor_params  15   (was 2)      clothing 15    room 15    staging_placement 15
+      body                  15   (was 2)      lip_sync 15
+      rigging               15   (was 1)      equipment 5    world_compile 1
+      render                 0   (was 15)
+
+`case_to_actor_params`, `body` and `rigging` are now fully deterministic. The wall moved past them onto
+`render`, which stops every case.
+
+**It is a single cause, identical in all fifteen:**
+
+    render  classification: error   artifactPaths: []
+    "Capture failed for <caseId>: page.waitForFunction: Timeout 180000ms exceeded."
+    implementation: tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613
+                    captureStationEnvironmentRooms (shared with spawnPortlessDevServer captures)
+
+So this is an instrument failure, not fifteen content problems, and one fix unblocks the whole sweep.
+
+**The first obstacle is that the message does not say WHICH wait timed out.** That file has two, both
+defaulting to 180 s: `waitForStationShell` (`:1057`, waits for `__openClinXrDebugScene` to carry an
+`openClinXrStationEnvironment.environmentId` or an `openclinxr.station-environment-shell` node) and
+`waitForHumanoidAssetsLoaded` (`:1089`, waits for `__openClinXrSceneAssetEvidence` to report loaded
+humanoids rather than primitive fallbacks). `multi-case-runner.ts:864` wraps the whole capture in one
+`catch` and emits `errMessage(err)`, so a shell that never mounted and assets that never finished
+loading are indistinguishable from the artifact. Those are different repairs.
+
+Two figures that are NOT comparable with the August run: the chain is now TEN stations (`lip_sync` and
+`world_compile` were not among the eight measured then), so `casesFullyDeterministic` going 1 to 0 is a
+harder bar rather than lost ground. Render 15 to 0 is the one like-for-like change.
+
+Not carded yet. The honest first slice is making the failure name its own condition, because that
+decides which repair the render blocker actually needs.
+
 ## What the clinical research settled
 
 Do not derive a pain behaviour from demeanor, emotion or phenotype. A gastroenteritis case and a
