@@ -207,6 +207,27 @@ describe("scenario publication readiness", () => {
     });
   });
 
+  it("lets any of the three Peds credibility reviewers veto while the fixture stays draft", () => {
+    const readiness = evaluateScenarioPublicationReadiness({
+      scenario: pediatricAsthmaScenario,
+      targetUse: "local_formative",
+      reviewerEvidence: [
+        reviewer("pediatrician", "peds-001"),
+        reviewer("psychometrician", "psychometrician-001"),
+      ],
+      assetReadiness: { ...devReadyAssets, scenarioId: pediatricAsthmaScenario.scenarioId },
+      attestationVerifier: trustAllReviewers,
+    });
+
+    expect(pediatricAsthmaScenario.status).toBe("draft");
+    expect(readiness.canPublishForLearnerUse).toBe(false);
+    expect(readiness.gateResults).toContainEqual({
+      gate: "credibility_veto",
+      status: "block",
+      details: ["Peds credibility veto: missing approved attestation for simulation_qa. Fixture stays draft."],
+    });
+  });
+
   it("blocks target-use overclaim beyond scenario score-use label", () => {
     const readiness = evaluateScenarioPublicationReadiness({
       scenario: edChestPainScenario,

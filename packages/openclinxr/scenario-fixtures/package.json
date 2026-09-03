@@ -15,6 +15,14 @@
     "./scenario-bank": {
       "types": "./dist/scenario-bank.d.ts",
       "default": "./dist/scenario-bank.js"
+    },
+    "./pediatric-asthma": {
+      "types": "./dist/pediatric-asthma.d.ts",
+      "default": "./dist/pediatric-asthma.js"
+    },
+    "./authored-utterance-record": {
+      "types": "./dist/authored-utterance-record.d.ts",
+      "default": "./dist/authored-utterance-record.js"
     }
   },
   "scripts": {

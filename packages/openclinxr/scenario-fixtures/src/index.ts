@@ -2,6 +2,7 @@ export * from "./ed-chest-pain.js";
 export * from "./adult-abdominal-pain.js";
 export * from "./peds-fever.js";
 export * from "./pediatric-asthma.js";
+export * from "./authored-utterance-record.js";
 export * from "./psychiatric-safety.js";
 export * from "./telehealth-diabetes.js";
 export * from "./ward-delirium.js";

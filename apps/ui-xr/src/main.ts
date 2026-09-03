@@ -31,6 +31,7 @@ import {
 } from "@openclinxr/conversation-policy";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures/ed-chest-pain";
 import { scenarioBank, responseClipForBodyRegion } from "@openclinxr/scenario-fixtures/scenario-bank";
+import { isPedsAsthmaScenario, learnerVisiblePedsDialogueForTraceTag } from "./peds-authored-turn-surface.js";
 import {
   bootLearnerExamFormFromApi,
   createLearnerExamFormRunState,
@@ -2843,18 +2844,10 @@ function dialogueFor(tag: string): string {
   const runtimeTurn = runtimeDialogueTurnForTraceTag(tag);
   if (runtimeTurn) return runtimeTurn.text;
   const scenarioId = selectedScenarioId();
-  const lines: Record<string, string> = scenarioId === "peds_asthma_parent_anxiety_v1"
-    ? {
-        history_opqrst: "Jordan Williams: It started after recess and my chest feels tight.",
-        vitals_review: "Respiratory therapist: Oxygen saturation is borderline, and work of breathing is increasing.",
-        ecg_request: "Respiratory therapist: I will switch this to a nebulizer treatment and reassess breath sounds.",
-        urgent_escalation: "Tanya Williams: Please tell me if they need a higher level of care.",
-        team_communication: "Respiratory therapist: I will stay at bedside while you update the parent and reassess.",
-        family_communication: "Tanya Williams: I am scared, but I can help keep Jordan calm.",
-        empathy_statement: "Jordan Williams: I feel better when someone explains what is happening.",
-        patient_note_submitted: "System: Patient note saved for faculty review.",
-      }
-    : {
+  if (isPedsAsthmaScenario(scenarioId)) {
+    return learnerVisiblePedsDialogueForTraceTag(tag) ?? "System: Trace event recorded.";
+  }
+  const lines: Record<string, string> = {
       history_opqrst: "Robert Hayes: It started about half an hour ago while I was walking upstairs.",
       vitals_review: "Nurse Alvarez: His pressure is dropping and he looks more diaphoretic.",
       ecg_request: "Nurse Alvarez: I will get the ECG now and call it out as soon as it prints.",

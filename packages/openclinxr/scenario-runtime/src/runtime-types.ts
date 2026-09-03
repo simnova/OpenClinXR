@@ -11,7 +11,7 @@ import type {
 } from "@openclinxr/conversation-policy";
 import type { StationRun } from "@openclinxr/domain";
 import type { ActorResponseResult, ModelGateway } from "@openclinxr/model-gateway";
-import type { PublicationTargetUse, ReviewerEvidence } from "@openclinxr/review-workflow";
+import type { PublicationTargetUse, ReviewerAttestationVerifier, ReviewerEvidence } from "@openclinxr/review-workflow";
 import type {
   ActorModelContext,
   InteractionRoutingReason,
@@ -140,6 +140,7 @@ export type RegisterLearnerBargeInResult = {
 export type ScenarioPublicationReadinessInput = {
   targetUse: PublicationTargetUse;
   reviewerEvidence: ReviewerEvidence[];
+  attestationVerifier?: ReviewerAttestationVerifier;
 };
 
 export type SaveFacultyScoreDraftInput = {
@@ -190,6 +191,12 @@ export type ScenarioRuntimeActorTurn = {
   actorResponseEventSequence: number;
   /** Current affective state at the time this actor turn was produced (additive, back-compat). */
   currentEmotion?: InteractionEmotion | undefined;
+  /** One seed or plan identifier binding speaker, spokenText, caption, and affect. */
+  authoredBindingId?: string;
+  speakerActorId?: string;
+  spokenText?: string;
+  caption?: string;
+  affect?: InteractionEmotion;
 };
 
 export type ScenarioRuntimeDurableStore = {

@@ -58,6 +58,17 @@ import { scenarioBank } from "./scenario-bank.js";
  * `ed-chest-pain.test.ts` now expects each region's own clip instead of pinning one RLQ clip.
  */
 
+/**
+ * ## FIXED (issue #0 Phase 1 peds rebase 05a49b8a)
+ *
+ * The Phase 1 authored-turn credibility floor removes the four abdomen rows from the draft
+ * pediatric-asthma fixture (abdomen/RLQ guarding belongs to surgical-abdomen cases, not the
+ * asthma draft; `pediatric-asthma.ts` keeps only its chest_R / chest_L guarding rows). The bank
+ * is therefore 20 rows, not 24; clause (1)'s row counterweight tracks the re-measured bank. The
+ * six-region vocabulary and clause (3)'s RLQ survival are unaffected — abdomen rows remain
+ * authored in adult-abdominal-pain and ed-chest-pain.
+ */
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const RESOLVER_MODULE = "./touch-response-clip.js";
 
@@ -117,7 +128,7 @@ describe("the touch response clip follows the region", () => {
 
     // COUNTERWEIGHT, first: this clause must not pass by finding nothing. Both bounds come from the
     // measured header, and both fail if the bank is emptied or its regions collapsed to reach green.
-    expect(rows.length, "the bank must still carry the 24 measured touch rows").toBeGreaterThanOrEqual(24);
+    expect(rows.length, "the bank must still carry the 20 measured touch rows").toBeGreaterThanOrEqual(20);
     const regions = [...new Set(rows.map((r) => r.region))];
     expect(regions.length, "the bank must still author at least the 6 measured regions").toBeGreaterThanOrEqual(6);
 

@@ -208,6 +208,47 @@ describe("review packet workflow", () => {
     expect(packet.unsafeEvents).toEqual(["unsafe.timeout"]);
   });
 
+  it("replays the authored Peds utterance record without substituting keyword affect", () => {
+    const authoredBinding = {
+      authoredBindingId: "peds_patient_work_of_breathing",
+      bindingKind: "seed",
+      speakerActorId: "patient_maya_johnson_v1",
+      spokenText: "It feels tight when I breathe.",
+      caption: "It feels tight when I breathe.",
+      affect: "anxious",
+    };
+    const packet = buildReviewPacket({
+      scenarioId: "peds_asthma_parent_anxiety_v1",
+      requiredTraceTags: ["work_of_breathing_assessment"],
+      traceEvents: [
+        {
+          sequence: 0,
+          eventType: "actor.response.generated",
+          source: "model-gateway",
+          actorId: "patient_maya_johnson_v1",
+          tag: "work_of_breathing_assessment",
+          atSecond: 20,
+          payload: {
+            text: "Maya Johnson: It feels tight when I breathe.",
+            responseKind: "spoken_actor_response",
+            durableEventRef: "durable://station-runs/run_peds/events/2",
+            provenance: { providerId: "mock-model", guardrail: { status: "pass" } },
+            authoredBinding,
+          },
+        },
+      ],
+      stationRunId: "run_peds",
+      facultyScoreDraft: { reviewerId: "faculty_peds", status: "draft", comments: "Replay authored Peds line." },
+    });
+
+    expect(packet.timeline[0]?.summary).toContain("authoredBinding peds_patient_work_of_breathing");
+    expect(packet.timeline[0]?.summary).toContain("speaker patient_maya_johnson_v1");
+    expect(packet.timeline[0]?.summary).toContain("spokenText It feels tight when I breathe.");
+    expect(packet.timeline[0]?.summary).toContain("caption It feels tight when I breathe.");
+    expect(packet.timeline[0]?.summary).toContain("affect anxious");
+    expect(packet.timeline[0]?.summary).not.toContain("focused");
+  });
+
   it("requires a reviewer identity for a faculty score draft", () => {
     expect(() =>
       buildReviewPacket({

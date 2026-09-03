@@ -286,7 +286,7 @@ describe("scenario bank maturity", () => {
       actorRoles: ["family", "nurse", "patient"],
       actorCount: 3,
       multiActorReady: true,
-      dialogueSeedCount: 4,
+      dialogueSeedCount: 5,
       dialogueSeedReady: true,
       traceabilityReady: true,
       requiredTraceTagCount: pediatricAsthmaScenario.requiredTraceTags.length,
@@ -471,6 +471,7 @@ describe("scenario bank maturity", () => {
     expect(pediatricAsthmaDialogueSeeds.map((seed) => seed.seedId)).toEqual([
       "peds_patient_work_of_breathing",
       "peds_parent_trigger_history",
+      "peds_parent_empathy",
       "peds_nurse_oxygen_escalation",
       "peds_parent_hidden_truth_probe",
     ]);

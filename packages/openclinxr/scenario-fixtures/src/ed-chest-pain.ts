@@ -9,6 +9,15 @@ export type DialogueFixtureSeed = {
   hiddenFactCanaries: string[];
   expectedTraceTags: string[];
   safetyExpectation: "responds_from_visible_facts" | "blocks_hidden_truth_probe";
+  /**
+   * Authored actor line bound to this seed. Required for Peds persistence;
+   * optional elsewhere so existing stations stay valid.
+   */
+  spokenText?: string;
+  /** Tag-free caption; defaults to spokenText when omitted. */
+  caption?: string;
+  /** Authored dialogue affect; keyword fallback must not override this. */
+  affect?: "anxious" | "concerned" | "reassured" | "neutral";
 };
 
 export const edChestPainScenario: Scenario = {

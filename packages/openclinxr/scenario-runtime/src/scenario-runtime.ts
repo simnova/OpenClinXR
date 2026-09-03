@@ -47,6 +47,7 @@ import {
   voiceSynthesisPolicy,
   voiceSynthesisRequestId,
 } from "./provider-support.js";
+import { bindPersistedActorTurn } from "./authored-turn-binding.js";
 import { durableEventRef, traceEvent, type TraceEventInput, withDurableEventRef } from "./trace.js";
 import type {
   GenerateActorResponseFromContextInput,
@@ -514,6 +515,7 @@ export class ScenarioRuntime {
       targetUse: input.targetUse,
       reviewerEvidence: input.reviewerEvidence,
       assetReadiness: this.assetReadiness(),
+      ...(input.attestationVerifier ? { attestationVerifier: input.attestationVerifier } : {}),
     });
   }
 
@@ -706,6 +708,32 @@ export class ScenarioRuntime {
     session.lastSpeakerActorId = input.actorId;
 
     const actorResponseDurableRef = durableEventRef(session.run.stationRunId, session.nextSequence);
+    const bound = bindPersistedActorTurn({
+      scenarioId: this.options.scenario.scenarioId,
+      actorId: input.actorId,
+      actorDisplayName: actor.displayName,
+      actorDemeanor: actor.demeanor ?? "",
+      learnerUtterance: input.learnerUtterance,
+      traceContextTags,
+      responseText: response.text,
+      engineEmotion: session.emotionEngines.get(input.actorId)?.currentEmotion,
+      base: {
+        turnId: `turn_${input.conversationTurn}_${input.actorId}_${input.atSecond}`,
+        stationRunId: session.run.stationRunId,
+        actorId: input.actorId,
+        atSecond: input.atSecond,
+        conversationTurn: input.conversationTurn,
+        learnerUtterance: input.learnerUtterance,
+        responseKind: response.responseKind,
+        traceContextTags,
+        durableEventRef: actorResponseDurableRef,
+        learnerEventSequence: learnerEvent.sequence,
+        actorResponseEventSequence: session.nextSequence,
+      },
+    });
+    const boundResponse = bound.authoredBinding
+      ? { ...response, text: bound.responseText }
+      : response;
     const actorResponseEvent = this.appendTrace(session, {
       eventType: "actor.response.generated",
       atSecond: input.atSecond,
@@ -713,36 +741,23 @@ export class ScenarioRuntime {
       actorId: input.actorId,
       ...(primaryTag ? { tag: primaryTag } : {}),
       payload: {
-        text: response.text,
-        responseKind: response.responseKind,
-        traceTags: response.traceTags,
-        provenance: response.provenance,
+        text: boundResponse.text,
+        responseKind: boundResponse.responseKind,
+        traceTags: boundResponse.traceTags,
+        provenance: boundResponse.provenance,
         durableEventRef: actorResponseDurableRef,
+        ...(bound.authoredBinding ? { authoredBinding: bound.authoredBinding } : {}),
       },
     });
-
-    const currentEmotion = session.emotionEngines.get(input.actorId)?.currentEmotion;
-
     const actorTurn: ScenarioRuntimeActorTurn = {
-      turnId: `turn_${input.conversationTurn}_${input.actorId}_${input.atSecond}`,
-      stationRunId: session.run.stationRunId,
-      actorId: input.actorId,
-      atSecond: input.atSecond,
-      conversationTurn: input.conversationTurn,
-      learnerUtterance: input.learnerUtterance,
-      responseText: response.text,
-      responseKind: response.responseKind,
-      traceContextTags,
-      durableEventRef: actorResponseDurableRef,
-      learnerEventSequence: learnerEvent.sequence,
+      ...bound.turn,
       actorResponseEventSequence: actorResponseEvent.sequence,
-      currentEmotion,
     };
     await this.options.durableStore?.saveActorTurn?.(session.run.stationRunId, actorTurn);
 
     return {
       conversationTurn: input.conversationTurn,
-      response,
+      response: boundResponse,
       learnerEvent,
       actorResponseEvent,
       historyTakingCoverage,

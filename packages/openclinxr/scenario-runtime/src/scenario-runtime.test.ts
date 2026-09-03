@@ -585,6 +585,11 @@ describe("scenario runtime", () => {
         reviewer("legal", "legal-001"),
         reviewer("simulation_qa", "simulation-qa-001"),
       ],
+      attestationVerifier: (request) => ({
+        verified: true,
+        principalId: request.reviewerId,
+        roles: [request.assertedRole],
+      }),
     });
 
     expect(ready.canPublishForLearnerUse).toBe(true);
@@ -1295,6 +1300,102 @@ describe("non-ED scenario runtime", () => {
       "station.started",
       "consent.accepted",
     ]);
+  });
+});
+
+describe("peds authored turn persistence", () => {
+  it("routes Maya, Tara, and Kevin as separately addressable speakers", async () => {
+    const runtime = createDefaultScenarioRuntime({ scenario: pediatricAsthmaScenario });
+    const session = await runtime.startSession({ learnerId: "learner_peds_route", consentAccepted: true });
+    runtime.startEncounter(session.stationRunId, { atSecond: 10 });
+
+    expect(
+      runtime.routeActorInteractionTurn(session.stationRunId, {
+        atSecond: 20,
+        learnerUtterance: "Maya, can you show me how hard it feels to breathe?",
+        traceContextTags: ["work_of_breathing_assessment"],
+      }).routedActorId,
+    ).toBe("patient_maya_johnson_v1");
+    expect(
+      runtime.routeActorInteractionTurn(session.stationRunId, {
+        atSecond: 30,
+        learnerUtterance: "Tara, what changed before this started?",
+        traceContextTags: ["trigger_history"],
+      }).routedActorId,
+    ).toBe("parent_tara_johnson_v1");
+    expect(
+      runtime.routeActorInteractionTurn(session.stationRunId, {
+        atSecond: 40,
+        learnerUtterance: "Kevin, please start oxygen now.",
+        traceContextTags: ["oxygen_request"],
+      }).routedActorId,
+    ).toBe("nurse_kevin_lee_v1");
+  });
+
+  it("persists one authored seed binding speaker, spokenText, caption, and affect", async () => {
+    const savedTurns: ScenarioRuntimeActorTurn[] = [];
+    const runtime = createDefaultScenarioRuntime({
+      scenario: pediatricAsthmaScenario,
+      durableStore: {
+        saveActorTurn(_stationRunId, turn) {
+          savedTurns.push(turn);
+        },
+      },
+    });
+    const session = await runtime.startSession({ learnerId: "learner_peds_bind", consentAccepted: true });
+    runtime.startEncounter(session.stationRunId, { atSecond: 10 });
+
+    const generated = await runtime.generateActorResponse(session.stationRunId, {
+      actorId: "patient_maya_johnson_v1",
+      learnerUtterance: "Maya, can you show me how hard it feels to breathe?",
+      atSecond: 20,
+      traceContextTags: ["work_of_breathing_assessment"],
+    });
+
+    expect(savedTurns).toHaveLength(1);
+    expect(savedTurns[0]).toMatchObject({
+      authoredBindingId: "peds_patient_work_of_breathing",
+      speakerActorId: "patient_maya_johnson_v1",
+      spokenText: "It feels tight when I breathe.",
+      caption: "It feels tight when I breathe.",
+      affect: "anxious",
+      currentEmotion: "anxious",
+    });
+    expect(generated.response.text).toBe("Maya Johnson: It feels tight when I breathe.");
+    expect(generated.actorResponseEvent.payload).toMatchObject({
+      authoredBinding: {
+        authoredBindingId: "peds_patient_work_of_breathing",
+        speakerActorId: "patient_maya_johnson_v1",
+        spokenText: "It feels tight when I breathe.",
+        caption: "It feels tight when I breathe.",
+        affect: "anxious",
+      },
+    });
+  });
+
+  it("does not let keyword-affect fallback override the authored Peds affect", async () => {
+    const savedTurns: ScenarioRuntimeActorTurn[] = [];
+    const runtime = createDefaultScenarioRuntime({
+      scenario: pediatricAsthmaScenario,
+      durableStore: {
+        saveActorTurn(_stationRunId, turn) {
+          savedTurns.push(turn);
+        },
+      },
+    });
+    const session = await runtime.startSession({ learnerId: "learner_peds_affect", consentAccepted: true });
+    runtime.startEncounter(session.stationRunId, { atSecond: 10 });
+
+    await runtime.generateActorResponse(session.stationRunId, {
+      actorId: "nurse_kevin_lee_v1",
+      learnerUtterance: "Kevin, please start oxygen, prepare a bronchodilator, and call for urgent help.",
+      atSecond: 40,
+      traceContextTags: ["oxygen_request"],
+    });
+
+    expect(savedTurns[0]?.affect).toBe("concerned");
+    expect(savedTurns[0]?.affect).not.toBe("focused");
+    expect(savedTurns[0]?.authoredBindingId).toBe("peds_nurse_oxygen_escalation");
   });
 });
 

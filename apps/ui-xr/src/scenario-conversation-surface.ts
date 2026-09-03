@@ -30,6 +30,10 @@ export type ScenarioRemoteActorTurnPlan = {
   voiceId: string;
   learnerUtterance: string;
   traceContextTags: string[];
+  authoredBindingId?: string;
+  spokenText?: string;
+  caption?: string;
+  affect?: string;
 };
 
 /** ED chest-pain learner utterances — demoted to ED-only; not a global map. */
@@ -198,6 +202,10 @@ function turnFromSeedBank(scenarioId: string, tag: string): ScenarioRemoteActorT
     voiceId: mockVoiceIdForActor(seed.actorId),
     learnerUtterance: seed.learnerUtterance,
     traceContextTags: [tag],
+    ...(seed.seedId ? { authoredBindingId: seed.seedId } : {}),
+    ...(seed.spokenText ? { spokenText: seed.spokenText } : {}),
+    ...(seed.caption || seed.spokenText ? { caption: seed.caption ?? seed.spokenText } : {}),
+    ...(seed.affect ? { affect: seed.affect } : {}),
   };
 }
 

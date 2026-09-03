@@ -1,4 +1,5 @@
 import type { Scenario } from "@openclinxr/shared-schemas";
+import { missingPedsCredibilityVetoRoles, PEDS_ASTHMA_SCENARIO_ID } from "./peds-credibility-veto.js";
 
 export type PublicationTargetUse = "local_formative" | "pilot_research" | "summative";
 
@@ -51,7 +52,7 @@ export type PublicationAssetReadiness = {
   productionBlockedAssets: Array<{ assetId: string; blockers: string[] }>;
 };
 
-export type PublicationGate = "scenario_status" | "review_state" | "validation_stage" | "score_use" | "reviewer_evidence" | "hidden_fact_policy" | "asset_readiness";
+export type PublicationGate = "scenario_status" | "review_state" | "validation_stage" | "score_use" | "reviewer_evidence" | "hidden_fact_policy" | "asset_readiness" | "credibility_veto";
 
 export type PublicationGateResult = {
   gate: PublicationGate;
@@ -91,7 +92,7 @@ export type EvaluateScenarioPublicationReadinessInput = {
   /**
    * Trusted verifier the gate consults to bind an evidence row's claimed `reviewerRole` to a
    * verified principal. Optional at the type level because a real caller wires a real identity
-   * provider here — but its ABSENCE is not a bypass: see `missingApprovedReviewerRoles`, which
+   * provider here — but its ABSENCE is not a bypass: see `collectApprovedReviewerRoles`, which
    * credits no role at all when no verifier is supplied.
    */
   attestationVerifier?: ReviewerAttestationVerifier;
@@ -100,18 +101,22 @@ export type EvaluateScenarioPublicationReadinessInput = {
 export function evaluateScenarioPublicationReadiness(input: EvaluateScenarioPublicationReadinessInput): ScenarioPublicationReadiness {
   const gateResults: PublicationGateResult[] = [];
   const requiredReviewerRoles = [...new Set(input.scenario.governance.requiredReviewerRoles)];
-  const missingReviewerRoles = missingApprovedReviewerRoles(
-    requiredReviewerRoles,
+  const approvedRoles = collectApprovedReviewerRoles(
     input.reviewerEvidence,
     input.scenario,
     input.attestationVerifier,
   );
+  const missingReviewerRoles = requiredReviewerRoles.filter((role) => !approvedRoles.has(role));
 
   gateResults.push(scenarioStatusGate(input.scenario));
   gateResults.push(reviewStateGate(input.scenario));
   gateResults.push(validationStageGate(input.scenario, input.targetUse));
   gateResults.push(scoreUseGate(input.scenario, input.targetUse));
   gateResults.push(reviewerEvidenceGate(missingReviewerRoles));
+  const credibilityMissing = missingPedsCredibilityVetoRoles(input.scenario.scenarioId, approvedRoles);
+  if (credibilityMissing.length > 0 || input.scenario.scenarioId === PEDS_ASTHMA_SCENARIO_ID) {
+    gateResults.push(credibilityVetoGate(credibilityMissing));
+  }
   gateResults.push(hiddenFactPolicyGate(input.scenario));
   gateResults.push(assetReadinessGate(input.assetReadiness, input.scenario.scenarioId, input.targetUse));
 
@@ -146,7 +151,9 @@ function publicationRecommendedNextAction(
   blockingGateIds: readonly PublicationGate[],
   warningGateIds: readonly PublicationGate[],
 ): ScenarioPublicationReadiness["blockerVisibility"]["recommendedNextAction"] {
-  if (blockingGateIds.includes("reviewer_evidence")) return "collect_required_reviewer_evidence";
+  if (blockingGateIds.includes("reviewer_evidence") || blockingGateIds.includes("credibility_veto")) {
+    return "collect_required_reviewer_evidence";
+  }
   if (blockingGateIds.includes("scenario_status") || blockingGateIds.includes("review_state")) return "complete_scenario_review_gates";
   if (blockingGateIds.includes("validation_stage") || blockingGateIds.includes("score_use")) return "advance_governance_validation_stage";
   if (blockingGateIds.includes("hidden_fact_policy")) return "repair_hidden_fact_policy";
@@ -259,12 +266,11 @@ function assetReadinessGate(
  * No `attestationVerifier` means no approval can be verified, so `approvedRoles` stays empty and
  * every required role is reported missing. This is the fail-closed default clause (1) requires.
  */
-function missingApprovedReviewerRoles(
-  requiredReviewerRoles: readonly string[],
+function collectApprovedReviewerRoles(
   reviewerEvidence: readonly ReviewerEvidence[],
   scenario: Scenario,
   attestationVerifier: ReviewerAttestationVerifier | undefined,
-): string[] {
+): Set<string> {
   const shapeValidApprovals = reviewerEvidence
     .filter((evidence) => evidence.decision === "approved")
     .filter((evidence) => evidence.reviewerId.trim().length > 0)
@@ -285,15 +291,23 @@ function missingApprovedReviewerRoles(
         evidenceId: evidence.evidenceRefs.join("|"),
       };
       const principal = attestationVerifier(request);
-      // The role is credited only when the VERIFIED principal's own role list contains the role
-      // being claimed — never merely because the verifier said `verified: true` to something.
       if (principal.verified && principal.roles.includes(evidence.reviewerRole)) {
         approvedRoles.add(evidence.reviewerRole);
       }
     }
   }
 
-  return requiredReviewerRoles.filter((role) => !approvedRoles.has(role));
+  return approvedRoles;
+}
+
+function credibilityVetoGate(missingRoles: readonly string[]): PublicationGateResult {
+  if (missingRoles.length === 0) {
+    return pass("credibility_veto", "Pediatrician, psychometrician, and simulation QA credibility veto roles are satisfied.");
+  }
+  return block(
+    "credibility_veto",
+    `Peds credibility veto: missing approved attestation for ${missingRoles.join(", ")}. Fixture stays draft.`,
+  );
 }
 
 function pass(gate: PublicationGate, detail: string): PublicationGateResult {
