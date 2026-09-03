@@ -138,7 +138,20 @@ run forward kinematics in the test and compare the effector's world position aga
 targets known to be within arm's length. Until one of those exists, no caller and no test can tell
 whether these limits ever bind, which is a testability gap rather than a known defect.
 
-Not carded. The limits may well be fine; nothing here shows otherwise.
+CARDED 2026-09-03 as tsk_b944e51c3cf84289, and the "limits may well be fine" reading is now false
+for the HARNESS rail. Measured at 5524da80 from runtime-goal-eval.json: the solved right elbow sits at
+a **16.8 deg interior angle** at all 12 frames — past maximum human flexion, hand behind the elbow —
+while the wrist residual reads 0.00 m. Bone lengths are constant, so the joint is simply rotated out
+of range. The cause is that the harness declares NO limits at all: it builds CCDIK links as
+`{ index }` only, while three.js CCDIKSolver reads per-link `rotationMin`, `rotationMax` and
+`limitation` (`CCDIKSolver.js:146-148`, applied `:200-227`). So the two rails differ — the compiler
+rail clamps via `clampBend`, the harness rail does not clamp anything.
+
+The COMPILER rail's limits remain exactly as described above: unmeasurable from `SolvedArmPose`, and
+nothing shows they are wrong. That half is still uncarded.
+
+The instrument that settled it takes three world POSITIONS and computes an interior angle, so the
+parent-frame trap this section warns about does not apply to it. Positions have no frame to get wrong.
 
 ## The dark-factory frontier is RENDER, and it is one timeout — measured 2026-09-03
 
