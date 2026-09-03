@@ -1,6 +1,7 @@
 import type { CompiledMotionFragment, CompiledMotionTrack, PrimitiveRequest } from "../canonical-motion-contract.js";
 import { REGION_ANCHOR_SPACE } from "../plant-motion-regions.js";
 import { resolvePoseBone } from "../../../asset-registry/src/pose-bone-resolver.js";
+import { requestedEffector } from "../requested-effector.js";
 import { solveArmChain, type ChainJoint, type Quat } from "../ik/solve-chain.js";
 
 /**
@@ -14,10 +15,12 @@ import { solveArmChain, type ChainJoint, type Quat } from "../ik/solve-chain.js"
  *
  * BEHAVIOUR: a guard is a GEOMETRY solve, not a pose table. The request's target is a MOTION
  * REGION id (`{ kind: "body_region", id }`); the primitive resolves it to a bind-world anchor on
- * THIS rig (`profile.regionAnchors`), resolves the right-arm chain through
+ * THIS rig (`profile.regionAnchors`), resolves the chain of the REQUESTED effector — the action's
+ * `effector` (handL/handR), falling back to the profile's legacy `effectorBone` — through
  * `resolvePoseBone` (identity-then-alias across the 23-bone / MPFB2 / mixamorig families,
- * ancestor-verified), and asks the `src/ik/solve-chain.ts` seam for shoulder + elbow rotations
- * that put the wrist on the anchor plus a rig-derived wrist pronation. The clip is a 3-keyframe
+ * ancestor-verified and side-checked against the rig's own canonical wrists), and asks the
+ * `src/ik/solve-chain.ts` seam for shoulder + elbow rotations that put the wrist on the anchor
+ * plus a rig-derived wrist pronation. The clip is a 3-keyframe
  * neutral -> peak -> settle shape whose PEAK is the solved pose, so the fragment's FK reaches the
  * anchor at the frame the guard plant measures.
  *
@@ -91,16 +94,22 @@ function readTarget(action: unknown): { kind: "body_region"; id: string } {
   return { kind: "body_region", id: target.id };
 }
 
-/** Resolve the right-arm chain on this rig: alias-resolved wrist, then ancestor-verified. */
-function resolveArmChain(profile: ProfileView): { shoulderName: string; elbowName: string; wristName: string } {
+/**
+ * Resolve the effector's arm chain on this rig: the requested effector (the action's, falling back
+ * to the profile's legacy `effectorBone`), alias-resolved to the bone THIS rig carries, then the
+ * chain walked parent-first from that wrist. The chain's side is read from the rig itself — which
+ * canonical wrist the resolved bone equals — so a LEFT effector drives the left arm and a right
+ * effector the right arm, and the alias map must name the SAME chain the rig's own parent links do.
+ */
+function resolveArmChain(profile: ProfileView, request: PrimitiveRequest): { shoulderName: string; elbowName: string; wristName: string } {
   const joints = profile.joints as readonly ChainJoint[] | undefined;
   if (!Array.isArray(joints) || joints.length === 0) {
     throw new Error("guard_body_region: profile carries no joints — no arm to solve");
   }
   const jointSet = new Set(joints.map((j) => j.boneName));
-  const effector = profile.effectorBone;
+  const effector = requestedEffector(request);
   if (typeof effector !== "string" || effector.length === 0) {
-    throw new Error("guard_body_region: profile carries no effectorBone — the wrist cannot be named");
+    throw new Error("guard_body_region: the request names no effector and the profile carries no effectorBone — the wrist cannot be named");
   }
 
   const wristName = resolvePoseBone(effector, jointSet);
@@ -115,10 +124,19 @@ function resolveArmChain(profile: ProfileView): { shoulderName: string; elbowNam
     throw new Error(`guard_body_region: arm chain broken above ${wristName} — a guard needs shoulder -> elbow -> wrist`);
   }
 
-  // CROSS-CHECK against the alias map: the resolved canonical landmarks must name the SAME chain
-  // the rig's own parent links do. A rig where they disagree is refused, never guessed.
-  const aliasShoulder = resolvePoseBone("upper_armR", jointSet);
-  const aliasElbow = resolvePoseBone("forearmR", jointSet);
+  // CROSS-CHECK against the alias map, on the SIDE the resolved wrist belongs to: the canonical
+  // shoulder/elbow landmarks for that side must name the SAME chain the rig's own parent links do.
+  // A rig where they disagree is refused, never guessed.
+  const canonicalWristL = resolvePoseBone("handL", jointSet);
+  const canonicalWristR = resolvePoseBone("handR", jointSet);
+  const side = wristName === canonicalWristL ? "L" : wristName === canonicalWristR ? "R" : null;
+  if (side === null) {
+    throw new Error(
+      `guard_body_region: effector "${effector}" resolved to "${wristName}", which is neither canonical wrist of this rig — a guard drives an arm`,
+    );
+  }
+  const aliasShoulder = resolvePoseBone(side === "L" ? "upper_armL" : "upper_armR", jointSet);
+  const aliasElbow = resolvePoseBone(side === "L" ? "forearmL" : "forearmR", jointSet);
   if (aliasShoulder !== shoulder.boneName || aliasElbow !== elbow.boneName) {
     throw new Error(
       "guard_body_region: resolved arm chain disagrees with the pose-bone alias map — refused rather than guessed",
@@ -192,7 +210,7 @@ export function compile(request: PrimitiveRequest): CompiledMotionFragment {
     );
   }
 
-  const chain = resolveArmChain(profile);
+  const chain = resolveArmChain(profile, request);
   const durationMs = readDurationMs(request.action);
   const retention = Math.min(
     SETTLE_RETENTION.max,
@@ -211,7 +229,10 @@ export function compile(request: PrimitiveRequest): CompiledMotionFragment {
     }
   };
 
-  const times = [0, durationMs * PEAK_FRACTION, durationMs];
+  // TRACK TIMES ARE SECONDS: the clip's `durationSeconds` is the maximum final track time, so the
+  // keys a primitive emits must be seconds, not the authored milliseconds (compiler-surface clause 4).
+  const durationSeconds = durationMs / 1000;
+  const times = [0, durationSeconds * PEAK_FRACTION, durationSeconds];
   const tracks: CompiledMotionTrack[] = [pose.shoulderBone, pose.elbowBone, pose.wristBone].map((boneName) => {
     const bind = byName.get(boneName);
     if (!bind) throw new Error(`guard_body_region: solved bone "${boneName}" vanished from the joint table`);

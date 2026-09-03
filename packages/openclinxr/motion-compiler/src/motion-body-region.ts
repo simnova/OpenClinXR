@@ -96,6 +96,6 @@ export function motionBodyRegionForComplianceRegion(region: string): string {
 }
 
 /** True when a target id is a member of the closed motion vocabulary. */
-export function isMotionBodyRegion(id: string): boolean {
+export function isMotionBodyRegion(id: string): id is MotionBodyRegion {
   return (MOTION_BODY_REGIONS as readonly string[]).includes(id);
 }

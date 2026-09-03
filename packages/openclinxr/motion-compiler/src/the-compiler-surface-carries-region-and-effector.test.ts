@@ -1,6 +1,5 @@
 import { createHash } from "node:crypto";
-import { describe, expect } from "vitest";
-import { planted } from "./planted.js";
+import { describe, expect, it } from "vitest";
 
 /**
  * OBSERVABLE: the bake-off could not run the designed backends, and the reason is this package's
@@ -48,6 +47,37 @@ import { planted } from "./planted.js";
  *   clutch whose durations are seconds.
  * notEvidenceFor: that the compiled motion looks right; that either candidate backend wins the
  *   bake-off; runtime IK, contact, or anything in apps/ui-xr.
+ *
+ * ## FIXED (compiler-repair card, issue #0) — all five clauses are now live `it` tests.
+ *
+ * The compiler-surface repair landed in src/:
+ *
+ *   - src/index.ts                    now exports the primitive registry (resolvePrimitive /
+ *                                     PRIMITIVE_IDS / createPrimitiveRegistry) and the two profile
+ *                                     derivers (deriveSkeletonProfileFromRigAsset and the anchor
+ *                                     producer deriveSkeletonProfile), so a consumer outside this
+ *                                     package can reach a primitive AND build the profile every
+ *                                     body primitive requires. (1)
+ *   - src/clutch-body-region.ts       compiles each SITE to its own region-anchored travel (a
+ *                                     closed per-region table keyed on the MotionBodyRegion
+ *                                     vocabulary; compliance-region ids go through the one declared
+ *                                     mapper) and reads action.effector, resolved against the rig's
+ *                                     own joint table. (2) (3)
+ *   - src/requested-effector.ts       the shared action-first effector resolution (action.effector
+ *                                     -> profile.effectorBone legacy -> default), used by both body
+ *                                     primitives; nothing is written to the profile, so the rig's
+ *                                     skeletonProfileHash cannot split per hand. (3)
+ *   - src/primitives/guard-body-region.ts reads action.effector too, and its chain resolution is
+ *                                     side-aware (left effector drives the left arm). (3)
+ *   - all motion-emitting primitives  emit TRACK TIMES IN SECONDS (durationMs / 1000), so the
+ *                                     composer's durationSeconds is seconds for every primitive. (4)
+ *   - src/program/compile-scenario-motion.ts remaps passive_rom -> guard_body_region and
+ *                                     positioning -> reach_target, both members of PRIMITIVE_IDS. (5)
+ *
+ * MEASURED 2026-09-02: clause (2) digests differ between abdomen_epigastric and chest_L while a
+ * single site is byte-stable; clause (3) handL writes handL and handR writes handR under one
+ * skeletonProfileHash; clause (4) a 900 ms clutch reports durationSeconds 0.9; clause (5) every
+ * RESPONSE_KIND_TO_PRIMITIVE value resolves through the registry.
  */
 
 const HAND_L = "handL";
@@ -61,7 +91,7 @@ const rootModule = async (): Promise<Record<string, unknown>> =>
   (await import("./index.js")) as Record<string, unknown>;
 
 describe("the compiler surface carries region and effector", () => {
-  planted("(1) a consumer outside this package can reach the primitive registry from the root", async () => {
+  it("(1) a consumer outside this package can reach the primitive registry from the root", async () => {
     const m = await rootModule();
     expect(typeof m["resolvePrimitive"], "src/index.ts does not export resolvePrimitive").toBe("function");
     expect(m["PRIMITIVE_IDS"], "src/index.ts does not export PRIMITIVE_IDS").toBeDefined();
@@ -74,7 +104,7 @@ describe("the compiler surface carries region and effector", () => {
     ).toBe("function");
   });
 
-  planted("(2) two different sites compile to different tracks, each anchored to its own region", async () => {
+  it("(2) two different sites compile to different tracks, each anchored to its own region", async () => {
     const m = await rootModule();
     const resolve = m["resolvePrimitive"] as ((id: string) => { compile: (r: unknown) => { tracks: unknown[] } }) | undefined;
     expect(typeof resolve, "resolvePrimitive is not exported; clause (1) owns that").toBe("function");
@@ -94,7 +124,7 @@ describe("the compiler surface carries region and effector", () => {
     expect(trackDigest(at("abdomen_epigastric").tracks), "the same site is not deterministic").toBe(a);
   });
 
-  planted("(3) left and right effectors differ, and the rig's identity does NOT", async () => {
+  it("(3) left and right effectors differ, and the rig's identity does NOT", async () => {
     const m = await rootModule();
     const compile = m["compileMotionProgram"] as ((i: unknown) => { tracks: unknown[]; targetRig: { skeletonProfileHash: string } });
     const profile = { rigFingerprint: "fixture", joints: {} };
@@ -129,7 +159,7 @@ describe("the compiler surface carries region and effector", () => {
       .toBe(left.targetRig.skeletonProfileHash);
   });
 
-  planted("(4) durationSeconds is seconds", async () => {
+  it("(4) durationSeconds is seconds", async () => {
     const m = await rootModule();
     const compile = m["compileMotionProgram"] as ((i: unknown) => { durationSeconds: number });
     const clip = compile({
@@ -144,7 +174,7 @@ describe("the compiler surface carries region and effector", () => {
     expect(clip.durationSeconds, "a 900 ms action compiled to no duration at all").toBeGreaterThan(0);
   });
 
-  planted("(5) every responseKind maps to a primitive the registry can supply", async () => {
+  it("(5) every responseKind maps to a primitive the registry can supply", async () => {
     const m = await rootModule();
     const map = m["RESPONSE_KIND_TO_PRIMITIVE"] as Record<string, string>;
     const ids = m["PRIMITIVE_IDS"] as readonly string[] | undefined;
