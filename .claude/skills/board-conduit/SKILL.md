@@ -260,3 +260,32 @@ root whether or not the fix touches anything else there.
 `briefFromIssue` does not catch this. It validates rule SYNTAX and refuses narrative-only contracts;
 the write-root containment check lives in plant. Preflighting with `briefFromIssue` and then being
 refused at plant is the expected shape, not a surprise.
+
+## Before preserving a dead worker's tree, check whether its SESSION can be resumed
+
+Measured 2026-09-03, on an intervention of mine that turned out to be unnecessary.
+
+A card was reaped with its worker process gone and 22 uncommitted entries on its branch — 15 modified,
+7 new — and zero commits ahead of main. Because the next dispatch resets the worktree before it
+reattaches, that tree looked doomed, so I committed it to the branch as a snapshot.
+
+**The snapshot was discarded and the work survived anyway.** The re-dispatch reset the branch back to
+main, dropping my commit, and the resumed worker then produced a commit whose files are BYTE-IDENTICAL
+to what I had preserved (three sampled files matched exactly; 22 files / 870 insertions in my snapshot
+against 23 files / 880 insertions in theirs). The session transcript had carried the work, exactly as
+this repo's own recovery note says: *"the session's own transcript survives a worktree reset, so
+resuming it replays decisions already made rather than re-deriving them."*
+
+So the question to ask first is not "is there uncommitted work" but **"is the session resumable"**:
+
+```sh
+ls -la ~/.grok/sessions/*<slice>*/<sessionId>*/updates.jsonl   # transcript intact?
+```
+
+- **Transcript intact** — the work is already backed up. A preservation commit is redundant, will be
+  reset away by the next dispatch, and costs the reviewer a phantom commit to reason about.
+- **Transcript gone or the slice will be re-dispatched to a FRESH session** — nothing carries the
+  work, and a snapshot on the branch is the only thing that will.
+
+The snapshot did no damage here: identical content, cleanly discarded. But it was ceremony, and the
+honest version of the earlier rule is narrower than what it said.
