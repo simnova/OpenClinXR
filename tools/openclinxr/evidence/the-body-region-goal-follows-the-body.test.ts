@@ -38,6 +38,23 @@ import { describe, expect, it } from "vitest";
  *   and whether the declared IK chain excludes twist segments.
  * notEvidenceFor: what any still SHOWS — no pixel is graded here; which motion backend wins; pose
  *   quality or clinical plausibility; the compiler's solveArmChain, already fixed separately.
+ *
+ * ## FIXED (#0) — clauses (1) and (2) flipped
+ *
+ * Re-run 2026-09-03 via runtime-goal-eval.mts (Playwright, headless chromium) against harness.html
+ * at 8baad49e, actor bytes unchanged (2e111a0d...). The eval's solve() now applies the pelvis
+ * driver FIRST and then aims the goal at the region's post-motion anchor (regionGoalTarget in
+ * harness.html), so the goal rides the region across the oscillation:
+ *
+ *   targetWorld travel                    6.00 cm on Y (== pelvis travel, the driver)
+ *   distance target -> breastR       3.0 cm at all 12 frames, SPREAD 0.00 cm
+ *   distance target -> spine03       spread 0.00 cm;  spine04 spread 0.00 cm
+ *
+ * The descriptor's chainRoles no longer names the MakeHuman TWIST segments lowerarm02.R /
+ * upperarm02.R — the c7e85634 defect in the harness's own declared chain — and is now
+ * ["lowerarm01.R", "upperarm01.R", "shoulder01.R", "clavicle.R"] (contentSha256 recomputed).
+ * targetA/B remain 0.120 m apart with wristR following by 0.120 m at blend 1, so the reach proof
+ * the runtime arm already carried is unchanged.
  */
 
 const ROOT = join(import.meta.dirname, "../../..");
@@ -78,10 +95,10 @@ describe("the body-region goal follows the body", () => {
       .toBeGreaterThan(CONTACT_TOLERANCE_M);
   });
 
-  it.fails("(1) RED: the goal stays in contact with its region while the body moves", () => {
+  it("(1) the goal stays in contact with its region while the body moves (was a RED; see header)", () => {
     const f = frames();
     // breastR is the bone nearest the descriptor's `rightChestSurface`. If the target tracked the
-    // region, this distance would be near-constant; today its spread equals the pelvis travel.
+    // region, this distance is near-constant; before the fix its spread equalled the pelvis travel.
     const d = f.map((x) => dist(x.targetWorld, x.bones["breastR"]!));
     expect(spread(d), `target-to-region distance varies by ${(spread(d) * 100).toFixed(2)} cm across the cycle`)
       .toBeLessThanOrEqual(CONTACT_TOLERANCE_M);
@@ -93,7 +110,7 @@ describe("the body-region goal follows the body", () => {
       .toBeGreaterThan(pelvisTravel / 2);
   });
 
-  it.fails("(2) RED: the declared IK chain names no twist segment", () => {
+  it("(2) the declared IK chain names no twist segment (was a RED; see header)", () => {
     const goal = descriptor().goals.find((g) => g.kind === "body_region_contact");
     expect(goal, "the descriptor declares no body_region_contact goal").toBeDefined();
     const chain = goal?.chainRoles ?? [];
