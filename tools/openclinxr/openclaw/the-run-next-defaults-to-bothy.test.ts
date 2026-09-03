@@ -42,13 +42,22 @@ const RUNNABLE_GITHUB_PAGE = JSON.stringify({
   ],
 });
 
-const NEUTRAL_STATUS = { "PROJECT_STATUS.md": "# status\n" };
+/**
+ * Non-neutral PROJECT_STATUS: an anchored Next dequeue header that WOULD win if the CLI hop
+ * fell through to markdown. Fail-closed Bothy reads must not emit this slice; a Planted Bothy
+ * card must outrank it.
+ */
+const MARKDOWN_POINTER = "admin-packet-replay-surfaces-impl";
+const NON_NEUTRAL_STATUS = {
+  "PROJECT_STATUS.md": `# OpenClinXR Project Status\n\n**Next dequeue:** \`${MARKDOWN_POINTER}\`\n`,
+};
 
-function planFor(boardCard: BoardCardSelection | null) {
+function planFor(boardCard: BoardCardSelection | null, boardConsulted = true) {
   return buildOpenClawRunNextPlan({
-    stateFiles: NEUTRAL_STATUS,
+    stateFiles: NON_NEUTRAL_STATUS,
     gitStatusShort: "## main",
     boardCard,
+    boardConsulted,
   });
 }
 
@@ -250,5 +259,21 @@ describe("run-next defaults to the BothyBoard dequeue", () => {
     expect(bothyCalls, "the BothyBoard dequeue must not run in GitHub opt-in mode").toBe(0);
     expect(card?.sliceId).toBe("issue-603");
     expect(planFor(card).selectedSlice).toBe("issue-603");
+  });
+
+  it("(7) COUNTERWEIGHT: a fail-closed Bothy hop does not fall through to a non-neutral PROJECT_STATUS Next dequeue", async () => {
+    const card = await boardCardOrNull({
+      env: {},
+      gh: () => RUNNABLE_GITHUB_PAGE,
+    });
+    expect(card).toBeNull();
+    const plan = planFor(card, true);
+    expect(plan.selectedSlice, "markdown Next dequeue must not steal a fail-closed Bothy read").toBeNull();
+    expect(plan.nextCommand).toBeNull();
+  });
+
+  it("(8) --no-board still honours an anchored markdown pointer (offline, hop skipped)", () => {
+    const plan = planFor(null, false);
+    expect(plan.selectedSlice).toBe(MARKDOWN_POINTER);
   });
 });

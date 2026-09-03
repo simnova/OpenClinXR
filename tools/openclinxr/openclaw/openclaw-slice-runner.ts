@@ -43,6 +43,12 @@ export type OpenClawRunNextInput = {
   /** Live queue card. Supplied by main() from the project board; omitted in tests so the plan
    *  builder stays pure and does not shell out to `gh`. */
   boardCard?: BoardCardSelection | null;
+  /**
+   * True when the live dequeue hop ran (BothyBoard default or GitHub opt-in) and returned no card.
+   * Fail-closed: do not scrape PROJECT_STATUS / legacy plan for a slice. `--no-board` leaves this
+   * unset so offline use can still follow an anchored markdown pointer.
+   */
+  boardConsulted?: boolean;
 };
 
 export type OpenClawRunNextPlan = {
@@ -111,7 +117,7 @@ export type BoardCardSelection = {
 
 export function selectNextSlice(
   stateFiles: StateFiles,
-  opts?: { boardCard?: BoardCardSelection | null },
+  opts?: { boardCard?: BoardCardSelection | null; boardConsulted?: boolean },
 ): SliceSelection {
   const boardCard = opts?.boardCard;
   if (boardCard?.sliceId) {
@@ -120,6 +126,9 @@ export function selectNextSlice(
       templateId: SLICE_TEMPLATE_MAP[boardCard.sliceId] ?? null,
       source: "board",
     };
+  }
+  if (opts?.boardConsulted) {
+    return { sliceId: null, templateId: null, source: null };
   }
 
   const status = stateFiles["PROJECT_STATUS.md"] ?? "";
@@ -204,7 +213,10 @@ export function buildSliceTeamCommands(selection: SliceSelection): OpenClawRunNe
 }
 
 export function buildOpenClawRunNextPlan(input: OpenClawRunNextInput): OpenClawRunNextPlan {
-  const selection = selectNextSlice(input.stateFiles, { boardCard: input.boardCard });
+  const selection = selectNextSlice(input.stateFiles, {
+    boardCard: input.boardCard,
+    boardConsulted: input.boardConsulted,
+  });
   const sliceBriefExists = selection.sliceId
     ? existsSync(path.join(process.cwd(), sliceBriefPath(selection.sliceId)))
     : false;
@@ -548,7 +560,12 @@ async function main(): Promise<void> {
     // BothyBoard dequeue cache lives in the repo (.openclinxr/openclaw/bothy-next-cache.json).
     bothy: { repoRoot: process.cwd() },
   });
-  const plan = buildOpenClawRunNextPlan({ stateFiles, gitStatusShort: gitStatusShort(), boardCard });
+  const plan = buildOpenClawRunNextPlan({
+    stateFiles,
+    gitStatusShort: gitStatusShort(),
+    boardCard,
+    boardConsulted: !args.includes("--no-board"),
+  });
 
   if (!watchdog) {
     if (!dryRun) {
