@@ -26,6 +26,7 @@
     <script type="module">
       import * as THREE from "three";
       import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+      import { CCDIKSolver } from "three/addons/animation/CCDIKSolver.js";
 
       const ACTOR = "/apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb";
 
@@ -170,6 +171,207 @@
       scene.add(root);
       snapshotRest();
       window.__bakeoffReady = true;
+
+      // ---- runtime-goal arm: CCDIKSolver per-frame applier ----
+      // Content-addressed descriptor + live targetWorld. The descriptor names the goals
+      // (pelvis oscillator, hand-to-body-region contact); the target arrives AFTER it.
+      const tmpV = new THREE.Vector3();
+      const tmpQ = new THREE.Quaternion();
+      let runtimeGoalState = null;
+
+      // Role -> actor-bone resolution for THIS rig (mpfb-clinical-nurse-adult). The descriptor
+      // survives an actor rebake because it names roles, not the baked bytes. GLTFLoader
+      // sanitizes node names (three strips '.', so wrist.R loads as wristR), so lookups try
+      // both the dotted (raw GLB) and sanitized (runtime) spellings.
+      const ROLE_TO_BONE = {
+        pelvis: "root", // pelvis center: parent of pelvisL/R and spine05 on this rig
+        rightHand: "wristR",
+        rightChestSurface: "breastR",
+        chestSpineLine: "spine02",
+      };
+
+      function resolveBoneName(name) {
+        const bonesList = bones();
+        const hit = bonesList.find((b) => b.name === name);
+        if (hit) return name;
+        const sanitized = name.replace(/\s/g, "_").replace(/[^\w-]/g, "");
+        const alt = bonesList.find((b) => b.name === sanitized);
+        return alt ? sanitized : name;
+      }
+
+      async function initRuntimeGoal(descriptor) {
+        const goals = Array.isArray(descriptor?.goals) ? descriptor.goals : [];
+        const oscillator = goals.find((g) => g.kind === "oscillator");
+        const contact = goals.find((g) => g.kind === "body_region_contact");
+        if (!oscillator || !contact) throw new Error("descriptor lacks oscillator and body_region_contact goals");
+
+        const boneByRole = (role) => {
+          const literal = typeof role === "string" ? role : String(role);
+          const mapped = ROLE_TO_BONE[literal] ?? literal;
+          const runtimeName = resolveBoneName(mapped);
+          const hit = bones().find((b) => b.name === runtimeName);
+          if (!hit) throw new Error(`actor lacks bone ${runtimeName} for role ${role}`);
+          return hit;
+        };
+
+        const skinned = (() => {
+          let hit = null;
+          root.traverse((o) => {
+            if (o.isSkinnedMesh && !hit) hit = o;
+          });
+          return hit;
+        })();
+        if (!skinned) throw new Error("actor has no skinned mesh");
+        const skeletonBones = skinned.skeleton.bones;
+
+        // CCDIKSolver rotates `links` (each the parent of the one below it) until the effector's
+        // world position reaches the target bone's world position. Links ascend from wrist to clavicle.
+        const effector = boneByRole(contact.effectorRole ?? "rightHand");
+        const chainNames = Array.isArray(contact.chainRoles) ? contact.chainRoles : [];
+        const effIdx = skeletonBones.indexOf(effector);
+        if (effIdx < 0) throw new Error("effector not in skinned skeleton");
+        const linkIndices = chainNames.map((n) => {
+          const i = skeletonBones.indexOf(boneByRole(n));
+          if (i < 0) throw new Error(`chain bone ${n} not in skinned skeleton`);
+          return i;
+        });
+
+        // Live target: a dedicated goal bone appended to a solver-local bones array so the
+        // actor's skinning skeleton is never mutated. CCDIKSolver only reads target.matrixWorld.
+        const goalBone = new THREE.Bone();
+        goalBone.name = "__runtimeGoalTarget";
+        root.add(goalBone);
+        const solverBones = [...skeletonBones, goalBone];
+        const ik = {
+          target: solverBones.length - 1,
+          effector: effIdx,
+          links: linkIndices.map((index) => ({ index })),
+          iteration: 200,
+        };
+        const solver = new CCDIKSolver({ skeleton: { bones: solverBones } }, [ik]);
+
+        // Oscillator driver: the pelvis center. Translating it bobs the whole pelvis block in
+        // world Y, which the eval records on the pelvis.L/R hip bones (children of root).
+        const pelvisBone = boneByRole(oscillator.boneRole ?? "pelvis");
+        const basePelvisPos = pelvisBone.position.clone();
+        const pelvisParent = pelvisBone.parent;
+
+        function placeGoal(worldPos) {
+          const local = tmpV.copy(worldPos);
+          if (goalBone.parent) {
+            goalBone.parent.updateWorldMatrix(true, false);
+            local.applyMatrix4(goalBone.parent.matrixWorld.clone().invert());
+          }
+          goalBone.position.copy(local);
+        }
+
+        function applyPelvisWorldDelta(delta) {
+          pelvisBone.position.copy(basePelvisPos);
+          if (pelvisParent) {
+            pelvisParent.updateWorldMatrix(true, false);
+            tmpQ.setFromRotationMatrix(pelvisParent.matrixWorld).invert();
+            const local = tmpV.copy(delta).applyQuaternion(tmpQ);
+            pelvisBone.position.add(local);
+          } else {
+            pelvisBone.position.add(delta);
+          }
+        }
+
+        const recorder = [];
+        for (const b of bones()) recorder.push(b);
+
+        function snapshotBones() {
+          // Order matters: the eval contract picks the FIRST key matching its bone regexes,
+          // so the driven pelvis and the right-wrist effector must precede lookalikes (wrist.L).
+          const preferred = ["pelvisL", "pelvisR", "wristR", effector.name, pelvisBone.name];
+          const out = {};
+          const emit = (b) => {
+            if (Object.prototype.hasOwnProperty.call(out, b.name)) return;
+            b.getWorldPosition(tmpV);
+            out[b.name] = { x: tmpV.x, y: tmpV.y, z: tmpV.z };
+          };
+          for (const name of preferred) {
+            const b = recorder.find((x) => x.name === name);
+            if (b) emit(b);
+          }
+          for (const b of recorder) emit(b);
+          return out;
+        }
+
+        return {
+          pelvisBone,
+          effector,
+          solver,
+          ik,
+          applyPelvisWorldDelta,
+          snapshotBones,
+          placeGoal,
+        };
+      }
+
+      window.__runtimeGoalEval = async () => {
+        const descriptor = await (await fetch("runtime-goal-descriptor.json")).json();
+        const state = runtimeGoalState ?? (runtimeGoalState = await initRuntimeGoal(descriptor));
+        const goals = Array.isArray(descriptor?.goals) ? descriptor.goals : [];
+        const oscillator = goals.find((g) => g.kind === "oscillator");
+        const contact = goals.find((g) => g.kind === "body_region_contact");
+
+        // Stage-2 pose: bind pose. Stage-3 (IK) resolves each frame against the live target.
+        restoreRest();
+        root.updateMatrixWorld(true);
+
+        // Body-region anchor: right chest surface, taken from the actor at evaluation time.
+        const anchor = bones().find((x) => x.name === ROLE_TO_BONE.rightChestSurface);
+        if (!anchor) throw new Error("actor lacks breast.R chest anchor");
+        const spine02 = bones().find((x) => x.name === ROLE_TO_BONE.chestSpineLine);
+        anchor.getWorldPosition(tmpV);
+        const anchorPos = tmpV.clone();
+        if (spine02) {
+          spine02.getWorldPosition(tmpV);
+          tmpV.subVectors(anchorPos, tmpV).normalize();
+        } else {
+          tmpV.set(0, 0, 1);
+        }
+        const normal = tmpV.clone();
+
+        // Reach limit lives in the TARGET: each goal target is a point a fixed outward distance
+        // from the chest surface. The two evaluations differ ONLY in that outward distance.
+        const reachLimit = contact.reachOutwardMeters ?? 0.12;
+        const targetAWorld = anchorPos.clone().addScaledVector(normal, 0.03);
+        const targetBWorld = anchorPos.clone().addScaledVector(normal, 0.03 + reachLimit);
+
+        const solve = (phase, targetWorld) => {
+          restoreRest();
+          const amp = oscillator.amplitudeMeters ?? 0.03;
+          state.applyPelvisWorldDelta(tmpV.set(0, amp * Math.sin(phase), 0));
+          state.placeGoal(targetWorld);
+          root.updateMatrixWorld(true);
+          state.solver.updateOne(state.ik, 1);
+          root.updateMatrixWorld(true);
+          return {
+            targetWorld: { x: targetWorld.x, y: targetWorld.y, z: targetWorld.z },
+            bones: state.snapshotBones(),
+            solverBlend: 1,
+          };
+        };
+
+        const frames = oscillator.framesPerPeriod ?? 12;
+        const oscillation = [];
+        for (let k = 0; k < frames; k += 1) {
+          oscillation.push(solve((2 * Math.PI * k) / frames, targetAWorld));
+        }
+        const targetA = solve(0, targetAWorld);
+        const targetB = solve(0, targetBWorld);
+
+        return {
+          schemaVersion: "openclinxr.motion-backend-bakeoff.runtime-goal-eval.v1",
+          solver: "CCDIKSolver",
+          solverSource: "three/examples/jsm/animation/CCDIKSolver.js",
+          oscillation,
+          targetA,
+          targetB,
+        };
+      };
     </script>
   </body>
 </html>

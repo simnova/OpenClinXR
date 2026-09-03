@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "openclinxr.motion-backend-bakeoff.runtime-goal-descriptor.v1",
+  "actor": "mpfb-clinical-nurse-adult",
+  "goals": [
+    {
+      "kind": "oscillator",
+      "id": "pelvis_vertical_rock",
+      "boneRole": "pelvis",
+      "waveform": "sine",
+      "framesPerPeriod": 12,
+      "amplitudeMeters": 0.03,
+      "axis": "vertical"
+    },
+    {
+      "kind": "body_region_contact",
+      "id": "right_hand_to_right_chest",
+      "effectorRole": "rightHand",
+      "chainRoles": [
+        "lowerarm02.R",
+        "lowerarm01.R",
+        "upperarm02.R",
+        "upperarm01.R",
+        "shoulder01.R",
+        "clavicle.R"
+      ],
+      "regionRole": "rightChestSurface",
+      "reachOutwardMeters": 0.12
+    }
+  ],
+  "contentSha256": "97462da89019a1c4d6accb5a11dc95c88dd3056f19cef0762ee9104529f43acc"
+}
