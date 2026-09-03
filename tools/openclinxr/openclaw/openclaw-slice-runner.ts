@@ -9,7 +9,9 @@ import { selectNextBoardCard } from "./board-next-selector.js";
 import type { BoardIssue, BriefResult } from "./board-brief.js";
 import {
   bothyBriefFromSlice,
+  bothyDequeueEnabled,
   bothyTaskIdFromSliceId,
+  selectNextBothyCard,
   type BothyFetch,
   type BothyTokenStore,
 } from "./board-bothy-dequeue.js";
@@ -397,15 +399,6 @@ async function writeLocalReport(
 }
 
 /**
- * Reads the live dequeue queue. `agents/rules/EXEC_REHYDRATE.md:38` puts the queue on the project
- * board; `AGENTS.md:7` tells every agent to dequeue by running this command. Before this existed the
- * two disagreed and this command answered from markdown prose.
- *
- * Fails SOFT on purpose: a `gh` outage, no auth, or a truncated read must not fabricate a slice, and
- * must not hard-crash the runner either — it falls through to the anchored markdown tiers, which now
- * refuse rather than scrape. `--no-board` skips the call for offline use.
- */
-/**
  * Maps `selectNextBoardCard`'s FLAT return — { ok, number, priority, title, fetched, totalCount } —
  * onto a slice id. Extracted so the mapping is testable WITHOUT a live board.
  *
@@ -490,17 +483,54 @@ export function dispatchBriefForCard(brief: BriefResult, card: BoardCardSelectio
   return { ...brief, slice: card.sliceId };
 }
 
-async function boardCardOrNull(skip: boolean): Promise<BoardCardSelection | null> {
-  if (skip) return null;
+export type BoardCardOrNullOptions = {
+  /** `--no-board`: skip the live dequeue entirely (offline use). */
+  skip?: boolean;
+  env?: Record<string, string | undefined>;
+  /** `gh` runner for the legacy GitHub branch only (BOTHY_BOARD_DEQUEUE=0). */
+  gh?: (argv: string[]) => string;
+  bothy?: {
+    pat?: string;
+    machineName?: string;
+    fetch?: BothyFetch;
+    store?: BothyTokenStore;
+    repoRoot?: string;
+  };
+};
+
+/**
+ * The run-next dequeue hop: the live queue card, or null.
+ *
+ * BothyBoard is the dequeue SSOT whenever `BOTHY_BOARD_DEQUEUE` is unset or 1 (the default), so this
+ * calls `selectNextBothyCard` with the runner's env (machine name, PAT) and the repo cache store, and
+ * maps the Planted task onto its `bothy-tsk_<taskId>` slice. Dual-dequeue is refused: a missing PAT,
+ * an incomplete Board read, or `{task:null}` returns null and NEVER executes the GitHub project
+ * selector. GitHub project 7 is reachable only through the explicit `BOTHY_BOARD_DEQUEUE=0` opt-in.
+ *
+ * Fails SOFT on purpose: a read failure returns null rather than hard-crashing the runner, and the
+ * caller falls through to the anchored markdown tiers, which refuse rather than scrape.
+ */
+export async function boardCardOrNull(opts: BoardCardOrNullOptions = {}): Promise<BoardCardSelection | null> {
+  if (opts.skip) return null;
+  const env = opts.env ?? (typeof process === "undefined" ? {} : process.env);
+  if (bothyDequeueEnabled(env)) {
+    try {
+      const picked = await selectNextBothyCard({
+        pat: opts.bothy?.pat,
+        env,
+        machineName: opts.bothy?.machineName,
+        fetch: opts.bothy?.fetch,
+        store: opts.bothy?.store,
+        repoRoot: opts.bothy?.repoRoot,
+      });
+      return boardCardFromSelection(picked);
+    } catch {
+      return null;
+    }
+  }
+  // BOTHY_BOARD_DEQUEUE=0: the sole explicit opt-in for the legacy GitHub project 7 path.
   try {
-    const picked = selectNextBoardCard((argv) =>
-      // maxBuffer is NOT optional here. The live board serialises to 3.29 MB against execFileSync's
-      // 1 MB default; omitting it truncates the read, and `selectNextBoardCard` then correctly
-      // refuses with `incomplete-read` rather than picking from a partial board. Measured 2026-08-24.
-      // BothyBoard is the dequeue SSOT (BOTHY_BOARD_DEQUEUE=0 ranks GitHub project 7). Dual-dequeue refused.
-      execFileSync(argv[0] as string, argv.slice(1), {
-        encoding: "utf8", maxBuffer: 64 * 1024 * 1024, stdio: ["ignore", "pipe", "pipe"],
-      }));
+    const picked = selectNextBoardCard(opts.gh ?? defaultGhRunner);
     return boardCardFromSelection(picked);
   } catch {
     return null;
@@ -512,7 +542,12 @@ async function main(): Promise<void> {
   const watchdog = args.includes("--watchdog");
   const dryRun = args.includes("--dry-run");
   const stateFiles = await loadStateFiles();
-  const boardCard = await boardCardOrNull(args.includes("--no-board"));
+  const boardCard = await boardCardOrNull({
+    skip: args.includes("--no-board"),
+    env: process.env,
+    // BothyBoard dequeue cache lives in the repo (.openclinxr/openclaw/bothy-next-cache.json).
+    bothy: { repoRoot: process.cwd() },
+  });
   const plan = buildOpenClawRunNextPlan({ stateFiles, gitStatusShort: gitStatusShort(), boardCard });
 
   if (!watchdog) {
