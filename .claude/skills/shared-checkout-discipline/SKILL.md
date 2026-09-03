@@ -93,6 +93,24 @@ fi
   This is the inverse of the `Monitor` tool's own "silence is not success" rule: here *noise* looked
   like success. Both come from a filter that cannot tell a broken instrument from a changed world.
 
+## Read the hook's own rerun command; do not chase a different red
+
+The pre-commit hook prints the exact command for the step that failed. Measured: a commit was
+refused by `Architecture fitness rules (path-scoped pre-commit)`, whose rerun line names four files
+— `file-size-budgets`, `workspace-architecture`, `decision-invariants`, `tsconfig-conventions`. I ran
+`markdown-references` instead, found a real but UNRELATED breakage in `PROJECT_STATUS.md`, and spent
+several minutes repairing it plus a month-old dangling reference in `docs/TOOLING.md` before noticing
+neither was the blocker. Both repairs then had to be reverted, because touching `docs/` pulls in a
+registry check with 63 pre-existing unresolved references and the errand had become someone else's
+backlog.
+
+The real blocker was mundane: `workspace-architecture` could not import `@openclinxr/domain` and
+`@openclinxr/capability-gateway` because a fresh worktree has nothing built. One
+`pnpm --filter @openclinxr/domain --filter @openclinxr/capability-gateway build` fixed it.
+
+**Run the command the hook printed. A different failing test is a different problem, and finding one
+feels like progress while costing the errand.**
+
 ## Do not reach for `timeout`
 
 It does not exist on macOS. `PROTO_VERIFY_DELEGATION.md` has said so for weeks and it was still
