@@ -103,16 +103,38 @@ rig — 46 bones driven, 25.875 rad total delta — committed at `f2e7552f` (08-
 day by `8d7b3f19`, a salvage commit rebaking that GLB for an unrelated phenotype fix. Three later
 commits rewrote the file again; none restored it.
 
-`seated_clip_bind_stage.py` works and NOTHING CALLS IT, so any rebake drops the clip permanently.
-`the-asset-adjacent-bind-report-names-the-shipped-clip.test.ts` has been RED on main since, unnoticed.
+~~`seated_clip_bind_stage.py` works and NOTHING CALLS IT, so any rebake drops the clip permanently.
+`the-asset-adjacent-bind-report-names-the-shipped-clip.test.ts` has been RED on main since, unnoticed.~~
 Board card `tsk_ef2f9ee4d551b870`.
+
+**BOTH HALVES FIXED, measured 2026-09-03 at `3a0a08ec`.** `tsk_ef2f9ee4d551b870` landed. The stage is
+wired: `materialize_mpfb_humanoid_candidate.py:2880` holds `SEATED_REST_STAGE_REL =
+"tools/openclinxr/asset-pipeline/makeclothes/seated_clip_bind_stage.py"`, and the comment at :2868 records
+that a plain rebake re-derives the candidate with the CMU walk unless that stage runs. And
+`the-asset-adjacent-bind-report-names-the-shipped-clip.test.ts` carries zero `it.fails` clauses, so it is
+green rather than RED.
 
 Also measured, on all 89 GLBs in the tree: 56 carry an animation, 18 distinct clip names, **zero**
 seated or rest clips; the most-shipped posture clip is named `_standing`. Deviation from each clip's
 own frame 0 is at most 3.67 deg (Anny) and 5.73 deg (MPFB `ClinicalIdleConversation`), 4 of 137
 channels moving, zero translation. The catalogue is near-static poses. `openclinxr_role_parent_anxious_fidget_guard`
-at 21.98 deg is the known-good showing that is not a rig ceiling. **The mixer layer converts clips to
-additive by subtracting frame 0, so on this catalogue it has almost nothing left to layer.**
+at 21.98 deg is the known-good showing that is not a rig ceiling. ~~The mixer layer converts clips to
+additive by subtracting frame 0, so on this catalogue it has almost nothing left to layer.~~
+
+**WITHDRAWN 2026-09-03: no such conversion exists in this tree, so that sentence excused the catalogue
+for something the code does not do.** MEASURED at `3a0a08ec`: `makeClipAdditive`,
+`AdditiveAnimationBlendMode` and `blendMode` appear nowhere under `apps/`, `packages/` or `tools/`, and no
+frame-0 subtraction exists in `apps/ui-xr/src/seated-pose.ts` or `seated-role-clip-policy.ts`. The runtime
+plays clips in NORMAL blend mode: `main.ts:6736` takes `mixer.clipAction(clip)`, `:6742` calls
+`setEffectiveWeight(1)`, `:7557` plays it. Claim scope: those three roots, those four tokens. Not a claim
+about every file in the repo.
+
+So the near-static reading above stands with no mechanism to blame. If the shipped clips barely move, they
+barely move, and the fix belongs to whatever produces them rather than to a blend layer.
+
+**The deviation figures are UNVERIFIED by me** (3.67 deg Anny, 5.73 deg MPFB, 4 of 137 channels, zero
+translation). `mpfb-rig-motion-cagematch.json` does not carry them and no artifact I found does, so they
+were measured ad hoc and survive only in this prose. Re-measure before carding anything on them.
 
 ## The IK joint limits cannot be checked by any caller — measured 2026-09-03
 
