@@ -1190,13 +1190,13 @@ describe("encounter publication payloads", () => {
     };
 
     expect(rootPackage.scripts["asset:encounter-publication:materialize"]).toBe(
-      "tsx tools/openclinxr/encounter-publication-payloads.ts",
+      "tsx tools/openclinxr/factory/encounter-publication-payloads.ts",
     );
     expect(rootPackage.scripts["asset:encounter-publication:validate"]).toBe(
-      "tsx tools/openclinxr/encounter-publication-payloads.ts --validate-latest",
+      "tsx tools/openclinxr/factory/encounter-publication-payloads.ts --validate-latest",
     );
     expect(rootPackage.scripts["asset:encounter-publication:summarize-dry-run"]).toBe(
-      "tsx tools/openclinxr/encounter-publication-payloads.ts --summarize-dry-run-plan",
+      "tsx tools/openclinxr/factory/encounter-publication-payloads.ts --summarize-dry-run-plan",
     );
   });
 

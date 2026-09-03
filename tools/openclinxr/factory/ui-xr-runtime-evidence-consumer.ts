@@ -255,6 +255,7 @@ export function buildUiXrRuntimeEvidenceConsumerArtifact(input: {
         "all_execution_and_readiness_gates_false",
       ],
       nextActions: [
+        `operator-select and submit up to ${scaffold.submitRuntimeVisualEvidenceAttachmentInput.attachments.length} metadata-only UI-XR refs via guarded route (use operatorSelectableAttachmentCount)`,
         "confirm Admin replay projection shows raw payload hidden and all readiness gates false",
         "keep runtime, learner, Quest, production, clinical, and scoring gates blocked until real runtime and visual-QA evidence clears review",
       ],

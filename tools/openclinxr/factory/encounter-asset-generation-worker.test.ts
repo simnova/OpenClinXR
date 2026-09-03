@@ -486,7 +486,8 @@ describe("encounter asset generation worker report", () => {
           assetPath: "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb",
           runtimeAssetPath: "/generated-humanoids/peds_anxious_parent.glb",
           provenanceManifestPath: "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.provenance.json",
-          generatorMode: "blender_only_rebake_on_tracked_real_anny_base_obj_v1",
+          // #303: parent and nurse re-orchestrated from their own phenotypes (real Anny forward pass).
+          generatorMode: "real_anny_local_forward_pass_plus_blender_procedural",
           sourceKind: "real_anny_candidate_unverified",
           realAnnyWeightsUsed: false,
           textureMode: "procedural_fallback",
@@ -500,7 +501,8 @@ describe("encounter asset generation worker report", () => {
           assetPath: "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb",
           runtimeAssetPath: "/generated-humanoids/peds_nurse_kevin.glb",
           provenanceManifestPath: "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.provenance.json",
-          generatorMode: "blender_only_rebake_on_tracked_real_anny_base_obj_v1",
+          // #303: parent and nurse re-orchestrated from their own phenotypes (real Anny forward pass).
+          generatorMode: "real_anny_local_forward_pass_plus_blender_procedural",
           sourceKind: "real_anny_candidate_unverified",
           realAnnyWeightsUsed: false,
           textureMode: "procedural_fallback",
