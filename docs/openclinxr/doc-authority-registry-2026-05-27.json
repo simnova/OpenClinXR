@@ -4,8 +4,8 @@
   "protectedRule": "Protected-policy files are off-limits to routine agents: do not delete, weaken, bypass, rename, or reinterpret them during autonomous work.",
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
-    "agent-methodology": 103,
-    "current-reference": 219,
+    "agent-methodology": 104,
+    "current-reference": 220,
     "archive-candidate": 41,
     "evidence": 58,
     "temporary": 54,
@@ -2075,6 +2075,13 @@
       "rationale": "Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it."
     },
     {
+      "path": "CLAUDE.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Claude-harness prose discipline only (operator instruction 2026-09-03: remove all mannered prose); countable limits live in .claude/skills/operator-prose/SKILL.md; subordinate to AGENTS.md, protected guardrails, and active state files."
+    },
+    {
       "path": "LICENSE-CLASHES.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
@@ -2534,35 +2541,35 @@
       "authority": "generated-evidence",
       "agentInstructionWeight": "none",
       "action": "treat-as-evidence",
-      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
+      "rationale": "Build output \u2014 a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
       "path": "apps/arena/model-vetting-studio/dist/assets/PROJECT_STATUS-CciPX650.md",
       "authority": "generated-evidence",
       "agentInstructionWeight": "none",
       "action": "treat-as-evidence",
-      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
+      "rationale": "Build output \u2014 a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
       "path": "apps/arena/model-vetting-studio/dist/assets/README--cBUUOLz.md",
       "authority": "generated-evidence",
       "agentInstructionWeight": "none",
       "action": "treat-as-evidence",
-      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
+      "rationale": "Build output \u2014 a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
       "path": "apps/arena/model-vetting-studio/dist/assets/operator-open-questions-DvqAC8BK.md",
       "authority": "generated-evidence",
       "agentInstructionWeight": "none",
       "action": "treat-as-evidence",
-      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
+      "rationale": "Build output \u2014 a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
       "path": "apps/arena/model-vetting-studio/dist/assets/operator-steering-needed-questions-BaY_qOd0.md",
       "authority": "generated-evidence",
       "agentInstructionWeight": "none",
       "action": "treat-as-evidence",
-      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
+      "rationale": "Build output \u2014 a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
       "path": "apps/arena/physics-clinical-touch/README.md",
@@ -2590,35 +2597,35 @@
       "authority": "generated-evidence",
       "agentInstructionWeight": "none",
       "action": "treat-as-evidence",
-      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
+      "rationale": "Build output \u2014 a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
       "path": "apps/ui-xr/dist/xr-assets/humanoids/PROVENANCE.md",
       "authority": "generated-evidence",
       "agentInstructionWeight": "none",
       "action": "treat-as-evidence",
-      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
+      "rationale": "Build output \u2014 a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
       "path": "apps/ui-xr/dist/xr-assets/medical-equipment/PROVENANCE.md",
       "authority": "generated-evidence",
       "agentInstructionWeight": "none",
       "action": "treat-as-evidence",
-      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
+      "rationale": "Build output \u2014 a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
       "path": "apps/ui-xr/dist/xr-hands/generic-hand/LICENSE.md",
       "authority": "generated-evidence",
       "agentInstructionWeight": "none",
       "action": "treat-as-evidence",
-      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
+      "rationale": "Build output \u2014 a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
       "path": "apps/ui-xr/dist/xr-hands/generic-hand/PROVENANCE.md",
       "authority": "generated-evidence",
       "agentInstructionWeight": "none",
       "action": "treat-as-evidence",
-      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
+      "rationale": "Build output \u2014 a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/environment/PROVENANCE.md",
@@ -2688,77 +2695,77 @@
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/agent-rules/2026-08/PROTO_VERIFY_DELEGATION-incident-archive.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/coordination/2026-08/AUTONOMOUS_WORK_PLAN.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/coordination/2026-08/PROJECT_COORDINATION_INDEX.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/iterations/0009/07-final-synthesis.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/openclinxr/2026-06/turbo-remote-cache-setup.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/wiki/index.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/wiki/topics/agent-factory-iterations.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/wiki/topics/agent-ops-revisions.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/wiki/topics/coordination-ledgers.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/wiki/topics/openclinxr-product-docs.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/agent-factory/README.md",
