@@ -238,3 +238,25 @@ Three consequences, each of which cost time before this was written down:
 steer is NOT evidence the steer landed. Check for a `mailbox.poll` in the transcript before claiming
 any causal effect. I reported "the steer took" on two separate ticks about a worker that had never
 read a word of it.
+
+## Plant refuses a `done_when` target outside `writeRoots` — check that before create
+
+Measured 2026-09-03. A card declaring `writeRoots: ["tools/openclinxr/evidence/motion-backend-bakeoff"]`
+with a `changed:tools/openclinxr/evidence/<test>.ts` rule was refused at plant:
+
+    changed:tools/openclinxr/evidence/the-body-region-goal-follows-the-body.test.ts
+    is outside write_roots (tools/openclinxr/evidence/motion-backend-bakeoff)
+
+The refusal is correct and it fires at PLANT, after create. Since `tasks.update` patches neither
+`writeRoots` nor `doneWhen`, the only repair is cancel-and-recreate, and the whole card body has to be
+retyped. That is the third distinct create-then-refuse recreate this session, after `factory_step`
+taking a value outside the project's field vocabulary and a card created in the wrong project.
+
+**Before `tasks.create`, walk the `done_when` list and confirm every path target sits under a declared
+write root.** The trap is narrowing the roots for tidiness: a RED usually lives one directory ABOVE the
+product it guards, and the worker must edit that RED to flip it, so the test's directory is a write
+root whether or not the fix touches anything else there.
+
+`briefFromIssue` does not catch this. It validates rule SYNTAX and refuses narrative-only contracts;
+the write-root containment check lives in plant. Preflighting with `briefFromIssue` and then being
+refused at plant is the expected shape, not a surprise.
