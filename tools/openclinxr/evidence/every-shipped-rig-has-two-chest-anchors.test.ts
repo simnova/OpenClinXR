@@ -53,6 +53,25 @@ import { describe, expect, it } from "vitest";
  * notEvidenceFor: what any still SHOWS — no pixel is graded here. Whether 8.5 cm is the right
  *   half-span for every body (it is the nurse's value; MPFB's own tail vertex argues for ~10.2 cm).
  *   The anchors' HEIGHT. Whether `rightChestSurface` suits any given gesture. Quest frame budget.
+ *
+ * ## FIXED (#0)
+ * Fleet run 2026-09-03: the existing stage (separate_chest_anchor_joints.mjs, landed at 1f5519d2)
+ * was run over every shipped GLB that declares both breast joints. Twelve tracked rigs collapsed
+ * (chest span 0.000 cm): mpfb-clinical-physician-adult, mpfb-family-partner-adult,
+ * mpfb-gown-adult-patient, mpfb-gown-inspect, mpfb-ob-patient-aisha, mpfb-peds-nurse-kevin,
+ * mpfb-peds-parent-aisha, mpfb-peds-patient-child, mpfb-street-adult-male, mpfb-viseme-inspect,
+ * mpfb-ob-patient-aisha-rigged-candidate and mpfb-peds-parent-aisha.motion-bind (the last two in
+ * xr-assets/humanoids/candidates). Each was mirrored to x = +/- 0.085 m (17 cm total, above every
+ * clavicle span in the fleet, under the 25 cm ceiling); the same delta was applied to the breast
+ * translation keyframes of every clip that pinned them to the midline (ClinicalIdleConversation on
+ * all twelve; openclinxr_retarget_seated_talking_cc0 on the motion-bind candidate as well). Rest
+ * nodes, keyframes, y/z untouched on all. Per-actor reports:
+ * tools/openclinxr/evidence/chest-anchor-joints/<actor>.json; provenance sourceNotes appended to
+ * the seven full-schema provenance files; report-only for the gown/viseme inspection fixtures and
+ * the two candidates, which carry no full-schema provenance sidecar. Post-pass diagnostic across
+ * the whole tree: 0 collapsed, 0 at-or-below the clavicle span, 0 pinned by an animation channel.
+ * Half-span recorded as 0.085 m fleet-wide (uniform with mpfb-clinical-nurse-adult, the 1f5519d2
+ * known-good); MPFB's ~0.102 tail vertex is the bracketed alternative the contract does not choose.
  */
 
 const ROOT = join(import.meta.dirname, "../../..");
@@ -114,7 +133,7 @@ describe("every shipped rig has two chest anchors", () => {
     expect(all.length, `only ${all.length} GLBs declare both breast joints`).toBeGreaterThanOrEqual(20);
   });
 
-  it.fails("(1) RED: no shipped rig collapses its two chest anchors onto the midline", async () => {
+  it("(1) FIXED: no shipped rig collapses its two chest anchors onto the midline", async () => {
     const all = await rigs();
     const collapsed = all.filter((r) => r.chest < 1e-9).map((r) => r.file);
     expect(collapsed, `${collapsed.length} of ${all.length} rigs put both chest anchors at one midline point`)
@@ -136,7 +155,7 @@ describe("every shipped rig has two chest anchors", () => {
     }
   });
 
-  it.fails("(2) RED: no animation channel returns a chest anchor to the midline", async () => {
+  it("(2) FIXED: no animation channel returns a chest anchor to the midline", async () => {
     const all = await rigs();
     const pinned = all.filter((r) => r.animOnMidline).map((r) => r.file);
     expect(pinned, `${pinned.length} rigs carry breast translation keyframes on the midline`).toEqual([]);
