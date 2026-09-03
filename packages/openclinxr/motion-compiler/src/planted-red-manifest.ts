@@ -65,18 +65,15 @@ export const PLANTED_REDS: readonly PlantedRed[] = [
   // the-contact-constraint-holds-across-its-window.test.ts. Clauses (1) and (3) stay planted:
   // their failure MOVED to real contact assertions — the registered guard reaches and settles
   // but does not HOLD the contact across the window (the contact-solver card's residual).
-  {
-    file: "the-contact-constraint-holds-across-its-window.test.ts",
-    select: "(1) RED: inside the window the effector holds contact on every sampled frame, not only at the keys",
-    expected: /inside the contact window and the effector is off the target/,
-    stage: "assertion",
-  },
-  {
-    file: "the-contact-constraint-holds-across-its-window.test.ts",
-    select: "(3) RED: preserveWhileActive is OBEYED — a releasable contact yields to a competing one",
-    expected: /the preserved contact was not honoured, so the releasable one was never released/,
-    stage: "assertion",
-  },
+  // ALL THREE M3 ENTRIES REMOVED 2026-09-02 (BothyBoard issue #0). The aggregator landed —
+  // src/evidence/motion-evidence.ts exports runMotionEvidenceGates (seven deterministic gates
+  // measured and classified from the caller-supplied spec, none skipped, each result carrying its
+  // own cannotSee), MOTION_GATE_IDS, and combineMotionVerdict (deterministic verdict authoritative
+  // in both directions; the advisory channel's verdict is preserved as advisoryVisualVerdict,
+  // never applied) — and the three clauses were flipped from `planted` to `it` with a
+  // `## FIXED (BothyBoard issue #0)` block appended in
+  // the-motion-evidence-gates-refuse-a-bad-clip.test.ts. A satisfied contract is a transition to
+  // record, not a planted RED to keep.
   // ALL FOUR GUARD ENTRIES REMOVED 2026-08-30 (tsk_744eea9a35614caf). The guard primitive landed —
   // src/ik/solve-chain.ts (the solver SEAM named by the guard plant's clause 4; analytic two-bone
   // solve with conservative joint limits) plus src/primitives/guard-body-region.ts (region-anchor
@@ -96,22 +93,16 @@ export const PLANTED_REDS: readonly PlantedRed[] = [
   // the actorId) — recorded in that file; closing it needs case context, the
   // M5 card's residual.
   {
-    file: "the-motion-evidence-gates-refuse-a-bad-clip.test.ts",
-    select: "(1) REFUSES a clip whose elbow exceeds its limit and whose effector misses its target",
-    expected: /Cannot find module .*src\/motion-evidence-gates\.js/,
-    stage: "module_absent",
+    file: "the-contact-constraint-holds-across-its-window.test.ts",
+    select: "(1) RED: inside the window the effector holds contact on every sampled frame, not only at the keys",
+    expected: /inside the contact window and the effector is off the target/,
+    stage: "assertion",
   },
   {
-    file: "the-motion-evidence-gates-refuse-a-bad-clip.test.ts",
-    select: "(2) ACCEPTS a known-good clip, with all seven gates run and none skipped",
-    expected: /Cannot find module .*src\/motion-evidence-gates\.js/,
-    stage: "module_absent",
-  },
-  {
-    file: "the-motion-evidence-gates-refuse-a-bad-clip.test.ts",
-    select: "(3b) RED: deterministic REFUSE beats visual ACCEPT, proved by CALLING it — not by reading a filename",
-    expected: /Cannot find module .*src\/motion-evidence-gates\.js/,
-    stage: "module_absent",
+    file: "the-contact-constraint-holds-across-its-window.test.ts",
+    select: "(3) RED: preserveWhileActive is OBEYED — a releasable contact yields to a competing one",
+    expected: /the preserved contact was not honoured, so the releasable one was never released/,
+    stage: "assertion",
   },
   // FOUR M1 ENTRIES REMOVED 2026-08-30 (tsk_bca4085904e3b071). The M1 modules
   // landed, all four clauses pass, and they were deliberately flipped from
