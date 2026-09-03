@@ -1,8 +1,15 @@
 {
   "schemaVersion": "openclinxr.motion-backend-bakeoff.v1",
-  "measuredAgainstCommit": "e14d7a42c3fb16037fffcf70ea47c9ac2204c539",
+  "measuredAgainstCommit": "6f5d05d4b644e6dda207a22fedbf629c6e3c9667",
   "actorAssetSha256": "2e111a0da68f18f151a623a98e544154e610cdcd916ac106f6d9213d9d8c7089",
   "actorId": "mpfb-clinical-nurse-adult",
+  "harnessSha256": "baa04f6f04d05d54afd4416382a027b494d821f41e42e95ebab46b6959694b8f",
+  "notes": [
+    "Re-run captured by capture.mts (Playwright, headless chromium, native 1280x1280) against harness.html sha baa04f6f04d05d54; actor bytes 2e111a0da68f18f1.",
+    "Three stills are byte-identical to the blocked run at 1c63c4d7 (baked_tracks x2, runtime_goals/pulse_presentation): those code paths are unchanged since the blocked run and the render is deterministic, so an honest re-capture reproduces the bytes exactly (measured 0.00% pixel delta). This run re-wrote them; they are not copied.",
+    "runtime_goals/rock_plus_clutch has a fresh digest: the CCDIKSolver runtime-goal arm solved wristR to the seated right-chest contact target (residual 0.0000 m, blend 1). 11.6% of its pixels differ from the blocked run's twoBoneToward frame (max luminance delta 190.8).",
+    "runtime_goals/pulse_presentation remains the pre-existing twoBoneToward reach: the content-addressed runtime descriptor declares no pulse goal, so the CCDIKSolver machinery has no pulse frame to render."
+  ],
   "arms": [
     {
       "arm": "baked_tracks",
@@ -15,7 +22,7 @@
           "sha256": "a32a9572fcbbbdc6a43a667ec02757553c22b2e3ab0cfbd3c2a9340f477e3a0d"
         }
       ],
-      "notes": "isolated three.js harness; seated MPFB nurse; 137 bones; arm=baked_tracks behaviour=rock_plus_clutch"
+      "notes": "isolated three.js harness; seated MPFB nurse; 137 bones; arm=baked_tracks behaviour=rock_plus_clutch; renderPose baked-euler path (static baked rotations); harnessSha256=baa04f6f04d05d54"
     },
     {
       "arm": "baked_tracks",
@@ -28,7 +35,7 @@
           "sha256": "bac8b7602ba2f4203de91617ec921ded9b594f3101aa338fbf9aa0a6c9207ffd"
         }
       ],
-      "notes": "isolated three.js harness; seated MPFB nurse; 137 bones; arm=baked_tracks behaviour=pulse_presentation"
+      "notes": "isolated three.js harness; seated MPFB nurse; 137 bones; arm=baked_tracks behaviour=pulse_presentation; renderPose baked-euler path (static baked rotations); harnessSha256=baa04f6f04d05d54"
     },
     {
       "arm": "runtime_goals",
@@ -38,10 +45,10 @@
           "path": "tools/openclinxr/evidence/motion-backend-bakeoff/runtime_goals__rock_plus_clutch.png",
           "widthPx": 1280,
           "heightPx": 1280,
-          "sha256": "25face790e6fca49b921c052591a3e7f663f2e6657e31504fe3336db70f1534e"
+          "sha256": "7ac2f33b9639c12c479bd62b15810fef1f31b7952f2ff054567d244d53080827"
         }
       ],
-      "notes": "isolated three.js harness; seated MPFB nurse; 137 bones; arm=runtime_goals behaviour=rock_plus_clutch"
+      "notes": "isolated three.js harness; seated MPFB nurse; 138 bones; arm=runtime_goals behaviour=rock_plus_clutch; solver=CCDIKSolver blend=1 effector=wristR residualMeters=0.0000 phase=0 outwardMeters=0.03 pelvisDeltaMeters=0.0000; harnessSha256=baa04f6f04d05d54"
     },
     {
       "arm": "runtime_goals",
@@ -54,9 +61,9 @@
           "sha256": "fb41a56cc141fe57c4bb0ee0db08e576cd28a7dd14b0e251f5d4a94dc83aa1a8"
         }
       ],
-      "notes": "isolated three.js harness; seated MPFB nurse; 137 bones; arm=runtime_goals behaviour=pulse_presentation"
+      "notes": "isolated three.js harness; seated MPFB nurse; 138 bones; arm=runtime_goals behaviour=pulse_presentation; renderPose fallback: runtime descriptor declares no pulse goal, so the pre-existing twoBoneToward left-arm reach executed; harnessSha256=baa04f6f04d05d54"
     }
   ],
-  "verdict": "inconclusive_blocked",
-  "verdictDetail": "MY GRADE (native 1280×1280 Playwright stills of isolated three.js harness.html, subject mpfb-clinical-nurse-adult.glb, lighting on, head cropped at chin, no chair): clutch is absent on all four frames (no hand on torso). Rock cannot be graded from a still. Pulse reach is present only on baked_tracks/pulse_presentation (figure's left arm abducted toward the camera-right). runtime_goals/rock_plus_clutch and runtime_goals/pulse_presentation are near-identical seated T-poses. baked_tracks/rock_plus_clutch has the figure's right upper arm twisted with the elbow hyperextended. Feet float; soles face the camera. The harness used homemade twoBoneToward plus baked eulers, not CCDIKSolver after mixer and not applyMpfb2SeatedFold, so the designed backends did not execute. Distinct sha256 on all four stills. notEvidenceFor: production pose, clinical validity, Quest. CONSULTED: none."
+  "verdict": "other",
+  "verdictDetail": "ORCHESTRATOR GRADE, native 1280, rock_plus_clutch pair read side by side (orchestrator-claude 2026-09-03; independently agrees with grok-orchestrator's grade of the same stills at 06:52). VERDICT IS `other` DELIBERATELY: neither backend performs the requested clutch, so no winner can be declared, and the escape value with this text is the honest record. MEASURED. baked_tracks: both arms present and intact, collar closed, arms extended outward ~30-40 degrees, neither hand near the chest. runtime_goals: the figure's RIGHT arm is absent and a torn hole runs through the right shoulder and collar exposing bare skin through the scrub; the LEFT arm is unchanged from baked. Crop (head cut above the chin), floating feet, absent chair and splayed legs are IDENTICAL across both, so those are harness framing and not backend behaviour. WHAT THIS ESTABLISHES: both backends ran, which is what this card set out to prove; neither produces the clutch; baked_tracks is the only one yielding an anatomically intact figure. THE RESIDUAL IS NOT A VALIDITY CHECK. This report records a CCDIKSolver wristR residual of 0.0000 m, and wristR is exactly the chain that collapsed. A zero residual was returned for a solve that destroyed the limb it drove: residual measures distance to goal and nothing here checks that the chain is still a chain. A contract gating on residual alone would have passed this frame. CAUSE NOT MEASURED HERE. tsk_9940a1d7597f41cb records that this descriptor's chainRoles names lowerarm02.R and upperarm02.R, which are MakeHuman TWIST segments that a CCDIK chain bends in the middle of themselves; that is a candidate cause and it is that card's to prove, not this one's. NOT TESTED: the pulse_presentation pair (graded only rock_plus_clutch; the descriptor carries no pulse goal and that arm falls back to twoBoneToward). Clinical plausibility. Quest frame budget. PRIOR PLACEHOLDER, retained: PLACEHOLDER \u2014 orchestrator grades native stills after this capture. Re-run captured both arms on the same seated MPFB actor (mpfb-clinical-nurse-adult) for rock_plus_clutch and pulse_presentation, against harness.html sha baa04f6f04d05d54 (CCDIKSolver present). baked_tracks renders via renderPose baked rotations for both behaviours. runtime_goals/rock_plus_clutch renders one solved frame of the CCDIKSolver runtime-goal arm (__runtimeGoalFrame, blend 1, phase 0 contact frame). The runtime descriptor declares no pulse goal, so runtime_goals/pulse_presentation renders the harness's pre-existing twoBoneToward left-arm reach via renderPose. Do not treat this string as a grade."
 }

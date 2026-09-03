@@ -372,6 +372,65 @@
           targetB,
         };
       };
+
+      // ---- bake-off still hook: render ONE solved frame of the runtime-goal arm ----
+      // Additive capture path only: it reuses the SAME machinery the eval drives
+      // (initRuntimeGoal, applyPelvisWorldDelta, placeGoal, solver.updateOne at blend 1) and then
+      // renders, so the bake-off stills can show what the CCDIKSolver arm produces. The actor is
+      // seated exactly as the baked-arm renderPose path seats it (restoreRest -> applySeated).
+      // No solver, descriptor or evaluator semantics change. phase is in radians, matching the
+      // eval's solve(phase, targetWorld) call; the default is the phase-0 contact frame (targetA
+      // in the eval, i.e. the one instant per oscillation where the hand is on the chest region).
+      window.__runtimeGoalFrame = async ({ phase = 0, outwardMeters = 0.03 } = {}) => {
+        const descriptor = await (await fetch("runtime-goal-descriptor.json")).json();
+        const state = runtimeGoalState ?? (runtimeGoalState = await initRuntimeGoal(descriptor));
+        const goals = Array.isArray(descriptor?.goals) ? descriptor.goals : [];
+        const oscillator = goals.find((g) => g.kind === "oscillator");
+        const contact = goals.find((g) => g.kind === "body_region_contact");
+        if (!oscillator || !contact) throw new Error("descriptor lacks oscillator and body_region_contact goals");
+
+        restoreRest();
+        applySeated();
+        root.updateMatrixWorld(true);
+
+        const anchor = bones().find((x) => x.name === ROLE_TO_BONE.rightChestSurface);
+        if (!anchor) throw new Error("actor lacks breast.R chest anchor");
+        const spine02 = bones().find((x) => x.name === ROLE_TO_BONE.chestSpineLine);
+        anchor.getWorldPosition(tmpV);
+        const anchorPos = tmpV.clone();
+        if (spine02) {
+          spine02.getWorldPosition(tmpV);
+          tmpV.subVectors(anchorPos, tmpV).normalize();
+        } else {
+          tmpV.set(0, 0, 1);
+        }
+        const normal = tmpV.clone();
+        const targetWorld = anchorPos.clone().addScaledVector(normal, outwardMeters);
+
+        const amp = oscillator.amplitudeMeters ?? 0.03;
+        state.applyPelvisWorldDelta(tmpV.set(0, amp * Math.sin(phase), 0));
+        state.placeGoal(targetWorld);
+        root.updateMatrixWorld(true);
+        state.solver.updateOne(state.ik, 1);
+        root.updateMatrixWorld(true);
+        renderer.render(scene, camera);
+
+        const effectorWorld = new THREE.Vector3();
+        state.effector.getWorldPosition(effectorWorld);
+        return {
+          solver: "CCDIKSolver",
+          solverSource: "three/examples/jsm/animation/CCDIKSolver.js",
+          solverBlend: 1,
+          bones: bones().length,
+          phase,
+          pelvisDeltaMeters: amp * Math.sin(phase),
+          outwardMeters,
+          targetWorld: { x: targetWorld.x, y: targetWorld.y, z: targetWorld.z },
+          effector: state.effector.name,
+          effectorWorld: { x: effectorWorld.x, y: effectorWorld.y, z: effectorWorld.z },
+          residualMeters: effectorWorld.distanceTo(targetWorld),
+        };
+      };
     </script>
   </body>
 </html>

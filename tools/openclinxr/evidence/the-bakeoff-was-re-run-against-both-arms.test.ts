@@ -43,6 +43,29 @@ import { describe, expect, it } from "vitest";
  *   with four distinct fresh stills.
  * notEvidenceFor: which backend is better; what any still SHOWS; pose quality, clinical plausibility
  *   or Quest budget; anything about apps/ui-xr.
+ *
+ * ## FIXED (#0) — clause (2) flipped; clause (1) stays RED, measured reason below
+ *
+ * Re-run captured 2026-09-03 via capture.mts (Playwright, headless chromium, native 1280x1280)
+ * against harness.html sha baa04f6f04d05d54 at tree 6f5d05d4, actor bytes unchanged
+ * (2e111a0d...). report.json now records harnessSha256 equal to the harness the run captured
+ * against, and its verdict detail no longer blames a backend that did not execute: the runtime-goal
+ * arm executed CCDIKSolver in a still for the first time.
+ *
+ * runtime_goals/rock_plus_clutch is a fresh digest (7ac2f33b...): the CCDIKSolver per-frame
+ * applier (updateOne, blend 1) solved wristR to the seated right-chest contact target with
+ * residual 0.0000 m; measured 11.6% of pixels differ from the blocked run's twoBoneToward frame
+ * (max luminance delta 190.8). runtime_goals/pulse_presentation could NOT be CCDIK-driven: the
+ * content-addressed runtime descriptor declares no pulse goal, so that still is the pre-existing
+ * twoBoneToward reach.
+ *
+ * Clause (1) is not flipped because three of the four re-captured stills are byte-identical to the
+ * blocked run's (baked_tracks x2 and runtime_goals/pulse_presentation): those render paths are
+ * unchanged since 1c63c4d7 and the render is deterministic, so an honest re-capture reproduces the
+ * exact bytes (measured 0.00% pixel delta, digests stable across three consecutive runs). A
+ * freshness rule keyed on digest cannot distinguish an honest deterministic re-render from a copied
+ * still, and making those three scenes differ would require changing the baked arm or adding a
+ * runtime pulse goal — both out of scope for this card. The report's `notes` array records this.
  */
 
 const ROOT = join(import.meta.dirname, "../../..");
@@ -116,7 +139,7 @@ describe("the bake-off was re-run against both arms", () => {
     expect(stills().length, "fewer than four stills recorded").toBeGreaterThanOrEqual(4);
   });
 
-  it.fails("(2) RED: the verdict is not the blocked one, or no longer blames a backend that now runs", () => {
+  it("(2) the verdict is not the blocked one, or no longer blames a backend that now runs", () => {
     // A NEGATIVE RESULT STILL CLOSES THE BAKE-OFF. inconclusive_blocked stays legal — what is refused
     // is blaming non-execution of a backend that has since landed and is measured to drive the chain.
     const r = report();
