@@ -114,6 +114,32 @@ channels moving, zero translation. The catalogue is near-static poses. `openclin
 at 21.98 deg is the known-good showing that is not a rig ceiling. **The mixer layer converts clips to
 additive by subtracting frame 0, so on this catalogue it has almost nothing left to layer.**
 
+## The IK joint limits cannot be checked by any caller — measured 2026-09-03
+
+The design's "Not tested" asks whether stock joint limits port across the Anny and MPFB2 rails. The
+CHAIN half was answered and fixed (`c7e85634`: `solveArmChain` now skips the `*02` twist segments, so
+MPFB resolves `wrist.L -> lowerarm01.L -> upperarm01.L`). The LIMIT VALUES half **cannot be answered
+from the solver's public surface**, and that is itself the finding.
+
+`SHOULDER_BEND_LIMIT_RAD = 2.0` (114.6 deg) and `ELBOW_BEND_LIMIT_RAD = 2.7` (154.7 deg) are applied by
+`clampBend(u, eHat, ...)` — the angle between the solved WORLD direction and the REST direction, not a
+clinical joint ROM. `SolvedArmPose` returns only `shoulderLocal`, `elbowLocal` and `wristLocal`: three
+node-local quaternions, no world directions, no effector position, and no signal that a clamp fired or
+that reach was degraded.
+
+**A proxy will mislead you here, as it misled me.** Sweeping 504 targets over the reachable volume of
+the shipped MPFB rig gives `max shoulderLocal 176.5 deg` against a 114.6 deg limit, which reads as a
+clamp that never binds. It is not the same angle: `shoulderLocal` maps `eHat` onto `uLocal` in the
+PARENT frame, while the clamp constrains `u` against `eHat` in WORLD space, and the two differ by
+`parentQ` whenever the parent is rotated. The measurement is real and it does not answer the question.
+
+What would settle it: expose whether a clamp fired (or the residual reach error) on `SolvedArmPose`, or
+run forward kinematics in the test and compare the effector's world position against the target for
+targets known to be within arm's length. Until one of those exists, no caller and no test can tell
+whether these limits ever bind, which is a testability gap rather than a known defect.
+
+Not carded. The limits may well be fine; nothing here shows otherwise.
+
 ## What the clinical research settled
 
 Do not derive a pain behaviour from demeanor, emotion or phenotype. A gastroenteritis case and a
