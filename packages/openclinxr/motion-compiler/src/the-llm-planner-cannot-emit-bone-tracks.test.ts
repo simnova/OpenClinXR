@@ -5,6 +5,10 @@ import {
   type ReviewerAttestationVerifier,
 } from "../../review-workflow/src/scenario-publication.js";
 import { edChestPainScenario } from "../../scenario-fixtures/src/ed-chest-pain.js";
+// M5 (tsk_fe21a528321bd6bb): the semantic admission gate is a LANDED module by the time
+// these clauses run, so it is imported statically (knip traces static imports; the dynamic
+// imports above stay dynamic because the original RED clauses predate the modules they name).
+import { validateLLMScenarioMotionProgram } from "./program/llm-scenario-motion-planner.js";
 
 /**
  * IMMUTABLE DIAGNOSIS HEADER — do not rewrite. Flip `it.fails` -> `it` and append a `## FIXED (#N)`
@@ -500,6 +504,253 @@ describe("the llm planner cannot emit bone tracks", () => {
     ).toBe("pass");
     expect(humanApproved.missingReviewerRoles).toEqual([]);
     expect(humanApproved.canPublishForLearnerUse).toBe(true);
+  });
+});
+
+/**
+ * ## M5 SEMANTIC ADMISSION CLAUSES (tsk_fe21a528321bd6bb) — appended 2026-09-03.
+ *
+ * The four clauses above gate the CLOSED-IR boundary (`validateMotionProgram`). M5 is a
+ * SECOND gate with case context — the M1 FIXED note above records the gap: "the validator
+ * has no case context to refuse a never-cast actor... which is the M5 card's own residual."
+ * These clauses gate `validateLLMScenarioMotionProgram`
+ * (src/program/llm-scenario-motion-planner.ts): the same one-mutation-at-a-time shape,
+ * against a baseline that is FULLY valid on its own (posture=seated, canonical derived
+ * string seed), so no refusal can be blamed on an invalid baseline.
+ *
+ * claimScope: that a case-bounded `llm_proposal` whose actor is cast, whose body_region
+ *   targets are the image of the case's OWN touch map, and whose provenance is honest
+ *   validates with zero errors; and that physical tracks, a declared-but-never-authored
+ *   region, a never-cast actor, a producer-claim that did not run, and a self-declared
+ *   review are each refused naming the offending cause.
+ * notEvidenceFor: anything clause (4) does not already claim — clinical validity, motion
+ *   quality, or what a genuine review step may mint.
+ */
+
+const M5_MODULE_UNDER_TEST = "./program/llm-scenario-motion-planner.js";
+
+type M5PlannerFacts = {
+  scenarioId: string;
+  actorIds: string[];
+  authoredComplianceRegions: string[];
+};
+
+/**
+ * The case-bounded honest baseline for the M5 clauses. Everything it needs is DERIVED from
+ * the live fixture: the actor who authors the touch map, the first authored compliance
+ * region mapped through the live vocabulary, and the canonical five-input seed derived
+ * from the program's OWN stable content (the plan-time convention: no rig bound, so the
+ * skeleton slot is the program's own hash). posture=seated is KNOWN-GOOD's baseline value.
+ */
+async function m5HonestProposal(): Promise<Record<string, unknown>> {
+  const [vocab] = await Promise.all([loadRegionVocabulary()]);
+  const actorId = (edChestPainScenario.actors ?? []).find(
+    (actor) => (actor.bodyMechanics?.touchResponses ?? []).length > 0,
+  )?.actorId;
+  const complianceRegion = AUTHORED_COMPLIANCE_REGIONS[0];
+  if (actorId === undefined || complianceRegion === undefined) {
+    throw new Error("the fixture no longer authors a touch map this clause reads");
+  }
+  const stable = {
+    schemaVersion: "openclinxr.motion-program.v1",
+    scenarioId: edChestPainScenario.scenarioId,
+    actorId,
+    provenance: { sourceKind: "llm_proposal", sourceRefs: [edChestPainScenario.scenarioId] },
+    baseline: { posture: "seated", affect: "anxious", breathing: "laboured" },
+    actions: [
+      {
+        actionId: "guard_chest_v1",
+        primitiveId: "guard_body_region",
+        trigger: { kind: "clinical_touch", ref: "clinical_touch_guard_chest_l" },
+        timing: { durationMs: 900 },
+        intensity: 0.6,
+        target: { kind: "body_region", id: vocab.motionBodyRegionForComplianceRegion(complianceRegion) },
+        effector: "handR",
+        constraints: [],
+      },
+    ],
+    claimBoundary: CLAIM_BOUNDARY,
+    notEvidenceFor: ["clinical_validity", "animation_quality"],
+  };
+  const compile = (await import(/* @vite-ignore */ plantModule("./program/compile-scenario-motion.js"))) as Record<
+    string,
+    unknown
+  >;
+  const variation = (await import(/* @vite-ignore */ plantModule("./trajectory/deterministic-variation.js"))) as Record<
+    string,
+    unknown
+  >;
+  const canonicalMotionProgramHash = compile["canonicalMotionProgramHash"] as (program: unknown) => string;
+  const deriveDeterministicVariationSeed = variation["deriveDeterministicVariationSeed"] as (input: {
+    motionProgramHash: string;
+    skeletonProfileHash: string;
+    compilerVersion: string;
+    primitiveLibraryVersion: string;
+    variationIndex: number;
+  }) => string;
+  const motionProgramHash = canonicalMotionProgramHash(stable);
+  return {
+    ...stable,
+    deterministicSeed: deriveDeterministicVariationSeed({
+      motionProgramHash,
+      skeletonProfileHash: motionProgramHash,
+      compilerVersion: compile["MOTION_COMPILER_VERSION"] as string,
+      primitiveLibraryVersion: compile["PRIMITIVE_LIBRARY_VERSION"] as string,
+      variationIndex: 0,
+    }),
+  };
+}
+
+const M5_FACTS: M5PlannerFacts = {
+  scenarioId: edChestPainScenario.scenarioId,
+  actorIds: AUTHORED_ACTOR_IDS,
+  authoredComplianceRegions: AUTHORED_COMPLIANCE_REGIONS,
+};
+
+describe("the M5 semantic planner admits only case-bounded honest proposals", () => {
+  it("(5) M5 KNOWN-GOOD: the honest canonical proposal validates with zero errors before any mutation", async () => {
+    const [vocab, validator] = await Promise.all([loadRegionVocabulary(), loadValidator()]);
+    const proposal = await m5HonestProposal();
+
+    // The baseline is FULLY valid on its own — the anti-vacuous guard: no refusal below
+    // may be attributable to an invalid posture or seed.
+    const structural = validator(proposal);
+    expect(structural.ok, "the M5 baseline must itself pass the closed IR").toBe(true);
+    expect(structural.errors).toEqual([]);
+    expect((proposal["deterministicSeed"] as string).length).toBeGreaterThan(0);
+    expect((proposal["baseline"] as { posture: string }).posture).toBe("seated");
+
+    const admitted = validateLLMScenarioMotionProgram(proposal, M5_FACTS);
+    expect(admitted.ok, "a case-bounded llm_proposal is a legitimate plan").toBe(true);
+    expect(admitted.errors).toEqual([]);
+  });
+
+  it("(6) M5 RED: the semantic planner refuses physical tracks for the track reason", async () => {
+    const vocab = await loadRegionVocabulary();
+    const proposal = await m5HonestProposal();
+    const complianceRegion = AUTHORED_COMPLIANCE_REGIONS[0]!;
+
+    const result = validateLLMScenarioMotionProgram(
+      {
+        ...proposal,
+        actions: [
+          {
+            actionId: "guard_chest_v1",
+            primitiveId: "guard_body_region",
+            trigger: { kind: "clinical_touch", ref: "clinical_touch_guard_chest_l" },
+            timing: { durationMs: 900 },
+            intensity: 0.6,
+            target: { kind: "body_region", id: vocab.motionBodyRegionForComplianceRegion(complianceRegion) },
+            effector: "handR",
+            constraints: [],
+            // THE DEFECT: raw skeleton payload through the same program field as clause (1).
+            boneTracks: [
+              {
+                bone: "upper_arm.L",
+                keyframes: [
+                  { tMs: 0, quat: [0, 0, 0, 1] },
+                  { tMs: 400, quat: [0.13, 0, 0, 0.99] },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      M5_FACTS,
+    );
+
+    expect(result.ok, "the planner's own gate must refuse raw bone tracks").toBe(false);
+    expect(result.errors.join(" | ")).toMatch(/boneTracks|upper_arm\.L|track/);
+  });
+
+  it("(7) M5 RED: a declared-but-never-authored motion region is refused for the region", async () => {
+    const [vocab, validator] = await Promise.all([loadRegionVocabulary(), loadValidator()]);
+    const proposal = await m5HonestProposal();
+
+    // The authored motion regions: the image of the case's OWN touch map under the mapper.
+    const authoredMotionRegionSet = new Set(AUTHORED_COMPLIANCE_REGIONS.map(vocab.motionBodyRegionForComplianceRegion));
+    // A region the VOCABULARY declares but THIS case never authored — the IR accepts it
+    // (it is declared), so only the case-aware layer can refuse it.
+    const declaredButUnauthored = vocab.MOTION_BODY_REGIONS.find((region) => !authoredMotionRegionSet.has(region));
+    expect(declaredButUnauthored, "the vocabulary must carry a region this case never authors").toBeDefined();
+
+    const actions = [
+      {
+        actionId: "withdraw_unauthored_v1",
+        primitiveId: "guard_body_region",
+        trigger: { kind: "clinical_touch", ref: "clinical_touch_guard_chest_l" },
+        timing: { durationMs: 900 },
+        intensity: 0.6,
+        target: { kind: "body_region", id: declaredButUnauthored },
+        effector: "handR",
+        constraints: [],
+      },
+    ];
+
+    // Counterweight: the closed IR alone ACCEPTS this program — the target is declared.
+    expect(validator({ ...proposal, actions }).ok, "declared regions pass the closed IR").toBe(true);
+
+    const result = validateLLMScenarioMotionProgram(
+      { ...proposal, actions },
+      M5_FACTS,
+    );
+
+    expect(result.ok, "a region the case never authored is an invention for THIS case").toBe(false);
+    expect(result.errors.join(" | ")).toContain(declaredButUnauthored);
+  });
+
+  it("(8) M5 RED: a never-cast actor is refused for the actor — the recorded M1 residual", async () => {
+    const validator = await loadValidator();
+    const proposal = await m5HonestProposal();
+    const foreignActor = "attending_physician_v1";
+
+    expect(AUTHORED_ACTOR_IDS).not.toContain(foreignActor);
+    // Counterweight: nothing else is wrong with this program — the target is a case-authored
+    // region and the provenance is honest, so the closed IR accepts it.
+    expect(validator({ ...proposal, actorId: foreignActor }).ok, "the IR has no case context").toBe(true);
+
+    const result = validateLLMScenarioMotionProgram(
+      { ...proposal, actorId: foreignActor },
+      M5_FACTS,
+    );
+
+    expect(result.ok, "the planner may not cast an actor the case never authored").toBe(false);
+    expect(result.errors.join(" | ")).toContain(foreignActor);
+  });
+
+  it("(9) M5 RED: a producer-claim that did not run is refused for its provenance", async () => {
+    const validator = await loadValidator();
+    const proposal = await m5HonestProposal();
+
+    // The IR permits deterministic_case_compiler as a closed sourceKind, so this refusal
+    // belongs to the LLM admission path: an LLM output stamped as a producer that did not
+    // run hides the fact that an LLM authored it.
+    for (const disguisedSourceKind of ["deterministic_case_compiler", "authored_case"]) {
+      const disguised = {
+        ...proposal,
+        provenance: { sourceKind: disguisedSourceKind, sourceRefs: [edChestPainScenario.scenarioId] },
+      };
+      expect(validator(disguised).ok, `the IR accepts ${disguisedSourceKind} as a closed kind`).toBe(true);
+
+      const result = validateLLMScenarioMotionProgram(disguised, M5_FACTS);
+      expect(result.ok, `an LLM proposal may not claim ${disguisedSourceKind} provenance`).toBe(false);
+      expect(result.errors.join(" | ")).toMatch(/sourceKind|provenance/);
+    }
+  });
+
+  it("(10) M5 RED: a self-declared review is refused by the planner's own gate", async () => {
+    const validator = await loadValidator();
+    const proposal = await m5HonestProposal();
+
+    const selfPromoted = {
+      ...proposal,
+      provenance: { sourceKind: "reviewed_llm_proposal", sourceRefs: [edChestPainScenario.scenarioId] },
+    };
+    expect(validator(selfPromoted).ok, "the closed IR refuses self-minted review provenance").toBe(false);
+
+    const result = validateLLMScenarioMotionProgram(selfPromoted, M5_FACTS);
+    expect(result.ok, "only a distinct review step may mint reviewed_llm_proposal").toBe(false);
+    expect(result.errors.join(" | ")).toMatch(/reviewed_llm_proposal|provenance|sourceKind/);
   });
 });
 
