@@ -33,9 +33,10 @@ import {
 
 describe("scenario runtime", () => {
   beforeEach(() => {
-    // The default factory composes the live ox/local rungs from ambient env. These tests
+    // The default factory composes the live ox/deepseek/local rungs from ambient env. These tests
     // pin the OFFLINE default, so clear the keys before each runtime is constructed.
     delete process.env["OPENROUTER_API_KEY"];
+    delete process.env["DEEPSEEK_API_KEY"];
     delete process.env["OPENCLINXR_LOCAL_LLAMA_BASE_URL"];
   });
 
