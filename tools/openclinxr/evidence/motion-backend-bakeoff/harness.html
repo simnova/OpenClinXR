@@ -199,6 +199,24 @@
         return alt ? sanitized : name;
       }
 
+      // Region-following goal target for the CURRENT pose: the region's anchor bone plus a fixed
+      // outward offset along the anchor-to-spine direction. Must be called AFTER the driver has
+      // moved the body and world matrices are updated, or the target pins a pre-motion world point.
+      function regionGoalTarget(outwardMeters) {
+        const anchor = bones().find((x) => x.name === ROLE_TO_BONE.rightChestSurface);
+        if (!anchor) throw new Error("actor lacks breast.R chest anchor");
+        const spine02 = bones().find((x) => x.name === ROLE_TO_BONE.chestSpineLine);
+        anchor.getWorldPosition(tmpV);
+        const anchorPos = tmpV.clone();
+        if (spine02) {
+          spine02.getWorldPosition(tmpV);
+          tmpV.subVectors(anchorPos, tmpV).normalize();
+        } else {
+          tmpV.set(0, 0, 1);
+        }
+        return anchorPos.addScaledVector(tmpV, outwardMeters);
+      }
+
       async function initRuntimeGoal(descriptor) {
         const goals = Array.isArray(descriptor?.goals) ? descriptor.goals : [];
         const oscillator = goals.find((g) => g.kind === "oscillator");
@@ -320,30 +338,18 @@
         restoreRest();
         root.updateMatrixWorld(true);
 
-        // Body-region anchor: right chest surface, taken from the actor at evaluation time.
-        const anchor = bones().find((x) => x.name === ROLE_TO_BONE.rightChestSurface);
-        if (!anchor) throw new Error("actor lacks breast.R chest anchor");
-        const spine02 = bones().find((x) => x.name === ROLE_TO_BONE.chestSpineLine);
-        anchor.getWorldPosition(tmpV);
-        const anchorPos = tmpV.clone();
-        if (spine02) {
-          spine02.getWorldPosition(tmpV);
-          tmpV.subVectors(anchorPos, tmpV).normalize();
-        } else {
-          tmpV.set(0, 0, 1);
-        }
-        const normal = tmpV.clone();
-
         // Reach limit lives in the TARGET: each goal target is a point a fixed outward distance
-        // from the chest surface. The two evaluations differ ONLY in that outward distance.
+        // from the region's CURRENT anchor. The two evaluations differ ONLY in that distance.
         const reachLimit = contact.reachOutwardMeters ?? 0.12;
-        const targetAWorld = anchorPos.clone().addScaledVector(normal, 0.03);
-        const targetBWorld = anchorPos.clone().addScaledVector(normal, 0.03 + reachLimit);
 
-        const solve = (phase, targetWorld) => {
+        // Driver first, then aim: regionGoalTarget reads the post-driver pose, so the goal rides
+        // the region across the oscillation instead of pinning a world point captured at phase 0.
+        const solve = (phase, outwardMeters) => {
           restoreRest();
           const amp = oscillator.amplitudeMeters ?? 0.03;
           state.applyPelvisWorldDelta(tmpV.set(0, amp * Math.sin(phase), 0));
+          root.updateMatrixWorld(true);
+          const targetWorld = regionGoalTarget(outwardMeters);
           state.placeGoal(targetWorld);
           root.updateMatrixWorld(true);
           state.solver.updateOne(state.ik, 1);
@@ -358,10 +364,10 @@
         const frames = oscillator.framesPerPeriod ?? 12;
         const oscillation = [];
         for (let k = 0; k < frames; k += 1) {
-          oscillation.push(solve((2 * Math.PI * k) / frames, targetAWorld));
+          oscillation.push(solve((2 * Math.PI * k) / frames, 0.03));
         }
-        const targetA = solve(0, targetAWorld);
-        const targetB = solve(0, targetBWorld);
+        const targetA = solve(0, 0.03);
+        const targetB = solve(0, 0.03 + reachLimit);
 
         return {
           schemaVersion: "openclinxr.motion-backend-bakeoff.runtime-goal-eval.v1",
@@ -375,12 +381,12 @@
 
       // ---- bake-off still hook: render ONE solved frame of the runtime-goal arm ----
       // Additive capture path only: it reuses the SAME machinery the eval drives
-      // (initRuntimeGoal, applyPelvisWorldDelta, placeGoal, solver.updateOne at blend 1) and then
-      // renders, so the bake-off stills can show what the CCDIKSolver arm produces. The actor is
-      // seated exactly as the baked-arm renderPose path seats it (restoreRest -> applySeated).
-      // No solver, descriptor or evaluator semantics change. phase is in radians, matching the
-      // eval's solve(phase, targetWorld) call; the default is the phase-0 contact frame (targetA
-      // in the eval, i.e. the one instant per oscillation where the hand is on the chest region).
+      // (initRuntimeGoal, applyPelvisWorldDelta, regionGoalTarget, placeGoal, solver.updateOne at
+      // blend 1) and then renders, so the bake-off stills can show what the CCDIKSolver arm
+      // produces. The actor is seated exactly as the baked-arm renderPose path seats it
+      // (restoreRest -> applySeated). No solver, descriptor or evaluator semantics change. phase
+      // is in radians, matching the eval's solve(phase, outwardMeters) call; the default is the
+      // phase-0 contact frame (targetA in the eval).
       window.__runtimeGoalFrame = async ({ phase = 0, outwardMeters = 0.03 } = {}) => {
         const descriptor = await (await fetch("runtime-goal-descriptor.json")).json();
         const state = runtimeGoalState ?? (runtimeGoalState = await initRuntimeGoal(descriptor));
@@ -393,22 +399,13 @@
         applySeated();
         root.updateMatrixWorld(true);
 
-        const anchor = bones().find((x) => x.name === ROLE_TO_BONE.rightChestSurface);
-        if (!anchor) throw new Error("actor lacks breast.R chest anchor");
-        const spine02 = bones().find((x) => x.name === ROLE_TO_BONE.chestSpineLine);
-        anchor.getWorldPosition(tmpV);
-        const anchorPos = tmpV.clone();
-        if (spine02) {
-          spine02.getWorldPosition(tmpV);
-          tmpV.subVectors(anchorPos, tmpV).normalize();
-        } else {
-          tmpV.set(0, 0, 1);
-        }
-        const normal = tmpV.clone();
-        const targetWorld = anchorPos.clone().addScaledVector(normal, outwardMeters);
-
+        // Same ordering as the eval's solve(): the driver moves first, then the goal is aimed at
+        // the region's post-motion anchor, so the still shows what the runtime arm actually does.
         const amp = oscillator.amplitudeMeters ?? 0.03;
         state.applyPelvisWorldDelta(tmpV.set(0, amp * Math.sin(phase), 0));
+        root.updateMatrixWorld(true);
+        const targetWorld = regionGoalTarget(outwardMeters);
+
         state.placeGoal(targetWorld);
         root.updateMatrixWorld(true);
         state.solver.updateOne(state.ik, 1);
