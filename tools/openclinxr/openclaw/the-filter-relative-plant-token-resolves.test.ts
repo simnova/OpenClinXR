@@ -49,6 +49,18 @@
  * claimScope: brief-time dispatchability only. notEvidenceFor: how run:/live: EVALUATE at
  * contract-verify time, which this card does not touch.
  */
+/**
+ * ## FIXED (tsk_08008add80b59c78) — 2026-09-02
+ *
+ * `unprotectedItFailsPlants` now derives a token's base from the `--filter <pkg>` argument,
+ * resolved exactly as pnpm resolves it — pnpm-workspace.yaml `packages:` globs expanded, then a
+ * package.json whose `name` equals the selector (board-brief.ts: `runTokenBases` /
+ * `resolveFilterPackageDir`). Clause (1) is flipped to `it`; the counterweights hold: (2) still
+ * passes because `live:` coverage is now compared by ABSOLUTE path, so the root-relative
+ * `live:apps/ui-admin/src/probe-plant.test.ts` covers the package-relative token; (3) still stays
+ * silent because a token that resolves under no base is someone else's refusal; (4) still refuses
+ * because a rule with no `--filter` keeps the root-relative base.
+ */
 import { describe, it, expect } from "vitest";
 import { mkdtempSync, writeFileSync, mkdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -80,7 +92,7 @@ describe("the filter relative plant token resolves", () => {
   const filterRun = `run:pnpm --filter ${PKG} exec vitest run ${PLANT_IN_PKG}`;
 
   // (1) THE HOLE. W11's exact command shape. Unprotected, and the gate must say so.
-  it.fails("(1) RED: refuses a --filter run: whose package-relative plant is it.fails with no live:", () => {
+  it("(1) RED: refuses a --filter run: whose package-relative plant is it.fails with no live:", () => {
     root = makeWorkspace();
     const res = briefFromIssue(card(`- ${filterRun}`), root);
     expect(

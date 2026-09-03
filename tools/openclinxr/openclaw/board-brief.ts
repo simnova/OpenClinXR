@@ -217,8 +217,8 @@ export function malformedPathTargets(rules: readonly string[]): string[] {
   return bad;
 }
 
-import { existsSync, readFileSync } from "node:fs";
-import { join, isAbsolute } from "node:path";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { join, isAbsolute, relative } from "node:path";
 
 
 /**
@@ -236,7 +236,133 @@ import { join, isAbsolute } from "node:path";
  * Returns the plant paths that are unprotected. Empty when no tree root is available, because the
  * check requires reading the file: the rule text alone cannot tell an it.fails plant from a plain
  * one, which is why the gate could never catch this before.
+ *
+ * CORRECTED 2026-09-02 (tsk_08008add80b59c78): every real card runs `pnpm --filter <pkg>`, and
+ * pnpm executes the command with its cwd INSIDE the selected package — so a `.test.ts(x)` token is
+ * package-relative and `join(treeRoot, tok)` never resolves, which made this gate skip every real
+ * card while passing on repo-root-relative fixtures. A token's base now derives from the
+ * `--filter` selector, resolved the way pnpm resolves it (pnpm-workspace.yaml `packages:` globs +
+ * each package.json `name`) — never from a tree search for a matching basename, which picks the
+ * wrong file the moment two packages ship a same-named test.
  */
+
+/** `packages:` entries of the workspace manifest — the globs pnpm expands to find packages. */
+function workspacePackageGlobs(treeRoot: string): string[] {
+  let yaml: string;
+  try {
+    yaml = readFileSync(join(treeRoot, "pnpm-workspace.yaml"), "utf8");
+  } catch {
+    return [];
+  }
+  const header = /^packages:\s*$/mu.exec(yaml);
+  if (!header) return [];
+  const globs: string[] = [];
+  for (const line of yaml.slice(header.index + header[0].length).split("\n")) {
+    const item = /^\s*-\s*["']?([^"']+)["']?\s*$/u.exec(line);
+    if (!item) {
+      // A non-blank, non-comment line that is not a list item ends the list (next top-level key).
+      const trimmed = line.trim();
+      if (trimmed !== "" && !trimmed.startsWith("#") && !/^\s/.test(line)) break;
+      continue;
+    }
+    const glob = item[1]!.trim();
+    if (glob) globs.push(glob);
+  }
+  return globs;
+}
+
+/** Directories matching one pnpm-workspace glob that contain a package.json. */
+function expandWorkspaceGlob(root: string, glob: string): string[] {
+  const segments = glob.split("/");
+  const found: string[] = [];
+  const visit = (dir: string, i: number): void => {
+    if (i === segments.length) {
+      if (existsSync(join(dir, "package.json"))) found.push(dir);
+      return;
+    }
+    const segment = segments[i]!;
+    if (segment === "*") {
+      let entries;
+      try {
+        entries = readdirSync(dir, { withFileTypes: true });
+      } catch {
+        return;
+      }
+      for (const entry of entries) {
+        if (entry.isDirectory()) visit(join(dir, entry.name), i + 1);
+      }
+      return;
+    }
+    if (segment === "**") {
+      visit(dir, i + 1); // zero components consumed by `**`
+      let entries;
+      try {
+        entries = readdirSync(dir, { withFileTypes: true });
+      } catch {
+        return;
+      }
+      for (const entry of entries) {
+        if (entry.isDirectory()) visit(join(dir, entry.name), i); // descend, `**` still pending
+      }
+      return;
+    }
+    if (segment.includes("*")) return; // partial wildcard: cannot resolve precisely, do not guess
+    visit(join(dir, segment), i + 1);
+  };
+  visit(root, 0);
+  return found;
+}
+
+/**
+ * Directory of the workspace package a `--filter` selector names, or null.
+ *
+ * A selector is usable only when it IS a package name — the equality pnpm itself performs against
+ * each package.json. A directory, a glob, or `pkg...`/`...pkg` cannot be reduced to one base
+ * without guessing, so those return null and the rule keeps the root-relative base.
+ */
+function resolveFilterPackageDir(treeRoot: string, selector: string): string | null {
+  for (const glob of workspacePackageGlobs(treeRoot)) {
+    for (const dir of expandWorkspaceGlob(treeRoot, glob)) {
+      let name: unknown;
+      try {
+        name = (JSON.parse(readFileSync(join(dir, "package.json"), "utf8")) as { name?: unknown }).name;
+      } catch {
+        continue;
+      }
+      if (name === selector) return dir;
+    }
+  }
+  return null;
+}
+
+/**
+ * Directories a `run:` command's path tokens are relative to, in resolution order.
+ *
+ * `pnpm --filter <pkg> exec …` runs with cwd inside each selected package, so a `--filter` rule's
+ * tokens are package-relative. With no `--filter`, or a selector that resolves to no package,
+ * tokens stay repo-root-relative — the base this gate has always used. A base that cannot be
+ * derived must not turn a precise gate into a silent skip.
+ */
+function runTokenBases(treeRoot: string, command: string): string[] {
+  const parsed = parseRunArgv(command);
+  if ("error" in parsed) return [treeRoot];
+  const selectors: string[] = [];
+  for (let i = 0; i < parsed.argv.length; i += 1) {
+    const arg = parsed.argv[i]!;
+    if (arg === "--filter" || arg === "-F") {
+      const selector = parsed.argv[i + 1];
+      if (selector && !selector.startsWith("-")) selectors.push(selector);
+    } else if (arg.startsWith("--filter=")) {
+      selectors.push(arg.slice("--filter=".length));
+    }
+  }
+  if (selectors.length === 0) return [treeRoot];
+  const resolved = selectors
+    .map((selector) => resolveFilterPackageDir(treeRoot, selector))
+    .filter((dir): dir is string => dir !== null);
+  return resolved.length > 0 ? resolved : [treeRoot];
+}
+
 export function unprotectedItFailsPlants(
   rules: readonly string[],
   treeRoot: string | undefined,
@@ -253,28 +379,41 @@ export function unprotectedItFailsPlants(
   // written before a product edit, by mtime (done-when-rules.ts:310-319). It says nothing about
   // whether a plant was flipped. Advertising it as protection was the more serious half; the dead
   // comparison merely hid it. Zero open cards used it, so removing it changes protection for none.
+  //
+  // `live:` targets are repo-root-relative — the evaluator resolves them with
+  // `resolveExistsTargets(treeRoot, target)` (done-when-rules.ts:400) — so coverage is compared
+  // by ABSOLUTE path: a package-relative token and its root-relative `live:` twin must match even
+  // though their raw strings differ.
   const covered = new Set<string>();
   for (const rule of rules) {
-    if (rule.startsWith("live:")) covered.add(rule.slice("live:".length).trim());
+    if (!rule.startsWith("live:")) continue;
+    const target = rule.slice("live:".length).trim();
+    covered.add(isAbsolute(target) ? target : join(treeRoot, target));
   }
   const bad: string[] = [];
   for (const rule of rules) {
     if (!rule.startsWith("run:")) continue;
+    const bases = runTokenBases(treeRoot, rule.slice("run:".length).trim());
     for (const tok of rule.split(/\s+/u)) {
       // .tsx and .mts plants are real vitest targets — every ui-admin worldview plant is .tsx —
       // so a .ts-only filter silently skipped them and their run: proofs stayed unprotected.
       if (!/\.test\.(?:ts|tsx|mts)$/u.test(tok)) continue;
       if (tok.includes("*")) continue; // a glob is a different shape; do not guess
-      if (covered.has(tok)) continue;
-      const abs = isAbsolute(tok) ? tok : join(treeRoot, tok);
-      if (!existsSync(abs)) continue; // someone else's refusal, not this gate's business
+      const candidates = isAbsolute(tok) ? [tok] : bases.map((base) => join(base, tok));
+      if (candidates.some((candidate) => covered.has(candidate))) continue;
+      const abs = candidates.find((candidate) => existsSync(candidate));
+      if (!abs) continue; // someone else's refusal, not this gate's business
       let source: string;
       try {
         source = readFileSync(abs, "utf8");
       } catch {
         continue;
       }
-      if (/\bit\.fails\s*\(/u.test(source) && !bad.includes(tok)) bad.push(tok);
+      if (/\bit\.fails\s*\(/u.test(source)) {
+        // Report a path `live:` can actually name: the root-relative location, not the raw token.
+        const reported = abs === tok ? tok : relative(treeRoot, abs);
+        if (!bad.includes(reported)) bad.push(reported);
+      }
     }
   }
   return bad;
