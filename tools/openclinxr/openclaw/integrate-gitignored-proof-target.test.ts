@@ -21,6 +21,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { resetCoordinationRootCache } from "./coordination-root.js";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 import { integrate } from "./integrate.js";
 import {
   evaluateGitignoredProofTarget,
@@ -45,7 +46,7 @@ function git(cwd: string, args: string[]): string {
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],
     env: {
-      ...process.env,
+      ...gitEnvWithoutInheritedRepoVars(),
       GIT_AUTHOR_NAME: "gitignored-proof-target-test",
       GIT_AUTHOR_EMAIL: "gitignored-proof-target-test@example.com",
       GIT_COMMITTER_NAME: "gitignored-proof-target-test",
@@ -58,7 +59,10 @@ function git(cwd: string, args: string[]): string {
 function repoWithIgnoredSecretDir(): { root: string; base: string; head: string } {
   const root = mkdtempSync(join(tmpdir(), "gitignored-target-"));
   tempRoots.push(root);
-  execFileSync("git", ["init", "-q", "-b", "main", root], { stdio: "ignore" });
+  execFileSync("git", ["init", "-q", "-b", "main", root], {
+    stdio: "ignore",
+    env: gitEnvWithoutInheritedRepoVars(),
+  });
   git(root, ["config", "user.email", "t@example.com"]);
   git(root, ["config", "user.name", "t"]);
   writeFileSync(join(root, ".gitignore"), ".secret/\n");

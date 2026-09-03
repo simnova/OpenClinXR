@@ -20,6 +20,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { resolveSharedCoordinationPath } from "./coordination-root.js";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 import { readSessions, type DispatchLedgerEntry } from "./dispatch-worker.js";
 import { integrationEvents } from "./integrate.js";
 import type { TripwireSignal } from "./loop-pause.js";
@@ -63,7 +64,11 @@ export type Scorecard = {
 
 function gitLines(repoRoot: string, args: string[]): string[] {
   try {
-    return execFileSync("git", args, { cwd: repoRoot, encoding: "utf8" }).split("\n").filter(Boolean);
+    return execFileSync("git", args, {
+      cwd: repoRoot,
+      encoding: "utf8",
+      env: gitEnvWithoutInheritedRepoVars(),
+    }).split("\n").filter(Boolean);
   } catch {
     return [];
   }
@@ -257,6 +262,7 @@ function headSha(repoRoot: string): string {
       cwd: repoRoot,
       encoding: "utf8",
       stdio: ["ignore", "pipe", "ignore"],
+      env: gitEnvWithoutInheritedRepoVars(),
     }).trim();
   } catch {
     return "unknown";

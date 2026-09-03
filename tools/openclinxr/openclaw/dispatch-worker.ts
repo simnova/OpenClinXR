@@ -942,7 +942,11 @@ export function resolveWorkerWorktree(
 /** Files the main checkout gained during a dispatch — belt-and-braces behind the deny. */
 export function mainTreeDirtyPaths(mainRoot: string): string[] {
   try {
-    return execFileSync("git", ["status", "--porcelain"], { cwd: mainRoot, encoding: "utf8" })
+    return execFileSync("git", ["status", "--porcelain"], {
+      cwd: mainRoot,
+      encoding: "utf8",
+      env: gitEnvWithoutInheritedRepoVars(),
+    })
       .split("\n")
       .filter(Boolean)
       .map((line) => line.slice(3));
@@ -957,7 +961,11 @@ export function mainTreeDirtyPaths(mainRoot: string): string[] {
  */
 export function mainHeadSha(mainRoot: string): string | undefined {
   try {
-    return execFileSync("git", ["rev-parse", "HEAD"], { cwd: mainRoot, encoding: "utf8" }).trim();
+    return execFileSync("git", ["rev-parse", "HEAD"], {
+      cwd: mainRoot,
+      encoding: "utf8",
+      env: gitEnvWithoutInheritedRepoVars(),
+    }).trim();
   } catch {
     return undefined;
   }
@@ -977,6 +985,7 @@ export function pathsTouchedByCommitsSince(mainRoot: string, sinceSha: string): 
     const commits = execFileSync("git", ["rev-list", `${sinceSha}..HEAD`], {
       cwd: mainRoot,
       encoding: "utf8",
+      env: gitEnvWithoutInheritedRepoVars(),
     })
       .split("\n")
       .filter(Boolean);
@@ -985,7 +994,7 @@ export function pathsTouchedByCommitsSince(mainRoot: string, sinceSha: string): 
       const files = execFileSync(
         "git",
         ["diff-tree", "--first-parent", "-m", "--no-commit-id", "--name-only", "-r", commit],
-        { cwd: mainRoot, encoding: "utf8" },
+        { cwd: mainRoot, encoding: "utf8", env: gitEnvWithoutInheritedRepoVars() },
       )
         .split("\n")
         .filter(Boolean);

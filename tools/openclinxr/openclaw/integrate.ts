@@ -4,6 +4,7 @@ import { appendFileSync, existsSync, mkdirSync, readFileSync, readdirSync } from
 import { acquireIntegrationLock, releaseIntegrationLock, renewIntegrationLock } from "./integration-lock.js";
 import { dirname, join } from "node:path";
 import { resolveSharedCoordinationPath } from "./coordination-root.js";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 import { loadTrustedBrief, readSessions, trustedSliceDir } from "./dispatch-worker.js";
 import {
   DEFAULT_BOARD_REPO,
@@ -135,7 +136,11 @@ export function contractForSlice(
 /** Resolve a branch/sha to a commit, or undefined when it cannot be resolved. */
 function resolveSha(repoRoot: string, rev: string): string | undefined {
   try {
-    return execFileSync("git", ["rev-parse", rev], { cwd: repoRoot, encoding: "utf8" }).trim();
+    return execFileSync("git", ["rev-parse", rev], {
+      cwd: repoRoot,
+      encoding: "utf8",
+      env: gitEnvWithoutInheritedRepoVars(),
+    }).trim();
   } catch {
     return undefined;
   }
@@ -244,6 +249,7 @@ export function packagesNeedingRebuild(repoRoot: string, base: string, head: str
       cwd: repoRoot,
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],
+      env: gitEnvWithoutInheritedRepoVars(),
     });
   } catch {
     return [];
@@ -642,6 +648,7 @@ export function integrate(input: IntegrateInput): IntegrateResult {
           execFileSync("git", ["merge", "--abort"], {
             cwd: input.repoRoot,
             stdio: ["ignore", "pipe", "pipe"],
+            env: gitEnvWithoutInheritedRepoVars(),
           });
         } catch {
           // No merge to unwind, or the abort itself failed — the error below names the lock loss.
@@ -659,6 +666,7 @@ export function integrate(input: IntegrateInput): IntegrateResult {
     execFileSync("git", ["merge", "--no-edit", "--no-ff", "--no-commit", input.head], {
       cwd: input.repoRoot,
       stdio: ["ignore", "pipe", "pipe"],
+      env: gitEnvWithoutInheritedRepoVars(),
     });
     mergeInProgress = true;
     writeGateReport(input.repoRoot, {
@@ -673,7 +681,7 @@ export function integrate(input: IntegrateInput): IntegrateResult {
       execFileSync("git", ["commit", "--no-edit"], {
         cwd: input.repoRoot,
         stdio: ["ignore", "pipe", "pipe"],
-        env: { ...process.env, OPENCLINXR_INTEGRATING: "1" },
+        env: { ...gitEnvWithoutInheritedRepoVars(), OPENCLINXR_INTEGRATING: "1" },
       });
     } catch (error) {
       const detail = error instanceof Error && "stderr" in error ? String((error as { stderr?: Buffer }).stderr) : "";
@@ -685,6 +693,7 @@ export function integrate(input: IntegrateInput): IntegrateResult {
         execFileSync("git", ["merge", "--abort"], {
           cwd: input.repoRoot,
           stdio: ["ignore", "pipe", "pipe"],
+          env: gitEnvWithoutInheritedRepoVars(),
         });
       } catch (abortError) {
         abortDetail =

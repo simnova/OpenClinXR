@@ -1,6 +1,7 @@
 import { execFileSync, spawnSync } from "node:child_process";
 import { performance } from "node:perf_hooks";
 import { pathToFileURL } from "node:url";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 
 export type HookProfile = "pre-commit" | "pre-push" | "strict" | "local-exam";
 
@@ -88,7 +89,10 @@ export function normalizeProfile(args: string[]): HookProfile {
 
 function runGit(args: string[]): string[] {
   try {
-    return execFileSync("git", args, { encoding: "utf8" })
+    return execFileSync("git", args, {
+      encoding: "utf8",
+      env: gitEnvWithoutInheritedRepoVars(),
+    })
       .split(/\r?\n/u)
       .map((line) => line.trim())
       .filter(Boolean);
@@ -465,14 +469,26 @@ function formatCommand(command: string[]): string {
  */
 export function snapshotGitState(cwd: string = process.cwd()): string {
   try {
-    const head = execFileSync("git", ["rev-parse", "HEAD"], { cwd, encoding: "utf8" }).trim();
+    const head = execFileSync("git", ["rev-parse", "HEAD"], {
+      cwd,
+      encoding: "utf8",
+      env: gitEnvWithoutInheritedRepoVars(),
+    }).trim();
     let bare = "unset";
     try {
-      bare = execFileSync("git", ["config", "--get", "core.bare"], { cwd, encoding: "utf8" }).trim();
+      bare = execFileSync("git", ["config", "--get", "core.bare"], {
+        cwd,
+        encoding: "utf8",
+        env: gitEnvWithoutInheritedRepoVars(),
+      }).trim();
     } catch {
       bare = "unset";
     }
-    const porcelain = execFileSync("git", ["status", "--porcelain"], { cwd, encoding: "utf8" });
+    const porcelain = execFileSync("git", ["status", "--porcelain"], {
+      cwd,
+      encoding: "utf8",
+      env: gitEnvWithoutInheritedRepoVars(),
+    });
     return `HEAD=${head}\nbare=${bare}\n${porcelain}`;
   } catch (error) {
     return `UNREADABLE:${error instanceof Error ? error.message : String(error)}`;

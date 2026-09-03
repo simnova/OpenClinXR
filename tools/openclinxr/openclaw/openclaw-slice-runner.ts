@@ -3,6 +3,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 import { sliceBriefPath } from "../../../packages/openclinxr/agent-loop/src/slice-team.js";
 import { selectNextBoardCard } from "./board-next-selector.js";
 import type { BoardIssue, BriefResult } from "./board-brief.js";
@@ -356,7 +357,10 @@ async function loadStateFiles(): Promise<StateFiles> {
 }
 
 function gitStatusShort(): string {
-  const result = spawnSync("git", ["status", "--short", "--branch"], { encoding: "utf8" });
+  const result = spawnSync("git", ["status", "--short", "--branch"], {
+    encoding: "utf8",
+    env: gitEnvWithoutInheritedRepoVars(),
+  });
   return result.stdout || result.stderr || "";
 }
 

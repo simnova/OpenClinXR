@@ -32,6 +32,7 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, appendFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 import { plantedRedCount } from "./openclaw-sweep.js";
 
 /**
@@ -588,7 +589,11 @@ export function verifyDoneClaim(root: string, issue: number, stage: string): Don
   // "command failed", so this must be a try/catch on the exit status.
   const isAncestor = (sha: string): boolean => {
     try {
-      execFileSync("git", ["merge-base", "--is-ancestor", sha, "main"], { cwd: root, stdio: "ignore" });
+      execFileSync("git", ["merge-base", "--is-ancestor", sha, "main"], {
+        cwd: root,
+        stdio: "ignore",
+        env: gitEnvWithoutInheritedRepoVars(),
+      });
       return true;
     } catch { return false; }
   };
@@ -654,7 +659,11 @@ export function verifyDoneClaim(root: string, issue: number, stage: string): Don
   let touchedFiles: Set<string> | undefined;
   try {
     const names = shas.flatMap((sha) =>
-      execFileSync("git", ["show", "--name-only", "--format=", sha], { cwd: root, encoding: "utf8" })
+      execFileSync("git", ["show", "--name-only", "--format=", sha], {
+        cwd: root,
+        encoding: "utf8",
+        env: gitEnvWithoutInheritedRepoVars(),
+      })
         .split("\n").map((l) => l.trim()).filter(Boolean));
     touchedFiles = names.length > 0 ? new Set(names) : undefined;
   } catch {
@@ -737,7 +746,13 @@ export type ResidueReport = {
 function plantedRedCountAtSha(root: string, sha: string, rel: string): number {
   try {
     const src = execFileSync("git", ["show", `${sha}:${rel}`],
-      { cwd: root, encoding: "utf8", maxBuffer: 16 * 1024 * 1024, stdio: ["ignore", "pipe", "ignore"] });
+      {
+        cwd: root,
+        encoding: "utf8",
+        maxBuffer: 16 * 1024 * 1024,
+        stdio: ["ignore", "pipe", "ignore"],
+        env: gitEnvWithoutInheritedRepoVars(),
+      });
     // Same stripping rule as plantedRedCount, applied to historical content.
     const stripped = src.replace(/\/\*[\s\S]*?\*\//gu, "").replace(/^\s*\/\/.*$/gmu, "");
     return (stripped.match(/\bit\.fails\s*\(/gu) ?? []).length;

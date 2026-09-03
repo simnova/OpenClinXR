@@ -19,6 +19,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 import {
   evaluateDoneWhenRule,
   partitionDoneWhen,
@@ -102,7 +103,11 @@ export async function verifySliceContract(input: {
    */
   let headSha: string | undefined;
   try {
-    headSha = execFileSync("git", ["rev-parse", "HEAD"], { cwd: tree, encoding: "utf8" }).trim();
+    headSha = execFileSync("git", ["rev-parse", "HEAD"], {
+      cwd: tree,
+      encoding: "utf8",
+      env: gitEnvWithoutInheritedRepoVars(),
+    }).trim();
   } catch {
     // A tree with no resolvable HEAD produces a report that cannot claim freshness, which is the
     // correct outcome: integrate falls back to the ledger rather than trusting an unanchored pass.

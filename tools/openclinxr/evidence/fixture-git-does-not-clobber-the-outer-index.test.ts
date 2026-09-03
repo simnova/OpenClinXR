@@ -29,6 +29,13 @@
  *
  * claimScope: whether openclaw fixture-repo tests can corrupt the surrounding index under a hook.
  * notEvidenceFor: any other test directory, or fixture tests that never invoke git.
+ *
+ * ## FIXED (tsk_e3f63cdac00a38f7) — 2026-09-03
+ *
+ * Both halves wired to gitEnvWithoutInheritedRepoVars() (worktree-base-freshness.ts:48):
+ * the 8 unscrubbed fixture-repo tests and the 21 unscrubbed production modules each import the
+ * helper and pass `env:` on every git invocation; integrate.ts's commit call merges it with
+ * OPENCLINXR_INTEGRATING. Clauses (1) and (4) flipped from it.fails to it.
  */
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
@@ -65,7 +72,7 @@ const gitProductionModules = (): string[] =>
     .sort();
 
 describe("fixture git does not clobber the outer index", () => {
-  it.fails("(1) every openclaw fixture-repo test scrubs git's inherited repo vars", () => {
+  it("(1) every openclaw fixture-repo test scrubs git's inherited repo vars", () => {
     const offenders = fixtureRepoTests().filter(unscrubbed);
     // Fix: import gitEnvWithoutInheritedRepoVars from "./worktree-base-freshness.js" and pass
     // `env: gitEnvWithoutInheritedRepoVars()` in the fixture helper's execFileSync options.
@@ -106,7 +113,7 @@ describe("fixture git does not clobber the outer index", () => {
     }
   });
 
-  it.fails("(4) every openclaw PRODUCTION module that shells to git scrubs the inherited vars", () => {
+  it("(4) every openclaw PRODUCTION module that shells to git scrubs the inherited vars", () => {
     // MEASURED 2026-09-03: 20 modules / 33 call sites unscrubbed, 2 scrubbed
     // (dispatch-worker.ts, worktree-base-freshness.ts). This is the half that keeps the suite
     // red under a hook after the fixtures are fixed: the module under test reads the OUTER repo,

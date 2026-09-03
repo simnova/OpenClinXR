@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { integrate, integrationEvents } from "./integrate.js";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 import { FACTORY_FIELD_ID } from "./board-cli.js";
 
 /**
@@ -22,14 +23,22 @@ afterEach(() => {
 });
 
 function git(cwd: string, args: string[]): string {
-  return execFileSync("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
+  return execFileSync("git", args, {
+    cwd,
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "ignore"],
+    env: gitEnvWithoutInheritedRepoVars(),
+  });
 }
 
 /** A repo whose head raises a SIZE_FREEZE ceiling — the case architecture passes but kill catches. */
 function repoWithCeilingRaise(): { root: string; base: string; head: string } {
   const root = mkdtempSync(join(tmpdir(), "integrate-"));
   repos.push(root);
-  execFileSync("git", ["init", "-q", "-b", "main", root], { stdio: "ignore" });
+  execFileSync("git", ["init", "-q", "-b", "main", root], {
+    stdio: "ignore",
+    env: gitEnvWithoutInheritedRepoVars(),
+  });
   git(root, ["config", "user.email", "t@example.com"]);
   git(root, ["config", "user.name", "t"]);
 
@@ -56,7 +65,10 @@ function repoWithCeilingRaise(): { root: string; base: string; head: string } {
 function repoWithBenignChange(): { root: string; base: string; head: string } {
   const root = mkdtempSync(join(tmpdir(), "integrate-"));
   repos.push(root);
-  execFileSync("git", ["init", "-q", "-b", "main", root], { stdio: "ignore" });
+  execFileSync("git", ["init", "-q", "-b", "main", root], {
+    stdio: "ignore",
+    env: gitEnvWithoutInheritedRepoVars(),
+  });
   git(root, ["config", "user.email", "t@example.com"]);
   git(root, ["config", "user.name", "t"]);
   writeFileSync(join(root, "readme.md"), "hello\n");

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 
 /**
  * OBSERVABLE: the loop enumerates unfinished work before it selects work.
@@ -168,7 +169,8 @@ describe("a plant is carded by its body, not only its filename", () => {
     const { countUncardedRecentFiles } = await import("./openclaw-sweep.js");
 
     const root = mkdtempSync(j(tmpdir(), "sweep-"));
-    const git = (...a: string[]) => execFileSync("git", a, { cwd: root, encoding: "utf8" });
+    const git = (...a: string[]) =>
+      execFileSync("git", a, { cwd: root, encoding: "utf8", env: gitEnvWithoutInheritedRepoVars() });
     git("init", "-q");
     git("config", "user.email", "t@t"); git("config", "user.name", "t");
 
@@ -195,7 +197,8 @@ describe("a plant is carded by its body, not only its filename", () => {
     const { countUncardedRecentFiles } = await import("./openclaw-sweep.js");
 
     const root = mkdtempSync(j(tmpdir(), "sweep-"));
-    const git = (...a: string[]) => execFileSync("git", a, { cwd: root, encoding: "utf8" });
+    const git = (...a: string[]) =>
+      execFileSync("git", a, { cwd: root, encoding: "utf8", env: gitEnvWithoutInheritedRepoVars() });
     git("init", "-q"); git("config", "user.email", "t@t"); git("config", "user.name", "t");
     await write(root, "tools/a-plant-that-gets-deleted.test.ts", "/** cites #999 */\nexport {};\n");
     git("add", "-A"); git("commit", "-qm", "plant");

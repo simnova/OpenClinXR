@@ -1,5 +1,6 @@
 #!/usr/bin/env tsx
 import { execFileSync } from "node:child_process";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 import {
   evaluateIntegrateGate,
   pendingMergeParents,
@@ -13,7 +14,11 @@ import {
  * ordinary work on main is unaffected; refuses a land whose kill report is missing, stale, or a kill.
  */
 const repoRoot = process.cwd();
-const branch = execFileSync("git", ["rev-parse", "--abbrev-ref", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim();
+const branch = execFileSync("git", ["rev-parse", "--abbrev-ref", "HEAD"], {
+  cwd: repoRoot,
+  encoding: "utf8",
+  env: gitEnvWithoutInheritedRepoVars(),
+}).trim();
 
 const required = requiresKillReport({
   branch,

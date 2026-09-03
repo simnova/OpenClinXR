@@ -28,6 +28,7 @@ import {
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 
 export const DOCS_ARCHIVE_SCHEMA = "openclinxr.docs-archive-manifest.v1" as const;
 
@@ -409,6 +410,7 @@ function tryGitMv(repoRoot: string, fromRel: string, toRel: string): boolean {
     execFileSync("git", ["mv", "-f", fromRel, toRel], {
       cwd: repoRoot,
       stdio: "pipe",
+      env: gitEnvWithoutInheritedRepoVars(),
     });
     return true;
   } catch {

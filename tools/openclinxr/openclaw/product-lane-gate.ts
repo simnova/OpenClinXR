@@ -25,6 +25,7 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 
 /** Evidence-only commits tolerated before the next product commit is REQUIRED. */
 export const PRODUCT_IDLE_LIMIT = 4;
@@ -74,7 +75,10 @@ export type ProductLaneState = {
 };
 
 function git(repoRoot: string, args: string[]): string {
-  return execFileSync("git", ["-C", repoRoot, ...args], { encoding: "utf8" });
+  return execFileSync("git", ["-C", repoRoot, ...args], {
+    encoding: "utf8",
+    env: gitEnvWithoutInheritedRepoVars(),
+  });
 }
 
 /** Count commits on HEAD since the most recent one that touched a product path. */

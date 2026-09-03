@@ -2,6 +2,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { resolveSharedCoordinationPath } from "./coordination-root.js";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 
 /**
  * Half two of the land boundary: make the integrate wrapper hard to skip.
@@ -77,7 +78,11 @@ export function evaluateIntegrateGate(input: {
 
 /** Hash of the index about to be committed — knowable in pre-commit, before any commit object. */
 export function stagedTreeHash(repoRoot: string): string {
-  return execFileSync("git", ["write-tree"], { cwd: repoRoot, encoding: "utf8" }).trim();
+  return execFileSync("git", ["write-tree"], {
+    cwd: repoRoot,
+    encoding: "utf8",
+    env: gitEnvWithoutInheritedRepoVars(),
+  }).trim();
 }
 
 export function writeGateReport(repoRoot: string, report: IntegrateGateReport): string {
@@ -107,7 +112,11 @@ export function pendingMergeParents(repoRoot: string): string[] {
     .flatMap((sha) => {
       try {
         return [
-          execFileSync("git", ["name-rev", "--name-only", sha.trim()], { cwd: repoRoot, encoding: "utf8" }).trim(),
+          execFileSync("git", ["name-rev", "--name-only", sha.trim()], {
+            cwd: repoRoot,
+            encoding: "utf8",
+            env: gitEnvWithoutInheritedRepoVars(),
+          }).trim(),
         ];
       } catch {
         return [];

@@ -12,6 +12,7 @@
  */
 
 import { execFileSync } from "node:child_process";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 
 export type DiffClass =
   | "protected-policy"
@@ -364,6 +365,7 @@ export function changedPathsForBranch(repoRoot: string, base: string, head: stri
   const out = execFileSync("git", ["diff", "--name-only", `${base}...${head}`], {
     cwd: repoRoot,
     encoding: "utf8",
+    env: gitEnvWithoutInheritedRepoVars(),
   });
   return out
     .split(/\r?\n/u)

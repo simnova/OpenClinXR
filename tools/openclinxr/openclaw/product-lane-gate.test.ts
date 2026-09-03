@@ -23,12 +23,16 @@ import {
   measureProductLaneState,
   PRODUCT_IDLE_LIMIT,
 } from "./product-lane-gate.js";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 
 /** Build a throwaway git repo whose history is [product x N, then evidence x M] and run the gate against it. */
 function repoWithHistory(productCommits: number, evidenceCommits: number): string {
   const dir = mkdtempSync(join(tmpdir(), "product-lane-gate-"));
   const git = (args: string[]) =>
-    execFileSync("git", ["-C", dir, ...args], { encoding: "utf8" });
+    execFileSync("git", ["-C", dir, ...args], {
+      encoding: "utf8",
+      env: gitEnvWithoutInheritedRepoVars(),
+    });
   git(["init"]);
   git(["config", "user.email", "gate@test"]);
   git(["config", "user.name", "gate"]);
@@ -77,8 +81,12 @@ describe("product-lane gate", () => {
     // A tooling commit on top must NOT reset the clock...
     mkdirSync(join(repo, "tools/openclinxr/openclaw"), { recursive: true });
     writeFileSync(join(repo, "tools/openclinxr/openclaw/score.json"), "x\n");
-    execFileSync("git", ["-C", repo, "add", "tools/openclinxr/openclaw/score.json"]);
-    execFileSync("git", ["-C", repo, "commit", "-m", "tooling"]);
+    execFileSync("git", ["-C", repo, "add", "tools/openclinxr/openclaw/score.json"], {
+      env: gitEnvWithoutInheritedRepoVars(),
+    });
+    execFileSync("git", ["-C", repo, "commit", "-m", "tooling"], {
+      env: gitEnvWithoutInheritedRepoVars(),
+    });
     const state = measureProductLaneState(repo);
     expect(state.evidenceOnlyCommits).toBe(1);
   });
@@ -109,6 +117,6 @@ describe("product-lane gate", () => {
 function commitOn(repo: string, path: string, message: string): void {
   mkdirSync(join(repo, path, ".."), { recursive: true });
   writeFileSync(join(repo, path), `${message}\n`);
-  execFileSync("git", ["-C", repo, "add", path]);
-  execFileSync("git", ["-C", repo, "commit", "-m", message]);
+  execFileSync("git", ["-C", repo, "add", path], { env: gitEnvWithoutInheritedRepoVars() });
+  execFileSync("git", ["-C", repo, "commit", "-m", message], { env: gitEnvWithoutInheritedRepoVars() });
 }

@@ -6,6 +6,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 import {
   formatMergeKillReport,
   parseAddedLines,
@@ -31,7 +32,7 @@ function git(cwd: string, args: string[]): string {
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],
     env: {
-      ...process.env,
+      ...gitEnvWithoutInheritedRepoVars(),
       GIT_AUTHOR_NAME: "merge-kill-test",
       GIT_AUTHOR_EMAIL: "merge-kill-test@example.com",
       GIT_COMMITTER_NAME: "merge-kill-test",
@@ -43,7 +44,10 @@ function git(cwd: string, args: string[]): string {
 function initRepo(): string {
   const root = mkdtempSync(join(tmpdir(), "merge-kill-"));
   tempRoots.push(root);
-  execFileSync("git", ["init", "-q", "-b", "main", root], { stdio: "ignore" });
+  execFileSync("git", ["init", "-q", "-b", "main", root], {
+    stdio: "ignore",
+    env: gitEnvWithoutInheritedRepoVars(),
+  });
   git(root, ["config", "user.email", "merge-kill-test@example.com"]);
   git(root, ["config", "user.name", "merge-kill-test"]);
   return root;

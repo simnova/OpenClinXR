@@ -1,5 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { dirname, isAbsolute, join } from "node:path";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 
 /**
  * Resolve the ONE directory that every worktree agrees on for cross-agent coordination state.
@@ -36,6 +37,7 @@ export function resolveCoordinationRoot(cwd: string = process.cwd()): string {
       cwd,
       encoding: "utf8",
       stdio: ["ignore", "pipe", "ignore"],
+      env: gitEnvWithoutInheritedRepoVars(),
     }).trim();
     // <main-worktree>/.git -> <main-worktree>
     const root = dirname(commonDir);
