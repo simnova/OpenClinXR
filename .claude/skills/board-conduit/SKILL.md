@@ -289,3 +289,39 @@ ls -la ~/.grok/sessions/*<slice>*/<sessionId>*/updates.jsonl   # transcript inta
 
 The snapshot did no damage here: identical content, cleanly discarded. But it was ceremony, and the
 honest version of the earlier rule is narrower than what it said.
+
+## Claim renewal is unobservable, and the RED for it cannot be written yet
+
+Measured 2026-09-03. Three live workers lost their claims in one session and the only detector was a
+human polling the board every five minutes. The mechanism to prevent that already exists and appears
+correct, which is why nobody has noticed it is silent.
+
+`dispatch-worker.ts:1480` starts a 2-minute renewal interval, and its own comment cites the incident
+it was built for: *"tsk_bca4085904e3b071 was claimed at 15:12:47Z and returned to ready at 15:22:52Z
+with PID 79565 still alive and writing."* It calls `announceBothyDispatchPresence`, which wraps every
+board call in `catch {}` under *"board visibility is not a dispatch contract"*.
+
+So a renewal that fails is indistinguishable from one that succeeded. Failure modes that would look
+identical: auth, network, a board 500, or an `agentId` the dispatcher never received — `:1461` sends
+that field only `if (input.agentId)`, while `:228` records that heartbeat "renews that exact
+claimant". The interval keeps firing either way.
+
+Measured against the live ledger, `.openclinxr/openclaw/worker-sessions.jsonl` (1.2 MB):
+
+| what | value |
+|---|---|
+| ledger row keys | `sessionId, slice, role, model, worktree, contractSource, at, phase` |
+| rows mentioning renewal | 0 |
+| session `826687c4`, spawned 04:58:53Z, ~20 renewals due | 0 recorded |
+| claims reaped under a live worker, this session | 3 |
+
+**Why no RED is planted for this.** I wrote one and deleted it. Its natural target is the ledger, and
+`.gitignore:9` covers `.openclinxr/`, so the test cannot pass — or meaningfully fail — outside the one
+machine that has the file. That is the "a guard that inspects gitignored assets cannot fail on a clean
+clone" trap, in its red-about-nothing direction. Neither `startBothyClaimRenewal` nor
+`announceBothyDispatchPresence` is exported, so a unit test cannot reach them either. The mechanism is
+unobservable from every direction at once, and making it observable means choosing an interface.
+
+**The decision, in one line: should renewal outcomes surface on `DispatchLedgerEntry` (testable, no
+gitignored artifact), or as tracked rows outside `.openclinxr/`?** Until that is answered, the
+detector is a human, and the repair is the manual claim restore described above.
