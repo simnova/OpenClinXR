@@ -1,0 +1,134 @@
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { describe, expect, it } from "vitest";
+
+/**
+ * OBSERVABLE: the bake-off compares two backends and only one of them exists.
+ *
+ * MEASURED at main 391a37a2 on 2026-09-03. `grep -rc CCDIKSolver apps/ui-xr/src` is 0, there is no
+ * oscillator implementation anywhere in motion-compiler or apps/ui-xr, and the bake-off harness
+ * contains one hand-rolled `twoBoneToward` and a `bakedRockClutch` — both arms of that harness are
+ * the BAKED arm wearing two labels. tsk_37785faf55d16dc6 closed `inconclusive_blocked` partly for
+ * this reason and would close the same way again.
+ *
+ * The runtime-goal backend is, today, a paragraph in
+ * docs/openclinxr/humanoid-motion-full-design-2026-09-02.md. This RED is what turns it into
+ * something a comparison can measure.
+ *
+ * IMMUTABLE diagnosis. Flip it.fails -> it and append a `## FIXED` block. Do not rewrite the
+ * measurements above.
+ *
+ * ## WHAT THIS DOES NOT ASSERT, deliberately
+ *
+ * Nothing here says runtime goals are better, or that they should win. The card that owns the
+ * comparison is the bake-off; this one only owes it a second arm. A clause that required the runtime
+ * arm to beat the baked arm would be pre-deciding the question the bake-off exists to ask.
+ *
+ * ## THE DISTINGUISHING PROPERTY, and why clause (3) is the one that matters
+ *
+ * A baked clip is a fixed set of tracks: the target was chosen when the bytes were written. A runtime
+ * goal resolves its target at evaluation time. So the ONE thing that separates the arms is that
+ * changing the target between evaluations changes the pose WITHOUT rewriting the artifact. Clause (3)
+ * is that property, and it is the reason a descriptor survives an actor re-bake while tracks do not.
+ *
+ * claimScope: whether a runtime-goal arm exists, oscillates, and follows a target supplied after the
+ *   descriptor was written.
+ * notEvidenceFor: that runtime goals beat baked tracks; that either arm is production ready; runtime
+ *   IK anywhere in apps/ui-xr; clinical validity of any pose.
+ */
+
+const REPO = join(import.meta.dirname, "../../..");
+const DIR = join(REPO, "tools/openclinxr/evidence/motion-backend-bakeoff");
+const DESCRIPTOR = join(DIR, "runtime-goal-descriptor.json");
+const RESULT = join(DIR, "runtime-goal-eval.json");
+
+/** One evaluation of the runtime arm: the pose it produced for a given live target. */
+type Evaluation = {
+  targetWorld: { x: number; y: number; z: number };
+  /** Per-bone world position after stage 2 (support/facing) and stage 3 (IK). */
+  bones: Record<string, { x: number; y: number; z: number }>;
+  /** The solver blend actually passed to CCDIKSolver for this evaluation. */
+  solverBlend: number;
+};
+type EvalReport = {
+  schemaVersion: string;
+  measuredAgainstCommit: string;
+  actorAssetSha256: string;
+  /** Frames of the SAME descriptor with the SAME target, to measure the oscillator. */
+  oscillation: Evaluation[];
+  /** Two evaluations that differ ONLY in targetWorld. */
+  targetA: Evaluation;
+  targetB: Evaluation;
+};
+
+const descriptor = (): Record<string, unknown> => {
+  expect(existsSync(DESCRIPTOR), `${DESCRIPTOR} missing — the runtime arm has no descriptor`).toBe(true);
+  return JSON.parse(readFileSync(DESCRIPTOR, "utf8")) as Record<string, unknown>;
+};
+const evaluation = (): EvalReport => {
+  expect(existsSync(RESULT), `${RESULT} missing — the runtime arm was never evaluated`).toBe(true);
+  return JSON.parse(readFileSync(RESULT, "utf8")) as EvalReport;
+};
+
+const dist = (a: { x: number; y: number; z: number }, b: { x: number; y: number; z: number }): number =>
+  Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
+
+describe("the runtime-goal arm is driven by live targets", () => {
+  it.fails("(1) a descriptor declares an oscillator and a body-region goal, and names no baked clip", () => {
+    const d = descriptor();
+    expect(String(d["schemaVersion"] ?? "")).toMatch(/^openclinxr\./u);
+    const goals = (d["goals"] ?? []) as { kind?: string }[];
+    expect(goals.some((g) => g.kind === "oscillator"), "no oscillator declared").toBe(true);
+    expect(goals.some((g) => g.kind === "body_region_contact"), "no body-region contact goal declared").toBe(true);
+    // COUNTERWEIGHT: a descriptor that points at a baked clip is the baked arm with a JSON wrapper.
+    expect(JSON.stringify(d), "the descriptor references a baked clip or GLB — that is the other arm")
+      .not.toMatch(/\.glb|animationClip|trackName/iu);
+  });
+
+  it.fails("(2) the oscillator actually oscillates the pelvis across frames", () => {
+    const r = evaluation();
+    expect(r.oscillation.length, "fewer than 8 frames — an oscillation cannot be read from that")
+      .toBeGreaterThanOrEqual(8);
+    const pelvisY = r.oscillation.map((f) => {
+      const key = Object.keys(f.bones).find((k) => /pelvis|hips|spine0?1/iu.test(k));
+      expect(key, "no pelvis-like bone recorded in the evaluation").toBeDefined();
+      return f.bones[key ?? ""]?.y ?? 0;
+    });
+    const span = Math.max(...pelvisY) - Math.min(...pelvisY);
+    // 1 cm. A rock the grader cannot see at 1280 is not a rock; this is the floor, not a target.
+    expect(span, `pelvis span across frames is ${span.toFixed(4)} m — no oscillation`).toBeGreaterThan(0.01);
+    // COUNTERWEIGHT: monotonic drift is not oscillation. It must come back.
+    const returns = pelvisY.slice(1).some((y, i) => (y - pelvisY[i]!) * (pelvisY[1]! - pelvisY[0]!) < 0);
+    expect(returns, "the pelvis moved in one direction only — that is drift, not an oscillation").toBe(true);
+  });
+
+  it.fails("(3) THE DISTINGUISHING PROPERTY: a target supplied after the descriptor moves the hand", () => {
+    const r = evaluation();
+    expect(dist(r.targetA.targetWorld, r.targetB.targetWorld),
+      "the two evaluations used the same target — this clause tests nothing").toBeGreaterThan(0.05);
+    const hand = (e: Evaluation) => {
+      const key = Object.keys(e.bones).find((k) => /hand|wrist/iu.test(k));
+      expect(key, "no hand-like bone recorded in the evaluation").toBeDefined();
+      return e.bones[key ?? ""] ?? { x: 0, y: 0, z: 0 };
+    };
+    const moved = dist(hand(r.targetA), hand(r.targetB));
+    expect(moved, `the hand moved ${moved.toFixed(4)} m for a target that moved ` +
+      `${dist(r.targetA.targetWorld, r.targetB.targetWorld).toFixed(4)} m — the goal is not live`)
+      .toBeGreaterThan(0.02);
+    // COUNTERWEIGHT: the hand must move TOWARD the target, not merely differ. A random per-target
+    // jitter satisfies "moved" and is exactly the shape a baked arm would fake this with.
+    const toward = dist(hand(r.targetB), r.targetB.targetWorld) < dist(hand(r.targetA), r.targetB.targetWorld);
+    expect(toward, "the hand moved, but not toward the new target").toBe(true);
+  });
+
+  it.fails("(4) COUNTERWEIGHT: the solver runs at blend 1 and the LIMIT lives in the target", () => {
+    // CCDIKSolver solves the full target then slerps each joint from its initial quaternion toward
+    // the solved one by chainBlend (CCDIKSolver.js:248). A blend of 0.35 is a per-joint rotational
+    // blend with no defined relationship to distance along the reach, so a partial reach expressed
+    // as a blend is not a partial reach. Limit the TARGET; solve at 1.
+    const r = evaluation();
+    for (const e of [r.targetA, r.targetB, ...r.oscillation]) {
+      expect(e.solverBlend, "solverBlend is not 1 — the reach limit was expressed as a blend").toBe(1);
+    }
+  });
+});
