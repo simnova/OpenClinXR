@@ -3,6 +3,12 @@ import { REGION_ANCHOR_SPACE } from "../plant-motion-regions.js";
 import { resolvePoseBone } from "../../../asset-registry/src/pose-bone-resolver.js";
 import { requestedEffector } from "../requested-effector.js";
 import { solveArmChain, type ChainJoint, type Quat } from "../ik/solve-chain.js";
+import {
+  planContactWindowKeys,
+  type ContactKey,
+  type ContactPoint,
+  type ContactWindowInput,
+} from "../contact/contact-window-schedule.js";
 
 /**
  * `guard_body_region` — the arm chain drives the effector hand to a MOTION REGION anchor and
@@ -20,9 +26,17 @@ import { solveArmChain, type ChainJoint, type Quat } from "../ik/solve-chain.js"
  * `resolvePoseBone` (identity-then-alias across the 23-bone / MPFB2 / mixamorig families,
  * ancestor-verified and side-checked against the rig's own canonical wrists), and asks the
  * `src/ik/solve-chain.ts` seam for shoulder + elbow rotations that put the wrist on the anchor
- * plus a rig-derived wrist pronation. The clip is a 3-keyframe
+ * plus a rig-derived wrist pronation. Without contact constraints the clip is the 3-keyframe
  * neutral -> peak -> settle shape whose PEAK is the solved pose, so the fragment's FK reaches the
  * anchor at the frame the guard plant measures.
+ *
+ * CONTACT WINDOWS (issue #0): when the action declares `kind: "contact"` constraints, the contact
+ * windows override that shape. The schedule in `src/contact/contact-window-schedule.ts` decides
+ * which contact point the effector holds at which fraction of the clip — a preserved contact is a
+ * hard hold across its whole window (identical pose keys bracket the window, so the interpolated
+ * effector never drifts off it), a releasable contact yields to a preserved one, and a program no
+ * single pose can satisfy is refused. The guard resolves each contact's region anchor on this rig
+ * and supplies the solved pose per scheduled point.
  *
  * REFUSALS — never a silent default:
  *   - a profile that DECLARES an anchor space this module does not implement throws (the plant's
@@ -182,6 +196,130 @@ function keyframes(bindLocalQuaternion: Quat, solved: Quat, retention: number): 
   ];
 }
 
+/**
+ * A contact constraint read off the action, resolved far enough to schedule: same driven effector,
+ * a bind-frame anchor on THIS rig, and a legal window.
+ */
+type ResolvedContact = {
+  positionToleranceMeters: number;
+  startFraction: number;
+  endFraction: number;
+  preserveWhileActive: boolean;
+  point: ContactPoint;
+  order: number;
+};
+
+/** Read + resolve every contact constraint an action carries. A contact this guard cannot honour is refused. */
+function resolveContacts(
+  action: unknown,
+  anchors: Readonly<Record<string, unknown>>,
+  wristName: string,
+  jointSet: ReadonlySet<string>,
+): ResolvedContact[] {
+  const rawConstraints = (action as { constraints?: unknown }).constraints;
+  if (!Array.isArray(rawConstraints)) return [];
+  const out: ResolvedContact[] = [];
+  for (const [index, raw] of rawConstraints.entries()) {
+    if (typeof raw !== "object" || raw === null) {
+      throw new Error(`guard_body_region: constraint ${index} is not an object`);
+    }
+    const constraint = raw as {
+      kind?: unknown;
+      effector?: unknown;
+      target?: unknown;
+      positionToleranceMeters?: unknown;
+      startFraction?: unknown;
+      endFraction?: unknown;
+      preserveWhileActive?: unknown;
+    };
+    if (constraint.kind !== "contact") {
+      throw new Error(`guard_body_region: constraint ${index} has unknown kind ${JSON.stringify(constraint.kind)} — the constraint union is closed over "contact"`);
+    }
+    if (typeof constraint.effector !== "string" || constraint.effector.length === 0) {
+      throw new Error(`guard_body_region: contact ${index} carries no effector`);
+    }
+    const contactWrist = resolvePoseBone(constraint.effector, jointSet);
+    if (contactWrist === null) {
+      throw new Error(`guard_body_region: contact ${index} effector "${constraint.effector}" does not resolve to a bone on this rig`);
+    }
+    if (contactWrist !== wristName) {
+      throw new Error(
+        `guard_body_region: contact ${index} drives "${contactWrist}" but the action's effector resolves to "${wristName}" — a guard cannot honour a contact on another effector`,
+      );
+    }
+    const target = constraint.target as { kind?: unknown; id?: unknown } | undefined;
+    if (target?.kind !== "body_region" || typeof target.id !== "string" || target.id.length === 0) {
+      throw new Error(`guard_body_region: contact ${index} requires a target of kind body_region with a string id`);
+    }
+    const anchor = anchors[target.id];
+    if (!isVec3(anchor)) {
+      throw new Error(`guard_body_region: contact ${index} region "${target.id}" has no anchor on this rig — a contact this guard cannot resolve is refused`);
+    }
+    const tolerance = constraint.positionToleranceMeters;
+    const start = constraint.startFraction;
+    const end = constraint.endFraction;
+    if (typeof tolerance !== "number" || !Number.isFinite(tolerance) || tolerance < 0) {
+      throw new Error(`guard_body_region: contact ${index} positionToleranceMeters must be a non-negative finite number`);
+    }
+    if (typeof start !== "number" || typeof end !== "number" || !Number.isFinite(start) || !Number.isFinite(end)) {
+      throw new Error(`guard_body_region: contact ${index} carries a non-finite window fraction`);
+    }
+    const preserve = constraint.preserveWhileActive;
+    if (preserve !== undefined && typeof preserve !== "boolean") {
+      throw new Error(`guard_body_region: contact ${index} preserveWhileActive must be a boolean`);
+    }
+    out.push({
+      positionToleranceMeters: tolerance,
+      startFraction: start,
+      endFraction: end,
+      preserveWhileActive: preserve === true,
+      point: anchor,
+      order: index,
+    });
+  }
+  return out;
+}
+
+/**
+ * Values for one bone across a CONTACT schedule: bind at rest, the solved pose of each scheduled
+ * contact point, and a settle scaled from the last held pose. Sign-aligned per key so the emitted
+ * track satisfies the canonical sign-continuity rule.
+ */
+function contactKeyValues(
+  keys: readonly ContactKey[],
+  bindLocalQuaternion: Quat,
+  poseOf: (window: number) => Quat,
+  retention: number,
+): readonly QuatTuple[] {
+  let prev = signCanonical(bindLocalQuaternion);
+  let lastHeld: Quat | undefined;
+  const values: QuatTuple[] = [];
+  for (const key of keys) {
+    let raw: Quat;
+    if (key.pose.kind === "bind") {
+      raw = bindLocalQuaternion;
+    } else if (key.pose.kind === "point") {
+      raw = poseOf(key.pose.window);
+      lastHeld = raw;
+    } else {
+      raw = lastHeld !== undefined ? scaleRotation(lastHeld, retention) : bindLocalQuaternion;
+    }
+    const q = signMatch(raw, prev);
+    prev = q;
+    values.push([q.x, q.y, q.z, q.w]);
+  }
+  return values;
+}
+
+/** The solved pose's rotation for one driven bone of the chain. */
+function rotationOfPose(pose: ReturnType<typeof solveArmChain>, boneName: string): Quat {
+  switch (boneName) {
+    case pose.shoulderBone: return pose.shoulderLocal;
+    case pose.elbowBone: return pose.elbowLocal;
+    default: return pose.wristLocal;
+  }
+}
+
 export function compile(request: PrimitiveRequest): CompiledMotionFragment {
   const actionId = readActionId(request);
   const profile = request.skeletonProfile as ProfileView;
@@ -218,16 +356,57 @@ export function compile(request: PrimitiveRequest): CompiledMotionFragment {
   );
 
   const joints = profile.joints as readonly ChainJoint[];
-  const pose = solveArmChain({ joints, effectorBone: chain.wristName, target: anchor });
-
   const byName = new Map(joints.map((j) => [j.boneName, j]));
-  const poseOf = (boneName: string): Quat => {
-    switch (boneName) {
-      case pose.shoulderBone: return pose.shoulderLocal;
-      case pose.elbowBone: return pose.elbowLocal;
-      default: return pose.wristLocal;
-    }
-  };
+  const jointSet = new Set(joints.map((j) => j.boneName));
+
+  // CONTACT WINDOWS OVERRIDE THE SHAPE. A guard action that declares contact constraints must HOLD
+  // each winning contact across its whole window (not reach at a single peak key and drift off in
+  // the settle), yield releasable contacts to preserved ones, and refuse programs no pose can
+  // satisfy. The window schedule lives in src/contact; this file supplies the geometry per point.
+  const contacts = resolveContacts(request.action, anchors, chain.wristName, jointSet);
+  if (contacts.length > 0) {
+    const windows: ContactWindowInput[] = contacts.map((c) => ({
+      startFraction: c.startFraction,
+      endFraction: c.endFraction,
+      positionToleranceMeters: c.positionToleranceMeters,
+      preserveWhileActive: c.preserveWhileActive,
+      point: c.point,
+      order: c.order,
+    }));
+    const keys = planContactWindowKeys(windows);
+
+    // Solve each scheduled point's arm pose once; the schedule references windows by declaration
+    // index, and a window is the smallest unit a key names.
+    const poseByWindow = new Map<number, ReturnType<typeof solveArmChain>>();
+    const poseForWindow = (window: number): ReturnType<typeof solveArmChain> => {
+      let pose = poseByWindow.get(window);
+      if (pose === undefined) {
+        pose = solveArmChain({ joints, effectorBone: chain.wristName, target: windows[window]!.point });
+        poseByWindow.set(window, pose);
+      }
+      return pose;
+    };
+
+    // TRACK TIMES ARE SECONDS (compiler-surface clause 4); key fractions scale the clip duration.
+    const durationSeconds = durationMs / 1000;
+    const times = keys.map((key) => key.fraction * durationSeconds);
+    const drivenBones = [chain.shoulderName, chain.elbowName, chain.wristName];
+    const tracks: CompiledMotionTrack[] = drivenBones.map((boneName) => {
+      const bind = byName.get(boneName);
+      if (!bind) throw new Error(`guard_body_region: solved bone "${boneName}" vanished from the joint table`);
+      return {
+        property: "rotationAbsoluteNodeLocal",
+        boneName,
+        canonicalLandmark: target.id,
+        interpolation: "LINEAR",
+        times,
+        values: contactKeyValues(keys, bind.bindLocalQuaternion, (window) => rotationOfPose(poseForWindow(window), boneName), retention),
+      };
+    });
+    return { actionId, tracks };
+  }
+
+  const pose = solveArmChain({ joints, effectorBone: chain.wristName, target: anchor });
 
   // TRACK TIMES ARE SECONDS: the clip's `durationSeconds` is the maximum final track time, so the
   // keys a primitive emits must be seconds, not the authored milliseconds (compiler-surface clause 4).
@@ -242,7 +421,7 @@ export function compile(request: PrimitiveRequest): CompiledMotionFragment {
       canonicalLandmark: target.id,
       interpolation: "LINEAR",
       times,
-      values: keyframes(bind.bindLocalQuaternion, poseOf(boneName), retention),
+      values: keyframes(bind.bindLocalQuaternion, rotationOfPose(pose, boneName), retention),
     };
   });
 

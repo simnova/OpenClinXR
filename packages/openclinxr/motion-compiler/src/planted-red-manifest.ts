@@ -82,6 +82,14 @@ export const PLANTED_REDS: readonly PlantedRed[] = [
   // the-contact-constraint-holds-across-its-window.test.ts. Clauses (1) and (3) stay planted:
   // their failure MOVED to real contact assertions — the registered guard reaches and settles
   // but does not HOLD the contact across the window (the contact-solver card's residual).
+  // BOTH REMAINING CONTACT ENTRIES REMOVED 2026-09-02 (BothyBoard issue #0). The contact-window
+  // schedule landed — src/contact/contact-window-schedule.ts (window precedence by
+  // preserveWhileActive, refusal of programs no single pose can satisfy) wired into the registered
+  // guard (src/primitives/guard-body-region.ts brackets every winning window with identical
+  // solved-pose keys) — and clauses (1) and (3) were flipped from `planted` to `it` with a
+  // `## FIXED (BothyBoard issue #0)` block appended in
+  // the-contact-constraint-holds-across-its-window.test.ts. A satisfied contract is a transition
+  // to record, not a planted RED to keep.
   // ALL THREE M3 ENTRIES REMOVED 2026-09-02 (BothyBoard issue #0). The aggregator landed —
   // src/evidence/motion-evidence.ts exports runMotionEvidenceGates (seven deterministic gates
   // measured and classified from the caller-supplied spec, none skipped, each result carrying its
@@ -109,18 +117,6 @@ export const PLANTED_REDS: readonly PlantedRed[] = [
   // region, so the foreign-actor program is refused for the placeholder, not
   // the actorId) — recorded in that file; closing it needs case context, the
   // M5 card's residual.
-  {
-    file: "the-contact-constraint-holds-across-its-window.test.ts",
-    select: "(1) RED: inside the window the effector holds contact on every sampled frame, not only at the keys",
-    expected: /inside the contact window and the effector is off the target/,
-    stage: "assertion",
-  },
-  {
-    file: "the-contact-constraint-holds-across-its-window.test.ts",
-    select: "(3) RED: preserveWhileActive is OBEYED — a releasable contact yields to a competing one",
-    expected: /the preserved contact was not honoured, so the releasable one was never released/,
-    stage: "assertion",
-  },
   // FOUR M1 ENTRIES REMOVED 2026-08-30 (tsk_bca4085904e3b071). The M1 modules
   // landed, all four clauses pass, and they were deliberately flipped from
   // `planted` to `it` with a `## FIXED (tsk_bca4085904e3b071)` block appended

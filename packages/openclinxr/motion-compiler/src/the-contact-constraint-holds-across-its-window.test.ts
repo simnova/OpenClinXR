@@ -81,6 +81,30 @@ import {
  * residual — not implemented here.
  */
 
+/**
+ * ## FIXED (BothyBoard issue #0) — clauses (1) and (3) are now live `it` tests.
+ *
+ * The contact-window schedule landed — `src/contact/contact-window-schedule.ts` owns the window
+ * enforcement (which contact point the effector holds at which fraction; precedence by
+ * `preserveWhileActive`; refusal of programs no single pose can satisfy), and the registered guard
+ * (`src/primitives/guard-body-region.ts`) now reads the action's contact constraints and brackets
+ * every winning window with identical solved-pose keys, so the interpolated effector holds the
+ * point across the WHOLE window instead of peaking at a single key and drifting off in the settle:
+ *   - (1) compiles a single preserved contact through the entry; every one of the 24 sampled
+ *     frames inside the window (times that are not keys as well as those that are) reads the
+ *     solved hold pose, measured 0.0000 m from the anchor against a 0.03 m tolerance.
+ *   - (3) compiles two contacts on one effector 0.21 m apart with overlapping windows: with the
+ *     first releasable and the second preserved, every sampled frame in the overlap holds the
+ *     preserved contact (0.0000 m from its anchor) while the releasable one yields, and the
+ *     releasable hold is honoured while no preserved window claims the effector; with BOTH
+ *     preserved the compile is REFUSED (no pose satisfies both tolerances), never silently
+ *     resolved. Clause (2)'s travel also survives: the effector still starts at bind and releases
+ *     after the window, 0.19 m of travel against a 0.019 m floor.
+ *
+ * The two manifest entries were removed from `planted-red-manifest.ts`; the resolved-clip-id
+ * clause (2) there belongs to the sibling scenario-fixtures card and stays planted.
+ */
+
 const PROGRAM_SCHEMA = "openclinxr.motion-program.v1";
 const ENTRY_MODULE = "./compile-motion-program.js";
 const REGISTRY_MODULE = "./primitive-registry.js";
@@ -385,7 +409,7 @@ function sampleTimes(duration: number, count: number): number[] {
 }
 
 describe("the contact constraint holds across its window", () => {
-  planted("(1) RED: inside the window the effector holds contact on every sampled frame, not only at the keys", async () => {
+  it("(1) RED: inside the window the effector holds contact on every sampled frame, not only at the keys", async () => {
     const compileMotionProgram = await loadEntry();
     expect(typeof compileMotionProgram, `${ENTRY_MODULE} must export compileMotionProgram`).toBe("function");
 
@@ -525,7 +549,7 @@ describe("the contact constraint holds across its window", () => {
     ).toBeGreaterThan(MOVEMENT_FLOOR_M);
   });
 
-  planted(
+  it(
     "(3) RED: preserveWhileActive is OBEYED — a releasable contact yields to a competing one",
     async () => {
       // REWRITTEN 2026-08-30 after external review. The first version compared serialised tracks
