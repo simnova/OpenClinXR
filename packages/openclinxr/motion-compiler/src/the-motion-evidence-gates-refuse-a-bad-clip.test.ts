@@ -1,9 +1,7 @@
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-
-import { planted } from "./planted.js";
 
 /**
  * PLANTED RED - BothyBoard tsk_156b04a905f21c4f (M3).
@@ -111,7 +109,22 @@ import { planted } from "./planted.js";
  *   world-frame blindness named above; any real shipped clip.
  */
 
-const MODULE_UNDER_TEST = "./motion-evidence-gates.js";
+/**
+ * ## FIXED (M3 aggregation card, BothyBoard issue #0) — clauses (1), (2) and (3b) are now live
+ * `it` tests.
+ *
+ * The aggregator landed at `src/evidence/motion-evidence.ts` and exports `runMotionEvidenceGates`
+ * (all seven gates measured and classified from the caller-supplied spec, no gate skipped, each
+ * result carrying its own `cannotSee`), `MOTION_GATE_IDS` (the seven contracted ids), and
+ * `combineMotionVerdict` (deterministic verdict authoritative in BOTH directions; the advisory
+ * channel's verdict is preserved on the report as `advisoryVisualVerdict`, never applied). The
+ * module specifier here was retargeted from the plant's placeholder `./motion-evidence-gates.js`
+ * to the module's real location; the manifest entries for the three clauses were removed with a
+ * transition note in planted-red-manifest.ts. Artifact derivation stays the downstream
+ * seven-validator card's job - this module consumes clip measurements and classifies them.
+ */
+
+const MODULE_UNDER_TEST = "./evidence/motion-evidence.js";
 const HERE = dirname(fileURLToPath(import.meta.url));
 
 /** Walk up to the workspace root so clause (3) reads the tree from any vitest cwd. */
@@ -276,7 +289,7 @@ function assertGateShape(g: GateResult, where: string): void {
 }
 
 describe("the motion evidence gates refuse a bad clip", () => {
-  planted("(1) REFUSES a clip whose elbow exceeds its limit and whose effector misses its target", async () => {
+  it("(1) REFUSES a clip whose elbow exceeds its limit and whose effector misses its target", async () => {
     const { runMotionEvidenceGates } = await loadGates();
     const report = await runMotionEvidenceGates(BAD_CLIP, SPEC);
 
@@ -294,7 +307,7 @@ describe("the motion evidence gates refuse a bad clip", () => {
     expect(report.visualFindingsAdvisoryOnly, "a refusal must be recorded as non-overridable by any visual finding").toBe(true);
   });
 
-  planted("(2) ACCEPTS a known-good clip, with all seven gates run and none skipped", async () => {
+  it("(2) ACCEPTS a known-good clip, with all seven gates run and none skipped", async () => {
     const { runMotionEvidenceGates, MOTION_GATE_IDS } = await loadGates();
     const report = await runMotionEvidenceGates(GOOD_CLIP, SPEC);
 
@@ -353,7 +366,7 @@ describe("the motion evidence gates refuse a bad clip", () => {
 
   });
 
-  planted(
+  it(
     "(3b) RED: deterministic REFUSE beats visual ACCEPT, proved by CALLING it — not by reading a filename",
     async () => {
       // REPLACES a filename-conditional source check, removed 2026-08-30 after external review.
