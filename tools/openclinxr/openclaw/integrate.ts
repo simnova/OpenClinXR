@@ -1,7 +1,7 @@
 #!/usr/bin/env tsx
 import { execFileSync } from "node:child_process";
 import { appendFileSync, existsSync, mkdirSync, readFileSync, readdirSync } from "node:fs";
-import { acquireIntegrationLock, releaseIntegrationLock } from "./integration-lock.js";
+import { acquireIntegrationLock, releaseIntegrationLock, renewIntegrationLock } from "./integration-lock.js";
 import { dirname, join } from "node:path";
 import { resolveSharedCoordinationPath } from "./coordination-root.js";
 import { loadTrustedBrief, readSessions, trustedSliceDir } from "./dispatch-worker.js";
@@ -610,14 +610,57 @@ export function integrate(input: IntegrateInput): IntegrateResult {
       + ".openclinxr/openclaw/integration.lock if that holder is known dead.",
     );
   }
+  const lockToken = lock.token;
+  if (lockToken === undefined) {
+    // The owner NAME is diagnostic, not authority: release and renewal authenticate on the opaque
+    // token, so a token-less acquisition could never be renewed or released safely. Fail closed.
+    throw new Error(
+      "integrate: REFUSED — acquired the integration lock without an opaque token handle. Release "
+      + "and renewal authenticate on the token, so a token-less acquisition cannot be held safely. "
+      + "Clear .openclinxr/openclaw/integration.lock if that holder is known dead.",
+    );
+  }
   if (lock.stoleFrom !== undefined) {
     process.stderr.write(`integrate: took over a stale integration lock from ${lock.stoleFrom}\n`);
   }
+
+  /**
+   * Fail-closed ownership heartbeat across the whole shared-main mutation region (merge, commit,
+   * rebuild, post-merge proofs, event, board write). Renewal refreshes the holder's `lastSeen`; a
+   * renewal that stops authenticating means the holder record was replaced — our lock was taken
+   * over — and the single-owner invariant is already broken. The only correct response is to stop
+   * mutating shared main: a successor owns it now. Between `git merge --no-commit` and the commit,
+   * losing the lock first unwinds the in-progress merge so the successor does not inherit a
+   * half-merged checkout. After the commit the merge is already on main and cannot be unwound — the
+   * throw still stops this process from mutating a checkout another integrator now owns.
+   */
+  let mergeInProgress = false;
+  const renewOrFail = (phase: string): void => {
+    if (!renewIntegrationLock(input.repoRoot, lockToken)) {
+      if (mergeInProgress) {
+        try {
+          execFileSync("git", ["merge", "--abort"], {
+            cwd: input.repoRoot,
+            stdio: ["ignore", "pipe", "pipe"],
+          });
+        } catch {
+          // No merge to unwind, or the abort itself failed — the error below names the lock loss.
+        }
+      }
+      throw new Error(
+        `integrate: LOST the integration lock during ${phase} — another integrator took it over. `
+        + "Failing closed: this process no longer exclusively owns shared main and must not keep "
+        + "mutating it.",
+      );
+    }
+  };
   try {
+    renewOrFail("the pre-merge check");
     execFileSync("git", ["merge", "--no-edit", "--no-ff", "--no-commit", input.head], {
       cwd: input.repoRoot,
       stdio: ["ignore", "pipe", "pipe"],
     });
+    mergeInProgress = true;
     writeGateReport(input.repoRoot, {
       killed: false,
       treeHash: stagedTreeHash(input.repoRoot),
@@ -625,6 +668,7 @@ export function integrate(input: IntegrateInput): IntegrateResult {
       head: input.head,
       mode: "merge",
     });
+    renewOrFail("the merge-commit step");
     try {
       execFileSync("git", ["commit", "--no-edit"], {
         cwd: input.repoRoot,
@@ -654,11 +698,13 @@ export function integrate(input: IntegrateInput): IntegrateResult {
         + (abortDetail ? `; git merge --abort also failed — ${abortDetail.slice(0, 300)}` : ""),
       );
     }
+    mergeInProgress = false;
 
     // Rebuild AFTER the commit: the sources are now on the branch, and a failure here is a stale
     // checkout rather than a reason to refuse a merge that already passed every gate.
     const rebuilt = rebuildTargets;
     for (const pkg of rebuilt) {
+      renewOrFail(`rebuilding ${pkg}`);
       try {
         execFileSync("pnpm", ["--filter", pkg, "build"], {
           cwd: input.repoRoot,
@@ -673,6 +719,7 @@ export function integrate(input: IntegrateInput): IntegrateResult {
       }
     }
 
+    renewOrFail("the post-merge proof re-run");
     // #717: the candidate tree can hold files main will never receive (#712: a gitignored
     // measurement artifact). Re-run the run: proofs against the MERGED, REBUILT checkout — after
     // the rebuild above, or this would measure a stale dist. Reports; never reverts (#448).
@@ -708,6 +755,7 @@ export function integrate(input: IntegrateInput): IntegrateResult {
       );
     }
 
+    renewOrFail("recording the integration event");
     const event: IntegrationEvent = {
       slice: input.slice,
       ...(rebuilt.length > 0 ? { rebuiltPackages: rebuilt } : {}),
@@ -722,7 +770,17 @@ export function integrate(input: IntegrateInput): IntegrateResult {
     markFactoryLanded(input.repoRoot, input.slice, input.ghRunner ?? defaultGhRunner);
     return { killReport, landed: true, exitCode: 0, event };
   } finally {
-    releaseIntegrationLock(input.repoRoot, lockOwner);
+    const released = releaseIntegrationLock(input.repoRoot, lockToken);
+    if (!released) {
+      // The boolean is read, not discarded: a false release means the lock was taken over before
+      // this process let go (or was already gone) — the successor owns it and must not be
+      // double-released. Loud because a land that believed it held the lock throughout did not.
+      process.stderr.write(
+        "integrate: WARNING — releaseIntegrationLock returned false; the integration lock was no "
+        + "longer this process's at release time (taken over mid-integration). The successor owns "
+        + "it now; nothing further was released.\n",
+      );
+    }
   }
 }
 

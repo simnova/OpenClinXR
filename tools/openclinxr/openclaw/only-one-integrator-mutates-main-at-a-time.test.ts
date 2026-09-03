@@ -65,6 +65,14 @@ import {
 
 const scratch = () => mkdtempSync(join(tmpdir(), "intlock-"));
 
+/** The opaque handle an acquired lock must carry; throws on a test bug so failures are loud. */
+const lockToken = (result: { acquired: boolean; token?: string }): string => {
+  if (!result.acquired || result.token === undefined) {
+    throw new Error("test bug: expected an acquired lock carrying an opaque token");
+  }
+  return result.token;
+};
+
 /** Spawn four genuine concurrent racer processes against one lock; returns their WON/lost lines. */
 const racerResults = async (root: string, scriptName: string): Promise<string[]> => {
   const modulePath = join(import.meta.dirname, "integration-lock.ts");
@@ -106,8 +114,10 @@ describe("only one integrator mutates main at a time", () => {
   it("(2) COUNTERWEIGHT: a released lock is acquirable again", () => {
     // Refuses the cheap pass of a lock that never lets go — which would wedge every future land.
     const root = scratch();
-    expect(acquireIntegrationLock(root, "a").acquired).toBe(true);
-    releaseIntegrationLock(root, "a");
+    const first = acquireIntegrationLock(root, "a");
+    expect(first.acquired).toBe(true);
+    expect(releaseIntegrationLock(root, lockToken(first)),
+      "the token holder's release must actually free it").toBe(true);
     expect(acquireIntegrationLock(root, "b").acquired, "release must actually free it").toBe(true);
     rmSync(root, { recursive: true, force: true });
   });
@@ -255,63 +265,110 @@ describe("only one integrator mutates main at a time", () => {
   it("(10) PREDECESSOR cannot release a successor's lock", () => {
     // A release that is read-then-rm can land after a takeover and delete the successor's lock —
     // freeing a lock the successor still believes it holds. Release must refuse once the holder is
-    // not the caller, and must not disturb the successor's lock.
+    // not the caller's, and must not disturb the successor's lock.
     const root = scratch();
-    acquireIntegrationLock(root, "orchestrator-a");
+    const first = acquireIntegrationLock(root, "orchestrator-a");
+    expect(first.acquired).toBe(true);
+    const tokenA = lockToken(first);
     const dir = join(root, ".openclinxr/openclaw/integration.lock");
     const stale = new Date(Date.now() - INTEGRATION_LOCK_TTL_MS - 60_000).toISOString();
-    writeFileSync(join(dir, "holder.json"), JSON.stringify({ owner: "orchestrator-a", acquiredAt: stale }));
+    // Age the holder in place (owner and token digest preserved, heartbeat ancient): the takeover
+    // is exactly "a went silent and b stole", not "a's record was replaced by a stranger".
+    const aged = JSON.parse(readFileSync(join(dir, "holder.json"), "utf8")) as { owner: string };
+    writeFileSync(join(dir, "holder.json"), JSON.stringify({ ...aged, acquiredAt: stale, lastSeen: stale }));
 
     const taken = acquireIntegrationLock(root, "orchestrator-b");
     expect(taken.acquired, "the successor must be able to take over the stale lock").toBe(true);
     expect(taken.stoleFrom).toBe("orchestrator-a");
 
-    expect(releaseIntegrationLock(root, "orchestrator-a"),
-      "the predecessor must not be able to release the successor's lock").toBe(false);
+    expect(releaseIntegrationLock(root, tokenA),
+      "the predecessor's token must not release the successor's lock").toBe(false);
+    expect(renewIntegrationLock(root, tokenA),
+      "the predecessor's token must not renew the successor's lock").toBe(false);
     const holder = JSON.parse(readFileSync(join(dir, "holder.json"), "utf8")) as { owner: string };
     expect(holder.owner, "the successor's lock must survive the predecessor's release attempt")
       .toBe("orchestrator-b");
-    expect(releaseIntegrationLock(root, "orchestrator-b"), "the successor releases its own lock")
+    expect(releaseIntegrationLock(root, lockToken(taken)), "the successor releases its own lock")
       .toBe(true);
     expect(acquireIntegrationLock(root, "orchestrator-c").acquired,
       "the released lock must be acquirable again").toBe(true);
     rmSync(root, { recursive: true, force: true });
   });
 
-  it("(11) LIVENESS: renewal beats fixed-TTL theft; a non-owner cannot renew", () => {
+  it("(11) LIVENESS: renewal beats fixed-TTL theft; a token that is not the holder's cannot renew", () => {
     // Fixed-TTL theft is the over-correction the card forbids: a long-running integration is a live
     // holder even when its ORIGINAL acquisition is ancient. Staleness must follow the last heartbeat,
-    // and renewal must refuse to refresh a lock that is no longer the caller's.
+    // and renewal must refuse to refresh a lock whose token no longer authenticates it.
     const root = scratch();
     const dir = join(root, ".openclinxr/openclaw/integration.lock");
     const holderFile = join(dir, "holder.json");
     const ancient = new Date(Date.now() - INTEGRATION_LOCK_TTL_MS * 3).toISOString();
+    const age = (acquiredAt: string, lastSeen: string): void => {
+      // Rewrite the timestamps in place, preserving owner and token digest: the record still
+      // belongs to the process that acquired it; only its clock says otherwise.
+      const current = JSON.parse(readFileSync(holderFile, "utf8")) as { owner: string };
+      writeFileSync(holderFile, JSON.stringify({ ...current, acquiredAt, lastSeen }));
+    };
 
     // Ancient acquisition AND ancient heartbeat → stale → stealable.
-    acquireIntegrationLock(root, "orchestrator-a");
-    writeFileSync(holderFile, JSON.stringify({ owner: "orchestrator-a", acquiredAt: ancient, lastSeen: ancient }));
+    const first = acquireIntegrationLock(root, "orchestrator-a");
+    expect(first.acquired).toBe(true);
+    const tokenA = lockToken(first);
+    age(ancient, ancient);
     const stolen = acquireIntegrationLock(root, "orchestrator-b");
     expect(stolen.acquired, "a lock with an ancient heartbeat must be takeable").toBe(true);
     expect(stolen.stoleFrom).toBe("orchestrator-a");
+    // The predecessor's token must not touch the successor's lock — not even to release it.
+    expect(releaseIntegrationLock(root, tokenA),
+      "the predecessor's token must not release the successor's lock").toBe(false);
+    expect(releaseIntegrationLock(root, lockToken(stolen)), "the successor releases its own lock")
+      .toBe(true);
 
     // Ancient acquisition, FRESH heartbeat → live → not stealable, no matter how old the acquisition.
-    acquireIntegrationLock(root, "orchestrator-a");
-    writeFileSync(holderFile, JSON.stringify({ owner: "orchestrator-a", acquiredAt: ancient, lastSeen: new Date().toISOString() }));
+    const relocked = acquireIntegrationLock(root, "orchestrator-a");
+    expect(relocked.acquired).toBe(true);
+    const tokenA2 = lockToken(relocked);
+    age(ancient, new Date().toISOString());
     const refused = acquireIntegrationLock(root, "orchestrator-b");
     expect(refused.acquired,
       "a long-running integration with a fresh heartbeat must NOT be stolen at a fixed TTL").toBe(false);
     expect(refused.heldBy).toBe("orchestrator-a");
 
-    // Renewal refreshes the heartbeat.
-    expect(renewIntegrationLock(root, "orchestrator-a"), "the owner may renew").toBe(true);
+    // Renewal refreshes the heartbeat, and beats the fixed TTL even when acquisition is ancient.
+    expect(renewIntegrationLock(root, tokenA2), "the token holder may renew").toBe(true);
     const renewed = JSON.parse(readFileSync(holderFile, "utf8")) as { owner: string; lastSeen: string };
     expect(Date.now() - Date.parse(renewed.lastSeen),
       "renewal must refresh the liveness timestamp").toBeLessThan(INTEGRATION_LOCK_TTL_MS);
 
-    // A non-owner cannot renew, and renewal does not transfer ownership.
-    expect(renewIntegrationLock(root, "orchestrator-b"), "a non-owner must not renew").toBe(false);
+    // A token that is not the holder's cannot renew, an owner NAME is not a token, and renewal does
+    // not transfer ownership.
+    expect(renewIntegrationLock(root, tokenA),
+      "the predecessor's token must not renew the successor's lock").toBe(false);
+    expect(renewIntegrationLock(root, "orchestrator-b"),
+      "an owner name is not a token and must not renew").toBe(false);
     const still = JSON.parse(readFileSync(holderFile, "utf8")) as { owner: string };
     expect(still.owner).toBe("orchestrator-a");
+    rmSync(root, { recursive: true, force: true });
+  });
+
+  it("(12) FAIL-CLOSED: release and renewal on an ABSENT lock return false, they do not throw", () => {
+    // integrate() releases in a finally after the mutation region. If the lock dir was cleared out
+    // from under it (external removal, a human clearing a wedged lock, a stale takeover that raced
+    // the release), release must answer false — not throw on a missing holder record — or the
+    // finally would mask the real result with a TypeError.
+    const root = scratch();
+    const opaque = "0".repeat(64);
+    expect(releaseIntegrationLock(root, opaque),
+      "releasing a lock that was never acquired must be false, not an exception").toBe(false);
+    expect(renewIntegrationLock(root, opaque),
+      "renewing a lock that was never acquired must be false, not an exception").toBe(false);
+
+    // Removed-while-held: acquire, then clear the whole lock dir, then release by token.
+    const held = acquireIntegrationLock(root, "orchestrator-a");
+    expect(held.acquired).toBe(true);
+    rmSync(join(root, ".openclinxr"), { recursive: true, force: true });
+    expect(releaseIntegrationLock(root, lockToken(held)),
+      "releasing after the lock was cleared must be false, not an exception").toBe(false);
     rmSync(root, { recursive: true, force: true });
   });
 });

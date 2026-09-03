@@ -1,10 +1,12 @@
 import { spawn } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { acquireIntegrationLock, releaseIntegrationLock, renewIntegrationLock } from "./integration-lock.js";
+import {
+  acquireIntegrationLock, releaseIntegrationLock, renewIntegrationLock, INTEGRATION_LOCK_TTL_MS,
+} from "./integration-lock.js";
 
 /**
  * OBSERVABLE: three of the seven properties tsk_f500b82767fc7452 asks for are absent, and its
@@ -52,25 +54,79 @@ import { acquireIntegrationLock, releaseIntegrationLock, renewIntegrationLock } 
  *   under repeated 8-way contention, and whether integrate refuses to mutate main after losing it.
  * notEvidenceFor: cross-machine safety (this is one filesystem); protection against a process that
  *   predates the lock; that any current integration has actually raced.
+ *
+ * ## FIXED (tsk_f500b82767fc7452)
+ *
+ * Landed on top of the diagnosis above, which stays intact as the historical record:
+ *
+ *   (a) BARRIER LANDED. The racers now rendezvous before acquiring: each writes a `ready.<id>` file
+ *       and spins until every racer has arrived, so the acquires overlap the critical section
+ *       instead of arriving spread over tsx cold-start time (~231 ms vs a sub-ms window). This was
+ *       the change the diagnosis said must come FIRST.
+ *   (b) PROBES RE-RUN AGAINST THE BARRIER (clause 2's iteration loop, 50 races, MEASURED 2026-09-02
+ *       in the f500 worktree). A1 alone (op marker `wx` -> `w`, removing O_CREAT|O_EXCL) TRIPS the
+ *       net: iteration 0 returned EXIT_NONZERO racers, because with two mutators inside the region
+ *       one racer's `sweepOrphans` deletes another's live staging dir and the holder write then
+ *       throws ENOENT. A2 alone (install's atomic rename -> mkdir + per-file copy) STILL HOLDS
+ *       exactly one winner across all 50 races: the exclusive op marker alone admits one mutator,
+ *       so a non-atomic install is not independently reachable by a race. The COMBINED probe
+ *       (A1+A2 — both serialization points removed) TRIPS with MULTI-WINNER races (iteration 2:
+ *       6 of 8 racers WON) plus crashes. The pre-barrier harness passed all three, so the barrier
+ *       is what gives the net sensitivity to the serialization-loss class the diagnosis names.
+ *   (c) ITERATIONS = 50 per the card's floor ("at least 50 iterations each of fresh-init and
+ *       stale-takeover races"). The "why 10" reasoning above priced a NON-barrier harness whose
+ *       per-iteration detection depended on accidental scheduling overlap (p >= 0.5 measured). The
+ *       barrier removes that lottery: each race is a genuine collision at ~0.3 s, so 50 races buy
+ *       real rare-interleaving coverage at a cost the land proof tolerates, and the card's floor is
+ *       honoured. RACERS stays at the card's 8.
+ *   (d) FENCED OWNERSHIP (clause 1, flipped below): `acquire` returns an opaque >=128-bit token;
+ *       `holder.json` stores only its SHA-256 digest; release and renewal authenticate on the token,
+ *       never on the owner string.
+ *   (e) FAIL-CLOSED INTEGRATE (clause 3, flipped below): `integrate.ts` renews at every boundary of
+ *       the shared-main mutation region and throws when a renewal stops authenticating.
  */
 
 const scratch = () => mkdtempSync(join(tmpdir(), "intlock-stress-"));
 const REPO_ROOT = join(import.meta.dirname, "../../..");
 
-/** Derived above: 0.5^10 < 0.1% of missing a regression to the measured pre-fix rate. */
-const ITERATIONS = 10;
+/** Card floor: >=50 barrier races each for fresh-init and stale-takeover (see ## FIXED (c) above). */
+const ITERATIONS = 50;
 /** f500's escalation from the 4 that currently pass; contention pressure, not a threshold. */
 const RACERS = 8;
 
 type LockHandleShape = { acquired: boolean; token?: unknown };
 
-/** One race of N genuine processes against one lock root. Returns each racer's WON/lost line. */
+/**
+ * One race of N barrier-synchronized genuine processes against one lock root. Each racer writes a
+ * `ready.<id>` file and spins until ALL racers have arrived, so the acquires overlap the critical
+ * section rather than arriving spread over tsx cold-start time. Returns each racer's WON/lost line.
+ */
 const race = async (root: string, ids: readonly string[]): Promise<string[]> => {
   const modulePath = join(import.meta.dirname, "integration-lock.ts");
+  const barrierDir = join(root, "barrier");
   const script = join(root, "race.mts");
   writeFileSync(script, `
+    import { mkdirSync, readdirSync, writeFileSync } from "node:fs";
+    import { join } from "node:path";
     import { acquireIntegrationLock } from ${JSON.stringify(modulePath)};
-    const r = acquireIntegrationLock(${JSON.stringify(root)}, process.argv[2]);
+    const root = ${JSON.stringify(root)};
+    const id = process.argv[2];
+    const barrierDir = ${JSON.stringify(barrierDir)};
+    mkdirSync(barrierDir, { recursive: true });
+    writeFileSync(join(barrierDir, "ready." + id), String(process.pid), { flag: "wx" });
+    const need = ${ids.length};
+    // A racer that never reaches the rendezvous (spawn failure elsewhere) must not hang the race:
+    // bound the wait and exit nonzero so the parent REPORTS the failure instead of spinning.
+    const deadline = Date.now() + 60_000;
+    for (;;) {
+      if (Date.now() > deadline) process.exit(3);
+      let ready = 0;
+      try {
+        ready = readdirSync(barrierDir).filter((f) => f.startsWith("ready.")).length;
+      } catch { /* barrier dir momentarily absent */ }
+      if (ready >= need) break;
+    }
+    const r = acquireIntegrationLock(root, id);
     process.stdout.write(r.acquired ? "WON" : "lost");
   `);
   const run = (id: string) => new Promise<string>((resolve) => {
@@ -84,7 +140,7 @@ const race = async (root: string, ids: readonly string[]): Promise<string[]> => 
 };
 
 describe("the integration lock fences ownership and holds under repeated stress", () => {
-  it.fails("(1) acquire returns an unforgeable handle, and an owner STRING cannot release or renew", () => {
+  it("(1) acquire returns an unforgeable handle, and an owner STRING cannot release or renew", () => {
     // The cheapest way to pass clause (2) is to widen the race harness and leave auth alone, so this
     // clause is first: a lock that admits exactly one winner and then lets any process release it by
     // guessing "integrate" is not fenced.
@@ -109,33 +165,12 @@ describe("the integration lock fences ownership and holds under repeated stress"
     rmSync(root, { recursive: true, force: true });
   }, 180_000);
 
-  it("(2) SMOKE, NOT YET A NET: one winner in every one of 10 races of 8 — sensitivity UNPROVEN", async () => {
-    // Authored as a RED. It PASSED on first run: the lock already holds exactly one winner across
-    // 10 races of 8 genuine processes, 2.95 s of test time against a 231 ms tsx cold start, so the
-    // spawns are real and the property currently holds.
-    //
-    // THEN TWO DESTRUCTIVE PROBES FAILED TO TRIP IT, and that is the finding this clause exists to
-    // record. Both substitutions were confirmed matched before the run:
-    //
-    //   A1  integration-lock.ts:144  `{ flag: "wx" }` -> `{ flag: "w" }`   removes the O_CREAT|O_EXCL
-    //       exclusive op marker, the documented atomic serialization point.  CLAUSE STILL PASSED.
-    //   A2  installLock's `renameSync(staging, lockDir)` -> mkdir + per-file copy,
-    //       removing the atomic install.                                     CLAUSE STILL PASSED.
-    //
-    // So this clause does NOT currently detect two deliberate atomicity defects, and a green here
-    // must not be read as evidence the lock is safe. The most likely mechanism is that a tsx cold
-    // start is ~231 ms while the critical window is sub-millisecond, so eight "concurrent" racers
-    // arrive spread over tens of milliseconds and never overlap at the instant that matters. The
-    // original four-racer clauses in only-one-integrator-mutates-main-at-a-time.test.ts share this
-    // weakness.
-    //
-    // THIS IS WHY tsk_f500b82767fc7452 SAYS "barrier-synchronized". The barrier is not a detail of
-    // the harness; it is the thing that makes any of these races able to fail. A worker implementing
-    // f500 must land the barrier FIRST and re-run probes A1 and A2 against it — if they still do not
-    // trip, the harness is measuring nothing and the iteration count is irrelevant.
-    //
-    // Do not delete this clause to make the file tidy, and do not lower ITERATIONS or RACERS. Its
-    // job today is to carry the two probe results to whoever implements the barrier.
+  it("(2) fresh-init BARRIER net: exactly one winner in every one of 50 races of 8", async () => {
+    // HISTORY (pre-barrier; recorded because it shaped this clause): authored as a RED, this clause
+    // passed on first run, and destructive probes A1 (op marker wx -> w) and A2 (install rename ->
+    // mkdir + per-file copy) failed to trip it — arrivals spread over a ~231 ms tsx cold start never
+    // overlapped the sub-ms critical section. The barrier below is that fix; the probe re-runs
+    // against it are recorded in the ## FIXED block in the header.
     const ids = Array.from({ length: RACERS }, (_, i) => `r${i}`);
     const winnersPerRace: number[] = [];
     for (let i = 0; i < ITERATIONS; i += 1) {
@@ -150,13 +185,14 @@ describe("the integration lock fences ownership and holds under repeated stress"
     }
     // Asserted over EVERY iteration, not over a mean. A mean of 1.0 is satisfiable by one race with
     // two winners and one with none.
-    expect(winnersPerRace, `winners per race across ${ITERATIONS} races of ${RACERS}`)
+    expect(winnersPerRace, `winners per race across ${ITERATIONS} barrier races of ${RACERS}`)
       .toEqual(Array.from({ length: ITERATIONS }, () => 1));
   }, 600_000);
 
-  it.fails("(3) integrate RENEWS across the shared-main mutation region and fails closed on lost ownership", () => {
-    // integrate.ts imports acquire and release only. A 30-minute integration that loses its lock
-    // mid-merge keeps mutating main, and release's boolean return is discarded.
+  it("(3) integrate RENEWS across the shared-main mutation region and fails closed on lost ownership", () => {
+    // Pre-fix, integrate.ts imported acquire and release only: a 30-minute integration that lost
+    // its lock mid-merge kept mutating main, and release's boolean return was discarded. The clause
+    // now asserts both halves of the fix are present in the source.
     const source = readFileSync(join(REPO_ROOT, "tools/openclinxr/openclaw/integrate.ts"), "utf8");
     expect(source, "integrate.ts never renews the lock it holds across the mutation region")
       .toMatch(/renewIntegrationLock/u);
@@ -166,4 +202,35 @@ describe("the integration lock fences ownership and holds under repeated stress"
       .toMatch(/renewIntegrationLock\([^)]*\)[\s\S]{0,400}?(throw|return\s*\{[^}]*ok:\s*false)/u);
     rmSync(scratch(), { recursive: true, force: true });
   }, 180_000);
+
+  it("(4) stale-takeover BARRIER net: a stopped-renewing holder yields exactly one successor in every one of 50 races of 8", async () => {
+    // "Stopped renewal permits exactly one successor", under contention: a crashed holder with an
+    // ancient heartbeat is seeded, then 8 barrier-synchronized racers all try to take it over.
+    const ids = Array.from({ length: RACERS }, (_, i) => `s${i}`);
+    const winnersPerRace: number[] = [];
+    for (let i = 0; i < ITERATIONS; i += 1) {
+      const root = scratch();
+      // Seed a crashed holder that stopped renewing long ago. It is deliberately a pre-token
+      // remnant (owner string, no token digest): such a record cannot be released or renewed by
+      // anyone, so a stale takeover is the only way it clears.
+      const lockDir = join(root, ".openclinxr/openclaw/integration.lock");
+      mkdirSync(lockDir, { recursive: true });
+      const ancient = new Date(Date.now() - INTEGRATION_LOCK_TTL_MS - 60_000).toISOString();
+      writeFileSync(
+        join(lockDir, "holder.json"),
+        JSON.stringify({ owner: "crashed-orchestrator", acquiredAt: ancient, lastSeen: ancient }),
+      );
+      const results = await race(root, ids);
+      const errors = results.filter((r) => r === "SPAWN_ERROR" || r === "EXIT_NONZERO");
+      expect(errors, `iteration ${i}: racers failed to run: ${results.join(",")}`).toEqual([]);
+      winnersPerRace.push(results.filter((r) => r === "WON").length);
+      // The surviving lock must name one of the racers, never the crashed holder the race stole.
+      const survivor = JSON.parse(readFileSync(join(lockDir, "holder.json"), "utf8")) as { owner: string };
+      expect(ids, `iteration ${i}: the survivor lock names ${survivor.owner}, not a racer`)
+        .toContain(survivor.owner);
+      rmSync(root, { recursive: true, force: true });
+    }
+    expect(winnersPerRace, `stale-takeover winners per race across ${ITERATIONS} races of ${RACERS}`)
+      .toEqual(Array.from({ length: ITERATIONS }, () => 1));
+  }, 600_000);
 });
