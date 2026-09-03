@@ -14,6 +14,7 @@ import fs from "node:fs";
 import fsp from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { PHYSICS_TOUCH_CAPTURE_OUTPUT_DIR } from "../../../../tools/openclinxr/evidence/physics-touch-capture-output.mjs";
 
 // Import from the contract package
 import { runMeasuredMetrics } from "@openclinxr/physics-touch-contract";
@@ -27,10 +28,12 @@ const APP_ROOT = path.resolve(__dirname, "..");
 const PUBLIC_DIR = path.join(APP_ROOT, "public");
 const CAGEMATCH_BASE = path.join(PUBLIC_DIR, "cagematch", "physics-clinical-touch");
 
-// R3 evidence path (for PNG copy into cagematch tree)
+// R3 evidence path (for PNG copy into cagematch tree). Same shared constant the
+// capture producer and the physics-touch-contract evidence tests import, so the
+// path is not redeclared here.
 const R3_EVIDENCE_DIR = path.resolve(
   APP_ROOT,
-  "../../../.openclinxr/evidence/physics-clinical-touch/2026-08-02-uixr-bind",
+  "../../../" + PHYSICS_TOUCH_CAPTURE_OUTPUT_DIR,
 );
 
 // ---------------------------------------------------------------------------
