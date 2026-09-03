@@ -137,3 +137,35 @@ the tree rather than in the card text.
 **You cannot repair the edge.** `tasks.update` does not accept `depIds`, so the audit keeps reporting
 a satisfied dependency forever. Record the measurement in a comment on the parent so the next reader
 can treat the finding as noise with evidence behind it, and name both ids.
+
+## `maxInFlight` counts `review`, so clearing a blocker can cost a lane
+
+Measured 2026-09-03. OpenClinXR runs `maxInFlight: 2`, `maxIntegrating: 1`. A card sitting in
+`review` — worker finished, awaiting attestation, nobody working — occupies one of those two slots
+exactly as a `claimed` card does. Four Planted, dependency-free, ready cards were queued behind two
+in-flight ones, and one of the two was a card I had moved `blocked -> review` myself after measuring
+its blocker stale. The premise change was right; the throughput cost was invisible and unbudgeted.
+
+**Before any status change that lands a card in the in-flight set, read the occupancy.** If the board
+is at its cap, moving a card into `review` or `claimed` takes a lane away from work that could
+actually run. Say so on the card when you do it, so the person who owns the close knows their
+decision now has a cost attached.
+
+Do not quietly flip it back to free the slot. `review` is honest when a worker has finished, and a
+state that gets edited for throughput stops describing anything. Attach the cost, or close the card.
+
+## Read `readyIds` from a project-scoped source, never bare `sync`
+
+`bothy-board.sync` returns a MIXED-PROJECT payload whose `project` (singular) is whatever the
+credential defaults to — Harbor here, not the repo you are standing in — and it accepts **no project
+scope**: passing `projectId` or `project` changes nothing in the response. So a bare `sync` can hand
+you `readyIds: []` while the project you care about has four ready cards.
+
+That empty array reads exactly like a board defect, and it is not one. Join `readyIds` against
+`tasks[]` filtered to your explicit `projectId`, which is what the Codex monitor already does
+(`codex-bothy-event-monitor.ts` — "sync only as a mixed-project hint").
+
+Related: `tasks.next` returning `{task: null, unchanged: true}` while `tasks.get` reports a card
+`ready` is **not** an inconsistency either — it is the in-flight cap reached, reported without a
+reason. Check occupancy before concluding the dequeue is broken. Two separate agents reconstructed
+this the slow way before it was written down.
