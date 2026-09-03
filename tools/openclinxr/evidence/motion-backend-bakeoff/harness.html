@@ -263,9 +263,24 @@
         const ik = {
           target: solverBones.length - 1,
           effector: effIdx,
+          // The elbow joint is links[0] (chainRoles[0] = "lowerarm01.R"). Only its local rotation
+          // can change the world interior angle at the elbow: shoulder/clavicle link rotations
+          // swing the arm rigidly and preserve it. CCDIKSolver reads per-link rotationMin /
+          // rotationMax and clamps link.rotation into the box after every CCD iteration
+          // (CCDIKSolver.js source lines 219-229). Measured 2026-09-03 on this MPFB rig:
+          // lowerarm01.R rest local Euler is (36.4, 5.9, 2.5) deg — NOT identity, so clamp values
+          // are expressed in that offset rest frame (the mrdoob/three.js issue 29682 caveat,
+          // measured before trusting it). Flexion to the 155 deg ceiling (interior 25 deg; the
+          // compiler rail clamps the same joint at 2.7 rad, solve-chain.ts:65,282) maps to a local
+          // Euler of ~(115.4, 49.7, 51.2) deg; the unconstrained fold reached (139.2, 65.4, 48.9)
+          // deg and reported a 16.8 deg interior angle. The box below is that ceiling triple plus
+          // 2-7 deg of slack: it admits the boundary pose and excludes the measured fold.
+          // `limitation` (a range-free hinge) was measured NOT to bind: the fold is flexion
+          // overshoot, so it survives a pure hinge.
           links: linkIndices.map((index) => ({ index })),
           iteration: 200,
         };
+        ik.links[0].rotationMax = new THREE.Vector3(2.042, 0.908, 1.012); // ~(117, 52, 58) deg
         const solver = new CCDIKSolver({ skeleton: { bones: solverBones } }, [ik]);
 
         // Oscillator driver: the pelvis center. Translating it bobs the whole pelvis block in

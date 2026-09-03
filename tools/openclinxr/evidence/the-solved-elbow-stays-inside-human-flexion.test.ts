@@ -57,6 +57,33 @@ import { describe, expect, it } from "vitest";
  *   Quest frame budget.
  */
 
+/**
+ * ## FIXED (#0)
+ *
+ * harness.html now wires per-link constraints on its CCDIKSolver links. Measured on this MPFB rig
+ * BEFORE choosing the mechanism: lowerarm01.R (the elbow link, links[0], chainRoles[0]) rest local
+ * Euler is (36.4, 5.9, 2.5) deg — a genuine offset rest rotation, so the documented Euler-clamp
+ * caveat (mrdoob/three.js issue 29682) was measured, not assumed. The unconstrained fold was a
+ * 142.9 deg rotation about local axis (0.745, 0.004, 0.667) taking the local Euler to (139.2, 65.4,
+ * 48.9) deg; flexion to the 155 deg ceiling (interior 25 deg, matching the compiler rail's 2.7 rad
+ * at solve-chain.ts:65) maps to ~(115.4, 49.7, 51.2) deg. A component-wise box therefore separates
+ * the fold from the ceiling pose.
+ *
+ * | candidate (lowerarm01R constraint) | worst interior deg | max wrist residual m |
+ * |---|---|---|
+ * | none (shipped 5524da80) | 16.8 | 0.000 |
+ * | `limitation` hinge axis (0.745, 0, 0.667) | 9.25 | 0.000 |
+ * | `rotationMax` box (117, 52, 58) deg — SHIPPED | 31.75 | 0.000 |
+ *
+ * `limitation` alone does not bind: it is a range-free hinge and the fold IS flexion overshoot, so
+ * it survives. The shipped `rotationMax` box on links[0] (radians 2.042/0.908/1.012, applied per
+ * CCD iteration at CCDIKSolver.js:219-229) keeps every oscillation frame inside human flexion —
+ * 31.75 deg interior, i.e. ~148 deg flexion, inside the normal 145-150 deg maximum — while the
+ * wrist still reaches its goal at 0.000 m residual and both bone lengths stay constant (spread
+ * ~1e-16 m). Recorded by re-running runtime-goal-eval.mts at 9ea15acd; the descriptor and the
+ * goal-pointing logic are untouched.
+ */
+
 const ROOT = join(import.meta.dirname, "../../..");
 const EVAL = join(ROOT, "tools/openclinxr/evidence/motion-backend-bakeoff/runtime-goal-eval.json");
 const HARNESS = join(ROOT, "tools/openclinxr/evidence/motion-backend-bakeoff/harness.html");
@@ -107,7 +134,7 @@ describe("the solved elbow stays inside human flexion", () => {
     }
   });
 
-  it.fails("(1) RED: the right elbow is not folded past maximum human flexion", () => {
+  it("(1) FIXED: the right elbow is not folded past maximum human flexion", () => {
     const angles = frames().map((f) =>
       interiorAngleDeg(f.bones["upperarm01R"]!, f.bones["lowerarm01R"]!, f.bones["wristR"]!),
     );
@@ -129,7 +156,7 @@ describe("the solved elbow stays inside human flexion", () => {
     expect(spread(fore), "forearm length varies across frames; the arm was scaled").toBeLessThanOrEqual(0.001);
   });
 
-  it.fails("(2) RED: every IK link declares a rotation constraint, and the elbow's is not a full turn", () => {
+  it("(2) FIXED: every IK link declares a rotation constraint, and the elbow's is not a full turn", () => {
     const html = readFileSync(HARNESS, "utf8");
     // The harness constructs links inline. A constrained solver must name at least one of the three
     // constraint fields three.js CCDIKSolver reads; today the links are bare `{ index }`.
