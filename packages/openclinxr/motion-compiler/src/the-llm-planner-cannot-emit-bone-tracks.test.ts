@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { evaluateScenarioPublicationReadiness } from "../../review-workflow/src/scenario-publication.js";
+import {
+  evaluateScenarioPublicationReadiness,
+  type ReviewerAttestationVerifier,
+} from "../../review-workflow/src/scenario-publication.js";
 import { edChestPainScenario } from "../../scenario-fixtures/src/ed-chest-pain.js";
 
 /**
@@ -406,6 +409,31 @@ describe("the llm planner cannot emit bone tracks", () => {
   //     gate. Asserted against shipped product code, with the precedence stated explicitly: an
   //     approved critic finding leaves `reviewer_evidence` BLOCKING and every required human role
   //     still missing, while four human approvals clear the same gate on the same scenario.
+  // ADDED 2026-09-03, after 6d51728e made the release gate consult a trusted verifier. Before that
+  // commit, a self-declared `reviewerRole` cleared the gate, so this clause's KNOWN-GOOD COLUMN
+  // passed with no verifier at all. 6d51728e is CORRECT — no verifier credits nothing, fail-closed —
+  // and it left this consumer's known-good column measuring the old behaviour, red on main.
+  //
+  // The repair supplies one verifier to BOTH halves rather than only to the human half, so the
+  // critic-only refusal is no longer explained by there being no verifier at all.
+  //
+  // SCOPE, measured rather than asserted. I first wrote that this makes the counterweight "stronger"
+  // because the critic is "refused by name". PROBED on 2026-09-03 by widening the verifier to credit
+  // `vlm_critic` and dropping its principal-id binding: clause (4) still PASSED. It bounds role
+  // COVERAGE — an approval carrying only `vlm_critic` credits none of the four REQUIRED roles, so
+  // the gate blocks whatever the verifier thinks of the critic. That is the real and useful claim.
+  //
+  // NOT caught here: a verifier that credits `vlm_critic` as satisfying a required role. That is
+  // `review-workflow/src/the-release-gate-refuses-a-self-declared-reviewer.test.ts`, which owns
+  // verifier trust; this file owns what the motion pipeline may not do.
+  // Sourced from the scenario, not hand-listed: a hand-list would drift from the fixture and start
+  // crediting a role the scenario no longer requires. `vlm_critic` is absent from it by construction.
+  const humanReviewerRoles: readonly string[] = edChestPainScenario.governance.requiredReviewerRoles;
+  const trustedHumanVerifier: ReviewerAttestationVerifier = (request) =>
+    humanReviewerRoles.includes(request.assertedRole) && request.reviewerId === `human-${request.assertedRole}`
+      ? { verified: true, principalId: request.reviewerId, roles: [request.assertedRole] }
+      : { verified: false, reason: `${request.assertedRole} is not a trusted human reviewer principal` };
+
   it("(4) COUNTERWEIGHT: a VLM critic finding cannot satisfy the human release gate", () => {
     const assetReadiness = {
       scenarioId: edChestPainScenario.scenarioId,
@@ -430,6 +458,7 @@ describe("the llm planner cannot emit bone tracks", () => {
         },
       ],
       assetReadiness,
+      attestationVerifier: trustedHumanVerifier,
     });
 
     const criticGate = criticOnly.gateResults.find((gate) => gate.gate === "reviewer_evidence");
@@ -463,6 +492,7 @@ describe("the llm planner cannot emit bone tracks", () => {
         reviewedAt: "2026-08-29T00:00:00.000Z",
       })),
       assetReadiness,
+      attestationVerifier: trustedHumanVerifier,
     });
 
     expect(
