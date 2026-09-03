@@ -161,4 +161,24 @@ describe("openclaw slice runner", () => {
       advanceCommand: expect.stringContaining("advance"),
     });
   });
+
+  it("emits a BothyBoard bothy-tsk_ card verbatim as the next team command", () => {
+    const plan = buildOpenClawRunNextPlan({
+      stateFiles: { "PROJECT_STATUS.md": "# status\n" },
+      gitStatusShort: "## main",
+      boardCard: {
+        sliceId: "bothy-tsk_zz_no_real_task",
+        priority: "P0",
+        title: "a planted bothy task",
+        body: "## done_when\n- run:x\n",
+      },
+    });
+    expect(plan.selectedSlice).toBe("bothy-tsk_zz_no_real_task");
+    // Not in SLICE_TEMPLATE_MAP: no slice:init; the card is dispatched straight to the team command.
+    expect(plan.templateId).toBeNull();
+    expect(plan.nextCommand).toBe(
+      "pnpm openclaw:team-spawn -- --slice-id bothy-tsk_zz_no_real_task --phase scout",
+    );
+    expect(plan.sliceTeam.teamSpawnCommand).toContain("--slice-id bothy-tsk_zz_no_real_task");
+  });
 });
