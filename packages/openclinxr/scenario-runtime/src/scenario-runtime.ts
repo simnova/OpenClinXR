@@ -14,10 +14,7 @@ import {
   type TurnTakingDecision,
 } from "@openclinxr/conversation-policy";
 import { createStationRun, type StationRun, transitionStation } from "@openclinxr/domain";
-import type {
-  ActorResponseResult,
-  ModelGateway,
-} from "@openclinxr/model-gateway";
+import type { ModelGateway } from "@openclinxr/model-gateway";
 import {
   buildReviewPacket,
   evaluateScenarioPublicationReadiness,
@@ -31,7 +28,7 @@ import {
   recordClinicalAction as recordSessionClinicalAction,
   routeActorInteraction,
 } from "@openclinxr/session-state";
-import type { InteractionEmotion, ReviewPacket, Scenario, TraceEvent } from "@openclinxr/shared-schemas";
+import type { ActorTurnPlan, InteractionEmotion, ReviewPacket, Scenario, TraceEvent } from "@openclinxr/shared-schemas";
 import {
   type AudioEvent,
   collectVoiceStream,
@@ -40,17 +37,15 @@ import {
 import { resolveCaseEmotionPolicy } from "./emotion-policy.js";
 import {
   actorInteractionRoutePayload,
-  actorResponsePolicy,
   buildProviderHealthSnapshot,
-  modelActorResponseRequestId,
   settleDurableStoreCall,
   voiceSynthesisPolicy,
   voiceSynthesisRequestId,
 } from "./provider-support.js";
-import { bindPersistedActorTurn } from "./authored-turn-binding.js";
+import { ACTOR_TURN_EXECUTED_EVENT_TYPE, executionFromFrozenPlan } from "./actor-turn-plan.js";
+import { generateActorResponseFromContext } from "./actor-turn-generation.js";
 import { durableEventRef, traceEvent, type TraceEventInput, withDurableEventRef } from "./trace.js";
 import type {
-  GenerateActorResponseFromContextInput,
   GenerateActorResponseInput,
   GenerateActorResponseResult,
   GenerateRoutedActorResponseInput,
@@ -64,7 +59,6 @@ import type {
   RuntimeSessionSummary,
   SaveFacultyScoreDraftInput,
   ScenarioPublicationReadinessInput,
-  ScenarioRuntimeActorTurn,
   ScenarioRuntimeOptions,
   SessionRecord,
   StartEncounterInput,
@@ -110,6 +104,7 @@ export class ScenarioRuntime {
       lastSpeakerActorId: null,
       emotionEngines,
       emotionPolicy,
+      frozenActorTurnPlans: new Map(),
     });
 
     return {
@@ -221,7 +216,7 @@ export class ScenarioRuntime {
   async generateActorResponse(stationRunId: string, input: GenerateActorResponseInput): Promise<GenerateActorResponseResult> {
     const session = this.requireSession(stationRunId);
     const actorContext = buildActorModelContext(session.multiActorSession, input.actorId);
-    return this.generateActorResponseFromContext(session, {
+    return generateActorResponseFromContext(this.actorTurnGenerationHost(), session, {
       ...input,
       actorContext,
       conversationTurn: this.actorResponseTurnCount(stationRunId, input.actorId) + 1,
@@ -239,7 +234,7 @@ export class ScenarioRuntime {
       learnerUtterance: input.learnerUtterance,
       conversationTurn: routed.actorContext.conversationTurn,
     });
-    const generated = await this.generateActorResponseFromContext(session, {
+    const generated = await generateActorResponseFromContext(this.actorTurnGenerationHost(), session, {
       actorId: routed.routedActorId,
       learnerUtterance: input.learnerUtterance,
       atSecond: input.atSecond,
@@ -327,6 +322,11 @@ export class ScenarioRuntime {
     return transition;
   }
 
+  /** Frozen ActorTurnPlan for an actor, if generateActorResponse has committed one. */
+  getFrozenActorTurnPlan(stationRunId: string, actorId: string): ActorTurnPlan | undefined {
+    return this.requireSession(stationRunId).frozenActorTurnPlans.get(actorId);
+  }
+
   /** Return the current InteractionEmotion for an actor in a session. */
   getActorEmotion(stationRunId: string, actorId: string): InteractionEmotion {
     const session = this.requireSession(stationRunId);
@@ -374,36 +374,50 @@ export class ScenarioRuntime {
     if (!actor) {
       throw new Error(`Actor not found: ${input.actorId}`);
     }
+    const frozenPlan = session.frozenActorTurnPlans.get(input.actorId);
+    if (!frozenPlan) {
+      throw new Error("ActorTurnPlan must be frozen before speech render");
+    }
 
+    const voiceId = frozenPlan.voiceId;
+    const actorTurnExecution = executionFromFrozenPlan(frozenPlan);
     const audioEvents = await collectVoiceStream(
       this.options.voiceGateway.synthesize({
-        requestId: voiceSynthesisRequestId(stationRunId, input.actorId, input.voiceId),
+        requestId: voiceSynthesisRequestId(stationRunId, input.actorId, voiceId),
         stationRunId,
         actorId: input.actorId,
-        voiceId: input.voiceId,
-        text: input.text,
-        performancePlanId: "neutral-v1",
+        voiceId,
+        text: frozenPlan.spokenTextForTts,
+        performancePlanId: frozenPlan.performancePlanId,
         policy: voiceSynthesisPolicy,
       }),
     );
-    const traceEvents = audioEvents.map((audioEvent) =>
+    const audioTraceEvents = audioEvents.map((audioEvent) =>
       this.appendTrace(session, {
         eventType: "voice.audio.generated",
         atSecond: input.atSecond,
         source: "voice-gateway",
         actorId: input.actorId,
         payload: {
-          voiceId: input.voiceId,
+          voiceId,
           audioFormat: audioEvent.audioFormat,
           chunkIndex: audioEvent.chunkIndex,
           durationMs: audioEvent.durationMs,
           visemeCue: audioEvent.visemeCue,
           provenance: audioEvent.provenance,
+          actorTurnExecution,
         },
       }),
     );
+    const executedEvent = this.appendTrace(session, {
+      eventType: ACTOR_TURN_EXECUTED_EVENT_TYPE,
+      atSecond: input.atSecond,
+      source: "voice-gateway",
+      actorId: input.actorId,
+      payload: { actorTurnExecution },
+    });
 
-    return { audioEvents, traceEvents };
+    return { audioEvents, traceEvents: [...audioTraceEvents, executedEvent], actorTurnExecution };
   }
 
   submitNote(stationRunId: string, input: SubmitNoteInput): SubmitNoteResult {
@@ -627,140 +641,14 @@ export class ScenarioRuntime {
     return update.state;
   }
 
-  private async generateActorResponseFromContext(
-    session: SessionRecord,
-    input: GenerateActorResponseFromContextInput,
-  ): Promise<GenerateActorResponseResult> {
-    const actor = this.options.scenario.actors.find((candidate) => candidate.actorId === input.actorId);
-    if (!actor) {
-      throw new Error(`Actor not found: ${input.actorId}`);
-    }
-
-    const traceContextTags = [...(input.traceContextTags ?? [])];
-    const primaryTag = traceContextTags[0];
-    const learnerEvent = this.appendTrace(session, {
-      eventType: "learner.utterance",
-      atSecond: input.atSecond,
-      source: "learner",
-      actorId: input.actorId,
-      ...(primaryTag ? { tag: primaryTag } : {}),
-      payload: {
-        text: input.learnerUtterance,
-        traceContextTags,
-        durableEventRef: durableEventRef(session.run.stationRunId, session.nextSequence),
-      },
-    });
-
-    const historyTakingCoverage = this.applyHistoryTakingCoverageUpdate(session, {
-      atSecond: input.atSecond,
-      learnerUtterance: input.learnerUtterance,
-      traceContextTags,
-    });
-
-    session.actorTurnInProgress = {
-      actorId: input.actorId,
-      conversationTurn: input.conversationTurn,
-      startedAtSecond: input.atSecond,
-      learnerUtterance: input.learnerUtterance,
-      stationRunId: session.run.stationRunId,
-    };
-
-    let response: ActorResponseResult;
-    try {
-      response = await this.options.modelGateway.generateActorResponse({
-        requestId: modelActorResponseRequestId(session.run.stationRunId, actor.actorId, input.conversationTurn),
-        stationRunId: session.run.stationRunId,
-        scenarioId: this.options.scenario.scenarioId,
-        scenarioVersion: this.options.scenario.version,
-        actorId: actor.actorId,
-        actorDisplayName: actor.displayName,
-        actorRole: actor.role,
-        conversationTurn: input.conversationTurn,
-        learnerUtterance: input.learnerUtterance,
-        visibleFacts: input.actorContext.visibleMemory.facts,
-        hiddenFacts: [],
-        retrievedMemoryIds: input.actorContext.retrievedMemoryIds,
-        traceContextTags,
-        clinicalState: {
-          completedTraceTags: [...input.actorContext.clinicalState.completedTraceTags],
-          openOrders: input.actorContext.clinicalState.openOrders.map((order) => ({ ...order })),
-        },
-        policy: actorResponsePolicy,
-      });
-    } catch {
-      session.actorTurnInProgress = null;
-      this.appendTrace(session, {
-        eventType: "actor.response.failed",
-        atSecond: input.atSecond,
-        source: "model-gateway",
-        actorId: input.actorId,
-        ...(primaryTag ? { tag: primaryTag } : {}),
-        payload: {
-          errorCode: "model_provider_error",
-          traceContextTags,
-          durableEventRef: durableEventRef(session.run.stationRunId, session.nextSequence),
-        },
-      });
-      throw new Error("Actor response generation failed");
-    }
-
-    session.actorTurnInProgress = null;
-    session.lastSpeakerActorId = input.actorId;
-
-    const actorResponseDurableRef = durableEventRef(session.run.stationRunId, session.nextSequence);
-    const bound = bindPersistedActorTurn({
-      scenarioId: this.options.scenario.scenarioId,
-      actorId: input.actorId,
-      actorDisplayName: actor.displayName,
-      actorDemeanor: actor.demeanor ?? "",
-      learnerUtterance: input.learnerUtterance,
-      traceContextTags,
-      responseText: response.text,
-      engineEmotion: session.emotionEngines.get(input.actorId)?.currentEmotion,
-      base: {
-        turnId: `turn_${input.conversationTurn}_${input.actorId}_${input.atSecond}`,
-        stationRunId: session.run.stationRunId,
-        actorId: input.actorId,
-        atSecond: input.atSecond,
-        conversationTurn: input.conversationTurn,
-        learnerUtterance: input.learnerUtterance,
-        responseKind: response.responseKind,
-        traceContextTags,
-        durableEventRef: actorResponseDurableRef,
-        learnerEventSequence: learnerEvent.sequence,
-        actorResponseEventSequence: session.nextSequence,
-      },
-    });
-    const boundResponse = bound.authoredBinding
-      ? { ...response, text: bound.responseText }
-      : response;
-    const actorResponseEvent = this.appendTrace(session, {
-      eventType: "actor.response.generated",
-      atSecond: input.atSecond,
-      source: "model-gateway",
-      actorId: input.actorId,
-      ...(primaryTag ? { tag: primaryTag } : {}),
-      payload: {
-        text: boundResponse.text,
-        responseKind: boundResponse.responseKind,
-        traceTags: boundResponse.traceTags,
-        provenance: boundResponse.provenance,
-        durableEventRef: actorResponseDurableRef,
-        ...(bound.authoredBinding ? { authoredBinding: bound.authoredBinding } : {}),
-      },
-    });
-    const actorTurn: ScenarioRuntimeActorTurn = {
-      ...bound.turn,
-      actorResponseEventSequence: actorResponseEvent.sequence,
-    };
-    await this.options.durableStore?.saveActorTurn?.(session.run.stationRunId, actorTurn);
-
+  private actorTurnGenerationHost() {
     return {
-      conversationTurn: input.conversationTurn,
-      response: boundResponse,
-      learnerEvent,
-      actorResponseEvent,
-      historyTakingCoverage,
+      scenario: this.options.scenario,
+      modelGateway: this.options.modelGateway,
+      ...(this.options.durableStore ? { durableStore: this.options.durableStore } : {}),
+      appendTrace: this.appendTrace.bind(this),
+      applyEmotionEvent: this.applyEmotionEvent.bind(this),
+      applyHistoryTakingCoverageUpdate: this.applyHistoryTakingCoverageUpdate.bind(this),
     };
   }
 }
