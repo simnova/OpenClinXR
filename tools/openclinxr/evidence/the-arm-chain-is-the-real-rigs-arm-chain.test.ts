@@ -47,6 +47,36 @@ import { solveArmChain, type ChainJoint } from "../../../packages/openclinxr/mot
  *   which this repo's runtime does not yet use; anything about the leg chain.
  */
 
+/**
+ * ## FIXED (#0)
+ *
+ * `solveArmChain` now selects its chain by walking parent links and SKIPPING MakeHuman/MPFB `*02`
+ * twist helpers (`solve-chain.ts`: `flexingParent`, `MPFB_TWIST_HELPER`). On the shipped MPFB arm
+ * the walk from `wrist.L` now names:
+ *
+ *   wrist    = wrist.L        (effector, unchanged)
+ *   elbow    = lowerarm01.L   (was lowerarm02.L — the twist segment; it twists, it does not flex)
+ *   shoulder = upperarm01.L   (was lowerarm01.L — the real elbow, which was never driven at all)
+ *
+ * `upperarm02.L` sits between the shoulder and elbow slots and is skipped by the same walk. The Anny
+ * rail carries no `*02` bones, so `flexingParent` returns the direct parent there and clause (3) —
+ * hand.L -> forearm.L -> upper_arm.L — is untouched. Clauses (1) and (2) `it.fails` markers were
+ * flipped to `it`.
+ *
+ * Measured on the shipped bytes through this file's own `jointsFromGlb` (no literals):
+ *
+ *   solveOn(mpfb-clinical-nurse-adult.glb, "wrist.L")
+ *     -> shoulderBone "upperarm01.L", elbowBone "lowerarm01.L", wristBone "wrist.L"
+ *   solveOn(ed_chest_pain_adult_cast.glb, "hand.L")
+ *     -> shoulderBone "upper_arm.L", elbowBone "forearm.L", wristBone "hand.L"
+ *
+ * notEvidenceFor (this card): pose correctness. The analytic two-bone solve still models the arm as
+ * one adjacent shoulder->elbow->wrist triple, so on a six-link chain the emitted rotations are not
+ * pixel-graded here; the CCDIK runtime-goal arm card (tsk_6744647da1454e53) owns full-chain reach.
+ * `shoulder01.L` above `upperarm01.L` is left undriven — widening the output triple is a separate
+ * contract change, not this card's.
+ */
+
 const ROOT = join(import.meta.dirname, "../../..");
 const ANNY = join(ROOT, "apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.glb");
 const MPFB = join(ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb");
@@ -85,13 +115,13 @@ const solveOn = (path: string, effector: string) =>
   solveArmChain({ joints: jointsFromGlb(path), effectorBone: effector, target: { x: 0.15, y: 1.1, z: 0.12 } });
 
 describe("the arm chain is the real rig's arm chain", () => {
-  it.fails("(1) RED: on the shipped MPFB rig the elbow slot is not a twist segment", () => {
+  it("(1) on the shipped MPFB rig the elbow slot is not a twist segment", () => {
     const solved = solveOn(MPFB, "wrist.L");
     expect(solved.elbowBone, `the solver called ${solved.elbowBone} the elbow; MakeHuman *02 bones twist, they do not flex`)
       .not.toMatch(TWIST);
   });
 
-  it.fails("(2) RED: on the shipped MPFB rig the shoulder slot is an upper-arm bone", () => {
+  it("(2) on the shipped MPFB rig the shoulder slot is an upper-arm bone", () => {
     // Naming alone is cheap to satisfy by relabelling, so this asserts the SECOND slot too: a chain
     // whose 'shoulder' is a forearm bone drives the whole reach from the wrong side of the elbow.
     const solved = solveOn(MPFB, "wrist.L");

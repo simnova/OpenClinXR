@@ -190,6 +190,24 @@ function assertFinite(pose: SolvedArmPose): void {
 }
 
 /**
+ * MakeHuman/MPFB names its long-limb twist helpers `<limb>02` (`upperarm02.L`, `lowerleg02.L`, ...).
+ * These share a limb with the `*01` flex bone and rotate about its long axis; they flex nowhere, so a
+ * two-bone solve must never name one the elbow or shoulder. Scoped to the four long limbs and the
+ * side separator the shipped MPFB rigs carry, so no Anny/Mixamo/constructed bone name collides.
+ */
+const MPFB_TWIST_HELPER = /^(?:upperarm|lowerarm|upperleg|lowerleg)02\./u;
+
+/** Nearest ancestor of `bone` that can flex: skips MakeHuman/MPFB `*02` twist helpers while walking
+ *  parents. On rails without them this is exactly the direct parent — the two-hop chain is unchanged. */
+function flexingParent(byName: ReadonlyMap<string, ChainJoint>, bone: ChainJoint): ChainJoint | undefined {
+  let parent = bone.parentBoneName === undefined ? undefined : byName.get(bone.parentBoneName);
+  while (parent !== undefined && MPFB_TWIST_HELPER.test(parent.boneName)) {
+    parent = parent.parentBoneName === undefined ? undefined : byName.get(parent.parentBoneName);
+  }
+  return parent;
+}
+
+/**
  * Solve the right-arm chain so the wrist reaches `target`, expressed in the same accumulation the
  * clip's FK consumers use: bind rotations above the shoulder, then the returned node-local
  * rotations AT the shoulder, elbow and wrist.
@@ -203,10 +221,14 @@ export function solveArmChain(input: SolveArmChainInput): SolvedArmPose {
 
   const wrist = byName.get(effectorBone);
   if (!wrist) throw new Error(`solveArmChain: effector bone "${effectorBone}" is not a joint of this rig`);
-  const elbow = wrist.parentBoneName === undefined ? undefined : byName.get(wrist.parentBoneName);
-  if (!elbow) throw new Error(`solveArmChain: effector chain breaks at ${wrist.boneName} — no parent`);
-  const shoulder = elbow.parentBoneName === undefined ? undefined : byName.get(elbow.parentBoneName);
-  if (!shoulder) throw new Error(`solveArmChain: effector chain breaks at ${elbow.boneName} — no parent`);
+  // MakeHuman/MPFB splits each long limb into a `*01` flex bone and a `*02` twist helper, so a bare
+  // two-parent walk from the wrist would name a twist segment the elbow (it twists, it does not flex)
+  // and the real elbow the shoulder. Walk parent links and skip the twist helpers: on every other
+  // rail the walk returns exactly the direct parents, so the historical two-hop chain is unchanged.
+  const elbow = flexingParent(byName, wrist);
+  if (!elbow) throw new Error(`solveArmChain: effector chain breaks above ${wrist.boneName} — no flex joint`);
+  const shoulder = flexingParent(byName, elbow);
+  if (!shoulder) throw new Error(`solveArmChain: effector chain breaks above ${elbow.boneName} — no flex joint`);
   if (shoulder.boneName === elbow.boneName || elbow.boneName === wrist.boneName) {
     throw new Error("solveArmChain: degenerate chain — shoulder/elbow/wrist are not three distinct joints");
   }
