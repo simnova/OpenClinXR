@@ -44,6 +44,7 @@
 
 import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 import { access, mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
@@ -95,6 +96,33 @@ export const DEFAULT_EVIDENCE_DIR = path.join(REPO_ROOT, ".openclinxr", "evidenc
 /** The single case #286 covered. */
 export const COVERED_BY_286 = ["peds_asthma_parent_anxiety_v1"] as const;
 
+/**
+ * The inputs that decide station resolution, and therefore the only changes that can invalidate a
+ * recorded frontier. The rollup records each one's sha256 so a later reader can tell whether the
+ * numbers still describe the tree.
+ *
+ * A freshness rule written as "generatedAt must be recent" goes red on a quiet week and gets
+ * deleted. A rule written as "the sha must be an ancestor of HEAD" fires on every unrelated commit —
+ * the same disease. What actually invalidates this measurement is a change to the code that DECIDES
+ * station resolution: the runner, and the module whose resolution order changed underneath it
+ * (measured 2026-09-03: orchestrate_character.py's resolver seam moved the frontier past
+ * case_to_actor_params for 14 of 15 cases, and the artifact could not say so).
+ */
+export const ROLLUP_DECIDING_INPUTS = [
+  "tools/openclinxr/dark-factory/multi-case-runner.ts",
+  "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py",
+] as const;
+
+/** sha256 hex of a repo-root-relative deciding input. */
+export function sha256OfInput(relPath: string, repoRoot: string = REPO_ROOT): string {
+  return createHash("sha256").update(readFileSync(path.join(repoRoot, relPath))).digest("hex");
+}
+
+/** The deciding-input digests of the tree a run is about to measure. */
+export function currentInputDigests(repoRoot: string = REPO_ROOT): Record<string, string> {
+  return Object.fromEntries(ROLLUP_DECIDING_INPUTS.map((rel) => [rel, sha256OfInput(rel, repoRoot)]));
+}
+
 export const DARK_FACTORY_CHAIN_STATIONS = [
   "case_to_actor_params",
   "body",
@@ -143,6 +171,18 @@ export type MultiCaseRollup = {
   schemaVersion: "openclinxr.dark-factory-multi-case-rollup.v1";
   generatedAt: string;
   runner: string;
+  /**
+   * sha256 (hex) of every deciding input at the moment this rollup was generated, so a later
+   * reader can tell whether the numbers still describe the tree they were measured against.
+   */
+  measuredInputs: Record<string, string>;
+  /**
+   * Self-refusal: true when a deciding input has moved since this rollup was generated and no
+   * re-run has cleared it. `stale: true` is an honest answer the contract permits; silence —
+   * a rollup that cannot say its numbers no longer describe the tree — is the defect this
+   * field exists to kill. A fresh run writes false.
+   */
+  stale: boolean;
   population: Array<{ caseId: string; coveredBy286: boolean }>;
   summary: {
     casesAttempted: number;
@@ -155,12 +195,21 @@ export type MultiCaseRollup = {
   cases: PipelineStationTable[];
 };
 
+export type SupersededRollupSnapshot = {
+  generatedAt: string;
+  casesFullyDeterministic: number;
+  deterministicStationTotals: Partial<Record<DarkFactoryStationId, number>>;
+  frontierCounts: Partial<Record<DarkFactoryStationId, number>>;
+};
+
 export type PreFixArtifact = {
   schemaVersion: "openclinxr.dark-factory-multi-case.pre-fix.v1";
   generatedAt: string;
   population: string[];
   populationSource: string;
   coveredBy286: string[];
+  /** Headline figures of the rollup this run replaces, when one existed. */
+  supersededRollup?: SupersededRollupSnapshot;
   notes: string[];
 };
 
@@ -1319,18 +1368,40 @@ export async function writePreFixArtifact(options: {
 }): Promise<PreFixArtifact> {
   const evidenceDir = options.evidenceDir ?? DEFAULT_EVIDENCE_DIR;
   const population = options.population ?? (await enumerateCasePopulation());
+  // Snapshot the rollup this run replaces so the old figures stay readable after the re-run —
+  // the drift between the two measurements is the point of recording it at all.
+  let supersededRollup: SupersededRollupSnapshot | undefined;
+  try {
+    const prior = JSON.parse(
+      await readFile(path.join(evidenceDir, "multi-case-rollup.json"), "utf8"),
+    ) as MultiCaseRollup;
+    supersededRollup = {
+      generatedAt: prior.generatedAt,
+      casesFullyDeterministic: prior.summary.casesFullyDeterministic,
+      deterministicStationTotals: prior.summary.deterministicStationTotals,
+      frontierCounts: prior.summary.frontierCounts,
+    };
+  } catch {
+    supersededRollup = undefined;
+  }
   const artifact: PreFixArtifact = {
     schemaVersion: "openclinxr.dark-factory-multi-case.pre-fix.v1",
     generatedAt: new Date().toISOString(),
     population,
     populationSource: "apps/ui-xr/public/xr-assets/generated/*/learner-runtime-bundle.v1.json (shipped station bundles)",
     coveredBy286: [...COVERED_BY_286],
+    supersededRollup,
     notes: [
       "#286 ran exactly one case (peds_asthma_parent_anxiety_v1) and ended in a live render; its per-stage runner scripts were never landed (git ls-files shows JSON/OBJ/PNG outputs and no .ts under .openclinxr/evidence/issue-286/).",
       "This run chains the same adopted stations (#286-recorded implementations) over the whole shipped case population; no numeric target is asserted here — the roll-up reports what happened per case per station.",
       "case_to_actor_params/body/rigging sustain only cases with a CASE_ACTOR_PRESETS entry; room/equipment/placement/render are expected to sustain the full population.",
     ],
   };
+  if (supersededRollup) {
+    artifact.notes.push(
+      `Supersedes the ${supersededRollup.generatedAt} rollup (casesFullyDeterministic ${supersededRollup.casesFullyDeterministic}/${population.length}, frontierCounts ${JSON.stringify(supersededRollup.frontierCounts)}); its headline figures are recorded above so the drift between the two measurements stays readable.`,
+    );
+  }
   await mkdir(evidenceDir, { recursive: true });
   await writeFile(path.join(evidenceDir, "pre-fix.json"), `${JSON.stringify(artifact, null, 2)}\n`, "utf8");
   return artifact;
@@ -1359,6 +1430,9 @@ export function isCaseFullyDeterministic(
 export async function runMultiCaseChain(options: RunMultiCaseChainOptions = {}): Promise<MultiCaseRollup> {
   const evidenceDir = options.evidenceDir ?? DEFAULT_EVIDENCE_DIR;
   const population = options.population ?? (await enumerateCasePopulation());
+  // The digests of the tree THIS run measures, taken before any station runs: the rollup's
+  // numbers are only about this tree, and the hashes are how a later reader can tell.
+  const measuredInputs = currentInputDigests();
   await writePreFixArtifact({ evidenceDir, population });
 
   let server: PortlessDevServer | undefined;
@@ -1404,6 +1478,8 @@ export async function runMultiCaseChain(options: RunMultiCaseChainOptions = {}):
       schemaVersion: "openclinxr.dark-factory-multi-case-rollup.v1",
       generatedAt: new Date().toISOString(),
       runner: "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
+      measuredInputs,
+      stale: false,
       population: population.map((caseId) => ({
         caseId,
         coveredBy286: COVERED_BY_286.includes(caseId as (typeof COVERED_BY_286)[number]),
@@ -1416,6 +1492,7 @@ export async function runMultiCaseChain(options: RunMultiCaseChainOptions = {}):
         coverageNotes: [
           "The roll-up reports what happened per case per station; no pass rate is asserted.",
           "case_to_actor_params/body/rigging are bounded by the resolver union (resolve_case_actor_params_with_source: authored phenotype-export entries + legacy preset rows); room/equipment/placement/render are bounded by the scenario fixtures and run over the full population.",
+          "measuredInputs records the sha256 of every input that decides station resolution (multi-case-runner.ts, orchestrate_character.py); a reader can compare against the tree, and the artifact declares stale: true when one has moved. supersededRollup figures for the measurement this run replaced are in pre-fix.json.",
         ],
       },
       cases: tables,
@@ -1438,10 +1515,41 @@ export async function runMultiCaseChain(options: RunMultiCaseChainOptions = {}):
 /* Standalone CLI                                                      */
 /* ------------------------------------------------------------------ */
 
+/**
+ * Refuse a rollup whose deciding inputs have moved since it was generated: when a recorded
+ * digest no longer matches the tree, rewrite the artifact in place with `stale: true`,
+ * preserving the data and the recorded digests (the drift between them is the point). The
+ * full re-run is the expensive half; this is the cheap half — it makes an outdated artifact
+ * say so without regenerating it, so a reader is never pointed at numbers the tree no
+ * longer produced. Returns true when the artifact was marked stale.
+ */
+export async function refreshRollupStaleness(options: { evidenceDir?: string } = {}): Promise<boolean> {
+  const evidenceDir = options.evidenceDir ?? DEFAULT_EVIDENCE_DIR;
+  const rollupPath = path.join(evidenceDir, "multi-case-rollup.json");
+  let rollup: MultiCaseRollup;
+  try {
+    rollup = JSON.parse(await readFile(rollupPath, "utf8")) as MultiCaseRollup;
+  } catch {
+    return false; // no artifact to refuse
+  }
+  const declared: Record<string, string> = rollup.measuredInputs ?? {};
+  const drifted = ROLLUP_DECIDING_INPUTS.filter((rel) => declared[rel] !== sha256OfInput(rel));
+  if (drifted.length === 0) return false;
+  if (rollup.stale === true) return true; // already refused
+  rollup.stale = true;
+  await writeFile(rollupPath, `${JSON.stringify(rollup, null, 2)}\n`, "utf8");
+  return true;
+}
+
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const caseIndex = args.indexOf("--case");
   const all = args.includes("--all");
+  if (args.includes("--refresh-stale")) {
+    const marked = await refreshRollupStaleness();
+    console.log(marked ? "ROLLUP_MARKED_STALE" : "ROLLUP_CURRENT");
+    return;
+  }
   if (caseIndex >= 0 && args[caseIndex + 1]) {
     const table = await runCaseChain(args[caseIndex + 1]);
     console.log(`CASE_DONE ${table.caseId} stations=${table.stations.length}`);
@@ -1454,7 +1562,7 @@ async function main(): Promise<void> {
     console.log(JSON.stringify({ frontierCounts: rollup.summary.frontierCounts, deterministicTotals: rollup.summary.deterministicStationTotals }, null, 2));
     return;
   }
-  console.error("usage: multi-case-runner.ts --case <scenarioId> | --all");
+  console.error("usage: multi-case-runner.ts --case <scenarioId> | --all | --refresh-stale");
   process.exit(1);
 }
 

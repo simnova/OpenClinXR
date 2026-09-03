@@ -45,6 +45,17 @@ import { describe, expect, it } from "vitest";
  *   when an input has moved.
  * notEvidenceFor: what the current frontier IS — this file does not run the chain and asserts no pass
  *   rate; whether any station works; anything about Blender, bakes, or render quality.
+ *
+ * ## FIXED (#0)
+ * 2026-09-03. `tools/openclinxr/dark-factory/multi-case-runner.ts` now writes `measuredInputs`
+ * (sha256 of each `ROLLUP_DECIDING_INPUTS` member — multi-case-runner.ts and
+ * orchestrate_character.py — taken before any station runs) and `stale: false` into every rollup,
+ * and exposes `refreshRollupStaleness` (CLI `--refresh-stale`) to rewrite an artifact whose inputs
+ * have moved in place with `stale: true` instead of regenerating it. `pre-fix.json` records the
+ * superseded rollup's headline figures so the drift between measurements stays readable. The rollup
+ * was then re-run over the full 15-case population; the artifact it produced records the digests of
+ * the tree it measured and is not stale. The immutability instruction in this header predates the
+ * fix and is retained verbatim; the flipped assertions are the RED this fix turns green.
  */
 
 const ROOT = join(import.meta.dirname, "../../..");
@@ -75,7 +86,7 @@ describe("the multi-case rollup knows what tree it measured", () => {
     expect(rollup()["summary"], "the artifact carries no summary — it is not the rollup").toBeDefined();
   });
 
-  it.fails("(1) RED: the rollup records the sha256 of every input that decides station resolution", () => {
+  it("(1) RED: the rollup records the sha256 of every input that decides station resolution", () => {
     const r = rollup();
     const declared = (r["measuredInputs"] ?? {}) as Record<string, string>;
     for (const rel of DECIDING_INPUTS) {
@@ -84,7 +95,7 @@ describe("the multi-case rollup knows what tree it measured", () => {
     }
   });
 
-  it.fails("(2) RED: the recorded hashes still match the tree, or the artifact declares itself stale", () => {
+  it("(2) RED: the recorded hashes still match the tree, or the artifact declares itself stale", () => {
     // COUNTERWEIGHT to (1): recording a hash field is cheap and proves nothing on its own. The value
     // has to be the REAL digest of the file it names, and it has to be checked. An artifact whose
     // inputs have moved is allowed to say so — `stale: true` is a legitimate, honest answer here and
