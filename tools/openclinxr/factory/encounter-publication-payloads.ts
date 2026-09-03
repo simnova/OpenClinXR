@@ -48,6 +48,7 @@ type CliOptions = {
   materializationEvidenceAttachmentsPath?: string;
   assetWorkerReportPath?: string;
   outputPath?: string;
+  uiXrPublicAssetRoot?: string;
   validatePath?: string;
   summarizeDryRunPlanPath?: string;
   validateLatest: boolean;
@@ -376,6 +377,7 @@ export async function runEncounterPublicationPayloadsCli(args: string[]): Promis
     materializationEvidenceReport,
     materializationEvidenceAttachments,
     assetWorkerReport,
+    uiXrPublicAssetRoot: options.uiXrPublicAssetRoot,
   });
   await syncPublishedLearnerRuntimeMaterializationGate(report);
   await writeJson(options.outputPath ?? defaultOutputPath, report);
@@ -406,6 +408,7 @@ export async function buildEncounterPublicationPayloadReport(input: {
   assetWorkerReport?: EncounterAssetGenerationWorkerReport;
   generatedAt?: string;
   artifactRoot?: string;
+  uiXrPublicAssetRoot?: string;
   remediationWorkOrderRefs?: VisualQaRemediationWorkOrderRef[];
 }): Promise<EncounterPublicationPayloadReport> {
   const generatedAt = input.generatedAt ?? new Date().toISOString();
@@ -419,7 +422,7 @@ export async function buildEncounterPublicationPayloadReport(input: {
   );
   const sceneManifestPath = path.join(localPrefix, "scene-manifest.v1.json");
   const learnerRuntimeBundlePath = path.join(localPrefix, "learner-runtime-bundle.v1.json");
-  const publicPrefix = path.join("apps/ui-xr/public/xr-assets/generated", input.queueReport.request.scenarioId);
+  const publicPrefix = path.join(input.uiXrPublicAssetRoot ?? "apps/ui-xr/public/xr-assets/generated", input.queueReport.request.scenarioId);
   const uiXrPublicSceneManifestPath = path.join(publicPrefix, "scene-manifest.v1.json");
   const uiXrPublicLearnerRuntimeBundlePath = path.join(publicPrefix, "learner-runtime-bundle.v1.json");
   const humanoidRealismRequirements = input.queueReport.humanoidRealismRequirements ?? deriveHumanoidRealismRequirementsFromBundle(input.bundleReport);
@@ -2015,6 +2018,11 @@ function parseArgs(args: string[]): CliOptions {
     }
     if (arg === "--output") {
       options.outputPath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
+    if (arg === "--ui-xr-public-root") {
+      options.uiXrPublicAssetRoot = requireValue(normalizedArgs, index, arg);
       index += 1;
       continue;
     }

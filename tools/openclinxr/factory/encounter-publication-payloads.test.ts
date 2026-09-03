@@ -202,6 +202,7 @@ describe("encounter publication payloads", () => {
         bundleReport: bundleReport(),
         generatedAt: "2026-05-23T12:30:00.000Z",
         artifactRoot: tempDir,
+        uiXrPublicAssetRoot: path.join(tempDir, "ui-xr-public-assets"),
         remediationWorkOrderRefs,
       });
 
@@ -601,6 +602,60 @@ describe("encounter publication payloads", () => {
     }
   });
 
+  it("never writes publication copies into shipped UI-XR assets when roots are caller-supplied", async () => {
+    const shippedFiles = [
+      "apps/ui-xr/public/xr-assets/generated/ed_chest_pain_priority_v1/scene-manifest.v1.json",
+      "apps/ui-xr/public/xr-assets/generated/ed_chest_pain_priority_v1/learner-runtime-bundle.v1.json",
+      "apps/ui-xr/public/xr-assets/generated/ed_chest_pain_priority_v2/scene-manifest.v1.json",
+      "apps/ui-xr/public/xr-assets/generated/ed_chest_pain_priority_v2/learner-runtime-bundle.v1.json",
+      "apps/ui-xr/public/xr-assets/generated/peds_asthma_parent_anxiety_v1/scene-manifest.v1.json",
+      "apps/ui-xr/public/xr-assets/generated/peds_asthma_parent_anxiety_v1/learner-runtime-bundle.v1.json",
+    ];
+    const before = new Map<string, string>();
+    for (const shippedPath of shippedFiles) {
+      before.set(shippedPath, await readFile(shippedPath, "utf8"));
+    }
+
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-publication-shipped-write-guard-"));
+    try {
+      const artifactRoot = path.join(tempDir, "local");
+      const uiXrPublicAssetRoot = path.join(tempDir, "ui-xr-public-assets");
+      await buildEncounterPublicationPayloadReport({
+        queueReport: buildEncounterAssetGenerationQueueReport({ generatedAt: "2026-06-04T03:40:00.000Z" }),
+        bundleReport: bundleReport(),
+        generatedAt: "2026-06-04T03:41:00.000Z",
+        artifactRoot,
+        uiXrPublicAssetRoot,
+      });
+      await buildEncounterPublicationPayloadReport({
+        queueReport: buildEncounterAssetGenerationQueueReport({
+          projectionArtifact: buildDynamicEncounterFactoryProjectionArtifact(variantScenarioBank, edChestPainScenario.scenarioId),
+        }),
+        bundleReport: bundleReportForScenario(edChestPainScenarioV2.scenarioId),
+        generatedAt: "2026-06-04T03:42:00.000Z",
+        artifactRoot,
+        uiXrPublicAssetRoot,
+      });
+      await buildEncounterPublicationPayloadReport({
+        queueReport: buildEncounterAssetGenerationQueueReport({
+          projectionArtifact: buildDynamicEncounterFactoryProjectionArtifact(scenarioBank, edChestPainScenario.scenarioId),
+        }),
+        bundleReport: bundleReportForScenario(pediatricAsthmaScenario.scenarioId),
+        generatedAt: "2026-06-04T03:43:00.000Z",
+        artifactRoot,
+        uiXrPublicAssetRoot,
+      });
+
+      // The materializer wrote into the caller-supplied public root, not the shipped tree.
+      await expect(readFile(path.join(uiXrPublicAssetRoot, "ed_chest_pain_priority_v1", "scene-manifest.v1.json"), "utf8")).resolves.toContain("\"schemaVersion\"");
+      for (const shippedPath of shippedFiles) {
+        expect(await readFile(shippedPath, "utf8"), shippedPath).toBe(requireFixtureValue(before.get(shippedPath), `prior shipped content for ${shippedPath}`));
+      }
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
   it("materializes canonical factory-summary contracts for publication output", async () => {
     const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-publication-contract-parity-"));
     try {
@@ -612,6 +667,7 @@ describe("encounter publication payloads", () => {
         bundleReport: bundleReport(),
         generatedAt: "2026-05-23T12:30:00.000Z",
         artifactRoot: tempDir,
+        uiXrPublicAssetRoot: path.join(tempDir, "ui-xr-public-assets"),
       });
       const learnerBundle = (await readFile(report.localArtifacts.learnerRuntimeBundlePath, "utf8").then(JSON.parse)) as NonNullable<GeneratedEdStationRuntimeBundleReport["learnerBundle"]>;
       const encounterFactorySummary = summarizeEncounterFactoryDryRunPlan(report);
@@ -642,6 +698,7 @@ describe("encounter publication payloads", () => {
       bundleReport: bundleReportForScenario(edChestPainScenarioV2.scenarioId),
       generatedAt: "2026-05-23T12:30:00.000Z",
       artifactRoot: tempDir,
+      uiXrPublicAssetRoot: path.join(tempDir, "ui-xr-public-assets"),
     });
 
     expect(report.scenarioId).toBe(edChestPainScenarioV2.scenarioId);
@@ -756,6 +813,7 @@ describe("encounter publication payloads", () => {
       bundleReport: bundleReport(),
       generatedAt: "2026-05-23T12:30:00.000Z",
       artifactRoot: ".openclinxr/test-publication",
+      uiXrPublicAssetRoot: ".openclinxr/test-publication/ui-xr-public-assets",
     });
     const invalid = structuredClone(report);
     invalid.humanoidRealismRequirements.notEvidenceFor = ["production_asset_readiness"];
@@ -861,7 +919,7 @@ describe("encounter publication payloads", () => {
     const previousExitCode = process.exitCode;
     try {
       const outputPath = path.join(tempDir, "publication-report.json");
-      await runEncounterPublicationPayloadsCli(["--output", outputPath]);
+      await runEncounterPublicationPayloadsCli(["--output", outputPath, "--ui-xr-public-root", path.join(tempDir, "ui-xr-public-assets")]);
       await expect(runEncounterPublicationPayloadsCli(["--validate", outputPath])).resolves.toBeUndefined();
     } finally {
       process.exitCode = previousExitCode;
@@ -895,6 +953,8 @@ describe("encounter publication payloads", () => {
         bundleReportPath,
         "--output",
         outputPath,
+        "--ui-xr-public-root",
+        path.join(tempDir, "ui-xr-public-assets"),
       ]);
       const report = JSON.parse(await readFile(outputPath, "utf8")) as {
         scenarioId: string;
@@ -996,6 +1056,8 @@ describe("encounter publication payloads", () => {
         bundleReportPath,
         "--output",
         outputPath,
+        "--ui-xr-public-root",
+        path.join(tempDir, "ui-xr-public-assets"),
       ]);
       const report = JSON.parse(await readFile(outputPath, "utf8")) as {
         scenarioId: string;
@@ -1143,6 +1205,7 @@ describe("encounter publication payloads", () => {
         bundleReport: bundleReport(),
         generatedAt: "2026-05-23T12:30:00.000Z",
         artifactRoot: tempDir,
+        uiXrPublicAssetRoot: path.join(tempDir, "ui-xr-public-assets"),
       });
       const reportPath = path.join(tempDir, "publication-report.json");
       await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
@@ -1190,13 +1253,13 @@ describe("encounter publication payloads", () => {
     };
 
     expect(rootPackage.scripts["asset:encounter-publication:materialize"]).toBe(
-      "tsx tools/openclinxr/encounter-publication-payloads.ts",
+      "tsx tools/openclinxr/factory/encounter-publication-payloads.ts",
     );
     expect(rootPackage.scripts["asset:encounter-publication:validate"]).toBe(
-      "tsx tools/openclinxr/encounter-publication-payloads.ts --validate-latest",
+      "tsx tools/openclinxr/factory/encounter-publication-payloads.ts --validate-latest",
     );
     expect(rootPackage.scripts["asset:encounter-publication:summarize-dry-run"]).toBe(
-      "tsx tools/openclinxr/encounter-publication-payloads.ts --summarize-dry-run-plan",
+      "tsx tools/openclinxr/factory/encounter-publication-payloads.ts --summarize-dry-run-plan",
     );
   });
 
@@ -1212,6 +1275,7 @@ describe("encounter publication payloads", () => {
         materializationEvidenceAttachments: materializationEvidenceAttachmentRecordsFixture(),
         generatedAt: "2026-05-28T12:30:00.000Z",
         artifactRoot: tempDir,
+        uiXrPublicAssetRoot: path.join(tempDir, "ui-xr-public-assets"),
         remediationWorkOrderRefs: [],
       });
 

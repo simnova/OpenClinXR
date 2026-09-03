@@ -15,7 +15,7 @@ describe("generated learner runtime bundle publication report", () => {
     };
 
     expect(rootPackage.scripts["asset:generated-learner-bundle:publish-plan"]).toBe(
-      "tsx tools/openclinxr/publish-generated-learner-runtime-bundle.ts",
+      "tsx tools/openclinxr/factory/publish-generated-learner-runtime-bundle.ts",
     );
   });
 
