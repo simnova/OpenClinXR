@@ -31,6 +31,43 @@ export type PlantedRed = {
 };
 
 export const PLANTED_REDS: readonly PlantedRed[] = [
+  // FIVE COMPILER-SURFACE ENTRIES ADDED 2026-09-03 (compiler-repair card). The bake-off
+  // tsk_37785faf55d16dc6 closed inconclusive_blocked because its harness could not reach a primitive
+  // through the package root and hand-rolled twoBoneToward instead. Clauses (2) and (5) currently
+  // fail on clause (1)'s missing exports; when (1) lands their `expected` MOVES to their own
+  // assertion and `stage` becomes "assertion". That transition is an explicit edit here, not a
+  // discovery later.
+  {
+    file: "the-compiler-surface-carries-region-and-effector.test.ts",
+    select: "(1) a consumer outside this package can reach the primitive registry from the root",
+    expected: /does not export (resolvePrimitive|PRIMITIVE_IDS|a skeleton deriver)/u,
+    stage: "module_absent",
+  },
+  {
+    file: "the-compiler-surface-carries-region-and-effector.test.ts",
+    select: "(2) two different sites compile to different tracks, each anchored to its own region",
+    expected: /resolvePrimitive is not exported|the site is ignored/u,
+    stage: "module_absent",
+  },
+  {
+    file: "the-compiler-surface-carries-region-and-effector.test.ts",
+    select: "(3) left and right effectors differ, and the rig's identity does NOT",
+    expected: /action\.effector is ignored|addresses no left-side bone/u,
+    stage: "assertion",
+  },
+  {
+    file: "the-compiler-surface-carries-region-and-effector.test.ts",
+    select: "(4) durationSeconds is seconds",
+    expected: /durationSeconds carries milliseconds/u,
+    stage: "assertion",
+  },
+  {
+    file: "the-compiler-surface-carries-region-and-effector.test.ts",
+    select: "(5) every responseKind maps to a primitive the registry can supply",
+    expected: /PRIMITIVE_IDS is not exported|primitives the registry cannot supply/u,
+    stage: "module_absent",
+  },
+
   // ALL SEVEN REGION-ANCHOR ENTRIES REMOVED 2026-08-30 (tsk_1e0cd3cc7084db02). The anchor producer
   // landed — src/regions/region-anchors.ts exports deriveSkeletonProfile, and the seven clauses
   // were flipped from `planted` to `it` with a `## FIXED (tsk_1e0cd3cc7084db02)` block appended in
