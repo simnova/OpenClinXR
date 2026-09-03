@@ -34,7 +34,7 @@
 
 import { createHash } from "node:crypto";
 
-import { deriveDeterministicVariationSeed } from "../trajectory/deterministic-variation.js";
+import { deriveDeterministicVariationSeed, HASH_DIGEST } from "../trajectory/deterministic-variation.js";
 import { motionBodyRegionForComplianceRegion } from "../motion-body-region.js";
 import { MOTION_PROGRAM_SCHEMA_VERSION, MOTION_PLAN_CLAIM_BOUNDARY, type MotionAction, type MotionEffector, type MotionProgram, type MotionTargetKind } from "../motion-program.js";
 
@@ -127,7 +127,13 @@ export type ScenarioMotionCompileInput = {
   actorId: string;
   touchResponses: readonly AuthoredTouchResponse[];
   placement?: { supportSurface?: string };
-  /** The rig's canonical profile hash when the plan is compiled with a rig in view. Absent = no rig bound yet (see the seed contract). */
+  /**
+   * The rig's canonical profile hash when the compile is made WITH a rig in view. OMITTING this
+   * field is the compile's plan-time declaration: no rig is bound yet, and the seed's skeleton
+   * slot is filled by the program's own hash (the policy declared in
+   * `resolveSeedSkeletonSlotHash`). A value that IS present but is not a canonical digest is
+   * refused, never defaulted — the package's "refused, not defaulted" rule (region-anchors).
+   */
   skeletonProfileHash?: string;
   /** Reproducible variation stream index; 0 is the default compile. */
   variationIndex?: number;
@@ -174,18 +180,53 @@ export function postureForSupportSurface(supportSurface: string | undefined): st
   );
 }
 
+/**
+ * THE COMPILE SURFACE'S ONE POLICY FOR A MISSING RIG HASH — the single named decision that fills
+ * the seed's skeleton slot, declared in the module that enacts it.
+ *
+ * The package's other derivation surfaces REFUSE a missing input: region-anchors refuses a rig
+ * that lacks a region's reference landmark — "refused, not defaulted" (region-anchors.ts:148) —
+ * because a silent default is a wrong value nobody can see. This surface CANNOT refuse the same
+ * way: the plan compiler is structurally rig-less ("no SkeletonProfile ownership on this side of
+ * the boundary", motion-program.ts), and a plan compiled before any rig is bound is the shipped
+ * baseline path (deterministic-scenario-motion-planner.ts passes no hash). So the absence IS the
+ * declaration: `skeletonProfileHash` omitted from a compile says no rig is bound yet, and the
+ * slot is filled by the program's OWN canonical hash — the only canonical digest the plan
+ * possesses. The moment a real rig hash is supplied the seed changes (the seed contract's clause
+ * 2). A value that IS present but is not a canonical digest is REFUSED here, at the surface that
+ * received it, in the package's refusing vocabulary — never defaulted, and never left for the
+ * derivation to name a module the caller did not call.
+ *
+ * The rig-bound surface (`deterministicCompileIdentity`) takes the opposite route: its
+ * `skeletonProfileHash` is REQUIRED, so an absent hash there is refused by construction.
+ */
+export function resolveSeedSkeletonSlotHash(
+  programHash: string,
+  skeletonProfileHash: string | undefined,
+): string {
+  if (skeletonProfileHash === undefined) {
+    // Plan-time declaration: no rig bound yet — the program's own hash is the slot.
+    return programHash;
+  }
+  if (!HASH_DIGEST.test(skeletonProfileHash)) {
+    throw new Error(
+      `compileScenarioMotion: skeletonProfileHash ${JSON.stringify(skeletonProfileHash)} is not a 64-char lowercase sha256 digest — a non-canonical rig slot is refused, not defaulted`,
+    );
+  }
+  return skeletonProfileHash;
+}
+
 /** Brief §13: the seed is DERIVED from stable inputs, never a caller-chosen integer. */
 function derivePlanDeterministicSeed(
   programHash: string,
   skeletonProfileHash: string | undefined,
   variationIndex: number | undefined,
 ): string {
-  // The five-input canonical derivation (card tsk_89fca85c7700ae13). With no rig bound, the
-  // skeleton slot is filled by the program's own hash — the only canonical digest the plan
-  // possesses (see the seed contract's plan-time convention).
+  // The five-input canonical derivation (card tsk_89fca85c7700ae13). The skeleton slot is decided
+  // by `resolveSeedSkeletonSlotHash` — the named plan-time policy — never by an inline default.
   return deriveDeterministicVariationSeed({
     motionProgramHash: programHash,
-    skeletonProfileHash: skeletonProfileHash ?? programHash,
+    skeletonProfileHash: resolveSeedSkeletonSlotHash(programHash, skeletonProfileHash),
     compilerVersion: MOTION_COMPILER_VERSION,
     primitiveLibraryVersion: PRIMITIVE_LIBRARY_VERSION,
     variationIndex: variationIndex ?? 0,

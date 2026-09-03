@@ -93,6 +93,31 @@ import {
  * (`compile-motion-program.js`) remains a sibling RED; this card pins the block it consumes.
  */
 
+/**
+ * ## FIXED (tsk_af3b9374e8b97632) — one package, two policies: clause (5) contracts the chosen one.
+ *
+ * region-anchors.ts REFUSES a missing landmark ("refused, not defaulted", region-anchors.ts:148)
+ * and deterministic-variation.ts validates every seed slot strictly, but the seed path substituted
+ * the program's own hash when `skeletonProfileHash` was undefined through an anonymous `??` inside
+ * a private helper — a silent default under no contract at the compile surface.
+ *
+ * The chosen policy, DECLARED in the module that enacts it: the plan-time absence is a real state —
+ * the shipped baseline planner is structurally rig-less (motion-program.ts: "no SkeletonProfile
+ * ownership on this side of the boundary") and its callers pass no hash, measured on this tree:
+ * deterministic-scenario-motion-planner.ts:32 forwards caller input without a hash and the live
+ * planner clauses call `planMotionProgram({scenarioId, actorId, touchResponses})` with none. So a
+ * compile with `skeletonProfileHash` omitted is the plan saying no rig is bound yet, and the seed's
+ * skeleton slot is filled by the program's OWN canonical hash — the only canonical digest the plan
+ * possesses. What is no longer silent: the decision is an exported, named, single-homed function
+ * (`resolveSeedSkeletonSlotHash` in program/compile-scenario-motion.ts), and a slot value that IS
+ * present but is not a canonical digest is REFUSED at the compile surface with the package's
+ * refusing vocabulary — never defaulted. The rig-bound surface (`deterministicCompileIdentity`)
+ * already requires a real hash, so an absent hash there is refused by construction.
+ *
+ * Clause (5) proves the declared-absence compile still succeeds (the counterweight: a fix that
+ * throws on every absent hash breaks the plan-time path this convention exists to serve).
+ */
+
 /** Resolve to an ABSOLUTE url before the deferred import — see the sibling plants. */
 function plantModule(specifier: string): string {
   return new URL(specifier, import.meta.url).href;
@@ -139,6 +164,7 @@ type CompilerModule = {
     variationIndex?: number;
   }) => MotionProgramLike;
   canonicalMotionProgramHash: (program: MotionProgramLike) => string;
+  resolveSeedSkeletonSlotHash: (programHash: string, skeletonProfileHash: string | undefined) => string;
   deterministicCompileIdentity: (args: {
     program: MotionProgramLike;
     skeletonProfileHash: string;
@@ -408,6 +434,78 @@ describe("the seed is derived from five case inputs", () => {
         canonical(underSeed),
         `"${id}" produced the same motion under a one-input-different derived seed — the recorded string is a decoy, not the driver`,
       ).not.toBe(canonical(primitive!.compile(request(id, oneInputMoved))));
+    }
+  });
+
+  it("(5) RED: a missing rig hash is the DECLARED plan-time state — never a silent default, and a non-canonical slot is refused", async () => {
+    // One package, two policies (card tsk_af3b9374e8b97632): region-anchors REFUSES a missing
+    // input ("refused, not defaulted"), while the seed path used to substitute the program's own
+    // hash through an anonymous `??` in a private helper — a silent default under no contract.
+    // The chosen policy keeps the plan-time substitution (the shipped baseline planner is
+    // structurally rig-less and relies on omitting the hash) but makes it a NAMED, single-homed
+    // decision at the compile surface, and refuses a slot that is present but not canonical.
+    const { deriveDeterministicVariationSeed } = await loadVariation();
+    const compiler = await loadCompiler();
+
+    const row = {
+      region: "abdomen_rlq",
+      responseKind: "guarding",
+      forceThreshold: 0.28,
+      emotionEventId: "guard_rlq_v1",
+      emotion: "pain",
+      responseClip: "openclinxr_role_patient_guard_withdraw_rlq",
+      dialogueLine: "test line",
+      traceTag: "clinical_touch_guard_rlq",
+    };
+    const scenarioId = "adult_abdominal_pain_v1";
+    const actorId = "patient_elena_vasquez_v1";
+
+    // The declared-absence compile still succeeds — the counterweight. Omission is the plan-time
+    // declaration, and the named slot decision maps it to the program's own canonical hash.
+    const plan = compiler.compileScenarioMotion({ scenarioId, actorId, touchResponses: [row] });
+    const planHash = compiler.canonicalMotionProgramHash(plan);
+    expect(compiler.resolveSeedSkeletonSlotHash(planHash, undefined), "an omitted rig hash must resolve to the program's own hash — the plan-time declaration").toBe(planHash);
+    expect(plan.deterministicSeed, "the plan-time compile no longer derives through the declared slot policy").toBe(
+      deriveDeterministicVariationSeed({
+        motionProgramHash: planHash,
+        skeletonProfileHash: planHash,
+        compilerVersion: compiler.MOTION_COMPILER_VERSION,
+        primitiveLibraryVersion: compiler.PRIMITIVE_LIBRARY_VERSION,
+        variationIndex: 0,
+      }),
+    );
+
+    // A REAL rig hash is used as-is — the substitution is ONLY the plan-time declaration, never a
+    // default for a bound compile. The moment a rig hash is supplied, the seed changes.
+    const rigHash = "e".repeat(64);
+    const bound = compiler.compileScenarioMotion({ scenarioId, actorId, touchResponses: [row], skeletonProfileHash: rigHash });
+    expect(compiler.resolveSeedSkeletonSlotHash(planHash, rigHash), "a canonical rig hash must fill the skeleton slot unchanged").toBe(rigHash);
+    expect(
+      bound.deterministicSeed,
+      "a rig-bound compile must NOT carry the plan-time seed — the absent-hash substitution is not a default",
+    ).toBe(
+      deriveDeterministicVariationSeed({
+        motionProgramHash: compiler.canonicalMotionProgramHash(bound),
+        skeletonProfileHash: rigHash,
+        compilerVersion: compiler.MOTION_COMPILER_VERSION,
+        primitiveLibraryVersion: compiler.PRIMITIVE_LIBRARY_VERSION,
+        variationIndex: 0,
+      }),
+    );
+    expect(bound.deterministicSeed, "a bound compile and the plan-time compile collided on one seed").not.toBe(plan.deterministicSeed);
+
+    // Present but not canonical is REFUSED at the compile surface — "refused, not defaulted",
+    // the package's refusing vocabulary (region-anchors.ts:148). A wall-clock or prose value is
+    // not a canonical hash slot and must not be defaulted into the seed material.
+    for (const bad of ["not-a-digest", String(Date.now()), "A".repeat(64)]) {
+      expect(
+        () => compiler.resolveSeedSkeletonSlotHash(planHash, bad),
+        `skeletonProfileHash ${JSON.stringify(bad)} was defaulted — a non-canonical rig slot must be refused, not defaulted`,
+      ).toThrow(/refused, not defaulted/);
+      expect(
+        () => compiler.compileScenarioMotion({ scenarioId, actorId, touchResponses: [row], skeletonProfileHash: bad }),
+        `compileScenarioMotion accepted a non-canonical skeletonProfileHash ${JSON.stringify(bad)} — the compile surface must refuse it`,
+      ).toThrow(/refused, not defaulted/);
     }
   });
 });
