@@ -20,11 +20,24 @@ cd /Users/patrick/.grok/worktrees/src-openclinxr/<your-lane> && pnpm install --f
 A fresh worktree has **no `node_modules`**, and pnpm's store makes the install ~9 s. Skipping it is
 how the monitor failure below happened.
 
-It also has **no built packages**, and the pre-commit hook's `assets:reachability` step fails on
-that with `Failed to resolve entry for package "@openclinxr/scenario-fixtures"` — an error that
-names a `package.json` problem rather than a missing build, so it reads as a repo defect. One
-`pnpm --filter @openclinxr/scenario-fixtures build` fixes it. Do this once when you create the
-worktree, before your first commit, or the hook refuses work that is otherwise clean.
+It also has **no built packages**, and this cost three separate diagnoses in one session before the
+pattern was obvious. Build the workspace once, at creation:
+
+```bash
+pnpm -r build     # or at minimum: scenario-fixtures, domain, capability-gateway, asset-registry
+```
+
+Each unbuilt package fails with an error that names something other than a missing build, which is
+why it keeps reading as a repo defect:
+
+| unbuilt | the error you get | what it actually blocked |
+|---|---|---|
+| `scenario-fixtures` | `Failed to resolve entry for package … incorrect main/module/exports` | the pre-commit `assets:reachability` step |
+| `domain`, `capability-gateway` | a bare import failure with `Tests no tests` | the pre-commit architecture step |
+| `asset-registry` | `Cannot find module …/dist/index.js` inside a test | `probe:reds` reported 3/6 REDs failing "for the WRONG reason", which reads as a peer's regression on main |
+
+That last one is the dangerous one: an unbuilt dependency made a healthy `main` look like someone had
+landed a broken export. **Build first, then believe the red.**
 
 Touch the shared checkout only to commit and push a change you have already verified, and never
 leave it dirty.
