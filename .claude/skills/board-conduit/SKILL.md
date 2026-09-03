@@ -202,3 +202,39 @@ right trade: a queued card only waits, while two workers on one branch corrupt e
 
 Read the worker's own transcript before deciding it is stuck; a long run with a clean worktree is
 often a model reading before it writes, and killing it discards real context.
+
+## Dispatched workers have NO board tools — mailbox steering is inert on that path
+
+Measured 2026-09-03 across a worker's full transcript: 67 tool_call events, and the complete distinct
+set was `todo_write, list_dir, read_file, run_terminal_command, grep, write, search_replace,
+web_fetch, get_command_or_subagent_output`. **Not one bothy-board call.** No `mailbox.poll`, no
+`agents.heartbeat`, no `tasks.get`, no `tasks.update`.
+
+The worker noticed before I did. From its own reasoning: *"the skill 'bothy-board' mentions BothyBoard
+MCP — but MCP tools available are dra…"* It went looking and they were not in its harness.
+
+This is structural, not one odd worker:
+
+- The generated spawn prompt under `.openclinxr/slices/<id>/prompt-<id>.md` contains **zero** mentions
+  of mailbox, bothy, heartbeat or `tasks.release`. The worker is never told to poll.
+- `dispatch-worker.ts` calls `bothy-board.worktrees.register` and `bothy-board.agents.heartbeat`
+  **itself**, at spawn. The PARENT registers and heartbeats, once.
+
+Three consequences, each of which cost time before this was written down:
+
+1. **`mailbox.post` does not reach a worker on this path.** The skill's "mid-run steer is only
+   mailbox.post" is true of workers that HAVE the tools; a dispatched one does not. Steering it
+   requires the harness — kill and re-dispatch with the finding baked into the prompt, or resume the
+   session directly.
+2. **The claim reap is guaranteed, not incidental.** The dispatcher heartbeats once at spawn and never
+   again, and the child cannot heartbeat at all, so any run longer than the TTL is reaped mid-flight
+   every time. Restoring `status: claimed` is the only protection and must be re-applied for as long
+   as the run lasts.
+3. **The worker cannot end itself cleanly.** No `tasks.release`, no `status=review`. Its only exits
+   are max-turns or someone else acting — so a brief that says "release the card if you get stuck" is
+   asking for something the agent cannot do.
+
+**The trap to avoid, which I walked into twice:** a deliverable appearing shortly after you post a
+steer is NOT evidence the steer landed. Check for a `mailbox.poll` in the transcript before claiming
+any causal effect. I reported "the steer took" on two separate ticks about a worker that had never
+read a word of it.
