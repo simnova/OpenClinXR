@@ -44,6 +44,21 @@ import { describe, expect, it } from "vitest";
  *   is the right height for a chest anchor. Any other rig; only mpfb-clinical-nurse-adult is read.
  *   Whether `rightChestSurface` is the right region for a pulse-taking gesture. The compiler rail.
  *   Quest frame budget.
+ *
+ * ## FIXED (#0)
+ * Producer traced 2026-09-03: MPFB emits the collapse UPSTREAM, in the addon's own rig data
+ * (data/rigs/standard/rig.default.json + rig.default_no_toes.json): breast.L / breast.R carry
+ * head { strategy: "CUBE", cube_name: "joint-spine-1", default_position x=0 } — the AABB centre
+ * of the spine vertex group, which is the midline. No in-repo bake flattens them; the addon's
+ * authored value is the defect, so the correction is a post-bake stage, not an MPFB edit.
+ * Fix: tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs mirrors the pair to
+ * x = +/- 0.085 m (17 cm total, > clavicle 4.869 cm, < 25 cm anatomical ceiling), preserves y/z,
+ * and applies the same lateral move to the ClinicalIdleConversation translation keyframes that
+ * pinned both joints to the midline while the clip played. Applied to
+ * apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb; report:
+ * tools/openclinxr/evidence/chest-anchor-joints/mpfb-clinical-nurse-adult.json. Measured after:
+ * breast.L (0.08500, 0.16119, 0.00000), breast.R (-0.08500, 0.16119, 0.00000), spine01 unchanged.
+ * Runtime, goal tracking (5524da80) and elbow clamp (1bab31eb) untouched, as carded.
  */
 
 const ROOT = join(import.meta.dirname, "../../..");
@@ -77,7 +92,7 @@ describe("the chest anchor joints are not one point", () => {
     }
   });
 
-  it.fails("(1) RED: the two chest anchors are laterally separated, and by more than the clavicles", async () => {
+  it("(1) FIXED: the two chest anchors are laterally separated, and by more than the clavicles", async () => {
     const all = await joints();
     const bl = byName(all, "breast.L")!;
     const br = byName(all, "breast.R")!;
@@ -110,7 +125,7 @@ describe("the chest anchor joints are not one point", () => {
     ).toBeLessThanOrEqual(0.001);
   });
 
-  it.fails("(2) RED: the chest anchors are not co-located with a spine joint", async () => {
+  it("(2) FIXED: the chest anchors are not co-located with a spine joint", async () => {
     const all = await joints();
     const br = byName(all, "breast.R")!;
     const spine01 = byName(all, "spine01");
