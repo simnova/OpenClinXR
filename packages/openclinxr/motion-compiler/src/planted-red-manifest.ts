@@ -31,22 +31,19 @@ export type PlantedRed = {
 };
 
 export const PLANTED_REDS: readonly PlantedRed[] = [
-  // TWO ENTRIES ADDED 2026-09-03 (four-behaviours card). The compiler-repair card resolved
-  // passive_rom and positioning by repointing them at existing primitives, which satisfied a clause
-  // of mine that bounded resolvability when the concern was behaviour. Clause (3) of that file is an
-  // inverted guard and is deliberately `it`, not `planted` — it passes today and must keep passing.
-  {
-    file: "the-four-response-kinds-are-four-behaviours.test.ts",
-    select: "(1) four authored kinds resolve to four DISTINCT primitives",
-    expected: /four kinds collapsed onto \d+ primitives|is not a registered primitive/u,
-    stage: "assertion",
-  },
-  {
-    file: "the-four-response-kinds-are-four-behaviours.test.ts",
-    select: "(2) an examiner-imposed passive ROM does not compile to the patient's own guard",
-    expected: /compiles to the same tracks as (guarding|palpation)/u,
-    stage: "assertion",
-  },
+  // BOTH FOUR-BEHAVIOURS ENTRIES REMOVED 2026-09-03 (BothyBoard issue #0). The two orphaned
+  // kinds got primitives of their own — src/imposed-limb-arc.ts (passive_rom: the limb carried
+  // through an out-and-back arc by an examiner's grasp) and src/guided-placement.ts (positioning:
+  // the effector guided to a placed offset, dwelt on, released with the placement retained) —
+  // both registered in primitive-registry.ts (PRIMITIVE_IDS now seven) and wired in
+  // compile-scenario-motion.ts (passive_rom -> imposed_limb_arc, positioning -> guided_placement;
+  // guarding and palpation keep their primitives). Clauses (1) and (2) were flipped from
+  // `planted` to `it` with a `## FIXED (BothyBoard issue #0)` block appended in
+  // the-four-response-kinds-are-four-behaviours.test.ts. A satisfied contract is a transition to
+  // record, not a planted RED to keep. (The earlier compiler-repair card had repointed the two
+  // orphans at guard_body_region / reach_target, which satisfied resolvability but collapsed the
+  // kinds into aliases — the clause's second counterweight now refuses repointing at the M2+M4
+  // five by requiring two resolved ids outside it.)
 
   // ALL FIVE COMPILER-SURFACE ENTRIES REMOVED 2026-09-02 (compiler-repair card, issue #0). The
   // package root now exports the registry + both profile derivers; clutch_body_region compiles

@@ -5,6 +5,8 @@ import { compile as compileClutchBodyRegion } from "./clutch-body-region.js";
 import { compile as compileReachTarget } from "./reach-target.js";
 import { compile as compileLookAt } from "./look-at.js";
 import { compile as compileCoughRecoil } from "./cough-recoil.js";
+import { compile as compileImposedLimbArc } from "./imposed-limb-arc.js";
+import { compile as compileGuidedPlacement } from "./guided-placement.js";
 
 /**
  * THE PRIMITIVE REGISTRY — one seam, owned once.
@@ -25,13 +27,21 @@ import { compile as compileCoughRecoil } from "./cough-recoil.js";
  * deterministic pure constructor, testable without lifecycle semantics.
  */
 
-/** The complete primitive-ID vocabulary: M2's guard plus M4's four. */
+/**
+ * The complete primitive-ID vocabulary: M2's guard plus M4's four, plus the two primitives that
+ * give the `passive_rom` and `positioning` response kinds behaviours of their own instead of
+ * aliasing guard_body_region and reach_target (BothyBoard issue #0): `imposed_limb_arc` (a limb
+ * carried through an out-and-back arc by an examiner's grasp) and `guided_placement` (an effector
+ * guided to a placed position, dwelt on, and released with the placement retained).
+ */
 export const PRIMITIVE_IDS = [
   "guard_body_region",
   "clutch_body_region",
   "reach_target",
   "look_at",
   "cough_recoil",
+  "imposed_limb_arc",
+  "guided_placement",
 ] as const;
 
 export type PrimitiveId = (typeof PRIMITIVE_IDS)[number];
@@ -76,6 +86,8 @@ const STATIC_ENTRIES: readonly PrimitiveRegistryEntry[] = [
   { id: "reach_target", primitive: { compile: compileReachTarget } },
   { id: "look_at", primitive: { compile: compileLookAt } },
   { id: "cough_recoil", primitive: { compile: compileCoughRecoil } },
+  { id: "imposed_limb_arc", primitive: { compile: compileImposedLimbArc } },
+  { id: "guided_placement", primitive: { compile: compileGuidedPlacement } },
 ];
 
 const STATIC_REGISTRY = createPrimitiveRegistry(STATIC_ENTRIES);

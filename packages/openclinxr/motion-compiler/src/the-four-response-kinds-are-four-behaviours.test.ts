@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { planted } from "./planted.js";
 
 /**
  * OBSERVABLE: `TouchResponse.responseKind` has four values and the compiler produces two behaviours.
@@ -45,6 +44,32 @@ import { planted } from "./planted.js";
  *   correct clinical primitives, which is a faculty question; runtime IK, contact, or apps/ui-xr.
  */
 
+/**
+ * ## FIXED (BothyBoard issue #0) — clauses (1) and (2) are now live `it` tests.
+ *
+ * The two orphaned kinds got primitives of their own instead of aliases:
+ *
+ *   - src/imposed-limb-arc.ts      `imposed_limb_arc` — the limb CARRIED through an out-and-back
+ *                                  minimum-jerk arc by an examiner's grasp (passive-rom.ts's
+ *                                  grasped-arc shape): the shoulder sweeps while elbow and wrist
+ *                                  stay nearly quiet under the grasp, no hold plateau, limb back
+ *                                  to rest at clip end. passive_rom now resolves here.
+ *   - src/guided-placement.ts      `guided_placement` — the effector GUIDED to a placed offset,
+ *                                  dwelt on, then released with the placement retained (the
+ *                                  positioning.ts guide/dwell/release shape): one node-local
+ *                                  translation track that ends displaced rather than returning
+ *                                  to rest. positioning now resolves here.
+ *
+ * Both are registered in src/primitive-registry.ts (PRIMITIVE_IDS grew from five to seven) and
+ * RESPONSE_KIND_TO_PRIMITIVE remaps passive_rom -> imposed_limb_arc, positioning ->
+ * guided_placement in src/program/compile-scenario-motion.ts. Clause (3) — guarding keeps
+ * guard_body_region, palpation keeps reach_target — is untouched. Their manifest entries were
+ * removed in planted-red-manifest.ts in the same change.
+ *
+ * What the compiled tracks are NOT evidence of is unchanged from the header: no pixels are graded,
+ * and whether these are the clinically correct primitives for the two kinds is a faculty question.
+ */
+
 const KINDS = ["guarding", "palpation", "passive_rom", "positioning"] as const;
 const SITE = "abdomen_epigastric";
 
@@ -66,7 +91,7 @@ const compileFor = async (primitiveId: string): Promise<string> => {
 };
 
 describe("the four response kinds are four behaviours", () => {
-  planted("(1) four authored kinds resolve to four DISTINCT primitives", async () => {
+  it("(1) four authored kinds resolve to four DISTINCT primitives", async () => {
     const m = await rootModule();
     const map = m["RESPONSE_KIND_TO_PRIMITIVE"] as Record<string, string>;
     const ids = m["PRIMITIVE_IDS"] as readonly string[];
@@ -90,7 +115,7 @@ describe("the four response kinds are four behaviours", () => {
       .toBeGreaterThanOrEqual(2);
   });
 
-  planted("(2) an examiner-imposed passive ROM does not compile to the patient's own guard", async () => {
+  it("(2) an examiner-imposed passive ROM does not compile to the patient's own guard", async () => {
     // The naming clause above is satisfiable by two aliases that emit identical tracks. This one is
     // the shape: a self-initiated withdrawal and a failure to yield are different motions.
     const m = await rootModule();
