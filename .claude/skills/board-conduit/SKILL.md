@@ -154,6 +154,29 @@ decision now has a cost attached.
 Do not quietly flip it back to free the slot. `review` is honest when a worker has finished, and a
 state that gets edited for throughput stops describing anything. Attach the cost, or close the card.
 
+## `sync.readyIds` is not Harbor-scoped — CORRECTED 2026-09-03
+
+**The section below overstates its case and the correction matters more than the rule.** I wrote it
+after a bare `sync` returned `readyIds: []` while OpenClinXR had four ready cards, and concluded the
+array was Harbor's — because `sync.project` (singular) is Harbor. Measured again later the same
+session, the same bare `sync` returned
+
+    readyIds: ["tsk_0e3ddf820ab8c465", "tsk_bae34b0cae2cf745"]
+
+and both are OpenClinXR cards. So `readyIds` is not scoped to `sync.project`. The earlier empty array
+meant nothing was ready at that moment, which is a different claim entirely and one I could have
+checked by asking why.
+
+What survives: `sync` IS a mixed-project payload, `sync.project` is whatever the credential defaults
+to, and it accepts no project argument — so joining `readyIds` against `tasks[]` filtered to your own
+`projectId` is still right, and is what the Codex monitor does. What does not survive is reading an
+empty `readyIds` as evidence of scoping.
+
+What actually thins that list is the write-root overlap filter. Measured with one card in flight
+holding `tools/openclinxr/evidence`: of five Planted+ready cards, the three whose roots sit under that
+path were absent from `readyIds` and the two disjoint ones were present. `status: "ready"` on a card
+means eligible-in-principle; `readyIds` means dispatchable right now.
+
 ## Read `readyIds` from a project-scoped source, never bare `sync`
 
 `bothy-board.sync` returns a MIXED-PROJECT payload whose `project` (singular) is whatever the
