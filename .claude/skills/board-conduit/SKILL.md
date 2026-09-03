@@ -284,6 +284,36 @@ root whether or not the fix touches anything else there.
 the write-root containment check lives in plant. Preflighting with `briefFromIssue` and then being
 refused at plant is the expected shape, not a surprise.
 
+## What the worktree reset actually destroys — gitignored files SURVIVE
+
+Measured 2026-09-03 against the source, after I claimed the opposite three times in one session.
+
+`worktree-base-freshness.ts:149` runs `git clean -fd`. Its own header at `:15` says the reset means
+`git reset --hard <mainHead>` + `git clean -fd` **"(NOT `-fdx`)"**, and `:136` records why: *"gitignored
+node_modules/dist are preserved"*.
+
+So the combination that dies is untracked **and not ignored**. Untracked-and-ignored survives.
+
+| state | survives a re-dispatch? |
+|---|---|
+| tracked, committed on the branch | yes |
+| tracked, modified, uncommitted | no — `reset --hard` |
+| untracked, not ignored | no — `clean -fd` |
+| untracked, ignored | **yes** — `-fd` does not touch ignored paths |
+
+I told two workers and wrote on a card that the reset "would delete every untracked file". That was
+right for the peds worker's new `.ts` sources, which were untracked and not ignored, and wrong as a
+general claim.
+
+The distinction decides salvage, and it decided one: a live bake had 375 files and 279 MB of staged
+case output under `.openclinxr/evidence/issue-288/cases/`, all covered by `.gitignore:9`, zero tracked,
+and `git clean -nd` on that path reported 0 paths to remove. An hour of Blender output was never at
+risk. No preservation commit was warranted, and committing it would have been wrong anyway — the path
+is ignored deliberately.
+
+**Check with `git clean -nd <path>` before deciding anything is doomed.** It is a dry run and it
+answers the question directly.
+
 ## Before preserving a dead worker's tree, check whether its SESSION can be resumed
 
 Measured 2026-09-03, on an intervention of mine that turned out to be unnecessary.
