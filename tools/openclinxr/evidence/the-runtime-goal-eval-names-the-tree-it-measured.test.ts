@@ -40,6 +40,25 @@ import { describe, expect, it } from "vitest";
  *   Other cached artifacts in this tree. What any still SHOWS. Quest frame budget.
  */
 
+/**
+ * ## FIXED (#0) — clauses (1) and (2) flipped
+ *
+ * Re-run 2026-09-03 via runtime-goal-eval.mts (Playwright, headless chromium) against harness.html
+ * at 2daa4c43 with the fleet-anchor-fixed actor (bc5b9009af... on disk; the 829de8a8 cache had
+ * measured 2e111a0d...). The eval now records the digest and commit of the tree it ran in:
+ *
+ *   actorAssetSha256        bc5b9009af577037...  == sha256 of the GLB on disk at run time
+ *   measuredAgainstCommit   2daa4c43
+ *   frame 0 breastL         ( 0.08500, 1.34395, 0.01283)
+ *   frame 0 breastR         (-0.08500, 1.34395, 0.01283)   separated, mirroring the GLB rest
+ *
+ * The actor's rest translations are breast.L (+0.085, ...) / breast.R (-0.085, ...), so the
+ * recorded 0.170 m world separation is exactly what the shipped rig carries. Both consumers re-read
+ * the fresh eval and stay green: worst elbow interior angle is now 43.8 deg (the goal moved with
+ * the separated anchor, so the 31.75 deg from the 9ea15acd run was not assumed to hold), wrist
+ * residual ~1e-6 m, and the target-to-breastR distance spread is 0.00 m across the 12 frames.
+ */
+
 const ROOT = join(import.meta.dirname, "../../..");
 const EVAL = join(ROOT, "tools/openclinxr/evidence/motion-backend-bakeoff/runtime-goal-eval.json");
 const ACTOR = join(ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb");
@@ -64,7 +83,7 @@ describe("the runtime-goal eval names the tree it measured", () => {
     expect((r.oscillation ?? []).length, "the eval records no oscillation frames").toBeGreaterThanOrEqual(1);
   });
 
-  it.fails("(1) RED: the eval's recorded actor digest is the actor on disk", () => {
+  it("(1) FIXED: the eval's recorded actor digest is the actor on disk", () => {
     const recorded = String(report().actorAssetSha256 ?? "");
     const onDisk = actorSha();
     expect(
@@ -73,7 +92,7 @@ describe("the runtime-goal eval names the tree it measured", () => {
     ).toBe(onDisk);
   });
 
-  it.fails("(2) RED: the eval's recorded bones agree with the actor's rest skeleton", async () => {
+  it("(2) FIXED: the eval's recorded bones agree with the actor's rest skeleton", async () => {
     // COUNTERWEIGHT to clause (1): hand-editing actorAssetSha256 to match the file would satisfy a
     // digest check while leaving the stale NUMBERS in place. This clause ties the cached content to
     // a fact readable from the asset, so only a real re-run can satisfy both.

@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -61,6 +62,7 @@ const ROOT = join(import.meta.dirname, "../../..");
 const DIR = join(ROOT, "tools/openclinxr/evidence/motion-backend-bakeoff");
 const EVAL = join(DIR, "runtime-goal-eval.json");
 const DESCRIPTOR = join(DIR, "runtime-goal-descriptor.json");
+const ACTOR = join(ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb");
 
 /**
  * The repo's established contact tolerance, taken from the contact-window contract rather than
@@ -118,5 +120,22 @@ describe("the body-region goal follows the body", () => {
     for (const link of chain) {
       expect(link, `${link} is a MakeHuman twist segment and must not be an IK bend link`).not.toMatch(TWIST);
     }
+  });
+
+  /**
+   * PROVENANCE GUARD (added with the stale-eval fix, #0): this file reads cached numbers from
+   * runtime-goal-eval.json, so a stale eval would make every clause above green about a rig that no
+   * longer ships. The eval must name the digest of the actor on disk — re-run runtime-goal-eval.mts
+   * after any actor rebake. A digest, not a commit: the commit moves for reasons that do not
+   * invalidate the numbers; the actor bytes move exactly when they do.
+   */
+  it("(3) the eval names the actor digest that is on disk", () => {
+    expect(existsSync(ACTOR), `${ACTOR} is missing — there is no actor to compare against`).toBe(true);
+    const r = JSON.parse(readFileSync(EVAL, "utf8")) as { actorAssetSha256?: string };
+    const onDisk = createHash("sha256").update(readFileSync(ACTOR)).digest("hex");
+    expect(
+      r.actorAssetSha256,
+      `eval was measured against actor ${String(r.actorAssetSha256 ?? "").slice(0, 16)} but the shipped actor is ${onDisk.slice(0, 16)} — re-run runtime-goal-eval.mts`,
+    ).toBe(onDisk);
   });
 });
