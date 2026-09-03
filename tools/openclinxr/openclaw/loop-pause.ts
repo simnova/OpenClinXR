@@ -31,6 +31,7 @@ import {
 } from "node:fs";
 import { dirname } from "node:path";
 import { resolveSharedCoordinationPath } from "./coordination-root.js";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 import { buildScorecard, debtDelta } from "./delegation-scorecard.js";
 import { integrationEvents } from "./integrate.js";
 
@@ -324,7 +325,7 @@ export function landsSincePause(repoRoot: string, sinceIso: string): MergeLand[]
   const raw = execFileSync(
     "git",
     ["log", `--since=${sinceIso}`, "--format=%H %P", "HEAD"],
-    { cwd: repoRoot, encoding: "utf8" },
+    { cwd: repoRoot, encoding: "utf8", env: gitEnvWithoutInheritedRepoVars() },
   );
   return raw
     .split("\n")

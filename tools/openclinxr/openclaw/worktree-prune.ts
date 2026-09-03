@@ -29,6 +29,7 @@
 import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 
 /** Churn paths: exact files the SessionStart docs-hygiene hook touches. */
 export const CHURN_EXACT_PATHS = [
@@ -320,6 +321,7 @@ export function runCommand(opts: GitRunOptions): { status: number; stdout: strin
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],
       timeout: opts.timeoutMs ?? 60_000,
+      env: gitEnvWithoutInheritedRepoVars(),
     });
     return { status: 0, stdout: r, stderr: "" };
   } catch (err) {

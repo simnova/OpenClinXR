@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { deriveHandoffState } from "./worker-handoff-state.js";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 
 /**
  * **OBSERVABLE: a returned worker with uncommitted work is NOT ready to integrate.**
@@ -22,7 +23,8 @@ import { deriveHandoffState } from "./worker-handoff-state.js";
  */
 const repo = (): string => {
   const root = mkdtempSync(join(tmpdir(), "handoff-"));
-  const g = (...a: string[]) => execFileSync("git", a, { cwd: root, encoding: "utf8" });
+  const g = (...a: string[]) =>
+    execFileSync("git", a, { cwd: root, encoding: "utf8", env: gitEnvWithoutInheritedRepoVars() });
   g("init", "-q", "-b", "main");
   g("config", "user.email", "t@t"); g("config", "user.name", "t");
   writeFileSync(join(root, "seed.txt"), "seed\n");
@@ -45,7 +47,8 @@ describe("a cancelled dirty worker is not ready to integrate", () => {
     // Without this, a deriver that always says needs_resume satisfies clause (1) and nothing ever
     // integrates.
     const root = repo();
-    const g = (...a: string[]) => execFileSync("git", a, { cwd: root, encoding: "utf8" });
+    const g = (...a: string[]) =>
+    execFileSync("git", a, { cwd: root, encoding: "utf8", env: gitEnvWithoutInheritedRepoVars() });
     // A real worker commits on its OWN branch inside a worktree, never onto main — so readiness is
     // measured as main..HEAD. My first fixture committed onto main itself and read as zero ahead,
     // which is the deriver being right about an unrealistic tree.

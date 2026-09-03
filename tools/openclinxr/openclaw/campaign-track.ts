@@ -15,6 +15,7 @@
 import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 
 const REPO_ROOT = join(dirname(new URL(import.meta.url).pathname), "../../..");
 const ENUMERATED_BY =
@@ -95,7 +96,11 @@ export async function buildCampaignTrack(campaignIssue: number, lanes: Lane[], l
       if (r !== "mpfb") annyRemaining.push({ scenarioId, role: String(c.role ?? ""), actorId: String(c.actorId ?? ""), glb });
     }
   }
-  const head = execFileSync("git", ["rev-parse", "HEAD"], { cwd: REPO_ROOT, encoding: "utf8" }).trim();
+  const head = execFileSync("git", ["rev-parse", "HEAD"], {
+    cwd: REPO_ROOT,
+    encoding: "utf8",
+    env: gitEnvWithoutInheritedRepoVars(),
+  }).trim();
   const out = {
     schemaVersion: "openclinxr.campaign-track.v1",
     campaignIssue,

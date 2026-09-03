@@ -1,6 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, type Stats, statSync } from "node:fs";
 import { join } from "node:path";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 import { countPlantedItFails } from "../../../packages/openclinxr/agent-loop/src/done-when-live.js";
 import { stripAnsi } from "./board-cli.js";
 import { selectNextBothyCard, type BothyFetch } from "./board-bothy-dequeue.js";
@@ -169,12 +170,17 @@ export function countUncardedRecentFiles(root: string, now = Date.now()): { coun
     const log = execFileSync(
       "git",
       ["log", "--all", "--since", cutoff, "--diff-filter=A", "--name-only", "--format=", "--", ...SCAN_ROOTS],
-      { encoding: "utf8", cwd: root, timeout: 15000 },
+      { encoding: "utf8", cwd: root, timeout: 15000, env: gitEnvWithoutInheritedRepoVars() },
     );
     for (const path of log.split("\n")) {
       if (path.endsWith(".test.ts") || path.endsWith(".test.tsx")) added.add(path.trim());
     }
-    const status = execFileSync("git", ["status", "--porcelain"], { encoding: "utf8", cwd: root, timeout: 15000 });
+    const status = execFileSync("git", ["status", "--porcelain"], {
+      encoding: "utf8",
+      cwd: root,
+      timeout: 15000,
+      env: gitEnvWithoutInheritedRepoVars(),
+    });
     for (const line of status.split("\n")) {
       const path = line.slice(3).trim();
       if (path.endsWith(".test.ts") || path.endsWith(".test.tsx")) added.add(path);

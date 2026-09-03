@@ -21,6 +21,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { resolveCoordinationRoot } from "./coordination-root.js";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 import {
   evaluateGitignoredProofTarget,
   extractProofTarget,
@@ -64,6 +65,7 @@ function git(repoRoot: string, args: string[]): string | null {
       encoding: "utf8",
       maxBuffer: 32 * 1024 * 1024,
       stdio: ["ignore", "pipe", "pipe"],
+      env: gitEnvWithoutInheritedRepoVars(),
     });
   } catch {
     return null;

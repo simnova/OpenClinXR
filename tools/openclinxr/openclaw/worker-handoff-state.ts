@@ -1,4 +1,5 @@
 import { execFileSync } from "node:child_process";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 
 /**
  * **Is a returned worker's tree actually ready to integrate, or does it need a resume?**
@@ -44,7 +45,13 @@ export type HandoffAssessment = {
 };
 
 const git = (cwd: string, args: string[]): string =>
-  execFileSync("git", args, { cwd, encoding: "utf8", timeout: 15_000, stdio: ["ignore", "pipe", "ignore"] });
+  execFileSync("git", args, {
+    cwd,
+    encoding: "utf8",
+    timeout: 15_000,
+    stdio: ["ignore", "pipe", "ignore"],
+    env: gitEnvWithoutInheritedRepoVars(),
+  });
 
 /**
  * Derive readiness from the worktree itself.

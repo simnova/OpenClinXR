@@ -6,6 +6,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { resetCoordinationRootCache } from "./coordination-root.js";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 import { setFactoryField } from "./board-cli.js";
 import {
   assembleDispatchContract,
@@ -677,7 +678,7 @@ describe("#344 commit evidence — pathsTouchedByCommitsSince", () => {
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],
       env: {
-        ...process.env,
+        ...gitEnvWithoutInheritedRepoVars(),
         GIT_AUTHOR_NAME: "dispatch-worker-test",
         GIT_AUTHOR_EMAIL: "dispatch-worker-test@example.com",
         GIT_COMMITTER_NAME: "dispatch-worker-test",

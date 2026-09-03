@@ -12,6 +12,7 @@
 import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync, existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 import { briefFromIssue } from "./board-brief.js";
 import { isProductPath } from "./product-lane-gate.js";
 import { getBoardSnapshot } from "./board-snapshot-cache.js";
@@ -49,7 +50,11 @@ function landsProductBytes(issue: { number: number; title: string; body: string 
 }
 
 async function main(): Promise<void> {
-  const head = execFileSync("git", ["rev-parse", "HEAD"], { cwd: REPO, encoding: "utf8" }).trim();
+  const head = execFileSync("git", ["rev-parse", "HEAD"], {
+    cwd: REPO,
+    encoding: "utf8",
+    env: gitEnvWithoutInheritedRepoVars(),
+  }).trim();
 
   /**
    * Tolerant TTL and stale-on-failure ON. This runs hourly, the board changes slowly, and a labelled

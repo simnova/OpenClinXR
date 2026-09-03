@@ -25,6 +25,7 @@ import { homedir } from "node:os";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 import {
   getRepoRoleHarnessPolicy,
   pathMatchesAnyGlob,
@@ -334,6 +335,7 @@ function runGitStatusShort(worktreePath: string): string {
   return execFileSync("git", ["-C", worktreePath, "status", "--short"], {
     encoding: "utf8",
     maxBuffer: 8 * 1024 * 1024,
+    env: gitEnvWithoutInheritedRepoVars(),
   });
 }
 

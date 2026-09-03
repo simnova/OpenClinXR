@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { integrate, integrationEvents } from "./integrate.js";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 
 /**
  * PLANTED RED — a rejected merge must not remain staged in the shared checkout.
@@ -18,14 +19,17 @@ afterEach(() => {
   for (const root of repos.splice(0)) rmSync(root, { recursive: true, force: true });
 });
 
-function git(cwd: string, args: string[], env: NodeJS.ProcessEnv = process.env): string {
+function git(cwd: string, args: string[], env: NodeJS.ProcessEnv = gitEnvWithoutInheritedRepoVars()): string {
   return execFileSync("git", args, { cwd, env, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
 }
 
 function repoWithBenignHead(): { root: string; base: string; head: string } {
   const root = mkdtempSync(join(tmpdir(), "integrate-abort-red-"));
   repos.push(root);
-  execFileSync("git", ["init", "-q", "-b", "main", root], { stdio: "ignore" });
+  execFileSync("git", ["init", "-q", "-b", "main", root], {
+    stdio: "ignore",
+    env: gitEnvWithoutInheritedRepoVars(),
+  });
   git(root, ["config", "user.email", "t@example.com"]);
   git(root, ["config", "user.name", "t"]);
   writeFileSync(join(root, "readme.md"), "base\n");

@@ -35,6 +35,7 @@ import { execFileSync } from "node:child_process";
 import { classifyDiff } from "./diff-class-policy.js";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, join } from "node:path";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 
 // ── Public types ─────────────────────────────────────────────────────────────
 
@@ -97,6 +98,7 @@ function git(repoRoot: string, args: string[]): string {
     cwd: repoRoot,
     encoding: "utf8",
     maxBuffer: 32 * 1024 * 1024,
+    env: gitEnvWithoutInheritedRepoVars(),
   });
 }
 
@@ -108,6 +110,7 @@ function gitOk(repoRoot: string, args: string[]): string | null {
       encoding: "utf8",
       maxBuffer: 32 * 1024 * 1024,
       stdio: ["ignore", "pipe", "pipe"],
+      env: gitEnvWithoutInheritedRepoVars(),
     });
   } catch {
     return null;
