@@ -1053,28 +1053,47 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
   }, camera);
 }
 
+/**
+ * Name a Playwright wait timeout before it propagates. The rollup (multi-case-runner.ts:864
+ * prints err.message) reported "Capture failed for <caseId>: page.waitForFunction: Timeout
+ * 180000ms exceeded." — that does not say WHICH wait fired, and this file has two, both
+ * defaulting to 180 s. Only timeouts are decorated (a non-timeout rejection such as target
+ * closed keeps its own meaning), and the original message survives so the cause is not
+ * traded for a name.
+ */
+function rethrowNamedWaitTimeout(err: unknown, waitName: string): never {
+  if (err instanceof Error && err.message.includes("Timeout")) {
+    throw new Error(`${waitName} wait timed out: ${err.message}`, { cause: err });
+  }
+  throw err;
+}
+
 /** Wait until station shell is present (exported for #83 measure). */
 export async function waitForStationShell(page: Page, timeoutMs = 180_000): Promise<LiveShellFromPage> {
   // Playwright signature is (fn, arg, options) — options must be the third argument.
-  await page.waitForFunction(
-    () => {
-      const scene = (window as unknown as {
-        __openClinXrDebugScene?: {
-          userData?: { openClinXrStationEnvironment?: { environmentId?: string } };
-          traverse?: (cb: (o: { name?: string }) => void) => void;
-        };
-      }).__openClinXrDebugScene;
-      if (!scene) return false;
-      if (scene.userData?.openClinXrStationEnvironment?.environmentId) return true;
-      let found = false;
-      scene.traverse?.((object) => {
-        if (object.name === "openclinxr.station-environment-shell") found = true;
-      });
-      return found;
-    },
-    undefined,
-    { timeout: timeoutMs },
-  );
+  try {
+    await page.waitForFunction(
+      () => {
+        const scene = (window as unknown as {
+          __openClinXrDebugScene?: {
+            userData?: { openClinXrStationEnvironment?: { environmentId?: string } };
+            traverse?: (cb: (o: { name?: string }) => void) => void;
+          };
+        }).__openClinXrDebugScene;
+        if (!scene) return false;
+        if (scene.userData?.openClinXrStationEnvironment?.environmentId) return true;
+        let found = false;
+        scene.traverse?.((object) => {
+          if (object.name === "openclinxr.station-environment-shell") found = true;
+        });
+        return found;
+      },
+      undefined,
+      { timeout: timeoutMs },
+    );
+  } catch (err) {
+    rethrowNamedWaitTimeout(err, "station shell");
+  }
   const reading = await readLiveShellFromPage(page);
   if (!reading.ready) {
     throw new Error(`station shell not ready: ${reading.reason ?? "unknown"}`);
@@ -1087,36 +1106,40 @@ export async function waitForStationShell(page: Page, timeoutMs = 180_000): Prom
  * #85: 700ms settle after shell was too short — capture froze bare mannequins mid-load.
  */
 export async function waitForHumanoidAssetsLoaded(page: Page, timeoutMs = 180_000): Promise<void> {
-  await page.waitForFunction(
-    () => {
-      const evidence = (window as unknown as {
-        __openClinXrSceneAssetEvidence?: {
-          pendingCount?: number;
-          loadedCount?: number;
-          assets?: Array<{ assetId?: string; assetPath?: string; status?: string; fallbackActive?: boolean }>;
-        };
-      }).__openClinXrSceneAssetEvidence;
-      if (!evidence?.assets?.length) return false;
-      const humanoids = evidence.assets.filter((a) =>
-        (a.assetPath ?? "").includes("humanoid")
-        || (a.assetPath ?? "").includes("generated-humanoids")
-        || (a.assetId ?? "").includes("cast")
-        || (a.assetId ?? "").includes("humanoid")
-        || (a.assetId ?? "").includes("patient")
-        || (a.assetId ?? "").includes("nurse")
-        || (a.assetId ?? "").includes("spouse"),
-      );
-      // Prefer explicit humanoid rows; fall back to any loaded row count.
-      const rows = humanoids.length > 0 ? humanoids : evidence.assets;
-      const loaded = rows.filter((a) => a.status === "loaded" && a.fallbackActive !== true);
-      const pending = rows.filter((a) => a.status === "pending");
-      // ED/peds encounters load 3 humanoids; require all pending cleared and ≥2 loaded
-      // (equipment may share the evidence map).
-      return pending.length === 0 && loaded.length >= 2;
-    },
-    undefined,
-    { timeout: timeoutMs },
-  );
+  try {
+    await page.waitForFunction(
+      () => {
+        const evidence = (window as unknown as {
+          __openClinXrSceneAssetEvidence?: {
+            pendingCount?: number;
+            loadedCount?: number;
+            assets?: Array<{ assetId?: string; assetPath?: string; status?: string; fallbackActive?: boolean }>;
+          };
+        }).__openClinXrSceneAssetEvidence;
+        if (!evidence?.assets?.length) return false;
+        const humanoids = evidence.assets.filter((a) =>
+          (a.assetPath ?? "").includes("humanoid")
+          || (a.assetPath ?? "").includes("generated-humanoids")
+          || (a.assetId ?? "").includes("cast")
+          || (a.assetId ?? "").includes("humanoid")
+          || (a.assetId ?? "").includes("patient")
+          || (a.assetId ?? "").includes("nurse")
+          || (a.assetId ?? "").includes("spouse"),
+        );
+        // Prefer explicit humanoid rows; fall back to any loaded row count.
+        const rows = humanoids.length > 0 ? humanoids : evidence.assets;
+        const loaded = rows.filter((a) => a.status === "loaded" && a.fallbackActive !== true);
+        const pending = rows.filter((a) => a.status === "pending");
+        // ED/peds encounters load 3 humanoids; require all pending cleared and ≥2 loaded
+        // (equipment may share the evidence map).
+        return pending.length === 0 && loaded.length >= 2;
+      },
+      undefined,
+      { timeout: timeoutMs },
+    );
+  } catch (err) {
+    rethrowNamedWaitTimeout(err, "humanoid assets");
+  }
 }
 
 export type CaptureStationEnvironmentRoomsInput = {

@@ -43,6 +43,18 @@ import {
  *   preserving the underlying cause.
  * notEvidenceFor: why the capture times out — this file makes the failure legible, it does not fix
  *   it; whether render is the right frontier; anything about Blender, the bake, or the other stations.
+ *
+ * ## FIXED (#0) — 2026-09-03, clauses (1)-(3) flipped `it.fails` -> `it`.
+ *
+ * Both waits now route their waitForFunction rejection through
+ * `rethrowNamedWaitTimeout` (ui-xr-environment-room-capture.ts), which prefixes
+ * the wait name and embeds the original Playwright message so the cause survives:
+ *
+ *   station shell:     "station shell wait timed out: page.waitForFunction: Timeout 180000ms exceeded."
+ *   humanoid assets:   "humanoid assets wait timed out: page.waitForFunction: Timeout 180000ms exceeded."
+ *
+ * Non-timeout rejections (target closed, navigation) pass through unchanged. A rollup re-run can
+ * now distinguish a scene that never booted from an asset load that never settled.
  */
 
 /** Playwright's own message shape, copied from the rollup note rather than invented. */
@@ -73,7 +85,7 @@ describe("a capture timeout names which wait failed", () => {
     expect(msg, "the stub's rejection is not the observed Playwright timeout").toContain("Timeout");
   });
 
-  it.fails("(1) RED: a station-shell timeout says it was the station shell", async () => {
+  it("(1) a station-shell timeout says it was the station shell", async () => {
     const msg = await messageFrom(() => waitForStationShell(timingOutPage() as never, 10));
     expect(msg, `timeout message does not name the station shell: ${msg}`).toMatch(/station.?shell/iu);
     // COUNTERWEIGHT: naming the wait is cheap if you throw away the cause. The underlying Playwright
@@ -81,13 +93,13 @@ describe("a capture timeout names which wait failed", () => {
     expect(msg, "the original Playwright timeout was swallowed").toMatch(/Timeout/u);
   });
 
-  it.fails("(2) RED: a humanoid-assets timeout says it was the humanoid assets", async () => {
+  it("(2) a humanoid-assets timeout says it was the humanoid assets", async () => {
     const msg = await messageFrom(() => waitForHumanoidAssetsLoaded(timingOutPage() as never, 10));
     expect(msg, `timeout message does not name the humanoid assets: ${msg}`).toMatch(/humanoid|asset/iu);
     expect(msg, "the original Playwright timeout was swallowed").toMatch(/Timeout/u);
   });
 
-  it.fails("(3) RED: the two messages are distinguishable from each other", async () => {
+  it("(3) the two messages are distinguishable from each other", async () => {
     // Written first as an inverted guard and RUN — it failed, because the two messages are byte
     // identical today. That is the defect itself, so it is a RED. It stays as a separate clause
     // because (1) and (2) are both satisfiable by one message that names BOTH waits
