@@ -335,6 +335,12 @@ Whether the runtime-goal backend outperforms baked tracks, which is the bake-off
 be baked for either rail at visual parity. The slice estimate. Whether `ClinicalIdleConversation`
 retains visible motion through additive conversion against a seated rest.
 
-Separately: `the-llm-planner-cannot-emit-bone-tracks.test.ts:470` fails for real. `6d51728e` made
+**Answered 2026-09-03, see the entrypoint:** a seated rest DOES exist for the MPFB rail — a CC0
+Mesh2Motion `Sitting_Talking` bound to the shipped 137-joint rig at `f2e7552f` — and was destroyed the
+next day by an unrelated rebake. Card `tsk_ef2f9ee4d551b870`. And on the additive question: no shipped
+clip deviates more than 5.73 deg from its own frame 0, so additive conversion against a rest pose has
+nearly nothing to preserve. Both were measured across all 89 GLBs, not argued.
+
+Separately: ~~`the-llm-planner-cannot-emit-bone-tracks.test.ts:470` fails for real~~ — FIXED at `e7a92847`. `6d51728e` made
 `evaluateScenarioPublicationReadiness` require an `attestationVerifier`; the motion test passes none,
 so its known-good column blocks. It will confuse the next person who runs this suite.

@@ -58,9 +58,31 @@ wrapper, so `countPlantedItFails` reports 0 while six REDs are live. Use
 `run:pnpm --filter @openclinxr/motion-compiler probe:reds`, and note that it exits 0 while reporting
 6/6 still RED, so it is a fingerprint gate rather than a completion gate.
 
-**`the-llm-planner-cannot-emit-bone-tracks.test.ts:470` fails for real**, unrelated to motion.
-`6d51728e` made `evaluateScenarioPublicationReadiness` require an `attestationVerifier`; that test
-passes none, so its known-good column blocks. It will confuse you when you run the suite.
+**~~`the-llm-planner-cannot-emit-bone-tracks.test.ts:470` fails for real~~ — FIXED 2026-09-03 at
+`e7a92847`.** `6d51728e` made `evaluateScenarioPublicationReadiness` consult a trusted verifier, which
+is correct and deliberately fail-closed; what it left behind was a consumer whose known-good column
+still measured the old self-declared behaviour. The clause now supplies a verifier to both halves.
+The suite is 65 passed | 5 expected fail. Left here rather than deleted so a reader who remembers the
+warning knows it was cleared, not forgotten.
+
+## A seated rest EXISTS on the MPFB rail, and was destroyed — measured 2026-09-03
+
+The design's "Not tested" asks whether a seated rest exists or can be baked for either rail. It was
+baked. A CC0 `Sitting_Talking` clip from Mesh2Motion was retargeted onto the shipped 137-joint MPFB
+rig — 46 bones driven, 25.875 rad total delta — committed at `f2e7552f` (08-22), and deleted the next
+day by `8d7b3f19`, a salvage commit rebaking that GLB for an unrelated phenotype fix. Three later
+commits rewrote the file again; none restored it.
+
+`seated_clip_bind_stage.py` works and NOTHING CALLS IT, so any rebake drops the clip permanently.
+`the-asset-adjacent-bind-report-names-the-shipped-clip.test.ts` has been RED on main since, unnoticed.
+Board card `tsk_ef2f9ee4d551b870`.
+
+Also measured, on all 89 GLBs in the tree: 56 carry an animation, 18 distinct clip names, **zero**
+seated or rest clips; the most-shipped posture clip is named `_standing`. Deviation from each clip's
+own frame 0 is at most 3.67 deg (Anny) and 5.73 deg (MPFB `ClinicalIdleConversation`), 4 of 137
+channels moving, zero translation. The catalogue is near-static poses. `openclinxr_role_parent_anxious_fidget_guard`
+at 21.98 deg is the known-good showing that is not a rig ceiling. **The mixer layer converts clips to
+additive by subtracting frame 0, so on this catalogue it has almost nothing left to layer.**
 
 ## What the clinical research settled
 
