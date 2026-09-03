@@ -1,7 +1,12 @@
 {
   "schemaVersion": "openclinxr.dark-factory-multi-case-rollup.v1",
-  "generatedAt": "2026-08-11T01:25:02.543Z",
+  "generatedAt": "2026-09-03T06:26:53.640Z",
   "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
+  "measuredInputs": {
+    "tools/openclinxr/dark-factory/multi-case-runner.ts": "6f010a24dbaf85af0b14b2972fcf4f6844463f334af9c4d45de5fbff460c04be",
+    "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py": "b7e9a3e07a32ebdb03621fb44953a53ac8d15aac9b4d261828c1ca64b8b20473"
+  },
+  "stale": false,
   "population": [
     {
       "caseId": "adult_abdominal_pain_v1",
@@ -66,24 +71,25 @@
   ],
   "summary": {
     "casesAttempted": 15,
-    "casesFullyDeterministic": 1,
+    "casesFullyDeterministic": 0,
     "deterministicStationTotals": {
+      "case_to_actor_params": 15,
+      "body": 15,
       "clothing": 15,
+      "rigging": 15,
       "room": 15,
       "equipment": 5,
       "staging_placement": 15,
-      "render": 15,
-      "case_to_actor_params": 2,
-      "body": 2,
-      "rigging": 1
+      "lip_sync": 15,
+      "world_compile": 1
     },
     "frontierCounts": {
-      "case_to_actor_params": 13,
-      "rigging": 1
+      "render": 15
     },
     "coverageNotes": [
       "The roll-up reports what happened per case per station; no pass rate is asserted.",
-      "case_to_actor_params/body/rigging are bounded by CASE_ACTOR_PRESETS (only preset cases traverse them); room/equipment/placement/render are bounded by the scenario fixtures and run over the full population."
+      "case_to_actor_params/body/rigging are bounded by the resolver union (resolve_case_actor_params_with_source: authored phenotype-export entries + legacy preset rows); room/equipment/placement/render are bounded by the scenario fixtures and run over the full population.",
+      "measuredInputs records the sha256 of every input that decides station resolution (multi-case-runner.ts, orchestrate_character.py); a reader can compare against the tree, and the artifact declares stale: true when one has moved. supersededRollup figures for the measurement this run replaced are in pre-fix.json."
     ]
   },
   "cases": [
@@ -98,40 +104,56 @@
         "room",
         "equipment",
         "staging_placement",
-        "render"
+        "render",
+        "lip_sync",
+        "world_compile"
       ],
-      "generatedAt": "2026-08-11T01:22:52.041Z",
+      "generatedAt": "2026-09-03T05:21:22.541Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
-        "case_to_actor_params": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --list-presets",
+        "case_to_actor_params": "in-process orchestrate_character.py resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row)",
         "body": "python3 tools/openclinxr/asset-pipeline/anny/generate_mesh.py --params <preset params> --output <obj> --manifest <json>",
         "clothing": "in-process tools/openclinxr/asset-pipeline/makeclothes/garment-selection-by-role.ts resolveAnnyGarmentLayers / resolveHm08UpperGarment",
         "rigging": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --case-actor-preset <id> --output-glb <glb>",
         "room": "in-process apps/ui-xr/src/station-environment.ts buildStationEnvironment(<environmentId>)",
         "equipment": "in-process apps/ui-xr/src/station-equipment-builders.ts buildDeclaredEquipmentGeometry(<equipmentId>)",
         "staging_placement": "in-process packages/openclinxr/asset-registry/src/actor-placement.ts generatedActorPlacement(cast, index)",
-        "render": "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)"
+        "render": "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)",
+        "lip_sync": "in-process multi-case-runner.ts runLipSyncStation (offline macOS `say` -> `afconvert` -> rhubarb --exportFormat json; binary resolved explicitly from ~/.openclinxr-tools/rhubarb/rhubarb, NOT on PATH)",
+        "world_compile": "in-process tools/openclinxr/factory/encounter-materialization-compile.ts compileEncounterMaterialization (newest dated evidence JSON + chain stage-body/stage-rig artifact hashes -> compiled-evidence.json), then tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts invokePlannedWorldCompileBakers with the chain's real baker runner (wardrobe_character -> python3 orchestrate_character.py --case-actor-preset <case>:<actor> --output-glb <stage-world-compile>/bakes/<name>.glb; locked wardrobes stay skipped)"
       },
       "stations": [
         {
           "stationId": "case_to_actor_params",
           "stationName": "case -> actor params",
-          "classification": "not_run",
-          "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:203 CASE_ACTOR_PRESETS (data-driven preset map, no LLM)",
-          "artifactPaths": [],
+          "classification": "deterministic",
+          "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:381 resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row; data-driven, no LLM)",
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/adult_abdominal_pain_v1/stage-case-params/presets.json",
+            ".openclinxr/evidence/issue-288/cases/adult_abdominal_pain_v1/stage-case-params/case-actor-preset.json"
+          ],
           "notes": [
-            "CASE_ACTOR_PRESETS (orchestrate_character.py:203) has no entry for adult_abdominal_pain_v1; the data-driven preset map only covers ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
-            "The case definition itself carries no phenotype.garmentLayers in the scenario bank (#275 verified: zero phenotype fields), so no case->actor params exist to materialize for this case."
+            "Resolved 3 case-actor presets in-process for adult_abdominal_pain_v1."
           ]
         },
         {
           "stationId": "body",
           "stationName": "body",
-          "classification": "not_run",
+          "classification": "deterministic",
           "implementation": "tools/openclinxr/asset-pipeline/anny/generate_mesh.py:394 build_source_body (deterministic parametric stub; real-Anny forward pass is a separate blocked path)",
-          "artifactPaths": [],
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/adult_abdominal_pain_v1/stage-body/adult_abdominal_pain_v1:nurse_priya_nair_v1.obj",
+            ".openclinxr/evidence/issue-288/cases/adult_abdominal_pain_v1/stage-body/adult_abdominal_pain_v1:nurse_priya_nair_v1-manifest.json",
+            ".openclinxr/evidence/issue-288/cases/adult_abdominal_pain_v1/stage-body/adult_abdominal_pain_v1:partner_diego_vasquez_v1.obj",
+            ".openclinxr/evidence/issue-288/cases/adult_abdominal_pain_v1/stage-body/adult_abdominal_pain_v1:partner_diego_vasquez_v1-manifest.json",
+            ".openclinxr/evidence/issue-288/cases/adult_abdominal_pain_v1/stage-body/adult_abdominal_pain_v1:patient_elena_vasquez_v1.obj",
+            ".openclinxr/evidence/issue-288/cases/adult_abdominal_pain_v1/stage-body/adult_abdominal_pain_v1:patient_elena_vasquez_v1-manifest.json"
+          ],
           "notes": [
-            "No case-actor preset for adult_abdominal_pain_v1; generate_mesh.py build_source_body requires preset params (age/body_profile/phenotype) that do not exist for this case."
+            "adult_abdominal_pain_v1:nurse_priya_nair_v1: body OBJ + manifest written (deterministic parametric stub).",
+            "adult_abdominal_pain_v1:partner_diego_vasquez_v1: body OBJ + manifest written (deterministic parametric stub).",
+            "adult_abdominal_pain_v1:patient_elena_vasquez_v1: body OBJ + manifest written (deterministic parametric stub).",
+            "generator_mode (read from 3 manifest(s)): real_anny_local_forward_pass"
           ]
         },
         {
@@ -144,17 +166,33 @@
           ],
           "notes": [
             "Selection ran in-process for the adult_abdominal_pain_v1 cast roles (family, nurse, patient); rows written to garment-selection.json.",
-            "GAP: the embed/fit half (apply_role_clothing_material_regions cover-shell / MakeClothes .mhclo fit) runs inside the rigging station and is not_run for this case — no case-actor preset means no body to embed against."
+            "Cover-shell embed ran inside the rigging station (automate_blender.py apply_role_clothing_material_regions); see the rigging report artifact."
           ]
         },
         {
           "stationId": "rigging",
           "stationName": "rigging",
-          "classification": "not_run",
+          "classification": "deterministic",
           "implementation": "tools/openclinxr/asset-pipeline/anny/automate_blender.py:4620 main (Blender armature + auto weights; 23 bones, 25 morph targets) via orchestrate_character.py",
-          "artifactPaths": [],
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/adult_abdominal_pain_v1/stage-rig/adult_abdominal_pain_v1:nurse_priya_nair_v1.glb",
+            ".openclinxr/evidence/issue-288/cases/adult_abdominal_pain_v1/stage-rig/adult_abdominal_pain_v1:nurse_priya_nair_v1_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/adult_abdominal_pain_v1/stage-rig/adult_abdominal_pain_v1:nurse_priya_nair_v1.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/adult_abdominal_pain_v1/stage-rig/adult_abdominal_pain_v1:nurse_priya_nair_v1.bundle.json",
+            ".openclinxr/evidence/issue-288/cases/adult_abdominal_pain_v1/stage-rig/adult_abdominal_pain_v1:partner_diego_vasquez_v1.glb",
+            ".openclinxr/evidence/issue-288/cases/adult_abdominal_pain_v1/stage-rig/adult_abdominal_pain_v1:partner_diego_vasquez_v1_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/adult_abdominal_pain_v1/stage-rig/adult_abdominal_pain_v1:partner_diego_vasquez_v1.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/adult_abdominal_pain_v1/stage-rig/adult_abdominal_pain_v1:partner_diego_vasquez_v1.bundle.json",
+            ".openclinxr/evidence/issue-288/cases/adult_abdominal_pain_v1/stage-rig/adult_abdominal_pain_v1:patient_elena_vasquez_v1.glb",
+            ".openclinxr/evidence/issue-288/cases/adult_abdominal_pain_v1/stage-rig/adult_abdominal_pain_v1:patient_elena_vasquez_v1_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/adult_abdominal_pain_v1/stage-rig/adult_abdominal_pain_v1:patient_elena_vasquez_v1.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/adult_abdominal_pain_v1/stage-rig/adult_abdominal_pain_v1:patient_elena_vasquez_v1.bundle.json"
+          ],
           "notes": [
-            "No case-actor preset for adult_abdominal_pain_v1; automate_blender.py rigging requires a generated body which does not exist for this case."
+            "adult_abdominal_pain_v1:nurse_priya_nair_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
+            "adult_abdominal_pain_v1:partner_diego_vasquez_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
+            "adult_abdominal_pain_v1:patient_elena_vasquez_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
+            "GAP: the MakeClothes `.mhclo` fit stage (fit_stage.py / body_param_stage.py) is not_run — the gitignored staging `.mhclo` assets are absent from worktrees by design; the garment embed ran through the phenotype-derived cover-shell path inside automate_blender.py."
           ]
         },
         {
@@ -198,15 +236,33 @@
         {
           "stationId": "render",
           "stationName": "render",
-          "classification": "deterministic",
+          "classification": "error",
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
+          "artifactPaths": [],
+          "notes": [
+            "Capture failed for adult_abdominal_pain_v1: page.waitForFunction: Timeout 180000ms exceeded."
+          ]
+        },
+        {
+          "stationId": "lip_sync",
+          "stationName": "lip sync",
+          "classification": "deterministic",
+          "implementation": "multi-case-runner.ts runLipSyncStation (offline macOS say -> afconvert -> rhubarb 1.14.0 --exportFormat json; viseme timing baked at build time, no network, no model)",
           "artifactPaths": [
-            ".openclinxr/evidence/issue-288/cases/adult_abdominal_pain_v1/stage-render/capture/adult_abdominal_pain_v1-room.png",
-            ".openclinxr/evidence/issue-288/cases/adult_abdominal_pain_v1/stage-render/capture/capture-manifest.json"
+            ".openclinxr/evidence/issue-288/cases/adult_abdominal_pain_v1/stage-lip-sync/utterance-d13ce0f370.mouth-cues.json"
           ],
           "notes": [
-            "RAN live: loaded adult_abdominal_pain_v1 in scene-overview capture mode, waited for station shell + humanoid assets, screenshot written.",
-            "Live env=adult_ed_abdominal_bay_v1; capture-manifest source=live_scene."
+            "RAN offline: 30 cues, 8 distinct shapes via rhubarb (/Users/patrick/.openclinxr-tools/rhubarb/rhubarb) for \"The pain is sharp on my lower right side, and it hurts when I move.\"."
+          ]
+        },
+        {
+          "stationId": "world_compile",
+          "stationName": "world compile",
+          "classification": "not_run",
+          "implementation": "tools/openclinxr/factory/encounter-materialization-compile.ts:168 compileEncounterMaterialization (WCG compile runner: compileNodes + wouldInvoke/skippedBakers) + tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts planned-baker invocation (hands wouldInvoke === \"blender\" nodes to runChainWorldCompileBaker -> orchestrate_character.py; locked wardrobes stay skipped)",
+          "artifactPaths": [],
+          "notes": [
+            "No dated encounter-materialization-evidence JSON for adult_abdominal_pain_v1 under docs/openclinxr/; compileEncounterMaterialization requires a prior report or a bundle report. Only the #286-covered case (peds_asthma_parent_anxiety_v1) ships one."
           ]
         }
       ]
@@ -222,40 +278,53 @@
         "room",
         "equipment",
         "staging_placement",
-        "render"
+        "render",
+        "lip_sync",
+        "world_compile"
       ],
-      "generatedAt": "2026-08-11T01:22:57.112Z",
+      "generatedAt": "2026-09-03T05:25:59.321Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
-        "case_to_actor_params": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --list-presets",
+        "case_to_actor_params": "in-process orchestrate_character.py resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row)",
         "body": "python3 tools/openclinxr/asset-pipeline/anny/generate_mesh.py --params <preset params> --output <obj> --manifest <json>",
         "clothing": "in-process tools/openclinxr/asset-pipeline/makeclothes/garment-selection-by-role.ts resolveAnnyGarmentLayers / resolveHm08UpperGarment",
         "rigging": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --case-actor-preset <id> --output-glb <glb>",
         "room": "in-process apps/ui-xr/src/station-environment.ts buildStationEnvironment(<environmentId>)",
         "equipment": "in-process apps/ui-xr/src/station-equipment-builders.ts buildDeclaredEquipmentGeometry(<equipmentId>)",
         "staging_placement": "in-process packages/openclinxr/asset-registry/src/actor-placement.ts generatedActorPlacement(cast, index)",
-        "render": "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)"
+        "render": "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)",
+        "lip_sync": "in-process multi-case-runner.ts runLipSyncStation (offline macOS `say` -> `afconvert` -> rhubarb --exportFormat json; binary resolved explicitly from ~/.openclinxr-tools/rhubarb/rhubarb, NOT on PATH)",
+        "world_compile": "in-process tools/openclinxr/factory/encounter-materialization-compile.ts compileEncounterMaterialization (newest dated evidence JSON + chain stage-body/stage-rig artifact hashes -> compiled-evidence.json), then tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts invokePlannedWorldCompileBakers with the chain's real baker runner (wardrobe_character -> python3 orchestrate_character.py --case-actor-preset <case>:<actor> --output-glb <stage-world-compile>/bakes/<name>.glb; locked wardrobes stay skipped)"
       },
       "stations": [
         {
           "stationId": "case_to_actor_params",
           "stationName": "case -> actor params",
-          "classification": "not_run",
-          "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:203 CASE_ACTOR_PRESETS (data-driven preset map, no LLM)",
-          "artifactPaths": [],
+          "classification": "deterministic",
+          "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:381 resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row; data-driven, no LLM)",
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/clinic_abdominal_pain_interpreter_v1/stage-case-params/presets.json",
+            ".openclinxr/evidence/issue-288/cases/clinic_abdominal_pain_interpreter_v1/stage-case-params/case-actor-preset.json"
+          ],
           "notes": [
-            "CASE_ACTOR_PRESETS (orchestrate_character.py:203) has no entry for clinic_abdominal_pain_interpreter_v1; the data-driven preset map only covers ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
-            "The case definition itself carries no phenotype.garmentLayers in the scenario bank (#275 verified: zero phenotype fields), so no case->actor params exist to materialize for this case."
+            "Resolved 2 case-actor presets in-process for clinic_abdominal_pain_interpreter_v1."
           ]
         },
         {
           "stationId": "body",
           "stationName": "body",
-          "classification": "not_run",
+          "classification": "deterministic",
           "implementation": "tools/openclinxr/asset-pipeline/anny/generate_mesh.py:394 build_source_body (deterministic parametric stub; real-Anny forward pass is a separate blocked path)",
-          "artifactPaths": [],
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/clinic_abdominal_pain_interpreter_v1/stage-body/clinic_abdominal_pain_interpreter_v1:father_carlos_morales_v1.obj",
+            ".openclinxr/evidence/issue-288/cases/clinic_abdominal_pain_interpreter_v1/stage-body/clinic_abdominal_pain_interpreter_v1:father_carlos_morales_v1-manifest.json",
+            ".openclinxr/evidence/issue-288/cases/clinic_abdominal_pain_interpreter_v1/stage-body/clinic_abdominal_pain_interpreter_v1:patient_lucia_morales_v1.obj",
+            ".openclinxr/evidence/issue-288/cases/clinic_abdominal_pain_interpreter_v1/stage-body/clinic_abdominal_pain_interpreter_v1:patient_lucia_morales_v1-manifest.json"
+          ],
           "notes": [
-            "No case-actor preset for clinic_abdominal_pain_interpreter_v1; generate_mesh.py build_source_body requires preset params (age/body_profile/phenotype) that do not exist for this case."
+            "clinic_abdominal_pain_interpreter_v1:father_carlos_morales_v1: body OBJ + manifest written (deterministic parametric stub).",
+            "clinic_abdominal_pain_interpreter_v1:patient_lucia_morales_v1: body OBJ + manifest written (deterministic parametric stub).",
+            "generator_mode (read from 2 manifest(s)): real_anny_local_forward_pass"
           ]
         },
         {
@@ -268,17 +337,28 @@
           ],
           "notes": [
             "Selection ran in-process for the clinic_abdominal_pain_interpreter_v1 cast roles (family, patient); rows written to garment-selection.json.",
-            "GAP: the embed/fit half (apply_role_clothing_material_regions cover-shell / MakeClothes .mhclo fit) runs inside the rigging station and is not_run for this case — no case-actor preset means no body to embed against."
+            "Cover-shell embed ran inside the rigging station (automate_blender.py apply_role_clothing_material_regions); see the rigging report artifact."
           ]
         },
         {
           "stationId": "rigging",
           "stationName": "rigging",
-          "classification": "not_run",
+          "classification": "deterministic",
           "implementation": "tools/openclinxr/asset-pipeline/anny/automate_blender.py:4620 main (Blender armature + auto weights; 23 bones, 25 morph targets) via orchestrate_character.py",
-          "artifactPaths": [],
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/clinic_abdominal_pain_interpreter_v1/stage-rig/clinic_abdominal_pain_interpreter_v1:father_carlos_morales_v1.glb",
+            ".openclinxr/evidence/issue-288/cases/clinic_abdominal_pain_interpreter_v1/stage-rig/clinic_abdominal_pain_interpreter_v1:father_carlos_morales_v1_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/clinic_abdominal_pain_interpreter_v1/stage-rig/clinic_abdominal_pain_interpreter_v1:father_carlos_morales_v1.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/clinic_abdominal_pain_interpreter_v1/stage-rig/clinic_abdominal_pain_interpreter_v1:father_carlos_morales_v1.bundle.json",
+            ".openclinxr/evidence/issue-288/cases/clinic_abdominal_pain_interpreter_v1/stage-rig/clinic_abdominal_pain_interpreter_v1:patient_lucia_morales_v1.glb",
+            ".openclinxr/evidence/issue-288/cases/clinic_abdominal_pain_interpreter_v1/stage-rig/clinic_abdominal_pain_interpreter_v1:patient_lucia_morales_v1_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/clinic_abdominal_pain_interpreter_v1/stage-rig/clinic_abdominal_pain_interpreter_v1:patient_lucia_morales_v1.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/clinic_abdominal_pain_interpreter_v1/stage-rig/clinic_abdominal_pain_interpreter_v1:patient_lucia_morales_v1.bundle.json"
+          ],
           "notes": [
-            "No case-actor preset for clinic_abdominal_pain_interpreter_v1; automate_blender.py rigging requires a generated body which does not exist for this case."
+            "clinic_abdominal_pain_interpreter_v1:father_carlos_morales_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
+            "clinic_abdominal_pain_interpreter_v1:patient_lucia_morales_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
+            "GAP: the MakeClothes `.mhclo` fit stage (fit_stage.py / body_param_stage.py) is not_run — the gitignored staging `.mhclo` assets are absent from worktrees by design; the garment embed ran through the phenotype-derived cover-shell path inside automate_blender.py."
           ]
         },
         {
@@ -319,15 +399,33 @@
         {
           "stationId": "render",
           "stationName": "render",
-          "classification": "deterministic",
+          "classification": "error",
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
+          "artifactPaths": [],
+          "notes": [
+            "Capture failed for clinic_abdominal_pain_interpreter_v1: page.waitForFunction: Timeout 180000ms exceeded."
+          ]
+        },
+        {
+          "stationId": "lip_sync",
+          "stationName": "lip sync",
+          "classification": "deterministic",
+          "implementation": "multi-case-runner.ts runLipSyncStation (offline macOS say -> afconvert -> rhubarb 1.14.0 --exportFormat json; viseme timing baked at build time, no network, no model)",
           "artifactPaths": [
-            ".openclinxr/evidence/issue-288/cases/clinic_abdominal_pain_interpreter_v1/stage-render/capture/clinic_abdominal_pain_interpreter_v1-room.png",
-            ".openclinxr/evidence/issue-288/cases/clinic_abdominal_pain_interpreter_v1/stage-render/capture/capture-manifest.json"
+            ".openclinxr/evidence/issue-288/cases/clinic_abdominal_pain_interpreter_v1/stage-lip-sync/utterance-7ec29c6c17.mouth-cues.json"
           ],
           "notes": [
-            "RAN live: loaded clinic_abdominal_pain_interpreter_v1 in scene-overview capture mode, waited for station shell + humanoid assets, screenshot written.",
-            "Live env=urgent_care_clinic_room_v1; capture-manifest source=live_scene."
+            "RAN offline: 27 cues, 7 distinct shapes via rhubarb (/Users/patrick/.openclinxr-tools/rhubarb/rhubarb) for \"The pain is mostly on the lower right side, and I need the interpreter.\"."
+          ]
+        },
+        {
+          "stationId": "world_compile",
+          "stationName": "world compile",
+          "classification": "not_run",
+          "implementation": "tools/openclinxr/factory/encounter-materialization-compile.ts:168 compileEncounterMaterialization (WCG compile runner: compileNodes + wouldInvoke/skippedBakers) + tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts planned-baker invocation (hands wouldInvoke === \"blender\" nodes to runChainWorldCompileBaker -> orchestrate_character.py; locked wardrobes stay skipped)",
+          "artifactPaths": [],
+          "notes": [
+            "No dated encounter-materialization-evidence JSON for clinic_abdominal_pain_interpreter_v1 under docs/openclinxr/; compileEncounterMaterialization requires a prior report or a bundle report. Only the #286-covered case (peds_asthma_parent_anxiety_v1) ships one."
           ]
         }
       ]
@@ -343,40 +441,56 @@
         "room",
         "equipment",
         "staging_placement",
-        "render"
+        "render",
+        "lip_sync",
+        "world_compile"
       ],
-      "generatedAt": "2026-08-11T01:23:03.985Z",
+      "generatedAt": "2026-09-03T05:31:15.916Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
-        "case_to_actor_params": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --list-presets",
+        "case_to_actor_params": "in-process orchestrate_character.py resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row)",
         "body": "python3 tools/openclinxr/asset-pipeline/anny/generate_mesh.py --params <preset params> --output <obj> --manifest <json>",
         "clothing": "in-process tools/openclinxr/asset-pipeline/makeclothes/garment-selection-by-role.ts resolveAnnyGarmentLayers / resolveHm08UpperGarment",
         "rigging": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --case-actor-preset <id> --output-glb <glb>",
         "room": "in-process apps/ui-xr/src/station-environment.ts buildStationEnvironment(<environmentId>)",
         "equipment": "in-process apps/ui-xr/src/station-equipment-builders.ts buildDeclaredEquipmentGeometry(<equipmentId>)",
         "staging_placement": "in-process packages/openclinxr/asset-registry/src/actor-placement.ts generatedActorPlacement(cast, index)",
-        "render": "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)"
+        "render": "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)",
+        "lip_sync": "in-process multi-case-runner.ts runLipSyncStation (offline macOS `say` -> `afconvert` -> rhubarb --exportFormat json; binary resolved explicitly from ~/.openclinxr-tools/rhubarb/rhubarb, NOT on PATH)",
+        "world_compile": "in-process tools/openclinxr/factory/encounter-materialization-compile.ts compileEncounterMaterialization (newest dated evidence JSON + chain stage-body/stage-rig artifact hashes -> compiled-evidence.json), then tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts invokePlannedWorldCompileBakers with the chain's real baker runner (wardrobe_character -> python3 orchestrate_character.py --case-actor-preset <case>:<actor> --output-glb <stage-world-compile>/bakes/<name>.glb; locked wardrobes stay skipped)"
       },
       "stations": [
         {
           "stationId": "case_to_actor_params",
           "stationName": "case -> actor params",
-          "classification": "not_run",
-          "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:203 CASE_ACTOR_PRESETS (data-driven preset map, no LLM)",
-          "artifactPaths": [],
+          "classification": "deterministic",
+          "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:381 resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row; data-driven, no LLM)",
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v1/stage-case-params/presets.json",
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v1/stage-case-params/case-actor-preset.json"
+          ],
           "notes": [
-            "CASE_ACTOR_PRESETS (orchestrate_character.py:203) has no entry for ed_chest_pain_priority_v1; the data-driven preset map only covers ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
-            "The case definition itself carries no phenotype.garmentLayers in the scenario bank (#275 verified: zero phenotype fields), so no case->actor params exist to materialize for this case."
+            "Resolved 3 case-actor presets in-process for ed_chest_pain_priority_v1."
           ]
         },
         {
           "stationId": "body",
           "stationName": "body",
-          "classification": "not_run",
+          "classification": "deterministic",
           "implementation": "tools/openclinxr/asset-pipeline/anny/generate_mesh.py:394 build_source_body (deterministic parametric stub; real-Anny forward pass is a separate blocked path)",
-          "artifactPaths": [],
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v1/stage-body/ed_chest_pain_priority_v1:nurse_maria_alvarez_v1.obj",
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v1/stage-body/ed_chest_pain_priority_v1:nurse_maria_alvarez_v1-manifest.json",
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v1/stage-body/ed_chest_pain_priority_v1:patient_robert_hayes_v1.obj",
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v1/stage-body/ed_chest_pain_priority_v1:patient_robert_hayes_v1-manifest.json",
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v1/stage-body/ed_chest_pain_priority_v1:spouse_anna_hayes_v1.obj",
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v1/stage-body/ed_chest_pain_priority_v1:spouse_anna_hayes_v1-manifest.json"
+          ],
           "notes": [
-            "No case-actor preset for ed_chest_pain_priority_v1; generate_mesh.py build_source_body requires preset params (age/body_profile/phenotype) that do not exist for this case."
+            "ed_chest_pain_priority_v1:nurse_maria_alvarez_v1: body OBJ + manifest written (deterministic parametric stub).",
+            "ed_chest_pain_priority_v1:patient_robert_hayes_v1: body OBJ + manifest written (deterministic parametric stub).",
+            "ed_chest_pain_priority_v1:spouse_anna_hayes_v1: body OBJ + manifest written (deterministic parametric stub).",
+            "generator_mode (read from 3 manifest(s)): real_anny_local_forward_pass"
           ]
         },
         {
@@ -389,17 +503,33 @@
           ],
           "notes": [
             "Selection ran in-process for the ed_chest_pain_priority_v1 cast roles (family, nurse, patient); rows written to garment-selection.json.",
-            "GAP: the embed/fit half (apply_role_clothing_material_regions cover-shell / MakeClothes .mhclo fit) runs inside the rigging station and is not_run for this case — no case-actor preset means no body to embed against."
+            "Cover-shell embed ran inside the rigging station (automate_blender.py apply_role_clothing_material_regions); see the rigging report artifact."
           ]
         },
         {
           "stationId": "rigging",
           "stationName": "rigging",
-          "classification": "not_run",
+          "classification": "deterministic",
           "implementation": "tools/openclinxr/asset-pipeline/anny/automate_blender.py:4620 main (Blender armature + auto weights; 23 bones, 25 morph targets) via orchestrate_character.py",
-          "artifactPaths": [],
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v1/stage-rig/ed_chest_pain_priority_v1:nurse_maria_alvarez_v1.glb",
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v1/stage-rig/ed_chest_pain_priority_v1:nurse_maria_alvarez_v1_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v1/stage-rig/ed_chest_pain_priority_v1:nurse_maria_alvarez_v1.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v1/stage-rig/ed_chest_pain_priority_v1:nurse_maria_alvarez_v1.bundle.json",
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v1/stage-rig/ed_chest_pain_priority_v1:patient_robert_hayes_v1.glb",
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v1/stage-rig/ed_chest_pain_priority_v1:patient_robert_hayes_v1_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v1/stage-rig/ed_chest_pain_priority_v1:patient_robert_hayes_v1.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v1/stage-rig/ed_chest_pain_priority_v1:patient_robert_hayes_v1.bundle.json",
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v1/stage-rig/ed_chest_pain_priority_v1:spouse_anna_hayes_v1.glb",
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v1/stage-rig/ed_chest_pain_priority_v1:spouse_anna_hayes_v1_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v1/stage-rig/ed_chest_pain_priority_v1:spouse_anna_hayes_v1.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v1/stage-rig/ed_chest_pain_priority_v1:spouse_anna_hayes_v1.bundle.json"
+          ],
           "notes": [
-            "No case-actor preset for ed_chest_pain_priority_v1; automate_blender.py rigging requires a generated body which does not exist for this case."
+            "ed_chest_pain_priority_v1:nurse_maria_alvarez_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
+            "ed_chest_pain_priority_v1:patient_robert_hayes_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
+            "ed_chest_pain_priority_v1:spouse_anna_hayes_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
+            "GAP: the MakeClothes `.mhclo` fit stage (fit_stage.py / body_param_stage.py) is not_run — the gitignored staging `.mhclo` assets are absent from worktrees by design; the garment embed ran through the phenotype-derived cover-shell path inside automate_blender.py."
           ]
         },
         {
@@ -443,15 +573,33 @@
         {
           "stationId": "render",
           "stationName": "render",
-          "classification": "deterministic",
+          "classification": "error",
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
+          "artifactPaths": [],
+          "notes": [
+            "Capture failed for ed_chest_pain_priority_v1: page.waitForFunction: Timeout 180000ms exceeded."
+          ]
+        },
+        {
+          "stationId": "lip_sync",
+          "stationName": "lip sync",
+          "classification": "deterministic",
+          "implementation": "multi-case-runner.ts runLipSyncStation (offline macOS say -> afconvert -> rhubarb 1.14.0 --exportFormat json; viseme timing baked at build time, no network, no model)",
           "artifactPaths": [
-            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v1/stage-render/capture/ed_chest_pain_priority_v1-room.png",
-            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v1/stage-render/capture/capture-manifest.json"
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v1/stage-lip-sync/utterance-1baeedf3b2.mouth-cues.json"
           ],
           "notes": [
-            "RAN live: loaded ed_chest_pain_priority_v1 in scene-overview capture mode, waited for station shell + humanoid assets, screenshot written.",
-            "Live env=ed_exam_bay_v1; capture-manifest source=live_scene."
+            "RAN offline: 22 cues, 8 distinct shapes via rhubarb (/Users/patrick/.openclinxr-tools/rhubarb/rhubarb) for \"It feels heavy, like someone is sitting on my chest.\"."
+          ]
+        },
+        {
+          "stationId": "world_compile",
+          "stationName": "world compile",
+          "classification": "not_run",
+          "implementation": "tools/openclinxr/factory/encounter-materialization-compile.ts:168 compileEncounterMaterialization (WCG compile runner: compileNodes + wouldInvoke/skippedBakers) + tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts planned-baker invocation (hands wouldInvoke === \"blender\" nodes to runChainWorldCompileBaker -> orchestrate_character.py; locked wardrobes stay skipped)",
+          "artifactPaths": [],
+          "notes": [
+            "No dated encounter-materialization-evidence JSON for ed_chest_pain_priority_v1 under docs/openclinxr/; compileEncounterMaterialization requires a prior report or a bundle report. Only the #286-covered case (peds_asthma_parent_anxiety_v1) ships one."
           ]
         }
       ]
@@ -467,32 +615,36 @@
         "room",
         "equipment",
         "staging_placement",
-        "render"
+        "render",
+        "lip_sync",
+        "world_compile"
       ],
-      "generatedAt": "2026-08-11T01:23:26.697Z",
+      "generatedAt": "2026-09-03T05:37:00.748Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
-        "case_to_actor_params": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --list-presets",
+        "case_to_actor_params": "in-process orchestrate_character.py resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row)",
         "body": "python3 tools/openclinxr/asset-pipeline/anny/generate_mesh.py --params <preset params> --output <obj> --manifest <json>",
         "clothing": "in-process tools/openclinxr/asset-pipeline/makeclothes/garment-selection-by-role.ts resolveAnnyGarmentLayers / resolveHm08UpperGarment",
         "rigging": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --case-actor-preset <id> --output-glb <glb>",
         "room": "in-process apps/ui-xr/src/station-environment.ts buildStationEnvironment(<environmentId>)",
         "equipment": "in-process apps/ui-xr/src/station-equipment-builders.ts buildDeclaredEquipmentGeometry(<equipmentId>)",
         "staging_placement": "in-process packages/openclinxr/asset-registry/src/actor-placement.ts generatedActorPlacement(cast, index)",
-        "render": "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)"
+        "render": "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)",
+        "lip_sync": "in-process multi-case-runner.ts runLipSyncStation (offline macOS `say` -> `afconvert` -> rhubarb --exportFormat json; binary resolved explicitly from ~/.openclinxr-tools/rhubarb/rhubarb, NOT on PATH)",
+        "world_compile": "in-process tools/openclinxr/factory/encounter-materialization-compile.ts compileEncounterMaterialization (newest dated evidence JSON + chain stage-body/stage-rig artifact hashes -> compiled-evidence.json), then tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts invokePlannedWorldCompileBakers with the chain's real baker runner (wardrobe_character -> python3 orchestrate_character.py --case-actor-preset <case>:<actor> --output-glb <stage-world-compile>/bakes/<name>.glb; locked wardrobes stay skipped)"
       },
       "stations": [
         {
           "stationId": "case_to_actor_params",
           "stationName": "case -> actor params",
           "classification": "deterministic",
-          "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:203 CASE_ACTOR_PRESETS (data-driven preset map, no LLM)",
+          "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:381 resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row; data-driven, no LLM)",
           "artifactPaths": [
             ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v2/stage-case-params/presets.json",
             ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v2/stage-case-params/case-actor-preset.json"
           ],
           "notes": [
-            "Resolved 1 case-actor presets in-process for ed_chest_pain_priority_v2."
+            "Resolved 4 case-actor presets in-process for ed_chest_pain_priority_v2."
           ]
         },
         {
@@ -501,12 +653,21 @@
           "classification": "deterministic",
           "implementation": "tools/openclinxr/asset-pipeline/anny/generate_mesh.py:394 build_source_body (deterministic parametric stub; real-Anny forward pass is a separate blocked path)",
           "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v2/stage-body/ed_chest_pain_priority_v2:nurse_maria_alvarez_v1.obj",
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v2/stage-body/ed_chest_pain_priority_v2:nurse_maria_alvarez_v1-manifest.json",
             ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v2/stage-body/ed_chest_pain_patient_adult.obj",
-            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v2/stage-body/ed_chest_pain_patient_adult-manifest.json"
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v2/stage-body/ed_chest_pain_patient_adult-manifest.json",
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v2/stage-body/ed_chest_pain_priority_v2:patient_robert_hayes_v1.obj",
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v2/stage-body/ed_chest_pain_priority_v2:patient_robert_hayes_v1-manifest.json",
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v2/stage-body/ed_chest_pain_priority_v2:spouse_anna_hayes_v1.obj",
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v2/stage-body/ed_chest_pain_priority_v2:spouse_anna_hayes_v1-manifest.json"
           ],
           "notes": [
+            "ed_chest_pain_priority_v2:nurse_maria_alvarez_v1: body OBJ + manifest written (deterministic parametric stub).",
             "ed_chest_pain_priority_v2:patient_ed_chest_pain_v1: body OBJ + manifest written (deterministic parametric stub).",
-            "GAP: the real Anny forward pass sub-path is not_run — generator_mode=stub, uses_real_anny_forward_pass=false (verified from the written manifest); the Anny rail is blocked per #192, operator declined the restore. The chain ran the deterministic parametric stub body."
+            "ed_chest_pain_priority_v2:patient_robert_hayes_v1: body OBJ + manifest written (deterministic parametric stub).",
+            "ed_chest_pain_priority_v2:spouse_anna_hayes_v1: body OBJ + manifest written (deterministic parametric stub).",
+            "generator_mode (read from 4 manifest(s)): real_anny_local_forward_pass"
           ]
         },
         {
@@ -528,13 +689,28 @@
           "classification": "deterministic",
           "implementation": "tools/openclinxr/asset-pipeline/anny/automate_blender.py:4620 main (Blender armature + auto weights; 23 bones, 25 morph targets) via orchestrate_character.py",
           "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v2/stage-rig/ed_chest_pain_priority_v2:nurse_maria_alvarez_v1.glb",
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v2/stage-rig/ed_chest_pain_priority_v2:nurse_maria_alvarez_v1_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v2/stage-rig/ed_chest_pain_priority_v2:nurse_maria_alvarez_v1.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v2/stage-rig/ed_chest_pain_priority_v2:nurse_maria_alvarez_v1.bundle.json",
             ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v2/stage-rig/ed_chest_pain_patient_adult.glb",
             ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v2/stage-rig/ed_chest_pain_patient_adult_rigging_report.json",
             ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v2/stage-rig/ed_chest_pain_patient_adult.provenance.json",
-            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v2/stage-rig/ed_chest_pain_patient_adult.bundle.json"
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v2/stage-rig/ed_chest_pain_patient_adult.bundle.json",
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v2/stage-rig/ed_chest_pain_priority_v2:patient_robert_hayes_v1.glb",
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v2/stage-rig/ed_chest_pain_priority_v2:patient_robert_hayes_v1_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v2/stage-rig/ed_chest_pain_priority_v2:patient_robert_hayes_v1.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v2/stage-rig/ed_chest_pain_priority_v2:patient_robert_hayes_v1.bundle.json",
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v2/stage-rig/ed_chest_pain_priority_v2:spouse_anna_hayes_v1.glb",
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v2/stage-rig/ed_chest_pain_priority_v2:spouse_anna_hayes_v1_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v2/stage-rig/ed_chest_pain_priority_v2:spouse_anna_hayes_v1.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v2/stage-rig/ed_chest_pain_priority_v2:spouse_anna_hayes_v1.bundle.json"
           ],
           "notes": [
+            "ed_chest_pain_priority_v2:nurse_maria_alvarez_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
             "ed_chest_pain_priority_v2:patient_ed_chest_pain_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
+            "ed_chest_pain_priority_v2:patient_robert_hayes_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
+            "ed_chest_pain_priority_v2:spouse_anna_hayes_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
             "GAP: the MakeClothes `.mhclo` fit stage (fit_stage.py / body_param_stage.py) is not_run — the gitignored staging `.mhclo` assets are absent from worktrees by design; the garment embed ran through the phenotype-derived cover-shell path inside automate_blender.py."
           ]
         },
@@ -579,15 +755,33 @@
         {
           "stationId": "render",
           "stationName": "render",
-          "classification": "deterministic",
+          "classification": "error",
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
+          "artifactPaths": [],
+          "notes": [
+            "Capture failed for ed_chest_pain_priority_v2: page.waitForFunction: Timeout 180000ms exceeded."
+          ]
+        },
+        {
+          "stationId": "lip_sync",
+          "stationName": "lip sync",
+          "classification": "deterministic",
+          "implementation": "multi-case-runner.ts runLipSyncStation (offline macOS say -> afconvert -> rhubarb 1.14.0 --exportFormat json; viseme timing baked at build time, no network, no model)",
           "artifactPaths": [
-            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v2/stage-render/capture/ed_chest_pain_priority_v2-room.png",
-            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v2/stage-render/capture/capture-manifest.json"
+            ".openclinxr/evidence/issue-288/cases/ed_chest_pain_priority_v2/stage-lip-sync/utterance-1baeedf3b2.mouth-cues.json"
           ],
           "notes": [
-            "RAN live: loaded ed_chest_pain_priority_v2 in scene-overview capture mode, waited for station shell + humanoid assets, screenshot written.",
-            "Live env=ed_exam_bay_v1; capture-manifest source=live_scene."
+            "RAN offline: 22 cues, 8 distinct shapes via rhubarb (/Users/patrick/.openclinxr-tools/rhubarb/rhubarb) for \"It feels heavy, like someone is sitting on my chest.\"."
+          ]
+        },
+        {
+          "stationId": "world_compile",
+          "stationName": "world compile",
+          "classification": "not_run",
+          "implementation": "tools/openclinxr/factory/encounter-materialization-compile.ts:168 compileEncounterMaterialization (WCG compile runner: compileNodes + wouldInvoke/skippedBakers) + tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts planned-baker invocation (hands wouldInvoke === \"blender\" nodes to runChainWorldCompileBaker -> orchestrate_character.py; locked wardrobes stay skipped)",
+          "artifactPaths": [],
+          "notes": [
+            "No dated encounter-materialization-evidence JSON for ed_chest_pain_priority_v2 under docs/openclinxr/; compileEncounterMaterialization requires a prior report or a bundle report. Only the #286-covered case (peds_asthma_parent_anxiety_v1) ships one."
           ]
         }
       ]
@@ -603,40 +797,53 @@
         "room",
         "equipment",
         "staging_placement",
-        "render"
+        "render",
+        "lip_sync",
+        "world_compile"
       ],
-      "generatedAt": "2026-08-11T01:23:33.142Z",
+      "generatedAt": "2026-09-03T05:41:20.467Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
-        "case_to_actor_params": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --list-presets",
+        "case_to_actor_params": "in-process orchestrate_character.py resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row)",
         "body": "python3 tools/openclinxr/asset-pipeline/anny/generate_mesh.py --params <preset params> --output <obj> --manifest <json>",
         "clothing": "in-process tools/openclinxr/asset-pipeline/makeclothes/garment-selection-by-role.ts resolveAnnyGarmentLayers / resolveHm08UpperGarment",
         "rigging": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --case-actor-preset <id> --output-glb <glb>",
         "room": "in-process apps/ui-xr/src/station-environment.ts buildStationEnvironment(<environmentId>)",
         "equipment": "in-process apps/ui-xr/src/station-equipment-builders.ts buildDeclaredEquipmentGeometry(<equipmentId>)",
         "staging_placement": "in-process packages/openclinxr/asset-registry/src/actor-placement.ts generatedActorPlacement(cast, index)",
-        "render": "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)"
+        "render": "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)",
+        "lip_sync": "in-process multi-case-runner.ts runLipSyncStation (offline macOS `say` -> `afconvert` -> rhubarb --exportFormat json; binary resolved explicitly from ~/.openclinxr-tools/rhubarb/rhubarb, NOT on PATH)",
+        "world_compile": "in-process tools/openclinxr/factory/encounter-materialization-compile.ts compileEncounterMaterialization (newest dated evidence JSON + chain stage-body/stage-rig artifact hashes -> compiled-evidence.json), then tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts invokePlannedWorldCompileBakers with the chain's real baker runner (wardrobe_character -> python3 orchestrate_character.py --case-actor-preset <case>:<actor> --output-glb <stage-world-compile>/bakes/<name>.glb; locked wardrobes stay skipped)"
       },
       "stations": [
         {
           "stationId": "case_to_actor_params",
           "stationName": "case -> actor params",
-          "classification": "not_run",
-          "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:203 CASE_ACTOR_PRESETS (data-driven preset map, no LLM)",
-          "artifactPaths": [],
+          "classification": "deterministic",
+          "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:381 resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row; data-driven, no LLM)",
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/ed_stroke_alert_handoff_v1/stage-case-params/presets.json",
+            ".openclinxr/evidence/issue-288/cases/ed_stroke_alert_handoff_v1/stage-case-params/case-actor-preset.json"
+          ],
           "notes": [
-            "CASE_ACTOR_PRESETS (orchestrate_character.py:203) has no entry for ed_stroke_alert_handoff_v1; the data-driven preset map only covers ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
-            "The case definition itself carries no phenotype.garmentLayers in the scenario bank (#275 verified: zero phenotype fields), so no case->actor params exist to materialize for this case."
+            "Resolved 2 case-actor presets in-process for ed_stroke_alert_handoff_v1."
           ]
         },
         {
           "stationId": "body",
           "stationName": "body",
-          "classification": "not_run",
+          "classification": "deterministic",
           "implementation": "tools/openclinxr/asset-pipeline/anny/generate_mesh.py:394 build_source_body (deterministic parametric stub; real-Anny forward pass is a separate blocked path)",
-          "artifactPaths": [],
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/ed_stroke_alert_handoff_v1/stage-body/ed_stroke_alert_handoff_v1:patient_samuel_brooks_v1.obj",
+            ".openclinxr/evidence/issue-288/cases/ed_stroke_alert_handoff_v1/stage-body/ed_stroke_alert_handoff_v1:patient_samuel_brooks_v1-manifest.json",
+            ".openclinxr/evidence/issue-288/cases/ed_stroke_alert_handoff_v1/stage-body/ed_stroke_alert_handoff_v1:son_eric_brooks_v1.obj",
+            ".openclinxr/evidence/issue-288/cases/ed_stroke_alert_handoff_v1/stage-body/ed_stroke_alert_handoff_v1:son_eric_brooks_v1-manifest.json"
+          ],
           "notes": [
-            "No case-actor preset for ed_stroke_alert_handoff_v1; generate_mesh.py build_source_body requires preset params (age/body_profile/phenotype) that do not exist for this case."
+            "ed_stroke_alert_handoff_v1:patient_samuel_brooks_v1: body OBJ + manifest written (deterministic parametric stub).",
+            "ed_stroke_alert_handoff_v1:son_eric_brooks_v1: body OBJ + manifest written (deterministic parametric stub).",
+            "generator_mode (read from 2 manifest(s)): real_anny_local_forward_pass"
           ]
         },
         {
@@ -649,17 +856,28 @@
           ],
           "notes": [
             "Selection ran in-process for the ed_stroke_alert_handoff_v1 cast roles (family, nurse, patient); rows written to garment-selection.json.",
-            "GAP: the embed/fit half (apply_role_clothing_material_regions cover-shell / MakeClothes .mhclo fit) runs inside the rigging station and is not_run for this case — no case-actor preset means no body to embed against."
+            "Cover-shell embed ran inside the rigging station (automate_blender.py apply_role_clothing_material_regions); see the rigging report artifact."
           ]
         },
         {
           "stationId": "rigging",
           "stationName": "rigging",
-          "classification": "not_run",
+          "classification": "deterministic",
           "implementation": "tools/openclinxr/asset-pipeline/anny/automate_blender.py:4620 main (Blender armature + auto weights; 23 bones, 25 morph targets) via orchestrate_character.py",
-          "artifactPaths": [],
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/ed_stroke_alert_handoff_v1/stage-rig/ed_stroke_alert_handoff_v1:patient_samuel_brooks_v1.glb",
+            ".openclinxr/evidence/issue-288/cases/ed_stroke_alert_handoff_v1/stage-rig/ed_stroke_alert_handoff_v1:patient_samuel_brooks_v1_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/ed_stroke_alert_handoff_v1/stage-rig/ed_stroke_alert_handoff_v1:patient_samuel_brooks_v1.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/ed_stroke_alert_handoff_v1/stage-rig/ed_stroke_alert_handoff_v1:patient_samuel_brooks_v1.bundle.json",
+            ".openclinxr/evidence/issue-288/cases/ed_stroke_alert_handoff_v1/stage-rig/ed_stroke_alert_handoff_v1:son_eric_brooks_v1.glb",
+            ".openclinxr/evidence/issue-288/cases/ed_stroke_alert_handoff_v1/stage-rig/ed_stroke_alert_handoff_v1:son_eric_brooks_v1_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/ed_stroke_alert_handoff_v1/stage-rig/ed_stroke_alert_handoff_v1:son_eric_brooks_v1.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/ed_stroke_alert_handoff_v1/stage-rig/ed_stroke_alert_handoff_v1:son_eric_brooks_v1.bundle.json"
+          ],
           "notes": [
-            "No case-actor preset for ed_stroke_alert_handoff_v1; automate_blender.py rigging requires a generated body which does not exist for this case."
+            "ed_stroke_alert_handoff_v1:patient_samuel_brooks_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
+            "ed_stroke_alert_handoff_v1:son_eric_brooks_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
+            "GAP: the MakeClothes `.mhclo` fit stage (fit_stage.py / body_param_stage.py) is not_run — the gitignored staging `.mhclo` assets are absent from worktrees by design; the garment embed ran through the phenotype-derived cover-shell path inside automate_blender.py."
           ]
         },
         {
@@ -700,15 +918,33 @@
         {
           "stationId": "render",
           "stationName": "render",
-          "classification": "deterministic",
+          "classification": "error",
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
+          "artifactPaths": [],
+          "notes": [
+            "Capture failed for ed_stroke_alert_handoff_v1: page.waitForFunction: Timeout 180000ms exceeded."
+          ]
+        },
+        {
+          "stationId": "lip_sync",
+          "stationName": "lip sync",
+          "classification": "deterministic",
+          "implementation": "multi-case-runner.ts runLipSyncStation (offline macOS say -> afconvert -> rhubarb 1.14.0 --exportFormat json; viseme timing baked at build time, no network, no model)",
           "artifactPaths": [
-            ".openclinxr/evidence/issue-288/cases/ed_stroke_alert_handoff_v1/stage-render/capture/ed_stroke_alert_handoff_v1-room.png",
-            ".openclinxr/evidence/issue-288/cases/ed_stroke_alert_handoff_v1/stage-render/capture/capture-manifest.json"
+            ".openclinxr/evidence/issue-288/cases/ed_stroke_alert_handoff_v1/stage-lip-sync/utterance-6539634edf.mouth-cues.json"
           ],
           "notes": [
-            "RAN live: loaded ed_stroke_alert_handoff_v1 in scene-overview capture mode, waited for station shell + humanoid assets, screenshot written.",
-            "Live env=ed_stroke_bay_v1; capture-manifest source=live_scene."
+            "RAN offline: 25 cues, 8 distinct shapes via rhubarb (/Users/patrick/.openclinxr-tools/rhubarb/rhubarb) for \"My right arm feels weak, and I cannot get the words out clearly.\"."
+          ]
+        },
+        {
+          "stationId": "world_compile",
+          "stationName": "world compile",
+          "classification": "not_run",
+          "implementation": "tools/openclinxr/factory/encounter-materialization-compile.ts:168 compileEncounterMaterialization (WCG compile runner: compileNodes + wouldInvoke/skippedBakers) + tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts planned-baker invocation (hands wouldInvoke === \"blender\" nodes to runChainWorldCompileBaker -> orchestrate_character.py; locked wardrobes stay skipped)",
+          "artifactPaths": [],
+          "notes": [
+            "No dated encounter-materialization-evidence JSON for ed_stroke_alert_handoff_v1 under docs/openclinxr/; compileEncounterMaterialization requires a prior report or a bundle report. Only the #286-covered case (peds_asthma_parent_anxiety_v1) ships one."
           ]
         }
       ]
@@ -724,40 +960,53 @@
         "room",
         "equipment",
         "staging_placement",
-        "render"
+        "render",
+        "lip_sync",
+        "world_compile"
       ],
-      "generatedAt": "2026-08-11T01:23:39.715Z",
+      "generatedAt": "2026-09-03T05:45:46.369Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
-        "case_to_actor_params": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --list-presets",
+        "case_to_actor_params": "in-process orchestrate_character.py resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row)",
         "body": "python3 tools/openclinxr/asset-pipeline/anny/generate_mesh.py --params <preset params> --output <obj> --manifest <json>",
         "clothing": "in-process tools/openclinxr/asset-pipeline/makeclothes/garment-selection-by-role.ts resolveAnnyGarmentLayers / resolveHm08UpperGarment",
         "rigging": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --case-actor-preset <id> --output-glb <glb>",
         "room": "in-process apps/ui-xr/src/station-environment.ts buildStationEnvironment(<environmentId>)",
         "equipment": "in-process apps/ui-xr/src/station-equipment-builders.ts buildDeclaredEquipmentGeometry(<equipmentId>)",
         "staging_placement": "in-process packages/openclinxr/asset-registry/src/actor-placement.ts generatedActorPlacement(cast, index)",
-        "render": "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)"
+        "render": "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)",
+        "lip_sync": "in-process multi-case-runner.ts runLipSyncStation (offline macOS `say` -> `afconvert` -> rhubarb --exportFormat json; binary resolved explicitly from ~/.openclinxr-tools/rhubarb/rhubarb, NOT on PATH)",
+        "world_compile": "in-process tools/openclinxr/factory/encounter-materialization-compile.ts compileEncounterMaterialization (newest dated evidence JSON + chain stage-body/stage-rig artifact hashes -> compiled-evidence.json), then tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts invokePlannedWorldCompileBakers with the chain's real baker runner (wardrobe_character -> python3 orchestrate_character.py --case-actor-preset <case>:<actor> --output-glb <stage-world-compile>/bakes/<name>.glb; locked wardrobes stay skipped)"
       },
       "stations": [
         {
           "stationId": "case_to_actor_params",
           "stationName": "case -> actor params",
-          "classification": "not_run",
-          "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:203 CASE_ACTOR_PRESETS (data-driven preset map, no LLM)",
-          "artifactPaths": [],
+          "classification": "deterministic",
+          "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:381 resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row; data-driven, no LLM)",
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/ob_headache_preeclampsia_triage_v1/stage-case-params/presets.json",
+            ".openclinxr/evidence/issue-288/cases/ob_headache_preeclampsia_triage_v1/stage-case-params/case-actor-preset.json"
+          ],
           "notes": [
-            "CASE_ACTOR_PRESETS (orchestrate_character.py:203) has no entry for ob_headache_preeclampsia_triage_v1; the data-driven preset map only covers ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
-            "The case definition itself carries no phenotype.garmentLayers in the scenario bank (#275 verified: zero phenotype fields), so no case->actor params exist to materialize for this case."
+            "Resolved 2 case-actor presets in-process for ob_headache_preeclampsia_triage_v1."
           ]
         },
         {
           "stationId": "body",
           "stationName": "body",
-          "classification": "not_run",
+          "classification": "deterministic",
           "implementation": "tools/openclinxr/asset-pipeline/anny/generate_mesh.py:394 build_source_body (deterministic parametric stub; real-Anny forward pass is a separate blocked path)",
-          "artifactPaths": [],
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/ob_headache_preeclampsia_triage_v1/stage-body/ob_headache_preeclampsia_triage_v1:partner_omar_khan_v1.obj",
+            ".openclinxr/evidence/issue-288/cases/ob_headache_preeclampsia_triage_v1/stage-body/ob_headache_preeclampsia_triage_v1:partner_omar_khan_v1-manifest.json",
+            ".openclinxr/evidence/issue-288/cases/ob_headache_preeclampsia_triage_v1/stage-body/ob_headache_preeclampsia_triage_v1:patient_aisha_khan_v1.obj",
+            ".openclinxr/evidence/issue-288/cases/ob_headache_preeclampsia_triage_v1/stage-body/ob_headache_preeclampsia_triage_v1:patient_aisha_khan_v1-manifest.json"
+          ],
           "notes": [
-            "No case-actor preset for ob_headache_preeclampsia_triage_v1; generate_mesh.py build_source_body requires preset params (age/body_profile/phenotype) that do not exist for this case."
+            "ob_headache_preeclampsia_triage_v1:partner_omar_khan_v1: body OBJ + manifest written (deterministic parametric stub).",
+            "ob_headache_preeclampsia_triage_v1:patient_aisha_khan_v1: body OBJ + manifest written (deterministic parametric stub).",
+            "generator_mode (read from 2 manifest(s)): real_anny_local_forward_pass"
           ]
         },
         {
@@ -770,17 +1019,28 @@
           ],
           "notes": [
             "Selection ran in-process for the ob_headache_preeclampsia_triage_v1 cast roles (family, nurse, patient); rows written to garment-selection.json.",
-            "GAP: the embed/fit half (apply_role_clothing_material_regions cover-shell / MakeClothes .mhclo fit) runs inside the rigging station and is not_run for this case — no case-actor preset means no body to embed against."
+            "Cover-shell embed ran inside the rigging station (automate_blender.py apply_role_clothing_material_regions); see the rigging report artifact."
           ]
         },
         {
           "stationId": "rigging",
           "stationName": "rigging",
-          "classification": "not_run",
+          "classification": "deterministic",
           "implementation": "tools/openclinxr/asset-pipeline/anny/automate_blender.py:4620 main (Blender armature + auto weights; 23 bones, 25 morph targets) via orchestrate_character.py",
-          "artifactPaths": [],
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/ob_headache_preeclampsia_triage_v1/stage-rig/ob_headache_preeclampsia_triage_v1:partner_omar_khan_v1.glb",
+            ".openclinxr/evidence/issue-288/cases/ob_headache_preeclampsia_triage_v1/stage-rig/ob_headache_preeclampsia_triage_v1:partner_omar_khan_v1_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/ob_headache_preeclampsia_triage_v1/stage-rig/ob_headache_preeclampsia_triage_v1:partner_omar_khan_v1.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/ob_headache_preeclampsia_triage_v1/stage-rig/ob_headache_preeclampsia_triage_v1:partner_omar_khan_v1.bundle.json",
+            ".openclinxr/evidence/issue-288/cases/ob_headache_preeclampsia_triage_v1/stage-rig/ob_headache_preeclampsia_triage_v1:patient_aisha_khan_v1.glb",
+            ".openclinxr/evidence/issue-288/cases/ob_headache_preeclampsia_triage_v1/stage-rig/ob_headache_preeclampsia_triage_v1:patient_aisha_khan_v1_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/ob_headache_preeclampsia_triage_v1/stage-rig/ob_headache_preeclampsia_triage_v1:patient_aisha_khan_v1.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/ob_headache_preeclampsia_triage_v1/stage-rig/ob_headache_preeclampsia_triage_v1:patient_aisha_khan_v1.bundle.json"
+          ],
           "notes": [
-            "No case-actor preset for ob_headache_preeclampsia_triage_v1; automate_blender.py rigging requires a generated body which does not exist for this case."
+            "ob_headache_preeclampsia_triage_v1:partner_omar_khan_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
+            "ob_headache_preeclampsia_triage_v1:patient_aisha_khan_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
+            "GAP: the MakeClothes `.mhclo` fit stage (fit_stage.py / body_param_stage.py) is not_run — the gitignored staging `.mhclo` assets are absent from worktrees by design; the garment embed ran through the phenotype-derived cover-shell path inside automate_blender.py."
           ]
         },
         {
@@ -821,15 +1081,33 @@
         {
           "stationId": "render",
           "stationName": "render",
-          "classification": "deterministic",
+          "classification": "error",
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
+          "artifactPaths": [],
+          "notes": [
+            "Capture failed for ob_headache_preeclampsia_triage_v1: page.waitForFunction: Timeout 180000ms exceeded."
+          ]
+        },
+        {
+          "stationId": "lip_sync",
+          "stationName": "lip sync",
+          "classification": "deterministic",
+          "implementation": "multi-case-runner.ts runLipSyncStation (offline macOS say -> afconvert -> rhubarb 1.14.0 --exportFormat json; viseme timing baked at build time, no network, no model)",
           "artifactPaths": [
-            ".openclinxr/evidence/issue-288/cases/ob_headache_preeclampsia_triage_v1/stage-render/capture/ob_headache_preeclampsia_triage_v1-room.png",
-            ".openclinxr/evidence/issue-288/cases/ob_headache_preeclampsia_triage_v1/stage-render/capture/capture-manifest.json"
+            ".openclinxr/evidence/issue-288/cases/ob_headache_preeclampsia_triage_v1/stage-lip-sync/utterance-24b16f53ac.mouth-cues.json"
           ],
           "notes": [
-            "RAN live: loaded ob_headache_preeclampsia_triage_v1 in scene-overview capture mode, waited for station shell + humanoid assets, screenshot written.",
-            "Live env=ob_triage_room_v1; capture-manifest source=live_scene."
+            "RAN offline: 28 cues, 7 distinct shapes via rhubarb (/Users/patrick/.openclinxr-tools/rhubarb/rhubarb) for \"My headache is getting worse, and the lights are bothering my eyes.\"."
+          ]
+        },
+        {
+          "stationId": "world_compile",
+          "stationName": "world compile",
+          "classification": "not_run",
+          "implementation": "tools/openclinxr/factory/encounter-materialization-compile.ts:168 compileEncounterMaterialization (WCG compile runner: compileNodes + wouldInvoke/skippedBakers) + tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts planned-baker invocation (hands wouldInvoke === \"blender\" nodes to runChainWorldCompileBaker -> orchestrate_character.py; locked wardrobes stay skipped)",
+          "artifactPaths": [],
+          "notes": [
+            "No dated encounter-materialization-evidence JSON for ob_headache_preeclampsia_triage_v1 under docs/openclinxr/; compileEncounterMaterialization requires a prior report or a bundle report. Only the #286-covered case (peds_asthma_parent_anxiety_v1) ships one."
           ]
         }
       ]
@@ -845,40 +1123,53 @@
         "room",
         "equipment",
         "staging_placement",
-        "render"
+        "render",
+        "lip_sync",
+        "world_compile"
       ],
-      "generatedAt": "2026-08-11T01:23:44.946Z",
+      "generatedAt": "2026-09-03T05:50:10.465Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
-        "case_to_actor_params": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --list-presets",
+        "case_to_actor_params": "in-process orchestrate_character.py resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row)",
         "body": "python3 tools/openclinxr/asset-pipeline/anny/generate_mesh.py --params <preset params> --output <obj> --manifest <json>",
         "clothing": "in-process tools/openclinxr/asset-pipeline/makeclothes/garment-selection-by-role.ts resolveAnnyGarmentLayers / resolveHm08UpperGarment",
         "rigging": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --case-actor-preset <id> --output-glb <glb>",
         "room": "in-process apps/ui-xr/src/station-environment.ts buildStationEnvironment(<environmentId>)",
         "equipment": "in-process apps/ui-xr/src/station-equipment-builders.ts buildDeclaredEquipmentGeometry(<equipmentId>)",
         "staging_placement": "in-process packages/openclinxr/asset-registry/src/actor-placement.ts generatedActorPlacement(cast, index)",
-        "render": "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)"
+        "render": "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)",
+        "lip_sync": "in-process multi-case-runner.ts runLipSyncStation (offline macOS `say` -> `afconvert` -> rhubarb --exportFormat json; binary resolved explicitly from ~/.openclinxr-tools/rhubarb/rhubarb, NOT on PATH)",
+        "world_compile": "in-process tools/openclinxr/factory/encounter-materialization-compile.ts compileEncounterMaterialization (newest dated evidence JSON + chain stage-body/stage-rig artifact hashes -> compiled-evidence.json), then tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts invokePlannedWorldCompileBakers with the chain's real baker runner (wardrobe_character -> python3 orchestrate_character.py --case-actor-preset <case>:<actor> --output-glb <stage-world-compile>/bakes/<name>.glb; locked wardrobes stay skipped)"
       },
       "stations": [
         {
           "stationId": "case_to_actor_params",
           "stationName": "case -> actor params",
-          "classification": "not_run",
-          "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:203 CASE_ACTOR_PRESETS (data-driven preset map, no LLM)",
-          "artifactPaths": [],
+          "classification": "deterministic",
+          "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:381 resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row; data-driven, no LLM)",
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/oncology_bad_news_family_v1/stage-case-params/presets.json",
+            ".openclinxr/evidence/issue-288/cases/oncology_bad_news_family_v1/stage-case-params/case-actor-preset.json"
+          ],
           "notes": [
-            "CASE_ACTOR_PRESETS (orchestrate_character.py:203) has no entry for oncology_bad_news_family_v1; the data-driven preset map only covers ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
-            "The case definition itself carries no phenotype.garmentLayers in the scenario bank (#275 verified: zero phenotype fields), so no case->actor params exist to materialize for this case."
+            "Resolved 2 case-actor presets in-process for oncology_bad_news_family_v1."
           ]
         },
         {
           "stationId": "body",
           "stationName": "body",
-          "classification": "not_run",
+          "classification": "deterministic",
           "implementation": "tools/openclinxr/asset-pipeline/anny/generate_mesh.py:394 build_source_body (deterministic parametric stub; real-Anny forward pass is a separate blocked path)",
-          "artifactPaths": [],
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/oncology_bad_news_family_v1/stage-body/oncology_bad_news_family_v1:patient_david_miller_v1.obj",
+            ".openclinxr/evidence/issue-288/cases/oncology_bad_news_family_v1/stage-body/oncology_bad_news_family_v1:patient_david_miller_v1-manifest.json",
+            ".openclinxr/evidence/issue-288/cases/oncology_bad_news_family_v1/stage-body/oncology_bad_news_family_v1:sister_rachel_miller_v1.obj",
+            ".openclinxr/evidence/issue-288/cases/oncology_bad_news_family_v1/stage-body/oncology_bad_news_family_v1:sister_rachel_miller_v1-manifest.json"
+          ],
           "notes": [
-            "No case-actor preset for oncology_bad_news_family_v1; generate_mesh.py build_source_body requires preset params (age/body_profile/phenotype) that do not exist for this case."
+            "oncology_bad_news_family_v1:patient_david_miller_v1: body OBJ + manifest written (deterministic parametric stub).",
+            "oncology_bad_news_family_v1:sister_rachel_miller_v1: body OBJ + manifest written (deterministic parametric stub).",
+            "generator_mode (read from 2 manifest(s)): real_anny_local_forward_pass"
           ]
         },
         {
@@ -891,17 +1182,28 @@
           ],
           "notes": [
             "Selection ran in-process for the oncology_bad_news_family_v1 cast roles (family, patient); rows written to garment-selection.json.",
-            "GAP: the embed/fit half (apply_role_clothing_material_regions cover-shell / MakeClothes .mhclo fit) runs inside the rigging station and is not_run for this case — no case-actor preset means no body to embed against."
+            "Cover-shell embed ran inside the rigging station (automate_blender.py apply_role_clothing_material_regions); see the rigging report artifact."
           ]
         },
         {
           "stationId": "rigging",
           "stationName": "rigging",
-          "classification": "not_run",
+          "classification": "deterministic",
           "implementation": "tools/openclinxr/asset-pipeline/anny/automate_blender.py:4620 main (Blender armature + auto weights; 23 bones, 25 morph targets) via orchestrate_character.py",
-          "artifactPaths": [],
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/oncology_bad_news_family_v1/stage-rig/oncology_bad_news_family_v1:patient_david_miller_v1.glb",
+            ".openclinxr/evidence/issue-288/cases/oncology_bad_news_family_v1/stage-rig/oncology_bad_news_family_v1:patient_david_miller_v1_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/oncology_bad_news_family_v1/stage-rig/oncology_bad_news_family_v1:patient_david_miller_v1.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/oncology_bad_news_family_v1/stage-rig/oncology_bad_news_family_v1:patient_david_miller_v1.bundle.json",
+            ".openclinxr/evidence/issue-288/cases/oncology_bad_news_family_v1/stage-rig/oncology_bad_news_family_v1:sister_rachel_miller_v1.glb",
+            ".openclinxr/evidence/issue-288/cases/oncology_bad_news_family_v1/stage-rig/oncology_bad_news_family_v1:sister_rachel_miller_v1_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/oncology_bad_news_family_v1/stage-rig/oncology_bad_news_family_v1:sister_rachel_miller_v1.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/oncology_bad_news_family_v1/stage-rig/oncology_bad_news_family_v1:sister_rachel_miller_v1.bundle.json"
+          ],
           "notes": [
-            "No case-actor preset for oncology_bad_news_family_v1; automate_blender.py rigging requires a generated body which does not exist for this case."
+            "oncology_bad_news_family_v1:patient_david_miller_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
+            "oncology_bad_news_family_v1:sister_rachel_miller_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
+            "GAP: the MakeClothes `.mhclo` fit stage (fit_stage.py / body_param_stage.py) is not_run — the gitignored staging `.mhclo` assets are absent from worktrees by design; the garment embed ran through the phenotype-derived cover-shell path inside automate_blender.py."
           ]
         },
         {
@@ -942,15 +1244,33 @@
         {
           "stationId": "render",
           "stationName": "render",
-          "classification": "deterministic",
+          "classification": "error",
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
+          "artifactPaths": [],
+          "notes": [
+            "Capture failed for oncology_bad_news_family_v1: page.waitForFunction: Timeout 180000ms exceeded."
+          ]
+        },
+        {
+          "stationId": "lip_sync",
+          "stationName": "lip sync",
+          "classification": "deterministic",
+          "implementation": "multi-case-runner.ts runLipSyncStation (offline macOS say -> afconvert -> rhubarb 1.14.0 --exportFormat json; viseme timing baked at build time, no network, no model)",
           "artifactPaths": [
-            ".openclinxr/evidence/issue-288/cases/oncology_bad_news_family_v1/stage-render/capture/oncology_bad_news_family_v1-room.png",
-            ".openclinxr/evidence/issue-288/cases/oncology_bad_news_family_v1/stage-render/capture/capture-manifest.json"
+            ".openclinxr/evidence/issue-288/cases/oncology_bad_news_family_v1/stage-lip-sync/utterance-21c6d2ece3.mouth-cues.json"
           ],
           "notes": [
-            "RAN live: loaded oncology_bad_news_family_v1 in scene-overview capture mode, waited for station shell + humanoid assets, screenshot written.",
-            "Live env=oncology_consult_room_v1; capture-manifest source=live_scene."
+            "RAN offline: 24 cues, 8 distinct shapes via rhubarb (/Users/patrick/.openclinxr-tools/rhubarb/rhubarb) for \"I want my sister here before we talk about the scan results.\"."
+          ]
+        },
+        {
+          "stationId": "world_compile",
+          "stationName": "world compile",
+          "classification": "not_run",
+          "implementation": "tools/openclinxr/factory/encounter-materialization-compile.ts:168 compileEncounterMaterialization (WCG compile runner: compileNodes + wouldInvoke/skippedBakers) + tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts planned-baker invocation (hands wouldInvoke === \"blender\" nodes to runChainWorldCompileBaker -> orchestrate_character.py; locked wardrobes stay skipped)",
+          "artifactPaths": [],
+          "notes": [
+            "No dated encounter-materialization-evidence JSON for oncology_bad_news_family_v1 under docs/openclinxr/; compileEncounterMaterialization requires a prior report or a bundle report. Only the #286-covered case (peds_asthma_parent_anxiety_v1) ships one."
           ]
         }
       ]
@@ -966,26 +1286,30 @@
         "room",
         "equipment",
         "staging_placement",
-        "render"
+        "render",
+        "lip_sync",
+        "world_compile"
       ],
-      "generatedAt": "2026-08-11T01:24:23.916Z",
+      "generatedAt": "2026-09-03T05:56:59.078Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
-        "case_to_actor_params": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --list-presets",
+        "case_to_actor_params": "in-process orchestrate_character.py resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row)",
         "body": "python3 tools/openclinxr/asset-pipeline/anny/generate_mesh.py --params <preset params> --output <obj> --manifest <json>",
         "clothing": "in-process tools/openclinxr/asset-pipeline/makeclothes/garment-selection-by-role.ts resolveAnnyGarmentLayers / resolveHm08UpperGarment",
         "rigging": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --case-actor-preset <id> --output-glb <glb>",
         "room": "in-process apps/ui-xr/src/station-environment.ts buildStationEnvironment(<environmentId>)",
         "equipment": "in-process apps/ui-xr/src/station-equipment-builders.ts buildDeclaredEquipmentGeometry(<equipmentId>)",
         "staging_placement": "in-process packages/openclinxr/asset-registry/src/actor-placement.ts generatedActorPlacement(cast, index)",
-        "render": "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)"
+        "render": "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)",
+        "lip_sync": "in-process multi-case-runner.ts runLipSyncStation (offline macOS `say` -> `afconvert` -> rhubarb --exportFormat json; binary resolved explicitly from ~/.openclinxr-tools/rhubarb/rhubarb, NOT on PATH)",
+        "world_compile": "in-process tools/openclinxr/factory/encounter-materialization-compile.ts compileEncounterMaterialization (newest dated evidence JSON + chain stage-body/stage-rig artifact hashes -> compiled-evidence.json), then tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts invokePlannedWorldCompileBakers with the chain's real baker runner (wardrobe_character -> python3 orchestrate_character.py --case-actor-preset <case>:<actor> --output-glb <stage-world-compile>/bakes/<name>.glb; locked wardrobes stay skipped)"
       },
       "stations": [
         {
           "stationId": "case_to_actor_params",
           "stationName": "case -> actor params",
           "classification": "deterministic",
-          "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:203 CASE_ACTOR_PRESETS (data-driven preset map, no LLM)",
+          "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:381 resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row; data-driven, no LLM)",
           "artifactPaths": [
             ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-case-params/presets.json",
             ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-case-params/case-actor-preset.json"
@@ -1000,18 +1324,18 @@
           "classification": "deterministic",
           "implementation": "tools/openclinxr/asset-pipeline/anny/generate_mesh.py:394 build_source_body (deterministic parametric stub; real-Anny forward pass is a separate blocked path)",
           "artifactPaths": [
-            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-body/peds_patient_child.obj",
-            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-body/peds_patient_child-manifest.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-body/peds_nurse_kevin.obj",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-body/peds_nurse_kevin-manifest.json",
             ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-body/peds_anxious_parent.obj",
             ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-body/peds_anxious_parent-manifest.json",
-            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-body/peds_nurse_kevin.obj",
-            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-body/peds_nurse_kevin-manifest.json"
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-body/peds_patient_child.obj",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-body/peds_patient_child-manifest.json"
           ],
           "notes": [
-            "peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1: body OBJ + manifest written (deterministic parametric stub).",
-            "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1: body OBJ + manifest written (deterministic parametric stub).",
             "peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1: body OBJ + manifest written (deterministic parametric stub).",
-            "GAP: the real Anny forward pass sub-path is not_run — generator_mode=stub, uses_real_anny_forward_pass=false (verified from the written manifest); the Anny rail is blocked per #192, operator declined the restore. The chain ran the deterministic parametric stub body."
+            "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1: body OBJ + manifest written (deterministic parametric stub).",
+            "peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1: body OBJ + manifest written (deterministic parametric stub).",
+            "generator_mode (read from 3 manifest(s)): real_anny_local_forward_pass"
           ]
         },
         {
@@ -1030,14 +1354,27 @@
         {
           "stationId": "rigging",
           "stationName": "rigging",
-          "classification": "error",
+          "classification": "deterministic",
           "implementation": "tools/openclinxr/asset-pipeline/anny/automate_blender.py:4620 main (Blender armature + auto weights; 23 bones, 25 morph targets) via orchestrate_character.py",
-          "artifactPaths": [],
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_nurse_kevin.glb",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_nurse_kevin_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_nurse_kevin.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_nurse_kevin.bundle.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_anxious_parent.glb",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_anxious_parent_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_anxious_parent.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_anxious_parent.bundle.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_patient_child.glb",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_patient_child_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_patient_child.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_patient_child.bundle.json"
+          ],
           "notes": [
-            "peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
             "peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
-            "FAILURE: peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1: orchestrate_character.py exited 0 but produced no GLB/rigging report (glb=false report=false); Blender-stage failure is swallowed by the station and must be named, not trusted",
-            "Station ran partially: 2 of 3 actors produced the full glb+report+provenance+bundle set. Not fixed per issue-288 scope (do not fix a station found broken; name it)."
+            "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
+            "peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
+            "GAP: the MakeClothes `.mhclo` fit stage (fit_stage.py / body_param_stage.py) is not_run — the gitignored staging `.mhclo` assets are absent from worktrees by design; the garment embed ran through the phenotype-derived cover-shell path inside automate_blender.py."
           ]
         },
         {
@@ -1081,15 +1418,61 @@
         {
           "stationId": "render",
           "stationName": "render",
-          "classification": "deterministic",
+          "classification": "error",
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
+          "artifactPaths": [],
+          "notes": [
+            "Capture failed for peds_asthma_parent_anxiety_v1: page.waitForFunction: Timeout 180000ms exceeded."
+          ]
+        },
+        {
+          "stationId": "lip_sync",
+          "stationName": "lip sync",
+          "classification": "deterministic",
+          "implementation": "multi-case-runner.ts runLipSyncStation (offline macOS say -> afconvert -> rhubarb 1.14.0 --exportFormat json; viseme timing baked at build time, no network, no model)",
           "artifactPaths": [
-            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-render/capture/peds_asthma_parent_anxiety_v1-room.png",
-            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-render/capture/capture-manifest.json"
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-lip-sync/utterance-41a6922ade.mouth-cues.json"
           ],
           "notes": [
-            "RAN live: loaded peds_asthma_parent_anxiety_v1 in scene-overview capture mode, waited for station shell + humanoid assets, screenshot written.",
-            "Live env=pediatric_urgent_care_bay_v1; capture-manifest source=live_scene."
+            "RAN offline: 17 cues, 7 distinct shapes via rhubarb (/Users/patrick/.openclinxr-tools/rhubarb/rhubarb) for \"My chest feels tight and it is hard to breathe.\"."
+          ]
+        },
+        {
+          "stationId": "world_compile",
+          "stationName": "world compile",
+          "classification": "deterministic",
+          "implementation": "tools/openclinxr/factory/encounter-materialization-compile.ts:168 compileEncounterMaterialization (WCG compile runner: compileNodes + wouldInvoke/skippedBakers) + tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts planned-baker invocation (hands wouldInvoke === \"blender\" nodes to runChainWorldCompileBaker -> orchestrate_character.py; locked wardrobes stay skipped)",
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/compiled-evidence.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/world-compile-station.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/asset-generation-queue.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/planned-baker-invocations.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/baker-invocations/actor_nurse_kevin_lee_v1_wardrobe.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/baker-invocations/actor_parent_tara_johnson_v1_wardrobe.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/baker-invocations/actor_patient_maya_johnson_v1_wardrobe.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/baker-invocations/room_pediatric_urgent_care_bay_v1.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/anny_stub.mtl",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_anxious_parent.anny_base.obj",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_anxious_parent.anny_manifest.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_anxious_parent.bundle.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_anxious_parent.glb",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_anxious_parent.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_anxious_parent_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_nurse_kevin.anny_base.obj",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_nurse_kevin.anny_manifest.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_nurse_kevin.bundle.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_nurse_kevin.glb",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_nurse_kevin.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_nurse_kevin_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_patient_child.anny_base.obj",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_patient_child.anny_manifest.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_patient_child.bundle.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_patient_child.glb",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_patient_child.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_patient_child_rigging_report.json"
+          ],
+          "notes": [
+            "RAN compileEncounterMaterialization for peds_asthma_parent_anxiety_v1 (prior encounter-materialization-evidence-peds-asthma-parent-anxiety-2026-05-28.json): compileVersion 1, 16 compile node(s), 0 wardrobe baker(s) skipped, 4 node(s) plan blender. invokePlannedWorldCompileBakers executed the plan: 4 planned bake(s) invoked, 12 skipped (lock/cache/stale), 0 failed — see planned-baker-invocations.json."
           ]
         }
       ]
@@ -1105,40 +1488,56 @@
         "room",
         "equipment",
         "staging_placement",
-        "render"
+        "render",
+        "lip_sync",
+        "world_compile"
       ],
-      "generatedAt": "2026-08-11T01:24:29.568Z",
+      "generatedAt": "2026-09-03T06:01:56.107Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
-        "case_to_actor_params": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --list-presets",
+        "case_to_actor_params": "in-process orchestrate_character.py resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row)",
         "body": "python3 tools/openclinxr/asset-pipeline/anny/generate_mesh.py --params <preset params> --output <obj> --manifest <json>",
         "clothing": "in-process tools/openclinxr/asset-pipeline/makeclothes/garment-selection-by-role.ts resolveAnnyGarmentLayers / resolveHm08UpperGarment",
         "rigging": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --case-actor-preset <id> --output-glb <glb>",
         "room": "in-process apps/ui-xr/src/station-environment.ts buildStationEnvironment(<environmentId>)",
         "equipment": "in-process apps/ui-xr/src/station-equipment-builders.ts buildDeclaredEquipmentGeometry(<equipmentId>)",
         "staging_placement": "in-process packages/openclinxr/asset-registry/src/actor-placement.ts generatedActorPlacement(cast, index)",
-        "render": "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)"
+        "render": "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)",
+        "lip_sync": "in-process multi-case-runner.ts runLipSyncStation (offline macOS `say` -> `afconvert` -> rhubarb --exportFormat json; binary resolved explicitly from ~/.openclinxr-tools/rhubarb/rhubarb, NOT on PATH)",
+        "world_compile": "in-process tools/openclinxr/factory/encounter-materialization-compile.ts compileEncounterMaterialization (newest dated evidence JSON + chain stage-body/stage-rig artifact hashes -> compiled-evidence.json), then tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts invokePlannedWorldCompileBakers with the chain's real baker runner (wardrobe_character -> python3 orchestrate_character.py --case-actor-preset <case>:<actor> --output-glb <stage-world-compile>/bakes/<name>.glb; locked wardrobes stay skipped)"
       },
       "stations": [
         {
           "stationId": "case_to_actor_params",
           "stationName": "case -> actor params",
-          "classification": "not_run",
-          "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:203 CASE_ACTOR_PRESETS (data-driven preset map, no LLM)",
-          "artifactPaths": [],
+          "classification": "deterministic",
+          "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:381 resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row; data-driven, no LLM)",
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/peds_fever_v1/stage-case-params/presets.json",
+            ".openclinxr/evidence/issue-288/cases/peds_fever_v1/stage-case-params/case-actor-preset.json"
+          ],
           "notes": [
-            "CASE_ACTOR_PRESETS (orchestrate_character.py:203) has no entry for peds_fever_v1; the data-driven preset map only covers ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
-            "The case definition itself carries no phenotype.garmentLayers in the scenario bank (#275 verified: zero phenotype fields), so no case->actor params exist to materialize for this case."
+            "Resolved 3 case-actor presets in-process for peds_fever_v1."
           ]
         },
         {
           "stationId": "body",
           "stationName": "body",
-          "classification": "not_run",
+          "classification": "deterministic",
           "implementation": "tools/openclinxr/asset-pipeline/anny/generate_mesh.py:394 build_source_body (deterministic parametric stub; real-Anny forward pass is a separate blocked path)",
-          "artifactPaths": [],
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/peds_fever_v1/stage-body/peds_fever_v1:nurse_aisha_brooks_v1.obj",
+            ".openclinxr/evidence/issue-288/cases/peds_fever_v1/stage-body/peds_fever_v1:nurse_aisha_brooks_v1-manifest.json",
+            ".openclinxr/evidence/issue-288/cases/peds_fever_v1/stage-body/peds_fever_v1:parent_mei_chen_v1.obj",
+            ".openclinxr/evidence/issue-288/cases/peds_fever_v1/stage-body/peds_fever_v1:parent_mei_chen_v1-manifest.json",
+            ".openclinxr/evidence/issue-288/cases/peds_fever_v1/stage-body/peds_fever_v1:patient_noah_chen_v1.obj",
+            ".openclinxr/evidence/issue-288/cases/peds_fever_v1/stage-body/peds_fever_v1:patient_noah_chen_v1-manifest.json"
+          ],
           "notes": [
-            "No case-actor preset for peds_fever_v1; generate_mesh.py build_source_body requires preset params (age/body_profile/phenotype) that do not exist for this case."
+            "peds_fever_v1:nurse_aisha_brooks_v1: body OBJ + manifest written (deterministic parametric stub).",
+            "peds_fever_v1:parent_mei_chen_v1: body OBJ + manifest written (deterministic parametric stub).",
+            "peds_fever_v1:patient_noah_chen_v1: body OBJ + manifest written (deterministic parametric stub).",
+            "generator_mode (read from 3 manifest(s)): real_anny_local_forward_pass"
           ]
         },
         {
@@ -1151,17 +1550,33 @@
           ],
           "notes": [
             "Selection ran in-process for the peds_fever_v1 cast roles (family, nurse, patient); rows written to garment-selection.json.",
-            "GAP: the embed/fit half (apply_role_clothing_material_regions cover-shell / MakeClothes .mhclo fit) runs inside the rigging station and is not_run for this case — no case-actor preset means no body to embed against."
+            "Cover-shell embed ran inside the rigging station (automate_blender.py apply_role_clothing_material_regions); see the rigging report artifact."
           ]
         },
         {
           "stationId": "rigging",
           "stationName": "rigging",
-          "classification": "not_run",
+          "classification": "deterministic",
           "implementation": "tools/openclinxr/asset-pipeline/anny/automate_blender.py:4620 main (Blender armature + auto weights; 23 bones, 25 morph targets) via orchestrate_character.py",
-          "artifactPaths": [],
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/peds_fever_v1/stage-rig/peds_fever_v1:nurse_aisha_brooks_v1.glb",
+            ".openclinxr/evidence/issue-288/cases/peds_fever_v1/stage-rig/peds_fever_v1:nurse_aisha_brooks_v1_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/peds_fever_v1/stage-rig/peds_fever_v1:nurse_aisha_brooks_v1.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/peds_fever_v1/stage-rig/peds_fever_v1:nurse_aisha_brooks_v1.bundle.json",
+            ".openclinxr/evidence/issue-288/cases/peds_fever_v1/stage-rig/peds_fever_v1:parent_mei_chen_v1.glb",
+            ".openclinxr/evidence/issue-288/cases/peds_fever_v1/stage-rig/peds_fever_v1:parent_mei_chen_v1_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/peds_fever_v1/stage-rig/peds_fever_v1:parent_mei_chen_v1.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/peds_fever_v1/stage-rig/peds_fever_v1:parent_mei_chen_v1.bundle.json",
+            ".openclinxr/evidence/issue-288/cases/peds_fever_v1/stage-rig/peds_fever_v1:patient_noah_chen_v1.glb",
+            ".openclinxr/evidence/issue-288/cases/peds_fever_v1/stage-rig/peds_fever_v1:patient_noah_chen_v1_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/peds_fever_v1/stage-rig/peds_fever_v1:patient_noah_chen_v1.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/peds_fever_v1/stage-rig/peds_fever_v1:patient_noah_chen_v1.bundle.json"
+          ],
           "notes": [
-            "No case-actor preset for peds_fever_v1; automate_blender.py rigging requires a generated body which does not exist for this case."
+            "peds_fever_v1:nurse_aisha_brooks_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
+            "peds_fever_v1:parent_mei_chen_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
+            "peds_fever_v1:patient_noah_chen_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
+            "GAP: the MakeClothes `.mhclo` fit stage (fit_stage.py / body_param_stage.py) is not_run — the gitignored staging `.mhclo` assets are absent from worktrees by design; the garment embed ran through the phenotype-derived cover-shell path inside automate_blender.py."
           ]
         },
         {
@@ -1205,15 +1620,33 @@
         {
           "stationId": "render",
           "stationName": "render",
-          "classification": "deterministic",
+          "classification": "error",
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
+          "artifactPaths": [],
+          "notes": [
+            "Capture failed for peds_fever_v1: page.waitForFunction: Timeout 180000ms exceeded."
+          ]
+        },
+        {
+          "stationId": "lip_sync",
+          "stationName": "lip sync",
+          "classification": "deterministic",
+          "implementation": "multi-case-runner.ts runLipSyncStation (offline macOS say -> afconvert -> rhubarb 1.14.0 --exportFormat json; viseme timing baked at build time, no network, no model)",
           "artifactPaths": [
-            ".openclinxr/evidence/issue-288/cases/peds_fever_v1/stage-render/capture/peds_fever_v1-room.png",
-            ".openclinxr/evidence/issue-288/cases/peds_fever_v1/stage-render/capture/capture-manifest.json"
+            ".openclinxr/evidence/issue-288/cases/peds_fever_v1/stage-lip-sync/utterance-53ac203413.mouth-cues.json"
           ],
           "notes": [
-            "RAN live: loaded peds_fever_v1 in scene-overview capture mode, waited for station shell + humanoid assets, screenshot written.",
-            "Live env=pediatric_fever_urgent_care_bay_v1; capture-manifest source=live_scene."
+            "RAN offline: 25 cues, 9 distinct shapes via rhubarb (/Users/patrick/.openclinxr-tools/rhubarb/rhubarb) for \"I feel hot and tired. My tummy hurts a little.\"."
+          ]
+        },
+        {
+          "stationId": "world_compile",
+          "stationName": "world compile",
+          "classification": "not_run",
+          "implementation": "tools/openclinxr/factory/encounter-materialization-compile.ts:168 compileEncounterMaterialization (WCG compile runner: compileNodes + wouldInvoke/skippedBakers) + tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts planned-baker invocation (hands wouldInvoke === \"blender\" nodes to runChainWorldCompileBaker -> orchestrate_character.py; locked wardrobes stay skipped)",
+          "artifactPaths": [],
+          "notes": [
+            "No dated encounter-materialization-evidence JSON for peds_fever_v1 under docs/openclinxr/; compileEncounterMaterialization requires a prior report or a bundle report. Only the #286-covered case (peds_asthma_parent_anxiety_v1) ships one."
           ]
         }
       ]
@@ -1229,40 +1662,53 @@
         "room",
         "equipment",
         "staging_placement",
-        "render"
+        "render",
+        "lip_sync",
+        "world_compile"
       ],
-      "generatedAt": "2026-08-11T01:24:35.145Z",
+      "generatedAt": "2026-09-03T06:06:18.630Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
-        "case_to_actor_params": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --list-presets",
+        "case_to_actor_params": "in-process orchestrate_character.py resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row)",
         "body": "python3 tools/openclinxr/asset-pipeline/anny/generate_mesh.py --params <preset params> --output <obj> --manifest <json>",
         "clothing": "in-process tools/openclinxr/asset-pipeline/makeclothes/garment-selection-by-role.ts resolveAnnyGarmentLayers / resolveHm08UpperGarment",
         "rigging": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --case-actor-preset <id> --output-glb <glb>",
         "room": "in-process apps/ui-xr/src/station-environment.ts buildStationEnvironment(<environmentId>)",
         "equipment": "in-process apps/ui-xr/src/station-equipment-builders.ts buildDeclaredEquipmentGeometry(<equipmentId>)",
         "staging_placement": "in-process packages/openclinxr/asset-registry/src/actor-placement.ts generatedActorPlacement(cast, index)",
-        "render": "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)"
+        "render": "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)",
+        "lip_sync": "in-process multi-case-runner.ts runLipSyncStation (offline macOS `say` -> `afconvert` -> rhubarb --exportFormat json; binary resolved explicitly from ~/.openclinxr-tools/rhubarb/rhubarb, NOT on PATH)",
+        "world_compile": "in-process tools/openclinxr/factory/encounter-materialization-compile.ts compileEncounterMaterialization (newest dated evidence JSON + chain stage-body/stage-rig artifact hashes -> compiled-evidence.json), then tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts invokePlannedWorldCompileBakers with the chain's real baker runner (wardrobe_character -> python3 orchestrate_character.py --case-actor-preset <case>:<actor> --output-glb <stage-world-compile>/bakes/<name>.glb; locked wardrobes stay skipped)"
       },
       "stations": [
         {
           "stationId": "case_to_actor_params",
           "stationName": "case -> actor params",
-          "classification": "not_run",
-          "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:203 CASE_ACTOR_PRESETS (data-driven preset map, no LLM)",
-          "artifactPaths": [],
+          "classification": "deterministic",
+          "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:381 resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row; data-driven, no LLM)",
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/postop_fever_consult_pressure_v1/stage-case-params/presets.json",
+            ".openclinxr/evidence/issue-288/cases/postop_fever_consult_pressure_v1/stage-case-params/case-actor-preset.json"
+          ],
           "notes": [
-            "CASE_ACTOR_PRESETS (orchestrate_character.py:203) has no entry for postop_fever_consult_pressure_v1; the data-driven preset map only covers ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
-            "The case definition itself carries no phenotype.garmentLayers in the scenario bank (#275 verified: zero phenotype fields), so no case->actor params exist to materialize for this case."
+            "Resolved 2 case-actor presets in-process for postop_fever_consult_pressure_v1."
           ]
         },
         {
           "stationId": "body",
           "stationName": "body",
-          "classification": "not_run",
+          "classification": "deterministic",
           "implementation": "tools/openclinxr/asset-pipeline/anny/generate_mesh.py:394 build_source_body (deterministic parametric stub; real-Anny forward pass is a separate blocked path)",
-          "artifactPaths": [],
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/postop_fever_consult_pressure_v1/stage-body/postop_fever_consult_pressure_v1:floor_nurse_bennett_v1.obj",
+            ".openclinxr/evidence/issue-288/cases/postop_fever_consult_pressure_v1/stage-body/postop_fever_consult_pressure_v1:floor_nurse_bennett_v1-manifest.json",
+            ".openclinxr/evidence/issue-288/cases/postop_fever_consult_pressure_v1/stage-body/postop_fever_consult_pressure_v1:patient_priya_shah_v1.obj",
+            ".openclinxr/evidence/issue-288/cases/postop_fever_consult_pressure_v1/stage-body/postop_fever_consult_pressure_v1:patient_priya_shah_v1-manifest.json"
+          ],
           "notes": [
-            "No case-actor preset for postop_fever_consult_pressure_v1; generate_mesh.py build_source_body requires preset params (age/body_profile/phenotype) that do not exist for this case."
+            "postop_fever_consult_pressure_v1:floor_nurse_bennett_v1: body OBJ + manifest written (deterministic parametric stub).",
+            "postop_fever_consult_pressure_v1:patient_priya_shah_v1: body OBJ + manifest written (deterministic parametric stub).",
+            "generator_mode (read from 2 manifest(s)): real_anny_local_forward_pass"
           ]
         },
         {
@@ -1275,17 +1721,28 @@
           ],
           "notes": [
             "Selection ran in-process for the postop_fever_consult_pressure_v1 cast roles (consultant, nurse, patient); rows written to garment-selection.json.",
-            "GAP: the embed/fit half (apply_role_clothing_material_regions cover-shell / MakeClothes .mhclo fit) runs inside the rigging station and is not_run for this case — no case-actor preset means no body to embed against."
+            "Cover-shell embed ran inside the rigging station (automate_blender.py apply_role_clothing_material_regions); see the rigging report artifact."
           ]
         },
         {
           "stationId": "rigging",
           "stationName": "rigging",
-          "classification": "not_run",
+          "classification": "deterministic",
           "implementation": "tools/openclinxr/asset-pipeline/anny/automate_blender.py:4620 main (Blender armature + auto weights; 23 bones, 25 morph targets) via orchestrate_character.py",
-          "artifactPaths": [],
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/postop_fever_consult_pressure_v1/stage-rig/postop_fever_consult_pressure_v1:floor_nurse_bennett_v1.glb",
+            ".openclinxr/evidence/issue-288/cases/postop_fever_consult_pressure_v1/stage-rig/postop_fever_consult_pressure_v1:floor_nurse_bennett_v1_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/postop_fever_consult_pressure_v1/stage-rig/postop_fever_consult_pressure_v1:floor_nurse_bennett_v1.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/postop_fever_consult_pressure_v1/stage-rig/postop_fever_consult_pressure_v1:floor_nurse_bennett_v1.bundle.json",
+            ".openclinxr/evidence/issue-288/cases/postop_fever_consult_pressure_v1/stage-rig/postop_fever_consult_pressure_v1:patient_priya_shah_v1.glb",
+            ".openclinxr/evidence/issue-288/cases/postop_fever_consult_pressure_v1/stage-rig/postop_fever_consult_pressure_v1:patient_priya_shah_v1_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/postop_fever_consult_pressure_v1/stage-rig/postop_fever_consult_pressure_v1:patient_priya_shah_v1.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/postop_fever_consult_pressure_v1/stage-rig/postop_fever_consult_pressure_v1:patient_priya_shah_v1.bundle.json"
+          ],
           "notes": [
-            "No case-actor preset for postop_fever_consult_pressure_v1; automate_blender.py rigging requires a generated body which does not exist for this case."
+            "postop_fever_consult_pressure_v1:floor_nurse_bennett_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
+            "postop_fever_consult_pressure_v1:patient_priya_shah_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
+            "GAP: the MakeClothes `.mhclo` fit stage (fit_stage.py / body_param_stage.py) is not_run — the gitignored staging `.mhclo` assets are absent from worktrees by design; the garment embed ran through the phenotype-derived cover-shell path inside automate_blender.py."
           ]
         },
         {
@@ -1326,15 +1783,33 @@
         {
           "stationId": "render",
           "stationName": "render",
-          "classification": "deterministic",
+          "classification": "error",
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
+          "artifactPaths": [],
+          "notes": [
+            "Capture failed for postop_fever_consult_pressure_v1: page.waitForFunction: Timeout 180000ms exceeded."
+          ]
+        },
+        {
+          "stationId": "lip_sync",
+          "stationName": "lip sync",
+          "classification": "deterministic",
+          "implementation": "multi-case-runner.ts runLipSyncStation (offline macOS say -> afconvert -> rhubarb 1.14.0 --exportFormat json; viseme timing baked at build time, no network, no model)",
           "artifactPaths": [
-            ".openclinxr/evidence/issue-288/cases/postop_fever_consult_pressure_v1/stage-render/capture/postop_fever_consult_pressure_v1-room.png",
-            ".openclinxr/evidence/issue-288/cases/postop_fever_consult_pressure_v1/stage-render/capture/capture-manifest.json"
+            ".openclinxr/evidence/issue-288/cases/postop_fever_consult_pressure_v1/stage-lip-sync/utterance-adca40f2cf.mouth-cues.json"
           ],
           "notes": [
-            "RAN live: loaded postop_fever_consult_pressure_v1 in scene-overview capture mode, waited for station shell + humanoid assets, screenshot written.",
-            "Live env=surgical_ward_room_v1; capture-manifest source=live_scene."
+            "RAN offline: 21 cues, 6 distinct shapes via rhubarb (/Users/patrick/.openclinxr-tools/rhubarb/rhubarb) for \"My belly hurts more today, and I have chills.\"."
+          ]
+        },
+        {
+          "stationId": "world_compile",
+          "stationName": "world compile",
+          "classification": "not_run",
+          "implementation": "tools/openclinxr/factory/encounter-materialization-compile.ts:168 compileEncounterMaterialization (WCG compile runner: compileNodes + wouldInvoke/skippedBakers) + tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts planned-baker invocation (hands wouldInvoke === \"blender\" nodes to runChainWorldCompileBaker -> orchestrate_character.py; locked wardrobes stay skipped)",
+          "artifactPaths": [],
+          "notes": [
+            "No dated encounter-materialization-evidence JSON for postop_fever_consult_pressure_v1 under docs/openclinxr/; compileEncounterMaterialization requires a prior report or a bundle report. Only the #286-covered case (peds_asthma_parent_anxiety_v1) ships one."
           ]
         }
       ]
@@ -1350,40 +1825,50 @@
         "room",
         "equipment",
         "staging_placement",
-        "render"
+        "render",
+        "lip_sync",
+        "world_compile"
       ],
-      "generatedAt": "2026-08-11T01:24:40.133Z",
+      "generatedAt": "2026-09-03T06:10:06.430Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
-        "case_to_actor_params": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --list-presets",
+        "case_to_actor_params": "in-process orchestrate_character.py resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row)",
         "body": "python3 tools/openclinxr/asset-pipeline/anny/generate_mesh.py --params <preset params> --output <obj> --manifest <json>",
         "clothing": "in-process tools/openclinxr/asset-pipeline/makeclothes/garment-selection-by-role.ts resolveAnnyGarmentLayers / resolveHm08UpperGarment",
         "rigging": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --case-actor-preset <id> --output-glb <glb>",
         "room": "in-process apps/ui-xr/src/station-environment.ts buildStationEnvironment(<environmentId>)",
         "equipment": "in-process apps/ui-xr/src/station-equipment-builders.ts buildDeclaredEquipmentGeometry(<equipmentId>)",
         "staging_placement": "in-process packages/openclinxr/asset-registry/src/actor-placement.ts generatedActorPlacement(cast, index)",
-        "render": "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)"
+        "render": "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)",
+        "lip_sync": "in-process multi-case-runner.ts runLipSyncStation (offline macOS `say` -> `afconvert` -> rhubarb --exportFormat json; binary resolved explicitly from ~/.openclinxr-tools/rhubarb/rhubarb, NOT on PATH)",
+        "world_compile": "in-process tools/openclinxr/factory/encounter-materialization-compile.ts compileEncounterMaterialization (newest dated evidence JSON + chain stage-body/stage-rig artifact hashes -> compiled-evidence.json), then tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts invokePlannedWorldCompileBakers with the chain's real baker runner (wardrobe_character -> python3 orchestrate_character.py --case-actor-preset <case>:<actor> --output-glb <stage-world-compile>/bakes/<name>.glb; locked wardrobes stay skipped)"
       },
       "stations": [
         {
           "stationId": "case_to_actor_params",
           "stationName": "case -> actor params",
-          "classification": "not_run",
-          "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:203 CASE_ACTOR_PRESETS (data-driven preset map, no LLM)",
-          "artifactPaths": [],
+          "classification": "deterministic",
+          "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:381 resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row; data-driven, no LLM)",
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/primary_care_dyslipidemia_joint_pain_v1/stage-case-params/presets.json",
+            ".openclinxr/evidence/issue-288/cases/primary_care_dyslipidemia_joint_pain_v1/stage-case-params/case-actor-preset.json"
+          ],
           "notes": [
-            "CASE_ACTOR_PRESETS (orchestrate_character.py:203) has no entry for primary_care_dyslipidemia_joint_pain_v1; the data-driven preset map only covers ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
-            "The case definition itself carries no phenotype.garmentLayers in the scenario bank (#275 verified: zero phenotype fields), so no case->actor params exist to materialize for this case."
+            "Resolved 1 case-actor presets in-process for primary_care_dyslipidemia_joint_pain_v1."
           ]
         },
         {
           "stationId": "body",
           "stationName": "body",
-          "classification": "not_run",
+          "classification": "deterministic",
           "implementation": "tools/openclinxr/asset-pipeline/anny/generate_mesh.py:394 build_source_body (deterministic parametric stub; real-Anny forward pass is a separate blocked path)",
-          "artifactPaths": [],
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/primary_care_dyslipidemia_joint_pain_v1/stage-body/primary_care_dyslipidemia_joint_pain_v1:patient_mario_guzman_v1.obj",
+            ".openclinxr/evidence/issue-288/cases/primary_care_dyslipidemia_joint_pain_v1/stage-body/primary_care_dyslipidemia_joint_pain_v1:patient_mario_guzman_v1-manifest.json"
+          ],
           "notes": [
-            "No case-actor preset for primary_care_dyslipidemia_joint_pain_v1; generate_mesh.py build_source_body requires preset params (age/body_profile/phenotype) that do not exist for this case."
+            "primary_care_dyslipidemia_joint_pain_v1:patient_mario_guzman_v1: body OBJ + manifest written (deterministic parametric stub).",
+            "generator_mode (read from 1 manifest(s)): real_anny_local_forward_pass"
           ]
         },
         {
@@ -1396,17 +1881,23 @@
           ],
           "notes": [
             "Selection ran in-process for the primary_care_dyslipidemia_joint_pain_v1 cast roles (medical_assistant, patient); rows written to garment-selection.json.",
-            "GAP: the embed/fit half (apply_role_clothing_material_regions cover-shell / MakeClothes .mhclo fit) runs inside the rigging station and is not_run for this case — no case-actor preset means no body to embed against."
+            "Cover-shell embed ran inside the rigging station (automate_blender.py apply_role_clothing_material_regions); see the rigging report artifact."
           ]
         },
         {
           "stationId": "rigging",
           "stationName": "rigging",
-          "classification": "not_run",
+          "classification": "deterministic",
           "implementation": "tools/openclinxr/asset-pipeline/anny/automate_blender.py:4620 main (Blender armature + auto weights; 23 bones, 25 morph targets) via orchestrate_character.py",
-          "artifactPaths": [],
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/primary_care_dyslipidemia_joint_pain_v1/stage-rig/primary_care_dyslipidemia_joint_pain_v1:patient_mario_guzman_v1.glb",
+            ".openclinxr/evidence/issue-288/cases/primary_care_dyslipidemia_joint_pain_v1/stage-rig/primary_care_dyslipidemia_joint_pain_v1:patient_mario_guzman_v1_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/primary_care_dyslipidemia_joint_pain_v1/stage-rig/primary_care_dyslipidemia_joint_pain_v1:patient_mario_guzman_v1.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/primary_care_dyslipidemia_joint_pain_v1/stage-rig/primary_care_dyslipidemia_joint_pain_v1:patient_mario_guzman_v1.bundle.json"
+          ],
           "notes": [
-            "No case-actor preset for primary_care_dyslipidemia_joint_pain_v1; automate_blender.py rigging requires a generated body which does not exist for this case."
+            "primary_care_dyslipidemia_joint_pain_v1:patient_mario_guzman_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
+            "GAP: the MakeClothes `.mhclo` fit stage (fit_stage.py / body_param_stage.py) is not_run — the gitignored staging `.mhclo` assets are absent from worktrees by design; the garment embed ran through the phenotype-derived cover-shell path inside automate_blender.py."
           ]
         },
         {
@@ -1447,15 +1938,33 @@
         {
           "stationId": "render",
           "stationName": "render",
-          "classification": "deterministic",
+          "classification": "error",
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
+          "artifactPaths": [],
+          "notes": [
+            "Capture failed for primary_care_dyslipidemia_joint_pain_v1: page.waitForFunction: Timeout 180000ms exceeded."
+          ]
+        },
+        {
+          "stationId": "lip_sync",
+          "stationName": "lip sync",
+          "classification": "deterministic",
+          "implementation": "multi-case-runner.ts runLipSyncStation (offline macOS say -> afconvert -> rhubarb 1.14.0 --exportFormat json; viseme timing baked at build time, no network, no model)",
           "artifactPaths": [
-            ".openclinxr/evidence/issue-288/cases/primary_care_dyslipidemia_joint_pain_v1/stage-render/capture/primary_care_dyslipidemia_joint_pain_v1-room.png",
-            ".openclinxr/evidence/issue-288/cases/primary_care_dyslipidemia_joint_pain_v1/stage-render/capture/capture-manifest.json"
+            ".openclinxr/evidence/issue-288/cases/primary_care_dyslipidemia_joint_pain_v1/stage-lip-sync/utterance-396e2e5204.mouth-cues.json"
           ],
           "notes": [
-            "RAN live: loaded primary_care_dyslipidemia_joint_pain_v1 in scene-overview capture mode, waited for station shell + humanoid assets, screenshot written.",
-            "Live env=primary_care_clinic_room_v1; capture-manifest source=live_scene."
+            "RAN offline: 47 cues, 9 distinct shapes via rhubarb (/Users/patrick/.openclinxr-tools/rhubarb/rhubarb) for \"My knees and hands hurt all day at work, and I stopped that cholesterol pill because I was scared of muscle pain.\"."
+          ]
+        },
+        {
+          "stationId": "world_compile",
+          "stationName": "world compile",
+          "classification": "not_run",
+          "implementation": "tools/openclinxr/factory/encounter-materialization-compile.ts:168 compileEncounterMaterialization (WCG compile runner: compileNodes + wouldInvoke/skippedBakers) + tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts planned-baker invocation (hands wouldInvoke === \"blender\" nodes to runChainWorldCompileBaker -> orchestrate_character.py; locked wardrobes stay skipped)",
+          "artifactPaths": [],
+          "notes": [
+            "No dated encounter-materialization-evidence JSON for primary_care_dyslipidemia_joint_pain_v1 under docs/openclinxr/; compileEncounterMaterialization requires a prior report or a bundle report. Only the #286-covered case (peds_asthma_parent_anxiety_v1) ships one."
           ]
         }
       ]
@@ -1471,40 +1980,50 @@
         "room",
         "equipment",
         "staging_placement",
-        "render"
+        "render",
+        "lip_sync",
+        "world_compile"
       ],
-      "generatedAt": "2026-08-11T01:24:45.840Z",
+      "generatedAt": "2026-09-03T06:13:50.418Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
-        "case_to_actor_params": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --list-presets",
+        "case_to_actor_params": "in-process orchestrate_character.py resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row)",
         "body": "python3 tools/openclinxr/asset-pipeline/anny/generate_mesh.py --params <preset params> --output <obj> --manifest <json>",
         "clothing": "in-process tools/openclinxr/asset-pipeline/makeclothes/garment-selection-by-role.ts resolveAnnyGarmentLayers / resolveHm08UpperGarment",
         "rigging": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --case-actor-preset <id> --output-glb <glb>",
         "room": "in-process apps/ui-xr/src/station-environment.ts buildStationEnvironment(<environmentId>)",
         "equipment": "in-process apps/ui-xr/src/station-equipment-builders.ts buildDeclaredEquipmentGeometry(<equipmentId>)",
         "staging_placement": "in-process packages/openclinxr/asset-registry/src/actor-placement.ts generatedActorPlacement(cast, index)",
-        "render": "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)"
+        "render": "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)",
+        "lip_sync": "in-process multi-case-runner.ts runLipSyncStation (offline macOS `say` -> `afconvert` -> rhubarb --exportFormat json; binary resolved explicitly from ~/.openclinxr-tools/rhubarb/rhubarb, NOT on PATH)",
+        "world_compile": "in-process tools/openclinxr/factory/encounter-materialization-compile.ts compileEncounterMaterialization (newest dated evidence JSON + chain stage-body/stage-rig artifact hashes -> compiled-evidence.json), then tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts invokePlannedWorldCompileBakers with the chain's real baker runner (wardrobe_character -> python3 orchestrate_character.py --case-actor-preset <case>:<actor> --output-glb <stage-world-compile>/bakes/<name>.glb; locked wardrobes stay skipped)"
       },
       "stations": [
         {
           "stationId": "case_to_actor_params",
           "stationName": "case -> actor params",
-          "classification": "not_run",
-          "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:203 CASE_ACTOR_PRESETS (data-driven preset map, no LLM)",
-          "artifactPaths": [],
+          "classification": "deterministic",
+          "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:381 resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row; data-driven, no LLM)",
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/psych_suicidal_ideation_safety_v1/stage-case-params/presets.json",
+            ".openclinxr/evidence/issue-288/cases/psych_suicidal_ideation_safety_v1/stage-case-params/case-actor-preset.json"
+          ],
           "notes": [
-            "CASE_ACTOR_PRESETS (orchestrate_character.py:203) has no entry for psych_suicidal_ideation_safety_v1; the data-driven preset map only covers ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
-            "The case definition itself carries no phenotype.garmentLayers in the scenario bank (#275 verified: zero phenotype fields), so no case->actor params exist to materialize for this case."
+            "Resolved 1 case-actor presets in-process for psych_suicidal_ideation_safety_v1."
           ]
         },
         {
           "stationId": "body",
           "stationName": "body",
-          "classification": "not_run",
+          "classification": "deterministic",
           "implementation": "tools/openclinxr/asset-pipeline/anny/generate_mesh.py:394 build_source_body (deterministic parametric stub; real-Anny forward pass is a separate blocked path)",
-          "artifactPaths": [],
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/psych_suicidal_ideation_safety_v1/stage-body/psych_suicidal_ideation_safety_v1:patient_jordan_reed_v1.obj",
+            ".openclinxr/evidence/issue-288/cases/psych_suicidal_ideation_safety_v1/stage-body/psych_suicidal_ideation_safety_v1:patient_jordan_reed_v1-manifest.json"
+          ],
           "notes": [
-            "No case-actor preset for psych_suicidal_ideation_safety_v1; generate_mesh.py build_source_body requires preset params (age/body_profile/phenotype) that do not exist for this case."
+            "psych_suicidal_ideation_safety_v1:patient_jordan_reed_v1: body OBJ + manifest written (deterministic parametric stub).",
+            "generator_mode (read from 1 manifest(s)): real_anny_local_forward_pass"
           ]
         },
         {
@@ -1517,17 +2036,23 @@
           ],
           "notes": [
             "Selection ran in-process for the psych_suicidal_ideation_safety_v1 cast roles (family, nurse, patient); rows written to garment-selection.json.",
-            "GAP: the embed/fit half (apply_role_clothing_material_regions cover-shell / MakeClothes .mhclo fit) runs inside the rigging station and is not_run for this case — no case-actor preset means no body to embed against."
+            "Cover-shell embed ran inside the rigging station (automate_blender.py apply_role_clothing_material_regions); see the rigging report artifact."
           ]
         },
         {
           "stationId": "rigging",
           "stationName": "rigging",
-          "classification": "not_run",
+          "classification": "deterministic",
           "implementation": "tools/openclinxr/asset-pipeline/anny/automate_blender.py:4620 main (Blender armature + auto weights; 23 bones, 25 morph targets) via orchestrate_character.py",
-          "artifactPaths": [],
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/psych_suicidal_ideation_safety_v1/stage-rig/psych_suicidal_ideation_safety_v1:patient_jordan_reed_v1.glb",
+            ".openclinxr/evidence/issue-288/cases/psych_suicidal_ideation_safety_v1/stage-rig/psych_suicidal_ideation_safety_v1:patient_jordan_reed_v1_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/psych_suicidal_ideation_safety_v1/stage-rig/psych_suicidal_ideation_safety_v1:patient_jordan_reed_v1.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/psych_suicidal_ideation_safety_v1/stage-rig/psych_suicidal_ideation_safety_v1:patient_jordan_reed_v1.bundle.json"
+          ],
           "notes": [
-            "No case-actor preset for psych_suicidal_ideation_safety_v1; automate_blender.py rigging requires a generated body which does not exist for this case."
+            "psych_suicidal_ideation_safety_v1:patient_jordan_reed_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
+            "GAP: the MakeClothes `.mhclo` fit stage (fit_stage.py / body_param_stage.py) is not_run — the gitignored staging `.mhclo` assets are absent from worktrees by design; the garment embed ran through the phenotype-derived cover-shell path inside automate_blender.py."
           ]
         },
         {
@@ -1568,15 +2093,33 @@
         {
           "stationId": "render",
           "stationName": "render",
-          "classification": "deterministic",
+          "classification": "error",
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
+          "artifactPaths": [],
+          "notes": [
+            "Capture failed for psych_suicidal_ideation_safety_v1: page.waitForFunction: Timeout 180000ms exceeded."
+          ]
+        },
+        {
+          "stationId": "lip_sync",
+          "stationName": "lip sync",
+          "classification": "deterministic",
+          "implementation": "multi-case-runner.ts runLipSyncStation (offline macOS say -> afconvert -> rhubarb 1.14.0 --exportFormat json; viseme timing baked at build time, no network, no model)",
           "artifactPaths": [
-            ".openclinxr/evidence/issue-288/cases/psych_suicidal_ideation_safety_v1/stage-render/capture/psych_suicidal_ideation_safety_v1-room.png",
-            ".openclinxr/evidence/issue-288/cases/psych_suicidal_ideation_safety_v1/stage-render/capture/capture-manifest.json"
+            ".openclinxr/evidence/issue-288/cases/psych_suicidal_ideation_safety_v1/stage-lip-sync/utterance-f5cfc4fbb7.mouth-cues.json"
           ],
           "notes": [
-            "RAN live: loaded psych_suicidal_ideation_safety_v1 in scene-overview capture mode, waited for station shell + humanoid assets, screenshot written.",
-            "Live env=behavioral_health_private_room_v1; capture-manifest source=live_scene."
+            "RAN offline: 20 cues, 8 distinct shapes via rhubarb (/Users/patrick/.openclinxr-tools/rhubarb/rhubarb) for \"I do not feel safe being alone right now.\"."
+          ]
+        },
+        {
+          "stationId": "world_compile",
+          "stationName": "world compile",
+          "classification": "not_run",
+          "implementation": "tools/openclinxr/factory/encounter-materialization-compile.ts:168 compileEncounterMaterialization (WCG compile runner: compileNodes + wouldInvoke/skippedBakers) + tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts planned-baker invocation (hands wouldInvoke === \"blender\" nodes to runChainWorldCompileBaker -> orchestrate_character.py; locked wardrobes stay skipped)",
+          "artifactPaths": [],
+          "notes": [
+            "No dated encounter-materialization-evidence JSON for psych_suicidal_ideation_safety_v1 under docs/openclinxr/; compileEncounterMaterialization requires a prior report or a bundle report. Only the #286-covered case (peds_asthma_parent_anxiety_v1) ships one."
           ]
         }
       ]
@@ -1592,40 +2135,53 @@
         "room",
         "equipment",
         "staging_placement",
-        "render"
+        "render",
+        "lip_sync",
+        "world_compile"
       ],
-      "generatedAt": "2026-08-11T01:24:51.474Z",
+      "generatedAt": "2026-09-03T06:18:11.571Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
-        "case_to_actor_params": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --list-presets",
+        "case_to_actor_params": "in-process orchestrate_character.py resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row)",
         "body": "python3 tools/openclinxr/asset-pipeline/anny/generate_mesh.py --params <preset params> --output <obj> --manifest <json>",
         "clothing": "in-process tools/openclinxr/asset-pipeline/makeclothes/garment-selection-by-role.ts resolveAnnyGarmentLayers / resolveHm08UpperGarment",
         "rigging": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --case-actor-preset <id> --output-glb <glb>",
         "room": "in-process apps/ui-xr/src/station-environment.ts buildStationEnvironment(<environmentId>)",
         "equipment": "in-process apps/ui-xr/src/station-equipment-builders.ts buildDeclaredEquipmentGeometry(<equipmentId>)",
         "staging_placement": "in-process packages/openclinxr/asset-registry/src/actor-placement.ts generatedActorPlacement(cast, index)",
-        "render": "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)"
+        "render": "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)",
+        "lip_sync": "in-process multi-case-runner.ts runLipSyncStation (offline macOS `say` -> `afconvert` -> rhubarb --exportFormat json; binary resolved explicitly from ~/.openclinxr-tools/rhubarb/rhubarb, NOT on PATH)",
+        "world_compile": "in-process tools/openclinxr/factory/encounter-materialization-compile.ts compileEncounterMaterialization (newest dated evidence JSON + chain stage-body/stage-rig artifact hashes -> compiled-evidence.json), then tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts invokePlannedWorldCompileBakers with the chain's real baker runner (wardrobe_character -> python3 orchestrate_character.py --case-actor-preset <case>:<actor> --output-glb <stage-world-compile>/bakes/<name>.glb; locked wardrobes stay skipped)"
       },
       "stations": [
         {
           "stationId": "case_to_actor_params",
           "stationName": "case -> actor params",
-          "classification": "not_run",
-          "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:203 CASE_ACTOR_PRESETS (data-driven preset map, no LLM)",
-          "artifactPaths": [],
+          "classification": "deterministic",
+          "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:381 resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row; data-driven, no LLM)",
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/stepdown_sepsis_nurse_escalation_v1/stage-case-params/presets.json",
+            ".openclinxr/evidence/issue-288/cases/stepdown_sepsis_nurse_escalation_v1/stage-case-params/case-actor-preset.json"
+          ],
           "notes": [
-            "CASE_ACTOR_PRESETS (orchestrate_character.py:203) has no entry for stepdown_sepsis_nurse_escalation_v1; the data-driven preset map only covers ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
-            "The case definition itself carries no phenotype.garmentLayers in the scenario bank (#275 verified: zero phenotype fields), so no case->actor params exist to materialize for this case."
+            "Resolved 2 case-actor presets in-process for stepdown_sepsis_nurse_escalation_v1."
           ]
         },
         {
           "stationId": "body",
           "stationName": "body",
-          "classification": "not_run",
+          "classification": "deterministic",
           "implementation": "tools/openclinxr/asset-pipeline/anny/generate_mesh.py:394 build_source_body (deterministic parametric stub; real-Anny forward pass is a separate blocked path)",
-          "artifactPaths": [],
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/stepdown_sepsis_nurse_escalation_v1/stage-body/stepdown_sepsis_nurse_escalation_v1:patient_helen_carter_v1.obj",
+            ".openclinxr/evidence/issue-288/cases/stepdown_sepsis_nurse_escalation_v1/stage-body/stepdown_sepsis_nurse_escalation_v1:patient_helen_carter_v1-manifest.json",
+            ".openclinxr/evidence/issue-288/cases/stepdown_sepsis_nurse_escalation_v1/stage-body/stepdown_sepsis_nurse_escalation_v1:stepdown_nurse_rivera_v1.obj",
+            ".openclinxr/evidence/issue-288/cases/stepdown_sepsis_nurse_escalation_v1/stage-body/stepdown_sepsis_nurse_escalation_v1:stepdown_nurse_rivera_v1-manifest.json"
+          ],
           "notes": [
-            "No case-actor preset for stepdown_sepsis_nurse_escalation_v1; generate_mesh.py build_source_body requires preset params (age/body_profile/phenotype) that do not exist for this case."
+            "stepdown_sepsis_nurse_escalation_v1:patient_helen_carter_v1: body OBJ + manifest written (deterministic parametric stub).",
+            "stepdown_sepsis_nurse_escalation_v1:stepdown_nurse_rivera_v1: body OBJ + manifest written (deterministic parametric stub).",
+            "generator_mode (read from 2 manifest(s)): real_anny_local_forward_pass"
           ]
         },
         {
@@ -1638,17 +2194,28 @@
           ],
           "notes": [
             "Selection ran in-process for the stepdown_sepsis_nurse_escalation_v1 cast roles (nurse, patient, respiratory_therapist); rows written to garment-selection.json.",
-            "GAP: the embed/fit half (apply_role_clothing_material_regions cover-shell / MakeClothes .mhclo fit) runs inside the rigging station and is not_run for this case — no case-actor preset means no body to embed against."
+            "Cover-shell embed ran inside the rigging station (automate_blender.py apply_role_clothing_material_regions); see the rigging report artifact."
           ]
         },
         {
           "stationId": "rigging",
           "stationName": "rigging",
-          "classification": "not_run",
+          "classification": "deterministic",
           "implementation": "tools/openclinxr/asset-pipeline/anny/automate_blender.py:4620 main (Blender armature + auto weights; 23 bones, 25 morph targets) via orchestrate_character.py",
-          "artifactPaths": [],
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/stepdown_sepsis_nurse_escalation_v1/stage-rig/stepdown_sepsis_nurse_escalation_v1:patient_helen_carter_v1.glb",
+            ".openclinxr/evidence/issue-288/cases/stepdown_sepsis_nurse_escalation_v1/stage-rig/stepdown_sepsis_nurse_escalation_v1:patient_helen_carter_v1_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/stepdown_sepsis_nurse_escalation_v1/stage-rig/stepdown_sepsis_nurse_escalation_v1:patient_helen_carter_v1.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/stepdown_sepsis_nurse_escalation_v1/stage-rig/stepdown_sepsis_nurse_escalation_v1:patient_helen_carter_v1.bundle.json",
+            ".openclinxr/evidence/issue-288/cases/stepdown_sepsis_nurse_escalation_v1/stage-rig/stepdown_sepsis_nurse_escalation_v1:stepdown_nurse_rivera_v1.glb",
+            ".openclinxr/evidence/issue-288/cases/stepdown_sepsis_nurse_escalation_v1/stage-rig/stepdown_sepsis_nurse_escalation_v1:stepdown_nurse_rivera_v1_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/stepdown_sepsis_nurse_escalation_v1/stage-rig/stepdown_sepsis_nurse_escalation_v1:stepdown_nurse_rivera_v1.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/stepdown_sepsis_nurse_escalation_v1/stage-rig/stepdown_sepsis_nurse_escalation_v1:stepdown_nurse_rivera_v1.bundle.json"
+          ],
           "notes": [
-            "No case-actor preset for stepdown_sepsis_nurse_escalation_v1; automate_blender.py rigging requires a generated body which does not exist for this case."
+            "stepdown_sepsis_nurse_escalation_v1:patient_helen_carter_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
+            "stepdown_sepsis_nurse_escalation_v1:stepdown_nurse_rivera_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
+            "GAP: the MakeClothes `.mhclo` fit stage (fit_stage.py / body_param_stage.py) is not_run — the gitignored staging `.mhclo` assets are absent from worktrees by design; the garment embed ran through the phenotype-derived cover-shell path inside automate_blender.py."
           ]
         },
         {
@@ -1689,15 +2256,33 @@
         {
           "stationId": "render",
           "stationName": "render",
-          "classification": "deterministic",
+          "classification": "error",
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
+          "artifactPaths": [],
+          "notes": [
+            "Capture failed for stepdown_sepsis_nurse_escalation_v1: page.waitForFunction: Timeout 180000ms exceeded."
+          ]
+        },
+        {
+          "stationId": "lip_sync",
+          "stationName": "lip sync",
+          "classification": "deterministic",
+          "implementation": "multi-case-runner.ts runLipSyncStation (offline macOS say -> afconvert -> rhubarb 1.14.0 --exportFormat json; viseme timing baked at build time, no network, no model)",
           "artifactPaths": [
-            ".openclinxr/evidence/issue-288/cases/stepdown_sepsis_nurse_escalation_v1/stage-render/capture/stepdown_sepsis_nurse_escalation_v1-room.png",
-            ".openclinxr/evidence/issue-288/cases/stepdown_sepsis_nurse_escalation_v1/stage-render/capture/capture-manifest.json"
+            ".openclinxr/evidence/issue-288/cases/stepdown_sepsis_nurse_escalation_v1/stage-lip-sync/utterance-770ce57ebb.mouth-cues.json"
           ],
           "notes": [
-            "RAN live: loaded stepdown_sepsis_nurse_escalation_v1 in scene-overview capture mode, waited for station shell + humanoid assets, screenshot written.",
-            "Live env=stepdown_room_v1; capture-manifest source=live_scene."
+            "RAN offline: 21 cues, 7 distinct shapes via rhubarb (/Users/patrick/.openclinxr-tools/rhubarb/rhubarb) for \"I feel worse than this morning, and I am shaking again.\"."
+          ]
+        },
+        {
+          "stationId": "world_compile",
+          "stationName": "world compile",
+          "classification": "not_run",
+          "implementation": "tools/openclinxr/factory/encounter-materialization-compile.ts:168 compileEncounterMaterialization (WCG compile runner: compileNodes + wouldInvoke/skippedBakers) + tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts planned-baker invocation (hands wouldInvoke === \"blender\" nodes to runChainWorldCompileBaker -> orchestrate_character.py; locked wardrobes stay skipped)",
+          "artifactPaths": [],
+          "notes": [
+            "No dated encounter-materialization-evidence JSON for stepdown_sepsis_nurse_escalation_v1 under docs/openclinxr/; compileEncounterMaterialization requires a prior report or a bundle report. Only the #286-covered case (peds_asthma_parent_anxiety_v1) ships one."
           ]
         }
       ]
@@ -1713,40 +2298,50 @@
         "room",
         "equipment",
         "staging_placement",
-        "render"
+        "render",
+        "lip_sync",
+        "world_compile"
       ],
-      "generatedAt": "2026-08-11T01:24:56.667Z",
+      "generatedAt": "2026-09-03T06:21:57.418Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
-        "case_to_actor_params": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --list-presets",
+        "case_to_actor_params": "in-process orchestrate_character.py resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row)",
         "body": "python3 tools/openclinxr/asset-pipeline/anny/generate_mesh.py --params <preset params> --output <obj> --manifest <json>",
         "clothing": "in-process tools/openclinxr/asset-pipeline/makeclothes/garment-selection-by-role.ts resolveAnnyGarmentLayers / resolveHm08UpperGarment",
         "rigging": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --case-actor-preset <id> --output-glb <glb>",
         "room": "in-process apps/ui-xr/src/station-environment.ts buildStationEnvironment(<environmentId>)",
         "equipment": "in-process apps/ui-xr/src/station-equipment-builders.ts buildDeclaredEquipmentGeometry(<equipmentId>)",
         "staging_placement": "in-process packages/openclinxr/asset-registry/src/actor-placement.ts generatedActorPlacement(cast, index)",
-        "render": "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)"
+        "render": "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)",
+        "lip_sync": "in-process multi-case-runner.ts runLipSyncStation (offline macOS `say` -> `afconvert` -> rhubarb --exportFormat json; binary resolved explicitly from ~/.openclinxr-tools/rhubarb/rhubarb, NOT on PATH)",
+        "world_compile": "in-process tools/openclinxr/factory/encounter-materialization-compile.ts compileEncounterMaterialization (newest dated evidence JSON + chain stage-body/stage-rig artifact hashes -> compiled-evidence.json), then tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts invokePlannedWorldCompileBakers with the chain's real baker runner (wardrobe_character -> python3 orchestrate_character.py --case-actor-preset <case>:<actor> --output-glb <stage-world-compile>/bakes/<name>.glb; locked wardrobes stay skipped)"
       },
       "stations": [
         {
           "stationId": "case_to_actor_params",
           "stationName": "case -> actor params",
-          "classification": "not_run",
-          "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:203 CASE_ACTOR_PRESETS (data-driven preset map, no LLM)",
-          "artifactPaths": [],
+          "classification": "deterministic",
+          "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:381 resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row; data-driven, no LLM)",
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/telehealth_diabetes_health_literacy_v1/stage-case-params/presets.json",
+            ".openclinxr/evidence/issue-288/cases/telehealth_diabetes_health_literacy_v1/stage-case-params/case-actor-preset.json"
+          ],
           "notes": [
-            "CASE_ACTOR_PRESETS (orchestrate_character.py:203) has no entry for telehealth_diabetes_health_literacy_v1; the data-driven preset map only covers ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
-            "The case definition itself carries no phenotype.garmentLayers in the scenario bank (#275 verified: zero phenotype fields), so no case->actor params exist to materialize for this case."
+            "Resolved 1 case-actor presets in-process for telehealth_diabetes_health_literacy_v1."
           ]
         },
         {
           "stationId": "body",
           "stationName": "body",
-          "classification": "not_run",
+          "classification": "deterministic",
           "implementation": "tools/openclinxr/asset-pipeline/anny/generate_mesh.py:394 build_source_body (deterministic parametric stub; real-Anny forward pass is a separate blocked path)",
-          "artifactPaths": [],
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/telehealth_diabetes_health_literacy_v1/stage-body/telehealth_diabetes_health_literacy_v1:patient_luis_martinez_v1.obj",
+            ".openclinxr/evidence/issue-288/cases/telehealth_diabetes_health_literacy_v1/stage-body/telehealth_diabetes_health_literacy_v1:patient_luis_martinez_v1-manifest.json"
+          ],
           "notes": [
-            "No case-actor preset for telehealth_diabetes_health_literacy_v1; generate_mesh.py build_source_body requires preset params (age/body_profile/phenotype) that do not exist for this case."
+            "telehealth_diabetes_health_literacy_v1:patient_luis_martinez_v1: body OBJ + manifest written (deterministic parametric stub).",
+            "generator_mode (read from 1 manifest(s)): real_anny_local_forward_pass"
           ]
         },
         {
@@ -1759,17 +2354,23 @@
           ],
           "notes": [
             "Selection ran in-process for the telehealth_diabetes_health_literacy_v1 cast roles (family, patient); rows written to garment-selection.json.",
-            "GAP: the embed/fit half (apply_role_clothing_material_regions cover-shell / MakeClothes .mhclo fit) runs inside the rigging station and is not_run for this case — no case-actor preset means no body to embed against."
+            "Cover-shell embed ran inside the rigging station (automate_blender.py apply_role_clothing_material_regions); see the rigging report artifact."
           ]
         },
         {
           "stationId": "rigging",
           "stationName": "rigging",
-          "classification": "not_run",
+          "classification": "deterministic",
           "implementation": "tools/openclinxr/asset-pipeline/anny/automate_blender.py:4620 main (Blender armature + auto weights; 23 bones, 25 morph targets) via orchestrate_character.py",
-          "artifactPaths": [],
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/telehealth_diabetes_health_literacy_v1/stage-rig/telehealth_diabetes_health_literacy_v1:patient_luis_martinez_v1.glb",
+            ".openclinxr/evidence/issue-288/cases/telehealth_diabetes_health_literacy_v1/stage-rig/telehealth_diabetes_health_literacy_v1:patient_luis_martinez_v1_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/telehealth_diabetes_health_literacy_v1/stage-rig/telehealth_diabetes_health_literacy_v1:patient_luis_martinez_v1.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/telehealth_diabetes_health_literacy_v1/stage-rig/telehealth_diabetes_health_literacy_v1:patient_luis_martinez_v1.bundle.json"
+          ],
           "notes": [
-            "No case-actor preset for telehealth_diabetes_health_literacy_v1; automate_blender.py rigging requires a generated body which does not exist for this case."
+            "telehealth_diabetes_health_literacy_v1:patient_luis_martinez_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
+            "GAP: the MakeClothes `.mhclo` fit stage (fit_stage.py / body_param_stage.py) is not_run — the gitignored staging `.mhclo` assets are absent from worktrees by design; the garment embed ran through the phenotype-derived cover-shell path inside automate_blender.py."
           ]
         },
         {
@@ -1810,15 +2411,33 @@
         {
           "stationId": "render",
           "stationName": "render",
-          "classification": "deterministic",
+          "classification": "error",
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
+          "artifactPaths": [],
+          "notes": [
+            "Capture failed for telehealth_diabetes_health_literacy_v1: page.waitForFunction: Timeout 180000ms exceeded."
+          ]
+        },
+        {
+          "stationId": "lip_sync",
+          "stationName": "lip sync",
+          "classification": "deterministic",
+          "implementation": "multi-case-runner.ts runLipSyncStation (offline macOS say -> afconvert -> rhubarb 1.14.0 --exportFormat json; viseme timing baked at build time, no network, no model)",
           "artifactPaths": [
-            ".openclinxr/evidence/issue-288/cases/telehealth_diabetes_health_literacy_v1/stage-render/capture/telehealth_diabetes_health_literacy_v1-room.png",
-            ".openclinxr/evidence/issue-288/cases/telehealth_diabetes_health_literacy_v1/stage-render/capture/capture-manifest.json"
+            ".openclinxr/evidence/issue-288/cases/telehealth_diabetes_health_literacy_v1/stage-lip-sync/utterance-7dc25f1728.mouth-cues.json"
           ],
           "notes": [
-            "RAN live: loaded telehealth_diabetes_health_literacy_v1 in scene-overview capture mode, waited for station shell + humanoid assets, screenshot written.",
-            "Live env=telehealth_home_visit_v1; capture-manifest source=live_scene."
+            "RAN offline: 25 cues, 9 distinct shapes via rhubarb (/Users/patrick/.openclinxr-tools/rhubarb/rhubarb) for \"I want to follow the plan, but the instructions are hard to understand.\"."
+          ]
+        },
+        {
+          "stationId": "world_compile",
+          "stationName": "world compile",
+          "classification": "not_run",
+          "implementation": "tools/openclinxr/factory/encounter-materialization-compile.ts:168 compileEncounterMaterialization (WCG compile runner: compileNodes + wouldInvoke/skippedBakers) + tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts planned-baker invocation (hands wouldInvoke === \"blender\" nodes to runChainWorldCompileBaker -> orchestrate_character.py; locked wardrobes stay skipped)",
+          "artifactPaths": [],
+          "notes": [
+            "No dated encounter-materialization-evidence JSON for telehealth_diabetes_health_literacy_v1 under docs/openclinxr/; compileEncounterMaterialization requires a prior report or a bundle report. Only the #286-covered case (peds_asthma_parent_anxiety_v1) ships one."
           ]
         }
       ]
@@ -1834,40 +2453,56 @@
         "room",
         "equipment",
         "staging_placement",
-        "render"
+        "render",
+        "lip_sync",
+        "world_compile"
       ],
-      "generatedAt": "2026-08-11T01:25:02.542Z",
+      "generatedAt": "2026-09-03T06:26:53.639Z",
       "runner": "tools/openclinxr/dark-factory/multi-case-runner.ts (issue-288)",
       "executionCommands": {
-        "case_to_actor_params": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --list-presets",
+        "case_to_actor_params": "in-process orchestrate_character.py resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row)",
         "body": "python3 tools/openclinxr/asset-pipeline/anny/generate_mesh.py --params <preset params> --output <obj> --manifest <json>",
         "clothing": "in-process tools/openclinxr/asset-pipeline/makeclothes/garment-selection-by-role.ts resolveAnnyGarmentLayers / resolveHm08UpperGarment",
         "rigging": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --case-actor-preset <id> --output-glb <glb>",
         "room": "in-process apps/ui-xr/src/station-environment.ts buildStationEnvironment(<environmentId>)",
         "equipment": "in-process apps/ui-xr/src/station-equipment-builders.ts buildDeclaredEquipmentGeometry(<equipmentId>)",
         "staging_placement": "in-process packages/openclinxr/asset-registry/src/actor-placement.ts generatedActorPlacement(cast, index)",
-        "render": "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)"
+        "render": "in-process tools/openclinxr/evidence/ui-xr-environment-room-capture.ts captureStationEnvironmentRooms (one shared dev server per batch)",
+        "lip_sync": "in-process multi-case-runner.ts runLipSyncStation (offline macOS `say` -> `afconvert` -> rhubarb --exportFormat json; binary resolved explicitly from ~/.openclinxr-tools/rhubarb/rhubarb, NOT on PATH)",
+        "world_compile": "in-process tools/openclinxr/factory/encounter-materialization-compile.ts compileEncounterMaterialization (newest dated evidence JSON + chain stage-body/stage-rig artifact hashes -> compiled-evidence.json), then tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts invokePlannedWorldCompileBakers with the chain's real baker runner (wardrobe_character -> python3 orchestrate_character.py --case-actor-preset <case>:<actor> --output-glb <stage-world-compile>/bakes/<name>.glb; locked wardrobes stay skipped)"
       },
       "stations": [
         {
           "stationId": "case_to_actor_params",
           "stationName": "case -> actor params",
-          "classification": "not_run",
-          "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:203 CASE_ACTOR_PRESETS (data-driven preset map, no LLM)",
-          "artifactPaths": [],
+          "classification": "deterministic",
+          "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:381 resolve_case_actor_params_with_source (case-definition phenotype export when authored, else legacy preset row; data-driven, no LLM)",
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/ward_delirium_med_rec_v1/stage-case-params/presets.json",
+            ".openclinxr/evidence/issue-288/cases/ward_delirium_med_rec_v1/stage-case-params/case-actor-preset.json"
+          ],
           "notes": [
-            "CASE_ACTOR_PRESETS (orchestrate_character.py:203) has no entry for ward_delirium_med_rec_v1; the data-driven preset map only covers ed_chest_pain_priority_v2, peds_asthma_parent_anxiety_v1.",
-            "The case definition itself carries no phenotype.garmentLayers in the scenario bank (#275 verified: zero phenotype fields), so no case->actor params exist to materialize for this case."
+            "Resolved 3 case-actor presets in-process for ward_delirium_med_rec_v1."
           ]
         },
         {
           "stationId": "body",
           "stationName": "body",
-          "classification": "not_run",
+          "classification": "deterministic",
           "implementation": "tools/openclinxr/asset-pipeline/anny/generate_mesh.py:394 build_source_body (deterministic parametric stub; real-Anny forward pass is a separate blocked path)",
-          "artifactPaths": [],
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/ward_delirium_med_rec_v1/stage-body/ward_delirium_med_rec_v1:daughter_lena_ellis_v1.obj",
+            ".openclinxr/evidence/issue-288/cases/ward_delirium_med_rec_v1/stage-body/ward_delirium_med_rec_v1:daughter_lena_ellis_v1-manifest.json",
+            ".openclinxr/evidence/issue-288/cases/ward_delirium_med_rec_v1/stage-body/ward_delirium_med_rec_v1:patient_margaret_ellis_v1.obj",
+            ".openclinxr/evidence/issue-288/cases/ward_delirium_med_rec_v1/stage-body/ward_delirium_med_rec_v1:patient_margaret_ellis_v1-manifest.json",
+            ".openclinxr/evidence/issue-288/cases/ward_delirium_med_rec_v1/stage-body/ward_delirium_med_rec_v1:senior_resident_ward_v1.obj",
+            ".openclinxr/evidence/issue-288/cases/ward_delirium_med_rec_v1/stage-body/ward_delirium_med_rec_v1:senior_resident_ward_v1-manifest.json"
+          ],
           "notes": [
-            "No case-actor preset for ward_delirium_med_rec_v1; generate_mesh.py build_source_body requires preset params (age/body_profile/phenotype) that do not exist for this case."
+            "ward_delirium_med_rec_v1:daughter_lena_ellis_v1: body OBJ + manifest written (deterministic parametric stub).",
+            "ward_delirium_med_rec_v1:patient_margaret_ellis_v1: body OBJ + manifest written (deterministic parametric stub).",
+            "ward_delirium_med_rec_v1:senior_resident_ward_v1: body OBJ + manifest written (deterministic parametric stub).",
+            "generator_mode (read from 3 manifest(s)): real_anny_local_forward_pass"
           ]
         },
         {
@@ -1880,17 +2515,33 @@
           ],
           "notes": [
             "Selection ran in-process for the ward_delirium_med_rec_v1 cast roles (family, nurse, patient, physician); rows written to garment-selection.json.",
-            "GAP: the embed/fit half (apply_role_clothing_material_regions cover-shell / MakeClothes .mhclo fit) runs inside the rigging station and is not_run for this case — no case-actor preset means no body to embed against."
+            "Cover-shell embed ran inside the rigging station (automate_blender.py apply_role_clothing_material_regions); see the rigging report artifact."
           ]
         },
         {
           "stationId": "rigging",
           "stationName": "rigging",
-          "classification": "not_run",
+          "classification": "deterministic",
           "implementation": "tools/openclinxr/asset-pipeline/anny/automate_blender.py:4620 main (Blender armature + auto weights; 23 bones, 25 morph targets) via orchestrate_character.py",
-          "artifactPaths": [],
+          "artifactPaths": [
+            ".openclinxr/evidence/issue-288/cases/ward_delirium_med_rec_v1/stage-rig/ward_delirium_med_rec_v1:daughter_lena_ellis_v1.glb",
+            ".openclinxr/evidence/issue-288/cases/ward_delirium_med_rec_v1/stage-rig/ward_delirium_med_rec_v1:daughter_lena_ellis_v1_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/ward_delirium_med_rec_v1/stage-rig/ward_delirium_med_rec_v1:daughter_lena_ellis_v1.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/ward_delirium_med_rec_v1/stage-rig/ward_delirium_med_rec_v1:daughter_lena_ellis_v1.bundle.json",
+            ".openclinxr/evidence/issue-288/cases/ward_delirium_med_rec_v1/stage-rig/ward_delirium_med_rec_v1:patient_margaret_ellis_v1.glb",
+            ".openclinxr/evidence/issue-288/cases/ward_delirium_med_rec_v1/stage-rig/ward_delirium_med_rec_v1:patient_margaret_ellis_v1_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/ward_delirium_med_rec_v1/stage-rig/ward_delirium_med_rec_v1:patient_margaret_ellis_v1.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/ward_delirium_med_rec_v1/stage-rig/ward_delirium_med_rec_v1:patient_margaret_ellis_v1.bundle.json",
+            ".openclinxr/evidence/issue-288/cases/ward_delirium_med_rec_v1/stage-rig/ward_delirium_med_rec_v1:senior_resident_ward_v1.glb",
+            ".openclinxr/evidence/issue-288/cases/ward_delirium_med_rec_v1/stage-rig/ward_delirium_med_rec_v1:senior_resident_ward_v1_rigging_report.json",
+            ".openclinxr/evidence/issue-288/cases/ward_delirium_med_rec_v1/stage-rig/ward_delirium_med_rec_v1:senior_resident_ward_v1.provenance.json",
+            ".openclinxr/evidence/issue-288/cases/ward_delirium_med_rec_v1/stage-rig/ward_delirium_med_rec_v1:senior_resident_ward_v1.bundle.json"
+          ],
           "notes": [
-            "No case-actor preset for ward_delirium_med_rec_v1; automate_blender.py rigging requires a generated body which does not exist for this case."
+            "ward_delirium_med_rec_v1:daughter_lena_ellis_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
+            "ward_delirium_med_rec_v1:patient_margaret_ellis_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
+            "ward_delirium_med_rec_v1:senior_resident_ward_v1: GLB + rigging report + provenance + bundle written (headless Blender, canonical 23-bone skeleton).",
+            "GAP: the MakeClothes `.mhclo` fit stage (fit_stage.py / body_param_stage.py) is not_run — the gitignored staging `.mhclo` assets are absent from worktrees by design; the garment embed ran through the phenotype-derived cover-shell path inside automate_blender.py."
           ]
         },
         {
@@ -1931,15 +2582,33 @@
         {
           "stationId": "render",
           "stationName": "render",
-          "classification": "deterministic",
+          "classification": "error",
           "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with spawnPortlessDevServer captures)",
+          "artifactPaths": [],
+          "notes": [
+            "Capture failed for ward_delirium_med_rec_v1: page.waitForFunction: Timeout 180000ms exceeded."
+          ]
+        },
+        {
+          "stationId": "lip_sync",
+          "stationName": "lip sync",
+          "classification": "deterministic",
+          "implementation": "multi-case-runner.ts runLipSyncStation (offline macOS say -> afconvert -> rhubarb 1.14.0 --exportFormat json; viseme timing baked at build time, no network, no model)",
           "artifactPaths": [
-            ".openclinxr/evidence/issue-288/cases/ward_delirium_med_rec_v1/stage-render/capture/ward_delirium_med_rec_v1-room.png",
-            ".openclinxr/evidence/issue-288/cases/ward_delirium_med_rec_v1/stage-render/capture/capture-manifest.json"
+            ".openclinxr/evidence/issue-288/cases/ward_delirium_med_rec_v1/stage-lip-sync/utterance-eea0ee5dc5.mouth-cues.json"
           ],
           "notes": [
-            "RAN live: loaded ward_delirium_med_rec_v1 in scene-overview capture mode, waited for station shell + humanoid assets, screenshot written.",
-            "Live env=inpatient_ward_room_v1; capture-manifest source=live_scene."
+            "RAN offline: 24 cues, 8 distinct shapes via rhubarb (/Users/patrick/.openclinxr-tools/rhubarb/rhubarb) for \"I need to go home. Where is my daughter? I cannot hear you well.\"."
+          ]
+        },
+        {
+          "stationId": "world_compile",
+          "stationName": "world compile",
+          "classification": "not_run",
+          "implementation": "tools/openclinxr/factory/encounter-materialization-compile.ts:168 compileEncounterMaterialization (WCG compile runner: compileNodes + wouldInvoke/skippedBakers) + tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts planned-baker invocation (hands wouldInvoke === \"blender\" nodes to runChainWorldCompileBaker -> orchestrate_character.py; locked wardrobes stay skipped)",
+          "artifactPaths": [],
+          "notes": [
+            "No dated encounter-materialization-evidence JSON for ward_delirium_med_rec_v1 under docs/openclinxr/; compileEncounterMaterialization requires a prior report or a bundle report. Only the #286-covered case (peds_asthma_parent_anxiety_v1) ships one."
           ]
         }
       ]
