@@ -114,10 +114,42 @@ that a plain rebake re-derives the candidate with the CMU walk unless that stage
 `the-asset-adjacent-bind-report-names-the-shipped-clip.test.ts` carries zero `it.fails` clauses, so it is
 green rather than RED.
 
-Also measured, on all 89 GLBs in the tree: 56 carry an animation, 18 distinct clip names, **zero**
+~~Also measured, on all 89 GLBs in the tree: 56 carry an animation, 18 distinct clip names, **zero**
 seated or rest clips; the most-shipped posture clip is named `_standing`. Deviation from each clip's
 own frame 0 is at most 3.67 deg (Anny) and 5.73 deg (MPFB `ClinicalIdleConversation`), 4 of 137
-channels moving, zero translation. The catalogue is near-static poses. `openclinxr_role_parent_anxious_fidget_guard`
+channels moving, zero translation.~~
+
+**RE-MEASURED 2026-09-03 at `9574c7f4`, and four of those numbers are wrong.** 89 GLBs, 55 carry an
+animation, 207 clips, 18 distinct names. Max per-channel rotation deviation from each clip's own frame 0,
+computed with `@gltf-transform/core` `NodeIO` as `2*acos(|dot(q0, qi)|)`:
+
+    maxRotDeg  movingRot/total  maxTrans  clip @ file
+        87.24        46/137       0 cm    openclinxr_retarget_seated_talking_cc0 @ mpfb-peds-parent-aisha.motion-bind.glb
+        60.92          9/9        0 cm    openclinxr_role_patient_guard_withdraw_rlq @ deployed_patient.glb
+        21.98        10/23        0 cm    openclinxr_role_parent_anxious_fidget_guard @ peds_anxious_parent.glb
+        20.65         8/23        0 cm    openclinxr_role_nurse_clinical_check_reassure @ peds_nurse_kevin.glb
+        16.79        48/782     6.33 cm   ClinicalIdleSpeakingWithBreathConcern @ charmorph-antonia-ob-patient-candidate.glb
+         8.47        42/918     6.38 cm   ClinicalIdleSpeakingWithBreathConcern @ charmorph-reom-ob-patient-candidate.glb
+
+Corrected, item by item:
+
+| withdrawn | measured |
+|---|---|
+| zero seated or rest clips | `openclinxr_retarget_seated_talking_cc0` EXISTS, 87.24 deg, 46/137 channels, 90 frames. `tsk_ef2f9ee4d551b870` restored it; the old line predates that landing. |
+| at most 3.67 deg / 5.73 deg | top clip is 87.24 deg; four clips exceed 20 deg |
+| 4 of 137 channels moving | 46 of 137 on the seated clip; 48 of 782 on the OB candidates |
+| zero translation | 6.33 cm and 6.38 cm on the `ClinicalIdleSpeakingWithBreathConcern` clips |
+| 21.98 deg is the known-good | CONFIRMED, unchanged |
+| 18 distinct clip names | CONFIRMED |
+
+**The aggregate reading survives and is the number to keep: 183 of 207 clips deviate less than 6 deg from
+their own frame 0.** So the catalogue is mostly near-static, and the handful of real clips above prove
+that is not a rig or exporter ceiling. What was wrong was the ceiling, not the shape.
+
+Reproduce by walking every `*.glb` under `apps packages tools`, reading each animation's `rotation` and
+`translation` samplers with `@gltf-transform/core`, and taking the max deviation from index 0 per channel.
+The scan is a few seconds; there is no committed instrument, which is why the figures above drifted in the
+first place. `openclinxr_role_parent_anxious_fidget_guard`
 at 21.98 deg is the known-good showing that is not a rig ceiling. ~~The mixer layer converts clips to
 additive by subtracting frame 0, so on this catalogue it has almost nothing left to layer.~~
 
