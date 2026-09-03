@@ -12,6 +12,17 @@
  * skeletonProfile (no projection) plus a derived string seed, and the clip's `compileIdentity`
  * block records that seed — the same string each primitive received. Neither input is mutated.
  *
+ * CLIP IDENTITY (issue #0): a program carries the case's request in provenance refs of the form
+ * `touch:<ComplianceRegion>` — the authored touch site a reviewer traces back to. When refs name
+ * exactly ONE declared compliance site, the clip realises one requested response clip and its
+ * `clipId` IS that clip's name, derived by scenario-fixtures' `responseClipForBodyRegion` —
+ * imported, never re-derived, so the bank row, the resolver and the compiler output share one
+ * naming source. Any other program (no touch ref, a non-compliance token, or several distinct
+ * sites in one compile) has no single requested identity and keeps the deterministic content id,
+ * so a constant clipId and a bake-time rename adapter are both structurally unable to satisfy the
+ * seam. The content digest identity remains available on the clip as `source.motionProgramHash`
+ * and `targetRig.skeletonProfileHash`.
+ *
  * NO VALIDATION GATE: this entry forwards, it does not judge. The MotionProgram validator belongs
  * to the planner card, and the keystone fixture deliberately authors a provenance kind that
  * validator refuses; gating on it here would red the contract this file exists to satisfy.
@@ -25,12 +36,14 @@ import {
   type CompiledMotionTrack,
   type PrimitiveRequest,
 } from "./canonical-motion-contract.js";
+import { COMPLIANCE_TO_MOTION_REGION } from "./motion-body-region.js";
 import { resolvePrimitive } from "./primitive-registry.js";
 import { MOTION_PLAN_CLAIM_BOUNDARY, type MotionProgram } from "./motion-program.js";
 import {
   canonicalMotionProgramHash,
   deterministicCompileIdentity,
 } from "./program/compile-scenario-motion.js";
+import { responseClipForBodyRegion } from "../../scenario-fixtures/src/touch-response-clip.js";
 
 /** The exact clip shape the keystone freezes — one representation, imported by consumers. */
 export type CompiledMotionClipV1 = {
@@ -78,6 +91,46 @@ function canonicalJson(value: unknown): string {
 
 function sha256Hex(material: string): string {
   return createHash("sha256").update(material).digest("hex");
+}
+
+/**
+ * The declared clinical touch sites, read from the compliance->motion table — the one place this
+ * package declares the touch vocabulary. A provenance ref that names a region outside it is not a
+ * case-requested touch, whatever prefix it carries.
+ */
+const DECLARED_COMPLIANCE_REGIONS: ReadonlySet<string> = new Set(
+  COMPLIANCE_TO_MOTION_REGION.map((pair) => pair.compliance),
+);
+
+/** Provenance ref prefix for an authored touch: `touch:abdomen_rlq`. */
+const TOUCH_REF_PREFIX = "touch:";
+
+/**
+ * The response clip a program asks for by provenance, when it asks for exactly one.
+ *
+ * A program compiled from case data carries the authored touch site in provenance refs of the form
+ * `touch:<ComplianceRegion>`. When the refs name exactly one declared compliance site, the clip
+ * realises ONE requested response clip and its id IS that clip's name — derived by the
+ * scenario-fixtures resolver, which is imported rather than re-derived so the naming rule has a
+ * single home. Any other program — no touch ref, a token that is not a compliance region, or
+ * several distinct sites in one compile — has no single requested identity and returns undefined.
+ */
+function requestedClipIdForProgram(program: unknown): string | undefined {
+  if (typeof program !== "object" || program === null) return undefined;
+  const provenance = (program as { provenance?: unknown }).provenance;
+  if (typeof provenance !== "object" || provenance === null) return undefined;
+  const refs = (provenance as { sourceRefs?: unknown }).sourceRefs;
+  if (!Array.isArray(refs)) return undefined;
+  const requested = new Set<string>();
+  for (const ref of refs) {
+    if (typeof ref !== "string" || !ref.startsWith(TOUCH_REF_PREFIX)) continue;
+    const region = ref.slice(TOUCH_REF_PREFIX.length);
+    if (DECLARED_COMPLIANCE_REGIONS.has(region)) requested.add(region);
+  }
+  if (requested.size !== 1) return undefined;
+  // Exactly one member; returning from the first (only) iteration needs no assertion.
+  for (const region of requested) return responseClipForBodyRegion(region);
+  return undefined;
 }
 
 /**
@@ -157,9 +210,12 @@ export function compileMotionProgram(input: CompileMotionProgramInput): Compiled
 
   return {
     schemaVersion: CLIP_SCHEMA_VERSION,
-    // Deterministic identity of the accepted program + rig. Not the case's clip name — agreement
-    // with the scenario-fixtures resolver is a sibling card and deliberately not wired here.
-    clipId: sha256Hex(`${motionProgramHash}::${skeletonProfileHash}`),
+    // The requested identity when the program names one case touch site — the clip the case asks
+    // for — and the deterministic content identity otherwise. Agreement with the scenario-fixtures
+    // resolver is the seam this entry owns: a bake writes bytes under this id and a runtime finds
+    // them by it.
+    clipId:
+      requestedClipIdForProgram(program) ?? sha256Hex(`${motionProgramHash}::${skeletonProfileHash}`),
     source: { scenarioId, actorId, motionProgramHash, actionIds },
     targetRig: {
       rigFingerprint: typeof rigFingerprint === "string" ? rigFingerprint : "",

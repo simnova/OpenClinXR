@@ -132,12 +132,14 @@ export const PLANTED_REDS: readonly PlantedRed[] = [
   // failure MOVED to the scenario-fixtures resolver — `responseClipForBodyRegion` (card
   // tsk_ae6a9530ba63a68b) does not exist yet; clipId agreement with the case data is the sibling
   // card's residual.
-  {
-    file: "the-resolved-clip-id-is-what-the-compiler-produces.test.ts",
-    select: "(2) RED: the compiled clipId IS the clip the case asks for — bank, resolver and compiler agree",
-    expected: /must export responseClipForBodyRegion \(card tsk_ae6a9530ba63a68b\)/,
-    stage: "assertion",
-  },
+  // THE LAST RESOLVED-CLIP-ID ENTRY REMOVED 2026-09-03 (BothyBoard issue #0). The resolver
+  // landed (tsk_ae6a9530ba63a68b / tsk_bae34b0cae2cf745), and the factory-level hop landed in
+  // src/compile-motion-program.ts: a program whose provenance names exactly one declared
+  // compliance touch site compiles to that site's response clip — derived through the imported
+  // scenario-fixtures resolver, never re-derived — so the bank row, the resolver and the compiler
+  // output agree. Clause (2) was flipped from `planted` to `it` with a `## FIXED (BothyBoard
+  // issue #0)` block appended in the-resolved-clip-id-is-what-the-compiler-produces.test.ts. A
+  // satisfied contract is a transition to record, not a planted RED to keep.
   // ALL FOUR SEED ENTRIES REMOVED 2026-08-30 (tsk_89fca85c7700ae13). The canonical derivation
   // landed at src/trajectory/deterministic-variation.ts and program/compile-scenario-motion.ts
   // routes the plan seed and the compile identity through it; the four clauses were flipped from

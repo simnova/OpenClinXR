@@ -1,7 +1,5 @@
 import { describe, expect, it } from "vitest";
 
-import { planted } from "./planted.js";
-
 // Relative, matching `the-llm-planner-cannot-emit-bone-tracks.test.ts`. This package does not depend
 // on scenario-fixtures and should not start doing so for a test: the plants read the shipped bank,
 // the compiler must not.
@@ -56,6 +54,19 @@ import type {
  * It passes as a consequence of the keystone landing. Clause (2) stays planted: the scenario
  * fixtures resolver (`responseClipForBodyRegion`) does not exist yet, so clipId agreement with
  * the case data is the sibling card's residual — deliberately not wired here.
+ */
+
+/**
+ * ## FIXED (BothyBoard issue #0) — clause (2) is now a live `it` test.
+ *
+ * The factory-level hop landed in `src/compile-motion-program.ts`: when a program's provenance
+ * names exactly one declared compliance touch site (`touch:<ComplianceRegion>`), the compiled
+ * clipId IS that site's response clip — derived by the scenario-fixtures resolver
+ * (`responseClipForBodyRegion`, imported, never re-derived) so the bank row, the resolver and the
+ * compiler output share one naming source. Two regions compile to their own distinct clipIds; the
+ * shipped RLQ name is preserved. Programs with no single requested identity (no touch ref, a
+ * non-compliance token, or several distinct sites in one compile) keep the deterministic content
+ * hash id.
  */
 
 const PROGRAM_SCHEMA = "openclinxr.motion-program.v1";
@@ -255,7 +266,7 @@ describe("the resolved clip id is what the compiler produces", () => {
     expect(clip.tracks.length, "the primitive's tracks did not reach the clip").toBeGreaterThan(0);
   });
 
-  planted("(2) RED: the compiled clipId IS the clip the case asks for — bank, resolver and compiler agree", async () => {
+  it("(2) RED: the compiled clipId IS the clip the case asks for — bank, resolver and compiler agree", async () => {
     // THE SEAM. Without this, a resolver may return ten invented strings that name nothing the
     // factory can produce, and every clause of the routing plant still passes.
     const compileMotionProgram = await loadEntry();
