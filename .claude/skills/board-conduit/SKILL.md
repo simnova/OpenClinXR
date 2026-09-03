@@ -74,3 +74,33 @@ Free-tier termination risk: test grok-4.6 fallback routing once before running
 hot. Two consecutive integrate refusals => land nothing further, page owner
 thread. Weekly worktree prune (~1.3 GB each). Owner-thread decay: consults kept
 small; proactive re-open before ox-alpha context ceiling.
+
+## Two ways a card is born broken, both silent, both cost a full recreate
+
+Measured 2026-09-03, in one sitting, on two cards.
+
+**`tasks.create` without `projectId` lands the card in the WRONG PROJECT and returns success.**
+The parameter is documented as "required if the token covers more than one project" — it is not
+enforced, and nothing in the returned `{id}` says which project it went to. Two cards written for
+OpenClinXR were created under Harbor, planted there, and looked entirely healthy: right parent id,
+right lane, right `factory_step`, `factory: Planted`, `status: ready`. They were invisible to every
+`tasks.next` the actual project would run.
+
+The parent id does not save you. A `parentId` from another project is accepted without complaint,
+so the card reads as a child of a parent it cannot be dequeued alongside.
+
+> **Pass `projectId` on every `tasks.create`, and read it back off the response before planting.**
+> `projects.list` gives the ids. This costs one line and one glance.
+
+**`tasks.update` cannot patch `doneWhen`.** It patches status, blockedReason, branch, worktree,
+session ids, fields — not the contract. So a card created Idle with an empty `done_when`, intending
+to add proofs once its RED exists, can never be planted; it has to be recreated with the contract in
+the create call. That is not a defect in the board: a card whose contract is decided at dispatch time
+is precisely what it refuses. But it means **the decision of what would prove the card done has to be
+made before `tasks.create`, not after.**
+
+Recovery for both, in order: recreate with the full contract in the create call, plant the new card,
+then `tasks.update` the stray to `status: cancelled` with a `blockedReason` naming the replacement id.
+Cancel is the right verb — there is no delete, and an uncancelled duplicate is dispatchable-looking.
+Leave a comment on the superseded card saying which id replaced it and why, or the next reader finds
+two cards with identical titles and no way to tell which is live.
