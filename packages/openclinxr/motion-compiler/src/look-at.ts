@@ -49,10 +49,15 @@ export function compile(request: PrimitiveRequest): CompiledMotionFragment {
   const durationMs = readDurationMs(request);
   const seed = request.seed;
 
+  // TRACK TIMES ARE SECONDS: the clip's `durationSeconds` is the maximum final track time, so the
+  // samples a primitive emits must be seconds, not the authored milliseconds (compiler-surface
+  // clause 4 — a 900 ms action used to report durationSeconds 900).
+  const durationSeconds = durationMs / 1000;
+
   const times = new Array<number>(SAMPLES);
   const trackValues = GAZE.map(() => new Array<[number, number, number, number]>(SAMPLES));
   for (let i = 0; i < SAMPLES; i += 1) {
-    times[i] = (i * durationMs) / (SAMPLES - 1);
+    times[i] = (i * durationSeconds) / (SAMPLES - 1);
     const u = i / (SAMPLES - 1);
     const curve = approachHoldRelease(u, HOLD);
     for (let g = 0; g < GAZE.length; g += 1) {

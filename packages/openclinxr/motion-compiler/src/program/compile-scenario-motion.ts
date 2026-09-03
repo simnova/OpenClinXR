@@ -8,8 +8,8 @@
  *
  *   TouchResponse.responseKind = guarding       -> primitiveId guard_body_region
  *   TouchResponse.responseKind = palpation      -> primitiveId reach_target
- *   TouchResponse.responseKind = passive_rom    -> primitiveId brace
- *   TouchResponse.responseKind = positioning    -> primitiveId posture_shift
+ *   TouchResponse.responseKind = passive_rom    -> primitiveId guard_body_region
+ *   TouchResponse.responseKind = positioning    -> primitiveId reach_target
  *   TouchResponse.region (ComplianceRegion)     -> target.id via
  *     motionBodyRegionForComplianceRegion       (the explicit vocabulary boundary)
  *   TouchResponse.emotionEventId                -> trigger.ref
@@ -21,9 +21,12 @@
  *
  * The responseKind->primitive mapping is a product decision written down, in
  * the same spirit as the compliance->motion mapping: guarding withdraws toward
- * the touched site; palpation reaches protectively; passive_rom is met with a
- * stiffening brace; positioning draws a posture shift. All four primitives are
- * members of the brief's primitive vocabulary.
+ * the touched site; palpation reaches protectively; a pain-limited passive_rom
+ * is met with the same involuntary guarding (guard_body_region); positioning the
+ * patient is answered by the effector reaching to the repositioned target and
+ * holding it (reach_target). Every mapped id is a member of the registered
+ * PRIMITIVE_IDS — the compiler-surface contract refuses a map that names a
+ * primitive the registry cannot supply.
  */
 
 import { createHash } from "node:crypto";
@@ -131,8 +134,8 @@ export type ScenarioMotionCompileInput = {
 export const RESPONSE_KIND_TO_PRIMITIVE: Readonly<Record<string, string>> = {
   guarding: "guard_body_region",
   palpation: "reach_target",
-  passive_rom: "brace",
-  positioning: "posture_shift",
+  passive_rom: "guard_body_region",
+  positioning: "reach_target",
 };
 
 export const RESPONSE_KIND_TO_BASE_DURATION_MS: Readonly<Record<string, number>> = {
