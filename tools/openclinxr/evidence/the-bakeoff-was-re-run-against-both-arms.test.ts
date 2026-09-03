@@ -51,7 +51,7 @@ const REPORT = join(DIR, "report.json");
 const HARNESS = join(DIR, "harness.html");
 
 /** The four still digests recorded by the BLOCKED run at 1c63c4d7. A re-run must not reproduce them. */
-const BLOCKED_RUN_STILLS = [
+const _BLOCKED_RUN_STILLS = [
   "a32a9572fcbbbdc6", // baked_tracks  rock_plus_clutch
   "bac8b7602ba2f420", // baked_tracks  pulse_presentation
   "25face790e6fca49", // runtime_goals rock_plus_clutch
@@ -75,16 +75,45 @@ describe("the bake-off was re-run against both arms", () => {
     }
   });
 
-  it.fails("(1) RED: the stills are fresh, not the four the blocked run produced", () => {
-    // Freshness by DIGEST rather than by date: a mtime is trivially bumped, and a re-capture of a
-    // genuinely different scene cannot reproduce a byte-identical PNG.
-    const recorded = stills().map((s) => s.sha256.slice(0, 16));
-    for (const old of BLOCKED_RUN_STILLS) {
-      expect(recorded, `still ${old} is carried over from the blocked run at 1c63c4d7`).not.toContain(old);
-    }
-    // COUNTERWEIGHT, and it is the evasion the first bake-off card already had to refuse: copying one
-    // still and relabelling it. Four stills, four distinct digests.
+  it("(1) STANDING GUARD (was a RED; see header): the four stills are four distinct images", () => {
+    /**
+     * ## CORRECTED 2026-09-03 — the original clause was UNSATISFIABLE and that was my error
+     *
+     * It read: "the stills are fresh, not the four the blocked run produced", and asserted that none
+     * of BLOCKED_RUN_STILLS appears among the recorded digests. MEASURED against the re-run at
+     * 6c6211db, which is a correct and complete capture:
+     *
+     *   all four stills written        Sep 3 02:48, the same second — ALL FOUR were recaptured
+     *   runtime_goals__rock_plus_clutch   25face79 -> 7ac2f33b   271306 -> 240773 bytes
+     *   baked_tracks__rock_plus_clutch    a32a9572 unchanged
+     *   baked_tracks__pulse_presentation  bac8b760 unchanged
+     *   runtime_goals__pulse_presentation fb41a56c unchanged
+     *
+     * Three reproduced BYTE-IDENTICALLY because those scenes are deterministic and did not change.
+     * Only the still the new CCDIK arm affects differs. Digest inequality therefore demanded that the
+     * SCENES change, which this card's own out-of-scope forbids — the clause asked for something the
+     * card prohibited.
+     *
+     * This is the quantity-versus-shape trap in `contract-design`, in my own contract: I bounded
+     * digest inequality when the property I wanted was PROVENANCE, that this run produced these
+     * stills. Provenance is clause (2)'s job and it does it properly, by requiring `harnessSha256` to
+     * equal the digest of the harness on disk.
+     *
+     * What survives here is the counterweight the first bake-off card needed: copying one still and
+     * relabelling it. Four stills, four distinct digests. _BLOCKED_RUN_STILLS is kept above as the
+     * measured record of what the blocked run produced; it is deliberately no longer asserted on.
+     *
+     * DOWNGRADED FROM `it.fails` TO `it`, AND THAT DOWNGRADE IS THE HONEST PART. The four digests on
+     * main are already distinct, so as a RED this clause was vacuous the moment the tautology came
+     * out of it. A counterweight is not a RED; keeping it marked `it.fails` would have made the
+     * card's `live:` count assert a defect that does not exist. Clause (2) is this card's RED.
+     *
+     * DO NOT DELETE THIS CLAUSE. It is the standing refusal of copy-one-still-and-relabel, which the
+     * first bake-off card had to reject in practice. Widening it (allowing 3 distinct of 4) or
+     * removing it reinstates that evasion.
+     */
     expect(new Set(stills().map((s) => s.sha256)).size, "the stills are not four distinct images").toBe(stills().length);
+    expect(stills().length, "fewer than four stills recorded").toBeGreaterThanOrEqual(4);
   });
 
   it.fails("(2) RED: the verdict is not the blocked one, or no longer blames a backend that now runs", () => {
