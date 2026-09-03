@@ -47,7 +47,17 @@ pre-record; per-encounter compiled behaviour for case-specific idiosyncrasy.
 3. `AnimationMixer` in `three@0.184.0` has zero occurrences of `mask`. Partial-body masking is
    compile-time only.
 4. `main.ts` has exactly one `addEventListener("select")` and no grasp lifecycle, so every `release`
-   and `aborted` transition in the maneuver protocol is fiction today.
+   and `aborted` transition in the maneuver protocol is fiction today. **Re-measured 2026-09-03 and
+   the absence is POLICY, not an oversight — do not file a card to close it.** `apps/ui-xr/src` has
+   **zero** occurrences of `grasp`, `hold`, `release`, `aborted`, `squeeze`, `selectstart` or
+   `selectend`; the single `select` listener is an instantaneous tap, so there is no sustained
+   contact to begin, hold or end. But `apps/ui-xr/src/static-assets.test.ts:1201` is a LIVE PASSING
+   guard — *"enforces physics-touch pre-production fence: no rapier/physics-touch-contract deps,
+   static artifact only, promotion false"* — that forbids the runtime from depending on
+   `@openclinxr/physics-touch-contract` at all. The grasp semantics DO exist on the domain side
+   (`arena/physics-touch-contract/src/scenarios/passive-rom.ts` models a grasped arc,
+   `positioning.ts` a guided contact with dwell and release); they are fenced off from the runtime on
+   purpose. Wiring them is a fence-lifting decision for the operator, not a slice.
 5. Primitives emit track times in MILLISECONDS while the composer copies the maximum into a field
    named `durationSeconds`. A packer trusting the name makes a 900 ms clutch a 900-second clip.
 
