@@ -42,6 +42,26 @@ pre-record; per-encounter compiled behaviour for case-specific idiosyncrasy.
 
 1. `shared-schemas` depends on `factory-stations`, so `factory-stations -> motion-compiler` closes a
    real dependency cycle. The adapter needs a subprocess or CLI boundary, or a different home.
+   **CONFIRMED and sharpened 2026-09-03, plus a THIRD option the design does not list.** The cycle is
+   real and tighter than stated: `motion-compiler`'s transitive `@openclinxr` closure is
+   `asset-registry, factory-stations, scenario-fixtures, shared-schemas`, so it ALREADY reaches
+   `factory-stations`, and `factory-stations -> motion-compiler` is a direct back-edge rather than a
+   two-hop chain.
+   But the edge that closes it is a **compat shim**. `shared-schemas/src/factory-stations.ts` is 15
+   lines whose own header reads *"Compat re-export. Catalog + bakers live in
+   `@openclinxr/factory-stations`. Admin cards may keep this import for one cycle."* It is the ONLY
+   thing making `shared-schemas` depend on `factory-stations` (2 import lines, one file), and
+   `factory-stations` itself has no `@openclinxr` dependencies at all.
+   It has exactly TWO live consumers, both the admin cards it named:
+   `apps/ui-admin/.../FactoryStationCards.tsx` and
+   `the-factory-station-cards-derive-from-schema.test.tsx`. A third consumer,
+   `plan-equipment-would-invoke.ts`, already imports from `@openclinxr/factory-stations` directly, so
+   the target pattern is in the tree.
+   **So the cheapest break is: repoint those two admin files at `@openclinxr/factory-stations`, delete
+   the shim, and the cycle is gone** — no subprocess, no CLI boundary, no re-homing the adapter. The
+   shim declared its own expiry of "one cycle" and outlived it.
+   This stays an operator decision (it is a package boundary, listed under Open decisions), but it is
+   now a three-way choice with a measured cheapest option rather than a two-way one.
 2. `CCDIKSolver` solves the full target then slerps each joint (`CCDIKSolver.js:248`), so
    `blendFactor` is **not** fractional reach. Limit the target and solve at blend 1.
 3. `AnimationMixer` in `three@0.184.0` has zero occurrences of `mask`. Partial-body masking is
