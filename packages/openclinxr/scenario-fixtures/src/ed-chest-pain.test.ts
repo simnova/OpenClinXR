@@ -1,6 +1,6 @@
 import { validateScenario } from "@openclinxr/shared-schemas";
 import { describe, expect, it } from "vitest";
-import { edChestPainDialogueSeeds, edChestPainScenario } from "./index.js";
+import { edChestPainDialogueSeeds, edChestPainScenario, responseClipForBodyRegion } from "./index.js";
 
 describe("ED chest pain fixture", () => {
   it("is approved, multi-actor, and schema-valid", () => {
@@ -59,11 +59,15 @@ describe("ED chest pain fixture", () => {
     ] as const) {
       expect(byRegion[region], region).toBeTruthy();
       expect(byRegion[region]?.responseKind).toBe("guarding");
-      expect(byRegion[region]?.responseClip).toBe("openclinxr_role_patient_guard_withdraw_rlq");
+      // The clip is a function of the region (touch-response routing), not a shared RLQ pin.
+      expect(byRegion[region]?.responseClip).toBe(responseClipForBodyRegion(region));
       expect(byRegion[region]?.dialogueLine).toBeTruthy();
       expect(byRegion[region]?.traceTag).toMatch(/^clinical_touch_guard_/);
       expect(byRegion[region]?.emotionEventId).toBeTruthy();
     }
+    // Counterweight: six anatomically distinct regions still resolve to six distinct clips;
+    // a single clip across regions is the collapse this assertion replaced.
+    expect(new Set(responses.map((response) => response.responseClip)).size).toBe(responses.length);
     // RLQ maximal (lowest force threshold = most sensitive / rebound-style guarding).
     const rlq = byRegion["abdomen_rlq"]!;
     expect(rlq.forceThreshold).toBeLessThan(byRegion["abdomen_ruq"]!.forceThreshold);

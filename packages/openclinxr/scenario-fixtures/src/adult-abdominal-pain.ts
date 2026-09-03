@@ -1,5 +1,6 @@
 import type { Scenario } from "@openclinxr/shared-schemas";
 import type { DialogueFixtureSeed } from "./ed-chest-pain.js";
+import { responseClipForBodyRegion } from "./touch-response-clip.js";
 
 /**
  * Adult abdominal pain draft case (notEvidenceFor clinical validity / scoring).
@@ -58,7 +59,7 @@ export const adultAbdominalPainScenario: Scenario = {
             forceThreshold: 0.28,
             emotionEventId: "guard_rlq_v1",
             emotion: "pain",
-            responseClip: "openclinxr_role_patient_guard_withdraw_rlq",
+            responseClip: responseClipForBodyRegion("abdomen_rlq"),
             dialogueLine: "Ow— that hurts a lot, please don't push there.",
             traceTag: "clinical_touch_guard_rlq",
           },
@@ -68,7 +69,7 @@ export const adultAbdominalPainScenario: Scenario = {
             forceThreshold: 0.55,
             emotionEventId: "guard_ruq_v1",
             emotion: "concerned",
-            responseClip: "openclinxr_role_patient_guard_withdraw_rlq",
+            responseClip: responseClipForBodyRegion("abdomen_ruq"),
             dialogueLine: "A little tender up there, not as bad as lower right.",
             traceTag: "clinical_touch_guard_ruq",
           },
@@ -78,7 +79,7 @@ export const adultAbdominalPainScenario: Scenario = {
             forceThreshold: 0.55,
             emotionEventId: "guard_luq_v1",
             emotion: "concerned",
-            responseClip: "openclinxr_role_patient_guard_withdraw_rlq",
+            responseClip: responseClipForBodyRegion("abdomen_luq"),
             dialogueLine: "Mild discomfort on that side— nothing sharp.",
             traceTag: "clinical_touch_guard_luq",
           },
@@ -88,7 +89,7 @@ export const adultAbdominalPainScenario: Scenario = {
             forceThreshold: 0.5,
             emotionEventId: "guard_llq_v1",
             emotion: "anxious",
-            responseClip: "openclinxr_role_patient_guard_withdraw_rlq",
+            responseClip: responseClipForBodyRegion("abdomen_llq"),
             dialogueLine: "Sensitive, but the worst is still the lower right.",
             traceTag: "clinical_touch_guard_llq",
           },
@@ -98,7 +99,7 @@ export const adultAbdominalPainScenario: Scenario = {
             forceThreshold: 0.55,
             emotionEventId: "guard_chest_r_v1",
             emotion: "anxious",
-            responseClip: "openclinxr_role_patient_guard_withdraw_rlq",
+            responseClip: responseClipForBodyRegion("chest_R"),
             dialogueLine: "Chest is fine— the pain is lower in the belly.",
             traceTag: "clinical_touch_guard_chest_r",
           },
@@ -108,7 +109,7 @@ export const adultAbdominalPainScenario: Scenario = {
             forceThreshold: 0.55,
             emotionEventId: "guard_chest_l_v1",
             emotion: "anxious",
-            responseClip: "openclinxr_role_patient_guard_withdraw_rlq",
+            responseClip: responseClipForBodyRegion("chest_L"),
             dialogueLine: "No chest pressure— please focus on the abdomen.",
             traceTag: "clinical_touch_guard_chest_l",
           },

@@ -54,6 +54,8 @@ import {
 import type { LearnerScenarioView } from "./builders.js";
 export type { LearnerScenarioView };
 
+export { responseClipForBodyRegion } from "./touch-response-clip.js";
+
 export const scenarioBank = [
   edChestPainScenario,
   pediatricAsthmaScenario,

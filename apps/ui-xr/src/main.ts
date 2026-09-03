@@ -30,7 +30,7 @@ import {
   type HistoryTakingCoverageState,
 } from "@openclinxr/conversation-policy";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures/ed-chest-pain";
-import { scenarioBank } from "@openclinxr/scenario-fixtures/scenario-bank";
+import { scenarioBank, responseClipForBodyRegion } from "@openclinxr/scenario-fixtures/scenario-bank";
 import {
   bootLearnerExamFormFromApi,
   createLearnerExamFormRunState,
@@ -6643,6 +6643,12 @@ function registerClinicalTouchRegions(actorId: string, humanoid: Group, response
   group.name = `${runtimeSceneObjectPrefix()}.clinical-touch-regions.${actorId}`;
   group.userData.openClinXrClinicalTouchRegionHost = "examinee_touch_hit_targets_invisible_raycastable";
   for (const cfg of responses) {
+    // Touch-response routing: a guarding touch resolves its clip FROM THE REGION, so six distinct
+    // regions cannot collapse onto one produced RLQ clip the way shipped rows once did. The row's
+    // authored clip is kept for every other response kind.
+    const config = cfg.responseKind === "guarding" && cfg.responseClip !== responseClipForBodyRegion(cfg.region)
+      ? { ...cfg, responseClip: responseClipForBodyRegion(cfg.region) }
+      : cfg;
     const layout = CLINICAL_TOUCH_REGION_LAYOUT[cfg.region] ?? CLINICAL_TOUCH_REGION_FALLBACK;
     const box = new Mesh(
       new BoxGeometry(layout.w, layout.h, layout.d),
@@ -6657,7 +6663,7 @@ function registerClinicalTouchRegions(actorId: string, humanoid: Group, response
     box.userData.openClinXrTouchRegionResponseKind = cfg.responseKind;
     group.add(box);
     clinicalTouchRegionTargets.push(box);
-    clinicalTouchConfigByActorRegion.set(`${actorId}:${cfg.region}`, { actorId, config: cfg });
+    clinicalTouchConfigByActorRegion.set(`${actorId}:${cfg.region}`, { actorId, config });
   }
   humanoid.add(group);
   (window as unknown as { __openClinXrClinicalTouchRegionsReady?: unknown }).__openClinXrClinicalTouchRegionsReady = {

@@ -14,3 +14,4 @@ export * from "./postop-fever.js";
 export * from "./primary-care-dyslipidemia.js";
 export * from "./scenario-bank.js";
 export * from "./scenario-bank-maturity.js";
+export * from "./touch-response-clip.js";

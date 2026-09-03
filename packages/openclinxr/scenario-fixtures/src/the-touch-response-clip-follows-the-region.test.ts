@@ -48,6 +48,16 @@ import { scenarioBank } from "./scenario-bank.js";
  * bake is tsk_9faa82d3f77d8a6a.
  */
 
+/**
+ * ## FIXED (tsk_bae34b0cae2cf745)
+ *
+ * Clauses (1), (2) and (4) flipped when the response-clip routing landed:
+ * `touch-response-clip.ts` derives the clip from the compliance region (total over the whole
+ * schema vocabulary, injective on it), the 24 shipped rows in the four fixture files call that
+ * resolver, the ui-xr runtime resolves guarding touches through it at registration, and
+ * `ed-chest-pain.test.ts` now expects each region's own clip instead of pinning one RLQ clip.
+ */
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const RESOLVER_MODULE = "./touch-response-clip.js";
 
@@ -102,7 +112,7 @@ async function loadResolver(): Promise<ResolverModule | null> {
 }
 
 describe("the touch response clip follows the region", () => {
-  it.fails("(1) RED: the clip is a function OF THE REGION — same region agrees, different regions differ", () => {
+  it("(1) the clip is a function OF THE REGION — same region agrees, different regions differ", () => {
     const rows = liveTouchRows();
 
     // COUNTERWEIGHT, first: this clause must not pass by finding nothing. Both bounds come from the
@@ -141,7 +151,7 @@ describe("the touch response clip follows the region", () => {
     }
   });
 
-  it.fails("(2) RED: the binding is RESOLVED for the whole vocabulary, not transcribed from the 24 rows", async () => {
+  it("(2) the binding is RESOLVED for the whole vocabulary, not transcribed from the 24 rows", async () => {
     // A 6-entry lookup copied out of the bank satisfies clause (1) and leaves the next region to be
     // hand-authored — which is the per-region table this factory exists to remove. The vocabulary is
     // larger than the bank, so totality over it cannot be met by transcription.
@@ -216,7 +226,7 @@ describe("the touch response clip follows the region", () => {
     }
   });
 
-  it.fails("(4) RED: the shipped test stops pinning one clip across all six regions", () => {
+  it("(4) the shipped test stops pinning one clip across all six regions", () => {
     // The defect is asserted as correct by a test that ships. Left alone, a worker fixing the data
     // makes ed-chest-pain.test.ts red and may reasonably read that as having broken something.
     //
