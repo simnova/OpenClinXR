@@ -39,8 +39,8 @@ import {
 import { buildSessionRoutePath, routeById } from "@openclinxr/rest";
 import type { Scenario } from "@openclinxr/shared-schemas";
 import { print } from "graphql";
-
-
+import type { AdminAssembledExamReplayProjection } from "./AssembledExamReplayTimeline.js";
+export type { AdminAssembledExamReplayProjection };
 export type AdminApolloGraphqlClient = Pick<ApolloClient, "mutate" | "query">;
 
 export type AdminNoReadinessEvidenceClaim =
@@ -1254,6 +1254,7 @@ export type AdminReviewReplayReadinessSummary = Omit<
   providerDisabledRemediation?: AdminReviewReplayProviderDisabledRemediation[];
   caseDefinedHumanoidPerformanceContract?: AdminCaseDefinedHumanoidPerformanceContract;
   caseDefinedHumanoidRuntimeHandoff?: AdminCaseDefinedHumanoidRuntimeHandoff[];
+  assembledExamReplayProjection?: AdminAssembledExamReplayProjection;
 };
 
 export type AdminReviewPacketReplay = Omit<ReviewPacketReplayQuery, "reviewReplayReadinessSummary"> & {
@@ -1345,7 +1346,6 @@ export type AdminRealtimeVoicePosture = {
 
 export type SubmitScenarioReviewInput = SubmitScenarioReviewMutationVariables["input"];
 export type SaveFacultyScoreDraftInput = SaveFacultyScoreDraftMutationVariables["input"];
-
 /** Gated FacultyScoreDraft payload (review-workflow); not score-use evidence. */
 export type AdminFacultyScoreDraft = {
   reviewerId: string;
