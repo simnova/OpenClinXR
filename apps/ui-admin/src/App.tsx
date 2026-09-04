@@ -37,6 +37,7 @@ import {
   type ScenarioSceneGenerationRequestQueue,
   type SubmitRuntimeVisualEvidenceAttachmentInput,
 } from "./api-client.js";
+import { ActorTurnReplayPanel } from "./ActorTurnReplayPanel.js";
 import { CaseAuthoringWorkbench } from "./CaseAuthoringWorkbench.js";
 import { EmissionReplayBindPanel } from "./EmissionReplayBindPanel.js";
 import type { PlacementAuthorValue } from "./EnvironmentGenerationQueuePanel.js";
@@ -52,8 +53,7 @@ import { ScenarioBankMaturityPanel } from "./ScenarioBankMaturityPanel.js";
 import { ScenarioReviewGatePanel } from "./ScenarioReviewGatePanel.js";
 import { SeedExamReadinessBoundaryPanel } from "./SeedExamReadinessBoundaryPanel.js";
 
-const { Content, Sider } = Layout;
-const { TextArea } = Input;
+const { Content, Sider } = Layout, { TextArea } = Input;
 
 type AdminAppProps = {
   router?: "browser" | "memory";
@@ -405,6 +405,7 @@ function ReviewReplayWorkbench({ controlPlaneClient }: { controlPlaneClient: Adm
             />
           ) : null}
 
+          <ActorTurnReplayPanel packet={packet} />
           <FacultyReviewDecisionPanel
             packet={packet}
             clinicalEventReviewSummary={clinicalEventReviewSummary}
