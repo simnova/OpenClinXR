@@ -41,6 +41,15 @@ export {
 } from "./actor-turn-plan.js";
 export { ScenarioRuntime } from "./scenario-runtime.js";
 export { validateAssembledStationContext } from "./trace.js";
+export {
+  actorResponseFromFrozenPlan,
+  authoredDialogueCatalogFromScenario,
+  authoredTurnIndex,
+  createDeterministicDialoguePort,
+  recoverFrozenActorTurnPlanFromReplay,
+  tryResolveDeterministicActorTurnPlan,
+  type DeterministicDialoguePort,
+} from "./deterministic-dialogue-runtime.js";
 export type {
   CreateDefaultScenarioRuntimeOptions,
   DurableStorePersistenceHooks,
