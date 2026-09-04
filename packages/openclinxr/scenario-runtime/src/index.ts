@@ -30,7 +30,10 @@ export {
 export {
   assembledExamOrchestratorClaimBoundary,
   assembledExamOrchestratorNotEvidenceFor,
+  applyAssembledStationTimeouts,
   resumeAssembledExam,
+  type ApplyAssembledStationTimeoutsInput,
+  type ApplyAssembledStationTimeoutsResult,
   type AssembledExamAdmittedPhaseEvent,
   type AssembledExamLedgerResumeProjection,
   type AssembledExamLedgerStationBinding,
@@ -42,6 +45,18 @@ export {
   type RequestedAssembledExamStation,
   type ResumeAssembledExamInput,
 } from "./assembled-exam-orchestrator.js";
+export {
+  LAST_STATION_TIMEOUT_ADVANCE_REASON,
+  STATION_TIMEOUT_ADVANCE_REASON,
+  assembledStationClockClaimBoundary,
+  assembledStationClockNotEvidenceFor,
+  observeAssembledStationClock,
+  type AssembledStationClockAdmittedEvent,
+  type AssembledStationClockManualCompletion,
+  type AssembledStationClockSnapshot,
+  type AssembledStationTimeoutTransition,
+  type ObserveAssembledStationClockInput,
+} from "./assembled-station-clock.js";
 export {
   type ScenarioCatalogEntry,
   type ScenarioCatalogPort,
