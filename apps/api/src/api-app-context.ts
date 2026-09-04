@@ -1,6 +1,7 @@
 import { DEFAULT_DEV_AUTH_IDENTITY, DEFAULT_DEV_AUTH_SECRET } from "@openclinxr/auth";
 import { AssetGenerationCapabilityFacade } from "@openclinxr/capability-gateway";
 import type { AdminGraphqlScenario } from "@openclinxr/graphql";
+import type { AssembledExamReviewPacket } from "@openclinxr/review-workflow";
 import { createDefaultScenarioRuntime, type ScenarioRuntime } from "@openclinxr/scenario-runtime";
 import { createTelemetryRecorder, type TelemetryRecorder } from "@openclinxr/telemetry";
 import { createDefaultRealtimeVoiceGatewayPostureInput, isRecord } from "./api-support.js";
@@ -43,6 +44,10 @@ export type ApiAppContext = {
   };
   /** stationRunId → owner learnerId (attached at session-create). */
   readonly sessionOwners: Map<string, string>;
+  /** examRunId → owner learnerId for assembled-exam review packets. */
+  readonly examRunOwners: Map<string, string>;
+  /** examRunId → assembled-exam review packet published after durable save. */
+  readonly assembledExamReviewPackets: Map<string, AssembledExamReviewPacket>;
   /** stationRunId → ScenarioRuntime for sessions started with a non-default scenarioId. */
   readonly perSessionRuntime: Map<string, ScenarioRuntime>;
   readonly adminScenarioOverrides: Map<string, AdminGraphqlScenario>;
@@ -98,6 +103,8 @@ export function createApiAppContext(
       defaultIdentity: options.auth?.defaultIdentity ?? DEFAULT_DEV_AUTH_IDENTITY,
     },
     sessionOwners: new Map<string, string>(),
+    examRunOwners: new Map<string, string>(),
+    assembledExamReviewPackets: new Map<string, AssembledExamReviewPacket>(),
     perSessionRuntime: new Map<string, ScenarioRuntime>(),
     adminScenarioOverrides: new Map<string, AdminGraphqlScenario>(),
     sceneGenerationRequests,

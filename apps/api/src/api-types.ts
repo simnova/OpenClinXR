@@ -2,7 +2,12 @@ import type { buildScenarioSceneGenerationPipelineWorkOrderQueue, createEdChestP
 import { type AuthIdentity, DEFAULT_DEV_AUTH_IDENTITY, DEFAULT_DEV_AUTH_SECRET } from "@openclinxr/auth";
 import type { AssetGenerationCapabilityFacade } from "@openclinxr/capability-gateway";
 import type { ExamForm, ExamStationRunQueue } from "@openclinxr/exam-assembly";
-import type { FACULTY_SCORE_DRAFT_CLAIM_SCOPE, FacultyScoreDraft, ReviewDecisionDraft } from "@openclinxr/review-workflow";
+import type {
+  AssembledExamReviewPacket,
+  FACULTY_SCORE_DRAFT_CLAIM_SCOPE,
+  FacultyScoreDraft,
+  ReviewDecisionDraft,
+} from "@openclinxr/review-workflow";
 import type { scenarioBank } from "@openclinxr/scenario-fixtures";
 import type { ScenarioRuntime, ScenarioRuntimeActorTurn } from "@openclinxr/scenario-runtime";
 import type { Scenario } from "@openclinxr/shared-schemas";
@@ -155,6 +160,17 @@ export type ApiPersistenceSink = {
    * hooks persist turns without a separate API call.
    */
   saveActorTurn?: (stationRunId: string, turn: ScenarioRuntimeActorTurn) => Promise<void> | void;
+  /**
+   * Optional durable assembled-exam review packet sink. One exam-run artifact;
+   * not a flattened per-station packet list.
+   */
+  saveAssembledExamReviewPacket?: (
+    examRunId: string,
+    packet: AssembledExamReviewPacket,
+  ) => Promise<void> | void;
+  getAssembledExamReviewPacket?: (
+    examRunId: string,
+  ) => Promise<AssembledExamReviewPacket | undefined> | AssembledExamReviewPacket | undefined;
   listClinicalEventReviewProjections?: (stationRunId: string) => Promise<ApiClinicalEventReviewProjection[]> | ApiClinicalEventReviewProjection[];
   getLearnerRuntimeAssetBundle?: (
     bundleId: string,

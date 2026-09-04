@@ -1,3 +1,4 @@
+import { assembledExamReviewNotEvidenceFor, type AssembledExamReviewPacket } from "@openclinxr/review-workflow";
 import type { ScenarioRuntimeActorTurn } from "@openclinxr/scenario-runtime";
 import { describe, expect, it, vi } from "vitest";
 import type { ApiPersistenceSink } from "./app.js";
@@ -45,5 +46,52 @@ describe("createScenarioRuntimeDurableStoreFromApiPersistence", () => {
     // Sink methods optional → adapter returns void (undefined), not a Promise.
     await expect(Promise.resolve(store.saveReviewPacket?.("run_x", {} as never))).resolves.toBeUndefined();
     await expect(Promise.resolve(store.saveActorTurn?.("run_x", {} as never))).resolves.toBeUndefined();
+    await expect(Promise.resolve(store.saveAssembledExamReviewPacket("exam_x", {} as never))).resolves.toBeUndefined();
+    await expect(Promise.resolve(store.getAssembledExamReviewPacket("exam_x"))).resolves.toBeUndefined();
+  });
+
+  it("forwards exam-run packet save and get without flattening stations", async () => {
+    const saved: AssembledExamReviewPacket[] = [];
+    const sink: ApiPersistenceSink = {
+      saveAssembledExamReviewPacket: (examRunId, packet) => {
+        expect(examRunId).toBe(packet.examRunId);
+        saved.push(packet);
+      },
+      getAssembledExamReviewPacket: (examRunId) => saved.find((packet) => packet.examRunId === examRunId),
+    };
+    const store = createScenarioRuntimeDurableStoreFromApiPersistence(sink);
+    const packet = {
+      examRunId: "exam_run_learner_phase_001_ed_chest_pain_priority_v1__peds_asthma_parent_anxiety_v1",
+      learnerId: "learner_phase_001",
+      stations: [
+        {
+          identity: {
+            examRunId: "exam_run_learner_phase_001_ed_chest_pain_priority_v1__peds_asthma_parent_anxiety_v1",
+            stationRunId: "run_ed_001",
+            scenarioId: "ed",
+            stationOrder: 1,
+          },
+        },
+        {
+          identity: {
+            examRunId: "exam_run_learner_phase_001_ed_chest_pain_priority_v1__peds_asthma_parent_anxiety_v1",
+            stationRunId: "run_peds_001",
+            scenarioId: "peds",
+            stationOrder: 2,
+          },
+        },
+      ],
+      examTimeline: [],
+      omissions: [],
+      claimBoundary: "assembled_exam_review_packet_not_exam_equivalence",
+      notEvidenceFor: assembledExamReviewNotEvidenceFor,
+      examEquivalenceGate: false,
+    } as unknown as AssembledExamReviewPacket;
+
+    await store.saveAssembledExamReviewPacket(packet.examRunId, packet);
+    const loaded = await store.getAssembledExamReviewPacket(packet.examRunId);
+    expect(loaded).toBe(packet);
+    expect(loaded?.stations).toHaveLength(2);
+    expect(saved).toHaveLength(1);
   });
 });
