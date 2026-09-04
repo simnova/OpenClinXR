@@ -1,4 +1,5 @@
 import type { TraceEvent } from "@openclinxr/shared-schemas";
+import type { AssembledStationContext, AssembledStationFormWindow } from "./runtime-types.js";
 
 /**
  * Deterministic trace-event construction for the scenario runtime.
@@ -150,4 +151,61 @@ export function assignMonotonicReplayablePhaseTransitions(
       ...(typeof advanceReason === "string" ? { advanceReason } : {}),
     });
   });
+}
+
+export function validateAssembledStationContext(
+  value: AssembledStationContext,
+  runtimeScenarioId: string,
+): AssembledStationContext {
+  const examRunId = value.examRunId.trim();
+  const scenarioId = value.scenarioId.trim();
+  const timing = value.formTiming;
+  if (
+    examRunId.length === 0
+    || scenarioId.length === 0
+    || !timing
+    || !isFormWindow(timing.encounter)
+    || !isFormWindow(timing.note)
+    || (timing.doorway !== undefined && !isFormWindow(timing.doorway))
+  ) {
+    throw new Error("incomplete assembled-station context");
+  }
+  if (!Number.isInteger(value.stationOrder) || value.stationOrder < 1) {
+    throw new Error("assembled-station order must be a positive integer");
+  }
+  if (scenarioId !== runtimeScenarioId) {
+    throw new Error(`assembled-station scenario mismatch: expected ${runtimeScenarioId} got ${scenarioId}`);
+  }
+  const assembled: AssembledStationContext = {
+    examRunId,
+    scenarioId,
+    stationOrder: value.stationOrder,
+    formTiming: {
+      encounter: timing.encounter,
+      note: timing.note,
+    },
+  };
+  if (timing.doorway) {
+    assembled.formTiming.doorway = timing.doorway;
+  }
+  return assembled;
+}
+
+export function assertObservedFormTime(window: AssembledStationFormWindow, observed: number, eventType: string): void {
+  if (!Number.isInteger(observed) || observed < window.startsAtSecond || observed > window.endsAtSecond) {
+    throw new Error(
+      `Cannot record assembled ${eventType} at form second ${observed} outside window ${window.startsAtSecond}-${window.endsAtSecond}`,
+    );
+  }
+}
+
+function isFormWindow(value: unknown): value is AssembledStationFormWindow {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const record = value as { startsAtSecond?: unknown; endsAtSecond?: unknown };
+  return Number.isInteger(record.startsAtSecond)
+    && Number.isInteger(record.endsAtSecond)
+    && (record.startsAtSecond as number) >= 0
+    && (record.endsAtSecond as number) >= (record.startsAtSecond as number);
 }

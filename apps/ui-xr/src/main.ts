@@ -151,7 +151,13 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { XRControllerModelFactory } from "three/addons/webxr/XRControllerModelFactory.js";
 import { XRHandModelFactory } from "three/addons/webxr/XRHandModelFactory.js";
-import { createStationApiClient, createStationApiPersistenceSink, type StationApiClient } from "./api-client.js";
+import {
+  buildAssembledStationStartSessionInput,
+  createStationApiClient,
+  createStationApiPersistenceSink,
+  syncRemoteAssembledPhase,
+  type AssembledStationApiClient as StationApiClient,
+} from "./station-api-client.js";
 import { assertHumanoidRootUpright } from "./humanoid-load-guard.js";
 import { applyRealGarmentEvidenceSurfaces, sleeveDeformCueForAssetPath } from "./real-garment-evidence-surfaces.js";
 import { computeMeshBounds, frameCamera } from "./camera-fit-to-bounds.js";
@@ -2057,20 +2063,36 @@ const examFlowStation = requireElement<HTMLElement>("#exam-flow-station");
 const examFlowCaseSource = requireElement<HTMLElement>("#exam-flow-case-source");
 const examFlowTimer = requireElement<HTMLElement>("#exam-flow-timer");
 const examFlowAdvance = requireElement<HTMLElement>("#exam-flow-advance");
-void bootLearnerExamFormFromApi({
-  baseUrl: configuredApiBaseUrl,
-  examRunId,
-  examScenarioId,
-  getState: () => examFormRunState,
-  setState: (next) => {
-    examFormRunState = next;
-  },
-  persistenceSink: examFormRunPersistenceSink,
-  updateEvidence: () => {
-    updateExamFormRunEvidence();
-  },
-  presentationSink: examFlowCaseSource,
-});
+void (async () => {
+  await initializeRemoteTraceSession(stationApi);
+  await bootLearnerExamFormFromApi({
+    baseUrl: configuredApiBaseUrl,
+    examRunId,
+    examScenarioId,
+    getState: () => examFormRunState,
+    setState: (next) => {
+      examFormRunState = next;
+    },
+    persistenceSink: examFormRunPersistenceSink,
+    updateEvidence: () => {
+      updateExamFormRunEvidence();
+      updateExamFlowEvidence();
+    },
+    presentationSink: examFlowCaseSource,
+    phaseTrace: {
+      getStore: () => examPhaseStore,
+      setStore: (next) => {
+        examPhaseStore = next;
+        window.localStorage.setItem(
+          examPhaseTraceStorageKey,
+          JSON.stringify({ persistedEvents: next.persistedEvents, localEvents: next.localEvents }),
+        );
+      },
+      presentationSink: examFlowAdvance,
+      ...(remoteStationRunId ? { stationRunId: remoteStationRunId } : {}),
+    },
+  });
+})();
 const patientNoteText = requireElement<HTMLTextAreaElement>("#patient-note-text");
 const endEncounterButton = requireElement<HTMLButtonElement>("#end-encounter-button");
 const submitNoteButton = requireElement<HTMLButtonElement>("#submit-note-button");
@@ -2122,6 +2144,13 @@ function applyExamFlowIntent(kind: "end_encounter" | "submit_note" | "encounter_
   window.localStorage.setItem(examPhaseTraceStorageKey, JSON.stringify({ persistedEvents: examPhaseStore.persistedEvents, localEvents: examPhaseStore.localEvents }));
   if (applied.admitted && applied.view.noteSubmitted) recordExamRunStationOutcome();
   updateExamFlowEvidence();
+  void syncRemoteAssembledPhase({
+    client: stationApi,
+    stationRunId: remoteStationRunId,
+    kind,
+    atSecond: formElapsedSecondForCurrentStation(),
+    noteText: patientNoteText.value,
+  });
   if (applied.navigateToScenarioId) navigateToExamScenario(applied.navigateToScenarioId);
 }
 
@@ -2752,14 +2781,24 @@ async function initializeRemoteTraceSession(client: StationApiClient | undefined
   }
 
   try {
-    const session = await client.startSession({
-      learnerId: "quest3_local_learner",
-      consentAccepted: true,
-    });
+    const session = await client.startSession(
+      buildAssembledStationStartSessionInput({
+        learnerId: "quest3_local_learner",
+        scenarioId: examScenarioId,
+        examRun: examFormRunState,
+      }),
+    );
     remoteStationRunId = session.stationRunId;
-    await client.startEncounter(session.stationRunId, { atSecond: 0 });
+    examPhaseStore = createLearnerCanonicalPhaseTraceStore({
+      examRunId,
+      stationRunId: session.stationRunId,
+      scenarioId: examScenarioId,
+      stationOrder: examScenarioIndex + 1,
+    });
+    const observedFormAtSecond = formElapsedSecondForCurrentStation();
+    await client.startEncounter(session.stationRunId, { atSecond: observedFormAtSecond });
   } catch {
-    remoteStationRunId = undefined;
+    if (!remoteStationRunId) remoteStationRunId = undefined;
   }
 }
 
@@ -9884,7 +9923,6 @@ updateRuntimePosturePanel(null);
 updateTraceActionHandoffEvidence();
 updateExamFlowEvidence();
 recordBootPhase("controls_ready");
-void initializeRemoteTraceSession(stationApi);
 void updateXrStatus();
 let stationScene: StationSceneRuntime | undefined;
 void bootStationScene();

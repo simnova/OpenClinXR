@@ -18,8 +18,14 @@ import {
   type ResolveLearnerExamScenariosResult,
 } from "./learner-exam-scenario-source.js";
 import {
+  applyLearnerPhaseTracePresentation,
+  applyLearnerPhaseTraceRefusePresentation,
+  hydrateLearnerCanonicalPhaseTraceFromApi,
+} from "./learner-phase-trace-source.js";
+import {
   createMultiStationExamRuntime,
   persistExamFormRunQueueSnapshot,
+  type LearnerCanonicalPhaseTraceStore,
 } from "./runtime-state.js";
 
 export type ExamFormBootPresentationSink = {
@@ -93,6 +99,13 @@ export function createLearnerExamFormRunState(
   }
 }
 
+export type BootLearnerPhaseTraceHydration = {
+  getStore: () => LearnerCanonicalPhaseTraceStore;
+  setStore: (store: LearnerCanonicalPhaseTraceStore) => void;
+  presentationSink: ExamFormBootPresentationSink;
+  stationRunId?: string;
+};
+
 export type BootLearnerExamFormFromApiInput = {
   baseUrl: string | undefined;
   examRunId: string;
@@ -105,6 +118,8 @@ export type BootLearnerExamFormFromApiInput = {
   presentationSink: ExamFormBootPresentationSink;
   fetch?: typeof fetch;
   blueprintId?: string;
+  /** Hydrate canonical phase traces from GET /sessions/:id/trace-events. */
+  phaseTrace?: BootLearnerPhaseTraceHydration;
 };
 
 /**
@@ -144,6 +159,32 @@ export async function bootLearnerExamFormFromApi(input: BootLearnerExamFormFromA
   }
 
   const state = input.getState();
+  if (state && input.phaseTrace) {
+    try {
+      const hydrateInput: Parameters<typeof hydrateLearnerCanonicalPhaseTraceFromApi>[0] = {
+        baseUrl: input.baseUrl,
+        examRun: state,
+        store: input.phaseTrace.getStore(),
+      };
+      if (input.fetch !== undefined) {
+        hydrateInput.fetch = input.fetch;
+      }
+      if (input.phaseTrace.stationRunId !== undefined) {
+        hydrateInput.stationRunId = input.phaseTrace.stationRunId;
+      }
+      const hydrated = await hydrateLearnerCanonicalPhaseTraceFromApi(hydrateInput);
+      input.phaseTrace.setStore(hydrated.store);
+      applyLearnerPhaseTracePresentation({
+        view: hydrated.view,
+        sink: input.phaseTrace.presentationSink,
+      });
+      input.updateEvidence();
+    } catch (error) {
+      applyLearnerPhaseTraceRefusePresentation({ error, sink: input.phaseTrace.presentationSink });
+      input.updateEvidence();
+    }
+  }
+
   if (state && input.persistenceSink) {
     const snapshotOptions: {
       snapshotId: string;

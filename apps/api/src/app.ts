@@ -195,6 +195,7 @@ import type { ApiAppContext } from "./api-app-context.js";
 import { ApiApplication, type ApiApp } from "./api-application.js";
 import { registerReviewRoutes } from "./routes/review-routes.js";
 import { registerEncounterSessionRoutes } from "./routes/encounter-session-routes.js";
+import { registerSessionRoutes } from "./routes/session-routes.js";
 import { registerCapabilityJobRoutes } from "./routes/capability-job-routes.js";
 import { registerAuthoringRoutes } from "./routes/authoring-routes.js";
 import { registerExamRoutes } from "./routes/exam-routes.js";
@@ -257,6 +258,7 @@ function registerAllRoutes(app: ApiApp, ctx: ApiAppContext): void {
   registerExamRoutes(app, ctx);
   registerAuthoringRoutes(app, ctx);
   registerCapabilityJobRoutes(app, ctx);
+  registerSessionRoutes(app, ctx);
   registerEncounterSessionRoutes(app, ctx);
   registerReviewRoutes(app, ctx);
   registerFacultyCompileLockRoutes(app, ctx);

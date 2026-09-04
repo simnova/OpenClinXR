@@ -12,6 +12,29 @@ import type { OpenClinXrApiProtocolPosture } from "./protocol-support.js";
 
 
 
+export type ApiAssembledStationFormWindow = {
+  startsAtSecond: number;
+  endsAtSecond: number;
+};
+
+export type ApiAssembledStationContext = {
+  examRunId: string;
+  scenarioId: string;
+  stationOrder: number;
+  formTiming: {
+    doorway?: ApiAssembledStationFormWindow;
+    encounter: ApiAssembledStationFormWindow;
+    note: ApiAssembledStationFormWindow;
+  };
+};
+
+export type ApiStartSessionRequest = {
+  learnerId?: string;
+  consentAccepted?: boolean;
+  scenarioId?: string;
+  assembledStation?: ApiAssembledStationContext;
+};
+
 export type RuntimeTraceEvents = ReturnType<ScenarioRuntime["traceEvents"]>;
 
 export type RuntimeReviewPacket = ReturnType<ScenarioRuntime["reviewPacket"]>;
