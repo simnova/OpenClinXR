@@ -7,7 +7,6 @@
  */
 import type { ExamForm, ExamTimingPlan } from "@openclinxr/exam-assembly";
 import {
-  ASSEMBLED_EXAM_PHASE_BY_TYPE,
   ASSEMBLED_EXAM_PHASE_TRANSITION_TYPES,
   type AssembledExamPhase,
   type AssembledExamPhaseTransitionType,

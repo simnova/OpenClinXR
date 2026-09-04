@@ -351,14 +351,20 @@ describe("assembled exam orchestrator", () => {
   });
 
   it("refuses out-of-form projection scenario/order identities", () => {
+    const [firstStation, secondStation] = stations();
+    expect(firstStation).toBeDefined();
+    expect(secondStation).toBeDefined();
+    if (!firstStation || !secondStation) {
+      return;
+    }
     expect(() =>
       resumeAssembledExam({
         form: form(),
         timingPlan: timingPlan(),
         projection: projection([], {
           orderedStations: [
-            stations()[0]!,
-            { ...stations()[1]!, scenarioId: "clinic_abdominal_pain_interpreter_v1" },
+            firstStation,
+            { ...secondStation, scenarioId: "clinic_abdominal_pain_interpreter_v1" },
           ],
         }),
       }),
@@ -366,14 +372,20 @@ describe("assembled exam orchestrator", () => {
   });
 
   it("refuses duplicated projection stationRunId", () => {
+    const [firstStation, secondStation] = stations();
+    expect(firstStation).toBeDefined();
+    expect(secondStation).toBeDefined();
+    if (!firstStation || !secondStation) {
+      return;
+    }
     expect(() =>
       resumeAssembledExam({
         form: form(),
         timingPlan: timingPlan(),
         projection: projection([], {
           orderedStations: [
-            stations()[0]!,
-            { ...stations()[1]!, stationRunId: stationA },
+            firstStation,
+            { ...secondStation, stationRunId: stationA },
           ],
         }),
       }),
