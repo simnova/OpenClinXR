@@ -6,9 +6,11 @@ import type {
   DurableConversationTurnRecord,
   DurableEmotionalStateTimelineRecord,
 } from "@openclinxr/session-state";
+import type { PromoteReviewedFactoryOutputsInput } from "@openclinxr/asset-registry/runtime-asset-review";
 import type { LearnerRuntimeAssetBundle } from "@openclinxr/asset-registry/runtime-bundles";
 import type { ReviewPacket, Scenario, TraceEvent } from "@openclinxr/shared-schemas";
 import { MongoExamFormRepository, MongoRuntimeAssetBundleRepository, MongoStationRunQueueRepository } from "./exam-repositories.js";
+import { MongoPromotedEncounterBundleRepository } from "./promoted-encounter-bundle-repository.js";
 import { MongoFacultyReviewDecisionRepository, MongoFacultyScoreDraftRepository } from "./faculty-repositories.js";
 import { MongoDurableMultiActorSessionStore } from "./conversation-repositories.js";
 import { MongoReviewPacketRepository, MongoScenarioRepository, MongoScenarioReviewDecisionRepository, MongoTraceRepository } from "./scenario-repositories.js";
@@ -24,6 +26,7 @@ export class MongoApiPersistenceSink {
   private readonly facultyReviewDecisions: MongoFacultyReviewDecisionRepository;
   private readonly durableMultiActorSessions: MongoDurableMultiActorSessionStore;
   private readonly runtimeAssetBundles: MongoRuntimeAssetBundleRepository;
+  private readonly promotedEncounterBundles: MongoPromotedEncounterBundleRepository;
   private readonly scenarios: MongoScenarioRepository;
 
   constructor(db: Db) {
@@ -36,6 +39,7 @@ export class MongoApiPersistenceSink {
     this.facultyReviewDecisions = new MongoFacultyReviewDecisionRepository(db);
     this.durableMultiActorSessions = new MongoDurableMultiActorSessionStore(db);
     this.runtimeAssetBundles = new MongoRuntimeAssetBundleRepository(db);
+    this.promotedEncounterBundles = new MongoPromotedEncounterBundleRepository(db);
     this.scenarios = new MongoScenarioRepository(db);
   }
 
@@ -50,6 +54,7 @@ export class MongoApiPersistenceSink {
       this.facultyReviewDecisions.ensureIndexes(),
       this.durableMultiActorSessions.ensureIndexes(),
       this.runtimeAssetBundles.ensureIndexes(),
+      this.promotedEncounterBundles.ensureIndexes(),
       this.scenarios.ensureIndexes(),
     ]);
   }
@@ -136,7 +141,19 @@ export class MongoApiPersistenceSink {
   }
 
   async getLearnerRuntimeAssetBundle(bundleId: string): Promise<LearnerRuntimeAssetBundle | undefined> {
+    const promoted = await this.promotedEncounterBundles.findByOpaqueId(bundleId);
+    if (promoted) {
+      return promoted.learnerBundle;
+    }
     return (await this.runtimeAssetBundles.findLearnerBundleById(bundleId)) ?? undefined;
+  }
+
+  async promoteImmutableEncounterBundle(input: PromoteReviewedFactoryOutputsInput) {
+    return this.promotedEncounterBundles.promote(input);
+  }
+
+  async getPromotedEncounterBundle(bundleId: string) {
+    return this.promotedEncounterBundles.findByOpaqueId(bundleId);
   }
 
   async listLearnerRuntimeAssetBundles(): Promise<LearnerRuntimeAssetBundle[]> {
