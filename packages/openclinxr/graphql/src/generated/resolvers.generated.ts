@@ -263,17 +263,83 @@ export enum ReviewDecision {
 
 export type ReviewPacket = {
   __typename?: 'ReviewPacket';
+  actorTurns: Array<ReviewPacketActorTurn>;
+  emotionalTimeline: Array<ReviewPacketEmotionalTimelineEntry>;
   facultyScoreDraft: FacultyScoreDraft;
   lateTraceTags: Array<Scalars['String']['output']>;
   missingRequiredTraceTags: Array<Scalars['String']['output']>;
   observedTraceTags: Array<Scalars['String']['output']>;
   patientNote?: Maybe<PatientNote>;
+  prosodyNeutralized: Scalars['Boolean']['output'];
   scenarioId: Scalars['ID']['output'];
   stationRunId: Scalars['ID']['output'];
   timeline: Array<TraceTimelineEntry>;
   traceQuality: ReviewTraceQuality;
   unsafeEvents: Array<Scalars['String']['output']>;
 };
+
+export type ReviewPacketActorTurn = {
+  __typename?: 'ReviewPacketActorTurn';
+  execution: ReviewPacketActorTurnExecution;
+  plan: ReviewPacketActorTurnPlan;
+};
+
+export type ReviewPacketActorTurnExecution = {
+  __typename?: 'ReviewPacketActorTurnExecution';
+  interruptionKind: ReviewPacketInterruptionKind;
+  planId: Scalars['ID']['output'];
+  truncated: Scalars['Boolean']['output'];
+  ttsProviderId: Scalars['String']['output'];
+  visemeCueCount: Scalars['Int']['output'];
+};
+
+export type ReviewPacketActorTurnPlan = {
+  __typename?: 'ReviewPacketActorTurnPlan';
+  claimScope: Scalars['String']['output'];
+  dialogueEmotionFrom: ReviewPacketDialogueEmotion;
+  dialogueEmotionTo: ReviewPacketDialogueEmotion;
+  droppedTags: Array<Scalars['String']['output']>;
+  eventKind: ReviewPacketEmotionEventKind;
+  facePresetId: Scalars['ID']['output'];
+  performancePlanId: Scalars['ID']['output'];
+  planId: Scalars['ID']['output'];
+  spokenText: Scalars['String']['output'];
+};
+
+export enum ReviewPacketDialogueEmotion {
+  Anxious = 'anxious',
+  Concerned = 'concerned',
+  Neutral = 'neutral',
+  Reassured = 'reassured'
+}
+
+export enum ReviewPacketEmotionEventKind {
+  ActorSilenceTimeout = 'actor_silence_timeout',
+  LearnerAcknowledgement = 'learner_acknowledgement',
+  LearnerClinicalQuestion = 'learner_clinical_question',
+  LearnerDismissive = 'learner_dismissive',
+  LearnerEmpathetic = 'learner_empathetic',
+  LearnerInterruption = 'learner_interruption',
+  LearnerPersonalQuestion = 'learner_personal_question',
+  LearnerUnclassified = 'learner_unclassified'
+}
+
+export type ReviewPacketEmotionalTimelineEntry = {
+  __typename?: 'ReviewPacketEmotionalTimelineEntry';
+  actorId?: Maybe<Scalars['ID']['output']>;
+  atSecond?: Maybe<Scalars['Int']['output']>;
+  from: Scalars['String']['output'];
+  planId?: Maybe<Scalars['ID']['output']>;
+  to: Scalars['String']['output'];
+  trigger?: Maybe<Scalars['String']['output']>;
+  turnIndex?: Maybe<Scalars['Int']['output']>;
+};
+
+export enum ReviewPacketInterruptionKind {
+  None = 'none',
+  Replaced = 'replaced',
+  Truncated = 'truncated'
+}
 
 export type ReviewReplayReadinessSummary = {
   __typename?: 'ReviewReplayReadinessSummary';
@@ -645,6 +711,13 @@ export type ResolversTypes = {
   Query: ResolverTypeWrapper<Record<PropertyKey, never>>;
   ReviewDecision: ReviewDecision;
   ReviewPacket: ResolverTypeWrapper<ReviewPacket>;
+  ReviewPacketActorTurn: ResolverTypeWrapper<ReviewPacketActorTurn>;
+  ReviewPacketActorTurnExecution: ResolverTypeWrapper<ReviewPacketActorTurnExecution>;
+  ReviewPacketActorTurnPlan: ResolverTypeWrapper<ReviewPacketActorTurnPlan>;
+  ReviewPacketDialogueEmotion: ReviewPacketDialogueEmotion;
+  ReviewPacketEmotionEventKind: ReviewPacketEmotionEventKind;
+  ReviewPacketEmotionalTimelineEntry: ResolverTypeWrapper<ReviewPacketEmotionalTimelineEntry>;
+  ReviewPacketInterruptionKind: ReviewPacketInterruptionKind;
   ReviewReplayReadinessSummary: ResolverTypeWrapper<ReviewReplayReadinessSummary>;
   ReviewTraceQuality: ResolverTypeWrapper<ReviewTraceQuality>;
   RuntimeVisualEvidenceReplayProjection: ResolverTypeWrapper<RuntimeVisualEvidenceReplayProjection>;
@@ -697,6 +770,10 @@ export type ResolversParentTypes = {
   PatientNote: PatientNote;
   Query: Record<PropertyKey, never>;
   ReviewPacket: ReviewPacket;
+  ReviewPacketActorTurn: ReviewPacketActorTurn;
+  ReviewPacketActorTurnExecution: ReviewPacketActorTurnExecution;
+  ReviewPacketActorTurnPlan: ReviewPacketActorTurnPlan;
+  ReviewPacketEmotionalTimelineEntry: ReviewPacketEmotionalTimelineEntry;
   ReviewReplayReadinessSummary: ReviewReplayReadinessSummary;
   ReviewTraceQuality: ReviewTraceQuality;
   RuntimeVisualEvidenceReplayProjection: RuntimeVisualEvidenceReplayProjection;
@@ -860,16 +937,54 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
 };
 
 export type ReviewPacketResolvers<ContextType = any, ParentType extends ResolversParentTypes['ReviewPacket'] = ResolversParentTypes['ReviewPacket']> = {
+  actorTurns?: Resolver<Array<ResolversTypes['ReviewPacketActorTurn']>, ParentType, ContextType>;
+  emotionalTimeline?: Resolver<Array<ResolversTypes['ReviewPacketEmotionalTimelineEntry']>, ParentType, ContextType>;
   facultyScoreDraft?: Resolver<ResolversTypes['FacultyScoreDraft'], ParentType, ContextType>;
   lateTraceTags?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   missingRequiredTraceTags?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   observedTraceTags?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   patientNote?: Resolver<Maybe<ResolversTypes['PatientNote']>, ParentType, ContextType>;
+  prosodyNeutralized?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   scenarioId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   stationRunId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   timeline?: Resolver<Array<ResolversTypes['TraceTimelineEntry']>, ParentType, ContextType>;
   traceQuality?: Resolver<ResolversTypes['ReviewTraceQuality'], ParentType, ContextType>;
   unsafeEvents?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+};
+
+export type ReviewPacketActorTurnResolvers<ContextType = any, ParentType extends ResolversParentTypes['ReviewPacketActorTurn'] = ResolversParentTypes['ReviewPacketActorTurn']> = {
+  execution?: Resolver<ResolversTypes['ReviewPacketActorTurnExecution'], ParentType, ContextType>;
+  plan?: Resolver<ResolversTypes['ReviewPacketActorTurnPlan'], ParentType, ContextType>;
+};
+
+export type ReviewPacketActorTurnExecutionResolvers<ContextType = any, ParentType extends ResolversParentTypes['ReviewPacketActorTurnExecution'] = ResolversParentTypes['ReviewPacketActorTurnExecution']> = {
+  interruptionKind?: Resolver<ResolversTypes['ReviewPacketInterruptionKind'], ParentType, ContextType>;
+  planId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  truncated?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  ttsProviderId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  visemeCueCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+};
+
+export type ReviewPacketActorTurnPlanResolvers<ContextType = any, ParentType extends ResolversParentTypes['ReviewPacketActorTurnPlan'] = ResolversParentTypes['ReviewPacketActorTurnPlan']> = {
+  claimScope?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  dialogueEmotionFrom?: Resolver<ResolversTypes['ReviewPacketDialogueEmotion'], ParentType, ContextType>;
+  dialogueEmotionTo?: Resolver<ResolversTypes['ReviewPacketDialogueEmotion'], ParentType, ContextType>;
+  droppedTags?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  eventKind?: Resolver<ResolversTypes['ReviewPacketEmotionEventKind'], ParentType, ContextType>;
+  facePresetId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  performancePlanId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  planId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  spokenText?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+};
+
+export type ReviewPacketEmotionalTimelineEntryResolvers<ContextType = any, ParentType extends ResolversParentTypes['ReviewPacketEmotionalTimelineEntry'] = ResolversParentTypes['ReviewPacketEmotionalTimelineEntry']> = {
+  actorId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  atSecond?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  from?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  planId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  to?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  trigger?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  turnIndex?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
 };
 
 export type ReviewReplayReadinessSummaryResolvers<ContextType = any, ParentType extends ResolversParentTypes['ReviewReplayReadinessSummary'] = ResolversParentTypes['ReviewReplayReadinessSummary']> = {
@@ -1121,6 +1236,10 @@ export type Resolvers<ContextType = any> = {
   PatientNote?: PatientNoteResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   ReviewPacket?: ReviewPacketResolvers<ContextType>;
+  ReviewPacketActorTurn?: ReviewPacketActorTurnResolvers<ContextType>;
+  ReviewPacketActorTurnExecution?: ReviewPacketActorTurnExecutionResolvers<ContextType>;
+  ReviewPacketActorTurnPlan?: ReviewPacketActorTurnPlanResolvers<ContextType>;
+  ReviewPacketEmotionalTimelineEntry?: ReviewPacketEmotionalTimelineEntryResolvers<ContextType>;
   ReviewReplayReadinessSummary?: ReviewReplayReadinessSummaryResolvers<ContextType>;
   ReviewTraceQuality?: ReviewTraceQualityResolvers<ContextType>;
   RuntimeVisualEvidenceReplayProjection?: RuntimeVisualEvidenceReplayProjectionResolvers<ContextType>;
