@@ -1,5 +1,10 @@
 export * from "./types.js";
 export * from "./logic.js";
+export {
+  visemeTimelineFromRhubarbCues,
+  visemeForRhubarbValue,
+} from "./viseme-timeline.js";
+export type { RhubarbMouthCue, VisemeCueTiming } from "./viseme-timeline.js";
 export type {
   CandidatePromotionStatus,
   CandidateRiggingDelta,
