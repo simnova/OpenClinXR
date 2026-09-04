@@ -354,7 +354,10 @@ describe("IWSDK sidecar runtime state", () => {
   });
 
   it("renders clinical text and controller affordances inside the immersive scene", () => {
-    const source = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+    const source = [
+      readFileSync(new URL("./main.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("./xr-input-models.ts", import.meta.url), "utf8"),
+    ].join("\n");
 
     expect(source).toContain("CanvasTexture");
     expect(source).toContain("createReadableVrTextPanel");
@@ -370,7 +373,10 @@ describe("IWSDK sidecar runtime state", () => {
   });
 
   it("adds primitive hand models and experimental locomotion affordances", () => {
-    const source = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+    const source = [
+      readFileSync(new URL("./main.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("./xr-input-models.ts", import.meta.url), "utf8"),
+    ].join("\n");
 
     expect(iwsdkSidecarPrimitiveHandModelProfile).toBe("spheres");
     expect(iwsdkSidecarHandRepresentationKind).toBe("primitive_spheres");
