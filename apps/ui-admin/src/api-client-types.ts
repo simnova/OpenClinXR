@@ -40,7 +40,6 @@ import { buildSessionRoutePath, routeById } from "@openclinxr/rest";
 import type { Scenario } from "@openclinxr/shared-schemas";
 import { print } from "graphql";
 
-
 export type AdminApolloGraphqlClient = Pick<ApolloClient, "mutate" | "query">;
 
 export type AdminNoReadinessEvidenceClaim =
@@ -1406,4 +1405,5 @@ export type AdminScenarioReviewDecision = ScenarioReviewDecisionsQuery["scenario
 export type AdminScenarioReviewResult = SubmitScenarioReviewMutation["submitScenarioReview"];
 export type AdminReviewPacket = SaveFacultyScoreDraftMutation["saveFacultyScoreDraft"];
 export type AdminStationRunQueueSnapshot = StationRunQueueSnapshotsQuery["stationRunQueueSnapshots"][number];
+export type { AuthoredDialogueSeedDraft, DialogueSeedPublicationGate, FrozenActorTurnPlanPreview } from "./DialogueSeedAuthoringPanel.js";
 
