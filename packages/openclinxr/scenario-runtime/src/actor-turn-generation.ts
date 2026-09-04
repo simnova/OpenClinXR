@@ -8,8 +8,8 @@ import {
 } from "./actor-turn-plan.js";
 import { bindPersistedActorTurn } from "./authored-turn-binding.js";
 import {
+  actorLocalAuthoredTurnIndex,
   actorResponseFromFrozenPlan,
-  authoredTurnIndex,
   type DeterministicDialoguePort,
   tryResolveDeterministicActorTurnPlan,
 } from "./deterministic-dialogue-runtime.js";
@@ -93,12 +93,13 @@ export async function generateActorResponseFromContext(
     stationRunId: session.run.stationRunId,
   };
 
+  const authoredTurn = actorLocalAuthoredTurnIndex(session.frozenActorTurnPlans, input.actorId);
   const deterministicPlan = host.deterministicDialogue
     ? await tryResolveDeterministicActorTurnPlan(host.deterministicDialogue, {
         scenarioId: host.scenario.scenarioId,
         actorId: input.actorId,
         learnerUtterance: input.learnerUtterance,
-        turnIndex: authoredTurnIndex(input.conversationTurn),
+        turnIndex: authoredTurn,
         stationRunId: session.run.stationRunId,
         ...(host.deterministicDialogue.claimLiveProvider !== undefined
           ? { claimLiveProvider: host.deterministicDialogue.claimLiveProvider }
@@ -226,7 +227,7 @@ export async function generateActorResponseFromContext(
     actor,
     stationRunId: session.run.stationRunId,
     turnId,
-    turnIndex: Math.max(0, input.conversationTurn - 1),
+    turnIndex: authoredTurn,
     somaticEmotion: null,
     languageProvenance: {
       fallbackUsed: boundResponse.responseKind === "blocked_fallback",

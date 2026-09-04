@@ -42,6 +42,7 @@ export {
 export { ScenarioRuntime } from "./scenario-runtime.js";
 export { validateAssembledStationContext } from "./trace.js";
 export {
+  actorLocalAuthoredTurnIndex,
   actorResponseFromFrozenPlan,
   authoredDialogueCatalogFromScenario,
   authoredTurnIndex,

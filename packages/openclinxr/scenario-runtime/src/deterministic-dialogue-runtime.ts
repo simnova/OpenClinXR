@@ -20,8 +20,24 @@ export type DeterministicDialoguePort = {
   providerId?: string;
 };
 
-export function authoredTurnIndex(conversationTurn: number): number {
-  return conversationTurn > 0 ? conversationTurn - 1 : conversationTurn;
+/**
+ * Next authored seed index for one actor.
+ * Uses that actor's last frozen plan, not the global conversationTurn clock.
+ */
+export function actorLocalAuthoredTurnIndex(
+  frozenActorTurnPlans: ReadonlyMap<string, Pick<ActorTurnPlan, "turnIndex">>,
+  actorId: string,
+): number {
+  const last = frozenActorTurnPlans.get(actorId);
+  return last ? last.turnIndex + 1 : 0;
+}
+
+/** @deprecated Use actorLocalAuthoredTurnIndex; global conversationTurn-minus-one is incorrect under interleaved actors. */
+export function authoredTurnIndex(
+  frozenActorTurnPlans: ReadonlyMap<string, Pick<ActorTurnPlan, "turnIndex">>,
+  actorId: string,
+): number {
+  return actorLocalAuthoredTurnIndex(frozenActorTurnPlans, actorId);
 }
 
 export function isMissingAuthoredDialogueSeed(error: unknown): boolean {
