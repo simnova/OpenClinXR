@@ -19,6 +19,8 @@ export const AUTHORED_CONTENT_IDENTITY_OMITTED_ROOT_KEYS = ["review", "status"] 
 export const AUTHORED_CONTENT_IDENTITY_OMITTED_NESTED_KEYS = ["__typename"] as const;
 export const STALE_AUTHORED_SCENARIO_REVIEW_IDENTITY_ERROR =
   "Scenario review decision authored content identity is stale for the persisted scenario.";
+export const MISSING_AUTHORED_SCENARIO_REVIEW_IDENTITY_ERROR =
+  "Scenario review decision requires authoredContentIdentity evidence for the persisted scenario.";
 
 const CATALOG_SOURCE_PREFIX = "catalog_source:";
 
@@ -140,11 +142,13 @@ export async function bindScenarioReviewDecisionToAuthoredIdentity(
     : toAdminGraphqlScenario(persisted);
   const candidates = authoredScenarioContentIdentityCandidates(identityScenario);
   const submitted = authoredContentIdentityFromEvidenceRefs(record.evidenceRefs);
-  if (submitted !== undefined && !candidates.has(submitted)) {
+  if (submitted === undefined || submitted.length === 0) {
+    throw new Error(MISSING_AUTHORED_SCENARIO_REVIEW_IDENTITY_ERROR);
+  }
+  if (!candidates.has(submitted)) {
     throw new Error(STALE_AUTHORED_SCENARIO_REVIEW_IDENTITY_ERROR);
   }
-  const boundIdentity = submitted ?? authoredScenarioContentIdentity(identityScenario);
-  return Object.assign(record, { authoredContentIdentity: boundIdentity });
+  return Object.assign(record, { authoredContentIdentity: submitted });
 }
 
 function scenarioStatusForReview(review: AdminGraphqlScenario["review"]): AdminGraphqlScenario["status"] {

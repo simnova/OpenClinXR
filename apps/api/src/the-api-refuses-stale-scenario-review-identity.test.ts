@@ -8,6 +8,7 @@ import type { ApiPersistenceSink, ApiScenarioReviewDecisionRecord } from "./api-
 import {
   AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX,
   authoredScenarioContentIdentity,
+  MISSING_AUTHORED_SCENARIO_REVIEW_IDENTITY_ERROR,
   STALE_AUTHORED_SCENARIO_REVIEW_IDENTITY_ERROR,
 } from "./scenario-review-promotion.js";
 
@@ -284,20 +285,21 @@ describe("the API refuses stale scenario review identity", () => {
     expect(stored?.governance.validationStage).not.toBe("stage_1_expert_reviewed");
   });
 
-  it("legacy submits without an identity ref still promote when content is unchanged", async () => {
-    const app = createApiApp(undefined, memorySink());
+  it("refuses an identity-less submit and persists no decision", async () => {
+    const sink = memorySink();
+    const app = createApiApp(undefined, sink);
     await app.request("/scenarios", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ scenario: draftScenario() }),
     });
 
-    for (const reviewerRole of GATES) {
-      const submitted = await submitReview(app, { reviewerRole });
-      expect(submitted.body.errors).toBeUndefined();
-    }
-
-    expect(await consideredIds(app)).toContain(SCENARIO_ID);
+    const submitted = await submitReview(app, { reviewerRole: "clinical" });
+    expect(submitted.status).toBe(200);
+    expect(submitted.body.errors?.[0]?.message).toContain(MISSING_AUTHORED_SCENARIO_REVIEW_IDENTITY_ERROR);
+    expect(submitted.body.data?.submitScenarioReview).toBeFalsy();
+    expect(await Promise.resolve(sink.listScenarioReviewDecisions?.() ?? [])).toEqual([]);
+    expect(await consideredIds(app)).not.toContain(SCENARIO_ID);
   });
 });
 
