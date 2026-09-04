@@ -41,6 +41,29 @@ img {
   object-fit: cover;
 }
 
+.motion-proof {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+  gap: 28px;
+  align-items: start;
+  margin-top: 24px;
+}
+
+.motion-proof__video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 32 / 15;
+  background: #10221a;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+@media (max-width: 800px) {
+  .motion-proof {
+    grid-template-columns: 1fr;
+  }
+}
+
 .block {
   display: block;
 }
