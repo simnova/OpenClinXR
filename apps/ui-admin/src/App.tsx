@@ -43,7 +43,7 @@ import { EmissionReplayBindPanel } from "./EmissionReplayBindPanel.js";
 import type { PlacementAuthorValue } from "./EnvironmentGenerationQueuePanel.js";
 import { SeedWorldviewQueue, type SeedWorldviewCompileGraph } from "./seed-worldview-queue.js";
 import { FacultyAdjudicationWorkspace, fetchAssembledExamReviewPacket } from "./FacultyAdjudicationWorkspace.js";
-import { FacultyReviewDecisionPanel } from "./FacultyReviewDecisionPanel.js";
+import { FacultyDispositionPanel } from "./FacultyDispositionPanel.js"; import { FacultyReviewDecisionPanel } from "./FacultyReviewDecisionPanel.js";
 import { useFacultyCompileLocks } from "./faculty-compile-lock.js";
 import { QueueReviewSnapshotHistory } from "./QueueReviewSnapshotHistory.js";
 import { ReviewReplayReadinessSummaryPanel } from "./ReviewReplayReadinessSummaryPanel.js";
@@ -358,7 +358,7 @@ function ReviewReplayWorkbench({ controlPlaneClient }: { controlPlaneClient: Adm
           ? controlPlaneClient.getAssembledExamReviewPacket({ examRunId })
           : fetchAssembledExamReviewPacket(examRunId)}
         onLoadExamRun={(examRunId) => { const next = new URLSearchParams(searchParams); next.set("examRunId", examRunId); setSearchParams(next); }}
-      />
+      /><FacultyDispositionPanel examRunId={examRunIdParam} onLoadExamRun={(examRunId) => { const next = new URLSearchParams(searchParams); next.set("examRunId", examRunId); setSearchParams(next); }} />
 
       {seedState.status === "error" ? (
         <Alert type="error" title="Seed replay failed" description={seedState.message} showIcon />
