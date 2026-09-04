@@ -19,6 +19,11 @@ import { phonemesForText, visemesForText } from "./dialogue-visemes.js";
 
 export const ACTOR_TURN_PLAYBACK_SEAM = "playFrozenActorTurn";
 
+/** Synthetic audio clock — headset audio latency is unmeasured (not-tested). */
+export const ACTOR_TURN_PLAYBACK_CLOCK_KIND = "synthetic_audio_time" as const;
+/** One 60 Hz display frame. Not a headset-measured latency bound. */
+export const ACTOR_TURN_PLAYBACK_DRIFT_TOLERANCE_MS = 1000 / 60;
+
 export type ActorTurnPlaybackModality =
   | "voice"
   | "viseme"
@@ -85,6 +90,10 @@ export type ActorTurnPlayback = {
   droppedModalities: readonly ActorTurnPlaybackDroppedModality[];
   consumption: LiveActorTurnConsumption;
   execution: ActorTurnExecution | null;
+  clockKind: typeof ACTOR_TURN_PLAYBACK_CLOCK_KIND;
+  driftToleranceMs: number;
+  headsetAudioLatencyUnmeasured: true;
+  cancelled: boolean;
   claimScope: "simulated_actor_behavior";
   notEvidenceFor: readonly string[];
 };
@@ -111,6 +120,27 @@ export function resetActorTurnPlaybackStarts(): void {
   activePlaybackStationRunId = null;
 }
 
+/** Drop a started join so a later play of the same plan/turn can start again. */
+export function cancelStartedActorTurnPlayback(joinKey: string): ActorTurnPlayback | undefined {
+  const started = startedPlaybackByJoin.get(joinKey);
+  if (!started) {
+    return undefined;
+  }
+  startedPlaybackByJoin.delete(joinKey);
+  return { ...started, cancelled: true, lanes: [] };
+}
+
+/** Clear live facial / speech state so an interrupted turn cannot leave a stale viseme. */
+export function cleanupActorTurnLiveSlot(
+  slot: ActorTurnLiveSlot,
+  restEmotion: DialogueEmotion = "neutral",
+): void {
+  slot.activeSpeech = undefined;
+  slot.emotionExpression.targetEmotion = restEmotion;
+  slot.root.userData.openClinXrActorTurnVisemePhoneme = "sil";
+  slot.root.userData.openClinXrActorTurnPlaybackCancelled = true;
+}
+
 export function playFrozenActorTurn(
   plan: ActorTurnPlan,
   execution: ActorTurnExecution | null,
@@ -118,6 +148,10 @@ export function playFrozenActorTurn(
 ): ActorTurnPlayback {
   beginActorTurnPlaybackStation(plan.stationRunId);
   const joinKey = actorTurnPlaybackJoinKey(plan);
+  const barge = execution?.interruption.kind;
+  if (barge === "truncated" || barge === "replaced") {
+    cancelStartedActorTurnPlayback(joinKey);
+  }
   const alreadyStarted = startedPlaybackByJoin.get(joinKey);
   if (alreadyStarted) {
     return alreadyStarted;
@@ -202,15 +236,21 @@ export function playFrozenActorTurn(
     visemeSequence,
     timelineOriginMs: nowMs,
     startedAtMs: nowMs,
-    lanes,
+    lanes: barge === "truncated" || barge === "replaced" ? [] : lanes,
     droppedModalities,
     consumption,
     execution: consumption.execution,
+    clockKind: ACTOR_TURN_PLAYBACK_CLOCK_KIND,
+    driftToleranceMs: ACTOR_TURN_PLAYBACK_DRIFT_TOLERANCE_MS,
+    headsetAudioLatencyUnmeasured: true,
+    cancelled: barge === "truncated" || barge === "replaced",
     claimScope: "simulated_actor_behavior",
     notEvidenceFor: [...plan.notEvidenceFor],
   };
   publishActorTurnPlayback(playback);
-  startedPlaybackByJoin.set(joinKey, playback);
+  if (!playback.cancelled) {
+    startedPlaybackByJoin.set(joinKey, playback);
+  }
   while (startedPlaybackByJoin.size > ACTOR_TURN_PLAYBACK_RETENTION) {
     const oldest = startedPlaybackByJoin.keys().next().value;
     if (oldest === undefined) {
@@ -266,7 +306,7 @@ export function playFrozenActorTurnOnSlot(
     startFaceTransition: (actorId: string, emotion: DialogueEmotion, nowMs: number) => void;
   },
 ): ActorTurnPlayback {
-  return playFrozenActorTurn(plan, execution, {
+  const playback = playFrozenActorTurn(plan, execution, {
     nowMs: host.nowMs,
     approvedMotionClipIds: host.clipNames,
     adapters: {
@@ -294,6 +334,13 @@ export function playFrozenActorTurnOnSlot(
       startMotion: (ctx) => host.playClip(ctx.actorId, ctx.clipId),
     },
   });
+  if (playback.cancelled) {
+    const live = host.getSlot(plan.actorId);
+    if (live) {
+      cleanupActorTurnLiveSlot(live, plan.dialogueEmotionFrom);
+    }
+  }
+  return playback;
 }
 
 function publishActorTurnPlayback(playback: ActorTurnPlayback): void {
