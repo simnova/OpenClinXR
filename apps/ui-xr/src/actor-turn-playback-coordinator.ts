@@ -1,8 +1,8 @@
 /**
  * End-to-end multimodal playback around playIdentityBoundActorTurn.
- * Synthesized audio time is the authoritative clock for viseme cues.
- * Gaze, posture, and emotion share one schedule and one cancellation.
- * Missing audio or cue artifacts fall back visibly through playFrozenActorTurn.
+ * Canonical time is the synthesized audio source clock (currentTimeSeconds),
+ * not caller/wall-clock. Viseme, gaze, posture, and emotion apply through
+ * modality adapters / live-slot writes. Missing artifacts fall back visibly.
  *
  * claimScope: simulated_actor_behavior.
  * notEvidenceFor: Quest readiness, live speech provider, clinical affect,
@@ -50,6 +50,22 @@ const ARTIFACT_FALLBACK_REASONS = new Set<ActorTurnPlayerBlockReason>([
 
 export type CoordinatorModality = "viseme" | "gaze" | "posture" | "emotion";
 
+/** HTMLMediaElement.currentTime analogue. Headset latency is unmeasured. */
+export type CoordinatorAudioClockSource = {
+  clockKind: typeof COORDINATOR_CLOCK_KIND;
+  headsetAudioLatencyUnmeasured: true;
+  currentTimeSeconds(): number;
+  pause(): void;
+  resume(): void;
+};
+
+export type CoordinatorModalityAdapters = {
+  applyViseme?: (phoneme: string, audioTimeMs: number) => void;
+  applyGaze?: (gazeTargetKind: GazeTargetKind | null, audioTimeMs: number) => void;
+  applyPosture?: (posePresetId: string, audioTimeMs: number) => void;
+  applyEmotion?: (emotion: DialogueEmotion, audioTimeMs: number) => void;
+};
+
 export type CoordinatorScheduleEvent = {
   modality: CoordinatorModality;
   scheduledAtAudioMs: number;
@@ -74,16 +90,20 @@ export type CoordinatorTickSnapshot = {
   emotion: DialogueEmotion | null;
   maxDriftMs: number;
   withinDriftTolerance: boolean;
+  clockKind: typeof COORDINATOR_CLOCK_KIND;
+  headsetAudioLatencyUnmeasured: true;
 };
 
 export type CoordinatorStatus = "playing" | "paused" | "interrupted" | "completed" | "fallback";
 
 export type CoordinateActorTurnPlaybackOptions = {
+  audioClock: CoordinatorAudioClockSource;
   nowMs?: number;
   adapters?: ActorTurnPlayerAdapters;
   frozenAdapters?: ActorTurnPlaybackAdapters;
   approvedMotionClipIds?: readonly string[];
   liveSlot?: ActorTurnLiveSlot;
+  modalityAdapters?: CoordinatorModalityAdapters;
 };
 
 export type ActorTurnPlaybackCoordinator = {
@@ -99,10 +119,10 @@ export type ActorTurnPlaybackCoordinator = {
   player: ActorTurnPlayerResult;
   frozenPlayback: ActorTurnPlayback | null;
   evidence: CoordinatorTimingEvidence;
-  tick(audioTimeMs: number): CoordinatorTickSnapshot;
-  pause(audioTimeMs: number): void;
-  resume(audioTimeMs: number): void;
-  interrupt(kind: "truncated" | "replaced", audioTimeMs: number): void;
+  tick(): CoordinatorTickSnapshot;
+  pause(): void;
+  resume(): void;
+  interrupt(kind: "truncated" | "replaced"): void;
   cleanup(): void;
   claimScope: "simulated_actor_behavior";
   notEvidenceFor: readonly string[];
@@ -113,6 +133,16 @@ const FALLBACK_ADAPTERS: ActorTurnPlayerAdapters = {
   startViseme: () => true,
   startGaze: () => true,
   startEmotion: () => true,
+};
+
+type RuntimeState = {
+  paused: boolean;
+  lastAudioMs: number;
+  visemePhoneme: string;
+  gazeTargetKind: GazeTargetKind | null;
+  posturePresetId: string | null;
+  emotion: DialogueEmotion | null;
+  maxDriftMs: number;
 };
 
 let activeCoordinator: ActorTurnPlaybackCoordinator | null = null;
@@ -126,9 +156,9 @@ export function coordinateActorTurnPlayback(
   plan: ActorTurnPlan,
   execution: ActorTurnExecution | null,
   artifacts: ActorTurnExecutionArtifacts,
-  options: CoordinateActorTurnPlaybackOptions = {},
+  options: CoordinateActorTurnPlaybackOptions,
 ): ActorTurnPlaybackCoordinator {
-  if (activeCoordinator && (activeCoordinator.turnId !== plan.turnId || activeCoordinator.actorId !== plan.actorId)) {
+  if (activeCoordinator) {
     activeCoordinator.cleanup();
   }
 
@@ -161,15 +191,40 @@ export function coordinateActorTurnPlayback(
     events,
   };
 
-  const state = {
+  const state: RuntimeState = {
     paused: false,
     lastAudioMs: 0,
     visemePhoneme: "sil",
-    gazeTargetKind: null as GazeTargetKind | null,
-    posturePresetId: null as string | null,
-    emotion: null as DialogueEmotion | null,
+    gazeTargetKind: null,
+    posturePresetId: null,
+    emotion: null,
     maxDriftMs: 0,
   };
+
+  const applyRuntime = (item: CoordinatorScheduleEvent, audioTimeMs: number): void => {
+    if (item.modality === "viseme") {
+      state.visemePhoneme = item.identity;
+      options.modalityAdapters?.applyViseme?.(item.identity, audioTimeMs);
+      writeSlot(options.liveSlot, "openClinXrActorTurnVisemePhoneme", item.identity);
+    } else if (item.modality === "gaze") {
+      state.gazeTargetKind = item.identity as GazeTargetKind;
+      options.modalityAdapters?.applyGaze?.(item.identity as GazeTargetKind, audioTimeMs);
+      writeSlot(options.liveSlot, "openClinXrActorTurnGazeTargetKind", item.identity);
+    } else if (item.modality === "posture") {
+      state.posturePresetId = item.identity;
+      options.modalityAdapters?.applyPosture?.(item.identity, audioTimeMs);
+      writeSlot(options.liveSlot, "openClinXrActorTurnPosePresetId", item.identity);
+    } else {
+      const emotion = item.identity as DialogueEmotion;
+      state.emotion = emotion;
+      options.modalityAdapters?.applyEmotion?.(emotion, audioTimeMs);
+      if (options.liveSlot) {
+        options.liveSlot.emotionExpression.targetEmotion = emotion;
+      }
+    }
+  };
+
+  const readAudioMs = (): number => options.audioClock.currentTimeSeconds() * 1000;
 
   const coordinator: ActorTurnPlaybackCoordinator = {
     seam: ACTOR_TURN_PLAYBACK_COORDINATOR_SEAM,
@@ -184,47 +239,56 @@ export function coordinateActorTurnPlayback(
     player,
     frozenPlayback,
     evidence,
-    tick(audioTimeMs: number): CoordinatorTickSnapshot {
+    tick(): CoordinatorTickSnapshot {
+      const audioTimeMs = state.paused || coordinator.status === "paused"
+        ? state.lastAudioMs
+        : readAudioMs();
       if (coordinator.status === "interrupted" || coordinator.status === "completed") {
         return snapshot(state, audioTimeMs);
       }
       if (state.paused || coordinator.status === "paused") {
         return snapshot(state, state.lastAudioMs);
       }
-      applyDueEvents(events, audioTimeMs, state);
+      applyDueEvents(events, audioTimeMs, state, applyRuntime);
       state.lastAudioMs = audioTimeMs;
       if (player.status === "playing" && audioTimeMs >= player.audio.durationMs) {
         coordinator.status = "completed";
       }
       return snapshot(state, audioTimeMs);
     },
-    pause(audioTimeMs: number): void {
+    pause(): void {
       if (coordinator.status !== "playing" && coordinator.status !== "fallback") {
         return;
       }
-      applyDueEvents(events, audioTimeMs, state);
+      const audioTimeMs = readAudioMs();
+      applyDueEvents(events, audioTimeMs, state, applyRuntime);
       state.paused = true;
       state.lastAudioMs = audioTimeMs;
       coordinator.status = "paused";
+      options.audioClock.pause();
     },
-    resume(audioTimeMs: number): void {
+    resume(): void {
       if (coordinator.status !== "paused") {
         return;
       }
       state.paused = false;
-      state.lastAudioMs = audioTimeMs;
+      options.audioClock.resume();
+      state.lastAudioMs = readAudioMs();
       coordinator.status = fallbackVisible ? "fallback" : "playing";
     },
-    interrupt(_kind: "truncated" | "replaced", audioTimeMs: number): void {
-      applyDueEvents(events, audioTimeMs, state);
+    interrupt(_kind: "truncated" | "replaced"): void {
+      const audioTimeMs = readAudioMs();
+      applyDueEvents(events, audioTimeMs, state, applyRuntime);
       cancelRemaining(events);
-      restFace(state, plan, options.liveSlot);
+      restFace(state, plan, options.liveSlot, options.modalityAdapters, audioTimeMs);
       state.lastAudioMs = audioTimeMs;
       coordinator.status = "interrupted";
+      options.audioClock.pause();
     },
     cleanup(): void {
+      const audioTimeMs = readAudioMs();
       cancelRemaining(events);
-      restFace(state, plan, options.liveSlot);
+      restFace(state, plan, options.liveSlot, options.modalityAdapters, audioTimeMs);
       coordinator.status = coordinator.status === "fallback" ? "fallback" : "interrupted";
     },
     claimScope: "simulated_actor_behavior",
@@ -233,12 +297,19 @@ export function coordinateActorTurnPlayback(
 
   const barge = execution?.interruption.kind;
   if (barge === "truncated" || barge === "replaced") {
-    coordinator.interrupt(barge, 0);
+    coordinator.interrupt(barge);
   }
 
   activeCoordinator = coordinator;
   publishCoordinator(coordinator);
   return coordinator;
+}
+
+function writeSlot(slot: ActorTurnLiveSlot | undefined, key: string, value: string): void {
+  if (!slot) {
+    return;
+  }
+  slot.root.userData[key] = value;
 }
 
 function scheduleFromPlayer(
@@ -292,13 +363,8 @@ function event(modality: CoordinatorModality, atMs: number, identity: string): C
 function applyDueEvents(
   events: CoordinatorScheduleEvent[],
   audioTimeMs: number,
-  state: {
-    visemePhoneme: string;
-    gazeTargetKind: GazeTargetKind | null;
-    posturePresetId: string | null;
-    emotion: DialogueEmotion | null;
-    maxDriftMs: number;
-  },
+  state: RuntimeState,
+  applyRuntime: (item: CoordinatorScheduleEvent, audioTimeMs: number) => void,
 ): void {
   for (const item of events) {
     if (item.cancelled || item.appliedAtAudioMs !== null) {
@@ -313,15 +379,7 @@ function applyDueEvents(
     if (driftMs > state.maxDriftMs) {
       state.maxDriftMs = driftMs;
     }
-    if (item.modality === "viseme") {
-      state.visemePhoneme = item.identity;
-    } else if (item.modality === "gaze") {
-      state.gazeTargetKind = item.identity as GazeTargetKind;
-    } else if (item.modality === "posture") {
-      state.posturePresetId = item.identity;
-    } else {
-      state.emotion = item.identity as DialogueEmotion;
-    }
+    applyRuntime(item, audioTimeMs);
   }
 }
 
@@ -334,34 +392,27 @@ function cancelRemaining(events: CoordinatorScheduleEvent[]): void {
 }
 
 function restFace(
-  state: {
-    visemePhoneme: string;
-    gazeTargetKind: GazeTargetKind | null;
-    posturePresetId: string | null;
-    emotion: DialogueEmotion | null;
-  },
+  state: RuntimeState,
   plan: ActorTurnPlan,
   slot: ActorTurnLiveSlot | undefined,
+  adapters: CoordinatorModalityAdapters | undefined,
+  audioTimeMs: number,
 ): void {
   state.visemePhoneme = "sil";
   state.gazeTargetKind = null;
   state.posturePresetId = plan.posePresetId;
   state.emotion = plan.dialogueEmotionFrom;
+  adapters?.applyViseme?.("sil", audioTimeMs);
+  adapters?.applyGaze?.(null, audioTimeMs);
+  adapters?.applyPosture?.(plan.posePresetId, audioTimeMs);
+  adapters?.applyEmotion?.(plan.dialogueEmotionFrom, audioTimeMs);
   if (slot) {
     cleanupActorTurnLiveSlot(slot, plan.dialogueEmotionFrom);
+    slot.root.userData.openClinXrActorTurnGazeTargetKind = null;
   }
 }
 
-function snapshot(
-  state: {
-    visemePhoneme: string;
-    gazeTargetKind: GazeTargetKind | null;
-    posturePresetId: string | null;
-    emotion: DialogueEmotion | null;
-    maxDriftMs: number;
-  },
-  audioTimeMs: number,
-): CoordinatorTickSnapshot {
+function snapshot(state: RuntimeState, audioTimeMs: number): CoordinatorTickSnapshot {
   return {
     audioTimeMs,
     visemePhoneme: state.visemePhoneme,
@@ -370,6 +421,8 @@ function snapshot(
     emotion: state.emotion,
     maxDriftMs: state.maxDriftMs,
     withinDriftTolerance: state.maxDriftMs <= SYNTHETIC_AUDIO_CLOCK_DRIFT_TOLERANCE_MS,
+    clockKind: COORDINATOR_CLOCK_KIND,
+    headsetAudioLatencyUnmeasured: true,
   };
 }
 

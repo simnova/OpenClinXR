@@ -1,8 +1,8 @@
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ActorTurnExecution, ActorTurnPlan } from "@openclinxr/shared-schemas";
+import { beforeEach, describe, expect, it } from "vitest";
+import type { ActorTurnExecution, ActorTurnPlan, DialogueEmotion } from "@openclinxr/shared-schemas";
 import {
   ACTOR_TURN_PLAYBACK_CLOCK_KIND,
   ACTOR_TURN_PLAYBACK_DRIFT_TOLERANCE_MS,
@@ -16,18 +16,22 @@ import {
   SYNTHETIC_AUDIO_CLOCK_DRIFT_TOLERANCE_MS,
   coordinateActorTurnPlayback,
   resetActorTurnPlaybackCoordinator,
+  type CoordinatorAudioClockSource,
+  type CoordinatorModalityAdapters,
 } from "./actor-turn-playback-coordinator.js";
 import { expressionWeightsForEmotion } from "./actor-turn-plan-consumption.js";
 import {
   digestActorTurnPlan,
   playIdentityBoundActorTurn,
   type ActorTurnExecutionArtifacts,
+  type GazeTargetKind,
   type IdentityBoundRef,
 } from "./actor-turn-player.js";
 
 /**
- * Audio time is the one clock for viseme, gaze, posture, and affect.
+ * Audio source currentTime is the one clock for viseme, gaze, posture, and affect.
  * known-good: identity-bound player blocks missing audio; anxious brow 0.62.
+ * Headset audio latency is unmeasured; the test clock is synthetic_audio_time.
  */
 
 const PLAN_ID = "plan_maya_wob_001";
@@ -120,6 +124,64 @@ function liveSlot(): ActorTurnLiveSlot {
   };
 }
 
+/** Synthetic HTMLMediaElement.currentTime stand-in. Not headset-measured. */
+function syntheticAudioClock(initialSeconds = 0): CoordinatorAudioClockSource & {
+  setCurrentTimeSeconds: (seconds: number) => void;
+  paused: boolean;
+} {
+  let currentTimeSeconds = initialSeconds;
+  let paused = false;
+  return {
+    clockKind: COORDINATOR_CLOCK_KIND,
+    headsetAudioLatencyUnmeasured: true,
+    currentTimeSeconds: () => currentTimeSeconds,
+    pause(): void {
+      paused = true;
+    },
+    resume(): void {
+      paused = false;
+    },
+    setCurrentTimeSeconds(seconds: number): void {
+      if (!paused) {
+        currentTimeSeconds = seconds;
+      }
+    },
+    get paused(): boolean {
+      return paused;
+    },
+  };
+}
+
+function recordingAdapters(): CoordinatorModalityAdapters & {
+  visemes: string[];
+  gazes: Array<GazeTargetKind | null>;
+  postures: string[];
+  emotions: DialogueEmotion[];
+} {
+  const visemes: string[] = [];
+  const gazes: Array<GazeTargetKind | null> = [];
+  const postures: string[] = [];
+  const emotions: DialogueEmotion[] = [];
+  return {
+    visemes,
+    gazes,
+    postures,
+    emotions,
+    applyViseme: (phoneme) => {
+      visemes.push(phoneme);
+    },
+    applyGaze: (gaze) => {
+      gazes.push(gaze);
+    },
+    applyPosture: (pose) => {
+      postures.push(pose);
+    },
+    applyEmotion: (emotion) => {
+      emotions.push(emotion);
+    },
+  };
+}
+
 describe("actor turn playback coordinator", () => {
   beforeEach(() => {
     resetActorTurnPlaybackStarts();
@@ -135,10 +197,16 @@ describe("actor turn playback coordinator", () => {
     expect(COORDINATOR_CLOCK_KIND).toBe(ACTOR_TURN_PLAYBACK_CLOCK_KIND);
   });
 
-  it("(1) viseme cues follow audio time; gaze/posture/emotion share the same schedule", () => {
+  it("(1) viseme cues follow audio currentTime; gaze/posture/emotion apply to adapters and slot", () => {
     const plan = samplePlan();
+    const clock = syntheticAudioClock(0);
+    const slot = liveSlot();
+    const adapters = recordingAdapters();
     const coordinator = coordinateActorTurnPlayback(plan, sampleExecution(), matchingArtifacts(plan), {
       nowMs: 2_400,
+      audioClock: clock,
+      liveSlot: slot,
+      modalityAdapters: adapters,
     });
     expect(coordinator.seam).toBe(ACTOR_TURN_PLAYBACK_COORDINATOR_SEAM);
     expect(coordinator.status).toBe("playing");
@@ -146,66 +214,94 @@ describe("actor turn playback coordinator", () => {
     expect(coordinator.clockKind).toBe("synthetic_audio_time");
     expect(coordinator.headsetAudioLatencyUnmeasured).toBe(true);
 
-    const atOrigin = coordinator.tick(0);
+    const atOrigin = coordinator.tick();
     expect(atOrigin.visemePhoneme).toBe("sil");
     expect(atOrigin.gazeTargetKind).toBe("learner_camera");
     expect(atOrigin.posturePresetId).toBe("pose_upright_child");
     expect(atOrigin.emotion).toBe("neutral");
+    expect(slot.root.userData.openClinXrActorTurnVisemePhoneme).toBe("sil");
+    expect(slot.root.userData.openClinXrActorTurnGazeTargetKind).toBe("learner_camera");
+    expect(slot.root.userData.openClinXrActorTurnPosePresetId).toBe("pose_upright_child");
+    expect(slot.emotionExpression.targetEmotion).toBe("neutral");
+    expect(adapters.visemes.at(-1)).toBe("sil");
+    expect(adapters.gazes.at(-1)).toBe("learner_camera");
+    expect(adapters.postures.at(-1)).toBe("pose_upright_child");
+    expect(adapters.emotions.at(-1)).toBe("neutral");
 
-    const beforeAa = coordinator.tick(119);
-    expect(beforeAa.visemePhoneme).toBe("sil");
+    clock.setCurrentTimeSeconds(0.119);
+    expect(coordinator.tick().visemePhoneme).toBe("sil");
 
-    const atAa = coordinator.tick(120);
+    clock.setCurrentTimeSeconds(0.12);
+    const atAa = coordinator.tick();
     expect(atAa.visemePhoneme).toBe("AA");
-    expect(atAa.gazeTargetKind).toBe("learner_camera");
+    expect(slot.root.userData.openClinXrActorTurnVisemePhoneme).toBe("AA");
+    expect(adapters.visemes.at(-1)).toBe("AA");
 
-    const atEnd = coordinator.tick(AUDIO_DURATION_MS);
+    clock.setCurrentTimeSeconds(AUDIO_DURATION_MS / 1000);
+    const atEnd = coordinator.tick();
     expect(atEnd.emotion).toBe("anxious");
     expect(atEnd.visemePhoneme).toBe("E");
+    expect(slot.emotionExpression.targetEmotion).toBe("anxious");
+    expect(adapters.emotions.at(-1)).toBe("anxious");
     expect(coordinator.status).toBe("completed");
-
-    const modalities = new Set(coordinator.evidence.events.map((event) => event.modality));
-    expect(modalities).toEqual(new Set(["viseme", "gaze", "posture", "emotion"]));
   });
 
-  it("(2) a 10 ms late tick stays inside the 60 Hz drift bound and records evidence", () => {
-    const coordinator = coordinateActorTurnPlayback(samplePlan(), sampleExecution(), matchingArtifacts(samplePlan()));
-    coordinator.tick(0);
-    const late = coordinator.tick(130);
+  it("(2) a 10 ms late audio currentTime stays inside the 60 Hz drift bound", () => {
+    const clock = syntheticAudioClock(0);
+    const coordinator = coordinateActorTurnPlayback(
+      samplePlan(),
+      sampleExecution(),
+      matchingArtifacts(samplePlan()),
+      { audioClock: clock, modalityAdapters: recordingAdapters() },
+    );
+    coordinator.tick();
+    clock.setCurrentTimeSeconds(0.13);
+    const late = coordinator.tick();
     expect(late.visemePhoneme).toBe("AA");
     const aa = coordinator.evidence.events.find((event) => event.identity === "AA");
     expect(aa?.driftMs).toBe(10);
     expect(late.maxDriftMs).toBe(10);
     expect(late.withinDriftTolerance).toBe(true);
-    expect(late.maxDriftMs).toBeLessThanOrEqual(SYNTHETIC_AUDIO_CLOCK_DRIFT_TOLERANCE_MS);
-    expect(coordinator.evidence.clockKind).toBe("synthetic_audio_time");
-    expect(coordinator.evidence.headsetAudioLatencyUnmeasured).toBe(true);
+    expect(late.clockKind).toBe("synthetic_audio_time");
+    expect(late.headsetAudioLatencyUnmeasured).toBe(true);
     expect(coordinator.evidence.driftToleranceMs).toBe(1000 / 60);
   });
 
-  it("(3) pause freezes visemes; resume continues; interrupt clears stale face", () => {
+  it("(3) pause/resume/interrupt drive adapters and clear stale face on the live slot", () => {
+    const clock = syntheticAudioClock(0);
     const slot = liveSlot();
+    const adapters = recordingAdapters();
     const coordinator = coordinateActorTurnPlayback(
       samplePlan(),
       sampleExecution(),
       matchingArtifacts(samplePlan()),
-      { liveSlot: slot },
+      { audioClock: clock, liveSlot: slot, modalityAdapters: adapters },
     );
-    coordinator.tick(120);
-    coordinator.pause(125);
+    clock.setCurrentTimeSeconds(0.12);
+    coordinator.tick();
+    coordinator.pause();
     expect(coordinator.status).toBe("paused");
-    const paused = coordinator.tick(400);
+    expect(clock.paused).toBe(true);
+    clock.setCurrentTimeSeconds(0.4);
+    const paused = coordinator.tick();
     expect(paused.visemePhoneme).toBe("AA");
-    expect(paused.audioTimeMs).toBe(125);
+    expect(paused.audioTimeMs).toBe(120);
+    expect(slot.root.userData.openClinXrActorTurnVisemePhoneme).toBe("AA");
 
-    coordinator.resume(125);
-    const resumed = coordinator.tick(280);
+    coordinator.resume();
+    expect(clock.paused).toBe(false);
+    clock.setCurrentTimeSeconds(0.28);
+    const resumed = coordinator.tick();
     expect(resumed.visemePhoneme).toBe("E");
+    expect(adapters.visemes.at(-1)).toBe("E");
+    expect(slot.root.userData.openClinXrActorTurnVisemePhoneme).toBe("E");
 
-    coordinator.interrupt("truncated", 300);
+    coordinator.interrupt("truncated");
     expect(coordinator.status).toBe("interrupted");
-    expect(coordinator.tick(400).visemePhoneme).toBe("sil");
-    expect(coordinator.tick(400).emotion).toBe("neutral");
+    expect(adapters.visemes.at(-1)).toBe("sil");
+    expect(adapters.emotions.at(-1)).toBe("neutral");
+    expect(coordinator.tick().visemePhoneme).toBe("sil");
+    expect(coordinator.tick().emotion).toBe("neutral");
     expect(slot.activeSpeech).toBeUndefined();
     expect(slot.emotionExpression.targetEmotion).toBe("neutral");
     expect(slot.root.userData.openClinXrActorTurnVisemePhoneme).toBe("sil");
@@ -220,6 +316,7 @@ describe("actor turn playback coordinator", () => {
       sampleExecution(),
       matchingArtifacts(samplePlan(), { audio: null }),
       {
+        audioClock: syntheticAudioClock(0),
         liveSlot: slot,
         frozenAdapters: {
           startVoice: () => true,
@@ -242,42 +339,63 @@ describe("actor turn playback coordinator", () => {
       matchingArtifacts(samplePlan({ turnId: "turn_maya_wob_002", planId: "plan_maya_wob_002" }), {
         visemeCues: null,
       }),
+      { audioClock: syntheticAudioClock(0) },
     );
     expect(missingCues.fallbackVisible).toBe(true);
     expect(missingCues.fallbackReason).toBe("missing_viseme_cues");
   });
 
-  it("(5) a second turn cleans the first; both sessions stay replayable", () => {
+  it("(5) a second turn and a same actor/turn restart both clean the previous coordinator", () => {
+    const clock = syntheticAudioClock(0);
     const slot = liveSlot();
+    const firstAdapters = recordingAdapters();
     const first = coordinateActorTurnPlayback(
       samplePlan(),
       sampleExecution(),
       matchingArtifacts(samplePlan()),
-      { liveSlot: slot },
+      { audioClock: clock, liveSlot: slot, modalityAdapters: firstAdapters },
     );
-    first.tick(120);
-    expect(first.tick(120).visemePhoneme).toBe("AA");
+    clock.setCurrentTimeSeconds(0.12);
+    expect(first.tick().visemePhoneme).toBe("AA");
+    expect(slot.root.userData.openClinXrActorTurnVisemePhoneme).toBe("AA");
 
     const secondPlan = samplePlan({ turnId: "turn_maya_wob_002", planId: "plan_maya_wob_002" });
+    const secondClock = syntheticAudioClock(0);
     const second = coordinateActorTurnPlayback(
       secondPlan,
       sampleExecution({ turnId: "turn_maya_wob_002", planId: "plan_maya_wob_002" }),
       matchingArtifacts(secondPlan),
-      { liveSlot: slot },
+      { audioClock: secondClock, liveSlot: slot, modalityAdapters: recordingAdapters() },
     );
-    expect(first.tick(280).visemePhoneme).toBe("sil");
+    expect(first.tick().visemePhoneme).toBe("sil");
+    expect(firstAdapters.visemes.at(-1)).toBe("sil");
     expect(slot.root.userData.openClinXrActorTurnPlaybackCancelled).toBe(true);
-    const secondTick = second.tick(120);
-    expect(secondTick.visemePhoneme).toBe("AA");
-    expect(first.evidence.events.length).toBeGreaterThan(0);
-    expect(second.evidence.events.length).toBeGreaterThan(0);
-    expect(second.turnId).not.toBe(first.turnId);
+
+    secondClock.setCurrentTimeSeconds(0.12);
+    expect(second.tick().visemePhoneme).toBe("AA");
+
+    const restartClock = syntheticAudioClock(0);
+    const restartAdapters = recordingAdapters();
+    const restart = coordinateActorTurnPlayback(
+      secondPlan,
+      sampleExecution({ turnId: "turn_maya_wob_002", planId: "plan_maya_wob_002" }),
+      matchingArtifacts(secondPlan),
+      { audioClock: restartClock, liveSlot: slot, modalityAdapters: restartAdapters },
+    );
+    expect(second.tick().visemePhoneme).toBe("sil");
+    expect(slot.root.userData.openClinXrActorTurnVisemePhoneme).toBe("sil");
+    restartClock.setCurrentTimeSeconds(0);
+    expect(restart.tick().visemePhoneme).toBe("sil");
+    expect(restart.turnId).toBe(second.turnId);
   });
 
-  it("(6) COUNTERWEIGHT: coordinator has no parallel timers; cleanupActorTurnLiveSlot is the rest path", () => {
+  it("(6) COUNTERWEIGHT: tick has no asserted-time argument; no parallel timers", () => {
     const here = dirname(fileURLToPath(import.meta.url));
     const source = readFileSync(join(here, "actor-turn-playback-coordinator.ts"), "utf8");
     expect(source).not.toMatch(/setTimeout|setInterval|requestAnimationFrame/);
+    expect(source).toMatch(/tick\(\): CoordinatorTickSnapshot/);
+    expect(source).not.toMatch(/tick\(audioTimeMs/);
+    expect(source).toMatch(/currentTimeSeconds\(\)/);
     expect(source).toMatch(/playIdentityBoundActorTurn/);
     expect(source).toMatch(/playFrozenActorTurn/);
     const slot = liveSlot();
@@ -291,11 +409,36 @@ describe("actor turn playback coordinator", () => {
       samplePlan(),
       sampleExecution({ interruption: { kind: "truncated" } }),
       matchingArtifacts(samplePlan()),
+      { audioClock: syntheticAudioClock(0), modalityAdapters: recordingAdapters() },
     );
     expect(coordinator.status).toBe("interrupted");
-    expect(coordinator.tick(120).visemePhoneme).toBe("sil");
+    expect(coordinator.tick().visemePhoneme).toBe("sil");
     expect(coordinator.evidence.events.every((event) => event.cancelled || event.appliedAtAudioMs !== null)).toBe(
       true,
     );
+  });
+
+  it("(8) wall-clock / caller time does not drive modalities; audio currentTime does", () => {
+    const clock = syntheticAudioClock(0.12);
+    const adapters = recordingAdapters();
+    const slot = liveSlot();
+    const coordinator = coordinateActorTurnPlayback(
+      samplePlan(),
+      sampleExecution(),
+      matchingArtifacts(samplePlan()),
+      { audioClock: clock, liveSlot: slot, modalityAdapters: adapters },
+    );
+    const wallClockMs = 50_000;
+    const snap = coordinator.tick();
+    expect(snap.audioTimeMs).toBe(120);
+    expect(snap.audioTimeMs).not.toBe(wallClockMs);
+    expect(snap.visemePhoneme).toBe("AA");
+    expect(snap.emotion).toBe("neutral");
+    expect(adapters.visemes.at(-1)).toBe("AA");
+    expect(adapters.emotions.at(-1)).toBe("neutral");
+    expect(slot.root.userData.openClinXrActorTurnVisemePhoneme).toBe("AA");
+    expect(slot.emotionExpression.targetEmotion).toBe("neutral");
+    expect(snap.clockKind).toBe("synthetic_audio_time");
+    expect(snap.headsetAudioLatencyUnmeasured).toBe(true);
   });
 });
