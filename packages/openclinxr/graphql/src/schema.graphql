@@ -236,6 +236,65 @@ type StationRunQueueSummary {
   missingScenario: Int!
 }
 
+enum ReviewPacketDialogueEmotion {
+  anxious
+  concerned
+  reassured
+  neutral
+}
+
+enum ReviewPacketEmotionEventKind {
+  learner_empathetic
+  learner_dismissive
+  learner_interruption
+  actor_silence_timeout
+  learner_acknowledgement
+  learner_clinical_question
+  learner_personal_question
+  learner_unclassified
+}
+
+enum ReviewPacketInterruptionKind {
+  none
+  truncated
+  replaced
+}
+
+type ReviewPacketActorTurnPlan {
+  planId: ID!
+  spokenText: String!
+  dialogueEmotionFrom: ReviewPacketDialogueEmotion!
+  dialogueEmotionTo: ReviewPacketDialogueEmotion!
+  performancePlanId: ID!
+  facePresetId: ID!
+  eventKind: ReviewPacketEmotionEventKind!
+  droppedTags: [String!]!
+  claimScope: String!
+}
+
+type ReviewPacketActorTurnExecution {
+  planId: ID!
+  truncated: Boolean!
+  visemeCueCount: Int!
+  ttsProviderId: String!
+  interruptionKind: ReviewPacketInterruptionKind!
+}
+
+type ReviewPacketActorTurn {
+  plan: ReviewPacketActorTurnPlan!
+  execution: ReviewPacketActorTurnExecution!
+}
+
+type ReviewPacketEmotionalTimelineEntry {
+  turnIndex: Int
+  actorId: ID
+  from: String!
+  to: String!
+  trigger: String
+  planId: ID
+  atSecond: Int
+}
+
 type ReviewPacket {
   stationRunId: ID!
   scenarioId: ID!
@@ -247,6 +306,9 @@ type ReviewPacket {
   traceQuality: ReviewTraceQuality!
   patientNote: PatientNote
   facultyScoreDraft: FacultyScoreDraft!
+  actorTurns: [ReviewPacketActorTurn!]!
+  emotionalTimeline: [ReviewPacketEmotionalTimelineEntry!]!
+  prosodyNeutralized: Boolean!
 }
 
 type DurableClinicalEventReviewSummary {
