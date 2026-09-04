@@ -17,6 +17,7 @@ import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql";
 import { scenarioBank } from "@openclinxr/scenario-fixtures";
 import type { Scenario } from "@openclinxr/shared-schemas";
 import { fileURLToPath } from "node:url";
+import { createApiFetchTransport } from "./api-fetch-transport.js";
 import type { ApiPersistenceSink, ApiScenarioReviewDecisionRecord } from "./api-types.js";
 import { createApiApp } from "./index.js";
 
@@ -80,30 +81,24 @@ export function requestApp(
 /**
  * fetch-shaped adapter over Hono `app.request` — records paths for transport proof.
  * No network, no port bind, no browser. Same shape as #165/#167.
+ *
+ * Input/body typing lives in `api-fetch-transport.ts` so this file does not depend on
+ * ambient DOM `RequestInfo` / `BodyInit`.
  */
 export function createInProcessFetch(app: HonoLikeApp, requestedPaths: string[]): typeof fetch {
-  return (async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
-    const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
-    const parsed = new URL(url, IN_PROCESS_ORIGIN);
+  return createApiFetchTransport(async (call) => {
+    const parsed = new URL(call.url, IN_PROCESS_ORIGIN);
     const pathWithQuery = `${parsed.pathname}${parsed.search}`;
     requestedPaths.push(pathWithQuery);
 
-    const method =
-      init?.method ?? (typeof input !== "string" && !(input instanceof URL) ? input.method : "GET");
-    const headers =
-      init?.headers ?? (typeof input !== "string" && !(input instanceof URL) ? input.headers : undefined);
-    const body =
-      init?.body
-      ?? (typeof input !== "string" && !(input instanceof URL) && method !== "GET" && method !== "HEAD"
-        ? input.body
-        : undefined);
-
-    const initPayload: RequestInit = { method, ...(headers === undefined ? {} : { headers }) };
-    if (body !== undefined) {
-      initPayload.body = body as BodyInit;
+    const initPayload: RequestInit = { method: call.method };
+    if (call.headers !== undefined) {
+      initPayload.headers = call.headers as RequestInit["headers"];
     }
-    const response = await app.request(pathWithQuery, initPayload);
-    return response;
+    if (call.body !== undefined) {
+      initPayload.body = call.body as RequestInit["body"];
+    }
+    return app.request(pathWithQuery, initPayload);
   }) as typeof fetch;
 }
 
