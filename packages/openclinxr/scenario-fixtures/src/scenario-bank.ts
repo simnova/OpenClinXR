@@ -50,6 +50,10 @@ import {
 import {
   primaryCareDyslipidemiaScenario, primaryCareDyslipidemiaDialogueSeeds,
 } from "./primary-care-dyslipidemia.js";
+import {
+  clinicKneePainDialogueSeeds,
+  clinicKneePainScenario,
+} from "./clinic-knee-pain.js";
 
 import type { LearnerScenarioView } from "./builders.js";
 export type { LearnerScenarioView };
@@ -71,6 +75,7 @@ export const scenarioBank = [
   primaryCareDyslipidemiaScenario,
   adultAbdominalPainScenario,
   pedsFeverScenario,
+  clinicKneePainScenario,
 ] as const satisfies readonly Scenario[];
 
 export function findScenarioFixtureById(
@@ -105,5 +110,6 @@ export const scenarioDialogueSeedBank = [
   { scenarioId: primaryCareDyslipidemiaScenario.scenarioId, seeds: primaryCareDyslipidemiaDialogueSeeds },
   { scenarioId: adultAbdominalPainScenario.scenarioId, seeds: adultAbdominalPainDialogueSeeds },
   { scenarioId: pedsFeverScenario.scenarioId, seeds: pedsFeverDialogueSeeds },
+  { scenarioId: clinicKneePainScenario.scenarioId, seeds: clinicKneePainDialogueSeeds },
 ] as const satisfies readonly ScenarioDialogueSeedBankEntry[];
 

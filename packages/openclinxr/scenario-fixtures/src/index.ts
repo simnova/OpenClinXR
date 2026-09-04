@@ -13,6 +13,7 @@ export * from "./abdominal-pain-interpreter.js";
 export * from "./oncology-bad-news.js";
 export * from "./postop-fever.js";
 export * from "./primary-care-dyslipidemia.js";
+export * from "./clinic-knee-pain.js";
 export * from "./scenario-bank.js";
 export * from "./scenario-bank-maturity.js";
 export * from "./touch-response-clip.js";
