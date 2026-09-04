@@ -8,10 +8,11 @@ import type { Scenario } from "@openclinxr/shared-schemas";
  * every bank scenario to a station, so authoring a case silently grew the exam form (and broke the
  * station-count contract).
  *
- * Selection maximizes VARIETY so an examinee's encounters probe breadth rather than repeating a
- * narrow slice: different clinical settings, different actor-role mixes (which drive different
- * communication challenges — interpreter, consultant, respiratory therapist, family), different
- * safety-critical demands, and different skill trace tags.
+ * Selection keeps approved cases ahead of draft capacity, then maximizes VARIETY within each
+ * readiness tier so an examinee's encounters probe breadth rather than repeating a narrow slice:
+ * different clinical settings, different actor-role mixes (which drive different communication
+ * challenges — interpreter, consultant, respiratory therapist, family), different safety-critical
+ * demands, and different skill trace tags.
  *
  * Deterministic by construction: no RNG and no wall-clock. Ties break on the author-controlled bank
  * order, so the same bank always assembles the same form (required for replay + review evidence).
@@ -129,11 +130,13 @@ export type ExamFormCoverageSummary = {
 };
 
 /**
- * Choose `stationCount` scenarios that maximize combined coverage.
+ * Choose `stationCount` scenarios that preserve runnable capacity and maximize combined coverage.
  *
- * Greedy: repeatedly take the scenario adding the most new coverage. Greedy is the standard
- * approximation for maximum coverage and is stable + explainable, which matters more here than
- * optimality — a reviewer must be able to see why a station was chosen.
+ * Greedy: repeatedly take the approved scenario adding the most new coverage while any approved
+ * candidate remains, then fill the remaining capacity by the same coverage score. Greedy is the
+ * standard approximation for maximum coverage and is stable + explainable, which matters more here
+ * than optimality — a reviewer must be able to see why a station was chosen. Readiness priority
+ * prevents a newly-authored draft with novel dimensions from displacing the form's runnable case.
  *
  * When the bank has no more scenarios than stations, every scenario is used and the author's bank
  * order is preserved (callers that pass an explicit short list get exactly that list).
@@ -153,12 +156,15 @@ export function selectExamStationScenarios(
   while (selected.length < stationCount && remaining.length > 0) {
     let bestIndex = 0;
     let bestScore = -1;
+    let bestIsApproved = false;
     for (const [index, candidate] of remaining.entries()) {
       const score = marginalCoverageScore(candidate.scenario, covered, rarity);
+      const isApproved = candidate.scenario.status === "approved";
       // Strictly-greater keeps the earliest (author-ordered) candidate on ties → deterministic.
-      if (score > bestScore) {
+      if ((isApproved && !bestIsApproved) || (isApproved === bestIsApproved && score > bestScore)) {
         bestScore = score;
         bestIndex = index;
+        bestIsApproved = isApproved;
       }
     }
     const [chosen] = remaining.splice(bestIndex, 1);
