@@ -41,6 +41,7 @@ import { CaseAuthoringWorkbench } from "./CaseAuthoringWorkbench.js";
 import { EmissionReplayBindPanel } from "./EmissionReplayBindPanel.js";
 import type { PlacementAuthorValue } from "./EnvironmentGenerationQueuePanel.js";
 import { SeedWorldviewQueue, type SeedWorldviewCompileGraph } from "./seed-worldview-queue.js";
+import { FacultyAdjudicationWorkspace, fetchAssembledExamReviewPacket } from "./FacultyAdjudicationWorkspace.js";
 import { FacultyReviewDecisionPanel } from "./FacultyReviewDecisionPanel.js";
 import { useFacultyCompileLocks } from "./faculty-compile-lock.js";
 import { QueueReviewSnapshotHistory } from "./QueueReviewSnapshotHistory.js";
@@ -182,6 +183,7 @@ type ReviewReplayWorkbenchState =
 function ReviewReplayWorkbench({ controlPlaneClient }: { controlPlaneClient: AdminControlPlaneClient }): React.ReactElement {
   const [searchParams, setSearchParams] = useSearchParams();
   const stationRunIdParam = searchParams.get("stationRunId") ?? "";
+  const examRunIdParam = searchParams.get("examRunId") ?? "";
   const [stationRunIdInput, setStationRunIdInput] = useState(stationRunIdParam);
   const [state, setState] = useState<ReviewReplayWorkbenchState>(stationRunIdParam ? { status: "loading", stationRunId: stationRunIdParam } : { status: "idle" });
   const [reviewerId, setReviewerId] = useState("faculty_001");
@@ -349,6 +351,14 @@ function ReviewReplayWorkbench({ controlPlaneClient }: { controlPlaneClient: Adm
           </Button>
         </Space>
       </div>
+
+      <FacultyAdjudicationWorkspace
+        examRunId={examRunIdParam}
+        loadPacket={(examRunId) => controlPlaneClient.getAssembledExamReviewPacket
+          ? controlPlaneClient.getAssembledExamReviewPacket({ examRunId })
+          : fetchAssembledExamReviewPacket(examRunId)}
+        onLoadExamRun={(examRunId) => { const next = new URLSearchParams(searchParams); next.set("examRunId", examRunId); setSearchParams(next); }}
+      />
 
       {seedState.status === "error" ? (
         <Alert type="error" title="Seed replay failed" description={seedState.message} showIcon />

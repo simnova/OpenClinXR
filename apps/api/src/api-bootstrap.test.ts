@@ -1,6 +1,8 @@
 import { AssetGenerationCapabilityFacade } from "@openclinxr/capability-gateway";
 import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql";
+import { pediatricAsthmaScenario } from "@openclinxr/scenario-fixtures";
 import { describe, expect, it } from "vitest";
+import { toAdminGraphqlScenario } from "./admin-scenario-listing.js";
 import {
   createBunRealtimeVoiceGatewayPostureInputFromEnvironment,
   createBunServerConfig,
@@ -9,6 +11,25 @@ import {
   createOpenClinXrApiStartup,
   readApiBunWebSocketRuntimeVerifiedFromEnvironment,
 } from "./index.js";
+import {
+  AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX,
+  authoredScenarioContentIdentity,
+} from "./scenario-review-promotion.js";
+
+function startupReviewIdentity(): string {
+  const graphqlScenario = toAdminGraphqlScenario(pediatricAsthmaScenario);
+  const marker = "catalog_source:fixture";
+  const dressed = graphqlScenario.governance.sourceIds.includes(marker)
+    ? graphqlScenario
+    : {
+        ...graphqlScenario,
+        governance: {
+          ...graphqlScenario.governance,
+          sourceIds: [...graphqlScenario.governance.sourceIds, marker],
+        },
+      };
+  return authoredScenarioContentIdentity(dressed);
+}
 
 describe("OpenClinXR API startup", () => {
   it("starts through a CellixJS-inspired fluent bootstrap with Azure-compatible handler metadata", async () => {
@@ -636,7 +657,10 @@ describe("OpenClinXR API startup", () => {
             reviewerId: "pediatrician_001",
             decision: "APPROVED",
             comments: "Clinical approval recorded in the default startup sink.",
-            evidenceRefs: ["evidence:peds:clinical:startup"],
+            evidenceRefs: [
+              "evidence:peds:clinical:startup",
+              `${AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX}${startupReviewIdentity()}`,
+            ],
           },
         },
       }),

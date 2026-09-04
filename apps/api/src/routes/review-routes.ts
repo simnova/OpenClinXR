@@ -36,7 +36,8 @@ export function registerReviewRoutes(app: Hono<{ Variables: ApiAppVariables }>, 
     }
 
     try {
-      return context.json(runtime.traceEvents(stationRunId));
+      const sessionRuntime = ctx.perSessionRuntime.get(stationRunId) ?? runtime;
+      return context.json(sessionRuntime.traceEvents(stationRunId));
     } catch (error) {
       return sessionErrorResponse(context, error);
     }

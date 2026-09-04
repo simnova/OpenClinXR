@@ -1106,6 +1106,9 @@ importers:
       '@openclinxr/asset-registry':
         specifier: workspace:*
         version: link:../asset-registry
+      '@openclinxr/capability-gateway':
+        specifier: workspace:*
+        version: link:../capability-gateway
       '@openclinxr/conversation-policy':
         specifier: workspace:*
         version: link:../conversation-policy

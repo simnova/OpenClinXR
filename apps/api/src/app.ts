@@ -195,8 +195,10 @@ import type { ApiAppContext } from "./api-app-context.js";
 import { ApiApplication, type ApiApp } from "./api-application.js";
 import { registerReviewRoutes } from "./routes/review-routes.js";
 import { registerEncounterSessionRoutes } from "./routes/encounter-session-routes.js";
+import { registerSessionRoutes } from "./routes/session-routes.js";
 import { registerCapabilityJobRoutes } from "./routes/capability-job-routes.js";
 import { registerAuthoringRoutes } from "./routes/authoring-routes.js";
+import { registerDialogueSeedAuthoringRoutes } from "./routes/dialogue-seed-authoring-routes.js";
 import { registerExamRoutes } from "./routes/exam-routes.js";
 import { registerPlatformRoutes } from "./routes/platform-routes.js";
 import { buildAssetReleaseLadderReplayProjection, createSeedBankAssetReadiness, createSeedBankSceneGenerationPipelineQueue, createSeedStationRunQueueSnapshot, findSeedBankAssetReadiness, summarizeClinicalEventReviewProjections, summarizeReviewReplayReadiness, uniqueStrings } from "./api-route-support.js";
@@ -204,6 +206,8 @@ import { registerRuntimeEvidenceRoutes } from "./routes/runtime-evidence-routes.
 import { registerAdminGraphqlRoutes } from "./routes/admin-graphql-routes.js";
 import { registerScenarioSceneGenerationRoutes } from "./routes/scenario-scene-generation-routes.js";
 import { registerFacultyCompileLockRoutes } from "./routes/faculty-compile-lock-routes.js";
+import { registerAssembledExamReviewRoutes } from "./routes/assembled-exam-review-routes.js";
+import { registerAssembledExamRunRoutes } from "./routes/assembled-exam-run-routes.js";
 import { registerWorldCompileRoutes } from "./world-compile-routes.js";
 
 
@@ -256,10 +260,14 @@ function registerAllRoutes(app: ApiApp, ctx: ApiAppContext): void {
   registerScenarioSceneGenerationRoutes(app, ctx);
   registerExamRoutes(app, ctx);
   registerAuthoringRoutes(app, ctx);
+  registerDialogueSeedAuthoringRoutes(app, ctx);
   registerCapabilityJobRoutes(app, ctx);
+  registerSessionRoutes(app, ctx);
   registerEncounterSessionRoutes(app, ctx);
   registerReviewRoutes(app, ctx);
   registerFacultyCompileLockRoutes(app, ctx);
+  registerAssembledExamReviewRoutes(app, ctx);
+  registerAssembledExamRunRoutes(app, ctx);
   registerWorldCompileRoutes(app, ctx);
 }
 

@@ -37,6 +37,21 @@ import { createHash } from "node:crypto";
 import { deriveDeterministicVariationSeed, HASH_DIGEST } from "../trajectory/deterministic-variation.js";
 import { motionBodyRegionForComplianceRegion } from "../motion-body-region.js";
 import { MOTION_PROGRAM_SCHEMA_VERSION, MOTION_PLAN_CLAIM_BOUNDARY, type MotionAction, type MotionEffector, type MotionProgram, type MotionTargetKind } from "../motion-program.js";
+import {
+  validateAuthoredSourceBinding,
+  type AuthoredSourceFacts,
+  type VisibleAuthoredSource,
+} from "./authored-source-binding.js";
+import {
+  RESPONSE_KIND_TO_BASE_DURATION_MS,
+  RESPONSE_KIND_TO_PRIMITIVE,
+} from "./response-kind-to-primitive.js";
+
+export { validateAuthoredSourceBinding } from "./authored-source-binding.js";
+export {
+  RESPONSE_KIND_TO_BASE_DURATION_MS,
+  RESPONSE_KIND_TO_PRIMITIVE,
+} from "./response-kind-to-primitive.js";
 
 /**
  * The compiler identity versions. Part of the five-input seed material (card tsk_89fca85c7700ae13):
@@ -139,20 +154,26 @@ export type ScenarioMotionCompileInput = {
   variationIndex?: number;
 };
 
-/** Closed responseKind -> primitive mapping. */
-export const RESPONSE_KIND_TO_PRIMITIVE: Readonly<Record<string, string>> = {
-  guarding: "guard_body_region",
-  palpation: "reach_target",
-  passive_rom: "imposed_limb_arc",
-  positioning: "guided_placement",
-};
-
-export const RESPONSE_KIND_TO_BASE_DURATION_MS: Readonly<Record<string, number>> = {
-  guarding: 800,
-  palpation: 700,
-  passive_rom: 1100,
-  positioning: 1400,
-};
+function authoredSourceFactsFromCompileInput(input: ScenarioMotionCompileInput): AuthoredSourceFacts {
+  const visibleSources: VisibleAuthoredSource[] = [];
+  for (const row of input.touchResponses) {
+    visibleSources.push({
+      actorId: input.actorId,
+      sourceId: row.traceTag,
+      kind: "touch_response",
+      region: row.region,
+      responseKind: row.responseKind,
+    });
+    visibleSources.push({
+      actorId: input.actorId,
+      sourceId: row.emotionEventId,
+      kind: "touch_response",
+      region: row.region,
+      responseKind: row.responseKind,
+    });
+  }
+  return { scenarioId: input.scenarioId, visibleSources, hiddenTokens: [] };
+}
 
 /**
  * Which hand guards which site, keyed on the CLINICAL laterality the authored
@@ -297,7 +318,7 @@ export function compileScenarioMotion(input: ScenarioMotionCompileInput): Motion
 
   const motionProgramHash = canonicalMotionProgramHash(stable as MotionProgram);
 
-  return {
+  const program: MotionProgram = {
     ...stable,
     deterministicSeed: derivePlanDeterministicSeed(
       motionProgramHash,
@@ -305,4 +326,10 @@ export function compileScenarioMotion(input: ScenarioMotionCompileInput): Motion
       input.variationIndex,
     ),
   };
+
+  const binding = validateAuthoredSourceBinding(program, authoredSourceFactsFromCompileInput(input));
+  if (!binding.ok) {
+    throw new Error(`compileScenarioMotion: authored-source binding failed — ${binding.errors.join(" | ")}`);
+  }
+  return program;
 }

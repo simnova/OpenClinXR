@@ -12,12 +12,19 @@ import {
   createExamFormRun,
   createStep2CsStyleSeedBlueprint,
   currentExamFormRunStation,
+  nextExamFormRunStation,
   startExamFormRun,
   type ExamFormRunState,
+  type ExamStationRunQueueItem,
 } from "@openclinxr/exam-assembly";
-import type { Scenario } from "@openclinxr/shared-schemas";
+import type { Scenario, TraceEvent } from "@openclinxr/shared-schemas";
 import { createDefaultScenarioRuntime } from "./default-runtime-factory.js";
 import { resolveScenarioById, type ScenarioCatalogPort } from "./scenario-catalog.js";
+import {
+  assignMonotonicReplayablePhaseTransitions,
+  replayablePhaseTransitionEvent,
+  type ReplayablePhaseTransitionType,
+} from "./trace.js";
 
 export type RunAssembledExamInput = {
   learnerId: string;
@@ -29,8 +36,13 @@ export type RunAssembledExamInput = {
 export type AssembledExamStationResult = {
   scenarioId: string;
   stationRunId: string;
+  stationOrder: number;
   /** Trace event types recorded for this station session (includes station.started). */
   traceEventTypes: string[];
+  /** Ordered encounter→note→advance events with durable, scenario-bound identity. */
+  phaseTransitions: TraceEvent[];
+  /** Why the form-run pointer advanced off this station. */
+  advanceReason: string;
 };
 
 export type AssembledExamRunResult = {
@@ -41,8 +53,8 @@ export type AssembledExamRunResult = {
 };
 
 /**
- * Resolve scenario ids, assemble a form-run in that order, and start one runtime session
- * per station via createExamFormRun / startExamFormRun / advanceExamFormRunStation.
+ * Resolve scenario ids, assemble a form-run in that order, and run one runtime session
+ * per station through encounter → note → complete before advancing the form-run pointer.
  */
 export async function runAssembledExam(input: RunAssembledExamInput): Promise<AssembledExamRunResult> {
   if (input.scenarioIds.length === 0) {
@@ -99,19 +111,50 @@ export async function runAssembledExam(input: RunAssembledExamInput): Promise<As
       learnerId: input.learnerId,
       consentAccepted: true,
     });
-    const traceEventTypes = runtime.traceEvents(session.stationRunId).map((event) => event.eventType);
+
+    const stationRelative = (formSecond: number): number =>
+      formSecond - station.timing.doorway.startsAtSecond;
+    runtime.startEncounter(session.stationRunId, {
+      atSecond: stationRelative(station.timing.encounter.startsAtSecond),
+    });
+    runtime.submitNote(session.stationRunId, {
+      atSecond: stationRelative(station.timing.note.endsAtSecond),
+      text: `Assembled-exam station note for ${station.scenarioId}`,
+    });
+
+    const ledgerEvents = runtime.traceEvents(session.stationRunId);
+    const advanceReason = nextExamFormRunStation(formRun)
+      ? "patient_note_submitted_advancing"
+      : "last_station_note_submitted_exam_complete";
+    const phaseTransitions = buildStationPhaseTransitions({
+      examRunId,
+      station,
+      stationRunId: session.stationRunId,
+      ledgerEvents,
+      advanceReason,
+    });
 
     stations.push({
       scenarioId: station.scenarioId,
       stationRunId: session.stationRunId,
-      traceEventTypes,
+      stationOrder: station.stationOrder,
+      traceEventTypes: [
+        ...ledgerEvents.map((event) => event.eventType),
+        ...phaseTransitions
+          .map((event) => event.eventType)
+          .filter((eventType) => !ledgerEvents.some((event) => event.eventType === eventType)),
+      ],
+      phaseTransitions,
+      advanceReason,
     });
 
+    const recordedAtIso = phaseTransitions[phaseTransitions.length - 1]?.occurredAt;
     formRun = advanceExamFormRunStation(formRun, {
       phase: "complete",
       noteSubmitted: true,
-      advanceReason: "station_runtime_session_started",
+      advanceReason,
       endedAtFormSecond: station.timing.note.endsAtSecond,
+      ...(recordedAtIso ? { recordedAtIso } : {}),
     });
   }
 
@@ -121,6 +164,74 @@ export async function runAssembledExam(input: RunAssembledExamInput): Promise<As
     stations,
     formRunStatus: formRun.status,
   };
+}
+
+function buildStationPhaseTransitions(input: {
+  examRunId: string;
+  station: ExamStationRunQueueItem;
+  stationRunId: string;
+  ledgerEvents: TraceEvent[];
+  advanceReason: string;
+}): TraceEvent[] {
+  const scenarioId = input.station.scenarioId;
+  if (!scenarioId) {
+    throw new Error(`Form-run station scenario missing from resolved set: ${input.station.slotId}`);
+  }
+
+  const doorwayStart = input.station.timing.doorway.startsAtSecond;
+  const relative = (formSecond: number): number => formSecond - doorwayStart;
+  const startSequence = input.ledgerEvents.reduce((max, event) => Math.max(max, event.sequence), -1) + 1;
+
+  const specs: Array<{
+    eventType: ReplayablePhaseTransitionType;
+    phase: "encounter" | "note" | "complete";
+    formAtSecond: number;
+    advanceReason?: string;
+  }> = [
+    {
+      eventType: "encounter.started",
+      phase: "encounter",
+      formAtSecond: input.station.timing.encounter.startsAtSecond,
+    },
+    {
+      eventType: "encounter.ended",
+      phase: "encounter",
+      formAtSecond: input.station.timing.encounter.endsAtSecond,
+    },
+    {
+      eventType: "note.started",
+      phase: "note",
+      formAtSecond: input.station.timing.note.startsAtSecond,
+    },
+    {
+      eventType: "note.submitted",
+      phase: "note",
+      formAtSecond: input.station.timing.note.endsAtSecond,
+    },
+    {
+      eventType: "station.advanced",
+      phase: "complete",
+      formAtSecond: input.station.timing.note.endsAtSecond,
+      advanceReason: input.advanceReason,
+    },
+  ];
+
+  const events = specs.map((spec) =>
+    replayablePhaseTransitionEvent({
+      stationRunId: input.stationRunId,
+      sequence: 0,
+      eventType: spec.eventType,
+      atSecond: relative(spec.formAtSecond),
+      scenarioId,
+      examRunId: input.examRunId,
+      stationOrder: input.station.stationOrder,
+      phase: spec.phase,
+      formAtSecond: spec.formAtSecond,
+      ...(spec.advanceReason ? { advanceReason: spec.advanceReason } : {}),
+    }),
+  );
+
+  return assignMonotonicReplayablePhaseTransitions(events, startSequence);
 }
 
 async function resolveScenariosInOrder(

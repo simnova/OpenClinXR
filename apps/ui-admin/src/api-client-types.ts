@@ -39,10 +39,9 @@ import {
 import { buildSessionRoutePath, routeById } from "@openclinxr/rest";
 import type { Scenario } from "@openclinxr/shared-schemas";
 import { print } from "graphql";
-
-
+import type { AdminAssembledExamReplayProjection } from "./AssembledExamReplayTimeline.js";
+export type { AdminAssembledExamReplayProjection };
 export type AdminApolloGraphqlClient = Pick<ApolloClient, "mutate" | "query">;
-
 export type AdminNoReadinessEvidenceClaim =
   | "provider_availability"
   | "runtime_readiness"
@@ -88,6 +87,7 @@ export type AdminControlPlaneClient = {
   listScenarioReviewDecisions(input: ListScenarioReviewDecisionsInput): Promise<AdminScenarioReviewDecision[]>;
   getReviewPacketReplay(input: GetReviewPacketReplayInput): Promise<AdminReviewPacketReplay>;
   getReviewReplayReadinessSummary(input: GetReviewPacketReplayInput): Promise<AdminReviewReplayReadinessSummary>;
+  getAssembledExamReviewPacket?(input: { examRunId: string }): Promise<import("@openclinxr/review-workflow").AssembledExamReviewPacket>;
   submitScenarioReview(input: SubmitScenarioReviewInput): Promise<AdminScenarioReviewResult>;
   saveFacultyScoreDraft(input: SaveFacultyScoreDraftInput): Promise<AdminReviewPacket>;
   /** REST: persist gated FacultyScoreDraft (review-workflow schema; scoring gates false). */
@@ -1254,6 +1254,7 @@ export type AdminReviewReplayReadinessSummary = Omit<
   providerDisabledRemediation?: AdminReviewReplayProviderDisabledRemediation[];
   caseDefinedHumanoidPerformanceContract?: AdminCaseDefinedHumanoidPerformanceContract;
   caseDefinedHumanoidRuntimeHandoff?: AdminCaseDefinedHumanoidRuntimeHandoff[];
+  assembledExamReplayProjection?: AdminAssembledExamReplayProjection;
 };
 
 export type AdminReviewPacketReplay = Omit<ReviewPacketReplayQuery, "reviewReplayReadinessSummary"> & {
@@ -1345,7 +1346,6 @@ export type AdminRealtimeVoicePosture = {
 
 export type SubmitScenarioReviewInput = SubmitScenarioReviewMutationVariables["input"];
 export type SaveFacultyScoreDraftInput = SaveFacultyScoreDraftMutationVariables["input"];
-
 /** Gated FacultyScoreDraft payload (review-workflow); not score-use evidence. */
 export type AdminFacultyScoreDraft = {
   reviewerId: string;
@@ -1406,4 +1406,4 @@ export type AdminScenarioReviewDecision = ScenarioReviewDecisionsQuery["scenario
 export type AdminScenarioReviewResult = SubmitScenarioReviewMutation["submitScenarioReview"];
 export type AdminReviewPacket = SaveFacultyScoreDraftMutation["saveFacultyScoreDraft"];
 export type AdminStationRunQueueSnapshot = StationRunQueueSnapshotsQuery["stationRunQueueSnapshots"][number];
-
+export type { AuthoredDialogueSeedDraft, DialogueSeedPublicationGate, FrozenActorTurnPlanPreview } from "./DialogueSeedAuthoringPanel.js";

@@ -30,4 +30,14 @@ describe("OpenClinXR API Azure Functions tsdown config", () => {
       ],
     });
   });
+
+  it("refuses to onlyBundle tinyglobby/fdir/picomatch (tsk_3d58a7161a0a9bee counterweight)", () => {
+    const only = openClinXrAzureFunctionsTsdownConfig.deps?.onlyBundle;
+    const names = Array.isArray(only)
+      ? only.filter((item): item is string => typeof item === "string")
+      : [];
+    expect(names).not.toContain("tinyglobby");
+    expect(names).not.toContain("fdir");
+    expect(names).not.toContain("picomatch");
+  });
 });

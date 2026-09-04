@@ -227,6 +227,37 @@ export function classifyArchitectureInvocation(
 }
 
 /**
+ * Typecheck error-count ratchet. `pnpm typecheck` is red; this step freezes the unique
+ * diagnostic count so it can only go down. Skipped on coordination-only pre-commit
+ * (same omit as architecture) so PROJECT_STATUS commits do not pay for tsgo.
+ */
+export function buildTypecheckBaselineStep(profile: HookProfile, changedFiles: string[]): HookStep | null {
+  if (profile === "local-exam") {
+    return null;
+  }
+  if (profile === "pre-commit") {
+    const mode = classifyArchitectureInvocation(profile, changedFiles);
+    if (mode === "omit") {
+      return null;
+    }
+  }
+  return {
+    label: "Typecheck error-count ratchet",
+    command: [
+      "pnpm",
+      "--filter",
+      "@openclinxr/architecture-rules",
+      "exec",
+      "vitest",
+      "run",
+      "src/checks/the-typecheck-baseline-only-ratchets-down.test.ts",
+    ],
+    reason:
+      "pnpm typecheck is red on main; freeze today's unique error TSxxxx count so the number can only go down",
+  };
+}
+
+/**
  * Build the architecture fitness step (or null when path-scoped omit is safe).
  *
  * Path-scoped pre-commit still executes the full global suites (file-size freeze,
@@ -328,6 +359,11 @@ function buildBaseOpenClawSteps(profile: HookProfile, changedFiles: string[]): H
   const architectureStep = buildArchitectureStep(profile, changedFiles);
   if (architectureStep) {
     steps.push(architectureStep);
+  }
+
+  const typecheckBaselineStep = buildTypecheckBaselineStep(profile, changedFiles);
+  if (typecheckBaselineStep) {
+    steps.push(typecheckBaselineStep);
   }
 
   steps.push({
@@ -572,7 +608,7 @@ export async function runAgenticHookProfile(profile: HookProfile): Promise<numbe
     console.log(`Architecture invocation: ${mode} (staged files: ${changedFiles.length})`);
   }
   if (profile !== "strict") {
-    console.log("Use OPENCLINXR_HOOK_TYPECHECK_AFFECTED=1 for affected typecheck while the full baseline is being repaired.");
+    console.log("Typecheck error-count ratchet runs on architecture-relevant pre-commit; OPENCLINXR_HOOK_TYPECHECK_AFFECTED=1 still opts into packages:typecheck:affected.");
   }
 
   for (const [index, step] of steps.entries()) {

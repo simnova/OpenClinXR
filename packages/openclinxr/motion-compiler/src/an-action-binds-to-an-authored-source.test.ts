@@ -71,6 +71,18 @@ import { validateLLMScenarioMotionProgram } from "./program/llm-scenario-motion-
  *   quality, or that any bound plan LOOKS like guarding.
  */
 
+/**
+ * ## FIXED (tsk_c57d7c38f9ad4a5d)
+ *
+ * Clauses (1)–(6) are live `it` tests. `validateAuthoredSourceBinding` in
+ * `src/program/authored-source-binding.ts` binds every action `trigger.ref`
+ * and every contact-constraint `body_region` target to caller-derived
+ * learner-visible authored evidence. Missing refs, fabricated tokens,
+ * hiddenFacts, unbound constraint regions, and primitives the bound source
+ * did not author are refused by name. The exact approved chest
+ * touchResponse source is admitted. M5 admission is unchanged.
+ */
+
 const CLAIM_BOUNDARY = "motion_plan_not_animation_or_clinical_validity_evidence";
 const PRODUCT_MODULE = "./program/authored-source-binding.js";
 const FABRICATED_APPENDICITIS_REF = "clinical_touch_appendicitis_v1";
@@ -420,7 +432,7 @@ describe("every motion action binds to learner-visible authored source", () => {
     expect(chest.responseKind).toBe("guarding");
   });
 
-  it.fails("(1) RED: the product binder refuses a missing action source ref", async () => {
+  it("(1) RED: the product binder refuses a missing action source ref", async () => {
     const bind = await loadProductBinder();
     const facts = deriveAuthoredSourceFacts();
     const program = honestProgram({
@@ -437,7 +449,7 @@ describe("every motion action binds to learner-visible authored source", () => {
     expect(result.errors.join(" | ")).toMatch(/missing source ref|trigger\.ref/);
   });
 
-  it.fails("(2) RED: the product binder refuses a fabricated appendicitis source ref", async () => {
+  it("(2) RED: the product binder refuses a fabricated appendicitis source ref", async () => {
     const bind = await loadProductBinder();
     const facts = deriveAuthoredSourceFacts();
     const program = honestProgram({
@@ -454,7 +466,7 @@ describe("every motion action binds to learner-visible authored source", () => {
     expect(result.errors.join(" | ")).toContain(FABRICATED_APPENDICITIS_REF);
   });
 
-  it.fails("(3) RED: hidden diagnosis cannot authorize clutch/guard — hiddenFact as trigger.ref is refused", async () => {
+  it("(3) RED: hidden diagnosis cannot authorize clutch/guard — hiddenFact as trigger.ref is refused", async () => {
     const bind = await loadProductBinder();
     const facts = deriveAuthoredSourceFacts();
     const hiddenToken = facts.hiddenTokens[0]!;
@@ -472,7 +484,7 @@ describe("every motion action binds to learner-visible authored source", () => {
     expect(result.errors.join(" | ")).toContain(hiddenToken);
   });
 
-  it.fails("(4) RED: a constraint whose body_region target is not the bound authored source is refused", async () => {
+  it("(4) RED: a constraint whose body_region target is not the bound authored source is refused", async () => {
     const bind = await loadProductBinder();
     const facts = deriveAuthoredSourceFacts();
     const rlq = rlqRow();
@@ -495,7 +507,7 @@ describe("every motion action binds to learner-visible authored source", () => {
     expect(result.errors.join(" | ")).toContain(rlqMotion);
   });
 
-  it.fails("(5) RED: clutch_body_region is refused when the bound visible source authored guarding only", async () => {
+  it("(5) RED: clutch_body_region is refused when the bound visible source authored guarding only", async () => {
     const bind = await loadProductBinder();
     const facts = deriveAuthoredSourceFacts();
     const program = honestProgram({
@@ -514,7 +526,7 @@ describe("every motion action binds to learner-visible authored source", () => {
     expect(result.errors.join(" | ")).toMatch(/clutch_body_region/);
   });
 
-  it.fails("(6) RED: the exact approved touchResponse source is admitted by the product binder (anti-blanket-refusal)", async () => {
+  it("(6) RED: the exact approved touchResponse source is admitted by the product binder (anti-blanket-refusal)", async () => {
     const bind = await loadProductBinder();
     const facts = deriveAuthoredSourceFacts();
     const program = honestProgram();

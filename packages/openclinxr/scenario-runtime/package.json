@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@openclinxr/asset-registry": "workspace:*",
+    "@openclinxr/capability-gateway": "workspace:*",
     "@openclinxr/conversation-policy": "workspace:*",
     "@openclinxr/domain": "workspace:*",
     "@openclinxr/exam-assembly": "workspace:*",

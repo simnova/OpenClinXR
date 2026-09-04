@@ -15,6 +15,10 @@
  *   - physical tracks: a raw per-bone payload (`boneTracks` or any unknown field) is
  *     refused by the closed IR — the planner is not the animator. Carried forward,
  *     never re-implemented.
+ *   - nested physical payloads: unknown properties on targets/constraints/planner,
+ *     object baseline modifiers, and path/URL/data-URI/code strings in allowed
+ *     slots are refused by `validateClosedPlannerProposalSchema`. A renamed
+ *     track (`eulerTracks`) is the same class as `boneTracks`.
  *   - unknown region: a `body_region` target must be the motion image of a compliance
  *     region the CASE authored (the mapper over the case's authored touch map). A
  *     motion region DECLARED in `MOTION_BODY_REGIONS` but never authored by THIS case
@@ -49,6 +53,7 @@ import {
   type MotionProgram,
 } from "../motion-program.js";
 import { motionBodyRegionForComplianceRegion } from "../motion-body-region.js";
+import { validateClosedPlannerProposalSchema } from "./closed-planner-schema.js";
 
 export type MotionValidation = { ok: boolean; errors: string[] };
 
@@ -133,8 +138,9 @@ export function validateLLMScenarioMotionProgram(
   const structural = validateMotionProgram(program);
   if (!structural.ok) return structural;
 
+  const closed = validateClosedPlannerProposalSchema(program);
   const typed = program as MotionProgram;
-  const errors: string[] = [];
+  const errors: string[] = [...closed.errors];
 
   // (2) Provenance honesty (hidden-fact behavior). The LLM admission path may only
   //     mint `llm_proposal`; every other closed sourceKind claims a producer that

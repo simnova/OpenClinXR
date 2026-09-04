@@ -28,6 +28,36 @@ export {
   runAssembledExam,
 } from "./exam-run-bridge.js";
 export {
+  assembledExamOrchestratorClaimBoundary,
+  assembledExamOrchestratorNotEvidenceFor,
+  applyAssembledStationTimeouts,
+  resumeAssembledExam,
+  type ApplyAssembledStationTimeoutsInput,
+  type ApplyAssembledStationTimeoutsResult,
+  type AssembledExamAdmittedPhaseEvent,
+  type AssembledExamLedgerResumeProjection,
+  type AssembledExamLedgerStationBinding,
+  type AssembledExamLifecycleState,
+  type AssembledExamOmission,
+  type AssembledExamResumeAction,
+  type AssembledExamResumeDecision,
+  type AssembledExamSelectedStation,
+  type RequestedAssembledExamStation,
+  type ResumeAssembledExamInput,
+} from "./assembled-exam-orchestrator.js";
+export {
+  LAST_STATION_TIMEOUT_ADVANCE_REASON,
+  STATION_TIMEOUT_ADVANCE_REASON,
+  assembledStationClockClaimBoundary,
+  assembledStationClockNotEvidenceFor,
+  observeAssembledStationClock,
+  type AssembledStationClockAdmittedEvent,
+  type AssembledStationClockManualCompletion,
+  type AssembledStationClockSnapshot,
+  type AssembledStationTimeoutTransition,
+  type ObserveAssembledStationClockInput,
+} from "./assembled-station-clock.js";
+export {
   type ScenarioCatalogEntry,
   type ScenarioCatalogPort,
   type ScenarioCatalogSource,
@@ -40,6 +70,17 @@ export {
   freezeActorTurnPlan,
 } from "./actor-turn-plan.js";
 export { ScenarioRuntime } from "./scenario-runtime.js";
+export { validateAssembledStationContext } from "./trace.js";
+export {
+  actorLocalAuthoredTurnIndex,
+  actorResponseFromFrozenPlan,
+  authoredDialogueCatalogFromScenario,
+  authoredTurnIndex,
+  createDeterministicDialoguePort,
+  recoverFrozenActorTurnPlanFromReplay,
+  tryResolveDeterministicActorTurnPlan,
+  type DeterministicDialoguePort,
+} from "./deterministic-dialogue-runtime.js";
 export type {
   CreateDefaultScenarioRuntimeOptions,
   DurableStorePersistenceHooks,
@@ -53,13 +94,18 @@ export type {
   RegisterLearnerBargeInResult,
   RouteRuntimeActorInteractionInput,
   RouteRuntimeActorInteractionResult,
+  AssembledStationContext,
+  AssembledStationFormTiming,
+  AssembledStationFormWindow,
   RuntimeSessionSummary,
   SaveFacultyScoreDraftInput,
   ScenarioPublicationReadinessInput,
   ScenarioRuntimeActorTurn,
   ScenarioRuntimeDurableStore,
   ScenarioRuntimeOptions,
+  EndEncounterInput,
   StartEncounterInput,
+  StartNoteInput,
   StartSessionInput,
   SubmitNoteInput,
   SubmitNoteResult,
