@@ -1,5 +1,6 @@
 import { Tag, Typography } from "antd";
 import type { ReactElement } from "react";
+import { AssembledExamReplayTimeline } from "./AssembledExamReplayTimeline.js";
 import type {
   AdminCaseDefinedHumanoidPerformanceContract,
   AdminCaseDefinedHumanoidRuntimeHandoff,
@@ -42,6 +43,9 @@ export function ReviewReplayReadinessSummaryPanel({
       </div>
       <Typography.Text strong>Recommended next action</Typography.Text>
       <Typography.Paragraph type="secondary">{summary.recommendedNextAction}</Typography.Paragraph>
+      {summary.assembledExamReplayProjection ? (
+        <AssembledExamReplayTimeline projection={summary.assembledExamReplayProjection} />
+      ) : null}
       {summary.generatedBundlePosture ? (
         <>
           <Typography.Text strong>Generated bundle blocked posture</Typography.Text>
