@@ -661,8 +661,22 @@ h3 {
     grid-template-columns: 1fr;
   }
 
+  .nav-inner {
+    min-width: 0;
+  }
+
   .nav-links {
+    flex: 1 1 auto;
+    min-width: 0;
     gap: 16px;
     font-size: 0.9rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    white-space: nowrap;
+    scrollbar-width: thin;
+  }
+
+  .nav-links a {
+    flex: 0 0 auto;
   }
 }
