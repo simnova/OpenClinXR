@@ -9,17 +9,19 @@
  * - derived `station_run_*` identity is local-only and is never a fetch authority
  * - malformed 200 body → throw (never silently become local truth)
  * - validated persisted events only become canonical after the identity/order/time/durable-ref gate
+ * - durable resume identity/sequence mismatch → BlockedLearnerExamResumeError (never fixture data)
  */
 
 import type { ExamFormRunState } from "@openclinxr/exam-assembly";
-import { validateTraceEvent, type TraceEvent } from "@openclinxr/shared-schemas";
+import { type TraceEvent, validateTraceEvent } from "@openclinxr/shared-schemas";
+import { BlockedLearnerExamResumeError } from "./learner-assembled-exam-run-source.js";
 import {
   admitLearnerCanonicalPhaseEvent,
   createLearnerCanonicalPhaseTraceStore,
   LEARNER_CANONICAL_PHASE_TYPES,
-  viewLearnerCanonicalExamPhase,
   type LearnerCanonicalExamPhaseView,
   type LearnerCanonicalPhaseTraceStore,
+  viewLearnerCanonicalExamPhase,
 } from "./runtime-state.js";
 
 type TextSink = {
@@ -33,6 +35,14 @@ export type LearnerStationTraceIdentity = {
   stationOrder: number;
 };
 
+export type LearnerDurableResumeIdentity = {
+  examRunId: string;
+  stationRunId: string;
+  scenarioId: string;
+  stationOrder: number;
+  lastAdmittedEventType?: string | null;
+};
+
 export type HydrateLearnerCanonicalPhaseTraceInput = {
   baseUrl: string | undefined;
   examRun: ExamFormRunState;
@@ -40,7 +50,23 @@ export type HydrateLearnerCanonicalPhaseTraceInput = {
   fetch?: typeof fetch;
   /** Actual API session id from startSession. Required to fetch; derived local ids are not authority. */
   stationRunId?: string;
+  /** When set, identity/sequence mismatch is blocked-resume, never local fixture truth. */
+  durableResume?: LearnerDurableResumeIdentity;
 };
+
+export {
+  applyLearnerExamResumeBlockedPresentation,
+  BlockedLearnerExamResumeError,
+  fetchLearnerAssembledExamRunAggregate,
+  LEARNER_ASSEMBLED_EXAM_RUN_ACTIONS,
+  type LearnerAssembledExamAdmittedPhaseEvent,
+  type LearnerAssembledExamCurrentStation,
+  type LearnerAssembledExamLifecycle,
+  type LearnerAssembledExamRunAction,
+  type LearnerAssembledExamRunAggregate,
+  type LearnerAssembledExamStationBinding,
+  parseLearnerAssembledExamRunAggregate,
+} from "./learner-assembled-exam-run-source.js";
 
 export type HydrateLearnerCanonicalPhaseTraceResult = {
   store: LearnerCanonicalPhaseTraceStore;
@@ -113,10 +139,13 @@ export function applyLearnerPhaseTraceRefusePresentation(input: {
 export async function hydrateLearnerCanonicalPhaseTraceFromApi(
   input: HydrateLearnerCanonicalPhaseTraceInput,
 ): Promise<HydrateLearnerCanonicalPhaseTraceResult> {
-  const identity = resolveActiveLearnerStationTraceIdentity({
+  let identity = resolveActiveLearnerStationTraceIdentity({
     examRun: input.examRun,
     ...(input.stationRunId !== undefined ? { stationRunId: input.stationRunId } : {}),
   });
+  if (input.durableResume) {
+    identity = alignIdentityToDurableResume(identity, input.durableResume);
+  }
   if (!identity) {
     const view = viewLearnerCanonicalExamPhase(input.store);
     return {
@@ -140,7 +169,7 @@ export async function hydrateLearnerCanonicalPhaseTraceFromApi(
     };
   }
 
-  const apiStationRunId = input.stationRunId?.trim();
+  const apiStationRunId = (input.durableResume?.stationRunId ?? input.stationRunId)?.trim();
   if (!apiStationRunId) {
     const view = viewLearnerCanonicalExamPhase(aligned);
     return {
@@ -180,6 +209,7 @@ export async function hydrateLearnerCanonicalPhaseTraceFromApi(
     (LEARNER_CANONICAL_PHASE_TYPES as readonly string[]).includes(event.eventType),
   );
   if (phaseEvents.length === 0) {
+    assertDurableResumeSequence(input.durableResume, null);
     const view = viewLearnerCanonicalExamPhase(aligned);
     return {
       store: aligned,
@@ -194,7 +224,7 @@ export async function hydrateLearnerCanonicalPhaseTraceFromApi(
   for (const event of phaseEvents) {
     const admitted = admitLearnerCanonicalPhaseEvent(candidate, event);
     if (!admitted.ok) {
-      throw new MalformedTraceEventsPayloadError(`canonical_phase_event_refused: ${admitted.reason}`);
+      refuseCanonicalPhase(input.durableResume, `canonical_phase_event_refused: ${admitted.reason}`);
     }
     candidate = admitted.store;
   }
@@ -203,17 +233,64 @@ export async function hydrateLearnerCanonicalPhaseTraceFromApi(
   const previousSequence = lastAdmittedSequence(aligned);
   const candidateSequence = lastAdmittedSequence(candidate);
   if (previousSequence !== null && (candidateSequence === null || candidateSequence < previousSequence)) {
-    throw new MalformedTraceEventsPayloadError(
+    refuseCanonicalPhase(
+      input.durableResume,
       `canonical_phase_event_refused: stale_or_regressing_sequence (had ${previousSequence}, got ${candidateSequence})`,
     );
   }
   if (previousSequence !== null && candidateSequence === previousSequence) {
     const view = viewLearnerCanonicalExamPhase(aligned);
+    assertDurableResumeSequence(input.durableResume, lastEventType(aligned));
     return { store: aligned, view, fetched: true, identity };
   }
 
   const view = viewLearnerCanonicalExamPhase(candidate);
+  assertDurableResumeSequence(input.durableResume, lastEventType(candidate));
   return { store: candidate, view, fetched: true, identity };
+}
+
+function alignIdentityToDurableResume(
+  identity: LearnerStationTraceIdentity | null,
+  expected: LearnerDurableResumeIdentity,
+): LearnerStationTraceIdentity {
+  if (
+    !identity
+    || identity.examRunId !== expected.examRunId
+    || identity.scenarioId !== expected.scenarioId
+    || identity.stationOrder !== expected.stationOrder
+  ) {
+    throw new BlockedLearnerExamResumeError("durable_identity_mismatch");
+  }
+  if (identity.stationRunId !== expected.stationRunId) {
+    throw new BlockedLearnerExamResumeError("station_run_mismatch");
+  }
+  return identity;
+}
+
+function assertDurableResumeSequence(
+  durableResume: LearnerDurableResumeIdentity | undefined,
+  lastType: string | null,
+): void {
+  if (!durableResume) {
+    return;
+  }
+  const expectedType = durableResume.lastAdmittedEventType;
+  if (expectedType === undefined) {
+    return;
+  }
+  if (expectedType !== lastType) {
+    throw new BlockedLearnerExamResumeError("sequence_mismatch");
+  }
+}
+
+function lastEventType(store: LearnerCanonicalPhaseTraceStore): string | null {
+  return store.persistedEvents[store.persistedEvents.length - 1]?.eventType ?? null;
+}
+function refuseCanonicalPhase(durableResume: LearnerDurableResumeIdentity | undefined, message: string): never {
+  if (durableResume) {
+    throw new BlockedLearnerExamResumeError(`sequence_mismatch: ${message}`);
+  }
+  throw new MalformedTraceEventsPayloadError(message);
 }
 
 function lastAdmittedSequence(store: LearnerCanonicalPhaseTraceStore): number | null {

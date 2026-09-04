@@ -1,16 +1,16 @@
-import { describe, expect, it } from "vitest";
 import {
   DEFAULT_DEV_AUTH_SECRET,
   signAuthToken,
 } from "@openclinxr/auth";
 import type { ExamForm, ExamTimingPlan } from "@openclinxr/exam-assembly";
 import { assembledExamOrchestratorClaimBoundary } from "@openclinxr/scenario-runtime";
+import { describe, expect, it } from "vitest";
 import { ApiApplication } from "../api-application.js";
-import { createApiApp } from "../app.js";
 import type { ApiPersistenceSink } from "../api-types.js";
+import { createApiApp } from "../app.js";
 import {
-  assembledExamRunNotEvidenceFor,
   type ApiAssembledExamRunRecord,
+  assembledExamRunNotEvidenceFor,
 } from "../runtime-durable-store.js";
 import {
   ASSEMBLED_EXAM_RUNS_PATH,
@@ -166,6 +166,23 @@ describe("assembled-exam run API", () => {
     expect(body.action).toBe("resume_station");
     expect(body.examEquivalenceGate).toBe(false);
     expect(body.claimBoundary).toBe(assembledExamOrchestratorClaimBoundary);
+    expect(body.orderedStations).toEqual([
+      {
+        stationOrder: 1,
+        slotId: "slot_a",
+        stationRunId: `${EXAM_RUN_ID}:station:1`,
+        scenarioId: SCENARIO_A,
+        scenarioVersion: 1,
+      },
+      {
+        stationOrder: 2,
+        slotId: "slot_b",
+        stationRunId: `${EXAM_RUN_ID}:station:2`,
+        scenarioId: SCENARIO_B,
+        scenarioVersion: 1,
+      },
+    ]);
+    expect(body.admittedPhaseEvents).toEqual([]);
     const currentStation = body.currentStation as { stationOrder: number; scenarioId: string; assembledStation: unknown };
     expect(currentStation.stationOrder).toBe(1);
     expect(currentStation.scenarioId).toBe(SCENARIO_A);
@@ -206,6 +223,10 @@ describe("assembled-exam run API", () => {
       }),
     });
     expect(admitted.status).toBe(201);
+    const admittedContract = await json(admitted);
+    const admittedEvents = admittedContract.admittedPhaseEvents as Array<{ recordedAtIso: string }>;
+    const recordedAtIso = admittedEvents[0]?.recordedAtIso;
+    expect(Number.isFinite(Date.parse(recordedAtIso ?? ""))).toBe(true);
 
     const restarted = compose(sink);
     restarted.context.assembledExamRuns.clear();
@@ -219,6 +240,16 @@ describe("assembled-exam run API", () => {
     expect(body.stationRunId).toBe(`${EXAM_RUN_ID}:station:1`);
     const currentStation = body.currentStation as { lifecycle: { lastAdmittedEventType: string } };
     expect(currentStation.lifecycle.lastAdmittedEventType).toBe("encounter.started");
+    expect(body.orderedStations).toHaveLength(2);
+    expect(body.admittedPhaseEvents).toEqual([
+      expect.objectContaining({
+        stationRunId: `${EXAM_RUN_ID}:station:1`,
+        eventType: "encounter.started",
+        sequence: 0,
+        formAtSecond: 60,
+        recordedAtIso,
+      }),
+    ]);
   });
 
   it("rejects learner, form, station-order, sequence, and durable-reference mismatches", async () => {

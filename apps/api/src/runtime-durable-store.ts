@@ -39,6 +39,8 @@ export type ApiAssembledExamAdmittedPhaseEvent = {
   durableEventRef: string;
   phase: AssembledExamPhase;
   source: string;
+  /** Durable admission time. Older stored aggregates may omit it and must not be used to invent UI outcome time. */
+  recordedAtIso?: string;
   advanceReason?: string;
 };
 
