@@ -115,11 +115,13 @@ export class DeterministicDialogueAdapter
   constructor(
     readonly binding: CapabilityProviderBinding,
     private readonly catalog: AuthoredDialogueCatalog,
-  ) {}
+  ) {
+    assertDeterministicDialogueBinding(binding);
+  }
 
   async health(): Promise<ProviderHealth> {
     return {
-      providerId: this.binding.providerId,
+      providerId: AUTHORED_LOCAL_FIXTURE_PROVIDER_ID,
       status: "ready",
     };
   }
@@ -141,7 +143,33 @@ export function createDeterministicDialogueAdapter(
   binding: CapabilityProviderBinding,
   catalog: AuthoredDialogueCatalog,
 ): DeterministicDialogueAdapter {
+  assertDeterministicDialogueBinding(binding);
   return new DeterministicDialogueAdapter(binding, catalog);
+}
+
+export function assertDeterministicDialogueBinding(binding: CapabilityProviderBinding): void {
+  const mismatches: string[] = [];
+  if (binding.profile !== "local-development") {
+    mismatches.push(`profile=${binding.profile}`);
+  }
+  if (binding.capabilityId !== "model-dialogue") {
+    mismatches.push(`capabilityId=${binding.capabilityId}`);
+  }
+  if (binding.providerId !== "mock-model") {
+    mismatches.push(`providerId=${binding.providerId}`);
+  }
+  if (binding.providerKind !== "deterministic-mock") {
+    mismatches.push(`providerKind=${binding.providerKind}`);
+  }
+  if (binding.transport !== "in-process") {
+    mismatches.push(`transport=${binding.transport}`);
+  }
+  if (binding.status !== "ready") {
+    mismatches.push(`status=${binding.status}`);
+  }
+  if (mismatches.length > 0) {
+    throw new Error(`unsupported_dialogue_binding:${mismatches.join(",")}`);
+  }
 }
 
 export function resolveDeterministicActorTurnPlan(

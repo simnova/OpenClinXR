@@ -231,14 +231,50 @@ describe("deterministic dialogue adapter", () => {
       },
     });
   });
+
+  it("rejects local-production and production model-dialogue bindings", () => {
+    const matrix = buildOpenClinXrCapabilityRoutingMatrix();
+    const localProduction = bindingFor(matrix, "local-production", "model-dialogue");
+    const production = bindingFor(matrix, "production", "model-dialogue");
+
+    expect(() => createDeterministicDialogueAdapter(localProduction, catalog)).toThrow(
+      /unsupported_dialogue_binding:.*profile=local-production/,
+    );
+    expect(() => createDeterministicDialogueAdapter(production, catalog)).toThrow(
+      /unsupported_dialogue_binding:.*profile=production/,
+    );
+  });
+
+  it("keeps health providerId aligned with plan provenance", async () => {
+    const adapter = createDeterministicDialogueAdapter(localDevelopmentDialogueBinding(), catalog);
+    const health = await adapter.health();
+    const plan = await adapter.execute({
+      profile: "local-development",
+      capabilityId: "model-dialogue",
+      payload: onsetRequest,
+    });
+
+    expect(health.providerId).toBe(AUTHORED_LOCAL_FIXTURE_PROVIDER_ID);
+    expect(plan.languageProvenance.providerId).toBe(health.providerId);
+    expect(health.providerId).not.toBe("local-qwen-or-deepseek");
+    expect(health.providerId).not.toBe("grok-reasoning-provider");
+  });
 });
 
 function localDevelopmentDialogueBinding() {
-  const binding = buildOpenClinXrCapabilityRoutingMatrix().bindings.find((entry) =>
-    entry.profile === "local-development" && entry.capabilityId === "model-dialogue"
+  return bindingFor(buildOpenClinXrCapabilityRoutingMatrix(), "local-development", "model-dialogue");
+}
+
+function bindingFor(
+  matrix: ReturnType<typeof buildOpenClinXrCapabilityRoutingMatrix>,
+  profile: "local-development" | "local-production" | "production",
+  capabilityId: "model-dialogue",
+) {
+  const binding = matrix.bindings.find((entry) =>
+    entry.profile === profile && entry.capabilityId === capabilityId
   );
   if (!binding) {
-    throw new Error("Missing local-development model-dialogue binding");
+    throw new Error(`Missing ${profile} ${capabilityId} binding`);
   }
   return binding;
 }
