@@ -1,0 +1,178 @@
+{
+  "schema": "openclinxr.assembled-exam-two-station.fixture.v1",
+  "claimScope": "local_acceptance_harness",
+  "notEvidenceFor": [
+    "clinical_validity",
+    "exam_equivalence",
+    "scoring_validity",
+    "quest_readiness",
+    "learner_readiness",
+    "production_deployment",
+    "automated_scoring"
+  ],
+  "examEquivalenceGate": false,
+  "provenance": {
+    "examFormShape": "assembled-exam-run-routes.test.ts form()/timingPlan() (apps/api/src/routes/assembled-exam-run-routes.test.ts:47-91)",
+    "scenarioIds": "scenario-fixtures ed_chest_pain_priority_v1 + peds_asthma_parent_anxiety_v1 (packages/openclinxr/scenario-fixtures/src)",
+    "learnerUtteranceAndSeedSource": "DialogueFixtureSeed learnerUtterance/seedId/expectedTraceTags read at runtime from scenario-fixtures; no utterance text is duplicated in this file",
+    "noteTextSource": "reused verbatim from assembled-exam-review-routes.test.ts patientNote fixtures (edStation + pedsStation builders)",
+    "facultyDraftCommentsSource": "reused reviewer/comment shape from assembled-exam-review-routes.test.ts"
+  },
+  "run": {
+    "examRunId": "exam_run_learner_faculty_acceptance_001",
+    "learnerId": "learner_faculty_acceptance_001",
+    "examFormId": "form_two_station_acceptance_001",
+    "blueprintId": "blueprint_acceptance_pilot_v1",
+    "title": "Two-station assembled exam (learner-to-faculty acceptance)",
+    "facultyReviewerId": "faculty_acceptance_001"
+  },
+  "examForm": {
+    "examFormId": "form_two_station_acceptance_001",
+    "blueprintId": "blueprint_acceptance_pilot_v1",
+    "title": "Two-station assembled exam",
+    "stationRefs": [
+      {
+        "order": 1,
+        "scenarioId": "ed_chest_pain_priority_v1",
+        "scenarioVersion": 1,
+        "title": "ED chest pain"
+      },
+      {
+        "order": 2,
+        "scenarioId": "peds_asthma_parent_anxiety_v1",
+        "scenarioVersion": 1,
+        "title": "Peds asthma"
+      }
+    ],
+    "coverage": {
+      "requiredTraceTags": [],
+      "coveredTraceTags": [],
+      "missingTraceTags": [],
+      "requiredEnvironmentIds": [],
+      "coveredEnvironmentIds": [],
+      "missingEnvironmentIds": [],
+      "requiredSafetyCriticalTraceTags": [],
+      "coveredSafetyCriticalTraceTags": [],
+      "missingSafetyCriticalTraceTags": [],
+      "stationCount": { "required": 2, "actual": 2, "ok": true }
+    },
+    "assemblyIssues": [],
+    "status": "ready_for_review"
+  },
+  "timingPlan": {
+    "blueprintId": "blueprint_acceptance_pilot_v1",
+    "stationWindows": [
+      {
+        "stationOrder": 1,
+        "slotId": "slot_a",
+        "label": "station 1",
+        "doorway": { "startsAtSecond": 0, "endsAtSecond": 60, "durationSeconds": 60 },
+        "encounter": { "startsAtSecond": 60, "endsAtSecond": 960, "durationSeconds": 900 },
+        "note": { "startsAtSecond": 960, "endsAtSecond": 1260, "durationSeconds": 300 }
+      },
+      {
+        "stationOrder": 2,
+        "slotId": "slot_b",
+        "label": "station 2",
+        "doorway": { "startsAtSecond": 1260, "endsAtSecond": 1320, "durationSeconds": 60 },
+        "encounter": { "startsAtSecond": 1320, "endsAtSecond": 2220, "durationSeconds": 900 },
+        "note": { "startsAtSecond": 2220, "endsAtSecond": 2520, "durationSeconds": 300 }
+      }
+    ],
+    "breakCheckpoints": [],
+    "totalStationTimeSeconds": 2520
+  },
+  "stations": [
+    {
+      "stationOrder": 1,
+      "scenarioId": "ed_chest_pain_priority_v1",
+      "scenarioVersion": 1,
+      "actorTurns": [
+        {
+          "seedId": "patient_onset_history",
+          "actorId": "patient_robert_hayes_v1",
+          "role": "patient",
+          "atSecond": 120
+        },
+        {
+          "seedId": "spouse_family_communication",
+          "actorId": "spouse_anna_hayes_v1",
+          "role": "family",
+          "atSecond": 300
+        },
+        {
+          "seedId": "nurse_team_escalation",
+          "actorId": "nurse_maria_alvarez_v1",
+          "role": "nurse",
+          "atSecond": 480
+        }
+      ],
+      "timeline": {
+        "encounterStartedAtSecond": 60,
+        "encounterEndedAtSecond": 900,
+        "noteStartedAtSecond": 960,
+        "noteSubmittedAtSecond": 1260,
+        "advanceReason": "patient_note_submitted_advancing"
+      },
+      "patientNote": {
+        "submittedAtSecond": 1260,
+        "text": "Concern for ACS. ECG requested."
+      },
+      "facultyScoreDraft": {
+        "reviewerId": "faculty_acceptance_001",
+        "status": "draft",
+        "comments": "ED station review."
+      }
+    },
+    {
+      "stationOrder": 2,
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "scenarioVersion": 1,
+      "actorTurns": [
+        {
+          "seedId": "peds_patient_work_of_breathing",
+          "actorId": "patient_maya_johnson_v1",
+          "role": "patient",
+          "atSecond": 1380
+        },
+        {
+          "seedId": "peds_parent_trigger_history",
+          "actorId": "parent_tara_johnson_v1",
+          "role": "family",
+          "atSecond": 1560,
+          "learnerUtterance": "What changed before this started, and what medicines has she been able to use today?"
+        },
+        {
+          "seedId": "peds_nurse_oxygen_escalation",
+          "actorId": "nurse_kevin_lee_v1",
+          "role": "nurse",
+          "atSecond": 1740
+        },
+        {
+          "seedId": "peds_parent_empathy",
+          "actorId": "parent_tara_johnson_v1",
+          "role": "family",
+          "atSecond": 1920,
+          "learnerUtterance": "I know this is frightening. I will explain what we are doing and what I need from you.",
+          "traceContextTags": ["empathy_statement"]
+        }
+      ],
+      "timeline": {
+        "encounterStartedAtSecond": 1320,
+        "encounterEndedAtSecond": 2160,
+        "noteStartedAtSecond": 2220,
+        "noteSubmittedAtSecond": 2520,
+        "advanceReason": "patient_note_submitted_advancing"
+      },
+      "patientNote": {
+        "submittedAtSecond": 2520,
+        "text": "Work of breathing assessed. Parent anxiety noted."
+      },
+      "facultyScoreDraft": {
+        "reviewerId": "faculty_acceptance_001",
+        "status": "draft",
+        "comments": "Peds station review."
+      }
+    }
+  ]
+}

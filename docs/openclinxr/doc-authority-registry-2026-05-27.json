@@ -6,7 +6,7 @@
   "counts": {
     "agent-methodology": 104,
     "current-reference": 220,
-    "archive-candidate": 41,
+    "archive-candidate": 42,
     "evidence": 58,
     "temporary": 54,
     "protected-policy": 10,
@@ -2661,6 +2661,13 @@
       "agentInstructionWeight": "low",
       "action": "use-as-current",
       "rationale": "Package/app-local README or provenance reference; local to its module."
+    },
+    {
+      "path": "artifacts/openclinxr/assembled-exam-learner-faculty/README.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "review-or-archive",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "benchmarks/glb-optimization/README.md",
