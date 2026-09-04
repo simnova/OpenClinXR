@@ -9,6 +9,8 @@ import {
 
 export type EncounterBundlePromotionPanelProps = {
   selection: FacultyEncounterBundlePromotionSelection;
+  previewBlockers?: readonly string[];
+  previewAttestations?: readonly string[];
   submitStatus?: "idle" | "submitting" | "submitted" | "error";
   submitMessage?: string | undefined;
   launchIdentity?: FacultyLearnerLaunchIdentity | null;
@@ -17,18 +19,26 @@ export type EncounterBundlePromotionPanelProps = {
 
 export function EncounterBundlePromotionPanel({
   selection,
+  previewBlockers = [],
+  previewAttestations = [],
   submitStatus = "idle",
   submitMessage,
   launchIdentity = null,
   onPromote,
 }: EncounterBundlePromotionPanelProps): ReactElement {
   const blockers = useMemo(
-    () => collectFacultyEncounterBundleSelectionBlockers(selection),
-    [selection],
+    () => [...new Set([
+      ...collectFacultyEncounterBundleSelectionBlockers(selection),
+      ...previewBlockers,
+    ])],
+    [selection, previewBlockers],
   );
   const attestations = useMemo(
-    () => collectFacultyEncounterBundleAttestations(selection),
-    [selection],
+    () => [...new Set([
+      ...collectFacultyEncounterBundleAttestations(selection),
+      ...previewAttestations,
+    ])],
+    [selection, previewAttestations],
   );
   const canPromote = blockers.length === 0 && submitStatus !== "submitting";
 

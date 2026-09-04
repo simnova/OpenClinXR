@@ -97,3 +97,45 @@ export function collectFacultyEncounterBundleAttestations(
 export function learnerLaunchHref(bundleId: string): string {
   return `/runtime/asset-bundles/${encodeURIComponent(bundleId)}`;
 }
+
+export const FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PATH = "/faculty/encounter-bundle-promotion";
+export const FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PREVIEW_PATH = "/faculty/encounter-bundle-promotion/preview";
+
+export function defaultFacultyEncounterBundlePromotionSelection(
+  scenarioId: string,
+  stationId: string,
+): FacultyEncounterBundlePromotionSelection {
+  const reviewIdentity = `scenario-review:${scenarioId}:faculty-local`;
+  return {
+    scenarioId,
+    stationId,
+    scenarioReviewIdentity: reviewIdentity,
+    expectedScenarioReviewIdentity: reviewIdentity,
+    members: FACULTY_ENCOUNTER_BUNDLE_FACTORY_KINDS.map((memberKind) => {
+      const assetId = defaultAssetId(memberKind);
+      return {
+        memberKind,
+        assetId,
+        pipelineState: "reviewed",
+        reviewStatus: "approved_for_local_runtime",
+        provenanceRefs: [`provenance:${assetId}`],
+        contentHash: `${memberKind}-hash-v1`,
+        expectedContentHash: `${memberKind}-hash-v1`,
+        missingReviewAttestations: [],
+      };
+    }),
+  };
+}
+
+function defaultAssetId(memberKind: FacultyEncounterBundleFactoryKind): string {
+  if (memberKind === "humanoid") {
+    return "patient_humanoid_v1";
+  }
+  if (memberKind === "room") {
+    return "exam_bay_room_v1";
+  }
+  if (memberKind === "equipment") {
+    return "ecg_cart_v1";
+  }
+  return `${memberKind}_asset_v1`;
+}

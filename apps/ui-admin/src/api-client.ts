@@ -40,6 +40,11 @@ import { buildSessionRoutePath, routeById } from "@openclinxr/rest";
 import type { Scenario } from "@openclinxr/shared-schemas";
 import { print } from "graphql";
 
+import {
+  FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PATH,
+  FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PREVIEW_PATH,
+  type FacultyEncounterBundlePromotionSelection,
+} from "./encounter-bundle-promotion/faculty-encounter-bundle-promotion.js";
 import type {
   AdminApolloGraphqlClient,
   AdminNoReadinessEvidenceClaim,
@@ -491,6 +496,33 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
         routeById("get-authored-scenario").path.replace(":scenarioId", encodeURIComponent(scenarioId)),
         await authHeaders(),
       ),
+    previewFacultyEncounterBundlePromotion: async (input) =>
+      post(
+        fetcher,
+        baseUrl,
+        FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PREVIEW_PATH,
+        facultyPromotionBody(input),
+        await authHeaders(),
+      ),
+    promoteFacultyEncounterBundle: async (input) =>
+      post(
+        fetcher,
+        baseUrl,
+        FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PATH,
+        facultyPromotionBody(input),
+        await authHeaders(),
+      ),
+  };
+}
+
+function facultyPromotionBody(input: FacultyEncounterBundlePromotionSelection): Record<string, unknown> {
+  return {
+    scenarioId: input.scenarioId,
+    stationId: input.stationId,
+    scenarioReviewIdentity: input.scenarioReviewIdentity,
+    expectedScenarioReviewIdentity: input.expectedScenarioReviewIdentity,
+    assetStoreKind: "azurite_blob",
+    members: [...input.members],
   };
 }
 

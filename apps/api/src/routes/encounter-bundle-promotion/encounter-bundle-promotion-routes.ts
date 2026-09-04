@@ -7,6 +7,7 @@ import {
   FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PREVIEW_PATH,
   facultyEncounterBundlePromotionClaimScope,
   facultyEncounterBundlePromotionNotEvidenceFor,
+  hydrateFacultyEncounterBundlePromotionRequest,
   isFacultyEncounterBundlePromotionRequest,
   previewFacultyEncounterBundlePromotion,
   promoteFacultyEncounterBundle,
@@ -36,7 +37,9 @@ export function registerEncounterBundlePromotionRoutes(
     if (!isFacultyEncounterBundlePromotionRequest(body)) {
       return context.json(invalidBody(), 400);
     }
-    return context.json(previewFacultyEncounterBundlePromotion(body));
+    return context.json(previewFacultyEncounterBundlePromotion(
+      hydrateFacultyEncounterBundlePromotionRequest(body),
+    ));
   });
 
   app.post(FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PATH, async (context) => {
@@ -47,7 +50,9 @@ export function registerEncounterBundlePromotionRoutes(
     if (!isFacultyEncounterBundlePromotionRequest(body)) {
       return context.json(invalidBody(), 400);
     }
-    const result = promoteFacultyEncounterBundle(body);
+    const result = promoteFacultyEncounterBundle(
+      hydrateFacultyEncounterBundlePromotionRequest(body),
+    );
     if (!result.promoted) {
       return context.json(result, 409);
     }

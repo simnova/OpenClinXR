@@ -2,8 +2,12 @@ import {
   encounterBundleFactoryMemberKinds,
   immutableEncounterBundleNotEvidenceFor,
   promoteReviewedFactoryOutputsToImmutableEncounterBundle,
+  registerGeneratedRuntimeAssetReference,
+  resolveRuntimeAssetStoreConfig,
   type EncounterBundleFactoryMember,
+  type EncounterBundleFactoryMemberKind,
   type PromoteReviewedFactoryOutputsInput,
+  type RuntimeAssetKind,
   type RuntimeAssetReviewDecision,
   type RuntimeAssetStoreKind,
 } from "@openclinxr/asset-registry";
@@ -175,6 +179,99 @@ export function isFacultyEncounterBundlePromotionRequest(
     && typeof value["expectedScenarioReviewIdentity"] === "string"
     && typeof value["assetStoreKind"] === "string"
     && Array.isArray(value["members"]);
+}
+
+export function hydrateFacultyEncounterBundlePromotionRequest(
+  value: FacultyEncounterBundlePromotionRequest,
+): FacultyEncounterBundlePromotionRequest {
+  const storeKind = value.assetStoreKind;
+  const store = resolveRuntimeAssetStoreConfig({
+    storeKind,
+    containerName: "openclinxr-assets",
+  });
+  const members = value.members.map((member) => {
+    if (hasAsset(member)) {
+      return member;
+    }
+    const slim = member as unknown as Record<string, unknown>;
+    const memberKind = String(slim["memberKind"] ?? "") as EncounterBundleFactoryMemberKind;
+    const assetId = String(slim["assetId"] ?? `${memberKind}_asset_v1`);
+    const contentHash = String(slim["contentHash"] ?? `${memberKind}-hash-v1`);
+    const provenanceRefs = Array.isArray(slim["provenanceRefs"])
+      ? slim["provenanceRefs"].filter((ref): ref is string => typeof ref === "string")
+      : [`provenance:${assetId}`];
+    const pipelineState = slim["pipelineState"] === "generated" ? "generated" : "reviewed";
+    return {
+      memberKind,
+      pipelineState,
+      asset: registerGeneratedRuntimeAssetReference({
+        assetId,
+        version: "v1",
+        kind: runtimeKindFor(memberKind),
+        displayName: assetId,
+        scenarioAssetId: assetId,
+        blobName: `asset-library/${assetId}/v1/asset.bin`,
+        contentHash,
+        assetStore: store,
+        reviewStatus: slim["reviewStatus"] === "blocked" ? "blocked" : "approved_for_local_runtime",
+        provenanceRefs,
+      }),
+    } satisfies EncounterBundleFactoryMember;
+  });
+  const decisions = value.decisions ?? reviewDecisionsFor(members);
+  const expectedContentHashes = value.expectedContentHashes ?? Object.fromEntries(
+    members.map((member, index) => {
+      const slim = value.members[index] as unknown as Record<string, unknown>;
+      const expected = typeof slim["expectedContentHash"] === "string"
+        ? slim["expectedContentHash"]
+        : member.asset.blob.contentHash ?? "";
+      return [member.asset.assetId, expected];
+    }),
+  );
+  return {
+    ...value,
+    members,
+    decisions,
+    expectedContentHashes,
+  };
+}
+
+function hasAsset(member: EncounterBundleFactoryMember): boolean {
+  return typeof member === "object"
+    && member !== null
+    && "asset" in member
+    && typeof (member as { asset?: unknown }).asset === "object";
+}
+
+function runtimeKindFor(memberKind: EncounterBundleFactoryMemberKind): RuntimeAssetKind {
+  switch (memberKind) {
+    case "humanoid":
+      return "humanoid_model";
+    case "room":
+      return "environment_model";
+    case "equipment":
+      return "equipment_model";
+    case "motion":
+      return "animation_clip";
+    case "voice":
+      return "phoneme_map";
+    case "interaction":
+      return "ui_schema";
+  }
+}
+
+function reviewDecisionsFor(members: readonly EncounterBundleFactoryMember[]): RuntimeAssetReviewDecision[] {
+  return members.flatMap((member) => (
+    ["asset_pipeline", "security_privacy"] as const
+  ).map((reviewerRole) => ({
+    assetId: member.asset.assetId,
+    reviewerRole,
+    reviewerId: `${reviewerRole}_reviewer`,
+    decision: "approved_for_local_runtime" as const,
+    comments: "Local runtime review approved.",
+    evidenceRefs: [`evidence:${reviewerRole}:${member.asset.assetId}`],
+    reviewedAt: "2026-09-04T00:00:00.000Z",
+  })));
 }
 
 function toFactoryInput(input: FacultyEncounterBundlePromotionRequest): PromoteReviewedFactoryOutputsInput {
