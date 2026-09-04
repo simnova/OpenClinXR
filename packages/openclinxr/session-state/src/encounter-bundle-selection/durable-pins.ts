@@ -2,6 +2,8 @@ import type {
   DurableExamFormEncounterBundlePins,
   DurableExamStationEncounterBundlePin,
   DurablePromotedEncounterBundleLookupEntry,
+  EncounterBundlePinDurableStore,
+  ExamFormEncounterBundlePinPersistencePort,
   LaunchPinnedStationAssetsInput,
   LaunchPinnedStationAssetsResult,
   PersistExamFormEncounterBundlePinsInput,
@@ -11,10 +13,17 @@ import {
   durableExamStationEncounterBundlePinNotEvidenceFor,
 } from "./types.js";
 
+const DURABLE_STORES = new Set<EncounterBundlePinDurableStore>([
+  "database_source_of_truth",
+  "test_local_memory",
+]);
+
 export function createDurableExamFormEncounterBundlePins(
   input: PersistExamFormEncounterBundlePinsInput,
+  durableStore: EncounterBundlePinDurableStore,
 ): DurableExamFormEncounterBundlePins {
   const examFormId = requireNonblank(input.examFormId, "examFormId");
+  requireDurableStore(durableStore);
   if (input.pins.length === 0) {
     throw new Error("durable exam-form encounter-bundle pins require at least one station pin");
   }
@@ -26,79 +35,80 @@ export function createDurableExamFormEncounterBundlePins(
     scenarioVersion: pin.scenarioVersion,
     bundleId: requireNonblank(pin.bundleId, "bundleId"),
     contentIdentity: requireNonblank(pin.contentIdentity, "contentIdentity"),
-    durableStore: "database_source_of_truth",
+    durableStore,
   }));
   assertUniquePins(pins);
   return freezeForm({
     examFormId,
     pins,
-    durableStore: "database_source_of_truth",
+    durableStore,
     claimScope: durableExamStationEncounterBundlePinClaimScope,
     notEvidenceFor: durableExamStationEncounterBundlePinNotEvidenceFor,
   });
 }
 
-export class MemoryExamFormEncounterBundlePinStore {
+export async function launchPinnedStationAssetsFromPort(
+  port: Pick<ExamFormEncounterBundlePinPersistencePort, "load">,
+  input: LaunchPinnedStationAssetsInput,
+): Promise<LaunchPinnedStationAssetsResult> {
+  const examFormId = requireNonblank(input.examFormId, "examFormId");
+  const slotId = requireNonblank(input.slotId, "slotId");
+  const form = await port.load(examFormId);
+  if (!form) {
+    return refuseLaunch(examFormId, slotId, [`form:${examFormId}:missing`]);
+  }
+  const pin = form.pins.find((entry) => entry.slotId === slotId);
+  if (!pin) {
+    return refuseLaunch(examFormId, slotId, [`station:${slotId}:missing`]);
+  }
+  const catalogEntry = input.catalog.find((entry) => entry.bundleId === pin.bundleId);
+  if (!catalogEntry) {
+    return refuseLaunch(examFormId, slotId, [`station:${slotId}:missing`]);
+  }
+  const blockers = inspectLaunchCatalog(pin, catalogEntry);
+  if (blockers.length > 0) {
+    return refuseLaunch(examFormId, slotId, blockers);
+  }
+  return {
+    launched: true,
+    examFormId,
+    slotId,
+    scenarioId: pin.scenarioId,
+    bundleId: pin.bundleId,
+    contentIdentity: pin.contentIdentity,
+    claimScope: durableExamStationEncounterBundlePinClaimScope,
+    notEvidenceFor: durableExamStationEncounterBundlePinNotEvidenceFor,
+  };
+}
+
+/**
+ * In-process adapter for package tests. Never a database source of truth.
+ */
+export class LocalTestExamFormEncounterBundlePinStore implements ExamFormEncounterBundlePinPersistencePort {
+  readonly backend = "test_local_memory" as const;
+  readonly durableStore = "test_local_memory" as const;
   private readonly documents = new Map<string, DurableExamFormEncounterBundlePins>();
 
-  persist(input: PersistExamFormEncounterBundlePinsInput): DurableExamFormEncounterBundlePins {
-    const record = createDurableExamFormEncounterBundlePins(input);
+  async persist(input: PersistExamFormEncounterBundlePinsInput): Promise<DurableExamFormEncounterBundlePins> {
+    const record = createDurableExamFormEncounterBundlePins(input, this.durableStore);
+    if (record.durableStore !== "test_local_memory") {
+      throw new Error("local test pin store must not use database_source_of_truth");
+    }
     this.documents.set(record.examFormId, cloneJson(record));
     return cloneJson(record);
   }
 
-  load(examFormId: string): DurableExamFormEncounterBundlePins | null {
+  async load(examFormId: string): Promise<DurableExamFormEncounterBundlePins | null> {
     const found = this.documents.get(requireNonblank(examFormId, "examFormId"));
     return found ? cloneJson(found) : null;
   }
 
-  dump(): Record<string, DurableExamFormEncounterBundlePins> {
-    return cloneJson(Object.fromEntries(this.documents.entries()));
-  }
-
-  static restore(
-    serialized: Record<string, DurableExamFormEncounterBundlePins>,
-  ): MemoryExamFormEncounterBundlePinStore {
-    const store = new MemoryExamFormEncounterBundlePinStore();
-    for (const record of Object.values(serialized)) {
-      store.documents.set(record.examFormId, cloneJson(record));
-    }
-    return store;
-  }
-
-  launchPinnedStationAssets(input: LaunchPinnedStationAssetsInput): LaunchPinnedStationAssetsResult {
-    const examFormId = requireNonblank(input.examFormId, "examFormId");
-    const slotId = requireNonblank(input.slotId, "slotId");
-    const form = this.load(examFormId);
-    if (!form) {
-      return refuseLaunch(examFormId, slotId, [`form:${examFormId}:missing`]);
-    }
-    const pin = form.pins.find((entry) => entry.slotId === slotId);
-    if (!pin) {
-      return refuseLaunch(examFormId, slotId, [`station:${slotId}:missing`]);
-    }
-    const catalogEntry = input.catalog.find((entry) => entry.bundleId === pin.bundleId);
-    if (!catalogEntry) {
-      return refuseLaunch(examFormId, slotId, [`station:${slotId}:missing`]);
-    }
-    const blockers = inspectLaunchCatalog(pin, catalogEntry);
-    if (blockers.length > 0) {
-      return refuseLaunch(examFormId, slotId, blockers);
-    }
-    return {
-      launched: true,
-      examFormId,
-      slotId,
-      scenarioId: pin.scenarioId,
-      bundleId: pin.bundleId,
-      contentIdentity: pin.contentIdentity,
-      claimScope: durableExamStationEncounterBundlePinClaimScope,
-      notEvidenceFor: durableExamStationEncounterBundlePinNotEvidenceFor,
-    };
+  async launchPinnedStationAssets(input: LaunchPinnedStationAssetsInput): Promise<LaunchPinnedStationAssetsResult> {
+    return launchPinnedStationAssetsFromPort(this, input);
   }
 }
 
-function inspectLaunchCatalog(
+export function inspectLaunchCatalog(
   pin: DurableExamStationEncounterBundlePin,
   entry: DurablePromotedEncounterBundleLookupEntry,
 ): string[] {
@@ -176,6 +186,13 @@ function cloneJson<T>(value: T): T {
 function requireNonblank(value: string, label: string): string {
   if (value.trim().length === 0) {
     throw new Error(`${label} is required`);
+  }
+  return value;
+}
+
+function requireDurableStore(value: EncounterBundlePinDurableStore): EncounterBundlePinDurableStore {
+  if (!DURABLE_STORES.has(value)) {
+    throw new Error("durableStore must be database_source_of_truth or test_local_memory");
   }
   return value;
 }

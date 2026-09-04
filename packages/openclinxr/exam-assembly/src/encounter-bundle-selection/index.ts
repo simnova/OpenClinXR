@@ -14,3 +14,13 @@ export type {
   PromotedEncounterBundleRuntimeEligibility,
 } from "./types.js";
 export { pinExamStationEncounterBundles } from "./pin-station-bundles.js";
+export {
+  assembleExamFormWithPinnedEncounterBundles,
+  pinTargetsFromAssembledForm,
+} from "./assemble-exam-form-with-pinned-bundles.js";
+export type {
+  AssembleExamFormWithPinnedEncounterBundlesInput,
+  AssembleExamFormWithPinnedEncounterBundlesRefusal,
+  AssembleExamFormWithPinnedEncounterBundlesResult,
+  AssembleExamFormWithPinnedEncounterBundlesSuccess,
+} from "./assemble-exam-form-with-pinned-bundles.js";

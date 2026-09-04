@@ -12,6 +12,8 @@ export const durableExamStationEncounterBundlePinNotEvidenceFor = [
 export type DurableExamStationEncounterBundlePinNotEvidenceFor =
   (typeof durableExamStationEncounterBundlePinNotEvidenceFor)[number];
 
+export type EncounterBundlePinDurableStore = "database_source_of_truth" | "test_local_memory";
+
 export type DurablePromotedEncounterBundleLookupEntry = {
   bundleId: string;
   scenarioId: string;
@@ -30,13 +32,13 @@ export type DurableExamStationEncounterBundlePin = {
   scenarioVersion: number;
   bundleId: string;
   contentIdentity: string;
-  durableStore: "database_source_of_truth";
+  durableStore: EncounterBundlePinDurableStore;
 };
 
 export type DurableExamFormEncounterBundlePins = {
   examFormId: string;
   pins: readonly DurableExamStationEncounterBundlePin[];
-  durableStore: "database_source_of_truth";
+  durableStore: EncounterBundlePinDurableStore;
   claimScope: typeof durableExamStationEncounterBundlePinClaimScope;
   notEvidenceFor: typeof durableExamStationEncounterBundlePinNotEvidenceFor;
 };
@@ -75,3 +77,9 @@ export type LaunchPinnedStationAssetsRefusal = {
 export type LaunchPinnedStationAssetsResult =
   | LaunchPinnedStationAssetsSuccess
   | LaunchPinnedStationAssetsRefusal;
+
+export type ExamFormEncounterBundlePinPersistencePort = {
+  readonly durableStore: EncounterBundlePinDurableStore;
+  persist(input: PersistExamFormEncounterBundlePinsInput): Promise<DurableExamFormEncounterBundlePins>;
+  load(examFormId: string): Promise<DurableExamFormEncounterBundlePins | null>;
+};

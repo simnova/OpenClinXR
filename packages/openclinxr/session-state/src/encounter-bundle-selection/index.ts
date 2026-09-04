@@ -7,6 +7,8 @@ export type {
   DurableExamStationEncounterBundlePin,
   DurableExamStationEncounterBundlePinNotEvidenceFor,
   DurablePromotedEncounterBundleLookupEntry,
+  EncounterBundlePinDurableStore,
+  ExamFormEncounterBundlePinPersistencePort,
   LaunchPinnedStationAssetsInput,
   LaunchPinnedStationAssetsRefusal,
   LaunchPinnedStationAssetsResult,
@@ -15,5 +17,7 @@ export type {
 } from "./types.js";
 export {
   createDurableExamFormEncounterBundlePins,
-  MemoryExamFormEncounterBundlePinStore,
+  inspectLaunchCatalog,
+  launchPinnedStationAssetsFromPort,
+  LocalTestExamFormEncounterBundlePinStore,
 } from "./durable-pins.js";

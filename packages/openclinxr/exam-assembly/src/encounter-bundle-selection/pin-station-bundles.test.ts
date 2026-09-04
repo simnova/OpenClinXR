@@ -1,5 +1,8 @@
+import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import { describe, expect, it } from "vitest";
+import { assembleExamFormWithPinnedEncounterBundles } from "./assemble-exam-form-with-pinned-bundles.js";
 import { pinExamStationEncounterBundles } from "./pin-station-bundles.js";
+import type { ExamBlueprint } from "../types.js";
 import type {
   ExamStationBundlePinTarget,
   PromotedEncounterBundleCatalogEntry,
@@ -104,6 +107,61 @@ describe("pinExamStationEncounterBundles", () => {
   });
 });
 
+describe("assembleExamFormWithPinnedEncounterBundles", () => {
+  it("pins opaque bundles onto a real assembled form for two clinical archetypes", () => {
+    const result = assembleExamFormWithPinnedEncounterBundles({
+      examFormId: "form_two_archetype_pilot",
+      blueprint: twoStationBlueprint(),
+      scenarios: [
+        approvedScenario(ED_SCENARIO, "ED chest pain"),
+        approvedScenario(PEDS_SCENARIO, "Peds asthma"),
+      ],
+      catalog: [edCatalog(), pedsCatalog()],
+    });
+    expect(result.assembled).toBe(true);
+    if (!result.assembled) {
+      throw new Error(result.blockers.join(", "));
+    }
+    expect(result.form.stationRefs.map((ref) => ref.scenarioId)).toEqual([ED_SCENARIO, PEDS_SCENARIO]);
+    expect(result.pins.map((pin) => pin.bundleId)).toEqual([ED_BUNDLE, PEDS_BUNDLE]);
+    expect(result.pins.map((pin) => pin.bundleId).join(" ")).not.toMatch(/fixture|local_exam_run/u);
+  });
+
+  it("fails closed from assembly when the catalog identity does not match the station", () => {
+    const result = assembleExamFormWithPinnedEncounterBundles({
+      examFormId: "form_mismatch",
+      blueprint: twoStationBlueprint(),
+      scenarios: [
+        approvedScenario(ED_SCENARIO, "ED chest pain"),
+        approvedScenario(PEDS_SCENARIO, "Peds asthma"),
+      ],
+      catalog: [{ ...edCatalog(), scenarioId: PEDS_SCENARIO }, pedsCatalog()],
+    });
+    expect(result.assembled).toBe(false);
+    if (!result.assembled) {
+      expect(result.pins).toEqual([]);
+      expect(result.blockers).toContain(`station:${ED_SLOT}:identity_mismatch:${ED_BUNDLE}`);
+    }
+  });
+
+  it("fails closed before pinning when the assembled form is incomplete", () => {
+    const result = assembleExamFormWithPinnedEncounterBundles({
+      examFormId: "form_incomplete",
+      blueprint: twoStationBlueprint(),
+      scenarios: [approvedScenario(ED_SCENARIO, "ED chest pain")],
+      catalog: [edCatalog(), pedsCatalog()],
+    });
+    expect(result.assembled).toBe(false);
+    if (!result.assembled) {
+      expect(result.form.status).toBe("blueprint_incomplete");
+      expect(result.pins).toEqual([]);
+      expect(result.blockers).toContain(
+        "form:form_incomplete:assembly_not_ready:blueprint_incomplete",
+      );
+    }
+  });
+});
+
 function edStation(): ExamStationBundlePinTarget {
   return {
     stationOrder: 1,
@@ -143,5 +201,45 @@ function pedsCatalog(): PromotedEncounterBundleCatalogEntry {
     runtimeEligibility: "promoted",
     frozenForEncounter: true,
     identityScope: "learner_runtime_opaque_bundle",
+  };
+}
+
+function twoStationBlueprint(): ExamBlueprint {
+  return {
+    blueprintId: "blueprint_two_archetype_v1",
+    title: "Two archetype form",
+    stationSlots: [
+      {
+        slotId: ED_SLOT,
+        order: 1,
+        label: "ED chest pain",
+        requiredEnvironmentIds: [],
+        requiredTraceTags: [],
+      },
+      {
+        slotId: PEDS_SLOT,
+        order: 2,
+        label: "Peds asthma",
+        requiredEnvironmentIds: [],
+        requiredTraceTags: [],
+      },
+    ],
+    timing: {
+      doorwaySeconds: 60,
+      encounterSeconds: 900,
+      noteSeconds: 600,
+      breakAfterStationOrders: [],
+    },
+    requiredTraceTags: [],
+    requiredSafetyCriticalTraceTags: [],
+  };
+}
+
+function approvedScenario(scenarioId: string, title: string) {
+  return {
+    ...edChestPainScenario,
+    scenarioId,
+    title,
+    status: "approved" as const,
   };
 }
