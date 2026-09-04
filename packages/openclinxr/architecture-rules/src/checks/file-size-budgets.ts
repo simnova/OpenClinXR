@@ -167,13 +167,51 @@ function zoneBudgetFor(
   return zoneBudgets.find((z) => rel.startsWith(z.prefix))?.maxLines;
 }
 
+type HonestyMeasure =
+  | { kind: "lines"; lines: number }
+  | { kind: "absent" }
+  | { kind: "unmeasured" };
+
+/**
+ * Index occupancy for a freeze-list path.
+ * `git ls-files` succeeding with an empty listing is "path absent from index"
+ * (staged `git rm`, including `--cached`). `git ls-files` failing is "no usable
+ * index" (non-git fixture) — not the same signal as a missing index entry.
+ */
+function indexPathState(root: string, rel: string): "present" | "absent" | "no-index" {
+  try {
+    const out = execFileSync("git", ["ls-files", "--full-name", "--", rel], {
+      cwd: root,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    });
+    return out
+      .split(/\r?\n/)
+      .filter((name) => name.length > 0)
+      .includes(rel)
+      ? "present"
+      : "absent";
+  } catch {
+    return "no-index";
+  }
+}
+
 /**
  * Line count the freeze-list honesty sweep is allowed to see.
- * Index (`git show :0:`) first — that is the commit being formed — then HEAD,
- * then undefined so the caller falls back to the working tree (non-git fixtures).
+ * A usable index that does not list the path is a staged deletion — do not
+ * fall back to HEAD. HEAD / working-tree fallbacks apply only when there is
+ * no usable index (non-git fixtures).
  */
-function measureHonestyLines(root: string, rel: string): number | undefined {
-  return readIndexLines(root, rel) ?? readCommittedLines(root, rel);
+function measureHonestyLines(root: string, rel: string): HonestyMeasure {
+  const indexState = indexPathState(root, rel);
+  if (indexState === "absent") return { kind: "absent" };
+  if (indexState === "present") {
+    const fromIndex = readIndexLines(root, rel);
+    if (fromIndex !== undefined) return { kind: "lines", lines: fromIndex };
+  }
+  const fromHead = readCommittedLines(root, rel);
+  if (fromHead !== undefined) return { kind: "lines", lines: fromHead };
+  return { kind: "unmeasured" };
 }
 
 // ── Public check functions (pure — no vitest) ───────────────────────────────
@@ -259,10 +297,15 @@ export function checkFreezeListHonesty(config?: FileSizeBudgetConfig): string[] 
     // file that grows past its ceiling is measured at the index and reported.
     //
     // Unconditional working-tree reads are refused: CI commits nothing and must still measure
-    // committed content. Index when `git show :0:` succeeds; else HEAD; else working tree.
-    const committed = measureHonestyLines(root, rel);
-    if (committed !== undefined) {
-      lines = committed;
+    // committed content. Path present in the index → index bytes; path absent from a usable
+    // index → staged deletion (do not read HEAD); no usable index → HEAD then working tree.
+    const measured = measureHonestyLines(root, rel);
+    if (measured.kind === "absent") {
+      stale.push(`${rel}: file no longer exists — remove freeze entry`);
+      continue;
+    }
+    if (measured.kind === "lines") {
+      lines = measured.lines;
     } else {
       try {
         lines = countLines(root, rel);

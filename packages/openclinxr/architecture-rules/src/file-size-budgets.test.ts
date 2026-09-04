@@ -8,7 +8,9 @@ import { checkFreezeListHonesty } from "./checks/file-size-budgets.js";
  * Non-git / missing-file fallbacks for freeze-list honesty. The index-vs-HEAD
  * ratchet lives in src/checks/the-ratchet-measures-what-is-being-committed.test.ts.
  * Unconditional working-tree reads are the CI-breaking cheap pass; these cases
- * only apply when git show of both index and HEAD fail (synthetic fixtures).
+ * only apply when there is no usable index (`git ls-files` fails). A staged
+ * deletion is the other signal — path absent from a usable index — and is
+ * asserted in the ratchet file, not here.
  */
 
 const ZONE_BUDGETS = [{ prefix: "packages/openclinxr/", maxLines: 10 }] as const;

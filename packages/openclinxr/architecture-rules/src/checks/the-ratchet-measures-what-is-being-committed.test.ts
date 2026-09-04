@@ -26,6 +26,13 @@ import { checkFreezeListHonesty } from "./file-size-budgets.js";
  *
  * Honesty now prefers `git show :0:<file>` (the index / the commit being
  * formed), then HEAD, then the working tree for non-git fixtures.
+ *
+ * ## FIXED (tsk_52788fa5047bc963 review correction)
+ *
+ * `git show :0:` failing is not "try HEAD". A usable index that does not list
+ * the path is a staged deletion and must report "file no longer exists".
+ * `git ls-files` failing (non-git fixture) remains the only HEAD/working-tree
+ * fallback.
  */
 
 const ZONE_BUDGETS = [{ prefix: "packages/openclinxr/", maxLines: 10 }] as const;
@@ -107,5 +114,16 @@ describe("the ratchet measures what is being committed", () => {
     writeFileSync(join(root, REL), textWithLines(STAGED_REPAIR));
     const stale = honesty(root);
     expect(stale).toContain(impossible(HEAD_GROWN));
+  });
+
+  it("(4) COUNTERWEIGHT: a staged deletion is measured as absent, not as HEAD", () => {
+    const { root } = makeGitRepo(HEAD_GROWN);
+    git(root, ["rm", "-q", "--", REL]);
+    const stale = honesty(root);
+    expect(stale).toContain(`${REL}: file no longer exists — remove freeze entry`);
+    expect(
+      stale.filter((v) => v.includes("impossible")),
+      "staged git rm fell through to HEAD line count",
+    ).toEqual([]);
   });
 });
