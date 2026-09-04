@@ -37,7 +37,7 @@ import {
   createLearnerExamFormRunState,
 } from "./learner-exam-form-boot.js";
 import { scenariosFromFixtureSequence } from "./learner-exam-scenario-source.js";
-import { buildStationEnvironment } from "./station-environment.js";
+import { mountStationEnvironmentForRuntime } from "./compiled-room-runtime-mount.js";
 import {
   collectActorWorldBoxes,
   deriveInteriorPreviewCamera,
@@ -3315,7 +3315,7 @@ function updateReusableExteriorAnteroomVisibility(side: PortalTransitionEvidence
   return hiddenObjectNames;
 }
 
-function createStationScene(): StationSceneRuntime {
+async function createStationScene(): Promise<StationSceneRuntime> {
   recordBootPhase("station_scene_start");
   const doorwayTheme = scenarioDoorwayVisualTheme();
   const renderer = new WebGLRenderer({ canvas, antialias: true });
@@ -3430,7 +3430,7 @@ function createStationScene(): StationSceneRuntime {
 
   // #44: station shell from shared environmentId descriptor (not scenarioId doorway tint alone).
   const activeEnvironmentId = resolveActiveEnvironmentId();
-  const stationEnvironment = buildStationEnvironment({ environmentId: activeEnvironmentId });
+  const stationEnvironment = await mountStationEnvironmentForRuntime({ environmentId: activeEnvironmentId, environment: encounterRuntimeAssetBundle.environment });
   const floor = (stationEnvironment.userData.floorMesh as Mesh | undefined)
     ?? new Mesh(new BoxGeometry(7, 0.08, 3.45), new MeshStandardMaterial({ color: doorwayTheme.floorColor, roughness: 0.8 }));
   floor.name = iwsdkStationSceneObjects.floor;
@@ -3467,7 +3467,7 @@ function createStationScene(): StationSceneRuntime {
     environmentFallbackActive: stationEnvironment.userData.environmentFallbackActive,
   };
   // #336: generated Infinigen room selected by environmentId; procedural box stays as fallback.
-  if (!cleanHumanoidSourceComparatorCapture) {
+  if (!cleanHumanoidSourceComparatorCapture && stationEnvironment.userData.openClinXrCompiledRoom !== true) {
     loadInfinigenEnvironmentIntoStation({
       scene,
       environmentId: activeEnvironmentId,
@@ -3530,7 +3530,7 @@ function createStationScene(): StationSceneRuntime {
     }
   }
   if (!cleanHumanoidSourceComparatorCapture) {
-    // Room walls/floor come from buildStationEnvironment (environmentId descriptor).
+    // Room walls/floor: mountStationEnvironmentForRuntime; buildStationEnvironment is parametric fallback.
     addScenarioSpecificClinicalSetDressing(scene, doorwayTheme);
   }
 
@@ -9963,7 +9963,7 @@ async function bootStationScene(): Promise<void> {
   updateReadiness();
   updateTraceActionHandoffEvidence();
   try {
-    stationScene = createStationScene();
+    stationScene = await createStationScene();
     recordBootPhase("station_scene_ready");
     window.setInterval(updateManualEvidencePanel, 1000);
   } catch (error) {
