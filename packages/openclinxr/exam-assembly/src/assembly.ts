@@ -16,9 +16,8 @@ import type {
   AssembleExamFormInput,
   ScenarioVersionDrift,
   BlueprintScenarioReadiness,
-  ExamTimingWindow,
-  ExamStationTimingWindow,
   ExamTimingPlan,
+  ExamFormTimingOptions,
   ExamStationRunQueueStatus,
   ExamStationRunQueueItem,
   ExamStationRunQueue,
@@ -34,6 +33,7 @@ import type {
   CreateExamStationRunQueueSnapshotInput,
 } from "./types.js";
 import { selectExamStationScenarios, STEP2CS_STATION_COUNT } from "./station-selection.js";
+import { buildExamTimingPlan } from "./exam-form-breaks.js";
 
 const step2CsStyleTiming: ExamBlueprintTiming = {
   doorwaySeconds: 60,
@@ -162,42 +162,19 @@ export function evaluateBlueprintScenarioReadiness(blueprint: ExamBlueprint, sce
   };
 }
 
-export function createExamTimingPlan(blueprint: ExamBlueprint): ExamTimingPlan {
-  const sortedSlots = [...blueprint.stationSlots].sort((left, right) => left.order - right.order || left.slotId.localeCompare(right.slotId));
-  const stationWindows = sortedSlots.map((slot, index): ExamStationTimingWindow => {
-    const startsAtSecond = index * stationDurationSeconds(blueprint.timing);
-    const doorway = timingWindow(startsAtSecond, blueprint.timing.doorwaySeconds);
-    const encounter = timingWindow(doorway.endsAtSecond, blueprint.timing.encounterSeconds);
-    const note = timingWindow(encounter.endsAtSecond, blueprint.timing.noteSeconds);
-
-    return {
-      stationOrder: slot.order,
-      slotId: slot.slotId,
-      label: slot.label,
-      doorway,
-      encounter,
-      note,
-    };
-  });
-
-  const breakCheckpoints = [...new Set(blueprint.timing.breakAfterStationOrders)]
-    .map((afterStationOrder) => {
-      const station = stationWindows.find((window) => window.stationOrder === afterStationOrder);
-      return station ? { afterStationOrder, atSecond: station.note.endsAtSecond } : undefined;
-    })
-    .filter((checkpoint): checkpoint is { afterStationOrder: number; atSecond: number } => Boolean(checkpoint))
-    .sort((left, right) => left.atSecond - right.atSecond || left.afterStationOrder - right.afterStationOrder);
-
-  return {
-    blueprintId: blueprint.blueprintId,
-    stationWindows,
-    breakCheckpoints,
-    totalStationTimeSeconds: stationWindows.at(-1)?.note.endsAtSecond ?? 0,
-  };
+export function createExamTimingPlan(
+  blueprint: ExamBlueprint,
+  options: ExamFormTimingOptions = {},
+): ExamTimingPlan {
+  return buildExamTimingPlan(blueprint, options);
 }
 
-export function createExamStationRunQueue(blueprint: ExamBlueprint, scenarios: readonly Scenario[]): ExamStationRunQueue {
-  const timingPlan = createExamTimingPlan(blueprint);
+export function createExamStationRunQueue(
+  blueprint: ExamBlueprint,
+  scenarios: readonly Scenario[],
+  options: ExamFormTimingOptions = {},
+): ExamStationRunQueue {
+  const timingPlan = createExamTimingPlan(blueprint, options);
   const scenarioBySlotOrder = new Map(scenarios.map((scenario, index) => [index + 1, scenario]));
   const stationQueue = timingPlan.stationWindows.map((timing): ExamStationRunQueueItem => {
     const scenario = scenarioBySlotOrder.get(timing.stationOrder);
@@ -232,7 +209,10 @@ export function createExamStationRunQueue(blueprint: ExamBlueprint, scenarios: r
     canStartLearnerExam: stationQueue.every((station) => station.status === "activation_ready"),
     stationQueue,
     breakCheckpoints: timingPlan.breakCheckpoints,
+    breakWindows: timingPlan.breakWindows,
     totalStationTimeSeconds: timingPlan.totalStationTimeSeconds,
+    totalBreakTimeSeconds: timingPlan.totalBreakTimeSeconds,
+    totalFormTimeSeconds: timingPlan.totalFormTimeSeconds,
     summary: stationRunQueueSummary(stationQueue),
   };
 }
@@ -438,18 +418,6 @@ function stationRunQueueSummary(stationQueue: readonly ExamStationRunQueueItem[]
     draftBlocked: stationQueue.filter((station) => station.status === "draft_blocked").length,
     governanceBlocked: stationQueue.filter((station) => station.status === "governance_blocked").length,
     missingScenario: stationQueue.filter((station) => station.status === "missing_scenario").length,
-  };
-}
-
-function stationDurationSeconds(timing: ExamBlueprintTiming): number {
-  return timing.doorwaySeconds + timing.encounterSeconds + timing.noteSeconds;
-}
-
-function timingWindow(startsAtSecond: number, durationSeconds: number): ExamTimingWindow {
-  return {
-    startsAtSecond,
-    endsAtSecond: startsAtSecond + durationSeconds,
-    durationSeconds,
   };
 }
 
