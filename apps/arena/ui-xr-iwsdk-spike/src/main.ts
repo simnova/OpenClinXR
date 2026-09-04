@@ -662,9 +662,7 @@ function createStationScene(): StationSceneRuntime {
     void loadMpfbRadialPulsePatient({ scene, camera, interaction: radialPulse })
       .catch((error: unknown) => recordBootPhase("radial_pulse_mpfb_patient_failed", error));
   }
-  if (shouldInstallUikitmlSpatialTextPanel(radialPulseDemoEnabled)) {
-    void installUikitmlSpatialTextPanel();
-  }
+  if (shouldInstallUikitmlSpatialTextPanel(radialPulseDemoEnabled)) void installUikitmlSpatialTextPanel();
   let lastPanelSignature = "";
   applyEvidenceCaptureLayout({
     enabled: iwerEvidenceViewMode === "wide_iwer_capture",
