@@ -42,7 +42,6 @@ import { print } from "graphql";
 import type { AdminAssembledExamReplayProjection } from "./AssembledExamReplayTimeline.js";
 export type { AdminAssembledExamReplayProjection };
 export type AdminApolloGraphqlClient = Pick<ApolloClient, "mutate" | "query">;
-
 export type AdminNoReadinessEvidenceClaim =
   | "provider_availability"
   | "runtime_readiness"
@@ -1406,4 +1405,4 @@ export type AdminScenarioReviewDecision = ScenarioReviewDecisionsQuery["scenario
 export type AdminScenarioReviewResult = SubmitScenarioReviewMutation["submitScenarioReview"];
 export type AdminReviewPacket = SaveFacultyScoreDraftMutation["saveFacultyScoreDraft"];
 export type AdminStationRunQueueSnapshot = StationRunQueueSnapshotsQuery["stationRunQueueSnapshots"][number];
-
+export type { AuthoredDialogueSeedDraft, DialogueSeedPublicationGate, FrozenActorTurnPlanPreview } from "./DialogueSeedAuthoringPanel.js";
