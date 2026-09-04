@@ -40,8 +40,70 @@ describe("assembled station clock", () => {
       lastObservedFormSecond: beforeRestart.lastObservedFormSecond,
     });
     expect(afterRestart.remainingEncounterSeconds).toBe(800);
-    expect(afterRestart.noteDeadlineFormSecond).toBe(1260);
+    expect(afterRestart.noteDeadlineFormSecond).toBe(0);
     expect(afterRestart.remainingNoteSeconds).toBe(0);
+  });
+
+  it("anchors a delayed encounter.started to start + authored duration, including after restart", () => {
+    const admitted = [started(100)];
+    const live = observeAssembledStationClock({
+      formTiming,
+      admittedEvents: admitted,
+      nowFormSecond: 160,
+    });
+    expect(live.encounterDeadlineFormSecond).toBe(1000);
+    expect(live.remainingEncounterSeconds).toBe(840);
+    expect(live.dueTimeoutTransitions).toEqual([]);
+
+    const stillOpenAtPlannedEnd = observeAssembledStationClock({
+      formTiming,
+      admittedEvents: admitted,
+      nowFormSecond: 960,
+      lastObservedFormSecond: 160,
+    });
+    expect(stillOpenAtPlannedEnd.remainingEncounterSeconds).toBe(40);
+    expect(stillOpenAtPlannedEnd.dueTimeoutTransitions).toEqual([]);
+
+    const resumed = observeAssembledStationClock({
+      formTiming,
+      admittedEvents: admitted,
+      nowFormSecond: 160,
+      lastObservedFormSecond: 160,
+    });
+    expect(resumed.remainingEncounterSeconds).toBe(840);
+    expect(resumed.encounterDeadlineFormSecond).toBe(1000);
+  });
+
+  it("anchors a delayed note.started to start + authored duration after restart", () => {
+    const admitted: AssembledStationClockAdmittedEvent[] = [
+      started(60),
+      { eventType: "encounter.ended", formAtSecond: 960 },
+      { eventType: "note.started", formAtSecond: 980 },
+    ];
+    const live = observeAssembledStationClock({
+      formTiming,
+      admittedEvents: admitted,
+      nowFormSecond: 1080,
+    });
+    expect(live.noteDeadlineFormSecond).toBe(1280);
+    expect(live.remainingNoteSeconds).toBe(200);
+
+    const atPlannedNoteEnd = observeAssembledStationClock({
+      formTiming,
+      admittedEvents: admitted,
+      nowFormSecond: 1260,
+      lastObservedFormSecond: 1080,
+    });
+    expect(atPlannedNoteEnd.remainingNoteSeconds).toBe(20);
+    expect(atPlannedNoteEnd.dueTimeoutTransitions).toEqual([]);
+
+    const resumed = observeAssembledStationClock({
+      formTiming,
+      admittedEvents: admitted,
+      nowFormSecond: 1080,
+      lastObservedFormSecond: 1080,
+    });
+    expect(resumed.remainingNoteSeconds).toBe(200);
   });
 
   it("starts the note deadline from persisted note.started and reconstructs remaining after restart", () => {
@@ -130,6 +192,23 @@ describe("assembled station clock", () => {
     expect(new Set(snapshot.dueTimeoutTransitions.map((transition) => transition.eventType)).size).toBe(4);
   });
 
+  it("catch-up after a delayed encounter.started uses generated note.started as the note-submission anchor", () => {
+    const snapshot = observeAssembledStationClock({
+      formTiming,
+      admittedEvents: [started(100)],
+      nowFormSecond: 2000,
+      lastObservedFormSecond: 160,
+    });
+    expect(snapshot.dueTimeoutTransitions.map((transition) => [transition.eventType, transition.formAtSecond])).toEqual([
+      ["encounter.ended", 1000],
+      ["note.started", 1000],
+      ["note.submitted", 1300],
+      ["station.advanced", 1300],
+    ]);
+    expect(snapshot.noteDeadlineFormSecond).toBe(1300);
+    expect(snapshot.remainingNoteSeconds).toBe(0);
+  });
+
   it("uses the last-station timeout advance reason when the timed-out station is last", () => {
     const snapshot = observeAssembledStationClock({
       formTiming,
@@ -171,6 +250,86 @@ describe("assembled station clock", () => {
     expect(snapshot.dueTimeoutTransitions[0]?.source).toBe("manual");
     expect(snapshot.dueTimeoutTransitions[1]?.source).toBe("timeout");
     expect(snapshot.dueTimeoutTransitions[1]?.advanceReason).toBe("patient_note_submitted_advancing");
+  });
+
+  it("fails closed on malformed admitted timestamps and out-of-order events", () => {
+    expect(() =>
+      observeAssembledStationClock({
+        formTiming,
+        admittedEvents: [{ eventType: "encounter.started", formAtSecond: 60.5 }],
+        nowFormSecond: 160,
+      }),
+    ).toThrow(/non-negative integer/);
+
+    expect(() =>
+      observeAssembledStationClock({
+        formTiming,
+        admittedEvents: [{ eventType: "encounter.started", formAtSecond: -1 }],
+        nowFormSecond: 160,
+      }),
+    ).toThrow(/non-negative integer/);
+
+    expect(() =>
+      observeAssembledStationClock({
+        formTiming,
+        admittedEvents: [
+          started(60),
+          { eventType: "note.started", formAtSecond: 960 },
+        ],
+        nowFormSecond: 960,
+      }),
+    ).toThrow(/out-of-order/);
+  });
+
+  it("fails closed on foreign or skip-ahead manualCompletion", () => {
+    expect(() =>
+      observeAssembledStationClock({
+        formTiming,
+        admittedEvents: [started(60)],
+        nowFormSecond: 200,
+        manualCompletion: {
+          eventType: "note.submitted",
+          formAtSecond: 200,
+          advanceReason: "patient_note_submitted_advancing",
+        },
+      }),
+    ).toThrow(/foreign manual completion/);
+
+    expect(() =>
+      observeAssembledStationClock({
+        formTiming,
+        admittedEvents: [started(60)],
+        nowFormSecond: 200,
+        manualCompletion: {
+          eventType: "encounter.started",
+          formAtSecond: 200,
+        },
+      }),
+    ).toThrow(/foreign manual completion/);
+
+    expect(() =>
+      observeAssembledStationClock({
+        formTiming,
+        admittedEvents: [],
+        nowFormSecond: 200,
+        manualCompletion: {
+          eventType: "encounter.ended",
+          formAtSecond: 200,
+        },
+      }),
+    ).toThrow(/foreign manual completion/);
+
+    expect(() =>
+      observeAssembledStationClock({
+        formTiming,
+        admittedEvents: [started(60)],
+        nowFormSecond: 200,
+        manualCompletion: {
+          eventType: "encounter.ended",
+          formAtSecond: 199,
+        },
+      }),
+    ).toThrow(/nowFormSecond/);
   });
 
   it("does not start timeouts until encounter.started is persisted", () => {
@@ -282,5 +441,45 @@ describe("assembled station clock", () => {
       "station.advanced",
     ]);
     expect(catchUp.timeoutTransitions[3]?.advanceReason).toBe(LAST_STATION_TIMEOUT_ADVANCE_REASON);
+
+    const delayedStart = projection.admittedPhaseEvents[0];
+    expect(delayedStart).toBeDefined();
+    if (!delayedStart) {
+      return;
+    }
+    const delayedProjection = {
+      ...projection,
+      admittedPhaseEvents: [
+        {
+          ...delayedStart,
+          atSecond: 100,
+          formAtSecond: 100,
+        },
+      ],
+    };
+    const delayed = applyAssembledStationTimeouts({
+      form,
+      timingPlan,
+      projection: delayedProjection,
+      nowFormSecond: 960,
+      lastObservedFormSecond: 160,
+    });
+    expect(delayed.clock.encounterDeadlineFormSecond).toBe(1000);
+    expect(delayed.clock.remainingEncounterSeconds).toBe(40);
+    expect(delayed.timeoutTransitions).toEqual([]);
+
+    const delayedCatchUp = applyAssembledStationTimeouts({
+      form,
+      timingPlan,
+      projection: delayedProjection,
+      nowFormSecond: 2000,
+      lastObservedFormSecond: 960,
+    });
+    expect(delayedCatchUp.timeoutTransitions.map((transition) => [transition.eventType, transition.formAtSecond])).toEqual([
+      ["encounter.ended", 1000],
+      ["note.started", 1000],
+      ["note.submitted", 1300],
+      ["station.advanced", 1300],
+    ]);
   });
 });

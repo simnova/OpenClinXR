@@ -428,9 +428,10 @@ export function applyAssembledStationTimeouts(
     return { decision, clock, timeoutTransitions: [] };
   }
 
-  const stationEvents = input.projection.admittedPhaseEvents.filter(
-    (event) => event.stationRunId === station.stationRunId,
-  );
+  const stationEvents = input.projection.admittedPhaseEvents
+    .filter((event) => event.stationRunId === station.stationRunId)
+    .slice()
+    .sort((left, right) => (PHASE_RANK.get(left.eventType) ?? -1) - (PHASE_RANK.get(right.eventType) ?? -1));
   const lastFormOrder = Math.max(...input.form.stationRefs.map((ref) => ref.order));
   const clock = observeAssembledStationClock({
     formTiming: station.assembledStation.formTiming,

@@ -1,12 +1,14 @@
 /**
  * Deterministic assembled-station timing authority.
  *
- * Deadlines come from form windows plus persisted canonical start events.
- * Remaining time is reconstructed from those timestamps and an injected
- * form-second clock. No wall-clock reads.
+ * Encounter/note deadlines are start.formAtSecond + authored window duration.
+ * Catch-up generated note.started is the note-submission anchor. No wall-clock reads.
  */
-import type { AssembledExamPhaseTransitionType } from "@openclinxr/review-workflow";
-import type { AssembledStationFormTiming } from "./runtime-types.js";
+import {
+  ASSEMBLED_EXAM_PHASE_TRANSITION_TYPES,
+  type AssembledExamPhaseTransitionType,
+} from "@openclinxr/review-workflow";
+import type { AssembledStationFormTiming, AssembledStationFormWindow } from "./runtime-types.js";
 
 export const assembledStationClockClaimBoundary =
   "assembled_station_clock_not_exam_equivalence" as const;
@@ -29,6 +31,10 @@ const TIMEOUT_CHAIN = [
   "note.submitted",
   "station.advanced",
 ] as const satisfies readonly AssembledExamPhaseTransitionType[];
+
+const PHASE_RANK = new Map<string, number>(
+  ASSEMBLED_EXAM_PHASE_TRANSITION_TYPES.map((eventType, index) => [eventType, index]),
+);
 
 export type AssembledStationClockAdmittedEvent = {
   eventType: AssembledExamPhaseTransitionType;
@@ -85,41 +91,118 @@ function maxAdmittedFormSecond(events: readonly AssembledStationClockAdmittedEve
   return events.reduce((max, event) => Math.max(max, event.formAtSecond), 0);
 }
 
-function deadlineFor(
-  eventType: (typeof TIMEOUT_CHAIN)[number],
-  formTiming: AssembledStationFormTiming,
-): number {
-  if (eventType === "encounter.ended") {
-    return formTiming.encounter.endsAtSecond;
+function authoredDuration(window: AssembledStationFormWindow, fieldName: string): number {
+  requireIntegerSecond(window.startsAtSecond, `${fieldName}.startsAtSecond`);
+  requireIntegerSecond(window.endsAtSecond, `${fieldName}.endsAtSecond`);
+  const duration = window.endsAtSecond - window.startsAtSecond;
+  if (!Number.isInteger(duration) || duration < 0) {
+    throw new Error(`assembled station clock requires non-negative ${fieldName} duration`);
   }
-  if (eventType === "note.started") {
-    return formTiming.note.startsAtSecond;
+  return duration;
+}
+
+function findAdmitted(
+  events: readonly AssembledStationClockAdmittedEvent[],
+  eventType: AssembledExamPhaseTransitionType,
+): AssembledStationClockAdmittedEvent | undefined {
+  return events.find((event) => event.eventType === eventType);
+}
+
+function validateAdmittedEvents(events: readonly AssembledStationClockAdmittedEvent[]): void {
+  const seen = new Set<string>();
+  let previousRank = -1;
+  let previousAt = 0;
+  for (const event of events) {
+    if (!PHASE_RANK.has(event.eventType)) {
+      throw new Error(`assembled station clock rejects noncanonical event type ${String(event.eventType)}`);
+    }
+    requireIntegerSecond(event.formAtSecond, `${event.eventType}.formAtSecond`);
+    if (seen.has(event.eventType)) {
+      throw new Error(`assembled station clock rejects duplicated ${event.eventType}`);
+    }
+    const rank = PHASE_RANK.get(event.eventType) ?? -1;
+    if (rank !== previousRank + 1) {
+      throw new Error(`assembled station clock rejects out-of-order ${event.eventType}`);
+    }
+    if (event.formAtSecond < previousAt) {
+      throw new Error(`assembled station clock rejects decreasing ${event.eventType} timestamp`);
+    }
+    seen.add(event.eventType);
+    previousRank = rank;
+    previousAt = event.formAtSecond;
   }
-  return formTiming.note.endsAtSecond;
+}
+
+function nextLegalManualEvent(
+  present: ReadonlySet<AssembledExamPhaseTransitionType>,
+): (typeof TIMEOUT_CHAIN)[number] | null {
+  if (!present.has("encounter.started")) {
+    return null;
+  }
+  for (const eventType of TIMEOUT_CHAIN) {
+    if (!present.has(eventType)) {
+      return eventType;
+    }
+  }
+  return null;
+}
+
+function requireLegalManualCompletion(
+  present: ReadonlySet<AssembledExamPhaseTransitionType>,
+  manual: AssembledStationClockManualCompletion,
+  nowFormSecond: number,
+): void {
+  requireIntegerSecond(manual.formAtSecond, "manualCompletion.formAtSecond");
+  if (manual.formAtSecond !== nowFormSecond) {
+    throw new Error("assembled station clock manual completion must occur at nowFormSecond");
+  }
+  const next = nextLegalManualEvent(present);
+  if (next === null || manual.eventType !== next) {
+    throw new Error(
+      `assembled station clock rejects foreign manual completion ${String(manual.eventType)}`,
+    );
+  }
 }
 
 function timeoutAdvanceReason(isLastStation: boolean): string {
   return isLastStation ? LAST_STATION_TIMEOUT_ADVANCE_REASON : STATION_TIMEOUT_ADVANCE_REASON;
 }
 
-function dueTransitions(input: ObserveAssembledStationClockInput): AssembledStationTimeoutTransition[] {
+function dueTransitions(
+  input: ObserveAssembledStationClockInput,
+  encounterDuration: number,
+  noteDuration: number,
+): AssembledStationTimeoutTransition[] {
   const present = admittedTypes(input.admittedEvents);
-  if (!present.has("encounter.started")) {
+  const started = findAdmitted(input.admittedEvents, "encounter.started");
+  if (!started) {
     return [];
   }
 
   const manual = input.manualCompletion;
   const due: AssembledStationTimeoutTransition[] = [];
   const isLastStation = input.isLastStation === true;
+  let encounterEndedAt = findAdmitted(input.admittedEvents, "encounter.ended")?.formAtSecond;
+  let noteStartedAt = findAdmitted(input.admittedEvents, "note.started")?.formAtSecond;
+  const encounterDeadline = started.formAtSecond + encounterDuration;
 
   for (const eventType of TIMEOUT_CHAIN) {
     if (present.has(eventType)) {
       continue;
     }
-    const dueAt = deadlineFor(eventType, input.formTiming);
-    const manualHits = manual !== undefined
-      && manual.eventType === eventType
-      && manual.formAtSecond === input.nowFormSecond;
+    let dueAt: number;
+    if (eventType === "encounter.ended") {
+      dueAt = encounterDeadline;
+    } else if (eventType === "note.started") {
+      dueAt = Math.max(input.formTiming.note.startsAtSecond, encounterEndedAt ?? encounterDeadline);
+    } else {
+      const noteAnchor = noteStartedAt;
+      if (noteAnchor === undefined) {
+        break;
+      }
+      dueAt = noteAnchor + noteDuration;
+    }
+    const manualHits = manual !== undefined && manual.eventType === eventType;
     const timeoutHits = input.nowFormSecond >= dueAt;
     if (!manualHits && !timeoutHits) {
       break;
@@ -135,6 +218,12 @@ function dueTransitions(input: ObserveAssembledStationClockInput): AssembledStat
     }
     due.push(transition);
     present.add(eventType);
+    if (eventType === "encounter.ended") {
+      encounterEndedAt = transition.formAtSecond;
+    }
+    if (eventType === "note.started") {
+      noteStartedAt = transition.formAtSecond;
+    }
   }
 
   return due;
@@ -149,6 +238,12 @@ export function observeAssembledStationClock(input: ObserveAssembledStationClock
   if (input.lastObservedFormSecond !== undefined) {
     requireIntegerSecond(input.lastObservedFormSecond, "lastObservedFormSecond");
   }
+  const encounterDuration = authoredDuration(input.formTiming.encounter, "encounter");
+  const noteDuration = authoredDuration(input.formTiming.note, "note");
+  if (input.formTiming.doorway) {
+    authoredDuration(input.formTiming.doorway, "doorway");
+  }
+  validateAdmittedEvents(input.admittedEvents);
   const historyFloor = maxAdmittedFormSecond(input.admittedEvents);
   const lastObservedFloor = input.lastObservedFormSecond ?? historyFloor;
   if (nowFormSecond < lastObservedFloor) {
@@ -156,21 +251,22 @@ export function observeAssembledStationClock(input: ObserveAssembledStationClock
       `clock rollback: nowFormSecond ${nowFormSecond} < lastObservedFormSecond ${lastObservedFloor}`,
     );
   }
+  const present = admittedTypes(input.admittedEvents);
   if (input.manualCompletion) {
-    requireIntegerSecond(input.manualCompletion.formAtSecond, "manualCompletion.formAtSecond");
-    if (input.manualCompletion.formAtSecond !== nowFormSecond) {
-      throw new Error("assembled station clock manual completion must occur at nowFormSecond");
-    }
+    requireLegalManualCompletion(present, input.manualCompletion, nowFormSecond);
   }
 
-  const dueTimeoutTransitions = dueTransitions(input);
-  const present = admittedTypes(input.admittedEvents);
+  const dueTimeoutTransitions = dueTransitions(input, encounterDuration, noteDuration);
   for (const transition of dueTimeoutTransitions) {
     present.add(transition.eventType);
   }
 
-  const encounterDeadlineFormSecond = input.formTiming.encounter.endsAtSecond;
-  const noteDeadlineFormSecond = input.formTiming.note.endsAtSecond;
+  const started = findAdmitted(input.admittedEvents, "encounter.started");
+  const encounterDeadlineFormSecond = started ? started.formAtSecond + encounterDuration : 0;
+  const generatedNoteStart = dueTimeoutTransitions.find((transition) => transition.eventType === "note.started");
+  const noteAnchor = findAdmitted(input.admittedEvents, "note.started")?.formAtSecond
+    ?? generatedNoteStart?.formAtSecond;
+  const noteDeadlineFormSecond = noteAnchor !== undefined ? noteAnchor + noteDuration : 0;
   const remainingEncounterSeconds = present.has("encounter.started") && !present.has("encounter.ended")
     ? Math.max(0, encounterDeadlineFormSecond - nowFormSecond)
     : 0;
