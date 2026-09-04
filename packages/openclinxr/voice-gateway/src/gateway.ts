@@ -23,6 +23,11 @@ import type {
 import {
   realtimeVoiceProtocol,
 } from "./types.js";
+import {
+  transcribeLearnerAudio as transcribeLearnerAudioFixture,
+  type LearnerSttInput,
+  type LearnerSttRecord,
+} from "./learner-stt-adapter.js";
 
 export class VoiceGateway {
   constructor(private readonly options: VoiceGatewayOptions) {}
@@ -39,6 +44,14 @@ export class VoiceGateway {
   async *synthesize(input: SpeechSynthesisRequest): AsyncIterable<AudioEvent> {
     const adapter = await this.firstReadyAdapter("synthesis");
     yield* adapter.synthesize(input);
+  }
+
+  /**
+   * Fixture/unary learner STT. Does not call live providers and does not
+   * require cloud credentials. Production STT gates still record the WER blocker.
+   */
+  transcribeLearnerAudio(input: LearnerSttInput): LearnerSttRecord {
+    return transcribeLearnerAudioFixture(input);
   }
 
   private async firstReadyAdapter(capability: VoiceCapability): Promise<VoiceProviderAdapter> {
