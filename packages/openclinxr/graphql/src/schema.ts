@@ -1,6 +1,16 @@
 import { defaultFieldResolver, type GraphQLFieldResolver } from "graphql";
+import {
+  projectAppendFacultyDispositionResult,
+  projectFacultyDispositionTrail,
+} from "./faculty-disposition.js";
 
 export { openClinXrAdminSchemaSdl } from "./generated/schema.generated.js";
+export {
+  FACULTY_DISPOSITION_CLAIM_BOUNDARY,
+  FACULTY_DISPOSITION_NOT_EVIDENCE_FOR,
+  projectAppendFacultyDispositionResult,
+  projectFacultyDispositionTrail,
+} from "./faculty-disposition.js";
 
 const DIALOGUE_EMOTIONS = new Set(["anxious", "concerned", "reassured", "neutral"]);
 const EVENT_KINDS = new Set([
@@ -90,7 +100,14 @@ export const adminGraphqlFieldResolver: GraphQLFieldResolver<unknown, unknown> =
       return layers.prosodyNeutralized;
     }
   }
-  return defaultFieldResolver(source, args, context, info);
+  const raw = defaultFieldResolver(source, args, context, info);
+  if (info.parentType.name === "Query" && info.fieldName === "assembledExamFacultyDisposition") {
+    return Promise.resolve(raw).then(projectFacultyDispositionTrail);
+  }
+  if (info.parentType.name === "Mutation" && info.fieldName === "appendAssembledExamFacultyDisposition") {
+    return Promise.resolve(raw).then(projectAppendFacultyDispositionResult);
+  }
+  return raw;
 };
 
 function projectActorTurns(packet: Record<string, unknown>): ReviewPacketActorTurnGraphql[] {
