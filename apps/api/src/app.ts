@@ -198,6 +198,7 @@ import { registerEncounterSessionRoutes } from "./routes/encounter-session-route
 import { registerSessionRoutes } from "./routes/session-routes.js";
 import { registerCapabilityJobRoutes } from "./routes/capability-job-routes.js";
 import { registerAuthoringRoutes } from "./routes/authoring-routes.js";
+import { registerDialogueSeedAuthoringRoutes } from "./routes/dialogue-seed-authoring-routes.js";
 import { registerExamRoutes } from "./routes/exam-routes.js";
 import { registerPlatformRoutes } from "./routes/platform-routes.js";
 import { buildAssetReleaseLadderReplayProjection, createSeedBankAssetReadiness, createSeedBankSceneGenerationPipelineQueue, createSeedStationRunQueueSnapshot, findSeedBankAssetReadiness, summarizeClinicalEventReviewProjections, summarizeReviewReplayReadiness, uniqueStrings } from "./api-route-support.js";
@@ -259,6 +260,7 @@ function registerAllRoutes(app: ApiApp, ctx: ApiAppContext): void {
   registerScenarioSceneGenerationRoutes(app, ctx);
   registerExamRoutes(app, ctx);
   registerAuthoringRoutes(app, ctx);
+  registerDialogueSeedAuthoringRoutes(app, ctx);
   registerCapabilityJobRoutes(app, ctx);
   registerSessionRoutes(app, ctx);
   registerEncounterSessionRoutes(app, ctx);
