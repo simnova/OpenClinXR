@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   createEdChestPainLocalLearnerRuntimeAssetBundle,
   type EncounterRuntimeAsset,
@@ -5,9 +8,12 @@ import {
 } from "@openclinxr/asset-registry/runtime-bundles";
 import { describe, expect, it } from "vitest";
 import {
+  bootLearnerRuntimeFromAssembledExam,
   bootPinnedEncounterStations,
+  resolveAssembledExamPinnedBundleId,
   type EncounterBundleBootClient,
 } from "./encounter-bundle-boot/index.js";
+import { createRuntimeStateFromBundle } from "./runtime-state.js";
 
 /**
  * PLANTED CONTRACT — learner station boot uses the assembled-exam pinned bundle id.
@@ -191,6 +197,89 @@ describe("the pinned encounter bundle boots each station", () => {
     expect(evidence[0]?.inferredFromLocalScenarioName).toBe(false);
     expect(evidence[0]?.selectedBundleId).toBe(ED_PIN);
     expect(evidence[0]?.materialization?.motion.map((member) => member.id)).toContain("offline_idle_clip");
+  });
+});
+
+describe("learner runtime composition from assembled-exam pin", () => {
+  it("wires the pin path into main.ts and never scenario-name inference when a pin exists", () => {
+    const mainSource = readFileSync(join(dirname(fileURLToPath(import.meta.url)), "main.ts"), "utf8");
+    expect(mainSource).toContain("bootLearnerRuntimeFromAssembledExam");
+    expect(mainSource).toContain("resolveAssembledExamPinnedBundleId");
+    expect(mainSource).toContain("__openClinXrPinnedEncounterBundleBootEvidence");
+    expect(mainSource).not.toContain("selectLearnerRuntimeAssetBundleByScenarioStation");
+    expect(mainSource).not.toContain("findLearnerRuntimeAssetBundleByScenarioStation");
+  });
+
+  it("fetches the pin, checks identity/eligibility before mount, and publishes runtime-state/trace evidence", async () => {
+    const pinned = withStationMembers(createEdChestPainLocalLearnerRuntimeAssetBundle(), {
+      clipId: "composition_idle_clip",
+      phonemeId: "composition_phoneme_map",
+      surfaceId: "composition_chart_panel",
+    });
+    const fetchedIds: string[] = [];
+    const client: EncounterBundleBootClient = {
+      getLearnerRuntimeAssetBundle: async (bundleId) => {
+        fetchedIds.push(bundleId);
+        return pinned;
+      },
+      findLearnerRuntimeAssetBundleByScenarioStation: async () => {
+        throw new Error("composition path must not infer from scenario names");
+      },
+    };
+
+    const result = await bootLearnerRuntimeFromAssembledExam({
+      station: {
+        stationId: "ed_chest_pain_station_v1",
+        scenarioId: "ed_chest_pain_priority_v1",
+        pinnedBundleId: resolveAssembledExamPinnedBundleId({
+          queryRuntimeAssetBundleId: ED_PIN,
+          storedRuntimeAssetBundleId: "ed_chest_pain_local_encounter",
+          stationPinnedBundleId: null,
+        }),
+        localScenarioName: "peds_asthma_parent_anxiety_v1",
+      },
+      client,
+    });
+
+    expect(fetchedIds).toEqual([ED_PIN]);
+    expect(result.bundle?.bundleId).toBe(ED_PIN);
+    expect(result.runtimeTrace.mounted).toBe(true);
+    expect(result.runtimeTrace.identityVerified).toBe(true);
+    expect(result.runtimeTrace.eligibilityVerified).toBe(true);
+    expect(result.runtimeTrace.inferredFromLocalScenarioName).toBe(false);
+    expect(result.evidence.materialization).not.toBeNull();
+    expect(result.bundle).not.toBeNull();
+    if (!result.bundle) {
+      return;
+    }
+    const state = createRuntimeStateFromBundle(result.bundle);
+    expect(state.scenarioId).toBe(pinned.scenarioId);
+    expect(result.runtimeTrace.selectedBundleId).toBe(ED_PIN);
+    expect(result.runtimeTrace.source).toBe("assembled_exam_pinned_bundle_boot");
+  });
+
+  it("refuses before mounting and still records fallback evidence on the runtime trace", async () => {
+    const mismatched = createEdChestPainLocalLearnerRuntimeAssetBundle({ stationId: "wrong_station" });
+    const client: EncounterBundleBootClient = {
+      getLearnerRuntimeAssetBundle: async () => mismatched,
+      findLearnerRuntimeAssetBundleByScenarioStation: async () => {
+        throw new Error("composition path must not infer from scenario names");
+      },
+    };
+    const result = await bootLearnerRuntimeFromAssembledExam({
+      station: {
+        stationId: "ed_chest_pain_station_v1",
+        scenarioId: "ed_chest_pain_priority_v1",
+        pinnedBundleId: ED_PIN,
+      },
+      client,
+    });
+    expect(result.bundle).toBeNull();
+    expect(result.runtimeTrace.mounted).toBe(false);
+    expect(result.runtimeTrace.outcome).toBe("refused");
+    expect(result.runtimeTrace.fallbackActive).toBe(true);
+    expect(result.runtimeTrace.blockers).toContain("station_id_mismatch");
+    expect(result.evidence.materialization).toBeNull();
   });
 });
 

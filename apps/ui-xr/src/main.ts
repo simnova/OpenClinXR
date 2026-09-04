@@ -38,6 +38,7 @@ import {
 } from "./learner-exam-form-boot.js";
 import { scenariosFromFixtureSequence } from "./learner-exam-scenario-source.js";
 import { mountStationEnvironmentForRuntime } from "./compiled-room-runtime-mount.js";
+import { bootLearnerRuntimeFromAssembledExam, resolveAssembledExamPinnedBundleId, type PinnedEncounterBundleRuntimeTrace } from "./encounter-bundle-boot/index.js";
 import {
   collectActorWorldBoxes,
   deriveInteriorPreviewCamera,
@@ -578,6 +579,7 @@ declare global {
       maxVisibleSlots: number;
     };
     __openClinXrLearnerRuntimeUseGateEvidence?: LearnerRuntimeUseGateEvidence;
+    __openClinXrPinnedEncounterBundleBootEvidence?: PinnedEncounterBundleRuntimeTrace;
     __openClinXrLastStationSceneBootErrorStack?: string;
     __openClinXrExamFlowEvidence?: OpenClinXrExamFlowEvidence;
     __openClinXrExamRunSummaryEvidence?: OpenClinXrExamRunSummaryEvidence;
@@ -1130,6 +1132,37 @@ function requireEncounterRuntimeAsset(asset: EncounterRuntimeAsset | undefined, 
 }
 
 async function initializeLearnerRuntimeAssetBundle(client: StationApiClient | undefined): Promise<void> {
+  const pin = resolveAssembledExamPinnedBundleId({
+    queryRuntimeAssetBundleId: new URLSearchParams(window.location.search).get("runtimeAssetBundleId"),
+    storedRuntimeAssetBundleId: window.localStorage.getItem("openclinxr.runtimeAssetBundleId"),
+  });
+  if (pin) {
+    const result = await bootLearnerRuntimeFromAssembledExam({
+      station: {
+        stationId: selectedStationId() ?? "",
+        scenarioId: selectedScenarioId(),
+        pinnedBundleId: pin,
+        localScenarioName: selectedScenarioId(),
+      },
+      client,
+    });
+    window.__openClinXrPinnedEncounterBundleBootEvidence = result.runtimeTrace;
+    if (result.bundle) {
+      useEncounterRuntimeAssetBundle(result.bundle, {
+        source: result.evidence.lookupPath === "offline_fixture" ? "local_fixture_fallback" : "api_bundle",
+        fallbackReason: result.evidence.fallbackReason,
+      });
+      recordBootPhase(result.evidence.outcome === "offline_fixture_fallback" ? "learner_runtime_asset_bundle_fallback" : "learner_runtime_asset_bundle_loaded");
+      return;
+    }
+    recordLearnerRuntimeUseGateEvidence(
+      encounterRuntimeAssetBundle,
+      "api_bundle",
+      result.evidence.fallbackReason ?? "pinned_bundle_refused",
+    );
+    recordBootPhase("learner_runtime_asset_bundle_api_generated_blocked_by_evidence_gates");
+    return;
+  }
   const bundleId = learnerRuntimeAssetBundleId();
   if (!client) {
     if (await initializeStaticGeneratedLearnerRuntimeAssetBundle()) {
@@ -1169,29 +1202,6 @@ async function initializeLearnerRuntimeAssetBundle(client: StationApiClient | un
     useEncounterRuntimeAssetBundle(bundle, { source: "api_bundle" });
     recordBootPhase("learner_runtime_asset_bundle_loaded");
   } catch (error) {
-    const selectedScenarioBundle = await selectLearnerRuntimeAssetBundleByScenarioStation(client);
-    if (selectedScenarioBundle) {
-      try {
-        const bundle = await client.getLearnerRuntimeAssetBundle(selectedScenarioBundle.bundleId);
-        if (bundle.identityScope !== "learner_runtime_opaque_bundle") {
-          throw new Error("learner runtime asset bundle identity scope mismatch");
-        }
-        if (shouldUseLearnerRuntimeAssetBundle(bundle)) {
-          useEncounterRuntimeAssetBundle(bundle, { source: "api_bundle" });
-          recordBootPhase("learner_runtime_asset_bundle_loaded_by_scenario_station", error);
-          return;
-        }
-        recordLearnerRuntimeUseGateEvidence(
-          bundle,
-          "api_bundle",
-          `api_scenario_station_bundle_blocked:${bundle.bundleId}`,
-        );
-        recordBootPhase("learner_runtime_asset_bundle_scenario_station_blocked_by_evidence_gates", error);
-        return;
-      } catch (scenarioBundleError) {
-        recordBootPhase("learner_runtime_asset_bundle_scenario_station_lookup_failed", scenarioBundleError);
-      }
-    }
     if (await initializeStaticGeneratedLearnerRuntimeAssetBundle()) {
       recordBootPhase("learner_runtime_asset_bundle_static_generated_loaded_after_api_fallback", error);
       return;
@@ -1203,19 +1213,6 @@ async function initializeLearnerRuntimeAssetBundle(client: StationApiClient | un
     );
     recordBootPhase("learner_runtime_asset_bundle_fallback", error);
   }
-}
-
-async function selectLearnerRuntimeAssetBundleByScenarioStation(
-  client: StationApiClient,
-): Promise<{ bundleId: string } | null> {
-  const scenarioId = selectedScenarioId();
-  const stationId = selectedStationId();
-  const selectedBundle = await client.findLearnerRuntimeAssetBundleByScenarioStation({ scenarioId, stationId });
-  if (selectedBundle) {
-    window.localStorage.setItem("openclinxr.runtimeAssetBundleId", selectedBundle.bundleId);
-    window.__openClinXrSelectedRuntimeAssetBundleId = selectedBundle.bundleId;
-  }
-  return selectedBundle;
 }
 
 async function initializeStaticGeneratedLearnerRuntimeAssetBundle(): Promise<boolean> {

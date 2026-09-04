@@ -74,24 +74,102 @@ export async function bootPinnedEncounterStations(
 ): Promise<EncounterBundleBootEvidence[]> {
   const evidence: EncounterBundleBootEvidence[] = [];
   for (const station of input.stations) {
-    evidence.push(await bootOneStation(station, input.client, input.offlineFixtures));
+    evidence.push((await bootOneStation(station, input.client, input.offlineFixtures)).evidence);
   }
   return evidence;
+}
+
+const DEFAULT_LOCAL_BUNDLE_SENTINEL = "ed_chest_pain_local_encounter";
+
+/**
+ * Assembled-exam pin from launch URL / stored opaque id / station field.
+ * The local default sentinel is not a pin and must not block fail-closed refusal.
+ */
+export function resolveAssembledExamPinnedBundleId(input: {
+  queryRuntimeAssetBundleId?: string | null | undefined;
+  storedRuntimeAssetBundleId?: string | null | undefined;
+  stationPinnedBundleId?: string | null | undefined;
+}): string | null {
+  const station = input.stationPinnedBundleId?.trim() ?? "";
+  if (station.length > 0) return station;
+  const query = input.queryRuntimeAssetBundleId?.trim() ?? "";
+  if (query.length > 0) return query;
+  const stored = input.storedRuntimeAssetBundleId?.trim() ?? "";
+  if (stored.length > 0 && stored !== DEFAULT_LOCAL_BUNDLE_SENTINEL) return stored;
+  return null;
+}
+
+export type PinnedEncounterBundleRuntimeTrace = {
+  source: "assembled_exam_pinned_bundle_boot";
+  outcome: EncounterBundleBootOutcome;
+  pinnedBundleId: string | null;
+  selectedBundleId: string | null;
+  inferredFromLocalScenarioName: false;
+  identityVerified: boolean;
+  eligibilityVerified: boolean;
+  fallbackActive: boolean;
+  fallbackReason: string | null;
+  blockers: string[];
+  mounted: boolean;
+  claimBoundary: typeof encounterBundleBootClaimBoundary;
+  notEvidenceFor: typeof encounterBundleBootNotEvidenceFor;
+};
+
+export type LearnerRuntimeAssembledExamBootResult = {
+  evidence: EncounterBundleBootEvidence;
+  bundle: LearnerRuntimeAssetBundle | null;
+  runtimeTrace: PinnedEncounterBundleRuntimeTrace;
+};
+
+/**
+ * Learner-runtime composition: boot the assembled-exam station from its pin.
+ * Callers must not follow this with scenario-name inference when a pin exists.
+ */
+export async function bootLearnerRuntimeFromAssembledExam(input: {
+  station: AssembledExamStationSelection;
+  client?: EncounterBundleBootClient | undefined;
+  offlineFixtures?: Readonly<Record<string, LearnerRuntimeAssetBundle>> | undefined;
+}): Promise<LearnerRuntimeAssembledExamBootResult> {
+  const { evidence, bundle } = await bootOneStation(
+    input.station,
+    input.client,
+    input.offlineFixtures,
+  );
+  const mounted = bundle !== null && evidence.materialization !== null;
+  const runtimeTrace: PinnedEncounterBundleRuntimeTrace = {
+    source: "assembled_exam_pinned_bundle_boot",
+    outcome: evidence.outcome,
+    pinnedBundleId: evidence.pinnedBundleId,
+    selectedBundleId: evidence.selectedBundleId,
+    inferredFromLocalScenarioName: false,
+    identityVerified: evidence.identityVerified,
+    eligibilityVerified: evidence.eligibilityVerified,
+    fallbackActive: evidence.fallbackActive,
+    fallbackReason: evidence.fallbackReason,
+    blockers: [...evidence.blockers],
+    mounted,
+    claimBoundary: evidence.claimBoundary,
+    notEvidenceFor: evidence.notEvidenceFor,
+  };
+  return { evidence, bundle: mounted ? bundle : null, runtimeTrace };
 }
 
 async function bootOneStation(
   station: AssembledExamStationSelection,
   client: EncounterBundleBootClient | undefined,
   offlineFixtures: Readonly<Record<string, LearnerRuntimeAssetBundle>> | undefined,
-): Promise<EncounterBundleBootEvidence> {
+): Promise<{ evidence: EncounterBundleBootEvidence; bundle: LearnerRuntimeAssetBundle | null }> {
   const pin = station.pinnedBundleId?.trim() || null;
   if (!pin) {
-    return evidenceFor(station, {
-      outcome: "refused",
-      lookupPath: "none",
-      blockers: ["pinned_bundle_identity_missing"],
-      fallbackReason: "assembled exam station has no pinned encounter bundle id",
-    });
+    return {
+      evidence: evidenceFor(station, {
+        outcome: "refused",
+        lookupPath: "none",
+        blockers: ["pinned_bundle_identity_missing"],
+        fallbackReason: "assembled exam station has no pinned encounter bundle id",
+      }),
+      bundle: null,
+    };
   }
 
   let bundle: LearnerRuntimeAssetBundle | null = null;
@@ -119,52 +197,64 @@ async function bootOneStation(
   }
 
   if (!bundle) {
-    return evidenceFor(station, {
-      outcome: "refused",
-      lookupPath: client ? "pinned_bundle_id" : "none",
-      blockers: [fetchFailure ?? "pinned_bundle_unavailable"],
-      fallbackReason: fetchFailure ?? "pinned_bundle_unavailable",
-    });
+    return {
+      evidence: evidenceFor(station, {
+        outcome: "refused",
+        lookupPath: client ? "pinned_bundle_id" : "none",
+        blockers: [fetchFailure ?? "pinned_bundle_unavailable"],
+        fallbackReason: fetchFailure ?? "pinned_bundle_unavailable",
+      }),
+      bundle: null,
+    };
   }
 
   const identityBlockers = inspectPinnedBundleIdentity(bundle, station, pin);
   if (identityBlockers.length > 0) {
-    return evidenceFor(station, {
-      outcome: "refused",
-      lookupPath,
-      selectedBundleId: bundle.bundleId,
-      blockers: identityBlockers,
-      fallbackReason: identityBlockers[0] ?? "identity_mismatch",
-    });
+    return {
+      evidence: evidenceFor(station, {
+        outcome: "refused",
+        lookupPath,
+        selectedBundleId: bundle.bundleId,
+        blockers: identityBlockers,
+        fallbackReason: identityBlockers[0] ?? "identity_mismatch",
+      }),
+      bundle: null,
+    };
   }
 
   const eligibilityBlockers = inspectBundleEligibility(bundle);
   if (eligibilityBlockers.length > 0) {
-    return evidenceFor(station, {
-      outcome: "refused",
-      lookupPath,
-      selectedBundleId: bundle.bundleId,
-      identityVerified: true,
-      blockers: eligibilityBlockers,
-      fallbackReason: eligibilityBlockers[0] ?? "eligibility_blocked",
-    });
+    return {
+      evidence: evidenceFor(station, {
+        outcome: "refused",
+        lookupPath,
+        selectedBundleId: bundle.bundleId,
+        identityVerified: true,
+        blockers: eligibilityBlockers,
+        fallbackReason: eligibilityBlockers[0] ?? "eligibility_blocked",
+      }),
+      bundle: null,
+    };
   }
 
   const outcome: EncounterBundleBootOutcome = lookupPath === "offline_fixture"
     ? "offline_fixture_fallback"
     : "selected";
-  return evidenceFor(station, {
-    outcome,
-    lookupPath,
-    selectedBundleId: bundle.bundleId,
-    identityVerified: true,
-    eligibilityVerified: true,
-    fallbackActive: outcome === "offline_fixture_fallback",
-    fallbackReason: lookupPath === "offline_fixture"
-      ? (fetchFailure ?? "offline_fixture_fallback")
-      : null,
-    materialization: materializeLearnerStationFromBundle(bundle),
-  });
+  return {
+    evidence: evidenceFor(station, {
+      outcome,
+      lookupPath,
+      selectedBundleId: bundle.bundleId,
+      identityVerified: true,
+      eligibilityVerified: true,
+      fallbackActive: outcome === "offline_fixture_fallback",
+      fallbackReason: lookupPath === "offline_fixture"
+        ? (fetchFailure ?? "offline_fixture_fallback")
+        : null,
+      materialization: materializeLearnerStationFromBundle(bundle),
+    }),
+    bundle,
+  };
 }
 
 export function inspectPinnedBundleIdentity(
