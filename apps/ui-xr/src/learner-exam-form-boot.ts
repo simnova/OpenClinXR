@@ -6,26 +6,34 @@
  * presentation is unit-testable without importing the DOM-touching main module.
  */
 
-import type {
-  ExamAssemblyPersistenceSink,
-  ExamFormRunState,
-  ExamStationRunQueueScenarioSource,
-  ExamStationRunQueueStationBodySource,
+import {
+  type ExamAssemblyPersistenceSink,
+  type ExamFormRunState,
+  type ExamRunStationOutcome,
+  type ExamStationRunQueueScenarioSource,
+  type ExamStationRunQueueStationBodySource,
+  nextExamFormRunStation,
 } from "@openclinxr/exam-assembly";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures/ed-chest-pain";
 import {
-  resolveLearnerExamScenarios,
   type ResolveLearnerExamScenariosResult,
+  resolveLearnerExamScenarios,
 } from "./learner-exam-scenario-source.js";
 import {
+  applyLearnerExamResumeBlockedPresentation,
   applyLearnerPhaseTracePresentation,
   applyLearnerPhaseTraceRefusePresentation,
+  BlockedLearnerExamResumeError,
+  fetchLearnerAssembledExamRunAggregate,
   hydrateLearnerCanonicalPhaseTraceFromApi,
+  type LearnerAssembledExamRunAggregate,
+  type LearnerDurableResumeIdentity,
 } from "./learner-phase-trace-source.js";
 import {
   createMultiStationExamRuntime,
-  persistExamFormRunQueueSnapshot,
   type LearnerCanonicalPhaseTraceStore,
+  persistExamFormRunQueueSnapshot,
+  tickExamFormRunClock,
 } from "./runtime-state.js";
 
 export type ExamFormBootPresentationSink = {
@@ -125,15 +133,28 @@ export type BootLearnerExamFormFromApiInput = {
 /**
  * Boot the learner exam form from the configured API (or leave offline fixture form).
  *
- * - transport failure → labelled fixture_fallback; exam continues
+ * - existing GET /exam-runs/:id aggregate → reconstruct station/phase/clock/outcomes (not station one)
+ * - inconsistent durable identity or sequence → blocked-resume; never fixture data
+ * - transport failure on scenario queue → labelled fixture_fallback; exam continues
  * - shape drift on 200 → refuse presentation + clear form state (does not swallow #53)
  * - offline (no baseUrl) → no fetch; fixture form already at module scope
  */
 export async function bootLearnerExamFormFromApi(input: BootLearnerExamFormFromApiInput): Promise<void> {
   const blueprintId = input.blueprintId ?? "step2cs-seed";
   let resolution: ResolveLearnerExamScenariosResult | null = null;
+  let durable: LearnerAssembledExamRunAggregate | null = null;
+  let durableResume: LearnerDurableResumeIdentity | undefined;
 
   if (input.baseUrl) {
+    try {
+      durable = await loadDurableExamRunAggregate(input);
+    } catch (error) {
+      blockLearnerExamResume(
+        input,
+        error instanceof BlockedLearnerExamResumeError ? error.reason : "exam_run_unreachable",
+      );
+      return;
+    }
     try {
       const resolveInput: Parameters<typeof resolveLearnerExamScenarios>[0] = {
         baseUrl: input.baseUrl,
@@ -143,13 +164,39 @@ export async function bootLearnerExamFormFromApi(input: BootLearnerExamFormFromA
         resolveInput.fetch = input.fetch;
       }
       resolution = await resolveLearnerExamScenarios(resolveInput);
+      if (durable && resolution.fallbackActive) {
+        blockLearnerExamResume(input, "durable_identity_fixture_fallback");
+        return;
+      }
       applyExamFormBootPresentation({ result: resolution, sink: input.presentationSink });
-      const next =
-        createLearnerExamFormRunState(input.examRunId, resolution.scenarios, input.examScenarioId)
-        ?? input.getState();
+      const next = durable
+        ? resumeLearnerExamFormFromDurableAggregate({
+            examRunId: input.examRunId,
+            scenarios: resolution.scenarios,
+            aggregate: durable,
+          })
+        : createLearnerExamFormRunState(input.examRunId, resolution.scenarios, input.examScenarioId)
+          ?? input.getState();
+      if (durable && (!next || next.status === "blocked")) {
+        blockLearnerExamResume(input, "durable_identity_mismatch", input.getState());
+        return;
+      }
       input.setState(next);
       input.updateEvidence();
+      if (durable?.currentStation) {
+        durableResume = {
+          examRunId: durable.examRunId,
+          stationRunId: durable.currentStation.stationRunId,
+          scenarioId: durable.currentStation.scenarioId,
+          stationOrder: durable.currentStation.stationOrder,
+          lastAdmittedEventType: durable.currentStation.lifecycle.lastAdmittedEventType,
+        };
+      }
     } catch (error) {
+      if (error instanceof BlockedLearnerExamResumeError) {
+        blockLearnerExamResume(input, error.reason);
+        return;
+      }
       // Shape drift / other contract refuse — do not keep pretending the fixture form is authored.
       applyExamFormBootRefusePresentation({ error, sink: input.presentationSink });
       input.setState(null);
@@ -169,8 +216,12 @@ export async function bootLearnerExamFormFromApi(input: BootLearnerExamFormFromA
       if (input.fetch !== undefined) {
         hydrateInput.fetch = input.fetch;
       }
-      if (input.phaseTrace.stationRunId !== undefined) {
-        hydrateInput.stationRunId = input.phaseTrace.stationRunId;
+      const hydrateStationRunId = durableResume?.stationRunId ?? input.phaseTrace.stationRunId;
+      if (hydrateStationRunId !== undefined) {
+        hydrateInput.stationRunId = hydrateStationRunId;
+      }
+      if (durableResume) {
+        hydrateInput.durableResume = durableResume;
       }
       const hydrated = await hydrateLearnerCanonicalPhaseTraceFromApi(hydrateInput);
       input.phaseTrace.setStore(hydrated.store);
@@ -180,6 +231,10 @@ export async function bootLearnerExamFormFromApi(input: BootLearnerExamFormFromA
       });
       input.updateEvidence();
     } catch (error) {
+      if (error instanceof BlockedLearnerExamResumeError) {
+        blockLearnerExamResume(input, error.reason, state);
+        return;
+      }
       applyLearnerPhaseTraceRefusePresentation({ error, sink: input.phaseTrace.presentationSink });
       input.updateEvidence();
     }
@@ -229,6 +284,150 @@ export function stationBodySourcesFromResolution(
     }
   }
   return out;
+}
+
+export function resumeLearnerExamFormFromDurableAggregate(input: {
+  examRunId: string;
+  scenarios: ReadonlyArray<{ scenarioId: string; status?: string }>;
+  aggregate: LearnerAssembledExamRunAggregate;
+}): ExamFormRunState | null {
+  const created = createLearnerExamFormRunState(input.examRunId, input.scenarios);
+  if (!created) {
+    return null;
+  }
+  if (!durableFormMatchesCreated(created, input.aggregate)) {
+    return blockRun(created);
+  }
+  const currentIndex = input.aggregate.action === "exam_complete"
+    ? Math.max(0, created.queue.stationQueue.length - 1)
+    : input.aggregate.orderedStations.findIndex(
+        (station) => station.stationRunId === input.aggregate.currentStation?.stationRunId,
+      );
+  if (currentIndex < 0) {
+    return blockRun(created);
+  }
+  const completedCount = input.aggregate.action === "exam_complete"
+    ? created.queue.stationQueue.length
+    : currentIndex;
+  const stationOutcomes: ExamRunStationOutcome[] = [];
+  for (let index = 0; index < completedCount; index += 1) {
+    const station = created.queue.stationQueue[index];
+    const binding = input.aggregate.orderedStations[index];
+    if (!station || !binding) {
+      return blockRun(created);
+    }
+    const outcome = durableStationOutcome(
+      station,
+      input.aggregate.admittedPhaseEvents.filter((event) => event.stationRunId === binding.stationRunId),
+    );
+    if (!outcome) {
+      return blockRun(created);
+    }
+    stationOutcomes.push(outcome);
+  }
+  const formElapsedSecond = input.aggregate.admittedPhaseEvents.at(-1)?.formAtSecond ?? 0;
+  const ticked = tickExamFormRunClock(created, formElapsedSecond);
+  return {
+    ...ticked,
+    status: input.aggregate.action === "exam_complete" ? "complete" : "in_progress",
+    currentStationIndex: currentIndex,
+    currentPhase: { kind: "station" },
+    stationOutcomes,
+    examEquivalenceGate: false,
+  };
+}
+
+function durableFormMatchesCreated(
+  created: ExamFormRunState,
+  aggregate: LearnerAssembledExamRunAggregate,
+): boolean {
+  if (created.examRunId !== aggregate.examRunId
+    || created.examFormId !== aggregate.examFormId
+    || created.blueprintId !== aggregate.blueprintId
+    || created.queue.stationQueue.length !== aggregate.orderedStations.length) {
+    return false;
+  }
+  return created.queue.stationQueue.every((station, index) => {
+    const binding = aggregate.orderedStations[index];
+    return binding !== undefined
+      && station.stationOrder === binding.stationOrder
+      && station.slotId === binding.slotId
+      && station.scenarioId === binding.scenarioId
+      && station.scenarioVersion === binding.scenarioVersion;
+  });
+}
+
+function durableStationOutcome(
+  station: ExamFormRunState["queue"]["stationQueue"][number],
+  events: LearnerAssembledExamRunAggregate["admittedPhaseEvents"],
+): ExamRunStationOutcome | null {
+  const started = events.find((event) => event.eventType === "encounter.started");
+  const noteSubmitted = events.find((event) => event.eventType === "note.submitted");
+  const advanced = events.find((event) => event.eventType === "station.advanced");
+  if (!started || !noteSubmitted || !advanced?.advanceReason) {
+    return null;
+  }
+  return {
+    stationOrder: station.stationOrder,
+    slotId: station.slotId,
+    scenarioId: station.scenarioId,
+    scenarioVersion: station.scenarioVersion,
+    phase: "complete",
+    noteSubmitted: true,
+    startedAtFormSecond: started.formAtSecond,
+    endedAtFormSecond: advanced.formAtSecond,
+    advanceReason: advanced.advanceReason,
+    recordedAtIso: advanced.recordedAtIso,
+  };
+}
+
+export function learnerExamResumeNextStation(run: ExamFormRunState | null): { scenarioId: string; stationOrder: number } | null {
+  if (!run) {
+    return null;
+  }
+  const next = nextExamFormRunStation(run);
+  if (!next || typeof next.scenarioId !== "string" || next.scenarioId.length === 0) {
+    return null;
+  }
+  return { scenarioId: next.scenarioId, stationOrder: next.stationOrder };
+}
+
+async function loadDurableExamRunAggregate(
+  input: BootLearnerExamFormFromApiInput,
+): Promise<LearnerAssembledExamRunAggregate | null> {
+  if (!input.baseUrl) {
+    return null;
+  }
+  const fetchInput: Parameters<typeof fetchLearnerAssembledExamRunAggregate>[0] = {
+    baseUrl: input.baseUrl,
+    examRunId: input.examRunId,
+  };
+  if (input.fetch !== undefined) {
+    fetchInput.fetch = input.fetch;
+  }
+  const result = await fetchLearnerAssembledExamRunAggregate(fetchInput);
+  return result.found ? result.aggregate : null;
+}
+
+function blockLearnerExamResume(
+  input: BootLearnerExamFormFromApiInput,
+  reason: string,
+  state?: ExamFormRunState | null,
+): void {
+  applyLearnerExamResumeBlockedPresentation({ reason, sink: input.presentationSink });
+  if (input.phaseTrace) {
+    applyLearnerExamResumeBlockedPresentation({ reason, sink: input.phaseTrace.presentationSink });
+  }
+  const blocked = blockRun(state ?? input.getState());
+  input.setState(blocked);
+  input.updateEvidence();
+}
+
+function blockRun(run: ExamFormRunState | null): ExamFormRunState | null {
+  if (!run) {
+    return null;
+  }
+  return { ...run, status: "blocked", examEquivalenceGate: false };
 }
 
 function humanizeFallbackReason(reason: string): string {

@@ -1,4 +1,3 @@
-import type { Hono } from "hono";
 import { resolveSessionLearnerId } from "@openclinxr/auth";
 import type { ExamForm, ExamTimingPlan } from "@openclinxr/exam-assembly";
 import {
@@ -7,23 +6,24 @@ import {
   type AssembledExamPhaseTransitionType,
 } from "@openclinxr/review-workflow";
 import {
-  resumeAssembledExam,
   type AssembledExamAdmittedPhaseEvent,
   type AssembledExamLedgerResumeProjection,
   type AssembledExamResumeDecision,
+  resumeAssembledExam,
 } from "@openclinxr/scenario-runtime";
+import type { Hono } from "hono";
 import type { ApiAppContext } from "../api-app-context.js";
 import { denyIfCannotReadStationRun, isExamForm } from "../api-route-support.js";
 import { isRecord } from "../api-support.js";
 import type { ApiAppVariables } from "../api-types.js";
 import {
-  assembledExamRunClaimBoundary,
-  assembledExamRunNotEvidenceFor,
-  createScenarioRuntimeDurableStoreFromApiPersistence,
   type ApiAssembledExamAdmittedPhaseEvent,
   type ApiAssembledExamRunRecord,
   type ApiAssembledExamStationBinding,
   type ApiRuntimeDurableStore,
+  assembledExamRunClaimBoundary,
+  assembledExamRunNotEvidenceFor,
+  createScenarioRuntimeDurableStoreFromApiPersistence,
 } from "../runtime-durable-store.js";
 
 export const ASSEMBLED_EXAM_RUNS_PATH = "/exam-runs";
@@ -89,7 +89,7 @@ export function registerAssembledExamRunRoutes(
       if (mismatch) {
         return staleIdentity(context, mismatch);
       }
-      return context.json(toContract(decide(existing)), existing.admittedPhaseEvents.length === 0 ? 201 : 200);
+      return context.json(toContract(decide(existing), existing), existing.admittedPhaseEvents.length === 0 ? 201 : 200);
     }
 
     const record: ApiAssembledExamRunRecord = {
@@ -107,7 +107,7 @@ export function registerAssembledExamRunRoutes(
     };
     try {
       await persistAssembledExamRun(durable, assembledExamRuns, examRunOwners, sessionOwners, record);
-      return context.json(toContract(decide(record)), 201);
+      return context.json(toContract(decide(record), record), 201);
     } catch (error) {
       return assembledExamRunError(context, error);
     }
@@ -128,7 +128,7 @@ export function registerAssembledExamRunRoutes(
       return context.json(ownershipDenied.body, ownershipDenied.status);
     }
     try {
-      return context.json(toContract(decide(record)));
+      return context.json(toContract(decide(record), record));
     } catch (error) {
       return assembledExamRunError(context, error);
     }
@@ -180,7 +180,7 @@ export function registerAssembledExamRunRoutes(
     try {
       const next = admitPhaseEvent(record, admitted.event);
       await persistAssembledExamRun(durable, assembledExamRuns, examRunOwners, sessionOwners, next);
-      return context.json(toContract(decide(next)), 201);
+      return context.json(toContract(decide(next), next), 201);
     } catch (error) {
       return assembledExamRunError(context, error);
     }
@@ -225,7 +225,11 @@ function toOrchestratorEvent(event: ApiAssembledExamAdmittedPhaseEvent): Assembl
   };
 }
 
-function toContract(decision: AssembledExamResumeDecision) {
+function toContract(decision: AssembledExamResumeDecision, record: ApiAssembledExamRunRecord) {
+  const orderedStations = [...record.orderedStations].sort((left, right) => left.stationOrder - right.stationOrder);
+  const admittedPhaseEvents = [...record.admittedPhaseEvents].sort(
+    (left, right) => left.stationOrder - right.stationOrder || left.sequence - right.sequence,
+  );
   return {
     examRunId: decision.examRunId,
     stationRunId: decision.selectedStation?.stationRunId ?? null,
@@ -238,6 +242,8 @@ function toContract(decision: AssembledExamResumeDecision) {
     claimBoundary: decision.claimBoundary,
     notEvidenceFor: decision.notEvidenceFor,
     examEquivalenceGate: false as const,
+    orderedStations,
+    admittedPhaseEvents,
   };
 }
 
@@ -399,6 +405,7 @@ function parsePhaseAdmission(
       durableEventRef: expectedRef,
       phase: ASSEMBLED_EXAM_PHASE_BY_TYPE[eventType],
       source: typeof body.source === "string" && body.source.trim().length > 0 ? body.source : "system",
+      recordedAtIso: new Date().toISOString(),
       ...(eventType === "station.advanced" ? { advanceReason: String(body.advanceReason).trim() } : {}),
     },
   };
