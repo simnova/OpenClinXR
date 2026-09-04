@@ -2119,7 +2119,7 @@ function applyExamFlowIntent(kind: "end_encounter" | "submit_note" | "encounter_
   });
   examPhaseStore = applied.store;
   examPhaseRefusalReason = applied.refusalReason;
-  window.localStorage.setItem(examPhaseTraceStorageKey, JSON.stringify(examPhaseStore.events));
+  window.localStorage.setItem(examPhaseTraceStorageKey, JSON.stringify({ persistedEvents: examPhaseStore.persistedEvents, localEvents: examPhaseStore.localEvents }));
   if (applied.admitted && applied.view.noteSubmitted) recordExamRunStationOutcome();
   updateExamFlowEvidence();
   if (applied.navigateToScenarioId) navigateToExamScenario(applied.navigateToScenarioId);
@@ -2346,11 +2346,9 @@ function updateExamFlowEvidence(): OpenClinXrExamFlowEvidence {
     : evidence.phase === "complete"
       ? "exam sequence complete"
       : `encounter ${formatStationClock(evidence.encounterElapsedSeconds)} / ${formatStationClock(evidence.encounterDurationSeconds)}`;
-  examFlowAdvance.textContent = evidence.fallbackActive && evidence.fallbackLabel
-    ? evidence.fallbackLabel
-    : evidence.canAdvanceToNextEncounter
-      ? `ready for ${nextScenarioId ?? "completion"}`
-      : evidence.lastAdvanceReason ?? "complete encounter, then submit a non-empty patient note";
+  examFlowAdvance.textContent = evidence.canAdvanceToNextEncounter
+    ? `ready for ${nextScenarioId ?? "completion"}`
+    : [evidence.fallbackLabel, evidence.lastAdvanceReason ?? "complete encounter, then submit a non-empty patient note"].filter(Boolean).join(" — ");
   endEncounterButton.disabled = evidence.phase !== "encounter";
   submitNoteButton.disabled = evidence.phase !== "note";
   return evidence;
