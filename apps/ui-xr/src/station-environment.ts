@@ -45,9 +45,21 @@ import {
 } from "./fixture-role-ownership.js";
 import { buildPatientChair, isPatientChairSlotId } from "./station-chair.js";
 import { buildPatientStretcher, isStretcherSlotId } from "./station-stretcher.js";
+import {
+  hasCompiledRoomAssetUrl,
+  loadCompiledRoomShell,
+  type CompiledRoomLoadInput,
+} from "./compiled-room-loader.js";
 
 export type BuildStationEnvironmentInput = {
   environmentId: string;
+  /**
+   * When both this URL and `compileNodeId` are present, `resolveStationEnvironment`
+   * loads the compiled GLB as the primary shell and does not spawn the parametric box.
+   */
+  compiledRoomAssetUrl?: string;
+  compileNodeId?: string;
+  loadGltf?: CompiledRoomLoadInput["loadGltf"];
   /**
    * Optional dimension overrides for in-process generator sweeps (#194/#196).
    * When set, shell geometry uses these instead of the registry descriptor values.
@@ -169,9 +181,31 @@ export function buildFixtureLayoutProp(input: {
 }
 
 /**
+ * Prefer a compiled room GLB from encounter materialization when a URL + compile
+ * node id are present. Otherwise keep the parametric box (fallback).
+ */
+export async function resolveStationEnvironment(
+  input: BuildStationEnvironmentInput,
+): Promise<Group> {
+  const compiledUrl = input.compiledRoomAssetUrl?.trim() ?? "";
+  const compileNodeId = input.compileNodeId?.trim() ?? "";
+  if (hasCompiledRoomAssetUrl({ compiledRoomAssetUrl: compiledUrl, compileNodeId })) {
+    return loadCompiledRoomShell({
+      environmentId: input.environmentId,
+      compiledRoomAssetUrl: compiledUrl,
+      compileNodeId,
+      ...(input.loadGltf ? { loadGltf: input.loadGltf } : {}),
+    });
+  }
+  return buildStationEnvironment(input);
+}
+
+/**
  * Build a three.js Group for the encounter-side station shell (floor + walls + ceiling + fixtures).
  * userData records the requested environmentId, floor colour, room depth, and whether
  * an unknown id fell back to the generic shell.
+ *
+ * Parametric-only. Call `resolveStationEnvironment` when a compiled room asset URL may be present.
  */
 export function buildStationEnvironment(input: BuildStationEnvironmentInput): Group {
   const resolved = resolveEnvironmentShellDescriptor(input.environmentId);
