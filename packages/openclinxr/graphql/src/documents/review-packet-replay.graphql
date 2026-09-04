@@ -35,6 +35,36 @@ query ReviewPacketReplay($stationRunId: ID!) {
       status
       comments
     }
+    actorTurns {
+      plan {
+        planId
+        spokenText
+        dialogueEmotionFrom
+        dialogueEmotionTo
+        performancePlanId
+        facePresetId
+        eventKind
+        droppedTags
+        claimScope
+      }
+      execution {
+        planId
+        truncated
+        visemeCueCount
+        ttsProviderId
+        interruptionKind
+      }
+    }
+    emotionalTimeline {
+      turnIndex
+      actorId
+      from
+      to
+      trigger
+      planId
+      atSecond
+    }
+    prosodyNeutralized
   }
   clinicalEventReviewSummary(stationRunId: $stationRunId) {
     stationRunId
