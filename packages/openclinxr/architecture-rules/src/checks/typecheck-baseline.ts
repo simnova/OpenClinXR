@@ -96,16 +96,24 @@ function runPnpmScript(root: string, script: string): string {
   return `${result.stdout ?? ""}\n${result.stderr ?? ""}`;
 }
 
-export function countTypecheckErrors(config?: TypecheckBaselineConfig): number {
+export function diagnosticKey(d: TypecheckDiagnostic): string {
+  return `${d.file}|${d.line}|${d.column}|${d.code}`;
+}
+
+export function collectTypecheckDiagnostics(config?: TypecheckBaselineConfig): TypecheckDiagnostic[] {
   if (config?.diagnosticOutput !== undefined) {
-    return parseTypecheckDiagnostics(config.diagnosticOutput).length;
-  }
-  if (config?.actualErrorCount !== undefined) {
-    return config.actualErrorCount;
+    return parseTypecheckDiagnostics(config.diagnosticOutput);
   }
   const root = config?.workspaceRoot ?? findWorkspaceRoot();
   const output = TYPECHECK_SCRIPTS.map((script) => runPnpmScript(root, script)).join("\n");
-  return parseTypecheckDiagnostics(output).length;
+  return parseTypecheckDiagnostics(output);
+}
+
+export function countTypecheckErrors(config?: TypecheckBaselineConfig): number {
+  if (config?.actualErrorCount !== undefined) {
+    return config.actualErrorCount;
+  }
+  return collectTypecheckDiagnostics(config).length;
 }
 
 export function checkTypecheckBaseline(config?: TypecheckBaselineConfig): string[] {

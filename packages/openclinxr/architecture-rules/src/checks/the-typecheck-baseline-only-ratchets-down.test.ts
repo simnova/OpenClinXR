@@ -1,11 +1,30 @@
+import { mkdirSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
   TYPECHECK_ERROR_CEILING,
   TYPECHECK_ERROR_CEILING_AT_PLANT,
   checkTypecheckBaseline,
+  collectTypecheckDiagnostics,
+  countTypecheckErrors,
+  diagnosticKey,
   parseTypecheckDiagnostics,
 } from "./typecheck-baseline.js";
 import { describeTypecheckBaselineTests } from "../test-suites/typecheck-baseline.js";
+
+function workspaceRootFromHere(): string {
+  let dir = dirname(fileURLToPath(import.meta.url));
+  for (let i = 0; i < 12; i += 1) {
+    try {
+      readFileSync(join(dir, "pnpm-workspace.yaml"));
+      return dir;
+    } catch {
+      dir = dirname(dir);
+    }
+  }
+  throw new Error("workspace root not found");
+}
 
 /**
  * Destructive probe for the typecheck error-count freeze.
@@ -91,6 +110,38 @@ describe("the typecheck baseline only ratchets down", () => {
       }),
     ).toEqual([]);
   });
+
+  it(
+    "(8) two consecutive live counts on an unchanged tree produce the same diagnostic set",
+    () => {
+      const first = collectTypecheckDiagnostics().map(diagnosticKey).sort();
+      const second = collectTypecheckDiagnostics().map(diagnosticKey).sort();
+      expect(second).toEqual(first);
+      expect(first.length).toBe(TYPECHECK_ERROR_CEILING);
+    },
+    180_000,
+  );
+
+  it(
+    "(9) injecting one TypeScript error into tools/ raises the live count; removing it restores the freeze",
+    () => {
+      const root = workspaceRootFromHere();
+      const planted = join(root, "tools/openclinxr/_typecheck-baseline-inject.ts");
+      mkdirSync(dirname(planted), { recursive: true });
+      writeFileSync(planted, 'export const planted: number = "not-a-number";\n', "utf8");
+      try {
+        const grown = countTypecheckErrors();
+        expect(grown).toBeGreaterThan(TYPECHECK_ERROR_CEILING);
+        expect(
+          checkTypecheckBaseline({ actualErrorCount: grown }).some((v) => v.includes("do NOT raise the ceiling")),
+        ).toBe(true);
+      } finally {
+        unlinkSync(planted);
+      }
+      expect(countTypecheckErrors()).toBe(TYPECHECK_ERROR_CEILING);
+    },
+    180_000,
+  );
 });
 
 describeTypecheckBaselineTests();
