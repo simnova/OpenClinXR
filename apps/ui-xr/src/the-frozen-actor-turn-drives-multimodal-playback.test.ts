@@ -296,4 +296,27 @@ describe("the frozen actor turn drives multimodal playback", () => {
     expect(adapters.startVoice).toHaveBeenCalledTimes(1);
     expect(adapters.startMotion).toHaveBeenCalledTimes(1);
   });
+
+  it("(8) COUNTERWEIGHT: same planId/turnId in two station runs both start; duplicate in one run does not", () => {
+    const firstAdapters = spyAdapters();
+    const first = playFrozenActorTurn(samplePlan({ stationRunId: "run_peds_a" }), sampleExecution(), {
+      adapters: firstAdapters,
+      approvedMotionClipIds: [PLAN_CLIP],
+    });
+    const firstDuplicate = playFrozenActorTurn(samplePlan({ stationRunId: "run_peds_a" }), sampleExecution(), {
+      adapters: firstAdapters,
+      approvedMotionClipIds: [PLAN_CLIP],
+    });
+    expect(firstDuplicate).toBe(first);
+    expect(firstAdapters.startVoice).toHaveBeenCalledTimes(1);
+
+    const secondAdapters = spyAdapters();
+    const second = playFrozenActorTurn(samplePlan({ stationRunId: "run_peds_b" }), sampleExecution(), {
+      adapters: secondAdapters,
+      approvedMotionClipIds: [PLAN_CLIP],
+    });
+    expect(second).not.toBe(first);
+    expect(secondAdapters.startVoice).toHaveBeenCalledTimes(1);
+    expect(firstAdapters.startVoice).toHaveBeenCalledTimes(1);
+  });
 });

@@ -89,10 +89,26 @@ export type ActorTurnPlayback = {
   notEvidenceFor: readonly string[];
 };
 
+const ACTOR_TURN_PLAYBACK_RETENTION = 32;
 const startedPlaybackByJoin = new Map<string, ActorTurnPlayback>();
+let activePlaybackStationRunId: string | null = null;
+
+export function actorTurnPlaybackJoinKey(plan: Pick<ActorTurnPlan, "stationRunId" | "planId" | "turnId">): string {
+  return `${plan.stationRunId}::${plan.planId}::${plan.turnId}`;
+}
+
+/** Encounter boundary: a new station run drops prior playback starts. Production path, not tests. */
+export function beginActorTurnPlaybackStation(stationRunId: string): void {
+  if (activePlaybackStationRunId === stationRunId) {
+    return;
+  }
+  startedPlaybackByJoin.clear();
+  activePlaybackStationRunId = stationRunId;
+}
 
 export function resetActorTurnPlaybackStarts(): void {
   startedPlaybackByJoin.clear();
+  activePlaybackStationRunId = null;
 }
 
 export function playFrozenActorTurn(
@@ -100,7 +116,8 @@ export function playFrozenActorTurn(
   execution: ActorTurnExecution | null,
   options: PlayFrozenActorTurnOptions = {},
 ): ActorTurnPlayback {
-  const joinKey = `${plan.planId}::${plan.turnId}`;
+  beginActorTurnPlaybackStation(plan.stationRunId);
+  const joinKey = actorTurnPlaybackJoinKey(plan);
   const alreadyStarted = startedPlaybackByJoin.get(joinKey);
   if (alreadyStarted) {
     return alreadyStarted;
@@ -194,6 +211,13 @@ export function playFrozenActorTurn(
   };
   publishActorTurnPlayback(playback);
   startedPlaybackByJoin.set(joinKey, playback);
+  while (startedPlaybackByJoin.size > ACTOR_TURN_PLAYBACK_RETENTION) {
+    const oldest = startedPlaybackByJoin.keys().next().value;
+    if (oldest === undefined) {
+      break;
+    }
+    startedPlaybackByJoin.delete(oldest);
+  }
   return playback;
 }
 
