@@ -8,6 +8,28 @@ import {
   isRecord,
 } from "./mongo-helpers.js";
 import type { ExamStationRunQueueSnapshot } from "./records.js";
+import { MongoExamRunLedger } from "./exam-run-ledger.js";
+
+export function createMongoExamPersistence(db: Db) {
+  const forms = new MongoExamFormRepository(db);
+  const stationRunQueues = new MongoStationRunQueueRepository(db);
+  const runtimeAssetBundles = new MongoRuntimeAssetBundleRepository(db);
+  const examRunLedger = new MongoExamRunLedger(db);
+  return {
+    forms,
+    stationRunQueues,
+    runtimeAssetBundles,
+    examRunLedger,
+    async ensureIndexes(): Promise<void> {
+      await Promise.all([
+        forms.ensureIndexes(),
+        stationRunQueues.ensureIndexes(),
+        runtimeAssetBundles.ensureIndexes(),
+        examRunLedger.ensureIndexes(),
+      ]);
+    },
+  };
+}
 
 export class MongoExamFormRepository {
   private readonly collection: Collection<ExamForm>;
