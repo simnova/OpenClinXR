@@ -1318,6 +1318,9 @@ importers:
       '@cellix/provider-contracts':
         specifier: workspace:*
         version: link:../../cellix/provider-contracts
+      '@openclinxr/conversation-policy':
+        specifier: workspace:*
+        version: link:../conversation-policy
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*

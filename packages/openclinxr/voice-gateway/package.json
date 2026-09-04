@@ -17,7 +17,8 @@
     "clean": "rm -rf dist *.tsbuildinfo"
   },
   "dependencies": {
-    "@cellix/provider-contracts": "workspace:*"
+    "@cellix/provider-contracts": "workspace:*",
+    "@openclinxr/conversation-policy": "workspace:*"
   },
   "devDependencies": {
     "typescript": "catalog:",

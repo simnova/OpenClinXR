@@ -23,6 +23,16 @@ export type LearnerSttInput = {
   pcmOrFixtureId: string | Uint8Array;
   isFinal: boolean;
   bargeIn?: boolean;
+  /** Canonical turn-clock ms for a barge-in. Omitted barge-in uses 0. */
+  atMs?: number;
+  turnId?: string;
+  interruptionId?: string;
+};
+
+export type LearnerSttInterruption = {
+  interruptionId: string;
+  turnId: string | null;
+  clockMs: number;
 };
 
 export type LearnerSttProvenance = {
@@ -40,6 +50,7 @@ export type LearnerSttRecord = {
   stationRunId: string;
   streamId: string;
   provenance: LearnerSttProvenance;
+  interruption: LearnerSttInterruption | null;
 };
 
 /** Deterministic fixture catalog. Two utterances for skeptic-visible dual transcripts. */
@@ -59,8 +70,10 @@ export function transcribeLearnerAudio(input: LearnerSttInput): LearnerSttRecord
   const emptyOrUnintelligible = resolved.unintelligible || resolved.transcript.trim().length === 0;
 
   let eventKindHint: LearnerSttEventKindHint | null = null;
+  let interruption: LearnerSttInterruption | null = null;
   if (input.bargeIn === true) {
     eventKindHint = "learner_interruption";
+    interruption = mintLearnerSttInterruption(input);
   } else if (input.isFinal && emptyOrUnintelligible) {
     eventKindHint = "learner_unclassified";
   }
@@ -78,7 +91,19 @@ export function transcribeLearnerAudio(input: LearnerSttInput): LearnerSttRecord
       fixtureId: resolved.fixtureId,
       unintelligible: emptyOrUnintelligible,
     },
+    interruption,
   };
+}
+
+function mintLearnerSttInterruption(input: LearnerSttInput): LearnerSttInterruption {
+  const clockMs = typeof input.atMs === "number" && Number.isFinite(input.atMs)
+    ? Math.max(0, Math.trunc(input.atMs))
+    : 0;
+  const turnId = input.turnId?.trim() ? input.turnId.trim() : null;
+  const interruptionId = input.interruptionId?.trim()
+    ? input.interruptionId.trim()
+    : `${input.stationRunId}:${turnId ?? input.streamId}:${clockMs}:learner_barge_in`;
+  return { interruptionId, turnId, clockMs };
 }
 
 function resolveTranscript(pcmOrFixtureId: string | Uint8Array): {

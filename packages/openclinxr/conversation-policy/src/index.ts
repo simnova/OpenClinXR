@@ -4,6 +4,19 @@ export {
 } from "./turn-taking.js";
 export { resolveLearnerBargeIn } from "./barge-in.js";
 export {
+  learnerBargeInInputFromStt,
+  resolveLearnerBargeInFromStt,
+  type LearnerSttBargeInRecord,
+} from "./learner-stt-barge-in.js";
+export {
+  buildTurnCancellationDirective,
+  canonicalInterruptionId,
+  canonicalInterruptionIdentity,
+  canonicalTurnClockMs,
+  resolveCanonicalLearnerInterruption,
+  CANONICAL_TURN_CLOCK_MS_PER_SECOND,
+} from "./canonical-interruption.js";
+export {
   buildHistoryTakingCoverageSpec,
   coverageTraceTagForDomain,
   domainsForTraceTag,
@@ -13,9 +26,12 @@ export {
 export {
   CONVERSATION_CLAIM_SCOPE,
   CONVERSATION_NOT_EVIDENCE_FOR,
+  TURN_MODALITIES_CANCELLED_ON_BARGE_IN,
   type ActorTurnInProgress,
+  type BargeInContext,
   type BargeInOutcome,
   type BargeInResolution,
+  type CanonicalInterruptionIdentity,
   type ConversationActorRef,
   type ConversationNotEvidenceFor,
   type HistoryTakingCoverageSpec,
@@ -24,6 +40,8 @@ export {
   type HistoryTakingCoverageUpdateResult,
   type HistoryTakingDomain,
   type LearnerBargeInInput,
+  type TurnCancelModality,
+  type TurnCancellationDirective,
   type TurnTakingDecision,
   type TurnTakingReason,
 } from "./types.js";

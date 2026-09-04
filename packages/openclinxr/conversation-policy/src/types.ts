@@ -45,14 +45,70 @@ export type ActorTurnInProgress = {
   expectedResponseText?: string;
   learnerUtterance?: string;
   stationRunId?: string;
+  turnId?: string;
+  planId?: string;
+  startedAtMs?: number;
+  acceptedInterruptionId?: string;
+  acceptedInterruptionAtMs?: number;
 };
 
 export type LearnerBargeInInput = {
   atSecond: number;
   learnerUtterance?: string;
+  /** Canonical turn-clock ms. When omitted, derived as atSecond * 1000. */
+  atMs?: number;
+  /** Stable interruption identity. When omitted, derived from run/turn/clock. */
+  interruptionId?: string;
+  /** Target actor turn. When omitted, the in-progress turn is the target. */
+  turnId?: string;
+  stationRunId?: string;
 };
 
-export type BargeInOutcome = "actor_turn_interrupted" | "no_active_turn_to_interrupt";
+export const TURN_MODALITIES_CANCELLED_ON_BARGE_IN = [
+  "audio",
+  "viseme",
+  "gaze",
+  "posture",
+  "affect",
+] as const;
+
+export type TurnCancelModality = (typeof TURN_MODALITIES_CANCELLED_ON_BARGE_IN)[number];
+
+export type CanonicalInterruptionIdentity = {
+  interruptionId: string;
+  turnId: string;
+  stationRunId: string;
+  clockMs: number;
+};
+
+export type TurnCancellationDirective = {
+  interruptionId: string;
+  turnId: string;
+  planId: string | null;
+  clockMs: number;
+  reason: "learner_barge_in";
+  action: "audio.clear";
+  cancelModalities: typeof TURN_MODALITIES_CANCELLED_ON_BARGE_IN;
+};
+
+export type BargeInContext = {
+  completedTurnIds?: readonly string[];
+  /** Currently executing turn that must not be cancelled unless it is the target. */
+  activeTurnId?: string;
+  acceptedInterruption?: {
+    interruptionId: string;
+    turnId: string;
+    clockMs: number;
+  };
+};
+
+export type BargeInOutcome =
+  | "actor_turn_interrupted"
+  | "no_active_turn_to_interrupt"
+  | "duplicate_interruption"
+  | "late_interruption"
+  | "stale_turn_refused"
+  | "newer_turn_protected";
 
 export type BargeInResolution = {
   outcome: BargeInOutcome;
@@ -61,6 +117,11 @@ export type BargeInResolution = {
   interruptedAtSecond: number;
   truncatedResponse: boolean;
   yieldedToLearner: boolean;
+  interruptionId: string;
+  turnId: string | null;
+  planId: string | null;
+  clockMs: number;
+  cancellationDirective: TurnCancellationDirective | null;
   claimScope: typeof CONVERSATION_CLAIM_SCOPE.bargeIn;
   notEvidenceFor: ConversationNotEvidenceFor;
 };
