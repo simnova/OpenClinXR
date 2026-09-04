@@ -21,10 +21,37 @@ export type Actor = {
   role: Scalars['String']['output'];
 };
 
+export type AppendFacultyDispositionInput = {
+  attestedAt: Scalars['String']['input'];
+  decisionId?: InputMaybe<Scalars['ID']['input']>;
+  decisions?: InputMaybe<Scalars['JSON']['input']>;
+  disposition: FacultyDispositionValue;
+  evidencePacket?: InputMaybe<Scalars['JSON']['input']>;
+  examRunId: Scalars['ID']['input'];
+  learnerId?: InputMaybe<Scalars['ID']['input']>;
+  packetDigest: Scalars['String']['input'];
+  rationale: Scalars['String']['input'];
+  reviewerId: Scalars['ID']['input'];
+  status: FacultyDispositionStatus;
+};
+
+export type AppendFacultyDispositionResult = FacultyDispositionIdentityMutation | FacultyDispositionOverwriteRefused | FacultyDispositionPostFinalization | FacultyDispositionProducerSelfReview | FacultyDispositionStaleDigest | FacultyDispositionTrail;
+
 export type AssembleExamFormInput = {
   blueprintId?: InputMaybe<Scalars['ID']['input']>;
   examFormId: Scalars['ID']['input'];
   scenarioIds: Array<Scalars['ID']['input']>;
+};
+
+export type AssembledExamEvidencePacket = {
+  __typename?: 'AssembledExamEvidencePacket';
+  claimBoundary: Scalars['String']['output'];
+  examEquivalenceGate: Scalars['Boolean']['output'];
+  examRunId: Scalars['ID']['output'];
+  learnerId?: Maybe<Scalars['ID']['output']>;
+  notEvidenceFor: Array<Scalars['String']['output']>;
+  packetDigest: Scalars['String']['output'];
+  stationRunIds: Array<Scalars['ID']['output']>;
 };
 
 export type AssetBlocker = {
@@ -134,6 +161,104 @@ export type ExamTimingWindow = {
   startsAtSecond: Scalars['Int']['output'];
 };
 
+export type FacultyDispositionDecision = {
+  __typename?: 'FacultyDispositionDecision';
+  attestedAt: Scalars['String']['output'];
+  decisionId: Scalars['ID']['output'];
+  disposition: FacultyDispositionValue;
+  examRunId: Scalars['ID']['output'];
+  packetDigest: Scalars['String']['output'];
+  rationale: Scalars['String']['output'];
+  reviewerId: Scalars['ID']['output'];
+  sequence: Scalars['Int']['output'];
+  status: FacultyDispositionStatus;
+};
+
+export type FacultyDispositionIdentityMutation = FacultyDispositionRefusal & {
+  __typename?: 'FacultyDispositionIdentityMutation';
+  code: FacultyDispositionRefusalCode;
+  examEquivalenceGate: Scalars['Boolean']['output'];
+  notEvidenceFor: Array<Scalars['String']['output']>;
+  reason: Scalars['String']['output'];
+  scoringValidityClaimed: Scalars['Boolean']['output'];
+};
+
+export type FacultyDispositionOverwriteRefused = FacultyDispositionRefusal & {
+  __typename?: 'FacultyDispositionOverwriteRefused';
+  code: FacultyDispositionRefusalCode;
+  examEquivalenceGate: Scalars['Boolean']['output'];
+  notEvidenceFor: Array<Scalars['String']['output']>;
+  reason: Scalars['String']['output'];
+  scoringValidityClaimed: Scalars['Boolean']['output'];
+};
+
+export type FacultyDispositionPostFinalization = FacultyDispositionRefusal & {
+  __typename?: 'FacultyDispositionPostFinalization';
+  code: FacultyDispositionRefusalCode;
+  examEquivalenceGate: Scalars['Boolean']['output'];
+  notEvidenceFor: Array<Scalars['String']['output']>;
+  reason: Scalars['String']['output'];
+  scoringValidityClaimed: Scalars['Boolean']['output'];
+};
+
+export type FacultyDispositionProducerSelfReview = FacultyDispositionRefusal & {
+  __typename?: 'FacultyDispositionProducerSelfReview';
+  code: FacultyDispositionRefusalCode;
+  examEquivalenceGate: Scalars['Boolean']['output'];
+  notEvidenceFor: Array<Scalars['String']['output']>;
+  reason: Scalars['String']['output'];
+  scoringValidityClaimed: Scalars['Boolean']['output'];
+};
+
+export type FacultyDispositionRefusal = {
+  code: FacultyDispositionRefusalCode;
+  examEquivalenceGate: Scalars['Boolean']['output'];
+  notEvidenceFor: Array<Scalars['String']['output']>;
+  reason: Scalars['String']['output'];
+  scoringValidityClaimed: Scalars['Boolean']['output'];
+};
+
+export enum FacultyDispositionRefusalCode {
+  Finalized = 'finalized',
+  IdentityMutation = 'identity_mutation',
+  OverwriteRefused = 'overwrite_refused',
+  ProducerSelfReview = 'producer_self_review',
+  StalePacketDigest = 'stale_packet_digest'
+}
+
+export type FacultyDispositionStaleDigest = FacultyDispositionRefusal & {
+  __typename?: 'FacultyDispositionStaleDigest';
+  code: FacultyDispositionRefusalCode;
+  examEquivalenceGate: Scalars['Boolean']['output'];
+  notEvidenceFor: Array<Scalars['String']['output']>;
+  reason: Scalars['String']['output'];
+  scoringValidityClaimed: Scalars['Boolean']['output'];
+};
+
+export enum FacultyDispositionStatus {
+  Draft = 'draft',
+  Final = 'final'
+}
+
+export type FacultyDispositionTrail = {
+  __typename?: 'FacultyDispositionTrail';
+  claimBoundary: Scalars['String']['output'];
+  current?: Maybe<FacultyDispositionDecision>;
+  decisions: Array<FacultyDispositionDecision>;
+  evidencePacket: AssembledExamEvidencePacket;
+  examEquivalenceGate: Scalars['Boolean']['output'];
+  examRunId: Scalars['ID']['output'];
+  notEvidenceFor: Array<Scalars['String']['output']>;
+  packetDigest: Scalars['String']['output'];
+  scoringValidityClaimed: Scalars['Boolean']['output'];
+};
+
+export enum FacultyDispositionValue {
+  Hold = 'hold',
+  LocalDebriefReady = 'local_debrief_ready',
+  NeedsRevision = 'needs_revision'
+}
+
 export type FacultyScoreDraft = {
   __typename?: 'FacultyScoreDraft';
   comments: Scalars['String']['output'];
@@ -156,10 +281,16 @@ export type HiddenFactPolicy = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  appendAssembledExamFacultyDisposition: AppendFacultyDispositionResult;
   assembleExamForm: ExamForm;
   createStationRunQueueSnapshot: StationRunQueueSnapshot;
   saveFacultyScoreDraft: ReviewPacket;
   submitScenarioReview: Scenario;
+};
+
+
+export type MutationAppendAssembledExamFacultyDispositionArgs = {
+  input: AppendFacultyDispositionInput;
 };
 
 
@@ -191,6 +322,7 @@ export type PatientNote = {
 
 export type Query = {
   __typename?: 'Query';
+  assembledExamFacultyDisposition?: Maybe<FacultyDispositionTrail>;
   assetReadiness: AssetReadiness;
   clinicalEventReviewSummary: DurableClinicalEventReviewSummary;
   examForm?: Maybe<ExamForm>;
@@ -201,6 +333,11 @@ export type Query = {
   scenarios: Array<Scenario>;
   stationRunQueueSnapshots: Array<StationRunQueueSnapshot>;
   traceEvents: Array<TraceEvent>;
+};
+
+
+export type QueryAssembledExamFacultyDispositionArgs = {
+  examRunId: Scalars['ID']['input'];
 };
 
 
@@ -680,12 +817,36 @@ export type DirectiveResolverFn<TResult = Record<PropertyKey, never>, TParent = 
 
 
 
+/** Mapping of union types */
+export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
+  AppendFacultyDispositionResult:
+    | ( FacultyDispositionIdentityMutation )
+    | ( FacultyDispositionOverwriteRefused )
+    | ( FacultyDispositionPostFinalization )
+    | ( FacultyDispositionProducerSelfReview )
+    | ( FacultyDispositionStaleDigest )
+    | ( FacultyDispositionTrail )
+  ;
+};
 
+/** Mapping of interface types */
+export type ResolversInterfaceTypes<_RefType extends Record<string, unknown>> = {
+  FacultyDispositionRefusal:
+    | ( FacultyDispositionIdentityMutation )
+    | ( FacultyDispositionOverwriteRefused )
+    | ( FacultyDispositionPostFinalization )
+    | ( FacultyDispositionProducerSelfReview )
+    | ( FacultyDispositionStaleDigest )
+  ;
+};
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
   Actor: ResolverTypeWrapper<Actor>;
+  AppendFacultyDispositionInput: AppendFacultyDispositionInput;
+  AppendFacultyDispositionResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['AppendFacultyDispositionResult']>;
   AssembleExamFormInput: AssembleExamFormInput;
+  AssembledExamEvidencePacket: ResolverTypeWrapper<AssembledExamEvidencePacket>;
   AssetBlocker: ResolverTypeWrapper<AssetBlocker>;
   AssetNeed: ResolverTypeWrapper<AssetNeed>;
   AssetProductionReadinessLadder: ResolverTypeWrapper<AssetProductionReadinessLadder>;
@@ -699,6 +860,17 @@ export type ResolversTypes = {
   ExamForm: ResolverTypeWrapper<ExamForm>;
   ExamStationTimingWindow: ResolverTypeWrapper<ExamStationTimingWindow>;
   ExamTimingWindow: ResolverTypeWrapper<ExamTimingWindow>;
+  FacultyDispositionDecision: ResolverTypeWrapper<FacultyDispositionDecision>;
+  FacultyDispositionIdentityMutation: ResolverTypeWrapper<FacultyDispositionIdentityMutation>;
+  FacultyDispositionOverwriteRefused: ResolverTypeWrapper<FacultyDispositionOverwriteRefused>;
+  FacultyDispositionPostFinalization: ResolverTypeWrapper<FacultyDispositionPostFinalization>;
+  FacultyDispositionProducerSelfReview: ResolverTypeWrapper<FacultyDispositionProducerSelfReview>;
+  FacultyDispositionRefusal: ResolverTypeWrapper<ResolversInterfaceTypes<ResolversTypes>['FacultyDispositionRefusal']>;
+  FacultyDispositionRefusalCode: FacultyDispositionRefusalCode;
+  FacultyDispositionStaleDigest: ResolverTypeWrapper<FacultyDispositionStaleDigest>;
+  FacultyDispositionStatus: FacultyDispositionStatus;
+  FacultyDispositionTrail: ResolverTypeWrapper<FacultyDispositionTrail>;
+  FacultyDispositionValue: FacultyDispositionValue;
   FacultyScoreDraft: ResolverTypeWrapper<FacultyScoreDraft>;
   FacultyScoreDraftInput: FacultyScoreDraftInput;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
@@ -745,7 +917,10 @@ export type ResolversTypes = {
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
   Actor: Actor;
+  AppendFacultyDispositionInput: AppendFacultyDispositionInput;
+  AppendFacultyDispositionResult: ResolversUnionTypes<ResolversParentTypes>['AppendFacultyDispositionResult'];
   AssembleExamFormInput: AssembleExamFormInput;
+  AssembledExamEvidencePacket: AssembledExamEvidencePacket;
   AssetBlocker: AssetBlocker;
   AssetNeed: AssetNeed;
   AssetProductionReadinessLadder: AssetProductionReadinessLadder;
@@ -759,6 +934,14 @@ export type ResolversParentTypes = {
   ExamForm: ExamForm;
   ExamStationTimingWindow: ExamStationTimingWindow;
   ExamTimingWindow: ExamTimingWindow;
+  FacultyDispositionDecision: FacultyDispositionDecision;
+  FacultyDispositionIdentityMutation: FacultyDispositionIdentityMutation;
+  FacultyDispositionOverwriteRefused: FacultyDispositionOverwriteRefused;
+  FacultyDispositionPostFinalization: FacultyDispositionPostFinalization;
+  FacultyDispositionProducerSelfReview: FacultyDispositionProducerSelfReview;
+  FacultyDispositionRefusal: ResolversInterfaceTypes<ResolversParentTypes>['FacultyDispositionRefusal'];
+  FacultyDispositionStaleDigest: FacultyDispositionStaleDigest;
+  FacultyDispositionTrail: FacultyDispositionTrail;
   FacultyScoreDraft: FacultyScoreDraft;
   FacultyScoreDraftInput: FacultyScoreDraftInput;
   Float: Scalars['Float']['output'];
@@ -803,6 +986,20 @@ export type ActorResolvers<ContextType = any, ParentType extends ResolversParent
   demeanor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   displayName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   role?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+};
+
+export type AppendFacultyDispositionResultResolvers<ContextType = any, ParentType extends ResolversParentTypes['AppendFacultyDispositionResult'] = ResolversParentTypes['AppendFacultyDispositionResult']> = {
+  __resolveType: TypeResolveFn<'FacultyDispositionIdentityMutation' | 'FacultyDispositionOverwriteRefused' | 'FacultyDispositionPostFinalization' | 'FacultyDispositionProducerSelfReview' | 'FacultyDispositionStaleDigest' | 'FacultyDispositionTrail', ParentType, ContextType>;
+};
+
+export type AssembledExamEvidencePacketResolvers<ContextType = any, ParentType extends ResolversParentTypes['AssembledExamEvidencePacket'] = ResolversParentTypes['AssembledExamEvidencePacket']> = {
+  claimBoundary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  examEquivalenceGate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  examRunId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  learnerId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  notEvidenceFor?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  packetDigest?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  stationRunIds?: Resolver<Array<ResolversTypes['ID']>, ParentType, ContextType>;
 };
 
 export type AssetBlockerResolvers<ContextType = any, ParentType extends ResolversParentTypes['AssetBlocker'] = ResolversParentTypes['AssetBlocker']> = {
@@ -895,6 +1092,80 @@ export type ExamTimingWindowResolvers<ContextType = any, ParentType extends Reso
   startsAtSecond?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
 };
 
+export type FacultyDispositionDecisionResolvers<ContextType = any, ParentType extends ResolversParentTypes['FacultyDispositionDecision'] = ResolversParentTypes['FacultyDispositionDecision']> = {
+  attestedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  decisionId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  disposition?: Resolver<ResolversTypes['FacultyDispositionValue'], ParentType, ContextType>;
+  examRunId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  packetDigest?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  rationale?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  reviewerId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  sequence?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['FacultyDispositionStatus'], ParentType, ContextType>;
+};
+
+export type FacultyDispositionIdentityMutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['FacultyDispositionIdentityMutation'] = ResolversParentTypes['FacultyDispositionIdentityMutation']> = {
+  code?: Resolver<ResolversTypes['FacultyDispositionRefusalCode'], ParentType, ContextType>;
+  examEquivalenceGate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  notEvidenceFor?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  reason?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  scoringValidityClaimed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FacultyDispositionOverwriteRefusedResolvers<ContextType = any, ParentType extends ResolversParentTypes['FacultyDispositionOverwriteRefused'] = ResolversParentTypes['FacultyDispositionOverwriteRefused']> = {
+  code?: Resolver<ResolversTypes['FacultyDispositionRefusalCode'], ParentType, ContextType>;
+  examEquivalenceGate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  notEvidenceFor?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  reason?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  scoringValidityClaimed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FacultyDispositionPostFinalizationResolvers<ContextType = any, ParentType extends ResolversParentTypes['FacultyDispositionPostFinalization'] = ResolversParentTypes['FacultyDispositionPostFinalization']> = {
+  code?: Resolver<ResolversTypes['FacultyDispositionRefusalCode'], ParentType, ContextType>;
+  examEquivalenceGate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  notEvidenceFor?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  reason?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  scoringValidityClaimed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FacultyDispositionProducerSelfReviewResolvers<ContextType = any, ParentType extends ResolversParentTypes['FacultyDispositionProducerSelfReview'] = ResolversParentTypes['FacultyDispositionProducerSelfReview']> = {
+  code?: Resolver<ResolversTypes['FacultyDispositionRefusalCode'], ParentType, ContextType>;
+  examEquivalenceGate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  notEvidenceFor?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  reason?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  scoringValidityClaimed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FacultyDispositionRefusalResolvers<ContextType = any, ParentType extends ResolversParentTypes['FacultyDispositionRefusal'] = ResolversParentTypes['FacultyDispositionRefusal']> = {
+  __resolveType: TypeResolveFn<'FacultyDispositionIdentityMutation' | 'FacultyDispositionOverwriteRefused' | 'FacultyDispositionPostFinalization' | 'FacultyDispositionProducerSelfReview' | 'FacultyDispositionStaleDigest', ParentType, ContextType>;
+};
+
+export type FacultyDispositionStaleDigestResolvers<ContextType = any, ParentType extends ResolversParentTypes['FacultyDispositionStaleDigest'] = ResolversParentTypes['FacultyDispositionStaleDigest']> = {
+  code?: Resolver<ResolversTypes['FacultyDispositionRefusalCode'], ParentType, ContextType>;
+  examEquivalenceGate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  notEvidenceFor?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  reason?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  scoringValidityClaimed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FacultyDispositionTrailResolvers<ContextType = any, ParentType extends ResolversParentTypes['FacultyDispositionTrail'] = ResolversParentTypes['FacultyDispositionTrail']> = {
+  claimBoundary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  current?: Resolver<Maybe<ResolversTypes['FacultyDispositionDecision']>, ParentType, ContextType>;
+  decisions?: Resolver<Array<ResolversTypes['FacultyDispositionDecision']>, ParentType, ContextType>;
+  evidencePacket?: Resolver<ResolversTypes['AssembledExamEvidencePacket'], ParentType, ContextType>;
+  examEquivalenceGate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  examRunId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  notEvidenceFor?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  packetDigest?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  scoringValidityClaimed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type FacultyScoreDraftResolvers<ContextType = any, ParentType extends ResolversParentTypes['FacultyScoreDraft'] = ResolversParentTypes['FacultyScoreDraft']> = {
   comments?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   reviewerId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -911,6 +1182,7 @@ export interface JsonScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
 }
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  appendAssembledExamFacultyDisposition?: Resolver<ResolversTypes['AppendFacultyDispositionResult'], ParentType, ContextType, RequireFields<MutationAppendAssembledExamFacultyDispositionArgs, 'input'>>;
   assembleExamForm?: Resolver<ResolversTypes['ExamForm'], ParentType, ContextType, RequireFields<MutationAssembleExamFormArgs, 'input'>>;
   createStationRunQueueSnapshot?: Resolver<ResolversTypes['StationRunQueueSnapshot'], ParentType, ContextType, RequireFields<MutationCreateStationRunQueueSnapshotArgs, 'input'>>;
   saveFacultyScoreDraft?: Resolver<ResolversTypes['ReviewPacket'], ParentType, ContextType, RequireFields<MutationSaveFacultyScoreDraftArgs, 'input'>>;
@@ -924,6 +1196,7 @@ export type PatientNoteResolvers<ContextType = any, ParentType extends Resolvers
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  assembledExamFacultyDisposition?: Resolver<Maybe<ResolversTypes['FacultyDispositionTrail']>, ParentType, ContextType, RequireFields<QueryAssembledExamFacultyDispositionArgs, 'examRunId'>>;
   assetReadiness?: Resolver<ResolversTypes['AssetReadiness'], ParentType, ContextType, RequireFields<QueryAssetReadinessArgs, 'scenarioId' | 'version'>>;
   clinicalEventReviewSummary?: Resolver<ResolversTypes['DurableClinicalEventReviewSummary'], ParentType, ContextType, RequireFields<QueryClinicalEventReviewSummaryArgs, 'stationRunId'>>;
   examForm?: Resolver<Maybe<ResolversTypes['ExamForm']>, ParentType, ContextType, RequireFields<QueryExamFormArgs, 'examFormId'>>;
@@ -1218,6 +1491,8 @@ export type UiXrConsumerWorkflowSubmitPreviewResolvers<ContextType = any, Parent
 
 export type Resolvers<ContextType = any> = {
   Actor?: ActorResolvers<ContextType>;
+  AppendFacultyDispositionResult?: AppendFacultyDispositionResultResolvers<ContextType>;
+  AssembledExamEvidencePacket?: AssembledExamEvidencePacketResolvers<ContextType>;
   AssetBlocker?: AssetBlockerResolvers<ContextType>;
   AssetNeed?: AssetNeedResolvers<ContextType>;
   AssetProductionReadinessLadder?: AssetProductionReadinessLadderResolvers<ContextType>;
@@ -1229,6 +1504,14 @@ export type Resolvers<ContextType = any> = {
   ExamForm?: ExamFormResolvers<ContextType>;
   ExamStationTimingWindow?: ExamStationTimingWindowResolvers<ContextType>;
   ExamTimingWindow?: ExamTimingWindowResolvers<ContextType>;
+  FacultyDispositionDecision?: FacultyDispositionDecisionResolvers<ContextType>;
+  FacultyDispositionIdentityMutation?: FacultyDispositionIdentityMutationResolvers<ContextType>;
+  FacultyDispositionOverwriteRefused?: FacultyDispositionOverwriteRefusedResolvers<ContextType>;
+  FacultyDispositionPostFinalization?: FacultyDispositionPostFinalizationResolvers<ContextType>;
+  FacultyDispositionProducerSelfReview?: FacultyDispositionProducerSelfReviewResolvers<ContextType>;
+  FacultyDispositionRefusal?: FacultyDispositionRefusalResolvers<ContextType>;
+  FacultyDispositionStaleDigest?: FacultyDispositionStaleDigestResolvers<ContextType>;
+  FacultyDispositionTrail?: FacultyDispositionTrailResolvers<ContextType>;
   FacultyScoreDraft?: FacultyScoreDraftResolvers<ContextType>;
   HiddenFactPolicy?: HiddenFactPolicyResolvers<ContextType>;
   JSON?: GraphQLScalarType;
