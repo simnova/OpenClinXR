@@ -45,7 +45,7 @@
           <h1 id="openclinxr-title">OpenClinXR</h1>
           <p class="lede">
             Timed clinical skills stations—from case blueprint to WebXR runtime—
-            with faculty review, traces, and promotion gates that stay off until the evidence is real.
+            with faculty review, durable traces, and promotion bound to the reviewed revision.
           </p>
           <p class="lede" style="margin-top: 14px; font-size: 1.05rem;">
             Inspired by Step&nbsp;2&nbsp;CS-style multi-station flow. Built as an
@@ -56,7 +56,7 @@
             <a class="button button--primary" href="#now">Where we are</a>
             <a class="button" href="#dark-factory">Factory pipeline</a>
             <a class="button" href="#see-it">Runtime evidence</a>
-            <a class="button" href="#roadmap">What’s queued</a>
+            <a class="button" href="#roadmap">Next proof</a>
             <a class="button" href="https://github.com/simnova/OpenClinXR">GitHub</a>
           </div>
         </div>
@@ -75,10 +75,10 @@
           </div>
           <div>
             <span class="metric">What we prove today</span>
-            <strong>Blueprint → runtime evidence—not licensure</strong>
+            <strong>Reviewed blueprint → pinned runtime → replay</strong>
             <p>
-              Case fields (including clothing layers) drive generated actors and garments.
-              WebXR sample scenes and Model Vetting captures are committed artifacts, not marketing fiction.
+              Authored content identity now follows an encounter through faculty promotion,
+              a pinned runtime bundle, timed learner phases, actor execution, and review.
             </p>
           </div>
           <div>
@@ -128,54 +128,45 @@
 
       <section id="now" class="band band--evidence" aria-labelledby="now-title">
         <div class="section-heading">
-          <p class="eyebrow">Current state · August 2026</p>
-          <h2 id="now-title">Shipping the factory spine—and measuring how we build it.</h2>
+          <p class="eyebrow">Current state · 4 September 2026</p>
+          <h2 id="now-title">A reviewed encounter can now become a resumable, replayable run.</h2>
         </div>
         <div class="progress-grid">
           <div class="progress-card">
-            <h3>Product proof in the loop</h3>
+            <h3>Author and promote</h3>
             <ul>
-              <li><strong>ED real garment path:</strong> hospital gown from case phenotype into Model Vetting + UI-XR sample evidence (committed screenshots below).</li>
-              <li><strong>Peds real-garment work:</strong> patient/parent/nurse clothing layers expanded from phenotype; adaptive dialogue and sleeve-deform evidence tracks exist in-repo.</li>
-              <li><strong>Authoring / review spine:</strong> scenario bank, review packets, admin faculty review UI with promotion-status surfaces (gates remain off).</li>
-              <li><strong>Worldview (W1–W19 landed):</strong> faculty case authoring plus a compile graph (Body → Wardrobe → Equipment) with Add/Remove node on the exam-forms workbench. Screenshots <a href="#worldview">below</a>. Not a baker or Quest claim.</li>
-              <li><strong>Factory station cards:</strong> nine production stations as Standard Schema V1 admin cards (jsonSchema.input controls, Apply validates). <code>instrument</code> is a gate, not a card. Screenshots <a href="#factory-stations">below</a>.</li>
-              <li><strong>Runtime durability hook:</strong> optional <code>durableStore</code> on scenario runtime + local authoring roundtrip CLI that emits replay-safe JSON (actor turns + timeline).</li>
+              <li><strong>Revision-bound review:</strong> a scenario edit invalidates stale approval; API promotion refuses missing or stale authored-content identity.</li>
+              <li><strong>Immutable encounter bundles:</strong> reviewed factory outputs are promoted together, with the room, actors, equipment, and dialogue configuration pinned to the approved revision.</li>
+              <li><strong>Faculty-visible delta:</strong> Admin can preview what an authored change will alter at runtime before promotion.</li>
+              <li><strong>Scenario bank freeze:</strong> approved revisions and promoted station-bundle pins survive later authoring changes.</li>
             </ul>
           </div>
           <div class="progress-card">
-            <h3>How the team builds</h3>
+            <h3>Run and resume</h3>
             <ul>
-              <li>OpenClaw-style slices: lease, path-scoped roles, worktree isolation for writers, verify gates.</li>
-              <li>Docs warehouse + PMO cadence so history freezes without choking rehydrate.</li>
-              <li>Per-slice token thrash checks and <strong>task cost rollups</strong> (subagent × model → estimated USD)—estimate only, not invoices.</li>
-              <li>Temporal decision catalog so workarounds (e.g. token accounting) get weekly revisit, not permanent debt.</li>
+              <li><strong>Bundle-driven boot:</strong> the learner runtime mounts the promoted room and starts from the pinned encounter bundle, failing closed when compiled-room readiness is incomplete.</li>
+              <li><strong>Assembled exam clock:</strong> encounter, note, and timed-break phases emit monotonic, replayable events with exactly-once timeout behavior.</li>
+              <li><strong>Restart-safe progress:</strong> API and MongoDB adapters rebuild an assembled run from its durable ledger; incompatible resume state is rejected.</li>
+              <li><strong>End-to-end acceptance:</strong> repository tests exercise learner progress through faculty review across a restart boundary.</li>
             </ul>
           </div>
           <div class="progress-card">
-            <h3>Still deliberately false</h3>
+            <h3>Speak, move, replay</h3>
             <ul>
-              <li>No clinical scoring or licensure claims.</li>
-              <li>No Quest headset readiness claim without worn-device evidence.</li>
-              <li>No unapproved cloud/paid production path.</li>
-              <li>Promotion / realism gates stay candidate-scoped until policy says otherwise.</li>
+              <li><strong>One frozen actor turn:</strong> voice, visemes, affect, facial expression, and motion start from an identity-bound plan rather than loosely interpreting dialogue text.</li>
+              <li><strong>Audio-clock synchronization:</strong> visible and audible modalities follow the same playback clock.</li>
+              <li><strong>Replayable interruption:</strong> learner barge-in is recorded across turn modalities without rewriting the approved plan.</li>
+              <li><strong>Plan versus execution:</strong> the immutable intent and observed execution are persisted separately and exposed in faculty replay.</li>
             </ul>
           </div>
           <div class="progress-card">
-            <h3>New this cycle · measured</h3>
+            <h3>Evidence and boundaries</h3>
             <ul>
-              <li><strong>The examinee can examine the patient:</strong> touch a body region in the UI-XR runtime → case-driven guard/wince clip + pain emotion + reflexive dialogue + durable trace turn (headless-gated end to end).</li>
-              <li><strong>Iterations are visible in-app, and now <em>scored</em>:</strong> a Humanoid Generation Studio renders every generated humanoid GLB and paints a measured realism badge from a Grok-4.5 vision pass. Today's honest baseline is <strong>0.05–0.30 / 1.0</strong> across five candidates ("mannequin skin", "hard-band mesh, no fabric drape")—a fixture-grade punch-list, surfaced not hidden.</li>
-              <li><strong>Rig alignment hardened:</strong> full ~163-bone Anny retarget with fail-loud diagnostics, determinism, and a three.js explosion gate.</li>
-              <li><strong>Multi-provider delegation, cost-scored:</strong> Claude manages; Grok 4.5 (vision proven, ~$0.09 per image judgment) and DeepSeek 4 execute the grunt; each routing choice is backed by a measured cost/quality ledger—assumptions proven, not asserted.</li>
-              <li><strong>Equipment generates itself now:</strong> reference image → Apple Silicon Metal TRELLIS bake → per-subject process isolation → <code>pnpm factory:trellis:bake</code> → a triangle ladder that lands the clock at 34.5k. Three assets, zero hand-modelling, all three visible below.</li>
-              <li><strong>Escape hatch is one command:</strong> text + Grok Imagine → remesh (compact extracts) → <code>pnpm factory:trellis:hatch</code> lands six props at ≤80k. Kit/parametric stay exam SSOT. Not promoted into the learner runtime. <a href="#trellis-hatch">Graded stills below.</a></li>
-              <li><strong>A generated asset reached the product:</strong> the TRELLIS wall clock now resolves and renders in a live station at 34,885 triangles — the first procedurally generated equipment to leave the harness. Two layers had to agree: the equipment resolver, and a suppression allowlist that had silently reverted it to a placeholder.</li>
-              <li><strong>Multi-view reconstruction, measured both ways:</strong> conditioning TRELLIS on four reference views instead of one closed the torn far side of the ECG cart — far-side fill 0.35 → 0.44, surface area +47%, with 3.7% <em>fewer</em> triangles — and cost the monitor screen, which flattened without camera poses. The technique is adopted; that artifact is not.</li>
-              <li><strong>The factory can rebuild what it ships:</strong> both library garment sources were on no disk in the repository, so every re-bake silently degraded the figure — and the guard that was meant to stop that logged a warning and baked anyway. The guard now throws; the sources are tracked and licence-recorded (CC0 trousers, CC-BY shirt). <a href="#grader">Shown above, with the regression that exposed it.</a></li>
-              <li><strong>The MPFB actor can be posed at all:</strong> the one MPFB2-rigged humanoid a learner loads resolved <strong>1 of 14</strong> runtime pose bones — its rig names them <code>upperarm01.L</code> where the code asked for <code>upper_armL</code>, and a missing bone lookup is a silent skip, not an error. Now 14 of 14 on all three rails. <em>Invisible in any screenshot; it is the difference between an actor that can be posed and one that cannot.</em></li>
-              <li><strong>Facial morphs are reachable:</strong> the only genuinely graded facial morphs in the repository — 4,549 vertices moving in 653 distinct directions on <code>mouth-open</code> — sat unreachable because the runtime keyed on different names. Meanwhile the rail it <em>could</em> address carries constant-offset stubs: identical magnitude on every vertex, one direction, which slides a block of the face rather than opening a mouth. <em>Also invisible until lip-sync drives it.</em></li>
-              <li><strong>Gaze moves the eyes:</strong> a “gaze” drive was writing <code>root.rotation.y</code> — the whole actor pivoting on the spot, feet included — while the eye bones every rail ships and skins were addressed by nothing. The evidence field that made this look handled was a name regex asserting an eye node <em>exists</em>.</li>
+              <li><strong>Committed proof:</strong> the claims above are backed by runtime and package tests in the repository, including restart-safe learner-to-faculty acceptance.</li>
+              <li><strong>Visual proof remains bounded:</strong> the screenshots below demonstrate browser-rendered factory, actor, garment, room, and equipment work. They do not prove the entire new lifecycle as one polished user journey.</li>
+              <li><strong>No clinical validity, scoring validity, licensure, or exam-equivalence claim.</strong></li>
+              <li><strong>No Quest readiness claim:</strong> browser/WebXR and emulation evidence do not substitute for worn-headset validation.</li>
+              <li><strong>No production deployment claim:</strong> development remains local-first, with external providers and promotion paths gated.</li>
             </ul>
           </div>
         </div>
@@ -191,12 +182,15 @@
           <h2 id="worldview-title">The case is a compile graph faculty can edit.</h2>
         </div>
         <p class="status-copy">
-          BothyBoard children W1–W19 (plus W14a/W14b/W11s) are Landed on
-          <code>origin/main</code> <code>05120405</code>.
+          These screenshots were captured from commit <code>05120405</code>, where
+          BothyBoard children W1–W19 (plus W14a/W14b/W11s) had landed.
           Faculty author the encounter as a Scenario, then review a World Compile Graph
           of baker families. Add node / Remove node mutate the graph; the lock table stays
           the lock write path. Chromium Playwright of the running admin app
           (<code>ui-admin</code> + local API), not a schematic.
+          Since this capture, authored revision identity now invalidates stale approval,
+          and Admin can preview the runtime delta before a reviewed revision is promoted
+          into an immutable encounter bundle.
         </p>
 
         <figure style="margin: 20px 0 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
@@ -231,8 +225,9 @@
         </figure>
 
         <p class="status-copy" style="margin-top: 16px;">
-          <strong>claimScope:</strong> local admin UI of authored Scenario + compile DAG on
-          <code>05120405</code>.
+          <strong>claimScope:</strong> local admin UI capture of an authored Scenario + compile DAG at
+          capture commit <code>05120405</code>; current revision identity and runtime-delta behavior
+          are supported by later committed application tests, not by these stills.
           <strong>notEvidenceFor:</strong> Quest readiness, clinical validity, live Blender bake,
           LLM draft quality, or that the parent BothyBoard program card is closed (it is still Idle).
           Node labels truncate in this crop; that is the canvas, not missing data.
@@ -521,13 +516,13 @@
       <section id="garment-class" class="band" aria-labelledby="garment-class-title">
         <div class="section-heading">
           <p class="eyebrow">Evidence you can look at</p>
-          <h2 id="garment-class-title">Every garment we own, classified. None of them is a hospital gown.</h2>
+          <h2 id="garment-class-title">The audited legacy MakeClothes cache contains no hospital gown.</h2>
         </div>
         <p class="status-copy">
-          The section above this one says clothing is not yet good enough to show. That used to be a
-          judgement. It is now a measurement: every cached MakeHuman garment in the repository has been
-          fitted, rendered and given a class, and the class the clinical work needs
-          has <strong>zero members</strong>.
+          Every garment in the audited legacy MakeHuman/MakeClothes cache was fitted, rendered,
+          and assigned a geometry-derived class. Within that specific cache,
+          <code>hospital_gown</code> has <strong>zero members</strong>. This does not describe the
+          separate case-linked real-gown path shown elsewhere in the repository and on this page.
         </p>
 
         <figure style="margin: 20px 0 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
@@ -559,29 +554,22 @@
         </p>
 
         <p class="status-copy">
-          The practical consequence is a piece of work we are <em>not</em> doing. Dressing eleven more
-          patients in a hospital gown is off the queue until a hospital-class garment actually exists,
-          because mapping the name onto the closest available asset is how the evening dress got there
-          the first time. <strong>The honest answer to “where is the gown” is NOT FOUND</strong>, and
-          that is a better artifact than a green contract over the wrong garment.
+          The practical consequence is narrower: this legacy cache cannot satisfy a hospital-gown
+          request, and the resolver must not substitute its evening dress because the filename sounds
+          plausible. The current real-gown path is a separate, provenance-tracked source and still has
+          to pass its own fit, motion, and runtime evidence gates.
         </p>
       </section>
 
       <section id="see-it" class="band" aria-labelledby="see-title">
         <div class="section-heading">
           <p class="eyebrow">Evidence you can look at</p>
-          <h2 id="see-title">Clothing: not yet good enough to show.</h2>
+          <h2 id="see-title">Clothing is visible and case-linked, but remains below production realism.</h2>
         </div>
         <p class="status-copy">
-          This section used to carry two WebXR captions labelled “phenotype-driven gown”. The
-          captures underneath them showed a bare torso with a red patch, a deformed shoulder, and a
-          status bar reading <em>WebXR unavailable</em>. The caption asserted a capability the
-          picture disproved, so the pictures were removed on 2026-08-10 rather than recaptioned.
-        </p>
-        <p class="status-copy">
-          Clothing on this project is real but partial: garments are fitted from a library and
-          driven by the case definition’s layers, and you can see them working on the actors in the
-          station above.
+          Garment layers now come from the case definition and are visible on browser-rendered actors,
+          including the real-gown path and clothed multi-role stations shown on this page. That is
+          evidence of case-to-runtime wiring, not a claim of production-quality cloth, fit, or motion.
         </p>
         <p class="status-copy">
           <strong>Correction, 2026-08-10 evening.</strong> This section previously said one actor
@@ -593,12 +581,10 @@
           rendering fault.
         </p>
         <p class="status-copy">
-          We are leaving the section without a picture until that question is measured, because we
-          were wrong about the mechanism four times on this one figure — a bare midriff (the garments
-          overlap by 3&nbsp;cm), a short sleeve (it is a full-body shell), translucent overlays (they
-          are switched off), and a runtime ignoring its own hide mask (it honours it, with zero pixel
-          difference). Each pixel observation was real and each explanation was wrong until it was
-          measured. That is the reason for the caution here, stated plainly rather than implied.
+          The open quality bar is visible: some garments still read as rigid shells, hems and joins
+          remain rough, and motion evidence does not yet establish production cloth behavior. New
+          clothing claims therefore require measured Model Vetting and UI-XR evidence rather than
+          inference from asset presence alone.
         </p>
         <p class="evidence-note" style="margin-top: 16px;">
           Inspection packet:
@@ -1183,47 +1169,41 @@ Maximize large flat planes for 3D reconstruction.</pre>
 
       <section id="roadmap" class="band band--evidence" aria-labelledby="roadmap-title">
         <div class="section-heading">
-          <p class="eyebrow">Roadmap · from the queue only</p>
-          <h2 id="roadmap-title">What’s next is what’s queued—not a product brochure.</h2>
+          <p class="eyebrow">Next proof</p>
+          <h2 id="roadmap-title">The contracts are connected. The experience still has to earn trust.</h2>
         </div>
         <p class="status-copy">
-          These items come from the current project ledger. Dates are not SLAs. Nothing here promises production deployment,
-          headset certification, or clinical validation.
+          The next work is to turn the newly connected lifecycle into visible, measured product evidence.
+          Dates are not SLAs, and nothing here promises production deployment, headset certification, exam equivalence, or clinical validation.
         </p>
         <div class="progress-grid">
           <div class="progress-card">
-            <h3>Next up (dequeue)</h3>
+            <h3>One visible encounter</h3>
             <ul>
-              <li>
-                <strong>Wire API durableStore consumer</strong> —
-                connect the new runtime durable hooks to persistence/API sinks so review packets and actor turns can land beyond local CLI artifacts.
-              </li>
-              <li>
-                <strong>Authoring follow-through</strong> —
-                keep the scenario bank → runtime emission → admin replay path honest with real turns (not seed-only panels).
-              </li>
+              <li>Capture a single reviewed scenario moving from authoring delta through promotion, learner runtime, interruption, note phase, and faculty replay.</li>
+              <li>Keep every visible state tied to the immutable scenario revision and promoted bundle that produced it.</li>
             </ul>
           </div>
           <div class="progress-card">
-            <h3>Active product tracks</h3>
+            <h3>Raise runtime quality</h3>
             <ul>
-              <li>Peds evidence / adaptive dialogue loops in UI-XR when the next visible slice is selected.</li>
-              <li>ED / multi-role garment realism continuation only where dual Model Vetting + UI-XR evidence stays visible.</li>
-              <li>Faculty review and replay surfaces for authored encounters (gates remain review-only).</li>
+              <li>Replace fixture-grade actor and garment presentation only when Model Vetting and UI-XR evidence both show the improvement.</li>
+              <li>Grade voice, viseme, affect, gaze, and motion synchronization as an observed performance, not merely a passing contract test.</li>
+              <li>Continue publishing verified room and equipment assets through the same review-gated encounter bundle.</li>
             </ul>
           </div>
           <div class="progress-card">
-            <h3>Operating hygiene (ongoing)</h3>
+            <h3>Prove the hard boundaries</h3>
             <ul>
-              <li>Weekly temporal reviews (e.g. Turbo version posture, Grok/DeepSeek token cost rates).</li>
-              <li>Docs warehouse freeze when thresholds hit—not after every task.</li>
-              <li>Task cost rollups on slice finish for subagent × model estimates.</li>
+              <li>Exercise the learner flow on physical Quest hardware before making any readiness statement.</li>
+              <li>Keep faculty review, evidence provenance, and stale-identity rejection fail closed as the experience broadens.</li>
+              <li>Treat educational and clinical outcome validation as separate future work, not an inference from software completeness.</li>
             </ul>
           </div>
         </div>
         <p class="progress-note">
-          Queue source: <code>PROJECT_STATUS.md</code> (Next dequeue + Active Work).
-          If the ledger changes, this section should change with it—or stay quiet.
+          Public roadmap copy follows committed product evidence and the repository’s protected claim boundaries.
+          The operational queue remains in <code>PROJECT_STATUS.md</code> and the project board.
         </p>
       </section>
 
