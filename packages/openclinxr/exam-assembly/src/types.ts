@@ -89,11 +89,33 @@ export type ExamStationTimingWindow = {
   note: ExamTimingWindow;
 };
 
+/**
+ * Occupied break window derived from blueprint `breakAfterStationOrders`.
+ * `phase` is the literal `"break"` so replay cannot treat this as doorway/encounter/note.
+ */
+export type ExamBreakWindow = {
+  afterStationOrder: number;
+  startsAtSecond: number;
+  endsAtSecond: number;
+  durationSeconds: number;
+  phase: "break";
+};
+
+export type ExamFormTimingOptions = {
+  /** Shared occupied duration for every configured break position. 0 / omitted = checkpoint-only. */
+  breakDurationSeconds?: number;
+  /** Per-position duration keyed by `afterStationOrder`. Overrides `breakDurationSeconds` when present. */
+  breakDurationsByAfterStationOrder?: Readonly<Record<number, number>>;
+};
+
 export type ExamTimingPlan = {
   blueprintId: string;
   stationWindows: ExamStationTimingWindow[];
   breakCheckpoints: Array<{ afterStationOrder: number; atSecond: number }>;
+  breakWindows: ExamBreakWindow[];
   totalStationTimeSeconds: number;
+  totalBreakTimeSeconds: number;
+  totalFormTimeSeconds: number;
 };
 
 export type ExamStationRunQueueStatus = "activation_ready" | "draft_blocked" | "governance_blocked" | "missing_scenario";
@@ -114,7 +136,10 @@ export type ExamStationRunQueue = {
   canStartLearnerExam: boolean;
   stationQueue: ExamStationRunQueueItem[];
   breakCheckpoints: ExamTimingPlan["breakCheckpoints"];
+  breakWindows: ExamBreakWindow[];
   totalStationTimeSeconds: number;
+  totalBreakTimeSeconds: number;
+  totalFormTimeSeconds: number;
   summary: {
     activationReady: number;
     draftBlocked: number;
@@ -140,13 +165,39 @@ export type ExamRunStationOutcome = {
 };
 
 export type ExamFormRunClock = {
-  /** Form-level elapsed seconds (accumulates across stations; not reset per station). */
+  /** Form-level elapsed seconds (accumulates across stations and breaks; not reset per station). */
   formElapsedSecond: number;
   totalStationTimeSeconds: number;
   formRemainingSecond: number;
+  /** Elapsed seconds overlapping station doorway/encounter/note windows only. */
+  stationElapsedSecond: number;
+  /** Elapsed seconds overlapping break windows only — never encounter or note. */
+  breakElapsedSecond: number;
+  totalBreakTimeSeconds: number;
+  totalFormTimeSeconds: number;
 };
 
 export type ExamFormRunStatus = "not_started" | "in_progress" | "complete" | "blocked";
+
+export type ExamFormRunActivePhase =
+  | { kind: "station" }
+  | { kind: "break"; afterStationOrder: number };
+
+export const EXAM_FORM_BREAK_PHASE_TRANSITION_TYPES = ["break.started", "break.ended"] as const;
+
+export type ExamFormBreakPhaseTransitionType = (typeof EXAM_FORM_BREAK_PHASE_TRANSITION_TYPES)[number];
+
+export type ExamFormBreakPhaseTransition = {
+  eventType: ExamFormBreakPhaseTransitionType;
+  afterStationOrder: number;
+  formAtSecond: number;
+  durationSeconds: number;
+  /** Literal discriminator — break time is never encounter or note. */
+  phase: "break";
+  examRunId: string;
+  sequence: number;
+  recordedAtIso: string;
+};
 
 export const examFormRunNotEvidenceFor = [
   "exam_equivalence",
@@ -165,8 +216,10 @@ export type ExamFormRunState = {
   status: ExamFormRunStatus;
   /** 0-based index into queue.stationQueue. */
   currentStationIndex: number;
+  currentPhase: ExamFormRunActivePhase;
   clock: ExamFormRunClock;
   stationOutcomes: ExamRunStationOutcome[];
+  breakPhaseTransitions: ExamFormBreakPhaseTransition[];
   claimBoundary: "learner_multi_station_runtime_skeleton_not_exam_equivalence";
   notEvidenceFor: typeof examFormRunNotEvidenceFor;
   /** Always false — multi-station skeleton is never exam-equivalence evidence. */
@@ -178,6 +231,8 @@ export type CreateExamFormRunInput = {
   examFormId: string;
   blueprint: ExamBlueprint;
   scenarios: Scenario[];
+  breakDurationSeconds?: number;
+  breakDurationsByAfterStationOrder?: Readonly<Record<number, number>>;
 };
 
 export type AdvanceExamFormRunStationInput = {
@@ -186,6 +241,12 @@ export type AdvanceExamFormRunStationInput = {
   advanceReason: string | null;
   endedAtFormSecond?: number;
   recordedAtIso?: string;
+};
+
+export type AdvanceExamFormRunBreakInput = {
+  endedAtFormSecond?: number;
+  recordedAtIso?: string;
+  advanceReason?: string | null;
 };
 
 /**
