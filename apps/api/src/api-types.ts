@@ -8,7 +8,10 @@ import type {
   FacultyScoreDraft,
   ReviewDecisionDraft,
 } from "@openclinxr/review-workflow";
-import type { ApiAssembledExamRunRecord } from "./runtime-durable-store.js";
+import type {
+  ApiAssembledExamDispositionRecord,
+  ApiAssembledExamRunRecord,
+} from "./runtime-durable-store.js";
 import type { scenarioBank } from "@openclinxr/scenario-fixtures";
 import type { ScenarioRuntime, ScenarioRuntimeActorTurn } from "@openclinxr/scenario-runtime";
 import type { Scenario } from "@openclinxr/shared-schemas";
@@ -41,7 +44,7 @@ export type ApiStartSessionRequest = {
   assembledStation?: ApiAssembledStationContext;
 };
 
-export type { ApiAssembledExamRunRecord };
+export type { ApiAssembledExamDispositionRecord, ApiAssembledExamRunRecord };
 
 export type RuntimeTraceEvents = ReturnType<ScenarioRuntime["traceEvents"]>;
 
@@ -185,6 +188,17 @@ export type ApiPersistenceSink = {
   getAssembledExamRun?: (
     examRunId: string,
   ) => Promise<ApiAssembledExamRunRecord | undefined> | ApiAssembledExamRunRecord | undefined;
+  /**
+   * Optional durable faculty disposition aggregate. Append-only decisions;
+   * the assembled evidence packet stays a separate immutable artifact.
+   */
+  saveAssembledExamDisposition?: (
+    examRunId: string,
+    record: ApiAssembledExamDispositionRecord,
+  ) => Promise<void> | void;
+  getAssembledExamDisposition?: (
+    examRunId: string,
+  ) => Promise<ApiAssembledExamDispositionRecord | undefined> | ApiAssembledExamDispositionRecord | undefined;
   listClinicalEventReviewProjections?: (stationRunId: string) => Promise<ApiClinicalEventReviewProjection[]> | ApiClinicalEventReviewProjection[];
   getLearnerRuntimeAssetBundle?: (
     bundleId: string,
