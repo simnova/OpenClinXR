@@ -150,3 +150,17 @@ function replaceRuntimeBundleAssets(bundle: EncounterRuntimeAssetBundle, assetRe
     })),
   };
 }
+
+export {
+  encounterBundleFactoryMemberKinds,
+  immutableEncounterBundleClaimScope,
+  immutableEncounterBundleNotEvidenceFor,
+  promoteReviewedFactoryOutputsToImmutableEncounterBundle,
+  type EncounterBundleFactoryMember,
+  type EncounterBundleFactoryMemberKind,
+  type EncounterBundleMemberContentIdentity,
+  type ImmutableEncounterBundlePromotion,
+  type ImmutableEncounterBundlePromotionRefusal,
+  type ImmutableEncounterBundlePromotionResult,
+  type PromoteReviewedFactoryOutputsInput,
+} from "./encounter-bundle-promotion.js";
