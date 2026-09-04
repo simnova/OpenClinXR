@@ -105,6 +105,7 @@ import {
   resolveLiveActorTurnForTrace,
   type LiveActorTurnConsumption,
 } from "./actor-turn-plan-consumption.js";
+import { playFrozenActorTurnOnSlot, type ActorTurnPlayback } from "./actor-turn-playback.js";
 import { stationContextForScenario } from "./station-context.js";
 import {
   resolveActorPosture,
@@ -8405,9 +8406,6 @@ function triggerHumanoidDialogueForTrace(tag: string, text: string): void {
     return;
   }
   const emotionSource = liveTurn ? "plan.dialogueEmotionTo" as const : undefined;
-  if (liveTurn) {
-    window.__openClinXrLiveActorTurnConsumption = liveTurn;
-  }
   if (runtimeActorEmbodiment(encounterRuntimeAssetBundle, actorId) === "virtual_device") {
     const emotionContext = scenarioDialogueEmotionContext(actorId, caption, emotion, emotionSource);
     window.__openClinXrHumanoidSpeechEvidence = buildHumanoidSpeechEvidence(
@@ -8437,6 +8435,7 @@ function triggerHumanoidDialogueForTrace(tag: string, text: string): void {
     });
     return;
   }
+  if (liveTurn) { playLiveFrozenActorTurn(liveTurn.plan, liveTurn.execution, gazeTarget, actorRuntimeRealismRequirement); return; }
   triggerHumanoidDialogue(actorId, caption, gazeTarget, emotion, actorRuntimeRealismRequirement, emotionSource);
 }
 
@@ -8486,8 +8485,6 @@ function triggerHumanoidDialogue(
     durationMs: humanoidDialogueDurationMs(phonemeSequence.length),
   };
   startHumanoidEmotionTransition(slot, emotion, performance.now());
-  // #722 baked lip-sync join: when this line has a served cue file (content-hash named, like the
-  // bake), drive the wire with the bake's real Rhubarb timing; absent cues keep the text-derived timeline.
   attachBakedCuesToSpeech(slot, text, selectedScenarioId());
   slot.root.userData.openClinXrDialoguePhonemeMapping = {
     actorId,
@@ -8509,7 +8506,25 @@ function triggerHumanoidDialogue(
   );
   recordBootPhase("humanoid_dialogue_phoneme_mapping_started");
 }
-
+function playLiveFrozenActorTurn(
+  plan: LiveActorTurnConsumption["plan"],
+  execution: LiveActorTurnConsumption["execution"],
+  gazeTarget: HumanoidDialogueGazeTarget,
+  req?: HumanoidSpeechEvidence["activeActorRuntimeRealismRequirement"],
+): ActorTurnPlayback {
+  const slot = generatedHumanoidAnimationSlotsByActorId.get(plan.actorId);
+  return playFrozenActorTurnOnSlot(plan, execution, {
+    nowMs: performance.now(),
+    clipNames: slot?.responseClips?.map((clip) => clip.name) ?? [],
+    getSlot: (id) => generatedHumanoidAnimationSlotsByActorId.get(id),
+    speak: (ctx) => {
+      triggerHumanoidDialogue(ctx.actorId, ctx.spokenText, gazeTarget, ctx.faceEmotion, req, "plan.dialogueEmotionTo");
+      return true;
+    },
+    playClip: playOneShotResponseClip,
+    startFaceTransition: (id, emotion, nowMs) => { const live = generatedHumanoidAnimationSlotsByActorId.get(id); if (live) startHumanoidEmotionTransition(live, emotion, nowMs); },
+  });
+}
 function humanoidDialogueDurationMs(phonemeCount: number): number {
   const baseDurationMs = Math.max(900, Math.min(4800, phonemeCount * 90));
   return isHumanoidMouthGazePoseReviewCaptureMode() ? Math.max(baseDurationMs, 45_000) : baseDurationMs;
@@ -8923,7 +8938,6 @@ function rememberLiveActorTurnFromPayload(
   }
   const consumed = consumeLiveActorTurn(parsed.plan, parsed.execution);
   registerLiveActorTurn(consumed.plan, consumed.execution, tag);
-  window.__openClinXrLiveActorTurnConsumption = consumed;
   return consumed;
 }
 
