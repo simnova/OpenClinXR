@@ -87,6 +87,7 @@ export type AdminControlPlaneClient = {
   listScenarioReviewDecisions(input: ListScenarioReviewDecisionsInput): Promise<AdminScenarioReviewDecision[]>;
   getReviewPacketReplay(input: GetReviewPacketReplayInput): Promise<AdminReviewPacketReplay>;
   getReviewReplayReadinessSummary(input: GetReviewPacketReplayInput): Promise<AdminReviewReplayReadinessSummary>;
+  getAssembledExamReviewPacket?(input: { examRunId: string }): Promise<import("@openclinxr/review-workflow").AssembledExamReviewPacket>;
   submitScenarioReview(input: SubmitScenarioReviewInput): Promise<AdminScenarioReviewResult>;
   saveFacultyScoreDraft(input: SaveFacultyScoreDraftInput): Promise<AdminReviewPacket>;
   /** REST: persist gated FacultyScoreDraft (review-workflow schema; scoring gates false). */
