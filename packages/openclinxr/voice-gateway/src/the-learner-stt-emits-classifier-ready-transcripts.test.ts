@@ -107,6 +107,28 @@ describe("learner STT adapter emits classifier-ready transcripts", () => {
     expect(withSilence.eventKindHint).toBe("learner_interruption");
     expect(withText.transcript).toBe(LEARNER_STT_FIXTURES["fixture:chest-onset"]);
     expect(withText.eventKindHint).not.toBe("learner_unclassified");
+    expect(withText.interruption).toEqual({
+      interruptionId: "run_learner_stt_001:learner-mic-001:0:learner_barge_in",
+      turnId: null,
+      clockMs: 0,
+    });
+  });
+
+  it("mints a canonical barge-in identity on the turn clock", () => {
+    const record = transcribeLearnerAudio({
+      ...station,
+      pcmOrFixtureId: "fixture:chest-onset",
+      isFinal: false,
+      bargeIn: true,
+      atMs: 105_250,
+      turnId: "turn_maya_002",
+    });
+    expect(record.eventKindHint).toBe("learner_interruption");
+    expect(record.interruption).toEqual({
+      interruptionId: "run_learner_stt_001:turn_maya_002:105250:learner_barge_in",
+      turnId: "turn_maya_002",
+      clockMs: 105_250,
+    });
   });
 
   it("decodes non-empty UTF-8 unary transcript bytes into a classifier-ready record", () => {
