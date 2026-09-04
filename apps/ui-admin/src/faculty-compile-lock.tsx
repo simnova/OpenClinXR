@@ -49,6 +49,13 @@ export type FacultyCompileLockRow = {
   llmProposed?: string;
   /** Faculty-accepted value for this node (locked override, bind, or "proposed"). */
   facultyAccepted?: string;
+  /** Scenario version the faculty lock reviewed. Optional; omitted on queue-derived rows. */
+  reviewedVersion?: number;
+  /**
+   * Authored scenario content identity the lock reviewed. Distinct from compile-node
+   * contentHash (artifact bytes). Optional; omitted on queue-derived rows.
+   */
+  authoredContentIdentity?: string;
 };
 
 /**
@@ -130,9 +137,33 @@ export function buildFacultyCompileLockRows(
 }
 
 /**
+ * True when the previous lock reviewed a different artifact hash, authored
+ * scenario identity, or scenario version than the freshly derived row.
+ */
+export function facultyCompileLockIdentityMoved(
+  previous: FacultyCompileLockRow,
+  next: FacultyCompileLockRow,
+): boolean {
+  if (previous.contentHash !== undefined && previous.contentHash !== next.contentHash) {
+    return true;
+  }
+  if (
+    previous.authoredContentIdentity !== undefined &&
+    previous.authoredContentIdentity !== next.authoredContentIdentity
+  ) {
+    return true;
+  }
+  if (previous.reviewedVersion !== undefined && previous.reviewedVersion !== next.reviewedVersion) {
+    return true;
+  }
+  return false;
+}
+
+/**
  * Merges faculty compile lock rows by queue identity (rowId): locked flags and
  * override paths/values from `previousRows` survive onto the freshly derived rows.
- * Review metadata only; locked stays false until the faculty compile-lock store is written.
+ * A lock whose reviewed identity moved is marked stale so compile/learner-use
+ * cannot inherit the prior lock. Review metadata only.
  */
 export function mergeFacultyCompileLockRows(
   nextRows: FacultyCompileLockRow[],
@@ -141,15 +172,24 @@ export function mergeFacultyCompileLockRows(
   const previousById = new Map(previousRows.map((row) => [row.rowId, row]));
   return nextRows.map((row) => {
     const previous = previousById.get(row.rowId);
-    return previous
-      ? {
-          ...row,
-          locked: previous.locked,
-          ...(previous.overridePath === undefined ? {} : { overridePath: previous.overridePath }),
-          ...(previous.overrideValue === undefined ? {} : { overrideValue: previous.overrideValue }),
-        }
-      : row;
+    if (!previous) {
+      return row;
+    }
+    const locked = previous.locked;
+    const identityMoved = facultyCompileLockIdentityMoved(previous, row);
+    return {
+      ...row,
+      locked,
+      stale: row.stale || (locked && identityMoved),
+      ...(previous.overridePath === undefined ? {} : { overridePath: previous.overridePath }),
+      ...(previous.overrideValue === undefined ? {} : { overrideValue: previous.overrideValue }),
+    };
   });
+}
+
+/** Compile/learner-use is refused while any lock row is stale. Not a production readiness claim. */
+export function facultyCompileLockAllowsCompile(rows: readonly FacultyCompileLockRow[]): boolean {
+  return rows.every((row) => !row.stale);
 }
 
 /**
@@ -292,7 +332,19 @@ export function useFacultyCompileLocks(
   const handleFacultyCompileLockChange = (rowId: string, locked: boolean): void => {
     const row = facultyCompileLockRows.find((candidate) => candidate.rowId === rowId);
     setFacultyCompileLockRows((currentRows) =>
-      currentRows.map((candidate) => (candidate.rowId === rowId ? { ...candidate, locked } : candidate)),
+      currentRows.map((candidate) => {
+        if (candidate.rowId !== rowId) {
+          return candidate;
+        }
+        if (!locked) {
+          return { ...candidate, locked: false };
+        }
+        return {
+          ...candidate,
+          locked: true,
+          stale: candidate.contentHash === undefined ? candidate.stale : false,
+        };
+      }),
     );
     if (row) {
       persistCompileLock(row, { locked, overridePath: row.overridePath, overrideValue: row.overrideValue });
@@ -446,7 +498,10 @@ export function buildFacultyCompileLockColumns({
                 allowClear
                 value={row.overrideValue === undefined ? "" : String(row.overrideValue)}
                 onChange={(event) =>
-                  onFacultyCompileOverrideValueChange(row.rowId, event.target.value === "" ? undefined : event.target.value)
+                  onFacultyCompileOverrideValueChange(
+                    row.rowId,
+                    event.currentTarget.value === "" ? undefined : event.currentTarget.value,
+                  )
                 }
               />
             ) : row.overrideValue === undefined ? null : (

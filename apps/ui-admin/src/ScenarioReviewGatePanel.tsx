@@ -66,10 +66,90 @@ function gateDisplayState(stateName: string): string {
   return SCENARIO_REVIEW_UNMADE_DECISION_DISPLAY;
 }
 
+export const SCENARIO_REVIEW_STALE_DECISION_DISPLAY = "stale" as const;
+export const AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX = "authoredContentIdentity:";
+
+function fnv1aHex(input: string): string {
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < input.length; i += 1) {
+    hash ^= input.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return (hash >>> 0).toString(16).padStart(8, "0");
+}
+
+/** Authored content identity: scenario fields excluding review labels so unchanged labels cannot keep a decision current. */
+export function authoredScenarioContentIdentity(scenario: AdminScenario): string {
+  const authored = {
+    scenarioId: scenario.scenarioId,
+    version: scenario.version,
+    title: scenario.title,
+    clinicalObjectives: scenario.clinicalObjectives,
+    requiredTraceTags: scenario.requiredTraceTags,
+    actors: scenario.actors.map((actor) => ({
+      actorId: actor.actorId,
+      role: actor.role,
+      displayName: actor.displayName,
+    })),
+    assetNeeds: scenario.assetNeeds.map((need) => ({
+      assetId: need.assetId,
+      assetType: need.assetType,
+    })),
+  };
+  return fnv1aHex(JSON.stringify(authored));
+}
+
+export function authoredContentIdentityFromEvidenceRefs(evidenceRefs: readonly string[]): string | undefined {
+  const found = evidenceRefs.find((ref) => ref.startsWith(AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX));
+  return found === undefined ? undefined : found.slice(AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX.length);
+}
+
+export function resolveScenarioReviewGateDisplay(input: {
+  dimension: ScenarioReviewDimension;
+  reviewLabel: string;
+  scenarioId: string;
+  version: number;
+  currentAuthoredContentIdentity: string;
+  history: AdminScenarioReviewDecision[] | null;
+  boundAuthoredContentIdentity?: string;
+}): string {
+  const rawDisplay = gateDisplayState(typeof input.reviewLabel === "string" ? input.reviewLabel : "draft");
+  if (input.history === null) {
+    return rawDisplay;
+  }
+  const matching = input.history.filter(
+    (record) =>
+      record.scenarioId === input.scenarioId &&
+      record.version === input.version &&
+      record.reviewerRole === input.dimension,
+  );
+  if (matching.length === 0) {
+    return rawDisplay === SCENARIO_REVIEW_UNMADE_DECISION_DISPLAY
+      ? rawDisplay
+      : SCENARIO_REVIEW_STALE_DECISION_DISPLAY;
+  }
+  const latest = matching[matching.length - 1];
+  const bound =
+    input.boundAuthoredContentIdentity ??
+    (latest === undefined ? undefined : authoredContentIdentityFromEvidenceRefs(latest.evidenceRefs)) ??
+    input.currentAuthoredContentIdentity;
+  if (bound !== input.currentAuthoredContentIdentity) {
+    return SCENARIO_REVIEW_STALE_DECISION_DISPLAY;
+  }
+  return rawDisplay;
+}
+
+export function scenarioReviewGatesAllowLearnerUse(
+  displays: Record<ScenarioReviewDimension, string>,
+): boolean {
+  return SCENARIO_REVIEW_RECORDABLE_DIMENSIONS.every((dimension) => displays[dimension] === "approved");
+}
+
 function gateColor(display: string): string {
   if (display === "approved") return "green";
   if (display === "in_review") return "blue";
   if (display === "changes_requested" || display === "rejected") return "red";
+  if (display === SCENARIO_REVIEW_STALE_DECISION_DISPLAY) return "orange";
   return "gold";
 }
 
@@ -92,6 +172,27 @@ export function ScenarioReviewGatePanel({
   const [saveState, setSaveState] = useState<SaveState>({ status: "idle" });
   const [history, setHistory] = useState<AdminScenarioReviewDecision[] | null>(null);
   const [historyError, setHistoryError] = useState<string | null>(null);
+  const scenarioIdentityKey = `${scenario.scenarioId}:${scenario.version}`;
+  const [boundIdentities, setBoundIdentities] = useState<{
+    key: string;
+    values: Partial<Record<ScenarioReviewDimension, string>>;
+  }>({ key: scenarioIdentityKey, values: {} });
+  const currentAuthoredContentIdentity = authoredScenarioContentIdentity(scenario);
+  const boundValues = boundIdentities.key === scenarioIdentityKey ? boundIdentities.values : {};
+
+  const gateDisplayFor = (dimension: ScenarioReviewDimension): string => {
+    const raw = scenario.review[dimension];
+    const bound = boundValues[dimension];
+    return resolveScenarioReviewGateDisplay({
+      dimension,
+      reviewLabel: typeof raw === "string" ? raw : "draft",
+      scenarioId: scenario.scenarioId,
+      version: scenario.version,
+      currentAuthoredContentIdentity,
+      history,
+      ...(bound === undefined ? {} : { boundAuthoredContentIdentity: bound }),
+    });
+  };
 
   // Real deps only: fetch keys + the list function. Gate states are effect triggers below —
   // they are not inputs to the request body.
@@ -117,6 +218,43 @@ export function ScenarioReviewGatePanel({
     scenario.review.simulationQa,
   ]);
 
+  useEffect(() => {
+    if (history === null) {
+      return;
+    }
+    setBoundIdentities((current) => {
+      const nextValues = current.key === scenarioIdentityKey ? { ...current.values } : {};
+      let changed = current.key !== scenarioIdentityKey;
+      for (const dimension of SCENARIO_REVIEW_RECORDABLE_DIMENSIONS) {
+        const matching = history.filter(
+          (record) =>
+            record.scenarioId === scenario.scenarioId &&
+            record.version === scenario.version &&
+            record.reviewerRole === dimension,
+        );
+        if (matching.length === 0) {
+          if (nextValues[dimension] !== undefined) {
+            delete nextValues[dimension];
+            changed = true;
+          }
+          continue;
+        }
+        if (nextValues[dimension] !== undefined) {
+          continue;
+        }
+        const latest = matching[matching.length - 1];
+        nextValues[dimension] =
+          (latest === undefined ? undefined : authoredContentIdentityFromEvidenceRefs(latest.evidenceRefs)) ??
+          currentAuthoredContentIdentity;
+        changed = true;
+      }
+      if (!changed) {
+        return current;
+      }
+      return { key: scenarioIdentityKey, values: nextValues };
+    });
+  }, [history, scenario.scenarioId, scenario.version, scenarioIdentityKey, currentAuthoredContentIdentity]);
+
   const recordDecision = async (dimension: ScenarioReviewDimension) => {
     const rationale = form[dimension].rationale.trim();
     if (rationale.length === 0) {
@@ -127,7 +265,10 @@ export function ScenarioReviewGatePanel({
     setSaveState({ status: "saving", dimension });
     try {
       // evidenceRefs required by API; optional for the human — supply a local procedural ref when empty.
-      const evidenceRefs = [`evidence:local-admin:${scenario.scenarioId}:${dimension}`];
+      const evidenceRefs = [
+        `evidence:local-admin:${scenario.scenarioId}:${dimension}`,
+        `${AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX}${currentAuthoredContentIdentity}`,
+      ];
       const nextScenario = await submitScenarioReview({
         scenarioId: scenario.scenarioId,
         version: scenario.version,
@@ -137,6 +278,13 @@ export function ScenarioReviewGatePanel({
         comments: rationale,
         evidenceRefs,
       });
+      setBoundIdentities((current) => ({
+        key: scenarioIdentityKey,
+        values: {
+          ...(current.key === scenarioIdentityKey ? current.values : {}),
+          [dimension]: currentAuthoredContentIdentity,
+        },
+      }));
       onScenarioUpdated?.(nextScenario);
       setForm((current) => ({
         ...current,
@@ -162,8 +310,7 @@ export function ScenarioReviewGatePanel({
 
       <div className="tag-row" aria-label="Review gate status summary">
         {SCENARIO_REVIEW_RECORDABLE_DIMENSIONS.map((dimension) => {
-          const raw = scenario.review[dimension];
-          const display = gateDisplayState(typeof raw === "string" ? raw : "draft");
+          const display = gateDisplayFor(dimension);
           return (
             <Tag key={dimension} color={gateColor(display)}>
               {`${dimension}: ${display}`}
@@ -171,6 +318,26 @@ export function ScenarioReviewGatePanel({
           );
         })}
       </div>
+
+      {SCENARIO_REVIEW_RECORDABLE_DIMENSIONS.some(
+        (dimension) => gateDisplayFor(dimension) === SCENARIO_REVIEW_STALE_DECISION_DISPLAY,
+      ) ? (
+        <Alert
+          type="warning"
+          title="Prior faculty approvals are stale"
+          description="Scenario version or authored content changed. Compile and learner-use readiness are refused until each governance dimension is recorded again. Unchanged labels are not a reapproval."
+          showIcon
+        />
+      ) : null}
+      <Typography.Paragraph aria-label="Compile learner-use readiness">
+        {scenarioReviewGatesAllowLearnerUse(
+          Object.fromEntries(
+            SCENARIO_REVIEW_RECORDABLE_DIMENSIONS.map((dimension) => [dimension, gateDisplayFor(dimension)]),
+          ) as Record<ScenarioReviewDimension, string>,
+        )
+          ? "Compile/learner-use readiness: review gates current (not a production or exam-equivalence claim)"
+          : "Compile/learner-use readiness: refused until stale or pending gates are recorded again"}
+      </Typography.Paragraph>
 
       {saveState.status === "saved" ? (
         <Alert
@@ -186,8 +353,7 @@ export function ScenarioReviewGatePanel({
 
       <div className="scenario-review-gate-forms">
         {SCENARIO_REVIEW_RECORDABLE_DIMENSIONS.map((dimension) => {
-          const raw = scenario.review[dimension];
-          const display = gateDisplayState(typeof raw === "string" ? raw : "draft");
+          const display = gateDisplayFor(dimension);
           const saving = saveState.status === "saving" && saveState.dimension === dimension;
           return (
             <div
@@ -239,7 +405,7 @@ export function ScenarioReviewGatePanel({
                 onChange={(event) =>
                   setForm((current) => ({
                     ...current,
-                    [dimension]: { ...current[dimension], rationale: event.target.value },
+                    [dimension]: { ...current[dimension], rationale: event.currentTarget.value },
                   }))
                 }
               />
