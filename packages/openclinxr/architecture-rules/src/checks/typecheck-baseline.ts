@@ -34,7 +34,7 @@ export const TYPECHECK_ERROR_CEILING_AT_PLANT = 225;
  * Shrink-only live ceiling. Lower it in the same commit that pays the count down.
  * Do not raise this number.
  */
-export const TYPECHECK_ERROR_CEILING = 225;
+export const TYPECHECK_ERROR_CEILING = 223;
 
 const TYPECHECK_SCRIPTS = ["typecheck:strict", "typecheck:relaxed"] as const;
 
