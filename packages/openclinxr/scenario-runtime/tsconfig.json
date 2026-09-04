@@ -25,6 +25,9 @@
       "path": "../asset-registry"
     },
     {
+      "path": "../capability-gateway"
+    },
+    {
       "path": "../conversation-policy"
     },
     {
