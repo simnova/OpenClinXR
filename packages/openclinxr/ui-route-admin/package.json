@@ -7,6 +7,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./scenario-authoring-preview": {
+      "types": "./dist/scenario-authoring-preview/preview-authoring-revision.d.ts",
+      "default": "./dist/scenario-authoring-preview/preview-authoring-revision.js"
     }
   },
   "scripts": {
@@ -17,6 +21,9 @@
     "clean": "rm -rf dist *.tsbuildinfo"
   },
   "dependencies": {
+    "@openclinxr/domain": "workspace:*",
+    "@openclinxr/scenario-fixtures": "workspace:*",
+    "@openclinxr/shared-schemas": "workspace:*",
     "@openclinxr/ui-route-shared": "workspace:*"
   },
   "devDependencies": {

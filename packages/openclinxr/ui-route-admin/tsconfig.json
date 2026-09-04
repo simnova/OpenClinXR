@@ -23,6 +23,15 @@
   ],
   "references": [
     {
+      "path": "../domain"
+    },
+    {
+      "path": "../scenario-fixtures"
+    },
+    {
+      "path": "../shared-schemas"
+    },
+    {
       "path": "../ui-route-shared"
     }
   ]

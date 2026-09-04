@@ -40,12 +40,8 @@ import { AssetNeedsPanel } from "./AssetNeedsPanel.js";
 import { EmotionPolicyPanel } from "./EmotionPolicyPanel.js";
 import { EquipmentPanel } from "./EquipmentPanel.js";
 import { StringListField } from "./StringListField.js";
-import {
-  actorFormFromDraft,
-  extractScenario,
-  extractScenarioList,
-  structuredCloneScenario,
-} from "./case-authoring-io.js";
+import { actorFormFromDraft, extractScenario, extractScenarioList, structuredCloneScenario } from "./case-authoring-io.js";
+import { LiveAuthoringPreview } from "./scenario-authoring-preview/LiveAuthoringPreview.js";
 
 const { TextArea } = Input;
 
@@ -521,6 +517,7 @@ export function CaseAuthoringWorkbench({ initialScenario, apiClient }: CaseAutho
             )}
           </Form.List>
         </Card>
+        <LiveAuthoringPreview approved={baseDraft} />
       </Form>
 
       <div className="case-authoring-output-grid">

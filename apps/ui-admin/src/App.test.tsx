@@ -276,6 +276,7 @@ describe("AdminApp", () => {
     render(<AdminApp initialPath="/scenarios/ed_chest_pain_priority_v1?version=1" controlPlaneClient={fakeControlPlaneClient()} />);
 
     expect(await screen.findByRole("heading", { name: "ED Chest Pain With Nurse Interruption And Family Pressure" })).toBeInTheDocument();
+    expect(screen.queryByLabelText("Authoring preview")).not.toBeInTheDocument();
     expect(within(screen.getByLabelText("Scenario environment")).getByText("Emergency department exam bay")).toBeInTheDocument();
     expect(within(screen.getByLabelText("Scenario equipment")).getByText("12-lead ECG machine")).toBeInTheDocument();
     expect(within(screen.getByLabelText("Scenario actors")).getByText("Robert Hayes")).toBeInTheDocument();
@@ -336,7 +337,10 @@ describe("AdminApp", () => {
       reviewerId: "admin_clinical_reviewer",
       decision: "APPROVED",
       comments: "Clinical rationale from faculty reviewer for local formative only.",
-      evidenceRefs: ["evidence:local-admin:peds_asthma_parent_anxiety_v1:clinical"],
+      evidenceRefs: [
+        "evidence:local-admin:peds_asthma_parent_anxiety_v1:clinical",
+        expect.stringMatching(/^authoredContentIdentity:[0-9a-f]{8}$/),
+      ],
     });
   });
 

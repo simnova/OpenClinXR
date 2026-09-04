@@ -1257,6 +1257,15 @@ importers:
 
   packages/openclinxr/ui-route-admin:
     dependencies:
+      '@openclinxr/domain':
+        specifier: workspace:*
+        version: link:../domain
+      '@openclinxr/scenario-fixtures':
+        specifier: workspace:*
+        version: link:../scenario-fixtures
+      '@openclinxr/shared-schemas':
+        specifier: workspace:*
+        version: link:../shared-schemas
       '@openclinxr/ui-route-shared':
         specifier: workspace:*
         version: link:../ui-route-shared
