@@ -195,7 +195,7 @@ export type DynamicEncounterFactoryPlanningProjection = {
   scenarios: DynamicEncounterFactoryPlanningScenario[];
 };
 
-const targetStep2CsStyleStationCount = 14;
+const targetStep2CsStyleStationCount = 15;
 const requiredCaseBankActorRoles = [
   "consultant",
   "family",

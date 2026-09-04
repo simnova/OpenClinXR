@@ -53,6 +53,7 @@ describe("scenario bank maturity", () => {
       "primary_care_dyslipidemia_joint_pain_v1",
       "adult_abdominal_pain_v1",
       "peds_fever_v1",
+      "clinic_knee_pain_return_to_play_v1",
     ]);
     expect(scenarioBank.every((scenario) => validateScenario(scenario).ok)).toBe(true);
     expect(
@@ -64,17 +65,17 @@ describe("scenario bank maturity", () => {
         }).ok
       ),
     ).toBe(true);
-    expect(scenarioBank.filter((scenario) => scenario.status === "draft")).toHaveLength(13);
+    expect(scenarioBank.filter((scenario) => scenario.status === "draft")).toHaveLength(14);
   });
 
   it("reports maturity, review blockers, and clinical setting diversity", () => {
     const report = evaluateScenarioBankMaturity(scenarioBank);
 
-    expect(report.scenarioCount).toBe(14);
-    expect(report.targetScenarioCount).toBe(14);
+    expect(report.scenarioCount).toBe(15);
+    expect(report.targetScenarioCount).toBe(15);
     expect(report.missingScenarioCount).toBe(0);
-    expect(report.statusCounts).toEqual({ approved: 1, draft: 13, retired: 0 });
-    expect(report.validationStageCounts.stage_0_synthetic_draft).toBe(13);
+    expect(report.statusCounts).toEqual({ approved: 1, draft: 14, retired: 0 });
+    expect(report.validationStageCounts.stage_0_synthetic_draft).toBe(14);
     expect(report.activationEligibleScenarioIds).toEqual([edChestPainScenario.scenarioId]);
     expect(report.blockedScenarioIds).toEqual([
       { scenarioId: "peds_asthma_parent_anxiety_v1", reason: "not_approved" },
@@ -90,6 +91,7 @@ describe("scenario bank maturity", () => {
       { scenarioId: "primary_care_dyslipidemia_joint_pain_v1", reason: "not_approved" },
       { scenarioId: "adult_abdominal_pain_v1", reason: "not_approved" },
       { scenarioId: "peds_fever_v1", reason: "not_approved" },
+      { scenarioId: "clinic_knee_pain_return_to_play_v1", reason: "not_approved" },
     ]);
     expect(report.scenarioMaturityBreakdown[0]).toMatchObject({
       scenarioId: "ed_chest_pain_priority_v1",
@@ -120,6 +122,7 @@ describe("scenario bank maturity", () => {
       "pediatric_fever_urgent_care_bay_v1",
       "pediatric_urgent_care_bay_v1",
       "primary_care_clinic_room_v1",
+      "sports_medicine_clinic_room_v1",
       "stepdown_room_v1",
       "surgical_ward_room_v1",
       "telehealth_home_visit_v1",
@@ -157,7 +160,7 @@ describe("scenario bank maturity", () => {
     expect(report.pressureActorCoverage).toEqual({
       completeScenarioIds: scenarioBank.map((scenario) => scenario.scenarioId),
       incompleteScenarioIds: [],
-      scenarioCountWithNonPatientActors: 14,
+      scenarioCountWithNonPatientActors: 15,
       minimumNonPatientActorCount: 1,
     });
     expect(report.traceabilityCoverage).toEqual({
@@ -183,6 +186,7 @@ describe("scenario bank maturity", () => {
         "primary_care_dyslipidemia_joint_pain_v1",
         "adult_abdominal_pain_v1",
         "peds_fever_v1",
+        "clinic_knee_pain_return_to_play_v1",
       ],
       missingSeedScenarioIds: [],
       guardrailProbeScenarioIds: [
@@ -200,11 +204,12 @@ describe("scenario bank maturity", () => {
         "primary_care_dyslipidemia_joint_pain_v1",
         "adult_abdominal_pain_v1",
         "peds_fever_v1",
+        "clinic_knee_pain_return_to_play_v1",
       ],
     });
     expect(report.sharedAssetReuseMaturity).toMatchObject({
       claimBoundary: "scenario_bank_shared_asset_reuse_metadata_only",
-      scenarioCountWithLookupKeys: 14,
+      scenarioCountWithLookupKeys: 15,
       scenarioCountWithReusableKeys: 13,
       notEvidenceFor: [
         "generated_asset_readiness",
@@ -237,13 +242,13 @@ describe("scenario bank maturity", () => {
 
     expect(projection).toMatchObject({
       source: "scenario_bank_ordered_sequence",
-      targetStationCount: 14,
-      stationCount: 14,
+      targetStationCount: 15,
+      stationCount: 15,
       missingStationCount: 0,
       activationEligibleCount: 1,
       learnerUseBoundary: "activation_ready_only",
     });
-    expect(projection.stations).toHaveLength(14);
+    expect(projection.stations).toHaveLength(15);
     expect(projection.stations[0]).toMatchObject({
       stationOrder: 1,
       scenarioId: "ed_chest_pain_priority_v1",
