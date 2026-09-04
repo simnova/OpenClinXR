@@ -61,9 +61,30 @@ export type ProviderHealthSnapshot = {
   adapters: ProviderHealth[];
 };
 
+export type AssembledStationFormWindow = {
+  startsAtSecond: number;
+  endsAtSecond: number;
+};
+
+export type AssembledStationFormTiming = {
+  doorway?: AssembledStationFormWindow;
+  encounter: AssembledStationFormWindow;
+  note: AssembledStationFormWindow;
+};
+
+/** Validated assembled-exam identity carried into a station session. Absent = standalone. */
+export type AssembledStationContext = {
+  examRunId: string;
+  scenarioId: string;
+  stationOrder: number;
+  formTiming: AssembledStationFormTiming;
+};
+
 export type StartSessionInput = {
   learnerId: string;
   consentAccepted: boolean;
+  /** When present, encounter/end-note/advance traces use the canonical replayable payload. */
+  assembledStation?: AssembledStationContext;
 };
 
 export type RuntimeSessionSummary = {
@@ -84,6 +105,8 @@ export type LearnerEventInput = {
 export type SubmitNoteInput = {
   atSecond: number;
   text: string;
+  /** Assembled sessions stamp this onto station.advanced; ignored for standalone. */
+  advanceReason?: string;
 };
 
 export type SynthesizeActorSpeechInput = {
@@ -179,6 +202,7 @@ export type SessionRecord = {
   emotionPolicy: CaseEmotionPolicy;
   /** Last frozen ActorTurnPlan per actor. Render modalities consume this, never a draft. */
   frozenActorTurnPlans: Map<string, ActorTurnPlan>;
+  assembledStation?: AssembledStationContext;
 };
 
 export type GenerateActorResponseFromContextInput = {

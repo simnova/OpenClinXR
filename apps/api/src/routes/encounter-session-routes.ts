@@ -1,82 +1,14 @@
 import type { Hono } from "hono";
-import { resolveSessionLearnerId } from "@openclinxr/auth";
 import { routeById } from "@openclinxr/rest";
-import {
-  createDefaultScenarioRuntime,
-  type ScenarioCatalogPort,
-  type ScenarioRuntime,
-  resolveScenarioById,
-} from "@openclinxr/scenario-runtime";
 import type { ApiAppContext } from "../api-app-context.js";
 import type { ApiAppVariables } from "../api-types.js";
 import { parseActorInteractionSource, persistTraceSnapshot, sessionErrorResponse } from "../api-route-support.js";
 import { asRealTelemetryRecorder, parseStringArray } from "../api-support.js";
-import { createScenarioRuntimeDurableStoreFromApiPersistence } from "../runtime-durable-store.js";
-
-/**
- * Resolve the ScenarioRuntime for a given stationRunId.
- * Checks per-session runtimes first (for sessions started with a specific scenarioId),
- * then falls back to the default singleton for back-compat.
- */
-function resolveSessionRuntime(
-  ctx: ApiAppContext,
-  stationRunId: string,
-): ScenarioRuntime {
-  return ctx.perSessionRuntime.get(stationRunId) ?? ctx.runtime;
-}
+import { resolveSessionRuntime } from "./session-routes.js";
 
 /** EncounterSession domain routes (composition-root migration). */
 export function registerEncounterSessionRoutes(app: Hono<{ Variables: ApiAppVariables }>, ctx: ApiAppContext): void {
-  const { runtime, persistence, telemetry, sessionOwners } = ctx;
-
-  app.post(routeById("start-session").path, async (context) => {
-    const body = (await context.req.json().catch(() => ({}))) as {
-      learnerId?: string;
-      consentAccepted?: boolean;
-      scenarioId?: string;
-    };
-    if (body.consentAccepted !== true) {
-      asRealTelemetryRecorder(telemetry)?.incrementRun("failed");
-      return context.json({ error: "consent_required" }, 400);
-    }
-    const identity = context.get("identity");
-    const learnerId = resolveSessionLearnerId(identity, body.learnerId);
-    if (learnerId.trim().length === 0) {
-      asRealTelemetryRecorder(telemetry)?.incrementRun("failed");
-      return context.json({ error: "learner_id_required" }, 400);
-    }
-
-    // Resolve per-session runtime when scenarioId is provided.
-    let sessionRuntime: ScenarioRuntime = runtime;
-    if (body.scenarioId) {
-      const port: ScenarioCatalogPort = {};
-      if (persistence.getAuthoredScenario) {
-        port.getAuthoredScenario = persistence.getAuthoredScenario.bind(persistence);
-      }
-      const entry = await resolveScenarioById(body.scenarioId, port);
-      if (!entry) {
-        return context.json({ error: "scenario_not_found", scenarioId: body.scenarioId }, 404);
-      }
-      sessionRuntime = createDefaultScenarioRuntime({
-        scenario: entry.scenario,
-        durableStore: createScenarioRuntimeDurableStoreFromApiPersistence(persistence),
-      });
-    }
-
-    try {
-      const run = await sessionRuntime.startSession({ learnerId, consentAccepted: true });
-      sessionOwners.set(run.stationRunId, learnerId);
-      if (sessionRuntime !== runtime) {
-        ctx.perSessionRuntime.set(run.stationRunId, sessionRuntime);
-      }
-      await persistTraceSnapshot(sessionRuntime, persistence, run.stationRunId);
-      asRealTelemetryRecorder(telemetry)?.incrementRun("started");
-      return context.json({ ...run, scenarioId: run.scenarioId }, 201);
-    } catch (error) {
-      asRealTelemetryRecorder(telemetry)?.incrementRun("failed");
-      throw error;
-    }
-  });
+  const { persistence, telemetry } = ctx;
 
   app.post(routeById("start-encounter").path, async (context) => {
     const stationRunId = context.req.param("stationRunId");

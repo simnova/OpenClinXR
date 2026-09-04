@@ -39,7 +39,7 @@ export {
   buildActorTurnPlan,
   freezeActorTurnPlan,
 } from "./actor-turn-plan.js";
-export { ScenarioRuntime } from "./scenario-runtime.js";
+export { ScenarioRuntime, validateAssembledStationContext } from "./scenario-runtime.js";
 export type {
   CreateDefaultScenarioRuntimeOptions,
   DurableStorePersistenceHooks,
@@ -53,6 +53,9 @@ export type {
   RegisterLearnerBargeInResult,
   RouteRuntimeActorInteractionInput,
   RouteRuntimeActorInteractionResult,
+  AssembledStationContext,
+  AssembledStationFormTiming,
+  AssembledStationFormWindow,
   RuntimeSessionSummary,
   SaveFacultyScoreDraftInput,
   ScenarioPublicationReadinessInput,
