@@ -21,7 +21,7 @@ import type { Scenario, TraceEvent } from "@openclinxr/shared-schemas";
 import { createDefaultScenarioRuntime } from "./default-runtime-factory.js";
 import { resolveScenarioById, type ScenarioCatalogPort } from "./scenario-catalog.js";
 import {
-  orderReplayablePhaseTransitions,
+  assignMonotonicReplayablePhaseTransitions,
   replayablePhaseTransitionEvent,
   type ReplayablePhaseTransitionType,
 } from "./trace.js";
@@ -180,7 +180,7 @@ function buildStationPhaseTransitions(input: {
 
   const doorwayStart = input.station.timing.doorway.startsAtSecond;
   const relative = (formSecond: number): number => formSecond - doorwayStart;
-  let nextSequence = input.ledgerEvents.reduce((max, event) => Math.max(max, event.sequence), -1) + 1;
+  const startSequence = input.ledgerEvents.reduce((max, event) => Math.max(max, event.sequence), -1) + 1;
 
   const specs: Array<{
     eventType: ReplayablePhaseTransitionType;
@@ -216,27 +216,22 @@ function buildStationPhaseTransitions(input: {
     },
   ];
 
-  const events = specs.map((spec) => {
-    const existing = input.ledgerEvents.find((event) => event.eventType === spec.eventType);
-    const sequence = existing?.sequence ?? nextSequence;
-    if (!existing) {
-      nextSequence += 1;
-    }
-    return replayablePhaseTransitionEvent({
+  const events = specs.map((spec) =>
+    replayablePhaseTransitionEvent({
       stationRunId: input.stationRunId,
-      sequence,
+      sequence: 0,
       eventType: spec.eventType,
-      atSecond: existing?.atSecond ?? relative(spec.formAtSecond),
+      atSecond: relative(spec.formAtSecond),
       scenarioId,
       examRunId: input.examRunId,
       stationOrder: input.station.stationOrder,
       phase: spec.phase,
       formAtSecond: spec.formAtSecond,
       ...(spec.advanceReason ? { advanceReason: spec.advanceReason } : {}),
-    });
-  });
+    }),
+  );
 
-  return orderReplayablePhaseTransitions(events);
+  return assignMonotonicReplayablePhaseTransitions(events, startSequence);
 }
 
 async function resolveScenariosInOrder(

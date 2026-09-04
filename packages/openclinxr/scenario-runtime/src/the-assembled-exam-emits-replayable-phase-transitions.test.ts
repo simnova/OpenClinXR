@@ -44,6 +44,20 @@ describe("the assembled exam emits replayable phase transitions", () => {
 
       const sequences = station.phaseTransitions.map((event) => event.sequence);
       expect(new Set(sequences).size).toBe(sequences.length);
+      for (let i = 1; i < station.phaseTransitions.length; i += 1) {
+        const previous = station.phaseTransitions[i - 1];
+        const current = station.phaseTransitions[i];
+        expect(previous).toBeDefined();
+        expect(current).toBeDefined();
+        if (!previous || !current) {
+          continue;
+        }
+        expect(current.sequence).toBeGreaterThan(previous.sequence);
+        expect(current.atSecond).toBeGreaterThanOrEqual(previous.atSecond);
+        expect(Number(current.payload["formAtSecond"])).toBeGreaterThanOrEqual(
+          Number(previous.payload["formAtSecond"]),
+        );
+      }
 
       for (const event of station.phaseTransitions) {
         expect(event.stationRunId).toBe(station.stationRunId);

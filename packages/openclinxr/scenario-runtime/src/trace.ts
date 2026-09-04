@@ -123,3 +123,31 @@ export function orderReplayablePhaseTransitions(events: readonly TraceEvent[]): 
     return left.sequence - right.sequence || left.atSecond - right.atSecond;
   });
 }
+
+/**
+ * Re-number a phase-ordered transition list so sequence (and matching durable refs)
+ * are strictly increasing. Runtime ledger events are left untouched; this is the
+ * review/replay identity a consumer sorts by sequence.
+ */
+export function assignMonotonicReplayablePhaseTransitions(
+  events: readonly TraceEvent[],
+  startSequence: number,
+): TraceEvent[] {
+  return orderReplayablePhaseTransitions(events).map((event, index) => {
+    const sequence = startSequence + index;
+    const payload = event.payload;
+    const advanceReason = payload["advanceReason"];
+    return replayablePhaseTransitionEvent({
+      stationRunId: event.stationRunId,
+      sequence,
+      eventType: event.eventType as ReplayablePhaseTransitionType,
+      atSecond: event.atSecond,
+      scenarioId: String(payload["scenarioId"] ?? ""),
+      examRunId: String(payload["examRunId"] ?? ""),
+      stationOrder: Number(payload["stationOrder"] ?? 0),
+      phase: payload["phase"] as ReplayablePhaseTransitionInput["phase"],
+      formAtSecond: Number(payload["formAtSecond"] ?? event.atSecond),
+      ...(typeof advanceReason === "string" ? { advanceReason } : {}),
+    });
+  });
+}
