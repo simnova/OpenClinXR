@@ -44,14 +44,56 @@ export type AssembledStartSessionRequest = StartSessionRequest & {
 
 export type AssembledStationApiClient = Omit<StationApiClient, "startSession"> & {
   startSession(input: AssembledStartSessionRequest): Promise<RuntimeSessionSummary>;
+  endEncounter(stationRunId: string, input: { atSecond: number }): Promise<RuntimeSessionSummary>;
+  startNote(stationRunId: string, input: { atSecond: number }): Promise<RuntimeSessionSummary>;
 };
 
 export function createStationApiClient(options: StationApiClientOptions): AssembledStationApiClient {
   const client = createBaseStationApiClient(options);
+  const baseUrl = options.baseUrl.replace(/\/$/, "");
+  const fetcher = options.fetch ?? fetch;
+  const post = async <T>(path: string, body: unknown): Promise<T> => {
+    const url = `${baseUrl}${path}`;
+    const response = await fetcher(url, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!response.ok) {
+      throw new Error(`OpenClinXR API request failed: POST ${url} ${response.status}`);
+    }
+    return response.json() as Promise<T>;
+  };
   return {
     ...client,
     startSession: (input) => client.startSession(input as StartSessionRequest),
+    endEncounter: (stationRunId, input) =>
+      post(`/sessions/${encodeURIComponent(stationRunId)}/end-encounter`, input),
+    startNote: (stationRunId, input) =>
+      post(`/sessions/${encodeURIComponent(stationRunId)}/start-note`, input),
   };
+}
+
+export async function syncRemoteAssembledPhase(input: {
+  client: AssembledStationApiClient | undefined;
+  stationRunId: string | undefined;
+  kind: "end_encounter" | "submit_note" | "encounter_timer_elapsed" | "note_timer_elapsed";
+  atSecond: number;
+  noteText: string;
+}): Promise<void> {
+  if (!input.client || !input.stationRunId) {
+    return;
+  }
+  try {
+    if (input.kind === "end_encounter" || input.kind === "encounter_timer_elapsed") {
+      await input.client.endEncounter(input.stationRunId, { atSecond: input.atSecond });
+      return;
+    }
+    await input.client.startNote(input.stationRunId, { atSecond: input.atSecond }).catch(() => undefined);
+    await input.client.submitNote(input.stationRunId, { atSecond: input.atSecond, text: input.noteText });
+  } catch {
+    return;
+  }
 }
 
 export function buildAssembledStationStartSessionInput(input: {

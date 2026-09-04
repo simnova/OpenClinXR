@@ -266,6 +266,9 @@ describe("learner runtime wires assembled session identity into main.ts", () => 
     expect(mainSource).toContain("buildAssembledStationStartSessionInput");
     expect(mainSource).toContain("./station-api-client.js");
     expect(mainSource).toContain("stationRunId: session.stationRunId");
+    expect(mainSource).toContain("observedFormAtSecond");
+    expect(mainSource).toContain("syncRemoteAssembledPhase");
+    expect(mainSource).not.toMatch(/startEncounter\([^;]*atSecond:\s*0/);
     expect(mainSource).toContain("phaseTrace:");
     expect(mainSource).toContain("stationRunId: remoteStationRunId");
     expect(mainSource).not.toMatch(/void initializeRemoteTraceSession\(stationApi\);/);

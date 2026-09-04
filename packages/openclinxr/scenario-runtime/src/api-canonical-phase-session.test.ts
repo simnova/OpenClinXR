@@ -23,6 +23,8 @@ describe("api canonical phase session", () => {
       assembledStation: assembled,
     });
     runtime.startEncounter(session.stationRunId, { atSecond: 60 });
+    runtime.endEncounter(session.stationRunId, { atSecond: 960 });
+    runtime.startNote(session.stationRunId, { atSecond: 960 });
     runtime.submitNote(session.stationRunId, {
       atSecond: 1560,
       text: "Chest pain workup documented.",
@@ -44,6 +46,38 @@ describe("api canonical phase session", () => {
     expect(phases[0]?.payload["phase"]).toBe("encounter");
     expect(phases[4]?.payload["phase"]).toBe("complete");
     expect(phases[4]?.payload["advanceReason"]).toBe("patient_note_submitted_advancing");
+    expect(phases[0]?.payload["formAtSecond"]).toBe(60);
+    expect(phases[1]?.payload["formAtSecond"]).toBe(960);
+    expect(phases[3]?.payload["formAtSecond"]).toBe(1560);
+  });
+
+  it("refuses atSecond 0 so it cannot persist the declared encounter start of 60", async () => {
+    const runtime = createDefaultScenarioRuntime();
+    const session = await runtime.startSession({
+      learnerId: "learner_zero_clock_001",
+      consentAccepted: true,
+      assembledStation: assembled,
+    });
+    expect(() => runtime.startEncounter(session.stationRunId, { atSecond: 0 })).toThrow(/outside window 60-960/);
+    const events = runtime.traceEvents(session.stationRunId);
+    expect(events.map((event) => event.eventType)).toEqual(["station.started", "consent.accepted"]);
+    expect(events.some((event) => event.payload["formAtSecond"] === 60)).toBe(false);
+  });
+
+  it("does not backfill future phase transitions before note submission", async () => {
+    const runtime = createDefaultScenarioRuntime();
+    const session = await runtime.startSession({
+      learnerId: "learner_pre_note_001",
+      consentAccepted: true,
+      assembledStation: assembled,
+    });
+    runtime.startEncounter(session.stationRunId, { atSecond: 60 });
+    const types = runtime.traceEvents(session.stationRunId).map((event) => event.eventType);
+    expect(types).toContain("encounter.started");
+    expect(types).not.toContain("encounter.ended");
+    expect(types).not.toContain("note.started");
+    expect(types).not.toContain("note.submitted");
+    expect(types).not.toContain("station.advanced");
   });
 
   it("keeps standalone sessions identity-less on encounter.started", async () => {

@@ -39,7 +39,8 @@ export {
   buildActorTurnPlan,
   freezeActorTurnPlan,
 } from "./actor-turn-plan.js";
-export { ScenarioRuntime, validateAssembledStationContext } from "./scenario-runtime.js";
+export { ScenarioRuntime } from "./scenario-runtime.js";
+export { validateAssembledStationContext } from "./trace.js";
 export type {
   CreateDefaultScenarioRuntimeOptions,
   DurableStorePersistenceHooks,
@@ -62,7 +63,9 @@ export type {
   ScenarioRuntimeActorTurn,
   ScenarioRuntimeDurableStore,
   ScenarioRuntimeOptions,
+  EndEncounterInput,
   StartEncounterInput,
+  StartNoteInput,
   StartSessionInput,
   SubmitNoteInput,
   SubmitNoteResult,

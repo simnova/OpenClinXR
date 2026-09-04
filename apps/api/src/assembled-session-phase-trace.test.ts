@@ -41,6 +41,33 @@ describe("assembled session phase traces", () => {
     });
     expect(encounter.status).toBe(200);
 
+    const beforeNote = await app.request(`/sessions/${started.stationRunId}/trace-events`);
+    const beforeEvents = (await json(beforeNote)) as Array<{ eventType: string }>;
+    expect(beforeEvents.map((event) => event.eventType)).toContain("encounter.started");
+    expect(beforeEvents.map((event) => event.eventType)).not.toContain("encounter.ended");
+    expect(beforeEvents.map((event) => event.eventType)).not.toContain("note.started");
+    expect(beforeEvents.map((event) => event.eventType)).not.toContain("note.submitted");
+    expect(beforeEvents.map((event) => event.eventType)).not.toContain("station.advanced");
+
+    expect(
+      (
+        await app.request(`/sessions/${started.stationRunId}/end-encounter`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ atSecond: 960 }),
+        })
+      ).status,
+    ).toBe(200);
+    expect(
+      (
+        await app.request(`/sessions/${started.stationRunId}/start-note`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ atSecond: 960 }),
+        })
+      ).status,
+    ).toBe(200);
+
     const note = await app.request(`/sessions/${started.stationRunId}/note`, {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -115,5 +142,30 @@ describe("assembled session phase traces", () => {
     });
     expect(cross.status).toBe(400);
     expect(await json(cross)).toEqual({ error: "assembled_station_scenario_mismatch" });
+  });
+
+  it("refuses start-encounter atSecond 0 so it cannot persist formAtSecond 60", async () => {
+    const app = createApiApp();
+    const start = await app.request("/sessions", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        learnerId: "learner_zero_clock_api",
+        consentAccepted: true,
+        scenarioId: "ed_chest_pain_priority_v1",
+        assembledStation,
+      }),
+    });
+    const started = (await json(start)) as { stationRunId: string };
+    const refused = await app.request(`/sessions/${started.stationRunId}/start-encounter`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ atSecond: 0 }),
+    });
+    expect(refused.status).toBe(400);
+    const traces = await app.request(`/sessions/${started.stationRunId}/trace-events`);
+    const events = (await json(traces)) as Array<{ eventType: string; payload: Record<string, unknown> }>;
+    expect(events.some((event) => event.eventType === "encounter.started")).toBe(false);
+    expect(events.some((event) => event.payload["formAtSecond"] === 60)).toBe(false);
   });
 });

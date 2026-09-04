@@ -126,6 +126,14 @@ export type StartEncounterInput = {
   atSecond: number;
 };
 
+export type EndEncounterInput = {
+  atSecond: number;
+};
+
+export type StartNoteInput = {
+  atSecond: number;
+};
+
 export type GenerateActorResponseInput = {
   actorId: string;
   learnerUtterance: string;

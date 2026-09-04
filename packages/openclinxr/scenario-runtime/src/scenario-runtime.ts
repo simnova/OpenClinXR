@@ -45,15 +45,19 @@ import {
 import { ACTOR_TURN_EXECUTED_EVENT_TYPE, executionFromFrozenPlan } from "./actor-turn-plan.js";
 import { generateActorResponseFromContext } from "./actor-turn-generation.js";
 import {
+  assertObservedFormTime,
   durableEventRef,
   replayablePhaseTransitionEvent,
   traceEvent,
+  validateAssembledStationContext,
   type ReplayablePhaseTransitionType,
   type TraceEventInput,
   withDurableEventRef,
 } from "./trace.js";
 import type {
   AssembledStationContext,
+  AssembledStationFormWindow,
+  EndEncounterInput,
   GenerateActorResponseInput,
   GenerateActorResponseResult,
   GenerateRoutedActorResponseInput,
@@ -70,6 +74,7 @@ import type {
   ScenarioRuntimeOptions,
   SessionRecord,
   StartEncounterInput,
+  StartNoteInput,
   StartSessionInput,
   SubmitNoteInput,
   SubmitNoteResult,
@@ -131,9 +136,10 @@ export class ScenarioRuntime {
 
   startEncounter(stationRunId: string, input: StartEncounterInput): RuntimeSessionSummary {
     const session = this.requireSession(stationRunId);
-    session.run = transitionStation(session.run, { type: "START_ENCOUNTER", atSecond: input.atSecond });
+    const domainAtSecond = this.assembledDomainAtSecond(session, input.atSecond, session.assembledStation?.formTiming.encounter, "encounter.started");
+    session.run = transitionStation(session.run, { type: "START_ENCOUNTER", atSecond: domainAtSecond });
     if (session.assembledStation) {
-      this.appendAssembledPhase(session, "encounter.started", "encounter", session.assembledStation.formTiming.encounter.startsAtSecond);
+      this.appendAssembledPhase(session, "encounter.started", "encounter", input.atSecond, session.assembledStation.formTiming.encounter);
     } else {
       this.options.ledger.append(
         traceEvent({
@@ -147,6 +153,46 @@ export class ScenarioRuntime {
       session.nextSequence += 1;
     }
 
+    return {
+      stationRunId,
+      scenarioId: this.options.scenario.scenarioId,
+      phase: session.run.phase,
+    };
+  }
+
+  endEncounter(stationRunId: string, input: EndEncounterInput): RuntimeSessionSummary {
+    const session = this.requireSession(stationRunId);
+    const domainAtSecond = this.assembledDomainAtSecond(session, input.atSecond, session.assembledStation?.formTiming.encounter, "encounter.ended");
+    session.run = transitionStation(session.run, { type: "END_ENCOUNTER", atSecond: domainAtSecond });
+    if (session.assembledStation) {
+      this.appendAssembledPhase(session, "encounter.ended", "encounter", input.atSecond, session.assembledStation.formTiming.encounter);
+    } else {
+      this.options.ledger.append(
+        traceEvent({
+          stationRunId,
+          sequence: session.nextSequence,
+          eventType: "encounter.ended",
+          atSecond: input.atSecond,
+          source: "system",
+        }),
+      );
+      session.nextSequence += 1;
+    }
+    return {
+      stationRunId,
+      scenarioId: this.options.scenario.scenarioId,
+      phase: session.run.phase,
+    };
+  }
+
+  startNote(stationRunId: string, input: StartNoteInput): RuntimeSessionSummary {
+    const session = this.requireSession(stationRunId);
+    if (session.run.phase !== "note") {
+      throw new Error(`Cannot start note during ${session.run.phase}`);
+    }
+    if (session.assembledStation) {
+      this.appendAssembledPhase(session, "note.started", "note", input.atSecond, session.assembledStation.formTiming.note);
+    }
     return {
       stationRunId,
       scenarioId: this.options.scenario.scenarioId,
@@ -442,36 +488,35 @@ export class ScenarioRuntime {
   submitNote(stationRunId: string, input: SubmitNoteInput): SubmitNoteResult {
     const session = this.requireSession(stationRunId);
     const assembled = session.assembledStation;
-    if (session.run.phase === "encounter") {
-      session.run = transitionStation(session.run, { type: "END_ENCOUNTER", atSecond: assembled?.formTiming.encounter.endsAtSecond ?? 960 });
-      if (assembled) {
-        this.appendAssembledPhase(session, "encounter.ended", "encounter", assembled.formTiming.encounter.endsAtSecond);
-        this.appendAssembledPhase(session, "note.started", "note", assembled.formTiming.note.startsAtSecond);
-      } else {
-        this.options.ledger.append(
-          traceEvent({
-            stationRunId,
-            sequence: session.nextSequence,
-            eventType: "encounter.ended",
-            atSecond: 960,
-            source: "system",
-          }),
-        );
-        session.nextSequence += 1;
-      }
+    if (!assembled && session.run.phase === "encounter") {
+      session.run = transitionStation(session.run, { type: "END_ENCOUNTER", atSecond: 960 });
+      this.options.ledger.append(
+        traceEvent({
+          stationRunId,
+          sequence: session.nextSequence,
+          eventType: "encounter.ended",
+          atSecond: 960,
+          source: "system",
+        }),
+      );
+      session.nextSequence += 1;
     }
+    const domainAtSecond = assembled
+      ? this.assembledDomainAtSecond(session, input.atSecond, assembled.formTiming.note, "note.submitted")
+      : input.atSecond;
     session.run = transitionStation(session.run, {
       type: "SUBMIT_NOTE",
-      atSecond: input.atSecond,
+      atSecond: domainAtSecond,
       noteText: input.text,
     });
     if (assembled) {
-      this.appendAssembledPhase(session, "note.submitted", "note", assembled.formTiming.note.endsAtSecond);
+      this.appendAssembledPhase(session, "note.submitted", "note", input.atSecond, assembled.formTiming.note);
       this.appendAssembledPhase(
         session,
         "station.advanced",
         "complete",
-        assembled.formTiming.note.endsAtSecond,
+        input.atSecond,
+        assembled.formTiming.note,
         input.advanceReason ?? "patient_note_submitted_advancing",
       );
     } else {
@@ -577,28 +622,44 @@ export class ScenarioRuntime {
     return session;
   }
 
+  private assembledDomainAtSecond(
+    session: SessionRecord,
+    observedFormAtSecond: number,
+    window: AssembledStationFormWindow | undefined,
+    eventType: string,
+  ): number {
+    if (!session.assembledStation || !window) {
+      return observedFormAtSecond;
+    }
+    assertObservedFormTime(window, observedFormAtSecond, eventType);
+    const doorwayStart = session.assembledStation.formTiming.doorway?.startsAtSecond ?? 0;
+    return Math.max(0, observedFormAtSecond - doorwayStart);
+  }
+
   private appendAssembledPhase(
     session: SessionRecord,
     eventType: ReplayablePhaseTransitionType,
     phase: "encounter" | "note" | "complete",
-    formAtSecond: number,
+    observedFormAtSecond: number,
+    window: AssembledStationFormWindow,
     advanceReason?: string,
   ): void {
     const assembled = session.assembledStation;
     if (!assembled) {
       throw new Error("assembled-station context required for canonical phase event");
     }
+    assertObservedFormTime(window, observedFormAtSecond, eventType);
     const doorwayStart = assembled.formTiming.doorway?.startsAtSecond ?? 0;
     const event = replayablePhaseTransitionEvent({
       stationRunId: session.run.stationRunId,
       sequence: session.nextSequence,
       eventType,
-      atSecond: Math.max(0, formAtSecond - doorwayStart),
+      atSecond: Math.max(0, observedFormAtSecond - doorwayStart),
       scenarioId: assembled.scenarioId,
       examRunId: assembled.examRunId,
       stationOrder: assembled.stationOrder,
       phase,
-      formAtSecond,
+      formAtSecond: observedFormAtSecond,
       ...(advanceReason ? { advanceReason } : {}),
     });
     this.options.ledger.append(event);
@@ -715,55 +776,6 @@ export class ScenarioRuntime {
       applyHistoryTakingCoverageUpdate: this.applyHistoryTakingCoverageUpdate.bind(this),
     };
   }
-}
-
-export function validateAssembledStationContext(
-  value: AssembledStationContext,
-  runtimeScenarioId: string,
-): AssembledStationContext {
-  const examRunId = value.examRunId.trim();
-  const scenarioId = value.scenarioId.trim();
-  const timing = value.formTiming;
-  if (
-    examRunId.length === 0
-    || scenarioId.length === 0
-    || !timing
-    || !isFormWindow(timing.encounter)
-    || !isFormWindow(timing.note)
-    || (timing.doorway !== undefined && !isFormWindow(timing.doorway))
-  ) {
-    throw new Error("incomplete assembled-station context");
-  }
-  if (!Number.isInteger(value.stationOrder) || value.stationOrder < 1) {
-    throw new Error("assembled-station order must be a positive integer");
-  }
-  if (scenarioId !== runtimeScenarioId) {
-    throw new Error(`assembled-station scenario mismatch: expected ${runtimeScenarioId} got ${scenarioId}`);
-  }
-  const assembled: AssembledStationContext = {
-    examRunId,
-    scenarioId,
-    stationOrder: value.stationOrder,
-    formTiming: {
-      encounter: timing.encounter,
-      note: timing.note,
-    },
-  };
-  if (timing.doorway) {
-    assembled.formTiming.doorway = timing.doorway;
-  }
-  return assembled;
-}
-
-function isFormWindow(value: unknown): value is { startsAtSecond: number; endsAtSecond: number } {
-  if (typeof value !== "object" || value === null) {
-    return false;
-  }
-  const record = value as { startsAtSecond?: unknown; endsAtSecond?: unknown };
-  return Number.isInteger(record.startsAtSecond)
-    && Number.isInteger(record.endsAtSecond)
-    && (record.startsAtSecond as number) >= 0
-    && (record.endsAtSecond as number) >= (record.startsAtSecond as number);
 }
 
 // Factory functions extracted to default-runtime-factory.ts to keep class file under freeze.

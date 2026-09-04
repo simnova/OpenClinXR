@@ -10,7 +10,7 @@ import {
 } from "@openclinxr/scenario-runtime";
 import type { ApiAppContext } from "../api-app-context.js";
 import type { ApiAppVariables, ApiAssembledStationContext, ApiStartSessionRequest } from "../api-types.js";
-import { persistTraceSnapshot } from "../api-route-support.js";
+import { persistTraceSnapshot, sessionErrorResponse } from "../api-route-support.js";
 import { asRealTelemetryRecorder } from "../api-support.js";
 import { createScenarioRuntimeDurableStoreFromApiPersistence } from "../runtime-durable-store.js";
 
@@ -19,7 +19,34 @@ export function resolveSessionRuntime(ctx: ApiAppContext, stationRunId: string):
 }
 
 export function registerSessionRoutes(app: Hono<{ Variables: ApiAppVariables }>, ctx: ApiAppContext): void {
+  const { persistence } = ctx;
   app.post(routeById("start-session").path, (context) => handleStartStationSession(context, ctx));
+
+  app.post("/sessions/:stationRunId/end-encounter", async (context) => {
+    const stationRunId = context.req.param("stationRunId");
+    const body = (await context.req.json().catch(() => ({}))) as { atSecond?: number };
+    const sessionRuntime = resolveSessionRuntime(ctx, stationRunId);
+    try {
+      const summary = sessionRuntime.endEncounter(stationRunId, { atSecond: body.atSecond ?? 0 });
+      await persistTraceSnapshot(sessionRuntime, persistence, stationRunId);
+      return context.json(summary);
+    } catch (error) {
+      return sessionErrorResponse(context, error);
+    }
+  });
+
+  app.post("/sessions/:stationRunId/start-note", async (context) => {
+    const stationRunId = context.req.param("stationRunId");
+    const body = (await context.req.json().catch(() => ({}))) as { atSecond?: number };
+    const sessionRuntime = resolveSessionRuntime(ctx, stationRunId);
+    try {
+      const summary = sessionRuntime.startNote(stationRunId, { atSecond: body.atSecond ?? 0 });
+      await persistTraceSnapshot(sessionRuntime, persistence, stationRunId);
+      return context.json(summary);
+    } catch (error) {
+      return sessionErrorResponse(context, error);
+    }
+  });
 }
 
 export async function handleStartStationSession(

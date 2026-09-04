@@ -155,6 +155,7 @@ import {
   buildAssembledStationStartSessionInput,
   createStationApiClient,
   createStationApiPersistenceSink,
+  syncRemoteAssembledPhase,
   type AssembledStationApiClient as StationApiClient,
 } from "./station-api-client.js";
 import { assertHumanoidRootUpright } from "./humanoid-load-guard.js";
@@ -2143,6 +2144,13 @@ function applyExamFlowIntent(kind: "end_encounter" | "submit_note" | "encounter_
   window.localStorage.setItem(examPhaseTraceStorageKey, JSON.stringify({ persistedEvents: examPhaseStore.persistedEvents, localEvents: examPhaseStore.localEvents }));
   if (applied.admitted && applied.view.noteSubmitted) recordExamRunStationOutcome();
   updateExamFlowEvidence();
+  void syncRemoteAssembledPhase({
+    client: stationApi,
+    stationRunId: remoteStationRunId,
+    kind,
+    atSecond: formElapsedSecondForCurrentStation(),
+    noteText: patientNoteText.value,
+  });
   if (applied.navigateToScenarioId) navigateToExamScenario(applied.navigateToScenarioId);
 }
 
@@ -2787,9 +2795,10 @@ async function initializeRemoteTraceSession(client: StationApiClient | undefined
       scenarioId: examScenarioId,
       stationOrder: examScenarioIndex + 1,
     });
-    await client.startEncounter(session.stationRunId, { atSecond: 0 });
+    const observedFormAtSecond = formElapsedSecondForCurrentStation();
+    await client.startEncounter(session.stationRunId, { atSecond: observedFormAtSecond });
   } catch {
-    remoteStationRunId = undefined;
+    if (!remoteStationRunId) remoteStationRunId = undefined;
   }
 }
 
