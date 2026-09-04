@@ -1,6 +1,5 @@
 import {
   BoxGeometry,
-  BufferGeometry,
   CanvasTexture,
   CapsuleGeometry,
   Color,
@@ -9,8 +8,6 @@ import {
   DoubleSide,
   Group,
   HemisphereLight,
-  Line,
-  LineBasicMaterial,
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
@@ -21,14 +18,15 @@ import {
   Vector3,
   WebGLRenderer,
 } from "three";
-import { XRControllerModelFactory } from "three/addons/webxr/XRControllerModelFactory.js";
-import { XRHandModelFactory } from "three/addons/webxr/XRHandModelFactory.js";
 import {
   buildMixedRealitySupportState,
   hasApprovedMixedRealityOperatorGate,
   type MixedRealitySupportState,
   mixedRealityOptionalFeatures,
 } from "./mixed-reality-state.js";
+import { loadMpfbRadialPulsePatient } from "./mpfb-radial-pulse-patient.js";
+import { createRadialPulseSceneInteraction } from "./radial-pulse-scene.js";
+import { hasRadialPulseDemo, shouldHydrateOptionalIwsdkPackages, shouldInstallUikitmlSpatialTextPanel } from "./radial-pulse-state.js";
 import {
   buildIwsdkSidecarFrameStats,
   buildIwsdkSidecarRuntimeEvidence,
@@ -42,7 +40,6 @@ import {
   type IwsdkSidecarRuntimeState,
   type IwsdkSidecarXrEntryEvidence,
   type IwsdkSidecarXrEntryStatus,
-  iwsdkSidecarPrimitiveHandModelProfile,
   iwsdkSidecarSceneObjectNames,
   recordIwsdkSidecarXrEntryEvidence,
   summarizeIwsdkSidecarReadiness,
@@ -53,6 +50,7 @@ import {
   type UikitmlSpatialTextEvidence,
   type UikitmlSpatialTextRuntimePanel,
 } from "./uikitml-spatial-text.js";
+import { addControllerAffordances, addHandModels } from "./xr-input-models.js";
 import "./styles.css";
 
 type NavigatorWithXr = Navigator & {
@@ -233,6 +231,8 @@ function requireElement<TElement extends Element>(selector: string): TElement {
 const bootStartedAtMs = performance.now();
 const iwerAutoEnterVrQueryFlag = "iwerAutoEnterVr=true";
 const iwerEvidenceViewWideQueryFlag = "iwerEvidenceView=wide";
+const radialPulseDemoEnabled = hasRadialPulseDemo(window.location.search);
+document.body.classList.toggle("radial-pulse-demo", radialPulseDemoEnabled);
 
 function recordBootPhase(phase: string, error?: unknown): void {
   const current: OpenClinXrBootEvidence = window.__openClinXrBootEvidence ?? { app: "ui-xr-iwsdk-spike", events: [] };
@@ -283,6 +283,10 @@ app.innerHTML = `
   <main class="spike-shell">
     <section class="spike-stage" aria-label="IWSDK emergency department station scene">
       <canvas id="iwsdk-sidecar-canvas" aria-label="IWSDK ED chest pain bay preview"></canvas>
+      <div class="pulse-guidance" aria-label="Radial pulse interaction safety cue">
+        <strong>Consent / assent checked</strong>
+        <span>Stop immediately if discomfort is reported.</span>
+      </div>
       <div class="status-strip">
         <div class="status-lane full-vr-lane" aria-label="Full VR status">
           <span id="xr-status">Full VR checking</span>
@@ -294,6 +298,7 @@ app.innerHTML = `
         </div>
         <span id="iwsdk-status">IWSDK evidence pending</span>
         <span id="trace-summary">Trace 0/${state.requiredTraceTags.length}</span>
+        <span id="pulse-status" class="pulse-status">Radial pulse ready</span>
       </div>
     </section>
     <aside class="spike-panel" aria-label="IWSDK sidecar controls and evidence">
@@ -338,6 +343,7 @@ const inputExportCount = requireElement<HTMLElement>("#input-export-count");
 const dialogueLine = requireElement<HTMLElement>("#dialogue-line");
 const enterXrButton = requireElement<HTMLButtonElement>("#enter-xr-button");
 const enterMrButton = requireElement<HTMLButtonElement>("#enter-mr-button");
+const pulseStatus = requireElement<HTMLElement>("#pulse-status");
 
 window.__openClinXrIwsdkSidecarEvidence = buildIwsdkSidecarRuntimeEvidence({
   iwsdkCoreExportCount,
@@ -359,7 +365,7 @@ window.__openClinXrUikitmlSpatialTextEvidence = buildUikitmlSpatialTextEvidence(
   status: "source_registered",
   renderMode: "compile_only",
 });
-scheduleIwsdkEvidenceHydration();
+if (shouldHydrateOptionalIwsdkPackages(radialPulseDemoEnabled)) scheduleIwsdkEvidenceHydration();
 
 function buildIwerEvidenceViewEvidence(input: {
   mode: IwerEvidenceViewMode;
@@ -539,6 +545,7 @@ function createStationScene(): StationSceneRuntime {
   let activeXrSession: XrSession | undefined;
   let lastLocomotionAtMs: number | null = null;
   let lastAnimateAtMs = performance.now();
+  const radialPulseDemoStartedAtMs = performance.now();
   let lastRenderLoopAtMs = 0;
   const flatPreviewFallbackFrameMs = 1000 / 30;
   let uikitmlSpatialTextPanel: UikitmlSpatialTextRuntimePanel | null = null;
@@ -557,6 +564,10 @@ function createStationScene(): StationSceneRuntime {
   const camera = new PerspectiveCamera(52, 1, 0.1, 100);
   camera.position.set(0, 1.7, 5.2);
   camera.lookAt(0, 1.1, 0);
+  if (radialPulseDemoEnabled) {
+    camera.position.set(0.05, 1.48, 2.65);
+    camera.lookAt(-0.24, 1.3, 0.34);
+  }
   locomotionRig.add(camera);
 
   const ambient = new HemisphereLight(0xf0fff5, 0x17322c, 2.1);
@@ -589,6 +600,12 @@ function createStationScene(): StationSceneRuntime {
   patient.scale.set(1.1, 1.1, 1.1);
   scene.add(patient);
 
+  const radialPulse = createRadialPulseSceneInteraction({
+    deterministicDemo: radialPulseDemoEnabled,
+    demoStartedAtMs: radialPulseDemoStartedAtMs,
+    statusElement: pulseStatus,
+  });
+  scene.add(radialPulse.group);
   const nurse = actorMesh(0x4f93c7);
   nurse.name = "openclinxr.ed-chest-pain.nurse-maria-alvarez";
   nurse.position.set(1.45, 0.95, 0.55);
@@ -633,7 +650,19 @@ function createStationScene(): StationSceneRuntime {
   });
   inputPanel.mesh.position.set(0.15, 0.78, -1.2);
   scene.add(inputPanel.mesh);
-  void installUikitmlSpatialTextPanel();
+  if (radialPulseDemoEnabled) {
+    clinicalPanel.mesh.visible = false;
+    dialoguePanel.mesh.visible = false;
+    inputPanel.mesh.visible = false;
+    nurse.visible = false;
+    spouse.visible = false;
+    monitor.visible = false;
+    clockMesh.visible = false;
+    patient.visible = false;
+    void loadMpfbRadialPulsePatient({ scene, camera, interaction: radialPulse })
+      .catch((error: unknown) => recordBootPhase("radial_pulse_mpfb_patient_failed", error));
+  }
+  if (shouldInstallUikitmlSpatialTextPanel(radialPulseDemoEnabled)) void installUikitmlSpatialTextPanel();
   let lastPanelSignature = "";
   applyEvidenceCaptureLayout({
     enabled: iwerEvidenceViewMode === "wide_iwer_capture",
@@ -643,7 +672,10 @@ function createStationScene(): StationSceneRuntime {
   });
   const controllerAffordancesRendered = iwerEvidenceViewMode !== "wide_iwer_capture";
   if (controllerAffordancesRendered) {
-    addControllerAffordances(renderer, scene);
+    addControllerAffordances(renderer, scene, {
+      onContactStart: (mode) => radialPulse.beginContact(performance.now(), mode),
+      onContactEnd: () => radialPulse.endContact(performance.now()),
+    });
   }
   window.__openClinXrIwerEvidenceViewEvidence = buildIwerEvidenceViewEvidence({
     mode: iwerEvidenceViewMode,
@@ -702,6 +734,7 @@ function createStationScene(): StationSceneRuntime {
       rigPosition: inputEvidence.rigPosition,
     });
     updateVrPanels(inputEvidence);
+    radialPulse.update(now);
     uikitmlSpatialTextPanel?.update(deltaMs);
     resize();
     patient.rotation.y = Math.sin(now / 1200) * 0.08;
@@ -864,6 +897,7 @@ function createStationScene(): StationSceneRuntime {
     try {
       const panel = await createUikitmlSpatialTextPanel();
       uikitmlSpatialTextPanel = panel;
+      panel.group.visible = !radialPulseDemoEnabled;
       scene.add(panel.group);
       window.__openClinXrUikitmlSpatialTextEvidence = panel.evidence;
       recordBootPhase("uikitml_spatial_text_loaded");
@@ -1086,41 +1120,6 @@ function drawWrappedText(
     context.fillText(line, x, currentY);
   }
   return currentY + lineHeight;
-}
-
-function addControllerAffordances(renderer: WebGLRenderer, scene: Scene): void {
-  const controllerModelFactory = new XRControllerModelFactory();
-  const gripNames = [
-    "openclinxr.ed-chest-pain.controller-grip-left",
-    "openclinxr.ed-chest-pain.controller-grip-right",
-  ];
-  for (let index = 0; index < 2; index += 1) {
-    const controller = renderer.xr.getController(index);
-    controller.name = `openclinxr.ed-chest-pain.controller-${index + 1}`;
-    const ray = new Line(
-      new BufferGeometry().setFromPoints([new Vector3(0, 0, 0), new Vector3(0, 0, -3)]),
-      new LineBasicMaterial({ color: 0x8bd8bf }),
-    );
-    ray.name = `openclinxr.ed-chest-pain.controller-ray-${index + 1}`;
-    controller.add(ray);
-    scene.add(controller);
-    const controllerGrip = renderer.xr.getControllerGrip(index);
-    controllerGrip.name = gripNames[index] ?? `openclinxr.ed-chest-pain.controller-grip-${index + 1}`;
-    controllerGrip.add(controllerModelFactory.createControllerModel(controllerGrip));
-    scene.add(controllerGrip);
-  }
-}
-
-function addHandModels(renderer: WebGLRenderer, scene: Scene): void {
-  const handModelFactory = new XRHandModelFactory();
-  for (let index = 0; index < 2; index += 1) {
-    const hand = renderer.xr.getHand(index);
-    hand.name = `openclinxr.ed-chest-pain.hand-${index + 1}`;
-    const handModel = handModelFactory.createHandModel(hand, iwsdkSidecarPrimitiveHandModelProfile);
-    handModel.name = `openclinxr.ed-chest-pain.hand-model-${index + 1}`;
-    hand.add(handModel);
-    scene.add(hand);
-  }
 }
 
 type KeyboardLocomotionState = {

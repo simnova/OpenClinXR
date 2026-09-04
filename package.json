@@ -156,6 +156,7 @@
     "local:moonbridge:probe": "tsx tools/openclinxr/evidence/moonbridge-deepseek-direct-probe.ts",
     "local:moonbridge:validate": "tsx tools/openclinxr/evidence/moonbridge-deepseek-direct-probe.ts --validate-latest",
     "iwsdk:sidecar:metrics": "tsx tools/openclinxr/evidence/iwsdk-sidecar-metrics-check.ts",
+    "iwsdk:radial-pulse:capture": "tsx tools/openclinxr/evidence/iwsdk-radial-pulse-video-capture.ts",
     "iwsdk:evidence": "tsx tools/openclinxr/evidence/iwsdk-evidence-contract-check.ts",
     "iwsdk:evidence:validate": "tsx tools/openclinxr/evidence/iwsdk-evidence-contract-check.ts --validate-latest",
     "bench:mock": "pnpm --filter @openclinxr/test-harness bench:mock",
