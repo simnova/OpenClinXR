@@ -167,6 +167,15 @@ function zoneBudgetFor(
   return zoneBudgets.find((z) => rel.startsWith(z.prefix))?.maxLines;
 }
 
+/**
+ * Line count the freeze-list honesty sweep is allowed to see.
+ * Index (`git show :0:`) first — that is the commit being formed — then HEAD,
+ * then undefined so the caller falls back to the working tree (non-git fixtures).
+ */
+function measureHonestyLines(root: string, rel: string): number | undefined {
+  return readIndexLines(root, rel) ?? readCommittedLines(root, rel);
+}
+
 // ── Public check functions (pure — no vitest) ───────────────────────────────
 
 /**
@@ -248,7 +257,10 @@ export function checkFreezeListHonesty(config?: FileSizeBudgetConfig): string[] 
     // holds: an UNSTAGED working-tree edit in a shared checkout is invisible here and cannot
     // fabricate an "impossible ceiling" or a premature "paid down". Growth still fails — a staged
     // file that grows past its ceiling is measured at the index and reported.
-    const committed = readIndexLines(root, rel) ?? readCommittedLines(root, rel);
+    //
+    // Unconditional working-tree reads are refused: CI commits nothing and must still measure
+    // committed content. Index when `git show :0:` succeeds; else HEAD; else working tree.
+    const committed = measureHonestyLines(root, rel);
     if (committed !== undefined) {
       lines = committed;
     } else {
