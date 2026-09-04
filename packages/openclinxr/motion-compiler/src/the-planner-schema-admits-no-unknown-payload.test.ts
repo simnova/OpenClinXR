@@ -67,6 +67,13 @@ import { deriveDeterministicVariationSeed } from "./trajectory/deterministic-var
  * notEvidenceFor: clinical_validity, scoring_validity, production_asset_readiness,
  *   quest_readiness, animation quality, or that any admitted program produces
  *   visible motion.
+ *
+ * ## FIXED (tsk_3c55d8343ef2acc9)
+ *
+ * `validateClosedPlannerProposalSchema` in `src/program/closed-planner-schema.ts`
+ * is additionalProperties:false on every closed object plus value-kind refusals
+ * for paths/URLs/data-URIs/code. `validateLLMScenarioMotionProgram` runs it
+ * after the IR structural gate. Clauses (1)-(10) flipped `it.fails` → `it`.
  */
 
 const CLAIM_BOUNDARY = "motion_plan_not_animation_or_clinical_validity_evidence";
@@ -400,70 +407,70 @@ describe("the planner schema admits no unknown physical payload", () => {
     );
   });
 
-  it.fails("(1) RED: refuses boneTracks smuggled onto a closed target", () => {
+  it("(1) RED: refuses boneTracks smuggled onto a closed target", () => {
     const mutated = mutateBoneTracksOnTarget();
     const result = productGate(mutated);
     expect(result.ok, "raw tracks on a target are still a physical payload").toBe(false);
     expect(result.errors.join(" | ")).toMatch(/boneTracks/);
   });
 
-  it.fails("(2) RED: refuses eulerTracks — the renamed-track alias boneTracks does not catch", () => {
+  it("(2) RED: refuses eulerTracks — the renamed-track alias boneTracks does not catch", () => {
     const mutated = mutateEulerTracksOnTarget();
     const result = productGate(mutated);
     expect(result.ok, "renaming boneTracks to eulerTracks must not evade the closed schema").toBe(false);
     expect(result.errors.join(" | ")).toMatch(/eulerTracks/);
   });
 
-  it.fails("(3) RED: refuses an embedded clip on a closed target", () => {
+  it("(3) RED: refuses an embedded clip on a closed target", () => {
     const mutated = mutateEmbeddedClipOnTarget();
     const result = productGate(mutated);
     expect(result.ok, "an embedded clip is a physical payload, not a plan").toBe(false);
     expect(result.errors.join(" | ")).toMatch(/embeddedClip/);
   });
 
-  it.fails("(4) RED: refuses a base64 data-URI in an allowed string slot", () => {
+  it("(4) RED: refuses a base64 data-URI in an allowed string slot", () => {
     const mutated = mutateBase64TriggerRef();
     const result = productGate(mutated);
     expect(result.ok, "a data-URI in trigger.ref is a smuggled blob").toBe(false);
     expect(result.errors.join(" | ")).toMatch(/base64|data:|QklOQVJZQ0xJUA==/);
   });
 
-  it.fails("(5) RED: refuses code in an allowed string slot", () => {
+  it("(5) RED: refuses code in an allowed string slot", () => {
     const mutated = mutateCodePrimitiveId();
     const result = productGate(mutated);
     expect(result.ok, "import/eval in primitiveId is not a primitive id").toBe(false);
     expect(result.errors.join(" | ")).toMatch(/import|eval|code|node:fs/);
   });
 
-  it.fails("(6) RED: refuses a file path in an allowed string slot", () => {
+  it("(6) RED: refuses a file path in an allowed string slot", () => {
     const mutated = mutateFilePathTriggerRef();
     const result = productGate(mutated);
     expect(result.ok, "a filesystem path is not a trigger ref").toBe(false);
     expect(result.errors.join(" | ")).toMatch(/\/tmp\/openclinxr-clip\.glb|file path|path/);
   });
 
-  it.fails("(7) RED: refuses a URL smuggled as an unknown target property", () => {
+  it("(7) RED: refuses a URL smuggled as an unknown target property", () => {
     const mutated = mutateUrlOnTarget();
     const result = productGate(mutated);
     expect(result.ok, "href on a target is a URL payload the schema does not declare").toBe(false);
     expect(result.errors.join(" | ")).toMatch(/href|https:\/\/cdn\.example\/clip\.glb|URL/);
   });
 
-  it.fails("(8) RED: refuses an unknown property that is not a named track spelling", () => {
+  it("(8) RED: refuses an unknown property that is not a named track spelling", () => {
     const mutated = mutateUnknownPropertyOnTarget();
     const result = productGate(mutated);
     expect(result.ok, "additionalProperties must be false on a target").toBe(false);
     expect(result.errors.join(" | ")).toMatch(/smuggledPayload/);
   });
 
-  it.fails("(9) RED: refuses aliased eulerTracks nested in an open baseline object", () => {
+  it("(9) RED: refuses aliased eulerTracks nested in an open baseline object", () => {
     const mutated = mutateNestedAffectEulerTracks();
     const result = productGate(mutated);
     expect(result.ok, "an open object slot is not a hole for physical tracks").toBe(false);
     expect(result.errors.join(" | ")).toMatch(/eulerTracks|affect/);
   });
 
-  it.fails("(10) RED: refuses a quaternionTrack alias on a constraint target", () => {
+  it("(10) RED: refuses a quaternionTrack alias on a constraint target", () => {
     const mutated = mutateConstraintTargetQuaternion();
     const result = productGate(mutated);
     expect(result.ok, "constraint targets are closed; quaternionTrack is a rotation payload").toBe(false);
@@ -516,6 +523,6 @@ describe("the planner schema admits no unknown physical payload", () => {
   });
 });
 
-// NOT TESTED: the future product implementation in src/program; whether a
-// genuine review step may mint reviewed_llm_proposal; runtime consumption of
-// an admitted program; clinical validity or animation quality of any plan.
+// NOT TESTED: whether a genuine review step may mint reviewed_llm_proposal;
+// runtime consumption of an admitted program; clinical validity or animation
+// quality of any plan.
