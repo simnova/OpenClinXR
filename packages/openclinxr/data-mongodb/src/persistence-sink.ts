@@ -5,12 +5,15 @@ import type {
   DurableClinicalEventReviewProjection,
   DurableConversationTurnRecord,
   DurableEmotionalStateTimelineRecord,
+  LaunchPinnedStationAssetsInput,
+  PersistExamFormEncounterBundlePinsInput,
 } from "@openclinxr/session-state";
 import type { PromoteReviewedFactoryOutputsInput } from "@openclinxr/asset-registry/runtime-asset-review";
 import type { LearnerRuntimeAssetBundle } from "@openclinxr/asset-registry/runtime-bundles";
 import type { ReviewPacket, Scenario, TraceEvent } from "@openclinxr/shared-schemas";
 import { MongoExamFormRepository, MongoRuntimeAssetBundleRepository, MongoStationRunQueueRepository } from "./exam-repositories.js";
 import { MongoPromotedEncounterBundleRepository } from "./promoted-encounter-bundle-repository.js";
+import { MongoExamFormEncounterBundlePinRepository } from "./exam-form-encounter-bundle-pin-repository.js";
 import { MongoFacultyReviewDecisionRepository, MongoFacultyScoreDraftRepository } from "./faculty-repositories.js";
 import { MongoDurableMultiActorSessionStore } from "./conversation-repositories.js";
 import { MongoReviewPacketRepository, MongoScenarioRepository, MongoScenarioReviewDecisionRepository, MongoTraceRepository } from "./scenario-repositories.js";
@@ -27,6 +30,7 @@ export class MongoApiPersistenceSink {
   private readonly durableMultiActorSessions: MongoDurableMultiActorSessionStore;
   private readonly runtimeAssetBundles: MongoRuntimeAssetBundleRepository;
   private readonly promotedEncounterBundles: MongoPromotedEncounterBundleRepository;
+  private readonly examFormEncounterBundlePins: MongoExamFormEncounterBundlePinRepository;
   private readonly scenarios: MongoScenarioRepository;
 
   constructor(db: Db) {
@@ -40,6 +44,7 @@ export class MongoApiPersistenceSink {
     this.durableMultiActorSessions = new MongoDurableMultiActorSessionStore(db);
     this.runtimeAssetBundles = new MongoRuntimeAssetBundleRepository(db);
     this.promotedEncounterBundles = new MongoPromotedEncounterBundleRepository(db);
+    this.examFormEncounterBundlePins = new MongoExamFormEncounterBundlePinRepository(db);
     this.scenarios = new MongoScenarioRepository(db);
   }
 
@@ -55,6 +60,7 @@ export class MongoApiPersistenceSink {
       this.durableMultiActorSessions.ensureIndexes(),
       this.runtimeAssetBundles.ensureIndexes(),
       this.promotedEncounterBundles.ensureIndexes(),
+      this.examFormEncounterBundlePins.ensureIndexes(),
       this.scenarios.ensureIndexes(),
     ]);
   }
@@ -154,6 +160,18 @@ export class MongoApiPersistenceSink {
 
   async getPromotedEncounterBundle(bundleId: string) {
     return this.promotedEncounterBundles.findByOpaqueId(bundleId);
+  }
+
+  async saveExamFormEncounterBundlePins(input: PersistExamFormEncounterBundlePinsInput) {
+    return this.examFormEncounterBundlePins.persist(input);
+  }
+
+  async getExamFormEncounterBundlePins(examFormId: string) {
+    return this.examFormEncounterBundlePins.load(examFormId);
+  }
+
+  async launchPinnedExamStation(input: LaunchPinnedStationAssetsInput) {
+    return this.examFormEncounterBundlePins.launchPinnedStationAssets(input);
   }
 
   async listLearnerRuntimeAssetBundles(): Promise<LearnerRuntimeAssetBundle[]> {
