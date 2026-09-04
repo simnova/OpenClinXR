@@ -209,6 +209,7 @@ import { registerFacultyCompileLockRoutes } from "./routes/faculty-compile-lock-
 import { registerAssembledExamReviewRoutes } from "./routes/assembled-exam-review-routes.js";
 import { registerAssembledExamDispositionRoutes } from "./routes/assembled-exam-disposition-routes.js";
 import { registerAssembledExamRunRoutes } from "./routes/assembled-exam-run-routes.js";
+import { registerEncounterBundlePromotionRoutes } from "./routes/encounter-bundle-promotion/index.js";
 import { registerWorldCompileRoutes } from "./world-compile-routes.js";
 
 
@@ -270,6 +271,7 @@ function registerAllRoutes(app: ApiApp, ctx: ApiAppContext): void {
   registerAssembledExamReviewRoutes(app, ctx);
   registerAssembledExamDispositionRoutes(app, ctx);
   registerAssembledExamRunRoutes(app, ctx);
+  registerEncounterBundlePromotionRoutes(app, ctx);
   registerWorldCompileRoutes(app, ctx);
 }
 

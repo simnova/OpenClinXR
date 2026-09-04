@@ -114,6 +114,20 @@ export type AdminControlPlaneClient = {
   saveAuthoredScenario(scenario: Scenario): Promise<unknown>;
   listAuthoredScenarios(): Promise<unknown>;
   getAuthoredScenario(scenarioId: string): Promise<unknown>;
+  previewFacultyEncounterBundlePromotion(
+    input: import("./encounter-bundle-promotion/faculty-encounter-bundle-promotion.js").FacultyEncounterBundlePromotionSelection,
+  ): Promise<{
+    canPromote: boolean;
+    blockers: string[];
+    attestations: string[];
+  }>;
+  promoteFacultyEncounterBundle(
+    input: import("./encounter-bundle-promotion/faculty-encounter-bundle-promotion.js").FacultyEncounterBundlePromotionSelection,
+  ): Promise<{
+    promoted: boolean;
+    learnerLaunchIdentity: import("./encounter-bundle-promotion/faculty-encounter-bundle-promotion.js").FacultyLearnerLaunchIdentity | null;
+    blockers?: string[];
+  }>;
 };
 
 export type ListScenariosInput = {

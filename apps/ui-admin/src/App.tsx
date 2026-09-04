@@ -48,6 +48,7 @@ import { useFacultyCompileLocks } from "./faculty-compile-lock.js";
 import { QueueReviewSnapshotHistory } from "./QueueReviewSnapshotHistory.js";
 import { ReviewReplayReadinessSummaryPanel } from "./ReviewReplayReadinessSummaryPanel.js";
 import { ReviewReplaySafetyPanel } from "./ReviewReplaySafetyPanel.js";
+import { FacultyEncounterBundlePromotionHost } from "./encounter-bundle-promotion/FacultyEncounterBundlePromotionHost.js";
 import { RuntimeSelectionReviewPacketPanel } from "./RuntimeSelectionReviewPacketPanel.js";
 import { ScenarioBankMaturityPanel } from "./ScenarioBankMaturityPanel.js";
 import { ScenarioReviewGatePanel } from "./ScenarioReviewGatePanel.js";
@@ -1372,6 +1373,12 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
           runtimeVisualEvidenceAttachmentSubmitStatus={runtimeVisualEvidenceAttachmentSubmitState.status}
           runtimeVisualEvidenceAttachmentSubmitMessage={"message" in runtimeVisualEvidenceAttachmentSubmitState ? runtimeVisualEvidenceAttachmentSubmitState.message : undefined}
           onSubmitRuntimeVisualEvidenceAttachment={(input) => void submitRuntimeVisualEvidenceAttachment(input)}
+        />
+
+        <FacultyEncounterBundlePromotionHost
+          client={controlPlaneClient}
+          scenarioId={state.runtimeSelectionReviewPacket.selectedScenarioId}
+          stationId={state.runtimeSelectionReviewPacket.selectedStationId}
         />
 
         <section className="workbench-panel" aria-label="Dynamic encounter factory planning">

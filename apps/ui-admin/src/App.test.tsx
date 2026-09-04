@@ -196,6 +196,49 @@ describe("AdminApp", () => {
     expect(findUnsafeClaimLanguage(governanceNotice.textContent ?? "")).toEqual([]);
   }, 10_000);
 
+  it("wires faculty encounter-bundle promotion: preview blockers, one submit, opaque launch identity", async () => {
+    const client = fakeControlPlaneClient();
+    const previewFacultyEncounterBundlePromotion = vi.fn(async () => ({
+      canPromote: false,
+      blockers: ["humanoid:patient_humanoid_v1:stale"],
+      attestations: ["room:exam_bay_room_v1:provenance:provenance:exam_bay_room_v1"],
+    }));
+    const promoteFacultyEncounterBundle = vi.fn(async () => ({
+      promoted: true,
+      learnerLaunchIdentity: {
+        bundleId: "bdl_0123456789abcdef0123456789abcdef",
+        href: "/runtime/asset-bundles/bdl_0123456789abcdef0123456789abcdef",
+      },
+    }));
+    client.previewFacultyEncounterBundlePromotion = previewFacultyEncounterBundlePromotion;
+    client.promoteFacultyEncounterBundle = promoteFacultyEncounterBundle;
+
+    const { rerender } = render(<AdminApp initialPath="/exam-forms" controlPlaneClient={client} />);
+    const panel = await screen.findByLabelText("Encounter bundle promotion");
+    expect(previewFacultyEncounterBundlePromotion).toHaveBeenCalledOnce();
+    expect(within(panel).getByLabelText("Promotion blockers")).toHaveTextContent("humanoid:patient_humanoid_v1:stale");
+    expect(within(panel).getByRole("button", { name: "Promote encounter bundle" })).toBeDisabled();
+    fireEvent.click(within(panel).getByRole("button", { name: "Promote encounter bundle" }));
+    expect(promoteFacultyEncounterBundle).not.toHaveBeenCalled();
+
+    const readyClient = fakeControlPlaneClient();
+    readyClient.previewFacultyEncounterBundlePromotion = vi.fn(async () => ({
+      canPromote: true,
+      blockers: [],
+      attestations: ["room:exam_bay_room_v1:provenance:provenance:exam_bay_room_v1"],
+    }));
+    readyClient.promoteFacultyEncounterBundle = promoteFacultyEncounterBundle;
+    rerender(<AdminApp initialPath="/exam-forms" controlPlaneClient={readyClient} />);
+    const readyPanel = await screen.findByLabelText("Encounter bundle promotion");
+    expect(await within(readyPanel).findByText("No blocking attestations")).toBeInTheDocument();
+    fireEvent.click(within(readyPanel).getByRole("button", { name: "Promote encounter bundle" }));
+    expect(promoteFacultyEncounterBundle).toHaveBeenCalledOnce();
+    const launch = await screen.findByLabelText("Learner launch identity");
+    expect(launch).toHaveTextContent("bdl_0123456789abcdef0123456789abcdef");
+    expect(launch).toHaveAttribute("href", "/runtime/asset-bundles/bdl_0123456789abcdef0123456789abcdef");
+    expect(readyPanel.textContent).not.toMatch(/tenantId|examRunId|encounterId/u);
+  }, 10_000);
+
   it("renders the generated ScenarioBank operation on the scenarios route", async () => {
     render(<AdminApp initialPath="/scenarios" controlPlaneClient={fakeControlPlaneClient()} />);
 
@@ -2186,5 +2229,17 @@ function fakeControlPlaneClient(): AdminControlPlaneClient & FacultyCompileLockC
     saveAuthoredScenario: async () => ({ saved: true }),
     listAuthoredScenarios: async () => ({ scenarios: [] }),
     getAuthoredScenario: async () => ({ scenario: undefined }),
+    previewFacultyEncounterBundlePromotion: async () => ({
+      canPromote: true,
+      blockers: [],
+      attestations: ["humanoid:patient_humanoid_v1:provenance:provenance:patient_humanoid_v1"],
+    }),
+    promoteFacultyEncounterBundle: async () => ({
+      promoted: true,
+      learnerLaunchIdentity: {
+        bundleId: "bdl_0123456789abcdef0123456789abcdef",
+        href: "/runtime/asset-bundles/bdl_0123456789abcdef0123456789abcdef",
+      },
+    }),
   };
 }
