@@ -321,6 +321,23 @@ function expectedDurableRef(stationRunId: string, sequence: number): string {
   return `durable://station-runs/${stationRunId}/events/${sequence}`;
 }
 
+function phaseEventFingerprint(event: ApiAssembledExamAdmittedPhaseEvent): string {
+  return [
+    event.examRunId,
+    event.stationRunId,
+    String(event.sequence),
+    event.eventType,
+    event.phase,
+    event.scenarioId,
+    String(event.stationOrder),
+    String(event.atSecond),
+    String(event.formAtSecond),
+    event.source,
+    event.durableEventRef,
+    event.advanceReason ?? "",
+  ].join("\0");
+}
+
 type PhaseEventBody = {
   stationRunId?: unknown;
   scenarioId?: unknown;
@@ -406,11 +423,12 @@ function admitPhaseEvent(
     .filter((row) => row.stationRunId === event.stationRunId)
     .sort((left, right) => left.sequence - right.sequence);
   const last = prior[prior.length - 1];
-  if (prior.some((row) => row.sequence === event.sequence && row.eventType !== event.eventType)) {
+  const existing = prior.find((row) => row.sequence === event.sequence);
+  if (existing) {
+    if (phaseEventFingerprint(existing) === phaseEventFingerprint(event)) {
+      return record;
+    }
     throw new AssembledExamRunIdentityError("sequence_mismatch");
-  }
-  if (prior.some((row) => row.sequence === event.sequence && row.durableEventRef === event.durableEventRef)) {
-    return record;
   }
   const expectedSequence = last ? last.sequence + 1 : 0;
   if (event.sequence !== expectedSequence) {

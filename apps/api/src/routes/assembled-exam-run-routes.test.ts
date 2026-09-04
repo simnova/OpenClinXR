@@ -302,6 +302,61 @@ describe("assembled-exam run API", () => {
     expect((await json(durableRef)).reason).toBe("durable_reference_mismatch");
   });
 
+  it("rejects a same-sequence retry whose payload is not an exact match", async () => {
+    const sink = memorySink();
+    const composed = compose(sink);
+    const started = await composed.app.request(ASSEMBLED_EXAM_RUNS_PATH, {
+      method: "POST",
+      headers: { "content-type": "application/json", ...learnerAuth() },
+      body: JSON.stringify(startBody()),
+    });
+    expect(started.status).toBe(201);
+    const stationRunId = `${EXAM_RUN_ID}:station:1`;
+    const durableEventRef = `durable://station-runs/${stationRunId}/events/0`;
+    const admittedBody = {
+      learnerId: LEARNER_ID,
+      stationRunId,
+      sequence: 0,
+      eventType: "encounter.started",
+      scenarioId: SCENARIO_A,
+      stationOrder: 1,
+      atSecond: 60,
+      formAtSecond: 60,
+      source: "system",
+      durableEventRef,
+    };
+    const admitted = await composed.app.request(`/exam-runs/${EXAM_RUN_ID}/phase-events`, {
+      method: "POST",
+      headers: { "content-type": "application/json", ...learnerAuth() },
+      body: JSON.stringify(admittedBody),
+    });
+    expect(admitted.status).toBe(201);
+    const exactRetry = await composed.app.request(`/exam-runs/${EXAM_RUN_ID}/phase-events`, {
+      method: "POST",
+      headers: { "content-type": "application/json", ...learnerAuth() },
+      body: JSON.stringify(admittedBody),
+    });
+    expect(exactRetry.status).toBe(201);
+    const storedBefore = structuredClone(sink.runs.get(EXAM_RUN_ID));
+    expect(storedBefore?.admittedPhaseEvents).toHaveLength(1);
+
+    const mutated = await composed.app.request(`/exam-runs/${EXAM_RUN_ID}/phase-events`, {
+      method: "POST",
+      headers: { "content-type": "application/json", ...learnerAuth() },
+      body: JSON.stringify({
+        ...admittedBody,
+        atSecond: 90,
+        formAtSecond: 90,
+        source: "learner",
+      }),
+    });
+    expect(mutated.status).toBe(409);
+    expect((await json(mutated)).reason).toBe("sequence_mismatch");
+    expect(sink.runs.get(EXAM_RUN_ID)).toEqual(storedBefore);
+    expect(sink.runs.get(EXAM_RUN_ID)?.admittedPhaseEvents[0]?.atSecond).toBe(60);
+    expect(sink.runs.get(EXAM_RUN_ID)?.admittedPhaseEvents[0]?.source).toBe("system");
+  });
+
   it("does not acknowledge a mutation when durable save fails", async () => {
     const sink: ApiPersistenceSink = {
       saveAssembledExamRun: () => {
