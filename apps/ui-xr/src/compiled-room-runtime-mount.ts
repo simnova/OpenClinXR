@@ -11,6 +11,10 @@ import type { EncounterRuntimeAsset } from "@openclinxr/asset-registry/runtime-b
 import { resolveRuntimeAssetUrl } from "@openclinxr/asset-registry/runtime-bundles";
 import type { Group } from "three";
 import {
+  applyCompiledRoomReadinessOrFallback,
+  fallbackCompiledRoomLoadFailure,
+} from "./compiled-room-runtime.js";
+import {
   resolveStationEnvironment,
   type BuildStationEnvironmentInput,
 } from "./station-environment.js";
@@ -62,16 +66,23 @@ export async function mountStationEnvironmentForRuntime(input: {
     return resolveStationEnvironment({ environmentId: input.environmentId });
   }
   try {
-    return await resolveStationEnvironment({
+    const loaded = await resolveStationEnvironment({
       environmentId: input.environmentId,
       compiledRoomAssetUrl: compiled.compiledRoomAssetUrl,
       compileNodeId: compiled.compileNodeId,
       ...(input.loadGltf ? { loadGltf: input.loadGltf } : {}),
     });
-  } catch {
-    const fallback = await resolveStationEnvironment({ environmentId: input.environmentId });
-    fallback.userData.openClinXrCompiledRoomLoadFailed = true;
-    fallback.userData.compileNodeIdAttempted = compiled.compileNodeId;
-    return fallback;
+    return applyCompiledRoomReadinessOrFallback({
+      compiled: loaded,
+      environmentId: input.environmentId,
+      compileNodeId: compiled.compileNodeId,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "compiled room load failed";
+    return fallbackCompiledRoomLoadFailure({
+      environmentId: input.environmentId,
+      compileNodeId: compiled.compileNodeId,
+      message,
+    });
   }
 }
