@@ -41,3 +41,15 @@ export const adminPublicationGates = Object.freeze([
 export function findAdminWorkbenchRoute(path: string) {
   return findRouteByPath(adminWorkbenchRoutes, path);
 }
+
+export {
+  authoredContentIdentity,
+  AUTHORING_PREVIEW_NOT_EVIDENCE_FOR,
+  evaluateScenarioPromotion,
+  previewAuthoringRevision,
+  STALE_REVIEW_IDENTITY_REFUSAL,
+  STALE_VALIDATION_REFUSAL,
+  type AuthoringPreviewChange,
+  type AuthoringPreviewResult,
+  type PromotionDecision,
+} from "./scenario-authoring-preview/preview-authoring-revision.js";
