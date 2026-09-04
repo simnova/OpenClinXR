@@ -105,6 +105,7 @@ import {
   resolveLiveActorTurnForTrace,
   type LiveActorTurnConsumption,
 } from "./actor-turn-plan-consumption.js";
+import { playFrozenActorTurn, type ActorTurnPlayback } from "./actor-turn-playback.js";
 import { stationContextForScenario } from "./station-context.js";
 import {
   resolveActorPosture,
@@ -557,6 +558,7 @@ declare global {
     __openClinXrEnvironmentStateEvidence?: EnvironmentStateEvidence;
     __openClinXrHumanoidSpeechEvidence?: HumanoidSpeechEvidence;
     __openClinXrLiveActorTurnConsumption?: LiveActorTurnConsumption;
+    __openClinXrActorTurnPlayback?: ActorTurnPlayback;
     __openClinXrCaseDefinedHumanoidPerformanceContractEvidence?: CaseDefinedHumanoidPerformanceContractEvidence;
     __openClinXrActorPlayerRuntimeMetadataSummary: ActorPlayerRuntimeMetadataSummary | undefined;
     __openClinXrPedsActorPlayerRuntimePlaybackEvidence?: PedsActorPlayerRuntimePlaybackEvidence;
@@ -8407,6 +8409,9 @@ function triggerHumanoidDialogueForTrace(tag: string, text: string): void {
   const emotionSource = liveTurn ? "plan.dialogueEmotionTo" as const : undefined;
   if (liveTurn) {
     window.__openClinXrLiveActorTurnConsumption = liveTurn;
+    window.__openClinXrActorTurnPlayback = playFrozenActorTurn(liveTurn.plan, liveTurn.execution, {
+      nowMs: performance.now(),
+    });
   }
   if (runtimeActorEmbodiment(encounterRuntimeAssetBundle, actorId) === "virtual_device") {
     const emotionContext = scenarioDialogueEmotionContext(actorId, caption, emotion, emotionSource);
@@ -8924,6 +8929,9 @@ function rememberLiveActorTurnFromPayload(
   const consumed = consumeLiveActorTurn(parsed.plan, parsed.execution);
   registerLiveActorTurn(consumed.plan, consumed.execution, tag);
   window.__openClinXrLiveActorTurnConsumption = consumed;
+  window.__openClinXrActorTurnPlayback = playFrozenActorTurn(consumed.plan, consumed.execution, {
+    nowMs: performance.now(),
+  });
   return consumed;
 }
 
