@@ -89,11 +89,22 @@ export type ActorTurnPlayback = {
   notEvidenceFor: readonly string[];
 };
 
+const startedPlaybackByJoin = new Map<string, ActorTurnPlayback>();
+
+export function resetActorTurnPlaybackStarts(): void {
+  startedPlaybackByJoin.clear();
+}
+
 export function playFrozenActorTurn(
   plan: ActorTurnPlan,
   execution: ActorTurnExecution | null,
   options: PlayFrozenActorTurnOptions = {},
 ): ActorTurnPlayback {
+  const joinKey = `${plan.planId}::${plan.turnId}`;
+  const alreadyStarted = startedPlaybackByJoin.get(joinKey);
+  if (alreadyStarted) {
+    return alreadyStarted;
+  }
   const nowMs = options.nowMs ?? 0;
   const consumption = consumeLiveActorTurn(plan, execution);
   const droppedModalities: ActorTurnPlaybackDroppedModality[] = [];
@@ -182,6 +193,7 @@ export function playFrozenActorTurn(
     notEvidenceFor: [...plan.notEvidenceFor],
   };
   publishActorTurnPlayback(playback);
+  startedPlaybackByJoin.set(joinKey, playback);
   return playback;
 }
 

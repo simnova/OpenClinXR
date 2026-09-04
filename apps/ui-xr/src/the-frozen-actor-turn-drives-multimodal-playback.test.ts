@@ -1,8 +1,11 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ActorTurnExecution, ActorTurnPlan } from "@openclinxr/shared-schemas";
 import {
   ACTOR_TURN_PLAYBACK_SEAM,
   playFrozenActorTurn,
+  playFrozenActorTurnOnSlot,
+  resetActorTurnPlaybackStarts,
+  type ActorTurnLiveSlot,
   type ActorTurnPlaybackAdapters,
   type ActorTurnPlaybackStartContext,
 } from "./actor-turn-playback.js";
@@ -93,6 +96,10 @@ function spyAdapters(overrides: Partial<ActorTurnPlaybackAdapters> = {}): ActorT
 }
 
 describe("the frozen actor turn drives multimodal playback", () => {
+  beforeEach(() => {
+    resetActorTurnPlaybackStarts();
+  });
+
   it("(0) COUNTERWEIGHT: known-good anxious brow weight stays 0.62", () => {
     expect(expressionWeightsForEmotion("anxious").browConcern).toBe(0.62);
   });
@@ -195,5 +202,98 @@ describe("the frozen actor turn drives multimodal playback", () => {
     expect(startMotion).toHaveBeenCalledWith(expect.objectContaining({ clipId: PLAN_CLIP, actorId: ACTOR_ID }));
     expect(playback.motionClipId).toBeNull();
     expect(playback.gestureClipIds).not.toContain(OTHER_CLIP);
+  });
+
+  it("(5) production on-slot adapter mutates live slot and plays only the plan clip", () => {
+    const slot: ActorTurnLiveSlot = {
+      emotionExpression: { targetEmotion: "neutral" },
+      root: { userData: {} },
+    };
+    const playClip = vi.fn((actorId: string, clipId: string) => actorId === ACTOR_ID && clipId === PLAN_CLIP);
+    const startFaceTransition = vi.fn((_actorId: string, emotion: string) => {
+      slot.emotionExpression.targetEmotion = emotion;
+    });
+    const speak = vi.fn((ctx: ActorTurnPlaybackStartContext) => {
+      slot.activeSpeech = {
+        actorId: ctx.actorId,
+        text: ctx.spokenText,
+        visemeSequence: ctx.visemeSequence,
+      };
+      return true;
+    });
+    const playback = playFrozenActorTurnOnSlot(samplePlan(), sampleExecution(), {
+      nowMs: 10,
+      clipNames: [PLAN_CLIP, OTHER_CLIP],
+      getSlot: (id) => (id === ACTOR_ID ? slot : undefined),
+      speak,
+      playClip,
+      startFaceTransition,
+    });
+
+    expect(speak).toHaveBeenCalledTimes(1);
+    expect(slot.activeSpeech?.text).toBe(SPOKEN);
+    expect(slot.root.userData.openClinXrActorTurnVoiceId).toBe("mock-maya-johnson");
+    expect(slot.root.userData.openClinXrActorTurnPerformancePlanId).toBe("perf_anxious_child_mid");
+    expect(slot.root.userData.openClinXrActorTurnPosePresetId).toBe("pose_upright_child");
+    expect(slot.emotionExpression.targetEmotion).toBe("anxious");
+    expect(playClip).toHaveBeenCalledTimes(1);
+    expect(playClip).toHaveBeenCalledWith(ACTOR_ID, PLAN_CLIP);
+    expect(playClip).not.toHaveBeenCalledWith(ACTOR_ID, OTHER_CLIP);
+    expect(playback.lanes.map((lane) => lane.modality)).toEqual([
+      "voice",
+      "viseme",
+      "facial_affect",
+      "gaze_posture",
+      "motion",
+    ]);
+  });
+
+  it("(6) absent slot / failed speech and unavailable plan clip are counterweights", () => {
+    const playClip = vi.fn(() => true);
+    const absent = playFrozenActorTurnOnSlot(samplePlan(), sampleExecution(), {
+      nowMs: 0,
+      clipNames: [PLAN_CLIP, OTHER_CLIP],
+      getSlot: () => undefined,
+      speak: vi.fn(() => false),
+      playClip,
+      startFaceTransition: vi.fn(),
+    });
+    expect(absent.spokenText).toBe(SPOKEN);
+    expect(absent.lanes.map((lane) => lane.modality)).not.toContain("voice");
+    expect(absent.droppedModalities.some((drop) => drop.modality === "voice" && drop.reason === "adapter_failed")).toBe(true);
+
+    resetActorTurnPlaybackStarts();
+    playClip.mockClear();
+    const live: ActorTurnLiveSlot = {
+      activeSpeech: { actorId: ACTOR_ID, text: SPOKEN, visemeSequence: ["AA"] },
+      emotionExpression: { targetEmotion: "anxious" },
+      root: { userData: {} },
+    };
+    const unavailable = playFrozenActorTurnOnSlot(samplePlan(), sampleExecution(), {
+      nowMs: 0,
+      clipNames: [OTHER_CLIP],
+      getSlot: () => live,
+      speak: vi.fn(() => true),
+      playClip,
+      startFaceTransition: vi.fn(),
+    });
+    expect(playClip).not.toHaveBeenCalled();
+    expect(unavailable.motionClipId).toBeNull();
+    expect(unavailable.droppedModalities.some((drop) => drop.modality === "motion" && drop.reason === "no_approved_gesture_clip")).toBe(true);
+  });
+
+  it("(7) one plan/turn starts each modality once across duplicate playback calls", () => {
+    const adapters = spyAdapters();
+    const first = playFrozenActorTurn(samplePlan(), sampleExecution(), {
+      adapters,
+      approvedMotionClipIds: [PLAN_CLIP],
+    });
+    const second = playFrozenActorTurn(samplePlan(), sampleExecution(), {
+      adapters,
+      approvedMotionClipIds: [PLAN_CLIP],
+    });
+    expect(second).toBe(first);
+    expect(adapters.startVoice).toHaveBeenCalledTimes(1);
+    expect(adapters.startMotion).toHaveBeenCalledTimes(1);
   });
 });

@@ -8938,7 +8938,7 @@ function rememberLiveActorTurnFromPayload(
   }
   const consumed = consumeLiveActorTurn(parsed.plan, parsed.execution);
   registerLiveActorTurn(consumed.plan, consumed.execution, tag);
-  return playLiveFrozenActorTurn(consumed.plan, consumed.execution, { kind: "learner_camera", actorId: null }).consumption;
+  return consumed;
 }
 
 function scenarioDialogueEmotionContext(

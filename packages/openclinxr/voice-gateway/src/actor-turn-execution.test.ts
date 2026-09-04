@@ -46,6 +46,7 @@ function planFixture(overrides: Partial<FrozenActorTurnPlanForExecution> = {}): 
 
 function runtimeAdapters(overrides: Partial<ActorTurnExecutionAdapters> = {}): ActorTurnExecutionAdapters {
   return {
+    startVoice: vi.fn(() => true),
     startProsody: vi.fn(() => true),
     startViseme: vi.fn(() => true),
     startFacialAffect: vi.fn(() => true),
@@ -147,6 +148,21 @@ describe("executeFrozenActorTurn", () => {
     );
     expect(envelope.lanes.map((lane) => lane.modality)).not.toContain("voice");
     expect(envelope.lanes.map((lane) => lane.modality)).not.toContain("motion");
+  });
+
+  it("(3b) missing voice adapter is fail-closed and keeps caption fallback", async () => {
+    const plan = deepFreezePlan(planFixture());
+    const envelope = await executeFrozenActorTurn(plan);
+
+    expect(envelope.identity.spokenText).toBe(SPOKEN);
+    expect(envelope.actorTurnExecution.planId).toBe(plan.planId);
+    expect(envelope.actorTurnExecution.turnId).toBe(plan.turnId);
+    expect(envelope.actorTurnExecution.fallback.tts).toBe(true);
+    expect(envelope.audioEvents).toEqual([]);
+    expect(envelope.lanes.map((lane) => lane.modality)).not.toContain("voice");
+    expect(envelope.droppedModalities.find((drop) => drop.modality === "voice")?.reason).toBe(
+      "adapter_missing",
+    );
   });
 
   it("(4) bounded execution does not invent visemeTimeline or audioUri", async () => {

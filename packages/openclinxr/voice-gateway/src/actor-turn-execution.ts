@@ -158,6 +158,19 @@ export async function executeFrozenActorTurn(
       },
     });
     droppedModalities.push({ modality: "voice", reason: "voice_provider_unavailable" });
+  } else if (!adapters.startVoice) {
+    actorTurnExecution = freezeBoundedExecution({
+      planId: plan.planId,
+      turnId: plan.turnId,
+      interruption: { kind: "none" },
+      renderedProsodyTags: [...plan.prosody.wrapTags, ...plan.prosody.inlineTags],
+      droppedProsodyTags: [...plan.prosody.droppedTags],
+      fallback: {
+        language: plan.languageProvenance.fallbackUsed,
+        tts: true,
+      },
+    });
+    droppedModalities.push({ modality: "voice", reason: "adapter_missing" });
   } else {
     const rendered = await synthesizeActorSpeechFromFrozenPlan({
       plan,
@@ -167,8 +180,7 @@ export async function executeFrozenActorTurn(
     });
     audioEvents = rendered.audioEvents;
     actorTurnExecution = rendered.actorTurnExecution;
-    const voiceAdapter = adapters.startVoice ?? (() => true);
-    if (await startRuntimeAdapter(voiceAdapter, ctx)) {
+    if (await startRuntimeAdapter(adapters.startVoice, ctx)) {
       lanes.push({
         modality: "voice",
         startedAtMs: ACTOR_TURN_TIMELINE_ORIGIN_MS,
