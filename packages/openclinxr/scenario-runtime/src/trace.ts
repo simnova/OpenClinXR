@@ -55,3 +55,71 @@ export function withDurableEventRef<T extends Record<string, unknown>>(
     durableEventRef: durableEventRef(stationRunId, sequence),
   };
 }
+
+/** Ordered encounter→note→advance events returned for assembled-exam review/replay. */
+export const REPLAYABLE_PHASE_TRANSITION_TYPES = [
+  "encounter.started",
+  "encounter.ended",
+  "note.started",
+  "note.submitted",
+  "station.advanced",
+] as const;
+
+export type ReplayablePhaseTransitionType = (typeof REPLAYABLE_PHASE_TRANSITION_TYPES)[number];
+
+export type ReplayablePhaseTransitionInput = {
+  stationRunId: string;
+  sequence: number;
+  eventType: ReplayablePhaseTransitionType;
+  atSecond: number;
+  scenarioId: string;
+  examRunId: string;
+  stationOrder: number;
+  phase: "encounter" | "note" | "complete";
+  formAtSecond: number;
+  advanceReason?: string;
+};
+
+export function replayablePhaseTransitionEvent(input: ReplayablePhaseTransitionInput): TraceEvent {
+  const payload = withDurableEventRef(
+    {
+      scenarioId: input.scenarioId,
+      examRunId: input.examRunId,
+      stationOrder: input.stationOrder,
+      phase: input.phase,
+      formAtSecond: input.formAtSecond,
+      ...(input.advanceReason ? { advanceReason: input.advanceReason } : {}),
+    },
+    input.stationRunId,
+    input.sequence,
+  );
+
+  return traceEvent({
+    stationRunId: input.stationRunId,
+    sequence: input.sequence,
+    eventType: input.eventType,
+    atSecond: input.atSecond,
+    source: "system",
+    payload,
+  });
+}
+
+export function orderReplayablePhaseTransitions(events: readonly TraceEvent[]): TraceEvent[] {
+  const rank = new Map<string, number>(
+    REPLAYABLE_PHASE_TRANSITION_TYPES.map((eventType, index) => [eventType, index]),
+  );
+  return [...events].sort((left, right) => {
+    const leftRank = rank.get(left.eventType);
+    const rightRank = rank.get(right.eventType);
+    if (leftRank !== undefined && rightRank !== undefined && leftRank !== rightRank) {
+      return leftRank - rightRank;
+    }
+    if (leftRank !== undefined && rightRank === undefined) {
+      return -1;
+    }
+    if (leftRank === undefined && rightRank !== undefined) {
+      return 1;
+    }
+    return left.sequence - right.sequence || left.atSecond - right.atSecond;
+  });
+}
