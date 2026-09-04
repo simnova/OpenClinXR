@@ -85,6 +85,55 @@ export const durableActorTurnPersistenceScope = {
   ],
 } as const;
 
+export const actorTurnExecutionClaimScope = "simulated_actor_behavior" as const;
+
+export const actorTurnExecutionNotEvidenceFor = [
+  "clinical_validity",
+  "licensure",
+  "exam_equivalence",
+  "quest_readiness",
+  "hipaa_certification",
+] as const;
+
+/**
+ * Append-only rendered actor-turn execution for faculty replay.
+ * Distinct from DurableEmotionalStateTimelineRecord (no planId/visemes/droppedTags/truncated)
+ * and from the frozen ActorTurnPlan — this record stores execution modalities only.
+ */
+export type ActorTurnExecutionRecord = {
+  stationRunId: string;
+  planId: string;
+  turnId: string;
+  actorId: string;
+  spokenText: string;
+  dialogueEmotionFrom: string;
+  dialogueEmotionTo: string;
+  performancePlanId: string;
+  visemeCueCount: number;
+  ttsProviderId: string;
+  truncated: boolean;
+  interruptionKind: string;
+  droppedTags: string[];
+  prosodyNeutralized: boolean;
+  atSecond: number;
+  durableStore: "database_source_of_truth";
+  rawAudioStored: false;
+  claimScope: typeof actorTurnExecutionClaimScope;
+};
+
+export type ActorTurnEmotionalTimelineStep = {
+  planId: string;
+  actorId: string;
+  from: string;
+  to: string;
+  atSecond: number;
+};
+
+export type ActorTurnReplayRestore = {
+  turns: ActorTurnExecutionRecord[];
+  emotionalTimeline: ActorTurnEmotionalTimelineStep[];
+};
+
 export const durableClinicalEventPersistenceScope = {
   approvedProposal: "proposals/approved/proposal-durable-clinical-event-persistence.md",
   eventScope: "clinical_actions_orders_findings_checklists_rubric_and_case_progress",
