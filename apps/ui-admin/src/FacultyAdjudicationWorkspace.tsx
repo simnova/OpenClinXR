@@ -4,10 +4,15 @@ import { type ReactElement, useEffect, useRef, useState } from "react";
 import {
   type AdminAssembledExamReplayProjection,
   type AdminAssembledExamStationReplaySlice,
+  ASSEMBLED_EXAM_PHASE_BY_TYPE,
+  ASSEMBLED_EXAM_PHASE_TRANSITION_TYPES,
   AssembledExamReplayTimeline,
   assembledExamStationReplayPosture,
 } from "./AssembledExamReplayTimeline.js";
-import type { AssembledExamReviewPacket } from "@openclinxr/review-workflow";
+import {
+  assembledExamReviewNotEvidenceFor,
+  type AssembledExamReviewPacket,
+} from "@openclinxr/review-workflow";
 import { defaultAdminApiBaseUrl } from "./api-client.js";
 
 export type AdminAssembledExamReviewPacket = AssembledExamReviewPacket;
@@ -50,7 +55,7 @@ const DISPOSITION_LABEL: Record<FacultyAdjudicationDisposition, string> = {
 
 export type FacultyAdjudicationWorkspaceProps = {
   examRunId?: string;
-  loadPacket?: (examRunId: string) => Promise<AdminAssembledExamReviewPacket>;
+  loadPacket?: (examRunId: string) => Promise<unknown>;
   onLoadExamRun?: (examRunId: string) => void;
 };
 
@@ -109,6 +114,162 @@ type AssembledExamReviewPacketFetcher = (
   init?: { method?: string; headers?: Record<string, string> },
 ) => Promise<{ ok: boolean; status: number; json: () => Promise<unknown> }>;
 
+const ASSEMBLED_PACKET_CLAIM_BOUNDARY = "assembled_exam_review_packet_not_exam_equivalence";
+const REQUIRED_NOT_EVIDENCE_FOR = assembledExamReviewNotEvidenceFor;
+const PHASE_TYPES = ASSEMBLED_EXAM_PHASE_TRANSITION_TYPES;
+
+export function parseAssembledExamReviewPacket(
+  value: unknown,
+  expectedExamRunId: string,
+): AdminAssembledExamReviewPacket {
+  if (!isRecord(value) || Object.keys(value).length === 0) {
+    throw new Error("assembled_exam_review_packet_invalid:empty_object");
+  }
+  const examRunId = nonemptyString(value["examRunId"]);
+  if (!examRunId || examRunId !== expectedExamRunId.trim()) {
+    throw new Error("stale_identity:exam_run_mismatch");
+  }
+  if (value["claimBoundary"] !== ASSEMBLED_PACKET_CLAIM_BOUNDARY) {
+    throw new Error("assembled_exam_review_packet_invalid:claim_boundary");
+  }
+  if (value["examEquivalenceGate"] !== false) {
+    throw new Error("assembled_exam_review_packet_invalid:exam_equivalence_gate");
+  }
+  if (value["scoringValidityClaimed"] === true || value["clinicalValidityClaimed"] === true) {
+    throw new Error("assembled_exam_review_packet_invalid:claim_boundary");
+  }
+  const omissions = stringArray(value["omissions"]);
+  const notEvidenceFor = stringArray(value["notEvidenceFor"]);
+  if (!omissions || !notEvidenceFor) {
+    throw new Error("assembled_exam_review_packet_invalid:empty_object");
+  }
+  for (const flag of REQUIRED_NOT_EVIDENCE_FOR) {
+    if (!notEvidenceFor.includes(flag)) {
+      throw new Error("assembled_exam_review_packet_invalid:claim_boundary");
+    }
+  }
+  const stations = value["stations"];
+  if (!Array.isArray(stations)) {
+    throw new Error("assembled_exam_review_packet_invalid:malformed_station");
+  }
+  for (const station of stations) {
+    parseStation(station, examRunId);
+  }
+  return value as AdminAssembledExamReviewPacket;
+}
+
+function parseStation(station: unknown, examRunId: string): void {
+  if (!isRecord(station)) {
+    throw new Error("assembled_exam_review_packet_invalid:malformed_station");
+  }
+  const identity = station["identity"];
+  if (!isRecord(identity)) {
+    throw new Error("assembled_exam_review_packet_invalid:malformed_station");
+  }
+  if (
+    nonemptyString(identity["examRunId"]) !== examRunId
+    || !nonemptyString(identity["stationRunId"])
+    || !nonemptyString(identity["scenarioId"])
+    || !isNonNegativeInteger(identity["stationOrder"])
+  ) {
+    throw new Error("assembled_exam_review_packet_invalid:malformed_station");
+  }
+  if (typeof station["patientNoteSubmitted"] !== "boolean") {
+    throw new Error("assembled_exam_review_packet_invalid:malformed_station");
+  }
+  if (station["advanceReason"] !== null && typeof station["advanceReason"] !== "string") {
+    throw new Error("assembled_exam_review_packet_invalid:malformed_station");
+  }
+  if (!stringArray(station["blockers"]) || !stringArray(station["omissions"])) {
+    throw new Error("assembled_exam_review_packet_invalid:malformed_station");
+  }
+  const transitions = station["phaseTransitions"];
+  if (!Array.isArray(transitions)) {
+    throw new Error("assembled_exam_review_packet_invalid:malformed_station");
+  }
+  for (const event of transitions) {
+    parsePhaseTransition(event);
+  }
+  const reviewPacket = station["reviewPacket"];
+  if (!isRecord(reviewPacket)) {
+    throw new Error("assembled_exam_review_packet_invalid:malformed_station");
+  }
+  parsePatientNote(reviewPacket["patientNote"]);
+  parseActorTurnReplays(reviewPacket["actorTurnReplays"]);
+}
+
+function parsePhaseTransition(event: unknown): void {
+  if (!isRecord(event)) {
+    throw new Error("assembled_exam_review_packet_invalid:malformed_station");
+  }
+  const eventType = event["eventType"];
+  if (typeof eventType !== "string" || !(PHASE_TYPES as readonly string[]).includes(eventType)) {
+    throw new Error("assembled_exam_review_packet_invalid:malformed_station");
+  }
+  const expectedPhase = ASSEMBLED_EXAM_PHASE_BY_TYPE[eventType as keyof typeof ASSEMBLED_EXAM_PHASE_BY_TYPE];
+  if (
+    event["phase"] !== expectedPhase
+    || !isNonNegativeInteger(event["sequence"])
+    || !isNonNegativeInteger(event["atSecond"])
+    || !isNonNegativeInteger(event["formAtSecond"])
+    || !nonemptyString(event["durableEventRef"])
+    || (event["advanceReason"] !== null && typeof event["advanceReason"] !== "string")
+  ) {
+    throw new Error("assembled_exam_review_packet_invalid:malformed_station");
+  }
+}
+
+function parsePatientNote(note: unknown): void {
+  if (note === null || note === undefined) {
+    return;
+  }
+  if (
+    !isRecord(note)
+    || !isNonNegativeInteger(note["submittedAtSecond"])
+    || typeof note["text"] !== "string"
+  ) {
+    throw new Error("assembled_exam_review_packet_invalid:malformed_station");
+  }
+}
+
+function parseActorTurnReplays(replays: unknown): void {
+  if (!Array.isArray(replays)) {
+    throw new Error("assembled_exam_review_packet_invalid:malformed_station");
+  }
+  for (const replay of replays) {
+    if (!isRecord(replay) || !nonemptyString(replay["planId"]) || !nonemptyString(replay["turnId"]) || typeof replay["caption"] !== "string") {
+      throw new Error("assembled_exam_review_packet_invalid:malformed_station");
+    }
+    const plan = replay["plan"];
+    if (!isRecord(plan) || !nonemptyString(plan["actorId"])) {
+      throw new Error("assembled_exam_review_packet_invalid:malformed_station");
+    }
+    const execution = replay["execution"];
+    if (execution === null) {
+      continue;
+    }
+    if (!isRecord(execution) || !isRecord(execution["interruption"]) || typeof execution["interruption"]["kind"] !== "string") {
+      throw new Error("assembled_exam_review_packet_invalid:malformed_station");
+    }
+  }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function nonemptyString(value: unknown): string | undefined {
+  return typeof value === "string" && value.trim().length > 0 ? value : undefined;
+}
+
+function stringArray(value: unknown): string[] | undefined {
+  return Array.isArray(value) && value.every((item) => typeof item === "string") ? value : undefined;
+}
+
+function isNonNegativeInteger(value: unknown): value is number {
+  return typeof value === "number" && Number.isInteger(value) && value >= 0;
+}
+
 export async function fetchAssembledExamReviewPacket(
   examRunId: string,
   options: {
@@ -134,14 +295,7 @@ export async function fetchAssembledExamReviewPacket(
   if (!response.ok) {
     throw new Error(`assembled_exam_review_packet_fetch_failed:${response.status}`);
   }
-  const packet = (await response.json()) as AdminAssembledExamReviewPacket;
-  if (packet.examRunId !== trimmed) {
-    throw new Error("stale_identity:exam_run_mismatch");
-  }
-  if (packet.examEquivalenceGate !== false) {
-    throw new Error("exam_equivalence_gate_must_remain_false");
-  }
-  return packet;
+  return parseAssembledExamReviewPacket(await response.json(), trimmed);
 }
 
 export function FacultyAdjudicationWorkspace({
@@ -175,10 +329,11 @@ export function FacultyAdjudicationWorkspace({
     setState({ status: "loading", examRunId: trimmed });
     const loader = loadPacketRef.current ?? ((id: string) => fetchAssembledExamReviewPacket(id));
     loader(trimmed)
-      .then((packet) => {
+      .then((raw) => {
         if (!active) {
           return;
         }
+        const packet = parseAssembledExamReviewPacket(raw, trimmed);
         setState({ status: "ready", examRunId: trimmed, packet: Object.freeze(packet) });
       })
       .catch((error: unknown) => {

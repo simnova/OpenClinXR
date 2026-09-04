@@ -118,6 +118,39 @@ describe("the faculty adjudication workspace preserves assembled evidence", () =
     expect(workspace.textContent).not.toContain("<soft>It feels tight when I breathe. [breath]</soft>");
   });
 
+  it("fails closed on empty, wrong-boundary, equivalence-enabled, malformed, and injected cross-exam packets without rendering timeline or disposition", async () => {
+    const packet = completeAssembledPacket();
+    const cases: Array<{ name: string; raw: unknown }> = [
+      { name: "empty object", raw: {} },
+      { name: "wrong claim boundary", raw: { ...packet, claimBoundary: "unsafe_exam_equivalence_packet" } },
+      { name: "enabled equivalence posture", raw: { ...packet, examEquivalenceGate: true } },
+      {
+        name: "malformed station",
+        raw: {
+          ...packet,
+          stations: [{ identity: { examRunId: EXAM_RUN_ID } }],
+        },
+      },
+      { name: "injected cross-exam packet", raw: { ...packet, examRunId: "exam_run_other_001" } },
+    ];
+
+    for (const testCase of cases) {
+      cleanup();
+      render(
+        <FacultyAdjudicationWorkspace
+          examRunId={EXAM_RUN_ID}
+          loadPacket={async () => testCase.raw}
+        />,
+      );
+      const workspace = await screen.findByLabelText("Faculty adjudication workspace");
+      expect(await screen.findByText("Assembled exam review packet unavailable"), testCase.name).toBeInTheDocument();
+      expect(screen.queryByLabelText("Assembled exam replay timeline"), testCase.name).not.toBeInTheDocument();
+      expect(screen.queryByLabelText("Faculty review disposition"), testCase.name).not.toBeInTheDocument();
+      expect(screen.queryByLabelText("Record disposition hold_for_debrief"), testCase.name).not.toBeInTheDocument();
+      expect(workspace.textContent, testCase.name).not.toContain("complete_encounter_to_note_timeline");
+    }
+  });
+
   it("GETs the production assembled-review-packet path and refuses a mutated exam identity", async () => {
     const packet = completeAssembledPacket();
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
