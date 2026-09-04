@@ -216,4 +216,59 @@ describe("actor-turn execution ledger", () => {
     expect(json).not.toContain("hiddenFacts");
     expect(actorTurnExecutionLedgerClaimBoundary).toContain("not_exam_equivalence");
   });
+
+  it("COUNTERWEIGHT: concurrent mutated first writers keep exactly one record and reject the loser", async () => {
+    const ledger = createActorTurnExecutionLedger();
+    const results = await Promise.allSettled([
+      ledger.admit({
+        stationRunId: STATION,
+        plan: samplePlan({ spokenText: "It feels tight when I breathe." }),
+        execution: sampleExecution(),
+        atSecond: 22,
+      }),
+      ledger.admit({
+        stationRunId: STATION,
+        plan: samplePlan({ spokenText: "It does not hurt." }),
+        execution: sampleExecution(),
+        atSecond: 22,
+      }),
+    ]);
+    const fulfilled = results.filter((result): result is PromiseFulfilledResult<Awaited<ReturnType<typeof ledger.admit>>> =>
+      result.status === "fulfilled"
+    );
+    const rejected = results.filter((result): result is PromiseRejectedResult => result.status === "rejected");
+    expect(fulfilled).toHaveLength(1);
+    expect(rejected).toHaveLength(1);
+    expect(String(rejected[0]?.reason)).toMatch(/fail-closed: mutated text/);
+    const listed = await ledger.listByStationRun(STATION);
+    expect(listed).toHaveLength(1);
+    expect(listed[0]?.plan.spokenText).toBe(fulfilled[0]?.value.plan.spokenText);
+  });
+
+  it("lists interleaved actors with shared turnIndex and atSecond by actor, plan, then turn", async () => {
+    const ledger = createActorTurnExecutionLedger();
+    await ledger.admit({
+      stationRunId: STATION,
+      plan: samplePlan(),
+      execution: sampleExecution(),
+      atSecond: 22,
+    });
+    await ledger.admit({
+      stationRunId: STATION,
+      plan: samplePlan({
+        planId: "plan_parent_001",
+        turnId: "turn_parent_001",
+        actorId: "parent_aisha_johnson_v1",
+        respondingActorId: "parent_aisha_johnson_v1",
+      }),
+      execution: sampleExecution({ planId: "plan_parent_001", turnId: "turn_parent_001" }),
+      atSecond: 22,
+    });
+    const listed = await ledger.listByStationRun(STATION);
+    expect(listed.map((record) => record.actorId)).toEqual([
+      "parent_aisha_johnson_v1",
+      "patient_maya_johnson_v1",
+    ]);
+    expect(listed.map((record) => record.identity.planId)).toEqual(["plan_parent_001", PLAN_ID]);
+  });
 });

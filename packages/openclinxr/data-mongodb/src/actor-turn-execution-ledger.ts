@@ -2,6 +2,7 @@ import type { Collection, Db } from "mongodb";
 import type { ActorTurnExecution, ActorTurnPlan } from "@openclinxr/shared-schemas";
 import {
   assembleActorTurnReplay,
+  compareActorTurnExecutionRecords,
   stripPrivateHiddenFactPayload,
   type ActorTurnExecutionIdentity,
   type ActorTurnExecutionLedgerRecord,
@@ -46,7 +47,7 @@ type StoredDoc = ActorTurnExecutionLedgerRecord & {
 
 type LedgerStore = {
   load(identity: ActorTurnExecutionIdentity): Promise<StoredDoc | null>;
-  save(doc: StoredDoc): Promise<void>;
+  insertFirstOrLoad(doc: StoredDoc): Promise<StoredDoc>;
   list(stationRunId: string): Promise<StoredDoc[]>;
 };
 
@@ -242,28 +243,20 @@ class ActorTurnExecutionLedgerCore implements ActorTurnExecutionLedger {
 
   async admit(input: AdmitActorTurnExecutionInput): Promise<ActorTurnExecutionLedgerRecord> {
     const next = normalizeAdmission(input);
-    const existing = await this.store.load(next.identity);
-    if (existing) {
-      if (existing.fingerprint === next.fingerprint) {
-        return publicRecord(existing);
-      }
-      const reason = classifyMutation(existing, next);
-      throw new Error(
-        `actor-turn execution ledger fail-closed: ${reason} under identity ${identityKey(next.identity)}`,
-      );
+    const persisted = await this.store.insertFirstOrLoad(next);
+    if (persisted.fingerprint === next.fingerprint) {
+      return publicRecord(persisted);
     }
-    await this.store.save(next);
-    return publicRecord(next);
+    const reason = classifyMutation(persisted, next);
+    throw new Error(
+      `actor-turn execution ledger fail-closed: ${reason} under identity ${identityKey(next.identity)}`,
+    );
   }
 
   async listByStationRun(stationRunId: string): Promise<ActorTurnExecutionLedgerRecord[]> {
     requireField(stationRunId, "stationRunId");
     const docs = await this.store.list(stationRunId);
-    return docs
-      .sort((left, right) =>
-        left.turnIndex === right.turnIndex ? left.atSecond - right.atSecond : left.turnIndex - right.turnIndex,
-      )
-      .map(publicRecord);
+    return docs.sort(compareActorTurnExecutionRecords).map(publicRecord);
   }
 
   async projectFaculty(stationRunId: string): Promise<AssembledActorTurnReplay> {
@@ -274,6 +267,18 @@ class ActorTurnExecutionLedgerCore implements ActorTurnExecutionLedger {
   }
 }
 
+function identityFilter(identity: ActorTurnExecutionIdentity) {
+  return {
+    "identity.stationRunId": identity.stationRunId,
+    "identity.planId": identity.planId,
+    "identity.turnId": identity.turnId,
+  };
+}
+
+function isDuplicateKeyError(error: unknown): boolean {
+  return typeof error === "object" && error !== null && "code" in error && (error as { code: unknown }).code === 11000;
+}
+
 export class MemoryActorTurnExecutionLedger extends ActorTurnExecutionLedgerCore {
   constructor() {
     const documents = new Map<string, StoredDoc>();
@@ -282,8 +287,14 @@ export class MemoryActorTurnExecutionLedger extends ActorTurnExecutionLedgerCore
         const doc = documents.get(identityKey(identity));
         return doc ? cloneJson(doc) : null;
       },
-      async save(doc) {
-        documents.set(identityKey(doc.identity), cloneJson(doc));
+      async insertFirstOrLoad(doc) {
+        const key = identityKey(doc.identity);
+        const existing = documents.get(key);
+        if (existing) {
+          return cloneJson(existing);
+        }
+        documents.set(key, cloneJson(doc));
+        return cloneJson(doc);
       },
       async list(stationRunId) {
         return [...documents.values()]
@@ -301,25 +312,28 @@ export class MongoActorTurnExecutionLedger extends ActorTurnExecutionLedgerCore 
       "mongodb",
       {
         async load(identity) {
-          return collection.findOne(
-            {
-              "identity.stationRunId": identity.stationRunId,
-              "identity.planId": identity.planId,
-              "identity.turnId": identity.turnId,
-            },
-            { projection: { _id: 0 } },
-          );
+          return collection.findOne(identityFilter(identity), { projection: { _id: 0 } });
         },
-        async save(doc) {
-          await collection.updateOne(
-            {
-              "identity.stationRunId": doc.identity.stationRunId,
-              "identity.planId": doc.identity.planId,
-              "identity.turnId": doc.identity.turnId,
-            },
-            { $set: cloneJson(doc) },
-            { upsert: true },
-          );
+        async insertFirstOrLoad(doc) {
+          try {
+            const persisted = await collection.findOneAndUpdate(
+              identityFilter(doc.identity),
+              { $setOnInsert: cloneJson(doc) },
+              { upsert: true, returnDocument: "after", projection: { _id: 0 } },
+            );
+            if (persisted) {
+              return persisted;
+            }
+          } catch (error) {
+            if (!isDuplicateKeyError(error)) {
+              throw error;
+            }
+          }
+          const existing = await collection.findOne(identityFilter(doc.identity), { projection: { _id: 0 } });
+          if (!existing) {
+            throw new Error(`actor-turn execution ledger failed to persist identity ${identityKey(doc.identity)}`);
+          }
+          return existing;
         },
         async list(stationRunId) {
           return collection

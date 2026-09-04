@@ -115,6 +115,27 @@ export function facultyTraceEventsFromActorTurnRecords(
   });
 }
 
+export function compareActorTurnExecutionRecords(
+  left: ActorTurnExecutionLedgerRecord,
+  right: ActorTurnExecutionLedgerRecord,
+): number {
+  if (left.turnIndex !== right.turnIndex) {
+    return left.turnIndex - right.turnIndex;
+  }
+  if (left.atSecond !== right.atSecond) {
+    return left.atSecond - right.atSecond;
+  }
+  const actor = left.actorId.localeCompare(right.actorId);
+  if (actor !== 0) {
+    return actor;
+  }
+  const plan = left.identity.planId.localeCompare(right.identity.planId);
+  if (plan !== 0) {
+    return plan;
+  }
+  return left.identity.turnId.localeCompare(right.identity.turnId);
+}
+
 export function assembleActorTurnReplay(
   stationRunId: string,
   records: readonly ActorTurnExecutionLedgerRecord[],
@@ -122,9 +143,15 @@ export function assembleActorTurnReplay(
   if (stationRunId.trim().length === 0) {
     throw new Error("assembled actor-turn replay requires stationRunId");
   }
-  const scoped = orderedRecords(records).filter((record) => record.identity.stationRunId === stationRunId);
+  const scoped = orderedRecords(records.filter((record) => record.identity.stationRunId === stationRunId));
   const events = facultyTraceEventsFromActorTurnRecords(scoped);
-  const turns = extractFacultyActorTurnReplays(events);
+  const turnsByKey = new Map(
+    extractFacultyActorTurnReplays(events).map((turn) => [`${turn.planId}::${turn.turnId}`, turn]),
+  );
+  const turns = scoped.flatMap((record) => {
+    const turn = turnsByKey.get(`${record.identity.planId}::${record.identity.turnId}`);
+    return turn ? [turn] : [];
+  });
   const timeline = events.map((event, sequence) => {
     const payload = event.payload ?? {};
     const plan = payload["actorTurnPlan"] as ActorTurnPlan | undefined;
@@ -157,9 +184,5 @@ export function assembleActorTurnReplay(
 function orderedRecords(
   records: readonly ActorTurnExecutionLedgerRecord[],
 ): ActorTurnExecutionLedgerRecord[] {
-  return [...records].sort((left, right) =>
-    left.turnIndex === right.turnIndex
-      ? left.atSecond - right.atSecond
-      : left.turnIndex - right.turnIndex,
-  );
+  return [...records].sort(compareActorTurnExecutionRecords);
 }

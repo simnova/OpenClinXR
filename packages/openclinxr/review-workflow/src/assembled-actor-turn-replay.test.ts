@@ -155,4 +155,29 @@ describe("assembled actor-turn replay", () => {
       nested: { providerId: "mock-model" },
     });
   });
+
+  it("orders interleaved actors with shared turnIndex and atSecond by actor, plan, then turn", () => {
+    const child = sampleRecord();
+    const parent = sampleRecord({
+      identity: { stationRunId: STATION, planId: "plan_parent_001", turnId: "turn_parent_001" },
+      plan: samplePlan({
+        planId: "plan_parent_001",
+        turnId: "turn_parent_001",
+        actorId: "parent_aisha_johnson_v1",
+        respondingActorId: "parent_aisha_johnson_v1",
+      }),
+      execution: sampleExecution({ planId: "plan_parent_001", turnId: "turn_parent_001" }),
+      actorId: "parent_aisha_johnson_v1",
+      respondingActorId: "parent_aisha_johnson_v1",
+    });
+    const assembled = assembleActorTurnReplay(STATION, [child, parent]);
+    expect(assembled.turns.map((turn) => turn.plan.actorId)).toEqual([
+      "parent_aisha_johnson_v1",
+      "patient_maya_johnson_v1",
+    ]);
+    expect(assembled.timeline.filter((entry) => entry.kind === "plan").map((entry) => entry.planId)).toEqual([
+      "plan_parent_001",
+      PLAN_ID,
+    ]);
+  });
 });
