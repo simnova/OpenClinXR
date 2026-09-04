@@ -1,10 +1,11 @@
 /**
  * Fixture/unary learner STT adapter (DVA-8 analogue, voice-gateway only).
  *
- * Turns a fixture id or unary PCM bytes into a classifier-ready transcript
- * record. Unknown/empty final audio maps to `learner_unclassified`; barge-in
+ * Turns a fixture id or unary UTF-8 transcript bytes into a classifier-ready
+ * record. Empty/invalid-UTF-8 finals map to `learner_unclassified`; barge-in
  * maps to `learner_interruption` regardless of text. The adapter never emits
- * `learner_clinical_question` as a default.
+ * `learner_clinical_question` as a default. Unary provenance is a byte digest,
+ * never the transcript text.
  *
  * Live Grok STT / WER is out of scope. Production STT still records
  * `stt_medical_vocabulary_wer_evidence_missing` on the gateway gate.
@@ -12,6 +13,7 @@
  * claimScope: simulated_actor_or_factory_behavior
  * notEvidenceFor: clinical validity, licensure, exam equivalence, Quest readiness, HIPAA certification
  */
+import { createHash } from "node:crypto";
 
 export type LearnerSttEventKindHint = "learner_interruption" | "learner_unclassified";
 
@@ -85,10 +87,7 @@ function resolveTranscript(pcmOrFixtureId: string | Uint8Array): {
   unintelligible: boolean;
 } {
   if (pcmOrFixtureId instanceof Uint8Array) {
-    if (pcmOrFixtureId.byteLength === 0) {
-      return { transcript: "", fixtureId: "pcm:empty", unintelligible: true };
-    }
-    return { transcript: "", fixtureId: "pcm:unary-unmapped", unintelligible: true };
+    return resolveUnaryTranscriptBytes(pcmOrFixtureId);
   }
 
   const fixtureId = pcmOrFixtureId.trim();
@@ -106,4 +105,31 @@ function resolveTranscript(pcmOrFixtureId: string | Uint8Array): {
   }
 
   return { transcript: "", fixtureId, unintelligible: true };
+}
+
+function resolveUnaryTranscriptBytes(bytes: Uint8Array): {
+  transcript: string;
+  fixtureId: string;
+  unintelligible: boolean;
+} {
+  if (bytes.byteLength === 0) {
+    return { transcript: "", fixtureId: "pcm:empty", unintelligible: true };
+  }
+
+  try {
+    const transcript = new TextDecoder("utf-8", { fatal: true }).decode(bytes).trim();
+    return {
+      transcript,
+      fixtureId: unaryUtf8ProvenanceId(bytes),
+      unintelligible: transcript.length === 0,
+    };
+  } catch {
+    return { transcript: "", fixtureId: "pcm:unary-invalid-utf8", unintelligible: true };
+  }
+}
+
+/** SHA-256 prefix of the raw bytes. Does not embed transcript text. */
+function unaryUtf8ProvenanceId(bytes: Uint8Array): string {
+  const digest = createHash("sha256").update(bytes).digest("hex").slice(0, 16);
+  return `pcm:unary-utf8:${digest}`;
 }

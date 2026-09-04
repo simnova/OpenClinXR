@@ -109,6 +109,44 @@ describe("learner STT adapter emits classifier-ready transcripts", () => {
     expect(withText.eventKindHint).not.toBe("learner_unclassified");
   });
 
+  it("decodes non-empty UTF-8 unary transcript bytes into a classifier-ready record", () => {
+    const text = LEARNER_STT_FIXTURES["fixture:chest-onset"];
+    const bytes = new TextEncoder().encode(`  ${text}  `);
+    const record = transcribeLearnerAudio({
+      ...station,
+      pcmOrFixtureId: bytes,
+      isFinal: true,
+    });
+
+    expect(record).toMatchObject({
+      transcript: text,
+      isFinal: true,
+      source: "stt",
+      eventKindHint: null,
+    });
+    expect(record.provenance.unintelligible).toBe(false);
+    expect(record.provenance.fixtureId).toMatch(/^pcm:unary-utf8:[0-9a-f]{16}$/);
+    expect(record.provenance.fixtureId).not.toContain(text);
+    expect(record.eventKindHint).not.toBe("learner_clinical_question");
+  });
+
+  it("maps invalid UTF-8 unary bytes to learner_unclassified without embedding the payload", () => {
+    const invalid = new Uint8Array([0xff, 0xfe, 0xfd]);
+    const record = transcribeLearnerAudio({
+      ...station,
+      pcmOrFixtureId: invalid,
+      isFinal: true,
+    });
+
+    expect(record.source).toBe("stt");
+    expect(record.isFinal).toBe(true);
+    expect(record.transcript).toBe("");
+    expect(record.eventKindHint).toBe("learner_unclassified");
+    expect(record.eventKindHint).not.toBe("learner_clinical_question");
+    expect(record.provenance.unintelligible).toBe(true);
+    expect(record.provenance.fixtureId).toBe("pcm:unary-invalid-utf8");
+  });
+
   it("registers transcribeLearnerAudio on the gateway without network or cloud credentials", () => {
     const gateway = createDefaultVoiceGateway({
       adapters: [new MockVoiceProviderAdapter()],
