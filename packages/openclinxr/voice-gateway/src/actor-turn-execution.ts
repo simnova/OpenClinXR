@@ -20,6 +20,19 @@ import {
   type ActorTurnPlanSpeech,
 } from "./adapters.js";
 import type { AudioEvent } from "./types.js";
+import {
+  carryLearnerSttInterruptionOntoActorTurn,
+  type CarryLearnerSttInterruptionInput,
+  type CarryLearnerSttInterruptionResult,
+} from "./carry-learner-stt-interruption.js";
+
+export {
+  carryLearnerSttInterruptionOntoActorTurn,
+  LEARNER_BARGE_IN_EXECUTION_EVENT,
+  type CarryLearnerSttInterruptionInput,
+  type CarryLearnerSttInterruptionResult,
+  type LearnerBargeInExecutionEvent,
+} from "./carry-learner-stt-interruption.js";
 
 /** Bounded DVA-6 execution. `fallback.tts` is true only when voice is dropped. */
 export type BoundedActorTurnExecution = {
@@ -94,6 +107,8 @@ export type ExecuteFrozenActorTurnOptions = {
   bargeInAtChunkIndex?: number;
   available?: Partial<Record<ActorTurnModality, boolean>>;
   adapters?: ActorTurnExecutionAdapters;
+  /** When set, STT barge-in is resolved through conversation-policy and applied to this envelope. */
+  learnerBargeIn?: Omit<CarryLearnerSttInterruptionInput, "envelope">;
 };
 
 export type ActorTurnExecutionEnvelope = {
@@ -118,6 +133,7 @@ export type ActorTurnExecutionEnvelope = {
   };
   claimScope: "simulated_actor_behavior";
   notEvidenceFor: readonly string[];
+  learnerBargeIn?: CarryLearnerSttInterruptionResult;
 };
 
 export async function executeFrozenActorTurn(
@@ -213,7 +229,7 @@ export async function executeFrozenActorTurn(
     droppedModalities.push({ modality: "motion", reason: "adapter_failed" });
   }
 
-  return {
+  const envelope: ActorTurnExecutionEnvelope = {
     seam: ACTOR_TURN_EXECUTION_SEAM,
     actorTurnExecution,
     timelineOriginMs: ACTOR_TURN_TIMELINE_ORIGIN_MS,
@@ -236,6 +252,16 @@ export async function executeFrozenActorTurn(
     claimScope: "simulated_actor_behavior",
     notEvidenceFor: [...plan.notEvidenceFor],
   };
+
+  if (!options.learnerBargeIn) {
+    return envelope;
+  }
+
+  const learnerBargeIn = await carryLearnerSttInterruptionOntoActorTurn({
+    ...options.learnerBargeIn,
+    envelope,
+  });
+  return { ...envelope, learnerBargeIn };
 }
 
 function assertPlanFrozenForMultimodalExecution(plan: FrozenActorTurnPlanForExecution): void {

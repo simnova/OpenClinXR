@@ -4,6 +4,11 @@ export {
 } from "./turn-taking.js";
 export { resolveLearnerBargeIn } from "./barge-in.js";
 export {
+  learnerBargeInInputFromStt,
+  resolveLearnerBargeInFromStt,
+  type LearnerSttBargeInRecord,
+} from "./learner-stt-barge-in.js";
+export {
   buildTurnCancellationDirective,
   canonicalInterruptionId,
   canonicalInterruptionIdentity,
