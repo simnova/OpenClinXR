@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "openclinxr.public-motion-evidence.v1",
+  "publishedAt": "2026-09-04",
+  "artifact": {
+    "path": "docs/assets/mpfb-parent-upper-body-motion-2026-09-04.webm",
+    "sha256": "2e37230c4e3ad6a1823d24b5c7afee5e84aaab38565cdcc7f454715f35da8c75",
+    "codec": "VP9",
+    "dimensions": "1280x600",
+    "frameRate": 30,
+    "durationSeconds": 6.433,
+    "audio": false
+  },
+  "derivation": {
+    "sourceCapture": ".openclinxr/evidence/motion-grade-1250/mpfb-peds-parent-aisha_motion-bind_body_motion_probe_2026-08-14.webm",
+    "sourceCaptureSha256": "e1b69cf40f5ae4ebb40178b650ef1fa51b139cddaf2764afac295788988edb1b",
+    "sourceGlb": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb",
+    "sourceGlbSha256": "5c5ac47ddf5e38968ccb7cc012ca17ce69f83a50bf296bdc3dd3e5c1c711fb58",
+    "sourceMotion": "tools/openclinxr/asset-pipeline/makeclothes/mesh2motion-sitting-talking-single-clip.bvh",
+    "sourceMotionSha256": "aa059fdb54c0537781057514810b3d5301899ba4892dbfd5a7bd6ebb9cbd8d91",
+    "transform": "ffmpeg crop=1280:600:0:0,fps=30,format=yuv420p; VP9 CRF 30; no audio"
+  },
+  "licenseReview": {
+    "status": "cleared_for_publication_with_scope_limit",
+    "scope": "Rendered upper-body movement evidence only",
+    "makeHumanExportedModel": "CC0 under the MakeHuman exported-model exception documented by MakeHuman Community",
+    "visibleHair": "CC0; toigo_blunt_bob_with_bangs source header and repository ledger",
+    "visibleShirt": "CC0; toigo_basic_tucked_t-shirt source header and repository ledger",
+    "motion": "CC0; Mesh2Motion repository LICENSE-CC0.md covers models, rigs, and animations",
+    "captureAndEdit": "OpenClinXR project-generated evidence",
+    "excluded": [
+      "Lower-body cargo-pants geometry is outside the published crop because its local source carries an unresolved per-item license conflict.",
+      "No viseme footage is published because the makehuman-visemes02 source remains unresolved."
+    ],
+    "review": "docs/openclinxr/public-humanoid-motion-license-review-2026-09-04.md"
+  },
+  "claims": {
+    "evidenceFor": [
+      "browser-rendered upper-body skeletal movement",
+      "visible head, torso, shoulder, arm, and hand deformation"
+    ],
+    "notEvidenceFor": [
+      "production-quality animation",
+      "production cloth behavior",
+      "speech or viseme synchronization",
+      "Quest readiness",
+      "clinical validity",
+      "exam equivalence"
+    ]
+  }
+}
