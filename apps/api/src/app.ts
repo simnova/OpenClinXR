@@ -206,6 +206,7 @@ import { registerAdminGraphqlRoutes } from "./routes/admin-graphql-routes.js";
 import { registerScenarioSceneGenerationRoutes } from "./routes/scenario-scene-generation-routes.js";
 import { registerFacultyCompileLockRoutes } from "./routes/faculty-compile-lock-routes.js";
 import { registerAssembledExamReviewRoutes } from "./routes/assembled-exam-review-routes.js";
+import { registerAssembledExamRunRoutes } from "./routes/assembled-exam-run-routes.js";
 import { registerWorldCompileRoutes } from "./world-compile-routes.js";
 
 
@@ -264,6 +265,7 @@ function registerAllRoutes(app: ApiApp, ctx: ApiAppContext): void {
   registerReviewRoutes(app, ctx);
   registerFacultyCompileLockRoutes(app, ctx);
   registerAssembledExamReviewRoutes(app, ctx);
+  registerAssembledExamRunRoutes(app, ctx);
   registerWorldCompileRoutes(app, ctx);
 }
 

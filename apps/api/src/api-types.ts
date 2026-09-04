@@ -8,6 +8,7 @@ import type {
   FacultyScoreDraft,
   ReviewDecisionDraft,
 } from "@openclinxr/review-workflow";
+import type { ApiAssembledExamRunRecord } from "./runtime-durable-store.js";
 import type { scenarioBank } from "@openclinxr/scenario-fixtures";
 import type { ScenarioRuntime, ScenarioRuntimeActorTurn } from "@openclinxr/scenario-runtime";
 import type { Scenario } from "@openclinxr/shared-schemas";
@@ -39,6 +40,8 @@ export type ApiStartSessionRequest = {
   scenarioId?: string;
   assembledStation?: ApiAssembledStationContext;
 };
+
+export type { ApiAssembledExamRunRecord };
 
 export type RuntimeTraceEvents = ReturnType<ScenarioRuntime["traceEvents"]>;
 
@@ -171,6 +174,17 @@ export type ApiPersistenceSink = {
   getAssembledExamReviewPacket?: (
     examRunId: string,
   ) => Promise<AssembledExamReviewPacket | undefined> | AssembledExamReviewPacket | undefined;
+  /**
+   * Optional durable assembled-exam run aggregate. Persist canonical progress
+   * before acknowledging start/resume/phase mutations. One exam-run document.
+   */
+  saveAssembledExamRun?: (
+    examRunId: string,
+    record: ApiAssembledExamRunRecord,
+  ) => Promise<void> | void;
+  getAssembledExamRun?: (
+    examRunId: string,
+  ) => Promise<ApiAssembledExamRunRecord | undefined> | ApiAssembledExamRunRecord | undefined;
   listClinicalEventReviewProjections?: (stationRunId: string) => Promise<ApiClinicalEventReviewProjection[]> | ApiClinicalEventReviewProjection[];
   getLearnerRuntimeAssetBundle?: (
     bundleId: string,
