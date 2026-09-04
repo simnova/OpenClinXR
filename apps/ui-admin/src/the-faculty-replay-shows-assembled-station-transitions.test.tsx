@@ -2,7 +2,10 @@ import "@testing-library/jest-dom/vitest";
 import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import type { AdminAssembledExamReplayProjection, AdminAssembledExamStationReplaySlice } from "./AssembledExamReplayTimeline.js";
-import { assembledExamStationReplayPosture } from "./AssembledExamReplayTimeline.js";
+import {
+  assembledExamDerivedBlockers,
+  assembledExamStationReplayPosture,
+} from "./AssembledExamReplayTimeline.js";
 import type { AdminReviewPacketReplay } from "./api-client.js";
 import { ReviewReplayReadinessSummaryPanel } from "./ReviewReplayReadinessSummaryPanel.js";
 
@@ -74,6 +77,54 @@ describe("the faculty replay shows assembled station transitions", () => {
     expect(incomplete).toHaveTextContent("missing_advance_reason");
     expect(assembledExamStationReplayPosture(incompleteStationStartedOnly())).toBe("summary_only_station_started");
   });
+
+  it("labels a reordered canonical set summary-only with a derived blocker when upstream blockers are empty", () => {
+    const station = reorderedCompleteStation();
+    expect(station.blockers).toEqual([]);
+    expect(station.omissions).toEqual([]);
+    expect(assembledExamStationReplayPosture(station)).toBe("summary_only_station_started");
+    expect(assembledExamDerivedBlockers(station)).toContain("derived_reordered_phase_transitions");
+    render(<ReviewReplayReadinessSummaryPanel summary={summaryWithAssembledExam({ stations: [station] })} />);
+    const card = screen.getByLabelText("Assembled station 1 ed_chest_pain_priority_v1");
+    expect(card).toHaveTextContent("Summary-only station.started");
+    expect(card).toHaveTextContent("derived_reordered_phase_transitions");
+  });
+
+  it("labels a duplicated transition summary-only with a derived blocker when upstream blockers are empty", () => {
+    const station = duplicatedTransitionStation();
+    expect(station.blockers).toEqual([]);
+    expect(station.omissions).toEqual([]);
+    expect(assembledExamStationReplayPosture(station)).toBe("summary_only_station_started");
+    expect(assembledExamDerivedBlockers(station)).toContain("derived_duplicate_phase_transition:encounter.started");
+    render(<ReviewReplayReadinessSummaryPanel summary={summaryWithAssembledExam({ stations: [station] })} />);
+    const card = screen.getByLabelText("Assembled station 1 ed_chest_pain_priority_v1");
+    expect(card).toHaveTextContent("Summary-only station.started");
+    expect(card).toHaveTextContent("derived_duplicate_phase_transition:encounter.started");
+  });
+
+  it("labels a forged durable ref summary-only with a derived blocker when upstream blockers are empty", () => {
+    const station = forgedDurableRefStation();
+    expect(station.blockers).toEqual([]);
+    expect(station.omissions).toEqual([]);
+    expect(assembledExamStationReplayPosture(station)).toBe("summary_only_station_started");
+    expect(assembledExamDerivedBlockers(station)).toContain("derived_forged_durable_event_ref");
+    render(<ReviewReplayReadinessSummaryPanel summary={summaryWithAssembledExam({ stations: [station] })} />);
+    const card = screen.getByLabelText("Assembled station 1 ed_chest_pain_priority_v1");
+    expect(card).toHaveTextContent("Summary-only station.started");
+    expect(card).toHaveTextContent("derived_forged_durable_event_ref");
+  });
+
+  it("labels a misplaced advanceReason summary-only with a derived blocker when upstream blockers are empty", () => {
+    const station = misplacedAdvanceReasonStation();
+    expect(station.blockers).toEqual([]);
+    expect(station.omissions).toEqual([]);
+    expect(assembledExamStationReplayPosture(station)).toBe("summary_only_station_started");
+    expect(assembledExamDerivedBlockers(station)).toContain("derived_misplaced_advance_reason");
+    render(<ReviewReplayReadinessSummaryPanel summary={summaryWithAssembledExam({ stations: [station] })} />);
+    const card = screen.getByLabelText("Assembled station 1 ed_chest_pain_priority_v1");
+    expect(card).toHaveTextContent("Summary-only station.started");
+    expect(card).toHaveTextContent("derived_misplaced_advance_reason");
+  });
 });
 
 function summaryWithAssembledExam(
@@ -133,6 +184,75 @@ function completePedsStation(): AdminAssembledExamStationReplaySlice {
     patientNoteSubmitted: true,
     startSequence: 10,
   });
+}
+
+function reorderedCompleteStation(): AdminAssembledExamStationReplaySlice {
+  const station = completeEdStation();
+  const [started, ended, ...rest] = station.phaseTransitions;
+  return {
+    ...station,
+    blockers: [],
+    omissions: [],
+    phaseTransitions: [
+      { ...ended, sequence: 10, durableEventRef: "durable://station-runs/run_ed_001/events/10" },
+      { ...started, sequence: 11, durableEventRef: "durable://station-runs/run_ed_001/events/11" },
+      ...rest,
+    ],
+  };
+}
+
+function duplicatedTransitionStation(): AdminAssembledExamStationReplaySlice {
+  const station = completeEdStation();
+  const started = station.phaseTransitions[0];
+  const withoutEnded = station.phaseTransitions.filter((event) => event.eventType !== "encounter.ended");
+  return {
+    ...station,
+    blockers: [],
+    omissions: [],
+    phaseTransitions: [
+      started,
+      {
+        ...started,
+        sequence: 11,
+        atSecond: 61,
+        formAtSecond: 61,
+        durableEventRef: "durable://station-runs/run_ed_001/events/11",
+      },
+      ...withoutEnded.slice(1).map((event, index) => ({
+        ...event,
+        sequence: 12 + index,
+        durableEventRef: `durable://station-runs/run_ed_001/events/${12 + index}`,
+      })),
+    ],
+  };
+}
+
+function forgedDurableRefStation(): AdminAssembledExamStationReplaySlice {
+  const station = completeEdStation();
+  return {
+    ...station,
+    blockers: [],
+    omissions: [],
+    phaseTransitions: station.phaseTransitions.map((event, index) =>
+      index === 0
+        ? { ...event, durableEventRef: "durable://station-runs/run_forged_001/events/10" }
+        : event,
+    ),
+  };
+}
+
+function misplacedAdvanceReasonStation(): AdminAssembledExamStationReplaySlice {
+  const station = completeEdStation();
+  return {
+    ...station,
+    blockers: [],
+    omissions: [],
+    phaseTransitions: station.phaseTransitions.map((event) =>
+      event.eventType === "encounter.started"
+        ? { ...event, advanceReason: station.advanceReason }
+        : event,
+    ),
+  };
 }
 
 function incompleteStationStartedOnly(): AdminAssembledExamStationReplaySlice {

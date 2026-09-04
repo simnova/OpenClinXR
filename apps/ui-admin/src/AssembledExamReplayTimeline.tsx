@@ -9,6 +9,14 @@ export const ASSEMBLED_EXAM_PHASE_TRANSITION_TYPES = [
   "station.advanced",
 ] as const;
 
+export const ASSEMBLED_EXAM_PHASE_BY_TYPE = {
+  "encounter.started": "encounter",
+  "encounter.ended": "encounter",
+  "note.started": "note",
+  "note.submitted": "note",
+  "station.advanced": "complete",
+} as const;
+
 export type AdminAssembledExamPhaseTransitionType =
   (typeof ASSEMBLED_EXAM_PHASE_TRANSITION_TYPES)[number];
 
@@ -54,22 +62,88 @@ export type AssembledExamReplayTimelineProps = {
   projection: AdminAssembledExamReplayProjection;
 };
 
+export function assembledExamDerivedBlockers(
+  station: AdminAssembledExamStationReplaySlice,
+): string[] {
+  const blockers: string[] = [];
+  const events = station.phaseTransitions;
+  const seen = new Set<string>();
+  for (const event of events) {
+    if (!isPhaseTransitionType(event.eventType)) {
+      blockers.push(`derived_unknown_phase_transition:${String(event.eventType)}`);
+      continue;
+    }
+    if (seen.has(event.eventType)) {
+      blockers.push(`derived_duplicate_phase_transition:${event.eventType}`);
+    }
+    seen.add(event.eventType);
+  }
+  for (const eventType of ASSEMBLED_EXAM_PHASE_TRANSITION_TYPES) {
+    if (!seen.has(eventType)) {
+      blockers.push(`derived_missing_phase_transition:${eventType}`);
+    }
+  }
+  const observedTypes = events
+    .map((event) => event.eventType)
+    .filter(isPhaseTransitionType);
+  const uniqueObserved = uniquePreserve(observedTypes);
+  const canonicalPresent = ASSEMBLED_EXAM_PHASE_TRANSITION_TYPES.filter((eventType) => seen.has(eventType));
+  if (uniqueObserved.length > 0 && !sameStringArray(uniqueObserved, canonicalPresent)) {
+    blockers.push("derived_reordered_phase_transitions");
+  }
+  if (
+    seen.size === ASSEMBLED_EXAM_PHASE_TRANSITION_TYPES.length
+    && !sameStringArray(observedTypes, [...ASSEMBLED_EXAM_PHASE_TRANSITION_TYPES])
+  ) {
+    blockers.push("derived_reordered_phase_transitions");
+  }
+
+  for (const [index, event] of events.entries()) {
+    if (
+      !isNonNegativeInteger(event.sequence)
+      || !isNonNegativeInteger(event.atSecond)
+      || !isNonNegativeInteger(event.formAtSecond)
+    ) {
+      blockers.push("derived_malformed_phase_transition_numeric");
+    }
+    const expectedRef = `durable://station-runs/${station.stationRunId}/events/${event.sequence}`;
+    if (event.durableEventRef !== expectedRef) {
+      blockers.push("derived_forged_durable_event_ref");
+    }
+    if (isPhaseTransitionType(event.eventType) && event.phase !== ASSEMBLED_EXAM_PHASE_BY_TYPE[event.eventType]) {
+      blockers.push("derived_phase_event_mismatch");
+    }
+    if (event.eventType === "station.advanced") {
+      if (!event.advanceReason) {
+        blockers.push("derived_missing_advance_reason");
+      } else if (event.advanceReason !== station.advanceReason) {
+        blockers.push("derived_advance_reason_mismatch");
+      }
+    } else if (event.advanceReason) {
+      blockers.push("derived_misplaced_advance_reason");
+    }
+    if (index > 0) {
+      const previous = events[index - 1];
+      if (previous && !(event.sequence > previous.sequence)) {
+        blockers.push("derived_non_increasing_sequence");
+      }
+      if (previous && (event.atSecond < previous.atSecond || event.formAtSecond < previous.formAtSecond)) {
+        blockers.push("derived_decreasing_timestamps");
+      }
+    }
+  }
+  if (!station.advanceReason) {
+    blockers.push("derived_missing_advance_reason");
+  }
+  return uniquePreserve(blockers);
+}
+
 export function assembledExamStationReplayPosture(
   station: AdminAssembledExamStationReplaySlice,
 ): AssembledExamStationReplayPosture {
-  const present = new Set(station.phaseTransitions.map((event) => event.eventType));
-  const missingPhase = ASSEMBLED_EXAM_PHASE_TRANSITION_TYPES.some((eventType) => !present.has(eventType))
-    || station.omissions.some((omission) => omission.startsWith("missing_phase_transition:"));
-  const outOfOrder = station.blockers.some((blocker) => blocker.includes("out_of_order"));
-  if (
-    !missingPhase
-    && !outOfOrder
-    && Boolean(station.advanceReason)
-    && ASSEMBLED_EXAM_PHASE_TRANSITION_TYPES.every((eventType) => present.has(eventType))
-  ) {
-    return "complete_encounter_to_note_timeline";
-  }
-  return "summary_only_station_started";
+  return assembledExamDerivedBlockers(station).length === 0
+    ? "complete_encounter_to_note_timeline"
+    : "summary_only_station_started";
 }
 
 export function AssembledExamReplayTimeline({
@@ -119,7 +193,11 @@ function AssembledExamStationReplayCard({
 }): ReactElement {
   const posture = assembledExamStationReplayPosture(station);
   const complete = posture === "complete_encounter_to_note_timeline";
-  const blockers = uniquePreserve([...station.blockers, ...station.omissions]);
+  const blockers = uniquePreserve([
+    ...assembledExamDerivedBlockers(station),
+    ...station.blockers,
+    ...station.omissions,
+  ]);
   return (
     <section aria-label={`Assembled station ${station.stationOrder} ${station.scenarioId}`}>
       <div className="workbench-title-row">
@@ -186,4 +264,16 @@ function AssembledExamStationReplayCard({
 
 function uniquePreserve(values: readonly string[]): string[] {
   return [...new Set(values)];
+}
+
+function sameStringArray(left: readonly string[], right: readonly string[]): boolean {
+  return left.length === right.length && left.every((value, index) => value === right[index]);
+}
+
+function isPhaseTransitionType(value: string): value is AdminAssembledExamPhaseTransitionType {
+  return (ASSEMBLED_EXAM_PHASE_TRANSITION_TYPES as readonly string[]).includes(value);
+}
+
+function isNonNegativeInteger(value: unknown): value is number {
+  return typeof value === "number" && Number.isInteger(value) && value >= 0;
 }
