@@ -15,6 +15,15 @@ describe("OpenClinXR admin GraphQL contract", () => {
     expect(query?.getFields()).toHaveProperty("scenarioReviewDecisions");
     expect(query?.getFields()).toHaveProperty("reviewPacket");
     expect(query?.getFields()).toHaveProperty("traceEvents");
+    expect(schema.getType("ReviewPacketActorTurn")).toBeDefined();
+    expect(schema.getType("ReviewPacketActorTurnPlan")).toBeDefined();
+    expect(schema.getType("ReviewPacketActorTurnExecution")).toBeDefined();
+    expect(schema.getType("ReviewPacketEmotionalTimelineEntry")).toBeDefined();
+    const reviewPacketType = schema.getType("ReviewPacket");
+    expect(reviewPacketType).toBeInstanceOf(GraphQLObjectType);
+    expect((reviewPacketType as GraphQLObjectType).getFields()).toHaveProperty("actorTurns");
+    expect((reviewPacketType as GraphQLObjectType).getFields()).toHaveProperty("emotionalTimeline");
+    expect((reviewPacketType as GraphQLObjectType).getFields()).toHaveProperty("prosodyNeutralized");
     expect(mutation?.getFields()).toHaveProperty("assembleExamForm");
     expect(mutation?.getFields()).toHaveProperty("submitScenarioReview");
     expect(mutation?.getFields()).toHaveProperty("saveFacultyScoreDraft");
