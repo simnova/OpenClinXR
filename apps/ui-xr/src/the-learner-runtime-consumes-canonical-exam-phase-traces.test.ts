@@ -28,7 +28,9 @@ import {
  * Local UI intents stay `local_exam_flow_fallback` even after localStorage restore.
  * Only externally supplied TraceEvent records become canonical after identity,
  * payload phase, sequence/time, and durableEventRef validation. Adapter does not
- * fabricate authoritative occurredAt or durable refs.
+ * fabricate authoritative occurredAt or durable refs. Persisted admission is
+ * fail-closed on NaN/non-integer/negative sequence, atSecond, and formAtSecond,
+ * unparseable occurredAt, and occurredAt regression.
  */
 
 const identity = {
@@ -142,6 +144,33 @@ describe("the learner runtime consumes canonical exam phase traces", () => {
     const missingOccurredAt = admitLearnerCanonicalPhaseEvent(first.store, { ...persistedEvent(1, "encounter.ended"), occurredAt: "" });
     expect(missingOccurredAt.ok).toBe(false);
     if (!missingOccurredAt.ok) expect(missingOccurredAt.reason).toBe("missing_identity");
+  });
+
+  it("refuses malformed numeric/time inputs and occurredAt regression without mutating the store", () => {
+    const first = admitLearnerCanonicalPhaseEvent(emptyStore(), persistedEvent(0, "encounter.started"));
+    expect(first.ok).toBe(true);
+    if (!first.ok) return;
+    const snapshot = JSON.stringify(first.store.persistedEvents);
+    const ended = persistedEvent(1, "encounter.ended");
+    const cases: TraceEvent[] = [
+      { ...ended, sequence: Number.NaN },
+      { ...ended, sequence: 1.5 },
+      { ...ended, sequence: -1 },
+      { ...ended, atSecond: Number.NaN },
+      { ...ended, atSecond: 1.25 },
+      { ...ended, atSecond: -1 },
+      { ...ended, payload: { ...ended.payload, formAtSecond: Number.NaN } },
+      { ...ended, payload: { ...ended.payload, formAtSecond: Number.POSITIVE_INFINITY } },
+      { ...ended, payload: { ...ended.payload, formAtSecond: -3 } },
+      { ...ended, occurredAt: "not-a-timestamp" },
+      { ...ended, occurredAt: "2026-13-99T99:99:99.000Z" },
+      { ...ended, occurredAt: new Date(Date.parse(first.store.persistedEvents[0]?.occurredAt ?? "") - 1000).toISOString() },
+    ];
+    for (const candidate of cases) {
+      const refused = admitLearnerCanonicalPhaseEvent(first.store, candidate);
+      expect(refused.ok, JSON.stringify(candidate.sequence)).toBe(false);
+      expect(JSON.stringify(refused.store.persistedEvents)).toBe(snapshot);
+    }
   });
 
   it("keeps UI-created intents as local fallback after reload and never relabels them canonical", () => {
