@@ -13,6 +13,7 @@ import {
   type AuthoredDialogueSeedDraft,
   type DialogueSeedActor,
   type DialogueSeedAuthoringPreviewRequest,
+  type DialogueSeedAuthoringPreviewResult,
   type FrozenActorTurnPlanPreview,
 } from "./DialogueSeedAuthoringPanel.js";
 
@@ -205,6 +206,156 @@ describe("DialogueSeedAuthoringPanel", () => {
     expect(preview).toContain("nurse_maria_alvarez_v1");
     expect(preview).toContain('"turnIndex": 0');
     expect(previewCatalog).toHaveBeenCalled();
+  });
+
+  it("rejects an empty preview object as invalid_body and blocks publication", async () => {
+    const spoof = {
+      ...successFromServer(onsetSeed),
+      preview: {},
+    };
+    const result = await previewAuthoredDialogueCatalog({
+      scenarioId: "ed_chest_pain_priority_v1",
+      version: 1,
+      actors: [patient],
+      seeds: [onsetSeed],
+      request: {
+        actorId: onsetSeed.actorId,
+        learnerUtterance: onsetSeed.learnerUtterance,
+        turnIndex: 0,
+      },
+    }, {
+      fetch: (async () => new Response(JSON.stringify(spoof), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      })) as unknown as typeof fetch,
+    });
+    expect(result).toEqual({ ok: false, error: "invalid_body", reason: "preview_identity_blank" });
+
+    render(
+      <DialogueSeedAuthoringPanel
+        scenarioId="ed_chest_pain_priority_v1"
+        scenarioVersion={1}
+        actors={[patient]}
+        initialSeeds={[onsetSeed]}
+        previewCatalog={async () => spoof as DialogueSeedAuthoringPreviewResult}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByLabelText("Dialogue seed publication gate")).toHaveTextContent("blocked: invalid_body");
+    });
+    expect(screen.getByLabelText("Seed validation failures")).toHaveTextContent("preview_identity_blank");
+  });
+
+  it("rejects a cross-actor or cross-turn preview as invalid_body", async () => {
+    const crossActor = {
+      ...successFromServer(onsetSeed),
+      preview: {
+        ...frozenPreviewFromServer(onsetSeed),
+        actorId: nurse.actorId,
+        respondingActorId: nurse.actorId,
+      },
+    };
+    const crossTurn = {
+      ...successFromServer(onsetSeed),
+      preview: {
+        ...frozenPreviewFromServer(onsetSeed),
+        turnIndex: 7,
+      },
+    };
+    const actorResult = await previewAuthoredDialogueCatalog({
+      scenarioId: "ed_chest_pain_priority_v1",
+      version: 1,
+      actors: [patient],
+      seeds: [onsetSeed],
+      request: {
+        actorId: onsetSeed.actorId,
+        learnerUtterance: onsetSeed.learnerUtterance,
+        turnIndex: 0,
+      },
+    }, {
+      fetch: (async () => new Response(JSON.stringify(crossActor), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      })) as unknown as typeof fetch,
+    });
+    const turnResult = await previewAuthoredDialogueCatalog({
+      scenarioId: "ed_chest_pain_priority_v1",
+      version: 1,
+      actors: [patient],
+      seeds: [onsetSeed],
+      request: {
+        actorId: onsetSeed.actorId,
+        learnerUtterance: onsetSeed.learnerUtterance,
+        turnIndex: 0,
+      },
+    }, {
+      fetch: (async () => new Response(JSON.stringify(crossTurn), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      })) as unknown as typeof fetch,
+    });
+    expect(actorResult).toEqual({ ok: false, error: "invalid_body", reason: "preview_actor_mismatch" });
+    expect(turnResult).toEqual({ ok: false, error: "invalid_body", reason: "preview_turn_mismatch" });
+  });
+
+  it("rejects a fabricated enabled-provider or claim-boundary success as invalid_body", async () => {
+    const enabledProvider = {
+      ...successFromServer(onsetSeed),
+      liveProviderEnabled: true,
+      providerExecutionAllowed: true,
+    };
+    const wrongBoundary = {
+      ...successFromServer(onsetSeed),
+      claimBoundary: "ui_xr_consumer_workflow_submit_preview_metadata_only",
+    };
+    const enabledResult = await previewAuthoredDialogueCatalog({
+      scenarioId: "ed_chest_pain_priority_v1",
+      version: 1,
+      actors: [patient],
+      seeds: [onsetSeed],
+      request: {
+        actorId: onsetSeed.actorId,
+        learnerUtterance: onsetSeed.learnerUtterance,
+        turnIndex: 0,
+      },
+    }, {
+      fetch: (async () => new Response(JSON.stringify(enabledProvider), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      })) as unknown as typeof fetch,
+    });
+    const boundaryResult = await previewAuthoredDialogueCatalog({
+      scenarioId: "ed_chest_pain_priority_v1",
+      version: 1,
+      actors: [patient],
+      seeds: [onsetSeed],
+      request: {
+        actorId: onsetSeed.actorId,
+        learnerUtterance: onsetSeed.learnerUtterance,
+        turnIndex: 0,
+      },
+    }, {
+      fetch: (async () => new Response(JSON.stringify(wrongBoundary), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      })) as unknown as typeof fetch,
+    });
+    expect(enabledResult).toEqual({ ok: false, error: "invalid_body", reason: "live_provider_must_be_disabled" });
+    expect(boundaryResult).toEqual({ ok: false, error: "invalid_body", reason: "claim_boundary_mismatch" });
+
+    render(
+      <DialogueSeedAuthoringPanel
+        scenarioId="ed_chest_pain_priority_v1"
+        scenarioVersion={1}
+        actors={[patient]}
+        initialSeeds={[onsetSeed]}
+        previewCatalog={async () => enabledProvider as DialogueSeedAuthoringPreviewResult}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByLabelText("Dialogue seed publication gate")).toHaveTextContent("blocked: invalid_body");
+    });
+    expect(screen.getByLabelText("Dialogue seed publication gate")).not.toHaveTextContent("ready for review");
   });
 
   it("renders the frozen preview and claim boundary without enabling a live provider", async () => {

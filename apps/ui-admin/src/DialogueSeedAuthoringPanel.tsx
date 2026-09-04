@@ -7,6 +7,11 @@ export const ACTOR_TURN_PLAN_CLAIM_SCOPE = "simulated_actor_behavior" as const;
 export const DIALOGUE_SEED_AUTHORING_PREVIEW_PATH = "/internal/authored-dialogue-catalogs/preview";
 export const DIALOGUE_SEED_AUTHORING_CLAIM_BOUNDARY =
   "authored_dialogue_catalog_preview_not_live_provider" as const;
+export const REQUIRED_NOT_EVIDENCE_FOR = [
+  "live_provider_readiness",
+  "clinical_validity",
+  "exam_equivalence",
+] as const;
 
 export type DialogueSafetyExpectation = "responds_from_visible_facts" | "blocks_hidden_truth_probe";
 export type DialogueEmotion = "anxious" | "concerned" | "reassured" | "neutral";
@@ -154,17 +159,31 @@ export async function previewAuthoredDialogueCatalog(
       request: input.request,
     }),
   });
-  const json = (await response.json().catch(() => ({}))) as Record<string, unknown>;
-  if (json["ok"] === true && json["preview"] && typeof json["preview"] === "object") {
-    return json as DialogueSeedAuthoringPreviewSuccess;
+  const json = await response.json().catch(() => ({}));
+  return validateAuthoredDialoguePreviewResponse(json, input);
+}
+
+export function validateAuthoredDialoguePreviewResponse(
+  json: unknown,
+  input: DialogueSeedAuthoringPreviewRequest,
+): DialogueSeedAuthoringPreviewResult {
+  if (!isRecord(json)) {
+    return invalidBody("preview_response_object_required");
   }
-  const error = typeof json["error"] === "string" ? json["error"] : "invalid_body";
-  const reason = typeof json["reason"] === "string" ? json["reason"] : "dialogue_preview_failed";
-  return {
-    ok: false,
-    error: isFailureCode(error) ? error : "invalid_body",
-    reason,
-  };
+  if (json["ok"] !== true) {
+    const error = typeof json["error"] === "string" ? json["error"] : "invalid_body";
+    const reason = typeof json["reason"] === "string" ? json["reason"] : "dialogue_preview_failed";
+    return {
+      ok: false,
+      error: isFailureCode(error) ? error : "invalid_body",
+      reason,
+    };
+  }
+  const mismatch = previewSuccessMismatch(json, input);
+  if (mismatch) {
+    return invalidBody(mismatch);
+  }
+  return json as DialogueSeedAuthoringPreviewSuccess;
 }
 
 export type DialogueSeedAuthoringPanelProps = {
@@ -209,25 +228,28 @@ export function DialogueSeedAuthoringPanel({
     const catalogSeeds = seeds.map((seed) => seedToCatalogPayload(seed, actors));
     void (async () => {
       const results = await Promise.all(
-        seeds.map((seed) =>
-          previewCatalog({
+        seeds.map(async (seed) => {
+          const request = {
+            actorId: seed.actorId,
+            learnerUtterance: seed.learnerUtterance,
+            turnIndex: seed.turnIndex,
+            ...(claimLiveProvider ? { claimLiveProvider: true as const } : {}),
+            ...(providerId !== undefined ? { providerId } : {}),
+          };
+          const catalogRequest: DialogueSeedAuthoringPreviewRequest = {
             scenarioId,
             version: scenarioVersion,
             actors: catalogActors,
             seeds: catalogSeeds,
-            request: {
-              actorId: seed.actorId,
-              learnerUtterance: seed.learnerUtterance,
-              turnIndex: seed.turnIndex,
-              ...(claimLiveProvider ? { claimLiveProvider: true } : {}),
-              ...(providerId !== undefined ? { providerId } : {}),
-            },
-          }).catch((): DialogueSeedAuthoringPreviewFailure => ({
+            request,
+          };
+          const raw = await previewCatalog(catalogRequest).catch((): DialogueSeedAuthoringPreviewFailure => ({
             ok: false,
             error: "invalid_body",
             reason: "dialogue_preview_failed",
-          })),
-        ),
+          }));
+          return validateAuthoredDialoguePreviewResponse(raw, catalogRequest);
+        }),
       );
       if (cancelled) {
         return;
@@ -377,6 +399,110 @@ export function publicationGateFromPreviewResults(
     failures: uniqueFailures,
     previews,
   };
+}
+
+function previewSuccessMismatch(
+  json: Record<string, unknown>,
+  input: DialogueSeedAuthoringPreviewRequest,
+): string | undefined {
+  if (json["liveProviderEnabled"] !== false) {
+    return "live_provider_must_be_disabled";
+  }
+  if (json["providerExecutionAllowed"] !== false) {
+    return "provider_execution_must_be_disabled";
+  }
+  if (json["claimBoundary"] !== DIALOGUE_SEED_AUTHORING_CLAIM_BOUNDARY) {
+    return "claim_boundary_mismatch";
+  }
+  const catalog = json["catalog"];
+  if (!isRecord(catalog)) {
+    return "catalog_object_required";
+  }
+  if (catalog["scenarioId"] !== input.scenarioId) {
+    return "catalog_scenario_mismatch";
+  }
+  if (catalog["version"] !== input.version) {
+    return "catalog_version_mismatch";
+  }
+  const actorIds = stringArray(catalog["actorIds"]);
+  const seedIds = stringArray(catalog["seedIds"]);
+  if (!actorIds || !seedIds) {
+    return "catalog_membership_required";
+  }
+  if (!actorIds.includes(input.request.actorId)) {
+    return "requested_actor_not_in_catalog";
+  }
+  if (!input.actors.some((actor) => actor.actorId === input.request.actorId)) {
+    return "requested_actor_not_in_catalog";
+  }
+  const requestedSeed = input.seeds.find((seed) =>
+    seed.actorId === input.request.actorId
+    && seed.learnerUtterance === input.request.learnerUtterance
+    && seed.turnIndex === input.request.turnIndex
+  );
+  if (!requestedSeed || !seedIds.includes(requestedSeed.seedId)) {
+    return "requested_seed_not_in_catalog";
+  }
+  const preview = json["preview"];
+  if (!isRecord(preview)) {
+    return "preview_object_required";
+  }
+  const identityFields = [
+    "planId",
+    "turnId",
+    "stationRunId",
+    "actorId",
+    "respondingActorId",
+    "spokenText",
+    "spokenTextForTts",
+    "voiceId",
+    "performancePlanId",
+  ] as const;
+  for (const field of identityFields) {
+    if (!nonblank(preview[field])) {
+      return "preview_identity_blank";
+    }
+  }
+  if (preview["actorId"] !== input.request.actorId || preview["respondingActorId"] !== input.request.actorId) {
+    return "preview_actor_mismatch";
+  }
+  if (preview["turnIndex"] !== input.request.turnIndex) {
+    return "preview_turn_mismatch";
+  }
+  if (preview["claimScope"] !== ACTOR_TURN_PLAN_CLAIM_SCOPE) {
+    return "preview_claim_scope_mismatch";
+  }
+  const provenance = preview["languageProvenance"];
+  if (!isRecord(provenance) || provenance["providerId"] !== AUTHORED_LOCAL_FIXTURE_PROVIDER_ID) {
+    return "preview_provider_mismatch";
+  }
+  if (typeof provenance["fallbackUsed"] !== "boolean") {
+    return "preview_identity_blank";
+  }
+  const notEvidenceFor = stringArray(preview["notEvidenceFor"]);
+  if (!notEvidenceFor || REQUIRED_NOT_EVIDENCE_FOR.some((flag) => !notEvidenceFor.includes(flag))) {
+    return "preview_not_evidence_for_mismatch";
+  }
+  return undefined;
+}
+
+function invalidBody(reason: string): DialogueSeedAuthoringPreviewFailure {
+  return { ok: false, error: "invalid_body", reason };
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function nonblank(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
+function stringArray(value: unknown): string[] | undefined {
+  if (!Array.isArray(value) || !value.every((entry) => typeof entry === "string")) {
+    return undefined;
+  }
+  return value;
 }
 
 function actorToCatalogPayload(actor: DialogueSeedActor): DialogueSeedActor {
