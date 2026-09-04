@@ -30,6 +30,7 @@ import {
   findScenarioFixtureById,
   scenarioBank,
 } from "@openclinxr/scenario-fixtures/scenario-bank";
+import type { TraceEvent } from "@openclinxr/shared-schemas";
 import type { GeneratedDriveScalarValue } from "./generated-drive-scalar.js";
 import {
   deriveRuntimeTraceActionTagsFromBundle,
@@ -756,26 +757,17 @@ export type RuntimeVisualEvidenceCaptureScaffold = {
   schemaVersion: "openclinxr.ui-xr-runtime-visual-evidence-capture-scaffold.v1";
   source: "ui_xr_manual_performance_evidence_payload";
   scenarioId: string;
-  // Rebalanced gen wire (2026-06): caseDerived* (emotionTimeline/runtimeExecutionHints from deriveBasic... in factory/ using peds commProfile + requiredTraceTags + triggers) flows here for runtime player stub. Full: from review packet caseDerivedActorTurnExpectations at handoff. UI-XR consumer is supporting ref only.
   caseDerivedEmotionSeed?: { baseEmotion: string; primaryCueIds: string[]; source: "case_spec_derivation" } | null;
-  // Integrated emotion step demo from machine stub for peds (rebalance)
   pedsEmotionStepDemo?: string | null;
   pedsDialoguePolicyDemo?: { style: string; topicsToAvoid: string[] } | null;
-  // Further integrated active demos using the step/policy for peds (active emotion/dialogue fields in runtime evidence)
   pedsActiveEmotionDemo?: string | null;
   pedsDialogueCueIdsDemo?: string[] | null;
-  // Player consumption of generated (rebalance continuation): peds case spec (via packet machines/policies + step) now drives active runtime player state in scaffold for UI-XR runtime-state to consume (current emotion + next cue for turn/gaze/lip/viseme drive in player loop). Desktop fallback. Gates false. Consumer ref only.
   pedsRuntimePlayerDemo?: { currentEmotion: string | null; nextCueId: string | null; source: "case-derived-step+policy"; visemeHint?: string } | null;
-  // Expanded to simple step loop (using triggers from peds spec/timeline): demonstrates player consuming sequence of generated emotion/dialogue turns from case (for locomotion/gaze/lip/viseme drive later). 
   pedsPlayerStepLoopDemo?: Array<{ trigger: string; emotion: string | null; cue: string | null }> | null;
-  // Full player loop consumption for peds (step the loop from case spec to drive current state over turns; for humanoid locomotion/gaze/lip/viseme in runtime player with desktop fallback).
   pedsPlayerLoopStep?: { totalSteps: number; currentAfterStep0: { trigger: string; emotion: string | null; cue: string | null }; currentAfterStep1: { trigger: string; emotion: string | null; cue: string | null }; source: "case-derived-loop-step" } | null;
-  // Full e2e replay evidence from generated (consume player loop/persistence for both peds+ed; review-safe trace for admin replay surfaces).
   pedsReplayEvidence?: { scenarioId: string; turnsReplayed: number; finalEmotion: string | null; finalCue: string | null; locomotion: boolean; gazeAversion: string | GeneratedDriveScalarValue; lipSyncViseme: string | GeneratedDriveScalarValue; source: "case-derived-player-loop-replay" } | null;
   edReplayEvidence?: { scenarioId: string; turnsReplayed: number; finalEmotion: string | null; finalCue: string | null; locomotion: boolean; gazeAversion: string | GeneratedDriveScalarValue; lipSyncViseme: string | GeneratedDriveScalarValue; source: "case-derived-player-loop-replay" } | null;
-  // Wired replay to runtime behavior (drive fields from replay for e2e player consumption; for peds+ed caseDerived).
   pedsRuntimeDrive?: { currentEmotion: string | null; currentCue: string | null; locomotion: boolean; gaze: string | GeneratedDriveScalarValue; lipSync: string | GeneratedDriveScalarValue; virtualEnv: string | null; gltfEnvWorld: { room: string | null; containerPolicy: string } | null; deeperVisualCue: { fromEnv: string | null; fromEmotion: string | null; cue: string; intensity: number; richerCuesApplied: boolean; source: "case-derived-richer-deeper-env" } | null; source: "case-derived-replay-drive" } | null;
-  // Virtual env from factory (user steering: after functional player chunk for conv/emotion, now factory for virtual env pipeline). Small piece of virtual env that runtime player will use (room/props from case, tech vetted Three+GLTF open source). Evident in scaffold data for encounter experience.
   caseDerivedVirtualEnvironment?: {
     scenarioId: string;
     roomType: string;
@@ -783,9 +775,7 @@ export type RuntimeVisualEvidenceCaptureScaffold = {
     techStack: { runtime: string; authoring: string; vetStatus: string; license: string; };
     source: string;
   } | null;
-  // Visual hint for running player/app (per user: make evident when running the app and usable by end users the virtual env setting for the encounter).
   virtualEnvForPlayer?: string | null;
-  // Small gltf handoff piece (tech vet gltf as interchange for virtual env player will use; factory materialization from case env + cues; loadable via three GLTFLoader in main.ts).
   gltfAssetUrlForEnv?: string | null;
   runtimeAssetBundleId: string | null;
   status: "metadata_only_attachment_candidates_not_submitted";
@@ -3529,10 +3519,7 @@ export function buildXrRuntimeReadinessDecision(
   };
 }
 
-/**
- * Conversation turn / history-taking coverage evidence for UI-XR HUD.
- * Coverage is TRACED domain coverage only — not a clinical or performance score.
- */
+/** Conversation HUD evidence: traced domain coverage only — not a score. */
 export type ConversationTurnStateEvidence = {
   source: "window.__openClinXrConversationTurnStateEvidence";
   scenarioId: string;
@@ -3597,10 +3584,6 @@ export function buildConversationTurnStateEvidence(input: {
   };
 }
 
-// Emotion state machine stub wired from peds case spec (rebalance continuation).
-// Consumes caseDerivedEmotionStateMachine (or equivalent timeline/triggers from review packet / derive in factory/).
-// Provides simple step for runtime player to advance activeEmotionState on learner cues/triggers.
-// Full version will drive expression, gaze, lip-sync, voice from the machine state. Consumer attachments remain supporting ref only.
 export function stepEmotionStateFromCaseMachine(
   machine: { initialEmotion: string; escalationTriggers: string[]; deescalationTriggers: string[] } | null,
   current: string | undefined,
@@ -3620,17 +3603,10 @@ export function stepEmotionStateFromCaseMachine(
   return current || machine.initialEmotion;
 }
 
-// Dialogue policy stub wired from peds case (rebalance). Provides actor-specific policy notes (style, avoid, adverse) for dialogue orchestration in runtime from case spec.
 export function getDialoguePolicyForActorFromCase(policy: { actors: Array<{ actorId: string; style: string; baselineMood: string[]; topicsToAvoid: string[]; adverseResponse: string }> } | null, actorId: string) {
   if (!policy) return null;
   return policy.actors.find((actor) => actor.actorId === actorId) || null;
 }
-
-// ---------------------------------------------------------------------------
-// Multi-station exam form run (learner runtime bridge to exam-assembly)
-// blueprint → assembleExamForm → createExamStationRunQueue → station advance
-// Form-level clock + ExamRunStationOutcome. examEquivalenceGate always false.
-// ---------------------------------------------------------------------------
 
 export type {
   AdvanceExamFormRunStationInput,
@@ -3655,15 +3631,10 @@ export type CreateMultiStationExamRuntimeInput = {
   examRunId: string;
   examFormId?: string;
   scenarios: CreateExamFormRunInput["scenarios"];
-  /** Defaults to step2cs-style seed blueprint sized to scenarios; single-station uses clinical pilot blueprint. */
   blueprint?: ExamBlueprint;
   start?: boolean;
 };
 
-/**
- * Build learner multi-station runtime state from blueprint assembly + station run queue.
- * Additive: single-station (1 scenario) still produces a valid complete-after-one-advance run.
- */
 export function createMultiStationExamRuntime(input: CreateMultiStationExamRuntimeInput): ExamFormRunState {
   const scenarios = [...input.scenarios];
   const blueprint = input.blueprint
@@ -3679,18 +3650,12 @@ export function createMultiStationExamRuntime(input: CreateMultiStationExamRunti
   return input.start === false ? run : startExamFormRun(run);
 }
 
-/**
- * Scenario id sequence for station-to-station navigation (null entries filtered).
- */
 export function examFormRunScenarioSequence(run: ExamFormRunState): string[] {
   return run.queue.stationQueue
     .map((station) => station.scenarioId)
     .filter((scenarioId): scenarioId is string => typeof scenarioId === "string" && scenarioId.length > 0);
 }
 
-/**
- * Form-level clock display helper (mm:ss form elapsed / remaining).
- */
 export function formatExamFormRunClock(run: ExamFormRunState): {
   elapsed: string;
   remaining: string;
@@ -3707,7 +3672,6 @@ export function formatExamFormRunClock(run: ExamFormRunState): {
   };
 }
 
-/** Persist station-run-queue snapshot via sink; options may carry #57/#88 markers. */
 export async function persistExamFormRunQueueSnapshot(
   run: ExamFormRunState,
   sink: ExamAssemblyPersistenceSink,
@@ -3720,4 +3684,57 @@ export async function persistExamFormRunQueueSnapshot(
     queue: run.queue,
   });
   return persistExamStationRunQueueSnapshot(sink, snapshot);
+}
+
+export const LEARNER_CANONICAL_PHASE_TYPES = ["encounter.started", "encounter.ended", "note.started", "note.submitted", "station.advanced"] as const;
+export type LearnerExamFlowPhase = "encounter" | "note" | "complete";
+export const LEARNER_EXAM_PHASE_NOT_EVIDENCE_FOR = ["exam_equivalence", "clinical_validity", "scoring_validity", "quest_readiness"] as const;
+const PHASE_RANK: Record<string, number> = { "encounter.started": 0, "encounter.ended": 1, "note.started": 2, "note.submitted": 3, "station.advanced": 4 };
+const PHASE_FROM_TYPE: Record<string, LearnerExamFlowPhase> = { "encounter.started": "encounter", "encounter.ended": "note", "note.started": "note", "note.submitted": "note", "station.advanced": "complete" };
+export type LearnerCanonicalPhaseTraceStore = { examRunId: string; stationRunId: string; scenarioId: string; stationOrder: number; events: TraceEvent[] };
+export type LearnerCanonicalExamPhaseView = { source: "canonical_assembled_exam_phase_trace" | "local_exam_flow_fallback"; fallbackActive: boolean; fallbackLabel: string | null; examRunId: string; scenarioId: string; stationOrder: number; phase: LearnerExamFlowPhase; lastAdvanceReason: string | null; lastAdmittedSequence: number | null; admittedCount: number; encounterEndedAtSecond: number | null; noteStartedAtSecond: number | null; noteSubmitted: boolean; examEquivalenceGate: false; claimBoundary: "learner_ui_xr_canonical_phase_trace_not_exam_equivalence"; notEvidenceFor: typeof LEARNER_EXAM_PHASE_NOT_EVIDENCE_FOR };
+export function createLearnerCanonicalPhaseTraceStore(input: Omit<LearnerCanonicalPhaseTraceStore, "events">): LearnerCanonicalPhaseTraceStore { return { ...input, events: [] }; }
+export function createLearnerCanonicalPhaseEvent(input: { stationRunId: string; sequence: number; eventType: (typeof LEARNER_CANONICAL_PHASE_TYPES)[number]; atSecond: number; scenarioId: string; examRunId: string; stationOrder: number; phase: LearnerExamFlowPhase; formAtSecond: number; advanceReason?: string }): TraceEvent {
+  const atSecond = Math.max(0, Math.floor(input.atSecond));
+  const payload: Record<string, unknown> = { scenarioId: input.scenarioId, examRunId: input.examRunId, stationOrder: input.stationOrder, phase: input.phase, formAtSecond: Math.max(0, Math.floor(input.formAtSecond)), durableEventRef: `durable://station-runs/${input.stationRunId}/events/${input.sequence}`, ...(input.advanceReason ? { advanceReason: input.advanceReason } : {}) };
+  return { stationRunId: input.stationRunId, sequence: input.sequence, eventType: input.eventType, occurredAt: new Date(Date.parse("2026-05-03T15:38:58.000Z") + atSecond * 1000).toISOString(), atSecond, source: "system", payload };
+}
+export function admitLearnerCanonicalPhaseEvent(store: LearnerCanonicalPhaseTraceStore, event: TraceEvent): { ok: true; store: LearnerCanonicalPhaseTraceStore } | { ok: false; reason: "non_monotonic_sequence" | "cross_run" | "unknown_event_type" | "missing_identity"; store: LearnerCanonicalPhaseTraceStore } {
+  if (!(LEARNER_CANONICAL_PHASE_TYPES as readonly string[]).includes(event.eventType)) return { ok: false, reason: "unknown_event_type", store };
+  const examRunId = String(event.payload["examRunId"] ?? ""); const scenarioId = String(event.payload["scenarioId"] ?? "");
+  if (!examRunId || !scenarioId || !event.stationRunId) return { ok: false, reason: "missing_identity", store };
+  if (examRunId !== store.examRunId || event.stationRunId !== store.stationRunId) return { ok: false, reason: "cross_run", store };
+  const last = store.events[store.events.length - 1];
+  if (last ? (event.sequence <= last.sequence || event.atSecond < last.atSecond || Number(event.payload["formAtSecond"] ?? 0) < Number(last.payload["formAtSecond"] ?? 0) || (PHASE_RANK[event.eventType] ?? -1) !== (PHASE_RANK[last.eventType] ?? -1) + 1) : (PHASE_RANK[event.eventType] ?? -1) > 1) return { ok: false, reason: "non_monotonic_sequence", store };
+  return { ok: true, store: { ...store, events: [...store.events, event] } };
+}
+export function restoreLearnerCanonicalPhaseTraceFromJson(store: LearnerCanonicalPhaseTraceStore, raw: string | null): LearnerCanonicalPhaseTraceStore {
+  try { if (!raw) return store; const parsed = JSON.parse(raw) as unknown; if (!Array.isArray(parsed)) return store; let current = store; for (const item of parsed) { const admitted = admitLearnerCanonicalPhaseEvent(current, item as TraceEvent); if (admitted.ok) current = admitted.store; } return current; } catch { return store; }
+}
+export function viewLearnerCanonicalExamPhase(store: LearnerCanonicalPhaseTraceStore): LearnerCanonicalExamPhaseView {
+  const last = store.events[store.events.length - 1]; const fallbackActive = store.events.length === 0;
+  const ofType = (eventType: string) => [...store.events].reverse().find((event) => event.eventType === eventType); const advanced = ofType("station.advanced");
+  return { source: fallbackActive ? "local_exam_flow_fallback" : "canonical_assembled_exam_phase_trace", fallbackActive, fallbackLabel: fallbackActive ? "local-only fallback — no admitted canonical phase trace for this exam run" : null, examRunId: store.examRunId, scenarioId: store.scenarioId, stationOrder: store.stationOrder, phase: last ? (PHASE_FROM_TYPE[last.eventType] ?? "encounter") : "encounter", lastAdvanceReason: typeof advanced?.payload["advanceReason"] === "string" ? String(advanced.payload["advanceReason"]) : last ? last.eventType : null, lastAdmittedSequence: last?.sequence ?? null, admittedCount: store.events.length, encounterEndedAtSecond: ofType("encounter.ended")?.atSecond ?? null, noteStartedAtSecond: ofType("note.started")?.atSecond ?? null, noteSubmitted: store.events.some((event) => event.eventType === "note.submitted"), examEquivalenceGate: false, claimBoundary: "learner_ui_xr_canonical_phase_trace_not_exam_equivalence", notEvidenceFor: LEARNER_EXAM_PHASE_NOT_EVIDENCE_FOR };
+}
+export type LearnerExamFlowIntent = { kind: "end_encounter" | "submit_note" | "encounter_timer_elapsed" | "note_timer_elapsed"; atSecond: number; formAtSecond: number; noteTextLength: number; nextScenarioId: string | null; autoAdvanceOnNoteTimeout?: boolean };
+export type LearnerCanonicalPhaseApplyResult = { store: LearnerCanonicalPhaseTraceStore; view: LearnerCanonicalExamPhaseView; admitted: boolean; refusalReason: string | null; navigateToScenarioId: string | null };
+function refuseApply(store: LearnerCanonicalPhaseTraceStore, refusalReason: string): LearnerCanonicalPhaseApplyResult { return { store, view: viewLearnerCanonicalExamPhase(store), admitted: false, refusalReason, navigateToScenarioId: null }; }
+function admitCreated(store: LearnerCanonicalPhaseTraceStore, event: TraceEvent): LearnerCanonicalPhaseApplyResult { const admitted = admitLearnerCanonicalPhaseEvent(store, event); return admitted.ok ? { store: admitted.store, view: viewLearnerCanonicalExamPhase(admitted.store), admitted: true, refusalReason: null, navigateToScenarioId: null } : refuseApply(store, admitted.reason); }
+export function applyLearnerExamFlowIntent(store: LearnerCanonicalPhaseTraceStore, intent: LearnerExamFlowIntent): LearnerCanonicalPhaseApplyResult {
+  const view = viewLearnerCanonicalExamPhase(store); const seq = (store.events[store.events.length - 1]?.sequence ?? -1) + 1;
+  const base = { stationRunId: store.stationRunId, atSecond: intent.atSecond, scenarioId: store.scenarioId, examRunId: store.examRunId, stationOrder: store.stationOrder, formAtSecond: intent.formAtSecond };
+  if (intent.kind === "end_encounter" || intent.kind === "encounter_timer_elapsed") {
+    if (view.phase !== "encounter") return refuseApply(store, `ignored_end_encounter_during_${view.phase}`);
+    const ended = admitCreated(store, createLearnerCanonicalPhaseEvent({ ...base, sequence: seq, eventType: "encounter.ended", phase: "encounter" }));
+    if (!ended.admitted) return ended;
+    return admitCreated(ended.store, createLearnerCanonicalPhaseEvent({ ...base, sequence: seq + 1, eventType: "note.started", phase: "note" }));
+  }
+  if (view.phase !== "note") return refuseApply(store, `blocked_submit_note_during_${view.phase}`);
+  if (intent.kind === "note_timer_elapsed" && intent.autoAdvanceOnNoteTimeout === false) return refuseApply(store, "note_timer_elapsed_auto_advance_disabled");
+  if (intent.noteTextLength <= 0) return refuseApply(store, intent.kind === "note_timer_elapsed" ? "note_timer_elapsed_patient_note_required" : "blocked_empty_patient_note");
+  const advanceReason = intent.nextScenarioId ? "patient_note_submitted_advancing" : "last_station_note_submitted_exam_complete";
+  const submitted = admitCreated(store, createLearnerCanonicalPhaseEvent({ ...base, sequence: seq, eventType: "note.submitted", phase: "note" }));
+  if (!submitted.admitted) return submitted;
+  const advanced = admitCreated(submitted.store, createLearnerCanonicalPhaseEvent({ ...base, sequence: seq + 1, eventType: "station.advanced", phase: "complete", advanceReason }));
+  return { ...advanced, navigateToScenarioId: intent.nextScenarioId };
 }

@@ -215,8 +215,14 @@ import {
   mapHandGestureLocomotionVector,
   meshHandModelProfile,
   meshHandRepresentationKind,
+  applyLearnerExamFlowIntent,
+  createLearnerCanonicalPhaseTraceStore,
+  type LearnerCanonicalPhaseTraceStore,
+  type LearnerExamFlowPhase,
   nextExamFormRunStation,
   persistExamFormRunQueueSnapshot,
+  restoreLearnerCanonicalPhaseTraceFromJson,
+  viewLearnerCanonicalExamPhase,
   primitiveHandModelProfile,
   primitiveHandRepresentationKind,
   type ReadableVrTextPanelEvidence,
@@ -416,16 +422,17 @@ type OpenClinXrXrEntryEvidence = {
   lastError: string | null;
 };
 
-type ExamFlowPhase = "encounter" | "note" | "complete";
-
 type OpenClinXrExamFlowEvidence = {
-  source: "local_exam_flow_runtime";
+  source: "canonical_assembled_exam_phase_trace" | "local_exam_flow_fallback";
+  fallbackActive: boolean;
+  fallbackLabel: string | null;
   examRunId: string;
   scenarioId: string;
   scenarioIndex: number;
   totalScenarios: number;
   nextScenarioId: string | null;
-  phase: ExamFlowPhase;
+  phase: LearnerExamFlowPhase;
+  examEquivalenceGate: false;
   encounterDurationSeconds: number;
   noteDurationSeconds: number;
   encounterElapsedSeconds: number;
@@ -444,7 +451,7 @@ type OpenClinXrExamFlowEvidence = {
 type ExamRunStationOutcome = {
   scenarioId: string;
   scenarioIndex: number;
-  phase: ExamFlowPhase;
+  phase: LearnerExamFlowPhase;
   noteTextLength: number;
   noteSubmitted: boolean;
   lastAdvanceReason: string | null;
@@ -1891,12 +1898,19 @@ const examRunId = configuredExamRunId();
 const examEncounterDurationSeconds = positiveIntegerQueryParam("examEncounterSeconds", 900);
 const examNoteDurationSeconds = positiveIntegerQueryParam("examNoteSeconds", 600);
 const examAutoAdvanceOnNoteTimeout = booleanQueryParam("examAutoAdvanceOnNoteTimeout", true);
-let examFlowPhase: ExamFlowPhase = "encounter";
-let examEncounterEndedAtSecond: number | null = null;
-let examNoteStartedAtSecond: number | null = null;
-let examNoteSubmitted = false;
+const examPhaseTraceStorageKey = `openclinxr.canonicalExamPhaseTrace.${examRunId}.${examScenarioId}`;
+const examStationRunId = `station_run_${examRunId}_${examScenarioId}_${examScenarioIndex + 1}`;
+let examPhaseStore: LearnerCanonicalPhaseTraceStore = restoreLearnerCanonicalPhaseTraceFromJson(
+  createLearnerCanonicalPhaseTraceStore({
+    examRunId,
+    stationRunId: examStationRunId,
+    scenarioId: examScenarioId,
+    stationOrder: examScenarioIndex + 1,
+  }),
+  window.localStorage.getItem(examPhaseTraceStorageKey),
+);
+let examPhaseRefusalReason: string | null = null;
 let examNoteTimeoutHandled = false;
-let examLastAdvanceReason: string | null = null;
 const examNoteStorageKey = `openclinxr.patientNote.${examRunId}.${examScenarioId}`;
 const examRunSummaryStorageKey = `openclinxr.examRunSummary.${examRunId}`;
 
@@ -2094,43 +2108,29 @@ patientNoteText.addEventListener("input", () => {
   updateExamFlowEvidence();
 });
 
-endEncounterButton.addEventListener("click", () => {
-  if (examFlowPhase !== "encounter") {
-    examLastAdvanceReason = `ignored_end_encounter_during_${examFlowPhase}`;
-    updateExamFlowEvidence();
-    return;
-  }
-  examFlowPhase = "note";
-  examEncounterEndedAtSecond = state.elapsedSecond;
-  examNoteStartedAtSecond = state.elapsedSecond;
-  examLastAdvanceReason = "encounter_ended_note_phase_started";
+function applyExamFlowIntent(kind: "end_encounter" | "submit_note" | "encounter_timer_elapsed" | "note_timer_elapsed"): void {
+  const applied = applyLearnerExamFlowIntent(examPhaseStore, {
+    kind,
+    atSecond: state.elapsedSecond,
+    formAtSecond: formElapsedSecondForCurrentStation(),
+    noteTextLength: patientNoteText.value.trim().length,
+    nextScenarioId: nextExamScenarioId(),
+    autoAdvanceOnNoteTimeout: examAutoAdvanceOnNoteTimeout,
+  });
+  examPhaseStore = applied.store;
+  examPhaseRefusalReason = applied.refusalReason;
+  window.localStorage.setItem(examPhaseTraceStorageKey, JSON.stringify(examPhaseStore.events));
+  if (applied.admitted && applied.view.noteSubmitted) recordExamRunStationOutcome();
   updateExamFlowEvidence();
+  if (applied.navigateToScenarioId) navigateToExamScenario(applied.navigateToScenarioId);
+}
+
+endEncounterButton.addEventListener("click", () => {
+  applyExamFlowIntent("end_encounter");
 });
 
 submitNoteButton.addEventListener("click", () => {
-  if (examFlowPhase !== "note") {
-    examLastAdvanceReason = `blocked_submit_note_during_${examFlowPhase}`;
-    updateExamFlowEvidence();
-    return;
-  }
-  if (patientNoteText.value.trim().length === 0) {
-    examLastAdvanceReason = "blocked_empty_patient_note";
-    updateExamFlowEvidence();
-    return;
-  }
-  examNoteSubmitted = true;
-  const nextScenarioId = nextExamScenarioId();
-  if (!nextScenarioId) {
-    examFlowPhase = "complete";
-    examLastAdvanceReason = "last_station_note_submitted_exam_complete";
-    recordExamRunStationOutcome();
-    updateExamFlowEvidence();
-    return;
-  }
-  examLastAdvanceReason = `patient_note_submitted_advancing_to_${nextScenarioId}`;
-  recordExamRunStationOutcome();
-  updateExamFlowEvidence();
-  navigateToExamScenario(nextScenarioId);
+  applyExamFlowIntent("submit_note");
 });
 
 copyEvidenceButton.addEventListener("click", () => {
@@ -2260,9 +2260,9 @@ function recordExamRunStationOutcome(): void {
   if (examFormRunState) {
     examFormRunState = tickExamFormRunClock(examFormRunState, formSecond);
     examFormRunState = advanceExamFormRunStation(examFormRunState, {
-      phase: examFlowPhase === "complete" ? "complete" : examNoteSubmitted ? "complete" : examFlowPhase,
-      noteSubmitted: examNoteSubmitted,
-      advanceReason: examLastAdvanceReason,
+      phase: viewLearnerCanonicalExamPhase(examPhaseStore).phase,
+      noteSubmitted: viewLearnerCanonicalExamPhase(examPhaseStore).noteSubmitted,
+      advanceReason: examPhaseRefusalReason ?? viewLearnerCanonicalExamPhase(examPhaseStore).lastAdvanceReason,
       endedAtFormSecond: formSecond,
       recordedAtIso: new Date().toISOString(),
     });
@@ -2286,10 +2286,10 @@ function recordExamRunStationOutcome(): void {
   const nextOutcome: ExamRunStationOutcome = {
     scenarioId: examScenarioId,
     scenarioIndex: examScenarioIndex,
-    phase: examFlowPhase,
+    phase: viewLearnerCanonicalExamPhase(examPhaseStore).phase,
     noteTextLength: patientNoteText.value.trim().length,
-    noteSubmitted: examNoteSubmitted,
-    lastAdvanceReason: examLastAdvanceReason,
+    noteSubmitted: viewLearnerCanonicalExamPhase(examPhaseStore).noteSubmitted,
+    lastAdvanceReason: examPhaseRefusalReason ?? viewLearnerCanonicalExamPhase(examPhaseStore).lastAdvanceReason,
     recordedAtIso: formOutcome?.recordedAtIso ?? new Date().toISOString(),
     stationOrder: formOutcome?.stationOrder ?? examScenarioIndex + 1,
     endedAtFormSecond: formOutcome?.endedAtFormSecond ?? formSecond,
@@ -2307,19 +2307,23 @@ function recordExamRunStationOutcome(): void {
 
 function updateExamFlowEvidence(): OpenClinXrExamFlowEvidence {
   const nextScenarioId = nextExamScenarioId();
-  const noteElapsedSeconds = examNoteStartedAtSecond === null ? 0 : Math.max(0, state.elapsedSecond - examNoteStartedAtSecond);
-  const encounterElapsedSeconds = examEncounterEndedAtSecond === null
+  const phaseView = viewLearnerCanonicalExamPhase(examPhaseStore);
+  const noteElapsedSeconds = phaseView.noteStartedAtSecond === null ? 0 : Math.max(0, state.elapsedSecond - phaseView.noteStartedAtSecond);
+  const encounterElapsedSeconds = phaseView.encounterEndedAtSecond === null
     ? state.elapsedSecond
-    : Math.max(0, examEncounterEndedAtSecond);
+    : Math.max(0, phaseView.encounterEndedAtSecond);
   const noteTextLength = patientNoteText.value.trim().length;
   const evidence: OpenClinXrExamFlowEvidence = {
-    source: "local_exam_flow_runtime",
+    source: phaseView.source,
+    fallbackActive: phaseView.fallbackActive,
+    fallbackLabel: phaseView.fallbackLabel,
     examRunId,
     scenarioId: examScenarioId,
     scenarioIndex: examScenarioIndex,
     totalScenarios: examNormalizedSequence.length,
     nextScenarioId,
-    phase: examFlowPhase,
+    phase: phaseView.phase,
+    examEquivalenceGate: false,
     encounterDurationSeconds: examEncounterDurationSeconds,
     noteDurationSeconds: examNoteDurationSeconds,
     encounterElapsedSeconds,
@@ -2327,11 +2331,11 @@ function updateExamFlowEvidence(): OpenClinXrExamFlowEvidence {
     encounterRemainingSeconds: Math.max(0, examEncounterDurationSeconds - encounterElapsedSeconds),
     noteRemainingSeconds: Math.max(0, examNoteDurationSeconds - noteElapsedSeconds),
     noteTextLength,
-    noteSubmitted: examNoteSubmitted,
-    noteTimeoutElapsed: examFlowPhase === "note" && noteElapsedSeconds >= examNoteDurationSeconds,
-    canAdvanceToNextEncounter: examFlowPhase === "note" && noteTextLength > 0,
+    noteSubmitted: phaseView.noteSubmitted,
+    noteTimeoutElapsed: phaseView.phase === "note" && noteElapsedSeconds >= examNoteDurationSeconds,
+    canAdvanceToNextEncounter: phaseView.phase === "note" && noteTextLength > 0,
     autoAdvanceOnNoteTimeout: examAutoAdvanceOnNoteTimeout,
-    lastAdvanceReason: examLastAdvanceReason,
+    lastAdvanceReason: examPhaseRefusalReason ?? phaseView.lastAdvanceReason,
     acceleratedByQuery: examEncounterDurationSeconds !== 900 || examNoteDurationSeconds !== 600,
   };
   window.__openClinXrExamFlowEvidence = evidence;
@@ -2342,55 +2346,29 @@ function updateExamFlowEvidence(): OpenClinXrExamFlowEvidence {
     : evidence.phase === "complete"
       ? "exam sequence complete"
       : `encounter ${formatStationClock(evidence.encounterElapsedSeconds)} / ${formatStationClock(evidence.encounterDurationSeconds)}`;
-  examFlowAdvance.textContent = evidence.canAdvanceToNextEncounter
-    ? `ready for ${nextScenarioId ?? "completion"}`
-    : evidence.lastAdvanceReason ?? "complete encounter, then submit a non-empty patient note";
+  examFlowAdvance.textContent = evidence.fallbackActive && evidence.fallbackLabel
+    ? evidence.fallbackLabel
+    : evidence.canAdvanceToNextEncounter
+      ? `ready for ${nextScenarioId ?? "completion"}`
+      : evidence.lastAdvanceReason ?? "complete encounter, then submit a non-empty patient note";
   endEncounterButton.disabled = evidence.phase !== "encounter";
   submitNoteButton.disabled = evidence.phase !== "note";
   return evidence;
 }
 
 function advanceExamFlowForElapsedTime(): void {
-  if (examFlowPhase !== "encounter" || examEncounterEndedAtSecond !== null) {
-    return;
-  }
-  if (state.elapsedSecond < examEncounterDurationSeconds) {
-    return;
-  }
-  examFlowPhase = "note";
-  examEncounterEndedAtSecond = examEncounterDurationSeconds;
-  examNoteStartedAtSecond = state.elapsedSecond;
-  examLastAdvanceReason = "encounter_timer_elapsed_note_phase_started";
+  const phaseView = viewLearnerCanonicalExamPhase(examPhaseStore);
+  if (phaseView.phase !== "encounter" || phaseView.encounterEndedAtSecond !== null) return;
+  if (state.elapsedSecond < examEncounterDurationSeconds) return;
+  applyExamFlowIntent("encounter_timer_elapsed");
 }
 
 function advanceExamNoteForElapsedTime(): void {
-  if (examFlowPhase !== "note" || examNoteStartedAtSecond === null || examNoteTimeoutHandled) {
-    return;
-  }
-  if (state.elapsedSecond - examNoteStartedAtSecond < examNoteDurationSeconds) {
-    return;
-  }
+  const phaseView = viewLearnerCanonicalExamPhase(examPhaseStore);
+  if (phaseView.phase !== "note" || phaseView.noteStartedAtSecond === null || examNoteTimeoutHandled) return;
+  if (state.elapsedSecond - phaseView.noteStartedAtSecond < examNoteDurationSeconds) return;
   examNoteTimeoutHandled = true;
-  if (!examAutoAdvanceOnNoteTimeout) {
-    examLastAdvanceReason = "note_timer_elapsed_auto_advance_disabled";
-    return;
-  }
-  if (patientNoteText.value.trim().length === 0) {
-    examLastAdvanceReason = "note_timer_elapsed_patient_note_required";
-    return;
-  }
-  examNoteSubmitted = true;
-  const nextScenarioId = nextExamScenarioId();
-  if (!nextScenarioId) {
-    examFlowPhase = "complete";
-    examLastAdvanceReason = "note_timer_elapsed_last_station_complete";
-    recordExamRunStationOutcome();
-    return;
-  }
-  examLastAdvanceReason = `note_timer_elapsed_advancing_to_${nextScenarioId}`;
-  recordExamRunStationOutcome();
-  updateExamFlowEvidence();
-  navigateToExamScenario(nextScenarioId);
+  applyExamFlowIntent("note_timer_elapsed");
 }
 
 function recordTraceSelectLatency(
@@ -3245,11 +3223,8 @@ function updatePortalTransitionEvidence(locomotionRig: Group, camera: Perspectiv
       : "dynamic_encounter_world";
   if (!portalEncounterEntered && side === "dynamic_encounter_world") {
     portalEncounterEntered = true;
-    portalEncounterStartedByPortal = examFlowPhase === "encounter";
+    portalEncounterStartedByPortal = viewLearnerCanonicalExamPhase(examPhaseStore).phase === "encounter";
     portalLastTransitionReason = "portal_crossed_into_dynamic_encounter_world";
-    if (examFlowPhase === "encounter") {
-      examLastAdvanceReason = "portal_crossing_started_or_resumed_encounter";
-    }
   }
   const portalInteriorHiddenObjectNames = updateReusableExteriorAnteroomVisibility(side);
   const reusableExteriorHiddenForEncounterView = side === "dynamic_encounter_world";
