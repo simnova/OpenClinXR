@@ -16,7 +16,10 @@ import type {
   ApiScenarioSceneGenerationRequestRecord,
 } from "./api-types.js";
 import { createOpenClinXrApiProtocolPosture, type OpenClinXrApiProtocolPosture } from "./protocol-support.js";
-import type { ApiAssembledExamRunRecord } from "./runtime-durable-store.js";
+import type {
+  ApiAssembledExamDispositionRecord,
+  ApiAssembledExamRunRecord,
+} from "./runtime-durable-store.js";
 
 /**
  * Typed composition context for the API app (composition-root pattern).
@@ -51,6 +54,8 @@ export type ApiAppContext = {
   readonly assembledExamReviewPackets: Map<string, AssembledExamReviewPacket>;
   /** examRunId → assembled-exam run aggregate published after durable save. */
   readonly assembledExamRuns: Map<string, ApiAssembledExamRunRecord>;
+  /** examRunId → append-only faculty disposition aggregate published after durable save. */
+  readonly assembledExamDispositions: Map<string, ApiAssembledExamDispositionRecord>;
   /** stationRunId → ScenarioRuntime for sessions started with a non-default scenarioId. */
   readonly perSessionRuntime: Map<string, ScenarioRuntime>;
   readonly adminScenarioOverrides: Map<string, AdminGraphqlScenario>;
@@ -109,6 +114,7 @@ export function createApiAppContext(
     examRunOwners: new Map<string, string>(),
     assembledExamReviewPackets: new Map<string, AssembledExamReviewPacket>(),
     assembledExamRuns: new Map<string, ApiAssembledExamRunRecord>(),
+    assembledExamDispositions: new Map<string, ApiAssembledExamDispositionRecord>(),
     perSessionRuntime: new Map<string, ScenarioRuntime>(),
     adminScenarioOverrides: new Map<string, AdminGraphqlScenario>(),
     sceneGenerationRequests,
