@@ -3,9 +3,12 @@ import type { ScenarioRuntimeActorTurn } from "@openclinxr/scenario-runtime";
 import { describe, expect, it, vi } from "vitest";
 import type { ApiPersistenceSink } from "./api-types.js";
 import {
+  assembledExamDispositionClaimBoundary,
+  assembledExamDispositionNotEvidenceFor,
   assembledExamRunClaimBoundary,
   assembledExamRunNotEvidenceFor,
   createScenarioRuntimeDurableStoreFromApiPersistence,
+  type ApiAssembledExamDispositionRecord,
   type ApiAssembledExamRunRecord,
 } from "./runtime-durable-store.js";
 
@@ -55,6 +58,8 @@ describe("createScenarioRuntimeDurableStoreFromApiPersistence", () => {
     await expect(Promise.resolve(store.getAssembledExamReviewPacket("exam_x"))).resolves.toBeUndefined();
     await expect(Promise.resolve(store.saveAssembledExamRun("exam_x", {} as never))).resolves.toBeUndefined();
     await expect(Promise.resolve(store.getAssembledExamRun("exam_x"))).resolves.toBeUndefined();
+    await expect(Promise.resolve(store.saveAssembledExamDisposition("exam_x", {} as never))).resolves.toBeUndefined();
+    await expect(Promise.resolve(store.getAssembledExamDisposition("exam_x"))).resolves.toBeUndefined();
   });
 
   it("forwards exam-run packet save and get without flattening stations", async () => {
@@ -133,6 +138,52 @@ describe("createScenarioRuntimeDurableStoreFromApiPersistence", () => {
     const loaded = await store.getAssembledExamRun(record.examRunId);
     expect(loaded).toBe(record);
     expect(loaded?.orderedStations).toHaveLength(2);
+    expect(saved).toHaveLength(1);
+  });
+
+  it("forwards assembled-exam disposition save and get without mutating the evidence packet", async () => {
+    const saved: ApiAssembledExamDispositionRecord[] = [];
+    const sink: ApiPersistenceSink = {
+      saveAssembledExamDisposition: (examRunId, record) => {
+        expect(examRunId).toBe(record.examRunId);
+        saved.push(record);
+      },
+      getAssembledExamDisposition: (examRunId) => saved.find((record) => record.examRunId === examRunId),
+    };
+    const store = createScenarioRuntimeDurableStoreFromApiPersistence(sink);
+    const evidencePacket = {
+      examRunId: "exam_run_learner_phase_001",
+      learnerId: "learner_phase_001",
+      stations: [{ identity: { examRunId: "exam_run_learner_phase_001", stationRunId: "run_a" } }],
+    } as unknown as AssembledExamReviewPacket;
+    const record: ApiAssembledExamDispositionRecord = {
+      examRunId: "exam_run_learner_phase_001",
+      packetDigest: "abc",
+      evidencePacket,
+      decisions: [
+        {
+          decisionId: "d1",
+          examRunId: "exam_run_learner_phase_001",
+          reviewerId: "faculty_disposition_001",
+          packetDigest: "abc",
+          disposition: "hold",
+          status: "draft",
+          rationale: "Hold.",
+          attestedAt: "2026-09-04T10:00:00.000Z",
+          sequence: 1,
+        },
+      ],
+      claimBoundary: assembledExamDispositionClaimBoundary,
+      notEvidenceFor: assembledExamDispositionNotEvidenceFor,
+      scoringValidityClaimed: false,
+      examEquivalenceGate: false,
+    };
+
+    await store.saveAssembledExamDisposition(record.examRunId, record);
+    const loaded = await store.getAssembledExamDisposition(record.examRunId);
+    expect(loaded).toBe(record);
+    expect(loaded?.evidencePacket).toBe(evidencePacket);
+    expect(loaded?.decisions).toHaveLength(1);
     expect(saved).toHaveLength(1);
   });
 });

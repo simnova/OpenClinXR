@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import type { ExamForm, ExamTimingPlan } from "@openclinxr/exam-assembly";
 import type {
   AssembledExamPhase,
@@ -82,8 +83,75 @@ export type AssembledExamRunDurableStore = {
   ): Promise<ApiAssembledExamRunRecord | undefined> | ApiAssembledExamRunRecord | undefined;
 };
 
+export const assembledExamDispositionClaimBoundary =
+  "assembled_exam_faculty_disposition_not_score_use" as const;
+
+export const assembledExamDispositionNotEvidenceFor = [
+  "exam_equivalence",
+  "clinical_validity",
+  "scoring_validity",
+  "automated_scoring",
+  "credentialing",
+  "production_deployment",
+] as const;
+
+export const ASSEMBLED_EXAM_DISPOSITION_VALUES = [
+  "hold",
+  "needs_revision",
+  "local_debrief_ready",
+] as const;
+
+export type AssembledExamDispositionValue = (typeof ASSEMBLED_EXAM_DISPOSITION_VALUES)[number];
+export type AssembledExamDispositionStatus = "draft" | "final";
+
+/** One attested faculty disposition. Append-only; never rewritten in place. */
+export type ApiAssembledExamDispositionDecision = {
+  decisionId: string;
+  examRunId: string;
+  reviewerId: string;
+  packetDigest: string;
+  disposition: AssembledExamDispositionValue;
+  status: AssembledExamDispositionStatus;
+  rationale: string;
+  attestedAt: string;
+  sequence: number;
+};
+
+/**
+ * Durable faculty disposition aggregate. Evidence packet is stored by reference
+ * to the immutable assembled-review artifact; decisions are an append-only trail.
+ */
+export type ApiAssembledExamDispositionRecord = {
+  examRunId: string;
+  packetDigest: string;
+  evidencePacket: AssembledExamReviewPacket;
+  decisions: readonly ApiAssembledExamDispositionDecision[];
+  claimBoundary: typeof assembledExamDispositionClaimBoundary;
+  notEvidenceFor: typeof assembledExamDispositionNotEvidenceFor;
+  scoringValidityClaimed: false;
+  examEquivalenceGate: false;
+};
+
+export type AssembledExamDispositionDurableStore = {
+  saveAssembledExamDisposition(
+    examRunId: string,
+    record: ApiAssembledExamDispositionRecord,
+  ): void | Promise<void>;
+  getAssembledExamDisposition(
+    examRunId: string,
+  ): Promise<ApiAssembledExamDispositionRecord | undefined> | ApiAssembledExamDispositionRecord | undefined;
+};
+
 export type ApiRuntimeDurableStore =
-  ScenarioRuntimeDurableStore & AssembledExamReviewDurableStore & AssembledExamRunDurableStore;
+  ScenarioRuntimeDurableStore
+  & AssembledExamReviewDurableStore
+  & AssembledExamRunDurableStore
+  & AssembledExamDispositionDurableStore;
+
+/** SHA-256 hex of the stored assembled evidence packet. Stale-digest checks use this. */
+export function assembledExamPacketDigest(packet: AssembledExamReviewPacket): string {
+  return createHash("sha256").update(JSON.stringify(packet)).digest("hex");
+}
 
 /**
  * Adapts API persistence sink methods into ScenarioRuntime's optional durableStore
@@ -112,6 +180,12 @@ export function createScenarioRuntimeDurableStoreFromApiPersistence(
     },
     getAssembledExamRun(examRunId) {
       return sink.getAssembledExamRun?.(examRunId);
+    },
+    saveAssembledExamDisposition(examRunId, record) {
+      return sink.saveAssembledExamDisposition?.(examRunId, record);
+    },
+    getAssembledExamDisposition(examRunId) {
+      return sink.getAssembledExamDisposition?.(examRunId);
     },
   };
 }
