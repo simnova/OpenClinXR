@@ -1,0 +1,61 @@
+fragment FacultyDispositionTrailFields on FacultyDispositionTrail {
+  examRunId
+  packetDigest
+  evidencePacket {
+    examRunId
+    packetDigest
+    learnerId
+    stationRunIds
+    claimBoundary
+    notEvidenceFor
+    examEquivalenceGate
+  }
+  decisions {
+    decisionId
+    examRunId
+    reviewerId
+    packetDigest
+    disposition
+    status
+    rationale
+    attestedAt
+    sequence
+  }
+  current {
+    decisionId
+    examRunId
+    reviewerId
+    packetDigest
+    disposition
+    status
+    rationale
+    attestedAt
+    sequence
+  }
+  claimBoundary
+  notEvidenceFor
+  scoringValidityClaimed
+  examEquivalenceGate
+}
+
+fragment FacultyDispositionRefusalFields on FacultyDispositionRefusal {
+  code
+  reason
+  notEvidenceFor
+  scoringValidityClaimed
+  examEquivalenceGate
+}
+
+query AssembledExamFacultyDisposition($examRunId: ID!) {
+  assembledExamFacultyDisposition(examRunId: $examRunId) {
+    ...FacultyDispositionTrailFields
+  }
+}
+
+mutation AppendAssembledExamFacultyDisposition($input: AppendFacultyDispositionInput!) {
+  appendAssembledExamFacultyDisposition(input: $input) {
+    __typename
+    ...FacultyDispositionTrailFields
+    ...FacultyDispositionRefusalFields
+  }
+}

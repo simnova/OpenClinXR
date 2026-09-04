@@ -23,6 +23,7 @@ type Query {
   reviewReplayReadinessSummary(stationRunId: ID!): ReviewReplayReadinessSummary!
   traceEvents(stationRunId: ID!): [TraceEvent!]!
   assetReadiness(scenarioId: ID!, version: Int!): AssetReadiness!
+  assembledExamFacultyDisposition(examRunId: ID!): FacultyDispositionTrail
 }
 
 type Mutation {
@@ -30,6 +31,7 @@ type Mutation {
   createStationRunQueueSnapshot(input: CreateStationRunQueueSnapshotInput!): StationRunQueueSnapshot!
   submitScenarioReview(input: ScenarioReviewDecisionInput!): Scenario!
   saveFacultyScoreDraft(input: FacultyScoreDraftInput!): ReviewPacket!
+  appendAssembledExamFacultyDisposition(input: AppendFacultyDispositionInput!): AppendFacultyDispositionResult!
 }
 
 type Scenario {
@@ -482,4 +484,127 @@ input FacultyScoreDraftInput {
   reviewerId: ID!
   comments: String!
   rubricScores: JSON!
+}
+
+enum FacultyDispositionValue {
+  hold
+  needs_revision
+  local_debrief_ready
+}
+
+enum FacultyDispositionStatus {
+  draft
+  final
+}
+
+enum FacultyDispositionRefusalCode {
+  stale_packet_digest
+  producer_self_review
+  identity_mutation
+  overwrite_refused
+  finalized
+}
+
+type AssembledExamEvidencePacket {
+  examRunId: ID!
+  packetDigest: String!
+  learnerId: ID
+  stationRunIds: [ID!]!
+  claimBoundary: String!
+  notEvidenceFor: [String!]!
+  examEquivalenceGate: Boolean!
+}
+
+type FacultyDispositionDecision {
+  decisionId: ID!
+  examRunId: ID!
+  reviewerId: ID!
+  packetDigest: String!
+  disposition: FacultyDispositionValue!
+  status: FacultyDispositionStatus!
+  rationale: String!
+  attestedAt: String!
+  sequence: Int!
+}
+
+type FacultyDispositionTrail {
+  examRunId: ID!
+  packetDigest: String!
+  evidencePacket: AssembledExamEvidencePacket!
+  decisions: [FacultyDispositionDecision!]!
+  current: FacultyDispositionDecision
+  claimBoundary: String!
+  notEvidenceFor: [String!]!
+  scoringValidityClaimed: Boolean!
+  examEquivalenceGate: Boolean!
+}
+
+interface FacultyDispositionRefusal {
+  code: FacultyDispositionRefusalCode!
+  reason: String!
+  notEvidenceFor: [String!]!
+  scoringValidityClaimed: Boolean!
+  examEquivalenceGate: Boolean!
+}
+
+type FacultyDispositionStaleDigest implements FacultyDispositionRefusal {
+  code: FacultyDispositionRefusalCode!
+  reason: String!
+  notEvidenceFor: [String!]!
+  scoringValidityClaimed: Boolean!
+  examEquivalenceGate: Boolean!
+}
+
+type FacultyDispositionProducerSelfReview implements FacultyDispositionRefusal {
+  code: FacultyDispositionRefusalCode!
+  reason: String!
+  notEvidenceFor: [String!]!
+  scoringValidityClaimed: Boolean!
+  examEquivalenceGate: Boolean!
+}
+
+type FacultyDispositionIdentityMutation implements FacultyDispositionRefusal {
+  code: FacultyDispositionRefusalCode!
+  reason: String!
+  notEvidenceFor: [String!]!
+  scoringValidityClaimed: Boolean!
+  examEquivalenceGate: Boolean!
+}
+
+type FacultyDispositionOverwriteRefused implements FacultyDispositionRefusal {
+  code: FacultyDispositionRefusalCode!
+  reason: String!
+  notEvidenceFor: [String!]!
+  scoringValidityClaimed: Boolean!
+  examEquivalenceGate: Boolean!
+}
+
+type FacultyDispositionPostFinalization implements FacultyDispositionRefusal {
+  code: FacultyDispositionRefusalCode!
+  reason: String!
+  notEvidenceFor: [String!]!
+  scoringValidityClaimed: Boolean!
+  examEquivalenceGate: Boolean!
+}
+
+union AppendFacultyDispositionResult =
+  FacultyDispositionTrail
+  | FacultyDispositionStaleDigest
+  | FacultyDispositionProducerSelfReview
+  | FacultyDispositionIdentityMutation
+  | FacultyDispositionOverwriteRefused
+  | FacultyDispositionPostFinalization
+
+input AppendFacultyDispositionInput {
+  examRunId: ID!
+  reviewerId: ID!
+  packetDigest: String!
+  disposition: FacultyDispositionValue!
+  status: FacultyDispositionStatus!
+  rationale: String!
+  attestedAt: String!
+  decisionId: ID
+  learnerId: ID
+  evidencePacket: JSON
+  decisions: JSON
 }

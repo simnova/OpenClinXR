@@ -4,7 +4,11 @@ import { adminGraphqlFieldResolver, openClinXrAdminSchemaSdl } from "./schema.js
 export { type AdminGraphqlDocument, adminGraphqlDocumentByOperationName, adminGraphqlDocuments } from "./documents.js";
 export {
   adminGraphqlFieldResolver,
+  FACULTY_DISPOSITION_CLAIM_BOUNDARY,
+  FACULTY_DISPOSITION_NOT_EVIDENCE_FOR,
   openClinXrAdminSchemaSdl,
+  projectAppendFacultyDispositionResult,
+  projectFacultyDispositionTrail,
   projectReviewPacketActorTurnLayers,
   REVIEW_PACKET_ACTOR_TURN_CLAIM_SCOPE,
 } from "./schema.js";
@@ -12,9 +16,11 @@ export {
 import type {
   AssetReadiness,
   DurableClinicalEventReviewSummary,
+  MutationAppendAssembledExamFacultyDispositionArgs,
   MutationCreateStationRunQueueSnapshotArgs,
   MutationSaveFacultyScoreDraftArgs,
   MutationSubmitScenarioReviewArgs,
+  QueryAssembledExamFacultyDispositionArgs,
   QueryAssetReadinessArgs,
   QueryClinicalEventReviewSummaryArgs,
   QueryReviewPacketArgs,
@@ -95,6 +101,12 @@ export type AdminGraphqlRootValue = {
   saveFacultyScoreDraft?: (
     args: MutationSaveFacultyScoreDraftArgs,
   ) => Promise<ReviewPacket | Record<string, unknown>> | ReviewPacket | Record<string, unknown>;
+  assembledExamFacultyDisposition?: (
+    args: QueryAssembledExamFacultyDispositionArgs,
+  ) => Promise<Record<string, unknown> | null | undefined> | Record<string, unknown> | null | undefined;
+  appendAssembledExamFacultyDisposition?: (
+    args: MutationAppendAssembledExamFacultyDispositionArgs,
+  ) => Promise<Record<string, unknown>> | Record<string, unknown>;
 };
 
 export function buildAdminGraphqlSchema(): GraphQLSchema {
