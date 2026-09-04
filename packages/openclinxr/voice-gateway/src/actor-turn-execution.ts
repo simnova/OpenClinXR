@@ -69,9 +69,31 @@ export type FrozenActorTurnPlanForExecution = ActorTurnPlanSpeech & {
   performancePlanId: string;
 };
 
+export type ActorTurnExecutionStartContext = {
+  planId: string;
+  turnId: string;
+  actorId: string;
+  spokenText: string;
+  voiceId: string;
+  facePresetId: string;
+  posePresetId: string;
+  performancePlanId: string;
+  timelineOriginMs: typeof ACTOR_TURN_TIMELINE_ORIGIN_MS;
+};
+
+export type ActorTurnExecutionAdapters = {
+  startVoice?: (ctx: ActorTurnExecutionStartContext) => boolean | Promise<boolean>;
+  startProsody?: (ctx: ActorTurnExecutionStartContext) => boolean | Promise<boolean>;
+  startViseme?: (ctx: ActorTurnExecutionStartContext) => boolean | Promise<boolean>;
+  startFacialAffect?: (ctx: ActorTurnExecutionStartContext) => boolean | Promise<boolean>;
+  startGazePosture?: (ctx: ActorTurnExecutionStartContext) => boolean | Promise<boolean>;
+  startMotion?: (ctx: ActorTurnExecutionStartContext & { clipId: string }) => boolean | Promise<boolean>;
+};
+
 export type ExecuteFrozenActorTurnOptions = {
   bargeInAtChunkIndex?: number;
   available?: Partial<Record<ActorTurnModality, boolean>>;
+  adapters?: ActorTurnExecutionAdapters;
 };
 
 export type ActorTurnExecutionEnvelope = {
@@ -105,34 +127,25 @@ export async function executeFrozenActorTurn(
   assertPlanFrozenForMultimodalExecution(plan);
 
   const available = options.available ?? {};
+  const adapters = options.adapters ?? {};
   const droppedModalities: DroppedModalityReason[] = [];
   const lanes: ActorTurnTimelineLane[] = [];
-
-  const voiceAvailable = available.voice !== false;
-  const visemeAvailable = available.viseme !== false;
-  const facialAffectAvailable = available.facial_affect !== false;
-  const gazePostureAvailable = available.gaze_posture !== false;
-  const motionAvailable = available.motion !== false;
-  const prosodyAvailable = available.prosody !== false;
+  const ctx: ActorTurnExecutionStartContext = {
+    planId: plan.planId,
+    turnId: plan.turnId,
+    actorId: plan.actorId,
+    spokenText: plan.spokenText,
+    voiceId: plan.voiceId,
+    facePresetId: plan.facePresetId,
+    posePresetId: plan.posePresetId,
+    performancePlanId: plan.performancePlanId,
+    timelineOriginMs: ACTOR_TURN_TIMELINE_ORIGIN_MS,
+  };
 
   let audioEvents: readonly AudioEvent[] = [];
   let actorTurnExecution: BoundedActorTurnExecution;
 
-  if (voiceAvailable) {
-    const rendered = await synthesizeActorSpeechFromFrozenPlan({
-      plan,
-      ...(options.bargeInAtChunkIndex !== undefined
-        ? { bargeInAtChunkIndex: options.bargeInAtChunkIndex }
-        : {}),
-    });
-    audioEvents = rendered.audioEvents;
-    actorTurnExecution = rendered.actorTurnExecution;
-    lanes.push({
-      modality: "voice",
-      startedAtMs: ACTOR_TURN_TIMELINE_ORIGIN_MS,
-      identity: plan.voiceId,
-    });
-  } else {
+  if (available.voice === false) {
     actorTurnExecution = freezeBoundedExecution({
       planId: plan.planId,
       turnId: plan.turnId,
@@ -144,76 +157,48 @@ export async function executeFrozenActorTurn(
         tts: true,
       },
     });
-    droppedModalities.push({
-      modality: "voice",
-      reason: "voice_provider_unavailable",
+    droppedModalities.push({ modality: "voice", reason: "voice_provider_unavailable" });
+  } else {
+    const rendered = await synthesizeActorSpeechFromFrozenPlan({
+      plan,
+      ...(options.bargeInAtChunkIndex !== undefined
+        ? { bargeInAtChunkIndex: options.bargeInAtChunkIndex }
+        : {}),
     });
+    audioEvents = rendered.audioEvents;
+    actorTurnExecution = rendered.actorTurnExecution;
+    const voiceAdapter = adapters.startVoice ?? (() => true);
+    if (await startRuntimeAdapter(voiceAdapter, ctx)) {
+      lanes.push({
+        modality: "voice",
+        startedAtMs: ACTOR_TURN_TIMELINE_ORIGIN_MS,
+        identity: plan.voiceId,
+      });
+    } else {
+      droppedModalities.push({ modality: "voice", reason: "adapter_failed" });
+    }
   }
 
-  if (prosodyAvailable) {
-    lanes.push({
-      modality: "prosody",
-      startedAtMs: ACTOR_TURN_TIMELINE_ORIGIN_MS,
-      identity: `${plan.planId}:${plan.turnId}:prosody`,
-    });
-  } else {
-    droppedModalities.push({
-      modality: "prosody",
-      reason: "prosody_unavailable",
-    });
-  }
-
-  if (visemeAvailable && plan.spokenText.length > 0) {
-    lanes.push({
-      modality: "viseme",
-      startedAtMs: ACTOR_TURN_TIMELINE_ORIGIN_MS,
-      identity: `${plan.planId}:${plan.turnId}:viseme`,
-    });
-  } else {
-    droppedModalities.push({
-      modality: "viseme",
-      reason: visemeAvailable ? "spoken_text_empty" : "viseme_unavailable",
-    });
-  }
-
-  if (facialAffectAvailable && plan.dialogueEmotionTo.length > 0) {
-    lanes.push({
-      modality: "facial_affect",
-      startedAtMs: ACTOR_TURN_TIMELINE_ORIGIN_MS,
-      identity: plan.facePresetId,
-    });
-  } else {
-    droppedModalities.push({
-      modality: "facial_affect",
-      reason: facialAffectAvailable ? "face_preset_missing" : "facial_affect_unavailable",
-    });
-  }
-
-  if (gazePostureAvailable && plan.posePresetId.length > 0) {
-    lanes.push({
-      modality: "gaze_posture",
-      startedAtMs: ACTOR_TURN_TIMELINE_ORIGIN_MS,
-      identity: plan.posePresetId,
-    });
-  } else {
-    droppedModalities.push({
-      modality: "gaze_posture",
-      reason: gazePostureAvailable ? "pose_preset_missing" : "gaze_posture_unavailable",
-    });
-  }
+  await startRuntimeLane("prosody", `${plan.planId}:${plan.turnId}:prosody`, adapters.startProsody, ctx, lanes, droppedModalities);
+  await startRuntimeLane("viseme", `${plan.planId}:${plan.turnId}:viseme`, adapters.startViseme, ctx, lanes, droppedModalities);
+  await startRuntimeLane("facial_affect", plan.facePresetId, adapters.startFacialAffect, ctx, lanes, droppedModalities);
+  await startRuntimeLane("gaze_posture", plan.posePresetId, adapters.startGazePosture, ctx, lanes, droppedModalities);
 
   const motionClipId = plan.gestureClipIds[0];
-  if (motionAvailable && typeof motionClipId === "string" && motionClipId.length > 0) {
+  if (available.motion === false) {
+    droppedModalities.push({ modality: "motion", reason: "motion_unavailable" });
+  } else if (typeof motionClipId !== "string" || motionClipId.length === 0) {
+    droppedModalities.push({ modality: "motion", reason: "no_approved_gesture_clip" });
+  } else if (!adapters.startMotion) {
+    droppedModalities.push({ modality: "motion", reason: "adapter_missing" });
+  } else if (await startRuntimeAdapter(adapters.startMotion, { ...ctx, clipId: motionClipId })) {
     lanes.push({
       modality: "motion",
       startedAtMs: ACTOR_TURN_TIMELINE_ORIGIN_MS,
       identity: motionClipId,
     });
   } else {
-    droppedModalities.push({
-      modality: "motion",
-      reason: motionAvailable ? "no_approved_gesture_clip" : "motion_unavailable",
-    });
+    droppedModalities.push({ modality: "motion", reason: "adapter_failed" });
   }
 
   return {
@@ -261,4 +246,34 @@ function freezeBoundedExecution(execution: BoundedActorTurnExecution): BoundedAc
   Object.freeze(execution.droppedProsodyTags);
   Object.freeze(execution.fallback);
   return Object.freeze(execution);
+}
+
+async function startRuntimeLane(
+  modality: ActorTurnModality,
+  identity: string,
+  adapter: ((ctx: ActorTurnExecutionStartContext) => boolean | Promise<boolean>) | undefined,
+  ctx: ActorTurnExecutionStartContext,
+  lanes: ActorTurnTimelineLane[],
+  dropped: DroppedModalityReason[],
+): Promise<void> {
+  if (!adapter) {
+    dropped.push({ modality, reason: "adapter_missing" });
+    return;
+  }
+  if (await startRuntimeAdapter(adapter, ctx)) {
+    lanes.push({ modality, startedAtMs: ACTOR_TURN_TIMELINE_ORIGIN_MS, identity });
+    return;
+  }
+  dropped.push({ modality, reason: "adapter_failed" });
+}
+
+async function startRuntimeAdapter<T>(
+  adapter: (ctx: T) => boolean | Promise<boolean>,
+  ctx: T,
+): Promise<boolean> {
+  try {
+    return (await adapter(ctx)) === true;
+  } catch {
+    return false;
+  }
 }

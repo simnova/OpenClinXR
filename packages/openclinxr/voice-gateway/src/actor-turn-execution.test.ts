@@ -1,9 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   ACTOR_TURN_EXECUTION_SEAM,
   ACTOR_TURN_TIMELINE_ORIGIN_MS,
   FROZEN_PLAN_RENDER_GATE_MESSAGE,
   executeFrozenActorTurn,
+  type ActorTurnExecutionAdapters,
   type FrozenActorTurnPlanForExecution,
 } from "./actor-turn-execution.js";
 
@@ -43,6 +44,17 @@ function planFixture(overrides: Partial<FrozenActorTurnPlanForExecution> = {}): 
   };
 }
 
+function runtimeAdapters(overrides: Partial<ActorTurnExecutionAdapters> = {}): ActorTurnExecutionAdapters {
+  return {
+    startProsody: vi.fn(() => true),
+    startViseme: vi.fn(() => true),
+    startFacialAffect: vi.fn(() => true),
+    startGazePosture: vi.fn(() => true),
+    startMotion: vi.fn(() => true),
+    ...overrides,
+  };
+}
+
 function deepFreezePlan(plan: FrozenActorTurnPlanForExecution): FrozenActorTurnPlanForExecution {
   Object.freeze(plan.gestureClipIds);
   Object.freeze(plan.prosody.wrapTags);
@@ -63,9 +75,18 @@ describe("executeFrozenActorTurn", () => {
 
   it("(1) all started lanes share plan identity and timeline origin 0", async () => {
     const plan = deepFreezePlan(planFixture());
-    const envelope = await executeFrozenActorTurn(plan);
+    const adapters = runtimeAdapters();
+    const envelope = await executeFrozenActorTurn(plan, { adapters });
 
     expect(envelope.seam).toBe(ACTOR_TURN_EXECUTION_SEAM);
+    expect(adapters.startViseme).toHaveBeenCalledTimes(1);
+    expect(adapters.startMotion).toHaveBeenCalledTimes(1);
+    expect(adapters.startFacialAffect).toHaveBeenCalledWith(expect.objectContaining({
+      planId: plan.planId,
+      turnId: plan.turnId,
+      actorId: plan.actorId,
+      timelineOriginMs: 0,
+    }));
     expect(envelope.timelineOriginMs).toBe(ACTOR_TURN_TIMELINE_ORIGIN_MS);
     expect(envelope.identity).toMatchObject({
       planId: plan.planId,
@@ -109,20 +130,20 @@ describe("executeFrozenActorTurn", () => {
   it("(3) dropped optional modalities keep spokenText usable", async () => {
     const plan = deepFreezePlan(planFixture({ gestureClipIds: [] }));
     const envelope = await executeFrozenActorTurn(plan, {
-      available: { voice: false, viseme: false, motion: false },
+      available: { voice: false, motion: false },
     });
 
     expect(envelope.identity.spokenText).toBe(SPOKEN);
     expect(envelope.actorTurnExecution.fallback.tts).toBe(true);
     expect(envelope.audioEvents).toEqual([]);
-    expect(envelope.droppedModalities.map((drop) => drop.modality).sort()).toEqual(
-      ["motion", "viseme", "voice"].sort(),
-    );
     expect(envelope.droppedModalities.find((drop) => drop.modality === "voice")?.reason).toBe(
       "voice_provider_unavailable",
     );
     expect(envelope.droppedModalities.find((drop) => drop.modality === "motion")?.reason).toBe(
       "motion_unavailable",
+    );
+    expect(envelope.droppedModalities.find((drop) => drop.modality === "viseme")?.reason).toBe(
+      "adapter_missing",
     );
     expect(envelope.lanes.map((lane) => lane.modality)).not.toContain("voice");
     expect(envelope.lanes.map((lane) => lane.modality)).not.toContain("motion");
@@ -130,7 +151,7 @@ describe("executeFrozenActorTurn", () => {
 
   it("(4) bounded execution does not invent visemeTimeline or audioUri", async () => {
     const plan = deepFreezePlan(planFixture());
-    const envelope = await executeFrozenActorTurn(plan);
+    const envelope = await executeFrozenActorTurn(plan, { adapters: runtimeAdapters() });
     const execution = envelope.actorTurnExecution;
 
     expect(execution).toEqual({
@@ -151,7 +172,10 @@ describe("executeFrozenActorTurn", () => {
     const plan = deepFreezePlan(planFixture());
     const spokenBefore = plan.spokenText;
     const clipsBefore = [...plan.gestureClipIds];
-    const envelope = await executeFrozenActorTurn(plan, { bargeInAtChunkIndex: 1 });
+    const envelope = await executeFrozenActorTurn(plan, {
+      bargeInAtChunkIndex: 1,
+      adapters: runtimeAdapters(),
+    });
 
     expect(plan.spokenText).toBe(spokenBefore);
     expect([...plan.gestureClipIds]).toEqual(clipsBefore);
