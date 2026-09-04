@@ -11,6 +11,12 @@ import {
   type AssembledExamPhase,
   type AssembledExamPhaseTransitionType,
 } from "@openclinxr/review-workflow";
+import {
+  observeAssembledStationClock,
+  type AssembledStationClockManualCompletion,
+  type AssembledStationClockSnapshot,
+  type AssembledStationTimeoutTransition,
+} from "./assembled-station-clock.js";
 import type { AssembledStationContext } from "./runtime-types.js";
 import { validateAssembledStationContext } from "./trace.js";
 
@@ -74,6 +80,18 @@ export type ResumeAssembledExamInput = {
   timingPlan: ExamTimingPlan;
   projection: AssembledExamLedgerResumeProjection;
   requestedStation?: RequestedAssembledExamStation;
+};
+
+export type ApplyAssembledStationTimeoutsInput = ResumeAssembledExamInput & {
+  nowFormSecond: number;
+  lastObservedFormSecond?: number;
+  manualCompletion?: AssembledStationClockManualCompletion;
+};
+
+export type ApplyAssembledStationTimeoutsResult = {
+  decision: AssembledExamResumeDecision;
+  clock: AssembledStationClockSnapshot;
+  timeoutTransitions: AssembledStationTimeoutTransition[];
 };
 
 export type AssembledExamLifecycleState = {
@@ -384,4 +402,45 @@ export function resumeAssembledExam(input: ResumeAssembledExamInput): AssembledE
       lifecycle,
     },
   };
+}
+
+/**
+ * Resume the current station, then apply the injected-clock timeout authority.
+ * Timeouts are derived from admitted canonical timestamps, not process uptime.
+ */
+export function applyAssembledStationTimeouts(
+  input: ApplyAssembledStationTimeoutsInput,
+): ApplyAssembledStationTimeoutsResult {
+  const decision = resumeAssembledExam(input);
+  const station = decision.selectedStation;
+  if (!station) {
+    const clock = observeAssembledStationClock({
+      formTiming: {
+        encounter: { startsAtSecond: 0, endsAtSecond: 0 },
+        note: { startsAtSecond: 0, endsAtSecond: 0 },
+      },
+      admittedEvents: [],
+      nowFormSecond: input.nowFormSecond,
+      ...(input.lastObservedFormSecond !== undefined
+        ? { lastObservedFormSecond: input.lastObservedFormSecond }
+        : {}),
+    });
+    return { decision, clock, timeoutTransitions: [] };
+  }
+
+  const stationEvents = input.projection.admittedPhaseEvents.filter(
+    (event) => event.stationRunId === station.stationRunId,
+  );
+  const lastFormOrder = Math.max(...input.form.stationRefs.map((ref) => ref.order));
+  const clock = observeAssembledStationClock({
+    formTiming: station.assembledStation.formTiming,
+    admittedEvents: stationEvents,
+    nowFormSecond: input.nowFormSecond,
+    isLastStation: station.stationOrder === lastFormOrder,
+    ...(input.lastObservedFormSecond !== undefined
+      ? { lastObservedFormSecond: input.lastObservedFormSecond }
+      : {}),
+    ...(input.manualCompletion ? { manualCompletion: input.manualCompletion } : {}),
+  });
+  return { decision, clock, timeoutTransitions: clock.dueTimeoutTransitions };
 }
