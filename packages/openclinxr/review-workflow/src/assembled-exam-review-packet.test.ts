@@ -380,33 +380,6 @@ describe("assembled exam review packet", () => {
         examRunId: EXAM_RUN_ID,
         stations: [
           edStation({
-            phaseTransitions: canonicalPhaseTransitions({
-              stationRunId: ED_STATION_RUN_ID,
-              scenarioId: "ed_chest_pain_priority_v1",
-              stationOrder: 1,
-              startSequence: 10,
-              advanceReason: "patient_note_submitted_advancing",
-            }).map((event, index) =>
-              index === 0
-                ? {
-                    ...event,
-                    payload: {
-                      ...event.payload,
-                      examRunId: "exam_run_someone_else",
-                    },
-                  }
-                : event,
-            ),
-          }),
-        ],
-      }),
-    ).toThrow(/rejects cross-run evidence/);
-
-    expect(() =>
-      buildAssembledExamReviewPacket({
-        examRunId: EXAM_RUN_ID,
-        stations: [
-          edStation({
             patientNote: {
               stationRunId: PEDS_STATION_RUN_ID,
               submittedAtSecond: 1260,
@@ -460,8 +433,26 @@ describe("assembled exam review packet", () => {
       throw new Error("fixture missing phase transitions");
     }
     const swapped = [...transitions];
-    swapped[2] = { ...noteSubmitted, sequence: 12, atSecond: 900 };
-    swapped[3] = { ...noteStarted, sequence: 13, atSecond: 1260 };
+    swapped[2] = {
+      ...noteSubmitted,
+      sequence: 12,
+      atSecond: 900,
+      payload: {
+        ...noteSubmitted.payload,
+        formAtSecond: 900,
+        durableEventRef: durableEventRef(ED_STATION_RUN_ID, 12),
+      },
+    };
+    swapped[3] = {
+      ...noteStarted,
+      sequence: 13,
+      atSecond: 1260,
+      payload: {
+        ...noteStarted.payload,
+        formAtSecond: 1260,
+        durableEventRef: durableEventRef(ED_STATION_RUN_ID, 13),
+      },
+    };
 
     expect(() =>
       buildAssembledExamReviewPacket({
@@ -558,4 +549,253 @@ describe("assembled exam review packet", () => {
     );
     expect(packet.stations[1]?.reviewPacket.actorTurnReplays[0]?.execution).toBeNull();
   });
+
+  it("COUNTERWEIGHT: ordinary traceEvents stay ReviewTraceInput-compatible without stationRunId", () => {
+    const packet = buildAssembledExamReviewPacket({
+      examRunId: EXAM_RUN_ID,
+      stations: [
+        edStation({
+          traceEvents: [
+            { sequence: 0, eventType: "station.started", source: "system", atSecond: 0 },
+            { sequence: 7, eventType: "learner.order", source: "learner", tag: "ecg_request", atSecond: 500 },
+            { sequence: 9, eventType: "note.submitted", source: "learner", tag: "patient_note_submitted", atSecond: 1260 },
+          ],
+        }),
+      ],
+    });
+    expect(packet.stations[0]?.reviewPacket.timeline.map((entry) => entry.sequence)).toEqual([0, 7, 9]);
+    expect(packet.stations[0]?.phaseTransitions).toHaveLength(5);
+  });
+
+  it("rejects malformed phase-transition provenance", () => {
+    expect(() =>
+      buildAssembledExamReviewPacket({
+        examRunId: EXAM_RUN_ID,
+        stations: [edStation({
+          phaseTransitions: canonicalPhaseTransitions({
+            stationRunId: ED_STATION_RUN_ID,
+            scenarioId: "ed_chest_pain_priority_v1",
+            stationOrder: 1,
+            startSequence: 10,
+            advanceReason: "patient_note_submitted_advancing",
+          }).map((event, index) => {
+            if (index !== 0) {
+              return event;
+            }
+            const { stationRunId, ...rest } = event;
+            return rest;
+          }),
+        })],
+      }),
+    ).toThrow(/rejects malformed phase-transition provenance/);
+
+    expect(() =>
+      buildAssembledExamReviewPacket({
+        examRunId: EXAM_RUN_ID,
+        stations: [edStation({
+          phaseTransitions: patchPhasePayload(0, { examRunId: undefined }),
+        })],
+      }),
+    ).toThrow(/rejects malformed phase-transition provenance/);
+
+    expect(() =>
+      buildAssembledExamReviewPacket({
+        examRunId: EXAM_RUN_ID,
+        stations: [edStation({
+          phaseTransitions: patchPhasePayload(0, { examRunId: "exam_run_someone_else" }),
+        })],
+      }),
+    ).toThrow(/rejects malformed phase-transition provenance/);
+
+    expect(() =>
+      buildAssembledExamReviewPacket({
+        examRunId: EXAM_RUN_ID,
+        stations: [edStation({
+          phaseTransitions: patchPhasePayload(0, { scenarioId: "peds_asthma_parent_anxiety_v1" }),
+        })],
+      }),
+    ).toThrow(/rejects malformed phase-transition provenance/);
+
+    expect(() =>
+      buildAssembledExamReviewPacket({
+        examRunId: EXAM_RUN_ID,
+        stations: [edStation({
+          phaseTransitions: patchPhasePayload(0, { stationOrder: 2 }),
+        })],
+      }),
+    ).toThrow(/rejects malformed phase-transition provenance/);
+
+    expect(() =>
+      buildAssembledExamReviewPacket({
+        examRunId: EXAM_RUN_ID,
+        stations: [edStation({
+          phaseTransitions: patchPhasePayload(0, { phase: "note" }),
+        })],
+      }),
+    ).toThrow(/rejects malformed phase-transition provenance/);
+
+    expect(() =>
+      buildAssembledExamReviewPacket({
+        examRunId: EXAM_RUN_ID,
+        stations: [edStation({
+          phaseTransitions: patchPhasePayload(0, { durableEventRef: "durable://station-runs/run_ed_001/events/99" }),
+        })],
+      }),
+    ).toThrow(/rejects malformed phase-transition provenance/);
+
+    expect(() =>
+      buildAssembledExamReviewPacket({
+        examRunId: EXAM_RUN_ID,
+        stations: [edStation({
+          phaseTransitions: patchPhasePayload(0, { durableEventRef: undefined }),
+        })],
+      }),
+    ).toThrow(/rejects malformed phase-transition provenance/);
+  });
+
+  it("rejects malformed phase-transition numerics", () => {
+    expect(() =>
+      buildAssembledExamReviewPacket({
+        examRunId: EXAM_RUN_ID,
+        stations: [edStation({
+          phaseTransitions: canonicalPhaseTransitions({
+            stationRunId: ED_STATION_RUN_ID,
+            scenarioId: "ed_chest_pain_priority_v1",
+            stationOrder: 1,
+            startSequence: 10,
+            advanceReason: "patient_note_submitted_advancing",
+          }).map((event, index) => (index === 0 ? { ...event, sequence: 10.5 } : event)),
+        })],
+      }),
+    ).toThrow(/rejects malformed phase-transition numerics/);
+
+    expect(() =>
+      buildAssembledExamReviewPacket({
+        examRunId: EXAM_RUN_ID,
+        stations: [edStation({
+          phaseTransitions: canonicalPhaseTransitions({
+            stationRunId: ED_STATION_RUN_ID,
+            scenarioId: "ed_chest_pain_priority_v1",
+            stationOrder: 1,
+            startSequence: 10,
+            advanceReason: "patient_note_submitted_advancing",
+          }).map((event, index) => (index === 1 ? { ...event, atSecond: -1 } : event)),
+        })],
+      }),
+    ).toThrow(/rejects malformed phase-transition numerics/);
+
+    expect(() =>
+      buildAssembledExamReviewPacket({
+        examRunId: EXAM_RUN_ID,
+        stations: [edStation({
+          phaseTransitions: patchPhasePayload(2, { formAtSecond: Number.NaN }),
+        })],
+      }),
+    ).toThrow(/rejects malformed phase-transition numerics/);
+  });
+
+  it("rejects unknown or duplicate phase-transition types", () => {
+    expect(() =>
+      buildAssembledExamReviewPacket({
+        examRunId: EXAM_RUN_ID,
+        stations: [edStation({
+          phaseTransitions: canonicalPhaseTransitions({
+            stationRunId: ED_STATION_RUN_ID,
+            scenarioId: "ed_chest_pain_priority_v1",
+            stationOrder: 1,
+            startSequence: 10,
+            advanceReason: "patient_note_submitted_advancing",
+          }).map((event, index) => (index === 0 ? { ...event, eventType: "station.skipped" } : event)),
+        })],
+      }),
+    ).toThrow(/rejects unknown phase-transition type/);
+
+    const duplicated = canonicalPhaseTransitions({
+      stationRunId: ED_STATION_RUN_ID,
+      scenarioId: "ed_chest_pain_priority_v1",
+      stationOrder: 1,
+      startSequence: 10,
+      advanceReason: "patient_note_submitted_advancing",
+    });
+    const first = duplicated[0];
+    const second = duplicated[1];
+    if (!first || !second) {
+      throw new Error("fixture missing phase transitions");
+    }
+    duplicated[1] = {
+      ...first,
+      sequence: 11,
+      atSecond: 90,
+      payload: {
+        ...first.payload,
+        formAtSecond: 90,
+        durableEventRef: durableEventRef(ED_STATION_RUN_ID, 11),
+      },
+    };
+
+    expect(() =>
+      buildAssembledExamReviewPacket({
+        examRunId: EXAM_RUN_ID,
+        stations: [edStation({ phaseTransitions: duplicated })],
+      }),
+    ).toThrow(/rejects duplicate phase-transition type/);
+  });
+
+  it("rejects station.advanceReason that disagrees with station.advanced payload", () => {
+    expect(() =>
+      buildAssembledExamReviewPacket({
+        examRunId: EXAM_RUN_ID,
+        stations: [edStation({ advanceReason: "last_station_note_submitted_exam_complete" })],
+      }),
+    ).toThrow(/rejects advance-reason mismatch/);
+  });
+
+  it("requires positive unique integer stationOrder", () => {
+    expect(() =>
+      buildAssembledExamReviewPacket({
+        examRunId: EXAM_RUN_ID,
+        stations: [edStation({ stationOrder: 0 })],
+      }),
+    ).toThrow(/requires positive unique integer stationOrder/);
+
+    expect(() =>
+      buildAssembledExamReviewPacket({
+        examRunId: EXAM_RUN_ID,
+        stations: [edStation({ stationOrder: 1.5 })],
+      }),
+    ).toThrow(/requires positive unique integer stationOrder/);
+
+    expect(() =>
+      buildAssembledExamReviewPacket({
+        examRunId: EXAM_RUN_ID,
+        stations: [edStation(), pedsStation({ stationOrder: 1 })],
+      }),
+    ).toThrow(/requires positive unique integer stationOrder/);
+  });
 });
+
+function patchPhasePayload(
+  index: number,
+  payloadPatch: Record<string, unknown>,
+): AssembledExamReviewTraceInput[] {
+  return canonicalPhaseTransitions({
+    stationRunId: ED_STATION_RUN_ID,
+    scenarioId: "ed_chest_pain_priority_v1",
+    stationOrder: 1,
+    startSequence: 10,
+    advanceReason: "patient_note_submitted_advancing",
+  }).map((event, eventIndex) => {
+    if (eventIndex !== index) {
+      return event;
+    }
+    const nextPayload = { ...event.payload };
+    for (const [key, value] of Object.entries(payloadPatch)) {
+      if (value === undefined) {
+        delete nextPayload[key];
+      } else {
+        nextPayload[key] = value;
+      }
+    }
+    return { ...event, payload: nextPayload };
+  });
+}

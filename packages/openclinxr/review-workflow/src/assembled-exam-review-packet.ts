@@ -10,10 +10,7 @@ import {
   type StationXrTraceEvidenceSummary,
 } from "./review-packet.js";
 
-/**
- * Canonical encounter→note→advance types from scenario-runtime 73046d48.
- * Copied as a review-domain contract so this package does not import runtime.
- */
+/** Canonical encounter→note→advance types from scenario-runtime 73046d48. */
 export const ASSEMBLED_EXAM_PHASE_TRANSITION_TYPES = [
   "encounter.started",
   "encounter.ended",
@@ -39,6 +36,16 @@ export const assembledExamReviewNotEvidenceFor = [
 export type AssembledExamReviewTraceInput = ReviewTraceInput & {
   stationRunId?: string;
 };
+
+export const ASSEMBLED_EXAM_PHASE_BY_TYPE = {
+  "encounter.started": "encounter",
+  "encounter.ended": "encounter",
+  "note.started": "note",
+  "note.submitted": "note",
+  "station.advanced": "complete",
+} as const;
+
+export type AssembledExamPhase = (typeof ASSEMBLED_EXAM_PHASE_BY_TYPE)[AssembledExamPhaseTransitionType];
 
 export type AssembledExamStationEvidenceInput = {
   stationRunId: string;
@@ -69,13 +76,13 @@ export type AssembledExamAuthoredScenarioIdentity = {
 };
 
 export type AssembledExamPhaseTransitionRecord = {
-  eventType: string;
+  eventType: AssembledExamPhaseTransitionType;
   sequence: number;
   atSecond: number;
-  formAtSecond: number | null;
-  phase: string | null;
+  formAtSecond: number;
+  phase: AssembledExamPhase;
   advanceReason: string | null;
-  durableEventRef: string | null;
+  durableEventRef: string;
 };
 
 export type AssembledExamReviewTimelineEntry = {
@@ -112,23 +119,21 @@ export type AssembledExamReviewPacket = {
   examEquivalenceGate: false;
 };
 
-/**
- * Project one assembled exam run into a faculty-reviewable packet.
- * Station boundaries stay grouped by stationRunId + authored scenario identity.
- */
 export function buildAssembledExamReviewPacket(
   input: BuildAssembledExamReviewPacketInput,
 ): AssembledExamReviewPacket {
   if (input.examRunId.trim().length === 0) {
-    throw new Error("Assembled exam review packet requires examRunId");
+    fail("requires examRunId");
   }
   if (input.stations.length === 0) {
-    throw new Error("Assembled exam review packet requires at least one station");
+    fail("requires at least one station");
   }
 
+  rejectInvalidStationOrders(input);
   rejectCrossRunEvidence(input);
+  rejectMalformedPhaseTransitions(input);
   rejectDuplicateSequences(input);
-  rejectOutOfOrderEvidence(input);
+  rejectOutOfOrderTraceEvents(input);
 
   const stations = [...input.stations]
     .sort((left, right) => left.stationOrder - right.stationOrder)
@@ -197,35 +202,25 @@ function examTimelineForStation(
   station: AssembledExamStationReviewSlice,
 ): AssembledExamReviewTimelineEntry[] {
   const identity = station.identity;
-  const traceEntries: AssembledExamReviewTimelineEntry[] = station.reviewPacket.timeline.map(
-    (entry) => ({
-      examRunId: identity.examRunId,
-      stationRunId: identity.stationRunId,
-      scenarioId: identity.scenarioId,
-      stationOrder: identity.stationOrder,
-      sequence: entry.sequence,
-      atSecond: entry.atSecond,
-      eventType: entry.eventType,
-      source: entry.source,
-      kind: "station_trace",
-      summary: entry.summary,
-    }),
-  );
-  const phaseEntries: AssembledExamReviewTimelineEntry[] = station.phaseTransitions.map(
-    (entry) => ({
-      examRunId: identity.examRunId,
-      stationRunId: identity.stationRunId,
-      scenarioId: identity.scenarioId,
-      stationOrder: identity.stationOrder,
-      sequence: entry.sequence,
-      atSecond: entry.atSecond,
-      eventType: entry.eventType,
-      source: "system",
-      kind: "phase_transition",
-      summary: summarizePhaseTransition(entry),
-    }),
-  );
-  return [...traceEntries, ...phaseEntries].sort(
+  const traces = station.reviewPacket.timeline.map((entry) => ({
+    ...identity,
+    sequence: entry.sequence,
+    atSecond: entry.atSecond,
+    eventType: entry.eventType,
+    source: entry.source,
+    kind: "station_trace" as const,
+    summary: entry.summary,
+  }));
+  const phases = station.phaseTransitions.map((entry) => ({
+    ...identity,
+    sequence: entry.sequence,
+    atSecond: entry.atSecond,
+    eventType: entry.eventType,
+    source: "system",
+    kind: "phase_transition" as const,
+    summary: summarizePhaseTransition(entry),
+  }));
+  return [...traces, ...phases].sort(
     (left, right) => left.sequence - right.sequence || left.atSecond - right.atSecond,
   );
 }
@@ -266,49 +261,134 @@ function stationOmissions(
   return uniquePreserve(omissions);
 }
 
+function rejectInvalidStationOrders(input: BuildAssembledExamReviewPacketInput): void {
+  const seen = new Set<number>();
+  for (const station of input.stations) {
+    if (!isPositiveInteger(station.stationOrder) || seen.has(station.stationOrder)) {
+      fail("requires positive unique integer stationOrder");
+    }
+    seen.add(station.stationOrder);
+  }
+}
+
 function rejectCrossRunEvidence(input: BuildAssembledExamReviewPacketInput): void {
   const seenStationRunIds = new Set<string>();
-  const seenStationOrders = new Set<number>();
   for (const station of input.stations) {
     if (station.stationRunId.trim().length === 0 || station.scenarioId.trim().length === 0) {
-      throw new Error("Assembled exam review packet rejects cross-run evidence");
+      fail("rejects cross-run evidence");
     }
-    if (seenStationRunIds.has(station.stationRunId) || seenStationOrders.has(station.stationOrder)) {
-      throw new Error("Assembled exam review packet rejects cross-run evidence");
+    if (seenStationRunIds.has(station.stationRunId)) {
+      fail("rejects cross-run evidence");
     }
     seenStationRunIds.add(station.stationRunId);
-    seenStationOrders.add(station.stationOrder);
 
     if (station.patientNote && station.patientNote.stationRunId !== station.stationRunId) {
-      throw new Error("Assembled exam review packet rejects cross-run evidence");
+      fail("rejects cross-run evidence");
     }
     if (
       station.xrTraceInteractionEvidence
       && station.xrTraceInteractionEvidence.stationRunId !== station.stationRunId
     ) {
-      throw new Error("Assembled exam review packet rejects cross-run evidence");
+      fail("rejects cross-run evidence");
     }
 
-    for (const event of [...station.traceEvents, ...station.phaseTransitions]) {
+    for (const event of station.traceEvents) {
       if (event.stationRunId && event.stationRunId !== station.stationRunId) {
-        throw new Error("Assembled exam review packet rejects cross-run evidence");
+        fail("rejects cross-run evidence");
       }
       const payloadExamRunId = payloadString(event.payload, "examRunId");
       if (payloadExamRunId && payloadExamRunId !== input.examRunId) {
-        throw new Error("Assembled exam review packet rejects cross-run evidence");
+        fail("rejects cross-run evidence");
       }
       const payloadScenarioId = payloadString(event.payload, "scenarioId");
       if (payloadScenarioId && payloadScenarioId !== station.scenarioId) {
-        throw new Error("Assembled exam review packet rejects cross-run evidence");
+        fail("rejects cross-run evidence");
       }
-      const payloadStationOrder = event.payload?.["stationOrder"];
-      if (typeof payloadStationOrder === "number" && payloadStationOrder !== station.stationOrder) {
-        throw new Error("Assembled exam review packet rejects cross-run evidence");
+      const plan = payloadValue(event.payload, "actorTurnPlan");
+      const planStationRunId = isRecord(plan) ? payloadString(plan, "stationRunId") : null;
+      if (planStationRunId && planStationRunId !== station.stationRunId) {
+        fail("rejects cross-run evidence");
       }
-      const plan = event.payload?.["actorTurnPlan"];
-      if (isRecord(plan) && typeof plan["stationRunId"] === "string" && plan["stationRunId"] !== station.stationRunId) {
-        throw new Error("Assembled exam review packet rejects cross-run evidence");
+    }
+  }
+}
+
+function rejectMalformedPhaseTransitions(input: BuildAssembledExamReviewPacketInput): void {
+  const rank = new Map<string, number>(
+    ASSEMBLED_EXAM_PHASE_TRANSITION_TYPES.map((eventType, index) => [eventType, index]),
+  );
+
+  for (const station of input.stations) {
+    const seenTypes = new Set<string>();
+    for (const event of station.phaseTransitions) {
+      const eventType = event.eventType;
+      if (!eventType || !isPhaseTransitionType(eventType)) {
+        fail("rejects unknown phase-transition type");
       }
+      if (seenTypes.has(eventType)) {
+        fail("rejects duplicate phase-transition type");
+      }
+      seenTypes.add(eventType);
+
+      if (!isNonNegativeInteger(event.sequence) || !isNonNegativeInteger(event.atSecond)) {
+        fail("rejects malformed phase-transition numerics");
+      }
+      const formAtSecond = payloadValue(event.payload, "formAtSecond");
+      if (!isNonNegativeInteger(formAtSecond)) {
+        fail("rejects malformed phase-transition numerics");
+      }
+
+      if (event.stationRunId !== station.stationRunId) {
+        fail("rejects malformed phase-transition provenance");
+      }
+      if (payloadString(event.payload, "examRunId") !== input.examRunId) {
+        fail("rejects malformed phase-transition provenance");
+      }
+      if (payloadString(event.payload, "scenarioId") !== station.scenarioId) {
+        fail("rejects malformed phase-transition provenance");
+      }
+      if (payloadValue(event.payload, "stationOrder") !== station.stationOrder) {
+        fail("rejects malformed phase-transition provenance");
+      }
+      if (payloadString(event.payload, "phase") !== ASSEMBLED_EXAM_PHASE_BY_TYPE[eventType]) {
+        fail("rejects malformed phase-transition provenance");
+      }
+      const expectedRef = durableEventRef(station.stationRunId, event.sequence);
+      if (payloadString(event.payload, "durableEventRef") !== expectedRef) {
+        fail("rejects malformed phase-transition provenance");
+      }
+
+      if (eventType === "station.advanced") {
+        const payloadReason = payloadString(event.payload, "advanceReason");
+        const stationReason = station.advanceReason?.trim() ? station.advanceReason : null;
+        if (!payloadReason || payloadReason !== stationReason) {
+          fail("rejects advance-reason mismatch");
+        }
+      }
+    }
+
+    const ordered = [...station.phaseTransitions].sort(
+      (left, right) => (left.sequence as number) - (right.sequence as number),
+    );
+    let lastRank = -1;
+    let lastAtSecond = 0;
+    let lastFormAtSecond = 0;
+    for (const [index, event] of ordered.entries()) {
+      const currentRank = rank.get(event.eventType ?? "") ?? -1;
+      if (currentRank < lastRank) {
+        fail("rejects out-of-order evidence");
+      }
+      const atSecond = event.atSecond;
+      const orderedFormAtSecond = payloadValue(event.payload, "formAtSecond");
+      if (
+        index > 0
+        && (atSecond < lastAtSecond || !isNonNegativeInteger(orderedFormAtSecond) || orderedFormAtSecond < lastFormAtSecond)
+      ) {
+        fail("rejects out-of-order evidence");
+      }
+      lastRank = currentRank;
+      lastAtSecond = atSecond;
+      lastFormAtSecond = orderedFormAtSecond as number;
     }
   }
 }
@@ -319,86 +399,62 @@ function rejectDuplicateSequences(input: BuildAssembledExamReviewPacketInput): v
       .map((event) => event.sequence)
       .filter((sequence): sequence is number => typeof sequence === "number");
     if (new Set(sequences).size !== sequences.length) {
-      throw new Error("Assembled exam review packet rejects duplicate-sequence evidence");
+      fail("rejects duplicate-sequence evidence");
     }
   }
 }
 
-function rejectOutOfOrderEvidence(input: BuildAssembledExamReviewPacketInput): void {
+function rejectOutOfOrderTraceEvents(input: BuildAssembledExamReviewPacketInput): void {
   for (const station of input.stations) {
-    rejectNonMonotonic(station.traceEvents);
-    rejectNonMonotonic(station.phaseTransitions);
-    rejectPhaseTypeOrder(station.phaseTransitions);
-  }
-}
-
-function rejectNonMonotonic(events: readonly AssembledExamReviewTraceInput[]): void {
-  const sequenced = events.filter(
-    (event): event is AssembledExamReviewTraceInput & { sequence: number } =>
-      typeof event.sequence === "number",
-  );
-  const ordered = [...sequenced].sort((left, right) => left.sequence - right.sequence);
-  for (let index = 1; index < ordered.length; index += 1) {
-    const previous = ordered[index - 1];
-    const current = ordered[index];
-    if (!previous || !current) {
-      continue;
+    const sequenced = station.traceEvents.filter(
+      (event): event is AssembledExamReviewTraceInput & { sequence: number } =>
+        typeof event.sequence === "number",
+    );
+    const ordered = [...sequenced].sort((left, right) => left.sequence - right.sequence);
+    for (let index = 1; index < ordered.length; index += 1) {
+      const previous = ordered[index - 1]!;
+      const current = ordered[index]!;
+      if (current.sequence <= previous.sequence || current.atSecond < previous.atSecond) {
+        fail("rejects out-of-order evidence");
+      }
     }
-    if (current.sequence <= previous.sequence) {
-      throw new Error("Assembled exam review packet rejects out-of-order evidence");
-    }
-    if (current.atSecond < previous.atSecond) {
-      throw new Error("Assembled exam review packet rejects out-of-order evidence");
-    }
-    const previousForm = payloadNumber(previous.payload, "formAtSecond");
-    const currentForm = payloadNumber(current.payload, "formAtSecond");
-    if (previousForm !== null && currentForm !== null && currentForm < previousForm) {
-      throw new Error("Assembled exam review packet rejects out-of-order evidence");
-    }
-  }
-}
-
-function rejectPhaseTypeOrder(events: readonly AssembledExamReviewTraceInput[]): void {
-  const rank = new Map<string, number>(
-    ASSEMBLED_EXAM_PHASE_TRANSITION_TYPES.map((eventType, index) => [eventType, index]),
-  );
-  const ranked = events
-    .filter((event) => event.eventType && rank.has(event.eventType) && typeof event.sequence === "number")
-    .sort((left, right) => (left.sequence as number) - (right.sequence as number));
-  let lastRank = -1;
-  for (const event of ranked) {
-    const currentRank = rank.get(event.eventType ?? "") ?? -1;
-    if (currentRank < lastRank) {
-      throw new Error("Assembled exam review packet rejects out-of-order evidence");
-    }
-    lastRank = currentRank;
   }
 }
 
 function toReviewTraceInput(event: AssembledExamReviewTraceInput): ReviewTraceInput {
-  return {
-    ...(typeof event.sequence === "number" ? { sequence: event.sequence } : {}),
-    ...(event.tag ? { tag: event.tag } : {}),
-    atSecond: event.atSecond,
-    ...(event.eventType ? { eventType: event.eventType } : {}),
-    ...(event.source ? { source: event.source } : {}),
-    ...(event.actorId ? { actorId: event.actorId } : {}),
-    ...(event.payload ? { payload: event.payload } : {}),
-  };
+  const { stationRunId: _stationRunId, ...rest } = event;
+  return rest;
 }
 
 function toPhaseTransitionRecord(
   event: AssembledExamReviewTraceInput,
 ): AssembledExamPhaseTransitionRecord {
+  const eventType = event.eventType as AssembledExamPhaseTransitionType;
   return {
-    eventType: event.eventType ?? "trace.event",
-    sequence: event.sequence ?? Number.MAX_SAFE_INTEGER,
+    eventType,
+    sequence: event.sequence as number,
     atSecond: event.atSecond,
-    formAtSecond: payloadNumber(event.payload, "formAtSecond"),
-    phase: payloadString(event.payload, "phase"),
+    formAtSecond: payloadValue(event.payload, "formAtSecond") as number,
+    phase: ASSEMBLED_EXAM_PHASE_BY_TYPE[eventType],
     advanceReason: payloadString(event.payload, "advanceReason"),
-    durableEventRef: payloadString(event.payload, "durableEventRef"),
+    durableEventRef: payloadString(event.payload, "durableEventRef") ?? "",
   };
+}
+
+function durableEventRef(stationRunId: string, sequence: number): string {
+  return `durable://station-runs/${stationRunId}/events/${sequence}`;
+}
+
+function isPhaseTransitionType(value: string): value is AssembledExamPhaseTransitionType {
+  return (ASSEMBLED_EXAM_PHASE_TRANSITION_TYPES as readonly string[]).includes(value);
+}
+
+function isNonNegativeInteger(value: unknown): value is number {
+  return typeof value === "number" && Number.isInteger(value) && value >= 0;
+}
+
+function isPositiveInteger(value: unknown): value is number {
+  return isNonNegativeInteger(value) && value > 0;
 }
 
 function summarizePhaseTransition(entry: AssembledExamPhaseTransitionRecord): string {
@@ -417,17 +473,16 @@ function hasNoteSubmitted(station: AssembledExamStationEvidenceInput): boolean {
 }
 
 function hasActorTurnPayload(event: AssembledExamReviewTraceInput): boolean {
-  return Boolean(event.payload?.["actorTurnPlan"] || event.payload?.["actorTurnExecution"]);
+  return Boolean(payloadValue(event.payload, "actorTurnPlan") || payloadValue(event.payload, "actorTurnExecution"));
+}
+
+function payloadValue(payload: Record<string, unknown> | undefined, key: string): unknown {
+  return payload?.[key];
 }
 
 function payloadString(payload: Record<string, unknown> | undefined, key: string): string | null {
-  const value = payload?.[key];
+  const value = payloadValue(payload, key);
   return typeof value === "string" && value.trim().length > 0 ? value : null;
-}
-
-function payloadNumber(payload: Record<string, unknown> | undefined, key: string): number | null {
-  const value = payload?.[key];
-  return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -435,14 +490,9 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function uniquePreserve(values: readonly string[]): string[] {
-  const seen = new Set<string>();
-  const result: string[] = [];
-  for (const value of values) {
-    if (seen.has(value)) {
-      continue;
-    }
-    seen.add(value);
-    result.push(value);
-  }
-  return result;
+  return [...new Set(values)];
+}
+
+function fail(suffix: string): never {
+  throw new Error(`Assembled exam review packet ${suffix}`);
 }
