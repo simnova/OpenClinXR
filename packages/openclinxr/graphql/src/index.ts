@@ -1,7 +1,13 @@
 import { buildSchema, type ExecutionResult, type GraphQLSchema, graphql } from "graphql";
+import { adminGraphqlFieldResolver, openClinXrAdminSchemaSdl } from "./schema.js";
 
 export { type AdminGraphqlDocument, adminGraphqlDocumentByOperationName, adminGraphqlDocuments } from "./documents.js";
-export { openClinXrAdminSchemaSdl } from "./schema.js";
+export {
+  adminGraphqlFieldResolver,
+  openClinXrAdminSchemaSdl,
+  projectReviewPacketActorTurnLayers,
+  REVIEW_PACKET_ACTOR_TURN_CLAIM_SCOPE,
+} from "./schema.js";
 
 import type {
   AssetReadiness,
@@ -25,7 +31,6 @@ import type {
   StationRunQueueSnapshot,
   TraceEvent,
 } from "./generated/resolvers.generated.js";
-import { openClinXrAdminSchemaSdl } from "./schema.js";
 
 export {
   ReviewDecision as AdminGraphqlReviewDecision,
@@ -71,7 +76,7 @@ export type AdminGraphqlRootValue = {
   ) => Promise<StationRunQueueSnapshot[]> | StationRunQueueSnapshot[];
   reviewPacket?: (
     args: QueryReviewPacketArgs,
-  ) => Promise<ReviewPacket | null | undefined> | ReviewPacket | null | undefined;
+  ) => Promise<ReviewPacket | Record<string, unknown> | null | undefined> | ReviewPacket | Record<string, unknown> | null | undefined;
   clinicalEventReviewSummary?: (
     args: QueryClinicalEventReviewSummaryArgs,
   ) => Promise<DurableClinicalEventReviewSummary> | DurableClinicalEventReviewSummary;
@@ -89,7 +94,7 @@ export type AdminGraphqlRootValue = {
   ) => Promise<AdminGraphqlScenario> | AdminGraphqlScenario;
   saveFacultyScoreDraft?: (
     args: MutationSaveFacultyScoreDraftArgs,
-  ) => Promise<ReviewPacket> | ReviewPacket;
+  ) => Promise<ReviewPacket | Record<string, unknown>> | ReviewPacket | Record<string, unknown>;
 };
 
 export function buildAdminGraphqlSchema(): GraphQLSchema {
@@ -103,6 +108,7 @@ export function executeAdminGraphql(input: AdminGraphqlExecutionInput, rootValue
     rootValue,
     variableValues: input.variables,
     operationName: input.operationName,
+    fieldResolver: adminGraphqlFieldResolver,
   });
 }
 
