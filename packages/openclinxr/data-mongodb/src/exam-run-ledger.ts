@@ -1,5 +1,9 @@
 import type { Collection, Db } from "mongodb";
-import type { ExamRunStationPhase } from "@openclinxr/exam-assembly";
+import {
+  ASSEMBLED_EXAM_PHASE_BY_TYPE,
+  ASSEMBLED_EXAM_PHASE_TRANSITION_TYPES,
+  type AssembledExamPhaseTransitionType,
+} from "@openclinxr/review-workflow";
 import type { PatientNote, ReviewPacket, TraceEvent } from "@openclinxr/shared-schemas";
 import { validatePatientNote, validateReviewPacket, validateTraceEvent } from "@openclinxr/shared-schemas";
 import { MongoReviewPacketRepository, MongoTraceRepository } from "./scenario-repositories.js";
@@ -16,58 +20,38 @@ export const examRunLedgerClaimBoundary = "exam_run_ledger_resume_not_exam_equiv
 export type ExamRunLedgerBackend = "memory" | "mongodb";
 export type ExamRunFormIdentity = { examRunId: string; examFormId: string; blueprintId: string };
 export type ExamRunStationBinding = {
-  stationOrder: number;
-  slotId: string;
-  stationRunId: string;
-  scenarioId: string | null;
-  scenarioVersion: number | null;
+  stationOrder: number; slotId: string; stationRunId: string; scenarioId: string | null; scenarioVersion: number | null;
 };
 export type OpenExamRunInput = ExamRunFormIdentity & { stations: readonly ExamRunStationBinding[] };
+export type CanonicalPhaseEventType = AssembledExamPhaseTransitionType;
 export type CanonicalPhaseEventAdmission = {
-  examRunId: string;
-  stationRunId: string;
-  sequence: number;
-  eventType: string;
-  atSecond: number;
-  source: string;
-  phase: ExamRunStationPhase;
-  tag?: string;
-  actorId?: string;
+  examRunId: string; stationRunId: string; sequence: number; eventType: string; atSecond: number; source: string;
+  scenarioId: string; stationOrder: number; formAtSecond: number; durableEventRef?: string; advanceReason?: string;
 };
-export type AdmittedCanonicalPhaseEvent = CanonicalPhaseEventAdmission & { durableEventRef: string; occurredAt: string };
+export type AdmittedCanonicalPhaseEvent = Omit<CanonicalPhaseEventAdmission, "eventType" | "durableEventRef" | "advanceReason"> & {
+  eventType: CanonicalPhaseEventType; phase: (typeof ASSEMBLED_EXAM_PHASE_BY_TYPE)[CanonicalPhaseEventType];
+  durableEventRef: string; occurredAt: string; advanceReason?: string;
+};
 export type PatientNoteAdmission = PatientNote & { examRunId: string };
 export type ActorPlanExecutionProvenanceAdmission = {
-  examRunId: string;
-  stationRunId: string;
-  turnId: string;
-  actorId: string;
-  planId: string;
-  sequence: number;
-  hasPlan: boolean;
-  hasExecution: boolean;
+  examRunId: string; stationRunId: string; turnId: string; actorId: string; planId: string; sequence: number;
+  hasPlan: boolean; hasExecution: boolean;
 };
 export type AdmittedActorPlanExecutionProvenance = ActorPlanExecutionProvenanceAdmission & { durableEventRef: string };
 export type ReviewPacketReference = { examRunId: string; stationRunId: string };
 export type ExamRunOmissionKind =
   | "missing_phase_events"
-  | "phase_sequence_gap"
   | "missing_patient_note"
   | "missing_actor_provenance"
   | "missing_review_packet_ref"
   | "review_packet_record_missing";
 export type ExamRunOmission = { kind: ExamRunOmissionKind; stationRunId: string; stationOrder: number; reason: string };
 export type ExamRunResumeProjection = {
-  examRunId: string;
-  backend: ExamRunLedgerBackend;
-  formIdentity: ExamRunFormIdentity;
-  orderedStations: ExamRunStationBinding[];
-  admittedPhaseEvents: AdmittedCanonicalPhaseEvent[];
-  patientNotes: PatientNoteAdmission[];
-  actorProvenance: AdmittedActorPlanExecutionProvenance[];
-  reviewPacketRefs: ReviewPacketReference[];
-  omissions: ExamRunOmission[];
-  claimBoundary: typeof examRunLedgerClaimBoundary;
-  notEvidenceFor: typeof examRunLedgerNotEvidenceFor;
+  examRunId: string; backend: ExamRunLedgerBackend; formIdentity: ExamRunFormIdentity;
+  orderedStations: ExamRunStationBinding[]; admittedPhaseEvents: AdmittedCanonicalPhaseEvent[];
+  patientNotes: PatientNoteAdmission[]; actorProvenance: AdmittedActorPlanExecutionProvenance[];
+  reviewPacketRefs: ReviewPacketReference[]; omissions: ExamRunOmission[];
+  claimBoundary: typeof examRunLedgerClaimBoundary; notEvidenceFor: typeof examRunLedgerNotEvidenceFor;
   examEquivalenceGate: false;
 };
 export type ExamRunLedger = {
@@ -76,27 +60,19 @@ export type ExamRunLedger = {
   openExamRun(input: OpenExamRunInput): Promise<ExamRunFormIdentity>;
   admitCanonicalPhaseEvent(input: CanonicalPhaseEventAdmission): Promise<AdmittedCanonicalPhaseEvent>;
   submitPatientNote(input: PatientNoteAdmission): Promise<PatientNoteAdmission>;
-  recordActorPlanExecutionProvenance(
-    input: ActorPlanExecutionProvenanceAdmission,
-  ): Promise<AdmittedActorPlanExecutionProvenance>;
+  recordActorPlanExecutionProvenance(input: ActorPlanExecutionProvenanceAdmission): Promise<AdmittedActorPlanExecutionProvenance>;
   attachReviewPacketReference(examRunId: string, packet: ReviewPacket): Promise<ReviewPacketReference>;
   resume(examRunId: string): Promise<ExamRunResumeProjection>;
 };
-
-type LedgerDoc = {
-  examRunId: string;
-  examFormId: string;
-  blueprintId: string;
-  stations: ExamRunStationBinding[];
-  phaseEvents: AdmittedCanonicalPhaseEvent[];
-  patientNotes: PatientNoteAdmission[];
-  actorProvenance: AdmittedActorPlanExecutionProvenance[];
+type LedgerDoc = ExamRunFormIdentity & {
+  stations: ExamRunStationBinding[]; phaseEvents: AdmittedCanonicalPhaseEvent[];
+  patientNotes: PatientNoteAdmission[]; actorProvenance: AdmittedActorPlanExecutionProvenance[];
   reviewPacketRefs: ReviewPacketReference[];
 };
 type LedgerStore = { load(examRunId: string): Promise<LedgerDoc | null>; save(doc: LedgerDoc): Promise<void> };
 
 const EPOCH_MS = Date.parse("2026-05-03T15:38:58.000Z");
-const PHASES = new Set<ExamRunStationPhase>(["doorway", "encounter", "note", "complete", "skipped"]);
+const PHASE_RANK = new Map<string, number>(ASSEMBLED_EXAM_PHASE_TRANSITION_TYPES.map((eventType, index) => [eventType, index]));
 const durableRef = (stationRunId: string, sequence: number) =>
   `durable://station-runs/${stationRunId}/events/${sequence}`;
 const cloneJson = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
@@ -114,6 +90,16 @@ function requireInt(value: number, fieldName: string): void {
   }
 }
 
+function requirePositiveInt(value: number, fieldName: string): void {
+  if (!Number.isInteger(value) || value < 1) {
+    throw new Error(`exam-run ledger requires positive integer ${fieldName}`);
+  }
+}
+
+function isCanonicalType(value: string): value is CanonicalPhaseEventType {
+  return (ASSEMBLED_EXAM_PHASE_TRANSITION_TYPES as readonly string[]).includes(value);
+}
+
 function crossRun(stationRunId: string, examRunId: string): Error {
   return new Error(`cross-run contamination: stationRunId ${stationRunId} is not bound to examRunId ${examRunId}`);
 }
@@ -122,10 +108,12 @@ function stale(detail: string): Error {
   return new Error(`stale-sequence contamination: ${detail}`);
 }
 
-function requireStation(doc: LedgerDoc, examRunId: string, stationRunId: string): void {
-  if (doc.examRunId !== examRunId || !doc.stations.some((station) => station.stationRunId === stationRunId)) {
+function requireStation(doc: LedgerDoc, examRunId: string, stationRunId: string): ExamRunStationBinding {
+  const station = doc.stations.find((entry) => entry.stationRunId === stationRunId);
+  if (doc.examRunId !== examRunId || !station) {
     throw crossRun(stationRunId, examRunId);
   }
+  return station;
 }
 
 function normalizeStations(stations: readonly ExamRunStationBinding[]): ExamRunStationBinding[] {
@@ -136,9 +124,10 @@ function normalizeStations(stations: readonly ExamRunStationBinding[]): ExamRunS
   const seenRuns = new Set<string>();
   return stations
     .map((station) => {
-      requireInt(station.stationOrder, "stationOrder");
+      requirePositiveInt(station.stationOrder, "stationOrder");
       requireField(station.slotId, "slotId");
       requireField(station.stationRunId, "stationRunId");
+      requireField(station.scenarioId ?? "", "scenarioId");
       if (seenOrders.has(station.stationOrder)) {
         throw new Error(`exam-run ledger stationOrder ${station.stationOrder} is duplicated`);
       }
@@ -168,9 +157,15 @@ function toTraceEvent(event: AdmittedCanonicalPhaseEvent): TraceEvent {
     occurredAt: event.occurredAt,
     atSecond: event.atSecond,
     source: event.source,
-    payload: { durableEventRef: event.durableEventRef, examRunId: event.examRunId, phase: event.phase },
-    ...(event.tag ? { tag: event.tag } : {}),
-    ...(event.actorId ? { actorId: event.actorId } : {}),
+    payload: {
+      durableEventRef: event.durableEventRef,
+      examRunId: event.examRunId,
+      scenarioId: event.scenarioId,
+      stationOrder: event.stationOrder,
+      phase: event.phase,
+      formAtSecond: event.formAtSecond,
+      ...(event.advanceReason ? { advanceReason: event.advanceReason } : {}),
+    },
   };
 }
 
@@ -194,43 +189,66 @@ function applyOpen(existing: LedgerDoc | null, input: OpenExamRunInput): LedgerD
   if (existing.examFormId !== input.examFormId || existing.blueprintId !== input.blueprintId) {
     throw new Error(`exam run identity is immutable for ${input.examRunId}`);
   }
-  if (stationKey(existing.stations) !== stationKey(stations)) {
-    throw new Error(`station queue is immutable for ${input.examRunId}`);
-  }
+  if (stationKey(existing.stations) !== stationKey(stations)) throw new Error(`station queue is immutable for ${input.examRunId}`);
   return existing;
 }
 
 function applyPhaseEvent(doc: LedgerDoc, input: CanonicalPhaseEventAdmission) {
-  if (input.examRunId !== doc.examRunId) {
-    throw crossRun(input.stationRunId, input.examRunId);
-  }
-  requireStation(doc, input.examRunId, input.stationRunId);
+  if (input.examRunId !== doc.examRunId) throw crossRun(input.stationRunId, input.examRunId);
+  const station = requireStation(doc, input.examRunId, input.stationRunId);
   requireInt(input.sequence, "sequence");
   requireInt(input.atSecond, "atSecond");
+  requireInt(input.formAtSecond, "formAtSecond");
   requireField(input.eventType, "eventType");
   requireField(input.source, "source");
-  if (!PHASES.has(input.phase)) {
-    throw new Error(`exam-run ledger phase ${String(input.phase)} is not canonical`);
+  requireField(input.scenarioId, "scenarioId");
+  requirePositiveInt(input.stationOrder, "stationOrder");
+  if (!isCanonicalType(input.eventType)) throw new Error(`exam-run ledger rejects noncanonical event type ${input.eventType}`);
+  if (input.scenarioId !== station.scenarioId) {
+    throw new Error(`cross-run contamination: scenarioId ${input.scenarioId} does not match bound ${station.scenarioId}`);
+  }
+  if (input.stationOrder !== station.stationOrder) {
+    throw new Error(`cross-run contamination: stationOrder ${input.stationOrder} does not match bound ${station.stationOrder}`);
+  }
+  const expectedRef = durableRef(input.stationRunId, input.sequence);
+  if (input.durableEventRef !== undefined && input.durableEventRef !== expectedRef) {
+    throw new Error(`malformed durableEventRef: expected ${expectedRef}`);
+  }
+  if (input.eventType === "station.advanced" && !input.advanceReason?.trim()) throw new Error("station.advanced requires advanceReason");
+  if (input.eventType !== "station.advanced" && input.advanceReason !== undefined) {
+    throw new Error(`illegal advanceReason on ${input.eventType}`);
   }
   const event: AdmittedCanonicalPhaseEvent = {
-    ...input,
-    durableEventRef: durableRef(input.stationRunId, input.sequence),
+    examRunId: input.examRunId, stationRunId: input.stationRunId, sequence: input.sequence,
+    eventType: input.eventType, atSecond: input.atSecond, source: input.source, scenarioId: input.scenarioId,
+    stationOrder: input.stationOrder, formAtSecond: input.formAtSecond,
+    phase: ASSEMBLED_EXAM_PHASE_BY_TYPE[input.eventType], durableEventRef: expectedRef,
     occurredAt: new Date(EPOCH_MS + input.atSecond * 1000).toISOString(),
+    ...(input.advanceReason ? { advanceReason: input.advanceReason } : {}),
   };
   const validation = validateTraceEvent(toTraceEvent(event));
-  if (!validation.ok) {
-    throw new Error(`Invalid trace event: ${validation.errors.join("; ")}`);
-  }
+  if (!validation.ok) throw new Error(`Invalid trace event: ${validation.errors.join("; ")}`);
   const eventFp = (row: AdmittedCanonicalPhaseEvent) => fp(
-    row.examRunId, row.stationRunId, row.sequence, row.eventType, row.phase,
-    row.atSecond, row.source, row.durableEventRef, row.tag ?? "", row.actorId ?? "",
+    row.examRunId, row.stationRunId, row.sequence, row.eventType, row.phase, row.scenarioId,
+    row.stationOrder, row.atSecond, row.formAtSecond, row.source, row.durableEventRef, row.advanceReason ?? "",
   );
   const existing = doc.phaseEvents.find((row) => row.stationRunId === event.stationRunId && row.sequence === event.sequence);
   if (existing) {
-    if (eventFp(existing) !== eventFp(event)) {
-      throw stale(`sequence ${event.sequence} already admitted for stationRunId ${event.stationRunId}`);
-    }
+    if (eventFp(existing) !== eventFp(event)) throw stale(`sequence ${event.sequence} already admitted for stationRunId ${event.stationRunId}`);
     return { doc, event: existing, unchanged: true };
+  }
+  const prior = doc.phaseEvents.filter((row) => row.stationRunId === event.stationRunId)
+    .sort((left, right) => (PHASE_RANK.get(left.eventType) ?? -1) - (PHASE_RANK.get(right.eventType) ?? -1));
+  const last = prior[prior.length - 1];
+  const newRank = PHASE_RANK.get(event.eventType) ?? -1;
+  if (prior.some((row) => row.eventType === event.eventType)) throw new Error(`out-of-order transition: ${event.eventType} already admitted`);
+  if (last) {
+    const lastRank = PHASE_RANK.get(last.eventType) ?? -1;
+    if (newRank !== lastRank + 1 || event.atSecond < last.atSecond || event.formAtSecond < last.formAtSecond) {
+      throw new Error(`out-of-order transition: ${event.eventType} after ${last.eventType}`);
+    }
+  } else if (newRank !== 0) {
+    throw new Error(`out-of-order transition: ${event.eventType} cannot start a station`);
   }
   return { doc: { ...doc, phaseEvents: [...doc.phaseEvents, event] }, event, unchanged: false };
 }
@@ -251,9 +269,7 @@ function applyPatientNote(doc: LedgerDoc, input: PatientNoteAdmission) {
     submittedAtSecond: note.submittedAtSecond,
     text: note.text,
   });
-  if (!validation.ok) {
-    throw new Error(`Invalid patient note: ${validation.errors.join("; ")}`);
-  }
+  if (!validation.ok) throw new Error(`Invalid patient note: ${validation.errors.join("; ")}`);
   const existing = doc.patientNotes.find((row) => row.stationRunId === note.stationRunId);
   if (existing) {
     if (fp(existing.examRunId, existing.stationRunId, existing.submittedAtSecond, existing.text)
@@ -297,9 +313,7 @@ function applyActorProvenance(doc: LedgerDoc, input: ActorPlanExecutionProvenanc
 
 function applyReviewPacketRef(doc: LedgerDoc, packet: ReviewPacket) {
   const validation = validateReviewPacket(packet);
-  if (!validation.ok) {
-    throw new Error(`Invalid review packet: ${validation.errors.join("; ")}`);
-  }
+  if (!validation.ok) throw new Error(`Invalid review packet: ${validation.errors.join("; ")}`);
   requireStation(doc, doc.examRunId, packet.stationRunId);
   const ref: ReviewPacketReference = { examRunId: doc.examRunId, stationRunId: packet.stationRunId };
   const existing = doc.reviewPacketRefs.find((row) => row.stationRunId === ref.stationRunId);
@@ -307,17 +321,6 @@ function applyReviewPacketRef(doc: LedgerDoc, packet: ReviewPacket) {
     return { doc, ref: existing, unchanged: true };
   }
   return { doc: { ...doc, reviewPacketRefs: [...doc.reviewPacketRefs, ref] }, ref, unchanged: false };
-}
-
-function sequenceGaps(sequences: number[]): number[] {
-  const unique = [...new Set(sequences)].sort((left, right) => left - right);
-  if (unique.length === 0) return [];
-  const present = new Set(unique);
-  const gaps: number[] = [];
-  for (let sequence = unique[0] ?? 0; sequence <= (unique[unique.length - 1] ?? 0); sequence += 1) {
-    if (!present.has(sequence)) gaps.push(sequence);
-  }
-  return gaps;
 }
 
 function omit(kind: ExamRunOmissionKind, station: ExamRunStationBinding, reason: string): ExamRunOmission {
@@ -347,11 +350,6 @@ function projectResume(
     const events = admittedPhaseEvents.filter((event) => event.stationRunId === station.stationRunId);
     if (events.length === 0) {
       omissions.push(omit("missing_phase_events", station, "no canonical phase events admitted"));
-    } else {
-      const gaps = sequenceGaps(events.map((event) => event.sequence));
-      if (gaps.length > 0) {
-        omissions.push(omit("phase_sequence_gap", station, `missing sequences ${gaps.join(",")}`));
-      }
     }
     if (!patientNotes.some((note) => note.stationRunId === station.stationRunId)) {
       omissions.push(omit("missing_patient_note", station, "no patient-note submission admitted"));

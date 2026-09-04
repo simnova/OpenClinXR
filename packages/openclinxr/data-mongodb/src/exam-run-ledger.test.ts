@@ -6,12 +6,15 @@ import {
   examRunLedgerClaimBoundary,
   examRunLedgerNotEvidenceFor,
   MemoryExamRunLedger,
+  type CanonicalPhaseEventAdmission,
   type OpenExamRunInput,
 } from "./index.js";
 
 const examRunId = "exam_run_ledger_001";
 const stationA = "run_station_a";
 const stationB = "run_station_b";
+const scenarioA = "ed_chest_pain_priority_v1";
+const scenarioB = "peds_asthma_parent_anxiety_v1";
 
 function openInput(overrides: Partial<OpenExamRunInput> = {}): OpenExamRunInput {
   return {
@@ -20,17 +23,17 @@ function openInput(overrides: Partial<OpenExamRunInput> = {}): OpenExamRunInput 
     blueprintId: "blueprint_step2cs_style_seed_v1",
     stations: [
       {
-        stationOrder: 0,
+        stationOrder: 1,
         slotId: "slot_a",
         stationRunId: stationA,
-        scenarioId: "ed_chest_pain_priority_v1",
+        scenarioId: scenarioA,
         scenarioVersion: 1,
       },
       {
-        stationOrder: 1,
+        stationOrder: 2,
         slotId: "slot_b",
         stationRunId: stationB,
-        scenarioId: "peds_asthma_parent_anxiety_v1",
+        scenarioId: scenarioB,
         scenarioVersion: 1,
       },
     ],
@@ -38,10 +41,25 @@ function openInput(overrides: Partial<OpenExamRunInput> = {}): OpenExamRunInput 
   };
 }
 
+function phase(overrides: Partial<CanonicalPhaseEventAdmission> = {}): CanonicalPhaseEventAdmission {
+  return {
+    examRunId,
+    stationRunId: stationA,
+    sequence: 0,
+    eventType: "encounter.started",
+    atSecond: 60,
+    source: "system",
+    scenarioId: scenarioA,
+    stationOrder: 1,
+    formAtSecond: 60,
+    ...overrides,
+  };
+}
+
 function reviewPacket(stationRunId: string): ReviewPacket {
   return {
     stationRunId,
-    scenarioId: "ed_chest_pain_priority_v1",
+    scenarioId: scenarioA,
     observedTraceTags: ["ecg_request"],
     missingRequiredTraceTags: [],
     lateTraceTags: [],
@@ -103,7 +121,7 @@ describe("exam-run ledger", () => {
     expect(createMongoExamPersistence).toBeTypeOf("function");
   });
 
-  it("persists immutable form identity and ordered station queue idempotently", async () => {
+  it("persists immutable form identity and 1-based station queue idempotently", async () => {
     const ledger = createExamRunLedger();
     const first = await ledger.openExamRun(openInput());
     const second = await ledger.openExamRun(openInput());
@@ -114,49 +132,43 @@ describe("exam-run ledger", () => {
       examFormId: "form_ledger_001",
       blueprintId: "blueprint_step2cs_style_seed_v1",
     });
-    expect(resume.orderedStations.map((station) => station.stationRunId)).toEqual([stationA, stationB]);
+    expect(resume.orderedStations.map((station) => station.stationOrder)).toEqual([1, 2]);
   });
 
-  it("rejects identity or queue mutation on the same examRunId", async () => {
+  it("rejects zero stationOrder and identity mutation", async () => {
     const ledger = await openFreshLedger();
     await expect(
       ledger.openExamRun(openInput({ examFormId: "form_other" })),
     ).rejects.toThrow(/identity is immutable/);
     await expect(
-      ledger.openExamRun(
+      createExamRunLedger().openExamRun(
         openInput({
           stations: [
             {
               stationOrder: 0,
               slotId: "slot_a",
-              stationRunId: "run_station_hijack",
-              scenarioId: "ed_chest_pain_priority_v1",
+              stationRunId: stationA,
+              scenarioId: scenarioA,
               scenarioVersion: 1,
             },
           ],
         }),
       ),
-    ).rejects.toThrow(/station queue is immutable/);
+    ).rejects.toThrow(/positive integer stationOrder/);
   });
 
   it("admits canonical phase events idempotently and rejects stale-sequence plus cross-run writes", async () => {
     const ledger = await openFreshLedger();
-    const admission = {
-      examRunId,
-      stationRunId: stationA,
-      sequence: 0,
-      eventType: "station.phase.doorway",
-      atSecond: 0,
-      source: "system",
-      phase: "doorway" as const,
-    };
+    const admission = phase();
     const first = await ledger.admitCanonicalPhaseEvent(admission);
     const second = await ledger.admitCanonicalPhaseEvent(admission);
     expect(first).toEqual(second);
     expect(first.durableEventRef).toBe(`durable://station-runs/${stationA}/events/0`);
+    expect(first.phase).toBe("encounter");
+    expect(first.stationOrder).toBe(1);
 
     await expect(
-      ledger.admitCanonicalPhaseEvent({ ...admission, eventType: "station.phase.encounter", phase: "encounter" }),
+      ledger.admitCanonicalPhaseEvent({ ...admission, formAtSecond: 90 }),
     ).rejects.toThrow(/stale-sequence contamination/);
 
     await ledger.openExamRun(
@@ -165,10 +177,10 @@ describe("exam-run ledger", () => {
         examFormId: "form_other",
         stations: [
           {
-            stationOrder: 0,
+            stationOrder: 1,
             slotId: "slot_other",
             stationRunId: "run_station_other",
-            scenarioId: "ed_chest_pain_priority_v1",
+            scenarioId: scenarioA,
             scenarioVersion: 1,
           },
         ],
@@ -177,10 +189,99 @@ describe("exam-run ledger", () => {
     await expect(
       ledger.admitCanonicalPhaseEvent({ ...admission, examRunId: "exam_run_other", stationRunId: stationA }),
     ).rejects.toThrow(/cross-run contamination/);
-
     await expect(
       ledger.admitCanonicalPhaseEvent({ ...admission, stationRunId: "run_unbound" }),
     ).rejects.toThrow(/cross-run contamination/);
+  });
+
+  it("rejects arbitrary event types, mismatched scenario/order, and malformed durable refs", async () => {
+    const ledger = await openFreshLedger();
+    await expect(
+      ledger.admitCanonicalPhaseEvent(phase({ eventType: "station.phase.doorway" })),
+    ).rejects.toThrow(/noncanonical event type/);
+    await expect(
+      ledger.admitCanonicalPhaseEvent(phase({ scenarioId: scenarioB })),
+    ).rejects.toThrow(/scenarioId/);
+    await expect(
+      ledger.admitCanonicalPhaseEvent(phase({ stationOrder: 2 })),
+    ).rejects.toThrow(/stationOrder/);
+    await expect(
+      ledger.admitCanonicalPhaseEvent(phase({ durableEventRef: "durable://station-runs/run_station_a/events/99" })),
+    ).rejects.toThrow(/malformed durableEventRef/);
+  });
+
+  it("enforces legal monotonic ordering and advanceReason rules", async () => {
+    const ledger = await openFreshLedger();
+    await expect(
+      ledger.admitCanonicalPhaseEvent(phase({ eventType: "note.started", sequence: 2, formAtSecond: 900, atSecond: 900 })),
+    ).rejects.toThrow(/out-of-order transition/);
+    await ledger.admitCanonicalPhaseEvent(phase());
+    await expect(
+      ledger.admitCanonicalPhaseEvent(phase({
+        eventType: "note.started",
+        sequence: 2,
+        atSecond: 900,
+        formAtSecond: 900,
+        durableEventRef: `durable://station-runs/${stationA}/events/2`,
+      })),
+    ).rejects.toThrow(/out-of-order transition/);
+    await expect(
+      ledger.admitCanonicalPhaseEvent(phase({
+        eventType: "encounter.ended",
+        sequence: 1,
+        atSecond: 900,
+        formAtSecond: 900,
+        durableEventRef: `durable://station-runs/${stationA}/events/1`,
+        advanceReason: "too_early",
+      })),
+    ).rejects.toThrow(/illegal advanceReason/);
+    await ledger.admitCanonicalPhaseEvent(phase({
+      eventType: "encounter.ended",
+      sequence: 1,
+      atSecond: 900,
+      formAtSecond: 900,
+      durableEventRef: `durable://station-runs/${stationA}/events/1`,
+    }));
+    await ledger.admitCanonicalPhaseEvent(phase({
+      eventType: "note.started",
+      sequence: 2,
+      atSecond: 900,
+      formAtSecond: 900,
+      durableEventRef: `durable://station-runs/${stationA}/events/2`,
+    }));
+    await ledger.admitCanonicalPhaseEvent(phase({
+      eventType: "note.submitted",
+      sequence: 3,
+      atSecond: 1260,
+      formAtSecond: 1260,
+      durableEventRef: `durable://station-runs/${stationA}/events/3`,
+    }));
+    await expect(
+      ledger.admitCanonicalPhaseEvent(phase({
+        eventType: "station.advanced",
+        sequence: 4,
+        atSecond: 1260,
+        formAtSecond: 1260,
+        durableEventRef: `durable://station-runs/${stationA}/events/4`,
+      })),
+    ).rejects.toThrow(/requires advanceReason/);
+    const advanced = await ledger.admitCanonicalPhaseEvent(phase({
+      eventType: "station.advanced",
+      sequence: 4,
+      atSecond: 1260,
+      formAtSecond: 1260,
+      durableEventRef: `durable://station-runs/${stationA}/events/4`,
+      advanceReason: "patient_note_submitted_advancing",
+    }));
+    expect(advanced.phase).toBe("complete");
+    expect(await ledger.admitCanonicalPhaseEvent(phase({
+      eventType: "station.advanced",
+      sequence: 4,
+      atSecond: 1260,
+      formAtSecond: 1260,
+      durableEventRef: `durable://station-runs/${stationA}/events/4`,
+      advanceReason: "patient_note_submitted_advancing",
+    }))).toEqual(advanced);
   });
 
   it("submits patient notes idempotently and rejects empty or contaminated notes", async () => {
@@ -202,10 +303,10 @@ describe("exam-run ledger", () => {
         examFormId: "form_other",
         stations: [
           {
-            stationOrder: 0,
+            stationOrder: 1,
             slotId: "slot_other",
             stationRunId: "run_station_other",
-            scenarioId: "ed_chest_pain_priority_v1",
+            scenarioId: scenarioA,
             scenarioVersion: 1,
           },
         ],
@@ -253,24 +354,7 @@ describe("exam-run ledger", () => {
 
   it("restores a deterministic resume projection with explicit omissions", async () => {
     const ledger = await openFreshLedger();
-    await ledger.admitCanonicalPhaseEvent({
-      examRunId,
-      stationRunId: stationA,
-      sequence: 0,
-      eventType: "station.phase.doorway",
-      atSecond: 0,
-      source: "system",
-      phase: "doorway",
-    });
-    await ledger.admitCanonicalPhaseEvent({
-      examRunId,
-      stationRunId: stationA,
-      sequence: 2,
-      eventType: "station.phase.note",
-      atSecond: 900,
-      source: "system",
-      phase: "note",
-    });
+    await ledger.admitCanonicalPhaseEvent(phase());
     await ledger.submitPatientNote({
       examRunId,
       stationRunId: stationA,
@@ -290,43 +374,34 @@ describe("exam-run ledger", () => {
     await ledger.attachReviewPacketReference(examRunId, reviewPacket(stationA));
 
     const resume = await ledger.resume(examRunId);
-    expect(resume.orderedStations.map((station) => station.stationOrder)).toEqual([0, 1]);
-    expect(resume.admittedPhaseEvents.map((event) => event.sequence)).toEqual([0, 2]);
+    expect(resume.orderedStations.map((station) => station.stationOrder)).toEqual([1, 2]);
+    expect(resume.admittedPhaseEvents.map((event) => event.eventType)).toEqual(["encounter.started"]);
     expect(resume.omissions).toEqual([
-      {
-        kind: "phase_sequence_gap",
-        stationRunId: stationA,
-        stationOrder: 0,
-        reason: "missing sequences 1",
-      },
       {
         kind: "missing_phase_events",
         stationRunId: stationB,
-        stationOrder: 1,
+        stationOrder: 2,
         reason: "no canonical phase events admitted",
       },
       {
         kind: "missing_patient_note",
         stationRunId: stationB,
-        stationOrder: 1,
+        stationOrder: 2,
         reason: "no patient-note submission admitted",
       },
       {
         kind: "missing_actor_provenance",
         stationRunId: stationB,
-        stationOrder: 1,
+        stationOrder: 2,
         reason: "no actor plan/execution provenance admitted",
       },
       {
         kind: "missing_review_packet_ref",
         stationRunId: stationB,
-        stationOrder: 1,
+        stationOrder: 2,
         reason: "no assembled review packet reference attached",
       },
     ]);
-    expect(resume.omissions.some((omission) => omission.stationRunId === stationA && omission.kind === "missing_patient_note")).toBe(
-      false,
-    );
   });
 
   it("does not invent a resume for an unknown examRunId", async () => {
