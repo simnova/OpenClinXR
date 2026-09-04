@@ -28,6 +28,21 @@ export {
   runAssembledExam,
 } from "./exam-run-bridge.js";
 export {
+  assembledExamOrchestratorClaimBoundary,
+  assembledExamOrchestratorNotEvidenceFor,
+  resumeAssembledExam,
+  type AssembledExamAdmittedPhaseEvent,
+  type AssembledExamLedgerResumeProjection,
+  type AssembledExamLedgerStationBinding,
+  type AssembledExamLifecycleState,
+  type AssembledExamOmission,
+  type AssembledExamResumeAction,
+  type AssembledExamResumeDecision,
+  type AssembledExamSelectedStation,
+  type RequestedAssembledExamStation,
+  type ResumeAssembledExamInput,
+} from "./assembled-exam-orchestrator.js";
+export {
   type ScenarioCatalogEntry,
   type ScenarioCatalogPort,
   type ScenarioCatalogSource,
