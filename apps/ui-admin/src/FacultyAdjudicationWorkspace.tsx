@@ -1,4 +1,3 @@
-/// <reference lib="dom" />
 import { Alert, Button, Input, Space, Spin, Tag, Typography } from "antd";
 import { type ReactElement, useEffect, useRef, useState } from "react";
 import {
