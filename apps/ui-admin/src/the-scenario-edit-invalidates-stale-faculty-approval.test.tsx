@@ -175,6 +175,67 @@ describe("the scenario edit invalidates stale faculty approval", () => {
     ).toBe("approved");
   });
 
+  it("changes identity when environment is edited", () => {
+    const base = {
+      ...makeScenario(),
+      environment: { environmentId: "exam_room_peds_v1", name: "Peds exam room", description: "Bay 2" },
+    } as unknown as AdminScenario;
+    const edited = {
+      ...base,
+      environment: { environmentId: "telehealth_home_visit_v1", name: "Home visit", description: "Bay 2" },
+    } as unknown as AdminScenario;
+    expect(authoredScenarioContentIdentity(base)).not.toBe(authoredScenarioContentIdentity(edited));
+  });
+
+  it("changes identity when a nested actor emotionPolicy is edited", () => {
+    const actor = {
+      actorId: "patient_maya_johnson_v1",
+      role: "patient",
+      displayName: "Maya Johnson",
+      demeanor: "anxious",
+      communicationProfile: {
+        styleFamily: "pediatric",
+        style: "direct",
+        intensity: 2,
+        baselineMood: ["anxious"],
+        communicativeness: "moderate",
+      },
+      emotionPolicy: { baselineAffect: "anxious", peakAffect: "distressed" },
+      phenotype: { ageYears: 9, garmentLayers: ["short_sleeve_exam_tshirt"] },
+    };
+    const base = { ...makeScenario(), actors: [actor] } as unknown as AdminScenario;
+    const edited = {
+      ...base,
+      actors: [{ ...actor, emotionPolicy: { baselineAffect: "anxious", peakAffect: "panic" } }],
+    } as unknown as AdminScenario;
+    expect(authoredScenarioContentIdentity(base)).not.toBe(authoredScenarioContentIdentity(edited));
+  });
+
+  it("does not change identity when only review labels or workflow status change", () => {
+    const base = makeScenario();
+    const labelsOnly = makeScenario({
+      review: {
+        clinical: "draft",
+        psychometric: "approved",
+        legal: "changes_requested",
+        simulationQa: "approved",
+      },
+      status: "READY_FOR_REVIEW",
+    });
+    expect(authoredScenarioContentIdentity(base)).toBe(authoredScenarioContentIdentity(labelsOnly));
+  });
+
+  it("does not stale from object key insertion order", () => {
+    const a = makeScenario();
+    const record = a as unknown as Record<string, unknown>;
+    const reordered = Object.fromEntries(
+      Object.keys(record)
+        .reverse()
+        .map((key) => [key, record[key]]),
+    ) as unknown as AdminScenario;
+    expect(authoredScenarioContentIdentity(a)).toBe(authoredScenarioContentIdentity(reordered));
+  });
+
   it("renders stale tags and refuses compile/learner-use after a version advance", async () => {
     const v1 = makeScenario({ version: 1 });
     const v2 = makeScenario({ version: 2 });
@@ -307,7 +368,11 @@ describe("the scenario edit invalidates stale faculty approval", () => {
       },
     ];
 
-    expect(facultyCompileLockIdentityMoved(previous[0]!, next[0]!)).toBe(true);
+    const previousRow = previous[0];
+    const nextRow = next[0];
+    expect(previousRow).toBeDefined();
+    expect(nextRow).toBeDefined();
+    expect(previousRow && nextRow ? facultyCompileLockIdentityMoved(previousRow, nextRow) : false).toBe(true);
     const merged = mergeFacultyCompileLockRows(next, previous);
     expect(merged[0]).toMatchObject({
       locked: true,

@@ -78,25 +78,47 @@ function fnv1aHex(input: string): string {
   return (hash >>> 0).toString(16).padStart(8, "0");
 }
 
-/** Authored content identity: scenario fields excluding review labels so unchanged labels cannot keep a decision current. */
+/**
+ * Root keys omitted from authored content identity (documented non-authored/transient):
+ * - review: faculty decision labels; unchanged labels must not keep a decision current
+ * - status: workflow state that flips when a decision is recorded
+ * Nested GraphQL transport key omitted everywhere: __typename
+ */
+export const AUTHORED_CONTENT_IDENTITY_OMITTED_ROOT_KEYS = ["review", "status"] as const;
+export const AUTHORED_CONTENT_IDENTITY_OMITTED_NESTED_KEYS = ["__typename"] as const;
+
+function canonicalizeAuthoredValue(value: unknown, atRoot: boolean): unknown {
+  if (value === null || typeof value !== "object") {
+    return value;
+  }
+  if (Array.isArray(value)) {
+    return value.map((item) => canonicalizeAuthoredValue(item, false));
+  }
+  const record = value as Record<string, unknown>;
+  const keys = Object.keys(record)
+    .filter((key) => {
+      if (record[key] === undefined) {
+        return false;
+      }
+      if ((AUTHORED_CONTENT_IDENTITY_OMITTED_NESTED_KEYS as readonly string[]).includes(key)) {
+        return false;
+      }
+      if (atRoot && (AUTHORED_CONTENT_IDENTITY_OMITTED_ROOT_KEYS as readonly string[]).includes(key)) {
+        return false;
+      }
+      return true;
+    })
+    .sort();
+  const canonical: Record<string, unknown> = {};
+  for (const key of keys) {
+    canonical[key] = canonicalizeAuthoredValue(record[key], false);
+  }
+  return canonical;
+}
+
+/** Canonical hash of the complete scenario minus documented non-authored/transient keys. */
 export function authoredScenarioContentIdentity(scenario: AdminScenario): string {
-  const authored = {
-    scenarioId: scenario.scenarioId,
-    version: scenario.version,
-    title: scenario.title,
-    clinicalObjectives: scenario.clinicalObjectives,
-    requiredTraceTags: scenario.requiredTraceTags,
-    actors: scenario.actors.map((actor) => ({
-      actorId: actor.actorId,
-      role: actor.role,
-      displayName: actor.displayName,
-    })),
-    assetNeeds: scenario.assetNeeds.map((need) => ({
-      assetId: need.assetId,
-      assetType: need.assetType,
-    })),
-  };
-  return fnv1aHex(JSON.stringify(authored));
+  return fnv1aHex(JSON.stringify(canonicalizeAuthoredValue(scenario, true)));
 }
 
 export function authoredContentIdentityFromEvidenceRefs(evidenceRefs: readonly string[]): string | undefined {
