@@ -24,14 +24,14 @@ prefix_rule(
 
 prefix_rule(
     pattern = ["git", "commit"],
-    decision = "prompt",
-    justification = "Commits should happen only after staged-scope review and OpenClaw-style guards.",
+    decision = "allow",
+    justification = "Operator authorized commits without prompting; staged-scope review and repo verification still apply.",
     match = ["git commit -m example"],
 )
 
 prefix_rule(
     pattern = ["git", "push"],
-    decision = "prompt",
-    justification = "Pushing publishes repo state; require explicit user intent.",
+    decision = "allow",
+    justification = "Operator authorized pushes without prompting; repo scope and no-force-push requirements still apply.",
     match = ["git push origin main"],
 )
