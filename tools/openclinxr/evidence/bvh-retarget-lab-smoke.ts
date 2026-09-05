@@ -4,7 +4,7 @@
  * The Blender bake can look fine while the GLB explodes/desyncs in the runtime (the
  * classic three.js rest-pose explosion). This gate loads each shippable clip in the
  * isolated humanoid lab, samples the *deformed* skinned-mesh bbox over ~one cycle via
- * window.__isoAnimEvidence, and fails on explosion / static playback / page errors.
+ * browserPageWindow.__isoAnimEvidence, and fails on explosion / static playback / page errors.
  *
  * Run:             tsx tools/openclinxr/evidence/bvh-retarget-lab-smoke.ts
  * Validate latest: tsx tools/openclinxr/evidence/bvh-retarget-lab-smoke.ts --validate-latest
@@ -137,12 +137,12 @@ async function buildReport(opts: CliOptions): Promise<any> {
         let ev: any = null;
         try {
           await page.goto(url, { waitUntil: "load", timeout: 45_000 });
-          await page.waitForFunction(() => window.__isoReady === true || window.__isoError, { timeout: 30_000 });
+          await page.waitForFunction(() => browserPageWindow.__isoReady === true || browserPageWindow.__isoError, { timeout: 30_000 });
           await page.waitForFunction(
-            () => Boolean(window.__isoAnimEvidence && window.__isoAnimEvidence.ready),
+            () => Boolean(browserPageWindow.__isoAnimEvidence?.ready),
             { timeout: 20_000 },
           );
-          ev = await page.evaluate(() => window.__isoAnimEvidence);
+          ev = await page.evaluate(() => browserPageWindow.__isoAnimEvidence);
           await page.screenshot({ path: path.join(outDir, `${clip.key}.png`) });
         } catch (e) {
           pageErrors.push(`capture_failed:${String(e)}`);

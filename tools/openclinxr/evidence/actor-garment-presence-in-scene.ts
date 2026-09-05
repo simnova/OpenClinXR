@@ -124,8 +124,8 @@ async function readFilePrimitives(assetPath: string): Promise<FilePrimitive[]> {
   if (!existsSync(abs)) {
     throw new Error(`actor-garment-presence: missing GLB ${assetPath}`);
   }
-  const document = await new NodeIO().read(abs);
-  const root = document.getRoot();
+  const browserPageDocument = await new NodeIO().read(abs);
+  const root = browserPageDocument.getRoot();
   const out: FilePrimitive[] = [];
   const base = path.basename(assetPath, ".glb");
 
@@ -226,7 +226,7 @@ async function dumpLiveMeshesForScenario(
   // String evaluate — avoid tsx __name injection into page.evaluate.
   const raw = (await page.evaluate(`(() => {
     const expected = new Set(${actorIdsJson});
-    const scene = window.__openClinXrDebugScene;
+    const scene = browserPageWindow.__openClinXrDebugScene;
     const byActor = {};
     function actorIdOf(obj) {
       let cur = obj;
@@ -293,7 +293,7 @@ async function waitForHumanoidsAndFrames(
 ): Promise<void> {
   await page.waitForFunction(
     ({ minFrames: need }) => {
-      const win = window as unknown as {
+      const win = browserPageWindow as unknown as {
         __openClinXrFrameStats?: { framesObserved?: number };
         __openClinXrDebugScene?: {
           traverse?: (cb: (o: { isSkinnedMesh?: boolean }) => void) => void;

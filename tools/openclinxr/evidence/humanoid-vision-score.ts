@@ -446,14 +446,14 @@ async function scoreScreenshot(
 /** Hide HUD + screenshot canvas only (no page chrome / debug text). */
 async function captureCleanPng(page: Page): Promise<Buffer> {
   await page.evaluate(() => {
-    const hide = (window as any).__hideHud;
+    const hide = (browserPageWindow as any).__hideHud;
     if (typeof hide === "function") hide();
-    const hud = document.getElementById("hud");
+    const hud = browserPageDocument.getElementById("hud");
     if (hud) hud.style.display = "none";
     // Force one render after HUD hide
-    const cam = (window as any).__isoCamera;
-    const scene = (window as any).__isoScene;
-    const renderer = (document.querySelector("canvas") as any)?.__threeRenderer;
+    const cam = (browserPageWindow as any).__isoCamera;
+    const scene = (browserPageWindow as any).__isoScene;
+    const renderer = (browserPageDocument.querySelector("canvas") as any)?.__threeRenderer;
     void cam;
     void scene;
     void renderer;
@@ -498,19 +498,19 @@ async function ensureIsoReady(page: Page, entry: ManifestEntry, baseUrl: string)
     `&clean=1&framing=full&_ts=${Date.now()}`;
   await page.goto(url, { waitUntil: "load", timeout: 60_000 });
   await page.waitForFunction(
-    () => (window as any).__isoReady === true || (window as any).__isoError,
+    () => (browserPageWindow as any).__isoReady === true || (browserPageWindow as any).__isoError,
     { timeout: ISO_READY_TIMEOUT_MS },
   );
-  const isoErr = await page.evaluate(() => (window as any).__isoError ?? null);
+  const isoErr = await page.evaluate(() => (browserPageWindow as any).__isoError ?? null);
   if (isoErr) {
     console.warn(`[humanoid-vision-score] ${entry.id} isoError=${isoErr} — scoring if render present`);
   }
   await page.waitForTimeout(SETTLE_MS);
   // Ensure framing + HUD hidden
   await page.evaluate(() => {
-    const fn = (window as any).__isoSetFraming;
+    const fn = (browserPageWindow as any).__isoSetFraming;
     if (typeof fn === "function") fn("full");
-    const hide = (window as any).__hideHud;
+    const hide = (browserPageWindow as any).__hideHud;
     if (typeof hide === "function") hide();
   });
   await page.waitForTimeout(200);
@@ -523,17 +523,17 @@ async function captureFraming(
 ): Promise<Buffer> {
   if (framing === "face") {
     await page.evaluate(() => {
-      const fn = (window as any).__isoSetFraming;
+      const fn = (browserPageWindow as any).__isoSetFraming;
       if (typeof fn === "function") fn("face");
-      const hide = (window as any).__hideHud;
+      const hide = (browserPageWindow as any).__hideHud;
       if (typeof hide === "function") hide();
     });
     await page.waitForTimeout(400);
   } else {
     await page.evaluate(() => {
-      const fn = (window as any).__isoSetFraming;
+      const fn = (browserPageWindow as any).__isoSetFraming;
       if (typeof fn === "function") fn("full");
-      const hide = (window as any).__hideHud;
+      const hide = (browserPageWindow as any).__hideHud;
       if (typeof hide === "function") hide();
     });
     await page.waitForTimeout(200);

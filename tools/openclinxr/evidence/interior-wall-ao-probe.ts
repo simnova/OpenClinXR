@@ -208,6 +208,7 @@ async function readPlasterUv2Falsifier(page: Page): Promise<{
   materialsWithAoMap: number;
   aoMapChannel: number | null;
   uvAttrs: string[];
+  candidateSummary?: unknown;
 }> {
   return page.evaluate(`(() => {
     const scene = window.__openClinXrDebugScene;

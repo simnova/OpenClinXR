@@ -214,6 +214,8 @@ export type SupervisorAudit = {
   head: string;
   readyDepth: ReadyDepth;
   doneClaims: DoneClaim[];
+  /** Graded-but-open claims: telemetry, never a finding, never chronic-eligible. */
+  pendingReviews: PendingReview[];
   findings: Finding[];
   /** Findings from the previous audit that are GONE — they self-corrected. Reported, not dropped. */
   resolved: string[];

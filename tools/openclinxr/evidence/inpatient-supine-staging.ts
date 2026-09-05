@@ -339,7 +339,7 @@ async function waitForHumanoidsAndFrames(
 ): Promise<void> {
   await page.waitForFunction(
     ({ minFrames: need }) => {
-      const win = window as unknown as {
+      const win = browserPageWindow as unknown as {
         __openClinXrFrameStats?: { framesObserved?: number };
         __openClinXrDebugScene?: {
           traverse?: (cb: (o: {
@@ -370,9 +370,9 @@ async function waitForHumanoidsAndFrames(
  */
 async function readLiveStationFromPage(page: Page): Promise<LiveStationReading> {
   return page.evaluate(`(() => {
-    const win = window;
+    const win = browserPageWindow;
     const scene = win.__openClinXrDebugScene;
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(browserPageWindow.location.search);
     let scenarioId = params.get("openclinxrScenarioId") || params.get("scenarioId") || "";
     let environmentId = "";
     if (scene && scene.userData && scene.userData.openClinXrStationEnvironment) {

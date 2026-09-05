@@ -395,7 +395,7 @@ export async function waitForSceneAssetsSettled(page: Page, timeoutMs: number): 
   try {
     await page.waitForFunction(
       () => {
-        const win = window as unknown as {
+        const win = browserPageWindow as unknown as {
           __openClinXrSceneAssetEvidence?: {
             pendingCount?: number;
             assets?: unknown[];
@@ -428,7 +428,7 @@ async function waitForFramesOrHumanoids(
   try {
     await page.waitForFunction(
       ({ minFrames: need }) => {
-        const win = window as unknown as {
+        const win = browserPageWindow as unknown as {
           __openClinXrFrameStats?: { framesObserved?: number };
           __openClinXrDebugScene?: {
             traverse?: (cb: (o: { isSkinnedMesh?: boolean }) => void) => void;
@@ -452,7 +452,7 @@ async function waitForFramesOrHumanoids(
     const remaining = Math.max(5_000, timeoutMs - (Date.now() - started));
     await page.waitForFunction(
       ({ minFrames: need }) => {
-        const win = window as unknown as {
+        const win = browserPageWindow as unknown as {
           __openClinXrFrameStats?: { framesObserved?: number };
         };
         return (win.__openClinXrFrameStats?.framesObserved ?? 0) >= need;
@@ -483,9 +483,9 @@ export async function readLiveActorPresenceFromPage(page: Page): Promise<{
   roots: LiveRoot[];
 }> {
   return page.evaluate(`(() => {
-    const win = window;
+    const win = browserPageWindow;
     const scene = win.__openClinXrDebugScene;
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(browserPageWindow.location.search);
     let scenarioId = params.get("openclinxrScenarioId") || params.get("scenarioId") || "";
     if (scene && scene.userData && scene.userData.openClinXrStationEnvironment &&
         typeof scene.userData.openClinXrStationEnvironment.scenarioId === "string") {

@@ -363,7 +363,7 @@ async function measureLiveRoomProps(input: {
 async function waitForRoomPropFrames(page: Page, timeoutMs: number): Promise<void> {
   await page.waitForFunction(
     () => {
-      const win = window as unknown as {
+      const win = browserPageWindow as unknown as {
         __openClinXrFrameStats?: { framesObserved?: number };
         __openClinXrDebugScene?: { traverse?: (cb: (o: unknown) => void) => void };
         __openClinXrRuntimeSceneManifestEvidence?: { propIds?: unknown };
@@ -389,9 +389,9 @@ export async function readLiveRoomPropsFromPage(page: Page): Promise<{
   labelByPropId: Record<string, string>;
 }> {
   return page.evaluate(`(() => {
-    const win = window;
+    const win = browserPageWindow;
     const scene = win.__openClinXrDebugScene;
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(browserPageWindow.location.search);
     let scenarioId = params.get("openclinxrScenarioId") || params.get("scenarioId") || "";
     if (scene && scene.userData && scene.userData.openClinXrStationEnvironment &&
         typeof scene.userData.openClinXrStationEnvironment.scenarioId === "string") {

@@ -391,7 +391,7 @@ async function measureLive(input: {
           await waitForStationShell(page, 180_000);
           await page.waitForFunction(
             () => {
-              const win = window as unknown as {
+              const win = browserPageWindow as unknown as {
                 __openClinXrFrameStats?: { framesObserved?: number };
               };
               return (win.__openClinXrFrameStats?.framesObserved ?? 0) >= 6;
@@ -444,7 +444,7 @@ async function captureGradePng(page: Page, baseUrl: string, scenarioId: string):
   await page.waitForTimeout(1200);
   // Frame builder-backed props (ED monitor at ~-1.55,1.42,-1.15) — not doorway-only (#191).
   await page.evaluate(`(() => {
-    const win = window;
+    const win = browserPageWindow;
     const cam = win.__openClinXrDebugCamera || win.__openClinXrCamera;
     if (cam && cam.position) {
       cam.position.set(0.2, 1.45, 0.55);
@@ -469,9 +469,9 @@ async function readLivePropsFromPage(
   const armJson = JSON.stringify(builderArmIds);
   const declaredJson = JSON.stringify(declaredPropIds);
   return page.evaluate(`((builderArmIds, declaredPropIds) => {
-    const win = window;
+    const win = browserPageWindow;
     const scene = win.__openClinXrDebugScene;
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(browserPageWindow.location.search);
     let scenarioId = params.get("openclinxrScenarioId") || params.get("scenarioId") || "";
     const armSet = {};
     for (let i = 0; i < builderArmIds.length; i++) armSet[builderArmIds[i]] = true;

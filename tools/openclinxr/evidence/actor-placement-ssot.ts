@@ -3,7 +3,7 @@
  *
  * Staged actors + world XZ from the LIVE scene (`openClinXrSlotKind` roots).
  * Declared placements from the shipped bundle the runtime loads (static JSON path,
- * or `window.__openClinXrActorPlacementSsot` when the runtime publishes it).
+ * or `browserPageWindow.__openClinXrActorPlacementSsot` when the runtime publishes it).
  *
  * claimScope: every staged humanoid has a placement record; no coincident XZ.
  * notEvidenceFor: layout quality, in-frame at roomCam, clinical staging, Quest readiness.
@@ -233,7 +233,7 @@ async function measureLivePlacementSsot(input: {
 async function waitForSlotRoots(page: Page, timeoutMs: number): Promise<void> {
   await page.waitForFunction(
     () => {
-      const win = window as unknown as {
+      const win = browserPageWindow as unknown as {
         __openClinXrFrameStats?: { framesObserved?: number };
         __openClinXrDebugScene?: {
           traverse?: (cb: (o: { userData?: Record<string, unknown> }) => void) => void;
@@ -265,9 +265,9 @@ export async function readLivePlacementFromPage(page: Page): Promise<{
   staged: Omit<StagedPlacement, "scenarioId">[];
 }> {
   return page.evaluate(`(async () => {
-    const win = window;
+    const win = browserPageWindow;
     const scene = win.__openClinXrDebugScene;
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(browserPageWindow.location.search);
     let scenarioId = params.get("openclinxrScenarioId") || params.get("scenarioId") || "";
     if (scene && scene.userData && scene.userData.openClinXrStationEnvironment &&
         typeof scene.userData.openClinXrStationEnvironment.scenarioId === "string") {

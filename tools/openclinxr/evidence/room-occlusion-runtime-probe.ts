@@ -76,7 +76,7 @@ async function readAoFromIsolatedScene(page: Page): Promise<{
   meshCount: number;
 }> {
   return page.evaluate(`(() => {
-    const root = window.__openClinXrIsolatedSceneRoot;
+    const root = browserPageWindow.__openClinXrIsolatedSceneRoot;
     if (!root || typeof root.traverse !== "function") {
       return { materials: 0, withAoMap: 0, aoMapIntensities: [], aoMapUvSet: null, meshCount: 0 };
     }
@@ -179,7 +179,7 @@ export async function probeRoomOcclusionRuntime(input?: {
         await page.waitForFunction(
           () => {
             const evidence = (
-              window as unknown as {
+              browserPageWindow as unknown as {
                 __openClinXrIsolatedSubjectEvidence?: { meshCount?: number };
               }
             ).__openClinXrIsolatedSubjectEvidence;
@@ -209,7 +209,7 @@ export async function probeRoomOcclusionRuntime(input?: {
         schemaVersion: "openclinxr.room-occlusion-runtime.v1",
         generatedAt: new Date().toISOString(),
         probedBy:
-          "playwright page.evaluate on window.__openClinXrIsolatedSceneRoot after "
+          "playwright page.evaluate on browserPageWindow.__openClinXrIsolatedSceneRoot after "
           + "isolated-subject-lab subjectKind=glb load via three.js GLTFLoader "
           + `(apps/ui-xr/src/isolated-subject-lab.ts); bodyGlbs=${bodyGlbs.join(",")}`,
         forcedIntensity: false,

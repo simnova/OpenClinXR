@@ -4,7 +4,7 @@
  * Staged ids are read from the LIVE scene's `userData.openClinXrActorId` on slot
  * roots (`openClinXrSlotKind` present) — not from resolver functions in isolation.
  * Declared humanoids come from the scenario bank cast. Residual not-staged actors
- * are read from `window.__openClinXrActorSlotAssignment` when the runtime publishes it.
+ * are read from `browserPageWindow.__openClinXrActorSlotAssignment` when the runtime publishes it.
  *
  * claimScope: which person each humanoid slot stages (or does not).
  * notEvidenceFor: wardrobe, posture, placement, clinical realism, Quest readiness.
@@ -251,7 +251,7 @@ async function measureLiveSlotAssignment(input: {
 async function waitForSlotRoots(page: Page, timeoutMs: number): Promise<void> {
   await page.waitForFunction(
     () => {
-      const win = window as unknown as {
+      const win = browserPageWindow as unknown as {
         __openClinXrFrameStats?: { framesObserved?: number };
         __openClinXrDebugScene?: {
           traverse?: (cb: (o: { userData?: Record<string, unknown> }) => void) => void;
@@ -283,9 +283,9 @@ export async function readLiveSlotAssignmentFromPage(page: Page): Promise<{
   notStagedActorIds: { actorId: string; reason: string }[];
 }> {
   return page.evaluate(`(() => {
-    const win = window;
+    const win = browserPageWindow;
     const scene = win.__openClinXrDebugScene;
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(browserPageWindow.location.search);
     let scenarioId = params.get("openclinxrScenarioId") || params.get("scenarioId") || "";
     if (scene && scene.userData && scene.userData.openClinXrStationEnvironment &&
         typeof scene.userData.openClinXrStationEnvironment.scenarioId === "string") {

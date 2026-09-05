@@ -1314,7 +1314,7 @@ async function main(): Promise<void> {
         try {
           const g = setFactoryField(repoRoot, flags.sliceId, "Graded");
           graded = g.ok === true;
-          if (!graded && !g.skipped) {
+          if (!graded && g.ok === false) {
             console.warn(`close: issue closed, but Factory=Graded did not write: ${g.reason ?? "unknown"}`);
           }
         } catch (error) {

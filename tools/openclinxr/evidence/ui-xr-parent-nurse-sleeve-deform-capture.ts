@@ -64,14 +64,14 @@ async function captureComparator(
   // runtime humanoids by asset identity — the library bodies under xr-assets/humanoids/candidates/
   // no longer match a generated-humanoids/ folder check, which timed this capture out at 180s.
   await page.addScriptTag({
-    content: `window.__openClinXrIsRuntimeHumanoidAssetPath = ${isRuntimeHumanoidAssetPath.toString()};`,
+    content: `browserPageWindow.__openClinXrIsRuntimeHumanoidAssetPath = ${isRuntimeHumanoidAssetPath.toString()};`,
   });
 
   // Wait for the real-garment humanoid to load (peds_asthma scenario has parent + nurse actors)
   await page.waitForFunction(
     (expectedGlb: string) => {
-      const scene = (window as any).__openClinXrSceneAssetEvidence;
-      const isHumanoid = (window as any).__openClinXrIsRuntimeHumanoidAssetPath;
+      const scene = (browserPageWindow as any).__openClinXrSceneAssetEvidence;
+      const isHumanoid = (browserPageWindow as any).__openClinXrIsRuntimeHumanoidAssetPath;
       const humanoids = scene?.assets?.filter((a: any) =>
         isHumanoid(a.assetPath) || a.assetPath?.includes(expectedGlb),
       ) ?? [];
@@ -92,7 +92,7 @@ async function captureComparator(
   try {
     await page.waitForFunction(
       () => {
-        const mg = (window as any).__openClinXrMouthGazePoseComparatorEvidence;
+        const mg = (browserPageWindow as any).__openClinXrMouthGazePoseComparatorEvidence;
         return Boolean(mg?.garmentGeometry?.name);
       },
       undefined,
@@ -120,15 +120,15 @@ async function captureComparator(
 
   // Collect runtime evidence
   const inspection = await page.evaluate(() => ({
-    sceneAssets: (window as any).__openClinXrSceneAssetEvidence ?? null,
+    sceneAssets: (browserPageWindow as any).__openClinXrSceneAssetEvidence ?? null,
     // #315: the model assetId of the actor the comparator capture framed (recorded intent).
-    cameraTargetActorId: (window as any).__openClinXrComparatorCameraTargetActorId ?? null,
+    cameraTargetActorId: (browserPageWindow as any).__openClinXrComparatorCameraTargetActorId ?? null,
     // #315 follow-up: framing measurement — NDC of the framed subject + slot visibility.
-    framingDump: (window as any).__openClinXrComparatorFramingDump ?? null,
-    mouthGaze: (window as any).__openClinXrMouthGazePoseComparatorEvidence ?? null,
-    adaptive: (window as any).__openClinXrPedsAdaptiveDialogueEvidence ?? null,
-    boot: (window as any).__openClinXrBootEvidence ?? null,
-    playback: (window as any).__openClinXrPedsActorPlayerRuntimePlaybackEvidence ?? null,
+    framingDump: (browserPageWindow as any).__openClinXrComparatorFramingDump ?? null,
+    mouthGaze: (browserPageWindow as any).__openClinXrMouthGazePoseComparatorEvidence ?? null,
+    adaptive: (browserPageWindow as any).__openClinXrPedsAdaptiveDialogueEvidence ?? null,
+    boot: (browserPageWindow as any).__openClinXrBootEvidence ?? null,
+    playback: (browserPageWindow as any).__openClinXrPedsActorPlayerRuntimePlaybackEvidence ?? null,
   }));
 
   return {

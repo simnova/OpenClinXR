@@ -82,7 +82,7 @@ function createInProcessFetch(
   app: HonoLikeApp,
   requestedPaths: string[],
 ): typeof fetch {
-  return (async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+  return (async (input: string | URL | Request, init?: RequestInit): Promise<Response> => {
     const url =
       typeof input === "string"
         ? input
@@ -105,7 +105,7 @@ function createInProcessFetch(
     const response = await app.request(pathWithQuery, {
       method,
       headers,
-      body: body as BodyInit | undefined,
+      body: body as RequestInit["body"],
     });
     return response;
   }) as typeof fetch;

@@ -205,7 +205,7 @@ async function captureSubject(input: {
   await input.page.goto(url, { waitUntil: "domcontentloaded", timeout: 120_000 });
   const handle = await input.page.waitForFunction(
     () => {
-      const w = window as unknown as {
+      const w = browserPageWindow as unknown as {
         __openClinXrIsolatedSubjectEvidence?: PageEvidence;
       };
       const evidence = w.__openClinXrIsolatedSubjectEvidence;
@@ -214,7 +214,7 @@ async function captureSubject(input: {
       }
       // #358: the lab REFUSES an unresolvable focus (no silent fallback) by
       // rendering its error into #app — surface it instead of timing out.
-      const app = document.querySelector<HTMLDivElement>("#app");
+      const app = browserPageDocument.querySelector("#app");
       const text = app?.textContent ?? "";
       if (text.includes("Isolated subject lab error")) {
         return { kind: "error" as const, text: text.slice(0, 2000) };
@@ -505,7 +505,7 @@ async function renderEquipmentPackForId(input: {
 
     if (view === "front") {
       const glbBase64 = await page.evaluate(
-        () => (window as unknown as { __openClinXrExportedGlbBase64?: string })
+        () => (browserPageWindow as unknown as { __openClinXrExportedGlbBase64?: string })
           .__openClinXrExportedGlbBase64 ?? null,
       );
       if (glbBase64) {

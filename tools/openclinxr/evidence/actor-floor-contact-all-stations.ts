@@ -247,7 +247,7 @@ async function waitForHumanoidsAndFrames(
 ): Promise<void> {
   await page.waitForFunction(
     ({ minFrames: need }) => {
-      const win = window as unknown as {
+      const win = browserPageWindow as unknown as {
         __openClinXrFrameStats?: { framesObserved?: number };
         __openClinXrDebugScene?: {
           traverse?: (cb: (o: {

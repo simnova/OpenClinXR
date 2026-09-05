@@ -25,10 +25,10 @@ const PRE_FIX_PATH = path.join(EVIDENCE_DIR, "pre-fix.json");
 
 /** Same evaluate body shape the contract probe uses, extended with exact scan + surfaces + camera. */
 const EVALUATE_BODY = `(() => {
-  const win = window;
+  const win = browserPageWindow;
   const framesAdvanced = (win.__openClinXrFrameStats && win.__openClinXrFrameStats.framesObserved) || 0;
   const scene = win.__openClinXrDebugScene;
-  const params = new URLSearchParams(window.location.search);
+  const params = new URLSearchParams(browserPageWindow.location.search);
   let scenarioId = params.get("openclinxrScenarioId") || params.get("scenarioId") || "";
   if (scene && scene.userData && scene.userData.openClinXrStationEnvironment &&
       typeof scene.userData.openClinXrStationEnvironment.scenarioId === "string") {
@@ -389,7 +389,7 @@ async function measureStation(page: import("playwright").Page, baseUrl: string, 
   await waitForStationShell(page, 180_000);
   await page.waitForFunction(
     ({ minFrames: need }) => {
-      const win = window as unknown as {
+      const win = browserPageWindow as unknown as {
         __openClinXrFrameStats?: { framesObserved?: number };
         __openClinXrDebugScene?: { traverse?: (cb: (o: { isSkinnedMesh?: boolean }) => void) => void };
       };

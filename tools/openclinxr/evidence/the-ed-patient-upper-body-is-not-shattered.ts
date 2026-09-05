@@ -175,9 +175,9 @@ export function defaultSceneSamplePath(): string {
  */
 export async function readEdPatientUpperBodyFromPage(page: Page): Promise<EdPatientUpperBodyLive> {
   return page.evaluate(`(() => {
-    const win = window;
+    const win = browserPageWindow;
     const scene = win.__openClinXrDebugScene;
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(browserPageWindow.location.search);
     let scenarioId = params.get("openclinxrScenarioId") || params.get("scenarioId") || "";
     const empty = {
       scenarioId: scenarioId,
@@ -685,7 +685,7 @@ async function waitForFramesAndSkin(page: Page, minFrames: number, timeoutMs: nu
   try {
     await page.waitForFunction(
       ({ minFrames: need }) => {
-        const win = window as unknown as {
+        const win = browserPageWindow as unknown as {
           __openClinXrFrameStats?: { framesObserved?: number };
           __openClinXrDebugScene?: { traverse?: (cb: (o: { isSkinnedMesh?: boolean }) => void) => void };
         };
@@ -706,7 +706,7 @@ async function waitForFramesAndSkin(page: Page, minFrames: number, timeoutMs: nu
     const remaining = Math.max(5_000, timeoutMs - (Date.now() - started));
     await page.waitForFunction(
       ({ minFrames: need }) => {
-        const win = window as unknown as {
+        const win = browserPageWindow as unknown as {
           __openClinXrFrameStats?: { framesObserved?: number };
         };
         return (win.__openClinXrFrameStats?.framesObserved ?? 0) >= need;

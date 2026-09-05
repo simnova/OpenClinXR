@@ -196,7 +196,7 @@ async function captureCurrentLab(
   await page.goto(url, { waitUntil: "domcontentloaded", timeout: 120_000 });
   const handle = await page.waitForFunction(
     () => {
-      const evidence = (window as unknown as {
+      const evidence = (browserPageWindow as unknown as {
         __openClinXrIsolatedSubjectEvidence?: LabEvidence;
       }).__openClinXrIsolatedSubjectEvidence;
       return evidence && typeof (evidence as { meshCount?: number }).meshCount === "number"

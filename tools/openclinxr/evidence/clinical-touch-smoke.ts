@@ -137,7 +137,7 @@ function evidenceShapeBlockers(ev: ClinicalTouchEvidenceShape | null | undefined
   const b: string[] = [];
   if (!ev || typeof ev !== "object") {
     b.push(
-      "no_clinical_touch_evidence:window.__openClinXrClinicalTouchEvidence absent — runtime clinical-touch wiring not published (or touch not exercised)",
+      "no_clinical_touch_evidence:browserPageWindow.__openClinXrClinicalTouchEvidence absent — runtime clinical-touch wiring not published (or touch not exercised)",
     );
     return b;
   }
@@ -240,7 +240,7 @@ async function buildReport(opts: CliOptions): Promise<Record<string, unknown>> {
       try {
         await page.waitForFunction(
           () => {
-            const r = (window as unknown as { __openClinXrClinicalTouchRegionsReady?: { count?: number } })
+            const r = (browserPageWindow as unknown as { __openClinXrClinicalTouchRegionsReady?: { count?: number } })
               .__openClinXrClinicalTouchRegionsReady;
             return Boolean(r && (r.count ?? 0) > 0);
           },
@@ -248,13 +248,13 @@ async function buildReport(opts: CliOptions): Promise<Record<string, unknown>> {
         );
         regionsReady = await page.evaluate(
           () =>
-            (window as unknown as {
+            (browserPageWindow as unknown as {
               __openClinXrClinicalTouchRegionsReady?: { count?: number; regions?: string[]; actorId?: string };
             }).__openClinXrClinicalTouchRegionsReady ?? null,
         );
       } catch {
         blockers.push(
-          "clinical_touch_regions_not_ready:window.__openClinXrClinicalTouchRegionsReady absent or empty after settle — UI-XR clinical-touch region registration not wired or humanoid failed to load",
+          "clinical_touch_regions_not_ready:browserPageWindow.__openClinXrClinicalTouchRegionsReady absent or empty after settle — UI-XR clinical-touch region registration not wired or humanoid failed to load",
         );
       }
 
@@ -274,13 +274,13 @@ async function buildReport(opts: CliOptions): Promise<Record<string, unknown>> {
 
           // Clear prior evidence so each region is independently asserted.
           await page.evaluate(() => {
-            delete (window as unknown as { __openClinXrClinicalTouchEvidence?: unknown })
+            delete (browserPageWindow as unknown as { __openClinXrClinicalTouchEvidence?: unknown })
               .__openClinXrClinicalTouchEvidence;
           });
 
           const screen = await page.evaluate((region) => {
             const project = (
-              window as unknown as {
+              browserPageWindow as unknown as {
                 __openClinXrProjectTouchRegionToScreen?: (id: string) => { x: number; y: number } | null;
               }
             ).__openClinXrProjectTouchRegionToScreen;
@@ -293,7 +293,7 @@ async function buildReport(opts: CliOptions): Promise<Record<string, unknown>> {
           if (!screen) {
             // Miss falls through — record blocker, do not throw.
             regionBlockers.push(
-              `region_projection_unavailable:${expected.region}:window.__openClinXrProjectTouchRegionToScreen missing or returned null`,
+              `region_projection_unavailable:${expected.region}:browserPageWindow.__openClinXrProjectTouchRegionToScreen missing or returned null`,
             );
           } else if (screen.x < 0 || screen.y < 0 || screen.x > 1280 || screen.y > 1024) {
             regionBlockers.push(`region_offscreen:${expected.region}:${Math.round(screen.x)},${Math.round(screen.y)}`);
@@ -307,7 +307,7 @@ async function buildReport(opts: CliOptions): Promise<Record<string, unknown>> {
               await page.waitForFunction(
                 (regionId) => {
                   const ev = (
-                    window as unknown as { __openClinXrClinicalTouchEvidence?: { region?: string } }
+                    browserPageWindow as unknown as { __openClinXrClinicalTouchEvidence?: { region?: string } }
                   ).__openClinXrClinicalTouchEvidence;
                   return Boolean(ev && ev.region === regionId);
                 },
@@ -316,7 +316,7 @@ async function buildReport(opts: CliOptions): Promise<Record<string, unknown>> {
               );
             } catch {
               regionBlockers.push(
-                `no_touch_evidence_after_click:${expected.region}:window.__openClinXrClinicalTouchEvidence still absent or wrong region after click`,
+                `no_touch_evidence_after_click:${expected.region}:browserPageWindow.__openClinXrClinicalTouchEvidence still absent or wrong region after click`,
               );
             }
             await page.waitForTimeout(400);
@@ -324,7 +324,7 @@ async function buildReport(opts: CliOptions): Promise<Record<string, unknown>> {
             try {
               evidence = await page.evaluate(
                 () =>
-                  ((window as unknown as { __openClinXrClinicalTouchEvidence?: ClinicalTouchEvidenceShape })
+                  ((browserPageWindow as unknown as { __openClinXrClinicalTouchEvidence?: ClinicalTouchEvidenceShape })
                     .__openClinXrClinicalTouchEvidence ?? null) as ClinicalTouchEvidenceShape | null,
               );
             } catch (e) {

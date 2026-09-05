@@ -264,7 +264,7 @@ async function waitForHumanoidsAndFrames(
   // needs, matching the discriminator readLiveLimbRestFromPage uses.
   await page.waitForFunction(
     ({ minFrames: need, minActors }) => {
-      const win = window as unknown as {
+      const win = browserPageWindow as unknown as {
         __openClinXrFrameStats?: { framesObserved?: number };
         __openClinXrDebugScene?: {
           traverse?: (cb: (o: { isSkinnedMesh?: boolean; userData?: Record<string, unknown>; parent?: unknown }) => void) => void;
@@ -302,10 +302,10 @@ async function readLiveLimbRestFromPage(page: Page): Promise<{
   actors: SupineLimbFacts[];
 }> {
   return page.evaluate(`(() => {
-    const win = window;
+    const win = browserPageWindow;
     const framesAdvanced = (win.__openClinXrFrameStats && win.__openClinXrFrameStats.framesObserved) || 0;
     const scene = win.__openClinXrDebugScene;
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(browserPageWindow.location.search);
     let scenarioId = params.get("openclinxrScenarioId") || params.get("scenarioId") || "";
     if (scene && scene.userData && scene.userData.openClinXrStationEnvironment &&
         typeof scene.userData.openClinXrStationEnvironment.scenarioId === "string") {

@@ -581,10 +581,10 @@ export function parseArgs(argv: string[]): CliOptions {
         break;
       }
       case "--help":
+      // biome-ignore lint/suspicious/noFallthroughSwitchClause: process.exit(0) terminates; default still handles unknown args
       case "-h":
         printHelp();
         process.exit(0);
-        break;
       default:
         if (arg.startsWith("-")) {
           throw new Error(`Unknown argument: ${arg}`);

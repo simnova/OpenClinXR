@@ -18,6 +18,7 @@ export type DocAuthority =
   | "agent-methodology"
   | "historical-synthesis"
   | "evidence"
+  | "generated-evidence"
   | "proposal"
   | "decision-record"
   | "temporary"

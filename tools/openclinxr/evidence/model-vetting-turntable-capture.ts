@@ -69,7 +69,7 @@ async function main(): Promise<void> {
           await page.goto(url, { waitUntil: "networkidle" });
           try {
             await page.waitForFunction((expectedView) => {
-              const evidence = window.__openClinXrModelVettingCandidateCaptureEvidence;
+              const evidence = browserPageWindow.__openClinXrModelVettingCandidateCaptureEvidence;
               return evidence?.captureView === expectedView
                 && typeof evidence.captureClaim === "string"
                 && evidence.captureClaim.startsWith("isolated_model_")
@@ -83,7 +83,7 @@ async function main(): Promise<void> {
             // Per orchestration CHUNK VISIBILITY RULE: if strict evidence global not set (common for new factory outputs like real garment with extra skinned sleeve mesh), fall back to capturing whatever is rendered on canvas.
             // This ensures noticeable visuals (sleeves, deforms) land in tester artifacts instead of silent map-only "success".
             console.warn(`[capture] waitForFunction timeout or mismatch for ${captureView} on ${candidate.candidateId}; falling back to canvas grab (evidence global may be absent or partial for real_garment/phenotype geometry). Error was: ${String(e)}`);
-            const currentEvidence = await page.evaluate(() => (window as any).__openClinXrModelVettingCandidateCaptureEvidence);
+            const currentEvidence = await page.evaluate(() => (browserPageWindow as any).__openClinXrModelVettingCandidateCaptureEvidence);
             console.warn(`[capture] current evidence global: ${JSON.stringify(currentEvidence)}`);
           }
           await page.waitForTimeout(800);
@@ -182,12 +182,12 @@ async function readArtifactMap(filePath: string): Promise<ModelVettingCaptureArt
 
 async function recordModelCanvasVideo(page: import("playwright").Page, durationMs: number): Promise<number[]> {
   return page.evaluate(async (recordingDurationMs) => {
-    const canvas = document.querySelector("canvas");
-    if (!(canvas instanceof HTMLCanvasElement)) throw new Error("Model-vetting capture canvas not found");
+    const canvas = browserPageDocument.querySelector("canvas");
+    if (!canvas) throw new Error("Model-vetting capture canvas not found");
     const stream = canvas.captureStream(30);
-    const mimeType = MediaRecorder.isTypeSupported("video/webm;codecs=vp9") ? "video/webm;codecs=vp9" : "video/webm";
+    const mimeType = browserPageRecorderSupports("video/webm;codecs=vp9") ? "video/webm;codecs=vp9" : "video/webm";
     const chunks: Blob[] = [];
-    const recorder = new MediaRecorder(stream, { mimeType });
+    const recorder = createBrowserPageRecorder(stream, { mimeType });
     recorder.addEventListener("dataavailable", (event) => {
       if (event.data.size > 0) chunks.push(event.data);
     });

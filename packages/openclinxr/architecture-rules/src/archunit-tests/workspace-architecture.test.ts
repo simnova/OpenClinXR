@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { dirname, join, relative, sep } from "node:path";
+import { basename, dirname, join, relative, sep } from "node:path";
 import { buildOpenClinXrCapabilityRoutingMatrix, evaluateCapabilityRoutingMatrix } from "@openclinxr/capability-gateway";
 import { findUnsafeClaimLanguage } from "@openclinxr/domain";
 import { projectFiles } from "archunit";
@@ -1918,3 +1918,146 @@ function findWorkspaceRoot(): string {
     candidate = parent;
   }
 }
+
+/*──────────────────────────────────────────────────────────thin-app budget ratchet──────────────────────────────────────────────────────────*/
+describe("thin-app budget ratchet", () => {
+  it("thin-app budget ratchet: ui-admin src non-test .tsx count must not grow", () => {
+    // Baseline count recorded at test addition: 40 non-test .tsx files under apps/ui-admin/src
+    // (recorded 2026-09-04). This test fails if the count grows beyond 40.
+    // Allowlisted roots that are always permitted regardless of count: App.tsx, main.tsx, api-client*.ts
+    const allNonTestTsx = sourceFilesUnder("apps/ui-admin/src")
+      .filter((p) => !/\.test\.tsx?$/.test(p) && !/-[^/-]*shot-main\.tsx/.test(p) && p !== "vite-env.d.ts");
+
+    // Record current count in a comment so future reviewers know the baseline
+    const currentCount = allNonTestTsx.length;
+
+    // Fail if count has grown beyond the recorded baseline (40)
+    expect(currentCount).toBeLessThanOrEqual(40);
+  });
+});
+
+/*──────────────────────────────────────────────────────────manifest direction──────────────────────────────────────────────────────────*/
+describe("manifest direction", () => {
+  it("manifest direction: ui-admin package.json must depend on @openclinxr/ui-shared and @openclinxr/ui-route-admin", () => {
+    const uiAdminManifestPath = join(workspaceRoot, "apps/ui-admin/package.json");
+    const uiAdminManifest = JSON.parse(readFileSync(uiAdminManifestPath, "utf8")) as {
+      dependencies?: Record<string, string>;
+      devDependencies?: Record<string, string>;
+    };
+
+    expect(uiAdminManifest.dependencies?.["@openclinxr/ui-shared"]).toBeDefined();
+    expect(uiAdminManifest.dependencies?.["@openclinxr/ui-route-admin"]).toBeDefined();
+  });
+
+  it("no @openclinxr/ui-admin|ui-xr|api package manifest may depend on a workspace app", () => {
+    const uiPkgs = sourceFilesUnder("packages/openclinxr").filter(
+      (p) => /\/ui-[^/]+\/package\.json$/.test(p),
+    );
+
+    for (const pkgPath of uiPkgs) {
+      const pkgJson = JSON.parse(readFileSync(join(workspaceRoot, pkgPath), "utf8")) as {
+        dependencies?: Record<string, string>;
+        devDependencies?: Record<string, string>;
+      };
+      // Only forbid workspace app deps for the three top-level app packages;
+      // inter-package ui-* -> ui-* dependencies (e.g. ui-route-admin -> ui-route-shared)
+      // remain allowed.
+      const forbiddenDeps = Object.keys({ ...pkgJson.dependencies, ...pkgJson.devDependencies }).filter(
+        (d) => /^@openclinxr\/ui-admin$/.test(d) || /^@openclinxr\/ui-xr$/.test(d) || /^@openclinxr\/api$/.test(d),
+      );
+      expect(forbiddenDeps).toEqual([]);
+    }
+  });
+});
+
+/*──────────────────────────────────────────────────────────source direction──────────────────────────────────────────────────────────*/
+describe("source direction", () => {
+  it("no ui-* package under packages/openclinxr may import from apps/ (incl. @openclinxr/ui-admin specifier and relative imports)", () => {
+    // Gather ALL ui-* source dirs under packages/openclinxr (not hardcoded dirs)
+    const uiSourceDirs = sourceFilesUnder("packages/openclinxr")
+      .filter((p) => /\/ui-[^/]+\/src\//.test(p))
+      .map((p) => {
+        // extract the ui-dir prefix like "packages/openclinxr/ui-admin/src" or "packages/openclinxr/ui-route-admin/src"
+        const m = p.match(/^packages\/openclinxr\/ui-[^/]+\/src/);
+        return m ? m[0] : null;
+      })
+      .filter(Boolean) as string[];
+
+    // For each ui source file, check it does not import from apps/.
+    // Patterns cover single+double quotes and relative imports anywhere in the specifier:
+    const importFromAppsPattern = /from ["']apps\//;
+    const importFromUiAdminPattern = /from ["']@openclinxr\/(ui-admin|ui-xr|api)["']/;
+    const relativeImportFromAppsPattern = /\.\.\/apps\//;
+
+    for (const uiDir of uiSourceDirs) {
+      const files = sourceFilesUnder(uiDir);
+      for (const filePath of files) {
+        const sourceText = readFileSync(join(workspaceRoot, filePath), "utf8");
+        expect(sourceText).not.toMatch(importFromAppsPattern);
+        expect(sourceText).not.toMatch(importFromUiAdminPattern);
+        expect(sourceText).not.toMatch(relativeImportFromAppsPattern);
+      }
+    }
+  });
+});
+
+/*──────────────────────────────────────────────────────────route manifest export──────────────────────────────────────────────────────────*/
+describe("route manifest export", () => {
+  it("packages/openclinxr/ui-route-admin/src/index.ts MUST export adminWorkbenchRoutes", () => {
+    const indexPath = join(workspaceRoot, "packages/openclinxr/ui-route-admin/src/index.ts");
+    const indexExists = existsSync(indexPath);
+    expect(indexExists).toBe(true);
+
+    const indexContent = readFileSync(indexPath, "utf8");
+    expect(indexContent).toContain("export const adminWorkbenchRoutes");
+  });
+
+  it("if packages/openclinxr/ui-admin-route-*/src/index.tsx exist with content, each MUST export Root", () => {
+    const uiRouteAdminRouteDirs = [
+      "packages/openclinxr/ui-admin-route-authoring",
+      "packages/openclinxr/ui-admin-route-exam-forms",
+      "packages/openclinxr/ui-admin-route-review-replay",
+      "packages/openclinxr/ui-admin-route-scenario-bank",
+    ];
+
+    for (const routeDir of uiRouteAdminRouteDirs) {
+      const indexPath = join(workspaceRoot, `${routeDir}/src/index.tsx`);
+      if (existsSync(indexPath)) {
+        const indexContent = readFileSync(indexPath, "utf8").trim();
+        expect(indexContent).toContain("export const Root");
+      }
+    }
+  });
+});
+
+/*──────────────────────────────────────────────────────────ui component naming──────────────────────────────────────────────────────────*/
+describe("ui component naming", () => {
+  it("ui-* component files use lower kebab-case basenames", () => {
+    // Covers all ui-* dirs via glob, not hardcoded dirs; governs current + future files.
+    const uiFiles = sourceFilesUnder("packages/openclinxr")
+      .filter((filePath) => /^packages\/openclinxr\/ui-[^/]+\/src\//.test(filePath));
+    const componentMarker = /<[A-Za-z][\w.-]*(\s[^<>]*)?\/?>|<\/[A-Za-z][\w.-]*>|React\.(FC|FunctionComponent|Component|Element)|:\s*(React\.)?(FC|FunctionComponent|ReactElement|ReactNode)\b|JSX\.Element/;
+    const violations = uiFiles.filter((filePath) => {
+      const base = basename(filePath);
+      if (base === "index.ts" || base === "index.tsx" || base === "vite-env.d.ts") {
+        return false;
+      }
+      const stem = base.split(".")[0] ?? "";
+      const isSuffixed = /\.(test|stories|container)\.tsx?$/.test(base);
+      if (filePath.endsWith(".tsx") || isSuffixed) {
+        return !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(stem);
+      }
+      if (filePath.endsWith(".ts")) {
+        const sourceText = readFileSync(join(workspaceRoot, filePath), "utf8");
+        if (!componentMarker.test(sourceText)) {
+          return false;
+        }
+        return !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(stem);
+      }
+      return false;
+    });
+
+    expect(uiFiles.length).toBeGreaterThan(0);
+    expect(violations).toEqual([]);
+  });
+});

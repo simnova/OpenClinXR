@@ -44,8 +44,8 @@ async function main(): Promise<void> {
       });
       await page.waitForFunction(
         () => {
-          const evidence = window.__openClinXrMouthGazePoseComparatorEvidence;
-          const sceneEvidence = window.__openClinXrSceneAssetEvidence;
+          const evidence = browserPageWindow.__openClinXrMouthGazePoseComparatorEvidence;
+          const sceneEvidence = browserPageWindow.__openClinXrSceneAssetEvidence;
           return Boolean(
             evidence?.comparator === "peds_anny_school_age_mpfb2_eye_patient"
             && evidence.captureMode?.includes("mouth-gaze-pose")
@@ -63,12 +63,12 @@ async function main(): Promise<void> {
       await page.waitForTimeout(options.waitMs);
       await page.screenshot({ path: options.screenshotPath, fullPage: false });
       const inspection = await page.evaluate(() => ({
-        mouthGaze: window.__openClinXrMouthGazePoseComparatorEvidence ?? null,
-        speech: window.__openClinXrHumanoidSpeechEvidence ?? null,
-        sceneAssets: window.__openClinXrSceneAssetEvidence ?? null,
-        visemeComparator: window.__openClinXrSceneAssetEvidence ?? null,
-        adaptiveDialogue: window.__openClinXrPedsAdaptiveDialogueEvidence ?? null,
-        pageErrors: window.__openClinXrBootEvidence?.pageErrors ?? [],
+        mouthGaze: browserPageWindow.__openClinXrMouthGazePoseComparatorEvidence ?? null,
+        speech: browserPageWindow.__openClinXrHumanoidSpeechEvidence ?? null,
+        sceneAssets: browserPageWindow.__openClinXrSceneAssetEvidence ?? null,
+        visemeComparator: browserPageWindow.__openClinXrSceneAssetEvidence ?? null,
+        adaptiveDialogue: browserPageWindow.__openClinXrPedsAdaptiveDialogueEvidence ?? null,
+        pageErrors: browserPageWindow.__openClinXrBootEvidence?.pageErrors ?? [],
       }));
       await writeFile(
         options.inspectionPath,

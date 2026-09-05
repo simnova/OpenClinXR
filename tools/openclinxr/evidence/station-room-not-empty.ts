@@ -304,7 +304,7 @@ async function measureLiveRooms(input: {
 async function waitForFrames(page: Page, minFrames: number, timeoutMs: number): Promise<void> {
   await page.waitForFunction(
     ({ minFrames: need }) => {
-      const win = window as unknown as {
+      const win = browserPageWindow as unknown as {
         __openClinXrFrameStats?: { framesObserved?: number };
       };
       return (win.__openClinXrFrameStats?.framesObserved ?? 0) >= need;
@@ -320,9 +320,9 @@ async function waitForFrames(page: Page, minFrames: number, timeoutMs: number): 
  */
 export async function readLiveRoomFactsFromPage(page: Page): Promise<RoomFacts> {
   return page.evaluate(`(() => {
-    const win = window;
+    const win = browserPageWindow;
     const scene = win.__openClinXrDebugScene;
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(browserPageWindow.location.search);
     let scenarioId = params.get("openclinxrScenarioId") || params.get("scenarioId") || "";
     const stationMeta = scene && scene.userData && scene.userData.openClinXrStationEnvironment
       ? scene.userData.openClinXrStationEnvironment

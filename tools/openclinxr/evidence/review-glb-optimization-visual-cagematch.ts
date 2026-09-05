@@ -270,14 +270,14 @@ async function captureVariant(input: {
   const screenshotPath = path.join(input.captureRoot, "captures", input.actorId, input.variantId, `${input.view}.png`);
   await mkdir(path.dirname(screenshotPath), { recursive: true });
   await input.page.goto(url, { waitUntil: "networkidle", timeout: 60_000 });
-  const evidence = await input.page.waitForFunction(() => window.__openClinXrModelVettingCandidateCaptureEvidence, null, { timeout: 60_000 })
+  const evidence = await input.page.waitForFunction(() => browserPageWindow.__openClinXrModelVettingCandidateCaptureEvidence, null, { timeout: 60_000 })
     .then((handle) => handle.jsonValue() as Promise<{
       meshCount: number;
       normalizedBoundsMeters: { width: number; height: number; depth: number };
     }>);
   await input.page.screenshot({ path: screenshotPath, fullPage: true });
   const nonBackgroundPixelRatio = await input.page.evaluate(() => {
-    const canvas = document.querySelector("canvas");
+    const canvas = browserPageDocument.querySelector("canvas");
     if (!canvas) return 0;
     const context = canvas.getContext("webgl2") ?? canvas.getContext("webgl");
     if (!context) return 0;

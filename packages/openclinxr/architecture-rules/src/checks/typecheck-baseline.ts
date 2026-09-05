@@ -33,8 +33,12 @@ export const TYPECHECK_ERROR_CEILING_AT_PLANT = 225;
 /**
  * Shrink-only live ceiling. Lower it in the same commit that pays the count down.
  * Do not raise this number.
+ *
+ * Paid to zero 2026-09-05: strict 0 + relaxed 0 (was 225: stale dists rebuilt,
+ * fetch-adapter RequestInfo/BodyInit root-caused, browser page globals declared,
+ * remainder fixed per group). Lowered in the same commit that paid the count down.
  */
-export const TYPECHECK_ERROR_CEILING = 223;
+export const TYPECHECK_ERROR_CEILING = 0;
 
 const TYPECHECK_SCRIPTS = ["typecheck:strict", "typecheck:relaxed"] as const;
 

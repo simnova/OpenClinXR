@@ -119,7 +119,7 @@ if (typeof URL.createObjectURL !== "function") {
   }) as typeof URL.revokeObjectURL;
 }
 if (typeof (globalThis as { document?: unknown }).document === "undefined") {
-  (globalThis as { document: unknown }).document = {
+  (globalThis as unknown as { document: unknown }).document = {
     createElementNS: () => {
       const el = new EventTarget() as EventTarget & {
         complete: boolean;

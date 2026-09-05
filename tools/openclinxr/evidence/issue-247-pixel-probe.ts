@@ -24,7 +24,7 @@ const sharp = require("sharp") as (input: string | Buffer) => {
 const EVIDENCE_DIR = ".openclinxr/evidence/issue-247";
 
 const EVAL = `(() => {
-  const win = window;
+  const win = browserPageWindow;
   const scene = win.__openClinXrDebugScene;
   const framesAdvanced = (win.__openClinXrFrameStats && win.__openClinXrFrameStats.framesObserved) || 0;
   if (!scene) return { error: "no scene" };
@@ -186,7 +186,7 @@ async function main(): Promise<void> {
         await waitForStationShell(page, 180_000);
         await page.waitForFunction(
           ({ minFrames: need }) => {
-            const win = window as unknown as {
+            const win = browserPageWindow as unknown as {
               __openClinXrFrameStats?: { framesObserved?: number };
               __openClinXrDebugScene?: { traverse?: (cb: (o: { isSkinnedMesh?: boolean }) => void) => void };
             };

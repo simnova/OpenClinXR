@@ -103,9 +103,9 @@ async function sourceTriangleCountForPath(runtimeOrAssetPath: string): Promise<n
   for (const abs of candidates) {
     if (!existsSync(abs)) continue;
     try {
-      const document = await new NodeIO().read(abs);
+      const browserPageDocument = await new NodeIO().read(abs);
       let tris = 0;
-      for (const mesh of document.getRoot().listMeshes()) {
+      for (const mesh of browserPageDocument.getRoot().listMeshes()) {
         for (const prim of mesh.listPrimitives()) {
           tris += primitiveTriangleCount(prim);
         }
@@ -132,7 +132,7 @@ async function readLiveActorIntegrityFromPage(page: Page): Promise<Array<{
   liveMeshHeightMeters: number;
 }>> {
   return page.evaluate(`(() => {
-    const win = window;
+    const win = browserPageWindow;
     const scene = win.__openClinXrDebugScene;
     const assetEv = win.__openClinXrSceneAssetEvidence;
     if (!scene || typeof scene.traverse !== "function") return [];
@@ -333,7 +333,7 @@ async function waitForHumanoidsAndFrames(
   // parallel; measuring at skinned>=1 leaves secondaries as 1266-tri primitives with empty loadedUrl.
   await page.waitForFunction(
     ({ minFrames: need }) => {
-      const win = window as unknown as {
+      const win = browserPageWindow as unknown as {
         __openClinXrFrameStats?: { framesObserved?: number };
         __openClinXrDebugScene?: {
           traverse?: (cb: (o: {

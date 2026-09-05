@@ -251,7 +251,7 @@ export async function measureIssue280Prefix(options?: { cwd?: string }): Promise
         });
         const handle = await page.waitForFunction(
           () => {
-            const ev = (window as unknown as { __openClinXrIsolatedSubjectEvidence?: LabEvidence })
+            const ev = (browserPageWindow as unknown as { __openClinXrIsolatedSubjectEvidence?: LabEvidence })
               .__openClinXrIsolatedSubjectEvidence;
             return ev && typeof ev.frameCoverage === "number" ? ev : null;
           },

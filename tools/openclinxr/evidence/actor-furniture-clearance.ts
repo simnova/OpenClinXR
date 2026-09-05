@@ -332,7 +332,7 @@ function pickControl(stations: StationClearance[]): ActorClearance | null {
 async function waitForFrames(page: Page, minFrames: number, timeoutMs: number): Promise<void> {
   await page.waitForFunction(
     ({ minFrames: need }) => {
-      const win = window as unknown as {
+      const win = browserPageWindow as unknown as {
         __openClinXrFrameStats?: { framesObserved?: number };
       };
       return (win.__openClinXrFrameStats?.framesObserved ?? 0) >= need;
@@ -354,15 +354,15 @@ type LiveStation = {
 
 /**
  * String IIFE so tsx/esbuild cannot inject `__name` into the browser.
- * Scene root: window.__openClinXrDebugScene (same as station-room-not-empty).
+ * Scene root: browserPageWindow.__openClinXrDebugScene (same as station-room-not-empty).
  */
 export async function readLiveClearanceFromPage(page: Page): Promise<LiveStation> {
   const threshold = INSIDE_OVERLAP_FRACTION_THRESHOLD;
   return page.evaluate(`(() => {
     const insideThreshold = ${threshold};
-    const win = window;
+    const win = browserPageWindow;
     const scene = win.__openClinXrDebugScene;
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(browserPageWindow.location.search);
     let scenarioId = params.get("openclinxrScenarioId") || params.get("scenarioId") || "";
 
     function worldBox(obj) {

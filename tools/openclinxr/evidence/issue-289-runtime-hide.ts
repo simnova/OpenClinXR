@@ -333,7 +333,7 @@ async function analyzeBodyFile(bodyClassId: string, tmpDir: string): Promise<{ r
 async function waitForAssetsAndFrames(page: Page, timeoutMs: number): Promise<void> {
   await page.waitForFunction(
     ({ needSkinned }) => {
-      const win = window as unknown as {
+      const win = browserPageWindow as unknown as {
         __openClinXrFrameStats?: { framesObserved?: number };
         __openClinXrSceneAssetEvidence?: { pendingCount?: number; loadedCount?: number; failedCount?: number };
         __openClinXrDebugScene?: { traverse?: (cb: (o: { isSkinnedMesh?: boolean }) => void) => void };
@@ -359,7 +359,7 @@ async function dumpLiveMeshes(page: Page, actorIds: readonly string[]): Promise<
   const actorIdsJson = JSON.stringify([...actorIds]);
   const raw = (await page.evaluate(`(() => {
     const wanted = new Set(${actorIdsJson});
-    const scene = window.__openClinXrDebugScene;
+    const scene = browserPageWindow.__openClinXrDebugScene;
     const rows = [];
     if (!scene || !scene.traverse) return rows;
     function actorIdOf(o) {
@@ -429,9 +429,9 @@ async function dumpLiveMeshes(page: Page, actorIds: readonly string[]): Promise<
 async function runRenderDiscardTest(page: Page, actorIds: readonly string[]): Promise<RenderDiscardRow[]> {
   const actorIdsJson = JSON.stringify([...actorIds]);
   return page.evaluate(`(() => {
-    const THREE = window.__issue289THREE;
+    const THREE = browserPageWindow.__issue289THREE;
     if (!THREE) return { error: "no THREE" };
-    const scene = window.__openClinXrDebugScene;
+    const scene = browserPageWindow.__openClinXrDebugScene;
     const wanted = new Set(${actorIdsJson});
     if (!scene || !scene.traverse) return { error: "no scene" };
     const targets = [];
@@ -654,7 +654,7 @@ export async function inspectIssue289RuntimeHide(input?: {
         await page.waitForTimeout(1200); // settled load — #85 mid-load class
         await page.evaluate(`(async () => {
           const m = await import('/node_modules/.vite/deps/three.js');
-          window.__issue289THREE = m;
+          browserPageWindow.__issue289THREE = m;
           return typeof m.WebGLRenderer;
         })()`).catch(() => undefined);
         const wantedActors = Object.values(actorByBodyClass).filter(Boolean);

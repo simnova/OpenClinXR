@@ -151,6 +151,7 @@ async function measureAoStats(relPath: string): Promise<Array<{ material: string
     const image = tex.getImage();
     if (!image) continue;
     const png = decodePng(image);
+    if (!png) continue;
     const n = png.w * png.h;
     let sum = 0, below64 = 0;
     for (let i = 0; i < n; i += 1) {

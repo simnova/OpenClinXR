@@ -73,8 +73,9 @@ function sh(cmd: string, args: string[]): string {
  */
 export function summariseLedgerWindow(rows: Record<string, unknown>[]): {
   completions: number; passed: number; failed: number; passRate: number | null; rework: number;
+  needsResume: number; readyToIntegrate: number; handoffUnknown: number;
 } {
-  const terminalBySession = new Map<string, { phase: unknown; proofsOk: unknown }>();
+  const terminalBySession = new Map<string, { phase: unknown; proofsOk: unknown; handoff?: string }>();
   const spawnSessionsBySlice = new Map<string, Set<string>>();
   for (const r of rows) {
     const sid = String(r.sessionId ?? "");

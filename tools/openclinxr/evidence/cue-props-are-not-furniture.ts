@@ -419,7 +419,7 @@ async function measureLive(input: {
             await waitForStationShell(page, 180_000);
             await page.waitForFunction(
               () => {
-                const win = window as unknown as {
+                const win = browserPageWindow as unknown as {
                   __openClinXrFrameStats?: { framesObserved?: number };
                 };
                 return (win.__openClinXrFrameStats?.framesObserved ?? 0) >= 6;
@@ -561,7 +561,7 @@ async function readLiveCuePropState(
   });
   const declaredJson = JSON.stringify(declaredPropIds);
   return page.evaluate(`((declaredPropIds, aliases) => {
-    const win = window;
+    const win = browserPageWindow;
     const scene = win.__openClinXrDebugScene;
     const byProp = {};
     const allAffordance = {};
@@ -722,7 +722,7 @@ async function captureGradePng(page: Page, baseUrl: string, scenarioId: string):
   await page.waitForTimeout(1200);
   // Frame the room interior (#191 — not doorway-only).
   await page.evaluate(`(() => {
-    const win = window;
+    const win = browserPageWindow;
     const cam = win.__openClinXrDebugCamera || win.__openClinXrCamera;
     if (cam && cam.position) {
       cam.position.set(0.15, 1.55, 1.35);

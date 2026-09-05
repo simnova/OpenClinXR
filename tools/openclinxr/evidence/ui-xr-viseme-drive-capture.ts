@@ -1721,7 +1721,7 @@ export async function runSpeakFixture(): Promise<void> {
         response: document.querySelector("[data-openclinxr-speak-response]")?.getAttribute("data-openclinxr-speak-response") ?? null,
         actorId: document.querySelector("[data-openclinxr-speak-actor]")?.getAttribute("data-openclinxr-speak-actor") ?? null,
         state: document.querySelector("#openclinxr-speak-fixture-overlay")?.getAttribute("data-openclinxr-speak-state") ?? null
-      }))()`);
+      }))()`) as { transcript: string | null; response: string | null; actorId: string | null; state: string | null };
       process.stdout.write(`uiValues: transcript=${uiValues.transcript !== null} response=${uiValues.response !== null} state=${uiValues.state}\n`);
       await page.evaluate(`(() => { window.__openClinXrSpeakFixtureBridge.fire(); })()`);
 

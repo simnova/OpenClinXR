@@ -40,7 +40,8 @@ const nameB = skinB.listJoints().map((j) => j.getName());
 const jointsB = primB.getAttribute("JOINTS_0")?.getArray() as Uint8Array | Uint16Array | undefined;
 if (!jointsB) throw new Error("gown JOINTS_0 missing in rebake");
 const missing = new Set<string>();
-const remapped = new (jointsB.constructor as new (n: number) => typeof jointsB)(jointsB.length);
+const remappedCtor = jointsB.constructor as new (n: number) => Uint8Array | Uint16Array;
+const remapped: Uint8Array | Uint16Array = new remappedCtor(jointsB.length);
 for (let i = 0; i < jointsB.length; i++) {
   const name = nameB[jointsB[i] as number];
   const idx = name === undefined ? undefined : nameToIdxA.get(name);

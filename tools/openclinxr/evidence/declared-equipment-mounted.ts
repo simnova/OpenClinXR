@@ -445,7 +445,7 @@ async function measureLiveEquipmentMounting(input: {
           // #245 — watch GLTF load resolution timing from the first available frame
           // so "sampledAtMs relative to loader completion" is observable, not guessed.
           await page.evaluate(`(() => {
-            const win = window;
+            const win = browserPageWindow;
             if (win.__openClinXrEquipmentLoadWatch) return;
             const watch = { startMs: performance.now(), byAsset: {} };
             win.__openClinXrEquipmentLoadWatch = watch;
@@ -478,7 +478,7 @@ async function measureLiveEquipmentMounting(input: {
             try {
               await page.waitForFunction(
                 `(() => {
-                  const ev = window.__openClinXrSceneAssetEvidence;
+                  const ev = browserPageWindow.__openClinXrSceneAssetEvidence;
                   return !ev || !Array.isArray(ev.assets) || ev.pendingCount === 0;
                 })()`,
                 undefined,
@@ -549,7 +549,7 @@ async function measureLiveEquipmentMounting(input: {
 async function waitForEquipmentOrFrames(page: Page, timeoutMs: number): Promise<void> {
   await page.waitForFunction(
     () => {
-      const win = window as unknown as {
+      const win = browserPageWindow as unknown as {
         __openClinXrFrameStats?: { framesObserved?: number };
         __openClinXrDebugScene?: { traverse?: (cb: (o: unknown) => void) => void };
         __openClinXrDeclaredEquipmentMountEvidence?: { items?: unknown[] };
@@ -588,7 +588,7 @@ async function waitForEquipmentOrFrames(page: Page, timeoutMs: number): Promise<
  * String IIFE so tsx/esbuild cannot inject `__name` into the browser.
  * Prefers published evidence; falls back to scene userData tags.
  * #245 — also returns the sample instant (performance.now), a trimmed snapshot of
- * window.__openClinXrSceneAssetEvidence (per-asset status), and the load watch.
+ * browserPageWindow.__openClinXrSceneAssetEvidence (per-asset status), and the load watch.
  */
 export async function readLiveEquipmentFromPage(page: Page): Promise<{
   scenarioId: string;
@@ -603,9 +603,9 @@ export async function readLiveEquipmentFromPage(page: Page): Promise<{
   loadWatch: Record<string, { resolvedAtMs: number; status: string }>;
 }> {
   return page.evaluate(`(() => {
-    const win = window;
+    const win = browserPageWindow;
     const scene = win.__openClinXrDebugScene;
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(browserPageWindow.location.search);
     let scenarioId = params.get("openclinxrScenarioId") || params.get("scenarioId") || "";
     if (scene && scene.userData && scene.userData.openClinXrStationEnvironment &&
         typeof scene.userData.openClinXrStationEnvironment.scenarioId === "string") {
@@ -676,7 +676,7 @@ export async function readLiveEquipmentFromPage(page: Page): Promise<{
     }
 
     // #258 — world AABB of the VISIBLE geometry under a mount root. Manual 4x4
-    // transform of each POSITION by matrixWorld (no THREE global on window).
+    // transform of each POSITION by matrixWorld (no THREE global on browserPageWindow).
     // #268 — a SECOND pass excludes the parametric STAND (a ".stand"-named
     // group under the slot, e.g. openclinxr.equipment.bedside_monitor_equipment.
     // stand): the aspect contract asserts on the gltf BODY, and the stand is
@@ -824,7 +824,7 @@ export async function readLiveEquipmentFromPage(page: Page): Promise<{
 
 /**
  * #245 — decorate gltf-sourced mounted equipment with load status + timing from
- * window.__openClinXrSceneAssetEvidence and the injected load watch. Matching is
+ * browserPageWindow.__openClinXrSceneAssetEvidence and the injected load watch. Matching is
  * by assetPath suffix (the glb filename from REAL_EQUIPMENT_GLTF_BY_ID), so it is
  * robust to bundle model assetIds that differ from the equipment id.
  */

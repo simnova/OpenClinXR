@@ -12,7 +12,7 @@ import {
 } from "./ui-xr-environment-room-capture.js";
 
 const EVAL = `(() => {
-  const win = window;
+  const win = browserPageWindow;
   const scene = win.__openClinXrDebugScene;
   if (!scene) return { error: "no scene" };
   function effVisible(obj) {
@@ -81,7 +81,7 @@ async function main(): Promise<void> {
         await waitForStationShell(page, 180_000);
         await page.waitForFunction(
           ({ minFrames: need }) => {
-            const win = window as unknown as {
+            const win = browserPageWindow as unknown as {
               __openClinXrFrameStats?: { framesObserved?: number };
               __openClinXrDebugScene?: { traverse?: (cb: (o: { isSkinnedMesh?: boolean }) => void) => void };
             };

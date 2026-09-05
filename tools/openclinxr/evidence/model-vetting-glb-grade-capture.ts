@@ -84,11 +84,11 @@ export const DEFAULT_RELATIVE_TOLERANCE = 0.15;
  * node's world matrix to POSITION so the metric family matches three.js sourceMeshAabb.
  */
 export async function probeSceneGraphMeshAabb(glbPath: string): Promise<MeasuredGeometry | null> {
-  const document = await new NodeIO().read(glbPath);
-  return meshAabbFromDocumentWorld(document);
+  const browserPageDocument = await new NodeIO().read(glbPath);
+  return meshAabbFromDocumentWorld(browserPageDocument);
 }
 
-function meshAabbFromDocumentWorld(document: Document): MeasuredGeometry | null {
+function meshAabbFromDocumentWorld(browserPageDocument: Document): MeasuredGeometry | null {
   let minX = Infinity;
   let minY = Infinity;
   let minZ = Infinity;
@@ -126,12 +126,12 @@ function meshAabbFromDocumentWorld(document: Document): MeasuredGeometry | null 
     for (const child of node.listChildren()) visit(child);
   };
 
-  for (const scene of document.getRoot().listScenes()) {
+  for (const scene of browserPageDocument.getRoot().listScenes()) {
     for (const root of scene.listChildren()) visit(root);
   }
   // Fallback: nodes not reached via scenes
   if (!has) {
-    for (const node of document.getRoot().listNodes()) visit(node);
+    for (const node of browserPageDocument.getRoot().listNodes()) visit(node);
   }
   if (!has) return null;
   const height = maxY - minY;
@@ -743,7 +743,7 @@ async function captureView(input: {
   try {
     const handle = await input.page.waitForFunction(
       () => {
-        const evidence = (window as unknown as {
+        const evidence = (browserPageWindow as unknown as {
           __openClinXrModelVettingCandidateCaptureEvidence?: CaptureEvidence & { meshCount?: number };
         }).__openClinXrModelVettingCandidateCaptureEvidence;
         return evidence && typeof evidence.meshCount === "number" && evidence.meshCount > 0

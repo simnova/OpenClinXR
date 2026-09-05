@@ -73,7 +73,7 @@ async function waitForHumanoidsAndFrames(
 ): Promise<void> {
   await page.waitForFunction(
     ({ minFrames: need }) => {
-      const win = window as unknown as {
+      const win = browserPageWindow as unknown as {
         __openClinXrFrameStats?: { framesObserved?: number };
         __openClinXrDebugScene?: {
           traverse?: (cb: (o: { isSkinnedMesh?: boolean }) => void) => void;
@@ -117,7 +117,7 @@ async function dumpLiveFigureFinish(page: Page, actorIds: readonly string[]): Pr
   const idsJson = JSON.stringify([...actorIds]);
   const raw = (await page.evaluate(`(() => {
     const expected = new Set(${idsJson});
-    const scene = window.__openClinXrDebugScene;
+    const scene = browserPageWindow.__openClinXrDebugScene;
     if (!scene || typeof scene.traverse !== "function") return [];
 
     function actorIdOf(obj) {

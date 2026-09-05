@@ -4,7 +4,7 @@
  * Drives the EXISTING isolated-subject-lab (apps/ui-xr/src/isolated-subject-lab.ts,
  * `subjectKind: "runtime_posture"`) — no room, no HUD, no other actors, product
  * three.js stack — through the real `applyAndPlantSupineOnDeck` pose call, then reads
- * the world-space joint dump the lab records (`window.__openClinXrSupineJointDump`).
+ * the world-space joint dump the lab records (`browserPageWindow.__openClinXrSupineJointDump`).
  *
  * Two bodies, one code path:
  *   control    generated-humanoids/ed_chest_pain_adult_cast.glb   (Anny — posed for years)
@@ -81,14 +81,14 @@ async function captureSubject(page: Page, baseUrl: string, bodyGlb: string, subj
   await page.goto(url, { waitUntil: "domcontentloaded", timeout: 120_000 });
   await page.waitForFunction(
     () => {
-      const w = window as unknown as {
+      const w = browserPageWindow as unknown as {
         __openClinXrSupineJointDump?: LabDump;
         __openClinXrIsolatedSubjectEvidence?: { meshCount?: number };
       };
       if ((w.__openClinXrIsolatedSubjectEvidence?.meshCount ?? 0) > 0 && w.__openClinXrSupineJointDump) {
         return true;
       }
-      const app = document.querySelector<HTMLDivElement>("#app");
+      const app = browserPageDocument.querySelector("#app");
       const text = app?.textContent ?? "";
       if (text.includes("Isolated subject lab error")) {
         throw new Error(`isolated subject lab refused the subject: ${text.slice(0, 2000)}`);
@@ -99,7 +99,7 @@ async function captureSubject(page: Page, baseUrl: string, bodyGlb: string, subj
     { timeout: 120_000 },
   );
   const lab = await page.evaluate(
-    () => (window as unknown as { __openClinXrSupineJointDump?: LabDump }).__openClinXrSupineJointDump ?? null,
+    () => (browserPageWindow as unknown as { __openClinXrSupineJointDump?: LabDump }).__openClinXrSupineJointDump ?? null,
   );
   if (!lab) {
     throw new Error(`no supine joint dump recorded for ${bodyGlb}`);

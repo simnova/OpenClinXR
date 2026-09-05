@@ -337,7 +337,7 @@ async function captureStudioEvidence(input: {
         await page.goto(url, { waitUntil: "networkidle" });
         await page.waitForFunction(
           (expectedView) => {
-            const evidence = window.__openClinXrModelVettingCandidateCaptureEvidence;
+            const evidence = browserPageWindow.__openClinXrModelVettingCandidateCaptureEvidence;
             const baseReady = (
               evidence?.captureView === expectedView
               && typeof evidence.captureClaim === "string"
@@ -388,12 +388,12 @@ async function captureStudioEvidence(input: {
 
 async function recordModelCanvasVideo(page: import("playwright").Page, durationMs: number): Promise<number[]> {
   return page.evaluate(async (recordingDurationMs) => {
-    const canvas = document.querySelector("canvas");
-    if (!(canvas instanceof HTMLCanvasElement)) throw new Error("Model-vetting capture canvas not found");
+    const canvas = browserPageDocument.querySelector("canvas");
+    if (!canvas) throw new Error("Model-vetting capture canvas not found");
     const stream = canvas.captureStream(30);
-    const mimeType = MediaRecorder.isTypeSupported("video/webm;codecs=vp9") ? "video/webm;codecs=vp9" : "video/webm";
+    const mimeType = browserPageRecorderSupports("video/webm;codecs=vp9") ? "video/webm;codecs=vp9" : "video/webm";
     const chunks: Blob[] = [];
-    const recorder = new MediaRecorder(stream, { mimeType });
+    const recorder = createBrowserPageRecorder(stream, { mimeType });
     recorder.addEventListener("dataavailable", (event) => {
       if (event.data.size > 0) chunks.push(event.data);
     });

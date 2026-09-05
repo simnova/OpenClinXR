@@ -127,7 +127,7 @@ function transformPoint(x: number, y: number, z: number, m: number[]): [number, 
 
 export async function measureGlbAsset(glbPath: string): Promise<AssetMeasure> {
   const abs = path.isAbsolute(glbPath) ? glbPath : path.join(REPO_ROOT, glbPath);
-  const document = await new NodeIO().read(abs);
+  const browserPageDocument = await new NodeIO().read(abs);
   let minX = Infinity;
   let minY = Infinity;
   let minZ = Infinity;
@@ -168,11 +168,11 @@ export async function measureGlbAsset(glbPath: string): Promise<AssetMeasure> {
     for (const child of node.listChildren()) visit(child);
   };
 
-  for (const scene of document.getRoot().listScenes()) {
+  for (const scene of browserPageDocument.getRoot().listScenes()) {
     for (const root of scene.listChildren()) visit(root);
   }
   if (meshNodes === 0) {
-    for (const node of document.getRoot().listNodes()) visit(node);
+    for (const node of browserPageDocument.getRoot().listNodes()) visit(node);
   }
 
   const rel = path.relative(REPO_ROOT, abs).replaceAll("\\", "/");
@@ -298,7 +298,7 @@ async function captureMultiViewGlb(input: {
     <script type="module">
     import * as THREE from 'three';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-    const canvas = document.getElementById('c');
+    const canvas = browserPageDocument.getElementById('c');
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
     renderer.setSize(1280, 960, false);
     renderer.setClearColor(0x18211d);
@@ -319,7 +319,7 @@ async function captureMultiViewGlb(input: {
     const center = box.getCenter(new THREE.Vector3());
     const maxDim = Math.max(size.x, size.y, size.z, 0.01);
     const dist = maxDim * 2.4;
-    window.__trellisViews = {};
+    browserPageWindow.__trellisViews = {};
     const yaws = ${JSON.stringify(yawMap)};
     for (const [name, yawDeg] of Object.entries(yaws)) {
       const rad = yawDeg * Math.PI / 180;
@@ -330,19 +330,19 @@ async function captureMultiViewGlb(input: {
       );
       camera.lookAt(center);
       renderer.render(scene, camera);
-      window.__trellisViews[name] = canvas.toDataURL('image/png');
+      browserPageWindow.__trellisViews[name] = canvas.toDataURL('image/png');
     }
-    window.__trellisViewsReady = true;
+    browserPageWindow.__trellisViewsReady = true;
     </script></body></html>`,
     { waitUntil: "load" },
   );
   await input.page.waitForFunction(
-    () => Boolean((window as unknown as { __trellisViewsReady?: boolean }).__trellisViewsReady),
+    () => Boolean((browserPageWindow as unknown as { __trellisViewsReady?: boolean }).__trellisViewsReady),
     null,
     { timeout: 120_000 },
   );
   const dataUrls = (await input.page.evaluate(
-    () => (window as unknown as { __trellisViews: Record<string, string> }).__trellisViews,
+    () => (browserPageWindow as unknown as { __trellisViews: Record<string, string> }).__trellisViews,
   )) as Record<ViewName, string>;
   mkdirSync(input.outDir, { recursive: true });
   const paths = {} as Record<ViewName, string>;
@@ -372,7 +372,7 @@ async function captureProductGlbFront(input: {
   await input.page.goto(url, { waitUntil: "domcontentloaded", timeout: 120_000 });
   await input.page.waitForFunction(
     () => {
-      const evidence = (window as unknown as {
+      const evidence = (browserPageWindow as unknown as {
         __openClinXrIsolatedSubjectEvidence?: { meshCount?: number };
       }).__openClinXrIsolatedSubjectEvidence;
       return evidence && typeof evidence.meshCount === "number" && evidence.meshCount > 0;

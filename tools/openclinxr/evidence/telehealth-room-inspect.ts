@@ -216,7 +216,7 @@ async function applyFramingToPage(page: Page, framing: InspectCamera, tag: strin
   };
   type Obj = { isPerspectiveCamera?: boolean; type?: string } & Partial<Cam>;
   return page.evaluate((d) => {
-    const scene = (window as unknown as {
+    const scene = (browserPageWindow as unknown as {
       __openClinXrDebugScene?: { traverse?: (cb: (o: Obj) => void) => void };
     }).__openClinXrDebugScene;
     if (!scene?.traverse) return "no-scene";
@@ -249,7 +249,7 @@ async function applyFramingToPage(page: Page, framing: InspectCamera, tag: strin
 /** Read the live camera's world position + fov after reframing (measured, not restated). */
 async function readCameraFromPage(page: Page): Promise<{ position: [number, number, number]; fov: number | null } | null> {
   return page.evaluate(`(() => {
-    const scene = window.__openClinXrDebugScene;
+    const scene = browserPageWindow.__openClinXrDebugScene;
     if (!scene || typeof scene.traverse !== "function") return null;
     let camera = null;
     scene.traverse(function (o) {
@@ -268,7 +268,7 @@ async function readCameraFromPage(page: Page): Promise<{ position: [number, numb
 /** Count exam-HUD DOM nodes (`.runtime-panel` + `.status-strip` and their descendants). */
 async function readExamHudNodeCount(page: Page): Promise<number> {
   return page.evaluate(`(() => {
-    const roots = document.querySelectorAll(".runtime-panel, .status-strip");
+    const roots = browserPageDocument.querySelectorAll(".runtime-panel, .status-strip");
     let count = 0;
     for (let i = 0; i < roots.length; i++) {
       count += 1 + roots[i].querySelectorAll("*").length;
@@ -285,9 +285,9 @@ async function readExamHudNodeCount(page: Page): Promise<number> {
  */
 async function removeExamHudFromDom(page: Page): Promise<number> {
   const postRemoval = await (page.evaluate(`(() => {
-    const roots = document.querySelectorAll(".runtime-panel, .status-strip");
+    const roots = browserPageDocument.querySelectorAll(".runtime-panel, .status-strip");
     for (let i = 0; i < roots.length; i++) roots[i].remove();
-    const after = document.querySelectorAll(".runtime-panel, .status-strip");
+    const after = browserPageDocument.querySelectorAll(".runtime-panel, .status-strip");
     let count = 0;
     for (let i = 0; i < after.length; i++) {
       count += 1 + after[i].querySelectorAll("*").length;

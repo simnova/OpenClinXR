@@ -206,10 +206,10 @@ export type LivePostureGeometryReport = {
 export async function readLivePostureGeometryFromPage(page: Page): Promise<LivePostureGeometryReport> {
   // NOTE: keep this body free of TypeScript-only syntax — it is serialized into the page.
   return page.evaluate(`(() => {
-    const win = window;
+    const win = browserPageWindow;
     const framesAdvanced = (win.__openClinXrFrameStats && win.__openClinXrFrameStats.framesObserved) || 0;
     const scene = win.__openClinXrDebugScene;
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(browserPageWindow.location.search);
     let scenarioId = params.get("openclinxrScenarioId") || params.get("scenarioId") || "";
     if (scene && scene.userData && scene.userData.openClinXrStationEnvironment &&
         typeof scene.userData.openClinXrStationEnvironment.scenarioId === "string") {
@@ -452,7 +452,7 @@ type LiveShellFromPage = LiveShell & { ready: boolean; reason?: string };
  * #342 — measure the generated room from the live scene graph.
  *
  * String IIFE (no TypeScript syntax) so tsx/esbuild cannot inject `__name` into the page,
- * and no `THREE` namespace is required on `window`: world AABBs come from transforming the
+ * and no `THREE` namespace is required on `browserPageWindow`: world AABBs come from transforming the
  * 8 corners of each geometry's local bounding box by its `matrixWorld`.
  */
 export async function readInfinigenRoomLiveFacts(page: Page): Promise<InfinigenRoomLiveFacts> {
@@ -462,7 +462,7 @@ export async function readInfinigenRoomLiveFacts(page: Page): Promise<InfinigenR
       interiorSizeMeters: null, interiorMin: null, interiorMax: null, floorTopY: null,
       cameraInsideRoom: false, cameraWorldPosition: null, proceduralShellMeshesStillVisible: []
     };
-    const scene = window.__openClinXrDebugScene;
+    const scene = browserPageWindow.__openClinXrDebugScene;
     if (!scene || typeof scene.traverse !== "function") return absent;
     scene.updateMatrixWorld(true);
 
@@ -575,7 +575,7 @@ async function readLiveShellFromPage(page: Page): Promise<LiveShellFromPage> {
     type SceneLike = Obj & {
       userData?: Record<string, unknown>;
     };
-    const win = window as unknown as {
+    const win = browserPageWindow as unknown as {
       __openClinXrDebugScene?: SceneLike;
       __openClinXrBootEvidence?: { events?: Array<{ phase?: string }> };
     };
@@ -668,7 +668,7 @@ async function readLiveShellFromPage(page: Page): Promise<LiveShellFromPage> {
 export async function reframeCameraForRoom(page: Page, environmentId: string): Promise<string> {
   // NOTE: string IIFE — keep free of TypeScript syntax so tsx/esbuild cannot inject `__name`.
   const derived = (await page.evaluate(`(() => {
-    const scene = window.__openClinXrDebugScene;
+    const scene = browserPageWindow.__openClinXrDebugScene;
     if (!scene || typeof scene.traverse !== "function") return null;
     scene.updateMatrixWorld(true);
 
@@ -962,7 +962,7 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
         parent?: { worldToLocal?: (v: Vec3) => unknown; updateMatrixWorld?: (force?: boolean) => void };
       };
       type Obj = { isPerspectiveCamera?: boolean; type?: string } & Partial<Cam>;
-      const scene = (window as unknown as {
+      const scene = (browserPageWindow as unknown as {
         __openClinXrDebugScene?: { traverse?: (cb: (o: Obj) => void) => void };
       }).__openClinXrDebugScene;
       if (!scene?.traverse) return "no-scene";
@@ -1027,7 +1027,7 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
       traverse?: (cb: (o: Obj) => void) => void;
     } & Partial<Cam>;
 
-    const scene = (window as unknown as { __openClinXrDebugScene?: Obj }).__openClinXrDebugScene;
+    const scene = (browserPageWindow as unknown as { __openClinXrDebugScene?: Obj }).__openClinXrDebugScene;
     if (!scene?.traverse) return "no-scene";
 
     let camera: Cam | undefined;
@@ -1074,7 +1074,7 @@ export async function waitForStationShell(page: Page, timeoutMs = 180_000): Prom
   try {
     await page.waitForFunction(
       () => {
-        const scene = (window as unknown as {
+        const scene = (browserPageWindow as unknown as {
           __openClinXrDebugScene?: {
             userData?: { openClinXrStationEnvironment?: { environmentId?: string } };
             traverse?: (cb: (o: { name?: string }) => void) => void;
@@ -1109,7 +1109,7 @@ export async function waitForHumanoidAssetsLoaded(page: Page, timeoutMs = 180_00
   try {
     await page.waitForFunction(
       () => {
-        const evidence = (window as unknown as {
+        const evidence = (browserPageWindow as unknown as {
           __openClinXrSceneAssetEvidence?: {
             pendingCount?: number;
             loadedCount?: number;

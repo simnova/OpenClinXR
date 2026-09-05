@@ -72,7 +72,7 @@ async function waitForHumanoidsAndFrames(
 ): Promise<void> {
   await page.waitForFunction(
     ({ minFrames: need }) => {
-      const win = window as unknown as {
+      const win = browserPageWindow as unknown as {
         __openClinXrFrameStats?: { framesObserved?: number };
         __openClinXrDebugScene?: {
           traverse?: (cb: (o: { isSkinnedMesh?: boolean }) => void) => void;
@@ -111,8 +111,8 @@ async function dumpLiveLibraryActors(page: Page, actorIds: readonly string[]): P
   const idsJson = JSON.stringify([...actorIds]);
   const raw = (await page.evaluate(`(() => {
     const expected = new Set(${idsJson});
-    const scene = window.__openClinXrDebugScene;
-    const evidence = window.__openClinXrSceneAssetEvidence;
+    const scene = browserPageWindow.__openClinXrDebugScene;
+    const evidence = browserPageWindow.__openClinXrSceneAssetEvidence;
     const byActor = {};
     function actorIdOf(obj) {
       let cur = obj;
@@ -256,7 +256,7 @@ export async function inspectLibraryHumanoidStaged(input?: {
 
           // Scene asset evidence paths (status + assetPath for each loaded humanoid).
           const evidenceAssets = (await page.evaluate(`(() => {
-            const e = window.__openClinXrSceneAssetEvidence;
+            const e = browserPageWindow.__openClinXrSceneAssetEvidence;
             return e && e.assets ? e.assets.map(function (a) {
               return { assetId: a.assetId, assetPath: a.assetPath, status: a.status, sceneObjectName: a.sceneObjectName };
             }) : [];

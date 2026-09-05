@@ -93,14 +93,14 @@ async function captureCell(
   await page.goto(url, { waitUntil: "domcontentloaded", timeout: 120_000 });
   await page.waitForFunction(
     () => {
-      const w = window as unknown as {
+      const w = browserPageWindow as unknown as {
         __openClinXrIsolatedSubjectEvidence?: { meshCount?: number };
         __openClinXrSubjectAabb?: SubjectAabb;
       };
       if ((w.__openClinXrIsolatedSubjectEvidence?.meshCount ?? 0) > 0 && w.__openClinXrSubjectAabb) {
         return true;
       }
-      const app = document.querySelector<HTMLDivElement>("#app");
+      const app = browserPageDocument.querySelector("#app");
       const text = app?.textContent ?? "";
       if (text.includes("Isolated subject lab error")) {
         throw new Error(`isolated subject lab refused the subject: ${text.slice(0, 2000)}`);
@@ -116,7 +116,7 @@ async function captureCell(
   await canvas.screenshot({ path: join(CELLS_DIR, `${cell}.png`) });
 
   const state = await page.evaluate(() => {
-    const w = window as unknown as {
+    const w = browserPageWindow as unknown as {
       __openClinXrSubjectAabb?: SubjectAabb;
       __openClinXrSupineJointDump?: LabDump;
     };

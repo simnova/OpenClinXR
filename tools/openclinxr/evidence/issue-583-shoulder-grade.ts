@@ -66,17 +66,17 @@ async function main(): Promise<void> {
       import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
       const urls = ${JSON.stringify(glbUrls)};
       const labels = ${JSON.stringify(labels)};
-      const sheet = document.getElementById('sheet');
+      const sheet = browserPageDocument.getElementById('sheet');
       const loader = new GLTFLoader();
       const W = ${CELL_W}, H = ${CELL_H};
 
       async function renderOne(url, label) {
-        const cell = document.createElement('div');
+        const cell = browserPageDocument.createElement('div');
         cell.className = 'cell';
-        const canvas = document.createElement('canvas');
+        const canvas = browserPageDocument.createElement('canvas');
         canvas.width = W; canvas.height = H;
         cell.appendChild(canvas);
-        const lab = document.createElement('div');
+        const lab = browserPageDocument.createElement('div');
         lab.className = 'lab';
         lab.textContent = label;
         cell.appendChild(lab);
@@ -125,7 +125,7 @@ async function main(): Promise<void> {
           results.push({ label: labels[i], ok: false, err: String(e) });
         }
       }
-      window.__shoulderGrade = { ready: true, results };
+      browserPageWindow.__shoulderGrade = { ready: true, results };
       </script></body></html>`,
       { waitUntil: "load" },
     );
@@ -136,12 +136,12 @@ async function main(): Promise<void> {
     });
 
     await page.waitForFunction(
-      () => Boolean((window as unknown as { __shoulderGrade?: { ready?: boolean } }).__shoulderGrade?.ready),
+      () => Boolean((browserPageWindow as unknown as { __shoulderGrade?: { ready?: boolean } }).__shoulderGrade?.ready),
       null,
       { timeout: 180_000 },
     );
     const report = await page.evaluate(
-      () => (window as unknown as { __shoulderGrade: { results: unknown[] } }).__shoulderGrade,
+      () => (browserPageWindow as unknown as { __shoulderGrade: { results: unknown[] } }).__shoulderGrade,
     );
     mkdirSync(path.join(cwd, OUT_DIR), { recursive: true });
     const outAbs = path.join(cwd, OUT_PNG);

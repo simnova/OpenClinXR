@@ -132,7 +132,7 @@ async function main(): Promise<void> {
           `&reportUrl=${encodeURIComponent(reportUrl)}`;
         await page.goto(url, { waitUntil: "networkidle" });
         await page.waitForFunction(() => {
-          const evidence = window.__openClinXrModelVettingDualCaptureEvidence;
+          const evidence = browserPageWindow.__openClinXrModelVettingDualCaptureEvidence;
           return evidence?.captureClaim === "isolated_dual_humanoid_source_side_by_side_screenshot_only"
             && typeof evidence.leftMeshCount === "number"
             && evidence.leftMeshCount > 0

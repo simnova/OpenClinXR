@@ -43,7 +43,7 @@ const REPO_ROOT = path.resolve(HERE, "../../..");
  * readAsDataURL, onloadend, result). The GLB format writer stays three's GLTFExporter.
  */
 function installFileReaderPolyfill(): void {
-  if (typeof globalThis.FileReader === "function") return;
+  if (typeof (globalThis as Record<string, unknown>).FileReader === "function") return;
   class FileReaderShim {
     result: string | ArrayBuffer | null = null;
     onloadend: (() => void) | null = null;
@@ -165,14 +165,14 @@ async function captureCell(
   await page.goto(url, { waitUntil: "domcontentloaded", timeout: 120_000 });
   const handle = await page.waitForFunction(
     () => {
-      const w = window as unknown as {
+      const w = browserPageWindow as unknown as {
         __openClinXrIsolatedSubjectEvidence?: { meshCount?: number };
       };
       const ev = w.__openClinXrIsolatedSubjectEvidence;
       if (ev && typeof ev.meshCount === "number" && ev.meshCount > 0) {
         return { kind: "evidence" as const };
       }
-      const app = document.querySelector<HTMLDivElement>("#app");
+      const app = browserPageDocument.querySelector("#app");
       const text = app?.textContent ?? "";
       if (text.includes("Isolated subject lab error")) {
         return { kind: "error" as const, text: text.slice(0, 2000) };

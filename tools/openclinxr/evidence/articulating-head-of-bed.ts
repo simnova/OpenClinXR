@@ -95,7 +95,7 @@ async function captureAndMeasure(input: {
   await input.page.goto(url, { waitUntil: "domcontentloaded", timeout: 120_000 });
   await input.page.waitForFunction(
     () => {
-      const win = window as unknown as {
+      const win = browserPageWindow as unknown as {
         __openClinXrIsolatedSubjectEvidence?: { meshCount?: number };
         __openClinXrArticulatingHobMeasure?: PageHobMeasure;
       };
@@ -109,7 +109,7 @@ async function captureAndMeasure(input: {
     { timeout: 120_000 },
   );
   const measure = await input.page.evaluate(() => {
-    return (window as unknown as { __openClinXrArticulatingHobMeasure?: PageHobMeasure })
+    return (browserPageWindow as unknown as { __openClinXrArticulatingHobMeasure?: PageHobMeasure })
       .__openClinXrArticulatingHobMeasure ?? null;
   });
   if (!measure) {

@@ -341,7 +341,7 @@ type PageSeatFacts = {
  */
 async function readSeatedSeatFactsFromPage(page: Page): Promise<PageSeatFacts> {
   return page.evaluate(`(() => {
-    const win = window;
+    const win = browserPageWindow;
     const scene = win.__openClinXrDebugScene;
     const framesAdvanced = (win.__openClinXrFrameStats && win.__openClinXrFrameStats.framesObserved) || 0;
     if (!scene || typeof scene.traverse !== "function") {
@@ -494,7 +494,7 @@ async function waitForHumanoidsAndFrames(
 ): Promise<void> {
   await page.waitForFunction(
     ({ minFrames: need }) => {
-      const win = window as unknown as {
+      const win = browserPageWindow as unknown as {
         __openClinXrFrameStats?: { framesObserved?: number };
         __openClinXrDebugScene?: {
           traverse?: (cb: (o: { userData?: Record<string, unknown>; isSkinnedMesh?: boolean }) => void) => void;

@@ -27,7 +27,7 @@ import { readFileSync } from "node:fs";
 
 // GLTFLoader reads `self.URL` to build texture object URLs (GLTFLoader.js loadImageSource).
 // Under Node there is no browser `self`; aliasing it to globalThis is sufficient to run.
-Reflect.set(globalThis, "self", globalThis.self ?? globalThis);
+Reflect.set(globalThis, "self", (globalThis as Record<string, unknown>).self ?? globalThis);
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");

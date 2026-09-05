@@ -29,13 +29,13 @@ for (const actor of ED_ACTORS) {
   const url = `${server.url.replace(/\/?$/, "/")}isolated-subject.html?${params.toString()}`;
   await page.goto(url, { waitUntil: "domcontentloaded", timeout: 120_000 });
   await page.waitForFunction(() => {
-    const w = window as unknown as { __openClinXrSubjectAabb?: unknown };
-    const app = document.querySelector<HTMLDivElement>("#app");
+    const w = browserPageWindow as unknown as { __openClinXrSubjectAabb?: unknown };
+    const app = browserPageDocument.querySelector("#app");
     return w.__openClinXrSubjectAabb !== undefined || (app?.textContent ?? "").includes("Isolated subject lab error");
   }, null, { timeout: 120_000 });
   const result = await page.evaluate(() => {
-    const w = window as unknown as { __openClinXrSubjectAabb?: unknown; __openClinXrIsolatedSubjectEvidence?: unknown };
-    const app = document.querySelector<HTMLDivElement>("#app");
+    const w = browserPageWindow as unknown as { __openClinXrSubjectAabb?: unknown; __openClinXrIsolatedSubjectEvidence?: unknown };
+    const app = browserPageDocument.querySelector("#app");
     return {
       aabb: w.__openClinXrSubjectAabb ?? null,
       evidence: w.__openClinXrIsolatedSubjectEvidence ?? null,

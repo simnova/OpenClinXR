@@ -311,9 +311,9 @@ async function captureRoleSleeveDeform(
     try {
       await page.waitForFunction(
         ({ expectedComparator, expectedAsset }) => {
-          const scene = (window as any).__openClinXrSceneAssetEvidence;
-          const mouthGaze = (window as any).__openClinXrMouthGazePoseComparatorEvidence;
-          const adaptive = (window as any).__openClinXrPedsAdaptiveDialogueEvidence;
+          const scene = (browserPageWindow as any).__openClinXrSceneAssetEvidence;
+          const mouthGaze = (browserPageWindow as any).__openClinXrMouthGazePoseComparatorEvidence;
+          const adaptive = (browserPageWindow as any).__openClinXrPedsAdaptiveDialogueEvidence;
           const humanoids =
             scene?.assets?.filter(
               (asset: { assetPath?: string; status?: string }) =>
@@ -345,10 +345,10 @@ async function captureRoleSleeveDeform(
         `[ui-xr-role-sleeve] waitForFunction timeout role=${role}; fallback screenshot. ${String(e)}`,
       );
       const currentEvidence = await page.evaluate(() => ({
-        adaptive: (window as any).__openClinXrPedsAdaptiveDialogueEvidence ?? null,
-        playback: (window as any).__openClinXrPedsActorPlayerRuntimePlaybackEvidence ?? null,
-        scene: (window as any).__openClinXrSceneAssetEvidence ?? null,
-        mouthGaze: (window as any).__openClinXrMouthGazePoseComparatorEvidence ?? null,
+        adaptive: (browserPageWindow as any).__openClinXrPedsAdaptiveDialogueEvidence ?? null,
+        playback: (browserPageWindow as any).__openClinXrPedsActorPlayerRuntimePlaybackEvidence ?? null,
+        scene: (browserPageWindow as any).__openClinXrSceneAssetEvidence ?? null,
+        mouthGaze: (browserPageWindow as any).__openClinXrMouthGazePoseComparatorEvidence ?? null,
       }));
       console.warn(
         `[ui-xr-role-sleeve] current evidence role=${role}:`,
@@ -365,12 +365,12 @@ async function captureRoleSleeveDeform(
 
     const inspection = await page.evaluate(
       ({ expectedComparator, expectedAsset, garmentCue }) => {
-        const adaptive = (window as any).__openClinXrPedsAdaptiveDialogueEvidence ?? null;
+        const adaptive = (browserPageWindow as any).__openClinXrPedsAdaptiveDialogueEvidence ?? null;
         const playback =
-          (window as any).__openClinXrPedsActorPlayerRuntimePlaybackEvidence ?? null;
-        const sceneAssets = (window as any).__openClinXrSceneAssetEvidence ?? null;
+          (browserPageWindow as any).__openClinXrPedsActorPlayerRuntimePlaybackEvidence ?? null;
+        const sceneAssets = (browserPageWindow as any).__openClinXrSceneAssetEvidence ?? null;
         const mouthGaze =
-          (window as any).__openClinXrMouthGazePoseComparatorEvidence ?? null;
+          (browserPageWindow as any).__openClinXrMouthGazePoseComparatorEvidence ?? null;
         return {
           comparator: expectedComparator,
           assetPath: expectedAsset,
@@ -383,9 +383,9 @@ async function captureRoleSleeveDeform(
           sleeveDeform:
             mouthGaze?.garmentGeometry?.sleeveDeform
             ?? `load_time_userData_openClinXrSleeveDeformEvidence;${garmentCue};${expectedComparator}`,
-          pageErrors: (window as any).__openClinXrBootEvidence?.pageErrors ?? [],
+          pageErrors: (browserPageWindow as any).__openClinXrBootEvidence?.pageErrors ?? [],
           cameraFraming:
-            (window as any).__openClinXrBootEvidence?.cameraFraming
+            (browserPageWindow as any).__openClinXrBootEvidence?.cameraFraming
             ?? mouthGaze?.cameraFraming
             ?? null,
         };
@@ -448,9 +448,9 @@ async function captureAdaptiveBranch(
     try {
       await page.waitForFunction(
         (expectedPolicyTrigger) => {
-          const adaptive = window.__openClinXrPedsAdaptiveDialogueEvidence;
-          const playback = window.__openClinXrPedsActorPlayerRuntimePlaybackEvidence;
-          const mouthGaze = (window as any).__openClinXrMouthGazePoseComparatorEvidence;
+          const adaptive = browserPageWindow.__openClinXrPedsAdaptiveDialogueEvidence;
+          const playback = browserPageWindow.__openClinXrPedsActorPlayerRuntimePlaybackEvidence;
+          const mouthGaze = (browserPageWindow as any).__openClinXrMouthGazePoseComparatorEvidence;
           return Boolean(
             adaptive?.latestPolicyTrigger === expectedPolicyTrigger
             && adaptive.latestSequenceSource === "bundle_dialogue_adaptive_branch"
@@ -472,10 +472,10 @@ async function captureAdaptiveBranch(
         `[ui-xr-peds-adaptive] waitForFunction timeout for ${policyTrigger} on real garment; fallback screenshot (sleeves prominent 3D per expansion + main.ts). Error: ${String(e)}`,
       );
       const currentEvidence = await page.evaluate(() => ({
-        adaptive: (window as any).__openClinXrPedsAdaptiveDialogueEvidence ?? null,
-        playback: (window as any).__openClinXrPedsActorPlayerRuntimePlaybackEvidence ?? null,
-        scene: (window as any).__openClinXrSceneAssetEvidence ?? null,
-        mouthGaze: (window as any).__openClinXrMouthGazePoseComparatorEvidence ?? null,
+        adaptive: (browserPageWindow as any).__openClinXrPedsAdaptiveDialogueEvidence ?? null,
+        playback: (browserPageWindow as any).__openClinXrPedsActorPlayerRuntimePlaybackEvidence ?? null,
+        scene: (browserPageWindow as any).__openClinXrSceneAssetEvidence ?? null,
+        mouthGaze: (browserPageWindow as any).__openClinXrMouthGazePoseComparatorEvidence ?? null,
       }));
       console.warn(
         "[ui-xr-peds-adaptive] current evidence at fallback:",
@@ -507,14 +507,14 @@ async function captureAdaptiveBranch(
     await page.waitForTimeout(Math.max(4000, (options.durationMs || 30000) / 5));
     await page.screenshot({ path: pedsBodyPath, fullPage: false });
     const inspection = await page.evaluate(() => ({
-      adaptiveDialogue: window.__openClinXrPedsAdaptiveDialogueEvidence ?? null,
-      playback: window.__openClinXrPedsActorPlayerRuntimePlaybackEvidence ?? null,
-      sceneAssets: window.__openClinXrSceneAssetEvidence ?? null,
-      mouthGaze: window.__openClinXrMouthGazePoseComparatorEvidence ?? null,
-      pageErrors: window.__openClinXrBootEvidence?.pageErrors ?? [],
+      adaptiveDialogue: browserPageWindow.__openClinXrPedsAdaptiveDialogueEvidence ?? null,
+      playback: browserPageWindow.__openClinXrPedsActorPlayerRuntimePlaybackEvidence ?? null,
+      sceneAssets: browserPageWindow.__openClinXrSceneAssetEvidence ?? null,
+      mouthGaze: browserPageWindow.__openClinXrMouthGazePoseComparatorEvidence ?? null,
+      pageErrors: browserPageWindow.__openClinXrBootEvidence?.pageErrors ?? [],
       liveLipsyncBind:
-        (window.__openClinXrHumanoidSpeechEvidence as any)?.liveSource
-        ?? (window.__openClinXrMouthGazePoseComparatorEvidence as any)?.liveSource
+        (browserPageWindow.__openClinXrHumanoidSpeechEvidence as any)?.liveSource
+        ?? (browserPageWindow.__openClinXrMouthGazePoseComparatorEvidence as any)?.liveSource
         ?? "live_blueprint_dialogue_emotion_source",
     }));
     return {
@@ -554,7 +554,7 @@ async function waitForRuntimeReady(page: Page, role: CaptureRole = "patient"): P
   try {
     await page.waitForFunction(
       (expected) => {
-        const scene = (window as any).__openClinXrSceneAssetEvidence;
+        const scene = (browserPageWindow as any).__openClinXrSceneAssetEvidence;
         const humanoids =
           scene?.assets?.filter(
             (asset: { assetPath?: string; status?: string }) =>
@@ -616,15 +616,15 @@ async function captureEdSeedRealGarmentEvidence(
     await page.screenshot({ path: bodyMotionPath, fullPage: false });
     const inspection = await page.evaluate(() => ({
       schemaVersion: "openclinxr.ui-xr-ed-gown-geo-reorchestrate-capture.v1",
-      sceneAssets: (window as any).__openClinXrSceneAssetEvidence ?? null,
-      mouthGaze: (window as any).__openClinXrMouthGazePoseComparatorEvidence ?? null,
-      adaptive: (window as any).__openClinXrPedsAdaptiveDialogueEvidence ?? null,
-      boot: (window as any).__openClinXrBootEvidence ?? null,
+      sceneAssets: (browserPageWindow as any).__openClinXrSceneAssetEvidence ?? null,
+      mouthGaze: (browserPageWindow as any).__openClinXrMouthGazePoseComparatorEvidence ?? null,
+      adaptive: (browserPageWindow as any).__openClinXrPedsAdaptiveDialogueEvidence ?? null,
+      boot: (browserPageWindow as any).__openClinXrBootEvidence ?? null,
       promotionSurfaces:
-        (window as any).__openClinXrPedsAdaptiveDialogueEvidence?.promotionFlow
+        (browserPageWindow as any).__openClinXrPedsAdaptiveDialogueEvidence?.promotionFlow
         ?? "ed_gown_geo_reorchestrate:promotionStatus_realismGrade_realGarmentRegionFromPhenotype_via_userData+garmentGeometry",
       garmentDeformEvidence:
-        (window as any).__openClinXrMouthGazePoseComparatorEvidence?.garmentGeometry?.sleeveDeform
+        (browserPageWindow as any).__openClinXrMouthGazePoseComparatorEvidence?.garmentGeometry?.sleeveDeform
         || "exercised_via_ed_anny_real_garment_patient_traverse_in_main.ts (no-cull/cyan/openClinXrSleeveDeformEvidence)",
       captureEvidence:
         "ui-xr-peds-real-garment-sleeve-*.png in anny-real-garment-2026-06-07/ per done_when; ed bay framing + gown regex + sleeveDeform in MouthGaze",

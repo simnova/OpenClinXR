@@ -633,7 +633,7 @@ type PageLiveFacts = {
 async function readLiveFactsFromPage(page: Page): Promise<PageLiveFacts> {
   return page.evaluate(`(() => {
     const HEAD_RADIUS = ${HEAD_SEARCH_RADIUS_M};
-    const win = window;
+    const win = browserPageWindow;
     const scene = win.__openClinXrDebugScene;
     const framesAdvanced = (win.__openClinXrFrameStats && win.__openClinXrFrameStats.framesObserved) || 0;
     const empty = { framesAdvanced: framesAdvanced, environmentId: "", chair: null, parent: null,
@@ -881,7 +881,7 @@ async function readLiveFactsFromPage(page: Page): Promise<PageLiveFacts> {
 async function waitForHumanoidsAndFrames(page: Page, minFrames: number, timeoutMs: number): Promise<void> {
   await page.waitForFunction(
     ({ minFrames: need }) => {
-      const win = window as unknown as {
+      const win = browserPageWindow as unknown as {
         __openClinXrFrameStats?: { framesObserved?: number };
         __openClinXrDebugScene?: {
           traverse?: (cb: (o: { isSkinnedMesh?: boolean }) => void) => void;

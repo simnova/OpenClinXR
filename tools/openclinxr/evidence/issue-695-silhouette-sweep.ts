@@ -21,6 +21,7 @@ import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
 import { simplify } from "@gltf-transform/functions";
 import { MeshoptSimplifier } from "meshoptimizer";
 import { chromium, type Browser, type Page } from "playwright";
+import type { BrowserPageCanvas, BrowserPageGlContext } from "./browser-dom.js";
 import { existsSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -586,9 +587,9 @@ async function renderMask(page: Page, baseUrl: string, subject: {
   await page.goto(url, { waitUntil: "domcontentloaded", timeout: 120_000 });
   await page.waitForFunction(
     () => {
-      const w = window as unknown as { __openClinXrIsolatedSubjectEvidence?: unknown };
+      const w = browserPageWindow as unknown as { __openClinXrIsolatedSubjectEvidence?: unknown };
       if (w.__openClinXrIsolatedSubjectEvidence !== undefined) return true;
-      const app = document.querySelector<HTMLDivElement>("#app");
+      const app = browserPageDocument.querySelector("#app");
       if (app?.textContent?.includes("Isolated subject lab error")) return true;
       return false;
     },
@@ -596,19 +597,19 @@ async function renderMask(page: Page, baseUrl: string, subject: {
     { timeout: 120_000 },
   );
   const labError = await page.evaluate(() =>
-    document.querySelector<HTMLDivElement>("#app")?.textContent?.includes("Isolated subject lab error") ?? false,
+    browserPageDocument.querySelector("#app")?.textContent?.includes("Isolated subject lab error") ?? false,
   );
   if (labError) {
     const text = await page.evaluate(
-      () => document.querySelector<HTMLDivElement>("#app")?.textContent?.slice(0, 500) ?? "",
+      () => browserPageDocument.querySelector("#app")?.textContent?.slice(0, 500) ?? "",
     );
     throw new Error(`isolated subject lab refused: ${text}`);
   }
   const raw = await page.evaluate((): number[] => {
-    const canvas = document.querySelector("#isolated-subject-capture-canvas") as HTMLCanvasElement;
+    const canvas = browserPageDocument.querySelector("#isolated-subject-capture-canvas") as unknown as BrowserPageCanvas;
     const gl = (canvas.getContext("webgl2")
       ?? canvas.getContext("webgl")
-      ?? canvas.getContext("experimental-webgl")) as WebGLRenderingContext | WebGL2RenderingContext;
+      ?? canvas.getContext("experimental-webgl")) as BrowserPageGlContext;
     const w = canvas.width;
     const h = canvas.height;
     const px = new Uint8Array(w * h * 4);
