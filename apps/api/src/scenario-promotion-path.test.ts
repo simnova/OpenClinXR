@@ -79,9 +79,9 @@ import {
  * ════════════════════════════════════════════════════════════════════════════════════════════════
  * MEASURED, TRUST THESE — verify the inferences
  *
- * `.openclinxr/evidence/issue-166/pre-fix.json` records all 14 shipped scenarios (status,
+ * `.openclinxr/evidence/issue-166/pre-fix.json` records all 15 shipped scenarios (status,
  * validationStage, four review flags, isActivationEligible) measured through the real routes and
- * the real resolver BEFORE this suite's runs. It reads exactly: 1 approved / 13 stage_0,
+ * the real resolver BEFORE this suite's runs. It reads exactly: 1 approved / 14 stage_0,
  * 1 activation-eligible, `canStartLearnerExam: false`, 12 queue slots all `bank_residual`.
  * The last contract re-measures and requires the artifact to still match — a stale before-column
  * would be caught, not trusted.
@@ -199,11 +199,11 @@ describe("a real bank draft is promoted by real review decisions, per hop (#166)
   }, 900_000);
 
   it("counterweight: the shipped bank is unchanged and an unreviewed control draft is still refused", async () => {
-    // The shipped bank fixture module must read exactly as measured: 1 approved / 13 stage_0.
+    // The shipped bank fixture module must read exactly as measured: 1 approved / 14 stage_0.
     // The in-memory sink never touches it — this asserts no fixture edit smuggled in.
     expect(scenarioBank.filter((s) => s.status === "approved").length).toBe(1);
     expect(scenarioBank.filter((s) => s.governance.validationStage === "stage_0_synthetic_draft").length)
-      .toBe(13);
+      .toBe(14);
 
     // An untouched control draft must still be refused by the same gate, and the exam must still
     // be unstartable.
@@ -218,7 +218,7 @@ describe("a real bank draft is promoted by real review decisions, per hop (#166)
 
   it("the pre-fix artifact exists and still matches the current bank (staleness guard)", async () => {
     // The before-column was measured through the real routes before any edit. Re-measuring now
-    // must produce the same 14 rows — a stale or reconstructed artifact would be caught here.
+    // must produce the same 15 rows — a stale or reconstructed artifact would be caught here.
     const artifactPath = join(repoRoot(), PRE_FIX_ARTIFACT_RELATIVE_PATH);
     const raw = await readFile(artifactPath, "utf8");
     const artifact = JSON.parse(raw) as {
@@ -230,9 +230,9 @@ describe("a real bank draft is promoted by real review decisions, per hop (#166)
       scenarios: Array<Record<string, unknown>>;
     };
 
-    expect(artifact.scenarioCount).toBe(14);
+    expect(artifact.scenarioCount).toBe(15);
     expect(artifact.shippedBankApprovedCount).toBe(1);
-    expect(artifact.shippedBankStageZeroCount).toBe(13);
+    expect(artifact.shippedBankStageZeroCount).toBe(14);
     expect(artifact.activationEligibleCount).toBe(1);
     expect(artifact.canStartLearnerExam).toBe(false);
 

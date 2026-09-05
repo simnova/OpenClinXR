@@ -7,7 +7,7 @@ import {
   ASSEMBLED_EXAM_PHASE_TRANSITION_TYPES,
   AssembledExamReplayTimeline,
   assembledExamStationReplayPosture,
-} from "./AssembledExamReplayTimeline.js";
+} from "@openclinxr/ui-shared/assembled-exam-replay-timeline";
 import {
   assembledExamReviewNotEvidenceFor,
   type AssembledExamReviewPacket,

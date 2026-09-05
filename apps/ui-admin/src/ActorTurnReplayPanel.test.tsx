@@ -5,7 +5,7 @@ import {
   ACTOR_TURN_REPLAY_CLAIM_BOUNDARY,
   ACTOR_TURN_REPLAY_NOT_EVIDENCE_FOR,
   ActorTurnReplayPanel,
-} from "./ActorTurnReplayPanel.js";
+} from "@openclinxr/ui-shared/actor-turn-replay-panel";
 
 const HIDDEN = "HIDDEN_DIAGNOSIS_MODERATE_PERSISTENT_ASTHMA";
 const DISMISSIVE_LINE = "The hallway light is on.";

@@ -20,6 +20,11 @@ import { fileURLToPath } from "node:url";
 import { createApiFetchTransport } from "./api-fetch-transport.js";
 import type { ApiPersistenceSink, ApiScenarioReviewDecisionRecord } from "./api-types.js";
 import { createApiApp } from "./index.js";
+import { toAdminGraphqlScenario } from "./admin-scenario-listing.js";
+import {
+  AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX,
+  authoredScenarioContentIdentity,
+} from "./scenario-review-promotion.js";
 
 export const BLUEPRINT_ID = "step2cs-seed";
 export const IN_PROCESS_ORIGIN = "http://in-process.openclinxr.local";
@@ -245,7 +250,12 @@ export async function submitReviewDecision(
             comments:
               `${input.reviewerRole} gate approved for #166 promotion-path seam proof `
               + `(local formative only — not clinical validity).`,
-            evidenceRefs: [`evidence:issue166:${input.scenarioId}:${input.reviewerRole}`],
+            evidenceRefs: [
+              `evidence:issue166:${input.scenarioId}:${input.reviewerRole}`,
+              `${AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX}${authoredScenarioContentIdentity(
+                toAdminGraphqlScenario(findBankFixture(input.scenarioId)),
+              )}`,
+            ],
           },
         },
       }),

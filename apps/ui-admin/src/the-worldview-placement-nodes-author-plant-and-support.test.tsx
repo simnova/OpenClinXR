@@ -34,7 +34,7 @@ describe("the worldview placement nodes author plant and support", () => {
   });
 
   it("(2) COUNTERWEIGHT: compile graph canvas remains (read-only today)", () => {
-    const canvas = readFileSync(join(SRC, "CompileGraphCanvas.tsx"), "utf8");
+    const canvas = readFileSync(join(SRC, "../../../packages/openclinxr/ui-shared/src/admin-compile-graph-canvas.tsx"), "utf8");
     expect(canvas).toContain("CompileGraphCanvas");
   });
 });

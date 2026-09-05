@@ -7,11 +7,12 @@ import {
   type ScenarioSceneGenerationPipelineWorkOrderQueue,
 } from "@openclinxr/asset-registry";
 import { Button, Form, Input, InputNumber, Select, Space, Table, Tag, Typography } from "antd";
-import { FactoryStationCards } from "./FactoryStationCards.js";
+import { FactoryStationCards } from "@openclinxr/ui-shared/admin-factory-station-cards";
+import "@xyflow/react/dist/style.css";
 import { lazy, type ReactElement, Suspense, useEffect, useMemo } from "react";
 import type { CreateScenarioSceneGenerationRequestResult, ScenarioSceneGenerationRequestPublicationReadiness, ScenarioSceneGenerationRequestQueue } from "./api-client.js";
 import { supportSurfaceOptions } from "./case-authoring-model.js";
-import type { CompileEdge } from "./CompileGraphCanvas.js";
+import type { CompileEdge } from "@openclinxr/ui-shared/admin-compile-graph-canvas";
 import {
   buildFacultyCompileLockColumns,
   type FacultyCompileLockRow,
@@ -20,7 +21,7 @@ import {
 } from "./faculty-compile-lock.js";
 
 const CompileGraphCanvas = lazy(() =>
-  import("./CompileGraphCanvas.js").then((module) => ({ default: module.CompileGraphCanvas })),
+  import("@openclinxr/ui-shared/admin-compile-graph-canvas").then((module) => ({ default: module.CompileGraphCanvas })),
 );
 import {
   sceneGenerationRequestProjectionArtifactStatusColor,

@@ -1,5 +1,4 @@
 import { Background, type Edge, type Node, ReactFlow } from "@xyflow/react";
-import "@xyflow/react/dist/style.css";
 import { Button } from "antd";
 import { type CSSProperties, type ReactElement, useCallback } from "react";
 

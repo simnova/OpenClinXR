@@ -193,3 +193,42 @@ function scenarioReviewBlockerIds(scenario: AdminScenario): string[] {
 
   return blockers.filter((blocker): blocker is string => typeof blocker === "string");
 }
+
+export function formatStationQueueBlocker(blocker: string): string {
+  const blockerCopy: Record<string, string> = {
+    scenario_not_approved: "Scenario not approved",
+    dialogue_seed_replay_not_ready: "Dialogue replay seeds not ready",
+    governance_not_ready: "Governance not ready",
+    synthetic_draft_validation_stage: "Synthetic draft validation stage",
+    summative_score_use_not_allowed_for_seed_queue: "Restricted score-use posture is not allowed for seed queue",
+  };
+
+  return blockerCopy[blocker] ?? blocker.replaceAll("_", " ");
+}
+
+export function formatMinutes(seconds: number): string {
+  return `${Math.round(seconds / 60)}m`;
+}
+
+export function scenarioStatusColor(status: AdminScenario["status"]): string {
+  switch (status) {
+    case "APPROVED":
+      return "green";
+    case "READY_FOR_REVIEW":
+      return "blue";
+    case "DRAFT":
+      return "gold";
+    case "ARCHIVED":
+      return "default";
+  }
+}
+
+export function reviewGateColor(stateName: string): string {
+  return stateName === "approved" ? "green" : stateName === "in_review" ? "blue" : "gold";
+}
+
+export function scenarioReviewGateEntries(scenario: AdminScenario): Array<[string, string]> {
+  return Object.entries(scenario.review).filter(([gate, stateName]) =>
+    gate !== "__typename" && typeof stateName === "string"
+  ) as Array<[string, string]>;
+}

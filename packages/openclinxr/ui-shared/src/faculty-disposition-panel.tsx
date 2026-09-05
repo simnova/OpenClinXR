@@ -4,79 +4,22 @@ import { type ReactElement, useEffect, useState } from "react";
 
 export const ASSEMBLED_EXAM_DISPOSITION_PATH = "/exam-runs/:examRunId/assembled-review-disposition";
 
-export const FACULTY_DISPOSITION_VALUES = ["hold", "local_debrief_ready", "needs_revision"] as const satisfies readonly FacultyDispositionValue[];
-
-export const FACULTY_DISPOSITION_CLAIM_BOUNDARY = "assembled_exam_faculty_disposition_not_score_use" as const;
-
-const DISPOSITION_LABEL: Record<FacultyDispositionValue, string> = {
-  hold: "Hold",
-  local_debrief_ready: "Local debrief ready",
-  needs_revision: "Needs revision",
-};
-
-const REFUSAL_TITLE: Record<FacultyDispositionRefusalCode, string> = {
-  stale_packet_digest: "Stale packet digest",
-  producer_self_review: "Producer self-review refused",
-  identity_mutation: "Reviewer identity mutation refused",
-  overwrite_refused: "Overwrite refused",
-  finalized: "Disposition already finalized",
-};
-
-export type AdminFacultyDispositionDecision = {
-  decisionId: string;
-  examRunId: string;
-  reviewerId: string;
-  packetDigest: string;
-  disposition: FacultyDispositionValue;
-  status: FacultyDispositionStatus;
-  rationale: string;
-  attestedAt: string;
-  sequence: number;
-};
-
-export type AdminFacultyDispositionTrail = {
-  examRunId: string;
-  packetDigest: string;
-  evidencePacket: {
-    examRunId: string;
-    packetDigest: string;
-    learnerId: string | null;
-    stationRunIds: readonly string[];
-    claimBoundary: string;
-    notEvidenceFor: readonly string[];
-    examEquivalenceGate: false;
-  };
-  decisions: readonly AdminFacultyDispositionDecision[];
-  current: AdminFacultyDispositionDecision | null;
-  claimBoundary: string;
-  notEvidenceFor: readonly string[];
-  scoringValidityClaimed: false;
-  examEquivalenceGate: false;
-};
-
-export type AdminFacultyDispositionRefusal = {
-  code: FacultyDispositionRefusalCode;
-  reason: string;
-  notEvidenceFor: readonly string[];
-  scoringValidityClaimed: false;
-  examEquivalenceGate: false;
-};
-
-export type AppendFacultyDispositionCommand = {
-  examRunId: string;
-  reviewerId: string;
-  packetDigest: string;
-  disposition: FacultyDispositionValue;
-  status: FacultyDispositionStatus;
-  rationale: string;
-  attestedAt: string;
-  decisionId?: string;
-};
-
-export type FacultyDispositionTransport = {
-  fetch?: typeof fetch;
-  baseUrl?: string;
-};
+import {
+  DISPOSITION_LABEL,
+  FACULTY_DISPOSITION_CLAIM_BOUNDARY,
+  FACULTY_DISPOSITION_VALUES,
+  REFUSAL_TITLE,
+  isRecord,
+  isRefusal,
+} from "./faculty-disposition-record.js";
+import type {
+  AdminFacultyDispositionDecision,
+  AdminFacultyDispositionRefusal,
+  AdminFacultyDispositionTrail,
+  AppendFacultyDispositionCommand,
+  FacultyDispositionTransport,
+} from "./faculty-disposition-record.js";
+import { asRefusal, asTrail } from "./faculty-disposition-codec.js";
 
 export function assembledExamDispositionPath(examRunId: string): string {
   return `/exam-runs/${encodeURIComponent(examRunId)}/assembled-review-disposition`;
@@ -433,96 +376,4 @@ async function dispositionRequest(
     headers: { "content-type": "application/json" },
     body: JSON.stringify(body),
   });
-}
-
-function asTrail(value: unknown): AdminFacultyDispositionTrail | null {
-  if (!isRecord(value)) {
-    return null;
-  }
-  const examRunId = readString(value, "examRunId");
-  const packetDigest = readString(value, "packetDigest");
-  if (!examRunId || !packetDigest || typeof value["code"] === "string") {
-    return null;
-  }
-  const evidence = isRecord(value["evidencePacket"]) ? value["evidencePacket"] : {};
-  const rawDecisions = value["decisions"];
-  const decisions = Array.isArray(rawDecisions)
-    ? rawDecisions.flatMap((item, index) => {
-      if (!isRecord(item)) {
-        return [];
-      }
-      const decisionId = readString(item, "decisionId");
-      const reviewerId = readString(item, "reviewerId");
-      const sequenceValue = item["sequence"];
-      if (!decisionId || !reviewerId) {
-        return [];
-      }
-      const decision: AdminFacultyDispositionDecision = {
-        decisionId,
-        examRunId: readString(item, "examRunId") ?? examRunId,
-        reviewerId,
-        packetDigest: readString(item, "packetDigest") ?? packetDigest,
-        disposition: item["disposition"] as FacultyDispositionValue,
-        status: item["status"] as FacultyDispositionStatus,
-        rationale: readString(item, "rationale") ?? "",
-        attestedAt: readString(item, "attestedAt") ?? "",
-        sequence: typeof sequenceValue === "number" ? sequenceValue : index + 1,
-      };
-      return [decision];
-    })
-    : [];
-  return {
-    examRunId,
-    packetDigest,
-    evidencePacket: {
-      examRunId: readString(evidence, "examRunId") ?? examRunId,
-      packetDigest: readString(evidence, "packetDigest") ?? packetDigest,
-      learnerId: readString(evidence, "learnerId"),
-      stationRunIds: readStringArray(evidence, "stationRunIds"),
-      claimBoundary: readString(evidence, "claimBoundary") ?? FACULTY_DISPOSITION_CLAIM_BOUNDARY,
-      notEvidenceFor: readStringArray(evidence, "notEvidenceFor"),
-      examEquivalenceGate: false,
-    },
-    decisions,
-    current: decisions[decisions.length - 1] ?? null,
-    claimBoundary: readString(value, "claimBoundary") ?? FACULTY_DISPOSITION_CLAIM_BOUNDARY,
-    notEvidenceFor: readStringArray(value, "notEvidenceFor"),
-    scoringValidityClaimed: false,
-    examEquivalenceGate: false,
-  };
-}
-
-function asRefusal(value: unknown): AdminFacultyDispositionRefusal | null {
-  if (!isRecord(value)) {
-    return null;
-  }
-  const code = value["code"];
-  if (typeof code !== "string" || !(code in REFUSAL_TITLE)) {
-    return null;
-  }
-  return {
-    code: code as FacultyDispositionRefusalCode,
-    reason: readString(value, "reason") ?? code,
-    notEvidenceFor: readStringArray(value, "notEvidenceFor"),
-    scoringValidityClaimed: false,
-    examEquivalenceGate: false,
-  };
-}
-
-function readString(record: Record<string, unknown>, key: string): string | null {
-  const value = record[key];
-  return typeof value === "string" && value.length > 0 ? value : null;
-}
-
-function readStringArray(record: Record<string, unknown>, key: string): string[] {
-  const value = record[key];
-  return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
-}
-
-function isRefusal(value: AdminFacultyDispositionTrail | AdminFacultyDispositionRefusal): value is AdminFacultyDispositionRefusal {
-  return "code" in value;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
 }

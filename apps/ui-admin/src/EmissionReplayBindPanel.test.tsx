@@ -7,7 +7,7 @@ import {
   parseAdminReplayFromEmissionV1,
   SAMPLE_ADMIN_REPLAY_FROM_EMISSION_V1,
   type AdminReplayFromEmissionV1,
-} from "./EmissionReplayBindPanel.js";
+} from "@openclinxr/ui-shared/emission-replay-bind-panel";
 
 describe("EmissionReplayBindPanel", () => {
   afterEach(() => {

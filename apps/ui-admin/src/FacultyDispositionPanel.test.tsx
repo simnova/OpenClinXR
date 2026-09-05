@@ -8,7 +8,7 @@ import {
   type AdminFacultyDispositionRefusal,
   type AdminFacultyDispositionTrail,
   type AppendFacultyDispositionCommand,
-} from "./FacultyDispositionPanel.js";
+} from "@openclinxr/ui-shared/faculty-disposition-panel";
 
 const EXAM_RUN_ID = "exam_run_faculty_disposition_001";
 const DIGEST = "a".repeat(64);

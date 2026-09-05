@@ -7,7 +7,7 @@
     "agent-methodology": 104,
     "current-reference": 220,
     "archive-candidate": 42,
-    "evidence": 58,
+    "evidence": 60,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -3797,7 +3797,21 @@
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
+      "path": "docs/openclinxr/public-humanoid-motion-license-review-2026-09-04.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
       "path": "docs/openclinxr/quest3-usb-webxr-smoke-checklist.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "docs/openclinxr/radial-pulse-publication-review-2026-09-04.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",

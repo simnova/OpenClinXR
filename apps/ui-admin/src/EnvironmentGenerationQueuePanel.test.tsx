@@ -4,7 +4,7 @@ import { findUnsafeClaimLanguage } from "@openclinxr/domain/claim-language";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { useState } from "react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import { buildCompileGraphModel, CompileGraphCanvas } from "./CompileGraphCanvas.js";
+import { buildCompileGraphModel, CompileGraphCanvas } from "@openclinxr/ui-shared/admin-compile-graph-canvas";
 import { EnvironmentGenerationQueuePanel, FACULTY_COMPILE_OVERRIDE_PATHS, type FacultyCompileLockRow } from "./EnvironmentGenerationQueuePanel.js";
 import { SeedWorldviewQueue } from "./seed-worldview-queue.js";
 import { buildCompileEdges, buildFacultyCompileLockRows, type EvidenceCompileNode, mergeFacultyCompileLockRows } from "./faculty-compile-lock.js";

@@ -1,6 +1,6 @@
 import { Tag, Typography } from "antd";
 import type { ReactElement } from "react";
-import { AssembledExamReplayTimeline } from "./AssembledExamReplayTimeline.js";
+import { AssembledExamReplayTimeline } from "@openclinxr/ui-shared/assembled-exam-replay-timeline";
 import type {
   AdminCaseDefinedHumanoidPerformanceContract,
   AdminCaseDefinedHumanoidRuntimeHandoff,

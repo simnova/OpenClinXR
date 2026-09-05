@@ -15,7 +15,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - archive-candidate: 41
 - current-reference: 215
 - decision-record: 44
-- evidence: 58
+- evidence: 60
 - generated-evidence: 10
 - historical-synthesis: 13
 - protected-policy: 10
@@ -345,6 +345,8 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/owner-memory/decisions.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/owner-memory/measurements.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/postmortem-anny-fixture-polish-2026-08-25.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/public-humanoid-motion-license-review-2026-09-04.md` - evidence; Publication license review for the cropped public movement artifact; not legal advice, not production/promotion evidence.
+- `docs/openclinxr/radial-pulse-publication-review-2026-09-04.md` - evidence; Publication license review for the bounded IWSDK radial-pulse interaction artifact; not legal advice, not production/promotion evidence.
 - `docs/openclinxr/research/2026-08-06-step2cs-and-digital-native-primitives.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/superagent-goal-mpfb-human-realism-2026-08-14.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/third-party-asset-licence-ledger.md` - archive-candidate; Unclassified Markdown; review before using as instruction.

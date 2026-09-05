@@ -46,3 +46,75 @@ export async function compileEncounterWorld(
 
   return response.json() as Promise<Record<string, unknown>>;
 }
+
+import {
+  FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PATH,
+  FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PREVIEW_PATH,
+  type FacultyEncounterBundlePromotionSelection,
+} from "./encounter-bundle-promotion/faculty-encounter-bundle-promotion.js";
+
+async function post<TResponse = unknown>(
+  fetcher: typeof fetch,
+  baseUrl: string,
+  path: string,
+  body: Record<string, unknown>,
+  authHeaders: Record<string, string> = {},
+): Promise<TResponse> {
+  const url = `${baseUrl}${path}`;
+  const response = await fetcher(url, {
+    method: "POST",
+    headers: { "content-type": "application/json", ...authHeaders },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.json().catch(() => ({}));
+    const errorCode =
+      typeof errorBody === "object" && errorBody !== null && typeof errorBody["error"] === "string"
+        ? errorBody["error"]
+        : "unknown_error";
+    throw new Error(`OpenClinXR admin API request failed: POST ${url} ${response.status} ${errorCode}`);
+  }
+
+  return response.json() as Promise<TResponse>;
+}
+
+function facultyPromotionBody(input: FacultyEncounterBundlePromotionSelection): Record<string, unknown> {
+  return {
+    scenarioId: input.scenarioId,
+    stationId: input.stationId,
+    scenarioReviewIdentity: input.scenarioReviewIdentity,
+    expectedScenarioReviewIdentity: input.expectedScenarioReviewIdentity,
+    assetStoreKind: "azurite_blob",
+    members: [...input.members],
+  };
+}
+
+export function encounterBundlePromotionMethods(context: {
+  fetcher: typeof fetch;
+  baseUrl: string;
+  authHeaders: () => Promise<Record<string, string>>;
+}): Pick<
+  import("./api-client-types.js").AdminControlPlaneClient,
+  "previewFacultyEncounterBundlePromotion" | "promoteFacultyEncounterBundle"
+> {
+  const { fetcher, baseUrl, authHeaders } = context;
+  return {
+    previewFacultyEncounterBundlePromotion: async (input) =>
+      post(
+        fetcher,
+        baseUrl,
+        FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PREVIEW_PATH,
+        facultyPromotionBody(input),
+        await authHeaders(),
+      ),
+    promoteFacultyEncounterBundle: async (input) =>
+      post(
+        fetcher,
+        baseUrl,
+        FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PATH,
+        facultyPromotionBody(input),
+        await authHeaders(),
+      ),
+  };
+}

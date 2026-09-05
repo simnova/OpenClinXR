@@ -37,22 +37,23 @@ import {
   type ScenarioSceneGenerationRequestQueue,
   type SubmitRuntimeVisualEvidenceAttachmentInput,
 } from "./api-client.js";
-import { ActorTurnReplayPanel } from "./ActorTurnReplayPanel.js";
+import { ActorTurnReplayPanel } from "@openclinxr/ui-shared/actor-turn-replay-panel";
 import { CaseAuthoringWorkbench } from "./CaseAuthoringWorkbench.js";
-import { EmissionReplayBindPanel } from "./EmissionReplayBindPanel.js";
+import { EmissionReplayBindPanel } from "@openclinxr/ui-shared/emission-replay-bind-panel";
 import type { PlacementAuthorValue } from "./EnvironmentGenerationQueuePanel.js";
 import { SeedWorldviewQueue, type SeedWorldviewCompileGraph } from "./seed-worldview-queue.js";
 import { FacultyAdjudicationWorkspace, fetchAssembledExamReviewPacket } from "./FacultyAdjudicationWorkspace.js";
-import { FacultyDispositionPanel } from "./FacultyDispositionPanel.js"; import { FacultyReviewDecisionPanel } from "./FacultyReviewDecisionPanel.js";
+import { FacultyDispositionPanel } from "@openclinxr/ui-shared/faculty-disposition-panel"; import { FacultyReviewDecisionPanel } from "./FacultyReviewDecisionPanel.js";
 import { useFacultyCompileLocks } from "./faculty-compile-lock.js";
 import { QueueReviewSnapshotHistory } from "./QueueReviewSnapshotHistory.js";
 import { ReviewReplayReadinessSummaryPanel } from "./ReviewReplayReadinessSummaryPanel.js";
 import { ReviewReplaySafetyPanel } from "./ReviewReplaySafetyPanel.js";
-import { FacultyEncounterBundlePromotionHost } from "./encounter-bundle-promotion/FacultyEncounterBundlePromotionHost.js";
+import { FacultyEncounterBundlePromotionHost } from "./encounter-bundle-promotion/index.js";
 import { RuntimeSelectionReviewPacketPanel } from "./RuntimeSelectionReviewPacketPanel.js";
 import { ScenarioBankMaturityPanel } from "./ScenarioBankMaturityPanel.js";
 import { ScenarioReviewGatePanel } from "./ScenarioReviewGatePanel.js";
 import { SeedExamReadinessBoundaryPanel } from "./SeedExamReadinessBoundaryPanel.js";
+import { formatMinutes, formatStationQueueBlocker, reviewGateColor, scenarioReviewGateEntries, scenarioStatusColor } from "./ScenarioBankMaturityPanel.js";
 
 const { Content, Sider } = Layout, { TextArea } = Input;
 
@@ -1531,45 +1532,6 @@ function formatDuration(totalSeconds: number): string {
   const minutes = totalMinutes % 60;
 
   return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
-}
-
-function formatStationQueueBlocker(blocker: string): string {
-  const blockerCopy: Record<string, string> = {
-    scenario_not_approved: "Scenario not approved",
-    dialogue_seed_replay_not_ready: "Dialogue replay seeds not ready",
-    governance_not_ready: "Governance not ready",
-    synthetic_draft_validation_stage: "Synthetic draft validation stage",
-    summative_score_use_not_allowed_for_seed_queue: "Restricted score-use posture is not allowed for seed queue",
-  };
-
-  return blockerCopy[blocker] ?? blocker.replaceAll("_", " ");
-}
-
-function formatMinutes(seconds: number): string {
-  return `${Math.round(seconds / 60)}m`;
-}
-
-function scenarioStatusColor(status: AdminScenario["status"]): string {
-  switch (status) {
-    case "APPROVED":
-      return "green";
-    case "READY_FOR_REVIEW":
-      return "blue";
-    case "DRAFT":
-      return "gold";
-    case "ARCHIVED":
-      return "default";
-  }
-}
-
-function reviewGateColor(stateName: string): string {
-  return stateName === "approved" ? "green" : stateName === "in_review" ? "blue" : "gold";
-}
-
-function scenarioReviewGateEntries(scenario: AdminScenario): Array<[string, string]> {
-  return Object.entries(scenario.review).filter(([gate, stateName]) =>
-    gate !== "__typename" && typeof stateName === "string"
-  ) as Array<[string, string]>;
 }
 
 function formatScenarioGovernanceNotice(scenario: AdminScenario): string {

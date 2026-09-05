@@ -39,7 +39,7 @@ import { ActorTouchResponseFields } from "./ActorTouchResponseFields.js";
 import { AssetNeedsPanel } from "./AssetNeedsPanel.js";
 import { EmotionPolicyPanel } from "./EmotionPolicyPanel.js";
 import { EquipmentPanel } from "./EquipmentPanel.js";
-import { StringListField } from "./StringListField.js";
+import { StringListField } from "@openclinxr/ui-shared/admin-string-list-field";
 import { actorFormFromDraft, extractScenario, extractScenarioList, structuredCloneScenario } from "./case-authoring-io.js";
 import { LiveAuthoringPreview } from "./scenario-authoring-preview/LiveAuthoringPreview.js";
 

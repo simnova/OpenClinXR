@@ -1,11 +1,11 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import type { AdminAssembledExamReplayProjection, AdminAssembledExamStationReplaySlice } from "./AssembledExamReplayTimeline.js";
+import type { AdminAssembledExamReplayProjection, AdminAssembledExamStationReplaySlice } from "@openclinxr/ui-shared/assembled-exam-replay-timeline";
 import {
   assembledExamDerivedBlockers,
   assembledExamStationReplayPosture,
-} from "./AssembledExamReplayTimeline.js";
+} from "@openclinxr/ui-shared/assembled-exam-replay-timeline";
 import type { AdminReviewPacketReplay } from "./api-client.js";
 import { ReviewReplayReadinessSummaryPanel } from "./ReviewReplayReadinessSummaryPanel.js";
 

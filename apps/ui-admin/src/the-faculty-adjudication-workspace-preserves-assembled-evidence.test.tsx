@@ -9,7 +9,7 @@ import {
   type AssembledExamStationEvidenceInput,
 } from "@openclinxr/review-workflow";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { assembledExamDerivedBlockers } from "./AssembledExamReplayTimeline.js";
+import { assembledExamDerivedBlockers } from "@openclinxr/ui-shared/assembled-exam-replay-timeline";
 import {
   actorTurnDurableRef,
   assembledExamReplayProjectionFromReviewPacket,

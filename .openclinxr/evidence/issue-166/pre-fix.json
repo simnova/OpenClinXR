@@ -1,9 +1,9 @@
 {
   "blueprintId": "step2cs-seed",
-  "measuredAt": "2026-08-10T21:07:34.987Z",
-  "scenarioCount": 14,
+  "measuredAt": "2026-09-05T04:43:42.505Z",
+  "scenarioCount": 15,
   "shippedBankApprovedCount": 1,
-  "shippedBankStageZeroCount": 13,
+  "shippedBankStageZeroCount": 14,
   "activationEligibleCount": 1,
   "canStartLearnerExam": false,
   "queueStationCount": 12,
@@ -234,6 +234,21 @@
     },
     {
       "scenarioId": "peds_fever_v1",
+      "status": "draft",
+      "validationStage": "stage_0_synthetic_draft",
+      "reviewStates": {
+        "clinical": "draft",
+        "psychometric": "draft",
+        "legal": "draft",
+        "simulationQa": "draft"
+      },
+      "isActivationEligible": false,
+      "queueStatus": "not_in_queue",
+      "queueBlockers": [],
+      "bodySource": null
+    },
+    {
+      "scenarioId": "clinic_knee_pain_return_to_play_v1",
       "status": "draft",
       "validationStage": "stage_0_synthetic_draft",
       "reviewStates": {

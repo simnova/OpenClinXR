@@ -27,7 +27,7 @@ installWorldviewQueueTestDom();
  */
 
 const SRC = dirname(fileURLToPath(import.meta.url));
-const CANVAS = readFileSync(join(SRC, "CompileGraphCanvas.tsx"), "utf8");
+const CANVAS = readFileSync(join(SRC, "../../../packages/openclinxr/ui-shared/src/admin-compile-graph-canvas.tsx"), "utf8");
 
 describe("the worldview canvas adds and removes nodes", () => {
   afterEach(() => {

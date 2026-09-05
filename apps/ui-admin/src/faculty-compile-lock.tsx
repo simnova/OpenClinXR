@@ -1,7 +1,7 @@
 import { Input, Select, Space, Switch, type TableColumnsType, Tag, Typography } from "antd";
 import { type ReactElement, useEffect, useState } from "react";
 import type { AdminControlPlaneClient, ScenarioSceneGenerationPipelineWorkOrderQueue } from "./api-client.js";
-import type { CompileEdge } from "./CompileGraphCanvas.js";
+import type { CompileEdge } from "@openclinxr/ui-shared/admin-compile-graph-canvas";
 import type { FacultyCompileLockClient } from "./faculty-compile-lock-types.js";
 
 /** ActorPhenotypeSchema pointer paths a faculty compile lock may override. Review metadata only. */

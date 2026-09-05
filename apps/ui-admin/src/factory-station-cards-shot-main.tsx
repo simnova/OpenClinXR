@@ -2,7 +2,7 @@ import "antd/dist/reset.css";
 import { ConfigProvider } from "antd";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { FactoryStationCards } from "./FactoryStationCards.js";
+import { FactoryStationCards } from "@openclinxr/ui-shared/admin-factory-station-cards";
 import "./styles.css";
 
 const root = document.querySelector("#root");

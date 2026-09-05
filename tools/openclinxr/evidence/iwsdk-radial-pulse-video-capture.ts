@@ -175,13 +175,13 @@ export async function captureRadialPulseVideo(options: RadialPulseCaptureOptions
     await page.goto(runtimeUrl, { waitUntil: "domcontentloaded", timeout: 120_000 });
     await page.waitForSelector("canvas", { state: "visible", timeout: 120_000 });
     const result = await page.evaluate(async (durationMs) => {
-      const canvas = document.querySelector("canvas");
-      if (!(canvas instanceof HTMLCanvasElement)) throw new Error("IWSDK radial pulse canvas not found");
+      const canvas = browserPageDocument.querySelector("canvas");
+      if (!canvas) throw new Error("IWSDK radial pulse canvas not found");
       const mimeType = "video/webm;codecs=vp9";
-      if (!MediaRecorder.isTypeSupported(mimeType)) throw new Error(`Required MediaRecorder codec unavailable: ${mimeType}`);
+      if (!browserPageRecorderSupports(mimeType)) throw new Error(`Required MediaRecorder codec unavailable: ${mimeType}`);
       const stream = canvas.captureStream(30);
       const chunks: Blob[] = [];
-      const recorder = new MediaRecorder(stream, { mimeType });
+      const recorder = createBrowserPageRecorder(stream, { mimeType });
       recorder.addEventListener("dataavailable", (event) => {
         if (event.data.size > 0) chunks.push(event.data);
       });
@@ -195,8 +195,7 @@ export async function captureRadialPulseVideo(options: RadialPulseCaptureOptions
       await stopped;
       for (const track of stream.getTracks()) track.stop();
       const blob = new Blob(chunks, { type: mimeType });
-      const snapshots = (window as Window & { __openClinXrRadialPulseCaptureSnapshots?: EvidenceSnapshot[] })
-        .__openClinXrRadialPulseCaptureSnapshots ?? [];
+      const snapshots = (browserPageWindow.__openClinXrRadialPulseCaptureSnapshots ?? []) as EvidenceSnapshot[];
       return { bytes: Array.from(new Uint8Array(await blob.arrayBuffer())), snapshots };
     }, options.durationMs);
     const report = buildRadialPulseCaptureReport({

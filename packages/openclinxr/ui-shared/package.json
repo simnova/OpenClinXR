@@ -7,6 +7,50 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./admin-workbench-format": {
+      "types": "./dist/admin-workbench-format.d.ts",
+      "default": "./dist/admin-workbench-format.js"
+    },
+    "./admin-runtime-posture": {
+      "types": "./dist/admin-runtime-posture.d.ts",
+      "default": "./dist/admin-runtime-posture.js"
+    },
+    "./actor-turn-replay-panel": {
+      "types": "./dist/actor-turn-replay-panel.d.ts",
+      "default": "./dist/actor-turn-replay-panel.js"
+    },
+    "./assembled-exam-replay-timeline": {
+      "types": "./dist/assembled-exam-replay-timeline.d.ts",
+      "default": "./dist/assembled-exam-replay-timeline.js"
+    },
+    "./emission-replay-bind-panel": {
+      "types": "./dist/emission-replay-bind-panel.d.ts",
+      "default": "./dist/emission-replay-bind-panel.js"
+    },
+    "./faculty-disposition-panel": {
+      "types": "./dist/faculty-disposition-panel.d.ts",
+      "default": "./dist/faculty-disposition-panel.js"
+    },
+    "./admin-string-list-field": {
+      "types": "./dist/admin-string-list-field.d.ts",
+      "default": "./dist/admin-string-list-field.js"
+    },
+    "./admin-factory-station-cards": {
+      "types": "./dist/admin-factory-station-cards.d.ts",
+      "default": "./dist/admin-factory-station-cards.js"
+    },
+    "./admin-compile-graph-canvas": {
+      "types": "./dist/admin-compile-graph-canvas.d.ts",
+      "default": "./dist/admin-compile-graph-canvas.js"
+    },
+    "./faculty-disposition-codec": {
+      "types": "./dist/faculty-disposition-codec.d.ts",
+      "default": "./dist/faculty-disposition-codec.js"
+    },
+    "./faculty-disposition-record": {
+      "types": "./dist/faculty-disposition-record.d.ts",
+      "default": "./dist/faculty-disposition-record.js"
     }
   },
   "scripts": {
@@ -16,11 +60,22 @@
     "build": "tsgo --build",
     "clean": "rm -rf dist *.tsbuildinfo"
   },
+  "dependencies": {
+    "@openclinxr/graphql": "workspace:*",
+    "@openclinxr/shared-schemas": "workspace:*",
+    "@xyflow/react": "^12.11.5",
+    "antd": "catalog:",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
   "devDependencies": {
-    "typescript": "catalog:",
-    "vitest": "catalog:",
+    "@cellix/config-typescript": "workspace:*",
     "@cellix/config-vitest": "workspace:*",
-    "@cellix/config-typescript": "workspace:*"
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "jsdom": "29.1.1",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "files": [
     "dist"
