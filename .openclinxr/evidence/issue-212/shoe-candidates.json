@@ -1,7 +1,34 @@
 {
   "schemaVersion": "openclinxr.shoe-candidates.v1",
-  "examinedAt": "2026-08-09T04:01:43.502Z",
+  "examinedAt": "2026-09-05T12:27:28.982Z",
   "candidates": [
+    {
+      "garmentId": "culturalibre_male_boots",
+      "sourceNote": "/Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/culturalibre_male_boots/culturalibre_male_boots.mhclo",
+      "localMhcloPath": "/Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/culturalibre_male_boots/culturalibre_male_boots.mhclo",
+      "localObjPath": "/Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/culturalibre_male_boots/male_boots.obj",
+      "licenseToken": "CC-0",
+      "accepted": true,
+      "rejectionReason": null
+    },
+    {
+      "garmentId": "toigo_flats",
+      "sourceNote": "/Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_flats/toigo_flats.mhclo",
+      "localMhcloPath": "/Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_flats/toigo_flats.mhclo",
+      "localObjPath": "/Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_flats/flats.obj",
+      "licenseToken": "CC0",
+      "accepted": true,
+      "rejectionReason": null
+    },
+    {
+      "garmentId": "toigo_mj_cloth_shoes",
+      "sourceNote": "/Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_mj_cloth_shoes/toigo_mj_cloth_shoes.mhclo",
+      "localMhcloPath": "/Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_mj_cloth_shoes/toigo_mj_cloth_shoes.mhclo",
+      "localObjPath": "/Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_mj_cloth_shoes/mj_shoes.obj",
+      "licenseToken": "CC0",
+      "accepted": true,
+      "rejectionReason": null
+    },
     {
       "garmentId": "combat_boots",
       "sourceNote": "makehumancommunity combat_boots — http://www.makehumancommunity.org/sites/default/files/clothes/combat_boots/combatboots.mhclo returned 404",

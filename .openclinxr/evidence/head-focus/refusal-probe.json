@@ -1,13 +1,13 @@
 {
   "schemaVersion": "openclinxr.head-focus.refusal-probe.v1",
   "issue": "358",
-  "measuredAt": "2026-08-23T02:57:53.190Z",
+  "measuredAt": "2026-09-05T12:26:38.176Z",
   "subject": {
     "rail": "anny",
     "glb": "generated-humanoids/peds_nurse_kevin.glb",
     "focus": "eyes"
   },
-  "refused": true,
-  "error": "isolated subject lab refused the subject: Isolated subject lab error: focus=eyes unresolvable: no mesh matched /eyes|iris|cornea|sclera/i (mesh name, raw node name, or material name) — whole-subject framing — refusing rather than falling back (#358)",
+  "refused": false,
+  "error": "page.waitForFunction: ReferenceError: browserPageWindow is not defined\n    at eval (eval at predicate (eval at evaluate (:302:30)), <anonymous>:2:13)\n    at predicate (eval at evaluate (:302:30), <anonymous>:7:23)\n    at next (eval at evaluate (:302:30), <anonymous>:29:29)\n    at eval (eval at evaluate (:302:30), <anonymous>:42:9)\n    at UtilityScript.evaluate (<anonymous>:304:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
   "note": "focus=eyes on an Anny asset has no eye geometry — the station must refuse loudly, never silently frame the whole subject (#358)"
 }
