@@ -11,15 +11,15 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 ## Counts
 
 - agent-memory: 34
-- agent-methodology: 103
-- archive-candidate: 41
-- current-reference: 215
+- agent-methodology: 105
+- archive-candidate: 469
+- current-reference: 209
 - decision-record: 44
-- evidence: 60
-- generated-evidence: 10
-- historical-synthesis: 13
+- evidence: 110
+- generated-evidence: 11
+- historical-synthesis: 17
 - protected-policy: 10
-- temporary: 54
+- temporary: 58
 
 ## Highest-Value Current Navigation
 
@@ -63,6 +63,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `.claude/rules/rehydration-low-token.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.claude/rules/repo-defined-agents-worker-roles.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.claude/rules/source-of-truth.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.grok/prompts/agentic-io-contract.md` - current-reference; Agentic I/O contract for role-mapped children; subordinate to AGENTS.md and protected guardrails.
 - `.codex/agents/README.md` - current-reference; Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules.
 - `.codex/agents/architect.md` - current-reference; Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules.
 - `.codex/agents/archivist.md` - current-reference; Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules.
@@ -149,7 +150,6 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `.grok/rules/LEX_AGENTIC.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.grok/rules/MANDATE_VISIBILITY.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.grok/rules/PROTO_SUBAGENT.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
-- `CLAUDE.md` - current-reference; Claude-harness prose discipline only (remove all mannered prose); countable limits in `.claude/skills/operator-prose/SKILL.md`; subordinate to AGENTS.md and protected guardrails.
 - `AGENTS.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `PROJECT_STATUS.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `README.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
@@ -193,31 +193,18 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `docs/openclinxr/arena-physics-clinical-touch-realbind-2026-08-02.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/asset-generation-pipeline.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/asset-pipeline-vetting-and-cagematch-plan-2026-06-05.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
-- `docs/openclinxr/blocked-card-unlock-plan-2026-08-31.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
-- `docs/openclinxr/blocked-card-unlock-plan-review-2026-08-31.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/blueprint-factory-drift-guardrails-2026-05-27.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `docs/openclinxr/cellix-package-adoption-brief.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/claims-consent-privacy-governance.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/code-implementation-plan.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/codex-openclaw-operating-bridge-2026-05-27.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `docs/openclinxr/communication-style-and-emotion-qa.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
-- `docs/openclinxr/emotional-prosody-policy-review-2026-09-02.md` - current-reference; Draft emotional_prosody review named by the voice-gateway gate; subordinate to protected guardrails. Does not by itself enable live TTS.
-- `docs/openclinxr/humanoid-motion-ENTRYPOINT.md` - current-reference; Cold-start entrypoint for the humanoid motion design; read before any motion slice.
-- `docs/openclinxr/humanoid-motion-architecture-brief-2026-09-02.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
-- `docs/openclinxr/humanoid-motion-full-design-2026-09-02.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
-- `docs/openclinxr/motion-dsl-consumer-path-2026-09-02.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
-- `docs/openclinxr/runtime-dialogue-voice-affect-direction-2026-09-02.md` - current-reference; Driving sequence for runtime language + EmotionEngine + Grok TTS/STT; subordinate to AGENTS.md and D9. Not clinical or Quest evidence.
-- `docs/openclinxr/runtime-dialogue-voice-direction-response-2026-09-02.md` - current-reference; Accepted-amendment rationale for the 2026-09-02 direction merge. Sequence owner is runtime-dialogue-voice-affect-direction-2026-09-02.md. Not clinical or Quest evidence.
 - `docs/openclinxr/doc-authority-registry-2026-05-27.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `docs/openclinxr/dynamic-session-asset-strategy.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/evidence-index-2026-05-27.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
-- `docs/openclinxr/ecg-cart-4view-optimize-cagematch-plan-2026-08-31.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
-- `docs/openclinxr/ecg-cart-cagematch-treatments-table-2026-08-31.md` - evidence; Lane C ECG cart treatment scoreboard and still index; not an instruction surface.
 - `docs/openclinxr/exam-scenario-architecture.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/external-ai-asset-pipeline-integration-plan.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/garment-license-compatible-source-options-2026-05-27.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
-- `docs/openclinxr/hybrid-board-and-unlock-plan-notes-2026-08-31.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
-- `docs/openclinxr/unlock-plan-hybrid-peer-review-2026-08-31.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/garment-pipeline-slices-2026-05-27.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/generated-artifact-registry-2026-05-27.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `docs/openclinxr/humanoid-clothing-tooling-research-2026-05-27.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
@@ -260,6 +247,431 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 These files should be summarized, archived, or explicitly marked historical before agents use them as instructions.
 
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/agent-session-continuity/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/anny-asset-pipeline/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/antd/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/bothy-board/OPENCLINXR-PROJECT-BINDING.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/bothy-board/PROVENANCE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/bothy-board/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/gh-body-file/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/grok-worker-monitoring/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/large-task-orchestration/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/makeclothes-garments/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/model-routing/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/openclinxr-openclaw/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/openclinxr-slice/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/openclinxr-slice/fixtures/freeze-ceiling-raised/slice-record.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/openclinxr-slice/fixtures/passing-slice/slice-record.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/openclinxr-slice/fixtures/scaffold-boilerplate/slice-record.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/openclinxr-slice/rubric.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/openclinxr-slice/templates/slice-record-template.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/orchestrator-dispatch-loop/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/per-job-temp/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/provider-boundary/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/supervisor-loop/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/trellis-vr-equipment-optimize/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/turborepo/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/turborepo/command/turborepo.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/turborepo/references/best-practices/RULE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/turborepo/references/best-practices/dependencies.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/turborepo/references/best-practices/packages.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/turborepo/references/best-practices/structure.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/turborepo/references/boundaries/RULE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/turborepo/references/caching/RULE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/turborepo/references/caching/gotchas.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/turborepo/references/caching/remote-cache.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/turborepo/references/ci/RULE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/turborepo/references/ci/github-actions.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/turborepo/references/ci/patterns.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/turborepo/references/ci/vercel.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/turborepo/references/cli/RULE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/turborepo/references/cli/commands.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/turborepo/references/configuration/RULE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/turborepo/references/configuration/global-options.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/turborepo/references/configuration/gotchas.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/turborepo/references/configuration/tasks.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/turborepo/references/environment/RULE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/turborepo/references/environment/gotchas.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/turborepo/references/environment/modes.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/turborepo/references/filtering/RULE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/turborepo/references/filtering/patterns.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/turborepo/references/watch/RULE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.agents/skills/worker-scoped-session/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/agents/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/agents/architect.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/agents/archivist.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/agents/asset-pipeline-lead.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/agents/chief-coordinator.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/agents/clinical-safety-critic.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/agents/hrbp.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/agents/implementation-plan-gap-attacker.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/agents/implementation-planning-lead.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/agents/license-provenance-specialist.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/agents/openclaw-drift-police.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/agents/pediatrics-physician.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/agents/pmo.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/agents/productivity-skeptic.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/agents/rigging-animation-specialist.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/agents/visual-realism-adversary.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/agents/vp-engineering-delivery.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/agents/xr-systems-architect.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/rules/EXEC_AUTONOMY.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/rules/EXEC_REHYDRATE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/rules/GUARD_BLUEPRINT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/rules/GUARD_DRIFT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/rules/LEX_AGENTIC.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/rules/MANDATE_VISIBILITY.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/rules/PROTO_BOARD_LOOP.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/rules/PROTO_CURIOUS_RESEARCHER.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/rules/PROTO_SUBAGENT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/rules/PROTO_VERIFY_DELEGATION.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/rules/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/rules/TIER_GROK.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/rules/agent-consult.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/rules/grok-harness-usage.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/rules/hyper-token-efficient-long-run-practices.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/rules/long-running-autonomy.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/rules/orchestrator-only-main.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/rules/persistent-memory-scoring.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/rules/platform-autonomy-override.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/rules/rehydration-low-token.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/rules/repo-defined-agents-worker-roles.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/rules/source-of-truth.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/skills/autonomy-boundaries/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/skills/board-conduit/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/skills/bothy-board/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/skills/consult-session-hygiene/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/skills/contract-design/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/skills/delegator-comms/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/skills/gh-body-file/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/skills/loop-continuation/SKILL.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/skills/makeclothes-garments/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/skills/measure-before-claiming/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/skills/model-routing/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/skills/operator-prose/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/skills/pixel-grading/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/skills/pre-dispatch-alignment/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/skills/supervisor-loop/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.claude/skills/trellis-baking/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.codex/agents/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.codex/agents/architect.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.codex/agents/archivist.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.codex/agents/asset-pipeline-lead.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.codex/agents/chief-coordinator.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.codex/agents/clinical-safety-critic.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.codex/agents/hrbp.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.codex/agents/implementation-plan-gap-attacker.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.codex/agents/implementation-planning-lead.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.codex/agents/license-provenance-specialist.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.codex/agents/openclaw-drift-police.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.codex/agents/pediatrics-physician.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.codex/agents/pmo.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.codex/agents/productivity-skeptic.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.codex/agents/rigging-animation-specialist.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.codex/agents/visual-realism-adversary.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.codex/agents/vp-engineering-delivery.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.codex/agents/xr-systems-architect.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/agents/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/agents/architect.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/agents/archivist.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/agents/asset-pipeline-lead.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/agents/chief-coordinator.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/agents/clinical-safety-critic.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/agents/hrbp.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/agents/implementation-plan-gap-attacker.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/agents/implementation-planning-lead.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/agents/license-provenance-specialist.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/agents/openclaw-drift-police.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/agents/pediatrics-physician.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/agents/pmo.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/agents/productivity-skeptic.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/agents/rigging-animation-specialist.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/agents/visual-realism-adversary.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/agents/vp-engineering-delivery.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/agents/xr-systems-architect.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/rules/EXEC_AUTONOMY.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/rules/EXEC_REHYDRATE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/rules/GUARD_BLUEPRINT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/rules/GUARD_DRIFT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/rules/LEX_AGENTIC.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/rules/MANDATE_VISIBILITY.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/rules/PROTO_BOARD_LOOP.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/rules/PROTO_CURIOUS_RESEARCHER.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/rules/PROTO_SUBAGENT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/rules/PROTO_VERIFY_DELEGATION.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/rules/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/rules/TIER_GROK.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/rules/agent-consult.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/rules/grok-harness-usage.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/rules/hyper-token-efficient-long-run-practices.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/rules/long-running-autonomy.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/rules/orchestrator-only-main.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/rules/persistent-memory-scoring.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/rules/platform-autonomy-override.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/rules/rehydration-low-token.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/rules/repo-defined-agents-worker-roles.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.cursor/rules/source-of-truth.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.grok/agents/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.grok/agents/architect.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.grok/agents/archivist.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.grok/agents/asset-pipeline-lead.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.grok/agents/chief-coordinator.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.grok/agents/clinical-safety-critic.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.grok/agents/hrbp.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.grok/agents/imagine-trellis.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.grok/agents/implementation-plan-gap-attacker.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.grok/agents/implementation-planning-lead.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.grok/agents/license-provenance-specialist.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.grok/agents/openclaw-drift-police.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.grok/agents/orchestrator.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.grok/agents/pediatrics-physician.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.grok/agents/pmo.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.grok/agents/productivity-skeptic.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.grok/agents/rigging-animation-specialist.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.grok/agents/visual-realism-adversary.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.grok/agents/vp-engineering-delivery.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.grok/agents/xr-systems-architect.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.grok/plugins/openclinxr-post-slice-automation/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.grok/rules/EXEC_AUTONOMY.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.grok/rules/GUARD_BLUEPRINT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.grok/rules/GUARD_DRIFT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.grok/rules/LEX_AGENTIC.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.grok/rules/MANDATE_VISIBILITY.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.grok/rules/PROTO_SUBAGENT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.openclinxr/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.openclinxr/handoffs/superagent-dark-factory-multi-case-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.openclinxr/handoffs/superagent-medical-wardrobe-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.openclinxr/handoffs/superagent-rooms-2026-08-14.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.openclinxr/plans/equipment-three-lane-factory.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/.openclinxr/slices/dispatch-chokepoint/EVIDENCE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/AGENTS.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/AUTONOMOUS_WORK_PLAN.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/LICENSE-CLASHES.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/PROJECT_COORDINATION_INDEX.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/PROJECT_STATUS.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/adversarial/clinical-safety-critic/charter.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/adversarial/clinical-safety-critic/memory.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/adversarial/implementation-plan-gap-attacker/charter.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/adversarial/implementation-plan-gap-attacker/memory.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/adversarial/openclaw-drift-police/charter.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/adversarial/openclaw-drift-police/memory.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/adversarial/productivity-skeptic/charter.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/adversarial/productivity-skeptic/memory.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/adversarial/visual-realism-adversary/charter.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/adversarial/visual-realism-adversary/memory.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/coordinator/archivist/charter.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/coordinator/archivist/memory.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/coordinator/chief-coordinator/charter.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/coordinator/chief-coordinator/memory.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/coordinator/hrbp/charter.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/coordinator/hrbp/memory.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/coordinator/pmo/charter.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/coordinator/pmo/memory.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/core/architect/charter.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/core/architect/memory.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/core/asset-pipeline-lead/charter.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/core/asset-pipeline-lead/memory.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/core/implementation-planning-lead/charter.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/core/implementation-planning-lead/memory.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/core/rigging-animation-specialist/charter.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/core/rigging-animation-specialist/memory.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/core/xr-systems-architect/charter.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/core/xr-systems-architect/memory.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/leadership/vp-engineering-delivery/charter.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/leadership/vp-engineering-delivery/memory.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/legal/license-provenance-specialist/charter.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/legal/license-provenance-specialist/memory.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/physicians/pediatrics-physician/charter.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/physicians/pediatrics-physician/memory.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/rules/EXEC_AUTONOMY.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/rules/EXEC_REHYDRATE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/rules/GUARD_BLUEPRINT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/rules/GUARD_DRIFT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/rules/LEX_AGENTIC.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/rules/MANDATE_VISIBILITY.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/rules/PROTO_BOARD_LOOP.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/rules/PROTO_CURIOUS_RESEARCHER.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/rules/PROTO_SUBAGENT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/rules/PROTO_VERIFY_DELEGATION.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/rules/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/rules/TIER_GROK.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/rules/agent-consult.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/rules/grok-harness-usage.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/rules/hyper-token-efficient-long-run-practices.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/rules/long-running-autonomy.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/rules/orchestrator-only-main.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/rules/persistent-memory-scoring.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/rules/platform-autonomy-override.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/rules/rehydration-low-token.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/rules/repo-defined-agents-worker-roles.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/agents/rules/source-of-truth.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/apps/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/apps/arena/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/apps/arena/api-python-backend/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/apps/arena/mock-realtime-voice-server/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/apps/arena/model-vetting-studio/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/apps/arena/physics-clinical-touch/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/apps/ui-xr/public/xr-assets/environment/PROVENANCE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/apps/ui-xr/public/xr-assets/humanoids/PROVENANCE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/apps/ui-xr/public/xr-assets/medical-equipment/PROVENANCE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/apps/ui-xr/public/xr-hands/generic-hand/LICENSE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/apps/ui-xr/public/xr-hands/generic-hand/PROVENANCE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/TOOLING.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/_archive/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/_archive/coordination/2026-08/AUTONOMOUS_WORK_PLAN.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/_archive/coordination/2026-08/PROJECT_COORDINATION_INDEX.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/_archive/iterations/0009/07-final-synthesis.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/_archive/wiki/index.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/_archive/wiki/topics/agent-factory-iterations.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/_archive/wiki/topics/agent-ops-revisions.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/_archive/wiki/topics/coordination-ledgers.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/_archive/wiki/topics/openclinxr-product-docs.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/agent-factory/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/agent-factory/agentex-openclaw-full-autonomy-gaps.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/agent-factory/maturity-model.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/agent-factory/model-assignment-policy.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/agent-factory/operating-loop.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/agent-factory/rubric.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/agent-factory/source-policy.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/agent-factory/workflow-skill-policy.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/agent-ops/CAPABILITY-EVOLUTION.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/agent-ops/CEO-VOICE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/agent-ops/COMMIT-AUTHORITY.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/agent-ops/COMPOSITION-ROOTS.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/agent-ops/DELEGATION-OPTIMIZATION-PLAN.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/agent-ops/DELIVERY-ROLES.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/agent-ops/DOC-HYGIENE-CADENCE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/agent-ops/DOC-WAREHOUSE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/agent-ops/MAIN-SESSION-ORCHESTRATOR-ONLY.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/agent-ops/OPENCLAW-EPIC-CONTINUITY.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/agent-ops/PATH-SCOPE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/agent-ops/RACI.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/agent-ops/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/agent-ops/REVIEW-CADENCE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/agent-ops/REVISION-INDEX.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/agent-ops/TASK-COST-ROLLUP.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/agent-ops/TEMPORAL-DECISIONS.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/agent-ops/TOOLING-TOPOLOGY.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/agent-ops/WORKTREE-PROMOTE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0011-step2cs-inspired-sequential-exam.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0012-llm-bounded-actor-dialogue.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0013-mongodb-knowledge-graph-and-indexing.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0014-cellixjs-inspired-domain-contexts.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0016-oss-first-asset-generation-pipeline.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0017-websocket-first-realtime-transport.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0018-first-class-communication-style-layer.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0019-provider-adapter-model-and-voice-routing.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0020-ant-design-storybook-serenity-admin-ux.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0021-local-first-no-cloud-implementation-spikes.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0023-vibevoice-as-local-voice-candidate.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0025-implementation-plan-as-versioned-artifact.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0026-mongodb-memory-server-local-tests.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0029-arena-physics-clinical-touch-determinism.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0030-arena-physics-clinical-touch-realbind-proven.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0031-physics-baked-vs-live-consumer-split.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0032-source-first-packages-vs-project-references.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0033-adopt-build-emitting-packages.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0034-graphql-package-build-emitting.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0035-digital-native-station-primitives.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0036-external-asset-tool-evaluations-2026-08.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0037-humanoid-base-topology-fork.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0043-infinigen-indoors-environment-cagematch.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0044-makeclothes-with-anny-as-reference-cagematch.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0045-stablegen-humanoid-texture-cagematch.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0047-hm08-rig-carry-cagematch.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0048-scene-composer-placement-stage.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0049-third-party-asset-licence-posture.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0050-generative-asset-optimization-pipeline.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0051-anny-reference-mpfb-match-protocol.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0052-mpfb-graduation-plan.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0053-infinigen-environmentid-learner-consumer.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0054-equipment-three-lane-factory.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0055-equipment-asset-catalog-ssot.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0056-room-realism-is-material-not-geometry.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/0057-model-selection-is-a-predicate-not-a-ladder.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/madr/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/admin-ux-and-testing-brief.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/arena-physics-clinical-touch-cagematch-2026-08-01.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/arena-physics-clinical-touch-realbind-2026-08-02.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/asset-generation-pipeline.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/asset-pipeline-vetting-and-cagematch-plan-2026-06-05.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/blueprint-factory-drift-guardrails-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/bothyboard-agent-customer-2026-08-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/cagematch/findings/local-tts-to-viseme-chain.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/cagematch/findings/rhubarb-lip-sync-driver.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/cellix-package-adoption-brief.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/claims-consent-privacy-governance.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/code-implementation-plan.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/codex-openclaw-operating-bridge-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/communication-style-and-emotion-qa.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/doc-authority-registry-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/dynamic-session-asset-strategy.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/equipment-catalog-report.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/equipment-factory-15m-loop.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/equipment-factory-loop-log.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/equipment-oss-candidates.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/exam-scenario-architecture.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/external-ai-asset-pipeline-integration-plan.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/garment-license-compatible-source-options-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/garment-pipeline-slices-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/generated-artifact-registry-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/humanoid-clothing-tooling-research-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/humanoid-provider-upgrade-plan-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/humanoid-toolchain-options-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/humanoid-variant-materialization-next-slice-2026-05-26.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/kimodo-cpp-cagematch-2026-08-23.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/knowledge-graph-and-indexing.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/local-ai-voice-model-strategy.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/local-hardware-spike-results.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/model-provider-and-voice-routing.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/mongodb-data-model.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/mongodb-memory-server-test-strategy.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/openclaw-runbook-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/openclaw-tool-adapters-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/owner-memory/PROTOCOL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/owner-memory/PULSE-PROTOCOL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/owner-memory/calibration.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/owner-memory/decisions.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/owner-memory/measurements.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/physics-realbind-pre-production-readiness-checklist-2026-08-02.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/postmortem-anny-fixture-polish-2026-08-25.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/research/2026-08-06-step2cs-and-digital-native-primitives.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/sample-case-bank-v1.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/session-state-websocket-message-design.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/spikes/vibevoice-local-voice-spike.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/statecharts-and-sequences.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/station-pack-ed-chest-pain-v1.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/superagent-goal-mpfb-human-realism-2026-08-14.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/technology-approach-brief.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/third-party-asset-licence-ledger.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/turbo-remote-cache-setup.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/ux-flows.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/vibevoice-cpp-cagematch-2026-08-23.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/virtual-patient-agent-model.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/docs/openclinxr/worker-backlog-and-validation-matrix.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/iterations/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/packages/cellix/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/packages/cellix/config-typescript/CHANGELOG.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/packages/cellix/config-vitest/CHANGELOG.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/packages/cellix/provider-contracts/CHANGELOG.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/packages/cellix/server-mongodb-memory-mock/CHANGELOG.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/packages/cellix/trace-ledger/CHANGELOG.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/packages/openclinxr/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/packages/openclinxr/arena/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/packages/openclinxr/arena/model-vetting/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/packages/openclinxr/arena/multi-actor-state-spike/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/packages/openclinxr/arena/physics-touch-contract/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/packages/openclinxr/physics-touch-artifacts/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/plugins/openclinxr-openclaw-style/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/plugins/openclinxr-openclaw-style/skills/openclinxr-openclaw-style/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/templates/decision-record.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/templates/risk-record.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/templates/source-record.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/tools/openclinxr/asset-pipeline/anny/BVH-RETARGET-GUIDE-2026-08-03.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/tools/openclinxr/asset-pipeline/anny/README-rest-skeleton.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/worktrees/agent-a9717ac97efcd8ebe/tools/openclinxr/asset-pipeline/trellis/MULTIVIEW-GROK-PACKS.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/factory/equipment-catalog-report.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/handoffs/adult-abdominal-interior-grade-2026-08-18.md` - temporary; Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.
@@ -325,28 +737,33 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `.openclinxr/slices/trellis-escape-hatch/LOOP.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/slices/trellis-escape-hatch/log.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/slices/trellis-imagine-black/PLAN.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `CLAUDE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `LICENSE-CLASHES.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `PROJECT_COORDINATION_INDEX.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `artifacts/openclinxr/assembled-exam-learner-faculty/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/arena-physics-clinical-touch-cagematch-2026-08-01.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `docs/openclinxr/bothyboard-0.5.0-contract-2026-08-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/blocked-card-unlock-plan-2026-08-31.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/bothyboard-agent-customer-2026-08-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `docs/openclinxr/bothyboard-agent-next-2026-08-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `docs/openclinxr/bothyboard-overtake-gh-projects-agent-brief-2026-08-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/cagematch/findings/local-tts-to-viseme-chain.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/cagematch/findings/rhubarb-lip-sync-driver.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/ecg-cart-4view-optimize-cagematch-plan-2026-08-31.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/ecg-cart-cagematch-treatments-table-2026-08-31.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/equipment-catalog-report.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/equipment-factory-15m-loop.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/equipment-factory-loop-log.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/equipment-oss-candidates.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/humanoid-motion-ENTRYPOINT.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/humanoid-motion-architecture-brief-2026-09-02.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/humanoid-motion-full-design-2026-09-02.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/_archive/openclinxr/2026-08/hybrid-board-and-unlock-plan-notes-2026-08-31.md` - historical-synthesis; Docs warehouse cold tier; open only for archivist/historical tasks.
 - `docs/openclinxr/kimodo-cpp-cagematch-2026-08-23.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/motion-dsl-consumer-path-2026-09-02.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/owner-memory/PROTOCOL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/owner-memory/PULSE-PROTOCOL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/owner-memory/calibration.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/owner-memory/decisions.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/owner-memory/measurements.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/postmortem-anny-fixture-polish-2026-08-25.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `docs/openclinxr/public-humanoid-motion-license-review-2026-09-04.md` - evidence; Publication license review for the cropped public movement artifact; not legal advice, not production/promotion evidence.
-- `docs/openclinxr/radial-pulse-publication-review-2026-09-04.md` - evidence; Publication license review for the bounded IWSDK radial-pulse interaction artifact; not legal advice, not production/promotion evidence.
 - `docs/openclinxr/research/2026-08-06-step2cs-and-digital-native-primitives.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/superagent-goal-mpfb-human-realism-2026-08-14.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/third-party-asset-licence-ledger.md` - archive-candidate; Unclassified Markdown; review before using as instruction.

@@ -52,3 +52,8 @@ docs/openclinxr/stablegen-blender-background-trial-*.json
 
 # Local screenshots/scratch (not repo artifacts)
 *-screencap.png
+
+# Generated render packs + harness output (per-run artifacts, not sources)
+tools/openclinxr/asset-pipeline/trellis/*-renders/
+test-results/
+.pnpm-store/

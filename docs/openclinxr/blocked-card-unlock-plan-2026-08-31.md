@@ -10,7 +10,7 @@ Revised three times on 2026-08-31: after a four-round adversarial review on gpt-
 `docs/openclinxr/blocked-card-unlock-plan-review-2026-08-31.md`. Claims withdrawn in each pass
 are recorded rather than deleted, because each would otherwise be re-derived. A third pass followed
 a further four rounds on the same codex thread, and a fourth applied Grok's hybrid-shape notes in
-`docs/openclinxr/hybrid-board-and-unlock-plan-notes-2026-08-31.md`.
+`docs/_archive/openclinxr/2026-08/hybrid-board-and-unlock-plan-notes-2026-08-31.md`.
 
 ## Landed while this plan was being written
 

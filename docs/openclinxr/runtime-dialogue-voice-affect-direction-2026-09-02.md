@@ -586,7 +586,7 @@ Write roots: review/trace packages, `apps/ui-admin/`, `apps/ui-xr/`
 
 Markdown remains the architecture SSOT. Bothy cards carry **one TREE each**. Workers read this file; they do not copy the type tables into `done_when`.
 
-Shape (copy of `docs/openclinxr/hybrid-board-and-unlock-plan-notes-2026-08-31.md`):
+Shape (copy of `docs/_archive/openclinxr/2026-08/hybrid-board-and-unlock-plan-notes-2026-08-31.md`):
 
 | Layer | Job |
 |---|---|

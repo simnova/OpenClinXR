@@ -11,7 +11,7 @@ Prior documents on the same subject:
 | file | role now |
 |---|---|
 | `docs/openclinxr/blocked-card-unlock-plan-review-2026-08-31.md` | First Grok pass. Steps 4–5 block is **absorbed**. #46 correction in the plan is right. |
-| `docs/openclinxr/hybrid-board-and-unlock-plan-notes-2026-08-31.md` | Written at `583d6f9f`. Shape is still the pattern. Future-work mapping for speak-fixture is **stale**: that successor already exists. |
+| `docs/_archive/openclinxr/2026-08/hybrid-board-and-unlock-plan-notes-2026-08-31.md` | Written at `583d6f9f`. Shape is still the pattern. Future-work mapping for speak-fixture is **stale**: that successor already exists. |
 | this file | Review of the revised plan + how both hybrid plants were added |
 
 ---
@@ -280,7 +280,7 @@ fail their own clause.
 
 1. Patch the unlock plan: D9 column `instrument` (not `render`); items 2–3 marked done; the
    no-candidate sentence aligned with the planted escape-legal RED.
-2. Do not rewrite `hybrid-board-and-unlock-plan-notes-2026-08-31.md` in place — it is the
+2. Do not rewrite `docs/_archive/openclinxr/2026-08/hybrid-board-and-unlock-plan-notes-2026-08-31.md` in place — it is the
    document the plan already cites. Treat its "use hybrid for speak-fixture" paragraph as
    executed, via this file.
 3. After speak-fixture `proofs.set` / `done`, close `tsk_27baa1ed86266d7b` with the recorded
