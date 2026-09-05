@@ -10,12 +10,12 @@ import type {
   DialogueSeedAuthoringPreviewRequest,
   DialogueSeedAuthoringPreviewResult,
   FrozenActorTurnPlanPreview,
-} from "./DialogueSeedAuthoringPanel.js";
+} from "./dialogue-seed-authoring-panel.js";
 import {
   AUTHORED_LOCAL_FIXTURE_PROVIDER_ID,
   DIALOGUE_SEED_AUTHORING_CLAIM_BOUNDARY,
-} from "./DialogueSeedAuthoringPanel.js";
-import { ScenarioAuthoringWorkspace } from "./ScenarioAuthoringWorkspace.js";
+} from "./dialogue-seed-authoring-panel.js";
+import { ScenarioAuthoringWorkspace } from "./scenario-authoring-workspace.js";
 
 /**
  * Author-facing workflow must fail closed before publication using the
@@ -176,8 +176,8 @@ function respondLikeLandedPreviewRoute(
 describe("the dialogue authoring workflow rejects unsafe seeds", () => {
   it("does not pull capability-gateway into the authoring workspace", () => {
     const here = dirname(fileURLToPath(import.meta.url));
-    const workspace = readFileSync(join(here, "ScenarioAuthoringWorkspace.tsx"), "utf8");
-    const panel = readFileSync(join(here, "DialogueSeedAuthoringPanel.tsx"), "utf8");
+    const workspace = readFileSync(join(here, "scenario-authoring-workspace.tsx"), "utf8");
+    const panel = readFileSync(join(here, "dialogue-seed-authoring-panel.tsx"), "utf8");
     expect(workspace).not.toMatch(/capability-gateway/);
     expect(panel).not.toMatch(/capability-gateway/);
   });

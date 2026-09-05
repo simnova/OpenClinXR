@@ -14,7 +14,7 @@ installWorldviewQueueTestDom();
  * Fixture slots live on ENVIRONMENT_SHELL_DESCRIPTORS. Faculty cannot bind a
  * cart to a slot from the worldview.
  *
- * MEASURED 2026-08-29. EquipmentPanel.tsx:1-24 "Not a library picker — not 3D
+ * MEASURED 2026-08-29. equipment-panel.tsx:1-24 "Not a library picker — not 3D
  * placement." EncounterEnvironmentPanel lists fixtureSlots read-only.
  *
  * Diagnosis header IMMUTABLE. Flip it.fails → it and append ## FIXED.
@@ -47,11 +47,11 @@ describe("the worldview equipment nodes bind fixture slots", () => {
     fireEvent.mouseDown(screen.getByRole("combobox", { name: "Equipment fixtureSlot" }));
     fireEvent.click(await screen.findByRole("option", { name: "stretcher" }));
     expect(within(screen.getByLabelText("proposedVsAccepted")).getByText(/llmProposed stretcher vs facultyAccepted stretcher/)).toBeInTheDocument();
-    expect(readFileSync(join(SRC, "App.tsx"), "utf8")).toContain("SeedWorldviewQueue");
+    expect(readFileSync(join(SRC, "app.tsx"), "utf8")).toContain("SeedWorldviewQueue");
   });
 
   it("(2) COUNTERWEIGHT: EquipmentPanel still authors scenario.equipment strings", () => {
-    const equip = readFileSync(join(SRC, "EquipmentPanel.tsx"), "utf8");
+    const equip = readFileSync(join(SRC, "equipment-panel.tsx"), "utf8");
     expect(equip).toMatch(/name="equipment"/);
   });
 });

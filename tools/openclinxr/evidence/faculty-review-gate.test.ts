@@ -16,7 +16,7 @@ import { describe, expect, it } from "vitest";
  * ════════════════════════════════════════════════════════════════════════════════════════════════
  * MY FIRST PROPOSAL WAS WRONG AND A PEER ROUND KILLED IT — DISCLOSED SO YOU DO NOT REPEAT IT
  *
- * I proposed wiring `FacultyReviewDecisionPanel.tsx` through to `isActivationEligible`. **That panel
+ * I proposed wiring `faculty-review-decision-panel.tsx` through to `isActivationEligible`. **That panel
  * is a different product entirely**: it handles a COMPLETED STATION RUN handoff (`stationRunId` +
  * `localDecision: "hold" | "local_promote_candidate"`) for debrief, via
  * `POST /sessions/:stationRunId/review-decision`, and it writes records with the promotion gates

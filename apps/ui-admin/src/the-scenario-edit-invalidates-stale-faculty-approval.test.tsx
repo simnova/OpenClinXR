@@ -16,7 +16,7 @@ import {
   SCENARIO_REVIEW_STALE_DECISION_DISPLAY,
   ScenarioReviewGatePanel,
   scenarioReviewGatesAllowLearnerUse,
-} from "./ScenarioReviewGatePanel.js";
+} from "./scenario-review-gate-panel.js";
 
 beforeAll(() => {
   vi.stubGlobal("matchMedia", (query: string) => ({

@@ -38,22 +38,22 @@ import {
   type SubmitRuntimeVisualEvidenceAttachmentInput,
 } from "./api-client.js";
 import { ActorTurnReplayPanel } from "@openclinxr/ui-shared/actor-turn-replay-panel";
-import { CaseAuthoringWorkbench } from "./CaseAuthoringWorkbench.js";
+import { CaseAuthoringWorkbench } from "./case-authoring-workbench.js";
 import { EmissionReplayBindPanel } from "@openclinxr/ui-shared/emission-replay-bind-panel";
-import type { PlacementAuthorValue } from "./EnvironmentGenerationQueuePanel.js";
+import type { PlacementAuthorValue } from "./environment-generation-queue-panel.js";
 import { SeedWorldviewQueue, type SeedWorldviewCompileGraph } from "./seed-worldview-queue.js";
-import { FacultyAdjudicationWorkspace, fetchAssembledExamReviewPacket } from "./FacultyAdjudicationWorkspace.js";
-import { FacultyDispositionPanel } from "@openclinxr/ui-shared/faculty-disposition-panel"; import { FacultyReviewDecisionPanel } from "./FacultyReviewDecisionPanel.js";
+import { FacultyAdjudicationWorkspace, fetchAssembledExamReviewPacket } from "./faculty-adjudication-workspace.js";
+import { FacultyDispositionPanel } from "@openclinxr/ui-shared/faculty-disposition-panel"; import { FacultyReviewDecisionPanel } from "./faculty-review-decision-panel.js";
 import { useFacultyCompileLocks } from "./faculty-compile-lock.js";
-import { QueueReviewSnapshotHistory } from "./QueueReviewSnapshotHistory.js";
-import { ReviewReplayReadinessSummaryPanel } from "./ReviewReplayReadinessSummaryPanel.js";
-import { ReviewReplaySafetyPanel } from "./ReviewReplaySafetyPanel.js";
+import { QueueReviewSnapshotHistory } from "./queue-review-snapshot-history.js";
+import { ReviewReplayReadinessSummaryPanel } from "./review-replay-readiness-summary-panel.js";
+import { ReviewReplaySafetyPanel } from "./review-replay-safety-panel.js";
 import { FacultyEncounterBundlePromotionHost } from "./encounter-bundle-promotion/index.js";
-import { RuntimeSelectionReviewPacketPanel } from "./RuntimeSelectionReviewPacketPanel.js";
-import { ScenarioBankMaturityPanel } from "./ScenarioBankMaturityPanel.js";
-import { ScenarioReviewGatePanel } from "./ScenarioReviewGatePanel.js";
-import { SeedExamReadinessBoundaryPanel } from "./SeedExamReadinessBoundaryPanel.js";
-import { formatMinutes, formatStationQueueBlocker, reviewGateColor, scenarioReviewGateEntries, scenarioStatusColor } from "./ScenarioBankMaturityPanel.js";
+import { RuntimeSelectionReviewPacketPanel } from "./runtime-selection-review-packet-panel.js";
+import { ScenarioBankMaturityPanel } from "./scenario-bank-maturity-panel.js";
+import { ScenarioReviewGatePanel } from "./scenario-review-gate-panel.js";
+import { SeedExamReadinessBoundaryPanel } from "./seed-exam-readiness-boundary-panel.js";
+import { formatMinutes, formatStationQueueBlocker, reviewGateColor, scenarioReviewGateEntries, scenarioStatusColor } from "./scenario-bank-maturity-panel.js";
 
 const { Content, Sider } = Layout, { TextArea } = Input;
 

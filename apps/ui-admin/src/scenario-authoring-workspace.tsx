@@ -1,13 +1,13 @@
 import type { Scenario } from "@openclinxr/shared-schemas";
 import { Space, Typography } from "antd";
 import { type ReactElement, useMemo } from "react";
-import { CaseAuthoringWorkbench } from "./CaseAuthoringWorkbench.js";
+import { CaseAuthoringWorkbench } from "./case-authoring-workbench.js";
 import {
   DialogueSeedAuthoringPanel,
   type AuthoredDialogueSeedDraft,
   type DialogueSeedActor,
   type DialogueSeedCatalogPreviewFn,
-} from "./DialogueSeedAuthoringPanel.js";
+} from "./dialogue-seed-authoring-panel.js";
 
 export type ScenarioAuthoringWorkspaceProps = {
   initialScenario?: Scenario;

@@ -5,7 +5,7 @@ import {
   SCENARIO_REVIEW_RATIONALE_IS_CALLER_SUPPLIED,
   SCENARIO_REVIEW_RECORDABLE_DIMENSIONS,
   ScenarioReviewGatePanel,
-} from "./ScenarioReviewGatePanel.js";
+} from "./scenario-review-gate-panel.js";
 import type { AdminScenario } from "./api-client.js";
 
 beforeAll(() => {

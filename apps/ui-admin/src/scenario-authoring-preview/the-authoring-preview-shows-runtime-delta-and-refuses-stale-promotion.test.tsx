@@ -4,7 +4,7 @@ import { clinicKneePainScenario } from "@openclinxr/scenario-fixtures";
 import type { Scenario } from "@openclinxr/shared-schemas";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import { ScenarioAuthoringPreviewPanel } from "./ScenarioAuthoringPreviewPanel.js";
+import { ScenarioAuthoringPreviewPanel } from "./scenario-authoring-preview-panel.js";
 
 beforeAll(() => {
   vi.stubGlobal("matchMedia", (query: string) => ({

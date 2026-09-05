@@ -10,7 +10,7 @@ import { describe, expect, it } from "vitest";
  * Anny-as-reference → MPFB body match (age, height_cm, bmi, build,
  * hair_density, anxious, flush, brow_tension, age_wrinkle) has no control.
  *
- * MEASURED 2026-08-29. ActorPhenotypeFields.tsx:73-173. Schema
+ * MEASURED 2026-08-29. actor-phenotype-fields.tsx:73-173. Schema
  * packages/openclinxr/shared-schemas/src/schemas.ts:155-181.
  *
  * Diagnosis header IMMUTABLE. Flip it.fails → it and append ## FIXED.
@@ -20,7 +20,7 @@ import { describe, expect, it } from "vitest";
  */
 
 const SRC = dirname(fileURLToPath(import.meta.url));
-const FIELDS = readFileSync(join(SRC, "ActorPhenotypeFields.tsx"), "utf8");
+const FIELDS = readFileSync(join(SRC, "actor-phenotype-fields.tsx"), "utf8");
 
 describe("the worldview authors phenotype identity numbers", () => {
   it("(1) ActorPhenotypeFields binds age", () => {

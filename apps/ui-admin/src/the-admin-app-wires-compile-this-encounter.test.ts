@@ -27,7 +27,7 @@ import { describe, expect, it } from "vitest";
  */
 
 const SRC = dirname(fileURLToPath(import.meta.url));
-const APP = readFileSync(join(SRC, "App.tsx"), "utf8");
+const APP = readFileSync(join(SRC, "app.tsx"), "utf8");
 
 describe("the admin app wires Compile this encounter", () => {
   it("(1) App.tsx passes featuredScenarioId into EnvironmentGenerationQueuePanel", () => {
@@ -43,7 +43,7 @@ describe("the admin app wires Compile this encounter", () => {
   });
 
   it("(4) COUNTERWEIGHT: the panel still hides the button when onCompileEncounter is omitted", () => {
-    const panel = readFileSync(join(SRC, "EnvironmentGenerationQueuePanel.tsx"), "utf8");
+    const panel = readFileSync(join(SRC, "environment-generation-queue-panel.tsx"), "utf8");
     expect(panel).toContain("{onCompileEncounter ? (");
   });
 });

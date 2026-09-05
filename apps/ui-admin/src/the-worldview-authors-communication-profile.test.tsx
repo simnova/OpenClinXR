@@ -33,7 +33,7 @@ describe("the worldview authors communicationProfile", () => {
   });
 
   it("(2) ActorFields bind a communicationProfile control", () => {
-    const bench = readFileSync(join(SRC, "CaseAuthoringWorkbench.tsx"), "utf8");
+    const bench = readFileSync(join(SRC, "case-authoring-workbench.tsx"), "utf8");
     expect(bench).toMatch(/communicationProfile/);
   });
 

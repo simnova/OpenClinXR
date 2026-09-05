@@ -1,5 +1,5 @@
 /**
- * Readiness-summary helpers extracted from EnvironmentGenerationQueuePanel.tsx.
+ * Readiness-summary helpers extracted from environment-generation-queue-panel.tsx.
  *
  * WHY: the file-size ratchet freezes that panel at 758 lines and its rule is explicit — a frozen
  * file "may only SHRINK; any growth fails the gate, forcing extraction" and "do NOT raise the

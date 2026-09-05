@@ -1924,7 +1924,7 @@ describe("thin-app budget ratchet", () => {
   it("thin-app budget ratchet: ui-admin src non-test .tsx count must not grow", () => {
     // Baseline count recorded at test addition: 40 non-test .tsx files under apps/ui-admin/src
     // (recorded 2026-09-04). This test fails if the count grows beyond 40.
-    // Allowlisted roots that are always permitted regardless of count: App.tsx, main.tsx, api-client*.ts
+    // Allowlisted roots that are always permitted regardless of count: app.tsx, main.tsx, api-client*.ts
     const allNonTestTsx = sourceFilesUnder("apps/ui-admin/src")
       .filter((p) => !/\.test\.tsx?$/.test(p) && !/-[^/-]*shot-main\.tsx/.test(p) && p !== "vite-env.d.ts");
 
@@ -2032,11 +2032,13 @@ describe("route manifest export", () => {
 
 /*──────────────────────────────────────────────────────────ui component naming──────────────────────────────────────────────────────────*/
 describe("ui component naming", () => {
+  // Shared component marker regex for kebab-case validation across ui-* dirs.
+  const componentMarker = /<[A-Za-z][\w.-]*(\s[^<>]*)?\/?>|<\/[A-Za-z][\w.-]*>|React\.(FC|FunctionComponent|Component|Element)|:\s*(React\.)?(FC|FunctionComponent|ReactElement|ReactNode)\b|JSX\.Element/;
+
   it("ui-* component files use lower kebab-case basenames", () => {
     // Covers all ui-* dirs via glob, not hardcoded dirs; governs current + future files.
     const uiFiles = sourceFilesUnder("packages/openclinxr")
       .filter((filePath) => /^packages\/openclinxr\/ui-[^/]+\/src\//.test(filePath));
-    const componentMarker = /<[A-Za-z][\w.-]*(\s[^<>]*)?\/?>|<\/[A-Za-z][\w.-]*>|React\.(FC|FunctionComponent|Component|Element)|:\s*(React\.)?(FC|FunctionComponent|ReactElement|ReactNode)\b|JSX\.Element/;
     const violations = uiFiles.filter((filePath) => {
       const base = basename(filePath);
       if (base === "index.ts" || base === "index.tsx" || base === "vite-env.d.ts") {
@@ -2058,6 +2060,38 @@ describe("ui component naming", () => {
     });
 
     expect(uiFiles.length).toBeGreaterThan(0);
+    expect(violations).toEqual([]);
+  });
+
+  it("apps/ui-admin/src/ kebab-case basenames", () => {
+    // Parallel test for apps/ui-admin/src: every NON-TEST .tsx (and component-bearing
+    // non-test .ts) must have a lower kebab-case basename. Test files (*.test.*) keep
+    // the source filename they cover (e.g. App.test.tsx covers app.tsx) and are excluded.
+    // Allowlist: index.*, main.*, vite-env.d.ts, *.stories.*, *.container.*, *-shot-main.*.
+    const adminFiles = sourceFilesUnder("apps/ui-admin/src")
+      .filter((filePath) => /^apps\/ui-admin\/src\//.test(filePath))
+      .filter((filePath) => !/\.(test|spec)\.tsx?$/.test(filePath));
+    const violations = adminFiles.filter((filePath) => {
+      const base = basename(filePath);
+      if (base === "index.ts" || base === "index.tsx" || base === "vite-env.d.ts") {
+        return false;
+      }
+      const stem = base.split(".")[0] ?? "";
+      const isSuffixed = /\.(stories|container)\.tsx?$/.test(base);
+      if (filePath.endsWith(".tsx") || isSuffixed) {
+        return !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(stem);
+      }
+      if (filePath.endsWith(".ts")) {
+        const sourceText = readFileSync(join(workspaceRoot, filePath), "utf8");
+        if (!componentMarker.test(sourceText)) {
+          return false;
+        }
+        return !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(stem);
+      }
+      return false;
+    });
+
+    expect(adminFiles.length).toBeGreaterThan(0);
     expect(violations).toEqual([]);
   });
 });

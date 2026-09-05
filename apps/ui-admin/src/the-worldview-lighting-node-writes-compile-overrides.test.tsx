@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
  * OBSERVABLE: EncounterEnvironmentPanel lists descriptor wallColor and lighting
  * as read-only facts. Faculty cannot write them onto a Lighting compile node.
  *
- * MEASURED 2026-08-29. EncounterEnvironmentPanel.tsx:4-7 "Not a 3D preview —
+ * MEASURED 2026-08-29. encounter-environment-panel.tsx:4-7 "Not a 3D preview —
  * displayName, dimensions, floor/wall colour, shell lighting". No Form.Item
  * name wallColor / keyLightIntensity.
  *
@@ -15,7 +15,7 @@ import { describe, expect, it } from "vitest";
  */
 
 const SRC = dirname(fileURLToPath(import.meta.url));
-const ENV = readFileSync(join(SRC, "EncounterEnvironmentPanel.tsx"), "utf8");
+const ENV = readFileSync(join(SRC, "encounter-environment-panel.tsx"), "utf8");
 
 describe("the worldview lighting node writes compile overrides", () => {
   it("(1) environment panel has a Form.Item for wallColor or keyLightIntensity", () => {

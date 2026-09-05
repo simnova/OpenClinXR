@@ -1,10 +1,10 @@
-export { EncounterBundlePromotionPanel } from "./EncounterBundlePromotionPanel.js";
-export type { EncounterBundlePromotionPanelProps } from "./EncounterBundlePromotionPanel.js";
-export { FacultyEncounterBundlePromotionHost } from "./FacultyEncounterBundlePromotionHost.js";
+export { EncounterBundlePromotionPanel } from "./encounter-bundle-promotion-panel.js";
+export type { EncounterBundlePromotionPanelProps } from "./encounter-bundle-promotion-panel.js";
+export { FacultyEncounterBundlePromotionHost } from "./faculty-encounter-bundle-promotion-host.js";
 export type {
   FacultyEncounterBundlePromotionClient,
   FacultyEncounterBundlePromotionHostProps,
-} from "./FacultyEncounterBundlePromotionHost.js";
+} from "./faculty-encounter-bundle-promotion-host.js";
 export {
   collectFacultyEncounterBundleAttestations,
   collectFacultyEncounterBundleSelectionBlockers,

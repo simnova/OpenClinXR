@@ -3,7 +3,7 @@ import { ENVIRONMENT_SHELL_DESCRIPTORS } from "@openclinxr/asset-registry";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import { CaseAuthoringWorkbench } from "./CaseAuthoringWorkbench.js";
+import { CaseAuthoringWorkbench } from "./case-authoring-workbench.js";
 import {
   mergeFormValuesIntoScenario,
   scenarioToFormValues,

@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import { EnvironmentGenerationQueuePanel } from "./EnvironmentGenerationQueuePanel.js";
+import { EnvironmentGenerationQueuePanel } from "./environment-generation-queue-panel.js";
 
 /**
  * OBSERVABLE: faculty can lock/override compile nodes and see the graph, but
@@ -92,7 +92,7 @@ describe("the faculty Compile this encounter runs the world compile", () => {
   it("(3) COUNTERWEIGHT: FacultyReviewDecisionPanel is not the compile surface", async () => {
     const { readFileSync } = await import("node:fs");
     const { join } = await import("node:path");
-    const src = readFileSync(join(import.meta.dirname, "FacultyReviewDecisionPanel.tsx"), "utf8");
+    const src = readFileSync(join(import.meta.dirname, "faculty-review-decision-panel.tsx"), "utf8");
     expect(src).not.toMatch(/compileEncounterMaterialization|Compile this encounter/i);
   });
 });

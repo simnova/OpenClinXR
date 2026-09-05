@@ -5,7 +5,7 @@ import { cleanup, fireEvent, render, screen, within } from "@testing-library/rea
 import { useState } from "react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { buildCompileGraphModel, CompileGraphCanvas } from "@openclinxr/ui-shared/admin-compile-graph-canvas";
-import { EnvironmentGenerationQueuePanel, FACULTY_COMPILE_OVERRIDE_PATHS, type FacultyCompileLockRow } from "./EnvironmentGenerationQueuePanel.js";
+import { EnvironmentGenerationQueuePanel, FACULTY_COMPILE_OVERRIDE_PATHS, type FacultyCompileLockRow } from "./environment-generation-queue-panel.js";
 import { SeedWorldviewQueue } from "./seed-worldview-queue.js";
 import { buildCompileEdges, buildFacultyCompileLockRows, type EvidenceCompileNode, mergeFacultyCompileLockRows } from "./faculty-compile-lock.js";
 import {

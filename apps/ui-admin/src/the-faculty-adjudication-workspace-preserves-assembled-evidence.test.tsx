@@ -17,7 +17,7 @@ import {
   FacultyAdjudicationWorkspace,
   fetchAssembledExamReviewPacket,
   patientNoteDurableRef,
-} from "./FacultyAdjudicationWorkspace.js";
+} from "./faculty-adjudication-workspace.js";
 
 const EXAM_RUN_ID = "exam_run_faculty_001";
 const ED_STATION_RUN_ID = "run_ed_001";

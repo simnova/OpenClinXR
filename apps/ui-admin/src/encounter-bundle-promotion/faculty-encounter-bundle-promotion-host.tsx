@@ -1,5 +1,5 @@
 import { type ReactElement, useEffect, useMemo, useState } from "react";
-import { EncounterBundlePromotionPanel } from "./EncounterBundlePromotionPanel.js";
+import { EncounterBundlePromotionPanel } from "./encounter-bundle-promotion-panel.js";
 import {
   defaultFacultyEncounterBundlePromotionSelection,
   type FacultyEncounterBundlePromotionSelection,

@@ -4,7 +4,7 @@ import type { FacultyCompileLockRow } from "./faculty-compile-lock.js";
 import {
   EnvironmentGenerationQueuePanel,
   type EnvironmentGenerationQueuePanelProps,
-} from "./EnvironmentGenerationQueuePanel.js";
+} from "./environment-generation-queue-panel.js";
 export type SeedWorldviewCompileGraph = {
   compileNodes: unknown[];
   facultyLocks: EnvironmentGenerationQueuePanelProps["facultyCompileLockRows"];

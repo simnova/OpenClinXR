@@ -3,7 +3,7 @@ import type { EnvironmentGenerationQueue, ScenarioAssetReadiness } from "@opencl
 import { findUnsafeClaimLanguage } from "@openclinxr/domain/claim-language";
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import { SeedExamReadinessBoundaryPanel } from "./SeedExamReadinessBoundaryPanel.js";
+import { SeedExamReadinessBoundaryPanel } from "./seed-exam-readiness-boundary-panel.js";
 
 describe("SeedExamReadinessBoundaryPanel", () => {
   afterEach(() => {

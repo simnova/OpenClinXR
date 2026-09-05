@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { EncounterBundlePromotionPanel } from "./EncounterBundlePromotionPanel.js";
+import { EncounterBundlePromotionPanel } from "./encounter-bundle-promotion-panel.js";
 import {
   FACULTY_ENCOUNTER_BUNDLE_FACTORY_KINDS,
   learnerLaunchHref,

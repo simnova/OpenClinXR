@@ -29,7 +29,7 @@ const SRC = dirname(fileURLToPath(import.meta.url));
 
 describe("the worldview placement nodes author plant and support", () => {
   it("(1) EnvironmentGenerationQueuePanel authors plant or supportSurface", () => {
-    const panel = readFileSync(join(SRC, "EnvironmentGenerationQueuePanel.tsx"), "utf8");
+    const panel = readFileSync(join(SRC, "environment-generation-queue-panel.tsx"), "utf8");
     expect(panel).toMatch(/supportSurface|plantXyz|plantOffset/);
   });
 

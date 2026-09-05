@@ -50,14 +50,14 @@ export const SIZE_FREEZE: Record<string, { maxLines: number; reason: string }> =
   "packages/openclinxr/capability-gateway/src/asset-generation-jobs.ts": { maxLines: 2107, reason: "job orchestration — split by job kind" },
   "apps/ui-admin/src/api-client-types.ts": { maxLines: 1410, reason: "residual: admin DTO type surface (generated-adjacent) — split by domain area next; fetch client extracted to api-client.ts (586, under budget)" },
   "packages/openclinxr/asset-registry/src/runtime-bundles.ts": { maxLines: 1638, reason: "bundle builder — split builder/validate/shape" },
-  "apps/ui-admin/src/App.tsx": { maxLines: 1604, reason: "admin shell — extract panels/containers; #57 QueueReviewSnapshotHistory extract" },
+  "apps/ui-admin/src/app.tsx": { maxLines: 1604, reason: "admin shell — extract panels/containers; #57 QueueReviewSnapshotHistory extract" },
   "apps/arena/ui-xr-iwsdk-spike/src/main.ts": { maxLines: 1456, reason: "arena spike entry — split by subsystem" },
   "packages/openclinxr/scenario-runtime/src/scenario-runtime.ts": { maxLines: 806, reason: "ScenarioRuntime orchestration class — extracted from the former 1162-line index.ts; decompose the class methods next" },
   "apps/api/src/api-bootstrap.ts": { maxLines: 908, reason: "bootstrap wiring — split by subsystem registration" },
   "apps/arena/model-vetting-studio/src/candidate-capture.ts": { maxLines: 770, reason: "capture pipeline — split views/geometry/url; residual render path" },
   "packages/openclinxr/arena/model-vetting/src/logic.ts": { maxLines: 534, reason: "residual: model-vetting report build + validators (interleaved exported/internal) — split validators next; types extracted" },
-  "apps/ui-admin/src/RuntimeSelectionReviewPacketPanel.tsx": { maxLines: 682, reason: "large panel — extract sub-sections/containers" },
-  "apps/ui-admin/src/CaseAuthoringWorkbench.tsx": { maxLines: 667, reason: "large authoring panel — extract form sections (pure data helpers moved to case-authoring-io.ts)" },
+  "apps/ui-admin/src/runtime-selection-review-packet-panel.tsx": { maxLines: 682, reason: "large panel — extract sub-sections/containers" },
+  "apps/ui-admin/src/case-authoring-workbench.tsx": { maxLines: 667, reason: "large authoring panel — extract form sections (pure data helpers moved to case-authoring-io.ts)" },
   "packages/openclinxr/agent-loop/src/grok-tier-routing.ts": { maxLines: 607, reason: "tier routing — split table/logic" },
   "packages/openclinxr/arena/model-vetting/src/pipeline-candidate.ts": { maxLines: 581, reason: "pipeline — split stages" },
   "packages/openclinxr/arena/physics-touch-contract/src/adapters/jolt.ts": { maxLines: 502, reason: "adapter — near budget; trim on next touch" },
@@ -286,7 +286,7 @@ export function checkFreezeListHonesty(config?: FileSizeBudgetConfig): string[] 
     // MEASURE THE COMMIT, THEN HEAD (2026-08-31). This check read HEAD only, which cannot see the
     // repair it demands: once a frozen file grows, HEAD holds the violation, so the extraction that
     // brings it back under its ceiling is REJECTED by the same gate that requires it. Measured on
-    // CaseAuthoringWorkbench.tsx — staged at 672 against a 679 ceiling, reported as 718 from HEAD —
+    // case-authoring-workbench.tsx — staged at 672 against a 679 ceiling, reported as 718 from HEAD —
     // and the only escape was a second hook bypass, i.e. the gate forced the mechanism it exists to
     // prevent.
     //

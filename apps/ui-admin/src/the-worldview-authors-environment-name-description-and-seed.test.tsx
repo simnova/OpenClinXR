@@ -23,7 +23,7 @@ import { describe, expect, it } from "vitest";
 
 const SRC = dirname(fileURLToPath(import.meta.url));
 const MODEL = readFileSync(join(SRC, "case-authoring-model.ts"), "utf8");
-const ENV = readFileSync(join(SRC, "EncounterEnvironmentPanel.tsx"), "utf8");
+const ENV = readFileSync(join(SRC, "encounter-environment-panel.tsx"), "utf8");
 
 describe("the worldview authors environment name, description, and seed", () => {
   it("(1) ScenarioFormValues includes environment name or infinigenSeed", () => {

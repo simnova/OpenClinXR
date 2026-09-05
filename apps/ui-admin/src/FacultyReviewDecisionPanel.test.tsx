@@ -2,7 +2,7 @@ import "@testing-library/jest-dom/vitest";
 import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import type { AdminCaseDefinedHumanoidPerformanceContract, AdminReviewPacketReplay } from "./api-client.js";
-import { FacultyReviewDecisionPanel } from "./FacultyReviewDecisionPanel.js";
+import { FacultyReviewDecisionPanel } from "./faculty-review-decision-panel.js";
 
 type ReviewPacket = NonNullable<AdminReviewPacketReplay["reviewPacket"]>;
 type ClinicalEventReviewSummary = NonNullable<AdminReviewPacketReplay["clinicalEventReviewSummary"]>;

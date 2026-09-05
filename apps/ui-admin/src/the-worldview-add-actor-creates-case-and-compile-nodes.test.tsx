@@ -14,7 +14,7 @@ installWorldviewQueueTestDom();
  * splice does not emit ActorVariant compile nodes. Worldview add must append
  * Scenario.actors AND proposed compile nodes. Unique actorId. No one-mesh-two-roles.
  *
- * MEASURED 2026-08-29. CaseAuthoringWorkbench.tsx:387-394 add(actorFormFromDraft).
+ * MEASURED 2026-08-29. case-authoring-workbench.tsx:387-394 add(actorFormFromDraft).
  * EnvironmentGenerationQueuePanel has no Add actor and no compileNodes mutation.
  * createActorDraft (case-authoring-model.ts:124-130) is identity-only.
  *
@@ -46,11 +46,11 @@ describe("the worldview add actor creates case and compile nodes", () => {
     fireEvent.click(screen.getByRole("button", { name: /add actor compile node/i }));
     expect(within(screen.getByLabelText("proposedVsAccepted")).getByText(/llmProposed ActorVariant vs facultyAccepted proposed/)).toBeInTheDocument();
     expect(screen.getByText(/1 compile dependency edge/)).toBeInTheDocument();
-    expect(readFileSync(join(SRC, "App.tsx"), "utf8")).toContain("SeedWorldviewQueue");
+    expect(readFileSync(join(SRC, "app.tsx"), "utf8")).toContain("SeedWorldviewQueue");
   });
 
   it("(2) COUNTERWEIGHT: CaseAuthoringWorkbench still has Add actor for the case card", () => {
-    const bench = readFileSync(join(SRC, "CaseAuthoringWorkbench.tsx"), "utf8");
+    const bench = readFileSync(join(SRC, "case-authoring-workbench.tsx"), "utf8");
     expect(bench).toContain("Add actor");
   });
 });

@@ -3,7 +3,7 @@ import { ENVIRONMENT_SHELL_DESCRIPTORS } from "@openclinxr/asset-registry";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import { CaseAuthoringWorkbench } from "./CaseAuthoringWorkbench.js";
+import { CaseAuthoringWorkbench } from "./case-authoring-workbench.js";
 import {
   mergeFormValuesIntoScenario,
   scenarioToFormValues,
@@ -38,7 +38,7 @@ import {
  *   cleared Select cannot invalidate a case (case-authoring-model.ts).
  * - `EncounterEnvironmentPanel` renders a form-bound Select of the 14 registered
  *   shell ids (option source = ENVIRONMENT_SHELL_DESCRIPTORS); facts follow the
- *   live selection (EncounterEnvironmentPanel.tsx).
+ *   live selection (encounter-environment-panel.tsx).
  */
 
 describe("the authoring form writes environmentId", () => {

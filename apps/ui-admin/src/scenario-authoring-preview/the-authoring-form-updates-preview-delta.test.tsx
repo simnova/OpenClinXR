@@ -3,7 +3,7 @@ import { STALE_REVIEW_IDENTITY_REFUSAL } from "@openclinxr/ui-route-admin";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import { CaseAuthoringWorkbench } from "../CaseAuthoringWorkbench.js";
+import { CaseAuthoringWorkbench } from "../case-authoring-workbench.js";
 
 describe("the authoring form updates the live preview delta", () => {
   beforeAll(() => {

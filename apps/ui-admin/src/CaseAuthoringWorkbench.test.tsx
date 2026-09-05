@@ -4,7 +4,7 @@ import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import { validateScenario } from "@openclinxr/shared-schemas";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import { CaseAuthoringWorkbench } from "./CaseAuthoringWorkbench.js";
+import { CaseAuthoringWorkbench } from "./case-authoring-workbench.js";
 import { parseScenarioJson } from "./case-authoring-model.js";
 
 describe("CaseAuthoringWorkbench", () => {
@@ -99,7 +99,7 @@ describe("CaseAuthoringWorkbench", () => {
    * This comment is THE RECORD, not scratch — flip it, append a `## FIXED (#69)` note, and leave the
    * measurement intact.
    *
-   * MEASURED: `grep -n "environment" apps/ui-admin/src/CaseAuthoringWorkbench.tsx` returns NOTHING.
+   * MEASURED: `grep -n "environment" apps/ui-admin/src/case-authoring-workbench.tsx` returns NOTHING.
    * The workbench edits a scenario whose `environment.environmentId` is a required schema field
    * (`shared-schemas/src/schemas.ts:218`) and never surfaces it, so an author choosing
    * `behavioral_health_private_room_v1` over `oncology_consult_room_v1` is choosing between two

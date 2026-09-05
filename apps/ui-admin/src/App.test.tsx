@@ -2,7 +2,7 @@ import "@testing-library/jest-dom/vitest";
 import { findUnsafeClaimLanguage } from "@openclinxr/domain/claim-language";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import { AdminApp } from "./App.js";
+import { AdminApp } from "./app.js";
 import type { AdminControlPlaneClient } from "./api-client.js";
 import type { FacultyCompileLockClient } from "./faculty-compile-lock-types.js";
 

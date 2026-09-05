@@ -1,6 +1,6 @@
 /**
  * Scenario governance review gate constants (clinical / psychometric / legal / simulationQa).
- * Extracted from ScenarioReviewGatePanel.tsx so evidence/inspect tools can import the capability
+ * Extracted from scenario-review-gate-panel.tsx so evidence/inspect tools can import the capability
  * surface without pulling the React component graph (the tools typecheck project has no jsx/vite).
  */
 

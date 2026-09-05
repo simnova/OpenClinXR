@@ -2,7 +2,7 @@ import type { Scenario } from "@openclinxr/shared-schemas";
 import { Form } from "antd";
 import { type ReactElement, useMemo } from "react";
 import { mergeFormValuesIntoScenario, type ScenarioFormValues } from "../case-authoring-model.js";
-import { ScenarioAuthoringPreviewPanel } from "./ScenarioAuthoringPreviewPanel.js";
+import { ScenarioAuthoringPreviewPanel } from "./scenario-authoring-preview-panel.js";
 
 /**
  * Watches the encounter-case form and previews the current merged draft against

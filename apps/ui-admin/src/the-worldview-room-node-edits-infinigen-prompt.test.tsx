@@ -21,12 +21,12 @@ const SRC = dirname(fileURLToPath(import.meta.url));
 
 describe("the worldview room node edits the Infinigen prompt", () => {
   it("(1) EnvironmentGenerationQueuePanel authors infinigenPrompt", () => {
-    const panel = readFileSync(join(SRC, "EnvironmentGenerationQueuePanel.tsx"), "utf8");
+    const panel = readFileSync(join(SRC, "environment-generation-queue-panel.tsx"), "utf8");
     expect(panel).toMatch(/infinigenPrompt/);
   });
 
   it("(2) COUNTERWEIGHT: environmentId picker still exists on EncounterEnvironmentPanel", () => {
-    const env = readFileSync(join(SRC, "EncounterEnvironmentPanel.tsx"), "utf8");
+    const env = readFileSync(join(SRC, "encounter-environment-panel.tsx"), "utf8");
     expect(env).toMatch(/environmentId/);
   });
 });

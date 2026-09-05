@@ -15,7 +15,7 @@ import {
   type DialogueSeedAuthoringPreviewRequest,
   type DialogueSeedAuthoringPreviewResult,
   type FrozenActorTurnPlanPreview,
-} from "./DialogueSeedAuthoringPanel.js";
+} from "./dialogue-seed-authoring-panel.js";
 
 beforeAll(() => {
   vi.stubGlobal("matchMedia", (query: string) => ({
@@ -128,7 +128,7 @@ function successFromServer(seed: AuthoredDialogueSeedDraft) {
 describe("DialogueSeedAuthoringPanel", () => {
   it("does not import capability-gateway or reconstruct ActorTurnPlan locally", () => {
     const here = dirname(fileURLToPath(import.meta.url));
-    const source = readFileSync(join(here, "DialogueSeedAuthoringPanel.tsx"), "utf8");
+    const source = readFileSync(join(here, "dialogue-seed-authoring-panel.tsx"), "utf8");
     expect(source).not.toMatch(/capability-gateway/);
     expect(source).not.toMatch(/previewFrozenActorTurnPlan/);
     expect(source).not.toMatch(/evaluateDialogueSeedPublicationGate/);

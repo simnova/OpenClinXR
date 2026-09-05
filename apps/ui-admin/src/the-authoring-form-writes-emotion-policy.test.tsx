@@ -2,7 +2,7 @@ import "@testing-library/jest-dom/vitest";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import { CaseAuthoringWorkbench } from "./CaseAuthoringWorkbench.js";
+import { CaseAuthoringWorkbench } from "./case-authoring-workbench.js";
 import {
   mergeFormValuesIntoScenario,
   scenarioToFormValues,
@@ -39,7 +39,7 @@ import {
  * - `CaseAuthoringWorkbench` renders an "Emotion policy" card with baseline /
  *   upper-bound / lower-bound Selects bound to `emotionPolicy.*`, options from
  *   `interactionEmotionOptions` (closed InteractionEmotionSchema set)
- *   (EmotionPolicyPanel.tsx).
+ *   (emotion-policy-panel.tsx).
  */
 
 const AUTHORED = {

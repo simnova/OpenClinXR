@@ -1310,4 +1310,4 @@ export type AdminScenarioReviewDecision = ScenarioReviewDecisionsQuery["scenario
 export type AdminScenarioReviewResult = SubmitScenarioReviewMutation["submitScenarioReview"];
 export type AdminReviewPacket = SaveFacultyScoreDraftMutation["saveFacultyScoreDraft"];
 export type AdminStationRunQueueSnapshot = StationRunQueueSnapshotsQuery["stationRunQueueSnapshots"][number];
-export type { AuthoredDialogueSeedDraft, DialogueSeedPublicationGate, FrozenActorTurnPlanPreview } from "./DialogueSeedAuthoringPanel.js";
+export type { AuthoredDialogueSeedDraft, DialogueSeedPublicationGate, FrozenActorTurnPlanPreview } from "./dialogue-seed-authoring-panel.js";

@@ -20,7 +20,7 @@ import { describe, expect, it } from "vitest";
  */
 
 const SRC = dirname(fileURLToPath(import.meta.url));
-const FIELDS = readFileSync(join(SRC, "ActorPhenotypeFields.tsx"), "utf8");
+const FIELDS = readFileSync(join(SRC, "actor-phenotype-fields.tsx"), "utf8");
 
 describe("the worldview authors phenotype pose and accessories", () => {
   it("(1) ActorPhenotypeFields binds pose", () => {

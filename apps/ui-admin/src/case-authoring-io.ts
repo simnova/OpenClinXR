@@ -1,5 +1,5 @@
 /**
- * Data helpers extracted from CaseAuthoringWorkbench.tsx.
+ * Data helpers extracted from case-authoring-workbench.tsx.
  *
  * WHY: the file-size ratchet (architecture-rules/src/checks/file-size-budgets.ts) freezes that
  * panel at 679 lines and its semantics are explicit — a frozen file "may only SHRINK; any growth

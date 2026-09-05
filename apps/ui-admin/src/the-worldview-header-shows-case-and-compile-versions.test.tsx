@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
  * OBSERVABLE: faculty compile panel has no caseDefVersion / compileVersion /
  * llmDraftStamp header. Reviewers cannot see which compile they are accepting.
  *
- * MEASURED 2026-08-29. EnvironmentGenerationQueuePanel.tsx faculty compile
+ * MEASURED 2026-08-29. environment-generation-queue-panel.tsx faculty compile
  * fieldset (aria-label Faculty compile this encounter) has no compileVersion
  * or caseDefVersion. App.tsx wires the compile button (13826a43) without versions.
  *
@@ -19,7 +19,7 @@ import { describe, expect, it } from "vitest";
  */
 
 const SRC = dirname(fileURLToPath(import.meta.url));
-const PANEL = readFileSync(join(SRC, "EnvironmentGenerationQueuePanel.tsx"), "utf8");
+const PANEL = readFileSync(join(SRC, "environment-generation-queue-panel.tsx"), "utf8");
 
 describe("the worldview header shows case and compile versions", () => {
   it("(1) EnvironmentGenerationQueuePanel mentions compileVersion", () => {

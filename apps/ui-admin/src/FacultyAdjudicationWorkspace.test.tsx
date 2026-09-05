@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import {
   assembledExamReplayProjectionFromReviewPacket,
   FacultyAdjudicationWorkspace,
-} from "./FacultyAdjudicationWorkspace.js";
+} from "./faculty-adjudication-workspace.js";
 
 describe("FacultyAdjudicationWorkspace", () => {
   afterEach(() => {

@@ -2,7 +2,7 @@ import "@testing-library/jest-dom/vitest";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { AdminRuntimeSelectionReviewPacket } from "./api-client.js";
-import { RuntimeSelectionReviewPacketPanel } from "./RuntimeSelectionReviewPacketPanel.js";
+import { RuntimeSelectionReviewPacketPanel } from "./runtime-selection-review-packet-panel.js";
 
 describe("RuntimeSelectionReviewPacketPanel", () => {
   afterEach(() => {

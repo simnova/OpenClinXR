@@ -2,7 +2,7 @@ import "@testing-library/jest-dom/vitest";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import { CaseAuthoringWorkbench } from "./CaseAuthoringWorkbench.js";
+import { CaseAuthoringWorkbench } from "./case-authoring-workbench.js";
 import {
   mergeFormValuesIntoScenario,
   scenarioToFormValues,
@@ -32,7 +32,7 @@ import {
  *   (minLength-1 strings); unchanged round-trips stay lossless (case-authoring-model.ts).
  * - `CaseAuthoringWorkbench` renders an "Equipment" card with a tags-mode Select
  *   (free-text names, Enter/comma to add) bound to the form `equipment` field
- *   (CaseAuthoringWorkbench.tsx).
+ *   (case-authoring-workbench.tsx).
  */
 
 describe("the authoring form writes equipment", () => {

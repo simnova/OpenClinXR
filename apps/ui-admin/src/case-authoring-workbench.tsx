@@ -33,15 +33,15 @@ import {
   scenarioToFormValues,
   validateScenarioDraft,
 } from "./case-authoring-model.js";
-import { EncounterEnvironmentPanel } from "./EncounterEnvironmentPanel.js";
-import { ActorPhenotypeFields } from "./ActorPhenotypeFields.js";
-import { ActorTouchResponseFields } from "./ActorTouchResponseFields.js";
-import { AssetNeedsPanel } from "./AssetNeedsPanel.js";
-import { EmotionPolicyPanel } from "./EmotionPolicyPanel.js";
-import { EquipmentPanel } from "./EquipmentPanel.js";
+import { EncounterEnvironmentPanel } from "./encounter-environment-panel.js";
+import { ActorPhenotypeFields } from "./actor-phenotype-fields.js";
+import { ActorTouchResponseFields } from "./actor-touch-response-fields.js";
+import { AssetNeedsPanel } from "./asset-needs-panel.js";
+import { EmotionPolicyPanel } from "./emotion-policy-panel.js";
+import { EquipmentPanel } from "./equipment-panel.js";
 import { StringListField } from "@openclinxr/ui-shared/admin-string-list-field";
 import { actorFormFromDraft, extractScenario, extractScenarioList, structuredCloneScenario } from "./case-authoring-io.js";
-import { LiveAuthoringPreview } from "./scenario-authoring-preview/LiveAuthoringPreview.js";
+import { LiveAuthoringPreview } from "./scenario-authoring-preview/live-authoring-preview.js";
 
 const { TextArea } = Input;
 
