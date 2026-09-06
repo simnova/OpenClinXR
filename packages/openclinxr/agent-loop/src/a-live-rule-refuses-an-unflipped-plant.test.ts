@@ -49,7 +49,13 @@ import { DONE_WHEN_RULE_VOCABULARY, evaluateDoneWhenRule, isKnownDoneWhenRule } 
  */
 
 const ROOT = "/Volumes/files/src/openclinxr";
-const UNFLIPPED = "tools/openclinxr/evidence/the-shipped-room-matches-its-declared-shape.test.ts";
+// REPOINTED 2026-09-06. The previous fixture,
+// tools/openclinxr/evidence/the-shipped-room-matches-its-declared-shape.test.ts, was flipped
+// when b27f423b landed the ED exam-bay aspect fix, so it stopped being an unflipped plant and
+// clauses (0) and (2) went red on a tree with nothing wrong in it. Clause (0) is the harness
+// column that caught it, which is why it exists. This fixture has exactly one it.fails clause
+// and its `run:` exits zero, which clause (4) needs.
+const UNFLIPPED = "tools/openclinxr/evidence/every-cast-actor-has-a-phenotype.test.ts";
 const FLIPPED = "tools/openclinxr/openclaw/a-recovered-session-is-not-a-death.test.ts";
 const evaluate = (rule: string) => evaluateDoneWhenRule(ROOT, rule, "issue-570", {});
 
