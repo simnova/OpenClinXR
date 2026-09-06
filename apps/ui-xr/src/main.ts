@@ -267,6 +267,37 @@ import {
   type XrTraceInteractionEvidenceSummary,
   xrExperienceModeEvidence,
 } from "@openclinxr/xr-runtime-state";
+import {
+  buildCaseDefinedHumanoidPerformanceContractEvidence as buildPackageCaseDefinedHumanoidPerformanceContractEvidence,
+  formatCaseDefinedHumanoidPerformanceContractEvidence as formatPackageCaseDefinedHumanoidPerformanceContractEvidence,
+  publishRuntimeActorSlotAssignmentEvidence as publishPackageRuntimeActorSlotAssignmentEvidence,
+  recordLearnerRuntimeUseGateEvidence as recordPackageLearnerRuntimeUseGateEvidence,
+  resolveRuntimeSlotAssignment as resolvePackageRuntimeSlotAssignment,
+  shouldUseLearnerRuntimeAssetBundle,
+  bundleUsesOnlyApprovedLocalFixtureAssets,
+  buildRuntimeSceneManifestEvidence as buildPackageRuntimeSceneManifestEvidence,
+  formatSceneAssetEvidenceStatus as formatPackageSceneAssetEvidenceStatus,
+  formatUnknownError as formatPackageUnknownError,
+  isHumanoidMouthGazePoseReviewCaptureMode as isPackageHumanoidMouthGazePoseReviewCaptureMode,
+  isPhysicsClinicalTouchCapture as isPackagePhysicsClinicalTouchCapture,
+  isSceneOnlyVisualReviewCaptureMode as isPackageSceneOnlyVisualReviewCaptureMode,
+  recordSceneAssetStatus as recordPackageSceneAssetStatus,
+  recordXrEntryEvidence as recordPackageXrEntryEvidence,
+  refreshDeclaredEquipmentMountEvidenceFromScene as refreshPackageDeclaredEquipmentMountEvidenceFromScene,
+  roundPerformanceNow as packageRoundPerformanceNow,
+  runtimeAssetAffordanceCueIds as packageRuntimeAssetAffordanceCueIds,
+  isGeneratedPlaceholderAssetForDifferentScenario as isPackageGeneratedPlaceholderAssetForDifferentScenario,
+  isGeneratedPlaceholderSourceForDifferentScenario as isPackageGeneratedPlaceholderSourceForDifferentScenario,
+  isRealGarmentSleeveDeformCapture as isPackageRealGarmentSleeveDeformCapture,
+  shouldRenderRoomPropInVisualReview as shouldPackageRenderRoomPropInVisualReview,
+  shouldShowActorRealismRequirementPanel as shouldPackageShowActorRealismRequirementPanel,
+  shouldShowInSceneEvidencePanels as shouldPackageShowInSceneEvidencePanels,
+  shouldShowInSceneIdentityLabels as shouldPackageShowInSceneIdentityLabels,
+  shouldShowPrimitiveAssetFallbacks as shouldPackageShowPrimitiveAssetFallbacks,
+  shouldShowRuntimeAffordanceMarkers as shouldPackageShowRuntimeAffordanceMarkers,
+  shouldSuppressGeneratedEnvironmentShell as shouldPackageSuppressGeneratedEnvironmentShell,
+  shouldSuppressGeneratedEquipmentModel as shouldPackageSuppressGeneratedEquipmentModel,
+} from "@openclinxr/xr-capture-evidence";
 import "./styles.css";
 
 // Physics clinical-touch realbind R3 (AD-3): precomputed bone transforms — see physics-touch/.
@@ -588,41 +619,8 @@ if (!app) {
 
 const defaultStaticGeneratedLearnerRuntimeAssetBundleScenarioId = "ed_chest_pain_priority_v1";
 
-window.__openClinXrCaseDefinedHumanoidPerformanceContractEvidence = buildCaseDefinedHumanoidPerformanceContractEvidence();
+window.__openClinXrCaseDefinedHumanoidPerformanceContractEvidence = buildPackageCaseDefinedHumanoidPerformanceContractEvidence(selectedScenarioId());
 window.__openClinXrActorPlayerRuntimeMetadataSummary = buildActorPlayerRuntimeMetadataSummary();
-
-function buildCaseDefinedHumanoidPerformanceContractEvidence(
-  scenarioId = selectedScenarioId(),
-): CaseDefinedHumanoidPerformanceContractEvidence {
-  const scenario = scenarioBank.find((candidate) => candidate.scenarioId === scenarioId) ?? edChestPainScenario;
-  const actors = scenario.actors.filter((actor) => actor.role !== "system");
-  const actorRoles = Array.from(new Set(actors.map((actor) => actor.role))).sort();
-  const emotionStates = Array.from(new Set(actors.flatMap((actor) => actor.communicationProfile?.baselineMood ?? [])));
-  const dialogueDrivenVisemeMappingRequired = scenario.requiredTraceTags.length > 0;
-
-  return {
-    source: "case_definition_humanoid_performance_contract",
-    scenarioId: scenario.scenarioId,
-    claimBoundary: "case_definition_humanoid_performance_metadata_only",
-    actorCount: actors.length,
-    locomotionActorRoles: actorRoles,
-    expressionActorRoles: actorRoles,
-    gazeActorRoles: actorRoles,
-    lipSyncActorRoles: dialogueDrivenVisemeMappingRequired ? actorRoles : [],
-    interactiveActorRoles: actorRoles,
-    emotionStateCount: emotionStates.length,
-    dialogueDrivenVisemeMappingRequired,
-    gazeTargetingRequired: actors.length > 1,
-    locomotionPlanningRequired: scenario.eventSchedule.length > 0,
-    notEvidenceFor: [
-      "generated_humanoid_asset_readiness",
-      "animation_quality",
-      "quest_readiness",
-      "runtime_readiness",
-      "clinical_validity",
-    ],
-  };
-}
 
 function buildActorPlayerRuntimeMetadataSummary(
   scenarioId = selectedScenarioId(),
@@ -709,7 +707,6 @@ function recordBootPhase(phase: string, error?: unknown): void {
   };
 }
 
-const sceneAssetStatusRecords = new Map<string, SceneAssetEvidence["assets"][number]>();
 const runtimeEquipmentSlotsByAssetId = new Map<string, Group>();
 let encounterRuntimeAssetBundle = createEdChestPainLocalLearnerRuntimeAssetBundle();
 let patientRuntimeHumanoidAsset = requireEncounterRuntimeAsset(
@@ -741,8 +738,8 @@ function useEncounterRuntimeAssetBundle(
   encounterRuntimeAssetBundle = bundle;
   cachedRuntimeSlotAssignment = null;
   window.__openClinXrSelectedRuntimeAssetBundleId = bundle.bundleId;
-  window.__openClinXrRuntimeSceneManifestEvidence = buildRuntimeSceneManifestEvidence(bundle);
-  recordLearnerRuntimeUseGateEvidence(bundle, options.source, options.fallbackReason ?? null);
+  window.__openClinXrRuntimeSceneManifestEvidence = buildAppRuntimeSceneManifestEvidence(bundle);
+  recordPackageLearnerRuntimeUseGateEvidence(bundle, options.source, options.fallbackReason ?? null);
   const slots = resolveRuntimeSlotAssignment(bundle);
   ensureAndPublishActorPlacementSsot(bundle, slots);
   const modelFor = (actorId: string) =>
@@ -765,7 +762,7 @@ function useEncounterRuntimeAssetBundle(
     modelFor(slots.additionalActorId || slots.patientActorId),
     slots.additionalActorId || "additional_cast_actor",
   );
-  publishRuntimeActorSlotAssignmentEvidence(bundle, slots);
+  publishPackageRuntimeActorSlotAssignmentEvidence(bundle, slots);
 }
 
 function runtimeBundleMatchesSelectedScenario(bundle: LearnerRuntimeAssetBundle): boolean {
@@ -788,67 +785,19 @@ function mismatchedRuntimeBundleFallbackReason(
   return `${source}_scenario_mismatch:${match.reason ?? `${selectedScenarioId()}!=${bundle.scenarioId}`}`;
 }
 
-function recordLearnerRuntimeUseGateEvidence(
-  bundle: LearnerRuntimeAssetBundle,
-  source: ActiveRuntimeAssetBundleSource,
-  fallbackReason: string | null,
-): LearnerRuntimeUseGateEvidence {
-  const learnerUseGate = evaluateEncounterRuntimeLearnerUseGate(bundle);
-  const approvedLocalFixtureOnly = bundleUsesOnlyApprovedLocalFixtureAssets(bundle);
-  const blockingGateIds = ENCOUNTER_LEARNER_RUNTIME_REQUIRED_GATE_IDS
-    .filter((gateId) => learnerUseGate.pendingGateIds.includes(gateId));
-  const actorEquipmentMaterializationGate = readRuntimeActorEquipmentMaterializationGate(bundle);
-  const evidence: LearnerRuntimeUseGateEvidence = {
-    ...learnerUseGate,
-    source: "window.__openClinXrLearnerRuntimeUseGateEvidence",
-    bundleId: bundle.bundleId,
-    scenarioId: bundle.scenarioId,
-    assetStoreKind: bundle.assetStoreKind,
-    activeBundleSource: source,
-    generatedBundleLearnerUseBlocked: !approvedLocalFixtureOnly && !learnerUseGate.canUseGeneratedBundleForLearnerRuntime,
-    fallbackActive: source === "local_fixture_fallback" || fallbackReason !== null,
-    fallbackReason,
-    requiredGateIds: [
-      "runtime_realism_evidence",
-      "visual_qa_evidence",
-      "quest_runtime_evidence",
-    ],
-    blockingGateIds,
-    approvedLocalFixtureOnly,
-    actorEquipmentMaterializationGate,
-    claimBoundary: "learner_scene_uses_local_fixture_until_runtime_visual_quest_gates_attach",
-  };
-  window.__openClinXrLearnerRuntimeUseGateEvidence = evidence;
-  return evidence;
-}
-
-function shouldUseLearnerRuntimeAssetBundle(bundle: LearnerRuntimeAssetBundle): boolean {
-  const learnerUseGate = evaluateEncounterRuntimeLearnerUseGate(bundle);
-  return bundleUsesOnlyApprovedLocalFixtureAssets(bundle)
-    || learnerUseGate.canUseGeneratedBundleForLearnerRuntime;
-}
-
-function bundleUsesOnlyApprovedLocalFixtureAssets(bundle: LearnerRuntimeAssetBundle): boolean {
-  return runtimeBundleAssets(bundle).every((asset) =>
-    asset.blob.storeKind === "app_public_fixture"
-      && asset.reviewStatus !== "blocked"
-      && (asset.reviewStatus === "fixture_approved_for_local_runtime" || asset.reviewStatus === "approved_for_local_runtime"),
-  );
-}
-
-function runtimeBundleAssets(bundle: LearnerRuntimeAssetBundle): EncounterRuntimeAsset[] {
+function isScenarioSpecificRuntimeFixtureForSelectedScenario(normalizedSource: string): boolean {
+  if (encounterRuntimeAssetBundle.scenarioId !== "peds_asthma_parent_anxiety_v1") {
+    return false;
+  }
   return [
-    bundle.environment,
-    ...bundle.actors.map((actor) => actor.model),
-    ...bundle.actors.flatMap((actor) => actor.animationClips),
-    ...bundle.actors.map((actor) => actor.phonemeMap).filter((asset): asset is EncounterRuntimeAsset => Boolean(asset)),
-    ...bundle.equipment.map((equipment) => equipment.model),
-    ...bundle.uiSurfaces.flatMap((surface) => [surface.schema, surface.data].filter((asset): asset is EncounterRuntimeAsset => Boolean(asset))),
-  ];
-}
-
-function runtimeActorEmbodiment(bundle: LearnerRuntimeAssetBundle, actorId: string): LearnerRuntimeAssetBundle["actors"][number]["embodiment"] | undefined {
-  return bundle.actors.find((actor) => actor.actorId === actorId)?.embodiment;
+    "pediatric_urgent_care_bay_environment",
+    "pulse_oximeter_equipment",
+    "nebulizer_mask_equipment",
+    "oxygen_wall_port_equipment",
+    "pediatric_stretcher_equipment",
+    "parent_chair_equipment",
+    "inhaler_spacer_equipment",
+  ].some((fixtureName) => normalizedSource.includes(fixtureName));
 }
 
 function runtimeActorRole(actorId: string): string | undefined {
@@ -885,39 +834,11 @@ function resolveRuntimeSlotAssignment(
   if (cachedRuntimeSlotAssignment && bundle === encounterRuntimeAssetBundle) {
     return cachedRuntimeSlotAssignment;
   }
-  const assignment = assignRuntimeActorSlots(
-    bundle.actors.map((actor) => ({
-      actorId: actor.actorId,
-      role: actor.role,
-      embodiment: actor.embodiment,
-    })),
-  );
+  const assignment = resolvePackageRuntimeSlotAssignment(bundle);
   if (bundle === encounterRuntimeAssetBundle) {
     cachedRuntimeSlotAssignment = assignment;
   }
   return assignment;
-}
-
-function publishRuntimeActorSlotAssignmentEvidence(
-  bundle: LearnerRuntimeAssetBundle,
-  slots: RuntimeSlotAssignment = resolveRuntimeSlotAssignment(bundle),
-): void {
-  const declaredHumanoidActorIds = bundle.actors
-    .filter((actor) => {
-      if (actor.embodiment === "virtual_device" || actor.embodiment === "voice_only") return false;
-      if (/_phone_|_tablet_|telehealth_system/iu.test(actor.actorId)) return false;
-      return true;
-    })
-    .map((actor) => actor.actorId);
-  const evidence = {
-    source: "window.__openClinXrActorSlotAssignment" as const,
-    scenarioId: bundle.scenarioId,
-    declaredHumanoidActorIds,
-    stagedActorIds: [...slots.stagedActorIds],
-    notStagedActorIds: slots.notStagedActorIds.map((n) => ({ ...n })),
-    maxVisibleSlots: 4,
-  };
-  window.__openClinXrActorSlotAssignment = evidence;
 }
 
 // #122 unique slot accessors — empty string means unfilled (never clone).
@@ -942,7 +863,7 @@ function runtimeAdditionalActorId(): string {
  * fixed camera (aiming at the named actor) rendered the patient at the frame edge: the
  * named actor was invisible. Showing only the named subject makes the frame match the aim.
  */
-function comparatorCaptureSubjectActorId(): string {
+function comparatorCaptureSubjectActorIdImpl(): string {
   const comparator = selectedHumanoidSourceComparator();
   if (comparator === "peds_anny_real_garment_parent") return runtimeFamilyActorId();
   if (comparator === "peds_anny_real_garment_nurse") return runtimeClinicalTeamActorId();
@@ -1026,86 +947,17 @@ function familyChairFixtureWorldPosition(environmentId: string): { x: number; y:
   );
 }
 
-function buildRuntimeSceneManifestEvidence(bundle: LearnerRuntimeAssetBundle): RuntimeSceneManifestEvidence {
-  const sceneManifestWithHumanoidRuntimeHandoff = bundle.sceneManifest as unknown as {
-    caseDefinedHumanoidRuntimeHandoff?: unknown[];
-  };
-  const rawCaseDefinedHumanoidRuntimeHandoff = Array.isArray(sceneManifestWithHumanoidRuntimeHandoff.caseDefinedHumanoidRuntimeHandoff)
-    ? sceneManifestWithHumanoidRuntimeHandoff.caseDefinedHumanoidRuntimeHandoff
-    : [];
-  const humanoidRuntimeHandoffNotEvidenceFor: CaseDefinedHumanoidRuntimeHandoffEvidence["notEvidenceFor"] = [
-    "generated_humanoid_asset_readiness",
-    "animation_quality",
-    "quest_readiness",
-    "runtime_readiness",
-    "clinical_validity",
-    "scoring_validity",
-  ];
-  const caseDefinedHumanoidRuntimeHandoff = rawCaseDefinedHumanoidRuntimeHandoff
-    .filter((handoff): handoff is Record<string, unknown> => typeof handoff === "object" && handoff !== null)
-    .map((handoff): CaseDefinedHumanoidRuntimeHandoffEvidence => ({
-      claimBoundary: "case_definition_humanoid_runtime_handoff_metadata_only",
-      actorRole: typeof handoff.actorRole === "string" ? handoff.actorRole : "unknown_actor_role",
-      workOrderIds: Array.isArray(handoff.workOrderIds)
-        ? handoff.workOrderIds.filter((workOrderId): workOrderId is string => typeof workOrderId === "string")
-        : [],
-      locomotionRequired: handoff.locomotionRequired === true,
-      expressionRequired: handoff.expressionRequired === true,
-      gazeRequired: handoff.gazeRequired === true,
-      lipSyncRequired: handoff.lipSyncRequired === true,
-      interactiveRequired: handoff.interactiveRequired === true,
-      requiredSignalIds: Array.isArray(handoff.requiredSignalIds)
-        ? handoff.requiredSignalIds.filter((signalId): signalId is string => typeof signalId === "string")
-        : [],
-      blockers: Array.isArray(handoff.blockers)
-        ? handoff.blockers.filter((blocker): blocker is string => typeof blocker === "string")
-        : [],
-      notEvidenceFor: Array.isArray(handoff.notEvidenceFor)
-        ? handoff.notEvidenceFor.filter((item): item is CaseDefinedHumanoidRuntimeHandoffEvidence["notEvidenceFor"][number] =>
-          humanoidRuntimeHandoffNotEvidenceFor.includes(item as CaseDefinedHumanoidRuntimeHandoffEvidence["notEvidenceFor"][number])
-        )
-        : humanoidRuntimeHandoffNotEvidenceFor,
-    }));
-  return {
-    source: "learner_runtime_asset_bundle_scene_manifest",
-    manifestId: bundle.sceneManifest.manifestId,
-    schemaVersion: bundle.sceneManifest.schemaVersion,
+function runtimeActorEmbodimentImpl(bundle: LearnerRuntimeAssetBundle, actorId: string): LearnerRuntimeAssetBundle["actors"][number]["embodiment"] | undefined {
+  return bundle.actors.find((actor) => actor.actorId === actorId)?.embodiment;
+}
+
+function buildAppRuntimeSceneManifestEvidence(bundle: LearnerRuntimeAssetBundle): RuntimeSceneManifestEvidence {
+  return buildPackageRuntimeSceneManifestEvidence({
+    bundle,
     selectedScenarioId: selectedScenarioId(),
-    bundleScenarioId: bundle.scenarioId,
     selectedScenarioMatchesBundle: runtimeBundleMatchesSelectedScenario(bundle),
-    stationId: bundle.stationId,
-    stationContextTitle: bundle.sceneManifest.stationContext?.title ?? null,
-    stationContextChiefConcern: bundle.sceneManifest.stationContext?.chiefConcern ?? null,
-    actorRoster: bundle.actors.map((actor) => ({
-      actorId: actor.actorId,
-      role: actor.role,
-      embodiment: actor.embodiment,
-    })),
-    equipmentIds: bundle.equipment.map((equipment) => equipment.equipmentId),
-    dialogueTraceTags: (bundle.sceneManifest.dialogueTurns ?? []).map((turn) => turn.traceTag),
-    roomPropCount: bundle.sceneManifest.roomProps.length,
-    semanticRoomPropCount: bundle.sceneManifest.roomProps.filter((prop) => Boolean(prop.semanticRole && prop.evidenceCue)).length,
-    actorPlacementCount: Object.keys(bundle.sceneManifest.actorPlacements ?? {}).length,
-    equipmentPlacementCount: Object.keys(bundle.sceneManifest.equipmentPlacements ?? {}).length,
-    dialogueTurnCount: bundle.sceneManifest.dialogueTurns?.length ?? 0,
-    virtualDeviceActorCount: bundle.actors.filter((actor) => actor.embodiment === "virtual_device").length,
-    virtualDeviceDialogueRoutedCount: (bundle.sceneManifest.dialogueTurns ?? []).filter((turn) => runtimeActorEmbodiment(bundle, turn.actorId) === "virtual_device").length,
-    generatedBySceneManifestCount: bundle.sceneManifest.roomProps.filter((prop) => prop.generatedBy === "scene_manifest").length,
-    propIds: bundle.sceneManifest.roomProps.map((prop) => prop.propId),
-    caseDefinedHumanoidRuntimeHandoffCount: caseDefinedHumanoidRuntimeHandoff.length,
-    caseDefinedHumanoidRuntimeHandoffActorRoles: Array.from(new Set(caseDefinedHumanoidRuntimeHandoff
-      .map((handoff) => typeof handoff.actorRole === "string" ? handoff.actorRole : "")
-      .filter((actorRole) => actorRole.length > 0))),
-    caseDefinedHumanoidRuntimeHandoffRequiredSignalIds: Array.from(new Set(caseDefinedHumanoidRuntimeHandoff.flatMap((handoff) =>
-      Array.isArray(handoff.requiredSignalIds)
-        ? handoff.requiredSignalIds.filter((signalId): signalId is string => typeof signalId === "string")
-        : []
-    ))),
-    caseDefinedHumanoidRuntimeHandoff,
-    storageBackedBundle: bundle.assetStoreKind === "azurite_blob" || bundle.assetStoreKind === "azure_blob",
-    productionReadinessClaimed: false,
-    notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
-  };
+    actorEmbodimentFor: runtimeActorEmbodimentImpl,
+  });
 }
 
 function requireEncounterRuntimeAsset(asset: EncounterRuntimeAsset | undefined, assetId: string): EncounterRuntimeAsset {
@@ -1139,7 +991,7 @@ async function initializeLearnerRuntimeAssetBundle(client: StationApiClient | un
       recordBootPhase(result.evidence.outcome === "offline_fixture_fallback" ? "learner_runtime_asset_bundle_fallback" : "learner_runtime_asset_bundle_loaded");
       return;
     }
-    recordLearnerRuntimeUseGateEvidence(
+    recordPackageLearnerRuntimeUseGateEvidence(
       encounterRuntimeAssetBundle,
       "api_bundle",
       result.evidence.fallbackReason ?? "pinned_bundle_refused",
@@ -1153,7 +1005,7 @@ async function initializeLearnerRuntimeAssetBundle(client: StationApiClient | un
       recordBootPhase("learner_runtime_asset_bundle_static_generated_loaded");
       return;
     }
-    recordLearnerRuntimeUseGateEvidence(
+    recordPackageLearnerRuntimeUseGateEvidence(
       encounterRuntimeAssetBundle,
       "local_fixture_fallback",
       mismatchedRuntimeBundleFallbackReason(encounterRuntimeAssetBundle, "local_fixture_fallback"),
@@ -1167,7 +1019,7 @@ async function initializeLearnerRuntimeAssetBundle(client: StationApiClient | un
       throw new Error("learner runtime asset bundle identity scope mismatch");
     }
     if (!shouldUseLearnerRuntimeAssetBundle(bundle)) {
-      recordLearnerRuntimeUseGateEvidence(
+      recordPackageLearnerRuntimeUseGateEvidence(
         bundle,
         "api_bundle",
         `api_bundle_blocked:${bundle.bundleId}`,
@@ -1176,7 +1028,7 @@ async function initializeLearnerRuntimeAssetBundle(client: StationApiClient | un
       return;
     }
     if (!runtimeBundleMatchesSelectedScenario(bundle)) {
-      recordLearnerRuntimeUseGateEvidence(
+      recordPackageLearnerRuntimeUseGateEvidence(
         bundle,
         "api_bundle",
         mismatchedRuntimeBundleFallbackReason(bundle, "api_bundle"),
@@ -1190,7 +1042,7 @@ async function initializeLearnerRuntimeAssetBundle(client: StationApiClient | un
       recordBootPhase("learner_runtime_asset_bundle_static_generated_loaded_after_api_fallback", error);
       return;
     }
-    recordLearnerRuntimeUseGateEvidence(
+    recordPackageLearnerRuntimeUseGateEvidence(
       encounterRuntimeAssetBundle,
       "local_fixture_fallback",
       mismatchedRuntimeBundleFallbackReason(encounterRuntimeAssetBundle, "local_fixture_fallback"),
@@ -1211,7 +1063,7 @@ async function initializeStaticGeneratedLearnerRuntimeAssetBundle(): Promise<boo
       throw new Error("static learner runtime asset bundle identity scope mismatch");
     }
     if (!runtimeBundleMatchesSelectedScenario(bundle)) {
-      recordLearnerRuntimeUseGateEvidence(
+      recordPackageLearnerRuntimeUseGateEvidence(
         bundle,
         "static_generated_bundle",
         mismatchedRuntimeBundleFallbackReason(bundle, "static_generated_bundle"),
@@ -1220,7 +1072,7 @@ async function initializeStaticGeneratedLearnerRuntimeAssetBundle(): Promise<boo
       return false;
     }
     if (!shouldUseLearnerRuntimeAssetBundle(bundle)) {
-      recordLearnerRuntimeUseGateEvidence(
+      recordPackageLearnerRuntimeUseGateEvidence(
         bundle,
         "static_generated_bundle",
         `static_generated_bundle_blocked:${bundle.bundleId}`,
@@ -1306,20 +1158,14 @@ function isActorPoseReviewCaptureMode(): boolean {
 }
 
 function isHumanoidMouthGazePoseReviewCaptureMode(): boolean {
-  const captureMode = selectedCaptureMode();
-  return captureMode.includes("mouth-gaze-pose") || captureMode.includes("actor-pose") || captureMode.includes("pose-review") || isRealGarmentSleeveDeformCapture();
+  return isPackageHumanoidMouthGazePoseReviewCaptureMode(
+    selectedCaptureMode(),
+    isRealGarmentSleeveDeformCapture(),
+  );
 }
 
 function isRealGarmentSleeveDeformCapture(): boolean {
-  const cmp = selectedHumanoidSourceComparator();
-  const mode = selectedCaptureMode();
-  // ED/parent/nurse real-garment comparators (phenotype.garmentLayers → sleeveDeform evidence).
-  const isRealGarmentCmp =
-    cmp === "peds_anny_real_garment_patient"
-    || cmp === "ed_anny_real_garment_patient"
-    || cmp === "peds_anny_real_garment_parent"
-    || cmp === "peds_anny_real_garment_nurse";
-  return isRealGarmentCmp && (mode.includes("garment-sleeve") || mode.includes("sleeve-deform") || mode.includes("body-motion-garment") || mode.includes("real-garment-body") || mode.includes("sleeve"));
+  return isPackageRealGarmentSleeveDeformCapture(selectedHumanoidSourceComparator());
 }
 
 /**
@@ -1335,10 +1181,7 @@ function isRealGarmentSleeveDeformCapture(): boolean {
  * and capture mode including "physics-clinical-touch" or "physics-touch".
  */
 function isPhysicsClinicalTouchCapture(): boolean {
-  const mode = selectedCaptureMode();
-  if (!mode.includes("physics-clinical-touch") && !mode.includes("physics-touch")) return false;
-  const cmp = selectedHumanoidSourceComparator();
-  return cmp === "ed_anny_real_garment_patient" || cmp === "peds_anny_real_garment_patient";
+  return isPackagePhysicsClinicalTouchCapture(selectedCaptureMode(), selectedHumanoidSourceComparator());
 }
 
 function isDynamicGeneratedEncounterSceneMode(): boolean {
@@ -1350,139 +1193,79 @@ function isDynamicGeneratedEncounterSceneMode(): boolean {
 }
 
 function isGeneratedPlaceholderSourceForDifferentScenario(source: string): boolean {
-  const scenarioSlug = encounterRuntimeAssetBundle.scenarioId.replaceAll("_", "-");
-  const normalizedSource = source.toLowerCase();
-  if (isScenarioSpecificRuntimeFixtureForSelectedScenario(normalizedSource)) {
-    return false;
-  }
-  return isDynamicGeneratedEncounterSceneMode()
-    && !normalizedSource.includes(encounterRuntimeAssetBundle.scenarioId.toLowerCase())
-    && !normalizedSource.includes(scenarioSlug.toLowerCase());
-}
-
-function isScenarioSpecificRuntimeFixtureForSelectedScenario(normalizedSource: string): boolean {
-  if (encounterRuntimeAssetBundle.scenarioId !== "peds_asthma_parent_anxiety_v1") {
-    return false;
-  }
-  return [
-    "pediatric_urgent_care_bay_environment",
-    "pulse_oximeter_equipment",
-    "nebulizer_mask_equipment",
-    "oxygen_wall_port_equipment",
-    "pediatric_stretcher_equipment",
-    "parent_chair_equipment",
-    "inhaler_spacer_equipment",
-  ].some((fixtureName) => normalizedSource.includes(fixtureName));
+  return isPackageGeneratedPlaceholderSourceForDifferentScenario(
+    source,
+    encounterRuntimeAssetBundle.scenarioId,
+    isDynamicGeneratedEncounterSceneMode(),
+    isScenarioSpecificRuntimeFixtureForSelectedScenario,
+  );
 }
 
 function isGeneratedPlaceholderAssetForDifferentScenario(asset: EncounterRuntimeAsset): boolean {
-  return isGeneratedPlaceholderSourceForDifferentScenario(`${asset.blob.blobName} ${asset.blob.url ?? ""}`);
+  return isPackageGeneratedPlaceholderAssetForDifferentScenario(
+    asset,
+    encounterRuntimeAssetBundle.scenarioId,
+    isDynamicGeneratedEncounterSceneMode(),
+    isScenarioSpecificRuntimeFixtureForSelectedScenario,
+  );
 }
 
 function shouldSuppressGeneratedEnvironmentShell(asset: EncounterRuntimeAsset): boolean {
-  return isGeneratedPlaceholderAssetForDifferentScenario(asset);
+  return shouldPackageSuppressGeneratedEnvironmentShell(asset, isGeneratedPlaceholderAssetForDifferentScenario);
 }
 
 function shouldSuppressGeneratedEquipmentModel(_assetId: string, assetPath: string): boolean {
   // Real library medical-equipment GLBs are shared clinical equipment, never scenario-mismatched placeholders (#140 counterweight; #245 wall clock).
-  if (Object.values(REAL_EQUIPMENT_GLTF_BY_ID).some((fileName) =>
-    assetPath.toLowerCase().includes(`/medical-equipment/${fileName.toLowerCase()}`))) {
-    return false;
-  }
-  return isGeneratedPlaceholderSourceForDifferentScenario(assetPath);
+  return shouldPackageSuppressGeneratedEquipmentModel(
+    assetPath,
+    (path: string) => Object.values(REAL_EQUIPMENT_GLTF_BY_ID).some((fileName) =>
+      path.toLowerCase().includes(`/medical-equipment/${fileName.toLowerCase()}`)),
+    isGeneratedPlaceholderSourceForDifferentScenario,
+  );
 }
 
-function refreshDeclaredEquipmentMountEvidenceFromScene(): void {
-  const evidence = window.__openClinXrDeclaredEquipmentMountEvidence;
-  const scene = window.__openClinXrDebugScene;
-  if (!evidence || !scene) return;
-  const items = collectDeclaredEquipmentEvidenceFromScene(scene);
-  if (items.length === 0) return;
-  window.__openClinXrDeclaredEquipmentMountEvidence = { ...evidence, items };
+function refreshDeclaredEquipmentMountEvidenceFromSceneImpl(): void {
+  refreshPackageDeclaredEquipmentMountEvidenceFromScene(collectDeclaredEquipmentEvidenceFromScene);
 }
 
 function shouldShowRuntimeAffordanceMarkers(): boolean {
-  const captureMode = selectedCaptureMode();
-  return !isDynamicGeneratedEncounterSceneMode()
-    || captureMode.includes("affordance")
-    || captureMode.includes("evidence")
-    || captureMode.includes("debug")
-    || captureMode.includes("cue-review");
+  return shouldPackageShowRuntimeAffordanceMarkers(selectedCaptureMode(), isDynamicGeneratedEncounterSceneMode());
 }
 
 function shouldShowPrimitiveAssetFallbacks(): boolean {
-  const captureMode = selectedCaptureMode();
-  return !isDynamicGeneratedEncounterSceneMode()
-    || captureMode.includes("fallback")
-    || captureMode.includes("debug")
-    || captureMode.includes("cue-review");
+  return shouldPackageShowPrimitiveAssetFallbacks(selectedCaptureMode(), isDynamicGeneratedEncounterSceneMode());
 }
 
 function shouldShowInSceneEvidencePanels(): boolean {
-  const captureMode = selectedCaptureMode();
-  return !isDynamicGeneratedEncounterSceneMode()
-    || captureMode.includes("panel")
-    || captureMode.includes("evidence")
-    || captureMode.includes("debug")
-    || captureMode.includes("cue-review");
+  return shouldPackageShowInSceneEvidencePanels(selectedCaptureMode(), isDynamicGeneratedEncounterSceneMode());
 }
 
 function shouldShowActorRealismRequirementPanel(evidence: HumanoidSpeechEvidence | null = window.__openClinXrHumanoidSpeechEvidence ?? null): boolean {
-  const captureMode = selectedCaptureMode();
-  if (shouldUseCleanHumanoidSourceComparatorCapture() && !isEdBayVisibleComparatorCapture()) {
-    return false;
-  }
-  return shouldShowInSceneEvidencePanels()
-    || isHumanoidMouthGazePoseReviewCaptureMode()
-    || (captureMode.includes("actor-realism") && Boolean(evidence?.activeActorRuntimeRealismRequirement));
+  return shouldPackageShowActorRealismRequirementPanel(
+    selectedCaptureMode(),
+    evidence?.activeActorRuntimeRealismRequirement ?? null,
+    {
+      cleanComparatorCapture: shouldUseCleanHumanoidSourceComparatorCapture(),
+      edBayVisibleCapture: isEdBayVisibleComparatorCapture(),
+      evidencePanelsVisible: shouldShowInSceneEvidencePanels(),
+      mouthGazePoseReview: isHumanoidMouthGazePoseReviewCaptureMode(),
+    },
+  );
 }
 
 function shouldShowInSceneIdentityLabels(): boolean {
-  const captureMode = selectedCaptureMode();
-  return !isDynamicGeneratedEncounterSceneMode()
-    || captureMode.includes("label")
-    || captureMode.includes("identity")
-    || captureMode.includes("debug")
-    || captureMode.includes("cue-review");
+  return shouldPackageShowInSceneIdentityLabels(selectedCaptureMode(), isDynamicGeneratedEncounterSceneMode());
 }
 
 function isSceneOnlyVisualReviewCaptureMode(): boolean {
-  const captureMode = selectedCaptureMode();
-  // ed-bay-visible keeps the room shell: never route it through the scene-only review filter.
-  if (captureMode.includes("ed-bay-visible")) return false;
-  return captureMode.includes("scene-only")
-    || captureMode.includes("dynamic-only")
-    || captureMode.includes("visual-cleanup")
-    || (shouldUseCleanHumanoidSourceComparatorCapture() && !isEdBayVisibleComparatorCapture());
+  return isPackageSceneOnlyVisualReviewCaptureMode(
+    selectedCaptureMode(),
+    shouldUseCleanHumanoidSourceComparatorCapture() && !isEdBayVisibleComparatorCapture(),
+  );
 }
 
-const sceneOnlyEssentialRoomPropIds = new Set([
-  "oxygen-panel",
-  "suction-canister",
-  "glove-box-stack",
-  "supply-cabinet",
-  "privacy-curtain",
-  "ceiling-exam-light",
-  "patient-handoff-whiteboard",
-  "ekg-leads-on-bed",
-  "monitor-lead-cable",
-  "patient-blanket",
-  "iv-tubing-line",
-  "monitor-waveform-card",
-  "monitor-vitals-badge",
-  "ecg-paper-strip",
-  "nurse-task-tray",
-  "call-light-remote",
-]);
-
 function shouldRenderRoomPropInVisualReview(prop: EncounterRuntimeRoomProp): boolean {
-  if (!isSceneOnlyVisualReviewCaptureMode()) {
-    return true;
-  }
-  if (prop.generatedBy === "scene_manifest" && prop.semanticRole !== "environmental_detail") {
-    return true;
-  }
-  return sceneOnlyEssentialRoomPropIds.has(prop.propId);
+  return shouldPackageRenderRoomPropInVisualReview(prop, isSceneOnlyVisualReviewCaptureMode());
 }
 
 function configuredExamSequence(): string[] {
@@ -1770,84 +1553,15 @@ const roomEnvironmentalRealismCueIds = [
   "iv_tubing_line_context",
 ] as const;
 
-function recordSceneAssetStatus(input: SceneAssetEvidence["assets"][number]): SceneAssetEvidence {
-  sceneAssetStatusRecords.set(input.assetId, { ...input });
-  const assets = [...sceneAssetStatusRecords.values()].sort((left, right) => left.assetId.localeCompare(right.assetId));
-  const evidence: SceneAssetEvidence = {
-    source: "window.__openClinXrSceneAssetEvidence",
-    generatedAtMs: roundPerformanceNow(),
-    expectedAssetCount: assets.length,
-    loadedCount: assets.filter((asset) => asset.status === "loaded").length,
-    failedCount: assets.filter((asset) => asset.status === "failed").length,
-    pendingCount: assets.filter((asset) => asset.status === "pending").length,
-    fallbackActiveCount: assets.filter((asset) => asset.fallbackActive).length,
-    cameraFramingCue: "humanoid_camera_framing_decluttered_three_actor_environment_review",
-    visualFidelityCueIds: [
-      "generated_humanoid_front_fidelity_badge",
-      "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
-      "room_prop_label_occlusion_reduced",
-      "generated_humanoid_generator_native_front_orientation_preserved",
-      "humanoid_interaction_target_decluttered",
-      "generated_humanoid_facial_features_unobscured",
-      "visible_runtime_mouth_eye_expression_cues",
-    ],
-    interactionCollisionEvidence: {
-      proxyCueCount: assets.filter((asset) =>
-        asset.affordanceCueIds?.some((cueId) => cueId.includes("ragdoll_collision_proxy_cue")),
-      ).length,
-      physicsProbeMode: "runtime_proxy_cues_with_offline_rapier_gate",
-      latestProbeReportPath: "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
-      notEvidenceFor: ["production_physics_readiness", "validated_ragdoll_biomechanics", "learner_readiness"],
-    },
-    assets,
-    productionAssetReadinessClaimed: false,
-    notEvidenceFor: [
-      "production_asset_readiness",
-      "quest_readiness",
-      "clinical_validity",
-    ],
-  };
-  window.__openClinXrSceneAssetEvidence = evidence;
-  return evidence;
-}
-
-function runtimeAssetAffordanceCueIds(assetId: string, affordances: readonly string[]): string[] {
-  return affordances.map((affordance) => `${assetId}:${affordance}`);
+function recordAppBootPhaseError(error: unknown): string {
+  return formatPackageUnknownError(error);
 }
 
 function formatUnknownError(error: unknown): string {
-  if (error instanceof Error) {
-    return `${error.name}: ${error.message}`;
-  }
-  return String(error);
+  return formatPackageUnknownError(error);
 }
 
-function roundPerformanceNow(): number {
-  return Number(performance.now().toFixed(2));
-}
-
-function recordXrEntryEvidence(status: OpenClinXrXrEntryEvidence["lastStatus"], error?: unknown): void {
-  const current = window.__openClinXrXrEntryEvidence ?? {
-    sessionMode: "immersive-vr",
-    attempts: 0,
-    lastStatus: "not_requested",
-    lastRequestedAtMs: null,
-    lastUpdatedAtMs: Number(performance.now().toFixed(2)),
-    lastError: null,
-  };
-  const now = Number(performance.now().toFixed(2));
-  const requesting = status === "requesting";
-  window.__openClinXrXrEntryEvidence = {
-    sessionMode: "immersive-vr",
-    attempts: current.attempts + (requesting ? 1 : 0),
-    lastStatus: status,
-    lastRequestedAtMs: requesting ? now : current.lastRequestedAtMs,
-    lastUpdatedAtMs: now,
-    lastError: error === undefined ? null : formatUnknownError(error),
-  };
-}
-
-recordXrEntryEvidence("not_requested");
+recordPackageXrEntryEvidence("not_requested");
 
 let state: XrRuntimeState = createInitialRuntimeState();
 /** Deterministic conversation tooling state for HUD (local, not scored). */
@@ -1864,7 +1578,7 @@ let conversationHistoryCoverage: HistoryTakingCoverageState = initialHistoryTaki
 let traceActionHandoffActions: XrTraceActionHandoffAction[] = [];
 const configuredApiBaseUrl = typeof import.meta.env.VITE_OPENCLINXR_API_BASE_URL === "string" ? import.meta.env.VITE_OPENCLINXR_API_BASE_URL : "";
 const stationApi = configuredApiBaseUrl ? createStationApiClient({ baseUrl: configuredApiBaseUrl }) : undefined;
-window.__openClinXrRuntimeSceneManifestEvidence = buildRuntimeSceneManifestEvidence(encounterRuntimeAssetBundle);
+window.__openClinXrRuntimeSceneManifestEvidence = buildAppRuntimeSceneManifestEvidence(encounterRuntimeAssetBundle);
 let remoteStationRunId: string | undefined;
 let immersiveSessionActive = false;
 let lastTraceSelectLatencyMs: number | null = null;
@@ -2011,7 +1725,7 @@ function refreshStationContextFromRuntimeBundle(): void {
   // #114: pass selectedScenarioId so a foreign ED fallback cannot poison Trace Actions.
   state = createRuntimeStateFromBundle(encounterRuntimeAssetBundle, state, selectedScenarioId());
   window.__openClinXrCaseDefinedHumanoidPerformanceContractEvidence =
-    buildCaseDefinedHumanoidPerformanceContractEvidence(selectedScenarioId());
+    buildPackageCaseDefinedHumanoidPerformanceContractEvidence(selectedScenarioId());
   window.__openClinXrActorPlayerRuntimeMetadataSummary =
     buildActorPlayerRuntimeMetadataSummary(encounterRuntimeAssetBundle.scenarioId);
   initialDialogueText = initialDialogueTextForSelectedScenario();
@@ -2539,7 +2253,7 @@ function completeTraceActionFromInput(
       eventType: eventTypeForTraceTag(tag),
       actorId: actorIdFromPayload ?? localDialogueActorIdForTraceTag(tag) ?? null,
       completedAtSecond: state.elapsedSecond,
-      completedAtMs: roundPerformanceNow(),
+      completedAtMs: packageRoundPerformanceNow(),
       selectLatencyMs,
       ...(region ? { region } : {}),
     },
@@ -2716,7 +2430,7 @@ function updateTraceActionHandoffEvidence(): XrTraceActionHandoffEvidence {
   const evidence = buildXrTraceActionHandoffEvidence({
     state,
     actions: traceActionHandoffActions,
-    generatedAtMs: roundPerformanceNow(),
+    generatedAtMs: packageRoundPerformanceNow(),
     lastTraceLatencyEvidence: window.__openClinXrTraceLatencyEvidence ?? null,
   });
   window.__openClinXrTraceActionHandoffEvidence = evidence;
@@ -2919,7 +2633,7 @@ async function updateXrStatus(): Promise<void> {
     runtimeWebXrSupportEvidence = {
       navigatorXrPresent: false,
       immersiveVrSupported: null,
-      immersiveVrSupportCheckedAtMs: roundPerformanceNow(),
+      immersiveVrSupportCheckedAtMs: packageRoundPerformanceNow(),
       immersiveArSupported: null,
       immersiveArSupportCheckedAtMs: null,
       supportError: "navigator.xr_missing",
@@ -2931,13 +2645,13 @@ async function updateXrStatus(): Promise<void> {
   }
   try {
     const immersiveVrSupported = await navigatorWithXr.xr.isSessionSupported("immersive-vr");
-    const immersiveVrSupportCheckedAtMs = roundPerformanceNow();
+    const immersiveVrSupportCheckedAtMs = packageRoundPerformanceNow();
     let immersiveArSupported: boolean | null = null;
     let immersiveArSupportCheckedAtMs: number | null = null;
     let supportError: string | null = null;
     try {
       immersiveArSupported = await navigatorWithXr.xr.isSessionSupported("immersive-ar");
-      immersiveArSupportCheckedAtMs = roundPerformanceNow();
+      immersiveArSupportCheckedAtMs = packageRoundPerformanceNow();
     } catch (error) {
       supportError = `immersive_ar:${formatUnknownError(error)}`;
     }
@@ -2956,7 +2670,7 @@ async function updateXrStatus(): Promise<void> {
     runtimeWebXrSupportEvidence = {
       navigatorXrPresent: true,
       immersiveVrSupported: null,
-      immersiveVrSupportCheckedAtMs: roundPerformanceNow(),
+      immersiveVrSupportCheckedAtMs: packageRoundPerformanceNow(),
       immersiveArSupported: null,
       immersiveArSupportCheckedAtMs: null,
       supportError: `immersive_vr:${formatUnknownError(error)}`,
@@ -3708,7 +3422,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   };
 
   // #122 — unique slot fill; unfilled slots stay in the graph but are hidden with empty actorId.
-  publishRuntimeActorSlotAssignmentEvidence(encounterRuntimeAssetBundle);
+  publishPackageRuntimeActorSlotAssignmentEvidence(encounterRuntimeAssetBundle, resolveRuntimeSlotAssignment());
   const patientPlacement = runtimeActorPlacement(runtimePatientActorId() || "unfilled_primary_patient", {
     slotKind: "primary_patient",
     position: { x: -0.72, y: 1.06, z: -0.12 },
@@ -3723,7 +3437,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   if (cleanHumanoidSourceComparatorCapture) {
     // #315 follow-up: only the comparator's named subject renders; the patient is the
     // subject for the _patient comparators but NOT for _parent/_nurse (those name family/clinical).
-    patient.visible = comparatorCaptureSubjectActorId() === runtimePatientActorId();
+    patient.visible = comparatorCaptureSubjectActorIdImpl() === runtimePatientActorId();
     patient.userData.openClinXrComparatorVisibilityPolicy = patient.visible
       ? "shown_as_named_subject_for_clean_humanoid_source_comparator_capture"
       : "hidden_for_clean_humanoid_source_comparator_capture_non_named_actor";
@@ -3765,7 +3479,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   nurse.visible = Boolean(runtimeClinicalTeamActorId()) && !selectedScenarioRuntimeMismatch;
   if (cleanHumanoidSourceComparatorCapture) {
     // #315 follow-up: the nurse comparator's named subject is the clinical actor — show it.
-    nurse.visible = comparatorCaptureSubjectActorId() === runtimeClinicalTeamActorId();
+    nurse.visible = comparatorCaptureSubjectActorIdImpl() === runtimeClinicalTeamActorId();
     nurse.userData.openClinXrComparatorVisibilityPolicy = nurse.visible
       ? "shown_as_named_subject_for_clean_humanoid_source_comparator_capture"
       : "hidden_for_clean_humanoid_source_comparator_capture_non_named_actor";
@@ -3808,7 +3522,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   spouse.visible = Boolean(runtimeFamilyActorId()) && !selectedScenarioRuntimeMismatch;
   if (cleanHumanoidSourceComparatorCapture) {
     // #315 follow-up: the parent comparator's named subject is the family actor — show it.
-    spouse.visible = comparatorCaptureSubjectActorId() === runtimeFamilyActorId();
+    spouse.visible = comparatorCaptureSubjectActorIdImpl() === runtimeFamilyActorId();
     spouse.userData.openClinXrComparatorVisibilityPolicy = spouse.visible
       ? "shown_as_named_subject_for_clean_humanoid_source_comparator_capture"
       : "hidden_for_clean_humanoid_source_comparator_capture_non_named_actor";
@@ -4310,13 +4024,13 @@ async function createStationScene(): Promise<StationSceneRuntime> {
       const navigatorWithXr = navigator as NavigatorWithXr;
       if (!navigatorWithXr.xr) {
         xrStatus.textContent = "WebXR unavailable";
-        recordXrEntryEvidence("failed", "navigator.xr unavailable");
+        recordPackageXrEntryEvidence("failed", "navigator.xr unavailable");
         return;
       }
 
       enterXrButton.disabled = true;
       xrStatus.textContent = "Entering Full VR";
-      recordXrEntryEvidence("requesting");
+      recordPackageXrEntryEvidence("requesting");
       try {
         const session = await navigatorWithXr.xr.requestSession("immersive-vr", {
           optionalFeatures: ["local-floor", "bounded-floor", "hand-tracking"],
@@ -4328,7 +4042,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
           enterXrButton.disabled = false;
           enterXrButton.textContent = "Enter Full VR";
           xrStatus.textContent = "Full VR ready";
-          recordXrEntryEvidence("ended");
+          recordPackageXrEntryEvidence("ended");
         }, { once: true });
         await renderer.xr.setSession(session as Parameters<typeof renderer.xr.setSession>[0]);
         installHandModelsOnce();
@@ -4337,13 +4051,13 @@ async function createStationScene(): Promise<StationSceneRuntime> {
         enterXrButton.textContent = "Exit Full VR";
         xrStatus.textContent = "In Full VR";
         requestAnimationFrame(() => updateManualEvidencePanel());
-        recordXrEntryEvidence("started");
+        recordPackageXrEntryEvidence("started");
       } catch (error) {
         activeXrSession = undefined;
         enterXrButton.disabled = false;
         enterXrButton.textContent = "Enter Full VR";
         xrStatus.textContent = "WebXR entry blocked";
-        recordXrEntryEvidence("failed", error);
+        recordPackageXrEntryEvidence("failed", error);
       }
     },
   };
@@ -6892,7 +6606,7 @@ function loadGeneratedHumanoidIntoActorSlot(
   humanoidLoader.setMeshoptDecoder(MeshoptDecoder);
   const actorSpecificAssetPath = runtimeHumanoidVariantAssetPath(options.actorId, options.assetPath);
   const humanoidSourceProvenance = generatedHumanoidSourceProvenance(actorSpecificAssetPath);
-  recordSceneAssetStatus({
+  recordPackageSceneAssetStatus({
     assetId: options.assetId,
     assetPath: actorSpecificAssetPath,
     sceneObjectName: options.objectName,
@@ -6907,7 +6621,7 @@ function loadGeneratedHumanoidIntoActorSlot(
       try { assertHumanoidRootUpright(humanoid); } catch (guardError) {
         // #67: refuse #58-class non-identity armature root before the figure is shown.
         console.error("[ui-xr] humanoid load refused by upright guard", actorSpecificAssetPath, guardError);
-        recordSceneAssetStatus({ assetId: options.assetId, assetPath: actorSpecificAssetPath, sceneObjectName: options.objectName, status: "failed", fallbackActive: true, ...(humanoidSourceProvenance ? { humanoidSourceProvenance } : {}) });
+        recordPackageSceneAssetStatus({ assetId: options.assetId, assetPath: actorSpecificAssetPath, sceneObjectName: options.objectName, status: "failed", fallbackActive: true, ...(humanoidSourceProvenance ? { humanoidSourceProvenance } : {}) });
         for (const child of primitiveFallbackChildren) child.visible = true;
         return;
       }
@@ -7142,7 +6856,7 @@ function loadGeneratedHumanoidIntoActorSlot(
         // _parent, clinical for _nurse, patient for the patient comparators. This block
         // previously hard-hid every non-patient slot, which re-hid the named parent/nurse
         // slots after the slot-visibility change and blanked the frame (7,479-byte PNG).
-        const subjectForReview = comparatorCaptureSubjectActorId();
+        const subjectForReview = comparatorCaptureSubjectActorIdImpl();
         if (options.actorId !== subjectForReview) {
           actorSlot.visible = false;
           actorSlot.userData.openClinXrCaptureVisibilityPolicy = "hide_non_named_subject_actors_for_primary_humanoid_mouth_gaze_pose_review";
@@ -7171,13 +6885,13 @@ function loadGeneratedHumanoidIntoActorSlot(
         playbackEnabled: !cleanSourceComparatorCapture || isRealGarmentSleeveDeformCapture(),
         fixedSourcePoseSampleSeconds: cleanSourceComparatorCapture && !isRealGarmentSleeveDeformCapture() ? 0.18 : null,
       });
-      recordSceneAssetStatus({
+      recordPackageSceneAssetStatus({
         assetId: options.assetId,
         assetPath: actorSpecificAssetPath,
         sceneObjectName: options.objectName,
         status: "loaded",
         fallbackActive: false,
-        affordanceCueIds: runtimeAssetAffordanceCueIds(options.assetId, [
+        affordanceCueIds: packageRuntimeAssetAffordanceCueIds(options.assetId, [
           "dialogue_target",
           "clinical_observation_target",
           "generated_humanoid_hair_clothing_eye_detail_cue",
@@ -7212,7 +6926,7 @@ function loadGeneratedHumanoidIntoActorSlot(
         // Loud-and-degrade (#187): keep the session up, restore the primitive, surface the cause.
         console.error("[ui-xr] humanoid compose failed after GLB load", actorSpecificAssetPath, composeError);
         for (const child of primitiveFallbackChildren) child.visible = true;
-        recordSceneAssetStatus({
+        recordPackageSceneAssetStatus({
           assetId: options.assetId,
           assetPath: actorSpecificAssetPath,
           sceneObjectName: options.objectName,
@@ -7234,14 +6948,14 @@ function loadGeneratedHumanoidIntoActorSlot(
       addRoleSpecificHumanoidVisuals(actorSlot, options.actorId, "primitive_fallback");
       actorSlot.userData.openClinXrGeneratedHumanoidFallbackPolicy =
         "primitive_actor_restored_when_generated_humanoid_asset_unavailable_to_avoid_empty_encounter_scene";
-      recordSceneAssetStatus({
+      recordPackageSceneAssetStatus({
         assetId: options.assetId,
         assetPath: actorSpecificAssetPath,
         sceneObjectName: options.objectName,
         status: "failed",
         fallbackActive: true,
         ...(humanoidSourceProvenance ? { humanoidSourceProvenance } : {}),
-        affordanceCueIds: runtimeAssetAffordanceCueIds(options.assetId, [
+        affordanceCueIds: packageRuntimeAssetAffordanceCueIds(options.assetId, [
           "primitive_actor_restored_after_generated_humanoid_load_failed",
           "case_definition_driven_role_pose_applied_to_fallback_actor",
         ]),
@@ -8352,7 +8066,7 @@ function triggerHumanoidDialogueForTrace(tag: string, text: string): void {
     return;
   }
   const emotionSource = liveTurn ? "plan.dialogueEmotionTo" as const : undefined;
-  if (runtimeActorEmbodiment(encounterRuntimeAssetBundle, actorId) === "virtual_device") {
+  if (runtimeActorEmbodimentImpl(encounterRuntimeAssetBundle, actorId) === "virtual_device") {
     const emotionContext = scenarioDialogueEmotionContext(actorId, caption, emotion, emotionSource);
     window.__openClinXrHumanoidSpeechEvidence = buildHumanoidSpeechEvidence(
       actorId,
@@ -9446,7 +9160,7 @@ function loadGeneratedEquipmentIntoSceneSlot(
     }
   }
   const equipmentLoader = new GLTFLoader();
-  recordSceneAssetStatus({
+  recordPackageSceneAssetStatus({
     assetId: options.assetId,
     assetPath: options.assetPath,
     sceneObjectName: options.objectName,
@@ -9461,13 +9175,13 @@ function loadGeneratedEquipmentIntoSceneSlot(
       equipment.userData.openClinXrAffordances = ["selectable_equipment_reference", "clinical_workflow_cue"];
       equipment.add(createAffordanceMarker(`${options.objectName}:equipment_reference`, 0x35d39b));
       if (shouldSuppressGeneratedEquipmentModel(options.assetId, options.assetPath)) {
-        recordSceneAssetStatus({
+        recordPackageSceneAssetStatus({
           assetId: options.assetId,
           assetPath: options.assetPath,
           sceneObjectName: options.objectName,
           status: "loaded",
           fallbackActive: true,
-          affordanceCueIds: runtimeAssetAffordanceCueIds(options.assetId, [
+          affordanceCueIds: packageRuntimeAssetAffordanceCueIds(options.assetId, [
             "case_definition_equipment_loaded_from_runtime_bundle",
             "mismatched_placeholder_equipment_glb_suppressed",
             "semantic_pediatric_equipment_cues_visible",
@@ -9485,14 +9199,14 @@ function loadGeneratedEquipmentIntoSceneSlot(
       if (window.__openClinXrEnvironmentStateEvidence) {
         applyRuntimeEquipmentTraceVisuals(window.__openClinXrEnvironmentStateEvidence);
       }
-      refreshDeclaredEquipmentMountEvidenceFromScene();
-      recordSceneAssetStatus({
+      refreshDeclaredEquipmentMountEvidenceFromSceneImpl();
+      recordPackageSceneAssetStatus({
         assetId: options.assetId,
         assetPath: options.assetPath,
         sceneObjectName: options.objectName,
         status: "loaded",
         fallbackActive: false,
-        affordanceCueIds: runtimeAssetAffordanceCueIds(options.assetId, [
+        affordanceCueIds: packageRuntimeAssetAffordanceCueIds(options.assetId, [
           "selectable_equipment_reference",
           "clinical_workflow_cue",
         ]),
@@ -9505,7 +9219,7 @@ function loadGeneratedEquipmentIntoSceneSlot(
       for (const child of primitiveFallbackChildren) {
         child.visible = primitiveFallbackVisible;
       }
-      recordSceneAssetStatus({
+      recordPackageSceneAssetStatus({
         assetId: options.assetId,
         assetPath: options.assetPath,
         sceneObjectName: options.objectName,
@@ -9526,7 +9240,7 @@ function loadGeneratedEnvironmentIntoSceneSlot(
   },
 ): void {
   const environmentLoader = new GLTFLoader();
-  recordSceneAssetStatus({
+  recordPackageSceneAssetStatus({
     assetId: options.assetId,
     assetPath: options.assetPath,
     sceneObjectName: options.objectName,
@@ -9542,13 +9256,13 @@ function loadGeneratedEnvironmentIntoSceneSlot(
       Object.assign(environment.userData, prepareLoadedEnvironmentShell(environment)); // #97 axis+bed
       environment.add(createAffordanceMarker(`${options.objectName}:room_boundary`, 0xf4d35e));
       sceneSlot.add(environment);
-      recordSceneAssetStatus({
+      recordPackageSceneAssetStatus({
         assetId: options.assetId,
         assetPath: options.assetPath,
         sceneObjectName: options.objectName,
         status: "loaded",
         fallbackActive: false,
-        affordanceCueIds: runtimeAssetAffordanceCueIds(options.assetId, [
+        affordanceCueIds: packageRuntimeAssetAffordanceCueIds(options.assetId, [
           "room_boundary_reference",
           "spatial_orientation_cue",
         ]),
@@ -9558,7 +9272,7 @@ function loadGeneratedEnvironmentIntoSceneSlot(
     },
     undefined,
     (error) => {
-      recordSceneAssetStatus({
+      recordPackageSceneAssetStatus({
         assetId: options.assetId,
         assetPath: options.assetPath,
         sceneObjectName: options.objectName,
@@ -9658,10 +9372,10 @@ function updateManualEvidencePanel(): string {
     `hand rep ${summary.handRepresentationKind ?? "unknown"}`,
     summary.inputSourceKinds.length > 0 ? summary.inputSourceKinds.join(", ") : "no source",
   ].join(" | ");
-  evidenceSceneAssets.textContent = formatSceneAssetEvidenceStatus(window.__openClinXrSceneAssetEvidence ?? null);
+  evidenceSceneAssets.textContent = formatPackageSceneAssetEvidenceStatus(window.__openClinXrSceneAssetEvidence ?? null);
   evidenceSpeechAffect.textContent = [
     formatHumanoidSpeechAffectEvidence(window.__openClinXrHumanoidSpeechEvidence ?? null),
-    formatCaseDefinedHumanoidPerformanceContractEvidence(window.__openClinXrCaseDefinedHumanoidPerformanceContractEvidence ?? null),
+    formatPackageCaseDefinedHumanoidPerformanceContractEvidence(window.__openClinXrCaseDefinedHumanoidPerformanceContractEvidence ?? null),
   ].join(" | ");
   evidenceActorPlayer.textContent = formatActorPlayerRuntimeMetadataSummary(
     window.__openClinXrActorPlayerRuntimeMetadataSummary ?? null,
@@ -9723,38 +9437,12 @@ function updateManualEvidencePanel(): string {
   return payload;
 }
 
-function formatSceneAssetEvidenceStatus(evidence: SceneAssetEvidence | null): string {
-  if (!evidence) {
-    return "generated assets pending";
-  }
-  return [
-    `${evidence.loadedCount}/${evidence.expectedAssetCount} generated loaded`,
-    evidence.failedCount === 0 ? "no load failures" : `${evidence.failedCount} failed`,
-    evidence.fallbackActiveCount === 0 ? "no fallbacks active" : `${evidence.fallbackActiveCount} fallbacks active`,
-    `${evidence.assets.reduce((count, asset) => count + (asset.affordanceCueIds?.length ?? 0), 0)} affordance cues`,
-    `${evidence.assets.filter((asset) => asset.animationPlayback === "gltf_role_animation_clip_playing").length} role clips active`,
-    ...evidence.assets
-      .filter((asset) => asset.activeRoleAnimationClipName)
-      .map((asset) => `${asset.sceneObjectName} ${asset.activeRoleAnimationClipName}`),
-  ].join(" | ");
+function formatAppSceneAssetEvidenceStatus(evidence: SceneAssetEvidence | null): string {
+  return formatPackageSceneAssetEvidenceStatus(evidence);
 }
 
-function formatCaseDefinedHumanoidPerformanceContractEvidence(evidence: CaseDefinedHumanoidPerformanceContractEvidence | null): string {
-  if (!evidence) {
-    return "case humanoid contract pending";
-  }
-  return [
-    `case humanoid contract ${evidence.actorCount} actors`,
-    `locomotion ${evidence.locomotionActorRoles.length}`,
-    `expression ${evidence.expressionActorRoles.length}`,
-    `gaze ${evidence.gazeActorRoles.length}`,
-    `lip-sync ${evidence.lipSyncActorRoles.length}`,
-    `interactivity ${evidence.interactiveActorRoles.length}`,
-    `emotion states ${evidence.emotionStateCount}`,
-    `viseme ${String(evidence.dialogueDrivenVisemeMappingRequired)}`,
-    evidence.claimBoundary,
-    `not readiness ${evidence.notEvidenceFor.join(",")}`,
-  ].join(" | ");
+function formatAppCaseDefinedHumanoidPerformanceContractEvidence(evidence: CaseDefinedHumanoidPerformanceContractEvidence | null): string {
+  return formatPackageCaseDefinedHumanoidPerformanceContractEvidence(evidence);
 }
 
 function formatActorPlayerRuntimeMetadataSummary(
@@ -9880,7 +9568,7 @@ function tick(): void {
 
 start = performance.now();
 recordBootPhase("controls_start");
-recordLearnerRuntimeUseGateEvidence(encounterRuntimeAssetBundle, "local_fixture_fallback", null);
+recordPackageLearnerRuntimeUseGateEvidence(encounterRuntimeAssetBundle, "local_fixture_fallback", null);
 renderControls();
 updateReadiness();
 updateRuntimePosturePanel(null);

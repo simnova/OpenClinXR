@@ -91,7 +91,8 @@
     {
       "includes": [
         "packages/openclinxr/rest/src/**",
-        "packages/openclinxr/xr-scene/src/**"
+        "packages/openclinxr/xr-scene/src/**",
+        "packages/openclinxr/xr-capture-evidence/src/**"
       ],
       "linter": {
         "rules": {

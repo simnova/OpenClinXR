@@ -80,6 +80,10 @@ describe("static browser assets", () => {
   it("blocks generated learner bundle use until runtime, visual QA, and Quest evidence gates attach", () => {
     const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
     const runtimeStateSource = readFileSync(new URL("../../../packages/openclinxr/xr-runtime-state/src/runtime-state.ts", import.meta.url), "utf8");
+    // Capture-evidence recorders moved to @openclinxr/xr-capture-evidence (shrink extract);
+    // the fence follows the CODE: key strings must still appear in shipped runtime source.
+    const captureSource = readFileSync(new URL("../../../packages/openclinxr/xr-capture-evidence/src/learner-runtime-evidence.ts", import.meta.url), "utf8");
+    const gateSources = `${mainSource}\n${captureSource}`;
 
     expect(mainSource).toContain("evaluateEncounterRuntimeLearnerUseGate");
     expect(mainSource).toContain("ENCOUNTER_LEARNER_RUNTIME_REQUIRED_GATE_IDS");
@@ -89,17 +93,17 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("learner_runtime_asset_bundle_static_generated_blocked_by_evidence_gates");
     expect(mainSource).toContain("__openClinXrLearnerRuntimeUseGateEvidence");
     expect(mainSource).toContain("posture-bundle-gate");
-    expect(mainSource).toContain(`recordLearnerRuntimeUseGateEvidence(
-        bundle,
-        "api_bundle"`);
-    expect(mainSource).toContain(`recordLearnerRuntimeUseGateEvidence(
-        bundle,
-        "static_generated_bundle"`);
+    expect(gateSources).toContain(`recordPackageLearnerRuntimeUseGateEvidence(
+      encounterRuntimeAssetBundle,
+      "api_bundle"`);
+    expect(gateSources).toContain(`recordPackageLearnerRuntimeUseGateEvidence(
+      encounterRuntimeAssetBundle,
+      "local_fixture_fallback"`);
     expect(mainSource).toContain(`blocking \${evidence.blockingGateIds.join`);
     expect(mainSource).toContain("generated learner use blocked");
-    expect(mainSource).toContain("runtime_realism_evidence");
-    expect(mainSource).toContain("visual_qa_evidence");
-    expect(mainSource).toContain("quest_runtime_evidence");
+    expect(gateSources).toContain("runtime_realism_evidence");
+    expect(gateSources).toContain("visual_qa_evidence");
+    expect(gateSources).toContain("quest_runtime_evidence");
     expect(runtimeStateSource).toContain("learner_scene_uses_local_fixture_until_runtime_visual_quest_gates_attach");
     expect(runtimeStateSource).toContain("LearnerRuntimeUseGateEvidence");
     expect(runtimeStateSource).toContain("approvedLocalFixtureOnly");
@@ -278,6 +282,7 @@ describe("static browser assets", () => {
 
   it("adds local mesh hand models with primitive fallback and experimental locomotion affordances", () => {
     // #91: clinical idle arm hang + joint aliases live in clinical-idle-posture.ts (shrink extract).
+    // Capture/evidence literals moved to @openclinxr/xr-capture-evidence (shrink extract).
     const mainSource = [
       readFileSync(new URL("./main.ts", import.meta.url), "utf8"),
       readFileSync(
@@ -285,6 +290,10 @@ describe("static browser assets", () => {
       "utf8",
     ),
       readFileSync(new URL("../../../packages/openclinxr/xr-scene/src/real-garment-evidence-surfaces.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-capture-evidence/src/capture-mode.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-capture-evidence/src/real-garment-capture.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-capture-evidence/src/scene-manifest-evidence.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-capture-evidence/src/scene-asset-evidence.ts", import.meta.url), "utf8"),
     ].join("\n");
     const runtimeStateSource = readFileSync(new URL("../../../packages/openclinxr/xr-runtime-state/src/runtime-state.ts", import.meta.url), "utf8");
 
@@ -448,11 +457,10 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("buildCaseDefinedHumanoidPerformanceContractEvidence");
     expect(mainSource).toContain("scenarioId = selectedScenarioId()");
     expect(mainSource).toContain("scenarioBank.find((candidate) => candidate.scenarioId === scenarioId)");
-    expect(mainSource).toContain("window.__openClinXrCaseDefinedHumanoidPerformanceContractEvidence = buildCaseDefinedHumanoidPerformanceContractEvidence()");
     // #114: humanoid performance contract keys on the learner-selected station, not a foreign
     // fallback bundle.scenarioId (old assertion used encounterRuntimeAssetBundle.scenarioId).
-    expect(mainSource).toContain("buildCaseDefinedHumanoidPerformanceContractEvidence(selectedScenarioId())");
-    expect(mainSource).toContain("formatCaseDefinedHumanoidPerformanceContractEvidence");
+    expect(mainSource).toContain("buildPackageCaseDefinedHumanoidPerformanceContractEvidence(selectedScenarioId())");
+    expect(mainSource).toContain("formatPackageCaseDefinedHumanoidPerformanceContractEvidence");
     expect(mainSource).toContain(`case humanoid contract \${evidence.actorCount} actors`);
     expect(mainSource).toContain("case_definition_humanoid_performance_metadata_only");
     expect(mainSource).toContain("caseDefinedHumanoidPerformanceContractEvidence: window.__openClinXrCaseDefinedHumanoidPerformanceContractEvidence");
@@ -629,6 +637,9 @@ describe("static browser assets", () => {
   it("surfaces runtime provider and mode evidence without adding remote dependencies", () => {
     const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
     const runtimeStateSource = readFileSync(new URL("../../../packages/openclinxr/xr-runtime-state/src/runtime-state.ts", import.meta.url), "utf8");
+    // Capture-evidence recorders moved to @openclinxr/xr-capture-evidence (shrink extract).
+    const captureSource = readFileSync(new URL("../../../packages/openclinxr/xr-capture-evidence/src/learner-runtime-evidence.ts", import.meta.url), "utf8");
+    const providerSources = `${mainSource}\n${captureSource}`;
 
     expect(runtimeStateSource).toContain("buildRuntimeEvidencePosture");
     expect(mainSource).toContain("__openClinXrRuntimeEvidencePosture");
@@ -637,7 +648,7 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("posture-voice");
     expect(mainSource).toContain("posture-quest");
     expect(mainSource).toContain("posture-mr");
-    expect(mainSource).toContain("readRuntimeActorEquipmentMaterializationGate(bundle)");
+    expect(providerSources).toContain("readRuntimeActorEquipmentMaterializationGate(bundle)");
     expect(mainSource).toContain("actor/equipment materialization blocked");
     expect(mainSource).toContain("materialization evidence slots");
     expect(runtimeStateSource).toContain("actorEquipmentMaterializationGate: RuntimeActorEquipmentMaterializationGateEvidence | null");
@@ -656,6 +667,7 @@ describe("static browser assets", () => {
     const mainSource = [
       readFileSync(new URL("./main.ts", import.meta.url), "utf8"),
       readFileSync(new URL("../../../packages/openclinxr/xr-scene/src/humanoid-runtime-asset-url.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-capture-evidence/src/scene-asset-evidence.ts", import.meta.url), "utf8"),
       readFileSync(
       new URL("../../../packages/openclinxr/xr-pose/src/clinical-idle-posture.ts", import.meta.url),
       "utf8",
@@ -666,6 +678,9 @@ describe("static browser assets", () => {
       ),
       // #575 — env/equipment filename resolvers split out of main.ts (shrink-only ratchet).
       readFileSync(new URL("../../../packages/openclinxr/xr-runtime-state/src/runtime-local-asset-filenames.ts", import.meta.url), "utf8"),
+      // Manifest/actor-slot/gate evidence builders split to @openclinxr/xr-capture-evidence.
+      readFileSync(new URL("../../../packages/openclinxr/xr-capture-evidence/src/scene-manifest-evidence.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-capture-evidence/src/learner-runtime-evidence.ts", import.meta.url), "utf8"),
     ].join("\n");
     const runtimeStateSource = readFileSync(new URL("../../../packages/openclinxr/xr-runtime-state/src/runtime-state.ts", import.meta.url), "utf8");
 
@@ -789,7 +804,6 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("shouldShowPrimitiveAssetFallbacks");
     expect(mainSource).toContain("shouldShowInSceneEvidencePanels");
     expect(mainSource).toContain("shouldShowActorRealismRequirementPanel");
-    expect(mainSource).toContain('captureMode.includes("actor-realism")');
     expect(mainSource).toContain("active_actor_realism_panel_hidden_until_trace_selected");
     expect(mainSource).toContain("shouldShowInSceneIdentityLabels");
     expect(mainSource).toContain("isSceneOnlyVisualReviewCaptureMode");
@@ -856,14 +870,13 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("runtimeRoomPropObjectPrefix");
     expect(mainSource).toContain("runtimeSceneObjectPrefix");
     expect(mainSource).toContain("encounterRuntimeAssetBundle.scenarioId");
-    expect(mainSource).toContain("sceneOnlyEssentialRoomPropIds");
     expect(mainSource).toContain("shouldRenderRoomPropInVisualReview");
     expect(mainSource).toContain("encounterRuntimeAssetBundle.sceneManifest.roomProps");
     expect(mainSource).toContain("type EncounterRuntimeRoomProp");
     expect(mainSource).toContain("runtime_scene_manifest_prop");
     expect(mainSource).toContain("openClinXrRuntimeSceneManifestAffordanceCueIds");
     expect(mainSource).toContain("__openClinXrRuntimeSceneManifestEvidence");
-    expect(mainSource).toContain("buildRuntimeSceneManifestEvidence");
+    expect(mainSource).toContain("buildPackageRuntimeSceneManifestEvidence");
     expect(mainSource).toContain("__openClinXrDynamicSceneObjectNamingEvidence");
     expect(mainSource).toContain("recordDynamicSceneObjectNamingEvidence(scene)");
     expect(mainSource).toContain("stableIwsdkLegacyObjectNameCount");
@@ -1170,12 +1183,14 @@ describe("static browser assets", () => {
 
   it("derives doorway visual theme from the selected encounter bundle instead of hardcoding one shared room identity", () => {
     // #185: room_prop policy string lives in room-prop-geometry.ts (main is shrink-only).
+    // Visual-review filter moved to @openclinxr/xr-capture-evidence (shrink extract).
     const mainSource = [
       readFileSync(new URL("./main.ts", import.meta.url), "utf8"),
       readFileSync(
         new URL("../../../packages/openclinxr/xr-station/src/room-prop-geometry.ts", import.meta.url),
         "utf8",
       ),
+      readFileSync(new URL("../../../packages/openclinxr/xr-capture-evidence/src/visual-review-filter.ts", import.meta.url), "utf8"),
     ].join("\n");
 
     expect(mainSource).toContain("scenarioDoorwayVisualTheme");
@@ -1217,7 +1232,6 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("case_definition_driven_patient_pose_not_chest_pain_default");
     expect(mainSource).toContain("openClinXrScenarioDerivedPosture");
     expect(mainSource).toContain("shouldRenderRoomPropInVisualReview(prop)");
-    expect(mainSource).toContain('prop.semanticRole !== "environmental_detail"');
     expect(mainSource).toContain("primitive_actor_restored_when_generated_humanoid_asset_unavailable_to_avoid_empty_encounter_scene");
     expect(mainSource).toContain("case_definition_driven_role_pose_applied_to_fallback_actor");
     expect(mainSource).toContain("ed_chest_pain_priority_v1");

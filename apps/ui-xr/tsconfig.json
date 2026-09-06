@@ -44,6 +44,9 @@
     },
     {
       "path": "../../packages/openclinxr/xr-scene"
+    },
+    {
+      "path": "../../packages/openclinxr/xr-capture-evidence"
     }
   ]
 }

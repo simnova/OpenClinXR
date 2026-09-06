@@ -22,7 +22,8 @@
     "@openclinxr/xr-dialogue": "workspace:*",
     "@openclinxr/xr-pose": "workspace:*",
     "three": "catalog:",
-    "@openclinxr/xr-scene": "workspace:*"
+    "@openclinxr/xr-scene": "workspace:*",
+    "@openclinxr/xr-capture-evidence": "workspace:*"
   },
   "devDependencies": {
     "@types/three": "catalog:",
