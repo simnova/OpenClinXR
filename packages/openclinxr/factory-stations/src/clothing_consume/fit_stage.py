@@ -27,6 +27,11 @@ from pathlib import Path
 import bpy
 from mathutils import Vector
 
+_STATION_DIR = str(Path(__file__).resolve().parent)
+if _STATION_DIR not in sys.path:
+    sys.path.insert(0, _STATION_DIR)
+from refit_materials import assign_garment_material, assign_skin_material
+
 
 STAGE_ID = "makeclothes_fit_stage"
 NOT_EVIDENCE_FOR = [
@@ -76,6 +81,9 @@ def parse_args() -> argparse.Namespace:
     # role->shipped GLB (artifacts, no params), so bodyAssetId is provenance only.
     # Absent = legacy default-body behavior.
     p.add_argument("--body-definition", default="")
+    # Phenotype skin_tone for the body material (case-authored phenotype).
+    # Absent/unknown = legacy Display colour with a recorded reason.
+    p.add_argument("--skin-tone", default="")
     # DEFAULT IS STILL THE RAW IMPORT, deliberately. `--create-human` is PROVEN for the BODY
     # (19,158 verts / 152 vgroups / no helper shell, against 73,920 / 0 / shell-shrouded) and is NOT
     # yet correct end to end: the Anny stature-align step below re-scales the body and re-parents the
@@ -321,6 +329,7 @@ def import_obj(path: str, name: str, *, force_z: bool) -> bpy.types.Object:
 
 
 def make_material(name: str, color: tuple[float, float, float, float]) -> bpy.types.Material:
+    # Legacy helper — kept for callers that never migrated to refit_materials.
     mat = bpy.data.materials.new(name)
     mat.use_nodes = True
     principled = mat.node_tree.nodes["Principled BSDF"]
@@ -413,6 +422,7 @@ def main() -> None:
         "notEvidenceFor": NOT_EVIDENCE_FOR,
         "mpfb": {},
         "steps": {},
+        "materials": {},
         "artifacts": {},
         "errors": [],
         "status": "started",
@@ -533,8 +543,12 @@ def main() -> None:
             )
             mh.name = args.body_mesh_name
             create_human_used = True
-        mh.data.materials.clear()
-        mh.data.materials.append(make_material("hm08_skin", (0.55, 0.62, 0.78, 1.0)))
+        # Refit material assignment: authored .mhmat + phenotype skin where the
+        # sources ship them; legacy Display fallbacks ONLY with a recorded
+        # reason. Refusals above return before this; records land in materials.
+        mh_mat = assign_skin_material(mh, args.skin_tone or "", "hm08_skin")
+        report["materials"]["body"] = mh_mat
+        # The Anny reference gets the same phenotype skin like-for-like.
         GeneralObjectProperties.set_value("object_type", "Basemesh", entity_reference=mh)
         bpy.context.view_layer.update()
         report["steps"]["mhLoad"] = {
@@ -550,8 +564,8 @@ def main() -> None:
 
         # 2) Fit real .mhclo on native-unit basemesh via ClothesService
         garment = import_obj(args.garment_obj, args.garment_mesh_name, force_z=False)
-        garment.data.materials.clear()
-        garment.data.materials.append(make_material("scrub_teal", (0.12, 0.48, 0.52, 1.0)))
+        garment_mat = assign_garment_material(garment, args.mhclo, "scrub_teal")
+        report["materials"]["garment"] = garment_mat
         source_signature = garment_signature(garment)
 
         mhclo = Mhclo()
@@ -640,8 +654,8 @@ def main() -> None:
         # 3) Optional stature align to Anny reference (0044 measured path)
         if args.anny_obj and Path(args.anny_obj).is_file():
             anny = import_obj(args.anny_obj, "anny_stature_reference", force_z=True)
-            anny.data.materials.clear()
-            anny.data.materials.append(make_material("anny_ref", (0.82, 0.68, 0.56, 1.0)))
+            anny_mat = assign_skin_material(anny, args.skin_tone or "", "anny_ref")
+            report["materials"]["annyReference"] = anny_mat
             if garment.parent is not mh:
                 garment.parent = mh
                 garment.matrix_parent_inverse = mh.matrix_world.inverted()
@@ -671,8 +685,9 @@ def main() -> None:
         mh.hide_viewport = False
         garment.hide_render = False
         garment.hide_viewport = False
-        # Distinct teal on garment so grade is not monochrome body-only
-        if garment.data.materials:
+        # Grade re-tint applies ONLY to the recorded fallback slot, so an authored
+        # garment keeps its shipped material in the grade PNG too.
+        if garment.data.materials and report.get("materials", {}).get("garment", {}).get("source") == "fallback":
             mat = garment.data.materials[0]
             if mat and mat.use_nodes:
                 principled = mat.node_tree.nodes.get("Principled BSDF")

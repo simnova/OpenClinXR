@@ -28,8 +28,12 @@ export {
   clothingConsumeRunner,
   planClothingConsume,
   refitContractFrom,
+  RIG_REFIT_STAGE_REL,
+  rigRefitContractFrom,
   runClothingConsume,
+  runRigRefit,
   type ClothingConsumeRunOptions,
+  type RigRefitRunOptions,
 } from "./clothing_consume/run.js";
 export { applyStationPayloadToCompileSpec } from "./apply-station-payload.js";
 export {

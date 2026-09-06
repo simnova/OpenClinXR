@@ -135,6 +135,13 @@ export const factoryStationSchemas: Record<ProductionStationId, FactoryStationSc
     // role->shipped GLB (artifacts, no params), so bodyAssetId is provenance only.
     // Absent = legacy default-body behavior.
     bodyDefinition: { type: "string", required: false, description: "JSON per-actor body definition (macros + stature target + body asset reference)" },
+    // Authored-material assignment. Phenotype skin_tone key; absent/unknown = legacy Display colour + recorded reason.
+    skinTone: { type: "string", required: false, description: "phenotype skin_tone for the body material" },
+    // Rig-refit expansion: refit GLB + report -> rigged figure. All optional;
+    // absent = legacy fit-only behavior.
+    refitGlbPath: { type: "string", required: false, description: "unrigged refit GLB to rig" },
+    refitReportPath: { type: "string", required: false, description: "refit station report JSON to extend" },
+    clipSourceGlbPath: { type: "string", required: false, description: "optional rigged GLB whose clips ride by bone-name match" },
     topologyPreserved: { type: "boolean", required: false },
     uvPreserved: { type: "boolean", required: false },
     displacementMeanM: { type: "number", required: false },
