@@ -26,7 +26,7 @@ import { NodeIO, type Node as GltfNode } from "@gltf-transform/core";
 import {
   REAL_EQUIPMENT_GLTF_BY_ID,
   parametricEquipmentKindCount,
-} from "../../../apps/ui-xr/src/station-equipment.js";
+} from "@openclinxr/xr-station";
 
 /** Admits ordinary part seams; a metre of air is not a tolerance question. */
 export const MAX_ASSEMBLY_GAP_METERS = 0.08;

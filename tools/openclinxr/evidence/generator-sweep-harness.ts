@@ -61,8 +61,8 @@ import {
   buildGenericClinicalEquipmentFallback,
   countEquipmentGeometry,
   REAL_EQUIPMENT_GLTF_BY_ID,
-} from "../../../apps/ui-xr/src/station-equipment.js";
-import { buildStationEnvironment } from "../../../apps/ui-xr/src/station-environment.js";
+} from "@openclinxr/xr-station";
+import { buildStationEnvironment } from "@openclinxr/xr-station";
 import { buildContactSheet } from "./isolated-subject-harness.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));

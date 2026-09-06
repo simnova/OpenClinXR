@@ -18,8 +18,8 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
-import { REAL_EQUIPMENT_GLTF_BY_ID } from "../../../apps/ui-xr/src/station-equipment.js";
-import { measureParametricComposite } from "../../../apps/ui-xr/src/station-equipment-composite-measure.js";
+import { REAL_EQUIPMENT_GLTF_BY_ID } from "@openclinxr/xr-station";
+import { measureParametricComposite } from "@openclinxr/xr-station";
 import { inspectDeclaredEquipmentMounting, type DeclaredEquipmentMountingReport } from "./declared-equipment-mounted.js";
 
 export const ISSUE_268_EVIDENCE_DIR = ".openclinxr/evidence/issue-268";

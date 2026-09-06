@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { NodeIO } from "@gltf-transform/core";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { REAL_EQUIPMENT_GLTF_BY_ID } from "../../../apps/ui-xr/src/station-equipment.js";
-import { measureParametricComposite } from "../../../apps/ui-xr/src/station-equipment-composite-measure.js";
+import { REAL_EQUIPMENT_GLTF_BY_ID } from "@openclinxr/xr-station";
+import { measureParametricComposite } from "@openclinxr/xr-station";
 import {
   aspectToleranceFor,
   measureGltfAssetLocalBounds,

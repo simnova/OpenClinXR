@@ -18,8 +18,8 @@ import {
   factoryResolveChartFields,
   factoryResolveInitialVitals,
 } from "../factory/generated-ed-station-runtime-bundle.js";
-import { stationContextForScenario } from "../../../apps/ui-xr/src/station-context.js";
-import { classifyInitialVitalsRaw } from "../../../apps/ui-xr/src/station-vitals.js";
+import { stationContextForScenario } from "@openclinxr/xr-station";
+import { classifyInitialVitalsRaw } from "@openclinxr/xr-station";
 
 export type ChartFieldSource =
   | "authored_patient_voice"

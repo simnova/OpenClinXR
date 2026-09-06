@@ -17,7 +17,7 @@ import {
 import {
   resolveStationEnvironment,
   type BuildStationEnvironmentInput,
-} from "./station-environment.js";
+} from "@openclinxr/xr-station";
 
 export type CompiledRoomRuntimeIdentity = {
   compiledRoomAssetUrl: string;

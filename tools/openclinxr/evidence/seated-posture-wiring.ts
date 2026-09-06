@@ -17,11 +17,11 @@ import {
   type ActorPosture,
 } from "../../../packages/openclinxr/asset-registry/src/actor-posture.js";
 import { createEdChestPainLocalLearnerRuntimeAssetBundle } from "../../../packages/openclinxr/asset-registry/src/runtime-bundles.js";
-import { buildStationEnvironment } from "../../../apps/ui-xr/src/station-environment.js";
+import { buildStationEnvironment } from "@openclinxr/xr-station";
 import {
   PATIENT_CHAIR_SEAT_HEIGHT_METERS,
   isPatientChairSlotId,
-} from "../../../apps/ui-xr/src/station-chair.js";
+} from "@openclinxr/xr-station";
 
 export type SeatedPostureWiring = {
   placements: { actorId: string; posture: string }[];

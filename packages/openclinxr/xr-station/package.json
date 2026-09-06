@@ -1,31 +1,35 @@
 {
-  "name": "@openclinxr/ui-xr",
+  "name": "@openclinxr/xr-station",
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "scripts": {
-    "dev": "vite --host 0.0.0.0",
-    "dev:portless": "vite --host 127.0.0.1 --port ${PORT:-0} --strictPort=false",
-    "build": "vite build",
     "lint": "biome lint --no-errors-on-unmatched .",
-    "typecheck": "tsgo --noEmit -p tsconfig.json",
-    "test": "vitest run --root ."
+    "typecheck": "tsgo --noEmit -p tsconfig.vitest.json",
+    "test": "vitest run --root .",
+    "build": "tsgo --build",
+    "clean": "rm -rf dist *.tsbuildinfo"
   },
   "dependencies": {
     "@openclinxr/asset-registry": "workspace:*",
-    "@openclinxr/conversation-policy": "workspace:*",
     "@openclinxr/exam-assembly": "workspace:*",
     "@openclinxr/scenario-fixtures": "workspace:*",
-    "@openclinxr/shared-schemas": "workspace:*",
-    "@openclinxr/xr-station": "workspace:*",
     "three": "catalog:"
   },
   "devDependencies": {
     "@types/three": "catalog:",
     "typescript": "catalog:",
-    "vite": "catalog:",
     "vitest": "catalog:",
     "@cellix/config-vitest": "workspace:*",
     "@cellix/config-typescript": "workspace:*"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }

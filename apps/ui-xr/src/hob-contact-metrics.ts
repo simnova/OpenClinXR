@@ -7,7 +7,7 @@
  */
 
 import { Box3, type Object3D, Vector3 } from "three";
-import { STRETCHER_DECK_TOP_METERS } from "./station-stretcher.js";
+import { STRETCHER_DECK_TOP_METERS } from "@openclinxr/xr-station";
 
 /**
  * Signed gap: body back surface vs back-section top plane.

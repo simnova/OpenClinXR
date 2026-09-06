@@ -16,7 +16,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium, type Page } from "playwright";
-import { resolveStationInteriorLightingVariantId } from "../../../apps/ui-xr/src/station-interior-lighting.js";
+import { resolveStationInteriorLightingVariantId } from "@openclinxr/xr-station";
 import { regionLuminance } from "./lib/png-region-luminance.js";
 import {
   spawnPortlessDevServer,

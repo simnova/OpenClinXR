@@ -52,7 +52,8 @@ import {
  * ## SUPERSEDED (cellix-m1)
  * The header's numbers are the measurement at plant time and stay. The api migration
  * moved apps/api/src/routes and its six support modules into @openclinxr/rest, taking
- * apps/api from 41 files / 10,106 lines to 12 / 2,542 and the mixer count from 31 to 28.
+ * apps/api from 41 files / 10,106 lines to 11 / 2,541, and the xr-station move took
+ * apps/ui-xr from 101 / 33,795 to 67 / 27,799. The mixer count fell 31 -> 20.
  * Both ratchets are shrink-only: they may fall further, never rise.
  *
  * claimScope: gates that stop apps/ growing and force new code into packages.
@@ -127,9 +128,9 @@ describe("the apps are composition roots", () => {
     expect(padded).toEqual([]);
   });
 
-  it("(6) the frozen validation-mixing set is the 28 measured files", async () => {
+  it("(6) the frozen validation-mixing set is the 20 measured files", async () => {
     const { checkValidationSeparation } = await check();
-    expect(checkValidationSeparation({ freeze: {} })).toHaveLength(28);
+    expect(checkValidationSeparation({ freeze: {} })).toHaveLength(20);
   });
 
   it("(7) COUNTERWEIGHT: a NEW file mixing a validator with other exports is reported", async () => {

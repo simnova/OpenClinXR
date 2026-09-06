@@ -92,7 +92,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = pathResolve(HERE, "../../..");
 const SHEET = join(REPO, "tools/openclinxr/evidence/interior-wall-lighting-variants.json");
 const MAIN = join(REPO, "apps/ui-xr/src/main.ts");
-const CAPTURE_SHADOW = join(REPO, "apps/ui-xr/src/capture-shadow-map.ts");
+const CAPTURE_SHADOW = join(REPO, "packages/openclinxr/xr-station/src/capture-shadow-map.ts");
 const ENV = join(REPO, "apps/ui-xr/public/xr-assets/environment");
 
 /** Measured 2026-08-21 on the shipped interior camera. The wall must beat this to be gradeable. */

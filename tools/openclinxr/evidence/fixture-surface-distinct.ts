@@ -18,7 +18,7 @@ import {
   type Object3D,
 } from "../../../apps/ui-xr/node_modules/three/build/three.module.js";
 import { ENVIRONMENT_SHELL_DESCRIPTORS } from "../../../packages/openclinxr/asset-registry/src/environment-descriptors.js";
-import { buildStationEnvironment } from "../../../apps/ui-xr/src/station-environment.js";
+import { buildStationEnvironment } from "@openclinxr/xr-station";
 import {
   tryReadStampedArtifact,
   withTreeStamp,

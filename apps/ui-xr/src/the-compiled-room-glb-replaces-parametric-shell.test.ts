@@ -7,7 +7,7 @@ import {
   mountStationEnvironmentForRuntime,
   resolveCompiledRoomFromRuntimeEnvironment,
 } from "./compiled-room-runtime-mount.js";
-import { resolveStationEnvironment } from "./station-environment.js";
+import { resolveStationEnvironment } from "@openclinxr/xr-station";
 
 /**
  * Compiled room GLB from encounter materialization is the learner-visible shell.

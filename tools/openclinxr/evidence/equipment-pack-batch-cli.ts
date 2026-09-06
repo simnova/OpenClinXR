@@ -25,7 +25,7 @@ import {
   renderEquipmentReferencePackBatch,
   type CaptureView,
 } from "./isolated-subject-harness.js";
-import { listDeclaredEquipmentBuilderArms } from "../../../apps/ui-xr/src/station-equipment.js";
+import { listDeclaredEquipmentBuilderArms } from "@openclinxr/xr-station";
 
 function parseArgs(argv: string[]): { ids?: string[]; out?: string; views?: string[] } {
   const out: { ids?: string[]; out?: string; views?: string[] } = {};

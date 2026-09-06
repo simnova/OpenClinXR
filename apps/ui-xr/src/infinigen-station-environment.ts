@@ -26,7 +26,7 @@
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { Box3, type Group, Mesh, type Object3D, type Scene, Vector3 } from "three";
 import type { NamedShellWall } from "@openclinxr/asset-registry/fixture-wall-mounting";
-import { anchorFixtureNearFaceToPlane } from "./station-architecture-fixtures.js";
+import { anchorFixtureNearFaceToPlane } from "@openclinxr/xr-station";
 import { INFINIGEN_ENVIRONMENT_ASSETS } from "./infinigen-environment-assets.js";
 import { assignMissingRoomPrimitiveMaterials } from "./infinigen-room-primitive-materials.js";
 import { roomInteriorAndHull } from "./interior-preview-camera.js";

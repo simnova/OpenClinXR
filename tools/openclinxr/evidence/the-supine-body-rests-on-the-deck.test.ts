@@ -97,7 +97,7 @@ import { describe, expect, it } from "vitest";
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const DUMP = join(HERE, "supine-pose-two-subject-dump.json");
-const STRETCHER_SRC = join(REPO_ROOT, "apps/ui-xr/src/station-stretcher.ts");
+const STRETCHER_SRC = join(REPO_ROOT, "packages/openclinxr/xr-station/src/station-stretcher.ts");
 
 const CONTROL = "ed_chest_pain_adult_cast.glb";
 const TREATMENT = "mpfb-gown-adult-patient.glb";

@@ -44,6 +44,12 @@ async function check(): Promise<{
  * notEvidenceFor: that the two imports have been removed (the move of
  * station-environment and station-equipment-builders into a package is a separate
  * slice with 57 importers); Blender; Quest.
+ *
+ * ## FIXED (#799)
+ * The move landed: station-environment.ts + station-equipment-builders.ts (plus the
+ * 28 sibling station-… and room-prop-… modules and 4 support modules they import) moved
+ * to packages/openclinxr/xr-station, multi-case-runner.ts imports @openclinxr/xr-station,
+ * APP_IMPORT_INVERSION_FREEZE is empty, and clause (2) asserts zero inversions.
  */
 
 describe("the factory does not import the apps it feeds", () => {
@@ -54,15 +60,10 @@ describe("the factory does not import the apps it feeds", () => {
     expect(FACTORY_SCAN_ROOTS.some((root) => root.includes("evidence"))).toBe(false);
   });
 
-  it("(2) with an empty freeze list the detector reports exactly the two known inversions", async () => {
+  it("(2) with an empty freeze list the detector reports no inversions", async () => {
     const { detectFactoryAppImportInversions } = await check();
     const found = detectFactoryAppImportInversions({ freeze: {} });
-    const paths = [...new Set(found.map((row) => row.file))].sort();
-    expect(paths).toEqual(["tools/openclinxr/dark-factory/multi-case-runner.ts"]);
-    expect(found.map((row) => row.specifier).sort()).toEqual([
-      "../../../apps/ui-xr/src/station-environment.js",
-      "../../../apps/ui-xr/src/station-equipment-builders.js",
-    ]);
+    expect(found).toEqual([]);
   });
 
   it("(3) with the shipped freeze list the tree is clean", async () => {

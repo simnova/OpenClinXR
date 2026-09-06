@@ -9,6 +9,7 @@ import {
   loadMailboxWatchTaskIds,
   pollForeignMailbox,
   pollWatchedMailboxes,
+  resolveMailboxWatchTaskIds,
 } from "./mailbox-watch.js";
 
 const SELF_MARKER = "[codex-agent:agt_d85152e0024f10cd]";
@@ -24,6 +25,45 @@ describe("mailbox-watch", () => {
     expect(loadMailboxWatchTaskIds(root)).toEqual(["tsk_abc", "tsk_def"]);
   });
 
+  it("unions the watch file with looked-at cards and extra ids", () => {
+    const root = join(tmpdir(), `ocxr-mailbox-watch-union-${Date.now()}`);
+    mkdirSync(join(root, "tools/openclinxr/openclaw"), { recursive: true });
+    mkdirSync(join(root, ".openclinxr/openclaw"), { recursive: true });
+    writeFileSync(
+      join(root, "tools/openclinxr/openclaw/mailbox-watch.json"),
+      JSON.stringify({ taskIds: ["tsk_watch"] }),
+    );
+    writeFileSync(
+      join(root, ".openclinxr/openclaw/mailbox-looked-at.json"),
+      JSON.stringify({ taskIds: ["tsk_looked", "tsk_watch"] }),
+    );
+    expect(resolveMailboxWatchTaskIds(root, ["tsk_extra"])).toEqual([
+      "tsk_watch",
+      "tsk_looked",
+      "tsk_extra",
+    ]);
+  });
+
+  it("polls every resolved id rather than dropping after eight", async () => {
+    const root = join(tmpdir(), `ocxr-mailbox-watch-all-${Date.now()}`);
+    mkdirSync(join(root, "tools/openclinxr/openclaw"), { recursive: true });
+    const ids = Array.from({ length: 10 }, (_, i) => `tsk_${i}`);
+    writeFileSync(
+      join(root, "tools/openclinxr/openclaw/mailbox-watch.json"),
+      JSON.stringify({ taskIds: ids }),
+    );
+    const seen: string[] = [];
+    await pollForeignMailbox({
+      repoRoot: root,
+      pat: "bb_pat_test",
+      fetch: async ({ arguments: args }) => {
+        seen.push(String(args.taskId));
+        return { structuredContent: { comments: [] }, httpStatus: 200 };
+      },
+    });
+    expect(seen).toEqual(ids);
+  });
+
   it("skips the live poll when BOTHY_BOARD_PAT is unset", async () => {
     const root = join(tmpdir(), `ocxr-mailbox-watch-nopat-${Date.now()}`);
     mkdirSync(join(root, "tools/openclinxr/openclaw"), { recursive: true });
@@ -35,8 +75,14 @@ describe("mailbox-watch", () => {
     expect(digest).toContain("BOTHY_BOARD_PAT unset");
   });
 
-  it("isSelfComment recognizes author-name and body-marker self posts", () => {
-    expect(isSelfComment({ authorName: "grok-orchestrator", body: "x" })).toBe(true);
+  it("isSelfComment is session-marker only — other grok-orchestrator CEOs are foreign", () => {
+    expect(isSelfComment({ authorName: "grok-orchestrator", body: "x" })).toBe(false);
+    expect(
+      isSelfComment(
+        { authorName: "grok-orchestrator", body: "[grok-orchestrator:01a0678a] plant this" },
+        ["[grok-orchestrator:019ff803]"],
+      ),
+    ).toBe(false);
     expect(
       isSelfComment(
         { authorName: "member", body: `mine ${SELF_MARKER} done` },
@@ -69,7 +115,7 @@ describe("mailbox-watch", () => {
       selfMarkers: [SELF_MARKER],
       fetch,
     });
-    expect(result.comments.map((c) => c.id)).toEqual(["cmt_other"]);
+    expect(result.comments.map((c) => c.id)).toEqual(["cmt_other", "cmt_author"]);
     expect(result.comments[0]?.taskId).toBe("tsk_abc");
     expect(result.pollErrors).toEqual([]);
   });

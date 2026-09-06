@@ -1,11 +1,12 @@
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 
 import { bothyMcpCall, type BothyFetch } from "./board-bothy-dequeue.js";
 
 export const MAILBOX_WATCH_REL = "tools/openclinxr/openclaw/mailbox-watch.json";
+export const MAILBOX_LOOKED_AT_REL = ".openclinxr/openclaw/mailbox-looked-at.json";
 
-const SELF_AUTHORS = new Set(["orchestrator-019ff803", "grok-orchestrator"]);
+/** Other Grok CEOs share authorName "grok-orchestrator". Never treat that name as self. */
 
 type WatchFile = { taskIds?: string[] };
 
@@ -17,8 +18,7 @@ export type PollComment = {
   createdAt?: string;
 };
 
-export function loadMailboxWatchTaskIds(repoRoot: string): string[] {
-  const path = join(repoRoot, MAILBOX_WATCH_REL);
+function readTaskIdFile(path: string): string[] {
   if (!existsSync(path)) return [];
   try {
     const parsed = JSON.parse(readFileSync(path, "utf8")) as WatchFile;
@@ -28,6 +28,39 @@ export function loadMailboxWatchTaskIds(repoRoot: string): string[] {
   }
 }
 
+export function loadMailboxWatchTaskIds(repoRoot: string): string[] {
+  return readTaskIdFile(join(repoRoot, MAILBOX_WATCH_REL));
+}
+
+export function loadLookedAtTaskIds(repoRoot: string): string[] {
+  return readTaskIdFile(join(repoRoot, MAILBOX_LOOKED_AT_REL));
+}
+
+/** Union of the static watch file and cards this session has gotten/claimed. */
+export function resolveMailboxWatchTaskIds(
+  repoRoot: string,
+  extraTaskIds: string[] = [],
+): string[] {
+  const merged = [
+    ...loadMailboxWatchTaskIds(repoRoot),
+    ...loadLookedAtTaskIds(repoRoot),
+    ...extraTaskIds,
+  ];
+  return [...new Set(merged.filter((id) => typeof id === "string" && id.startsWith("tsk_")))];
+}
+
+export function rememberLookedAtTaskIds(repoRoot: string, taskIds: string[]): void {
+  const looked = [
+    ...new Set([
+      ...loadLookedAtTaskIds(repoRoot),
+      ...taskIds.filter((id) => typeof id === "string" && id.startsWith("tsk_")),
+    ]),
+  ];
+  const path = join(repoRoot, MAILBOX_LOOKED_AT_REL);
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, `${JSON.stringify({ taskIds: looked }, null, 2)}\n`);
+}
+
 /**
  * Comments carry no agentId and foreign agents' posts arrive as
  * authorName "member", so author-name filtering alone cannot tell self from
@@ -35,8 +68,6 @@ export function loadMailboxWatchTaskIds(repoRoot: string): string[] {
  * (`[codex-agent:…]`) embedded by the authoring agent.
  */
 export function isSelfComment(comment: PollComment, selfMarkers: string[] = []): boolean {
-  const author = comment.authorName ?? "";
-  if (SELF_AUTHORS.has(author)) return true;
   const body = comment.body ?? "";
   return selfMarkers.some((marker) => marker.length > 0 && body.includes(marker));
 }
@@ -63,6 +94,7 @@ export type MailboxPollOptions = {
   pollTimeoutMs?: number;
   maxTasks?: number;
   sinceByTaskId?: Record<string, string>;
+  extraTaskIds?: string[];
 };
 
 /**
@@ -73,7 +105,7 @@ export type MailboxPollOptions = {
 export async function pollForeignMailbox(
   opts: MailboxPollOptions,
 ): Promise<ForeignMailboxResult> {
-  const taskIds = loadMailboxWatchTaskIds(opts.repoRoot);
+  const taskIds = resolveMailboxWatchTaskIds(opts.repoRoot, opts.extraTaskIds);
   if (taskIds.length === 0) {
     return {
       comments: [],
@@ -96,7 +128,7 @@ export async function pollForeignMailbox(
   const markers = opts.selfMarkers ?? [];
   const fetchFn = opts.fetch ?? ((args) => bothyMcpCall(pat, args.tool, args.arguments));
   const timeoutMs = opts.pollTimeoutMs ?? 2500;
-  const maxTasks = opts.maxTasks ?? 8;
+  const maxTasks = opts.maxTasks ?? 64;
   const comments: PollComment[] = [];
   const pollErrors: string[] = [];
   const permanentPollErrors: string[] = [];

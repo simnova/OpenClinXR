@@ -44,8 +44,8 @@ function medicalEquipmentDir(): string {
 }
 
 export function rebuildEquipmentCatalog(repoRoot: string = REPO_ROOT): EquipmentCatalogDocument {
-  const buildersPath = path.join(repoRoot, "apps/ui-xr/src/station-equipment-builders.ts");
-  const stationPath = path.join(repoRoot, "apps/ui-xr/src/station-equipment.ts");
+  const buildersPath = path.join(repoRoot, "packages/openclinxr/xr-station/src/station-equipment-builders.ts");
+  const stationPath = path.join(repoRoot, "packages/openclinxr/xr-station/src/station-equipment.ts");
   const builderIds = parseBuilderCases(buildersPath);
   const glbMap = parseGlbMap(stationPath);
   const glbDir = path.join(repoRoot, "apps/ui-xr/public/xr-assets/medical-equipment");

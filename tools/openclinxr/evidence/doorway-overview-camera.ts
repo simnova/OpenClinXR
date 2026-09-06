@@ -53,14 +53,14 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 
 /** Door geometry, read from the one file that defines it (D1 — no second source of truth). */
 const FIXTURES_SOURCE = readFileSync(
-  join(HERE, "../../../apps/ui-xr/src/station-architecture-fixtures.ts"),
+  join(HERE, "../../../packages/openclinxr/xr-station/src/station-architecture-fixtures.ts"),
   "utf8",
 );
 const DOOR_FN_START = FIXTURES_SOURCE.indexOf("export function buildDoorLeafFixture");
 const DOOR_FN_END = FIXTURES_SOURCE.indexOf("export function ", DOOR_FN_START + 1);
 if (DOOR_FN_START < 0 || DOOR_FN_END < 0) {
   throw new Error(
-    "buildDoorLeafFixture not found in apps/ui-xr/src/station-architecture-fixtures.ts — the door constants this module derives from have moved",
+    "buildDoorLeafFixture not found in packages/openclinxr/xr-station/src/station-architecture-fixtures.ts — the door constants this module derives from have moved",
   );
 }
 const DOOR_FN = FIXTURES_SOURCE.slice(DOOR_FN_START, DOOR_FN_END);

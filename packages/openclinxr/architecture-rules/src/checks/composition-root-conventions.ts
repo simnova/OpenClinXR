@@ -57,8 +57,8 @@ export const COMPOSITION_ROOT_APP_BUDGETS: readonly CompositionRootAppBudget[] =
   },
   {
     app: "apps/ui-xr",
-    maxFiles: 101,
-    maxLines: 33795,
+    maxFiles: 67,
+    maxLines: 27800,
     reason:
       "frozen at the 2026-09-06 measurement; ratchet toward the CellixJs largest app (ui-community, 19 files / 1,506 lines) — behaviour moves to packages",
   },
@@ -173,25 +173,17 @@ export const VALIDATION_SEPARATION_FREEZE: Record<string, { reason: string }> = 
   "apps/ui-admin/src/dialogue-seed-authoring-panel.tsx": { reason: "frozen mixer: validateAuthoredDialoguePreviewResponse beside panel constants — move the validator to a package" },
   "apps/ui-admin/src/faculty-adjudication-workspace.tsx": { reason: "frozen mixer: parseAssembledExamReviewPacket beside workspace paths — move the validator to a package" },
   "apps/ui-xr/src/capture-comparator.ts": { reason: "frozen mixer: isDeterministicCaptureClock/isEdBayVisibleCaptureMode beside capture helpers — move validators to a package" },
-  "apps/ui-xr/src/capture-shadow-map.ts": { reason: "frozen mixer: isCaptureShadowPath beside shadow-map builders — move the validator to a package" },
   "apps/ui-xr/src/compiled-room-readiness.ts": { reason: "frozen mixer: parseCompiledRoomAuthoredMetadata beside readiness evaluation — move the validator to a package" },
-  "apps/ui-xr/src/fixture-role-ownership.ts": { reason: "frozen mixer: isOwnableRole beside role-class helpers — move the validator to a package" },
   "apps/ui-xr/src/head-box-from-geometry.ts": { reason: "frozen mixer: isFittedHairMeshName beside geometry derivation — move the validator to a package" },
+  "apps/ui-xr/src/interior-preview-camera.ts": { reason: "frozen mixer: a validator beside camera framing — move the validator to a package" },
+  "apps/ui-xr/src/learner-assembled-exam-run-source.ts": { reason: "frozen mixer: a validator beside the run-source reader — move the validator to a package" },
   "apps/ui-xr/src/humanoid-load-guard.ts": { reason: "frozen mixer: assertHumanoidRootUpright beside the armature constant — move the validator to a package" },
   "apps/ui-xr/src/infinigen-room-primitive-materials.ts": { reason: "frozen mixer: isGltfMissingAuthoredMaterial/assertMaterialLessPrimitiveLooksLikeWalls beside material assignment — move validators to a package" },
-  "apps/ui-xr/src/interior-preview-camera.ts": { reason: "frozen mixer: isDoorLeafOccluderName beside camera helpers — move the validator to a package" },
-  "apps/ui-xr/src/learner-assembled-exam-run-source.ts": { reason: "frozen mixer: parseLearnerAssembledExamRunAggregate beside exam-run actions — move the validator to a package" },
   "apps/ui-xr/src/learner-phase-trace-source.ts": { reason: "frozen mixer: parseTraceEventsPayload beside trace presentation — move the validator to a package" },
   "apps/ui-xr/src/lighting-rig-runtime.ts": { reason: "frozen mixer: parseLightingRig beside lighting-rig paths — move the validator to a package" },
   "apps/ui-xr/src/peds-authored-turn-surface.ts": { reason: "frozen mixer: isPedsAsthmaScenario beside turn-surface helpers — move the validator to a package" },
-  "apps/ui-xr/src/room-prop-classification.ts": { reason: "frozen mixer: isRoomPropCueOrOverlay/isRoomPropPhysicalObject beside prop classification — move validators to a package" },
   "apps/ui-xr/src/runtime-state.ts": { reason: "frozen mixer: isImmersiveFrameEvidenceActive/parseBrowserVersionHints beside runtime state — move validators to a package" },
   "apps/ui-xr/src/seated-pose-mpfb2.ts": { reason: "frozen mixer: isMpfb2Rig beside the seated-fold helper — move the validator to a package" },
-  "apps/ui-xr/src/station-architecture-fixtures.ts": { reason: "frozen mixer: isDoorSlotId/isWallBoardSlotId/isWorkSurfaceSlotId beside fixture builders — move validators to a package" },
-  "apps/ui-xr/src/station-chair.ts": { reason: "frozen mixer: isPatientChairSlotId beside the chair builder — move the validator to a package" },
-  "apps/ui-xr/src/station-environment.ts": { reason: "frozen mixer: isLearnerStartSlotId beside environment builders — move the validator to a package" },
-  "apps/ui-xr/src/station-equipment.ts": { reason: "frozen mixer: isEdChestPainBayScenario beside equipment builders — move the validator to a package" },
-  "apps/ui-xr/src/station-stretcher.ts": { reason: "frozen mixer: isStretcherSlotId beside stretcher constants — move the validator to a package" },
 };
 
 export type ValidationSeparationOptions = {

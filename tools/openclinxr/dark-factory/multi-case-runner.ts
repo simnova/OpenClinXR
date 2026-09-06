@@ -56,8 +56,8 @@ import { generatedActorPlacement } from "../../../packages/openclinxr/asset-regi
 import { scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src/scenario-bank.js";
 import { edChestPainScenarioV2 } from "../../../packages/openclinxr/scenario-fixtures/src/ed-chest-pain.js";
 import type { Scenario } from "../../../packages/openclinxr/shared-schemas/src/index.js";
-import { buildStationEnvironment } from "../../../apps/ui-xr/src/station-environment.js";
-import { buildDeclaredEquipmentGeometry } from "../../../apps/ui-xr/src/station-equipment-builders.js";
+import { buildStationEnvironment } from "@openclinxr/xr-station";
+import { buildDeclaredEquipmentGeometry } from "@openclinxr/xr-station";
 import {
   resolveAnnyGarmentLayers,
   resolveHm08UpperGarment,

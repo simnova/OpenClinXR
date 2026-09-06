@@ -17,7 +17,7 @@ import { chromium, type Page } from "playwright";
 import {
   classifyRoomProp,
   type RoomPropClass,
-} from "../../../apps/ui-xr/src/room-prop-classification.js";
+} from "@openclinxr/xr-station";
 import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
 import {
   tryReadStampedArtifact,

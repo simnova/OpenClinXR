@@ -15,11 +15,11 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src/scenario-bank.js";
 import { factoryResolveInitialVitals } from "../factory/generated-ed-station-runtime-bundle.js";
-import { stationContextForScenario } from "../../../apps/ui-xr/src/station-context.js";
+import { stationContextForScenario } from "@openclinxr/xr-station";
 import {
   classifyInitialVitalsRaw,
   type InitialVitalsValueClass,
-} from "../../../apps/ui-xr/src/station-vitals.js";
+} from "@openclinxr/xr-station";
 
 export type StationVitals = {
   scenarioId: string;

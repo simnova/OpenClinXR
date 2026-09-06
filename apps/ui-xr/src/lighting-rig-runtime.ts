@@ -18,7 +18,7 @@ import {
   applyStationInteriorLighting,
   type StationInteriorLightingApplyResult,
   type StationInteriorLightingVariantId,
-} from "./station-interior-lighting.js";
+} from "@openclinxr/xr-station";
 
 export const LIGHTING_RIG_SCHEMA_VERSION = "openclinxr.lighting-rig.v1";
 export const LIGHTING_RIG_PUBLIC_DIR = "/xr-assets/lighting";

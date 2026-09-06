@@ -18,7 +18,7 @@ import {
   type CompiledRoomReadinessDiagnostic,
   type CompiledRoomReadinessResult,
 } from "./compiled-room-readiness.js";
-import { resolveStationEnvironment } from "./station-environment.js";
+import { resolveStationEnvironment } from "@openclinxr/xr-station";
 
 export async function fallbackPrimitiveStationShell(input: {
   environmentId: string;

@@ -265,7 +265,7 @@ describe("the station camera does not stand behind the door", () => {
     // (fixture-wall-mounting.ts:29). Moving the product to flatter a photograph is the wrong layer.
     // Read from the two files that DEFINE the door, not from the new camera module, so this clause is
     // a real net: it passes today and reds the moment the door is edited to clear the camera.
-    const fixtures = readFileSync(join(HERE, "../../../apps/ui-xr/src/station-architecture-fixtures.ts"), "utf8");
+    const fixtures = readFileSync(join(HERE, "../../../packages/openclinxr/xr-station/src/station-architecture-fixtures.ts"), "utf8");
     const zones = readFileSync(
       join(HERE, "../../../packages/openclinxr/asset-registry/src/environment-zone-templates.ts"),
       "utf8",

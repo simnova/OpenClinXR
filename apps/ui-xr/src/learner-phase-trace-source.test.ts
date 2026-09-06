@@ -371,7 +371,7 @@ describe("learner phase-trace source hydrates the existing admit gate", () => {
 
 describe("assembled start-session body from exam-form run", () => {
   it("includes examRunId, scenarioId, positive stationOrder, and form timing", async () => {
-    const { buildAssembledStationStartSessionInput } = await import("./station-api-client.js");
+    const { buildAssembledStationStartSessionInput } = await import("@openclinxr/xr-station");
     const run = assembledRun();
     const body = buildAssembledStationStartSessionInput({
       learnerId: "quest3_local_learner",
@@ -392,7 +392,7 @@ describe("assembled start-session body from exam-form run", () => {
   });
 
   it("omits assembled context when the exam run is missing rather than inventing identity", async () => {
-    const { buildAssembledStationStartSessionInput } = await import("./station-api-client.js");
+    const { buildAssembledStationStartSessionInput } = await import("@openclinxr/xr-station");
     const body = buildAssembledStationStartSessionInput({
       learnerId: "quest3_local_learner",
       scenarioId: edChestPainScenario.scenarioId,

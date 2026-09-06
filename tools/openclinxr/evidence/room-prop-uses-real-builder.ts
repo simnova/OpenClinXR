@@ -72,7 +72,7 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../
 const generatedRoot = path.join(repoRoot, "apps/ui-xr/public/xr-assets/generated");
 const buildersPath = path.join(
   repoRoot,
-  "apps/ui-xr/src/station-equipment-builders.ts",
+  "packages/openclinxr/xr-station/src/station-equipment-builders.ts",
 );
 
 let cachedReport: RoomPropBuilderReport | null = null;
@@ -155,7 +155,7 @@ export async function listShippedScenarioIdsWithRoomProps(): Promise<string[]> {
 }
 
 export async function readRoomPropIds(scenarioId: string): Promise<string[]> {
-  const { classifyRoomProp } = await import("../../../apps/ui-xr/src/room-prop-classification.js");
+  const { classifyRoomProp } = await import("@openclinxr/xr-station");
   const manifestPath = path.join(generatedRoot, scenarioId, "scene-manifest.v1.json");
   if (!existsSync(manifestPath)) return [];
   const raw = JSON.parse(await readFile(manifestPath, "utf8")) as {
@@ -245,7 +245,7 @@ export async function inspectRoomPropUsesRealBuilder(input?: {
  * required to keep rendering geometry; cues are affordance-only after #223.
  */
 export async function listTrackedManifestRenderablePropIds(): Promise<string[]> {
-  const { classifyRoomProp } = await import("../../../apps/ui-xr/src/room-prop-classification.js");
+  const { classifyRoomProp } = await import("@openclinxr/xr-station");
   const scenarios = await listShippedScenarioIdsWithRoomProps();
   const ids = new Set<string>();
   for (const scenarioId of scenarios) {

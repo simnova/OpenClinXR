@@ -37,13 +37,13 @@ import {
 import { type CaptureView, computeMeshBounds, frameCamera } from "./camera-fit-to-bounds.js";
 import { type FocusRegion, resolveFocus } from "./isolated-subject-focus.js";
 import { type PackFramingRecord, recordPackFraming } from "./isolated-pack-framing.js";
-import { buildPatientChair } from "./station-chair.js";
-import { buildDeclaredEquipmentGeometry } from "./station-equipment-builders.js";
+import { buildPatientChair } from "@openclinxr/xr-station";
+import { buildDeclaredEquipmentGeometry } from "@openclinxr/xr-station";
 import {
   buildPatientStretcher,
   STRETCHER_DECK_TOP_METERS,
   STRETCHER_LENGTH_METERS,
-} from "./station-stretcher.js";
+} from "@openclinxr/xr-station";
 import { applyAndPlantSupineOnDeck } from "./supine-deck-plant.js";
 import { resolvePoseBone } from "@openclinxr/asset-registry";
 import { collectJointNames, findBonesBySanitisedName } from "./pose-bone-runtime.js";

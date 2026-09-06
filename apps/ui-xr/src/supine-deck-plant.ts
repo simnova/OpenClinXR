@@ -14,7 +14,7 @@ import {
   readStretcherBackSectionWorldDeg,
   readStretcherInclineDegrees,
   readStretcherPillowWorld,
-} from "./station-stretcher.js";
+} from "@openclinxr/xr-station";
 import {
   measureBackToDeckGap,
   measureHeadPillowGapMeters,

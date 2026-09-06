@@ -25,7 +25,7 @@ import {
 import {
   STATION_INTERIOR_LIGHTING_VARIANT_IDS,
   type StationInteriorLightingVariantId,
-} from "../../../apps/ui-xr/src/station-interior-lighting.js";
+} from "@openclinxr/xr-station";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = pathResolve(HERE, "../../..");

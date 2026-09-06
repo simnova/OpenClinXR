@@ -36,11 +36,11 @@ import path from "node:path";
 import { NodeIO } from "@gltf-transform/core";
 import {
   REAL_EQUIPMENT_GLTF_BY_ID,
-} from "../../../apps/ui-xr/src/station-equipment.js";
+} from "@openclinxr/xr-station";
 import {
   measureParametricComposite,
   type ParametricCompositeMeasure,
-} from "../../../apps/ui-xr/src/station-equipment-composite-measure.js";
+} from "@openclinxr/xr-station";
 import {
   computeMeasurementTreeStamp,
   type MeasurementTreeStamp,

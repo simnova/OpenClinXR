@@ -57,7 +57,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildStationEnvironment,
   parametricWallInnerPlane,
-} from "./station-environment.js";
+} from "@openclinxr/xr-station";
 
 type WallAnchoredSlot = { slotId: string; wall: NamedShellWall };
 

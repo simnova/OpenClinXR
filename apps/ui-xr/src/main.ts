@@ -44,13 +44,13 @@ import {
   deriveInteriorPreviewCamera,
   loadInfinigenEnvironmentIntoStation,
 } from "./infinigen-station-environment.js";
-import { roomPropColourNumbers } from "./room-prop-materials.js";
-import { buildRoomPropGroup } from "./room-prop-geometry.js";
+import { roomPropColourNumbers } from "@openclinxr/xr-station";
+import { buildRoomPropGroup } from "@openclinxr/xr-station";
 import {
   roomPropSuppressedByFixtureOwnership,
   stampSuppressedDeclaredEquipmentOntoFixtures,
-} from "./fixture-role-ownership.js";
-import { prepareLoadedEnvironmentShell } from "./station-stretcher.js";
+} from "@openclinxr/xr-station";
+import { prepareLoadedEnvironmentShell } from "@openclinxr/xr-station";
 import {
   buildDeclaredEquipmentGeometry,
   buildGltfEquipmentPlaceholderSlot,
@@ -60,13 +60,13 @@ import {
   planStationEquipmentMounts,
   REAL_EQUIPMENT_GLTF_BY_ID,
   stampRoomPropAliasesOnEquipmentRoot,
-} from "./station-equipment.js";
+} from "@openclinxr/xr-station";
 import {
   describeRuntimeBundleScenarioMatch,
   resolveEffectiveVerticalOffsetMeters,
 } from "./actor-floor-composition.js";
-import { enableCaptureRendererShadowMap, isCaptureShadowPath, markActorCastShadow, markFloorReceiveShadow } from "./capture-shadow-map.js";
-import { applyStationInteriorLighting, resolveStationInteriorLightingVariantId } from "./station-interior-lighting.js";
+import { enableCaptureRendererShadowMap, isCaptureShadowPath, markActorCastShadow, markFloorReceiveShadow } from "@openclinxr/xr-station";
+import { applyStationInteriorLighting, resolveStationInteriorLightingVariantId } from "@openclinxr/xr-station";
 import { applyStationInteriorLightingForEnvironment } from "./lighting-rig-runtime.js";
 import {
   addGeneratedHumanoidRoleContinuityWardrobeCue,
@@ -90,8 +90,8 @@ import {
   applyHumanoidJointRotationsByAlias,
 } from "./clinical-idle-posture.js";
 import { animatedTranslationBoneNames, seatedRoleClipIsPlayable } from "./seated-role-clip-policy.js";
-import { PATIENT_CHAIR_SEAT_HEIGHT_METERS } from "./station-chair.js";
-import { findProceduralStretcherInSceneOf, STRETCHER_DECK_TOP_METERS } from "./station-stretcher.js";
+import { PATIENT_CHAIR_SEAT_HEIGHT_METERS } from "@openclinxr/xr-station";
+import { findProceduralStretcherInSceneOf, STRETCHER_DECK_TOP_METERS } from "@openclinxr/xr-station";
 import { createVirtualDeviceActorAffordance as buildVirtualDeviceActorAffordance } from "./virtual-device-actor.js";
 import { initialDialogueTextForScenario } from "./initial-dialogue-text.js";
 import { initSpeakFixtureBridge } from "./speak-fixture-bridge.js";
@@ -108,7 +108,7 @@ import {
   type LiveActorTurnConsumption,
 } from "./actor-turn-plan-consumption.js";
 import { playFrozenActorTurnOnSlot, type ActorTurnPlayback } from "./actor-turn-playback.js";
-import { stationContextForScenario } from "./station-context.js";
+import { stationContextForScenario } from "@openclinxr/xr-station";
 import {
   resolveActorPosture,
   resolveEnvironmentShellDescriptor,
@@ -156,11 +156,12 @@ import { XRControllerModelFactory } from "three/addons/webxr/XRControllerModelFa
 import { XRHandModelFactory } from "three/addons/webxr/XRHandModelFactory.js";
 import {
   buildAssembledStationStartSessionInput,
-  createStationApiClient,
+  // Both factories are exported; this file types against the assembled one.
+  createAssembledStationApiClient as createStationApiClient,
   createStationApiPersistenceSink,
   syncRemoteAssembledPhase,
   type AssembledStationApiClient as StationApiClient,
-} from "./station-api-client.js";
+} from "@openclinxr/xr-station";
 import { assertHumanoidRootUpright } from "./humanoid-load-guard.js";
 import { applyRealGarmentEvidenceSurfaces, sleeveDeformCueForAssetPath } from "./real-garment-evidence-surfaces.js";
 import {

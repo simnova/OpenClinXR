@@ -661,7 +661,7 @@ describe("#342c wall fixtures re-anchor onto the generated room", () => {
       stationEnvironment: Group;
       roomRoot: Group;
     }) => Array<{ slotId: string; movedMeters: number }>;
-    const { buildStationEnvironment } = await import("./station-environment.js");
+    const { buildStationEnvironment } = await import("@openclinxr/xr-station");
 
     const shell = buildStationEnvironment({ environmentId: "ed_exam_bay_v1" });
     let board: Mesh | Group | null = null;
@@ -692,7 +692,7 @@ describe("#342c wall fixtures re-anchor onto the generated room", () => {
       stationEnvironment: Group;
       roomRoot: Group;
     }) => unknown;
-    const { buildStationEnvironment } = await import("./station-environment.js");
+    const { buildStationEnvironment } = await import("@openclinxr/xr-station");
     const shell = buildStationEnvironment({ environmentId: "ed_exam_bay_v1" });
     const sample = (id: string): Vector3 | null => {
       let hit: Vector3 | null = null;

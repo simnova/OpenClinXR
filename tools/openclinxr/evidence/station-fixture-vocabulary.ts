@@ -76,6 +76,6 @@ async function loadEquipmentByEnvironment(): Promise<Record<string, string[]>> {
 export async function inspectStationFixtureVocabulary(): Promise<StationFixtureVocabularyReport> {
   const equipmentByEnvironment = await loadEquipmentByEnvironment();
   // Dynamic import keeps three resolution inside apps/ui-xr.
-  const mod = await import("../../../apps/ui-xr/src/station-fixture-vocabulary-inspect.js");
+  const mod = await import("@openclinxr/xr-station");
   return mod.inspectStationFixtureVocabulary({ equipmentByEnvironment });
 }

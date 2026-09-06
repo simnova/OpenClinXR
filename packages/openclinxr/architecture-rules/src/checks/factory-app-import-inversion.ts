@@ -41,12 +41,7 @@ export const FACTORY_SCAN_ROOTS: readonly string[] = [
  * Entries can only be REMOVED (as frozen files stop importing apps/). Do not add new
  * entries to widen the gate; move the needed builder into a package instead.
  */
-export const APP_IMPORT_INVERSION_FREEZE: Record<string, { reason: string }> = {
-  "tools/openclinxr/dark-factory/multi-case-runner.ts": {
-    reason:
-      "brownfield: room stage imports ../../../apps/ui-xr/src/station-environment.js and equipment stage imports ../../../apps/ui-xr/src/station-equipment-builders.js — the fix is moving station-environment.ts and station-equipment-builders.ts into a package (57 importers, a separate slice)",
-  },
-};
+export const APP_IMPORT_INVERSION_FREEZE: Record<string, { reason: string }> = {};
 
 // ── Config type ──────────────────────────────────────────────────────────────
 

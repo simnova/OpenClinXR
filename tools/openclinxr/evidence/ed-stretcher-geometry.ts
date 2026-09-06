@@ -8,7 +8,7 @@
  * notEvidenceFor: clinical stretcher realism, supine placement, Quest readiness.
  */
 
-import { buildStationEnvironment } from "../../../apps/ui-xr/src/station-environment.js";
+import { buildStationEnvironment } from "@openclinxr/xr-station";
 
 export type FixtureGeometry = {
   fixtureId: string;

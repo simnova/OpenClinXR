@@ -11,7 +11,7 @@ import { fileURLToPath } from "node:url";
 import {
   buildRoomPropMaterialColours,
   type RoomPropColourInput,
-} from "../../../apps/ui-xr/src/room-prop-materials.js";
+} from "@openclinxr/xr-station";
 
 export { buildRoomPropMaterialColours };
 

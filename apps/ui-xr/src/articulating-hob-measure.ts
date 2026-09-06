@@ -13,7 +13,7 @@ import {
   readStretcherBackSectionWorldDeg,
   readStretcherDeckSectionNames,
   readStretcherInclineDegrees,
-} from "./station-stretcher.js";
+} from "@openclinxr/xr-station";
 import { readSupineTorsoWorldDeg } from "./supine-deck-plant.js";
 
 export type ArticulatingHobMeasure = {

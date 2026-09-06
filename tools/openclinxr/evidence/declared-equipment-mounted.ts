@@ -29,8 +29,8 @@ import {
   buildRoomCaptureUrl,
   waitForStationShell,
 } from "./ui-xr-environment-room-capture.js";
-import { REAL_EQUIPMENT_GLTF_BY_ID } from "../../../apps/ui-xr/src/station-equipment.js";
-import { measureParametricComposite } from "../../../apps/ui-xr/src/station-equipment-composite-measure.js";
+import { REAL_EQUIPMENT_GLTF_BY_ID } from "@openclinxr/xr-station";
+import { measureParametricComposite } from "@openclinxr/xr-station";
 
 export const DECLARED_EQUIPMENT_EVIDENCE_DIR = ".openclinxr/evidence/issue-140";
 export const PRE_FIX_NAME = "pre-fix.json";
@@ -176,7 +176,7 @@ export async function readDeclaredEquipmentIds(scenarioId: string): Promise<stri
     if (id) ids.add(id);
   }
   // roomProps with geometry (not pure metadata) surface as declared mount candidates.
-  const { classifyRoomProp } = await import("../../../apps/ui-xr/src/room-prop-classification.js");
+  const { classifyRoomProp } = await import("@openclinxr/xr-station");
   for (const prop of raw.roomProps ?? []) {
     const id = prop.propId;
     if (!id) continue;
