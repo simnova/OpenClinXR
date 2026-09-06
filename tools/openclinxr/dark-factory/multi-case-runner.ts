@@ -1499,6 +1499,11 @@ export async function runMultiCaseChain(options: RunMultiCaseChainOptions = {}):
     };
     await mkdir(evidenceDir, { recursive: true });
     await writeFile(path.join(evidenceDir, "multi-case-rollup.json"), `${JSON.stringify(rollup, null, 2)}\n`, "utf8");
+    // Stable published path the /internal/factory-run-table route serves; the
+    // per-issue evidenceDir output above is kept as the run record.
+    const publishedDir = path.join(REPO_ROOT, ".openclinxr", "evidence", "factory-run");
+    await mkdir(publishedDir, { recursive: true });
+    await writeFile(path.join(publishedDir, "multi-case-rollup.json"), `${JSON.stringify(rollup, null, 2)}\n`, "utf8");
     return rollup;
   } finally {
     if (server) {

@@ -52,6 +52,14 @@ async function routeModule(): Promise<{
  * stub OBJ in all 15 cases); live Blender; Quest readiness.
  */
 
+// ## FIXED (cohesion-w2-run-table-route): 2026-09-06. New module
+// apps/api/src/factory-run-table-routes.ts exports FACTORY_RUN_ROLLUP_REL +
+// parseFactoryRunRollup + registerFactoryRunTableRoutes, registered in
+// apps/api/src/app.ts; tools/openclinxr/dark-factory/multi-case-runner.ts also
+// writes the rollup to .openclinxr/evidence/factory-run/multi-case-rollup.json.
+// 7/7 clauses pass; `pnpm hygiene:knip` and `pnpm --filter @openclinxr/api run
+// typecheck` both exit 0. Diagnosis header above left byte-identical.
+
 const ROLLUP_FIXTURE = {
   schemaVersion: "openclinxr.dark-factory-multi-case-rollup.v1",
   generatedAt: "2026-09-06T00:00:00.000Z",

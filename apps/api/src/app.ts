@@ -211,6 +211,7 @@ import { registerAssembledExamDispositionRoutes } from "./routes/assembled-exam-
 import { registerAssembledExamRunRoutes } from "./routes/assembled-exam-run-routes.js";
 import { registerEncounterBundlePromotionRoutes } from "./routes/encounter-bundle-promotion/index.js";
 import { registerWorldCompileRoutes } from "./world-compile-routes.js";
+import { registerFactoryRunTableRoutes } from "./factory-run-table-routes.js";
 
 
 
@@ -273,6 +274,7 @@ function registerAllRoutes(app: ApiApp, ctx: ApiAppContext): void {
   registerAssembledExamRunRoutes(app, ctx);
   registerEncounterBundlePromotionRoutes(app, ctx);
   registerWorldCompileRoutes(app, ctx);
+  registerFactoryRunTableRoutes(app, ctx);
 }
 
 

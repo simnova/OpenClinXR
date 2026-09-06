@@ -1,6 +1,10 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { cleanup, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it } from "vitest";
 import { FactoryRunProgressPanel } from "@openclinxr/ui-shared/factory-run-progress-panel";
+
+afterEach(() => {
+  cleanup();
+});
 
 /**
  * OBSERVABLE: faculty has no view of whether the factory ran. The admin app
@@ -79,6 +83,12 @@ describe("the factory run progress panel shows station classifications", () => {
     expect(screen.queryByText("render")).toBeNull();
   });
 });
+
+// ## FIXED (worker): added per-test DOM cleanup so clause 5's queryByText("render")
+// reads only its own render tree, with no change to the diagnosis header above.
+// The RED omitted cleanup that sibling planted suites (e.g. EmissionReplayBindPanel)
+// include; prior renders accumulated "render" text and made the assertion read
+// other tests' trees.
 
 // NOT TESTED: that ui-admin fetches /internal/factory-run-table (that wire is asserted by
 // the app-level suite); pixel appearance; that the classifications are current.

@@ -40,6 +40,10 @@
       "types": "./dist/admin-factory-station-cards.d.ts",
       "default": "./dist/admin-factory-station-cards.js"
     },
+    "./factory-run-progress-panel": {
+      "types": "./dist/factory-run-progress-panel.d.ts",
+      "default": "./dist/factory-run-progress-panel.js"
+    },
     "./admin-compile-graph-canvas": {
       "types": "./dist/admin-compile-graph-canvas.d.ts",
       "default": "./dist/admin-compile-graph-canvas.js"
