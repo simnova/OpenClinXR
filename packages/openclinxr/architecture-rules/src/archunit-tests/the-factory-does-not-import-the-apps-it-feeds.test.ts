@@ -1,23 +1,22 @@
 import { describe, expect, it } from "vitest";
+import {
+  APP_IMPORT_INVERSION_FREEZE,
+  FACTORY_SCAN_ROOTS,
+  detectFactoryAppImportInversions,
+} from "../checks/factory-app-import-inversion.js";
 /**
- * Resolved through a NON-STATIC specifier, the same pattern world-compile-routes.ts uses
- * for the tools runner. `pnpm hygiene:knip` fails closed on an unresolved import, static
- * or dynamic, so a planted RED cannot name the module its fix will create any other way.
- * Today this rejects; that IS the red.
+ * PLANT-PHASE NOTE (kept because it explains the diagnosis header below): while this file was a
+ * planted RED the check module did not exist, and `pnpm hygiene:knip` fails closed on an
+ * unresolved import, so the plant reached it through a non-static specifier. Now that the
+ * module exists the import is static — knip fails closed the other way, reporting a module
+ * whose only importer is non-static as an unused file.
  */
-const CHECK_SPECIFIER = ["./checks/factory-app-import", "-inversion.js"].join("");
-
-type InversionRow = { file: string; specifier: string };
-
 async function check(): Promise<{
-  APP_IMPORT_INVERSION_FREEZE: Record<string, { reason: string }>;
-  FACTORY_SCAN_ROOTS: readonly string[];
-  detectFactoryAppImportInversions: (opts?: {
-    freeze?: Record<string, { reason: string }>;
-    sources?: { file: string; text: string }[];
-  }) => InversionRow[];
+  APP_IMPORT_INVERSION_FREEZE: typeof APP_IMPORT_INVERSION_FREEZE;
+  FACTORY_SCAN_ROOTS: typeof FACTORY_SCAN_ROOTS;
+  detectFactoryAppImportInversions: typeof detectFactoryAppImportInversions;
 }> {
-  return (await import(/* @vite-ignore */ CHECK_SPECIFIER)) as never;
+  return { APP_IMPORT_INVERSION_FREEZE, FACTORY_SCAN_ROOTS, detectFactoryAppImportInversions };
 }
 
 /**

@@ -26,6 +26,11 @@ import { PRODUCTION_STATION_IDS, type ProductionStationId } from "./catalog.js";
  * claimScope: a registry keyed by station id whose entries ARE the exported runners.
  * notEvidenceFor: that any caller has been migrated to it; that a runner's run()
  * succeeds; Blender; Quest.
+ *
+ * ## FIXED
+ * Added src/station-runners.ts: Record keyed by ProductionStationId whose
+ * entries are the exported runner objects; re-exported from src/index.ts.
+ * No caller migrated per NOT TESTED.
  */
 
 type StationRunnerLike = {
