@@ -9,7 +9,7 @@ import {
   LEARNER_EXAM_PHASE_NOT_EVIDENCE_FOR,
   restoreLearnerCanonicalPhaseTraceFromJson,
   viewLearnerCanonicalExamPhase,
-} from "./runtime-state.js";
+} from "@openclinxr/xr-runtime-state";
 
 /**
  * PLANTED CONTRACT — learner UI-XR consumes canonical assembled-exam phase traces.

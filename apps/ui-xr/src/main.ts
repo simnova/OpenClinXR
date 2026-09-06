@@ -17,11 +17,11 @@ import {
 import {
   assignRuntimeActorSlots,
   type RuntimeSlotAssignment,
-} from "./runtime-actor-slots.js";
+} from "@openclinxr/xr-runtime-state";
 import {
   additionalCastPlacementFallback,
   ensureAndPublishActorPlacementSsot,
-} from "./runtime-actor-placements.js";
+} from "@openclinxr/xr-runtime-state";
 import {
   arbitrateTurnTaking,
   buildHistoryTakingCoverageSpec,
@@ -72,13 +72,13 @@ import {
   addGeneratedHumanoidRoleContinuityWardrobeCue,
   applyCleanEncounterVisualReviewActorFraming as applyEncounterActorFraming,
 } from "./encounter-actor-framing.js";
-import { generatedDriveScalar, type GeneratedDriveScalarValue } from "./generated-drive-scalar.js";
+import { generatedDriveScalar, type GeneratedDriveScalarValue } from "@openclinxr/xr-runtime-state";
 import { phonemesForText, visemesForText } from "@openclinxr/xr-dialogue";
 import { generatedHumanoidSourceProvenance } from "./generated-humanoid-source-provenance.js";
 import {
   resolveLocalEnvironmentRuntimeAssetFileName,
   resolveLocalEquipmentRuntimeAssetFileName,
-} from "./runtime-local-asset-filenames.js";
+} from "@openclinxr/xr-runtime-state";
 import { createPrimitiveActorMesh } from "./primitive-actor-mesh.js";
 import { applyPosturePose, plantSeatedPelvisOnSeat } from "@openclinxr/xr-pose";
 import { applySupinePose } from "@openclinxr/xr-pose";
@@ -266,7 +266,7 @@ import {
   type XrTraceActionHandoffEvidence,
   type XrTraceInteractionEvidenceSummary,
   xrExperienceModeEvidence,
-} from "./runtime-state.js";
+} from "@openclinxr/xr-runtime-state";
 import "./styles.css";
 
 // Physics clinical-touch realbind R3 (AD-3): precomputed bone transforms — see physics-touch/.

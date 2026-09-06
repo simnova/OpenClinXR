@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildIwsdkStationMcpSmokePlan,
   iwsdkStationMcpSmokePlanHash,
-} from "../../../apps/ui-xr/src/runtime-state.js";
+} from "@openclinxr/xr-runtime-state";
 import {
   buildIwsdkUiXrStationParityContract,
   evaluateIwsdkSpikeMetrics,

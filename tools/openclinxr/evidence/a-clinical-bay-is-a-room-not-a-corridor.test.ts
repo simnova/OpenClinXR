@@ -85,7 +85,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 /** Overridable so a destructive probe can point the same logic at doctored assets. */
 const PUBLIC = process.env.OPENCLINXR_ROOM_PROBE_PUBLIC ?? join(REPO_ROOT, "apps/ui-xr/public");
-const MODULE_SRC = join(REPO_ROOT, "apps/ui-xr/src/infinigen-environment-assets.ts");
+const MODULE_SRC = join(REPO_ROOT, "packages/openclinxr/xr-runtime-state/src/infinigen-environment-assets.ts");
 
 const KNOWN_GOOD_ENV = "pediatric_urgent_care_bay_v1";
 /** The declared-aspect ED bay is the one room whose aspect is intentionally ~2.0 (#0). */

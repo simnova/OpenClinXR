@@ -13,7 +13,7 @@ import {
   createLearnerCanonicalPhaseTraceStore,
   LEARNER_CANONICAL_PHASE_TYPES,
   viewLearnerCanonicalExamPhase,
-} from "./runtime-state.js";
+} from "@openclinxr/xr-runtime-state";
 
 const examRunId = "exam_run_learner_phase_boot_001";
 

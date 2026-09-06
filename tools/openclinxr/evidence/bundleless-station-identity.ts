@@ -18,7 +18,7 @@ import { scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src
 import {
   authoredTraceTagsForScenario,
   deriveRuntimeTraceActionTagsFromBundle,
-} from "../../../apps/ui-xr/src/scenario-conversation-surface.js";
+} from "@openclinxr/xr-runtime-state";
 
 export type StationIdentity = {
   scenarioId: string;

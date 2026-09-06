@@ -83,10 +83,10 @@ import { describe, expect, it } from "vitest";
  * clause pass for the wrong reason (#361's trap).
  */
 
-const REPO_ROOT = resolve(fileURLToPath(new URL("../../../", import.meta.url)));
+const REPO_ROOT = resolve(fileURLToPath(new URL("../../../../", import.meta.url)));
 const SCAN_ROOTS = ["apps/ui-xr/src", "packages/openclinxr"].map((root) => join(REPO_ROOT, root));
 const SELF = resolve(fileURLToPath(import.meta.url));
-const RESOLVER_MODULE = join(REPO_ROOT, "apps/ui-xr/src/generated-drive-scalar.ts");
+const RESOLVER_MODULE = join(REPO_ROOT, "packages/openclinxr/xr-runtime-state/src/generated-drive-scalar.ts");
 
 const DRIVE_CHANNELS = ["locomotion", "gaze", "gazeAversion", "lipSync", "lipSyncViseme"];
 const FIELD_ASSIGNMENT_RE = new RegExp(

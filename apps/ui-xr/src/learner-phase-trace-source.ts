@@ -22,7 +22,7 @@ import {
   type LearnerCanonicalExamPhaseView,
   type LearnerCanonicalPhaseTraceStore,
   viewLearnerCanonicalExamPhase,
-} from "./runtime-state.js";
+} from "@openclinxr/xr-runtime-state";
 
 type TextSink = {
   textContent: string | null;

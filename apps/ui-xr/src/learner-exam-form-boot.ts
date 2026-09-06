@@ -34,7 +34,7 @@ import {
   type LearnerCanonicalPhaseTraceStore,
   persistExamFormRunQueueSnapshot,
   tickExamFormRunClock,
-} from "./runtime-state.js";
+} from "@openclinxr/xr-runtime-state";
 
 export type ExamFormBootPresentationSink = {
   textContent: string | null;

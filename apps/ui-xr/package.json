@@ -18,6 +18,7 @@
     "@openclinxr/scenario-fixtures": "workspace:*",
     "@openclinxr/shared-schemas": "workspace:*",
     "@openclinxr/xr-station": "workspace:*",
+    "@openclinxr/xr-runtime-state": "workspace:*",
     "@openclinxr/xr-dialogue": "workspace:*",
     "@openclinxr/xr-pose": "workspace:*",
     "three": "catalog:"

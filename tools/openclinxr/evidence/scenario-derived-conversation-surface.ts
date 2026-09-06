@@ -19,7 +19,7 @@ import {
   deriveScenarioTraceActionTags,
   resolveRemoteActorTurnForTraceTag,
   scenarioActorIdsForScenario,
-} from "../../../apps/ui-xr/src/scenario-conversation-surface.js";
+} from "@openclinxr/xr-runtime-state";
 import { scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src/scenario-bank.js";
 
 export const CONVERSATION_SURFACE_DIR = ".openclinxr/evidence/scenario-derived-conversation-surface";

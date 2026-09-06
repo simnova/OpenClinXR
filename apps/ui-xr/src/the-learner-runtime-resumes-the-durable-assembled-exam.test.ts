@@ -13,7 +13,7 @@ import {
   LEARNER_CANONICAL_PHASE_TYPES,
   type LearnerCanonicalPhaseTraceStore,
   viewLearnerCanonicalExamPhase,
-} from "./runtime-state.js";
+} from "@openclinxr/xr-runtime-state";
 
 /**
  * PLANTED CONTRACT — learner runtime resumes an assembled exam from the durable

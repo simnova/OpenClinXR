@@ -42,7 +42,7 @@ export const ZONE_BUDGETS: readonly { prefix: string; maxLines: number }[] = [
  */
 export const SIZE_FREEZE: Record<string, { maxLines: number; reason: string }> = {
   "apps/ui-xr/src/main.ts": { maxLines: 9980, reason: "XR runtime god-file — #1 paydown; split by subsystem (scene, input, locomotion, capture, HUD); #57 exam-form boot extract; #44 station-environment extract; #72 actor-floor-composition + encounter-actor-framing extract; #83 physics-touch apply extract + seated posture; #115 station-context + station-vitals extract (honest unauthored vitals)" },
-  "apps/ui-xr/src/runtime-state.ts": { maxLines: 3741, reason: "XR runtime-state god-file — split by state slice; #57 compact snapshot options" },
+  "packages/openclinxr/xr-runtime-state/src/runtime-state.ts": { maxLines: 3741, reason: "XR runtime-state god-file — split by state slice; #57 compact snapshot options (moved from apps/ui-xr in the composition-root migration)" },
   "packages/openclinxr/rest/src/api-route-support.ts": { maxLines: 1117, reason: "shared route-level helpers; moved from apps/api in the composition-root migration — split by domain alongside the remaining route modules" },
   "packages/openclinxr/rest/src/api-support.ts": { maxLines: 553, reason: "shared route helpers; moved from apps/api in the composition-root migration — split by domain" },
   "packages/openclinxr/rest/src/api-types.ts": { maxLines: 587, reason: "REST DTO type surface; moved from apps/api in the composition-root migration — split by domain area" },

@@ -15,7 +15,7 @@
 
 import type { Group } from "three";
 import { DEFAULT_PATIENT_CHAIR_POSITION } from "@openclinxr/asset-registry";
-import { ADDITIONAL_CAST_FRAMING_XZ } from "./runtime-actor-placements.js";
+import { ADDITIONAL_CAST_FRAMING_XZ } from "@openclinxr/xr-runtime-state";
 
 export type EncounterActorFramingInput = {
   actor: Group;

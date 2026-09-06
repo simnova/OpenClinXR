@@ -37,6 +37,9 @@
       "path": "../../packages/openclinxr/xr-station"
     },
     {
+      "path": "../../packages/openclinxr/xr-runtime-state"
+    },
+    {
       "path": "../../packages/openclinxr/xr-pose"
     }
   ]

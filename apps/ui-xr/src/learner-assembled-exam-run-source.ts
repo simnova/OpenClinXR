@@ -1,4 +1,4 @@
-import { LEARNER_CANONICAL_PHASE_TYPES } from "./runtime-state.js";
+import { LEARNER_CANONICAL_PHASE_TYPES } from "@openclinxr/xr-runtime-state";
 
 type TextSink = { textContent: string | null };
 type FormWindow = { startsAtSecond: number; endsAtSecond: number };

@@ -13,7 +13,7 @@ import {
   resolveAssembledExamPinnedBundleId,
   type EncounterBundleBootClient,
 } from "./encounter-bundle-boot/index.js";
-import { createRuntimeStateFromBundle } from "./runtime-state.js";
+import { createRuntimeStateFromBundle } from "@openclinxr/xr-runtime-state";
 
 /**
  * PLANTED CONTRACT — learner station boot uses the assembled-exam pinned bundle id.

@@ -1,11 +1,11 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { INFINIGEN_ENVIRONMENT_ASSETS } from "../../../apps/ui-xr/src/infinigen-environment-assets.js";
+import { INFINIGEN_ENVIRONMENT_ASSETS } from "@openclinxr/xr-runtime-state";
 import {
   resolveLocalEnvironmentRuntimeAssetFileName,
   resolveLocalEquipmentRuntimeAssetFileName,
-} from "../../../apps/ui-xr/src/runtime-local-asset-filenames.js";
+} from "@openclinxr/xr-runtime-state";
 
 /**
  * OBSERVABLE: a learner sees the room their station declares.

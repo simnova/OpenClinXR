@@ -58,7 +58,7 @@ describe("static browser assets", () => {
 
   it("exposes an explicit immersive VR entry path for Quest Browser", () => {
     const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
-    const runtimeStateSource = readFileSync(new URL("./runtime-state.ts", import.meta.url), "utf8");
+    const runtimeStateSource = readFileSync(new URL("../../../packages/openclinxr/xr-runtime-state/src/runtime-state.ts", import.meta.url), "utf8");
 
     expect(runtimeStateSource).toContain("Phase 1 Full VR");
     expect(mainSource).toContain("__openClinXrExperienceModeEvidence");
@@ -79,7 +79,7 @@ describe("static browser assets", () => {
 
   it("blocks generated learner bundle use until runtime, visual QA, and Quest evidence gates attach", () => {
     const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
-    const runtimeStateSource = readFileSync(new URL("./runtime-state.ts", import.meta.url), "utf8");
+    const runtimeStateSource = readFileSync(new URL("../../../packages/openclinxr/xr-runtime-state/src/runtime-state.ts", import.meta.url), "utf8");
 
     expect(mainSource).toContain("evaluateEncounterRuntimeLearnerUseGate");
     expect(mainSource).toContain("ENCOUNTER_LEARNER_RUNTIME_REQUIRED_GATE_IDS");
@@ -178,7 +178,7 @@ describe("static browser assets", () => {
     // in shipped runtime source.
     const examFlowSources = [
       mainSource,
-      readFileSync(new URL("./runtime-state.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-runtime-state/src/runtime-state.ts", import.meta.url), "utf8"),
     ].join("\n");
 
     expect(mainSource).toContain("__openClinXrExamFlowEvidence");
@@ -286,7 +286,7 @@ describe("static browser assets", () => {
     ),
       readFileSync(new URL("./real-garment-evidence-surfaces.ts", import.meta.url), "utf8"),
     ].join("\n");
-    const runtimeStateSource = readFileSync(new URL("./runtime-state.ts", import.meta.url), "utf8");
+    const runtimeStateSource = readFileSync(new URL("../../../packages/openclinxr/xr-runtime-state/src/runtime-state.ts", import.meta.url), "utf8");
 
     expect(mainSource).toContain("XRHandModelFactory");
     expect(mainSource).toContain("renderer.xr.getHand");
@@ -530,7 +530,7 @@ describe("static browser assets", () => {
 
   it("exposes a local manual-performance evidence export panel", () => {
     const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
-    const runtimeStateSource = readFileSync(new URL("./runtime-state.ts", import.meta.url), "utf8");
+    const runtimeStateSource = readFileSync(new URL("../../../packages/openclinxr/xr-runtime-state/src/runtime-state.ts", import.meta.url), "utf8");
 
     expect(runtimeStateSource).toContain("buildManualPerformanceCaptureSummary");
     expect(mainSource).toContain("__openClinXrManualPerformanceCaptureSummary");
@@ -628,7 +628,7 @@ describe("static browser assets", () => {
 
   it("surfaces runtime provider and mode evidence without adding remote dependencies", () => {
     const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
-    const runtimeStateSource = readFileSync(new URL("./runtime-state.ts", import.meta.url), "utf8");
+    const runtimeStateSource = readFileSync(new URL("../../../packages/openclinxr/xr-runtime-state/src/runtime-state.ts", import.meta.url), "utf8");
 
     expect(runtimeStateSource).toContain("buildRuntimeEvidencePosture");
     expect(mainSource).toContain("__openClinXrRuntimeEvidencePosture");
@@ -665,9 +665,9 @@ describe("static browser assets", () => {
         "utf8",
       ),
       // #575 — env/equipment filename resolvers split out of main.ts (shrink-only ratchet).
-      readFileSync(new URL("./runtime-local-asset-filenames.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../../../packages/openclinxr/xr-runtime-state/src/runtime-local-asset-filenames.ts", import.meta.url), "utf8"),
     ].join("\n");
-    const runtimeStateSource = readFileSync(new URL("./runtime-state.ts", import.meta.url), "utf8");
+    const runtimeStateSource = readFileSync(new URL("../../../packages/openclinxr/xr-runtime-state/src/runtime-state.ts", import.meta.url), "utf8");
 
     expect(mainSource).toContain("scene.name = iwsdkStationSceneObjects.stationRoot");
     expect(mainSource).toContain("patient.name = iwsdkStationSceneObjects.patientRobertHayes");
@@ -1056,7 +1056,7 @@ describe("static browser assets", () => {
 
   it("loads only the active scenario fixture subpath in the headset app", () => {
     const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
-    const runtimeStateSource = readFileSync(new URL("./runtime-state.ts", import.meta.url), "utf8");
+    const runtimeStateSource = readFileSync(new URL("../../../packages/openclinxr/xr-runtime-state/src/runtime-state.ts", import.meta.url), "utf8");
     const headsetSources = `${mainSource}\n${runtimeStateSource}`;
 
     expect(headsetSources).not.toContain('from "@openclinxr/scenario-fixtures"');
@@ -1153,7 +1153,7 @@ describe("static browser assets", () => {
 
   it("surfaces selected runtime bundle manifest evidence in the headset clinical panel", () => {
     const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
-    const runtimeStateSource = readFileSync(new URL("./runtime-state.ts", import.meta.url), "utf8");
+    const runtimeStateSource = readFileSync(new URL("../../../packages/openclinxr/xr-runtime-state/src/runtime-state.ts", import.meta.url), "utf8");
 
     expect(mainSource).toContain("Bundle scenario:");
     expect(mainSource).toContain("Station context:");

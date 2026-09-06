@@ -2,7 +2,7 @@
  * Humanoid source provenance metadata for scene asset evidence (#187 extract from main.ts freeze).
  */
 
-import type { SceneAssetEvidence } from "./runtime-state.js";
+import type { SceneAssetEvidence } from "@openclinxr/xr-runtime-state";
 
 type HumanoidSourceProvenance = NonNullable<
   SceneAssetEvidence["assets"][number]["humanoidSourceProvenance"]

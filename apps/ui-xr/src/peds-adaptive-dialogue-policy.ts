@@ -1,5 +1,5 @@
 import { domainsForTraceTag } from "@openclinxr/conversation-policy";
-import { stepEmotionStateFromCaseMachine } from "./runtime-state.js";
+import { stepEmotionStateFromCaseMachine } from "@openclinxr/xr-runtime-state";
 
 export type PedsAdaptiveDialogueBranchType = "escalation" | "deescalation";
 

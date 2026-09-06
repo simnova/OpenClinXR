@@ -57,8 +57,8 @@ export const COMPOSITION_ROOT_APP_BUDGETS: readonly CompositionRootAppBudget[] =
   },
   {
     app: "apps/ui-xr",
-    maxFiles: 38,
-    maxLines: 21100,
+    maxFiles: 31,
+    maxLines: 16584,
     reason:
       "frozen at the 2026-09-06 measurement; ratchet toward the CellixJs largest app (ui-community, 19 files / 1,506 lines) — behaviour moves to packages",
   },
@@ -178,7 +178,6 @@ export const VALIDATION_SEPARATION_FREEZE: Record<string, { reason: string }> = 
   "apps/ui-xr/src/learner-phase-trace-source.ts": { reason: "frozen mixer: parseTraceEventsPayload beside trace presentation — move the validator to a package" },
   "apps/ui-xr/src/lighting-rig-runtime.ts": { reason: "frozen mixer: parseLightingRig beside lighting-rig paths — move the validator to a package" },
   "apps/ui-xr/src/peds-authored-turn-surface.ts": { reason: "frozen mixer: isPedsAsthmaScenario beside turn-surface helpers — move the validator to a package" },
-  "apps/ui-xr/src/runtime-state.ts": { reason: "frozen mixer: isImmersiveFrameEvidenceActive/parseBrowserVersionHints beside runtime state — move validators to a package" },
 };
 
 export type ValidationSeparationOptions = {
