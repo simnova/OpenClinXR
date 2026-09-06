@@ -4,7 +4,7 @@ import {
   factoryStationSchemas,
   productionStationIds,
   type ProductionStationId,
-} from "@openclinxr/shared-schemas";
+} from "@openclinxr/factory-stations/catalog";
 
 export type FactoryStationCardsProps = {
   values?: Partial<Record<ProductionStationId, Record<string, unknown>>>;

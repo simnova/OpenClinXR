@@ -16,6 +16,7 @@
     "@openclinxr/asset-registry": "workspace:*",
     "@openclinxr/domain": "workspace:*",
     "@openclinxr/exam-assembly": "workspace:*",
+    "@openclinxr/factory-stations": "workspace:*",
     "@openclinxr/graphql": "workspace:*",
     "@openclinxr/rest": "workspace:*",
     "@openclinxr/review-workflow": "workspace:*",

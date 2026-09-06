@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import { factoryStationSchemas } from "@openclinxr/shared-schemas";
+import { factoryStationSchemas } from "@openclinxr/factory-stations/catalog";
 import { FactoryStationCards } from "@openclinxr/ui-shared/admin-factory-station-cards";
 import { installWorldviewQueueTestDom } from "./worldview-queue-test-dom.js";
 

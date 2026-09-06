@@ -61,8 +61,8 @@
     "clean": "rm -rf dist *.tsbuildinfo"
   },
   "dependencies": {
+    "@openclinxr/factory-stations": "workspace:*",
     "@openclinxr/graphql": "workspace:*",
-    "@openclinxr/shared-schemas": "workspace:*",
     "@xyflow/react": "^12.11.5",
     "antd": "catalog:",
     "react": "19.2.8",

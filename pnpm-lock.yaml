@@ -405,6 +405,9 @@ importers:
       '@openclinxr/exam-assembly':
         specifier: workspace:*
         version: link:../../packages/openclinxr/exam-assembly
+      '@openclinxr/factory-stations':
+        specifier: workspace:*
+        version: link:../../packages/openclinxr/factory-stations
       '@openclinxr/graphql':
         specifier: workspace:*
         version: link:../../packages/openclinxr/graphql
@@ -1300,12 +1303,12 @@ importers:
 
   packages/openclinxr/ui-shared:
     dependencies:
+      '@openclinxr/factory-stations':
+        specifier: workspace:*
+        version: link:../factory-stations
       '@openclinxr/graphql':
         specifier: workspace:*
         version: link:../graphql
-      '@openclinxr/shared-schemas':
-        specifier: workspace:*
-        version: link:../shared-schemas
       '@xyflow/react':
         specifier: ^12.11.5
         version: 12.11.5(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
