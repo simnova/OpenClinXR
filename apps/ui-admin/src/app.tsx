@@ -41,6 +41,8 @@ import { ActorTurnReplayPanel } from "@openclinxr/ui-shared/actor-turn-replay-pa
 import { CaseAuthoringWorkbench } from "./case-authoring-workbench.js";
 import { EmissionReplayBindPanel } from "@openclinxr/ui-shared/emission-replay-bind-panel";
 import type { PlacementAuthorValue } from "./environment-generation-queue-panel.js";
+import { FactoryRunProgressPanel } from "@openclinxr/ui-shared/factory-run-progress-panel";
+import { fetchFactoryRunTable, type FactoryRunTable } from "@openclinxr/ui-shared/factory-run-table-client";
 import { SeedWorldviewQueue, type SeedWorldviewCompileGraph } from "./seed-worldview-queue.js";
 import { FacultyAdjudicationWorkspace, fetchAssembledExamReviewPacket } from "./faculty-adjudication-workspace.js";
 import { FacultyDispositionPanel } from "@openclinxr/ui-shared/faculty-disposition-panel"; import { FacultyReviewDecisionPanel } from "./faculty-review-decision-panel.js";
@@ -1130,6 +1132,23 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
   // Parent-owned faculty staging authoring: authored ActorCard.placement values keyed by actorId.
   const [placementAuthorValues, setPlacementAuthorValues] = useState<Record<string, PlacementAuthorValue>>({});
   const [infinigenPrompt, setInfinigenPrompt] = useState("");
+  // Recorded per-station factory run table. Fails soft to an empty record; the panel
+  // renders "no factory runs recorded" for that, which is also the route's answer when
+  // no rollup has been published yet.
+  const [factoryRunTable, setFactoryRunTable] = useState<FactoryRunTable>({ cases: [] });
+
+  useEffect(() => {
+    let active = true;
+    void fetchFactoryRunTable({
+      baseUrl: import.meta.env["VITE_OPENCLINXR_API_BASE_URL"] ?? "",
+    }).then((table) => {
+      if (active) setFactoryRunTable(table);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const sceneGenerationPipelineQueue = state.status === "ready" ? state.sceneGenerationPipelineQueue : undefined;
   const { facultyCompileLockRows, handleFacultyCompileLockChange, handleFacultyCompileOverrideChange, handleFacultyCompileOverrideValueChange, compileEdges } =
     useFacultyCompileLocks(sceneGenerationPipelineQueue, controlPlaneClient);
@@ -1413,6 +1432,15 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
               </li>
             ))}
           </ul>
+        </section>
+
+        <section aria-label="Factory run record">
+          <Typography.Title level={4}>Factory run record</Typography.Title>
+          <Typography.Text type="secondary">
+            Per-station outcome for each case in the last recorded chain run. A
+            deterministic station means an artifact was written, not that it is usable.
+          </Typography.Text>
+          <FactoryRunProgressPanel cases={factoryRunTable.cases} />
         </section>
 
         <SeedWorldviewQueue

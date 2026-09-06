@@ -55,6 +55,10 @@
     "./faculty-disposition-record": {
       "types": "./dist/faculty-disposition-record.d.ts",
       "default": "./dist/faculty-disposition-record.js"
+    },
+    "./factory-run-table-client": {
+      "types": "./dist/factory-run-table-client.d.ts",
+      "default": "./dist/factory-run-table-client.js"
     }
   },
   "scripts": {
