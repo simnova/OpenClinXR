@@ -2,7 +2,7 @@ import { AssetGenerationCapabilityFacade } from "@openclinxr/capability-gateway"
 import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql";
 import { pediatricAsthmaScenario } from "@openclinxr/scenario-fixtures";
 import { describe, expect, it } from "vitest";
-import { toAdminGraphqlScenario } from "./admin-scenario-listing.js";
+import { toAdminGraphqlScenario } from "@openclinxr/rest";
 import {
   createBunRealtimeVoiceGatewayPostureInputFromEnvironment,
   createBunServerConfig,
@@ -14,7 +14,7 @@ import {
 import {
   AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX,
   authoredScenarioContentIdentity,
-} from "./scenario-review-promotion.js";
+} from "@openclinxr/rest";
 
 function startupReviewIdentity(): string {
   const graphqlScenario = toAdminGraphqlScenario(pediatricAsthmaScenario);

@@ -24,5 +24,19 @@
   },
   "files": [
     "dist"
-  ]
+  ],
+  "dependencies": {
+    "@openclinxr/asset-registry": "workspace:*",
+    "@openclinxr/auth": "workspace:*",
+    "@openclinxr/capability-gateway": "workspace:*",
+    "@openclinxr/exam-assembly": "workspace:*",
+    "@openclinxr/graphql": "workspace:*",
+    "@openclinxr/review-workflow": "workspace:*",
+    "@openclinxr/scenario-fixtures": "workspace:*",
+    "@openclinxr/scenario-runtime": "workspace:*",
+    "@openclinxr/shared-schemas": "workspace:*",
+    "@openclinxr/telemetry": "workspace:*",
+    "@openclinxr/voice-gateway": "workspace:*",
+    "hono": "4.12.33"
+  }
 }

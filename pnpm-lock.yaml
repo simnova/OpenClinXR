@@ -1046,6 +1046,43 @@ importers:
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openclinxr/rest:
+    dependencies:
+      '@openclinxr/asset-registry':
+        specifier: workspace:*
+        version: link:../asset-registry
+      '@openclinxr/auth':
+        specifier: workspace:*
+        version: link:../auth
+      '@openclinxr/capability-gateway':
+        specifier: workspace:*
+        version: link:../capability-gateway
+      '@openclinxr/exam-assembly':
+        specifier: workspace:*
+        version: link:../exam-assembly
+      '@openclinxr/graphql':
+        specifier: workspace:*
+        version: link:../graphql
+      '@openclinxr/review-workflow':
+        specifier: workspace:*
+        version: link:../review-workflow
+      '@openclinxr/scenario-fixtures':
+        specifier: workspace:*
+        version: link:../scenario-fixtures
+      '@openclinxr/scenario-runtime':
+        specifier: workspace:*
+        version: link:../scenario-runtime
+      '@openclinxr/shared-schemas':
+        specifier: workspace:*
+        version: link:../shared-schemas
+      '@openclinxr/telemetry':
+        specifier: workspace:*
+        version: link:../telemetry
+      '@openclinxr/voice-gateway':
+        specifier: workspace:*
+        version: link:../voice-gateway
+      hono:
+        specifier: 4.12.33
+        version: 4.12.33
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*

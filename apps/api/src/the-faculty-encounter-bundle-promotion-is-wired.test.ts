@@ -4,7 +4,7 @@ import { createApiApp } from "./index.js";
 import {
   FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PATH,
   FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PREVIEW_PATH,
-} from "./routes/encounter-bundle-promotion/index.js";
+} from "@openclinxr/rest";
 
 const REVIEW_IDENTITY = "scenario-review:ed_chest_pain_priority_v1:faculty-local";
 

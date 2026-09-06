@@ -98,7 +98,7 @@ import {
   selectRealtimeVoiceProtocol,
 } from "@openclinxr/voice-gateway";
 import { Hono } from "hono";
-import { createOpenClinXrApiProtocolPosture, type OpenClinXrApiProtocolPosture } from "./protocol-support.js";
+import { createOpenClinXrApiProtocolPosture, type OpenClinXrApiProtocolPosture } from "@openclinxr/rest";
 
 import type {
   RuntimeTraceEvents,
@@ -128,7 +128,7 @@ import type {
   ApiAuthOptions,
   ApiAppOptions,
   ApiAppVariables,
-} from "./api-types.js";
+} from "@openclinxr/rest";
 export type {
   RuntimeTraceEvents,
   RuntimeReviewPacket,
@@ -157,59 +157,27 @@ export type {
   ApiAuthOptions,
   ApiAppOptions,
   ApiAppVariables,
-} from "./api-types.js";
-import {
-  isRecord,
-  readGeneratedJsonIfExists,
-  readRepoGeneratedJsonIfExists,
-  readMaterializationInputManifestSummaryForScenario,
-  readPedsHumanoidMaterializationHandoffForScenario,
-  attachPedsHumanoidMaterializationHandoff,
-  readMaterializationAttachmentPlanSummaryForScenario,
-  readMaterializationEvidenceAttachmentSummaryForScenario,
-  readRuntimeEvidenceCaptureScaffoldForScenario,
-  readRuntimeRealismEvidenceInputDraftForScenario,
-  attachMaterializationInputManifestSummary,
-  attachMaterializationAttachmentPlanSummary,
-  attachMaterializationEvidenceAttachmentSummary,
-  attachRuntimeRealismEvidenceInputDraft,
-  attachRuntimeRealismEvidenceInputReviewDecisionRecord,
-  attachRuntimeVisualEvidenceAttachmentSummary,
-  attachRuntimeVisualEvidenceAttachmentActionPacket,
-  attachRuntimeVisualEvidenceAttachmentRecord,
-  attachRuntimeEvidenceCaptureScaffold,
-  attachMaterializationInputReviewDecisionRecord,
-  buildMaterializationInputReviewActionPacket,
-  buildMaterializationInputReviewDecisionRecord,
-  buildRuntimeRealismEvidenceInputReviewDecisionRecord,
-  buildRuntimeRealismEvidenceAttachmentSummary,
-  buildRuntimeVisualEvidenceAttachmentRecord,
-  buildRuntimeVisualEvidenceAttachmentActionPacket,
-  realtimeVoiceProtocolPreference,
-  parseStringArray,
-  createDefaultRealtimeVoiceGatewayPostureInput,
-  telemetrySnapshotFromRecorder,
-  asRealTelemetryRecorder,
-} from "./api-support.js";
-import type { ApiAppContext } from "./api-app-context.js";
-import { ApiApplication, type ApiApp } from "./api-application.js";
-import { registerReviewRoutes } from "./routes/review-routes.js";
-import { registerEncounterSessionRoutes } from "./routes/encounter-session-routes.js";
-import { registerSessionRoutes } from "./routes/session-routes.js";
-import { registerCapabilityJobRoutes } from "./routes/capability-job-routes.js";
-import { registerAuthoringRoutes } from "./routes/authoring-routes.js";
-import { registerDialogueSeedAuthoringRoutes } from "./routes/dialogue-seed-authoring-routes.js";
-import { registerExamRoutes } from "./routes/exam-routes.js";
-import { registerPlatformRoutes } from "./routes/platform-routes.js";
-import { buildAssetReleaseLadderReplayProjection, createSeedBankAssetReadiness, createSeedBankSceneGenerationPipelineQueue, createSeedStationRunQueueSnapshot, findSeedBankAssetReadiness, summarizeClinicalEventReviewProjections, summarizeReviewReplayReadiness, uniqueStrings } from "./api-route-support.js";
-import { registerRuntimeEvidenceRoutes } from "./routes/runtime-evidence-routes.js";
-import { registerAdminGraphqlRoutes } from "./routes/admin-graphql-routes.js";
-import { registerScenarioSceneGenerationRoutes } from "./routes/scenario-scene-generation-routes.js";
-import { registerFacultyCompileLockRoutes } from "./routes/faculty-compile-lock-routes.js";
-import { registerAssembledExamReviewRoutes } from "./routes/assembled-exam-review-routes.js";
-import { registerAssembledExamDispositionRoutes } from "./routes/assembled-exam-disposition-routes.js";
-import { registerAssembledExamRunRoutes } from "./routes/assembled-exam-run-routes.js";
-import { registerEncounterBundlePromotionRoutes } from "./routes/encounter-bundle-promotion/index.js";
+} from "@openclinxr/rest";
+
+import type { ApiAppContext } from "@openclinxr/rest";
+import { ApiApplication, type ApiApp } from "@openclinxr/rest";
+import { registerReviewRoutes } from "@openclinxr/rest";
+import { registerEncounterSessionRoutes } from "@openclinxr/rest";
+import { registerSessionRoutes } from "@openclinxr/rest";
+import { registerCapabilityJobRoutes } from "@openclinxr/rest";
+import { registerAuthoringRoutes } from "@openclinxr/rest";
+import { registerDialogueSeedAuthoringRoutes } from "@openclinxr/rest";
+import { registerExamRoutes } from "@openclinxr/rest";
+import { registerPlatformRoutes } from "@openclinxr/rest";
+import { registerRuntimeEvidenceRoutes } from "@openclinxr/rest";
+import { registerAdminGraphqlRoutes } from "@openclinxr/rest";
+import { registerScenarioSceneGenerationRoutes } from "@openclinxr/rest";
+import { registerFacultyCompileLockRoutes } from "@openclinxr/rest";
+import { repoRoot } from "./scenario-promotion-io.js";
+import { registerAssembledExamReviewRoutes } from "@openclinxr/rest";
+import { registerAssembledExamDispositionRoutes } from "@openclinxr/rest";
+import { registerAssembledExamRunRoutes } from "@openclinxr/rest";
+import { registerEncounterBundlePromotionRoutes } from "@openclinxr/rest";
 import { registerWorldCompileRoutes } from "./world-compile-routes.js";
 import { registerFactoryRunTableRoutes } from "./factory-run-table-routes.js";
 
@@ -268,7 +236,7 @@ function registerAllRoutes(app: ApiApp, ctx: ApiAppContext): void {
   registerSessionRoutes(app, ctx);
   registerEncounterSessionRoutes(app, ctx);
   registerReviewRoutes(app, ctx);
-  registerFacultyCompileLockRoutes(app, ctx);
+  registerFacultyCompileLockRoutes(app, ctx, repoRoot);
   registerAssembledExamReviewRoutes(app, ctx);
   registerAssembledExamDispositionRoutes(app, ctx);
   registerAssembledExamRunRoutes(app, ctx);

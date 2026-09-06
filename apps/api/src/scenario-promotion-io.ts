@@ -18,13 +18,13 @@ import { scenarioBank } from "@openclinxr/scenario-fixtures";
 import type { Scenario } from "@openclinxr/shared-schemas";
 import { fileURLToPath } from "node:url";
 import { createApiFetchTransport } from "./api-fetch-transport.js";
-import type { ApiPersistenceSink, ApiScenarioReviewDecisionRecord } from "./api-types.js";
+import type { ApiPersistenceSink, ApiScenarioReviewDecisionRecord } from "@openclinxr/rest";
 import { createApiApp } from "./index.js";
-import { toAdminGraphqlScenario } from "./admin-scenario-listing.js";
+import { toAdminGraphqlScenario } from "@openclinxr/rest";
 import {
   AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX,
   authoredScenarioContentIdentity,
-} from "./scenario-review-promotion.js";
+} from "@openclinxr/rest";
 
 export const BLUEPRINT_ID = "step2cs-seed";
 export const IN_PROCESS_ORIGIN = "http://in-process.openclinxr.local";

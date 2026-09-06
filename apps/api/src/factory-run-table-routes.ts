@@ -1,8 +1,8 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import type { Hono } from "hono";
-import type { ApiAppContext } from "./api-app-context.js";
-import type { ApiAppVariables } from "./api-types.js";
+import type { ApiAppContext } from "@openclinxr/rest";
+import type { ApiAppVariables } from "@openclinxr/rest";
 import { repoRoot } from "./scenario-promotion-io.js";
 
 /**

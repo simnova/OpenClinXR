@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { createSeedBankAssetReadiness } from "../../../apps/api/src/api-route-support.js";
+import { createSeedBankAssetReadiness } from "../../../packages/openclinxr/rest/src/api-route-support.js";
 import { createScenarioPlaceholderManifests } from "../../../packages/openclinxr/asset-registry/src/index.js";
 import { scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src/index.js";
 

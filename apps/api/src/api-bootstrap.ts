@@ -18,8 +18,8 @@ import {
   createOpenClinXrApiProtocolPosture,
   type OpenClinXrApiProtocolPosture,
   type OpenClinXrApiProtocolSupport,
-} from "./protocol-support.js";
-import { createScenarioRuntimeDurableStoreFromApiPersistence } from "./runtime-durable-store.js";
+} from "@openclinxr/rest";
+import { createScenarioRuntimeDurableStoreFromApiPersistence } from "@openclinxr/rest";
 
 export type AzureFunctionHttpMethod = "GET" | "POST" | "PATCH" | "PUT" | "DELETE" | "OPTIONS" | "HEAD";
 

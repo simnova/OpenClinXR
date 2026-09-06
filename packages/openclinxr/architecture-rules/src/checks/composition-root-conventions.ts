@@ -43,8 +43,8 @@ export type CompositionRootAppBudget = {
 export const COMPOSITION_ROOT_APP_BUDGETS: readonly CompositionRootAppBudget[] = [
   {
     app: "apps/api",
-    maxFiles: 41,
-    maxLines: 10106,
+    maxFiles: 11,
+    maxLines: 2541,
     reason:
       "frozen at the 2026-09-06 measurement; ratchet toward CellixJs apps/api (15 files / 686 lines, registers infrastructure services and sets context, nothing else)",
   },
@@ -165,10 +165,7 @@ const VALIDATION_SCAN_ROOTS = [
  */
 export const VALIDATION_SEPARATION_FREEZE: Record<string, { reason: string }> = {
   "apps/api/src/api-fetch-transport.ts": { reason: "frozen mixer: isApiFetchRequestLike beside fetch-transport helpers — move validators to a package" },
-  "apps/api/src/api-route-support.ts": { reason: "frozen mixer: parseActorInteractionSource/isAssetGenerationCapabilityId/parseRuntimeProfile beside route helpers — move validators to a package" },
-  "apps/api/src/api-support.ts": { reason: "frozen mixer: isRecord/parseStringArray beside IO helpers — move validators to a package" },
   "apps/api/src/factory-run-table-routes.ts": { reason: "frozen mixer: parseFactoryRunRollup beside route registration — move the validator to a package" },
-  "apps/api/src/routes/encounter-bundle-promotion/faculty-encounter-bundle-promotion.ts": { reason: "frozen mixer: isFacultyEncounterBundlePromotionRequest beside promotion paths — move the validator to a package" },
   "apps/api/src/scenario-promotion-io.ts": { reason: "frozen mixer: isRecord beside promotion IO constants — move the validator to a package" },
   "apps/api/src/world-compile-routes.ts": { reason: "frozen mixer: parseStationPayloads beside route registration — move the validator to a package" },
   "apps/ui-admin/src/case-authoring-io.ts": { reason: "frozen mixer: isRecord beside authoring IO helpers — move the validator to a package" },

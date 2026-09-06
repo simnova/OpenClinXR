@@ -43,7 +43,11 @@ export const ZONE_BUDGETS: readonly { prefix: string; maxLines: number }[] = [
 export const SIZE_FREEZE: Record<string, { maxLines: number; reason: string }> = {
   "apps/ui-xr/src/main.ts": { maxLines: 9980, reason: "XR runtime god-file — #1 paydown; split by subsystem (scene, input, locomotion, capture, HUD); #57 exam-form boot extract; #44 station-environment extract; #72 actor-floor-composition + encounter-actor-framing extract; #83 physics-touch apply extract + seated posture; #115 station-context + station-vitals extract (honest unauthored vitals)" },
   "apps/ui-xr/src/runtime-state.ts": { maxLines: 3741, reason: "XR runtime-state god-file — split by state slice; #57 compact snapshot options" },
-  "apps/api/src/api-route-support.ts": { maxLines: 1124, reason: "shared route-level helpers extracted from app.ts during the composition-root migration — split by domain alongside the remaining route modules" },
+  "packages/openclinxr/rest/src/api-route-support.ts": { maxLines: 1117, reason: "shared route-level helpers; moved from apps/api in the composition-root migration — split by domain alongside the remaining route modules" },
+  "packages/openclinxr/rest/src/api-support.ts": { maxLines: 553, reason: "shared route helpers; moved from apps/api in the composition-root migration — split by domain" },
+  "packages/openclinxr/rest/src/api-types.ts": { maxLines: 587, reason: "REST DTO type surface; moved from apps/api in the composition-root migration — split by domain area" },
+  "packages/openclinxr/rest/src/routes/assembled-exam-run-routes.ts": { maxLines: 589, reason: "assembled-exam run routes; moved from apps/api in the composition-root migration — split by handler" },
+  "packages/openclinxr/rest/src/scenario-review-promotion.ts": { maxLines: 510, reason: "scenario review promotion; moved from apps/api in the composition-root migration — split read/write" },
   "packages/openclinxr/asset-registry/src/index.ts": { maxLines: 2843, reason: "barrel god-file — split registry/query/store concerns; #44 spatial zones extract" },
   "packages/openclinxr/scenario-fixtures/src/scenario-bank-maturity.ts": { maxLines: 822, reason: "residual: maturity/exam-sequence/factory-planning analytics — split report builders by projection next (bank arrays + 11 scenarios + builders already extracted)" },
   "packages/openclinxr/arena/iwsdk-spike/src/index.ts": { maxLines: 2398, reason: "arena spike barrel — split by concern" },

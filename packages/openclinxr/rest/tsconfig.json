@@ -20,5 +20,40 @@
     "**/*.test.tsx",
     "**/*.spec.ts",
     "dist"
+  ],
+  "references": [
+    {
+      "path": "../asset-registry"
+    },
+    {
+      "path": "../auth"
+    },
+    {
+      "path": "../capability-gateway"
+    },
+    {
+      "path": "../exam-assembly"
+    },
+    {
+      "path": "../graphql"
+    },
+    {
+      "path": "../review-workflow"
+    },
+    {
+      "path": "../scenario-fixtures"
+    },
+    {
+      "path": "../scenario-runtime"
+    },
+    {
+      "path": "../shared-schemas"
+    },
+    {
+      "path": "../telemetry"
+    },
+    {
+      "path": "../voice-gateway"
+    }
   ]
 }

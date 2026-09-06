@@ -16,7 +16,7 @@ import {
   STEP2CS_STATION_COUNT,
 } from "../../../packages/openclinxr/exam-assembly/src/index.js";
 import { edChestPainScenario } from "../../../packages/openclinxr/scenario-fixtures/src/index.js";
-import { buildExamAssemblyScenarioPool } from "../../../apps/api/src/exam-assembly-pool.js";
+import { buildExamAssemblyScenarioPool } from "../../../packages/openclinxr/rest/src/exam-assembly-pool.js";
 
 export type AssemblyReport = {
   blueprintStationSlotCount: number;

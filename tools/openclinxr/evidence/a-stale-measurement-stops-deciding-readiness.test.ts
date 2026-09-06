@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { createSeedBankAssetReadiness } from "../../../apps/api/src/api-route-support.js";
+import { createSeedBankAssetReadiness } from "../../../packages/openclinxr/rest/src/api-route-support.js";
 
 /**
  * OBSERVABLE: the readiness verdict trusts `MEASURED_STATION_GEOMETRY.triangles` unconditionally, and

@@ -378,7 +378,7 @@ describe("workspace architecture rules", () => {
       dependencies?: Record<string, string>;
       scripts?: Record<string, string>;
     };
-    const protocolSupport = readFileSync(join(workspaceRoot, "apps/api/src/protocol-support.ts"), "utf8");
+    const protocolSupport = readFileSync(join(workspaceRoot, "packages/openclinxr/rest/src/protocol-support.ts"), "utf8");
     const bunServer = readFileSync(join(workspaceRoot, "apps/api/src/bun-server.ts"), "utf8");
     const nodeServer = readFileSync(join(workspaceRoot, "apps/api/src/server.ts"), "utf8");
 
@@ -397,7 +397,7 @@ describe("workspace architecture rules", () => {
   });
 
   it("keeps WebTransport, QUIC, and Web3 signaling evidence-gated behind protocol posture", () => {
-    const protocolSupport = readFileSync(join(workspaceRoot, "apps/api/src/protocol-support.ts"), "utf8");
+    const protocolSupport = readFileSync(join(workspaceRoot, "packages/openclinxr/rest/src/protocol-support.ts"), "utf8");
     const speculativeProtocolDependencies = [
       "@fails-components/webtransport",
       "@walletconnect/modal",

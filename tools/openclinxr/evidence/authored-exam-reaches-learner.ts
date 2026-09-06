@@ -15,7 +15,7 @@
  * 3. In-process fetch adapter lives in this module only (one caller; not a framework).
  */
 
-import type { ApiPersistenceSink, ApiScenarioReviewDecisionRecord } from "../../../apps/api/src/api-types.js";
+import type { ApiPersistenceSink, ApiScenarioReviewDecisionRecord } from "../../../packages/openclinxr/rest/src/api-types.js";
 import { createApiApp } from "../../../apps/api/src/index.js";
 import { resolveLearnerExamScenarios } from "../../../apps/ui-xr/src/learner-exam-scenario-source.js";
 import { adminGraphqlDocumentByOperationName } from "../../../packages/openclinxr/graphql/src/index.js";

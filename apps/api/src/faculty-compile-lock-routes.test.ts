@@ -2,7 +2,7 @@ import { readFile, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { createApiApp } from "./index.js";
-import { compileLocksPathFor, FACULTY_COMPILE_LOCKS_DIR, readFacultyCompileLocksRecord } from "./faculty-compile-lock-store.js";
+import { compileLocksPathFor, FACULTY_COMPILE_LOCKS_DIR, readFacultyCompileLocksRecord } from "@openclinxr/rest";
 import { repoRoot } from "./scenario-promotion-io.js";
 
 async function json(response: Response): Promise<unknown> {

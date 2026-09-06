@@ -7,8 +7,8 @@ import {
   factoryStationSchemas,
   type ProductionStationId,
 } from "@openclinxr/factory-stations";
-import type { ApiAppContext } from "./api-app-context.js";
-import type { ApiAppVariables } from "./api-types.js";
+import type { ApiAppContext } from "@openclinxr/rest";
+import type { ApiAppVariables } from "@openclinxr/rest";
 import { repoRoot } from "./scenario-promotion-io.js";
 
 /**

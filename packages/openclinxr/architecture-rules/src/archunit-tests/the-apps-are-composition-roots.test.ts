@@ -49,6 +49,12 @@ import {
  *
  * Diagnosis header IMMUTABLE. Flip it.fails -> it and append ## FIXED.
  *
+ * ## SUPERSEDED (cellix-m1)
+ * The header's numbers are the measurement at plant time and stay. The api migration
+ * moved apps/api/src/routes and its six support modules into @openclinxr/rest, taking
+ * apps/api from 41 files / 10,106 lines to 12 / 2,542 and the mixer count from 31 to 28.
+ * Both ratchets are shrink-only: they may fall further, never rise.
+ *
  * claimScope: gates that stop apps/ growing and force new code into packages.
  * notEvidenceFor: that any code has moved yet; that the package layout matches
  * ocom's; runtime behaviour of anything measured here.
@@ -121,9 +127,9 @@ describe("the apps are composition roots", () => {
     expect(padded).toEqual([]);
   });
 
-  it("(6) the frozen validation-mixing set is the 31 measured files", async () => {
+  it("(6) the frozen validation-mixing set is the 28 measured files", async () => {
     const { checkValidationSeparation } = await check();
-    expect(checkValidationSeparation({ freeze: {} })).toHaveLength(31);
+    expect(checkValidationSeparation({ freeze: {} })).toHaveLength(28);
   });
 
   it("(7) COUNTERWEIGHT: a NEW file mixing a validator with other exports is reported", async () => {

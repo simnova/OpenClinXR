@@ -225,3 +225,87 @@ function decodePathSegment(value: string): string {
     return value;
   }
 }
+
+export {
+  listAdminGraphqlScenarios,
+  toAdminGraphqlScenario,
+} from "./admin-scenario-listing.js";
+export type { ApiAppContext } from "./api-app-context.js";
+export { createApiAppContext } from "./api-app-context.js";
+export type { ApiApp, ApiLifecycleService, ApiLifecycleServiceInput, ComposedApiApp } from "./api-application.js";
+export { ApiApplication, shutdownApiApp } from "./api-application.js";
+export { registerCoreMiddleware } from "./api-middleware.js";
+export {
+  buildAssetReleaseLadderReplayProjection,
+  createAdminGraphqlRoot,
+  createSeedBankAssetReadiness,
+  createSeedBankSceneGenerationPipelineQueue,
+  createSeedStationRunQueueSnapshot,
+  findSeedBankAssetReadiness,
+  summarizeClinicalEventReviewProjections,
+  summarizeReviewReplayReadiness,
+  uniqueStrings,
+} from "./api-route-support.js";
+export {
+  createDefaultRealtimeVoiceGatewayPostureInput,
+  recordApiRouteSpan,
+  telemetrySnapshotFromRecorder,
+} from "./api-support.js";
+export type * from "./api-types.js";
+export type {
+  ApiAppOptions,
+  ApiAppVariables,
+  ApiAuthOptions,
+  ApiPersistenceSink,
+} from "./api-types.js";
+export { buildExamAssemblyScenarioPool } from "./exam-assembly-pool.js";
+export {
+  compileLocksPathFor,
+  FACULTY_COMPILE_LOCK_CLAIM_BOUNDARY,
+  FACULTY_COMPILE_LOCK_NOT_EVIDENCE_FOR,
+  FACULTY_COMPILE_LOCK_OVERRIDE_PATHS,
+  FACULTY_COMPILE_LOCKS_DIR,
+  type FacultyCompileLockFile,
+  type FacultyCompileLockFileLock,
+  readFacultyCompileLocksRecord,
+  resolveCompileLocksRepoRoot,
+  writeFacultyCompileLock,
+} from "./faculty-compile-lock-store.js";
+export type { OpenClinXrApiProtocolPosture, OpenClinXrApiProtocolSupport } from "./protocol-support.js";
+export { createOpenClinXrApiProtocolPosture } from "./protocol-support.js";
+export { registerAdminGraphqlRoutes } from "./routes/admin-graphql-routes.js";
+export { registerAssembledExamDispositionRoutes } from "./routes/assembled-exam-disposition-routes.js";
+export { registerAssembledExamReviewRoutes } from "./routes/assembled-exam-review-routes.js";
+export { registerAssembledExamRunRoutes } from "./routes/assembled-exam-run-routes.js";
+export { registerAuthoringRoutes } from "./routes/authoring-routes.js";
+export { registerCapabilityJobRoutes } from "./routes/capability-job-routes.js";
+export { registerDialogueSeedAuthoringRoutes } from "./routes/dialogue-seed-authoring-routes.js";
+export {
+  FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PATH,
+  FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PREVIEW_PATH,
+  registerEncounterBundlePromotionRoutes,
+} from "./routes/encounter-bundle-promotion/index.js";
+export { registerEncounterSessionRoutes } from "./routes/encounter-session-routes.js";
+export { registerExamRoutes } from "./routes/exam-routes.js";
+export { registerFacultyCompileLockRoutes } from "./routes/faculty-compile-lock-routes.js";
+export { registerPlatformRoutes } from "./routes/platform-routes.js";
+export { registerReviewRoutes } from "./routes/review-routes.js";
+export { registerRuntimeEvidenceRoutes } from "./routes/runtime-evidence-routes.js";
+export { registerScenarioSceneGenerationRoutes } from "./routes/scenario-scene-generation-routes.js";
+export { registerSessionRoutes, resolveSessionRuntime } from "./routes/session-routes.js";
+export {
+  type ApiAssembledExamDispositionRecord,
+  type ApiAssembledExamRunRecord,
+  type ApiRuntimeDurableStore,
+  createScenarioRuntimeDurableStoreFromApiPersistence,
+} from "./runtime-durable-store.js";
+export {
+  AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX,
+  authoredScenarioContentIdentity,
+  bindScenarioReviewDecisionToAuthoredIdentity,
+  coerceAuthoredScenarioWrite,
+  MISSING_AUTHORED_SCENARIO_REVIEW_IDENTITY_ERROR,
+  neutralizeClientAssertedApprovedGates,
+  persistAuthoredScenarioReviewPromotion,
+  STALE_AUTHORED_SCENARIO_REVIEW_IDENTITY_ERROR,
+} from "./scenario-review-promotion.js";

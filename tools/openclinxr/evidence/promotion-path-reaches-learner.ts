@@ -22,7 +22,7 @@
  * 4. Distinguishing field = title carrying ISSUE167_PROMOTION_SEAM_MARKER (#165 pattern).
  */
 
-import type { ApiPersistenceSink, ApiScenarioReviewDecisionRecord } from "../../../apps/api/src/api-types.js";
+import type { ApiPersistenceSink, ApiScenarioReviewDecisionRecord } from "../../../packages/openclinxr/rest/src/api-types.js";
 import { createApiApp } from "../../../apps/api/src/index.js";
 import { resolveLearnerExamScenarios } from "../../../apps/ui-xr/src/learner-exam-scenario-source.js";
 import { adminGraphqlDocumentByOperationName } from "../../../packages/openclinxr/graphql/src/index.js";
