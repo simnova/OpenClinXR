@@ -11,6 +11,7 @@ import {
   DialogueSeedAuthoringPanel,
   previewAuthoredDialogueCatalog,
   type AuthoredDialogueSeedDraft,
+  type DialogueFetchLike,
   type DialogueSeedActor,
   type DialogueSeedAuthoringPreviewRequest,
   type DialogueSeedAuthoringPreviewResult,
@@ -155,7 +156,7 @@ describe("DialogueSeedAuthoringPanel", () => {
         learnerUtterance: onsetSeed.learnerUtterance,
         turnIndex: 0,
       },
-    }, { fetch: fetchImpl as unknown as typeof fetch });
+    }, { fetch: fetchImpl as unknown as DialogueFetchLike });
     const second = await previewAuthoredDialogueCatalog({
       scenarioId: "ed_chest_pain_priority_v1",
       version: 1,
@@ -166,7 +167,7 @@ describe("DialogueSeedAuthoringPanel", () => {
         learnerUtterance: onsetSeed.learnerUtterance,
         turnIndex: 0,
       },
-    }, { fetch: fetchImpl as unknown as typeof fetch });
+    }, { fetch: fetchImpl as unknown as DialogueFetchLike });
 
     expect(first).toEqual(second);
     expect(first.ok).toBe(true);
@@ -227,7 +228,7 @@ describe("DialogueSeedAuthoringPanel", () => {
       fetch: (async () => new Response(JSON.stringify(spoof), {
         status: 200,
         headers: { "content-type": "application/json" },
-      })) as unknown as typeof fetch,
+      })) as unknown as DialogueFetchLike,
     });
     expect(result).toEqual({ ok: false, error: "invalid_body", reason: "preview_identity_blank" });
 
@@ -276,7 +277,7 @@ describe("DialogueSeedAuthoringPanel", () => {
       fetch: (async () => new Response(JSON.stringify(crossActor), {
         status: 200,
         headers: { "content-type": "application/json" },
-      })) as unknown as typeof fetch,
+      })) as unknown as DialogueFetchLike,
     });
     const turnResult = await previewAuthoredDialogueCatalog({
       scenarioId: "ed_chest_pain_priority_v1",
@@ -292,7 +293,7 @@ describe("DialogueSeedAuthoringPanel", () => {
       fetch: (async () => new Response(JSON.stringify(crossTurn), {
         status: 200,
         headers: { "content-type": "application/json" },
-      })) as unknown as typeof fetch,
+      })) as unknown as DialogueFetchLike,
     });
     expect(actorResult).toEqual({ ok: false, error: "invalid_body", reason: "preview_actor_mismatch" });
     expect(turnResult).toEqual({ ok: false, error: "invalid_body", reason: "preview_turn_mismatch" });
@@ -322,7 +323,7 @@ describe("DialogueSeedAuthoringPanel", () => {
       fetch: (async () => new Response(JSON.stringify(enabledProvider), {
         status: 200,
         headers: { "content-type": "application/json" },
-      })) as unknown as typeof fetch,
+      })) as unknown as DialogueFetchLike,
     });
     const boundaryResult = await previewAuthoredDialogueCatalog({
       scenarioId: "ed_chest_pain_priority_v1",
@@ -338,7 +339,7 @@ describe("DialogueSeedAuthoringPanel", () => {
       fetch: (async () => new Response(JSON.stringify(wrongBoundary), {
         status: 200,
         headers: { "content-type": "application/json" },
-      })) as unknown as typeof fetch,
+      })) as unknown as DialogueFetchLike,
     });
     expect(enabledResult).toEqual({ ok: false, error: "invalid_body", reason: "live_provider_must_be_disabled" });
     expect(boundaryResult).toEqual({ ok: false, error: "invalid_body", reason: "claim_boundary_mismatch" });

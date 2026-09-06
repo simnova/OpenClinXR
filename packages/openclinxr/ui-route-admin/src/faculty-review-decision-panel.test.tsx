@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import type { AdminCaseDefinedHumanoidPerformanceContract, AdminReviewPacketReplay } from "./api-client.js";
+import type { AdminCaseDefinedHumanoidPerformanceContract, AdminReviewPacketReplay } from "./admin-review-types.js";
 import { FacultyReviewDecisionPanel } from "./faculty-review-decision-panel.js";
 
 type ReviewPacket = NonNullable<AdminReviewPacketReplay["reviewPacket"]>;
@@ -121,6 +121,7 @@ function reviewPacketFixture(): ReviewPacket {
     missingRequiredTraceTags: ["focused_exam"],
     lateTraceTags: ["oral_handoff"],
     unsafeEvents: [],
+    prosodyNeutralized: true,
     timeline: [
       {
         sequence: 0,
@@ -149,6 +150,8 @@ function reviewPacketFixture(): ReviewPacket {
       status: "draft",
       comments: "",
     },
+    actorTurns: [],
+    emotionalTimeline: [],
   };
 }
 

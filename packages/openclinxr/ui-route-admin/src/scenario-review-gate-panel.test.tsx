@@ -6,7 +6,7 @@ import {
   SCENARIO_REVIEW_RECORDABLE_DIMENSIONS,
   ScenarioReviewGatePanel,
 } from "./scenario-review-gate-panel.js";
-import type { AdminScenario } from "./api-client.js";
+import type { AdminScenario } from "./admin-review-types.js";
 
 beforeAll(() => {
   vi.stubGlobal("matchMedia", (query: string) => ({

@@ -4,7 +4,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import { SeedWorldviewQueue } from "./seed-worldview-queue.js";
+import { SeedWorldviewQueue } from "@openclinxr/ui-route-admin/seed-worldview-queue";
 import { installWorldviewQueueTestDom } from "./worldview-queue-test-dom.js";
 
 installWorldviewQueueTestDom();
@@ -24,6 +24,7 @@ installWorldviewQueueTestDom();
  * ## FIXED (skeptic: per-node llmProposed/facultyAccepted computed from lock rows)
  */
 
+const PKG_SRC = join(dirname(fileURLToPath(import.meta.url)), "../../../packages/openclinxr/ui-route-admin/src");
 const SRC = dirname(fileURLToPath(import.meta.url));
 
 describe("the worldview shows LLM proposed vs faculty accepted", () => {
@@ -57,13 +58,13 @@ describe("the worldview shows LLM proposed vs faculty accepted", () => {
     expect(within(diff).getByText(/patient_maya_johnson_v1: llmProposed patient_maya_johnson_v1 vs facultyAccepted accepted_short_sleeve/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /add actor compile node/i }));
     expect(within(diff).getByText(/llmProposed ActorVariant vs facultyAccepted proposed/)).toBeInTheDocument();
-    expect(readFileSync(join(SRC, "environment-generation-queue-panel.tsx"), "utf8")).not.toMatch(
+    expect(readFileSync(join(PKG_SRC, "environment-generation-queue-panel.tsx"), "utf8")).not.toMatch(
       /proposedVsAccepted: llmProposed vs facultyAccepted per node/,
     );
   });
 
   it("(2) COUNTERWEIGHT: faculty compile lock table still exists", () => {
-    const panel = readFileSync(join(SRC, "environment-generation-queue-panel.tsx"), "utf8");
+    const panel = readFileSync(join(PKG_SRC, "environment-generation-queue-panel.tsx"), "utf8");
     expect(panel).toMatch(/facultyCompileLockRows/);
   });
 });

@@ -1,6 +1,6 @@
 import { Tag, Typography } from "antd";
 import type { ReactElement } from "react";
-import type { AdminReviewPacketReplay } from "./api-client.js";
+import type { AdminReviewPacketReplay } from "./admin-review-types.js";
 
 type ReviewPacket = NonNullable<AdminReviewPacketReplay["reviewPacket"]>;
 

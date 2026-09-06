@@ -17,7 +17,6 @@ import {
   Typography,
 } from "antd";
 import { type ReactElement, useCallback, useEffect, useMemo, useState } from "react";
-import { createAdminControlPlaneClient } from "./api-client.js";
 import {
   actorRoleOptions,
   caseAuthoringClaimBoundary,
@@ -45,7 +44,7 @@ import { LiveAuthoringPreview } from "./scenario-authoring-preview/live-authorin
 
 const { TextArea } = Input;
 
-/** Minimal server client surface for authored-scenario persistence (via app-local api-client only). */
+/** Minimal server client surface for authored-scenario persistence (supplied by the app shell). */
 export type CaseAuthoringApiClient = {
   saveAuthoredScenario: (scenario: Scenario) => Promise<unknown>;
   listAuthoredScenarios: () => Promise<unknown>;
@@ -75,7 +74,7 @@ type ValidationView = { ok: true } | { ok: false; errors: string[] };
 
 export type CaseAuthoringWorkbenchProps = {
   initialScenario?: Scenario;
-  /** Optional injected client; defaults to createAdminControlPlaneClient() for server save/list/load. */
+  /** Server client for save/list/load; when absent the server section is inert. */
   apiClient?: CaseAuthoringApiClient;
 };
 
@@ -106,10 +105,7 @@ export function CaseAuthoringWorkbench({ initialScenario, apiClient }: CaseAutho
   const [serverList, setServerList] = useState<Array<{ scenarioId: string; version: number; label: string }>>([]);
   const [selectedServerKey, setSelectedServerKey] = useState<string | undefined>(undefined);
   const [serverBusy, setServerBusy] = useState(false);
-  const client = useMemo(
-    () => apiClient ?? createAdminControlPlaneClient(),
-    [apiClient],
-  );
+  const client = apiClient;
 
   const initialValues = useMemo(() => scenarioToFormValues(baseDraft), [baseDraft]);
 
@@ -173,6 +169,10 @@ export function CaseAuthoringWorkbench({ initialScenario, apiClient }: CaseAutho
     URL.revokeObjectURL(url);
   }, [baseDraft, form]);
   const handleSaveToServer = useCallback(async () => {
+    if (!client) {
+      message.error("No server client supplied");
+      return;
+    }
     const values = form.getFieldsValue(true) as ScenarioFormValues;
     const merged = mergeFormValuesIntoScenario(baseDraft, values);
     const draftValidation = validateScenarioDraft(merged);
@@ -192,6 +192,10 @@ export function CaseAuthoringWorkbench({ initialScenario, apiClient }: CaseAutho
   }, [baseDraft, client, form]);
 
   const handleRefreshServerList = useCallback(async () => {
+    if (!client) {
+      message.error("No server client supplied");
+      return;
+    }
     setServerBusy(true);
     try {
       const raw = await client.listAuthoredScenarios();
@@ -215,6 +219,10 @@ export function CaseAuthoringWorkbench({ initialScenario, apiClient }: CaseAutho
 
   const handleLoadFromServer = useCallback(
     async (scenarioId: string) => {
+      if (!client) {
+        message.error("No server client supplied");
+        return;
+      }
       setServerBusy(true);
       try {
         const raw = await client.getAuthoredScenario(scenarioId);

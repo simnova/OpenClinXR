@@ -4,7 +4,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import { SeedWorldviewQueue } from "./seed-worldview-queue.js";
+import { SeedWorldviewQueue } from "@openclinxr/ui-route-admin/seed-worldview-queue";
 import { installWorldviewQueueTestDom } from "./worldview-queue-test-dom.js";
 
 installWorldviewQueueTestDom();
@@ -27,6 +27,7 @@ installWorldviewQueueTestDom();
  * ## FIXED (skeptic: SeedWorldviewQueue wires onAddActor into lock+compile graph)
  */
 
+const PKG_SRC = join(dirname(fileURLToPath(import.meta.url)), "../../../packages/openclinxr/ui-route-admin/src");
 const SRC = dirname(fileURLToPath(import.meta.url));
 const EMPTY_QUEUE = {
   packetCount: 0,
@@ -50,7 +51,7 @@ describe("the worldview add actor creates case and compile nodes", () => {
   });
 
   it("(2) COUNTERWEIGHT: CaseAuthoringWorkbench still has Add actor for the case card", () => {
-    const bench = readFileSync(join(SRC, "case-authoring-workbench.tsx"), "utf8");
+    const bench = readFileSync(join(PKG_SRC, "case-authoring-workbench.tsx"), "utf8");
     expect(bench).toContain("Add actor");
   });
 });

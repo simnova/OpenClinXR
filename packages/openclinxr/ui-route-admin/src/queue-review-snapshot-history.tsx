@@ -5,7 +5,7 @@
  * per-station body provenance (api authored vs bank residual) when recorded.
  */
 import { Tag, Typography } from "antd";
-import type { AdminStationRunQueueSnapshot } from "./api-client-types.js";
+import type { AdminStationRunQueueSnapshot } from "./admin-review-types.js";
 
 export type QueueReviewSnapshotHistoryProps = {
   snapshots: readonly AdminStationRunQueueSnapshot[];

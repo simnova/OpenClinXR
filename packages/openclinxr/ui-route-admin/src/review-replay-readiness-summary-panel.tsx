@@ -5,7 +5,7 @@ import type {
   AdminCaseDefinedHumanoidPerformanceContract,
   AdminCaseDefinedHumanoidRuntimeHandoff,
   AdminReviewPacketReplay,
-} from "./api-client.js";
+} from "./admin-review-types.js";
 
 type ReviewReplayReadinessSummary = AdminReviewPacketReplay["reviewReplayReadinessSummary"];
 

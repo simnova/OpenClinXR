@@ -2,7 +2,7 @@ import type { EnvironmentGenerationQueue, ScenarioAssetReadiness } from "@opencl
 import type { ExamStationRunQueue } from "@openclinxr/exam-assembly";
 import { Tag, Typography } from "antd";
 import type { ReactElement } from "react";
-import type { AdminRealtimeVoicePosture, AdminRuntimeProtocolPosture, AdminRuntimeProviderReadiness } from "./api-client.js";
+import type { AdminRealtimeVoicePosture, AdminRuntimeProtocolPosture, AdminRuntimeProviderReadiness } from "./admin-review-types.js";
 
 export type SeedExamReadinessBoundaryPanelProps = {
   assetReadiness: ScenarioAssetReadiness[];

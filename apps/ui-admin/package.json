@@ -20,7 +20,6 @@
     "@openclinxr/graphql": "workspace:*",
     "@openclinxr/rest": "workspace:*",
     "@openclinxr/review-workflow": "workspace:*",
-    "@openclinxr/scenario-fixtures": "workspace:*",
     "@openclinxr/shared-schemas": "workspace:*",
     "@openclinxr/ui-route-admin": "workspace:*",
     "@openclinxr/ui-shared": "workspace:*",

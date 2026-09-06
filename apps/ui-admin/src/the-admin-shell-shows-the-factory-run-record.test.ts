@@ -2,6 +2,19 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { fetchFactoryRunTable } from "@openclinxr/ui-shared/factory-run-table-client";
+
+/**
+ * PLANT-PHASE NOTE: while this was a planted RED the module did not exist and knip
+ * fails closed on an unresolved import, so the plant reached it through a non-static
+ * specifier. The module exists now, and a non-static specifier also loses vitest's
+ * dependency pre-bundling, which made the suite fail only when run in parallel with
+ * the rest of the file set. Static import.
+ */
+async function client(): Promise<{ fetchFactoryRunTable: typeof fetchFactoryRunTable }> {
+  return { fetchFactoryRunTable };
+}
+
 
 /**
  * OBSERVABLE: GET /internal/factory-run-table serves the run record and
@@ -30,18 +43,6 @@ import { describe, expect, it } from "vitest";
  */
 
 const SRC = dirname(fileURLToPath(import.meta.url));
-const MODULE_SPECIFIER = ["@openclinxr/ui-shared/factory-run-table", "-client"].join("");
-
-type RunTableClient = {
-  fetchFactoryRunTable: (options?: {
-    baseUrl?: string;
-    fetch?: typeof fetch;
-  }) => Promise<{ cases: { caseId: string; stations: { stationId: string; classification: string }[] }[] }>;
-};
-
-async function client(): Promise<RunTableClient> {
-  return (await import(/* @vite-ignore */ MODULE_SPECIFIER)) as never;
-}
 
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {

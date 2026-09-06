@@ -12,7 +12,7 @@ import {
   assembledExamReviewNotEvidenceFor,
   type AssembledExamReviewPacket,
 } from "@openclinxr/review-workflow";
-import { defaultAdminApiBaseUrl } from "./api-client.js";
+
 
 export type AdminAssembledExamReviewPacket = AssembledExamReviewPacket;
 
@@ -282,7 +282,7 @@ export async function fetchAssembledExamReviewPacket(
     throw new Error("examRunId_required");
   }
   const fetcher = options.fetch ?? (globalThis.fetch as AssembledExamReviewPacketFetcher);
-  const baseUrl = (options.baseUrl ?? defaultAdminApiBaseUrl).replace(/\/$/, "");
+  const baseUrl = (options.baseUrl ?? "").replace(/\/$/, "");
   const path = assembledExamReviewPacketPath(trimmed);
   const response = await fetcher(`${baseUrl}${path}`, {
     method: "GET",

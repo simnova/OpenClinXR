@@ -113,7 +113,7 @@ import type {
   AdminReviewPacket,
   AdminStationRunQueueSnapshot,
 } from "./api-client-types.js";
-import type { FacultyCompileLockClient } from "./faculty-compile-lock-types.js"; import { encounterBundlePromotionMethods } from "./compile-encounter-world.js";
+import type { FacultyCompileLockClient } from "@openclinxr/ui-route-admin"; import { encounterBundlePromotionMethods } from "./compile-encounter-world.js";
 export { compileEncounterWorld } from "./compile-encounter-world.js"; export * from "./api-client-types.js";
 
 export const defaultAdminApiBaseUrl = import.meta.env['VITE_OPENCLINXR_API_BASE_URL'] ?? "";

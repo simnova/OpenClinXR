@@ -33,7 +33,10 @@ describe("SeedExamReadinessBoundaryPanel", () => {
             },
           ],
           breakCheckpoints: [],
+          breakWindows: [],
           totalStationTimeSeconds: 1560,
+          totalBreakTimeSeconds: 0,
+          totalFormTimeSeconds: 1560,
           summary: { activationReady: 0, draftBlocked: 1, governanceBlocked: 0, missingScenario: 0 },
         }}
         runtimeProviderReadiness={{

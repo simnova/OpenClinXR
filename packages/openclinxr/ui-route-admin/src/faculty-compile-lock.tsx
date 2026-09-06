@@ -1,6 +1,6 @@
 import { Input, Select, Space, Switch, type TableColumnsType, Tag, Typography } from "antd";
 import { type ReactElement, useEffect, useState } from "react";
-import type { AdminControlPlaneClient, ScenarioSceneGenerationPipelineWorkOrderQueue } from "./api-client.js";
+import type { ScenarioSceneGenerationPipelineWorkOrderQueue } from "./admin-review-types.js";
 import type { CompileEdge } from "@openclinxr/ui-shared/admin-compile-graph-canvas";
 import type { FacultyCompileLockClient } from "./faculty-compile-lock-types.js";
 
@@ -288,7 +288,7 @@ export function buildCompileEdges(
  */
 export function useFacultyCompileLocks(
   sceneGenerationPipelineQueue: ScenarioSceneGenerationPipelineWorkOrderQueue | undefined,
-  controlPlaneClient: AdminControlPlaneClient,
+  controlPlaneClient: FacultyCompileLockClient,
   compileEdgesFromEvidence?: EvidenceCompileEdges,
   evidenceCompileNodes?: readonly EvidenceCompileNode[],
 ): {
@@ -310,16 +310,14 @@ export function useFacultyCompileLocks(
 
   // Persist each faculty lock/override toggle to the compile-lock store (the World
   // Compile Graph compile runner reads .openclinxr/compile-locks/<scenarioId>.json).
+  // The compile-lock client surface lives in faculty-compile-lock-types.ts as
+  // FacultyCompileLockClient.
   const persistCompileLock = (row: FacultyCompileLockRow, patch: { locked: boolean; overridePath: FacultyCompileOverridePath | undefined; overrideValue: unknown }): void => {
     const context = findFacultyCompileLockContext(sceneGenerationPipelineQueue, row.compileSubject, row.kind);
     if (!context) {
       return;
     }
-    // The concrete client returned by createAdminControlPlaneClient always carries
-    // the compile-lock methods; the base AdminControlPlaneClient type does not
-    // (api-client-types.ts is frozen at its ceiling, so the slice lives in
-    // faculty-compile-lock-types.ts as FacultyCompileLockClient).
-    void (controlPlaneClient as AdminControlPlaneClient & FacultyCompileLockClient)
+    void controlPlaneClient
       .persistFacultyCompileLock({
         scenarioId: context.scenarioId,
         nodeId: context.nodeId,

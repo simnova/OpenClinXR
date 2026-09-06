@@ -4,7 +4,7 @@ import { cleanup, fireEvent, render, screen, within } from "@testing-library/rea
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { AdminApp } from "./app.js";
 import type { AdminControlPlaneClient } from "./api-client.js";
-import type { FacultyCompileLockClient } from "./faculty-compile-lock-types.js";
+import type { FacultyCompileLockClient } from "@openclinxr/ui-route-admin";
 
 describe("AdminApp", () => {
   beforeAll(() => {
@@ -926,7 +926,10 @@ function fakeControlPlaneClient(): AdminControlPlaneClient & FacultyCompileLockC
         { afterStationOrder: 6, atSecond: 9360 },
         { afterStationOrder: 9, atSecond: 14040 },
       ],
+      breakWindows: [],
       totalStationTimeSeconds: 18720,
+      totalBreakTimeSeconds: 0,
+      totalFormTimeSeconds: 18720,
     }),
     getStep2CsSeedStationRunQueue: async () => ({
       blueprintId: "blueprint_openclinxr_step2cs_style_seed_v1",
@@ -953,7 +956,10 @@ function fakeControlPlaneClient(): AdminControlPlaneClient & FacultyCompileLockC
         { afterStationOrder: 6, atSecond: 9360 },
         { afterStationOrder: 9, atSecond: 14040 },
       ],
+      breakWindows: [],
       totalStationTimeSeconds: 18720,
+      totalBreakTimeSeconds: 0,
+      totalFormTimeSeconds: 18720,
       summary: { activationReady: 1, draftBlocked: 10, governanceBlocked: 1, missingScenario: 0 },
     }),
     getRuntimeProviderReadiness: async () => fakeRuntimeProviderReadiness(),

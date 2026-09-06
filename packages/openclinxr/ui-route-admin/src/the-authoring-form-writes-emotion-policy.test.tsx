@@ -42,8 +42,12 @@ import {
  *   (emotion-policy-panel.tsx).
  */
 
+// "pain" is not a member of the emotion enum (anxious | concerned | neutral | reassured).
+// The old `as ReturnType<...>` cast in this file hid that; the destination package's
+// tsconfig surfaces it. "concerned" keeps the fixture distinct from the default baseline,
+// which is what the assertion below actually needs.
 const AUTHORED = {
-  baseline: "pain" as const,
+  baseline: "concerned" as const,
   upperBound: "anxious" as const,
   lowerBound: "neutral" as const,
   transitions: [],
@@ -82,14 +86,11 @@ describe("the authoring form writes emotionPolicy", () => {
   });
 
   it("(2) mergeFormValuesIntoScenario writes the form emotionPolicy onto the scenario", () => {
-    const values = {
+    const values: ReturnType<typeof scenarioToFormValues> = {
       ...scenarioToFormValues(edChestPainScenario),
       emotionPolicy: AUTHORED,
     };
-    const merged = mergeFormValuesIntoScenario(
-      edChestPainScenario,
-      values as ReturnType<typeof scenarioToFormValues>,
-    );
+    const merged = mergeFormValuesIntoScenario(edChestPainScenario, values);
     expect(merged.emotionPolicy).toEqual(AUTHORED);
   });
 

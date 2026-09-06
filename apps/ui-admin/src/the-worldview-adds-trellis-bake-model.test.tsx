@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import { SeedWorldviewQueue } from "./seed-worldview-queue.js";
+import { SeedWorldviewQueue } from "@openclinxr/ui-route-admin/seed-worldview-queue";
 import { installWorldviewQueueTestDom } from "./worldview-queue-test-dom.js";
 
 installWorldviewQueueTestDom();

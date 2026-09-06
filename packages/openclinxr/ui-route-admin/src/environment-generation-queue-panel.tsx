@@ -8,9 +8,8 @@ import {
 } from "@openclinxr/asset-registry";
 import { Button, Form, Input, InputNumber, Select, Space, Table, Tag, Typography } from "antd";
 import { FactoryStationCards } from "@openclinxr/ui-shared/admin-factory-station-cards";
-import "@xyflow/react/dist/style.css";
 import { lazy, type ReactElement, Suspense, useEffect, useMemo } from "react";
-import type { CreateScenarioSceneGenerationRequestResult, ScenarioSceneGenerationRequestPublicationReadiness, ScenarioSceneGenerationRequestQueue } from "./api-client.js";
+import type { CreateScenarioSceneGenerationRequestResult, ScenarioSceneGenerationRequestPublicationReadiness, ScenarioSceneGenerationRequestQueue } from "./admin-review-types.js";
 import { supportSurfaceOptions } from "./case-authoring-model.js";
 import type { CompileEdge } from "@openclinxr/ui-shared/admin-compile-graph-canvas";
 import {

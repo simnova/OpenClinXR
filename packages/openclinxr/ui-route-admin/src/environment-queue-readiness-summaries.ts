@@ -10,7 +10,7 @@
  * panel imports — so they are the clean cut. Nothing outside the panel referenced them, verified
  * before the move, making this a pure relocation rather than an API change.
  */
-import type { ScenarioSceneGenerationRequestPublicationReadiness } from "./api-client.js";
+import type { ScenarioSceneGenerationRequestPublicationReadiness } from "./admin-review-types.js";
 
 export function summarizeMaterializationInputManifest(readiness: ScenarioSceneGenerationRequestPublicationReadiness): string {
   const summary = readiness.materializationInputManifestSummary;

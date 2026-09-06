@@ -4,6 +4,7 @@ import { buildScenarioGovernanceCopy, safeUserFacingClaimLanguage, scoreUseCopy,
 import { buildFacultyReviewPath } from "@openclinxr/review-workflow";
 import { adminPublicationGates, adminWorkbenchRoutes } from "@openclinxr/ui-route-admin";
 import { adminWorkbenchCapabilityTags, openClinXrAdminTheme } from "@openclinxr/ui-shared";
+import "@xyflow/react/dist/style.css";
 import { Alert, Button, Card, ConfigProvider, Input, Layout, Space, Spin, Steps, Tag, Typography } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { BrowserRouter, Link, MemoryRouter, Route, Routes, useParams, useSearchParams } from "react-router";
@@ -38,24 +39,11 @@ import {
   type SubmitRuntimeVisualEvidenceAttachmentInput,
 } from "./api-client.js";
 import { ActorTurnReplayPanel } from "@openclinxr/ui-shared/actor-turn-replay-panel";
-import { CaseAuthoringWorkbench } from "./case-authoring-workbench.js";
 import { EmissionReplayBindPanel } from "@openclinxr/ui-shared/emission-replay-bind-panel";
-import type { PlacementAuthorValue } from "./environment-generation-queue-panel.js";
 import { FactoryRunProgressPanel } from "@openclinxr/ui-shared/factory-run-progress-panel";
 import { fetchFactoryRunTable, type FactoryRunTable } from "@openclinxr/ui-shared/factory-run-table-client";
-import { SeedWorldviewQueue, type SeedWorldviewCompileGraph } from "./seed-worldview-queue.js";
-import { FacultyAdjudicationWorkspace, fetchAssembledExamReviewPacket } from "./faculty-adjudication-workspace.js";
-import { FacultyDispositionPanel } from "@openclinxr/ui-shared/faculty-disposition-panel"; import { FacultyReviewDecisionPanel } from "./faculty-review-decision-panel.js";
-import { useFacultyCompileLocks } from "./faculty-compile-lock.js";
-import { QueueReviewSnapshotHistory } from "./queue-review-snapshot-history.js";
-import { ReviewReplayReadinessSummaryPanel } from "./review-replay-readiness-summary-panel.js";
-import { ReviewReplaySafetyPanel } from "./review-replay-safety-panel.js";
-import { FacultyEncounterBundlePromotionHost } from "./encounter-bundle-promotion/index.js";
-import { RuntimeSelectionReviewPacketPanel } from "./runtime-selection-review-packet-panel.js";
-import { ScenarioBankMaturityPanel } from "./scenario-bank-maturity-panel.js";
-import { ScenarioReviewGatePanel } from "./scenario-review-gate-panel.js";
-import { SeedExamReadinessBoundaryPanel } from "./seed-exam-readiness-boundary-panel.js";
-import { formatMinutes, formatStationQueueBlocker, reviewGateColor, scenarioReviewGateEntries, scenarioStatusColor } from "./scenario-bank-maturity-panel.js";
+import { FacultyDispositionPanel } from "@openclinxr/ui-shared/faculty-disposition-panel";
+import { CaseAuthoringWorkbench, FacultyAdjudicationWorkspace, fetchAssembledExamReviewPacket, FacultyEncounterBundlePromotionHost, type FacultyCompileLockClient, FacultyReviewDecisionPanel, QueueReviewSnapshotHistory, ReviewReplayReadinessSummaryPanel, ReviewReplaySafetyPanel, RuntimeSelectionReviewPacketPanel, ScenarioBankMaturityPanel, ScenarioReviewGatePanel, SeedExamReadinessBoundaryPanel, SeedWorldviewQueue, useFacultyCompileLocks, formatMinutes, formatStationQueueBlocker, reviewGateColor, scenarioReviewGateEntries, scenarioStatusColor, type PlacementAuthorValue, type SeedWorldviewCompileGraph } from "@openclinxr/ui-route-admin";
 
 const { Content, Sider } = Layout, { TextArea } = Input;
 
@@ -1151,7 +1139,7 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
 
   const sceneGenerationPipelineQueue = state.status === "ready" ? state.sceneGenerationPipelineQueue : undefined;
   const { facultyCompileLockRows, handleFacultyCompileLockChange, handleFacultyCompileOverrideChange, handleFacultyCompileOverrideValueChange, compileEdges } =
-    useFacultyCompileLocks(sceneGenerationPipelineQueue, controlPlaneClient);
+    useFacultyCompileLocks(sceneGenerationPipelineQueue, controlPlaneClient as AdminControlPlaneClient & FacultyCompileLockClient);
 
   useEffect(() => {
     let active = true;

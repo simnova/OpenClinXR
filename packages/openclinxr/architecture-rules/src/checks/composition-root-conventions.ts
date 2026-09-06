@@ -50,8 +50,8 @@ export const COMPOSITION_ROOT_APP_BUDGETS: readonly CompositionRootAppBudget[] =
   },
   {
     app: "apps/ui-admin",
-    maxFiles: 40,
-    maxLines: 11941,
+    maxFiles: 7,
+    maxLines: 3724,
     reason:
       "frozen at the 2026-09-06 measurement; ratchet toward the CellixJs largest app (ui-community, 19 files / 1,506 lines) — behaviour moves to packages",
   },
@@ -168,10 +168,6 @@ export const VALIDATION_SEPARATION_FREEZE: Record<string, { reason: string }> = 
   "apps/api/src/factory-run-table-routes.ts": { reason: "frozen mixer: parseFactoryRunRollup beside route registration — move the validator to a package" },
   "apps/api/src/scenario-promotion-io.ts": { reason: "frozen mixer: isRecord beside promotion IO constants — move the validator to a package" },
   "apps/api/src/world-compile-routes.ts": { reason: "frozen mixer: parseStationPayloads beside route registration — move the validator to a package" },
-  "apps/ui-admin/src/case-authoring-io.ts": { reason: "frozen mixer: isRecord beside authoring IO helpers — move the validator to a package" },
-  "apps/ui-admin/src/case-authoring-model.ts": { reason: "frozen mixer: validateScenarioDraft/parseScenarioJson beside authoring model options — move validators to a package" },
-  "apps/ui-admin/src/dialogue-seed-authoring-panel.tsx": { reason: "frozen mixer: validateAuthoredDialoguePreviewResponse beside panel constants — move the validator to a package" },
-  "apps/ui-admin/src/faculty-adjudication-workspace.tsx": { reason: "frozen mixer: parseAssembledExamReviewPacket beside workspace paths — move the validator to a package" },
   "apps/ui-xr/src/capture-comparator.ts": { reason: "frozen mixer: isDeterministicCaptureClock/isEdBayVisibleCaptureMode beside capture helpers — move validators to a package" },
   "apps/ui-xr/src/compiled-room-readiness.ts": { reason: "frozen mixer: parseCompiledRoomAuthoredMetadata beside readiness evaluation — move the validator to a package" },
   "apps/ui-xr/src/head-box-from-geometry.ts": { reason: "frozen mixer: isFittedHairMeshName beside geometry derivation — move the validator to a package" },

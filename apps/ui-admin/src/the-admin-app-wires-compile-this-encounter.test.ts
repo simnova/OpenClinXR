@@ -26,6 +26,7 @@ import { describe, expect, it } from "vitest";
  * /internal/world-compile for the featured scenario. Live POST not exercised.
  */
 
+const PKG_SRC = join(dirname(fileURLToPath(import.meta.url)), "../../../packages/openclinxr/ui-route-admin/src");
 const SRC = dirname(fileURLToPath(import.meta.url));
 const APP = readFileSync(join(SRC, "app.tsx"), "utf8");
 
@@ -43,7 +44,7 @@ describe("the admin app wires Compile this encounter", () => {
   });
 
   it("(4) COUNTERWEIGHT: the panel still hides the button when onCompileEncounter is omitted", () => {
-    const panel = readFileSync(join(SRC, "environment-generation-queue-panel.tsx"), "utf8");
+    const panel = readFileSync(join(PKG_SRC, "environment-generation-queue-panel.tsx"), "utf8");
     expect(panel).toContain("{onCompileEncounter ? (");
   });
 });

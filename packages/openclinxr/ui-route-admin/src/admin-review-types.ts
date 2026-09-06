@@ -1,4 +1,3 @@
-import type { ApolloClient } from "@apollo/client";
 import type {
   EncounterDynamicBehaviorCoverageSummary,
   EncounterFactoryDryRunSummary,
@@ -9,61 +8,32 @@ import type {
   ScenarioSceneGenerationPipelineWorkOrderQueue,
 } from "@openclinxr/asset-registry";
 import type { BlueprintScenarioReadiness, ExamBlueprint, ExamStationRunQueue, ExamTimingPlan } from "@openclinxr/exam-assembly";
-import {
-  CreateStationRunQueueSnapshotDocument,
-  type CreateStationRunQueueSnapshotMutation,
-  type CreateStationRunQueueSnapshotMutationVariables,
-  ReviewPacketReplayDocument,
-  type ReviewPacketReplayQuery,
-  type ReviewPacketReplayQueryVariables,
-  SaveFacultyScoreDraftDocument,
-  type SaveFacultyScoreDraftMutation,
-  type SaveFacultyScoreDraftMutationVariables,
-  ScenarioBankDocument,
-  type ScenarioBankQuery,
-  type ScenarioBankQueryVariables,
-  ScenarioDetailDocument,
-  type ScenarioDetailQuery,
-  type ScenarioDetailQueryVariables,
-  ScenarioReviewDecisionsDocument,
-  type ScenarioReviewDecisionsQuery,
-  type ScenarioReviewDecisionsQueryVariables,
-  type ScenarioStatus,
-  StationRunQueueSnapshotsDocument,
-  type StationRunQueueSnapshotsQuery,
-  type StationRunQueueSnapshotsQueryVariables,
-  SubmitScenarioReviewDocument,
-  type SubmitScenarioReviewMutation,
-  type SubmitScenarioReviewMutationVariables,
+import type {
+  CreateStationRunQueueSnapshotMutation,
+  ReviewPacketReplayQuery,
+  SaveFacultyScoreDraftMutation,
+  SaveFacultyScoreDraftMutationVariables,
+  ScenarioBankQuery,
+  ScenarioDetailQuery,
+  ScenarioReviewDecisionsQuery,
+  ScenarioStatus,
+  StationRunQueueSnapshotsQuery,
+  SubmitScenarioReviewMutation,
+  SubmitScenarioReviewMutationVariables,
 } from "@openclinxr/graphql/client";
-import { buildSessionRoutePath, routeById } from "@openclinxr/rest";
-import type { Scenario } from "@openclinxr/shared-schemas";
-import { print } from "graphql";
 import type { AdminAssembledExamReplayProjection } from "@openclinxr/ui-shared/assembled-exam-replay-timeline";
 import type {
   AdminNoReadinessEvidenceClaim,
-  AdminRuntimeProviderPlaneReadiness,
-  AdminRuntimeProviderReadiness,
-  AdminRuntimeProviderReadinessSurface,
-  AdminRuntimeProtocolPosture,
-  AdminRuntimeProtocolSupport,
   AdminRealtimeVoicePosture,
+  AdminRuntimeProtocolPosture,
+  AdminRuntimeProviderReadiness,
 } from "@openclinxr/ui-shared/admin-runtime-posture";
 
-export type {
-  AdminNoReadinessEvidenceClaim,
-  AdminRuntimeProviderPlaneReadiness,
-  AdminRuntimeProviderReadiness,
-  AdminRuntimeProviderReadinessSurface,
-  AdminRuntimeProtocolPosture,
-  AdminRuntimeProtocolSupport,
-  AdminRealtimeVoicePosture,
-} from "@openclinxr/ui-shared/admin-runtime-posture";
-
-export type { AdminAssembledExamReplayProjection };
-export type AdminApolloGraphqlClient = Pick<ApolloClient, "mutate" | "query">;
 export type {
   BlueprintScenarioReadiness,
+  EncounterDynamicBehaviorCoverageSummary,
+  EncounterFactoryDryRunSummary,
+  EncounterFactoryInputPlanningSummary,
   EnvironmentGenerationQueue,
   EnvironmentGenerationWorkOrderQueue,
   ExamBlueprint,
@@ -71,74 +41,118 @@ export type {
   ExamTimingPlan,
   ScenarioAssetReadiness,
   ScenarioSceneGenerationPipelineWorkOrderQueue,
+  ScenarioStatus,
 };
 
-export type AdminControlPlaneClientOptions = {
-  apolloClient?: AdminApolloGraphqlClient;
-  baseUrl?: string;
-  fetch?: typeof fetch;
-  /** Optional static access token attached as `Authorization: Bearer …`. */
-  accessToken?: string;
-  /** Optional dynamic token provider (preferred when both are set). */
-  getAccessToken?: () => string | undefined | Promise<string | undefined>;
+export type { AdminAssembledExamReplayProjection };
+export type {
+  AdminNoReadinessEvidenceClaim,
+  AdminRealtimeVoicePosture,
+  AdminRuntimeProtocolPosture,
+  AdminRuntimeProviderReadiness,
 };
 
-export type AdminControlPlaneClient = {
-  getStep2CsSeedBlueprint(): Promise<ExamBlueprint>;
-  getStep2CsSeedBlueprintReadiness(): Promise<BlueprintScenarioReadiness>;
-  getStep2CsSeedTimingPlan(): Promise<ExamTimingPlan>;
-  getStep2CsSeedStationRunQueue(): Promise<ExamStationRunQueue>;
-  getRuntimeProviderReadiness(): Promise<AdminRuntimeProviderReadiness>;
-  getRuntimeSelectionReviewPacket(): Promise<AdminRuntimeSelectionReviewPacket>;
-  getRuntimeProtocolPosture(): Promise<AdminRuntimeProtocolPosture>;
-  getRealtimeVoicePosture(): Promise<AdminRealtimeVoicePosture>;
-  createLocalReviewReplaySeed(input?: CreateLocalReviewReplaySeedInput): Promise<CreateLocalReviewReplaySeedResult>;
-  listScenarios(input?: ListScenariosInput): Promise<AdminScenario[]>;
-  getScenarioDetail(input: GetScenarioDetailInput): Promise<AdminScenarioDetail>;
-  listScenarioReviewDecisions(input: ListScenarioReviewDecisionsInput): Promise<AdminScenarioReviewDecision[]>;
-  getReviewPacketReplay(input: GetReviewPacketReplayInput): Promise<AdminReviewPacketReplay>;
-  getReviewReplayReadinessSummary(input: GetReviewPacketReplayInput): Promise<AdminReviewReplayReadinessSummary>;
-  getAssembledExamReviewPacket?(input: { examRunId: string }): Promise<import("@openclinxr/review-workflow").AssembledExamReviewPacket>;
-  submitScenarioReview(input: SubmitScenarioReviewInput): Promise<AdminScenarioReviewResult>;
-  saveFacultyScoreDraft(input: SaveFacultyScoreDraftInput): Promise<AdminReviewPacket>;
-  /** REST: persist gated FacultyScoreDraft (review-workflow schema; scoring gates false). */
-  persistFacultyScoreDraft(input: PersistFacultyScoreDraftInput): Promise<AdminFacultyScoreDraftRecord>;
-  /** REST: persist local faculty review decision (promote/hold artifact; gates stay false). */
-  saveFacultyReviewDecision(input: SaveFacultyReviewDecisionInput): Promise<AdminFacultyReviewDecisionRecord>;
-  listStep2CsSeedStationRunQueueSnapshots(): Promise<AdminStationRunQueueSnapshot[]>;
-  createStep2CsSeedStationRunQueueSnapshot(input: CreateStationRunQueueSnapshotInput): Promise<AdminStationRunQueueSnapshot>;
-  getEdChestPainPublicationReadiness(input: GetScenarioPublicationReadinessInput): Promise<AdminScenarioPublicationReadiness>;
-  getScenarioBankMaturity(): Promise<AdminScenarioBankMaturityReport>;
-  getScenarioBankExamSequence(): Promise<AdminScenarioBankExamSequenceProjection>;
-  getDynamicEncounterFactoryPlanning(): Promise<AdminDynamicEncounterFactoryPlanningProjection>;
-  getScenarioBankAssetReadiness(): Promise<ScenarioAssetReadiness[]>;
-  getScenarioBankEnvironmentGenerationQueue(): Promise<EnvironmentGenerationQueue>;
-  getScenarioBankEnvironmentWorkOrderQueue(): Promise<EnvironmentGenerationWorkOrderQueue>;
-  getScenarioBankSceneGenerationPipelineQueue(): Promise<ScenarioSceneGenerationPipelineWorkOrderQueue>;
-  listScenarioSceneGenerationRequests(): Promise<ScenarioSceneGenerationRequestQueue>;
-  createScenarioSceneGenerationRequest(input: CreateScenarioSceneGenerationRequestInput): Promise<CreateScenarioSceneGenerationRequestResult>;
-  submitScenarioSceneGenerationRequestReview(input: SubmitScenarioSceneGenerationRequestReviewInput): Promise<CreateScenarioSceneGenerationRequestResult>;
-  submitScenarioSceneGenerationMaterializationInputReview(input: SubmitScenarioSceneGenerationMaterializationInputReviewInput): Promise<EncounterMaterializationInputReviewDecisionRecord>;
-  submitRuntimeRealismEvidenceInputReview(input: SubmitRuntimeRealismEvidenceInputReviewInput): Promise<RuntimeRealismEvidenceInputReviewDecisionRecord>;
-  submitRuntimeVisualEvidenceAttachment(input: SubmitRuntimeVisualEvidenceAttachmentInput): Promise<RuntimeVisualEvidenceAttachmentRecord>;
-  getScenarioSceneGenerationRequestPublicationReadiness(input: { requestId: string }): Promise<ScenarioSceneGenerationRequestPublicationReadiness>;
-  saveAuthoredScenario(scenario: Scenario): Promise<unknown>;
-  listAuthoredScenarios(): Promise<unknown>;
-  getAuthoredScenario(scenarioId: string): Promise<unknown>;
-  previewFacultyEncounterBundlePromotion(
-    input: import("@openclinxr/ui-route-admin/encounter-bundle-promotion").FacultyEncounterBundlePromotionSelection,
-  ): Promise<{
-    canPromote: boolean;
-    blockers: string[];
-    attestations: string[];
+export type CreateScenarioSceneGenerationRequestResult = {
+  requestId: string;
+  scenarioId: string;
+  createdAt: string;
+  status: "accepted";
+  reviewStatus: "pending_runtime_asset_review" | "runtime_asset_review_attached";
+  nextAction: "attach_runtime_asset_review_decisions" | "run_generated_bundle_publisher";
+  runtimeAssetReviewDecisionCount: number;
+  scenarioReviewGate?: ScenarioReviewGateSummary;
+  humanReviewActions?: HumanReviewActionSummary[];
+  accepted: boolean;
+  productionAssetReadinessClaimed: false;
+  claimBoundary: "scene_generation_request_not_asset_production";
+  factoryPlanningContext?: {
+    scenarioId: string;
+    workOrderId: string;
+    isFeaturedFactoryPlanningTarget: boolean;
+    factoryPlanningClaimBoundary: "review_gated_factory_metadata_only";
+    generationApprovalInferred: false;
+  };
+  workOrder: ScenarioSceneGenerationPipelineWorkOrderQueue["workOrders"][number];
+};
+
+export type GetScenarioPublicationReadinessInput = {
+  targetUse: "local_formative" | "pilot_research" | "summative";
+  reviewerEvidence: Array<{
+    reviewerRole: string;
+    reviewerId: string;
+    decision: "approved" | "changes_requested";
+    comments: string;
+    evidenceRefs: string[];
+    reviewedAt: string;
   }>;
-  promoteFacultyEncounterBundle(
-    input: import("@openclinxr/ui-route-admin/encounter-bundle-promotion").FacultyEncounterBundlePromotionSelection,
-  ): Promise<{
-    promoted: boolean;
-    learnerLaunchIdentity: import("@openclinxr/ui-route-admin/encounter-bundle-promotion").FacultyLearnerLaunchIdentity | null;
-    blockers?: string[];
+};
+
+export type CreateLocalReviewReplaySeedInput = {
+  learnerId?: string;
+};
+
+export type CreateLocalReviewReplaySeedResult = {
+  stationRunId: string;
+};
+
+export type CreateScenarioSceneGenerationRequestInput = {
+  scenarioId: string;
+};
+
+export type ScenarioReviewApprovalBoundary =
+  | "approved_scenario_factory_planning_only"
+  | "draft_no_learner_use_without_human_approval"
+  | "scenario_status_preserved_no_generation_approval_inferred";
+
+export type ScenarioReviewGateSummary = {
+  scenarioStatus: string;
+  approvalBoundary: ScenarioReviewApprovalBoundary;
+  learnerUseBlocked: boolean;
+  blockerIds: string[];
+  claimBoundary: "scenario_status_gate_not_clinical_or_production_readiness";
+};
+
+export type HumanReviewActionSummary = {
+  actionId:
+    | "attach_runtime_asset_review_decisions"
+    | "review_humanoid_realism_metadata"
+    | "review_runtime_bundle_assembly_audit"
+    | "resolve_scenario_approval_boundary";
+  status: "available" | "blocked" | "complete";
+  label: string;
+  blockerIds: string[];
+  evidenceRefs: string[];
+  claimBoundary: "human_review_action_not_automated_approval";
+};
+
+export type SubmitScenarioSceneGenerationRequestReviewInput = {
+  requestId: string;
+  decisions: Array<{
+    assetId: string;
+    reviewerRole: "asset_pipeline" | "clinical_simulation" | "xr_performance" | "security_privacy";
+    reviewerId: string;
+    decision: "approved_for_local_runtime" | "changes_requested";
+    comments: string;
+    evidenceRefs: string[];
+    reviewedAt: string;
   }>;
+};
+
+export type SubmitScenarioSceneGenerationMaterializationInputReviewInput = {
+  requestId: string;
+  decisions: EncounterMaterializationInputReviewDecision[];
+};
+
+export type ScenarioSceneGenerationRequestQueue = {
+  requestCount: number;
+  claimBoundary: "scene_generation_request_queue_not_asset_production";
+  requests: CreateScenarioSceneGenerationRequestResult[];
+};
+
+export type CreateStationRunQueueSnapshotInput = {
+  snapshotId?: string;
+  createdAt?: string;
+  reviewerId?: string;
 };
 
 export type ListScenariosInput = {
@@ -157,32 +171,6 @@ export type ListScenarioReviewDecisionsInput = {
 
 export type GetReviewPacketReplayInput = {
   stationRunId: string;
-};
-
-export type CreateLocalReviewReplaySeedInput = {
-  learnerId?: string;
-};
-
-export type CreateLocalReviewReplaySeedResult = {
-  stationRunId: string;
-};
-
-export type CreateStationRunQueueSnapshotInput = {
-  snapshotId?: string;
-  createdAt?: string;
-  reviewerId?: string;
-};
-
-export type GetScenarioPublicationReadinessInput = {
-  targetUse: "local_formative" | "pilot_research" | "summative";
-  reviewerEvidence: Array<{
-    reviewerRole: string;
-    reviewerId: string;
-    decision: "approved" | "changes_requested";
-    comments: string;
-    evidenceRefs: string[];
-    reviewedAt: string;
-  }>;
 };
 
 export type AdminScenarioPublicationReadiness = {
@@ -243,83 +231,6 @@ export type AdminDynamicEncounterFactoryPlanningProjection = {
     learnerLaunchAllowed: false;
     questEvidenceRefreshAllowed: false;
   };
-};
-
-export type CreateScenarioSceneGenerationRequestInput = {
-  scenarioId: string;
-};
-
-export type CreateScenarioSceneGenerationRequestResult = {
-  requestId: string;
-  scenarioId: string;
-  createdAt: string;
-  status: "accepted";
-  reviewStatus: "pending_runtime_asset_review" | "runtime_asset_review_attached";
-  nextAction: "attach_runtime_asset_review_decisions" | "run_generated_bundle_publisher";
-  runtimeAssetReviewDecisionCount: number;
-  scenarioReviewGate?: ScenarioReviewGateSummary;
-  humanReviewActions?: HumanReviewActionSummary[];
-  accepted: boolean;
-  productionAssetReadinessClaimed: false;
-  claimBoundary: "scene_generation_request_not_asset_production";
-  factoryPlanningContext?: {
-    scenarioId: string;
-    workOrderId: string;
-    isFeaturedFactoryPlanningTarget: boolean;
-    factoryPlanningClaimBoundary: "review_gated_factory_metadata_only";
-    generationApprovalInferred: false;
-  };
-  workOrder: ScenarioSceneGenerationPipelineWorkOrderQueue["workOrders"][number];
-};
-
-export type ScenarioReviewApprovalBoundary =
-  | "approved_scenario_factory_planning_only"
-  | "draft_no_learner_use_without_human_approval"
-  | "scenario_status_preserved_no_generation_approval_inferred";
-
-export type ScenarioReviewGateSummary = {
-  scenarioStatus: string;
-  approvalBoundary: ScenarioReviewApprovalBoundary;
-  learnerUseBlocked: boolean;
-  blockerIds: string[];
-  claimBoundary: "scenario_status_gate_not_clinical_or_production_readiness";
-};
-
-export type HumanReviewActionSummary = {
-  actionId:
-    | "attach_runtime_asset_review_decisions"
-    | "review_humanoid_realism_metadata"
-    | "review_runtime_bundle_assembly_audit"
-    | "resolve_scenario_approval_boundary";
-  status: "available" | "blocked" | "complete";
-  label: string;
-  blockerIds: string[];
-  evidenceRefs: string[];
-  claimBoundary: "human_review_action_not_automated_approval";
-};
-
-export type SubmitScenarioSceneGenerationRequestReviewInput = {
-  requestId: string;
-  decisions: Array<{
-    assetId: string;
-    reviewerRole: "asset_pipeline" | "clinical_simulation" | "xr_performance" | "security_privacy";
-    reviewerId: string;
-    decision: "approved_for_local_runtime" | "changes_requested";
-    comments: string;
-    evidenceRefs: string[];
-    reviewedAt: string;
-  }>;
-};
-
-export type SubmitScenarioSceneGenerationMaterializationInputReviewInput = {
-  requestId: string;
-  decisions: EncounterMaterializationInputReviewDecision[];
-};
-
-export type ScenarioSceneGenerationRequestQueue = {
-  requestCount: number;
-  claimBoundary: "scene_generation_request_queue_not_asset_production";
-  requests: CreateScenarioSceneGenerationRequestResult[];
 };
 
 export type EncounterMaterializationInputManifestSummary = {
@@ -596,21 +507,6 @@ export type RuntimeEvidenceCaptureScaffold = {
   notEvidenceFor: AdminNoReadinessEvidenceClaim[];
 };
 
-type LegacyScenarioSceneGenerationDynamicBehaviorCoverageProjection = {
-  dialogueActorRoles: string[];
-  missingDialogueActorRoles: string[];
-  gazeActorRoles: string[];
-  missingGazeActorRoles: string[];
-  placementActorRoles: string[];
-  missingPlacementActorRoles: string[];
-  affectActorRoles?: string[];
-  missingAffectActorRoles?: string[];
-  affectTimelineCount?: number;
-  affectClaimBoundary?: "metadata_only_not_runtime_facial_animation_evidence";
-  blockerIds: string[];
-  warningIds: string[];
-};
-
 export type ScenarioSceneGenerationRequestPublicationReadiness = {
   requestId: string;
   scenarioId: string;
@@ -711,6 +607,21 @@ export type AdminPedsHumanoidMaterializationHandoff = {
   clinicalValidityClaimed: false;
   scoringValidityClaimed: false;
   claimBoundary: "local_generated_humanoid_candidate_metadata_not_runtime_or_production_readiness";
+};
+
+type LegacyScenarioSceneGenerationDynamicBehaviorCoverageProjection = {
+  dialogueActorRoles: string[];
+  missingDialogueActorRoles: string[];
+  gazeActorRoles: string[];
+  missingGazeActorRoles: string[];
+  placementActorRoles: string[];
+  missingPlacementActorRoles: string[];
+  affectActorRoles?: string[];
+  missingAffectActorRoles?: string[];
+  affectTimelineCount?: number;
+  affectClaimBoundary?: "metadata_only_not_runtime_facial_animation_evidence";
+  blockerIds: string[];
+  warningIds: string[];
 };
 
 export type AdminRuntimeSelectionReviewPacket = {
@@ -1249,8 +1160,21 @@ export type AdminReviewPacketReplay = Omit<ReviewPacketReplayQuery, "reviewRepla
 };
 
 export type SubmitScenarioReviewInput = SubmitScenarioReviewMutationVariables["input"];
+
 export type SaveFacultyScoreDraftInput = SaveFacultyScoreDraftMutationVariables["input"];
-/** Gated FacultyScoreDraft payload (review-workflow); not score-use evidence. */
+
+export type AdminScenario = ScenarioBankQuery["scenarios"][number];
+
+export type AdminScenarioDetail = ScenarioDetailQuery;
+
+export type AdminScenarioReviewDecision = ScenarioReviewDecisionsQuery["scenarioReviewDecisions"][number];
+
+export type AdminScenarioReviewResult = SubmitScenarioReviewMutation["submitScenarioReview"];
+
+export type AdminReviewPacket = SaveFacultyScoreDraftMutation["saveFacultyScoreDraft"];
+
+export type AdminStationRunQueueSnapshot = StationRunQueueSnapshotsQuery["stationRunQueueSnapshots"][number];
+
 export type AdminFacultyScoreDraft = {
   reviewerId: string;
   status: "draft";
@@ -1303,11 +1227,3 @@ export type AdminFacultyReviewDecisionRecord = {
   notEvidenceFor: readonly string[];
   claimScope: string;
 };
-
-export type AdminScenario = ScenarioBankQuery["scenarios"][number];
-export type AdminScenarioDetail = ScenarioDetailQuery;
-export type AdminScenarioReviewDecision = ScenarioReviewDecisionsQuery["scenarioReviewDecisions"][number];
-export type AdminScenarioReviewResult = SubmitScenarioReviewMutation["submitScenarioReview"];
-export type AdminReviewPacket = SaveFacultyScoreDraftMutation["saveFacultyScoreDraft"];
-export type AdminStationRunQueueSnapshot = StationRunQueueSnapshotsQuery["stationRunQueueSnapshots"][number];
-export type { AuthoredDialogueSeedDraft, DialogueSeedPublicationGate, FrozenActorTurnPlanPreview } from "@openclinxr/ui-route-admin";

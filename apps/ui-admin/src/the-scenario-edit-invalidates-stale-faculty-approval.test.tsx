@@ -7,7 +7,7 @@ import {
   facultyCompileLockIdentityMoved,
   mergeFacultyCompileLockRows,
   type FacultyCompileLockRow,
-} from "./faculty-compile-lock.js";
+} from "@openclinxr/ui-route-admin/faculty-compile-lock";
 import {
   AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX,
   authoredScenarioContentIdentity,
@@ -16,7 +16,7 @@ import {
   SCENARIO_REVIEW_STALE_DECISION_DISPLAY,
   ScenarioReviewGatePanel,
   scenarioReviewGatesAllowLearnerUse,
-} from "./scenario-review-gate-panel.js";
+} from "@openclinxr/ui-route-admin/scenario-review-gate-panel";
 
 beforeAll(() => {
   vi.stubGlobal("matchMedia", (query: string) => ({

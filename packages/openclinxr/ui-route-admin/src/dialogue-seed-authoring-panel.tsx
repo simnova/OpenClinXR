@@ -1,6 +1,18 @@
 import { Alert, Button, Card, Input, InputNumber, Select, Space, Tag, Typography } from "antd";
 import { type ReactElement, useEffect, useMemo, useState } from "react";
-import type { AdminControlPlaneClientOptions } from "./api-client-types.js";
+
+export type DialogueFetchLike = (
+  url: string,
+  init?: { method?: string; headers?: Record<string, string>; body?: string },
+) => Promise<{ json: () => Promise<unknown> }>;
+
+/** Transport options for the dialogue catalog preview POST (base URL, fetch, auth). */
+export type DialogueCatalogPreviewOptions = {
+  baseUrl?: string;
+  fetch?: DialogueFetchLike;
+  accessToken?: string;
+  getAccessToken?: () => string | undefined | Promise<string | undefined>;
+};
 
 export const AUTHORED_LOCAL_FIXTURE_PROVIDER_ID = "authored-local-fixture" as const;
 export const ACTOR_TURN_PLAN_CLAIM_SCOPE = "simulated_actor_behavior" as const;
@@ -138,12 +150,12 @@ export type DialogueSeedCatalogPreviewFn = (
 
 export async function previewAuthoredDialogueCatalog(
   input: DialogueSeedAuthoringPreviewRequest,
-  options: Pick<AdminControlPlaneClientOptions, "baseUrl" | "fetch" | "accessToken" | "getAccessToken"> = {},
+  options: DialogueCatalogPreviewOptions = {},
 ): Promise<DialogueSeedAuthoringPreviewResult> {
-  const baseUrl = (options.baseUrl ?? import.meta.env["VITE_OPENCLINXR_API_BASE_URL"] ?? "").replace(/\/$/, "");
-  const fetcher = options.fetch ?? fetch;
+  const baseUrl = (options.baseUrl ?? "").replace(/\/$/, "");
+  const fetcher = (options.fetch ?? fetch) as DialogueFetchLike;
   const token = options.getAccessToken ? await options.getAccessToken() : options.accessToken;
-  const authHeaders =
+  const authHeaders: Record<string, string> =
     typeof token === "string" && token.trim().length > 0
       ? { authorization: `Bearer ${token.trim()}` }
       : {};

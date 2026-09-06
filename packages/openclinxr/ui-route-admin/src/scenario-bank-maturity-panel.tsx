@@ -1,6 +1,6 @@
 import { Tag, Typography } from "antd";
 import type { ReactElement } from "react";
-import type { AdminScenario, AdminScenarioBankExamSequenceProjection, AdminScenarioBankMaturityReport } from "./api-client.js";
+import type { AdminScenario, AdminScenarioBankExamSequenceProjection, AdminScenarioBankMaturityReport } from "./admin-review-types.js";
 
 export type ScenarioBankMaturityPanelProps = {
   scenarios: AdminScenario[];

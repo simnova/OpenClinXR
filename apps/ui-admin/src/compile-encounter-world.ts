@@ -50,10 +50,10 @@ export async function compileEncounterWorld(
 }
 
 import {
-  FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PATH,
-  FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PREVIEW_PATH,
+  FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PATH as PROMOTION_PATH,
+  FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PREVIEW_PATH as PROMOTION_PREVIEW_PATH,
   type FacultyEncounterBundlePromotionSelection,
-} from "./encounter-bundle-promotion/faculty-encounter-bundle-promotion.js";
+} from "@openclinxr/ui-route-admin/encounter-bundle-promotion";
 
 async function post<TResponse = unknown>(
   fetcher: typeof fetch,
@@ -106,7 +106,7 @@ export function encounterBundlePromotionMethods(context: {
       post(
         fetcher,
         baseUrl,
-        FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PREVIEW_PATH,
+        PROMOTION_PREVIEW_PATH,
         facultyPromotionBody(input),
         await authHeaders(),
       ),
@@ -114,7 +114,7 @@ export function encounterBundlePromotionMethods(context: {
       post(
         fetcher,
         baseUrl,
-        FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PATH,
+        PROMOTION_PATH,
         facultyPromotionBody(input),
         await authHeaders(),
       ),

@@ -423,9 +423,6 @@ importers:
       '@openclinxr/review-workflow':
         specifier: workspace:*
         version: link:../../packages/openclinxr/review-workflow
-      '@openclinxr/scenario-fixtures':
-        specifier: workspace:*
-        version: link:../../packages/openclinxr/scenario-fixtures
       '@openclinxr/shared-schemas':
         specifier: workspace:*
         version: link:../../packages/openclinxr/shared-schemas
@@ -1306,9 +1303,21 @@ importers:
 
   packages/openclinxr/ui-route-admin:
     dependencies:
+      '@openclinxr/asset-registry':
+        specifier: workspace:*
+        version: link:../asset-registry
       '@openclinxr/domain':
         specifier: workspace:*
         version: link:../domain
+      '@openclinxr/exam-assembly':
+        specifier: workspace:*
+        version: link:../exam-assembly
+      '@openclinxr/graphql':
+        specifier: workspace:*
+        version: link:../graphql
+      '@openclinxr/review-workflow':
+        specifier: workspace:*
+        version: link:../review-workflow
       '@openclinxr/scenario-fixtures':
         specifier: workspace:*
         version: link:../scenario-fixtures
@@ -1318,6 +1327,18 @@ importers:
       '@openclinxr/ui-route-shared':
         specifier: workspace:*
         version: link:../ui-route-shared
+      '@openclinxr/ui-shared':
+        specifier: workspace:*
+        version: link:../ui-shared
+      antd:
+        specifier: 'catalog:'
+        version: 6.3.7(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      react:
+        specifier: 19.2.8
+        version: 19.2.8
+      react-dom:
+        specifier: 19.2.8
+        version: 19.2.8(react@19.2.8)
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -1325,6 +1346,24 @@ importers:
       '@cellix/config-vitest':
         specifier: workspace:*
         version: link:../../cellix/config-vitest
+      '@testing-library/dom':
+        specifier: 10.4.1
+        version: 10.4.1
+      '@testing-library/jest-dom':
+        specifier: 6.9.1
+        version: 6.9.1
+      '@testing-library/react':
+        specifier: 16.3.2
+        version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@types/react':
+        specifier: 19.2.14
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: 19.2.3
+        version: 19.2.3(@types/react@19.2.14)
+      jsdom:
+        specifier: 29.1.1
+        version: 29.1.1
       typescript:
         specifier: 'catalog:'
         version: 6.0.3

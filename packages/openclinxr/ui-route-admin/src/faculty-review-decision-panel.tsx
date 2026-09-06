@@ -7,7 +7,7 @@ import type {
   AdminFacultyReviewDecisionRecord,
   AdminReviewPacketReplay,
   SaveFacultyReviewDecisionInput,
-} from "./api-client.js";
+} from "./admin-review-types.js";
 
 type ReviewPacket = NonNullable<AdminReviewPacketReplay["reviewPacket"]>;
 type ClinicalEventReviewSummary = AdminReviewPacketReplay["clinicalEventReviewSummary"] | null | undefined;

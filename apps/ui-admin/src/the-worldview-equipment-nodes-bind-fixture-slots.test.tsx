@@ -4,7 +4,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import { SeedWorldviewQueue } from "./seed-worldview-queue.js";
+import { SeedWorldviewQueue } from "@openclinxr/ui-route-admin/seed-worldview-queue";
 import { installWorldviewQueueTestDom } from "./worldview-queue-test-dom.js";
 
 installWorldviewQueueTestDom();
@@ -25,6 +25,7 @@ installWorldviewQueueTestDom();
  * ## FIXED (skeptic: SeedWorldviewQueue persists fixtureSlot onto lock+graph)
  */
 
+const PKG_SRC = join(dirname(fileURLToPath(import.meta.url)), "../../../packages/openclinxr/ui-route-admin/src");
 const SRC = dirname(fileURLToPath(import.meta.url));
 
 describe("the worldview equipment nodes bind fixture slots", () => {
@@ -51,7 +52,7 @@ describe("the worldview equipment nodes bind fixture slots", () => {
   });
 
   it("(2) COUNTERWEIGHT: EquipmentPanel still authors scenario.equipment strings", () => {
-    const equip = readFileSync(join(SRC, "equipment-panel.tsx"), "utf8");
+    const equip = readFileSync(join(PKG_SRC, "equipment-panel.tsx"), "utf8");
     expect(equip).toMatch(/name="equipment"/);
   });
 });

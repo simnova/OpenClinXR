@@ -1,6 +1,6 @@
 import { Button, Tag, Typography } from "antd";
 import type { ReactElement } from "react";
-import type { AdminRuntimeSelectionReviewPacket, RuntimeVisualEvidenceAttachment, SubmitRuntimeVisualEvidenceAttachmentInput } from "./api-client.js";
+import type { AdminRuntimeSelectionReviewPacket, RuntimeVisualEvidenceAttachment, SubmitRuntimeVisualEvidenceAttachmentInput } from "./admin-review-types.js";
 
 export type RuntimeSelectionReviewPacketPanelProps = {
   packet: AdminRuntimeSelectionReviewPacket;

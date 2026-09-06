@@ -12,7 +12,7 @@ import type {
   AdminScenarioReviewDecision,
   AdminScenarioReviewResult,
   SubmitScenarioReviewInput,
-} from "./api-client.js";
+} from "./admin-review-types.js";
 import {
   SCENARIO_REVIEW_RECORDABLE_DIMENSIONS,
   SCENARIO_REVIEW_RATIONALE_IS_CALLER_SUPPLIED,

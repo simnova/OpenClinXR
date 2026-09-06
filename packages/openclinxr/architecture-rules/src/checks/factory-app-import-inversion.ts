@@ -62,7 +62,11 @@ export type FactoryAppImportInversionConfig = {
 const SKIP =
   /node_modules|[/\\](dist|generated|public|scratch)[/\\]|\.test\.|\.spec\.|\.gen\.|\.d\.ts$|codegen|tsbuildinfo/;
 
-const APP_UI_SCOPED_PATTERN = /^@openclinxr\/ui-(?:admin|xr|shared)(?:\/|$)/;
+// The APP package names only. @openclinxr/ui-shared is a PACKAGE, not an app, and a
+// package importing another package is the arrangement this rule exists to produce.
+// Including it here reported ten false inversions the moment the admin panels moved
+// into @openclinxr/ui-route-admin.
+const APP_UI_SCOPED_PATTERN = /^@openclinxr\/ui-(?:admin|xr)(?:\/|$)/;
 
 function findWorkspaceRoot(): string {
   let dir = dirname(fileURLToPath(import.meta.url));

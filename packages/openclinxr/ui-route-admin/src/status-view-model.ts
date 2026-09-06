@@ -1,4 +1,4 @@
-import type { CreateScenarioSceneGenerationRequestResult } from "./api-client.js";
+import type { CreateScenarioSceneGenerationRequestResult } from "./admin-review-types.js";
 
 const sceneGenerationRequestReviewStatusColors: Record<CreateScenarioSceneGenerationRequestResult["reviewStatus"], string> = {
   pending_runtime_asset_review: "gold",
